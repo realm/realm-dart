@@ -1,0 +1,31 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "name": "Debug realm_dart_extension",
+      "type": "default",
+      "program": "dart.exe",
+      "exe": "C:\\Users\\lubo\\Downloads\\dartsdk-windows-x64-release\\dart-sdk\\bin\\dart.exe",
+      "cwd": "C:\\lubo\\mongodb\\src\\realm-js-dart-v6\\realm-dart-v6\\lib",
+      "currentDir": "C:\\lubo\\mongodb\\src\\realm-js-dart-v6\\realm-dart-v6\\lib",
+      "args": [
+        "--observe",
+        "--pause_isolates_on_start=true",
+        "--pause-isolates-on-start",
+        "--enable-vm-service:5858/127.0.0.1",
+        "--disable-service-auth-codes",
+        "main.dart"
+      ],
+      "project": "CMakeLists.txt",
+      "projectTarget": "realm_dart_extension.dll (src\\realm-dart-extension\\Debug\\realm_dart_extension.dll)"
+    },
+    {
+      "type": "dll",
+      "exe": "",
+      "project": "CMakeLists.txt",
+      "projectTarget": "realm_dart_extension.dll (src\\realm-dart-extension\\Debug\\realm_dart_extension.dll)",
+      "name": "realm_dart_extension.dll (src\\realm-dart-extension\\Debug\\realm_dart_extension.dll)"
+    }
+  ]
+}

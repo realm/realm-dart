@@ -1,0 +1,11 @@
+name: realm
+version: 1.0.0
+publish_to: none
+dependencies: 
+    meta: ^1.1.8
+    realm_generator:
+        path: ./generator
+
+dev_dependencies:
+    test: ^1.14.3
+    build_runner: ^1.10.0

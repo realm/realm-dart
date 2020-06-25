@@ -1,0 +1,49 @@
+group 'io.realm.realm_flutter'
+version '1.0'
+
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.5.0'
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        minSdkVersion 16
+		ndk {
+            abiFilters 'armeabi-v7a', 'x86'
+        }
+    }
+	
+	sourceSets {
+        main {
+            //jniLibs.srcDirs += ["src/main/cpp/lib/"]
+        }
+    }
+	
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+	
+	externalNativeBuild {
+        ndkBuild {
+            path 'src/main/cpp/Android.mk'
+        }
+    }
+}

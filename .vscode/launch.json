@@ -1,0 +1,30 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Dart: Attach to Process",
+            "type": "dart",
+            "request": "attach",
+            "observatoryUri": "http://127.0.0.1:5858",
+            "packages": "package:realm/main.dart"
+        },
+        {
+            "name": "Dart: Debug",
+            "type": "dart",
+            "request": "launch",
+            "program": "main.dart",
+            "cwd": "lib"
+        },
+        {
+            "name": "Dart: Debug Test",
+            "type": "dart",
+            "request": "launch",
+            "program": "../test/realm_test.dart",
+            "cwd": "lib",
+            "args": ["--testname", ""]
+        }
+    ]
+}
