@@ -7,8 +7,8 @@
       "type": "default",
       "program": "dart.exe",
       "exe": "C:\\Users\\lubo\\Downloads\\dartsdk-windows-x64-release\\dart-sdk\\bin\\dart.exe",
-      "cwd": "C:\\lubo\\mongodb\\src\\realm-js-dart-v6\\realm-dart-v6\\lib",
-      "currentDir": "C:\\lubo\\mongodb\\src\\realm-js-dart-v6\\realm-dart-v6\\lib",
+      "cwd": "${workspaceRoot}/lib",
+      "currentDir": "${workspaceRoot}/lib",
       "args": [
         "--observe",
         "--pause_isolates_on_start=true",
