@@ -18,6 +18,10 @@
 
 #pragma once
 
+#ifdef FLUTTER
+#include "realm_flutter.h"
+#endif
+
 #include "dart_api.h"
 #include "dart_native_api.h"
 

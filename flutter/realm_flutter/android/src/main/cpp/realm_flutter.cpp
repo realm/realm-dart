@@ -6,6 +6,10 @@
 
 #include "dart_io_extensions.h"
 #include "dart_init.hpp"
+#include "dart_api_dl.h"
+
+#include "realm_flutter.h"
+
 #include <android/log.h>
 bool initialized = false;
 std::string filesDir;
@@ -118,9 +122,9 @@ void init() {
 extern "C" JNIEXPORT jstring JNICALL Java_com_blagoev_FlutterNativeExtension_MainActivity_stringFromJNI(JNIEnv* env, jobject /* this */) {
 
     void* p = (void*)Dart_CurrentIsolate();
-    //Dart_ExtensionInitCallback initCallback = init;
-    bool result = Dart_SetInitCallback(init);
 
+    //bool result = Dart_SetInitCallback(init);
+    bool result = p != nullptr;
     std::string hello = "Hello from C++. Dart_CurrentIsolate returns: " + std::to_string((long long)p);
     if (!result) {
         hello += " Dart_SetInitCallback SUCCESS";
@@ -140,6 +144,6 @@ extern "C" JNIEXPORT void JNICALL Java_io_realm_realm_1flutter_RealmFlutter_nati
     __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "filesDir: %s", filesDir.c_str());
 
     __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "calling Dart_SetInitCallback");
-    bool result = Dart_SetInitCallback(init);
+    //bool result = Dart_SetInitCallback(init);
     __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "Dart_SetInitCallback success");
 }

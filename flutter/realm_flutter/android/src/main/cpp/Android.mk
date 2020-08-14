@@ -28,6 +28,7 @@ REALM_DART_EXTENSION_PATH := $(REALM_DART_EXTENSION_SRC_PATH)/realm-dart-extensi
 OBJECT_STORE_PATH := $(REALM_DART_EXTENSION_SRC_PATH)/object-store
 
 LOCAL_SRC_FILES := realm_flutter.cpp
+LOCAL_SRC_FILES += dart_api_dl.cc
 LOCAL_SRC_FILES += $(REALM_DART_EXTENSION_PATH)/dart/dart_init.cpp
 LOCAL_SRC_FILES += $(REALM_DART_EXTENSION_PATH)/dart/dart_types.cpp
 LOCAL_SRC_FILES += $(REALM_DART_EXTENSION_PATH)/realm-js-common/js_realm.cpp
@@ -72,6 +73,9 @@ LOCAL_C_INCLUDES += $(OBJECT_STORE_PATH_FULL_PATH)/external/json
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/lib/include
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/lib/include/openssl
 LOCAL_C_INCLUDES += dart_io_extensions.h
+LOCAL_C_INCLUDES += dart_api_dl.h
+LOCAL_C_INCLUDES += dart_version.h
+LOCAL_C_INCLUDES += dart_api_dl_impl.h
 LOCAL_C_INCLUDES += $(REALM_DART_EXTENSION_FULL_PATH)/dart
 LOCAL_C_INCLUDES += C:/lubo/src/dart-lang/sdk/runtime/include
 

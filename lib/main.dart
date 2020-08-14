@@ -1,8 +1,7 @@
-// Copyright (c) 2012, the Dart project authors.  Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
-
 import 'dart:io';
+
+import 'dart:ffi';
+import 'dart:io' show Platform;
 
 import 'realm.dart';
 
@@ -40,7 +39,31 @@ class _Person {
   String name; 
 }
 
+
+
+String _platformPath(String name, {String path}) {
+  if (path == null) path = "";
+  if (Platform.isLinux || Platform.isAndroid)
+    return path + "lib" + name + ".so";
+  if (Platform.isMacOS) return path + "lib" + name + ".dylib";
+  if (Platform.isWindows) return path + name + ".dll";
+  throw Exception("Platform not implemented");
+}
+
+DynamicLibrary dlopenPlatformSpecific(String name, {String path}) {
+  String fullPath = _platformPath(name, path: path);
+  return DynamicLibrary.open(fullPath);
+}
+
 void main() {
+  final testLibrary = dlopenPlatformSpecific("realm_flutter");
+
+  final initializeApi = testLibrary.lookupFunction<
+      IntPtr Function(Pointer<Void>),
+      int Function(Pointer<Void>)>("Dart_InitializeApiDL");
+  print(initializeApi(NativeApi.initializeApiDLData) == 0);
+
+
   //reflectClass(key)
   //var libs = currentMirrorSystem().libraries;
   // var car = Expando<Object>();

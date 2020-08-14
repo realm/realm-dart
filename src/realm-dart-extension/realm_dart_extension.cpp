@@ -13,6 +13,10 @@
 
 #include "dart_init.hpp"
 
+#ifdef FLUTTER
+#include "realm_flutter.h"
+#endif
+
 Dart_NativeFunction ResolveName(Dart_Handle name, int argc,	bool* auto_setup_scope);
 static Dart_PersistentHandle library;
 

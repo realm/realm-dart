@@ -18,6 +18,9 @@
 
 #include "dart_init.hpp"
 
+#ifdef FLUTTER
+#include "realm_flutter.h"
+#endif
 
 #include "dart_string.hpp"
 #include "dart_protected.hpp"
