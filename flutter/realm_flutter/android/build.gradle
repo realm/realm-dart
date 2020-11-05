@@ -21,8 +21,84 @@ rootProject.allprojects {
 
 apply plugin: 'com.android.library'
 
+apply plugin: RealmPlugin
+
+class RealmPlugin implements Plugin<Project> {
+    @Override
+    void apply(Project project) {
+        //project.dependencies.add(configuration, dependency, config)
+//        project.dependencies.each { dep ->
+//            //println "Blagoev: project dep: ${dep.dump()}"
+//        }
+
+//        resolutionStrategy.eachDependency {
+//            DependencyResolveDetails details -> resolveDependencyVersion(project, details)
+//        }
+
+        println "Root Project: ${project.getRootProject().name}"
+        project.getRootProject().allprojects.each { prj ->
+            println "project: ${prj.name}"
+//            if (prj.name.equalsIgnoreCase("app")) {
+                println "Project:" + prj.name
+                //println "  Project properties:" + prj.properties.each { p -> println "Property ${p.key} ${p.value}"}
+                prj.configurations.each { conf ->
+                    println "  Configuration: ${conf.name}"
+                    conf.allDependencies.each { dep ->
+                        println "    Dependency:      ${dep.group}:${dep.name}:${dep.version}"
+                        if (dep.group && dep.group.equalsIgnoreCase("io.flutter") &&
+                            dep.name && dep.name in ["armeabi_v7a_debug", "x86_debug", "x86_64_debug", "arm64_v8a_debug", "armeabi_v7a_release", "x86_release", "x86_64_release", "arm64_v8a_release"]) {
+                            println "    Removing libflutter dependency: ${dep.group}:${dep.name}:${dep.version}"
+                            conf.dependencies.remove(dep)
+                        }
+                    }
+                }
+//            }
+        }
+
+//        project.afterEvaluate {
+//            println "  Project:" + project.name
+//            project.configurations.each { conf ->
+//                println "    Configuration: ${conf.name}"
+//                conf.allDependencies.each { dep ->
+//                    println "dep:      ${dep.group}:${dep.name}:${dep.version}"
+//                }
+//                conf.allArtifacts.each {art ->
+//                    println "art:      ${art.name}:${art.file}:${art.type}"
+//                }
+//
+//                conf.allDependencyConstraints.each { dpe ->
+//                    println "dpe:      ${dpe.name}:${dpe.group}:${dpe.attributes}"
+//                }
+//            }
+//        }
+
+
+//        allprojects.
+
+//        project.configurations.each { configuration ->
+//            println "Blagoev: configuration.name: " + configuration.name
+//            println "Blagoev: configuration dump: " + configuration.dump()
+//            configuration.dependencies.each { dep ->
+//                println "Blagoev: dep.name" + dep.name + " dep.group:" + dep.group + " dep.reason:" + dep.reason
+//            }
+//
+////            configuration.properties.each { property ->
+////                println "prop.key:" + property.key + " prop.value:" + property.value;
+////            }
+//
+//        }
+    }
+}
+
 android {
     compileSdkVersion 28
+    packagingOptions {
+//        pickFirst 'lib/armeabi-v7a/libassmidi.so'
+//        pickFirst 'lib/x86/libassmidi.so'
+        pickFirst 'lib/armeabi-v7a/libflutter.so'
+        pickFirst 'lib/x86/libflutter.so'
+    }
+
 
     defaultConfig {
         minSdkVersion 16
