@@ -15,6 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////
+#pragma clang diagnostic ignored "-Wdocumentation"
 
 #include <cmath>
 #include <functional>
