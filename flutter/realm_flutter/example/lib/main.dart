@@ -25,6 +25,11 @@ String _platformPath(String name, {String path}) {
 }
 
 DynamicLibrary dlopenPlatformSpecific(String name, {String path}) {
+  if (Platform.isIOS) {
+    final DynamicLibrary nativelib = DynamicLibrary.process();
+    return nativelib;
+  }
+
   String fullPath = _platformPath(name, path: path);
   return DynamicLibrary.open(fullPath);
 }
