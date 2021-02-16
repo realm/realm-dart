@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:flutter/services.dart';
 // import 'package:realm_flutter/realm_flutter.dart';
 import 'package:realm_flutter/realm.dart';
 
 import 'dart:ffi';
+import 'dart:ffi' as ffi;
 import 'dart:io';
 
 part 'main.g.dart';
@@ -37,7 +39,33 @@ void main() {
     IntPtr Function(Pointer<Void>),
     int Function(Pointer<Void>)>("Dart_InitializeApiDL");
 
+  final initRealm = testLibrary.lookupFunction<
+    Void Function(Handle),
+    void Function(Object)>("InitRealm");
+
+
+  final enableType = testLibrary.lookupFunction<
+    Void Function(Handle),
+    void Function(Object)>("EnableType");
+  
+  // print("Getting package");
+  // var uri = Isolate.packageConfig;
+  // // var uri = Isolate.packageConfig.(Uri.parse("package:realm_flutter/realm.dart"));
+  // print(uri);
+  // print("Getting package done");
+
   print(initializeApi(NativeApi.initializeApiDLData) == 0);
+
+  print("Calling enableType");
+  enableType(DateTime);
+  enableType(DynamicObject);
+  enableType(Helpers);
+  enableType(TypeStaticProperties);
+
+  print("Calling InitRealm");
+  initRealm(Realm);
+
+
   print("Running the app");
   runApp(MyApp());
 }

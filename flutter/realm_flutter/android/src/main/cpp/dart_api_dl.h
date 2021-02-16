@@ -24,6 +24,9 @@
 
 __attribute__ ((visibility ("default"))) extern "C" intptr_t Dart_InitializeApiDL(void* data);
 
+__attribute__ ((visibility ("default"))) extern "C" void EnableType(Dart_Handle type);
+__attribute__ ((visibility ("default"))) extern "C" void InitRealm(Dart_Handle realmClass);
+
 // IMPORTANT! Never update these signatures without properly updating
 // DART_API_DL_MAJOR_VERSION and DART_API_DL_MINOR_VERSION.
 //

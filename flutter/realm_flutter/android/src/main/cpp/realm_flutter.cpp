@@ -35,7 +35,7 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc, bool* auto_setup_sco
     //return NULL;
 }
 
-void init() {
+void init(Dart_Handle realmClass) {
     if (initialized) {
         __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "init called again. exitting");
         return;
@@ -50,6 +50,20 @@ void init() {
     else {
         __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "Isoleate is null");
     };
+
+//    //print loaded libs
+//    auto libs = Dart_GetLoadedLibraries();
+//    intptr_t len;
+//    Dart_ListLength(libs, &len);
+//    for (size_t i = 0; i < len; i++)
+//    {
+//        auto lib = Dart_ListGetAt(libs, i);
+//        auto name = Dart_LibraryResolvedUrl(lib);
+//        const char* nameStr;
+//        Dart_StringToCString(name, &nameStr);
+//        //printf("%s \n", nameStr);
+//        __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "Dart_LookupLibrary num:%d  name: %s", i, nameStr);
+//    }
 
 
     //__android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "calling Dart_NewStringFromCString");
@@ -69,9 +83,54 @@ void init() {
     auto realmLib = Dart_LookupLibrary(realmLibStr);
     if (Dart_IsError(realmLib)) {
         __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "Dart_LookupLibrary extension returned error");
-    } else {
-        __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "Dart_LookupLibrary extension returned success. realm.dart library found");
 
+        __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "Using realmClass argument");
+        realmLib = Dart_ClassLibrary(realmClass);
+        if (realmLib == nullptr || !Dart_IsLibrary(realmLib)) {
+            __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "Error: Dart_ClassLibrary returned a non library");
+        }
+    }
+
+    if (realmLib != nullptr && Dart_IsLibrary(realmLib)) {
+        __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "Dart_LookupLibrary extension returned success. realm.dart library found");
+        //---------------
+        Dart_Handle url = Dart_LibraryUrl(realmLib);
+        const char* resolvedUrl;
+        Dart_StringToCString(url, &resolvedUrl);
+        __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "Realm Library resolved url %s", resolvedUrl);
+
+        Dart_Handle coreLib = Dart_LookupLibrary(Dart_NewStringFromCString("dart:core"));
+        Dart_Handle result = Dart_GetType(coreLib, Dart_NewStringFromCString("DateTime"), 0, nullptr);
+        if (Dart_IsError(result)) {
+            __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "DateTime GetType failed");
+            result = Dart_GetNullableType(coreLib, Dart_NewStringFromCString("DateTime"), 0, nullptr);
+            if (Dart_IsError(result)) {
+                __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "DateTime Dart_GetNullableType failed");
+                result = Dart_GetNonNullableType(coreLib, Dart_NewStringFromCString("DateTime"), 0, nullptr);
+                if (Dart_IsError(result)) {
+                    __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "DateTime Dart_GetNonNullableType failed");
+                    result = Dart_GetClass(coreLib, Dart_NewStringFromCString("DateTime"));
+                    if (Dart_IsError(result)) {
+                        __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "DateTime Dart_GetClass failed");
+                    }
+                    else {
+                        __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "DateTime Dart_GetClass SUCCESS");
+                    }
+                }
+                else {
+                    __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "DateTime Dart_GetNonNullableType SUCCESS");
+                }
+            }
+            else {
+                __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "DateTime Dart_GetNullableType SUCCESS");
+            }
+        }
+        else {
+            __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "DateTime Dart_GetType SUCCESS");
+        }
+
+
+        //---------------
 
         __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "calling realm::dartvm::dart_init");
         realm::dartvm::dart_init(Dart_CurrentIsolate(), realmLib, filesDir);
@@ -143,7 +202,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_realm_realm_1flutter_RealmFlutter_nati
     env->ReleaseStringUTFChars(fileDir, strFileDir);
     __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "filesDir: %s", filesDir.c_str());
 
-    __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "calling Dart_SetInitCallback");
+    //__android_log_print(/NDROID_LOG_DEBUG, "RealmFlutter", "calling Dart_SetInitCallback");
     //bool result = Dart_SetInitCallback(init);
-    __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "Dart_SetInitCallback success");
+    //__android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "Dart_SetInitCallback success");
 }

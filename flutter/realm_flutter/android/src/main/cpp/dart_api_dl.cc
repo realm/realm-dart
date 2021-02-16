@@ -12,7 +12,7 @@
 
 #include <android/log.h>
 
-void init();
+void init(Dart_Handle realmClass);
 
 #define DART_API_DL_DEFINITIONS(name)                                          \
   using name##_Type = decltype(&name);                                          \
@@ -31,6 +31,31 @@ DartApiEntry_function FindFunctionPointer(const DartApiEntry* entries,
   return nullptr;
 }
 
+//dummy function which enables looking for a type from native code when the AOT dart compiler is used.
+//If types are not passed from dart to native code using this functiont then Dart_GetType will fail to find the type
+void EnableType(Dart_Handle type) {
+    bool isType = Dart_IsType_DL(type);
+    if (!isType) {
+        __android_log_print(ANDROID_LOG_ERROR, "RealmFlutter", "EnableType failed");
+    }
+}
+
+
+void InitRealm(Dart_Handle realmClass) {
+    __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "Dart_InitializeApiDL checking RealmClass is a class");
+    //DART_EXPORT Dart_Handle Dart_ClassLibrary(Dart_Handle cls_type);
+    bool isType = false;
+    isType = Dart_IsType_DL(realmClass);
+    if (isType) {
+        __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "realmClass argument is a class");
+    }
+
+    __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "Dart_InitializeApiDL calling init()");
+    init(realmClass);
+    __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "Dart_InitializeApiDL done");
+}
+
+
 intptr_t Dart_InitializeApiDL(void* data) {
   __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "Dart_InitializeApiDL called");
   DartApi* dart_api_data = reinterpret_cast<DartApi*>(data);
@@ -39,6 +64,7 @@ intptr_t Dart_InitializeApiDL(void* data) {
     // If the DartVM we're running on does not have the same version as this
     // file was compiled against, refuse to initialize. The symbols are not
     // compatible.
+    __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "Dart_InitializeApiDL: ERROR: incompatible versions");
     return -1;
   }
   // Minor versions are allowed to be different.
@@ -60,9 +86,5 @@ intptr_t Dart_InitializeApiDL(void* data) {
   DART_API_ALL_DL_SYMBOLS(DART_API_DL_INIT)
 #undef DART_API_DL_INIT
 
-  __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "Dart_InitializeApiDL calling init()");
-  init();
-
-  __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "Dart_InitializeApiDL done");
   return 0;
 }
