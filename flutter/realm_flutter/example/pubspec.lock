@@ -346,14 +346,14 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.0.1-preview"
+    version: "0.1.0-preview"
   realm_generator:
     dependency: transitive
     description:
       path: "../../../generator"
       relative: true
     source: path
-    version: "0.0.1-preview"
+    version: "0.1.0-preview"
   shelf:
     dependency: transitive
     description:

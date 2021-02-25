@@ -65,7 +65,7 @@ void init() {
 //    }
 
 
-    Dart_Handle realmLibStr = Dart_NewStringFromCString("package:realm_flutter/realm.dart");
+    Dart_Handle realmLibStr = Dart_NewStringFromCString("package:realm/realm.dart");
     auto realmLib = Dart_LookupLibrary(realmLibStr);
     if (Dart_IsError(realmLib)) {
         __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "Dart_LookupLibrary extension returned error");
