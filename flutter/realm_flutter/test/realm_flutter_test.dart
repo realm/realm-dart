@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:realm_flutter/realm_flutter.dart';
+import 'package:realm/realm_flutter.dart';
 
 void main() {
   const MethodChannel channel = MethodChannel('realm_flutter');

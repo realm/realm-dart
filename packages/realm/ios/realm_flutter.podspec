@@ -1,0 +1,1 @@
+../../../flutter/realm_flutter/ios/realm_flutter.podspec

@@ -1,6 +1,8 @@
-# realm_flutter
+# The official Realm SDK for Flutter
+Realm is a mobile database - an alternative to SQLite and key-value stores.
 
-A new flutter plugin project.
+## Build the native binary 
+/android> gradlew externalNativeBuildDebug
 
 ## Getting Started
 

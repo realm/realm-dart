@@ -1,7 +1,7 @@
 # Description
-Generates RealmObject files based on schema classes using naming convention
+Generates RealmObject classes based on schema definitions using naming convention
 
-Every dart class defined as `class _ClassName` that defines at least a single field with `@RealmProperty` annotation is considered a realm schema file and the code generator will generate a RealmObject class that can be used with Realm Dart. 
+Every dart class defined as `class _ClassName` that defines at least a single field with `@RealmProperty` annotation is considered a Realm schema definition and the code generator will generate a RealmObject class that can be used with Realm Dart. 
 
 * The dart file containg Realm schema classes needs to have a part defintion name in the format `part "filename.g.dart"`.
     For example: In file `cars.dat ` there should be a part definition `part "cars.g.dart"`
@@ -88,6 +88,7 @@ class Car extends RealmObject {
 
 on first use .dart_tool/build/entrypoint/build.dart needs to be generated with pub run build_runeer build
 
+# Debugging
 use a terminal to launch a debuggee with command
 dart --observe --pause-isolates-on-start  --enable-vm-service:5858/127.0.0.1  --disable-service-auth-codes .dart_tool/build/entrypoint/build.dart build
-to run build in usage dir use: cd usage && pub run build_runner build
+to run build in example directory use: cd example && pub run build_runner build

@@ -1,0 +1,1 @@
+../../../../flutter/realm_flutter/lib/src/collection.dart
