@@ -1,7 +1,7 @@
 # Description
 Generates RealmObject classes based on schema definitions using naming convention
 
-Every dart class defined as `class _ClassName` that defines at least a single field with `@RealmProperty` annotation is considered a Realm schema definition and the code generator will generate a RealmObject class that can be used with Realm Dart. 
+Every dart class defined as `class _ClassName` that defines at least a single field with `@RealmProperty` annotation is considered a Realm schema definition and the code generator will generate a RealmObject class that can be used with Realm Flutter™ and Realm Dart™. 
 
 * The dart file containg Realm schema classes needs to have a part defintion name in the format `part "filename.g.dart"`.
     For example: In file `cars.dat ` there should be a part definition `part "cars.g.dart"`
