@@ -9,3 +9,8 @@ This directory conatins a diff file for all the changes made.
 
 The base Flutter engine version is https://github.com/flutter/engine/commit/a6c0959d1ac8cdfe6f9ff87892bc4905a73699fe
 The base Dart runtime version is https://github.com/dart-lang/sdk/commit/2ea318b540948b55306bf82fd34b2c84ec634f48
+
+
+## Building the engine
+~/flutter/engine/src$ flutter/tools/gn --android --android-cpu=x86 --runtime-mode=jit_release
+~/flutter/engine/src$ ninja -C out/android_jit_release_x86
