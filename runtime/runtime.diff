@@ -368,7 +368,7 @@ index 85460c8..9776a36 100644
 +    intptr_t length,                                                           \
 +    void* peer,                                                                \
 +    intptr_t external_allocation_size,                                         \
-+    Dart_WeakPersistentHandleFinalizer callback))                              \
++    Dart_HandleFinalizer callback))                              \
 +                                                                               \
 +F(Dart_NewExternalTypedData, Dart_Handle, (                                    \
 +    Dart_TypedData_Type type,                                                  \
@@ -381,14 +381,14 @@ index 85460c8..9776a36 100644
 +    intptr_t length,                                                           \
 +    void* peer,                                                                \
 +    intptr_t external_allocation_size,                                         \
-+    Dart_WeakPersistentHandleFinalizer callback))                              \
++    Dart_HandleFinalizer callback))                              \
 +                                                                               \
 +F(Dart_NewExternalUTF16String, Dart_Handle, (                                  \
 +    const uint16_t* utf16_array,                                               \
 +    intptr_t length,                                                           \
 +    void* peer,                                                                \
 +    intptr_t external_allocation_size,                                         \
-+    Dart_WeakPersistentHandleFinalizer callback))                              \
++    Dart_HandleFinalizer callback))                              \
 +                                                                               \
 +F(Dart_NewInteger, Dart_Handle, (int64_t value))                               \
 +                                                                               \

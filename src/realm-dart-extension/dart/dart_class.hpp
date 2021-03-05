@@ -80,7 +80,7 @@ public:
 private:
 	std::unique_ptr<Internal> m_internal;
 
-	static void finalizer(void* isolate_callback_data, Dart_WeakPersistentHandle handle, void* peer);
+	static void finalizer(void* isolate_callback_data, void* peer);
 };
 
 
@@ -162,7 +162,7 @@ template<typename ClassType>
 std::unordered_map<std::string, Dart_NativeFunction> ObjectWrap<ClassType>::native_functions;
 
 template<typename ClassType>
-void WrappedObject<ClassType>::finalizer(void* isolate_callback_data, Dart_WeakPersistentHandle handle, void* peer) {
+void WrappedObject<ClassType>::finalizer(void* isolate_callback_data, void* peer) {
 	delete (WrappedObject<ClassType>*)peer;
 }
 

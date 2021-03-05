@@ -161,7 +161,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_realm_realm_1flutter_RealmFlutter_nati
     env->ReleaseStringUTFChars(fileDir, strFileDir);
     __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "filesDir: %s", filesDir.c_str());
 
-    __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "calling Dart_SetInitCallback");
+    //__android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "calling Dart_SetInitCallback");
     //bool result = Dart_SetInitCallback(init);
-    __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "Dart_SetInitCallback success");
+    //  __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "Dart_SetInitCallback success");
 }
