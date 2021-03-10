@@ -57,8 +57,6 @@ class _Person {
   String name; 
 }
 
-
-
 String _platformPath(String name, {String path}) {
   if (path == null) path = "";
   if (Platform.isLinux || Platform.isAndroid)
@@ -74,12 +72,14 @@ DynamicLibrary dlopenPlatformSpecific(String name, {String path}) {
 }
 
 void main() {
-  final testLibrary = dlopenPlatformSpecific("realm_flutter");
-
-  final initializeApi = testLibrary.lookupFunction<
-      IntPtr Function(Pointer<Void>),
-      int Function(Pointer<Void>)>("Dart_InitializeApiDL");
-  print(initializeApi(NativeApi.initializeApiDLData) == 0);
+  if (IsFlutterPlatform) {
+    final testLibrary = dlopenPlatformSpecific("realm_flutter");
+    
+    final initializeApi = testLibrary.lookupFunction<
+        IntPtr Function(Pointer<Void>),
+        int Function(Pointer<Void>)>("Dart_InitializeApiDL");
+    print(initializeApi(NativeApi.initializeApiDLData) == 0);
+  }
 
 
   //reflectClass(key)

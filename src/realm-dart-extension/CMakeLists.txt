@@ -5,7 +5,7 @@ project(realm_dart_extension)
 message ("Project: realm_dart_extension")
 message ("CMAKE_BINARY_DIR is ${CMAKE_BINARY_DIR}")
 message ("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
-
+message ("DART_INCLUDE_DIR is ${DART_INCLUDE_DIR}")
 
 set(SOURCES
     realm_dart_extension.cpp
@@ -31,7 +31,6 @@ set (INCLUDE_DIRS
 )
 
 add_library(realm_dart_extension SHARED ${SOURCES} ${HEADERS})
-#add_library(realm_dart_extension SHARED  realm_dart_extension.cpp win/realm_dart_extension_dllmain_win.cpp)
 
 set_target_properties(realm_dart_extension PROPERTIES POSITION_INDEPENDENT_CODE 1)
 
@@ -39,9 +38,9 @@ target_include_directories(realm_dart_extension PUBLIC ${DART_INCLUDE_DIR} ${HEA
 
 
 target_compile_definitions(realm_dart_extension PUBLIC -DDART_SHARED_LIB)
-target_link_libraries(realm_dart_extension "c:\\Users\\lubo\\Downloads\\dartsdk-windows-x64-release\\dart-sdk\\bin\\dart.lib")
 
 set (LINK_LIBS
+    "${PROJECT_SOURCE_DIR}/../dart-include/lib/windows-x64/dart.lib"
     "${PROJECT_SOURCE_DIR}/object-store.lib"
     "${PROJECT_SOURCE_DIR}/realm-dbg.lib"
     "${PROJECT_SOURCE_DIR}/realm-parser-dbg.lib"
@@ -50,11 +49,6 @@ set (LINK_LIBS
 message("LINK_LIBS is ${LINK_LIBS}")
 
 target_link_libraries(realm_dart_extension ${LINK_LIBS})
-
-
-#target_link_libraries(realm_dart_extension "c:\\lubo\\mongodb\\src\\realm-js-dart-v6\\realm-dart-v6\\src\\realm-dart-extension\\object-store.lib")
-#target_link_libraries(realm_dart_extension "c:\\lubo\\mongodb\\src\\realm-js-dart-v6\\realm-dart-v6\\src\\realm-dart-extension\\realm-dbg.lib")
-#target_link_libraries(realm_dart_extension "c:\\lubo\\mongodb\\src\\realm-js-dart-v6\\realm-dart-v6\\src\\realm-dart-extension\\realm-parser-dbg.lib")
 
 set_property(TARGET realm_dart_extension PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 

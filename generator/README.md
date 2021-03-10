@@ -86,7 +86,7 @@ class Car extends RealmObject {
 
 
 
-on first use .dart_tool/build/entrypoint/build.dart needs to be generated with pub run build_runeer build
+on first use .dart_tool/build/entrypoint/build.dart needs to be generated with pub run build_runer build
 
 # Debugging
 use a terminal to launch a debuggee with command
