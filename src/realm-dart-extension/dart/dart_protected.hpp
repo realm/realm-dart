@@ -61,7 +61,11 @@ public:
 		}
 
 		try {
-			Dart_DeletePersistentHandle(m_ref);
+			Dart_Isolate isolate = Dart_CurrentIsolate();
+			//make sure there is current isolate. On Dart VM shutdown there might be no current isolate so just drop the handles
+			if (isolate != nullptr) {
+				Dart_DeletePersistentHandle(m_ref);
+			}
 			m_ref = nullptr;
 		}
 		catch (...) {}
