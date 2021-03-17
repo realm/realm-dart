@@ -28,23 +28,42 @@ set (INCLUDE_DIRS
     ../object-store/src
     ../object-store/external/json
     ../vendor-include/realm-win-x64/include
+    ../dart-include
 )
 
 add_library(realm_dart_extension SHARED ${SOURCES} ${HEADERS})
 
 set_target_properties(realm_dart_extension PROPERTIES POSITION_INDEPENDENT_CODE 1)
 
-target_include_directories(realm_dart_extension PUBLIC ${DART_INCLUDE_DIR} ${HEADERS}, ${INCLUDE_DIRS})
+if(APPLE)
+    set_target_properties(realm_dart_extension PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+   
+    set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+    set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+endif()
+
+target_include_directories(realm_dart_extension PUBLIC ${DART_INCLUDE_DIR} ${HEADERS}, ${INCLUDE_DIRS})
 
 target_compile_definitions(realm_dart_extension PUBLIC -DDART_SHARED_LIB)
 
+if(CMAKE_SYSTEM_NAME MATCHES "^Windows")
 set (LINK_LIBS
     "${PROJECT_SOURCE_DIR}/../dart-include/lib/windows-x64/dart.lib"
     "${PROJECT_SOURCE_DIR}/object-store.lib"
     "${PROJECT_SOURCE_DIR}/realm-dbg.lib"
     "${PROJECT_SOURCE_DIR}/realm-parser-dbg.lib"
 )
+endif()
+
+if(APPLE)    
+set (LINK_LIBS
+    "${PROJECT_SOURCE_DIR}/macos/object-store.a"
+    "${PROJECT_SOURCE_DIR}/macos/librealm-parser.a"
+    "${PROJECT_SOURCE_DIR}/macos/librealm.a"
+)
+endif()
 
 message("LINK_LIBS is ${LINK_LIBS}")
 
@@ -52,16 +71,22 @@ target_link_libraries(realm_dart_extension ${LINK_LIBS})
 
 set_property(TARGET realm_dart_extension PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-#copy the dll to the lib directory
-add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.dll"  ${PROJECT_SOURCE_DIR}../../../lib/realm_dart_extension.dll)
-add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.pdb"  ${PROJECT_SOURCE_DIR}../../../lib/realm_dart_extension.pdb)
+if(CMAKE_SYSTEM_NAME MATCHES "^Windows")
+    #copy the dll to the lib directory
+    add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.dll"  ${PROJECT_SOURCE_DIR}../../../lib/realm_dart_extension.dll)
+    add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.pdb"  ${PROJECT_SOURCE_DIR}../../../lib/realm_dart_extension.pdb)
 
-#copy the dll to the root directory of realm-dart so VS Code dart test runner can run and debug the tests.
-add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.dll"  ${PROJECT_SOURCE_DIR}../../../realm_dart_extension.dll)
+    #copy the dll to the root directory of realm-dart so VS Code dart test runner can run and debug the tests.
+    add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.dll"  ${PROJECT_SOURCE_DIR}../../../realm_dart_extension.dll)
 
-#copy the dll to the test directory of realm-dart so VS Code dart debug test runner can run and debug the tests. If the dll is not besides the tests then the library is not loaded correctly and the cached RealmLib types are not the same. Dart: investigate this
-add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.dll"  ${PROJECT_SOURCE_DIR}../../../test/realm_dart_extension.dll)
+    #copy the dll to the test directory of realm-dart so VS Code dart debug test runner can run and debug the tests. If the dll is not besides the tests then the library is not loaded correctly and the cached RealmLib types are not the same. Dart: investigate this
+    add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.dll"  ${PROJECT_SOURCE_DIR}../../../test/realm_dart_extension.dll)
 
-#copy the dll to the bin directory of realm-dart so it gets into the realm_dart package
-add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.dll"  ${PROJECT_SOURCE_DIR}../../../bin/realm_dart_extension.dll)
+    #copy the dll to the bin directory of realm-dart so it gets into the realm_dart package
+    add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.dll"  ${PROJECT_SOURCE_DIR}../../../bin/realm_dart_extension.dll)
+endif()
 
+if(APPLE)
+    #copy the dylib to the bin directory of realm-dart so it gets into the realm_dart package
+    add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/librealm_dart_extension.dylib"  ${PROJECT_SOURCE_DIR}../../../bin/librealm_dart_extension.dylib)
+endif()

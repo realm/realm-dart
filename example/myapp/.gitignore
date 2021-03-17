@@ -10,3 +10,4 @@ doc/api/
 
 *.realm
 *.realm.lock
+default.realm.management
