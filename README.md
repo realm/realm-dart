@@ -69,7 +69,7 @@ cmake --build out --config Release
 
 ```
 cmake -G Ninja  -S . -B out
-ninja -C out
+cmake --build out --config Release
 ```
 
 ##### The "Dart" name and logo and the "Flutter" name and logo are trademarks owned by Google. 
