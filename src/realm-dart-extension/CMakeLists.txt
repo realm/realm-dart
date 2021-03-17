@@ -6,6 +6,7 @@ message ("Project: realm_dart_extension")
 message ("CMAKE_BINARY_DIR is ${CMAKE_BINARY_DIR}")
 message ("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
 message ("DART_INCLUDE_DIR is ${DART_INCLUDE_DIR}")
+message ("Configuration is ${CMAKE_CONFIGURATION_TYPES}")
 
 set(SOURCES
     realm_dart_extension.cpp
@@ -27,6 +28,7 @@ set (INCLUDE_DIRS
     dart
     ../object-store/src
     ../object-store/external/json
+    #includes are common for Win and Mac
     ../vendor-include/realm-win-x64/include
     ../dart-include
 )
@@ -48,21 +50,25 @@ target_include_directories(realm_dart_extension PUBLIC ${DART_INCLUDE_DIR} ${HEA
 
 target_compile_definitions(realm_dart_extension PUBLIC -DDART_SHARED_LIB)
 
-if(CMAKE_SYSTEM_NAME MATCHES "^Windows")
-set (LINK_LIBS
-    "${PROJECT_SOURCE_DIR}/../dart-include/lib/windows-x64/dart.lib"
-    "${PROJECT_SOURCE_DIR}/object-store.lib"
-    "${PROJECT_SOURCE_DIR}/realm-dbg.lib"
-    "${PROJECT_SOURCE_DIR}/realm-parser-dbg.lib"
-)
+if(CMAKE_SYSTEM_NAME MATCHES "^Windows")    
+    if (CMAKE_CONFIGURATION_TYPES MATCHES "Debug") 
+        set (BUILD_SUFFIX "-dbg") 
+    endif()
+
+    set (LINK_LIBS
+        "${PROJECT_SOURCE_DIR}/../dart-include/lib/windows-x64/dart.lib"
+        "${PROJECT_SOURCE_DIR}/../vendor-include/realm-win-x64/lib/object-store${BUILD_SUFFIX}.lib"
+        "${PROJECT_SOURCE_DIR}/../vendor-include/realm-win-x64/lib/realm${BUILD_SUFFIX}.lib"
+        "${PROJECT_SOURCE_DIR}/../vendor-include/realm-win-x64/lib/realm-parser${BUILD_SUFFIX}.lib"
+    )
 endif()
 
 if(APPLE)    
-set (LINK_LIBS
-    "${PROJECT_SOURCE_DIR}/macos/object-store.a"
-    "${PROJECT_SOURCE_DIR}/macos/librealm-parser.a"
-    "${PROJECT_SOURCE_DIR}/macos/librealm.a"
-)
+    set (LINK_LIBS
+        "${PROJECT_SOURCE_DIR}/../vendor-include/macos/object-store.a"
+        "${PROJECT_SOURCE_DIR}/../vendor-include/macos/librealm-parser.a"
+        "${PROJECT_SOURCE_DIR}/../vendor-include/macos/librealm.a"
+    )
 endif()
 
 message("LINK_LIBS is ${LINK_LIBS}")
@@ -74,7 +80,9 @@ set_property(TARGET realm_dart_extension PROPERTY MSVC_RUNTIME_LIBRARY "MultiThr
 if(CMAKE_SYSTEM_NAME MATCHES "^Windows")
     #copy the dll to the lib directory
     add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.dll"  ${PROJECT_SOURCE_DIR}../../../lib/realm_dart_extension.dll)
-    add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.pdb"  ${PROJECT_SOURCE_DIR}../../../lib/realm_dart_extension.pdb)
+    if (CMAKE_CONFIGURATION_TYPES MATCHES "Debug") 
+        add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.pdb"  ${PROJECT_SOURCE_DIR}../../../lib/realm_dart_extension.pdb)
+    endif()
 
     #copy the dll to the root directory of realm-dart so VS Code dart test runner can run and debug the tests.
     add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.dll"  ${PROJECT_SOURCE_DIR}../../../realm_dart_extension.dll)

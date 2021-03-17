@@ -1,0 +1,1 @@
+../../../../lib/src/realm_class.dart
