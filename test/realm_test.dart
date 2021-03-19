@@ -18,7 +18,7 @@
 
 import 'dart:io';
 
-import 'package:realm/realm.dart';
+import 'package:realm_dart/realm.dart';
 import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
 
@@ -69,6 +69,10 @@ void test(String name, Function testFunction) {
 
 
 void getTestNameFilter(List<String> arguments) {
+  if (arguments == null) {
+    return;
+  }
+  
   int nameArgIndex = arguments.indexOf("--testname");
   if (arguments.length != 0) {
     if (nameArgIndex >= 0 && arguments.length > 1) {
@@ -77,7 +81,7 @@ void getTestNameFilter(List<String> arguments) {
   }
 }
 
-void main(List<String> arguments) {
+void main({List<String> arguments}) {
   getTestNameFilter(arguments);
 
   print("Current PID ${pid}");

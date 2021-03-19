@@ -16,9 +16,20 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:collection';
+
+//Empty RealmObject class template
 class RealmObject {
-    static dynamic getSchema(String name, Iterable<RealmProperty> properties) {
-    }
+
+  /**
+   *  Default constructor.
+   */
+  RealmObject() {}
+  
+  RealmObject.constructor() {}
+
+  static dynamic getSchema(String name, Iterable<RealmProperty> properties) {
+  }
 
   Object operator [](String name) { return null; }
   void operator []=(String name, Object value) {}
@@ -37,4 +48,27 @@ class SchemaProperty extends RealmProperty {
   final String propertyName;
   const SchemaProperty(this.propertyName, { type, defaultValue, optional, mapTo, primaryKey }) 
     : super(type: type, defaultValue: defaultValue, optional: optional, mapTo: mapTo, primaryKey: primaryKey);
+}
+
+class ArrayList<T extends RealmObject> with ListMixin<T> {
+  @override
+  int length;
+
+  @override
+  T operator [](int index) {
+      throw UnimplementedError();
+    }
+  
+    @override
+    void operator []=(int index, T value) {
+  }
+}
+
+extension Super on RealmObject {
+  ArrayList<T> super_get<T extends RealmObject>(String name) {
+    throw new Exception();
+  }
+
+  void super_set<T extends RealmObject>(String name, Iterable<T> value) {
+  }
 }

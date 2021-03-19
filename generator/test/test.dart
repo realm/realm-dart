@@ -34,7 +34,6 @@ class _Car {
   _Car myCarsLooonName;
 
   @RealmProperty(type: "Car[]", optional: true)
-  @RealmProperty()
   List<_Car> otherCarsMyLongName;
 
   @RealmProperty(optional: true)
