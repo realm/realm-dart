@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Copyright 2021 Realm Inc.
@@ -130,4 +133,16 @@ class Realm extends DynamicObject {
   // static Type list;
   // static Type results;
   // static Type object;
+}
+
+class RealmException implements Exception  {
+  final dynamic message;
+
+  RealmException([this.message]);
+
+  String toString() {
+    Object message = this.message;
+    if (message == null) return "RealmException:";
+    return "RealmException: $message";
+  }
 }

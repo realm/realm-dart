@@ -227,9 +227,7 @@ void ObjectWrap<ClassType>::constructor_callback(Dart_NativeArguments arguments)
 	}
 	//Dart: check if this is catching dart errors just to rethrow them again. 
 	catch (const std::exception & e) {
-		//Dart: as per dart guidance the error should be propagated using Dart_SetReturnValue.
-		auto exception = Dart_NewApiError(e.what());
-		Dart_ThrowException(exception);
+		Dart_SetReturnValue(arguments, Dart::NewException(e.what()));
 	}
 }
 
@@ -578,9 +576,7 @@ void wrap(Dart_NativeArguments arguments) {
 	}
 	//Dart: check if this is catching dart errors just to rethrow them again. 
 	catch (const std::exception & e) {
-		//Dart: as per dart guidance the error should be propagated using setreturn value.
-		auto exception = Dart_NewApiError(e.what());
-		Dart_ThrowException(exception);
+		Dart_SetReturnValue(arguments, Dart::NewException(e.what()));
 	}
 }
 
@@ -603,9 +599,7 @@ void wrap(Dart_NativeArguments arguments) {
 	}
 	//Dart: check if this is catching dart errors just to rethrow them again. 
 	catch (const std::exception & e) {
-		//Dart: as per dart guidance the error should be propagated using setreturn value.
-		auto exception = Dart_NewApiError(e.what());
-		Dart_ThrowException(exception);
+		Dart_SetReturnValue(arguments, Dart::NewException(e.what()));
 	}
 }
 
@@ -634,9 +628,7 @@ void wrap(Dart_NativeArguments arguments) {
 	}
 	//Dart: check if this is catching dart errors just to rethrow them again. 
 	catch (const std::exception & e) {
-		//Dart: as per dart guidance the error should be propagated using setreturn value.
-		auto exception = Dart_NewApiError(e.what());
-		Dart_ThrowException(exception);
+		Dart_SetReturnValue(arguments, Dart::NewException(e.what()));
 	}
 
 
@@ -674,9 +666,7 @@ void wrap(Dart_NativeArguments arguments) {
 	}
 	//Dart: check if this is catching dart errors just to rethrow them again. 
 	catch (const std::exception & e) {
-		//Dart: as per dart guidance the error should be propagated using setreturn value.
-		auto exception = Dart_NewApiError(e.what());
-		Dart_ThrowException(exception);
+		Dart_SetReturnValue(arguments, Dart::NewException(e.what()));
 	}
 
 
@@ -728,9 +718,7 @@ void wrap(Dart_NativeArguments arguments) {
 	}
 	//Dart: check if this is catching dart errors just to rethrow them again. 
 	catch (const std::exception & e) {
-		//Dart: as per dart guidance the error should be propagated using setreturn value.
-		auto exception = Dart_NewApiError(e.what());
-		Dart_ThrowException(exception);
+		Dart_SetReturnValue(arguments, Dart::NewException(e.what()));
 	}
 
 
@@ -759,9 +747,7 @@ void wrap(Dart_NativeArguments arguments) {
 	}
 	//Dart: check if this is catching dart errors just to rethrow them again. 
 	catch (const std::exception & e) {
-		//Dart: as per dart guidance the error should be propagated using setreturn value.
-		auto exception = Dart_NewApiError(e.what());
-		Dart_ThrowException(exception);
+		Dart_SetReturnValue(arguments, Dart::NewException(e.what()));
 	}
 	
 	

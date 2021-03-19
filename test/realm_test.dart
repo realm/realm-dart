@@ -70,6 +70,7 @@ void test(String name, Function testFunction) {
 
 void getTestNameFilter(List<String> arguments) {
   if (arguments == null) {
+    print("arguments is null");
     return;
   }
   
@@ -77,13 +78,14 @@ void getTestNameFilter(List<String> arguments) {
   if (arguments.length != 0) {
     if (nameArgIndex >= 0 && arguments.length > 1) {
       testName = arguments[nameArgIndex + 1];
+      print("testName: ${testName}");
     }
   }
 }
 
-void main({List<String> arguments}) {
+void main([List<String> arguments]) {
   getTestNameFilter(arguments);
-
+  
   print("Current PID ${pid}");
 
   setUp(() {
@@ -134,6 +136,27 @@ void main({List<String> arguments}) {
       expect(indexedCar.make, equals(car.make));
       expect(indexedCar.model, equals(car.model));
       expect(indexedCar.kilometers, equals(car.kilometers));
+    });
+
+    test('Realm objects is valid', () {
+      var config = new Configuration();
+      config.schema.add(Car);
+
+      var realm = new Realm(config);
+
+      Car car = new Car()
+        ..make = "Audi"
+        ..model = "A4"
+        ..kilometers = 245;
+      
+      Car realmCar = null;
+      realm.write(() {
+        realmCar = realm.create(car);
+      });
+
+      expect(car, isA<Car>());
+      expect(realmCar.isValid(), isTrue);
+      expect(() => car.isValid(), throwsA(TypeMatcher<RealmException>()));
     });
 
     test('Realm notifications', () {

@@ -66,6 +66,7 @@ namespace Dart {
 	};
 
 	Dart_Handle GetLibrary(const char* libName);
+	Dart_Handle NewException(const char* message);
 }
 
 namespace realm {
@@ -78,6 +79,8 @@ namespace realm {
 		extern Dart_Handle RealmLibrary;
 		extern std::string RealmPackageName;
 		extern Dart_Handle DartDateTimeType;
+		
+		extern Dart_Handle RealmExceptionType;
 		extern Dart_Handle RealmDynamicObjectType;
 		extern Dart_Handle RealmTypeStaticPropertiesType;
 		extern Dart_Handle RealmHelpersType;

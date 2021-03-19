@@ -56,6 +56,7 @@ namespace realm {
 		std::string RealmPackageName;
 		Dart_Handle DartDateTimeType;
 		
+		Dart_Handle RealmExceptionType;
 		Dart_Handle RealmCreateDateTimeFunc;
 		Dart_Handle RealmDynamicObjectType;
 		Dart_Handle RealmTypeStaticPropertiesType;
@@ -88,6 +89,13 @@ namespace Dart {
 		Dart_Handle libraryUrl = Dart_NewStringFromCString(libName) || handleError;
 		Dart_Handle library = Dart_LookupLibrary(libraryUrl) || handleError;
 		return library;
+	}
+
+	Dart_Handle NewException(const char* message) {
+		Dart_Handle args[1] = { Dart_NewStringFromCString(message) };
+		Dart_Handle exception = Dart_New(realm::dartvm::RealmExceptionType, Dart_Null(), 1, args) || handleError;
+		Dart_Handle error = Dart_NewUnhandledExceptionError(exception);
+		return error;
 	}
 }
 
