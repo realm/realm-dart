@@ -92,12 +92,15 @@ class RealmObject /*extends DynamicObject*/ {
   }
 
   Object isValid() native "RealmObject_isValid";
-  Object objectSchema() native "RealmObject_objectSchema";
-  Object linkingObjects() native "RealmObject_linkingObjects";
-  Object linkingObjectsCount() native "RealmObject_linkingObjectsCount";
-  Object _objectId() native "RealmObject__objectId";
-  Object _isSameObject() native "RealmObject__isSameObject";
-  Object _setLink() native "RealmObject__setLink";
+  
+  //not supported
+  //Object objectSchema() native "RealmObject_objectSchema";
+  //Object linkingObjects() native "RealmObject_linkingObjects";
+  //Object linkingObjectsCount() native "RealmObject_linkingObjectsCount";
+  //Object objectId() native "RealmObject__objectId";
+  //Object _isSameObject() native "RealmObject__isSameObject";
+  //Object _setLink() native "RealmObject__setLink";
+
   Object addListener() native "RealmObject_addListener";
   Object removeListener() native "RealmObject_removeListener";
   Object removeAllListeners() native "RealmObject_removeAllListeners";
