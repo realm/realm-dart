@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:core';
+
 class Helpers {
   static DateTime createDateTime(int miliseconds) {
     return DateTime.fromMillisecondsSinceEpoch(miliseconds, isUtc: true);

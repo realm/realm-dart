@@ -26,3 +26,4 @@ flutter/realm_flutter/.gradle/
 /default.realm*
 /test/default.realm
 /test/default.realm.lock
+/doc/

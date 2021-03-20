@@ -130,14 +130,14 @@ void main([List<String> arguments]) {
 
      test('Realm exists', () {
       var config = new Configuration();
-      bool exists = Realm.exists(config);
-      expect(exists, equals(false));
+      bool exists = Realm.exists(Realm.defaultPath);
+      expect(exists, isFalse);
 
       var realm = new Realm(config);
       expect(realm, isNotNull);
 
-      exists = Realm.exists(config);
-      expect(exists, equals(true));
+      exists = Realm.exists(Realm.defaultPath);
+      expect(exists, isTrue);
     });
 
      test('Realm deleteFile', () {
@@ -162,7 +162,7 @@ void main([List<String> arguments]) {
         ..model = "A4"
         ..kilometers = 245;
       realm.write(() {
-        realm.create(car);
+        car = realm.create(car);
       });
 
       var objects = realm.objects<Car>();
@@ -195,7 +195,7 @@ void main([List<String> arguments]) {
       expect(() => car.isValid(), throwsA(TypeMatcher<RealmException>()));
     });
 
-    test('Realm notifications', () {
+    test('Realm add notifications', () {
       var config = new Configuration();
       //config.schema.add(Car);
 
@@ -203,7 +203,7 @@ void main([List<String> arguments]) {
       int notificationCount = 0;
       String notificationName;
 
-      realm.addListener('change', (realm, name) {
+      realm.addListener(Event.change, (realm, name) {
         notificationCount++;
         notificationName = name;
       });
@@ -216,6 +216,33 @@ void main([List<String> arguments]) {
       realm.write(() => {});
 
       expect(notificationCount, equals(2));
+      expect(notificationName, equals('change'));
+    });
+
+      test('Realm remove notifications', () {
+      var config = new Configuration();
+      //config.schema.add(Car);
+
+      var realm = new Realm(config);
+      int notificationCount = 0;
+      String notificationName;
+
+      var callback = (realm, name) {
+        notificationCount++;
+        notificationName = name;
+      };
+      realm.addListener(Event.change, callback);
+
+      realm.write(() => {});
+
+      expect(notificationCount, equals(1));
+      expect(notificationName, equals('change'));
+
+      realm.removeListener(Event.change, callback);
+      
+      realm.write(() => {});
+
+      expect(notificationCount, equals(1));
       expect(notificationName, equals('change'));
     });
 
@@ -270,6 +297,16 @@ void main([List<String> arguments]) {
       expect(realm.isClosed, isTrue);
     });
 
+    test('realm.isInTransaction', () {
+      var config = new Configuration();
+      config.schema.add(Car);
+      var realm = new Realm(config);
+      expect(realm.isInTransaction, isFalse);
+      realm.write(() {
+        expect(realm.isInTransaction, isTrue);
+      });
+    });
+
     test('realm.delete', () {
       var config = new Configuration();
       config.schema.add(Car);
@@ -292,14 +329,22 @@ void main([List<String> arguments]) {
           ..model = "A8"
           ..kilometers = 245);
 
+        realm.create(new Car()
+          ..make = "Audi"
+          ..model = "A10"
+          ..kilometers = 245);
+
         var objects = realm.objects<Car>();
-        expect(objects.length, equals(3));
+        expect(objects.length, equals(4));
 
         realm.delete(objects[0]);
-        expect(objects.length, equals(2));
+        expect(objects.length, equals(3));
 
         List<Car> cars = [objects[0], objects[1]];
         realm.deleteMany(cars);
+        expect(objects.length, equals(1));
+
+        realm.deleteAll();
         expect(objects.length, equals(0));
       });
     });

@@ -167,7 +167,7 @@ class Configuration {
   // set List<Type> schema_objects;
 
   SchemaObjects schema;
-  int schemaVersion;
+  double schemaVersion;
   bool deleteRealmIfMigrationNeeded;
   bool disableFormatUpgrade;
 

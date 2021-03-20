@@ -153,6 +153,8 @@ struct Value {
     static String<T> to_string(ContextType, const ValueType &);
     static OwnedBinaryData to_binary(ContextType, ValueType);
 
+    static bool identityEquals(ContextType, const ValueType& func1, const ValueType& func2);
+
 
 #define VALIDATED(return_t, type) \
     static return_t validated_to_##type(ContextType ctx, const ValueType &value, const char *name = nullptr) { \

@@ -325,5 +325,10 @@ inline const char* dartvm::Value::typeof(Dart::Env env, const Dart::Value& value
 	return "unknown";
 }
 
+template <>
+inline bool dartvm::Value::identityEquals(Dart::Env env, const Dart::Value& value1, const Dart::Value& value2) {
+	return Dart_IdentityEquals(value1, value2);
+}
+
 } // js
 } // realm
