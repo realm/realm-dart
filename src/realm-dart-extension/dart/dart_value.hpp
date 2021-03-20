@@ -199,7 +199,7 @@ inline dartvm::String dartvm::Value::to_string(Dart::Env env, const Dart::Value&
 	//return value.ToString();
 
 	const char* str;
-	Dart_StringToCString(value, &str);
+	Dart_StringToCString(value, &str) || handleError;
 	return dartvm::String(str);
 }
 

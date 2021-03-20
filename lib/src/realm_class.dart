@@ -58,21 +58,57 @@ void _inspect(dynamic arg1, dynamic arg2, dynamic arg3, dynamic arg4, dynamic ar
 }
 
 class Realm extends DynamicObject {
-  /**
-   * Used from native code
-   */
+  // Used from native code
   Realm._constructor();
 
+  /// Opens a Realm and creates an instance for working with it using a [config]
+  /// 
+  /// For more details about the configuration object see [Configuration]
   factory Realm(Configuration config) native "Realm_constructor";
 
-  static double schemaVersion(String path, dynamic encryptionKey) native "Realm_schemaVersion";
-  static bool exists(String path) native "Realm_exists";
+  //native code expects first argument this instance. For static methods pass null
+  static double _schemaVersion(Object nullptr, String path) native "Realm_schemaVersion";
+  static double schemaVersion(String path) {
+    return _schemaVersion(null, path);
+  }
+
+  static bool _exists(Object nullptr, Configuration config) native "Realm_exists";
+  static bool exists(Configuration config) {
+    return _exists(null, config);
+  }
 
   //move this to the tests and make it an extensions method that calls clearTestState and passes the correct `this`
-  static bool clearTestState() native "Realm_clearTestState";
-  static bool deleteFile(Configuration config) native "Realm_deleteFile";
+  /// Private method. Do not use.
+  static bool _clearTestState(Object nullptr) native "Realm_clearTestState";
+  static bool clearTestState() {
+    return _clearTestState(null);
+  }
 
-  static String get defaultPath native "Realm_defaultPath";
+  
+  static bool deleteFile(String path) {
+    File realmFile = new File(path);
+    if (!realmFile.existsSync()) {
+      throw new RealmException("The realm file does not exists at path $path");
+    }
+    
+    File realmLockFile = new File("$path.lock");
+    if (!realmLockFile.existsSync()) {
+      throw new RealmException("The path does not specify a Realm file: $path");
+    }
+
+    File realmNoteFile = new File("$path.note");
+    Directory realmManagementDirectory = new Directory("$path.management");
+        
+    //delete these first since their existence is optional
+    if (realmNoteFile.existsSync()) realmNoteFile.deleteSync();
+    if (realmManagementDirectory.existsSync()) realmManagementDirectory.deleteSync(recursive: true);
+
+    //try delete realmFile first
+    realmFile.deleteSync();
+    realmLockFile.deleteSync();
+  }
+
+  static String get defaultPath native "Realm_get_defaultPath";
 
   RealmObject _create(String typeName, RealmObject object) native "Realm_create";
 

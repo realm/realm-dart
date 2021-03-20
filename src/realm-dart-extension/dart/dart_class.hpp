@@ -142,6 +142,14 @@ static std::vector<Dart_Handle> get_arguments(Dart_NativeArguments args) {
 	size_t count = Dart_GetNativeArgumentCount(args);
 	std::vector<Dart::Value> arguments;
 	
+	////debug
+	//for (u_int i = 0; i < count; i++) {
+	//	Dart_Handle arg = Dart_GetNativeArgument(args, i) || handleError;
+	//	bool isnull= Dart_IsNull(arg);
+	//	bool isstring = Dart_IsString(arg);
+	//}
+
+
 	//the zero item is always the this object
 	if (count > 1) {
 		arguments.reserve(count);

@@ -115,6 +115,42 @@ void main([List<String> arguments]) {
       expect(realm, isNotNull);
     });
 
+    test('Realm get defaultPath', () {
+      expect(Realm.defaultPath, isA<String>().having((path) => path, "Realm.defaultPath", contains(".realm")));
+    });
+
+    test('Realm get schemaVersion', () {
+      var config = new Configuration();
+      var realm = new Realm(config);
+      expect(realm, isNotNull);
+
+      double version = Realm.schemaVersion(Realm.defaultPath);
+      expect(version, equals(0));
+    });
+
+     test('Realm exists', () {
+      var config = new Configuration();
+      bool exists = Realm.exists(config);
+      expect(exists, equals(false));
+
+      var realm = new Realm(config);
+      expect(realm, isNotNull);
+
+      exists = Realm.exists(config);
+      expect(exists, equals(true));
+    });
+
+     test('Realm deleteFile', () {
+      var config = new Configuration();
+      var realm = new Realm(config);
+      realm.close();
+      File realmFile = new File(Realm.defaultPath);
+      expect(realmFile.existsSync(), isTrue);
+
+      Realm.deleteFile(Realm.defaultPath);
+      expect(realmFile.existsSync(), isFalse);
+    });
+    
     test('Realm objects can be indexed', () {
       var config = new Configuration();
       config.schema.add(Car);
