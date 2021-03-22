@@ -63,6 +63,7 @@ enum Event {
   beforenotify
 }
 
+/// A Realm instance represents a Realm database.
 class Realm extends DynamicObject {
   // Used from native code
   Realm._constructor();
@@ -224,33 +225,15 @@ class Realm extends DynamicObject {
   /// Deletes all Realm object from the this [Realm].
   void deleteAll() native 'Realm_deleteAll';
 
-
-
   /// Searches for a Realm object with the specified primary key of type `T`.
   T find<T extends RealmObject>(dynamic key) {
     String typeName = _getRealmObjectName<T>();
     return _objectForPrimaryKey(typeName, key) as T; 
   }
   RealmObject _objectForPrimaryKey(String name, dynamic key) native 'Realm_objectForPrimaryKey';
-
-  //  String _realmObjectName(Type type) {
-  //   var schema = TypeStaticProperties.getValue(type, "schema");
-  //   if (schema == null) {
-  //     throw new Exception("Class ${type}} was not registered in the schema for this Realm");
-  //   }
-  //   String name = schema.name;
-  //   return name;
-  // }
-  
-
-  
-  //compat
-  // static Type collection;
-  // static Type list;
-  // static Type results;
-  // static Type object;
 }
 
+/// An exception being thrown when a Realm operation or Realm object access fails
 class RealmException implements Exception  {
   final dynamic message;
 

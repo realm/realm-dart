@@ -82,15 +82,20 @@ class _ResultsList<T extends RealmObject> extends collection.ListBase<T> {
   }
 }
 
+/// Instances of this class are typically live collections returned by [Realm.objects]
+/// that will update as new objects are either added to or deleted from the Realm 
+/// that match the underlying query. 
 class Results<T extends RealmObject>  {
   RealmResults _results;
 
   Results(this._results);
 
+  /// Returns the Realm object of type `T` at the specified `index`
   T operator [](int index) {
     return _results[index] as T;
   }
 
+  /// Sets the Realm object of type `T` at the specified `index`
   void operator []=(int index, T value) {
     _results[index] = value;
   }
