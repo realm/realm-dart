@@ -281,8 +281,8 @@ inline void dartvm::Object::set_prototype(Dart::Env env, const Dart::Object& obj
 
 template<>
 inline Dart::Object dartvm::Object::create_empty(Dart::Env env) {
-	throw std::runtime_error("create_empty should return a proxy object supporting dynamicly created properties");
-	//return Dart::Object::New(env);
+	Dart_Handle object = Dart_New(dartvm::RealmDynamicObjectType, Dart_Null(), 0, nullptr) || handleError;
+	return object;
 }
 
 template<>

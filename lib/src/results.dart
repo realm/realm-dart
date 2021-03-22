@@ -20,6 +20,15 @@ import 'dart:collection' as collection;
 
 import 'realm_object.dart';
 
+/// A listener callback to be called when the [Results<T>] collection changes
+/// The [changes] parameter will contain a dictionary with keys `insertions`, 
+/// `newModifications`, `oldModifications` and `deletions`, each containing a list of 
+/// indices in the collection that were inserted, updated or deleted respectively.
+/// `deletions` and `oldModifications` are indices into the collection before the 
+/// change happened, while `insertions` and `newModifications` are indices into 
+/// the new version of the collection.
+typedef void ResultsListenerCallback(dynamic collection, dynamic changes); 
+
 class RealmResults {
   RealmResults();
 
@@ -29,30 +38,24 @@ class RealmResults {
   void operator[]=(int index, RealmObject value) native "Results_get_by_index";
   
   int get length native "Results_get_length";
-  int get type native "Results_get_type";
-  int get optional native "Results_get_optional";
-
-
+  
   RealmResults filtered(String filter) native "Results_filtered";
-  RealmResults sorted(String sort) native "Results_sorted";
+  RealmResults sorted(String sort, {bool reverse = false}) native "Results_sorted";
+
+  bool isValid() native "Results_isValid";
+  bool isEmpty() native "Results_isEmpty";
+
+  String get description native "Results_description";
+  RealmResults snapshot() native "Results_snapshot";
+  int indexOf(RealmObject value) native "Results_indexOf";
 
   //not implemented
-  dynamic description() native "Results_description";
-  dynamic snapshot() native "Results_snapshot";
-  dynamic isValid() native "Results_isValid";
-  dynamic isEmpty() native "Results_isEmpty";
-  dynamic min() native "Results_min";
-  dynamic max() native "Results_max";
-  dynamic sum() native "Results_sum";
-  dynamic avg() native "Results_avg";
-  dynamic indexOf() native "Results_indexOf";
-  dynamic update() native "Results_update";
-  dynamic addListener() native "Results_addListener";
-  dynamic removeListener() native "Results_removeListener";
-  dynamic removeAllListeners() native "Results_removeAllListeners";
+  void addListener(ResultsListenerCallback callback) native "Results_addListener";
+  void removeListener(ResultsListenerCallback callback) native "Results_removeListener";
+  void removeAllListeners() native "Results_removeAllListeners";
 }
 
-//Some methods 'where' 'sort' etc of Results<T> clash with Iterable methods. Hence Results<T> can be made
+//Some methods 'where' 'sort' etc of Results<T> clash with Iterable methods. Hence Results<T> can't be made
 //Iterable and can't support for..in. The Results<T>.asList method provides that
 //Could rename these so Results<T> can be proper Iterable
 class _ResultsList<T extends RealmObject> extends collection.ListBase<T> {
@@ -92,103 +95,90 @@ class Results<T extends RealmObject>  {
     _results[index] = value;
   }
 
-
+  /// Returns a new `Results<T>` filtered according to the provided query
+  /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
+  /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789) 
   Results<T> where(String filter) {
     var results = _results.filtered(filter);
     return Results<T>(results);
   }
 
-  Results<T> sort(String sort) {
-    var results = _results.sorted(sort);
+  /// Returns a new `Results<T>` that represent a sorted view of this collection.
+  /// 
+  /// A `Results<T>` collection of Realm Objects can be sorted on one or more properties of those objects, 
+  /// or of properties of objects linked to by those objects.  Optionally the sort can be reversed using the `reverse` parameter
+  /// ```dart
+  /// var sortedCars = cars.sort("make");
+  /// var myCars = person.cars.sort("kilometers");
+  /// ```
+  Results<T> sort(String sort, {bool reverse = false}) {
+    var results = _results.sorted(sort, reverse: reverse);
     return Results<T>(results);
   }
 
+  /// Returns an [Iterable<E>] collection for use with `for..in`
   List<T> asList() {
     return _ResultsList(this);
   }
 
-  addListener() {
-    // TODO: implement addListener
-    return null;
+  /// Returns the index of the given object in the Results collection.
+  int indexOf(T value) {
+    return _results.indexOf(value);
   }
 
-  avg() {
-    // TODO: implement avg
-    return null;
+  /// Returns `true` if the Results collection is empty
+  bool isEmpty() {
+    return _results.isEmpty();
   }
 
-  description() {
-    // TODO: implement description
-    return null;
-  }
+  /// Returns `true` if this Results collection has not been deleted and is part of a valid Realm.
+  /// 
+  /// Accessing an invalid Results collection will throw an [RealmException]
+  bool get isValid => _results.isValid();
 
-  
-
-  indexOf() {
-    // TODO: implement indexOf
-    return null;
-  }
-
-  isEmpty() {
-    // TODO: implement isEmpty
-    return null;
-  }
-
-  isValid() {
-    // TODO: implement isValid
-    return null;
-  }
-
-  // TODO: implement length
+  /// Returns the number of values in the Results collection.
   int get length => _results.length;
 
-  max() {
-    // TODO: implement max
-    return null;
+  /// Returns a human-readable description of the objects contained in the collection. 
+  String get description => _results.description;
+
+  /// Adds a [ResultsListenerCallback] which will be called when a live collection instance changes.
+  void addListener(ResultsListenerCallback callback) {
+    _results.addListener(callback);
   }
 
-  min() {
-    // TODO: implement min
-    return null;
+  /// Removes a [ResultsListenerCallback] that was previously added with [addListener]
+  /// 
+  /// The callback argument should be the same callback reference used in a previous call to [addListener]
+  /// ```dart
+  /// var callback = (collection, changes) { ... }
+  /// realm.addListener(callback);
+  /// realm.removeListener(callback);
+  /// ```
+  void removeListener(ResultsListenerCallback callback) {
+    _results.removeListener(callback);
   }
 
-  // TODO: implement optional
-  int get optional => _results.optional;
-
-  removeAllListeners() {
-    // TODO: implement removeAllListeners
-    return null;
+  /// Removes all [ResultsListenerCallback] that were previously added with [addListener] 
+  void removeAllListeners() {
+    _results.removeAllListeners();
   }
 
-  removeListener() {
-    // TODO: implement removeListener
-    return null;
+  /// Returns a `Results<T>` which is a frozen snapshot of the collection.
+  /// 
+  /// Values added to and removed from the original collection will not be 
+  /// reflected in the new collection, including if the values 
+  /// of properties are changed to make them match or not match any filters applied.
+  ///
+  /// This is not a deep snapshot. Realm objects contained in this snapshot will
+  /// continue to update as changes are made to them, and if they are deleted 
+  /// from the Realm they will be replaced by null at the respective indices.
+  Results<T> snapshot() {
+    var results = _results.snapshot();
+    return Results<T>(results);
   }
 
-  snapshot() {
-    // TODO: implement snapshot
-    return null;
-  }
-
-  sorted() {
-    // TODO: implement sorted
-    return null;
-  }
-
-  sum() {
-    // TODO: implement sum
-    return null;
-  }
-
-  // TODO: implement type
-  int get type => _results.type;
-
-  update() {
-    // TODO: implement update
-    return null;
-  }
-
-  @override
+  /// Not supported
   void set length(int newLength) {
     throw new Exception("Setting length on Results<T> is not supported");
   }

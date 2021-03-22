@@ -112,7 +112,17 @@ public:
 	    bool operator()(const Protected<MemberType>& a, const Protected<MemberType>& b) const {
 			MemberType aValue = a;
 			MemberType bValue = b;
-			return aValue == bValue;
+
+			if (aValue == bValue) {
+				return true;
+			}
+
+			bool isFunction = std::is_same<MemberType, Function::FunctionType>::value;
+			if (isFunction) {
+				return Value::identityEquals(nullptr, a, b);
+			}
+
+			return false;
 	    }
 	};
 };
