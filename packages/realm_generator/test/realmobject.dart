@@ -1,0 +1,1 @@
+../../../generator/test/realmobject.dart

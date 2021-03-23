@@ -1,13 +1,13 @@
 .DS_Store
 .dart_tool/
 
-.packages
 .pub/
 
 build/
 
-#dart packages and flutter plugins should track commit this file
+#dart packages and flutter plugins should track commit these files
 pubspec.lock
+.packages
 
 test/*.g.dart
 example/.dart_tool/
