@@ -1,5 +1,5 @@
 name: realm_generator
-description: Generates RealmObject classes from Realm schema definitions. This package is part of the official MongoDB Realm SDK
+description: Generates RealmObject classes from Realm data model classes. This package is part of the official Realm Flutter and Realm Dart SDKs 
 version: 0.1.0-preview
 
 homepage: https://www.realm.io
