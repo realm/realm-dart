@@ -68,9 +68,7 @@ class Realm extends DynamicObject {
   // Used from native code
   Realm._constructor();
 
-  /// Opens a Realm using a [config]
-  /// 
-  /// For more details about the configuration object see [Configuration]
+  /// Opens a Realm using a [Configuration] object
   factory Realm(Configuration config) native "Realm_constructor";
 
   //native code expects first argument this instance. For static methods pass null
@@ -127,9 +125,8 @@ class Realm extends DynamicObject {
 
   /// Returns the Realm default path on the current platform.
   /// 
-  /// For more details about the Realm default path see [Configuration]
+  /// For more details about the path to the Realm file see [Configuration.path]
   static String get defaultPath native "Realm_get_defaultPath";
-
 
   /// Create a new Realm object of type `T`
   ///
