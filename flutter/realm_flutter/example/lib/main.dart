@@ -23,9 +23,6 @@ import 'package:flutter/services.dart';
 // import 'package:realm/realm_flutter.dart';
 import 'package:realm/realm.dart';
 
-import 'dart:ffi';
-import 'dart:io';
-
 part 'main.g.dart';
 
 class _Car {
@@ -33,30 +30,8 @@ class _Car {
   String make;
 }
 
-String _platformPath(String name, {String path}) {
-  if (path == null) path = "";
-  if (Platform.isLinux || Platform.isAndroid)
-    return path + "lib" + name + ".so";
-  if (Platform.isMacOS) return path + "lib" + name + ".dylib";
-  if (Platform.isWindows) return path + name + ".dll";
-  throw Exception("Platform not implemented");
-}
-
-DynamicLibrary dlopenPlatformSpecific(String name, {String path}) {
-  String fullPath = _platformPath(name, path: path);
-  return DynamicLibrary.open(fullPath);
-}
-
 void main() {
-  print("Loading realm_flutter library");
-  final testLibrary = dlopenPlatformSpecific("realm_flutter");
-  print("finding the function");
-  final initializeApi = testLibrary.lookupFunction<
-    IntPtr Function(Pointer<Void>),
-    int Function(Pointer<Void>)>("Dart_InitializeApiDL");
-
-  print(initializeApi(NativeApi.initializeApiDLData) == 0);
-  print("Running the app");
+  initRealm();
   runApp(MyApp());
 }
 

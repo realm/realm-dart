@@ -18,6 +18,7 @@
 
 package io.realm.realm_flutter;
 
+import android.util.Log;
 import androidx.annotation.NonNull;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -37,6 +38,11 @@ public class RealmFlutterPlugin implements FlutterPlugin, MethodCallHandler {
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
+    System.loadLibrary("realm_flutter");
+    Log.d("Realm_Flutter_Example", "calling initRealm");  
+    io.realm.realm_flutter.RealmFlutter.initRealm(flutterPluginBinding.getApplicationContext());
+    Log.d("Realm_Flutter_Example", "Realm Flutter initialized");
+    
     channel = new MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "realm_flutter");
     channel.setMethodCallHandler(this);
   }

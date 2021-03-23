@@ -29,3 +29,6 @@ import 'realm_class.dart';
 export 'realm_class.dart' hide Results, Helpers, DynamicObject;
 
 const bool IsFlutterPlatform =  false;
+
+// This is a no-op in Realm Dart
+void initRealm() {}
