@@ -51,14 +51,20 @@ void initRealm() {
   }
 
   DynamicLibrary dlopenPlatformSpecific(String name, {String path}) {
+    if (Platform.isIOS) {
+      final DynamicLibrary nativelib = DynamicLibrary.process();
+      return nativelib;
+    }
+
     String fullPath = _platformPath(name, path: path);
     return DynamicLibrary.open(fullPath);
   }
 
   final testLibrary = dlopenPlatformSpecific("realm_flutter");
-  print("finding the function Realm initialization");
+  print("finding the Realm initialization function");
   final initializeApi = testLibrary.lookupFunction<IntPtr Function(Pointer<Void>), int Function(Pointer<Void>)>("Dart_InitializeApiDL");
   if (initializeApi == null) {
+    print("fRealm initialization function not found");
     throw Exception("Realm initialization function not found");
   }
 

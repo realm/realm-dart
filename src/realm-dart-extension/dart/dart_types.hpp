@@ -18,6 +18,10 @@
 
 #pragma once
 
+#if (FLUTTER && APPLE)
+#pragma clang diagnostic ignored "-Wdocumentation"
+#endif
+
 #ifdef FLUTTER
 #include "realm_flutter.h"
 #endif
