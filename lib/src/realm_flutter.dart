@@ -47,28 +47,47 @@ void initRealm() {
     if (Platform.isLinux || Platform.isAndroid) return path + "lib" + name + ".so";
     if (Platform.isMacOS) return path + "lib" + name + ".dylib";
     if (Platform.isWindows) return path + name + ".dll";
+    if (Platform.isIOS) return path + "/" + name;
     throw Exception("Platform not implemented");
   }
 
   DynamicLibrary dlopenPlatformSpecific(String name, {String path}) {
-    if (Platform.isIOS) {
-      final DynamicLibrary nativelib = DynamicLibrary.process();
-      return nativelib;
-    }
-
     String fullPath = _platformPath(name, path: path);
     return DynamicLibrary.open(fullPath);
   }
 
-  final testLibrary = dlopenPlatformSpecific("realm_flutter");
-  print("finding the Realm initialization function");
-  final initializeApi = testLibrary.lookupFunction<IntPtr Function(Pointer<Void>), int Function(Pointer<Void>)>("Dart_InitializeApiDL");
+  DynamicLibrary realmLibrary;
+  if (Platform.isIOS) {
+    //in release load from the binary
+    try {
+      realmLibrary = dlopenPlatformSpecific("realm", path: "Flutter.framework");
+    }
+    catch (e) {
+      //in dev mode load from the process
+      print("Loading realm library in dev mode");
+      realmLibrary = DynamicLibrary.process();
+    }
+  }
+  else if (Platform.isAndroid) {
+    realmLibrary = dlopenPlatformSpecific("realm_flutter");
+  }
+  else {
+    throw Exception("Unsupported platform: ${Platform.operatingSystem}");
+  }
+
+
+  print("Finding the Realm initialization functions");
+  final initializeApi = realmLibrary.lookupFunction<IntPtr Function(Pointer<Void>), int Function(Pointer<Void>)>("Dart_InitializeApiDL");
   if (initializeApi == null) {
-    print("fRealm initialization function not found");
+    print("Realm initialization function not found");
     throw Exception("Realm initialization function not found");
   }
 
-  print(initializeApi(NativeApi.initializeApiDLData) == 0);
+  print("calling Realm initialization");
+  var initResult = initializeApi(NativeApi.initializeApiDLData);
+  if(initResult == 0) {
+      print("Realm initialization success");
+  }
 
   _initialized = true;
 }
