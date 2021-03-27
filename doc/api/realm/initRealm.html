@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the initRealm function from the realm library, for the Dart programming language.">
+  <title>initRealm function - realm library - Dart API</title>
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="../static-assets/github.css">
+  <link rel="stylesheet" href="../static-assets/styles.css">
+  <link rel="icon" href="../static-assets/favicon.png">
+
+</head>
+
+<body data-base-href="../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">realm_dart</a></li>
+    <li><a href="../realm/realm-library.html">realm</a></li>
+    <li class="self-crumb">initRealm function</li>
+  </ol>
+  <div class="self-name">initRealm</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+      <form class="search-sidebar" role="search">
+        <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+      </form>
+    </header>
+    
+    <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+      <li><a href="../index.html">realm_dart</a></li>
+      <li><a href="../realm/realm-library.html">realm</a></li>
+      <li class="self-crumb">initRealm function</li>
+    </ol>
+    
+    <h5>realm library</h5>
+    <ol>
+  <li class="section-title"><a href="../realm/realm-library.html#classes">Classes</a></li>
+  <li><a href="../realm/ArrayList-class.html">ArrayList</a></li>
+  <li><a href="../realm/Collection-class.html">Collection</a></li>
+  <li><a href="../realm/Configuration-class.html">Configuration</a></li>
+  <li><a href="../realm/DynamicObject-class.html">DynamicObject</a></li>
+  <li><a href="../realm/Helpers-class.html">Helpers</a></li>
+  <li><a href="../realm/Realm-class.html">Realm</a></li>
+  <li><a href="../realm/RealmList-class.html">RealmList</a></li>
+  <li><a href="../realm/RealmObject-class.html">RealmObject</a></li>
+  <li><a href="../realm/RealmProperty-class.html">RealmProperty</a></li>
+  <li><a href="../realm/RealmResults-class.html">RealmResults</a></li>
+  <li><a href="../realm/Results-class.html">Results</a></li>
+  <li><a href="../realm/SchemaObjects-class.html">SchemaObjects</a></li>
+  <li><a href="../realm/SchemaProperty-class.html">SchemaProperty</a></li>
+  <li><a href="../realm/TypeStaticProperties-class.html">TypeStaticProperties</a></li>
+
+  <li class="section-title"><a href="../realm/realm-library.html#extension">Extensions</a></li>
+  <li><a href="../realm/Super.html">Super</a></li>
+  <li><a href="../realm/SymbolHelper.html">SymbolHelper</a></li>
+
+
+  <li class="section-title"><a href="../realm/realm-library.html#constants">Constants</a></li>
+  <li><a href="../realm/IsFlutterPlatform-constant.html">IsFlutterPlatform</a></li>
+
+
+  <li class="section-title"><a href="../realm/realm-library.html#functions">Functions</a></li>
+  <li><a href="../realm/initRealm.html">initRealm</a></li>
+
+  <li class="section-title"><a href="../realm/realm-library.html#enums">Enums</a></li>
+  <li><a href="../realm/Event-class.html">Event</a></li>
+
+  <li class="section-title"><a href="../realm/realm-library.html#typedefs">Typedefs</a></li>
+  <li><a href="../realm/ListenerCallback.html">ListenerCallback</a></li>
+  <li><a href="../realm/ResultsListenerCallback.html">ResultsListenerCallback</a></li>
+  <li><a href="../realm/VoidCallback.html">VoidCallback</a></li>
+
+  <li class="section-title"><a href="../realm/realm-library.html#exceptions">Exceptions</a></li>
+  <li><a href="../realm/RealmException-class.html">RealmException</a></li>
+</ol>
+
+  </div><!--/.sidebar-offcanvas-left-->
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div><h1><span class="kind-function">initRealm</span> function  </h1></div>
+
+    <section class="multi-line-signature">
+        <span class="returntype">void</span>
+                <span class="name ">initRealm</span>
+(<wbr>)
+    </section>
+    <section class="desc markdown">
+      <p>Initializes Realm library</p>
+<p>This function must be called in the main() funciton of the application before Realm is used</p>
+<pre class="language-dart"><code class="language-dart">void main() {
+  initRealm();
+  runApp(MyApp());
+}
+</code></pre>
+    </section>
+    
+    <section class="summary source-code" id="source">
+      <h2><span>Implementation</span></h2>
+      <pre class="language-dart"><code class="language-dart">void initRealm() {
+  if (_initialized) {
+    return;
+  }
+
+  String _platformPath(String name, {String path}) {
+    if (path == null) path = &quot;&quot;;
+    if (Platform.isLinux || Platform.isAndroid) return path + &quot;lib&quot; + name + &quot;.so&quot;;
+    if (Platform.isMacOS) return path + &quot;lib&quot; + name + &quot;.dylib&quot;;
+    if (Platform.isWindows) return path + name + &quot;.dll&quot;;
+    if (Platform.isIOS) return path + &quot;&#47;&quot; + name;
+    throw Exception(&quot;Platform not implemented&quot;);
+  }
+
+  DynamicLibrary dlopenPlatformSpecific(String name, {String path}) {
+    String fullPath = _platformPath(name, path: path);
+    return DynamicLibrary.open(fullPath);
+  }
+
+  DynamicLibrary realmLibrary;
+  if (Platform.isIOS) {
+    &#47;&#47;in release load from the binary
+    try {
+      realmLibrary = dlopenPlatformSpecific(&quot;realm&quot;, path: &quot;Flutter.framework&quot;);
+    }
+    catch (e) {
+      &#47;&#47;in dev mode load from the process
+      print(&quot;Loading realm library in dev mode&quot;);
+      realmLibrary = DynamicLibrary.process();
+    }
+  }
+  else if (Platform.isAndroid) {
+    realmLibrary = dlopenPlatformSpecific(&quot;realm_flutter&quot;);
+  }
+  else {
+    throw Exception(&quot;Unsupported platform: ${Platform.operatingSystem}&quot;);
+  }
+
+
+  print(&quot;Finding the Realm initialization functions&quot;);
+  final initializeApi = realmLibrary.lookupFunction&lt;IntPtr Function(Pointer&lt;Void&gt;), int Function(Pointer&lt;Void&gt;)&gt;(&quot;Dart_InitializeApiDL&quot;);
+  if (initializeApi == null) {
+    print(&quot;Realm initialization function not found&quot;);
+    throw Exception(&quot;Realm initialization function not found&quot;);
+  }
+
+  print(&quot;calling Realm initialization&quot;);
+  var initResult = initializeApi(NativeApi.initializeApiDLData);
+  if(initResult == 0) {
+      print(&quot;Realm initialization success&quot;);
+  }
+
+  _initialized = true;
+}</code></pre>
+    </section>
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    realm_dart
+      0.1.0-preview
+  </span>
+
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="../static-assets/typeahead.bundle.min.js"></script>
+<script src="../static-assets/highlight.pack.js"></script>
+<script src="../static-assets/script.js"></script>
+
+
+</body>
+
+</html>

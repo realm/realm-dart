@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="generator" content="made with love by dartdoc 0.39.0">
+  <meta name="description" content="realm_dart API docs, for the Dart programming language.">
+  <title>realm_dart - Dart API docs</title>
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="static-assets/github.css">
+  <link rel="stylesheet" href="static-assets/styles.css">
+  <link rel="icon" href="static-assets/favicon.png">
+
+</head>
+
+<body data-base-href=""
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="https://www.realm.io">realm_dart package</a></li>
+  </ol>
+  <div class="self-name">realm_dart</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+      <form class="search-sidebar" role="search">
+        <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+      </form>
+    </header>
+    
+    <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+      <li><a href="https://www.realm.io">realm_dart package</a></li>
+    </ol>
+    
+    <h5 class="hidden-xs"><span class="package-name">realm_dart</span> <span class="package-kind">package</span></h5>
+    <ol>
+          <li class="section-title">Libraries</li>
+          <li><a href="main/main-library.html">main</a></li>
+          <li><a href="realm/realm-library.html">realm</a></li>
+    </ol>
+  </div>
+
+  <div id="dartdoc-main-content" class="main-content">
+      <section class="desc markdown">
+        <p><img src="logo.png" alt="Realm"></p>
+<p><a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache-blue.svg" alt="License"></a></p>
+<p>Realm is a mobile database that runs directly inside phones, tablets or wearables.
+This repository holds the source code for the Realm SDK for Flutter™ and Dart™</p>
+<p><strong>This project is in experimental stage, it should not be used in production.</strong></p>
+<p>The preview version of Realm SDK for Flutter and Dart allows working with a local Realm database in Dart standalone and Flutter. It provides the functionality for creating, retrieving, querying, sorting, filtering, updating Realm objects and supports change notifications.</p>
+<p>This Realm SDK is implemented as a Dart library and a native code library which is loaded in the application by the user code.</p>
+<p>Flutter Hot Reload is available only when running on the Android x86 Emulator.</p>
+<p>Running on a real Android device always includes the libraries in release mode.</p>
+<h1 id="-todo-insert-realm-flutter-usage-here">&gt;&gt;&gt;&gt;&gt;&gt; TODO: INSERT Realm Flutter Usage here</h1>
+<h1 id="usage">Usage</h1>
+<ul>
+<li>
+<p>Add <code>realm_dart</code> package dependency in the pubspec.yaml of the Dart application</p>
+<pre class="language-dart"><code>  dependencies:
+      realm_dart: ^0.1.0-preview
+</code></pre>
+</li>
+<li>
+<p><code>Windows only</code> Install the <code>realm_dart</code> package into the application</p>
+<pre class="language-dart"><code>  pub run realm_dart install
+</code></pre>
+</li>
+<li>
+<p>Enable generation of Realm schema objects</p>
+<ul>
+<li>Add <code>build_runner</code> package to <code>dev_dependencies</code>
+<pre class="language-dart"><code>  dev_dependencies:
+    build_runner: ^1.10.0
+</code></pre>
+</li>
+<li>Enable realm_generator by adding a <code>build.yaml</code> file to the application
+<pre class="language-dart"><code>  targets:
+      $default:
+          builders:
+              realm_generator|realm_object_builder:
+                  enabled: true
+                  generate_for:
+                      - bin/*.dart 
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="-todo-complete-the-usage-of-realm-and-schema-generation">&gt;&gt;&gt;&gt; TODO: Complete the usage of Realm and schema generation</h1>
+<ul>
+<li>To generate Realm schema objects when needed
+<ul>
+<li>Execute the <code>build_runner</code></li>
+</ul>
+<pre class="language-dart"><code>  pub run build_runner build
+</code></pre>
+</li>
+</ul>
+<h1 id="building-the-source">Building the source</h1>
+<h3 id="buildign-realm-dart-package-for-windows">Buildign Realm Dart package for Windows</h3>
+<pre class="language-dart"><code>cmake.exe -A x64 -DCMAKE_CONFIGURATION_TYPES:STRING="Release" -S . -B out
+cmake --build out --config Release
+</code></pre>
+<h3 id="building-realm-dart-package-for-mac">Building Realm Dart package for Mac</h3>
+<pre class="language-dart"><code>cmake -G Ninja  -S . -B out
+cmake --build out --config Release
+</code></pre>
+<h5 id="the-dart-name-and-logo-and-the-flutter-name-and-logo-are-trademarks-owned-by-google">The "Dart" name and logo and the "Flutter" name and logo are trademarks owned by Google.</h5>
+      </section>
+      
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="main">
+            <span class="name"><a href="main/main-library.html">main</a></span>           
+          </dt>
+          <dd>
+             
+          </dd>
+          <dt id="realm">
+            <span class="name"><a href="realm/realm-library.html">realm</a></span>           
+          </dt>
+          <dd>
+             
+          </dd>
+        </dl>
+      </section>
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+
+</main>
+
+<footer>
+  <span class="no-break">
+    realm_dart
+      0.1.0-preview
+  </span>
+
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="static-assets/typeahead.bundle.min.js"></script>
+<script src="static-assets/highlight.pack.js"></script>
+<script src="static-assets/script.js"></script>
+
+
+</body>
+
+</html>
