@@ -1,4 +1,3 @@
-import 'dart:async';
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Copyright 2021 Realm Inc.
@@ -17,6 +16,7 @@ import 'dart:async';
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:realm_dart/realm.dart';
@@ -399,7 +399,7 @@ void main([List<String> arguments]) {
         realm.create(vw);
       });
 
-      var objects = realm.objects<Car>().where("make =='Audi'");
+      var objects = realm.objects<Car>().where("make == 'Audi'");
       Car filteredCar = objects[0];
       expect(filteredCar, isA<Car>());
       expect(filteredCar.make, equals(audi.make));
