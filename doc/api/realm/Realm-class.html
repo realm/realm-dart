@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Realm class from the realm library, for the Dart programming language.">
+  <title>Realm class - realm library - Dart API</title>
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="../static-assets/github.css">
+  <link rel="stylesheet" href="../static-assets/styles.css">
+  <link rel="icon" href="../static-assets/favicon.png">
+
+</head>
+
+<body data-base-href="../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">realm_dart</a></li>
+    <li><a href="../realm/realm-library.html">realm</a></li>
+    <li class="self-crumb">Realm class</li>
+  </ol>
+  <div class="self-name">Realm</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+      <form class="search-sidebar" role="search">
+        <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+      </form>
+    </header>
+    
+    <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+      <li><a href="../index.html">realm_dart</a></li>
+      <li><a href="../realm/realm-library.html">realm</a></li>
+      <li class="self-crumb">Realm class</li>
+    </ol>
+    
+    <h5>realm library</h5>
+    <ol>
+  <li class="section-title"><a href="../realm/realm-library.html#classes">Classes</a></li>
+  <li><a href="../realm/ArrayList-class.html">ArrayList</a></li>
+  <li><a href="../realm/Collection-class.html">Collection</a></li>
+  <li><a href="../realm/Configuration-class.html">Configuration</a></li>
+  <li><a href="../realm/DynamicObject-class.html">DynamicObject</a></li>
+  <li><a href="../realm/Helpers-class.html">Helpers</a></li>
+  <li><a href="../realm/Realm-class.html">Realm</a></li>
+  <li><a href="../realm/RealmList-class.html">RealmList</a></li>
+  <li><a href="../realm/RealmObject-class.html">RealmObject</a></li>
+  <li><a href="../realm/RealmProperty-class.html">RealmProperty</a></li>
+  <li><a href="../realm/RealmResults-class.html">RealmResults</a></li>
+  <li><a href="../realm/Results-class.html">Results</a></li>
+  <li><a href="../realm/SchemaObjects-class.html">SchemaObjects</a></li>
+  <li><a href="../realm/SchemaProperty-class.html">SchemaProperty</a></li>
+  <li><a href="../realm/TypeStaticProperties-class.html">TypeStaticProperties</a></li>
+
+  <li class="section-title"><a href="../realm/realm-library.html#extension">Extensions</a></li>
+  <li><a href="../realm/Super.html">Super</a></li>
+  <li><a href="../realm/SymbolHelper.html">SymbolHelper</a></li>
+
+
+  <li class="section-title"><a href="../realm/realm-library.html#constants">Constants</a></li>
+  <li><a href="../realm/IsFlutterPlatform-constant.html">IsFlutterPlatform</a></li>
+
+
+  <li class="section-title"><a href="../realm/realm-library.html#functions">Functions</a></li>
+  <li><a href="../realm/initRealm.html">initRealm</a></li>
+
+  <li class="section-title"><a href="../realm/realm-library.html#enums">Enums</a></li>
+  <li><a href="../realm/Event-class.html">Event</a></li>
+
+  <li class="section-title"><a href="../realm/realm-library.html#typedefs">Typedefs</a></li>
+  <li><a href="../realm/ListenerCallback.html">ListenerCallback</a></li>
+  <li><a href="../realm/ResultsListenerCallback.html">ResultsListenerCallback</a></li>
+  <li><a href="../realm/VoidCallback.html">VoidCallback</a></li>
+
+  <li class="section-title"><a href="../realm/realm-library.html#exceptions">Exceptions</a></li>
+  <li><a href="../realm/RealmException-class.html">RealmException</a></li>
+</ol>
+
+  </div>
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div><h1><span class="kind-class">Realm</span> class  </h1></div>
+
+    <section class="desc markdown">
+      <p>A Realm instance represents a Realm database.</p>
+    </section>
+    
+    <section>
+      <dl class="dl-horizontal">
+        <dt>Inheritance</dt>
+        <dd><ul class="gt-separated dark clazz-relationships">
+          <li><a href="https://api.dart.dev/stable/2.12.0/dart-core/Object-class.html">Object</a></li>
+          <li><a href="../realm/DynamicObject-class.html">DynamicObject</a></li>
+          <li>Realm</li>
+        </ul></dd>
+
+
+
+
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="constructors">
+      <h2>Constructors</h2>
+
+      <dl class="constructor-summary-list">
+        <dt id="Realm" class="callable">
+          <span class="name"><a href="../realm/Realm/Realm.html">Realm</a></span><span class="signature">(<span class="parameter" id="-param-config"><span class="type-annotation"><a href="../realm/Configuration-class.html">Configuration</a></span> <span class="parameter-name">config</span></span>)</span>
+        </dt>
+        <dd>
+          Opens a Realm using a <a href="../realm/Configuration-class.html">Configuration</a> object 
+          <div class="constructor-modifier features">factory</div>
+        </dd>
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="instance-properties">
+      <h2>Properties</h2>
+
+      <dl class="properties">
+        <dt id="hashCode" class="property inherited">
+          <span class="name"><a href="https://api.dart.dev/stable/2.12.0/dart-core/Object/hashCode.html">hashCode</a></span>
+          <span class="signature">&#8594; <a href="https://api.dart.dev/stable/2.12.0/dart-core/int-class.html">int</a></span>         
+        </dt>
+        <dd class="inherited">
+          The hash code for this object. <a href="https://api.dart.dev/stable/2.12.0/dart-core/Object/hashCode.html">[...]</a>
+                  <div class="features">read-only, inherited</div>
+</dd>
+        <dt id="isClosed" class="property">
+          <span class="name"><a href="../realm/Realm/isClosed.html">isClosed</a></span>
+          <span class="signature">&#8594; <a href="https://api.dart.dev/stable/2.12.0/dart-core/bool-class.html">bool</a></span>         
+        </dt>
+        <dd>
+          Returns <code>true</code> if this <a href="../realm/Realm-class.html">Realm</a> is closed. 
+                  <div class="features">read-only</div>
+</dd>
+        <dt id="isInTransaction" class="property">
+          <span class="name"><a href="../realm/Realm/isInTransaction.html">isInTransaction</a></span>
+          <span class="signature">&#8594; <a href="https://api.dart.dev/stable/2.12.0/dart-core/bool-class.html">bool</a></span>         
+        </dt>
+        <dd>
+          Returns <code>true</code> if this <a href="../realm/Realm-class.html">Realm</a> has a transaction opened 
+                  <div class="features">read-only</div>
+</dd>
+        <dt id="propertyNames" class="property inherited">
+          <span class="name"><a href="../realm/DynamicObject/propertyNames.html">propertyNames</a></span>
+          <span class="signature">&#8594; <a href="https://api.dart.dev/stable/2.12.0/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/2.12.0/dart-core/String-class.html">String</a></span>&gt;</span></span>         
+        </dt>
+        <dd class="inherited">
+           
+                  <div class="features">read-only, inherited</div>
+</dd>
+        <dt id="runtimeType" class="property inherited">
+          <span class="name"><a href="https://api.dart.dev/stable/2.12.0/dart-core/Object/runtimeType.html">runtimeType</a></span>
+          <span class="signature">&#8594; <a href="https://api.dart.dev/stable/2.12.0/dart-core/Type-class.html">Type</a></span>         
+        </dt>
+        <dd class="inherited">
+          A representation of the runtime type of the object. 
+                  <div class="features">read-only, inherited</div>
+</dd>
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="instance-methods">
+      <h2>Methods</h2>
+      <dl class="callables">
+        <dt id="addListener" class="callable">
+          <span class="name"><a href="../realm/Realm/addListener.html">addListener</a></span><span class="signature">(<wbr><span class="parameter" id="addListener-param-event"><span class="type-annotation"><a href="../realm/Event-class.html">Event</a></span> <span class="parameter-name">event</span>, </span><span class="parameter" id="addListener-param-callback"><span class="type-annotation"><a href="../realm/ListenerCallback.html">ListenerCallback</a></span> <span class="parameter-name">callback</span></span>)
+            <span class="returntype parameter">&#8594; void</span>
+          </span>
+                  </dt>
+        <dd>
+          Add a <a href="../realm/ListenerCallback.html">ListenerCallback</a> callback for the specified event <code>event</code>. <a href="../realm/Realm/addListener.html">[...]</a>
+                  
+</dd>
+        <dt id="close" class="callable">
+          <span class="name"><a href="../realm/Realm/close.html">close</a></span><span class="signature">(<wbr>)
+            <span class="returntype parameter">&#8594; dynamic</span>
+          </span>
+                  </dt>
+        <dd>
+          Closes this <a href="../realm/Realm-class.html">Realm</a> so it may be re-opened with a newer schema version. 
+All objects and collections from this Realm are no longer valid after calling this method.
+This method will not throw an exception if called multiple times. 
+                  
+</dd>
+        <dt id="create" class="callable">
+          <span class="name"><a href="../realm/Realm/create.html">create</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="../realm/RealmObject-class.html">RealmObject</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="create-param-object"><span class="type-annotation">T</span> <span class="parameter-name">object</span></span>)
+            <span class="returntype parameter">&#8594; T</span>
+          </span>
+                  </dt>
+        <dd>
+          Create a new Realm object of type <code>T</code> <a href="../realm/Realm/create.html">[...]</a>
+                  
+</dd>
+        <dt id="delete" class="callable">
+          <span class="name"><a href="../realm/Realm/delete.html">delete</a></span><span class="signature">(<wbr><span class="parameter" id="delete-param-object"><span class="type-annotation"><a href="../realm/RealmObject-class.html">RealmObject</a></span> <span class="parameter-name">object</span></span>)
+            <span class="returntype parameter">&#8594; void</span>
+          </span>
+                  </dt>
+        <dd>
+          Deletes a Realm object from the this <a href="../realm/Realm-class.html">Realm</a>. 
+                  
+</dd>
+        <dt id="deleteAll" class="callable">
+          <span class="name"><a href="../realm/Realm/deleteAll.html">deleteAll</a></span><span class="signature">(<wbr>)
+            <span class="returntype parameter">&#8594; void</span>
+          </span>
+                  </dt>
+        <dd>
+          Deletes all Realm object from the this <a href="../realm/Realm-class.html">Realm</a>. 
+                  
+</dd>
+        <dt id="deleteMany" class="callable">
+          <span class="name"><a href="../realm/Realm/deleteMany.html">deleteMany</a></span><span class="signature">(<wbr><span class="parameter" id="deleteMany-param-objects"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.12.0/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../realm/RealmObject-class.html">RealmObject</a></span>&gt;</span></span> <span class="parameter-name">objects</span></span>)
+            <span class="returntype parameter">&#8594; void</span>
+          </span>
+                  </dt>
+        <dd>
+          Deletes a list of Realm object from the this <a href="../realm/Realm-class.html">Realm</a>. 
+                  
+</dd>
+        <dt id="find" class="callable">
+          <span class="name"><a href="../realm/Realm/find.html">find</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="../realm/RealmObject-class.html">RealmObject</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="find-param-key"><span class="type-annotation">dynamic</span> <span class="parameter-name">key</span></span>)
+            <span class="returntype parameter">&#8594; T</span>
+          </span>
+                  </dt>
+        <dd>
+          Searches for a Realm object with the specified primary key of type <code>T</code>. 
+                  
+</dd>
+        <dt id="noSuchMethod" class="callable inherited">
+          <span class="name"><a href="../realm/DynamicObject/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.12.0/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+            <span class="returntype parameter">&#8594; dynamic</span>
+          </span>
+                  </dt>
+        <dd class="inherited">
+          Invoked when a non-existent method or property is accessed. <a href="../realm/DynamicObject/noSuchMethod.html">[...]</a>
+                  <div class="features">inherited</div>
+</dd>
+        <dt id="objects" class="callable">
+          <span class="name"><a href="../realm/Realm/objects.html">objects</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="../realm/RealmObject-class.html">RealmObject</a></span>&gt;</span><span class="signature">(<wbr>)
+            <span class="returntype parameter">&#8594; <a href="../realm/Results-class.html">Results</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+          </span>
+                  </dt>
+        <dd>
+          Gets all objects of type <code>T</code> <a href="../realm/Realm/objects.html">[...]</a>
+                  
+</dd>
+        <dt id="removeListener" class="callable">
+          <span class="name"><a href="../realm/Realm/removeListener.html">removeListener</a></span><span class="signature">(<wbr><span class="parameter" id="removeListener-param-event"><span class="type-annotation"><a href="../realm/Event-class.html">Event</a></span> <span class="parameter-name">event</span>, </span><span class="parameter" id="removeListener-param-callback"><span class="type-annotation"><a href="../realm/ListenerCallback.html">ListenerCallback</a></span> <span class="parameter-name">callback</span></span>)
+            <span class="returntype parameter">&#8594; void</span>
+          </span>
+                  </dt>
+        <dd>
+          Remove a <a href="../realm/ListenerCallback.html">ListenerCallback</a> callback for the specified event <code>event</code>. <a href="../realm/Realm/removeListener.html">[...]</a>
+                  
+</dd>
+        <dt id="toString" class="callable inherited">
+          <span class="name"><a href="https://api.dart.dev/stable/2.12.0/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+            <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/2.12.0/dart-core/String-class.html">String</a></span>
+          </span>
+                  </dt>
+        <dd class="inherited">
+          A string representation of this object. <a href="https://api.dart.dev/stable/2.12.0/dart-core/Object/toString.html">[...]</a>
+                  <div class="features">inherited</div>
+</dd>
+        <dt id="write" class="callable">
+          <span class="name"><a href="../realm/Realm/write.html">write</a></span><span class="signature">(<wbr><span class="parameter" id="write-param-callback"><span class="type-annotation"><a href="../realm/VoidCallback.html">VoidCallback</a></span> <span class="parameter-name">callback</span></span>)
+            <span class="returntype parameter">&#8594; void</span>
+          </span>
+                  </dt>
+        <dd>
+          Synchronously call the provided callback inside a write transaction. 
+If an exception happens inside a transaction, you'll lose the changes in that transaction, 
+but the Realm itself won't be affected (or corrupted). <a href="../realm/Realm/write.html">[...]</a>
+                  
+</dd>
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor inherited" id="operators">
+      <h2>Operators</h2>
+      <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+          <span class="name"><a href="https://api.dart.dev/stable/2.12.0/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.12.0/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+            <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/2.12.0/dart-core/bool-class.html">bool</a></span>
+          </span>
+                  </dt>
+        <dd class="inherited">
+          The equality operator. <a href="https://api.dart.dev/stable/2.12.0/dart-core/Object/operator_equals.html">[...]</a>
+                  <div class="features">inherited</div>
+</dd>
+        <dt id="operator []" class="callable inherited">
+          <span class="name"><a href="../realm/DynamicObject/operator_get.html">operator []</a></span><span class="signature">(<wbr><span class="parameter" id="[]-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.12.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+            <span class="returntype parameter">&#8594; dynamic</span>
+          </span>
+                  </dt>
+        <dd class="inherited">
+           
+                  <div class="features">inherited</div>
+</dd>
+        <dt id="operator []=" class="callable inherited">
+          <span class="name"><a href="../realm/DynamicObject/operator_put.html">operator []=</a></span><span class="signature">(<wbr><span class="parameter" id="[]=-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.12.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="[]=-param-value"><span class="type-annotation">dynamic</span> <span class="parameter-name">value</span></span>)
+            <span class="returntype parameter">&#8594; void</span>
+          </span>
+                  </dt>
+        <dd class="inherited">
+           
+                  <div class="features">inherited</div>
+</dd>
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="static-properties">
+      <h2>Static Properties</h2>
+
+      <dl class="properties">
+        <dt id="defaultPath" class="property">
+          <span class="name"><a href="../realm/Realm/defaultPath.html">defaultPath</a></span>
+          <span class="signature">&#8594; <a href="https://api.dart.dev/stable/2.12.0/dart-core/String-class.html">String</a></span>         
+        </dt>
+        <dd>
+          Returns the Realm default path on the current platform. <a href="../realm/Realm/defaultPath.html">[...]</a>
+                  <div class="features">read-only</div>
+</dd>
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="static-methods">
+      <h2>Static Methods</h2>
+      <dl class="callables">
+        <dt id="clearTestState" class="callable">
+          <span class="name"><a href="../realm/Realm/clearTestState.html">clearTestState</a></span><span class="signature">(<wbr>)
+            <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/2.12.0/dart-core/bool-class.html">bool</a></span>
+          </span>
+                  </dt>
+        <dd>
+          DO NOT USE. 
+                  
+</dd>
+        <dt id="deleteFile" class="callable">
+          <span class="name"><a href="../realm/Realm/deleteFile.html">deleteFile</a></span><span class="signature">(<wbr><span class="parameter" id="deleteFile-param-path"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.12.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">path</span></span>)
+            <span class="returntype parameter">&#8594; void</span>
+          </span>
+                  </dt>
+        <dd>
+          Delete the Realm file at <code>path</code> 
+                  
+</dd>
+        <dt id="exists" class="callable">
+          <span class="name"><a href="../realm/Realm/exists.html">exists</a></span><span class="signature">(<wbr><span class="parameter" id="exists-param-path"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.12.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">path</span></span>)
+            <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/2.12.0/dart-core/bool-class.html">bool</a></span>
+          </span>
+                  </dt>
+        <dd>
+          Returns <code>true</code> if the Realm already exists on <code>path</code>. 
+                  
+</dd>
+        <dt id="schemaVersion" class="callable">
+          <span class="name"><a href="../realm/Realm/schemaVersion.html">schemaVersion</a></span><span class="signature">(<wbr><span class="parameter" id="schemaVersion-param-path"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.12.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">path</span></span>)
+            <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/2.12.0/dart-core/double-class.html">double</a></span>
+          </span>
+                  </dt>
+        <dd>
+          Get the schemaVersion version of the Realm at <code>path</code>. <a href="../realm/Realm/schemaVersion.html">[...]</a>
+                  
+</dd>
+      </dl>
+    </section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <ol>
+
+    <li class="section-title"><a href="../realm/Realm-class.html#constructors">Constructors</a></li>
+    <li><a href="../realm/Realm/Realm.html">Realm</a></li>
+
+
+    <li class="section-title">
+      <a href="../realm/Realm-class.html#instance-properties">Properties</a>
+    </li>
+    <li class="inherited"><a href="https://api.dart.dev/stable/2.12.0/dart-core/Object/hashCode.html">hashCode</a></li>
+    <li><a href="../realm/Realm/isClosed.html">isClosed</a></li>
+    <li><a href="../realm/Realm/isInTransaction.html">isInTransaction</a></li>
+    <li class="inherited"><a href="../realm/DynamicObject/propertyNames.html">propertyNames</a></li>
+    <li class="inherited"><a href="https://api.dart.dev/stable/2.12.0/dart-core/Object/runtimeType.html">runtimeType</a></li>
+
+    <li class="section-title"><a href="../realm/Realm-class.html#instance-methods">Methods</a></li>
+    <li><a href="../realm/Realm/addListener.html">addListener</a></li>
+    <li><a href="../realm/Realm/close.html">close</a></li>
+    <li><a href="../realm/Realm/create.html">create</a></li>
+    <li><a href="../realm/Realm/delete.html">delete</a></li>
+    <li><a href="../realm/Realm/deleteAll.html">deleteAll</a></li>
+    <li><a href="../realm/Realm/deleteMany.html">deleteMany</a></li>
+    <li><a href="../realm/Realm/find.html">find</a></li>
+    <li class="inherited"><a href="../realm/DynamicObject/noSuchMethod.html">noSuchMethod</a></li>
+    <li><a href="../realm/Realm/objects.html">objects</a></li>
+    <li><a href="../realm/Realm/removeListener.html">removeListener</a></li>
+    <li class="inherited"><a href="https://api.dart.dev/stable/2.12.0/dart-core/Object/toString.html">toString</a></li>
+    <li><a href="../realm/Realm/write.html">write</a></li>
+
+    <li class="section-title inherited"><a href="../realm/Realm-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.dart.dev/stable/2.12.0/dart-core/Object/operator_equals.html">operator ==</a></li>
+    <li class="inherited"><a href="../realm/DynamicObject/operator_get.html">operator []</a></li>
+    <li class="inherited"><a href="../realm/DynamicObject/operator_put.html">operator []=</a></li>
+
+
+    <li class="section-title"><a href="../realm/Realm-class.html#static-properties">Static properties</a></li>
+    <li><a href="../realm/Realm/defaultPath.html">defaultPath</a></li>
+
+    <li class="section-title"><a href="../realm/Realm-class.html#static-methods">Static methods</a></li>
+    <li><a href="../realm/Realm/clearTestState.html">clearTestState</a></li>
+    <li><a href="../realm/Realm/deleteFile.html">deleteFile</a></li>
+    <li><a href="../realm/Realm/exists.html">exists</a></li>
+    <li><a href="../realm/Realm/schemaVersion.html">schemaVersion</a></li>
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    realm_dart
+      0.1.0-preview
+  </span>
+
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="../static-assets/typeahead.bundle.min.js"></script>
+<script src="../static-assets/highlight.pack.js"></script>
+<script src="../static-assets/script.js"></script>
+
+
+</body>
+
+</html>

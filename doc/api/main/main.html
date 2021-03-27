@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the main function from the main library, for the Dart programming language.">
+  <title>main function - main library - Dart API</title>
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="../static-assets/github.css">
+  <link rel="stylesheet" href="../static-assets/styles.css">
+  <link rel="icon" href="../static-assets/favicon.png">
+
+</head>
+
+<body data-base-href="../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">realm_dart</a></li>
+    <li><a href="../main/main-library.html">main</a></li>
+    <li class="self-crumb">main function</li>
+  </ol>
+  <div class="self-name">main</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+      <form class="search-sidebar" role="search">
+        <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+      </form>
+    </header>
+    
+    <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+      <li><a href="../index.html">realm_dart</a></li>
+      <li><a href="../main/main-library.html">main</a></li>
+      <li class="self-crumb">main function</li>
+    </ol>
+    
+    <h5>main library</h5>
+    <ol>
+  <li class="section-title"><a href="../main/main-library.html#classes">Classes</a></li>
+  <li><a href="../main/Car-class.html">Car</a></li>
+  <li><a href="../main/Person-class.html">Person</a></li>
+
+
+
+
+
+  <li class="section-title"><a href="../main/main-library.html#functions">Functions</a></li>
+  <li><a href="../main/dlopenPlatformSpecific.html">dlopenPlatformSpecific</a></li>
+  <li><a href="../main/main.html">main</a></li>
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-left-->
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div><h1><span class="kind-function">main</span> function  </h1></div>
+
+    <section class="multi-line-signature">
+        <span class="returntype">void</span>
+                <span class="name ">main</span>
+(<wbr>)
+    </section>
+    
+    <section class="summary source-code" id="source">
+      <h2><span>Implementation</span></h2>
+      <pre class="language-dart"><code class="language-dart">void main() {
+  if (IsFlutterPlatform) {
+    final testLibrary = dlopenPlatformSpecific(&quot;realm_flutter&quot;);
+
+    final initializeApi = testLibrary.lookupFunction&lt;
+        IntPtr Function(Pointer&lt;Void&gt;),
+        int Function(Pointer&lt;Void&gt;)&gt;(&quot;Dart_InitializeApiDL&quot;);
+    print(initializeApi(NativeApi.initializeApiDLData) == 0);
+  }
+
+
+  &#47;&#47;reflectClass(key)
+  &#47;&#47;var libs = currentMirrorSystem().libraries;
+  &#47;&#47; var car = Expando&lt;Object&gt;();
+  &#47;&#47; car.name = ;
+
+  &#47;&#47; dynamic car = Car();
+  &#47;&#47; car.name = &quot;Car&quot;;
+  &#47;&#47; car.properties
+
+  &#47;&#47; car.properties = Map&lt;String, dynamic&gt;();
+  &#47;&#47; car.properties = {
+  &#47;&#47;     &quot;make&quot;: &quot;string&quot;,
+  &#47;&#47;     &quot;model&quot;: &quot;string&quot;,
+  &#47;&#47;     &quot;kilometrs&quot; : DynamicObject()
+  &#47;&#47; };
+
+  &#47;&#47; var schema = ObjectSchema(
+  &#47;&#47;   name: &quot;Car&quot;,
+  &#47;&#47;   properties: SchemaDynamicObject({
+  &#47;&#47;     make&quot; : &quot;string&quot;,
+  &#47;&#47;     model
+  &#47;&#47;   })
+
+  &#47;&#47; );
+  print(&quot;Current PID ${pid}&quot;);
+
+  var config = new Configuration();
+  config.schema.add(Car);
+
+  &#47;&#47;config.schema.addAll([Car, Person]);
+  &#47;&#47; config.schema.define&lt;Car&gt;()..define&lt;Person&gt;()..define&lt;Person&gt;();
+
+  &#47;&#47; config.schema.defineAll([Car, Person.]);
+  &#47;&#47;..define(Person);
+
+  var realm = new Realm(config);
+
+  realm.write(() {
+    print(&quot;realm write callback&quot;);
+    var car = realm.create(new Car()..make = &quot;Audi&quot;);
+    print(&quot;The car is ${car.make}&quot;);
+    &#47;&#47; car.make = &quot;VW&quot;;
+    &#47;&#47; print(&quot;The car is ${car.make}&quot;);
+  });
+
+  var objects = realm.objects&lt;Car&gt;();
+  var indexedCar = objects[0];
+  print(&quot;The indexedCar is ${indexedCar.make}&quot;);
+
+  print(&quot;Exit&quot;);
+}</code></pre>
+    </section>
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    realm_dart
+      0.1.0-preview
+  </span>
+
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="../static-assets/typeahead.bundle.min.js"></script>
+<script src="../static-assets/highlight.pack.js"></script>
+<script src="../static-assets/script.js"></script>
+
+
+</body>
+
+</html>

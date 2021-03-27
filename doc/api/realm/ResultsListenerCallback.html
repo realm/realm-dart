@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ResultsListenerCallback property from the realm library, for the Dart programming language.">
+  <title>ResultsListenerCallback typedef - realm library - Dart API</title>
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="../static-assets/github.css">
+  <link rel="stylesheet" href="../static-assets/styles.css">
+  <link rel="icon" href="../static-assets/favicon.png">
+
+</head>
+
+<body data-base-href="../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">realm_dart</a></li>
+    <li><a href="../realm/realm-library.html">realm</a></li>
+    <li class="self-crumb">ResultsListenerCallback typedef</li>
+  </ol>
+  <div class="self-name">ResultsListenerCallback</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+      <form class="search-sidebar" role="search">
+        <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+      </form>
+    </header>
+    
+    <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+      <li><a href="../index.html">realm_dart</a></li>
+      <li><a href="../realm/realm-library.html">realm</a></li>
+      <li class="self-crumb">ResultsListenerCallback typedef</li>
+    </ol>
+    
+    <h5>realm library</h5>
+    <ol>
+  <li class="section-title"><a href="../realm/realm-library.html#classes">Classes</a></li>
+  <li><a href="../realm/ArrayList-class.html">ArrayList</a></li>
+  <li><a href="../realm/Collection-class.html">Collection</a></li>
+  <li><a href="../realm/Configuration-class.html">Configuration</a></li>
+  <li><a href="../realm/DynamicObject-class.html">DynamicObject</a></li>
+  <li><a href="../realm/Helpers-class.html">Helpers</a></li>
+  <li><a href="../realm/Realm-class.html">Realm</a></li>
+  <li><a href="../realm/RealmList-class.html">RealmList</a></li>
+  <li><a href="../realm/RealmObject-class.html">RealmObject</a></li>
+  <li><a href="../realm/RealmProperty-class.html">RealmProperty</a></li>
+  <li><a href="../realm/RealmResults-class.html">RealmResults</a></li>
+  <li><a href="../realm/Results-class.html">Results</a></li>
+  <li><a href="../realm/SchemaObjects-class.html">SchemaObjects</a></li>
+  <li><a href="../realm/SchemaProperty-class.html">SchemaProperty</a></li>
+  <li><a href="../realm/TypeStaticProperties-class.html">TypeStaticProperties</a></li>
+
+  <li class="section-title"><a href="../realm/realm-library.html#extension">Extensions</a></li>
+  <li><a href="../realm/Super.html">Super</a></li>
+  <li><a href="../realm/SymbolHelper.html">SymbolHelper</a></li>
+
+
+  <li class="section-title"><a href="../realm/realm-library.html#constants">Constants</a></li>
+  <li><a href="../realm/IsFlutterPlatform-constant.html">IsFlutterPlatform</a></li>
+
+
+  <li class="section-title"><a href="../realm/realm-library.html#functions">Functions</a></li>
+  <li><a href="../realm/initRealm.html">initRealm</a></li>
+
+  <li class="section-title"><a href="../realm/realm-library.html#enums">Enums</a></li>
+  <li><a href="../realm/Event-class.html">Event</a></li>
+
+  <li class="section-title"><a href="../realm/realm-library.html#typedefs">Typedefs</a></li>
+  <li><a href="../realm/ListenerCallback.html">ListenerCallback</a></li>
+  <li><a href="../realm/ResultsListenerCallback.html">ResultsListenerCallback</a></li>
+  <li><a href="../realm/VoidCallback.html">VoidCallback</a></li>
+
+  <li class="section-title"><a href="../realm/realm-library.html#exceptions">Exceptions</a></li>
+  <li><a href="../realm/RealmException-class.html">RealmException</a></li>
+</ol>
+
+  </div><!--/.sidebar-offcanvas-left-->
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div><h1><span class="kind-typedef">ResultsListenerCallback</span> typedef  </h1></div>
+
+    <section class="multi-line-signature">
+        <span class="returntype">void</span>
+                <span class="name ">ResultsListenerCallback</span>
+(<wbr><ol class="parameter-list"><li><span class="parameter" id="ResultsListenerCallback-param-collection"><span class="type-annotation">dynamic</span> <span class="parameter-name">collection</span>, </span></li>
+<li><span class="parameter" id="ResultsListenerCallback-param-changes"><span class="type-annotation">dynamic</span> <span class="parameter-name">changes</span></span></li>
+</ol>)
+    </section>
+
+    <section class="desc markdown">
+      <p>A listener callback to be called when the <a href="../realm/Results-class.html">Results&lt;T&gt;</a> collection changes
+The <code>changes</code> parameter will contain a dictionary with keys <code>insertions</code>, 
+<code>newModifications</code>, <code>oldModifications</code> and <code>deletions</code>, each containing a list of 
+indices in the collection that were inserted, updated or deleted respectively.
+<code>deletions</code> and <code>oldModifications</code> are indices into the collection before the 
+change happened, while <code>insertions</code> and <code>newModifications</code> are indices into 
+the new version of the collection.</p>
+    </section>
+        <section class="summary source-code" id="source">
+      <h2><span>Implementation</span></h2>
+      <pre class="language-dart"><code class="language-dart">typedef void ResultsListenerCallback(dynamic collection, dynamic changes);</code></pre>
+    </section>
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    realm_dart
+      0.1.0-preview
+  </span>
+
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="../static-assets/typeahead.bundle.min.js"></script>
+<script src="../static-assets/highlight.pack.js"></script>
+<script src="../static-assets/script.js"></script>
+
+
+</body>
+
+</html>
