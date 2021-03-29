@@ -1,1 +1,6 @@
-../../../../../../flutter/realm_flutter/ios/Frameworks/Flutter.framework/Modules/module.modulemap
+framework module Flutter {
+  umbrella header "Flutter.h"
+
+  export *
+  module * { export * }
+}
