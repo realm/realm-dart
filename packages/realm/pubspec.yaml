@@ -14,8 +14,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  realm_generator: ^0.1.0-preview
-  #realm_generator: path: ../../generator
+  #realm_generator: ^0.1.0-preview
+  realm_generator: 
+    path: ../../generator
   
   meta: ^1.2.4
 
