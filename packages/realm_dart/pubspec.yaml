@@ -7,16 +7,12 @@ repository: https://github.com/realm/realm-dart
 issue_tracker: https://github.com/realm/realm-dart/issues
 
 
-publish_to: none
-
 environment:
-    sdk: ">=2.12.0 <3.0.0"
+    sdk: ">=2.10.0 <3.0.0"
 
 dependencies: 
     meta: ^1.1.8
-        #realm_generator: ^0.1.0-preview
-    realm_generator: 
-        path: ../../generator
+    realm_generator: ^0.1.0-preview
 
 dev_dependencies:
     test: ^1.14.3
