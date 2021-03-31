@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////
 //
 // Copyright 2021 Realm Inc.
 //
@@ -14,8 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////
 
+/// Usage
+///  
+/// * Add a dependency to [realm](https://pub.dev/packages/realm) package or [realm_dart](https://pub.dev/packages/realm_dart) package to your application
+/// * Run `flutter pub run build_runner build` or `dart run build_runner build` to generate RealmObjects
 library realm_generator;
 
 import 'package:build/build.dart';
@@ -24,6 +28,7 @@ import 'package:dart_style/dart_style.dart';
 
 import 'src/realm_object_generator.dart';
 
+/// @nodoc
 Builder generateRealmObjects(BuilderOptions options) => new SharedPartBuilder([RealmObjectGenerator()], 'RealmObjects', formatOutput: (output) {
   var formatter = new DartFormatter(pageWidth: 300);
   return formatter.format(output);
