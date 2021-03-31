@@ -1,4 +1,4 @@
-![Realm](logo.png)
+![Realm](https://github.com/realm/realm-dart/raw/master/logo.png)
 
 [![License](https://img.shields.io/badge/License-Apache-blue.svg)](LICENSE)
 

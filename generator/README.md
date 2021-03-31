@@ -1,3 +1,5 @@
+![Realm](https://github.com/realm/realm-dart/raw/master/logo.png)
+
 # Description
 
 Dart code generator that generates `RealmObject` classes based on `Realm` data model classes using naming conventions.

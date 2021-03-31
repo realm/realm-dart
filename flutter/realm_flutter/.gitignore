@@ -3,6 +3,7 @@
 
 .packages
 .pub/
+doc/
 
 build/
 
