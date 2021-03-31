@@ -25,11 +25,16 @@ import 'realm_property.dart';
 
 import 'dynamic_object.dart';
 
+/// A object in a realm. 
+/// 
+/// RealmObjects are generated from Realm data model classes
+/// A data model class `_MyClass` will have a RealmObject with name `MyClass` generated 
+/// which should be used insead of directly instantiating and working with RealmObject instances
 class RealmObject /*extends DynamicObject*/ {
   Map<String, Object> _unmanagedProperties;
 
   /**
-   *  Default constructor. Enables the subclass to different ctors and work with RealmObject unmanaged instances
+   *  Default constructor. Enables the subclass to different constructors and work with RealmObject unmanaged instances
    */
   RealmObject() {
     _unmanagedProperties = new Map<String, Object>();
@@ -106,6 +111,7 @@ class RealmObject /*extends DynamicObject*/ {
   Object removeAllListeners() native "RealmObject_removeAllListeners";
 }
 
+/// @nodoc
 extension Super on RealmObject {
   ArrayList<T> super_get<T extends RealmObject>(String name) {
     if (_unmanagedProperties != null) {

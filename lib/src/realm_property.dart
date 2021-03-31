@@ -18,15 +18,28 @@
 
 import 'package:meta/meta.dart';
 
+/// A annotation class used to define Realm data model classes and their properties
 class RealmProperty {
+  
+  /// Realm will use this property as the primary key
   final bool primaryKey;
+  
+  /// The Realm type of this property
   final String type;
+  
+  /// The default value for this property
   final String defaultValue;
+  
+  /// `true` if this property is optional
   final bool optional;
+  
+  /// An alias to another property of the same RealmObject
   final String mapTo;
+  
   const RealmProperty({@required this.type, this.defaultValue, this.optional, this.mapTo, this.primaryKey});
 }
 
+/// A RealmProperty in a schema. Used for runtime representation of `RealmProperty`
 class SchemaProperty extends RealmProperty {
   final String propertyName;
   const SchemaProperty(this.propertyName, { type, defaultValue, optional, mapTo, primaryKey }) 

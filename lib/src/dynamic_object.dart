@@ -18,6 +18,7 @@
 
 import 'helpers.dart';
 
+/// @nodoc
 class TypeStaticProperties {
   static final _staticProperties = new Map<Type, Map<String, dynamic>>();
 
@@ -41,6 +42,7 @@ class TypeStaticProperties {
   }
 }
 
+/// An object that supports dynamicly created properties at runtime
 class DynamicObject {
   DynamicObject();
 

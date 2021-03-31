@@ -29,6 +29,7 @@ import 'realm_object.dart';
 /// the new version of the collection.
 typedef void ResultsListenerCallback(dynamic collection, dynamic changes); 
 
+/// @nodoc
 class RealmResults {
   RealmResults();
 

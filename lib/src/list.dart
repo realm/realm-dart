@@ -22,6 +22,8 @@ import 'dart:collection';
 
 import 'realm_object.dart';
 
+
+/// @nodoc
 class RealmList {
   /**
    * Called from native code
@@ -123,9 +125,10 @@ class RealmList {
  * Dart: Have two classes implement the same interface and swap the unamanged and managed 
  * implementation instead of checking _unmanagedValues in every member
  */
+/// @nodoc
 class _RealmListUnmanaged {}
 
-
+/// A list of RealmObjects
 class ArrayList<T extends RealmObject> with ListMixin<T> {
   RealmList _list;
   core.List<T> _unmanagedValues;

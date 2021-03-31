@@ -25,18 +25,21 @@ import 'realm_class.dart';
 export 'realm_class.dart';
 //hide Results, Helpers, DynamicObject;
 
+/// Is Realm loaded in Flutter or Dart
 const bool IsFlutterPlatform = true;
 
 var _initialized = false;
-/// Initializes Realm library
+/// Initializes Realm library for Flutter
 /// 
-/// This function must be called in the main() funciton of the application before Realm is used
+/// This method must be called in the main() method of the application before Realm is used
 /// ```dart
 /// void main() {
 ///   initRealm();
 ///   runApp(MyApp());
 /// }
 /// ```
+/// 
+/// This method is not needed and does nothing on Realm Dart
 void initRealm() {
   if (_initialized) {
     return;

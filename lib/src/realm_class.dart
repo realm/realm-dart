@@ -50,17 +50,23 @@ export 'realm_property.dart';
 export 'dynamic_object.dart';
 export 'helpers.dart';
 
+/// The callback type to use with `Realm.write`
 typedef void VoidCallback();
+
+/// The callback type to use with `Realm.addListener`
 typedef void ListenerCallback(dynamic sender, String event);
 
 void _inspect(dynamic arg1, dynamic arg2, dynamic arg3, dynamic arg4, dynamic arg5) {
    Object k;
 }
 
+/// An event type used when adding event listeners with `Realm.addListener`
 enum Event {
+  /// The callback will be called when objects in the `Realm` changed
   change,
-  schema,
-  beforenotify
+
+  /// The callback will be called when the `Realm` schema changes
+  schema
 }
 
 /// A Realm instance represents a Realm database.

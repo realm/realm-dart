@@ -18,6 +18,7 @@
 
 import 'dart:core';
 
+/// @nodoc
 class Helpers {
   static DateTime createDateTime(int miliseconds) {
     return DateTime.fromMillisecondsSinceEpoch(miliseconds, isUtc: true);
@@ -26,6 +27,7 @@ class Helpers {
   static dynamic invokeStatic(Type type, String name) native "Helpers_invokeStatic";
 }
 
+/// @nodoc
 extension SymbolHelper on Symbol {
    String get name {
       String name = this.toString();

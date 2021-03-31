@@ -216,7 +216,7 @@ For complete Realm documentation consult the documentation of the [Realm SDKs](h
    **Do not use the Dart SDK downloaded with Flutter 2.0 since it has issues and will not be able to run the `realm_dart` package correctly** 
 
    Download Dart SDK 2.12 stable from here  https://dart.dev/tools/sdk/archive unzip it **`and add the directory to the PATH before the Flutter path`**.
-    
+
     * On Mac
 
     ```

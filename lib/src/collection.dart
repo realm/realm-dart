@@ -18,4 +18,5 @@
 
 import 'dart:core';
 
+/// @nodoc
 class Collection {}

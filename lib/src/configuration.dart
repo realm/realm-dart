@@ -159,7 +159,7 @@ class SchemaObjects extends ListBase<Type> {
   }
 }
 
-/// `Configuration` describing the different options used to create a [Realm] instance
+/// Configuration used to create a [Realm] instance
 class Configuration {
   Configuration() {
     schema = new SchemaObjects();
