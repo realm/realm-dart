@@ -78,11 +78,9 @@ For complete Realm documentation consult the documentation of the [Realm SDKs](h
 
 * Realm Flutter Preview requires a custom engine based on Flutter 2.0 with minimum changes. This will not be required in future versions of the SDK. More information can be found [here](https://github.com/realm/realm-dart/tree/preview/runtime).
 
-* Realm Dart Preview package `realm_dart` can not be used with the Dart SDK 2.12 shippied with Flutter 2.0 since Flutter downloads a custom version of Dart SDK instead of using the official Dart SDK build and this custom version has issues loading native binaries. Instead an official Dart SDK 2.12 installation is needed in PATH.
+* Realm Dart Preview package `realm_dart` can not be used with the Dart SDK 2.12 shipped with Flutter 2.0 since Flutter downloads a custom version of Dart SDK instead of using the official Dart SDK build and this custom version has issues loading native binaries. Instead an official Dart SDK 2.12 installation is needed in PATH.
 
 * The preview version of Realm SDK for Flutter and Dart allows working with a local only (on device) Realm database in Flutter and Dart desktop. Realm Sync functionality is not implemented.
-
-* It provides the functionality for creating, retrieving, querying, sorting, filtering, updating Realm objects and supports change notifications.
 
 * Flutter Hot Reload is available only when running on the Android x86 Emulator and iOS Simulator.
 
