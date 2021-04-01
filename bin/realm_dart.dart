@@ -24,7 +24,7 @@ Future<void> main(List<String> args) {
   }
 
   if (Platform.isMacOS) {
-    print("realm_dart installed");
+    print("realm_dart installed succesfully.");
     exit(0);
   }
 
@@ -82,4 +82,6 @@ Future<void> main(List<String> args) {
 
   print("Copying ${sourceFile} to ${targetFile}");
   sourceFile.copySync(targetFile);
+
+  print("realm_dart installed succesfully.");
 }
