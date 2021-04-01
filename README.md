@@ -239,7 +239,7 @@ For complete Realm documentation consult the documentation of the [Realm SDKs](h
         realm_dart: ^0.1.0+preview
     ```
 
-* [Windows only] Install the `realm_dart` package into the application.
+* Install the `realm_dart` package into the application.
 
     ```
     pub run realm_dart install
