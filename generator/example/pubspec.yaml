@@ -1,6 +1,6 @@
 name: realm_generator_example
 description: Example app using realm generator
-version: 0.1.0-preview
+version: 0.1.0+preview
 
 publish_to: none
 

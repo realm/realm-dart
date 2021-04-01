@@ -78,7 +78,7 @@ For complete Realm documentation consult the documentation of the [Realm SDKs](h
 
 * Realm Flutter Preview requires a custiom engine based on Flutter 2.0 with minimum changes. This will not be required in future versions of the SDK. More information can be found [here](https://github.com/realm/realm-dart/tree/preview/runtime).
 
-* Realm Dart Preview package `realm_dart` can not be used with the Dart SDK 2.12.0 shippied with Flutter 2.0 since Flutter downloads a custom version of Dart SDK instead of using the official Dart SDK build and this custom version has issues loading native binaries. Instead an official Dart SDK 2.12.0 installation is needed in PATH.
+* Realm Dart Preview package `realm_dart` can not be used with the Dart SDK 2.12 shippied with Flutter 2.0 since Flutter downloads a custom version of Dart SDK instead of using the official Dart SDK build and this custom version has issues loading native binaries. Instead an official Dart SDK 2.12 installation is needed in PATH.
 
 * The preview version of Realm SDK for Flutter and Dart allows working with a local only (on device) Realm database in Flutter and Dart desktop. Realm Sync functionality is not implemented.
 
@@ -112,10 +112,11 @@ For complete Realm documentation consult the documentation of the [Realm SDKs](h
     ```
 
 ## Usage
+
 * Add `realm` package dependency in the `pubspec.yaml` of the Flutter application.
     ```yaml
     dependencies:
-        realm: ^0.1.0-preview
+        realm: ^0.1.0+preview
     ```
 
 * Enable generation of RealmObjects.
@@ -235,7 +236,7 @@ For complete Realm documentation consult the documentation of the [Realm SDKs](h
 
     ```yaml
     dependencies:
-        realm_dart: ^0.1.0-preview
+        realm_dart: ^0.1.0+preview
     ```
 
 * [Windows only] Install the `realm_dart` package into the application.
@@ -280,11 +281,12 @@ For usage see the Realm Flutter usage above
 
 ### Build the native Android binary 
 
-/android> gradlew externalNativeBuildDebug
+`/android> gradlew externalNativeBuildDebug`
 
 ## Realm Dart
 
 ### Buildign Realm Dart package for Windows
+
 ```
 cmake.exe -A x64 -DCMAKE_CONFIGURATION_TYPES:STRING="Release" -S . -B out
 cmake --build out --config Release
@@ -296,5 +298,15 @@ cmake --build out --config Release
 cmake -G Ninja  -S . -B out
 cmake --build out --config Release
 ```
+
+### Versioning
+
+Realm Flutter and Dart SDK packages follow [Semantic Versioning](https://semver.org/)
+During the initial development the packages will be versioned according the scheme `0.major.minor+release stage` until the first stable version is reached then packages will be versioned with `major.minor.patch` scheme.
+
+The first versions will follow `0.1.0+preview`, `0.1.1+preview` etc.
+Then next release stage will pick up the next minor version `0.1.2+beta`, `0.1.3+beta`. This will ensure dependencies are updated on `pub get` with the new `beta` versions.
+If an `alpha` version is released before `beta` and it needs to not be considered for `pub get` then it should be marked as `prerelease` with `-alpha` so  `0.1.2-alpha` etc. 
+Updating the major version with every release stage is also possible - `0.2.0+beta`, `0.2.1+beta`.
 
 ##### The "Dart" name and logo and the "Flutter" name and logo are trademarks owned by Google. 

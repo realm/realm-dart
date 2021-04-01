@@ -89,7 +89,7 @@ puts "Absolute realm directory: #{absolute_realm_dir}."
 #
 Pod::Spec.new do |s|
   s.name                      = 'realm'
-  s.version                   = '0.1.0-preview'
+  s.version                   = '0.1.0+preview'
   s.summary                   = 'The official Realm SDK for Flutter'
   s.description               = <<-DESC
                                     Realm is a mobile database - an alternative to SQLite and key-value stores.
