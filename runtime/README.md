@@ -4,7 +4,7 @@ The preview version of Realm SDK for Flutter™ requires a custom Flutter runtim
 
 The preview version of Realm SDK for Dart™ does not need a custom engine since the required Dart VM APIs are qpublic in the official Dart VM.
 
-This directory conatins a diff file for all the changes made.
+This directory contains a diff file for all the changes made.
 
 
 The base Flutter 2.0 engine version is https://github.com/flutter/engine/commit/40441def692f444660a11e20fac37af9050245ab
