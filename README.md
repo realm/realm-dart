@@ -147,7 +147,7 @@ For complete Realm documentation consult the documentation of the [Realm SDKs](h
         ```dart
         import 'dart:io';
 
-        part 'catalog.g.dart'
+        part 'catalog.g.dart';
         ```
 
     * Create a data model class
