@@ -25,6 +25,12 @@ import 'realm_property.dart';
 
 import 'dynamic_object.dart';
 
+/// The callback type to use with `RealmObject.addListener`
+/// 
+/// The [changes.changedProperties] is a `List` with property names that got changed since the last time the object was updated.
+/// The callback is invoked once initially with no changes at the moment the callback listener is added.
+typedef void RealmObjectListenerCallback(dynamic object, dynamic changes);
+
 /// A object in a realm. 
 /// 
 /// RealmObjects are generated from Realm data model classes
@@ -98,16 +104,20 @@ class RealmObject /*extends DynamicObject*/ {
 
   Object isValid() native "RealmObject_isValid";
   
-  //not supported
-  //Object objectSchema() native "RealmObject_objectSchema";
-  //Object linkingObjects() native "RealmObject_linkingObjects";
-  //Object linkingObjectsCount() native "RealmObject_linkingObjectsCount";
-  //Object objectId() native "RealmObject__objectId";
-  //Object _isSameObject() native "RealmObject__isSameObject";
-  //Object _setLink() native "RealmObject__setLink";
+  /// Adds a [RealmObjectListenerCallback] which will be called when RealmObject properties change.
+  Object addListener(RealmObjectListenerCallback callback) native "RealmObject_addListener";
+  
+  /// Removes a [RealmObjectListenerCallback] that was previously added with [addListener]
+  /// 
+  /// The callback argument should be the same callback reference used in a previous call to [addListener]
+  /// ```dart
+  /// var callback = (object, changes) { ... }
+  /// myObject.addListener(callback);
+  /// myObject.removeListener(callback);
+  /// ```
+  Object removeListener(RealmObjectListenerCallback callback) native "RealmObject_removeListener";
 
-  Object addListener() native "RealmObject_addListener";
-  Object removeListener() native "RealmObject_removeListener";
+  /// Removes all [RealmObjectListenerCallback] that were previously added with [addListener] 
   Object removeAllListeners() native "RealmObject_removeAllListeners";
 }
 

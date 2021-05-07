@@ -21,6 +21,7 @@ import 'dart:collection' as collection;
 import 'realm_object.dart';
 
 /// A listener callback to be called when the [Results<T>] collection changes
+/// 
 /// The [changes] parameter will contain a dictionary with keys `insertions`, 
 /// `newModifications`, `oldModifications` and `deletions`, each containing a list of 
 /// indices in the collection that were inserted, updated or deleted respectively.
@@ -50,7 +51,6 @@ class RealmResults {
   RealmResults snapshot() native "Results_snapshot";
   int indexOf(RealmObject value) native "Results_indexOf";
 
-  //not implemented
   void addListener(ResultsListenerCallback callback) native "Results_addListener";
   void removeListener(ResultsListenerCallback callback) native "Results_removeListener";
   void removeAllListeners() native "Results_removeAllListeners";

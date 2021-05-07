@@ -196,6 +196,92 @@ void main([List<String> arguments]) {
       expect(() => car.isValid(), throwsA(TypeMatcher<RealmException>()));
     });
 
+    test('Realm object notification', () {
+      var config = new Configuration();
+      config.schema.add(Car);
+      
+      var realm = new Realm(config);
+
+      Car car = new Car()
+        ..make = "Audi"
+        ..model = "A4"
+        ..kilometers = 245;
+      
+      Car realmCar = null;
+      realm.write(() {
+        realmCar = realm.create(car);
+      });
+
+      bool initialCall = true;
+      int callCount = 0;
+
+      realmCar.addListener((object, changes) {
+        callCount++;
+        expect(object, isA<Car>());
+        expect(changes.changedProperties, isA<List>());
+        List props = changes.changedProperties as List;
+        if (initialCall) {
+          expect(props.length, equals(0));
+          initialCall = false;
+        }
+        else {
+          expect(props.length, equals(1));
+          expect(props[0], equals("make"));
+        }
+      });
+
+      realm.write(() {
+        realmCar.make = "VW";
+      });
+
+      realm.write(() {
+        realmCar.make = "Tesla";
+      });
+
+      expect(callCount, 2);
+    });
+
+    test('Realm object remove notification', () {
+      var config = new Configuration();
+      config.schema.add(Car);
+
+      var realm = new Realm(config);
+
+      Car car = new Car()
+        ..make = "Audi"
+        ..model = "A4"
+        ..kilometers = 245;
+      
+      Car realmCar = null;
+      realm.write(() {
+        realmCar = realm.create(car);
+      });
+
+      int callCount = 0;
+
+      var callback = (object, changes) {
+        callCount++;
+        expect(object, isA<Car>());
+        expect(changes.changedProperties, isA<List>());
+        List props = changes.changedProperties as List;
+        expect(props.length, equals(0));
+      };
+
+      realmCar.addListener(callback);
+
+      realm.write(() {
+        realmCar.make = "VW";
+      });
+
+      realmCar.removeListener(callback);
+
+      realm.write(() {
+        realmCar.make = "Tesla";
+      });
+
+      expect(callCount, 1);
+    });
+
     test('Realm add notifications', () {
       var config = new Configuration();
       //config.schema.add(Car);
@@ -220,7 +306,7 @@ void main([List<String> arguments]) {
       expect(notificationName, equals('change'));
     });
 
-      test('Realm remove notifications', () {
+    test('Realm remove notifications', () {
       var config = new Configuration();
       //config.schema.add(Car);
 
