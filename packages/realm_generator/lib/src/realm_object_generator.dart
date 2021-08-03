@@ -1,0 +1,1 @@
+../../../../generator/lib/src/realm_object_generator.dart

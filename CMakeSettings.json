@@ -13,7 +13,25 @@
       "variables": [
         {
           "name": "DART_INCLUDE_DIR",
-          "value": "C:/lubo/src/dart-lang/sdk/runtime/include",
+          "value": "${projectDir}\\src\\dart-include",
+          "type": "PATH"
+        }
+      ]
+    },
+    {
+      "name": "x64-Release",
+      "generator": "Visual Studio 16 2019 Win64",
+      "configurationType": "Release",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v:n",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": [
+        {
+          "name": "DART_INCLUDE_DIR",
+          "value": "${projectDir}\\src\\dart-include",
           "type": "PATH"
         }
       ]

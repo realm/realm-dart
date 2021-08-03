@@ -3,5 +3,9 @@
 
 .packages
 .pub/
+doc/
 
 build/
+
+#dart packages and flutter plugins should not commit this file
+pubspec.lock
