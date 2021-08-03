@@ -13,7 +13,7 @@
       "variables": [
         {
           "name": "DART_INCLUDE_DIR",
-          "value": "C:/lubo/src/dart-lang/sdk/runtime/include",
+          "value": "${projectDir}\\src\\dart-include",
           "type": "PATH"
         }
       ]

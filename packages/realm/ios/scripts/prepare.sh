@@ -1,0 +1,1 @@
+../../../../flutter/realm_flutter/ios/scripts/prepare.sh

@@ -1,0 +1,1 @@
+../../../../../../../../../../../flutter/realm_flutter/example/android/app/src/main/java/io/realm/realm_flutter_example/MainActivity.java

@@ -1,0 +1,1 @@
+../../../../flutter/realm_flutter/lib/src/dynamic_object.dart

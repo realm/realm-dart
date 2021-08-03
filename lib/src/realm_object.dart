@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright 2021 Realm Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 /**
  *  The file is intentionaly not follwoing the dart naming guidelines. The name is used from native code by convention
  */
@@ -7,11 +25,22 @@ import 'realm_property.dart';
 
 import 'dynamic_object.dart';
 
+/// The callback type to use with `RealmObject.addListener`
+/// 
+/// The [changes.changedProperties] is a `List` with property names that got changed since the last time the object was updated.
+/// The callback is invoked once initially with no changes at the moment the callback listener is added.
+typedef void RealmObjectListenerCallback(dynamic object, dynamic changes);
+
+/// A object in a realm. 
+/// 
+/// RealmObjects are generated from Realm data model classes
+/// A data model class `_MyClass` will have a RealmObject with name `MyClass` generated 
+/// which should be used insead of directly instantiating and working with RealmObject instances
 class RealmObject /*extends DynamicObject*/ {
   Map<String, Object> _unmanagedProperties;
 
   /**
-   *  Default constructor. Enables the subclass to different ctors and work with RealmObject unmanaged instances
+   *  Default constructor. Enables the subclass to different constructors and work with RealmObject unmanaged instances
    */
   RealmObject() {
     _unmanagedProperties = new Map<String, Object>();
@@ -74,17 +103,25 @@ class RealmObject /*extends DynamicObject*/ {
   }
 
   Object isValid() native "RealmObject_isValid";
-  Object objectSchema() native "RealmObject_objectSchema";
-  Object linkingObjects() native "RealmObject_linkingObjects";
-  Object linkingObjectsCount() native "RealmObject_linkingObjectsCount";
-  Object _objectId() native "RealmObject__objectId";
-  Object _isSameObject() native "RealmObject__isSameObject";
-  Object _setLink() native "RealmObject__setLink";
-  Object addListener() native "RealmObject_addListener";
-  Object removeListener() native "RealmObject_removeListener";
+  
+  /// Adds a [RealmObjectListenerCallback] which will be called when RealmObject properties change.
+  Object addListener(RealmObjectListenerCallback callback) native "RealmObject_addListener";
+  
+  /// Removes a [RealmObjectListenerCallback] that was previously added with [addListener]
+  /// 
+  /// The callback argument should be the same callback reference used in a previous call to [addListener]
+  /// ```dart
+  /// var callback = (object, changes) { ... }
+  /// myObject.addListener(callback);
+  /// myObject.removeListener(callback);
+  /// ```
+  Object removeListener(RealmObjectListenerCallback callback) native "RealmObject_removeListener";
+
+  /// Removes all [RealmObjectListenerCallback] that were previously added with [addListener] 
   Object removeAllListeners() native "RealmObject_removeAllListeners";
 }
 
+/// @nodoc
 extension Super on RealmObject {
   ArrayList<T> super_get<T extends RealmObject>(String name) {
     if (_unmanagedProperties != null) {

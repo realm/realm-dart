@@ -1,6 +1,6 @@
-////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright 2016 Realm Inc.
+// Copyright 2021 Realm Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,9 +14,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+#if (FLUTTER && APPLE)
+#pragma clang diagnostic ignored "-Wdocumentation"
+#endif
+
+#ifdef FLUTTER
+#include "realm_flutter.h"
+#endif
 
 #include "dart_api.h"
 #include "dart_native_api.h"
@@ -62,6 +70,7 @@ namespace Dart {
 	};
 
 	Dart_Handle GetLibrary(const char* libName);
+	Dart_Handle NewException(const char* message);
 }
 
 namespace realm {
@@ -74,6 +83,8 @@ namespace realm {
 		extern Dart_Handle RealmLibrary;
 		extern std::string RealmPackageName;
 		extern Dart_Handle DartDateTimeType;
+		
+		extern Dart_Handle RealmExceptionType;
 		extern Dart_Handle RealmDynamicObjectType;
 		extern Dart_Handle RealmTypeStaticPropertiesType;
 		extern Dart_Handle RealmHelpersType;

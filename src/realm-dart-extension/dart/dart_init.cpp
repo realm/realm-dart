@@ -1,6 +1,6 @@
-////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright 2016 Realm Inc.
+// Copyright 2021 Realm Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,10 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #include "dart_init.hpp"
 
+#ifdef FLUTTER
+#include "realm_flutter.h"
+#endif
 
 #include "dart_string.hpp"
 #include "dart_protected.hpp"
@@ -54,13 +57,14 @@ void dart_init(Dart::Env env, Dart::Value realmLibrary, const std::string& files
 	DartDateTimeType = Dart_GetType(DartCoreLibrary, Dart_NewStringFromCString("DateTime"), 0, nullptr) || handleError;
 	DartDateTimeType = Dart_NewPersistentHandle(DartDateTimeType);
 
-	
-
 	RealmDynamicObjectType = Dart_GetType(realmLibrary, Dart_NewStringFromCString("DynamicObject"), 0, nullptr) || handleError;
 	RealmDynamicObjectType = Dart_NewPersistentHandle(RealmDynamicObjectType);
 
 	RealmHelpersType = Dart_GetType(realmLibrary, Dart_NewStringFromCString("Helpers"), 0, nullptr) || handleError;
 	RealmHelpersType = Dart_NewPersistentHandle(RealmHelpersType);
+
+	RealmExceptionType = Dart_GetType(realmLibrary, Dart_NewStringFromCString("RealmException"), 0, nullptr) || handleError;
+	RealmExceptionType = Dart_NewPersistentHandle(RealmExceptionType);
 
 
 	Dart_Handle helpersLibrary = Dart_ClassLibrary(RealmHelpersType) || handleError;
