@@ -1,6 +1,6 @@
-////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright 2016 Realm Inc.
+// Copyright 2021 Realm Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
@@ -61,7 +61,11 @@ public:
 		}
 
 		try {
-			Dart_DeletePersistentHandle(m_ref);
+			Dart_Isolate isolate = Dart_CurrentIsolate();
+			//make sure there is current isolate. On Dart VM shutdown there might be no current isolate so just drop the handles
+			if (isolate != nullptr) {
+				Dart_DeletePersistentHandle(m_ref);
+			}
 			m_ref = nullptr;
 		}
 		catch (...) {}
@@ -108,7 +112,17 @@ public:
 	    bool operator()(const Protected<MemberType>& a, const Protected<MemberType>& b) const {
 			MemberType aValue = a;
 			MemberType bValue = b;
-			return aValue == bValue;
+
+			if (aValue == bValue) {
+				return true;
+			}
+
+			bool isFunction = std::is_same<MemberType, Function::FunctionType>::value;
+			if (isFunction) {
+				return Value::identityEquals(nullptr, a, b);
+			}
+
+			return false;
 	    }
 	};
 };

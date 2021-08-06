@@ -7,16 +7,18 @@ part of 'main.dart';
 // **************************************************************************
 
 class Car extends RealmObject {
+  // ignore_for_file: unused_element, unused_local_variable
   Car._constructor() : super.constructor();
-  Car() {}
+  Car();
 
   @RealmProperty()
-  String get make => super['make'];
+  String get make => super['make'] as String;
   set make(String value) => super['make'] = value;
 
   static dynamic getSchema() {
+    const dynamic type = _Car;
     return RealmObject.getSchema('Car', [
-      new SchemaProperty('make', type: 'string'),
+      SchemaProperty('make', type: 'string'),
     ]);
   }
 }

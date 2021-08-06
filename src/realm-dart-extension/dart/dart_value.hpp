@@ -1,6 +1,6 @@
-////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright 2016 Realm Inc.
+// Copyright 2021 Realm Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
@@ -199,7 +199,7 @@ inline dartvm::String dartvm::Value::to_string(Dart::Env env, const Dart::Value&
 	//return value.ToString();
 
 	const char* str;
-	Dart_StringToCString(value, &str);
+	Dart_StringToCString(value, &str) || handleError;
 	return dartvm::String(str);
 }
 
@@ -323,6 +323,11 @@ inline const char* dartvm::Value::typeof(Dart::Env env, const Dart::Value& value
 	if (Value::is_boolean(env, value)) { return "boolean"; }
 	if (Value::is_object(env, value)) { return "object"; }
 	return "unknown";
+}
+
+template <>
+inline bool dartvm::Value::identityEquals(Dart::Env env, const Dart::Value& value1, const Dart::Value& value2) {
+	return Dart_IdentityEquals(value1, value2);
 }
 
 } // js

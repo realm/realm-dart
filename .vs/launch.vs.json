@@ -3,12 +3,12 @@
   "defaults": {},
   "configurations": [
     {
-      "name": "Debug realm_dart_extension",
+      "name": "Debug realm_dart",
       "type": "default",
       "program": "dart.exe",
-      "exe": "C:\\Users\\lubo\\Downloads\\dartsdk-windows-x64-release\\dart-sdk\\bin\\dart.exe",
-      "cwd": "C:\\lubo\\mongodb\\src\\realm-js-dart-v6\\realm-dart-v6\\lib",
-      "currentDir": "C:\\lubo\\mongodb\\src\\realm-js-dart-v6\\realm-dart-v6\\lib",
+      "exe": "C:\\Users\\lubo\\Downloads\\dartsdk-windows-x64-release-2.12.0\\dart-sdk\\bin\\dart.exe",
+      "cwd": "${workspaceRoot}/lib",
+      "currentDir": "${workspaceRoot}/lib",
       "args": [
         "--observe",
         "--pause_isolates_on_start=true",

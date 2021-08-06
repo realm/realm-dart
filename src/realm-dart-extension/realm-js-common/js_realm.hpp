@@ -181,7 +181,7 @@ public:
 
     void remove(std::list<Protected<FunctionType>>& notifications, FunctionType fn) {
         // This doesn't just call remove() because that would create a new Protected<FunctionType>
-        notifications.remove_if([&](auto& notification) { return notification == fn; });
+        notifications.remove_if([&](auto& notification) { return notification == fn || Value::identityEquals(m_context, notification, fn); });
     }
 
     // Note that this intentionally copies the `notifications` argument as we

@@ -1,0 +1,1 @@
+../../../../../example/myapp/bin/myapp.g.dart

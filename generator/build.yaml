@@ -4,7 +4,7 @@ targets:
             realm_generator|realm_object_builder:
                 enabled: true
                 generate_for:
-                    - test/*.dart          
+                    - test/*.dart
 builders:
     #realm_object_builder:
         # this generates .realm.dart files. Requires a LibraryBuilder in builder.dart
@@ -16,7 +16,7 @@ builders:
         # applies_builders: ["combining_builder"]
 
     realm_object_builder:
-        import: "package:realm_generator/builder.dart"
+        import: "package:realm_generator/realm_generator.dart"
         builder_factories: ["generateRealmObjects"]
         build_extensions: {".dart": [".g.dart"]}
         auto_apply: dependents
