@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright 2021 Realm Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include <jni.h>
 #include <string>
 
@@ -6,6 +24,10 @@
 
 #include "dart_io_extensions.h"
 #include "dart_init.hpp"
+#include "dart_api_dl.h"
+
+#include "realm_flutter.h"
+
 #include <android/log.h>
 bool initialized = false;
 std::string filesDir;
@@ -61,7 +83,7 @@ void init() {
 //    }
 
 
-    Dart_Handle realmLibStr = Dart_NewStringFromCString("package:realm_flutter/realm.dart");
+    Dart_Handle realmLibStr = Dart_NewStringFromCString("package:realm/realm.dart");
     auto realmLib = Dart_LookupLibrary(realmLibStr);
     if (Dart_IsError(realmLib)) {
         __android_log_print(ANDROID_LOG_DEBUG, "FlutterNativeExtension", "Dart_LookupLibrary extension returned error");
@@ -118,9 +140,9 @@ void init() {
 extern "C" JNIEXPORT jstring JNICALL Java_com_blagoev_FlutterNativeExtension_MainActivity_stringFromJNI(JNIEnv* env, jobject /* this */) {
 
     void* p = (void*)Dart_CurrentIsolate();
-    //Dart_ExtensionInitCallback initCallback = init;
-    bool result = Dart_SetInitCallback(init);
 
+    //bool result = Dart_SetInitCallback(init);
+    bool result = p != nullptr;
     std::string hello = "Hello from C++. Dart_CurrentIsolate returns: " + std::to_string((long long)p);
     if (!result) {
         hello += " Dart_SetInitCallback SUCCESS";
@@ -139,7 +161,7 @@ extern "C" JNIEXPORT void JNICALL Java_io_realm_realm_1flutter_RealmFlutter_nati
     env->ReleaseStringUTFChars(fileDir, strFileDir);
     __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "filesDir: %s", filesDir.c_str());
 
-    __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "calling Dart_SetInitCallback");
-    bool result = Dart_SetInitCallback(init);
-    __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "Dart_SetInitCallback success");
+    //__android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "calling Dart_SetInitCallback");
+    //bool result = Dart_SetInitCallback(init);
+    //  __android_log_print(ANDROID_LOG_DEBUG, "RealmFlutter", "Dart_SetInitCallback success");
 }

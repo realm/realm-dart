@@ -1,3 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright 2021 Realm Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 library realm_generator;
 
 import 'package:analyzer/dart/element/element.dart';
@@ -41,17 +59,21 @@ class RealmObjectGenerator extends Generator {
       var className = schemaClass.name.substring(1);
 
       StringBuffer getSchemaPropertyBuffer = new StringBuffer();
+      
+      /// The `const dynamic type = ...` is there to remove the warning of unused_element for the Realm data model class in the user dart file
       getSchemaPropertyBuffer.writeln("""
             static dynamic getSchema() {
-            return RealmObject.getSchema('${className}', [
+              const dynamic type = ${schemaClass.name};
+              return RealmObject.getSchema('${className}', [
             """);
 
 
       //Class._constructor() is used from native code when creating new instances of this type
       //Class() constructor is used to be able to create new detached objects and add them to the realm
       generated.writeln("""class ${className} extends RealmObject {
+          // ignore_for_file: unused_element, unused_local_variable
           ${className}._constructor() : super.constructor();
-          ${className}() {}
+          ${className}();
         """);
 
       for (var field in schemaClass.fields) {
@@ -131,7 +153,7 @@ class RealmObjectGenerator extends Generator {
           } else {
             //generate
             //String get make => super['make'];
-            generated.writeln("${fieldTypeName} get ${field.name} => super['${field.name}'];");
+            generated.writeln("${fieldTypeName} get ${field.name} => super['${field.name}'] as ${fieldTypeName};");
 
             //generate
             //set name(String value) => super["name"] = value;
@@ -145,7 +167,7 @@ class RealmObjectGenerator extends Generator {
           //generated.writeln("var schema = RealmObject.getSchema('${className}', [");
 
           //infer the type of the object
-          var schemaPropertyDefinition = "new SchemaProperty('${field.name}', ";
+          var schemaPropertyDefinition = "SchemaProperty('${field.name}', ";
 
           //if not RealmProperty.type is given. Try to infer the type
           if (!realmPropertyDefiniton.contains("type:")) {

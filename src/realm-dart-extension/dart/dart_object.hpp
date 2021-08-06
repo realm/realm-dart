@@ -1,6 +1,6 @@
-////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright 2016 Realm Inc.
+// Copyright 2021 Realm Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
@@ -281,8 +281,8 @@ inline void dartvm::Object::set_prototype(Dart::Env env, const Dart::Object& obj
 
 template<>
 inline Dart::Object dartvm::Object::create_empty(Dart::Env env) {
-	throw std::runtime_error("create_empty should return a proxy object supporting dynamicly created properties");
-	//return Dart::Object::New(env);
+	Dart_Handle object = Dart_New(dartvm::RealmDynamicObjectType, Dart_Null(), 0, nullptr) || handleError;
+	return object;
 }
 
 template<>
