@@ -2,3 +2,7 @@
 	path = src/object-store
 	url = https://github.com/realm/realm-object-store.git
 	branch = remotes/origin/v0-2-gaa01415e
+[submodule "src/realm-core"]
+	path = src/realm-core
+	url = https://github.com/realm/realm-core
+	branch = master
