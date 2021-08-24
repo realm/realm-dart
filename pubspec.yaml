@@ -10,9 +10,10 @@ issue_tracker: https://github.com/realm/realm-dart/issues
 publish_to: none
 
 environment:
-    sdk: ">=2.7.0 <3.0.0"
+    sdk: ">=2.12.0 <3.0.0"
 
-dependencies: 
+dependencies:
+    ffi: ^1.1.2
     meta: ^1.1.8
     realm_generator:
         path: ./generator

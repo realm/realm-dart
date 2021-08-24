@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+// @dart=2.10
+
 /**
  *  The file is intentionaly not follwoing the dart naming guidelines. The name is used from native code by convention
  */
