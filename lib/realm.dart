@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+// @dart=2.10
+
 //dart.library.cli is available only on dart desktop
 //Dart: order imports correctly per the dart guidance
 import 'src/realm_flutter.dart'

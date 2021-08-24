@@ -1,5 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
+// @dart=2.10
+
 part of 'realm_test.dart';
 
 // **************************************************************************
