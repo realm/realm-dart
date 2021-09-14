@@ -91,6 +91,8 @@ void main([List<String> arguments]) {
   
   print("Current PID ${pid}");
 
+  initRealm();
+
   setUp(() {
     //Dart: this will clear everything else but deleting the file
     Realm.clearTestState();
@@ -110,6 +112,10 @@ void main([List<String> arguments]) {
   });
 
   group('RealmClass tests', () {
+    test('Realm version', () {
+      expect(Realm.version, contains('11.'));
+    });
+    
     test('Realm should be created', () {
       var config = new Configuration();
       config.schema.add(Car);
