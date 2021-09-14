@@ -27,3 +27,9 @@ flutter/realm_flutter/.gradle/
 /test/default.realm
 /test/default.realm.lock
 /doc/
+#ignore native binaries output directory
+/binary/
+
+#ignore native binaries build directories
+/build-android/
+/build/
