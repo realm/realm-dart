@@ -13,7 +13,6 @@ lib/realm_dart_extension.pdb
 realm_dart_extension.dll
 test/realm_dart_extension.dll
 .dart_tool/pub/bin/test/test.dart.snapshot.dart2
-src/vendor-include/realm-win-x64/lib/
 
 .dart_tool/
 
