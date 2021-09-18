@@ -16,30 +16,22 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+// @dart=2.10
+
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:io';
+
+import 'package:ffi/src/utf8.dart';
 
 import 'results.dart';
 import 'configuration.dart';
 import 'realm_object.dart';
 import 'collection.dart';
-// if (dart.library.io) 'src/hw_io.dart'
-
-// import 'platform_detect.dart';
-
-// import 'dart-ext:realm_dart_extension';
-
-//import 'dummy.dart'  
-// import 'platform_detect.dart'
-//   if (dart.library.io) 'platform_desktop';
-
-// import 'platform_detect.dart'  
-//   if (dart.library.io) 'dart-ext:realm_dart_extension';
-
-
 import 'dynamic_object.dart';
 import "helpers.dart";
 import 'realm_property.dart';
+import 'realm_bindings_win.dart';
 
 export 'collection.dart';
 export 'list.dart';
@@ -49,6 +41,11 @@ export "configuration.dart";
 export 'realm_property.dart';
 export 'dynamic_object.dart';
 export 'helpers.dart';
+
+NativeLibrary RealmLib;
+void setRealmLib(DynamicLibrary realmLibrary) {
+  RealmLib = NativeLibrary(realmLibrary);
+}
 
 /// The callback type to use with `Realm.write`
 typedef void VoidCallback();
@@ -95,7 +92,9 @@ class Realm extends DynamicObject {
 
   /// DO NOT USE.
   static bool clearTestState() {
-    return _clearTestState(null);
+    // TODO: fix clearTestState with FFI
+    //return _clearTestState(null);
+    return true;
   }
   //move this to the tests and make it an extensions method that calls clearTestState and passes the correct `this`
   static bool _clearTestState(Object nullptr) native "Realm_clearTestState";
@@ -234,6 +233,8 @@ class Realm extends DynamicObject {
     return _objectForPrimaryKey(typeName, key) as T; 
   }
   RealmObject _objectForPrimaryKey(String name, dynamic key) native 'Realm_objectForPrimaryKey';
+
+  static String get version => RealmLib.realm_get_library_version().toDartString();
 }
 
 /// An exception being thrown when a Realm operation or Realm object access fails

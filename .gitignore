@@ -1,19 +1,11 @@
 out
 .vs
-src/realm-dart-extension/.vs
 #ingore build file
-lib/realm_dart_extension.dll
-build/
-src/object-store-static-lib/out/
-src/realm-dart-extension/out/
 .dart_tool/pub/bin/sdk-version
 lib/default.realm
 lib/default.realm.lock
 lib/realm_dart_extension.pdb
-realm_dart_extension.dll
-test/realm_dart_extension.dll
 .dart_tool/pub/bin/test/test.dart.snapshot.dart2
-src/vendor-include/realm-win-x64/lib/
 
 .dart_tool/
 
@@ -27,3 +19,9 @@ flutter/realm_flutter/.gradle/
 /test/default.realm
 /test/default.realm.lock
 /doc/
+#ignore native binaries output directory
+/binary/
+
+#ignore native binaries build directories
+/build-android/
+/build/

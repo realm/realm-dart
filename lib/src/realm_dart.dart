@@ -20,8 +20,7 @@
 //dart_init needs all dart classes that realm_class.dart exports without hiding any export on import
 //instead hide all non public classes on export
 
-import 'dart-ext:realm_dart_extension';
-
+// @dart=2.10
 
 import 'realm_class.dart';
 
@@ -30,6 +29,4 @@ export 'realm_class.dart' hide Results, Helpers, DynamicObject;
 
 /// Is Realm loaded in Flutter or Dart
 const bool IsFlutterPlatform =  false;
-
-// This is a no-op in Realm Dart
-void initRealm() {}
+const String RealmBinaryName = 'realm_dart';

@@ -1,4 +1,0 @@
-SYNC_SERVER_FOLDER=sync
-SYNC_ARCHIVE=realm-sync-Release-v4.9.5-Windows-x64-devel.tar.gz
-CORE_SERVER_FOLDER=core/v5.23.8/windows/x64/nouwp/Release
-CORE_ARCHIVE=realm-core-Release-v5.23.8-Windows-x64-devel.tar.gz

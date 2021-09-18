@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+// @dart=2.10
+
 import 'package:meta/meta.dart';
 
 /// A annotation class used to define Realm data model classes and their properties

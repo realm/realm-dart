@@ -9,8 +9,8 @@ issue_tracker: https://github.com/realm/realm-dart/issues
 publish_to: none
 
 environment:
-  sdk: ">=2.10.0 <3.0.0"
-  flutter: ">=2.0.0 <2.1.0"
+  sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=2.0.0 <2.5.0"
 
 dependencies:
   flutter:
@@ -18,6 +18,7 @@ dependencies:
   realm_generator: 
     path: ../../generator
   meta: ^1.2.4
+  ffi: ^1.1.2
 
 dev_dependencies:
   flutter_test:
