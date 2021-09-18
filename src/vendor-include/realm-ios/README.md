@@ -1,1 +1,0 @@
-extract libRealmLibs.zip to build in dev mode using realm_dev.podspec

@@ -1,17 +1,21 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(realm-dart-extension-main)
+project(realm-dart)
 
-message ("Realm Dart Extension")
+message ("Realm Dart")
 message ("CMAKE_BINARY_DIR is ${CMAKE_BINARY_DIR}")
 message ("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 set(CMAKE_CXX_EXTENSIONS off)
 
-set(REALM_PLATFORM "Node")
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+#list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 set(_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING=1)
 
-add_subdirectory(src/realm-dart-extension)
+add_subdirectory(src)

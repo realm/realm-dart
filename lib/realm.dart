@@ -16,12 +16,81 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-//dart.library.cli is available only on dart desktop
-//Dart: order imports correctly per the dart guidance
-import 'src/realm_flutter.dart'
-  if (dart.library.cli)
-     'src/realm_dart.dart';
+// @dart=2.10
 
-export 'src/realm_flutter.dart'
-  if (dart.library.cli)
-    'src/realm_dart.dart';
+import 'dart:ffi';
+import 'dart:io';
+
+//dart.library.cli is available only on dart desktop
+import 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart';
+
+export 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart' hide RealmLib;
+
+var _initialized = false;
+
+/// Initializes Realm library for Flutter
+///
+/// This method must be called in the main() method of the application before Realm is used
+/// ```dart
+/// void main() {
+///   initRealm();
+///   runApp(MyApp());
+/// }
+/// ```
+///
+void initRealm() {
+  if (_initialized) {
+    return;
+  }
+
+  String _platformPath(String name, {String path}) {
+    if (Platform.isWindows) {
+      print("Platform is Windows");
+    }
+
+    if (path == null) path = '';
+    if (Platform.isLinux || Platform.isAndroid) return path + "lib" + name + ".so";
+    if (Platform.isMacOS) return path + "lib" + name + ".dylib";
+    if (Platform.isWindows) {
+      if (path == '') {
+        path = 'binary/windows/';
+      }
+      return path + name + ".dll";
+    }
+    if (Platform.isIOS) return path + "/" + name;
+
+    throw Exception("Platform not implemented");
+  }
+
+  DynamicLibrary dlopenPlatformSpecific(String name, {String path}) {
+    String fullPath = _platformPath(name, path: path);
+    print('Realm binary full path: $fullPath');
+    return DynamicLibrary.open(fullPath);
+  }
+
+  DynamicLibrary realmLibrary;
+  if (Platform.isAndroid || Platform.isWindows) {
+    realmLibrary = dlopenPlatformSpecific(RealmBinaryName);
+  } else {
+    throw Exception("Unsupported platform: ${Platform.operatingSystem}");
+  }
+
+  print(realmLibrary);
+  setRealmLib(realmLibrary);
+
+  // TODO: call Dart_InitializeApiDL
+  // print("Finding the Realm initialization functions");
+  // final initializeApi = realmLibrary.lookupFunction<IntPtr Function(Pointer<Void>), int Function(Pointer<Void>)>("Dart_InitializeApiDL");
+  // if (initializeApi == null) {
+  //   print("Realm initialization function not found");
+  //   throw Exception("Realm initialization function not found");
+  // }
+
+  // print("calling Realm initialization");
+  // var initResult = initializeApi(NativeApi.initializeApiDLData);
+  // if(initResult == 0) {
+  //     print("Realm initialization success");
+  // }
+
+  _initialized = true;
+}

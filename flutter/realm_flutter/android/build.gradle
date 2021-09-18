@@ -21,7 +21,7 @@ rootProject.allprojects {
 
 apply plugin: 'com.android.library'
 
-apply plugin: RealmPlugin
+// apply plugin: RealmPlugin
 
 class RealmPlugin implements Plugin<Project> {
     def debug = false;
@@ -67,7 +67,7 @@ android {
 	
 	sourceSets {
         main {
-            //jniLibs.srcDirs += ["src/main/cpp/lib/"]
+            jniLibs.srcDirs += ["src/main/cpp/lib/"]
         }
     }
 	
@@ -75,9 +75,9 @@ android {
         disable 'InvalidPackage'
     }
 	
-	externalNativeBuild {
-        ndkBuild {
-            path 'src/main/cpp/Android.mk'
-        }
-    }
+	// externalNativeBuild {
+    //     ndkBuild {
+    //         path 'src/main/cpp/Android.mk'
+    //     }
+    // }
 }
