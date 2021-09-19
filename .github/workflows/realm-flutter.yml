@@ -3,15 +3,15 @@ name: realm-flutter
 on:
   push:
     branches: [ master ]
-    paths:
-      - 'flutter/**'
-      - 'src/**'
-      - 'lib/**'
+    # paths:
+    #   - 'flutter/**'
+    #   - 'src/**'
+    #   - 'lib/**'
   pull_request:
     branches: [ master ]
-      - 'flutter/**'
-      - 'src/**'
-      - 'lib/**'
+      # - 'flutter/**'
+      # - 'src/**'
+      # - 'lib/**'
 
 jobs:
   build:
