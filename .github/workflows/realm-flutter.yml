@@ -39,8 +39,6 @@ jobs:
       #  run: dart analyze
 
       - name: Build for Android x86
-        env:
-          ANDROID_NDK: ${{ %ANDROID_NDK_HOME% }}
         run: |
           mkdir build-android
           cd build-android
@@ -52,4 +50,5 @@ jobs:
       - name: Run tests
         run: |
           cd tests
+          SET ANDROID_NDK=%ANDROID_NDK_HOME%
           flutter run --no-start-paused test\realm_test.dart
