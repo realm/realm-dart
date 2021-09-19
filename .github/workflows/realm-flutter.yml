@@ -29,6 +29,7 @@ jobs:
           mkdir build-android
           cd build-android
           SET ANDROID_NDK=${env:ANDROID_NDK_HOME}
+          echo ANDROID_NDK: ${env:ANDROID_NDK}
           ..\scripts\build-android.bat
 
 
