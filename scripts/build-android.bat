@@ -12,8 +12,8 @@ cmake.exe ^
     -GNinja ^
     -DANDROID_NDK=%ANDROID_NDK% ^
     -DANDROID_ABI=x86 ^
-    -DCMAKE_MAKE_PROGRAM=ninja ^
-    -DCMAKE_TOOLCHAIN_FILE=%ANDROID_NDK%/build/cmake/android.toolchain.cmake ^
+    -DCMAKE_MAKE_PROGRAM=%ANDROID_HOME%\cmake\3.10.2.4988404\bin\ninja.exe ^
+    -DCMAKE_TOOLCHAIN_FILE=%ANDROID_NDK%\build\cmake\android.toolchain.cmake ^
     -DANDROID_TOOLCHAIN=clang ^
     -DANDROID_NATIVE_API_LEVEL=16 ^
     -DCMAKE_BUILD_TYPE=MinSizeRel ^
@@ -34,7 +34,7 @@ cmake.exe ^
     -GNinja ^
     -DANDROID_NDK=%ANDROID_NDK% ^
     -DANDROID_ABI=armeabi-v7a ^
-    -DCMAKE_MAKE_PROGRAM=ninja ^
+    -DCMAKE_MAKE_PROGRAM=%ANDROID_HOME%\cmake\3.10.2.4988404\bin\ninja.exe ^
     -DCMAKE_TOOLCHAIN_FILE=%ANDROID_NDK%/build/cmake/android.toolchain.cmake ^
     -DANDROID_TOOLCHAIN=clang ^
     -DANDROID_NATIVE_API_LEVEL=16 ^
@@ -54,7 +54,7 @@ cmake.exe ^
     -GNinja ^
     -DANDROID_NDK=%ANDROID_NDK% ^
     -DANDROID_ABI=arm64-v8a ^
-    -DCMAKE_MAKE_PROGRAM=ninja ^
+    -DCMAKE_MAKE_PROGRAM=%ANDROID_HOME%\cmake\3.10.2.4988404\bin\ninja.exe ^
     -DCMAKE_TOOLCHAIN_FILE=%ANDROID_NDK%/build/cmake/android.toolchain.cmake ^
     -DANDROID_TOOLCHAIN=clang ^
     -DANDROID_NATIVE_API_LEVEL=16 ^
@@ -74,7 +74,7 @@ cmake.exe ^
     -GNinja ^
     -DANDROID_NDK=%ANDROID_NDK% ^
     -DANDROID_ABI=x86_64 ^
-    -DCMAKE_MAKE_PROGRAM=ninja ^
+    -DCMAKE_MAKE_PROGRAM=%ANDROID_HOME%\cmake\3.10.2.4988404\bin\ninja.exe ^
     -DCMAKE_TOOLCHAIN_FILE=%ANDROID_NDK%/build/cmake/android.toolchain.cmake ^
     -DANDROID_TOOLCHAIN=clang ^
     -DANDROID_NATIVE_API_LEVEL=16 ^
