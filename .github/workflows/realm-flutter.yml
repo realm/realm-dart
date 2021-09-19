@@ -1,4 +1,4 @@
-name: realm-dart
+name: realm-flutter
 
 on:
   push:
