@@ -21,6 +21,17 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: 'recursive'
+
+      - name: Build for Android x86
+        env: 
+          ANDROID_NDK: ${{ env.ANDROID_NDK_HOME }}
+        run: |
+          mkdir build-android
+          cd build-android
+          echo %ANDROID_NDK_HOME%
+          ..\scripts\build-android.bat
+
+
       # - uses: actions/setup-java@v2
       #   with:
       #     java-version: '11'
@@ -38,14 +49,7 @@ jobs:
       #- name: Analyze project source
       #  run: dart analyze
 
-      - name: Build for Android x86
-        env: 
-          ANDROID_NDK: ${{env:ANDROID_NDK_HOME}}
-        run: |
-          mkdir build-android
-          cd build-android
-          ..\scripts\build-android.bat
-
+     
       - name: Install dependencies
         run: flutter pub get
 
