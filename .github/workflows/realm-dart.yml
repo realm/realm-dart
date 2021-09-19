@@ -3,8 +3,16 @@ name: realm-dart
 on:
   push:
     branches: [ master ]
+    # Do not run if change is in these paths
+    paths-ignore:
+      - 'flutter/**'
+      - 'generator/**'
   pull_request:
     branches: [ master ]
+    # Do not run if change is in these paths
+    paths-ignore:
+        - 'flutter/**'
+        - 'generator/**'
 
 jobs:
   build:
@@ -13,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          submodules: 'true'
+          submodules: 'recursive'
 
       # Note: This workflow uses the latest stable version of the Dart SDK.
       # You can specify other versions if desired, see documentation here:
