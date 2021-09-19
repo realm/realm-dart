@@ -42,5 +42,5 @@ jobs:
 
       - name: Run tests
         run: |
-        cd tests
-        flutter run  --no-start-paused test\realm_test.dart
+          cd tests
+          flutter run --no-start-paused test\realm_test.dart
