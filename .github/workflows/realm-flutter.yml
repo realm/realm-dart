@@ -28,7 +28,7 @@ jobs:
         run: |
           mkdir build-android
           cd build-android
-          echo ${{env.ANDROID_NDK_HOME}}
+          echo ${env:ANDROID_NDK_HOME}
           ..\scripts\build-android.bat
 
 
