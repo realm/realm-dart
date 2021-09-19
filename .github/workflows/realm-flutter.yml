@@ -39,10 +39,11 @@ jobs:
       #  run: dart analyze
 
       - name: Build for Android x86
+        env: 
+          ANDROID_NDK: $env:ANDROID_NDK_HOME
         run: |
           mkdir build-android
           cd build-android
-          SET ANDROID_NDK=%ANDROID_NDK_HOME%
           ..\scripts\build-android.bat
 
       - name: Install dependencies
