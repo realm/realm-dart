@@ -58,3 +58,5 @@ jobs:
         run: |
           cd tests
           flutter run --no-start-paused test\realm_test.dart
+        working-directory: flutter\realm_flutter\tests
+        

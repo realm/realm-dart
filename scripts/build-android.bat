@@ -1,10 +1,12 @@
 @REM This scripts assumes in-source building where the project directory is one dir up. 
+@REM ANDROID_NDK and ANDROID_HOME variables should be set
+@REM ninja path is hardcoded since at the moment there is only one ninja version distributed with the Android SDK
 @REM Output is in PROJECT_DIR\binary directory 
 @REM example usage: ....\realm-dart\build-android>..\scripts\build-android.bat all
 
-@REM rmdir /s /q x86
-
 @REM build for x86 first to optimize for emulator testing
+
+@REM rmdir /s /q x86
 mkdir x86
 cd x86
 
