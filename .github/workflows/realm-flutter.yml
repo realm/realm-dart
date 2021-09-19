@@ -23,12 +23,12 @@ jobs:
           submodules: 'recursive'
 
       - name: Build for Android x86
-        env: 
-          ANDROID_NDK: ${ env:ANDROID_NDK_HOME }
+        # env: 
+        #   ANDROID_NDK: ${ env:ANDROID_NDK_HOME }
         run: |
           mkdir build-android
           cd build-android
-          echo ${env:ANDROID_NDK_HOME}
+          SET ANDROID_NDK=${env:ANDROID_NDK_HOME}
           ..\scripts\build-android.bat
 
 
