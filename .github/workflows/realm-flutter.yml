@@ -3,8 +3,15 @@ name: realm-flutter
 on:
   push:
     branches: [ master ]
+    paths:
+      - 'flutter/**'
+      - 'src/**'
+      - 'lib/**'
   pull_request:
     branches: [ master ]
+      - 'flutter/**'
+      - 'src/**'
+      - 'lib/**'
 
 jobs:
   build:
@@ -13,8 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          submodules: 'true'
-      - uses: actions/setup-java@v1
+          submodules: 'recursive'
+      - uses: actions/setup-java@v2
         with:
           java-version: '12.x'
 
@@ -32,6 +39,8 @@ jobs:
       #  run: dart analyze
 
       - name: Build for Android x86
+        env:
+          ANDROID_NDK=$ANDROID_NDK_HOME
         run: |
           mkdir build-android
           cd build-android
