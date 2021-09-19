@@ -40,7 +40,7 @@ jobs:
 
       - name: Build for Android x86
         env:
-          ANDROID_NDK=$ANDROID_NDK_HOME
+          ANDROID_NDK: $ANDROID_NDK_HOME
         run: |
           mkdir build-android
           cd build-android
