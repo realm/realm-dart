@@ -4,6 +4,7 @@
 
 @REM rmdir /s /q x86
 
+@REM build for x86 first to optimize for emulator testing
 mkdir x86
 cd x86
 
