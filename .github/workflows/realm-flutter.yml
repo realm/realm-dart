@@ -42,6 +42,7 @@ jobs:
         run: |
           mkdir build-android
           cd build-android
+          SET ANDROID_NDK=%ANDROID_NDK_HOME%
           ..\scripts\build-android.bat
 
       - name: Install dependencies
@@ -50,5 +51,4 @@ jobs:
       - name: Run tests
         run: |
           cd tests
-          SET ANDROID_NDK=%ANDROID_NDK_HOME%
           flutter run --no-start-paused test\realm_test.dart
