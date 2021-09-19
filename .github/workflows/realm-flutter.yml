@@ -89,4 +89,4 @@ jobs:
             ndk: 21.0.6113669
             cmake: 3.10.2.4988404
             script: flutter run --no-start-paused test\realm_test.dart
-            working-directory: flutter\realm_flutter\tests
+            working-directory: ./flutter/realm_flutter/tests
