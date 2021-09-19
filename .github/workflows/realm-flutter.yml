@@ -1,0 +1,46 @@
+name: realm-dart
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: windows-2019
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '12.x'
+
+      # Uses https://github.com/marketplace/actions/flutter-action
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '2.5.x'
+
+      # Uncomment this step to verify the use of 'dart format' on each commit.
+      # - name: Verify formatting
+      #   run: dart format --output=none --set-exit-if-changed .
+
+      # Consider passing '--fatal-infos' for slightly stricter analysis.
+      #- name: Analyze project source
+      #  run: dart analyze
+
+      - name: Build for Android x86
+        run: |
+          mkdir build-android
+          cd build-android
+          ..\scripts\build-android.bat
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run tests
+        run: |
+        cd tests
+        flutter run  --no-start-paused test\realm_test.dart
