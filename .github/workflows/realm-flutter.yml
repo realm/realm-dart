@@ -15,7 +15,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-2019
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
@@ -29,9 +29,9 @@ jobs:
         run: |
           mkdir build-android
           cd build-android
-          $env:ANDROID_NDK=$env:ANDROID_NDK_HOME
-          echo ANDROID_NDK: $env:ANDROID_NDK
-          ..\scripts\build-android.bat
+          export ANDROID_NDK=$ANDROID_NDK_HOME
+          echo ANDROID_NDK: $ANDROID_NDK
+          ./../scripts/build-android.sh
 
       # - uses: actions/setup-java@v2
       #   with:
@@ -85,8 +85,8 @@ jobs:
             disable-animations: true
             emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
             api-level: 29
-            arch: x86
             ndk: 21.0.6113669
+            arch: x86
             cmake: 3.10.2.4988404
-            script: flutter run --no-start-paused test\realm_test.dart
-            working-directory: flutter\realm_flutter\tests
+            script: flutter run --no-start-paused test/realm_test.dart
+            working-directory: ./flutter/realm_flutter/tests
