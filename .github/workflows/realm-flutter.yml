@@ -24,18 +24,12 @@ jobs:
           submodules: 'recursive'
 
       - name: Build for Android x86
-        # env: 
-        #   ANDROID_NDK: ${ env:ANDROID_NDK_HOME }
         run: |
           mkdir build-android
           cd build-android
           export ANDROID_NDK=$ANDROID_NDK_HOME
           echo ANDROID_NDK: $ANDROID_NDK
           ./../scripts/build-android.sh
-
-      # - uses: actions/setup-java@v2
-      #   with:
-      #     java-version: '11'
 
       # Uses https://github.com/marketplace/actions/flutter-action
       - name: Setup Flutter
