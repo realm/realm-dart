@@ -10,7 +10,7 @@ void main() {
 
   group('RealmClass tests', () {
     test('Realm version', () {
-      expect(Realm.version, contains('11.'));
+      expect(Realm.version, contains('12.'));
     });
   });
 
