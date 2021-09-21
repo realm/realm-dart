@@ -117,7 +117,7 @@ void main([List<String> arguments]) {
 
   group('RealmClass tests', () {
     test('Realm version', () {
-      expect(Realm.version, contains('11.'));
+      expect(Realm.version, contains('12.'));
     });
     
     test('Realm should be created', () {
