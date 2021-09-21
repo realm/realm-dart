@@ -1,14 +1,18 @@
 // @dart=2.10
 
 import 'package:flutter_driver/driver_extension.dart';
-import 'package:realm/realm.dart';
 import 'package:tests/main.dart' as app;
+import '../test/realm_test.dart' as tests;
 
-void main() {
-  // This line enables the extension.
-  enableFlutterDriverExtension();
+void main() async {
+  enableFlutterDriverExtension(handler: (command) async {
+    if (command == 'tests') {
+      return await tests.main();
+    }
+    else {
+      throw Exception('Unknown command: $command');
+    }
+  });
 
-  // Call the `main()` function of the app, or call `runApp` with
-  // any widget you are interested in testing.
   app.main();
 }

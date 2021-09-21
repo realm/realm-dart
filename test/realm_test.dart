@@ -21,7 +21,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:realm_dart/realm.dart';
+import '../lib/realm.dart';
 import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
 
@@ -94,20 +94,24 @@ void main([List<String> arguments]) {
   initRealm();
 
   setUp(() {
-    //Dart: this will clear everything else but deleting the file
-    Realm.clearTestState();
+    // Do not clear state on Flutter. Test app is reinstalled on every test run so the state is clear.
+    if (!IsFlutterPlatform) {
 
-    var currentDir = Directory.current;
-    var files = currentDir.listSync();
-    for (var file in files) {
-      if (!(file is File) || (!file.path.endsWith(".realm"))) {
-        continue;
+      //Dart: this will clear everything else but deleting the file
+      Realm.clearTestState();
+    
+      var currentDir = Directory.current;
+      var files = currentDir.listSync();
+      for (var file in files) {
+        if (!(file is File) || (!file.path.endsWith(".realm"))) {
+          continue;
+        }
+
+        file.deleteSync();
+
+        var lockFile = new File("${file.path}.lock");
+        lockFile.deleteSync();
       }
-
-      file.deleteSync();
-
-      var lockFile = new File("${file.path}.lock");
-      lockFile.deleteSync();
     }
   });
 

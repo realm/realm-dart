@@ -105,7 +105,17 @@ target_link_libraries(realm_dart RealmFFIStatic)
 
 set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/binary")
 if(ANDROID)
+    #core requires these options for the final *.so file. See more realm-core/CMakeLists.txt
+    add_compile_options(-Wl,-gc-sections)
+
     set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/binary/android/${ANDROID_ABI}")
+
+    if (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+        message("Stripping enabled for Release or MinSizeRel builds")
+        add_custom_command(TARGET realm_dart
+        POST_BUILD
+        COMMAND ${CMAKE_STRIP} $<TARGET_FILE:realm_dart>)
+    endif()
 endif()
 
 
