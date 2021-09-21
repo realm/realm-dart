@@ -16,7 +16,8 @@ void main() {
       await driver.close();
     });
 
-     test('Realm Flutter Tests', () async {
+     // This single tests runs all Realm tests and reports test run failure if any Realm test fails.
+     test('run all', () async {
       String result = await driver.requestData('tests');
       if (result != null) {
         fail('Failed tests: $result');
