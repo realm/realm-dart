@@ -94,10 +94,12 @@ void main([List<String> arguments]) {
   initRealm();
 
   setUp(() {
-    //Dart: this will clear everything else but deleting the file
-    Realm.clearTestState();
-
+    // Do not clear state on Flutter. Test app is reinstalled on every test run so the state is clear.
     if (!IsFlutterPlatform) {
+
+      //Dart: this will clear everything else but deleting the file
+      Realm.clearTestState();
+    
       var currentDir = Directory.current;
       var files = currentDir.listSync();
       for (var file in files) {
