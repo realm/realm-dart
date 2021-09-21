@@ -97,17 +97,19 @@ void main([List<String> arguments]) {
     //Dart: this will clear everything else but deleting the file
     Realm.clearTestState();
 
-    var currentDir = Directory.current;
-    var files = currentDir.listSync();
-    for (var file in files) {
-      if (!(file is File) || (!file.path.endsWith(".realm"))) {
-        continue;
+    if (!IsFlutterPlatform) {
+      var currentDir = Directory.current;
+      var files = currentDir.listSync();
+      for (var file in files) {
+        if (!(file is File) || (!file.path.endsWith(".realm"))) {
+          continue;
+        }
+
+        file.deleteSync();
+
+        var lockFile = new File("${file.path}.lock");
+        lockFile.deleteSync();
       }
-
-      file.deleteSync();
-
-      var lockFile = new File("${file.path}.lock");
-      lockFile.deleteSync();
     }
   });
 
