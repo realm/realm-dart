@@ -3,25 +3,25 @@
 // Imports the Flutter Driver API.
 import 'package:flutter_driver/flutter_driver.dart';
 import 'package:test/test.dart';
-import 'package:realm/realm.dart';
 
 void main() {
   group('Realm tests', () {
     FlutterDriver driver;
 
-    // // Connect to the Flutter driver before running any tests.
     setUpAll(() async {
       driver = await FlutterDriver.connect();
-      initRealm();
     });
 
-    // Close the connection to the driver after the tests have completed.
     tearDownAll(() async {
-      driver.close();
+      await driver.close();
     });
 
-     test('Realm version', () {
-      expect(Realm.version, contains('11.'));
+     // This single tests runs all Realm tests and reports test run failure if any Realm test fails.
+     test('run all', () async {
+      String result = await driver.requestData('tests');
+      if (result != null) {
+        fail('Failed tests: $result');
+      }
     });
   });
 }

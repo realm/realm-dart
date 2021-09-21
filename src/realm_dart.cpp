@@ -34,9 +34,9 @@ BOOL APIENTRY DllMain(HMODULE module,
   return true;
 }
 
-// Win only. Force the linker to link all exports from realm-core C API
+#endif  // defined(_WIN32)
+
+// Force the linker to link all exports from realm-core C API
 const char* dummy(void) {
 	return realm_get_library_version();
 }
-
-#endif  // defined(_WIN32)
