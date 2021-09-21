@@ -2,7 +2,18 @@
 
 import 'package:flutter/material.dart';
 
+import 'package:flutter_driver/driver_extension.dart';
+import 'realm_test.dart' as tests;
+
 void main() {
+  enableFlutterDriverExtension(handler: (command) async {
+    if (command == 'tests') {
+      return await tests.main();
+    } else {
+      throw Exception('Unknown command: $command');
+    }
+  });
+
   runApp(const MyApp());
 }
 
