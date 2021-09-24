@@ -311,3 +311,17 @@ If an `alpha` version is released before `beta` and it needs to not be considere
 Updating the major version with every release stage is also possible - `0.2.0+beta`, `0.2.1+beta`.
 
 ##### The "Dart" name and logo and the "Flutter" name and logo are trademarks owned by Google. 
+
+# Code of Conduct
+
+This project adheres to the [MongoDB Code of Conduct](https://www.mongodb.com/community-code-of-conduct).
+By participating, you are expected to uphold this code. Please report
+unacceptable behavior to [community-conduct@mongodb.com](mailto:community-conduct@mongodb.com).
+
+# License
+
+Realm Dart and [Realm Core](https://github.com/realm/realm-core) are published under the Apache License 2.0.
+
+**This product is not being made available to any person located in Cuba, Iran,
+North Korea, Sudan, Syria or the Crimea region, or to any other person that is
+not eligible to receive the product under U.S. law.**
