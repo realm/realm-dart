@@ -13,6 +13,9 @@ out
 # Ignore flutter package
 flutter/**
 
+# Ignore generator package
+generator/**
+
 # Ignore doc build output directory
 /doc/
 
