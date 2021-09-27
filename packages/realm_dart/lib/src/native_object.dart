@@ -1,1 +1,0 @@
-../../../../lib/src/native_object.dart

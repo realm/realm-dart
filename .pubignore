@@ -1,0 +1,24 @@
+out
+.vs
+# ingore build file
+.dart_tool/
+
+# ignore realm files
+**/*.realm
+**/*.realm.lock
+
+# Dart packages and Flutter plugins should not commit these files
+.packages
+
+# Ignore flutter package
+flutter/**
+
+# Ignore doc build output directory
+/doc/
+
+# Ignore native binaries output directory
+/binary/
+
+# Ignore native binaries build directories
+/build-android/
+/build/

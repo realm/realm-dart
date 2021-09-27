@@ -1,1 +1,0 @@
-../../generator/README.md

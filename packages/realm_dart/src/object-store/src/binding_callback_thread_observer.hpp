@@ -1,1 +1,0 @@
-../../../../../src/object-store/src/binding_callback_thread_observer.hpp

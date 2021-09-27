@@ -1,1 +1,0 @@
-../../../../flutter/realm_flutter/lib/src/configuration.dart

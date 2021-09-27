@@ -1,1 +1,0 @@
-../../../../../example/myapp/bin/myapp.dart

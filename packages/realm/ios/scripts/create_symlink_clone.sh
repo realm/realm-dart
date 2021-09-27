@@ -1,1 +1,0 @@
-../../../../flutter/realm_flutter/ios/scripts/create_symlink_clone.sh
