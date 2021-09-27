@@ -1,1 +1,0 @@
-../../../../flutter/realm_flutter/example/android/gradlew.bat
