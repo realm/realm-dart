@@ -82,5 +82,5 @@ jobs:
             ndk: 21.0.6113669
             arch: x86
             cmake: 3.10.2.4988404
-            script: flutter drive --target=test_driver/app.dart --dart-define=testname="Realm version"
+            script: flutter drive --target=test_driver/app.dart --dart-define=testName="Realm version"
             working-directory: ./flutter/realm_flutter/tests
