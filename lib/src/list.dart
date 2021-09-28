@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// @dart=2.10
-
 import 'dart:core';
 import 'dart:core' as core;
 import 'dart:collection';
@@ -132,8 +130,8 @@ class _RealmListUnmanaged {}
 
 /// A list of RealmObjects
 class ArrayList<T extends RealmObject> with ListMixin<T> {
-  RealmList _list;
-  core.List<T> _unmanagedValues;
+  RealmList? _list;
+  core.List<T>? _unmanagedValues;
 
   /**
    * Called from native code
@@ -151,34 +149,34 @@ class ArrayList<T extends RealmObject> with ListMixin<T> {
 
   T operator [](int index) {
     if (_unmanagedValues != null) {
-      return _unmanagedValues[index];
+      return _unmanagedValues![index];
     }
 
-    return _list[index] as T;
+    return _list![index] as T;
   }
 
   void operator []=(int index, covariant T value) {
     if (_unmanagedValues != null) {
-      _unmanagedValues[index] = value;
+      _unmanagedValues![index] = value;
       return;
     }
 
-    _list[index] = value;
+    _list![index] = value;
     //super[index] = value;
   }
 
   int get length {
     if (_unmanagedValues != null) {
-      return _unmanagedValues.length;
+      return _unmanagedValues!.length;
     }
 
-    return _list.length;
+    return _list!.length;
   } 
 
   @override
   void add(T value) {
     if (_unmanagedValues != null) {
-      return _unmanagedValues.add(value);
+      return _unmanagedValues!.add(value);
     }
 
     throw Exception("not implemented for native code");
@@ -188,7 +186,7 @@ class ArrayList<T extends RealmObject> with ListMixin<T> {
   @override
   void addAll(Iterable<T> values) {
      if (_unmanagedValues != null) {
-      return _unmanagedValues.addAll(values);
+      return _unmanagedValues!.addAll(values);
     }
 
     throw Exception("not implemented for native code");

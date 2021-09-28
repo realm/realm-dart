@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// @dart=2.10
-
 /**
  *  The file is intentionaly not follwoing the dart naming guidelines. The name is used from native code by convention
  */
@@ -39,7 +37,7 @@ typedef void RealmObjectListenerCallback(dynamic object, dynamic changes);
 /// A data model class `_MyClass` will have a RealmObject with name `MyClass` generated 
 /// which should be used insead of directly instantiating and working with RealmObject instances
 class RealmObject /*extends DynamicObject*/ {
-  Map<String, Object> _unmanagedProperties;
+  Map<String, Object>? _unmanagedProperties;
 
   /**
    *  Default constructor. Enables the subclass to different constructors and work with RealmObject unmanaged instances
@@ -60,7 +58,7 @@ class RealmObject /*extends DynamicObject*/ {
 
   Object operator [](String name) {
     if (_unmanagedProperties != null) {
-      return _unmanagedProperties[name];
+      return _unmanagedProperties![name]!;
     }
 
     Object result = _native_get(name);
@@ -73,7 +71,7 @@ class RealmObject /*extends DynamicObject*/ {
 
   void operator []=(String name, Object value) {
     if (_unmanagedProperties != null) {
-      _unmanagedProperties[name] = value;
+      _unmanagedProperties![name] = value;
       return;
     }
 
@@ -127,7 +125,7 @@ class RealmObject /*extends DynamicObject*/ {
 extension Super on RealmObject {
   ArrayList<T> super_get<T extends RealmObject>(String name) {
     if (_unmanagedProperties != null) {
-      return _unmanagedProperties[name];
+      return _unmanagedProperties![name] as ArrayList<T>;
     }
 
     Object result = _native_get(name);
@@ -148,7 +146,7 @@ extension Super on RealmObject {
     arrayList = new ArrayList(value);
 
     if (_unmanagedProperties != null) {
-      _unmanagedProperties[name] = arrayList;
+      _unmanagedProperties![name] = arrayList;
       return;
     }
 
