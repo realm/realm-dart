@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// @dart=2.10
-
 import 'helpers.dart';
 
 /// @nodoc
@@ -25,7 +23,7 @@ class TypeStaticProperties {
   static final _staticProperties = new Map<Type, Map<String, dynamic>>();
 
   static dynamic getValue(Type type, String name) {
-    Map<String, dynamic> properties = _staticProperties[type];
+    Map<String, dynamic> properties = _staticProperties[type]!;
     if (properties == null) {
       return null;
     }
@@ -34,7 +32,7 @@ class TypeStaticProperties {
   }
 
   static setValue(Type type, String name, dynamic value) {
-    Map<String, dynamic> properties = _staticProperties[type];
+    Map<String, dynamic> properties = _staticProperties[type]!;
     if (properties == null) {
       properties = new Map<String, dynamic>();
       _staticProperties[type] = properties;
@@ -59,7 +57,7 @@ class DynamicObject {
   }
 
   List<String> get propertyNames {
-    var result = new List<String>();
+    var result = List<String>.empty();
     result.addAll(_properties.keys);
     return result;
   }

@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// @dart=2.10
-
 import 'dart:io';
 
 import 'dart:ffi';
@@ -50,16 +48,16 @@ part 'main.g.dart';
 // }
 class _Car {
   @RealmProperty()
-  String make;
+  late String make;
 }
 
 //class Person extends RealmObject {}
 class _Person {
   @RealmProperty()
-  String name; 
+  late String name; 
 }
 
-String _platformPath(String name, {String path}) {
+String _platformPath(String name, {String? path}) {
   if (path == null) path = "";
   if (Platform.isLinux || Platform.isAndroid)
     return path + "lib" + name + ".so";
@@ -68,7 +66,7 @@ String _platformPath(String name, {String path}) {
   throw Exception("Platform not implemented");
 }
 
-DynamicLibrary dlopenPlatformSpecific(String name, {String path}) {
+DynamicLibrary dlopenPlatformSpecific(String name, {String? path}) {
   String fullPath = _platformPath(name, path: path);
   return DynamicLibrary.open(fullPath);
 }

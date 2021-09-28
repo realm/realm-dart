@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// @dart=2.10
-
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
@@ -42,7 +40,7 @@ export 'realm_property.dart';
 export 'dynamic_object.dart';
 export 'helpers.dart';
 
-NativeLibrary RealmLib;
+NativeLibrary? RealmLib;
 void setRealmLib(DynamicLibrary realmLibrary) {
   RealmLib = NativeLibrary(realmLibrary);
 }
@@ -82,13 +80,13 @@ class Realm extends DynamicObject {
   static double schemaVersion(String path) {
     return _schemaVersion(null, path);
   }
-  static double _schemaVersion(Object nullptr, String path) native "Realm_schemaVersion";
+  static double _schemaVersion(Object? nullptr, String path) native "Realm_schemaVersion";
 
   /// Returns `true` if the Realm already exists on [path].
   static bool exists(String path) {
     return _exists(null, new Configuration()..path = path);
   }
-  static bool _exists(Object nullptr, Configuration config) native "Realm_exists";
+  static bool _exists(Object? nullptr, Configuration config) native "Realm_exists";
 
   /// DO NOT USE.
   static bool clearTestState() {
@@ -146,9 +144,9 @@ class Realm extends DynamicObject {
   /// ```
   T create<T extends RealmObject>(T object) {
       String typeName = _getRealmObjectName<T>();
-      return _create(typeName, object);  
+      return _create(typeName, object) as T;  
   }
-  RealmObject _create(String typeName, RealmObject object) native "Realm_create";
+  RealmObject _create(String? typeName, RealmObject object) native "Realm_create";
 
   /// Gets all objects of type `T` 
   /// 
@@ -234,7 +232,7 @@ class Realm extends DynamicObject {
   }
   RealmObject _objectForPrimaryKey(String name, dynamic key) native 'Realm_objectForPrimaryKey';
 
-  static String get version => RealmLib.realm_get_library_version().toDartString();
+  static String get version => RealmLib!.realm_get_library_version().toDartString();
 }
 
 /// An exception being thrown when a Realm operation or Realm object access fails

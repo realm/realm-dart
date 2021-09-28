@@ -36,15 +36,16 @@ class _Car {
   @RealmProperty(type: "Car[]", optional: true)
   List<_Car> otherCarsMyLongName;
 
-  @RealmProperty(optional: true)
-  List<int> myInts;
+  // Not supported
+  // @RealmProperty(optional: true)
+  // List<int> myInts;
 
-  @RealmProperty(optional: true)
-  List<double> myDoubles;
+  // @RealmProperty(optional: true)
+  // List<double> myDoubles;
 
-  @RealmProperty(optional: true)
-  List<String> myString;
+  // @RealmProperty(optional: true)
+  // List<String> myString;
 
-  @RealmProperty(optional: true)
-  List<bool> myBools;
+  // @RealmProperty(optional: true)
+  // List<bool> myBools;
 }

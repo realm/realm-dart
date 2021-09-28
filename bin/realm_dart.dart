@@ -1,5 +1,3 @@
-// @dart=2.10
-
 import 'dart:io';
 import 'dart:convert';
 
@@ -14,7 +12,7 @@ String _platformPath(String name, {String path = ""}) {
   throw Exception("Realm Dart supports Windows, Linx and MacOS only");
 }
 
-Future<void> main(List<String> args) {
+void main(List<String> args) {
   if (args.length != 1 || args[0] != "install") {
     print("Run this script with `dart run realm_dart install` to install Realm Dart into your application");
     exit(-1);

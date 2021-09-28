@@ -1,7 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-// @dart=2.10
-
 part of 'realm_test.dart';
 
 // **************************************************************************
@@ -9,40 +7,43 @@ part of 'realm_test.dart';
 // **************************************************************************
 
 class Car extends RealmObject {
+  // ignore_for_file: unused_element, unused_local_variable
   Car._constructor() : super.constructor();
-  Car() {}
+  Car();
 
   @RealmProperty()
-  String get make => super['make'];
+  String get make => super['make'] as String;
   set make(String value) => super['make'] = value;
 
   @RealmProperty()
-  String get model => super['model'];
+  String get model => super['model'] as String;
   set model(String value) => super['model'] = value;
 
-  @RealmProperty(defaultValue: '500', optional: true)
-  int get kilometers => super['kilometers'];
+  @RealmProperty(defaultValue: "500", optional: true)
+  int get kilometers => super['kilometers'] as int;
   set kilometers(int value) => super['kilometers'] = value;
 
   static dynamic getSchema() {
+    const dynamic type = _Car;
     return RealmObject.getSchema('Car', [
-      new SchemaProperty('make', type: 'string'),
-      new SchemaProperty('model', type: 'string'),
-      new SchemaProperty('kilometers', type: 'int', defaultValue: '500', optional: true),
+      SchemaProperty('make', type: 'string'),
+      SchemaProperty('model', type: 'string'),
+      SchemaProperty('kilometers', type: 'int', defaultValue: "500", optional: true),
     ]);
   }
 }
 
 class Person extends RealmObject {
+  // ignore_for_file: unused_element, unused_local_variable
   Person._constructor() : super.constructor();
-  Person() {}
+  Person();
 
   @RealmProperty()
-  String get name => super['name'];
+  String get name => super['name'] as String;
   set name(String value) => super['name'] = value;
 
   @RealmProperty()
-  int get age => super['age'];
+  int get age => super['age'] as int;
   set age(int value) => super['age'] = value;
 
   @RealmProperty()
@@ -50,30 +51,33 @@ class Person extends RealmObject {
   set cars(List<Car> value) => this.super_set<Car>('cars', value);
 
   static dynamic getSchema() {
+    const dynamic type = _Person;
     return RealmObject.getSchema('Person', [
-      new SchemaProperty('name', type: 'string'),
-      new SchemaProperty('age', type: 'int'),
-      new SchemaProperty('cars', type: 'Car[]'),
+      SchemaProperty('name', type: 'string'),
+      SchemaProperty('age', type: 'int'),
+      SchemaProperty('cars', type: 'Car[]'),
     ]);
   }
 }
 
 class ServicedCar extends RealmObject {
+  // ignore_for_file: unused_element, unused_local_variable
   ServicedCar._constructor() : super.constructor();
-  ServicedCar() {}
+  ServicedCar();
 
   @RealmProperty(primaryKey: true)
-  int get id => super['id'];
+  int get id => super['id'] as int;
   set id(int value) => super['id'] = value;
 
   @RealmProperty()
-  Car get car => super['car'];
+  Car get car => super['car'] as Car;
   set car(Car value) => super['car'] = value;
 
   static dynamic getSchema() {
+    const dynamic type = _ServicedCar;
     return RealmObject.getSchema('ServicedCar', [
-      new SchemaProperty('id', type: 'int', primaryKey: true),
-      new SchemaProperty('car', type: 'Car'),
+      SchemaProperty('id', type: 'int', primaryKey: true),
+      SchemaProperty('car', type: 'Car'),
     ]);
   }
 }

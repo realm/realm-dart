@@ -20,8 +20,6 @@
 //dart_init needs all dart classes that realm_class.dart exports without hiding any export on import
 //instead hide all non public classes on export
 
-// @dart=2.10
-
 import 'realm_class.dart';
 
 

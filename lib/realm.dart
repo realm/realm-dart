@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// @dart=2.10
-
 import 'dart:ffi';
 import 'dart:io';
 
@@ -43,11 +41,7 @@ void initRealm() {
     return;
   }
 
-  String _platformPath(String name, {String path}) {
-    if (Platform.isWindows) {
-      print("Platform is Windows");
-    }
-
+  String _platformPath(String name, {String? path}) {
     if (path == null) path = '';
     if (Platform.isLinux || Platform.isAndroid) return path + "lib" + name + ".so";
     if (Platform.isMacOS) return path + "lib" + name + ".dylib";
@@ -62,9 +56,8 @@ void initRealm() {
     throw Exception("Platform not implemented");
   }
 
-  DynamicLibrary dlopenPlatformSpecific(String name, {String path}) {
+  DynamicLibrary dlopenPlatformSpecific(String name, {String? path}) {
     String fullPath = _platformPath(name, path: path);
-    print('Realm binary full path: $fullPath');
     return DynamicLibrary.open(fullPath);
   }
 
@@ -75,7 +68,6 @@ void initRealm() {
     throw Exception("Unsupported platform: ${Platform.operatingSystem}");
   }
 
-  print(realmLibrary);
   setRealmLib(realmLibrary);
 
   // TODO: call Dart_InitializeApiDL
