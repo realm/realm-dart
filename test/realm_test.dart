@@ -69,7 +69,8 @@ void test(String? name, dynamic Function() testFunction) {
 }
 
 
-void getTestNameFilter(List<String> arguments) {
+void parseTestNameFromArguments(List<String>? arguments) {
+  arguments = arguments ?? List.empty();
   int nameArgIndex = arguments.indexOf("--name");
   if (arguments.length != 0) {
     if (nameArgIndex >= 0 && arguments.length > 1) {
@@ -79,8 +80,8 @@ void getTestNameFilter(List<String> arguments) {
   }
 }
 
-void main(List<String> args) {
-  getTestNameFilter(args);
+void main([List<String>? args]) {
+  parseTestNameFromArguments(args);
   
   print("Current PID ${pid}");
 
