@@ -27,7 +27,7 @@ part 'main.g.dart';
 
 class _Car {
   @RealmProperty()
-  String make;
+  late String make;
 }
 
 void main() {
