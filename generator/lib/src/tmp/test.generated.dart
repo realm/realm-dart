@@ -8,13 +8,13 @@ part of 'test.dart';
 
 class Car extends RealmObject {
   @RealmProperty(type: "string")
-  String make;
+  late String make;
 
   @RealmProperty(type: "string")
-  String model;
+  late String model;
 
   @RealmProperty(type: "int", defaultValue: "0")
-  int kolometers;
+  late int kolometers;
 
   dynamic get _schema {
     // dynamic schema = DynamicObject();
