@@ -4,12 +4,12 @@ part 'myapp.g.dart';
 
 class _Car {
   @RealmProperty()
-  String make;
+  late String make;
 }
 
 class _Person {
   @RealmProperty()
-  String name; 
+  late String name; 
 }
 
 void main(List<String> arguments) {
