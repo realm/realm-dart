@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// @dart=2.10
-
 import 'dart:async';
 import 'dart:io';
 
@@ -29,41 +27,41 @@ part 'realm_test.g.dart';
 
 class _Car {
   @RealmProperty()
-  String make;
+  late String make;
 
   @RealmProperty()
-  String model;
+  late String model;
   
   @RealmProperty(defaultValue: "500", optional: true)
-  int kilometers;
+  late int kilometers;
 }
 
 class _Person {
   @RealmProperty()
-  String name;
+  late String name;
 
   @RealmProperty()
-  int age;
+  late int age;
 
   @RealmProperty()
-  List<_Car> cars;
+  late List<_Car> cars;
 }
 
 class _ServicedCar {
   @RealmProperty(primaryKey: true)
-  int id;
+  late int id;
 
   @RealmProperty()
-  _Car car;
+  late _Car car;
 }
 
-String testName;
+String? testName;
 
 /**
  * Overrides other tests
  */
-void test(String name, Function testFunction) {
-  if (testName != null && !name.contains(testName)) {
+void test(String? name, dynamic Function() testFunction) {
+  if (testName != null && !name!.contains(testName!)) {
     return;
   }
 
@@ -71,13 +69,9 @@ void test(String name, Function testFunction) {
 }
 
 
-void getTestNameFilter(List<String> arguments) {
-  if (arguments == null) {
-    print("arguments is null");
-    return;
-  }
-  
-  int nameArgIndex = arguments.indexOf("--testname");
+void parseTestNameFromArguments(List<String>? arguments) {
+  arguments = arguments ?? List.empty();
+  int nameArgIndex = arguments.indexOf("--name");
   if (arguments.length != 0) {
     if (nameArgIndex >= 0 && arguments.length > 1) {
       testName = arguments[nameArgIndex + 1];
@@ -86,8 +80,8 @@ void getTestNameFilter(List<String> arguments) {
   }
 }
 
-void main([List<String> arguments]) {
-  getTestNameFilter(arguments);
+void main([List<String>? args]) {
+  parseTestNameFromArguments(args);
   
   print("Current PID ${pid}");
 
@@ -198,13 +192,13 @@ void main([List<String> arguments]) {
         ..model = "A4"
         ..kilometers = 245;
       
-      Car realmCar = null;
+      Car? realmCar;
       realm.write(() {
         realmCar = realm.create(car);
       });
 
       expect(car, isA<Car>());
-      expect(realmCar.isValid(), isTrue);
+      expect(realmCar!.isValid(), isTrue);
       expect(() => car.isValid(), throwsA(TypeMatcher<RealmException>()));
     });
 
@@ -219,7 +213,7 @@ void main([List<String> arguments]) {
         ..model = "A4"
         ..kilometers = 245;
       
-      Car realmCar = null;
+      Car? realmCar;
       realm.write(() {
         realmCar = realm.create(car);
       });
@@ -227,7 +221,7 @@ void main([List<String> arguments]) {
       bool initialCall = true;
       int callCount = 0;
 
-      realmCar.addListener((object, changes) {
+      realmCar!.addListener((object, changes) {
         callCount++;
         expect(object, isA<Car>());
         expect(changes.changedProperties, isA<List>());
@@ -243,11 +237,11 @@ void main([List<String> arguments]) {
       });
 
       realm.write(() {
-        realmCar.make = "VW";
+        realmCar!.make = "VW";
       });
 
       realm.write(() {
-        realmCar.make = "Tesla";
+        realmCar!.make = "Tesla";
       });
 
       expect(callCount, 2);
@@ -264,7 +258,7 @@ void main([List<String> arguments]) {
         ..model = "A4"
         ..kilometers = 245;
       
-      Car realmCar = null;
+      Car? realmCar;
       realm.write(() {
         realmCar = realm.create(car);
       });
@@ -279,16 +273,16 @@ void main([List<String> arguments]) {
         expect(props.length, equals(0));
       };
 
-      realmCar.addListener(callback);
+      realmCar!.addListener(callback);
 
       realm.write(() {
-        realmCar.make = "VW";
+        realmCar!.make = "VW";
       });
 
-      realmCar.removeListener(callback);
+      realmCar!.removeListener(callback);
 
       realm.write(() {
-        realmCar.make = "Tesla";
+        realmCar!.make = "Tesla";
       });
 
       expect(callCount, 1);
@@ -300,7 +294,7 @@ void main([List<String> arguments]) {
 
       var realm = new Realm(config);
       int notificationCount = 0;
-      String notificationName;
+      String notificationName = '';
 
       realm.addListener(Event.change, (realm, name) {
         notificationCount++;
@@ -324,7 +318,7 @@ void main([List<String> arguments]) {
 
       var realm = new Realm(config);
       int notificationCount = 0;
-      String notificationName;
+      String notificationName = '';
 
       var callback = (realm, name) {
         notificationCount++;
@@ -354,7 +348,7 @@ void main([List<String> arguments]) {
       Person person = new Person()
         ..name = "CarOwner"
         ..age = 18
-        ..cars = new List<Car>();
+        ..cars = [];
 
       var car1 = new Car()
         ..make = "Audi"

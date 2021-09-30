@@ -1,1 +1,0 @@
-../../../../example/myapp/README.md

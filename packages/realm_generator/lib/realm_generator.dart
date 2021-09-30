@@ -1,1 +1,0 @@
-../../../generator/lib/realm_generator.dart

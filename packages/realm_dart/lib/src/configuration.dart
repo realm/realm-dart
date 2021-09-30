@@ -1,1 +1,0 @@
-../../../../lib/src/configuration.dart

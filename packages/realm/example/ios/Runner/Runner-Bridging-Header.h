@@ -1,1 +1,0 @@
-../../../../../flutter/realm_flutter/example/ios/Runner/Runner-Bridging-Header.h
