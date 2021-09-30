@@ -30,7 +30,7 @@ class RealmObjectGenerator extends Generator {
       return clazz.name.startsWith("_") &&
           clazz.fields.any((field) {
             return field.metadata.any((meta) {
-              if (meta.element.enclosingElement.displayName == "RealmProperty") {
+              if (meta.element!.enclosingElement!.displayName == "RealmProperty") {
                 return true;
               }
               //meta.element.enclosingElement.displayName == "RealmProperty"
@@ -80,12 +80,12 @@ class RealmObjectGenerator extends Generator {
           throw new Exception("Class '${schemaClass.name}' has a non RealmProperty type field '${field.name}'");
         }
 
-        if (field.type.element.name == "dynamic") {
+        if (field.type.element!.name == "dynamic") {
           throw new Exception("Class '${schemaClass.name}' has a dynamic type field '${field.name}'");
         }
 
-        var fieldTypeName = field.type.element.name;
-        if (fieldTypeName.startsWith('_')) {
+        var fieldTypeName = field.type.element!.name;
+        if (fieldTypeName!.startsWith('_')) {
           fieldTypeName = fieldTypeName.substring(1);
         }
 
@@ -100,7 +100,7 @@ class RealmObjectGenerator extends Generator {
         // }
 
         for (var meta in field.metadata) {
-          if (meta.element.enclosingElement.name != "RealmProperty") {
+          if (meta.element!.enclosingElement!.name != "RealmProperty") {
             continue;
           }
 
@@ -108,13 +108,17 @@ class RealmObjectGenerator extends Generator {
           var realmPropertyDefiniton = meta.toSource();
           generated.writeln("${realmPropertyDefiniton}");
 
-          var listTypeArumentName = "";
+          String? listTypeArumentName = "";
           if (fieldTypeName == "List") {
             InterfaceType fieldType = field.type as InterfaceType;
             var listTypeArument = fieldType.typeArguments[0].element;
-            listTypeArumentName = listTypeArument.name;
-            var isDartType =
-                listTypeArumentName == "String" || listTypeArumentName == "int" || listTypeArumentName == "double" || listTypeArumentName == "bool";
+
+            listTypeArumentName = listTypeArument!.name;
+            var isDartType = listTypeArumentName == "String" ||
+              listTypeArumentName == "int" ||
+              listTypeArumentName == "double" ||
+              listTypeArumentName == "bool";
+
 
             // if (field.type.element.name == "dynamic") {
             //   throw new Exception("Class '${schemaClass.name}' has a List<dynamic> type field '${field.displayName}'");
@@ -129,12 +133,12 @@ class RealmObjectGenerator extends Generator {
             //field.declaration.linkedNode.parent.childEntities.first.typeArguments.arguments.single.name.name == 'Car' //when List<Car>
             //field.session.getParsedUnit(field.source.fullName)
 
-            if (!isDartType && !listTypeArumentName.startsWith("_")) {
+            if (!isDartType && !listTypeArumentName!.startsWith("_")) {
               throw new Exception(
                   "Field ${schemaClass.name}.${field.name} has an invalid type ${field.type.toString()}. Type parameter name should start with '_' and be a RealmObject schema type");
             }
 
-            if (listTypeArumentName.startsWith("_")) {
+            if (listTypeArumentName!.startsWith("_")) {
               listTypeArumentName = listTypeArumentName.substring(1);
             }
 

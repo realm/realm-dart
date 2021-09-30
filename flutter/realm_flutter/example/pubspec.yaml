@@ -6,7 +6,7 @@ version: 0.1.0+preview
 publish_to: 'none'
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -20,8 +20,8 @@ dependencies:
     # the parent directory to use the current plugin's version. 
     path: ../
 
-  build_runner: ^1.10.0
-  cupertino_icons: ^0.1.3
+  build_runner: ^2.1.2
+  cupertino_icons: ^1.0.3
   characters: ^1.0.0
 
 dev_dependencies:

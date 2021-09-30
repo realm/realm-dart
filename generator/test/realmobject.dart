@@ -31,16 +31,16 @@ class RealmObject {
   static dynamic getSchema(String name, Iterable<RealmProperty> properties) {
   }
 
-  Object operator [](String name) { return null; }
+  Object? operator [](String name) { return null; }
   void operator []=(String name, Object value) {}
 }
 
 class RealmProperty {
-  final bool primaryKey;
-  final String type;
-  final String defaultValue;
-  final bool optional;
-  final String mapTo;
+  final bool? primaryKey;
+  final String? type;
+  final String? defaultValue;
+  final bool? optional;
+  final String? mapTo;
   const RealmProperty({this.type, this.defaultValue, this.optional, this.mapTo, this.primaryKey});
 }
 
@@ -52,7 +52,7 @@ class SchemaProperty extends RealmProperty {
 
 class ArrayList<T extends RealmObject> with ListMixin<T> {
   @override
-  int length;
+  int length = 0;
 
   @override
   T operator [](int index) {
