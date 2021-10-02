@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.tests">
+    package="io.realm.tests">
    <application
         android:label="tests"
         android:icon="@mipmap/ic_launcher">
