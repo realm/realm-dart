@@ -35,5 +35,5 @@ flutter:
         pluginClass: RealmPlugin
 
       # Mac is not supported yet
-      macos:
-        pluginClass: RealmPlugin
+      #macos:
+      #  pluginClass: RealmPlugin
