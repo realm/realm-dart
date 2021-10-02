@@ -1,4 +1,4 @@
-name: Realm Flutter Android
+name: Realm Flutter for Android
 
 on:
   push:
@@ -14,7 +14,7 @@ on:
       # - 'lib/**'
 
 jobs:
-  build:
+  CI:
     runs-on: macos-latest
 
     steps:
