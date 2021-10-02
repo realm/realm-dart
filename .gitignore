@@ -1,17 +1,15 @@
 out
 .vs
 #ingore build file
-.dart_tool/pub/bin/sdk-version
+.dart_tool/
+
 lib/default.realm
 lib/default.realm.lock
-lib/realm_dart_extension.pdb
-.dart_tool/pub/bin/test/test.dart.snapshot.dart2
-
-.dart_tool/
 
 pubspec.lock
 .packages
 flutter/realm_flutter/.idea/
+flutter/realm_flutter/android/.idea/
 flutter/realm_flutter/android/.cxx/
 flutter/realm_flutter/pubspec.lock
 flutter/realm_flutter/.gradle/
@@ -25,3 +23,4 @@ flutter/realm_flutter/.gradle/
 #ignore native binaries build directories
 /build-android/
 /build/
+/build-ios/

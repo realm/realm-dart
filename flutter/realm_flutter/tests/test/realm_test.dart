@@ -23,7 +23,7 @@ Future<String> main(List<String> args) {
 
   tearDownAll(() {
     if (failedTests.isNotEmpty) {
-      completer.completeError(failedTests.join('\n'));
+      completer.complete(failedTests.join('\n'));
     }
     else {
       completer.complete('');

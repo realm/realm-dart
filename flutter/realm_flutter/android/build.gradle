@@ -1,4 +1,4 @@
-group 'io.realm.realm_flutter'
+group 'io.realm'
 version '1.0'
 
 buildscript {
@@ -20,40 +20,6 @@ rootProject.allprojects {
 }
 
 apply plugin: 'com.android.library'
-
-// apply plugin: RealmPlugin
-
-class RealmPlugin implements Plugin<Project> {
-    def debug = false;
-
-    @Override
-    void apply(Project project) {
-        println "Root Project: ${project.getRootProject().name}"
-        project.getRootProject().allprojects.each { prj ->
-            println "project: ${prj.name}"
-                if (debug) {
-                    println "Project:" + prj.name
-                }
-
-                prj.configurations.each { conf ->
-                    if (debug) {
-                        println "  Configuration: ${conf.name}"
-                    }
-                    conf.allDependencies.each { dep ->
-                        if (debug) {
-                            println "    Dependency:      ${dep.group}:${dep.name}:${dep.version}"
-                        }
-
-                        if (dep.group && dep.group.equalsIgnoreCase("io.flutter") &&
-                            dep.name && dep.name in ["armeabi_v7a_debug", "x86_debug", "x86_64_debug", "arm64_v8a_debug", "armeabi_v7a_release", "x86_release", "x86_64_release", "arm64_v8a_release"]) {
-                            println "    Removing libflutter dependency: ${dep.group}:${dep.name}:${dep.version}"
-                            conf.dependencies.remove(dep)
-                        }
-                    }
-                }
-        }
-    }
-}
 
 android {
     compileSdkVersion 28
