@@ -38,9 +38,9 @@ jobs:
       - name: Launch Simulator
         uses: futureware-tech/simulator-action@v1
           with:
-          model: 'iPhone 8'
-          os: 'iOS'
-          os_version: '>= 14.0'
+            model: 'iPhone 8'
+            os: 'iOS'
+            os_version: '>= 14.0'
 
       - name: Run tests on iOS Simulator
         run: flutter drive --target=test_driver/app.dart --dart-define=testName="Realm version"
