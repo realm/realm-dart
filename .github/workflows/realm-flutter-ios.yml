@@ -24,12 +24,12 @@ jobs:
           submodules: 'recursive'
 
       - name: get-ccache-id
-        run: echo "CCACHE_ID=$(git submodule status src/realm-core)" >> $GITHUB_ENV
+        run: echo "CCACHE_ID=${{ runner.OS }} $(git submodule status src/realm-core)" >> $GITHUB_ENV
 
       - name: install ccache
         uses: hendrikmuhs/ccache-action@v1  
         with:
-          key: ${{ runner.OS }}-${{ env.CCACHE_ID }}
+          key: ${{ env.CCACHE_ID }}
 
       - name: enable ccache
         run: export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
