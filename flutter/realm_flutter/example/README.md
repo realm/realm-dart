@@ -1,6 +1,6 @@
 # realm_example
 
-Demonstrates how to use the realm plugin.
+Demonstrates how to use the Realm SDK for Flutter™
 
 ## Getting Started
 
