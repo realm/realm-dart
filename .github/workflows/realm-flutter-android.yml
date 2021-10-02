@@ -1,4 +1,4 @@
-name: realm-flutter-android
+name: Realm Flutter Android
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Build for Android x86
+      - name: Build Realm Flutter for Android x86
         run: |
           mkdir build-android
           cd build-android

@@ -1,4 +1,4 @@
-name: realm-dart
+name: Realm Dart Windows
 
 on:
   push:
@@ -40,7 +40,7 @@ jobs:
       #- name: Analyze project source
       #  run: dart analyze
 
-      - name: Build
+      - name: Build Ralm Dart for Windows
         run: |
           mkdir build
           cd build
