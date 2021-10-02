@@ -6,28 +6,23 @@ set(HEADERS
     realm-core/src/realm.h
 )
 
-# set (INCLUDE_DIRS
-#     realm-js-common
-#     dart
-#     ../object-store/src
-#     ../object-store/external/json
-#     #includes are common for Win and Mac
-#     ../vendor-include/realm-win-x64/include
-#     ../dart-include
-# )
+if(NOT CMAKE_SYSTEM_NAME STREQUAL iOS)
+    add_library(realm_dart SHARED ${SOURCES} ${HEADERS})
+    set_target_properties(realm_dart PROPERTIES POSITION_INDEPENDENT_CODE 1)
+else() #iOS
+    # building a static library for iOS
+    add_library(realm_dart STATIC ${SOURCES} ${HEADERS})
+    set(CMAKE_SYSTEM_NAME iOS)
+    set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+    set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
-add_library(realm_dart SHARED ${SOURCES} ${HEADERS})
+    set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH NO)
+    #set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=Release] NO)
 
-set_target_properties(realm_dart PROPERTIES POSITION_INDEPENDENT_CODE 1)
+    # set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_LIST_DIR}/vendor/realm-core/tools/cmake/macosx.toolchain.cmake")
 
-# if(APPLE)
-#     set_target_properties(realm_dart_extension PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
-   
-#     set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-#     set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
-
-#     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
-# endif()
+    # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+endif()
 
 # target_include_directories(realm_dart_extension PUBLIC ${DART_INCLUDE_DIR} ${HEADERS}, ${INCLUDE_DIRS})
 
