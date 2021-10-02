@@ -25,3 +25,4 @@ flutter/realm_flutter/.gradle/
 #ignore native binaries build directories
 /build-android/
 /build/
+/build-ios/
