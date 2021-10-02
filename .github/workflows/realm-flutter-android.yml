@@ -1,4 +1,4 @@
-name: realm-flutter
+name: realm-flutter-android
 
 on:
   push:

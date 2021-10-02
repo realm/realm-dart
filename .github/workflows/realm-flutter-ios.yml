@@ -1,4 +1,4 @@
-name: realm-flutter
+name: realm-flutter-ios
 
 on:
   push:
@@ -25,7 +25,7 @@ jobs:
 
       - name: Build for iOS
         run: |
-          ./../scripts/build-ios.sh
+          ./scripts/build-ios.sh
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v1
