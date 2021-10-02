@@ -30,6 +30,8 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1  
         with:
           key: ${{ runner.OS }}-${{ env.CCACHE_ID }}
+
+      - name: enable ccache
         run: export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
 
       - name: Build Realm Flutter for iOS
