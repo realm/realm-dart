@@ -42,27 +42,44 @@ void initRealm() {
   }
 
   String _platformPath(String name, {String? path}) {
-    if (path == null) path = '';
-    if (Platform.isLinux || Platform.isAndroid) return path + "lib" + name + ".so";
-    if (Platform.isMacOS) return path + "lib" + name + ".dylib";
+    if (path == null) {
+      path = '';
+    }
+
+    if (Platform.isLinux || Platform.isAndroid) {
+      return path + "lib" + name + ".so";
+    }
+
+    if (Platform.isMacOS) {
+      return path + "lib" + name + ".dylib";
+    }
+
     if (Platform.isWindows) {
       if (path == '') {
         path = 'binary/windows/';
       }
+      
       return path + name + ".dll";
     }
-    if (Platform.isIOS) return path + "/" + name;
+
+    if (Platform.isIOS) {
+      return path + "/" + name;
+    }
 
     throw Exception("Platform not implemented");
   }
 
   DynamicLibrary dlopenPlatformSpecific(String name, {String? path}) {
+    if (Platform.isIOS) {
+      return DynamicLibrary.process();
+    }
+
     String fullPath = _platformPath(name, path: path);
     return DynamicLibrary.open(fullPath);
   }
 
   DynamicLibrary realmLibrary;
-  if (Platform.isAndroid || Platform.isWindows) {
+  if (Platform.isAndroid || Platform.isWindows || Platform.isIOS) {
     realmLibrary = dlopenPlatformSpecific(RealmBinaryName);
   } else {
     throw Exception("Unsupported platform: ${Platform.operatingSystem}");

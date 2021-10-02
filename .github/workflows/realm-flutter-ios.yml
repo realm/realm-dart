@@ -1,0 +1,47 @@
+name: Realm Flutter for iOS
+
+on:
+  push:
+    branches: [ master ]
+    # paths:
+    #   - 'flutter/**'
+    #   - 'src/**'
+    #   - 'lib/**'
+  pull_request:
+    branches: [ master ]
+      # - 'flutter/**'
+      # - 'src/**'
+      # - 'lib/**'
+
+jobs:
+  CI:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Build Realm Flutter for iOS
+        run: |
+          ./scripts/build-ios.sh simulator
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '2.5.x'
+    
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Launch Simulator
+        uses: futureware-tech/simulator-action@v1
+        with:
+          model: 'iPhone 8'
+          os: 'iOS'
+          os_version: '>= 14.0'
+
+      - name: Run tests on iOS Simulator
+        run: flutter drive --target=test_driver/app.dart --dart-define=testName="Realm version"
+        working-directory: ./flutter/realm_flutter/tests
