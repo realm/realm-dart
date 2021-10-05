@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.15)
 
 project(realm-dart)
 
+if("$ENV{REALM_USE_CCACHE}" STREQUAL "TRUE")
+    message("REALM_USE_CCACHE is TRUE. Will try a build with ccache")
+    include(src/realm.build.use.ccache.cmake)
+endif()
+
 message ("Realm Dart")
 message ("CMAKE_BINARY_DIR is ${CMAKE_BINARY_DIR}")
 message ("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
