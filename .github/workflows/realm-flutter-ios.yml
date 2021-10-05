@@ -32,9 +32,10 @@ jobs:
           key: ${{ env.CCACHE_ID }}
 
       - name: enable ccache
+        #export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         run: |
-              export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-              export REALM_USE_CCACHE=TRUE
+              echo "PATH=/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH" >> $GITHUB_ENV
+              echo "REALM_USE_CCACHE==TRUE" >> $GITHUB_ENV
 
       - name: Build Realm Flutter for iOS
         run: |
