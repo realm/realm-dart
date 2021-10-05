@@ -2,12 +2,12 @@ if($ENV{REALM_USE_CCACHE} STREQUAL "TRUE")
     message("REALM_USE_CCACHE defined. Searching for ccache")
     find_program(CCACHE_PROGRAM ccache)
     if(CCACHE_PROGRAM)
-        message("ccache found: $CCACHE_PROGRAM")
+        message("ccache found: ${CCACHE_PROGRAM}")
         # Set up wrapper scripts
         set(C_LAUNCHER   "${CCACHE_PROGRAM}")
         set(CXX_LAUNCHER "${CCACHE_PROGRAM}")
-        configure_file(../scripts/launch-c.in   launch-c)
-        configure_file(../scripts/launch-cxx.in launch-cxx)
+        configure_file("${CMAKE_BINARY_DIR}../scripts/launch-c.in" launch-c)
+        configure_file("${CMAKE_BINARY_DIR}../scripts/launch-cxx.in" launch-cxx)
         execute_process(COMMAND chmod a+rx
                         "${CMAKE_BINARY_DIR}/launch-c"
                         "${CMAKE_BINARY_DIR}/launch-cxx"
