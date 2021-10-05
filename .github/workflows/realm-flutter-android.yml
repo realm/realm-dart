@@ -31,21 +31,11 @@ jobs:
           echo ANDROID_NDK: $ANDROID_NDK
           ./../scripts/build-android.sh
 
-      # Uses https://github.com/marketplace/actions/flutter-action
       - name: Setup Flutter
         uses: subosito/flutter-action@v1
         with:
           flutter-version: '2.5.x'
 
-      # Uncomment this step to verify the use of 'dart format' on each commit.
-      # - name: Verify formatting
-      #   run: dart format --output=none --set-exit-if-changed .
-
-      # Consider passing '--fatal-infos' for slightly stricter analysis.
-      #- name: Analyze project source
-      #  run: dart analyze
-
-     
       - name: Install dependencies
         run: flutter pub get
 
@@ -70,7 +60,6 @@ jobs:
           ndk: 21.0.6113669
           cmake: 3.10.2.4988404
           script: echo "Generated Emulator snapshot for caching."
-
 
       - name: Run tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
