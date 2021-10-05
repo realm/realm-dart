@@ -14,6 +14,9 @@ function usage {
     echo "Arguments:"
     echo "   -c : build configuration (Debug or Release)"
     echo "   <platforms> : platforms to build for (catalyst, ios, or simulator)"
+    echo "                                                                     "
+    echo "Environment variables:"
+    echo "  REALM_USE_CCACHE=TRUE - enables ccache builds"
     exit 1;
 }
 
@@ -84,11 +87,15 @@ done
 mkdir -p build-ios
 pushd build-ios
 
+
+
 # Configure CMake project
 cmake "$PROJECT_ROOT" -GXcode \
     -DCMAKE_SYSTEM_NAME=iOS \
     -DCMAKE_TOOLCHAIN_FILE="$PROJECT_ROOT/src/realm-core/tools/cmake/ios.toolchain.cmake" \
     -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY="$(pwd)/out/$<CONFIG>\$EFFECTIVE_PLATFORM_NAME" \
+    -DREALM_USE_CCACHE=$REALM_USE_CCACHE
+    
 
 # The above command cmake --build does the same as this one
 xcodebuild build \
