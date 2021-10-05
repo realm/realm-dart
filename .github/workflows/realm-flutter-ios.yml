@@ -24,7 +24,9 @@ jobs:
           submodules: 'recursive'
 
       - name: get-ccache-id
-        run: echo "CCACHE_ID=os:${{ runner.OS }} build:ios realm-core-commit-hash:$(git submodule status src/realm-core | cut -c 1-41)" >> $GITHUB_ENV
+        run: |
+              echo "CCACHE_ID=os:${{ runner.OS }} build:ios realm-core-commit-hash $(git submodule status src/realm-core | cut -c 1-41)" >> $GITHUB_ENV
+              echo "using ccache-id:$(git submodule status src/realm-core | cut -c 1-41)"
 
       - name: install ccache
         uses: hendrikmuhs/ccache-action@v1  
