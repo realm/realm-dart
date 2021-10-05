@@ -93,8 +93,7 @@ pushd build-ios
 cmake "$PROJECT_ROOT" -GXcode \
     -DCMAKE_SYSTEM_NAME=iOS \
     -DCMAKE_TOOLCHAIN_FILE="$PROJECT_ROOT/src/realm-core/tools/cmake/ios.toolchain.cmake" \
-    -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY="$(pwd)/out/$<CONFIG>\$EFFECTIVE_PLATFORM_NAME" \
-    -DREALM_USE_CCACHE=$REALM_USE_CCACHE
+    -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY="$(pwd)/out/$<CONFIG>\$EFFECTIVE_PLATFORM_NAME"
     
 
 # The above command cmake --build does the same as this one
