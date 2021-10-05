@@ -1,4 +1,4 @@
-if(REALM_USE_CCACHE EQUAL TRUE)
+if($ENV{REALM_USE_CCACHE} STREQUAL "TRUE")
     message("REALM_USE_CCACHE defined. Searching for ccache")
     find_program(CCACHE_PROGRAM ccache)
     if(CCACHE_PROGRAM)
