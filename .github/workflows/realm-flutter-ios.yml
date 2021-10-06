@@ -15,7 +15,7 @@ on:
 
 jobs:
   CI:
-    runs-on: macos-latest
+    runs-on: macos-10.15
 
     steps:
       - name: Checkout
@@ -24,10 +24,10 @@ jobs:
           submodules: 'recursive'
 
       - name: get-ccache-id
-        run: echo "CCACHE_ID=${{ runner.OS }} $(git submodule status src/realm-core)" >> $GITHUB_ENV
+        run: echo "CCACHE_ID=os:${{ runner.OS }} build:ios realm-core commit hash $(git submodule status src/realm-core | cut -c 1-41)" >> $GITHUB_ENV
 
       - name: install ccache
-        uses: hendrikmuhs/ccache-action@v1  
+        uses: hendrikmuhs/ccache-action@v1
         with:
           key: ${{ env.CCACHE_ID }}
 
@@ -38,10 +38,10 @@ jobs:
 
       - name: Build Realm Flutter for iOS
         run: |
-          ./scripts/build-ios.sh simulator
+              ./scripts/build-ios.sh simulator
 
       - name: Setup Flutter
-        uses: subosito/flutter-action@v1
+        uses: subosito/flutter-action@v1.5.3
         with:
           flutter-version: '2.5.0'
     

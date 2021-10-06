@@ -15,7 +15,7 @@ on:
 
 jobs:
   CI:
-    runs-on: macos-latest
+    runs-on: macos-10.15
 
     steps:
       - name: Checkout
@@ -32,9 +32,9 @@ jobs:
           ./../scripts/build-android.sh
 
       - name: Setup Flutter
-        uses: subosito/flutter-action@v1
+        uses: subosito/flutter-action@v1.5.3
         with:
-          flutter-version: '2.5.x'
+          flutter-version: '2.5.0'
 
       - name: Install dependencies
         run: flutter pub get
@@ -64,12 +64,12 @@ jobs:
       - name: Run tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-            force-avd-creation: false
-            disable-animations: true
-            emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-            api-level: 29
-            ndk: 21.0.6113669
-            arch: x86
-            cmake: 3.10.2.4988404
-            script: flutter drive --target=test_driver/app.dart --dart-define=testName="Realm version"
-            working-directory: ./flutter/realm_flutter/tests
+          force-avd-creation: false
+          disable-animations: true
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          api-level: 29
+          ndk: 21.0.6113669
+          arch: x86
+          cmake: 3.10.2.4988404
+          script: flutter drive --target=test_driver/app.dart --dart-define=testName="Realm version"
+          working-directory: ./flutter/realm_flutter/tests
