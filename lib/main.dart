@@ -81,31 +81,7 @@ void main() {
     print(initializeApi(NativeApi.initializeApiDLData) == 0);
   }
 
-
-  //reflectClass(key)
-  //var libs = currentMirrorSystem().libraries;
-  // var car = Expando<Object>();
-  // car.name = ;
-
-  // dynamic car = Car();
-  // car.name = "Car";
-  // car.properties
-
-  // car.properties = Map<String, dynamic>();
-  // car.properties = {
-  //     "make": "string",
-  //     "model": "string",
-  //     "kilometrs" : DynamicObject()
-  // };
-
-  // var schema = ObjectSchema(
-  //   name: "Car",
-  //   properties: SchemaDynamicObject({
-  //     make" : "string",
-  //     model
-  //   })
-
-  // );
+ 
   print("Current PID ${pid}");
 
   var config = new Configuration();
