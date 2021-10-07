@@ -59,14 +59,13 @@ class RealmObjectGenerator extends Generator {
       var className = schemaClass.name.substring(1);
 
       StringBuffer getSchemaPropertyBuffer = new StringBuffer();
-      
+
       /// The `const dynamic type = ...` is there to remove the warning of unused_element for the Realm data model class in the user dart file
       getSchemaPropertyBuffer.writeln("""
             static dynamic getSchema() {
               const dynamic type = ${schemaClass.name};
               return RealmObject.getSchema('${className}', [
             """);
-
 
       //Class._constructor() is used from native code when creating new instances of this type
       //Class() constructor is used to be able to create new detached objects and add them to the realm
@@ -113,11 +112,13 @@ class RealmObjectGenerator extends Generator {
           if (fieldTypeName == "List") {
             InterfaceType fieldType = field.type as InterfaceType;
             var listTypeArument = fieldType.typeArguments[0].element;
+
             listTypeArumentName = listTypeArument!.name;
             var isDartType = listTypeArumentName == "String" ||
               listTypeArumentName == "int" ||
               listTypeArumentName == "double" ||
               listTypeArumentName == "bool";
+
 
             // if (field.type.element.name == "dynamic") {
             //   throw new Exception("Class '${schemaClass.name}' has a List<dynamic> type field '${field.displayName}'");
@@ -134,7 +135,7 @@ class RealmObjectGenerator extends Generator {
 
             if (!isDartType && !listTypeArumentName!.startsWith("_")) {
               throw new Exception(
-                  "Field ${schemaClass.name}.${field.name} has an inavlid type ${field.type.toString()}. Type parameter name should start with '_' and be a RealmObject schema type");
+                  "Field ${schemaClass.name}.${field.name} has an invalid type ${field.type.toString()}. Type parameter name should start with '_' and be a RealmObject schema type");
             }
 
             if (listTypeArumentName!.startsWith("_")) {
