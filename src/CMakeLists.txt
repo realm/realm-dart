@@ -94,7 +94,6 @@ if(REALM_BUILD_CORE_FROM_SOURCE)
 endif()
 
 target_compile_definitions(RealmFFIStatic PUBLIC -DRealm_EXPORTS)
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 target_link_libraries(realm_dart RealmFFIStatic)
 
