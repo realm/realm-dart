@@ -23,6 +23,12 @@ jobs:
         with:
           submodules: 'recursive'
 
+      - name: Build Ralm Dart for Windows
+        run: |
+          mkdir build
+          cd build
+          ..\scripts\build.bat
+
       # Note: This workflow uses the latest stable version of the Dart SDK.
       # You can specify other versions if desired, see documentation here:
       # https://github.com/dart-lang/setup-dart/blob/main/README.md
@@ -31,12 +37,6 @@ jobs:
 
       - name: Install dependencies
         run: dart pub get
-
-      - name: Build Ralm Dart for Windows
-        run: |
-          mkdir build
-          cd build
-          ..\scripts\build.bat
 
       - name: Run tests
         run: dart test test\realm_test.dart --name "Realm version"

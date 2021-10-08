@@ -19,12 +19,10 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - name: Checkout
       - uses: actions/checkout@v2
         with:
           submodules: 'recursive'
 
-      - name: Setup ninja
       - uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Build Ralm Dart for Linux
