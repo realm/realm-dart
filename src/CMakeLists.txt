@@ -116,6 +116,8 @@ endif()
 string(APPEND OUTPUT_DIR "${PROJECT_SOURCE_DIR}/binary")
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
     string(APPEND OUTPUT_DIR "/windows")
+elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+    set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/binary/linux")
 endif()
 
 # using RUNTIME_OUTPUT_DIRECTORY_<CONFIG> to output the binaries in the target directory wihtout creating a sub directory
