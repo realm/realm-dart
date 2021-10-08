@@ -19,11 +19,13 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
           submodules: 'recursive'
 
-      - uses: seanmiddleditch/gha-setup-ninja@master
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Build Ralm Dart for Linux
         run: ./scripts/build-linux.sh
@@ -32,7 +34,8 @@ jobs:
       # You can specify other versions if desired, see documentation here:
       # https://github.com/dart-lang/setup-dart/blob/main/README.md
       # - uses: dart-lang/setup-dart@v1
-      - uses: dart-lang/setup-dart@main
+      - name : Setup Dart SDK
+        uses: dart-lang/setup-dart@main
 
       - name: Install dependencies
         run: dart pub get
