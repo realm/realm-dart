@@ -75,10 +75,9 @@ endif()
 #     endif()
 # endif()
 
-# if(APPLE)
-#     #copy the dylib to the bin directory of realm-dart so it gets into the realm_dart package
-#     add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/librealm_dart_extension.dylib"  ${PROJECT_SOURCE_DIR}../../../bin/librealm_dart_extension.dylib)
-# endif()
+if(APPLE)
+    target_link_libraries(realm_dart "-framework CoreFoundation")
+endif()
 
 option(REALM_BUILD_CORE_FROM_SOURCE "Build Realm Core from source" ON)
 if(REALM_BUILD_CORE_FROM_SOURCE)
@@ -116,6 +115,11 @@ endif()
 string(APPEND OUTPUT_DIR "${PROJECT_SOURCE_DIR}/binary")
 if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
     string(APPEND OUTPUT_DIR "/windows")
+elseif (APPLE)
+    string(APPEND OUTPUT_DIR "/macos")
+    set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIR}")
+    set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIR}")
+    set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL "${OUTPUT_DIR}")
 endif()
 
 # using RUNTIME_OUTPUT_DIRECTORY_<CONFIG> to output the binaries in the target directory wihtout creating a sub directory
