@@ -42,4 +42,4 @@ jobs:
 
       - name: Run tests
         run: dart run realm_test.dart
-        working-directory: tests
+        working-directory: test
