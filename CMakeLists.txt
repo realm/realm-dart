@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
 
+if(APPLE)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14" CACHE STRING "Minimum OS X deployment version")
+endif()
+
 project(realm-dart)
 
 if("$ENV{REALM_USE_CCACHE}" STREQUAL "TRUE")

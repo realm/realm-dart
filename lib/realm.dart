@@ -51,9 +51,9 @@ void initRealm() {
     }
 
     if (Platform.isMacOS) {
-      // if (path.isEmpty) {
-      //   path = 'binary/macos/';
-      // }
+      if (path.isEmpty) {
+        path = 'binary/macos/';
+      }
 
       return path + "lib" + name + ".dylib";
     }
