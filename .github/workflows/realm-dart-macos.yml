@@ -39,5 +39,6 @@ jobs:
 
       - name: Run tests
         run: |
-          cp binary/macos/librealm_dart.dylib test
-          dart test test/realm_test.dart
+          cp ../binary/macos/librealm_dart.dylib ../test
+          dart run realm_test.dart
+        working-directory: tests
