@@ -52,9 +52,10 @@ void initRealm() {
 
     if (Platform.isMacOS) {
       if (path.isEmpty) {
-        path = 'binary/macos/';
+        Directory sourceDir = new File.fromUri(Platform.script).parent;
+        path = sourceDir.path + "/";
       }
-
+      
       return path + "lib" + name + ".dylib";
     }
 
