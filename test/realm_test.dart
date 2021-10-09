@@ -111,7 +111,7 @@ void main([List<String>? args]) {
 
   group('RealmClass tests', () {
     test('Realm version', () {
-      expect(Realm.version, contains('11.'));
+      expect(Realm.version, contains('12.'));
     });
   });
 }
