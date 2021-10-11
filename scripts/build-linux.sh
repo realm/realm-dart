@@ -9,6 +9,8 @@ cd "$(dirname "$0")/.."
 mkdir -p build-linux
 pushd build-linux
 
-cmake -GNinja ..
+cmake -GNinja \
+      -DCMAKE_BUILD_TYPE=MinSizeRel \
+      ..
 
 cmake --build .
