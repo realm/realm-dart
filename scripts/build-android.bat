@@ -100,6 +100,6 @@ cmake --build .
 popd
 
 
-@REM exit to caller's location
+@REM exit to caller's location with success
 :popd_all
-popd && goto popd_all
+popd && goto popd_all || exit /b 0

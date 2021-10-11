@@ -1,4 +1,4 @@
-@REM @ECHO OFF
+@ECHO OFF
 
 @REM Output is in PROJECT_ROOT\binary directory 
 @REM example usage: ....\realm-dart>scripts\build.bat
@@ -18,7 +18,6 @@ cmake ^
 
 cmake --build . --config MinSizeRel
 
-@REM exit to caller's location
+@REM exit to caller's location with success
 :popd_all
-popd && goto popd_all
-exit 0
+popd && goto popd_all || exit /b 0
