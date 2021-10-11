@@ -1,14 +1,25 @@
-@REM This scripts assumes in-source building where the project directory is one dir up. 
+@ECHO OFF
+
 @REM ANDROID_NDK and ANDROID_HOME variables should be set
 @REM ninja path is hardcoded since at the moment there is only one ninja version distributed with the Android SDK
-@REM Output is in PROJECT_DIR\binary directory 
-@REM example usage: ....\realm-dart\build-android>..\scripts\build-android.bat all
+@REM Output is in PROJECT_ROOT\binary directory 
+@REM Output is in PROJECT_ROOT\binary directory 
+@REM example usage: ....\realm-dart>scripts\build-android.bat all
+
+@REM Start in the root directory of the project.
+pushd "%~dp0.."
+echo %CD%
+SET PROJECT_ROOT=%CD%
+
+mkdir %PROJECT_ROOT%\build-android 
+pushd %PROJECT_ROOT%\build-android 
+
 
 @REM build for x86 first to optimize for emulator testing
 
 @REM rmdir /s /q x86
 mkdir x86
-cd x86
+pushd x86
 
 cmake.exe ^
     -GNinja ^
@@ -21,16 +32,16 @@ cmake.exe ^
     -DCMAKE_BUILD_TYPE=MinSizeRel ^
     -DANDROID_ALLOW_UNDEFINED_SYMBOLS=1 ^
     -DANDROID_STL=c++_static ^
-    ..\..\
+    %PROJECT_ROOT%
 
 cmake --build .
-cd ..
+popd
 
-if [%1]==[] exit /B 0
+if [%1]==[] goto popd_all
 
 @REM rmdir /s /q armeabi-v7a
 mkdir armeabi-v7a
-cd armeabi-v7a
+pushd armeabi-v7a
 
 cmake.exe ^
     -GNinja ^
@@ -43,14 +54,14 @@ cmake.exe ^
     -DCMAKE_BUILD_TYPE=MinSizeRel ^
     -DANDROID_ALLOW_UNDEFINED_SYMBOLS=1 ^
     -DANDROID_STL=c++_static ^
-    ..\..\
+    %PROJECT_ROOT%
 
 cmake --build .
-cd ..
+popd
 
 @REM rmdir /s /q arm64-v8a
 mkdir arm64-v8a
-cd arm64-v8a
+pushd arm64-v8a
 
 cmake.exe ^
     -GNinja ^
@@ -63,14 +74,14 @@ cmake.exe ^
     -DCMAKE_BUILD_TYPE=MinSizeRel ^
     -DANDROID_ALLOW_UNDEFINED_SYMBOLS=1 ^
     -DANDROID_STL=c++_static ^
-    ..\..\
+    %PROJECT_ROOT%
 
 cmake --build .
-cd ..
+popd
 
 @REM rmdir /s /q x86_64
 mkdir x86_64
-cd x86_64
+pushd x86_64
 
 cmake.exe ^
     -GNinja ^
@@ -83,7 +94,12 @@ cmake.exe ^
     -DCMAKE_BUILD_TYPE=MinSizeRel ^
     -DANDROID_ALLOW_UNDEFINED_SYMBOLS=1 ^
     -DANDROID_STL=c++_static ^
-    ..\..\
+     %PROJECT_ROOT%
 
 cmake --build .
-cd ..
+popd
+
+
+@REM exit to caller's location
+:popd_all
+popd && goto popd_all
