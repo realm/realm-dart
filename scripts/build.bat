@@ -21,3 +21,4 @@ cmake --build . --config MinSizeRel
 @REM exit to caller's location
 :popd_all
 popd && goto popd_all
+exit 0
