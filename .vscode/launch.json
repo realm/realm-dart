@@ -24,7 +24,7 @@
             "request": "launch",
             "program": "realm_test.dart",
             "cwd": "test",
-            "args": ["--name", "Realm version"]
+            "args": ["--name", ""]
         }
     ]
 }

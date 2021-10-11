@@ -8,4 +8,4 @@ cmake ^
     -A x64 ^
     ..\
 
-cmake --build .
+cmake --build . --config MinSizeRel
