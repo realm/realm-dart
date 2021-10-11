@@ -1,14 +1,25 @@
-# This scripts assumes in-source building where the project directory is one dir up. 
-#ANDROID_NDK and ANDROID_HOME variables should be set
+#!/usr/bin/env bash
+
+set -e
+set -o pipefail
+
+# ANDROID_NDK and ANDROID_HOME variables should be set
 # ninja path is hardcoded since at the moment there is only one ninja version distributed with the Android SDK
 # Output is in PROJECT_DIR/binary directory 
-# example usage: ../realm-dart/build-android$../scripts/build-android.bat all
+# example usage: ../realm-dart$./scripts/build-android.sh all
+
+
+# Start in the root directory of the project.
+cd "$(dirname "$0")/.."
+PROJECT_ROOT=$(pwd)
+
+mkdir -p build-android
 
 # build for x86 first to optimize for emulator testing
 
 # rmdir /s /q x86
 mkdir x86
-cd x86
+pushd x86
 
 cmake \
     -GNinja \
@@ -21,10 +32,10 @@ cmake \
     -DCMAKE_BUILD_TYPE=MinSizeRel \
     -DANDROID_ALLOW_UNDEFINED_SYMBOLS=1 \
     -DANDROID_STL=c++_static \
-    ../../
+    $PROJECT_ROOT
 
 cmake --build .
-cd ..
+popd
 
 # only building for x86 if no arguments
 if [ $# -eq 0 ]
@@ -34,7 +45,7 @@ fi
 
 # rmdir /s /q armeabi-v7a
 mkdir armeabi-v7a
-cd armeabi-v7a
+pushd armeabi-v7a
 
 cmake \
     -GNinja \
@@ -47,14 +58,14 @@ cmake \
     -DCMAKE_BUILD_TYPE=MinSizeRel \
     -DANDROID_ALLOW_UNDEFINED_SYMBOLS=1 \
     -DANDROID_STL=c++_static \
-    ../../
+    $PROJECT_ROOT
 
 cmake --build .
-cd ..
+popd
 
 # rmdir /s /q arm64-v8a
 mkdir arm64-v8a
-cd arm64-v8a
+pushd arm64-v8a
 
 cmake \
     -GNinja \
@@ -67,14 +78,14 @@ cmake \
     -DCMAKE_BUILD_TYPE=MinSizeRel \
     -DANDROID_ALLOW_UNDEFINED_SYMBOLS=1 \
     -DANDROID_STL=c++_static \
-    ../../
+    $PROJECT_ROOT
 
 cmake --build .
-cd ..
+popd
 
 # rmdir /s /q x86_64
 mkdir x86_64
-cd x86_64
+pushd x86_64
 
 cmake \
     -GNinja \
@@ -87,7 +98,7 @@ cmake \
     -DCMAKE_BUILD_TYPE=MinSizeRel \
     -DANDROID_ALLOW_UNDEFINED_SYMBOLS=1 \
     -DANDROID_STL=c++_static \
-    ../../
+    $PROJECT_ROOT
 
 cmake --build .
-cd ..
+popd
