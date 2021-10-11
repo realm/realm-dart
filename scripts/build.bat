@@ -1,4 +1,4 @@
-@ECHO OFF
+@REM @ECHO OFF
 
 @REM Output is in PROJECT_ROOT\binary directory 
 @REM example usage: ....\realm-dart>scripts\build.bat
