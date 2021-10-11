@@ -22,9 +22,9 @@
             "name": "Dart: Debug Test",
             "type": "dart",
             "request": "launch",
-            "program": "../test/realm_test.dart",
-            "cwd": "lib",
-            "args": ["--testname", ""]
+            "program": "realm_test.dart",
+            "cwd": "test",
+            "args": ["--name", ""]
         }
     ]
 }

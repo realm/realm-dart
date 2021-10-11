@@ -51,6 +51,11 @@ void initRealm() {
     }
 
     if (Platform.isMacOS) {
+      if (path.isEmpty) {
+        Directory sourceDir = new File.fromUri(Platform.script).parent;
+        path = sourceDir.path + "/";
+      }
+      
       return path + "lib" + name + ".dylib";
     }
 
@@ -79,7 +84,7 @@ void initRealm() {
   }
 
   DynamicLibrary realmLibrary;
-  if (Platform.isAndroid || Platform.isWindows || Platform.isIOS) {
+  if (Platform.isAndroid || Platform.isWindows || Platform.isIOS || Platform.isMacOS) {
     realmLibrary = dlopenPlatformSpecific(RealmBinaryName);
   } else {
     throw Exception("Unsupported platform: ${Platform.operatingSystem}");
