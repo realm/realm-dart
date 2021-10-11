@@ -46,7 +46,14 @@ void initRealm() {
       path = '';
     }
 
-    if (Platform.isLinux || Platform.isAndroid) {
+    if (Platform.isAndroid) {
+      return path + "lib" + name + ".so";
+    }
+
+    if (Platform.isLinux) {
+      if (path.isEmpty) {
+        path = 'binary/linux/';
+      }
       return path + "lib" + name + ".so";
     }
 
@@ -60,7 +67,7 @@ void initRealm() {
     }
 
     if (Platform.isWindows) {
-      if (path == '') {
+      if (path.isEmpty) {
         path = 'binary/windows/';
       }
       
@@ -84,7 +91,7 @@ void initRealm() {
   }
 
   DynamicLibrary realmLibrary;
-  if (Platform.isAndroid || Platform.isWindows || Platform.isIOS || Platform.isMacOS) {
+  if (Platform.isAndroid || Platform.isWindows || Platform.isIOS || Platform.isLinux || Platform.isMacOS) {
     realmLibrary = dlopenPlatformSpecific(RealmBinaryName);
   } else {
     throw Exception("Unsupported platform: ${Platform.operatingSystem}");
