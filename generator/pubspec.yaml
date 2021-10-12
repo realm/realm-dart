@@ -16,3 +16,7 @@ dependencies:
   build_resolvers: ^2.0.0
   source_gen: ^1.1.1
   dart_style: ^2.2.0
+
+dev_dependencies:
+  json_annotation: ^4.1.0
+  json_serializable: ^5.0.2
