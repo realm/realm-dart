@@ -20,3 +20,4 @@ dependencies:
 dev_dependencies:
   json_annotation: ^4.1.0
   json_serializable: ^5.0.2
+  build_version: ^2.1.0
