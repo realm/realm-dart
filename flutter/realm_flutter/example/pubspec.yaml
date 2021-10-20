@@ -21,13 +21,14 @@ dependencies:
     # the parent directory to use the current plugin's version. 
     path: ../
 
-  build_runner: ^2.1.2
   cupertino_icons: ^1.0.3
-  characters: ^1.0.0
+  characters: ^1.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^1.0.4
+  build_runner: ^2.1.4
 
 flutter:
   uses-material-design: true
