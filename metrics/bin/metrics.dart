@@ -2,19 +2,41 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:metrics/metrics.dart';
 
 Future<void> main(List<String> arguments) async {
-  // ensure realm_generator has run (EXPENSIVE!) 
+  // Ensure realm_generator has run (EXPENSIVE!)
+  // Not really needed currently, as we don't pick up features yet.
   final process = await Process.start('dart', ['run', 'build_runner', 'build']);
   await stdout.addStream(process.stdout);
 
   final id = await machineId();
-  print(id.toString());
+
+  final metrics = await generateMetrics(id);
+
+  const encoder = JsonEncoder.withIndent('  ');
+  final payload = encoder.convert(metrics.toJson());
+  print(payload);
+  final client = HttpClient();
+  final base64Payload = base64Encode(utf8.encode(payload));
+  final request = await client.getUrl(
+    Uri.parse(
+      'https://webhooks.mongodb-realm.com'
+      '/api/client/v2.0/app/realmsdkmetrics-zmhtm/service/metric_webhook/incoming_webhook/metric'
+      '?data=$base64Payload}',
+    ),
+  );
+  final response = await request.close();
+  print(response.statusCode);
+
+  await process.exitCode;
 }
 
 Future<Digest> machineId() async {
   String? id;
   try {
+    // No easy access to mac-address from dart, as used by other SDKs,
+    // but we can do better..
     if (Platform.isLinux) {
       // For linux use /etc/machine-id
       // Can be changed by administrator but with unpredictable consequences!

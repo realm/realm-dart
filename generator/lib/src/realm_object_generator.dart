@@ -29,8 +29,6 @@ import 'package:source_gen/source_gen.dart';
 class RealmObjectGenerator extends Generator {
   @override
   Future<String> generate(LibraryReader library, BuildStep buildStep) async {    
-    final metrics = await generateMetrics();
-    print(JsonEncoder.withIndent('  ').convert(metrics.toJson()));
     var schemaClasses = library.classes.where((clazz) {
       return clazz.name.startsWith("_") &&
           clazz.fields.any((field) {

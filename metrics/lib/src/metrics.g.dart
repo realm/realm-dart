@@ -18,7 +18,7 @@ Map<String, dynamic> _$MetricsToJson(Metrics instance) => <String, dynamic>{
     };
 
 Properties _$PropertiesFromJson(Map<String, dynamic> json) => Properties(
-      distinctId: json['distinct_id'] as String,
+      distinctId: _digestFromJson(json['distinct_id'] as String),
       token: json['token'] as String,
       binding: json['Binding'] as String,
       framework: json['Framework'] as String,
@@ -27,8 +27,10 @@ Properties _$PropertiesFromJson(Map<String, dynamic> json) => Properties(
       hostOSVersion: json['Host OS Version'] as String,
       language: json['Language'] as String,
       realmVersion: json['Realm Version'] as String,
-      anonymizedBundleId: json['Anonymized Bundle ID'] as String?,
-      anonymizedMacAddress: json['Anonymized MAC Address'] as String?,
+      anonymizedBundleId: const DigestConverter()
+          .fromJson(json['Anonymized Bundle ID'] as String?),
+      anonymizedMacAddress: const DigestConverter()
+          .fromJson(json['Anonymized MAC Address'] as String?),
       syncEnabled: json['Sync Enabled'] as String?,
       targetOSType: json['Target OS Type'] as String?,
       targetOSVersion: json['Target OS Version'] as String?,
@@ -37,7 +39,6 @@ Properties _$PropertiesFromJson(Map<String, dynamic> json) => Properties(
 Map<String, dynamic> _$PropertiesToJson(Properties instance) {
   final val = <String, dynamic>{
     'token': instance.token,
-    'distinct_id': instance.distinctId,
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -46,8 +47,11 @@ Map<String, dynamic> _$PropertiesToJson(Properties instance) {
     }
   }
 
-  writeNotNull('Anonymized MAC Address', instance.anonymizedMacAddress);
-  writeNotNull('Anonymized Bundle ID', instance.anonymizedBundleId);
+  writeNotNull('distinct_id', _digestToJson(instance.distinctId));
+  writeNotNull('Anonymized MAC Address',
+      const DigestConverter().toJson(instance.anonymizedMacAddress));
+  writeNotNull('Anonymized Bundle ID',
+      const DigestConverter().toJson(instance.anonymizedBundleId));
   val['Binding'] = instance.binding;
   val['Language'] = instance.language;
   val['Framework'] = instance.framework;

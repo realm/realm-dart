@@ -1,21 +1,23 @@
-import 'dart:convert';
 import 'dart:io';
+import 'dart:convert';
 
-import 'package:json_annotation/json_annotation.dart';
 import 'package:crypto/crypto.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'version.dart';
 
 part 'metrics.g.dart';
 
 extension _IterableEx<T> on Iterable<T> {
-  T? get firstOrNull => cast<T?>().firstWhere((element) => true, orElse: () => null);
+  T? get firstOrNull =>
+      cast<T?>().firstWhere((element) => true, orElse: () => null);
 }
 
-Future<Metrics> generateMetrics() async {
-  final nic = (await NetworkInterface.list()).firstOrNull;
-  var distinctId = '${Platform.localHostname} ${Platform.localeName} ${Platform.numberOfProcessors}';
-  distinctId = sha1.convert(utf8.encode(distinctId)).toString();
+Future<Metrics> generateMetrics(
+  Digest distinctId, {
+  String? targetOSType,
+  String? targetOSVersion,
+}) async {
   return Metrics(
     event: 'run',
     properties: Properties(
@@ -28,8 +30,28 @@ Future<Metrics> generateMetrics() async {
       hostOSType: Platform.operatingSystem,
       hostOSVersion: Platform.operatingSystemVersion,
       realmVersion: packageVersion,
+      targetOSType: targetOSType,
+      targetOSVersion: targetOSVersion,
+      anonymizedMacAddress: null,
+      anonymizedBundleId: null,
     ),
   );
+}
+
+// While we wait for: https://github.com/google/json_serializable.dart/issues/822
+Digest _digestFromJson(String json) => Digest(base64Decode(json));
+String _digestToJson(Digest object) => base64Encode(object.bytes);
+
+class DigestConverter extends JsonConverter<Digest?, String?> {
+  const DigestConverter();
+
+  @override
+  Digest? fromJson(String? json) =>
+      json != null ? _digestFromJson(json) : null;
+
+  @override
+  String? toJson(Digest? object) =>
+      object != null ? _digestToJson(object) : null;
 }
 
 @JsonSerializable()
@@ -44,31 +66,51 @@ class Metrics {
   Map<String, dynamic> toJson() => _$MetricsToJson(this);
 }
 
-@JsonSerializable(fieldRename: FieldRename.pascal, includeIfNull: false)
+@JsonSerializable(
+  fieldRename: FieldRename.pascal, // ex: hostOSType becomes HostOSType
+  includeIfNull: false,
+)
 class Properties {
   @JsonKey(name: 'token') // not PascalCase
   final String token;
-  @JsonKey(name: 'distinct_id') // snake-case
-  final String distinctId;
+
+  @JsonKey(
+    name: 'distinct_id', // snake-case
+    fromJson: _digestFromJson,
+    toJson: _digestToJson,
+  )
+  final Digest distinctId;
+
   @JsonKey(name: 'Anonymized MAC Address')
-  final String? anonymizedMacAddress;
+  @DigestConverter()
+  final Digest? anonymizedMacAddress;
+
   @JsonKey(name: 'Anonymized Bundle ID')
-  final String? anonymizedBundleId;
+  @DigestConverter()
+  final Digest? anonymizedBundleId;
+
   final String binding;
   final String language;
   final String framework;
+
   @JsonKey(name: 'Framework Version')
   final String frameworkVersion;
+
   @JsonKey(name: 'Sync Enabled')
   final String? syncEnabled;
+
   @JsonKey(name: 'Realm Version')
   final String realmVersion;
+
   @JsonKey(name: 'Host OS Type')
   final String hostOSType;
+
   @JsonKey(name: 'Host OS Version')
   final String hostOSVersion;
+
   @JsonKey(name: 'Target OS Type')
   final String? targetOSType;
+
   @JsonKey(name: 'Target OS Version')
   final String? targetOSVersion;
 
