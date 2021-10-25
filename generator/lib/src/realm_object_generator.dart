@@ -23,14 +23,14 @@ import 'dart:convert';
 //import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
-import 'package:realm_generator/src/metrics.dart';
+import 'package:metrics/metrics.dart';
 import 'package:source_gen/source_gen.dart';
 
 class RealmObjectGenerator extends Generator {
   @override
   Future<String> generate(LibraryReader library, BuildStep buildStep) async {    
     final metrics = await generateMetrics();
-    print(jsonEncode(metrics.toJson()));
+    print(JsonEncoder.withIndent('  ').convert(metrics.toJson()));
     var schemaClasses = library.classes.where((clazz) {
       return clazz.name.startsWith("_") &&
           clazz.fields.any((field) {
