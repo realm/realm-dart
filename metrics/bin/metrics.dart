@@ -3,16 +3,43 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:metrics/metrics.dart';
+import 'package:metrics/src/options.dart';
+
+extension _StringEx on String {
+  static const _salt = <int>[1, 2, 0, 5]; // TODO
+  Digest get strongHash => sha256.convert([..._salt, ...utf8.encode(this)]);
+}
 
 Future<void> main(List<String> arguments) async {
+  late Options options;
+  bool displayUsage = false;
+  try {
+    options = parseOptions(arguments);
+    displayUsage = options.help;
+  } catch (e) {
+    displayUsage = true;
+    exitCode = 64; // EX_USAGE (by convention, see sysexits.h)
+  }
+  if (displayUsage) {
+    print('dart run metrics [arguments]');
+    print(usage);
+    return;
+  }
+
   // Ensure realm_generator has run (EXPENSIVE!)
   // Not really needed currently, as we don't pick up features yet.
   final process = await Process.start('dart', ['run', 'build_runner', 'build']);
   await stdout.addStream(process.stdout);
 
-  final id = await machineId();
-
-  final metrics = await generateMetrics(id);
+  final hostId = await machineId();
+  final appId = options.applicationIdentifier;
+  final metrics = await generateMetrics(
+    distinctId: hostId,
+    targetOsType: options.targetOsType,
+    targetOsVersion: options.targetOsVersion,
+    anonymizedMacAddress: null, // cannot get this with dart :-/
+    anonymizedBundleId: appId?.strongHash,
+  );
 
   const encoder = JsonEncoder.withIndent('  ');
   final payload = encoder.convert(metrics.toJson());
@@ -28,8 +55,6 @@ Future<void> main(List<String> arguments) async {
   );
   final response = await request.close();
   print(response.statusCode);
-
-  await process.exitCode;
 }
 
 Future<Digest> machineId() async {
@@ -76,5 +101,5 @@ Future<Digest> machineId() async {
     }
   } catch (_) {} // ignore: empty_catches
   id ??= Platform.localHostname; // fallback
-  return sha256.convert(utf8.encode(id)); // strong hash for privacy
+  return id.strongHash; // strong hash for privacy
 }

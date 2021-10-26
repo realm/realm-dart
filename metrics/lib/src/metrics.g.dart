@@ -23,8 +23,8 @@ Properties _$PropertiesFromJson(Map<String, dynamic> json) => Properties(
       binding: json['Binding'] as String,
       framework: json['Framework'] as String,
       frameworkVersion: json['Framework Version'] as String,
-      hostOSType: json['Host OS Type'] as String,
-      hostOSVersion: json['Host OS Version'] as String,
+      hostOsType: json['Host OS Type'] as String,
+      hostOsVersion: json['Host OS Version'] as String,
       language: json['Language'] as String,
       realmVersion: json['Realm Version'] as String,
       anonymizedBundleId: const DigestConverter()
@@ -32,8 +32,9 @@ Properties _$PropertiesFromJson(Map<String, dynamic> json) => Properties(
       anonymizedMacAddress: const DigestConverter()
           .fromJson(json['Anonymized MAC Address'] as String?),
       syncEnabled: json['Sync Enabled'] as String?,
-      targetOSType: json['Target OS Type'] as String?,
-      targetOSVersion: json['Target OS Version'] as String?,
+      targetOsType:
+          $enumDecodeNullable(_$TargetOsTypeEnumMap, json['Target OS Type']),
+      targetOsVersion: json['Target OS Version'] as String?,
     );
 
 Map<String, dynamic> _$PropertiesToJson(Properties instance) {
@@ -58,9 +59,17 @@ Map<String, dynamic> _$PropertiesToJson(Properties instance) {
   val['Framework Version'] = instance.frameworkVersion;
   writeNotNull('Sync Enabled', instance.syncEnabled);
   val['Realm Version'] = instance.realmVersion;
-  val['Host OS Type'] = instance.hostOSType;
-  val['Host OS Version'] = instance.hostOSVersion;
-  writeNotNull('Target OS Type', instance.targetOSType);
-  writeNotNull('Target OS Version', instance.targetOSVersion);
+  val['Host OS Type'] = instance.hostOsType;
+  val['Host OS Version'] = instance.hostOsVersion;
+  writeNotNull('Target OS Type', _$TargetOsTypeEnumMap[instance.targetOsType]);
+  writeNotNull('Target OS Version', instance.targetOsVersion);
   return val;
 }
+
+const _$TargetOsTypeEnumMap = {
+  TargetOsType.android: 'Android',
+  TargetOsType.ios: 'Ios',
+  TargetOsType.linux: 'Linux',
+  TargetOsType.macos: 'Macos',
+  TargetOsType.windows: 'Windows',
+};

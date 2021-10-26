@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:metrics/src/target_os_type.dart';
 
 import 'version.dart';
 
@@ -13,10 +14,12 @@ extension _IterableEx<T> on Iterable<T> {
       cast<T?>().firstWhere((element) => true, orElse: () => null);
 }
 
-Future<Metrics> generateMetrics(
-  Digest distinctId, {
-  String? targetOSType,
-  String? targetOSVersion,
+Future<Metrics> generateMetrics({
+  required Digest distinctId,
+  TargetOsType? targetOsType,
+  String? targetOsVersion,
+  Digest? anonymizedMacAddress,
+  Digest? anonymizedBundleId,
 }) async {
   return Metrics(
     event: 'run',
@@ -27,13 +30,13 @@ Future<Metrics> generateMetrics(
       language: 'dart',
       framework: 'dart', // what about flutter?
       frameworkVersion: Platform.version,
-      hostOSType: Platform.operatingSystem,
-      hostOSVersion: Platform.operatingSystemVersion,
+      hostOsType: Platform.operatingSystem,
+      hostOsVersion: Platform.operatingSystemVersion,
       realmVersion: packageVersion,
-      targetOSType: targetOSType,
-      targetOSVersion: targetOSVersion,
-      anonymizedMacAddress: null,
-      anonymizedBundleId: null,
+      targetOsType: targetOsType,
+      targetOsVersion: targetOsVersion,
+      anonymizedMacAddress: anonymizedMacAddress ?? distinctId, // fallback
+      anonymizedBundleId: anonymizedBundleId,
     ),
   );
 }
@@ -46,8 +49,7 @@ class DigestConverter extends JsonConverter<Digest?, String?> {
   const DigestConverter();
 
   @override
-  Digest? fromJson(String? json) =>
-      json != null ? _digestFromJson(json) : null;
+  Digest? fromJson(String? json) => json != null ? _digestFromJson(json) : null;
 
   @override
   String? toJson(Digest? object) =>
@@ -103,16 +105,16 @@ class Properties {
   final String realmVersion;
 
   @JsonKey(name: 'Host OS Type')
-  final String hostOSType;
+  final String hostOsType;
 
   @JsonKey(name: 'Host OS Version')
-  final String hostOSVersion;
+  final String hostOsVersion;
 
   @JsonKey(name: 'Target OS Type')
-  final String? targetOSType;
+  final TargetOsType? targetOsType;
 
   @JsonKey(name: 'Target OS Version')
-  final String? targetOSVersion;
+  final String? targetOsVersion;
 
   Properties({
     required this.distinctId,
@@ -120,15 +122,15 @@ class Properties {
     required this.binding,
     required this.framework,
     required this.frameworkVersion,
-    required this.hostOSType,
-    required this.hostOSVersion,
+    required this.hostOsType,
+    required this.hostOsVersion,
     required this.language,
     required this.realmVersion,
     this.anonymizedBundleId,
     this.anonymizedMacAddress,
     this.syncEnabled,
-    this.targetOSType,
-    this.targetOSVersion,
+    this.targetOsType,
+    this.targetOsVersion,
   });
 
   factory Properties.fromJson(Map<String, dynamic> json) =>
