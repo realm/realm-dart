@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:4.2.0'
     }
 }
 
@@ -47,3 +47,15 @@ android {
     //     }
     // }
 }
+
+task prePreBuild(type: Exec) {
+    def conf = project.getRootProject().subprojects.find { p -> p.name == 'app' }.android.defaultConfig
+    def targetOsVersion = "API Level ${conf.targetSdkVersion.apiLevel}" // TODO: Map apiLevel to android version name, fx. 18 -> Android 4.3 (API level 18)
+    def applicationId = conf.applicationId
+    workingDir "$projectDir/.."
+    commandLine 'dart', 'run', 'metrics', '--target-os-type', 'android', '--target-os-version', targetOsVersion, '--application-identifier', applicationId
+}
+
+preBuild.dependsOn prePreBuild
+
+
