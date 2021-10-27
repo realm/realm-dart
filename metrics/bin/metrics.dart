@@ -28,9 +28,13 @@ Future<void> main(List<String> arguments) async {
 
   // Ensure realm_generator has run (EXPENSIVE!)
   // Not really needed currently, as we don't pick up features yet.
-  final process = await Process.start('dart', ['run', 'build_runner', 'build']);
+  final process = await Process.start('dart', [
+    'run',
+    'build_runner',
+    'build',
+    '--delete-conflicting-outputs',
+  ]);
   await stdout.addStream(process.stdout);
-
   final hostId = await machineId();
   final appId = options.applicationIdentifier;
   final metrics = await generateMetrics(
@@ -55,6 +59,7 @@ Future<void> main(List<String> arguments) async {
   );
   final response = await request.close();
   print(response.statusCode);
+  exit(0);
 }
 
 Future<Digest> machineId() async {
