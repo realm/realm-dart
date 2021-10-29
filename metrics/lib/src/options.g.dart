@@ -18,11 +18,11 @@ T? _$nullableEnumValueHelperNullable<T>(
         Map<T, String> enumValues, String? source) =>
     source == null ? null : _$enumValueHelper(enumValues, source);
 
-Options _$parseOptionsResult(ArgResults result) => Options(
-    _$nullableEnumValueHelperNullable(
-        _$TargetOsTypeEnumMapBuildCli, result['target-os-type'] as String?),
-    result['target-os-version'] as String?)
-  ..applicationIdentifier = result['application-identifier'] as String?
+Options _$parseOptionsResult(ArgResults result) => Options()
+  ..targetOsType = _$nullableEnumValueHelperNullable(
+      _$TargetOsTypeEnumMapBuildCli, result['target-os-type'] as String?)
+  ..targetOsVersion = result['target-os-version'] as String?
+  ..verbose = result['verbose'] as bool
   ..help = result['help'] as bool;
 
 const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
@@ -35,12 +35,9 @@ const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
 
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addOption('target-os-type',
-      abbr: 't', allowed: ['android', 'ios', 'linux', 'macos', 'windows'])
-  ..addOption('target-os-version', abbr: 'v')
-  ..addOption('application-identifier',
-      abbr: 'i',
-      help:
-          'Platform specific application identifer (package name, bundle id, etc.)')
+      allowed: ['android', 'ios', 'linux', 'macos', 'windows'])
+  ..addOption('target-os-version')
+  ..addFlag('verbose', abbr: 'v', help: 'Show additional command output.')
   ..addFlag('help',
       abbr: 'h', help: 'Prints usage information.', negatable: false);
 

@@ -9,8 +9,11 @@ environment:
 
 dependencies:
   build_cli_annotations: ^2.0.0
-  json_annotation: ^4.3.0
   crypto: ^3.0.0
+  json_annotation: ^4.3.0
+  logging: ^1.0.0
+  path: ^1.0.0
+  pubspec_parse: ^1.0.0
 
 dev_dependencies:
   build_cli: ^2.1.3

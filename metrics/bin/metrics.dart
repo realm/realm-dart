@@ -2,13 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:logging/logging.dart';
 import 'package:metrics/metrics.dart';
 import 'package:metrics/src/options.dart';
-
-extension _StringEx on String {
-  static const _salt = <int>[1, 2, 0, 5]; // TODO
-  Digest get strongHash => sha256.convert([..._salt, ...utf8.encode(this)]);
-}
+import 'package:path/path.dart' as path;
+import 'package:pubspec_parse/pubspec_parse.dart';
 
 Future<void> main(List<String> arguments) async {
   late Options options;
@@ -26,6 +24,12 @@ Future<void> main(List<String> arguments) async {
     return;
   }
 
+  final pubspecPath = path.join(path.current, 'pubspec.yaml');
+  final pubspec = Pubspec.parse(await File(pubspecPath).readAsString());
+
+  hierarchicalLoggingEnabled = true;
+  _log.level = options.verbose ? Level.INFO : Level.WARNING;
+
   // Ensure realm_generator has run (EXPENSIVE!)
   // Not really needed currently, as we don't pick up features yet.
   final process = await Process.start('dart', [
@@ -35,21 +39,24 @@ Future<void> main(List<String> arguments) async {
     '--delete-conflicting-outputs',
   ]);
   await stdout.addStream(process.stdout);
+
   final hostId = await machineId();
-  final appId = options.applicationIdentifier;
+
   final metrics = await generateMetrics(
     distinctId: hostId,
     targetOsType: options.targetOsType,
     targetOsVersion: options.targetOsVersion,
-    anonymizedMacAddress: null, // cannot get this with dart :-/
-    anonymizedBundleId: appId?.strongHash,
+    anonymizedMacAddress:
+        hostId, // cannot get this with dart, using hostId instead :-/
+    anonymizedBundleId: pubspec.name.strongHash(),
   );
 
   const encoder = JsonEncoder.withIndent('  ');
   final payload = encoder.convert(metrics.toJson());
-  print(payload);
-  final client = HttpClient();
+  _log.info('Uploading metrics for ${pubspec.name}...\n$payload');
   final base64Payload = base64Encode(utf8.encode(payload));
+
+  final client = HttpClient();
   final request = await client.getUrl(
     Uri.parse(
       'https://webhooks.mongodb-realm.com'
@@ -57,10 +64,15 @@ Future<void> main(List<String> arguments) async {
       '?data=$base64Payload}',
     ),
   );
-  final response = await request.close();
-  print(response.statusCode);
-  exit(0);
+  await request.close();
+  exit(0); // why is this needed?
 }
+
+// log to stdout
+final _log = Logger('metrics')
+  ..onRecord.listen((record) {
+    stdout.writeln('[${record.level.name}] ${record.message}');
+  });
 
 Future<Digest> machineId() async {
   String? id;
@@ -104,7 +116,30 @@ Future<Digest> machineId() async {
       ]);
       id = await process.stdout.transform(systemEncoding.decoder).join();
     }
-  } catch (_) {} // ignore: empty_catches
+  } catch (e, s) {
+    _log.warning('failed to get machine id', e, s);
+  }
   id ??= Platform.localHostname; // fallback
-  return id.strongHash; // strong hash for privacy
+  return id.strongHash(); // strong hash for privacy
+}
+
+extension _StringEx on String {
+  static const _defaultSalt = <int>[
+    75,
+    97,
+    115,
+    112,
+    101,
+    114,
+    32,
+    119,
+    97,
+    115,
+    32,
+    104,
+    101,
+    114
+  ];
+  Digest strongHash({List<int> salt = _defaultSalt}) =>
+      sha256.convert([...salt, ...utf8.encode(this)]);
 }

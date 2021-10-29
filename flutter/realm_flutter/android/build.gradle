@@ -54,7 +54,7 @@ task prePreBuild(type: Exec) {
     def applicationId = conf.applicationId
     println "applicationId: $applicationId"
     workingDir "${project.rootProject.projectDir}/.."
-    commandLine 'dart', 'run', 'metrics', '--target-os-type', 'android', '--target-os-version', targetOsVersion, '--application-identifier', applicationId
+    commandLine 'dart', 'run', 'metrics', '--verbose', '--target-os-type', 'android', '--target-os-version', targetOsVersion
 }
 
 preBuild.dependsOn prePreBuild

@@ -5,18 +5,11 @@ part 'options.g.dart';
 
 @CliOptions()
 class Options {
-  @CliOption(abbr: 't')
   TargetOsType? targetOsType;
-
-  @CliOption(abbr: 'v')
   String? targetOsVersion;
 
-  @CliOption(
-    abbr: 'i',
-    help:
-        'Platform specific application identifer (package name, bundle id, etc.)',
-  )
-  String? applicationIdentifier;
+  @CliOption(abbr: 'v', help: 'Show additional command output.')
+  bool verbose = false;
 
   @CliOption(
     abbr: 'h',
@@ -25,9 +18,6 @@ class Options {
     help: 'Prints usage information.',
   )
   late bool help;
-
-  @CliOption()
-  Options(this.targetOsType, this.targetOsVersion);
 }
 
 String get usage => _$parserForOptions.usage;
