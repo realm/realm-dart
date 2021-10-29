@@ -19,4 +19,11 @@ A new flutter plugin project.
   s.platform = :osx, '10.11'
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
   s.swift_version = '5.0'
+
+  s.script_phase = { 
+    :name => 'Report Metrics', 
+    # Cannot use $FLUTTER_APPLICATION_PATH (it is not exported), so use $PROJECT_DIR/../.. instead
+    :script => 'cd "$PROJECT_DIR/../.." && dart run metrics --target-os-type macos --target-os-version "$MACOSX_DEPLOYMENT_TARGET" --application-identifier foobar', 
+    :execution_position => :before_compile 
+  }
 end
