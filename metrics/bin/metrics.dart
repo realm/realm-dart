@@ -31,7 +31,8 @@ Future<void> main(List<String> arguments) async {
   _log.level = options.verbose ? Level.INFO : Level.WARNING;
 
   // Ensure realm_generator has run (EXPENSIVE!)
-  // Not really needed currently, as we don't pick up features yet.
+  // Not really needed currently, as we don't pick up features yet,
+  // but it ensures the realm_generator has been run
   final process = await Process.start('dart', [
     'run',
     'build_runner',
@@ -40,6 +41,24 @@ Future<void> main(List<String> arguments) async {
   ]);
   await stdout.addStream(process.stdout);
 
+  if (Platform.environment['CI'] != null ||
+      Platform.environment['REALM_DISABLE_ANALYTICS'] != null) {
+    _log.info('Skipping metrics upload');
+    return;
+  }
+
+  try {
+    await uploadMetrics(options, pubspec);
+  } catch (e, s) {
+    _log.warning('Failed to upload metrics', e, s);
+    // We don't set exitCode > 0 on runtime errors!
+    // This script is called during build (via gradle, podspec, etc.)
+    // and we don't want to be the cause of a broken build!
+  }
+  exit(0); // why is this needed?
+}
+
+Future<void> uploadMetrics(Options options, Pubspec pubspec) async {
   final hostId = await machineId();
 
   final metrics = await generateMetrics(
@@ -47,7 +66,7 @@ Future<void> main(List<String> arguments) async {
     targetOsType: options.targetOsType,
     targetOsVersion: options.targetOsVersion,
     anonymizedMacAddress:
-        hostId, // cannot get this with dart, using hostId instead :-/
+        hostId, // cannot get this with dart, using hostId instead :-/ (similar to realm-js)
     anonymizedBundleId: pubspec.name.strongHash(),
   );
 
@@ -65,7 +84,6 @@ Future<void> main(List<String> arguments) async {
     ),
   );
   await request.close();
-  exit(0); // why is this needed?
 }
 
 // log to stdout
