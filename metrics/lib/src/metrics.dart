@@ -14,6 +14,10 @@ extension _IterableEx<T> on Iterable<T> {
       cast<T?>().firstWhere((element) => true, orElse: () => null);
 }
 
+extension _StringEx on String {
+  String takeUntil(Pattern p) => substring(0, indexOf(p));
+}
+
 Future<Metrics> generateMetrics({
   required Digest distinctId,
   required String framework,
@@ -29,7 +33,7 @@ Future<Metrics> generateMetrics({
       distinctId: distinctId,
       token: 'ce0fac19508f6c8f20066d345d360fd0',
       binding: 'dart',
-      language: 'dart', // TODO: Include language version?
+      language: 'dart ${Platform.version.takeUntil(' ')}',
       framework: framework,
       frameworkVersion: frameworkVersion,
       hostOsType: Platform.operatingSystem,
