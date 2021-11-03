@@ -19,9 +19,16 @@ include: package:lints/recommended.yaml
 #   rules:
 #     - camel_case_types
 
-# analyzer:
-#   exclude:
-#     - path/to/excluded/files/**
+analyzer:
+  language:
+    strict-raw-types: true
+
+  strong-mode:
+    implicit-casts: false
+    implicit-dynamic: false
+
+  exclude:
+    - lib/**/*.g.dart
 
 # For more information about the core and recommended set of lints, see
 # https://dart.dev/go/core-lints

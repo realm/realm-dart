@@ -1,22 +1,14 @@
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:metrics/src/target_os_type.dart';
 
+import 'utils.dart';
 import 'version.dart';
 
 part 'metrics.g.dart';
-
-extension _IterableEx<T> on Iterable<T> {
-  T? get firstOrNull =>
-      cast<T?>().firstWhere((element) => true, orElse: () => null);
-}
-
-extension _StringEx on String {
-  String takeUntil(Pattern p) => substring(0, indexOf(p));
-}
 
 Future<Metrics> generateMetrics({
   required Digest distinctId,

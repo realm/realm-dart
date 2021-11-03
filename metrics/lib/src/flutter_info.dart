@@ -36,7 +36,7 @@ class FlutterInfo {
         ['--version', '--machine'],
       );
       final infoJson = await process.stdout.transform(utf8.decoder).join();
-      return FlutterInfo.fromJson(json.decode(infoJson));
+      return FlutterInfo.fromJson(json.decode(infoJson) as Map<String, dynamic>);
     } catch (_) {}
     return null;
   }
