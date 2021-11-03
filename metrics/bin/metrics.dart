@@ -16,7 +16,6 @@ Future<void> main(List<String> arguments) async {
     displayUsage = options.help;
   } catch (e) {
     displayUsage = true;
-    exitCode = 64; // EX_USAGE (by convention, see sysexits.h)
   }
   if (displayUsage) {
     print('dart run metrics [arguments]');
