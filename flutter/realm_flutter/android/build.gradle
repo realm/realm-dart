@@ -49,12 +49,16 @@ android {
 }
 
 task prePreBuild(type: Exec) {
-    def conf = project.getRootProject().subprojects.find { p -> p.name == 'app' }.android.defaultConfig
-    def targetOsVersion = "API Level ${conf.targetSdkVersion.apiLevel}" // TODO: Map apiLevel to android version name, fx. 18 -> Android 4.3 (API level 18)
-    def applicationId = conf.applicationId
-    println "applicationId: $applicationId"
+    def appProject = project.rootProject.subprojects.find { p -> p.name == 'app' }
     workingDir "${project.rootProject.projectDir}/.."
-    commandLine 'dart', 'run', 'metrics', '--verbose', '--target-os-type', 'android', '--target-os-version', targetOsVersion
+    if (appProject != null) {
+        def conf = appProject.android.defaultConfig
+        def targetOsVersion = "API Level ${conf.targetSdkVersion.apiLevel}"
+        commandLine 'dart', 'run', 'metrics', '--verbose', '--target-os-type', 'android', '--target-os-version', targetOsVersion
+    }
+    else {
+        commandLine 'dart', 'run', 'metrics', '--verbose', '--target-os-type', 'android'
+    }
 }
 
 preBuild.dependsOn prePreBuild
