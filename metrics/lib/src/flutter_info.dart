@@ -29,9 +29,15 @@ class FlutterInfo {
   factory FlutterInfo.fromJson(Map<String, dynamic> json) =>
       _$FlutterInfoFromJson(json);
 
-  static Future<FlutterInfo> get() async {
-    final process = await Process.start('flutter', ['--version', '--machine']);
-    final infoJson = await process.stdout.transform(utf8.decoder).join();
-    return FlutterInfo.fromJson(json.decode(infoJson));
+  static Future<FlutterInfo?> get() async {
+    try {
+      final process = await Process.start(
+        'flutter',
+        ['--version', '--machine'],
+      );
+      final infoJson = await process.stdout.transform(utf8.decoder).join();
+      return FlutterInfo.fromJson(json.decode(infoJson));
+    } catch (_) {}
+    return null;
   }
 }
