@@ -23,7 +23,6 @@ import 'dart:convert';
 //import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
-import 'package:metrics/metrics.dart';
 import 'package:source_gen/source_gen.dart';
 
 class RealmObjectGenerator extends Generator {
