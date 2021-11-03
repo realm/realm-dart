@@ -16,6 +16,8 @@ extension _IterableEx<T> on Iterable<T> {
 
 Future<Metrics> generateMetrics({
   required Digest distinctId,
+  required String framework,
+  required String frameworkVersion,
   TargetOsType? targetOsType,
   String? targetOsVersion,
   Digest? anonymizedMacAddress,
@@ -27,9 +29,9 @@ Future<Metrics> generateMetrics({
       distinctId: distinctId,
       token: 'ce0fac19508f6c8f20066d345d360fd0',
       binding: 'dart',
-      language: 'dart',
-      framework: 'dart', // what about flutter?
-      frameworkVersion: Platform.version,
+      language: 'dart', // TODO: Include language version?
+      framework: framework,
+      frameworkVersion: frameworkVersion,
       hostOsType: Platform.operatingSystem,
       hostOsVersion: Platform.operatingSystemVersion,
       realmVersion: packageVersion,

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:logging/logging.dart';
 import 'package:metrics/metrics.dart';
+import 'package:metrics/src/flutter_info.dart';
 import 'package:metrics/src/options.dart';
 import 'package:path/path.dart' as path;
 import 'package:pubspec_parse/pubspec_parse.dart';
@@ -58,6 +59,7 @@ Future<void> main(List<String> arguments) async {
 }
 
 Future<void> uploadMetrics(Options options, Pubspec pubspec) async {
+  if (options.flutter) {}
   final hostId = await machineId();
 
   final metrics = await generateMetrics(
@@ -66,7 +68,9 @@ Future<void> uploadMetrics(Options options, Pubspec pubspec) async {
     targetOsVersion: options.targetOsVersion,
     anonymizedMacAddress:
         hostId, // cannot get this with dart, using hostId instead :-/ (similar to realm-js)
-    anonymizedBundleId: pubspec.name.strongHash(),
+    anonymizedBundleId: pubspec.name.strongHash(), 
+    framework: options.flutter ? 'flutter' : 'dart',
+    frameworkVersion: options.flutter ? (await flutterInfo()).frameworkVersion : Platform.version,
   );
 
   const encoder = JsonEncoder.withIndent('  ');

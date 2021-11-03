@@ -8,6 +8,9 @@ class Options {
   TargetOsType? targetOsType;
   String? targetOsVersion;
 
+  @CliOption(defaultsTo: true)
+  late bool flutter;
+
   @CliOption(abbr: 'v', help: 'Show additional command output.')
   bool verbose = false;
 
