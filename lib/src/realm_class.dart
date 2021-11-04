@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+// ignore_for_file: native_function_body_in_non_sdk_code
+
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
@@ -46,10 +48,10 @@ void setRealmLib(DynamicLibrary realmLibrary) {
 }
 
 /// The callback type to use with `Realm.write`
-typedef void VoidCallback();
+typedef VoidCallback = void Function();
 
 /// The callback type to use with `Realm.addListener`
-typedef void ListenerCallback(dynamic sender, String event);
+typedef ListenerCallback = void Function(dynamic sender, String event);
 
 void _inspect(dynamic arg1, dynamic arg2, dynamic arg3, dynamic arg4, dynamic arg5) {
    Object k;
@@ -84,7 +86,7 @@ class Realm extends DynamicObject {
 
   /// Returns `true` if the Realm already exists on [path].
   static bool exists(String path) {
-    return _exists(null, new Configuration()..path = path);
+    return _exists(null, Configuration()..path = path);
   }
   static bool _exists(Object? nullptr, Configuration config) native "Realm_exists";
 
@@ -99,18 +101,18 @@ class Realm extends DynamicObject {
 
   /// Delete the Realm file at [path]
   static void deleteFile(String path) {
-    File realmFile = new File(path);
+    File realmFile = File(path);
     if (!realmFile.existsSync()) {
-      throw new RealmException("The realm file does not exists at path $path");
+      throw RealmException("The realm file does not exists at path $path");
     }
     
-    File realmLockFile = new File("$path.lock");
+    File realmLockFile = File("$path.lock");
     if (!realmLockFile.existsSync()) {
-      throw new RealmException("The path does not specify a Realm file: $path");
+      throw RealmException("The path does not specify a Realm file: $path");
     }
 
-    File realmNoteFile = new File("$path.note");
-    Directory realmManagementDirectory = new Directory("$path.management");
+    File realmNoteFile = File("$path.note");
+    Directory realmManagementDirectory = Directory("$path.management");
         
     try {
       //delete these first since their existence is optional
@@ -122,7 +124,7 @@ class Realm extends DynamicObject {
       realmLockFile.deleteSync();
     }
     catch (e) {
-      throw new RealmException("Could not delete the Realm at $path error: $e");
+      throw RealmException("Could not delete the Realm at $path error: $e");
     }
   }
 
@@ -161,7 +163,7 @@ class Realm extends DynamicObject {
   Results<T> objects<T extends RealmObject>() {
     String typeName = _getRealmObjectName<T>();
     var results = _objects(typeName);  
-    return new Results<T>(results);
+    return Results<T>(results);
   }
   RealmResults _objects(String typeName) native "Realm_objects";
   
@@ -173,11 +175,11 @@ class Realm extends DynamicObject {
   void write(VoidCallback callback) native "Realm_write";
 
   String _getRealmObjectName<T>() {
-    var schema = TypeStaticProperties.getValue(T, "schema");
+    dynamic schema = TypeStaticProperties.getValue(T, "schema");
     if (schema == null) {
-      throw new Exception("Class ${T} was not registered in the schema for this Realm");
+      throw Exception("Class $T was not registered in the schema for this Realm");
     }
-    String name = schema.name;
+    String name = (schema as SchemaProperty).propertyName;
     return name;
   }
 
@@ -208,7 +210,7 @@ class Realm extends DynamicObject {
   /// Closes this [Realm] so it may be re-opened with a newer schema version. 
   /// All objects and collections from this Realm are no longer valid after calling this method.
   /// This method will not throw an exception if called multiple times.
-  close() native 'Realm_close';
+  void close() native 'Realm_close';
 
   /// Returns `true` if this [Realm] is closed.
   bool get isClosed native 'Realm_get_isClosed';
@@ -241,8 +243,8 @@ class RealmException implements Exception  {
 
   RealmException([this.message]);
 
+  @override
   String toString() {
-    Object message = this.message;
     if (message == null) return "RealmException:";
     return "RealmException: $message";
   }

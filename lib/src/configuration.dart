@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+// ignore_for_file: native_function_body_in_non_sdk_code
+
 import 'dart:collection';
 //import 'dart:mirrors';
 import 'dart:typed_data';
@@ -93,7 +95,7 @@ class SchemaObjects extends ListBase<Type> {
 
   /// Add a Realm object type to this schema instance
   add(Type type) {
-    var schema = Helpers.invokeStatic(type, "getSchema");
+    dynamic schema = Helpers.invokeStatic(type, "getSchema");
     //set the static field on the T class.
     TypeStaticProperties.setValue(type, "schema", schema);
 

@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+// ignore_for_file: native_function_body_in_non_sdk_code
+
 /**
  *  The file is intentionaly not follwoing the dart naming guidelines. The name is used from native code by convention
  */
