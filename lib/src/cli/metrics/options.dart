@@ -1,5 +1,5 @@
 import 'package:build_cli_annotations/build_cli_annotations.dart';
-import 'package:metrics/src/target_os_type.dart';
+import 'target_os_type.dart';
 
 part 'options.g.dart';
 
@@ -13,14 +13,10 @@ class Options {
 
   @CliOption(abbr: 'v', help: 'Show additional command output.')
   bool verbose = false;
-
-  @CliOption(
-    abbr: 'h',
-    negatable: false,
-    defaultsTo: false,
-    help: 'Prints usage information.',
-  )
-  late bool help;
 }
 
 String get usage => _$parserForOptions.usage;
+
+ArgParser populateOptionsParser(ArgParser p) => _$populateOptionsParser(p);
+
+Options parseOptionsResult(ArgResults results) => _$parseOptionsResult(results);

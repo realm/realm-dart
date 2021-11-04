@@ -3,10 +3,10 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:metrics/src/target_os_type.dart';
+import '../../version.dart';
 
+import 'target_os_type.dart';
 import 'utils.dart';
-import 'version.dart';
 
 part 'metrics.g.dart';
 

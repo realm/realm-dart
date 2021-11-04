@@ -10,5 +10,7 @@ dependencies:
     path: ../../
 
 dev_dependencies:
+  realm_generator:
+    path: ../../generator
   lints: ^1.0.1
   build_runner: ^2.1.2

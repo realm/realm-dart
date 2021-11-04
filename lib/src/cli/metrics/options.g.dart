@@ -23,8 +23,7 @@ Options _$parseOptionsResult(ArgResults result) => Options()
       _$TargetOsTypeEnumMapBuildCli, result['target-os-type'] as String?)
   ..targetOsVersion = result['target-os-version'] as String?
   ..flutter = result['flutter'] as bool
-  ..verbose = result['verbose'] as bool
-  ..help = result['help'] as bool;
+  ..verbose = result['verbose'] as bool;
 
 const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
   TargetOsType.android: 'android',
@@ -39,9 +38,7 @@ ArgParser _$populateOptionsParser(ArgParser parser) => parser
       allowed: ['android', 'ios', 'linux', 'macos', 'windows'])
   ..addOption('target-os-version')
   ..addFlag('flutter', defaultsTo: true)
-  ..addFlag('verbose', abbr: 'v', help: 'Show additional command output.')
-  ..addFlag('help',
-      abbr: 'h', help: 'Prints usage information.', negatable: false);
+  ..addFlag('verbose', abbr: 'v', help: 'Show additional command output.');
 
 final _$parserForOptions = _$populateOptionsParser(ArgParser());
 

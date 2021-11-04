@@ -1,45 +1,51 @@
+import 'dart:async';
+
+import 'package:args/command_runner.dart';
+
+import 'flutter_info.dart';
+import 'metrics.dart';
+import 'options.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:logging/logging.dart';
-import 'package:metrics/metrics.dart';
-import 'package:metrics/src/flutter_info.dart';
-import 'package:metrics/src/options.dart';
 import 'package:path/path.dart' as path;
 import 'package:pubspec_parse/pubspec_parse.dart';
 
-Future<void> main(List<String> arguments) async {
-  late Options options;
-  bool displayUsage = false;
-  try {
-    options = parseOptions(arguments);
-    displayUsage = options.help;
-  } catch (e) {
-    displayUsage = true;
-  }
-  if (displayUsage) {
-    print('dart run metrics [arguments]');
-    print(usage);
-    return;
+class MetricsCommand extends Command<void> {
+  @override
+  final String description =
+      'Report anonymised metrics about build host to Realm';
+
+  @override
+  final String name = 'metrics';
+
+  MetricsCommand() {
+    populateOptionsParser(argParser);
   }
 
+  @override
+  FutureOr<void>? run() async {
+    try {
+      final options = parseOptionsResult(argResults!);
+      await uploadMetrics(options);
+    } catch (e, s) {
+      _log.warning('Failed to upload metrics', e, s);
+      // We squash on runtime errors!
+      // This script is called during build (via gradle, podspec, etc.)
+      // and we don't want to be the cause of a broken build!
+    }
+  }
+}
+
+Future<void> uploadMetrics(Options options) async {
   final pubspecPath = path.join(path.current, 'pubspec.yaml');
   final pubspec = Pubspec.parse(await File(pubspecPath).readAsString());
 
   hierarchicalLoggingEnabled = true;
   _log.level = options.verbose ? Level.INFO : Level.WARNING;
-
-  // Ensure realm_generator has run (EXPENSIVE!)
-  // Not really needed currently, as we don't pick up features yet,
-  // but it ensures the realm_generator has been run
-  final process = await Process.start('dart', [
-    'run',
-    'build_runner',
-    'build',
-    '--delete-conflicting-outputs',
-  ]);
-  await stdout.addStream(process.stdout);
 
   if (Platform.environment['CI'] != null ||
       Platform.environment['REALM_DISABLE_ANALYTICS'] != null) {
@@ -47,18 +53,6 @@ Future<void> main(List<String> arguments) async {
     return;
   }
 
-  try {
-    await uploadMetrics(options, pubspec);
-  } catch (e, s) {
-    _log.warning('Failed to upload metrics', e, s);
-    // We don't set exitCode > 0 on runtime errors!
-    // This script is called during build (via gradle, podspec, etc.)
-    // and we don't want to be the cause of a broken build!
-  }
-  exit(0); // why is this needed?
-}
-
-Future<void> uploadMetrics(Options options, Pubspec pubspec) async {
   final flutterInfo = options.flutter ? await FlutterInfo.get() : null;
   final hostId = await machineId();
 
