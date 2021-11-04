@@ -23,7 +23,7 @@ A new flutter plugin project.
   s.script_phase = { 
     :name => 'Report Metrics', 
     # Cannot use $FLUTTER_APPLICATION_PATH (it is not exported), so use $PROJECT_DIR/../.. instead
-    :script => 'cd "$PROJECT_DIR/../.." && dart run metrics --verbose --target-os-type macos --target-os-version "$MACOSX_DEPLOYMENT_TARGET"', 
+    :script => 'cd "$PROJECT_DIR/../.." && dart run realm metrics --verbose --target-os-type macos --target-os-version "$MACOSX_DEPLOYMENT_TARGET"', 
     :execution_position => :before_compile 
   }
 end

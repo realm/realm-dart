@@ -54,10 +54,10 @@ task prePreBuild(type: Exec) {
     if (appProject != null) {
         def conf = appProject.android.defaultConfig
         def targetOsVersion = "API Level ${conf.targetSdkVersion.apiLevel}"
-        commandLine 'dart', 'run', 'metrics', '--verbose', '--target-os-type', 'android', '--target-os-version', targetOsVersion
+        commandLine 'dart', 'run', 'realm', 'metrics', '--verbose', '--target-os-type', 'android', '--target-os-version', targetOsVersion
     }
     else {
-        commandLine 'dart', 'run', 'metrics', '--verbose', '--target-os-type', 'android'
+        commandLine 'dart', 'run', 'realm', 'metrics', '--verbose', '--target-os-type', 'android'
     }
 }
 
