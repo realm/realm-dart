@@ -3,10 +3,10 @@ description: A simple command-line application using Realm Dart SDK.
 publish_to: none
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
-  realm_dart: 
+  realm_dart:
     path: ../../
 
 dev_dependencies:

@@ -13,14 +13,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  realm_generator: 
-    path: ../../generator
+  args: ^2.3.0
   build_cli_annotations: ^2.0.0
   crypto: ^3.0.0
   ffi: ^1.1.2
   json_annotation: ^4.3.0
   logging: ^1.0.0
   meta: ^1.2.4
+  package_config: ^2.0.0
   path: ^1.0.0
   pubspec_parse: ^1.0.0
 
@@ -48,4 +48,3 @@ flutter:
         pluginClass: RealmPlugin
       windows:
         pluginClass: RealmPlugin
-

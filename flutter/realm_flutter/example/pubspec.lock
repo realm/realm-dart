@@ -355,7 +355,7 @@ packages:
     source: path
     version: "0.2.0-alpha"
   realm_generator:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       path: "../../../generator"
       relative: true

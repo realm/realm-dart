@@ -1,9 +1,9 @@
 name: realm_generator
-description: Generates RealmObject classes from Realm data model classes. This package is part of the official Realm Flutter and Realm Dart SDKs 
+description: Generates RealmObject classes from Realm data model classes. This package is part of the official Realm Flutter and Realm Dart SDKs
 version: 0.1.0+preview
 
 homepage: https://www.realm.io
-repository: https://github.com/realm/realm-dart 
+repository: https://github.com/realm/realm-dart
 issue_tracker: https://github.com/realm/realm-dart/issues
 
 environment:

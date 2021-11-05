@@ -6,3 +6,4 @@ targets:
         generate_for:
           - example/**.dart
           - test/**.dart
+          - lib/main.dart
