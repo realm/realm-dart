@@ -76,14 +76,18 @@ Future<void> uploadMetrics(Options options) async {
   final base64Payload = base64Encode(utf8.encode(payload));
 
   final client = HttpClient();
-  final request = await client.getUrl(
-    Uri.parse(
-      'https://webhooks.mongodb-realm.com'
-      '/api/client/v2.0/app/realmsdkmetrics-zmhtm/service/metric_webhook/incoming_webhook/metric'
-      '?data=$base64Payload}',
-    ),
-  );
-  await request.close();
+  try {
+    final request = await client.getUrl(
+      Uri.parse(
+        'https://webhooks.mongodb-realm.com'
+        '/api/client/v2.0/app/realmsdkmetrics-zmhtm/service/metric_webhook/incoming_webhook/metric'
+        '?data=$base64Payload}',
+      ),
+    );
+    await request.close();
+  } finally {
+    client.close(force: true);
+  }
 }
 
 // log to stdout

@@ -21,5 +21,5 @@ void main(List<String> arguments) {
         exit(64); // Exit code 64 indicates a usage error.
       }
       throw error;
-    }).then((_) => exit(0));
+    });
 }
