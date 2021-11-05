@@ -40,19 +40,19 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  final String _platformVersion = 'Unknown';
 
   @override
   void initState() {
     print("initState");
-    var config = new Configuration();
+    var config = Configuration();
     config.schema.add(Car);
 
-    var realm = new Realm(config);
+    var realm = Realm(config);
 
     realm.write(() {
       print("realm write callback");
-      var car = realm.create(new Car()..make = "Audi");
+      var car = realm.create(Car()..make = "Audi");
       print("The car is ${car.make}");
       // car.make = "VW";
       // print("The car is ${car.make}");

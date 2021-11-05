@@ -39,16 +39,16 @@ void main() {
 
   //can read the default config
   {
-    var config = new Configuration([Car.schema, Person.schema]);
+    var config = Configuration([Car.schema, Person.schema]);
     
   }
 
 
-  var config = new Configuration([Car.schema, Person.schema]);
+  var config = Configuration([Car.schema, Person.schema]);
 
 
 
-  var realm2 = new Realm(config);
+  var realm2 = Realm(config);
 
   // realm.write(() {
   //   print("realm write callback");

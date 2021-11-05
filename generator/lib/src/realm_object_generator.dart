@@ -56,35 +56,35 @@ class RealmObjectGenerator extends Generator {
 
     //return 'num ${element.name}Multiplied() => ${element.name} * $numValue;';
 
-    StringBuffer generated = new StringBuffer();
+    StringBuffer generated = StringBuffer();
     for (var schemaClass in schemaClasses) {
       var className = schemaClass.name.substring(1);
 
-      StringBuffer getSchemaPropertyBuffer = new StringBuffer();
+      StringBuffer getSchemaPropertyBuffer = StringBuffer();
       
       /// The `const dynamic type = ...` is there to remove the warning of unused_element for the Realm data model class in the user dart file
       getSchemaPropertyBuffer.writeln("""
             static dynamic getSchema() {
               const dynamic type = ${schemaClass.name};
-              return RealmObject.getSchema('${className}', [
+              return RealmObject.getSchema('$className', [
             """);
 
 
       //Class._constructor() is used from native code when creating new instances of this type
       //Class() constructor is used to be able to create new detached objects and add them to the realm
-      generated.writeln("""class ${className} extends RealmObject {
+      generated.writeln("""class $className extends RealmObject {
           // ignore_for_file: unused_element, unused_local_variable
-          ${className}._constructor() : super.constructor();
-          ${className}();
+          $className._constructor() : super.constructor();
+          $className();
         """);
 
       for (var field in schemaClass.fields) {
-        if (field.metadata.length == 0) {
-          throw new Exception("Class '${schemaClass.name}' has a non RealmProperty type field '${field.name}'");
+        if (field.metadata.isEmpty) {
+          throw Exception("Class '${schemaClass.name}' has a non RealmProperty type field '${field.name}'");
         }
 
         if (field.type.element!.name == "dynamic") {
-          throw new Exception("Class '${schemaClass.name}' has a dynamic type field '${field.name}'");
+          throw Exception("Class '${schemaClass.name}' has a dynamic type field '${field.name}'");
         }
 
         var fieldTypeName = field.type.element!.name;
@@ -109,7 +109,7 @@ class RealmObjectGenerator extends Generator {
 
           //copy the @RealmProperty anotation
           var realmPropertyDefiniton = meta.toSource();
-          generated.writeln("${realmPropertyDefiniton}");
+          generated.writeln("$realmPropertyDefiniton");
 
           String? listTypeArumentName = "";
           if (fieldTypeName == "List") {
@@ -135,7 +135,7 @@ class RealmObjectGenerator extends Generator {
             //field.session.getParsedUnit(field.source.fullName)
 
             if (!isDartType && !listTypeArumentName!.startsWith("_")) {
-              throw new Exception(
+              throw Exception(
                   "Field ${schemaClass.name}.${field.name} has an inavlid type ${field.type.toString()}. Type parameter name should start with '_' and be a RealmObject schema type");
             }
 
@@ -146,20 +146,20 @@ class RealmObjectGenerator extends Generator {
             //generate
             //String get make => super['make'];
             generated
-                .writeln("${fieldTypeName}<${listTypeArumentName}> get ${field.name} => this.super_get<${listTypeArumentName}>('${field.name}');");
+                .writeln("$fieldTypeName<$listTypeArumentName> get ${field.name} => this.super_get<$listTypeArumentName>('${field.name}');");
 
             //generate
             //set name(String value) => super["name"] = value;
             generated.writeln(
-                "set ${field.name}(${fieldTypeName}<${listTypeArumentName}> value) => this.super_set<${listTypeArumentName}>('${field.name}', value);");
+                "set ${field.name}($fieldTypeName<$listTypeArumentName> value) => this.super_set<$listTypeArumentName>('${field.name}', value);");
           } else {
             //generate
             //String get make => super['make'];
-            generated.writeln("${fieldTypeName} get ${field.name} => super['${field.name}'] as ${fieldTypeName};");
+            generated.writeln("$fieldTypeName get ${field.name} => super['${field.name}'] as $fieldTypeName;");
 
             //generate
             //set name(String value) => super["name"] = value;
-            generated.writeln("set ${field.name}(${fieldTypeName} value) => super['${field.name}'] = value;");
+            generated.writeln("set ${field.name}($fieldTypeName value) => super['${field.name}'] = value;");
           }
           //empty line between fields
           generated.writeln();
@@ -178,12 +178,12 @@ class RealmObjectGenerator extends Generator {
               fieldTypeName = "string";
             }
 
-            var inferredTypeDefinition = "type: '${fieldTypeName}',";
+            var inferredTypeDefinition = "type: '$fieldTypeName',";
             if (fieldTypeName == "List") {
               if (listTypeArumentName == "String") {
                 listTypeArumentName = "string";
               }
-              inferredTypeDefinition = "type: '${listTypeArumentName}[]',";
+              inferredTypeDefinition = "type: '$listTypeArumentName[]',";
             }
 
             //schemaPropertyName.replaceFirst(")", ")")
@@ -193,9 +193,9 @@ class RealmObjectGenerator extends Generator {
             //schemaPropertyDefinition = schemaPropertyDefinition.replaceFirst(', ', ' ');
           }
 
-          var schemaPropertyName = realmPropertyDefiniton.replaceFirst("@RealmProperty(", "${schemaPropertyDefinition}");
+          var schemaPropertyName = realmPropertyDefiniton.replaceFirst("@RealmProperty(", schemaPropertyDefinition);
           schemaPropertyName = schemaPropertyName.replaceFirst(",)", ")");
-          getSchemaPropertyBuffer.writeln("${schemaPropertyName},");
+          getSchemaPropertyBuffer.writeln("$schemaPropertyName,");
         }
       }
 

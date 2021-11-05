@@ -21,12 +21,10 @@ import 'dart:collection';
 //Empty RealmObject class template
 class RealmObject {
 
-  /**
-   *  Default constructor.
-   */
-  RealmObject() {}
+  ///  Default constructor.
+  RealmObject();
   
-  RealmObject.constructor() {}
+  RealmObject.constructor();
 
   static dynamic getSchema(String name, Iterable<RealmProperty> properties) {
   }
@@ -66,7 +64,7 @@ class ArrayList<T extends RealmObject> with ListMixin<T> {
 
 extension Super on RealmObject {
   ArrayList<T> super_get<T extends RealmObject>(String name) {
-    throw new Exception();
+    throw Exception();
   }
 
   void super_set<T extends RealmObject>(String name, Iterable<T> value) {
