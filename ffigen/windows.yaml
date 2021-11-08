@@ -1,0 +1,36 @@
+name: RealmLibrary
+description: >- 
+  A Windows config for ffigen
+  Usage: dart run ffigen --config windows.yaml 
+output: "../lib/src/native/realm_bindings.dart"
+headers:
+  entry-points:
+    - 'realm.h'
+    - 'realm_dart.h'
+    - 'realm_dart_scheduler.h'
+  include-directives: #generate only for these headers
+    - 'realm.h'
+    - 'realm_dart.h'
+    - 'realm_dart_scheduler.h'
+compiler-opts:  
+  - '-DRLM_NO_ANON_UNIONS'
+typedef-map:
+  'size_t' : 'IntPtr'
+functions:
+  exclude:
+    - '_.*' #exclude all starting with _
+    - 'Dart_.*' #exlude all starting with Dart_
+structs:
+  exclude:
+    - '_.*'
+    - 'Dart_.*' #exlude all starting with Dart_
+globals:
+  exclude:
+    - '_.*'
+    - 'RLM_.*' #exlude RLM_ globals constants since they are not exported from binary
+unions:
+  exclude:
+    - '_.*'
+enums:
+  exclude:
+    - '_.*'
