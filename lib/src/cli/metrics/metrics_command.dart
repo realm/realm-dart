@@ -130,12 +130,15 @@ Future<Digest> machineId() async {
       //
       // Consider using System.Identity.UniqueID instead.
       // (see https://docs.microsoft.com/en-gb/windows/win32/properties/props-system-identity-uniqueid)
-      final process = await Process.start(r'%windir%\System32\Reg.exe', [
-        'QUERY',
-        r'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography',
-        '/v',
-        'MachineGuid',
-      ]);
+      final process = await Process.start(
+        '${Platform.environment['WINDIR']}\\System32\\Reg.exe',
+        [
+          'QUERY',
+          r'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography',
+          '/v',
+          'MachineGuid',
+        ],
+      );
       id = await process.stdout.transform(systemEncoding.decoder).join();
     }
   } catch (e, s) {
