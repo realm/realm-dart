@@ -23,8 +23,6 @@
 import 'list.dart';
 import 'realm_property.dart';
 
-import 'dynamic_object.dart';
-
 // /// The callback type to use with `RealmObject.addListener`
 // /// 
 // /// The [changes.changedProperties] is a `List` with property names that got changed since the last time the object was updated.

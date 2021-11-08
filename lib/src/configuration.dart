@@ -23,7 +23,6 @@ import 'native/realm_core.dart';
 
 import 'realm_object.dart';
 import 'realm_property.dart';
-import 'dynamic_object.dart';
 import 'helpers.dart';
 
 /// Configuration used to create a [Realm] instance

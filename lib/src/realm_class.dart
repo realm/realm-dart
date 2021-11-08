@@ -24,7 +24,6 @@ import 'results.dart';
 import 'configuration.dart';
 import 'realm_object.dart';
 import 'collection.dart';
-import 'dynamic_object.dart';
 import "helpers.dart";
 import 'realm_property.dart';
 import 'native/realm_core.dart';
@@ -35,7 +34,6 @@ export 'results.dart';
 export 'realm_object.dart';
 export "configuration.dart";
 export 'realm_property.dart';
-export 'dynamic_object.dart';
 export 'helpers.dart';
 
 void setRealmLib(DynamicLibrary realmLibrary) => setRealmLibrary(realmLibrary);
