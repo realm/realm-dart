@@ -5,6 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "(Windows) Attach",
+            "type": "cppvsdbg",
+            "request": "attach",
+            "processId": "${command:pickProcess}"
+        },
+        {
             "name": "Dart: Attach to Process",
             "type": "dart",
             "request": "attach",
@@ -15,15 +21,15 @@
             "name": "Dart: Debug",
             "type": "dart",
             "request": "launch",
-            "program": "main.dart",
-            "cwd": "lib"
+            "program": "lib/main.dart",
+            "cwd": "${workspaceFolder}"
         },
         {
             "name": "Dart: Debug Test",
             "type": "dart",
             "request": "launch",
-            "program": "realm_test.dart",
-            "cwd": "test",
+            "program": "test/realm_test.dart",
+            "cwd": "${workspaceFolder}",
             "args": ["--name", ""]
         }
     ]

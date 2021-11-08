@@ -1,9 +1,18 @@
 set(SOURCES
      realm_dart.cpp
+     realm_dart_scheduler.cpp
+     dart-include/dart_api_dl.c
 )
 
 set(HEADERS
+    realm_dart.h
+    realm_dart_scheduler.h
     realm-core/src/realm.h
+)
+
+set (INCLUDE_DIRS
+    dart-include
+    dart-include/internal
 )
 
 if(NOT CMAKE_SYSTEM_NAME STREQUAL iOS)
@@ -24,7 +33,7 @@ else() #iOS
     # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
 endif()
 
-# target_include_directories(realm_dart_extension PUBLIC ${DART_INCLUDE_DIR} ${HEADERS}, ${INCLUDE_DIRS})
+target_include_directories(realm_dart PUBLIC ${INCLUDE_DIRS})
 
 # target_compile_definitions(realm_dart_extension PUBLIC -DDART_SHARED_LIB)
 

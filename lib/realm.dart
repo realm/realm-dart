@@ -22,7 +22,7 @@ import 'dart:io';
 //dart.library.cli is available only on dart desktop
 import 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart';
 
-export 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart' hide RealmLib;
+export 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart';
 
 var _initialized = false;
 
@@ -62,7 +62,7 @@ void initRealm() {
         Directory sourceDir = new File.fromUri(Platform.script).parent;
         path = sourceDir.path + "/";
       }
-      
+
       return path + "lib" + name + ".dylib";
     }
 
@@ -70,7 +70,7 @@ void initRealm() {
       if (path.isEmpty) {
         path = 'binary/windows/';
       }
-      
+
       return path + name + ".dll";
     }
 
@@ -99,19 +99,11 @@ void initRealm() {
 
   setRealmLib(realmLibrary);
 
-  // TODO: call Dart_InitializeApiDL
-  // print("Finding the Realm initialization functions");
-  // final initializeApi = realmLibrary.lookupFunction<IntPtr Function(Pointer<Void>), int Function(Pointer<Void>)>("Dart_InitializeApiDL");
-  // if (initializeApi == null) {
-  //   print("Realm initialization function not found");
-  //   throw Exception("Realm initialization function not found");
-  // }
-
-  // print("calling Realm initialization");
-  // var initResult = initializeApi(NativeApi.initializeApiDLData);
-  // if(initResult == 0) {
-  //     print("Realm initialization success");
-  // }
+  final initializeApi = realmLibrary.lookupFunction<IntPtr Function(Pointer<Void>), int Function(Pointer<Void>)>("realm_initializeDartApiDL");
+  var initResult = initializeApi(NativeApi.initializeApiDLData);
+  if (initResult != 0) {
+    print("Realm initialization failed. Error: could not initialize Dart APIs");
+  }
 
   _initialized = true;
 }

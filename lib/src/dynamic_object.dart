@@ -19,67 +19,67 @@
 import 'helpers.dart';
 
 /// @nodoc
-class TypeStaticProperties {
-  static final _staticProperties = new Map<Type, Map<String, dynamic>>();
+// class TypeStaticProperties {
+//   static final _staticProperties = new Map<Type, Map<String, dynamic>>();
 
-  static dynamic getValue(Type type, String name) {
-    Map<String, dynamic> properties = _staticProperties[type]!;
-    if (properties == null) {
-      return null;
-    }
+//   static dynamic getValue(Type type, String name) {
+//     Map<String, dynamic> properties = _staticProperties[type]!;
+//     if (properties == null) {
+//       return null;
+//     }
 
-    return properties[name];
-  }
+//     return properties[name];
+//   }
 
-  static setValue(Type type, String name, dynamic value) {
-    Map<String, dynamic> properties = _staticProperties[type]!;
-    if (properties == null) {
-      properties = new Map<String, dynamic>();
-      _staticProperties[type] = properties;
-    }
+//   static setValue(Type type, String name, dynamic value) {
+//     Map<String, dynamic> properties = _staticProperties[type]!;
+//     if (properties == null) {
+//       properties = new Map<String, dynamic>();
+//       _staticProperties[type] = properties;
+//     }
 
-    properties[name] = value;
-  }
-}
+//     properties[name] = value;
+//   }
+// }
 
-/// An object that supports dynamicly created properties at runtime
-class DynamicObject {
-  DynamicObject();
+// /// An object that supports dynamicly created properties at runtime
+// class DynamicObject {
+//   DynamicObject();
 
-  final _properties = new Map<String, Object>();
+//   final _properties = new Map<String, Object>();
 
-  dynamic operator [](String name) {
-    return _properties[name];
-  }
+//   dynamic operator [](String name) {
+//     return _properties[name];
+//   }
 
-  void operator []=(String name, dynamic value) {
-    _properties[name] = value;
-  }
+//   void operator []=(String name, dynamic value) {
+//     _properties[name] = value;
+//   }
 
-  List<String> get propertyNames {
-    var result = List<String>.empty();
-    result.addAll(_properties.keys);
-    return result;
-  }
+//   List<String> get propertyNames {
+//     var result = List<String>.empty();
+//     result.addAll(_properties.keys);
+//     return result;
+//   }
 
-  @override
-  noSuchMethod(Invocation invocation) {
-    if (!invocation.isAccessor) {
-      return super.noSuchMethod(invocation);
-    }
+//   @override
+//   noSuchMethod(Invocation invocation) {
+//     if (!invocation.isAccessor) {
+//       return super.noSuchMethod(invocation);
+//     }
 
-    //final realName = invocation.memberName.toString();
-    String name = invocation.memberName.name;
-    name = name.endsWith('=') ? name.substring(0, name.length - 1) : name;
-    if (invocation.isSetter) {
-      //final name = realName.substring(8, realName.length - 3);
-      dynamic value = invocation.positionalArguments.first;
-      _properties[name] = value;
-    } else {
-      return _properties[name];
-    }
-  }
-}
+//     //final realName = invocation.memberName.toString();
+//     String name = invocation.memberName.name;
+//     name = name.endsWith('=') ? name.substring(0, name.length - 1) : name;
+//     if (invocation.isSetter) {
+//       //final name = realName.substring(8, realName.length - 3);
+//       dynamic value = invocation.positionalArguments.first;
+//       _properties[name] = value;
+//     } else {
+//       return _properties[name];
+//     }
+//   }
+// }
 
 // class SchemaDynamicObject {
 //   SchemaDynamicObject(Map<String, dynamic> map) {}

@@ -25,131 +25,145 @@ import 'realm_property.dart';
 
 import 'dynamic_object.dart';
 
-/// The callback type to use with `RealmObject.addListener`
-/// 
-/// The [changes.changedProperties] is a `List` with property names that got changed since the last time the object was updated.
-/// The callback is invoked once initially with no changes at the moment the callback listener is added.
-typedef void RealmObjectListenerCallback(dynamic object, dynamic changes);
+// /// The callback type to use with `RealmObject.addListener`
+// /// 
+// /// The [changes.changedProperties] is a `List` with property names that got changed since the last time the object was updated.
+// /// The callback is invoked once initially with no changes at the moment the callback listener is added.
+// typedef void RealmObjectListenerCallback(dynamic object, dynamic changes);
 
 /// A object in a realm. 
 /// 
 /// RealmObjects are generated from Realm data model classes
 /// A data model class `_MyClass` will have a RealmObject with name `MyClass` generated 
 /// which should be used insead of directly instantiating and working with RealmObject instances
-class RealmObject /*extends DynamicObject*/ {
-  Map<String, Object>? _unmanagedProperties;
-
-  /**
-   *  Default constructor. Enables the subclass to different constructors and work with RealmObject unmanaged instances
-   */
-  RealmObject() {
-    _unmanagedProperties = new Map<String, Object>();
+class RealmObject {
+  String _value = "";
+  setString(String anme, String value) {
+    _value = value;
   }
 
-  /**
-   *  Creates managed RealmObject. Called from generated code
-   */
-  RealmObject.constructor() {}
-
-  Object get _realm native "RealmObject_get__realm";
-
-  Object _native_get(String name) native "RealmObject_get_property";
-  void _native_set(String name, Object value) native "RealmObject_set_property";
-
-  Object operator [](String name) {
-    if (_unmanagedProperties != null) {
-      return _unmanagedProperties![name]!;
-    }
-
-    Object result = _native_get(name);
-    if (result is RealmList) {
-      throw new Exception("Invalid RealmObject. RealmLists should be retrieved using super_get method");
-    }
-
-    return result;
+  String getString(String name) {
+    return _value;
   }
 
-  void operator []=(String name, Object value) {
-    if (_unmanagedProperties != null) {
-      _unmanagedProperties![name] = value;
-      return;
-    }
-
-    _native_set(name, value);
-  }
-
-  static dynamic getSchema(String typeName, Iterable<SchemaProperty> properties) {
-    if (properties.length == 0) {
-        throw new Exception("Class ${typeName} should have at least one field with RealmProperty annotation");
-    }
-
-    dynamic schema = DynamicObject();
-    schema.name = typeName;
-    schema.properties = new DynamicObject();
-
-    for (var realmProperty in properties) {
-      dynamic propertyValue = DynamicObject();
-      propertyValue.type = realmProperty.type;
-      propertyValue['default'] = realmProperty.defaultValue ?? null;
-      propertyValue.optional = realmProperty.optional ?? null;
-      propertyValue.mapTo = realmProperty.mapTo ?? null;
-      schema.properties[realmProperty.propertyName] = propertyValue;
-      if (realmProperty.primaryKey ?? false) {
-        schema.primaryKey = realmProperty.propertyName;
-      }
-    }
-
-    return schema;
-  }
-
-  Object isValid() native "RealmObject_isValid";
-  
-  /// Adds a [RealmObjectListenerCallback] which will be called when RealmObject properties change.
-  Object addListener(RealmObjectListenerCallback callback) native "RealmObject_addListener";
-  
-  /// Removes a [RealmObjectListenerCallback] that was previously added with [addListener]
-  /// 
-  /// The callback argument should be the same callback reference used in a previous call to [addListener]
-  /// ```dart
-  /// var callback = (object, changes) { ... }
-  /// myObject.addListener(callback);
-  /// myObject.removeListener(callback);
-  /// ```
-  Object removeListener(RealmObjectListenerCallback callback) native "RealmObject_removeListener";
-
-  /// Removes all [RealmObjectListenerCallback] that were previously added with [addListener] 
-  Object removeAllListeners() native "RealmObject_removeAllListeners";
+  // SchemaObject get schema => SchemaObject("");
 }
+
+  // Map<String, Object>? _unmanagedProperties;
+
+  // /**
+  //  *  Default constructor. Enables the subclass to different constructors and work with RealmObject unmanaged instances
+  //  */
+  // RealmObject() {
+  //   _unmanagedProperties = new Map<String, Object>();
+  // }
+
+  // /**
+  //  *  Creates managed RealmObject. Called from generated code
+  //  */
+  // RealmObject.constructor() {}
+
+  // Object get _realm native "RealmObject_get__realm";
+
+  // Object _native_get(String name) native "RealmObject_get_property";
+  // void _native_set(String name, Object value) native "RealmObject_set_property";
+
+  // Object operator [](String name) {
+  //   if (_unmanagedProperties != null) {
+  //     return _unmanagedProperties![name]!;
+  //   }
+
+  //   Object result = _native_get(name);
+  //   if (result is RealmList) {
+  //     throw new Exception("Invalid RealmObject. RealmLists should be retrieved using super_get method");
+  //   }
+
+  //   return result;
+  // }
+
+  // void operator []=(String name, Object value) {
+  //   if (_unmanagedProperties != null) {
+  //     _unmanagedProperties![name] = value;
+  //     return;
+  //   }
+
+  //   _native_set(name, value);
+  // }
+
+  // static dynamic getSchema(String typeName, Iterable<SchemaProperty> properties) {
+  //   if (properties.length == 0) {
+  //       throw new Exception("Class ${typeName} should have at least one field with RealmProperty annotation");
+  //   }
+
+  //   dynamic schema = DynamicObject();
+  //   schema.name = typeName;
+  //   schema.properties = new DynamicObject();
+
+  //   for (var realmProperty in properties) {
+  //     dynamic propertyValue = DynamicObject();
+  //     propertyValue.type = realmProperty.type;
+  //     propertyValue['default'] = realmProperty.defaultValue ?? null;
+  //     propertyValue.optional = realmProperty.optional ?? null;
+  //     propertyValue.mapTo = realmProperty.mapTo ?? null;
+  //     schema.properties[realmProperty.propertyName] = propertyValue;
+  //     if (realmProperty.primaryKey ?? false) {
+  //       schema.primaryKey = realmProperty.propertyName;
+  //     }
+  //   }
+
+  //   return schema;
+  // }
+
+  // Object isValid() native "RealmObject_isValid";
+  
+  // /// Adds a [RealmObjectListenerCallback] which will be called when RealmObject properties change.
+  // Object addListener(RealmObjectListenerCallback callback) native "RealmObject_addListener";
+  
+  // /// Removes a [RealmObjectListenerCallback] that was previously added with [addListener]
+  // /// 
+  // /// The callback argument should be the same callback reference used in a previous call to [addListener]
+  // /// ```dart
+  // /// var callback = (object, changes) { ... }
+  // /// myObject.addListener(callback);
+  // /// myObject.removeListener(callback);
+  // /// ```
+  // Object removeListener(RealmObjectListenerCallback callback) native "RealmObject_removeListener";
+
+  // /// Removes all [RealmObjectListenerCallback] that were previously added with [addListener] 
+  // Object removeAllListeners() native "RealmObject_removeAllListeners";
+// }
 
 /// @nodoc
-extension Super on RealmObject {
-  ArrayList<T> super_get<T extends RealmObject>(String name) {
-    if (_unmanagedProperties != null) {
-      return _unmanagedProperties![name] as ArrayList<T>;
-    }
+// extension Super on RealmObject {
+//   ArrayList<T> super_get<T extends RealmObject>(String name) {
+//     if (_unmanagedProperties != null) {
+//       return _unmanagedProperties![name] as ArrayList<T>;
+//     }
 
-    Object result = _native_get(name);
-    if (result is RealmList) {
-      return new ArrayList<T>.fromRealmList(result);
-    }
+//     Object result = _native_get(name);
+//     if (result is RealmList) {
+//       return new ArrayList<T>.fromRealmList(result);
+//     }
 
-    return result as ArrayList<T>;
-  }
+//     return result as ArrayList<T>;
+//   }
 
-  void super_set<T extends RealmObject>(String name, Iterable<T> value) {
-    ArrayList<T> arrayList;
-    if (value is ArrayList<T>) {
-      arrayList = value;
-      return;
-    }
+//   void super_set<T extends RealmObject>(String name, Iterable<T> value) {
+//     ArrayList<T> arrayList;
+//     if (value is ArrayList<T>) {
+//       arrayList = value;
+//       return;
+//     }
 
-    arrayList = new ArrayList(value);
+//     arrayList = new ArrayList(value);
 
-    if (_unmanagedProperties != null) {
-      _unmanagedProperties![name] = arrayList;
-      return;
-    }
+//     if (_unmanagedProperties != null) {
+//       _unmanagedProperties![name] = arrayList;
+//       return;
+//     }
 
-    throw new Exception("Setting ArrayList on manged object is not supported");
-  }
-}
+//     throw new Exception("Setting ArrayList on manged object is not supported");
+//   }
+// }
+
+

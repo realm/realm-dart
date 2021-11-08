@@ -22,6 +22,8 @@
 #include <exception>
 
 #include <realm.h>
+#include "dart_api_dl.h"
+#include "realm_dart.h"
 
 #if defined(_WIN32)
 
@@ -36,7 +38,22 @@ BOOL APIENTRY DllMain(HMODULE module,
 
 #endif  // defined(_WIN32)
 
-// Force the linker to link all exports from realm-core C API
-const char* dummy(void) {
-	return realm_get_library_version();
+RLM_API void realm_initializeDartApiDL(void* data) {
+  Dart_InitializeApiDL(data);
+}
+
+void handle_finalizer(void* isolate_callback_data, void* realmPtr) {
+  realm_release(realmPtr);
+}
+
+RLM_API bool realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size) {
+  return Dart_NewFinalizableHandle_DL(handle, realmPtr, size, handle_finalizer) != nullptr;
+}
+
+// // Force the linker to link all exports from realm-core C API
+void dummy(void) {
+  realm_scheduler_make_default();
+  realm_config_new();
+  realm_schema_new(nullptr, 0, nullptr);
+  realm_get_library_version();
 }
