@@ -70,7 +70,7 @@ packages:
       name: build_runner
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.4"
+    version: "2.1.5"
   build_runner_core:
     dependency: transitive
     description:
@@ -303,7 +303,7 @@ packages:
     source: path
     version: "0.2.0-alpha"
   realm_generator:
-    dependency: "direct dev"
+    dependency: transitive
     description:
       path: "../../generator"
       relative: true

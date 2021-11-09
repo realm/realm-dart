@@ -25,8 +25,6 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^1.0.4
   build_runner: ^2.1.4
-  realm_generator:
-    path: ../../../generator
   test: ^1.17.10
   test_api: ^0.4.2
 
