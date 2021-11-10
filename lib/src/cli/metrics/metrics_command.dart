@@ -80,7 +80,7 @@ Future<void> uploadMetrics(Options options) async {
     targetOsVersion: options.targetOsVersion,
     anonymizedMacAddress: hostId,
     anonymizedBundleId: pubspec.name.strongHash(),
-    framework: flutterInfo != null ? 'flutter' : 'dart native',
+    framework: flutterInfo != null ? 'Flutter' : 'Dart',
     frameworkVersion: flutterInfo != null
         ? '${flutterInfo.frameworkVersion}'
             ' (${flutterInfo.channel})' // to mimic Platform.version
@@ -117,8 +117,6 @@ final _log = Logger('metrics')
 Future<Digest> machineId() async {
   String? id;
   try {
-    // No easy access to mac-address from dart, as used by other SDKs,
-    // but we can do better..
     if (Platform.isLinux) {
       // For linux use /etc/machine-id
       // Can be changed by administrator but with unpredictable consequences!
