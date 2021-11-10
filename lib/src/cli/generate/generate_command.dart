@@ -30,9 +30,6 @@ class GenerateCommand extends Command<void> {
 
   @override
   FutureOr<void>? run() async {
-    // Ensure realm_generator has run (EXPENSIVE!)
-    // Not really needed currently, as we don't pick up features yet,
-    // but it ensures the realm_generator has been run
     final process = await Process.start('dart', [
       'run',
       'build_runner',
