@@ -15,13 +15,15 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
 import 'dart:ffi';
 import 'dart:io';
 
-//dart.library.cli is available only on dart desktop
-import 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart';
+import 'src/cli/metrics/metrics_command.dart';
+import 'src/cli/metrics/options.dart';
+import 'src/cli/metrics/target_os_type.dart';
 
+// dart.library.cli is available only on dart desktop
+import 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart';
 export 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart' hide RealmLib;
 
 var _initialized = false;
@@ -42,9 +44,17 @@ void initRealm() {
   }
 
   String _platformPath(String name, {String? path}) {
-    if (path == null) {
-      path = '';
-    }
+    assert(() {
+      try {
+        uploadMetrics(Options()
+          ..flutter = IsFlutterPlatform
+          ..targetOsType = Platform.operatingSystem.asTargetOsType
+          ..targetOsVersion = Platform.operatingSystemVersion);
+      } catch (_) {} // ignore: avoid_catching_errors
+      return true;
+    }());
+
+    path ??= '';
 
     if (Platform.isAndroid) {
       return path + "lib" + name + ".so";
@@ -62,7 +72,7 @@ void initRealm() {
         Directory sourceDir = new File.fromUri(Platform.script).parent;
         path = sourceDir.path + "/";
       }
-      
+
       return path + "lib" + name + ".dylib";
     }
 
@@ -70,7 +80,7 @@ void initRealm() {
       if (path.isEmpty) {
         path = 'binary/windows/';
       }
-      
+
       return path + name + ".dll";
     }
 
@@ -91,7 +101,11 @@ void initRealm() {
   }
 
   DynamicLibrary realmLibrary;
-  if (Platform.isAndroid || Platform.isWindows || Platform.isIOS || Platform.isLinux || Platform.isMacOS) {
+  if (Platform.isAndroid ||
+      Platform.isWindows ||
+      Platform.isIOS ||
+      Platform.isLinux ||
+      Platform.isMacOS) {
     realmLibrary = dlopenPlatformSpecific(RealmBinaryName);
   } else {
     throw Exception("Unsupported platform: ${Platform.operatingSystem}");

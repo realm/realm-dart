@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'package:json_annotation/json_annotation.dart';
+import 'utils.dart';
 
 @JsonEnum(fieldRename: FieldRename.pascal)
 enum TargetOsType {
@@ -24,6 +25,11 @@ enum TargetOsType {
   ios,
   linux,
   macos,
-  // web, // not supported yet
   windows,
+}
+
+extension StringEx on String {
+  TargetOsType? get asTargetOsType => TargetOsType.values
+      .where((element) => element.toString().split('.').last == this)
+      .firstOrNull;
 }
