@@ -26,7 +26,7 @@ import '../metrics/utils.dart';
 
 class InstallCommand extends Command<void> {
   @override
-  final String description = 'Install shared library when using dart native';
+  final String description = 'Install shared library for Dart standalone';
 
   @override
   final String name = 'install';
