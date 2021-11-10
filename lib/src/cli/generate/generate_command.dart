@@ -23,7 +23,7 @@ import 'package:args/command_runner.dart';
 
 class GenerateCommand extends Command<void> {
   @override
-  final String description = 'Generate realm model objects from prototypes';
+  final String description = 'Generate Realm objects from data model classes';
 
   @override
   final String name = 'generate';
