@@ -57,7 +57,6 @@ Future<Metrics> generateMetrics({
   );
 }
 
-// While we wait for: https://github.com/google/json_serializable.dart/issues/822
 Digest _digestFromJson(String json) => Digest(base64Decode(json));
 String _digestToJson(Digest object) => base64Encode(object.bytes);
 
@@ -94,7 +93,7 @@ class Properties {
 
   @JsonKey(
     name: 'distinct_id', // snake-case
-    fromJson: _digestFromJson,
+    fromJson: _digestFromJson, // While we wait for: https://github.com/google/json_serializable.dart/issues/822
     toJson: _digestToJson,
   )
   final Digest distinctId;
