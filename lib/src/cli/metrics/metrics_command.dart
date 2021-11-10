@@ -35,7 +35,7 @@ import 'package:pubspec_parse/pubspec_parse.dart';
 class MetricsCommand extends Command<void> {
   @override
   final String description =
-      'Report anonymised metrics about build host to Realm';
+      'Report anonymized builder metrics to Realm';
 
   @override
   final String name = 'metrics';
