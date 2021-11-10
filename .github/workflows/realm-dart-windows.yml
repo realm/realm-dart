@@ -41,4 +41,4 @@ jobs:
         run: dart pub get
 
       - name: Run tests
-        run: dart test test\realm_test.dart --name "Realm version"
+        run: dart test test\realm_test.dart --name ""
