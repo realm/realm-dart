@@ -25,10 +25,17 @@
 // https://forums.swift.org/t/swift-static-libraries-dont-copy-generated-objective-c-header/19816
 #import "realm-Swift.h"
 #endif
-#import "realm.h"
+#import "realm_dart.h"
+#import "realm_dart_scheduler.h"
 @implementation RealmPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   [SwiftRealmPlugin registerWithRegistrar:registrar];
-  realm_get_library_version();
 }
+
+void dummy(void) {
+  realm_get_library_version();
+  realm_initializeDartApiDL(NULL);
+  realm_dart_create_scheduler(0);
+}
+
 @end
