@@ -19,6 +19,7 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'results.dart';
 import 'configuration.dart';
@@ -43,6 +44,7 @@ class Realm {
   /// The [Configuration] object of this [Realm]
   Configuration get config => throw RealmException("not implemented");
   late RealmHandle _realm;
+  late final _Scheduler _scheduler;
 
   /// Opens a Realm using the default or a custom [Configuration] object
   Realm(Configuration config) {
@@ -50,11 +52,11 @@ class Realm {
       realmCore.validateSchema(config.schema);
     }
 
+    this._scheduler = _Scheduler(config);
     this._realm = realmCore.openRealm(config);
   }
   
   static String get version => realmCore.libraryVersion;
-
 }
 
 /// An exception being thrown when a Realm operation or Realm object access fails
@@ -66,4 +68,30 @@ class RealmException implements Exception  {
   String toString() {
     return "RealmException: $message";
   }
+}
+
+class _Scheduler {
+  static const SCHEDULER_FINALIZE = null;
+  late final SchedulerHandle handle;
+
+  _Scheduler(Configuration config) {
+    RawReceivePort receivePort = RawReceivePort();
+    receivePort.handler = (message) {
+      if (message != SCHEDULER_FINALIZE) {
+        realmCore.invokeScheduler(message);
+      }
+
+      receivePort.close();
+    };
+
+    final sendPort = receivePort.sendPort;
+    handle = realmCore.createScheduler(sendPort.nativePort);
+
+    //we use this to receive a notification on process exit to close the receivePort or the process with hang
+    Isolate.spawn(handler, 2, onExit: sendPort);
+
+    realmCore.setScheduler(config, this.handle);
+  }
+
+  static void handler(int message) {}
 }

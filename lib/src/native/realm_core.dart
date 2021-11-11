@@ -23,7 +23,6 @@ class _RealmCore {
   static const int RLM_INVALID_CLASS_KEY = 0x7FFFFFFF;
   static const int RLM_INVALID_PROPERTY_KEY = -1;
   static const int RLM_INVALID_OBJECT_KEY = -1;
-  static const int SCHEDULER_FINALIZE = -1;
 
   // Hide the RealmCore class and make it a singleton
   static _RealmCore? _instance;
@@ -116,19 +115,13 @@ class _RealmCore {
     _realmLib.realm_config_set_path(config.handle._pointer, path.toNativeUtf8().cast());
   }
 
-  SchedulerHandle createScheduler(Configuration config) {
-    ReceivePort receivePort = ReceivePort();
-    receivePort.listen((message) {
-      print(message);
-      if (message == SCHEDULER_FINALIZE) {
-        //finalize called. exit
-        return;
-      }
+  SchedulerHandle createScheduler(int sendPort) {
+    final schedulerPtr = _realmLib.realm_dart_create_scheduler(sendPort);
+    return SchedulerHandle._(schedulerPtr);
+  }
 
-      _realmLib.realm_dart_scheduler_invoke(Pointer.fromAddress(message));
-    });
-    final schedulerPtr = _realmLib.realm_dart_create_scheduler(receivePort.sendPort.nativePort);
-    return SchedulerHandle._(schedulerPtr, receivePort);
+  void invokeScheduler(int message) {
+    _realmLib.realm_dart_scheduler_invoke(Pointer.fromAddress(message));
   }
 
   void setScheduler(Configuration config, SchedulerHandle scheduler) {
@@ -181,7 +174,7 @@ class SchedulerHandle extends Handle<realm_scheduler> {
   @override
   Pointer<realm_scheduler> _pointer;
 
-  SchedulerHandle._(this._pointer, ReceivePort receivePort) {
+  SchedulerHandle._(this._pointer) {
     _realmLib.realm_attach_finalizer(this, this._pointer.cast(), 1);
   }
 }

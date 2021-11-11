@@ -14,19 +14,19 @@ struct SchedulerData {
     realm_free_userdata_func_t free_userData_func;
 };
 
-static const int SCHEDULER_FINALIZE = -1;
+static const int SCHEDULER_FINALIZE = NULL;
 
 void realm_dart_scheduler_free_userData(void* userData) {
     SchedulerData* scheduler = static_cast<SchedulerData*>(userData);
     Dart_PostInteger_DL(scheduler->port, SCHEDULER_FINALIZE);
-
+    
     //delete the scheduler
     delete scheduler;
 }
 
 //This can be invoked on any thread.
 void realm_dart_scheduler_notify(void* userData) {
-    
+
     // TODO: Consider removing this commented code when the reinterpret_cast<std::uintptr_t> below is tested on all platforms
     // //This posts the userdata to the main thread as Pointer<Void>. 
     // //The RealmScheduler should invoke the realm_dart_scheduler_invoke 

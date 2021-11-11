@@ -30,7 +30,6 @@ class Configuration {
   late final ConfigHandle handle;
 
   late final RealmSchema _schema;
-  late final SchedulerHandle _scheduler;
   
   RealmSchema get schema => _schema;
 
@@ -38,9 +37,6 @@ class Configuration {
     this._schema = RealmSchema(schemaObjects);
     this.handle = realmCore.createConfig();
     this.schemaVersion = 0;
-    
-    this._scheduler = realmCore.createScheduler(this);
-    realmCore.setScheduler(this, this._scheduler);
     this.path = "default.realm";
   }
 

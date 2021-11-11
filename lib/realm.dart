@@ -41,52 +41,60 @@ void initRealm() {
     return;
   }
 
-  String _platformPath(String name, {String? path}) {
-    if (path == null) {
-      path = '';
+  String _getBinaryPath(String binaryName, {String path = ""}) {
+    if (!path.isEmpty && path.endsWith("/")) {
+        //remove trailing slash
+        path = path.substring(0, path.length - 1);
     }
 
     if (Platform.isAndroid) {
-      return path + "lib" + name + ".so";
+      return "$path/lib$binaryName.so";
     }
 
     if (Platform.isLinux) {
       if (path.isEmpty) {
-        path = 'binary/linux/';
+        path = 'binary/linux';
       }
-      return path + "lib" + name + ".so";
+      return "$path/lib$binaryName.so";
     }
 
     if (Platform.isMacOS) {
       if (path.isEmpty) {
-        Directory sourceDir = new File.fromUri(Platform.script).parent;
-        path = sourceDir.path + "/";
+        Directory sourceDir = Directory.current;
+        path = sourceDir.path;
       }
 
-      return path + "lib" + name + ".dylib";
+      var fullPath = "$path/binary/macos/lib$binaryName.dylib";
+      print("Full binary path $fullPath");
+      if (File(fullPath).existsSync()) {
+        return fullPath;
+      }
+
+      fullPath = "$path/lib$binaryName.dylib";
+      return fullPath;
     }
 
     if (Platform.isWindows) {
       if (path.isEmpty) {
-        path = 'binary/windows/';
+        path = 'binary/windows';
       }
 
-      return path + name + ".dll";
+      return "$path/$binaryName.dll";
     }
 
-    if (Platform.isIOS) {
-      return path + "/" + name;
-    }
+    //ios links statically 
+    //if (Platform.isIOS) {
+    //}
 
     throw Exception("Platform not implemented");
   }
 
-  DynamicLibrary dlopenPlatformSpecific(String name, {String? path}) {
+  DynamicLibrary dlopenPlatformSpecific(String binaryName, {String? path}) {
     if (Platform.isIOS) {
       return DynamicLibrary.process();
     }
 
-    String fullPath = _platformPath(name, path: path);
+    String fullPath = _getBinaryPath(binaryName, path: path ?? '');
     return DynamicLibrary.open(fullPath);
   }
 
