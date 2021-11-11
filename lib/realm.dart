@@ -48,7 +48,7 @@ void initRealm() {
     }
 
     if (Platform.isAndroid) {
-      return "$path/lib$binaryName.so";
+      return "lib$binaryName.so";
     }
 
     if (Platform.isLinux) {
