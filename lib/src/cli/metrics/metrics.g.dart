@@ -33,7 +33,7 @@ Properties _$PropertiesFromJson(Map<String, dynamic> json) => Properties(
           .fromJson(json['Anonymized MAC Address'] as String?),
       syncEnabled: json['Sync Enabled'] as String?,
       targetOsType:
-          $enumDecodeNullable(_$TargetOsTypeEnumMap, json['Target OS Type']),
+          _$enumDecodeNullable(_$TargetOsTypeEnumMap, json['Target OS Type']),
       targetOsVersion: json['Target OS Version'] as String?,
     );
 
@@ -66,10 +66,47 @@ Map<String, dynamic> _$PropertiesToJson(Properties instance) {
   return val;
 }
 
+K _$enumDecode<K, V>(
+  Map<K, V> enumValues,
+  Object? source, {
+  K? unknownValue,
+}) {
+  if (source == null) {
+    throw ArgumentError(
+      'A value must be provided. Supported values: '
+      '${enumValues.values.join(', ')}',
+    );
+  }
+
+  return enumValues.entries.singleWhere(
+    (e) => e.value == source,
+    orElse: () {
+      if (unknownValue == null) {
+        throw ArgumentError(
+          '`$source` is not one of the supported values: '
+          '${enumValues.values.join(', ')}',
+        );
+      }
+      return MapEntry(unknownValue, enumValues.values.first);
+    },
+  ).key;
+}
+
+K? _$enumDecodeNullable<K, V>(
+  Map<K, V> enumValues,
+  dynamic source, {
+  K? unknownValue,
+}) {
+  if (source == null) {
+    return null;
+  }
+  return _$enumDecode<K, V>(enumValues, source, unknownValue: unknownValue);
+}
+
 const _$TargetOsTypeEnumMap = {
-  TargetOsType.android: 'Android',
-  TargetOsType.ios: 'Ios',
-  TargetOsType.linux: 'Linux',
-  TargetOsType.macos: 'Macos',
-  TargetOsType.windows: 'Windows',
+  TargetOsType.android: 'android',
+  TargetOsType.ios: 'ios',
+  TargetOsType.linux: 'linux',
+  TargetOsType.macos: 'macos',
+  TargetOsType.windows: 'windows',
 };

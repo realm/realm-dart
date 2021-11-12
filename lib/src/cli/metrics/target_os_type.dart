@@ -16,10 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'package:json_annotation/json_annotation.dart';
 import 'utils.dart';
 
-@JsonEnum(fieldRename: FieldRename.pascal)
 enum TargetOsType {
   android,
   ios,
