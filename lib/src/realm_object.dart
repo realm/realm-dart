@@ -47,6 +47,17 @@ class RealmObject {
   // SchemaObject get schema => SchemaObject("");
 }
 
+/// An exception being thrown when a Realm operation or Realm object access fails
+class RealmException implements Exception  {
+  final String message;
+
+  RealmException(this.message);
+
+  String toString() {
+    return "RealmException: $message";
+  }
+}
+
   // Map<String, Object>? _unmanagedProperties;
 
   // /**

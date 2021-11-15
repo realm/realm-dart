@@ -53,17 +53,6 @@ class Realm {
   }
 }
 
-/// An exception being thrown when a Realm operation or Realm object access fails
-class RealmException implements Exception  {
-  final String message;
-
-  RealmException(this.message);
-
-  String toString() {
-    return "RealmException: $message";
-  }
-}
-
 class _Scheduler {
   static const SCHEDULER_FINALIZE = null;
   late final SchedulerHandle handle;
