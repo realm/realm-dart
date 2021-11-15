@@ -22,6 +22,7 @@ dependencies:
   package_config: ^2.0.0
   path: ^1.0.0
   pubspec_parse: ^1.0.0
+  pub_semver: ^2.1.0
   realm_generator: 
     path: ./generator
 

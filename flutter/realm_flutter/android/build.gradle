@@ -50,15 +50,27 @@ android {
 
 task prePreBuild(type: Exec) {
     def appProject = project.rootProject.subprojects.find { p -> p.name == 'app' }
+
+    def localProperties = new Properties()
+    def localPropertiesFile = rootProject.file('local.properties')
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.withReader('UTF-8') { reader ->
+            localProperties.load(reader)
+        }
+    }
+
+    def flutterRoot = localProperties.getProperty('flutter.sdk')
+    if (flutterRoot == null) {
+        throw new GradleException('flutter.sdk not found in local.properties')
+    }
+
     workingDir "${project.rootProject.projectDir}/.."
+    String targetOsVersion
     if (appProject != null) {
         def conf = appProject.android.defaultConfig
-        def targetOsVersion = "API Level ${conf.targetSdkVersion.apiLevel}"
-        commandLine 'dart', 'run', 'realm', 'metrics', '--verbose', '--target-os-type', 'android', '--target-os-version', targetOsVersion
+        targetOsVersion = "API Level ${conf.targetSdkVersion.apiLevel}"
     }
-    else {
-        commandLine 'dart', 'run', 'realm', 'metrics', '--verbose', '--target-os-type', 'android'
-    }
+    commandLine "$flutterRoot/bin/dart", 'run', 'realm', 'metrics', '--verbose', '--flutter-root', flutterRoot, '--target-os-type', 'android', '--target-os-version', targetOsVersion
 }
 
 preBuild.dependsOn prePreBuild

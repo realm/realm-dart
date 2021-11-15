@@ -14,7 +14,9 @@ Pod::Spec.new do |s|
   s.homepage                  = 'https://realm.io'
   s.license                   = { :file => '../LICENSE' }
   s.author                    = { 'Realm' => 'help@realm.io' }
-  s.source                    = { :path => '.' }
+  s.source                    = { :git => 'https://github.com/realm/realm-dart.git',
+                                  :tag => "v#{s.version}"
+                                }
   s.source_files              = 'Classes/**/*', 
                                 'src/realm_dart.cpp'
   s.public_header_files       = 'Classes/**/*.h',

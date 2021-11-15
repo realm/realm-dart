@@ -34,8 +34,7 @@ import 'package:pubspec_parse/pubspec_parse.dart';
 
 class MetricsCommand extends Command<void> {
   @override
-  final String description =
-      'Report anonymized builder metrics to Realm';
+  final String description = 'Report anonymized builder metrics to Realm';
 
   @override
   final String name = 'metrics';
@@ -59,19 +58,18 @@ class MetricsCommand extends Command<void> {
 }
 
 Future<void> uploadMetrics(Options options) async {
-  final pubspecPath = path.join(path.current, 'pubspec.yaml');
+  final pubspecPath = options.pubspecPath;
   final pubspec = Pubspec.parse(await File(pubspecPath).readAsString());
 
   hierarchicalLoggingEnabled = true;
   _log.level = options.verbose ? Level.INFO : Level.WARNING;
 
-  if (Platform.environment['CI'] != null ||
-      Platform.environment['REALM_DISABLE_ANALYTICS'] != null) {
+  if (Platform.environment['CI'] != null || Platform.environment['REALM_DISABLE_ANALYTICS'] != null) {
     _log.info('Skipping metrics upload');
     return;
   }
 
-  final flutterInfo = options.flutter ? await FlutterInfo.get() : null;
+  final flutterInfo = await FlutterInfo.get(options);
   final hostId = await machineId();
 
   final metrics = await generateMetrics(
@@ -82,9 +80,11 @@ Future<void> uploadMetrics(Options options) async {
     anonymizedBundleId: pubspec.name.strongHash(),
     framework: flutterInfo != null ? 'Flutter' : 'Dart',
     frameworkVersion: flutterInfo != null
-        ? '${flutterInfo.frameworkVersion}'
-            ' (${flutterInfo.channel})' // to mimic Platform.version
-            ' (${flutterInfo.frameworkCommitDate})' // -"-
+        ? [
+            '${flutterInfo.frameworkVersion}',
+            if (flutterInfo.channel != null) '(${flutterInfo.channel})', // to mimic Platform.version
+            if (flutterInfo.frameworkCommitDate != null) '(${flutterInfo.frameworkCommitDate})', // -"-
+          ].join(' ')
         : Platform.version,
   );
 
@@ -165,22 +165,6 @@ Future<Digest> machineId() async {
 }
 
 extension _StringEx on String {
-  static const _defaultSalt = <int>[
-    75,
-    97,
-    115,
-    112,
-    101,
-    114,
-    32,
-    119,
-    97,
-    115,
-    32,
-    104,
-    101,
-    114
-  ];
-  Digest strongHash({List<int> salt = _defaultSalt}) =>
-      sha256.convert([...salt, ...utf8.encode(this)]);
+  static const _defaultSalt = <int>[75, 97, 115, 112, 101, 114, 32, 119, 97, 115, 32, 104, 101, 114];
+  Digest strongHash({List<int> salt = _defaultSalt}) => sha256.convert([...salt, ...utf8.encode(this)]);
 }

@@ -16,22 +16,30 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:io';
+
 import 'package:build_cli_annotations/build_cli_annotations.dart';
+import 'package:pubspec_parse/pubspec_parse.dart';
+import 'package:path/path.dart' as path;
 import 'target_os_type.dart';
 
 part 'options.g.dart';
 
 @CliOptions()
 class Options {
-  TargetOsType? targetOsType;
-  String? targetOsVersion;
-
-  @CliOption(defaultsTo: true)
-  late bool flutter;
+  final TargetOsType? targetOsType;
+  final String? targetOsVersion;
+  final String? flutterRoot;
+  final String pubspecPath;
 
   @CliOption(abbr: 'v', help: 'Show additional command output.')
   bool verbose = false;
+
+  Options({this.targetOsType, this.targetOsVersion, this.flutterRoot, String? pubspecPath}) 
+    : pubspecPath = path.join(path.current, pubspecPath ?? 'pubspec.yaml');
 }
+
+extension OptionsEx on Options {}
 
 String get usage => _$parserForOptions.usage;
 

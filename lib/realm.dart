@@ -46,10 +46,12 @@ void initRealm() {
   String _platformPath(String name, {String? path}) {
     assert(() {
       try {
-        uploadMetrics(Options()
-          ..flutter = IsFlutterPlatform
-          ..targetOsType = Platform.operatingSystem.asTargetOsType
-          ..targetOsVersion = Platform.operatingSystemVersion);
+        if (!isFlutterPlatform) {
+          uploadMetrics(Options(
+            targetOsType: Platform.operatingSystem.asTargetOsType,
+            targetOsVersion: Platform.operatingSystemVersion,
+          ));
+        }
       } catch (_) {} // ignore: avoid_catching_errors
       return true;
     }());
@@ -101,12 +103,8 @@ void initRealm() {
   }
 
   DynamicLibrary realmLibrary;
-  if (Platform.isAndroid ||
-      Platform.isWindows ||
-      Platform.isIOS ||
-      Platform.isLinux ||
-      Platform.isMacOS) {
-    realmLibrary = dlopenPlatformSpecific(RealmBinaryName);
+  if (Platform.isAndroid || Platform.isWindows || Platform.isIOS || Platform.isLinux || Platform.isMacOS) {
+    realmLibrary = dlopenPlatformSpecific(realmBinaryName);
   } else {
     throw Exception("Unsupported platform: ${Platform.operatingSystem}");
   }

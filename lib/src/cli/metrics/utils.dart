@@ -17,10 +17,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 extension IterableEx<T> on Iterable<T> {
-  T? get firstOrNull =>
-      cast<T?>().firstWhere((element) => true, orElse: () => null);
+  T? get firstOrNull => cast<T?>().firstWhere((element) => true, orElse: () => null);
 }
 
 extension StringEx on String {
-  String takeUntil(Pattern p) => substring(0, indexOf(p));
+  String takeUntil(Pattern p) {
+    var idx = indexOf(p);
+    if (idx < 0) idx = length;
+    return substring(0, idx);
+  }
 }

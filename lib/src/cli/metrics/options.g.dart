@@ -18,11 +18,12 @@ T? _$nullableEnumValueHelperNullable<T>(
         Map<T, String> enumValues, String? source) =>
     source == null ? null : _$enumValueHelper(enumValues, source);
 
-Options _$parseOptionsResult(ArgResults result) => Options()
-  ..targetOsType = _$nullableEnumValueHelperNullable(
-      _$TargetOsTypeEnumMapBuildCli, result['target-os-type'] as String?)
-  ..targetOsVersion = result['target-os-version'] as String?
-  ..flutter = result['flutter'] as bool
+Options _$parseOptionsResult(ArgResults result) => Options(
+    targetOsType: _$nullableEnumValueHelperNullable(
+        _$TargetOsTypeEnumMapBuildCli, result['target-os-type'] as String?),
+    targetOsVersion: result['target-os-version'] as String?,
+    flutterRoot: result['flutter-root'] as String?,
+    pubspecPath: result['pubspec-path'] as String?)
   ..verbose = result['verbose'] as bool;
 
 const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
@@ -37,7 +38,8 @@ ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addOption('target-os-type',
       allowed: ['android', 'ios', 'linux', 'macos', 'windows'])
   ..addOption('target-os-version')
-  ..addFlag('flutter', defaultsTo: true)
+  ..addOption('flutter-root')
+  ..addOption('pubspec-path')
   ..addFlag('verbose', abbr: 'v', help: 'Show additional command output.');
 
 final _$parserForOptions = _$populateOptionsParser(ArgParser());
