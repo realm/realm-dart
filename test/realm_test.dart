@@ -105,10 +105,6 @@ void main([List<String>? args]) {
   });
 
   group('RealmClass tests:', () {
-    test('Realm get version', () {
-      expect(Realm.version, contains('11.'));
-    });
-
     test('Realm can be created', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);

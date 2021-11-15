@@ -48,15 +48,9 @@ class Realm {
 
   /// Opens a Realm using the default or a custom [Configuration] object
   Realm(Configuration config) {
-    if (!config.schema.isEmpty) {
-      realmCore.validateSchema(config.schema);
-    }
-
     this._scheduler = _Scheduler(config);
     this._realm = realmCore.openRealm(config);
   }
-  
-  static String get version => realmCore.libraryVersion;
 }
 
 /// An exception being thrown when a Realm operation or Realm object access fails
