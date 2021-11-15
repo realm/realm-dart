@@ -27,15 +27,15 @@ import 'helpers.dart';
 
 /// Configuration used to create a [Realm] instance
 class Configuration {
-  late final ConfigHandle handle;
-
-  late final RealmSchema _schema;
+  final ConfigHandle handle;
+  final RealmSchema _schema;
   
   RealmSchema get schema => _schema;
 
-  Configuration(List<SchemaObject> schemaObjects) {
-    this._schema = RealmSchema(schemaObjects);
-    this.handle = realmCore.createConfig();
+  Configuration(List<SchemaObject> schemaObjects) :
+    _schema = RealmSchema(schemaObjects),
+    handle = realmCore.createConfig() {
+  
     this.schemaVersion = 0;
     this.path = "default.realm";
   }
@@ -69,6 +69,10 @@ class RealmSchema extends Iterable<SchemaObject> {
   late final List<SchemaObject> _schema;
 
   RealmSchema(List<SchemaObject> schemaObjects) {
+    if (schemaObjects.isEmpty) {
+      throw RealmException("No schema specified");
+    }
+
     _schema = schemaObjects;
     handle = realmCore.createSchema(schemaObjects);
   }
@@ -82,5 +86,5 @@ class RealmSchema extends Iterable<SchemaObject> {
   SchemaObject operator [](int index) => _schema[index];
 
   @override
-  SchemaObject elementAt(int index)  => _schema.elementAt(index);
+  SchemaObject elementAt(int index) => _schema.elementAt(index);
 }
