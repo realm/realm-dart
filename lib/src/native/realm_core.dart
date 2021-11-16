@@ -37,6 +37,7 @@ class _RealmCore {
   String get libraryVersion => _realmLib.realm_get_library_version().cast<Utf8>().toDartString();
 
   //TODO: Use Finalizers, when available, instead of native WeakHandles https://github.com/dart-lang/language/issues/1847
+  //The proposal: https://github.com/dart-lang/language/blob/master/working/1847%20-%20FinalizationRegistry/proposal.md
   SchemaHandle createSchema(List<SchemaObject> schema) {
     return using((Arena arena) {
       final classCount = schema.length;
