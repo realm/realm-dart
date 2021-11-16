@@ -77,7 +77,9 @@ class FlutterInfo {
     // Read constraints, if any
     var flutterVersionConstraints = flutterDep.version.intersect(pubspec.environment?[flutter] ?? VersionConstraint.any);
 
-    // Try to read actual version from version file in .dart_tools
+    // Try to read actual version from version file in .dart_tools. 
+    // This is updated when calling a flutter command on the project, 
+    // but not when calling a dart command..
     final version = await safe(() async {
       return Version.parse(await File(path.join(path.dirname(pubspecPath), '.dart_tool/version')).readAsString());
     });
@@ -94,14 +96,17 @@ class FlutterInfo {
       return FlutterInfo.fromJson(json.decode(infoJson) as Map<String, dynamic>);
     });
 
-    // Sanity check info
+    // Sanity check full info, if we have it
     if (info != null && (version == null || version == info.frameworkVersion) && flutterVersionConstraints.allows(info.frameworkVersion)) {
-      return info; // the returned info match both the projects constraints and the flutter version used on last build
+      // The returned info match both the projects constraints and the 
+      // flutter version of the lastest flutter command run on the project
+      return info; 
     }
 
-    // Fallback to the version used on last build
+    // Fallback to simplified info build from the version read from .dart_tool/version, 
+    // secondly the min constraint of the flutter SDK used
     return FlutterInfo(
-      frameworkVersion: version ?? Version.none,
+      frameworkVersion: version ?? (await safe(() => (flutterVersionConstraints as VersionRange).min!)) ?? Version.none,
       dartSdkVersion: Version.parse(Platform.version.toString().takeUntil(' ')),
     );
   }
