@@ -4,6 +4,7 @@
 #
 
 # //TODO read the version from pubspec.yaml
+
 Pod::Spec.new do |s|
   s.name                      = 'realm'
   s.version                   = '0.2.0-alpha'
@@ -40,8 +41,9 @@ Pod::Spec.new do |s|
                                   'FRAMEWORK_SEARCH_PATHS' => '"$(PODS_TARGET_SRCROOT)/**"'
                                 }
   s.script_phase              = { :name => 'Report Metrics', 
-                                  
-                                  :script => 'cd "$PROJECT_DIR/../.." && dart run realm metrics --verbose --target-os-type ios --target-os-version "$IPHONEOS_DEPLOYMENT_TARGET"', 
-                                  :execution_position => :before_compile 
+                                  :script => 'source "$PROJECT_DIR/../Flutter/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm metrics --verbose --flutter-root "$FLUTTER_ROOT" --target-os-type ios --target-os-version "$IPHONEOS_DEPLOYMENT_TARGET"', 
+                                  :execution_position => :before_compile,
                                 }
 end
+
+
