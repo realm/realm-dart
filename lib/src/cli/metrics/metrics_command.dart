@@ -29,8 +29,9 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:logging/logging.dart';
-import 'package:path/path.dart' as path;
 import 'package:pubspec_parse/pubspec_parse.dart';
+
+import 'utils.dart';
 
 class MetricsCommand extends Command<void> {
   @override
@@ -49,7 +50,7 @@ class MetricsCommand extends Command<void> {
       final options = parseOptionsResult(argResults!);
       await uploadMetrics(options);
     } catch (e, s) {
-      _log.warning('Failed to upload metrics', e, s);
+      log.warning('Failed to upload metrics', e, s);
       // We squash on runtime errors!
       // This script is called during build (via gradle, podspec, etc.)
       // and we don't want to be the cause of a broken build!
@@ -62,10 +63,10 @@ Future<void> uploadMetrics(Options options) async {
   final pubspec = Pubspec.parse(await File(pubspecPath).readAsString());
 
   hierarchicalLoggingEnabled = true;
-  _log.level = options.verbose ? Level.INFO : Level.WARNING;
+  log.level = options.verbose ? Level.INFO : Level.WARNING;
 
   if (Platform.environment['CI'] != null || Platform.environment['REALM_DISABLE_ANALYTICS'] != null) {
-    _log.info('Skipping metrics upload');
+    log.info('Skipping metrics upload');
     return;
   }
 
@@ -90,7 +91,7 @@ Future<void> uploadMetrics(Options options) async {
 
   const encoder = JsonEncoder.withIndent('  ');
   final payload = encoder.convert(metrics.toJson());
-  _log.info('Uploading metrics for ${pubspec.name}...\n$payload');
+  log.info('Uploading metrics for ${pubspec.name}...\n$payload');
   final base64Payload = base64Encode(utf8.encode(payload));
 
   final client = HttpClient();
@@ -107,12 +108,6 @@ Future<void> uploadMetrics(Options options) async {
     client.close(force: true);
   }
 }
-
-// log to stdout
-final _log = Logger('metrics')
-  ..onRecord.listen((record) {
-    stdout.writeln('[${record.level.name}] ${record.message}');
-  });
 
 Future<Digest> machineId() async {
   String? id;
@@ -158,7 +153,7 @@ Future<Digest> machineId() async {
       id = await process.stdout.transform(systemEncoding.decoder).join();
     }
   } catch (e, s) {
-    _log.warning('failed to get machine id', e, s);
+    log.warning('failed to get machine id', e, s);
   }
   id ??= Platform.localHostname; // fallback
   return id.strongHash(); // strong hash for privacy

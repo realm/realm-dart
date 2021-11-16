@@ -16,6 +16,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:async';
+import 'dart:io';
+
+import 'package:logging/logging.dart';
+
 extension IterableEx<T> on Iterable<T> {
   T? get firstOrNull => cast<T?>().firstWhere((element) => true, orElse: () => null);
 }
@@ -27,3 +32,25 @@ extension StringEx on String {
     return substring(0, idx);
   }
 }
+
+FutureOr<T?> safe<T>(FutureOr<T> Function() f, {Function(Object e, StackTrace s)? onError}) async {
+  try {
+    return await f();
+  } catch (e, s) {
+    if (onError != null) {
+      onError(e, s);
+    } else {
+      log.warning('Ignoring error', e, s);
+    }
+    return null;
+  }
+}
+
+// log to stdout
+final log = Logger('metrics')
+  ..onRecord.listen((record) {
+    stdout.writeln('[${record.level.name}] ${record.message}');
+    if (record.error != null) {
+      stdout.writeln(record.error);
+    }
+  });

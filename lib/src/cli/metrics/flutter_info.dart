@@ -29,17 +29,6 @@ import 'utils.dart';
 
 part 'flutter_info.g.dart';
 
-FutureOr<T?> safe<T>(FutureOr<T> Function() f, {Function(Object e, StackTrace s)? onError}) async {
-  try {
-    return await f();
-  } catch (e, s) {
-    if (onError != null) {
-      onError(e, s);
-    }
-    return null;
-  }
-}
-
 class VersionConverter extends JsonConverter<Version, String> {
   const VersionConverter();
 
