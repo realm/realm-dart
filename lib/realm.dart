@@ -71,7 +71,7 @@ void initRealm() {
 
     if (Platform.isMacOS) {
       if (path.isEmpty) {
-        Directory sourceDir = new File.fromUri(Platform.script).parent;
+        Directory sourceDir = File.fromUri(Platform.script).parent;
         path = sourceDir.path + "/";
       }
 

@@ -106,7 +106,7 @@ class FlutterInfo {
     });
 
     // Sanity check info
-    if (info != null && (version?.allows(info.frameworkVersion) ?? true) && flutterVersionConstraints.allows(info.frameworkVersion)) {
+    if (info != null && (version == null || version == info.frameworkVersion) && flutterVersionConstraints.allows(info.frameworkVersion)) {
       return info; // the returned info match both the projects constraints and the flutter version used on last build
     }
 

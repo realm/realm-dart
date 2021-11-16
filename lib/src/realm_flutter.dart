@@ -16,13 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:ffi';
-import 'dart:io';
-
-import 'realm_class.dart';
-
-export 'realm_class.dart';
-//hide Results, Helpers, DynamicObject;
+export 'realm_class.dart' hide Results, Helpers, DynamicObject;
 
 /// Is Realm loaded in Flutter or Dart
 const bool isFlutterPlatform = true;
