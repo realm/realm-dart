@@ -43,3 +43,5 @@ jobs:
       - name: Run tests
         run: dart run realm_test.dart
         working-directory: test
+        env:
+          REALM_CI: true

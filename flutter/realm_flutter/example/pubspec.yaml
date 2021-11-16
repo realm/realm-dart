@@ -4,10 +4,11 @@ version: 0.2.0-alpha
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
-publish_to: 'none'
+publish_to: "none"
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=2.0.0"
 
 dependencies:
   flutter:
@@ -18,16 +19,17 @@ dependencies:
     #   realm_flutter: ^x.y.z
     # See https://dart.dev/tools/pub/dependencies#version-constraints
     # The example app is bundled with the plugin so we use a path dependency on
-    # the parent directory to use the current plugin's version. 
+    # the parent directory to use the current plugin's version.
     path: ../
 
-  build_runner: ^2.1.2
   cupertino_icons: ^1.0.3
-  characters: ^1.0.0
+  characters: ^1.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^1.0.4
+  build_runner: ^2.1.2
 
 flutter:
   uses-material-design: true

@@ -72,7 +72,7 @@ DynamicLibrary dlopenPlatformSpecific(String name, {String? path}) {
 }
 
 void main() {
-  if (IsFlutterPlatform) {
+  if (isFlutterPlatform) {
     final testLibrary = dlopenPlatformSpecific("realm_flutter");
     
     final initializeApi = testLibrary.lookupFunction<

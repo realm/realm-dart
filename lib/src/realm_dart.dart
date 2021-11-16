@@ -16,15 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-//this is the library that is used with dart_init.
-//dart_init needs all dart classes that realm_class.dart exports without hiding any export on import
-//instead hide all non public classes on export
-
-import 'realm_class.dart';
-
-
 export 'realm_class.dart' hide Results, Helpers, DynamicObject;
 
 /// Is Realm loaded in Flutter or Dart
-const bool IsFlutterPlatform =  false;
-const String RealmBinaryName = 'realm_dart';
+const bool isFlutterPlatform =  false;
+const String realmBinaryName = 'realm_dart';

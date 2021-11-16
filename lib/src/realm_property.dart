@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+// ignore_for_file: native_function_body_in_non_sdk_code
+
 import 'package:meta/meta.dart';
 
 /// A annotation class used to define Realm data model classes and their properties
@@ -42,6 +44,6 @@ class RealmProperty {
 /// A RealmProperty in a schema. Used for runtime representation of `RealmProperty`
 class SchemaProperty extends RealmProperty {
   final String propertyName;
-  const SchemaProperty(this.propertyName, { type, defaultValue, optional, mapTo, primaryKey }) 
+  const SchemaProperty(this.propertyName, { String? type, String? defaultValue, bool? optional, String? mapTo, bool? primaryKey }) 
     : super(type: type, defaultValue: defaultValue, optional: optional, mapTo: mapTo, primaryKey: primaryKey);
 }

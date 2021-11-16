@@ -16,24 +16,18 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// ignore_for_file: native_function_body_in_non_sdk_code
+import 'utils.dart';
 
-import 'dart:core';
-
-/// @nodoc
-class Helpers {
-  static DateTime createDateTime(int miliseconds) {
-    return DateTime.fromMillisecondsSinceEpoch(miliseconds, isUtc: true);
-  }
-
-  static dynamic invokeStatic(Type type, String name) native "Helpers_invokeStatic";
+enum TargetOsType {
+  android,
+  ios,
+  linux,
+  macos,
+  windows,
 }
 
-/// @nodoc
-extension SymbolHelper on Symbol {
-   String get name {
-      String name = this.toString();
-      name = name.substring(8, name.length - 2);
-      return name;
-   }
-} 
+extension StringEx on String {
+  TargetOsType? get asTargetOsType => TargetOsType.values
+      .where((element) => element.toString().split('.').last == this)
+      .firstOrNull;
+}

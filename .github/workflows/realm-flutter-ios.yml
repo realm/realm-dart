@@ -58,3 +58,5 @@ jobs:
       - name: Run tests on iOS Simulator
         run: flutter drive --target=test_driver/app.dart --dart-define=testName="Realm version"
         working-directory: ./flutter/realm_flutter/tests
+        env:
+          REALM_CI: true

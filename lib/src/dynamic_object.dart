@@ -16,28 +16,21 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+// ignore_for_file: native_function_body_in_non_sdk_code
+
 import 'helpers.dart';
 
 /// @nodoc
 class TypeStaticProperties {
-  static final _staticProperties = new Map<Type, Map<String, dynamic>>();
+  static final _staticProperties = <Type, Map<String, dynamic>>{};
 
   static dynamic getValue(Type type, String name) {
-    Map<String, dynamic> properties = _staticProperties[type]!;
-    if (properties == null) {
-      return null;
-    }
-
-    return properties[name];
+    final properties = _staticProperties[type];
+    return properties == null ? null : properties[name];
   }
 
-  static setValue(Type type, String name, dynamic value) {
-    Map<String, dynamic> properties = _staticProperties[type]!;
-    if (properties == null) {
-      properties = new Map<String, dynamic>();
-      _staticProperties[type] = properties;
-    }
-
+  static void setValue(Type type, String name, dynamic value) {
+    final properties = _staticProperties.putIfAbsent(type, () => <String, dynamic>{});
     properties[name] = value;
   }
 }
@@ -46,7 +39,7 @@ class TypeStaticProperties {
 class DynamicObject {
   DynamicObject();
 
-  final _properties = new Map<String, Object>();
+  final _properties = <String, dynamic>{};
 
   dynamic operator [](String name) {
     return _properties[name];
@@ -63,7 +56,7 @@ class DynamicObject {
   }
 
   @override
-  noSuchMethod(Invocation invocation) {
+  dynamic noSuchMethod(Invocation invocation) {
     if (!invocation.isAccessor) {
       return super.noSuchMethod(invocation);
     }
