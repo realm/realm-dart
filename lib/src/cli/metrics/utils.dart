@@ -33,14 +33,21 @@ extension StringEx on String {
   }
 }
 
-FutureOr<T?> safe<T>(FutureOr<T> Function() f, {Function(Object e, StackTrace s)? onError}) async {
+bool isRealmCI = Platform.environment['REALM_CI'] != null;
+
+FutureOr<T?> safe<T>(
+  FutureOr<T> Function() f, {
+  String message = 'Ignoring error',
+  Function(Object e, StackTrace s)? onError,
+}) async {
   try {
     return await f();
   } catch (e, s) {
     if (onError != null) {
       onError(e, s);
     } else {
-      log.warning('Ignoring error', e, s);
+      if (isRealmCI) rethrow; // on internal CI we want to see all errors
+      log.warning(message, e, s);
     }
     return null;
   }

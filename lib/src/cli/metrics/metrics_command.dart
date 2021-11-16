@@ -46,15 +46,10 @@ class MetricsCommand extends Command<void> {
 
   @override
   FutureOr<void>? run() async {
-    try {
+    await safe(() async {
       final options = parseOptionsResult(argResults!);
       await uploadMetrics(options);
-    } catch (e, s) {
-      log.warning('Failed to upload metrics', e, s);
-      // We squash on runtime errors!
-      // This script is called during build (via gradle, podspec, etc.)
-      // and we don't want to be the cause of a broken build!
-    }
+    });
   }
 }
 
@@ -65,7 +60,9 @@ Future<void> uploadMetrics(Options options) async {
   hierarchicalLoggingEnabled = true;
   log.level = options.verbose ? Level.INFO : Level.WARNING;
 
-  if (Platform.environment['CI'] != null || Platform.environment['REALM_DISABLE_ANALYTICS'] != null) {
+  final skipUpload = isRealmCI || Platform.environment['CI'] != null || Platform.environment['REALM_DISABLE_ANALYTICS'] != null;
+  if (skipUpload && !isRealmCI) {
+    // skip early
     log.info('Skipping metrics upload');
     return;
   }
@@ -94,6 +91,12 @@ Future<void> uploadMetrics(Options options) async {
   log.info('Uploading metrics for ${pubspec.name}...\n$payload');
   final base64Payload = base64Encode(utf8.encode(payload));
 
+  if (skipUpload) {
+    // skip late
+    log.info('Skipping metrics upload (late)');
+    return;
+  }
+
   final client = HttpClient();
   try {
     final request = await client.getUrl(
@@ -110,14 +113,13 @@ Future<void> uploadMetrics(Options options) async {
 }
 
 Future<Digest> machineId() async {
-  String? id;
-  try {
+  var id = await safe(() async {
     if (Platform.isLinux) {
       // For linux use /etc/machine-id
       // Can be changed by administrator but with unpredictable consequences!
       // (see https://man7.org/linux/man-pages/man5/machine-id.5.html)
       final process = await Process.start('cat', ['/etc/machine-id']);
-      id = await process.stdout.transform(utf8.decoder).join();
+      return await process.stdout.transform(utf8.decoder).join();
     } else if (Platform.isMacOS) {
       // For MacOS, use the IOPlatformUUID value from I/O Kit registry in
       // IOPlatformExpertDevice class
@@ -126,9 +128,9 @@ Future<Digest> machineId() async {
         '-c',
         'IOPlatformExpertDevice',
       ]);
-      id = await process.stdout.transform(utf8.decoder).join();
+      final id = await process.stdout.transform(utf8.decoder).join();
       final r = RegExp('"IOPlatformUUID" = "([^"]*)"', dotAll: true);
-      id = r.firstMatch(id)?.group(1); // extract IOPlatformUUID
+      return r.firstMatch(id)?.group(1); // extract IOPlatformUUID
     } else if (Platform.isWindows) {
       // For Windows, use the key MachineGuid in registry:
       // HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography
@@ -150,11 +152,9 @@ Future<Digest> machineId() async {
           'MachineGuid',
         ],
       );
-      id = await process.stdout.transform(systemEncoding.decoder).join();
+      return await process.stdout.transform(systemEncoding.decoder).join();
     }
-  } catch (e, s) {
-    log.warning('failed to get machine id', e, s);
-  }
+  }, message: 'failed to get machine id');
   id ??= Platform.localHostname; // fallback
   return id.strongHash(); // strong hash for privacy
 }
