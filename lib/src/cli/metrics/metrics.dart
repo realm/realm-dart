@@ -43,7 +43,7 @@ Future<Metrics> generateMetrics({
       distinctId: distinctId,
       token: 'ce0fac19508f6c8f20066d345d360fd0',
       binding: 'dart',
-      language: 'dart ${Platform.version.takeUntil(' ')}',
+      language: 'dart',
       framework: framework,
       frameworkVersion: frameworkVersion,
       hostOsType: Platform.operatingSystem,
