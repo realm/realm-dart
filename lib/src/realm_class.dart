@@ -55,12 +55,12 @@ class Realm {
 
 class _Scheduler {
   // ignore: non_constant_identifier_names
-  static final Null SCHEDULER_FINALIZE = null;
+  static final dynamic SCHEDULER_FINALIZE = null;
   late final SchedulerHandle handle;
 
   _Scheduler(Configuration config) {
     RawReceivePort receivePort = RawReceivePort();
-    receivePort.handler = (Object message) {
+    receivePort.handler = (dynamic message) {
       if (message != SCHEDULER_FINALIZE) {
         realmCore.invokeScheduler(message as int);
       }
