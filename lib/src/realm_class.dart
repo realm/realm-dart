@@ -54,8 +54,8 @@ class Realm {
 }
 
 class _Scheduler {
-  // ignore: non_constant_identifier_names
-  static final dynamic SCHEDULER_FINALIZE = null;
+  // ignore: constant_identifier_names
+  static const dynamic SCHEDULER_FINALIZE = null;
   late final SchedulerHandle handle;
 
   _Scheduler(Configuration config) {
@@ -74,7 +74,7 @@ class _Scheduler {
     //we use this to receive a notification on process exit to close the receivePort or the process with hang
     Isolate.spawn(handler, 2, onExit: sendPort);
 
-    realmCore.setScheduler(config, this.handle);
+    realmCore.setScheduler(config, handle);
   }
 
   static void handler(int message) {}

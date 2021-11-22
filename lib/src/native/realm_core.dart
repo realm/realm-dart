@@ -138,11 +138,18 @@ class _RealmCore {
   }
 }
 
-class SchemaHandle extends Handle<realm_schema> {
-  Pointer<realm_schema> _pointer;
+abstract class Handle<T extends NativeType> {
+  final Pointer<T> _pointer;
 
-  SchemaHandle._(this._pointer) {
-    _realmLib.realm_attach_finalizer(this, this._pointer.cast(), 24);
+  Handle(this._pointer);
+
+  @override
+  String toString() => "${_pointer.toString()} value=${_pointer.cast<Uint64>().value}";
+}
+
+class SchemaHandle extends Handle<realm_schema> {
+  SchemaHandle._(Pointer<realm_schema> pointer) : super(pointer) {
+    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 24);
   }
 
   @override
@@ -150,35 +157,19 @@ class SchemaHandle extends Handle<realm_schema> {
 }
 
 class ConfigHandle extends Handle<realm_config> {
-  @override
-  Pointer<realm_config> _pointer;
-
-  ConfigHandle._(this._pointer) {
-    _realmLib.realm_attach_finalizer(this, this._pointer.cast(), 512);
+  ConfigHandle._(Pointer<realm_config> pointer) : super(pointer) {
+    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 512);
   }
 }
 
-abstract class Handle<T extends NativeType> {
-  late Pointer<T> _pointer;
-
-  @override
-  String toString() => "${_pointer.toString()} value=${_pointer.cast<Uint64>().value}";
-}
-
 class RealmHandle extends Handle<shared_realm> {
-  @override
-  Pointer<shared_realm> _pointer;
-
-  RealmHandle._(this._pointer) {
-    _realmLib.realm_attach_finalizer(this, this._pointer.cast(), 1);
+  RealmHandle._(Pointer<shared_realm> pointer) : super(pointer) {
+    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 1);
   }
 }
 
 class SchedulerHandle extends Handle<realm_scheduler> {
-  @override
-  Pointer<realm_scheduler> _pointer;
-
-  SchedulerHandle._(this._pointer) {
-    _realmLib.realm_attach_finalizer(this, this._pointer.cast(), 1);
+  SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer) {
+    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 1);
   }
 }
