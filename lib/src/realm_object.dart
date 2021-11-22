@@ -38,7 +38,7 @@ import 'realm_property.dart';
 /// which should be used insead of directly instantiating and working with RealmObject instances
 class RealmObject {
   String _value = "";
-  setString(String name, String value) {
+  void setString(String name, String value) {
     _value = value;
   }
 

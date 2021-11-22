@@ -21,29 +21,29 @@ class RealmModel {
 }
 
 enum RealmPropertyType {
-  Int, 
-  Bool,
-  String,
-  // ignore: unused_field
+  int, 
+  bool,
+  string,
+  // ignore: unused_field, constant_identifier_names
   _3,
-  Binary,
-  // ignore: unused_field
+  binary,
+  // ignore: unused_field, constant_identifier_names
   _5,
-  Mixed,
-  // ignore: unused_field
+  mixed,
+  // ignore: unused_field, constant_identifier_names
   _7,
-  TimeStamp,
-  Float,
-  Double,
-  Decimal128,
-  Object,
-  // ignore: unused_field
+  timestamp,
+  float,
+  double,
+  decimal128,
+  object,
+  // ignore: unused_field, constant_identifier_names
   _13,
-  LinkingObjects,
-  ObjectID,
-  // ignore: unused_field
+  linkingObjects,
+  objectid,
+  // ignore: unused_field, constant_identifier_names
   _16,
-  UUID,
+  uuid,
 }
 
 /// A annotation class used to define Realm data model classes and their properties
@@ -72,7 +72,7 @@ class RealmProperty {
 /// A RealmProperty in a schema. Used for runtime representation of `RealmProperty`
 class SchemaProperty extends RealmProperty {
   final String name;
-  const SchemaProperty(this.name, RealmPropertyType type, {defaultValue, optional, mapTo, primaryKey }) 
+  const SchemaProperty(this.name, RealmPropertyType type, {String? defaultValue, bool? optional, String? mapTo, bool? primaryKey }) 
     : super(type, defaultValue: defaultValue, optional: optional, mapTo: mapTo, primaryKey: primaryKey);
 }
 

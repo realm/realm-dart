@@ -48,20 +48,21 @@ class Realm {
 
   /// Opens a Realm using the default or a custom [Configuration] object
   Realm(Configuration config) {
-    this._scheduler = _Scheduler(config);
-    this._realm = realmCore.openRealm(config);
+    _scheduler = _Scheduler(config);
+    _realm = realmCore.openRealm(config);
   }
 }
 
 class _Scheduler {
-  static const SCHEDULER_FINALIZE = null;
+  // ignore: non_constant_identifier_names
+  static final Pointer<Never> SCHEDULER_FINALIZE = nullptr;
   late final SchedulerHandle handle;
 
   _Scheduler(Configuration config) {
     RawReceivePort receivePort = RawReceivePort();
-    receivePort.handler = (message) {
+    receivePort.handler = (Object message) {
       if (message != SCHEDULER_FINALIZE) {
-        realmCore.invokeScheduler(message);
+        realmCore.invokeScheduler(message as int);
       }
 
       receivePort.close();

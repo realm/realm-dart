@@ -116,7 +116,7 @@ void initRealm() {
 
   DynamicLibrary realmLibrary;
   if (Platform.isAndroid || Platform.isWindows || Platform.isIOS || Platform.isLinux || Platform.isMacOS) {
-    realmLibrary = dlopenPlatformSpecific(RealmBinaryName);
+    realmLibrary = dlopenPlatformSpecific(realmBinaryName);
   } else {
     throw Exception("Unsupported platform: ${Platform.operatingSystem}");
   }
