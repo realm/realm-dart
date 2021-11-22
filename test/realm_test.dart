@@ -48,7 +48,7 @@ void test(String? name, dynamic Function() testFunction) {
 void parseTestNameFromArguments(List<String>? arguments) {
   arguments = arguments ?? List.empty();
   int nameArgIndex = arguments.indexOf("--name");
-  if (arguments.length != 0) {
+  if (arguments.isNotEmpty) {
     if (nameArgIndex >= 0 && arguments.length > 1) {
       testName = arguments[nameArgIndex + 1];
       print("testName: ${testName}");
