@@ -20,8 +20,11 @@ final _RealmCore realmCore = _RealmCore();
 class _RealmCore {
    
   //From realm.h. Currently not exported from the shared library
+  // ignore: constant_identifier_names
   static const int RLM_INVALID_CLASS_KEY = 0x7FFFFFFF;
+  // ignore: constant_identifier_names
   static const int RLM_INVALID_PROPERTY_KEY = -1;
+  // ignore: constant_identifier_names
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
   // Hide the RealmCore class and make it a singleton

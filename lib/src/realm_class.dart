@@ -55,7 +55,7 @@ class Realm {
 
 class _Scheduler {
   // ignore: non_constant_identifier_names
-  static final Pointer<Never> SCHEDULER_FINALIZE = nullptr;
+  static final Null SCHEDULER_FINALIZE = null;
   late final SchedulerHandle handle;
 
   _Scheduler(Configuration config) {
