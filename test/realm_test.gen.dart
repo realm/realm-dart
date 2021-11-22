@@ -16,7 +16,7 @@ class Car extends _Car with RealmObject {
 
   @override
   static SchemaObject get schema => SchemaObject(Car)..properties = [
-    SchemaProperty("make", RealmPropertyType.String)
+    SchemaProperty("make", RealmPropertyType.string)
   ];
 }
 
@@ -30,6 +30,6 @@ class Person extends _Person with RealmObject {
 
   @override
   static SchemaObject get schema => SchemaObject(Person)..properties = [
-    SchemaProperty("name", RealmPropertyType.String)
+    SchemaProperty("name", RealmPropertyType.string)
   ];
 }
