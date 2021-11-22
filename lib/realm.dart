@@ -19,6 +19,10 @@
 import 'dart:ffi';
 import 'dart:io';
 
+import 'src/cli/metrics/metrics_command.dart';
+import 'src/cli/metrics/options.dart';
+import 'src/cli/metrics/target_os_type.dart';
+
 //dart.library.cli is available only on dart desktop
 import 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart';
 
@@ -42,6 +46,18 @@ void initRealm() {
   }
 
   String _getBinaryPath(String binaryName, {String path = ""}) {
+  	assert(() {
+      try {
+        if (!isFlutterPlatform) {
+          uploadMetrics(Options(
+            targetOsType: Platform.operatingSystem.asTargetOsType,
+            targetOsVersion: Platform.operatingSystemVersion,
+          ));
+        }
+      } catch (_) {} // ignore: avoid_catching_errors
+      return true;
+    }());
+    
     if (!path.isEmpty && path.endsWith("/")) {
         //remove trailing slash
         path = path.substring(0, path.length - 1);

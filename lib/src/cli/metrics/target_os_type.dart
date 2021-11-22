@@ -16,7 +16,18 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// ignore_for_file: native_function_body_in_non_sdk_code
+import 'utils.dart';
 
-import 'dart:core';
+enum TargetOsType {
+  android,
+  ios,
+  linux,
+  macos,
+  windows,
+}
 
+extension StringEx on String {
+  TargetOsType? get asTargetOsType => TargetOsType.values
+      .where((element) => element.toString().split('.').last == this)
+      .firstOrNull;
+}

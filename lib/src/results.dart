@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+// ignore_for_file: native_function_body_in_non_sdk_code
+
 import 'dart:collection' as collection;
 
 import 'realm_object.dart';

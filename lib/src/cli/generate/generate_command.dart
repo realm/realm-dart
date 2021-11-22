@@ -16,7 +16,27 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// ignore_for_file: native_function_body_in_non_sdk_code
+import 'dart:async';
+import 'dart:io';
 
-import 'dart:core';
+import 'package:args/command_runner.dart';
+
+class GenerateCommand extends Command<void> {
+  @override
+  final String description = 'Generate Realm objects from data model classes';
+
+  @override
+  final String name = 'generate';
+
+  @override
+  FutureOr<void>? run() async {
+    final process = await Process.start('dart', [
+      'run',
+      'build_runner',
+      'build',
+      '--delete-conflicting-outputs',
+    ]);
+    await stdout.addStream(process.stdout);
+  }
+}
 

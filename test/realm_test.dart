@@ -65,17 +65,17 @@ void main([List<String>? args]) {
 
   setUp(() {
     // Do not clear state on Flutter. Test app is reinstalled on every test run so the state is clear.
-    if (!IsFlutterPlatform) {
+    if (!isFlutterPlatform) {
       var currentDir = Directory.current;
       var files = currentDir.listSync();
       for (var file in files) {
-        if (!(file is File) || (!file.path.endsWith(".realm"))) {
+        if (file is! File || (!file.path.endsWith(".realm"))) {
           continue;
         }
 
         file.deleteSync();
 
-        var lockFile = new File("${file.path}.lock");
+        var lockFile = File("${file.path}.lock");
         lockFile.deleteSync();
       }
     }

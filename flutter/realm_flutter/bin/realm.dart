@@ -16,7 +16,5 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// ignore_for_file: native_function_body_in_non_sdk_code
-
-import 'dart:core';
-
+import 'package:realm/src/cli/main.dart' as x;
+void main(List<String> arguments) => x.main(arguments);
