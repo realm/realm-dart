@@ -16,6 +16,8 @@ on:
 jobs:
   CI:
     runs-on: macos-10.15
+    env:
+      REALM_CI: true
 
     steps:
       - name: Checkout
@@ -73,5 +75,3 @@ jobs:
           cmake: 3.10.2.4988404
           script: flutter drive --target=test_driver/app.dart --dart-define=testName=""
           working-directory: ./flutter/realm_flutter/tests
-        env:
-          REALM_CI: true
