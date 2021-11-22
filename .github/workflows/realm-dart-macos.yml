@@ -17,6 +17,8 @@ on:
 jobs:
   CI:
     runs-on: macos-10.15
+    env:
+      REALM_CI: true
 
     steps:
       - name: Checkout
@@ -43,5 +45,3 @@ jobs:
       - name: Run tests
         run: dart run realm_test.dart
         working-directory: test
-        env:
-          REALM_CI: true

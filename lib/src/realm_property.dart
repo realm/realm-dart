@@ -16,9 +16,35 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// ignore_for_file: native_function_body_in_non_sdk_code
+class RealmModel {
+  const RealmModel();
+}
 
-import 'package:meta/meta.dart';
+enum RealmPropertyType {
+  int, 
+  bool,
+  string,
+  // ignore: unused_field, constant_identifier_names
+  _3,
+  binary,
+  // ignore: unused_field, constant_identifier_names
+  _5,
+  mixed,
+  // ignore: unused_field, constant_identifier_names
+  _7,
+  timestamp,
+  float,
+  double,
+  decimal128,
+  object,
+  // ignore: unused_field, constant_identifier_names
+  _13,
+  linkingObjects,
+  objectid,
+  // ignore: unused_field, constant_identifier_names
+  _16,
+  uuid,
+}
 
 /// A annotation class used to define Realm data model classes and their properties
 class RealmProperty {
@@ -27,7 +53,9 @@ class RealmProperty {
   final bool? primaryKey;
   
   /// The Realm type of this property
-  final String? type;
+  final RealmPropertyType type;
+
+  final bool nullable;
   
   /// The default value for this property
   final String? defaultValue;
@@ -38,12 +66,15 @@ class RealmProperty {
   /// An alias to another property of the same RealmObject
   final String? mapTo;
   
-  const RealmProperty({@required this.type, this.defaultValue, this.optional, this.mapTo, this.primaryKey});
+  const RealmProperty(this.type, {this.nullable = false, this.defaultValue, this.optional, this.mapTo, this.primaryKey});
 }
 
 /// A RealmProperty in a schema. Used for runtime representation of `RealmProperty`
 class SchemaProperty extends RealmProperty {
-  final String propertyName;
-  const SchemaProperty(this.propertyName, { String? type, String? defaultValue, bool? optional, String? mapTo, bool? primaryKey }) 
-    : super(type: type, defaultValue: defaultValue, optional: optional, mapTo: mapTo, primaryKey: primaryKey);
+  final String name;
+  const SchemaProperty(this.name, RealmPropertyType type, {String? defaultValue, bool? optional, String? mapTo, bool? primaryKey }) 
+    : super(type, defaultValue: defaultValue, optional: optional, mapTo: mapTo, primaryKey: primaryKey);
 }
+
+
+

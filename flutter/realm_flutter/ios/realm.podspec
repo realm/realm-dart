@@ -4,23 +4,21 @@
 #
 
 # //TODO read the version from pubspec.yaml
-
 Pod::Spec.new do |s|
   s.name                      = 'realm'
   s.version                   = '0.2.0-alpha'
   s.summary                   = 'The official Realm SDK for Flutter'
   s.description               = <<-DESC
                                     Realm is a mobile database - an alternative to SQLite and key-value stores.
-                                DESC
+                                 DESC
   s.homepage                  = 'https://realm.io'
   s.license                   = { :file => '../LICENSE' }
   s.author                    = { 'Realm' => 'help@realm.io' }
-  s.source                    = { :git => 'https://github.com/realm/realm-dart.git',
-                                  :tag => "v#{s.version}"
-                                }
-  s.source_files              = 'Classes/**/*', 
+  s.source                    = { :path => '.' }
+  s.source_files               = 'Classes/**/*', 
                                 'src/realm_dart.cpp'
-  s.public_header_files       = 'Classes/**/*.h',
+                                'src/realm_dart_scheduler.cpp'
+  s.public_header_files        = 'Classes/**/*.h',
   s.vendored_frameworks       = 'realm_flutter_ios.xcframework'
   s.dependency                  'Flutter'
   s.platform                  = :ios, '8.0'
@@ -35,8 +33,10 @@ Pod::Spec.new do |s|
                                   'CLANG_CXX_LIBRARY' => 'libc++',
                                   'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386',
                                   'HEADER_SEARCH_PATHS' => [
-                                    '"$(PODS_TARGET_SRCROOT)/src/realm-core/src/"',
                                     '"$(PODS_TARGET_SRCROOT)/Classes"',
+                                    '"$(PODS_TARGET_SRCROOT)/src"',
+                                    '"$(PODS_TARGET_SRCROOT)/src/dart-include"',
+                                    '"$(PODS_TARGET_SRCROOT)/src/realm-core/src"',
                                   ],
                                   'FRAMEWORK_SEARCH_PATHS' => '"$(PODS_TARGET_SRCROOT)/**"'
                                 }
@@ -45,5 +45,3 @@ Pod::Spec.new do |s|
                                   :execution_position => :before_compile,
                                 }
 end
-
-

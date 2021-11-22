@@ -25,3 +25,6 @@ generator/**
 # Ignore native binaries build directories
 /build-android/
 /build/
+
+# Ignore the ffigen directory
+/ffigen/

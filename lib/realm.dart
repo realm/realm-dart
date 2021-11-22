@@ -15,6 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 import 'dart:ffi';
 import 'dart:io';
 
@@ -22,9 +23,10 @@ import 'src/cli/metrics/metrics_command.dart';
 import 'src/cli/metrics/options.dart';
 import 'src/cli/metrics/target_os_type.dart';
 
-// dart.library.cli is available only on dart desktop
+//dart.library.cli is available only on dart desktop
 import 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart';
-export 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart' hide RealmLib;
+
+export 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart';
 
 var _initialized = false;
 
@@ -43,8 +45,8 @@ void initRealm() {
     return;
   }
 
-  String _platformPath(String name, {String? path}) {
-    assert(() {
+  String _getBinaryPath(String binaryName, {String path = ""}) {
+  	assert(() {
       try {
         if (!isFlutterPlatform) {
           uploadMetrics(Options(
@@ -55,50 +57,60 @@ void initRealm() {
       } catch (_) {} // ignore: avoid_catching_errors
       return true;
     }());
-
-    path ??= '';
+    
+    if (!path.isEmpty && path.endsWith("/")) {
+        //remove trailing slash
+        path = path.substring(0, path.length - 1);
+    }
 
     if (Platform.isAndroid) {
-      return path + "lib" + name + ".so";
+      return "lib$binaryName.so";
     }
 
     if (Platform.isLinux) {
       if (path.isEmpty) {
-        path = 'binary/linux/';
+        path = 'binary/linux';
       }
-      return path + "lib" + name + ".so";
+      return "$path/lib$binaryName.so";
     }
 
     if (Platform.isMacOS) {
       if (path.isEmpty) {
-        Directory sourceDir = File.fromUri(Platform.script).parent;
-        path = sourceDir.path + "/";
+        Directory sourceDir = Directory.current;
+        path = sourceDir.path;
       }
 
-      return path + "lib" + name + ".dylib";
+      var fullPath = "$path/binary/macos/lib$binaryName.dylib";
+      print("Full binary path $fullPath");
+      if (File(fullPath).existsSync()) {
+        return fullPath;
+      }
+
+      fullPath = "$path/lib$binaryName.dylib";
+      return fullPath;
     }
 
     if (Platform.isWindows) {
       if (path.isEmpty) {
-        path = 'binary/windows/';
+        path = 'binary/windows';
       }
 
-      return path + name + ".dll";
+      return "$path/$binaryName.dll";
     }
 
-    if (Platform.isIOS) {
-      return path + "/" + name;
-    }
+    //ios links statically 
+    //if (Platform.isIOS) {
+    //}
 
     throw Exception("Platform not implemented");
   }
 
-  DynamicLibrary dlopenPlatformSpecific(String name, {String? path}) {
+  DynamicLibrary dlopenPlatformSpecific(String binaryName, {String? path}) {
     if (Platform.isIOS) {
       return DynamicLibrary.process();
     }
 
-    String fullPath = _platformPath(name, path: path);
+    String fullPath = _getBinaryPath(binaryName, path: path ?? '');
     return DynamicLibrary.open(fullPath);
   }
 
@@ -111,19 +123,11 @@ void initRealm() {
 
   setRealmLib(realmLibrary);
 
-  // TODO: call Dart_InitializeApiDL
-  // print("Finding the Realm initialization functions");
-  // final initializeApi = realmLibrary.lookupFunction<IntPtr Function(Pointer<Void>), int Function(Pointer<Void>)>("Dart_InitializeApiDL");
-  // if (initializeApi == null) {
-  //   print("Realm initialization function not found");
-  //   throw Exception("Realm initialization function not found");
-  // }
-
-  // print("calling Realm initialization");
-  // var initResult = initializeApi(NativeApi.initializeApiDLData);
-  // if(initResult == 0) {
-  //     print("Realm initialization success");
-  // }
+  final initializeApi = realmLibrary.lookupFunction<IntPtr Function(Pointer<Void>), int Function(Pointer<Void>)>("realm_initializeDartApiDL");
+  var initResult = initializeApi(NativeApi.initializeApiDLData);
+  if (initResult != 0) {
+    throw Exception("Realm initialization failed. Error: could not initialize Dart APIs");
+  }
 
   _initialized = true;
 }

@@ -49,29 +49,39 @@ android {
 }
 
 task prePreBuild(type: Exec) {
-    def appProject = project.rootProject.subprojects.find { p -> p.name == 'app' }
+    try {
+        def appProject = project.rootProject.subprojects.find { p -> p.name == 'app' }
 
-    def localProperties = new Properties()
-    def localPropertiesFile = rootProject.file('local.properties')
-    if (localPropertiesFile.exists()) {
-        localPropertiesFile.withReader('UTF-8') { reader ->
-            localProperties.load(reader)
+        def localProperties = new Properties()
+        def localPropertiesFile = rootProject.file('local.properties')
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.withReader('UTF-8') { reader ->
+                localProperties.load(reader)
+            }
         }
-    }
 
-    def flutterRoot = localProperties.getProperty('flutter.sdk')
-    def dartPath = 'dart'
-    if (flutterRoot != null) {
-        dartPath = "$flutterRoot/bin/dart"
-    }
+        def flutterRoot = localProperties.getProperty('flutter.sdk')
+        def dartPath = 'dart'
+        if (flutterRoot != null) {
+            dartPath = "${flutterRoot}${File.separator}bin${File.separator}dart"
 
-    workingDir "${project.rootProject.projectDir}/.."
-    String targetOsVersion
-    if (appProject != null) {
-        def conf = appProject.android.defaultConfig
-        targetOsVersion = "API Level ${conf.targetSdkVersion.apiLevel}"
+            //on Windows use dart.bat instead
+            if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+                dartPath += '.bat'
+            }
+        }
+
+        workingDir "${project.rootProject.projectDir}${File.separator}.."
+        String targetOsVersion
+        if (appProject != null) {
+            def conf = appProject.android.defaultConfig
+            targetOsVersion = "API Level ${conf.targetSdkVersion.apiLevel}"
+        }
+        commandLine dartPath, 'run', 'realm', 'metrics', '--verbose', '--flutter-root', flutterRoot, '--target-os-type', 'android', '--target-os-version', targetOsVersion
     }
-    commandLine dartPath, 'run', 'realm', 'metrics', '--verbose', '--flutter-root', flutterRoot, '--target-os-type', 'android', '--target-os-version', targetOsVersion
+    catch (e) {
+        println "Error running metrics $e"
+    }
 }
 
 preBuild.dependsOn prePreBuild
