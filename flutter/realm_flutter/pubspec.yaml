@@ -10,20 +10,32 @@ publish_to: none
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=2.5.0"
+  flutter: ">=2.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+  args: ^2.3.0
+  build_cli_annotations: ^2.0.0
+  crypto: ^3.0.0
+  ffi: ^1.1.2
+  json_annotation: ^4.1.0
+  logging: ^1.0.0
+  package_config: ^2.0.0
+  path: ^1.0.0
+  pubspec_parse: ^1.0.0
   realm_generator: 
     path: ../../generator
-  meta: ^1.2.4
-  ffi: ^1.1.2
 
 dev_dependencies:
-  test: ^1.14.3
   flutter_test:
     sdk: flutter
+  build_cli: ^2.1.3
+  build_runner: ^2.1.2
+  build_version: ^2.1.0
+  json_serializable: ^5.0.2
+  lints: ^1.0.1
+  test: ^1.14.3
 
 flutter:
   plugin:
@@ -33,7 +45,3 @@ flutter:
         pluginClass: RealmPlugin
       ios:
         pluginClass: RealmPlugin
-
-      # Mac is not supported yet
-      #macos:
-      #  pluginClass: RealmPlugin

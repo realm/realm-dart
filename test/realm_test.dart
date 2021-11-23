@@ -95,7 +95,6 @@ void main([List<String>? args]) {
   group('Configuration tests:', () {
     test('Configuration can be created', () async {
       Configuration([Car.schema]);
-      assert(() { print("running in debug"); return true; }());
     });
 
     test('Configuration exception if no schema', () async {

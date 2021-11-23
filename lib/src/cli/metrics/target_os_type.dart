@@ -16,5 +16,18 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'package:realm_dart/src/cli/main.dart' as x;
-void main(List<String> arguments) => x.main(arguments);
+import 'utils.dart';
+
+enum TargetOsType {
+  android,
+  ios,
+  linux,
+  macos,
+  windows,
+}
+
+extension StringEx on String {
+  TargetOsType? get asTargetOsType => TargetOsType.values
+      .where((element) => element.toString().split('.').last == this)
+      .firstOrNull;
+}

@@ -26,7 +26,7 @@ Pod::Spec.new do |s|
     
   # Flutter.framework does not contain a i386 slice. Only x86_64 simulators are supported. Using EXCLUDED_ARCHS to exclude i386 arch.
   s.swift_version             = '5.0'
-  s.pod_target_xcconfig        = { 'DEFINES_MODULE' => 'YES',
+  s.pod_target_xcconfig       = { 'DEFINES_MODULE' => 'YES',
                                   'CURRENT_PROJECT_VERSION' => s.version,
                                   'VERSIONING_SYSTEM' => 'apple-generic',
                                   'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
@@ -39,5 +39,9 @@ Pod::Spec.new do |s|
                                     '"$(PODS_TARGET_SRCROOT)/src/realm-core/src"',
                                   ],
                                   'FRAMEWORK_SEARCH_PATHS' => '"$(PODS_TARGET_SRCROOT)/**"'
+                                }
+  s.script_phase              = { :name => 'Report Metrics', 
+                                  :script => 'source "$PROJECT_DIR/../Flutter/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm metrics --verbose --flutter-root "$FLUTTER_ROOT" --target-os-type ios --target-os-version "$IPHONEOS_DEPLOYMENT_TARGET"', 
+                                  :execution_position => :before_compile,
                                 }
 end

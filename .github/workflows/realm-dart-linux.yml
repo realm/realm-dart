@@ -17,6 +17,8 @@ on:
 jobs:
   CI:
     runs-on: ubuntu-20.04
+    env:
+      REALM_CI: true
 
     steps:
       - name: Checkout

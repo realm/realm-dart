@@ -40,8 +40,11 @@ final _RealmCore realmCore = _RealmCore();
 
 class _RealmCore {
   //From realm.h. Currently not exported from the shared library
+  // ignore: constant_identifier_names
   static const int RLM_INVALID_CLASS_KEY = 0x7FFFFFFF;
+  // ignore: constant_identifier_names
   static const int RLM_INVALID_PROPERTY_KEY = -1;
+  // ignore: constant_identifier_names
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
   // Hide the RealmCore class and make it a singleton
@@ -59,17 +62,17 @@ class _RealmCore {
   LastError? getLastError([Allocator? allocator]) {
     if (allocator != null) {
       final error = _realmLib.realm_get_last_error();
-      
+
       if (error == nullptr) {
         return null;
       }
 
       String? message = null;
       if (error.ref.message != nullptr) {
-         message = error.ref.message.cast<Utf8>().toDartString();
+        message = error.ref.message.cast<Utf8>().toDartString();
       }
       _realmLib.realm_release_last_error(error);
-      
+
       final lastError = LastError(error.ref.error, message);
 
       return lastError;
@@ -128,8 +131,8 @@ class _RealmCore {
   }
 
   void validateSchema(RealmSchema schema) {
-    _realmLib.invokeGetBool(() => _realmLib.realm_schema_validate(schema.handle._pointer, realm_schema_validation_mode_e.RLM_SCHEMA_VALIDATION_BASIC),
-      "Invalid Realm schema.");
+    _realmLib.invokeGetBool(
+        () => _realmLib.realm_schema_validate(schema.handle._pointer, realm_schema_validation_mode_e.RLM_SCHEMA_VALIDATION_BASIC), "Invalid Realm schema.");
   }
 
   int getSchemaVersion(Configuration config) {
@@ -181,9 +184,8 @@ class _RealmCore {
     return using((Arena arena) {
       Pointer<Uint8> found = arena<Uint8>();
       Pointer<realm_class_info_t> classInfo = arena<realm_class_info_t>();
-      _realmLib.invokeGetBool(
-        () => _realmLib.realm_find_class(realm.handle._pointer, className.toUtf8Ptr(arena), found, classInfo), 
-        "Error getting class $className from realm at ${realm.config.path}");
+      _realmLib.invokeGetBool(() => _realmLib.realm_find_class(realm.handle._pointer, className.toUtf8Ptr(arena), found, classInfo),
+          "Error getting class $className from realm at ${realm.config.path}");
 
       if (found.value == 0) {
         final error = getLastError();
@@ -197,14 +199,14 @@ class _RealmCore {
   Map<String, int> getPropertyIds(Realm realm, int classId) {
     return using((Arena arena) {
       Pointer<IntPtr> propertyCountPtr = arena<IntPtr>();
-      _realmLib.invokeGetBool(() => _realmLib.realm_get_property_keys(realm.handle._pointer, classId, nullptr, 0, propertyCountPtr), 
-        "Error getting property count");
-      
+      _realmLib.invokeGetBool(
+          () => _realmLib.realm_get_property_keys(realm.handle._pointer, classId, nullptr, 0, propertyCountPtr), "Error getting property count");
+
       var propertyCount = propertyCountPtr.value;
       final propertiesPtr = arena<realm_property_info_t>(propertyCount);
       _realmLib.invokeGetBool(() => _realmLib.realm_get_class_properties(realm.handle._pointer, classId, propertiesPtr, propertyCount, propertyCountPtr),
-        "Error getting class properties.");
-      
+          "Error getting class properties.");
+
       propertyCount = propertyCountPtr.value;
       Map<String, int> result = Map<String, int>();
       for (var i = 0; i < propertyCount; i++) {
@@ -272,17 +274,17 @@ class LastError {
 }
 
 abstract class Handle<T extends NativeType> {
-  late Pointer<T> _pointer;
+  final Pointer<T> _pointer;
+
+  Handle(this._pointer);
+
   @override
   String toString() => "${_pointer.toString()} value=${_pointer.cast<Uint64>().value}";
 }
 
 class SchemaHandle extends Handle<realm_schema> {
-  @override
-  Pointer<realm_schema> _pointer;
-
-  SchemaHandle._(this._pointer) {
-    _realmLib.realm_attach_finalizer(this, this._pointer.cast(), 24);
+  SchemaHandle._(Pointer<realm_schema> pointer) : super(pointer) {
+    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 24);
   }
 
   @override
@@ -290,37 +292,25 @@ class SchemaHandle extends Handle<realm_schema> {
 }
 
 class ConfigHandle extends Handle<realm_config> {
-  @override
-  Pointer<realm_config> _pointer;
-
-  ConfigHandle._(this._pointer) {
-    _realmLib.realm_attach_finalizer(this, this._pointer.cast(), 512);
+  ConfigHandle._(Pointer<realm_config> pointer) : super(pointer) {
+    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 512);
   }
 }
 
 class RealmHandle extends Handle<shared_realm> {
-  @override
-  Pointer<shared_realm> _pointer;
-
-  RealmHandle._(this._pointer) {
-    _realmLib.realm_attach_finalizer(this, this._pointer.cast(), 24);
+  RealmHandle._(Pointer<shared_realm> pointer) : super(pointer) {
+    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 24);
   }
 }
 
 class SchedulerHandle extends Handle<realm_scheduler> {
-  @override
-  Pointer<realm_scheduler> _pointer;
-
-  SchedulerHandle._(this._pointer) {
+  SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer) {
     _realmLib.realm_attach_finalizer(this, this._pointer.cast(), 24);
   }
 }
 
 class RealmObjectHandle extends Handle<realm_object> {
-  @override
-  Pointer<realm_object> _pointer;
-
-  RealmObjectHandle._(this._pointer) {
+  RealmObjectHandle._(Pointer<realm_object> pointer) : super(pointer) {
     _realmLib.realm_attach_finalizer(this, this._pointer.cast(), 112);
   }
 }
