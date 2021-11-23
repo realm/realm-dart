@@ -46,7 +46,6 @@ enum RealmPropertyType {
   UUID,
 }
 
-/// A annotation class used to define Realm data model classes and their properties
 class RealmProperty {
   
   /// Realm will use this property as the primary key
@@ -67,6 +66,23 @@ class RealmProperty {
   final String? mapTo;
   
   const RealmProperty(this.type, {this.nullable = false, this.defaultValue, this.optional, this.mapTo, this.primaryKey});
+}
+
+class MapTo {
+  final String name;
+  const MapTo(this.name);
+}
+
+class PrimaryKey {
+  const PrimaryKey();
+}
+
+class Indexed {
+  const Indexed();
+}
+
+class Ignored {
+  const Ignored();
 }
 
 /// A RealmProperty in a schema. Used for runtime representation of `RealmProperty`

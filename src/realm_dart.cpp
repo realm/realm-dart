@@ -56,4 +56,5 @@ void dummy(void) {
   realm_config_new();
   realm_schema_new(nullptr, 0, nullptr);
   realm_get_library_version();
+  realm_object_create(nullptr, 0);
 }

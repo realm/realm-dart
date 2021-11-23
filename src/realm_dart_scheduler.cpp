@@ -66,8 +66,8 @@ bool realm_dart_scheduler_can_deliver_notifications(void* userData) {
 void realm_dart_scheduler_set_notify_callback(void* userData, void* callback_userData, realm_free_userdata_func_t free_userData_func, realm_scheduler_notify_func_t notify_func) {
     auto& scheduler = *static_cast<SchedulerData*>(userData);
     scheduler.callback = notify_func;
-    scheduler.free_userData_func = free_userData_func;
     scheduler.callback_userData = callback_userData;
+    scheduler.free_userData_func = free_userData_func;
 }
 
 RLM_API realm_scheduler_t* realm_dart_create_scheduler(Dart_Port port) {
@@ -88,9 +88,15 @@ RLM_API realm_scheduler_t* realm_dart_create_scheduler(Dart_Port port) {
 RLM_API void realm_dart_scheduler_invoke(void* userData) {
     auto& scheduler = *static_cast<SchedulerData*>(userData);
 
+    if (scheduler.callback == nullptr) {
+        return;
+    }
+
     //invoke the notify callback
     scheduler.callback(scheduler.callback_userData);
-    
-    //call the function that will free the callback user data
-    scheduler.free_userData_func(scheduler.callback_userData);
+        
+    if (scheduler.callback_userData != nullptr) {
+        //call the function that will free the callback user data
+        scheduler.free_userData_func(scheduler.callback_userData);
+    }
 }

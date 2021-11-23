@@ -86,7 +86,15 @@
         "compare": "cpp",
         "format": "cpp",
         "shared_mutex": "cpp",
-        "stop_token": "cpp"
+        "stop_token": "cpp",
+        "coroutine": "cpp",
+        "resumable": "cpp"
     },
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    // Don't search in symlinked directories. Removes duplicates
+    "search.exclude": {
+        "flutter/realm_flutter/ios/src/**": true,
+        "flutter/realm_flutter/lib/**": true,
+        "flutter/realm_flutter/test/**": true
+    }
 }

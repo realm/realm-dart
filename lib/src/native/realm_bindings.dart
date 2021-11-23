@@ -91,27 +91,18 @@ class RealmLibrary {
   /// the call that caused the error to occur. The error is specific to the current
   /// thread, and not the Realm instance for which the error occurred.
   ///
-  /// Note: The error message in @a err will only be safe to use until the next API
-  /// call is made on the current thread.
-  ///
   /// Note: The error is not cleared by subsequent successful calls to this
   /// function, but it will be overwritten by subsequent failing calls to
   /// other library functions.
   ///
   /// Note: Calling this function does not clear the current last error.
   ///
-  /// This function does not allocate any memory.
+  /// This function does allocate memory for the error message. It should be released with a call to `realm_release_last_error`
   ///
-  /// @param err A pointer to a `realm_error_t` struct that will be populated with
-  /// information about the last error, if there is one. May be NULL.
-  /// @return True if an error occurred.
-  bool realm_get_last_error(
-    ffi.Pointer<realm_error_t> err,
-  ) {
-    return _realm_get_last_error(
-          err,
-        ) !=
-        0;
+  /// @return A pointer to a `realm_error_t` struct that will be populated with
+  /// information about the last error, if there is one. Or NULL if no error occured.
+  ffi.Pointer<realm_error_t> realm_get_last_error() {
+    return _realm_get_last_error();
   }
 
   late final _realm_get_last_error_ptr =
@@ -120,20 +111,34 @@ class RealmLibrary {
   late final _dart_realm_get_last_error _realm_get_last_error =
       _realm_get_last_error_ptr.asFunction<_dart_realm_get_last_error>();
 
+  /// Releases the `realm_error_t` allocated by `realm_get_last_error()`
+  ///
+  /// @see realm_get_last_error()
+  void realm_release_last_error(
+    ffi.Pointer<realm_error_t> err,
+  ) {
+    return _realm_release_last_error(
+      err,
+    );
+  }
+
+  late final _realm_release_last_error_ptr =
+      _lookup<ffi.NativeFunction<_c_realm_release_last_error>>(
+          'realm_release_last_error');
+  late final _dart_realm_release_last_error _realm_release_last_error =
+      _realm_release_last_error_ptr
+          .asFunction<_dart_realm_release_last_error>();
+
   /// Get information about an async error, potentially coming from another thread.
   ///
-  /// This function does not allocate any memory.
-  ///
-  /// @param err A pointer to a `realm_error_t` struct that will be populated with
-  /// information about the error. May not be NULL.
   /// @see realm_get_last_error()
-  void realm_get_async_error(
+  /// @return A pointer to a `realm_error_t` struct that will be populated with
+  /// information about the error.
+  ffi.Pointer<realm_error_t> realm_get_async_error(
     ffi.Pointer<realm_async_error> err,
-    ffi.Pointer<realm_error_t> out_err,
   ) {
     return _realm_get_async_error(
       err,
-      out_err,
     );
   }
 
@@ -1297,7 +1302,7 @@ class RealmLibrary {
   /// defining the schema. Call `realm_get_schema()` to obtain the values for
   /// these fields in an open realm.
   ///
-  /// @return True if allocation of the schema structure succeeded.
+  /// @return a new schema or NULL if allocation of the schema structure failed.
   ffi.Pointer<realm_schema> realm_schema_new(
     ffi.Pointer<realm_class_info_t> classes,
     int num_classes,
@@ -3854,22 +3859,24 @@ typedef _dart_realm_get_library_version_numbers = void Function(
   ffi.Pointer<ffi.Pointer<ffi.Int8>> out_extra,
 );
 
-typedef _c_realm_get_last_error = ffi.Uint8 Function(
+typedef _c_realm_get_last_error = ffi.Pointer<realm_error_t> Function();
+
+typedef _dart_realm_get_last_error = ffi.Pointer<realm_error_t> Function();
+
+typedef _c_realm_release_last_error = ffi.Void Function(
   ffi.Pointer<realm_error_t> err,
 );
 
-typedef _dart_realm_get_last_error = int Function(
+typedef _dart_realm_release_last_error = void Function(
   ffi.Pointer<realm_error_t> err,
 );
 
-typedef _c_realm_get_async_error = ffi.Void Function(
+typedef _c_realm_get_async_error = ffi.Pointer<realm_error_t> Function(
   ffi.Pointer<realm_async_error> err,
-  ffi.Pointer<realm_error_t> out_err,
 );
 
-typedef _dart_realm_get_async_error = void Function(
+typedef _dart_realm_get_async_error = ffi.Pointer<realm_error_t> Function(
   ffi.Pointer<realm_async_error> err,
-  ffi.Pointer<realm_error_t> out_err,
 );
 
 typedef _c_realm_get_last_error_as_async_error = ffi.Pointer<realm_async_error>

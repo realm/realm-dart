@@ -10,9 +10,9 @@ part of 'main.dart';
 class Car extends _Car with RealmObject {
   
   @override
-  String get make => super.getString("make");
+  String get make => RealmObject.get<String>(this, "make");
   @override
-  set make(String value) => super.setString("make", value);
+  set make(String value) => RealmObject.set<String>(this, "make", value);
 
   @override
   static SchemaObject get schema => SchemaObject(Car)..properties = [
@@ -24,12 +24,14 @@ class Person extends _Person with RealmObject {
   // ignore_for_file: unused_element, unused_local_variable
 
   @override
-  String get name => super.getString("name");
+  String get name => RealmObject.get<String>(this, "name");
   @override
-  set name(String value) => super.setString("name", value);
+  set name(String value) => RealmObject.set<String>(this, "name", value);
 
   @override
   static SchemaObject get schema => SchemaObject(Person)..properties = [
     SchemaProperty("name", RealmPropertyType.String)
   ];
 }
+
+List<SchemaObject> get schema => [Person.schema, Car.schema];

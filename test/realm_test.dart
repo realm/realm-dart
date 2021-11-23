@@ -16,7 +16,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:cli';
 import 'dart:io';
+import 'dart:isolate';
 import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
 
@@ -26,7 +28,8 @@ part 'realm_test.gen.dart';
 
 @RealmModel()
 class _Car {
-  late String make;
+  @PrimaryKey()
+  late String make = "Tesla";
 }
 
 @RealmModel()
@@ -36,13 +39,13 @@ class _Person {
 
 String? testName;
 
-//Overrides test method so we can filter it
-void test(String? name, dynamic Function() testFunction) {
+//Overrides test method so we can filter tests
+void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
   if (testName != null && !name!.contains(testName!)) {
     return;
   }
 
-  testing.test(name, testFunction);
+  testing.test(name, testFunction, skip: skip);
 }
 
 void parseTestNameFromArguments(List<String>? arguments) {
@@ -50,11 +53,13 @@ void parseTestNameFromArguments(List<String>? arguments) {
   int nameArgIndex = arguments.indexOf("--name");
   if (arguments.length != 0) {
     if (nameArgIndex >= 0 && arguments.length > 1) {
-      testName = arguments[nameArgIndex + 1];
       print("testName: ${testName}");
+      testName = arguments[nameArgIndex + 1];
     }
   }
 }
+
+Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message',  contains(message ?? '')));
 
 void main([List<String>? args]) {
   parseTestNameFromArguments(args);
@@ -63,20 +68,26 @@ void main([List<String>? args]) {
 
   initRealm();
 
-  setUp(() {
+  setUp(() async {
     // Do not clear state on Flutter. Test app is reinstalled on every test run so the state is clear.
     if (!IsFlutterPlatform) {
       var currentDir = Directory.current;
-      var files = currentDir.listSync();
+      var files = await currentDir.list().toList();
       for (var file in files) {
         if (!(file is File) || (!file.path.endsWith(".realm"))) {
           continue;
         }
 
-        file.deleteSync();
+        try {
+          await file.delete();
+        } catch(e) {
+          //wait for Realm.close of a previous test and retry the delete before failing
+          await Future.delayed(Duration(milliseconds: 120));
+          await file.delete();
+        }
 
         var lockFile = new File("${file.path}.lock");
-        lockFile.deleteSync();
+        await lockFile.delete();
       }
     }
   });
@@ -84,6 +95,11 @@ void main([List<String>? args]) {
   group('Configuration tests:', () {
     test('Configuration can be created', () async {
       Configuration([Car.schema]);
+      assert(() { print("running in debug"); return true; }());
+    });
+
+    test('Configuration exception if no schema', () async {
+      expect(() => Configuration([]), throws<RealmException>());
     });
 
     test('Configuration get/set path', () async {
@@ -102,12 +118,43 @@ void main([List<String>? args]) {
       config.schemaVersion = 3;
       expect(config.schemaVersion, equals(3));
     });
+
+    test('Configuration open with schema subset object', () {
+      var config = Configuration([Car.schema, Person.schema]);
+      var realm = Realm(config);
+
+      var config1 = Configuration([Car.schema]);
+      var realm1 = Realm(config1);
+    }, skip: "Needs investigation");
+
+    test('Configuration open with schema superset object', () {
+      var config = Configuration([Person.schema]);
+      var realm = Realm(config);
+      realm.close();
+
+      config = Configuration([Person.schema]);
+      realm = Realm(config);
+
+
+      var config1 = Configuration([Person.schema, Car.schema]);
+      var realm1 = Realm(config1);
+
+      print("config: ${config.schemaVersion}");
+      print("config1: ${config1.schemaVersion}");
+    }, skip: "Needs investigation");
   });
 
   group('RealmClass tests:', () {
-    test('Realm can be created', () {
+    test('Realm can be created', () async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
+    });
+
+    test('Realm add object', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      final car = Car();
+      expect(() => realm.add(car), throws<RealmException>("Wrong transactional state"));
     });
   });
 }

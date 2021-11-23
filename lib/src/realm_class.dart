@@ -16,9 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:async';
 import 'dart:ffi';
-import 'dart:io';
 import 'dart:isolate';
 
 import 'results.dart';
@@ -32,7 +30,7 @@ import 'native/realm_core.dart';
 export 'collection.dart';
 export 'list.dart';
 export 'results.dart';
-export 'realm_object.dart';
+export 'realm_object.dart' hide RealmObjectEx, RealmAccessor, RealmValuesAccessor, RealmMetadata, RealmCoreAccessor;
 export "configuration.dart";
 export 'realm_property.dart';
 export 'helpers.dart';
@@ -41,34 +39,52 @@ void setRealmLib(DynamicLibrary realmLibrary) => setRealmLibrary(realmLibrary);
 
 /// A Realm instance represents a Realm database.
 class Realm {
+  final Configuration _config;
+
   /// The [Configuration] object of this [Realm]
-  Configuration get config => throw RealmException("not implemented");
-  late RealmHandle _realm;
+  Configuration get config => _config;
+  late RealmHandle handle;
   late final _Scheduler _scheduler;
+  // final Map<Type, int> classIds = Map<Type, int>();
+  final Map<Type, RealmMetadata> _metadata = Map<Type, RealmMetadata>();
 
   /// Opens a Realm using the default or a custom [Configuration] object
-  Realm(Configuration config) {
-    this._scheduler = _Scheduler(config);
-    this._realm = realmCore.openRealm(config);
+  Realm(Configuration config) : _config = config {
+    this._scheduler = _Scheduler(config, this.close);
+    this.handle = realmCore.openRealm(config);
+
+    for (var realmClass in config.schema) {
+      final classId = realmCore.getClassId(this, realmClass.name);
+      final propertyIds = realmCore.getPropertyIds(this, classId);
+      final metadata = RealmMetadata(realmClass.type, classId, propertyIds);
+      _metadata[realmClass.type] = metadata;
+    }
   }
-}
 
-/// An exception being thrown when a Realm operation or Realm object access fails
-class RealmException implements Exception  {
-  final String message;
+   T add<T extends RealmObject>(T object) {
+    final metadata = _metadata[object.runtimeType];
+    if (metadata == null) {
+      throw RealmException("Object type ${object.runtimeType} not configured in the current Realm's schema. Add type ${object.runtimeType} to your config before opening the Realm");
+    }
 
-  RealmException(this.message);
+    final handle = realmCore.createRealmObject(this, metadata.classId);
+    final accessor = RealmCoreAccessor(metadata);
+    object.manage(handle, accessor);
 
-  String toString() {
-    return "RealmException: $message";
+    return object;
+  }
+  
+  void close() {
+    realmCore.closeRealm(this);
   }
 }
 
 class _Scheduler {
   static const SCHEDULER_FINALIZE = null;
   late final SchedulerHandle handle;
+  final void Function() onClose;
 
-  _Scheduler(Configuration config) {
+  _Scheduler(Configuration config, this.onClose) {
     RawReceivePort receivePort = RawReceivePort();
     receivePort.handler = (message) {
       if (message != SCHEDULER_FINALIZE) {
@@ -76,6 +92,7 @@ class _Scheduler {
       }
 
       receivePort.close();
+      this.onClose();
     };
 
     final sendPort = receivePort.sendPort;
@@ -89,3 +106,4 @@ class _Scheduler {
 
   static void handler(int message) {}
 }
+

@@ -36,6 +36,7 @@ void dummy(void) {
   realm_get_library_version();
   realm_initializeDartApiDL(NULL);
   realm_dart_create_scheduler(0);
+  realm_object_create(NULL, 0);
 }
 
 @end
