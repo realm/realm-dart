@@ -35,8 +35,8 @@ class Configuration {
   Configuration(List<SchemaObject> schemaObjects) : 
     _schema = RealmSchema(schemaObjects),  
     handle = realmCore.createConfig() {
-    this.schemaVersion = 0;
-    this.path = "default.realm";
+    schemaVersion = 0;
+    path = "default.realm";
     realmCore.setSchema(this);
   }
 

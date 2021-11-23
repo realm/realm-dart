@@ -18,7 +18,7 @@ class Car extends _Car with RealmObject {
   set make(String value) => RealmObject.set<String>(this, "make", value);
 
   static SchemaObject get schema => SchemaObject(Car)..properties = [
-    SchemaProperty("make", RealmPropertyType.String)
+    SchemaProperty("make", RealmPropertyType.string)
   ];
 }
 
@@ -29,6 +29,6 @@ class Person extends _Person with RealmObject {
   set name(String value) => RealmObject.set<String>(this, "name", value);
 
   static SchemaObject get schema => SchemaObject(Person)..properties = [
-    SchemaProperty("name", RealmPropertyType.String)
+    SchemaProperty("name", RealmPropertyType.string)
   ];
 }

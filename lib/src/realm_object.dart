@@ -16,20 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
- *  The file is intentionaly not follwoing the dart naming guidelines. The name is used from native code by convention
- */
-
 import 'native/realm_core.dart';
-
-import 'list.dart';
 import 'realm_property.dart';
-
-// /// The callback type to use with `RealmObject.addListener`
-// /// 
-// /// The [changes.changedProperties] is a `List` with property names that got changed since the last time the object was updated.
-// /// The callback is invoked once initially with no changes at the moment the callback listener is added.
-// typedef void RealmObjectListenerCallback(dynamic object, dynamic changes);
 
 abstract class RealmAccessor {
   T get<T extends Object>(RealmObject object, String name);
@@ -37,25 +25,15 @@ abstract class RealmAccessor {
 }
 
 class RealmValuesAccessor implements RealmAccessor {
-  Map<String, Object> _values = Map<String, Object>();
-  // static Map<Type, Map<String, Object>> _defaultValues = Map<Type, Map<String, Object>>();
+  final Map<String, Object> _values = <String, Object>{};
 
+  @override
   T get<T extends Object>(RealmObject object, String name) {
     return _values[name] as T;
-
-    //default values version
-    // if (_values.containsKey(name)) {
-    //   return _values[name] as T;
-    // } 
-    
-    // if (_defaultValues.containsKey(name)) {
-    //   return _defaultValues[name] as T;
-    // }
-
-    // throw RealmException("Required property ${T.toString()}.$name does not have a value");
   }
 
-   void set<T extends Object>(String name, T value) {
+  @override
+  void set<T extends Object>(String name, T value) {
     _values[name] = value;
   }
 
@@ -85,7 +63,7 @@ class RealmCoreAccessor implements RealmAccessor {
   @override
   T get<T extends Object>(RealmObject object, String name) {
     try {
-      return realmCore.readProperty(object, metadata[name], RealmPropertyType.String) as T;
+      return realmCore.readProperty(object, metadata[name], RealmPropertyType.string) as T;
     } on RealmException catch (e) {
      throw RealmException("Error reading property ${metadata.classType.runtimeType}.$name ${e.message}");
     }
@@ -147,6 +125,7 @@ class RealmException implements Exception  {
 
   RealmException(this.message);
 
+  @override
   String toString() {
     return "RealmException: $message";
   }

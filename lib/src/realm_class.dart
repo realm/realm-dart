@@ -50,8 +50,8 @@ class Realm {
 
   /// Opens a Realm using the default or a custom [Configuration] object
   Realm(Configuration config) : _config = config {
-    this._scheduler = _Scheduler(config, this.close);
-    this.handle = realmCore.openRealm(config);
+    _scheduler = _Scheduler(config, close);
+    handle = realmCore.openRealm(config);
 
     for (var realmClass in config.schema) {
       final classId = realmCore.getClassId(this, realmClass.name);
@@ -93,7 +93,7 @@ class _Scheduler {
       }
 
       receivePort.close();
-      this.onClose();
+      onClose();
     };
 
     final sendPort = receivePort.sendPort;
@@ -102,7 +102,7 @@ class _Scheduler {
     //we use this to receive a notification on process exit to close the receivePort or the process with hang
     Isolate.spawn(handler, 2, onExit: sendPort);
 
-    realmCore.setScheduler(config, this.handle);
+    realmCore.setScheduler(config, handle);
   }
 
   static void handler(int message) {}

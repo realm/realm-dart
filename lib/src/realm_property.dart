@@ -21,29 +21,29 @@ class RealmModel {
 }
 
 enum RealmPropertyType {
-  Int, 
-  Bool,
-  String,
-  // ignore: unused_field
+  int, 
+  bool,
+  string,
+  // ignore: unused_field, constant_identifier_names
   _3,
-  Binary,
-  // ignore: unused_field
+  binary,
+  // ignore: unused_field, constant_identifier_names
   _5,
-  Mixed,
-  // ignore: unused_field
+  mixed,
+  // ignore: unused_field, constant_identifier_names
   _7,
-  TimeStamp,
-  Float,
-  Double,
-  Decimal128,
-  Object,
-  // ignore: unused_field
+  timestamp,
+  float,
+  double,
+  decimal128,
+  object,
+  // ignore: unused_field, constant_identifier_names
   _13,
-  LinkingObjects,
-  ObjectID,
-  // ignore: unused_field
+  linkingObjects,
+  objectid,
+  // ignore: unused_field, constant_identifier_names
   _16,
-  UUID,
+  uuid,
 }
 
 class RealmProperty {

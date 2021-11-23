@@ -18,7 +18,6 @@
 
 import 'dart:convert';
 import 'dart:ffi';
-import 'dart:isolate';
 import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows to sliently allocating memory. Use toUtf8Ptr instead
@@ -228,31 +227,31 @@ class _RealmCore {
       _realmLib.invokeGetBool(() => _realmLib.realm_get_value(object.handle._pointer, propertyId, value));
 
       switch (propertyType) {
-        case RealmPropertyType.Int:
+        case RealmPropertyType.int:
           return value.ref.values.integer;
-        case RealmPropertyType.Bool:
+        case RealmPropertyType.bool:
           return value.ref.values.boolean == 0;
-        case RealmPropertyType.String:
+        case RealmPropertyType.string:
           return value.ref.values.string.data.cast<Utf8>().toDartString(length: value.ref.values.string.size);
-        case RealmPropertyType.Float:
+        case RealmPropertyType.float:
           return value.ref.values.fnum;
-        case RealmPropertyType.Double:
+        case RealmPropertyType.double:
           return value.ref.values.dnum;
-        case RealmPropertyType.Binary:
+        case RealmPropertyType.binary:
           throw Exception("Not implemented");
-        case RealmPropertyType.Mixed:
+        case RealmPropertyType.mixed:
           throw Exception("Not implemented");
-        case RealmPropertyType.TimeStamp:
+        case RealmPropertyType.timestamp:
           throw Exception("Not implemented");
-        case RealmPropertyType.Decimal128:
+        case RealmPropertyType.decimal128:
           throw Exception("Not implemented");
-        case RealmPropertyType.Object:
+        case RealmPropertyType.object:
           throw Exception("Not implemented");
-        case RealmPropertyType.LinkingObjects:
+        case RealmPropertyType.linkingObjects:
           throw Exception("Not implemented");
-        case RealmPropertyType.ObjectID:
+        case RealmPropertyType.objectid:
           throw Exception("Not implemented");
-        case RealmPropertyType.UUID:
+        case RealmPropertyType.uuid:
           throw Exception("Not implemented");
         default:
           throw RealmException("Property type $propertyType not supported");
@@ -269,7 +268,7 @@ class LastError {
 
   @override
   String toString() {
-    return "Error code: $code ${(message != null ? "Message: ${message}" : "")}";
+    return "Error code: $code ${(message != null ? "Message: $message" : "")}";
   }
 }
 
@@ -305,13 +304,13 @@ class RealmHandle extends Handle<shared_realm> {
 
 class SchedulerHandle extends Handle<realm_scheduler> {
   SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer) {
-    _realmLib.realm_attach_finalizer(this, this._pointer.cast(), 24);
+    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 24);
   }
 }
 
 class RealmObjectHandle extends Handle<realm_object> {
   RealmObjectHandle._(Pointer<realm_object> pointer) : super(pointer) {
-    _realmLib.realm_attach_finalizer(this, this._pointer.cast(), 112);
+    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 112);
   }
 }
 
