@@ -80,15 +80,16 @@ class Realm {
 }
 
 class _Scheduler {
-  static const SCHEDULER_FINALIZE = null;
+  // ignore: constant_identifier_names
+  static const dynamic SCHEDULER_FINALIZE = null;
   late final SchedulerHandle handle;
   final void Function() onClose;
 
   _Scheduler(Configuration config, this.onClose) {
     RawReceivePort receivePort = RawReceivePort();
-    receivePort.handler = (message) {
+    receivePort.handler = (dynamic message) {
       if (message != SCHEDULER_FINALIZE) {
-        realmCore.invokeScheduler(message);
+        realmCore.invokeScheduler(message as int);
       }
 
       receivePort.close();

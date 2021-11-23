@@ -88,7 +88,7 @@ class Ignored {
 /// A RealmProperty in a schema. Used for runtime representation of `RealmProperty`
 class SchemaProperty extends RealmProperty {
   final String name;
-  const SchemaProperty(this.name, RealmPropertyType type, {defaultValue, optional, mapTo, primaryKey }) 
+  const SchemaProperty(this.name, RealmPropertyType type, {String? defaultValue, bool? optional, String? mapTo, bool? primaryKey }) 
     : super(type, defaultValue: defaultValue, optional: optional, mapTo: mapTo, primaryKey: primaryKey);
 }
 

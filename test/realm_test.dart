@@ -70,7 +70,7 @@ void main([List<String>? args]) {
 
   setUp(() async {
     // Do not clear state on Flutter. Test app is reinstalled on every test run so the state is clear.
-    if (!IsFlutterPlatform) {
+    if (!isFlutterPlatform) {
       var currentDir = Directory.current;
       var files = await currentDir.list().toList();
       for (var file in files) {
@@ -82,7 +82,7 @@ void main([List<String>? args]) {
           await file.delete();
         } catch(e) {
           //wait for Realm.close of a previous test and retry the delete before failing
-          await Future.delayed(Duration(milliseconds: 120));
+          await Future<void>.delayed(Duration(milliseconds: 120));
           await file.delete();
         }
 
