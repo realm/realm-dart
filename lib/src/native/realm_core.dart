@@ -42,9 +42,9 @@ class _RealmCore {
   //From realm.h. Currently not exported from the shared library
   // ignore: constant_identifier_names
   static const int RLM_INVALID_CLASS_KEY = 0x7FFFFFFF;
-  // ignore: constant_identifier_names
+  // ignore: constant_identifier_names, unused_field
   static const int RLM_INVALID_PROPERTY_KEY = -1;
-  // ignore: constant_identifier_names
+  // ignore: constant_identifier_names, unused_field
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
   // Hide the RealmCore class and make it a singleton
@@ -67,7 +67,7 @@ class _RealmCore {
         return null;
       }
 
-      String? message = null;
+      String? message;
       if (error.ref.message != nullptr) {
         message = error.ref.message.cast<Utf8>().toDartString();
       }
@@ -208,7 +208,7 @@ class _RealmCore {
           "Error getting class properties.");
 
       propertyCount = propertyCountPtr.value;
-      Map<String, int> result = Map<String, int>();
+      Map<String, int> result = <String, int>{};
       for (var i = 0; i < propertyCount; i++) {
         final property = propertiesPtr.elementAt(i);
         result[property.ref.name.cast<Utf8>().toDartString()] = property.ref.key;

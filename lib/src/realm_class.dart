@@ -46,7 +46,7 @@ class Realm {
   late RealmHandle handle;
   late final _Scheduler _scheduler;
   // final Map<Type, int> classIds = Map<Type, int>();
-  final Map<Type, RealmMetadata> _metadata = Map<Type, RealmMetadata>();
+  final Map<Type, RealmMetadata> _metadata = <Type, RealmMetadata>{};
 
   /// Opens a Realm using the default or a custom [Configuration] object
   Realm(Configuration config) : _config = config {
