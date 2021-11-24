@@ -27,10 +27,24 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+import android.content.Context;
+import java.io.IOException;
+import android.util.Log;
 
-/** RealmFlutterPlugin */
 public class RealmPlugin implements FlutterPlugin, MethodCallHandler {
-  /// The MethodChannel that will the communication between Flutter and native Android
+  private static native void native_initRealm(String filesDir);
+    
+  public static void initRealm(Context context) {
+      String filesDir;
+      try {
+          filesDir = context.getFilesDir().getCanonicalPath();
+      } catch (IOException e) {
+          throw new IllegalStateException(e);
+      }
+      native_initRealm(filesDir);
+  }
+
+ /// The MethodChannel that will the communication between Flutter and native Android
   ///
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
@@ -38,10 +52,8 @@ public class RealmPlugin implements FlutterPlugin, MethodCallHandler {
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-    // System.loadLibrary("realm_flutter");
-    // Log.d("Realm_Flutter_Example", "calling initRealm");  
-    // io.realm.RealmFlutter.initRealm(flutterPluginBinding.getApplicationContext());
-    // Log.d("Realm_Flutter_Example", "Realm Flutter initialized");
+    System.loadLibrary("realm_dart");
+    initRealm(flutterPluginBinding.getApplicationContext());
     
     channel = new MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "realm");
     channel.setMethodCallHandler(this);

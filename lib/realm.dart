@@ -58,7 +58,7 @@ void initRealm() {
       return true;
     }());
     
-    if (!path.isEmpty && path.endsWith("/")) {
+    if (path.isNotEmpty && path.endsWith("/")) {
         //remove trailing slash
         path = path.substring(0, path.length - 1);
     }

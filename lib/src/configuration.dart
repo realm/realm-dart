@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:collection';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'native/realm_core.dart';
@@ -37,6 +38,11 @@ class Configuration {
     handle = realmCore.createConfig() {
     schemaVersion = 0;
     path = "default.realm";
+    if (Platform.isAndroid || Platform.isIOS) {
+      String filesPath = realmCore.getFilesPath();
+      path = "$filesPath${Platform.pathSeparator}$path";
+    }
+    
     realmCore.setSchema(this);
   }
 

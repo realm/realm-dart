@@ -50,6 +50,10 @@ RLM_API bool realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size
   return Dart_NewFinalizableHandle_DL(handle, realmPtr, size, handle_finalizer) != nullptr;
 }
 
+#if (ANDROID)
+void realm_android_dummy();
+#endif
+
 // // Force the linker to link all exports from realm-core C API
 void dummy(void) {
   realm_scheduler_make_default();
@@ -57,4 +61,7 @@ void dummy(void) {
   realm_schema_new(nullptr, 0, nullptr);
   realm_get_library_version();
   realm_object_create(nullptr, 0);
+#if (ANDROID)
+  realm_android_dummy();
+#endif
 }

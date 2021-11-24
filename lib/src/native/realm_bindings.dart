@@ -3505,6 +3505,17 @@ class RealmLibrary {
   late final _dart_realm_dart_scheduler_invoke _realm_dart_scheduler_invoke =
       _realm_dart_scheduler_invoke_ptr
           .asFunction<_dart_realm_dart_scheduler_invoke>();
+
+  ffi.Pointer<ffi.Int8> realm_dart_get_files_path() {
+    return _realm_dart_get_files_path();
+  }
+
+  late final _realm_dart_get_files_path_ptr =
+      _lookup<ffi.NativeFunction<_c_realm_dart_get_files_path>>(
+          'realm_dart_get_files_path');
+  late final _dart_realm_dart_get_files_path _realm_dart_get_files_path =
+      _realm_dart_get_files_path_ptr
+          .asFunction<_dart_realm_dart_get_files_path>();
 }
 
 class shared_realm extends ffi.Opaque {}
@@ -5571,3 +5582,7 @@ typedef _c_realm_dart_scheduler_invoke = ffi.Void Function(
 typedef _dart_realm_dart_scheduler_invoke = void Function(
   ffi.Pointer<ffi.Void> userData,
 );
+
+typedef _c_realm_dart_get_files_path = ffi.Pointer<ffi.Int8> Function();
+
+typedef _dart_realm_dart_get_files_path = ffi.Pointer<ffi.Int8> Function();
