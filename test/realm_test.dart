@@ -189,6 +189,8 @@ void main([List<String>? args]) {
 
       var config1 = Configuration([Person.schema, Car.schema]);
       var realm1 = Realm(config1);
+      realm.close();
+      realm1.close();
     });
 
     test('Realm add throws when no write transaction', () {
