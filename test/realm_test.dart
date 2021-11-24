@@ -71,27 +71,28 @@ void main([List<String>? args]) {
   initRealm();
 
   setUp(() async {
-    // Do not clear state on Flutter. Test app is reinstalled on every test run so the state is clear.
-    if (!isFlutterPlatform) {
-      var currentDir = Directory.current;
-      var files = await currentDir.list().toList();
-      for (var file in files) {
-        if (file is! File || (!file.path.endsWith(".realm"))) {
-          continue;
-        }
+    var currentDir = Directory.current;
+    if (Platform.isAndroid || Platform.isIOS) {
+      currentDir = Directory(Configuration.filesPath);
+    }
 
-        for (var i = 0; i <= 20; i++) {
-          try {
-            await file.delete();
-          } catch (e) {
-            //wait for Realm.close of a previous test and retry the delete before failing
-            await Future<void>.delayed(Duration(milliseconds: 10));
-          }
-        }
-
-        var lockFile = File("${file.path}.lock");
-        await lockFile.delete();
+    var files = await currentDir.list().toList();
+    for (var file in files) {
+      if (file is! File || (!file.path.endsWith(".realm"))) {
+        continue;
       }
+
+      for (var i = 0; i <= 20; i++) {
+        try {
+          await file.delete();
+        } catch (e) {
+          //wait for Realm.close of a previous test and retry the delete before failing
+          await Future<void>.delayed(Duration(milliseconds: 10));
+        }
+      }
+
+      var lockFile = File("${file.path}.lock");
+      await lockFile.delete();
     }
   });
 
