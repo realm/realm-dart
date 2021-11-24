@@ -72,7 +72,7 @@ void main([List<String>? args]) {
       var currentDir = Directory.current;
       var files = await currentDir.list().toList();
       for (var file in files) {
-        if (!(file is File) || (!file.path.endsWith(".realm"))) {
+        if (file is! File || (!file.path.endsWith(".realm"))) {
           continue;
         }
 
@@ -84,31 +84,31 @@ void main([List<String>? args]) {
           await file.delete();
         }
 
-        var lockFile = new File("${file.path}.lock");
+        var lockFile = File("${file.path}.lock");
         await lockFile.delete();
       }
     }
   });
 
   group('Configuration tests:', () {
-    test('Configuration can be created', () async {
+    test('Configuration can be created', () {
       Configuration([Car.schema]);
     });
 
-    test('Configuration exception if no schema', () async {
+    test('Configuration exception if no schema', () {
       expect(() => Configuration([]), throws<RealmException>());
     });
 
-    test('Configuration get/set path', () async {
+    test('Configuration get/set path', () {
       Configuration config = Configuration([Car.schema]);
-      expect(config.path, equals('default.realm'));
+      expect(config.path, contains('default.realm'));
 
       const path = "my/path/default.realm";
       config.path = path;
       expect(config.path, equals(path));
     });
 
-    test('Configuration get/set schema version', () async {
+    test('Configuration get/set schema version', () {
       Configuration config = Configuration([Car.schema]);
       expect(config.schemaVersion, equals(0));
 
@@ -142,9 +142,19 @@ void main([List<String>? args]) {
   });
 
   group('RealmClass tests:', () {
-    test('Realm can be created', () async {
+    test('Realm can be created', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
+    });
+
+     test('Realm can be closed', () async {
+      var config = Configuration([Car.schema]);
+      Realm? realm = Realm(config);
+      realm.close();
+      realm = null;
+      await Future<void>.delayed(Duration(milliseconds: 50));
+      realm = Realm(config);
+      realm.close();
     });
 
     test('Realm add object', () {
