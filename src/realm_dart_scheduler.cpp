@@ -38,29 +38,17 @@ void realm_dart_scheduler_free_userData(void* userData) {
     SchedulerData* scheduler = static_cast<SchedulerData*>(userData);
     Dart_PostInteger_DL(scheduler->port, SCHEDULER_FINALIZE);
     
+    if (scheduler->callback_userData != nullptr) {
+        //call the function that will free the callback user data
+        scheduler->free_userData_func(scheduler->callback_userData);
+    }
+
     //delete the scheduler
     delete scheduler;
 }
 
 //This can be invoked on any thread.
 void realm_dart_scheduler_notify(void* userData) {
-
-    // TODO: Consider removing this commented code when the reinterpret_cast<std::uintptr_t> below is tested on all platforms
-    // //This posts the userdata to the main thread as Pointer<Void>. 
-    // //The RealmScheduler should invoke the realm_dart_scheduler_invoke 
-    // //from the main thread passing back the same pointer to userData
-    // //see here https://github.com/dart-lang/sdk/issues/47270
-    // Dart_CObject message;
-    // message.type = Dart_CObject_kExternalTypedData;
-    // message.value.as_external_typed_data.type = Dart_TypedData_kUint8;
-    // message.value.as_external_typed_data.length = 0;
-    // message.value.as_external_typed_data.data = nullptr;
-    // message.value.as_external_typed_data.peer = userData;
-    // //This callback is supposed to release the peer data. We don't use it since our peer is userData which is deleted by the realm_dart_scheduler_free_userData
-    // message.value.as_external_typed_data.callback = [](void* isolate_callback_data, void* peer) {};
-    // auto& scheduler = *static_cast<SchedulerData*>(userData);
-    // Dart_PostCObject(scheduler.port, &message);
-    
     auto& scheduler = *static_cast<SchedulerData*>(userData);
     std::uintptr_t pointer = reinterpret_cast<std::uintptr_t>(userData);
     Dart_PostInteger_DL(scheduler.port, pointer);
@@ -112,9 +100,4 @@ RLM_API void realm_dart_scheduler_invoke(void* userData) {
 
     //invoke the notify callback
     scheduler.callback(scheduler.callback_userData);
-        
-    if (scheduler.callback_userData != nullptr) {
-        //call the function that will free the callback user data
-        scheduler.free_userData_func(scheduler.callback_userData);
-    }
 }

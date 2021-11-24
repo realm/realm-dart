@@ -116,7 +116,7 @@ class _RealmCore {
           propInfo.flags = realm_property_flags_e.RLM_PROPERTY_NORMAL;
         }
 
-        schemaProperties[0] = properties;
+        schemaProperties[i] = properties;
         schemaProperties.elementAt(i).value = properties;
       }
 
@@ -183,7 +183,23 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_close(realm.handle._pointer), "Realm close failed");
   }
 
-  int getClassId(Realm realm, String className) {
+  void beginWrite(Realm realm) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_begin_write(realm.handle._pointer), "Could not begin write");
+  }
+
+  void commitWrite(Realm realm) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_commit(realm.handle._pointer), "Could commit write");
+  }
+
+  bool getIsWritable(Realm realm) {
+    return _realmLib.realm_is_writable(realm.handle._pointer);
+  }
+
+  void rollbackWrite(Realm realm) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_rollback(realm.handle._pointer), "Could rollback write");
+  }
+
+  int getClassKey(Realm realm, String className) {
     return using((Arena arena) {
       Pointer<Uint8> found = arena<Uint8>();
       Pointer<realm_class_info_t> classInfo = arena<realm_class_info_t>();
@@ -199,15 +215,15 @@ class _RealmCore {
     });
   }
 
-  Map<String, int> getPropertyIds(Realm realm, int classId) {
+  Map<String, int> getPropertyKeys(Realm realm, int classKey) {
     return using((Arena arena) {
       Pointer<IntPtr> propertyCountPtr = arena<IntPtr>();
       _realmLib.invokeGetBool(
-          () => _realmLib.realm_get_property_keys(realm.handle._pointer, classId, nullptr, 0, propertyCountPtr), "Error getting property count");
+          () => _realmLib.realm_get_property_keys(realm.handle._pointer, classKey, nullptr, 0, propertyCountPtr), "Error getting property count");
 
       var propertyCount = propertyCountPtr.value;
       final propertiesPtr = arena<realm_property_info_t>(propertyCount);
-      _realmLib.invokeGetBool(() => _realmLib.realm_get_class_properties(realm.handle._pointer, classId, propertiesPtr, propertyCount, propertyCountPtr),
+      _realmLib.invokeGetBool(() => _realmLib.realm_get_class_properties(realm.handle._pointer, classKey, propertiesPtr, propertyCount, propertyCountPtr),
           "Error getting class properties.");
 
       propertyCount = propertyCountPtr.value;
@@ -220,15 +236,15 @@ class _RealmCore {
     });
   }
 
-  RealmObjectHandle createRealmObject(Realm realm, int classId) {
-    final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_object_create(realm.handle._pointer, classId));
+  RealmObjectHandle createRealmObject(Realm realm, int classKey) {
+    final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_object_create(realm.handle._pointer, classKey));
     return RealmObjectHandle._(realmPtr);
   }
 
-  Object readProperty(RealmObject object, int propertyId, RealmPropertyType propertyType) {
+  Object readProperty(RealmObject object, int propertyKey, RealmPropertyType propertyType) {
     return using((Arena arena) {
       Pointer<realm_value_t> value = arena<realm_value_t>();
-      _realmLib.invokeGetBool(() => _realmLib.realm_get_value(object.handle._pointer, propertyId, value));
+      _realmLib.invokeGetBool(() => _realmLib.realm_get_value(object.handle._pointer, propertyKey, value));
 
       switch (propertyType) {
         case RealmPropertyType.int:

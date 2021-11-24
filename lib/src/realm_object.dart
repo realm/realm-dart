@@ -45,14 +45,14 @@ class RealmValuesAccessor implements RealmAccessor {
 }
 
 class RealmMetadata{
-  final int classId;
+  final int classKey;
   final Type classType;
-  final Map<String, int> _propertyIds;
+  final Map<String, int> _propertyKeys;
 
 
-  RealmMetadata(this.classType, this.classId, this._propertyIds);
+  RealmMetadata(this.classType, this.classKey, this._propertyKeys);
 
-  int operator [](String propertyName) => _propertyIds[propertyName] ?? (throw RealmException("Property $propertyName does not exists on class $classId"));
+  int operator [](String propertyName) => _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exists on class $classKey"));
 }
 
 class RealmCoreAccessor implements RealmAccessor {
@@ -98,7 +98,7 @@ class RealmObject {
 }
 
 //RealmObject package internal members
-extension RealmObjectEx  on RealmObject {
+extension RealmObjectInternal  on RealmObject {
   void manage(RealmObjectHandle handle, RealmCoreAccessor accessor) {
     if (_handle != null) {
       throw RealmException("Object is already managed");

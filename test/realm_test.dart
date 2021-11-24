@@ -60,7 +60,8 @@ void parseTestNameFromArguments(List<String>? arguments) {
   }
 }
 
-Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message',  contains(message ?? '')));
+Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
+Matcher notThrows<T>([String? message]) => isNot(throws<T>(message));
 
 void main([List<String>? args]) {
   parseTestNameFromArguments(args);
@@ -81,7 +82,7 @@ void main([List<String>? args]) {
 
         try {
           await file.delete();
-        } catch(e) {
+        } catch (e) {
           //wait for Realm.close of a previous test and retry the delete before failing
           await Future<void>.delayed(Duration(milliseconds: 120));
           await file.delete();
@@ -106,8 +107,7 @@ void main([List<String>? args]) {
       if (Platform.isAndroid || Platform.isIOS) {
         expect(Configuration.defaultPath, endsWith("default.realm"));
         expect(Configuration.defaultPath, startsWith("/"), reason: "on Android and iOS the default path should contain the path to the user data directory");
-      }
-      else {
+      } else {
         expect(Configuration.defaultPath, equals("default.realm"));
       }
     });
@@ -116,8 +116,7 @@ void main([List<String>? args]) {
       if (Platform.isAndroid || Platform.isIOS) {
         expect(Configuration.filesPath, isNot(endsWith("default.realm")), reason: "on Android and iOS the files path should be a directory");
         expect(Configuration.filesPath, startsWith("/"), reason: "on Android and iOS the files path should be a directory");
-      }
-      else {
+      } else {
         expect(Configuration.filesPath, equals(""), reason: "on Dart standalone the files path should be an empty string");
       }
     });
@@ -138,30 +137,6 @@ void main([List<String>? args]) {
       config.schemaVersion = 3;
       expect(config.schemaVersion, equals(3));
     });
-
-    test('Configuration open with schema subset object', () {
-      var config = Configuration([Car.schema, Person.schema]);
-      var realm = Realm(config);
-
-      var config1 = Configuration([Car.schema]);
-      var realm1 = Realm(config1);
-    }, skip: "Needs investigation");
-
-    test('Configuration open with schema superset object', () {
-      var config = Configuration([Person.schema]);
-      var realm = Realm(config);
-      realm.close();
-
-      config = Configuration([Person.schema]);
-      realm = Realm(config);
-
-
-      var config1 = Configuration([Person.schema, Car.schema]);
-      var realm1 = Realm(config1);
-
-      print("config: ${config.schemaVersion}");
-      print("config1: ${config1.schemaVersion}");
-    }, skip: "Needs investigation");
   });
 
   group('RealmClass tests:', () {
@@ -170,21 +145,89 @@ void main([List<String>? args]) {
       var realm = Realm(config);
     });
 
-     test('Realm can be closed', () async {
+    test('Realm can be closed', () async {
       var config = Configuration([Car.schema]);
       Realm? realm = Realm(config);
       realm.close();
-      realm = null;
-      await Future<void>.delayed(Duration(milliseconds: 50));
+
       realm = Realm(config);
-      realm.close();
+      expect(() => realm!.close(), notThrows<Exception>());
+
+      expect(() => realm!.close(), notThrows<Exception>(), reason: "Calling close() twice should not throw exceptions");
     });
 
-    test('Realm add object', () {
+    test('Realm can be closed and opened again', () async {
+      var config = Configuration([Car.schema]);
+      Realm? realm = Realm(config);
+      realm.close();
+      expect(() => realm = Realm(config), notThrows<Exception>());
+    });
+
+    test('Realm open with schema subset', () {
+      var config = Configuration([Car.schema, Person.schema]);
+      var realm = Realm(config);
+      realm.close();
+
+      config = Configuration([Car.schema]);
+      realm = Realm(config);
+    });
+
+    test('Realm open with schema superset', () {
+      var config = Configuration([Person.schema]);
+      var realm = Realm(config);
+      realm.close();
+
+      var config1 = Configuration([Person.schema, Car.schema]);
+      var realm1 = Realm(config1);
+    });
+
+    test('Realm open twice with same schema', () {
+      var config = Configuration([Person.schema, Car.schema]);
+      var realm = Realm(config);
+
+      var config1 = Configuration([Person.schema, Car.schema]);
+      var realm1 = Realm(config1);
+    });
+
+    test('Realm add throws when no write transaction', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
       final car = Car();
       expect(() => realm.add(car), throws<RealmException>("Wrong transactional state"));
     });
+
+    test('Realm add object', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      expect(() {
+        realm.write(() => realm.add(Car()));
+      }, notThrows<RealmException>(), reason: "Adding objects should not throw");
+    });
+
+    test('Realm add() returns the same object', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      final car = Car();
+      Car? addedCar;
+      realm.write(() {
+        addedCar = realm.add(car);
+      });
+
+      expect(addedCar == car, isTrue);
+    });
+
+    test('Realm add object transaction rollbacks on exception', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      expect(() {
+        realm.write(() {
+          realm.add(Car());
+          throw Exception("some exception while adding objects");
+        });
+      }, allOf(throws<Exception>("some exception while adding objects"))); //TODO: validate the object does not exists in the database
+    }, skip: "//TODO: validate the object does not exists in the database");
   });
 }

@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-export 'realm_class.dart' hide Results, Helpers, DynamicObject;
+export 'realm_class.dart' hide RealmInternal, Results, Helpers, DynamicObject;
 
 /// Is Realm loaded in Flutter or Dart
 const bool isFlutterPlatform = true;
