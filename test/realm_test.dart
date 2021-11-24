@@ -87,7 +87,7 @@ void main([List<String>? args]) {
           await file.delete();
         } catch (e) {
           //wait for Realm.close of a previous test and retry the delete before failing
-          await Future<void>.delayed(Duration(milliseconds: 10));
+          await Future<void>.delayed(Duration(milliseconds: 50));
         }
       }
 
