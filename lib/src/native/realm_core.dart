@@ -285,9 +285,6 @@ class SchemaHandle extends Handle<realm_schema> {
   SchemaHandle._(Pointer<realm_schema> pointer) : super(pointer) {
     _realmLib.realm_attach_finalizer(this, _pointer.cast(), 24);
   }
-
-  @override
-  String toString() => "${_pointer.toString()} value=${_pointer.cast<Uint64>().value}";
 }
 
 class ConfigHandle extends Handle<realm_config> {

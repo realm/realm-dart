@@ -51,13 +51,19 @@ class Realm {
   /// Opens a Realm using the default or a custom [Configuration] object
   Realm(Configuration config) : _config = config {
     _scheduler = _Scheduler(config, close);
-    handle = realmCore.openRealm(config);
-
-    for (var realmClass in config.schema) {
-      final classId = realmCore.getClassId(this, realmClass.name);
-      final propertyIds = realmCore.getPropertyIds(this, classId);
-      final metadata = RealmMetadata(realmClass.type, classId, propertyIds);
-      _metadata[realmClass.type] = metadata;
+    
+    try {
+      handle = realmCore.openRealm(config);
+      
+      for (var realmClass in config.schema) {
+        final classId = realmCore.getClassId(this, realmClass.name);
+        final propertyIds = realmCore.getPropertyIds(this, classId);
+        final metadata = RealmMetadata(realmClass.type, classId, propertyIds);
+        _metadata[realmClass.type] = metadata;
+      }
+    } on Exception {
+     _scheduler.stop();
+     rethrow;
     }
   }
 
@@ -83,17 +89,19 @@ class _Scheduler {
   // ignore: constant_identifier_names
   static const dynamic SCHEDULER_FINALIZE = null;
   late final SchedulerHandle handle;
-  final void Function() onClose;
+  final void Function() onFinalize;
+  final RawReceivePort receivePort = RawReceivePort();
 
-  _Scheduler(Configuration config, this.onClose) {
-    RawReceivePort receivePort = RawReceivePort();
+  _Scheduler(Configuration config, this.onFinalize) {
+    
     receivePort.handler = (dynamic message) {
-      if (message != SCHEDULER_FINALIZE) {
-        realmCore.invokeScheduler(message as int);
+      if (message == SCHEDULER_FINALIZE) {
+        onFinalize();
+        stop();
+        return;
       }
 
-      receivePort.close();
-      onClose();
+      realmCore.invokeScheduler(message as int);
     };
 
     final sendPort = receivePort.sendPort;
@@ -103,6 +111,10 @@ class _Scheduler {
     Isolate.spawn(handler, 2, onExit: sendPort);
 
     realmCore.setScheduler(config, handle);
+  }
+
+  void stop() {
+    receivePort.close();
   }
 
   static void handler(int message) {}
