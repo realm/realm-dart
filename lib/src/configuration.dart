@@ -37,14 +37,28 @@ class Configuration {
     _schema = RealmSchema(schemaObjects),  
     handle = realmCore.createConfig() {
     schemaVersion = 0;
-    path = "default.realm";
-    if (Platform.isAndroid || Platform.isIOS) {
-      String filesPath = realmCore.getFilesPath();
-      path = "$filesPath${Platform.pathSeparator}$path";
-    }
-    
+    path = defaultPath;
     realmCore.setSchema(this);
   }
+
+  /// The platform dependent path to the default realm file
+  static String get defaultPath {
+    var path = "default.realm";
+    if (Platform.isAndroid || Platform.isIOS) {
+      path = "${realmCore.getFilesPath()}${Platform.pathSeparator}$path";
+    }
+    return path;
+  }
+  
+  /// The platform dependent directory path used to store realm files
+  /// 
+  /// On Android and iOS this is the application's data directory
+  static String get filesPath {
+    if (Platform.isAndroid || Platform.isIOS) {
+      return realmCore.getFilesPath();
+    }
+    return "";
+  } 
 
   /// The schema version used to open the [Realm]
   /// 

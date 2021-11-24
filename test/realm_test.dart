@@ -99,6 +99,26 @@ void main([List<String>? args]) {
       expect(() => Configuration([]), throws<RealmException>());
     });
 
+    test('Configuration default path', () {
+      if (Platform.isAndroid || Platform.isIOS) {
+        expect(Configuration.defaultPath, endsWith("default.realm"));
+        expect(Configuration.defaultPath, startsWith("/"), reason: "on Android and iOS the default path should contain the path to the user data directory");
+      }
+      else {
+        expect(Configuration.defaultPath, equals("default.realm"));
+      }
+    });
+
+    test('Configuration files path', () {
+      if (Platform.isAndroid || Platform.isIOS) {
+        expect(Configuration.filesPath, isNot(endsWith("default.realm")), reason: "on Android and iOS the files path should be a directory");
+        expect(Configuration.filesPath, startsWith("/"), reason: "on Android and iOS the files path should be a directory");
+      }
+      else {
+        expect(Configuration.filesPath, equals(""), reason: "on Dart standalone the files path should be an empty string");
+      }
+    });
+
     test('Configuration get/set path', () {
       Configuration config = Configuration([Car.schema]);
       expect(config.path, contains('default.realm'));
