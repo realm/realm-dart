@@ -80,12 +80,13 @@ void main([List<String>? args]) {
           continue;
         }
 
-        try {
-          await file.delete();
-        } catch (e) {
-          //wait for Realm.close of a previous test and retry the delete before failing
-          await Future<void>.delayed(Duration(milliseconds: 120));
-          await file.delete();
+        for (var i = 0; i <= 20; i++) {
+          try {
+            await file.delete();
+          } catch (e) {
+            //wait for Realm.close of a previous test and retry the delete before failing
+            await Future<void>.delayed(Duration(milliseconds: 10));
+          }
         }
 
         var lockFile = File("${file.path}.lock");
@@ -145,20 +146,20 @@ void main([List<String>? args]) {
       var realm = Realm(config);
     });
 
-    test('Realm can be closed', () async {
+    test('Realm can be closed', () {
       var config = Configuration([Car.schema]);
-      Realm? realm = Realm(config);
+      var realm = Realm(config);
       realm.close();
 
       realm = Realm(config);
-      expect(() => realm!.close(), notThrows<Exception>());
+      expect(() => realm.close(), notThrows<Exception>());
 
-      expect(() => realm!.close(), notThrows<Exception>(), reason: "Calling close() twice should not throw exceptions");
+      expect(() => realm.close(), notThrows<Exception>(), reason: "Calling close() twice should not throw exceptions");
     });
 
-    test('Realm can be closed and opened again', () async {
+    test('Realm can be closed and opened again', () {
       var config = Configuration([Car.schema]);
-      Realm? realm = Realm(config);
+      var realm = Realm(config);
       realm.close();
       expect(() => realm = Realm(config), notThrows<Exception>());
     });

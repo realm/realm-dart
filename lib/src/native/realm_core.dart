@@ -72,9 +72,7 @@ class _RealmCore {
       }
       _realmLib.realm_release_last_error(error);
 
-      final lastError = LastError(error.ref.error, message);
-
-      return lastError;
+      return LastError(error.ref.error, message);
     }
 
     return using((Arena arena) {
