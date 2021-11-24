@@ -83,6 +83,7 @@ elseif (APPLE)
     set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIR}")
     set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIR}")
     set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL "${OUTPUT_DIR}")
+    set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO "${OUTPUT_DIR}")
 endif()
 
 # using RUNTIME_OUTPUT_DIRECTORY_<CONFIG> to output the binaries in the target directory wihtout creating a sub directory
@@ -91,3 +92,4 @@ endif()
 set_target_properties(realm_dart PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIR}")
 set_target_properties(realm_dart PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIR}")
 set_target_properties(realm_dart PROPERTIES RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${OUTPUT_DIR}")
+set_target_properties(realm_dart PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${OUTPUT_DIR}")
