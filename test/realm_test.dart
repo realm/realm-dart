@@ -87,7 +87,7 @@ void main([List<String>? args]) {
           await file.delete();
         } catch (e) {
           //wait for Realm.close of a previous test and retry the delete before failing
-          await Future<void>.delayed(Duration(milliseconds: 50));
+          await Future<void>.delayed(Duration(milliseconds: 10));
         }
       }
 
@@ -183,14 +183,12 @@ void main([List<String>? args]) {
       var realm1 = Realm(config1);
     });
 
-    test('Realm open twice with same schema', () {
+    test('Realm open twice with same schema', () async {
       var config = Configuration([Person.schema, Car.schema]);
       var realm = Realm(config);
 
       var config1 = Configuration([Person.schema, Car.schema]);
       var realm1 = Realm(config1);
-      realm.close();
-      realm1.close();
     });
 
     test('Realm add throws when no write transaction', () {
