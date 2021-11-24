@@ -54,7 +54,7 @@ RLM_API bool realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size
 void realm_android_dummy();
 #endif
 
-// // Force the linker to link all exports from realm-core C API
+// Force the linker to link all exports from realm-core C API
 void dummy(void) {
   realm_scheduler_make_default();
   realm_config_new();

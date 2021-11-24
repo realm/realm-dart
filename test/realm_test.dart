@@ -16,10 +16,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+// ignore_for_file: unused_local_variable
+
 import 'dart:io';
 import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
 
+// ignore: avoid_relative_lib_imports
 import '../lib/realm.dart';
 
 part 'realm_test.gen.dart';
@@ -49,9 +52,9 @@ void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
 void parseTestNameFromArguments(List<String>? arguments) {
   arguments = arguments ?? List.empty();
   int nameArgIndex = arguments.indexOf("--name");
-  if (arguments.length != 0) {
+  if (arguments.isNotEmpty) {
     if (nameArgIndex >= 0 && arguments.length > 1) {
-      print("testName: ${testName}");
+      print("testName: $testName");
       testName = arguments[nameArgIndex + 1];
     }
   }
@@ -62,7 +65,7 @@ Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic excepti
 void main([List<String>? args]) {
   parseTestNameFromArguments(args);
 
-  print("Current PID ${pid}");
+  print("Current PID $pid");
 
   initRealm();
 

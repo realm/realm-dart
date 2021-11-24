@@ -26,6 +26,9 @@ else() #iOS
     set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
     set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH NO)
+
+    add_subdirectory(ios)
+    target_link_libraries(realm_dart realm_flutter_ios)
 endif()
 
 target_include_directories(realm_dart PUBLIC ${INCLUDE_DIRS})
@@ -54,7 +57,6 @@ target_link_libraries(realm_dart RealmFFIStatic)
 set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/binary")
 if(ANDROID)
     add_subdirectory(android)
-
     target_link_libraries(realm_dart realm_flutter_android)
 
     #core requires these options for the final *.so file. See more realm-core/CMakeLists.txt

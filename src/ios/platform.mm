@@ -16,14 +16,27 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef REALM_DART_SCHEDULER_H
-#define REALM_DART_SCHEDULER_H
+#include <string>
+#import <Foundation/Foundation.h>
 
-#include "realm.h"
-#include "dart_api_dl.h"
+#include "platform.h"
 
-RLM_API realm_scheduler_t* realm_dart_create_scheduler(Dart_Port port);
+static std::string filesDir;
 
-RLM_API void realm_dart_scheduler_invoke(void* userData);
+std::string default_realm_file_directory()
+{
+    std::string ret;
+    @autoreleasepool {
+        // On iOS the Documents directory isn't user-visible, so put files there
+        NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0];
+        ret = path.UTF8String;
+        return ret;
+    }
+}
 
-#endif // REALM_DART_SCHEDULER_H
+RLM_API const char* realm_dart_get_files_path() {
+    if (filesDir == "") {
+        filesDir = default_realm_file_directory();
+    }
+    return filesDir.c_str();
+}
