@@ -35,8 +35,6 @@ class _Person {
 }
 
 void main() {
-  initRealm();
-
   print("Current PID ${pid}");
 
   //can read the default config

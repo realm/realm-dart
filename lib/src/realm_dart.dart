@@ -16,10 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'realm_class.dart';
-
-
-export 'realm_class.dart' hide RealmInternal, Results, Helpers;
+export 'realm_class.dart' hide RealmInternal;
 
 /// Is Realm loaded in Flutter or Dart
 const bool isFlutterPlatform =  false;

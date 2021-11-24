@@ -26,14 +26,11 @@ import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import '../configuration.dart';
 import '../realm_class.dart';
 import '../realm_object.dart';
+import '../init.dart';
 
 import 'realm_bindings.dart';
 
 late RealmLibrary _realmLib;
-
-void setRealmLibrary(DynamicLibrary realmLibrary) {
-  _realmLib = RealmLibrary(realmLibrary);
-}
 
 final _RealmCore realmCore = _RealmCore();
 
@@ -49,7 +46,10 @@ class _RealmCore {
   // Hide the RealmCore class and make it a singleton
   static _RealmCore? _instance;
 
-  _RealmCore._();
+  _RealmCore._() {
+    final lib = initRealm();
+    _realmLib = RealmLibrary(lib);
+  }
 
   factory _RealmCore() {
     return _instance ??= _RealmCore._();
