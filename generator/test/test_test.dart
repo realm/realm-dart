@@ -37,10 +37,7 @@ class Foo extends _Foo with RealmObject {
   set x(int value) => RealmObject.set<int>(this, 'x', value);
 
   static const schema = SchemaObject(Foo, [
-    SchemaProperty(
-      'x',
-      RealmPropertyType.int,
-    ), // TODO: What about indexed, realmCollectionType, etc.
+    SchemaProperty('x', RealmPropertyType.int),
   ]);
 }
 ''',

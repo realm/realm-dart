@@ -191,7 +191,7 @@ class RealmModelInfo {
             if (f.optional) 'optional': f.optional,
             if (f.primaryKey) 'primaryKey': f.primaryKey,
           };
-          return "SchemaProperty('${f.realmName}', ${f.realmType}, ${namedArgs.toArgsString()}), // TODO: What about indexed, realmCollectionType, etc.";
+          return "SchemaProperty('${f.realmName}', ${f.realmType}${namedArgs.isNotEmpty ? ', ' + namedArgs.toArgsString() : ''}),";
         });
       }
       yield ']);';
