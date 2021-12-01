@@ -45,4 +45,47 @@ class Foo extends _Foo with RealmObject {
       reader: await PackageAssetReader.currentIsolate(),
     );
   });
+  test('all types', () async {
+    await testBuilder(
+        generateRealmObjects(),
+        {
+          'pkg|lib/src/test.dart': r'''
+import 'dart:typed_data';
+
+import 'package:realm_annotations/realm_annotations.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+class _Foo {
+  int x = 0;
+} 
+
+@RealmModel()
+class _Bar {
+  @PrimaryKey()
+  late final String id;
+  late bool aBool;
+  var data = Uint8List(16);
+  late RealmAny any;
+  @MapTo('tidspunkt')
+  var timestamp = DateTime.now();
+  var aDouble = 0.0;
+  late Decimal128 decimal;
+  late _Foo foo;
+  late ObjectId id;
+  late Uuid uuid;
+  @Ignored()
+  var theMeaningOfEverything = 42;
+  var list = [0]; // list of ints with default value
+  Set<int> set;
+  var map = <String, int>{};
+
+  @Indexed()
+  String? anOptionalString;
+}
+'''
+        },
+        reader: await PackageAssetReader.currentIsolate());
+  });
 }
