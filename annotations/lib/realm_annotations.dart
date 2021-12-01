@@ -4,13 +4,7 @@
 library realm_annotations;
 
 export 'realm_property.dart';
+export 'src/realm_types.dart';
 
-class RealmModel {
-  const RealmModel();
-}
-
-class RealmIgnore {
-  const RealmIgnore();
-}
 
 // TODO: Export any libraries intended for clients of this package.

@@ -24,6 +24,8 @@ dependencies:
   package_config: ^2.0.0
   path: ^1.0.0
   pubspec_parse: ^1.0.0
+  realm_annotations:
+    path: ../../annotations
   realm_generator: 
     path: ../../generator
 

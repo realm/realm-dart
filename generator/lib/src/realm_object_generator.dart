@@ -19,31 +19,25 @@
 library realm_generator;
 
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
+import 'dart:ffi';
+import 'dart:math' as math;
+import 'dart:typed_data';
 
-//import 'package:analyzer/dart/element/element.dart';
-import 'package:analyzer/dart/ast/ast.dart';
-import 'package:analyzer/dart/constant/value.dart';
+import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
-import 'package:dart_style/dart_style.dart';
 import 'package:realm_annotations/realm_annotations.dart';
 import 'package:source_gen/source_gen.dart';
-import 'package:code_builder/code_builder.dart';
-
-extension ElementEx on Element {
-  DartObject? annotatedWith(TypeChecker checker,
-      {bool throwOnUnresolved = true}) {
-    return checker.firstAnnotationOf(this,
-        throwOnUnresolved: throwOnUnresolved);
-  }
-}
 
 // NOTE: This is copied from `package:build_runner_core`.
 // Hopefully it will be made public at some point.
 String humanReadable(Duration duration) {
+  // Added microseconds
+  if (duration < const Duration(milliseconds: 1)) {
+    return '${duration.inMicroseconds}μs';
+  }
   if (duration < const Duration(seconds: 1)) {
     return '${duration.inMilliseconds}ms';
   }
@@ -61,315 +55,380 @@ String humanReadable(Duration duration) {
 }
 
 FutureOr<T> meassure<T>(FutureOr<T> Function() action,
-    {String tag = ''}) async {
-  final stopwatch = Stopwatch()..start();
-  try {
-    return await action();
-  } finally {
-    stopwatch.stop();
-    final time = humanReadable(stopwatch.elapsed);
-    print('[$tag] completed, took $time');
+    {String tag = '', repetitions = 1}) async {
+  return [
+    for (int i = 0; i < repetitions; ++i)
+      await (() async {
+        final stopwatch = Stopwatch()..start();
+        try {
+          return await action();
+        } finally {
+          stopwatch.stop();
+          final time = humanReadable(stopwatch.elapsed);
+          print('[$tag ($i)] completed, took $time');
+        }
+      })()
+  ].last;
+}
+
+extension on DartType {
+  bool isExactly<T>() => TypeChecker.fromRuntime(T).isExactlyType(this);
+
+  bool get isRealmAny =>
+      const TypeChecker.fromRuntime(RealmAny).isAssignableFromType(this);
+  bool get isRealmBacklink => false; // TODO
+  bool get isRealmObject =>
+      realmModelChecker.annotationsOfExact(element!).isNotEmpty;
+
+  bool get isNullable => nullabilitySuffix != NullabilitySuffix.none;
+
+  RealmCollectionType get collectionType {
+    if (isDartCoreSet) return RealmCollectionType.set;
+    if (isDartCoreList) return RealmCollectionType.list;
+    // TODO: Check that key type is String!
+    if (isDartCoreMap) return RealmCollectionType.map;
+    return RealmCollectionType.none;
+  }
+
+  RealmPropertyType get realmType =>
+      _realmType(true) ??
+      (throw UnsupportedError('Not a valid realm type: ${this}'));
+
+  RealmPropertyType? _realmType(bool recurse) {
+    if (collectionType != RealmCollectionType.none && recurse) {
+      return (this as ParameterizedType)
+          .typeArguments
+          .last
+          ._realmType(false); // only recurse once! (for now)
+    }
+    if (isDartCoreInt) return RealmPropertyType.int;
+    if (isDartCoreBool) return RealmPropertyType.bool;
+    if (isDartCoreString) return RealmPropertyType.string;
+    if (isExactly<Uint8List>()) return RealmPropertyType.binary;
+    if (isRealmAny) return RealmPropertyType.mixed;
+    if (isExactly<DateTime>()) return RealmPropertyType.timestamp;
+    if (isExactly<Float>()) return RealmPropertyType.float;
+    if (isDartCoreNum || isDartCoreDouble) return RealmPropertyType.double;
+    if (isExactly<Decimal128>()) return RealmPropertyType.decimal128;
+    if (isRealmObject) return RealmPropertyType.object;
+    if (isRealmBacklink) return RealmPropertyType.linkingObjects;
+    if (isExactly<ObjectId>()) return RealmPropertyType.objectid;
+    if (isExactly<Uuid>()) return RealmPropertyType.uuid;
+
+    return null;
   }
 }
 
-String lit(Object o) {
-  if (o is String) return "'$o'";
-  return o.toString();
+extension on RealmPropertyType {
+  Type get dartRuntimeType {
+    switch (this) {
+      case RealmPropertyType.int:
+        return int;
+      case RealmPropertyType.bool:
+        return bool;
+      case RealmPropertyType.string:
+        return String;
+      case RealmPropertyType.binary:
+        return Uint8List;
+      case RealmPropertyType.mixed:
+        return RealmAny;
+      case RealmPropertyType.timestamp:
+        return DateTime;
+      case RealmPropertyType.float:
+        return Float;
+      case RealmPropertyType.decimal128:
+        return Decimal128;
+      case RealmPropertyType.object:
+        // TODO: Handle this case.
+        break;
+      case RealmPropertyType.linkingObjects:
+        // TODO: Handle this case.
+        break;
+      case RealmPropertyType.objectid:
+        return ObjectId;
+      case RealmPropertyType.uuid:
+        return Uuid;
+      default:
+        break;
+    }
+    throw Error(); // TODO!
+  }
 }
 
-String generateTemplate(Iterable<ClassElement> models) {
-  return (() sync* {
-    for (final model in models) {
-      var className = model.name.substring(1);
-      yield 'class $className extends RealmObject {';
-      yield '  $className._constructor() : super._contructor();';
-      yield '  $className();';
-      yield '';
-      final schemaProperties = <Object>[];
-      for (final f in model.fields) {
-        final type = f.type.getDisplayString(withNullability: true);
-        final name = f.name;
-        yield "  $type get $name => super['$name'] as $type;";
-        yield "  set $name($type value) => super['$name'] = value;";
-        schemaProperties.add("SchemaProperty('$name', type: '$type')");
+class RealmModelInfo {
+  final String name;
+  final String prototypeName;
+  final String realmName;
+  final List<RealmFieldInfo> fields;
+
+  RealmModelInfo(this.name, this.prototypeName, this.realmName, this.fields);
+
+  Iterable<String> toCode() sync* {
+    yield 'class $name extends $prototypeName with RealmObject {';
+    {
+      yield '$name({';
+      {
+        yield* fields.map((f) =>
+            '${f.optional | f.defaultValue ? '' : 'required '}${f.typeName}${!f.optional & f.defaultValue ? '?' : ''} ${f.name},');
+        yield '}) {';
+        yield* fields.map((f) => f.defaultValue
+            ? 'this.${f.name} = ${f.declaration.node.toString().replaceFirst('=', '??')};' // TODO: Feels a bit hacky!
+            : 'this.${f.name} = ${f.name};');
       }
-      yield "  static dynamic getSchema() => RealmObject.getSchema('$className', [${schemaProperties.join(',')},]);";
       yield '}';
+      yield '';
+
+      yield* fields.expand((f) => [
+            ...f.toCode(),
+            '',
+          ]);
+
+      yield 'static const schema = SchemaObject($realmName, [';
+      {
+        yield* fields.map((f) {
+          final namedArgs = {
+            if (f.name != f.realmName) 'mapTo': f.realmName,
+            if (f.optional) 'optional': f.optional,
+            if (f.primaryKey) 'primaryKey': f.primaryKey,
+          };
+          return "SchemaProperty('${f.realmName}', ${f.realmType}, ${namedArgs.toArgsString()}), // TODO: What about indexed, realmCollectionType, etc.";
+        });
+      }
+      yield ']);';
+      yield '';
     }
-  }())
-      .join('\n'); // uses StringBuffer internally
-}
-
-String generateCodeBuilder(Iterable<ClassElement> models) {
-  final emitter = DartEmitter();
-  final generated = StringBuffer();
-
-  for (var model in models) {
-    var className = model.name.substring(1);
-    final c = Class((b) => b
-      ..name = className
-      ..extend = refer('RealmObject')
-      ..constructors.addAll([
-        Constructor((b) => b..name = '_constructor'),
-        Constructor(),
-      ])
-
-      // getters
-      ..methods.addAll(model.fields.map((f) => Method((b) => b
-        ..name = f.name
-        ..type = MethodType.getter
-        ..returns = refer(f.type.getDisplayString(withNullability: true))
-        ..lambda = true
-        ..body = Code(
-          'super[\'${f.name}\'] as ${f.type.getDisplayString(withNullability: true)}',
-        ))))
-
-      // setters
-      ..methods.addAll(model.fields.map((f) => Method((b) => b
-        ..name = f.name
-        ..type = MethodType.setter
-        ..requiredParameters.add(Parameter((b) => b
-          ..name = 'value'
-          ..type = refer(f.type.getDisplayString(withNullability: true))))
-        ..lambda = true
-        ..body = Code('super[\'${f.name}\'] = value'))))
-
-      // getSchema
-      ..methods.add(Method((b) => b
-        ..name = 'getSchema'
-        ..static = true
-        ..returns = refer('dynamic')
-        ..body = refer('RealmObject.getSchema').call([
-          literalString(className),
-          literalList([
-            for (final f in model.fields)
-              refer('SchemaProperty').call(
-                [literalString(f.name)],
-                {
-                  'type': literalString(
-                      f.type.getDisplayString(withNullability: false))
-                },
-              )
-          ]),
-        ]).code)));
-
-    final result = c.accept(emitter);
-    generated.write(result);
+    yield '}';
   }
-  return generated.toString();
 }
 
-String generateStringBuffer(Iterable<ClassElement> models) {
-  final generated = StringBuffer();
-  final getSchemaPropertyBuffer = StringBuffer();
-
-  for (var schemaClass in models) {
-    var className = schemaClass.name.substring(1);
-
-    /// The `const dynamic type = ...` is there to remove the warning of unused_element for the Realm data model class in the user dart file
-    getSchemaPropertyBuffer.writeln("""
-            static dynamic getSchema() {
-              const dynamic type = ${schemaClass.name};
-              return RealmObject.getSchema('$className', [
-            """);
-
-    //Class._constructor() is used from native code when creating new instances of this type
-    //Class() constructor is used to be able to create new detached objects and add them to the realm
-    generated.writeln("""class $className extends RealmObject {
-          // ignore_for_file: unused_element, unused_local_variable
-          $className._constructor() : super.constructor();
-          $className();
-        """);
-
-    for (var field in schemaClass.fields) {
-      if (field.type.element!.name == "dynamic") {
-        throw Exception(
-            "Class '${schemaClass.name}' has a dynamic type field '${field.name}'");
-      }
-
-      var fieldTypeName = field.type.element!.name;
-      if (fieldTypeName!.startsWith('_')) {
-        fieldTypeName = fieldTypeName.substring(1);
-      }
-
-      // else if (field.type.isDartCoreInt) {
-
-      // }
-      // else if (field.type.isDartCoreDouble) {
-
-      // }
-      // else if (field.type.isDartCoreBool) {
-
-      // }
-
-      for (var meta in field.metadata) {
-        if (meta.element!.enclosingElement!.name != "RealmProperty") {
-          continue;
-        }
-
-        //copy the @RealmProperty anotation
-        var realmPropertyDefiniton = meta.toSource();
-        generated.writeln("$realmPropertyDefiniton");
-
-        String? listTypeArumentName = "";
-        if (fieldTypeName == "List") {
-          InterfaceType fieldType = field.type as InterfaceType;
-          var listTypeArument = fieldType.typeArguments[0].element;
-          listTypeArumentName = listTypeArument!.name;
-          var isDartType = listTypeArumentName == "String" ||
-              listTypeArumentName == "int" ||
-              listTypeArumentName == "double" ||
-              listTypeArumentName == "bool";
-
-          // if (field.type.element.name == "dynamic") {
-          //   throw new Exception("Class '${schemaClass.name}' has a List<dynamic> type field '${field.displayName}'");
-          // }
-
-          //TODO: could read the source and try to extract the type T from List<T>
-          //the source is available here or from
-          //String source = field.source.contents.data;
-          //see also [AnalysisContext.getContents]
-          //also field.session has an
-          //int offs = field.declaration.nameOffset;
-          //field.declaration.linkedNode.parent.childEntities.first.typeArguments.arguments.single.name.name == 'Car' //when List<Car>
-          //field.session.getParsedUnit(field.source.fullName)
-
-          if (!isDartType && !listTypeArumentName!.startsWith("_")) {
-            throw Exception(
-                "Field ${schemaClass.name}.${field.name} has an inavlid type ${field.type.toString()}. Type parameter name should start with '_' and be a RealmObject schema type");
-          }
-
-          if (listTypeArumentName!.startsWith("_")) {
-            listTypeArumentName = listTypeArumentName.substring(1);
-          }
-
-          //generate
-          //String get make => super['make'];
-          generated.writeln(
-              "$fieldTypeName<$listTypeArumentName> get ${field.name} => this.super_get<$listTypeArumentName>('${field.name}');");
-
-          //generate
-          //set name(String value) => super["name"] = value;
-          generated.writeln(
-              "set ${field.name}($fieldTypeName<$listTypeArumentName> value) => this.super_set<$listTypeArumentName>('${field.name}', value);");
+extension<K, V> on Map<K, V> {
+  String toArgsString() {
+    return () sync* {
+      for (final e in entries) {
+        if (e.value is String) {
+          yield "${e.key}: '${e.value}'";
         } else {
-          //generate
-          //String get make => super['make'];
-          generated.writeln(
-              "$fieldTypeName get ${field.name} => super['${field.name}'] as $fieldTypeName;");
-
-          //generate
-          //set name(String value) => super["name"] = value;
-          generated.writeln(
-              "set ${field.name}($fieldTypeName value) => super['${field.name}'] = value;");
+          yield '${e.key}: ${e.value}';
         }
-        //empty line between fields
-        generated.writeln();
-
-        //generte get _schema property
-        //generated.writeln("dynamic get _schema {");
-        //generated.writeln("var schema = RealmObject.getSchema('${className}', [");
-
-        //infer the type of the object
-        var schemaPropertyDefinition = "SchemaProperty('${field.name}', ";
-
-        //if not RealmProperty.type is given. Try to infer the type
-        if (!realmPropertyDefiniton.contains("type:")) {
-          //normalize string to realm string
-          if (field.type.isDartCoreString) {
-            fieldTypeName = "string";
-          }
-
-          var inferredTypeDefinition = "type: '$fieldTypeName',";
-          if (fieldTypeName == "List") {
-            if (listTypeArumentName == "String") {
-              listTypeArumentName = "string";
-            }
-            inferredTypeDefinition = "type: '$listTypeArumentName[]',";
-          }
-
-          //schemaPropertyName.replaceFirst(")", ")")
-          schemaPropertyDefinition += inferredTypeDefinition;
-          //schemaPropertyDefinition = "SchemaProperty('${field.name}', ${inferredTypeDefinition},";
-          //schemaPropertyDefinition = schemaPropertyDefinition.replaceFirst(",", ",${inferredTypeDefinition},");
-          //schemaPropertyDefinition = schemaPropertyDefinition.replaceFirst(', ', ' ');
-        }
-
-        var schemaPropertyName = realmPropertyDefiniton.replaceFirst(
-            "@RealmProperty(", schemaPropertyDefinition);
-        schemaPropertyName = schemaPropertyName.replaceFirst(",)", ")");
-        getSchemaPropertyBuffer.writeln("$schemaPropertyName,");
       }
+    }()
+        .join(',');
+  }
+}
+
+// TODO: Since build_runner runs dart format anyway indentation is kind of mood :-/
+Iterable<String> indent(Iterable<String> Function() block) sync* {
+  for (final statement in block()) {
+    yield '  ' + statement;
+  }
+}
+
+extension on ClassElement {
+  RealmModelInfo? get realmInfo {
+    final realmModel = realmModelChecker.annotationsOfExact(this).singleOrNull;
+    if (realmModel == null) return null;
+    if (!isPrivate) {
+      // TODO: Warn user, but proceed
     }
 
-    getSchemaPropertyBuffer.writeln("]);");
-    getSchemaPropertyBuffer.writeln("}");
+    // TODO: Allow user to specify overrides globally
+    final prefix = realmModel.getField('prefix')?.toStringValue() ?? '_';
+    final suffix = realmModel.getField('suffix')?.toStringValue() ?? '';
 
-    //end class
-    generated.writeln(getSchemaPropertyBuffer.toString());
-    generated.writeln("}");
+    final prototypeName = this.name;
+    assert(prototypeName.startsWith(prefix)); // TODO: Better error handling
+    assert(prototypeName.endsWith(suffix));
+
+    final name = prototypeName.substring(
+        prefix.length, prototypeName.length - suffix.length);
+
+    final mapTo = mapToChecker.annotationsOfExact(this).singleOrNull;
+    final realmName = mapTo?.getField('name')?.toStringValue() ?? name;
+
+    return RealmModelInfo(
+      name,
+      prototypeName,
+      realmName,
+      fields.realmInfo.toList(),
+    );
   }
+}
 
-  //String fileName = library.element.definingCompilationUnit.librarySource.shortName;
-  //fileName = fileName.replaceAll(".dart", ".g.dart");
+extension on Iterable<ClassElement> {
+  Iterable<RealmModelInfo> get realmInfo =>
+      map((m) => m.realmInfo).whereNotNull;
+}
 
-  // String generated = """part '${fileName}'; \n
-  //                   """;
-  //return generated;
-  return generated.toString();
+enum RealmCollectionType {
+  none,
+  list,
+  set,
+  map,
+}
+
+class RealmFieldInfo {
+  final String name;
+  final String realmName;
+  final DartType type;
+  final ElementDeclarationResult declaration;
+  final bool primaryKey;
+  final bool indexed;
+  final bool optional;
+  final bool defaultValue;
+
+  RealmFieldInfo({
+    required this.name,
+    required this.type,
+    required this.declaration,
+    String? mapTo,
+    this.primaryKey = false,
+    this.indexed = false,
+    this.optional = false,
+    this.defaultValue = false,
+  }) : realmName = mapTo ?? name;
+
+  String get typeName => type.getDisplayString(withNullability: true);
+  RealmPropertyType get realmType => type.realmType;
+  RealmCollectionType get realmCollectionType => type.collectionType;
+
+  Iterable<String> toCode() sync* {
+    yield '@override';
+    yield "$typeName get $name => RealmObject.get<$typeName>(this, '$realmName');";
+    yield '@override';
+    yield "set $name($typeName value) => RealmObject.set<$typeName>(this, '$realmName', value);";
+  }
+}
+
+const realmModelChecker = TypeChecker.fromRuntime(RealmModel);
+const ignoredChecker = TypeChecker.fromRuntime(Ignored);
+const indexedChecker = TypeChecker.fromRuntime(Indexed);
+const mapToChecker = TypeChecker.fromRuntime(MapTo);
+const primaryKeyChecker = TypeChecker.fromRuntime(PrimaryKey);
+
+const realmAnnotationChecker = TypeChecker.any([
+  ignoredChecker,
+  indexedChecker,
+  mapToChecker,
+  primaryKeyChecker,
+]);
+
+final lineMatcher = RegExp(r'^.*$', multiLine: true);
+
+extension on int {
+  String pad(int width) => toString().padLeft(width);
+  int get width => math.log(this) ~/ math.ln10 + 1;
+}
+
+extension on Element {
+  String get display {
+    return () sync* {
+      // NOTE: I find it odd that there is no good support for this in the analyzer package
+      // TODO: Use spanForElement() .. Doh!
+      final code = source!.contents.data;
+      const contextLines = 3;
+      final matches = lineMatcher.allMatches(code).toList(); // split on lines
+
+      var lineIndex =
+          matches.indexWhere((m) => nameOffset < m.start); // one past!
+      lineIndex = lineIndex < 0 ? matches.length : lineIndex;
+
+      final firstLine = math.max(0, lineIndex - contextLines);
+      final lastLine = math.min(lineIndex + contextLines, matches.length);
+      final nameLineOffset = nameOffset - matches[lineIndex - 1].start;
+
+      final lineNumberWidth = lastLine.width;
+      var currentLine = firstLine;
+      context(int start, int end) => matches.getRange(start, end).map(
+          (m) => '${(++currentLine).pad(lineNumberWidth)} │ ${m.group(0)}');
+
+      final prefix = ' ' * lineNumberWidth;
+      yield '\n$source:$lineIndex:$nameLineOffset';
+      yield prefix + ' ╷ ';
+      yield* context(firstLine, lineIndex);
+      yield prefix + ' │ ' + ' ' * nameLineOffset + '^' * nameLength;
+      yield* context(lineIndex, lastLine);
+      yield prefix + ' ╵ ';
+    }()
+        .join('\n');
+  }
+}
+
+ElementDeclarationResult getDeclarationFromElement(Element element) {
+  // TODO: Lots of bangs here. Ensure proper error handling
+  final session = element.session!;
+  final parsedLibrary = session.getParsedLibraryByElement(element.library!)
+      as ParsedLibraryResult;
+  return parsedLibrary.getElementDeclaration(element)!;
+}
+
+extension on FieldElement {
+  RealmFieldInfo? get realmInfo {
+    if (ignoredChecker.annotationsOfExact(this).isNotEmpty || isPrivate) {
+      // skip ignored and private fields
+      return null;
+    }
+
+    final indexed = indexedChecker.annotationsOfExact(this).isNotEmpty;
+    final optional = type.isNullable;
+    final primaryKey = primaryKeyChecker.annotationsOfExact(this).isNotEmpty;
+    if (primaryKey & optional) {
+      print('Primary key cannot be nullable $display');
+      // TODO: throw exception
+    }
+    if (primaryKey & indexed) {
+      print('Indexed is implied for a primary key $display');
+      // TODO: Warn, but don't use print
+    }
+    if (primaryKey ^ isFinal) {
+      print(
+          'Primary keys and no other fields should be marked as final $display');
+      // TODO: Warn, but don't use print
+    }
+    if ((primaryKey | indexed) &
+        ![
+          RealmPropertyType.string,
+          RealmPropertyType.int,
+          RealmPropertyType.bool,
+        ].contains(type.realmType)) {
+      print(
+          'Realm only support indexes on String, int, and bool fields $display');
+      // TODO: throw exception
+    }
+
+    final mapTo = mapToChecker.annotationsOfExact(this).singleOrNull;
+
+    return RealmFieldInfo(
+      name: name,
+      type: type,
+      declaration: getDeclarationFromElement(this),
+      indexed: indexed,
+      primaryKey: primaryKey,
+      optional: optional,
+      mapTo: mapTo?.getField('name')?.toStringValue(),
+      defaultValue: hasInitializer,
+    );
+  }
+}
+
+extension<T> on Iterable<T?> {
+  Iterable<T> get whereNotNull => where((i) => i != null).cast<T>();
+}
+
+extension<T> on Iterable<T> {
+  T? get singleOrNull =>
+      cast<T?>().singleWhere((element) => true, orElse: () => null);
+}
+
+extension on Iterable<FieldElement> {
+  Iterable<RealmFieldInfo> get realmInfo =>
+      map((f) => f.realmInfo).whereNotNull;
 }
 
 class RealmObjectGenerator extends Generator {
   @override
   Future<String> generate(LibraryReader library, BuildStep buildStep) async {
     return await meassure(() async {
-      final schemaClasses = await meassure(() async {
-        final explicitModels = library
-            .annotatedWith(const TypeChecker.fromRuntime(RealmModel))
-            .map((a) => a.element)
-            .whereType<ClassElement>();
-
-        final realmPropertyChecker =
-            const TypeChecker.fromRuntime(RealmProperty);
-        final implicitModels = library.classes.where(
-          (c) => c.fields
-              .where((f) => realmPropertyChecker.firstAnnotationOf(f) != null)
-              .isNotEmpty,
-        );
-
-        final models = explicitModels.followedBy(implicitModels).toSet();
-
-        // TODO.. maybe lift this restriction
-        return models.where((m) => m.name.startsWith('_'));
-      }, tag: 'analyze');
-
-      var before = await meassure(
-        () async => generateStringBuffer(schemaClasses),
-        tag: 'generate (before)',
-      );
-      var codeBuilder = await meassure(
-        () async => generateCodeBuilder(schemaClasses),
-        tag: 'generate (code builder)',
-      );
-      var template = await meassure(
-        () async => generateTemplate(schemaClasses),
-        tag: 'generate (template)',
-      );
-      before = await meassure(
-        () async => generateStringBuffer(schemaClasses),
-        tag: 'generate (before again)',
-      );
-      codeBuilder = await meassure(
-        () async => generateCodeBuilder(schemaClasses),
-        tag: 'generate (code builder again)',
-      );
-      template = await meassure(
-        () async => generateTemplate(schemaClasses),
-        tag: 'generate (template again)',
-      );
-
-      //print(DartFormatter().format(after));
-      return template;
+      return library.classes.realmInfo.expand((m) => m.toCode()).join('\n');
     }, tag: 'generate');
   }
 }

@@ -302,6 +302,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.0"
+  realm_annotations:
+    dependency: transitive
+    description:
+      path: "../../annotations"
+      relative: true
+    source: path
+    version: "1.0.0"
   realm_dart:
     dependency: "direct main"
     description:
@@ -415,4 +422,4 @@ packages:
     source: hosted
     version: "3.1.0"
 sdks:
-  dart: ">=2.12.0 <3.0.0"
+  dart: ">=2.14.4 <3.0.0"
