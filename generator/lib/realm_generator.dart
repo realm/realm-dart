@@ -29,7 +29,7 @@ import 'package:dart_style/dart_style.dart';
 import 'src/realm_object_generator.dart';
 
 /// @nodoc
-Builder generateRealmObjects(BuilderOptions options) => SharedPartBuilder([RealmObjectGenerator()], 'RealmObjects', formatOutput: (output) {
+Builder generateRealmObjects([BuilderOptions? options]) => SharedPartBuilder([RealmObjectGenerator()], 'RealmObjects', formatOutput: (output) {
   var formatter = DartFormatter(pageWidth: 300);
   return formatter.format(output);
 });
