@@ -30,6 +30,7 @@ import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
 import 'package:realm_annotations/realm_annotations.dart';
 import 'package:source_gen/source_gen.dart';
+import 'package:source_span/source_span.dart';
 
 // NOTE: This is copied from `package:build_runner_core`.
 // Hopefully it will be made public at some point.
@@ -65,7 +66,7 @@ FutureOr<T> meassure<T>(FutureOr<T> Function() action,
         } finally {
           stopwatch.stop();
           final time = humanReadable(stopwatch.elapsed);
-          print('[$tag ($i)] completed, took $time');
+          log.info('[$tag ($i)] completed, took $time');
         }
       })()
   ].last;
@@ -92,7 +93,8 @@ extension on DartType {
 
   RealmPropertyType get realmType =>
       _realmType(true) ??
-      (throw UnsupportedError('Not a valid realm type: ${this}'));
+      (throw SourceSpanException(
+          'Not a valid realm type: ${this}', element?.span));
 
   RealmPropertyType? _realmType(bool recurse) {
     if (collectionType != RealmCollectionType.none && recurse) {
@@ -116,42 +118,6 @@ extension on DartType {
     if (isExactly<Uuid>()) return RealmPropertyType.uuid;
 
     return null;
-  }
-}
-
-extension on RealmPropertyType {
-  Type get dartRuntimeType {
-    switch (this) {
-      case RealmPropertyType.int:
-        return int;
-      case RealmPropertyType.bool:
-        return bool;
-      case RealmPropertyType.string:
-        return String;
-      case RealmPropertyType.binary:
-        return Uint8List;
-      case RealmPropertyType.mixed:
-        return RealmAny;
-      case RealmPropertyType.timestamp:
-        return DateTime;
-      case RealmPropertyType.float:
-        return Float;
-      case RealmPropertyType.decimal128:
-        return Decimal128;
-      case RealmPropertyType.object:
-        // TODO: Handle this case.
-        break;
-      case RealmPropertyType.linkingObjects:
-        // TODO: Handle this case.
-        break;
-      case RealmPropertyType.objectid:
-        return ObjectId;
-      case RealmPropertyType.uuid:
-        return Uuid;
-      default:
-        break;
-    }
-    throw Error(); // TODO!
   }
 }
 
@@ -320,6 +286,8 @@ extension on int {
 }
 
 extension on Element {
+  SourceSpan? get span => spanForElement(this);
+
   String get display {
     return () sync* {
       // NOTE: I find it odd that there is no good support for this in the analyzer package
@@ -338,16 +306,16 @@ extension on Element {
 
       final lineNumberWidth = lastLine.width;
       var currentLine = firstLine;
-      context(int start, int end) => matches.getRange(start, end).map(
-          (m) => '${(++currentLine).pad(lineNumberWidth)} │ ${m.group(0)}');
+      context(int start, int end) => matches.getRange(start, end).map((m) =>
+          '${(++currentLine).pad(lineNumberWidth)} │ ${m.group(0).toString().trimRight()}');
 
       final prefix = ' ' * lineNumberWidth;
       yield '\n$source:$lineIndex:$nameLineOffset';
-      yield prefix + ' ╷ ';
+      yield prefix + ' ╷';
       yield* context(firstLine, lineIndex);
       yield prefix + ' │ ' + ' ' * nameLineOffset + '^' * nameLength;
       yield* context(lineIndex, lastLine);
-      yield prefix + ' ╵ ';
+      yield prefix + ' ╵';
     }()
         .join('\n');
   }
@@ -372,17 +340,15 @@ extension on FieldElement {
     final optional = type.isNullable;
     final primaryKey = primaryKeyChecker.annotationsOfExact(this).isNotEmpty;
     if (primaryKey & optional) {
-      print('Primary key cannot be nullable $display');
-      // TODO: throw exception
+      throw SourceSpanException('Primary key cannot be nullable', span);
     }
     if (primaryKey & indexed) {
-      print('Indexed is implied for a primary key $display');
-      // TODO: Warn, but don't use print
+      log.info('Indexed is implied for a primary key $display');
     }
     if (primaryKey ^ isFinal) {
-      print(
-          'Primary keys and no other fields should be marked as final $display');
-      // TODO: Warn, but don't use print
+      log.warning(
+        'Primary keys and no other fields should be marked as final $display',
+      );
     }
     if ((primaryKey | indexed) &
         ![
@@ -390,9 +356,10 @@ extension on FieldElement {
           RealmPropertyType.int,
           RealmPropertyType.bool,
         ].contains(type.realmType)) {
-      print(
-          'Realm only support indexes on String, int, and bool fields $display');
-      // TODO: throw exception
+      throw SourceSpanException(
+        'Realm only support indexes on String, int, and bool fields',
+        span,
+      );
     }
 
     final mapTo = mapToChecker.annotationsOfExact(this).singleOrNull;
