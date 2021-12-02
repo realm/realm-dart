@@ -20,8 +20,8 @@ import 'package:realm/realm.dart';
 
 part 'main.g.dart';
 
+@RealmModel()
 class _Car {
-  @RealmProperty(RealmPropertyType.string)
   late String make;
 }
 
@@ -40,7 +40,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     print("initState");
-    var config = Configuration([Car.getSchema()]);
+    var config = Configuration([Car.schema]);
     var realm = Realm(config);
 
     // realm.write(() {

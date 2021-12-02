@@ -22,7 +22,7 @@ import 'realm.dart';
 
 // import 'package:realm/realm.dart'
 
-part 'main.gen.dart';
+part 'main.g.dart';
 
 @RealmModel()
 class _Car {

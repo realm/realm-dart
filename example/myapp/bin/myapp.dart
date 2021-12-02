@@ -43,12 +43,10 @@ class _Car {
 @RealmModel()
 class _Person {
   @MapTo('navn')
-  @Indexed()
-//  @MapTo('bæ')
   @PrimaryKey()
   late final String name;
   @Indexed()
-  int? age = null;
+  int? age = 47;
   @Ignored()
   var friends = <_Person>[];
   late int born;

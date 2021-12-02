@@ -131,71 +131,23 @@ class Car extends _Car with RealmObject {
   set properties(Map<String, String> value) => RealmObject.set<Map<String, String>>(this, 'properties', value);
 
   static const schema = SchemaObject(Car, [
-    SchemaProperty(
-      'make',
-      RealmPropertyType.string,
-    ), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'person',
-      RealmPropertyType.object,
-    ), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'bytes',
-      RealmPropertyType.binary,
-    ), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty('who', RealmPropertyType.int, optional: true), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'b',
-      RealmPropertyType.bool,
-    ), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'text',
-      RealmPropertyType.string,
-    ), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'i',
-      RealmPropertyType.int,
-    ), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'd',
-      RealmPropertyType.double,
-    ), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'data',
-      RealmPropertyType.binary,
-    ), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'timestamp',
-      RealmPropertyType.timestamp,
-    ), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'id',
-      RealmPropertyType.objectid,
-    ), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'decimal',
-      RealmPropertyType.decimal128,
-    ), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'uuid',
-      RealmPropertyType.uuid,
-    ), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'any',
-      RealmPropertyType.mixed,
-    ), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'serviceAt',
-      RealmPropertyType.int,
-    ), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'part',
-      RealmPropertyType.string,
-    ), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'properties',
-      RealmPropertyType.string,
-    ), // TODO: What about indexed, realmCollectionType, etc.
+    SchemaProperty('make', RealmPropertyType.string),
+    SchemaProperty('person', RealmPropertyType.object),
+    SchemaProperty('bytes', RealmPropertyType.binary),
+    SchemaProperty('who', RealmPropertyType.int, optional: true),
+    SchemaProperty('b', RealmPropertyType.bool),
+    SchemaProperty('text', RealmPropertyType.string),
+    SchemaProperty('i', RealmPropertyType.int),
+    SchemaProperty('d', RealmPropertyType.double),
+    SchemaProperty('data', RealmPropertyType.binary),
+    SchemaProperty('timestamp', RealmPropertyType.timestamp),
+    SchemaProperty('id', RealmPropertyType.objectid),
+    SchemaProperty('decimal', RealmPropertyType.decimal128),
+    SchemaProperty('uuid', RealmPropertyType.uuid),
+    SchemaProperty('any', RealmPropertyType.mixed),
+    SchemaProperty('serviceAt', RealmPropertyType.int),
+    SchemaProperty('part', RealmPropertyType.string),
+    SchemaProperty('properties', RealmPropertyType.string),
   ]);
 }
 
@@ -207,7 +159,7 @@ class Person extends _Person with RealmObject {
     required _Car car,
   }) {
     this.name = name;
-    this.age = age ?? null;
+    this.age = age ?? 47;
     this.born = born;
     this.car = car;
   }
@@ -233,15 +185,9 @@ class Person extends _Person with RealmObject {
   set car(_Car value) => RealmObject.set<_Car>(this, 'car', value);
 
   static const schema = SchemaObject(Person, [
-    SchemaProperty('navn', RealmPropertyType.string, mapTo: 'navn', primaryKey: true), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty('age', RealmPropertyType.int, optional: true), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'born',
-      RealmPropertyType.int,
-    ), // TODO: What about indexed, realmCollectionType, etc.
-    SchemaProperty(
-      'car',
-      RealmPropertyType.object,
-    ), // TODO: What about indexed, realmCollectionType, etc.
+    SchemaProperty('navn', RealmPropertyType.string, mapTo: 'navn', primaryKey: true),
+    SchemaProperty('age', RealmPropertyType.int, optional: true),
+    SchemaProperty('born', RealmPropertyType.int),
+    SchemaProperty('car', RealmPropertyType.object),
   ]);
 }

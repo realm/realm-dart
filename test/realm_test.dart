@@ -26,7 +26,7 @@ import 'package:test/test.dart' as testing;
 
 import '../lib/realm.dart';
 
-part 'realm_test.gen.dart';
+part 'realm_test.g.dart';
 
 @RealmModel()
 class _Car {

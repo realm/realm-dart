@@ -16,36 +16,19 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'realmobject.dart';
+import 'package:realm_annotations/realm_annotations.dart';
 
-part 'test.g.dart';
+//part 'test.g.dart';
 
+@RealmModel()
 class _Car {
-  @RealmProperty()
   late String make;
-
-  @RealmProperty(type: "string")
   late String model;
+  int? kilometers = 50;
+  var otherCars = <_Car>[];
 
-  @RealmProperty(type: "int", defaultValue: "50", optional: true,)
-  late String kilometers;
-
-  @RealmProperty(optional: true, defaultValue: "5")
-  late _Car myCarsLooonName;
-
-  @RealmProperty(type: "Car[]", optional: true)
-  late List<_Car> otherCarsMyLongName;
-
-  // Not supported
-  // @RealmProperty(optional: true)
-  // List<int> myInts;
-
-  // @RealmProperty(optional: true)
-  // List<double> myDoubles;
-
-  // @RealmProperty(optional: true)
-  // List<String> myString;
-
-  // @RealmProperty(optional: true)
-  // List<bool> myBools;
+  List<int>? myInts;
+  List<double>? myDoubles;
+  List<String>? myString;
+  List<bool>? myBools;
 }
