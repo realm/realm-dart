@@ -16,7 +16,7 @@ cmake ^
     -A x64 ^
     %PROJECT_ROOT%
 
-cmake --build . --config RelWithDebInfo
+cmake --build . --config MinSizeRel
 
 @REM exit to caller's location with success
 :popd_all
