@@ -56,6 +56,9 @@ target_link_libraries(realm_dart RealmFFIStatic)
 
 set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/binary")
 if(ANDROID)
+    find_package(Threads REQUIRED)
+    target_link_libraries(realm_dart Threads::Threads)
+
     add_subdirectory(android)
     target_link_libraries(realm_dart realm_flutter_android)
 

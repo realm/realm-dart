@@ -3442,6 +3442,15 @@ class RealmLibrary {
       _realm_results_from_thread_safe_reference_ptr
           .asFunction<_dart_realm_results_from_thread_safe_reference>();
 
+  int get_thread_id() {
+    return _get_thread_id();
+  }
+
+  late final _get_thread_id_ptr =
+      _lookup<ffi.NativeFunction<_c_get_thread_id>>('get_thread_id');
+  late final _dart_get_thread_id _get_thread_id =
+      _get_thread_id_ptr.asFunction<_dart_get_thread_id>();
+
   void realm_initializeDartApiDL(
     ffi.Pointer<ffi.Void> data,
   ) {
@@ -3477,9 +3486,11 @@ class RealmLibrary {
       _realm_attach_finalizer_ptr.asFunction<_dart_realm_attach_finalizer>();
 
   ffi.Pointer<realm_scheduler> realm_dart_create_scheduler(
+    int isolateId,
     int port,
   ) {
     return _realm_dart_create_scheduler(
+      isolateId,
       port,
     );
   }
@@ -3492,9 +3503,11 @@ class RealmLibrary {
           .asFunction<_dart_realm_dart_create_scheduler>();
 
   void realm_dart_scheduler_invoke(
+    int isolateId,
     ffi.Pointer<ffi.Void> userData,
   ) {
     return _realm_dart_scheduler_invoke(
+      isolateId,
       userData,
     );
   }
@@ -5546,6 +5559,10 @@ typedef _dart_realm_results_from_thread_safe_reference
   ffi.Pointer<realm_thread_safe_reference> arg1,
 );
 
+typedef _c_get_thread_id = ffi.Uint64 Function();
+
+typedef _dart_get_thread_id = int Function();
+
 typedef _c_realm_initializeDartApiDL = ffi.Void Function(
   ffi.Pointer<ffi.Void> data,
 );
@@ -5567,19 +5584,23 @@ typedef _dart_realm_attach_finalizer = int Function(
 );
 
 typedef _c_realm_dart_create_scheduler = ffi.Pointer<realm_scheduler> Function(
+  ffi.Uint64 isolateId,
   ffi.Int64 port,
 );
 
 typedef _dart_realm_dart_create_scheduler = ffi.Pointer<realm_scheduler>
     Function(
+  int isolateId,
   int port,
 );
 
 typedef _c_realm_dart_scheduler_invoke = ffi.Void Function(
+  ffi.Uint64 isolateId,
   ffi.Pointer<ffi.Void> userData,
 );
 
 typedef _dart_realm_dart_scheduler_invoke = void Function(
+  int isolateId,
   ffi.Pointer<ffi.Void> userData,
 );
 

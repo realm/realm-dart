@@ -102,27 +102,30 @@ class Realm {
 
 class _Scheduler {
   // ignore: constant_identifier_names
-  static const dynamic SCHEDULER_FINALIZE = null;
+  static const dynamic SCHEDULER_FINALIZE_OR_PROCESS_EXIT = null;
   late final SchedulerHandle handle;
   final void Function() onFinalize;
   final RawReceivePort receivePort = RawReceivePort();
+  late final Isolate exitIsolate;
 
   _Scheduler(Configuration config, this.onFinalize) {
     receivePort.handler = (dynamic message) {
-      if (message == SCHEDULER_FINALIZE) {
+      if (message == SCHEDULER_FINALIZE_OR_PROCESS_EXIT) {
+        //We close the realm when the scheduler is finalized. Is this really needed?
         onFinalize();
         stop();
         return;
       }
 
-      realmCore.invokeScheduler(message as int);
+      realmCore.invokeScheduler(Isolate.current.hashCode, message as int);
     };
 
     final sendPort = receivePort.sendPort;
-    handle = realmCore.createScheduler(sendPort.nativePort);
+    handle = realmCore.createScheduler(Isolate.current.hashCode, sendPort.nativePort);
 
-    //we use this to receive a notification on process exit to close the receivePort or the process with hang
-    Isolate.spawn(handler, 2, onExit: sendPort);
+    //We use this to receive a SCHEDULER_FINALIZE_OR_PROCESS_EXIT notification on process exit to close the receivePort or the process with hang.
+    //TODO: investigate Isolate.current.addOnExitListener() or make this single static instance that notifies all existing Schedulers
+    Isolate.spawn(handler, 2, onExit: sendPort).then((isolate) => exitIsolate = isolate);
 
     realmCore.setScheduler(config, handle);
   }
