@@ -39,9 +39,5 @@ jobs:
       - name: Install dependencies
         run: dart pub get
 
-      - name: Copy binary
-        run: cp binary/macos/librealm_dart.dylib test
-
       - name: Run tests
-        run: dart run realm_test.dart
-        working-directory: test
+        run: dart test realm_test.dart
