@@ -92,7 +92,6 @@ DynamicLibrary initRealm() {
     throw Exception("Unsupported platform: ${Platform.operatingSystem}");
   }
 
-
   final initializeApi = realmLibrary.lookupFunction<IntPtr Function(Pointer<Void>), int Function(Pointer<Void>)>("realm_initializeDartApiDL");
   var initResult = initializeApi(NativeApi.initializeApiDLData);
   if (initResult != 0) {
