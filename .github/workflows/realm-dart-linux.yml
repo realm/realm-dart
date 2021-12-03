@@ -8,7 +8,6 @@ on:
       - 'flutter/**'
       - 'generator/**'
   pull_request:
-    branches: [ master ]
     # Do not run if change is in these paths
     paths-ignore:
         - 'flutter/**'
