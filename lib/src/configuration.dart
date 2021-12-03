@@ -25,6 +25,7 @@ import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'realm_property.dart';
 import 'helpers.dart';
+import 'package:path/path.dart' as _path;
 
 /// Configuration used to create a [Realm] instance
 class Configuration {
@@ -45,7 +46,7 @@ class Configuration {
   static String get defaultPath {
     var path = "default.realm";
     if (Platform.isAndroid || Platform.isIOS) {
-      path = "${realmCore.getFilesPath()}${Platform.pathSeparator}$path";
+      path =  _path.join(realmCore.getFilesPath(), path);
     }
     return path;
   }

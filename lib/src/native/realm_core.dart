@@ -93,6 +93,7 @@ class _RealmCore {
         final classInfo = schemaClasses.elementAt(i).ref;
 
         classInfo.name = schemaObject.name.toUtf8Ptr(arena);
+        //TODO: assign the correct primary key value.
         classInfo.primary_key = "".toUtf8Ptr(arena);
         classInfo.num_properties = schemaObject.properties.length;
         classInfo.num_computed_properties = 0;
@@ -106,6 +107,7 @@ class _RealmCore {
           final schemaProperty = schemaObject.properties[j];
           final propInfo = properties.elementAt(j).ref;
           propInfo.name = schemaProperty.name.toUtf8Ptr(arena);
+          //TODO: assign the correct public name value.
           propInfo.public_name = "".toUtf8Ptr(arena);
           propInfo.link_target = "".toUtf8Ptr(arena);
           propInfo.link_origin_property_name = "".toUtf8Ptr(arena);
@@ -331,7 +333,7 @@ class RealmObjectHandle extends Handle<realm_object> {
   }
 }
 
-extension _StringEx on String {
+extension on String {
   Pointer<T> toUtf8Ptr<T extends NativeType>(Allocator allocator) {
     final units = utf8.encode(this);
     final Pointer<Uint8> result = allocator<Uint8>(units.length + 1);
@@ -342,7 +344,7 @@ extension _StringEx on String {
   }
 }
 
-extension _RealmLibraryEx on RealmLibrary {
+extension on RealmLibrary {
   void invokeGetBool(bool Function() callback, [String? errorMessage]) {
     bool success = callback();
     if (!success) {
