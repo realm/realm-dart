@@ -58,7 +58,7 @@ void initRealm() {
       return true;
     }());
     
-    if (!path.isEmpty && path.endsWith("/")) {
+    if (path.isNotEmpty && path.endsWith("/")) {
         //remove trailing slash
         path = path.substring(0, path.length - 1);
     }
@@ -81,7 +81,7 @@ void initRealm() {
       }
 
       var fullPath = "$path/binary/macos/lib$binaryName.dylib";
-      print("Full binary path $fullPath");
+      
       if (File(fullPath).existsSync()) {
         return fullPath;
       }

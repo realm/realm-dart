@@ -10,12 +10,15 @@ headers:
     - 'realm.h'
     - 'realm_dart.h'
     - 'realm_dart_scheduler.h'
+    - 'realm_android_platform.h'
   include-directives: #generate only for these headers
     - 'realm.h'
     - 'realm_dart.h'
     - 'realm_dart_scheduler.h'
+    - 'realm_android_platform.h'
 compiler-opts:  
   - '-DRLM_NO_ANON_UNIONS'
+  - '-DFFI_GEN'
   - '-I/home/linuka/llvm13/llvm-project/clang/lib/Headers' #path to std headers. used to find stddef.h for size_t definition and others
 typedef-map:
   'size_t' : 'IntPtr'

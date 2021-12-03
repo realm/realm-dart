@@ -16,5 +16,27 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:core';
+#include <string>
+#import <Foundation/Foundation.h>
 
+#include "platform.h"
+
+static std::string filesDir;
+
+std::string default_realm_file_directory()
+{
+    std::string ret;
+    @autoreleasepool {
+        // On iOS the Documents directory isn't user-visible, so put files there
+        NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0];
+        ret = path.UTF8String;
+        return ret;
+    }
+}
+
+RLM_API const char* realm_dart_get_files_path() {
+    if (filesDir == "") {
+        filesDir = default_realm_file_directory();
+    }
+    return filesDir.c_str();
+}

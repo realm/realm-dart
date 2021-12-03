@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:collection';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'native/realm_core.dart';
@@ -24,21 +25,41 @@ import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'realm_property.dart';
 import 'helpers.dart';
+import 'package:path/path.dart' as _path;
 
 /// Configuration used to create a [Realm] instance
 class Configuration {
-  final ConfigHandle handle;
+  final ConfigHandle _handle;
   final RealmSchema _schema;
   
   RealmSchema get schema => _schema;
 
-  Configuration(List<SchemaObject> schemaObjects) :
-    _schema = RealmSchema(schemaObjects),
-    handle = realmCore.createConfig() {
-  
-    this.schemaVersion = 0;
-    this.path = "default.realm";
+  Configuration(List<SchemaObject> schemaObjects) : 
+    _schema = RealmSchema(schemaObjects),  
+    _handle = realmCore.createConfig() {
+    schemaVersion = 0;
+    path = defaultPath;
+    realmCore.setSchema(this);
   }
+
+  /// The platform dependent path to the default realm file
+  static String get defaultPath {
+    var path = "default.realm";
+    if (Platform.isAndroid || Platform.isIOS) {
+      path =  _path.join(realmCore.getFilesPath(), path);
+    }
+    return path;
+  }
+  
+  /// The platform dependent directory path used to store realm files
+  /// 
+  /// On Android and iOS this is the application's data directory
+  static String get filesPath {
+    if (Platform.isAndroid || Platform.isIOS) {
+      return realmCore.getFilesPath();
+    }
+    return "";
+  } 
 
   /// The schema version used to open the [Realm]
   /// 
@@ -56,6 +77,7 @@ class Configuration {
 
 class SchemaObject {
   Type type;
+  
   String get name => type.toString();
 
   List<SchemaProperty> properties = [];
@@ -87,4 +109,8 @@ class RealmSchema extends Iterable<SchemaObject> {
 
   @override
   SchemaObject elementAt(int index) => _schema.elementAt(index);
+}
+
+extension ConfigurationInternal on Configuration {
+  ConfigHandle get handle => _handle;
 }

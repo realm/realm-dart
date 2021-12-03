@@ -26,4 +26,5 @@ flutter/realm_flutter/.gradle/
 /build-ios/
 /build-linux/
 /build-macos/
+/build/
 

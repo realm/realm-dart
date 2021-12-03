@@ -27,6 +27,7 @@
 #endif
 #import "realm_dart.h"
 #import "realm_dart_scheduler.h"
+#import "platform.h"
 @implementation RealmPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   [SwiftRealmPlugin registerWithRegistrar:registrar];
@@ -35,7 +36,9 @@
 void dummy(void) {
   realm_get_library_version();
   realm_initializeDartApiDL(NULL);
-  realm_dart_create_scheduler(0);
+  realm_dart_create_scheduler(0,0);
+  realm_object_create(NULL, 0);
+  realm_dart_get_files_path();
 }
 
 @end

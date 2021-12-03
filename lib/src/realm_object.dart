@@ -16,20 +16,64 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// ignore_for_file: native_function_body_in_non_sdk_code
-
-/**
- *  The file is intentionaly not follwoing the dart naming guidelines. The name is used from native code by convention
- */
-
-import 'list.dart';
+import 'native/realm_core.dart';
 import 'realm_property.dart';
 
-// /// The callback type to use with `RealmObject.addListener`
-// /// 
-// /// The [changes.changedProperties] is a `List` with property names that got changed since the last time the object was updated.
-// /// The callback is invoked once initially with no changes at the moment the callback listener is added.
-// typedef void RealmObjectListenerCallback(dynamic object, dynamic changes);
+abstract class RealmAccessor {
+  T get<T>(RealmObject object, String name);
+  void set<T>(String name, T value);
+}
+
+class RealmValuesAccessor implements RealmAccessor {
+  final Map<String, Object?> _values = <String, Object>{};
+
+  @override
+  T get<T>(RealmObject object, String name) {
+    return _values[name] as T;
+  }
+
+  @override
+  void set<T>(String name, T value) {
+    _values[name] = value;
+  }
+
+  void setAll(RealmAccessor accessor) {
+    for (var entry in _values.entries) {
+      accessor.set(entry.key, entry.value);
+    }
+  }
+}
+
+class RealmMetadata{
+  final int classKey;
+  final Type classType;
+  final Map<String, int> _propertyKeys;
+
+
+  RealmMetadata(this.classType, this.classKey, this._propertyKeys);
+
+  int operator [](String propertyName) => _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exists on class $classKey"));
+}
+
+class RealmCoreAccessor implements RealmAccessor {
+  final RealmMetadata metadata;
+
+  RealmCoreAccessor(this.metadata);
+
+  @override
+  T get<T>(RealmObject object, String name) {
+    try {
+      return realmCore.readProperty(object, metadata[name], RealmPropertyType.string) as T;
+    } on RealmException catch (e) {
+     throw RealmException("Error reading property ${metadata.classType.runtimeType}.$name ${e.message}");
+    }
+  }
+
+  @override
+  void set<T>(String name, T value) {
+    // TODO: implement set
+  }
+}
 
 /// A object in a realm. 
 /// 
@@ -37,16 +81,42 @@ import 'realm_property.dart';
 /// A data model class `_MyClass` will have a RealmObject with name `MyClass` generated 
 /// which should be used insead of directly instantiating and working with RealmObject instances
 class RealmObject {
-  String _value = "";
-  void setString(String name, String value) {
-    _value = value;
+  RealmObjectHandle? _handle;
+  RealmAccessor _accessor = RealmValuesAccessor();
+
+  static T get<T extends Object>(RealmObject realmObject, String name) {
+    return  realmObject._accessor.get<T>(realmObject, name);
   }
 
-  String getString(String name) {
-    return _value;
+  static void set<T extends Object>(RealmObject realmObject, String name, T value) {
+    realmObject._accessor.set<T>(name, value);
   }
 
-  // SchemaObject get schema => SchemaObject("");
+  // static void setDefaults<T extends RealmObject>(RealmObject realmObject, Map<String, Object> values) {
+  //   RealmValuesAccessor.setDefaults<T>(realmObject, values);
+  // }
+}
+
+//RealmObject package internal members
+extension RealmObjectInternal  on RealmObject {
+  void manage(RealmObjectHandle handle, RealmCoreAccessor accessor) {
+    if (_handle != null) {
+      throw RealmException("Object is already managed");
+    }
+
+    _handle = handle;
+    
+    if (_accessor is RealmValuesAccessor) {
+      (_accessor as RealmValuesAccessor).setAll(accessor);
+    }
+
+    _accessor = accessor;
+  }
+
+  RealmObjectHandle get handle => _handle!;
+  RealmAccessor get accessor => _accessor;
+
+  bool get isManaged => _accessor is RealmCoreAccessor;
 }
 
 /// An exception being thrown when a Realm operation or Realm object access fails
@@ -55,10 +125,13 @@ class RealmException implements Exception  {
 
   RealmException(this.message);
 
+  @override
   String toString() {
     return "RealmException: $message";
   }
 }
+
+
 
   // Map<String, Object>? _unmanagedProperties;
 
@@ -176,5 +249,4 @@ class RealmException implements Exception  {
 //     throw new Exception("Setting ArrayList on manged object is not supported");
 //   }
 // }
-
 

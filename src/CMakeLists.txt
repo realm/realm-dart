@@ -26,63 +26,12 @@ else() #iOS
     set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
     set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH NO)
-    #set(CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=Release] NO)
 
-    # set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_LIST_DIR}/vendor/realm-core/tools/cmake/macosx.toolchain.cmake")
-
-    # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+    add_subdirectory(ios)
+    target_link_libraries(realm_dart realm_flutter_ios)
 endif()
 
 target_include_directories(realm_dart PUBLIC ${INCLUDE_DIRS})
-
-# target_compile_definitions(realm_dart_extension PUBLIC -DDART_SHARED_LIB)
-
-# if(CMAKE_SYSTEM_NAME MATCHES "^Windows")    
-#     if (CMAKE_CONFIGURATION_TYPES MATCHES "Debug") 
-#         set (BUILD_SUFFIX "-dbg") 
-#     endif()
-
-#     set (LINK_LIBS
-#         "${PROJECT_SOURCE_DIR}/../dart-include/lib/windows-x64/dart.lib"
-#         "${PROJECT_SOURCE_DIR}/../vendor-include/realm-win-x64/lib/object-store${BUILD_SUFFIX}.lib"
-#         "${PROJECT_SOURCE_DIR}/../vendor-include/realm-win-x64/lib/realm${BUILD_SUFFIX}.lib"
-#         "${PROJECT_SOURCE_DIR}/../vendor-include/realm-win-x64/lib/realm-parser${BUILD_SUFFIX}.lib"
-#     )
-# endif()
-
-# if(APPLE)    
-#     set (LINK_LIBS
-#         "${PROJECT_SOURCE_DIR}/../vendor-include/macos/object-store.a"
-#         "${PROJECT_SOURCE_DIR}/../vendor-include/macos/librealm-parser.a"
-#         "${PROJECT_SOURCE_DIR}/../vendor-include/macos/librealm.a"
-#     )
-# endif()
-
-# message("LINK_LIBS is ${LINK_LIBS}")
-
-# target_link_libraries(realm_dart_extension ${LINK_LIBS})
-
-# set_property(TARGET realm_dart_extension PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-
-# if(CMAKE_SYSTEM_NAME MATCHES "^Windows")
-#     #copy the dll to the lib directory
-#     add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.dll"  ${PROJECT_SOURCE_DIR}../../../lib/realm_dart_extension.dll)
-#     if (CMAKE_CONFIGURATION_TYPES MATCHES "Debug") 
-#         add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.pdb"  ${PROJECT_SOURCE_DIR}../../../lib/realm_dart_extension.pdb)
-#     endif()
-
-#     #copy the dll to the root directory of realm-dart so VS Code dart test runner can run and debug the tests.
-#     add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.dll"  ${PROJECT_SOURCE_DIR}../../../realm_dart_extension.dll)
-
-#     #copy the dll to the test directory of realm-dart so VS Code dart debug test runner can run and debug the tests. If the dll is not besides the tests then the library is not loaded correctly and the cached RealmLib types are not the same. Dart: investigate this
-#     add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.dll"  ${PROJECT_SOURCE_DIR}../../../test/realm_dart_extension.dll)
-
-
-#     if (CMAKE_CONFIGURATION_TYPES MATCHES "Release") 
-#         #copy the Release dll to the bin directory of realm-dart so it gets into the realm_dart package
-#         add_custom_command(TARGET realm_dart_extension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/realm-dart-extension/$<CONFIGURATION>/realm_dart_extension.dll"  ${PROJECT_SOURCE_DIR}../../../bin/realm_dart_extension.dll)
-#     endif()
-# endif()
 
 if(APPLE)
     target_link_libraries(realm_dart "-framework CoreFoundation")
@@ -107,6 +56,12 @@ target_link_libraries(realm_dart RealmFFIStatic)
 
 set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/binary")
 if(ANDROID)
+    find_package(Threads REQUIRED)
+    target_link_libraries(realm_dart Threads::Threads)
+
+    add_subdirectory(android)
+    target_link_libraries(realm_dart realm_flutter_android)
+
     #core requires these options for the final *.so file. See more realm-core/CMakeLists.txt
     add_compile_options(-Wl,-gc-sections)
 
@@ -131,6 +86,7 @@ elseif (APPLE)
     set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIR}")
     set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIR}")
     set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL "${OUTPUT_DIR}")
+    set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO "${OUTPUT_DIR}")
 endif()
 
 # using RUNTIME_OUTPUT_DIRECTORY_<CONFIG> to output the binaries in the target directory wihtout creating a sub directory
@@ -139,3 +95,4 @@ endif()
 set_target_properties(realm_dart PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DIR}")
 set_target_properties(realm_dart PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIR}")
 set_target_properties(realm_dart PROPERTIES RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${OUTPUT_DIR}")
+set_target_properties(realm_dart PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${OUTPUT_DIR}")

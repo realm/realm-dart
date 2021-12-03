@@ -191,7 +191,3 @@ class Results<T extends RealmObject>  {
     throw new Exception("Setting length on Results<T> is not supported");
   }
 }
-
-
-
-     

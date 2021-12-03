@@ -16,23 +16,10 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-package io.realm;
+#ifdef __cplusplus
+#define RLM_API extern "C" __attribute__((visibility("default")))
+#else
+#define RLM_API
+#endif // __cplusplus
 
-import android.content.Context;
-
-import java.io.IOException;
-
-public class Realm {
-    public static native void native_initRealm(String filesDir);
-    
-    public static void initRealm(Context context) {
-        String filesDir;
-        try {
-            filesDir = context.getFilesDir().getCanonicalPath();
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-
-        native_initRealm(filesDir);
-    }
-}
+RLM_API const char* realm_dart_get_files_path();

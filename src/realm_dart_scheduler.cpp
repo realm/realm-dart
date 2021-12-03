@@ -1,5 +1,26 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright 2021 Realm Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+#include <iostream>
+#include <sstream>
+#include <set>
+#include <mutex>
 #include <thread>
-#include <functional>
 
 #include <realm.h>
 #include "dart_api_dl.h"
@@ -8,55 +29,45 @@
 struct SchedulerData {
     std::thread::id threadId;
     Dart_Port port;
+    uint64_t isolateId;
 
-    realm_scheduler_notify_func_t callback;
-    void* callback_userData;
-    realm_free_userdata_func_t free_userData_func;
+    realm_scheduler_notify_func_t callback = nullptr;
+    void* callback_userData = nullptr;
+    realm_free_userdata_func_t free_userData_func = nullptr;
+
+    SchedulerData(uint64_t isolate, Dart_Port dartPort) : port(dartPort), threadId(std::this_thread::get_id()), isolateId(isolate)
+    {}
 };
 
 static const int SCHEDULER_FINALIZE = NULL;
 
 void realm_dart_scheduler_free_userData(void* userData) {
-    SchedulerData* scheduler = static_cast<SchedulerData*>(userData);
-    Dart_PostInteger_DL(scheduler->port, SCHEDULER_FINALIZE);
+    SchedulerData* schedulerData = static_cast<SchedulerData*>(userData);
+    Dart_PostInteger_DL(schedulerData->port, SCHEDULER_FINALIZE);
     
+    if (schedulerData->callback_userData != nullptr) {
+        //call the function that will free the callback user data
+        schedulerData->free_userData_func(schedulerData->callback_userData);
+    }
+
     //delete the scheduler
-    delete scheduler;
+    delete schedulerData;
 }
 
 //This can be invoked on any thread.
 void realm_dart_scheduler_notify(void* userData) {
-
-    // TODO: Consider removing this commented code when the reinterpret_cast<std::uintptr_t> below is tested on all platforms
-    // //This posts the userdata to the main thread as Pointer<Void>. 
-    // //The RealmScheduler should invoke the realm_dart_scheduler_invoke 
-    // //from the main thread passing back the same pointer to userData
-    // //see here https://github.com/dart-lang/sdk/issues/47270
-    // Dart_CObject message;
-    // message.type = Dart_CObject_kExternalTypedData;
-    // message.value.as_external_typed_data.type = Dart_TypedData_kUint8;
-    // message.value.as_external_typed_data.length = 0;
-    // message.value.as_external_typed_data.data = nullptr;
-    // message.value.as_external_typed_data.peer = userData;
-    // //This callback is supposed to release the peer data. We don't use it since our peer is userData which is deleted by the realm_dart_scheduler_free_userData
-    // message.value.as_external_typed_data.callback = [](void* isolate_callback_data, void* peer) {};
-    // auto& scheduler = *static_cast<SchedulerData*>(userData);
-    // Dart_PostCObject(scheduler.port, &message);
-    
-    auto& scheduler = *static_cast<SchedulerData*>(userData);
+    auto& schedulerData = *static_cast<SchedulerData*>(userData);
     std::uintptr_t pointer = reinterpret_cast<std::uintptr_t>(userData);
-    Dart_PostInteger_DL(scheduler.port, pointer);
+    Dart_PostInteger_DL(schedulerData.port, pointer);
 }
 
 bool realm_dart_scheduler_is_on_thread(void* userData) {
-    auto& scheduler = *static_cast<SchedulerData*>(userData);
-    return scheduler.threadId == std::this_thread::get_id();
+    auto& schedulerData = *static_cast<SchedulerData*>(userData);
+    return schedulerData.threadId == std::this_thread::get_id();
 }
 
 bool realm_dart_scheduler_is_same_as(const void* userData1, const void* userData2) {
-    auto &scheduler1 = *static_cast<const SchedulerData*>(userData1);
-    auto &scheduler2 = *static_cast<const SchedulerData*>(userData2);
-    return scheduler1.threadId == scheduler2.threadId;
+    return userData1 == userData2;
 }
 
 bool realm_dart_scheduler_can_deliver_notifications(void* userData) {
@@ -64,33 +75,50 @@ bool realm_dart_scheduler_can_deliver_notifications(void* userData) {
 }
 
 void realm_dart_scheduler_set_notify_callback(void* userData, void* callback_userData, realm_free_userdata_func_t free_userData_func, realm_scheduler_notify_func_t notify_func) {
-    auto& scheduler = *static_cast<SchedulerData*>(userData);
-    scheduler.callback = notify_func;
-    scheduler.free_userData_func = free_userData_func;
-    scheduler.callback_userData = callback_userData;
+    auto& schedulerData = *static_cast<SchedulerData*>(userData);
+    schedulerData.callback = notify_func;
+    schedulerData.callback_userData = callback_userData;
+    schedulerData.free_userData_func = free_userData_func;
 }
 
-RLM_API realm_scheduler_t* realm_dart_create_scheduler(Dart_Port port) {
-    SchedulerData* scheduler = new SchedulerData();
-    scheduler->threadId = std::this_thread::get_id();
-    scheduler->port = port;
+RLM_API realm_scheduler_t* realm_dart_create_scheduler(uint64_t isolateId, Dart_Port port) {
+    SchedulerData* schedulerData = new SchedulerData(isolateId, port);
 
-    return realm_scheduler_new(scheduler, 
+    realm_scheduler_t* realm_scheduler = realm_scheduler_new(schedulerData, 
         realm_dart_scheduler_free_userData, 
         realm_dart_scheduler_notify, 
         realm_dart_scheduler_is_on_thread, 
         realm_dart_scheduler_is_same_as,
         realm_dart_scheduler_can_deliver_notifications,
         realm_dart_scheduler_set_notify_callback);
+
+    return realm_scheduler;
 }
 
 //This is called from Dart on the main thread
-RLM_API void realm_dart_scheduler_invoke(void* userData) {
-    auto& scheduler = *static_cast<SchedulerData*>(userData);
+RLM_API void realm_dart_scheduler_invoke(uint64_t isolateId, void* userData) {
+    SchedulerData* schedulerData = static_cast<SchedulerData*>(userData);
+
+    if (schedulerData->callback == nullptr) {
+        return;
+    }
+
+    //Isolates can change their underlying native threads!!!
+    //We check if the invoking isolate is the same as the one that created this scheduler and update the thread id if it changed.
+    //This is safe since we care about being on the same Isolate rather than being on the same thread id. 
+    //Core asks the scheduler if this is on the correct thread so we need both ids
+    if (schedulerData->isolateId == isolateId && schedulerData->threadId != std::this_thread::get_id()) {
+        schedulerData->threadId = std::this_thread::get_id();
+    }
 
     //invoke the notify callback
-    scheduler.callback(scheduler.callback_userData);
-    
-    //call the function that will free the callback user data
-    scheduler.free_userData_func(scheduler.callback_userData);
+    schedulerData->callback(schedulerData->callback_userData);
+}
+
+RLM_API uint64_t get_thread_id() {
+    std::stringstream ss;
+    std::thread k;
+    ss << std::this_thread::get_id();
+    uint64_t id = std::stoull(ss.str());
+    return id;
 }
