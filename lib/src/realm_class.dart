@@ -104,9 +104,6 @@ class Realm {
 class _Scheduler {
   // ignore: constant_identifier_names
   static const dynamic SCHEDULER_FINALIZE_OR_PROCESS_EXIT = null;
-  static Isolate? exitIsolate;
-  static Future<Isolate>? initExitIsolate;
-
   late final SchedulerHandle handle;
   final void Function() onFinalize;
   final RawReceivePort receivePort = RawReceivePort();
@@ -114,8 +111,8 @@ class _Scheduler {
   _Scheduler(Configuration config, this.onFinalize) {
     receivePort.handler = (dynamic message) {
       if (message == SCHEDULER_FINALIZE_OR_PROCESS_EXIT) {
-        //We close the realm when the scheduler is finalized. Is this really needed?
         onFinalize();
+        
         stop();
         return;
       }
@@ -127,38 +124,16 @@ class _Scheduler {
     handle = realmCore.createScheduler(Isolate.current.hashCode, sendPort.nativePort);
 
     //We use this to receive a SCHEDULER_FINALIZE_OR_PROCESS_EXIT notification on process exit to close the receivePort or the process with hang.
-    addOnExitListener(sendPort);
+    Isolate.spawn(_handler, 2, onExit: sendPort);
     
     realmCore.setScheduler(config, handle);
   }
 
   void stop() {
-    removeOnExitListener(receivePort.sendPort);
     receivePort.close();
   }
 
-  static void addOnExitListener(SendPort port) async {
-    if (exitIsolate == null) {
-      if (initExitIsolate == null) {
-        initExitIsolate = Isolate.spawn(handler, 1, onExit: port);
-        exitIsolate = await initExitIsolate;
-        //already subscribed for onExit
-        return;
-      } 
-        
-      //The isolate is already being initialized by another call. Wait for the init
-      await initExitIsolate;
-    }
-    
-    exitIsolate!.addOnExitListener(port);
-  }
-
-  static void removeOnExitListener(SendPort port) {
-    final isolate = exitIsolate!;
-    isolate.removeOnExitListener(port);
-  }
-
-  static void handler(int message) {}
+  static void _handler(int message) {}
 }
 
 extension RealmInternal on Realm {
