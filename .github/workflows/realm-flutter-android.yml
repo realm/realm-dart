@@ -8,7 +8,6 @@ on:
     #   - 'src/**'
     #   - 'lib/**'
   pull_request:
-    branches: [ master ]
       # - 'flutter/**'
       # - 'src/**'
       # - 'lib/**'

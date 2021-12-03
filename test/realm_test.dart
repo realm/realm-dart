@@ -67,8 +67,6 @@ void main([List<String>? args]) {
 
   print("Current PID $pid");
 
-  initRealm();
-
   setUp(() async {
     var currentDir = Directory.current;
     if (Platform.isAndroid || Platform.isIOS) {

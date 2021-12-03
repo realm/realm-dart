@@ -31,7 +31,6 @@ class _Car {
 }
 
 void main() {
-  initRealm();
   runApp(MyApp());
 }
 

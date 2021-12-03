@@ -36,8 +36,6 @@ export "configuration.dart" hide ConfigurationInternal;
 export 'realm_property.dart';
 export 'helpers.dart';
 
-void setRealmLib(DynamicLibrary realmLibrary) => setRealmLibrary(realmLibrary);
-
 /// A Realm instance represents a Realm database.
 class Realm {
   final Configuration _config;
