@@ -81,7 +81,7 @@ void initRealm() {
       }
 
       var fullPath = "$path/binary/macos/lib$binaryName.dylib";
-      print("Full binary path $fullPath");
+      
       if (File(fullPath).existsSync()) {
         return fullPath;
       }
