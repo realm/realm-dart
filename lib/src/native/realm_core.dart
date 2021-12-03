@@ -155,13 +155,13 @@ class _RealmCore {
     });
   }
 
-  SchedulerHandle createScheduler(int sendPort) {
-    final schedulerPtr = _realmLib.realm_dart_create_scheduler(sendPort);
+  SchedulerHandle createScheduler(int isolateId, int sendPort) {
+    final schedulerPtr = _realmLib.realm_dart_create_scheduler(isolateId, sendPort);
     return SchedulerHandle._(schedulerPtr);
   }
 
-  void invokeScheduler(int message) {
-    _realmLib.realm_dart_scheduler_invoke(Pointer.fromAddress(message));
+  void invokeScheduler(int isolateId, int message) {
+    _realmLib.realm_dart_scheduler_invoke(isolateId, Pointer.fromAddress(message));
   }
 
   void setScheduler(Configuration config, SchedulerHandle scheduler) {
@@ -276,6 +276,8 @@ class _RealmCore {
       }
     });
   }
+
+  int get threadId => _realmLib.get_thread_id();
 }
 
 class LastError {

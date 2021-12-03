@@ -22,7 +22,6 @@ import 'dart:io';
 import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
 
-// ignore: avoid_relative_lib_imports
 import '../lib/realm.dart';
 
 part 'realm_test.gen.dart';
@@ -89,8 +88,15 @@ void main([List<String>? args]) {
         }
       }
 
-      var lockFile = File("${file.path}.lock");
-      await lockFile.delete();
+      for (var i = 0; i <= 20; i++) {
+        try {
+          var lockFile = File("${file.path}.lock");
+          await lockFile.delete();
+        } catch (e) {
+          //wait for Realm.close of a previous test and retry the delete before failing
+          await Future<void>.delayed(Duration(milliseconds: 10));
+        }
+      }
     }
   });
 
