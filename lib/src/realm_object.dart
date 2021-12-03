@@ -20,20 +20,20 @@ import 'native/realm_core.dart';
 import 'realm_property.dart';
 
 abstract class RealmAccessor {
-  T get<T extends Object>(RealmObject object, String name);
-  void set<T extends Object>(String name, T value);
+  T get<T>(RealmObject object, String name);
+  void set<T>(String name, T value);
 }
 
 class RealmValuesAccessor implements RealmAccessor {
-  final Map<String, Object> _values = <String, Object>{};
+  final Map<String, Object?> _values = <String, Object>{};
 
   @override
-  T get<T extends Object>(RealmObject object, String name) {
+  T get<T>(RealmObject object, String name) {
     return _values[name] as T;
   }
 
   @override
-  void set<T extends Object>(String name, T value) {
+  void set<T>(String name, T value) {
     _values[name] = value;
   }
 
@@ -61,7 +61,7 @@ class RealmCoreAccessor implements RealmAccessor {
   RealmCoreAccessor(this.metadata);
 
   @override
-  T get<T extends Object>(RealmObject object, String name) {
+  T get<T>(RealmObject object, String name) {
     try {
       return realmCore.readProperty(object, metadata[name], RealmPropertyType.string) as T;
     } on RealmException catch (e) {
@@ -70,7 +70,7 @@ class RealmCoreAccessor implements RealmAccessor {
   }
 
   @override
-  void set<T extends Object>(String name, T value) {
+  void set<T>(String name, T value) {
     // TODO: implement set
   }
 }

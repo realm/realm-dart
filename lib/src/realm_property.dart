@@ -46,7 +46,7 @@ enum RealmPropertyType {
   uuid,
 }
 
-class RealmProperty {
+class _RealmProperty {
   
   /// Realm will use this property as the primary key
   final bool? primaryKey;
@@ -65,7 +65,7 @@ class RealmProperty {
   /// An alias to another property of the same RealmObject
   final String? mapTo;
   
-  const RealmProperty(this.type, {this.nullable = false, this.defaultValue, this.optional, this.mapTo, this.primaryKey});
+  const _RealmProperty(this.type, {this.nullable = false, this.defaultValue, this.optional, this.mapTo, this.primaryKey});
 }
 
 class MapTo {
@@ -86,7 +86,7 @@ class Ignored {
 }
 
 /// A RealmProperty in a schema. Used for runtime representation of `RealmProperty`
-class SchemaProperty extends RealmProperty {
+class SchemaProperty extends _RealmProperty {
   final String name;
   const SchemaProperty(this.name, RealmPropertyType type, {String? defaultValue, bool? optional, String? mapTo, bool? primaryKey }) 
     : super(type, defaultValue: defaultValue, optional: optional, mapTo: mapTo, primaryKey: primaryKey);

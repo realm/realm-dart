@@ -17,10 +17,10 @@ void main(List<String> args) {
 
     // This single tests runs all Realm tests and reports test run failure if any Realm test fails. Contains all failed tests names.
     test('run all', () async {
-      String result = await driver!.requestData(testCommand, timeout: Duration(minutes: 30));
+      String result = await driver!.requestData(testCommand, timeout: const Duration(minutes: 30));
       if (result.isNotEmpty) {
         fail("Failed tests: \n $result");
       }
-    });
+    }, timeout: const Timeout(Duration(minutes: 30)));
   });
 }
