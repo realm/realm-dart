@@ -277,6 +277,17 @@ class _RealmCore {
 
   int get threadId => _realmLib.get_thread_id();
 
+  void triggerGC() {
+    Object? hugeObject = Object();
+    final configPtr = _realmLib.realm_config_new();
+    _realmLib.realm_attach_finalizer(hugeObject, configPtr.cast(), 1024 * 1024 * 1024);
+    hugeObject = null;
+    //create some new object to force the GC to run
+    for (var i = 0; i < 1024; i++) {
+      Object();
+    }
+  }
+
   RealmObjectHandle? find(Realm realm, int classKey, Object primaryKey) {
     return using((Arena arena) {
       final realm_value = _toRealmValue(primaryKey, arena);

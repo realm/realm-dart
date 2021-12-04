@@ -23,6 +23,7 @@ import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
 
 import '../lib/realm.dart';
+import '../lib/src/native/realm_core.dart' as core;
 
 part 'realm_test.gen.dart';
 
@@ -77,6 +78,8 @@ void main([List<String>? args]) {
       if (file is! File || (!file.path.endsWith(".realm"))) {
         continue;
       }
+
+      core.realmCore.triggerGC();
 
       for (var i = 0; i <= 20; i++) {
         try {
@@ -241,12 +244,12 @@ void main([List<String>? args]) {
       
       expect(() {
         realm.write(() {
-          realm.add(Car()..make = "SomeNewMake");
+          realm.add(Car()..make = "Tesla");
           throw Exception("some exception while adding objects");
         });
       }, throws<Exception>("some exception while adding objects"));
 
-      final car = realm.find<Car>("SomeNewMake");
+      final car = realm.find<Car>("Telsa");
       expect(car, isNull);
     });
 
