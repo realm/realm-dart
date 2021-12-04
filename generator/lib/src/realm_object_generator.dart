@@ -24,6 +24,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:analyzer/dart/analysis/results.dart';
+import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
@@ -83,7 +84,7 @@ extension on DartType {
 
   bool get isNullable => nullabilitySuffix != NullabilitySuffix.none;
 
-  RealmCollectionType get collectionType {
+  RealmCollectionType get realmCollectionType {
     if (isDartCoreSet) return RealmCollectionType.set;
     if (isDartCoreList) return RealmCollectionType.list;
     // TODO: Check that key type is String!
@@ -91,13 +92,10 @@ extension on DartType {
     return RealmCollectionType.none;
   }
 
-  RealmPropertyType get realmType =>
-      _realmType(true) ??
-      (throw SourceSpanException(
-          'Not a valid realm type: ${this}', element?.span));
+  RealmPropertyType? get realmType => _realmType(true);
 
   RealmPropertyType? _realmType(bool recurse) {
-    if (collectionType != RealmCollectionType.none && recurse) {
+    if (realmCollectionType != RealmCollectionType.none && recurse) {
       return (this as ParameterizedType)
           .typeArguments
           .last
@@ -135,9 +133,9 @@ class RealmModelInfo {
       yield '$name({';
       {
         yield* fields.map((f) =>
-            '${f.optional | f.defaultValue ? '' : 'required '}${f.typeName}${!f.optional & f.defaultValue ? '?' : ''} ${f.name},');
+            '${f.optional | f.hasDefaultValue ? '' : 'required '}${f.typeName}${!f.optional & f.hasDefaultValue ? '?' : ''} ${f.name},');
         yield '}) {';
-        yield* fields.map((f) => f.defaultValue
+        yield* fields.map((f) => f.hasDefaultValue
             ? 'this.${f.name} = ${f.declaration.node.toString().replaceFirst('=', '??')};' // TODO: Feels a bit hacky!
             : 'this.${f.name} = ${f.name};');
       }
@@ -233,35 +231,49 @@ enum RealmCollectionType {
 }
 
 class RealmFieldInfo {
-  final String name;
-  final String realmName;
-  final DartType type;
-  final ElementDeclarationResult declaration;
+  final FieldElement fieldElement;
+  final String? mapTo;
   final bool primaryKey;
   final bool indexed;
-  final bool optional;
-  final bool defaultValue;
 
   RealmFieldInfo({
-    required this.name,
-    required this.type,
-    required this.declaration,
-    String? mapTo,
-    this.primaryKey = false,
-    this.indexed = false,
-    this.optional = false,
-    this.defaultValue = false,
-  }) : realmName = mapTo ?? name;
+    required this.fieldElement,
+    required this.mapTo,
+    required this.primaryKey,
+    required this.indexed,
+  });
 
-  String get typeName => type.getDisplayString(withNullability: true);
-  RealmPropertyType get realmType => type.realmType;
-  RealmCollectionType get realmCollectionType => type.collectionType;
+  String get name => fieldElement.name;
+  String get realmName => mapTo ?? name;
+  DartType get type => fieldElement.type;
+  ElementDeclarationResult get declaration =>
+      getDeclarationFromElement(fieldElement);
+
+  bool get hasDefaultValue => fieldElement.hasInitializer;
+  bool get optional => type.isNullable;
+  bool get isFinal => fieldElement.isFinal;
+
+  String get typeName =>
+      typeModelName.replaceAll('_', ''); // TODO: Very hackish
+
+  String get typeModelName => type.getDisplayString(withNullability: true);
+
+  RealmPropertyType get realmType =>
+      type.realmType ??
+      (throw MultiSourceSpanException(
+        'Not a valid realm type: $type',
+        fieldElement.span,
+        'field',
+        {if (type.element?.span != null) type.element!.span!: 'type'},
+      ));
+
+  RealmCollectionType get realmCollectionType => type.realmCollectionType;
 
   Iterable<String> toCode() sync* {
     yield '@override';
     yield "$typeName get $name => RealmObject.get<$typeName>(this, '$realmName');";
     yield '@override';
-    yield "set $name($typeName value) => RealmObject.set<$typeName>(this, '$realmName', value);";
+    yield "set $name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => RealmObject.set(this, '$realmName', value);";
   }
 }
 
@@ -286,7 +298,8 @@ extension on int {
 }
 
 extension on Element {
-  SourceSpan? get span => spanForElement(this);
+  FileSpan? get span =>
+      source != null ? spanForElement(this) as FileSpan : null;
 
   String get display {
     return () sync* {
@@ -331,49 +344,67 @@ ElementDeclarationResult getDeclarationFromElement(Element element) {
 
 extension on FieldElement {
   RealmFieldInfo? get realmInfo {
-    if (ignoredChecker.annotationsOfExact(this).isNotEmpty || isPrivate) {
-      // skip ignored and private fields
-      return null;
-    }
+    try {
+      if (ignoredChecker.annotationsOfExact(this).isNotEmpty || isPrivate) {
+        // skip ignored and private fields
+        return null;
+      }
 
-    final indexed = indexedChecker.annotationsOfExact(this).isNotEmpty;
-    final optional = type.isNullable;
-    final primaryKey = primaryKeyChecker.annotationsOfExact(this).isNotEmpty;
-    if (primaryKey & optional) {
-      throw SourceSpanException('Primary key cannot be nullable', span);
-    }
-    if (primaryKey & indexed) {
-      log.info('Indexed is implied for a primary key $display');
-    }
-    if (primaryKey ^ isFinal) {
-      log.warning(
-        'Primary keys and no other fields should be marked as final $display',
+      final primaryKeyAnnotation =
+          primaryKeyChecker.annotationsOfExact(this).singleOrNull;
+      final primaryKey = primaryKeyAnnotation != null;
+      final indexedAnnotation =
+          indexedChecker.annotationsOfExact(this).singleOrNull;
+      final indexed = indexedAnnotation != null;
+      final optional = type.isNullable;
+
+      if (primaryKey & optional) {
+        throw SourceSpanException('Primary key cannot be nullable', span);
+      }
+      if (primaryKey & indexed) {
+        log.info('Indexed is implied for a primary key $display');
+      }
+      if (primaryKey ^ isFinal) {
+        throw SourceSpanException(
+            'Primary keys and no other fields should be marked as final', span);
+      }
+      if ((primaryKey | indexed) &
+          ![
+            RealmPropertyType.string,
+            RealmPropertyType.int,
+            RealmPropertyType.bool,
+          ].contains(type.realmType)) {
+        final d = getDeclarationFromElement(this);
+        final ast = d.node as AnnotatedNode;
+        final annotation = ast.metadata.firstOrNull;
+
+        var span = this.span!;
+        if (annotation != null) {
+          final start = annotation.offset;
+          final end = start + annotation.length;
+          final file = SourceFile.fromString(source!.contents.data);
+          span.expand(file.span(start, end));
+        }
+        throw SourceSpanException(
+          'Realm only support indexes on String, int, and bool fields',
+          span,
+        );
+      }
+
+      final mapTo = mapToChecker.annotationsOfExact(this).singleOrNull;
+
+      return RealmFieldInfo(
+        fieldElement: this,
+        indexed: indexed,
+        primaryKey: primaryKey,
+        mapTo: mapTo?.getField('name')?.toStringValue(),
       );
+    } on SourceSpanException catch (_) {
+      rethrow;
+    } catch (e) {
+      // Fallback. Not perfect, but better than just forwarding original error
+      throw SourceSpanException('$e', span);
     }
-    if ((primaryKey | indexed) &
-        ![
-          RealmPropertyType.string,
-          RealmPropertyType.int,
-          RealmPropertyType.bool,
-        ].contains(type.realmType)) {
-      throw SourceSpanException(
-        'Realm only support indexes on String, int, and bool fields',
-        span,
-      );
-    }
-
-    final mapTo = mapToChecker.annotationsOfExact(this).singleOrNull;
-
-    return RealmFieldInfo(
-      name: name,
-      type: type,
-      declaration: getDeclarationFromElement(this),
-      indexed: indexed,
-      primaryKey: primaryKey,
-      optional: optional,
-      mapTo: mapTo?.getField('name')?.toStringValue(),
-      defaultValue: hasInitializer,
-    );
   }
 }
 
@@ -382,13 +413,33 @@ extension<T> on Iterable<T?> {
 }
 
 extension<T> on Iterable<T> {
+  T? get firstOrNull =>
+      cast<T?>().firstWhere((element) => true, orElse: () => null);
   T? get singleOrNull =>
       cast<T?>().singleWhere((element) => true, orElse: () => null);
 }
 
 extension on Iterable<FieldElement> {
-  Iterable<RealmFieldInfo> get realmInfo =>
-      map((f) => f.realmInfo).whereNotNull;
+  Iterable<RealmFieldInfo> get realmInfo sync* {
+    RealmFieldInfo? primaryKeySeen;
+    for (final f in this) {
+      final info = f.realmInfo;
+      if (info == null) continue;
+      if (info.primaryKey) {
+        if (primaryKeySeen == null) {
+          primaryKeySeen = info;
+        } else {
+          throw MultiSourceSpanException(
+            'Primary key already defined',
+            primaryKeySeen.fieldElement.span,
+            '1st',
+            {info.fieldElement.span!: '2nd'},
+          );
+        }
+      }
+      yield info;
+    }
+  }
 }
 
 class RealmObjectGenerator extends Generator {
