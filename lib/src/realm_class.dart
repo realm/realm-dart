@@ -54,9 +54,9 @@ class Realm {
       _handle = realmCore.openRealm(config);
 
       for (var realmClass in config.schema) {
-        final classKey = realmCore.getClassKey(this, realmClass.name);
-        final propertyKeys = realmCore.getPropertyKeys(this, classKey);
-        final metadata = RealmMetadata(realmClass.type, classKey, propertyKeys);
+        final classMeta = realmCore.getClassMetadata(this, realmClass.name, realmClass.type);
+        final propertyKeys = realmCore.getPropertyKeys(this, classMeta.key);
+        final metadata = RealmMetadata(classMeta, propertyKeys);
         _metadata[realmClass.type] = metadata;
       }
     } catch (e) {
@@ -68,14 +68,34 @@ class Realm {
   T add<T extends RealmObject>(T object) {
     final metadata = _metadata[object.runtimeType];
     if (metadata == null) {
-      throw RealmException(
-          "Object type ${object.runtimeType} not configured in the current Realm's schema. Add type ${object.runtimeType} to your config before opening the Realm");
+      throw RealmException("Object type ${object.runtimeType} not configured in the current Realm's schema."
+          " Add type ${object.runtimeType} to your config before opening the Realm");
     }
 
-    final handle = realmCore.createRealmObject(this, metadata.classKey);
+    final handle = metadata.class_.primaryKey == null
+        ? realmCore.createRealmObject(this, metadata.class_.key)
+        : realmCore.createRealmObjectWithPrimaryKey(this, metadata.class_.key, metadata.class_.primaryKey!);
+
     final accessor = RealmCoreAccessor(metadata);
     object.manage(handle, accessor);
 
+    return object;
+  }
+
+  T? find<T extends RealmObject>(String primaryKey) {
+    final metadata = _metadata[T];
+    if (metadata == null) {
+      throw RealmException("Object type $T not configured in the current Realm's schema. Add type $T to your config before opening the Realm");
+    }
+
+    final handle = realmCore.find(this, metadata.class_.key, primaryKey);
+    if (handle == null) {
+      return null;
+    }
+
+    final accessor = RealmCoreAccessor(metadata);
+    var object = RealmObject.create<T>();
+    object.manage(handle, accessor);
     return object;
   }
 
@@ -110,7 +130,6 @@ class _Scheduler {
     receivePort.handler = (dynamic message) {
       if (message == SCHEDULER_FINALIZE_OR_PROCESS_EXIT) {
         onFinalize();
-        
         stop();
         return;
       }
@@ -123,7 +142,7 @@ class _Scheduler {
 
     //We use this to receive a SCHEDULER_FINALIZE_OR_PROCESS_EXIT notification on process exit to close the receivePort or the process with hang.
     Isolate.spawn(_handler, 2, onExit: sendPort);
-    
+
     realmCore.setScheduler(config, handle);
   }
 

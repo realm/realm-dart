@@ -12,14 +12,21 @@ class Car extends _Car with RealmObject {
       this.make = make;
   }
 
+  Car._() {}
+
+  static Car _createInstance() {
+    return Car._();
+  }
+
   @override
   String get make => RealmObject.get<String>(this, "make");
   @override
   set make(String value) => RealmObject.set<String>(this, "make", value);
 
-  static SchemaObject get schema => SchemaObject(Car)..properties = [
-    SchemaProperty("make", RealmPropertyType.string)
-  ];
+  static SchemaObject get schema { 
+    RealmObject.registerFactory<Car>(_createInstance);
+    return SchemaObject(Car)..properties = [SchemaProperty("make", RealmPropertyType.string, primaryKey: true)];
+  }
 }
 
 class Person extends _Person with RealmObject {
