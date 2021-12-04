@@ -44,8 +44,8 @@ void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
   if (testName != null && !name!.contains(testName!)) {
     return;
   }
-
   testing.test(name, testFunction, skip: skip);
+
 }
 
 void parseTestNameFromArguments(List<String>? arguments) {
@@ -241,12 +241,12 @@ void main([List<String>? args]) {
       
       expect(() {
         realm.write(() {
-          realm.add(Car());
+          realm.add(Car()..make = "SomeNewMake");
           throw Exception("some exception while adding objects");
         });
       }, throws<Exception>("some exception while adding objects"));
 
-      final car = realm.find<Car>("Tesla");
+      final car = realm.find<Car>("SomeNewMake");
       expect(car, isNull);
     });
 
