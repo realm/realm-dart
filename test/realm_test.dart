@@ -79,8 +79,6 @@ void main([List<String>? args]) {
         continue;
       }
 
-      core.realmCore.triggerGC();
-
       for (var i = 0; i <= 20; i++) {
         try {
           await file.delete();
