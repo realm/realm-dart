@@ -82,6 +82,10 @@ class Realm {
     return object;
   }
 
+  void remove<T extends RealmObject>(T object) {
+    realmCore.removeRealmObject(object);
+  }
+
   T? find<T extends RealmObject>(String primaryKey) {
     final metadata = _metadata[T];
     if (metadata == null) {

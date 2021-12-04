@@ -46,7 +46,6 @@ void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
     return;
   }
   testing.test(name, testFunction, skip: skip);
-
 }
 
 void parseTestNameFromArguments(List<String>? arguments) {
@@ -222,7 +221,7 @@ void main([List<String>? args]) {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      expect(() => realm.write(()  => realm.add(Person())), throws<RealmException>("not configured"));
+      expect(() => realm.write(() => realm.add(Person())), throws<RealmException>("not configured"));
     });
 
     test('Realm add() returns the same object', () {
@@ -241,7 +240,7 @@ void main([List<String>? args]) {
     test('Realm add object transaction rollbacks on exception', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
-      
+
       expect(() {
         realm.write(() {
           realm.add(Car()..make = "Tesla");
@@ -301,6 +300,22 @@ void main([List<String>? args]) {
 
       final car = realm.find<Car>("NonExistingPrimaryKey");
       expect(car, isNull);
+    });
+
+    test('Realm remove object', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      final car = Car();
+      realm.write(() => realm.add(car));
+
+      final car1 = realm.find<Car>("Tesla");
+      expect(car1, isNotNull);
+
+      realm.write(() => realm.remove(car1!));
+
+      var car2 = realm.find<Car>("Tesla");
+      expect(car2, isNull);
     });
   });
 }

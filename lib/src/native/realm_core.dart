@@ -304,6 +304,10 @@ class _RealmCore {
       return RealmObjectHandle._(pointer);
     });
   }
+
+  void removeRealmObject(RealmObject object) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_object_delete(object.handle._pointer));
+  }
 }
 
 class LastError {
