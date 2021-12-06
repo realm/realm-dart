@@ -268,7 +268,7 @@ class _RealmCore {
     });
   }
 
-  void setProperty(RealmObject object, int propertyKey, Object? value, [bool isDefault = false]) {
+  void setProperty(RealmObject object, int propertyKey, Object? value, bool isDefault) {
     return using((Arena arena) {
       Pointer<realm_value_t> realm_value = _toRealmValue(value, arena);
       _realmLib.invokeGetBool(() => _realmLib.realm_set_value(object.handle._pointer, propertyKey, realm_value.ref, isDefault));
