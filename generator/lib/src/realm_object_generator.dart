@@ -260,11 +260,14 @@ class RealmFieldInfo {
 
   RealmPropertyType get realmType =>
       type.realmType ??
-      (throw MultiSourceSpanException(
+      (throw RealmInvalidGenerationSourceError(
         'Not a valid realm type: $type',
-        fieldElement.span,
-        'field',
-        {if (type.element?.span != null) type.element!.span!: 'type'},
+        element: fieldElement,
+        todo:
+            'Add a @RealmModel annotation on the type definition, or an @Ignored annotation on the field using it.',
+        secondarySpans: {
+          if (type.element?.span != null) type.element!.span!: 'defined here'
+        },
       ));
 
   RealmCollectionType get realmCollectionType => type.realmCollectionType;
@@ -359,15 +362,30 @@ extension on FieldElement {
       final optional = type.isNullable;
 
       if (primaryKey & optional) {
-        throw SourceSpanException('Primary key cannot be nullable', span);
+        throw RealmInvalidGenerationSourceError(
+            'Primary key cannot be nullable',
+            todo: //
+                'Consider using the @Indexed annotation instead, '
+                'or make the field non-nullable.',
+            element: this);
       }
       if (primaryKey & indexed) {
-        log.info('Indexed is implied for a primary key $display');
+        log.info(_formatMessage(
+          'Indexed is implied for a primary key',
+          todo: 'Remove either the @Indexed or @PrimaryKey annotation.',
+          element: this,
+        ));
       }
-      if (primaryKey ^ isFinal) {
-        throw SourceSpanException(
-            'Primary keys and no other fields should be marked as final', span);
+      if (primaryKey && !isFinal) {
+        throw RealmInvalidGenerationSourceError(
+          'Primary key field is not final',
+          todo: //
+              'Add a final keyword to the field definition, '
+              'or remove the @PrimaryKey annotation.',
+          element: this,
+        );
       }
+      if (isFinal && !primaryKey) {}
       if ((primaryKey | indexed) &
           ![
             RealmPropertyType.string,
@@ -385,9 +403,11 @@ extension on FieldElement {
           final file = SourceFile.fromString(source!.contents.data);
           span.expand(file.span(start, end));
         }
-        throw SourceSpanException(
+        throw RealmInvalidGenerationSourceError(
           'Realm only support indexes on String, int, and bool fields',
-          span,
+          todo:
+              'Change the type of the field, or remove the @Indexed annotation',
+          element: this,
         );
       }
 
@@ -399,11 +419,15 @@ extension on FieldElement {
         primaryKey: primaryKey,
         mapTo: mapTo?.getField('name')?.toStringValue(),
       );
-    } on SourceSpanException catch (_) {
+    } on RealmInvalidGenerationSourceError catch (_) {
       rethrow;
     } catch (e) {
       // Fallback. Not perfect, but better than just forwarding original error
-      throw SourceSpanException('$e', span);
+      throw RealmInvalidGenerationSourceError(
+        '$e',
+        todo: 'Please open an issue on: https://github.com/realm/realm-dart',
+        element: this,
+      );
     }
   }
 }
@@ -429,11 +453,13 @@ extension on Iterable<FieldElement> {
         if (primaryKeySeen == null) {
           primaryKeySeen = info;
         } else {
-          throw MultiSourceSpanException(
+          throw RealmInvalidGenerationSourceError(
             'Primary key already defined',
-            primaryKeySeen.fieldElement.span,
-            '1st',
-            {info.fieldElement.span!: '2nd'},
+            todo: 'Remove @PrimaryKey annotation from one or the other field',
+            element: info.fieldElement,
+            secondarySpans: {
+              primaryKeySeen.fieldElement.span!: 'already defined here'
+            },
           );
         }
       }
@@ -449,4 +475,53 @@ class RealmObjectGenerator extends Generator {
       return library.classes.realmInfo.expand((m) => m.toCode()).join('\n');
     }, tag: 'generate');
   }
+}
+
+class RealmInvalidGenerationSourceError extends InvalidGenerationSourceError {
+  final Map<SourceSpan, String> secondarySpans;
+  RealmInvalidGenerationSourceError(
+    String message, {
+    required String todo,
+    required Element element,
+    this.secondarySpans = const {},
+  }) : super(message, todo: todo, element: element);
+
+  @override
+  String toString() => _formatMessage(
+        message,
+        element: element!,
+        todo: todo,
+        secondarySpans: secondarySpans,
+      );
+}
+
+String _formatMessage(
+  String message, {
+  required Element element,
+  required String todo,
+  Map<SourceSpan, String> secondarySpans = const {},
+}) {
+  final buffer = StringBuffer(message);
+  try {
+    final span = element.span!;
+    final formated = secondarySpans.isEmpty
+        ? span.highlight()
+        : span.highlightMultiple('', secondarySpans);
+    buffer
+      ..writeln()
+      ..writeln(span.start.toolString)
+      ..write(formated);
+  } catch (_) {
+    // Source for `element` wasn't found, it must be in a summary with no
+    // associated source. We can still give the name.
+    buffer
+      ..writeln()
+      ..writeln('Cause: $element');
+  }
+  if (todo.isNotEmpty) {
+    buffer
+      ..writeln()
+      ..writeln(todo);
+  }
+  return buffer.toString();
 }
