@@ -310,7 +310,7 @@ void main([List<String>? args]) {
       final car = Car();
       realm.write(() => realm.add(car));
 
-      final car1 = realm.find<Car>("Tesla");
+      final car1 = realm.find<Car>("SomeNewNonExistingValue");
       expect(car1, isNotNull);
 
       realm.write(() => realm.remove(car1!));
