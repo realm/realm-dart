@@ -135,9 +135,12 @@ class RealmModelInfo {
         yield* fields.map((f) =>
             '${f.optional | f.hasDefaultValue ? '' : 'required '}${f.typeName}${!f.optional & f.hasDefaultValue ? '?' : ''} ${f.name},');
         yield '}) {';
-        yield* fields.map((f) => f.hasDefaultValue
-            ? 'this.${f.name} = ${f.declaration.node.toString().replaceFirst('=', '??')};' // TODO: Feels a bit hacky!
-            : 'this.${f.name} = ${f.name};');
+        yield* fields.map((f) {
+          final prefix = f.isFinal ? '_' : 'this.';
+          return f.hasDefaultValue
+              ? '$prefix${f.name} = ${f.declaration.node.toString().replaceFirst('=', '??')};' // TODO: Feels a bit hacky!
+              : '$prefix${f.name} = ${f.name};';
+        });
       }
       yield '}';
       yield '';
@@ -196,15 +199,36 @@ extension on ClassElement {
     }
 
     // TODO: Allow user to specify overrides globally
-    final prefix = realmModel.getField('prefix')?.toStringValue() ?? '_';
-    final suffix = realmModel.getField('suffix')?.toStringValue() ?? '';
+    Pattern prefix = RegExp(r'^[_\$]'); // default: _ or $
+    var suffix = '';
+    final prefixFromAnnotation = realmModel.getField('prefix')?.toStringValue();
+    final suffixFromAnnotation = realmModel.getField('suffix')?.toStringValue();
+    if (prefixFromAnnotation != null || suffixFromAnnotation != null) {
+      prefix = prefixFromAnnotation ?? '';
+      suffix = suffixFromAnnotation ?? '';
+    }
 
     final prototypeName = this.name;
-    assert(prototypeName.startsWith(prefix)); // TODO: Better error handling
-    assert(prototypeName.endsWith(suffix));
+    if (!prototypeName.startsWith(prefix)) {
+      throw RealmInvalidGenerationSourceError(
+        'Expected prefix: $prefix',
+        todo:
+            'Either update prefix in @RealmModel annotation, or align class name.',
+        element: this,
+      );
+    }
+    if (!prototypeName.endsWith(suffix)) {
+      throw RealmInvalidGenerationSourceError(
+        'Expected suffix: $suffix',
+        todo:
+            'Either update suffix in @RealmModel annotation, or align class name.',
+        element: this,
+      );
+    }
 
-    final name = prototypeName.substring(
-        prefix.length, prototypeName.length - suffix.length);
+    final name = prototypeName
+        .substring(0, prototypeName.length - suffix.length)
+        .replaceFirst(prefix, '');
 
     final mapTo = mapToChecker.annotationsOfExact(this).singleOrNull;
     final realmName = mapTo?.getField('name')?.toStringValue() ?? name;
@@ -258,25 +282,42 @@ class RealmFieldInfo {
 
   String get typeModelName => type.getDisplayString(withNullability: true);
 
-  RealmPropertyType get realmType =>
-      type.realmType ??
-      (throw RealmInvalidGenerationSourceError(
+  RealmPropertyType get realmType {
+    final realmType = type.realmType;
+    if (realmType != null) return realmType;
+
+    final typeDefinitionSpan = type.element?.span;
+    if (typeDefinitionSpan != null) {
+      throw RealmInvalidGenerationSourceError(
         'Not a valid realm type: $type',
         element: fieldElement,
-        todo:
-            'Add a @RealmModel annotation on the type definition, or an @Ignored annotation on the field using it.',
-        secondarySpans: {
-          if (type.element?.span != null) type.element!.span!: 'defined here'
-        },
-      ));
+        todo: //
+            'Add a @RealmModel annotation on the type definition, '
+            'or an @Ignored annotation on the field using it.',
+        secondarySpans: {typeDefinitionSpan: 'defined here'},
+      );
+    } else if (!type.isDynamic) {
+      throw RealmInvalidGenerationSourceError(
+        'Not a valid realm type: $type',
+        element: fieldElement,
+        todo: 'Add an @Ignored annotation.',
+      );
+    } else {
+      throw RealmInvalidGenerationSourceError(
+        'Not a valid realm type',
+        element: fieldElement,
+        todo: 'Add an @Ignored annotation.',
+      );
+    }
+  }
 
   RealmCollectionType get realmCollectionType => type.realmCollectionType;
 
   Iterable<String> toCode() sync* {
     yield '@override';
     yield "$typeName get $name => RealmObject.get<$typeName>(this, '$realmName');";
-    yield '@override';
-    yield "set $name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => RealmObject.set(this, '$realmName', value);";
+    if (!isFinal) yield '@override';
+    yield "set ${isFinal ? '_' : ''}$name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => RealmObject.set(this, '$realmName', value);";
   }
 }
 
@@ -301,8 +342,19 @@ extension on int {
 }
 
 extension on Element {
-  FileSpan? get span =>
-      source != null ? spanForElement(this) as FileSpan : null;
+  FileSpan? get span {
+    FileSpan? elementSpan;
+    try {
+      elementSpan = spanForElement(this) as FileSpan;
+      final annotationSpan =
+          spanForElement(metadata.firstOrNull!.element!) as FileSpan;
+      elementSpan = elementSpan.expand(annotationSpan);
+    } catch (e) {
+      // log.fine('issue getting span for $this', e);
+    }
+    // don't allow span calculation to bring us down
+    return elementSpan;
+  }
 
   String get display {
     return () sync* {
@@ -508,15 +560,14 @@ String _formatMessage(
         ? span.highlight()
         : span.highlightMultiple('', secondarySpans);
     buffer
-      ..writeln()
+      ..write('\n' * 2 + 'in: ')
       ..writeln(span.start.toolString)
       ..write(formated);
-  } catch (_) {
+  } catch (e) {
+    log.fine('WTF! $e');
     // Source for `element` wasn't found, it must be in a summary with no
     // associated source. We can still give the name.
-    buffer
-      ..writeln()
-      ..writeln('Cause: $element');
+    buffer.writeln('\nCause: $element');
   }
   if (todo.isNotEmpty) {
     buffer

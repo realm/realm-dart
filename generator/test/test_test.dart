@@ -1,9 +1,7 @@
 import 'package:build_test/build_test.dart';
 import 'package:realm_generator/realm_generator.dart';
 import 'package:realm_generator/src/realm_object_generator.dart';
-import 'package:source_span/source_span.dart';
 import 'package:test/test.dart';
-import 'package:logging/logging.dart';
 
 void main() {
   test(
@@ -41,7 +39,7 @@ class _Foo {
                   '  set x(int value) => RealmObject.set(this, \'x\', value);\n'
                   '\n'
                   '  static const schema = SchemaObject(Foo, [\n'
-                  '    SchemaProperty(\'x\', RealmPropertyType.int),\n'
+                  "    SchemaProperty('x', RealmPropertyType.int),\n"
                   '  ]);\n'
                   '}\n',
         },
@@ -117,7 +115,8 @@ class _Bad {
           (e) => e.toString(),
           'toString()',
           'Not a valid realm type: NonRealm\n'
-              'package:pkg/src/test.dart:9:17\n'
+              '\n'
+              'in: package:pkg/src/test.dart:9:17\n'
               '    ╷\n'
               '5   │ class NonRealm {}\n'
               '    │       ━━━━━━━━ defined here\n'
@@ -156,7 +155,8 @@ class _Bad {
             (e) => e.toString(),
             'toString()',
             'Realm only support indexes on String, int, and bool fields\n'
-                'package:pkg/src/test.dart:8:8\n'
+                '\n'
+                'in: package:pkg/src/test.dart:8:8\n'
                 '  ╷\n'
                 '8 │   Uuid notAnIndexableType;\n'
                 '  │        ^^^^^^^^^^^^^^^^^^\n'
@@ -192,7 +192,8 @@ class _Bad {
             (e) => e.toString(),
             'toString()',
             'Primary key cannot be nullable\n'
-                'package:pkg/src/test.dart:8:8\n'
+                '\n'
+                'in: package:pkg/src/test.dart:8:8\n'
                 '  ╷\n'
                 '8 │   int? nullableKeyNotAllowed;\n'
                 '  │        ^^^^^^^^^^^^^^^^^^^^^\n'
@@ -205,7 +206,6 @@ class _Bad {
   );
 
   test('primary key not final', () async {
-    final sb = StringBuffer();
     await expectLater(
       () async => await testBuilder(
           generateRealmObjects(),
@@ -227,7 +227,8 @@ class _Bad {
           (e) => e.toString(),
           'toString()',
           'Primary key field is not final\n'
-              'package:pkg/src/test.dart:8:12\n'
+              '\n'
+              'in: package:pkg/src/test.dart:8:12\n'
               '  ╷\n'
               '8 │   late int primartKeyIsNotFinal;\n'
               '  │            ^^^^^^^^^^^^^^^^^^^^\n'
@@ -270,7 +271,8 @@ class _Questionable {
       expect(
         sb.toString(),
         '[INFO] testBuilder: Indexed is implied for a primary key\n'
-        'package:pkg/src/test.dart:9:18\n'
+        '\n'
+        'in: package:pkg/src/test.dart:9:18\n'
         '  ╷\n'
         '9 │   late final int primartKeysAreAlwaysIndexed;\n'
         '  │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n'
@@ -280,4 +282,74 @@ class _Questionable {
       );
     },
   );
+
+  test('list of list not supported', () async {
+    await expectLater(
+      () async => await testBuilder(
+          generateRealmObjects(),
+          {
+            'pkg|lib/src/test.dart': r'''
+import 'package:realm_annotations/realm_annotations.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+class _Bad {
+  late int x;
+  var listOfLists = [[0], [1]];
+}
+
+'''
+          },
+          reader: await PackageAssetReader.currentIsolate()),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+            (e) => e.toString(),
+            'toString()',
+            'Not a valid realm type: List<List<int>>\n'
+                '\n'
+                'in: package:pkg/src/test.dart:8:7\n'
+                '  ╷\n'
+                '8 │   var listOfLists = [[0], [1]];\n'
+                '  │       ^^^^^^^^^^^\n'
+                '  ╵\n'
+                'Add an @Ignored annotation.\n'),
+      ),
+    );
+  });
+
+  test('missing underscore', () async {
+    await expectLater(
+      () async => await testBuilder(
+          generateRealmObjects(),
+          {
+            'pkg|lib/src/test.dart': r'''
+import 'package:realm_annotations/realm_annotations.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+class _Bad {
+  late Other other;
+}
+
+@RealmModel()
+class _Other {}
+
+'''
+          },
+          reader: await PackageAssetReader.currentIsolate()),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.toString(),
+          'toString()',
+          'Not a valid realm type\n'
+              '\n'
+              'in: package:pkg/src/test.dart:7:14\n'
+              '  ╷\n'
+              '7 │   late Other other;\n'
+              '  │              ^^^^^\n'
+              '  ╵\n'
+              'Add an @Ignored annotation.\n')),
+    );
+  });
 }
