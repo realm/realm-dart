@@ -315,7 +315,7 @@ void main([List<String>? args]) {
 
       realm.write(() => realm.remove(car1!));
 
-      var car2 = realm.find<Car>("Tesla");
+      var car2 = realm.find<Car>("SomeNewNonExistingValue");
       expect(car2, isNull);
     });
   });
