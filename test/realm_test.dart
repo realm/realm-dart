@@ -302,13 +302,12 @@ void main([List<String>? args]) {
       expect(car, isNull);
     });
 
-
     test('Realm remove object', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
       final car = Car();
-      realm.write(() => realm.add(car));
+      realm.write(() => realm.add(car)..make = "SomeNewNonExistingValue");
 
       final car1 = realm.find<Car>("SomeNewNonExistingValue");
       expect(car1, isNotNull);
