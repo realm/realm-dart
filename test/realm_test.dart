@@ -306,8 +306,8 @@ void main([List<String>? args]) {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      final car = Car();
-      realm.write(() => realm.add(car)..make = "SomeNewNonExistingValue");
+      final car = Car()..make = "SomeNewNonExistingValue";
+      realm.write(() => realm.add(car));
 
       final car1 = realm.find<Car>("SomeNewNonExistingValue");
       expect(car1, isNotNull);
