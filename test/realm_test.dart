@@ -217,6 +217,20 @@ void main([List<String>? args]) {
       });
     });
 
+    test('Realm add object twice does not throw', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      realm.write(() {
+        final car = Car();
+        realm.add(car);
+        
+        //second add of the same object does not throw and return the same object
+        final car1 = realm.add(car);
+        expect(car1, equals(car));
+      });
+    });
+
     test('Realm adding not configured object throws exception', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
@@ -290,6 +304,24 @@ void main([List<String>? args]) {
 
       final car = realm.find<Car>("Opel");
       expect(car, isNotNull);
+    });
+
+    test('Realm find not configured object by primary key throws exception', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      expect(() => realm.find<Person>("Me"), throws<RealmException>("not configured"));
+    });
+
+     test('Realm find object by primary key default value', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      realm.write(() => realm.add(Car()));
+
+      final car = realm.find<Car>("Tesla");
+      expect(car, isNotNull);
+      expect(car?.make, equals("Tesla"));
     });
 
     test('Realm find non existing object by primary key returns null', () {

@@ -66,6 +66,10 @@ class Realm {
   }
 
   T add<T extends RealmObject>(T object) {
+    if (object.isManaged) {
+      return object;
+    }
+    
     final metadata = _metadata[object.runtimeType];
     if (metadata == null) {
       throw RealmException("Object type ${object.runtimeType} not configured in the current Realm's schema."
@@ -98,8 +102,7 @@ class Realm {
     }
 
     final accessor = RealmCoreAccessor(metadata);
-    var object = RealmObject.create<T>();
-    object.manage(handle, accessor);
+    var object = RealmObjectInternal.create<T>(handle, accessor);
     return object;
   }
 

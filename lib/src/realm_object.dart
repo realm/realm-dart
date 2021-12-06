@@ -32,7 +32,7 @@ abstract class RealmAccessor {
   static Object? getDefaultValue(Type realmObjectType, String name) {
     final type = realmObjectType;
     if (!_defaultValues.containsKey(type)) {
-      throw RealmException("Type $type not found");
+      throw RealmException("Type $type not found.");
     }
 
     final values = _defaultValues[type]!;
@@ -46,7 +46,7 @@ abstract class RealmAccessor {
   static Map<String, Object?> getDefaults(Type realmObjectType) {
     final type = realmObjectType;
     if (!_defaultValues.containsKey(type)) {
-      throw RealmException("Type $type not found");
+      throw Exception("Type $type not found.");
     }
 
     return _defaultValues[type]!;
@@ -153,14 +153,6 @@ class RealmObject {
     _factories[T] = factory;
   }
 
-  static T create<T extends RealmObject>() {
-    if (!_factories.containsKey(T)) {
-      throw RealmException("Factory for Realm object type $T not found");
-    }
-
-    return _factories[T]!() as T;
-  }
-
   static bool setDefaults<T extends RealmObject>(Map<String, Object> values) {
     RealmAccessor.setDefaults<T>(values);
     return true;
@@ -181,6 +173,17 @@ extension RealmObjectInternal on RealmObject {
     }
 
     _accessor = accessor;
+  }
+
+  static T create<T extends RealmObject>(RealmObjectHandle handle, RealmCoreAccessor accessor) {
+    if (!RealmObject._factories.containsKey(T)) {
+      throw Exception("Factory for object type $T not found.");
+    }
+
+    final object = RealmObject._factories[T]!() as T;
+    object._handle = handle;
+    object._accessor = accessor;
+    return object;
   }
 
   RealmObjectHandle get handle => _handle!;
