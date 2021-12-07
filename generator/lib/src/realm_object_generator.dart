@@ -278,7 +278,7 @@ class RealmFieldInfo {
   String get realmName => mapTo ?? name;
   DartType get type => fieldElement.type;
   ElementDeclarationResult get declaration =>
-      getDeclarationFromElement(fieldElement);
+      getDeclarationFromElement(fieldElement)!;
 
   bool get hasDefaultValue => fieldElement.hasInitializer;
   bool get optional => type.isNullable;
@@ -363,11 +363,15 @@ extension on Element {
     FileSpan? elementSpan;
     try {
       elementSpan = spanForElement(this) as FileSpan;
-      final annotationSpan =
-          spanForElement(metadata.firstOrNull!.element!) as FileSpan;
-      elementSpan = elementSpan.expand(annotationSpan);
+      if (this is FieldElement) {
+        final node = getDeclarationFromElement(this)!.node.parent!.parent
+            as FieldDeclaration;
+        if (node.metadata.isNotEmpty) {
+          elementSpan = elementSpan.file.span(node.offset, node.offset + node.length);
+        }
+      }
     } catch (e) {
-      // log.fine('issue getting span for $this', e);
+      print('issue getting span for $this');
     }
     // don't allow span calculation to bring us down
     return elementSpan;
@@ -406,12 +410,11 @@ extension on Element {
   }
 }
 
-ElementDeclarationResult getDeclarationFromElement(Element element) {
-  // TODO: Lots of bangs here. Ensure proper error handling
+ElementDeclarationResult? getDeclarationFromElement(Element element) {
   final session = element.session!;
   final parsedLibrary = session.getParsedLibraryByElement(element.library!)
       as ParsedLibraryResult;
-  return parsedLibrary.getElementDeclaration(element)!;
+  return parsedLibrary.getElementDeclaration(element);
 }
 
 extension on FieldElement {
@@ -462,17 +465,6 @@ extension on FieldElement {
             RealmPropertyType.int,
             RealmPropertyType.bool,
           ].contains(type.realmType)) {
-        final d = getDeclarationFromElement(this);
-        final ast = d.node as AnnotatedNode;
-        final annotation = ast.metadata.firstOrNull;
-
-        var span = this.span!;
-        if (annotation != null) {
-          final start = annotation.offset;
-          final end = start + annotation.length;
-          final file = SourceFile.fromString(source!.contents.data);
-          span.expand(file.span(start, end));
-        }
         throw RealmInvalidGenerationSourceError(
           'Realm only support indexes on String, int, and bool fields',
           todo: //
@@ -496,7 +488,8 @@ extension on FieldElement {
       // Fallback. Not perfect, but better than just forwarding original error
       throw RealmInvalidGenerationSourceError(
         '$e',
-        todo: 'Inadequate error report. Please open an issue on: https://github.com/realm/realm-dart',
+        todo:
+            'Inadequate error report. Please open an issue on: https://github.com/realm/realm-dart',
         element: this,
       );
     }
@@ -530,7 +523,7 @@ extension on Iterable<FieldElement> {
                 "Remove @PrimaryKey annotation from either '$info' or '$primaryKeySeen'",
             element: info.fieldElement,
             secondarySpans: {
-              primaryKeySeen.fieldElement.span!: 'already defined here'
+              primaryKeySeen.fieldElement.span!: '1st'
             },
           );
         }
@@ -569,7 +562,7 @@ String _formatMessage(
     final span = element.span!;
     final formated = secondarySpans.isEmpty
         ? span.highlight()
-        : span.highlightMultiple('', secondarySpans);
+        : span.highlightMultiple('!', secondarySpans);
     buffer
       ..write('\n' * 2 + 'in: ')
       ..writeln(span.start.toolString)

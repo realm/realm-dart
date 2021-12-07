@@ -122,7 +122,7 @@ class _Bad {
               '    │       ━━━━━━━━ defined here\n'
               '... │\n'
               '9   │   late NonRealm notARealmType;\n'
-              '    │                 ^^^^^^^^^^^^^ \n'
+              '    │                 ^^^^^^^^^^^^^ !\n'
               '    ╵\n'
               "Add a @RealmModel annotation on 'NonRealm', or an @Ignored annotation on 'notARealmType'.\n",
         ),
@@ -156,10 +156,10 @@ class _Bad {
             'toString()',
             'Realm only support indexes on String, int, and bool fields\n'
                 '\n'
-                'in: package:pkg/src/test.dart:8:8\n'
+                'in: package:pkg/src/test.dart:7:3\n'
                 '  ╷\n'
-                '8 │   Uuid notAnIndexableType;\n'
-                '  │        ^^^^^^^^^^^^^^^^^^\n'
+                '7 │ ┌   @Indexed()\n'
+                '8 │ └   Uuid notAnIndexableType;\n'
                 '  ╵\n'
                 'Change the type of \'notAnIndexableType\', or remove the @Indexed annotation\n',
           ),
@@ -193,10 +193,10 @@ class _Bad {
             'toString()',
             'Primary key cannot be nullable\n'
                 '\n'
-                'in: package:pkg/src/test.dart:8:8\n'
+                'in: package:pkg/src/test.dart:7:3\n'
                 '  ╷\n'
-                '8 │   int? nullableKeyNotAllowed;\n'
-                '  │        ^^^^^^^^^^^^^^^^^^^^^\n'
+                '7 │ ┌   @PrimaryKey()\n'
+                '8 │ └   int? nullableKeyNotAllowed;\n'
                 '  ╵\n'
                 'Consider using the @Indexed annotation instead, or make \'nullableKeyNotAllowed\' non-nullable.\n',
           ),
@@ -228,10 +228,10 @@ class _Bad {
           'toString()',
           'Primary key field is not final\n'
               '\n'
-              'in: package:pkg/src/test.dart:8:12\n'
+              'in: package:pkg/src/test.dart:7:3\n'
               '  ╷\n'
-              '8 │   late int primartKeyIsNotFinal;\n'
-              '  │            ^^^^^^^^^^^^^^^^^^^^\n'
+              '7 │ ┌   @PrimaryKey()\n'
+              '8 │ └   late int primartKeyIsNotFinal;\n'
               '  ╵\n'
               'Add a final keyword to the definition of \'primartKeyIsNotFinal\', or remove the @PrimaryKey annotation.\n',
         ),
@@ -272,10 +272,11 @@ class _Questionable {
         sb.toString(),
         '[INFO] testBuilder: Indexed is implied for a primary key\n'
         '\n'
-        'in: package:pkg/src/test.dart:9:18\n'
+        'in: package:pkg/src/test.dart:7:3\n'
         '  ╷\n'
-        '9 │   late final int primartKeysAreAlwaysIndexed;\n'
-        '  │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n'
+        '7 │ ┌   @PrimaryKey()\n'
+        '8 │ │   @Indexed()\n'
+        '9 │ └   late final int primartKeysAreAlwaysIndexed;\n'
         '  ╵\n'
         'Remove either the @Indexed or @PrimaryKey annotation from \'primartKeysAreAlwaysIndexed\'.\n'
         '\n',
@@ -368,27 +369,31 @@ class _Bad {
   @PrimaryKey()
   late final int first;
 
+  @MapTo('third')
   @PrimaryKey()
-  late final String second;
+  late final String second; // just a thought..
 }
 '''
           },
           reader: await PackageAssetReader.currentIsolate()),
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.toString(),
-          'toString()',
-          'Primary key already defined\n'
-              '\n'
-              'in: package:pkg/src/test.dart:11:21\n'
-              '    ╷\n'
-              '8   │   late final int first;\n'
-              '    │                  ━━━━━ already defined here\n'
-              '... │\n'
-              '11  │   late final String second;\n'
-              '    │                     ^^^^^^ \n'
-              '    ╵\n'
-              "Remove @PrimaryKey annotation from either 'second' or 'first'\n"
-              '')),
+        (e) => e.toString(),
+        'toString()',
+        'Primary key already defined\n'
+            '\n'
+            'in: package:pkg/src/test.dart:10:3\n'
+            '    ╷\n'
+            '7   │ ┌   @PrimaryKey()\n'
+            '8   │ │   late final int first;\n'
+            '    │ └─── 1st\n'
+            '... │\n'
+            '10  │ ┌   @MapTo(\'third\')\n'
+            '11  │ │   @PrimaryKey()\n'
+            '12  │ │   late final String second; // just a thought..\n'
+            '    │ └───────────────────────────^ !\n'
+            '    ╵\n'
+            'Remove @PrimaryKey annotation from either \'second\' or \'first\'\n',
+      )),
     );
   });
 }
