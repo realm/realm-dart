@@ -17,11 +17,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'native/realm_core.dart';
-import 'realm_property.dart';
+import 'realm_class.dart';
 
 abstract class RealmAccessor {
   T get<T>(RealmObject object, String name);
-  void set<T>(RealmObject object, String name, T value, [bool isDefault = false]);
+  void set(RealmObject object, String name, Object? value, [bool isDefault = false]);
 
   static final Map<Type, Map<String, Object?>> _defaultValues = <Type, Map<String, Object?>>{};
 
@@ -66,7 +66,7 @@ class RealmValuesAccessor implements RealmAccessor {
   }
 
   @override
-  void set<T>(RealmObject object, String name, T value, [bool isDefault = false]) {
+  void set(RealmObject object, String name, Object? value, [bool isDefault = false]) {
     _values[name] =  value;
   }
 
@@ -111,15 +111,24 @@ class RealmCoreAccessor implements RealmAccessor {
   @override
   T get<T>(RealmObject object, String name) {
     try {
-      return realmCore.getProperty(object, metadata[name]) as T;
+      final value = realmCore.getProperty(object, metadata[name]);
+      if (value is! RealmObjectHandle) {
+        return value as T;
+      }
+
+      return object._realm!.createObject(T, value) as T;
     } on RealmException catch (e) {
       throw RealmException("Error getting property ${metadata.class_.type}.$name Error: ${e.message}");
     }
   }
 
   @override
-  void set<T>(RealmObject object, String name, T value, [bool isDefault = false]) {
+  void set(RealmObject object, String name, Object? value, [bool isDefault = false]) {
     try {
+      if (value is RealmObject && !value.isManaged) {
+        object._realm!.add(value);
+      }
+
       realmCore.setProperty(object, metadata[name], value, isDefault);
     } on RealmException catch (e) {
       throw RealmException("Error setting property ${metadata.class_.type}.$name Error: ${e.message}");
@@ -135,14 +144,15 @@ class RealmCoreAccessor implements RealmAccessor {
 class RealmObject {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
+  Realm? _realm;
   static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{};
 
-  static T get<T extends Object>(RealmObject object, String name) {
+  static T get<T>(RealmObject object, String name) {
     return object._accessor.get<T>(object, name);
   }
 
-  static void set<T extends Object>(RealmObject object, String name, T value) {
-    object._accessor.set<T>(object, name, value);
+  static void set<T>(RealmObject object, String name, T value) {
+    object._accessor.set(object, name, value);
   }
 
   static void registerFactory<T extends RealmObject>(T Function() factory) {
@@ -161,12 +171,13 @@ class RealmObject {
 
 //RealmObject package internal members
 extension RealmObjectInternal on RealmObject {
-  void manage(RealmObjectHandle handle, RealmCoreAccessor accessor) {
+  void manage(Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor) {
     if (_handle != null) {
       throw RealmException("Object is already managed");
     }
 
     _handle = handle;
+    _realm = realm;
 
     if (_accessor is RealmValuesAccessor) {
       (_accessor as RealmValuesAccessor).setAll(this, accessor);
@@ -175,21 +186,23 @@ extension RealmObjectInternal on RealmObject {
     _accessor = accessor;
   }
 
-  static T create<T extends RealmObject>(RealmObjectHandle handle, RealmCoreAccessor accessor) {
-    if (!RealmObject._factories.containsKey(T)) {
-      throw Exception("Factory for object type $T not found.");
+  static RealmObject create(Type type, Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor) {
+    if (!RealmObject._factories.containsKey(type)) {
+      throw Exception("Factory for object type $type not found.");
     }
 
-    final object = RealmObject._factories[T]!() as T;
+    final object = RealmObject._factories[type]!();
     object._handle = handle;
     object._accessor = accessor;
+    object._realm = realm;
     return object;
   }
 
   RealmObjectHandle get handle => _handle!;
   RealmAccessor get accessor => _accessor;
+  Realm? get realm => _realm;
 
-  bool get isManaged => _accessor is RealmCoreAccessor;
+  bool get isManaged => _realm != null;
 }
 
 /// An exception being thrown when a Realm operation or Realm object access fails

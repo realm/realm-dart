@@ -107,7 +107,7 @@ class RealmResults<T extends RealmObject>  {
   /// Returns the Realm object of type `T` at the specified `index`
   T operator [](int index) {
     final handle = realmCore.getObjectAt(this, index);
-    return _realm.createObject<T>(handle);
+    return _realm.createObject(T, handle) as T;
   }
 
   /// Returns a new `Results<T>` filtered according to the provided query

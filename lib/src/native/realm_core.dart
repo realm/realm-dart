@@ -105,16 +105,20 @@ class _RealmCore {
         final properties = arena<realm_property_info_t>(propertiesCount);
 
         for (var j = 0; j < propertiesCount; j++) {
-          final schemaProperty = schemaObject.properties[j];
+          final SchemaProperty schemaProperty = schemaObject.properties[j];
           final propInfo = properties.elementAt(j).ref;
           propInfo.name = schemaProperty.name.toUtf8Ptr(arena);
           //TODO: assign the correct public name value.
           propInfo.public_name = "".toUtf8Ptr(arena);
-          propInfo.link_target = "".toUtf8Ptr(arena);
+          propInfo.link_target = (schemaProperty.linkTarget ?? "").toUtf8Ptr(arena);
           propInfo.link_origin_property_name = "".toUtf8Ptr(arena);
           propInfo.type = schemaProperty.type.index;
           propInfo.collection_type = realm_collection_type_e.RLM_COLLECTION_TYPE_NONE;
           propInfo.flags = realm_property_flags_e.RLM_PROPERTY_NORMAL;
+          if (schemaProperty.nullable) {
+            propInfo.flags |= realm_property_flags_e.RLM_PROPERTY_NULLABLE;
+          }
+
           if (schemaProperty.primaryKey ?? false) {
             classInfo.primary_key = schemaProperty.name.toUtf8Ptr(arena);
             propInfo.flags = realm_property_flags_e.RLM_PROPERTY_PRIMARY_KEY;
@@ -265,7 +269,7 @@ class _RealmCore {
     return using((Arena arena) {
       Pointer<realm_value_t> realm_value = arena<realm_value_t>();
       _realmLib.invokeGetBool(() => _realmLib.realm_get_value(object.handle._pointer, propertyKey, realm_value));
-      return realm_value.toDartValue();
+      return realm_value.toDartValue(object.realm!);
     });
   }
 
@@ -330,6 +334,18 @@ class _RealmCore {
       return countPtr.value;
     });
   }
+
+  RealmLinkHandle _getObjectAsLink(RealmObject object) {
+    final realm_link = _realmLib.realm_object_as_link(object.handle._pointer);
+    return RealmLinkHandle._(realm_link);
+  }
+
+  RealmObjectHandle _getObject(Realm realm, int classKey, int objectKey) {
+    return using((Arena arena) {
+      Pointer<realm_object> pointer  = _realmLib.invokeGetPointer(() => _realmLib.realm_get_object(realm.handle._pointer, classKey, objectKey));
+      return RealmObjectHandle._(pointer);
+    });
+  }
 }
 
 class LastError {
@@ -383,9 +399,17 @@ class RealmObjectHandle extends Handle<realm_object> {
   }
 }
 
+class RealmLinkHandle {
+  final int targetKey;
+  final int classKey;
+  RealmLinkHandle._(realm_link_t link) : 
+    targetKey = link.target, 
+    classKey = link.target_table;
+}
+
 class ResultsHandle extends Handle<realm_results> {
   ResultsHandle._(Pointer<realm_results> pointer) : super(pointer) {
-    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 112);
+    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 872);
   }
 }
 
@@ -429,6 +453,13 @@ Pointer<realm_value_t> _toRealmValue(Object? value, Allocator allocator) {
 
   if (value == null) {
     realm_value.ref.type = realm_value_type_e.RLM_TYPE_NULL;
+    return realm_value;
+  } else if (value is RealmObject) {
+    //when converting a RealmObject to realm_value.link we assume the object is managed
+    final link = realmCore._getObjectAsLink(value);
+    realm_value.ref.values.link.target = link.targetKey;
+    realm_value.ref.values.link.target_table = link.classKey;
+    realm_value.ref.type = realm_value_type_e.RLM_TYPE_LINK;
     return realm_value;
   }
 
@@ -477,7 +508,7 @@ extension _TypeEx on Type {
 }
 
 extension _realm_value_t_ex on Pointer<realm_value_t> {
-  Object toDartValue() {
+  Object toDartValue(Realm realm) {
     if (this == nullptr) {
       throw RealmException("Can not convert nullptr realm_value to Dart value");
     }
@@ -493,13 +524,16 @@ extension _realm_value_t_ex on Pointer<realm_value_t> {
         return ref.values.fnum;
       case realm_value_type_e.RLM_TYPE_DOUBLE:
         return ref.values.dnum;
+      case realm_value_type_e.RLM_TYPE_LINK:
+        final objectKey = ref.values.link.target;
+        final classKey = ref.values.link.target_table;
+        RealmObjectHandle handle = realmCore._getObject(realm, classKey, objectKey);
+        return handle;
       case realm_value_type_e.RLM_TYPE_BINARY:
         throw Exception("Not implemented");
       case realm_value_type_e.RLM_TYPE_TIMESTAMP:
         throw Exception("Not implemented");
       case realm_value_type_e.RLM_TYPE_DECIMAL128:
-        throw Exception("Not implemented");
-      case realm_value_type_e.RLM_TYPE_LINK:
         throw Exception("Not implemented");
       case realm_value_type_e.RLM_TYPE_OBJECT_ID:
         throw Exception("Not implemented");

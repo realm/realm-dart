@@ -32,12 +32,59 @@ class Car extends _Car with RealmObject {
 }
 
 class Person extends _Person with RealmObject {
+  static bool? _defaultsSet;
+
+  Person() {
+      _defaultsSet ??= RealmObject.setDefaults<Person>({});
+  }
+
+  static Person _createInstance() {
+    return Person();
+  }
+
   @override
   String get name => RealmObject.get<String>(this, "name");
   @override
   set name(String value) => RealmObject.set<String>(this, "name", value);
 
-  static SchemaObject get schema => SchemaObject(Person)..properties = [
-    SchemaProperty("name", RealmPropertyType.string)
-  ];
+  static SchemaObject get schema {
+    RealmObject.registerFactory<Person>(_createInstance);
+    return SchemaObject(Person)..properties = [SchemaProperty("name", RealmPropertyType.string)];
+  }
+}
+
+class Dog extends _Dog with RealmObject {
+  static bool? _defaultsSet;
+
+  Dog() {
+      _defaultsSet ??= RealmObject.setDefaults<Dog>({});
+  }
+
+  static Dog _createInstance() {
+    return Dog();
+  }
+
+  @override
+  String get name => RealmObject.get<String>(this, "name");
+  @override
+  set name(String value) => RealmObject.set<String>(this, "name", value);
+
+  @override
+  int? get age => RealmObject.get<int?>(this, "age");
+  @override
+  set age(int? value) => RealmObject.set<int?>(this, "age", value);
+
+  @override
+  Person get owner => RealmObject.get<Person>(this, "owner");
+  @override
+  set owner(covariant Person value) => RealmObject.set<Person>(this, "owner", value);
+
+  static SchemaObject get schema {
+    RealmObject.registerFactory<Dog>(_createInstance);
+    return SchemaObject(Dog)..properties = [
+      SchemaProperty("name", RealmPropertyType.string), 
+      SchemaProperty("age", RealmPropertyType.int),
+      SchemaProperty("owner", RealmPropertyType.object, nullable: true, optional: true, linkTarget: 'Person')
+    ];
+  }
 }

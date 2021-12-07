@@ -81,7 +81,7 @@ class Realm {
         : realmCore.createRealmObjectWithPrimaryKey(this, metadata.class_.key, metadata.class_.primaryKey!);
 
     final accessor = RealmCoreAccessor(metadata);
-    object.manage(handle, accessor);
+    object.manage(this, handle, accessor);
 
     return object;
   }
@@ -110,7 +110,7 @@ class Realm {
   }
 
   T? find<T extends RealmObject>(String primaryKey) {
-    RealmMetadata metadata = _getMetadata<T>();
+    RealmMetadata metadata = _getMetadata(T);
 
     final handle = realmCore.find(this, metadata.class_.key, primaryKey);
     if (handle == null) {
@@ -118,21 +118,21 @@ class Realm {
     }
 
     final accessor = RealmCoreAccessor(metadata);
-    var object = RealmObjectInternal.create<T>(handle, accessor);
-    return object;
+    var object = RealmObjectInternal.create(T, this, handle, accessor);
+    return object as T;
   }
 
-  RealmMetadata _getMetadata<T extends RealmObject>() {
-    final metadata = _metadata[T];
+  RealmMetadata _getMetadata(Type type) {
+    final metadata = _metadata[type];
     if (metadata == null) {
-      throw RealmException("Object type $T not configured in the current Realm's schema. Add type $T to your config before opening the Realm");
+      throw RealmException("Object type $type not configured in the current Realm's schema. Add type $type to your config before opening the Realm");
     }
 
     return metadata;
   }
 
-  RealmResults<T> All<T extends RealmObject>() {
-    RealmMetadata metadata = _getMetadata<T>();
+  RealmResults<T> all<T extends RealmObject>() {
+    RealmMetadata metadata = _getMetadata(T);
     final handle = realmCore.findAll(this, metadata.class_.key);
     return RealmResults<T>(handle, this);
   }
@@ -175,11 +175,11 @@ class _Scheduler {
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
 
-  T createObject<T extends RealmObject>(RealmObjectHandle handle) {
-    RealmMetadata metadata = _getMetadata<T>();
+  RealmObject createObject(Type type, RealmObjectHandle handle) {
+    RealmMetadata metadata = _getMetadata(type);
 
     final accessor = RealmCoreAccessor(metadata);
-    var object = RealmObjectInternal.create<T>(handle, accessor);
+    var object = RealmObjectInternal.create(type, this, handle, accessor);
     return object;
   }
 }

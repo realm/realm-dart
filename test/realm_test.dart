@@ -19,7 +19,6 @@
 // ignore_for_file: unused_local_variable
 
 import 'dart:io';
-import 'dart:math';
 import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
 
@@ -39,6 +38,16 @@ class _Person {
   late String name;
 }
 
+@RealmModel()
+class _Dog {
+  @PrimaryKey()
+  late String name;
+
+  late int? age;
+
+  _Person? owner;
+}
+
 String? testName;
 
 //Overrides test method so we can filter tests
@@ -47,6 +56,10 @@ void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
     return;
   }
   testing.test(name, testFunction, skip: skip);
+}
+
+void xtest(String? name, dynamic Function() testFunction) {
+  testing.test(name, testFunction, skip: "Test is disabled");
 }
 
 void parseTestNameFromArguments(List<String>? arguments) {
@@ -225,7 +238,7 @@ void main([List<String>? args]) {
       realm.write(() {
         final car = Car();
         realm.add(car);
-        
+
         //second add of the same object does not throw and return the same object
         final car1 = realm.add(car);
         expect(car1, equals(car));
@@ -267,7 +280,7 @@ void main([List<String>? args]) {
       expect(car, isNull);
     });
 
-    test('Realm read property', () {
+    test('RealmObject get property', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
@@ -279,7 +292,7 @@ void main([List<String>? args]) {
       expect(car.make, equals('Tesla'));
     });
 
-    test('Realm write property', () {
+    test('RealmObject set property', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
@@ -295,6 +308,22 @@ void main([List<String>? args]) {
       });
 
       expect(car.make, equals('Audi'));
+    });
+
+    test('RealmObject set object type property (link)', () {
+      var config = Configuration([Person.schema, Dog.schema]);
+      var realm = Realm(config);
+
+      final dog = Dog()
+        ..name = "MyDog"
+        ..owner = (Person()..name = "MyOwner");
+      realm.write(() {
+        realm.add(dog);
+      });
+
+      expect(dog.name, 'MyDog');
+      expect(dog.owner, isNotNull);
+      expect(dog.owner.name, 'MyOwner');
     });
 
     test('Realm find object by primary key', () {
@@ -314,7 +343,7 @@ void main([List<String>? args]) {
       expect(() => realm.find<Person>("Me"), throws<RealmException>("not configured"));
     });
 
-     test('Realm find object by primary key default value', () {
+    test('Realm find object by primary key default value', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
@@ -351,19 +380,19 @@ void main([List<String>? args]) {
       expect(car2, isNull);
     });
 
-    test('Results.All() should return non null', () {
+    test('Results.all() should return non null', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      final cars = realm.All<Car>();
+      final cars = realm.all<Car>();
       expect(cars, isNotNull);
     });
 
-    test('Results.All() length', () {
+    test('Results.all() length', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
-      
-      var cars = realm.All<Car>();
+
+      var cars = realm.all<Car>();
       expect(cars.length, 0);
 
       final car = Car();
@@ -376,16 +405,16 @@ void main([List<String>? args]) {
       expect(cars.length, 0);
     });
 
-      test('Results.All() isEmpty', () {
+    test('Results.all() isEmpty', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
-      
-      var cars = realm.All<Car>();
+
+      var cars = realm.all<Car>();
       expect(cars.isEmpty(), true);
 
       final car = Car();
       realm.write(() => realm.add(car));
-      
+
       expect(cars.isEmpty(), false);
 
       realm.write(() => realm.remove(car));
@@ -399,7 +428,7 @@ void main([List<String>? args]) {
       realm.write(() => realm.add(Car()));
 
       final car = Car();
-      final cars = realm.All<Car>();
+      final cars = realm.all<Car>();
       expect(cars[0].make, car.make);
     });
   });
