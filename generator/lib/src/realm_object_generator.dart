@@ -121,14 +121,13 @@ extension on DartType {
 
 class RealmModelInfo {
   final String name;
-  final String prototypeName;
-  final String realmName;
+  final String modelName;
   final List<RealmFieldInfo> fields;
 
-  RealmModelInfo(this.name, this.prototypeName, this.realmName, this.fields);
+  RealmModelInfo(this.name, this.modelName, this.fields);
 
   Iterable<String> toCode() sync* {
-    yield 'class $name extends $prototypeName with RealmObject {';
+    yield 'class $name extends $modelName with RealmObject {';
     {
       yield '$name({';
       {
@@ -150,7 +149,7 @@ class RealmModelInfo {
             '',
           ]);
 
-      yield 'static const schema = SchemaObject($realmName, [';
+      yield 'static const schema = SchemaObject($name, [';
       {
         yield* fields.map((f) {
           final namedArgs = {
@@ -190,6 +189,17 @@ Iterable<String> indent(Iterable<String> Function() block) sync* {
   }
 }
 
+class _Config {
+  final Pattern prefix;
+  final String suffix;
+
+  _Config({String? prefix, String? suffix})
+      : prefix = prefix ?? RegExp(r'[_$]'), // defaults to _ or $
+        suffix = suffix ?? '';
+}
+
+late _Config _config;
+
 extension on ClassElement {
   RealmModelInfo? get realmInfo {
     final realmModel = realmModelChecker.annotationsOfExact(this).singleOrNull;
@@ -198,18 +208,19 @@ extension on ClassElement {
       // TODO: Warn user, but proceed
     }
 
-    // TODO: Allow user to specify overrides globally
-    Pattern prefix = RegExp(r'^[_\$]'); // default: _ or $
-    var suffix = '';
-    final prefixFromAnnotation = realmModel.getField('prefix')?.toStringValue();
-    final suffixFromAnnotation = realmModel.getField('suffix')?.toStringValue();
-    if (prefixFromAnnotation != null || suffixFromAnnotation != null) {
-      prefix = prefixFromAnnotation ?? '';
-      suffix = suffixFromAnnotation ?? '';
+    final modelName = this.name;
+    final mappedFields = fields.realmInfo.toList();
+
+    final mapTo = mapToChecker.annotationsOfExact(this).singleOrNull;
+    if (mapTo != null) {
+      final name = mapTo.getField('name')!.toStringValue()!;
+      return RealmModelInfo(name, modelName, mappedFields);
     }
 
-    final prototypeName = this.name;
-    if (!prototypeName.startsWith(prefix)) {
+    final prefix = _config.prefix;
+    var suffix = _config.suffix;
+
+    if (!modelName.startsWith(prefix)) {
       throw RealmInvalidGenerationSourceError(
         'Expected prefix: $prefix',
         todo:
@@ -217,7 +228,7 @@ extension on ClassElement {
         element: this,
       );
     }
-    if (!prototypeName.endsWith(suffix)) {
+    if (!modelName.endsWith(suffix)) {
       throw RealmInvalidGenerationSourceError(
         'Expected suffix: $suffix',
         todo:
@@ -226,18 +237,14 @@ extension on ClassElement {
       );
     }
 
-    final name = prototypeName
-        .substring(0, prototypeName.length - suffix.length)
+    final name = modelName
+        .substring(0, modelName.length - suffix.length)
         .replaceFirst(prefix, '');
-
-    final mapTo = mapToChecker.annotationsOfExact(this).singleOrNull;
-    final realmName = mapTo?.getField('name')?.toStringValue() ?? name;
 
     return RealmModelInfo(
       name,
-      prototypeName,
-      realmName,
-      fields.realmInfo.toList(),
+      modelName,
+      mappedFields,
     );
   }
 }
@@ -520,15 +527,6 @@ extension on Iterable<FieldElement> {
   }
 }
 
-class RealmObjectGenerator extends Generator {
-  @override
-  Future<String> generate(LibraryReader library, BuildStep buildStep) async {
-    return await meassure(() async {
-      return library.classes.realmInfo.expand((m) => m.toCode()).join('\n');
-    }, tag: 'generate');
-  }
-}
-
 class RealmInvalidGenerationSourceError extends InvalidGenerationSourceError {
   final Map<SourceSpan, String> secondarySpans;
   RealmInvalidGenerationSourceError(
@@ -575,4 +573,17 @@ String _formatMessage(
       ..writeln(todo);
   }
   return buffer.toString();
+}
+
+class RealmObjectGenerator extends Generator {
+  RealmObjectGenerator() {
+    _config = _Config(); // TODO: read prefix, suffix from build.yaml
+  }
+  
+  @override
+  Future<String> generate(LibraryReader library, BuildStep buildStep) async {
+    return await meassure(() async {
+      return library.classes.realmInfo.expand((m) => m.toCode()).join('\n');
+    }, tag: 'generate');
+  }
 }
