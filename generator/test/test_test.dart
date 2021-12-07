@@ -34,9 +34,9 @@ class _Foo {
                   '  }\n'
                   '\n'
                   '  @override\n'
-                  '  int get x => RealmObject.get<int>(this, \'x\');\n'
+                  "  int get x => RealmObject.get<int>(this, 'x');\n"
                   '  @override\n'
-                  '  set x(int value) => RealmObject.set(this, \'x\', value);\n'
+                  "  set x(int value) => RealmObject.set(this, 'x', value);\n"
                   '\n'
                   '  static const schema = SchemaObject(Foo, [\n'
                   "    SchemaProperty('x', RealmPropertyType.int),\n"
@@ -124,7 +124,7 @@ class _Bad {
               '9   │   late NonRealm notARealmType;\n'
               '    │                 ^^^^^^^^^^^^^ \n'
               '    ╵\n'
-              'Add a @RealmModel annotation on the type definition, or an @Ignored annotation on the field using it.\n',
+              "Add a @RealmModel annotation on 'NonRealm', or an @Ignored annotation on 'notARealmType'.\n",
         ),
       ),
     );
@@ -161,7 +161,7 @@ class _Bad {
                 '8 │   Uuid notAnIndexableType;\n'
                 '  │        ^^^^^^^^^^^^^^^^^^\n'
                 '  ╵\n'
-                'Change the type of the field, or remove the @Indexed annotation\n',
+                'Change the type of \'notAnIndexableType\', or remove the @Indexed annotation\n',
           ),
         ),
       );
@@ -198,7 +198,7 @@ class _Bad {
                 '8 │   int? nullableKeyNotAllowed;\n'
                 '  │        ^^^^^^^^^^^^^^^^^^^^^\n'
                 '  ╵\n'
-                'Consider using the @Indexed annotation instead, or make the field non-nullable.\n',
+                'Consider using the @Indexed annotation instead, or make \'nullableKeyNotAllowed\' non-nullable.\n',
           ),
         ),
       );
@@ -233,7 +233,7 @@ class _Bad {
               '8 │   late int primartKeyIsNotFinal;\n'
               '  │            ^^^^^^^^^^^^^^^^^^^^\n'
               '  ╵\n'
-              'Add a final keyword to the field definition, or remove the @PrimaryKey annotation.\n',
+              'Add a final keyword to the definition of \'primartKeyIsNotFinal\', or remove the @PrimaryKey annotation.\n',
         ),
       ),
     );
@@ -277,7 +277,7 @@ class _Questionable {
         '9 │   late final int primartKeysAreAlwaysIndexed;\n'
         '  │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n'
         '  ╵\n'
-        'Remove either the @Indexed or @PrimaryKey annotation.\n'
+        'Remove either the @Indexed or @PrimaryKey annotation from \'primartKeysAreAlwaysIndexed\'.\n'
         '\n',
       );
     },
@@ -313,7 +313,7 @@ class _Bad {
                 '8 │   var listOfLists = [[0], [1]];\n'
                 '  │       ^^^^^^^^^^^\n'
                 '  ╵\n'
-                'Add an @Ignored annotation.\n'),
+                "Add an @Ignored annotation on 'listOfLists'.\n"),
       ),
     );
   });
@@ -342,14 +342,53 @@ class _Other {}
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.toString(),
           'toString()',
-          'Not a valid realm type\n'
+          'Not a valid realm type: Other\n'
               '\n'
               'in: package:pkg/src/test.dart:7:14\n'
               '  ╷\n'
               '7 │   late Other other;\n'
               '  │              ^^^^^\n'
               '  ╵\n'
-              'Add an @Ignored annotation.\n')),
+              "Did you intend to use '_Other' as type for 'other'?\n")),
+    );
+  });
+
+  test('double primary key', () async {
+    await expectLater(
+      () async => await testBuilder(
+          generateRealmObjects(),
+          {
+            'pkg|lib/src/test.dart': r'''
+import 'package:realm_annotations/realm_annotations.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+class _Bad {
+  @PrimaryKey()
+  late final int first;
+
+  @PrimaryKey()
+  late final String second;
+}
+'''
+          },
+          reader: await PackageAssetReader.currentIsolate()),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.toString(),
+          'toString()',
+          'Primary key already defined\n'
+              '\n'
+              'in: package:pkg/src/test.dart:11:21\n'
+              '    ╷\n'
+              '8   │   late final int first;\n'
+              '    │                  ━━━━━ already defined here\n'
+              '... │\n'
+              '11  │   late final String second;\n'
+              '    │                     ^^^^^^ \n'
+              '    ╵\n'
+              "Remove @PrimaryKey annotation from either 'second' or 'first'\n"
+              '')),
     );
   });
 }

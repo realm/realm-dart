@@ -287,7 +287,11 @@ class RealmFieldInfo {
   String get typeName =>
       typeModelName.replaceAll('_', ''); // TODO: Very hackish
 
-  String get typeModelName => type.getDisplayString(withNullability: true);
+  String get typeModelName => type.isDynamic
+      ? (declaration.node.parent as VariableDeclarationList)
+          .type
+          .toString() // read from AST
+      : type.getDisplayString(withNullability: true);
 
   RealmPropertyType get realmType {
     final realmType = type.realmType;
@@ -296,24 +300,27 @@ class RealmFieldInfo {
     final typeDefinitionSpan = type.element?.span;
     if (typeDefinitionSpan != null) {
       throw RealmInvalidGenerationSourceError(
-        'Not a valid realm type: $type',
+        'Not a valid realm type: $typeName',
         element: fieldElement,
         todo: //
-            'Add a @RealmModel annotation on the type definition, '
-            'or an @Ignored annotation on the field using it.',
+            "Add a @RealmModel annotation on '$typeName', "
+            "or an @Ignored annotation on '$this'.",
         secondarySpans: {typeDefinitionSpan: 'defined here'},
       );
-    } else if (!type.isDynamic) {
+    } else if (type.isDynamic &&
+        typeName != 'dynamic' &&
+        !typeName.startsWith(_config.prefix)) {
+      // Could be user has used X instead of _X in a field definition
       throw RealmInvalidGenerationSourceError(
-        'Not a valid realm type: $type',
+        'Not a valid realm type: $typeName',
         element: fieldElement,
-        todo: 'Add an @Ignored annotation.',
+        todo: "Did you intend to use '_$typeName' as type for '$this'?",
       );
     } else {
       throw RealmInvalidGenerationSourceError(
-        'Not a valid realm type',
+        'Not a valid realm type: $typeName',
         element: fieldElement,
-        todo: 'Add an @Ignored annotation.',
+        todo: "Add an @Ignored annotation on '$this'.",
       );
     }
   }
@@ -326,6 +333,9 @@ class RealmFieldInfo {
     if (!isFinal) yield '@override';
     yield "set ${isFinal ? '_' : ''}$name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => RealmObject.set(this, '$realmName', value);";
   }
+
+  @override
+  String toString() => fieldElement.displayName;
 }
 
 const realmModelChecker = TypeChecker.fromRuntime(RealmModel);
@@ -425,13 +435,14 @@ extension on FieldElement {
             'Primary key cannot be nullable',
             todo: //
                 'Consider using the @Indexed annotation instead, '
-                'or make the field non-nullable.',
+                "or make '$displayName' non-nullable.",
             element: this);
       }
       if (primaryKey & indexed) {
         log.info(_formatMessage(
           'Indexed is implied for a primary key',
-          todo: 'Remove either the @Indexed or @PrimaryKey annotation.',
+          todo:
+              "Remove either the @Indexed or @PrimaryKey annotation from '$displayName'.",
           element: this,
         ));
       }
@@ -439,7 +450,7 @@ extension on FieldElement {
         throw RealmInvalidGenerationSourceError(
           'Primary key field is not final',
           todo: //
-              'Add a final keyword to the field definition, '
+              "Add a final keyword to the definition of '$displayName', "
               'or remove the @PrimaryKey annotation.',
           element: this,
         );
@@ -464,8 +475,9 @@ extension on FieldElement {
         }
         throw RealmInvalidGenerationSourceError(
           'Realm only support indexes on String, int, and bool fields',
-          todo:
-              'Change the type of the field, or remove the @Indexed annotation',
+          todo: //
+              "Change the type of '$displayName', "
+              "or remove the @Indexed annotation",
           element: this,
         );
       }
@@ -484,7 +496,7 @@ extension on FieldElement {
       // Fallback. Not perfect, but better than just forwarding original error
       throw RealmInvalidGenerationSourceError(
         '$e',
-        todo: 'Please open an issue on: https://github.com/realm/realm-dart',
+        todo: 'Inadequate error report. Please open an issue on: https://github.com/realm/realm-dart',
         element: this,
       );
     }
@@ -514,7 +526,8 @@ extension on Iterable<FieldElement> {
         } else {
           throw RealmInvalidGenerationSourceError(
             'Primary key already defined',
-            todo: 'Remove @PrimaryKey annotation from one or the other field',
+            todo:
+                "Remove @PrimaryKey annotation from either '$info' or '$primaryKeySeen'",
             element: info.fieldElement,
             secondarySpans: {
               primaryKeySeen.fieldElement.span!: 'already defined here'
@@ -579,7 +592,7 @@ class RealmObjectGenerator extends Generator {
   RealmObjectGenerator() {
     _config = _Config(); // TODO: read prefix, suffix from build.yaml
   }
-  
+
   @override
   Future<String> generate(LibraryReader library, BuildStep buildStep) async {
     return await meassure(() async {
