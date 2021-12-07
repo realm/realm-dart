@@ -39,6 +39,7 @@ void dummy(void) {
   realm_dart_create_scheduler(0,0);
   realm_object_create(NULL, 0);
   realm_dart_get_files_path();
+  realm_results_get_object(nullptr, 0);
 }
 
 @end

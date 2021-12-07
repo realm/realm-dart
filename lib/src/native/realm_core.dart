@@ -29,6 +29,7 @@ import '../configuration.dart';
 import '../realm_class.dart';
 import '../realm_object.dart';
 import '../init.dart';
+import '../results.dart';
 
 import 'realm_bindings.dart';
 
@@ -295,8 +296,7 @@ class _RealmCore {
   RealmObjectHandle? find(Realm realm, int classKey, Object primaryKey) {
     return using((Arena arena) {
       final realm_value = _toRealmValue(primaryKey, arena);
-      final pointer =
-          _realmLib.invokeTryGetPointer(() => _realmLib.realm_object_find_with_primary_key(realm.handle._pointer, classKey, realm_value.ref, nullptr));
+      final pointer = _realmLib.realm_object_find_with_primary_key(realm.handle._pointer, classKey, realm_value.ref, nullptr);
       if (pointer == nullptr) {
         return null;
       }
@@ -307,6 +307,28 @@ class _RealmCore {
 
   void removeRealmObject(RealmObject object) {
     _realmLib.invokeGetBool(() => _realmLib.realm_object_delete(object.handle._pointer));
+  }
+
+  ResultsHandle findAll(Realm realm, int classKey) {
+    return using((Arena arena) {
+      final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_find_all(realm.handle._pointer, classKey));
+      return ResultsHandle._(pointer);
+    });
+  }
+
+  RealmObjectHandle getObjectAt(RealmResults results, int index) {
+    return using((Arena arena) {
+      Pointer<realm_object> pointer  = _realmLib.invokeGetPointer(() => _realmLib.realm_results_get_object(results.handle._pointer, index));
+      return RealmObjectHandle._(pointer);
+    });
+  }
+
+  int getResultsCount(RealmResults results) {
+     return using((Arena arena) {
+      Pointer<IntPtr> countPtr = arena<IntPtr>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_results_count(results.handle._pointer, countPtr));
+      return countPtr.value;
+    });
   }
 }
 
@@ -361,6 +383,12 @@ class RealmObjectHandle extends Handle<realm_object> {
   }
 }
 
+class ResultsHandle extends Handle<realm_results> {
+  ResultsHandle._(Pointer<realm_results> pointer) : super(pointer) {
+    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 112);
+  }
+}
+
 extension _StringEx on String {
   Pointer<T> toUtf8Ptr<T extends NativeType>(Allocator allocator) {
     final units = utf8.encode(this);
@@ -393,10 +421,6 @@ extension _RealmLibraryEx on RealmLibrary {
       throw RealmException("${errorMessage ?? ""} ${lastError.toString()}");
     }
     return result;
-  }
-
-  Pointer<T> invokeTryGetPointer<T extends NativeType>(Pointer<T> Function() callback) {
-    return callback();
   }
 }
 

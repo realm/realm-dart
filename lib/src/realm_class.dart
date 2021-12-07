@@ -30,7 +30,7 @@ import 'native/realm_core.dart';
 
 export 'collection.dart';
 export 'list.dart';
-export 'results.dart';
+export 'results.dart' hide RealmResultsInternal;
 export 'realm_object.dart' hide RealmObjectInternal, RealmAccessor, RealmValuesAccessor, RealmMetadata, RealmCoreAccessor;
 export "configuration.dart" hide ConfigurationInternal;
 export 'realm_property.dart';
@@ -69,7 +69,7 @@ class Realm {
     if (object.isManaged) {
       return object;
     }
-    
+
     final metadata = _metadata[object.runtimeType];
     if (metadata == null) {
       throw RealmException("Object type ${object.runtimeType} not configured in the current Realm's schema."
@@ -90,22 +90,6 @@ class Realm {
     realmCore.removeRealmObject(object);
   }
 
-  T? find<T extends RealmObject>(String primaryKey) {
-    final metadata = _metadata[T];
-    if (metadata == null) {
-      throw RealmException("Object type $T not configured in the current Realm's schema. Add type $T to your config before opening the Realm");
-    }
-
-    final handle = realmCore.find(this, metadata.class_.key, primaryKey);
-    if (handle == null) {
-      return null;
-    }
-
-    final accessor = RealmCoreAccessor(metadata);
-    var object = RealmObjectInternal.create<T>(handle, accessor);
-    return object;
-  }
-
   bool get _isInTransaction => realmCore.getIsWritable(this);
 
   void write(void Function() writeCallback) {
@@ -123,6 +107,34 @@ class Realm {
 
   void close() {
     realmCore.closeRealm(this);
+  }
+
+  T? find<T extends RealmObject>(String primaryKey) {
+    RealmMetadata metadata = _getMetadata<T>();
+
+    final handle = realmCore.find(this, metadata.class_.key, primaryKey);
+    if (handle == null) {
+      return null;
+    }
+
+    final accessor = RealmCoreAccessor(metadata);
+    var object = RealmObjectInternal.create<T>(handle, accessor);
+    return object;
+  }
+
+  RealmMetadata _getMetadata<T extends RealmObject>() {
+    final metadata = _metadata[T];
+    if (metadata == null) {
+      throw RealmException("Object type $T not configured in the current Realm's schema. Add type $T to your config before opening the Realm");
+    }
+
+    return metadata;
+  }
+
+  RealmResults<T> All<T extends RealmObject>() {
+    RealmMetadata metadata = _getMetadata<T>();
+    final handle = realmCore.findAll(this, metadata.class_.key);
+    return RealmResults<T>(handle, this);
   }
 }
 
@@ -162,4 +174,12 @@ class _Scheduler {
 
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
+
+  T createObject<T extends RealmObject>(RealmObjectHandle handle) {
+    RealmMetadata metadata = _getMetadata<T>();
+
+    final accessor = RealmCoreAccessor(metadata);
+    var object = RealmObjectInternal.create<T>(handle, accessor);
+    return object;
+  }
 }

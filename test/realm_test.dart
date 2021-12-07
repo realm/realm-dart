@@ -19,6 +19,7 @@
 // ignore_for_file: unused_local_variable
 
 import 'dart:io';
+import 'dart:math';
 import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
 
@@ -348,6 +349,58 @@ void main([List<String>? args]) {
 
       var car2 = realm.find<Car>("SomeNewNonExistingValue");
       expect(car2, isNull);
+    });
+
+    test('Results.All() should return non null', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      final cars = realm.All<Car>();
+      expect(cars, isNotNull);
+    });
+
+    test('Results.All() length', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      
+      var cars = realm.All<Car>();
+      expect(cars.length, 0);
+
+      final car = Car();
+      realm.write(() => realm.add(car));
+
+      expect(cars.length, 1);
+
+      realm.write(() => realm.remove(car));
+
+      expect(cars.length, 0);
+    });
+
+      test('Results.All() isEmpty', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      
+      var cars = realm.All<Car>();
+      expect(cars.isEmpty(), true);
+
+      final car = Car();
+      realm.write(() => realm.add(car));
+      
+      expect(cars.isEmpty(), false);
+
+      realm.write(() => realm.remove(car));
+
+      expect(cars.isEmpty(), true);
+    });
+
+    test('Results get by index', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      realm.write(() => realm.add(Car()));
+
+      final car = Car();
+      final cars = realm.All<Car>();
+      expect(cars[0].make, car.make);
     });
   });
 }
