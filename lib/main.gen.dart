@@ -14,7 +14,6 @@ class Car extends _Car with RealmObject {
   @override
   set make(String value) => RealmObject.set<String>(this, "make", value);
 
-  @override
   static SchemaObject get schema => SchemaObject(Car)..properties = [
     SchemaProperty("make", RealmPropertyType.string)
   ];
@@ -28,7 +27,6 @@ class Person extends _Person with RealmObject {
   @override
   set name(String value) => RealmObject.set<String>(this, "name", value);
 
-  @override
   static SchemaObject get schema => SchemaObject(Person)..properties = [
     SchemaProperty("name", RealmPropertyType.string)
   ];

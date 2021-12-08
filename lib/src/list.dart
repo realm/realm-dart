@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// ignore_for_file: native_function_body_in_non_sdk_code
-
 import 'dart:core';
 import 'dart:core' as core;
 import 'dart:collection';

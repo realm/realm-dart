@@ -43,13 +43,12 @@ abstract class RealmAccessor {
     return null;
   }
 
-  static Map<String, Object?> getDefaults(Type realmObjectType) {
-    final type = realmObjectType;
-    if (!_defaultValues.containsKey(type)) {
-      throw Exception("Type $type not found.");
+  static Map<String, Object?>? getDefaults(Type realmObjectType) {
+    if (!_defaultValues.containsKey(realmObjectType)) {
+      return null;
     }
 
-    return _defaultValues[type]!;
+    return _defaultValues[realmObjectType]!;
   }
 }
 
@@ -73,9 +72,12 @@ class RealmValuesAccessor implements RealmAccessor {
   void setAll(RealmObject object, RealmAccessor accessor) {
     final defaults = RealmAccessor.getDefaults(object.runtimeType);
 
-    for (var item in defaults.entries) {
-      if (!_values.containsKey(item.key)) {
-        accessor.set(object, item.key, item.value, true);
+    if (defaults != null) {
+      for (var item in defaults.entries) {
+        //check if a default value has been overwritten
+        if (!_values.containsKey(item.key)) {
+          accessor.set(object, item.key, item.value, true);
+        }
       }
     }
 

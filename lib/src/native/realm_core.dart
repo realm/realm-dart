@@ -112,14 +112,15 @@ class _RealmCore {
           propInfo.public_name = "".toUtf8Ptr(arena);
           propInfo.link_target = (schemaProperty.linkTarget ?? "").toUtf8Ptr(arena);
           propInfo.link_origin_property_name = "".toUtf8Ptr(arena);
-          propInfo.type = schemaProperty.type.index;
-          propInfo.collection_type = realm_collection_type_e.RLM_COLLECTION_TYPE_NONE;
+          propInfo.type = schemaProperty.propertyType.index;
+          propInfo.collection_type = schemaProperty.collectionType.index;
           propInfo.flags = realm_property_flags_e.RLM_PROPERTY_NORMAL;
+         
           if (schemaProperty.nullable) {
             propInfo.flags |= realm_property_flags_e.RLM_PROPERTY_NULLABLE;
           }
 
-          if (schemaProperty.primaryKey ?? false) {
+          if (schemaProperty.primaryKey) {
             classInfo.primary_key = schemaProperty.name.toUtf8Ptr(arena);
             propInfo.flags = realm_property_flags_e.RLM_PROPERTY_PRIMARY_KEY;
           }

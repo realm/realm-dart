@@ -48,6 +48,12 @@ class _Dog {
   _Person? owner;
 }
 
+@RealmModel()
+class _Team {
+  late String name;
+  late List<_Person> players;
+}
+
 String? testName;
 
 //Overrides test method so we can filter tests
