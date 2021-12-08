@@ -20,7 +20,7 @@ import 'native/realm_core.dart';
 import 'realm_class.dart';
 
 abstract class RealmAccessor {
-  T get<T>(RealmObject object, String name);
+  Object? get<T extends Object>(RealmObject object, String name);
   void set(RealmObject object, String name, Object? value, [bool isDefault = false]);
 
   static final Map<Type, Map<String, Object?>> _defaultValues = <Type, Map<String, Object?>>{};
@@ -57,12 +57,12 @@ class RealmValuesAccessor implements RealmAccessor {
   final Map<String, Object?> _values = <String, Object?>{};
 
   @override
-  T get<T>(RealmObject object, String name) {
+  Object? get<T extends Object>(RealmObject object, String name) {
     if (!_values.containsKey(name)) {
-      return RealmAccessor.getDefaultValue(object.runtimeType, name) as T;
+      return RealmAccessor.getDefaultValue(object.runtimeType, name);
     }
 
-    return _values[name] as T;
+    return _values[name];
   }
 
   @override
@@ -108,15 +108,23 @@ class RealmCoreAccessor implements RealmAccessor {
 
   RealmCoreAccessor(this.metadata);
 
+  // bool _sameTypes<S, T>() {
+  //   void func<X extends S>() {}
+  //   // Spec says this is only true if S and T are "the same type".
+  //   print(S);
+  //   print(T);
+  //   return func is void Function<X extends T>();
+  // }
+
   @override
-  T get<T>(RealmObject object, String name) {
+  Object? get<T extends Object>(RealmObject object, String name) {
     try {
       final value = realmCore.getProperty(object, metadata[name]);
       if (value is! RealmObjectHandle) {
-        return value as T;
+        return value;
       }
-
-      return object._realm!.createObject(T, value) as T;
+     
+      return object._realm!.createObject(T, value);
     } on RealmException catch (e) {
       throw RealmException("Error getting property ${metadata.class_.type}.$name Error: ${e.message}");
     }
@@ -147,11 +155,11 @@ class RealmObject {
   Realm? _realm;
   static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{};
 
-  static T get<T>(RealmObject object, String name) {
+  static Object? get<T extends Object>(RealmObject object, String name) {
     return object._accessor.get<T>(object, name);
   }
 
-  static void set<T>(RealmObject object, String name, T value) {
+  static void set<T extends Object>(RealmObject object, String name, T? value) {
     object._accessor.set(object, name, value);
   }
 

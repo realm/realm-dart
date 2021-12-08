@@ -265,7 +265,7 @@ class _RealmCore {
     });
   }
 
-  Object getProperty(RealmObject object, int propertyKey) {
+  Object? getProperty(RealmObject object, int propertyKey) {
     return using((Arena arena) {
       Pointer<realm_value_t> realm_value = arena<realm_value_t>();
       _realmLib.invokeGetBool(() => _realmLib.realm_get_value(object.handle._pointer, propertyKey, realm_value));
@@ -508,12 +508,14 @@ extension _TypeEx on Type {
 }
 
 extension _realm_value_t_ex on Pointer<realm_value_t> {
-  Object toDartValue(Realm realm) {
+  Object? toDartValue(Realm realm) {
     if (this == nullptr) {
       throw RealmException("Can not convert nullptr realm_value to Dart value");
     }
 
     switch (ref.type) {
+      case realm_value_type_e.RLM_TYPE_NULL:
+        return null;
       case realm_value_type_e.RLM_TYPE_INT:
         return ref.values.integer;
       case realm_value_type_e.RLM_TYPE_BOOL:

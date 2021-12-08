@@ -21,7 +21,7 @@ class Car extends _Car with RealmObject {
   }
 
   @override
-  String get make => RealmObject.get<String>(this, "make");
+  String get make => RealmObject.get<String>(this, "make") as String;
   @override
   set make(String value) => RealmObject.set<String>(this, "make", value);
 
@@ -43,7 +43,7 @@ class Person extends _Person with RealmObject {
   }
 
   @override
-  String get name => RealmObject.get<String>(this, "name");
+  String get name => RealmObject.get<String>(this, "name") as String;
   @override
   set name(String value) => RealmObject.set<String>(this, "name", value);
 
@@ -65,25 +65,25 @@ class Dog extends _Dog with RealmObject {
   }
 
   @override
-  String get name => RealmObject.get<String>(this, "name");
+  String get name => RealmObject.get<String>(this, "name") as String;
   @override
   set name(String value) => RealmObject.set<String>(this, "name", value);
 
   @override
-  int? get age => RealmObject.get<int?>(this, "age");
+  int? get age => RealmObject.get<int>(this, "age") as int?;
   @override
-  set age(int? value) => RealmObject.set<int?>(this, "age", value);
+  set age(int? value) => RealmObject.set<int>(this, "age", value);
 
   @override
-  Person get owner => RealmObject.get<Person>(this, "owner");
+  Person? get owner => RealmObject.get<Person>(this, "owner") as Person?;
   @override
-  set owner(covariant Person value) => RealmObject.set<Person>(this, "owner", value);
+  set owner(covariant Person? value) => RealmObject.set<Person>(this, "owner", value);
 
   static SchemaObject get schema {
     RealmObject.registerFactory<Dog>(_createInstance);
     return SchemaObject(Dog)..properties = [
       SchemaProperty("name", RealmPropertyType.string), 
-      SchemaProperty("age", RealmPropertyType.int),
+      SchemaProperty("age", RealmPropertyType.int, nullable: true),
       SchemaProperty("owner", RealmPropertyType.object, nullable: true, optional: true, linkTarget: 'Person')
     ];
   }

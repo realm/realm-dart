@@ -323,7 +323,37 @@ void main([List<String>? args]) {
 
       expect(dog.name, 'MyDog');
       expect(dog.owner, isNotNull);
-      expect(dog.owner.name, 'MyOwner');
+      expect(dog.owner!.name, 'MyOwner');
+    });
+
+    test('RealmObject set property null', () {
+      var config = Configuration([Person.schema, Dog.schema]);
+      var realm = Realm(config);
+
+      final dog = Dog()
+        ..name = "MyDog"
+        ..owner = (Person()..name = "MyOwner")
+        ..age = 5;
+      realm.write(() {
+        realm.add(dog);
+      });
+
+      expect(dog.name, 'MyDog');
+      expect(dog.age, 5);
+      expect(dog.owner, isNotNull);
+      expect(dog.owner!.name, 'MyOwner');
+
+      realm.write(() {
+        dog.age = null;
+      });
+
+      expect(dog.age, null);
+
+      realm.write(() {
+        dog.owner = null;
+      });
+
+      expect(dog.owner, null);
     });
 
     test('Realm find object by primary key', () {
