@@ -17,21 +17,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:ffi';
-import 'dart:io';
 import 'dart:isolate';
 
 import 'results.dart';
 import 'configuration.dart';
 import 'realm_object.dart';
-import 'collection.dart';
-import "helpers.dart";
-import 'realm_property.dart';
 import 'native/realm_core.dart';
+import 'list.dart';
 
-export 'collection.dart';
-export 'list.dart';
+export 'list.dart' hide RealmListInternal;
 export 'results.dart' hide RealmResultsInternal;
-export 'realm_object.dart' hide RealmObjectInternal, RealmAccessor, RealmValuesAccessor, RealmMetadata, RealmCoreAccessor;
+export 'realm_object.dart'
+    hide RealmObjectInternal, RealmAccessor, RealmValuesAccessor, RealmMetadata, RealmCoreAccessor, RealmClassMetadata, RealmPropertyMetadata;
 export "configuration.dart" hide ConfigurationInternal;
 export 'realm_property.dart';
 export 'helpers.dart';
@@ -55,8 +52,8 @@ class Realm {
 
       for (var realmClass in config.schema) {
         final classMeta = realmCore.getClassMetadata(this, realmClass.name, realmClass.type);
-        final propertyKeys = realmCore.getPropertyKeys(this, classMeta.key);
-        final metadata = RealmMetadata(classMeta, propertyKeys);
+        final propertyMeta = realmCore.getPropertyMetadata(this, classMeta.key);
+        final metadata = RealmMetadata(classMeta, propertyMeta);
         _metadata[realmClass.type] = metadata;
       }
     } catch (e) {
@@ -134,7 +131,7 @@ class Realm {
   RealmResults<T> all<T extends RealmObject>() {
     RealmMetadata metadata = _getMetadata(T);
     final handle = realmCore.findAll(this, metadata.class_.key);
-    return RealmResults<T>(handle, this);
+    return RealmResultsInternal.create<T>(handle, this);
   }
 }
 
@@ -181,5 +178,9 @@ extension RealmInternal on Realm {
     final accessor = RealmCoreAccessor(metadata);
     var object = RealmObjectInternal.create(type, this, handle, accessor);
     return object;
+  }
+
+  RealmList<T> createList<T extends Object>(RealmListHandle handle) {
+    return RealmListInternal.create(handle, this);
   }
 }

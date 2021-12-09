@@ -1,7 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 part of 'realm_test.dart';
 
-
 // **************************************************************************
 // RealmObjectGenerator
 // **************************************************************************
@@ -11,7 +10,7 @@ class Car extends _Car with RealmObject {
   static bool? _defaultsSet;
 
   Car([String make = 'Tesla']) {
-      _defaultsSet ??= RealmObject.setDefaults<Car>({"make": "Tesla"});
+    _defaultsSet ??= RealmObject.setDefaults<Car>({"make": "Tesla"});
   }
 
   Car._();
@@ -21,7 +20,7 @@ class Car extends _Car with RealmObject {
   @override
   set make(String value) => RealmObject.set<String>(this, "make", value);
 
-  static SchemaObject get schema { 
+  static SchemaObject get schema {
     RealmObject.registerFactory<Car>(() => Car._());
     return SchemaObject(Car)..properties = [SchemaProperty("make", RealmPropertyType.string, primaryKey: true)];
   }
@@ -29,7 +28,7 @@ class Car extends _Car with RealmObject {
 
 class Person extends _Person with RealmObject {
   // static bool? _defaultsSet;
-  //Type Person has no defaults  
+  //Type Person has no defaults
   Person() {
     //_defaultsSet ??= RealmObject.setDefaults<Person>({});
   }
@@ -65,11 +64,12 @@ class Dog extends _Dog with RealmObject {
 
   static SchemaObject get schema {
     RealmObject.registerFactory<Dog>(() => Dog());
-    return SchemaObject(Dog)..properties = [
-      SchemaProperty("name", RealmPropertyType.string), 
-      SchemaProperty("age", RealmPropertyType.int, nullable: true),
-      SchemaProperty("owner", RealmPropertyType.object, nullable: true, optional: true, linkTarget: 'Person')
-    ];
+    return SchemaObject(Dog)
+      ..properties = [
+        SchemaProperty("name", RealmPropertyType.string),
+        SchemaProperty("age", RealmPropertyType.int, nullable: true),
+        SchemaProperty("owner", RealmPropertyType.object, nullable: true, optional: true, linkTarget: 'Person')
+      ];
   }
 }
 
@@ -82,15 +82,17 @@ class Team extends _Team with RealmObject {
   set name(String value) => RealmObject.set<String>(this, "name", value);
 
   @override
-  List<Person> get players => RealmObject.get<List<Person>>(this, "players") as List<Person>;
-  @override
-  set players(covariant List<Person> value) => RealmObject.set<List<Person>>(this, "players", value);
+  List<Person> get players => RealmObject.get<Person>(this, "players") as List<Person>;
+  //set not allowed on Lists
+  // @override
+  // set players(covariant List<Person> value) => RealmObject.set<List<Person>>(this, "players", value);
 
   static SchemaObject get schema {
-    RealmObject.registerFactory<Team>(()=> Team());
-    return SchemaObject(Team)..properties = [
-      SchemaProperty("name", RealmPropertyType.string), 
-      SchemaProperty("players", RealmPropertyType.object, collectionType: RealmCollectionType.list),
-    ];
+    RealmObject.registerFactory<Team>(() => Team());
+    return SchemaObject(Team)
+      ..properties = [
+        SchemaProperty("name", RealmPropertyType.string),
+        SchemaProperty("players", RealmPropertyType.object, collectionType: RealmCollectionType.list, linkTarget: 'Person'),
+      ];
   }
 }
