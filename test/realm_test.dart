@@ -425,7 +425,7 @@ Future<void> main([List<String>? args]) async {
       expect(car2, isNull);
     });
 
-    test('Results.all() should return non null', () {
+    test('Results.all() should not return null', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
@@ -516,7 +516,7 @@ Future<void> main([List<String>? args]) async {
       expect(players[2].name, "Kimi Räikkönen");
     });
 
-    test('Lists get invalid index throws', () {
+    test('Lists get invalid index throws exception', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -527,7 +527,7 @@ Future<void> main([List<String>? args]) async {
       final players = teams[0].players;
 
       expect(() => players[-1], throws<RealmException>("Index out of range"));
-      expect(() => players[800], throws<RealmException>("Index out of range"));
+      expect(() => players[800], throws<RealmException>());
     });
 
     test('Lists set invalid index throws', () {
@@ -540,7 +540,7 @@ Future<void> main([List<String>? args]) async {
       final teams = realm.all<Team>();
       final players = teams[0].players;
 
-      expect(() => realm.write(() => players[-1] = Person()), throws<RealmException>());
+      expect(() => realm.write(() => players[-1] = Person()), throws<RealmException>("Index out of range"));
       expect(() => realm.write(() => players[800] = Person()), throws<RealmException>());
     });
   });
