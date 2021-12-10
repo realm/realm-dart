@@ -8,11 +8,11 @@ import 'package:test_api/src/backend/state.dart' as test_api;
 
 import '../../test/realm_test.dart' as realm_tests;
 
-Future<String> main(List<String> args) {
+Future<String> main(List<String> args) async {
   final Completer<String> completer = Completer<String>();
   final List<String> failedTests = [];
 
-  realm_tests.main(args);
+  await realm_tests.main(args);
 
   tearDown(() {
     if (Invoker.current?.liveTest.state.result == test_api.Result.error || Invoker.current?.liveTest.state.result == test_api.Result.failure) {
