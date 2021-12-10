@@ -19,6 +19,8 @@
 // ignore_for_file: unused_local_variable
 
 import 'dart:io';
+import 'dart:math';
+import 'package:path/path.dart' as _path;
 import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
 
@@ -81,46 +83,53 @@ void parseTestNameFromArguments(List<String>? arguments) {
 
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
 
-void main([List<String>? args]) {
+final random = Random();
+String generateRandomString(int len) {
+  const _chars = 'abcdefghjklmnopqrstuvwxuz';
+  return List.generate(len, (index) => _chars[random.nextInt(_chars.length)]).join();
+}
+
+Future<void> tryDeleteFile(FileSystemEntity fileEntity, {bool recursive = false}) async {
+  for (var i = 0; i < 20; i++) {
+    try {
+      await fileEntity.delete(recursive: recursive);
+      break;
+    } catch (e) {
+      await Future<void>.delayed(Duration(milliseconds: 50));
+    }
+  }
+}
+
+Future<void> main([List<String>? args]) async {
   parseTestNameFromArguments(args);
 
   print("Current PID $pid");
 
-  setUp(() async {
-    var currentDir = Directory.current;
+  setUp(() {
+    String path = "${generateRandomString(10)}.realm";
     if (Platform.isAndroid || Platform.isIOS) {
-      currentDir = Directory(Configuration.filesPath);
+      path = _path.join(Configuration.filesPath, path);
     }
+    Configuration.defaultPath = path;
 
-    var files = await currentDir.list().toList();
-    for (var file in files) {
-      if (file is! File || (!file.path.endsWith(".realm"))) {
-        continue;
+    addTearDown(() async {
+      var file = File(path);
+      if (await file.exists() && file.path.endsWith(".realm")) {
+        await tryDeleteFile(file);
       }
 
-      core.realmCore.triggerGC();
+      file = File("$path.lock");
+      if (await file.exists()) {
+        await tryDeleteFile(file);
+      }
 
-      for (var i = 0; i <= 20; i++) {
-        try {
-          await file.delete();
-          break;
-        } catch (e) {
-          //wait for Realm.close of a previous test and retry the delete before failing
-          await Future<void>.delayed(Duration(milliseconds: 10));
+      final dir = Directory("$path.management");
+      if (await dir.exists()) {
+        if ((await dir.stat()).type == FileSystemEntityType.directory) {
+          await tryDeleteFile(dir, recursive: true);
         }
       }
-
-      var lockFile = File("${file.path}.lock");
-      for (var i = 0; i <= 20; i++) {
-        try {
-          await lockFile.delete();
-          break;
-        } catch (e) {
-          //wait for Realm.close of a previous test and retry the delete before failing
-          await Future<void>.delayed(Duration(milliseconds: 10));
-        }
-      }
-    }
+    });
   });
 
   group('Configuration tests:', () {
@@ -134,16 +143,16 @@ void main([List<String>? args]) {
 
     test('Configuration default path', () {
       if (Platform.isAndroid || Platform.isIOS) {
-        expect(Configuration.defaultPath, endsWith("default.realm"));
+        expect(Configuration.defaultPath, endsWith(".realm"));
         expect(Configuration.defaultPath, startsWith("/"), reason: "on Android and iOS the default path should contain the path to the user data directory");
       } else {
-        expect(Configuration.defaultPath, equals("default.realm"));
+        expect(Configuration.defaultPath, endsWith(".realm"));
       }
     });
 
     test('Configuration files path', () {
       if (Platform.isAndroid || Platform.isIOS) {
-        expect(Configuration.filesPath, isNot(endsWith("default.realm")), reason: "on Android and iOS the files path should be a directory");
+        expect(Configuration.filesPath, isNot(endsWith(".realm")), reason: "on Android and iOS the files path should be a directory");
         expect(Configuration.filesPath, startsWith("/"), reason: "on Android and iOS the files path should be a directory");
       } else {
         expect(Configuration.filesPath, equals(""), reason: "on Dart standalone the files path should be an empty string");
@@ -152,7 +161,7 @@ void main([List<String>? args]) {
 
     test('Configuration get/set path', () {
       Configuration config = Configuration([Car.schema]);
-      expect(config.path, contains('default.realm'));
+      expect(config.path, endsWith('.realm'));
 
       const path = "my/path/default.realm";
       config.path = path;
