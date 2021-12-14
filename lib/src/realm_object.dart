@@ -43,13 +43,12 @@ abstract class RealmAccessor {
     return null;
   }
 
-  static Map<String, Object?> getDefaults(Type realmObjectType) {
-    final type = realmObjectType;
-    if (!_defaultValues.containsKey(type)) {
-      throw Exception("Type $type not found.");
+  static Map<String, Object?>? getDefaults(Type realmObjectType) {
+    if (!_defaultValues.containsKey(realmObjectType)) {
+      return null;
     }
 
-    return _defaultValues[type]!;
+    return _defaultValues[realmObjectType]!;
   }
 }
 
@@ -67,15 +66,18 @@ class RealmValuesAccessor implements RealmAccessor {
 
   @override
   void set(RealmObject object, String name, Object? value, [bool isDefault = false]) {
-    _values[name] =  value;
+    _values[name] = value;
   }
 
   void setAll(RealmObject object, RealmAccessor accessor) {
     final defaults = RealmAccessor.getDefaults(object.runtimeType);
 
-    for (var item in defaults.entries) {
-      if (!_values.containsKey(item.key)) {
-        accessor.set(object, item.key, item.value, true);
+    if (defaults != null) {
+      for (var item in defaults.entries) {
+        //check if a default value has been overwritten
+        if (!_values.containsKey(item.key)) {
+          accessor.set(object, item.key, item.value, true);
+        }
       }
     }
 
@@ -87,11 +89,11 @@ class RealmValuesAccessor implements RealmAccessor {
 
 class RealmMetadata {
   RealmClassMetadata class_;
-  final Map<String, int> _propertyKeys;
+  final Map<String, RealmPropertyMetadata> _propertyKeys;
 
   RealmMetadata(this.class_, this._propertyKeys);
 
-  int operator [](String propertyName) =>
+  RealmPropertyMetadata operator [](String propertyName) =>
       _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exists on class ${class_.type.runtimeType}"));
 }
 
@@ -103,43 +105,49 @@ class RealmClassMetadata {
   RealmClassMetadata(this.type, int classKey, [this.primaryKey]) : key = classKey;
 }
 
+class RealmPropertyMetadata {
+  final int key;
+  final RealmCollectionType collectionType;
+  const RealmPropertyMetadata(this.key, [this.collectionType = RealmCollectionType.none]);
+}
+
 class RealmCoreAccessor implements RealmAccessor {
   final RealmMetadata metadata;
 
   RealmCoreAccessor(this.metadata);
 
-  // bool _sameTypes<S, T>() {
-  //   void func<X extends S>() {}
-  //   // Spec says this is only true if S and T are "the same type".
-  //   print(S);
-  //   print(T);
-  //   return func is void Function<X extends T>();
-  // }
-
   @override
   Object? get<T extends Object>(RealmObject object, String name) {
     try {
-      final value = realmCore.getProperty(object, metadata[name]);
-      if (value is! RealmObjectHandle) {
-        return value;
+      final propertyMeta = metadata[name];
+      if (propertyMeta.collectionType == RealmCollectionType.list) {
+        final handle = realmCore.getListProperty(object, propertyMeta.key);
+        return object._realm!.createList<T>(handle);
       }
-     
-      return object._realm!.createObject(T, value);
-    } on RealmException catch (e) {
-      throw RealmException("Error getting property ${metadata.class_.type}.$name Error: ${e.message}");
+
+      Object? value = realmCore.getProperty(object, propertyMeta.key);
+
+      if (value is RealmObjectHandle) {
+        return object._realm!.createObject(T, value);
+      }
+
+      return value;
+    } on Exception catch (e) {
+      throw RealmException("Error getting property ${metadata.class_.type}.$name Error: $e");
     }
   }
 
   @override
   void set(RealmObject object, String name, Object? value, [bool isDefault = false]) {
+    final propertyMeta = metadata[name];
     try {
       if (value is RealmObject && !value.isManaged) {
         object._realm!.add(value);
       }
 
-      realmCore.setProperty(object, metadata[name], value, isDefault);
-    } on RealmException catch (e) {
-      throw RealmException("Error setting property ${metadata.class_.type}.$name Error: ${e.message}");
+      realmCore.setProperty(object, propertyMeta.key, value, isDefault);
+    } on Exception catch (e) {
+      throw RealmException("Error setting property ${metadata.class_.type}.$name Error: $e");
     }
   }
 }

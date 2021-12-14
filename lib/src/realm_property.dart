@@ -46,12 +46,19 @@ enum RealmPropertyType {
   uuid,
 }
 
+enum RealmCollectionType {
+  none,
+  list,
+  set,
+  dictionary,
+}
+
 class _RealmProperty {
   /// Realm will use this property as the primary key
-  final bool? primaryKey;
+  final bool primaryKey;
 
   /// The Realm type of this property
-  final RealmPropertyType type;
+  final RealmPropertyType propertyType;
 
   final bool nullable;
 
@@ -59,12 +66,12 @@ class _RealmProperty {
   final String? defaultValue;
 
   /// `true` if this property is optional
-  final bool? optional;
+  final bool optional;
 
   /// An alias to another property of the same RealmObject
   final String? mapTo;
 
-  const _RealmProperty(this.type, {this.nullable = false, this.defaultValue, this.optional, this.mapTo, this.primaryKey});
+  const _RealmProperty(this.propertyType, {this.nullable = false, this.defaultValue, this.optional = false, this.mapTo, this.primaryKey = false});
 }
 
 class MapTo {
@@ -88,6 +95,14 @@ class Ignored {
 class SchemaProperty extends _RealmProperty {
   final String name;
   final String? linkTarget;
-  const SchemaProperty(this.name, RealmPropertyType type, {bool nullable = false, String? defaultValue, bool? optional, String? mapTo, bool? primaryKey, this.linkTarget})
-      : super(type, nullable: nullable, defaultValue: defaultValue, optional: optional, mapTo: mapTo, primaryKey: primaryKey);
+  final RealmCollectionType collectionType;
+  const SchemaProperty(this.name, RealmPropertyType propertyType,
+      {bool nullable = false,
+      String? defaultValue,
+      bool optional = false,
+      String? mapTo,
+      bool primaryKey = false,
+      this.linkTarget,
+      this.collectionType = RealmCollectionType.none})
+      : super(propertyType, nullable: nullable, defaultValue: defaultValue, optional: optional, mapTo: mapTo, primaryKey: primaryKey);
 }

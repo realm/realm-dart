@@ -50,6 +50,12 @@ class _Dog {
   _Person? owner;
 }
 
+@RealmModel()
+class _Team {
+  late String name;
+  late List<_Person> players;
+}
+
 String? testName;
 
 //Overrides test method so we can filter tests
@@ -419,7 +425,7 @@ Future<void> main([List<String>? args]) async {
       expect(car2, isNull);
     });
 
-    test('Results.all() should return non null', () {
+    test('Results.all() should not return null', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
@@ -469,6 +475,73 @@ Future<void> main([List<String>? args]) async {
       final car = Car();
       final cars = realm.all<Car>();
       expect(cars[0].make, car.make);
+    });
+
+    test('Lists create object with a list property', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final team = Team()..name = "Ferrari";
+      realm.write(() => realm.add(team));
+
+      final teams = realm.all<Team>();
+      expect(teams.length, 1);
+      expect(teams[0].name, "Ferrari");
+      expect(teams[0].players, isNotNull);
+      expect(teams[0].players.length, 0);
+    });
+
+    test('Lists get set', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final team = Team()..name = "Ferrari";
+      realm.write(() => realm.add(team));
+
+      final teams = realm.all<Team>();
+      expect(teams.length, 1);
+      final players = teams[0].players;
+      expect(players, isNotNull);
+      expect(players.length, 0);
+
+      realm.write(() => players.add(Person()..name = "Michael Schumacher"));
+      expect(players.length, 1);
+
+      realm.write(() => players.addAll([Person()..name = "Sebastian Vettel", Person()..name = "Kimi Räikkönen"]));
+
+      expect(players.length, 3);
+
+      expect(players[0].name, "Michael Schumacher");
+      expect(players[1].name, "Sebastian Vettel");
+      expect(players[2].name, "Kimi Räikkönen");
+    });
+
+    test('Lists get invalid index throws exception', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final team = Team()..name = "Ferrari";
+      realm.write(() => realm.add(team));
+
+      final teams = realm.all<Team>();
+      final players = teams[0].players;
+
+      expect(() => players[-1], throws<RealmException>("Index out of range"));
+      expect(() => players[800], throws<RealmException>());
+    });
+
+    test('Lists set invalid index throws', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final team = Team()..name = "Ferrari";
+      realm.write(() => realm.add(team));
+
+      final teams = realm.all<Team>();
+      final players = teams[0].players;
+
+      expect(() => realm.write(() => players[-1] = Person()), throws<RealmException>("Index out of range"));
+      expect(() => realm.write(() => players[800] = Person()), throws<RealmException>());
     });
   });
 }
