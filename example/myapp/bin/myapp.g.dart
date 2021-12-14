@@ -5,7 +5,7 @@ part of 'myapp.dart';
 // **************************************************************************
 // RealmObjectGenerator
 // **************************************************************************
-
+/*
 class Car extends RealmObject {
   // ignore_for_file: unused_element, unused_local_variable
   Car._constructor() : super.constructor();
@@ -39,3 +39,4 @@ class Person extends RealmObject {
     ]);
   }
 }
+*/

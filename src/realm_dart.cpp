@@ -61,6 +61,7 @@ void dummy(void) {
   realm_schema_new(nullptr, 0, nullptr);
   realm_get_library_version();
   realm_object_create(nullptr, 0);
+  realm_results_get_object(nullptr, 0);
 #if (ANDROID)
   realm_android_dummy();
 #endif

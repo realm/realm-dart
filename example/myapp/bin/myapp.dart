@@ -1,7 +1,7 @@
 import 'package:realm_dart/realm.dart';
 
 part 'myapp.g.dart';
-
+/*
 class _Car {
   @RealmProperty()
   late String make;
@@ -33,3 +33,4 @@ void main(List<String> arguments) {
 
   print("Done");
 }
+*/

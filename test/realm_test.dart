@@ -19,6 +19,8 @@
 // ignore_for_file: unused_local_variable
 
 import 'dart:io';
+import 'dart:math';
+import 'package:path/path.dart' as _path;
 import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
 
@@ -38,6 +40,22 @@ class _Person {
   late String name;
 }
 
+@RealmModel()
+class _Dog {
+  @PrimaryKey()
+  late String name;
+
+  late int? age;
+
+  _Person? owner;
+}
+
+@RealmModel()
+class _Team {
+  late String name;
+  late List<_Person> players;
+}
+
 String? testName;
 
 //Overrides test method so we can filter tests
@@ -46,6 +64,10 @@ void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
     return;
   }
   testing.test(name, testFunction, skip: skip);
+}
+
+void xtest(String? name, dynamic Function() testFunction) {
+  testing.test(name, testFunction, skip: "Test is disabled");
 }
 
 void parseTestNameFromArguments(List<String>? arguments) {
@@ -61,46 +83,53 @@ void parseTestNameFromArguments(List<String>? arguments) {
 
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
 
-void main([List<String>? args]) {
+final random = Random();
+String generateRandomString(int len) {
+  const _chars = 'abcdefghjklmnopqrstuvwxuz';
+  return List.generate(len, (index) => _chars[random.nextInt(_chars.length)]).join();
+}
+
+Future<void> tryDeleteFile(FileSystemEntity fileEntity, {bool recursive = false}) async {
+  for (var i = 0; i < 20; i++) {
+    try {
+      await fileEntity.delete(recursive: recursive);
+      break;
+    } catch (e) {
+      await Future<void>.delayed(Duration(milliseconds: 50));
+    }
+  }
+}
+
+Future<void> main([List<String>? args]) async {
   parseTestNameFromArguments(args);
 
   print("Current PID $pid");
 
-  setUp(() async {
-    var currentDir = Directory.current;
+  setUp(() {
+    String path = "${generateRandomString(10)}.realm";
     if (Platform.isAndroid || Platform.isIOS) {
-      currentDir = Directory(Configuration.filesPath);
+      path = _path.join(Configuration.filesPath, path);
     }
+    Configuration.defaultPath = path;
 
-    var files = await currentDir.list().toList();
-    for (var file in files) {
-      if (file is! File || (!file.path.endsWith(".realm"))) {
-        continue;
+    addTearDown(() async {
+      var file = File(path);
+      if (await file.exists() && file.path.endsWith(".realm")) {
+        await tryDeleteFile(file);
       }
 
-      core.realmCore.triggerGC();
+      file = File("$path.lock");
+      if (await file.exists()) {
+        await tryDeleteFile(file);
+      }
 
-      for (var i = 0; i <= 20; i++) {
-        try {
-          await file.delete();
-          break;
-        } catch (e) {
-          //wait for Realm.close of a previous test and retry the delete before failing
-          await Future<void>.delayed(Duration(milliseconds: 10));
+      final dir = Directory("$path.management");
+      if (await dir.exists()) {
+        if ((await dir.stat()).type == FileSystemEntityType.directory) {
+          await tryDeleteFile(dir, recursive: true);
         }
       }
-
-      var lockFile = File("${file.path}.lock");
-      for (var i = 0; i <= 20; i++) {
-        try {
-          await lockFile.delete();
-          break;
-        } catch (e) {
-          //wait for Realm.close of a previous test and retry the delete before failing
-          await Future<void>.delayed(Duration(milliseconds: 10));
-        }
-      }
-    }
+    });
   });
 
   group('Configuration tests:', () {
@@ -114,16 +143,16 @@ void main([List<String>? args]) {
 
     test('Configuration default path', () {
       if (Platform.isAndroid || Platform.isIOS) {
-        expect(Configuration.defaultPath, endsWith("default.realm"));
+        expect(Configuration.defaultPath, endsWith(".realm"));
         expect(Configuration.defaultPath, startsWith("/"), reason: "on Android and iOS the default path should contain the path to the user data directory");
       } else {
-        expect(Configuration.defaultPath, equals("default.realm"));
+        expect(Configuration.defaultPath, endsWith(".realm"));
       }
     });
 
     test('Configuration files path', () {
       if (Platform.isAndroid || Platform.isIOS) {
-        expect(Configuration.filesPath, isNot(endsWith("default.realm")), reason: "on Android and iOS the files path should be a directory");
+        expect(Configuration.filesPath, isNot(endsWith(".realm")), reason: "on Android and iOS the files path should be a directory");
         expect(Configuration.filesPath, startsWith("/"), reason: "on Android and iOS the files path should be a directory");
       } else {
         expect(Configuration.filesPath, equals(""), reason: "on Dart standalone the files path should be an empty string");
@@ -132,7 +161,7 @@ void main([List<String>? args]) {
 
     test('Configuration get/set path', () {
       Configuration config = Configuration([Car.schema]);
-      expect(config.path, contains('default.realm'));
+      expect(config.path, endsWith('.realm'));
 
       const path = "my/path/default.realm";
       config.path = path;
@@ -224,7 +253,7 @@ void main([List<String>? args]) {
       realm.write(() {
         final car = Car();
         realm.add(car);
-        
+
         //second add of the same object does not throw and return the same object
         final car1 = realm.add(car);
         expect(car1, equals(car));
@@ -266,7 +295,7 @@ void main([List<String>? args]) {
       expect(car, isNull);
     });
 
-    test('Realm read property', () {
+    test('RealmObject get property', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
@@ -278,7 +307,7 @@ void main([List<String>? args]) {
       expect(car.make, equals('Tesla'));
     });
 
-    test('Realm write property', () {
+    test('RealmObject set property', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
@@ -294,6 +323,52 @@ void main([List<String>? args]) {
       });
 
       expect(car.make, equals('Audi'));
+    });
+
+    test('RealmObject set object type property (link)', () {
+      var config = Configuration([Person.schema, Dog.schema]);
+      var realm = Realm(config);
+
+      final dog = Dog()
+        ..name = "MyDog"
+        ..owner = (Person()..name = "MyOwner");
+      realm.write(() {
+        realm.add(dog);
+      });
+
+      expect(dog.name, 'MyDog');
+      expect(dog.owner, isNotNull);
+      expect(dog.owner!.name, 'MyOwner');
+    });
+
+    test('RealmObject set property null', () {
+      var config = Configuration([Person.schema, Dog.schema]);
+      var realm = Realm(config);
+
+      final dog = Dog()
+        ..name = "MyDog"
+        ..owner = (Person()..name = "MyOwner")
+        ..age = 5;
+      realm.write(() {
+        realm.add(dog);
+      });
+
+      expect(dog.name, 'MyDog');
+      expect(dog.age, 5);
+      expect(dog.owner, isNotNull);
+      expect(dog.owner!.name, 'MyOwner');
+
+      realm.write(() {
+        dog.age = null;
+      });
+
+      expect(dog.age, null);
+
+      realm.write(() {
+        dog.owner = null;
+      });
+
+      expect(dog.owner, null);
     });
 
     test('Realm find object by primary key', () {
@@ -313,7 +388,7 @@ void main([List<String>? args]) {
       expect(() => realm.find<Person>("Me"), throws<RealmException>("not configured"));
     });
 
-     test('Realm find object by primary key default value', () {
+    test('Realm find object by primary key default value', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
@@ -348,6 +423,125 @@ void main([List<String>? args]) {
 
       var car2 = realm.find<Car>("SomeNewNonExistingValue");
       expect(car2, isNull);
+    });
+
+    test('Results.all() should not return null', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      final cars = realm.all<Car>();
+      expect(cars, isNotNull);
+    });
+
+    test('Results.all() length', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      var cars = realm.all<Car>();
+      expect(cars.length, 0);
+
+      final car = Car();
+      realm.write(() => realm.add(car));
+
+      expect(cars.length, 1);
+
+      realm.write(() => realm.remove(car));
+
+      expect(cars.length, 0);
+    });
+
+    test('Results.all() isEmpty', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      var cars = realm.all<Car>();
+      expect(cars.isEmpty(), true);
+
+      final car = Car();
+      realm.write(() => realm.add(car));
+
+      expect(cars.isEmpty(), false);
+
+      realm.write(() => realm.remove(car));
+
+      expect(cars.isEmpty(), true);
+    });
+
+    test('Results get by index', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      realm.write(() => realm.add(Car()));
+
+      final car = Car();
+      final cars = realm.all<Car>();
+      expect(cars[0].make, car.make);
+    });
+
+    test('Lists create object with a list property', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final team = Team()..name = "Ferrari";
+      realm.write(() => realm.add(team));
+
+      final teams = realm.all<Team>();
+      expect(teams.length, 1);
+      expect(teams[0].name, "Ferrari");
+      expect(teams[0].players, isNotNull);
+      expect(teams[0].players.length, 0);
+    });
+
+    test('Lists get set', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final team = Team()..name = "Ferrari";
+      realm.write(() => realm.add(team));
+
+      final teams = realm.all<Team>();
+      expect(teams.length, 1);
+      final players = teams[0].players;
+      expect(players, isNotNull);
+      expect(players.length, 0);
+
+      realm.write(() => players.add(Person()..name = "Michael Schumacher"));
+      expect(players.length, 1);
+
+      realm.write(() => players.addAll([Person()..name = "Sebastian Vettel", Person()..name = "Kimi Räikkönen"]));
+
+      expect(players.length, 3);
+
+      expect(players[0].name, "Michael Schumacher");
+      expect(players[1].name, "Sebastian Vettel");
+      expect(players[2].name, "Kimi Räikkönen");
+    });
+
+    test('Lists get invalid index throws exception', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final team = Team()..name = "Ferrari";
+      realm.write(() => realm.add(team));
+
+      final teams = realm.all<Team>();
+      final players = teams[0].players;
+
+      expect(() => players[-1], throws<RealmException>("Index out of range"));
+      expect(() => players[800], throws<RealmException>());
+    });
+
+    test('Lists set invalid index throws', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final team = Team()..name = "Ferrari";
+      realm.write(() => realm.add(team));
+
+      final teams = realm.all<Team>();
+      final players = teams[0].players;
+
+      expect(() => realm.write(() => players[-1] = Person()), throws<RealmException>("Index out of range"));
+      expect(() => realm.write(() => players[800] = Person()), throws<RealmException>());
     });
   });
 }

@@ -16,57 +16,59 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:collection';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'native/realm_core.dart';
 
 import 'realm_object.dart';
 import 'realm_property.dart';
-import 'helpers.dart';
 import 'package:path/path.dart' as _path;
 
 /// Configuration used to create a [Realm] instance
 class Configuration {
   final ConfigHandle _handle;
   final RealmSchema _schema;
-  
+
+  static String? _defaultPath;
+
   RealmSchema get schema => _schema;
 
-  Configuration(List<SchemaObject> schemaObjects) : 
-    _schema = RealmSchema(schemaObjects),  
-    _handle = realmCore.createConfig() {
+  Configuration(List<SchemaObject> schemaObjects)
+      : _schema = RealmSchema(schemaObjects),
+        _handle = realmCore.createConfig() {
     schemaVersion = 0;
     path = defaultPath;
     realmCore.setSchema(this);
   }
 
-  /// The platform dependent path to the default realm file
-  static String get defaultPath {
+  static String _initDefaultPath() {
     var path = "default.realm";
     if (Platform.isAndroid || Platform.isIOS) {
-      path =  _path.join(realmCore.getFilesPath(), path);
+      path = _path.join(realmCore.getFilesPath(), path);
     }
     return path;
   }
-  
+
+  /// The platform dependent path to the default realm file. Should contain the name of the realm file
+  static String get defaultPath => _defaultPath ??= _initDefaultPath();
+  static set defaultPath(String value) => _defaultPath = value;
+
   /// The platform dependent directory path used to store realm files
-  /// 
+  ///
   /// On Android and iOS this is the application's data directory
   static String get filesPath {
     if (Platform.isAndroid || Platform.isIOS) {
       return realmCore.getFilesPath();
     }
     return "";
-  } 
+  }
 
   /// The schema version used to open the [Realm]
-  /// 
+  ///
   /// If omitted the default value of `0` is used to open the [Realm]
-  /// It is required to specify a schema version when initializing an existing 
-  /// Realm with a schema that contains objects that differ from their previous 
-  /// specification. If the schema was updated and the schemaVersion was not, 
+  /// It is required to specify a schema version when initializing an existing
+  /// Realm with a schema that contains objects that differ from their previous
+  /// specification. If the schema was updated and the schemaVersion was not,
   /// an [RealmException] will be thrown.
   int get schemaVersion => realmCore.getSchemaVersion(this);
   set schemaVersion(int value) => realmCore.setSchemaVersion(this, value);
@@ -77,7 +79,7 @@ class Configuration {
 
 class SchemaObject {
   Type type;
-  
+
   String get name => type.toString();
 
   List<SchemaProperty> properties = [];
@@ -87,7 +89,7 @@ class SchemaObject {
 
 class RealmSchema extends Iterable<SchemaObject> {
   late final SchemaHandle handle;
-  
+
   late final List<SchemaObject> _schema;
 
   RealmSchema(List<SchemaObject> schemaObjects) {
@@ -102,7 +104,7 @@ class RealmSchema extends Iterable<SchemaObject> {
   @override
   Iterator<SchemaObject> get iterator => _schema.iterator;
 
-  @override 
+  @override
   int get length => _schema.length;
 
   SchemaObject operator [](int index) => _schema[index];
