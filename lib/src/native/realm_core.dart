@@ -295,14 +295,17 @@ class _RealmCore {
   RealmObjectHandle? find(Realm realm, int classKey, Object primaryKey) {
     return using((Arena arena) {
       final realm_value = _toRealmValue(primaryKey, arena);
-      final pointer =
-          _realmLib.invokeTryGetPointer(() => _realmLib.realm_object_find_with_primary_key(realm.handle._pointer, classKey, realm_value.ref, nullptr));
+      final pointer = _realmLib.realm_object_find_with_primary_key(realm.handle._pointer, classKey, realm_value.ref, nullptr);
       if (pointer == nullptr) {
         return null;
       }
 
       return RealmObjectHandle._(pointer);
     });
+  }
+
+  void removeRealmObject(RealmObject object) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_object_delete(object.handle._pointer));
   }
 }
 
@@ -389,10 +392,6 @@ extension _RealmLibraryEx on RealmLibrary {
       throw RealmException("${errorMessage ?? ""} ${lastError.toString()}");
     }
     return result;
-  }
-
-  Pointer<T> invokeTryGetPointer<T extends NativeType>(Pointer<T> Function() callback) {
-    return callback();
   }
 }
 
