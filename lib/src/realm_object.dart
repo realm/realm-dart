@@ -17,27 +17,70 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'native/realm_core.dart';
-import 'realm_property.dart';
+import 'realm_class.dart';
 
 abstract class RealmAccessor {
-  T get<T>(RealmObject object, String name);
-  void set<T>(RealmObject object, String name, T value);
+  Object? get<T extends Object>(RealmObject object, String name);
+  void set(RealmObject object, String name, Object? value, [bool isDefault = false]);
+
+  static final Map<Type, Map<String, Object?>> _defaultValues = <Type, Map<String, Object?>>{};
+
+  static void setDefaults<T extends RealmObject>(Map<String, Object?> values) {
+    _defaultValues[T] = values;
+  }
+
+  static Object? getDefaultValue(Type realmObjectType, String name) {
+    final type = realmObjectType;
+    if (!_defaultValues.containsKey(type)) {
+      throw RealmException("Type $type not found.");
+    }
+
+    final values = _defaultValues[type]!;
+    if (values.containsKey(name)) {
+      return values[name];
+    }
+
+    return null;
+  }
+
+  static Map<String, Object?>? getDefaults(Type realmObjectType) {
+    if (!_defaultValues.containsKey(realmObjectType)) {
+      return null;
+    }
+
+    return _defaultValues[realmObjectType]!;
+  }
 }
 
 class RealmValuesAccessor implements RealmAccessor {
-  final Map<String, Object?> _values = <String, Object>{};
+  final Map<String, Object?> _values = <String, Object?>{};
 
   @override
-  T get<T>(RealmObject object, String name) {
-    return _values[name] as T;
+  Object? get<T extends Object>(RealmObject object, String name) {
+    if (!_values.containsKey(name)) {
+      return RealmAccessor.getDefaultValue(object.runtimeType, name);
+    }
+
+    return _values[name];
   }
 
   @override
-  void set<T>(RealmObject object, String name, T value) {
+  void set(RealmObject object, String name, Object? value, [bool isDefault = false]) {
     _values[name] = value;
   }
 
   void setAll(RealmObject object, RealmAccessor accessor) {
+    final defaults = RealmAccessor.getDefaults(object.runtimeType);
+
+    if (defaults != null) {
+      for (var item in defaults.entries) {
+        //check if a default value has been overwritten
+        if (!_values.containsKey(item.key)) {
+          accessor.set(object, item.key, item.value, true);
+        }
+      }
+    }
+
     for (var entry in _values.entries) {
       accessor.set(object, entry.key, entry.value);
     }
@@ -46,11 +89,11 @@ class RealmValuesAccessor implements RealmAccessor {
 
 class RealmMetadata {
   RealmClassMetadata class_;
-  final Map<String, int> _propertyKeys;
+  final Map<String, RealmPropertyMetadata> _propertyKeys;
 
   RealmMetadata(this.class_, this._propertyKeys);
 
-  int operator [](String propertyName) =>
+  RealmPropertyMetadata operator [](String propertyName) =>
       _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exists on class ${class_.type.runtimeType}"));
 }
 
@@ -62,26 +105,49 @@ class RealmClassMetadata {
   RealmClassMetadata(this.type, int classKey, [this.primaryKey]) : key = classKey;
 }
 
+class RealmPropertyMetadata {
+  final int key;
+  final RealmCollectionType collectionType;
+  const RealmPropertyMetadata(this.key, [this.collectionType = RealmCollectionType.none]);
+}
+
 class RealmCoreAccessor implements RealmAccessor {
   final RealmMetadata metadata;
 
   RealmCoreAccessor(this.metadata);
 
   @override
-  T get<T>(RealmObject object, String name) {
+  Object? get<T extends Object>(RealmObject object, String name) {
     try {
-      return realmCore.getProperty(object, metadata[name]) as T;
-    } on RealmException catch (e) {
-      throw RealmException("Error reading property ${metadata.class_.type}.$name Error: ${e.message}");
+      final propertyMeta = metadata[name];
+      if (propertyMeta.collectionType == RealmCollectionType.list) {
+        final handle = realmCore.getListProperty(object, propertyMeta.key);
+        return object._realm!.createList<T>(handle);
+      }
+
+      Object? value = realmCore.getProperty(object, propertyMeta.key);
+
+      if (value is RealmObjectHandle) {
+        return object._realm!.createObject(T, value);
+      }
+
+      return value;
+    } on Exception catch (e) {
+      throw RealmException("Error getting property ${metadata.class_.type}.$name Error: $e");
     }
   }
 
   @override
-  void set<T>(RealmObject object, String name, T value) {
+  void set(RealmObject object, String name, Object? value, [bool isDefault = false]) {
+    final propertyMeta = metadata[name];
     try {
-      realmCore.setProperty(object, metadata[name], value);
-    } on RealmException catch (e) {
-      throw RealmException("Error writting property ${metadata.class_.type}.$name Error: ${e.message}");
+      if (value is RealmObject && !value.isManaged) {
+        object._realm!.add(value);
+      }
+
+      realmCore.setProperty(object, propertyMeta.key, value, isDefault);
+    } on Exception catch (e) {
+      throw RealmException("Error setting property ${metadata.class_.type}.$name Error: $e");
     }
   }
 }
@@ -94,14 +160,15 @@ class RealmCoreAccessor implements RealmAccessor {
 class RealmObject {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
+  Realm? _realm;
   static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{};
 
-  static T get<T extends Object>(RealmObject object, String name) {
+  static Object? get<T extends Object>(RealmObject object, String name) {
     return object._accessor.get<T>(object, name);
   }
 
-  static void set<T extends Object>(RealmObject object, String name, T value) {
-    object._accessor.set<T>(object, name, value);
+  static void set<T extends Object>(RealmObject object, String name, T? value) {
+    object._accessor.set(object, name, value);
   }
 
   static void registerFactory<T extends RealmObject>(T Function() factory) {
@@ -120,19 +187,21 @@ class RealmObject {
     return _factories[T]!() as T;
   }
 
-  // static void setDefaults<T extends RealmObject>(RealmObject realmObject, Map<String, Object> values) {
-  //   RealmValuesAccessor.setDefaults<T>(realmObject, values);
-  // }
+  static bool setDefaults<T extends RealmObject>(Map<String, Object> values) {
+    RealmAccessor.setDefaults<T>(values);
+    return true;
+  }
 }
 
 //RealmObject package internal members
 extension RealmObjectInternal on RealmObject {
-  void manage(RealmObjectHandle handle, RealmCoreAccessor accessor) {
+  void manage(Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor) {
     if (_handle != null) {
       throw RealmException("Object is already managed");
     }
 
     _handle = handle;
+    _realm = realm;
 
     if (_accessor is RealmValuesAccessor) {
       (_accessor as RealmValuesAccessor).setAll(this, accessor);
@@ -141,10 +210,23 @@ extension RealmObjectInternal on RealmObject {
     _accessor = accessor;
   }
 
+  static RealmObject create(Type type, Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor) {
+    if (!RealmObject._factories.containsKey(type)) {
+      throw Exception("Factory for object type $type not found.");
+    }
+
+    final object = RealmObject._factories[type]!();
+    object._handle = handle;
+    object._accessor = accessor;
+    object._realm = realm;
+    return object;
+  }
+
   RealmObjectHandle get handle => _handle!;
   RealmAccessor get accessor => _accessor;
+  Realm? get realm => _realm;
 
-  bool get isManaged => _accessor is RealmCoreAccessor;
+  bool get isManaged => _realm != null;
 }
 
 /// An exception being thrown when a Realm operation or Realm object access fails
