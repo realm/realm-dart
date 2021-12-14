@@ -9,7 +9,7 @@ part of 'myapp.dart';
 class Car extends _Car with RealmObject {
   Car({
     required String make,
-    required _Person person,
+    required Person person,
     Uint8List? bytes,
     int? who,
     required bool b,
@@ -48,87 +48,87 @@ class Car extends _Car with RealmObject {
   @override
   String get make => RealmObject.get<String>(this, 'make');
   @override
-  set make(String value) => RealmObject.set<String>(this, 'make', value);
+  set make(String value) => RealmObject.set(this, 'make', value);
 
   @override
-  _Person get person => RealmObject.get<_Person>(this, 'person');
+  Person get person => RealmObject.get<Person>(this, 'person');
   @override
-  set person(_Person value) => RealmObject.set<_Person>(this, 'person', value);
+  set person(covariant Person value) => RealmObject.set(this, 'person', value);
 
   @override
   Uint8List get bytes => RealmObject.get<Uint8List>(this, 'bytes');
   @override
-  set bytes(Uint8List value) => RealmObject.set<Uint8List>(this, 'bytes', value);
+  set bytes(Uint8List value) => RealmObject.set(this, 'bytes', value);
 
   @override
   int? get who => RealmObject.get<int?>(this, 'who');
   @override
-  set who(int? value) => RealmObject.set<int?>(this, 'who', value);
+  set who(int? value) => RealmObject.set(this, 'who', value);
 
   @override
   bool get b => RealmObject.get<bool>(this, 'b');
   @override
-  set b(bool value) => RealmObject.set<bool>(this, 'b', value);
+  set b(bool value) => RealmObject.set(this, 'b', value);
 
   @override
   String get text => RealmObject.get<String>(this, 'text');
   @override
-  set text(String value) => RealmObject.set<String>(this, 'text', value);
+  set text(String value) => RealmObject.set(this, 'text', value);
 
   @override
   int get i => RealmObject.get<int>(this, 'i');
   @override
-  set i(int value) => RealmObject.set<int>(this, 'i', value);
+  set i(int value) => RealmObject.set(this, 'i', value);
 
   @override
   double get d => RealmObject.get<double>(this, 'd');
   @override
-  set d(double value) => RealmObject.set<double>(this, 'd', value);
+  set d(double value) => RealmObject.set(this, 'd', value);
 
   @override
   Uint8List get data => RealmObject.get<Uint8List>(this, 'data');
   @override
-  set data(Uint8List value) => RealmObject.set<Uint8List>(this, 'data', value);
+  set data(Uint8List value) => RealmObject.set(this, 'data', value);
 
   @override
   DateTime get timestamp => RealmObject.get<DateTime>(this, 'timestamp');
   @override
-  set timestamp(DateTime value) => RealmObject.set<DateTime>(this, 'timestamp', value);
+  set timestamp(DateTime value) => RealmObject.set(this, 'timestamp', value);
 
   @override
   ObjectId get id => RealmObject.get<ObjectId>(this, 'id');
   @override
-  set id(ObjectId value) => RealmObject.set<ObjectId>(this, 'id', value);
+  set id(ObjectId value) => RealmObject.set(this, 'id', value);
 
   @override
   Decimal128 get decimal => RealmObject.get<Decimal128>(this, 'decimal');
   @override
-  set decimal(Decimal128 value) => RealmObject.set<Decimal128>(this, 'decimal', value);
+  set decimal(Decimal128 value) => RealmObject.set(this, 'decimal', value);
 
   @override
   Uuid get uuid => RealmObject.get<Uuid>(this, 'uuid');
   @override
-  set uuid(Uuid value) => RealmObject.set<Uuid>(this, 'uuid', value);
+  set uuid(Uuid value) => RealmObject.set(this, 'uuid', value);
 
   @override
   RealmAny get any => RealmObject.get<RealmAny>(this, 'any');
   @override
-  set any(RealmAny value) => RealmObject.set<RealmAny>(this, 'any', value);
+  set any(RealmAny value) => RealmObject.set(this, 'any', value);
 
   @override
   List<int> get serviceAt => RealmObject.get<List<int>>(this, 'serviceAt');
   @override
-  set serviceAt(List<int> value) => RealmObject.set<List<int>>(this, 'serviceAt', value);
+  set serviceAt(List<int> value) => RealmObject.set(this, 'serviceAt', value);
 
   @override
   Set<String> get part => RealmObject.get<Set<String>>(this, 'part');
   @override
-  set part(Set<String> value) => RealmObject.set<Set<String>>(this, 'part', value);
+  set part(Set<String> value) => RealmObject.set(this, 'part', value);
 
   @override
   Map<String, String> get properties => RealmObject.get<Map<String, String>>(this, 'properties');
   @override
-  set properties(Map<String, String> value) => RealmObject.set<Map<String, String>>(this, 'properties', value);
+  set properties(Map<String, String> value) => RealmObject.set(this, 'properties', value);
 
   static const schema = SchemaObject(Car, [
     SchemaProperty('make', RealmPropertyType.string),
@@ -156,9 +156,9 @@ class Person extends _Person with RealmObject {
     required String name,
     int? age,
     required int born,
-    required _Car car,
+    required Car car,
   }) {
-    this.name = name;
+    _name = name;
     this.age = age ?? 47;
     this.born = born;
     this.car = car;
@@ -166,23 +166,22 @@ class Person extends _Person with RealmObject {
 
   @override
   String get name => RealmObject.get<String>(this, 'navn');
-  @override
-  set name(String value) => RealmObject.set<String>(this, 'navn', value);
+  set _name(String value) => RealmObject.set(this, 'navn', value);
 
   @override
   int? get age => RealmObject.get<int?>(this, 'age');
   @override
-  set age(int? value) => RealmObject.set<int?>(this, 'age', value);
+  set age(int? value) => RealmObject.set(this, 'age', value);
 
   @override
   int get born => RealmObject.get<int>(this, 'born');
   @override
-  set born(int value) => RealmObject.set<int>(this, 'born', value);
+  set born(int value) => RealmObject.set(this, 'born', value);
 
   @override
-  _Car get car => RealmObject.get<_Car>(this, 'car');
+  Car get car => RealmObject.get<Car>(this, 'car');
   @override
-  set car(_Car value) => RealmObject.set<_Car>(this, 'car', value);
+  set car(covariant Car value) => RealmObject.set(this, 'car', value);
 
   static const schema = SchemaObject(Person, [
     SchemaProperty('navn', RealmPropertyType.string, mapTo: 'navn', primaryKey: true),

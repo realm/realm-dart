@@ -1,6 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-/*
 part of 'main.dart';
 
 // **************************************************************************
@@ -17,10 +16,9 @@ class Car extends _Car with RealmObject {
   @override
   String get make => RealmObject.get<String>(this, 'make');
   @override
-  set make(String value) => RealmObject.set<String>(this, 'make', value);
+  set make(String value) => RealmObject.set(this, 'make', value);
 
   static const schema = SchemaObject(Car, [
     SchemaProperty('make', RealmPropertyType.string),
   ]);
 }
-*/
