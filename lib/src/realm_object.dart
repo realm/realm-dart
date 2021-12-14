@@ -21,7 +21,7 @@ import 'realm_property.dart';
 
 abstract class RealmAccessor {
   T get<T>(RealmObject object, String name);
-  void set<T>(String name, T value);
+  void set<T>(RealmObject object, String name, T value);
 }
 
 class RealmValuesAccessor implements RealmAccessor {
@@ -33,26 +33,33 @@ class RealmValuesAccessor implements RealmAccessor {
   }
 
   @override
-  void set<T>(String name, T value) {
+  void set<T>(RealmObject object, String name, T value) {
     _values[name] = value;
   }
 
-  void setAll(RealmAccessor accessor) {
+  void setAll(RealmObject object, RealmAccessor accessor) {
     for (var entry in _values.entries) {
-      accessor.set(entry.key, entry.value);
+      accessor.set(object, entry.key, entry.value);
     }
   }
 }
 
-class RealmMetadata{
-  final int classKey;
-  final Type classType;
+class RealmMetadata {
+  RealmClassMetadata class_;
   final Map<String, int> _propertyKeys;
 
+  RealmMetadata(this.class_, this._propertyKeys);
 
-  RealmMetadata(this.classType, this.classKey, this._propertyKeys);
+  int operator [](String propertyName) =>
+      _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exists on class ${class_.type.runtimeType}"));
+}
 
-  int operator [](String propertyName) => _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exists on class $classKey"));
+class RealmClassMetadata {
+  final int key;
+  final Type type;
+  final String? primaryKey;
+
+  RealmClassMetadata(this.type, int classKey, [this.primaryKey]) : key = classKey;
 }
 
 class RealmCoreAccessor implements RealmAccessor {
@@ -63,33 +70,54 @@ class RealmCoreAccessor implements RealmAccessor {
   @override
   T get<T>(RealmObject object, String name) {
     try {
-      return realmCore.readProperty(object, metadata[name], RealmPropertyType.string) as T;
+      return realmCore.getProperty(object, metadata[name]) as T;
     } on RealmException catch (e) {
-     throw RealmException("Error reading property ${metadata.classType.runtimeType}.$name ${e.message}");
+      throw RealmException("Error reading property ${metadata.class_.type}.$name Error: ${e.message}");
     }
   }
 
   @override
-  void set<T>(String name, T value) {
-    // TODO: implement set
+  void set<T>(RealmObject object, String name, T value) {
+    try {
+      realmCore.setProperty(object, metadata[name], value);
+    } on RealmException catch (e) {
+      throw RealmException("Error writting property ${metadata.class_.type}.$name Error: ${e.message}");
+    }
   }
 }
 
-/// A object in a realm. 
-/// 
+/// A object in a realm.
+///
 /// RealmObjects are generated from Realm data model classes
-/// A data model class `_MyClass` will have a RealmObject with name `MyClass` generated 
+/// A data model class `_MyClass` will have a RealmObject with name `MyClass` generated
 /// which should be used insead of directly instantiating and working with RealmObject instances
 class RealmObject {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
+  static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{};
 
-  static T get<T extends Object>(RealmObject realmObject, String name) {
-    return  realmObject._accessor.get<T>(realmObject, name);
+  static T get<T extends Object>(RealmObject object, String name) {
+    return object._accessor.get<T>(object, name);
   }
 
-  static void set<T extends Object>(RealmObject realmObject, String name, T value) {
-    realmObject._accessor.set<T>(name, value);
+  static void set<T extends Object>(RealmObject object, String name, T value) {
+    object._accessor.set<T>(object, name, value);
+  }
+
+  static void registerFactory<T extends RealmObject>(T Function() factory) {
+    if (_factories.containsKey(T)) {
+      return;
+    }
+
+    _factories[T] = factory;
+  }
+
+  static T create<T extends RealmObject>() {
+    if (!_factories.containsKey(T)) {
+      throw RealmException("Factory for Realm object type $T not found");
+    }
+
+    return _factories[T]!() as T;
   }
 
   // static void setDefaults<T extends RealmObject>(RealmObject realmObject, Map<String, Object> values) {
@@ -98,16 +126,16 @@ class RealmObject {
 }
 
 //RealmObject package internal members
-extension RealmObjectInternal  on RealmObject {
+extension RealmObjectInternal on RealmObject {
   void manage(RealmObjectHandle handle, RealmCoreAccessor accessor) {
     if (_handle != null) {
       throw RealmException("Object is already managed");
     }
 
     _handle = handle;
-    
+
     if (_accessor is RealmValuesAccessor) {
-      (_accessor as RealmValuesAccessor).setAll(accessor);
+      (_accessor as RealmValuesAccessor).setAll(this, accessor);
     }
 
     _accessor = accessor;
@@ -120,7 +148,7 @@ extension RealmObjectInternal  on RealmObject {
 }
 
 /// An exception being thrown when a Realm operation or Realm object access fails
-class RealmException implements Exception  {
+class RealmException implements Exception {
   final String message;
 
   RealmException(this.message);
@@ -130,123 +158,3 @@ class RealmException implements Exception  {
     return "RealmException: $message";
   }
 }
-
-
-
-  // Map<String, Object>? _unmanagedProperties;
-
-  // /**
-  //  *  Default constructor. Enables the subclass to different constructors and work with RealmObject unmanaged instances
-  //  */
-  // RealmObject() {
-  //   _unmanagedProperties = new Map<String, Object>();
-  // }
-
-  // /**
-  //  *  Creates managed RealmObject. Called from generated code
-  //  */
-  // RealmObject.constructor() {}
-
-  // Object get _realm native "RealmObject_get__realm";
-
-  // Object _native_get(String name) native "RealmObject_get_property";
-  // void _native_set(String name, Object value) native "RealmObject_set_property";
-
-  // Object operator [](String name) {
-  //   if (_unmanagedProperties != null) {
-  //     return _unmanagedProperties![name]!;
-  //   }
-
-  //   Object result = _native_get(name);
-  //   if (result is RealmList) {
-  //     throw new Exception("Invalid RealmObject. RealmLists should be retrieved using super_get method");
-  //   }
-
-  //   return result;
-  // }
-
-  // void operator []=(String name, Object value) {
-  //   if (_unmanagedProperties != null) {
-  //     _unmanagedProperties![name] = value;
-  //     return;
-  //   }
-
-  //   _native_set(name, value);
-  // }
-
-  // static dynamic getSchema(String typeName, Iterable<SchemaProperty> properties) {
-  //   if (properties.length == 0) {
-  //       throw new Exception("Class ${typeName} should have at least one field with RealmProperty annotation");
-  //   }
-
-  //   dynamic schema = DynamicObject();
-  //   schema.name = typeName;
-  //   schema.properties = new DynamicObject();
-
-  //   for (var realmProperty in properties) {
-  //     dynamic propertyValue = DynamicObject();
-  //     propertyValue.type = realmProperty.type;
-  //     propertyValue['default'] = realmProperty.defaultValue ?? null;
-  //     propertyValue.optional = realmProperty.optional ?? null;
-  //     propertyValue.mapTo = realmProperty.mapTo ?? null;
-  //     schema.properties[realmProperty.propertyName] = propertyValue;
-  //     if (realmProperty.primaryKey ?? false) {
-  //       schema.primaryKey = realmProperty.propertyName;
-  //     }
-  //   }
-
-  //   return schema;
-  // }
-
-  // Object isValid() native "RealmObject_isValid";
-  
-  // /// Adds a [RealmObjectListenerCallback] which will be called when RealmObject properties change.
-  // Object addListener(RealmObjectListenerCallback callback) native "RealmObject_addListener";
-  
-  // /// Removes a [RealmObjectListenerCallback] that was previously added with [addListener]
-  // /// 
-  // /// The callback argument should be the same callback reference used in a previous call to [addListener]
-  // /// ```dart
-  // /// var callback = (object, changes) { ... }
-  // /// myObject.addListener(callback);
-  // /// myObject.removeListener(callback);
-  // /// ```
-  // Object removeListener(RealmObjectListenerCallback callback) native "RealmObject_removeListener";
-
-  // /// Removes all [RealmObjectListenerCallback] that were previously added with [addListener] 
-  // Object removeAllListeners() native "RealmObject_removeAllListeners";
-// }
-
-/// @nodoc
-// extension Super on RealmObject {
-//   ArrayList<T> super_get<T extends RealmObject>(String name) {
-//     if (_unmanagedProperties != null) {
-//       return _unmanagedProperties![name] as ArrayList<T>;
-//     }
-
-//     Object result = _native_get(name);
-//     if (result is RealmList) {
-//       return new ArrayList<T>.fromRealmList(result);
-//     }
-
-//     return result as ArrayList<T>;
-//   }
-
-//   void super_set<T extends RealmObject>(String name, Iterable<T> value) {
-//     ArrayList<T> arrayList;
-//     if (value is ArrayList<T>) {
-//       arrayList = value;
-//       return;
-//     }
-
-//     arrayList = new ArrayList(value);
-
-//     if (_unmanagedProperties != null) {
-//       _unmanagedProperties![name] = arrayList;
-//       return;
-//     }
-
-//     throw new Exception("Setting ArrayList on manged object is not supported");
-//   }
-// }
-

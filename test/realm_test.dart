@@ -23,6 +23,7 @@ import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
 
 import '../lib/realm.dart';
+import '../lib/src/native/realm_core.dart' as core;
 
 part 'realm_test.gen.dart';
 
@@ -44,8 +45,8 @@ void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
   if (testName != null && !name!.contains(testName!)) {
     return;
   }
-
   testing.test(name, testFunction, skip: skip);
+
 }
 
 void parseTestNameFromArguments(List<String>? arguments) {
@@ -60,7 +61,6 @@ void parseTestNameFromArguments(List<String>? arguments) {
 }
 
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
-Matcher notThrows<T>([String? message]) => isNot(throws<T>(message));
 
 void main([List<String>? args]) {
   parseTestNameFromArguments(args);
@@ -79,19 +79,23 @@ void main([List<String>? args]) {
         continue;
       }
 
+      core.realmCore.triggerGC();
+
       for (var i = 0; i <= 20; i++) {
         try {
           await file.delete();
+          break;
         } catch (e) {
           //wait for Realm.close of a previous test and retry the delete before failing
           await Future<void>.delayed(Duration(milliseconds: 10));
         }
       }
 
+      var lockFile = File("${file.path}.lock");
       for (var i = 0; i <= 20; i++) {
         try {
-          var lockFile = File("${file.path}.lock");
           await lockFile.delete();
+          break;
         } catch (e) {
           //wait for Realm.close of a previous test and retry the delete before failing
           await Future<void>.delayed(Duration(milliseconds: 10));
@@ -157,16 +161,19 @@ void main([List<String>? args]) {
       realm.close();
 
       realm = Realm(config);
-      expect(() => realm.close(), notThrows<Exception>());
+      realm.close();
 
-      expect(() => realm.close(), notThrows<Exception>(), reason: "Calling close() twice should not throw exceptions");
+      //Calling close() twice should not throw exceptions
+      realm.close();
     });
 
     test('Realm can be closed and opened again', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
       realm.close();
-      expect(() => realm = Realm(config), notThrows<Exception>());
+
+      //should not throw exception
+      realm = Realm(config);
     });
 
     test('Realm open with schema subset', () {
@@ -206,9 +213,16 @@ void main([List<String>? args]) {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      expect(() {
-        realm.write(() => realm.add(Car()));
-      }, notThrows<RealmException>(), reason: "Adding objects should not throw");
+      realm.write(() {
+        realm.add(Car());
+      });
+    });
+
+    test('Realm adding not configured object throws exception', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      expect(() => realm.write(()  => realm.add(Person())), throws<RealmException>("not configured"));
     });
 
     test('Realm add() returns the same object', () {
@@ -227,13 +241,66 @@ void main([List<String>? args]) {
     test('Realm add object transaction rollbacks on exception', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
-
+      
       expect(() {
         realm.write(() {
-          realm.add(Car());
+          realm.add(Car()..make = "Tesla");
           throw Exception("some exception while adding objects");
         });
-      }, allOf(throws<Exception>("some exception while adding objects"))); //TODO: validate the object does not exists in the database
-    }, skip: "//TODO: validate the object does not exists in the database");
+      }, throws<Exception>("some exception while adding objects"));
+
+      final car = realm.find<Car>("Telsa");
+      expect(car, isNull);
+    });
+
+    test('Realm read property', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      final car = Car();
+      realm.write(() {
+        realm.add(car);
+      });
+
+      expect(car.make, equals('Tesla'));
+    });
+
+    test('Realm write property', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      final car = Car();
+      realm.write(() {
+        realm.add(car);
+      });
+
+      expect(car.make, equals('Tesla'));
+
+      realm.write(() {
+        car.make = "Audi";
+      });
+
+      expect(car.make, equals('Audi'));
+    });
+
+    test('Realm find object by primary key', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      realm.write(() => realm.add(Car()..make = "Opel"));
+
+      final car = realm.find<Car>("Opel");
+      expect(car, isNotNull);
+    });
+
+    test('Realm find non existing object by primary key returns null', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      realm.write(() => realm.add(Car()..make = "Opel"));
+
+      final car = realm.find<Car>("NonExistingPrimaryKey");
+      expect(car, isNull);
+    });
   });
 }
