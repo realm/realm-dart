@@ -394,10 +394,6 @@ extension _RealmLibraryEx on RealmLibrary {
     }
     return result;
   }
-
-  Pointer<T> invokeTryGetPointer<T extends NativeType>(Pointer<T> Function() callback) {
-    return callback();
-  }
 }
 
 Pointer<realm_value_t> _toRealmValue(Object? value, Allocator allocator) {
