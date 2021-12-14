@@ -30,6 +30,7 @@ import '../realm_class.dart';
 import '../realm_object.dart';
 import '../init.dart';
 import '../results.dart';
+import '../list.dart';
 
 import 'realm_bindings.dart';
 
@@ -112,14 +113,15 @@ class _RealmCore {
           propInfo.public_name = "".toUtf8Ptr(arena);
           propInfo.link_target = (schemaProperty.linkTarget ?? "").toUtf8Ptr(arena);
           propInfo.link_origin_property_name = "".toUtf8Ptr(arena);
-          propInfo.type = schemaProperty.type.index;
-          propInfo.collection_type = realm_collection_type_e.RLM_COLLECTION_TYPE_NONE;
+          propInfo.type = schemaProperty.propertyType.index;
+          propInfo.collection_type = schemaProperty.collectionType.index;
           propInfo.flags = realm_property_flags_e.RLM_PROPERTY_NORMAL;
+
           if (schemaProperty.nullable) {
             propInfo.flags |= realm_property_flags_e.RLM_PROPERTY_NULLABLE;
           }
 
-          if (schemaProperty.primaryKey ?? false) {
+          if (schemaProperty.primaryKey) {
             classInfo.primary_key = schemaProperty.name.toUtf8Ptr(arena);
             propInfo.flags = realm_property_flags_e.RLM_PROPERTY_PRIMARY_KEY;
           }
@@ -231,7 +233,7 @@ class _RealmCore {
     });
   }
 
-  Map<String, int> getPropertyKeys(Realm realm, int classKey) {
+  Map<String, RealmPropertyMetadata> getPropertyMetadata(Realm realm, int classKey) {
     return using((Arena arena) {
       Pointer<IntPtr> propertyCountPtr = arena<IntPtr>();
       _realmLib.invokeGetBool(
@@ -243,10 +245,12 @@ class _RealmCore {
           "Error getting class properties.");
 
       propertyCount = propertyCountPtr.value;
-      Map<String, int> result = <String, int>{};
+      Map<String, RealmPropertyMetadata> result = <String, RealmPropertyMetadata>{};
       for (var i = 0; i < propertyCount; i++) {
         final property = propertiesPtr.elementAt(i);
-        result[property.ref.name.cast<Utf8>().toDartString()] = property.ref.key;
+        final propertyName = property.ref.name.cast<Utf8>().toDartString();
+        final propertyMeta = RealmPropertyMetadata(property.ref.key, RealmCollectionType.values.elementAt(property.ref.collection_type));
+        result[propertyName] = propertyMeta;
       }
       return result;
     });
@@ -265,7 +269,7 @@ class _RealmCore {
     });
   }
 
-  Object getProperty(RealmObject object, int propertyKey) {
+  Object? getProperty(RealmObject object, int propertyKey) {
     return using((Arena arena) {
       Pointer<realm_value_t> realm_value = arena<realm_value_t>();
       _realmLib.invokeGetBool(() => _realmLib.realm_get_value(object.handle._pointer, propertyKey, realm_value));
@@ -313,22 +317,18 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_object_delete(object.handle._pointer));
   }
 
-  ResultsHandle findAll(Realm realm, int classKey) {
-    return using((Arena arena) {
-      final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_find_all(realm.handle._pointer, classKey));
-      return ResultsHandle._(pointer);
-    });
+  RealmResultsHandle findAll(Realm realm, int classKey) {
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_find_all(realm.handle._pointer, classKey));
+    return RealmResultsHandle._(pointer);
   }
 
   RealmObjectHandle getObjectAt(RealmResults results, int index) {
-    return using((Arena arena) {
-      Pointer<realm_object> pointer  = _realmLib.invokeGetPointer(() => _realmLib.realm_results_get_object(results.handle._pointer, index));
-      return RealmObjectHandle._(pointer);
-    });
+    Pointer<realm_object> pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_get_object(results.handle._pointer, index));
+    return RealmObjectHandle._(pointer);
   }
 
   int getResultsCount(RealmResults results) {
-     return using((Arena arena) {
+    return using((Arena arena) {
       Pointer<IntPtr> countPtr = arena<IntPtr>();
       _realmLib.invokeGetBool(() => _realmLib.realm_results_count(results.handle._pointer, countPtr));
       return countPtr.value;
@@ -341,9 +341,42 @@ class _RealmCore {
   }
 
   RealmObjectHandle _getObject(Realm realm, int classKey, int objectKey) {
+    Pointer<realm_object> pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_object(realm.handle._pointer, classKey, objectKey));
+    return RealmObjectHandle._(pointer);
+  }
+
+  RealmListHandle getListProperty(RealmObject object, int propertyKey) {
+    Pointer<realm_list> pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_list(object.handle._pointer, propertyKey));
+    return RealmListHandle._(pointer);
+  }
+
+  int getListSize(RealmList list) {
     return using((Arena arena) {
-      Pointer<realm_object> pointer  = _realmLib.invokeGetPointer(() => _realmLib.realm_get_object(realm.handle._pointer, classKey, objectKey));
-      return RealmObjectHandle._(pointer);
+      Pointer<IntPtr> size = arena<IntPtr>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_list_size(list.handle._pointer, size));
+      return size.value;
+    });
+  }
+
+  Object? listGetElementAt(RealmList list, int index) {
+    return using((Arena arena) {
+      Pointer<realm_value_t> realm_value = arena<realm_value_t>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_list_get(list.handle._pointer, index, realm_value));
+      return realm_value.toDartValue(list.realm!);
+    });
+  }
+
+  void listSetElementAt(RealmList list, int index, Object? value) {
+    return using((Arena arena) {
+      final realm_value = _toRealmValue(value, arena);
+      _realmLib.invokeGetBool(() => _realmLib.realm_list_set(list.handle._pointer, index, realm_value.ref));
+    });
+  }
+
+  void listInsertElementAt(RealmList list, int index, Object? value) {
+    return using((Arena arena) {
+      final realm_value = _toRealmValue(value, arena);
+      _realmLib.invokeGetBool(() => _realmLib.realm_list_insert(list.handle._pointer, index, realm_value.ref));
     });
   }
 }
@@ -402,14 +435,20 @@ class RealmObjectHandle extends Handle<realm_object> {
 class RealmLinkHandle {
   final int targetKey;
   final int classKey;
-  RealmLinkHandle._(realm_link_t link) : 
-    targetKey = link.target, 
-    classKey = link.target_table;
+  RealmLinkHandle._(realm_link_t link)
+      : targetKey = link.target,
+        classKey = link.target_table;
 }
 
-class ResultsHandle extends Handle<realm_results> {
-  ResultsHandle._(Pointer<realm_results> pointer) : super(pointer) {
+class RealmResultsHandle extends Handle<realm_results> {
+  RealmResultsHandle._(Pointer<realm_results> pointer) : super(pointer) {
     _realmLib.realm_attach_finalizer(this, _pointer.cast(), 872);
+  }
+}
+
+class RealmListHandle extends Handle<realm_list> {
+  RealmListHandle._(Pointer<realm_list> pointer) : super(pointer) {
+    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 88);
   }
 }
 
@@ -508,12 +547,14 @@ extension _TypeEx on Type {
 }
 
 extension _realm_value_t_ex on Pointer<realm_value_t> {
-  Object toDartValue(Realm realm) {
+  Object? toDartValue(Realm realm) {
     if (this == nullptr) {
       throw RealmException("Can not convert nullptr realm_value to Dart value");
     }
 
     switch (ref.type) {
+      case realm_value_type_e.RLM_TYPE_NULL:
+        return null;
       case realm_value_type_e.RLM_TYPE_INT:
         return ref.values.integer;
       case realm_value_type_e.RLM_TYPE_BOOL:
