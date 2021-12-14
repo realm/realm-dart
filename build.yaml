@@ -1,8 +1,12 @@
 targets:
   $default:
     builders:
+      build_cli:
+        generate_for:
+          - lib/src/cli/**.dart
+      json_serializable:
+        generate_for:
+          - lib/src/cli/**.dart
       realm_generator|realm_object_builder:
-        enabled: true
         generate_for:
           - test/**.dart
-          - lib/main.dart
