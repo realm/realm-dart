@@ -1,6 +1,57 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright 2021 Realm Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 import 'dart:collection';
 import 'dart:ffi';
 import 'dart:typed_data';
+
+enum RealmPropertyType {
+  int,
+  bool,
+  string,
+  // ignore: unused_field, constant_identifier_names
+  _3,
+  binary,
+  // ignore: unused_field, constant_identifier_names
+  _5,
+  mixed,
+  // ignore: unused_field, constant_identifier_names
+  _7,
+  timestamp,
+  float,
+  double,
+  decimal128,
+  object,
+  // ignore: unused_field, constant_identifier_names
+  _13,
+  linkingObjects,
+  objectid,
+  // ignore: unused_field, constant_identifier_names
+  _16,
+  uuid,
+}
+
+enum RealmCollectionType {
+  none,
+  list,
+  set,
+  dictionary,
+}
 
 class Uuid {} // TODO!
 
@@ -41,17 +92,6 @@ class RealmInteger {
   void reset() {} // TODO!
 }
 
-// TODO!
-class RealmList<E> extends ListBase<E> {
-  @override
-  int length = 0;
-
-  @override
-  E operator [](int index) => throw UnimplementedError();
-
-  @override
-  void operator []=(int index, E value) {}
-}
 
 // TODO!
 class RealmSet<E> extends SetBase<E> {

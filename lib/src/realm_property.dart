@@ -16,42 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class RealmModel {
-  const RealmModel();
-}
-
-enum RealmPropertyType {
-  int,
-  bool,
-  string,
-  // ignore: unused_field, constant_identifier_names
-  _3,
-  binary,
-  // ignore: unused_field, constant_identifier_names
-  _5,
-  mixed,
-  // ignore: unused_field, constant_identifier_names
-  _7,
-  timestamp,
-  float,
-  double,
-  decimal128,
-  object,
-  // ignore: unused_field, constant_identifier_names
-  _13,
-  linkingObjects,
-  objectid,
-  // ignore: unused_field, constant_identifier_names
-  _16,
-  uuid,
-}
-
-enum RealmCollectionType {
-  none,
-  list,
-  set,
-  dictionary,
-}
+import 'package:realm_annotations/realm_annotations.dart';
 
 class _RealmProperty {
   /// Realm will use this property as the primary key
@@ -72,23 +37,6 @@ class _RealmProperty {
   final String? mapTo;
 
   const _RealmProperty(this.propertyType, {this.nullable = false, this.defaultValue, this.optional = false, this.mapTo, this.primaryKey = false});
-}
-
-class MapTo {
-  final String name;
-  const MapTo(this.name);
-}
-
-class PrimaryKey {
-  const PrimaryKey();
-}
-
-class Indexed {
-  const Indexed();
-}
-
-class Ignored {
-  const Ignored();
 }
 
 /// A RealmProperty in a schema. Used for runtime representation of `RealmProperty`
