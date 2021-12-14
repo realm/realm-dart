@@ -26,14 +26,14 @@ import 'realm_object.dart';
 import 'realm_class.dart';
 
 /// A listener callback to be called when the [Results<T>] collection changes
-/// 
-/// The [changes] parameter will contain a dictionary with keys `insertions`, 
-/// `newModifications`, `oldModifications` and `deletions`, each containing a list of 
+///
+/// The [changes] parameter will contain a dictionary with keys `insertions`,
+/// `newModifications`, `oldModifications` and `deletions`, each containing a list of
 /// indices in the collection that were inserted, updated or deleted respectively.
-/// `deletions` and `oldModifications` are indices into the collection before the 
-/// change happened, while `insertions` and `newModifications` are indices into 
+/// `deletions` and `oldModifications` are indices into the collection before the
+/// change happened, while `insertions` and `newModifications` are indices into
 /// the new version of the collection.
-typedef void ResultsListenerCallback(dynamic collection, dynamic changes); 
+// typedef void ResultsListenerCallback(dynamic collection, dynamic changes);
 
 /*
 /// @nodoc
@@ -93,34 +93,34 @@ class _ResultsList<T extends RealmObject> extends collection.ListBase<T> {
 */
 
 /// Instances of this class are typically live collections returned by [Realm.objects]
-/// that will update as new objects are either added to or deleted from the Realm 
-/// that match the underlying query. 
-class RealmResults<T extends RealmObject>  {
-  late final ResultsHandle _handle;
+/// that will update as new objects are either added to or deleted from the Realm
+/// that match the underlying query.
+class RealmResults<T extends RealmObject> {
+  late final RealmResultsHandle _handle;
   late final Realm _realm;
   // RealmResults _results;
 
-  RealmResults(this._handle, this._realm);
-  
+  RealmResults._(this._handle, this._realm);
+
   // Results._(this._results);
 
   /// Returns the Realm object of type `T` at the specified `index`
   T operator [](int index) {
     final handle = realmCore.getObjectAt(this, index);
-    return _realm.createObject<T>(handle);
+    return _realm.createObject(T, handle) as T;
   }
 
   /// Returns a new `Results<T>` filtered according to the provided query
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
-  /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789) 
+  /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   // Results<T> where(String filter) {
   //   var results = _results.filtered(filter);
   //   return Results<T>(results);
   // }
 
   /// Returns a new `Results<T>` that represent a sorted view of this collection.
-  /// 
-  /// A `Results<T>` collection of Realm Objects can be sorted on one or more properties of those objects, 
+  ///
+  /// A `Results<T>` collection of Realm Objects can be sorted on one or more properties of those objects,
   /// or of properties of objects linked to by those objects.  Optionally the sort can be reversed using the `reverse` parameter
   /// ```dart
   /// var sortedCars = cars.sort("make");
@@ -147,14 +147,14 @@ class RealmResults<T extends RealmObject>  {
   }
 
   /// Returns `true` if this Results collection has not been deleted and is part of a valid Realm.
-  /// 
+  ///
   /// Accessing an invalid Results collection will throw an [RealmException]
   // bool get isValid => _results.isValid();
 
   /// Returns the number of values in the Results collection.
   int get length => realmCore.getResultsCount(this);
 
-  /// Returns a human-readable description of the objects contained in the collection. 
+  /// Returns a human-readable description of the objects contained in the collection.
   // String get description => _results.description;
 
   /// Adds a [ResultsListenerCallback] which will be called when a live collection instance changes.
@@ -163,7 +163,7 @@ class RealmResults<T extends RealmObject>  {
   // }
 
   /// Removes a [ResultsListenerCallback] that was previously added with [addListener]
-  /// 
+  ///
   /// The callback argument should be the same callback reference used in a previous call to [addListener]
   /// ```dart
   /// var callback = (collection, changes) { ... }
@@ -174,19 +174,19 @@ class RealmResults<T extends RealmObject>  {
   //   _results.removeListener(callback);
   // }
 
-  /// Removes all [ResultsListenerCallback] that were previously added with [addListener] 
+  /// Removes all [ResultsListenerCallback] that were previously added with [addListener]
   // void removeAllListeners() {
   //   _results.removeAllListeners();
   // }
 
   /// Returns a `Results<T>` which is a frozen snapshot of the collection.
-  /// 
-  /// Values added to and removed from the original collection will not be 
-  /// reflected in the new collection, including if the values 
+  ///
+  /// Values added to and removed from the original collection will not be
+  /// reflected in the new collection, including if the values
   /// of properties are changed to make them match or not match any filters applied.
   ///
   /// This is not a deep snapshot. Realm objects contained in this snapshot will
-  /// continue to update as changes are made to them, and if they are deleted 
+  /// continue to update as changes are made to them, and if they are deleted
   /// from the Realm they will be replaced by null at the respective indices.
   // Results<T> snapshot() {
   //   var results = _results.snapshot();
@@ -201,5 +201,9 @@ class RealmResults<T extends RealmObject>  {
 
 //RealmResults package internal members
 extension RealmResultsInternal on RealmResults {
-  ResultsHandle get handle => _handle;
+  RealmResultsHandle get handle => _handle;
+
+  static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm) {
+    return RealmResults<T>._(handle, realm);
+  }
 }

@@ -1,5 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
+/*
 part of 'main.dart';
 
 // **************************************************************************
@@ -22,3 +23,4 @@ class Car extends RealmObject {
     ]);
   }
 }
+*/

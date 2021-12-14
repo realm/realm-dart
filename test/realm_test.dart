@@ -40,6 +40,22 @@ class _Person {
   late String name;
 }
 
+@RealmModel()
+class _Dog {
+  @PrimaryKey()
+  late String name;
+
+  late int? age;
+
+  _Person? owner;
+}
+
+@RealmModel()
+class _Team {
+  late String name;
+  late List<_Person> players;
+}
+
 String? testName;
 
 //Overrides test method so we can filter tests
@@ -48,6 +64,10 @@ void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
     return;
   }
   testing.test(name, testFunction, skip: skip);
+}
+
+void xtest(String? name, dynamic Function() testFunction) {
+  testing.test(name, testFunction, skip: "Test is disabled");
 }
 
 void parseTestNameFromArguments(List<String>? arguments) {
@@ -275,7 +295,7 @@ Future<void> main([List<String>? args]) async {
       expect(car, isNull);
     });
 
-    test('Realm read property', () {
+    test('RealmObject get property', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
@@ -287,7 +307,7 @@ Future<void> main([List<String>? args]) async {
       expect(car.make, equals('Tesla'));
     });
 
-    test('Realm write property', () {
+    test('RealmObject set property', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
@@ -303,6 +323,52 @@ Future<void> main([List<String>? args]) async {
       });
 
       expect(car.make, equals('Audi'));
+    });
+
+    test('RealmObject set object type property (link)', () {
+      var config = Configuration([Person.schema, Dog.schema]);
+      var realm = Realm(config);
+
+      final dog = Dog()
+        ..name = "MyDog"
+        ..owner = (Person()..name = "MyOwner");
+      realm.write(() {
+        realm.add(dog);
+      });
+
+      expect(dog.name, 'MyDog');
+      expect(dog.owner, isNotNull);
+      expect(dog.owner!.name, 'MyOwner');
+    });
+
+    test('RealmObject set property null', () {
+      var config = Configuration([Person.schema, Dog.schema]);
+      var realm = Realm(config);
+
+      final dog = Dog()
+        ..name = "MyDog"
+        ..owner = (Person()..name = "MyOwner")
+        ..age = 5;
+      realm.write(() {
+        realm.add(dog);
+      });
+
+      expect(dog.name, 'MyDog');
+      expect(dog.age, 5);
+      expect(dog.owner, isNotNull);
+      expect(dog.owner!.name, 'MyOwner');
+
+      realm.write(() {
+        dog.age = null;
+      });
+
+      expect(dog.age, null);
+
+      realm.write(() {
+        dog.owner = null;
+      });
+
+      expect(dog.owner, null);
     });
 
     test('Realm find object by primary key', () {
@@ -359,19 +425,19 @@ Future<void> main([List<String>? args]) async {
       expect(car2, isNull);
     });
 
-    test('Results.All() should return non null', () {
+    test('Results.all() should not return null', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      final cars = realm.All<Car>();
+      final cars = realm.all<Car>();
       expect(cars, isNotNull);
     });
 
-    test('Results.All() length', () {
+    test('Results.all() length', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      var cars = realm.All<Car>();
+      var cars = realm.all<Car>();
       expect(cars.length, 0);
 
       final car = Car();
@@ -384,11 +450,11 @@ Future<void> main([List<String>? args]) async {
       expect(cars.length, 0);
     });
 
-    test('Results.All() isEmpty', () {
+    test('Results.all() isEmpty', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      var cars = realm.All<Car>();
+      var cars = realm.all<Car>();
       expect(cars.isEmpty(), true);
 
       final car = Car();
@@ -407,8 +473,75 @@ Future<void> main([List<String>? args]) async {
       realm.write(() => realm.add(Car()));
 
       final car = Car();
-      final cars = realm.All<Car>();
+      final cars = realm.all<Car>();
       expect(cars[0].make, car.make);
+    });
+
+    test('Lists create object with a list property', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final team = Team()..name = "Ferrari";
+      realm.write(() => realm.add(team));
+
+      final teams = realm.all<Team>();
+      expect(teams.length, 1);
+      expect(teams[0].name, "Ferrari");
+      expect(teams[0].players, isNotNull);
+      expect(teams[0].players.length, 0);
+    });
+
+    test('Lists get set', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final team = Team()..name = "Ferrari";
+      realm.write(() => realm.add(team));
+
+      final teams = realm.all<Team>();
+      expect(teams.length, 1);
+      final players = teams[0].players;
+      expect(players, isNotNull);
+      expect(players.length, 0);
+
+      realm.write(() => players.add(Person()..name = "Michael Schumacher"));
+      expect(players.length, 1);
+
+      realm.write(() => players.addAll([Person()..name = "Sebastian Vettel", Person()..name = "Kimi Räikkönen"]));
+
+      expect(players.length, 3);
+
+      expect(players[0].name, "Michael Schumacher");
+      expect(players[1].name, "Sebastian Vettel");
+      expect(players[2].name, "Kimi Räikkönen");
+    });
+
+    test('Lists get invalid index throws exception', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final team = Team()..name = "Ferrari";
+      realm.write(() => realm.add(team));
+
+      final teams = realm.all<Team>();
+      final players = teams[0].players;
+
+      expect(() => players[-1], throws<RealmException>("Index out of range"));
+      expect(() => players[800], throws<RealmException>());
+    });
+
+    test('Lists set invalid index throws', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final team = Team()..name = "Ferrari";
+      realm.write(() => realm.add(team));
+
+      final teams = realm.all<Team>();
+      final players = teams[0].players;
+
+      expect(() => realm.write(() => players[-1] = Person()), throws<RealmException>("Index out of range"));
+      expect(() => realm.write(() => players[800] = Person()), throws<RealmException>());
     });
   });
 }
