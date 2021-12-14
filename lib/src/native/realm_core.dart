@@ -15,9 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-// ignore_for_file: non_constant_identifier_names, constant_identifier_names
-
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:typed_data';
@@ -26,12 +23,12 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 
 import '../configuration.dart';
+import '../init.dart';
+import '../list.dart';
 import '../realm_class.dart';
 import '../realm_object.dart';
-import '../init.dart';
+import '../realm_property.dart';
 import '../results.dart';
-import '../list.dart';
-
 import 'realm_bindings.dart';
 
 late RealmLibrary _realmLib;

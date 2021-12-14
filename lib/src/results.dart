@@ -62,6 +62,8 @@ class RealmResults {
 //Some methods 'where' 'sort' etc of Results<T> clash with Iterable methods. Hence Results<T> can't be made
 //Iterable and can't support for..in. The Results<T>.asList method provides that
 //Could rename these so Results<T> can be proper Iterable
+
+/*
 class _ResultsList<T extends RealmObject> extends collection.ListBase<T> {
   final Results<T> _results;
 
@@ -85,6 +87,7 @@ class _ResultsList<T extends RealmObject> extends collection.ListBase<T> {
     _results.length = newLength;
   }
 }
+*/
 
 /// Instances of this class are typically live collections returned by [Realm.objects]
 /// that will update as new objects are either added to or deleted from the Realm
