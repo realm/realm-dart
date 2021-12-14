@@ -153,6 +153,14 @@ class RealmObject {
     _factories[T] = factory;
   }
 
+  static T create<T extends RealmObject>() {
+    if (!_factories.containsKey(T)) {
+      throw RealmException("Factory for Realm object type $T not found");
+    }
+
+    return _factories[T]!() as T;
+  }
+
   static bool setDefaults<T extends RealmObject>(Map<String, Object> values) {
     RealmAccessor.setDefaults<T>(values);
     return true;
