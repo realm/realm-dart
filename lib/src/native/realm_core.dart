@@ -27,7 +27,6 @@ import '../init.dart';
 import '../list.dart';
 import '../realm_class.dart';
 import '../realm_object.dart';
-import '../realm_property.dart';
 import '../results.dart';
 import 'realm_bindings.dart';
 
@@ -103,7 +102,7 @@ class _RealmCore {
         final properties = arena<realm_property_info_t>(propertiesCount);
 
         for (var j = 0; j < propertiesCount; j++) {
-          final SchemaProperty schemaProperty = schemaObject.properties[j];
+          final schemaProperty = schemaObject.properties[j];
           final propInfo = properties.elementAt(j).ref;
           propInfo.name = schemaProperty.name.toUtf8Ptr(arena);
           //TODO: assign the correct public name value.
@@ -114,7 +113,7 @@ class _RealmCore {
           propInfo.collection_type = schemaProperty.collectionType.index;
           propInfo.flags = realm_property_flags_e.RLM_PROPERTY_NORMAL;
 
-          if (schemaProperty.nullable) {
+          if (schemaProperty.optional) {
             propInfo.flags |= realm_property_flags_e.RLM_PROPERTY_NULLABLE;
           }
 

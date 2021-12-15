@@ -25,8 +25,6 @@ class _RealmProperty {
   /// The Realm type of this property
   final RealmPropertyType propertyType;
 
-  final bool nullable;
-
   /// `true` if this property is optional
   final bool optional;
 
@@ -35,7 +33,6 @@ class _RealmProperty {
 
   const _RealmProperty(
     this.propertyType, {
-    this.nullable = false,
     this.optional = false,
     this.mapTo,
     this.primaryKey = false,
@@ -50,7 +47,6 @@ class SchemaProperty extends _RealmProperty {
   const SchemaProperty(
     this.name,
     RealmPropertyType propertyType, {
-    bool nullable = false,
     bool optional = false,
     String? mapTo,
     bool primaryKey = false,
@@ -58,7 +54,6 @@ class SchemaProperty extends _RealmProperty {
     this.collectionType = RealmCollectionType.none,
   }) : super(
           propertyType,
-          nullable: nullable,
           optional: optional,
           mapTo: mapTo,
           primaryKey: primaryKey,
