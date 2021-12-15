@@ -326,7 +326,14 @@ class RealmFieldInfo {
   bool get isFinal => fieldElement.isFinal;
 
   String get typeName =>
-      typeModelName.replaceAll('_', ''); // TODO: Very hackish
+      typeModelName.replaceAll(_config.prefix, ''); // TODO: Very hackish
+
+  String get typeNameWithoutNullability { // TODO: Hack hack hack
+    final tn = typeName;
+    final last = tn.length - 1;
+    
+    return tn.substring(0, last + (tn[last] == '?' ? 0 : 1));
+  }
 
   String get typeModelName => type.isDynamic
       ? (declaration.node.parent as VariableDeclarationList)
@@ -381,7 +388,7 @@ class RealmFieldInfo {
 
   Iterable<String> toCode() sync* {
     yield '@override';
-    yield "$typeName get $name => RealmObject.get<$typeName>(this, '$realmName') as $typeName;";
+    yield "$typeName get $name => RealmObject.get<$typeNameWithoutNullability>(this, '$realmName') as $typeName;";
     if (!isFinal) yield '@override';
     yield "set ${isFinal ? '_' : ''}$name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => RealmObject.set(this, '$realmName', value);";
   }

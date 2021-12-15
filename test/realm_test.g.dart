@@ -55,12 +55,12 @@ class Dog extends _Dog with RealmObject {
   set _name(String value) => RealmObject.set(this, 'name', value);
 
   @override
-  int? get age => RealmObject.get<int?>(this, 'age') as int?;
+  int? get age => RealmObject.get<int>(this, 'age') as int?;
   @override
   set age(int? value) => RealmObject.set(this, 'age', value);
 
   @override
-  Person? get owner => RealmObject.get<Person?>(this, 'owner') as Person?;
+  Person? get owner => RealmObject.get<Person>(this, 'owner') as Person?;
   @override
   set owner(covariant Person? value) => RealmObject.set(this, 'owner', value);
 
