@@ -74,10 +74,10 @@ class Dog extends _Dog with RealmObject {
 class Team extends _Team with RealmObject {
   Team({
     required String name,
-    required List<Person> players,
+    List<Person>? players,
   }) {
     this.name = name;
-    this.players = players;
+    this.players = players ?? [];
   }
 
   @override
