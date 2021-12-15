@@ -381,7 +381,7 @@ class RealmFieldInfo {
 
   Iterable<String> toCode() sync* {
     yield '@override';
-    yield "$typeName get $name => RealmObject.get<$typeName>(this, '$realmName');";
+    yield "$typeName get $name => RealmObject.get<$typeName>(this, '$realmName') as $typeName;";
     if (!isFinal) yield '@override';
     yield "set ${isFinal ? '_' : ''}$name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => RealmObject.set(this, '$realmName', value);";
   }

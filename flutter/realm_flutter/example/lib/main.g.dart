@@ -14,7 +14,7 @@ class Car extends _Car with RealmObject {
   }
 
   @override
-  String get make => RealmObject.get<String>(this, 'make');
+  String get make => RealmObject.get<String>(this, 'make') as String;
   @override
   set make(String value) => RealmObject.set(this, 'make', value);
 
