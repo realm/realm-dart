@@ -19,7 +19,6 @@
 library realm_generator;
 
 import 'dart:async';
-import 'dart:cli';
 import 'dart:ffi';
 import 'dart:math';
 import 'dart:typed_data';
@@ -28,8 +27,9 @@ import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
-import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
+import 'package:analyzer/dart/element/type_provider.dart';
+import 'package:analyzer/dart/element/type_system.dart';
 import 'package:build/build.dart';
 import 'package:realm_annotations/realm_annotations.dart';
 import 'package:source_gen/source_gen.dart';
@@ -81,23 +81,56 @@ extension on DartType {
   bool get isRealmAny =>
       const TypeChecker.fromRuntime(RealmAny).isAssignableFromType(this);
   bool get isRealmBacklink => false; // TODO
-  bool get isRealmObject =>
+  bool get isRealmCollection => realmCollectionType != RealmCollectionType.none;
+  bool get isRealmModel =>
       realmModelChecker.annotationsOfExact(element!).isNotEmpty;
 
-  bool get isNullable => nullabilitySuffix != NullabilitySuffix.none;
+  bool get isNullable => _session.typeSystem.isNullable(this);
+  DartType get asNonNullable => _session.typeSystem.promoteToNonNull(this);
 
   RealmCollectionType get realmCollectionType {
     if (isDartCoreSet) return RealmCollectionType.set;
     if (isDartCoreList) return RealmCollectionType.list;
     // TODO: Check that key type is String!
-    if (isDartCoreMap) return RealmCollectionType.map;
+    if (isDartCoreMap) return RealmCollectionType.dictionary;
     return RealmCollectionType.none;
+  }
+
+  DartType get basicType {
+    if (isNullable) return asNonNullable.basicType;
+    if (isRealmCollection) {
+      return (this as ParameterizedType).typeArguments.last;
+    }
+    if (isRealmModel) {
+      // convert _T to T .. I think I need to implement ClassTypeMacro
+    }
+    return this;
+  }
+
+  DartType get mappedType {
+    final self = this;
+    if (isRealmCollection) {
+      if (self is ParameterizedType) {
+        final provider = _session.typeProvider;
+        final mapped = self.typeArguments.last.mappedType;
+        if (self != mapped) {
+          if (self.isDartCoreList) return provider.listType(mapped);
+          if (self.isDartCoreSet) return provider.setType(mapped);
+          if (self.isDartCoreMap) {
+            return provider.mapType(self.typeArguments.first, mapped);
+          }
+        }
+      }
+    } else if (isRealmModel) {
+      // convert _T to T .. I think I need to implement ClassTypeMacro
+    }
+    return self;
   }
 
   RealmPropertyType? get realmType => _realmType(true);
 
   RealmPropertyType? _realmType(bool recurse) {
-    if (realmCollectionType != RealmCollectionType.none && recurse) {
+    if (isRealmCollection && recurse) {
       return (this as ParameterizedType)
           .typeArguments
           .last
@@ -112,7 +145,7 @@ extension on DartType {
     if (isExactly<Float>()) return RealmPropertyType.float;
     if (isDartCoreNum || isDartCoreDouble) return RealmPropertyType.double;
     if (isExactly<Decimal128>()) return RealmPropertyType.decimal128;
-    if (isRealmObject) return RealmPropertyType.object;
+    if (isRealmModel) return RealmPropertyType.object;
     if (isRealmBacklink) return RealmPropertyType.linkingObjects;
     if (isExactly<ObjectId>()) return RealmPropertyType.objectid;
     if (isExactly<Uuid>()) return RealmPropertyType.uuid;
@@ -131,19 +164,34 @@ class RealmModelInfo {
   Iterable<String> toCode() sync* {
     yield 'class $name extends $modelName with RealmObject {';
     {
-      yield '$name({';
+      yield 'static var _defaultsSet = false;';
+      yield '';
+      yield '$name(';
       {
-        yield* fields.map((f) =>
-            '${f.optional | f.hasDefaultValue ? '' : 'required '}${f.typeName}${!f.optional & f.hasDefaultValue ? '?' : ''} ${f.name},');
-        yield '}) {';
+        final required = fields.where((f) => f.isRequired);
+        yield* required.map((f) =>
+            '${f.typeName}${!f.optional & f.hasDefaultValue ? '?' : ''} ${f.name},');
+        final notRequired = fields.where((f) => !f.isRequired);
+        if (notRequired.isNotEmpty) {
+          yield '{';
+          yield* fields.where((f) => !f.isRequired).map((f) =>
+              '${f.isRequired ? 'required ' : ''}${f.typeName}${!f.optional & f.hasDefaultValue ? '?' : ''} ${f.name},');
+          yield '}';
+        }
+        yield ') {';
         yield* fields.map((f) {
           final prefix = f.isFinal ? '_' : 'this.';
-          return f.hasDefaultValue
-              ? '$prefix${f.name} = ${f.declaration.node.toString().replaceFirst('=', '??')};' // TODO: Feels a bit hacky!
-              : '$prefix${f.name} = ${f.name};';
+          final checkFirst = f.isRequired ? '' : 'if (${f.name} != null) ';
+          return '$checkFirst$prefix${f.name} = ${f.name};';
         });
+        yield '_defaultsSet = _defaultsSet || RealmObject.setDefaults<$name>({';
+        yield* fields.where((f) => f.hasDefaultValue).map((f) =>
+            "'${f.name}': ${f.fieldElement.declarationAstNode.fields.variables.singleWhere((v) => v.name.name == f.name).initializer},");
+        yield '});';
       }
       yield '}';
+      yield '';
+      yield '$name._();';
       yield '';
 
       yield* fields.expand((f) => [
@@ -151,19 +199,29 @@ class RealmModelInfo {
             '',
           ]);
 
-      yield 'static const schema = SchemaObject($name, [';
+      yield 'static SchemaObject get schema => _schema ??= _initSchema();';
+      yield 'static SchemaObject? _schema;';
+      yield 'static SchemaObject _initSchema() {';
       {
-        yield* fields.map((f) {
-          final namedArgs = {
-            if (f.name != f.realmName) 'mapTo': f.realmName,
-            if (f.optional) 'optional': f.optional,
-            if (f.primaryKey) 'primaryKey': f.primaryKey,
-          };
-          return "SchemaProperty('${f.realmName}', ${f.realmType}${namedArgs.isNotEmpty ? ', ' + namedArgs.toArgsString() : ''}),";
-        });
+        yield 'RealmObject.registerFactory<$name>(() => $name._());';
+        yield 'return const SchemaObject($name, [';
+        {
+          yield* fields.map((f) {
+            final namedArgs = {
+              if (f.name != f.realmName) 'mapTo': f.realmName,
+              if (f.optional) 'optional': f.optional,
+              if (f.primaryKey) 'primaryKey': f.primaryKey,
+              if (f.realmType == RealmPropertyType.object)
+                'linkTarget': f.basicTypeName,
+              if (f.realmCollectionType != RealmCollectionType.none)
+                'collectionType': f.realmCollectionType,
+            };
+            return "SchemaProperty('${f.realmName}', ${f.realmType}${namedArgs.isNotEmpty ? ', ' + namedArgs.toArgsString() : ''}),";
+          });
+        }
+        yield ']);';
       }
-      yield ']);';
-      yield '';
+      yield '}';
     }
     yield '}';
   }
@@ -183,18 +241,6 @@ extension<K, V> on Map<K, V> {
         .join(',');
   }
 }
-
-class _Config {
-  final Pattern prefix;
-  final String suffix;
-  final bool color;
-
-  _Config({String? prefix, String? suffix, this.color = false})
-      : prefix = prefix ?? RegExp(r'[_$]'), // defaults to _ or $
-        suffix = suffix ?? '';
-}
-
-late _Config _config;
 
 final _validIdentifier = RegExp(r'^[a-zA-Z]\w*$');
 
@@ -235,8 +281,8 @@ extension on ClassElement {
         return RealmModelInfo(name, modelName, mappedFields);
       }
 
-      final prefix = _config.prefix;
-      var suffix = _config.suffix;
+      final prefix = _session.prefix;
+      var suffix = _session.suffix;
 
       if (!modelName.startsWith(prefix)) {
         throw RealmInvalidGenerationSourceError(
@@ -295,13 +341,6 @@ extension on Iterable<ClassElement> {
       map((m) => m.realmInfo).whereNotNull;
 }
 
-enum RealmCollectionType {
-  none,
-  list,
-  set,
-  map,
-}
-
 class RealmFieldInfo {
   final FieldElement fieldElement;
   final String? mapTo;
@@ -324,22 +363,20 @@ class RealmFieldInfo {
   bool get hasDefaultValue => fieldElement.hasInitializer;
   bool get optional => type.isNullable;
   bool get isFinal => fieldElement.isFinal;
+  bool get isRequired => !(hasDefaultValue || optional);
 
   String get typeName =>
-      typeModelName.replaceAll(_config.prefix, ''); // TODO: Very hackish
-
-  String get typeNameWithoutNullability { // TODO: Hack hack hack
-    final tn = typeName;
-    final last = tn.length - 1;
-    
-    return tn.substring(0, last + (tn[last] == '?' ? 0 : 1));
-  }
+      typeModelName.replaceAll(_session.prefix, ''); // TODO: Very hackish
 
   String get typeModelName => type.isDynamic
       ? (declaration.node.parent as VariableDeclarationList)
           .type
           .toString() // read from AST
       : type.getDisplayString(withNullability: true);
+
+  String get basicTypeName => type.basicType
+      .toString()
+      .replaceAll(_session.prefix, ''); // TODO: Very hackish
 
   RealmPropertyType get realmType {
     final realmType = type.realmType;
@@ -353,7 +390,7 @@ class RealmFieldInfo {
           "or an @Ignored annotation on '$this'.";
     } else if (type.isDynamic &&
         typeName != 'dynamic' &&
-        !typeName.startsWith(_config.prefix)) {
+        !typeName.startsWith(_session.prefix)) {
       todo = "Did you intend to use _$typeName as type for '$this'?";
     } else {
       todo = "Add an @Ignored annotation on '$this'.";
@@ -388,7 +425,7 @@ class RealmFieldInfo {
 
   Iterable<String> toCode() sync* {
     yield '@override';
-    yield "$typeName get $name => RealmObject.get<$typeNameWithoutNullability>(this, '$realmName') as $typeName;";
+    yield "$typeName get $name => RealmObject.get<$basicTypeName>(this, '$realmName') as $typeName;";
     if (!isFinal) yield '@override';
     yield "set ${isFinal ? '_' : ''}$name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => RealmObject.set(this, '$realmName', value);";
   }
@@ -432,7 +469,8 @@ extension on Element {
     throw UnsupportedError('$runtimeType not supported');
   }
 
-  Iterable<RealmAnnotationInfo> _annotationsInfoOfExact(TypeChecker checker) sync* {
+  Iterable<RealmAnnotationInfo> _annotationsInfoOfExact(
+      TypeChecker checker) sync* {
     // This is a bit backwards because of the api surface on TypeCheckers
     final values = checker.annotationsOfExact(this).toSet();
     final node = declarationAstNode;
@@ -515,10 +553,7 @@ extension on AstNode {
 }
 
 ElementDeclarationResult? getDeclarationFromElement(Element element) {
-  final session = element.session!;
-  final library = waitFor(session.getResolvedLibraryByElement(element.library!))
-      as ResolvedLibraryResult;
-  return library.getElementDeclaration(element);
+  return _session.resolvedLibrary.getElementDeclaration(element);
 }
 
 String anOrA(String text) => 'aeiouy'.contains(text[0]) ? 'an' : 'a';
@@ -527,14 +562,12 @@ extension on FieldElement {
   FieldDeclaration get declarationAstNode =>
       getDeclarationFromElement(this)!.node.parent!.parent as FieldDeclaration;
 
-  RealmAnnotationInfo? get ignoredInfo =>
-      annotationInfoOfExact(ignoredChecker);
+  RealmAnnotationInfo? get ignoredInfo => annotationInfoOfExact(ignoredChecker);
 
   RealmAnnotationInfo? get primaryKeyInfo =>
       annotationInfoOfExact(primaryKeyChecker);
 
-  RealmAnnotationInfo? get indexedInfo =>
-      annotationInfoOfExact(indexedChecker);
+  RealmAnnotationInfo? get indexedInfo => annotationInfoOfExact(indexedChecker);
 
   RealmFieldInfo? get realmInfo {
     try {
@@ -611,8 +644,7 @@ extension on FieldElement {
           secondarySpans: {
             enclosingElement.span!:
                 "in realm model '${enclosingElement.displayName}'",
-            annotation.span(file):
-                "index is requested on '$displayName', but",
+            annotation.span(file): "index is requested on '$displayName', but",
           },
           primarySpan: (typeAnnotation ?? initializerExpression)!.span(file),
           primaryLabel: "$typeText is not an indexable type",
@@ -678,8 +710,8 @@ extension on Iterable<FieldElement> {
             secondarySpans: {
               classElement.span!:
                   "in realm model '${classElement.displayName}'",
-              primaryKeySeen.fieldElement.primaryKeyInfo!.annotation
-                  .span(file): 'the $annotation annotation is used',
+              primaryKeySeen.fieldElement.primaryKeyInfo!.annotation.span(file):
+                  'the $annotation annotation is used',
               primaryKeySeen.fieldElement.shortSpan!:
                   "on both '${primaryKeySeen.fieldElement.displayName}', and",
               f.shortSpan!: "on '${f.displayName}'",
@@ -729,11 +761,11 @@ String _formatMessage(
   try {
     final span = primarySpan ?? element.span!;
     final formated = secondarySpans.isEmpty
-        ? span.highlight(color: _config.color)
+        ? span.highlight(color: _session.color)
         : span.highlightMultiple(
             primaryLabel ?? '!',
             secondarySpans,
-            color: _config.color,
+            color: _session.color,
           );
     buffer
       ..write('\n' * 2 + 'in: ')
@@ -752,14 +784,32 @@ String _formatMessage(
   return buffer.toString();
 }
 
-class RealmObjectGenerator extends Generator {
-  RealmObjectGenerator([_Config? config]) {
-    _config = config ?? _Config();
-  }
+class _Session {
+  final ResolvedLibraryResult resolvedLibrary;
+  final Pattern prefix;
+  final String suffix;
+  final bool color;
 
+  _Session(this.resolvedLibrary,
+      {String? prefix, String? suffix, this.color = false})
+      : prefix = prefix ?? RegExp(r'[_$]'), // defaults to _ or $
+        suffix = suffix ?? '';
+
+  TypeProvider get typeProvider => resolvedLibrary.typeProvider;
+  TypeSystem get typeSystem => resolvedLibrary.element.typeSystem;
+}
+
+late _Session _session;
+
+class RealmObjectGenerator extends Generator {
   @override
   Future<String> generate(LibraryReader library, BuildStep buildStep) async {
     return await meassure(() async {
+      _session = _Session(
+        (await library.element.session
+                .getResolvedLibraryByElement(library.element))
+            as ResolvedLibraryResult,
+      );
       return library.classes.realmInfo.expand((m) => m.toCode()).join('\n');
     }, tag: 'generate');
   }
