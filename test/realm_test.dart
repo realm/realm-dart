@@ -204,6 +204,15 @@ Future<void> main([List<String>? args]) async {
       realm = Realm(config);
     });
 
+    test('Realm is closed', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);     
+      expect(realm.isClosed, false);
+
+      realm.close();    
+      expect(realm.isClosed, true);
+    });
+
     test('Realm open with schema subset', () {
       var config = Configuration([Car.schema, Person.schema]);
       var realm = Realm(config);
