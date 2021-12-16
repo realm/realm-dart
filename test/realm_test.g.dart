@@ -108,12 +108,15 @@ class Team extends _Team with RealmObject {
   static var _defaultsSet = false;
 
   Team(
-    String name,
-    List<Person> players,
-  ) {
+    String name, {
+    List<Person>? players,
+  }) {
     this.name = name;
-    this.players = players;
-    _defaultsSet = _defaultsSet || RealmObject.setDefaults<Team>({});
+    if (players != null) _players = players;
+    _defaultsSet = _defaultsSet ||
+        RealmObject.setDefaults<Team>({
+          'players': <_Person>[],
+        });
   }
 
   Team._();
@@ -125,8 +128,7 @@ class Team extends _Team with RealmObject {
 
   @override
   List<Person> get players => RealmObject.get<Person>(this, 'players') as List<Person>;
-  @override
-  set players(covariant List<Person> value) => RealmObject.set(this, 'players', value);
+  set _players(covariant List<Person> value) => RealmObject.set(this, 'players', value);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
