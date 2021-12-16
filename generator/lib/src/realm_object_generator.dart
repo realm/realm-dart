@@ -97,6 +97,7 @@ extension on DartType {
   }
 
   DartType get basicType {
+    if (isDynamic) return this;
     if (isNullable) return asNonNullable.basicType;
     if (isRealmCollection) {
       return (this as ParameterizedType).typeArguments.last;
@@ -168,24 +169,31 @@ class RealmModelInfo {
       yield '';
       yield '$name(';
       {
-        final required = fields.where((f) => f.isRequired);
+        final allExceptCollections = fields.where((f) => !f.type.isRealmCollection).toList();
+        
+        final required = allExceptCollections.where((f) => f.isRequired);
         yield* required.map((f) =>
             '${f.typeName}${!f.optional & f.hasDefaultValue ? '?' : ''} ${f.name},');
-        final notRequired = fields.where((f) => !f.isRequired);
+        final notRequired = allExceptCollections.where((f) => !f.isRequired);
+        
         if (notRequired.isNotEmpty) {
           yield '{';
-          yield* fields.where((f) => !f.isRequired).map((f) =>
+          yield* notRequired.map((f) =>
               '${f.isRequired ? 'required ' : ''}${f.typeName}${!f.optional & f.hasDefaultValue ? '?' : ''} ${f.name},');
           yield '}';
         }
+        
         yield ') {';
-        yield* fields.map((f) {
+        
+        yield* allExceptCollections.map((f) {
           final prefix = f.isFinal ? '_' : 'this.';
           final checkFirst = f.isRequired ? '' : 'if (${f.name} != null) ';
           return '$checkFirst$prefix${f.name} = ${f.name};';
         });
+        
         yield '_defaultsSet = _defaultsSet || RealmObject.setDefaults<$name>({';
-        yield* fields.where((f) => f.hasDefaultValue).map((f) =>
+        
+        yield* fields.where((f) => f.hasDefaultValue && !f.type.isRealmCollection).map((f) =>
             "'${f.name}': ${f.fieldElement.declarationAstNode.fields.variables.singleWhere((v) => v.name.name == f.name).initializer},");
         yield '});';
       }

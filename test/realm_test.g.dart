@@ -108,15 +108,10 @@ class Team extends _Team with RealmObject {
   static var _defaultsSet = false;
 
   Team(
-    String name, {
-    List<Person>? players,
-  }) {
+    String name,
+  ) {
     this.name = name;
-    if (players != null) _players = players;
-    _defaultsSet = _defaultsSet ||
-        RealmObject.setDefaults<Team>({
-          'players': <_Person>[],
-        });
+    _defaultsSet = _defaultsSet || RealmObject.setDefaults<Team>({});
   }
 
   Team._();
