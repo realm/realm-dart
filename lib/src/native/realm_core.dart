@@ -193,6 +193,10 @@ class _RealmCore {
   void closeRealm(Realm realm) {
     _realmLib.invokeGetBool(() => _realmLib.realm_close(realm.handle._pointer), "Realm close failed");
   }
+  
+  bool isRealmClosed(Realm realm) {
+    return _realmLib.realm_is_closed(realm.handle._pointer);
+  }
 
   void beginWrite(Realm realm) {
     _realmLib.invokeGetBool(() => _realmLib.realm_begin_write(realm.handle._pointer), "Could not begin write");
@@ -379,6 +383,7 @@ class _RealmCore {
       _realmLib.invokeGetBool(() => _realmLib.realm_list_insert(list.handle._pointer, index, realm_value.ref));
     });
   }
+
 }
 
 class LastError {
