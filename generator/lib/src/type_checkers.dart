@@ -15,22 +15,22 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-/// Usage
-///
-/// * Add a dependency to [realm](https://pub.dev/packages/realm) package or [realm_dart](https://pub.dev/packages/realm_dart) package to your application
-/// * Run `flutter pub run build_runner build` or `dart run build_runner build` to generate RealmObjects
-
-library realm_generator;
-
-import 'package:build/build.dart';
+import 'package:realm_annotations/realm_annotations.dart';
 import 'package:source_gen/source_gen.dart';
 
-import 'src/realm_object_generator.dart';
+const ignoredChecker = TypeChecker.fromRuntime(Ignored);
 
-export 'src/error.dart';
-/// @nodoc
-Builder generateRealmObjects([BuilderOptions? options]) => SharedPartBuilder(
-      [RealmObjectGenerator()],
-      'RealmObjects',
-    );
+const indexedChecker = TypeChecker.fromRuntime(Indexed);
+
+const mapToChecker = TypeChecker.fromRuntime(MapTo);
+
+const primaryKeyChecker = TypeChecker.fromRuntime(PrimaryKey);
+
+const realmAnnotationChecker = TypeChecker.any([
+  ignoredChecker,
+  indexedChecker,
+  mapToChecker,
+  primaryKeyChecker,
+]);
+
+const realmModelChecker = TypeChecker.fromRuntime(RealmModel);

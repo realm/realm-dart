@@ -15,22 +15,11 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/dart/constant/value.dart';
 
-/// Usage
-///
-/// * Add a dependency to [realm](https://pub.dev/packages/realm) package or [realm_dart](https://pub.dev/packages/realm_dart) package to your application
-/// * Run `flutter pub run build_runner build` or `dart run build_runner build` to generate RealmObjects
-
-library realm_generator;
-
-import 'package:build/build.dart';
-import 'package:source_gen/source_gen.dart';
-
-import 'src/realm_object_generator.dart';
-
-export 'src/error.dart';
-/// @nodoc
-Builder generateRealmObjects([BuilderOptions? options]) => SharedPartBuilder(
-      [RealmObjectGenerator()],
-      'RealmObjects',
-    );
+class AnnotationValue {
+  final Annotation annotation;
+  final DartObject value;
+  AnnotationValue(this.annotation, this.value);
+}

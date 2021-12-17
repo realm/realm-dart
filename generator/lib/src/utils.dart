@@ -16,21 +16,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Usage
-///
-/// * Add a dependency to [realm](https://pub.dev/packages/realm) package or [realm_dart](https://pub.dev/packages/realm_dart) package to your application
-/// * Run `flutter pub run build_runner build` or `dart run build_runner build` to generate RealmObjects
+String anOrA(String text) => 'aeiouy'.contains(text[0]) ? 'an' : 'a';
 
-library realm_generator;
+extension IterableEx<T> on Iterable<T> {
+  T? get singleOrNull =>
+      cast<T?>().singleWhere((element) => true, orElse: () => null);
+}
 
-import 'package:build/build.dart';
-import 'package:source_gen/source_gen.dart';
-
-import 'src/realm_object_generator.dart';
-
-export 'src/error.dart';
-/// @nodoc
-Builder generateRealmObjects([BuilderOptions? options]) => SharedPartBuilder(
-      [RealmObjectGenerator()],
-      'RealmObjects',
-    );
+extension IterableOverNullableEx<T> on Iterable<T?> {
+  Iterable<T> get whereNotNull => where((i) => i != null).cast<T>();
+}
