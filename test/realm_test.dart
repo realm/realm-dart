@@ -552,5 +552,34 @@ Future<void> main([List<String>? args]) async {
       expect(() => realm.write(() => players[-1] = Person()), throws<RealmException>("Index out of range"));
       expect(() => realm.write(() => players[800] = Person()), throws<RealmException>());
     });
+
+     test('Lists clear objects', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final team = Team()..name = "Team";
+      realm.write(() => realm.add(team));
+      final teams = realm.all<Team>();
+      expect(teams.length, 1);
+      final players = teams[0].players;
+      expect(players, isNotNull);
+      expect(players.length, 0);
+
+      realm.write(() => players.addAll([
+            Person()..name = "Michael Schumacher",
+            Person()..name = "Sebastian Vettel",
+            Person()..name = "Kimi Räikkönen"
+          ]));
+
+      expect(players.length, 3);
+      realm.write(() => players.clear());
+
+      expect(players.length, 0);
+      expect(teams[0].players.length, 0);
+
+      final allPersons = realm.all<Person>();
+      expect(allPersons.length, 0);
+      expect(allPersons.length, 0);     
+    });
   });
 }
