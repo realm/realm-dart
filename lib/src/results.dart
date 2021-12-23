@@ -132,9 +132,22 @@ class RealmResults<T extends RealmObject> {
   // }
 
   /// Returns an [Iterable<E>] collection for use with `for..in`
-  // List<T> asList() {
-  //   return _ResultsList(this);
-  // }
+  List<T> asList() {
+    List<T> list = [];
+    int itemsCount = length;
+    for (var i = 0; i < itemsCount; i++) {
+      list.add(this[i]);
+    }
+    return list;
+  }
+
+  ///Removes all the objects in the results from database
+  void removeAll() {
+    int itemsCount = length;
+    for (var i = 0; i < itemsCount; i++) {
+      realmCore.removeRealmObject(this[0]);
+    }
+  }
 
   /// Returns the index of the given object in the Results collection.
   // int indexOf(T value) {
@@ -203,7 +216,8 @@ class RealmResults<T extends RealmObject> {
 extension RealmResultsInternal on RealmResults {
   RealmResultsHandle get handle => _handle;
 
-  static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm) {
+  static RealmResults<T> create<T extends RealmObject>(
+      RealmResultsHandle handle, Realm realm) {
     return RealmResults<T>._(handle, realm);
   }
 }

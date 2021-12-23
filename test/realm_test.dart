@@ -552,5 +552,107 @@ Future<void> main([List<String>? args]) async {
       expect(() => realm.write(() => players[-1] = Person()), throws<RealmException>("Index out of range"));
       expect(() => realm.write(() => players[800] = Person()), throws<RealmException>());
     });
+
+    test('Realm RemoveMany from List', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      
+      final teamOne = Team()..name = "Ferrari";
+      final teamTwo = Team()..name = "Maserati";
+      realm.write(() => {realm.add(teamOne), realm.add(teamTwo)});
+
+      var teams = realm.all<Team>();
+      expect(teams.length, 2);
+
+      realm.write(() => realm.removeMany(teams.asList()));
+      teams = realm.all<Team>();
+      expect(teams.length, 0);
+    });
+
+     test('Realm RemoveMany from RealmList', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final team = Team()..name = "Ferrari";
+      realm.write(() => realm.add(team));
+
+      realm.write(() => team.players.addAll([
+            Person()..name = "Michael Schumacher",
+            Person()..name = "Sebastian Vettel",
+            Person()..name = "Kimi Räikkönen"
+          ]));
+
+      var teams = realm.all<Team>();
+      expect(teams.length, 1);
+
+      realm.write(() => realm.removeMany(teams[0].players));
+      final personsFromDB = realm.all<Person>();
+      expect(personsFromDB.length, 0);
+    });
+
+     test('Realm RemoveMany from RealmList referenced by two objects', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final teamOne = Team()..name = "Ferrari";
+      final teamTwo = Team()..name = "Maserati";
+      realm.write(() => {realm.add(teamOne), realm.add(teamTwo)});
+
+      //Create common players list for both Teams
+      List<Person> players = [
+        Person()..name = "Michael Schumacher",
+        Person()..name = "Sebastian Vettel",
+        Person()..name = "Kimi Räikkönen"
+      ];
+      realm.write(() =>
+          {teamOne.players.addAll(players), teamTwo.players.addAll(players)});
+
+     
+      var teams = realm.all<Team>();
+      expect(teams.length, 2);
+    
+      realm.write(() => realm.removeMany(teams[0].players));
+      final personsFromDB = realm.all<Person>();
+      expect(personsFromDB.length, 0);
+
+    });
+
+    test('RealmResults RemoveAll', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final teamOne = Team()..name = "Ferrari";
+      final teamTwo = Team()..name = "Maserati";
+      realm.write(() => {realm.add(teamOne), realm.add(teamTwo)});
+
+      var teams = realm.all<Team>();
+      expect(teams.length, 2);
+
+      realm.write(() => teams.removeAll());
+      teams = realm.all<Team>();
+      expect(teams.length, 0);
+    });
+
+     test('Realm RemoveMany from RealmList', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final team = Team()..name = "Ferrari";
+      realm.write(() => realm.add(team));
+
+      realm.write(() => team.players.addAll([
+            Person()..name = "Michael Schumacher",
+            Person()..name = "Sebastian Vettel",
+            Person()..name = "Kimi Räikkönen"
+          ]));
+
+      var teams = realm.all<Team>();
+      expect(teams.length, 1);
+
+      realm.write(() => realm.removeMany(teams[0].players));
+      final personsFromDB = realm.all<Person>();
+      expect(personsFromDB.length, 0);
+    });
   });
 }

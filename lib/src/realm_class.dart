@@ -87,6 +87,16 @@ class Realm {
     realmCore.removeRealmObject(object);
   }
 
+  void removeMany<T extends RealmObject>(List<T> list) {
+    if (list is RealmList<T>) {
+      realmCore.realmListRemoveAll(list);
+    } else {
+      for (T realmObject in list) {
+        realmCore.removeRealmObject(realmObject);
+      }
+    }
+  }
+
   bool get _isInTransaction => realmCore.getIsWritable(this);
 
   void write(void Function() writeCallback) {
