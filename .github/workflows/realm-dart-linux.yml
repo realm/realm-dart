@@ -47,7 +47,7 @@ jobs:
 
       - name: Run tests
         run: |
-          dart test -r expanded
+          dart test --reporter expanded --coverage coverage/
           echo "ARCHIVE_PATH=$(pwd)/binary/linux.tar.gz" >> $GITHUB_ENV
   
       - name: Archive binary
@@ -78,3 +78,31 @@ jobs:
         #   # echo "github.event_name ${{ github.event_name }}"
         #   # echo "github.ref_type ${{ github.ref_type }}"
         #   # echo "github.ref_name ${{ github.ref_name }}"
+
+      - name: Generate coverage report
+        run: |
+          dart run coverage:format_coverage \
+            --in coverage/ \
+            --out coverage/lcov.info \
+            --check-ignore \
+            --lcov \
+            --packages .packages \
+            --report-on lib
+
+      - name: Run generator tests
+        run: |
+          pushd generator
+          dart test --reporter expanded --coverage coverage/
+          popd
+
+      - name: Generate generator coverage report
+        run: |
+          pushd generator
+          dart run coverage:format_coverage \
+            --in coverage/ \
+            --out coverage/lcov.info \
+            --check-ignore \
+            --lcov \
+            --packages .packages \
+            --report-on lib
+          popd
