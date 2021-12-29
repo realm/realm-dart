@@ -97,10 +97,6 @@ class Realm {
     }
   }
 
-  void removeAll<T extends RealmObject>(RealmResults<T> result) {
-    result.removeAll();
-  } 
-
   bool get _isInTransaction => realmCore.getIsWritable(this);
 
   void write(void Function() writeCallback) {
