@@ -209,8 +209,7 @@ class RealmResults<T extends RealmObject> {
 extension RealmResultsInternal on RealmResults {
   RealmResultsHandle get handle => _handle;
 
-  static RealmResults<T> create<T extends RealmObject>(
-      RealmResultsHandle handle, Realm realm) {
+  static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm) {
     return RealmResults<T>._(handle, realm);
   }
 }
