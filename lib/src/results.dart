@@ -132,21 +132,14 @@ class RealmResults<T extends RealmObject> {
   // }
 
   /// Returns an [Iterable<E>] collection for use with `for..in`
-  List<T> asList() {
-    List<T> list = [];
-    int itemsCount = length;
-    for (var i = 0; i < itemsCount; i++) {
-      list.add(this[i]);
-    }
-    return list;
-  }
+  // List<T> asList() {
+  //   return _ResultsList(this);
+  // }
+  
 
-  ///Removes all the objects in the results from database
+  ///Removes all the objects matching results from database
   void removeAll() {
-    int itemsCount = length;
-    for (var i = 0; i < itemsCount; i++) {
-      realmCore.removeRealmObject(this[0]);
-    }
+    realmCore.realmResultsDeleteAll(this);
   }
 
   /// Returns the index of the given object in the Results collection.
