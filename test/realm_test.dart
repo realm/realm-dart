@@ -206,10 +206,10 @@ Future<void> main([List<String>? args]) async {
 
     test('Realm is closed', () {
       var config = Configuration([Car.schema]);
-      var realm = Realm(config);     
+      var realm = Realm(config);
       expect(realm.isClosed, false);
 
-      realm.close();    
+      realm.close();
       expect(realm.isClosed, true);
     });
 
@@ -553,10 +553,10 @@ Future<void> main([List<String>? args]) async {
       expect(() => realm.write(() => players[800] = Person()), throws<RealmException>());
     });
 
-         test('RealmList clear items from list', () {
+    test('RealmList clear items from list', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
-      
+
       //Create Team
       final team = Team()..name = "Team";
       realm.write(() => realm.add(team));
@@ -595,15 +595,14 @@ Future<void> main([List<String>? args]) async {
       final teamOne = Team()..name = "TeamOne";
       final teamTwo = Team()..name = "TeamTwo";
       realm.write(() => {realm.add(teamOne), realm.add(teamTwo)});
-      
+
       //Create common players list for both Teams
       List<Person> players = [
         Person()..name = "Michael Schumacher",
         Person()..name = "Sebastian Vettel",
         Person()..name = "Kimi Räikkönen"
       ];
-      realm.write(() =>
-          {teamOne.players.addAll(players), teamTwo.players.addAll(players)});
+      realm.write(() => {teamOne.players.addAll(players), teamTwo.players.addAll(players)});
 
       //Ensure that Teams and Players exest in DB
       var teamsFromDB = realm.all<Team>();
@@ -624,10 +623,9 @@ Future<void> main([List<String>? args]) async {
       //Ensure players still exist in DB
       final allPlayersFromDB = realm.all<Person>();
       expect(allPlayersFromDB.length, 3);
-
     });
 
-    test('RealmList clear - same item sdded to two lists', () {
+    test('RealmList clear - same item added to two lists', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -635,8 +633,8 @@ Future<void> main([List<String>? args]) async {
       final teamOne = Team()..name = "TeamOne";
       final teamTwo = Team()..name = "TeamTwo";
       realm.write(() => {realm.add(teamOne), realm.add(teamTwo)});
-      
-      //Add the same player to both Temas
+
+      //Add the same player to both Teams
       Person player = Person()..name = "Michael Schumacher";
       realm.write(() => {teamOne.players.add(player), teamTwo.players.add(player)});
 
@@ -651,7 +649,7 @@ Future<void> main([List<String>? args]) async {
       //Clear player from Team1
       realm.write(() => teamsFromDB[0].players.clear());
 
-      //Ensure that Team2 is still related to the player
+      //Ensure that Team1 has no more players but Team2 is still related to the player
       teamsFromDB = realm.all<Team>();
       expect(teamsFromDB[0].players.length, 0);
       expect(teamsFromDB[1].players.length, 1);
@@ -659,6 +657,36 @@ Future<void> main([List<String>? args]) async {
       //Ensure the player still exists in DB
       final allPlayersFromDB = realm.all<Person>();
       expect(allPlayersFromDB.length, 1);
+    });
+
+    test('RealmList clear - exception', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      //Create Team
+      final team = Team()..name = "TeamOne";
+      realm.write(() => realm.add(team));
+
+      //Add the player to Team
+      Person player = Person()..name = "Michael Schumacher";
+      realm.write(() => team.players.add(player));
+
+      //Ensure Teams and Player are in DB
+      var teamsFromDB = realm.all<Team>();
+      expect(teamsFromDB.length, 1);
+      expect(teamsFromDB[0].players, isNotNull);
+      expect(teamsFromDB[0].players.length, 1);
+
+      var playersToDelete = teamsFromDB[0].players;
+      //Close realm before clear player from Team
+      expect(() => realm.write(() => {realm.close(), playersToDelete.clear()}),
+          throws<RealmException>("Error clearing items from collection"));
+
+      realm = Realm(config);
+      //Ensure that Team is still related to the player
+      teamsFromDB = realm.all<Team>();
+      expect(teamsFromDB.length, 1);
+      expect(teamsFromDB[0].players.length, 1);
     });
   });
 }

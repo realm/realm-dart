@@ -82,8 +82,8 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
   void clear() {
     try {
       realmCore.clear(this);
-    } on Exception catch (e) {
-      throw RealmException("Error deleting all items. Error: $e");
+    } catch (e) {
+      throw RealmException("Error clearing items from collection. Error: $e");
     }
   }
 }
