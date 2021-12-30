@@ -88,7 +88,8 @@ class Realm {
   }
 
   void removeMany<T extends RealmObject>(Iterable<T> list) {
-    if (list is RealmResults<T>) {
+    try {
+      if (list is RealmResults<T>) {
       realmCore.realmResultsDeleteAll(list);
     } else if (list is RealmList<T>) {
       realmCore.realmListRemoveAll(list);
@@ -96,6 +97,9 @@ class Realm {
       for (T realmObject in list) {
         realmCore.removeRealmObject(realmObject);
       }
+      }
+    } catch (e) {
+      throw RealmException("Error deleting objects from databse. Error: $e");
     }
   }
 

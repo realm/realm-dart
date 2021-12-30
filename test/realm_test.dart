@@ -671,16 +671,16 @@ Future<void> main([List<String>? args]) async {
       expect(teams.length, 1);
 
       //Try to delete team players while realm is closed
-      expect(() =>  realm.write(() => {
-                        realm.close(), 
-                        realm.removeMany(teams[0].players)
-                      }),
-              throws<RealmException>("Access to invalidated Results objects"));
-     
+      final playersToDelete = teams[0].players;
+      expect(() => realm.write(() => {realm.close(),
+          realm.removeMany(playersToDelete)}),
+          throws<RealmException>("Error deleting objects from databse"));
+
       //Ensure all persons still exists in DB
       realm = Realm(config);
       final personsFromDB = realm.all<Person>();
       expect(personsFromDB.length, 3);
+      
     });
   });
 }
