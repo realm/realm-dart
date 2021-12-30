@@ -7,29 +7,28 @@ part of 'myapp.dart';
 // **************************************************************************
 
 class Car extends _Car with RealmObject {
-  Car({
-    required String make,
-    required Person person,
+  static var _defaultsSet = false;
+
+  Car(
+    String make,
+    Person person,
+    bool b,
+    String text,
+    int i,
+    double d,
+    Uint8List data,
+    DateTime timestamp,
+    ObjectId id,
+    Decimal128 decimal,
+    Uuid uuid,
+    RealmAny any, {
     Uint8List? bytes,
     int? who,
-    required bool b,
-    required String text,
-    required int i,
-    required double d,
-    required Uint8List data,
-    required DateTime timestamp,
-    required ObjectId id,
-    required Decimal128 decimal,
-    required Uuid uuid,
-    required RealmAny any,
-    List<int>? serviceAt,
-    Set<String>? part,
-    Map<String, String>? properties,
   }) {
     this.make = make;
     this.person = person;
-    this.bytes = bytes ?? Uint8List(10);
-    this.who = who;
+    if (bytes != null) this.bytes = bytes;
+    if (who != null) this.who = who;
     this.b = b;
     this.text = text;
     this.i = i;
@@ -40,10 +39,13 @@ class Car extends _Car with RealmObject {
     this.decimal = decimal;
     this.uuid = uuid;
     this.any = any;
-    this.serviceAt = serviceAt ?? [10000, 20000, Random().nextInt(15000) + 20000];
-    this.part = part ?? {'engine', 'wheel'};
-    this.properties = properties ?? {'color': 'yellow'};
+    _defaultsSet = _defaultsSet ||
+        RealmObject.setDefaults<Car>({
+          'bytes': Uint8List(10),
+        });
   }
+
+  Car._();
 
   @override
   String get make => RealmObject.get<String>(this, 'make') as String;
@@ -61,7 +63,7 @@ class Car extends _Car with RealmObject {
   set bytes(Uint8List value) => RealmObject.set(this, 'bytes', value);
 
   @override
-  int? get who => RealmObject.get<int?>(this, 'who') as int?;
+  int? get who => RealmObject.get<int>(this, 'who') as int?;
   @override
   set who(int? value) => RealmObject.set(this, 'who', value);
 
@@ -91,7 +93,8 @@ class Car extends _Car with RealmObject {
   set data(Uint8List value) => RealmObject.set(this, 'data', value);
 
   @override
-  DateTime get timestamp => RealmObject.get<DateTime>(this, 'timestamp') as DateTime;
+  DateTime get timestamp =>
+      RealmObject.get<DateTime>(this, 'timestamp') as DateTime;
   @override
   set timestamp(DateTime value) => RealmObject.set(this, 'timestamp', value);
 
@@ -101,7 +104,8 @@ class Car extends _Car with RealmObject {
   set id(ObjectId value) => RealmObject.set(this, 'id', value);
 
   @override
-  Decimal128 get decimal => RealmObject.get<Decimal128>(this, 'decimal') as Decimal128;
+  Decimal128 get decimal =>
+      RealmObject.get<Decimal128>(this, 'decimal') as Decimal128;
   @override
   set decimal(Decimal128 value) => RealmObject.set(this, 'decimal', value);
 
@@ -116,60 +120,79 @@ class Car extends _Car with RealmObject {
   set any(RealmAny value) => RealmObject.set(this, 'any', value);
 
   @override
-  List<int> get serviceAt => RealmObject.get<List<int>>(this, 'serviceAt') as List<int>;
+  List<int> get serviceAt =>
+      RealmObject.get<int>(this, 'serviceAt') as List<int>;
   @override
   set serviceAt(List<int> value) => RealmObject.set(this, 'serviceAt', value);
 
   @override
-  Set<String> get part => RealmObject.get<Set<String>>(this, 'part') as Set<String>;
+  Set<String> get part => RealmObject.get<String>(this, 'part') as Set<String>;
   @override
   set part(Set<String> value) => RealmObject.set(this, 'part', value);
 
   @override
-  Map<String, String> get properties => RealmObject.get<Map<String, String>>(this, 'properties') as Map<String, String>;
+  Map<String, String> get properties =>
+      RealmObject.get<String>(this, 'properties') as Map<String, String>;
   @override
-  set properties(Map<String, String> value) => RealmObject.set(this, 'properties', value);
+  set properties(Map<String, String> value) =>
+      RealmObject.set(this, 'properties', value);
 
-  static const schema = SchemaObject(Car, [
-    SchemaProperty('make', RealmPropertyType.string),
-    SchemaProperty('person', RealmPropertyType.object),
-    SchemaProperty('bytes', RealmPropertyType.binary),
-    SchemaProperty('who', RealmPropertyType.int, optional: true),
-    SchemaProperty('b', RealmPropertyType.bool),
-    SchemaProperty('text', RealmPropertyType.string),
-    SchemaProperty('i', RealmPropertyType.int),
-    SchemaProperty('d', RealmPropertyType.double),
-    SchemaProperty('data', RealmPropertyType.binary),
-    SchemaProperty('timestamp', RealmPropertyType.timestamp),
-    SchemaProperty('id', RealmPropertyType.objectid),
-    SchemaProperty('decimal', RealmPropertyType.decimal128),
-    SchemaProperty('uuid', RealmPropertyType.uuid),
-    SchemaProperty('any', RealmPropertyType.mixed),
-    SchemaProperty('serviceAt', RealmPropertyType.int),
-    SchemaProperty('part', RealmPropertyType.string),
-    SchemaProperty('properties', RealmPropertyType.string),
-  ]);
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory<Car>(() => Car._());
+    return const SchemaObject(Car, [
+      SchemaProperty('make', RealmPropertyType.string),
+      SchemaProperty('person', RealmPropertyType.object, linkTarget: 'Person'),
+      SchemaProperty('bytes', RealmPropertyType.binary),
+      SchemaProperty('who', RealmPropertyType.int, optional: true),
+      SchemaProperty('b', RealmPropertyType.bool),
+      SchemaProperty('text', RealmPropertyType.string),
+      SchemaProperty('i', RealmPropertyType.int),
+      SchemaProperty('d', RealmPropertyType.double),
+      SchemaProperty('data', RealmPropertyType.binary),
+      SchemaProperty('timestamp', RealmPropertyType.timestamp),
+      SchemaProperty('id', RealmPropertyType.objectid),
+      SchemaProperty('decimal', RealmPropertyType.decimal128),
+      SchemaProperty('uuid', RealmPropertyType.uuid),
+      SchemaProperty('any', RealmPropertyType.mixed),
+      SchemaProperty('serviceAt', RealmPropertyType.int,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('part', RealmPropertyType.string,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('properties', RealmPropertyType.string,
+          collectionType: RealmCollectionType.dictionary),
+    ]);
+  }
 }
 
 class Person extends _Person with RealmObject {
-  Person({
-    required String name,
+  static var _defaultsSet = false;
+
+  Person(
+    String name,
+    int born,
+    Car car, {
     int? age,
-    required int born,
-    required Car car,
   }) {
     _name = name;
-    this.age = age ?? 47;
+    if (age != null) this.age = age;
     this.born = born;
     this.car = car;
+    _defaultsSet = _defaultsSet ||
+        RealmObject.setDefaults<Person>({
+          'age': 47,
+        });
   }
+
+  Person._();
 
   @override
   String get name => RealmObject.get<String>(this, 'navn') as String;
   set _name(String value) => RealmObject.set(this, 'navn', value);
 
   @override
-  int? get age => RealmObject.get<int?>(this, 'age') as int?;
+  int? get age => RealmObject.get<int>(this, 'age') as int?;
   @override
   set age(int? value) => RealmObject.set(this, 'age', value);
 
@@ -183,10 +206,16 @@ class Person extends _Person with RealmObject {
   @override
   set car(covariant Car value) => RealmObject.set(this, 'car', value);
 
-  static const schema = SchemaObject(Person, [
-    SchemaProperty('navn', RealmPropertyType.string, mapTo: 'navn', primaryKey: true),
-    SchemaProperty('age', RealmPropertyType.int, optional: true),
-    SchemaProperty('born', RealmPropertyType.int),
-    SchemaProperty('car', RealmPropertyType.object),
-  ]);
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory<Person>(() => Person._());
+    return const SchemaObject(Person, [
+      SchemaProperty('navn', RealmPropertyType.string,
+          mapTo: 'navn', primaryKey: true),
+      SchemaProperty('age', RealmPropertyType.int, optional: true),
+      SchemaProperty('born', RealmPropertyType.int),
+      SchemaProperty('car', RealmPropertyType.object, linkTarget: 'Car'),
+    ]);
+  }
 }

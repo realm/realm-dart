@@ -99,7 +99,8 @@ class Dog extends _Dog with RealmObject {
     return const SchemaObject(Dog, [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('age', RealmPropertyType.int, optional: true),
-      SchemaProperty('owner', RealmPropertyType.object, optional: true, linkTarget: 'Person'),
+      SchemaProperty('owner', RealmPropertyType.object,
+          optional: true, linkTarget: 'Person'),
     ]);
   }
 }
@@ -122,8 +123,10 @@ class Team extends _Team with RealmObject {
   set name(String value) => RealmObject.set(this, 'name', value);
 
   @override
-  List<Person> get players => RealmObject.get<Person>(this, 'players') as List<Person>;
-  set _players(covariant List<Person> value) => RealmObject.set(this, 'players', value);
+  List<Person> get players =>
+      RealmObject.get<Person>(this, 'players') as List<Person>;
+  set _players(covariant List<Person> value) =>
+      RealmObject.set(this, 'players', value);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -131,7 +134,8 @@ class Team extends _Team with RealmObject {
     RealmObject.registerFactory<Team>(() => Team._());
     return const SchemaObject(Team, [
       SchemaProperty('name', RealmPropertyType.string),
-      SchemaProperty('players', RealmPropertyType.object, linkTarget: 'Person', collectionType: RealmCollectionType.list),
+      SchemaProperty('players', RealmPropertyType.object,
+          linkTarget: 'Person', collectionType: RealmCollectionType.list),
     ]);
   }
 }

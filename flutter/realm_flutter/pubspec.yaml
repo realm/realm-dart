@@ -39,8 +39,6 @@ dev_dependencies:
   json_serializable: ^6.1.0
   lints: ^1.0.1
   test: ^1.14.3
-  realm_dart:
-    path: ../../ # Hack to get tests compiling .. I hate those symlinks
 
 flutter:
   plugin:
