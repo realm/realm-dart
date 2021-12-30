@@ -18,7 +18,7 @@ class _Foo {
 }''',
       },
       outputs: {
-        'pkg|lib/src/test.RealmObjects.g.part':
+        'pkg|lib/src/test.realm_objects.g.part':
             '// **************************************************************************\n'
                 '// RealmObjectGenerator\n'
                 '// **************************************************************************\n'

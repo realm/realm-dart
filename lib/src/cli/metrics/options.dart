@@ -1,3 +1,4 @@
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Copyright 2021 Realm Inc.
@@ -16,10 +17,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:io';
-
 import 'package:build_cli_annotations/build_cli_annotations.dart';
-import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:path/path.dart' as path;
 import 'target_os_type.dart';
 

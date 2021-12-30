@@ -23,7 +23,6 @@ import 'package:crypto/crypto.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'target_os_type.dart';
-import 'utils.dart';
 
 part 'metrics.g.dart';
 

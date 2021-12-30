@@ -2,11 +2,9 @@ targets:
   $default:
     builders:
       build_cli:
-        enabled: false
         generate_for:
           - lib/src/cli/metrics/options.dart
       json_serializable:
-        enabled: false
         generate_for:
           - lib/src/cli/metrics/flutter_info.dart
           - lib/src/cli/metrics/metrics.dart
