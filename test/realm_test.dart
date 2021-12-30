@@ -464,16 +464,16 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       var cars = realm.all<Car>();
-      expect(cars.isEmpty(), true);
+      expect(cars.isEmpty, true);
 
       final car = Car();
       realm.write(() => realm.add(car));
 
-      expect(cars.isEmpty(), false);
+      expect(cars.isEmpty, false);
 
       realm.write(() => realm.remove(car));
 
-      expect(cars.isEmpty(), true);
+      expect(cars.isEmpty, true);
     });
 
     test('Results get by index', () {
@@ -634,7 +634,7 @@ Future<void> main([List<String>? args]) async {
       expect(personsFromDB.length, 0);
     });
 
-    test('RealmResults RemoveAll', () {
+    test('Realm RemoveMany from RealmResults', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -648,7 +648,7 @@ Future<void> main([List<String>? args]) async {
       expect(teams.length, 2);
 
       //Remove all objects in RealmResults from DB
-      realm.write(() => teams.removeAll());
+      realm.write(() => realm.removeMany(teams));
       teams = realm.all<Team>();
       expect(teams.length, 0);
     });

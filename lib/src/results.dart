@@ -95,7 +95,7 @@ class _ResultsList<T extends RealmObject> extends collection.ListBase<T> {
 /// Instances of this class are typically live collections returned by [Realm.objects]
 /// that will update as new objects are either added to or deleted from the Realm
 /// that match the underlying query.
-class RealmResults<T extends RealmObject> {
+class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   late final RealmResultsHandle _handle;
   late final Realm _realm;
   // RealmResults _results;
@@ -136,21 +136,17 @@ class RealmResults<T extends RealmObject> {
   //   return _ResultsList(this);
   // }
   
-
-  ///Removes all the objects matching results from database
-  void removeAll() {
-    realmCore.realmResultsDeleteAll(this);
-  }
-
   /// Returns the index of the given object in the Results collection.
   // int indexOf(T value) {
   //   return _results.indexOf(value);
   // }
 
   /// Returns `true` if the Results collection is empty
-  bool isEmpty() {
-    return length == 0;
-  }
+  @override
+  bool get isEmpty => length == 0;
+  
+  @override
+  Iterator<T> get iterator => RealmResultsIterator(this);
 
   /// Returns `true` if this Results collection has not been deleted and is part of a valid Realm.
   ///
@@ -158,8 +154,9 @@ class RealmResults<T extends RealmObject> {
   // bool get isValid => _results.isValid();
 
   /// Returns the number of values in the Results collection.
+  @override
   int get length => realmCore.getResultsCount(this);
-
+  
   /// Returns a human-readable description of the objects contained in the collection.
   // String get description => _results.description;
 
@@ -213,3 +210,34 @@ extension RealmResultsInternal on RealmResults {
     return RealmResults<T>._(handle, realm);
   }
 }
+
+class RealmResultsIterator<T extends RealmObject> implements Iterator<T> {
+  final Iterable<T> _iterable;
+  final int _length;
+  int _index;
+  T? _current;
+
+  RealmResultsIterator(Iterable<T> iterable)
+      : _iterable = iterable,
+        _length = iterable.length,  
+        _index = 0;
+
+  @override
+  T get current => _current as T;
+
+  @override
+  bool moveNext() {
+    int length = _iterable.length;
+    if (_length != length) {
+      throw ConcurrentModificationError(_iterable);
+    }
+    if (_index >= length) {
+      _current = null;
+      return false;
+    }
+    _current = _iterable.elementAt(_index);
+    _index++;
+    return true;
+  }
+}
+

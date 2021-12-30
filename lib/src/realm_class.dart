@@ -87,8 +87,10 @@ class Realm {
     realmCore.removeRealmObject(object);
   }
 
-  void removeMany<T extends RealmObject>(List<T> list) {
-    if (list is RealmList<T>) {
+  void removeMany<T extends RealmObject>(Iterable<T> list) {
+    if (list is RealmResults<T>) {
+      realmCore.realmResultsDeleteAll(list);
+    } else if (list is RealmList<T>) {
       realmCore.realmListRemoveAll(list);
     } else {
       for (T realmObject in list) {
