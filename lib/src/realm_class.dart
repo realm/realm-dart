@@ -87,16 +87,16 @@ class Realm {
     realmCore.removeRealmObject(object);
   }
 
-  void removeMany<T extends RealmObject>(Iterable<T> list) {
+  void removeMany<T extends RealmObject>(Iterable<T> items) {
     try {
-      if (list is RealmResults<T>) {
-      realmCore.realmResultsDeleteAll(list);
-    } else if (list is RealmList<T>) {
-      realmCore.realmListRemoveAll(list);
-    } else {
-      for (T realmObject in list) {
-        realmCore.removeRealmObject(realmObject);
-      }
+      if (items is RealmResults<T>) {
+        realmCore.realmResultsRemoveAll(items);
+      } else if (items is RealmList<T>) {
+        realmCore.realmListRemoveAll(items);
+      } else {
+        for (T realmObject in items) {
+          realmCore.removeRealmObject(realmObject);
+        }
       }
     } catch (e) {
       throw RealmException("Error deleting objects from databse. Error: $e");

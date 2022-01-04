@@ -571,8 +571,10 @@ Future<void> main([List<String>? args]) async {
       for (var i = 0; i < itemsCount; i++) {
         list.add(teams[i]);
       }
-   
+
       realm.write(() => realm.removeMany(list));
+      
+      //Reload teams from database and ensure they are removed
       teams = realm.all<Team>();
       expect(teams.length, 0);
     });
@@ -599,7 +601,10 @@ Future<void> main([List<String>? args]) async {
       //Remove team players
       realm.write(() => realm.removeMany(teams[0].players));
 
-      //Ensure persons are deleted from DB
+      //Ensure persons are deleted from collection
+       expect(teams[0].players.length, 0);
+
+      //Reload persons from database and ensure they are removed
       final personsFromDB = realm.all<Person>();
       expect(personsFromDB.length, 0);
     });
@@ -619,8 +624,7 @@ Future<void> main([List<String>? args]) async {
         Person()..name = "Sebastian Vettel",
         Person()..name = "Kimi Räikkönen"
       ];
-      realm.write(() =>
-          {teamOne.players.addAll(players), teamTwo.players.addAll(players)});
+      realm.write(() => {teamOne.players.addAll(players), teamTwo.players.addAll(players)});
 
       //Ensule teams exist in DB
       var teams = realm.all<Team>();
@@ -629,7 +633,10 @@ Future<void> main([List<String>? args]) async {
       //Remove all players in a team
       realm.write(() => realm.removeMany(teams[0].players));
 
-      //Ensure all persons are deleted from DB
+      //Ensure all persons are deleted from collection
+      expect(teams[0].players.length, 0);
+
+      //Reload persons from database and ensure they are removed
       final personsFromDB = realm.all<Person>();
       expect(personsFromDB.length, 0);
     });
@@ -649,6 +656,9 @@ Future<void> main([List<String>? args]) async {
 
       //Remove all objects in RealmResults from DB
       realm.write(() => realm.removeMany(teams));
+      expect(teams.length, 0);
+
+      //Reload teams from databse and ensure they are removed
       teams = realm.all<Team>();
       expect(teams.length, 0);
     });
@@ -672,15 +682,13 @@ Future<void> main([List<String>? args]) async {
 
       //Try to delete team players while realm is closed
       final playersToDelete = teams[0].players;
-      expect(() => realm.write(() => {realm.close(),
-          realm.removeMany(playersToDelete)}),
+      expect(() => realm.write(() => {realm.close(), realm.removeMany(playersToDelete)}),
           throws<RealmException>("Error deleting objects from databse"));
 
-      //Ensure all persons still exists in DB
+      //Ensure all persons still exists in database
       realm = Realm(config);
       final personsFromDB = realm.all<Person>();
       expect(personsFromDB.length, 3);
-      
     });
   });
 }

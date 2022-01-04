@@ -135,7 +135,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   // List<T> asList() {
   //   return _ResultsList(this);
   // }
-  
+
   /// Returns the index of the given object in the Results collection.
   // int indexOf(T value) {
   //   return _results.indexOf(value);
@@ -144,7 +144,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   /// Returns `true` if the Results collection is empty
   @override
   bool get isEmpty => length == 0;
-  
+
   @override
   Iterator<T> get iterator => RealmResultsIterator(this);
 
@@ -156,7 +156,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   /// Returns the number of values in the Results collection.
   @override
   int get length => realmCore.getResultsCount(this);
-  
+
   /// Returns a human-readable description of the objects contained in the collection.
   // String get description => _results.description;
 
@@ -215,15 +215,14 @@ class RealmResultsIterator<T extends RealmObject> implements Iterator<T> {
   final Iterable<T> _iterable;
   final int _length;
   int _index;
-  T? _current;
 
   RealmResultsIterator(Iterable<T> iterable)
       : _iterable = iterable,
-        _length = iterable.length,  
+        _length = iterable.length,
         _index = 0;
 
   @override
-  T get current => _current as T;
+  T get current => (_index >= 0 && _index < _length) ? _iterable.elementAt(_index) : null as T;
 
   @override
   bool moveNext() {
@@ -232,12 +231,9 @@ class RealmResultsIterator<T extends RealmObject> implements Iterator<T> {
       throw ConcurrentModificationError(_iterable);
     }
     if (_index >= length) {
-      _current = null;
       return false;
     }
-    _current = _iterable.elementAt(_index);
     _index++;
     return true;
   }
 }
-
