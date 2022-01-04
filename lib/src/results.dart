@@ -146,7 +146,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   bool get isEmpty => length == 0;
 
   @override
-  Iterator<T> get iterator => RealmResultsIterator(this);
+  Iterator<T> get iterator => _RealmResultsIterator(this);
 
   /// Returns `true` if this Results collection has not been deleted and is part of a valid Realm.
   ///
@@ -211,13 +211,13 @@ extension RealmResultsInternal on RealmResults {
   }
 }
 
-class RealmResultsIterator<T extends RealmObject> implements Iterator<T> {
+class _RealmResultsIterator<T extends RealmObject> implements Iterator<T> {
   final RealmResults<T> _results;
   final int _length;
   int _index;
   T? _current;
 
-  RealmResultsIterator(RealmResults<T> results)
+  _RealmResultsIterator(RealmResults<T> results)
       : _results = results,
         _length = results.length,
         _index = 0;
