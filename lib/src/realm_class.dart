@@ -83,10 +83,18 @@ class Realm {
     return object;
   }
 
+  /// Removes given [RealmObject] from Realm database.
+  /// Throws [RealmException] on error.
   void remove<T extends RealmObject>(T object) {
-    realmCore.removeRealmObject(object);
+    try {
+      realmCore.removeRealmObject(object);
+    } catch (e) {
+      throw RealmException("Error deleting object from databse. Error: $e");
+    }
   }
 
+  /// Removes [RealmObject] items in given collection from Realm database.
+  /// Throws [RealmException] on error.
   void removeMany<T extends RealmObject>(Iterable<T> items) {
     try {
       if (items is RealmResults<T>) {
