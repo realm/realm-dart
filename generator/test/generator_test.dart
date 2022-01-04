@@ -90,9 +90,9 @@ class _Bar {
   late Uuid uuid;
   @Ignored()
   var theMeaningOfEverything = 42;
-  var list = [0]; // list of ints with default value
-  Set<int> set;
-  var map = <String, int>{};
+  final list = [0]; // list of ints with default value
+  late final Set<int> set;
+  final map = <String, int>{};
 
   @Indexed()
   String? anOptionalString;

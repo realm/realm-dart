@@ -17,9 +17,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/constant/value.dart';
+import 'package:source_span/source_span.dart';
+import 'element.dart';
 
 class AnnotationValue {
   final Annotation annotation;
   final DartObject value;
   AnnotationValue(this.annotation, this.value);
+
+  FileSpan? span(SourceFile file) => annotation.span(file);
+
+  @override
+  String toString() => value.toStringValue()!;
 }

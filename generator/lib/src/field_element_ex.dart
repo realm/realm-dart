@@ -21,12 +21,14 @@ import 'package:build/build.dart';
 import 'package:realm_annotations/realm_annotations.dart';
 import 'package:realm_generator/src/annotation_value.dart';
 import 'package:source_gen/source_gen.dart';
+import 'package:source_span/source_span.dart';
 
 import 'dart_type_ex.dart';
 import 'element.dart';
 import 'error.dart';
 import 'format_spans.dart';
 import 'realm_field_info.dart';
+import 'session.dart';
 import 'type_checkers.dart';
 import 'utils.dart';
 
@@ -40,6 +42,25 @@ extension FieldElementEx on FieldElement {
       annotationInfoOfExact(primaryKeyChecker);
 
   AnnotationValue? get indexedInfo => annotationInfoOfExact(indexedChecker);
+
+  TypeAnnotation? get typeAnnotation => declarationAstNode.fields.type;
+
+  Expression? get initializerExpression => declarationAstNode.fields.variables
+      .singleWhere((v) => v.name.name == name)
+      .initializer;
+
+  FileSpan? typeSpan(SourceFile file) =>
+      (typeAnnotation ?? initializerExpression)?.span(file) ?? span;
+
+  // Works even if type of field is unresolved
+  String get typeText =>
+      (typeAnnotation ?? initializerExpression?.staticType ?? type).toString();
+
+  String get typeModelName =>
+      type.isDynamic ? typeText : type.getDisplayString(withNullability: true);
+
+  // TODO: using replaceAll is a hack
+  String get typeName => typeModelName.replaceAll(session.prefix, '');
 
   RealmFieldInfo? get realmInfo {
     try {
@@ -55,11 +76,7 @@ extension FieldElementEx on FieldElement {
 
       if (primaryKey != null && optional) {
         final modelSpan = enclosingElement.span!;
-        final fieldDeclaration = declarationAstNode;
-        final typeAnnotation = fieldDeclaration.fields.type!;
         final file = modelSpan.file;
-        final typeText =
-            typeAnnotation.type!.getDisplayString(withNullability: false);
         throw RealmInvalidGenerationSourceError(
           'Primary key cannot be nullable',
           element: this,
@@ -68,11 +85,11 @@ extension FieldElementEx on FieldElement {
             primaryKey.annotation.span(file):
                 "the primary key '$displayName' is"
           },
-          primarySpan: typeAnnotation.span(file),
+          primarySpan: typeSpan(file),
           primaryLabel: 'nullable',
           todo: //
               'Consider using the @Indexed() annotation instead, '
-              "or make '$displayName' ${anOrA(typeText)} $typeText.",
+              "or make '$displayName' ${anOrA(typeText)} ${type.asNonNullable}.",
         );
       }
       if (primaryKey != null && indexed != null) {
@@ -102,13 +119,6 @@ extension FieldElementEx on FieldElement {
               ].contains(type.realmType) ||
               type.realmCollectionType != RealmCollectionType.none)) {
         final file = shortSpan!.file;
-        final fieldDeclaration = declarationAstNode;
-        final typeAnnotation = fieldDeclaration.fields.type;
-        final initializerExpression = fieldDeclaration.fields.variables
-            .singleWhere((v) => v.name.name == name)
-            .initializer;
-        final typeText =
-            (typeAnnotation ?? initializerExpression?.staticType).toString();
         final annotation = (primaryKey ?? indexed)!.annotation;
 
         throw RealmInvalidGenerationSourceError(
@@ -119,11 +129,52 @@ extension FieldElementEx on FieldElement {
                 "in realm model '${enclosingElement.displayName}'",
             annotation.span(file): "index is requested on '$displayName', but",
           },
-          primarySpan: (typeAnnotation ?? initializerExpression)!.span(file),
+          primarySpan: typeSpan(file),
           primaryLabel: "$typeText is not an indexable type",
           todo: //
               "Change the type of '$displayName', "
               "or remove the $annotation annotation",
+        );
+      }
+
+      final realmType = type.realmType;
+      if (realmType == null) {
+        final notARealmTypeSpan = type.element?.span;
+        String todo;
+        if (notARealmTypeSpan != null) {
+          todo = //
+              "Add a @RealmModel annotation on '$typeName', "
+              "or an @Ignored annotation on '$displayName'.";
+        } else if (type.isDynamic &&
+            typeName != 'dynamic' &&
+            !typeName.startsWith(session.prefix)) {
+          todo = "Did you intend to use _$typeName as type for '$displayName'?";
+        } else {
+          todo = "Add an @Ignored annotation on '$displayName'.";
+        }
+
+        final modelElement = enclosingElement;
+        final modelSpan = modelElement.span!;
+        final file = modelSpan.file;
+        throw RealmInvalidGenerationSourceError(
+          'Not a realm type',
+          element: this,
+          primarySpan: typeSpan(file),
+          primaryLabel: '$typeText is not a realm type',
+          secondarySpans: {
+            modelSpan: "in realm model '${modelElement.displayName}'",
+            // may go both above and below, or stem from another file
+            if (notARealmTypeSpan != null) notARealmTypeSpan: ''
+          },
+          todo: todo,
+        );
+      }
+
+      if (type.isRealmCollection && !isFinal) {
+        throw RealmInvalidGenerationSourceError(
+          'Realm collection field is not final',
+          todo: "Add a final keyword to the definition of '$displayName'",
+          element: this,
         );
       }
 

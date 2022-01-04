@@ -48,13 +48,9 @@ class RealmFieldInfo {
   String get name => fieldElement.name;
   String get realmName => mapTo ?? name;
 
-  String get basicTypeName => type.basicType
-      .toString()
-      .replaceAll(session.prefix, ''); // TODO: using replaceAll is a hack
+  String get basicTypeName => type.basicName;
 
-  String get typeModelName => type.isDynamic
-      ? fieldElement.declarationAstNode.fields.type.toString() // read from AST
-      : type.getDisplayString(withNullability: true);
+  String get typeModelName => fieldElement.typeModelName;
 
   String get typeName => typeModelName.replaceAll(
       session.prefix, ''); // TODO: using replaceAll is a hack
@@ -79,14 +75,11 @@ class RealmFieldInfo {
       todo = "Add an @Ignored annotation on '$this'.";
     }
 
-    final fieldDeclaration = fieldElement.declarationAstNode;
     final modelElement = fieldElement.enclosingElement;
     final modelSpan = modelElement.span!;
     final file = modelSpan.file;
-    final typeAnnotation = fieldDeclaration.fields.type;
-    final initializerExpression = fieldDeclaration.fields.variables
-        .singleWhere((v) => v.name.name == name)
-        .initializer;
+    final typeAnnotation = fieldElement.typeAnnotation;
+    final initializerExpression = fieldElement.initializerExpression;
     final typeText =
         (typeAnnotation ?? initializerExpression?.staticType).toString();
 

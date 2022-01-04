@@ -61,6 +61,9 @@ extension DartTypeEx on DartType {
     return this;
   }
 
+  // TODO: Using replaceAll is a hack.
+  String get basicName => toString().replaceAll(session.prefix, '');
+
   DartType get mappedType {
     final self = this;
     if (isRealmCollection) {
