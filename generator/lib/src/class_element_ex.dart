@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:source_gen/source_gen.dart';
 import 'annotation_value.dart';
 import 'error.dart';
@@ -82,6 +83,7 @@ extension ClassElementEx on ClassElement {
       final modelName = this.name;
       final mappedFields = fields.realmInfo.toList();
 
+      // If mapTo annotation used, ensure that a valid name is specified.
       final mapTo = mapToInfo;
       if (mapTo != null) {
         final name = mapTo.value.getField('name')!.toStringValue()!;
@@ -105,14 +107,14 @@ extension ClassElementEx on ClassElement {
         return RealmModelInfo(name, modelName, mappedFields);
       }
 
+      // Else, ensure a valid prefix and suffix is used.
       final prefix = session.prefix;
       var suffix = session.suffix;
-
       if (!modelName.startsWith(prefix)) {
         throw RealmInvalidGenerationSourceError(
           'Missing prefix on realm model name',
           element: this,
-          primarySpan: shortSpan!,
+          primarySpan: shortSpan,
           primaryLabel: 'missing prefix',
           secondarySpans: {span!: "on realm model '$displayName'"},
           todo: //
@@ -125,20 +127,44 @@ extension ClassElementEx on ClassElement {
         throw RealmInvalidGenerationSourceError(
           'Missing suffix on realm model name',
           element: this,
-          primarySpan: shortSpan!,
+          primarySpan: shortSpan,
           primaryLabel: 'missing suffix',
           secondarySpans: {span!: "on realm model '$displayName'"},
-          //'Expected suffix: $suffix',
           todo: //
               'Either add a @MapTo annotation, '
               'or align class name to suffix $suffix',
         );
       }
 
-      // remove suffix and prefix, if any
+      // Remove suffix and prefix, if any.
       final name = modelName
           .substring(0, modelName.length - suffix.length)
           .replaceFirst(prefix, '');
+
+      // Check that realm model class does not extend another class than Object (not supported for now).
+      if (supertype != session.typeProvider.objectType) {
+        throw RealmInvalidGenerationSourceError(
+          'Realm model classes can only extend Object',
+          primarySpan: shortSpan,
+          primaryLabel: 'cannot extend $supertype',
+          secondarySpans: {span!: "on realm model '$displayName'"},
+          todo: '',
+          element: this,
+        );
+      }
+
+      // Check that no constructor is defined.
+      final explicitCtors = constructors.where((c) => !c.isSynthetic);
+      if (explicitCtors.isNotEmpty) {
+        throw RealmInvalidGenerationSourceError(
+          'No constructors allowed on realm model classes',
+          element: this,
+          primarySpan: explicitCtors.first.span,
+          primaryLabel: 'illegal constructor',
+          secondarySpans: {span!: "on realm model '$displayName'"},
+          todo: 'Remove constructor',
+        );
+      }
 
       return RealmModelInfo(
         name,
@@ -148,7 +174,7 @@ extension ClassElementEx on ClassElement {
     } on InvalidGenerationSourceError catch (_) {
       rethrow;
     } catch (e) {
-      // Fallback. Not perfect, but better than just forwarding original error
+      // Fallback. Not perfect, but better than just forwarding original error.
       throw RealmInvalidGenerationSourceError(
         '$e',
         todo: //

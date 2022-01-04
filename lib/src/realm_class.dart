@@ -32,6 +32,7 @@ export 'realm_object.dart'
     hide RealmObjectInternal, RealmAccessor, RealmValuesAccessor, RealmMetadata, RealmCoreAccessor, RealmClassMetadata, RealmPropertyMetadata;
 export "configuration.dart" hide ConfigurationInternal;
 export 'package:realm_annotations/realm_annotations.dart';
+export 'realm_property.dart';
 export 'helpers.dart';
 
 /// A Realm instance represents a Realm database.

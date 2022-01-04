@@ -575,4 +575,81 @@ class _Bad {
       )),
     );
   });
+
+  test('invalid extend', () async {
+    await expectLater(
+      () async => await testBuilder(
+        generateRealmObjects(),
+        {
+          'pkg|lib/src/test.dart': r'''
+import 'package:realm_annotations/realm_annotations.dart';
+
+part 'test.g.dart';
+
+class Base {}
+
+@RealmModel()
+class _Bad extends Base { 
+  @PrimaryKey()
+  late final int id;
+}
+'''
+        },
+        reader: await PackageAssetReader.currentIsolate(),
+      ),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+        (e) => e.toString(),
+        'toString()',
+        'Realm model classes can only extend Object\n'
+            '\n'
+            'in: package:pkg/src/test.dart:8:7\n'
+            '  ╷\n'
+            '7 │ ┌ @RealmModel()\n'
+            '8 │ │ class _Bad extends Base { \n'
+            '  │ │       ^^^^ cannot extend Base\n'
+            '  │ └─── on realm model \'_Bad\'\n'
+            '  ╵',
+      )),
+    );
+  });
+
+  test('illigal constructor', () async {
+    await expectLater(
+      () async => await testBuilder(
+        generateRealmObjects(),
+        {
+          'pkg|lib/src/test.dart': r'''
+import 'package:realm_annotations/realm_annotations.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+class _Bad extends Base { 
+  @PrimaryKey()
+  late final int id;
+
+  _Bad(this.id);
+}
+'''
+        },
+        reader: await PackageAssetReader.currentIsolate(),
+      ),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+        (e) => e.toString(),
+        'toString()',
+        'No constructors allowed on realm model classes\n'
+            '\n'
+            'in: package:pkg/src/test.dart:10:3\n'
+            '    ╷\n'
+            '5   │ ┌ @RealmModel()\n'
+            '6   │ │ class _Bad extends Base { \n'
+            '    │ └─── on realm model \'_Bad\'\n'
+            '... │\n'
+            '10  │     _Bad(this.id);\n'
+            '    │     ^ illegal constructor\n'
+            '    ╵\n'
+            'Remove constructor\n',
+      )),
+    );
+  });
 }
