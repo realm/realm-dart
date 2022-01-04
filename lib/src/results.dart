@@ -212,27 +212,30 @@ extension RealmResultsInternal on RealmResults {
 }
 
 class RealmResultsIterator<T extends RealmObject> implements Iterator<T> {
-  final Iterable<T> _iterable;
+  final RealmResults<T> _results;
   final int _length;
   int _index;
+  T? _current;
 
-  RealmResultsIterator(Iterable<T> iterable)
-      : _iterable = iterable,
-        _length = iterable.length,
+  RealmResultsIterator(RealmResults<T> results)
+      : _results = results,
+        _length = results.length,
         _index = 0;
 
   @override
-  T get current => (_index >= 0 && _index < _length) ? _iterable.elementAt(_index) : null as T;
+  T get current => _current as T;
 
   @override
   bool moveNext() {
-    int length = _iterable.length;
+    int length = _results.length;
     if (_length != length) {
-      throw ConcurrentModificationError(_iterable);
+      throw ConcurrentModificationError(_results);
     }
     if (_index >= length) {
+      _current = null;
       return false;
     }
+    _current = _results[_index];
     _index++;
     return true;
   }

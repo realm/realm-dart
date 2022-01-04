@@ -690,5 +690,28 @@ Future<void> main([List<String>? args]) async {
       final personsFromDB = realm.all<Person>();
       expect(personsFromDB.length, 3);
     });
+
+    test('RealmResults iteration test', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      //Create two Teams
+      final teamOne = Team()..name = "team One";
+      final teamTwo = Team()..name = "team Two";
+      realm.write(() => {realm.add(teamOne), realm.add(teamTwo)});
+
+      //Get teams from database
+      var teams = realm.all<Team>();
+      expect(teams.length, 2);
+     
+      //Iterate through teams and add realm objects to a list
+      List<Team> list = [];
+      for (Team team in teams) {
+        list.add(team);
+      }
+
+      //Ensure list size is the same like teams collection
+      expect(list.length, teams.length);
+    });
   });
 }
