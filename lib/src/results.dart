@@ -213,13 +213,11 @@ extension RealmResultsInternal on RealmResults {
 
 class _RealmResultsIterator<T extends RealmObject> implements Iterator<T> {
   final RealmResults<T> _results;
-  final int _length;
   int _index;
   T? _current;
 
   _RealmResultsIterator(RealmResults<T> results)
       : _results = results,
-        _length = results.length,
         _index = 0;
 
   @override
@@ -228,9 +226,6 @@ class _RealmResultsIterator<T extends RealmObject> implements Iterator<T> {
   @override
   bool moveNext() {
     int length = _results.length;
-    if (_length != length) {
-      throw ConcurrentModificationError(_results);
-    }
     if (_index >= length) {
       _current = null;
       return false;
