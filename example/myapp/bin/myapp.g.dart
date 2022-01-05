@@ -11,7 +11,6 @@ class Car extends _Car with RealmObject {
 
   Car(
     String make,
-    Person person,
     bool b,
     String text,
     int i,
@@ -22,11 +21,12 @@ class Car extends _Car with RealmObject {
     Decimal128 decimal,
     Uuid uuid,
     RealmAny any, {
+    Person? person,
     Uint8List? bytes,
     int? who,
   }) {
     this.make = make;
-    this.person = person;
+    if (person != null) this.person = person;
     if (bytes != null) this.bytes = bytes;
     if (who != null) this.who = who;
     this.b = b;
@@ -53,9 +53,9 @@ class Car extends _Car with RealmObject {
   set make(String value) => RealmObject.set(this, 'make', value);
 
   @override
-  Person get person => RealmObject.get<Person>(this, 'person') as Person;
+  Person? get person => RealmObject.get<Person>(this, 'person') as Person?;
   @override
-  set person(covariant Person value) => RealmObject.set(this, 'person', value);
+  set person(covariant Person? value) => RealmObject.set(this, 'person', value);
 
   @override
   Uint8List get bytes => RealmObject.get<Uint8List>(this, 'bytes') as Uint8List;
@@ -122,19 +122,16 @@ class Car extends _Car with RealmObject {
   @override
   List<int> get serviceAt =>
       RealmObject.get<int>(this, 'serviceAt') as List<int>;
-  @override
-  set serviceAt(List<int> value) => RealmObject.set(this, 'serviceAt', value);
+  set _serviceAt(List<int> value) => RealmObject.set(this, 'serviceAt', value);
 
   @override
   Set<String> get part => RealmObject.get<String>(this, 'part') as Set<String>;
-  @override
-  set part(Set<String> value) => RealmObject.set(this, 'part', value);
+  set _part(Set<String> value) => RealmObject.set(this, 'part', value);
 
   @override
   Map<String, String> get properties =>
       RealmObject.get<String>(this, 'properties') as Map<String, String>;
-  @override
-  set properties(Map<String, String> value) =>
+  set _properties(Map<String, String> value) =>
       RealmObject.set(this, 'properties', value);
 
   static SchemaObject get schema => _schema ??= _initSchema();
@@ -143,7 +140,8 @@ class Car extends _Car with RealmObject {
     RealmObject.registerFactory<Car>(() => Car._());
     return const SchemaObject(Car, [
       SchemaProperty('make', RealmPropertyType.string),
-      SchemaProperty('person', RealmPropertyType.object, linkTarget: 'Person'),
+      SchemaProperty('person', RealmPropertyType.object,
+          optional: true, linkTarget: 'Person'),
       SchemaProperty('bytes', RealmPropertyType.binary),
       SchemaProperty('who', RealmPropertyType.int, optional: true),
       SchemaProperty('b', RealmPropertyType.bool),
@@ -171,14 +169,14 @@ class Person extends _Person with RealmObject {
 
   Person(
     String name,
-    int born,
-    Car car, {
+    int born, {
     int? age,
+    Car? car,
   }) {
     _name = name;
     if (age != null) this.age = age;
     this.born = born;
-    this.car = car;
+    if (car != null) this.car = car;
     _defaultsSet = _defaultsSet ||
         RealmObject.setDefaults<Person>({
           'age': 47,
@@ -202,9 +200,9 @@ class Person extends _Person with RealmObject {
   set born(int value) => RealmObject.set(this, 'born', value);
 
   @override
-  Car get car => RealmObject.get<Car>(this, 'car') as Car;
+  Car? get car => RealmObject.get<Car>(this, 'car') as Car?;
   @override
-  set car(covariant Car value) => RealmObject.set(this, 'car', value);
+  set car(covariant Car? value) => RealmObject.set(this, 'car', value);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -215,7 +213,8 @@ class Person extends _Person with RealmObject {
           mapTo: 'navn', primaryKey: true),
       SchemaProperty('age', RealmPropertyType.int, optional: true),
       SchemaProperty('born', RealmPropertyType.int),
-      SchemaProperty('car', RealmPropertyType.object, linkTarget: 'Car'),
+      SchemaProperty('car', RealmPropertyType.object,
+          optional: true, linkTarget: 'Car'),
     ]);
   }
 }

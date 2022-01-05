@@ -8,7 +8,7 @@ part 'myapp.g.dart';
 @RealmModel()
 class _Car {
   late String make;
-  late _Person person;
+  late _Person? person;
   var bytes = Uint8List(10);
   int? who;
 
@@ -26,14 +26,14 @@ class _Car {
   late RealmAny any;
 
   // List<int> with complex default value!
-  var serviceAt = [
+  final serviceAt = [
     10000,
     20000,
     Random().nextInt(15000) + 20000,
   ];
 
-  var part = {'engine', 'wheel'};
-  var properties = {'color': 'yellow'};
+  final part = {'engine', 'wheel'};
+  final properties = {'color': 'yellow'};
 
   // List<List<int>> .. not allowed
   //var bad = [[1]];
@@ -50,7 +50,7 @@ class _Person {
   @Ignored()
   var friends = <_Person>[];
   late int born;
-  late _Car car;
+  late _Car? car;
 }
 
 void main(List<String> arguments) {
