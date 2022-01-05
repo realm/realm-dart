@@ -63,9 +63,9 @@ class _RealmCore {
 
   LastError? getLastError([Allocator? allocator]) {
     if (allocator != null) {
-      final error = _realmLib.realm_get_last_error();
-
-      if (error == nullptr) {
+      final error = allocator.allocate<realm_error_t>(100);
+      final success = _realmLib.realm_get_last_error(error);
+      if (!success) {
         return null;
       }
 
@@ -73,7 +73,6 @@ class _RealmCore {
       if (error.ref.message != nullptr) {
         message = error.ref.message.cast<Utf8>().toDartString();
       }
-      _realmLib.realm_release_last_error(error);
 
       return LastError(error.ref.error, message);
     }
