@@ -61,24 +61,25 @@ class _RealmCore {
 
   String get libraryVersion => _realmLib.realm_get_library_version().cast<Utf8>().toDartString();
 
-  LastError? getLastError([Allocator? allocator]) {
-    if (allocator != null) {
-      final error = allocator.allocate<realm_error_t>(100);
-      final success = _realmLib.realm_get_last_error(error);
-      if (!success) {
-        return null;
-      }
-
-      String? message;
-      if (error.ref.message != nullptr) {
-        message = error.ref.message.cast<Utf8>().toDartString();
-      }
-
-      return LastError(error.ref.error, message);
+  LastError? getLastError(Arena arena) {
+    final error = arena<realm_error_t>();
+    final success = _realmLib.realm_get_last_error(error);
+    if (!success) {
+      return null;
     }
 
-    return using((Arena arena) {
-      return getLastError(arena);
+    String? message;
+    if (error.ref.message != nullptr) {
+      message = error.ref.message.cast<Utf8>().toDartString();
+    }
+
+    return LastError(error.ref.error, message);
+  }
+
+  void raiseLastErrorAsRealmException([String? errorMessage]) {
+    using((Arena arena) {
+      final lastError = getLastError(arena);
+      throw RealmException("${errorMessage ?? ""} ${lastError.toString()}");
     });
   }
 
@@ -192,7 +193,7 @@ class _RealmCore {
   void closeRealm(Realm realm) {
     _realmLib.invokeGetBool(() => _realmLib.realm_close(realm.handle._pointer), "Realm close failed");
   }
-  
+
   bool isRealmClosed(Realm realm) {
     return _realmLib.realm_is_closed(realm.handle._pointer);
   }
@@ -221,8 +222,7 @@ class _RealmCore {
           "Error getting class $className from realm at ${realm.config.path}");
 
       if (found.value == 0) {
-        final error = getLastError();
-        throw RealmException("Class $className not found in ${realm.config.path}. Error: $error");
+        raiseLastErrorAsRealmException("Class $className not found in ${realm.config.path}");
       }
 
       String? primaryKey;
@@ -382,7 +382,6 @@ class _RealmCore {
       _realmLib.invokeGetBool(() => _realmLib.realm_list_insert(list.handle._pointer, index, realm_value.ref));
     });
   }
-
 }
 
 class LastError {
@@ -459,16 +458,12 @@ class RealmListHandle extends Handle<realm_list> {
 extension _StringEx on String {
   Pointer<T> toUtf8Ptr<T extends NativeType>(Allocator allocator) {
     final units = utf8.encode(this);
-    final Pointer<Uint8> result = allocator<Uint8>(units.length + 1);
-    final Uint8List nativeString = result.asTypedList(units.length + 1);
-    nativeString.setAll(0, units);
-    nativeString[units.length] = 0;
+    final nativeStringSize = units.length + 1;
+    final Pointer<Uint8> result = allocator<Uint8>(nativeStringSize);
+    final Uint8List nativeString = result.asTypedList(nativeStringSize);
+    nativeString.setAll(0, units); // copy to native string
+    nativeString.last = 0; // zero terminate
     return result.cast();
-  }
-
-  int utf8Length() {
-    final units = utf8.encode(this);
-    return units.length + 1;
   }
 }
 
@@ -476,16 +471,14 @@ extension _RealmLibraryEx on RealmLibrary {
   void invokeGetBool(bool Function() callback, [String? errorMessage]) {
     bool success = callback();
     if (!success) {
-      final lastError = realmCore.getLastError();
-      throw RealmException("${errorMessage ?? ""} ${lastError.toString()}");
+      realmCore.raiseLastErrorAsRealmException(errorMessage);
     }
   }
 
   Pointer<T> invokeGetPointer<T extends NativeType>(Pointer<T> Function() callback, [String? errorMessage]) {
     final result = callback();
     if (result == nullptr) {
-      final lastError = realmCore.getLastError();
-      throw RealmException("${errorMessage ?? ""} ${lastError.toString()}");
+      realmCore.raiseLastErrorAsRealmException(errorMessage);
     }
     return result;
   }
