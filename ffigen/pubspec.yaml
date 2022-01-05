@@ -1,4 +1,4 @@
-name: realm_ffigen
+name: realm_ffgen
 description: >- 
   A dev package for generating realm bindings.
   Usage: dart run ffigen --config windows.yaml
@@ -12,10 +12,9 @@ environment:
   sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
-  realm_dart: 
-    path: ../
+  realm_dart: ^0.1.0+preview
 
 dev_dependencies:
-  lints: ^1.0.1
-  build_runner: ^2.1.2
-  ffigen: ^4.1.2
+  pedantic: ^1.9.0
+  build_runner: ^1.10.0
+  ffigen: ^3.1.0-dev.1
