@@ -62,7 +62,7 @@ extension DartTypeEx on DartType {
   }
 
   // TODO: Using replaceAll is a hack.
-  String get basicName => toString().replaceAll(session.prefix, '');
+  String get basicName => basicType.toString().replaceAll(session.prefix, '');
 
   DartType get mappedType {
     final self = this;
