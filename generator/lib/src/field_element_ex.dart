@@ -72,52 +72,54 @@ extension FieldElementEx on FieldElement {
       final primaryKey = primaryKeyInfo;
       final indexed = indexedInfo;
 
-      final optional = type.isNullable;
+      // Validate primary key
+      if (primaryKey != null) {
+        if (type.isNullable) {
+          final modelSpan = enclosingElement.span!;
+          final file = modelSpan.file;
+          throw RealmInvalidGenerationSourceError(
+            'Primary key cannot be nullable',
+            element: this,
+            secondarySpans: {
+              modelSpan: "in realm model '${enclosingElement.displayName}'",
+              primaryKey.annotation.span(file):
+                  "the primary key '$displayName' is"
+            },
+            primarySpan: typeSpan(file),
+            primaryLabel: 'nullable',
+            todo: //
+                'Consider using the @Indexed() annotation instead, '
+                "or make '$displayName' ${anOrA(typeText)} ${type.asNonNullable}.",
+          );
+        }
+        if (indexed != null) {
+          log.info(formatSpans(
+            'Indexed is implied for a primary key',
+            primarySpan: span!,
+            todo:
+                "Remove either the @Indexed or @PrimaryKey annotation from '$displayName'.",
+            element: this,
+          ));
+        }
+        if (!isFinal) {
+          throw RealmInvalidGenerationSourceError(
+            'Primary key field is not final',
+            todo: //
+                "Add a final keyword to the definition of '$displayName', "
+                'or remove the @PrimaryKey annotation.',
+            element: this,
+          );
+        }
+      }
 
-      if (primaryKey != null && optional) {
-        final modelSpan = enclosingElement.span!;
-        final file = modelSpan.file;
-        throw RealmInvalidGenerationSourceError(
-          'Primary key cannot be nullable',
-          element: this,
-          secondarySpans: {
-            modelSpan: "in realm model '${enclosingElement.displayName}'",
-            primaryKey.annotation.span(file):
-                "the primary key '$displayName' is"
-          },
-          primarySpan: typeSpan(file),
-          primaryLabel: 'nullable',
-          todo: //
-              'Consider using the @Indexed() annotation instead, '
-              "or make '$displayName' ${anOrA(typeText)} ${type.asNonNullable}.",
-        );
-      }
-      if (primaryKey != null && indexed != null) {
-        log.info(formatSpans(
-          'Indexed is implied for a primary key',
-          primarySpan: span!,
-          todo:
-              "Remove either the @Indexed or @PrimaryKey annotation from '$displayName'.",
-          element: this,
-        ));
-      }
-      if (primaryKey != null && !isFinal) {
-        throw RealmInvalidGenerationSourceError(
-          'Primary key field is not final',
-          todo: //
-              "Add a final keyword to the definition of '$displayName', "
-              'or remove the @PrimaryKey annotation.',
-          element: this,
-        );
-      }
-      if (isFinal && primaryKey == null) {}
+      // Validate indexes
       if ((primaryKey != null || indexed != null) &&
           (![
                 RealmPropertyType.string,
                 RealmPropertyType.int,
                 RealmPropertyType.bool,
               ].contains(type.realmType) ||
-              type.realmCollectionType != RealmCollectionType.none)) {
+              type.isRealmCollection)) {
         final file = shortSpan!.file;
         final annotation = (primaryKey ?? indexed)!.annotation;
 
@@ -137,6 +139,9 @@ extension FieldElementEx on FieldElement {
         );
       }
 
+      // Validate field type
+      final modelSpan = enclosingElement.span!;
+      final file = modelSpan.file;
       final realmType = type.realmType;
       if (realmType == null) {
         final notARealmTypeSpan = type.element?.span;
@@ -153,38 +158,87 @@ extension FieldElementEx on FieldElement {
           todo = "Add an @Ignored annotation on '$displayName'.";
         }
 
-        final modelElement = enclosingElement;
-        final modelSpan = modelElement.span!;
-        final file = modelSpan.file;
         throw RealmInvalidGenerationSourceError(
           'Not a realm type',
           element: this,
           primarySpan: typeSpan(file),
           primaryLabel: '$typeText is not a realm type',
           secondarySpans: {
-            modelSpan: "in realm model '${modelElement.displayName}'",
+            modelSpan: "in realm model '${enclosingElement.displayName}'",
             // may go both above and below, or stem from another file
             if (notARealmTypeSpan != null) notARealmTypeSpan: ''
           },
           todo: todo,
         );
-      }
+      } else {
+        // Validate collections
+        if (type.isRealmCollection) {
+          if (!isFinal) {
+            throw RealmInvalidGenerationSourceError(
+              'Realm collection field must be final',
+              secondarySpans: {
+                enclosingElement.span!:
+                    "in realm model '${enclosingElement.displayName}'",
+              },
+              primarySpan: shortSpan,
+              primaryLabel: 'is not final',
+              todo: "Add a final keyword to the definition of '$displayName'",
+              element: this,
+            );
+          }
+          if (type.isNullable) {
+            // TODO: Better error reporting
+            throw RealmInvalidGenerationSourceError(
+              'Realm collections cannot be nullable',
+              secondarySpans: {
+                enclosingElement.span!:
+                    "in realm model '${enclosingElement.displayName}'",
+              },
+              primarySpan: typeSpan(file),
+              primaryLabel: 'is nullable',
+              todo: '',
+              element: this,
+            );
+          }
+          final itemType = type.basicType;
+          if (itemType.isRealmModel && itemType.isNullable) {
+            throw RealmInvalidGenerationSourceError(
+              'Nullable realm objects are not allowed in collections',
+              secondarySpans: {
+                enclosingElement.span!:
+                    "in realm model '${enclosingElement.displayName}'",
+              },
+              primarySpan: typeSpan(file), // TODO: Restrict span to the parameter type
+              primaryLabel: 'which has a nullable realm object element type',
+              element: this,
+              todo: 'Ensure element type is non-nullable' 
+            );
+          }
+        }
 
-      if (type.isRealmCollection && !isFinal) {
-        throw RealmInvalidGenerationSourceError(
-          'Realm collection field is not final',
-          todo: "Add a final keyword to the definition of '$displayName'",
-          element: this,
-        );
+        // Validate object references
+        else if (realmType == RealmPropertyType.object) {
+          if (!type.isNullable) {
+            throw RealmInvalidGenerationSourceError(
+              'Realm object references must be nullable',
+              primarySpan: typeSpan(file),
+              primaryLabel: 'is not nullable',
+              secondarySpans: {
+                enclosingElement.span!:
+                    "in realm model '${enclosingElement.displayName}'",
+              },
+              todo: 'Change type to $typeText?',
+              element: this,
+            );
+          }
+        }
       }
-
-      final mapTo = mapToChecker.annotationsOfExact(this).singleOrNull;
 
       return RealmFieldInfo(
         fieldElement: this,
         indexed: indexed != null,
         primaryKey: primaryKey != null,
-        mapTo: mapTo?.getField('name')?.toStringValue(),
+        mapTo: mapToInfo?.value.getField('name')?.toStringValue(),
       );
     } on InvalidGenerationSourceError catch (_) {
       rethrow;

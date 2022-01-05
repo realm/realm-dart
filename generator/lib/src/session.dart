@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:analyzer/dart/analysis/results.dart';
+import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type_provider.dart';
 import 'package:analyzer/dart/element/type_system.dart';
 
@@ -45,6 +46,8 @@ class _Session {
   final Pattern prefix;
   final String suffix;
   final bool color;
+  static final _mapping = <String, ClassElement>{}; // shared
+  Map<String, ClassElement> get mapping => _Session._mapping;
 
   _Session(this.resolvedLibrary,
       {String? prefix, String? suffix, this.color = false})

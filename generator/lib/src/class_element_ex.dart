@@ -81,11 +81,12 @@ extension ClassElementEx on ClassElement {
 
       final modelName = this.name;
       final mappedFields = fields.realmInfo.toList();
+      String name;
 
       // If mapTo annotation used, ensure that a valid name is specified.
       final mapTo = mapToInfo;
       if (mapTo != null) {
-        final name = mapTo.value.getField('name')!.toStringValue()!;
+        name = mapTo.value.getField('name')!.toStringValue()!;
         if (!_validIdentifier.hasMatch(name)) {
           final elementSpan = span!;
           final file = elementSpan.file;
@@ -103,42 +104,60 @@ extension ClassElementEx on ClassElement {
             todo: 'We need a valid indentifier',
           );
         }
-        return RealmModelInfo(name, modelName, mappedFields);
+      } else {
+        // Else, ensure a valid prefix and suffix is used.
+        final prefix = session.prefix;
+        var suffix = session.suffix;
+        if (!modelName.startsWith(prefix)) {
+          throw RealmInvalidGenerationSourceError(
+            'Missing prefix on realm model name',
+            element: this,
+            primarySpan: shortSpan,
+            primaryLabel: 'missing prefix',
+            secondarySpans: {span!: "on realm model '$displayName'"},
+            todo: //
+                'Either add a @MapTo annotation, '
+                'or align class name to match prefix '
+                '${prefix is RegExp ? '${prefix.pattern} (regular expression)' : prefix}',
+          );
+        }
+        if (!modelName.endsWith(suffix)) {
+          throw RealmInvalidGenerationSourceError(
+            'Missing suffix on realm model name',
+            element: this,
+            primarySpan: shortSpan,
+            primaryLabel: 'missing suffix',
+            secondarySpans: {span!: "on realm model '$displayName'"},
+            todo: //
+                'Either add a @MapTo annotation, '
+                'or align class name to suffix $suffix',
+          );
+        }
+
+        // Remove suffix and prefix, if any.
+        name = modelName
+            .substring(0, modelName.length - suffix.length)
+            .replaceFirst(prefix, '');
       }
 
-      // Else, ensure a valid prefix and suffix is used.
-      final prefix = session.prefix;
-      var suffix = session.suffix;
-      if (!modelName.startsWith(prefix)) {
+      // Check that mapping not already defined
+      final mapped = session.mapping.putIfAbsent(name, () => this);
+      if (mapped != this) {
         throw RealmInvalidGenerationSourceError(
-          'Missing prefix on realm model name',
+          'Mapping already defined',
           element: this,
-          primarySpan: shortSpan,
-          primaryLabel: 'missing prefix',
-          secondarySpans: {span!: "on realm model '$displayName'"},
+          primarySpan: shortSpan!,
+          primaryLabel: "'${mapped.displayName}' already defines '$name'",
+          secondarySpans: {
+            span!: '',
+            mapped.span!: '',
+            mapped.shortSpan!: 'here',
+          },
           todo: //
-              'Either add a @MapTo annotation, '
-              'or align class name to match prefix '
-              '${prefix is RegExp ? '${prefix.pattern} (regular expression)' : prefix}',
+              "Avoid that '$displayName' and '${mapped.displayName}'"
+              " both maps to '$name'",
         );
       }
-      if (!modelName.endsWith(suffix)) {
-        throw RealmInvalidGenerationSourceError(
-          'Missing suffix on realm model name',
-          element: this,
-          primarySpan: shortSpan,
-          primaryLabel: 'missing suffix',
-          secondarySpans: {span!: "on realm model '$displayName'"},
-          todo: //
-              'Either add a @MapTo annotation, '
-              'or align class name to suffix $suffix',
-        );
-      }
-
-      // Remove suffix and prefix, if any.
-      final name = modelName
-          .substring(0, modelName.length - suffix.length)
-          .replaceFirst(prefix, '');
 
       // Check that realm model class does not extend another class than Object (not supported for now).
       if (supertype != session.typeProvider.objectType) {

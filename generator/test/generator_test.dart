@@ -85,7 +85,7 @@ class _Bar {
   var timestamp = DateTime.now();
   var aDouble = 0.0;
   late Decimal128 decimal;
-  late _Foo foo;
+  _Foo? foo;
   late ObjectId id;
   late Uuid uuid;
   @Ignored()
@@ -649,6 +649,301 @@ class _Bad extends Base {
             '    │     ^ illegal constructor\n'
             '    ╵\n'
             'Remove constructor\n',
+      )),
+    );
+  });
+
+  test('non-final list', () async {
+    await expectLater(
+      () async => await testBuilder(
+        generateRealmObjects(),
+        {
+          'pkg|lib/src/test.dart': r'''
+import 'package:realm_annotations/realm_annotations.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+class _Bad { 
+  @PrimaryKey()
+  late final int id;
+
+  List<int> wrong;
+}
+'''
+        },
+        reader: await PackageAssetReader.currentIsolate(),
+      ),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+        (e) => e.toString(),
+        'toString()',
+        'Realm collection field must be final\n'
+            '\n'
+            'in: package:pkg/src/test.dart:10:13\n'
+            '    ╷\n'
+            '5   │ ┌ @RealmModel()\n'
+            '6   │ │ class _Bad { \n'
+            '    │ └─── in realm model \'_Bad\'\n'
+            '... │\n'
+            '10  │     List<int> wrong;\n'
+            '    │               ^^^^^ is not final\n'
+            '    ╵\n'
+            'Add a final keyword to the definition of \'wrong\'\n',
+      )),
+    );
+  });
+
+  test('nullable list', () async {
+    await expectLater(
+      () async => await testBuilder(
+        generateRealmObjects(),
+        {
+          'pkg|lib/src/test.dart': r'''
+import 'package:realm_annotations/realm_annotations.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+class _Bad { 
+  @PrimaryKey()
+  late final int id;
+
+  final List<int>? wrong;
+}
+'''
+        },
+        reader: await PackageAssetReader.currentIsolate(),
+      ),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+        (e) => e.toString(),
+        'toString()',
+        'Realm collections cannot be nullable\n'
+            '\n'
+            'in: package:pkg/src/test.dart:10:9\n'
+            '    ╷\n'
+            '5   │ ┌ @RealmModel()\n'
+            '6   │ │ class _Bad { \n'
+            '    │ └─── in realm model \'_Bad\'\n'
+            '... │\n'
+            '10  │     final List<int>? wrong;\n'
+            '    │           ^^^^^^^^^^ is nullable\n'
+            '    ╵',
+      )),
+    );
+  });
+
+  test('nullable list elements', () async {
+    await expectLater(
+      () async => await testBuilder(
+        generateRealmObjects(),
+        {
+          'pkg|lib/src/test.dart': r'''
+import 'package:realm_annotations/realm_annotations.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+class _Other {}
+
+@RealmModel()
+class _Bad { 
+  @PrimaryKey()
+  late final int id;
+
+  final List<int?> okay;
+  final List<_Other?> wrong;
+}
+'''
+        },
+        reader: await PackageAssetReader.currentIsolate(),
+      ),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+        (e) => e.toString(),
+        'toString()',
+        'Nullable realm objects are not allowed in collections\n'
+            '\n'
+            'in: package:pkg/src/test.dart:14:9\n'
+            '    ╷\n'
+            '8   │ ┌ @RealmModel()\n'
+            '9   │ │ class _Bad { \n'
+            '    │ └─── in realm model \'_Bad\'\n'
+            '... │\n'
+            '14  │     final List<_Other?> wrong;\n'
+            '    │           ^^^^^^^^^^^^^ which has a nullable realm object element type\n'
+            '    ╵\n'
+            'Ensure element type is non-nullable\n',
+      )),
+    );
+  });
+
+  test('non-nullable realm object reference', () async {
+    await expectLater(
+      () async => await testBuilder(
+        generateRealmObjects(),
+        {
+          'pkg|lib/src/test.dart': r'''
+import 'package:realm_annotations/realm_annotations.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+class _Other {}
+
+@RealmModel()
+class _Bad { 
+  @PrimaryKey()
+  late final int id;
+
+  late _Other wrong;
+}
+'''
+        },
+        reader: await PackageAssetReader.currentIsolate(),
+      ),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+        (e) => e.toString(),
+        'toString()',
+        'Realm object references must be nullable\n'
+            '\n'
+            'in: package:pkg/src/test.dart:13:8\n'
+            '    ╷\n'
+            '8   │ ┌ @RealmModel()\n'
+            '9   │ │ class _Bad { \n'
+            '    │ └─── in realm model \'_Bad\'\n'
+            '... │\n'
+            '13  │     late _Other wrong;\n'
+            '    │          ^^^^^^ is not nullable\n'
+            '    ╵\n'
+            'Change type to _Other?\n',
+      )),
+    );
+  });
+
+  test('defining both _Bad and \$Bad', () async {
+    await expectLater(
+      () async => await testBuilder(
+        generateRealmObjects(),
+        {
+          'pkg|lib/src/test.dart': r'''
+import 'package:realm_annotations/realm_annotations.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+class $Bad {}
+
+@RealmModel()
+class _Bad {}
+'''
+        },
+        reader: await PackageAssetReader.currentIsolate(),
+      ),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+        (e) => e.toString(),
+        'toString()',
+        'Mapping already defined\n'
+            '\n'
+            'in: package:pkg/src/test.dart:6:7\n'
+            '    ╷\n'
+            '5   │ ┌ @RealmModel()\n'
+            '6   │ │ class \$Bad {}\n'
+            '    │ │       ^^^^ \'_Bad\' already defines \'Bad\'\n'
+            '    │ └─── \n'
+            '... │\n'
+            '8   │   @RealmModel()\n'
+            '    │         ━━━━ here\n'
+            '    ╵\n'
+            'Avoid that \'\$Bad\' and \'_Bad\' both maps to \'Bad\'\n',
+      )),
+    );
+  });
+
+  test('defining both _Bad and \$Bad in different files', () async {
+    await expectLater(
+      () async => await testBuilder(
+        generateRealmObjects(),
+        {
+          'pkg|lib/src/test1.dart': r'''
+import 'package:realm_annotations/realm_annotations.dart';
+
+part 'test1.g.dart';
+
+@RealmModel()
+class $Bad2 {}
+''',
+          'pkg|lib/src/test2.dart': r'''
+import 'package:realm_annotations/realm_annotations.dart';
+
+part 'test2.g.dart';
+
+@RealmModel()
+class _Bad2 {}
+''',
+        },
+        reader: await PackageAssetReader.currentIsolate(),
+      ),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+        (e) => e.toString(),
+        'toString()',
+        'Mapping already defined\n'
+            '\n'
+            'in: package:pkg/src/test2.dart:6:7\n'
+            '  ┌──> package:pkg/src/test2.dart\n'
+            '5 │ ┌ @RealmModel()\n'
+            '6 │ │ class _Bad2 {}\n'
+            '  │ │       ^^^^^ \'\$Bad2\' already defines \'Bad2\'\n'
+            '  │ └─── \n'
+            '  ╵\n'
+            '  ┌──> package:pkg/src/test1.dart\n'
+            '6 │   class \$Bad2 {}\n'
+            '  │         ━━━━━ here\n'
+            '  ╵\n'
+            'Avoid that \'_Bad2\' and \'\$Bad2\' both maps to \'Bad2\'\n',
+      )),
+    );
+  });
+
+  test('reusing mapTo name', () async {
+    await expectLater(
+      () async => await testBuilder(
+        generateRealmObjects(),
+        {
+          'pkg|lib/src/test.dart': r'''
+import 'package:realm_annotations/realm_annotations.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+@MapTo('Bad3')
+class _Foo {}
+
+@MapTo('Bad3')
+@RealmModel()
+class _Bar {}
+'''
+        },
+        reader: await PackageAssetReader.currentIsolate(),
+      ),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+        (e) => e.toString(),
+        'toString()',
+        'Mapping already defined\n'
+            '\n'
+            'in: package:pkg/src/test.dart:11:7\n'
+            '    ╷\n'
+            '5   │ ┌ @RealmModel()\n'
+            '6   │ │ @MapTo(\'Bad3\')\n'
+            '7   │ │ class _Foo {}\n'
+            '    │ └─── \n'
+            '    │         ━━━━ here\n'
+            '... │\n'
+            '9   │ ┌ @MapTo(\'Bad3\')\n'
+            '10  │ │ @RealmModel()\n'
+            '11  │ │ class _Bar {}\n'
+            '    │ │       ^^^^ \'_Foo\' already defines \'Bad3\'\n'
+            '    │ └─── \n'
+            '    ╵\n'
+            'Avoid that \'_Bar\' and \'_Foo\' both maps to \'Bad3\'\n',
       )),
     );
   });
