@@ -553,11 +553,11 @@ Future<void> main([List<String>? args]) async {
       expect(() => realm.write(() => players[800] = Person()), throws<RealmException>());
     });
 
-    test('Realm RemoveMany from List', () {
+    test('Realm.removeMany from list', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      //Create two Teams
+      //Create two teams
       realm.write(() {
         realm.add(Team()..name = "Ferrari");
         realm.add(Team()..name = "Maserati");
@@ -567,7 +567,7 @@ Future<void> main([List<String>? args]) async {
       var teams = realm.all<Team>();
       expect(teams.length, 2);
 
-      //Convert RealmResults to List (asList should be implemented)
+      //Convert RealmResults to List (use asList if it is available)
       List<Team> list = [];
       int itemsCount = teams.length;
       for (var i = 0; i < itemsCount; i++) {
@@ -582,11 +582,11 @@ Future<void> main([List<String>? args]) async {
       expect(teams.length, 0);
     });
 
-    test('Realm RemoveMany from RealmList', () {
+    test('Realm.removeMany from realmList', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      //Create a Team
+      //Create a team
       final team = Team()..name = "Ferrari";
       realm.write(() => realm.add(team));
 
@@ -595,7 +595,6 @@ Future<void> main([List<String>? args]) async {
       newPlayers.add(Person()..name = "Michael Schumacher");
       newPlayers.add(Person()..name = "Sebastian Vettel");
       newPlayers.add(Person()..name = "Kimi Räikkönen");
-
       realm.write(() => team.players.addAll(newPlayers));
 
       //Ensure the team exists in realm
@@ -605,19 +604,19 @@ Future<void> main([List<String>? args]) async {
       //Remove team players
       realm.write(() => realm.removeMany(teams[0].players));
 
-      //Ensure persons are deleted from collection
+      //Ensure players are deleted from collection
       expect(teams[0].players.length, 0);
 
-      //Reload persons from database and ensure they are removed
+      //Reload all persons from realm and ensure they are removed
       final allPersons = realm.all<Person>();
       expect(allPersons.length, 0);
     });
 
-    test('Realm RemoveMany from RealmList referenced by two objects', () {
+    test('Realm.removeMany from realmList referenced by two objects', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      //Create two Teams
+      //Create two teams
       final teamOne = Team()..name = "Ferrari";
       final teamTwo = Team()..name = "Maserati";
       realm.write(() {
@@ -625,7 +624,7 @@ Future<void> main([List<String>? args]) async {
         realm.add(teamTwo);
       });
 
-      //Create common players list for both Teams
+      //Create common players list for both teams
       var newPlayers = <Person>[];
       newPlayers.add(Person()..name = "Michael Schumacher");
       newPlayers.add(Person()..name = "Sebastian Vettel");
@@ -636,48 +635,49 @@ Future<void> main([List<String>? args]) async {
         teamTwo.players.addAll(newPlayers);
       });
 
-      //Ensule teams exist in DB
+      //Ensule teams exist in realm
       var teams = realm.all<Team>();
       expect(teams.length, 2);
 
       //Remove all players in a team from realm
       realm.write(() => realm.removeMany(teams[0].players));
 
-      //Ensure all persons are deleted from collection
+      //Ensure all players are deleted from collection
       expect(teams[0].players.length, 0);
 
-      //Reload persons from realm and ensure they are removed
+      //Reload all persons from realm and ensure they are removed
       final allPersons = realm.all<Person>();
       expect(allPersons.length, 0);
     });
 
-    test('Realm RemoveMany from RealmResults', () {
+    test('Realm.removeMany from RealmResults', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      //Create two Teams
+      //Create two teams
       realm.write(() {
         realm.add(Team()..name = "Ferrari");
         realm.add(Team()..name = "Maserati");
       });
 
-      //Ensule teams exist in DB
+      //Ensule teams exist in realm
       var teams = realm.all<Team>();
       expect(teams.length, 2);
 
-      //Remove all objects in RealmResults from DB
+      //Remove all objects in realmResults from realm
       realm.write(() => realm.removeMany(teams));
       expect(teams.length, 0);
 
-      //Reload teams from databse and ensure they are removed
+      //Reload teams from realm and ensure they are removed
       teams = realm.all<Team>();
       expect(teams.length, 0);
     });
 
-    test('Realm RemoveMany from RealmList in closed realm', () {
+    test('Realm.removeMany from realmList after realm is closed', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
+      //Create a team
       final team = Team()..name = "Ferrari";
       realm.write(() => realm.add(team));
 
@@ -688,7 +688,7 @@ Future<void> main([List<String>? args]) async {
         team.players.add(Person()..name = "Kimi Räikkönen");
       });
 
-      //Ensure team exists
+      //Ensure team exists in realm
       var teams = realm.all<Team>();
       expect(teams.length, 1);
 
@@ -701,7 +701,7 @@ Future<void> main([List<String>? args]) async {
               }),
           throws<RealmException>());
 
-      //Ensure all persons still exists in database
+      //Ensure all persons still exists in realm
       realm = Realm(config);
       final allPersons = realm.all<Person>();
       expect(allPersons.length, 3);
@@ -711,13 +711,13 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      //Create two Teams
+      //Create two teams
       realm.write(() {
         realm.add(Team()..name = "team One");
         realm.add(Team()..name = "team Two");
       });
 
-      //Get teams from realm
+      //Reload teams from realm and ensure they exist
       var teams = realm.all<Team>();
       expect(teams.length, 2);
 
@@ -727,7 +727,7 @@ Future<void> main([List<String>? args]) async {
         list.add(team);
       }
 
-      //Ensure list size is the same like teams collection
+      //Ensure list size is the same like teams collection size
       expect(list.length, teams.length);
     });
   });
