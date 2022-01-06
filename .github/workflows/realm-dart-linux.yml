@@ -89,6 +89,16 @@ jobs:
             --packages .packages \
             --report-on lib
 
+      - name: Publish Coverage
+        id: publish-coverage
+        uses: coverallsapp/github-action@1.1.3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: generator
+
+      - name: Output Coveralls response
+        run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
+
       - name: Run generator tests
         run: |
           pushd generator
@@ -106,3 +116,15 @@ jobs:
             --packages .packages \
             --report-on lib
           popd
+
+      - name: Publish Generator Coverage
+        id: publish-generator-coverage
+        uses: coverallsapp/github-action@1.1.3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: realm_generator
+          path-to-lcov: ./generator/coverage/lcov.info
+
+      - name: Output Coveralls response
+        run: echo ${{ steps.publish-generator-coverage.outputs.coveralls-api-result }}
+    
