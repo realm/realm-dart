@@ -193,7 +193,7 @@ class _RealmCore {
   void closeRealm(Realm realm) {
     _realmLib.invokeGetBool(() => _realmLib.realm_close(realm.handle._pointer), "Realm close failed");
   }
-  
+
   bool isRealmClosed(Realm realm) {
     return _realmLib.realm_is_closed(realm.handle._pointer);
   }
@@ -385,8 +385,7 @@ class _RealmCore {
   }
 
   void clear(RealmList list) {
-    _realmLib
-        .invokeGetBool(() => _realmLib.realm_list_clear(list.handle._pointer));
+    _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(list.handle._pointer));
   }
 }
 
