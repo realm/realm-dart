@@ -557,32 +557,35 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      //Create Team
+      //Create a team
       final team = Team()..name = "Team";
       realm.write(() => realm.add(team));
 
-      //Add players to Team
+      //Add players to the team
+      List<Person> newPlayers = <Person>[];
+      newPlayers.add(Person()..name = "Michael Schumacher");
+      newPlayers.add(Person()..name = "Sebastian Vettel");
+      newPlayers.add(Person()..name = "Kimi Räikkönen");
       realm.write(() {
-        team.players.add(Person()..name = "Michael Schumacher");
-        team.players.add(Person()..name = "Sebastian Vettel");
-        team.players.add(Person()..name = "Kimi Räikkönen");
+        team.players.addAll(newPlayers);
       });
 
       //Ensure teams and players are in realm
       var teams = realm.all<Team>();
       expect(teams.length, 1);
+
       var players = teams[0].players;
       expect(players, isNotNull);
       expect(players.length, 3);
 
-      //Clear team.players list
+      //Clear list of team players
       realm.write(() => teams[0].players.clear());
 
-      //Ensure that in realm players are not reffered by the Team anymore
+      //Ensure that players are not reffered by the team in realm
       teams = realm.all<Team>();
       expect(teams[0].players.length, 0);
 
-      //Ensure that in realm players objects still exist detached from the Team
+      //Ensure that players objects still exist in realm detached from the team
       final allPlayers = realm.all<Person>();
       expect(allPlayers.length, 3);
     });
@@ -591,7 +594,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      //Createtwo Teams
+      //Create two teams
       final teamOne = Team()..name = "TeamOne";
       final teamTwo = Team()..name = "TeamTwo";
       realm.write(() {
@@ -600,16 +603,16 @@ Future<void> main([List<String>? args]) async {
       });
 
       //Create common players list for both teams
-      List<Person> players = <Person>[];
-      players.add(Person()..name = "Michael Schumacher");
-      players.add(Person()..name = "Sebastian Vettel");
-      players.add(Person()..name = "Kimi Räikkönen");
+      List<Person> newPlayers = <Person>[];
+      newPlayers.add(Person()..name = "Michael Schumacher");
+      newPlayers.add(Person()..name = "Sebastian Vettel");
+      newPlayers.add(Person()..name = "Kimi Räikkönen");
       realm.write(() {
-        teamOne.players.addAll(players);
-        teamTwo.players.addAll(players);
+        teamOne.players.addAll(newPlayers);
+        teamTwo.players.addAll(newPlayers);
       });
 
-      //Ensure that teams and tlayers exest in realm
+      //Ensure that teams and players exist in realm
       var teams = realm.all<Team>();
       expect(teams.length, 2);
       expect(teams[0].players, isNotNull);
@@ -620,14 +623,14 @@ Future<void> main([List<String>? args]) async {
       //Clear first team's players only
       realm.write(() => teams[0].players.clear());
 
-      //Reload teams and ensure that second team is still related to players
+      //Reload teams from realm and ensure that second team is still related to players
       teams = realm.all<Team>();
       expect(teams[0].players.length, 0);
       expect(teams[1].players.length, 3);
 
       //Ensure players still exist in realm
-      final allPlayers = realm.all<Person>();
-      expect(allPlayers.length, 3);
+      final players = realm.all<Person>();
+      expect(players.length, 3);
     });
 
     test('RealmList clear - same item added to two lists', () {
@@ -657,16 +660,16 @@ Future<void> main([List<String>? args]) async {
       expect(teams[1].players, isNotNull);
       expect(teams[1].players.length, 1);
 
-      //Clear player from first team
+      //Clear player from the first team
       realm.write(() => teams[0].players.clear());
 
-      //Reload teams and ensure that second team has no more players
-      // but first team is still related to the player
+      //Reload teams from realm and ensure that the second team has no more players
+      // but the first team is still related to the player
       teams = realm.all<Team>();
       expect(teams[0].players.length, 0);
       expect(teams[1].players.length, 1);
 
-      //Ensure the player still exists in DB
+      //Ensure the player still exists in realm
       final allPlayers = realm.all<Person>();
       expect(allPlayers.length, 1);
     });
@@ -689,7 +692,7 @@ Future<void> main([List<String>? args]) async {
       expect(teams[0].players.length, 1);
 
       var players = teams[0].players;
-      //Close realm before clear players from the team
+      //Close realm before ro clear players from the team
       expect(
           () => realm.write(() {
                 realm.close();
