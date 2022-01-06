@@ -562,10 +562,11 @@ Future<void> main([List<String>? args]) async {
       realm.write(() => realm.add(team));
 
       //Add players to the team
-      List<Person> newPlayers = <Person>[];
-      newPlayers.add(Person()..name = "Michael Schumacher");
-      newPlayers.add(Person()..name = "Sebastian Vettel");
-      newPlayers.add(Person()..name = "Kimi Räikkönen");
+      final newPlayers = [
+        Person()..name = "Michael Schumacher",
+        Person()..name = "Sebastian Vettel",
+        Person()..name = "Kimi Räikkönen",
+      ];
       realm.write(() {
         team.players.addAll(newPlayers);
       });
@@ -603,10 +604,11 @@ Future<void> main([List<String>? args]) async {
       });
 
       //Create common players list for both teams
-      List<Person> newPlayers = <Person>[];
-      newPlayers.add(Person()..name = "Michael Schumacher");
-      newPlayers.add(Person()..name = "Sebastian Vettel");
-      newPlayers.add(Person()..name = "Kimi Räikkönen");
+      final newPlayers = [
+        Person()..name = "Michael Schumacher",
+        Person()..name = "Sebastian Vettel",
+        Person()..name = "Kimi Räikkönen",
+      ];
       realm.write(() {
         teamOne.players.addAll(newPlayers);
         teamTwo.players.addAll(newPlayers);
