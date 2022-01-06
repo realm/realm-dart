@@ -591,10 +591,11 @@ Future<void> main([List<String>? args]) async {
       realm.write(() => realm.add(team));
 
       //Add players to the team
-      var newPlayers = <Person>[];
-      newPlayers.add(Person()..name = "Michael Schumacher");
-      newPlayers.add(Person()..name = "Sebastian Vettel");
-      newPlayers.add(Person()..name = "Kimi Räikkönen");
+      final newPlayers = [
+        Person()..name = "Michael Schumacher",
+        Person()..name = "Sebastian Vettel",
+        Person()..name = "Kimi Räikkönen",
+      ];
       realm.write(() => team.players.addAll(newPlayers));
 
       //Ensure the team exists in realm
@@ -625,11 +626,11 @@ Future<void> main([List<String>? args]) async {
       });
 
       //Create common players list for both teams
-      var newPlayers = <Person>[];
-      newPlayers.add(Person()..name = "Michael Schumacher");
-      newPlayers.add(Person()..name = "Sebastian Vettel");
-      newPlayers.add(Person()..name = "Kimi Räikkönen");
-
+      final newPlayers = [
+        Person()..name = "Michael Schumacher",
+        Person()..name = "Sebastian Vettel",
+        Person()..name = "Kimi Räikkönen",
+      ];
       realm.write(() {
         teamOne.players.addAll(newPlayers);
         teamTwo.players.addAll(newPlayers);
@@ -682,11 +683,12 @@ Future<void> main([List<String>? args]) async {
       realm.write(() => realm.add(team));
 
       //Add players to the team
-      realm.write(() {
-        team.players.add(Person()..name = "Michael Schumacher");
-        team.players.add(Person()..name = "Sebastian Vettel");
-        team.players.add(Person()..name = "Kimi Räikkönen");
-      });
+      final newPlayers = [
+        Person()..name = "Michael Schumacher",
+        Person()..name = "Sebastian Vettel",
+        Person()..name = "Kimi Räikkönen",
+      ];
+      realm.write(() => team.players.addAll(newPlayers));
 
       //Ensure team exists in realm
       var teams = realm.all<Team>();
