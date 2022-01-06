@@ -239,6 +239,7 @@ extension FieldElementEx on FieldElement {
         indexed: indexed != null,
         primaryKey: primaryKey != null,
         mapTo: mapToInfo?.value.getField('name')?.toStringValue(),
+        realmType: realmType,
       );
     } on InvalidGenerationSourceError catch (_) {
       rethrow;

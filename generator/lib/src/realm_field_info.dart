@@ -30,12 +30,14 @@ class RealmFieldInfo {
   final String? mapTo;
   final bool primaryKey;
   final bool indexed;
+  final RealmPropertyType realmType;
 
   RealmFieldInfo({
     required this.fieldElement,
     required this.mapTo,
     required this.primaryKey,
     required this.indexed,
+    required this.realmType,
   });
 
   DartType get type => fieldElement.type;
@@ -56,46 +58,6 @@ class RealmFieldInfo {
       session.prefix, ''); // TODO: using replaceAll is a hack
 
   RealmCollectionType get realmCollectionType => type.realmCollectionType;
-
-  RealmPropertyType get realmType {
-    final realmType = type.realmType;
-    if (realmType != null) return realmType;
-
-    final notARealmTypeSpan = type.element?.span;
-    String todo;
-    if (notARealmTypeSpan != null) {
-      todo = //
-          "Add a @RealmModel annotation on '$typeName', "
-          "or an @Ignored annotation on '$this'.";
-    } else if (type.isDynamic &&
-        typeName != 'dynamic' &&
-        !typeName.startsWith(session.prefix)) {
-      todo = "Did you intend to use _$typeName as type for '$this'?";
-    } else {
-      todo = "Add an @Ignored annotation on '$this'.";
-    }
-
-    final modelElement = fieldElement.enclosingElement;
-    final modelSpan = modelElement.span!;
-    final file = modelSpan.file;
-    final typeAnnotation = fieldElement.typeAnnotation;
-    final initializerExpression = fieldElement.initializerExpression;
-    final typeText =
-        (typeAnnotation ?? initializerExpression?.staticType).toString();
-
-    throw RealmInvalidGenerationSourceError(
-      'Not a realm type',
-      element: fieldElement,
-      primarySpan: (typeAnnotation ?? initializerExpression)!.span(file),
-      primaryLabel: '$typeText is not a realm type',
-      secondarySpans: {
-        modelSpan: "in realm model '${modelElement.displayName}'",
-        // may go both above and below, or stem from another file
-        if (notARealmTypeSpan != null) notARealmTypeSpan: ''
-      },
-      todo: todo,
-    );
-  }
 
   Iterable<String> toCode() sync* {
     yield '@override';

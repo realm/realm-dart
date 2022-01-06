@@ -20,7 +20,7 @@ String anOrA(String text) => 'aeiouy'.contains(text[0]) ? 'an' : 'a';
 
 extension IterableEx<T> on Iterable<T> {
   T? get singleOrNull =>
-      cast<T?>().singleWhere((element) => true, orElse: () => null);
+      cast<T?>().singleWhere((_) => true, orElse: () => null);
 }
 
 extension IterableOverNullableEx<T> on Iterable<T?> {
