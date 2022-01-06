@@ -25,15 +25,21 @@ import 'package:analyzer/dart/element/type_system.dart';
 const _sessionKey = #SessonKey;
 
 // in case multiple libs are processed concurrently, we make session zone local
-_Session get session => Zone.current[_sessionKey] as _Session; 
+_Session get session => Zone.current[_sessionKey] as _Session;
 
 Future<T> scopeSession<T>(
   ResolvedLibraryResult resolvedLibrary,
   FutureOr<T> Function() fn, {
   String? prefix,
   String? suffix,
+  bool color = false,
 }) async {
-  final s = _Session(resolvedLibrary, prefix: prefix, suffix: suffix);
+  final s = _Session(
+    resolvedLibrary,
+    prefix: prefix,
+    suffix: suffix,
+    color: color,
+  );
   return await runZonedGuarded(
     fn,
     (e, st) => throw e,

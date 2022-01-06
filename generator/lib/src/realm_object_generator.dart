@@ -19,6 +19,7 @@
 library realm_generator;
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/element/element.dart';
@@ -42,13 +43,13 @@ class RealmObjectGenerator extends Generator {
               as ResolvedLibraryResult,
           () async =>
               library.classes.realmInfo.expand((m) => m.toCode()).join('\n'),
+          color: stdout.supportsAnsiEscapes,
         );
       },
       tag: 'generate',
     );
   }
 }
-
 
 extension on Iterable<ClassElement> {
   Iterable<RealmModelInfo> get realmInfo =>

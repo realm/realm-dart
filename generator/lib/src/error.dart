@@ -21,29 +21,36 @@ import 'package:source_span/source_span.dart';
 
 import 'element.dart';
 import 'format_spans.dart';
+import 'session.dart';
 
 class RealmInvalidGenerationSourceError extends InvalidGenerationSourceError {
   final FileSpan primarySpan;
   final String? primaryLabel;
   final Map<FileSpan, String> secondarySpans;
+  bool color;
 
   RealmInvalidGenerationSourceError(
     String message, {
     required String todo,
     required Element element,
     FileSpan? primarySpan,
+    bool? color,
     this.primaryLabel,
     this.secondarySpans = const {},
   })  : primarySpan = primarySpan ?? element.span!,
+        color = color ?? session.color,
         super(message, todo: todo, element: element);
 
   @override
-  String toString() => formatSpans(
+  String toString() => format(color);
+
+  String format([bool color = false]) => formatSpans(
         message,
         element: element!, // is required, so safe
         todo: todo,
         primaryLabel: primaryLabel,
         primarySpan: primarySpan,
         secondarySpans: secondarySpans,
+        color: color,
       );
 }

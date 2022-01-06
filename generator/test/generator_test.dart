@@ -123,8 +123,8 @@ class _Bad {
       ),
       throwsA(
         isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.toString(),
-          'toString()',
+          (e) => e.format(),
+          'format()',
           'Not a realm type\n'
               '\n'
               'in: package:pkg/src/test.dart:9:8\n'
@@ -164,8 +164,8 @@ class _Bad {
       ),
       throwsA(
         isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.toString(),
-          'toString()',
+          (e) => e.format(),
+          'format()',
           'Realm only support indexes on String, int, and bool fields\n'
               '\n'
               'in: package:pkg/src/test.dart:8:3\n'
@@ -204,8 +204,8 @@ class _Bad {
       ),
       throwsA(
         isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.toString(),
-          'toString()',
+          (e) => e.format(),
+          'format()',
           'Primary key cannot be nullable\n'
               '\n'
               'in: package:pkg/src/test.dart:8:3\n'
@@ -244,8 +244,8 @@ class _Bad {
       ),
       throwsA(
         isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.toString(),
-          'toString()',
+          (e) => e.format(),
+          'format()',
           'Primary key field is not final\n'
               '\n'
               'in: package:pkg/src/test.dart:7:3\n'
@@ -322,8 +322,8 @@ class _Bad {
               reader: await PackageAssetReader.currentIsolate(),
             ),
         throwsA(isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.toString(),
-          'toString()',
+          (e) => e.format(),
+          'format()',
           'Not a realm type\n'
               '\n'
               'in: package:pkg/src/test.dart:8:21\n'
@@ -362,8 +362,8 @@ class _Other {}
         reader: await PackageAssetReader.currentIsolate(),
       ),
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.toString(),
-        'toString()',
+        (e) => e.format(),
+        'format()',
         'Not a realm type\n'
             '\n'
             'in: package:pkg/src/test.dart:7:8\n'
@@ -403,8 +403,8 @@ class _Bad {
         reader: await PackageAssetReader.currentIsolate(),
       ),
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.toString(),
-        'toString()',
+        (e) => e.format(),
+        'format()',
         'Primary key already defined\n'
             '\n'
             'in: package:pkg/src/test.dart:11:3\n'
@@ -445,8 +445,8 @@ class Bad { // missing _ or $ prefix
         reader: await PackageAssetReader.currentIsolate(),
       ),
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.toString(),
-        'toString()',
+        (e) => e.format(),
+        'format()',
         'Missing prefix on realm model name\n'
             '\n'
             'in: package:pkg/src/test.dart:6:7\n'
@@ -482,8 +482,8 @@ class Bad {}
         reader: await PackageAssetReader.currentIsolate(),
       ),
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.toString(),
-        'toString()',
+        (e) => e.format(),
+        'format()',
         'Invalid class name\n'
             '\n'
             'in: package:pkg/src/test.dart:7:8\n'
@@ -519,8 +519,8 @@ class _Bad {}
         reader: await PackageAssetReader.currentIsolate(),
       ),
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.toString(),
-        'toString()',
+        (e) => e.format(),
+        'format()',
         'Repeated annotation\n'
             '\n'
             'in: package:pkg/src/test.dart:6:1\n'
@@ -558,8 +558,8 @@ class _Bad {
         reader: await PackageAssetReader.currentIsolate(),
       ),
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.toString(),
-        'toString()',
+        (e) => e.format(),
+        'format()',
         'Repeated annotation\n'
             '\n'
             'in: package:pkg/src/test.dart:8:3\n'
@@ -598,8 +598,8 @@ class _Bad extends Base {
         reader: await PackageAssetReader.currentIsolate(),
       ),
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.toString(),
-        'toString()',
+        (e) => e.format(),
+        'format()',
         'Realm model classes can only extend Object\n'
             '\n'
             'in: package:pkg/src/test.dart:8:7\n'
@@ -635,8 +635,8 @@ class _Bad extends Base {
         reader: await PackageAssetReader.currentIsolate(),
       ),
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.toString(),
-        'toString()',
+        (e) => e.format(),
+        'format()',
         'No constructors allowed on realm model classes\n'
             '\n'
             'in: package:pkg/src/test.dart:10:3\n'
@@ -675,8 +675,8 @@ class _Bad {
         reader: await PackageAssetReader.currentIsolate(),
       ),
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.toString(),
-        'toString()',
+        (e) => e.format(),
+        'format()',
         'Realm collection field must be final\n'
             '\n'
             'in: package:pkg/src/test.dart:10:13\n'
@@ -715,8 +715,8 @@ class _Bad {
         reader: await PackageAssetReader.currentIsolate(),
       ),
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.toString(),
-        'toString()',
+        (e) => e.format(),
+        'format()',
         'Realm collections cannot be nullable\n'
             '\n'
             'in: package:pkg/src/test.dart:10:9\n'
@@ -758,8 +758,8 @@ class _Bad {
         reader: await PackageAssetReader.currentIsolate(),
       ),
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.toString(),
-        'toString()',
+        (e) => e.format(),
+        'format()',
         'Nullable realm objects are not allowed in collections\n'
             '\n'
             'in: package:pkg/src/test.dart:14:9\n'
@@ -801,8 +801,8 @@ class _Bad {
         reader: await PackageAssetReader.currentIsolate(),
       ),
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.toString(),
-        'toString()',
+        (e) => e.format(),
+        'format()',
         'Realm object references must be nullable\n'
             '\n'
             'in: package:pkg/src/test.dart:13:8\n'
@@ -839,8 +839,8 @@ class _Bad {}
         reader: await PackageAssetReader.currentIsolate(),
       ),
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.toString(),
-        'toString()',
+        (e) => e.format(),
+        'format()',
         'Mapping already defined\n'
             '\n'
             'in: package:pkg/src/test.dart:6:7\n'
@@ -883,8 +883,8 @@ class _Bad2 {}
         reader: await PackageAssetReader.currentIsolate(),
       ),
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.toString(),
-        'toString()',
+        (e) => e.format(),
+        'format()',
         'Mapping already defined\n'
             '\n'
             'in: package:pkg/src/test2.dart:6:7\n'
@@ -925,8 +925,8 @@ class _Bar {}
         reader: await PackageAssetReader.currentIsolate(),
       ),
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.toString(),
-        'toString()',
+        (e) => e.format(),
+        'format()',
         'Mapping already defined\n'
             '\n'
             'in: package:pkg/src/test.dart:11:7\n'
