@@ -582,8 +582,6 @@ Future<void> main([List<String>? args]) async {
       //Clear list of team players
       realm.write(() => teams[0].players.clear());
 
-      //Ensure that players are not reffered by the team in realm
-      teams = realm.all<Team>();
       expect(teams[0].players.length, 0);
 
       //Ensure that players objects still exist in realm detached from the team
@@ -625,8 +623,7 @@ Future<void> main([List<String>? args]) async {
       //Clear first team's players only
       realm.write(() => teams[0].players.clear());
 
-      //Reload teams from realm and ensure that second team is still related to players
-      teams = realm.all<Team>();
+      //Ensure that second team is still related to players
       expect(teams[0].players.length, 0);
       expect(teams[1].players.length, 3);
 
@@ -665,9 +662,8 @@ Future<void> main([List<String>? args]) async {
       //Clear player from the first team
       realm.write(() => teams[0].players.clear());
 
-      //Reload teams from realm and ensure that the second team has no more players
+      //Ensure that the second team has no more players
       // but the first team is still related to the player
-      teams = realm.all<Team>();
       expect(teams[0].players.length, 0);
       expect(teams[1].players.length, 1);
 
@@ -694,10 +690,10 @@ Future<void> main([List<String>? args]) async {
       expect(teams[0].players.length, 1);
 
       var players = teams[0].players;
-      //Close realm before ro clear players from the team
+      //Close realm before to clear players from the team
+      realm.close();
       expect(
           () => realm.write(() {
-                realm.close();
                 players.clear();
               }),
           throws<RealmException>());
