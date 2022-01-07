@@ -317,7 +317,7 @@ class _RealmCore {
     });
   }
 
-  void removeRealmObject(RealmObject object) {
+  void deleteRealmObject(RealmObject object) {
     _realmLib.invokeGetBool(() => _realmLib.realm_object_delete(object.handle._pointer));
   }
 
@@ -384,11 +384,11 @@ class _RealmCore {
     });
   }
 
-  void realmListRemoveAll(RealmList list) {
+  void realmListDeleteAll(RealmList list) {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_remove_all(list.handle._pointer));
   }
 
-  void realmResultsRemoveAll(RealmResults results) {
+  void realmResultsDeleteAll(RealmResults results) {
     _realmLib.invokeGetBool(() => _realmLib.realm_results_delete_all(results.handle._pointer));
   }
 }

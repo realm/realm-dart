@@ -83,25 +83,25 @@ class Realm {
     return object;
   }
 
-  /// Removes given [RealmObject] from Realm database.
+  /// Delete given [RealmObject] from Realm database.
   /// Throws [RealmException] on error.
-  void remove<T extends RealmObject>(T object) {
+  void delete<T extends RealmObject>(T object) {
     try {
-      realmCore.removeRealmObject(object);
+      realmCore.deleteRealmObject(object);
     } catch (e) {
       throw RealmException("Error deleting object from databse. Error: $e");
     }
   }
 
-  /// Removes [RealmObject] items in given collection from Realm database.
-  void removeMany<T extends RealmObject>(Iterable<T> items) {
+  /// Deletes [RealmObject] items in given collection from Realm database.
+  void deleteMany<T extends RealmObject>(Iterable<T> items) {
       if (items is RealmResults<T>) {
-        realmCore.realmResultsRemoveAll(items);
+      realmCore.realmResultsDeleteAll(items);
       } else if (items is RealmList<T>) {
-        realmCore.realmListRemoveAll(items);
+      realmCore.realmListDeleteAll(items);
       } else {
         for (T realmObject in items) {
-          realmCore.removeRealmObject(realmObject);
+        realmCore.deleteRealmObject(realmObject);
       }
     }
   }
