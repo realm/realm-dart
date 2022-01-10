@@ -326,7 +326,25 @@ class _RealmCore {
     return RealmResultsHandle._(pointer);
   }
 
-  RealmResultsHandle query(Realm realm, RealmResults target, String query) {
+  RealmResultsHandle queryTable(Realm realm, int classKey, String query) {
+    return using((arena) {
+      // TODO: Support args
+      final argsPointer = Pointer<realm_value_t>.fromAddress(0);
+      final queryHandle = RealmQueryHandle._(
+        _realmLib.realm_query_parse(
+          realm.handle._pointer,
+          classKey,
+          query.toUtf8Ptr<Int8>(arena),
+          0,
+          argsPointer,
+        ),
+      );
+      final resultsPointer = _realmLib.realm_query_find_all(queryHandle._pointer);
+      return RealmResultsHandle._(resultsPointer);
+    });
+  }
+
+  RealmResultsHandle queryResults(Realm realm, RealmResults target, String query) {
     return using((arena) {
       // TODO: Support args
       final argsPointer = Pointer<realm_value_t>.fromAddress(0);

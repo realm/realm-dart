@@ -141,6 +141,12 @@ class Realm {
     final handle = realmCore.findAll(this, metadata.class_.key);
     return RealmResultsInternal.create<T>(handle, this);
   }
+
+  RealmResults<T> query<T extends RealmObject>(String query) {
+    RealmMetadata metadata = _getMetadata(T);
+    final handle = realmCore.queryTable(this, metadata.class_.key, query);
+    return RealmResultsInternal.create<T>(handle, this);
+  }
 }
 
 class _Scheduler {
