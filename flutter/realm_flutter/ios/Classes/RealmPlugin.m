@@ -40,7 +40,6 @@ void dummy(void) {
   realm_object_create(NULL, 0);
   realm_dart_get_files_path();
   realm_results_get_object(NULL, 0);
-  realm_results_snapshot(nullptr);
 }
 
 @end
