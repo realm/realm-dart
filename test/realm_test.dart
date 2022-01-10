@@ -700,6 +700,9 @@ Future<void> main([List<String>? args]) async {
 
       realm = Realm(config);
       
+      //Teams must be reloaded since realm was reopened
+      teams = realm.all<Team>();
+     
       //Ensure that the team is still related to the player
       expect(teams.length, 1);
       expect(teams[0].players.length, 1);
