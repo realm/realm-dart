@@ -690,7 +690,7 @@ Future<void> main([List<String>? args]) async {
       expect(teams[0].players.length, 1);
 
       var players = teams[0].players;
-      //Close realm before to clear players from the team
+     
       realm.close();
       expect(
           () => realm.write(() {
@@ -699,8 +699,8 @@ Future<void> main([List<String>? args]) async {
           throws<RealmException>());
 
       realm = Realm(config);
+      
       //Ensure that the team is still related to the player
-      teams = realm.all<Team>();
       expect(teams.length, 1);
       expect(teams[0].players.length, 1);
     });
