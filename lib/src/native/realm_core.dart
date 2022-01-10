@@ -193,7 +193,7 @@ class _RealmCore {
   void closeRealm(Realm realm) {
     _realmLib.invokeGetBool(() => _realmLib.realm_close(realm.handle._pointer), "Realm close failed");
   }
-  
+
   bool isRealmClosed(Realm realm) {
     return _realmLib.realm_is_closed(realm.handle._pointer);
   }
@@ -326,6 +326,23 @@ class _RealmCore {
     return RealmResultsHandle._(pointer);
   }
 
+  RealmResultsHandle query(Realm realm, RealmResults target, String query) {
+    return using((arena) {
+      // TODO: Support args
+      final argsPointer = Pointer<realm_value_t>.fromAddress(0);
+      final queryHandle = RealmQueryHandle._(
+        _realmLib.realm_query_parse_for_results(
+          target.handle._pointer,
+          query.toUtf8Ptr<Int8>(arena),
+          0,
+          argsPointer,
+        ),
+      );
+      final resultsPointer = _realmLib.realm_query_find_all(queryHandle._pointer);
+      return RealmResultsHandle._(resultsPointer);
+    });
+  }
+
   RealmObjectHandle getObjectAt(RealmResults results, int index) {
     Pointer<realm_object> pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_get_object(results.handle._pointer, index));
     return RealmObjectHandle._(pointer);
@@ -383,7 +400,6 @@ class _RealmCore {
       _realmLib.invokeGetBool(() => _realmLib.realm_list_insert(list.handle._pointer, index, realm_value.ref));
     });
   }
-
 }
 
 class LastError {
@@ -454,6 +470,12 @@ class RealmResultsHandle extends Handle<realm_results> {
 class RealmListHandle extends Handle<realm_list> {
   RealmListHandle._(Pointer<realm_list> pointer) : super(pointer) {
     _realmLib.realm_attach_finalizer(this, _pointer.cast(), 88);
+  }
+}
+
+class RealmQueryHandle extends Handle<realm_query> {
+  RealmQueryHandle._(Pointer<realm_query> pointer) : super(pointer) {
+    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 88); // TODO!
   }
 }
 

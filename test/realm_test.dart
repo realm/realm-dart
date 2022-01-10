@@ -25,7 +25,6 @@ import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
 
 import '../lib/realm.dart';
-import '../lib/src/native/realm_core.dart' as core;
 
 part 'realm_test.gen.dart';
 
@@ -506,6 +505,17 @@ Future<void> main([List<String>? args]) async {
       final car = Car();
       final cars = realm.all<Car>();
       expect(cars[0].make, car.make);
+    });
+
+    test('Query', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      realm.write(() => realm
+        ..add(Car()..make = "Audi")
+        ..add(Car()));
+      final cars = realm.all<Car>().query('make == "Tesla"');
+      expect(cars.length, 1);
+      expect(cars[0].make, "Tesla");
     });
 
     test('Lists create object with a list property', () {
