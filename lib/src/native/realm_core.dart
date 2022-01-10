@@ -326,37 +326,43 @@ class _RealmCore {
     return RealmResultsHandle._(pointer);
   }
 
-  RealmResultsHandle queryTable(Realm realm, int classKey, String query) {
+  RealmResultsHandle queryTable(Realm realm, int classKey, String query, List<Object> args) {
     return using((arena) {
-      // TODO: Support args
-      final argsPointer = Pointer<realm_value_t>.fromAddress(0);
-      final queryHandle = RealmQueryHandle._(
-        _realmLib.realm_query_parse(
+      final length = args.length;
+      final argsPointer = arena<Pointer<realm_value_t>>(length);
+      for (var i = 0; i < length; ++i) {
+        argsPointer[0] = _toRealmValue(args[i], arena);
+      }
+      final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
+        () => _realmLib.realm_query_parse(
           realm.handle._pointer,
           classKey,
           query.toUtf8Ptr<Int8>(arena),
-          0,
-          argsPointer,
+          length,
+          argsPointer[0],
         ),
-      );
-      final resultsPointer = _realmLib.realm_query_find_all(queryHandle._pointer);
+      ));
+      final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_query_find_all(queryHandle._pointer));
       return RealmResultsHandle._(resultsPointer);
     });
   }
 
-  RealmResultsHandle queryResults(Realm realm, RealmResults target, String query) {
+  RealmResultsHandle queryResults(Realm realm, RealmResults target, String query, List<Object> args) {
     return using((arena) {
-      // TODO: Support args
-      final argsPointer = Pointer<realm_value_t>.fromAddress(0);
-      final queryHandle = RealmQueryHandle._(
-        _realmLib.realm_query_parse_for_results(
+      final length = args.length;
+      final argsPointer = arena<Pointer<realm_value_t>>(length);
+      for (var i = 0; i < length; ++i) {
+        argsPointer[0] = _toRealmValue(args[i], arena);
+      }
+      final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
+        () => _realmLib.realm_query_parse_for_results(
           target.handle._pointer,
           query.toUtf8Ptr<Int8>(arena),
-          0,
-          argsPointer,
+          length,
+          argsPointer[0],
         ),
-      );
-      final resultsPointer = _realmLib.realm_query_find_all(queryHandle._pointer);
+      ));
+      final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_query_find_all(queryHandle._pointer));
       return RealmResultsHandle._(resultsPointer);
     });
   }

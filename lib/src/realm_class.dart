@@ -142,9 +142,9 @@ class Realm {
     return RealmResultsInternal.create<T>(handle, this);
   }
 
-  RealmResults<T> query<T extends RealmObject>(String query) {
+  RealmResults<T> query<T extends RealmObject>(String query, [List<Object> args = const []]) {
     RealmMetadata metadata = _getMetadata(T);
-    final handle = realmCore.queryTable(this, metadata.class_.key, query);
+    final handle = realmCore.queryTable(this, metadata.class_.key, query, args);
     return RealmResultsInternal.create<T>(handle, this);
   }
 }

@@ -114,8 +114,8 @@ class RealmResults<T extends RealmObject> {
   //   return Results<T>(results);
   // }
 
-  RealmResults<T> query(String query) {
-    final handle = realmCore.queryResults(_realm, this, query);
+  RealmResults<T> query(String query, [List<Object> args = const []]) {
+    final handle = realmCore.queryResults(_realm, this, query, args);
     return RealmResultsInternal.create<T>(handle, _realm);
   }
 

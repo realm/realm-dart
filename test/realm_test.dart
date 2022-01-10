@@ -529,6 +529,28 @@ Future<void> main([List<String>? args]) async {
       expect(cars[0].make, "Tesla");
     });
 
+    test('Query results with parameter', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      realm.write(() => realm
+        ..add(Car()..make = "Audi")
+        ..add(Car()));
+      final cars = realm.all<Car>().query(r'make == $0', ['Tesla']);
+      expect(cars.length, 1);
+      expect(cars[0].make, "Tesla");
+    });
+
+    test('Query realm with parameter', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      realm.write(() => realm
+        ..add(Car()..make = "Audi")
+        ..add(Car()));
+      final cars = realm.query<Car>(r'make == $0', ['Tesla']);
+      expect(cars.length, 1);
+      expect(cars[0].make, "Tesla");
+    });
+
     test('Lists create object with a list property', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
