@@ -558,31 +558,25 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create two teams
+      final teamOne = Team()..name = "Team one";
+      final teamTwo = Team()..name = "Team two";
+      final teamThree = Team()..name = "Team three";
       realm.write(() {
-        realm.add(Team()..name = "Ferrari");
-        realm.add(Team()..name = "Maserati");
+        realm.add(teamOne);
+        realm.add(teamTwo);
+        realm.add(teamThree);
       });
 
       //Ensure the teams exist in realm
       var teams = realm.all<Team>();
-      expect(teams.length, 2);
+      expect(teams.length, 3);
 
-      //Convert RealmResults to List
+      //Delete teams one and three from realm
+      realm.write(() => realm.deleteMany([teamOne, teamThree]));
 
-      // ignore: todo
-      // TODO: Use RealmResults.asList if it is available
-      List<Team> list = [];
-      int itemsCount = teams.length;
-      for (var i = 0; i < itemsCount; i++) {
-        list.add(teams[i]);
-      }
-
-      //Delete objects in the list from realm
-      realm.write(() => realm.deleteMany(list));
-
-      //Reload teams from realm and ensure they are deleted
-      teams = realm.all<Team>();
-      expect(teams.length, 0);
+      //Ensure both teams are deleted and only teamTwo has left
+      expect(teams.length, 1);
+      expect(teams[0].name, teamTwo.name);
     });
 
     test('Realm.deleteMany from realmList', () {
