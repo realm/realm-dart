@@ -384,7 +384,7 @@ class _RealmCore {
     });
   }
 
-  void clear(RealmList list) {
+  void listClear(RealmList list) {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(list.handle._pointer));
   }
 }
