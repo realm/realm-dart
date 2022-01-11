@@ -566,8 +566,8 @@ Future<void> main([List<String>? args]) async {
       expect(t1.players.map((p) => p.name), [x.name]);
       expect(t2.players.map((p) => p.name), [y.name]);
       expect(t3.players.map((p) => p.name), [x, y].map((p) => p.name));
-      final filteredTeams = realm.all<Team>().query(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']); // AND players CONTAINS $1', ['A', x]);
-      //expect(filteredTeams.length, 1);
+      final filteredTeams = realm.all<Team>().query(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']);
+      expect(filteredTeams.length, 1);
       expect(filteredTeams[0].name, "A1");
     });
 
@@ -608,8 +608,8 @@ Future<void> main([List<String>? args]) async {
       expect(t1.players.map((p) => p.name), [x.name]);
       expect(t2.players.map((p) => p.name), [y.name]);
       expect(t3.players.map((p) => p.name), [x, y].map((p) => p.name));
-      final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']); // AND players CONTAINS $1', ['A', x]);
-      //expect(filteredTeams.length, 1);
+      final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']);
+      expect(filteredTeams.length, 1);
       expect(filteredTeams[0].name, "A1");
     });
 
