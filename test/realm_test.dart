@@ -723,14 +723,14 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create a team
-      final team = Team()..name = "Team";
+      final team = Team("Team");
       realm.write(() => realm.add(team));
 
       //Add players to the team
       final newPlayers = [
-        Person()..name = "Michael Schumacher",
-        Person()..name = "Sebastian Vettel",
-        Person()..name = "Kimi Räikkönen",
+        Person("Michael Schumacher"),
+        Person("Sebastian Vettel"),
+        Person("Kimi Räikkönen"),
       ];
 
       realm.write(() {
@@ -760,8 +760,8 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create two teams
-      final teamOne = Team()..name = "TeamOne";
-      final teamTwo = Team()..name = "TeamTwo";
+      final teamOne = Team("TeamOne");
+      final teamTwo = Team("TeamTwo");
       realm.write(() {
         realm.add(teamOne);
         realm.add(teamTwo);
@@ -769,9 +769,9 @@ Future<void> main([List<String>? args]) async {
 
       //Create common players list for both teams
       final newPlayers = [
-        Person()..name = "Michael Schumacher",
-        Person()..name = "Sebastian Vettel",
-        Person()..name = "Kimi Räikkönen",
+        Person("Michael Schumacher"),
+        Person("Sebastian Vettel"),
+        Person("Kimi Räikkönen"),
       ];
       realm.write(() {
         teamOne.players.addAll(newPlayers);
@@ -803,15 +803,15 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create two Teams
-      final teamOne = Team()..name = "TeamOne";
-      final teamTwo = Team()..name = "TeamTwo";
+      final teamOne = Team("TeamOne");
+      final teamTwo = Team("TeamTwo");
       realm.write(() {
         realm.add(teamOne);
         realm.add(teamTwo);
       });
 
       //Add the same player to both teams
-      Person player = Person()..name = "Michael Schumacher";
+      Person player = Person("Michael Schumacher");
       realm.write(() {
         teamOne.players.add(player);
         teamTwo.players.add(player);
@@ -843,11 +843,11 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create a team
-      var team = Team()..name = "TeamOne";
+      var team = Team("TeamOne");
       realm.write(() => realm.add(team));
 
       //Add the player to the team
-      realm.write(() => team.players.add(Person()..name = "Michael Schumacher"));
+      realm.write(() => team.players.add(Person("Michael Schumacher")));
 
       //Ensure teams and player are in realm
       var teams = realm.all<Team>();
