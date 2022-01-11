@@ -14,7 +14,7 @@ on:
 
 jobs:
   CI:
-    runs-on: macos-latest
+    runs-on: macos-10.15
     env:
       REALM_CI: true
 
