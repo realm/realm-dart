@@ -83,6 +83,29 @@ class Realm {
     return object;
   }
 
+  /// Delete given [RealmObject] from Realm database.
+  /// Throws [RealmException] on error.
+  void delete<T extends RealmObject>(T object) {
+    try {
+      realmCore.deleteRealmObject(object);
+    } catch (e) {
+      throw RealmException("Error deleting object from databse. Error: $e");
+    }
+  }
+
+  /// Deletes [RealmObject] items in given collection from Realm database.
+  void deleteMany<T extends RealmObject>(Iterable<T> items) {
+    if (items is RealmResults<T>) {
+      realmCore.resultsDeleteAll(items);
+    } else if (items is RealmList<T>) {
+      realmCore.listDeleteAll(items);
+    } else {
+      for (T realmObject in items) {
+        realmCore.deleteRealmObject(realmObject);
+      }
+    }
+  }
+
   void addAll<T extends RealmObject>(Iterable<T> items) {
     for (final i in items) {
       add(i);
@@ -90,7 +113,7 @@ class Realm {
   }
 
   void remove<T extends RealmObject>(T object) {
-    realmCore.removeRealmObject(object);
+    realmCore.deleteRealmObject(object);
   }
 
   bool get _isInTransaction => realmCore.getIsWritable(this);

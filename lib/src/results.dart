@@ -91,7 +91,7 @@ class _ResultsList<T extends RealmObject> extends collection.ListBase<T> {
 /// Instances of this class are typically live collections returned by [Realm.objects]
 /// that will update as new objects are either added to or deleted from the Realm
 /// that match the underlying query.
-class RealmResults<T extends RealmObject> {
+class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   late final RealmResultsHandle _handle;
   late final Realm _realm;
   // RealmResults _results;
@@ -143,9 +143,11 @@ class RealmResults<T extends RealmObject> {
   // }
 
   /// Returns `true` if the Results collection is empty
-  bool isEmpty() {
-    return length == 0;
-  }
+  @override
+  bool get isEmpty => length == 0;
+
+  @override
+  Iterator<T> get iterator => _RealmResultsIterator(this);
 
   /// Returns `true` if this Results collection has not been deleted and is part of a valid Realm.
   ///
@@ -153,6 +155,7 @@ class RealmResults<T extends RealmObject> {
   // bool get isValid => _results.isValid();
 
   /// Returns the number of values in the Results collection.
+  @override
   int get length => realmCore.getResultsCount(this);
 
   /// Returns a human-readable description of the objects contained in the collection.
@@ -206,5 +209,31 @@ extension RealmResultsInternal on RealmResults {
 
   static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm) {
     return RealmResults<T>._(handle, realm);
+  }
+}
+
+class _RealmResultsIterator<T extends RealmObject> implements Iterator<T> {
+  final RealmResults<T> _results;
+  int _index;
+  T? _current;
+
+  _RealmResultsIterator(RealmResults<T> results)
+      : _results = results,
+        _index = -1;
+
+  @override
+  T get current => _current as T;
+
+  @override
+  bool moveNext() {
+    int length = _results.length;
+    _index++;
+    if (_index >= length) {
+      _current = null;
+      return false;
+    }
+    _current = _results[_index];
+
+    return true;
   }
 }

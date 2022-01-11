@@ -96,5 +96,6 @@
         "flutter/realm_flutter/ios/src/**": true,
         "flutter/realm_flutter/lib/**": true,
         "flutter/realm_flutter/test/**": true
-    }
+    },
+    "dart.lineLength": 160
 }
