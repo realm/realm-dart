@@ -61,8 +61,8 @@ class _RealmCore {
 
   String get libraryVersion => _realmLib.realm_get_library_version().cast<Utf8>().toDartString();
 
-  LastError? getLastError(Arena arena) {
-    final error = arena<realm_error_t>();
+  LastError? getLastError(Allocator allocator) {
+    final error = allocator<realm_error_t>();
     final success = _realmLib.realm_get_last_error(error);
     if (!success) {
       return null;
@@ -76,10 +76,10 @@ class _RealmCore {
     return LastError(error.ref.error, message);
   }
 
-  void raiseLastErrorAsRealmException([String? errorMessage]) {
+  void throwLastError([String? errorMessage]) {
     using((Arena arena) {
       final lastError = getLastError(arena);
-      throw RealmException("${errorMessage ?? ""} ${lastError.toString()}");
+      throw RealmException('${errorMessage != null ? errorMessage + ". " : ""}${lastError ?? ""}');
     });
   }
 
@@ -222,7 +222,7 @@ class _RealmCore {
           "Error getting class $className from realm at ${realm.config.path}");
 
       if (found.value == 0) {
-        raiseLastErrorAsRealmException("Class $className not found in ${realm.config.path}");
+        throwLastError("Class $className not found in ${realm.config.path}");
       }
 
       String? primaryKey;
@@ -392,7 +392,7 @@ class LastError {
 
   @override
   String toString() {
-    return "Error code: $code ${(message != null ? "Message: $message" : "")}";
+    return "Error code: $code ${(message != null ? ". Message: $message" : "")}";
   }
 }
 
@@ -471,14 +471,14 @@ extension _RealmLibraryEx on RealmLibrary {
   void invokeGetBool(bool Function() callback, [String? errorMessage]) {
     bool success = callback();
     if (!success) {
-      realmCore.raiseLastErrorAsRealmException(errorMessage);
+      realmCore.throwLastError(errorMessage);
     }
   }
 
   Pointer<T> invokeGetPointer<T extends NativeType>(Pointer<T> Function() callback, [String? errorMessage]) {
     final result = callback();
     if (result == nullptr) {
-      realmCore.raiseLastErrorAsRealmException(errorMessage);
+      realmCore.throwLastError(errorMessage);
     }
     return result;
   }
