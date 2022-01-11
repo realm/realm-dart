@@ -25,7 +25,6 @@ import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
 
 import '../lib/realm.dart';
-import '../lib/src/native/realm_core.dart' as core;
 
 part 'realm_test.gen.dart';
 
@@ -506,6 +505,112 @@ Future<void> main([List<String>? args]) async {
       final car = Car();
       final cars = realm.all<Car>();
       expect(cars[0].make, car.make);
+    });
+
+    test('Query results', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      realm.write(() => realm
+        ..add(Car()..make = "Audi")
+        ..add(Car()));
+      final cars = realm.all<Car>().query('make == "Tesla"');
+      expect(cars.length, 1);
+      expect(cars[0].make, "Tesla");
+    });
+
+    test('Query class', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      realm.write(() => realm
+        ..add(Car()..make = "Audi")
+        ..add(Car()));
+      final cars = realm.query<Car>('make == "Tesla"');
+      expect(cars.length, 1);
+      expect(cars[0].make, "Tesla");
+    });
+
+    test('Query results with parameter', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      realm.write(() => realm
+        ..add(Car()..make = "Audi")
+        ..add(Car()));
+      final cars = realm.all<Car>().query(r'make == $0', ['Tesla']);
+      expect(cars.length, 1);
+      expect(cars[0].make, "Tesla");
+    });
+
+    test('Query results with multiple parameters', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final x = Person()..name = 'x';
+      final y = Person()..name = 'y';
+      final t1 = Team()..name = "A1";
+      final t2 = Team()..name = "A2";
+      final t3 = Team()..name = "B1";
+
+      realm.write(() => realm
+        ..add(t1)
+        ..add(t2)
+        ..add(t3));
+
+      // TODO: Ugly that we need to add players in separate transaction :-/
+      realm.write(() {
+        t1.players.addAll([x]); // match!
+        t2.players.addAll([y]); // correct prefix, but wrong play
+        t3.players.addAll([x, y]); // wrong prefix, but correct player
+      });
+
+      // TODO: Still no equality :-/
+      expect(t1.players.map((p) => p.name), [x.name]);
+      expect(t2.players.map((p) => p.name), [y.name]);
+      expect(t3.players.map((p) => p.name), [x, y].map((p) => p.name));
+      final filteredTeams = realm.all<Team>().query(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']); // AND players CONTAINS $1', ['A', x]);
+      //expect(filteredTeams.length, 1);
+      expect(filteredTeams[0].name, "A1");
+    });
+
+    test('Query class with parameter', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      realm.write(() => realm
+        ..add(Car()..make = "Audi")
+        ..add(Car()));
+      final cars = realm.query<Car>(r'make == $0', ['Tesla']);
+      expect(cars.length, 1);
+      expect(cars[0].make, "Tesla");
+    });
+
+    test('Query class with multiple parameters', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final x = Person()..name = 'x';
+      final y = Person()..name = 'y';
+      final t1 = Team()..name = "A1";
+      final t2 = Team()..name = "A2";
+      final t3 = Team()..name = "B1";
+
+      realm.write(() => realm
+        ..add(t1)
+        ..add(t2)
+        ..add(t3));
+
+      // TODO: Ugly that we need to add players in separate transaction :-/
+      realm.write(() {
+        t1.players.addAll([x]); // match!
+        t2.players.addAll([y]); // correct prefix, but wrong play
+        t3.players.addAll([x, y]); // wrong prefix, but correct player
+      });
+
+      // TODO: Still no equality :-/
+      expect(t1.players.map((p) => p.name), [x.name]);
+      expect(t2.players.map((p) => p.name), [y.name]);
+      expect(t3.players.map((p) => p.name), [x, y].map((p) => p.name));
+      final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']); // AND players CONTAINS $1', ['A', x]);
+      //expect(filteredTeams.length, 1);
+      expect(filteredTeams[0].name, "A1");
     });
 
     test('Lists create object with a list property', () {

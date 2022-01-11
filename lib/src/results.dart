@@ -15,15 +15,11 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-// ignore_for_file: native_function_body_in_non_sdk_code
-
 import 'dart:collection' as collection;
 
 import 'native/realm_core.dart';
-
-import 'realm_object.dart';
 import 'realm_class.dart';
+import 'realm_object.dart';
 
 /// A listener callback to be called when the [Results<T>] collection changes
 ///
@@ -117,6 +113,11 @@ class RealmResults<T extends RealmObject> {
   //   var results = _results.filtered(filter);
   //   return Results<T>(results);
   // }
+
+  RealmResults<T> query(String query, [List<Object> args = const []]) {
+    final handle = realmCore.queryResults(this, query, args);
+    return RealmResultsInternal.create<T>(handle, _realm);
+  }
 
   /// Returns a new `Results<T>` that represent a sorted view of this collection.
   ///
