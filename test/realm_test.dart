@@ -879,9 +879,9 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create two teams
-      final teamOne = Team()..name = "Team one";
-      final teamTwo = Team()..name = "Team two";
-      final teamThree = Team()..name = "Team three";
+      final teamOne = Team("Team one");
+      final teamTwo = Team("Team two");
+      final teamThree = Team("Team three");
       realm.write(() {
         realm.add(teamOne);
         realm.add(teamTwo);
@@ -905,14 +905,14 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create a team
-      final team = Team()..name = "Ferrari";
+      final team = Team("Ferrari");
       realm.write(() => realm.add(team));
 
       //Add players to the team
       final newPlayers = [
-        Person()..name = "Michael Schumacher",
-        Person()..name = "Sebastian Vettel",
-        Person()..name = "Kimi Räikkönen",
+        Person("Michael Schumacher"),
+        Person("Sebastian Vettel"),
+        Person("Kimi Räikkönen"),
       ];
       realm.write(() => team.players.addAll(newPlayers));
 
@@ -936,8 +936,8 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create two teams
-      final teamOne = Team()..name = "Ferrari";
-      final teamTwo = Team()..name = "Maserati";
+      final teamOne = Team("Ferrari");
+      final teamTwo = Team("Maserati");
       realm.write(() {
         realm.add(teamOne);
         realm.add(teamTwo);
@@ -945,9 +945,9 @@ Future<void> main([List<String>? args]) async {
 
       //Create common players list for both teams
       final newPlayers = [
-        Person()..name = "Michael Schumacher",
-        Person()..name = "Sebastian Vettel",
-        Person()..name = "Kimi Räikkönen",
+        Person("Michael Schumacher"),
+        Person("Sebastian Vettel"),
+        Person("Kimi Räikkönen"),
       ];
       realm.write(() {
         teamOne.players.addAll(newPlayers);
@@ -975,8 +975,8 @@ Future<void> main([List<String>? args]) async {
 
       //Create two teams
       realm.write(() {
-        realm.add(Team()..name = "Ferrari");
-        realm.add(Team()..name = "Maserati");
+        realm.add(Team("Ferrari"));
+        realm.add(Team("Maserati"));
       });
 
       //Ensule teams exist in realm
@@ -997,14 +997,14 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create a team
-      final team = Team()..name = "Ferrari";
+      final team = Team("Ferrari");
       realm.write(() => realm.add(team));
 
       //Add players to the team
       final newPlayers = [
-        Person()..name = "Michael Schumacher",
-        Person()..name = "Sebastian Vettel",
-        Person()..name = "Kimi Räikkönen",
+        Person("Michael Schumacher"),
+        Person("Sebastian Vettel"),
+        Person("Kimi Räikkönen"),
       ];
       realm.write(() => team.players.addAll(newPlayers));
 
@@ -1033,8 +1033,8 @@ Future<void> main([List<String>? args]) async {
 
       //Create two teams
       realm.write(() {
-        realm.add(Team()..name = "team One");
-        realm.add(Team()..name = "team Two");
+        realm.add(Team("team One"));
+        realm.add(Team("team Two"));
       });
 
       //Reload teams from realm and ensure they exist
