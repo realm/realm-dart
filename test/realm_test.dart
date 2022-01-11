@@ -800,7 +800,7 @@ Future<void> main([List<String>? args]) async {
       expect(allPlayers.length, 1);
     });
 
-    test('RealmList clear - exception', () {
+    test('RealmList clear in closed realm - expected exception', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
