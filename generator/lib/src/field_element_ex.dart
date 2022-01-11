@@ -248,7 +248,7 @@ extension FieldElementEx on FieldElement {
       throw RealmInvalidGenerationSourceError(
         '$e',
         todo: //
-            'Inadequate error report. Please open an issue on: '
+            'Unexpected error. Please open an issue on: '
             'https://github.com/realm/realm-dart',
         element: this,
       );
