@@ -144,7 +144,7 @@ extension ClassElementEx on ClassElement {
       final mapped = session.mapping.putIfAbsent(name, () => this);
       if (mapped != this) {
         throw RealmInvalidGenerationSourceError(
-          'Mapping already defined',
+          'Model already defined',
           element: this,
           primarySpan: shortSpan!,
           primaryLabel: "'${mapped.displayName}' already defines '$name'",

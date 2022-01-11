@@ -841,7 +841,7 @@ class _Bad {}
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
         (e) => e.format(),
         'format()',
-        'Mapping already defined\n'
+        'Model already defined\n'
             '\n'
             'in: package:pkg/src/test.dart:6:7\n'
             '    ╷\n'
@@ -885,7 +885,7 @@ class _Bad2 {}
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
         (e) => e.format(),
         'format()',
-        'Mapping already defined\n'
+        'Model already defined\n'
             '\n'
             'in: package:pkg/src/test2.dart:6:7\n'
             '  ┌──> package:pkg/src/test2.dart\n'
@@ -927,7 +927,7 @@ class _Bar {}
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
         (e) => e.format(),
         'format()',
-        'Mapping already defined\n'
+        'Model already defined\n'
             '\n'
             'in: package:pkg/src/test.dart:11:7\n'
             '    ╷\n'
