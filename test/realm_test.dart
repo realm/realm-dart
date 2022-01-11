@@ -566,8 +566,8 @@ Future<void> main([List<String>? args]) async {
       expect(t1.players.map((p) => p.name), [x.name]);
       expect(t2.players.map((p) => p.name), [y.name]);
       expect(t3.players.map((p) => p.name), [x, y].map((p) => p.name));
-      final filteredTeams = realm.all<Team>().query(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']); // AND players CONTAINS $1', ['A', x]);
-      //expect(filteredTeams.length, 1);
+      final filteredTeams = realm.all<Team>().query(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']);
+      expect(filteredTeams.length, 1);
       expect(filteredTeams[0].name, "A1");
     });
 
@@ -608,8 +608,8 @@ Future<void> main([List<String>? args]) async {
       expect(t1.players.map((p) => p.name), [x.name]);
       expect(t2.players.map((p) => p.name), [y.name]);
       expect(t3.players.map((p) => p.name), [x, y].map((p) => p.name));
-      final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']); // AND players CONTAINS $1', ['A', x]);
-      //expect(filteredTeams.length, 1);
+      final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']);
+      expect(filteredTeams.length, 1);
       expect(filteredTeams[0].name, "A1");
     });
 
@@ -680,6 +680,162 @@ Future<void> main([List<String>? args]) async {
       expect(() => realm.write(() => players[800] = Person()), throws<RealmException>());
     });
 
+    test('RealmList clear items from list', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      //Create a team
+      final team = Team()..name = "Team";
+      realm.write(() => realm.add(team));
+
+      //Add players to the team
+      final newPlayers = [
+        Person()..name = "Michael Schumacher",
+        Person()..name = "Sebastian Vettel",
+        Person()..name = "Kimi Räikkönen",
+      ];
+
+      realm.write(() {
+        team.players.addAll(newPlayers);
+      });
+
+      //Ensure teams and players are in realm
+      var teams = realm.all<Team>();
+      expect(teams.length, 1);
+
+      var players = teams[0].players;
+      expect(players, isNotNull);
+      expect(players.length, 3);
+
+      //Clear list of team players
+      realm.write(() => teams[0].players.clear());
+
+      expect(teams[0].players.length, 0);
+
+      //Ensure that players objects still exist in realm detached from the team
+      final allPlayers = realm.all<Person>();
+      expect(allPlayers.length, 3);
+    });
+
+    test('RealmList clear - same list related to two objects', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      //Create two teams
+      final teamOne = Team()..name = "TeamOne";
+      final teamTwo = Team()..name = "TeamTwo";
+      realm.write(() {
+        realm.add(teamOne);
+        realm.add(teamTwo);
+      });
+
+      //Create common players list for both teams
+      final newPlayers = [
+        Person()..name = "Michael Schumacher",
+        Person()..name = "Sebastian Vettel",
+        Person()..name = "Kimi Räikkönen",
+      ];
+      realm.write(() {
+        teamOne.players.addAll(newPlayers);
+        teamTwo.players.addAll(newPlayers);
+      });
+
+      //Ensure that teams and players exist in realm
+      var teams = realm.all<Team>();
+      expect(teams.length, 2);
+      expect(teams[0].players, isNotNull);
+      expect(teams[0].players.length, 3);
+      expect(teams[1].players, isNotNull);
+      expect(teams[1].players.length, 3);
+
+      //Clear first team's players only
+      realm.write(() => teams[0].players.clear());
+
+      //Ensure that second team is still related to players
+      expect(teams[0].players.length, 0);
+      expect(teams[1].players.length, 3);
+
+      //Ensure players still exist in realm
+      final players = realm.all<Person>();
+      expect(players.length, 3);
+    });
+
+    test('RealmList clear - same item added to two lists', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      //Create two Teams
+      final teamOne = Team()..name = "TeamOne";
+      final teamTwo = Team()..name = "TeamTwo";
+      realm.write(() {
+        realm.add(teamOne);
+        realm.add(teamTwo);
+      });
+
+      //Add the same player to both teams
+      Person player = Person()..name = "Michael Schumacher";
+      realm.write(() {
+        teamOne.players.add(player);
+        teamTwo.players.add(player);
+      });
+
+      //Ensure teams and player are in realm
+      var teams = realm.all<Team>();
+      expect(teams.length, 2);
+      expect(teams[0].players, isNotNull);
+      expect(teams[0].players.length, 1);
+      expect(teams[1].players, isNotNull);
+      expect(teams[1].players.length, 1);
+
+      //Clear player from the first team
+      realm.write(() => teams[0].players.clear());
+
+      //Ensure that the second team has no more players
+      // but the first team is still related to the player
+      expect(teams[0].players.length, 0);
+      expect(teams[1].players.length, 1);
+
+      //Ensure the player still exists in realm
+      final allPlayers = realm.all<Person>();
+      expect(allPlayers.length, 1);
+    });
+
+    test('RealmList clear - exception', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      //Create a team
+      var team = Team()..name = "TeamOne";
+      realm.write(() => realm.add(team));
+
+      //Add the player to the team
+      realm.write(() => team.players.add(Person()..name = "Michael Schumacher"));
+
+      //Ensure teams and player are in realm
+      var teams = realm.all<Team>();
+      expect(teams.length, 1);
+      expect(teams[0].players, isNotNull);
+      expect(teams[0].players.length, 1);
+
+      var players = teams[0].players;
+     
+      realm.close();
+      expect(
+          () => realm.write(() {
+                players.clear();
+              }),
+          throws<RealmException>());
+
+      realm = Realm(config);
+      
+      //Teams must be reloaded since realm was reopened
+      teams = realm.all<Team>();
+     
+      //Ensure that the team is still related to the player
+      expect(teams.length, 1);
+      expect(teams[0].players.length, 1);
+    });
+    
     test('Realm.deleteMany from list', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);

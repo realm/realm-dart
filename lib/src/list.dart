@@ -80,7 +80,7 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
 
   @override
   void clear() {
-    throw UnimplementedError();
+    realmCore.listClear(this);
   }
 }
 
