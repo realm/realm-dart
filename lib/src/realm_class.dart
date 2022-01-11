@@ -96,9 +96,9 @@ class Realm {
   /// Deletes [RealmObject] items in given collection from Realm database.
   void deleteMany<T extends RealmObject>(Iterable<T> items) {
       if (items is RealmResults<T>) {
-      realmCore.realmResultsDeleteAll(items);
+      realmCore.resultsDeleteAll(items);
       } else if (items is RealmList<T>) {
-      realmCore.realmListDeleteAll(items);
+      realmCore.listDeleteAll(items);
       } else {
         for (T realmObject in items) {
         realmCore.deleteRealmObject(realmObject);
