@@ -423,6 +423,11 @@ class _RealmCore {
       _realmLib.invokeGetBool(() => _realmLib.realm_list_insert(list.handle._pointer, index, realm_value.ref));
     });
   }
+
+  void listClear(RealmList list) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(list.handle._pointer));
+  }
+
 }
 
 class LastError {
