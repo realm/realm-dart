@@ -95,15 +95,16 @@ class Realm {
 
   /// Deletes [RealmObject] items in given collection from Realm database.
   void deleteMany<T extends RealmObject>(Iterable<T> items) {
-      if (items is RealmResults<T>) {
+    if (items is RealmResults<T>) {
       realmCore.resultsDeleteAll(items);
-      } else if (items is RealmList<T>) {
+    } else if (items is RealmList<T>) {
       realmCore.listDeleteAll(items);
-      } else {
-        for (T realmObject in items) {
+    } else {
+      for (T realmObject in items) {
         realmCore.deleteRealmObject(realmObject);
       }
     }
+  }
 
   void addAll<T extends RealmObject>(Iterable<T> items) {
     for (final i in items) {
@@ -112,7 +113,7 @@ class Realm {
   }
 
   void remove<T extends RealmObject>(T object) {
-    realmCore.removeRealmObject(object);
+    realmCore.deleteRealmObject(object);
   }
 
   bool get _isInTransaction => realmCore.getIsWritable(this);
