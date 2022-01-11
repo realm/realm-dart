@@ -83,6 +83,12 @@ class Realm {
     return object;
   }
 
+  void addAll<T extends RealmObject>(Iterable<T> items) {
+    for (final i in items) {
+      add(i);
+    }
+  }
+
   void remove<T extends RealmObject>(T object) {
     realmCore.removeRealmObject(object);
   }

@@ -206,10 +206,10 @@ Future<void> main([List<String>? args]) async {
 
     test('Realm is closed', () {
       var config = Configuration([Car.schema]);
-      var realm = Realm(config);     
+      var realm = Realm(config);
       expect(realm.isClosed, false);
 
-      realm.close();    
+      realm.close();
       expect(realm.isClosed, true);
     });
 
@@ -253,6 +253,28 @@ Future<void> main([List<String>? args]) async {
       realm.write(() {
         realm.add(Car());
       });
+    });
+
+    test('Realm add multiple objects', () {
+      final config = Configuration([Car.schema]);
+      final realm = Realm(config);
+
+      final cars = [
+        Car('Mercedes'),
+        Car('Volks Wagen'),
+        Car('Tesla'),
+      ];
+
+      realm.write(() {
+        realm.addAll(cars);
+      });
+
+      // RealmResults<T> does no implement Iterable<T> yet, hence the explicit loop.
+      // Also, generated classes don't handle equality correct yet, hence we compare 'make'.
+      final allCars = realm.all<Car>();
+      for (int i = 0; i < cars.length; ++i) {
+        expect(allCars[i].make, cars[i].make);
+      }
     });
 
     test('Realm add object twice does not throw', () {
