@@ -818,7 +818,7 @@ Future<void> main([List<String>? args]) async {
       expect(teams[0].players.length, 1);
 
       var players = teams[0].players;
-     
+
       realm.close();
       expect(
           () => realm.write(() {
@@ -827,15 +827,15 @@ Future<void> main([List<String>? args]) async {
           throws<RealmException>());
 
       realm = Realm(config);
-      
+
       //Teams must be reloaded since realm was reopened
       teams = realm.all<Team>();
-     
+
       //Ensure that the team is still related to the player
       expect(teams.length, 1);
       expect(teams[0].players.length, 1);
     });
-    
+
     test('Realm.deleteMany from list', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
@@ -976,9 +976,9 @@ Future<void> main([List<String>? args]) async {
 
       //Try to delete team players while realm is closed
       final players = teams[0].players;
+      realm.close();
       expect(
           () => realm.write(() {
-                realm.close();
                 realm.deleteMany(players);
               }),
           throws<RealmException>());
