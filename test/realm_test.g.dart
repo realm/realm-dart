@@ -9,14 +9,11 @@ part of 'realm_test.dart';
 class Car extends _Car with RealmObject {
   static var _defaultsSet = false;
 
-  Car({
-    String? make,
-  }) {
-    if (make != null) _make = make;
-    _defaultsSet = _defaultsSet ||
-        RealmObject.setDefaults<Car>({
-          'make': "Tesla",
-        });
+  Car(
+    String make,
+  ) {
+    _make = make;
+    _defaultsSet = _defaultsSet || RealmObject.setDefaults<Car>({});
   }
 
   Car._();

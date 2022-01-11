@@ -31,7 +31,7 @@ part 'realm_test.g.dart';
 @RealmModel()
 class _Car {
   @PrimaryKey()
-  late final make = "Tesla";
+  late final String make;
 }
 
 @RealmModel()
@@ -242,8 +242,9 @@ Future<void> main([List<String>? args]) async {
     test('Realm add throws when no write transaction', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
-      final car = Car();
-      expect(() => realm.add(car), throws<RealmException>("Wrong transactional state"));
+      final car = Car('');
+      expect(() => realm.add(car),
+          throws<RealmException>("Wrong transactional state"));
     });
 
     test('Realm add object', () {
@@ -251,7 +252,7 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       realm.write(() {
-        realm.add(Car());
+        realm.add(Car(''));
       });
     });
 
@@ -282,7 +283,7 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       realm.write(() {
-        final car = Car();
+        final car = Car('');
         realm.add(car);
 
         //second add of the same object does not throw and return the same object
@@ -303,7 +304,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      final car = Car();
+      final car = Car('');
       Car? addedCar;
       realm.write(() {
         addedCar = realm.add(car);
@@ -318,7 +319,7 @@ Future<void> main([List<String>? args]) async {
 
       expect(() {
         realm.write(() {
-          realm.add(Car()..make = "Tesla");
+          realm.add(Car("Tesla"));
           throw Exception("some exception while adding objects");
         });
       }, throws<Exception>("some exception while adding objects"));
@@ -331,7 +332,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      final car = Car();
+      final car = Car('Tesla');
       realm.write(() {
         realm.add(car);
       });
@@ -343,7 +344,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      final car = Car();
+      final car = Car('Tesla');
       realm.write(() {
         realm.add(car);
       });
@@ -411,7 +412,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      realm.write(() => realm.add(Car(make: "Opel")));
+      realm.write(() => realm.add(Car("Opel")));
 
       final car = realm.find<Car>("Opel");
       expect(car, isNotNull);
@@ -428,7 +429,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      realm.write(() => realm.add(Car()));
+      realm.write(() => realm.add(Car('Tesla')));
 
       final car = realm.find<Car>("Tesla");
       expect(car, isNotNull);
@@ -439,7 +440,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      realm.write(() => realm.add(Car(make: "Opel")));
+      realm.write(() => realm.add(Car("Opel")));
 
       final car = realm.find<Car>("NonExistingPrimaryKey");
       expect(car, isNull);
@@ -449,7 +450,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      final car = Car(make: "SomeNewNonExistingValue");
+      final car = Car("SomeNewNonExistingValue");
       realm.write(() => realm.add(car));
 
       final car1 = realm.find<Car>("SomeNewNonExistingValue");
@@ -476,7 +477,7 @@ Future<void> main([List<String>? args]) async {
       var cars = realm.all<Car>();
       expect(cars.length, 0);
 
-      final car = Car();
+      final car = Car('');
       realm.write(() => realm.add(car));
 
       expect(cars.length, 1);
@@ -493,7 +494,7 @@ Future<void> main([List<String>? args]) async {
       var cars = realm.all<Car>();
       expect(cars.isEmpty, true);
 
-      final car = Car();
+      final car = Car('');
       realm.write(() => realm.add(car));
 
       expect(cars.isEmpty, false);
@@ -506,9 +507,10 @@ Future<void> main([List<String>? args]) async {
     test('Results get by index', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
-      realm.write(() => realm.add(Car()));
 
-      final car = Car();
+      final car = Car('');
+      realm.write(() => realm.add(car));
+
       final cars = realm.all<Car>();
       expect(cars[0].make, car.make);
     });
@@ -517,8 +519,8 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
       realm.write(() => realm
-        ..add(Car()..make = "Audi")
-        ..add(Car()));
+        ..add(Car("Audi"))
+        ..add(Car("Tesla")));
       final cars = realm.all<Car>().query('make == "Tesla"');
       expect(cars.length, 1);
       expect(cars[0].make, "Tesla");
@@ -528,8 +530,8 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
       realm.write(() => realm
-        ..add(Car()..make = "Audi")
-        ..add(Car()));
+        ..add(Car("Audi"))
+        ..add(Car("Tesla")));
       final cars = realm.query<Car>('make == "Tesla"');
       expect(cars.length, 1);
       expect(cars[0].make, "Tesla");
@@ -539,8 +541,8 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
       realm.write(() => realm
-        ..add(Car()..make = "Audi")
-        ..add(Car()));
+        ..add(Car("Audi"))
+        ..add(Car("Tesla")));
       final cars = realm.all<Car>().query(r'make == $0', ['Tesla']);
       expect(cars.length, 1);
       expect(cars[0].make, "Tesla");
@@ -550,11 +552,11 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      final x = Person()..name = 'x';
-      final y = Person()..name = 'y';
-      final t1 = Team()..name = "A1";
-      final t2 = Team()..name = "A2";
-      final t3 = Team()..name = "B1";
+      final x = Person('x');
+      final y = Person('y');
+      final t1 = Team("A1");
+      final t2 = Team("A2");
+      final t3 = Team("B1");
 
       realm.write(() => realm
         ..add(t1)
@@ -581,8 +583,8 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
       realm.write(() => realm
-        ..add(Car()..make = "Audi")
-        ..add(Car()));
+        ..add(Car("Audi"))
+        ..add(Car("Tesla")));
       final cars = realm.query<Car>(r'make == $0', ['Tesla']);
       expect(cars.length, 1);
       expect(cars[0].make, "Tesla");
@@ -592,11 +594,11 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      final x = Person()..name = 'x';
-      final y = Person()..name = 'y';
-      final t1 = Team()..name = "A1";
-      final t2 = Team()..name = "A2";
-      final t3 = Team()..name = "B1";
+      final x = Person('x');
+      final y = Person('y');
+      final t1 = Team("A1");
+      final t2 = Team("A2");
+      final t3 = Team("B1");
 
       realm.write(() => realm
         ..add(t1)
