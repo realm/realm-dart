@@ -84,7 +84,7 @@ class Realm {
   }
 
   void addAll<T extends RealmObject>(Iterable<T> items) {
-    for (final i in items) { // fallback
+    for (final i in items) {
       add(i);
     }
   }
