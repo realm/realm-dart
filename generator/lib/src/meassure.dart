@@ -19,8 +19,9 @@ import 'dart:async';
 
 import 'package:build/build.dart'; // for shared logging instance log
 
+// NOTE: humanReadable is copied from `package:build_runner_core`.
+// Added rendering of durations less than a microsecond.
 String humanReadable(Duration duration) {
-  // Added microseconds
   if (duration < const Duration(milliseconds: 1)) {
     return '${duration.inMicroseconds}μs';
   }
@@ -40,7 +41,6 @@ String humanReadable(Duration duration) {
   return '${hours}h ${remaining.inMinutes}m';
 }
 
-// NOTE: This is copied from `package:build_runner_core`.
 FutureOr<T> meassure<T>(FutureOr<T> Function() action,
     {String tag = '', repetitions = 1}) async {
   return [

@@ -15,6 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 import 'dart:math';
 
 import 'package:analyzer/dart/analysis/results.dart';
@@ -51,7 +52,6 @@ extension on FileSpan {
 
 extension AstNodeEx on AstNode {
   FileSpan span(SourceFile file) {
-    // TODO: Can we get rid of file argument and still be efficient?
     return file.span(offset, offset + length);
   }
 }
@@ -66,7 +66,6 @@ extension ElementEx on Element {
 
   AnnotatedNode get declarationAstNode {
     final self = this;
-    // Don't replace with switch! (there be dragons here)
     if (self is ClassElement) return self.declarationAstNode;
     if (self is FieldElement) return self.declarationAstNode;
     throw UnsupportedError('$runtimeType not supported');
