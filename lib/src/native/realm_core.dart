@@ -384,7 +384,7 @@ class _RealmCore {
     });
   }
 
-  void realmListDeleteAll(RealmList list) {
+  void listDeleteAll(RealmList list) {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_remove_all(list.handle._pointer));
   }
 
