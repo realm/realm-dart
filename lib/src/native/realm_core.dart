@@ -326,12 +326,12 @@ class _RealmCore {
     return RealmResultsHandle._(pointer);
   }
 
-  RealmResultsHandle queryTable(Realm realm, int classKey, String query, List<Object> args) {
+  RealmResultsHandle queryClass(Realm realm, int classKey, String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
-      final argsPointer = arena<Pointer<realm_value_t>>(length);
+      final argsPointer = arena<realm_value_t>(length);
       for (var i = 0; i < length; ++i) {
-        argsPointer[0] = _toRealmValue(args[i], arena);
+        _intoRealmValue(args[i], argsPointer.elementAt(i), arena);
       }
       final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
         () => _realmLib.realm_query_parse(
@@ -339,7 +339,7 @@ class _RealmCore {
           classKey,
           query.toUtf8Ptr<Int8>(arena),
           length,
-          argsPointer[0],
+          argsPointer,
         ),
       ));
       final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_query_find_all(queryHandle._pointer));
@@ -347,19 +347,19 @@ class _RealmCore {
     });
   }
 
-  RealmResultsHandle queryResults(Realm realm, RealmResults target, String query, List<Object> args) {
+  RealmResultsHandle queryResults(RealmResults target, String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
-      final argsPointer = arena<Pointer<realm_value_t>>(length);
+      final argsPointer = arena<realm_value_t>(length);
       for (var i = 0; i < length; ++i) {
-        argsPointer[0] = _toRealmValue(args[i], arena);
+        _intoRealmValue(args[i], argsPointer.elementAt(i), arena);
       }
       final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
         () => _realmLib.realm_query_parse_for_results(
           target.handle._pointer,
           query.toUtf8Ptr<Int8>(arena),
           length,
-          argsPointer[0],
+          argsPointer,
         ),
       ));
       final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_query_find_all(queryHandle._pointer));
@@ -540,47 +540,47 @@ extension _RealmLibraryEx on RealmLibrary {
 
 Pointer<realm_value_t> _toRealmValue(Object? value, Allocator allocator) {
   Pointer<realm_value_t> realm_value = allocator<realm_value_t>();
+  _intoRealmValue(value, realm_value, allocator);
+  return realm_value;
+}
 
+void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocator allocator) {
   if (value == null) {
     realm_value.ref.type = realm_value_type_e.RLM_TYPE_NULL;
-    return realm_value;
   } else if (value is RealmObject) {
     //when converting a RealmObject to realm_value.link we assume the object is managed
     final link = realmCore._getObjectAsLink(value);
     realm_value.ref.values.link.target = link.targetKey;
     realm_value.ref.values.link.target_table = link.classKey;
     realm_value.ref.type = realm_value_type_e.RLM_TYPE_LINK;
-    return realm_value;
+  } else {
+    switch (value.runtimeType) {
+      case int:
+        realm_value.ref.values.integer = value as int;
+        realm_value.ref.type = realm_value_type_e.RLM_TYPE_INT;
+        break;
+      case bool:
+        realm_value.ref.values.boolean = value as bool ? 0 : 1;
+        realm_value.ref.type = realm_value_type_e.RLM_TYPE_BOOL;
+        break;
+      case String:
+        String string = value as String;
+        final units = utf8.encode(string);
+        final Pointer<Uint8> result = allocator<Uint8>(units.length);
+        final Uint8List nativeString = result.asTypedList(units.length);
+        nativeString.setAll(0, units);
+        realm_value.ref.values.string.data = result.cast();
+        realm_value.ref.values.string.size = units.length;
+        realm_value.ref.type = realm_value_type_e.RLM_TYPE_STRING;
+        break;
+      case double:
+        realm_value.ref.values.dnum = value as double;
+        realm_value.ref.type = realm_value_type_e.RLM_TYPE_DOUBLE;
+        break;
+      default:
+        throw RealmException("Property type ${value.runtimeType} not supported");
+    }
   }
-
-  switch (value.runtimeType) {
-    case int:
-      realm_value.ref.values.integer = value as int;
-      realm_value.ref.type = realm_value_type_e.RLM_TYPE_INT;
-      break;
-    case bool:
-      realm_value.ref.values.boolean = value as bool ? 0 : 1;
-      realm_value.ref.type = realm_value_type_e.RLM_TYPE_BOOL;
-      break;
-    case String:
-      String string = value as String;
-      final units = utf8.encode(string);
-      final Pointer<Uint8> result = allocator<Uint8>(units.length);
-      final Uint8List nativeString = result.asTypedList(units.length);
-      nativeString.setAll(0, units);
-      realm_value.ref.values.string.data = result.cast();
-      realm_value.ref.values.string.size = units.length;
-      realm_value.ref.type = realm_value_type_e.RLM_TYPE_STRING;
-      break;
-    case double:
-      realm_value.ref.values.dnum = value as double;
-      realm_value.ref.type = realm_value_type_e.RLM_TYPE_DOUBLE;
-      break;
-    default:
-      throw RealmException("Property type ${value.runtimeType} not supported");
-  }
-
-  return realm_value;
 }
 
 extension _TypeEx on Type {
