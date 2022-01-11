@@ -61,25 +61,25 @@ class _RealmCore {
 
   String get libraryVersion => _realmLib.realm_get_library_version().cast<Utf8>().toDartString();
 
-  LastError? getLastError([Allocator? allocator]) {
-    if (allocator != null) {
-      final error = _realmLib.realm_get_last_error();
-
-      if (error == nullptr) {
-        return null;
-      }
-
-      String? message;
-      if (error.ref.message != nullptr) {
-        message = error.ref.message.cast<Utf8>().toDartString();
-      }
-      _realmLib.realm_release_last_error(error);
-
-      return LastError(error.ref.error, message);
+  LastError? getLastError(Allocator allocator) {
+    final error = allocator<realm_error_t>();
+    final success = _realmLib.realm_get_last_error(error);
+    if (!success) {
+      return null;
     }
 
-    return using((Arena arena) {
-      return getLastError(arena);
+    String? message;
+    if (error.ref.message != nullptr) {
+      message = error.ref.message.cast<Utf8>().toDartString();
+    }
+
+    return LastError(error.ref.error, message);
+  }
+
+  void throwLastError([String? errorMessage]) {
+    using((Arena arena) {
+      final lastError = getLastError(arena);
+      throw RealmException('${errorMessage != null ? errorMessage + ". " : ""}${lastError ?? ""}');
     });
   }
 
@@ -222,8 +222,7 @@ class _RealmCore {
           "Error getting class $className from realm at ${realm.config.path}");
 
       if (found.value == 0) {
-        final error = getLastError();
-        throw RealmException("Class $className not found in ${realm.config.path}. Error: $error");
+        throwLastError("Class $className not found in ${realm.config.path}");
       }
 
       String? primaryKey;
@@ -434,7 +433,7 @@ class LastError {
 
   @override
   String toString() {
-    return "Error code: $code ${(message != null ? "Message: $message" : "")}";
+    return "Error code: $code ${(message != null ? ". Message: $message" : "")}";
   }
 }
 
@@ -506,16 +505,12 @@ class RealmQueryHandle extends Handle<realm_query> {
 extension _StringEx on String {
   Pointer<T> toUtf8Ptr<T extends NativeType>(Allocator allocator) {
     final units = utf8.encode(this);
-    final Pointer<Uint8> result = allocator<Uint8>(units.length + 1);
-    final Uint8List nativeString = result.asTypedList(units.length + 1);
-    nativeString.setAll(0, units);
-    nativeString[units.length] = 0;
+    final nativeStringSize = units.length + 1;
+    final Pointer<Uint8> result = allocator<Uint8>(nativeStringSize);
+    final Uint8List nativeString = result.asTypedList(nativeStringSize);
+    nativeString.setAll(0, units); // copy to native string
+    nativeString.last = 0; // zero terminate
     return result.cast();
-  }
-
-  int utf8Length() {
-    final units = utf8.encode(this);
-    return units.length + 1;
   }
 }
 
@@ -523,16 +518,14 @@ extension _RealmLibraryEx on RealmLibrary {
   void invokeGetBool(bool Function() callback, [String? errorMessage]) {
     bool success = callback();
     if (!success) {
-      final lastError = realmCore.getLastError();
-      throw RealmException("${errorMessage ?? ""} ${lastError.toString()}");
+      realmCore.throwLastError(errorMessage);
     }
   }
 
   Pointer<T> invokeGetPointer<T extends NativeType>(Pointer<T> Function() callback, [String? errorMessage]) {
     final result = callback();
     if (result == nullptr) {
-      final lastError = realmCore.getLastError();
-      throw RealmException("${errorMessage ?? ""} ${lastError.toString()}");
+      realmCore.throwLastError(errorMessage);
     }
     return result;
   }
