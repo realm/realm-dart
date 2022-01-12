@@ -1027,8 +1027,9 @@ Future<void> main([List<String>? args]) async {
     test('Realm deleteRealm files before closing realm ecpects exception', () async {
       var config = Configuration([Dog.schema, Person.schema]);
       var realm = Realm(config);
-      expectLater(() => Realm.deleteRealm(config),throws<RealmException>());
+      await expectLater(() => Realm.deleteRealm(config), throws<RealmException>());
     });
+
 
     test('Realm deleteRealmSync files after closing realm', () {
       var config = Configuration([Dog.schema, Person.schema]);
