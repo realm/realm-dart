@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:isolate';
 
 import 'results.dart';
@@ -59,6 +60,50 @@ class Realm {
     } catch (e) {
       _scheduler.stop();
       rethrow;
+    }
+  }
+
+  static Future<void> deleteRealm(Configuration config) async {
+    final path = config.path;
+    final realmPaths = [path, "$path.lock"];
+
+    for (var realmPath in realmPaths) {
+      await _deleteEntityIfExists(File(realmPath));
+    }
+
+    final dir = Directory("$path.management");
+    await _deleteEntityIfExists(dir, recursive: true);
+  }
+
+  static Future<void> _deleteEntityIfExists(FileSystemEntity fileEntity, {bool recursive = false}) async {
+    try {
+      if (await fileEntity.exists()) {
+        await fileEntity.delete(recursive: recursive);
+      }
+    } catch (e) {
+      throw RealmException("Error deleting realm files. Error: $e");
+    }
+  }
+
+  static void deleteRealmSync(Configuration config) {
+    final path = config.path;
+    final realmPaths = [path, "$path.lock"];
+
+    for (var realmPath in realmPaths) {
+      _deleteEntityIfExistsSync(File(realmPath));
+    }
+
+    final dir = Directory("$path.management");
+    _deleteEntityIfExistsSync(dir, recursive: true);
+  }
+
+  static void _deleteEntityIfExistsSync(FileSystemEntity fileEntity, {bool recursive = false}) {
+    try {
+      if (fileEntity.existsSync()) {
+        fileEntity.deleteSync(recursive: recursive);
+      }
+    } catch (e) {
+      throw RealmException("Error deleting realm files. Error: $e");
     }
   }
 

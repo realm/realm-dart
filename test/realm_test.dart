@@ -18,6 +18,7 @@
 
 // ignore_for_file: unused_local_variable
 
+import 'dart:cli';
 import 'dart:io';
 import 'dart:math';
 import 'package:path/path.dart' as _path;
@@ -1011,6 +1012,38 @@ Future<void> main([List<String>? args]) async {
 
       //Ensure list size is the same like teams collection size
       expect(list.length, teams.length);
+    });
+
+    test('Realm deleteRealm files after closing realm', () async {
+      var config = Configuration([Dog.schema, Person.schema]);
+      var realm = Realm(config);
+      realm.close();
+      await Realm.deleteRealm(config);
+      expect(File(config.path).existsSync(), false);
+      expect(File("${config.path}.lock").existsSync(), false);
+      expect(Directory("${config.path}.management").existsSync(), false);
+    });
+
+    test('Realm deleteRealm files before closing realm ecpects exception', () async {
+      var config = Configuration([Dog.schema, Person.schema]);
+      var realm = Realm(config);
+      expectLater(() => Realm.deleteRealm(config),throws<RealmException>());
+    });
+
+    test('Realm deleteRealmSync files after closing realm', () {
+      var config = Configuration([Dog.schema, Person.schema]);
+      var realm = Realm(config);
+      realm.close();
+      Realm.deleteRealmSync(config);
+      expect(File(config.path).existsSync(), false);
+      expect(File("${config.path}.lock").existsSync(), false);
+      expect(Directory("${config.path}.management").existsSync(), false);
+    });
+
+    test('Realm deleteRealmSync files before closing realm ecpects exception', () {
+      var config = Configuration([Dog.schema, Person.schema]);
+      var realm = Realm(config);
+      expect(() => Realm.deleteRealmSync(config),throws<RealmException>());
     });
   });
 }
