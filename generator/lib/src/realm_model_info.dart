@@ -35,36 +35,30 @@ class RealmModelInfo {
       yield '';
       yield '$name(';
       {
-        final allExceptCollections =
-            fields.where((f) => !f.type.isRealmCollection).toList();
+        final allExceptCollections = fields.where((f) => !f.type.isRealmCollection).toList();
 
         final required = allExceptCollections.where((f) => f.isRequired);
-        yield* required.map((f) =>
-            '${f.typeName}${!f.optional & f.hasDefaultValue ? '?' : ''} ${f.name},');
-        final notRequired = allExceptCollections.where((f) => !f.isRequired);
+        yield* required.map((f) => '${f.typeName} ${f.name},');
 
+        final notRequired = allExceptCollections.where((f) => !f.isRequired);
         if (notRequired.isNotEmpty) {
           yield '{';
-          yield* notRequired.map((f) =>
-              '${f.isRequired ? 'required ' : ''}${f.typeName}${!f.optional & f.hasDefaultValue ? '?' : ''} ${f.name},');
+          yield* notRequired.map((f) => '${f.typeName} ${f.name}${f.hasDefaultValue ? ' = ${f.fieldElement.initializerExpression}' : ''},');
           yield '}';
         }
 
         yield ') {';
 
-        yield* allExceptCollections.map((f) {
-          final prefix = f.isFinal ? '_' : 'this.';
-          final checkFirst = f.isRequired ? '' : 'if (${f.name} != null) ';
-          return '$checkFirst$prefix${f.name} = ${f.name};';
-        });
-
         yield '_defaultsSet = _defaultsSet || RealmObject.setDefaults<$name>({';
-
-        yield* fields
-            .where((f) => f.hasDefaultValue && !f.type.isRealmCollection)
-            .map((f) =>
-                "'${f.name}': ${f.fieldElement.declarationAstNode.fields.variables.singleWhere((v) => v.name.name == f.name).initializer},");
+        yield* allExceptCollections.where((f) => f.hasDefaultValue).map((f) => "'${f.name}': ${f.fieldElement.initializerExpression},");
         yield '});';
+
+        yield* allExceptCollections.map((f) {
+          if (f.isFinal) {
+            return "RealmObject.set(this, '${f.name}', ${f.name});"; // since no setter will be created!
+          }
+          return 'this.${f.name} = ${f.name};'; // defer to generated setter
+        });
       }
       yield '}';
       yield '';
@@ -80,7 +74,7 @@ class RealmModelInfo {
       yield 'static SchemaObject? _schema;';
       yield 'static SchemaObject _initSchema() {';
       {
-        yield 'RealmObject.registerFactory<$name>(() => $name._());';
+        yield 'RealmObject.registerFactory($name._);';
         yield 'return const SchemaObject($name, [';
         {
           yield* fields.map((f) {
@@ -88,10 +82,8 @@ class RealmModelInfo {
               if (f.name != f.realmName) 'mapTo': f.realmName,
               if (f.optional) 'optional': f.optional,
               if (f.primaryKey) 'primaryKey': f.primaryKey,
-              if (f.realmType == RealmPropertyType.object)
-                'linkTarget': f.basicTypeName,
-              if (f.realmCollectionType != RealmCollectionType.none)
-                'collectionType': f.realmCollectionType,
+              if (f.realmType == RealmPropertyType.object) 'linkTarget': f.basicTypeName,
+              if (f.realmCollectionType != RealmCollectionType.none) 'collectionType': f.realmCollectionType,
             };
             return "SchemaProperty('${f.realmName}', ${f.realmType}${namedArgs.isNotEmpty ? ', ' + namedArgs.toArgsString() : ''}),";
           });

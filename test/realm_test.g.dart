@@ -12,7 +12,7 @@ class Car extends _Car with RealmObject {
   Car(
     String make,
   ) {
-    _make = make;
+    RealmObject.set(this, 'make', make);
     _defaultsSet = _defaultsSet || RealmObject.setDefaults<Car>({});
   }
 
@@ -20,12 +20,11 @@ class Car extends _Car with RealmObject {
 
   @override
   String get make => RealmObject.get<String>(this, 'make') as String;
-  set _make(String value) => RealmObject.set(this, 'make', value);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory<Car>(() => Car._());
+    RealmObject.registerFactory(Car._);
     return const SchemaObject(Car, [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
     ]);
@@ -52,7 +51,7 @@ class Person extends _Person with RealmObject {
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory<Person>(() => Person._());
+    RealmObject.registerFactory(Person._);
     return const SchemaObject(Person, [
       SchemaProperty('name', RealmPropertyType.string),
     ]);
@@ -67,9 +66,9 @@ class Dog extends _Dog with RealmObject {
     int? age,
     Person? owner,
   }) {
-    _name = name;
-    if (age != null) this.age = age;
-    if (owner != null) this.owner = owner;
+    RealmObject.set(this, 'name', name);
+    this.age = age;
+    this.owner = owner;
     _defaultsSet = _defaultsSet || RealmObject.setDefaults<Dog>({});
   }
 
@@ -77,7 +76,6 @@ class Dog extends _Dog with RealmObject {
 
   @override
   String get name => RealmObject.get<String>(this, 'name') as String;
-  set _name(String value) => RealmObject.set(this, 'name', value);
 
   @override
   int? get age => RealmObject.get<int>(this, 'age') as int?;
@@ -92,7 +90,7 @@ class Dog extends _Dog with RealmObject {
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory<Dog>(() => Dog._());
+    RealmObject.registerFactory(Dog._);
     return const SchemaObject(Dog, [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('age', RealmPropertyType.int, optional: true),
@@ -122,13 +120,11 @@ class Team extends _Team with RealmObject {
   @override
   List<Person> get players =>
       RealmObject.get<Person>(this, 'players') as List<Person>;
-  set _players(covariant List<Person> value) =>
-      RealmObject.set(this, 'players', value);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory<Team>(() => Team._());
+    RealmObject.registerFactory(Team._);
     return const SchemaObject(Team, [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('players', RealmPropertyType.object,

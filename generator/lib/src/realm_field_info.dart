@@ -20,8 +20,6 @@ import 'package:analyzer/dart/element/type.dart';
 import 'package:realm_annotations/realm_annotations.dart';
 
 import 'dart_type_ex.dart';
-import 'error.dart';
-import 'element.dart';
 import 'field_element_ex.dart';
 import 'session.dart';
 
@@ -62,8 +60,10 @@ class RealmFieldInfo {
   Iterable<String> toCode() sync* {
     yield '@override';
     yield "$typeName get $name => RealmObject.get<$basicTypeName>(this, '$realmName') as $typeName;";
-    if (!isFinal) yield '@override';
-    yield "set ${isFinal ? '_' : ''}$name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => RealmObject.set(this, '$realmName', value);";
+    if (!isFinal) {
+      yield '@override';
+      yield "set $name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => RealmObject.set(this, '$realmName', value);";
+    }
   }
 
   @override
