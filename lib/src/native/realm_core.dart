@@ -186,6 +186,15 @@ class _RealmCore {
     return RealmHandle._(realmPtr);
   }
 
+  bool deleteRealmFiles(String path) {
+    return using((Arena arena) {
+      Pointer<Uint8> realmDeleted = arena<Uint8>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_delete_files(path.toUtf8Ptr<Int8>(arena), realmDeleted), "Error deleting realm at path ${path}");
+      // TODO: To discuss: Is this the right way to check whether file is deleted according to the doc?
+      return realmDeleted.value != 0;
+    });
+  }
+
   String getFilesPath() {
     return _realmLib.realm_dart_get_files_path().cast<Utf8>().toDartString();
   }
