@@ -68,7 +68,7 @@ class Realm {
       final fileEntity = File(config.path);
       return fileEntity.existsSync();
     } catch (e) {
-      throw RealmException("Error while searching for realm file. Error: $e");
+      throw RealmException("Error while checking if Realm exists at ${config.path}. Error: $e");
     }
   }
 
