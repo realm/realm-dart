@@ -1013,7 +1013,7 @@ Future<void> main([List<String>? args]) async {
       expect(list.length, teams.length);
     });
 
-    test('Realm deleteRealm files after closing realm', () {
+    test('Realm deleteRealm succeeds', () {
       var config = Configuration([Dog.schema, Person.schema]);
       var realm = Realm(config);
       
