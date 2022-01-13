@@ -41,9 +41,11 @@ class RealmModelInfo {
         yield* required.map((f) => '${f.typeName} ${f.name},');
 
         final notRequired = allExceptCollections.where((f) => !f.isRequired);
-        if (notRequired.isNotEmpty) {
+        final collections = fields.where((f) => f.type.isRealmCollection);
+        if (notRequired.isNotEmpty || collections.isNotEmpty) {
           yield '{';
           yield* notRequired.map((f) => '${f.typeName} ${f.name}${f.hasDefaultValue ? ' = ${f.fieldElement.initializerExpression}' : ''},');
+          yield* collections.map((c) => 'Iterable<${c.type.basicName}> ${c.name} = const [],');
           yield '}';
         }
 
@@ -58,6 +60,10 @@ class RealmModelInfo {
             return "RealmObject.set(this, '${f.name}', ${f.name});"; // since no setter will be created!
           }
           return 'this.${f.name} = ${f.name};'; // defer to generated setter
+        });
+
+        yield* collections.map((c) {
+          return 'this.${c.name}.addAll(${c.name});';
         });
       }
       yield '}';

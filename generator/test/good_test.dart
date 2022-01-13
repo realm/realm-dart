@@ -101,6 +101,57 @@ class _Person {
             '    ]);\n'
             '  }\n'
             '}\n'
+            ''
+      },
+      reader: await PackageAssetReader.currentIsolate(),
+    );
+  });
+
+  test('list initialization', () async {
+    await testBuilder(
+      generateRealmObjects(),
+      {
+        'pkg|lib/src/test.dart': r'''
+import 'package:realm_annotations/realm_annotations.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+class _Person {
+  late final List<_Person> children;
+}''',
+      },
+      outputs: {
+        'pkg|lib/src/test.realm_objects.g.part': '// **************************************************************************\n'
+            '// RealmObjectGenerator\n'
+            '// **************************************************************************\n'
+            '\n'
+            'class Person extends _Person with RealmObject {\n'
+            '  static var _defaultsSet = false;\n'
+            '\n'
+            '  Person({\n'
+            '    Iterable<Person> children = const [],\n'
+            '  }) {\n'
+            '    _defaultsSet = _defaultsSet || RealmObject.setDefaults<Person>({});\n'
+            '    this.children.addAll(children);\n'
+            '  }\n'
+            '\n'
+            '  Person._();\n'
+            '\n'
+            '  @override\n'
+            '  List<Person> get children =>\n'
+            '      RealmObject.get<Person>(this, \'children\') as List<Person>;\n'
+            '\n'
+            '  static SchemaObject get schema => _schema ??= _initSchema();\n'
+            '  static SchemaObject? _schema;\n'
+            '  static SchemaObject _initSchema() {\n'
+            '    RealmObject.registerFactory(Person._);\n'
+            '    return const SchemaObject(Person, [\n'
+            '      SchemaProperty(\'children\', RealmPropertyType.object,\n'
+            '          linkTarget: \'Person\', collectionType: RealmCollectionType.list),\n'
+            '    ]);\n'
+            '  }\n'
+            '}\n'
             '',
       },
       reader: await PackageAssetReader.currentIsolate(),
