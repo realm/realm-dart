@@ -1018,11 +1018,9 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
       
       realm.close();
-      Realm.deleteRealm(config);
+      Realm.deleteRealm(config.path);
 
       expect(File(config.path).existsSync(), false);
-      // TODO: For Discussion: Lock file is not deleted by core API.
-      //expect(File("${config.path}.lock").existsSync(), false);
       expect(Directory("${config.path}.management").existsSync(), false);
     });
 
@@ -1030,10 +1028,9 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Dog.schema, Person.schema]);
       var realm = Realm(config);
 
-      expect(() => Realm.deleteRealm(config), throws<RealmException>());
+      expect(() => Realm.deleteRealm(config.path), throws<RealmException>());
       
       expect(File(config.path).existsSync(), true);
-      expect(File("${config.path}.lock").existsSync(), true);
       expect(Directory("${config.path}.management").existsSync(), true);
     });
   });

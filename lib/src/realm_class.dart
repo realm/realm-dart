@@ -63,9 +63,8 @@ class Realm {
     }
   }
 
-  static void deleteRealm(Configuration config) {
-    // TODO: To discuss: Do we need to return this bool result from realmCore?
-    realmCore.deleteRealmFiles(config.path);
+  static void deleteRealm(String path) {
+    realmCore.deleteRealmFiles(path);
   }
 
   T add<T extends RealmObject>(T object) {
