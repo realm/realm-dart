@@ -1026,7 +1026,7 @@ Future<void> main([List<String>? args]) async {
       expect(Directory("${config.path}.management").existsSync(), false);
     });
 
-    test('Realm deleteRealm files before closing realm expects exception', () {
+    test('Realm deleteRealm throws exception on an open realm', () {
       var config = Configuration([Dog.schema, Person.schema]);
       var realm = Realm(config);
 
