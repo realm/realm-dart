@@ -68,6 +68,11 @@ extension FieldElementEx on FieldElement {
 
   RealmFieldInfo? get realmInfo {
     try {
+      if (!(getter?.isSynthetic ?? false)) {
+        // skip explicitly defined getters
+        return null;
+      }
+
       if (ignoredInfo != null || isPrivate) {
         // skip ignored and private fields
         return null;

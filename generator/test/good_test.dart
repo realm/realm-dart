@@ -158,4 +158,56 @@ class _Person {
       reader: await PackageAssetReader.currentIsolate(),
     );
   });
+
+  test('user defined getter', () async {
+    await testBuilder(
+      generateRealmObjects(),
+      {
+        'pkg|lib/src/test.dart': r'''
+import 'package:realm_annotations/realm_annotations.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+class _Person {
+  late String name;
+  String get lastName => name.split(' ').first; // <-- should be ignored by generator
+}''',
+      },
+      outputs: {
+        'pkg|lib/src/test.realm_objects.g.part': '// **************************************************************************\n'
+            '// RealmObjectGenerator\n'
+            '// **************************************************************************\n'
+            '\n'
+            'class Person extends _Person with RealmObject {\n'
+            '  static var _defaultsSet = false;\n'
+            '\n'
+            '  Person(\n'
+            '    String name,\n'
+            '  ) {\n'
+            '    _defaultsSet = _defaultsSet || RealmObject.setDefaults<Person>({});\n'
+            '    this.name = name;\n'
+            '  }\n'
+            '\n'
+            '  Person._();\n'
+            '\n'
+            '  @override\n'
+            '  String get name => RealmObject.get<String>(this, \'name\') as String;\n'
+            '  @override\n'
+            '  set name(String value) => RealmObject.set(this, \'name\', value);\n'
+            '\n'
+            '  static SchemaObject get schema => _schema ??= _initSchema();\n'
+            '  static SchemaObject? _schema;\n'
+            '  static SchemaObject _initSchema() {\n'
+            '    RealmObject.registerFactory(Person._);\n'
+            '    return const SchemaObject(Person, [\n'
+            '      SchemaProperty(\'name\', RealmPropertyType.string),\n'
+            '    ]);\n'
+            '  }\n'
+            '}\n'
+            '',
+      },
+      reader: await PackageAssetReader.currentIsolate(),
+    );
+  });
 }
