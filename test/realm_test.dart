@@ -480,14 +480,14 @@ Future<void> main([List<String>? args]) async {
       expect(cars.length, 0);
     });
 
-    test('Results.all() isEmpty', () {
+    test('Results isEmpty', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
       var cars = realm.all<Car>();
       expect(cars.isEmpty, true);
 
-      final car = Car();
+      final car = Car()..make = "Opel";
       realm.write(() => realm.add(car));
 
       expect(cars.isEmpty, false);
@@ -497,7 +497,7 @@ Future<void> main([List<String>? args]) async {
       expect(cars.isEmpty, true);
     });
 
-    test('Results.query() isEmpty', () {
+    test('Results from query isEmpty', () {
       var config = Configuration([Dog.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -510,7 +510,7 @@ Future<void> main([List<String>? args]) async {
         ..age = 2;
 
       realm.write(() => realm.addAll([dogOne, dogTwo]));
-     
+
       var dogs = realm.query<Dog>('age == 0');
       expect(dogs.isEmpty, true);
 
