@@ -452,40 +452,34 @@ class LastError {
 abstract class Handle<T extends NativeType> {
   final Pointer<T> _pointer;
 
-  Handle(this._pointer);
+  Handle(this._pointer, int size) {
+    if (_realmLib.realm_attach_finalizer(this, _pointer.cast(), size) == false) {
+       throw Exception("Error creating $runtimeType");
+     }
+  }
 
   @override
   String toString() => "${_pointer.toString()} value=${_pointer.cast<Uint64>().value}";
 }
 
 class SchemaHandle extends Handle<realm_schema> {
-  SchemaHandle._(Pointer<realm_schema> pointer) : super(pointer) {
-    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 24);
-  }
+  SchemaHandle._(Pointer<realm_schema> pointer) : super(pointer, 24);
 }
 
 class ConfigHandle extends Handle<realm_config> {
-  ConfigHandle._(Pointer<realm_config> pointer) : super(pointer) {
-    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 512);
-  }
+  ConfigHandle._(Pointer<realm_config> pointer) : super(pointer, 512);
 }
 
 class RealmHandle extends Handle<shared_realm> {
-  RealmHandle._(Pointer<shared_realm> pointer) : super(pointer) {
-    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 24);
-  }
+  RealmHandle._(Pointer<shared_realm> pointer) : super(pointer, 24);
 }
 
 class SchedulerHandle extends Handle<realm_scheduler> {
-  SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer) {
-    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 24);
-  }
+  SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer, 24);
 }
 
 class RealmObjectHandle extends Handle<realm_object> {
-  RealmObjectHandle._(Pointer<realm_object> pointer) : super(pointer) {
-    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 112);
-  }
+  RealmObjectHandle._(Pointer<realm_object> pointer) : super(pointer, 112);
 }
 
 class RealmLinkHandle {
@@ -497,21 +491,15 @@ class RealmLinkHandle {
 }
 
 class RealmResultsHandle extends Handle<realm_results> {
-  RealmResultsHandle._(Pointer<realm_results> pointer) : super(pointer) {
-    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 872);
-  }
+  RealmResultsHandle._(Pointer<realm_results> pointer) : super(pointer, 872);
 }
 
 class RealmListHandle extends Handle<realm_list> {
-  RealmListHandle._(Pointer<realm_list> pointer) : super(pointer) {
-    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 88);
-  }
+  RealmListHandle._(Pointer<realm_list> pointer) : super(pointer, 88);
 }
 
 class RealmQueryHandle extends Handle<realm_query> {
-  RealmQueryHandle._(Pointer<realm_query> pointer) : super(pointer) {
-    _realmLib.realm_attach_finalizer(this, _pointer.cast(), 88); // TODO!
-  }
+  RealmQueryHandle._(Pointer<realm_query> pointer) : super(pointer, 256);
 }
 
 extension _StringEx on String {
