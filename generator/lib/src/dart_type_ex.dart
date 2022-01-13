@@ -56,12 +56,18 @@ extension DartTypeEx on DartType {
       return (this as ParameterizedType).typeArguments.last;
     }
     if (isRealmModel) {
-      // convert _T to T .. I think I need to implement ClassTypeMacro
+      // TODO: convert _T to T using a ClassTypeMacro.
+      // This awaits the addition of the static meta programming feature to Dart.
+      // Until then we get by with a few wellplaced string operations.
     }
     return this;
   }
 
   // TODO: Using replaceAll is a hack.
+  // It is needed for now, since we cannot construct a DartType for the yet to
+  // be generated classes, ie. for _A given A. Once the new static meta
+  // programming feature is added to dart, we should be able to resolve this
+  // using a ClassTypeMacro.
   String get basicName => basicType.toString().replaceAll(session.prefix, '');
 
   DartType get mappedType {
@@ -79,7 +85,9 @@ extension DartTypeEx on DartType {
         }
       }
     } else if (isRealmModel) {
-      // convert _T to T .. I think I need to implement ClassTypeMacro
+      // TODO: convert _T to T using a ClassTypeMacro.
+      // This awaits the addition of the static meta programming feature to Dart.
+      // Until then we get by with a few wellplaced string operations.
     }
     return self;
   }

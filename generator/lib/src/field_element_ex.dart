@@ -59,7 +59,11 @@ extension FieldElementEx on FieldElement {
   String get typeModelName =>
       type.isDynamic ? typeText : type.getDisplayString(withNullability: true);
 
-  // TODO: using replaceAll is a hack
+  // TODO: using replaceAll is a temporary hack. 
+  // It is needed for now, since we cannot construct a DartType for the yet to
+  // be generated classes, ie. for _A given A. Once the new static meta
+  // programming feature is added to dart, we should be able to resolve this
+  // using a ClassTypeMacro.
   String get typeName => typeModelName.replaceAll(session.prefix, '');
 
   RealmFieldInfo? get realmInfo {
