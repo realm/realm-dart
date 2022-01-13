@@ -63,13 +63,21 @@ class Realm {
     }
   }
 
-  static bool exists(Configuration config) {
+  static bool existsSync(Configuration config) {
     try {
       final fileEntity = File(config.path);
       return fileEntity.existsSync();
     } catch (e) {
       throw RealmException("Error while searching for realm file. Error: $e");
     }
+  }
+
+  static Future<bool> exists(Configuration config) async {
+    final fileEntity = File(config.path);
+    return fileEntity
+        .exists()
+        .then((value) => value)
+        .onError((error, stackTrace) => throw RealmException("Error while searching for realm file. Error: $error"));
   }
 
   T add<T extends RealmObject>(T object) {

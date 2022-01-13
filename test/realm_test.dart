@@ -1013,11 +1013,18 @@ Future<void> main([List<String>? args]) async {
       expect(list.length, teams.length);
     });
 
-    test('Realm exists', () {
+    test('Realm existsSync', () {
       var config = Configuration([Dog.schema, Person.schema]);
-      expect(Realm.exists(config), false);
+      expect(Realm.existsSync(config), false);
       var realm = Realm(config);
-      expect(Realm.exists(config), true);
+      expect(Realm.existsSync(config), true);
+    });
+
+    test('Realm exists', () async {
+      var config = Configuration([Dog.schema, Person.schema]);
+      expect(await Realm.exists(config), false);
+      var realm = Realm(config);
+      expect(await Realm.exists(config), true);
     });
   });
 }
