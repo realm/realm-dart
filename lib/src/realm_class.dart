@@ -62,11 +62,11 @@ class Realm {
       rethrow;
     }
   }
-  
+
   static void deleteRealm(String path) {
     realmCore.deleteRealmFiles(path);
   }
-  
+
   static bool existsSync(String path) {
     try {
       final fileEntity = File(path);
@@ -84,7 +84,8 @@ class Realm {
       throw RealmException("Error while checking if Realm exists at $path. Error: $e");
     }
   }
-    T add<T extends RealmObject>(T object) {
+
+  T add<T extends RealmObject>(T object) {
     if (object.isManaged) {
       return object;
     }
