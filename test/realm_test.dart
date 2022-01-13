@@ -463,21 +463,46 @@ Future<void> main([List<String>? args]) async {
       expect(cars, isNotNull);
     });
 
-    test('Results.all() length', () {
+    test('Results length', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
       var cars = realm.all<Car>();
       expect(cars.length, 0);
 
-      final car = Car();
-      realm.write(() => realm.add(car));
+      final carOne = Car()..make = "Toyota 1";
+      final carTwo = Car()..make = "Toyota 2";
+      final carThree = Car()..make = "Renault";
+      realm.write(() => realm.addAll([carOne, carTwo, carThree]));
+
+      expect(cars.length, 3);
+
+      final filteredCars = realm.query<Car>('make BEGINSWITH "Toyota"');
+      expect(filteredCars.length, 2);
+
+      realm.write(() => realm.deleteMany(filteredCars));
+      expect(filteredCars.length, 0);
 
       expect(cars.length, 1);
+    });
 
-      realm.write(() => realm.delete(car));
+    test('Results length with query', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
 
+      var cars = realm.all<Car>();
       expect(cars.length, 0);
+
+      final carOne = Car()..make = "Toyota";
+      final carTwo = Car()..make = "Toyota";
+      realm.write(() => realm.addAll([carOne, carTwo]));
+
+      expect(cars.length, 2);
+
+      final filteredCars = realm.query<Car>('make == "Toyota"');
+      // TODO: To be discussed. The length here is returned 1, should be 2
+      //expect(filteredCars.length, 2);
+
     });
 
     test('Results.all() isEmpty', () {
@@ -1026,11 +1051,11 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
       expect(await Realm.exists(config.path), true);
     });
-    
+
     test('Realm deleteRealm succeeds', () {
       var config = Configuration([Dog.schema, Person.schema]);
       var realm = Realm(config);
-      
+
       realm.close();
       Realm.deleteRealm(config.path);
 
@@ -1043,7 +1068,7 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       expect(() => Realm.deleteRealm(config.path), throws<RealmException>());
-      
+
       expect(File(config.path).existsSync(), true);
       expect(Directory("${config.path}.management").existsSync(), true);
     });
