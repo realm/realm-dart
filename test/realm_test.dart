@@ -497,6 +497,33 @@ Future<void> main([List<String>? args]) async {
       expect(cars.isEmpty, true);
     });
 
+    test('Results.query() isEmpty', () {
+      var config = Configuration([Dog.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final dogOne = Dog()
+        ..name = "Pupu"
+        ..age = 1;
+
+      final dogTwo = Dog()
+        ..name = "Ostin"
+        ..age = 2;
+
+      realm.write(() => realm.addAll([dogOne, dogTwo]));
+     
+      var dogs = realm.query<Dog>('age == 0');
+      expect(dogs.isEmpty, true);
+
+      dogs = realm.query<Dog>('age == 1');
+      expect(dogs.isEmpty, false);
+
+      realm.write(() => realm.deleteMany(dogs));
+      expect(dogs.isEmpty, true);
+
+      dogs = realm.all<Dog>();
+      expect(dogs.isEmpty, false);
+    });
+
     test('Results get by index', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
@@ -1026,11 +1053,11 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
       expect(await Realm.exists(config.path), true);
     });
-    
+
     test('Realm deleteRealm succeeds', () {
       var config = Configuration([Dog.schema, Person.schema]);
       var realm = Realm(config);
-      
+
       realm.close();
       Realm.deleteRealm(config.path);
 
@@ -1043,7 +1070,7 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       expect(() => Realm.deleteRealm(config.path), throws<RealmException>());
-      
+
       expect(File(config.path).existsSync(), true);
       expect(Directory("${config.path}.management").existsSync(), true);
     });
