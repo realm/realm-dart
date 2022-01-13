@@ -186,6 +186,13 @@ class _RealmCore {
     return RealmHandle._(realmPtr);
   }
 
+  void deleteRealmFiles(String path) {
+    using((Arena arena) {
+      Pointer<Uint8> realmDeleted = arena<Uint8>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_delete_files(path.toUtf8Ptr<Int8>(arena), realmDeleted), "Error deleting realm at path $path");
+    });
+  }
+
   String getFilesPath() {
     return _realmLib.realm_dart_get_files_path().cast<Utf8>().toDartString();
   }

@@ -1026,5 +1026,26 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
       expect(await Realm.exists(config.path), true);
     });
+    
+    test('Realm deleteRealm succeeds', () {
+      var config = Configuration([Dog.schema, Person.schema]);
+      var realm = Realm(config);
+      
+      realm.close();
+      Realm.deleteRealm(config.path);
+
+      expect(File(config.path).existsSync(), false);
+      expect(Directory("${config.path}.management").existsSync(), false);
+    });
+
+    test('Realm deleteRealm throws exception on an open realm', () {
+      var config = Configuration([Dog.schema, Person.schema]);
+      var realm = Realm(config);
+
+      expect(() => Realm.deleteRealm(config.path), throws<RealmException>());
+      
+      expect(File(config.path).existsSync(), true);
+      expect(Directory("${config.path}.management").existsSync(), true);
+    });
   });
 }
