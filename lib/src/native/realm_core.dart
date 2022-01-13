@@ -20,7 +20,6 @@
 
 import 'dart:convert';
 import 'dart:ffi';
-import 'dart:io';
 import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows to sliently allocating memory. Use toUtf8Ptr instead
