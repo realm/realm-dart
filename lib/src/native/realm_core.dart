@@ -394,10 +394,10 @@ class _RealmCore {
     return RealmListHandle._(pointer);
   }
 
-  int getListSize(RealmList list) {
+  int getListSize(RealmListHandle handle) {
     return using((Arena arena) {
       Pointer<IntPtr> size = arena<IntPtr>();
-      _realmLib.invokeGetBool(() => _realmLib.realm_list_size(list.handle._pointer, size));
+      _realmLib.invokeGetBool(() => _realmLib.realm_list_size(handle._pointer, size));
       return size.value;
     });
   }
@@ -410,17 +410,17 @@ class _RealmCore {
     });
   }
 
-  void listSetElementAt(RealmList list, int index, Object? value) {
+  void listSetElementAt(RealmListHandle handle, int index, Object? value) {
     return using((Arena arena) {
       final realm_value = _toRealmValue(value, arena);
-      _realmLib.invokeGetBool(() => _realmLib.realm_list_set(list.handle._pointer, index, realm_value.ref));
+      _realmLib.invokeGetBool(() => _realmLib.realm_list_set(handle._pointer, index, realm_value.ref));
     });
   }
 
-  void listInsertElementAt(RealmList list, int index, Object? value) {
+  void listInsertElementAt(RealmListHandle handle, int index, Object? value) {
     return using((Arena arena) {
       final realm_value = _toRealmValue(value, arena);
-      _realmLib.invokeGetBool(() => _realmLib.realm_list_insert(list.handle._pointer, index, realm_value.ref));
+      _realmLib.invokeGetBool(() => _realmLib.realm_list_insert(handle._pointer, index, realm_value.ref));
     });
   }
 

@@ -32,7 +32,7 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
   RealmList._(this._handle, this._realm);
 
   @override
-  int get length => realmCore.getListSize(this);
+  int get length => realmCore.getListSize(handle);
 
   //settng lenght is no operation
   @override
@@ -59,23 +59,7 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
 
   @override
   void operator []=(int index, T value) {
-    if (index < 0) {
-      throw RealmException("Index out of range $index");
-    }
-
-    try {
-      if (value is RealmObject && !value.isManaged) {
-        _realm.add<RealmObject>(value);
-      }
-
-      if (index >= length) {
-        realmCore.listInsertElementAt(this, index, value);
-      } else {
-        realmCore.listSetElementAt(this, index, value);
-      }
-    } on Exception catch (e) {
-      throw RealmException("Error setting value at index $index. Error: $e");
-    }
+    RealmListInternal.setValue(handle, _realm, index, value);
   }
 
   @override
@@ -84,9 +68,31 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
   }
 }
 
+/// @nodoc
 extension RealmListInternal on RealmList {
   RealmListHandle get handle => _handle;
   Realm? get realm => _realm;
 
   static RealmList<T> create<T extends Object>(RealmListHandle handle, Realm realm) => RealmList<T>._(handle, realm);
+
+  static void setValue(RealmListHandle handle, Realm realm, int index, Object? value) {
+    if (index < 0) {
+      throw RealmException("Index out of range $index");
+    }
+
+    try {
+      if (value is RealmObject && !value.isManaged) {
+        realm.add<RealmObject>(value);
+      }
+
+      final length = realmCore.getListSize(handle);
+      if (index >= length) {
+        realmCore.listInsertElementAt(handle, index, value);
+      } else {
+        realmCore.listSetElementAt(handle, index, value);
+      }
+    } on Exception catch (e) {
+      throw RealmException("Error setting value at index $index. Error: $e");
+    }
+  }
 }
