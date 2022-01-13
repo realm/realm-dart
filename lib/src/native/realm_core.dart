@@ -187,7 +187,7 @@ class _RealmCore {
   }
 
   void deleteRealmFiles(String path) {
-    return using((Arena arena) {
+    using((Arena arena) {
       Pointer<Uint8> realmDeleted = arena<Uint8>();
       _realmLib.invokeGetBool(() => _realmLib.realm_delete_files(path.toUtf8Ptr<Int8>(arena), realmDeleted), "Error deleting realm at path $path");
     });
