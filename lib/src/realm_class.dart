@@ -73,11 +73,12 @@ class Realm {
   }
 
   static Future<bool> exists(Configuration config) async {
-    final fileEntity = File(config.path);
-    return fileEntity
-        .exists()
-        .then((value) => value)
-        .onError((error, stackTrace) => throw RealmException("Error while searching for realm file. Error: $error"));
+  try {
+      final fileEntity = File(config.path);
+      return await fileEntity.exists();
+    } catch (e) {
+      throw RealmException("Error while searching for realm file. Error: $e");
+    }
   }
 
   T add<T extends RealmObject>(T object) {
