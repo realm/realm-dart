@@ -1013,6 +1013,20 @@ Future<void> main([List<String>? args]) async {
       expect(list.length, teams.length);
     });
 
+    test('Realm existsSync', () {
+      var config = Configuration([Dog.schema, Person.schema]);
+      expect(Realm.existsSync(config.path), false);
+      var realm = Realm(config);
+      expect(Realm.existsSync(config.path), true);
+    });
+
+    test('Realm exists', () async {
+      var config = Configuration([Dog.schema, Person.schema]);
+      expect(await Realm.exists(config.path), false);
+      var realm = Realm(config);
+      expect(await Realm.exists(config.path), true);
+    });
+    
     test('Realm deleteRealm succeeds', () {
       var config = Configuration([Dog.schema, Person.schema]);
       var realm = Realm(config);

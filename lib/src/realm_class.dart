@@ -62,12 +62,29 @@ class Realm {
       rethrow;
     }
   }
-
+  
   static void deleteRealm(String path) {
     realmCore.deleteRealmFiles(path);
   }
+  
+  static bool existsSync(String path) {
+    try {
+      final fileEntity = File(path);
+      return fileEntity.existsSync();
+    } catch (e) {
+      throw RealmException("Error while checking if Realm exists at ${path}. Error: $e");
+    }
+  }
 
-  T add<T extends RealmObject>(T object) {
+  static Future<bool> exists(String path) async {
+  try {
+      final fileEntity = File(path);
+      return await fileEntity.exists();
+    } catch (e) {
+      throw RealmException("Error while checking if Realm exists at ${path}. Error: $e");
+    }
+  }
+    T add<T extends RealmObject>(T object) {
     if (object.isManaged) {
       return object;
     }
