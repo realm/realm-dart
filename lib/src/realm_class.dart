@@ -63,21 +63,21 @@ class Realm {
     }
   }
 
-  static bool existsSync(Configuration config) {
+  static bool existsSync(String path) {
     try {
-      final fileEntity = File(config.path);
+      final fileEntity = File(path);
       return fileEntity.existsSync();
     } catch (e) {
-      throw RealmException("Error while checking if Realm exists at ${config.path}. Error: $e");
+      throw RealmException("Error while checking if Realm exists at ${path}. Error: $e");
     }
   }
 
-  static Future<bool> exists(Configuration config) async {
+  static Future<bool> exists(String path) async {
   try {
-      final fileEntity = File(config.path);
+      final fileEntity = File(path);
       return await fileEntity.exists();
     } catch (e) {
-      throw RealmException("Error while searching for realm file. Error: $e");
+      throw RealmException("Error while checking if Realm exists at ${path}. Error: $e");
     }
   }
 

@@ -1015,16 +1015,16 @@ Future<void> main([List<String>? args]) async {
 
     test('Realm existsSync', () {
       var config = Configuration([Dog.schema, Person.schema]);
-      expect(Realm.existsSync(config), false);
+      expect(Realm.existsSync(config.path), false);
       var realm = Realm(config);
-      expect(Realm.existsSync(config), true);
+      expect(Realm.existsSync(config.path), true);
     });
 
     test('Realm exists', () async {
       var config = Configuration([Dog.schema, Person.schema]);
-      expect(await Realm.exists(config), false);
+      expect(await Realm.exists(config.path), false);
       var realm = Realm(config);
-      expect(await Realm.exists(config), true);
+      expect(await Realm.exists(config.path), true);
     });
   });
 }
