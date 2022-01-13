@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:isolate';
 
 import 'results.dart';
@@ -59,6 +60,24 @@ class Realm {
     } catch (e) {
       _scheduler.stop();
       rethrow;
+    }
+  }
+
+  static bool existsSync(String path) {
+    try {
+      final fileEntity = File(path);
+      return fileEntity.existsSync();
+    } catch (e) {
+      throw RealmException("Error while checking if Realm exists at ${path}. Error: $e");
+    }
+  }
+
+  static Future<bool> exists(String path) async {
+  try {
+      final fileEntity = File(path);
+      return await fileEntity.exists();
+    } catch (e) {
+      throw RealmException("Error while checking if Realm exists at ${path}. Error: $e");
     }
   }
 
