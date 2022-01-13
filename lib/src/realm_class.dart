@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:isolate';
 
 import 'results.dart';
@@ -59,6 +60,15 @@ class Realm {
     } catch (e) {
       _scheduler.stop();
       rethrow;
+    }
+  }
+
+  static bool exists(Configuration config) {
+    try {
+      final fileEntity = File(config.path);
+      return fileEntity.existsSync();
+    } catch (e) {
+      throw RealmException("Error while searching for realm file. Error: $e");
     }
   }
 

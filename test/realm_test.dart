@@ -1012,5 +1012,12 @@ Future<void> main([List<String>? args]) async {
       //Ensure list size is the same like teams collection size
       expect(list.length, teams.length);
     });
+
+    test('Realm exists', () {
+      var config = Configuration([Dog.schema, Person.schema]);
+      expect(Realm.exists(config), false);
+      var realm = Realm(config);
+      expect(Realm.exists(config), true);
+    });
   });
 }
