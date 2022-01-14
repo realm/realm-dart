@@ -625,7 +625,7 @@ import 'package:realm_annotations/realm_annotations.dart';
 part 'test.g.dart';
 
 @RealmModel()
-class _Bad extends Base { 
+class _Bad { 
   @PrimaryKey()
   late final int id;
 
@@ -643,7 +643,7 @@ class _Bad extends Base {
             'in: package:pkg/src/test.dart:10:3\n'
             '    ╷\n'
             '5   │ ┌ @RealmModel()\n'
-            '6   │ │ class _Bad extends Base { \n'
+            '6   │ │ class _Bad { \n'
             '    │ └─── on realm model \'_Bad\'\n'
             '... │\n'
             '10  │     _Bad(this.id);\n'
@@ -842,7 +842,7 @@ class _Bad {}
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
         (e) => e.format(),
         'format()',
-        'Model already defined\n'
+        'Duplicate definition\n'
             '\n'
             'in: package:pkg/src/test.dart:6:7\n'
             '    ╷\n'
@@ -854,7 +854,7 @@ class _Bad {}
             '8   │   @RealmModel()\n'
             '    │         ━━━━ here\n'
             '    ╵\n'
-            'Avoid that \'\$Bad\' and \'_Bad\' both maps to \'Bad\'\n',
+            'Avoid that \'\$Bad\' and \'_Bad\' both defines \'Bad\'\n',
       )),
     );
   });
@@ -886,7 +886,7 @@ class _Bad2 {}
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
         (e) => e.format(),
         'format()',
-        'Model already defined\n'
+        'Duplicate definition\n'
             '\n'
             'in: package:pkg/src/test2.dart:6:7\n'
             '  ┌──> package:pkg/src/test2.dart\n'
@@ -899,7 +899,7 @@ class _Bad2 {}
             '6 │   class \$Bad2 {}\n'
             '  │         ━━━━━ here\n'
             '  ╵\n'
-            'Avoid that \'_Bad2\' and \'\$Bad2\' both maps to \'Bad2\'\n',
+            'Avoid that \'_Bad2\' and \'\$Bad2\' both defines \'Bad2\'\n',
       )),
     );
   });
@@ -928,7 +928,7 @@ class _Bar {}
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
         (e) => e.format(),
         'format()',
-        'Model already defined\n'
+        'Duplicate definition\n'
             '\n'
             'in: package:pkg/src/test.dart:11:7\n'
             '    ╷\n'
@@ -944,7 +944,7 @@ class _Bar {}
             '    │ │       ^^^^ \'_Foo\' already defines \'Bad3\'\n'
             '    │ └─── \n'
             '    ╵\n'
-            'Avoid that \'_Bar\' and \'_Foo\' both maps to \'Bad3\'\n',
+            'Avoid that \'_Bar\' and \'_Foo\' both defines \'Bad3\'\n',
       )),
     );
   });
