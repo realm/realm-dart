@@ -48,7 +48,7 @@ extension on Iterable<FieldElement> {
             todo: //
                 'Remove $annotation annotation from either '
                 "'$info' or '$primaryKeySeen'",
-            element: classElement,
+            element: f,
             primarySpan: annotation.span(file),
             primaryLabel: 'again',
             secondarySpans: {
@@ -116,9 +116,9 @@ extension ClassElementEx on ClassElement {
             primaryLabel: 'missing prefix',
             secondarySpans: {span!: "on realm model '$displayName'"},
             todo: //
-                'Either add a @MapTo annotation, '
-                'or align class name to match prefix '
-                '${prefix is RegExp ? '${prefix.pattern} (regular expression)' : prefix}',
+                'Either align class name to match prefix '
+                '${prefix is RegExp ? '${prefix.pattern} (regular expression)' : prefix}, '
+                'or add a @MapTo annotation.',
           );
         }
         if (!modelName.endsWith(suffix)) {
@@ -129,8 +129,8 @@ extension ClassElementEx on ClassElement {
             primaryLabel: 'missing suffix',
             secondarySpans: {span!: "on realm model '$displayName'"},
             todo: //
-                'Either add a @MapTo annotation, '
-                'or align class name to suffix $suffix',
+                'Either align class name to suffix $suffix,'
+                'or add a @MapTo annotation, '
           );
         }
 

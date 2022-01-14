@@ -456,7 +456,8 @@ class Bad { // missing _ or $ prefix
             '  │ │       ^^^ missing prefix\n'
             '  │ └─── on realm model \'Bad\'\n'
             '  ╵\n'
-            'Either add a @MapTo annotation, or align class name to match prefix [_\$] (regular expression)\n',
+            'Either align class name to match prefix [_\$] (regular expression), or add a @MapTo annotation.\n'
+            '',
       )),
     );
   });
