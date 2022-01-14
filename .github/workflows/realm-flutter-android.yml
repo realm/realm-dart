@@ -35,7 +35,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v1.5.3
         with:
-          channel: 'stable'
+          flutter-version: '2.8.0'
 
       - name: Install dependencies
         run: flutter pub get
