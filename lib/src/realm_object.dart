@@ -147,7 +147,7 @@ class RealmCoreAccessor implements RealmAccessor {
           return;
         }
 
-        //This assumes the targe list property is empty. `valus is List` should happen only when making a RealmObject managed
+        //This assumes the target list property is empty. `value is List` should happen only when making a RealmObject managed
         final handle = realmCore.getListProperty(object, propertyMeta.key);
         for (var i = 0; i < value.length; i++) {
           RealmListInternal.setValue(handle, object._realm!, i, value[i]);
