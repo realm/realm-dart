@@ -63,7 +63,7 @@ class RealmModelInfo {
         });
 
         yield* collections.map((c) {
-          return 'this.${c.name}.addAll(${c.name});';
+          return "RealmObject.set<${c.typeName}>(this, '${c.name}', ${c.name}.toList());";
         });
       }
       yield '}';

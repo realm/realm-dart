@@ -133,7 +133,7 @@ class _Person {
             '    Iterable<Person> children = const [],\n'
             '  }) {\n'
             '    _defaultsSet = _defaultsSet || RealmObject.setDefaults<Person>({});\n'
-            '    this.children.addAll(children);\n'
+            '    RealmObject.set<List<Person>>(this, \'children\', children.toList());\n'
             '  }\n'
             '\n'
             '  Person._();\n'

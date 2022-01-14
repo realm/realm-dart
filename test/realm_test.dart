@@ -52,8 +52,8 @@ class _Dog {
 @RealmModel()
 class _Team {
   late String name;
-  late List<_Person> players;
-  late List<int> scores;
+  late final List<_Person> players;
+  late final List<int> scores;
 }
 
 String? testName;
@@ -639,9 +639,8 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      final team = Team()
-        ..name = "Ferrari"
-        ..players.addAll([Person()..name = "Michael", Person()..name = "Kimi"])
+      final team = Team("Ferrari")
+        ..players.addAll([Person("Michael"), Person("Kimi")])
         ..scores.addAll([1, 2, 3]);
 
       realm.write(() => realm.add(team));
@@ -673,12 +672,12 @@ Future<void> main([List<String>? args]) async {
       expect(players, isNotNull);
       expect(players.length, 0);
 
-      realm.write(() => players.add(Person("Michael Schumacher")));
+      realm.write(() => players.add(Person("Michael")));
       expect(players.length, 1);
 
       realm.write(() => players.addAll([
-            Person("Sebastian Vettel"),
-            Person("Kimi Räikkönen"),
+            Person("Sebastian"),
+            Person("Kimi"),
           ]));
 
       expect(players.length, 3);

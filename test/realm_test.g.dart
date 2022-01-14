@@ -12,8 +12,8 @@ class Car extends _Car with RealmObject {
   Car(
     String make,
   ) {
-    RealmObject.set(this, 'make', make);
     _defaultsSet = _defaultsSet || RealmObject.setDefaults<Car>({});
+    RealmObject.set(this, 'make', make);
   }
 
   Car._();
@@ -37,8 +37,8 @@ class Person extends _Person with RealmObject {
   Person(
     String name,
   ) {
-    this.name = name;
     _defaultsSet = _defaultsSet || RealmObject.setDefaults<Person>({});
+    this.name = name;
   }
 
   Person._();
@@ -66,10 +66,10 @@ class Dog extends _Dog with RealmObject {
     int? age,
     Person? owner,
   }) {
+    _defaultsSet = _defaultsSet || RealmObject.setDefaults<Dog>({});
     RealmObject.set(this, 'name', name);
     this.age = age;
     this.owner = owner;
-    _defaultsSet = _defaultsSet || RealmObject.setDefaults<Dog>({});
   }
 
   Dog._();
@@ -104,10 +104,14 @@ class Team extends _Team with RealmObject {
   static var _defaultsSet = false;
 
   Team(
-    String name,
-  ) {
-    this.name = name;
+    String name, {
+    Iterable<Person> players = const [],
+    Iterable<int> scores = const [],
+  }) {
     _defaultsSet = _defaultsSet || RealmObject.setDefaults<Team>({});
+    this.name = name;
+    RealmObject.set<List<Person>>(this, 'players', players.toList());
+    RealmObject.set<List<int>>(this, 'scores', scores.toList());
   }
 
   Team._();
@@ -121,6 +125,9 @@ class Team extends _Team with RealmObject {
   List<Person> get players =>
       RealmObject.get<Person>(this, 'players') as List<Person>;
 
+  @override
+  List<int> get scores => RealmObject.get<int>(this, 'scores') as List<int>;
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -129,6 +136,8 @@ class Team extends _Team with RealmObject {
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('players', RealmPropertyType.object,
           linkTarget: 'Person', collectionType: RealmCollectionType.list),
+      SchemaProperty('scores', RealmPropertyType.int,
+          collectionType: RealmCollectionType.list),
     ]);
   }
 }
