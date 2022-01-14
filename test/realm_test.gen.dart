@@ -74,7 +74,10 @@ class Dog extends _Dog with RealmObject {
 }
 
 class Team extends _Team with RealmObject {
-  Team();
+  Team() {
+    RealmObject.set<List<Person>>(this, "players", <Person>[]);
+    RealmObject.set<List<int>>(this, "scores", <int>[]);
+  }
 
   @override
   String get name => RealmObject.get<String>(this, "name") as String;
@@ -87,12 +90,16 @@ class Team extends _Team with RealmObject {
   // @override
   // set players(covariant List<Person> value) => RealmObject.set<List<Person>>(this, "players", value);
 
+  @override
+  List<int> get scores => RealmObject.get<int>(this, "scores") as List<int>;
+
   static SchemaObject get schema {
     RealmObject.registerFactory<Team>(() => Team());
     return SchemaObject(Team)
       ..properties = [
         SchemaProperty("name", RealmPropertyType.string),
         SchemaProperty("players", RealmPropertyType.object, collectionType: RealmCollectionType.list, linkTarget: 'Person'),
+        SchemaProperty("scores", RealmPropertyType.int, collectionType: RealmCollectionType.list),
       ];
   }
 }

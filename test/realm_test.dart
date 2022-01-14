@@ -53,6 +53,7 @@ class _Dog {
 class _Team {
   late String name;
   late List<_Person> players;
+  late List<int> scores;
 }
 
 String? testName;
@@ -627,6 +628,31 @@ Future<void> main([List<String>? args]) async {
       expect(teams[0].players.length, 0);
     });
 
+    test('RealmObject add with list properties', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final team = Team()
+        ..name = "Ferrari"
+        ..players.addAll([Person()..name = "Michael", Person()..name = "Kimi"])
+        ..scores.addAll([1, 2, 3]);
+
+      realm.write(() => realm.add(team));
+
+      final teams = realm.all<Team>();
+      expect(teams.length, 1);
+      expect(teams[0].name, "Ferrari");
+      expect(teams[0].players, isNotNull);
+      expect(teams[0].players.length, 2);
+      expect(teams[0].players[0].name, "Michael");
+      expect(teams[0].players[1].name, "Kimi");
+
+      expect(teams[0].scores.length, 3);
+      expect(teams[0].scores[0], 1);
+      expect(teams[0].scores[1], 2);
+      expect(teams[0].scores[2], 3);
+    });
+
     test('Lists get set', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
@@ -640,16 +666,16 @@ Future<void> main([List<String>? args]) async {
       expect(players, isNotNull);
       expect(players.length, 0);
 
-      realm.write(() => players.add(Person()..name = "Michael Schumacher"));
+      realm.write(() => players.add(Person()..name = "Michael"));
       expect(players.length, 1);
 
-      realm.write(() => players.addAll([Person()..name = "Sebastian Vettel", Person()..name = "Kimi Räikkönen"]));
+      realm.write(() => players.addAll([Person()..name = "Sebastian", Person()..name = "Kimi"]));
 
       expect(players.length, 3);
 
-      expect(players[0].name, "Michael Schumacher");
-      expect(players[1].name, "Sebastian Vettel");
-      expect(players[2].name, "Kimi Räikkönen");
+      expect(players[0].name, "Michael");
+      expect(players[1].name, "Sebastian");
+      expect(players[2].name, "Kimi");
     });
 
     test('Lists get invalid index throws exception', () {
@@ -680,7 +706,7 @@ Future<void> main([List<String>? args]) async {
       expect(() => realm.write(() => players[800] = Person()), throws<RealmException>());
     });
 
-    test('RealmList clear items from list', () {
+    test('List clear items from list', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -717,7 +743,7 @@ Future<void> main([List<String>? args]) async {
       expect(allPlayers.length, 3);
     });
 
-    test('RealmList clear - same list related to two objects', () {
+    test('List clear - same list related to two objects', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -760,7 +786,7 @@ Future<void> main([List<String>? args]) async {
       expect(players.length, 3);
     });
 
-    test('RealmList clear - same item added to two lists', () {
+    test('List clear - same item added to two lists', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -800,7 +826,7 @@ Future<void> main([List<String>? args]) async {
       expect(allPlayers.length, 1);
     });
 
-    test('RealmList clear in closed realm - expected exception', () {
+    test('List clear in closed realm - expected exception', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -836,7 +862,7 @@ Future<void> main([List<String>? args]) async {
       expect(teams[0].players.length, 1);
     });
 
-    test('Realm.deleteMany from list', () {
+    test('Realm.deleteMany from iterable', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -862,7 +888,7 @@ Future<void> main([List<String>? args]) async {
       expect(teams[0].name, teamTwo.name);
     });
 
-    test('Realm.deleteMany from realmList', () {
+    test('Realm.deleteMany from realm list', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -893,7 +919,7 @@ Future<void> main([List<String>? args]) async {
       expect(allPersons.length, 0);
     });
 
-    test('Realm.deleteMany from realmList referenced by two objects', () {
+    test('Realm.deleteMany from list referenced by two objects', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -931,7 +957,7 @@ Future<void> main([List<String>? args]) async {
       expect(allPersons.length, 0);
     });
 
-    test('Realm.deleteMany from RealmResults', () {
+    test('Realm.deleteMany from results', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -954,7 +980,7 @@ Future<void> main([List<String>? args]) async {
       expect(teams.length, 0);
     });
 
-    test('Realm.deleteMany from realmList after realm is closed', () {
+    test('Realm.deleteMany from list after realm is closed', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -989,7 +1015,7 @@ Future<void> main([List<String>? args]) async {
       expect(allPersons.length, 3);
     });
 
-    test('RealmResults iteration test', () {
+    test('Results iteration test', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 

@@ -18,6 +18,7 @@
 
 import 'native/realm_core.dart';
 import 'realm_class.dart';
+import 'list.dart';
 
 abstract class RealmAccessor {
   Object? get<T extends Object>(RealmObject object, String name);
@@ -141,6 +142,20 @@ class RealmCoreAccessor implements RealmAccessor {
   void set(RealmObject object, String name, Object? value, [bool isDefault = false]) {
     final propertyMeta = metadata[name];
     try {
+      if (value is List) {
+        if (value.isEmpty) {
+          return;
+        }
+
+        //This assumes the target list property is empty. `value is List` should happen only when making a RealmObject managed
+        final handle = realmCore.getListProperty(object, propertyMeta.key);
+        for (var i = 0; i < value.length; i++) {
+          RealmListInternal.setValue(handle, object._realm!, i, value[i]);
+        }
+        return;
+      }
+
+      //If value is RealmObject - manage it
       if (value is RealmObject && !value.isManaged) {
         object._realm!.add(value);
       }
@@ -194,10 +209,12 @@ class RealmObject {
 }
 
 //RealmObject package internal members
+/// @nodoc
 extension RealmObjectInternal on RealmObject {
   void manage(Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor) {
     if (_handle != null) {
-      throw RealmException("Object is already managed");
+      //most certainly a bug hence we throw an Error
+      throw ArgumentError("Object is already managed");
     }
 
     _handle = handle;
