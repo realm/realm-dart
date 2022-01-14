@@ -42,7 +42,6 @@ dev_dependencies:
 
 dependency_overrides:
   analyzer: ">=3.0.0"
-  test_api: ">=0.4.9"
 
 flutter:
   plugin:
