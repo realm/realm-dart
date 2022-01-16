@@ -1,0 +1,43 @@
+name: Realm Dart for Windows
+
+on:
+  push:
+    branches: [ master ]
+    # Do not run if change is in these paths
+    paths-ignore:
+      - 'flutter/**'
+      - 'generator/**'
+  pull_request:
+    # Do not run if change is in these paths
+    paths-ignore:
+        - 'flutter/**'
+        - 'generator/**'
+
+jobs:
+  CI:
+    runs-on: windows-2019
+    env:
+      REALM_CI: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Build Ralm Dart for Windows
+        run: |
+          mkdir build
+          cd build
+          ..\scripts\build.bat
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v1.5.3
+        with:
+          flutter-version: '2.8.0'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run tests
+        run: flutter drive -d windows --target=test_driver/app.dart -a "" --suppress-analytics #--verbose #-a="Some test name"
