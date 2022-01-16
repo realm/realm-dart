@@ -43,6 +43,6 @@ jobs:
         run: flutter pub get
 
       - name: Run tests
-        run: flutter drive -d windows --target=test_driver/app.dart -a "" --suppress-analytics #--verbose #-a="Some test name"
+        run: flutter drive -d windows --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
         
