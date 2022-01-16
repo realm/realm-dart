@@ -490,7 +490,7 @@ Future<void> main([List<String>? args]) async {
       expect(cars, isNotNull);
     });
 
-    test('Results length with deleted by filter', () {
+    test('Results length after deleted objects by filter', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
