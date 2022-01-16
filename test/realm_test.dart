@@ -55,6 +55,12 @@ class _Team {
   late List<_Person> players;
 }
 
+@RealmModel()
+class _Mouse {
+  @PrimaryKey()
+  late int? number = 0;
+}
+
 String? testName;
 
 //Overrides test method so we can filter tests
@@ -325,6 +331,27 @@ Future<void> main([List<String>? args]) async {
       expect(car, isNull);
     });
 
+    test('Realm adding duplicate primary key (type:int)', () {
+      var config = Configuration([Mouse.schema]);
+      var realm = Realm(config);
+
+      final mouseOne = Mouse()..number = 1;
+      final mouseTwo = Mouse()..number = 1;
+      realm.write(() => realm.add(mouseOne));
+
+      expect(() => realm.write(() => realm.add(mouseTwo)), throws<RealmException>());
+    });
+
+    test('Realm adding duplicate primary key (type:string)', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      final carOne = Car()..make = "Toyota";
+      final carTwo = Car()..make = "Toyota";
+      realm.write(() => realm.add(carOne));
+      expect(() => realm.write(() => realm.add(carTwo)), throws<RealmException>());
+    });
+
     test('RealmObject get property', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
@@ -463,7 +490,7 @@ Future<void> main([List<String>? args]) async {
       expect(cars, isNotNull);
     });
 
-    test('Results length', () {
+    test('Results length with deleted by filter', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
@@ -477,7 +504,7 @@ Future<void> main([List<String>? args]) async {
 
       expect(cars.length, 3);
 
-      final filteredCars = realm.query<Car>('make BEGINSWITH "Toyota"');
+      final filteredCars = realm.query<Car>('make BEGINSWITH "Toyot"');
       expect(filteredCars.length, 2);
 
       realm.write(() => realm.deleteMany(filteredCars));
@@ -494,15 +521,13 @@ Future<void> main([List<String>? args]) async {
       expect(cars.length, 0);
 
       final carOne = Car()..make = "Toyota";
-      final carTwo = Car()..make = "Toyota";
+      final carTwo = Car()..make = "Toyota 1";
       realm.write(() => realm.addAll([carOne, carTwo]));
 
       expect(cars.length, 2);
 
       final filteredCars = realm.query<Car>('make == "Toyota"');
-      // TODO: To be discussed. The length here is returned 1, should be 2
-      //expect(filteredCars.length, 2);
-
+      expect(filteredCars.length, 1);
     });
 
     test('Results.all() isEmpty', () {

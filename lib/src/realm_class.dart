@@ -19,6 +19,7 @@
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:mirrors';
 
 import 'results.dart';
 import 'configuration.dart';
@@ -95,10 +96,15 @@ class Realm {
       throw RealmException("Object type ${object.runtimeType} not configured in the current Realm's schema."
           " Add type ${object.runtimeType} to your config before opening the Realm");
     }
-
-    final handle = metadata.class_.primaryKey == null
-        ? realmCore.createRealmObject(this, metadata.class_.key)
-        : realmCore.createRealmObjectWithPrimaryKey(this, metadata.class_.key, metadata.class_.primaryKey!);
+    RealmObjectHandle handle;
+    if (metadata.class_.primaryKey == null) {
+      handle = realmCore.createRealmObject(this, metadata.class_.key);
+    } else {
+      var reflection = reflect(object);
+      InstanceMirror field = reflection.getField(Symbol(metadata.class_.primaryKey!));
+      Object? primaryKeyValue = field.reflectee as Object?;
+      handle = realmCore.createRealmObjectWithPrimaryKey(this, metadata.class_.key, primaryKeyValue!);
+    }
 
     final accessor = RealmCoreAccessor(metadata);
     object.manage(this, handle, accessor);
