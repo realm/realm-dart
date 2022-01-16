@@ -36,6 +36,9 @@ jobs:
         with:
           flutter-version: '2.8.0'
 
+      - name: Enable Flutter Desktop support
+        run: flutter config --enable-windows-desktop
+
       - name: Install dependencies
         run: flutter pub get
 
