@@ -19,7 +19,6 @@
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
-import 'dart:mirrors';
 
 import 'results.dart';
 import 'configuration.dart';
@@ -100,9 +99,7 @@ class Realm {
     if (metadata.class_.primaryKey == null) {
       handle = realmCore.createRealmObject(this, metadata.class_.key);
     } else {
-      var reflection = reflect(object);
-      InstanceMirror field = reflection.getField(Symbol(metadata.class_.primaryKey!));
-      Object? primaryKeyValue = field.reflectee as Object?;
+      Object? primaryKeyValue = RealmObject.get(object, metadata.class_.primaryKey!);
       handle = realmCore.createRealmObjectWithPrimaryKey(this, metadata.class_.key, primaryKeyValue!);
     }
 

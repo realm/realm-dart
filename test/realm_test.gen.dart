@@ -101,16 +101,17 @@ class Team extends _Team with RealmObject {
 class Mouse extends _Mouse with RealmObject {
   static bool? _defaultsSet;
 
-  Mouse() {
+  Mouse(int number) {
     _defaultsSet ??= RealmObject.setDefaults<Mouse>({});
+    RealmObject.set<int>(this, "number", number);
   }
 
   Mouse._();
 
   @override
-  int? get number => RealmObject.get<int>(this, "number") as int;
+  int get number => RealmObject.get<int>(this, "number") as int;
   @override
-  set number(int? value) => RealmObject.set<int>(this, "number", value);
+  set number(int value) => RealmObject.set<int>(this, "number", value);
 
   static SchemaObject get schema {
     RealmObject.registerFactory<Mouse>(() => Mouse._());

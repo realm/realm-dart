@@ -58,7 +58,7 @@ class _Team {
 @RealmModel()
 class _Mouse {
   @PrimaryKey()
-  late int? number = 0;
+  late int number;
 }
 
 String? testName;
@@ -335,10 +335,9 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Mouse.schema]);
       var realm = Realm(config);
 
-      final mouseOne = Mouse()..number = 1;
-      final mouseTwo = Mouse()..number = 1;
+      final mouseOne = Mouse(1);
+      final mouseTwo = Mouse(1);
       realm.write(() => realm.add(mouseOne));
-
       expect(() => realm.write(() => realm.add(mouseTwo)), throws<RealmException>());
     });
 
@@ -653,7 +652,7 @@ Future<void> main([List<String>? args]) async {
         t2.players.addAll([y]); // correct prefix, but wrong play
         t3.players.addAll([x, y]); // wrong prefix, but correct player
       });
-
+      
       // TODO: Still no equality :-/
       expect(t1.players.map((p) => p.name), [x.name]);
       expect(t2.players.map((p) => p.name), [y.name]);
