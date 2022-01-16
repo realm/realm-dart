@@ -11,7 +11,7 @@ class Car extends _Car with RealmObject {
 
   Car([String make = 'Tesla']) {
     _defaultsSet ??= RealmObject.setDefaults<Car>({"make": "Tesla"});
-    this.make = make;
+    RealmObject.set<String>(this, "make", make);
   }
 
   Car._();
