@@ -30,7 +30,7 @@ String formatSpans(
   final buffer = StringBuffer(message);
   try {
     final span = primarySpan;
-    final formated = secondarySpans.isEmpty
+    final formated = secondarySpans.isEmpty && primaryLabel == null
         ? span.highlight(color: color)
         : span.highlightMultiple(
             primaryLabel ?? '!',

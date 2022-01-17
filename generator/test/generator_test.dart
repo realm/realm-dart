@@ -128,16 +128,17 @@ class _Bad {
               '\n'
               'in: package:pkg/src/test.dart:9:8\n'
               '    ╷\n'
-              '5   │   class NonRealm {}\n'
-              '    │         ━━━━━━━━ \n'
+              '5   │ class NonRealm {}\n'
+              '    │       ━━━━━━━━ \n'
               '... │\n'
-              '7   │ ┌ @RealmModel()\n'
-              '8   │ │ class _Bad {\n'
-              '    │ └─── in realm model \'_Bad\'\n'
-              '9   │     late NonRealm notARealmType;\n'
-              '    │          ^^^^^^^^ NonRealm is not a realm model type\n'
+              '7   │ @RealmModel()\n'
+              '8   │ class _Bad {\n'
+              '    │       ━━━━ in realm model for \'Bad\'\n'
+              '9   │   late NonRealm notARealmType;\n'
+              '    │        ^^^^^^^^ NonRealm is not a realm model type\n'
               '    ╵\n'
-              'Add a @RealmModel annotation on \'NonRealm\', or an @Ignored annotation on \'notARealmType\'.\n',
+              'Add a @RealmModel annotation on \'NonRealm\', or an @Ignored annotation on \'notARealmType\'.\n'
+              '',
         ),
       ),
     );
@@ -169,15 +170,15 @@ class _Bad {
               '\n'
               'in: package:pkg/src/test.dart:8:3\n'
               '  ╷\n'
-              '5 │ ┌ @RealmModel()\n'
-              '6 │ │ class _Bad {\n'
-              '  │ └─── in realm model \'_Bad\'\n'
-              '7 │     @Indexed()\n'
-              '  │     ━━━━━━━━━━ index is requested on \'notAnIndexableType\', but\n'
-              '8 │     Double notAnIndexableType;\n'
-              '  │     ^^^^^^ Double is not an indexable type\n'
+              '5 │ @RealmModel()\n'
+              '6 │ class _Bad {\n'
+              '  │       ━━━━ in realm model for \'Bad\'\n'
+              '7 │   @Indexed()\n'
+              '8 │   Double notAnIndexableType;\n'
+              '  │   ^^^^^^ Double is not an indexable type\n'
               '  ╵\n'
-              'Change the type of \'notAnIndexableType\', or remove the @Indexed() annotation\n',
+              'Change the type of \'notAnIndexableType\', or remove the @Indexed() annotation\n'
+              '',
         ),
       ),
     );
@@ -209,15 +210,15 @@ class _Bad {
               '\n'
               'in: package:pkg/src/test.dart:8:3\n'
               '  ╷\n'
-              '5 │ ┌ @RealmModel()\n'
-              '6 │ │ class _Bad {\n'
-              '  │ └─── in realm model \'_Bad\'\n'
-              '7 │     @PrimaryKey()\n'
-              '  │     ━━━━━━━━━━━━━ the primary key \'nullableKeyNotAllowed\' is\n'
-              '8 │     int? nullableKeyNotAllowed;\n'
-              '  │     ^^^^ nullable\n'
+              '5 │ @RealmModel()\n'
+              '6 │ class _Bad {\n'
+              '  │       ━━━━ in realm model for \'Bad\'\n'
+              '7 │   @PrimaryKey()\n'
+              '8 │   int? nullableKeyNotAllowed;\n'
+              '  │   ^^^^ is nullable\n'
               '  ╵\n'
-              'Consider using the @Indexed() annotation instead, or make \'nullableKeyNotAllowed\' an int.\n',
+              'Consider using the @Indexed() annotation instead, or make \'nullableKeyNotAllowed\' an int.\n'
+              '',
         ),
       ),
     );
@@ -236,7 +237,7 @@ part 'test.g.dart';
 @RealmModel()
 class _Bad {
   @PrimaryKey()
-  late int primartKeyIsNotFinal;
+  late int primaryKeyIsNotFinal;
 }'''
         },
         reader: await PackageAssetReader.currentIsolate(),
@@ -247,12 +248,17 @@ class _Bad {
           'format()',
           'Primary key field is not final\n'
               '\n'
-              'in: package:pkg/src/test.dart:7:3\n'
+              'in: package:pkg/src/test.dart:8:12\n'
               '  ╷\n'
-              '7 │ ┌   @PrimaryKey()\n'
-              '8 │ └   late int primartKeyIsNotFinal;\n'
+              '5 │ @RealmModel()\n'
+              '6 │ class _Bad {\n'
+              '  │       ━━━━ in realm model for \'Bad\'\n'
+              '7 │   @PrimaryKey()\n'
+              '8 │   late int primaryKeyIsNotFinal;\n'
+              '  │            ^^^^^^^^^^^^^^^^^^^^ is not final\n'
               '  ╵\n'
-              'Add a final keyword to the definition of \'primartKeyIsNotFinal\', or remove the @PrimaryKey annotation.\n',
+              'Add a final keyword to the definition of \'primaryKeyIsNotFinal\', or remove the @PrimaryKey annotation.\n'
+              '',
         ),
       ),
     );
@@ -289,14 +295,16 @@ class _Questionable {
       sb.toString(),
       '[INFO] testBuilder: Indexed is implied for a primary key\n'
       '\n'
-      'in: package:pkg/src/test.dart:7:3\n'
+      'in: package:pkg/src/test.dart:9:18\n'
       '  ╷\n'
-      '7 │ ┌   @PrimaryKey()\n'
-      '8 │ │   @Indexed()\n'
-      '9 │ └   late final int primartKeysAreAlwaysIndexed;\n'
+      '7 │   @PrimaryKey()\n'
+      '8 │   @Indexed()\n'
+      '9 │   late final int primartKeysAreAlwaysIndexed;\n'
+      '  │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n'
       '  ╵\n'
       'Remove either the @Indexed or @PrimaryKey annotation from \'primartKeysAreAlwaysIndexed\'.\n'
-      '\n',
+      '\n'
+      '',
     );
   });
 
@@ -327,12 +335,12 @@ class _Bad {
                 '\n'
                 'in: package:pkg/src/test.dart:8:21\n'
                 '    ╷\n'
-                '5   │ ┌ @RealmModel()\n'
-                '6   │ │ class _Bad {\n'
-                '    │ └─── in realm model \'_Bad\'\n'
+                '5   │ @RealmModel()\n'
+                '6   │ class _Bad {\n'
+                '    │       ━━━━ in realm model for \'Bad\'\n'
                 '... │\n'
-                '8   │     var listOfLists = [[0], [1]];\n'
-                '    │                       ^^^^^^^^^^ List<List<int>> is not a realm model type\n'
+                '8   │   var listOfLists = [[0], [1]];\n'
+                '    │                     ^^^^^^^^^^ List<List<int>> is not a realm model type\n'
                 '    ╵\n'
                 'Remove the invalid field or add an @Ignored annotation on \'listOfLists\'.\n')));
   });
@@ -366,13 +374,14 @@ class _Other {}
             '\n'
             'in: package:pkg/src/test.dart:7:8\n'
             '  ╷\n'
-            '5 │ ┌ @RealmModel()\n'
-            '6 │ │ class _Bad {\n'
-            '  │ └─── in realm model \'_Bad\'\n'
-            '7 │     late Other other;\n'
-            '  │          ^^^^^ Other is not a realm model type\n'
+            '5 │ @RealmModel()\n'
+            '6 │ class _Bad {\n'
+            '  │       ━━━━ in realm model for \'Bad\'\n'
+            '7 │   late Other other;\n'
+            '  │        ^^^^^ Other is not a realm model type\n'
             '  ╵\n'
-            'Did you intend to use _Other as type for \'other\'?\n',
+            'Did you intend to use _Other as type for \'other\'?\n'
+            '',
       )),
     );
   });
@@ -392,9 +401,13 @@ class _Bad {
   @PrimaryKey()
   late final int first;
 
-  @MapTo('third')
   @PrimaryKey()
-  late final String second; // just a thought..
+  late final String second;
+
+  late final String another;
+
+  @PrimaryKey()
+  late final String third;
 }
 '''
         },
@@ -403,24 +416,27 @@ class _Bad {
       throwsA(isA<RealmInvalidGenerationSourceError>().having(
         (e) => e.format(),
         'format()',
-        'Primary key already defined\n'
+        'Duplicate primary keys\n'
             '\n'
-            'in: package:pkg/src/test.dart:11:3\n'
+            'in: package:pkg/src/test.dart:11:21\n'
             '    ╷\n'
-            '5   │ ┌ @RealmModel()\n'
-            '6   │ │ class _Bad {\n'
-            '    │ └─── in realm model \'_Bad\'\n'
-            '7   │     @PrimaryKey()\n'
-            '    │     ━━━━━━━━━━━━━ the @PrimaryKey() annotation is used\n'
-            '8   │     late final int first;\n'
-            '    │                    ━━━━━ on both \'first\', and\n'
+            '5   │ @RealmModel()\n'
+            '6   │ class _Bad {\n'
+            '    │       ━━━━ in realm model for \'Bad\'\n'
+            '7   │   @PrimaryKey()\n'
+            '8   │   late final int first;\n'
+            '    │                  ━━━━━ \n'
             '... │\n'
-            '11  │     @PrimaryKey()\n'
-            '    │     ^^^^^^^^^^^^^ again\n'
-            '12  │     late final String second; // just a thought..\n'
-            '    │                       ━━━━━━ on \'second\'\n'
+            '10  │   @PrimaryKey()\n'
+            '11  │   late final String second;\n'
+            '    │                     ^^^^^^ second primary key\n'
+            '... │\n'
+            '15  │   @PrimaryKey()\n'
+            '16  │   late final String third;\n'
+            '    │                     ━━━━━ \n'
             '    ╵\n'
-            'Remove @PrimaryKey() annotation from either \'second\' or \'first\'\n',
+            'Avoid duplicated @PrimaryKey() on fields \'first\', \'second\', \'third\'\n'
+            '',
       )),
     );
   });
@@ -449,10 +465,9 @@ class Bad { // missing _ or $ prefix
             '\n'
             'in: package:pkg/src/test.dart:6:7\n'
             '  ╷\n'
-            '5 │ ┌ @RealmModel()\n'
-            '6 │ │ class Bad { // missing _ or \$ prefix\n'
-            '  │ │       ^^^ missing prefix\n'
-            '  │ └─── on realm model \'Bad\'\n'
+            '5 │ @RealmModel()\n'
+            '6 │ class Bad { // missing _ or \$ prefix\n'
+            '  │       ^^^ missing prefix\n'
             '  ╵\n'
             'Either align class name to match prefix [_\$] (regular expression), or add a @MapTo annotation.\n'
             '',
@@ -487,15 +502,16 @@ class Bad {}
             '\n'
             'in: package:pkg/src/test.dart:7:8\n'
             '   ╷\n'
-            '6  │ ┌ @RealmModel()\n'
-            '7  │ │ @MapTo(one) // <- invalid\n'
-            '   │ │        ^^^ which evaluates to \'1\' is not a valid class name\n'
-            '8  │ │ // prefix is not important, as we explicitly define name with @MapTo, \n'
-            '9  │ │ // but obviously 1 is not a valid class name\n'
-            '10 │ │ class Bad {}\n'
-            '   │ └─── when generating realm object class for \'Bad\'\n'
+            '6  │ @RealmModel()\n'
+            '7  │ @MapTo(one) // <- invalid\n'
+            '   │        ^^^ which evaluates to \'1\' is not a valid class name\n'
+            '8  │ // prefix is not important, as we explicitly define name with @MapTo, \n'
+            '9  │ // but obviously 1 is not a valid class name\n'
+            '10 │ class Bad {}\n'
+            '   │       ━━━ when generating realm object class for \'Bad\'\n'
             '   ╵\n'
-            'We need a valid indentifier\n',
+            'We need a valid indentifier\n'
+            '',
       )),
     );
   });
@@ -511,6 +527,7 @@ import 'package:realm_common/realm_common.dart';
 part 'test.g.dart';
 
 @RealmModel()
+@MapTo('Bad')
 @RealmModel()
 class _Bad {}
 '''
@@ -522,16 +539,17 @@ class _Bad {}
         'format()',
         'Repeated annotation\n'
             '\n'
-            'in: package:pkg/src/test.dart:6:1\n'
-            '  ╷\n'
-            '5 │ @RealmModel()\n'
-            '  │ ━━━━━━━━━━━━━ 1st\n'
-            '6 │ @RealmModel()\n'
-            '  │ ^^^^^^^^^^^^^ 2nd\n'
-            '7 │ class _Bad {}\n'
-            '  │       ━━━━ on _Bad\n'
-            '  ╵\n'
-            'Remove all duplicated @RealmModel() annotations.\n',
+            'in: package:pkg/src/test.dart:7:1\n'
+            '    ╷\n'
+            '5   │ @RealmModel()\n'
+            '    │ ━━━━━━━━━━━━━ \n'
+            '... │\n'
+            '7   │ @RealmModel()\n'
+            '    │ ^^^^^^^^^^^^^ duplicated annotation\n'
+            '8   │ class _Bad {}\n'
+            '    ╵\n'
+            'Remove all duplicated @RealmModel() annotations.\n'
+            '',
       )),
     );
   });
@@ -549,6 +567,7 @@ part 'test.g.dart';
 @RealmModel()
 class _Bad { 
   @PrimaryKey()
+  @MapTo('key')
   @PrimaryKey()
   late final int id;
 }
@@ -561,16 +580,20 @@ class _Bad {
         'format()',
         'Repeated annotation\n'
             '\n'
-            'in: package:pkg/src/test.dart:8:3\n'
-            '  ╷\n'
-            '7 │   @PrimaryKey()\n'
-            '  │   ━━━━━━━━━━━━━ 1st\n'
-            '8 │   @PrimaryKey()\n'
-            '  │   ^^^^^^^^^^^^^ 2nd\n'
-            '9 │   late final int id;\n'
-            '  │                  ━━ on id\n'
-            '  ╵\n'
-            'Remove all duplicated @PrimaryKey() annotations.\n',
+            'in: package:pkg/src/test.dart:9:3\n'
+            '    ╷\n'
+            '5   │ @RealmModel()\n'
+            '6   │ class _Bad { \n'
+            '    │       ━━━━ in realm model for \'Bad\'\n'
+            '7   │   @PrimaryKey()\n'
+            '    │   ━━━━━━━━━━━━━ \n'
+            '... │\n'
+            '9   │   @PrimaryKey()\n'
+            '    │   ^^^^^^^^^^^^^ duplicated annotation\n'
+            '10  │   late final int id;\n'
+            '    ╵\n'
+            'Remove all duplicated @PrimaryKey() annotations.\n'
+            '',
       )),
     );
   });
@@ -603,10 +626,9 @@ class _Bad extends Base {
             '\n'
             'in: package:pkg/src/test.dart:8:7\n'
             '  ╷\n'
-            '7 │ ┌ @RealmModel()\n'
-            '8 │ │ class _Bad extends Base { \n'
-            '  │ │       ^^^^ cannot extend Base\n'
-            '  │ └─── on realm model \'_Bad\'\n'
+            '7 │ @RealmModel()\n'
+            '8 │ class _Bad extends Base { \n'
+            '  │       ^^^^ cannot extend Base\n'
             '  ╵',
       )),
     );
@@ -640,14 +662,15 @@ class _Bad {
             '\n'
             'in: package:pkg/src/test.dart:10:3\n'
             '    ╷\n'
-            '5   │ ┌ @RealmModel()\n'
-            '6   │ │ class _Bad { \n'
-            '    │ └─── on realm model \'_Bad\'\n'
+            '5   │ @RealmModel()\n'
+            '6   │ class _Bad { \n'
+            '    │       ━━━━ in realm model for \'Bad\'\n'
             '... │\n'
-            '10  │     _Bad(this.id);\n'
-            '    │     ^ illegal constructor\n'
+            '10  │   _Bad(this.id);\n'
+            '    │   ^ has constructor\n'
             '    ╵\n'
-            'Remove constructor\n',
+            'Remove constructor\n'
+            '',
       )),
     );
   });
@@ -680,14 +703,15 @@ class _Bad {
             '\n'
             'in: package:pkg/src/test.dart:10:13\n'
             '    ╷\n'
-            '5   │ ┌ @RealmModel()\n'
-            '6   │ │ class _Bad { \n'
-            '    │ └─── in realm model \'_Bad\'\n'
+            '5   │ @RealmModel()\n'
+            '6   │ class _Bad { \n'
+            '    │       ━━━━ in realm model for \'Bad\'\n'
             '... │\n'
-            '10  │     List<int> wrong;\n'
-            '    │               ^^^^^ is not final\n'
+            '10  │   List<int> wrong;\n'
+            '    │             ^^^^^ is not final\n'
             '    ╵\n'
-            'Add a final keyword to the definition of \'wrong\'\n',
+            'Add a final keyword to the definition of \'wrong\'\n'
+            '',
       )),
     );
   });
@@ -720,12 +744,12 @@ class _Bad {
             '\n'
             'in: package:pkg/src/test.dart:10:9\n'
             '    ╷\n'
-            '5   │ ┌ @RealmModel()\n'
-            '6   │ │ class _Bad { \n'
-            '    │ └─── in realm model \'_Bad\'\n'
+            '5   │ @RealmModel()\n'
+            '6   │ class _Bad { \n'
+            '    │       ━━━━ in realm model for \'Bad\'\n'
             '... │\n'
-            '10  │     final List<int>? wrong;\n'
-            '    │           ^^^^^^^^^^ is nullable\n'
+            '10  │   final List<int>? wrong;\n'
+            '    │         ^^^^^^^^^^ is nullable\n'
             '    ╵',
       )),
     );
@@ -763,14 +787,15 @@ class _Bad {
             '\n'
             'in: package:pkg/src/test.dart:14:9\n'
             '    ╷\n'
-            '8   │ ┌ @RealmModel()\n'
-            '9   │ │ class _Bad { \n'
-            '    │ └─── in realm model \'_Bad\'\n'
+            '8   │ @RealmModel()\n'
+            '9   │ class _Bad { \n'
+            '    │       ━━━━ in realm model for \'Bad\'\n'
             '... │\n'
-            '14  │     final List<_Other?> wrong;\n'
-            '    │           ^^^^^^^^^^^^^ which has a nullable realm object element type\n'
+            '14  │   final List<_Other?> wrong;\n'
+            '    │         ^^^^^^^^^^^^^ which has a nullable realm object element type\n'
             '    ╵\n'
-            'Ensure element type is non-nullable\n',
+            'Ensure element type is non-nullable\n'
+            '',
       )),
     );
   });
@@ -806,12 +831,12 @@ class _Bad {
             '\n'
             'in: package:pkg/src/test.dart:13:8\n'
             '    ╷\n'
-            '8   │ ┌ @RealmModel()\n'
-            '9   │ │ class _Bad { \n'
-            '    │ └─── in realm model \'_Bad\'\n'
+            '8   │ @RealmModel()\n'
+            '9   │ class _Bad { \n'
+            '    │       ━━━━ in realm model for \'Bad\'\n'
             '... │\n'
-            '13  │     late _Other wrong;\n'
-            '    │          ^^^^^^ is not nullable\n'
+            '13  │   late _Other wrong;\n'
+            '    │        ^^^^^^ is not nullable\n'
             '    ╵\n'
             'Change type to _Other?\n'
             '',
@@ -845,14 +870,13 @@ class _Bad1 {}
             '\n'
             'in: package:pkg/src/test.dart:9:7\n'
             '    ╷\n'
-            '5   │ ┌ @RealmModel()\n'
-            '6   │ │ class \$Bad1 {}\n'
-            '    │ └─── \n'
+            '5   │ @RealmModel()\n'
+            '6   │ class \$Bad1 {}\n'
+            '    │       ━━━━━ \n'
             '... │\n'
-            '8   │ ┌ @RealmModel()\n'
-            '9   │ │ class _Bad1 {}\n'
-            '    │ │       ^^^^^ realm model \'\$Bad1\' already defines \'Bad1\'\n'
-            '    │ └─── \n'
+            '8   │ @RealmModel()\n'
+            '9   │ class _Bad1 {}\n'
+            '    │       ^^^^^ realm model \'\$Bad1\' already defines \'Bad1\'\n'
             '    ╵\n'
             'Duplicate realm model definitions \'_Bad1\' and \'\$Bad1\'.\n'
             '',
@@ -891,14 +915,13 @@ class _Bad2 {}
             '\n'
             'in: package:pkg/src/test2.dart:6:7\n'
             '  ┌──> package:pkg/src/test2.dart\n'
-            '5 │ ┌ @RealmModel()\n'
-            '6 │ │ class _Bad2 {}\n'
-            '  │ │       ^^^^^ realm model \'\$Bad2\' already defines \'Bad2\'\n'
-            '  │ └─── \n'
+            '5 │ @RealmModel()\n'
+            '6 │ class _Bad2 {}\n'
+            '  │       ^^^^^ realm model \'\$Bad2\' already defines \'Bad2\'\n'
             '  ╵\n'
             '  ┌──> package:pkg/src/test1.dart\n'
-            '6 │   class \$Bad2 {}\n'
-            '  │         ━━━━━ \n'
+            '6 │ class \$Bad2 {}\n'
+            '  │       ━━━━━ \n'
             '  ╵\n'
             'Duplicate realm model definitions \'_Bad2\' and \'\$Bad2\'.\n'
             '',
@@ -934,16 +957,15 @@ class _Bar {}
             '\n'
             'in: package:pkg/src/test.dart:11:7\n'
             '    ╷\n'
-            '5   │ ┌ @RealmModel()\n'
-            '6   │ │ @MapTo(\'Bad3\')\n'
-            '7   │ │ class _Foo {}\n'
-            '    │ └─── \n'
+            '5   │ @RealmModel()\n'
+            '6   │ @MapTo(\'Bad3\')\n'
+            '7   │ class _Foo {}\n'
+            '    │       ━━━━ \n'
             '... │\n'
-            '9   │ ┌ @MapTo(\'Bad3\')\n'
-            '10  │ │ @RealmModel()\n'
-            '11  │ │ class _Bar {}\n'
-            '    │ │       ^^^^ realm model \'_Foo\' already defines \'Bad3\'\n'
-            '    │ └─── \n'
+            '9   │ @MapTo(\'Bad3\')\n'
+            '10  │ @RealmModel()\n'
+            '11  │ class _Bar {}\n'
+            '    │       ^^^^ realm model \'_Foo\' already defines \'Bad3\'\n'
             '    ╵\n'
             'Duplicate realm model definitions \'_Bar\' and \'_Foo\'.\n'
             '',

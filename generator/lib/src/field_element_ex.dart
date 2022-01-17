@@ -19,6 +19,7 @@ import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:realm_common/realm_common.dart';
+import 'package:realm_generator/src/expanded_context_span.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:source_span/source_span.dart';
 
@@ -45,7 +46,14 @@ extension FieldElementEx on FieldElement {
 
   Expression? get initializerExpression => declarationAstNode.fields.variables.singleWhere((v) => v.name.name == name).initializer;
 
-  FileSpan? typeSpan(SourceFile file) => (typeAnnotation ?? initializerExpression)?.span(file) ?? span;
+  // TODO: Why twice?
+  FileSpan? typeSpan(SourceFile file) => ExpandedContextSpan(
+        ExpandedContextSpan(
+          (typeAnnotation ?? initializerExpression)?.span(file) ?? span!,
+          [span!],
+        ),
+        [span!],
+      );
 
   // Works even if type of field is unresolved
   String get typeText => (typeAnnotation ?? initializerExpression?.staticType ?? type).toString();
@@ -82,12 +90,8 @@ extension FieldElementEx on FieldElement {
           throw RealmInvalidGenerationSourceError(
             'Primary key cannot be nullable',
             element: this,
-            secondarySpans: {
-              modelSpan: "in realm model '${enclosingElement.displayName}'",
-              primaryKey.annotation.span(file): "the primary key '$displayName' is"
-            },
             primarySpan: typeSpan(file),
-            primaryLabel: 'nullable',
+            primaryLabel: 'is nullable',
             todo: //
                 'Consider using the @Indexed() annotation instead, '
                 "or make '$displayName' ${anOrA(typeText)} ${type.asNonNullable}.",
@@ -104,6 +108,8 @@ extension FieldElementEx on FieldElement {
         if (!isFinal) {
           throw RealmInvalidGenerationSourceError(
             'Primary key field is not final',
+            primarySpan: span!,
+            primaryLabel: 'is not final',
             todo: //
                 "Add a final keyword to the definition of '$displayName', "
                 'or remove the @PrimaryKey annotation.',
@@ -120,16 +126,12 @@ extension FieldElementEx on FieldElement {
                 RealmPropertyType.bool,
               ].contains(type.realmType) ||
               type.isRealmCollection)) {
-        final file = shortSpan!.file;
+        final file = span!.file;
         final annotation = (primaryKey ?? indexed)!.annotation;
 
         throw RealmInvalidGenerationSourceError(
           'Realm only support indexes on String, int, and bool fields',
           element: this,
-          secondarySpans: {
-            enclosingElement.span!: "in realm model '${enclosingElement.displayName}'",
-            annotation.span(file): "index is requested on '$displayName', but",
-          },
           primarySpan: typeSpan(file),
           primaryLabel: "$typeText is not an indexable type",
           todo: //
@@ -173,22 +175,15 @@ extension FieldElementEx on FieldElement {
           if (!isFinal) {
             throw RealmInvalidGenerationSourceError(
               'Realm collection field must be final',
-              secondarySpans: {
-                enclosingElement.span!: "in realm model '${enclosingElement.displayName}'",
-              },
-              primarySpan: shortSpan,
+              primarySpan: span,
               primaryLabel: 'is not final',
               todo: "Add a final keyword to the definition of '$displayName'",
               element: this,
             );
           }
           if (type.isNullable) {
-            // TODO: Better error reporting
             throw RealmInvalidGenerationSourceError(
               'Realm collections cannot be nullable',
-              secondarySpans: {
-                enclosingElement.span!: "in realm model '${enclosingElement.displayName}'",
-              },
               primarySpan: typeSpan(file),
               primaryLabel: 'is nullable',
               todo: '',
@@ -198,9 +193,6 @@ extension FieldElementEx on FieldElement {
           final itemType = type.basicType;
           if (itemType.isRealmModel && itemType.isNullable) {
             throw RealmInvalidGenerationSourceError('Nullable realm objects are not allowed in collections',
-                secondarySpans: {
-                  enclosingElement.span!: "in realm model '${enclosingElement.displayName}'",
-                },
                 primarySpan: typeSpan(file), // TODO: Restrict span to the parameter type
                 primaryLabel: 'which has a nullable realm object element type',
                 element: this,
@@ -215,9 +207,6 @@ extension FieldElementEx on FieldElement {
               'Realm object references must be nullable',
               primarySpan: typeSpan(file),
               primaryLabel: 'is not nullable',
-              secondarySpans: {
-                enclosingElement.span!: "in realm model '${enclosingElement.displayName}'",
-              },
               todo: 'Change type to $typeText?',
               element: this,
             );
@@ -234,8 +223,9 @@ extension FieldElementEx on FieldElement {
       );
     } on InvalidGenerationSourceError catch (_) {
       rethrow;
-    } catch (e) {
-      // Fallback. Not perfect, but better than just forwarding original error
+    } catch (e, s) {
+      // Fallback. Not perfect, but better than just forwarding original error.
+      print(s);
       throw RealmInvalidGenerationSourceError(
         '$e',
         todo: //

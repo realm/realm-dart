@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:realm_generator/src/expanded_context_span.dart';
 import 'package:source_gen/source_gen.dart';
 import 'annotation_value.dart';
 import 'error.dart';
@@ -32,35 +33,29 @@ final _validIdentifier = RegExp(r'^[a-zA-Z]\w*$');
 
 extension on Iterable<FieldElement> {
   Iterable<RealmFieldInfo> get realmInfo sync* {
-    RealmFieldInfo? primaryKeySeen;
+    final primaryKeys = <RealmFieldInfo>[];
     for (final f in this) {
       final info = f.realmInfo;
       if (info == null) continue;
       if (info.primaryKey) {
-        if (primaryKeySeen == null) {
-          primaryKeySeen = info;
-        } else {
-          final file = f.shortSpan!.file;
-          final annotation = f.primaryKeyInfo!.annotation;
-          final classElement = f.enclosingElement;
-          throw RealmInvalidGenerationSourceError(
-            'Primary key already defined',
-            todo: //
-                'Remove $annotation annotation from either '
-                "'$info' or '$primaryKeySeen'",
-            element: f,
-            primarySpan: annotation.span(file),
-            primaryLabel: 'again',
-            secondarySpans: {
-              classElement.span!: "in realm model '${classElement.displayName}'",
-              primaryKeySeen.fieldElement.primaryKeyInfo!.annotation.span(file): 'the $annotation annotation is used',
-              primaryKeySeen.fieldElement.shortSpan!: "on both '${primaryKeySeen.fieldElement.displayName}', and",
-              f.shortSpan!: "on '${f.displayName}'",
-            },
-          );
-        }
+        primaryKeys.add(info);
       }
       yield info;
+    }
+    if (primaryKeys.length > 1) {
+      final key = primaryKeys[1];
+      final field = key.fieldElement;
+      final annotation = field.primaryKeyInfo!.annotation;
+      throw RealmInvalidGenerationSourceError(
+        'Duplicate primary keys',
+        todo: "Avoid duplicated $annotation on fields ${primaryKeys.map((e) => "'$e'").join(', ')}",
+        element: field,
+        primarySpan: field.span!,
+        primaryLabel: 'second primary key',
+        secondarySpans: {
+          ...{for (final p in primaryKeys..removeAt(1)) p.fieldElement.span!: ''},
+        },
+      );
     }
   }
 }
@@ -75,7 +70,6 @@ extension ClassElementEx on ClassElement {
       if (realmModelInfo == null) return null;
 
       final modelName = this.name;
-      final mappedFields = fields.realmInfo.toList();
       String name;
 
       // If mapTo annotation used, ensure that a valid name is specified.
@@ -89,7 +83,7 @@ extension ClassElementEx on ClassElement {
           throw RealmInvalidGenerationSourceError(
             "Invalid class name",
             element: this,
-            primarySpan: nameExpression.span(file),
+            primarySpan: ExpandedContextSpan(ExpandedContextSpan(nameExpression.span(file), [span!]), [span!]),
             primaryLabel: "${'$nameExpression' == "'$name'" ? '' : "which evaluates to "}'$name' is not a valid class name",
             secondarySpans: {
               elementSpan: "when generating realm object class for '$displayName'",
@@ -105,9 +99,8 @@ extension ClassElementEx on ClassElement {
           throw RealmInvalidGenerationSourceError(
             'Missing prefix on realm model name',
             element: this,
-            primarySpan: shortSpan,
+            primarySpan: span,
             primaryLabel: 'missing prefix',
-            secondarySpans: {span!: "on realm model '$displayName'"},
             todo: //
                 'Either align class name to match prefix '
                 '${prefix is RegExp ? '${prefix.pattern} (regular expression)' : prefix}, '
@@ -117,9 +110,8 @@ extension ClassElementEx on ClassElement {
         if (!modelName.endsWith(suffix)) {
           throw RealmInvalidGenerationSourceError('Missing suffix on realm model name',
               element: this,
-              primarySpan: shortSpan,
+              primarySpan: span,
               primaryLabel: 'missing suffix',
-              secondarySpans: {span!: "on realm model '$displayName'"},
               todo: //
                   'Either align class name to suffix $suffix,'
                   'or add a @MapTo annotation, ');
@@ -134,10 +126,9 @@ extension ClassElementEx on ClassElement {
       if (mapped != this) {
         throw RealmInvalidGenerationSourceError('Duplicate definition',
             element: this,
-            primarySpan: shortSpan!,
+            primarySpan: span,
             primaryLabel: "realm model '${mapped.displayName}' already defines '$name'",
             secondarySpans: {
-              span!: '',
               mapped.span!: '',
             },
             todo: //
@@ -148,9 +139,8 @@ extension ClassElementEx on ClassElement {
       if (supertype != session.typeProvider.objectType) {
         throw RealmInvalidGenerationSourceError(
           'Realm model classes can only extend Object',
-          primarySpan: shortSpan,
+          primarySpan: span,
           primaryLabel: 'cannot extend $supertype',
-          secondarySpans: {span!: "on realm model '$displayName'"},
           todo: '',
           element: this,
         );
@@ -159,16 +149,17 @@ extension ClassElementEx on ClassElement {
       // Check that no constructor is defined.
       final explicitCtors = constructors.where((c) => !c.isSynthetic);
       if (explicitCtors.isNotEmpty) {
+        final ctor = explicitCtors.first;
         throw RealmInvalidGenerationSourceError(
           'No constructors allowed on realm model classes',
-          element: this,
-          primarySpan: explicitCtors.first.span,
-          primaryLabel: 'illegal constructor',
-          secondarySpans: {span!: "on realm model '$displayName'"},
+          element: ctor,
+          primarySpan: ctor.span,
+          primaryLabel: 'has constructor',
           todo: 'Remove constructor',
         );
       }
 
+      final mappedFields = fields.realmInfo.toList();
       return RealmModelInfo(
         name,
         modelName,
@@ -176,8 +167,9 @@ extension ClassElementEx on ClassElement {
       );
     } on InvalidGenerationSourceError catch (_) {
       rethrow;
-    } catch (e) {
+    } catch (e, s) {
       // Fallback. Not perfect, but better than just forwarding original error.
+      print(s);
       throw RealmInvalidGenerationSourceError(
         '$e',
         todo: //

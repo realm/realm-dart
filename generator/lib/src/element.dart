@@ -22,6 +22,7 @@ import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:realm_generator/src/annotation_value.dart';
+import 'package:realm_generator/src/expanded_context_span.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:source_span/source_span.dart';
 
@@ -31,6 +32,7 @@ import 'error.dart';
 import 'field_element_ex.dart';
 import 'session.dart';
 import 'type_checkers.dart';
+import 'utils.dart';
 
 ElementDeclarationResult? getDeclarationFromElement(Element element) {
   return session.resolvedLibrary.getElementDeclaration(element);
@@ -57,7 +59,7 @@ extension AstNodeEx on AstNode {
 }
 
 extension ElementEx on Element {
-  FileSpan? get shortSpan {
+  FileSpan? get _shortSpan {
     try {
       return spanForElement(this) as FileSpan;
     } catch (_) {}
@@ -84,25 +86,22 @@ extension ElementEx on Element {
   }
 
   AnnotationValue? annotationInfoOfExact(TypeChecker checker) {
-    AnnotationValue? result;
-    for (final info in _annotationsInfoOfExact(checker)) {
-      if (result == null) {
-        result = info;
-      } else {
-        final elementSpan = shortSpan!;
-        final file = elementSpan.file;
-        throw RealmInvalidGenerationSourceError('Repeated annotation',
-            element: this,
-            primarySpan: info.annotation.span(file),
-            primaryLabel: '2nd',
-            secondarySpans: {
-              elementSpan: 'on $displayName',
-              result.annotation.span(file): '1st',
-            },
-            todo: 'Remove all duplicated ${info.annotation} annotations.');
-      }
+    final annotations = _annotationsInfoOfExact(checker).toList();
+    if (annotations.length > 1) {
+      final second = annotations[1];
+      final elementSpan = span!;
+      final file = elementSpan.file;
+
+      throw RealmInvalidGenerationSourceError('Repeated annotation',
+          element: this,
+          primarySpan: ExpandedContextSpan(second.annotation.span(file), [elementSpan]),
+          primaryLabel: 'duplicated annotation',
+          secondarySpans: {
+            ...{for (final a in annotations..removeAt(1)) a.annotation.span(file): ''}
+          },
+          todo: 'Remove all duplicated ${second.annotation} annotations.');
     }
-    return result;
+    return annotations.singleOrNull;
   }
 
   AnnotationValue? get mapToInfo => annotationInfoOfExact(mapToChecker);
@@ -110,18 +109,18 @@ extension ElementEx on Element {
   FileSpan? get span {
     FileSpan? elementSpan;
     try {
-      elementSpan = shortSpan!;
+      elementSpan = _shortSpan!;
       final self = this;
       if (self is FieldElement) {
         final node = self.declarationAstNode;
         if (node.metadata.isNotEmpty) {
-          return node.span(elementSpan.file);
+          return ExpandedContextSpan(elementSpan, [node.span(elementSpan.file)]);
         }
       } else if (self is ClassElement) {
         final node = self.declarationAstNode;
         if (node.metadata.isNotEmpty) {
           // don't include full class
-          return node.span(elementSpan.file).clampEnd(elementSpan.extentToEndOfLine());
+          return ExpandedContextSpan(elementSpan, [node.span(elementSpan.file).clampEnd(elementSpan.extentToEndOfLine())]);
         }
       }
     } catch (_) {}

@@ -47,6 +47,8 @@ Future<T> scopeSession<T>(
   )!;
 }
 
+void clearMappings() => _Session._mapping.clear();
+
 class _Session {
   final ResolvedLibraryResult resolvedLibrary;
   final Pattern prefix;

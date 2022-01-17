@@ -22,6 +22,7 @@ import 'package:source_span/source_span.dart';
 import 'element.dart';
 import 'format_spans.dart';
 import 'session.dart';
+import 'utils.dart';
 
 class RealmInvalidGenerationSourceError extends InvalidGenerationSourceError {
   final FileSpan primarySpan;
@@ -36,10 +37,18 @@ class RealmInvalidGenerationSourceError extends InvalidGenerationSourceError {
     FileSpan? primarySpan,
     bool? color,
     this.primaryLabel,
-    this.secondarySpans = const {},
+    Map<FileSpan, String> secondarySpans = const {},
   })  : primarySpan = primarySpan ?? element.span!,
+        secondarySpans = {...secondarySpans},
         color = color ?? session.color,
-        super(message, todo: todo, element: element);
+        super(message, todo: todo, element: element) {
+    if (element is FieldElement || element is ConstructorElement) {
+      final classElement = element.enclosingElement!;
+      this.secondarySpans.addAll({
+        classElement.span!: "in realm model for '${session.mapping.entries.where((e) => e.value == classElement).singleOrNull?.key}'",
+      });
+    }
+  }
 
   @override
   String toString() => format(color);
