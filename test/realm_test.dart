@@ -479,7 +479,7 @@ Future<void> main([List<String>? args]) async {
       expect(cars, isNotNull);
     });
 
-    test('Results length after deleted objects by filter', () {
+    test('Results length after deletedMany', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
@@ -502,7 +502,7 @@ Future<void> main([List<String>? args]) async {
       expect(cars.length, 1);
     });
 
-    test('Results length with query', () {
+    test('Results length', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
@@ -519,7 +519,7 @@ Future<void> main([List<String>? args]) async {
       expect(filteredCars.length, 1);
     });
 
-    test('Results.all() isEmpty', () {
+    test('Results isEmpty', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
