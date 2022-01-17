@@ -95,13 +95,10 @@ class Realm {
       throw RealmException("Object type ${object.runtimeType} not configured in the current Realm's schema."
           " Add type ${object.runtimeType} to your config before opening the Realm");
     }
-    RealmObjectHandle handle;
-    if (metadata.class_.primaryKey == null) {
-      handle = realmCore.createRealmObject(this, metadata.class_.key);
-    } else {
-      Object? primaryKeyValue = RealmObject.get(object, metadata.class_.primaryKey!);
-      handle = realmCore.createRealmObjectWithPrimaryKey(this, metadata.class_.key, primaryKeyValue!);
-    }
+
+    final handle = metadata.class_.primaryKey == null
+        ? realmCore.createRealmObject(this, metadata.class_.key)
+        : realmCore.createRealmObjectWithPrimaryKey(this, metadata.class_.key, object.accessor.get(object, metadata.class_.primaryKey!)!);
 
     final accessor = RealmCoreAccessor(metadata);
     object.manage(this, handle, accessor);
