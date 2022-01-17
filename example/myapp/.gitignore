@@ -8,6 +8,10 @@ build/
 # Directory created by dartdoc
 doc/api/
 
+# Ignore realm files
 *.realm
 *.realm.lock
 default.realm.management
+
+# Ignore example pubspec.lock since the example always reference the local package
+pubspec.lock
