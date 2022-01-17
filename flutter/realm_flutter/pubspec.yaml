@@ -40,6 +40,7 @@ dev_dependencies:
   lints: ^1.0.1
   test: ^1.20.1
 
+# Remove once flutter_test from sdk is updated
 dependency_overrides: 
   test_api: ^0.4.9
 
