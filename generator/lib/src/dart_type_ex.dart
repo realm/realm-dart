@@ -22,6 +22,7 @@ import 'package:analyzer/dart/element/type.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:source_gen/source_gen.dart';
 
+import 'error.dart';
 import 'session.dart';
 import 'type_checkers.dart';
 
@@ -65,7 +66,7 @@ extension DartTypeEx on DartType {
 
   // TODO: Using replaceAll is a hack.
   // It is needed for now, since we cannot construct a DartType for the yet to
-  // be generated classes, ie. for _A given A. Once the new static meta
+  // be generated classes, ie. for A given _A. Once the new static meta
   // programming feature is added to dart, we should be able to resolve this
   // using a ClassTypeMacro.
   String get basicName => basicType.toString().replaceAll(session.prefix, '');
@@ -95,11 +96,21 @@ extension DartTypeEx on DartType {
   RealmPropertyType? get realmType => _realmType(true);
 
   RealmPropertyType? _realmType(bool recurse) {
+    // Check for as-of-yet unsupported type
+    if (isDartCoreSet || //
+        isDartCoreMap ||
+        isRealmAny ||
+        isExactly<Decimal128>() ||
+        isExactly<ObjectId>() ||
+        isExactly<Uuid>()) {
+      throw RealmInvalidGenerationSourceError(
+        'Not supported yet',
+        todo: 'Avoid using this type for now',
+        element: element!,
+      );
+    }
     if (isRealmCollection && recurse) {
-      return (this as ParameterizedType)
-          .typeArguments
-          .last
-          ._realmType(false); // only recurse once! (for now)
+      return (this as ParameterizedType).typeArguments.last._realmType(false); // only recurse once! (for now)
     }
     if (isDartCoreInt) return RealmPropertyType.int;
     if (isDartCoreBool) return RealmPropertyType.bool;

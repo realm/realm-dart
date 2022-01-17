@@ -16,7 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:collection';
 import 'dart:ffi';
 import 'dart:typed_data';
 
@@ -86,6 +85,7 @@ class RealmAny {
 }
 
 // TODO!
+/*
 class RealmInteger {
   void increment(int value) {} // TODO!
   void decrement(int value) => increment(-value);
@@ -134,3 +134,4 @@ class RealmMap<E> extends MapBase<String, E> {
   @override
   E? remove(Object? key) => throw UnimplementedError();
 }
+*/

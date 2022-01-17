@@ -80,19 +80,19 @@ class _Bar {
   late final String id;
   late bool aBool, another;
   var data = Uint8List(16);
-  late RealmAny any;
+  // late RealmAny any; // not supported yet
   @MapTo('tidspunkt')
   var timestamp = DateTime.now();
   var aDouble = 0.0;
-  late Decimal128 decimal;
+  // late Decimal128 decimal; // not supported yet
   _Foo? foo;
-  late ObjectId id;
-  late Uuid uuid;
+  // late ObjectId id;
+  // late Uuid uuid; // not supported yet
   @Ignored()
   var theMeaningOfEverything = 42;
   final list = [0]; // list of ints with default value
-  late final Set<int> set;
-  final map = <String, int>{};
+  // late final Set<int> set; // not supported yet
+  // final map = <String, int>{}; // not supported yet
 
   @Indexed()
   String? anOptionalString;
@@ -157,7 +157,7 @@ part 'test.g.dart';
 @RealmModel()
 class _Bad {
   @Indexed()
-  Uuid notAnIndexableType;
+  Double notAnIndexableType;
 }'''
         },
         reader: await PackageAssetReader.currentIsolate(),
@@ -175,8 +175,8 @@ class _Bad {
               '  │ └─── in realm model \'_Bad\'\n'
               '7 │     @Indexed()\n'
               '  │     ━━━━━━━━━━ index is requested on \'notAnIndexableType\', but\n'
-              '8 │     Uuid notAnIndexableType;\n'
-              '  │     ^^^^ Uuid is not an indexable type\n'
+              '8 │     Double notAnIndexableType;\n'
+              '  │     ^^^^^^ Double is not an indexable type\n'
               '  ╵\n'
               'Change the type of \'notAnIndexableType\', or remove the @Indexed() annotation\n',
         ),
