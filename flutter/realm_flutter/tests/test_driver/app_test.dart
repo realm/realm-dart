@@ -1,9 +1,13 @@
+import 'dart:io';
+
 // Imports the Flutter Driver API.
 import 'package:flutter_driver/flutter_driver.dart';
 import 'package:test/test.dart';
 import 'const.dart';
 
 void main(List<String> args) {
+  print("Current PID $pid");
+
   group('Realm tests', () {
     FlutterDriver? driver;
 

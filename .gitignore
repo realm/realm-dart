@@ -1,13 +1,17 @@
 out
 .vs
-#ingore build file
+# Ingore build file
 .dart_tool/
 
+# Ignore realm files
 lib/default.realm
 lib/default.realm.lock
 
+# Dart packages and Flutter plugins should not commit these files
 pubspec.lock
-.packages
+.packages 
+
+# Ignore other packages files
 flutter/realm_flutter/.idea/
 flutter/realm_flutter/android/.idea/
 flutter/realm_flutter/android/.cxx/
@@ -17,14 +21,18 @@ flutter/realm_flutter/.gradle/
 /test/default.realm
 /test/default.realm.lock
 /doc/
-#ignore native binaries output directory
+
+# Ignore native binaries output directory
 /binary/
 
-#ignore native binaries build directories
+# Ignore native binaries build directories
 /build-android/
 /build-windows/
 /build-ios/
 /build-linux/
 /build-macos/
 /build/
+
+# Ignore example pubspec.lock since the example always reference the local package
+example/pubspec.lock
 

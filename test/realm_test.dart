@@ -75,8 +75,8 @@ void parseTestNameFromArguments(List<String>? arguments) {
   int nameArgIndex = arguments.indexOf("--name");
   if (arguments.isNotEmpty) {
     if (nameArgIndex >= 0 && arguments.length > 1) {
-      print("testName: $testName");
       testName = arguments[nameArgIndex + 1];
+      print("testName: $testName");
     }
   }
 }

@@ -44,3 +44,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Ignore pubspec.lock since tests always reference the local package
+pubspec.lock

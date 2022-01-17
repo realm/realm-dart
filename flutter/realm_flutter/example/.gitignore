@@ -44,3 +44,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Ignore realm files
+default.realm*
+
+# Ignore example pubspec.lock since the example always reference the local package
+pubspec.lock

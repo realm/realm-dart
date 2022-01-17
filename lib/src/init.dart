@@ -62,6 +62,10 @@ DynamicLibrary initRealm() {
     }
 
     if (Platform.isWindows) {
+      if (isFlutterPlatform) {
+        return "$binaryName.dll";
+      }
+
       if (path.isEmpty) {
         path = 'binary/windows';
       }
