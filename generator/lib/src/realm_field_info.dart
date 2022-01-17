@@ -52,8 +52,7 @@ class RealmFieldInfo {
 
   String get typeModelName => fieldElement.typeModelName;
 
-  String get typeName => typeModelName.replaceAll(
-      session.prefix, ''); // TODO: using replaceAll is a hack
+  String get typeName => typeModelName.replaceAll(session.prefix, ''); // TODO: using replaceAll is a hack
 
   RealmCollectionType get realmCollectionType => type.realmCollectionType;
 

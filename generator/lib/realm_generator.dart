@@ -29,6 +29,7 @@ import 'package:source_gen/source_gen.dart';
 import 'src/realm_object_generator.dart';
 
 export 'src/error.dart';
+
 /// @nodoc
 Builder generateRealmObjects([BuilderOptions? options]) => SharedPartBuilder(
       [RealmObjectGenerator()],

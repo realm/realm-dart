@@ -52,12 +52,9 @@ extension on Iterable<FieldElement> {
             primarySpan: annotation.span(file),
             primaryLabel: 'again',
             secondarySpans: {
-              classElement.span!:
-                  "in realm model '${classElement.displayName}'",
-              primaryKeySeen.fieldElement.primaryKeyInfo!.annotation.span(file):
-                  'the $annotation annotation is used',
-              primaryKeySeen.fieldElement.shortSpan!:
-                  "on both '${primaryKeySeen.fieldElement.displayName}', and",
+              classElement.span!: "in realm model '${classElement.displayName}'",
+              primaryKeySeen.fieldElement.primaryKeyInfo!.annotation.span(file): 'the $annotation annotation is used',
+              primaryKeySeen.fieldElement.shortSpan!: "on both '${primaryKeySeen.fieldElement.displayName}', and",
               f.shortSpan!: "on '${f.displayName}'",
             },
           );
@@ -69,11 +66,9 @@ extension on Iterable<FieldElement> {
 }
 
 extension ClassElementEx on ClassElement {
-  ClassDeclaration get declarationAstNode =>
-      getDeclarationFromElement(this)!.node as ClassDeclaration;
+  ClassDeclaration get declarationAstNode => getDeclarationFromElement(this)!.node as ClassDeclaration;
 
-  AnnotationValue? get realmModelInfo =>
-      annotationInfoOfExact(realmModelChecker);
+  AnnotationValue? get realmModelInfo => annotationInfoOfExact(realmModelChecker);
 
   RealmModelInfo? get realmInfo {
     try {
@@ -95,11 +90,9 @@ extension ClassElementEx on ClassElement {
             "Invalid class name",
             element: this,
             primarySpan: nameExpression.span(file),
-            primaryLabel:
-                "${'$nameExpression' == "'$name'" ? '' : "which evaluates to "}'$name' is not a valid class name",
+            primaryLabel: "${'$nameExpression' == "'$name'" ? '' : "which evaluates to "}'$name' is not a valid class name",
             secondarySpans: {
-              elementSpan:
-                  "when generating realm object class for '$displayName'",
+              elementSpan: "when generating realm object class for '$displayName'",
             },
             todo: 'We need a valid indentifier',
           );
@@ -122,39 +115,33 @@ extension ClassElementEx on ClassElement {
           );
         }
         if (!modelName.endsWith(suffix)) {
-          throw RealmInvalidGenerationSourceError(
-            'Missing suffix on realm model name',
-            element: this,
-            primarySpan: shortSpan,
-            primaryLabel: 'missing suffix',
-            secondarySpans: {span!: "on realm model '$displayName'"},
-            todo: //
-                'Either align class name to suffix $suffix,'
-                'or add a @MapTo annotation, '
-          );
+          throw RealmInvalidGenerationSourceError('Missing suffix on realm model name',
+              element: this,
+              primarySpan: shortSpan,
+              primaryLabel: 'missing suffix',
+              secondarySpans: {span!: "on realm model '$displayName'"},
+              todo: //
+                  'Either align class name to suffix $suffix,'
+                  'or add a @MapTo annotation, ');
         }
 
         // Remove suffix and prefix, if any.
-        name = modelName
-            .substring(0, modelName.length - suffix.length)
-            .replaceFirst(prefix, '');
+        name = modelName.substring(0, modelName.length - suffix.length).replaceFirst(prefix, '');
       }
 
       // Check that mapping not already defined
       final mapped = session.mapping.putIfAbsent(name, () => this);
       if (mapped != this) {
-        throw RealmInvalidGenerationSourceError(
-          'Duplicate definition',
-          element: this,
-          primarySpan: shortSpan!,
-          primaryLabel: "realm model '${mapped.displayName}' already defines '$name'",
-          secondarySpans: {
-            span!: '',
-            mapped.span!: '',
-          },
-          todo: //
-              "Duplicate realm model definitions '$displayName' and '${mapped.displayName}'."
-        );
+        throw RealmInvalidGenerationSourceError('Duplicate definition',
+            element: this,
+            primarySpan: shortSpan!,
+            primaryLabel: "realm model '${mapped.displayName}' already defines '$name'",
+            secondarySpans: {
+              span!: '',
+              mapped.span!: '',
+            },
+            todo: //
+                "Duplicate realm model definitions '$displayName' and '${mapped.displayName}'.");
       }
 
       // Check that realm model class does not extend another class than Object (not supported for now).

@@ -41,8 +41,7 @@ String humanReadable(Duration duration) {
   return '${hours}h ${remaining.inMinutes}m';
 }
 
-FutureOr<T> meassure<T>(FutureOr<T> Function() action,
-    {String tag = '', repetitions = 1}) async {
+FutureOr<T> meassure<T>(FutureOr<T> Function() action, {String tag = '', repetitions = 1}) async {
   return [
     for (int i = 0; i < repetitions; ++i)
       await (() async {

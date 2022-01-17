@@ -33,33 +33,26 @@ import 'type_checkers.dart';
 import 'utils.dart';
 
 extension FieldElementEx on FieldElement {
-  FieldDeclaration get declarationAstNode =>
-      getDeclarationFromElement(this)!.node.parent!.parent as FieldDeclaration;
+  FieldDeclaration get declarationAstNode => getDeclarationFromElement(this)!.node.parent!.parent as FieldDeclaration;
 
   AnnotationValue? get ignoredInfo => annotationInfoOfExact(ignoredChecker);
 
-  AnnotationValue? get primaryKeyInfo =>
-      annotationInfoOfExact(primaryKeyChecker);
+  AnnotationValue? get primaryKeyInfo => annotationInfoOfExact(primaryKeyChecker);
 
   AnnotationValue? get indexedInfo => annotationInfoOfExact(indexedChecker);
 
   TypeAnnotation? get typeAnnotation => declarationAstNode.fields.type;
 
-  Expression? get initializerExpression => declarationAstNode.fields.variables
-      .singleWhere((v) => v.name.name == name)
-      .initializer;
+  Expression? get initializerExpression => declarationAstNode.fields.variables.singleWhere((v) => v.name.name == name).initializer;
 
-  FileSpan? typeSpan(SourceFile file) =>
-      (typeAnnotation ?? initializerExpression)?.span(file) ?? span;
+  FileSpan? typeSpan(SourceFile file) => (typeAnnotation ?? initializerExpression)?.span(file) ?? span;
 
   // Works even if type of field is unresolved
-  String get typeText =>
-      (typeAnnotation ?? initializerExpression?.staticType ?? type).toString();
+  String get typeText => (typeAnnotation ?? initializerExpression?.staticType ?? type).toString();
 
-  String get typeModelName =>
-      type.isDynamic ? typeText : type.getDisplayString(withNullability: true);
+  String get typeModelName => type.isDynamic ? typeText : type.getDisplayString(withNullability: true);
 
-  // TODO: using replaceAll is a temporary hack. 
+  // TODO: using replaceAll is a temporary hack.
   // It is needed for now, since we cannot construct a DartType for the yet to
   // be generated classes, ie. for _A given A. Once the new static meta
   // programming feature is added to dart, we should be able to resolve this
@@ -91,8 +84,7 @@ extension FieldElementEx on FieldElement {
             element: this,
             secondarySpans: {
               modelSpan: "in realm model '${enclosingElement.displayName}'",
-              primaryKey.annotation.span(file):
-                  "the primary key '$displayName' is"
+              primaryKey.annotation.span(file): "the primary key '$displayName' is"
             },
             primarySpan: typeSpan(file),
             primaryLabel: 'nullable',
@@ -105,8 +97,7 @@ extension FieldElementEx on FieldElement {
           log.info(formatSpans(
             'Indexed is implied for a primary key',
             primarySpan: span!,
-            todo:
-                "Remove either the @Indexed or @PrimaryKey annotation from '$displayName'.",
+            todo: "Remove either the @Indexed or @PrimaryKey annotation from '$displayName'.",
             element: this,
           ));
         }
@@ -136,8 +127,7 @@ extension FieldElementEx on FieldElement {
           'Realm only support indexes on String, int, and bool fields',
           element: this,
           secondarySpans: {
-            enclosingElement.span!:
-                "in realm model '${enclosingElement.displayName}'",
+            enclosingElement.span!: "in realm model '${enclosingElement.displayName}'",
             annotation.span(file): "index is requested on '$displayName', but",
           },
           primarySpan: typeSpan(file),
@@ -159,9 +149,7 @@ extension FieldElementEx on FieldElement {
           todo = //
               "Add a @RealmModel annotation on '$typeName', "
               "or an @Ignored annotation on '$displayName'.";
-        } else if (type.isDynamic &&
-            typeName != 'dynamic' &&
-            !typeName.startsWith(session.prefix)) {
+        } else if (type.isDynamic && typeName != 'dynamic' && !typeName.startsWith(session.prefix)) {
           todo = "Did you intend to use _$typeName as type for '$displayName'?";
         } else {
           todo = "Remove the invalid field or add an @Ignored annotation on '$displayName'.";
@@ -186,8 +174,7 @@ extension FieldElementEx on FieldElement {
             throw RealmInvalidGenerationSourceError(
               'Realm collection field must be final',
               secondarySpans: {
-                enclosingElement.span!:
-                    "in realm model '${enclosingElement.displayName}'",
+                enclosingElement.span!: "in realm model '${enclosingElement.displayName}'",
               },
               primarySpan: shortSpan,
               primaryLabel: 'is not final',
@@ -200,8 +187,7 @@ extension FieldElementEx on FieldElement {
             throw RealmInvalidGenerationSourceError(
               'Realm collections cannot be nullable',
               secondarySpans: {
-                enclosingElement.span!:
-                    "in realm model '${enclosingElement.displayName}'",
+                enclosingElement.span!: "in realm model '${enclosingElement.displayName}'",
               },
               primarySpan: typeSpan(file),
               primaryLabel: 'is nullable',
@@ -211,17 +197,14 @@ extension FieldElementEx on FieldElement {
           }
           final itemType = type.basicType;
           if (itemType.isRealmModel && itemType.isNullable) {
-            throw RealmInvalidGenerationSourceError(
-              'Nullable realm objects are not allowed in collections',
-              secondarySpans: {
-                enclosingElement.span!:
-                    "in realm model '${enclosingElement.displayName}'",
-              },
-              primarySpan: typeSpan(file), // TODO: Restrict span to the parameter type
-              primaryLabel: 'which has a nullable realm object element type',
-              element: this,
-              todo: 'Ensure element type is non-nullable' 
-            );
+            throw RealmInvalidGenerationSourceError('Nullable realm objects are not allowed in collections',
+                secondarySpans: {
+                  enclosingElement.span!: "in realm model '${enclosingElement.displayName}'",
+                },
+                primarySpan: typeSpan(file), // TODO: Restrict span to the parameter type
+                primaryLabel: 'which has a nullable realm object element type',
+                element: this,
+                todo: 'Ensure element type is non-nullable');
           }
         }
 
@@ -233,8 +216,7 @@ extension FieldElementEx on FieldElement {
               primarySpan: typeSpan(file),
               primaryLabel: 'is not nullable',
               secondarySpans: {
-                enclosingElement.span!:
-                    "in realm model '${enclosingElement.displayName}'",
+                enclosingElement.span!: "in realm model '${enclosingElement.displayName}'",
               },
               todo: 'Change type to $typeText?',
               element: this,

@@ -29,12 +29,10 @@ import 'type_checkers.dart';
 extension DartTypeEx on DartType {
   bool isExactly<T>() => TypeChecker.fromRuntime(T).isExactlyType(this);
 
-  bool get isRealmAny =>
-      const TypeChecker.fromRuntime(RealmAny).isAssignableFromType(this);
+  bool get isRealmAny => const TypeChecker.fromRuntime(RealmAny).isAssignableFromType(this);
   bool get isRealmBacklink => false; // TODO
   bool get isRealmCollection => realmCollectionType != RealmCollectionType.none;
-  bool get isRealmModel =>
-      realmModelChecker.annotationsOfExact(element!).isNotEmpty;
+  bool get isRealmModel => realmModelChecker.annotationsOfExact(element!).isNotEmpty;
 
   bool get isNullable => session.typeSystem.isNullable(this);
   DartType get asNonNullable => session.typeSystem.promoteToNonNull(this);
@@ -42,9 +40,7 @@ extension DartTypeEx on DartType {
   RealmCollectionType get realmCollectionType {
     if (isDartCoreSet) return RealmCollectionType.set;
     if (isDartCoreList) return RealmCollectionType.list;
-    if (isDartCoreMap &&
-        (this as ParameterizedType).typeArguments.first ==
-            session.typeProvider.stringType) {
+    if (isDartCoreMap && (this as ParameterizedType).typeArguments.first == session.typeProvider.stringType) {
       return RealmCollectionType.dictionary;
     }
     return RealmCollectionType.none;

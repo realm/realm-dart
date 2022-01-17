@@ -38,11 +38,8 @@ class RealmObjectGenerator extends Generator {
     return await meassure(
       () async {
         return await scopeSession(
-          (await library.element.session
-                  .getResolvedLibraryByElement(library.element))
-              as ResolvedLibraryResult,
-          () async =>
-              library.classes.realmInfo.expand((m) => m.toCode()).join('\n'),
+          (await library.element.session.getResolvedLibraryByElement(library.element)) as ResolvedLibraryResult,
+          () async => library.classes.realmInfo.expand((m) => m.toCode()).join('\n'),
           color: stdout.supportsAnsiEscapes,
         );
       },
@@ -52,6 +49,5 @@ class RealmObjectGenerator extends Generator {
 }
 
 extension on Iterable<ClassElement> {
-  Iterable<RealmModelInfo> get realmInfo =>
-      map((m) => m.realmInfo).whereNotNull;
+  Iterable<RealmModelInfo> get realmInfo => map((m) => m.realmInfo).whereNotNull;
 }

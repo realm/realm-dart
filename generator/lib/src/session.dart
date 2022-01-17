@@ -55,8 +55,7 @@ class _Session {
   static final _mapping = <String, ClassElement>{}; // shared
   Map<String, ClassElement> get mapping => _Session._mapping;
 
-  _Session(this.resolvedLibrary,
-      {String? prefix, String? suffix, this.color = false})
+  _Session(this.resolvedLibrary, {String? prefix, String? suffix, this.color = false})
       : prefix = prefix ?? RegExp(r'[_$]'), // defaults to _ or $
         suffix = suffix ?? '';
 

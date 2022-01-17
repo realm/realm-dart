@@ -1,5 +1,5 @@
 import 'package:realm_generator/src/meassure.dart';
- import 'package:test/test.dart';
+import 'package:test/test.dart';
 
 void main() {
   test('human readable durations', () {

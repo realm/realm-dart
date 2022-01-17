@@ -15,11 +15,8 @@ $src
     ''',
   }, (r) => r.findLibraryByName('main'));
 
-  final errorResult = await main!.session
-      .getErrors('/realm/test/integration/main.dart') as ErrorsResult;
-  final criticalErrors = errorResult.errors
-      .where((element) => element.severity == Severity.error)
-      .toList();
+  final errorResult = await main!.session.getErrors('/realm/test/integration/main.dart') as ErrorsResult;
+  final criticalErrors = errorResult.errors.where((element) => element.severity == Severity.error).toList();
 
   if (criticalErrors.isNotEmpty) {
     throw CompileError(criticalErrors);

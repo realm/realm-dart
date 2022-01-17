@@ -71,8 +71,7 @@ extension ElementEx on Element {
     throw UnsupportedError('$runtimeType not supported');
   }
 
-  Iterable<AnnotationValue> _annotationsInfoOfExact(
-      TypeChecker checker) sync* {
+  Iterable<AnnotationValue> _annotationsInfoOfExact(TypeChecker checker) sync* {
     // This is a bit backwards because of the api surface on TypeCheckers
     final values = checker.annotationsOfExact(this).toSet();
     final node = declarationAstNode;
@@ -122,9 +121,7 @@ extension ElementEx on Element {
         final node = self.declarationAstNode;
         if (node.metadata.isNotEmpty) {
           // don't include full class
-          return node
-              .span(elementSpan.file)
-              .clampEnd(elementSpan.extentToEndOfLine());
+          return node.span(elementSpan.file).clampEnd(elementSpan.extentToEndOfLine());
         }
       }
     } catch (_) {}
