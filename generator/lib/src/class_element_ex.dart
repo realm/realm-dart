@@ -147,15 +147,13 @@ extension ClassElementEx on ClassElement {
           'Duplicate definition',
           element: this,
           primarySpan: shortSpan!,
-          primaryLabel: "'${mapped.displayName}' already defines '$name'",
+          primaryLabel: "realm model '${mapped.displayName}' already defines '$name'",
           secondarySpans: {
             span!: '',
             mapped.span!: '',
-            mapped.shortSpan!: 'here',
           },
           todo: //
-              "Avoid that '$displayName' and '${mapped.displayName}'"
-              " both defines '$name'",
+              "Duplicate realm model definitions '$displayName' and '${mapped.displayName}'."
         );
       }
 

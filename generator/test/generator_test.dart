@@ -18,40 +18,39 @@ class _Foo {
 }''',
       },
       outputs: {
-        'pkg|lib/src/test.realm_objects.g.part':
+        'pkg|lib/src/test.realm_objects.g.part': '// **************************************************************************\n'
+            '// RealmObjectGenerator\n'
             '// **************************************************************************\n'
-                '// RealmObjectGenerator\n'
-                '// **************************************************************************\n'
-                '\n'
-                'class Foo extends _Foo with RealmObject {\n'
-                '  static var _defaultsSet = false;\n'
-                '\n'
-                '  Foo({\n'
-                '    int x = 0,\n'
-                '  }) {\n'
-                '    _defaultsSet = _defaultsSet ||\n'
-                '        RealmObject.setDefaults<Foo>({\n'
-                '          \'x\': 0,\n'
-                '        });\n'
-                '    this.x = x;\n'
-                '  }\n'
-                '\n'
-                '  Foo._();\n'
-                '\n'
-                '  @override\n'
-                '  int get x => RealmObject.get<int>(this, \'x\') as int;\n'
-                '  @override\n'
-                '  set x(int value) => RealmObject.set(this, \'x\', value);\n'
-                '\n'
-                '  static SchemaObject get schema => _schema ??= _initSchema();\n'
-                '  static SchemaObject? _schema;\n'
-                '  static SchemaObject _initSchema() {\n'
-                '    RealmObject.registerFactory(Foo._);\n'
-                '    return const SchemaObject(Foo, [\n'
-                '      SchemaProperty(\'x\', RealmPropertyType.int),\n'
-                '    ]);\n'
-                '  }\n'
-                '}\n',
+            '\n'
+            'class Foo extends _Foo with RealmObject {\n'
+            '  static var _defaultsSet = false;\n'
+            '\n'
+            '  Foo({\n'
+            '    int x = 0,\n'
+            '  }) {\n'
+            '    _defaultsSet = _defaultsSet ||\n'
+            '        RealmObject.setDefaults<Foo>({\n'
+            '          \'x\': 0,\n'
+            '        });\n'
+            '    this.x = x;\n'
+            '  }\n'
+            '\n'
+            '  Foo._();\n'
+            '\n'
+            '  @override\n'
+            '  int get x => RealmObject.get<int>(this, \'x\') as int;\n'
+            '  @override\n'
+            '  set x(int value) => RealmObject.set(this, \'x\', value);\n'
+            '\n'
+            '  static SchemaObject get schema => _schema ??= _initSchema();\n'
+            '  static SchemaObject? _schema;\n'
+            '  static SchemaObject _initSchema() {\n'
+            '    RealmObject.registerFactory(Foo._);\n'
+            '    return const SchemaObject(Foo, [\n'
+            '      SchemaProperty(\'x\', RealmPropertyType.int),\n'
+            '    ]);\n'
+            '  }\n'
+            '}\n',
       },
       reader: await PackageAssetReader.currentIsolate(),
     );
@@ -136,7 +135,7 @@ class _Bad {
               '8   │ │ class _Bad {\n'
               '    │ └─── in realm model \'_Bad\'\n'
               '9   │     late NonRealm notARealmType;\n'
-              '    │          ^^^^^^^^ NonRealm is not a realm type\n'
+              '    │          ^^^^^^^^ NonRealm is not a realm model type\n'
               '    ╵\n'
               'Add a @RealmModel annotation on \'NonRealm\', or an @Ignored annotation on \'notARealmType\'.\n',
         ),
@@ -322,21 +321,20 @@ class _Bad {
               reader: await PackageAssetReader.currentIsolate(),
             ),
         throwsA(isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          'Not a realm type\n'
-              '\n'
-              'in: package:pkg/src/test.dart:8:21\n'
-              '    ╷\n'
-              '5   │ ┌ @RealmModel()\n'
-              '6   │ │ class _Bad {\n'
-              '    │ └─── in realm model \'_Bad\'\n'
-              '... │\n'
-              '8   │     var listOfLists = [[0], [1]];\n'
-              '    │                       ^^^^^^^^^^ List<List<int>> is not a realm type\n'
-              '    ╵\n'
-              'Add an @Ignored annotation on \'listOfLists\'.\n',
-        )));
+            (e) => e.format(),
+            'format()',
+            'Not a realm type\n'
+                '\n'
+                'in: package:pkg/src/test.dart:8:21\n'
+                '    ╷\n'
+                '5   │ ┌ @RealmModel()\n'
+                '6   │ │ class _Bad {\n'
+                '    │ └─── in realm model \'_Bad\'\n'
+                '... │\n'
+                '8   │     var listOfLists = [[0], [1]];\n'
+                '    │                       ^^^^^^^^^^ List<List<int>> is not a realm model type\n'
+                '    ╵\n'
+                'Remove the invalid field or add an @Ignored annotation on \'listOfLists\'.\n')));
   });
 
   test('missing underscore', () async {
@@ -372,7 +370,7 @@ class _Other {}
             '6 │ │ class _Bad {\n'
             '  │ └─── in realm model \'_Bad\'\n'
             '7 │     late Other other;\n'
-            '  │          ^^^^^ Other is not a realm type\n'
+            '  │          ^^^^^ Other is not a realm model type\n'
             '  ╵\n'
             'Did you intend to use _Other as type for \'other\'?\n',
       )),
@@ -815,7 +813,8 @@ class _Bad {
             '13  │     late _Other wrong;\n'
             '    │          ^^^^^^ is not nullable\n'
             '    ╵\n'
-            'Change type to _Other?\n',
+            'Change type to _Other?\n'
+            '',
       )),
     );
   });
@@ -831,10 +830,10 @@ import 'package:realm_common/realm_common.dart';
 part 'test.g.dart';
 
 @RealmModel()
-class $Bad {}
+class $Bad1 {}
 
 @RealmModel()
-class _Bad {}
+class _Bad1 {}
 '''
         },
         reader: await PackageAssetReader.currentIsolate(),
@@ -844,17 +843,19 @@ class _Bad {}
         'format()',
         'Duplicate definition\n'
             '\n'
-            'in: package:pkg/src/test.dart:6:7\n'
+            'in: package:pkg/src/test.dart:9:7\n'
             '    ╷\n'
             '5   │ ┌ @RealmModel()\n'
-            '6   │ │ class \$Bad {}\n'
-            '    │ │       ^^^^ \'_Bad\' already defines \'Bad\'\n'
+            '6   │ │ class \$Bad1 {}\n'
             '    │ └─── \n'
             '... │\n'
-            '8   │   @RealmModel()\n'
-            '    │         ━━━━ here\n'
+            '8   │ ┌ @RealmModel()\n'
+            '9   │ │ class _Bad1 {}\n'
+            '    │ │       ^^^^^ realm model \'\$Bad1\' already defines \'Bad1\'\n'
+            '    │ └─── \n'
             '    ╵\n'
-            'Avoid that \'\$Bad\' and \'_Bad\' both defines \'Bad\'\n',
+            'Duplicate realm model definitions \'_Bad1\' and \'\$Bad1\'.\n'
+            '',
       )),
     );
   });
@@ -892,14 +893,15 @@ class _Bad2 {}
             '  ┌──> package:pkg/src/test2.dart\n'
             '5 │ ┌ @RealmModel()\n'
             '6 │ │ class _Bad2 {}\n'
-            '  │ │       ^^^^^ \'\$Bad2\' already defines \'Bad2\'\n'
+            '  │ │       ^^^^^ realm model \'\$Bad2\' already defines \'Bad2\'\n'
             '  │ └─── \n'
             '  ╵\n'
             '  ┌──> package:pkg/src/test1.dart\n'
             '6 │   class \$Bad2 {}\n'
-            '  │         ━━━━━ here\n'
+            '  │         ━━━━━ \n'
             '  ╵\n'
-            'Avoid that \'_Bad2\' and \'\$Bad2\' both defines \'Bad2\'\n',
+            'Duplicate realm model definitions \'_Bad2\' and \'\$Bad2\'.\n'
+            '',
       )),
     );
   });
@@ -936,15 +938,15 @@ class _Bar {}
             '6   │ │ @MapTo(\'Bad3\')\n'
             '7   │ │ class _Foo {}\n'
             '    │ └─── \n'
-            '    │         ━━━━ here\n'
             '... │\n'
             '9   │ ┌ @MapTo(\'Bad3\')\n'
             '10  │ │ @RealmModel()\n'
             '11  │ │ class _Bar {}\n'
-            '    │ │       ^^^^ \'_Foo\' already defines \'Bad3\'\n'
+            '    │ │       ^^^^ realm model \'_Foo\' already defines \'Bad3\'\n'
             '    │ └─── \n'
             '    ╵\n'
-            'Avoid that \'_Bar\' and \'_Foo\' both defines \'Bad3\'\n',
+            'Duplicate realm model definitions \'_Bar\' and \'_Foo\'.\n'
+            '',
       )),
     );
   });

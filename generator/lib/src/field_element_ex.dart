@@ -164,14 +164,14 @@ extension FieldElementEx on FieldElement {
             !typeName.startsWith(session.prefix)) {
           todo = "Did you intend to use _$typeName as type for '$displayName'?";
         } else {
-          todo = "Add an @Ignored annotation on '$displayName'.";
+          todo = "Remove the invalid field or add an @Ignored annotation on '$displayName'.";
         }
 
         throw RealmInvalidGenerationSourceError(
           'Not a realm type',
           element: this,
           primarySpan: typeSpan(file),
-          primaryLabel: '$typeText is not a realm type',
+          primaryLabel: '$typeText is not a realm model type',
           secondarySpans: {
             modelSpan: "in realm model '${enclosingElement.displayName}'",
             // may go both above and below, or stem from another file
