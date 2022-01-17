@@ -15,13 +15,18 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+/*
 import 'package:flutter/material.dart';
+import 'dart:async';
+
+import 'package:flutter/services.dart';
+
 import 'package:realm/realm.dart';
 
 part 'main.g.dart';
 
-@RealmModel()
 class _Car {
+  @RealmProperty()
   late String make;
 }
 
@@ -35,25 +40,27 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final String _platformVersion = 'Unknown';
+  String _platformVersion = 'Unknown';
 
   @override
   void initState() {
     print("initState");
-    var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var config = new Configuration();
+    config.schema.add(Car);
 
-    // realm.write(() {
-    //   print("realm write callback");
-    //   var car = realm.create(Car()..make = "Audi");
-    //   print("The car is ${car.make}");
-    //   // car.make = "VW";
-    //   // print("The car is ${car.make}");
-    // });
+    var realm = new Realm(config);
 
-    // var objects = realm.objects<Car>();
-    // var indexedCar = objects[0];
-    // print("The indexedCar is ${indexedCar.make}");
+    realm.write(() {
+      print("realm write callback");
+      var car = realm.create(new Car()..make = "Audi");
+      print("The car is ${car.make}");
+      // car.make = "VW";
+      // print("The car is ${car.make}");
+    });
+
+    var objects = realm.objects<Car>();
+    var indexedCar = objects[0];
+    print("The indexedCar is ${indexedCar.make}");
 
     super.initState();
     //initPlatformState();
@@ -93,3 +100,4 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+*/
