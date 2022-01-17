@@ -110,11 +110,6 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   /// Returns a new `Results<T>` filtered according to the provided query
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
-  // Results<T> where(String filter) {
-  //   var results = _results.filtered(filter);
-  //   return Results<T>(results);
-  // }
-
   RealmResults<T> query(String query, [List<Object> args = const []]) {
     final handle = realmCore.queryResults(this, query, args);
     return RealmResultsInternal.create<T>(handle, _realm);
@@ -128,10 +123,9 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   /// var sortedCars = cars.sort("make");
   /// var myCars = person.cars.sort("kilometers");
   /// ```
-  // Results<T> sort(String sort, {bool reverse = false}) {
-  //   var results = _results.sorted(sort, reverse: reverse);
-  //   return Results<T>(results);
-  // }
+  RealmResults<T> sort(String sort, {bool reverse = false}) {
+    return query('TRUEPREDICATE SORT($sort ${reverse ? 'DESC' : 'ASC'})');
+  }
 
   /// Returns an [Iterable<E>] collection for use with `for..in`
   // List<T> asList() {

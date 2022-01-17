@@ -664,6 +664,22 @@ Future<void> main([List<String>? args]) async {
       expect(filteredTeams[0].name, "A1");
     });
 
+    test('Sort result', () {
+      var config = Configuration([Person.schema]);
+      var realm = Realm(config);
+
+      realm.write(() => realm.addAll([
+            Person()..name = "Michael",
+            Person()..name = "Sebastian",
+            Person()..name = "Kimi",
+          ]));
+
+      final result = realm.all<Person>().sort('name');
+      final resultNames = result.map((p) => p.name).toList();
+      final sortedNames = [...resultNames]..sort();
+      expect(resultNames, sortedNames);
+    });
+
     test('Lists create object with a list property', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
