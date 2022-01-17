@@ -55,12 +55,6 @@ class _Team {
   late List<_Person> players;
 }
 
-@RealmModel()
-class _Mouse {
-  @PrimaryKey()
-  late int number;
-}
-
 String? testName;
 
 //Overrides test method so we can filter tests
