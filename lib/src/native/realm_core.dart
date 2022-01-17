@@ -442,6 +442,10 @@ class _RealmCore {
   void listClear(RealmList list) {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(list.handle._pointer));
   }
+
+  bool equals<T extends NativeType>(Handle<T> x, Handle<T> y) {
+    return _realmLib.realm_equals(x._pointer.cast(), y._pointer.cast());
+  }
 }
 
 class LastError {

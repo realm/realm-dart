@@ -206,6 +206,16 @@ class RealmObject {
     RealmAccessor.setDefaults<T>(values);
     return true;
   }
+
+  @override
+  // ignore: hash_and_equals
+  bool operator ==(Object other) {
+    final o = other;
+    if (identical(this, o)) return true;
+    if (o is! RealmObject) return false;
+    if (!isManaged || !o.isManaged) return false;
+    return realmCore.equals(handle, o.handle);
+  } 
 }
 
 //RealmObject package internal members
