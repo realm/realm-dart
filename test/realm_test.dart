@@ -266,7 +266,7 @@ Future<void> main([List<String>? args]) async {
 
       final cars = [
         Car('Mercedes'),
-        Car('Volks Wagen'),
+        Car('Volkswagen'),
         Car('Tesla'),
       ];
 
@@ -331,17 +331,7 @@ Future<void> main([List<String>? args]) async {
       expect(car, isNull);
     });
 
-    test('Realm adding duplicate primary key (type:int)', () {
-      var config = Configuration([Mouse.schema]);
-      var realm = Realm(config);
-
-      final mouseOne = Mouse(1);
-      final mouseTwo = Mouse(1);
-      realm.write(() => realm.add(mouseOne));
-      expect(() => realm.write(() => realm.add(mouseTwo)), throws<RealmException>());
-    });
-
-    test('Realm adding duplicate primary key (type:string)', () {
+    test('Realm adding objects with duplicate primary keys throws', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 

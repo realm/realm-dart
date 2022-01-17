@@ -7,10 +7,7 @@ part of 'realm_test.dart';
 
 // ignore_for_file: unused_element, unused_local_variable
 class Car extends _Car with RealmObject {
-  static bool? _defaultsSet;
-
   Car([String make = 'Tesla']) {
-    _defaultsSet ??= RealmObject.setDefaults<Car>({"make": "Tesla"});
     RealmObject.set<String>(this, "make", make);
   }
 
@@ -95,26 +92,5 @@ class Team extends _Team with RealmObject {
         SchemaProperty("name", RealmPropertyType.string),
         SchemaProperty("players", RealmPropertyType.object, collectionType: RealmCollectionType.list, linkTarget: 'Person'),
       ];
-  }
-}
-
-class Mouse extends _Mouse with RealmObject {
-  static bool? _defaultsSet;
-
-  Mouse(int number) {
-    _defaultsSet ??= RealmObject.setDefaults<Mouse>({});
-    RealmObject.set<int>(this, "number", number);
-  }
-
-  Mouse._();
-
-  @override
-  int get number => RealmObject.get<int>(this, "number") as int;
-  @override
-  set number(int value) => RealmObject.set<int>(this, "number", value);
-
-  static SchemaObject get schema {
-    RealmObject.registerFactory<Mouse>(() => Mouse._());
-    return SchemaObject(Mouse)..properties = [SchemaProperty("number", RealmPropertyType.int, primaryKey: true)];
   }
 }
