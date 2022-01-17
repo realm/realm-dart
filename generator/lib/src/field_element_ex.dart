@@ -18,11 +18,11 @@
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
-import 'package:realm_annotations/realm_annotations.dart';
-import 'package:realm_generator/src/annotation_value.dart';
+import 'package:realm_common/realm_common.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:source_span/source_span.dart';
 
+import 'annotation_value.dart';
 import 'dart_type_ex.dart';
 import 'element.dart';
 import 'error.dart';

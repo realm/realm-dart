@@ -15,7 +15,8 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-import 'package:realm_annotations/realm_annotations.dart';
+
+import 'package:realm_common/realm_common.dart';
 
 import 'dart_type_ex.dart';
 import 'field_element_ex.dart';

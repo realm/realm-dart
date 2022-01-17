@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 class _RealmProperty {
   /// Realm will use this property as the primary key

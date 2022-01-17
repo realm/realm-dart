@@ -8,7 +8,7 @@ void main() {
       generateRealmObjects(),
       {
         'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -62,7 +62,7 @@ class _Person {
       generateRealmObjects(),
       {
         'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -112,7 +112,7 @@ class _Person {
       generateRealmObjects(),
       {
         'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -163,7 +163,7 @@ class _Person {
       generateRealmObjects(),
       {
         'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -215,7 +215,7 @@ class _Person {
       generateRealmObjects(),
       {
         'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 

@@ -1,9 +1,0 @@
-name: realm_annotations
-description: Realm annotations for Dart
-version: 1.0.0
-
-environment:
-  sdk: '>=2.15.0 <3.0.0'
-
-dev_dependencies:
-  lints: ^1.0.1

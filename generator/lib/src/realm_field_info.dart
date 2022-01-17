@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 import 'dart_type_ex.dart';
 import 'field_element_ex.dart';

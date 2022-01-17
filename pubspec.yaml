@@ -23,8 +23,8 @@ dependencies:
   path: ^1.0.0
   pubspec_parse: ^1.0.0
   pub_semver: ^2.1.0
-  realm_annotations:
-    path: ./annotations
+  realm_common:
+    path: ./common
   realm_generator: 
     path: ./generator
 

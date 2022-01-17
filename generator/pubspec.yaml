@@ -16,8 +16,8 @@ dependencies:
   build_resolvers: ^2.0.0
   build: ^2.0.0
   dart_style: ^2.2.0
-  realm_annotations:
-    path: ../annotations
+  realm_common:
+    path: ../common
   source_gen: ^1.1.0
   source_span: ^1.8.0
 

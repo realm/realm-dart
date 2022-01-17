@@ -19,7 +19,7 @@ import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:analyzer/dart/element/type.dart';
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'session.dart';

@@ -8,7 +8,7 @@ void main() {
       generateRealmObjects(),
       {
         'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -64,7 +64,7 @@ class _Foo {
         'pkg|lib/src/test.dart': r'''
 import 'dart:typed_data';
 
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -108,7 +108,7 @@ class _Bar {
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -150,7 +150,7 @@ class _Bad {
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -190,7 +190,7 @@ class _Bad {
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -230,7 +230,7 @@ class _Bad {
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -266,7 +266,7 @@ class _Bad {
       generateRealmObjects(),
       {
         'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -307,7 +307,7 @@ class _Questionable {
               generateRealmObjects(),
               {
                 'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -345,7 +345,7 @@ class _Bad {
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -385,7 +385,7 @@ class _Other {}
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -433,7 +433,7 @@ class _Bad {
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -468,7 +468,7 @@ class Bad { // missing _ or $ prefix
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -508,7 +508,7 @@ class Bad {}
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -544,7 +544,7 @@ class _Bad {}
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -583,7 +583,7 @@ class _Bad {
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -620,7 +620,7 @@ class _Bad extends Base {
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -660,7 +660,7 @@ class _Bad {
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -700,7 +700,7 @@ class _Bad {
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -739,7 +739,7 @@ class _Bad {
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -783,7 +783,7 @@ class _Bad {
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -826,7 +826,7 @@ class _Bad {
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 
@@ -865,7 +865,7 @@ class _Bad {}
         generateRealmObjects(),
         {
           'pkg|lib/src/test1.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test1.g.dart';
 
@@ -873,7 +873,7 @@ part 'test1.g.dart';
 class $Bad2 {}
 ''',
           'pkg|lib/src/test2.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test2.g.dart';
 
@@ -910,7 +910,7 @@ class _Bad2 {}
         generateRealmObjects(),
         {
           'pkg|lib/src/test.dart': r'''
-import 'package:realm_annotations/realm_annotations.dart';
+import 'package:realm_common/realm_common.dart';
 
 part 'test.g.dart';
 

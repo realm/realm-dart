@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-library realm_annotations;
+library realm_common;
 
-export 'src/realm_annotations_base.dart';
+export 'src/realm_common_base.dart';
 export 'src/realm_types.dart';
