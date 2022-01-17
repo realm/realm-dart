@@ -57,7 +57,7 @@ class RealmModelInfo {
         yield ') {';
 
         if (hasDefaults.isNotEmpty) {
-          yield '_defaultsSet = _defaultsSet || RealmObject.setDefaults<$name>({';
+          yield 'if (!_defaultsSet) _defaultsSet = RealmObject.setDefaults<$name>({';
           yield* hasDefaults.map((f) => "'${f.name}': ${f.fieldElement.initializerExpression},");
           yield '});';
         }
