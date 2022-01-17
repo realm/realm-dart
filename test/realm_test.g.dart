@@ -7,12 +7,9 @@ part of 'realm_test.dart';
 // **************************************************************************
 
 class Car extends _Car with RealmObject {
-  static var _defaultsSet = false;
-
   Car(
     String make,
   ) {
-    _defaultsSet = _defaultsSet || RealmObject.setDefaults<Car>({});
     RealmObject.set(this, 'make', make);
   }
 
@@ -32,12 +29,9 @@ class Car extends _Car with RealmObject {
 }
 
 class Person extends _Person with RealmObject {
-  static var _defaultsSet = false;
-
   Person(
     String name,
   ) {
-    _defaultsSet = _defaultsSet || RealmObject.setDefaults<Person>({});
     this.name = name;
   }
 
@@ -59,14 +53,11 @@ class Person extends _Person with RealmObject {
 }
 
 class Dog extends _Dog with RealmObject {
-  static var _defaultsSet = false;
-
   Dog(
     String name, {
     int? age,
     Person? owner,
   }) {
-    _defaultsSet = _defaultsSet || RealmObject.setDefaults<Dog>({});
     RealmObject.set(this, 'name', name);
     this.age = age;
     this.owner = owner;
@@ -101,14 +92,11 @@ class Dog extends _Dog with RealmObject {
 }
 
 class Team extends _Team with RealmObject {
-  static var _defaultsSet = false;
-
   Team(
     String name, {
     Iterable<Person> players = const [],
     Iterable<int> scores = const [],
   }) {
-    _defaultsSet = _defaultsSet || RealmObject.setDefaults<Team>({});
     this.name = name;
     RealmObject.set<List<Person>>(this, 'players', players.toList());
     RealmObject.set<List<int>>(this, 'scores', scores.toList());

@@ -32,17 +32,21 @@ class RealmModelInfo {
   Iterable<String> toCode() sync* {
     yield 'class $name extends $modelName with RealmObject {';
     {
-      yield 'static var _defaultsSet = false;';
-      yield '';
+      final allExceptCollections = fields.where((f) => !f.type.isRealmCollection).toList();
+
+      final hasDefaults = allExceptCollections.where((f) => f.hasDefaultValue).toList();
+      if (hasDefaults.isNotEmpty) {
+        yield 'static var _defaultsSet = false;';
+        yield '';
+      }
+
       yield '$name(';
       {
-        final allExceptCollections = fields.where((f) => !f.type.isRealmCollection).toList();
-
         final required = allExceptCollections.where((f) => f.isRequired);
         yield* required.map((f) => '${f.typeName} ${f.name},');
 
         final notRequired = allExceptCollections.where((f) => !f.isRequired);
-        final collections = fields.where((f) => f.type.isRealmCollection);
+        final collections = fields.where((f) => f.type.isRealmCollection).toList();
         if (notRequired.isNotEmpty || collections.isNotEmpty) {
           yield '{';
           yield* notRequired.map((f) => '${f.typeName} ${f.name}${f.hasDefaultValue ? ' = ${f.fieldElement.initializerExpression}' : ''},');
@@ -52,9 +56,11 @@ class RealmModelInfo {
 
         yield ') {';
 
-        yield '_defaultsSet = _defaultsSet || RealmObject.setDefaults<$name>({';
-        yield* allExceptCollections.where((f) => f.hasDefaultValue).map((f) => "'${f.name}': ${f.fieldElement.initializerExpression},");
-        yield '});';
+        if (hasDefaults.isNotEmpty) {
+          yield '_defaultsSet = _defaultsSet || RealmObject.setDefaults<$name>({';
+          yield* hasDefaults.map((f) => "'${f.name}': ${f.fieldElement.initializerExpression},");
+          yield '});';
+        }
 
         yield* allExceptCollections.map((f) {
           if (f.isFinal) {
