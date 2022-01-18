@@ -674,7 +674,7 @@ Future<void> main([List<String>? args]) async {
             Person()..name = "Kimi",
           ]));
 
-      final result = realm.all<Person>().sort('name');
+      final result = realm.query<Person>('TRUEPREDICATE SORT(name ASC)');
       final resultNames = result.map((p) => p.name).toList();
       final sortedNames = [...resultNames]..sort();
       expect(resultNames, sortedNames);

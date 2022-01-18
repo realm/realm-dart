@@ -123,9 +123,9 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   /// var sortedCars = cars.sort("make");
   /// var myCars = person.cars.sort("kilometers");
   /// ```
-  RealmResults<T> sort(String sort, {bool reverse = false}) {
-    return query('TRUEPREDICATE SORT($sort ${reverse ? 'DESC' : 'ASC'})');
-  }
+  // RealmResults<T> sort(String sort, {bool reverse = false}) {
+  //   return query('TRUEPREDICATE SORT($sort ${reverse ? 'DESC' : 'ASC'})');
+  // }
 
   /// Returns an [Iterable<E>] collection for use with `for..in`
   // List<T> asList() {
