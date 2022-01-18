@@ -206,6 +206,10 @@ class RealmObject {
     RealmAccessor.setDefaults<T>(values);
     return true;
   }
+
+  bool isValid() {
+    return realmCore.objectIsValid(this);
+  }
 }
 
 //RealmObject package internal members

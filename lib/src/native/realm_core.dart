@@ -442,6 +442,14 @@ class _RealmCore {
   void listClear(RealmList list) {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(list.handle._pointer));
   }
+
+  bool objectIsValid(RealmObject object) {
+    return _realmLib.realm_object_is_valid(object.handle._pointer);
+  }
+
+   bool listIsValid(RealmList list) {
+    return _realmLib.realm_list_is_valid(list.handle._pointer);
+  }
 }
 
 class LastError {
@@ -461,8 +469,8 @@ abstract class Handle<T extends NativeType> {
 
   Handle(this._pointer, int size) {
     if (_realmLib.realm_attach_finalizer(this, _pointer.cast(), size) == false) {
-       throw Exception("Error creating $runtimeType");
-     }
+      throw Exception("Error creating $runtimeType");
+    }
   }
 
   @override
