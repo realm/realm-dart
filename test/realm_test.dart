@@ -607,29 +607,19 @@ Future<void> main([List<String>? args]) async {
 
       final x = Person('x');
       final y = Person('y');
-      final t1 = Team("A1");
-      final t2 = Team("A2");
-      final t3 = Team("B1");
+      final t1 = Team("A1", players: [x]); // match
+      final t2 = Team("A2", players: [y]); // correct prefix, but wrong player
+      final t3 = Team("B1", players: [x, y]); // wrong prefix, but correct player
 
-      realm.write(() => realm
-        ..add(t1)
-        ..add(t2)
-        ..add(t3));
+      realm.write(() => realm.addAll([t1, t2, t3]));
 
-      // TODO: Ugly that we need to add players in separate transaction :-/
-      realm.write(() {
-        t1.players.addAll([x]); // match!
-        t2.players.addAll([y]); // correct prefix, but wrong play
-        t3.players.addAll([x, y]); // wrong prefix, but correct player
-      });
+      expect(t1.players, [x]);
+      expect(t2.players, [y]);
+      expect(t3.players, [x, y]);
 
-      // TODO: Still no equality :-/
-      expect(t1.players.map((p) => p.name), [x.name]);
-      expect(t2.players.map((p) => p.name), [y.name]);
-      expect(t3.players.map((p) => p.name), [x, y].map((p) => p.name));
       final filteredTeams = realm.all<Team>().query(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']);
       expect(filteredTeams.length, 1);
-      expect(filteredTeams[0].name, "A1");
+      expect(filteredTeams, [t1]);
     });
 
     test('Query class with parameter', () {
@@ -1134,6 +1124,30 @@ Future<void> main([List<String>? args]) async {
 
       expect(File(config.path).existsSync(), true);
       expect(Directory("${config.path}.management").existsSync(), true);
+    });
+
+    test('Equals', () {
+      var config = Configuration([Dog.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final person = Person('Kasper');
+      final dog = Dog('Fido', owner: person);
+
+      expect(person, person);
+      expect(person, isNot(1)); 
+      expect(person, isNot(dog));
+
+      realm.write(() {
+        realm..add(person)..add(dog);
+      });
+
+      expect(person, person);
+      expect(person, isNot(1)); 
+      expect(person, isNot(dog));
+
+      final read = realm.query<Person>("name == 'Kasper'");
+
+      expect(read, [person]);
     });
   });
 }

@@ -438,6 +438,10 @@ class _RealmCore {
   void listClear(RealmList list) {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(list.handle._pointer));
   }
+
+  bool equals(RealmObject first, RealmObject second) {
+    return _realmLib.realm_equals(first.handle._pointer.cast(), second.handle._pointer.cast());
+  }
 }
 
 class LastError {
