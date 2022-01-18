@@ -210,11 +210,10 @@ class RealmObject {
   @override
   // ignore: hash_and_equals
   bool operator ==(Object other) {
-    final o = other;
-    if (identical(this, o)) return true;
-    if (o is! RealmObject) return false;
-    if (!isManaged || !o.isManaged) return false;
-    return realmCore.equals(handle, o.handle);
+    if (identical(this, other)) return true;
+    if (other is! RealmObject) return false;
+    if (!isManaged || !other.isManaged) return false;
+    return realmCore.equals(this, other);
   } 
 }
 
