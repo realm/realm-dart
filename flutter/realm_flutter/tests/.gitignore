@@ -47,3 +47,4 @@ app.*.map.json
 
 # Ignore pubspec.lock since tests always reference the local package
 pubspec.lock
+macos/Podfile.lock
