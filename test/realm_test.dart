@@ -1149,5 +1149,41 @@ Future<void> main([List<String>? args]) async {
 
       expect(read, [person]);
     });
+
+    test('RealmObject isValid only if realm is opened', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      var team = Team("team one");
+      expect(team.isValid, true);
+      realm.write(() {
+        realm.add(team);
+      });
+      expect(team.isValid, true);
+      realm.close();
+      expect(team.isValid, false);
+    });
+
+    test('List isValid only if realm is opened', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      realm.write(() {
+        realm.add(Team("Speed Team", players: [
+          Person("Michael Schumacher"),
+          Person("Sebastian Vettel"),
+          Person("Kimi Räikkönen"),
+        ]));
+      });
+
+      var teams = realm.all<Team>();
+
+      expect(teams, isNotNull);
+      expect(teams.length, 1);
+      RealmList<Person> teampPlayers = teams[0].players as RealmList<Person>;
+      expect(teampPlayers.isValid, true);
+      realm.close();
+      expect(teampPlayers.isValid, false);
+    });
   });
 }
