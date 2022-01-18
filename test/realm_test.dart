@@ -664,6 +664,54 @@ Future<void> main([List<String>? args]) async {
       expect(filteredTeams[0].name, "A1");
     });
 
+    test('Sort result', () {
+      var config = Configuration([Person.schema]);
+      var realm = Realm(config);
+
+      realm.write(() => realm.addAll([
+            Person("Michael"),
+            Person("Sebastian"),
+            Person("Kimi"),
+          ]));
+
+      final result = realm.query<Person>('TRUEPREDICATE SORT(name ASC)');
+      final resultNames = result.map((p) => p.name).toList();
+      final sortedNames = [...resultNames]..sort();
+      expect(resultNames, sortedNames);
+    });
+
+    test('Sort order preserved under db ops', () {
+      var config = Configuration([Dog.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final dog1 = Dog("Bella", age: 1);
+      final dog2 = Dog("Fido", age: 2);
+      final dog3 = Dog("Oliver", age: 3);
+
+      realm.write(() => realm.addAll([dog1, dog2, dog3]));
+      var result = realm.query<Dog>('TRUEPREDICATE SORT(name ASC)');
+      final snapshot = result.toList(); // poor mans snapshot
+
+      expect(result, orderedEquals(snapshot));
+      expect(result.map((d) => d.name), snapshot.map((d) => d.name));
+      result = realm.query<Dog>('TRUEPREDICATE SORT(name ASC)'); // redoing query won't change that
+      expect(result, orderedEquals(snapshot));
+      expect(result.map((d) => d.name), snapshot.map((d) => d.name));
+
+      realm.write(() => realm.delete(dog1)); // result will update, snapshot will not, but an object has died
+
+      expect(() => snapshot[0].name, throws<RealmException>());
+      snapshot.removeAt(0); // remove dead object
+
+      expect(result, orderedEquals(snapshot));
+      expect(result.map((d) => d.name), snapshot.map((d) => d.name));
+
+      realm.write(() => realm.add(Dog("Bella", age: 4)));
+
+      expect(result, isNot(orderedEquals(snapshot)));
+      expect(result, containsAllInOrder(snapshot)); 
+    });
+
     test('Lists create object with a list property', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
