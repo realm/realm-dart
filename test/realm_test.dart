@@ -664,7 +664,7 @@ Future<void> main([List<String>? args]) async {
         t2.players.addAll([y]); // correct prefix, but wrong play
         t3.players.addAll([x, y]); // wrong prefix, but correct player
       });
-      
+
       // TODO: Still no equality :-/
       expect(t1.players.map((p) => p.name), [x.name]);
       expect(t2.players.map((p) => p.name), [y.name]);
@@ -1132,6 +1132,43 @@ Future<void> main([List<String>? args]) async {
 
       expect(File(config.path).existsSync(), true);
       expect(Directory("${config.path}.management").existsSync(), true);
+    });
+
+    test('RealmObject isValid only if realm is opened', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      var team = Team()..name = "team One";
+      expect(team.isValid, true);
+      realm.write(() {
+        realm.add(team);
+      });
+      expect(team.isValid, true);
+      realm.close();
+      expect(team.isValid, false);
+    });
+
+    test('List isValid only if realm is opened', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      realm.write(() {
+        realm.add(Team()
+          ..name = "Speed Team"
+          ..players = [
+            Person()..name = "Michael Schumacher",
+            Person()..name = "Sebastian Vettel",
+            Person()..name = "Kimi Räikkönen",
+          ]);
+      });
+      var teams = realm.all<Team>();
+
+      expect(teams, isNotNull);
+      expect(teams.length, 1);
+      RealmList<Person> teampPlayers = teams[0].players as RealmList<Person>;
+      expect(teampPlayers.isValid, true);
+      realm.close();
+      expect(teampPlayers.isValid, false);
     });
   });
 }

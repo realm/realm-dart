@@ -67,9 +67,7 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
     realmCore.listClear(this);
   }
 
-  bool isValid() {
-    return realmCore.listIsValid(this);
-  }
+  bool get isValid => realmCore.listIsValid(this);
 }
 
 /// @nodoc

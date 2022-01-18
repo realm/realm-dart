@@ -207,9 +207,7 @@ class RealmObject {
     return true;
   }
 
-  bool isValid() {
-    return realmCore.objectIsValid(this);
-  }
+  bool get isValid => isManaged ? realmCore.objectIsValid(this) : true;
 }
 
 //RealmObject package internal members
