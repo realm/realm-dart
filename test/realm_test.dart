@@ -261,7 +261,7 @@ Future<void> main([List<String>? args]) async {
 
       final cars = [
         Car('Mercedes'),
-        Car('Volks Wagen'),
+        Car('Volkswagen'),
         Car('Tesla'),
       ];
 
@@ -324,6 +324,16 @@ Future<void> main([List<String>? args]) async {
 
       final car = realm.find<Car>("Telsa");
       expect(car, isNull);
+    });
+
+    test('Realm adding objects with duplicate primary keys throws', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      final carOne = Car()..make = "Toyota";
+      final carTwo = Car()..make = "Toyota";
+      realm.write(() => realm.add(carOne));
+      expect(() => realm.write(() => realm.add(carTwo)), throws<RealmException>());
     });
 
     test('RealmObject get property', () {
@@ -464,21 +474,44 @@ Future<void> main([List<String>? args]) async {
       expect(cars, isNotNull);
     });
 
-    test('Results.all() length', () {
+    test('Results length after deletedMany', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
       var cars = realm.all<Car>();
       expect(cars.length, 0);
 
-      final car = Car();
-      realm.write(() => realm.add(car));
+      final carOne = Car()..make = "Toyota 1";
+      final carTwo = Car()..make = "Toyota 2";
+      final carThree = Car()..make = "Renault";
+      realm.write(() => realm.addAll([carOne, carTwo, carThree]));
+
+      expect(cars.length, 3);
+
+      final filteredCars = realm.query<Car>('make BEGINSWITH "Toyot"');
+      expect(filteredCars.length, 2);
+
+      realm.write(() => realm.deleteMany(filteredCars));
+      expect(filteredCars.length, 0);
 
       expect(cars.length, 1);
+    });
 
-      realm.write(() => realm.delete(car));
+    test('Results length', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
 
+      var cars = realm.all<Car>();
       expect(cars.length, 0);
+
+      final carOne = Car()..make = "Toyota";
+      final carTwo = Car()..make = "Toyota 1";
+      realm.write(() => realm.addAll([carOne, carTwo]));
+
+      expect(cars.length, 2);
+
+      final filteredCars = realm.query<Car>('make == "Toyota"');
+      expect(filteredCars.length, 1);
     });
 
     test('Results isEmpty', () {
@@ -631,7 +664,7 @@ Future<void> main([List<String>? args]) async {
         t2.players.addAll([y]); // correct prefix, but wrong play
         t3.players.addAll([x, y]); // wrong prefix, but correct player
       });
-
+      
       // TODO: Still no equality :-/
       expect(t1.players.map((p) => p.name), [x.name]);
       expect(t2.players.map((p) => p.name), [y.name]);

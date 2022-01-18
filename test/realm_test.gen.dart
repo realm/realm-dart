@@ -7,10 +7,8 @@ part of 'realm_test.dart';
 
 // ignore_for_file: unused_element, unused_local_variable
 class Car extends _Car with RealmObject {
-  static bool? _defaultsSet;
-
   Car([String make = 'Tesla']) {
-    _defaultsSet ??= RealmObject.setDefaults<Car>({"make": "Tesla"});
+    RealmObject.set<String>(this, "make", make);
   }
 
   Car._();
