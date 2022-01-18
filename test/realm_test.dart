@@ -669,9 +669,9 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       realm.write(() => realm.addAll([
-            Person()..name = "Michael",
-            Person()..name = "Sebastian",
-            Person()..name = "Kimi",
+            Person("Michael"),
+            Person("Sebastian"),
+            Person("Kimi"),
           ]));
 
       final result = realm.query<Person>('TRUEPREDICATE SORT(name ASC)');
