@@ -215,6 +215,9 @@ class RealmObject {
     if (!isManaged || !other.isManaged) return false;
     return realmCore.equals(this, other);
   }
+  
+  bool get isValid => isManaged ? realmCore.objectIsValid(this) : true;
+
 }
 
 //RealmObject package internal members
