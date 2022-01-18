@@ -1,26 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-
-/*
 part of 'main.dart';
 
 // **************************************************************************
 // RealmObjectGenerator
 // **************************************************************************
 
-class Car extends RealmObject {
-  // ignore_for_file: unused_element, unused_local_variable
-  Car._constructor() : super.constructor();
-  Car();
+// ignore_for_file: unused_element, unused_local_variable
+class Car extends _Car with RealmObject {
+  static bool? _defaultsSet;
 
-  @RealmProperty()
-  String get make => super['make'] as String;
-  set make(String value) => super['make'] = value;
+  Car([String make = 'Tesla']) {
+    _defaultsSet ??= RealmObject.setDefaults<Car>({"make": "Tesla"});
+  }
 
-  static dynamic getSchema() {
-    const dynamic type = _Car;
-    return RealmObject.getSchema('Car', [
-      SchemaProperty('make', type: 'string'),
-    ]);
+  Car._();
+
+  @override
+  String get make => RealmObject.get<String>(this, "make") as String;
+  @override
+  set make(String value) => RealmObject.set<String>(this, "make", value);
+
+  static SchemaObject get schema {
+    RealmObject.registerFactory<Car>(() => Car._());
+    return SchemaObject(Car)..properties = [SchemaProperty("make", RealmPropertyType.string, primaryKey: true)];
   }
 }
-*/

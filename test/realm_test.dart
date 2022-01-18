@@ -75,8 +75,8 @@ void parseTestNameFromArguments(List<String>? arguments) {
   int nameArgIndex = arguments.indexOf("--name");
   if (arguments.isNotEmpty) {
     if (nameArgIndex >= 0 && arguments.length > 1) {
-      print("testName: $testName");
       testName = arguments[nameArgIndex + 1];
+      print("testName: $testName");
     }
   }
 }
@@ -243,8 +243,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
       final car = Car('');
-      expect(() => realm.add(car),
-          throws<RealmException>("Wrong transactional state"));
+      expect(() => realm.add(car), throws<RealmException>("Wrong transactional state"));
     });
 
     test('Realm add object', () {
@@ -262,7 +261,7 @@ Future<void> main([List<String>? args]) async {
 
       final cars = [
         Car('Mercedes'),
-        Car('Volks Wagen'),
+        Car('Volkswagen'),
         Car('Tesla'),
       ];
 
@@ -296,8 +295,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      expect(() => realm.write(() => realm.add(Person(''))),
-          throws<RealmException>("not configured"));
+      expect(() => realm.write(() => realm.add(Person(''))), throws<RealmException>("not configured"));
     });
 
     test('Realm add() returns the same object', () {
@@ -326,6 +324,16 @@ Future<void> main([List<String>? args]) async {
 
       final car = realm.find<Car>("Telsa");
       expect(car, isNull);
+    });
+
+    test('Realm adding objects with duplicate primary keys throws', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      final carOne = Car("Toyota");
+      final carTwo = Car("Toyota");
+      realm.write(() => realm.add(carOne));
+      expect(() => realm.write(() => realm.add(carTwo)), throws<RealmException>());
     });
 
     test('RealmObject get property', () {
@@ -357,7 +365,7 @@ Future<void> main([List<String>? args]) async {
       });
 
       expect(car.make, equals('Audi'));
-      */ 
+      */
     });
 
     test('RealmObject set object type property (link)', () {
@@ -470,31 +478,54 @@ Future<void> main([List<String>? args]) async {
       expect(cars, isNotNull);
     });
 
-    test('Results.all() length', () {
+    test('Results length after deletedMany', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
       var cars = realm.all<Car>();
       expect(cars.length, 0);
 
-      final car = Car('');
-      realm.write(() => realm.add(car));
+      final carOne = Car("Toyota 1");
+      final carTwo = Car("Toyota 2");
+      final carThree = Car("Renault");
+      realm.write(() => realm.addAll([carOne, carTwo, carThree]));
+
+      expect(cars.length, 3);
+
+      final filteredCars = realm.query<Car>('make BEGINSWITH "Toyot"');
+      expect(filteredCars.length, 2);
+
+      realm.write(() => realm.deleteMany(filteredCars));
+      expect(filteredCars.length, 0);
 
       expect(cars.length, 1);
-
-      realm.write(() => realm.delete(car));
-
-      expect(cars.length, 0);
     });
 
-    test('Results.all() isEmpty', () {
+    test('Results length', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      var cars = realm.all<Car>();
+      expect(cars.length, 0);
+
+      final carOne = Car("Toyota");
+      final carTwo = Car("Toyota 1");
+      realm.write(() => realm.addAll([carOne, carTwo]));
+
+      expect(cars.length, 2);
+
+      final filteredCars = realm.query<Car>('make == "Toyota"');
+      expect(filteredCars.length, 1);
+    });
+
+    test('Results isEmpty', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
       var cars = realm.all<Car>();
       expect(cars.isEmpty, true);
 
-      final car = Car('');
+      final car = Car("Opel");
       realm.write(() => realm.add(car));
 
       expect(cars.isEmpty, false);
@@ -502,6 +533,28 @@ Future<void> main([List<String>? args]) async {
       realm.write(() => realm.delete(car));
 
       expect(cars.isEmpty, true);
+    });
+
+    test('Results from query isEmpty', () {
+      var config = Configuration([Dog.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final dogOne = Dog("Pupu", age: 1);
+      final dogTwo = Dog("Ostin", age: 2);
+
+      realm.write(() => realm.addAll([dogOne, dogTwo]));
+
+      var dogs = realm.query<Dog>('age == 0');
+      expect(dogs.isEmpty, true);
+
+      dogs = realm.query<Dog>('age == 1');
+      expect(dogs.isEmpty, false);
+
+      realm.write(() => realm.deleteMany(dogs));
+      expect(dogs.isEmpty, true);
+
+      dogs = realm.all<Dog>();
+      expect(dogs.isEmpty, false);
     });
 
     test('Results get by index', () {
@@ -711,10 +764,8 @@ Future<void> main([List<String>? args]) async {
       final teams = realm.all<Team>();
       final players = teams[0].players;
 
-      expect(() => realm.write(() => players[-1] = Person('')),
-          throws<RealmException>("Index out of range"));
-      expect(() => realm.write(() => players[800] = Person('')),
-          throws<RealmException>());
+      expect(() => realm.write(() => players[-1] = Person('')), throws<RealmException>("Index out of range"));
+      expect(() => realm.write(() => players[800] = Person('')), throws<RealmException>());
     });
 
     test('List clear items from list', () {
@@ -1063,11 +1114,11 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
       expect(await Realm.exists(config.path), true);
     });
-    
+
     test('Realm deleteRealm succeeds', () {
       var config = Configuration([Dog.schema, Person.schema]);
       var realm = Realm(config);
-      
+
       realm.close();
       Realm.deleteRealm(config.path);
 
@@ -1080,7 +1131,7 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       expect(() => Realm.deleteRealm(config.path), throws<RealmException>());
-      
+
       expect(File(config.path).existsSync(), true);
       expect(Directory("${config.path}.management").existsSync(), true);
     });

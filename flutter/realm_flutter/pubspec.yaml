@@ -52,3 +52,5 @@ flutter:
         pluginClass: RealmPlugin
       ios:
         pluginClass: RealmPlugin
+      windows:
+        pluginClass: RealmPlugin
