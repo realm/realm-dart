@@ -47,3 +47,5 @@ flutter:
         pluginClass: RealmPlugin
       windows:
         pluginClass: RealmPlugin
+      macos:
+        pluginClass: RealmPlugin
