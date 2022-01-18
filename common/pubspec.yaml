@@ -1,0 +1,9 @@
+name: realm_common
+description: Common code shared between realm, realm_dart and real_generator
+version: 0.2.0-alpha
+
+environment:
+  sdk: '>=2.15.0 <3.0.0'
+
+dev_dependencies:
+  lints: ^1.0.1

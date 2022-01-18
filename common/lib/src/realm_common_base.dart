@@ -16,8 +16,23 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'package:realm_generator/src/tmp/test.dart';
+class RealmModel {
+  const RealmModel();
+}
 
-var c = new Car();
-var make = c.make;
+class MapTo {
+  final String name;
+  const MapTo(this.name);
+}
 
+class PrimaryKey {
+  const PrimaryKey();
+}
+
+class Indexed {
+  const Indexed();
+}
+
+class Ignored {
+  const Ignored();
+}

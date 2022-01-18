@@ -21,10 +21,8 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:json_annotation/json_annotation.dart';
-import '../../version.dart';
 
 import 'target_os_type.dart';
-import 'utils.dart';
 
 part 'metrics.g.dart';
 
@@ -32,6 +30,7 @@ Future<Metrics> generateMetrics({
   required Digest distinctId,
   required String framework,
   required String frameworkVersion,
+  required String realmVersion,
   TargetOsType? targetOsType,
   String? targetOsVersion,
   Digest? anonymizedMacAddress,
@@ -48,7 +47,7 @@ Future<Metrics> generateMetrics({
       frameworkVersion: frameworkVersion,
       hostOsType: Platform.operatingSystem,
       hostOsVersion: Platform.operatingSystemVersion,
-      realmVersion: packageVersion,
+      realmVersion: realmVersion,
       targetOsType: targetOsType,
       targetOsVersion: targetOsVersion,
       anonymizedMacAddress: anonymizedMacAddress ?? distinctId, // fallback

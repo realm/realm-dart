@@ -16,15 +16,22 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'realmobject.dart';
+import 'package:realm_common/realm_common.dart';
+import 'package:source_gen/source_gen.dart';
 
-part 'test.generated.dart';
+const ignoredChecker = TypeChecker.fromRuntime(Ignored);
 
-class _Car {
-  @RealmProperty(type: "string")
-  late String name;
+const indexedChecker = TypeChecker.fromRuntime(Indexed);
 
-  @RealmProperty(type: "Car")
-  late _Car secondCar;
-}
+const mapToChecker = TypeChecker.fromRuntime(MapTo);
 
+const primaryKeyChecker = TypeChecker.fromRuntime(PrimaryKey);
+
+const realmAnnotationChecker = TypeChecker.any([
+  ignoredChecker,
+  indexedChecker,
+  mapToChecker,
+  primaryKeyChecker,
+]);
+
+const realmModelChecker = TypeChecker.fromRuntime(RealmModel);

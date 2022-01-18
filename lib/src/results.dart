@@ -62,9 +62,10 @@ class RealmResults {
 //Some methods 'where' 'sort' etc of Results<T> clash with Iterable methods. Hence Results<T> can't be made
 //Iterable and can't support for..in. The Results<T>.asList method provides that
 //Could rename these so Results<T> can be proper Iterable
+
 /*
 class _ResultsList<T extends RealmObject> extends collection.ListBase<T> {
-  Results<T> _results;
+  final Results<T> _results;
 
   _ResultsList(this._results);
 
@@ -82,7 +83,7 @@ class _ResultsList<T extends RealmObject> extends collection.ListBase<T> {
   }
 
   @override
-  void set length(int newLength) {
+  set length(int newLength) {
     _results.length = newLength;
   }
 }

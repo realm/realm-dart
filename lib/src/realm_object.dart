@@ -214,7 +214,7 @@ class RealmObject {
     if (other is! RealmObject) return false;
     if (!isManaged || !other.isManaged) return false;
     return realmCore.equals(this, other);
-  } 
+  }
 }
 
 //RealmObject package internal members

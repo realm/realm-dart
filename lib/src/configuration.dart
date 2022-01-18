@@ -78,13 +78,12 @@ class Configuration {
 }
 
 class SchemaObject {
-  Type type;
+  final Type type;
+  final List<SchemaProperty> properties;
 
   String get name => type.toString();
 
-  List<SchemaProperty> properties = [];
-
-  SchemaObject(this.type);
+  const SchemaObject(this.type, this.properties);
 }
 
 class RealmSchema extends Iterable<SchemaObject> {

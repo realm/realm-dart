@@ -16,26 +16,5 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Usage
-///
-/// * Add a dependency to [realm](https://pub.dev/packages/realm) package or [realm_dart](https://pub.dev/packages/realm_dart) package to your application
-/// * Run `flutter pub run build_runner build` or `dart run build_runner build` to generate RealmObjects
-
-library realm_generator;
-
-import 'package:build/build.dart';
-import 'package:realm_generator/src/session.dart';
-import 'package:source_gen/source_gen.dart';
-
-import 'src/realm_object_generator.dart';
-
-export 'src/error.dart';
-
-/// @nodoc
-Builder generateRealmObjects([BuilderOptions? options]) {
-  clearMappings();
-  return SharedPartBuilder(
-      [RealmObjectGenerator()],
-      'realm_objects',
-    );
-}
+export 'src/realm_common_base.dart';
+export 'src/realm_types.dart';

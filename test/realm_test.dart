@@ -26,12 +26,12 @@ import 'package:test/test.dart' as testing;
 
 import '../lib/realm.dart';
 
-part 'realm_test.gen.dart';
+part 'realm_test.g.dart';
 
 @RealmModel()
 class _Car {
   @PrimaryKey()
-  late String make = "Tesla";
+  late final String make;
 }
 
 @RealmModel()
@@ -42,7 +42,7 @@ class _Person {
 @RealmModel()
 class _Dog {
   @PrimaryKey()
-  late String name;
+  late final String name;
 
   late int? age;
 
@@ -52,8 +52,8 @@ class _Dog {
 @RealmModel()
 class _Team {
   late String name;
-  late List<_Person> players;
-  late List<int> scores;
+  late final List<_Person> players;
+  late final List<int> scores;
 }
 
 String? testName;
@@ -242,7 +242,7 @@ Future<void> main([List<String>? args]) async {
     test('Realm add throws when no write transaction', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
-      final car = Car();
+      final car = Car('');
       expect(() => realm.add(car), throws<RealmException>("Wrong transactional state"));
     });
 
@@ -251,7 +251,7 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       realm.write(() {
-        realm.add(Car());
+        realm.add(Car(''));
       });
     });
 
@@ -282,7 +282,7 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       realm.write(() {
-        final car = Car();
+        final car = Car('');
         realm.add(car);
 
         //second add of the same object does not throw and return the same object
@@ -295,14 +295,14 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      expect(() => realm.write(() => realm.add(Person())), throws<RealmException>("not configured"));
+      expect(() => realm.write(() => realm.add(Person(''))), throws<RealmException>("not configured"));
     });
 
     test('Realm add() returns the same object', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      final car = Car();
+      final car = Car('');
       Car? addedCar;
       realm.write(() {
         addedCar = realm.add(car);
@@ -317,7 +317,7 @@ Future<void> main([List<String>? args]) async {
 
       expect(() {
         realm.write(() {
-          realm.add(Car()..make = "Tesla");
+          realm.add(Car("Tesla"));
           throw Exception("some exception while adding objects");
         });
       }, throws<Exception>("some exception while adding objects"));
@@ -330,8 +330,8 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      final carOne = Car()..make = "Toyota";
-      final carTwo = Car()..make = "Toyota";
+      final carOne = Car("Toyota");
+      final carTwo = Car("Toyota");
       realm.write(() => realm.add(carOne));
       expect(() => realm.write(() => realm.add(carTwo)), throws<RealmException>());
     });
@@ -340,7 +340,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      final car = Car();
+      final car = Car('Tesla');
       realm.write(() {
         realm.add(car);
       });
@@ -352,27 +352,30 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      final car = Car();
+      final car = Car('Tesla');
       realm.write(() {
         realm.add(car);
       });
 
       expect(car.make, equals('Tesla'));
 
+      /* Erhh.. generator prohibit changing primary key.. what about realm_core?!
       realm.write(() {
         car.make = "Audi";
       });
 
       expect(car.make, equals('Audi'));
+      */
     });
 
     test('RealmObject set object type property (link)', () {
       var config = Configuration([Person.schema, Dog.schema]);
       var realm = Realm(config);
 
-      final dog = Dog()
-        ..name = "MyDog"
-        ..owner = (Person()..name = "MyOwner");
+      final dog = Dog(
+        "MyDog",
+        owner: Person("MyOwner"),
+      );
       realm.write(() {
         realm.add(dog);
       });
@@ -386,10 +389,11 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Person.schema, Dog.schema]);
       var realm = Realm(config);
 
-      final dog = Dog()
-        ..name = "MyDog"
-        ..owner = (Person()..name = "MyOwner")
-        ..age = 5;
+      final dog = Dog(
+        "MyDog",
+        owner: Person("MyOwner"),
+        age: 5,
+      );
       realm.write(() {
         realm.add(dog);
       });
@@ -416,7 +420,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      realm.write(() => realm.add(Car()..make = "Opel"));
+      realm.write(() => realm.add(Car("Opel")));
 
       final car = realm.find<Car>("Opel");
       expect(car, isNotNull);
@@ -433,7 +437,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      realm.write(() => realm.add(Car()));
+      realm.write(() => realm.add(Car('Tesla')));
 
       final car = realm.find<Car>("Tesla");
       expect(car, isNotNull);
@@ -444,7 +448,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      realm.write(() => realm.add(Car()..make = "Opel"));
+      realm.write(() => realm.add(Car("Opel")));
 
       final car = realm.find<Car>("NonExistingPrimaryKey");
       expect(car, isNull);
@@ -454,7 +458,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
-      final car = Car()..make = "SomeNewNonExistingValue";
+      final car = Car("SomeNewNonExistingValue");
       realm.write(() => realm.add(car));
 
       final car1 = realm.find<Car>("SomeNewNonExistingValue");
@@ -481,9 +485,9 @@ Future<void> main([List<String>? args]) async {
       var cars = realm.all<Car>();
       expect(cars.length, 0);
 
-      final carOne = Car()..make = "Toyota 1";
-      final carTwo = Car()..make = "Toyota 2";
-      final carThree = Car()..make = "Renault";
+      final carOne = Car("Toyota 1");
+      final carTwo = Car("Toyota 2");
+      final carThree = Car("Renault");
       realm.write(() => realm.addAll([carOne, carTwo, carThree]));
 
       expect(cars.length, 3);
@@ -504,8 +508,8 @@ Future<void> main([List<String>? args]) async {
       var cars = realm.all<Car>();
       expect(cars.length, 0);
 
-      final carOne = Car()..make = "Toyota";
-      final carTwo = Car()..make = "Toyota 1";
+      final carOne = Car("Toyota");
+      final carTwo = Car("Toyota 1");
       realm.write(() => realm.addAll([carOne, carTwo]));
 
       expect(cars.length, 2);
@@ -521,7 +525,7 @@ Future<void> main([List<String>? args]) async {
       var cars = realm.all<Car>();
       expect(cars.isEmpty, true);
 
-      final car = Car()..make = "Opel";
+      final car = Car("Opel");
       realm.write(() => realm.add(car));
 
       expect(cars.isEmpty, false);
@@ -535,13 +539,8 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Dog.schema, Person.schema]);
       var realm = Realm(config);
 
-      final dogOne = Dog()
-        ..name = "Pupu"
-        ..age = 1;
-
-      final dogTwo = Dog()
-        ..name = "Ostin"
-        ..age = 2;
+      final dogOne = Dog("Pupu", age: 1);
+      final dogTwo = Dog("Ostin", age: 2);
 
       realm.write(() => realm.addAll([dogOne, dogTwo]));
 
@@ -561,9 +560,10 @@ Future<void> main([List<String>? args]) async {
     test('Results get by index', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
-      realm.write(() => realm.add(Car()));
 
-      final car = Car();
+      final car = Car('');
+      realm.write(() => realm.add(car));
+
       final cars = realm.all<Car>();
       expect(cars[0].make, car.make);
     });
@@ -572,8 +572,8 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
       realm.write(() => realm
-        ..add(Car()..make = "Audi")
-        ..add(Car()));
+        ..add(Car("Audi"))
+        ..add(Car("Tesla")));
       final cars = realm.all<Car>().query('make == "Tesla"');
       expect(cars.length, 1);
       expect(cars[0].make, "Tesla");
@@ -583,8 +583,8 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
       realm.write(() => realm
-        ..add(Car()..make = "Audi")
-        ..add(Car()));
+        ..add(Car("Audi"))
+        ..add(Car("Tesla")));
       final cars = realm.query<Car>('make == "Tesla"');
       expect(cars.length, 1);
       expect(cars[0].make, "Tesla");
@@ -594,8 +594,8 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
       realm.write(() => realm
-        ..add(Car()..make = "Audi")
-        ..add(Car()));
+        ..add(Car("Audi"))
+        ..add(Car("Tesla")));
       final cars = realm.all<Car>().query(r'make == $0', ['Tesla']);
       expect(cars.length, 1);
       expect(cars[0].make, "Tesla");
@@ -605,17 +605,11 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      final x = Person()..name = 'x';
-      final y = Person()..name = 'y';
-      final t1 = Team()
-        ..name = "A1"
-        ..players.add(x); // match!
-      final t2 = Team()
-        ..name = "A2"
-        ..players.add(y); // correct prefix, but wrong play
-      final t3 = Team()
-        ..name = "B1"
-        ..players.addAll([x, y]); // wrong prefix, but correct player
+      final x = Person('x');
+      final y = Person('y');
+      final t1 = Team("A1", players: [x]); // match
+      final t2 = Team("A2", players: [y]); // correct prefix, but wrong player
+      final t3 = Team("B1", players: [x, y]); // wrong prefix, but correct player
 
       realm.write(() => realm.addAll([t1, t2, t3]));
 
@@ -632,8 +626,8 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
       realm.write(() => realm
-        ..add(Car()..make = "Audi")
-        ..add(Car()));
+        ..add(Car("Audi"))
+        ..add(Car("Tesla")));
       final cars = realm.query<Car>(r'make == $0', ['Tesla']);
       expect(cars.length, 1);
       expect(cars[0].make, "Tesla");
@@ -643,11 +637,11 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      final x = Person()..name = 'x';
-      final y = Person()..name = 'y';
-      final t1 = Team()..name = "A1";
-      final t2 = Team()..name = "A2";
-      final t3 = Team()..name = "B1";
+      final x = Person('x');
+      final y = Person('y');
+      final t1 = Team("A1");
+      final t2 = Team("A2");
+      final t3 = Team("B1");
 
       realm.write(() => realm
         ..add(t1)
@@ -660,7 +654,7 @@ Future<void> main([List<String>? args]) async {
         t2.players.addAll([y]); // correct prefix, but wrong play
         t3.players.addAll([x, y]); // wrong prefix, but correct player
       });
-      
+
       // TODO: Still no equality :-/
       expect(t1.players.map((p) => p.name), [x.name]);
       expect(t2.players.map((p) => p.name), [y.name]);
@@ -674,7 +668,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      final team = Team()..name = "Ferrari";
+      final team = Team("Ferrari");
       realm.write(() => realm.add(team));
 
       final teams = realm.all<Team>();
@@ -688,9 +682,8 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      final team = Team()
-        ..name = "Ferrari"
-        ..players.addAll([Person()..name = "Michael", Person()..name = "Kimi"])
+      final team = Team("Ferrari")
+        ..players.addAll([Person("Michael"), Person("Kimi")])
         ..scores.addAll([1, 2, 3]);
 
       realm.write(() => realm.add(team));
@@ -713,7 +706,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      final team = Team()..name = "Ferrari";
+      final team = Team("Ferrari");
       realm.write(() => realm.add(team));
 
       final teams = realm.all<Team>();
@@ -722,10 +715,13 @@ Future<void> main([List<String>? args]) async {
       expect(players, isNotNull);
       expect(players.length, 0);
 
-      realm.write(() => players.add(Person()..name = "Michael"));
+      realm.write(() => players.add(Person("Michael")));
       expect(players.length, 1);
 
-      realm.write(() => players.addAll([Person()..name = "Sebastian", Person()..name = "Kimi"]));
+      realm.write(() => players.addAll([
+            Person("Sebastian"),
+            Person("Kimi"),
+          ]));
 
       expect(players.length, 3);
 
@@ -738,7 +734,7 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      final team = Team()..name = "Ferrari";
+      final team = Team("Ferrari");
       realm.write(() => realm.add(team));
 
       final teams = realm.all<Team>();
@@ -752,14 +748,14 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
-      final team = Team()..name = "Ferrari";
+      final team = Team("Ferrari");
       realm.write(() => realm.add(team));
 
       final teams = realm.all<Team>();
       final players = teams[0].players;
 
-      expect(() => realm.write(() => players[-1] = Person()), throws<RealmException>("Index out of range"));
-      expect(() => realm.write(() => players[800] = Person()), throws<RealmException>());
+      expect(() => realm.write(() => players[-1] = Person('')), throws<RealmException>("Index out of range"));
+      expect(() => realm.write(() => players[800] = Person('')), throws<RealmException>());
     });
 
     test('List clear items from list', () {
@@ -767,14 +763,14 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create a team
-      final team = Team()..name = "Team";
+      final team = Team("Team");
       realm.write(() => realm.add(team));
 
       //Add players to the team
       final newPlayers = [
-        Person()..name = "Michael Schumacher",
-        Person()..name = "Sebastian Vettel",
-        Person()..name = "Kimi Räikkönen",
+        Person("Michael Schumacher"),
+        Person("Sebastian Vettel"),
+        Person("Kimi Räikkönen"),
       ];
 
       realm.write(() {
@@ -804,8 +800,8 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create two teams
-      final teamOne = Team()..name = "TeamOne";
-      final teamTwo = Team()..name = "TeamTwo";
+      final teamOne = Team("TeamOne");
+      final teamTwo = Team("TeamTwo");
       realm.write(() {
         realm.add(teamOne);
         realm.add(teamTwo);
@@ -813,9 +809,9 @@ Future<void> main([List<String>? args]) async {
 
       //Create common players list for both teams
       final newPlayers = [
-        Person()..name = "Michael Schumacher",
-        Person()..name = "Sebastian Vettel",
-        Person()..name = "Kimi Räikkönen",
+        Person("Michael Schumacher"),
+        Person("Sebastian Vettel"),
+        Person("Kimi Räikkönen"),
       ];
       realm.write(() {
         teamOne.players.addAll(newPlayers);
@@ -847,15 +843,15 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create two Teams
-      final teamOne = Team()..name = "TeamOne";
-      final teamTwo = Team()..name = "TeamTwo";
+      final teamOne = Team("TeamOne");
+      final teamTwo = Team("TeamTwo");
       realm.write(() {
         realm.add(teamOne);
         realm.add(teamTwo);
       });
 
       //Add the same player to both teams
-      Person player = Person()..name = "Michael Schumacher";
+      Person player = Person("Michael Schumacher");
       realm.write(() {
         teamOne.players.add(player);
         teamTwo.players.add(player);
@@ -887,11 +883,11 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create a team
-      var team = Team()..name = "TeamOne";
+      var team = Team("TeamOne");
       realm.write(() => realm.add(team));
 
       //Add the player to the team
-      realm.write(() => team.players.add(Person()..name = "Michael Schumacher"));
+      realm.write(() => team.players.add(Person("Michael Schumacher")));
 
       //Ensure teams and player are in realm
       var teams = realm.all<Team>();
@@ -923,9 +919,9 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create two teams
-      final teamOne = Team()..name = "Team one";
-      final teamTwo = Team()..name = "Team two";
-      final teamThree = Team()..name = "Team three";
+      final teamOne = Team("Team one");
+      final teamTwo = Team("Team two");
+      final teamThree = Team("Team three");
       realm.write(() {
         realm.add(teamOne);
         realm.add(teamTwo);
@@ -949,14 +945,14 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create a team
-      final team = Team()..name = "Ferrari";
+      final team = Team("Ferrari");
       realm.write(() => realm.add(team));
 
       //Add players to the team
       final newPlayers = [
-        Person()..name = "Michael Schumacher",
-        Person()..name = "Sebastian Vettel",
-        Person()..name = "Kimi Räikkönen",
+        Person("Michael Schumacher"),
+        Person("Sebastian Vettel"),
+        Person("Kimi Räikkönen"),
       ];
       realm.write(() => team.players.addAll(newPlayers));
 
@@ -980,8 +976,8 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create two teams
-      final teamOne = Team()..name = "Ferrari";
-      final teamTwo = Team()..name = "Maserati";
+      final teamOne = Team("Ferrari");
+      final teamTwo = Team("Maserati");
       realm.write(() {
         realm.add(teamOne);
         realm.add(teamTwo);
@@ -989,9 +985,9 @@ Future<void> main([List<String>? args]) async {
 
       //Create common players list for both teams
       final newPlayers = [
-        Person()..name = "Michael Schumacher",
-        Person()..name = "Sebastian Vettel",
-        Person()..name = "Kimi Räikkönen",
+        Person("Michael Schumacher"),
+        Person("Sebastian Vettel"),
+        Person("Kimi Räikkönen"),
       ];
       realm.write(() {
         teamOne.players.addAll(newPlayers);
@@ -1019,8 +1015,8 @@ Future<void> main([List<String>? args]) async {
 
       //Create two teams
       realm.write(() {
-        realm.add(Team()..name = "Ferrari");
-        realm.add(Team()..name = "Maserati");
+        realm.add(Team("Ferrari"));
+        realm.add(Team("Maserati"));
       });
 
       //Ensule teams exist in realm
@@ -1041,14 +1037,14 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       //Create a team
-      final team = Team()..name = "Ferrari";
+      final team = Team("Ferrari");
       realm.write(() => realm.add(team));
 
       //Add players to the team
       final newPlayers = [
-        Person()..name = "Michael Schumacher",
-        Person()..name = "Sebastian Vettel",
-        Person()..name = "Kimi Räikkönen",
+        Person("Michael Schumacher"),
+        Person("Sebastian Vettel"),
+        Person("Kimi Räikkönen"),
       ];
       realm.write(() => team.players.addAll(newPlayers));
 
@@ -1077,8 +1073,8 @@ Future<void> main([List<String>? args]) async {
 
       //Create two teams
       realm.write(() {
-        realm.add(Team()..name = "team One");
-        realm.add(Team()..name = "team Two");
+        realm.add(Team("team One"));
+        realm.add(Team("team Two"));
       });
 
       //Reload teams from realm and ensure they exist
@@ -1134,8 +1130,8 @@ Future<void> main([List<String>? args]) async {
       var config = Configuration([Dog.schema, Person.schema]);
       var realm = Realm(config);
 
-      final person = Person()..name = 'Kasper';
-      final dog = Dog()..name = 'Fido'..owner = person;
+      final person = Person('Kasper');
+      final dog = Dog('Fido', owner: person);
 
       expect(person, person);
       expect(person, isNot(1)); 

@@ -15,37 +15,11 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/dart/constant/value.dart';
 
-import 'realmobject.dart';
-
-part 'test.g.dart';
-
-class _Car {
-  @RealmProperty()
-  late String make;
-
-  @RealmProperty(type: "string")
-  late String model;
-
-  @RealmProperty(type: "int", defaultValue: "50", optional: true,)
-  late String kilometers;
-
-  @RealmProperty(optional: true, defaultValue: "5")
-  late _Car myCarsLooonName;
-
-  @RealmProperty(type: "Car[]", optional: true)
-  late List<_Car> otherCarsMyLongName;
-
-  // Not supported
-  // @RealmProperty(optional: true)
-  // List<int> myInts;
-
-  // @RealmProperty(optional: true)
-  // List<double> myDoubles;
-
-  // @RealmProperty(optional: true)
-  // List<String> myString;
-
-  // @RealmProperty(optional: true)
-  // List<bool> myBools;
+class AnnotationValue {
+  final Annotation annotation;
+  final DartObject value;
+  AnnotationValue(this.annotation, this.value);
 }
