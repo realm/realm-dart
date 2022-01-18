@@ -230,14 +230,17 @@ mixin RealmObject on RealmEntity {
     return true;
   }
 
-  /// `true` if this `RealmObject` is equal to another `RealmObject`.
+  Realm? get realm => _realm;
+
+  bool get isManaged => _realm != null;
+
   @override
   // ignore: hash_and_equals
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! RealmObject) return false;
     if (!isManaged || !other.isManaged) return false;
-    return realmCore.equals(this, other);
+    return realmCore.objectEquals(this, other);
   }
 
   /// Gets a value indicating whether this object is managed and represents a row in the database.
