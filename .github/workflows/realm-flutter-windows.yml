@@ -25,7 +25,7 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Build Ralm Dart for Windows
+      - name: Build Realm Dart for Windows
         run: scripts\build.bat
 
       - name: Setup Flutter

@@ -25,7 +25,7 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Build Ralm Dart for Windows
+      - name: Build Realm Dart for Windows
         run: scripts\build.bat
 
       # Note: This workflow uses the latest stable version of the Dart SDK.

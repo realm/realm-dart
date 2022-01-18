@@ -25,7 +25,7 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Build Ralm Dart for MacOS
+      - name: Build Realm Dart for MacOS
         run: ./scripts/build-macos.sh
 
       - name: Setup Flutter
