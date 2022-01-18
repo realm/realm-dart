@@ -700,7 +700,7 @@ Future<void> main([List<String>? args]) async {
 
       realm.write(() => realm.delete(dog1)); // result will update, snapshot will not, but an object has died
 
-      expect(() => snapshot[0].name, throwsA(isA<RealmException>()));
+      expect(() => snapshot[0].name, throws<RealmException>());
       snapshot.removeAt(0); // remove dead object
 
       expect(result, orderedEquals(snapshot));
