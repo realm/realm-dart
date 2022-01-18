@@ -443,7 +443,7 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(list.handle._pointer));
   }
 
-  bool equals<T extends NativeType>(RealmObject first, RealmObject second) {
+  bool equals(RealmObject first, RealmObject second) {
     return _realmLib.realm_equals(first.handle._pointer.cast(), second.handle._pointer.cast());
   }
 }
