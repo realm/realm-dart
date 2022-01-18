@@ -25,7 +25,7 @@ part 'main.g.dart';
 @RealmModel()
 class _Car {
   @PrimaryKey()
-  late String make = "Tesla";
+  late final String make;
 }
 
 void main() {
@@ -45,7 +45,7 @@ class _MyAppState extends State<MyApp> {
     var realm = Realm(config);
 
     realm.write(() {
-      var car = realm.add(Car()..make = "Audi");
+      var car = realm.add(Car("Audi"));
       print("The car is ${car.make}");
       car.make = "VW";
       print("The car is ${car.make}");
