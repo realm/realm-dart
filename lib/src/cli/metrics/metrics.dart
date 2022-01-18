@@ -30,6 +30,7 @@ Future<Metrics> generateMetrics({
   required Digest distinctId,
   required String framework,
   required String frameworkVersion,
+  required String realmVersion,
   TargetOsType? targetOsType,
   String? targetOsVersion,
   Digest? anonymizedMacAddress,
@@ -46,7 +47,7 @@ Future<Metrics> generateMetrics({
       frameworkVersion: frameworkVersion,
       hostOsType: Platform.operatingSystem,
       hostOsVersion: Platform.operatingSystemVersion,
-      realmVersion: '', // packageVersion,
+      realmVersion: realmVersion,
       targetOsType: targetOsType,
       targetOsVersion: targetOsVersion,
       anonymizedMacAddress: anonymizedMacAddress ?? distinctId, // fallback

@@ -67,6 +67,8 @@ Future<void> uploadMetrics(Options options) async {
 
   final flutterInfo = await getInfo(options);
   final hostId = await machineId();
+  final realmDep = pubspec.dependencies['realm'] ?? pubspec.dependencies['realm_dart'];
+  final realmVersion = realmDep is HostedDependency ? '${realmDep.version}' : '?';
 
   final metrics = await generateMetrics(
     distinctId: hostId,
@@ -82,6 +84,7 @@ Future<void> uploadMetrics(Options options) async {
             if (flutterInfo.frameworkCommitDate != null) '(${flutterInfo.frameworkCommitDate})', // -"-
           ].join(' ')
         : Platform.version,
+    realmVersion: realmVersion,
   );
 
   const encoder = JsonEncoder.withIndent('  ');
