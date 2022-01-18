@@ -28,7 +28,7 @@ jobs:
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@master
 
-      - name: Build Ralm Dart for Linux
+      - name: Build Realm Dart for Linux
         run: ./scripts/build-linux.sh
 
       # Note: This workflow uses the latest stable version of the Dart SDK.

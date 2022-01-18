@@ -1,4 +1,4 @@
-name: Realm Flutter for Windows
+name: Realm Flutter for MacOS
 
 on:
   push:
@@ -15,7 +15,7 @@ on:
 
 jobs:
   CI:
-    runs-on: windows-2019
+    runs-on: macos-latest
     env:
       REALM_CI: true
 
@@ -25,8 +25,8 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Build Realm Dart for Windows
-        run: scripts\build.bat
+      - name: Build Realm Dart for MacOS
+        run: ./scripts/build-macos.sh
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v1.5.3
@@ -34,12 +34,12 @@ jobs:
           flutter-version: '2.8.0'
 
       - name: Enable Flutter Desktop support
-        run: flutter config --enable-windows-desktop
+        run: flutter config --enable-macos-desktop
 
       - name: Install dependencies
         run: flutter pub get
 
       - name: Run tests
-        run: flutter drive -d windows --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
+        run: flutter drive -d macos --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
         

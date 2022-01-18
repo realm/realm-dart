@@ -50,3 +50,6 @@ default.realm*
 
 # Ignore example pubspec.lock since the example always reference the local package
 pubspec.lock
+
+# Ignore  macos podfile.lock
+macos/Podfile.lock

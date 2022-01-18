@@ -10,6 +10,13 @@ import '../realm.dart' show realmBinaryName;
 
 DynamicLibrary? _library;
 
+void _debugWrite(String message) {
+  assert(() {
+    print(message);
+    return true;
+  }());
+}
+
 // Initializes Realm library
 DynamicLibrary initRealm() {
   if (_library != null) {
@@ -46,13 +53,20 @@ DynamicLibrary initRealm() {
     }
 
     if (Platform.isMacOS) {
+      if (isFlutterPlatform) {
+        if (path.isEmpty) {
+          return "${File(Platform.resolvedExecutable).parent.absolute.path}/../Frameworks/realm.framework/Resources/lib$binaryName.dylib";
+        }
+      }
+
       if (path.isEmpty) {
         Directory sourceDir = Directory.current;
         path = sourceDir.path;
       }
 
       var fullPath = "$path/binary/macos/lib$binaryName.dylib";
-      print("Full binary path $fullPath");
+      _debugWrite("Full binary path $fullPath");
+
       if (File(fullPath).existsSync()) {
         return fullPath;
       }
