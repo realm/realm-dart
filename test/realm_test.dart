@@ -748,7 +748,7 @@ Future<void> main([List<String>? args]) async {
           .drain(0), // test don't support an async* testFunction, so we drain to make it plain async
     );
 
-    test('Lists create object with a list property', () async {
+    test('Lists create object with a list property', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
