@@ -15,26 +15,28 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+import 'dart:async';
 import 'dart:collection' as collection;
 
+import 'collection_changes.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
-
 
 /// Instances of this class are live collections and will update as new elements are either 
 /// added to or deleted from the Realm that match the underlying query.
 ///
 /// {@category Realm}
-class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
-  late final RealmResultsHandle _handle;
-  late final Realm _realm;
+class RealmResults<T> extends collection.IterableBase<T> {
+  final RealmResultsHandle _handle;
+  final Realm realm;
 
-  RealmResults._(this._handle, this._realm);
+  RealmResults._(this._handle, this.realm);
 
   /// Returns the element of type `T` at the specified [index]
   T operator [](int index) {
     final handle = realmCore.getObjectAt(this, index);
-    return _realm.createObject(T, handle) as T;
+    return realm.createObject(T, handle) as T;
   }
 
   /// Returns a new [RealmResults] filtered according to the provided query.
@@ -43,7 +45,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query(String query, [List<Object> args = const []]) {
     final handle = realmCore.queryResults(this, query, args);
-    return RealmResultsInternal.create<T>(handle, _realm);
+    return RealmResultsInternal.create<T>(handle, realm);
   }
 
   /// `true` if the `Results` collection is empty
@@ -57,6 +59,13 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   /// The number of values in this `Results` collection.
   @override
   int get length => realmCore.getResultsCount(this);
+
+Stream<RealmResultsChanges<T>> get changed => realmCore
+.resultsChanged(
+this,
+realm.scheduler.handle,
+)
+.map((changes) => RealmResultsChanges(this, changes));
 }
 
 /// @nodoc
@@ -64,12 +73,12 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
 extension RealmResultsInternal on RealmResults {
   RealmResultsHandle get handle => _handle;
 
-  static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm) {
+  static RealmResults<T> create<T>(RealmResultsHandle handle, Realm realm) {
     return RealmResults<T>._(handle, realm);
   }
 }
 
-class _RealmResultsIterator<T extends RealmObject> implements Iterator<T> {
+class _RealmResultsIterator<T> implements Iterator<T> {
   final RealmResults<T> _results;
   int _index;
   T? _current;
