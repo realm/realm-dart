@@ -72,3 +72,8 @@ class RealmResultsChanges<T> extends RealmCollectionChanges {
   final RealmResults<T> results;
   RealmResultsChanges(this.results, RealmCollectionChanges changes) : super(changes._handle, changes.realm);
 }
+
+class RealmListChanges<T> extends RealmCollectionChanges {
+  final RealmList<T> list;
+  RealmListChanges(this.list, RealmCollectionChanges changes) : super(changes._handle, changes.realm);
+}

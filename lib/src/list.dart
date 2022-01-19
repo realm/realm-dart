@@ -18,6 +18,7 @@
 
 import 'dart:collection' as collection;
 
+import 'collection_changes.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'realm_object.dart';
@@ -26,7 +27,7 @@ import 'realm_object.dart';
 /// added to or deleted from the Realm that match the underlying query.
 ///
 ///{@category Realm}
-class RealmList<T extends Object> extends collection.ListBase<T> {
+class RealmList<T> extends collection.ListBase<T> {
   final RealmListHandle _handle;
   final Realm realm;
 
@@ -78,6 +79,13 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
   void clear() {
     realmCore.listClear(this);
   }
+
+  Stream<RealmListChanges<T>> get changed => realmCore
+      .listChanged(
+        this,
+        realm.scheduler.handle,
+      )
+      .map((changes) => RealmListChanges(this, changes));
 }
 
 /// @nodoc

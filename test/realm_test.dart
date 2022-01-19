@@ -912,6 +912,46 @@ Future<void> main([List<String>? args]) async {
           leak = realm.all<Dog>().changes.listen((_) {});
         }
       });
+
+      test('RealmList.changes', () async {
+        var config = Configuration([Team.schema, Person.schema]);
+        var realm = Realm(config);
+
+        final team = Team('Ferari');
+        realm.write(() => realm.add(team));
+
+        void write(void Function() writer) async {
+          realm.write(writer);
+          realm.write(() {}); // dummy write to raise notification from previous write
+        }
+
+        final stream = (team.players as RealmList<Person>).changed.asBroadcastStream(onCancel: (s) => s.cancel());
+
+        var callbacks = 0;
+        final subscription = stream.listen((_) => ++callbacks);
+
+        {
+          final event = stream.skip(1).first;
+          write(() => team.players.add(Person('Niki')));
+          final change = await event;
+          expect(callbacks, 2); // first time
+          expect(change.counts, Counts(0, 1, 0, 0));
+          expect(change.changes.insertions, [0]);
+        }
+        {
+          final event = stream.first;
+          write(() {
+            team.players[0].name = 'Michael';
+            team.players.add(Person('Kimi'));
+          });
+          final change = await event;
+          expect(callbacks, 3); // once per transaction, not once per change
+          expect(change.counts, Counts(0, 1, 1, 0));
+          expect(change.changes.insertions, [1]);
+          expect(change.changes.modifications, [0]);
+        }
+        subscription.cancel();
+      });
     });
 
     test('RealmObject add with list properties', () {
