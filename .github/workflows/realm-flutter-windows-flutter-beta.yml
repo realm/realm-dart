@@ -1,0 +1,46 @@
+name: Realm Flutter for Windows with Flutter Beta
+
+on:
+  push:
+    branches: [ master ]
+    # Do not run if change is in these paths
+    paths-ignore:
+      - 'flutter/**'
+      - 'generator/**'
+  pull_request:
+    # Do not run if change is in these paths
+    paths-ignore:
+        - 'flutter/**'
+        - 'generator/**'
+
+jobs:
+  CI:
+    runs-on: windows-2019
+    env:
+      REALM_CI: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Build Realm Dart for Windows
+        run: scripts\build.bat
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+         channel: 'beta'
+
+      - name: Enable Flutter Desktop support
+        run: flutter config --enable-windows-desktop
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run tests
+        run: flutter drive -d windows --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
+        working-directory: ./flutter/realm_flutter/tests
+        
+

@@ -1,0 +1,62 @@
+name: Realm Flutter for iOS with Flutter Beta
+
+on:
+  push:
+    branches: [ master ]
+    # paths:
+    #   - 'flutter/**'
+    #   - 'src/**'
+    #   - 'lib/**'
+  pull_request:
+      # - 'flutter/**'
+      # - 'src/**'
+      # - 'lib/**'
+
+jobs:
+  CI:
+    runs-on: macos-latest
+    env:
+      REALM_CI: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: get-ccache-id
+        run: echo "CCACHE_ID=os:${{ runner.OS }} build:ios realm-core commit hash $(git submodule status src/realm-core | cut -c 1-41)" >> $GITHUB_ENV
+
+      - name: install ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ${{ env.CCACHE_ID }}
+
+      - name: enable ccache
+        run: |
+              echo "PATH=/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH" >> $GITHUB_ENV
+              echo "REALM_USE_CCACHE=TRUE" >> $GITHUB_ENV
+
+      - name: Build Realm Flutter for iOS
+        run: |
+              ./scripts/build-ios.sh simulator
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'beta'
+    
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Launch Simulator
+        uses: futureware-tech/simulator-action@v1
+        with:
+          model: 'iPhone 8'
+          os: 'iOS'
+          os_version: '>= 14.0'
+
+      - name: Run tests on iOS Simulator
+        run: flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics #--verbose
+        working-directory: ./flutter/realm_flutter/tests
+diff --git a/.github/workflows/realm-flutter-android-flutter-beta.yml b/.github/workflows/realm-flutter-android-flutter-beta.yml
