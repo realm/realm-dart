@@ -460,6 +460,44 @@ class _RealmCore {
     return controller.stream;
   }
 
+  Stream<bool> listChanged(RealmList list, SchedulerHandle scheduler) {
+    late StreamController<bool> controller;
+
+    void callback(Pointer<Void> changes) {
+      changes.cast<realm_object_changes>();
+      controller.add(true);
+    }
+
+    Pointer<realm_notification_token>? token;
+    void start() {
+      token ??= _realmLib.realm_list_add_notification_callback(
+        list.handle._pointer,
+        CallbackBridge.create(callback),
+        CallbackBridge.free,
+        CallbackBridge.callback.cast(),
+        CallbackBridge.error, // core 6+ will never call this
+        scheduler._pointer,
+      );
+    }
+
+    void stop() {
+      final t = token;
+      if (t != null) {
+        _realmLib.realm_release(t.cast());
+        token = null;
+      }
+    }
+
+    controller = StreamController<bool>(
+      onListen: start,
+      onPause: stop,
+      onResume: start,
+      onCancel: stop,
+    );
+
+    return controller.stream;
+  }
+
   RealmLinkHandle _getObjectAsLink(RealmObject object) {
     final realm_link = _realmLib.realm_object_as_link(object.handle._pointer);
     return RealmLinkHandle._(realm_link);
