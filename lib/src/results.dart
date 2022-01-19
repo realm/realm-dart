@@ -15,11 +15,13 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+import 'dart:async';
 import 'dart:collection' as collection;
 
+import 'collection_changes.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
-import 'realm_object.dart';
 
 /// A listener callback to be called when the [Results<T>] collection changes
 ///
@@ -92,19 +94,19 @@ class _ResultsList<T extends RealmObject> extends collection.ListBase<T> {
 /// Instances of this class are typically live collections returned by [Realm.objects]
 /// that will update as new objects are either added to or deleted from the Realm
 /// that match the underlying query.
-class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
-  late final RealmResultsHandle _handle;
-  late final Realm _realm;
+class RealmResults<T> extends collection.IterableBase<T> {
+  final RealmResultsHandle _handle;
+  final Realm realm;
   // RealmResults _results;
 
-  RealmResults._(this._handle, this._realm);
+  RealmResults._(this._handle, this.realm);
 
   // Results._(this._results);
 
   /// Returns the Realm object of type `T` at the specified `index`
   T operator [](int index) {
     final handle = realmCore.getObjectAt(this, index);
-    return _realm.createObject(T, handle) as T;
+    return realm.createObject(T, handle) as T;
   }
 
   /// Returns a new `Results<T>` filtered according to the provided query
@@ -112,7 +114,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query(String query, [List<Object> args = const []]) {
     final handle = realmCore.queryResults(this, query, args);
-    return RealmResultsInternal.create<T>(handle, _realm);
+    return RealmResultsInternal.create<T>(handle, realm);
   }
 
   /// Returns a new `Results<T>` that represent a sorted view of this collection.
@@ -196,18 +198,25 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   // void set length(int newLength) {
   //   throw new Exception("Setting length on Results<T> is not supported");
   // }
+
+  Stream<RealmResultsChanges<T>> get changed => realmCore
+      .resultsChanged(
+        this,
+        realm.scheduler.handle,
+      )
+      .map((changes) => RealmResultsChanges(this, changes));
 }
 
 //RealmResults package internal members
 extension RealmResultsInternal on RealmResults {
   RealmResultsHandle get handle => _handle;
 
-  static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm) {
+  static RealmResults<T> create<T>(RealmResultsHandle handle, Realm realm) {
     return RealmResults<T>._(handle, realm);
   }
 }
 
-class _RealmResultsIterator<T extends RealmObject> implements Iterator<T> {
+class _RealmResultsIterator<T> implements Iterator<T> {
   final RealmResults<T> _results;
   int _index;
   T? _current;

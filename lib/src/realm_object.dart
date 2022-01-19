@@ -16,9 +16,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
-import 'list.dart';
 
 abstract class RealmAccessor {
   Object? get<T extends Object>(RealmObject object, String name);
@@ -96,6 +96,13 @@ class RealmMetadata {
 
   RealmPropertyMetadata operator [](String propertyName) =>
       _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exists on class ${class_.type.runtimeType}"));
+
+  String findByKey(int propertyKey) {
+    return _propertyKeys.entries.singleWhere(
+      (e) => e.value.key == propertyKey,
+      orElse: () => throw RealmException("Property with key $propertyKey does not exists on class ${class_.type.runtimeType}"),
+    ).key;
+  }
 }
 
 class RealmClassMetadata {

@@ -16,20 +16,20 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:collection' as collection;
 import 'dart:core';
 import 'dart:core' as core;
-import 'dart:collection' as collection;
 
+import 'collection_changes.dart';
 import 'native/realm_core.dart';
-
-import 'realm_object.dart';
 import 'realm_class.dart';
+import 'realm_object.dart';
 
-class RealmList<T extends Object> extends collection.ListBase<T> {
-  late final RealmListHandle _handle;
-  late final Realm _realm;
+class RealmList<T> extends collection.ListBase<T> {
+  final RealmListHandle _handle;
+  final Realm realm;
 
-  RealmList._(this._handle, this._realm);
+  RealmList._(this._handle, this.realm);
 
   @override
   int get length => realmCore.getListSize(handle);
@@ -48,7 +48,7 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
       final value = realmCore.listGetElementAt(this, index);
 
       if (value is RealmObjectHandle) {
-        return _realm.createObject(T, value) as T;
+        return realm.createObject(T, value) as T;
       }
 
       return value as T;
@@ -59,7 +59,7 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
 
   @override
   void operator []=(int index, T value) {
-    RealmListInternal.setValue(handle, _realm, index, value);
+    RealmListInternal.setValue(handle, realm, index, value);
   }
 
   @override
@@ -71,7 +71,6 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
 /// @nodoc
 extension RealmListInternal on RealmList {
   RealmListHandle get handle => _handle;
-  Realm? get realm => _realm;
 
   static RealmList<T> create<T extends Object>(RealmListHandle handle, Realm realm) => RealmList<T>._(handle, realm);
 

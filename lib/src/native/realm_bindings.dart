@@ -5974,17 +5974,16 @@ class RealmLibrary {
       _realm_initializeDartApiDL_ptr
           .asFunction<_dart_realm_initializeDartApiDL>();
 
-  bool realm_attach_finalizer(
+  ffi.Pointer<Dart_FinalizableHandle> realm_attach_finalizer(
     Object handle,
     ffi.Pointer<ffi.Void> realmPtr,
     int size,
   ) {
     return _realm_attach_finalizer(
-          handle,
-          realmPtr,
-          size,
-        ) !=
-        0;
+      handle,
+      realmPtr,
+      size,
+    );
   }
 
   late final _realm_attach_finalizer_ptr =
@@ -5992,6 +5991,23 @@ class RealmLibrary {
           'realm_attach_finalizer');
   late final _dart_realm_attach_finalizer _realm_attach_finalizer =
       _realm_attach_finalizer_ptr.asFunction<_dart_realm_attach_finalizer>();
+
+  void realm_delete_finalizable(
+    ffi.Pointer<Dart_FinalizableHandle> finalizable_handle,
+    Object handle,
+  ) {
+    return _realm_delete_finalizable(
+      finalizable_handle,
+      handle,
+    );
+  }
+
+  late final _realm_delete_finalizable_ptr =
+      _lookup<ffi.NativeFunction<_c_realm_delete_finalizable>>(
+          'realm_delete_finalizable');
+  late final _dart_realm_delete_finalizable _realm_delete_finalizable =
+      _realm_delete_finalizable_ptr
+          .asFunction<_dart_realm_delete_finalizable>();
 
   ffi.Pointer<realm_scheduler> realm_dart_create_scheduler(
     int isolateId,
@@ -6761,6 +6777,8 @@ class realm_sync_error_t extends ffi.Struct {
   @ffi.IntPtr()
   external int user_info_length;
 }
+
+class Dart_FinalizableHandle extends ffi.Opaque {}
 
 typedef _c_realm_get_version_id = ffi.Uint8 Function(
   ffi.Pointer<shared_realm> arg0,
@@ -10014,16 +10032,28 @@ typedef _dart_realm_initializeDartApiDL = void Function(
   ffi.Pointer<ffi.Void> data,
 );
 
-typedef _c_realm_attach_finalizer = ffi.Uint8 Function(
+typedef _c_realm_attach_finalizer = ffi.Pointer<Dart_FinalizableHandle>
+    Function(
   ffi.Handle handle,
   ffi.Pointer<ffi.Void> realmPtr,
   ffi.Int32 size,
 );
 
-typedef _dart_realm_attach_finalizer = int Function(
+typedef _dart_realm_attach_finalizer = ffi.Pointer<Dart_FinalizableHandle>
+    Function(
   Object handle,
   ffi.Pointer<ffi.Void> realmPtr,
   int size,
+);
+
+typedef _c_realm_delete_finalizable = ffi.Void Function(
+  ffi.Pointer<Dart_FinalizableHandle> finalizable_handle,
+  ffi.Handle handle,
+);
+
+typedef _dart_realm_delete_finalizable = void Function(
+  ffi.Pointer<Dart_FinalizableHandle> finalizable_handle,
+  Object handle,
 );
 
 typedef _c_realm_dart_create_scheduler = ffi.Pointer<realm_scheduler> Function(

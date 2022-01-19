@@ -232,6 +232,8 @@ class _Scheduler {
 
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
+  _Scheduler get scheduler => _scheduler;
+  Map<Type, RealmMetadata> get metadata => _metadata;
 
   RealmObject createObject(Type type, RealmObjectHandle handle) {
     RealmMetadata metadata = _getMetadata(type);

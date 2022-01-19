@@ -16,15 +16,20 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// ignore_for_file: unused_local_variable
-
+import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:math';
+
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
+import 'package:vm_service/vm_service_io.dart';
 
 import '../lib/realm.dart';
+import '../lib/src/collection_changes.dart';
+import '../lib/src/native/realm_core.dart';
 
 part 'realm_test.g.dart';
 
@@ -100,10 +105,32 @@ Future<void> tryDeleteFile(FileSystemEntity fileEntity, {bool recursive = false}
   }
 }
 
+List<String> _cleanupPathSegments(Uri uri) {
+  final pathSegments = <String>[];
+  if (uri.pathSegments.isNotEmpty) {
+    pathSegments.addAll(uri.pathSegments.where((s) => s.isNotEmpty));
+  }
+  return pathSegments;
+}
+
+String _toWebSocket(Uri uri) {
+  final pathSegments = _cleanupPathSegments(uri);
+  pathSegments.add('ws');
+  return uri.replace(scheme: 'ws', pathSegments: pathSegments).toString();
+}
+
 Future<void> main([List<String>? args]) async {
   parseTestNameFromArguments(args);
 
   print("Current PID $pid");
+
+  final serverUri = (await Service.getInfo()).serverUri;
+  Future<void> Function()? forceGC;
+  if (serverUri != null) {
+    final isolateId = Service.getIsolateID(Isolate.current)!;
+    final vmService = await vmServiceConnectUri(_toWebSocket(serverUri));
+    forceGC = () async => await vmService.getAllocationProfile(isolateId, gc: true);
+  }
 
   setUp(() {
     String path = "${generateRandomString(10)}.realm";
@@ -729,12 +756,13 @@ Future<void> main([List<String>? args]) async {
         expect(result.map((d) => d.name), snapshot.map((d) => d.name));
 
         realm.write(() => realm.add(Dog("Bella", age: 4)));
-
+        
         expect(result, isNot(orderedEquals(snapshot)));
         expect(result, containsAllInOrder(snapshot));
       });
     });
     test('Lists create object with a list property', () {
+      realmCore.triggerGC();
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -746,6 +774,68 @@ Future<void> main([List<String>? args]) async {
       expect(teams[0].name, "Ferrari");
       expect(teams[0].players, isNotNull);
       expect(teams[0].players.length, 0);
+    });
+
+    group('notification', () {
+      test('RealmResults.changed', () async {
+        var config = Configuration([Dog.schema, Person.schema]);
+        var realm = Realm(config);
+
+        void write(void Function() writer) async {
+          realm.write(writer);
+          realm.write(() {}); // dummy write to raise notification from previous write
+        }
+
+        final stream = realm.all<Dog>().changed.asBroadcastStream();
+
+        var callbacks = 0;
+        final subscription = stream.listen((changes) => ++callbacks);
+
+        final fido = Dog('Fido');
+        {
+          final event = stream.skip(1).first;
+          write(() => realm.add(fido));
+          final change = await event;
+          expect(callbacks, 2); // first time
+          expect(change.counts, Counts(0, 1, 0, 0));
+          expect(change.changes.insertions, [0]);
+        }
+        subscription.pause();
+        final bella = Dog('Bella');
+        {
+          var event = stream.first;
+          write(() => realm.add(bella)); // subscription is paused ..
+          final change = await event;
+          expect(callbacks, 2); // .. so count still the same, but
+          expect(change.counts, Counts(0, 1, 0, 0)); // .. bella was inserted
+          expect(change.changes.insertions, [1]);
+        }
+        subscription.resume();
+        {
+          write(() {
+            fido.age = 1;
+            bella.age = 2;
+          });
+          final event = stream.first; // also okay to listen after
+          final change = await event;
+          expect(callbacks, 4); // extra after resume
+          expect(change.counts, Counts(0, 0, 2, 0)); // two updates
+          expect(change.changes.modifications, [0, 1]);
+        }
+        subscription.cancel();
+      });
+
+      test('leak subscriptions', () async {
+        var config = Configuration([Dog.schema, Person.schema]);
+        var realm = Realm(config);
+
+        // ignore: unused_local_variable
+        late StreamSubscription<RealmResultsChanges<Dog>> leak;
+        for (var i = 0; i < 100; ++i) {
+          leak = realm.all<Dog>().changed.listen((_) {});
+        }
+        await forceGC?.call();
+      });
     });
 
     test('RealmObject add with list properties', () {
@@ -1204,15 +1294,17 @@ Future<void> main([List<String>? args]) async {
       final dog = Dog('Fido', owner: person);
 
       expect(person, person);
-      expect(person, isNot(1)); 
+      expect(person, isNot(1));
       expect(person, isNot(dog));
 
       realm.write(() {
-        realm..add(person)..add(dog);
+        realm
+          ..add(person)
+          ..add(dog);
       });
 
       expect(person, person);
-      expect(person, isNot(1)); 
+      expect(person, isNot(1));
       expect(person, isNot(dog));
 
       final read = realm.query<Person>("name == 'Kasper'");
