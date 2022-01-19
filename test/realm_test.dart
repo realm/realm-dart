@@ -913,6 +913,45 @@ Future<void> main([List<String>? args]) async {
         }
       });
 
+      test('RealmObject.changed', () async {
+        var config = Configuration([Dog.schema, Person.schema]);
+        var realm = Realm(config);
+
+        void write(void Function() writer) async {
+          realm.write(writer);
+          realm.write(() {}); // dummy write to raise notification from previous write
+        }
+
+        final dog = Dog('Fido');
+        write(() => realm.add(dog));
+
+        final stream = dog.changed.asBroadcastStream(onCancel: (s) => s.cancel());
+
+        var callbacks = 0;
+        final subscription = stream.listen((_) => ++callbacks);
+
+        {
+          final event = stream.skip(1).first;
+          write(() => dog.age = 1);
+          final change = await event;
+          expect(callbacks, 2); // first time
+          expect(change.count, 1);
+          expect(change.properties, ['age']);
+        }
+        {
+          final event = stream.first;
+          write(() {
+            dog.owner = Person('Kasper');
+            dog.age = 2;
+          });
+          final change = await event;
+          expect(callbacks, 3); // once per transaction, not once per change
+          expect(change.count, 2);
+          expect(change.properties, ['owner', 'age']);
+        }
+        subscription.cancel();
+      });
+
       test('RealmList.changes', () async {
         var config = Configuration([Team.schema, Person.schema]);
         var realm = Realm(config);

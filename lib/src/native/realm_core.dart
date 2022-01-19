@@ -31,6 +31,7 @@ import '../collection_changes.dart';
 import '../configuration.dart';
 import '../init.dart';
 import '../list.dart';
+import '../object_changes.dart';
 import '../realm_class.dart';
 import '../realm_object.dart';
 import '../results.dart';
@@ -394,6 +395,43 @@ class _RealmCore {
     });
   }
 
+  int getObjectChangesCount(RealmObjectChangesHandle changes) {
+    return _realmLib.realm_object_changes_get_num_modified_properties(changes._pointer);
+  }
+
+  List<int> getObjectChanges(RealmObjectChangesHandle changes, int max) {
+    return using((arena) {
+      final out_modified = arena<Int64>(max);
+      _realmLib.realm_object_changes_get_modified_properties(changes._pointer, out_modified, max);
+      return out_modified != nullptr ? out_modified.asTypedList(max).toList() : const [];
+    });
+  }
+
+  Stream<RealmObjectChanges> realmObjectChanged(RealmObject object, SchedulerHandle scheduler) {
+    late StreamController<RealmObjectChanges> controller;
+
+    void callback(Pointer<Void> data) {
+      final changes = RealmObjectChanges(
+        RealmObjectChangesHandle._(_realmLib.realm_clone(data).cast()),
+        object.realm!,
+      );
+      controller.add(changes);
+    }
+
+    controller = _constructRealmNotificationStreamController(
+        (userData, callback, free, error) => _realmLib.realm_object_add_notification_callback(
+              object.handle._pointer,
+              userData,
+              free,
+              callback.cast(),
+              error,
+              scheduler._pointer,
+            ),
+        callback);
+
+    return controller.stream;
+  }
+
   Counts getCollectionChangesCounts(RealmCollectionChangesHandle changes) {
     return using((arena) {
       final out_num_deletions = arena<IntPtr>();
@@ -632,6 +670,10 @@ class RealmNotificationTokenHandle extends Handle<realm_notification_token> {
 
 class RealmCollectionChangesHandle extends Handle<realm_collection_changes> {
   RealmCollectionChangesHandle._(Pointer<realm_collection_changes> pointer) : super(pointer, 88); // TODO: What should gc hint be?
+}
+
+class RealmObjectChangesHandle extends Handle<realm_object_changes> {
+  RealmObjectChangesHandle._(Pointer<realm_object_changes> pointer) : super(pointer, 88); // TODO: What should gc hint be?
 }
 
 extension _StringEx on String {
