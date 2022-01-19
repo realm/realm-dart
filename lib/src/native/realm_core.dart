@@ -380,7 +380,6 @@ class _RealmCore {
     });
   }
 
-
   Counts getCollectionChangesCounts(RealmCollectionChangesHandle changes) {
     return using((arena) {
       final out_num_deletions = arena<IntPtr>();
@@ -458,6 +457,31 @@ class _RealmCore {
     controller = _constructRealmNotificationStreamController(
         (userData, callback, free, error) => _realmLib.realm_results_add_notification_callback(
               results.handle._pointer,
+              userData,
+              free,
+              callback.cast(),
+              error,
+              scheduler._pointer,
+            ),
+        callback);
+
+    return controller.stream;
+  }
+
+  Stream<RealmCollectionChanges> listChanged(RealmList list, SchedulerHandle scheduler) {
+    late StreamController<RealmCollectionChanges> controller;
+
+    void callback(Pointer<Void> data) {
+      final changes = RealmCollectionChanges(
+        RealmCollectionChangesHandle._(_realmLib.realm_clone(data).cast()),
+        list.realm,
+      );
+      controller.add(changes);
+    }
+
+    controller = _constructRealmNotificationStreamController(
+        (userData, callback, free, error) => _realmLib.realm_list_add_notification_callback(
+              list.handle._pointer,
               userData,
               free,
               callback.cast(),
