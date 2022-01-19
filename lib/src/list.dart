@@ -66,6 +66,13 @@ class RealmList<T> extends collection.ListBase<T> {
   void clear() {
     realmCore.listClear(this);
   }
+
+  Stream<RealmListChanges<T>> get changed => realmCore
+      .listChanged(
+        this,
+        realm.scheduler.handle,
+      )
+      .map((changes) => RealmListChanges(this, changes));
 }
 
 /// @nodoc
