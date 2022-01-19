@@ -180,7 +180,7 @@ class Realm {
 
   /// Closes the `Realm`.
   ///
-  /// All [RealmObject]s and `Realm ` collections are invalidated and can not be used. 
+  /// All [RealmObject]s and `Realm ` collections are invalidated and can not be used.
   /// This method will not throw if called multiple times.
   void close() {
     realmCore.closeRealm(this);
@@ -265,6 +265,8 @@ class _Scheduler {
 /// @nodoc
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
+  _Scheduler get scheduler => _scheduler;
+  Map<Type, RealmMetadata> get metadata => _metadata;
 
   RealmObject createObject(Type type, RealmObjectHandle handle) {
     RealmMetadata metadata = _getMetadata(type);

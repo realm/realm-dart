@@ -16,9 +16,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
-import 'list.dart';
 
 abstract class RealmAccessor {
   Object? get<T extends Object>(RealmObject object, String name);
@@ -96,6 +96,15 @@ class RealmMetadata {
 
   RealmPropertyMetadata operator [](String propertyName) =>
       _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exists on class ${class_.type.runtimeType}"));
+
+  String findByKey(int propertyKey) {
+    return _propertyKeys.entries
+        .singleWhere(
+          (e) => e.value.key == propertyKey,
+          orElse: () => throw RealmException("Property with key $propertyKey does not exists on class ${class_.type.runtimeType}"),
+        )
+        .key;
+  }
 }
 
 class RealmClassMetadata {
@@ -170,9 +179,9 @@ class RealmCoreAccessor implements RealmAccessor {
 /// An object that is persisted in `Realm`.
 ///
 /// `RealmObjects` are generated from Realm data model classes marked with `@RealmModel` annotation and named with an underscore.
-/// 
+///
 /// A data model class `_MyClass` will have a `RealmObject` generated with name `MyClass`.
-/// 
+///
 /// [RealmObject] should not be used directly as it is part of the generated class hierarchy. ex: `MyClass extends _MyClass with RealmObject`.
 /// {@category Realm}
 class RealmObject {
