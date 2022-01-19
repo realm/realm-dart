@@ -1187,7 +1187,7 @@ Future<void> main([List<String>? args]) async {
       expect(teampPlayers.isValid, false);
     });
 
-    test('Realm closed', () {
+    test('Access results after realm closed', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -1200,20 +1200,27 @@ Future<void> main([List<String>? args]) async {
       }, throws<RealmException>("Access to invalidated Results objects"));
     });
 
-    test('Object deleted', () {
+    test('Access deleted object', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
       var team = Team("TeamOne");
       realm.write(() => realm.add(team));
       var teams = realm.all<Team>();
+      var teamBeforeDelete = teams[0];
       realm.write(() => realm.delete(team));
+      expect(team.isValid, false);
+      expect(teamBeforeDelete.isValid, false);
+      expect(team, teamBeforeDelete);
       expect(() {
-        teams[0];
-      }, throws<RealmException>("Requested index 0 in empty Results"));
+        team.name;
+      }, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
+      expect(() {
+        teamBeforeDelete.name;
+      }, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
     });
 
-    test('Object collection deleted', () {
+    test('Access deleted object collection', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
