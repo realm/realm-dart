@@ -18,6 +18,7 @@
 
 import 'list.dart';
 import 'native/realm_core.dart';
+import 'object_changes.dart';
 import 'realm_class.dart';
 
 abstract class RealmAccessor {
@@ -231,6 +232,9 @@ class RealmObject {
     if (!isManaged || !other.isManaged) return false;
     return realmCore.equals(this, other);
   }
+
+  // TODO: Should we generate this as a Stream<ObjectChanges<T>> on each realm object class?
+  Stream<ObjectChanges> get changed => realmCore.realmObjectChanged(this, realm!.scheduler.handle).map((o) => ObjectChanges(this, o));
 }
 
 /// @nodoc
