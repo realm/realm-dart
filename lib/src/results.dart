@@ -15,6 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+import 'dart:async';
 import 'dart:collection' as collection;
 
 import 'native/realm_core.dart';
@@ -196,6 +197,9 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   // void set length(int newLength) {
   //   throw new Exception("Setting length on Results<T> is not supported");
   // }
+
+  // TODO: For now changed don't look at the RealmCollectionChangesHandles
+  Stream<RealmResults> get changed => realmCore.resultChanged(this, _realm.scheduler.handle).map((_) => this);
 }
 
 //RealmResults package internal members

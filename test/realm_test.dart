@@ -709,10 +709,46 @@ Future<void> main([List<String>? args]) async {
       realm.write(() => realm.add(Dog("Bella", age: 4)));
 
       expect(result, isNot(orderedEquals(snapshot)));
-      expect(result, containsAllInOrder(snapshot)); 
+      expect(result, containsAllInOrder(snapshot));
     });
 
-    test('Lists create object with a list property', () {
+    test(
+      'RealmResults.changed',
+      () => (() async* {
+        var config = Configuration([Dog.schema, Person.schema]);
+        var realm = Realm(config);
+
+        // count changes to Dog table
+        var changeCount = 0;
+        final subscription = realm.all<Dog>().changed.listen((_) => ++changeCount);
+
+        final fido = Dog('Fido');
+        realm.write(() => realm.add(fido));
+        yield 0; // to allow event to fire, if any
+        expect(changeCount, 1);
+
+        subscription.pause();
+
+        final bella = Dog('Bella');
+        realm.write(() => realm.add(bella)); // subscription is paused ..
+        yield 0; // to allow event to fire, if any
+        expect(changeCount, 1); // .. so count still 1
+
+        subscription.resume();
+
+        realm.write(() {
+          fido.age = 1;
+          bella.age = 2;
+        });
+        yield 0; // to allow event to fire, if any
+        expect(changeCount, 2); // once per transaction, not once per change
+
+        subscription.cancel();
+      }())
+          .drain(0), // test don't support an async* testFunction, so we drain to make it plain async
+    );
+
+    test('Lists create object with a list property', () async {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -1182,15 +1218,17 @@ Future<void> main([List<String>? args]) async {
       final dog = Dog('Fido', owner: person);
 
       expect(person, person);
-      expect(person, isNot(1)); 
+      expect(person, isNot(1));
       expect(person, isNot(dog));
 
       realm.write(() {
-        realm..add(person)..add(dog);
+        realm
+          ..add(person)
+          ..add(dog);
       });
 
       expect(person, person);
-      expect(person, isNot(1)); 
+      expect(person, isNot(1));
       expect(person, isNot(dog));
 
       final read = realm.query<Person>("name == 'Kasper'");

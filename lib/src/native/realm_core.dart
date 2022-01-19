@@ -15,6 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:typed_data';
@@ -28,6 +29,7 @@ import '../list.dart';
 import '../realm_class.dart';
 import '../realm_object.dart';
 import '../results.dart';
+import 'callback_bridge.dart';
 import 'realm_bindings.dart';
 
 late RealmLibrary _realmLib;
@@ -206,7 +208,7 @@ class _RealmCore {
   }
 
   void commitWrite(Realm realm) {
-    _realmLib.invokeGetBool(() => _realmLib.realm_commit(realm.handle._pointer), "Could commit write");
+    _realmLib.invokeGetBool(() => _realmLib.realm_commit(realm.handle._pointer), "Could not commit write");
   }
 
   bool getIsWritable(Realm realm) {
@@ -214,7 +216,7 @@ class _RealmCore {
   }
 
   void rollbackWrite(Realm realm) {
-    _realmLib.invokeGetBool(() => _realmLib.realm_rollback(realm.handle._pointer), "Could rollback write");
+    _realmLib.invokeGetBool(() => _realmLib.realm_rollback(realm.handle._pointer), "Could not rollback write");
   }
 
   RealmClassMetadata getClassMetadata(Realm realm, String className, Type classType) {
@@ -382,6 +384,43 @@ class _RealmCore {
     });
   }
 
+  Stream<bool> resultChanged(RealmResults results, SchedulerHandle scheduler) {
+    late StreamController<bool> controller;
+
+    void callback(Pointer<realm_collection_changes> changes) {
+      controller.add(true);
+    }
+
+    Pointer<realm_notification_token>? token;
+    void start() {
+      token ??= _realmLib.realm_results_add_notification_callback(
+        results.handle._pointer,
+        CallbackBridge.create(callback),
+        CallbackBridge.free,
+        CallbackBridge.callback,
+        CallbackBridge.error, // error callback - this can be null, since core 6+ will never call it
+        scheduler._pointer,
+      );
+    }
+
+    void stop() {
+      final t = token;
+      if (t != null) {
+        _realmLib.realm_release(t.cast());
+        token = null;
+      }
+    }
+
+    controller = StreamController<bool>(
+      onListen: start,
+      onPause: stop,
+      onResume: start,
+      onCancel: stop,
+    );
+
+    return controller.stream;
+  }
+
   RealmLinkHandle _getObjectAsLink(RealmObject object) {
     final realm_link = _realmLib.realm_object_as_link(object.handle._pointer);
     return RealmLinkHandle._(realm_link);
@@ -461,8 +500,8 @@ abstract class Handle<T extends NativeType> {
 
   Handle(this._pointer, int size) {
     if (_realmLib.realm_attach_finalizer(this, _pointer.cast(), size) == false) {
-       throw Exception("Error creating $runtimeType");
-     }
+      throw Exception("Error creating $runtimeType");
+    }
   }
 
   @override
