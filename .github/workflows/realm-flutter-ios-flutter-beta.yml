@@ -59,4 +59,3 @@ jobs:
       - name: Run tests on iOS Simulator
         run: flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics #--verbose
         working-directory: ./flutter/realm_flutter/tests
-diff --git a/.github/workflows/realm-flutter-android-flutter-beta.yml b/.github/workflows/realm-flutter-android-flutter-beta.yml
