@@ -215,6 +215,8 @@ class RealmObject {
     if (!isManaged || !other.isManaged) return false;
     return realmCore.equals(this, other);
   }
+
+  Stream<bool> get changed => realmCore.realmObjectChanged(this, realm!.scheduler.handle); // TODO: Should we generate this?
 }
 
 //RealmObject package internal members

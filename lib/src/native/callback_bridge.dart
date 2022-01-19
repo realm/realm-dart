@@ -4,8 +4,8 @@ import 'package:ffi/ffi.dart';
 
 import 'realm_bindings.dart';
 
-typedef Callback = void Function(Pointer<realm_collection_changes>);
-typedef _Callback = Void Function(Pointer<Void>, Pointer<realm_collection_changes>);
+typedef Callback = void Function(Pointer<Void>);
+typedef _Callback = Void Function(Pointer<Void>, Pointer<Void>);
 typedef Free = void Function();
 typedef _Free = Void Function(Pointer<Void>);
 typedef Error = void Function(Pointer<realm_async_error>);
@@ -23,7 +23,7 @@ class CallbackBridge {
     return descriptor.cast();
   }
 
-  static void __callback(Pointer<Void> descriptor, Pointer<realm_collection_changes> changes) {
+  static void __callback(Pointer<Void> descriptor, Pointer<Void> changes) {
     final bridge = _bridges[descriptor.cast<Int64>().value]!;
     bridge._callback(changes);
   }

@@ -748,6 +748,33 @@ Future<void> main([List<String>? args]) async {
           .drain(0), // test don't support an async* testFunction, so we drain to make it plain async
     );
 
+    test(
+      'RealmObject.changed',
+      () => (() async* {
+        var config = Configuration([Dog.schema, Person.schema]);
+        var realm = Realm(config);
+
+        final dog = Dog('Fido');
+        realm.write(() => realm.add(dog));
+
+        // count changes to Fido
+        var changeCount = 0;
+        final subscription = dog.changed.listen((_) => ++changeCount);
+
+        realm.write(() => dog.age = 1);
+        yield 0; // to allow event to fire, if any
+        expect(changeCount, 1);
+
+        realm.write(() {
+          dog.owner = Person('Kasper');
+          dog.age = 2;
+        });
+        yield 0; // to allow event to fire, if any
+        expect(changeCount, 2); // once per transaction, not once per change
+      }())
+          .drain(0), // test don't support an async* testFunction, so we drain to make it plain async
+    );
+
     test('Lists create object with a list property', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);

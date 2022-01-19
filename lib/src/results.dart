@@ -199,7 +199,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   // }
 
   // TODO: For now changed don't look at the RealmCollectionChangesHandles
-  Stream<RealmResults> get changed => realmCore.resultChanged(this, _realm.scheduler.handle).map((_) => this);
+  Stream<RealmResults> get changed => realmCore.resultsChanged(this, _realm.scheduler.handle).map((_) => this);
 }
 
 //RealmResults package internal members

@@ -384,10 +384,11 @@ class _RealmCore {
     });
   }
 
-  Stream<bool> resultChanged(RealmResults results, SchedulerHandle scheduler) {
+  Stream<bool> resultsChanged(RealmResults results, SchedulerHandle scheduler) {
     late StreamController<bool> controller;
 
-    void callback(Pointer<realm_collection_changes> changes) {
+    void callback(Pointer<Void> changes) {
+      changes.cast<realm_collection_changes>();
       controller.add(true);
     }
 
@@ -397,8 +398,46 @@ class _RealmCore {
         results.handle._pointer,
         CallbackBridge.create(callback),
         CallbackBridge.free,
-        CallbackBridge.callback,
-        CallbackBridge.error, // error callback - this can be null, since core 6+ will never call it
+        CallbackBridge.callback.cast(),
+        CallbackBridge.error, // core 6+ will never call this
+        scheduler._pointer,
+      );
+    }
+
+    void stop() {
+      final t = token;
+      if (t != null) {
+        _realmLib.realm_release(t.cast());
+        token = null;
+      }
+    }
+
+    controller = StreamController<bool>(
+      onListen: start,
+      onPause: stop,
+      onResume: start,
+      onCancel: stop,
+    );
+
+    return controller.stream;
+  }
+
+  Stream<bool> realmObjectChanged(RealmObject object, SchedulerHandle scheduler) {
+    late StreamController<bool> controller;
+
+    void callback(Pointer<Void> changes) {
+      changes.cast<realm_object_changes>();
+      controller.add(true);
+    }
+
+    Pointer<realm_notification_token>? token;
+    void start() {
+      token ??= _realmLib.realm_object_add_notification_callback(
+        object.handle._pointer,
+        CallbackBridge.create(callback),
+        CallbackBridge.free,
+        CallbackBridge.callback.cast(),
+        CallbackBridge.error, // core 6+ will never call this
         scheduler._pointer,
       );
     }
