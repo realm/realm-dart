@@ -1149,7 +1149,8 @@ Future<void> main([List<String>? args]) async {
 
       expect(read, [person]);
     });
-
+  });
+  group('IsValid tests:', () {
     test('RealmObject isValid only if realm is opened', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
@@ -1186,7 +1187,7 @@ Future<void> main([List<String>? args]) async {
       expect(teampPlayers.isValid, false);
     });
 
-    test('Access to invalidated Results objects', () {
+    test('Realm closed', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -1196,10 +1197,10 @@ Future<void> main([List<String>? args]) async {
       realm.close();
       expect(() {
         teams[0];
-      }, throws<RealmException>("Error code: 18 . Message: Access to invalidated Results objects"));
+      }, throws<RealmException>("Access to invalidated Results objects"));
     });
 
-    test('Requested index 0 in empty Results', () {
+    test('Object deleted', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -1207,13 +1208,12 @@ Future<void> main([List<String>? args]) async {
       realm.write(() => realm.add(team));
       var teams = realm.all<Team>();
       realm.write(() => realm.delete(team));
-
       expect(() {
         teams[0];
-      }, throws<RealmException>("Error code: 34 . Message: Requested index 0 in empty Results"));
+      }, throws<RealmException>("Requested index 0 in empty Results"));
     });
 
-    test('Accessing object of type Team which has been invalidated or deleted', () {
+    test('Object collection deleted', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -1221,13 +1221,12 @@ Future<void> main([List<String>? args]) async {
       realm.write(() => realm.add(team));
       var teams = realm.all<Team>();
       realm.write(() => realm.delete(team));
-
       expect(() {
         team.players;
-      }, throws<RealmException>("Error code: 7 . Message: Accessing object of type Team which has been invalidated or deleted"));
+      }, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
     });
 
-    test('Access to invalidated Collection object - deleted parent', () {
+    test('Delete collection of deleted parent', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
@@ -1237,46 +1236,70 @@ Future<void> main([List<String>? args]) async {
       realm.write(() => realm.delete(team));
       expect(() {
         realm.write(() => realm.deleteMany(players));
-      }, throws<RealmException>("Error code: 7 . Message: Access to invalidated Collection object"));
+      }, throws<RealmException>("Access to invalidated Collection object"));
     });
 
-    test('Cannot access realm that has been closed', () {
+    test('Add object after realm is closed', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
       final car = Car('Tesla');
 
-      realm.write(() => realm.add(car));
       realm.close();
       expect(() {
         realm.write(() => realm.add(car));
-      }, throws<RealmException>("Error code: 18 . Message: Cannot access realm that has been closed."));
+      }, throws<RealmException>("Cannot access realm that has been closed"));
     });
 
-    test('Get results length - Access to invalidated Results objects', () {
+    test('Edit object after realm is closed', () {
+      var config = Configuration([Person.schema]);
+      var realm = Realm(config);
+
+      final person = Person('Markos');
+
+      realm.write(() => realm.add(person));
+      realm.close();
+      expect(() {
+        realm.write(() => person.name = "Markos Sanches");
+      }, throws<RealmException>("Cannot access realm that has been closed"));
+    });
+
+    test('Edit deleted object', () {
+      var config = Configuration([Person.schema]);
+      var realm = Realm(config);
+
+      final person = Person('Markos');
+
+      realm.write(() => realm.add(person));
+      realm.write(() => realm.delete(person));
+      expect(() {
+        realm.write(() => person.name = "Markos Sanches");
+      }, throws<RealmException>("Accessing object of type Person which has been invalidated or deleted"));
+    });
+
+    test('Get query results length after realm is clodes', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
       var team = Team("TeamOne");
       realm.write(() => realm.add(team));
-      realm.write(() => realm.delete(team));
-      final teams = realm.all<Team>();
+      final teams = realm.query<Team>('name BEGINSWITH "Team"');
       realm.close();
       expect(() {
-        teams.length;
-      }, throws<RealmException>("Error code: 18 . Message: Access to invalidated Results objects"));
+        final length = teams.length;
+      }, throws<RealmException>("Access to invalidated Results objects"));
     });
 
-    test('Get lists length - Access to invalidated Results objects', () {
+    test('Get list length after deleting parent objects', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
       var team = Team("TeamOne")..players.add(Person("Nikos"));
       realm.write(() => realm.add(team));
-      realm.close();
+      realm.write(() => realm.delete(team));
       expect(() {
-        team.players.length;
-      }, throws<RealmException>("Error code: 7 . Message: Accessing object of type Team which has been invalidated or deleted"));
+        final length = team.players.length;
+      }, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
     });
   });
 }
