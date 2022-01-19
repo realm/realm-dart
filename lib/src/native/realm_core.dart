@@ -18,6 +18,7 @@
 
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:typed_data';
@@ -25,13 +26,17 @@ import 'dart:typed_data';
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows to sliently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 
+import '../collection_changes.dart';
 import '../configuration.dart';
 import '../init.dart';
 import '../list.dart';
 import '../realm_class.dart';
 import '../realm_object.dart';
 import '../results.dart';
+import 'callback_bridge.dart';
 import 'realm_bindings.dart';
+
+part 'controller_builder.dart';
 
 late RealmLibrary _realmLib;
 
@@ -389,6 +394,95 @@ class _RealmCore {
     });
   }
 
+
+  Counts getCollectionChangesCounts(RealmCollectionChangesHandle changes) {
+    return using((arena) {
+      final out_num_deletions = arena<IntPtr>();
+      final out_num_insertions = arena<IntPtr>();
+      final out_num_modifications = arena<IntPtr>();
+      final out_num_moves = arena<IntPtr>();
+      _realmLib.realm_collection_changes_get_num_changes(
+        changes._pointer,
+        out_num_deletions,
+        out_num_insertions,
+        out_num_modifications,
+        out_num_moves,
+      );
+      return Counts(
+        out_num_deletions != nullptr ? out_num_deletions.value : 0,
+        out_num_insertions != nullptr ? out_num_insertions.value : 0,
+        out_num_modifications != nullptr ? out_num_modifications.value : 0,
+        out_num_moves != nullptr ? out_num_moves.value : 0,
+      );
+    });
+  }
+
+  IndexChanges getCollectionChanges(RealmCollectionChangesHandle changes, Counts maxCounts) {
+    return using((arena) {
+      final out_deletion_indices = arena<IntPtr>(maxCounts.deletions);
+      final out_insertion_indices = arena<IntPtr>(maxCounts.insertions);
+      final out_modification_indices = arena<IntPtr>(maxCounts.modifications);
+      final out_modification_indices_after = arena<IntPtr>(maxCounts.modifications);
+      final out_moves = arena<realm_collection_move_t>(maxCounts.moves);
+
+      _realmLib.realm_collection_changes_get_changes(
+        changes._pointer,
+        out_deletion_indices,
+        maxCounts.deletions,
+        out_insertion_indices,
+        maxCounts.insertions,
+        out_modification_indices,
+        maxCounts.modifications,
+        out_modification_indices_after,
+        maxCounts.modifications,
+        out_moves,
+        maxCounts.moves,
+      );
+
+      List<int> convert(Pointer<IntPtr> pointer, int size) {
+        if (sizeOf<IntPtr>() == 8) {
+          return pointer.cast<Int64>().asTypedList(size).toList(growable: false);
+        } else {
+          return pointer.cast<Int32>().asTypedList(size).toList(growable: false);
+        }
+      }
+
+      // TODO: the toList below copies the data. It should be poss
+      return IndexChanges(
+        convert(out_deletion_indices, maxCounts.deletions),
+        convert(out_insertion_indices, maxCounts.insertions),
+        convert(out_modification_indices, maxCounts.modifications),
+        convert(out_modification_indices_after, maxCounts.modifications),
+        const [], // TODO: Not supported yet
+      );
+    });
+  }
+
+  Stream<RealmCollectionChanges> resultsChanged(RealmResults results, SchedulerHandle scheduler) {
+    late StreamController<RealmCollectionChanges> controller;
+
+    void callback(Pointer<Void> data) {
+      final changes = RealmCollectionChanges(
+        RealmCollectionChangesHandle._(_realmLib.realm_clone(data).cast()),
+        results.realm,
+      );
+      controller.add(changes);
+    }
+
+    controller = _constructRealmNotificationStreamController(
+        (userData, callback, free, error) => _realmLib.realm_results_add_notification_callback(
+              results.handle._pointer,
+              userData,
+              free,
+              callback.cast(),
+              error,
+              scheduler._pointer,
+            ),
+        callback);
+
+    return controller.stream;
+  }
+
   RealmLinkHandle _getObjectAsLink(RealmObject object) {
     final realmLink = _realmLib.realm_object_as_link(object.handle._pointer);
     return RealmLinkHandle._(realmLink);
@@ -414,9 +508,9 @@ class _RealmCore {
 
   Object? listGetElementAt(RealmList list, int index) {
     return using((Arena arena) {
-      final realmValue = arena<realm_value_t>();
-      _realmLib.invokeGetBool(() => _realmLib.realm_list_get(list.handle._pointer, index, realmValue));
-      return realmValue.toDartValue(list.realm!);
+      final realm_value = arena<realm_value_t>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_list_get(list.handle._pointer, index, realm_value));
+      return realm_value.toDartValue(list.realm);
     });
   }
 
@@ -465,11 +559,23 @@ class LastError {
 
 abstract class Handle<T extends NativeType> {
   Pointer<T> _pointer;
+  late final Dart_FinalizableHandle _finalizableHandle;
 
   Handle(this._pointer, int size) {
-    if (_realmLib.realm_attach_finalizer(this, _pointer.cast(), size) == false) {
-       throw Exception("Error creating $runtimeType");
-     }
+    _finalizableHandle = _realmLib.realm_attach_finalizer(this, _pointer.cast(), size);
+    if (_finalizableHandle == nullptr) {
+      throw Exception("Error creating $runtimeType");
+    }
+  }
+
+  Pointer<T> detach() {
+    _realmLib.realm_delete_finalizable(_finalizableHandle, this);
+    return _pointer;
+  }
+
+  void releaseEarly() {
+    _realmLib.realm_release(detach().cast());
+    _pointer = nullptr;
   }
 
   @override
@@ -514,6 +620,14 @@ class RealmListHandle extends Handle<realm_list> {
 
 class RealmQueryHandle extends Handle<realm_query> {
   RealmQueryHandle._(Pointer<realm_query> pointer) : super(pointer, 256);
+}
+
+class RealmNotificationTokenHandle extends Handle<realm_notification_token> {
+  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer) : super(pointer, 1 << 24); // TODO: What should gc hint be?
+}
+
+class RealmCollectionChangesHandle extends Handle<realm_collection_changes> {
+  RealmCollectionChangesHandle._(Pointer<realm_collection_changes> pointer) : super(pointer, 88); // TODO: What should gc hint be?
 }
 
 extension _StringEx on String {

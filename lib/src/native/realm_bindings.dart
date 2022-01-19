@@ -6862,25 +6862,41 @@ class RealmLibrary {
   late final _realm_initializeDartApiDL = _realm_initializeDartApiDLPtr
       .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
-  bool realm_attach_finalizer(
+  Dart_FinalizableHandle realm_attach_finalizer(
     Object handle,
     ffi.Pointer<ffi.Void> realmPtr,
     int size,
   ) {
     return _realm_attach_finalizer(
-          handle,
-          realmPtr,
-          size,
-        ) !=
-        0;
+      handle,
+      realmPtr,
+      size,
+    );
   }
 
   late final _realm_attach_finalizerPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Uint8 Function(ffi.Handle, ffi.Pointer<ffi.Void>,
+          Dart_FinalizableHandle Function(ffi.Handle, ffi.Pointer<ffi.Void>,
               ffi.Int32)>>('realm_attach_finalizer');
-  late final _realm_attach_finalizer = _realm_attach_finalizerPtr
-      .asFunction<int Function(Object, ffi.Pointer<ffi.Void>, int)>();
+  late final _realm_attach_finalizer = _realm_attach_finalizerPtr.asFunction<
+      Dart_FinalizableHandle Function(Object, ffi.Pointer<ffi.Void>, int)>();
+
+  void realm_delete_finalizable(
+    Dart_FinalizableHandle finalizable_handle,
+    Object handle,
+  ) {
+    return _realm_delete_finalizable(
+      finalizable_handle,
+      handle,
+    );
+  }
+
+  late final _realm_delete_finalizablePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              Dart_FinalizableHandle, ffi.Handle)>>('realm_delete_finalizable');
+  late final _realm_delete_finalizable = _realm_delete_finalizablePtr
+      .asFunction<void Function(Dart_FinalizableHandle, Object)>();
 
   ffi.Pointer<realm_scheduler_t> realm_dart_create_scheduler(
     int isolateId,
@@ -7838,6 +7854,9 @@ typedef realm_sync_upload_completion_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(
             ffi.Pointer<ffi.Void>, ffi.Pointer<realm_sync_error_code_t>)>>;
+typedef Dart_FinalizableHandle = ffi.Pointer<_Dart_FinalizableHandle>;
+
+class _Dart_FinalizableHandle extends ffi.Opaque {}
 
 /// A port is used to send or receive inter-isolate messages
 typedef Dart_Port = ffi.Int64;

@@ -16,24 +16,21 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:core';
-import 'dart:core' as core;
 import 'dart:collection' as collection;
 
 import 'native/realm_core.dart';
-
-import 'realm_object.dart';
 import 'realm_class.dart';
+import 'realm_object.dart';
 
 /// Instances of this class are live collections and will update as new elements are either 
 /// added to or deleted from the Realm that match the underlying query.
 ///
 ///{@category Realm}
 class RealmList<T extends Object> extends collection.ListBase<T> {
-  late final RealmListHandle _handle;
-  late final Realm _realm;
+  final RealmListHandle _handle;
+  final Realm realm;
 
-  RealmList._(this._handle, this._realm);
+  RealmList._(this._handle, this.realm);
 
   /// The length of this [RealmList].
   @override
@@ -55,7 +52,7 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
       final value = realmCore.listGetElementAt(this, index);
 
       if (value is RealmObjectHandle) {
-        return _realm.createObject(T, value) as T;
+        return realm.createObject(T, value) as T;
       }
 
       return value as T;
@@ -67,7 +64,7 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
   /// Sets the element at the specified index in the list.
   @override
   void operator []=(int index, T value) {
-    RealmListInternal.setValue(handle, _realm, index, value);
+    RealmListInternal.setValue(handle, realm, index, value);
   }
 
   /// Clears the collection in memory and the references
@@ -86,7 +83,6 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
 /// @nodoc
 extension RealmListInternal on RealmList {
   RealmListHandle get handle => _handle;
-  Realm? get realm => _realm;
 
   static RealmList<T> create<T extends Object>(RealmListHandle handle, Realm realm) => RealmList<T>._(handle, realm);
 
