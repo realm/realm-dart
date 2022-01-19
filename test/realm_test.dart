@@ -1253,17 +1253,30 @@ Future<void> main([List<String>? args]) async {
       }, throws<RealmException>("Error code: 18 . Message: Cannot access realm that has been closed."));
     });
 
-    test('Get length - Cannot access realm that has been closed', () {
+    test('Get results length - Access to invalidated Results objects', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
 
       var team = Team("TeamOne");
       realm.write(() => realm.add(team));
       realm.write(() => realm.delete(team));
+      final teams = realm.all<Team>();
       realm.close();
       expect(() {
-        realm.all<Team>().length;
-      }, throws<RealmException>("Error code: 18 . Message: Cannot access realm that has been closed."));
+        teams.length;
+      }, throws<RealmException>("Error code: 18 . Message: Access to invalidated Results objects"));
+    });
+
+    test('Get lists length - Access to invalidated Results objects', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      var team = Team("TeamOne")..players.add(Person("Nikos"));
+      realm.write(() => realm.add(team));
+      realm.close();
+      expect(() {
+        team.players.length;
+      }, throws<RealmException>("Error code: 7 . Message: Accessing object of type Team which has been invalidated or deleted"));
     });
   });
 }
