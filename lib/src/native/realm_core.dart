@@ -23,6 +23,7 @@ import 'dart:typed_data';
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows to sliently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 
+import '../collection_changes.dart';
 import '../configuration.dart';
 import '../init.dart';
 import '../list.dart';
@@ -384,12 +385,15 @@ class _RealmCore {
     });
   }
 
-  Stream<bool> resultsChanged(RealmResults results, SchedulerHandle scheduler) {
-    late StreamController<bool> controller;
+  Stream<RealmCollectionChanges> resultsChanged(RealmResults results, SchedulerHandle scheduler) {
+    late StreamController<RealmCollectionChanges> controller;
 
-    void callback(Pointer<Void> changes) {
-      changes.cast<realm_collection_changes>();
-      controller.add(true);
+    void callback(Pointer<Void> data) {
+      final changes = RealmCollectionChanges(
+        RealmCollectionChangesHandle._(_realmLib.realm_clone(data).cast<realm_collection_changes>()),
+        results.realm,
+      );
+      controller.add(changes);
     }
 
     Pointer<realm_notification_token>? token;
@@ -412,7 +416,7 @@ class _RealmCore {
       }
     }
 
-    controller = StreamController<bool>(
+    controller = StreamController<RealmCollectionChanges>(
       onListen: start,
       onPause: stop,
       onResume: start,
@@ -460,12 +464,15 @@ class _RealmCore {
     return controller.stream;
   }
 
-  Stream<bool> listChanged(RealmList list, SchedulerHandle scheduler) {
-    late StreamController<bool> controller;
+  Stream<RealmCollectionChanges> listChanged(RealmList list, SchedulerHandle scheduler) {
+    late StreamController<RealmCollectionChanges> controller;
 
-    void callback(Pointer<Void> changes) {
-      changes.cast<realm_object_changes>();
-      controller.add(true);
+    void callback(Pointer<Void> data) {
+      final changes = RealmCollectionChanges(
+        RealmCollectionChangesHandle._(_realmLib.realm_clone(data).cast<realm_collection_changes>()),
+        list.realm,
+      );
+      controller.add(changes);
     }
 
     Pointer<realm_notification_token>? token;
@@ -488,7 +495,7 @@ class _RealmCore {
       }
     }
 
-    controller = StreamController<bool>(
+    controller = StreamController<RealmCollectionChanges>(
       onListen: start,
       onPause: stop,
       onResume: start,
@@ -623,6 +630,10 @@ class RealmListHandle extends Handle<realm_list> {
 
 class RealmQueryHandle extends Handle<realm_query> {
   RealmQueryHandle._(Pointer<realm_query> pointer) : super(pointer, 256);
+}
+
+class RealmCollectionChangesHandle extends Handle<realm_collection_changes> {
+  RealmCollectionChangesHandle._(Pointer<realm_collection_changes> pointer) : super(pointer, 88); // TODO: What should gc hint be?
 }
 
 extension _StringEx on String {
