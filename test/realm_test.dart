@@ -1195,9 +1195,7 @@ Future<void> main([List<String>? args]) async {
       realm.write(() => realm.add(team));
       var teams = realm.all<Team>();
       realm.close();
-      expect(() {
-        teams[0];
-      }, throws<RealmException>("Access to invalidated Results objects"));
+      expect(() => teams[0], throws<RealmException>("Access to invalidated Results objects"));
     });
 
     test('Access deleted object', () {
@@ -1212,12 +1210,8 @@ Future<void> main([List<String>? args]) async {
       expect(team.isValid, false);
       expect(teamBeforeDelete.isValid, false);
       expect(team, teamBeforeDelete);
-      expect(() {
-        team.name;
-      }, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
-      expect(() {
-        teamBeforeDelete.name;
-      }, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
+      expect(() => team.name, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
+      expect(() => teamBeforeDelete.name, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
     });
 
     test('Access deleted object collection', () {
@@ -1228,9 +1222,7 @@ Future<void> main([List<String>? args]) async {
       realm.write(() => realm.add(team));
       var teams = realm.all<Team>();
       realm.write(() => realm.delete(team));
-      expect(() {
-        team.players;
-      }, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
+      expect(() => team.players, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
     });
 
     test('Delete collection of deleted parent', () {
@@ -1241,9 +1233,7 @@ Future<void> main([List<String>? args]) async {
       realm.write(() => realm.add(team));
       var players = team.players;
       realm.write(() => realm.delete(team));
-      expect(() {
-        realm.write(() => realm.deleteMany(players));
-      }, throws<RealmException>("Access to invalidated Collection object"));
+      expect(() => realm.write(() => realm.deleteMany(players)), throws<RealmException>("Access to invalidated Collection object"));
     });
 
     test('Add object after realm is closed', () {
@@ -1253,9 +1243,7 @@ Future<void> main([List<String>? args]) async {
       final car = Car('Tesla');
 
       realm.close();
-      expect(() {
-        realm.write(() => realm.add(car));
-      }, throws<RealmException>("Cannot access realm that has been closed"));
+      expect(() => realm.write(() => realm.add(car)), throws<RealmException>("Cannot access realm that has been closed"));
     });
 
     test('Edit object after realm is closed', () {
@@ -1266,9 +1254,7 @@ Future<void> main([List<String>? args]) async {
 
       realm.write(() => realm.add(person));
       realm.close();
-      expect(() {
-        realm.write(() => person.name = "Markos Sanches");
-      }, throws<RealmException>("Cannot access realm that has been closed"));
+      expect(() => realm.write(() => person.name = "Markos Sanches"), throws<RealmException>("Cannot access realm that has been closed"));
     });
 
     test('Edit deleted object', () {
@@ -1277,11 +1263,12 @@ Future<void> main([List<String>? args]) async {
 
       final person = Person('Markos');
 
-      realm.write(() => realm.add(person));
-      realm.write(() => realm.delete(person));
-      expect(() {
-        realm.write(() => person.name = "Markos Sanches");
-      }, throws<RealmException>("Accessing object of type Person which has been invalidated or deleted"));
+      realm.write(() {
+        realm.add(person);
+        realm.delete(person);
+      });
+      expect(() => realm.write(() => person.name = "Markos Sanches"),
+          throws<RealmException>("Accessing object of type Person which has been invalidated or deleted"));
     });
 
     test('Get query results length after realm is clodes', () {
@@ -1292,9 +1279,7 @@ Future<void> main([List<String>? args]) async {
       realm.write(() => realm.add(team));
       final teams = realm.query<Team>('name BEGINSWITH "Team"');
       realm.close();
-      expect(() {
-        final length = teams.length;
-      }, throws<RealmException>("Access to invalidated Results objects"));
+      expect(() => teams.length, throws<RealmException>("Access to invalidated Results objects"));
     });
 
     test('Get list length after deleting parent objects', () {
@@ -1302,11 +1287,11 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       var team = Team("TeamOne")..players.add(Person("Nikos"));
-      realm.write(() => realm.add(team));
-      realm.write(() => realm.delete(team));
-      expect(() {
-        final length = team.players.length;
-      }, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
+      realm.write(() {
+        realm.add(team);
+        realm.delete(team);
+      });
+      expect(() => team.players.length, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
     });
   });
 }
