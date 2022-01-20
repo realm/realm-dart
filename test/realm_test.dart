@@ -568,150 +568,151 @@ Future<void> main([List<String>? args]) async {
       expect(cars[0].make, car.make);
     });
 
-    test('Query results', () {
-      var config = Configuration([Car.schema]);
-      var realm = Realm(config);
-      realm.write(() => realm
-        ..add(Car("Audi"))
-        ..add(Car("Tesla")));
-      final cars = realm.all<Car>().query('make == "Tesla"');
-      expect(cars.length, 1);
-      expect(cars[0].make, "Tesla");
-    });
-
-    test('Query class', () {
-      var config = Configuration([Car.schema]);
-      var realm = Realm(config);
-      realm.write(() => realm
-        ..add(Car("Audi"))
-        ..add(Car("Tesla")));
-      final cars = realm.query<Car>('make == "Tesla"');
-      expect(cars.length, 1);
-      expect(cars[0].make, "Tesla");
-    });
-
-    test('Query results with parameter', () {
-      var config = Configuration([Car.schema]);
-      var realm = Realm(config);
-      realm.write(() => realm
-        ..add(Car("Audi"))
-        ..add(Car("Tesla")));
-      final cars = realm.all<Car>().query(r'make == $0', ['Tesla']);
-      expect(cars.length, 1);
-      expect(cars[0].make, "Tesla");
-    });
-
-    test('Query results with multiple parameters', () {
-      var config = Configuration([Team.schema, Person.schema]);
-      var realm = Realm(config);
-
-      final x = Person('x');
-      final y = Person('y');
-      final t1 = Team("A1", players: [x]); // match
-      final t2 = Team("A2", players: [y]); // correct prefix, but wrong player
-      final t3 = Team("B1", players: [x, y]); // wrong prefix, but correct player
-
-      realm.write(() => realm.addAll([t1, t2, t3]));
-
-      expect(t1.players, [x]);
-      expect(t2.players, [y]);
-      expect(t3.players, [x, y]);
-
-      final filteredTeams = realm.all<Team>().query(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']);
-      expect(filteredTeams.length, 1);
-      expect(filteredTeams, [t1]);
-    });
-
-    test('Query class with parameter', () {
-      var config = Configuration([Car.schema]);
-      var realm = Realm(config);
-      realm.write(() => realm
-        ..add(Car("Audi"))
-        ..add(Car("Tesla")));
-      final cars = realm.query<Car>(r'make == $0', ['Tesla']);
-      expect(cars.length, 1);
-      expect(cars[0].make, "Tesla");
-    });
-
-    test('Query class with multiple parameters', () {
-      var config = Configuration([Team.schema, Person.schema]);
-      var realm = Realm(config);
-
-      final x = Person('x');
-      final y = Person('y');
-      final t1 = Team("A1");
-      final t2 = Team("A2");
-      final t3 = Team("B1");
-
-      realm.write(() => realm
-        ..add(t1)
-        ..add(t2)
-        ..add(t3));
-
-      // TODO: Ugly that we need to add players in separate transaction :-/
-      realm.write(() {
-        t1.players.addAll([x]); // match!
-        t2.players.addAll([y]); // correct prefix, but wrong play
-        t3.players.addAll([x, y]); // wrong prefix, but correct player
+    group('Query and sort tests:', () {
+      test('Query results', () {
+        var config = Configuration([Car.schema]);
+        var realm = Realm(config);
+        realm.write(() => realm
+          ..add(Car("Audi"))
+          ..add(Car("Tesla")));
+        final cars = realm.all<Car>().query('make == "Tesla"');
+        expect(cars.length, 1);
+        expect(cars[0].make, "Tesla");
       });
 
-      // TODO: Still no equality :-/
-      expect(t1.players.map((p) => p.name), [x.name]);
-      expect(t2.players.map((p) => p.name), [y.name]);
-      expect(t3.players.map((p) => p.name), [x, y].map((p) => p.name));
-      final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']);
-      expect(filteredTeams.length, 1);
-      expect(filteredTeams[0].name, "A1");
+      test('Query class', () {
+        var config = Configuration([Car.schema]);
+        var realm = Realm(config);
+        realm.write(() => realm
+          ..add(Car("Audi"))
+          ..add(Car("Tesla")));
+        final cars = realm.query<Car>('make == "Tesla"');
+        expect(cars.length, 1);
+        expect(cars[0].make, "Tesla");
+      });
+
+      test('Query results with parameter', () {
+        var config = Configuration([Car.schema]);
+        var realm = Realm(config);
+        realm.write(() => realm
+          ..add(Car("Audi"))
+          ..add(Car("Tesla")));
+        final cars = realm.all<Car>().query(r'make == $0', ['Tesla']);
+        expect(cars.length, 1);
+        expect(cars[0].make, "Tesla");
+      });
+
+      test('Query results with multiple parameters', () {
+        var config = Configuration([Team.schema, Person.schema]);
+        var realm = Realm(config);
+
+        final x = Person('x');
+        final y = Person('y');
+        final t1 = Team("A1", players: [x]); // match
+        final t2 = Team("A2", players: [y]); // correct prefix, but wrong player
+        final t3 = Team("B1", players: [x, y]); // wrong prefix, but correct player
+
+        realm.write(() => realm.addAll([t1, t2, t3]));
+
+        expect(t1.players, [x]);
+        expect(t2.players, [y]);
+        expect(t3.players, [x, y]);
+
+        final filteredTeams = realm.all<Team>().query(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']);
+        expect(filteredTeams.length, 1);
+        expect(filteredTeams, [t1]);
+      });
+
+      test('Query class with parameter', () {
+        var config = Configuration([Car.schema]);
+        var realm = Realm(config);
+        realm.write(() => realm
+          ..add(Car("Audi"))
+          ..add(Car("Tesla")));
+        final cars = realm.query<Car>(r'make == $0', ['Tesla']);
+        expect(cars.length, 1);
+        expect(cars[0].make, "Tesla");
+      });
+
+      test('Query class with multiple parameters', () {
+        var config = Configuration([Team.schema, Person.schema]);
+        var realm = Realm(config);
+
+        final x = Person('x');
+        final y = Person('y');
+        final t1 = Team("A1");
+        final t2 = Team("A2");
+        final t3 = Team("B1");
+
+        realm.write(() => realm
+          ..add(t1)
+          ..add(t2)
+          ..add(t3));
+
+        // TODO: Ugly that we need to add players in separate transaction :-/
+        realm.write(() {
+          t1.players.addAll([x]); // match!
+          t2.players.addAll([y]); // correct prefix, but wrong play
+          t3.players.addAll([x, y]); // wrong prefix, but correct player
+        });
+
+        // TODO: Still no equality :-/
+        expect(t1.players.map((p) => p.name), [x.name]);
+        expect(t2.players.map((p) => p.name), [y.name]);
+        expect(t3.players.map((p) => p.name), [x, y].map((p) => p.name));
+        final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']);
+        expect(filteredTeams.length, 1);
+        expect(filteredTeams[0].name, "A1");
+      });
+
+      test('Sort result', () {
+        var config = Configuration([Person.schema]);
+        var realm = Realm(config);
+
+        realm.write(() => realm.addAll([
+              Person("Michael"),
+              Person("Sebastian"),
+              Person("Kimi"),
+            ]));
+
+        final result = realm.query<Person>('TRUEPREDICATE SORT(name ASC)');
+        final resultNames = result.map((p) => p.name).toList();
+        final sortedNames = [...resultNames]..sort();
+        expect(resultNames, sortedNames);
+      });
+
+      test('Sort order preserved under db ops', () {
+        var config = Configuration([Dog.schema, Person.schema]);
+        var realm = Realm(config);
+
+        final dog1 = Dog("Bella", age: 1);
+        final dog2 = Dog("Fido", age: 2);
+        final dog3 = Dog("Oliver", age: 3);
+
+        realm.write(() => realm.addAll([dog1, dog2, dog3]));
+        var result = realm.query<Dog>('TRUEPREDICATE SORT(name ASC)');
+        final snapshot = result.toList(); // poor mans snapshot
+
+        expect(result, orderedEquals(snapshot));
+        expect(result.map((d) => d.name), snapshot.map((d) => d.name));
+        result = realm.query<Dog>('TRUEPREDICATE SORT(name ASC)'); // redoing query won't change that
+        expect(result, orderedEquals(snapshot));
+        expect(result.map((d) => d.name), snapshot.map((d) => d.name));
+
+        realm.write(() => realm.delete(dog1)); // result will update, snapshot will not, but an object has died
+
+        expect(() => snapshot[0].name, throws<RealmException>());
+        snapshot.removeAt(0); // remove dead object
+
+        expect(result, orderedEquals(snapshot));
+        expect(result.map((d) => d.name), snapshot.map((d) => d.name));
+
+        realm.write(() => realm.add(Dog("Bella", age: 4)));
+
+        expect(result, isNot(orderedEquals(snapshot)));
+        expect(result, containsAllInOrder(snapshot));
+      });
     });
-
-    test('Sort result', () {
-      var config = Configuration([Person.schema]);
-      var realm = Realm(config);
-
-      realm.write(() => realm.addAll([
-            Person("Michael"),
-            Person("Sebastian"),
-            Person("Kimi"),
-          ]));
-
-      final result = realm.query<Person>('TRUEPREDICATE SORT(name ASC)');
-      final resultNames = result.map((p) => p.name).toList();
-      final sortedNames = [...resultNames]..sort();
-      expect(resultNames, sortedNames);
-    });
-
-    test('Sort order preserved under db ops', () {
-      var config = Configuration([Dog.schema, Person.schema]);
-      var realm = Realm(config);
-
-      final dog1 = Dog("Bella", age: 1);
-      final dog2 = Dog("Fido", age: 2);
-      final dog3 = Dog("Oliver", age: 3);
-
-      realm.write(() => realm.addAll([dog1, dog2, dog3]));
-      var result = realm.query<Dog>('TRUEPREDICATE SORT(name ASC)');
-      final snapshot = result.toList(); // poor mans snapshot
-
-      expect(result, orderedEquals(snapshot));
-      expect(result.map((d) => d.name), snapshot.map((d) => d.name));
-      result = realm.query<Dog>('TRUEPREDICATE SORT(name ASC)'); // redoing query won't change that
-      expect(result, orderedEquals(snapshot));
-      expect(result.map((d) => d.name), snapshot.map((d) => d.name));
-
-      realm.write(() => realm.delete(dog1)); // result will update, snapshot will not, but an object has died
-
-      expect(() => snapshot[0].name, throws<RealmException>());
-      snapshot.removeAt(0); // remove dead object
-
-      expect(result, orderedEquals(snapshot));
-      expect(result.map((d) => d.name), snapshot.map((d) => d.name));
-
-      realm.write(() => realm.add(Dog("Bella", age: 4)));
-
-      expect(result, isNot(orderedEquals(snapshot)));
-      expect(result, containsAllInOrder(snapshot)); 
-    });
-
     test('Lists create object with a list property', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
