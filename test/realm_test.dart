@@ -671,7 +671,21 @@ Future<void> main([List<String>? args]) async {
         realm.write(() => realm.add(Car("Audi")));
         expect(() => realm.all<Car>().query(r'make == $0'), throws<RealmException>("no arguments are provided"));
       });
-      
+
+      test('Query results with wrong argument types (int for string) throws', () {
+        var config = Configuration([Car.schema]);
+        var realm = Realm(config);
+        realm.write(() => realm.add(Car("Audi")));
+        expect(() => realm.all<Car>().query(r'make == $0', [1]), throws<RealmException>("Unsupported comparison between type"));
+      });
+
+      test('Query results with wrong argument types (bool for int) throws ', () {
+        var config = Configuration([Dog.schema, Person.schema]);
+        var realm = Realm(config);
+        realm.write(() => realm.add(Dog("Foxi")));
+        expect(() => realm.all<Dog>().query(r'age == $0', [true]), throws<RealmException>("Unsupported comparison between type"));
+      });
+
       test('Sort result', () {
         var config = Configuration([Person.schema]);
         var realm = Realm(config);
