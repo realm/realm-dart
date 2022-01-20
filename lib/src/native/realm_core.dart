@@ -33,6 +33,8 @@ import '../results.dart';
 import 'callback_bridge.dart';
 import 'realm_bindings.dart';
 
+part 'controller_builder.dart';
+
 late RealmLibrary _realmLib;
 
 final _RealmCore realmCore = _RealmCore();
@@ -396,32 +398,14 @@ class _RealmCore {
       controller.add(changes);
     }
 
-    Pointer<realm_notification_token>? token;
-    void start() {
-      token ??= _realmLib.realm_results_add_notification_callback(
-        results.handle._pointer,
-        CallbackBridge.create(callback),
-        CallbackBridge.free,
-        CallbackBridge.callback.cast(),
-        CallbackBridge.error, // core 6+ will never call this
-        scheduler._pointer,
-      );
-    }
-
-    void stop() {
-      final t = token;
-      if (t != null) {
-        _realmLib.realm_release(t.cast());
-        token = null;
-      }
-    }
-
-    controller = StreamController<RealmCollectionChanges>(
-      onListen: start,
-      onPause: stop,
-      onResume: start,
-      onCancel: stop,
-    );
+    controller = _constructRealmNotificationStreamController(() => _realmLib.realm_results_add_notification_callback(
+          results.handle._pointer,
+          CallbackBridge.create(callback),
+          CallbackBridge.free,
+          CallbackBridge.callback.cast(),
+          CallbackBridge.error, // core 6+ will never call this
+          scheduler._pointer,
+        ));
 
     return controller.stream;
   }
@@ -434,32 +418,14 @@ class _RealmCore {
       controller.add(true);
     }
 
-    Pointer<realm_notification_token>? token;
-    void start() {
-      token ??= _realmLib.realm_object_add_notification_callback(
-        object.handle._pointer,
-        CallbackBridge.create(callback),
-        CallbackBridge.free,
-        CallbackBridge.callback.cast(),
-        CallbackBridge.error, // core 6+ will never call this
-        scheduler._pointer,
-      );
-    }
-
-    void stop() {
-      final t = token;
-      if (t != null) {
-        _realmLib.realm_release(t.cast());
-        token = null;
-      }
-    }
-
-    controller = StreamController<bool>(
-      onListen: start,
-      onPause: stop,
-      onResume: start,
-      onCancel: stop,
-    );
+    controller = _constructRealmNotificationStreamController(() => _realmLib.realm_object_add_notification_callback(
+          object.handle._pointer,
+          CallbackBridge.create(callback),
+          CallbackBridge.free,
+          CallbackBridge.callback.cast(),
+          CallbackBridge.error, // core 6+ will never call this
+          scheduler._pointer,
+        ));
 
     return controller.stream;
   }
@@ -475,32 +441,14 @@ class _RealmCore {
       controller.add(changes);
     }
 
-    Pointer<realm_notification_token>? token;
-    void start() {
-      token ??= _realmLib.realm_list_add_notification_callback(
-        list.handle._pointer,
-        CallbackBridge.create(callback),
-        CallbackBridge.free,
-        CallbackBridge.callback.cast(),
-        CallbackBridge.error, // core 6+ will never call this
-        scheduler._pointer,
-      );
-    }
-
-    void stop() {
-      final t = token;
-      if (t != null) {
-        _realmLib.realm_release(t.cast());
-        token = null;
-      }
-    }
-
-    controller = StreamController<RealmCollectionChanges>(
-      onListen: start,
-      onPause: stop,
-      onResume: start,
-      onCancel: stop,
-    );
+    controller = _constructRealmNotificationStreamController(() => _realmLib.realm_list_add_notification_callback(
+          list.handle._pointer,
+          CallbackBridge.create(callback),
+          CallbackBridge.free,
+          CallbackBridge.callback.cast(),
+          CallbackBridge.error, // core 6+ will never call this
+          scheduler._pointer,
+        ));
 
     return controller.stream;
   }
