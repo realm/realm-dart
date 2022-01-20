@@ -665,6 +665,13 @@ Future<void> main([List<String>? args]) async {
         expect(filteredTeams[0].name, "A1");
       });
 
+      test('Query results with no arguments throws', () {
+        var config = Configuration([Car.schema]);
+        var realm = Realm(config);
+        realm.write(() => realm.add(Car("Audi")));
+        expect(() => realm.all<Car>().query(r'make == $0'), throws<RealmException>("no arguments are provided"));
+      });
+      
       test('Sort result', () {
         var config = Configuration([Person.schema]);
         var realm = Realm(config);
