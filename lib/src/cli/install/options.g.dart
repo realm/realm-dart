@@ -28,10 +28,9 @@ Options _$parseOptionsResult(ArgResults result) => Options(
         _$TargetOsTypeEnumMapBuildCli,
         result['target-os-type'] as String?,
       ),
-      targetOsVersion: result['target-os-version'] as String?,
-      flutterRoot: result['flutter-root'] as String?,
-      pubspecPath: result['pubspec-path'] as String?,
-    )..verbose = result['verbose'] as bool;
+      packageName: result['package-name'] as String?,
+      debug: result['debug'] as bool?,
+    );
 
 const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
   TargetOsType.android: 'android',
@@ -44,21 +43,17 @@ const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addOption(
     'target-os-type',
+    help: 'This option is required',
     allowed: ['android', 'ios', 'linux', 'macos', 'windows'],
   )
   ..addOption(
-    'target-os-version',
-  )
-  ..addOption(
-    'flutter-root',
-  )
-  ..addOption(
-    'pubspec-path',
+    'package-name',
+    defaultsTo: 'realm_dart',
   )
   ..addFlag(
-    'verbose',
-    abbr: 'v',
-    help: 'Show additional command output.',
+    'debug',
+    defaultsTo: false,
+    hide: true,
   );
 
 final _$parserForOptions = _$populateOptionsParser(ArgParser());

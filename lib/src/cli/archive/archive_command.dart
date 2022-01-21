@@ -16,30 +16,46 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:path/path.dart' as path;
 
-import 'generate/generate_command.dart';
-import 'install/install_command.dart';
-import 'metrics/metrics_command.dart';
-import 'archive/archive_command.dart';
+import 'options.dart';
+import '../common/archive.dart';
 
-void main(List<String> arguments) {
-  CommandRunner<void>(
-    path.basenameWithoutExtension(Platform.script.path),
-    'Tool to help working with the Realm Flutter & Dart SDK',
-  )
-    ..addCommand(MetricsCommand())
-    ..addCommand(GenerateCommand())
-    ..addCommand(InstallCommand())
-    ..addCommand(ArchiveCommand())
-    ..run(arguments).catchError((Object error) {
-      if (error is UsageException) {
-        print(error);
-        exit(64); // Exit code 64 indicates a usage error.
-      }
-      throw error;
-    });
+class ArchiveCommand extends Command<void> {
+  @override
+  final String description = 'Archive Realm binaries';
+
+  @override
+  final String name = 'archive';
+
+  late Options options;
+
+  ArchiveCommand() {
+    populateOptionsParser(argParser);
+  }
+
+  @override
+  FutureOr<void>? run() async {
+    options = parseOptionsResult(argResults!);
+    if (options.sourceDir == null) {
+      abort("source-dir option not specified");
+    }
+
+    if (options.destinationFile == null) {
+      abort("destination-file option not specified");
+    }
+
+    final archive = Archive();
+    archive.archive(Directory(options.sourceDir!), File(options.destinationFile!));
+  }
+
+  void abort(String error) {
+      print(error);
+      print(usage);
+      exit(64); //usage error
+  }
 }

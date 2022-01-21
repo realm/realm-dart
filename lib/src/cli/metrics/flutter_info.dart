@@ -19,7 +19,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:pub_semver/pub_semver.dart';
 
-import 'utils.dart';
+import '../common/utils.dart';
 
 part 'flutter_info.g.dart';
 

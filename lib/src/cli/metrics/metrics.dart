@@ -22,7 +22,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import 'target_os_type.dart';
+import '../common/target_os_type.dart';
 
 part 'metrics.g.dart';
 
@@ -66,8 +66,7 @@ class DigestConverter extends JsonConverter<Digest?, String?> {
   Digest? fromJson(String? json) => json != null ? _digestFromJson(json) : null;
 
   @override
-  String? toJson(Digest? object) =>
-      object != null ? _digestToJson(object) : null;
+  String? toJson(Digest? object) => object != null ? _digestToJson(object) : null;
 }
 
 @JsonSerializable()
@@ -77,8 +76,7 @@ class Metrics {
 
   Metrics({required this.event, required this.properties});
 
-  factory Metrics.fromJson(Map<String, dynamic> json) =>
-      _$MetricsFromJson(json);
+  factory Metrics.fromJson(Map<String, dynamic> json) => _$MetricsFromJson(json);
   Map<String, dynamic> toJson() => _$MetricsToJson(this);
 }
 
@@ -147,7 +145,6 @@ class Properties {
     this.targetOsVersion,
   });
 
-  factory Properties.fromJson(Map<String, dynamic> json) =>
-      _$PropertiesFromJson(json);
+  factory Properties.fromJson(Map<String, dynamic> json) => _$PropertiesFromJson(json);
   Map<String, dynamic> toJson() => _$PropertiesToJson(this);
 }

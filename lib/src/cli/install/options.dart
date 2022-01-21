@@ -17,23 +17,26 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'package:build_cli_annotations/build_cli_annotations.dart';
-import 'package:path/path.dart' as path;
 import '../common/target_os_type.dart';
 
 part 'options.g.dart';
 
 @CliOptions()
 class Options {
+
+  @CliOption(help:  "This option is required")
   final TargetOsType? targetOsType;
-  final String? targetOsVersion;
-  final String? flutterRoot;
-  final String pubspecPath;
 
-  @CliOption(abbr: 'v', help: 'Show additional command output.')
-  bool verbose = false;
+  // packageName defaults to `realm_dart` since "realm" is always set by the build scripts.
+  // The `Install` command when used by end users will not require the package name argument
+  @CliOption(defaultsTo: 'realm_dart')
+  final String? packageName;
 
-  Options({this.targetOsType, this.targetOsVersion, this.flutterRoot, String? pubspecPath})
-      : pubspecPath = path.join(path.current, pubspecPath ?? 'pubspec.yaml');
+  @CliOption(hide: true, defaultsTo: false)
+  //use to debug install command
+  bool? debug;
+  
+  Options({this.targetOsType, this.packageName, this.debug});
 }
 
 String get usage => _$parserForOptions.usage;

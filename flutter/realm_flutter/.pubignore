@@ -1,0 +1,20 @@
+# ingore build dirs
+.dart_tool/
+.idea/
+
+# ignore realm files
+**/*.realm
+**/*.realm.lock
+
+# Dart packages and Flutter plugins should not commit these files
+.packages
+
+# Ignore doc build output directory
+/doc/
+
+# Ignore binary directory. This gets created by Install task on build of projects
+binary/
+
+# Ignore android binaries directories. This gets created by Install task on build of projects
+android/src/main/cpp/lib/*.*
+

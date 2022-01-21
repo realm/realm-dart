@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Debug install command",
+            "type": "dart",
+            "request": "launch",
+            "program": "bin/realm.dart",
+            "cwd": "${workspaceFolder}/flutter/realm_flutter",
+            "args": ["install", "--debug", "--target-os-type", "android", "--package-name", "realm"]
+        },
+        {
             "name": "Flutter: Attach to Device",
             "type": "dart",
             "request": "attach"

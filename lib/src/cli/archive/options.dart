@@ -17,23 +17,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'package:build_cli_annotations/build_cli_annotations.dart';
-import 'package:path/path.dart' as path;
-import '../common/target_os_type.dart';
 
 part 'options.g.dart';
 
 @CliOptions()
 class Options {
-  final TargetOsType? targetOsType;
-  final String? targetOsVersion;
-  final String? flutterRoot;
-  final String pubspecPath;
+  @CliOption(help:  "This option is required")
+  final String? sourceDir;
+  @CliOption(help:  "This option is required")
+  final String? destinationFile;
 
-  @CliOption(abbr: 'v', help: 'Show additional command output.')
-  bool verbose = false;
-
-  Options({this.targetOsType, this.targetOsVersion, this.flutterRoot, String? pubspecPath})
-      : pubspecPath = path.join(path.current, pubspecPath ?? 'pubspec.yaml');
+  Options({this.sourceDir, this.destinationFile});
 }
 
 String get usage => _$parserForOptions.usage;
