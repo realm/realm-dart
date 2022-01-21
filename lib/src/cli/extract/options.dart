@@ -23,11 +23,11 @@ part 'options.g.dart';
 @CliOptions()
 class Options {
   @CliOption(help:  "This option is required")
-  final String? sourceDir;
+  final String? outputDir;
   @CliOption(help:  "This option is required")
-  final String? outputFile;
+  final String? sourceFile;
 
-  Options({this.sourceDir, this.outputFile});
+  Options({this.sourceFile, this.outputDir});
 }
 
 String get usage => _$parserForOptions.usage;

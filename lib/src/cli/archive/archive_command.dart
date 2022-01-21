@@ -45,12 +45,12 @@ class ArchiveCommand extends Command<void> {
       abort("source-dir option not specified");
     }
 
-    if (options.destinationFile == null) {
-      abort("destination-file option not specified");
+    if (options.outputFile == null) {
+      abort("output-file option not specified");
     }
 
     final archive = Archive();
-    archive.archive(Directory(options.sourceDir!), File(options.destinationFile!));
+    archive.archive(Directory(options.sourceDir!), File(options.outputFile!));
   }
 
   void abort(String error) {

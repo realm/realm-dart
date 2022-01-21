@@ -7,17 +7,17 @@ part of 'options.dart';
 // **************************************************************************
 
 Options _$parseOptionsResult(ArgResults result) => Options(
-      sourceDir: result['source-dir'] as String?,
-      outputFile: result['output-file'] as String?,
+      sourceFile: result['source-file'] as String?,
+      outputDir: result['output-dir'] as String?,
     );
 
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addOption(
-    'source-dir',
+    'output-dir',
     help: 'This option is required',
   )
   ..addOption(
-    'output-file',
+    'source-file',
     help: 'This option is required',
   );
 

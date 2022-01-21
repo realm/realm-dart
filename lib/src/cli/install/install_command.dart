@@ -44,7 +44,7 @@ class InstallCommand extends Command<void> {
 
   bool get isFlutter => options.packageName == "realm";
   bool get isTargetAndroid => options.targetOsType == TargetOsType.android;
-  bool get isTargetiOS => options.packageName == TargetOsType.ios;
+  bool get isTargetiOS => options.targetOsType == TargetOsType.ios;
   bool get debug => options.debug ?? false;
 
   InstallCommand() {
@@ -64,8 +64,6 @@ class InstallCommand extends Command<void> {
 
     const realmPackages = <String>{"realm", "realm_dart", "realm_common", "realm_generator"};
     isPathDependency(MapEntry<String, Dependency> entry) => (realmPackages.contains(entry.key) && entry.value is PathDependency);
-
-    projectPubspec.dependencies.entries.forEach((element) {print("${element.key}:${element.value}");});
 
     bool hasPathDependency = projectPubspec.dependencies.entries.any(isPathDependency);
     hasPathDependency = hasPathDependency || projectPubspec.dependencyOverrides.entries.any(isPathDependency);
@@ -96,18 +94,63 @@ class InstallCommand extends Command<void> {
 
     print("Downloading Realm Android binaries for $packageName@${realmPubspec.version} to ${destinationFile.absolute.path}");
     final client = HttpClient();
+    final url = 'https://github.com/realm/realm-dart/releases/download/${realmPubspec.version}/android.tar.gz';
+    // debug url
+    // final url = 'http://localhost:8000/android.tar.gz';
     try {
-      // debug url
-      // final url = 'http://localhost:8000/android.tar.gz';
-      const url = 'https://github.com/realm/realm-dart/releases/download/${realmPubspec.version}/android.tar.gz';
       final request = await HttpClient().getUrl(Uri.parse(url));
       final response = await request.close();
+      if (response.statusCode >= 400) {
+        throw Exception("Error downloading Realm binaries from $url. Error code: ${response.statusCode}");
+      }
       await response.pipe(destinationFile.openWrite());
-    } finally {
+    }
+    //TODO: This does not handle download errors.
+     finally {
       client.close(force: true);
     }
 
+    if (await destinationFile.length() == 0) {
+      throw Exception("Error downloading file $url");
+    }
+
     print("Extracting Realm Android binaries to ${destinationDir.absolute.path}");
+    final archive = Archive();
+    await archive.extract(destinationFile, destinationDir);
+
+    saveVersionFile(destinationDir, realmPubspec);
+  }
+
+  Future<void> downloadAndExtractiOSBinaries(String realmPackagePath, Pubspec realmPubspec) async {
+    var destinationDir = Directory(path.join(path.dirname(realmPackagePath), "ios"));
+    if (await skipDownload(destinationDir.absolute.path, realmPubspec.version.toString())) {
+      return;
+    }
+
+    final destinationFile = File(path.join(destinationDir.absolute.path, "ios.tar.gz"));
+    if (!await destinationDir.exists()) {
+      await destinationDir.create(recursive: true);
+    }
+
+    print("Downloading Realm iOS binaries for $packageName@${realmPubspec.version} to ${destinationFile.absolute.path}");
+    final client = HttpClient();
+    try {
+      // debug url
+      // final url = 'http://localhost:8000/ios.tar.gz';
+      final url = 'https://github.com/realm/realm-dart/releases/download/${realmPubspec.version}/android.tar.gz';
+      final request = await HttpClient().getUrl(Uri.parse(url));
+      final response = await request.close();
+      if (response.statusCode >= 400) {
+        throw Exception("Error downloading Realm binaries from $url. Error code: ${response.statusCode}");
+      }
+      await response.pipe(destinationFile.openWrite());
+    }
+    //TODO: This does not handle download errors.
+     finally {
+      client.close(force: true);
+    }
+
+    print("Extracting Realm iOS binaries to ${destinationDir.absolute.path}");
     final archive = Archive();
     await archive.extract(destinationFile, destinationDir);
 
@@ -158,7 +201,8 @@ class InstallCommand extends Command<void> {
     validateOptions();
 
     if (await skipInstall()) {
-      print("Realm install command started from within the realm-dart repo or one of the realm packages is a path dependency or has a path dependency override. Skipping install.");
+      print(
+          "Realm install command started from within the realm-dart repo or one of the realm packages is a path dependency or has a path dependency override. Skipping install.");
       return;
     }
 
@@ -167,6 +211,8 @@ class InstallCommand extends Command<void> {
 
     if (isTargetAndroid) {
       return await downloadAndExtractAndroidBinaries(realmPackagePath, realmPubspec);
+    } else if (isTargetiOS) {
+      return await downloadAndExtractiOSBinaries(realmPackagePath, realmPubspec);
     }
 
     print("Unsupported target ${options.targetOsType}");
@@ -240,14 +286,14 @@ class InstallCommand extends Command<void> {
       abort("target-os-type option not specified");
     }
 
-    if ((options.targetOsType == TargetOsType.ios || options.targetOsType == TargetOsType.android)  && packageName != "realm") {
+    if ((options.targetOsType == TargetOsType.ios || options.targetOsType == TargetOsType.android) && packageName != "realm") {
       throw Exception("Invalid package name ${packageName} for target OS ${TargetOsType.values.elementAt(options.targetOsType!.index).name}");
     }
   }
 
   void abort(String error) {
-      print(error);
-      print(usage);
-      exit(64); //usage error
+    print(error);
+    print(usage);
+    exit(64); //usage error
   }
 }

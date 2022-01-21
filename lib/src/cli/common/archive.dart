@@ -22,19 +22,19 @@ import 'package:path/path.dart' as path;
 
 class Archive {
 // Create an archive of files
-  Future<void> archive(Directory sourceDir, File destination) async {
+  Future<void> archive(Directory sourceDir, File outputFile) async {
     if (!await sourceDir.exists()) {
       throw Exception("Source directory $sourceDir does not exists");
     }
 
-    await findEntries(sourceDir).transform(tarWriter).transform(gzip.encoder).pipe(destination.openWrite());
-    print("\nArchive ${destination.absolute.path} created");
+    await findEntries(sourceDir).transform(tarWriter).transform(gzip.encoder).pipe(outputFile.openWrite());
+    print("\nArchive ${outputFile.absolute.path} created");
   }
 
   // Extracts files from an archive
-  Future<void> extract(File archive, Directory destination) async {
-    if (!await destination.exists()) {
-      await destination.create(recursive: true);
+  Future<void> extract(File archive, Directory outputDir) async {
+    if (!await outputDir.exists()) {
+      await outputDir.create(recursive: true);
     }
 
     final reader = TarReader(archive.openRead().transform(gzip.decoder));
@@ -42,45 +42,43 @@ class Archive {
       final entry = reader.current;
       final header = entry.header;
 
-      var outputPath = path.join(destination.absolute.path, entry.name);
-      if (!path.isWithin(destination.absolute.path, outputPath)) {
+      var outputPath = path.join(outputDir.absolute.path, entry.name);
+      if (!path.isWithin(outputDir.absolute.path, outputPath)) {
         throw Exception("${entry.name} is outside of the archive");
       }
 
       if (header.typeFlag == TypeFlag.reg) {
         final outputFile = File(outputPath);
+        print("extracting ${header.name}");
         await outputFile.create(recursive: true);
         await entry.contents.pipe(outputFile.openWrite());
       }
-      else if (header.typeFlag == TypeFlag.dir) {
-        final outDir = Directory(outputPath);
-        if (await outDir.exists()) {
-          await outDir.delete(recursive: true);
-          await outDir.create(recursive: true);
-        }
-      }
     }
+
+    print("\nArchive ${archive.absolute.path} extracted to ${outputDir.absolute.path}");
   }
 
   Stream<TarEntry> findEntries(Directory root) async* {
     await for (final entry in root.list(recursive: true)) {
-      final name = path.relative(entry.path, from: root.path);
+      var name = path.relative(entry.path, from: root.path);
+      if (entry is Directory) {
+        continue;
+      }
+
       final stat = await entry.stat();
-      print("archiving ${name}");
+      print("archiving $name");
       yield TarEntry(
-        TarHeader(
-          name: name,
-          typeFlag: entry is File ? TypeFlag.reg : TypeFlag.dir,
-          mode: stat.mode,
-          modified: stat.modified,
-          accessed: stat.accessed,
-          changed: stat.changed,
-          size: stat.size
-        ),
-        // Use entry.openRead() to obtain an input stream for the file that the
-        // writer will use later.
-        entry is File ? entry.openRead() : Stream.empty()
-      );
+          TarHeader(
+              name: name,
+              typeFlag: entry is File ? TypeFlag.reg : TypeFlag.dir,
+              mode: stat.mode,
+              modified: stat.modified,
+              accessed: stat.accessed,
+              changed: stat.changed,
+              size: stat.size),
+          // Use entry.openRead() to obtain an input stream for the file that the
+          // writer will use later.
+          entry is File ? entry.openRead() : Stream.empty());
     }
   }
 }
