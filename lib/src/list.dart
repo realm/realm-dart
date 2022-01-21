@@ -31,7 +31,7 @@ extension RealmListExtension<T extends Object> on List<T> {
     if (self is RealmList<T>) {
       return self.isValid;
     }
-    return false;
+    return true;
   } 
 }
 
