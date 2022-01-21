@@ -31,7 +31,7 @@ export 'results.dart' hide RealmResultsInternal;
 export 'realm_object.dart'
     hide RealmObjectInternal, RealmAccessor, RealmValuesAccessor, RealmMetadata, RealmCoreAccessor, RealmClassMetadata, RealmPropertyMetadata;
 export "configuration.dart" hide ConfigurationInternal;
-export 'package:realm_common/realm_common.dart' show RealmModel, PrimaryKey, Ignored, MapTo, Indexed, RealmPropertyType, RealmCollectionType;
+export 'package:realm_common/realm_common.dart' hide Decimal128, RealmAny, Uuid;
 export 'realm_property.dart';
 export 'helpers.dart';
 

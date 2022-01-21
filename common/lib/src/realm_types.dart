@@ -52,14 +52,23 @@ enum RealmCollectionType {
   dictionary,
 }
 
+class RealmError extends Error {}
+
+class RealmUnsupportedError extends UnsupportedError implements RealmError {
+  RealmUnsupportedError(String message) : super(message);
+}
+
+class RealmUnsupportedSetError extends RealmUnsupportedError {
+  RealmUnsupportedSetError() : super('Cannot set late final field on realm object');
+}
+
 class Uuid {} // TODO!
 
 class ObjectId {} // TODO!
 
 class Decimal128 {} // TODO!
 
-class RealmObjectMarker {
-} // TODO! Hmm... this ties into the project split issue :-/
+class RealmObjectMarker {}
 
 // Union type
 class RealmAny {
@@ -83,55 +92,3 @@ class RealmAny {
   const RealmAny.decimal128(Decimal128 decimal) : this._(decimal);
   const RealmAny.uuid(Uuid uuid) : this._(uuid);
 }
-
-// TODO!
-/*
-class RealmInteger {
-  void increment(int value) {} // TODO!
-  void decrement(int value) => increment(-value);
-  void reset() {} // TODO!
-}
-
-
-// TODO!
-class RealmSet<E> extends SetBase<E> {
-  @override
-  bool add(E value) => throw UnimplementedError();
-
-  @override
-  bool contains(Object? element) => throw UnimplementedError();
-
-  @override
-  Iterator<E> get iterator => throw UnimplementedError();
-
-  @override
-  int get length => throw UnimplementedError();
-
-  @override
-  E? lookup(Object? element) => throw UnimplementedError();
-
-  @override
-  bool remove(Object? value) => throw UnimplementedError();
-
-  @override
-  Set<E> toSet() => throw UnimplementedError();
-}
-
-// TODO!
-class RealmMap<E> extends MapBase<String, E> {
-  @override
-  E? operator [](Object? key) => throw UnimplementedError();
-
-  @override
-  void operator []=(String key, E value) {}
-
-  @override
-  void clear() {}
-
-  @override
-  Iterable<String> get keys => throw UnimplementedError();
-
-  @override
-  E? remove(Object? key) => throw UnimplementedError();
-}
-*/
