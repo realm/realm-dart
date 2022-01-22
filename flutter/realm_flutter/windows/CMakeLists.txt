@@ -37,6 +37,10 @@ execute_process(COMMAND "${FLUTTER_ROOT}\\bin\\dart.bat" "run" "realm" "install"
   RESULT_VARIABLE result
   COMMAND_ERROR_IS_FATAL ANY
 )
-message("cmd output: ${output}")
-message("cmd result: ${result}")
-#  && chddir && ${FLUTTER_ROOT}\\bin\\dart.bat run realm install --target-os-type windows --package-name realm)
+message(STATUS "cmd output: ${output}")
+message(STATUS "cmd result: ${result}")
+
+# if (NOT result EQUAL 0)
+#   message(NOTICE "cmd output: ${output}")
+#   message(NOTICE "cmd result: ${result}")
+# endif()

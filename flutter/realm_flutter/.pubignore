@@ -16,11 +16,11 @@
 binary/
 
 # Ignore android binaries directories. This gets created by Install command on build of projects
-android/src/main/cpp/lib/*.*
+android/src/main/cpp/lib/**
 
 # Ignore ios binaries directory. This gets created by Install command on build of projects
 ios/realm_flutter_ios.xcframework
 
 # Ignore windows binaries directory. This gets created by Install command on build of projects
-windows/binary/*.*
+windows/binary/**
 
