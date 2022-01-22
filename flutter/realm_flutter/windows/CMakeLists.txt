@@ -26,7 +26,7 @@ set(realm_bundled_libraries
 
 # This works cause realm plugin is always accessed through the .plugin_symlinks directory.
 # For example the tests app refers to the realm plugin using this path .../realm-dart/flutter/realm_flutter/tests/windows/flutter/ephemeral/.plugin_symlinks/realm/windows
-set(EPHEMERAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../ephemeral")
+set(EPHEMERAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../ephemeral")
 include(${EPHEMERAL_DIR}/generated_config.cmake)
 
 # message ("FLUTTER_TOOL_ENVIRONMENT is ${FLUTTER_TOOL_ENVIRONMENT}")
