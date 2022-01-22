@@ -270,6 +270,27 @@ class InstallCommand extends Command<void> {
     await dowloadedBinaryFile.copy(binaryFile.absolute.path);
   }
 
+  Future<void> downloadAndExtractMacOSBinaries(String realmPackagePath, Pubspec realmPubspec) async {
+    final destinationDir = Directory(path.join(Directory.systemTemp.absolute.path, "realm-binary", "macos"));
+    final archiveName = "macos.tar.gz";
+    final destinationFile = File(path.join(destinationDir.absolute.path, archiveName));
+    if (!await skipDownload(destinationDir.absolute.path, realmPubspec.version.toString())) {
+      await download(destinationFile, realmPubspec, archiveName);
+    }
+
+    print("Extracting Realm binaries to ${destinationDir.absolute.path}");
+    final archive = Archive();
+    await archive.extract(destinationFile, destinationDir);
+    await saveVersionFile(destinationDir, realmPubspec);
+
+    final binaryName = "librealm_dart.dylib";
+    final binaryFile = File(path.join(Directory.current.absolute.path, binaryName));
+
+    final dowloadedBinaryFile = File(path.join(destinationDir.absolute.path, binaryName));
+    print("Copying realm binary ${dowloadedBinaryFile.absolute.path} to ${binaryFile.absolute.path}");
+    await dowloadedBinaryFile.copy(binaryFile.absolute.path);
+  }
+
   Future<void> download(File destinationFile, Pubspec realmPubspec, String archiveName) async {
     if (!await destinationFile.exists()) {
       await destinationFile.create(recursive: true);
@@ -363,6 +384,8 @@ class InstallCommand extends Command<void> {
       return await downloadAndExtractWindowsFlutterBinaries(realmPackagePath, realmPubspec);
     } else if (isTargetWindows && isDart) {
       return await downloadAndExtractWindowsBinaries(realmPackagePath, realmPubspec);
+    } else if (isTargetMacOS && isDart) {
+      return await downloadAndExtractMacOSBinaries(realmPackagePath, realmPubspec);
     }
 
     print("Unsupported target OS ${options.targetOsType} or package $packageName");
