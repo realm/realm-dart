@@ -3,6 +3,8 @@
 # Run `pod lib lint realm.podspec' to validate before publishing.
 #
 realmPackageDir = File.expand_path(__dir__)
+# This works cause realm plugin is always accessed through the .symlinks directory.
+# For example the tests app refers to the realm plugin using this path .../realm-dart/flutter/realm_flutter/tests/ios/.symlinks/plugins/realm/ios
 project_dir = File.expand_path("../../../../", realmPackageDir)
 
 # //TODO read the version from pubspec.yaml

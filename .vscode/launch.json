@@ -21,6 +21,14 @@
             "args": ["install", "--debug", "--target-os-type", "ios", "--package-name", "realm"]
         },
         {
+            "name": "Debug macos install command",
+            "type": "dart",
+            "request": "launch",
+            "program": "bin/realm.dart",
+            "cwd": "${workspaceFolder}/flutter/realm_flutter",
+            "args": ["install", "--debug", "--target-os-type", "macos", "--package-name", "realm"]
+        },
+        {
             "name": "Flutter: Attach to Device",
             "type": "dart",
             "request": "attach"
