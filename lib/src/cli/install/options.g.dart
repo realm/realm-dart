@@ -43,12 +43,16 @@ const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addOption(
     'target-os-type',
-    help: 'This option is required',
+    abbr: 't',
+    help: 'Required for Flutter. The target OS to install binaries for.',
     allowed: ['android', 'ios', 'linux', 'macos', 'windows'],
   )
   ..addOption(
     'package-name',
+    abbr: 'p',
+    help: 'Optional. The realm package name to install binaries for.',
     defaultsTo: 'realm_dart',
+    allowed: ['realm', 'realm_dart'],
   )
   ..addFlag(
     'debug',

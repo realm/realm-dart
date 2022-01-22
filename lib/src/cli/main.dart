@@ -28,10 +28,7 @@ import 'archive/archive_command.dart';
 import 'extract/extract_command.dart';
 
 void main(List<String> arguments) {
-  CommandRunner<void>(
-    path.basenameWithoutExtension(Platform.script.path),
-    'Tool to help working with the Realm Flutter & Dart SDK',
-  )
+  CommandRunner<void>("dart run realm|realm_dart", 'Realm commands for working with Realm Flutter & Dart SDKs.')
     ..addCommand(MetricsCommand())
     ..addCommand(GenerateCommand())
     ..addCommand(InstallCommand())

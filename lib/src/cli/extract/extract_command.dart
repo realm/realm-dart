@@ -27,7 +27,7 @@ import '../common/archive.dart';
 
 class ExtractCommand extends Command<void> {
   @override
-  final String description = 'Extract Realm binaries';
+  final String description = 'Extract Realm binaries from an archive';
 
   @override
   final String name = 'extract';
