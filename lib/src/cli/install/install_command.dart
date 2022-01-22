@@ -46,6 +46,7 @@ class InstallCommand extends Command<void> {
   bool get isTargetAndroid => options.targetOsType == TargetOsType.android;
   bool get isTargetiOS => options.targetOsType == TargetOsType.ios;
   bool get isTargetMacOS => options.targetOsType == TargetOsType.macos;
+  bool get isTargetWindows => options.targetOsType == TargetOsType.windows;
   bool get debug => options.debug ?? false;
 
   InstallCommand() {
@@ -204,6 +205,42 @@ class InstallCommand extends Command<void> {
     await linkToBinaryFile.create("$binaryName");
   }
 
+  Future<void> downloadAndExtractWindowsFlutterBinaries(String realmPackagePath, Pubspec realmPubspec) async {
+    var destinationDir = Directory(path.join(path.dirname(realmPackagePath), "windows", "binary", "windows"));
+    if (await skipDownload(destinationDir.absolute.path, realmPubspec.version.toString())) {
+      return;
+    }
+
+    var archiveName = "windows.tar.gz";
+    final destinationFile = File(path.join(destinationDir.absolute.path, archiveName));
+    if (!await destinationDir.exists()) {
+      await destinationDir.create(recursive: true);
+    }
+
+    print("Downloading Realm binaries for $packageName@${realmPubspec.version} to ${destinationFile.absolute.path}");
+    final client = HttpClient();
+    try {
+      // debug url
+      // final url = 'http://localhost:8000/$archiveName';
+      final url = 'https://github.com/realm/realm-dart/releases/download/${realmPubspec.version}/$archiveName';
+      final request = await HttpClient().getUrl(Uri.parse(url));
+      final response = await request.close();
+      if (response.statusCode >= 400) {
+        throw Exception("Error downloading Realm binaries from $url. Error code: ${response.statusCode}");
+      }
+      await response.pipe(destinationFile.openWrite());
+    }
+    //TODO: This does not handle download errors.
+     finally {
+      client.close(force: true);
+    }
+
+    print("Extracting Realm binaries to ${destinationDir.absolute.path}");
+    final archive = Archive();
+    await archive.extract(destinationFile, destinationDir);
+    await saveVersionFile(destinationDir, realmPubspec);
+  }
+
   Future<void> saveVersionFile(Directory destinationDir, Pubspec realmPubspec) async {
     var versionFile = File(path.join(destinationDir.absolute.path, versionFileName));
     await versionFile.writeAsString("${realmPubspec.version}");
@@ -269,6 +306,8 @@ class InstallCommand extends Command<void> {
       return await downloadAndExtractiOSBinaries(realmPackagePath, realmPubspec);
     } else if (isTargetMacOS && isFlutter) {
       return await downloadAndExtractMacOSFlutterBinaries(realmPackagePath, realmPubspec);
+    } else if (isTargetWindows && isFlutter) {
+      return await downloadAndExtractWindowsFlutterBinaries(realmPackagePath, realmPubspec);
     }
 
     print("Unsupported target ${options.targetOsType}");
