@@ -1,3 +1,10 @@
+/// Realm Dart SDK and Realm Flutter SDK
+import 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart';
+
+export 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart';
+
+//dart.library.cli is available only on dart desktop
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Copyright 2021 Realm Inc.
@@ -15,8 +22,3 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-//dart.library.cli is available only on dart desktop
-import 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart';
-
-export 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart';

@@ -21,7 +21,271 @@ import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'realm_object.dart';
 
-/// A listener callback to be called when the [Results<T>] collection changes
+/// Instances of this class are typically live collections of [RealmObject]s returned by [Realm].
+/// The objects this [RealmResults] collection matches the underlying query.
+/// This collection will be updated when objects matching the underlying query
+/// are either added to or deleted from the [Realm].
+class RealmResults<E extends RealmObject> extends Iterable<E> {
+  late final RealmResultsHandle _handle;
+  late final Realm _realm;
+
+  RealmResults._(this._handle, this._realm);
+
+  /// Returns the Realm object of type `T` at the specified `index`
+  E operator [](int index) {
+    final handle = realmCore.getObjectAt(this, index);
+    return _realm.createObject(E, handle) as E;
+  }
+
+  /// Returns a new `Results<T>` filtered according to the provided query.
+  /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
+  /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
+  RealmResults<E> query(String query, [List<Object> args = const []]) {
+    final handle = realmCore.queryResults(this, query, args);
+    return RealmResultsInternal.create<E>(handle, _realm);
+  }
+
+  /// Returns `true` if the Results collection is empty
+  @override
+  bool get isEmpty => length == 0;
+
+  /// Iterates through all the [RealmObject]s in this [RealmResults]
+  @override
+  Iterator<E> get iterator => _RealmResultsIterator(this);
+
+  /// Returns the number of values in the Results collection.
+  @override
+  int get length => realmCore.getResultsCount(this);
+
+  ///@nodoc
+  @override
+  bool any(bool Function(E element) test) {
+    return super.any(test);
+  }
+
+  ///@nodoc
+  @override
+  Iterable<R> cast<R>() {
+    return super.cast<R>();
+  }
+
+  ///@nodoc
+  @override
+  bool contains(Object? element) {
+    return super.contains(element);
+  }
+
+  ///@nodoc
+  @override
+  E elementAt(int index) {
+    return super.elementAt(index);
+  }
+
+  ///@nodoc
+  @override
+  bool every(bool Function(E element) test) {
+    return super.every(test);
+  }
+
+  ///@nodoc
+  @override
+  Iterable<T> expand<T>(Iterable<T> Function(E element) toElements) {
+    return super.expand(toElements);
+  }
+
+  ///@nodoc
+  @override
+  E get first => super.first;
+
+  ///@nodoc
+  @override
+  E firstWhere(bool Function(E element) test, {E Function()? orElse}) {
+    return super.firstWhere(test, orElse: orElse);
+  }
+
+  ///@nodoc
+  @override
+  T fold<T>(T initialValue, T Function(T previousValue, E element) combine) {
+    return super.fold(initialValue, combine);
+  }
+
+  ///@nodoc
+  @override
+  Iterable<E> followedBy(Iterable<E> other) {
+    return super.followedBy(other);
+  }
+
+  ///@nodoc
+  @override
+  void forEach(void Function(E element) action) {
+    return super.forEach(action);
+  }
+
+  ///@nodoc
+  @override
+  bool get isNotEmpty => super.isNotEmpty;
+
+  ///@nodoc
+  @override
+  String join([String separator = ""]) {
+    return super.join(separator);
+  }
+
+  ///@nodoc
+  @override
+  E get last => super.last;
+
+  ///@nodoc
+  @override
+  E lastWhere(bool Function(E element) test, {E Function()? orElse}) {
+    return super.lastWhere(test, orElse: orElse);
+  }
+
+  ///@nodoc
+  @override
+  Iterable<T> map<T>(T Function(E e) toElement) {
+    return super.map(toElement);
+  }
+
+  ///@nodoc
+  @override
+  E reduce(E Function(E value, E element) combine) {
+    return super.reduce(combine);
+  }
+
+  ///@nodoc
+  @override
+  E get single => super.single;
+
+  ///@nodoc
+  @override
+  E singleWhere(bool Function(E element) test, {E Function()? orElse}) {
+    return super.singleWhere(test, orElse: orElse);
+  }
+
+  ///@nodoc
+  @override
+  Iterable<E> skip(int count) {
+    return super.skip(count);
+  }
+
+  ///@nodoc
+  @override
+  Iterable<E> skipWhile(bool Function(E value) test) {
+    return super.skipWhile(test);
+  }
+
+  ///@nodoc
+  @override
+  Iterable<E> take(int count) {
+    return super.take(count);
+  }
+
+  ///@nodoc
+  @override
+  Iterable<E> takeWhile(bool Function(E value) test) {
+    return super.takeWhile(test);
+  }
+
+  ///@nodoc
+  @override
+  List<E> toList({bool growable = true}) {
+    return super.toList(growable: growable);
+  }
+
+  ///@nodoc
+  @override
+  Set<E> toSet() {
+    return super.toSet();
+  }
+
+  ///@nodoc
+  @override
+  Iterable<E> where(bool Function(E element) test) {
+    return super.where(test);
+  }
+
+  ///@nodoc
+  @override
+  Iterable<T> whereType<T>() {
+    return super.whereType();
+  }
+
+  ///@nodoc
+  /// Returns a new `Results<T>` that represent a sorted view of this collection.
+  ///
+  /// A `Results<T>` collection of Realm Objects can be sorted on one or more properties of those objects,
+  /// or of properties of objects linked to by those objects.  Optionally the sort can be reversed using the `reverse` parameter
+  /// ```dart
+  /// var sortedCars = cars.sort("make");
+  /// var myCars = person.cars.sort("kilometers");
+  /// ```
+  // RealmResults<T> sort(String sort, {bool reverse = false}) {
+  //   return query('TRUEPREDICATE SORT($sort ${reverse ? 'DESC' : 'ASC'})');
+  // }
+
+  /// Returns an [Iterable<E>] collection for use with `for..in`
+  // List<T> asList() {
+  //   return _ResultsList(this);
+  // }
+
+  /// Returns the index of the given object in the Results collection.
+  // int indexOf(T value) {
+  //   return _results.indexOf(value);
+  // }
+
+  /// Returns `true` if this Results collection has not been deleted and is part of a valid Realm.
+  ///
+  /// Accessing an invalid Results collection will throw an [RealmException]
+  // bool get isValid => _results.isValid();
+
+  /// Returns a human-readable description of the objects contained in the collection.
+  // String get description => _results.description;
+
+  /// Adds a [ResultsListenerCallback] which will be called when a live collection instance changes.
+  // void addListener(ResultsListenerCallback callback) {
+  //   _results.addListener(callback);
+  // }
+
+  /// Removes a [ResultsListenerCallback] that was previously added with [addListener]
+  ///
+  /// The callback argument should be the same callback reference used in a previous call to [addListener]
+  /// ```dart
+  /// var callback = (collection, changes) { ... }
+  /// realm.addListener(callback);
+  /// realm.removeListener(callback);
+  /// ```
+  // void removeListener(ResultsListenerCallback callback) {
+  //   _results.removeListener(callback);
+  // }
+
+  /// Removes all [ResultsListenerCallback] that were previously added with [addListener]
+  // void removeAllListeners() {
+  //   _results.removeAllListeners();
+  // }
+
+  /// Returns a `Results<T>` which is a frozen snapshot of the collection.
+  ///
+  /// Values added to and removed from the original collection will not be
+  /// reflected in the new collection, including if the values
+  /// of properties are changed to make them match or not match any filters applied.
+  ///
+  /// This is not a deep snapshot. Realm objects contained in this snapshot will
+  /// continue to update as changes are made to them, and if they are deleted
+  /// from the Realm they will be replaced by null at the respective indices.
+  // Results<T> snapshot() {
+  //   var results = _results.snapshot();
+  //   return Results<T>(results);
+  // }
+
+  /// Not supported
+  // void set length(int newLength) {
+  //   throw new Exception("Setting length on Results<T> is not supported");
+  // }
+}
+
+/// @nodoc
+// A listener callback to be called when the [Results<T>] collection changes
 ///
 /// The [changes] parameter will contain a dictionary with keys `insertions`,
 /// `newModifications`, `oldModifications` and `deletions`, each containing a list of
@@ -32,7 +296,6 @@ import 'realm_object.dart';
 // typedef void ResultsListenerCallback(dynamic collection, dynamic changes);
 
 /*
-/// @nodoc
 class RealmResults {
   RealmResults();
 
@@ -88,115 +351,6 @@ class _ResultsList<T extends RealmObject> extends collection.ListBase<T> {
   }
 }
 */
-
-/// Instances of this class are typically live collections returned by [Realm.objects]
-/// that will update as new objects are either added to or deleted from the Realm
-/// that match the underlying query.
-class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
-  late final RealmResultsHandle _handle;
-  late final Realm _realm;
-  // RealmResults _results;
-
-  RealmResults._(this._handle, this._realm);
-
-  // Results._(this._results);
-
-  /// Returns the Realm object of type `T` at the specified `index`
-  T operator [](int index) {
-    final handle = realmCore.getObjectAt(this, index);
-    return _realm.createObject(T, handle) as T;
-  }
-
-  /// Returns a new `Results<T>` filtered according to the provided query
-  /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
-  /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
-  RealmResults<T> query(String query, [List<Object> args = const []]) {
-    final handle = realmCore.queryResults(this, query, args);
-    return RealmResultsInternal.create<T>(handle, _realm);
-  }
-
-  /// Returns a new `Results<T>` that represent a sorted view of this collection.
-  ///
-  /// A `Results<T>` collection of Realm Objects can be sorted on one or more properties of those objects,
-  /// or of properties of objects linked to by those objects.  Optionally the sort can be reversed using the `reverse` parameter
-  /// ```dart
-  /// var sortedCars = cars.sort("make");
-  /// var myCars = person.cars.sort("kilometers");
-  /// ```
-  // RealmResults<T> sort(String sort, {bool reverse = false}) {
-  //   return query('TRUEPREDICATE SORT($sort ${reverse ? 'DESC' : 'ASC'})');
-  // }
-
-  /// Returns an [Iterable<E>] collection for use with `for..in`
-  // List<T> asList() {
-  //   return _ResultsList(this);
-  // }
-
-  /// Returns the index of the given object in the Results collection.
-  // int indexOf(T value) {
-  //   return _results.indexOf(value);
-  // }
-
-  /// Returns `true` if the Results collection is empty
-  @override
-  bool get isEmpty => length == 0;
-
-  @override
-  Iterator<T> get iterator => _RealmResultsIterator(this);
-
-  /// Returns `true` if this Results collection has not been deleted and is part of a valid Realm.
-  ///
-  /// Accessing an invalid Results collection will throw an [RealmException]
-  // bool get isValid => _results.isValid();
-
-  /// Returns the number of values in the Results collection.
-  @override
-  int get length => realmCore.getResultsCount(this);
-
-  /// Returns a human-readable description of the objects contained in the collection.
-  // String get description => _results.description;
-
-  /// Adds a [ResultsListenerCallback] which will be called when a live collection instance changes.
-  // void addListener(ResultsListenerCallback callback) {
-  //   _results.addListener(callback);
-  // }
-
-  /// Removes a [ResultsListenerCallback] that was previously added with [addListener]
-  ///
-  /// The callback argument should be the same callback reference used in a previous call to [addListener]
-  /// ```dart
-  /// var callback = (collection, changes) { ... }
-  /// realm.addListener(callback);
-  /// realm.removeListener(callback);
-  /// ```
-  // void removeListener(ResultsListenerCallback callback) {
-  //   _results.removeListener(callback);
-  // }
-
-  /// Removes all [ResultsListenerCallback] that were previously added with [addListener]
-  // void removeAllListeners() {
-  //   _results.removeAllListeners();
-  // }
-
-  /// Returns a `Results<T>` which is a frozen snapshot of the collection.
-  ///
-  /// Values added to and removed from the original collection will not be
-  /// reflected in the new collection, including if the values
-  /// of properties are changed to make them match or not match any filters applied.
-  ///
-  /// This is not a deep snapshot. Realm objects contained in this snapshot will
-  /// continue to update as changes are made to them, and if they are deleted
-  /// from the Realm they will be replaced by null at the respective indices.
-  // Results<T> snapshot() {
-  //   var results = _results.snapshot();
-  //   return Results<T>(results);
-  // }
-
-  /// Not supported
-  // void set length(int newLength) {
-  //   throw new Exception("Setting length on Results<T> is not supported");
-  // }
-}
 
 //RealmResults package internal members
 extension RealmResultsInternal on RealmResults {
