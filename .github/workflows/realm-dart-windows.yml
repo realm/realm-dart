@@ -30,6 +30,8 @@ jobs:
         run: |
           echo %ARCHIVE_PATH%
           echo %ARCHIVE_SOURCE_PATH%
+          echo ${{ env.ARCHIVE_PATH }}
+          echo ${{ env.ARCHIVE_SOURCE_PATH }}
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -72,7 +74,7 @@ jobs:
           omitNameDuringUpdate: true
           prerelease: false
           omitPrereleaseDuringUpdate: true
-          artifacts: ${{ env.GITHUB_ENV }}
+          artifacts: ${{ env.ARCHIVE_PATH }}
           body: "ADD RELEASE NOTES"
           omitBodyDuringUpdate: true
           token: ${{ secrets.GITHUB_TOKEN }}
