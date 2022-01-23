@@ -2,7 +2,6 @@ name: Realm Dart for Linux
 
 on:
   push:
-    branches: [ master ]
     # Do not run if change is in these paths
     paths-ignore:
       - 'flutter/**'
@@ -23,6 +22,8 @@ jobs:
 
     steps:
       - name: Release artifacts
+        env:
+          EVENT_CONTEXT: ${{ toJSON(github.event) }}
         # if: ${{ github.event_name == 'push' && github.event.ref_type == 'tag' }}
         run: | 
           echo "Creating a release for tag ${{ github.ref }}" 
