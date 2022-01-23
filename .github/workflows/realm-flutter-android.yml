@@ -76,7 +76,7 @@ jobs:
           working-directory: ./flutter/realm_flutter/tests
 
       - name: Set Archive Path
-        sif: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
         run: |
           echo "ARCHIVE_PATH=$(pwd)/binary/android.tar.gz" >> $GITHUB_ENV
 
