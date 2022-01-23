@@ -49,6 +49,8 @@ jobs:
       - name: Archive binary
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
         run: |
+          echo ARCHIVE_PATH %ARCHIVE_PATH%
+          echo ARCHIVE_SOURCE_PATH %ARCHIVE_SOURCE_PATH%
           dart run realm_dart archive --source-dir %ARCHIVE_SOURCE_PATH% --output-file %ARCHIVE_PATH%
 
       - name: Release artifacts
