@@ -25,12 +25,20 @@ import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'realm_class.dart';
 
+/// Instances if this class are collections of [RealmObject]s
+/// that are reffered by another [RealmObject] stored in Realm.
+///
+/// [RealmList] is returned by the collection properties
+/// in a realm model class or [RealmObject].
+///
+///{@category Realm API}
 class RealmList<T extends Object> extends collection.ListBase<T> {
   late final RealmListHandle _handle;
   late final Realm _realm;
 
   RealmList._(this._handle, this._realm);
 
+  /// Returns the length of this collection from Realm.
   @override
   int get length => realmCore.getListSize(handle);
 
@@ -38,6 +46,7 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
   @override
   set length(int length) {}
 
+  /// Returns the [RealmObject] located at this index in the collection in Realm.
   @override
   T operator [](int index) {
     if (index < 0) {
@@ -62,6 +71,8 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
     RealmListInternal.setValue(handle, _realm, index, value);
   }
 
+  /// Clears the collection in memory and the references
+  /// to the objects in this collection in Realm.
   @override
   void clear() {
     realmCore.listClear(this);

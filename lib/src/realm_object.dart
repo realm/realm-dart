@@ -167,17 +167,20 @@ class RealmCoreAccessor implements RealmAccessor {
   }
 }
 
-/// A object in a realm.
+/// Represents realm model object that is persisted in the [Realm].
 ///
-/// RealmObjects are generated from Realm data model classes
-/// A data model class `_MyClass` will have a RealmObject with name `MyClass` generated
-/// which should be used insead of directly instantiating and working with RealmObject instances
+/// [RealmObject]s are generated from Realm data model classes marked with `@RealmModel` annotation.
+/// A data model class `_MyClass` will have a RealmObject generated with name `MyClass`.
+/// These generated classes should be used insead of directly instantiating and working with RealmObject instances.
+///
+/// {@category Realm API}
 class RealmObject {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
   Realm? _realm;
   static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{};
 
+  /// Returns this object from [Realm] store if exists.
   static Object? get<T extends Object>(RealmObject object, String name) {
     return object._accessor.get<T>(object, name);
   }
@@ -186,6 +189,7 @@ class RealmObject {
     object._accessor.set(object, name, value);
   }
 
+  /// Defines how this realm model object could be instantiated.
   static void registerFactory<T extends RealmObject>(T Function() factory) {
     if (_factories.containsKey(T)) {
       return;
@@ -194,6 +198,8 @@ class RealmObject {
     _factories[T] = factory;
   }
 
+  /// Creates an instance of [RealmObject]
+  /// using registered factory with `registerFactory`.
   static T create<T extends RealmObject>() {
     if (!_factories.containsKey(T)) {
       throw RealmException("Factory for Realm object type $T not found");
@@ -202,11 +208,14 @@ class RealmObject {
     return _factories[T]!() as T;
   }
 
+  /// Sets default values of this [RealmObject] instance.
   static bool setDefaults<T extends RealmObject>(Map<String, Object> values) {
     RealmAccessor.setDefaults<T>(values);
     return true;
   }
 
+  /// Retruns `true` if this [RealmObject] is equal to another [RealmObject]
+  /// only in case both objects exist in Realm and are equal in Realm.
   @override
   // ignore: hash_and_equals
   bool operator ==(Object other) {

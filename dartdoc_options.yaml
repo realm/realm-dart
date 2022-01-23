@@ -6,10 +6,10 @@ dartdoc:
     "Annotations":
       markdown: Annotations.md     
       name: Annotations
-    "Realm Dart API":
+    "Realm API":
       markdown: Realm_API.md     
-      name: Realm Dart API
-  categoryOrder: ["Realm Dart API", "Schema", "Annotations"]
+      name: Realm API
+  categoryOrder: ["Realm API", "Schema", "Annotations"]
   examplePathPrefix: 'example/myapp'
   nodoc: ['generator/flutter/ffigen/scripts/src/test/*.g.dart']
   showUndocumentedCategories: true
