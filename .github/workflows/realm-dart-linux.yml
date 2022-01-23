@@ -47,7 +47,8 @@ jobs:
         run: dart test -r expanded
 
       - name: Archive binary
-        env: ARCHIVE_PATH: $(pwd)/binary/linux.tar.gz
+        env: 
+          ARCHIVE_PATH: $(pwd)/binary/linux.tar.gz
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
       - run: |
           echo "ARCHIVE_PATH $ARCHIVE_PATH"
