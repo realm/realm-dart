@@ -103,4 +103,3 @@ jobs:
           body: "ADD RELEASE NOTES"
           omitBodyDuringUpdate: true
           token: ${{ secrets.GITHUB_TOKEN }}
-        working-directory: ${{ github.workspace }}
