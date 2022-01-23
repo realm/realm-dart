@@ -22,17 +22,6 @@ jobs:
       REALM_CI: true
 
     steps:
-      - name: Archive binary path
-        run: |
-          echo "ARCHIVE_PATH=$(pwd)/binary/linux.tar.gz" >> $GITHUB_ENV
-          echo ${{env.ARCHIVE_PATH}}
-          echo $ARCHIVE_PATH
-      - name: Archive binary path 1
-        run: |
-          echo ${{env.ARCHIVE_PATH}}
-          echo $ARCHIVE_PATH
-
-
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -55,12 +44,13 @@ jobs:
         run: dart pub get
 
       - name: Run tests
-        run: dart test -r expanded
+        run: |
+          dart test -r expanded
+          echo "ARCHIVE_PATH=$(pwd)/binary/linux.tar.gz" >> $GITHUB_ENV
 
       - name: Archive binary
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
         run: |
-          echo "ARCHIVE_PATH=$(pwd)/binary/linux.tar.gz" >> $GITHUB_ENV
           dart run realm_dart archive --source-dir $(pwd)/binary/linux --output-file $ARCHIVE_PATH
 
       - name: Release artifacts
@@ -76,7 +66,7 @@ jobs:
           omitNameDuringUpdate: true
           prerelease: false
           omitPrereleaseDuringUpdate: true
-          artifacts: ${{ env.ARCHIVE_PATH }}
+          artifacts: $ARCHIVE_PATH
           body: "ADD RELEASE NOTES"
           omitBodyDuringUpdate: true
           token: ${{ secrets.GITHUB_TOKEN }}
