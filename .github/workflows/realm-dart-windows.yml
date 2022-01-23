@@ -22,6 +22,11 @@ jobs:
       REALM_CI: true
 
     steps:
+      - name: SET VARS
+        run: |
+          echo "ARCHIVE_PATH=%CD%/binary\\windows.tar.gz" >> $env:GITHUB_ENV
+          echo "ARCHIVE_SOURCE_PATH=%CD%\\binary" >> $env:GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -43,8 +48,8 @@ jobs:
       - name: Run tests
         run: |
           dart test -r expanded
-          echo "ARCHIVE_PATH=%CD%/binary\\windows.tar.gz" >> $GITHUB_ENV
-          echo "ARCHIVE_SOURCE_PATH=%CD%\\binary" >> $GITHUB_ENV
+          echo "ARCHIVE_PATH=%CD%/binary\\windows.tar.gz" >> $env:GITHUB_ENV
+          echo "ARCHIVE_SOURCE_PATH=%CD%\\binary" >> $env:GITHUB_ENV
 
       - name: Archive binary
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
@@ -63,7 +68,7 @@ jobs:
           omitNameDuringUpdate: true
           prerelease: false
           omitPrereleaseDuringUpdate: true
-          artifacts: ${{ env.ARCHIVE_PATH }}
+          artifacts: ${{ $env:GITHUB_ENV }}
           body: "ADD RELEASE NOTES"
           omitBodyDuringUpdate: true
           token: ${{ secrets.GITHUB_TOKEN }}
