@@ -1,5 +1,5 @@
 Realm annotations are used to define Realm data model classes and their properties.
-For each class marked as `@RealmModel` a schema model is generated. Generated model is defined with [SchemaObject](../realm/SchemaObject-class.html) and it is able to be added to [RealmModel], which defines the schema of realm database.
+For each class marked as `@RealmModel` a schema model is generated. Generated model is defined with [SchemaObject](../realm/SchemaObject-class.html) and it is able to be added to [RealmModel](../realm/RealmModel-class.html), which defines the schema of realm database.
 Possible annotations for the properties are `@PrimaryKey`, `@MapTo`, `@Indexed`, `@Ignored`.
 
 ```

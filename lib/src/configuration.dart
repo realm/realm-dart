@@ -82,7 +82,10 @@ class Configuration {
   set path(String value) => realmCore.setConfigPath(this, value);
 }
 
-/// Describes the schema of one [Realm] object with its type and properties.
+/// Representation of [RealmModel] in the schema.
+/// Defines schema object with its type and properties.
+///
+/// {@category Schema}
 class SchemaObject {
   /// Schema object type.
   final Type type;
@@ -97,8 +100,10 @@ class SchemaObject {
   const SchemaObject(this.type, this.properties);
 }
 
-/// This class represents a collection of all realm objects schemas.
+/// Represents a collection of all realm objects schemеs [SchemaObject].
 /// They could be iterated. RealmSchema is initialized in [Configuration] constructor.
+///
+/// {@category Schema}
 class RealmSchema extends Iterable<SchemaObject> {
   ///@nodoc
   late final SchemaHandle handle;

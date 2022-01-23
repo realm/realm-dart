@@ -16,11 +16,14 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+///@nodoc
+class BreakComment {}
+
 /// RealmModel annotation for class level.
 ///
 /// Use this annotation to mark this class as Realm object model.
 ///
-/// {@category annotations}
+/// {@category Annotations}
 class RealmModel {
   const RealmModel();
 }

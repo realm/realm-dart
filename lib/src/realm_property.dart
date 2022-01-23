@@ -39,17 +39,20 @@ class _RealmProperty {
   });
 }
 
-/// Defines [SchemaObject] properties with their name, type and other attributes.
+/// A property representation in the schema described as [SchemaObject].
+/// Describes a property with its name, type and other attributes.
+///
+/// {@category Schema}
 class SchemaProperty extends _RealmProperty {
   /// Property name
   final String name;
-  
+
   ///@nodoc
   final String? linkTarget;
-  
+
   /// Defines the collection type if this property is collection.
   final RealmCollectionType collectionType;
-  
+
   /// Creates an instance of [SchemaProperty] with required ```name``` and ```propertyType```.
   /// All other attributes are optional.
   const SchemaProperty(
