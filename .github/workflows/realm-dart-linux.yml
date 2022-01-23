@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Release artifacts
-        if: ${{ github.event_name == 'push' && github.event.ref_type == 'tag' }}
+        # if: ${{ github.event_name == 'push' && github.event.ref_type == 'tag' }}
         run: | 
           echo "Creating a release for tag ${{ github.ref }}" 
           echo $EVENT_CONTEXT
