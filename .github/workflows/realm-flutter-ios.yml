@@ -57,5 +57,28 @@ jobs:
           os_version: '>= 14.0'
 
       - name: Run tests on iOS Simulator
-        run: flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics #--verbose
+        run: |
+          flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics #--verbose
+          echo "ARCHIVE_PATH=$(pwd)/binary/ios.tar.gz" >> $GITHUB_ENV
         working-directory: ./flutter/realm_flutter/tests
+
+      - name: Archive binary
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: |
+          dart run realm_dart archive --source-dir $(pwd)/binary/ios --output-file $ARCHIVE_PATH
+
+      - name: Release artifacts
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates:  true
+          artifactErrorsFailBuild: true
+          draft: true
+          omitNameDuringUpdate: true
+          prerelease: false
+          omitPrereleaseDuringUpdate: true
+          artifacts: ${{ env.ARCHIVE_PATH }}
+          body: "ADD RELEASE NOTES"
+          omitBodyDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
