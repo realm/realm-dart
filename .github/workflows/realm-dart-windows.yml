@@ -44,11 +44,12 @@ jobs:
         run: |
           dart test -r expanded
           echo "ARCHIVE_PATH=%CD%/binary/windows.tar.gz" >> $GITHUB_ENV
+          echo "ARCHIVE_SOURCE_PATH=%CD%/binary" >> $GITHUB_ENV
 
       - name: Archive binary
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
         run: |
-          dart run realm_dart archive --source-dir %CD%/binary/windows --output-file %ARCHIVE_PATH%
+          dart run realm_dart archive --source-dir %ARCHIVE_SOURCE_PATH% --output-file %ARCHIVE_PATH%
 
       - name: Release artifacts
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
