@@ -22,16 +22,16 @@ jobs:
       REALM_CI: true
 
     steps:
-      - name: SET VARS
-        run: |
-          echo "ARCHIVE_PATH=$(pwd)/binary\\windows.tar.gz" >> $env:GITHUB_ENV
-          echo "ARCHIVE_SOURCE_PATH=$(pwd)\\binary" >> $env:GITHUB_ENV
-      - name: PRINT VARS
-        run: |
-          echo $ARCHIVE_PATH
-          echo $ARCHIVE_SOURCE_PATH
-          echo ${{ env.ARCHIVE_PATH }}
-          echo ${{ env.ARCHIVE_SOURCE_PATH }}
+      # - name: SET VARS
+      #   run: |
+      #     echo "ARCHIVE_PATH=$(pwd)\\binary\\windows.tar.gz" >> $env:GITHUB_ENV
+      #     echo "ARCHIVE_SOURCE_PATH=$(pwd)\\binary" >> $env:GITHUB_ENV
+      # - name: PRINT VARS
+      #   run: |
+      #     echo $ARCHIVE_PATH
+      #     echo $ARCHIVE_SOURCE_PATH
+      #     echo ${{ env.ARCHIVE_PATH }}
+      #     echo ${{ env.ARCHIVE_SOURCE_PATH }}
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -54,15 +54,13 @@ jobs:
       - name: Run tests
         run: |
           dart test -r expanded
-          echo "ARCHIVE_PATH=%CD%/binary\\windows.tar.gz" >> $env:GITHUB_ENV
-          echo "ARCHIVE_SOURCE_PATH=%CD%\\binary" >> $env:GITHUB_ENV
+          echo "ARCHIVE_PATH=$(pwd)\\binary\\windows.tar.gz" >> $env:GITHUB_ENV
+          echo "ARCHIVE_SOURCE_PATH=$(pwd)\\binary" >> $env:GITHUB_ENV
 
       - name: Archive binary
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
         run: |
-          echo ARCHIVE_PATH %ARCHIVE_PATH%
-          echo ARCHIVE_SOURCE_PATH %ARCHIVE_SOURCE_PATH%
-          dart run realm_dart archive --source-dir %ARCHIVE_SOURCE_PATH% --output-file %ARCHIVE_PATH%
+          dart run realm_dart archive --source-dir ${{ env.ARCHIVE_SOURCE_PATH }} --output-file echo ${{ env.ARCHIVE_PATH }}
 
       - name: Release artifacts
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
