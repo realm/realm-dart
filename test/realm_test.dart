@@ -143,14 +143,6 @@ Future<void> main([List<String>? args]) async {
 
   print("Current PID $pid");
 
-  final serverUri = (await Service.getInfo()).serverUri;
-  Future<void> Function()? forceGC;
-  if (serverUri != null) {
-    final isolateId = Service.getIsolateID(Isolate.current)!;
-    final vmService = await vmServiceConnectUri(_toWebSocket(serverUri));
-    forceGC = () async => await vmService.getAllocationProfile(isolateId, gc: true);
-  }
-
   setUp(() {
     String path = "${generateRandomString(10)}.realm";
     if (Platform.isAndroid || Platform.isIOS) {
@@ -919,7 +911,6 @@ Future<void> main([List<String>? args]) async {
         for (var i = 0; i < 100; ++i) {
           leak = realm.all<Dog>().changed.listen((_) {});
         }
-        await forceGC?.call();
       });
     });
 
