@@ -16,23 +16,50 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+/// RealmModel annotation for class level.
+///
+/// Use this annotation to mark this class as Realm object model.
+///
+/// {@category annotations}
 class RealmModel {
   const RealmModel();
 }
 
+/// MapTo annotation for class member level.
+///
+/// Use this annotation to mark this member as property with specific name in Realm object model.
+/// This annotation allows class member name to be different from the property name in Realm schema.
+///
+/// {@category Annotations}
 class MapTo {
   final String name;
   const MapTo(this.name);
 }
 
+/// PrimaryKey annotation for class member level.
+///
+/// Use this annotation to mark this member as primary key in Realm schema.
+/// Primary key member must be ```final```.
+///
+/// {@category Annotations}
 class PrimaryKey {
   const PrimaryKey();
 }
 
+/// Indexed annotation for class member level.
+///
+/// {@category Annotations}
 class Indexed {
   const Indexed();
 }
 
+/// Ignored annotation for class member level.
+///
+/// Use this annotation to exclude this member from Realm object schema.
+/// Members marked with `@Ignore` will not be persisted in the database.
+/// They could be used only in memory.
+///
+/// {@category Annotations}
 class Ignored {
   const Ignored();
 }

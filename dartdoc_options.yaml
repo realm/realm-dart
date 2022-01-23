@@ -1,4 +1,12 @@
 dartdoc:
+  categories:
+    "Schema":
+      markdown: Schema.md
+      name: Schema
+    "Annotations":
+      markdown: Annotations.md     
+      name: Annotations
+  categoryOrder: ["Schema", "Annotations"]
   examplePathPrefix: 'example/myapp'
   nodoc: ['generator/flutter/ffigen/scripts/src/test/*.g.dart']
   showUndocumentedCategories: true
