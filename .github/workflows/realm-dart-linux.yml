@@ -3,7 +3,6 @@ name: Realm Dart for Linux
 on:
   push:
     branches: 
-      - *
     # Do not run if change is in these paths
     paths-ignore:
       - 'flutter/**'
