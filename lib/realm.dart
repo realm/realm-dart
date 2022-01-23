@@ -1,4 +1,4 @@
-/// Realm Dart SDK and Realm Flutter SDK
+/// Realm SDK for Flutter and Dart
 import 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart';
 
 export 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart';

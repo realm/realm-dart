@@ -22,9 +22,12 @@ import 'realm_class.dart';
 import 'realm_object.dart';
 
 /// Instances of this class are typically live collections of [RealmObject]s returned by [Realm].
+///
 /// The objects this [RealmResults] collection matches the underlying query.
 /// This collection will be updated when objects matching the underlying query
 /// are either added to or deleted from the [Realm].
+///
+/// {@category Realm Dart API}
 class RealmResults<E extends RealmObject> extends Iterable<E> {
   late final RealmResultsHandle _handle;
   late final Realm _realm;
