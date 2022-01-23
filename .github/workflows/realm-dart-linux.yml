@@ -46,33 +46,42 @@ jobs:
       - name: Run tests
         run: |
           dart test -r expanded
-          echo "ARCHIVE_PATH=$(pwd)/binary/linux.tar.gz" >> $GITHUB_ENV
-
-      - name: Archive binary
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        run: |
-          dart run realm_dart archive --source-dir $(pwd)/binary/linux --output-file $ARCHIVE_PATH
+          echo "archive_file_path=$(pwd)/binary/linux.tar.gz" >> $GITHUB_ENV
+          echo "source_path=$(pwd)/binary/linux" >> $GITHUB_ENV
 
       - name: Release artifacts
-        # env:
-          # EVENT_CONTEXT: ${{ toJSON(github.event) }}
-          # EVENT_CONTEXT: ${{ toJSON(github) }}
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        uses: ncipollo/release-action@v1
+        uses: ./.github/workflows/release-artifacts.yaml
         with:
-          allowUpdates:  true
-          artifactErrorsFailBuild: true
-          draft: true
-          omitNameDuringUpdate: true
-          prerelease: false
-          omitPrereleaseDuringUpdate: true
-          artifacts: ${{ env.ARCHIVE_PATH }}
-          body: "ADD RELEASE NOTES"
-          omitBodyDuringUpdate: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-        # run: | 
-        #   echo "Creating a release for tag ${{ github.ref_name }}"
-        #   # echo $EVENT_CONTEXT
-        #   # echo "github.event_name ${{ github.event_name }}"
-        #   # echo "github.ref_type ${{ github.ref_type }}"
-        #   # echo "github.ref_name ${{ github.ref_name }}"
+          package_name: realm_dart
+          source_path: $source_path
+          archive_file_path: $archive_file_path
+
+      # - name: Archive binary
+      #   if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+      #   run: |
+      #     dart run realm_dart archive --source-dir $(pwd)/binary/linux --output-file $ARCHIVE_PATH
+
+      # - name: Release artifacts
+      #   # env:
+      #     # EVENT_CONTEXT: ${{ toJSON(github.event) }}
+      #     # EVENT_CONTEXT: ${{ toJSON(github) }}
+      #   if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+      #   uses: ncipollo/release-action@v1
+      #   with:
+      #     allowUpdates:  true
+      #     artifactErrorsFailBuild: true
+      #     draft: true
+      #     omitNameDuringUpdate: true
+      #     prerelease: false
+      #     omitPrereleaseDuringUpdate: true
+      #     artifacts: ${{ env.ARCHIVE_PATH }}
+      #     body: "ADD RELEASE NOTES"
+      #     omitBodyDuringUpdate: true
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #   # run: | 
+      #   #   echo "Creating a release for tag ${{ github.ref_name }}"
+      #   #   # echo $EVENT_CONTEXT
+      #   #   # echo "github.event_name ${{ github.event_name }}"
+      #   #   # echo "github.ref_type ${{ github.ref_type }}"
+      #   #   # echo "github.ref_name ${{ github.ref_name }}"
