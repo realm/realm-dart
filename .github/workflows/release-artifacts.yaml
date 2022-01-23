@@ -14,12 +14,12 @@ on:
         type: string
 
 jobs:
-  relese:
+  archive_binary:
     name: Archive binary
     if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
     run: |
       dart run ${{ inputs.package_name }} archive --source-dir ${{ inputs.source_path }} --output-file ${{ inputs.archive_file_path }}
-
+  release_artifacts:
     name: Release artifacts
     if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
     uses: ncipollo/release-action@v1
