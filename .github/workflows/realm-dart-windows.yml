@@ -43,13 +43,24 @@ jobs:
       - name: Run tests
         run: |
           dart test -r expanded
-          echo "archive_file_path=%CD%/binary/windows.tar.gz" >> $GITHUB_ENV
-          echo "source_path=%CD%/binary/windows" >> $GITHUB_ENV
+          echo "ARCHIVE_PATH=%CD%/binary/windows.tar.gz" >> $GITHUB_ENV
+
+      - name: Archive binary
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: |
+          dart run realm_dart archive --source-dir $(pwd)/binary/windows --output-file $ARCHIVE_PATH
 
       - name: Release artifacts
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        uses: realm/realm-dart/.github/workflows/release-artifacts.yaml@${{github.sha}}
+        uses: ncipollo/release-action@v1
         with:
-          package_name: realm_dart
-          source_path: $source_path
-          archive_file_path: $archive_file_path
+          allowUpdates:  true
+          artifactErrorsFailBuild: true
+          draft: true
+          omitNameDuringUpdate: true
+          prerelease: false
+          omitPrereleaseDuringUpdate: true
+          artifacts: ${{ env.ARCHIVE_PATH }}
+          body: "ADD RELEASE NOTES"
+          omitBodyDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}
