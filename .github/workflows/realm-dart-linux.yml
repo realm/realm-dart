@@ -25,7 +25,7 @@ jobs:
         env:
           # EVENT_CONTEXT: ${{ toJSON(github.event) }}
           EVENT_CONTEXT: ${{ toJSON(github) }}
-        # if: ${{ github.event_name == 'push' && github.event.ref_type == 'tag' }}
+        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
         run: | 
           echo "Creating a release for tag ${{ github.ref }}" 
           echo $EVENT_CONTEXT
