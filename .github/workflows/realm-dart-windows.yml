@@ -43,8 +43,8 @@ jobs:
       - name: Run tests
         run: |
           dart test -r expanded
-          echo "ARCHIVE_PATH=%CD%/binary/windows.tar.gz" >> $GITHUB_ENV
-          echo "ARCHIVE_SOURCE_PATH=%CD%/binary" >> $GITHUB_ENV
+          echo "ARCHIVE_PATH=%CD%/binary\\windows.tar.gz" >> $GITHUB_ENV
+          echo "ARCHIVE_SOURCE_PATH=%CD%\\binary" >> $GITHUB_ENV
 
       - name: Archive binary
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
