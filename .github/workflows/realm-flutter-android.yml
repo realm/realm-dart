@@ -26,13 +26,17 @@ jobs:
         with:
           submodules: 'recursive'
 
+      - name: Set build all binaries var
+        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: echo "BUILD_ALL=all" >> $GITHUB_ENV
+
       - name: Build Realm Flutter for Android x86
         run: |
           mkdir build-android
           cd build-android
           export ANDROID_NDK=$ANDROID_NDK_HOME
           echo ANDROID_NDK: $ANDROID_NDK
-          ./../scripts/build-android.sh
+          ./../scripts/build-android.sh $BUILD_ALL
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v1.5.3
