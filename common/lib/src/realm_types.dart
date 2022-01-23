@@ -19,6 +19,7 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 
+/// Enum with all supported types of properties of realm objects.
 enum RealmPropertyType {
   int,
   bool,
@@ -45,6 +46,7 @@ enum RealmPropertyType {
   uuid,
 }
 
+/// Supported collection types in realm library.
 enum RealmCollectionType {
   none,
   list,

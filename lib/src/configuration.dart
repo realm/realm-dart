@@ -31,8 +31,10 @@ class Configuration {
 
   static String? _defaultPath;
 
+  /// The schema of the [Realm]. Use [Configuration] constructor to define the list of [SchemaObject].
   RealmSchema get schema => _schema;
 
+  /// Creates schema definitions objects in [Realm].
   Configuration(List<SchemaObject> schemaObjects)
       : _schema = RealmSchema(schemaObjects),
         _handle = realmCore.createConfig() {
@@ -49,7 +51,7 @@ class Configuration {
     return path;
   }
 
-  /// The platform dependent path to the default realm file. Should contain the name of the realm file
+  /// The platform dependent path to the default realm file. Should contain the name of the realm file.
   static String get defaultPath => _defaultPath ??= _initDefaultPath();
   static set defaultPath(String value) => _defaultPath = value;
 
@@ -73,24 +75,37 @@ class Configuration {
   int get schemaVersion => realmCore.getSchemaVersion(this);
   set schemaVersion(int value) => realmCore.setSchemaVersion(this, value);
 
+  ///The path to the file where the Realm database should be stored.
+  ///
+  /// If omitted the default Realm path for the platform will be used.
   String get path => realmCore.getConfigPath(this);
   set path(String value) => realmCore.setConfigPath(this, value);
 }
 
+/// Describes the schema of one [Realm] object with its type and properties.
 class SchemaObject {
+  /// Schema object type.
   final Type type;
+
+  /// Collection of the properties of this schema object.
   final List<SchemaProperty> properties;
 
+  /// Returns the name of this schema type.
   String get name => type.toString();
 
+  /// Creates schema instance with object type and collection of object's properties.
   const SchemaObject(this.type, this.properties);
 }
 
+/// This class represents a collection of all realm objects schemas.
+/// They could be iterated. RealmSchema is initialized in [Configuration] constructor.
 class RealmSchema extends Iterable<SchemaObject> {
+  ///@nodoc
   late final SchemaHandle handle;
 
   late final List<SchemaObject> _schema;
 
+  /// Initializes [RealmSchema] instance representing ```schemaObjects``` collection
   RealmSchema(List<SchemaObject> schemaObjects) {
     if (schemaObjects.isEmpty) {
       throw RealmException("No schema specified");
@@ -113,5 +128,6 @@ class RealmSchema extends Iterable<SchemaObject> {
 }
 
 extension ConfigurationInternal on Configuration {
+  ///@nodoc
   ConfigHandle get handle => _handle;
 }
