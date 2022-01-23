@@ -1,8 +1,8 @@
-name: Realm Dart for Linux
+name: Realm   Dart for Linux
 
 on:
   push:
-    branches: 
+    branches:
     # Do not run if change is in these paths
     paths-ignore:
       - 'flutter/**'
@@ -22,41 +22,57 @@ jobs:
       REALM_CI: true
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Build Realm Dart for Linux
+        run: ./scripts/build-linux.sh
+
+      # Note: This workflow uses the latest stable version of the Dart SDK.
+      # You can specify other versions if desired, see documentation here:
+      # https://github.com/dart-lang/setup-dart/blob/main/README.md
+      # - uses: dart-lang/setup-dart@v1
+      - name : Setup Dart SDK
+        uses: dart-lang/setup-dart@main
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Run tests
+        run: dart test -r expanded
+
+      - name: Archive binary
+        env: ARCHIVE_PATH: $(pwd)/binary/linux.tar.gz
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+      - run: |
+          echo "ARCHIVE_PATH $ARCHIVE_PATH"
+          dart run realm_dart archive --srouce-dir $(pwd)/binary/linux --output-file $ARCHIVE_PATH
+
       - name: Release artifacts
-        env:
+        # env:
           # EVENT_CONTEXT: ${{ toJSON(github.event) }}
-          EVENT_CONTEXT: ${{ toJSON(github) }}
-        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+          # EVENT_CONTEXT: ${{ toJSON(github) }}
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates:  true
+          artifactErrorsFailBuild: true
+          draft: true
+          omitNameDuringUpdate: true
+          prerelease: false
+          omitPrereleaseDuringUpdate: true
+          artifacts: "$ARCHIVE_PATH"
+          body: "ADD RELEASE NOTES"
+          omitBodyDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}
         run: | 
-          echo "Creating a release for tag ${{ github.ref }}" 
-          echo $EVENT_CONTEXT
-          echo "github.event_name ${{ github.event_name }}" 
-          echo "github.ref_type ${{ github.ref_type }}" 
-          echo "github.ref_name ${{ github.ref_name }}"
-      - name: Run on push
-        run: | 
-          echo "Running on push" 
-
-      # - name: Checkout
-      #   uses: actions/checkout@v2
-      #   with:
-      #     submodules: 'recursive'
-
-      # - name: Setup Ninja
-      #   uses: seanmiddleditch/gha-setup-ninja@master
-
-      # - name: Build Realm Dart for Linux
-      #   run: ./scripts/build-linux.sh
-
-      # # Note: This workflow uses the latest stable version of the Dart SDK.
-      # # You can specify other versions if desired, see documentation here:
-      # # https://github.com/dart-lang/setup-dart/blob/main/README.md
-      # # - uses: dart-lang/setup-dart@v1
-      # - name : Setup Dart SDK
-      #   uses: dart-lang/setup-dart@main
-
-      # - name: Install dependencies
-      #   run: dart pub get
-
-      # - name: Run tests
-      #   run: dart test -r expanded
+          echo "Creating a release for tag ${{ github.ref_name }}"
+          # echo $EVENT_CONTEXT
+          # echo "github.event_name ${{ github.event_name }}"
+          # echo "github.ref_type ${{ github.ref_type }}"
+          # echo "github.ref_name ${{ github.ref_name }}"
