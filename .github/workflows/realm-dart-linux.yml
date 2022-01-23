@@ -50,7 +50,7 @@ jobs:
         env: 
           ARCHIVE_PATH: $(pwd)/binary/linux.tar.gz
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-      - run: |
+        run: |
           echo "ARCHIVE_PATH $ARCHIVE_PATH"
           dart run realm_dart archive --srouce-dir $(pwd)/binary/linux --output-file $ARCHIVE_PATH
 
