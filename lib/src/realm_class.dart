@@ -36,6 +36,12 @@ export 'realm_property.dart';
 export 'helpers.dart';
 
 /// A Realm instance represents a Realm database.
+///
+/// Realm instance provides methods for
+/// adding, deleting, editing and searching objects in realm database.
+/// Realm static methods allows managing ream database file.
+///
+/// {@category Realm API}
 class Realm {
   final Configuration _config;
   final Map<Type, RealmMetadata> _metadata = <Type, RealmMetadata>{};
@@ -64,10 +70,12 @@ class Realm {
     }
   }
 
+  /// Delete Realm file at [path]
   static void deleteRealm(String path) {
     realmCore.deleteRealmFiles(path);
   }
 
+  /// Returns `true` if a Realm already exists on [path].
   static bool existsSync(String path) {
     try {
       final fileEntity = File(path);
@@ -77,6 +85,9 @@ class Realm {
     }
   }
 
+  /// Checks whether a Realm file with this [path] exists.
+  ///
+  /// Returns a Future<bool> that completes with the result.
   static Future<bool> exists(String path) async {
     try {
       final fileEntity = File(path);
@@ -86,6 +97,9 @@ class Realm {
     }
   }
 
+  ///Add new [RealmObject] to Realm.
+  ///
+  ///Throws [RealmExceprion] when trying to add objects with the same primary key.
   T add<T extends RealmObject>(T object) {
     if (object.isManaged) {
       return object;
@@ -107,8 +121,14 @@ class Realm {
     return object;
   }
 
-  /// Delete given [RealmObject] from Realm database.
-  /// Throws [RealmException] on error.
+  ///Add a collection of new objects [RealmObject] to Realm.
+  void addAll<T extends RealmObject>(Iterable<T> items) {
+    for (final i in items) {
+      add(i);
+    }
+  }
+
+  /// Delete given [RealmObject] from this [Realm].
   void delete<T extends RealmObject>(T object) {
     try {
       realmCore.deleteRealmObject(object);
@@ -117,7 +137,7 @@ class Realm {
     }
   }
 
-  /// Deletes [RealmObject] items in given collection from Realm database.
+  /// Deletes [RealmObject] items in given collection from this [Realm].
   void deleteMany<T extends RealmObject>(Iterable<T> items) {
     if (items is RealmResults<T>) {
       realmCore.resultsDeleteAll(items);
@@ -130,18 +150,10 @@ class Realm {
     }
   }
 
-  void addAll<T extends RealmObject>(Iterable<T> items) {
-    for (final i in items) {
-      add(i);
-    }
-  }
-
-  void remove<T extends RealmObject>(T object) {
-    realmCore.deleteRealmObject(object);
-  }
-
+  /// Returns `true` if there is an opened transaction using `realm.Write`.
   bool get _isInTransaction => realmCore.getIsWritable(this);
 
+  /// Opens a write transaction for add, delete, or change an object in Realm.
   void write(void Function() writeCallback) {
     try {
       realmCore.beginWrite(this);
@@ -155,12 +167,18 @@ class Realm {
     }
   }
 
+  /// Closes Realm instance.
+  ///
+  /// After closing Realm, all [RealmObject] are invalidated.
+  /// They can not be changed or read until the Realm is reopened.
   void close() {
     realmCore.closeRealm(this);
   }
 
+  /// Checks whether the Realm is closed.
   bool get isClosed => realmCore.isRealmClosed(this);
 
+  /// Finds an object with given primary key.
   T? find<T extends RealmObject>(String primaryKey) {
     RealmMetadata metadata = _getMetadata(T);
 
@@ -183,12 +201,17 @@ class Realm {
     return metadata;
   }
 
+  /// Returns from Realm all the [RealmObject]s by given type.
   RealmResults<T> all<T extends RealmObject>() {
     RealmMetadata metadata = _getMetadata(T);
     final handle = realmCore.findAll(this, metadata.class_.key);
     return RealmResultsInternal.create<T>(handle, this);
   }
 
+  /// Returns from Realm all the [RealmObject]s that matches the query.
+  ///
+  /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
+  /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query<T extends RealmObject>(String query, [List<Object> args = const []]) {
     RealmMetadata metadata = _getMetadata(T);
     final handle = realmCore.queryClass(this, metadata.class_.key, query, args);
@@ -230,6 +253,7 @@ class _Scheduler {
   static void _handler(int message) {}
 }
 
+///@nodoc
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
 

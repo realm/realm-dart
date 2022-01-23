@@ -25,7 +25,7 @@ import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'realm_class.dart';
 
-/// Instances if this class are collections of [RealmObject]s
+/// Instances of this class are collections of [RealmObject]s
 /// that are reffered by another [RealmObject] stored in Realm.
 ///
 /// [RealmList] is returned by the collection properties

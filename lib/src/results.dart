@@ -41,6 +41,7 @@ class RealmResults<E extends RealmObject> extends Iterable<E> {
   }
 
   /// Returns a new `Results<T>` filtered according to the provided query.
+  ///
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<E> query(String query, [List<Object> args = const []]) {
