@@ -22,6 +22,11 @@ jobs:
       REALM_CI: true
 
     steps:
+      - name: Archive binary path
+        run: |
+          echo "ARCHIVE_PATH=$(pwd)/binary/linux.tar.gz" >> $GITHUB_ENV
+          echo $ARCHIVE_PATH
+
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -50,7 +55,7 @@ jobs:
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
         run: |
           echo "ARCHIVE_PATH=$(pwd)/binary/linux.tar.gz" >> $GITHUB_ENV
-          dart run realm_dart archive --source-dir $(pwd)/binary/linux --output-file ${{ env.ARCHIVE_PATH }}
+          dart run realm_dart archive --source-dir $(pwd)/binary/linux --output-file $ARCHIVE_PATH
 
       - name: Release artifacts
         # env:
