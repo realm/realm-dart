@@ -47,12 +47,10 @@ jobs:
         run: dart test -r expanded
 
       - name: Archive binary
-        env: 
-          ARCHIVE_PATH: $(pwd)/binary/linux.tar.gz
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
         run: |
-          echo "ARCHIVE_PATH $ARCHIVE_PATH"
-          dart run realm_dart archive --source-dir $(pwd)/binary/linux --output-file $ARCHIVE_PATH
+          echo "ARCHIVE_PATH=$(pwd)/binary/linux.tar.gz" >> $GITHUB_ENV
+          dart run realm_dart archive --source-dir $(pwd)/binary/linux --output-file ${{ env.ARCHIVE_PATH }}
 
       - name: Release artifacts
         # env:
@@ -67,7 +65,7 @@ jobs:
           omitNameDuringUpdate: true
           prerelease: false
           omitPrereleaseDuringUpdate: true
-          artifacts: "$ARCHIVE_PATH"
+          artifacts: ${{ env.ARCHIVE_PATH }}
           body: "ADD RELEASE NOTES"
           omitBodyDuringUpdate: true
           token: ${{ secrets.GITHUB_TOKEN }}
