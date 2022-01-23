@@ -24,12 +24,12 @@ jobs:
     steps:
       - name: SET VARS
         run: |
-          echo "ARCHIVE_PATH=%CD%/binary\\windows.tar.gz" >> $env:GITHUB_ENV
-          echo "ARCHIVE_SOURCE_PATH=%CD%\\binary" >> $env:GITHUB_ENV
+          echo "ARCHIVE_PATH=$(pwd)/binary\\windows.tar.gz" >> $env:GITHUB_ENV
+          echo "ARCHIVE_SOURCE_PATH=$(pwd)\\binary" >> $env:GITHUB_ENV
       - name: PRINT VARS
         run: |
-          echo %ARCHIVE_PATH%
-          echo %ARCHIVE_SOURCE_PATH%
+          echo $ARCHIVE_PATH
+          echo $ARCHIVE_SOURCE_PATH
           echo ${{ env.ARCHIVE_PATH }}
           echo ${{ env.ARCHIVE_SOURCE_PATH }}
 
