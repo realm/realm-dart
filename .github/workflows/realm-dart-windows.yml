@@ -48,7 +48,7 @@ jobs:
 
       - name: Release artifacts
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        uses: ./.github/workflows/release-artifacts.yaml
+        uses: realm/realm-dart/.github/workflows/release-artifacts.yaml
         with:
           package_name: realm_dart
           source_path: $source_path
