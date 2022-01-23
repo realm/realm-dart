@@ -71,9 +71,9 @@ jobs:
           body: "ADD RELEASE NOTES"
           omitBodyDuringUpdate: true
           token: ${{ secrets.GITHUB_TOKEN }}
-        run: | 
-          echo "Creating a release for tag ${{ github.ref_name }}"
-          # echo $EVENT_CONTEXT
-          # echo "github.event_name ${{ github.event_name }}"
-          # echo "github.ref_type ${{ github.ref_type }}"
-          # echo "github.ref_name ${{ github.ref_name }}"
+        # run: | 
+        #   echo "Creating a release for tag ${{ github.ref_name }}"
+        #   # echo $EVENT_CONTEXT
+        #   # echo "github.event_name ${{ github.event_name }}"
+        #   # echo "github.ref_type ${{ github.ref_type }}"
+        #   # echo "github.ref_name ${{ github.ref_name }}"
