@@ -26,6 +26,12 @@ jobs:
         run: |
           echo "ARCHIVE_PATH=$(pwd)/binary/linux.tar.gz" >> $GITHUB_ENV
           echo ${{env.ARCHIVE_PATH}}
+          echo $ARCHIVE_PATH
+      - name: Archive binary path 1
+        run: |
+          echo ${{env.ARCHIVE_PATH}}
+          echo $ARCHIVE_PATH
+
 
       - name: Checkout
         uses: actions/checkout@v2
