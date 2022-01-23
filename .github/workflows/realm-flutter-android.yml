@@ -30,7 +30,7 @@ jobs:
         if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
         run: echo "BUILD_ALL=all" >> $GITHUB_ENV
 
-      - name: Build Realm Flutter for Android x86
+      - name: Build Realm Flutter for Android
         run: |
           mkdir build-android
           cd build-android
@@ -85,13 +85,11 @@ jobs:
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
         run: |
           echo "ARCHIVE_PATH=$(pwd)/binary/android.tar.gz" >> $GITHUB_ENV
-        working-directory: ${{ github.workspace }}
 
       - name: Archive binary
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
         run: |
           dart run realm_dart archive --source-dir $(pwd)/binary/android --output-file $ARCHIVE_PATH
-        working-directory: ${{ github.workspace }}
 
       - name: Release artifacts
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
