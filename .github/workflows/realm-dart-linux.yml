@@ -30,7 +30,8 @@ jobs:
           echo "Creating a release for tag ${{ github.ref }}" 
           echo $EVENT_CONTEXT
           echo "github.event_name ${{ github.event_name }}" 
-          echo "github.ref_type ${{ github.event.ref_type }}" 
+          echo "github.ref_type ${{ github.ref_type }}" 
+          echo "github.ref_name ${{ github.ref_name }}" 
 
       # - name: Checkout
       #   uses: actions/checkout@v2
