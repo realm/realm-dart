@@ -2,6 +2,7 @@ name: Realm Dart for Linux
 
 on:
   push:
+    branches: [ master ]
     # Do not run if change is in these paths
     paths-ignore:
       - 'flutter/**'
@@ -31,7 +32,10 @@ jobs:
           echo $EVENT_CONTEXT
           echo "github.event_name ${{ github.event_name }}" 
           echo "github.ref_type ${{ github.ref_type }}" 
-          echo "github.ref_name ${{ github.ref_name }}" 
+          echo "github.ref_name ${{ github.ref_name }}"
+      - name: Run on push
+        run: | 
+          echo "Running on push" 
 
       # - name: Checkout
       #   uses: actions/checkout@v2
