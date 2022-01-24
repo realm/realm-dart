@@ -359,13 +359,11 @@ Future<void> main([List<String>? args]) async {
 
       expect(car.make, equals('Tesla'));
 
-      /* Erhh.. generator prohibit changing primary key.. what about realm_core?!
-      realm.write(() {
-        car.make = "Audi";
-      });
-
-      expect(car.make, equals('Audi'));
-      */
+      expect(() {
+        realm.write(() {
+          car.make = "Audi"; // setting late final is a runtime error :-/
+        });
+      }, throws<RealmUnsupportedSetError>());
     });
 
     test('RealmObject set object type property (link)', () {
@@ -1204,15 +1202,17 @@ Future<void> main([List<String>? args]) async {
       final dog = Dog('Fido', owner: person);
 
       expect(person, person);
-      expect(person, isNot(1)); 
+      expect(person, isNot(1));
       expect(person, isNot(dog));
 
       realm.write(() {
-        realm..add(person)..add(dog);
+        realm
+          ..add(person)
+          ..add(dog);
       });
 
       expect(person, person);
-      expect(person, isNot(1)); 
+      expect(person, isNot(1));
       expect(person, isNot(dog));
 
       final read = realm.query<Person>("name == 'Kasper'");

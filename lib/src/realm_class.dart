@@ -20,6 +20,8 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:realm_common/realm_common.dart';
+
 import 'results.dart';
 import 'configuration.dart';
 import 'realm_object.dart';
@@ -28,10 +30,14 @@ import 'list.dart';
 
 export 'list.dart' hide RealmListInternal;
 export 'results.dart' hide RealmResultsInternal;
-export 'realm_object.dart'
-    hide RealmObjectInternal, RealmAccessor, RealmValuesAccessor, RealmMetadata, RealmCoreAccessor, RealmClassMetadata, RealmPropertyMetadata;
-export "configuration.dart" hide ConfigurationInternal;
-export 'package:realm_common/realm_common.dart' show RealmModel, PrimaryKey, Ignored, MapTo, Indexed, RealmPropertyType, RealmCollectionType;
+
+export 'realm_object.dart' show RealmException, RealmObject;
+
+export "configuration.dart" show Configuration, RealmSchema, SchemaObject;
+
+export 'package:realm_common/realm_common.dart'
+    show Ignored, Indexed, MapTo, PrimaryKey, RealmError, RealmModel, RealmUnsupportedSetError, RealmCollectionType, RealmPropertyType;
+
 export 'realm_property.dart';
 export 'helpers.dart';
 
