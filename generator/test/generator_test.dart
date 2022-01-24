@@ -975,7 +975,7 @@ class _Bar {}
     );
   });
 
-  test('bool not allowed on indexed field (for now)', () async {
+  test('bool not allowed on indexed field', () async {
     await expectLater(
       () async => await testBuilder(
         generateRealmObjects(),
@@ -1016,7 +1016,7 @@ class _Foo {
     );
   });
 
-  test('bool not allowed on indexed field (for now)', () async {
+  test('bool not allowed as primary key', () async {
     await expectLater(
       () async => await testBuilder(
         generateRealmObjects(),
