@@ -4,10 +4,10 @@ part 'options.g.dart';
 
 @CliOptions()
 class Options {
-  @CliOption(help: "Same as running 'dart run build_runner clean'")
+  @CliOption(defaultsTo: false, help: "Optional. Cleans generator caches. Same as running 'dart run build_runner clean'")
   bool clean = false;
 
-  @CliOption(help: "Same as running 'dart run build_runner watch --delete-conflicting-outputs'")
+  @CliOption(defaultsTo: false, help: "Optional. Watches for changes and generates RealmObjects classes on the background. Same as running 'dart run build_runner watch --delete-conflicting-outputs'")
   bool watch = false;
 }
 
