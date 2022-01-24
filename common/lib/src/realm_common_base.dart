@@ -21,7 +21,8 @@ late String _noDoc;
 
 /// RealmModel annotation for class level.
 ///
-/// Use this annotation to mark this class as Realm object model.
+/// Use this annotation to mark this class as Realm object model
+/// that could be persisted in Realm.
 ///
 /// {@category Annotations}
 class RealmModel {
@@ -30,8 +31,8 @@ class RealmModel {
 
 /// MapTo annotation for class member level.
 ///
-/// Use this annotation to mark this member as property with specific name in Realm object model.
-/// This annotation allows class member name to be different from the property name in Realm schema.
+/// Indicates that a property should be persisted under a different name.
+/// This is useful when opening a Realm across different bindings where code style conventions might differ.
 ///
 /// {@category Annotations}
 class MapTo {
@@ -41,8 +42,11 @@ class MapTo {
 
 /// PrimaryKey annotation for class member level.
 ///
-/// Use this annotation to mark this member as primary key in Realm schema.
-/// Primary key member must be ```final```.
+/// Indicates the primary key property.
+/// It allows quick lookup of objects and enforces uniqueness of the values stored.
+/// It may only be applied to a single property in a class.
+/// Only char, integral types, and strings can be used as primary keys.
+/// Once an object with a Primary Key has been added to the Realm, that property may not be changed.
 ///
 /// {@category Annotations}
 class PrimaryKey {
@@ -51,6 +55,9 @@ class PrimaryKey {
 
 /// Indexed annotation for class member level.
 ///
+/// Indicates an indexed property. Indexed properties slightly slow down insertions,
+/// but can greatly speed up queries.
+///
 /// {@category Annotations}
 class Indexed {
   const Indexed();
@@ -58,9 +65,8 @@ class Indexed {
 
 /// Ignored annotation for class member level.
 ///
-/// Use this annotation to exclude this member from Realm object schema.
-/// Members marked with `@Ignore` will not be persisted in the database.
-/// They could be used only in memory.
+/// Indicates an ignored property.
+/// Ignored properties will not be persisted in the Realm.
 ///
 /// {@category Annotations}
 class Ignored {
