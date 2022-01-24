@@ -56,8 +56,11 @@ Logger createLogger() {
   return Logger('metrics')
     ..onRecord.listen((record) {
       try {
-        if (!Platform.isWindows) {
+        if (Platform.isWindows) {
           print('[${record.level.name}] ${record.message}');
+          if (record.error != null) {
+            print(record.error);
+          }
           return;
         }
 
