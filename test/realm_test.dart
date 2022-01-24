@@ -709,7 +709,7 @@ Future<void> main([List<String>? args]) async {
       realm.write(() => realm.add(Dog("Bella", age: 4)));
 
       expect(result, isNot(orderedEquals(snapshot)));
-      expect(result, containsAllInOrder(snapshot)); 
+      expect(result, containsAllInOrder(snapshot));
     });
 
     test('Lists create object with a list property', () {
@@ -1182,20 +1182,51 @@ Future<void> main([List<String>? args]) async {
       final dog = Dog('Fido', owner: person);
 
       expect(person, person);
-      expect(person, isNot(1)); 
+      expect(person, isNot(1));
       expect(person, isNot(dog));
 
       realm.write(() {
-        realm..add(person)..add(dog);
+        realm
+          ..add(person)
+          ..add(dog);
       });
 
       expect(person, person);
-      expect(person, isNot(1)); 
+      expect(person, isNot(1));
       expect(person, isNot(dog));
 
       final read = realm.query<Person>("name == 'Kasper'");
 
       expect(read, [person]);
+    });
+
+    test('Sample Realm Api', () {
+      var config = Configuration([Dog.schema, Person.schema]);
+      var realm = Realm(config);
+
+      final dog = Dog("Foxy")
+        ..age = 1
+        ..owner = Person("Daryl Stone");
+
+      realm.write(() {
+        realm.add(dog);
+      });
+
+      realm.write(() {
+        dog.age = 2;
+      });
+
+      var foxy = realm.find<Dog>("Foxy");
+      var allDogs = realm.all<Dog>();
+      var myDog = realm.all<Dog>().query(r'name=$0', [dog.name]);
+
+      realm.write(() {
+        realm.delete(dog);
+      });
+      
+       realm.write(() {
+        realm.deleteMany(allDogs);
+      });
     });
   });
 }
