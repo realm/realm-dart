@@ -1,5 +1,5 @@
 import 'package:build_test/build_test.dart';
-import 'package:realm_generator/realm_generator.dart';
+import 'package:realm_generator/builder.dart';
 import 'package:test/test.dart';
 
 void main() {

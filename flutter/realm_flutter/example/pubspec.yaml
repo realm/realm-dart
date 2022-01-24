@@ -30,6 +30,8 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^1.0.4
   build_runner: ^2.1.2
+  realm_generator: 
+    path: ../../../generator
 
 flutter:
   uses-material-design: true

@@ -25,8 +25,6 @@ dependencies:
   pub_semver: ^2.1.0
   realm_common:
     path: ./common
-  realm_generator: 
-    path: ./generator
   tar: ">0.4.9 <=0.5.0"
 
 dev_dependencies:
@@ -34,4 +32,6 @@ dev_dependencies:
   build_runner: ^2.1.2
   json_serializable: ^6.1.0
   lints: ^1.0.1
+  realm_generator:
+    path: generator
   test: ^1.14.3

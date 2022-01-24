@@ -8,6 +8,6 @@ targets:
         generate_for:
           - lib/src/cli/metrics/flutter_info.dart
           - lib/src/cli/metrics/metrics.dart
-      realm_generator|realm_object_builder:
+      realm_generator:
         generate_for:
           - test/**.dart
