@@ -47,7 +47,7 @@ class SchemaProperty extends _RealmProperty {
   /// Property name
   final String name;
 
-  ///@nodoc
+  
   final String? linkTarget;
 
   /// Defines the collection type if this property is collection.

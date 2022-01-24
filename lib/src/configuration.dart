@@ -75,7 +75,7 @@ class Configuration {
   int get schemaVersion => realmCore.getSchemaVersion(this);
   set schemaVersion(int value) => realmCore.setSchemaVersion(this, value);
 
-  ///The path to the file where the Realm database should be stored.
+  ///The path to the file where the Realm should be located.
   ///
   /// If omitted the default Realm path for the platform will be used.
   String get path => realmCore.getConfigPath(this);
