@@ -28,10 +28,11 @@ class _Foo {
             '  Foo({\n'
             '    int x = 0,\n'
             '  }) {\n'
-            '    if (!_defaultsSet)\n'
+            '    if (!_defaultsSet) {\n'
             '      _defaultsSet = RealmObject.setDefaults<Foo>({\n'
             '        \'x\': 0,\n'
             '      });\n'
+            '    }\n'
             '    this.x = x;\n'
             '  }\n'
             '\n'
@@ -50,7 +51,8 @@ class _Foo {
             '      SchemaProperty(\'x\', RealmPropertyType.int),\n'
             '    ]);\n'
             '  }\n'
-            '}\n',
+            '}\n'
+            '',
       },
       reader: await PackageAssetReader.currentIsolate(),
     );
