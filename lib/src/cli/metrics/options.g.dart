@@ -44,16 +44,20 @@ const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addOption(
     'target-os-type',
+    help: 'The OS type this project is targeting.',
     allowed: ['android', 'ios', 'linux', 'macos', 'windows'],
   )
   ..addOption(
     'target-os-version',
+    help: 'The OS version this project is targeting.',
   )
   ..addOption(
     'flutter-root',
+    help: 'The path to the Flutter SDK (excluding the bin directory).',
   )
   ..addOption(
     'pubspec-path',
+    help: 'The path to the application pubspec',
   )
   ..addFlag(
     'verbose',

@@ -82,7 +82,7 @@ task runMetrics(type: Exec) {
             def conf = appProject.android.defaultConfig
             targetOsVersion = "API Level ${conf.targetSdkVersion.apiLevel}"
         }
-        commandLine dartPath, 'run', 'realm', 'metrics', '--verbose', '--flutter-root', flutterRoot, '--target-os-type', 'android', '--target-os-version', targetOsVersion
+        commandLine dartPath, 'run', 'realm', 'metrics', '--flutter-root', flutterRoot, '--target-os-type', 'android', '--target-os-version', targetOsVersion
     }
     catch (e) {
         println "Error running metrics command $e"

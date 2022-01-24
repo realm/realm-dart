@@ -24,9 +24,13 @@ part 'options.g.dart';
 
 @CliOptions()
 class Options {
+  @CliOption(help: "The OS type this project is targeting.")
   final TargetOsType? targetOsType;
+  @CliOption(help: "The OS version this project is targeting.")
   final String? targetOsVersion;
+  @CliOption(help: "The path to the Flutter SDK (excluding the bin directory).")
   final String? flutterRoot;
+  @CliOption(help: "The path to the application pubspec")
   final String pubspecPath;
 
   @CliOption(abbr: 'v', help: 'Show additional command output.')
