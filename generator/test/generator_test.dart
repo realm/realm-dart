@@ -974,4 +974,86 @@ class _Bar {}
       )),
     );
   });
+
+  test('bool not allowed on indexed field (for now)', () async {
+    await expectLater(
+      () async => await testBuilder(
+        generateRealmObjects(),
+        {
+          'pkg|lib/src/test.dart': r'''
+import 'package:realm_common/realm_common.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+@MapTo('Bad')
+class _Foo {
+  @Indexed()
+  late bool bad;
+}
+'''
+        },
+        reader: await PackageAssetReader.currentIsolate(),
+      ),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+        (e) => e.format(),
+        'format()',
+        'Realm only support indexes on String, int, and bool fields\n'
+            '\n'
+            'in: package:pkg/src/test.dart:9:8\n'
+            '  ╷\n'
+            '5 │ @RealmModel()\n'
+            '6 │ @MapTo(\'Bad\')\n'
+            '7 │ class _Foo {\n'
+            '  │       ━━━━ in realm model for \'Bad\'\n'
+            '8 │   @Indexed()\n'
+            '9 │   late bool bad;\n'
+            '  │        ^^^^ bool is not an indexable type\n'
+            '  ╵\n'
+            'Change the type of \'bad\', or remove the @Indexed() annotation\n'
+            '',
+      )),
+    );
+  });
+
+  test('bool not allowed on indexed field (for now)', () async {
+    await expectLater(
+      () async => await testBuilder(
+        generateRealmObjects(),
+        {
+          'pkg|lib/src/test.dart': r'''
+import 'package:realm_common/realm_common.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+@MapTo('Bad')
+class _Foo {
+  @PrimaryKey()
+  late final bool bad;
+}
+'''
+        },
+        reader: await PackageAssetReader.currentIsolate(),
+      ),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+        (e) => e.format(),
+        'format()',
+        'Realm only support indexes on String, int, and bool fields\n'
+            '\n'
+            'in: package:pkg/src/test.dart:9:14\n'
+            '  ╷\n'
+            '5 │ @RealmModel()\n'
+            '6 │ @MapTo(\'Bad\')\n'
+            '7 │ class _Foo {\n'
+            '  │       ━━━━ in realm model for \'Bad\'\n'
+            '8 │   @PrimaryKey()\n'
+            '9 │   late final bool bad;\n'
+            '  │              ^^^^ bool is not an indexable type\n'
+            '  ╵\n'
+            'Change the type of \'bad\', or remove the @PrimaryKey() annotation\n'
+            '',
+      )),
+    );
+  });
 }
