@@ -19,3 +19,28 @@ set(realm_bundled_libraries
   "${PROJECT_SOURCE_DIR}/binary/windows/realm_dart.dll"
   PARENT_SCOPE
 )
+
+# message ("CMAKE_BINARY_DIR is ${CMAKE_BINARY_DIR}")
+# message ("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
+# message ("CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
+
+# This works cause realm plugin is always accessed through the .plugin_symlinks directory.
+# For example the tests app refers to the realm plugin using this path .../realm-dart/flutter/realm_flutter/tests/windows/flutter/ephemeral/.plugin_symlinks/realm/windows
+set(EPHEMERAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../ephemeral")
+include(${EPHEMERAL_DIR}/generated_config.cmake)
+
+# message ("FLUTTER_TOOL_ENVIRONMENT is ${FLUTTER_TOOL_ENVIRONMENT}")
+# message ("FLUTTER_ROOT is ${FLUTTER_ROOT}")
+
+execute_process(COMMAND "${FLUTTER_ROOT}\\bin\\dart.bat" "run" "realm" "install" "--target-os-type" "windows" "--package-name" "realm" #"--debug"
+  OUTPUT_VARIABLE output
+  RESULT_VARIABLE result
+  COMMAND_ERROR_IS_FATAL ANY
+)
+message(STATUS "cmd output: ${output}")
+message(STATUS "cmd result: ${result}")
+
+# if (NOT result EQUAL 0)
+#   message(NOTICE "cmd output: ${output}")
+#   message(NOTICE "cmd result: ${result}")
+# endif()

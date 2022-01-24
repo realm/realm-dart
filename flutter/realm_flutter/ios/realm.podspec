@@ -3,6 +3,12 @@
 # Run `pod lib lint realm.podspec' to validate before publishing.
 #
 
+#On iOS we need the xcframework available early so we download on prepare as well.
+realmPackageDir = File.expand_path(__dir__)
+# This works cause realm plugin is always accessed through the .symlinks directory.
+# For example the tests app refers to the realm plugin using this path .../realm-dart/flutter/realm_flutter/tests/ios/.symlinks/plugins/realm/ios
+project_dir = File.expand_path("../../../../", realmPackageDir)
+
 # //TODO read the version from pubspec.yaml
 Pod::Spec.new do |s|
   s.name                      = 'realm'
@@ -18,7 +24,7 @@ Pod::Spec.new do |s|
   s.source_files               = 'Classes/**/*', 
                                 'src/realm_dart.cpp'
                                 'src/realm_dart_scheduler.cpp'
-  s.public_header_files        = 'Classes/**/*.h',
+  s.public_header_files       = 'Classes/**/*.h',
   s.vendored_frameworks       = 'realm_flutter_ios.xcframework'
   s.dependency                  'Flutter'
   s.platform                  = :ios, '8.0'
@@ -42,8 +48,17 @@ Pod::Spec.new do |s|
                                   ],
                                   'FRAMEWORK_SEARCH_PATHS' => '"$(PODS_TARGET_SRCROOT)/**"'
                                 }
-  s.script_phase              = { :name => 'Report Metrics', 
-                                  :script => 'source "$PROJECT_DIR/../Flutter/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm metrics --verbose --flutter-root "$FLUTTER_ROOT" --target-os-type ios --target-os-version "$IPHONEOS_DEPLOYMENT_TARGET"', 
-                                  :execution_position => :before_compile,
-                                }
+                                #Use --debug to debug the install command on both prepare_command and script_phase below
+  s.prepare_command           = "source \"#{project_dir}/Flutter/flutter_export_environment.sh\" && cd \"$FLUTTER_APPLICATION_PATH\" && \"$FLUTTER_ROOT/bin/dart\" run realm install --target-os-type ios --package-name realm"
+  s.script_phases             = [ 
+                                  { :name => 'Download Realm Flutter iOS Binaries', 
+                                  #Use --debug to debug the install command  
+                                  :script => 'source "$PROJECT_DIR/../Flutter/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm install --target-os-type ios --package-name realm', 
+                                    :execution_position => :before_headers
+                                  },                                
+                                  { :name => 'Report Metrics', 
+                                    :script => 'source "$PROJECT_DIR/../Flutter/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm metrics --flutter-root "$FLUTTER_ROOT" --target-os-type ios --target-os-version "$IPHONEOS_DEPLOYMENT_TARGET"', 
+                                    :execution_position => :before_compile
+                                  },
+                                ]
 end

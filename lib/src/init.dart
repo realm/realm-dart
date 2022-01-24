@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'cli/metrics/metrics_command.dart';
 import 'cli/metrics/options.dart';
-import 'cli/metrics/target_os_type.dart';
+import 'cli/common/target_os_type.dart';
 
 import '../realm.dart' show isFlutterPlatform;
 import '../realm.dart' show realmBinaryName;
