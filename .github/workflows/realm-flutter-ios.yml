@@ -2,11 +2,13 @@ name: Realm Flutter for iOS
 
 on:
   push:
-    branches: [ master ]
+    branches:
     # paths:
     #   - 'flutter/**'
     #   - 'src/**'
     #   - 'lib/**'
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+**' # matches tags like number(s).number(s).number(s)(any) for ex: 1.0.0 and also 1.0.0+beta
   pull_request:
       # - 'flutter/**'
       # - 'src/**'
@@ -24,6 +26,13 @@ jobs:
         with:
           submodules: 'recursive'
 
+      - name: Set build platforms to 'simulator'
+        run: echo "BUILD_PLATFORMS=simulator" >> $GITHUB_ENV
+
+      - name: Set build platforms to all
+        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: echo "BUILD_PLATFORMS=" >> $GITHUB_ENV
+
       - name: get-ccache-id
         run: echo "CCACHE_ID=os:${{ runner.OS }} build:ios realm-core commit hash $(git submodule status src/realm-core | cut -c 1-41)" >> $GITHUB_ENV
 
@@ -39,7 +48,7 @@ jobs:
 
       - name: Build Realm Flutter for iOS
         run: |
-              ./scripts/build-ios.sh simulator
+              ./scripts/build-ios.sh $BUILD_PLATFORMS
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -57,5 +66,32 @@ jobs:
           os_version: '>= 14.0'
 
       - name: Run tests on iOS Simulator
-        run: flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics #--verbose
+        run: |
+          flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics #--verbose
         working-directory: ./flutter/realm_flutter/tests
+
+      - name: Set Archive Path
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: |
+          echo "ARCHIVE_PATH=$(pwd)/binary/ios.tar.gz" >> $GITHUB_ENV
+
+      - name: Archive binary
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: |
+          dart run realm_dart archive --source-dir $(pwd)/binary/ios --output-file $ARCHIVE_PATH
+
+      - name: Release artifacts
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates:  true
+          artifactErrorsFailBuild: true
+          draft: true
+          omitNameDuringUpdate: true
+          prerelease: false
+          omitPrereleaseDuringUpdate: true
+          artifacts: ${{ env.ARCHIVE_PATH }}
+          body: "ADD RELEASE NOTES"
+          omitBodyDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}       
+

@@ -2,11 +2,13 @@ name: Realm Flutter for Android
 
 on:
   push:
-    branches: [ master ]
+    branches:
     # paths:
     #   - 'flutter/**'
     #   - 'src/**'
     #   - 'lib/**'
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+**' # matches tags like number(s).number(s).number(s)(any) for ex: 1.0.0 and also 1.0.0+beta
   pull_request:
       # - 'flutter/**'
       # - 'src/**'
@@ -24,13 +26,17 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Build Realm Flutter for Android x86
+      - name: Set build all binaries var
+        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: echo "BUILD_ALL=all" >> $GITHUB_ENV
+
+      - name: Build Realm Flutter for Android
         run: |
           mkdir build-android
           cd build-android
           export ANDROID_NDK=$ANDROID_NDK_HOME
           echo ANDROID_NDK: $ANDROID_NDK
-          ./../scripts/build-android.sh
+          ./../scripts/build-android.sh $BUILD_ALL
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -74,3 +80,28 @@ jobs:
           cmake: 3.10.2.4988404
           script: flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics #--verbose
           working-directory: ./flutter/realm_flutter/tests
+
+      - name: Set Archive Path
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: |
+          echo "ARCHIVE_PATH=$(pwd)/binary/android.tar.gz" >> $GITHUB_ENV
+
+      - name: Archive binary
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: |
+          dart run realm_dart archive --source-dir $(pwd)/binary/android --output-file $ARCHIVE_PATH
+
+      - name: Release artifacts
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates:  true
+          artifactErrorsFailBuild: true
+          draft: true
+          omitNameDuringUpdate: true
+          prerelease: false
+          omitPrereleaseDuringUpdate: true
+          artifacts: ${{ env.ARCHIVE_PATH }}
+          body: "ADD RELEASE NOTES"
+          omitBodyDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}

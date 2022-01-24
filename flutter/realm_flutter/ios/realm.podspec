@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
   s.library                   = 'c++', 'z'
     
   s.swift_version             = '5.0'
-  s.pod_target_xcconfig       = { 'DEFINES_MODULE' => 'YES',
+  s.pod_target_xcconfig        = { 'DEFINES_MODULE' => 'YES',
                                   'CURRENT_PROJECT_VERSION' => s.version,
                                   'VERSIONING_SYSTEM' => 'apple-generic',
                                   'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
@@ -59,6 +59,6 @@ Pod::Spec.new do |s|
                                   { :name => 'Report Metrics', 
                                     :script => 'source "$PROJECT_DIR/../Flutter/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm metrics --flutter-root "$FLUTTER_ROOT" --target-os-type ios --target-os-version "$IPHONEOS_DEPLOYMENT_TARGET"', 
                                     :execution_position => :before_compile
-                                  },
+                                  }
                                 ]
-end
+end                           
