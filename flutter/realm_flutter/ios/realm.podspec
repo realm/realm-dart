@@ -24,7 +24,7 @@ Pod::Spec.new do |s|
   s.source_files               = 'Classes/**/*', 
                                 'src/realm_dart.cpp'
                                 'src/realm_dart_scheduler.cpp'
-  s.public_header_files        = 'Classes/**/*.h',
+  s.public_header_files       = 'Classes/**/*.h',
   s.vendored_frameworks       = 'realm_flutter_ios.xcframework'
   s.dependency                  'Flutter'
   s.platform                  = :ios, '8.0'
@@ -57,8 +57,7 @@ Pod::Spec.new do |s|
                                     :execution_position => :before_headers
                                   },                                
                                   { :name => 'Report Metrics', 
-                                    :script => 'source "$PROJECT_DIR/../Flutter/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm metrics --verbose --flutter-root "$FLUTTER_ROOT" --target-os-type ios --target-os-version "$IPHONEOS_DEPLOYMENT_TARGET"', 
+                                    :script => 'source "$PROJECT_DIR/../Flutter/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm metrics --flutter-root "$FLUTTER_ROOT" --target-os-type ios --target-os-version "$IPHONEOS_DEPLOYMENT_TARGET"', 
                                     :execution_position => :before_compile
                                   },
                                 ]
-end

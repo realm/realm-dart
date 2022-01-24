@@ -31,9 +31,9 @@ jobs:
         run: ./scripts/build-macos.sh
 
       - name: Setup Flutter
-        uses: subosito/flutter-action@v1.5.3
+        uses: subosito/flutter-action@v2
         with:
-          flutter-version: '2.8.0'
+          channel: 'beta'
 
       - name: Enable Flutter Desktop support
         run: flutter config --enable-macos-desktop

@@ -65,9 +65,27 @@ Future<void> uploadMetrics(Options options) async {
     return;
   }
 
-  final flutterInfo = await getInfo(options);
+  FlutterInfo? flutterInfo;
+  try {
+    flutterInfo = await getInfo(options);
+  } catch (e) {
+    flutterInfo = null;
+  }
+
   final hostId = await machineId();
-  final realmDep = pubspec.dependencies['realm'] ?? pubspec.dependencies['realm_dart'];
+  
+  var frameworkName = flutterInfo != null ? 'Flutter' : null;
+
+  Dependency? realmDep;
+  if (pubspec.dependencies.containsKey('realm')) {
+    realmDep = pubspec.dependencies["realm"];
+    frameworkName = frameworkName ?? "Flutter";
+  }
+  else if (pubspec.dependencies.containsKey('realm')) {
+    realmDep = pubspec.dependencies["realm_dart"];
+    frameworkName = frameworkName ?? "Dart";
+  }
+
   final realmVersion = realmDep is HostedDependency ? '${realmDep.version}' : '?';
 
   final metrics = await generateMetrics(
@@ -76,7 +94,7 @@ Future<void> uploadMetrics(Options options) async {
     targetOsVersion: options.targetOsVersion,
     anonymizedMacAddress: hostId,
     anonymizedBundleId: pubspec.name.strongHash(),
-    framework: flutterInfo != null ? 'Flutter' : 'Dart',
+    framework: frameworkName ?? "Unknown",
     frameworkVersion: flutterInfo != null
         ? [
             '${flutterInfo.frameworkVersion}',
@@ -188,11 +206,9 @@ Future<FlutterInfo?> getInfo(Options options) async {
   // Try to get full info by calling flutter executable
   final info = await safe(() async {
     final flutterRoot = options.flutterRoot;
-    final flutterPath = flutterRoot == null ? flutter : path.join(flutterRoot, 'bin', flutter);
-    final process = await Process.start(
-      flutterPath,
-      ['--version', '--machine'],
-    );
+    final flutterExecutableName = Platform.isWindows ? "flutter.bat" : "flutter";
+    final flutterPath = flutterRoot == null ? flutterExecutableName : path.join(flutterRoot, path.basename(flutterRoot) != "bin" ? 'bin' : "", flutterExecutableName);
+    final process = await Process.start(flutterPath, ['--version', '--machine']);
     final infoJson = await process.stdout.transform(utf8.decoder).join();
     return FlutterInfo.fromJson(json.decode(infoJson) as Map<String, dynamic>);
   });
