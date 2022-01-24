@@ -33,7 +33,7 @@ extension StringEx on String {
   }
 }
 
-  bool isRealmCI = Platform.environment['REALM_CI'] != null;
+bool isRealmCI = Platform.environment['REALM_CI'] != null;
 
 FutureOr<T?> safe<T>(FutureOr<T> Function() f, {String message = 'Ignoring error', Function(Object e, StackTrace s)? onError}) async {
   try {
@@ -53,99 +53,18 @@ FutureOr<T?> safe<T>(FutureOr<T> Function() f, {String message = 'Ignoring error
 final log = createLogger();
 
 Logger createLogger() {
-  if (!Platform.isWindows) {
-    return Logger('metrics')
-      ..onRecord.listen((record) {
-        try {
-          stdout.writeln('[${record.level.name}] ${record.message}');
-          if (record.error != null) {
-            stdout.writeln(record.error);
-          }
-        } catch (_) {}
-      });
-  }
+  return Logger('metrics')
+    ..onRecord.listen((record) {
+      try {
+        if (!Platform.isWindows) {
+          print('[${record.level.name}] ${record.message}');
+          return;
+        }
 
-  return WindowsLogger('metrics');
-}
-
-//uses print on Windows because the Logger..onRecord crashesh with closed stream on Windows currently
-class WindowsLogger implements Logger {
-  final Logger _logger;
-
-  WindowsLogger(String name) : _logger = Logger(name);
-
-  @override
-  Level get level => _logger.level;
-  @override
-  set level(Level? value) => _logger.level = value;
-
-  @override
-  void log(Level logLevel, Object? message, [Object? error, StackTrace? stackTrace, Zone? zone]) {
-    print("$message ${error ?? ''} ${stackTrace ?? ''}");
-  }
-
-  @override
-  Map<String, Logger> get children => _logger.children;
-
-  @override
-  void clearListeners() {
-    _logger.clearListeners();
-  }
-
-  @override
-  void config(Object? message, [Object? error, StackTrace? stackTrace]) {
-   print("$message ${error ?? ''} ${stackTrace ?? ''}");
-  }
-
-  @override
-  void fine(Object? message, [Object? error, StackTrace? stackTrace]) {
-    print("$message ${error ?? ''} ${stackTrace ?? ''}");
-  }
-
-  @override
-  void finer(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.finer(message, error, stackTrace);
-  }
-
-  @override
-  void finest(Object? message, [Object? error, StackTrace? stackTrace]) {
-    print("$message ${error ?? ''} ${stackTrace ?? ''}");
-  }
-
-  @override
-  String get fullName => _logger.fullName;
-
-  @override
-  void info(Object? message, [Object? error, StackTrace? stackTrace]) {
-    print("$message ${error ?? ''} ${stackTrace ?? ''}");
-  }
-
-  @override
-  bool isLoggable(Level value) {
-    return _logger.isLoggable(value);
-  }
-
-  @override
-  String get name => _logger.name;
-
-  @override
-  Stream<LogRecord> get onRecord => _logger.onRecord;
-
-  @override
-  Logger? get parent => _logger.parent;
-
-  @override
-  void severe(Object? message, [Object? error, StackTrace? stackTrace]) {
-    print("$message ${error ?? ''} ${stackTrace ?? ''}");
-  }
-
-  @override
-  void shout(Object? message, [Object? error, StackTrace? stackTrace]) {
-    print("$message ${error ?? ''} ${stackTrace ?? ''}");
-  }
-
-  @override
-  void warning(Object? message, [Object? error, StackTrace? stackTrace]) {
-    print("$message ${error ?? ''} ${stackTrace ?? ''}");
-  }
+        stdout.writeln('[${record.level.name}] ${record.message}');
+        if (record.error != null) {
+          stdout.writeln(record.error);
+        }
+      } catch (_) {}
+    });
 }
