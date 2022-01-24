@@ -54,11 +54,7 @@ enum RealmCollectionType {
 
 class RealmError extends Error {}
 
-class RealmUnsupportedError extends UnsupportedError implements RealmError {
-  RealmUnsupportedError(String message) : super(message);
-}
-
-class RealmUnsupportedSetError extends RealmUnsupportedError {
+class RealmUnsupportedSetError extends UnsupportedError implements RealmError {
   RealmUnsupportedSetError() : super('Cannot set late final field on realm object');
 }
 
