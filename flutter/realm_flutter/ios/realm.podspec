@@ -59,5 +59,6 @@ Pod::Spec.new do |s|
                                   { :name => 'Report Metrics', 
                                     :script => 'source "$PROJECT_DIR/../Flutter/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm metrics --flutter-root "$FLUTTER_ROOT" --target-os-type ios --target-os-version "$IPHONEOS_DEPLOYMENT_TARGET"', 
                                     :execution_position => :before_compile
-                                  },
+                                  }
                                 ]
+end                           
