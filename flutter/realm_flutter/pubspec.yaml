@@ -31,6 +31,7 @@ dependencies:
   realm_generator: 
     path: ../../generator
   tar: 0.5.0
+  build_runner: ^2.1.0
 
 dev_dependencies:
   flutter_test:
