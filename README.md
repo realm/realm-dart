@@ -240,7 +240,7 @@ For usage of Realm Dart see the Realm Flutter usage above.
 * Clone the repo 
     ```
     git clone https://github.com/realm/realm-dart
-    git submodule udpate --init --recursive
+    git submodule update --init --recursive
     ```
 
 ### Build Realm Flutter native binaries
