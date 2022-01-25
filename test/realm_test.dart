@@ -913,7 +913,7 @@ Future<void> main([List<String>? args]) async {
         }
       });
 
-      test('RealmObject.changed', () async {
+      test('RealmObject.changes', () async {
         var config = Configuration([Dog.schema, Person.schema]);
         var realm = Realm(config);
 
@@ -925,7 +925,7 @@ Future<void> main([List<String>? args]) async {
         final dog = Dog('Fido');
         write(() => realm.add(dog));
 
-        final stream = dog.changed.asBroadcastStream(onCancel: (s) => s.cancel());
+        final stream = dog.changes.asBroadcastStream(onCancel: (s) => s.cancel());
 
         var callbacks = 0;
         final subscription = stream.listen((_) => ++callbacks);

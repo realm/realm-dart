@@ -234,7 +234,7 @@ class RealmObject {
   }
 
   // TODO: Should we generate this as a Stream<ObjectChanges<T>> on each realm object class?
-  Stream<ObjectChanges> get changed => realmCore.realmObjectChanged(this, realm!.scheduler.handle).map((o) => ObjectChanges(this, o));
+  Stream<ObjectChanges> get changes => realmCore.realmObjectChanges(this, realm!.scheduler.handle).map((o) => ObjectChanges(this, o));
 }
 
 /// @nodoc
