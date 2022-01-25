@@ -444,7 +444,7 @@ class _RealmCore {
     });
   }
 
-  Stream<RealmCollectionChanges> resultsChanged(RealmResults results, SchedulerHandle scheduler) {
+  Stream<RealmCollectionChanges> resultsChanges(RealmResults results, SchedulerHandle scheduler) {
     late StreamController<RealmCollectionChanges> controller;
 
     void callback(Pointer<Void> data) {

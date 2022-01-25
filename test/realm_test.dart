@@ -854,7 +854,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     group('notification', () {
-      test('RealmResults.changed', () async {
+      test('RealmResults.changes', () async {
         var config = Configuration([Dog.schema, Person.schema]);
         var realm = Realm(config);
 
@@ -863,7 +863,7 @@ Future<void> main([List<String>? args]) async {
           realm.write(() {}); // dummy write to raise notification from previous write
         }
 
-        final stream = realm.all<Dog>().changed.asBroadcastStream(onCancel: (s) => s.cancel());
+        final stream = realm.all<Dog>().changes.asBroadcastStream(onCancel: (s) => s.cancel());
 
         var callbacks = 0;
         final subscription = stream.listen((changes) => ++callbacks);
@@ -909,7 +909,7 @@ Future<void> main([List<String>? args]) async {
         // ignore: unused_local_variable
         late StreamSubscription<RealmResultsChanges<Dog>> leak;
         for (var i = 0; i < 100; ++i) {
-          leak = realm.all<Dog>().changed.listen((_) {});
+          leak = realm.all<Dog>().changes.listen((_) {});
         }
       });
     });
