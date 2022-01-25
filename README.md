@@ -26,7 +26,7 @@ This repository holds the source code for the Realm SDK for Flutterâ„¢ and Dartâ
     }
     ```
 
-* Generate Generates RealmObject class `Car` from data model class `_Car`.
+* Generate RealmObject class `Car` from data model class `_Car`.
 
     ```
     flutter run realm generate
