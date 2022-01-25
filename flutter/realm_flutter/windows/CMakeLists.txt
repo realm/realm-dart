@@ -40,7 +40,13 @@ execute_process(COMMAND "${FLUTTER_ROOT}\\bin\\dart.bat" "run" "realm" "install"
 message(STATUS "cmd output: ${output}")
 message(STATUS "cmd result: ${result}")
 
-# if (NOT result EQUAL 0)
-#   message(NOTICE "cmd output: ${output}")
-#   message(NOTICE "cmd result: ${result}")
-# endif()
+# message("CMAKE_HOST_SYSTEM_VERSION ${CMAKE_HOST_SYSTEM_VERSION}")
+execute_process(
+  COMMAND "${FLUTTER_ROOT}\\bin\\dart.bat" "run" "realm" "metrics" "--verbose" "--flutter-root" "${FLUTTER_ROOT}\\bin" "--target-os-type" "windows" "--target-os-version" "${CMAKE_HOST_SYSTEM_VERSION}" #"--pause-isolates-on-start" "--enable-vm-service"
+  # COMMAND ${CMAKE_COMMAND} -E true
+  OUTPUT_VARIABLE output
+  RESULT_VARIABLE result
+  # COMMAND_ERROR_IS_FATAL LAST
+)
+message(STATUS "cmd output: ${output}")
+message(STATUS "cmd result: ${result}")

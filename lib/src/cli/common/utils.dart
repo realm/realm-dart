@@ -35,11 +35,7 @@ extension StringEx on String {
 
 bool isRealmCI = Platform.environment['REALM_CI'] != null;
 
-FutureOr<T?> safe<T>(
-  FutureOr<T> Function() f, {
-  String message = 'Ignoring error',
-  Function(Object e, StackTrace s)? onError,
-}) async {
+FutureOr<T?> safe<T>(FutureOr<T> Function() f, {String message = 'Ignoring error', Function(Object e, StackTrace s)? onError}) async {
   try {
     return await f();
   } catch (e, s) {
@@ -54,10 +50,24 @@ FutureOr<T?> safe<T>(
 }
 
 // log to stdout
-final log = Logger('metrics')
-  ..onRecord.listen((record) {
-    stdout.writeln('[${record.level.name}] ${record.message}');
-    if (record.error != null) {
-      stdout.writeln(record.error);
-    }
-  });
+final log = createLogger();
+
+Logger createLogger() {
+  return Logger('metrics')
+    ..onRecord.listen((record) {
+      try {
+        if (Platform.isWindows) {
+          print('[${record.level.name}] ${record.message}');
+          if (record.error != null) {
+            print(record.error);
+          }
+          return;
+        }
+
+        stdout.writeln('[${record.level.name}] ${record.message}');
+        if (record.error != null) {
+          stdout.writeln(record.error);
+        }
+      } catch (_) {}
+    });
+}
