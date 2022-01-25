@@ -111,7 +111,7 @@ class Realm {
 
   ///Adds new [RealmObject] to Realm.
   ///
-  /// Throws [RealmExceprion] when trying to add objects with the same primary key.
+  /// Throws [RealmException] when trying to add objects with the same primary key.
   /// This [Realm] will start managing a [RealmObject] which has been created as a standalone object.
   /// If you invoke this when there is no write transaction active on the [Realm]
   /// an RealmException will be thrown.

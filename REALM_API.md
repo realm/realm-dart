@@ -1,7 +1,7 @@
 Realm API provides a set of classes that helps developers to work with Realm in an easy way. Once the data model is defined using the [annotations](Annotations-topic.html) and the realm models are generated using ```flutter run realm generate```, Realm API is able to create, delete, edit and search your model objecrs in Realm storage.
 
 
-* Defining set of schemas to be stored and opening [Realm] instance. This code will create Realm file with given schema.
+* Defining set of schemas to be stored and opening Realm instance. This code will create Realm file with given schema.
     ```dart
     var config = Configuration([Dog.schema, Person.schema]);
     var realm = Realm(config);
