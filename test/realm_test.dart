@@ -925,7 +925,7 @@ Future<void> main([List<String>? args]) async {
           realm.write(() {}); // dummy write to raise notification from previous write
         }
 
-        final stream = (team.players as RealmList<Person>).changed.asBroadcastStream(onCancel: (s) => s.cancel());
+        final stream = (team.players as RealmList<Person>).changes.asBroadcastStream(onCancel: (s) => s.cancel());
 
         var callbacks = 0;
         final subscription = stream.listen((_) => ++callbacks);

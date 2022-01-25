@@ -468,7 +468,7 @@ class _RealmCore {
     return controller.stream;
   }
 
-  Stream<RealmCollectionChanges> listChanged(RealmList list, SchedulerHandle scheduler) {
+  Stream<RealmCollectionChanges> listChanges(RealmList list, SchedulerHandle scheduler) {
     late StreamController<RealmCollectionChanges> controller;
 
     void callback(Pointer<Void> data) {
