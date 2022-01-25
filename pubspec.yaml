@@ -35,3 +35,6 @@ dev_dependencies:
   realm_generator:
     path: generator
   test: ^1.14.3
+
+dependency_overrides:
+  analyzer: ^3.0.0

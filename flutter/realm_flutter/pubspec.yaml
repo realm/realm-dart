@@ -40,6 +40,9 @@ dev_dependencies:
   realm_generator:
     path: ../../generator
 
+dependency_overrides:
+  analyzer: ^3.0.0
+
 flutter:
   plugin:
     platforms:
