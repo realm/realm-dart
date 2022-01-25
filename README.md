@@ -29,7 +29,7 @@ This repository holds the source code for the Realm SDK for Flutterâ„¢ and Dartâ
 * Generate RealmObject class `Car` from data model class `_Car`.
 
     ```
-    flutter run realm generate
+    dart run realm generate
     ```
 
 * Open a Realm and add some objects.
