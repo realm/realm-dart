@@ -27,7 +27,7 @@ dependencies:
     path: ./common
   realm_generator: 
     path: ./generator
-  tar: 0.5.0
+  tar: ">0.4.9 <=0.5.0"
 
 dev_dependencies:
   build_cli: ^2.1.3
