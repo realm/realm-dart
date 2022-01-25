@@ -196,7 +196,7 @@ The Realm Dart package is `realm_dart`
     dart pub add realm_dart
     ```
 
-* Install the `realm_dart` package into the application. This downloads and copies the required native binaries to the app directory
+* Install the `realm_dart` package into the application. This downloads and copies the required native binaries to the app directory.
 
     ```
     dart run realm_dart install
@@ -220,7 +220,7 @@ The Realm Dart package is `realm_dart`
                         generate_for:
                             - bin/*.dart 
         ```
-    * To generate RealmObject classes with realm_dart use this command
+    * To generate RealmObject classes with realm_dart use this command.
 
         ```
         dart run realm_dart generate
@@ -230,7 +230,7 @@ The Realm Dart package is `realm_dart`
         _*This file should be committed to source control_
 ## Usage
 
-For usage of Realm Dart see the Realm Flutter usage above
+For usage of Realm Dart see the Realm Flutter usage above.
 
 
 # Building the source
@@ -287,7 +287,7 @@ For usage of Realm Dart see the Realm Flutter usage above
 
 ### Versioning
 
-Realm Flutter and Dart SDK packages follow [Semantic Versioning](https://semver.org/)
+Realm Flutter and Dart SDK packages follow [Semantic Versioning](https://semver.org/).
 During the initial development the packages will be versioned according the scheme `0.major.minor+release stage` until the first stable version is reached then packages will be versioned with `major.minor.patch` scheme.
 
 The first versions will follow `0.1.0+preview`, `0.1.1+preview` etc.
