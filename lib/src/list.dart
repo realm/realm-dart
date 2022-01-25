@@ -80,8 +80,8 @@ class RealmList<T> extends collection.ListBase<T> {
     realmCore.listClear(this);
   }
 
-  Stream<RealmListChanges<T>> get changed => realmCore
-      .listChanged(
+  Stream<RealmListChanges<T>> get changes => realmCore
+      .listChanges(
         this,
         realm.scheduler.handle,
       )
