@@ -60,8 +60,8 @@ class RealmResults<T> extends collection.IterableBase<T> {
   @override
   int get length => realmCore.getResultsCount(this);
 
-  Stream<RealmResultsChanges<T>> get changed => realmCore
-      .resultsChanged(
+  Stream<RealmResultsChanges<T>> get changes => realmCore
+      .resultsChanges(
         this,
         realm.scheduler.handle,
       )
