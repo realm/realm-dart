@@ -2,11 +2,14 @@ name: Realm Dart for MacOS
 
 on:
   push:
-    branches: [ master ]
+    branches:
     # Do not run if change is in these paths
     paths-ignore:
       - 'flutter/**'
       - 'generator/**'
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+**' # matches tags like number(s).number(s).number(s)(any) for ex: 1.0.0 and also 1.0.0+beta
+
   pull_request:
     # Do not run if change is in these paths
     paths-ignore:
@@ -41,4 +44,26 @@ jobs:
         run: dart pub get
 
       - name: Run tests
-        run: dart test -r expanded
+        run: |
+          dart test -r expanded
+          echo "ARCHIVE_PATH=$(pwd)/binary/macos.tar.gz" >> $GITHUB_ENV
+
+      - name: Archive binary
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: |
+          dart run realm_dart archive --source-dir $(pwd)/binary/macos --output-file $ARCHIVE_PATH
+
+      - name: Release artifacts
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates:  true
+          artifactErrorsFailBuild: true
+          draft: true
+          omitNameDuringUpdate: true
+          prerelease: false
+          omitPrereleaseDuringUpdate: true
+          artifacts: ${{ env.ARCHIVE_PATH }}
+          body: "ADD RELEASE NOTES"
+          omitBodyDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -28,10 +28,9 @@ Options _$parseOptionsResult(ArgResults result) => Options(
         _$TargetOsTypeEnumMapBuildCli,
         result['target-os-type'] as String?,
       ),
-      targetOsVersion: result['target-os-version'] as String?,
-      flutterRoot: result['flutter-root'] as String?,
-      pubspecPath: result['pubspec-path'] as String?,
-    )..verbose = result['verbose'] as bool;
+      packageName: result['package-name'] as String?,
+      debug: result['debug'] as bool?,
+    );
 
 const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
   TargetOsType.android: 'android',
@@ -44,25 +43,21 @@ const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addOption(
     'target-os-type',
-    help: 'The OS type this project is targeting.',
+    abbr: 't',
+    help: 'Required for Flutter. The target OS to install binaries for.',
     allowed: ['android', 'ios', 'linux', 'macos', 'windows'],
   )
   ..addOption(
-    'target-os-version',
-    help: 'The OS version this project is targeting.',
-  )
-  ..addOption(
-    'flutter-root',
-    help: 'The path to the Flutter SDK (excluding the bin directory).',
-  )
-  ..addOption(
-    'pubspec-path',
-    help: 'The path to the application pubspec',
+    'package-name',
+    abbr: 'p',
+    help: 'Optional. The realm package name to install binaries for.',
+    defaultsTo: 'realm_dart',
+    allowed: ['realm', 'realm_dart'],
   )
   ..addFlag(
-    'verbose',
-    abbr: 'v',
-    help: 'Show additional command output.',
+    'debug',
+    defaultsTo: false,
+    hide: true,
   );
 
 final _$parserForOptions = _$populateOptionsParser(ArgParser());

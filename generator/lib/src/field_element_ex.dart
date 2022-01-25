@@ -123,7 +123,6 @@ extension FieldElementEx on FieldElement {
           (![
                 RealmPropertyType.string,
                 RealmPropertyType.int,
-                RealmPropertyType.bool,
               ].contains(type.realmType) ||
               type.isRealmCollection)) {
         final file = span!.file;

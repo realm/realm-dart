@@ -20,32 +20,45 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:path/path.dart' as path;
 
 import 'options.dart';
+import '../common/archive.dart';
 
-class GenerateCommand extends Command<void> {
+class ExtractCommand extends Command<void> {
   @override
-  final String description = 'Generate Realm objects from data model classes';
+  final String description = 'Extract Realm binaries from an archive. Internal command used when downloading Realm binaries on build.';
 
   @override
-  final String name = 'generate';
+  final String name = 'extract';
 
-  GenerateCommand() {
+  @override
+  bool get hidden => true;
+
+  late Options options;
+
+  ExtractCommand() {
     populateOptionsParser(argParser);
   }
 
   @override
   FutureOr<void>? run() async {
-    final options = parseOptionsResult(argResults!);
+    options = parseOptionsResult(argResults!);
+    if (options.sourceFile == null) {
+      abort("source-file option not specified");
+    }
 
-    final process = await Process.start('dart', [
-      'run',
-      'build_runner',
-      // prioritize clean, then watch, then build
-      options.clean ? 'clean' : options.watch ? 'watch' : 'build',
-      ...[if (!options.clean) '--delete-conflicting-outputs'], // not legal option to clean
-    ]);
-    
-    await stdout.addStream(process.stdout);
+    if (options.outputDir == null) {
+      abort("output-dir option not specified");
+    }
+
+    final archive = Archive();
+    archive.extract(File(options.sourceFile!), Directory(options.outputDir!));
+  }
+
+  void abort(String error) {
+    print(error);
+    print(usage);
+    exit(64); //usage error
   }
 }

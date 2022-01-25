@@ -3,7 +3,7 @@ targets:
     builders:
       build_cli:
         generate_for:
-          - lib/src/cli/metrics/options.dart
+          - lib/src/cli/**/**.dart
       json_serializable:
         generate_for:
           - lib/src/cli/metrics/flutter_info.dart

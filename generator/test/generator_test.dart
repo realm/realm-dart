@@ -28,10 +28,11 @@ class _Foo {
             '  Foo({\n'
             '    int x = 0,\n'
             '  }) {\n'
-            '    if (!_defaultsSet)\n'
+            '    if (!_defaultsSet) {\n'
             '      _defaultsSet = RealmObject.setDefaults<Foo>({\n'
             '        \'x\': 0,\n'
             '      });\n'
+            '    }\n'
             '    this.x = x;\n'
             '  }\n'
             '\n'
@@ -50,7 +51,8 @@ class _Foo {
             '      SchemaProperty(\'x\', RealmPropertyType.int),\n'
             '    ]);\n'
             '  }\n'
-            '}\n',
+            '}\n'
+            '',
       },
       reader: await PackageAssetReader.currentIsolate(),
     );
@@ -884,51 +886,6 @@ class _Bad1 {}
     );
   });
 
-  test('defining both _Bad and \$Bad in different files', () async {
-    await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test1.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test1.g.dart';
-
-@RealmModel()
-class $Bad2 {}
-''',
-          'pkg|lib/src/test2.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test2.g.dart';
-
-@RealmModel()
-class _Bad2 {}
-''',
-        },
-        reader: await PackageAssetReader.currentIsolate(),
-      ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'Duplicate definition\n'
-            '\n'
-            'in: package:pkg/src/test2.dart:6:7\n'
-            '  ┌──> package:pkg/src/test2.dart\n'
-            '5 │ @RealmModel()\n'
-            '6 │ class _Bad2 {}\n'
-            '  │       ^^^^^ realm model \'\$Bad2\' already defines \'Bad2\'\n'
-            '  ╵\n'
-            '  ┌──> package:pkg/src/test1.dart\n'
-            '6 │ class \$Bad2 {}\n'
-            '  │       ━━━━━ \n'
-            '  ╵\n'
-            'Duplicate realm model definitions \'_Bad2\' and \'\$Bad2\'.\n'
-            '',
-      )),
-    );
-  });
-
   test('reusing mapTo name', () async {
     await expectLater(
       () async => await testBuilder(
@@ -968,6 +925,88 @@ class _Bar {}
             '    │       ^^^^ realm model \'_Foo\' already defines \'Bad3\'\n'
             '    ╵\n'
             'Duplicate realm model definitions \'_Bar\' and \'_Foo\'.\n'
+            '',
+      )),
+    );
+  });
+
+  test('bool not allowed on indexed field', () async {
+    await expectLater(
+      () async => await testBuilder(
+        generateRealmObjects(),
+        {
+          'pkg|lib/src/test.dart': r'''
+import 'package:realm_common/realm_common.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+@MapTo('Bad')
+class _Foo {
+  @Indexed()
+  late bool bad;
+}
+'''
+        },
+        reader: await PackageAssetReader.currentIsolate(),
+      ),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+        (e) => e.format(),
+        'format()',
+        'Realm only support indexes on String, int, and bool fields\n'
+            '\n'
+            'in: package:pkg/src/test.dart:9:8\n'
+            '  ╷\n'
+            '5 │ @RealmModel()\n'
+            '6 │ @MapTo(\'Bad\')\n'
+            '7 │ class _Foo {\n'
+            '  │       ━━━━ in realm model for \'Bad\'\n'
+            '8 │   @Indexed()\n'
+            '9 │   late bool bad;\n'
+            '  │        ^^^^ bool is not an indexable type\n'
+            '  ╵\n'
+            'Change the type of \'bad\', or remove the @Indexed() annotation\n'
+            '',
+      )),
+    );
+  });
+
+  test('bool not allowed as primary key', () async {
+    await expectLater(
+      () async => await testBuilder(
+        generateRealmObjects(),
+        {
+          'pkg|lib/src/test.dart': r'''
+import 'package:realm_common/realm_common.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+@MapTo('Bad')
+class _Foo {
+  @PrimaryKey()
+  late final bool bad;
+}
+'''
+        },
+        reader: await PackageAssetReader.currentIsolate(),
+      ),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+        (e) => e.format(),
+        'format()',
+        'Realm only support indexes on String, int, and bool fields\n'
+            '\n'
+            'in: package:pkg/src/test.dart:9:14\n'
+            '  ╷\n'
+            '5 │ @RealmModel()\n'
+            '6 │ @MapTo(\'Bad\')\n'
+            '7 │ class _Foo {\n'
+            '  │       ━━━━ in realm model for \'Bad\'\n'
+            '8 │   @PrimaryKey()\n'
+            '9 │   late final bool bad;\n'
+            '  │              ^^^^ bool is not an indexable type\n'
+            '  ╵\n'
+            'Change the type of \'bad\', or remove the @PrimaryKey() annotation\n'
             '',
       )),
     );

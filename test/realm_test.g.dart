@@ -17,6 +17,8 @@ class Car extends _Car with RealmObject {
 
   @override
   String get make => RealmObject.get<String>(this, 'make') as String;
+  @override
+  set make(String value) => throw RealmUnsupportedSetError();
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -67,6 +69,8 @@ class Dog extends _Dog with RealmObject {
 
   @override
   String get name => RealmObject.get<String>(this, 'name') as String;
+  @override
+  set name(String value) => throw RealmUnsupportedSetError();
 
   @override
   int? get age => RealmObject.get<int>(this, 'age') as int?;
@@ -112,9 +116,13 @@ class Team extends _Team with RealmObject {
   @override
   List<Person> get players =>
       RealmObject.get<Person>(this, 'players') as List<Person>;
+  @override
+  set players(covariant List<Person> value) => throw RealmUnsupportedSetError();
 
   @override
   List<int> get scores => RealmObject.get<int>(this, 'scores') as List<int>;
+  @override
+  set scores(List<int> value) => throw RealmUnsupportedSetError();
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
