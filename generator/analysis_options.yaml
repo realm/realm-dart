@@ -13,15 +13,13 @@
 
 include: package:lints/recommended.yaml
 
-# Uncomment the following section to specify additional rules.
+analyzer:
+  language:
+    strict-raw-types: true
 
-# linter:
-#   rules:
-#     - camel_case_types
-
-# analyzer:
-#   exclude:
-#     - path/to/excluded/files/**
+  strong-mode:
+    implicit-casts: false
+    implicit-dynamic: false
 
 # For more information about the core and recommended set of lints, see
 # https://dart.dev/go/core-lints
