@@ -72,9 +72,13 @@ For a complete documentation go to [Realm Flutter and Dart SDK Docs](https://doc
 
 * This version of Realm Flutter and Dart SDK allows working with a local only (on device) Realm database in Flutter and Dart desktop. Realm Sync functionality is not implemented.
 
-* It provides the functionality for creating, retrieving, querying, sorting, filtering, updating Realm objects and supports change notifications.
+* It provides the functionality for creating, retrieving, querying, sorting, filtering, updating Realm objects.
 
-* Flutter Desktop on Linux is not yet support
+* Flutter Desktop on Linux is not supported yet.
+
+* Migrations are not supported yet. 
+
+    If you change your data models often and receive a migration exception be sure to delete the old `default.realm` file in your application directory. It will get recreated with the new schema the next time the Realm is opened. 
 
 # Realm Flutter SDK 
 
@@ -85,98 +89,87 @@ The Realm Flutter package name is `realm`
 * Supported platforms are Flutter (iOS, Android, Windows, MacOS) and Dart standalone (Windows, MacOS and Linux)
 
 * Flutter ^2.8.0
+* For Flutter Desktop environment setup check the guide [here](https://docs.flutter.dev/desktop)
 
 ## Usage
 
 * Add `realm` package to a Flutter application.
+
     ```
     flutter pub add realm
     ```
 
-* Enable generation of RealmObjects.
+* Import Realm in a dart file (ex. `catalog.dart`).
 
-    * Add `build_runner` package to `dev_dependencies`.
-        ```
-        dart pub add build_runner --dev
-        ```
-    * Enable `realm_generator` by adding a `build.yaml` file to the application.
-        ```yaml
-        targets:
-            $default:
-                builders:
-                    realm_generator|realm_object_builder:
-                        enabled: true
-                        generate_for:
-                            - lib/*.dart 
-        ```
+    ```dart
+    import 'package:realm/realm.dart';
+    ```
 
-    * Import Realm in a dart file (ex. `catalog.dart`).
-        ```dart
-        import 'package:realm/realm.dart';
-        ```
+* Declare a part file `catalog.g.dart` in the begining of the `catalog.dart` dart file after all imports.
 
-    * Declare a part file `catalog.g.dart` in the begining of the `catalog.dart` dart file after all imports.
+    ```dart
+    import 'dart:io';
 
-        ```dart
-        import 'dart:io';
+    part 'catalog.g.dart'
+    ```
 
-        part 'catalog.g.dart'
-        ```
+* Create a data model class.
 
-    * Create a data model class
+    It should start with an underscore `_Item` and be annotated with `@RealmModel()`
 
-        ```dart
-        @RealmModel()
-        class _Item {
-            @PrimaryKey()
-            late final int id;
+    ```dart
+    @RealmModel()
+    class _Item {
+        @PrimaryKey()
+        late final int id;
 
-            late String name;
-            
-            int price = 42;
-        }
-        ```
-    * Generate RealmObject class `Item` from data model class `_Item`.
-
-        ```
-        dart run realm generate
-        ```
-        A new file `catalog.g.dart` will be created next to the `catalog.dart`.
+        late String name;
         
-        _*This file should be committed to source control_
+        int price = 42;
+    }
+    ```
 
-    * Use the RealmObject class `Item` with Realm.
+* Generate RealmObject class `Item` from data model class `_Item`.
 
-        ```dart
-        // Create a Configuration object
-        var config = Configuration(Item.schema);
+    ```
+    dart run realm generate
+    ```
+    A new file `catalog.g.dart` will be created next to the `catalog.dart`.
+    
+    _*This file should be committed to source control_
 
-        // Opean a Realm
-        realm = Realm(config);
+* Use the RealmObject class `Item` with Realm.
 
-        // Open a write transaction
-        realm.write(() {
-          var myItem = Item(0, 'Iteam', price: 4);
-          realm.add(myItem);
-          final item = realm.add(Item(1, 'Iteam')..price = 20);
-        });
+    ```dart
+    // Create a Configuration object
+    var config = Configuration([Item.schema]);
 
-        // Get objects from the realm
+    // Opean a Realm
+    realm = Realm(config);
 
-        // Get all objects
-        var items = realm.all<Item>();
-        
-        // Get object by index
-        var item = items[5];
-        
-        // Get object by primary key
-        var itemByKey = realm.find<Item>(0);
-        
-        // Filter and sort object
-        var objects = realm.query<Item>("name == 'Special Item'");
-        var mymake = 'Tesla';
-        var objects = realm.query<Item>(r'make == $0', [mymake]);
-        ```
+    // Open a write transaction
+    realm.write(() {
+        var myItem = Item(0, 'Iteam', price: 4);
+        realm.add(myItem);
+        var item = realm.add(Item(1, 'Iteam')..price = 20);
+    });
+
+    // Get objects from the realm
+
+    // Get all objects of type
+    var items = realm.all<Item>();
+    
+    // Get object by index
+    var item = items[5];
+    
+    // Get object by primary key
+    var itemByKey = realm.find<Item>(0);
+    
+    // Filter and sort object
+    var objects = realm.query<Item>("name == 'Special Item'");
+    var name = 'John';
+    var objects = realm.query<Item>(r'name == $0', [name]]);
+    ```
 
 # Realm Dart SDK 
 
@@ -184,7 +177,7 @@ The Realm Dart package is `realm_dart`
 
 ## Environment setup for Realm Dart
 
-* Supported platforms are Windows and Mac.
+* Supported platforms are Windows, Mac and Linux.
 
 * Dart SDK ^2.15
 
@@ -202,35 +195,16 @@ The Realm Dart package is `realm_dart`
     dart run realm_dart install
     ``` 
 
-* Enable generation of Realm schema objects.
+* To generate RealmObject classes with realm_dart use this command.
 
-    * Add `build_runner` package to `dev_dependencies`.
+    ```
+    dart run realm_dart generate
+    ```
+    A new file `catalog.g.dart` will be created next to the `catalog.dart`.
+    
+    _*This file should be committed to source control_
 
-        ```
-        dart pub add build_runner --dev
-        ```
-    * Enable realm_generator by adding a `build.yaml` file to the application.
-
-        ```yaml
-        targets:
-            $default:
-                builders:
-                    realm_generator|realm_object_builder:
-                        enabled: true
-                        generate_for:
-                            - bin/*.dart 
-        ```
-    * To generate RealmObject classes with realm_dart use this command.
-
-        ```
-        dart run realm_dart generate
-        ```
-        A new file `catalog.g.dart` will be created next to the `catalog.dart`.
-        
-        _*This file should be committed to source control_
-## Usage
-
-For usage of Realm Dart see the Realm Flutter usage above.
+* For more usage of Realm Dart see the Realm Flutter usage above.
 
 
 # Building the source
@@ -249,15 +223,15 @@ For usage of Realm Dart see the Realm Flutter usage above.
     ```bash
     ./scripts/build-android.sh all
     scripts\build-android.bat all
-    #or for emulator only
+    # Or for Android Emulator only
     ./scripts/build-android.sh x86
     scripts\build-android.bat x86
     ```
 
 * iOS
-    ```
+    ```bash
     ./scripts/build-ios.sh
-    #or for simulator only
+    # Or for iOS Simulator only
     ./scripts/build-ios.sh simulator
     ```
 

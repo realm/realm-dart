@@ -13,12 +13,6 @@
 
 include: package:lints/recommended.yaml
 
-# Uncomment the following section to specify additional rules.
-
-# linter:
-#   rules:
-#     - camel_case_types
-
 analyzer:
   language:
     strict-raw-types: true
@@ -29,10 +23,12 @@ analyzer:
 
   exclude:
     - lib/**/*.g.dart
+    - lib/**/realm_bindings.dart
 
 linter:
   rules:
     avoid_relative_lib_imports: false
+    package_api_docs: true
 
 # For more information about the core and recommended set of lints, see
 # https://dart.dev/go/core-lints
