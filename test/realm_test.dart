@@ -1222,7 +1222,7 @@ Future<void> main([List<String>? args]) async {
       var studentMichele = Student(1)
         ..name = "Michele Ernesto"
         ..yearOfBirth = 2005;
-      var studentLoreta = Student(2)
+      var studentLoreta = Student(2, {name  = "Loreta", yearOfBirth = 2006})
         ..name = "Loreta Salvator"
         ..yearOfBirth = 2006;
       var studentPeter = Student(3)
