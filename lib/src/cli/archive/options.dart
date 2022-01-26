@@ -16,24 +16,22 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Usage
-///
-/// * Add a dependency to [realm](https://pub.dev/packages/realm) package or [realm_dart](https://pub.dev/packages/realm_dart) package to your application
-/// * Run `flutter pub run build_runner build` or `dart run build_runner build` to generate RealmObjects
+import 'package:build_cli_annotations/build_cli_annotations.dart';
 
-library realm_generator;
+part 'options.g.dart';
 
-import 'package:build/build.dart';
-import 'package:source_gen/source_gen.dart';
+@CliOptions()
+class Options {
+  @CliOption(help:  "This option is required")
+  final String? sourceDir;
+  @CliOption(help:  "This option is required")
+  final String? outputFile;
 
-import 'src/realm_object_generator.dart';
-
-export 'src/error.dart';
-
-/// @nodoc
-Builder generateRealmObjects([BuilderOptions? options]) {
-  return SharedPartBuilder(
-      [RealmObjectGenerator()],
-      'realm_objects',
-    );
+  Options({this.sourceDir, this.outputFile});
 }
+
+String get usage => _$parserForOptions.usage;
+
+ArgParser populateOptionsParser(ArgParser p) => _$populateOptionsParser(p);
+
+Options parseOptionsResult(ArgResults results) => _$parseOptionsResult(results);

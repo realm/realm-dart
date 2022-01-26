@@ -17,14 +17,14 @@ flutter/**
 generator/**
 
 # Ignore doc build output directory
-/doc/
+doc/
 
 # Ignore native binaries output directory
-/binary/
+binary/
 
 # Ignore native binaries build directories
-/build-android/
-/build/
+build-android/
+build/
 
 # Ignore the ffigen directory
-/ffigen/
+ffigen/

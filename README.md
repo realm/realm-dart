@@ -5,22 +5,295 @@
 Realm is a mobile database that runs directly inside phones, tablets or wearables.
 This repository holds the source code for the Realm SDK for Flutter™ and Dart™.
 
-# Alpha
-
 **This project is in the Alpha stage, All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
 
-The previous preview version of Realm Dart can be found on this branch: https://github.com/realm/realm-dart/tree/preview
+## Getting Started
 
+* Import Realm.
+    ```dart
+    import 'package:realm/realm.dart';
+    ```
+
+* Define a data model class `_Car`.
+    ```dart
+    @RealmModel()
+    class _Car {
+      late String make;
+
+      late String model;
+    
+      int? kilometers = 500;
+    }
+    ```
+
+* Generate RealmObject class `Car` from data model class `_Car`.
+
+    ```
+    dart run realm generate
+    ```
+
+* Open a Realm and add some objects.
+
+    ```dart
+    var config = Configuration([Car.schema]);
+    var realm = Realm(config);
+
+    var car = Car("Telsa", "Model Y", kilometers: 5);
+    realm.write(() {
+      realm.add(car);
+    }
+    ```
+
+* Query objects in Realm.
+
+    ```dart
+    var cars = realm.all<Car>();
+    Car myCar = cars[0];
+    print("My car is ${myCar.make} model ${myCar.model}");
+
+    cars = realm.all<Car>().query("make == 'Tesla'");
+    ```
+
+## Samples
+
+For complete samples check the [Realm Flutter and Dart Samples](https://github.com/realm/realm-dart-samples).
+
+## Documentation
+
+For API documentation go to 
+ * [Realm Flutter API Docs](https://pub.dev/documentation/realm/latest/)
+
+ * [Realm Dart API Docs](https://pub.dev/documentation/realm_dart/latest/)
+
+For a complete documentation go to [Realm Flutter and Dart SDK Docs](https://docs.mongodb.com/realm/sdk/flutter/).
+
+
+## Limitations
+
+* This version of Realm Flutter and Dart SDK allows working with a local only (on device) Realm database in Flutter and Dart desktop. Realm Sync functionality is not implemented.
+
+* It provides the functionality for creating, retrieving, querying, sorting, filtering, updating Realm objects and supports change notifications.
+
+* Flutter Desktop on Linux is not yet support
+
+# Realm Flutter SDK 
+
+The Realm Flutter package name is `realm`
+
+## Environment setup for Realm Flutter
+
+* Supported platforms are Flutter (iOS, Android, Windows, MacOS) and Dart standalone (Windows, MacOS and Linux)
+
+* Flutter ^2.8.0
+
+## Usage
+
+* Add `realm` package to a Flutter application.
+    ```
+    flutter pub add realm
+    ```
+
+* Enable generation of RealmObjects.
+
+    * Add `build_runner` package to `dev_dependencies`.
+        ```
+        dart pub add build_runner --dev
+        ```
+    * Enable `realm_generator` by adding a `build.yaml` file to the application.
+        ```yaml
+        targets:
+            $default:
+                builders:
+                    realm_generator|realm_object_builder:
+                        enabled: true
+                        generate_for:
+                            - lib/*.dart 
+        ```
+
+    * Import Realm in a dart file (ex. `catalog.dart`).
+        ```dart
+        import 'package:realm/realm.dart';
+        ```
+
+    * Declare a part file `catalog.g.dart` in the begining of the `catalog.dart` dart file after all imports.
+
+        ```dart
+        import 'dart:io';
+
+        part 'catalog.g.dart'
+        ```
+
+    * Create a data model class
+
+        ```dart
+        @RealmModel()
+        class _Item {
+            @PrimaryKey()
+            late final int id;
+
+            late String name;
+            
+            int price = 42;
+        }
+        ```
+    * Generate RealmObject class `Item` from data model class `_Item`.
+
+        ```
+        dart run realm generate
+        ```
+        A new file `catalog.g.dart` will be created next to the `catalog.dart`.
+        
+        _*This file should be committed to source control_
+
+    * Use the RealmObject class `Item` with Realm.
+
+        ```dart
+        // Create a Configuration object
+        var config = Configuration(Item.schema);
+
+        // Opean a Realm
+        realm = Realm(config);
+
+        // Open a write transaction
+        realm.write(() {
+          var myItem = Item(0, 'Iteam', price: 4);
+          realm.add(myItem);
+          final item = realm.add(Item(1, 'Iteam')..price = 20);
+        });
+
+        // Get objects from the realm
+
+        // Get all objects
+        var items = realm.all<Item>();
+        
+        // Get object by index
+        var item = items[5];
+        
+        // Get object by primary key
+        var itemByKey = realm.find<Item>(0);
+        
+        // Filter and sort object
+        var objects = realm.query<Item>("name == 'Special Item'");
+        var mymake = 'Tesla';
+        var objects = realm.query<Item>(r'make == $0', [mymake]);
+        ```
+
+# Realm Dart SDK 
+
+The Realm Dart package is `realm_dart`
+
+## Environment setup for Realm Dart
+
+* Supported platforms are Windows and Mac.
+
+* Dart SDK ^2.15
+
+## Usage
+
+* Add `realm_dart` package to a Dart application.
+
+    ```
+    dart pub add realm_dart
+    ```
+
+* Install the `realm_dart` package into the application. This downloads and copies the required native binaries to the app directory.
+
+    ```
+    dart run realm_dart install
+    ``` 
+
+* Enable generation of Realm schema objects.
+
+    * Add `build_runner` package to `dev_dependencies`.
+
+        ```
+        dart pub add build_runner --dev
+        ```
+    * Enable realm_generator by adding a `build.yaml` file to the application.
+
+        ```yaml
+        targets:
+            $default:
+                builders:
+                    realm_generator|realm_object_builder:
+                        enabled: true
+                        generate_for:
+                            - bin/*.dart 
+        ```
+    * To generate RealmObject classes with realm_dart use this command.
+
+        ```
+        dart run realm_dart generate
+        ```
+        A new file `catalog.g.dart` will be created next to the `catalog.dart`.
+        
+        _*This file should be committed to source control_
+## Usage
+
+For usage of Realm Dart see the Realm Flutter usage above.
+
+
+# Building the source
+
+## Building Realm Flutter
+
+* Clone the repo 
+    ```
+    git clone https://github.com/realm/realm-dart
+    git submodule update --init --recursive
+    ```
+
+### Build Realm Flutter native binaries
+
+* Android
+    ```bash
+    ./scripts/build-android.sh all
+    scripts\build-android.bat all
+    #or for emulator only
+    ./scripts/build-android.sh x86
+    scripts\build-android.bat x86
+    ```
+
+* iOS
+    ```
+    ./scripts/build-ios.sh
+    #or for simulator only
+    ./scripts/build-ios.sh simulator
+    ```
+
+* Windows
+    ```
+    scripts\build.bat
+    ```
+* MacOS
+    ```
+    ./scripts/build-macos.sh
+    ```
+
+## Building Realm Dart
+
+* Windows
+    ```
+    scripts\build.bat
+    ```
+* MacOS
+    ```
+    ./scripts/build-macos.sh
+    ```
+* Linux
+    ```
+    ./scripts/build-linux.sh
+    ```
 
 ### Versioning
 
-Realm Flutter and Dart SDK packages follow [Semantic Versioning](https://semver.org/)
+Realm Flutter and Dart SDK packages follow [Semantic Versioning](https://semver.org/).
 During the initial development the packages will be versioned according the scheme `0.major.minor+release stage` until the first stable version is reached then packages will be versioned with `major.minor.patch` scheme.
 
 The first versions will follow `0.1.0+preview`, `0.1.1+preview` etc.
-Then next release stage will pick up the next minor version `0.1.2+beta`, `0.1.3+beta`. This will ensure dependencies are updated on `pub get` with the new `beta` versions.
+Then next release stages will pick up the next minor version `0.1.2+beta`, `0.1.3+beta`. This will ensure dependencies are updated on `dart pub get` with the new `alpha`, `beta` versions.
 If an `alpha` version is released before `beta` and it needs to not be considered for `pub get` then it should be marked as `prerelease` with `-alpha` so  `0.1.2-alpha` etc. 
-Updating the major version with every release stage is also possible - `0.2.0+beta`, `0.2.1+beta`.
+Updating the major version with every release stage is also possible - `0.2.0+alpha`, `0.3.0+beta`, `0.3.1+beta`.
 
 # Code of Conduct
 
@@ -30,7 +303,7 @@ unacceptable behavior to [community-conduct@mongodb.com](mailto:community-conduc
 
 # License
 
-Realm Dart and [Realm Core](https://github.com/realm/realm-core) are published under the Apache License 2.0.
+Realm Flutter and Dart SDKs and [Realm Core](https://github.com/realm/realm-core) are published under the Apache License 2.0.
 
 **This product is not being made available to any person located in Cuba, Iran,
 North Korea, Sudan, Syria or the Crimea region, or to any other person that is

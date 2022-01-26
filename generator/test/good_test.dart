@@ -28,10 +28,11 @@ class _Person {
             '  Person({\n'
             '    int age = 47,\n'
             '  }) {\n'
-            '    if (!_defaultsSet)\n'
+            '    if (!_defaultsSet) {\n'
             '      _defaultsSet = RealmObject.setDefaults<Person>({\n'
             '        \'age\': 47,\n'
             '      });\n'
+            '    }\n'
             '    this.age = age;\n'
             '  }\n'
             '\n'
@@ -88,6 +89,8 @@ class _Person {
             '\n'
             '  @override\n'
             '  String get name => RealmObject.get<String>(this, \'name\') as String;\n'
+            '  @override\n'
+            '  set name(String value) => throw RealmUnsupportedSetError();\n'
             '\n'
             '  static SchemaObject get schema => _schema ??= _initSchema();\n'
             '  static SchemaObject? _schema;\n'
@@ -98,7 +101,7 @@ class _Person {
             '    ]);\n'
             '  }\n'
             '}\n'
-            ''
+            '',
       },
       reader: await PackageAssetReader.currentIsolate(),
     );
@@ -135,6 +138,9 @@ class _Person {
             '  @override\n'
             '  List<Person> get children =>\n'
             '      RealmObject.get<Person>(this, \'children\') as List<Person>;\n'
+            '  @override\n'
+            '  set children(covariant List<Person> value) =>\n'
+            '      throw RealmUnsupportedSetError();\n'
             '\n'
             '  static SchemaObject get schema => _schema ??= _initSchema();\n'
             '  static SchemaObject? _schema;\n'
@@ -146,7 +152,7 @@ class _Person {
             '    ]);\n'
             '  }\n'
             '}\n'
-            '',
+            ''
       },
       reader: await PackageAssetReader.currentIsolate(),
     );

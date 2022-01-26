@@ -17,6 +17,8 @@ class Car extends _Car with RealmObject {
 
   @override
   String get make => RealmObject.get<String>(this, 'make') as String;
+  @override
+  set make(String value) => throw RealmUnsupportedSetError();
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;

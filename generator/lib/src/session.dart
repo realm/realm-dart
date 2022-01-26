@@ -47,15 +47,12 @@ Future<T> scopeSession<T>(
   )!;
 }
 
-void clearMappings() => _Session._mapping.clear();
-
 class _Session {
   final ResolvedLibraryResult resolvedLibrary;
   final Pattern prefix;
   final String suffix;
   final bool color;
-  static final _mapping = <String, ClassElement>{}; // shared
-  Map<String, ClassElement> get mapping => _Session._mapping;
+  final mapping = <String, ClassElement>{}; // shared
 
   _Session(this.resolvedLibrary, {String? prefix, String? suffix, this.color = false})
       : prefix = prefix ?? RegExp(r'[_$]'), // defaults to _ or $

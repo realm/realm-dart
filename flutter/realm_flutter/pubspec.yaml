@@ -30,6 +30,7 @@ dependencies:
     path: ../../common
   realm_generator: 
     path: ../../generator
+  tar: 0.5.0
 
 dev_dependencies:
   flutter_test:
@@ -40,8 +41,13 @@ dev_dependencies:
   lints: ^1.0.1
   test: ^1.20.1
 
-# Remove once flutter_test from sdk is updated
-dependency_overrides: 
+# TODO: Remove once flutter_test from sdk is updated. 
+# Flutter ships flutter_test package in the Flutter SDK library which depends on test@0.4.8 currently. Generator crashes due to a bug in that package when
+# json_serializable is in the dependencies. 
+# We noticed that test@04.9 works correctly and our generator does not crash. The crash is happneing internally in the anaylzer and not in the Realm generator 
+# code.
+# Hence the dependency override here. 
+dependency_overrides:
   test_api: ^0.4.9
 
 flutter:

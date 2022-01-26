@@ -6,23 +6,25 @@ part of 'myapp.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
-class Car extends _Car with RealmObject {
-  Car(
+class MyCar extends _MyCar with RealmObject {
+  MyCar(
     String make,
   ) {
     RealmObject.set(this, 'make', make);
   }
 
-  Car._();
+  MyCar._();
 
   @override
   String get make => RealmObject.get<String>(this, 'make') as String;
+  @override
+  set make(String value) => throw RealmUnsupportedSetError();
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory(Car._);
-    return const SchemaObject(Car, [
+    RealmObject.registerFactory(MyCar._);
+    return const SchemaObject(MyCar, [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
     ]);
   }
