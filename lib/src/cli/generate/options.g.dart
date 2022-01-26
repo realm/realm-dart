@@ -13,12 +13,13 @@ Options _$parseOptionsResult(ArgResults result) => Options()
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addFlag(
     'clean',
-    help: "Same as running 'dart run build_runner clean'",
+    help:
+        "Optional. Cleans generator caches. Same as running 'dart run build_runner clean'",
   )
   ..addFlag(
     'watch',
     help:
-        "Same as running 'dart run build_runner watch --delete-conflicting-outputs'",
+        "Optional. Watches for changes and generates RealmObjects classes on the background. Same as running 'dart run build_runner watch --delete-conflicting-outputs'",
   );
 
 final _$parserForOptions = _$populateOptionsParser(ArgParser());
