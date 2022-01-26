@@ -56,6 +56,25 @@ class _Team {
   late final List<int> scores;
 }
 
+@RealmModel()
+class _Student {
+  @PrimaryKey()
+  late final int number;
+  late String? name;
+  late int? yearOfBirth;
+  late _School? school;
+}
+
+@RealmModel()
+class _School {
+  @PrimaryKey()
+  late final String name;
+  late String? city;
+  final List<_Student> students = [];
+  late _School? branchOfSchool;
+  late final List<_School> branches;
+}
+
 String? testName;
 
 //Overrides test method so we can filter tests
@@ -1218,6 +1237,58 @@ Future<void> main([List<String>? args]) async {
       final read = realm.query<Person>("name == 'Kasper'");
 
       expect(read, [person]);
+    });
+  });
+  group('Cycle referenced objects tests:', () {
+    test('Realm adding objects graph', () {
+      var studentMichele = Student(1)
+        ..name = "Michele Ernesto"
+        ..yearOfBirth = 2005;
+      var studentLoreta = Student(2, name: "Loreta Salvator", yearOfBirth: 2006);
+      var studentPeter = Student(3, name: "Peter Ivanov", yearOfBirth: 2007);
+
+      var school131 = School("JHS 131", city: "NY");
+      school131.students.addAll([studentMichele, studentLoreta, studentPeter]);
+
+      var school131Branch1 = School("First branch 131A", city: "NY Bronx")
+        ..branchOfSchool = school131
+        ..students.addAll([studentMichele, studentLoreta]);
+
+      studentMichele.school = school131Branch1;
+      studentLoreta.school = school131Branch1;
+
+      var school131Branch2 = School("Second branch 131B", city: "NY Bronx")
+        ..branchOfSchool = school131
+        ..students.add(studentPeter);
+
+      studentPeter.school = school131Branch2;
+
+      school131.branches.addAll([school131Branch1, school131Branch2]);
+
+      var config = Configuration([School.schema, Student.schema]);
+      var realm = Realm(config);
+
+      realm.write(() => realm.add(school131));
+
+      //Check schools
+      var schools = realm.all<School>();
+      expect(schools.length, 3);
+
+      //Check students
+      var students = realm.all<Student>();
+      expect(students.length, 3);
+
+      //Check branches
+      var branches = realm.all<School>().query('branchOfSchool != nil');
+      expect(branches.length, 2);
+      expect(branches[0].students.length + branches[1].students.length, 3);
+
+      //Check main schools
+      var mainSchools = realm.all<School>().query('branchOfSchool = nil');
+      expect(mainSchools.length, 1);
+      expect(mainSchools[0].branches.length, 2);
+      expect(mainSchools[0].students.length, 3);
+      expect(mainSchools[0].branches[0].students.length + mainSchools[0].branches[1].students.length, 3);
     });
   });
 }
