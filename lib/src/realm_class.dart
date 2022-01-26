@@ -167,7 +167,7 @@ class Realm {
 
   bool get isClosed => realmCore.isRealmClosed(this);
 
-  T? find<T extends RealmObject>(String primaryKey) {
+  T? find<T extends RealmObject>(Object primaryKey) {
     RealmMetadata metadata = _getMetadata(T);
 
     final handle = realmCore.find(this, metadata.class_.key, primaryKey);
