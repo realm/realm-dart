@@ -1263,7 +1263,7 @@ Future<void> main([List<String>? args]) async {
       expect(students.length, 3);
 
       //Check branches
-      var branches = realm.all<School>().query(r'branchOfSchool != nil');
+      var branches = realm.all<School>().query('branchOfSchool != nil');
       expect(branches.length, 2);
       expect(branches[0].students.length + branches[1].students.length, 3);
 
