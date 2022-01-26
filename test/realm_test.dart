@@ -1244,28 +1244,22 @@ Future<void> main([List<String>? args]) async {
       var studentMichele = Student(1)
         ..name = "Michele Ernesto"
         ..yearOfBirth = 2005;
-      var studentLoreta = Student(2, {name  = "Loreta", yearOfBirth = 2006})
-        ..name = "Loreta Salvator"
-        ..yearOfBirth = 2006;
-      var studentPeter = Student(3)
-        ..name = "Peter Ivanov"
-        ..yearOfBirth = 2007;
+      var studentLoreta = Student(2, name: "Loreta Salvator", yearOfBirth: 2006);
+      var studentPeter = Student(3, name: "Peter Ivanov", yearOfBirth: 2007);
 
-      var school131 = School("JHS 131")..city = "NY";
+      var school131 = School("JHS 131", city: "NY");
       school131.students.addAll([studentMichele, studentLoreta, studentPeter]);
 
-      var school131Branch1 = School("First branch 131A")
+      var school131Branch1 = School("First branch 131A", city: "NY Bronx")
         ..branchOfSchool = school131
-        ..students.addAll([studentMichele, studentLoreta])
-        ..city = "NY Bronx";
+        ..students.addAll([studentMichele, studentLoreta]);
 
       studentMichele.school = school131Branch1;
       studentLoreta.school = school131Branch1;
 
-      var school131Branch2 = School("Second branch 131B")
+      var school131Branch2 = School("Second branch 131B", city: "NY Bronx")
         ..branchOfSchool = school131
-        ..students.add(studentPeter)
-        ..city = "NY Bronx";
+        ..students.add(studentPeter);
 
       studentPeter.school = school131Branch2;
 
