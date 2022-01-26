@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////
 //
 // Copyright 2021 Realm Inc.
 //
@@ -14,15 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////
 
-///@nodoc
-late String _noDoc;
 
-/// RealmModel annotation for class level.
-///
-/// Use this annotation to mark this class as Realm object model
-/// that could be persisted in Realm.
+/// Annotation class used to define `Realm` data model classes and their properties
 ///
 /// {@category Annotations}
 class RealmModel {
@@ -40,12 +35,11 @@ class MapTo {
   const MapTo(this.name);
 }
 
-/// PrimaryKey annotation for class member level.
-///
-/// Indicates the primary key property.
-/// It allows quick lookup of objects and enforces uniqueness of the values stored.
-/// It may only be applied to a single property in a class.
-/// Only char, integral types, and strings can be used as primary keys.
+/// Indicates a primary key property.
+/// 
+/// It enables quick lookup of objects and enforces uniqueness of the values stored.
+/// It may only be applied to a single property in a [RealmModel] class.
+/// Only [String] and [int] can be used as primary keys.
 /// Once an object with a Primary Key has been added to the Realm, that property may not be changed.
 ///
 /// {@category Annotations}
@@ -53,20 +47,18 @@ class PrimaryKey {
   const PrimaryKey();
 }
 
-/// Indexed annotation for class member level.
-///
-/// Indicates an indexed property. Indexed properties slightly slow down insertions,
-/// but can greatly speed up queries.
+/// Indicates an indexed property. 
+/// 
+/// Indexed properties slightly slow down insertions but can greatly speed up queries.
 ///
 /// {@category Annotations}
 class Indexed {
   const Indexed();
 }
 
-/// Ignored annotation for class member level.
-///
 /// Indicates an ignored property.
-/// Ignored properties will not be persisted in the Realm.
+/// 
+/// Ignored properties will not be persisted in the `Realm`.
 ///
 /// {@category Annotations}
 class Ignored {

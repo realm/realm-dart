@@ -1,21 +1,21 @@
 dartdoc:
   categories:
-    "Schema":
-      markdown: Schema.md
-      name: Schema
+    "Configuration":
+      markdown: topic.md
+      name: Configuration
     "Annotations":
-      markdown: Annotations.md     
+      markdown: topic.md
       name: Annotations
-    "Realm API":
-      markdown: Realm_API.md     
-      name: Realm API
-  categoryOrder: ["Realm API", "Schema", "Annotations"]
+    "Realm":
+      markdown: topic.md
+      name: Realm
+  categoryOrder: ["Realm", "Configuration", "Annotations"]
   examplePathPrefix: 'example/myapp'
-  nodoc: ['generator/flutter/ffigen/scripts/src/test/*.g.dart']
+  # nodoc: ['generator/flutter/ffigen/scripts/src/test/*.g.dart']
   showUndocumentedCategories: true
-  ignore:
-    - ambiguous-doc-reference
-  errors:
-    - unresolved-doc-reference
-  warnings:
-    - tool-error
+  # ignore:
+  #   - ambiguous-doc-reference
+  # errors:
+  #   - unresolved-doc-reference
+  # warnings:
+  #   - tool-error

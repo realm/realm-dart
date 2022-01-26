@@ -17,6 +17,7 @@ void _debugWrite(String message) {
   }());
 }
 
+/// @nodoc
 // Initializes Realm library
 DynamicLibrary initRealm() {
   if (_library != null) {

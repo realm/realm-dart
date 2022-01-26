@@ -39,25 +39,20 @@ export 'package:realm_common/realm_common.dart'
     show Ignored, Indexed, MapTo, PrimaryKey, RealmError, RealmModel, RealmUnsupportedSetError, RealmCollectionType, RealmPropertyType;
 
 export 'realm_property.dart';
-export 'helpers.dart';
 
-/// A [Realm] instance represents a Realm database.
+/// A [Realm] instance represents a `Realm` database.
 ///
-/// [Realm] instance provides methods for
-/// adding, deleting, editing and searching objects in realm database.
-/// [Realm] static methods allows managing Ream database file.
-///
-/// {@category Realm API}
+/// {@category Realm}
 class Realm {
   final Configuration _config;
   final Map<Type, RealmMetadata> _metadata = <Type, RealmMetadata>{};
   late final RealmHandle _handle;
   late final _Scheduler _scheduler;
 
-  /// The [Configuration] object that controls this [Realm]'s path and other settings.
+  /// The [Configuration] object used to open this [Realm]
   Configuration get config => _config;
 
-  /// Opens a Realm using the default or a custom [Configuration] object.
+  /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : _config = config {
     _scheduler = _Scheduler(config, close);
 
@@ -76,18 +71,14 @@ class Realm {
     }
   }
 
-  /// Deletes all files associated with a Realm located at given [path]
-  /// if the Realm exists and is not open.
+  /// Deletes all files associated with a `Realm` located at given [path]
   ///
-  /// The Realm file must not be open on other process.
-  /// All but the .lock file will be deleted by this.
+  /// The `Realm` must not be open.
   static void deleteRealm(String path) {
     realmCore.deleteRealmFiles(path);
   }
 
-  /// Returns `true` if a Realm already exists on [path].
-  /// Realm [path], must be a valid full path for the current platform,
-  /// relative subdirectory, or just filename.
+  /// Synchronously checks whether a `Realm` exists at [path]
   static bool existsSync(String path) {
     try {
       final fileEntity = File(path);
@@ -97,9 +88,7 @@ class Realm {
     }
   }
 
-  /// Checks whether a Realm file with this [path] exists.
-  ///
-  /// Returns a Future<bool> that completes with the result.
+  /// Checks whether a `Realm` exists at [path].
   static Future<bool> exists(String path) async {
     try {
       final fileEntity = File(path);
@@ -109,16 +98,15 @@ class Realm {
     }
   }
 
-  ///Adds new [RealmObject] to Realm.
+  /// Adds a [RealmObject] to the `Realm`.
   ///
+  /// This `Realm` will start managing the [RealmObject].
+  /// A [RealmObject] instance can be managed only by one `Realm`.
+  /// If the object is already managed by this `Realm`, this method does nothing.
+  /// This method modifies the object in-place as it becomes managed. Managed instances are persisted and become live objects.
+  /// Returns the same instance as managed. This is just meant as a convenience to enable fluent syntax scenarios.
   /// Throws [RealmException] when trying to add objects with the same primary key.
-  /// This [Realm] will start managing a [RealmObject] which has been created as a standalone object.
-  /// If you invoke this when there is no write transaction active on the [Realm]
-  /// an RealmException will be thrown.
-  /// You can't manage an object with more than one [Realm].
-  /// If the object is already managed by this [Realm], this method does nothing.
-  /// This method modifies the object in-place, meaning that after it has run, <c>obj</c> will be managed.
-  /// Returning it is just meant as a convenience to enable fluent syntax scenarios.
+  /// Throws [RealmException] if there is no write transaction created with [write].
   T add<T extends RealmObject>(T object) {
     if (object.isManaged) {
       return object;
@@ -140,18 +128,17 @@ class Realm {
     return object;
   }
 
-  /// Adds a collection of standalone [RealmObject]s to this [Realm].
+  /// Adds a collection [RealmObject]s to this `Realm`.
   ///
-  /// If the collection contains items that are already managed by this [Realm],
-  /// they will be ignored. This method modifies the objects in-place,
-  /// meaning that after it has run, all items in the collection will be managed.
+  /// If the collection contains items that are already managed by this `Realm`, they will be ignored.
+  /// This method behaves as calling [add] multiple times.
   void addAll<T extends RealmObject>(Iterable<T> items) {
     for (final i in items) {
       add(i);
     }
   }
 
-  /// Deletes given [RealmObject] from this [Realm].
+  /// Deletes a [RealmObject] from this `Realm`.
   void delete<T extends RealmObject>(T object) {
     try {
       realmCore.deleteRealmObject(object);
@@ -160,10 +147,9 @@ class Realm {
     }
   }
 
-  /// Deletes [RealmObject] items in given collection from this [Realm].
+  /// Deletes many [RealmObject]s from this `Realm`.
   ///
-  /// Throws [RealmException] if you invoke this
-  /// when there is no write transaction active on the [Realm].
+  /// Throws [RealmException] if there is no active write transaction.
   void deleteMany<T extends RealmObject>(Iterable<T> items) {
     if (items is RealmResults<T>) {
       realmCore.resultsDeleteAll(items);
@@ -176,16 +162,12 @@ class Realm {
     }
   }
 
-  /// Returns `true` if there is an opened transaction using `realm.Write`.
   bool get _isInTransaction => realmCore.getIsWritable(this);
 
-  /// Execute a delegate inside a temporary transaction.
+  /// Synchronously calls the provided callback inside a write transaction.
   ///
-  /// If no exception is thrown, the transaction will be committed.
-  /// Creates its own temporary transaction and commits it after passed function completes.
-  /// Be careful of wrapping multiple single property updates in multiple `write` calls.
-  /// It is more efficient to update several properties or even create multiple objects in a single `write`,
-  /// unless you need to guarantee finer-grained updates.
+  /// If no exception is thrown from within the callback, the transaction will be committed.
+  /// It is more efficient to update several properties or even create multiple objects in a single write transaction.
   void write(void Function() writeCallback) {
     try {
       realmCore.beginWrite(this);
@@ -199,19 +181,18 @@ class Realm {
     }
   }
 
-  /// Closes the native Realm if this is the last remaining
-  /// instance holding a reference to it
+  /// Closes the `Realm`.
   ///
-  /// After closing Realm, all [RealmObject] are invalidated.
-  /// They can not be changed or read until the Realm is reopened.
+  /// All [RealmObject]s and `Realm ` collections are invalidated and can not be used. 
+  /// This method will not throw if called multiple times.
   void close() {
     realmCore.closeRealm(this);
   }
 
-  /// Checks whether the Realm is closed.
+  /// Checks whether the `Realm` is closed.
   bool get isClosed => realmCore.isRealmClosed(this);
 
-  ///Fast lookup of an object from a class which has a PrimaryKey property.
+  /// Fast lookup for a [RealmObject] with the specified [primaryKey].
   T? find<T extends RealmObject>(String primaryKey) {
     RealmMetadata metadata = _getMetadata(T);
 
@@ -234,17 +215,16 @@ class Realm {
     return metadata;
   }
 
-  /// Extracts an iterable set of objects for direct use or further query.
+  /// Returns all [RealmObject]s of type `T` in the `Realm`
   ///
-  /// Returns a queryable collection that without further filtering,
-  /// allows iterating all the [RealmObject]s, in this [Realm].
+  /// The returned [RealmResults] allows iterating all the values without further filtering.
   RealmResults<T> all<T extends RealmObject>() {
     RealmMetadata metadata = _getMetadata(T);
     final handle = realmCore.findAll(this, metadata.class_.key);
     return RealmResultsInternal.create<T>(handle, this);
   }
 
-  /// Returns from Realm all the [RealmObject]s that matches the query.
+  /// Returns all [RealmObject]s that match the specified [query].
   ///
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
@@ -289,7 +269,7 @@ class _Scheduler {
   static void _handler(int message) {}
 }
 
-///@nodoc
+/// @nodoc
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
 

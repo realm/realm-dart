@@ -167,29 +167,31 @@ class RealmCoreAccessor implements RealmAccessor {
   }
 }
 
-/// Represents realm model object that is persisted in the [Realm].
+/// An object that is persisted in `Realm`.
 ///
-/// [RealmObject]s are generated from Realm data model classes marked with `@RealmModel` annotation.
-/// A data model class `_MyClass` will have a RealmObject generated with name `MyClass`.
-/// These generated classes should be used insead of directly instantiating and working with RealmObject instances.
-///
-/// {@category Realm API}
+/// `RealmObjects` are generated from Realm data model classes marked with `@RealmModel` annotation and named with an underscore.
+/// 
+/// A data model class `_MyClass` will have a `RealmObject` generated with name `MyClass`.
+/// 
+/// [RealmObject] should not be used directly as it is part of the generated class hierarchy. ex: `MyClass extends _MyClass with RealmObject`.
+/// {@category Realm}
 class RealmObject {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
   Realm? _realm;
   static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{};
 
-  /// Returns this object from [Realm] store if exists.
+  /// @nodoc
   static Object? get<T extends Object>(RealmObject object, String name) {
     return object._accessor.get<T>(object, name);
   }
 
+  /// @nodoc
   static void set<T extends Object>(RealmObject object, String name, T? value) {
     object._accessor.set(object, name, value);
   }
 
-  /// Defines how this realm model object could be instantiated.
+  /// @nodoc
   static void registerFactory<T extends RealmObject>(T Function() factory) {
     if (_factories.containsKey(T)) {
       return;
@@ -198,8 +200,7 @@ class RealmObject {
     _factories[T] = factory;
   }
 
-  /// Creates an instance of [RealmObject]
-  /// using registered factory with `registerFactory`.
+  /// @nodoc
   static T create<T extends RealmObject>() {
     if (!_factories.containsKey(T)) {
       throw RealmException("Factory for Realm object type $T not found");
@@ -208,14 +209,13 @@ class RealmObject {
     return _factories[T]!() as T;
   }
 
-  /// Sets default values of this [RealmObject] instance.
+  /// @nodoc
   static bool setDefaults<T extends RealmObject>(Map<String, Object> values) {
     RealmAccessor.setDefaults<T>(values);
     return true;
   }
 
-  /// Retruns `true` if this [RealmObject] is equal to another [RealmObject]
-  /// only in case both objects exist in Realm and are equal in Realm.
+  /// `true` if this `RealmObject` is equal to another `RealmObject`.
   @override
   // ignore: hash_and_equals
   bool operator ==(Object other) {
@@ -226,8 +226,8 @@ class RealmObject {
   }
 }
 
-//RealmObject package internal members
 /// @nodoc
+//RealmObject package internal members
 extension RealmObjectInternal on RealmObject {
   void manage(Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor) {
     if (_handle != null) {
@@ -264,7 +264,8 @@ extension RealmObjectInternal on RealmObject {
   bool get isManaged => _realm != null;
 }
 
-/// An exception being thrown when a Realm operation or Realm object access fails
+/// An exception being thrown when a `Realm` operation or [RealmObject] access fails.
+/// {@category Realm}
 class RealmException implements Exception {
   final String message;
 

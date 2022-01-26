@@ -19,6 +19,8 @@
 export 'realm_class.dart' hide RealmInternal;
 
 /// @nodoc
-/// Is Realm loaded in Flutter or Dart
+// is Realm loaded in Flutter or Dart
 const bool isFlutterPlatform =  false;
+
+/// @nodoc
 const String realmBinaryName = 'realm_dart';

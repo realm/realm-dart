@@ -17,15 +17,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'package:realm_common/realm_common.dart';
+import 'package:realm_dart/realm.dart';
 
 class _RealmProperty {
-  /// Defines whether Realm will use this property as a primary key or not.
+  /// `true` if the property is a primary key.
   final bool primaryKey;
 
-  /// The Realm type of this property
+  /// The `Realm` type of the property
   final RealmPropertyType propertyType;
 
-  /// `true` if this property is optional
+  /// `true` if the property is optional
   final bool optional;
 
   /// An alias to another property of the same RealmObject
@@ -39,22 +40,18 @@ class _RealmProperty {
   });
 }
 
-/// A property representation in the schema described as [SchemaObject].
-/// Describes a property with its name, type and other attributes.
-///
-/// {@category Schema}
+/// Describes a [RealmObject]'s property with its name, type and other attributes in the [RealmSchema]
+///{@category Configuration}
 class SchemaProperty extends _RealmProperty {
-  /// Property name
+  /// The name of the property as persisted in the `Realm`
   final String name;
-
   
   final String? linkTarget;
 
-  /// Defines the collection type if this property is collection.
+  /// Defines the `Realm` collection type if this property is a collection.
   final RealmCollectionType collectionType;
 
-  /// Creates an instance of [SchemaProperty] with required ```name``` and ```propertyType```.
-  /// All other attributes are optional.
+  /// @nodoc
   const SchemaProperty(
     this.name,
     RealmPropertyType propertyType, {
