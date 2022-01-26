@@ -207,7 +207,7 @@ class InstallCommand extends Command<void> {
     if (await linkToBinaryFile.exists()) {
       await linkToBinaryFile.delete();
     }
-    await linkToBinaryFile.create("$binaryName");
+    await linkToBinaryFile.create(binaryName);
   }
 
   Future<void> downloadAndExtractWindowsFlutterBinaries(String realmPackagePath, Pubspec realmPubspec) async {
@@ -417,19 +417,6 @@ class InstallCommand extends Command<void> {
     }
   }
 
-  String _platformPath(String name, {String path = ""}) {
-    if (path != "" && !path.endsWith(Platform.pathSeparator)) {
-      path += Platform.pathSeparator;
-    }
-
-    if (Platform.isLinux || Platform.isAndroid) {
-      return path + "lib" + name + ".so";
-    }
-    if (Platform.isMacOS) return path + "lib" + name + ".dylib";
-    if (Platform.isWindows) return path + name + ".dll";
-    throw Exception("Realm Dart supports Windows, Linx and MacOS only");
-  }
-
   void validateOptions() {
     if (options.targetOsType == null && options.packageName == "realm") {
       abort("Invalid target OS.");
@@ -442,7 +429,7 @@ class InstallCommand extends Command<void> {
     }
 
     if ((options.targetOsType == TargetOsType.ios || options.targetOsType == TargetOsType.android) && packageName != "realm") {
-      throw Exception("Invalid package name ${packageName} for target OS ${TargetOsType.values.elementAt(options.targetOsType!.index).name}");
+      throw Exception("Invalid package name $packageName for target OS ${TargetOsType.values.elementAt(options.targetOsType!.index).name}");
     }
   }
 

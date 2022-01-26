@@ -583,20 +583,6 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
   }
 }
 
-extension _TypeEx on Type {
-  RealmPropertyType toRealmProppertyType() {
-    if (this == String) {
-      return RealmPropertyType.string;
-    } else if (this == int) {
-      return RealmPropertyType.int;
-    } else if (this == double) {
-      return RealmPropertyType.double;
-    } else {
-      throw RealmException("Type $this can not converted to RealmPropertyType");
-    }
-  }
-}
-
 extension _realm_value_t_ex on Pointer<realm_value_t> {
   Object? toDartValue(Realm realm) {
     if (this == nullptr) {

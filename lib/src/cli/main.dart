@@ -19,7 +19,6 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:path/path.dart' as path;
 
 import 'generate/generate_command.dart';
 import 'install/install_command.dart';

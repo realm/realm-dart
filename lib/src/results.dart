@@ -19,7 +19,6 @@ import 'dart:collection' as collection;
 
 import 'native/realm_core.dart';
 import 'realm_class.dart';
-import 'realm_object.dart';
 
 
 /// Instances of this class are live collections and will update as new elements are either 
