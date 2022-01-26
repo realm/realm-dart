@@ -24,6 +24,7 @@ import 'package:path/path.dart' as _path;
 import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
 
+// ignore: avoid_relative_lib_imports
 import '../lib/realm.dart';
 
 part 'realm_test.g.dart';
