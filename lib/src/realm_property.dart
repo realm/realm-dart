@@ -17,9 +17,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'package:realm_common/realm_common.dart';
-import 'package:realm_dart/realm.dart';
 
-class _RealmProperty {
+/// Describes a [RealmObject]'s property with its name, type and other attributes in the [RealmSchema]
+///{@category Configuration}
+class SchemaProperty {
+  /// The name of the property as persisted in the `Realm`
+  final String name;
+
+  final String? linkTarget;
+
+  /// Defines the `Realm` collection type if this property is a collection.
+  final RealmCollectionType collectionType;
+
   /// `true` if the property is a primary key.
   final bool primaryKey;
 
@@ -32,38 +41,8 @@ class _RealmProperty {
   /// An alias to another property of the same RealmObject
   final String? mapTo;
 
-  const _RealmProperty(
-    this.propertyType, {
-    this.optional = false,
-    this.mapTo,
-    this.primaryKey = false,
-  });
-}
-
-/// Describes a [RealmObject]'s property with its name, type and other attributes in the [RealmSchema]
-///{@category Configuration}
-class SchemaProperty extends _RealmProperty {
-  /// The name of the property as persisted in the `Realm`
-  final String name;
-  
-  final String? linkTarget;
-
-  /// Defines the `Realm` collection type if this property is a collection.
-  final RealmCollectionType collectionType;
-
   /// @nodoc
-  const SchemaProperty(
-    this.name,
-    RealmPropertyType propertyType, {
-    bool optional = false,
-    String? mapTo,
-    bool primaryKey = false,
-    this.linkTarget,
-    this.collectionType = RealmCollectionType.none,
-  }) : super(
-          propertyType,
-          optional: optional,
-          mapTo: mapTo,
-          primaryKey: primaryKey,
-        );
+  const SchemaProperty(this.name, this.propertyType,
+      {this.optional = false, this.mapTo, this.primaryKey = false, this.linkTarget, this.collectionType = RealmCollectionType.none
+      });
 }
