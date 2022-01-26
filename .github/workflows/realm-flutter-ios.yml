@@ -3,6 +3,7 @@ name: Realm Flutter for iOS
 on:
   push:
     branches:
+      - master
     # paths:
     #   - 'flutter/**'
     #   - 'src/**'

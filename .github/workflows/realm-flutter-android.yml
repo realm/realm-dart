@@ -3,6 +3,7 @@ name: Realm Flutter for Android
 on:
   push:
     branches:
+      - master
     # paths:
     #   - 'flutter/**'
     #   - 'src/**'

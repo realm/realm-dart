@@ -3,6 +3,7 @@ name: Realm Dart for Windows
 on:
   push:
     branches:
+      - master
     # Do not run if change is in these paths
     paths-ignore:
       - 'flutter/**'

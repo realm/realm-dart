@@ -3,6 +3,7 @@ name: Realm Flutter for MacOS
 on:
   push:
     branches:
+      - master
     # Do not run if change is in these paths
     paths-ignore:
       - 'generator/**'
