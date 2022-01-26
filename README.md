@@ -142,7 +142,7 @@ The Realm Flutter package name is `realm`
 
     ```dart
     // Create a Configuration object
-    var config = Configuration(Item.schema);
+    var config = Configuration([Item.schema]);
 
     // Opean a Realm
     realm = Realm(config);
@@ -167,8 +167,8 @@ The Realm Flutter package name is `realm`
     
     // Filter and sort object
     var objects = realm.query<Item>("name == 'Special Item'");
-    var make = 'Tesla';
-    var objects = realm.query<Item>(r'make == $0', [make]);
+    var name = 'John';
+    var objects = realm.query<Item>(r'name == $0', [name]]);
     ```
 
 # Realm Dart SDK 
