@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
@@ -255,19 +256,12 @@ class _Scheduler {
     final sendPort = receivePort.sendPort;
     handle = realmCore.createScheduler(Isolate.current.hashCode, sendPort.nativePort);
 
-    if (!isFlutterPlatform) {
-      //On Dart we use this to receive a SCHEDULER_FINALIZE_OR_PROCESS_EXIT notification on process exit to close the receivePort or the process with hang.
-      Isolate.spawn(_handler, 2, onExit: sendPort);
-    }
-
     realmCore.setScheduler(config, handle);
   }
 
   void stop() {
     receivePort.close();
   }
-
-  static void _handler(int message) {}
 }
 
 /// @nodoc
