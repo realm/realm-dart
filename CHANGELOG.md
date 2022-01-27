@@ -1,5 +1,5 @@
 0.2.0-alpha Release notes (2022-01-27)
-=============================================================
+==============================================================
 
 Notes: This release is a prerelease version. All API's might change without warning and no guarantees are given about stability. 
 
