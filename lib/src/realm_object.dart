@@ -167,25 +167,31 @@ class RealmCoreAccessor implements RealmAccessor {
   }
 }
 
-/// A object in a realm.
+/// An object that is persisted in `Realm`.
 ///
-/// RealmObjects are generated from Realm data model classes
-/// A data model class `_MyClass` will have a RealmObject with name `MyClass` generated
-/// which should be used insead of directly instantiating and working with RealmObject instances
+/// `RealmObjects` are generated from Realm data model classes marked with `@RealmModel` annotation and named with an underscore.
+/// 
+/// A data model class `_MyClass` will have a `RealmObject` generated with name `MyClass`.
+/// 
+/// [RealmObject] should not be used directly as it is part of the generated class hierarchy. ex: `MyClass extends _MyClass with RealmObject`.
+/// {@category Realm}
 class RealmObject {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
   Realm? _realm;
   static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{};
 
+  /// @nodoc
   static Object? get<T extends Object>(RealmObject object, String name) {
     return object._accessor.get<T>(object, name);
   }
 
+  /// @nodoc
   static void set<T extends Object>(RealmObject object, String name, T? value) {
     object._accessor.set(object, name, value);
   }
 
+  /// @nodoc
   static void registerFactory<T extends RealmObject>(T Function() factory) {
     if (_factories.containsKey(T)) {
       return;
@@ -194,6 +200,7 @@ class RealmObject {
     _factories[T] = factory;
   }
 
+  /// @nodoc
   static T create<T extends RealmObject>() {
     if (!_factories.containsKey(T)) {
       throw RealmException("Factory for Realm object type $T not found");
@@ -202,11 +209,13 @@ class RealmObject {
     return _factories[T]!() as T;
   }
 
+  /// @nodoc
   static bool setDefaults<T extends RealmObject>(Map<String, Object> values) {
     RealmAccessor.setDefaults<T>(values);
     return true;
   }
 
+  /// `true` if this `RealmObject` is equal to another `RealmObject`.
   @override
   // ignore: hash_and_equals
   bool operator ==(Object other) {
@@ -217,8 +226,8 @@ class RealmObject {
   }
 }
 
-//RealmObject package internal members
 /// @nodoc
+//RealmObject package internal members
 extension RealmObjectInternal on RealmObject {
   void manage(Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor) {
     if (_handle != null) {
@@ -255,7 +264,8 @@ extension RealmObjectInternal on RealmObject {
   bool get isManaged => _realm != null;
 }
 
-/// An exception being thrown when a Realm operation or Realm object access fails
+/// An exception being thrown when a `Realm` operation or [RealmObject] access fails.
+/// {@category Realm}
 class RealmException implements Exception {
   final String message;
 

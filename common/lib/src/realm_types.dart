@@ -19,6 +19,8 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 
+/// All supported `Realm` property types.
+/// {@category Configuration}
 enum RealmPropertyType {
   int,
   bool,
@@ -45,6 +47,8 @@ enum RealmPropertyType {
   uuid,
 }
 
+/// All supported `Realm` collection types.
+/// {@category Configuration}
 enum RealmCollectionType {
   none,
   list,
@@ -52,21 +56,30 @@ enum RealmCollectionType {
   dictionary,
 }
 
+/// A base class of all Realm errors.
+/// {@category Realm}
 class RealmError extends Error {}
 
+/// Throw if the operation is not supported.
+/// {@category Realm}
 class RealmUnsupportedSetError extends UnsupportedError implements RealmError {
   RealmUnsupportedSetError() : super('Cannot set late final field on realm object');
 }
 
+/// @nodoc
 class Uuid {} // TODO!
 
+/// @nodoc
 class ObjectId {} // TODO!
 
+/// @nodoc
 class Decimal128 {} // TODO!
 
+/// @nodoc
 class RealmObjectMarker {}
 
 // Union type
+/// @nodoc
 class RealmAny {
   final dynamic value;
   T as<T>() => value as T; // better for code completion

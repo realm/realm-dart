@@ -1,0 +1,21 @@
+dartdoc:
+  categories:
+    "Configuration":
+      markdown: topic.md
+      name: Configuration
+    "Annotations":
+      markdown: topic.md
+      name: Annotations
+    "Realm":
+      markdown: topic.md
+      name: Realm
+  categoryOrder: ["Realm", "Configuration", "Annotations"]
+  examplePathPrefix: 'example/myapp'
+  # nodoc: ['generator/flutter/ffigen/scripts/src/test/*.g.dart']
+  showUndocumentedCategories: true
+  # ignore:
+  #   - ambiguous-doc-reference
+  # errors:
+  #   - unresolved-doc-reference
+  # warnings:
+  #   - tool-error

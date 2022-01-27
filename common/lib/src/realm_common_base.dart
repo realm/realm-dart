@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////
 //
 // Copyright 2021 Realm Inc.
 //
@@ -14,25 +14,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////
 
+
+/// Annotation class used to define `Realm` data model classes and their properties
+///
+/// {@category Annotations}
 class RealmModel {
   const RealmModel();
 }
 
+/// MapTo annotation for class member level.
+///
+/// Indicates that a property should be persisted under a different name.
+/// This is useful when opening a Realm across different bindings where code style conventions might differ.
+///
+/// {@category Annotations}
 class MapTo {
   final String name;
   const MapTo(this.name);
 }
 
+/// Indicates a primary key property.
+/// 
+/// It enables quick lookup of objects and enforces uniqueness of the values stored.
+/// It may only be applied to a single property in a [RealmModel] class.
+/// Only [String] and [int] can be used as primary keys.
+/// Once an object with a Primary Key has been added to the Realm, that property may not be changed.
+///
+/// {@category Annotations}
 class PrimaryKey {
   const PrimaryKey();
 }
 
+/// Indicates an indexed property. 
+/// 
+/// Indexed properties slightly slow down insertions but can greatly speed up queries.
+///
+/// {@category Annotations}
 class Indexed {
   const Indexed();
 }
 
+/// Indicates an ignored property.
+/// 
+/// Ignored properties will not be persisted in the `Realm`.
+///
+/// {@category Annotations}
 class Ignored {
   const Ignored();
 }

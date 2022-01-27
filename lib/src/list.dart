@@ -25,19 +25,26 @@ import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'realm_class.dart';
 
+/// Instances of this class are live collections and will update as new elements are either 
+/// added to or deleted from the Realm that match the underlying query.
+///
+///{@category Realm}
 class RealmList<T extends Object> extends collection.ListBase<T> {
   late final RealmListHandle _handle;
   late final Realm _realm;
 
   RealmList._(this._handle, this._realm);
 
+  /// The length of this [RealmList].
   @override
   int get length => realmCore.getListSize(handle);
 
+  /// @nodoc
   //settng lenght is no operation
   @override
   set length(int length) {}
 
+  /// Returns the element at the specified index.
   @override
   T operator [](int index) {
     if (index < 0) {
@@ -57,11 +64,19 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
     }
   }
 
+  /// Sets the element at the specified index in the list.
   @override
   void operator []=(int index, T value) {
     RealmListInternal.setValue(handle, _realm, index, value);
   }
 
+  /// Clears the collection in memory and the references
+  /// to the objects in this collection in Realm.
+  
+  /// Removes all elements from this list. 
+  /// 
+  /// The length of the list becomes zero.
+  /// If the elements are managed [RealmObject]s, they all remain in the Realm.
   @override
   void clear() {
     realmCore.listClear(this);
