@@ -10,7 +10,7 @@ class MyCar extends _MyCar with RealmObject {
   MyCar(
     String make,
   ) {
-    RealmObject.set(this, 'make', make);
+    this.make = make;
   }
 
   MyCar._();
@@ -18,14 +18,14 @@ class MyCar extends _MyCar with RealmObject {
   @override
   String get make => RealmObject.get<String>(this, 'make') as String;
   @override
-  set make(String value) => throw RealmUnsupportedSetError();
+  set make(String value) => RealmObject.set(this, 'make', value);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(MyCar._);
     return const SchemaObject(MyCar, [
-      SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
+      SchemaProperty('make', RealmPropertyType.string),
     ]);
   }
 }

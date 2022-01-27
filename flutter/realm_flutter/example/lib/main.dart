@@ -54,6 +54,8 @@ class _MyAppState extends State<MyApp> {
     var objects = realm.all<Car>();
     var indexedCar = objects[0];
     print("The indexedCar is ${indexedCar.make}");
+    
+    realm.close();
 
     super.initState();
   }

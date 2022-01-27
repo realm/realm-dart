@@ -169,6 +169,9 @@ The Realm Flutter package name is `realm`
     var objects = realm.query<Item>("name == 'Special Item'");
     var name = 'John';
     var objects = realm.query<Item>(r'name == $0', [name]]);
+
+    // Close the realm
+    realm.close();
     ```
 
 # Realm Dart SDK 
