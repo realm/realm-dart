@@ -4,8 +4,7 @@ part 'myapp.g.dart';
 
 @RealmModel()
 class _MyCar {
-  @PrimaryKey()
-  late final String make;
+  late String make;
 }
 
 void main(List<String> arguments) {
