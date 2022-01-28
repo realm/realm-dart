@@ -183,6 +183,7 @@ class Realm {
   /// This method will not throw if called multiple times.
   void close() {
     realmCore.closeRealm(this);
+    _scheduler.stop();
   }
 
   /// Checks whether the `Realm` is closed.
