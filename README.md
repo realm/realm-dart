@@ -201,7 +201,7 @@ The Realm Dart package is `realm_dart`
 * Import realm_dart in a dart file (ex. `catalog.dart`).
 
     ```dart
-    import 'package:realm/realm.dart';
+    import 'package:realm_dart/realm.dart';
     ```
 
 * To generate RealmObject classes with realm_dart use this command.
