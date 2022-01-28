@@ -110,7 +110,7 @@ The Realm Flutter package name is `realm`
     ```dart
     import 'dart:io';
 
-    part 'catalog.g.dart'
+    part 'catalog.g.dart';
     ```
 
 * Create a data model class.
@@ -197,6 +197,12 @@ The Realm Dart package is `realm_dart`
     ```
     dart run realm_dart install
     ``` 
+ 
+* Import realm_dart in a dart file (ex. `catalog.dart`).
+
+    ```dart
+    import 'package:realm/realm.dart';
+    ```
 
 * To generate RealmObject classes with realm_dart use this command.
 
