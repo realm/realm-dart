@@ -20,8 +20,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:build_cli_annotations/build_cli_annotations.dart';
-import 'package:path/path.dart' as path;
 
 import 'options.dart';
 import '../common/archive.dart';
@@ -35,7 +33,7 @@ class ArchiveCommand extends Command<void> {
 
   @override
   bool get hidden => true;
-  
+
   late Options options;
 
   ArchiveCommand() {
@@ -58,8 +56,8 @@ class ArchiveCommand extends Command<void> {
   }
 
   void abort(String error) {
-      print(error);
-      print(usage);
-      exit(64); //usage error
+    print(error);
+    print(usage);
+    exit(64); //usage error
   }
 }

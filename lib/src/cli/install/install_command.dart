@@ -203,9 +203,9 @@ class InstallCommand extends Command<void> {
 
     //We create a symlink to the binary file to be included as a app resource on build which needs to have an txt extension
     var binaryName = "librealm_dart.dylib";
-    final linkToBinaryFile = Link(path.join(destinationDir.absolute.path, binaryName));
+    final linkToBinaryFile = Link(path.join(destinationDir.absolute.path, "$binaryName.txt"));
     if (await linkToBinaryFile.exists()) {
-      await linkToBinaryFile.delete();
+      await linkToBinaryFile.delete(recursive: true);
     }
     await linkToBinaryFile.create(binaryName);
   }
@@ -417,19 +417,6 @@ class InstallCommand extends Command<void> {
     }
   }
 
-  String _platformPath(String name, {String path = ""}) {
-    if (path != "" && !path.endsWith(Platform.pathSeparator)) {
-      path += Platform.pathSeparator;
-    }
-
-    if (Platform.isLinux || Platform.isAndroid) {
-      return path + "lib" + name + ".so";
-    }
-    if (Platform.isMacOS) return path + "lib" + name + ".dylib";
-    if (Platform.isWindows) return path + name + ".dll";
-    throw Exception("Realm Dart supports Windows, Linx and MacOS only");
-  }
-
   void validateOptions() {
     if (options.targetOsType == null && options.packageName == "realm") {
       abort("Invalid target OS.");
@@ -442,7 +429,7 @@ class InstallCommand extends Command<void> {
     }
 
     if ((options.targetOsType == TargetOsType.ios || options.targetOsType == TargetOsType.android) && packageName != "realm") {
-      throw Exception("Invalid package name ${packageName} for target OS ${TargetOsType.values.elementAt(options.targetOsType!.index).name}");
+      throw Exception("Invalid package name $packageName for target OS ${TargetOsType.values.elementAt(options.targetOsType!.index).name}");
     }
   }
 
