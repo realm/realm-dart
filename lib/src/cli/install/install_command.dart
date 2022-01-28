@@ -203,11 +203,11 @@ class InstallCommand extends Command<void> {
 
     //We create a symlink to the binary file to be included as a app resource on build which needs to have an txt extension
     var binaryName = "librealm_dart.dylib";
-    final linkToBinaryFile = Link(path.join(destinationDir.absolute.path, "$binaryName.txt"));
+    final linkToBinaryFile = Link(path.join(destinationDir.absolute.path, binaryName));
     if (await linkToBinaryFile.exists()) {
       await linkToBinaryFile.delete();
     }
-    await linkToBinaryFile.create("$binaryName");
+    await linkToBinaryFile.create(binaryName);
   }
 
   Future<void> downloadAndExtractWindowsFlutterBinaries(String realmPackagePath, Pubspec realmPubspec) async {
