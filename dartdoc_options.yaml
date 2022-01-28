@@ -10,7 +10,7 @@ dartdoc:
       markdown: topic.md
       name: Realm
   categoryOrder: ["Realm", "Configuration", "Annotations"]
-  examplePathPrefix: 'example/myapp'
+  examplePathPrefix: 'example'
   # nodoc: ['generator/flutter/ffigen/scripts/src/test/*.g.dart']
   showUndocumentedCategories: true
   # ignore:
