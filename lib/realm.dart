@@ -14,7 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////
+
 
 //dart.library.cli is available only on dart desktop
 export 'src/realm_flutter.dart' if (dart.library.cli) 'src/realm_dart.dart';

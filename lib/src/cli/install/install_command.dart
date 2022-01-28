@@ -203,9 +203,9 @@ class InstallCommand extends Command<void> {
 
     //We create a symlink to the binary file to be included as a app resource on build which needs to have an txt extension
     var binaryName = "librealm_dart.dylib";
-    final linkToBinaryFile = Link(path.join(destinationDir.absolute.path, binaryName));
+    final linkToBinaryFile = Link(path.join(destinationDir.absolute.path, "$binaryName.txt"));
     if (await linkToBinaryFile.exists()) {
-      await linkToBinaryFile.delete();
+      await linkToBinaryFile.delete(recursive: true);
     }
     await linkToBinaryFile.create(binaryName);
   }
