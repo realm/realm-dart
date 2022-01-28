@@ -155,6 +155,8 @@ class Student extends _Student with RealmObject {
 
   @override
   int get number => RealmObject.get<int>(this, 'number') as int;
+  @override
+  set number(int value) => throw RealmUnsupportedSetError();
 
   @override
   String? get name => RealmObject.get<String>(this, 'name') as String?;
@@ -204,6 +206,8 @@ class School extends _School with RealmObject {
 
   @override
   String get name => RealmObject.get<String>(this, 'name') as String;
+  @override
+  set name(String value) => throw RealmUnsupportedSetError();
 
   @override
   String? get city => RealmObject.get<String>(this, 'city') as String?;
@@ -224,6 +228,9 @@ class School extends _School with RealmObject {
   @override
   List<School> get branches =>
       RealmObject.get<School>(this, 'branches') as List<School>;
+  @override
+  set branches(covariant List<School> value) =>
+      throw RealmUnsupportedSetError();
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
