@@ -58,23 +58,23 @@ def getPaths() {
     }
 
     def flutterRoot = localProperties.getProperty('flutter.sdk')
-    def dartPath = 'dart'
+    def flutterExecutablePath = 'flutter'
     if (flutterRoot != null) {
-        dartPath = "${flutterRoot}${File.separator}bin${File.separator}dart"
-
-        //on Windows use dart.bat instead
-        if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-            dartPath += '.bat'
-        }
+        flutterExecutablePath = "${flutterRoot}${File.separator}bin${File.separator}flutter"
     }
 
-    return [flutterRoot, dartPath]
+    //on Windows use flutter.bat instead
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        flutterExecutablePath += '.bat'
+    }
+
+    return [flutterRoot, flutterExecutablePath]
 }
 
 task runMetrics(type: Exec) {
     try {
         def appProject = project.rootProject.subprojects.find { p -> p.name == 'app' }
-        def (flutterRoot, dartPath) = getPaths()
+        def (flutterRoot, flutterExecutablePath) = getPaths()
 
         workingDir "${project.rootProject.projectDir}${File.separator}.."
         String targetOsVersion
@@ -82,7 +82,7 @@ task runMetrics(type: Exec) {
             def conf = appProject.android.defaultConfig
             targetOsVersion = "API Level ${conf.targetSdkVersion.apiLevel}"
         }
-        commandLine dartPath, 'run', 'realm', 'metrics', '--flutter-root', flutterRoot, '--target-os-type', 'android', '--target-os-version', targetOsVersion
+        commandLine flutterExecutablePath, 'pub', 'run', 'realm', 'metrics', '--flutter-root', flutterRoot, '--target-os-type', 'android', '--target-os-version', targetOsVersion
     }
     catch (e) {
         println "Error running metrics command $e"
@@ -90,10 +90,10 @@ task runMetrics(type: Exec) {
 }
 
 task downloadRealmBinaries(type: Exec) {
-    def (flutterRoot, dartPath) = getPaths()
+    def (flutterRoot, flutterExecutablePath) = getPaths()
 
     workingDir "${project.rootProject.projectDir}${File.separator}.."
-    commandLine dartPath, 'run', 'realm', 'install', '--target-os-type', 'android', '--package-name', 'realm'
+    commandLine flutterExecutablePath, 'pub', 'run', 'realm', 'install', '--target-os-type', 'android', '--package-name', 'realm'
 }
 
 preBuild.dependsOn runMetrics, downloadRealmBinaries
