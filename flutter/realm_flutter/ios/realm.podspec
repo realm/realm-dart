@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
   s.library                   = 'c++', 'z'
     
   s.swift_version             = '5.0'
-  s.pod_target_xcconfig        = { 'DEFINES_MODULE' => 'YES',
+  s.pod_target_xcconfig       = { 'DEFINES_MODULE' => 'YES',
                                   'CURRENT_PROJECT_VERSION' => s.version,
                                   'VERSIONING_SYSTEM' => 'apple-generic',
                                   'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
@@ -48,16 +48,14 @@ Pod::Spec.new do |s|
                                   ],
                                   'FRAMEWORK_SEARCH_PATHS' => '"$(PODS_TARGET_SRCROOT)/**"'
                                 }
-                                #Use --debug to debug the install command on both prepare_command and script_phase below
-  s.prepare_command           = "source \"#{project_dir}/Flutter/flutter_export_environment.sh\" && cd \"$FLUTTER_APPLICATION_PATH\" && \"$FLUTTER_ROOT/bin/dart\" run realm install --target-os-type ios --package-name realm"
-  s.script_phases             = [ 
-                                  { :name => 'Download Realm Flutter iOS Binaries', 
-                                  #Use --debug to debug the install command  
-                                  :script => 'source "$PROJECT_DIR/../Flutter/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm install --target-os-type ios --package-name realm', 
+s.script_phases               = [
+                                  { :name => 'Download Realm Flutter iOS Binaries',
+                                    #Use --debug to debug the install command
+                                    :script => 'source "$PROJECT_DIR/../Flutter/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm install --target-os-type ios --package-name realm',
                                     :execution_position => :before_headers
-                                  },                                
-                                  { :name => 'Report Metrics', 
-                                    :script => 'source "$PROJECT_DIR/../Flutter/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm metrics --flutter-root "$FLUTTER_ROOT" --target-os-type ios --target-os-version "$IPHONEOS_DEPLOYMENT_TARGET"', 
+                                  },
+                                  { :name => 'Report Metrics',
+                                    :script => 'source "$PROJECT_DIR/../Flutter/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm metrics --flutter-root "$FLUTTER_ROOT" --target-os-type ios --target-os-version "$IPHONEOS_DEPLOYMENT_TARGET"',
                                     :execution_position => :before_compile
                                   }
                                 ]
