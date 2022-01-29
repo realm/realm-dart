@@ -28,3 +28,10 @@ build/
 
 # Ignore the ffigen directory
 ffigen/
+
+# Ignore realm-cre pem files
+src/realm-core/**/*.pem
+
+# Ignore realm-core doc
+src/realm-core/doc
+

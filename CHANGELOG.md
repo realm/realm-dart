@@ -1,3 +1,17 @@
+0.2.0-alpha.2 Release notes (2022-01-29)
+==============================================================
+
+Notes: This release is a prerelease version. All API's might change without warning and no guarantees are given about stability. 
+
+### Enhancements 
+* Completеly rewritten from the ground up with sound null safety and using Dart FFI
+
+### Fixed
+* Fix running package commands.
+
+### Compatibility
+* Dart ^2.15 on Windows, MacOS and Linux
+
 0.2.0-alpha.1 Release notes (2022-01-29)
 ==============================================================
 

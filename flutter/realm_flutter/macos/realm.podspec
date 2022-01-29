@@ -10,7 +10,7 @@
 
 Pod::Spec.new do |s|
   s.name                      = 'realm'
-  s.version                   = '0.2.0-alpha.1'
+  s.version                   = '0.2.0-alpha.2'
   s.summary                   = 'The official Realm SDK for Flutter'
   s.description               = <<-DESC
                                     Realm is a mobile database - an alternative to SQLite and key-value stores.
@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
   s.platform                  = :osx, '10.11'
   s.pod_target_xcconfig        = { 'DEFINES_MODULE' => 'YES' }
   s.swift_version             = '5.0'
-  s.resources                 = 'librealm_dart.dylib.txt'
+  s.resources                 = 'librealm_dart.dylib'
   # s.prepare_command           = "source #{project_dir}/Flutter/ephemeral/flutter_export_environment.sh && cd $FLUTTER_APPLICATION_PATH && $FLUTTER_ROOT/bin/dart run realm install --target-os-type macos --package-name realm --debug"
   s.script_phases             = [
                                   { :name => 'Download Realm Flutter iOS Binaries', 

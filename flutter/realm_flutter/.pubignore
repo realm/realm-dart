@@ -27,3 +27,8 @@ ios/realm_flutter_ios.xcframework
 # Ignore windows binaries directory. This gets created by Install command on build of projects
 windows/binary/
 
+# Ignore realm-cre pem files
+ios/src/realm-core/**/*.pem
+
+# Ignore realm-core doc
+ios/src/realm-core/doc
