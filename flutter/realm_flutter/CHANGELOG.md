@@ -1,3 +1,28 @@
+0.2.0-alpha.1 Release notes (2022-01-29)
+=============================================================
+
+Notes: This release is a prerelease version. All API's might change without warning and no guarantees are given about stability. 
+
+### Enhancements 
+* Completely rewritten from the ground up with sound null safety and using Dart FFI
+
+### Fixed
+* Running realm generate command on Flutter.
+* Realm close stops internal scheduler.
+
+### Internal
+* Fix linter issues
+* Fix running realm package commands on Flutter.
+* Update API doc config
+
+### Compatibility
+* Flutter ^2.8 
+* Flutter Mobile on Android and iOS
+* Flutter Desktop on Windows and MacOS
+
+### Internal
+* Uses Realm Core v11.9.0
+
 0.2.0-alpha Release notes (2022-01-27)
 =============================================================
 

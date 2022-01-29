@@ -10,7 +10,7 @@
 
 Pod::Spec.new do |s|
   s.name                      = 'realm'
-  s.version                   = '0.2.0-alpha'
+  s.version                   = '0.2.0-alpha.1'
   s.summary                   = 'The official Realm SDK for Flutter'
   s.description               = <<-DESC
                                     Realm is a mobile database - an alternative to SQLite and key-value stores.

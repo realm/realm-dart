@@ -2,8 +2,8 @@ name: realm_common
 description: >- 
              Hosts the common code shared between realm, realm_dart and realm_generator packages.
              This package is part of the official Realm Flutter and Realm Dart SDKs.
-             Realm is a mobile database - an alternative to SQLite and key-value stores.
-version: 0.2.0-alpha
+
+version: 0.2.0-alpha.1
 
 homepage: https://www.realm.io
 repository: https://github.com/realm/realm-dart

@@ -1,6 +1,6 @@
 name: realm_dart
 description: The official Realm SDK for Dart. Realm is a mobile database - an alternative to SQLite and key-value stores.
-version: 0.2.0-alpha
+version: 0.2.0-alpha.1
 
 homepage: https://www.realm.io
 repository: https://github.com/realm/realm-dart
@@ -35,3 +35,8 @@ dev_dependencies:
   json_serializable: ^6.1.0
   lints: ^1.0.1
   test: ^1.14.3
+
+platforms: 
+  windows:
+  linux:
+  macos:
