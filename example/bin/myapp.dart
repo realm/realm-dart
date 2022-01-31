@@ -3,28 +3,47 @@ import 'package:realm_dart/realm.dart';
 part 'myapp.g.dart';
 
 @RealmModel()
-class _MyCar {
-  late String make;
+class _Car {
+  late final String make;
+  String? model;
+  int? kilometers = 500;
+  _Person? owner;
+}
+
+@RealmModel()
+class _Person {
+  late String name;
+  int age = 1;
 }
 
 void main(List<String> arguments) async {
-  var config = Configuration([MyCar.schema]);
+  var config = Configuration([Car.schema, Person.schema]);
   var realm = Realm(config);
 
+  var myCar = Car("Tesla", model: "Model Y", kilometers: 1);
   realm.write(() {
-    print('Creating Realm object of type Car');
-    var car = realm.add(MyCar("Audi"));
-    print('The car is ${car.make}');
-    
-    car.make = "VW";
-    print("The car is ${car.make}");
+    print('Adding a Car to Realm.');
+    var car = realm.add(Car("Tesla", owner: Person("John")));
+    print("Updating the car's model and kilometers");
+    car.model = "Model 3";
+    car.kilometers = 5000;
+
+    print('Adding another Car to Realm.');
+    realm.add(myCar);
+
+    print("Changing the owner of the car.");
+    myCar.owner = Person("me", age: 18);
+    print("The car has a new owner ${car.owner!.name}");
   });
-  await Future<void>.delayed(Duration(seconds: 1));
-  var objects = realm.all<MyCar>();
-  var indexedCar = objects[0];
-  print('The indexedCar is ${indexedCar.make}');
+
+  print("Getting all cars from the Realm.");
+  var cars = realm.all<Car>();
+  print("There are ${cars.length} cars in the Realm.");
+
+  var indexedCar = cars[0];
+  print('The first car is ${indexedCar.make} ${indexedCar.model}');
 
   realm.close();
-  
+
   print("Done");
 }

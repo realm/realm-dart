@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:realm/realm.dart';
@@ -24,8 +26,16 @@ part 'main.g.dart';
 
 @RealmModel()
 class _Car {
-  @PrimaryKey()
   late final String make;
+  String? model;
+  int? kilometers = 500;
+  _Person? owner;
+}
+
+@RealmModel()
+class _Person {
+  late String name;
+  int age = 1;
 }
 
 void main() {
@@ -39,23 +49,39 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  late Realm realm;
+  
+  _MyAppState() {
+    final config = Configuration([Car.schema, Person.schema]);
+    realm = Realm(config);
+  }
+
+  int get carsCount => realm.all<Car>().length;
+
   @override
   void initState() {
-    Configuration config = Configuration([Car.schema]);
-    var realm = Realm(config);
-
+    var myCar = Car("Tesla", model: "Model Y", kilometers: 1);
     realm.write(() {
-      var car = realm.add(Car("Audi"));
-      print("The car is ${car.make}");
-      car.make = "VW";
-      print("The car is ${car.make}");
+      print('Adding a Car to Realm.');
+      var car = realm.add(Car("Tesla", owner: Person("John")));
+      print("Updating the car's model and kilometers");
+      car.model = "Model 3";
+      car.kilometers = 5000;
+
+      print('Adding another Car to Realm.');
+      realm.add(myCar);
+
+      print("Changing the owner of the car.");
+      myCar.owner = Person("me", age: 18);
+      print("The car has a new owner ${car.owner!.name}");
     });
 
-    var objects = realm.all<Car>();
-    var indexedCar = objects[0];
-    print("The indexedCar is ${indexedCar.make}");
-    
-    realm.close();
+    print("Getting all cars from the Realm.");
+    var cars = realm.all<Car>();
+    print("There are ${cars.length} cars in the Realm.");
+
+    var indexedCar = cars[0];
+    print('The first car is ${indexedCar.make} ${indexedCar.model}');
 
     super.initState();
   }
@@ -68,7 +94,7 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: ${Platform.operatingSystem}\n'),
+          child: Text('Running on: ${Platform.operatingSystem}.\n\nThere are $carsCount cars in the Realm.\n'),
         ),
       ),
     );
