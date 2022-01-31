@@ -43,6 +43,10 @@ void main(List<String> arguments) async {
   var indexedCar = cars[0];
   print('The first car is ${indexedCar.make} ${indexedCar.model}');
 
+  print("Getting all Tesla cars from the Realm.");
+  var filteredCars = realm.all<Car>().query("make == 'Tesla'");
+  print('Found ${filteredCars.length} Tesla cars');
+
   realm.close();
 
   print("Done");

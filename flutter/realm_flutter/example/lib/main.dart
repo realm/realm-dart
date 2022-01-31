@@ -50,7 +50,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late Realm realm;
-  
+
   _MyAppState() {
     final config = Configuration([Car.schema, Person.schema]);
     realm = Realm(config);
@@ -82,6 +82,10 @@ class _MyAppState extends State<MyApp> {
 
     var indexedCar = cars[0];
     print('The first car is ${indexedCar.make} ${indexedCar.model}');
+
+    print("Getting all Tesla cars from the Realm.");
+    var filteredCars = realm.all<Car>().query("make == 'Tesla'");
+    print('Found ${filteredCars.length} Tesla cars');
 
     super.initState();
   }
