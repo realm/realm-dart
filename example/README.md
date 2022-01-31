@@ -1,3 +1,7 @@
+![Realm](https://github.com/realm/realm-dart/raw/master/logo.png)
+
+[![License](https://img.shields.io/badge/License-Apache-blue.svg)](LICENSE)
+
 ## A simple command-line application using Realm Dart SDK
 
 ### Setup 
