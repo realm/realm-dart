@@ -4,7 +4,7 @@
 **This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
 
 ### Enhancements 
-* Completеly rewritten from the ground up with sound null safety and using Dart FFI and new way of defining realm models
+* Completely rewritten from the ground up with sound null safety and using Dart FFI and new way of defining realm models
 
 ### Compatibility
 * Flutter ^2.8 and Dart ^2.15
