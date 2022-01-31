@@ -3,7 +3,7 @@
 # Run `pod lib lint realm.podspec` to validate before publishing.
 #
 
-# realmPackageDir = File.expand_path(__dir__)
+realmPackageDir = File.expand_path(__dir__)
 # This works cause realm plugin is always accessed through the .symlinks directory.
 # For example the tests app refers to the realm plugin using this path .../realm-dart/flutter/realm_flutter/tests/macos/Flutter/ephemeral/.symlinks/plugins/realm/macos
 # project_dir = File.expand_path("../../../../../../", realmPackageDir)
@@ -26,7 +26,7 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig        = { 'DEFINES_MODULE' => 'YES' }
   s.swift_version             = '5.0'
   s.resources                 = 'librealm_dart.dylib'
-  # s.prepare_command           = "source #{project_dir}/Flutter/ephemeral/flutter_export_environment.sh && cd $FLUTTER_APPLICATION_PATH && $FLUTTER_ROOT/bin/dart run realm install --target-os-type macos --package-name realm --debug"
+  s.prepare_command           = "touch #{realmPackageDir}/librealm_dart.dylib" #librealm_dart.dylib is needed before the build is started
   s.script_phases             = [
                                   { :name => 'Download Realm Flutter iOS Binaries', 
                                     #Use --debug to debug the install command
