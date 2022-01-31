@@ -22,6 +22,9 @@ doc/
 # Ignore native binaries output directory
 binary/
 
+# Ignore native binaries in examples directory
+example/binary
+
 # Ignore native binaries build directories
 build-android/
 build/
