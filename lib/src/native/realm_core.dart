@@ -21,6 +21,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
+import 'dart:ffi' as ffi show Handle;
 import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows to sliently allocating memory. Use toUtf8Ptr instead
@@ -61,7 +62,6 @@ class _RealmCore {
   factory _RealmCore() {
     return _instance ??= _RealmCore._();
   }
-  //
 
   String get libraryVersion => _realmLib.realm_get_library_version().cast<Utf8>().toDartString();
 
@@ -465,28 +465,18 @@ class _RealmCore {
   }
 
   Stream<RealmCollectionChanges> resultsChanges(RealmResults results, SchedulerHandle scheduler) {
-    late StreamController<RealmCollectionChanges> controller;
-
-    void callback(Pointer<Void> data) {
-      final changes = RealmCollectionChanges(
-        RealmCollectionChangesHandle._(_realmLib.realm_clone(data).cast()),
+    return buildStream(
+      (Pointer<realm_collection_changes> data) => RealmCollectionChanges(
+        RealmCollectionChangesHandle._(_realmLib.realm_clone(data.cast()).cast()),
         results.realm,
-      );
-      controller.add(changes);
-    }
-
-    controller = _constructRealmNotificationStreamController(
-        (userData, callback, free, error) => _realmLib.realm_results_add_notification_callback(
-              results.handle._pointer,
-              userData,
-              free,
-              callback.cast(),
-              error,
-              scheduler._pointer,
-            ),
-        callback);
-
-    return controller.stream;
+      ),
+      (userdata) => RealmNotificationTokenHandle._(_realmLib.realm_dart_results_add_notification_callback(
+        results.handle._pointer,
+        userdata,
+        realmCollectionChangesTrampoline,
+        scheduler._pointer,
+      )),
+    );
   }
 
   RealmLinkHandle _getObjectAsLink(RealmObject object) {
@@ -629,7 +619,7 @@ class RealmQueryHandle extends Handle<realm_query> {
 }
 
 class RealmNotificationTokenHandle extends Handle<realm_notification_token> {
-  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer) : super(pointer, 1 << 24); // TODO: What should gc hint be?
+  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer) : super(pointer, 1 << 28); // TODO: What should gc hint be?
 }
 
 class RealmCollectionChangesHandle extends Handle<realm_collection_changes> {
@@ -748,4 +738,52 @@ extension on Pointer<realm_value_t> {
         throw RealmException("realm_value_type ${ref.type} not supported");
     }
   }
+}
+
+final realmCollectionChangesTrampoline = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_collection_changes>)>(_realmCollectionChangesTrampoline);
+
+// The compiler is too dumb to use trampoline<realm_collection_changes> with ffi directly
+void _realmCollectionChangesTrampoline(Object? userdata, Pointer<realm_collection_changes> changes) => 
+  trampoline(userdata, changes);
+
+void trampoline<T extends NativeType>(Object? userdata, Pointer<T> changes) {
+  // Cannot check for null on the native side, since _DL version of Dart_IsNull doesn't exist :-/
+  if (userdata != null) {
+    final callback = userdata as void Function(Pointer<T>);
+    callback(changes);
+  }
+}
+
+Stream<T> buildStream<T, U extends NativeType, TokenT extends Handle>(
+  T Function(U) convert,
+  TokenT Function(Object userdata) subscribe,
+) {
+  late StreamController<T> controller;
+
+  void onChange(U data) {
+    final changes = convert(data);
+    controller.add(changes);
+  }
+
+  TokenT? token;
+  void start() {
+    token ??= subscribe(onChange);
+  }
+
+  void stop() {
+    final t = token;
+    if (t != null) {
+      t.releaseEarly();
+      token = null;
+    }
+  }
+
+  controller = StreamController<T>(
+    onListen: start,
+    onPause: stop,
+    onResume: start,
+    onCancel: stop,
+  );
+
+  return controller.stream;
 }
