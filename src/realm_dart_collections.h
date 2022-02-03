@@ -40,4 +40,20 @@ realm_dart_results_add_notification_callback(realm_results_t *results,
                                              realm_dart_on_collection_change_func_t on_change,
                                              realm_scheduler_t *scheduler);
 
+/**
+ * Subscribe for notifications of changes to a realm list collection.
+ *
+ * @param list The realm list to subscribe to.
+ * @param userdata A handle to dart object that will be passed to the callback.
+ * @param on_change The callback to invoke, if the realm list changes.
+ * @return A notification token that can be released to unsubscribe.
+ *
+ * This is a dart specific wrapper for realm_list_add_notification_callback.
+ */
+RLM_API realm_notification_token_t *
+realm_dart_list_add_notification_callback(realm_list_t *list,
+                                          Dart_Handle userdata,
+                                          realm_dart_on_collection_change_func_t on_change,
+                                          realm_scheduler_t *scheduler);
+
 #endif // REALM_DART_COLLECTIONS_H
