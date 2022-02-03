@@ -6052,6 +6052,38 @@ class RealmLibrary {
   late final _dart_get_thread_id _get_thread_id =
       _get_thread_id_ptr.asFunction<_dart_get_thread_id>();
 
+  /// Subscribe for notifications of changes to a realm results collection.
+  ///
+  /// @param results The realm results to subscribe to.
+  /// @param userdata A handle to dart object that will be passed to the callback.
+  /// @param on_change The callback to invoke, if the realm results changes.
+  /// @return A notification token that can be released to unsubscribe.
+  ///
+  /// This is a dart specific wrapper for realm_results_add_notification_callback.
+  ffi.Pointer<realm_notification_token>
+      realm_dart_results_add_notification_callback(
+    ffi.Pointer<realm_results> results,
+    Object userdata,
+    ffi.Pointer<ffi.NativeFunction<realm_dart_on_collection_change_func_t>>
+        on_change,
+    ffi.Pointer<realm_scheduler> scheduler,
+  ) {
+    return _realm_dart_results_add_notification_callback(
+      results,
+      userdata,
+      on_change,
+      scheduler,
+    );
+  }
+
+  late final _realm_dart_results_add_notification_callback_ptr = _lookup<
+          ffi.NativeFunction<_c_realm_dart_results_add_notification_callback>>(
+      'realm_dart_results_add_notification_callback');
+  late final _dart_realm_dart_results_add_notification_callback
+      _realm_dart_results_add_notification_callback =
+      _realm_dart_results_add_notification_callback_ptr
+          .asFunction<_dart_realm_dart_results_add_notification_callback>();
+
   ffi.Pointer<ffi.Int8> realm_dart_get_files_path() {
     return _realm_dart_get_files_path();
   }
@@ -10080,6 +10112,29 @@ typedef _dart_realm_dart_scheduler_invoke = void Function(
 typedef _c_get_thread_id = ffi.Uint64 Function();
 
 typedef _dart_get_thread_id = int Function();
+
+typedef realm_dart_on_collection_change_func_t = ffi.Void Function(
+  ffi.Handle,
+  ffi.Pointer<realm_collection_changes>,
+);
+
+typedef _c_realm_dart_results_add_notification_callback
+    = ffi.Pointer<realm_notification_token> Function(
+  ffi.Pointer<realm_results> results,
+  ffi.Handle userdata,
+  ffi.Pointer<ffi.NativeFunction<realm_dart_on_collection_change_func_t>>
+      on_change,
+  ffi.Pointer<realm_scheduler> scheduler,
+);
+
+typedef _dart_realm_dart_results_add_notification_callback
+    = ffi.Pointer<realm_notification_token> Function(
+  ffi.Pointer<realm_results> results,
+  Object userdata,
+  ffi.Pointer<ffi.NativeFunction<realm_dart_on_collection_change_func_t>>
+      on_change,
+  ffi.Pointer<realm_scheduler> scheduler,
+);
 
 typedef _c_realm_dart_get_files_path = ffi.Pointer<ffi.Int8> Function();
 
