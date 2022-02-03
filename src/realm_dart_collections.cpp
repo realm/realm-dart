@@ -100,3 +100,18 @@ realm_dart_results_add_notification_callback(realm_results_t *results,
                                                    nullptr, // on_error never called by realm core 6+
                                                    scheduler);
 }
+
+RLM_API realm_notification_token_t *
+realm_dart_list_add_notification_callback(realm_list_t *list,
+                                          Dart_Handle userdata,
+                                          realm_dart_on_collection_change_func_t on_change,
+                                          realm_scheduler_t *scheduler)
+{
+    auto callback = new Callback{userdata, on_change};
+    return realm_list_add_notification_callback(list,
+                                                callback,
+                                                free_,
+                                                on_change_,
+                                                nullptr, // on_error never called by realm core 6+
+                                                scheduler);
+}
