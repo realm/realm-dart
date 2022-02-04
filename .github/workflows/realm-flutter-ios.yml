@@ -4,16 +4,18 @@ on:
   push:
     branches:
       - master
-    # paths:
-    #   - 'flutter/**'
-    #   - 'src/**'
-    #   - 'lib/**'
+    paths-ignore:
+      - 'generator/**'
+      - '.github/**'
+      - '!.github/workflows/realm-flutter-ios.yml' # except this one
     tags:
       - '[0-9]+.[0-9]+.[0-9]+**' # matches tags like number(s).number(s).number(s)(any) for ex: 1.0.0 and also 1.0.0+beta
+
   pull_request:
-      # - 'flutter/**'
-      # - 'src/**'
-      # - 'lib/**'
+    paths-ignore:
+      - 'generator/**'
+      - '.github/**'
+      - '!.github/workflows/realm-flutter-ios.yml' # except this one
 
 jobs:
   CI:
