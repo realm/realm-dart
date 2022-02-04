@@ -769,6 +769,24 @@ Future<void> main([List<String>? args]) async {
         realm.close();
       });
 
+      test('Query list', () {
+        final config = Configuration([Team.schema, Person.schema]);
+        final realm = Realm(config);
+
+        final person = Person('Kasper');
+        final team = Team('Realm-dart', players: [
+          Person('Lubo'),
+          person,
+          Person('Desi'),
+        ]);
+
+        realm.write(() => realm.add(team));
+
+        final result = (team.players as RealmList<Person>).query(r'name BEGINSWITH $0', ['K']);
+
+        expect(result, [person]);
+      });
+
       test('Sort result', () {
         var config = Configuration([Person.schema]);
         var realm = Realm(config);
