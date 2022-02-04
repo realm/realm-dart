@@ -6940,6 +6940,45 @@ class RealmLibrary {
       _lookup<ffi.NativeFunction<ffi.Uint64 Function()>>('get_thread_id');
   late final _get_thread_id = _get_thread_idPtr.asFunction<int Function()>();
 
+  /// Subscribe for notifications of changes to a realm results collection.
+  ///
+  /// @param results The realm results to subscribe to.
+  /// @param userdata A handle to dart object that will be passed to the callback.
+  /// @param on_change The callback to invoke, if the realm results changes.
+  /// @return A notification token that can be released to unsubscribe.
+  ///
+  /// This is a dart specific wrapper for realm_results_add_notification_callback.
+  ffi.Pointer<realm_notification_token_t>
+      realm_dart_results_add_notification_callback(
+    ffi.Pointer<realm_results_t> results,
+    Object userdata,
+    realm_dart_on_collection_change_func_t on_change,
+    ffi.Pointer<realm_scheduler_t> scheduler,
+  ) {
+    return _realm_dart_results_add_notification_callback(
+      results,
+      userdata,
+      on_change,
+      scheduler,
+    );
+  }
+
+  late final _realm_dart_results_add_notification_callbackPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_notification_token_t> Function(
+                  ffi.Pointer<realm_results_t>,
+                  ffi.Handle,
+                  realm_dart_on_collection_change_func_t,
+                  ffi.Pointer<realm_scheduler_t>)>>(
+      'realm_dart_results_add_notification_callback');
+  late final _realm_dart_results_add_notification_callback =
+      _realm_dart_results_add_notification_callbackPtr.asFunction<
+          ffi.Pointer<realm_notification_token_t> Function(
+              ffi.Pointer<realm_results_t>,
+              Object,
+              realm_dart_on_collection_change_func_t,
+              ffi.Pointer<realm_scheduler_t>)>();
+
   ffi.Pointer<ffi.Int8> realm_dart_get_files_path() {
     return _realm_dart_get_files_path();
   }
@@ -7860,3 +7899,7 @@ class _Dart_FinalizableHandle extends ffi.Opaque {}
 
 /// A port is used to send or receive inter-isolate messages
 typedef Dart_Port = ffi.Int64;
+typedef realm_dart_on_collection_change_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(
+            ffi.Handle, ffi.Pointer<realm_collection_changes_t>)>>;
