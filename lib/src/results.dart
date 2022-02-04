@@ -26,8 +26,8 @@ import 'realm_class.dart';
 ///
 /// {@category Realm}
 class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
-  late final RealmResultsHandle _handle;
-  late final Realm _realm;
+  final RealmResultsHandle _handle;
+  final Realm _realm;
 
   RealmResults._(this._handle, this._realm);
 
