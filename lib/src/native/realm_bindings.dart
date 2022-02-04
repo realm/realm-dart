@@ -6979,6 +6979,45 @@ class RealmLibrary {
               realm_dart_on_collection_change_func_t,
               ffi.Pointer<realm_scheduler_t>)>();
 
+  /// Subscribe for notifications of changes to a realm list collection.
+  ///
+  /// @param list The realm list to subscribe to.
+  /// @param userdata A handle to dart object that will be passed to the callback.
+  /// @param on_change The callback to invoke, if the realm list changes.
+  /// @return A notification token that can be released to unsubscribe.
+  ///
+  /// This is a dart specific wrapper for realm_list_add_notification_callback.
+  ffi.Pointer<realm_notification_token_t>
+      realm_dart_list_add_notification_callback(
+    ffi.Pointer<realm_list_t> list,
+    Object userdata,
+    realm_dart_on_collection_change_func_t on_change,
+    ffi.Pointer<realm_scheduler_t> scheduler,
+  ) {
+    return _realm_dart_list_add_notification_callback(
+      list,
+      userdata,
+      on_change,
+      scheduler,
+    );
+  }
+
+  late final _realm_dart_list_add_notification_callbackPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_notification_token_t> Function(
+                  ffi.Pointer<realm_list_t>,
+                  ffi.Handle,
+                  realm_dart_on_collection_change_func_t,
+                  ffi.Pointer<realm_scheduler_t>)>>(
+      'realm_dart_list_add_notification_callback');
+  late final _realm_dart_list_add_notification_callback =
+      _realm_dart_list_add_notification_callbackPtr.asFunction<
+          ffi.Pointer<realm_notification_token_t> Function(
+              ffi.Pointer<realm_list_t>,
+              Object,
+              realm_dart_on_collection_change_func_t,
+              ffi.Pointer<realm_scheduler_t>)>();
+
   ffi.Pointer<ffi.Int8> realm_dart_get_files_path() {
     return _realm_dart_get_files_path();
   }
