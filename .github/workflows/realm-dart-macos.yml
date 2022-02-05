@@ -39,7 +39,7 @@ jobs:
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
-          sdk: beta
+          sdk: stable
 
       - name: Install dependencies
         run: dart pub get
