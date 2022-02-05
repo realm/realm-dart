@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'realm_class.dart';
 import 'native/realm_core.dart';
 
@@ -33,7 +31,7 @@ class Counts {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! Counts) return true;
-    return deletions == other.deletions && //
+    return deletions == other.deletions &&
         insertions == other.insertions &&
         modifications == other.modifications &&
         moves == other.moves;
@@ -71,7 +69,7 @@ class RealmCollectionChanges {
   IndexChanges get changes => _changes ??= IndexChanges._(_handle, counts);
 }
 
-class RealmResultsChanges<T> extends RealmCollectionChanges {
+class RealmResultsChanges<T extends RealmObject> extends RealmCollectionChanges {
   final RealmResults<T> results;
   RealmResultsChanges(this.results, RealmCollectionChanges changes) : super(changes._handle, changes.realm);
 }

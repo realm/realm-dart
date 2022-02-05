@@ -27,7 +27,7 @@ import 'realm_class.dart';
 /// added to or deleted from the Realm that match the underlying query.
 ///
 /// {@category Realm}
-class RealmResults<T> extends collection.IterableBase<T> {
+class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   final RealmResultsHandle _handle;
   final Realm realm;
 
@@ -60,6 +60,7 @@ class RealmResults<T> extends collection.IterableBase<T> {
   @override
   int get length => realmCore.getResultsCount(this);
 
+  /// Allows listening for changes when this collection changes
   Stream<RealmResultsChanges<T>> get changes => realmCore.resultsChanges(realm, this, realm.scheduler.handle).map((changes) => RealmResultsChanges(this, changes));
 }
 
@@ -68,12 +69,12 @@ class RealmResults<T> extends collection.IterableBase<T> {
 extension RealmResultsInternal on RealmResults {
   RealmResultsHandle get handle => _handle;
 
-  static RealmResults<T> create<T>(RealmResultsHandle handle, Realm realm) {
+  static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm) {
     return RealmResults<T>._(handle, realm);
   }
 }
 
-class _RealmResultsIterator<T> implements Iterator<T> {
+class _RealmResultsIterator<T extends RealmObject> implements Iterator<T> {
   final RealmResults<T> _results;
   int _index;
   T? _current;
