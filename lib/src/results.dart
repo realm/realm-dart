@@ -19,11 +19,11 @@
 import 'dart:async';
 import 'dart:collection' as collection;
 
-import 'collection_changes.dart';
+import 'collections.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 
-/// Instances of this class are live collections and will update as new elements are either 
+/// Instances of this class are live collections and will update as new elements are either
 /// added to or deleted from the Realm that match the underlying query.
 ///
 /// {@category Realm}
@@ -60,12 +60,7 @@ class RealmResults<T> extends collection.IterableBase<T> {
   @override
   int get length => realmCore.getResultsCount(this);
 
-  Stream<RealmResultsChanges<T>> get changes => realmCore
-      .resultsChanges(
-        this,
-        realm.scheduler.handle,
-      )
-      .map((changes) => RealmResultsChanges(this, changes));
+  Stream<RealmResultsChanges<T>> get changes => realmCore.resultsChanges(realm, this, realm.scheduler.handle).map((changes) => RealmResultsChanges(this, changes));
 }
 
 /// @nodoc

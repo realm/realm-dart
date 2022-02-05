@@ -25,11 +25,9 @@ import 'dart:math';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
-import 'package:vm_service/vm_service_io.dart';
 
 import '../lib/realm.dart';
-import '../lib/src/collection_changes.dart';
-import '../lib/src/native/realm_core.dart';
+import '../lib/src/collections.dart';
 
 part 'realm_test.g.dart';
 
@@ -87,7 +85,14 @@ void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
   if (testName != null && !name!.contains(testName!)) {
     return;
   }
-  testing.test(name, testFunction, skip: skip);
+
+  var timeout = 30;
+  assert(() {
+    timeout = Duration.secondsPerDay;
+    return true;
+  }());
+
+  testing.test(name, testFunction, skip: skip, timeout: Timeout(Duration(seconds: timeout)));
 }
 
 void xtest(String? name, dynamic Function() testFunction) {
@@ -832,7 +837,7 @@ Future<void> main([List<String>? args]) async {
         expect(result.map((d) => d.name), snapshot.map((d) => d.name));
 
         realm.write(() => realm.add(Dog("Bella", age: 4)));
-        
+
         expect(result, isNot(orderedEquals(snapshot)));
         expect(result, containsAllInOrder(snapshot));
         realm.close();
@@ -854,63 +859,120 @@ Future<void> main([List<String>? args]) async {
     });
 
     group('notification', () {
-      test('RealmResults.changes', () async {
+      test('Results notifications', () async {
         var config = Configuration([Dog.schema, Person.schema]);
         var realm = Realm(config);
 
-        void write(void Function() writer) async {
-          realm.write(writer);
-          realm.write(() {}); // dummy write to raise notification from previous write
-        }
+        realm.write(() {
+          realm.add(Dog("Fido"));
+          realm.add(Dog("Fido1"));
+          realm.add(Dog("Fido2"));
+        });
 
-        final stream = realm.all<Dog>().changes.asBroadcastStream(onCancel: (s) => s.cancel());
+        var firstCall = true;
+        final subscription = realm.all<Dog>().changes.listen((changes) {
+          if (firstCall) {
+            firstCall = false;
+            expect(changes.changes.insertions.isEmpty, true);
+            expect(changes.changes.modifications.isEmpty, true);
+            expect(changes.changes.deletions.isEmpty, true);
+            expect(changes.changes.modificationsAfter.isEmpty, true);
+            expect(changes.changes.moves.isEmpty, true);
+          } else {
+            expect(changes.changes.insertions, [3]); //new object at index 3
+            expect(changes.changes.modifications, [0]); //object at index 0 changed
+            expect(changes.changes.deletions.isEmpty, true);
+            expect(changes.changes.modificationsAfter, [0]);
+            expect(changes.changes.moves.isEmpty, true);
+          }
+        });
 
-        var callbacks = 0;
-        final subscription = stream.listen((changes) => ++callbacks);
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        realm.write(() {
+          realm.all<Dog>().first.age = 2;
+          realm.add(Dog("Fido4"));
+        });
 
-        final fido = Dog('Fido');
-        {
-          final event = stream.skip(1).first;
-          write(() => realm.add(fido));
-          final change = await event;
-          expect(callbacks, 2); // first time
-          expect(change.counts, Counts(0, 1, 0, 0));
-          expect(change.changes.insertions, [0]);
-        }
-        subscription.pause();
-        final bella = Dog('Bella');
-        {
-          var event = stream.first;
-          write(() => realm.add(bella)); // subscription is paused ..
-          final change = await event;
-          expect(callbacks, 2); // .. so count still the same, but
-          expect(change.counts, Counts(0, 1, 0, 0)); // .. bella was inserted
-          expect(change.changes.insertions, [1]);
-        }
-        subscription.resume();
-        {
-          write(() {
-            fido.age = 1;
-            bella.age = 2;
-          });
-          final event = stream.first; // also okay to listen after
-          final change = await event;
-          expect(callbacks, 4); // extra after resume
-          expect(change.counts, Counts(0, 0, 2, 0)); // two updates
-          expect(change.changes.modifications, [0, 1]);
-        }
+        await Future<void>.delayed(Duration(milliseconds: 1));
         subscription.cancel();
+
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        realm.close();
       });
 
-      test('leak subscriptions', () async {
+      test('Results notifications can be paused', () async {
+        var config = Configuration([Dog.schema, Person.schema]);
+        var realm = Realm(config);
+
+         realm.write(() {
+          realm.add(Dog("Lassy"));
+        });
+
+        var callbackCalled = false;
+        final subscription = realm.all<Dog>().changes.listen((changes) { 
+          callbackCalled = true;
+        });
+        
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        expect(callbackCalled, true);
+
+        subscription.pause();
+        callbackCalled = false;
+        realm.write(() {
+          realm.add(Dog("Lassy1"));
+        });
+
+        expect(callbackCalled, false);
+
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        await subscription.cancel();
+
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        realm.close();
+      });
+
+      test('Results notifications can be resumed', () async {
+        var config = Configuration([Dog.schema, Person.schema]);
+        var realm = Realm(config);
+
+        var callbackCalled = false;
+        final subscription = realm.all<Dog>().changes.listen((changes) { 
+          callbackCalled = true;
+        });
+        
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        expect(callbackCalled, true);
+
+        subscription.pause();
+        callbackCalled = false;
+        realm.write(() {
+          realm.add(Dog("Lassy"));
+        });
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        expect(callbackCalled, false);
+
+        subscription.resume();
+        callbackCalled = false;
+        realm.write(() {
+          realm.add(Dog("Lassy1"));
+        });
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        expect(callbackCalled,true);
+
+
+        await subscription.cancel();
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        realm.close();
+      });
+
+      test('Results notifications can leak', () async {
         var config = Configuration([Dog.schema, Person.schema]);
         var realm = Realm(config);
 
         // ignore: unused_local_variable
-        late StreamSubscription<RealmResultsChanges<Dog>> leak;
-        for (var i = 0; i < 100; ++i) {
-          leak = realm.all<Dog>().changes.listen((_) {});
-        }
+        final leak = realm.all<Dog>().changes.listen((data) {});
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        realm.close();
       });
     });
 

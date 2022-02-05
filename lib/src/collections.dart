@@ -1,4 +1,6 @@
-import '../realm.dart';
+import 'dart:async';
+
+import 'realm_class.dart';
 import 'native/realm_core.dart';
 
 class Move {
@@ -61,6 +63,7 @@ class RealmCollectionChanges {
 
   RealmCollectionChanges(this._handle, this.realm);
 
+  //TODO: revisit public API
   Counts? _counts;
   Counts get counts => _counts ??= Counts._(_handle);
 
@@ -72,3 +75,4 @@ class RealmResultsChanges<T> extends RealmCollectionChanges {
   final RealmResults<T> results;
   RealmResultsChanges(this.results, RealmCollectionChanges changes) : super(changes._handle, changes.realm);
 }
+
