@@ -44,7 +44,7 @@ static const int SCHEDULER_FINALIZE = NULL;
 void realm_dart_scheduler_free_userData(void* userData) {
     SchedulerData* schedulerData = static_cast<SchedulerData*>(userData);
     Dart_PostInteger_DL(schedulerData->port, SCHEDULER_FINALIZE);
-    
+
     if (schedulerData->callback_userData != nullptr) {
         //call the function that will free the callback user data
         schedulerData->free_userData_func(schedulerData->callback_userData);
@@ -84,10 +84,10 @@ void realm_dart_scheduler_set_notify_callback(void* userData, void* callback_use
 RLM_API realm_scheduler_t* realm_dart_create_scheduler(uint64_t isolateId, Dart_Port port) {
     SchedulerData* schedulerData = new SchedulerData(isolateId, port);
 
-    realm_scheduler_t* realm_scheduler = realm_scheduler_new(schedulerData, 
-        realm_dart_scheduler_free_userData, 
-        realm_dart_scheduler_notify, 
-        realm_dart_scheduler_is_on_thread, 
+    realm_scheduler_t* realm_scheduler = realm_scheduler_new(schedulerData,
+        realm_dart_scheduler_free_userData,
+        realm_dart_scheduler_notify,
+        realm_dart_scheduler_is_on_thread,
         realm_dart_scheduler_is_same_as,
         realm_dart_scheduler_can_deliver_notifications,
         realm_dart_scheduler_set_notify_callback);
