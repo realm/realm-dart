@@ -121,7 +121,7 @@ The Realm Flutter package name is `realm`
     @RealmModel()
     class _Item {
         @PrimaryKey()
-        late final int id;
+        late int id;
 
         late String name;
         

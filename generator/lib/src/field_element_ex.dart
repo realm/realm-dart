@@ -105,6 +105,19 @@ extension FieldElementEx on FieldElement {
             element: this,
           ));
         }
+        // Since the setter of a dart late final public field without initializer is public,
+        // the error of setting a primary key after construction will be a runtime error no matter 
+        // what we do. See: 
+        //
+        //  https://github.com/dart-lang/language/issues/1239
+        //  https://github.com/dart-lang/language/issues/2068
+        //
+        // Hence we may as well lift the restriction that primary keys must be declared final.
+        //
+        // However, this may change in the future. Either as the dart language team change this
+        // blemish. Or perhaps we can avoid the late modifier, once static meta programming lands 
+        // in dart. Therefor we keep the code outcommented for later.
+        /*
         if (!isFinal) {
           throw RealmInvalidGenerationSourceError(
             'Primary key field is not final',
@@ -116,6 +129,7 @@ extension FieldElementEx on FieldElement {
             element: this,
           );
         }
+        */
       }
 
       // Validate indexes
