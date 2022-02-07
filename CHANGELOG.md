@@ -1,6 +1,9 @@
 vNext
 ==============================================================
 
+### Enhancements
+* Support change notifications on query results
+
 ### Changes
 * Primary key annotation no longer requires field to be final.
 
