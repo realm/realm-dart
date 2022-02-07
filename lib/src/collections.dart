@@ -6,11 +6,7 @@ class Move {
   const Move(this.from, this.to);
 }
 
-class Range {
-  final int from, to;
-  const Range(this.from, this.to);
-}
-
+// Hidden from public use.
 class Counts {
   final int deletions, insertions, modifications, moves;
   const Counts(this.deletions, this.insertions, this.modifications, this.moves);
@@ -38,8 +34,10 @@ class Counts {
   }
 }
 
+// Hidden from public use.
 class IndexChanges {
-  final List<int> deletions, insertions, modifications, modificationsAfter, moves;
+  final List<int> deletions, insertions, modifications, modificationsAfter;
+  final List<Move> moves;
   IndexChanges(this.deletions, this.insertions, this.modifications, this.modificationsAfter, this.moves);
 
   factory IndexChanges._(RealmCollectionChangesHandle changesHandle, Counts maxCounts) {
@@ -61,15 +59,20 @@ class RealmCollectionChanges {
 
   RealmCollectionChanges(this._handle, this.realm);
 
-  Counts? _counts;
-  Counts get counts => _counts ??= Counts._(_handle);
+  Counts? __counts;
+  Counts get _counts => __counts ??= Counts._(_handle);
 
-  IndexChanges? _changes;
-  IndexChanges get changes => _changes ??= IndexChanges._(_handle, counts);
+  IndexChanges? __indexChanges;
+  IndexChanges get _indexChanges => __indexChanges ??= IndexChanges._(_handle, _counts);
+
+  List<int> get deletions => _indexChanges.deletions;
+  List<int> get insertions => _indexChanges.insertions;
+  List<int> get modifications => _indexChanges.modifications;
+  List<int> get modificationsAfter => _indexChanges.modificationsAfter;
+  List<Move> get moves => _indexChanges.moves;
 }
 
 class RealmResultsChanges<T extends RealmObject> extends RealmCollectionChanges {
   final RealmResults<T> results;
   RealmResultsChanges(this.results, RealmCollectionChanges changes) : super(changes._handle, changes.realm);
 }
-
