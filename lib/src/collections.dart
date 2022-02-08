@@ -1,4 +1,4 @@
-import '../realm.dart';
+import 'realm_class.dart';
 import 'native/realm_core.dart';
 
 class Move {
@@ -68,7 +68,8 @@ class RealmCollectionChanges {
   IndexChanges get changes => _changes ??= IndexChanges._(_handle, counts);
 }
 
-class RealmResultsChanges<T> extends RealmCollectionChanges {
+class RealmResultsChanges<T extends RealmObject> extends RealmCollectionChanges {
   final RealmResults<T> results;
   RealmResultsChanges(this.results, RealmCollectionChanges changes) : super(changes._handle, changes.realm);
 }
+

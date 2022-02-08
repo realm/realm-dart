@@ -60,10 +60,15 @@ enum RealmCollectionType {
 /// {@category Realm}
 class RealmError extends Error {}
 
-/// Throw if the operation is not supported.
+/// Thrown if the operation is not supported.
 /// {@category Realm}
 class RealmUnsupportedSetError extends UnsupportedError implements RealmError {
   RealmUnsupportedSetError() : super('Cannot set late final field on realm object');
+}
+
+/// Thrown if the Realm operation is not allowed by the current state of the object.
+class RealmStateError extends StateError implements RealmError {
+  RealmStateError(String message) : super(message);
 }
 
 /// @nodoc

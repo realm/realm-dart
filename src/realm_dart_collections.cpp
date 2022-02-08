@@ -19,84 +19,82 @@
 #include "realm.h"
 #include "dart_api_dl.h"
 #include "realm_dart_collections.h"
+#include <stdio.h>
 
-struct Scope
-{
-    Scope()
-    {
+struct HandleScope {
+    HandleScope() {
         Dart_EnterScope_DL();
     }
-    ~Scope()
-    {
+
+    ~HandleScope() {
         Dart_ExitScope_DL();
     }
 };
 
-class Callback
-{
-    Dart_WeakPersistentHandle handle_;
-    realm_dart_on_collection_change_func_t callback_;
+class CallbackData {
+    //This is no op and does not need to call delete_handle since ~CallbackData is always called by the RealmNotificationTokenHandle finalizer
+    static void finalize_handle(void* isolate_callback_data, void* peer) {}
 
-    static void finalize_(void *isolate_callback_data, void *peer)
-    {
-        auto &callback = *reinterpret_cast<Callback *>(peer);
-        callback.drop_handle();
-    }
-
-    void drop_handle()
-    {
-        if (handle_ != nullptr)
-        {
-            Dart_DeleteWeakPersistentHandle_DL(handle_);
-            handle_ = nullptr;
+    void delete_handle() {
+        if (m_handle) {
+            //TODO: uncomment when the HACK is removed.
+            //Dart_DeleteWeakPersistentHandle_DL(m_handle);
+            m_handle = nullptr;
         }
     }
 
 public:
-    Callback(Dart_Handle handle, realm_dart_on_collection_change_func_t callback)
-        : handle_(Dart_NewWeakPersistentHandle_DL(handle, this, 1 << 24, finalize_)), callback_(callback) {}
+    CallbackData(Dart_Handle handle, realm_dart_on_collection_change_func_t callback)
+        : m_handle(Dart_NewFinalizableHandle_DL(handle, nullptr, 1, finalize_handle)), m_callback(callback) 
+    {}
 
-    ~Callback()
-    {
-        drop_handle();
+    ~CallbackData() {
+        delete_handle();
     }
 
-    void operator()(const realm_collection_changes_t *changes)
-    {
-        if (handle_ != nullptr)
-        {
-            Scope s; // ensure we can create handles
-            auto h = Dart_HandleFromWeakPersistent_DL(handle_);
-            // Note Dart_IsNull(h) is not exposed in DL, so we cannot check.
-            // Hence the callback has to be prepared for this eventuality.
-            callback_(h, changes);
+    void callback(const realm_collection_changes_t* changes) {
+        if (m_handle) {
+            HandleScope scope;
+            //TODO: HACK. We can not release Dart persitent handles in delete_handle on Isolate teardown since the IsolateGroup is destroyed before it.
+            //This works since Dart_WeakPersistentHandle is equivalent to Dart_FinalizableHandle. They both are FinalizablePersistentHandle internally.
+            Dart_WeakPersistentHandle weakHnd = reinterpret_cast<Dart_WeakPersistentHandle>(m_handle);
+            auto handle = Dart_HandleFromWeakPersistent_DL(weakHnd);
+            
+            //clone changes object since the Dart callback is async and changes object is valid for the duration of this method only
+            //clone failures are handled in the Dart callback
+            const realm_collection_changes_t* cloned = static_cast<realm_collection_changes_t*>(realm_clone(changes));
+            m_callback(handle, cloned);
         }
     }
+
+private:
+    //TODO: We use FinalizableHandle since it is auto-deleting. Switch to Dart_WeakPersistentHandle when the HACK is removed
+    Dart_FinalizableHandle m_handle;
+    realm_dart_on_collection_change_func_t m_callback;
 };
 
-void on_change_(void *userdata, const realm_collection_changes_t *changes)
-{
-    auto &callback = *reinterpret_cast<Callback *>(userdata);
-    callback(changes);
+void on_change_callback(void* userdata, const realm_collection_changes_t* changes) {
+    auto& callbackData = *reinterpret_cast<CallbackData*>(userdata);
+    callbackData.callback(changes);
 }
 
-void free_(void *userdata)
-{
-    auto callback = reinterpret_cast<Callback *>(userdata);
+void free_callback(void* userdata) {
+    auto callback = reinterpret_cast<CallbackData*>(userdata);
     delete callback;
 }
 
-RLM_API realm_notification_token_t *
-realm_dart_results_add_notification_callback(realm_results_t *results,
-                                             Dart_Handle userdata,
-                                             realm_dart_on_collection_change_func_t on_change,
-                                             realm_scheduler_t *scheduler)
+realm_notification_token_t* realm_dart_results_add_notification_callback(
+    realm_results_t* results, 
+    Dart_Handle notification_controller,
+    realm_dart_on_collection_change_func_t callback, 
+    realm_scheduler_t* scheduler) 
 {
-    auto callback = new Callback{userdata, on_change};
+    CallbackData* callback_data = new CallbackData(notification_controller, callback);
+
     return realm_results_add_notification_callback(results,
-                                                   callback,
-                                                   free_,
-                                                   on_change_,
-                                                   nullptr, // on_error never called by realm core 6+
-                                                   scheduler);
+        callback_data,
+        free_callback,
+        on_change_callback,
+        nullptr,
+        scheduler);
 }

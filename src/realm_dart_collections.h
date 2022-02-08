@@ -22,7 +22,7 @@
 #include "realm.h"
 #include "dart_api_dl.h"
 
-typedef void (*realm_dart_on_collection_change_func_t)(Dart_Handle userdata, const realm_collection_changes_t *);
+typedef void (*realm_dart_on_collection_change_func_t)(Dart_Handle notification_controller, const realm_collection_changes_t*);
 
 /**
  * Subscribe for notifications of changes to a realm results collection.
@@ -36,8 +36,8 @@ typedef void (*realm_dart_on_collection_change_func_t)(Dart_Handle userdata, con
  */
 RLM_API realm_notification_token_t *
 realm_dart_results_add_notification_callback(realm_results_t *results,
-                                             Dart_Handle userdata,
-                                             realm_dart_on_collection_change_func_t on_change,
+                                             Dart_Handle notification_controller,
+                                             realm_dart_on_collection_change_func_t callback,
                                              realm_scheduler_t *scheduler);
 
 #endif // REALM_DART_COLLECTIONS_H

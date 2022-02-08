@@ -38,7 +38,7 @@ BOOL APIENTRY DllMain(HMODULE module,
 
 #endif  // defined(_WIN32)
 
-RLM_API void realm_initializeDartApiDL(void* data) {
+void realm_initializeDartApiDL(void* data) {
   Dart_InitializeApiDL(data);
 }
 
@@ -46,14 +46,13 @@ void handle_finalizer(void* isolate_callback_data, void* realmPtr) {
   realm_release(realmPtr);
 }
 
-RLM_API Dart_FinalizableHandle realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size) {
+Dart_FinalizableHandle realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size) {
   return Dart_NewFinalizableHandle_DL(handle, realmPtr, size, handle_finalizer);
 }
 
-RLM_API void realm_delete_finalizable(Dart_FinalizableHandle finalizable_handle, Dart_Handle handle) {
+void realm_delete_finalizable(Dart_FinalizableHandle finalizable_handle, Dart_Handle handle) {
   Dart_DeleteFinalizableHandle_DL(finalizable_handle, handle);
 }
-
 
 #if (ANDROID)
 void realm_android_dummy();
