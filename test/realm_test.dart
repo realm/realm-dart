@@ -782,6 +782,8 @@ Future<void> main([List<String>? args]) async {
 
         realm.write(() => realm.add(team));
 
+        // TODO: Get rid of cast, once type signature of team.players is a RealmList<Person>
+        // as opposed to the List<Person> we have today.
         final result = (team.players as RealmList<Person>).query(r'name BEGINSWITH $0', ['K']);
 
         expect(result, [person]);
