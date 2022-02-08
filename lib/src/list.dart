@@ -24,14 +24,15 @@ import 'native/realm_core.dart';
 
 import 'realm_object.dart';
 import 'realm_class.dart';
+import 'results.dart';
 
-/// Instances of this class are live collections and will update as new elements are either 
+/// Instances of this class are live collections and will update as new elements are either
 /// added to or deleted from the Realm that match the underlying query.
 ///
 ///{@category Realm}
 class RealmList<T extends Object> extends collection.ListBase<T> {
-  late final RealmListHandle _handle;
-  late final Realm _realm;
+  final RealmListHandle _handle;
+  final Realm _realm;
 
   RealmList._(this._handle, this._realm);
 
@@ -72,9 +73,9 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
 
   /// Clears the collection in memory and the references
   /// to the objects in this collection in Realm.
-  
-  /// Removes all elements from this list. 
-  /// 
+
+  /// Removes all elements from this list.
+  ///
   /// The length of the list becomes zero.
   /// If the elements are managed [RealmObject]s, they all remain in the Realm.
   @override
@@ -83,10 +84,32 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
   }
 }
 
+// The query operations on lists only work for list of objects (core restriction),
+// so we add it as an extension method to allow the compiler to prevent misuse.
+extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
+  /// Filters the list and returns a new [RealmResults] according to the provided query.
+  ///
+  /// Only works for lists of Realm objects.
+  /// 
+  /// @param query The query used to filter the list
+  /// @param args Optional parameters for substitution in the query
+  ///
+  /// @return The live result
+  ///
+  /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
+  /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
+  ///
+  /// Only works for lists of objects.
+  RealmResults<T> query(String query, [List<Object> args = const []]) {
+    final handle = realmCore.queryList(this, query, args);
+    return RealmResultsInternal.create<T>(handle, realm);
+  }
+}
+
 /// @nodoc
 extension RealmListInternal on RealmList {
   RealmListHandle get handle => _handle;
-  Realm? get realm => _realm;
+  Realm get realm => _realm;
 
   static RealmList<T> create<T extends Object>(RealmListHandle handle, Realm realm) => RealmList<T>._(handle, realm);
 

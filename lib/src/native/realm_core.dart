@@ -297,7 +297,6 @@ class _RealmCore {
     });
   }
 
-
   // For debugging
   // ignore: unused_element
   int get _threadId => _realmLib.get_thread_id();
@@ -364,6 +363,26 @@ class _RealmCore {
     });
   }
 
+  RealmResultsHandle queryList(RealmList target, String query, List<Object> args) {
+    return using((arena) {
+      final length = args.length;
+      final argsPointer = arena<realm_value_t>(length);
+      for (var i = 0; i < length; ++i) {
+        _intoRealmValue(args[i], argsPointer.elementAt(i), arena);
+      }
+      final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
+        () => _realmLib.realm_query_parse_for_list(
+          target.handle._pointer,
+          query.toUtf8Ptr(arena),
+          length,
+          argsPointer,
+        ),
+      ));
+      final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_query_find_all(queryHandle._pointer));
+      return RealmResultsHandle._(resultsPointer);
+    });
+  }
+
   RealmObjectHandle getObjectAt(RealmResults results, int index) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_get_object(results.handle._pointer, index));
     return RealmObjectHandle._(pointer);
@@ -404,7 +423,7 @@ class _RealmCore {
     return using((Arena arena) {
       final realm_value = arena<realm_value_t>();
       _realmLib.invokeGetBool(() => _realmLib.realm_list_get(list.handle._pointer, index, realm_value));
-      return realm_value.toDartValue(list.realm!);
+      return realm_value.toDartValue(list.realm);
     });
   }
 
@@ -456,8 +475,8 @@ abstract class Handle<T extends NativeType> {
 
   Handle(this._pointer, int size) {
     if (_realmLib.realm_attach_finalizer(this, _pointer.cast(), size) == false) {
-       throw Exception("Error creating $runtimeType");
-     }
+      throw Exception("Error creating $runtimeType");
+    }
   }
 
   @override
