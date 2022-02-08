@@ -87,12 +87,17 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
 // The query operations on lists only work for list of objects (core restriction),
 // so we add it as an extension method to allow the compiler to prevent misuse.
 extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
-  /// Filter list.
+  /// Filters the list and returns a new [RealmResults] according to the provided query.
   ///
-  /// @param query The query
-  /// @param args Possible parameters for substition in query
+  /// Only works for lists of Realm objects.
+  /// 
+  /// @param query The query used to filter the list
+  /// @param args Optional parameters for substitution in the query
   ///
   /// @return The live result
+  ///
+  /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
+  /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   ///
   /// Only works for lists of objects.
   RealmResults<T> query(String query, [List<Object> args = const []]) {

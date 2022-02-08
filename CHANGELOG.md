@@ -5,7 +5,7 @@ vNext
 * Primary key annotation no longer requires field to be final.
 
 ### Enhancements
-* Allow query on lists
+* Support query on lists of realm objects
 
 
 0.2.0+alpha Release notes (2022-01-31)

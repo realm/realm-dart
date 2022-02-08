@@ -297,7 +297,6 @@ class _RealmCore {
     });
   }
 
-
   // For debugging
   // ignore: unused_element
   int get _threadId => _realmLib.get_thread_id();
@@ -364,7 +363,7 @@ class _RealmCore {
     });
   }
 
-    RealmResultsHandle queryList(RealmList target, String query, List<Object> args) {
+  RealmResultsHandle queryList(RealmList target, String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
       final argsPointer = arena<realm_value_t>(length);
@@ -383,7 +382,6 @@ class _RealmCore {
       return RealmResultsHandle._(resultsPointer);
     });
   }
-
 
   RealmObjectHandle getObjectAt(RealmResults results, int index) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_get_object(results.handle._pointer, index));
@@ -477,8 +475,8 @@ abstract class Handle<T extends NativeType> {
 
   Handle(this._pointer, int size) {
     if (_realmLib.realm_attach_finalizer(this, _pointer.cast(), size) == false) {
-       throw Exception("Error creating $runtimeType");
-     }
+      throw Exception("Error creating $runtimeType");
+    }
   }
 
   @override
