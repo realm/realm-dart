@@ -740,55 +740,6 @@ extension on Pointer<realm_value_t> {
   }
 }
 
-/*
-final realmCollectionChangesTrampoline = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_collection_changes>)>(_realmCollectionChangesTrampoline);
-
-// The compiler is too dumb to use trampoline<realm_collection_changes> with ffi directly
-void _realmCollectionChangesTrampoline(Object? userdata, Pointer<realm_collection_changes> changes) => trampoline(userdata, changes);
-
-void trampoline<T extends NativeType>(Object? userdata, Pointer<T> changes) {
-  // Cannot check for null on the native side, since _DL version of Dart_IsNull doesn't exist :-/
-  if (userdata != null) {
-    final callback = userdata as void Function(Pointer<T>);
-    callback(changes);
-  }
-}
-
-Stream<T> buildStream<T, U extends NativeType, TokenT extends Handle>(
-  T Function(U) convert,
-  TokenT Function(Object userdata) subscribe,
-) {
-  late StreamController<T> controller;
-
-  void onChange(U data) {
-    final changes = convert(data);
-    controller.add(changes);
-  }
-
-  TokenT? token;
-  void start() {
-    token ??= subscribe(onChange);
-  }
-
-  void stop() {
-    final t = token;
-    if (t != null) {
-      t.releaseEarly();
-      token = null;
-    }
-  }
-
-  controller = StreamController<T>(
-    onListen: start,
-    onPause: stop,
-    onResume: start,
-    onCancel: stop,
-  );
-
-  return controller.stream;
-}
-*/
-
 abstract class NotificationsController {
   late final StreamController<RealmCollectionChanges> streamController;
   RealmNotificationTokenHandle? handle;
