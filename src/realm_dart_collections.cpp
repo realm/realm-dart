@@ -83,7 +83,7 @@ void free_callback(void* userdata) {
     delete callback;
 }
 
-realm_notification_token_t* realm_dart_results_add_notification_callback(
+RLM_API realm_notification_token_t* realm_dart_results_add_notification_callback(
     realm_results_t* results, 
     Dart_Handle notification_controller,
     realm_dart_on_collection_change_func_t callback, 

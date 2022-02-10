@@ -797,20 +797,22 @@ Future<void> main([List<String>? args]) async {
         final config = Configuration([Team.schema, Person.schema]);
         final realm = Realm(config);
 
-        final person = Person('Kasper');
-        final team = Team('Realm-dart', players: [
-          Person('Lubo'),
+        final person = Person('John');
+        final team = Team('team1', players: [
+          Person('Pavel'),
           person,
-          Person('Desi'),
+          Person('Alex'),
         ]);
 
         realm.write(() => realm.add(team));
 
         // TODO: Get rid of cast, once type signature of team.players is a RealmList<Person>
         // as opposed to the List<Person> we have today.
-        final result = (team.players as RealmList<Person>).query(r'name BEGINSWITH $0', ['K']);
+        final result = (team.players as RealmList<Person>).query(r'name BEGINSWITH $0', ['J']);
 
         expect(result, [person]);
+
+        realm.close();
       });
 
       test('Sort result', () {

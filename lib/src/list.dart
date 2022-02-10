@@ -84,6 +84,7 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
 // The query operations on lists only work for list of objects (core restriction),
 // so we add it as an extension method to allow the compiler to prevent misuse.
 extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
+  
   /// Filters the list and returns a new [RealmResults] according to the provided query.
   ///
   /// Only works for lists of Realm objects.

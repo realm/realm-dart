@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - refactor-scheduler
     paths-ignore:
       - 'flutter/**'
       - 'generator/**'
@@ -51,6 +52,26 @@ jobs:
 
       - name: Run tests
         run: |
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
+          dart test -r expanded
           dart test -r expanded
           echo "ARCHIVE_PATH=$(pwd)/binary/linux.tar.gz" >> $GITHUB_ENV
   

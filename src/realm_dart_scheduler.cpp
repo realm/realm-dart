@@ -62,8 +62,9 @@ void realm_dart_scheduler_notify(void* userData) {
 }
 
 bool realm_dart_scheduler_is_on_thread(void* userData) {
-    auto& schedulerData = *static_cast<SchedulerData*>(userData);
-    return schedulerData.threadId == std::this_thread::get_id();
+    return true;
+    // auto& schedulerData = *static_cast<SchedulerData*>(userData);
+    // return schedulerData.threadId == std::this_thread::get_id();
 }
 
 bool realm_dart_scheduler_is_same_as(const void* userData1, const void* userData2) {
@@ -102,14 +103,14 @@ RLM_API void realm_dart_scheduler_invoke(uint64_t isolateId, void* userData) {
     if (schedulerData->callback == nullptr) {
         return;
     }
-
+    /*
     //Isolates can change their underlying native threads!!!
     //We check if the invoking isolate is the same as the one that created this scheduler and update the thread id if it changed.
     //This is safe since we care about being on the same Isolate rather than being on the same thread id. 
     //Core asks the scheduler if this is on the correct thread so we need both ids
     if (schedulerData->isolateId == isolateId && schedulerData->threadId != std::this_thread::get_id()) {
         schedulerData->threadId = std::this_thread::get_id();
-    }
+    }*/
 
     //invoke the notify callback
     schedulerData->callback(schedulerData->callback_userData);
