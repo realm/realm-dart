@@ -10,7 +10,7 @@ class Car extends _Car with RealmObject {
   Car(
     String make,
   ) {
-    RealmObject.set(this, 'make', make);
+    this.make = make;
   }
 
   Car._();
@@ -18,7 +18,7 @@ class Car extends _Car with RealmObject {
   @override
   String get make => RealmObject.get<String>(this, 'make') as String;
   @override
-  set make(String value) => throw RealmUnsupportedSetError();
+  set make(String value) => RealmObject.set(this, 'make', value);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -60,7 +60,7 @@ class Dog extends _Dog with RealmObject {
     int? age,
     Person? owner,
   }) {
-    RealmObject.set(this, 'name', name);
+    this.name = name;
     this.age = age;
     this.owner = owner;
   }
@@ -70,7 +70,7 @@ class Dog extends _Dog with RealmObject {
   @override
   String get name => RealmObject.get<String>(this, 'name') as String;
   @override
-  set name(String value) => throw RealmUnsupportedSetError();
+  set name(String value) => RealmObject.set(this, 'name', value);
 
   @override
   int? get age => RealmObject.get<int>(this, 'age') as int?;
@@ -145,7 +145,7 @@ class Student extends _Student with RealmObject {
     int? yearOfBirth,
     School? school,
   }) {
-    RealmObject.set(this, 'number', number);
+    this.number = number;
     this.name = name;
     this.yearOfBirth = yearOfBirth;
     this.school = school;
@@ -156,7 +156,7 @@ class Student extends _Student with RealmObject {
   @override
   int get number => RealmObject.get<int>(this, 'number') as int;
   @override
-  set number(int value) => throw RealmUnsupportedSetError();
+  set number(int value) => RealmObject.set(this, 'number', value);
 
   @override
   String? get name => RealmObject.get<String>(this, 'name') as String?;
@@ -195,7 +195,7 @@ class School extends _School with RealmObject {
     Iterable<Student> students = const [],
     Iterable<School> branches = const [],
   }) {
-    RealmObject.set(this, 'name', name);
+    this.name = name;
     this.city = city;
     this.branchOfSchool = branchOfSchool;
     RealmObject.set<List<Student>>(this, 'students', students.toList());
@@ -207,7 +207,7 @@ class School extends _School with RealmObject {
   @override
   String get name => RealmObject.get<String>(this, 'name') as String;
   @override
-  set name(String value) => throw RealmUnsupportedSetError();
+  set name(String value) => RealmObject.set(this, 'name', value);
 
   @override
   String? get city => RealmObject.get<String>(this, 'city') as String?;

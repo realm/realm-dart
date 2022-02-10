@@ -31,7 +31,7 @@ part 'realm_test.g.dart';
 @RealmModel()
 class _Car {
   @PrimaryKey()
-  late final String make;
+  late String make;
 }
 
 @RealmModel()
@@ -42,7 +42,7 @@ class _Person {
 @RealmModel()
 class _Dog {
   @PrimaryKey()
-  late final String name;
+  late String name;
 
   late int? age;
 
@@ -59,7 +59,7 @@ class _Team {
 @RealmModel()
 class _Student {
   @PrimaryKey()
-  late final int number;
+  late int number;
   late String? name;
   late int? yearOfBirth;
   late _School? school;
@@ -68,7 +68,7 @@ class _Student {
 @RealmModel()
 class _School {
   @PrimaryKey()
-  late final String name;
+  late String name;
   late String? city;
   final List<_Student> students = [];
   late _School? branchOfSchool;
@@ -389,7 +389,7 @@ Future<void> main([List<String>? args]) async {
       realm.close();
     });
 
-    test('RealmObject set property', () {
+    test('RealmObject set Primary key property', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
@@ -400,11 +400,9 @@ Future<void> main([List<String>? args]) async {
 
       expect(car.make, equals('Tesla'));
 
-      expect(() {
-        realm.write(() {
-          car.make = "Audi"; // setting late final is a runtime error :-/
-        });
-      }, throws<RealmUnsupportedSetError>());
+      realm.write(() {
+        car.make = "Audi";
+      });
 
       realm.close();
     });
