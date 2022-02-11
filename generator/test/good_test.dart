@@ -118,7 +118,7 @@ part 'test.g.dart';
 
 @RealmModel()
 class _Person {
-  late final List<_Person> children;
+  late List<_Person> children;
 }''',
       },
       outputs: {

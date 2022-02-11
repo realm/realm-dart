@@ -14,7 +14,7 @@ on:
       - .github/workflows/realm-generator.yml
 
 jobs:
-  Generator_CI:
+  CI:
     runs-on: ${{ matrix.os }}
 
     strategy:
