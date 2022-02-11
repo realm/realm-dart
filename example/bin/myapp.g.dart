@@ -20,10 +20,10 @@ class Car extends _Car with RealmObject {
         'kilometers': 500,
       });
     }
-    this.make = make;
-    this.model = model;
-    this.kilometers = kilometers;
-    this.owner = owner;
+    RealmObject.set(this, 'make', make);
+    RealmObject.set(this, 'model', model);
+    RealmObject.set(this, 'kilometers', kilometers);
+    RealmObject.set(this, 'owner', owner);
   }
 
   Car._();
@@ -74,8 +74,8 @@ class Person extends _Person with RealmObject {
         'age': 1,
       });
     }
-    this.name = name;
-    this.age = age;
+    RealmObject.set(this, 'name', name);
+    RealmObject.set(this, 'age', age);
   }
 
   Person._();

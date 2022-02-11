@@ -52,8 +52,8 @@ class _Dog {
 @RealmModel()
 class _Team {
   late String name;
-  late final List<_Person> players;
-  late final List<int> scores;
+  late List<_Person> players;
+  late List<int> scores;
 }
 
 @RealmModel()
@@ -70,9 +70,9 @@ class _School {
   @PrimaryKey()
   late String name;
   late String? city;
-  final List<_Student> students = [];
+  List<_Student> students = [];
   late _School? branchOfSchool;
-  late final List<_School> branches;
+  late List<_School> branches;
 }
 
 String? testName;
@@ -389,7 +389,7 @@ Future<void> main([List<String>? args]) async {
       realm.close();
     });
 
-    test('RealmObject set Primary key property', () {
+    test('RealmObject set property', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
 
@@ -400,9 +400,11 @@ Future<void> main([List<String>? args]) async {
 
       expect(car.make, equals('Tesla'));
 
-      realm.write(() {
-        car.make = "Audi";
-      });
+      expect(() {
+        realm.write(() {
+          car.make = "Audi"; // setting primary key is a runtime error :-/
+        });
+      }, throws<RealmUnsupportedSetError>());
 
       realm.close();
     });
