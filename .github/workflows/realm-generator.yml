@@ -19,10 +19,6 @@ jobs:
     env:
       REALM_CI: true
 
-    defaults:
-      run:
-        working-directory: ./generator/
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -32,11 +28,13 @@ jobs:
         with:
           sdk: stable
 
-      - name: Install dependencies
+      - name: Install generator dependencies
         run: dart pub get
+        working-directory: ./generator/
 
       - name: Run generator tests
         run: dart test --reporter expanded --coverage ./coverage/ --test-randomize-ordering-seed random
+        working-directory: ./generator/
 
       - name: Run generator in realm-dart repo
         run: |
@@ -48,6 +46,9 @@ jobs:
 
       - name: Build Realm Dart for Linux
         run: ./scripts/build-linux.sh
+
+      - name: Install realm_dart dependencies
+        run: dart pub get
 
       - name: Run realm_dart tests
         run: dart test -r expanded --test-randomize-ordering-seed random
@@ -61,6 +62,7 @@ jobs:
             --lcov \
             --packages .packages \
             --report-on lib
+        working-directory: ./generator/
 
       - name: Publish Generator Coverage
         id: publish-generator-coverage
@@ -70,7 +72,9 @@ jobs:
           flag-name: realm_generator
           path-to-lcov: ./coverage/lcov.info
         continue-on-error: true
+        working-directory: ./generator/
 
       - name: Output Coveralls response
         if: ${{ success() }}
         run: echo ${{ steps.publish-generator-coverage.outputs.coveralls-api-result }}
+        working-directory: ./generator/
