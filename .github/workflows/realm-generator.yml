@@ -70,9 +70,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: realm_generator
-          path-to-lcov: ./coverage/lcov.info
+          path-to-lcov: ./generator/coverage/lcov.info
         continue-on-error: true
-        working-directory: ./generator/
 
       - name: Output Coveralls response
         if: ${{ success() }}
