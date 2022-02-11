@@ -60,11 +60,13 @@ class RealmFieldInfo {
   Iterable<String> toCode() sync* {
     yield '@override';
     yield "$typeName get $name => RealmObject.get<$basicTypeName>(this, '$realmName') as $typeName;";
-    if (!isFinal) {
+    bool generateSetter = !isFinal && !primaryKey;
+    if (generateSetter) {
       yield '@override';
       yield "set $name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => RealmObject.set(this, '$realmName', value);";
     } else {
-      if (isLate) { // we still need to override setter on late final, but just throw error!
+      bool generateThrowError = isLate || primaryKey;
+      if (generateThrowError) { // we still need to override setter on late final, but just throw error!
         yield '@override';
         yield "set $name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => throw RealmUnsupportedSetError();";
       }
