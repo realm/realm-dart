@@ -36,6 +36,9 @@ jobs:
         run: dart test --reporter expanded --coverage ./coverage/ --test-randomize-ordering-seed random
         working-directory: ./generator/
 
+      - name: Install realm_dart dependencies
+        run: dart pub get
+
       - name: Run generator in realm-dart repo
         run: |
           find . -name "*.g.dart" -delete
@@ -46,9 +49,6 @@ jobs:
 
       - name: Build Realm Dart for Linux
         run: ./scripts/build-linux.sh
-
-      - name: Install realm_dart dependencies
-        run: dart pub get
 
       - name: Run realm_dart tests
         run: dart test -r expanded --test-randomize-ordering-seed random
