@@ -67,7 +67,7 @@ class RealmFieldInfo {
       yield "set $name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => RealmObject.set(this, '$realmName', value);";
     } else {
       bool generateThrowError = isLate || primaryKey || isRealmCollection;
-      if (generateThrowError) { // we still need to override setter on late final, but just throw error!
+      if (generateThrowError) {
         yield '@override';
         yield "set $name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => throw RealmUnsupportedSetError();";
       }
