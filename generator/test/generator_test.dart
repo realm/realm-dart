@@ -33,7 +33,7 @@ class _Foo {
             '        \'x\': 0,\n'
             '      });\n'
             '    }\n'
-            '    this.x = x;\n'
+            '    RealmObject.set(this, \'x\', x);\n'
             '  }\n'
             '\n'
             '  Foo._();\n'
@@ -91,9 +91,9 @@ class _Bar {
   // late Uuid uuid; // not supported yet
   @Ignored()
   var theMeaningOfEverything = 42;
-  list = [0]; // list of ints with default value
+  var list = [0]; // list of ints with default value
   // late Set<int> set; // not supported yet
-  // map = <String, int>{}; // not supported yet
+  // late map = <String, int>{}; // not supported yet
 
   @Indexed()
   String? anOptionalString;
@@ -257,12 +257,12 @@ class _Questionable {
       sb.toString(),
       '[INFO] testBuilder: Indexed is implied for a primary key\n'
       '\n'
-      'in: package:pkg/src/test.dart:9:18\n'
+      'in: package:pkg/src/test.dart:9:12\n'
       '  ╷\n'
       '7 │   @PrimaryKey()\n'
       '8 │   @Indexed()\n'
       '9 │   late int primartKeysAreAlwaysIndexed;\n'
-      '  │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n'
+      '  │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n'
       '  ╵\n'
       'Remove either the @Indexed or @PrimaryKey annotation from \'primartKeysAreAlwaysIndexed\'.\n'
       '\n'
@@ -380,22 +380,22 @@ class _Bad {
         'format()',
         'Duplicate primary keys\n'
             '\n'
-            'in: package:pkg/src/test.dart:11:21\n'
+            'in: package:pkg/src/test.dart:11:15\n'
             '    ╷\n'
             '5   │ @RealmModel()\n'
             '6   │ class _Bad {\n'
             '    │       ━━━━ in realm model for \'Bad\'\n'
             '7   │   @PrimaryKey()\n'
             '8   │   late int first;\n'
-            '    │                  ━━━━━ \n'
+            '    │            ━━━━━ \n'
             '... │\n'
             '10  │   @PrimaryKey()\n'
             '11  │   late String second;\n'
-            '    │                     ^^^^^^ second primary key\n'
+            '    │               ^^^^^^ second primary key\n'
             '... │\n'
             '15  │   @PrimaryKey()\n'
             '16  │   late String third;\n'
-            '    │                     ━━━━━ \n'
+            '    │               ━━━━━ \n'
             '    ╵\n'
             'Avoid duplicated @PrimaryKey() on fields \'first\', \'second\', \'third\'\n'
             '',
@@ -663,14 +663,14 @@ class _Bad {
         'format()',
         'Realm collections cannot be nullable\n'
             '\n'
-            'in: package:pkg/src/test.dart:10:9\n'
+            'in: package:pkg/src/test.dart:10:3\n'
             '    ╷\n'
             '5   │ @RealmModel()\n'
             '6   │ class _Bad { \n'
             '    │       ━━━━ in realm model for \'Bad\'\n'
             '... │\n'
             '10  │   List<int>? wrong;\n'
-            '    │         ^^^^^^^^^^ is nullable\n'
+            '    │   ^^^^^^^^^^ is nullable\n'
             '    ╵',
       )),
     );
@@ -706,14 +706,14 @@ class _Bad {
         'format()',
         'Nullable realm objects are not allowed in collections\n'
             '\n'
-            'in: package:pkg/src/test.dart:14:9\n'
+            'in: package:pkg/src/test.dart:14:8\n'
             '    ╷\n'
             '8   │ @RealmModel()\n'
             '9   │ class _Bad { \n'
             '    │       ━━━━ in realm model for \'Bad\'\n'
             '... │\n'
             '14  │   late List<_Other?> wrong;\n'
-            '    │         ^^^^^^^^^^^^^ which has a nullable realm object element type\n'
+            '    │        ^^^^^^^^^^^^^ which has a nullable realm object element type\n'
             '    ╵\n'
             'Ensure element type is non-nullable\n'
             '',
@@ -915,7 +915,7 @@ class _Foo {
         'format()',
         'Realm only support indexes on String, int, and bool fields\n'
             '\n'
-            'in: package:pkg/src/test.dart:9:14\n'
+            'in: package:pkg/src/test.dart:9:8\n'
             '  ╷\n'
             '5 │ @RealmModel()\n'
             '6 │ @MapTo(\'Bad\')\n'
@@ -923,7 +923,7 @@ class _Foo {
             '  │       ━━━━ in realm model for \'Bad\'\n'
             '8 │   @PrimaryKey()\n'
             '9 │   late bool bad;\n'
-            '  │              ^^^^ bool is not an indexable type\n'
+            '  │        ^^^^ bool is not an indexable type\n'
             '  ╵\n'
             'Change the type of \'bad\', or remove the @PrimaryKey() annotation\n'
             '',
