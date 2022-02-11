@@ -94,7 +94,7 @@ The Realm Flutter package name is `realm`
 
 ## Usage
 
-**The full contents of `catalog.dart` is listed [after the usage](https://github.com/realm/realm-dart#full-contents-of-catalog.dart)**
+**The full contents of `catalog.dart` is listed [after the usage](https://github.com/realm/realm-dart#full-contents-of-catalogdart)**
 
 * Add `realm` package to a Flutter application.
 
