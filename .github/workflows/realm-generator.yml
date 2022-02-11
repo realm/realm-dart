@@ -39,7 +39,7 @@ jobs:
         run: dart pub get
 
       - name: Run generator tests
-        run: dart test --reporter expanded --coverage ./coverage/
+        run: dart test --reporter expanded --test-randomize-ordering-seed random --coverage ./coverage/
 
       - name: Generate generator coverage report
         run: |
