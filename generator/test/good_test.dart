@@ -70,7 +70,7 @@ part 'test.g.dart';
 @RealmModel()
 class _Person {
   @PrimaryKey()
-  late final String name;
+  late String name;
 }''',
       },
       outputs: {

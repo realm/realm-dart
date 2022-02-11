@@ -41,6 +41,7 @@ class RealmFieldInfo {
   DartType get type => fieldElement.type;
 
   bool get isFinal => fieldElement.isFinal;
+  bool get isRealmCollection => fieldElement.type.isRealmCollection;
   bool get isLate => fieldElement.isLate;
   bool get hasDefaultValue => fieldElement.hasInitializer;
   bool get optional => type.isNullable;
@@ -60,12 +61,12 @@ class RealmFieldInfo {
   Iterable<String> toCode() sync* {
     yield '@override';
     yield "$typeName get $name => RealmObject.get<$basicTypeName>(this, '$realmName') as $typeName;";
-    bool generateSetter = !isFinal && !primaryKey;
+    bool generateSetter = !isFinal && !primaryKey && !isRealmCollection;
     if (generateSetter) {
       yield '@override';
       yield "set $name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => RealmObject.set(this, '$realmName', value);";
     } else {
-      bool generateThrowError = isLate || primaryKey;
+      bool generateThrowError = isLate || primaryKey || isRealmCollection;
       if (generateThrowError) { // we still need to override setter on late final, but just throw error!
         yield '@override';
         yield "set $name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => throw RealmUnsupportedSetError();";

@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest] # windows is not tested ue to bug in how error messages are rendered
+        os: [ubuntu-latest, macos-latest] # windows is not tested due to bug in how error messages are rendered
         channel: [stable, beta]
 
     defaults:
