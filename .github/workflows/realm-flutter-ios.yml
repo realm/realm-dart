@@ -4,18 +4,9 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      - 'generator/**'
-      - '.github/**'
-      - '!.github/workflows/realm-flutter-ios.yml' # except this one
     tags:
       - '[0-9]+.[0-9]+.[0-9]+**' # matches tags like number(s).number(s).number(s)(any) for ex: 1.0.0 and also 1.0.0+beta
-
   pull_request:
-    paths-ignore:
-      - 'generator/**'
-      - '.github/**'
-      - '!.github/workflows/realm-flutter-ios.yml' # except this one
 
 jobs:
   CI:
@@ -56,7 +47,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'beta'
+          channel: 'stable'
     
       - name: Install dependencies
         run: flutter pub get
