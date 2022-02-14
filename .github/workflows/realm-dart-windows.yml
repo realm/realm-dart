@@ -15,17 +15,6 @@ jobs:
       REALM_CI: true
 
     steps:
-      # - name: SET VARS
-      #   run: |
-      #     echo "ARCHIVE_PATH=$(pwd)\\binary\\windows.tar.gz" >> $env:GITHUB_ENV
-      #     echo "ARCHIVE_SOURCE_PATH=$(pwd)\\binary" >> $env:GITHUB_ENV
-      # - name: PRINT VARS
-      #   run: |
-      #     echo $ARCHIVE_PATH
-      #     echo $ARCHIVE_SOURCE_PATH
-      #     echo ${{ env.ARCHIVE_PATH }}
-      #     echo ${{ env.ARCHIVE_SOURCE_PATH }}
-
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -41,7 +30,7 @@ jobs:
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
-          sdk: beta
+          sdk: stable
 
       - name: Install dependencies
         run: dart pub get
