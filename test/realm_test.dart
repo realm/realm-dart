@@ -1181,10 +1181,10 @@ Future<void> main([List<String>? args]) async {
 
       expect(teams, isNotNull);
       expect(teams.length, 1);
-      RealmList<Person> teampPlayers = teams[0].players as RealmList<Person>;
-      expect(teampPlayers.isValid, true);
+      final players = teams[0].players;
+      expect(players.isValid, true);
       realm.close();
-      expect(teampPlayers.isValid, false);
+      expect(players.isValid, false);
     });
 
     test('Access results after realm closed', () {

@@ -25,6 +25,16 @@ import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'realm_class.dart';
 
+extension RealmListExtension<T extends Object> on List<T> {
+  bool get isValid {
+    final self = this;
+    if (self is RealmList<T>) {
+      return self.isValid;
+    }
+    return true;
+  } 
+}
+
 class RealmList<T extends Object> extends collection.ListBase<T> {
   late final RealmListHandle _handle;
   late final Realm _realm;
