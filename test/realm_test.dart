@@ -402,7 +402,7 @@ Future<void> main([List<String>? args]) async {
 
       expect(() {
         realm.write(() {
-          car.make = "Audi"; // setting primary key is a runtime error :-/
+          car.make = "Audi";
         });
       }, throws<RealmUnsupportedSetError>());
 
