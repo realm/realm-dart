@@ -3,6 +3,8 @@ vNext
 
 ### Changes
 * Primary key annotation no longer requires field to be final.
+* `RealmObject.IsValid` can be called to check if a managed object has been deleted and its Realm isn't closed. If RealmObject is no longer valid accessing its properties will throw an exception. ([#183](https://github.com/realm/realm-dart/pull/183))
+* `RealmList.IsValid` can be called to check whether the Realm instance hasn't been closed, whether it represents a to-many relationship and it's parent object hasn't been deleted. ([#183](https://github.com/realm/realm-dart/pull/183))
 
 ### Enhancements
 * Support query on lists of realm objects

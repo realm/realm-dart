@@ -170,9 +170,9 @@ class RealmCoreAccessor implements RealmAccessor {
 /// An object that is persisted in `Realm`.
 ///
 /// `RealmObjects` are generated from Realm data model classes marked with `@RealmModel` annotation and named with an underscore.
-/// 
+///
 /// A data model class `_MyClass` will have a `RealmObject` generated with name `MyClass`.
-/// 
+///
 /// [RealmObject] should not be used directly as it is part of the generated class hierarchy. ex: `MyClass extends _MyClass with RealmObject`.
 /// {@category Realm}
 class RealmObject {
@@ -224,9 +224,14 @@ class RealmObject {
     if (!isManaged || !other.isManaged) return false;
     return realmCore.equals(this, other);
   }
-  
-  bool get isValid => isManaged ? realmCore.objectIsValid(this) : true;
 
+  /// Gets a value indicating whether this object is managed and represents a row in the database.
+  ///
+  /// If a managed object has been removed from the [Realm], it is no longer valid and accessing properties on it
+  /// will throw an exception.
+  /// The Object is not valid if its [Realm] is closed or object is deleted.
+  /// Unmanaged objects are always considered valid.
+  bool get isValid => isManaged ? realmCore.objectIsValid(this) : true;
 }
 
 /// @nodoc
