@@ -185,15 +185,6 @@ extension FieldElementEx on FieldElement {
       } else {
         // Validate collections
         if (type.isRealmCollection) {
-          if (!isFinal) {
-            throw RealmInvalidGenerationSourceError(
-              'Realm collection field must be final',
-              primarySpan: span,
-              primaryLabel: 'is not final',
-              todo: "Add a final keyword to the definition of '$displayName'",
-              element: this,
-            );
-          }
           if (type.isNullable) {
             throw RealmInvalidGenerationSourceError(
               'Realm collections cannot be nullable',

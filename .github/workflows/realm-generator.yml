@@ -14,32 +14,46 @@ on:
       - .github/workflows/realm-generator.yml
 
 jobs:
-  Generator_CI:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest] # windows is not tested ue to bug in how error messages are rendered
-        channel: [stable, beta]
-
-    defaults:
-      run:
-        working-directory: ./generator/
+  CI:
+    runs-on: ubuntu-latest
+    env:
+      REALM_CI: true
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
-          sdk: ${{ matrix.channel }}
+          sdk: stable
 
-      - name: Install dependencies
+      - name: Install generator dependencies
         run: dart pub get
+        working-directory: ./generator/
 
       - name: Run generator tests
-        run: dart test --reporter expanded --test-randomize-ordering-seed random --coverage ./coverage/
+        run: dart test --reporter expanded --coverage ./coverage/ --test-randomize-ordering-seed random
+        working-directory: ./generator/
+
+      - name: Install realm_dart dependencies
+        run: dart pub get
+
+      - name: Run generator in realm-dart repo
+        run: |
+          find . -name "*.g.dart" -delete
+          dart run build_runner build --delete-conflicting-outputs
+
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Build Realm Dart for Linux
+        run: ./scripts/build-linux.sh
+
+      - name: Run realm_dart tests
+        run: dart test -r expanded --test-randomize-ordering-seed random
 
       - name: Generate generator coverage report
         run: |
@@ -50,6 +64,7 @@ jobs:
             --lcov \
             --packages .packages \
             --report-on lib
+        working-directory: ./generator/
 
       - name: Publish Generator Coverage
         id: publish-generator-coverage
@@ -57,9 +72,10 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: realm_generator
-          path-to-lcov: ./coverage/lcov.info
+          path-to-lcov: ./generator/coverage/lcov.info
         continue-on-error: true
 
       - name: Output Coveralls response
         if: ${{ success() }}
         run: echo ${{ steps.publish-generator-coverage.outputs.coveralls-api-result }}
+        working-directory: ./generator/
