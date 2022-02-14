@@ -4,14 +4,7 @@ on:
   push:
     branches:
       - master
-    paths:
-      - 'generator/**'
-      - .github/workflows/realm-generator.yml
-
   pull_request:
-    paths:
-      - 'generator/**'
-      - .github/workflows/realm-generator.yml
 
 jobs:
   CI:
