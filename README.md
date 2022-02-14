@@ -38,10 +38,10 @@ This repository holds the source code for the Realm SDK for Flutterâ„¢ and Dartâ
     var config = Configuration([Car.schema]);
     var realm = Realm(config);
 
-    var car = Car("Telsa", "Model Y", kilometers: 5);
+    var car = Car("Tesla", "Model Y", kilometers: 5);
     realm.write(() {
       realm.add(car);
-    }
+    });
     ```
 
 * Query objects in Realm.
