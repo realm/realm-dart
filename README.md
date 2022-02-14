@@ -14,7 +14,7 @@ This repository holds the source code for the Realm SDK for Flutterâ„¢ and Dartâ
     ```dart
     import 'package:realm/realm.dart';  // import realm package
 
-    part 'app.g.dart' // declare a part file.
+    part 'app.g.dart'; // declare a part file.
         
     @RealmModel() // define a data model class named `_Car`.
     class _Car {
@@ -150,14 +150,14 @@ The Realm Flutter package name is `realm`
     var config = Configuration([Item.schema]);
 
     // Opean a Realm
-    realm = Realm(config);
+    var realm = Realm(config);
 
-    var myItem = Item(0, 'Item', price: 4);
+    var myItem = Item(0, 'Pen', price: 4);
 
     // Open a write transaction
     realm.write(() {
         realm.add(myItem);
-        var item = realm.add(Item(1, 'Item')..price = 20);
+        var item = realm.add(Item(1, 'Pencil')..price = 20);
     });
 
     // Objects `myItem` and `item` are now managed and persisted in the realm
@@ -169,7 +169,7 @@ The Realm Flutter package name is `realm`
     // Update object properties
     realm.write(() {
         myItem.price = 20;
-        myItem.name = "New Item";
+        myItem.name = "Special Pencil";
     });
 
     // Get objects from the realm
@@ -178,15 +178,15 @@ The Realm Flutter package name is `realm`
     var items = realm.all<Item>();
     
     // Get object by index
-    var item = items[5];
+    var item = items[1];
     
     // Get object by primary key
     var itemByKey = realm.find<Item>(0);
     
     // Filter and sort object
-    var objects = realm.query<Item>("name == 'Special Item'");
-    var name = 'John';
-    var objects = realm.query<Item>(r'name == $0', [name]]);
+    var objects = realm.query<Item>("name == 'Special Pencil'");
+    var name = 'Pen';
+    objects = realm.query<Item>(r'name == $0', [name]]);
 
     // Close the realm
     realm.close();
@@ -213,14 +213,14 @@ class _Item {
 var config = Configuration([Item.schema]);
 
 // Opean a Realm
-realm = Realm(config);
+var realm = Realm(config);
 
-var myItem = Item(0, 'Item', price: 4);
+var myItem = Item(0, 'Pen', price: 4);
 
 // Open a write transaction
 realm.write(() {
     realm.add(myItem);
-    var item = realm.add(Item(1, 'Item')..price = 20);
+    var item = realm.add(Item(1, 'Pencil')..price = 20);
 });
 
 // Objects `myItem` and `item` are now managed and persisted in the realm
@@ -232,7 +232,7 @@ print(myItem.price);
 // Update object properties
 realm.write(() {
     myItem.price = 20;
-    myItem.name = "New Item";
+    myItem.name = "Special Pencil";
 });
 
 // Get objects from the realm
@@ -241,15 +241,15 @@ realm.write(() {
 var items = realm.all<Item>();
 
 // Get object by index
-var item = items[5];
+var item = items[1];
 
 // Get object by primary key
 var itemByKey = realm.find<Item>(0);
 
 // Filter and sort object
-var objects = realm.query<Item>("name == 'Special Item'");
-var name = 'John';
-var objects = realm.query<Item>(r'name == $0', [name]]);
+var objects = realm.query<Item>("name == 'Special Pencil'");
+var name = 'Pen';
+objects = realm.query<Item>(r'name == $0', [name]]);
 
 // Close the realm
 realm.close();
