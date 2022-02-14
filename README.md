@@ -9,14 +9,14 @@ This repository holds the source code for the Realm SDK for Flutterâ„¢ and Dartâ
 
 ## Getting Started
 
-* Import Realm.
-    ```dart
-    import 'package:realm/realm.dart';
-    ```
+* Import Realm in a dart file `app.dart`
 
-* Define a data model class `_Car`.
     ```dart
-    @RealmModel()
+    import 'package:realm/realm.dart';  // import realm package
+
+    part 'app.g.dart'; // declare a part file.
+        
+    @RealmModel() // define a data model class named `_Car`.
     class _Car {
       late String make;
 
@@ -38,10 +38,10 @@ This repository holds the source code for the Realm SDK for Flutterâ„¢ and Dartâ
     var config = Configuration([Car.schema]);
     var realm = Realm(config);
 
-    var car = Car("Telsa", "Model Y", kilometers: 5);
+    var car = Car("Tesla", "Model Y", kilometers: 5);
     realm.write(() {
       realm.add(car);
-    }
+    });
     ```
 
 * Query objects in Realm.
@@ -90,8 +90,11 @@ The Realm Flutter package name is `realm`
 
 * Flutter ^2.8.0
 * For Flutter Desktop environment setup check the guide [here](https://docs.flutter.dev/desktop)
+* Cocoapods v1.11 or newer is required
 
 ## Usage
+
+**The full contents of `catalog.dart` is listed [after the usage](https://github.com/realm/realm-dart#full-contents-of-catalogdart)**
 
 * Add `realm` package to a Flutter application.
 
@@ -99,8 +102,8 @@ The Realm Flutter package name is `realm`
     flutter pub add realm
     ```
 
-* Import Realm in a dart file (ex. `catalog.dart`).
-
+* Import Realm in a dart file (ex. `catalog.dart`). 
+    
     ```dart
     import 'package:realm/realm.dart';
     ```
@@ -147,13 +150,26 @@ The Realm Flutter package name is `realm`
     var config = Configuration([Item.schema]);
 
     // Opean a Realm
-    realm = Realm(config);
+    var realm = Realm(config);
+
+    var myItem = Item(0, 'Pen', price: 4);
 
     // Open a write transaction
     realm.write(() {
-        var myItem = Item(0, 'Iteam', price: 4);
         realm.add(myItem);
-        var item = realm.add(Item(1, 'Iteam')..price = 20);
+        var item = realm.add(Item(1, 'Pencil')..price = 20);
+    });
+
+    // Objects `myItem` and `item` are now managed and persisted in the realm
+
+    // Read object properties from realm
+    print(myItem.name);
+    print(myItem.price);
+
+    // Update object properties
+    realm.write(() {
+        myItem.price = 20;
+        myItem.name = "Special Pencil";
     });
 
     // Get objects from the realm
@@ -162,19 +178,82 @@ The Realm Flutter package name is `realm`
     var items = realm.all<Item>();
     
     // Get object by index
-    var item = items[5];
+    var item = items[1];
     
     // Get object by primary key
     var itemByKey = realm.find<Item>(0);
     
     // Filter and sort object
-    var objects = realm.query<Item>("name == 'Special Item'");
-    var name = 'John';
-    var objects = realm.query<Item>(r'name == $0', [name]]);
+    var objects = realm.query<Item>("name == 'Special Pencil'");
+    var name = 'Pen';
+    objects = realm.query<Item>(r'name == $0', [name]]);
 
     // Close the realm
     realm.close();
     ```
+
+## Full contents of `catalog.dart`
+
+```dart
+import 'package:realm/realm.dart';
+
+part 'catalog.g.dart';
+
+@RealmModel()
+class _Item {
+    @PrimaryKey()
+    late int id;
+
+    late String name;
+    
+    int price = 42;
+}
+
+// Create a Configuration object
+var config = Configuration([Item.schema]);
+
+// Opean a Realm
+var realm = Realm(config);
+
+var myItem = Item(0, 'Pen', price: 4);
+
+// Open a write transaction
+realm.write(() {
+    realm.add(myItem);
+    var item = realm.add(Item(1, 'Pencil')..price = 20);
+});
+
+// Objects `myItem` and `item` are now managed and persisted in the realm
+
+// Read object properties from realm
+print(myItem.name);
+print(myItem.price);
+
+// Update object properties
+realm.write(() {
+    myItem.price = 20;
+    myItem.name = "Special Pencil";
+});
+
+// Get objects from the realm
+
+// Get all objects of type
+var items = realm.all<Item>();
+
+// Get object by index
+var item = items[1];
+
+// Get object by primary key
+var itemByKey = realm.find<Item>(0);
+
+// Filter and sort object
+var objects = realm.query<Item>("name == 'Special Pencil'");
+var name = 'Pen';
+objects = realm.query<Item>(r'name == $0', [name]]);
+
+// Close the realm
+realm.close();
+```
 
 # Realm Dart SDK 
 
