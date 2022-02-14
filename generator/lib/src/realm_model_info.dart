@@ -57,16 +57,15 @@ class RealmModelInfo {
         yield ') {';
 
         if (hasDefaults.isNotEmpty) {
-          yield 'if (!_defaultsSet) _defaultsSet = RealmObject.setDefaults<$name>({';
+          yield 'if (!_defaultsSet) {';
+          yield '  _defaultsSet = RealmObject.setDefaults<$name>({';
           yield* hasDefaults.map((f) => "'${f.name}': ${f.fieldElement.initializerExpression},");
-          yield '});';
+          yield '  });';
+          yield '}';
         }
 
         yield* allExceptCollections.map((f) {
-          if (f.isFinal) {
-            return "RealmObject.set(this, '${f.name}', ${f.name});"; // since no setter will be created!
-          }
-          return 'this.${f.name} = ${f.name};'; // defer to generated setter
+          return "RealmObject.set(this, '${f.name}', ${f.name});";
         });
 
         yield* collections.map((c) {

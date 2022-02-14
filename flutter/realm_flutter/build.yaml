@@ -3,11 +3,19 @@ targets:
     builders:
       build_cli:
         generate_for:
-          - lib/src/cli/metrics/options.dart
+          - lib/src/cli/**/**.dart
       json_serializable:
         generate_for:
           - lib/src/cli/metrics/flutter_info.dart
           - lib/src/cli/metrics/metrics.dart
       realm_generator|realm_object_builder:
         generate_for:
-          - test/**.dart
+          include:
+builders:
+  realm_generator:
+    import: "package:realm_generator/realm_generator.dart"
+    builder_factories: ["generateRealmObjects"]
+    build_extensions: { ".dart": ["realm_objects.g.part"] }
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]

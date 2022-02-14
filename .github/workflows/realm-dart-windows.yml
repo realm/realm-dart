@@ -2,16 +2,22 @@ name: Realm Dart for Windows
 
 on:
   push:
-    branches: [ master ]
-    # Do not run if change is in these paths
+    branches:
+      - master
     paths-ignore:
       - 'flutter/**'
       - 'generator/**'
+      - '.github/**'
+      - '!.github/workflows/realm-dart-windows.yml' # except this one
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+**' # matches tags like number(s).number(s).number(s)(any) for ex: 1.0.0 and also 1.0.0+beta
+
   pull_request:
-    # Do not run if change is in these paths
     paths-ignore:
-        - 'flutter/**'
-        - 'generator/**'
+      - 'flutter/**'
+      - 'generator/**'
+      - '.github/**'
+      - '!.github/workflows/realm-dart-windows.yml' # except this one
 
 jobs:
   CI:
@@ -20,16 +26,24 @@ jobs:
       REALM_CI: true
 
     steps:
+      # - name: SET VARS
+      #   run: |
+      #     echo "ARCHIVE_PATH=$(pwd)\\binary\\windows.tar.gz" >> $env:GITHUB_ENV
+      #     echo "ARCHIVE_SOURCE_PATH=$(pwd)\\binary" >> $env:GITHUB_ENV
+      # - name: PRINT VARS
+      #   run: |
+      #     echo $ARCHIVE_PATH
+      #     echo $ARCHIVE_SOURCE_PATH
+      #     echo ${{ env.ARCHIVE_PATH }}
+      #     echo ${{ env.ARCHIVE_SOURCE_PATH }}
+
       - name: Checkout
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
 
-      - name: Build Ralm Dart for Windows
-        run: |
-          mkdir build
-          cd build
-          ..\scripts\build.bat
+      - name: Build Realm Dart for Windows
+        run: scripts\build.bat
 
       # Note: This workflow uses the latest stable version of the Dart SDK.
       # You can specify other versions if desired, see documentation here:
@@ -37,9 +51,34 @@ jobs:
       # - uses: dart-lang/setup-dart@v1
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
+        with:
+          sdk: beta
 
       - name: Install dependencies
         run: dart pub get
 
       - name: Run tests
-        run: dart test -r expanded
+        run: |
+          dart test -r expanded --test-randomize-ordering-seed random
+          echo "ARCHIVE_PATH=$(pwd)\\binary\\windows.tar.gz" >> $env:GITHUB_ENV
+          echo "ARCHIVE_SOURCE_PATH=$(pwd)\\binary\\windows" >> $env:GITHUB_ENV
+
+      - name: Archive binary
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: |
+          dart run realm_dart archive --source-dir ${{ env.ARCHIVE_SOURCE_PATH }} --output-file ${{ env.ARCHIVE_PATH }}
+
+      - name: Release artifacts
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates:  true
+          artifactErrorsFailBuild: true
+          draft: true
+          omitNameDuringUpdate: true
+          prerelease: false
+          omitPrereleaseDuringUpdate: true
+          artifacts: ${{ env.ARCHIVE_PATH }}
+          body: "ADD RELEASE NOTES"
+          omitBodyDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}

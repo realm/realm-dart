@@ -1,0 +1,34 @@
+# ingore build dirs
+.dart_tool/
+.idea/
+
+# ignore realm files
+**/*.realm
+**/*.realm.lock
+
+# Dart packages and Flutter plugins should not commit these files
+.packages
+
+# Ignore doc build output directory
+/doc/
+
+# Ignore binary directory. This gets created by Install task on build of projects
+binary/
+
+# Ignore android binaries directories. This gets created by Install command on build of projects
+android/src/main/cpp/lib/
+
+# Ignore ios binaries directory. This gets created by Install command on build of projects
+ios/realm_flutter_ios.xcframework
+
+# Ignore mac binary directory. This gets created by Install command on build of projects
+#macos/librealm_dart.dylib.txt
+
+# Ignore windows binaries directory. This gets created by Install command on build of projects
+windows/binary/
+
+# Ignore realm-cre pem files
+ios/src/realm-core/**/*.pem
+
+# Ignore realm-core doc
+ios/src/realm-core/doc

@@ -15,6 +15,9 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+// ignore_for_file: constant_identifier_names, non_constant_identifier_names
+
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:typed_data';
@@ -35,7 +38,7 @@ late RealmLibrary _realmLib;
 final _RealmCore realmCore = _RealmCore();
 
 class _RealmCore {
-  //From realm.h. Currently not exported from the shared library
+  // From realm.h. Currently not exported from the shared library
   static const int RLM_INVALID_CLASS_KEY = 0x7FFFFFFF;
   // ignore: unused_field
   static const int RLM_INVALID_PROPERTY_KEY = -1;
@@ -96,7 +99,7 @@ class _RealmCore {
         classInfo.num_properties = schemaObject.properties.length;
         classInfo.num_computed_properties = 0;
         classInfo.key = RLM_INVALID_CLASS_KEY;
-        classInfo.flags = realm_class_flags_e.RLM_CLASS_NORMAL;
+        classInfo.flags = realm_class_flags.RLM_CLASS_NORMAL;
 
         final propertiesCount = schemaObject.properties.length;
         final properties = arena<realm_property_info_t>(propertiesCount);
@@ -111,15 +114,15 @@ class _RealmCore {
           propInfo.link_origin_property_name = "".toUtf8Ptr(arena);
           propInfo.type = schemaProperty.propertyType.index;
           propInfo.collection_type = schemaProperty.collectionType.index;
-          propInfo.flags = realm_property_flags_e.RLM_PROPERTY_NORMAL;
+          propInfo.flags = realm_property_flags.RLM_PROPERTY_NORMAL;
 
           if (schemaProperty.optional) {
-            propInfo.flags |= realm_property_flags_e.RLM_PROPERTY_NULLABLE;
+            propInfo.flags |= realm_property_flags.RLM_PROPERTY_NULLABLE;
           }
 
           if (schemaProperty.primaryKey) {
             classInfo.primary_key = schemaProperty.name.toUtf8Ptr(arena);
-            propInfo.flags = realm_property_flags_e.RLM_PROPERTY_PRIMARY_KEY;
+            propInfo.flags = realm_property_flags.RLM_PROPERTY_PRIMARY_KEY;
           }
         }
 
@@ -138,7 +141,7 @@ class _RealmCore {
 
   void validateSchema(RealmSchema schema) {
     _realmLib.invokeGetBool(
-        () => _realmLib.realm_schema_validate(schema.handle._pointer, realm_schema_validation_mode_e.RLM_SCHEMA_VALIDATION_BASIC), "Invalid Realm schema.");
+        () => _realmLib.realm_schema_validate(schema.handle._pointer, realm_schema_validation_mode.RLM_SCHEMA_VALIDATION_BASIC), "Invalid Realm schema.");
   }
 
   int getSchemaVersion(Configuration config) {
@@ -184,8 +187,8 @@ class _RealmCore {
 
   void deleteRealmFiles(String path) {
     using((Arena arena) {
-      Pointer<Uint8> realmDeleted = arena<Uint8>();
-      _realmLib.invokeGetBool(() => _realmLib.realm_delete_files(path.toUtf8Ptr<Int8>(arena), realmDeleted), "Error deleting realm at path $path");
+      final realm_deleted = arena<Uint8>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_delete_files(path.toUtf8Ptr(arena), realm_deleted), "Error deleting realm at path $path");
     });
   }
 
@@ -206,7 +209,7 @@ class _RealmCore {
   }
 
   void commitWrite(Realm realm) {
-    _realmLib.invokeGetBool(() => _realmLib.realm_commit(realm.handle._pointer), "Could commit write");
+    _realmLib.invokeGetBool(() => _realmLib.realm_commit(realm.handle._pointer), "Could not commit write");
   }
 
   bool getIsWritable(Realm realm) {
@@ -214,13 +217,17 @@ class _RealmCore {
   }
 
   void rollbackWrite(Realm realm) {
-    _realmLib.invokeGetBool(() => _realmLib.realm_rollback(realm.handle._pointer), "Could rollback write");
+    _realmLib.invokeGetBool(() => _realmLib.realm_rollback(realm.handle._pointer), "Could not rollback write");
+  }
+
+  void realmRefresh(Realm realm) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_refresh(realm.handle._pointer), "Could not refresh");
   }
 
   RealmClassMetadata getClassMetadata(Realm realm, String className, Type classType) {
     return using((Arena arena) {
-      Pointer<Uint8> found = arena<Uint8>();
-      Pointer<realm_class_info_t> classInfo = arena<realm_class_info_t>();
+      final found = arena<Uint8>();
+      final classInfo = arena<realm_class_info_t>();
       _realmLib.invokeGetBool(() => _realmLib.realm_find_class(realm.handle._pointer, className.toUtf8Ptr(arena), found, classInfo),
           "Error getting class $className from realm at ${realm.config.path}");
 
@@ -241,7 +248,7 @@ class _RealmCore {
 
   Map<String, RealmPropertyMetadata> getPropertyMetadata(Realm realm, int classKey) {
     return using((Arena arena) {
-      Pointer<IntPtr> propertyCountPtr = arena<IntPtr>();
+      final propertyCountPtr = arena<IntPtr>();
       _realmLib.invokeGetBool(
           () => _realmLib.realm_get_property_keys(realm.handle._pointer, classKey, nullptr, 0, propertyCountPtr), "Error getting property count");
 
@@ -269,7 +276,7 @@ class _RealmCore {
 
   RealmObjectHandle createRealmObjectWithPrimaryKey(Realm realm, int classKey, Object primaryKey) {
     return using((Arena arena) {
-      Pointer<realm_value_t> realm_value = _toRealmValue(primaryKey, arena);
+      final realm_value = _toRealmValue(primaryKey, arena);
       final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_object_create_with_primary_key(realm.handle._pointer, classKey, realm_value.ref));
       return RealmObjectHandle._(realmPtr);
     });
@@ -277,7 +284,7 @@ class _RealmCore {
 
   Object? getProperty(RealmObject object, int propertyKey) {
     return using((Arena arena) {
-      Pointer<realm_value_t> realm_value = arena<realm_value_t>();
+      final realm_value = arena<realm_value_t>();
       _realmLib.invokeGetBool(() => _realmLib.realm_get_value(object.handle._pointer, propertyKey, realm_value));
       return realm_value.toDartValue(object.realm!);
     });
@@ -285,27 +292,14 @@ class _RealmCore {
 
   void setProperty(RealmObject object, int propertyKey, Object? value, bool isDefault) {
     return using((Arena arena) {
-      Pointer<realm_value_t> realm_value = _toRealmValue(value, arena);
+      final realm_value = _toRealmValue(value, arena);
       _realmLib.invokeGetBool(() => _realmLib.realm_set_value(object.handle._pointer, propertyKey, realm_value.ref, isDefault));
     });
   }
 
-  int get threadId => _realmLib.get_thread_id();
-
-  Object triggerGC() {
-    //create some new object to force the GC to run
-    for (var i = 0; i < 16; i++) {
-      Object hugeObject = Object();
-      final configPtr = _realmLib.realm_config_new();
-      _realmLib.realm_attach_finalizer(hugeObject, configPtr.cast(), 1024 * 1024 * 1024);
-    }
-
-    Object? k;
-    for (var i = 0; i < 16; i++) {
-      k = Object();
-    }
-    return k!;
-  }
+  // For debugging
+  // ignore: unused_element
+  int get _threadId => _realmLib.get_thread_id();
 
   RealmObjectHandle? find(Realm realm, int classKey, Object primaryKey) {
     return using((Arena arena) {
@@ -339,7 +333,7 @@ class _RealmCore {
         () => _realmLib.realm_query_parse(
           realm.handle._pointer,
           classKey,
-          query.toUtf8Ptr<Int8>(arena),
+          query.toUtf8Ptr(arena),
           length,
           argsPointer,
         ),
@@ -359,7 +353,27 @@ class _RealmCore {
       final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
         () => _realmLib.realm_query_parse_for_results(
           target.handle._pointer,
-          query.toUtf8Ptr<Int8>(arena),
+          query.toUtf8Ptr(arena),
+          length,
+          argsPointer,
+        ),
+      ));
+      final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_query_find_all(queryHandle._pointer));
+      return RealmResultsHandle._(resultsPointer);
+    });
+  }
+
+  RealmResultsHandle queryList(RealmList target, String query, List<Object> args) {
+    return using((arena) {
+      final length = args.length;
+      final argsPointer = arena<realm_value_t>(length);
+      for (var i = 0; i < length; ++i) {
+        _intoRealmValue(args[i], argsPointer.elementAt(i), arena);
+      }
+      final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
+        () => _realmLib.realm_query_parse_for_list(
+          target.handle._pointer,
+          query.toUtf8Ptr(arena),
           length,
           argsPointer,
         ),
@@ -370,36 +384,36 @@ class _RealmCore {
   }
 
   RealmObjectHandle getObjectAt(RealmResults results, int index) {
-    Pointer<realm_object> pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_get_object(results.handle._pointer, index));
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_get_object(results.handle._pointer, index));
     return RealmObjectHandle._(pointer);
   }
 
   int getResultsCount(RealmResults results) {
     return using((Arena arena) {
-      Pointer<IntPtr> countPtr = arena<IntPtr>();
+      final countPtr = arena<IntPtr>();
       _realmLib.invokeGetBool(() => _realmLib.realm_results_count(results.handle._pointer, countPtr));
       return countPtr.value;
     });
   }
 
   RealmLinkHandle _getObjectAsLink(RealmObject object) {
-    final realm_link = _realmLib.realm_object_as_link(object.handle._pointer);
-    return RealmLinkHandle._(realm_link);
+    final realmLink = _realmLib.realm_object_as_link(object.handle._pointer);
+    return RealmLinkHandle._(realmLink);
   }
 
   RealmObjectHandle _getObject(Realm realm, int classKey, int objectKey) {
-    Pointer<realm_object> pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_object(realm.handle._pointer, classKey, objectKey));
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_object(realm.handle._pointer, classKey, objectKey));
     return RealmObjectHandle._(pointer);
   }
 
   RealmListHandle getListProperty(RealmObject object, int propertyKey) {
-    Pointer<realm_list> pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_list(object.handle._pointer, propertyKey));
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_list(object.handle._pointer, propertyKey));
     return RealmListHandle._(pointer);
   }
 
   int getListSize(RealmListHandle handle) {
     return using((Arena arena) {
-      Pointer<IntPtr> size = arena<IntPtr>();
+      final size = arena<IntPtr>();
       _realmLib.invokeGetBool(() => _realmLib.realm_list_size(handle._pointer, size));
       return size.value;
     });
@@ -407,9 +421,9 @@ class _RealmCore {
 
   Object? listGetElementAt(RealmList list, int index) {
     return using((Arena arena) {
-      Pointer<realm_value_t> realm_value = arena<realm_value_t>();
+      final realm_value = arena<realm_value_t>();
       _realmLib.invokeGetBool(() => _realmLib.realm_list_get(list.handle._pointer, index, realm_value));
-      return realm_value.toDartValue(list.realm!);
+      return realm_value.toDartValue(list.realm);
     });
   }
 
@@ -474,7 +488,7 @@ abstract class Handle<T extends NativeType> {
   }
 
   @override
-  String toString() => "${_pointer.toString()} value=${_pointer.cast<Uint64>().value}";
+  String toString() => "${_pointer.toString()} value=${_pointer.cast<IntPtr>().value}";
 }
 
 class SchemaHandle extends Handle<realm_schema> {
@@ -518,10 +532,10 @@ class RealmQueryHandle extends Handle<realm_query> {
 }
 
 extension _StringEx on String {
-  Pointer<T> toUtf8Ptr<T extends NativeType>(Allocator allocator) {
+  Pointer<Int8> toUtf8Ptr(Allocator allocator) {
     final units = utf8.encode(this);
     final nativeStringSize = units.length + 1;
-    final Pointer<Uint8> result = allocator<Uint8>(nativeStringSize);
+    final result = allocator<Uint8>(nativeStringSize);
     final Uint8List nativeString = result.asTypedList(nativeStringSize);
     nativeString.setAll(0, units); // copy to native string
     nativeString.last = 0; // zero terminate
@@ -547,43 +561,43 @@ extension _RealmLibraryEx on RealmLibrary {
 }
 
 Pointer<realm_value_t> _toRealmValue(Object? value, Allocator allocator) {
-  Pointer<realm_value_t> realm_value = allocator<realm_value_t>();
+  final realm_value = allocator<realm_value_t>();
   _intoRealmValue(value, realm_value, allocator);
   return realm_value;
 }
 
 void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocator allocator) {
   if (value == null) {
-    realm_value.ref.type = realm_value_type_e.RLM_TYPE_NULL;
+    realm_value.ref.type = realm_value_type.RLM_TYPE_NULL;
   } else if (value is RealmObject) {
     //when converting a RealmObject to realm_value.link we assume the object is managed
     final link = realmCore._getObjectAsLink(value);
     realm_value.ref.values.link.target = link.targetKey;
     realm_value.ref.values.link.target_table = link.classKey;
-    realm_value.ref.type = realm_value_type_e.RLM_TYPE_LINK;
+    realm_value.ref.type = realm_value_type.RLM_TYPE_LINK;
   } else {
     switch (value.runtimeType) {
       case int:
         realm_value.ref.values.integer = value as int;
-        realm_value.ref.type = realm_value_type_e.RLM_TYPE_INT;
+        realm_value.ref.type = realm_value_type.RLM_TYPE_INT;
         break;
       case bool:
         realm_value.ref.values.boolean = value as bool ? 0 : 1;
-        realm_value.ref.type = realm_value_type_e.RLM_TYPE_BOOL;
+        realm_value.ref.type = realm_value_type.RLM_TYPE_BOOL;
         break;
       case String:
         String string = value as String;
         final units = utf8.encode(string);
-        final Pointer<Uint8> result = allocator<Uint8>(units.length);
+        final result = allocator<Uint8>(units.length);
         final Uint8List nativeString = result.asTypedList(units.length);
         nativeString.setAll(0, units);
         realm_value.ref.values.string.data = result.cast();
         realm_value.ref.values.string.size = units.length;
-        realm_value.ref.type = realm_value_type_e.RLM_TYPE_STRING;
+        realm_value.ref.type = realm_value_type.RLM_TYPE_STRING;
         break;
       case double:
         realm_value.ref.values.dnum = value as double;
-        realm_value.ref.type = realm_value_type_e.RLM_TYPE_DOUBLE;
+        realm_value.ref.type = realm_value_type.RLM_TYPE_DOUBLE;
         break;
       default:
         throw RealmException("Property type ${value.runtimeType} not supported");
@@ -591,53 +605,39 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
   }
 }
 
-extension _TypeEx on Type {
-  RealmPropertyType toRealmProppertyType() {
-    if (this == String) {
-      return RealmPropertyType.string;
-    } else if (this == int) {
-      return RealmPropertyType.int;
-    } else if (this == double) {
-      return RealmPropertyType.double;
-    } else {
-      throw RealmException("Type $this can not converted to RealmPropertyType");
-    }
-  }
-}
-
-extension _realm_value_t_ex on Pointer<realm_value_t> {
+extension on Pointer<realm_value_t> {
   Object? toDartValue(Realm realm) {
     if (this == nullptr) {
       throw RealmException("Can not convert nullptr realm_value to Dart value");
     }
 
     switch (ref.type) {
-      case realm_value_type_e.RLM_TYPE_NULL:
+      case realm_value_type.RLM_TYPE_NULL:
         return null;
-      case realm_value_type_e.RLM_TYPE_INT:
+      case realm_value_type.RLM_TYPE_INT:
         return ref.values.integer;
-      case realm_value_type_e.RLM_TYPE_BOOL:
+      case realm_value_type.RLM_TYPE_BOOL:
         return ref.values.boolean == 0;
-      case realm_value_type_e.RLM_TYPE_STRING:
+      case realm_value_type.RLM_TYPE_STRING:
         return ref.values.string.data.cast<Utf8>().toDartString(length: ref.values.string.size);
-      case realm_value_type_e.RLM_TYPE_FLOAT:
+      case realm_value_type.RLM_TYPE_FLOAT:
         return ref.values.fnum;
-      case realm_value_type_e.RLM_TYPE_DOUBLE:
+      case realm_value_type.RLM_TYPE_DOUBLE:
         return ref.values.dnum;
-      case realm_value_type_e.RLM_TYPE_LINK:
+      case realm_value_type.RLM_TYPE_LINK:
         final objectKey = ref.values.link.target;
         final classKey = ref.values.link.target_table;
         RealmObjectHandle handle = realmCore._getObject(realm, classKey, objectKey);
         return handle;
-      case realm_value_type_e.RLM_TYPE_BINARY:
+      case realm_value_type.RLM_TYPE_BINARY:
         throw Exception("Not implemented");
-      case realm_value_type_e.RLM_TYPE_TIMESTAMP:
+      case realm_value_type.RLM_TYPE_TIMESTAMP:
         throw Exception("Not implemented");
-      case realm_value_type_e.RLM_TYPE_DECIMAL128:
+      case realm_value_type.RLM_TYPE_DECIMAL128:
         throw Exception("Not implemented");
-      case realm_value_type_e.RLM_TYPE_OBJECT_ID:
+      case realm_value_type.RLM_TYPE_OBJECT_ID:
         throw Exception("Not implemented");
-      case realm_value_type_e.RLM_TYPE_UUID:
+      case realm_value_type.RLM_TYPE_UUID:
         throw Exception("Not implemented");
       default:
         throw RealmException("realm_value_type ${ref.type} not supported");

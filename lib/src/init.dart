@@ -3,13 +3,21 @@ import 'dart:io';
 
 import 'cli/metrics/metrics_command.dart';
 import 'cli/metrics/options.dart';
-import 'cli/metrics/target_os_type.dart';
+import 'cli/common/target_os_type.dart';
 
 import '../realm.dart' show isFlutterPlatform;
 import '../realm.dart' show realmBinaryName;
 
 DynamicLibrary? _library;
 
+void _debugWrite(String message) {
+  assert(() {
+    print(message);
+    return true;
+  }());
+}
+
+/// @nodoc
 // Initializes Realm library
 DynamicLibrary initRealm() {
   if (_library != null) {
@@ -46,13 +54,20 @@ DynamicLibrary initRealm() {
     }
 
     if (Platform.isMacOS) {
+      if (isFlutterPlatform) {
+        if (path.isEmpty) {
+          return "${File(Platform.resolvedExecutable).parent.absolute.path}/../Frameworks/realm.framework/Resources/lib$binaryName.dylib";
+        }
+      }
+
       if (path.isEmpty) {
         Directory sourceDir = Directory.current;
         path = sourceDir.path;
       }
 
       var fullPath = "$path/binary/macos/lib$binaryName.dylib";
-      print("Full binary path $fullPath");
+      _debugWrite("Full binary path $fullPath");
+
       if (File(fullPath).existsSync()) {
         return fullPath;
       }

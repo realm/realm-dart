@@ -19,6 +19,8 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 
+/// All supported `Realm` property types.
+/// {@category Configuration}
 enum RealmPropertyType {
   int,
   bool,
@@ -45,6 +47,8 @@ enum RealmPropertyType {
   uuid,
 }
 
+/// All supported `Realm` collection types.
+/// {@category Configuration}
 enum RealmCollectionType {
   none,
   list,
@@ -52,16 +56,30 @@ enum RealmCollectionType {
   dictionary,
 }
 
+/// A base class of all Realm errors.
+/// {@category Realm}
+class RealmError extends Error {}
+
+/// Throw if the operation is not supported.
+/// {@category Realm}
+class RealmUnsupportedSetError extends UnsupportedError implements RealmError {
+  RealmUnsupportedSetError() : super('Cannot set late final field on realm object');
+}
+
+/// @nodoc
 class Uuid {} // TODO!
 
+/// @nodoc
 class ObjectId {} // TODO!
 
+/// @nodoc
 class Decimal128 {} // TODO!
 
-class RealmObjectMarker {
-} // TODO! Hmm... this ties into the project split issue :-/
+/// @nodoc
+class RealmObjectMarker {}
 
 // Union type
+/// @nodoc
 class RealmAny {
   final dynamic value;
   T as<T>() => value as T; // better for code completion
@@ -83,55 +101,3 @@ class RealmAny {
   const RealmAny.decimal128(Decimal128 decimal) : this._(decimal);
   const RealmAny.uuid(Uuid uuid) : this._(uuid);
 }
-
-// TODO!
-/*
-class RealmInteger {
-  void increment(int value) {} // TODO!
-  void decrement(int value) => increment(-value);
-  void reset() {} // TODO!
-}
-
-
-// TODO!
-class RealmSet<E> extends SetBase<E> {
-  @override
-  bool add(E value) => throw UnimplementedError();
-
-  @override
-  bool contains(Object? element) => throw UnimplementedError();
-
-  @override
-  Iterator<E> get iterator => throw UnimplementedError();
-
-  @override
-  int get length => throw UnimplementedError();
-
-  @override
-  E? lookup(Object? element) => throw UnimplementedError();
-
-  @override
-  bool remove(Object? value) => throw UnimplementedError();
-
-  @override
-  Set<E> toSet() => throw UnimplementedError();
-}
-
-// TODO!
-class RealmMap<E> extends MapBase<String, E> {
-  @override
-  E? operator [](Object? key) => throw UnimplementedError();
-
-  @override
-  void operator []=(String key, E value) {}
-
-  @override
-  void clear() {}
-
-  @override
-  Iterable<String> get keys => throw UnimplementedError();
-
-  @override
-  E? remove(Object? key) => throw UnimplementedError();
-}
-*/

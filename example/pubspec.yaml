@@ -1,0 +1,14 @@
+name: myapp
+description: A simple command-line application using Realm Dart SDK.
+
+publish_to: none
+
+environment:
+  sdk: ">=2.15.0 <3.0.0"
+
+dependencies:
+  realm_dart:
+    path: ../
+
+dev_dependencies:
+  lints: ^1.0.1

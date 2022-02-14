@@ -1,7 +1,0 @@
-targets:
-    $default:
-        builders:
-            realm_generator|realm_object_builder:
-                enabled: true
-                generate_for:
-                    - bin/*.dart 

@@ -56,6 +56,25 @@ class _Team {
   late final List<int> scores;
 }
 
+@RealmModel()
+class _Student {
+  @PrimaryKey()
+  late final int number;
+  late String? name;
+  late int? yearOfBirth;
+  late _School? school;
+}
+
+@RealmModel()
+class _School {
+  @PrimaryKey()
+  late final String name;
+  late String? city;
+  final List<_Student> students = [];
+  late _School? branchOfSchool;
+  late final List<_School> branches;
+}
+
 String? testName;
 
 //Overrides test method so we can filter tests
@@ -181,6 +200,7 @@ Future<void> main([List<String>? args]) async {
     test('Realm can be created', () {
       var config = Configuration([Car.schema]);
       var realm = Realm(config);
+      realm.close();
     });
 
     test('Realm can be closed', () {
@@ -202,6 +222,7 @@ Future<void> main([List<String>? args]) async {
 
       //should not throw exception
       realm = Realm(config);
+      realm.close();
     });
 
     test('Realm is closed', () {
@@ -220,6 +241,7 @@ Future<void> main([List<String>? args]) async {
 
       config = Configuration([Car.schema]);
       realm = Realm(config);
+      realm.close();
     });
 
     test('Realm open with schema superset', () {
@@ -229,6 +251,7 @@ Future<void> main([List<String>? args]) async {
 
       var config1 = Configuration([Person.schema, Car.schema]);
       var realm1 = Realm(config1);
+      realm1.close();
     });
 
     test('Realm open twice with same schema', () async {
@@ -237,6 +260,8 @@ Future<void> main([List<String>? args]) async {
 
       var config1 = Configuration([Person.schema, Car.schema]);
       var realm1 = Realm(config1);
+      realm.close();
+      realm1.close();
     });
 
     test('Realm add throws when no write transaction', () {
@@ -244,6 +269,7 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
       final car = Car('');
       expect(() => realm.add(car), throws<RealmException>("Wrong transactional state"));
+      realm.close();
     });
 
     test('Realm add object', () {
@@ -253,6 +279,8 @@ Future<void> main([List<String>? args]) async {
       realm.write(() {
         realm.add(Car(''));
       });
+
+      realm.close();
     });
 
     test('Realm add multiple objects', () {
@@ -275,6 +303,8 @@ Future<void> main([List<String>? args]) async {
       for (int i = 0; i < cars.length; ++i) {
         expect(allCars[i].make, cars[i].make);
       }
+
+      realm.close();
     });
 
     test('Realm add object twice does not throw', () {
@@ -289,6 +319,8 @@ Future<void> main([List<String>? args]) async {
         final car1 = realm.add(car);
         expect(car1, equals(car));
       });
+
+      realm.close();
     });
 
     test('Realm adding not configured object throws exception', () {
@@ -296,6 +328,7 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       expect(() => realm.write(() => realm.add(Person(''))), throws<RealmException>("not configured"));
+      realm.close();
     });
 
     test('Realm add() returns the same object', () {
@@ -309,6 +342,8 @@ Future<void> main([List<String>? args]) async {
       });
 
       expect(addedCar == car, isTrue);
+
+      realm.close();
     });
 
     test('Realm add object transaction rollbacks on exception', () {
@@ -324,6 +359,8 @@ Future<void> main([List<String>? args]) async {
 
       final car = realm.find<Car>("Telsa");
       expect(car, isNull);
+
+      realm.close();
     });
 
     test('Realm adding objects with duplicate primary keys throws', () {
@@ -334,6 +371,8 @@ Future<void> main([List<String>? args]) async {
       final carTwo = Car("Toyota");
       realm.write(() => realm.add(carOne));
       expect(() => realm.write(() => realm.add(carTwo)), throws<RealmException>());
+
+      realm.close();
     });
 
     test('RealmObject get property', () {
@@ -346,6 +385,8 @@ Future<void> main([List<String>? args]) async {
       });
 
       expect(car.make, equals('Tesla'));
+
+      realm.close();
     });
 
     test('RealmObject set property', () {
@@ -359,13 +400,13 @@ Future<void> main([List<String>? args]) async {
 
       expect(car.make, equals('Tesla'));
 
-      /* Erhh.. generator prohibit changing primary key.. what about realm_core?!
-      realm.write(() {
-        car.make = "Audi";
-      });
+      expect(() {
+        realm.write(() {
+          car.make = "Audi"; // setting late final is a runtime error :-/
+        });
+      }, throws<RealmUnsupportedSetError>());
 
-      expect(car.make, equals('Audi'));
-      */
+      realm.close();
     });
 
     test('RealmObject set object type property (link)', () {
@@ -383,6 +424,8 @@ Future<void> main([List<String>? args]) async {
       expect(dog.name, 'MyDog');
       expect(dog.owner, isNotNull);
       expect(dog.owner!.name, 'MyOwner');
+
+      realm.close();
     });
 
     test('RealmObject set property null', () {
@@ -414,6 +457,8 @@ Future<void> main([List<String>? args]) async {
       });
 
       expect(dog.owner, null);
+
+      realm.close();
     });
 
     test('Realm find object by primary key', () {
@@ -424,6 +469,8 @@ Future<void> main([List<String>? args]) async {
 
       final car = realm.find<Car>("Opel");
       expect(car, isNotNull);
+
+      realm.close();
     });
 
     test('Realm find not configured object by primary key throws exception', () {
@@ -431,6 +478,8 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
 
       expect(() => realm.find<Person>("Me"), throws<RealmException>("not configured"));
+
+      realm.close();
     });
 
     test('Realm find object by primary key default value', () {
@@ -442,6 +491,8 @@ Future<void> main([List<String>? args]) async {
       final car = realm.find<Car>("Tesla");
       expect(car, isNotNull);
       expect(car?.make, equals("Tesla"));
+
+      realm.close();
     });
 
     test('Realm find non existing object by primary key returns null', () {
@@ -452,6 +503,8 @@ Future<void> main([List<String>? args]) async {
 
       final car = realm.find<Car>("NonExistingPrimaryKey");
       expect(car, isNull);
+
+      realm.close();
     });
 
     test('Realm delete object', () {
@@ -468,6 +521,8 @@ Future<void> main([List<String>? args]) async {
 
       var car2 = realm.find<Car>("SomeNewNonExistingValue");
       expect(car2, isNull);
+
+      realm.close();
     });
 
     test('Results.all() should not return null', () {
@@ -476,6 +531,8 @@ Future<void> main([List<String>? args]) async {
 
       final cars = realm.all<Car>();
       expect(cars, isNotNull);
+
+      realm.close();
     });
 
     test('Results length after deletedMany', () {
@@ -499,6 +556,8 @@ Future<void> main([List<String>? args]) async {
       expect(filteredCars.length, 0);
 
       expect(cars.length, 1);
+
+      realm.close();
     });
 
     test('Results length', () {
@@ -516,6 +575,8 @@ Future<void> main([List<String>? args]) async {
 
       final filteredCars = realm.query<Car>('make == "Toyota"');
       expect(filteredCars.length, 1);
+
+      realm.close();
     });
 
     test('Results isEmpty', () {
@@ -533,6 +594,8 @@ Future<void> main([List<String>? args]) async {
       realm.write(() => realm.delete(car));
 
       expect(cars.isEmpty, true);
+
+      realm.close();
     });
 
     test('Results from query isEmpty', () {
@@ -555,6 +618,8 @@ Future<void> main([List<String>? args]) async {
 
       dogs = realm.all<Dog>();
       expect(dogs.isEmpty, false);
+
+      realm.close();
     });
 
     test('Results get by index', () {
@@ -566,104 +631,214 @@ Future<void> main([List<String>? args]) async {
 
       final cars = realm.all<Car>();
       expect(cars[0].make, car.make);
+
+      realm.close();
     });
 
-    test('Query results', () {
-      var config = Configuration([Car.schema]);
-      var realm = Realm(config);
-      realm.write(() => realm
-        ..add(Car("Audi"))
-        ..add(Car("Tesla")));
-      final cars = realm.all<Car>().query('make == "Tesla"');
-      expect(cars.length, 1);
-      expect(cars[0].make, "Tesla");
-    });
+    group('Query and sort tests:', () {
+      test('Query results', () {
+        var config = Configuration([Car.schema]);
+        var realm = Realm(config);
+        realm.write(() => realm
+          ..add(Car("Audi"))
+          ..add(Car("Tesla")));
+        final cars = realm.all<Car>().query('make == "Tesla"');
+        expect(cars.length, 1);
+        expect(cars[0].make, "Tesla");
 
-    test('Query class', () {
-      var config = Configuration([Car.schema]);
-      var realm = Realm(config);
-      realm.write(() => realm
-        ..add(Car("Audi"))
-        ..add(Car("Tesla")));
-      final cars = realm.query<Car>('make == "Tesla"');
-      expect(cars.length, 1);
-      expect(cars[0].make, "Tesla");
-    });
-
-    test('Query results with parameter', () {
-      var config = Configuration([Car.schema]);
-      var realm = Realm(config);
-      realm.write(() => realm
-        ..add(Car("Audi"))
-        ..add(Car("Tesla")));
-      final cars = realm.all<Car>().query(r'make == $0', ['Tesla']);
-      expect(cars.length, 1);
-      expect(cars[0].make, "Tesla");
-    });
-
-    test('Query results with multiple parameters', () {
-      var config = Configuration([Team.schema, Person.schema]);
-      var realm = Realm(config);
-
-      final x = Person('x');
-      final y = Person('y');
-      final t1 = Team("A1", players: [x]); // match
-      final t2 = Team("A2", players: [y]); // correct prefix, but wrong player
-      final t3 = Team("B1", players: [x, y]); // wrong prefix, but correct player
-
-      realm.write(() => realm.addAll([t1, t2, t3]));
-
-      expect(t1.players, [x]);
-      expect(t2.players, [y]);
-      expect(t3.players, [x, y]);
-
-      final filteredTeams = realm.all<Team>().query(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']);
-      expect(filteredTeams.length, 1);
-      expect(filteredTeams, [t1]);
-    });
-
-    test('Query class with parameter', () {
-      var config = Configuration([Car.schema]);
-      var realm = Realm(config);
-      realm.write(() => realm
-        ..add(Car("Audi"))
-        ..add(Car("Tesla")));
-      final cars = realm.query<Car>(r'make == $0', ['Tesla']);
-      expect(cars.length, 1);
-      expect(cars[0].make, "Tesla");
-    });
-
-    test('Query class with multiple parameters', () {
-      var config = Configuration([Team.schema, Person.schema]);
-      var realm = Realm(config);
-
-      final x = Person('x');
-      final y = Person('y');
-      final t1 = Team("A1");
-      final t2 = Team("A2");
-      final t3 = Team("B1");
-
-      realm.write(() => realm
-        ..add(t1)
-        ..add(t2)
-        ..add(t3));
-
-      // TODO: Ugly that we need to add players in separate transaction :-/
-      realm.write(() {
-        t1.players.addAll([x]); // match!
-        t2.players.addAll([y]); // correct prefix, but wrong play
-        t3.players.addAll([x, y]); // wrong prefix, but correct player
+        realm.close();
       });
 
-      // TODO: Still no equality :-/
-      expect(t1.players.map((p) => p.name), [x.name]);
-      expect(t2.players.map((p) => p.name), [y.name]);
-      expect(t3.players.map((p) => p.name), [x, y].map((p) => p.name));
-      final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']);
-      expect(filteredTeams.length, 1);
-      expect(filteredTeams[0].name, "A1");
-    });
+      test('Query class', () {
+        var config = Configuration([Car.schema]);
+        var realm = Realm(config);
+        realm.write(() => realm
+          ..add(Car("Audi"))
+          ..add(Car("Tesla")));
+        final cars = realm.query<Car>('make == "Tesla"');
+        expect(cars.length, 1);
+        expect(cars[0].make, "Tesla");
 
+        realm.close();
+      });
+
+      test('Query results with parameter', () {
+        var config = Configuration([Car.schema]);
+        var realm = Realm(config);
+        realm.write(() => realm
+          ..add(Car("Audi"))
+          ..add(Car("Tesla")));
+        final cars = realm.all<Car>().query(r'make == $0', ['Tesla']);
+        expect(cars.length, 1);
+        expect(cars[0].make, "Tesla");
+
+        realm.close();
+      });
+
+      test('Query results with multiple parameters', () {
+        var config = Configuration([Team.schema, Person.schema]);
+        var realm = Realm(config);
+
+        final x = Person('x');
+        final y = Person('y');
+        final t1 = Team("A1", players: [x]); // match
+        final t2 = Team("A2", players: [y]); // correct prefix, but wrong player
+        final t3 = Team("B1", players: [x, y]); // wrong prefix, but correct player
+
+        realm.write(() => realm.addAll([t1, t2, t3]));
+
+        expect(t1.players, [x]);
+        expect(t2.players, [y]);
+        expect(t3.players, [x, y]);
+
+        final filteredTeams = realm.all<Team>().query(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']);
+        expect(filteredTeams.length, 1);
+        expect(filteredTeams, [t1]);
+
+        realm.close();
+      });
+
+      test('Query class with parameter', () {
+        var config = Configuration([Car.schema]);
+        var realm = Realm(config);
+        realm.write(() => realm
+          ..add(Car("Audi"))
+          ..add(Car("Tesla")));
+        final cars = realm.query<Car>(r'make == $0', ['Tesla']);
+        expect(cars.length, 1);
+        expect(cars[0].make, "Tesla");
+
+        realm.close();
+      });
+
+      test('Query class with multiple parameters', () {
+        var config = Configuration([Team.schema, Person.schema]);
+        var realm = Realm(config);
+
+        final x = Person('x');
+        final y = Person('y');
+        final t1 = Team("A1");
+        final t2 = Team("A2");
+        final t3 = Team("B1");
+
+        realm.write(() => realm
+          ..add(t1)
+          ..add(t2)
+          ..add(t3));
+
+        // TODO: Ugly that we need to add players in separate transaction :-/
+        realm.write(() {
+          t1.players.addAll([x]); // match!
+          t2.players.addAll([y]); // correct prefix, but wrong play
+          t3.players.addAll([x, y]); // wrong prefix, but correct player
+        });
+
+        // TODO: Still no equality :-/
+        expect(t1.players.map((p) => p.name), [x.name]);
+        expect(t2.players.map((p) => p.name), [y.name]);
+        expect(t3.players.map((p) => p.name), [x, y].map((p) => p.name));
+        final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']);
+        expect(filteredTeams.length, 1);
+        expect(filteredTeams[0].name, "A1");
+
+        realm.close();
+      });
+
+      test('Query results with no arguments throws', () {
+        var config = Configuration([Car.schema]);
+        var realm = Realm(config);
+        realm.write(() => realm.add(Car("Audi")));
+        expect(() => realm.all<Car>().query(r'make == $0'), throws<RealmException>("no arguments are provided"));
+
+        realm.close();
+      });
+
+      test('Query results with wrong argument types (int for string) throws', () {
+        var config = Configuration([Car.schema]);
+        var realm = Realm(config);
+        realm.write(() => realm.add(Car("Audi")));
+        expect(() => realm.all<Car>().query(r'make == $0', [1]), throws<RealmException>("Unsupported comparison between type"));
+        realm.close();
+      });
+
+      test('Query results with wrong argument types (bool for int) throws ', () {
+        var config = Configuration([Dog.schema, Person.schema]);
+        var realm = Realm(config);
+        realm.write(() => realm.add(Dog("Foxi")));
+        expect(() => realm.all<Dog>().query(r'age == $0', [true]), throws<RealmException>("Unsupported comparison between type"));
+        realm.close();
+      });
+
+      test('Query list', () {
+        final config = Configuration([Team.schema, Person.schema]);
+        final realm = Realm(config);
+
+        final person = Person('Kasper');
+        final team = Team('Realm-dart', players: [
+          Person('Lubo'),
+          person,
+          Person('Desi'),
+        ]);
+
+        realm.write(() => realm.add(team));
+
+        // TODO: Get rid of cast, once type signature of team.players is a RealmList<Person>
+        // as opposed to the List<Person> we have today.
+        final result = (team.players as RealmList<Person>).query(r'name BEGINSWITH $0', ['K']);
+
+        expect(result, [person]);
+      });
+
+      test('Sort result', () {
+        var config = Configuration([Person.schema]);
+        var realm = Realm(config);
+
+        realm.write(() => realm.addAll([
+              Person("Michael"),
+              Person("Sebastian"),
+              Person("Kimi"),
+            ]));
+
+        final result = realm.query<Person>('TRUEPREDICATE SORT(name ASC)');
+        final resultNames = result.map((p) => p.name).toList();
+        final sortedNames = [...resultNames]..sort();
+        expect(resultNames, sortedNames);
+        realm.close();
+      });
+
+      test('Sort order preserved under db ops', () {
+        var config = Configuration([Dog.schema, Person.schema]);
+        var realm = Realm(config);
+
+        final dog1 = Dog("Bella", age: 1);
+        final dog2 = Dog("Fido", age: 2);
+        final dog3 = Dog("Oliver", age: 3);
+
+        realm.write(() => realm.addAll([dog1, dog2, dog3]));
+        var result = realm.query<Dog>('TRUEPREDICATE SORT(name ASC)');
+        final snapshot = result.toList(); // poor mans snapshot
+
+        expect(result, orderedEquals(snapshot));
+        expect(result.map((d) => d.name), snapshot.map((d) => d.name));
+        result = realm.query<Dog>('TRUEPREDICATE SORT(name ASC)'); // redoing query won't change that
+        expect(result, orderedEquals(snapshot));
+        expect(result.map((d) => d.name), snapshot.map((d) => d.name));
+
+        realm.write(() => realm.delete(dog1)); // result will update, snapshot will not, but an object has died
+
+        expect(() => snapshot[0].name, throws<RealmException>());
+        snapshot.removeAt(0); // remove dead object
+
+        expect(result, orderedEquals(snapshot));
+        expect(result.map((d) => d.name), snapshot.map((d) => d.name));
+
+        realm.write(() => realm.add(Dog("Bella", age: 4)));
+
+        expect(result, isNot(orderedEquals(snapshot)));
+        expect(result, containsAllInOrder(snapshot));
+        realm.close();
+      });
+    });
     test('Lists create object with a list property', () {
       var config = Configuration([Team.schema, Person.schema]);
       var realm = Realm(config);
@@ -676,6 +851,7 @@ Future<void> main([List<String>? args]) async {
       expect(teams[0].name, "Ferrari");
       expect(teams[0].players, isNotNull);
       expect(teams[0].players.length, 0);
+      realm.close();
     });
 
     test('RealmObject add with list properties', () {
@@ -700,6 +876,7 @@ Future<void> main([List<String>? args]) async {
       expect(teams[0].scores[0], 1);
       expect(teams[0].scores[1], 2);
       expect(teams[0].scores[2], 3);
+      realm.close();
     });
 
     test('Lists get set', () {
@@ -728,6 +905,7 @@ Future<void> main([List<String>? args]) async {
       expect(players[0].name, "Michael");
       expect(players[1].name, "Sebastian");
       expect(players[2].name, "Kimi");
+      realm.close();
     });
 
     test('Lists get invalid index throws exception', () {
@@ -742,6 +920,7 @@ Future<void> main([List<String>? args]) async {
 
       expect(() => players[-1], throws<RealmException>("Index out of range"));
       expect(() => players[800], throws<RealmException>());
+      realm.close();
     });
 
     test('Lists set invalid index throws', () {
@@ -756,6 +935,7 @@ Future<void> main([List<String>? args]) async {
 
       expect(() => realm.write(() => players[-1] = Person('')), throws<RealmException>("Index out of range"));
       expect(() => realm.write(() => players[800] = Person('')), throws<RealmException>());
+      realm.close();
     });
 
     test('List clear items from list', () {
@@ -793,6 +973,7 @@ Future<void> main([List<String>? args]) async {
       //Ensure that players objects still exist in realm detached from the team
       final allPlayers = realm.all<Person>();
       expect(allPlayers.length, 3);
+      realm.close();
     });
 
     test('List clear - same list related to two objects', () {
@@ -836,6 +1017,7 @@ Future<void> main([List<String>? args]) async {
       //Ensure players still exist in realm
       final players = realm.all<Person>();
       expect(players.length, 3);
+      realm.close();
     });
 
     test('List clear - same item added to two lists', () {
@@ -876,6 +1058,7 @@ Future<void> main([List<String>? args]) async {
       //Ensure the player still exists in realm
       final allPlayers = realm.all<Person>();
       expect(allPlayers.length, 1);
+      realm.close();
     });
 
     test('List clear in closed realm - expected exception', () {
@@ -912,6 +1095,7 @@ Future<void> main([List<String>? args]) async {
       //Ensure that the team is still related to the player
       expect(teams.length, 1);
       expect(teams[0].players.length, 1);
+      realm.close();
     });
 
     test('Realm.deleteMany from iterable', () {
@@ -938,6 +1122,7 @@ Future<void> main([List<String>? args]) async {
       //Ensure both teams are deleted and only teamTwo has left
       expect(teams.length, 1);
       expect(teams[0].name, teamTwo.name);
+      realm.close();
     });
 
     test('Realm.deleteMany from realm list', () {
@@ -969,6 +1154,7 @@ Future<void> main([List<String>? args]) async {
       //Reload all persons from realm and ensure they are deleted
       final allPersons = realm.all<Person>();
       expect(allPersons.length, 0);
+      realm.close();
     });
 
     test('Realm.deleteMany from list referenced by two objects', () {
@@ -1007,6 +1193,7 @@ Future<void> main([List<String>? args]) async {
       //Reload all persons from realm and ensure they are deleted
       final allPersons = realm.all<Person>();
       expect(allPersons.length, 0);
+      realm.close();
     });
 
     test('Realm.deleteMany from results', () {
@@ -1030,6 +1217,7 @@ Future<void> main([List<String>? args]) async {
       //Reload teams from realm and ensure they are deleted
       teams = realm.all<Team>();
       expect(teams.length, 0);
+      realm.close();
     });
 
     test('Realm.deleteMany from list after realm is closed', () {
@@ -1065,6 +1253,7 @@ Future<void> main([List<String>? args]) async {
       realm = Realm(config);
       final allPersons = realm.all<Person>();
       expect(allPersons.length, 3);
+      realm.close();
     });
 
     test('Results iteration test', () {
@@ -1089,6 +1278,7 @@ Future<void> main([List<String>? args]) async {
 
       //Ensure list size is the same like teams collection size
       expect(list.length, teams.length);
+      realm.close();
     });
 
     test('Realm existsSync', () {
@@ -1096,6 +1286,7 @@ Future<void> main([List<String>? args]) async {
       expect(Realm.existsSync(config.path), false);
       var realm = Realm(config);
       expect(Realm.existsSync(config.path), true);
+      realm.close();
     });
 
     test('Realm exists', () async {
@@ -1103,6 +1294,7 @@ Future<void> main([List<String>? args]) async {
       expect(await Realm.exists(config.path), false);
       var realm = Realm(config);
       expect(await Realm.exists(config.path), true);
+      realm.close();
     });
 
     test('Realm deleteRealm succeeds', () {
@@ -1124,6 +1316,7 @@ Future<void> main([List<String>? args]) async {
 
       expect(File(config.path).existsSync(), true);
       expect(Directory("${config.path}.management").existsSync(), true);
+      realm.close();
     });
 
     test('Equals', () {
@@ -1134,20 +1327,76 @@ Future<void> main([List<String>? args]) async {
       final dog = Dog('Fido', owner: person);
 
       expect(person, person);
-      expect(person, isNot(1)); 
+      expect(person, isNot(1));
       expect(person, isNot(dog));
 
       realm.write(() {
-        realm..add(person)..add(dog);
+        realm
+          ..add(person)
+          ..add(dog);
       });
 
       expect(person, person);
-      expect(person, isNot(1)); 
+      expect(person, isNot(1));
       expect(person, isNot(dog));
 
       final read = realm.query<Person>("name == 'Kasper'");
 
       expect(read, [person]);
+      realm.close();
+    });
+  });
+  group('Cycle referenced objects tests:', () {
+    test('Realm adding objects graph', () {
+      var studentMichele = Student(1)
+        ..name = "Michele Ernesto"
+        ..yearOfBirth = 2005;
+      var studentLoreta = Student(2, name: "Loreta Salvator", yearOfBirth: 2006);
+      var studentPeter = Student(3, name: "Peter Ivanov", yearOfBirth: 2007);
+
+      var school131 = School("JHS 131", city: "NY");
+      school131.students.addAll([studentMichele, studentLoreta, studentPeter]);
+
+      var school131Branch1 = School("First branch 131A", city: "NY Bronx")
+        ..branchOfSchool = school131
+        ..students.addAll([studentMichele, studentLoreta]);
+
+      studentMichele.school = school131Branch1;
+      studentLoreta.school = school131Branch1;
+
+      var school131Branch2 = School("Second branch 131B", city: "NY Bronx")
+        ..branchOfSchool = school131
+        ..students.add(studentPeter);
+
+      studentPeter.school = school131Branch2;
+
+      school131.branches.addAll([school131Branch1, school131Branch2]);
+
+      var config = Configuration([School.schema, Student.schema]);
+      var realm = Realm(config);
+
+      realm.write(() => realm.add(school131));
+
+      //Check schools
+      var schools = realm.all<School>();
+      expect(schools.length, 3);
+
+      //Check students
+      var students = realm.all<Student>();
+      expect(students.length, 3);
+
+      //Check branches
+      var branches = realm.all<School>().query('branchOfSchool != nil');
+      expect(branches.length, 2);
+      expect(branches[0].students.length + branches[1].students.length, 3);
+
+      //Check main schools
+      var mainSchools = realm.all<School>().query('branchOfSchool = nil');
+      expect(mainSchools.length, 1);
+      expect(mainSchools[0].branches.length, 2);
+      expect(mainSchools[0].students.length, 3);
+      expect(mainSchools[0].branches[0].students.length + mainSchools[0].branches[1].students.length, 3);
+      realm.close();
     });
   });
   group('IsValid tests:', () {

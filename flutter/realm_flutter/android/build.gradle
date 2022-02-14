@@ -27,7 +27,7 @@ android {
     defaultConfig {
         minSdkVersion 16
 		ndk {
-            abiFilters 'armeabi-v7a', 'x86'
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_x64'
         }
     }
 	
@@ -48,28 +48,33 @@ android {
     // }
 }
 
-task prePreBuild(type: Exec) {
+def getPaths() {
+    def localProperties = new Properties()
+    def localPropertiesFile = rootProject.file('local.properties')
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.withReader('UTF-8') { reader ->
+            localProperties.load(reader)
+        }
+    }
+
+    def flutterRoot = localProperties.getProperty('flutter.sdk')
+    def flutterExecutablePath = 'flutter'
+    if (flutterRoot != null) {
+        flutterExecutablePath = "${flutterRoot}${File.separator}bin${File.separator}flutter"
+    }
+
+    //on Windows use flutter.bat instead
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        flutterExecutablePath += '.bat'
+    }
+
+    return [flutterRoot, flutterExecutablePath]
+}
+
+task runMetrics(type: Exec) {
     try {
         def appProject = project.rootProject.subprojects.find { p -> p.name == 'app' }
-
-        def localProperties = new Properties()
-        def localPropertiesFile = rootProject.file('local.properties')
-        if (localPropertiesFile.exists()) {
-            localPropertiesFile.withReader('UTF-8') { reader ->
-                localProperties.load(reader)
-            }
-        }
-
-        def flutterRoot = localProperties.getProperty('flutter.sdk')
-        def dartPath = 'dart'
-        if (flutterRoot != null) {
-            dartPath = "${flutterRoot}${File.separator}bin${File.separator}dart"
-
-            //on Windows use dart.bat instead
-            if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-                dartPath += '.bat'
-            }
-        }
+        def (flutterRoot, flutterExecutablePath) = getPaths()
 
         workingDir "${project.rootProject.projectDir}${File.separator}.."
         String targetOsVersion
@@ -77,13 +82,20 @@ task prePreBuild(type: Exec) {
             def conf = appProject.android.defaultConfig
             targetOsVersion = "API Level ${conf.targetSdkVersion.apiLevel}"
         }
-        commandLine dartPath, 'run', 'realm', 'metrics', '--verbose', '--flutter-root', flutterRoot, '--target-os-type', 'android', '--target-os-version', targetOsVersion
+        commandLine flutterExecutablePath, 'pub', 'run', 'realm', 'metrics', '--flutter-root', flutterRoot, '--target-os-type', 'android', '--target-os-version', targetOsVersion
     }
     catch (e) {
-        println "Error running metrics $e"
+        println "Error running metrics command $e"
     }
 }
 
-preBuild.dependsOn prePreBuild
+task downloadRealmBinaries(type: Exec) {
+    def (flutterRoot, flutterExecutablePath) = getPaths()
+
+    workingDir "${project.rootProject.projectDir}${File.separator}.."
+    commandLine flutterExecutablePath, 'pub', 'run', 'realm', 'install', '--target-os-type', 'android', '--package-name', 'realm'
+}
+
+preBuild.dependsOn runMetrics, downloadRealmBinaries
 
 

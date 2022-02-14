@@ -2,16 +2,20 @@ name: Realm Flutter for Windows
 
 on:
   push:
-    branches: [ master ]
-    # Do not run if change is in these paths
+    branches:
+      - master
     paths-ignore:
-      - 'flutter/**'
       - 'generator/**'
+      - '.github/**'
+      - '!.github/workflows/realm-flutter-windows.yml' # except this one
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+**' # matches tags like number(s).number(s).number(s)(any) for ex: 1.0.0 and also 1.0.0+beta
+
   pull_request:
-    # Do not run if change is in these paths
     paths-ignore:
-        - 'flutter/**'
-        - 'generator/**'
+      - 'generator/**'
+      - '.github/**'
+      - '!.github/workflows/realm-flutter-windows.yml' # except this one
 
 jobs:
   CI:
@@ -25,16 +29,13 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Build Ralm Dart for Windows
-        run: |
-          mkdir build
-          cd build
-          ..\scripts\build.bat
+      - name: Build Realm Dart for Windows
+        run: scripts\build.bat
 
       - name: Setup Flutter
-        uses: subosito/flutter-action@v1.5.3
+        uses: subosito/flutter-action@v2
         with:
-          flutter-version: '2.8.0'
+          channel: 'beta'
 
       - name: Enable Flutter Desktop support
         run: flutter config --enable-windows-desktop
@@ -45,4 +46,3 @@ jobs:
       - name: Run tests
         run: flutter drive -d windows --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
-        

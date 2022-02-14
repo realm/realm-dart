@@ -25,14 +25,17 @@ import 'realm_property.dart';
 import 'package:path/path.dart' as _path;
 
 /// Configuration used to create a [Realm] instance
+/// {@category Configuration}
 class Configuration {
   final ConfigHandle _handle;
   final RealmSchema _schema;
 
   static String? _defaultPath;
 
+  /// The [RealmSchema] for this [Configuration]
   RealmSchema get schema => _schema;
 
+  /// Creates a [Configuration] with schema objects for opening a [Realm].
   Configuration(List<SchemaObject> schemaObjects)
       : _schema = RealmSchema(schemaObjects),
         _handle = realmCore.createConfig() {
@@ -49,7 +52,9 @@ class Configuration {
     return path;
   }
 
-  /// The platform dependent path to the default realm file. Should contain the name of the realm file
+  /// The platform dependent path to the default realm file - `default.realm`.
+  /// 
+  /// If set it should contain the name of the realm file. Ex. /mypath/myrealm.realm
   static String get defaultPath => _defaultPath ??= _initDefaultPath();
   static set defaultPath(String value) => _defaultPath = value;
 
@@ -73,24 +78,40 @@ class Configuration {
   int get schemaVersion => realmCore.getSchemaVersion(this);
   set schemaVersion(int value) => realmCore.setSchemaVersion(this, value);
 
+  ///The path where the Realm should be stored.
+  ///
+  /// If omitted the [defaultPath] for the platform will be used.
   String get path => realmCore.getConfigPath(this);
   set path(String value) => realmCore.setConfigPath(this, value);
 }
 
+/// A collection of properties describing the underlying schema of a [RealmObject].
+/// 
+/// {@category Configuration}
 class SchemaObject {
+  /// Schema object type.
   final Type type;
+
+  /// Collection of the properties of this schema object.
   final List<SchemaProperty> properties;
 
+  /// Returns the name of this schema type.
   String get name => type.toString();
 
+  /// Creates schema instance with object type and collection of object's properties.
   const SchemaObject(this.type, this.properties);
 }
 
+/// Describes the complete set of classes which may be stored in a `Realm`
+/// 
+/// {@category Configuration}
 class RealmSchema extends Iterable<SchemaObject> {
+  ///@nodoc
   late final SchemaHandle handle;
 
   late final List<SchemaObject> _schema;
 
+  /// Initializes [RealmSchema] instance representing ```schemaObjects``` collection
   RealmSchema(List<SchemaObject> schemaObjects) {
     if (schemaObjects.isEmpty) {
       throw RealmException("No schema specified");
@@ -112,6 +133,8 @@ class RealmSchema extends Iterable<SchemaObject> {
   SchemaObject elementAt(int index) => _schema.elementAt(index);
 }
 
+/// @nodoc
 extension ConfigurationInternal on Configuration {
+  ///@nodoc
   ConfigHandle get handle => _handle;
 }

@@ -19,3 +19,34 @@ set(realm_bundled_libraries
   "${PROJECT_SOURCE_DIR}/binary/windows/realm_dart.dll"
   PARENT_SCOPE
 )
+
+# message ("CMAKE_BINARY_DIR is ${CMAKE_BINARY_DIR}")
+# message ("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
+# message ("CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
+
+# This works cause realm plugin is always accessed through the .plugin_symlinks directory.
+# For example the tests app refers to the realm plugin using this path .../realm-dart/flutter/realm_flutter/tests/windows/flutter/ephemeral/.plugin_symlinks/realm/windows
+set(EPHEMERAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../ephemeral")
+include(${EPHEMERAL_DIR}/generated_config.cmake)
+
+# message ("FLUTTER_TOOL_ENVIRONMENT is ${FLUTTER_TOOL_ENVIRONMENT}")
+# message ("FLUTTER_ROOT is ${FLUTTER_ROOT}")
+
+execute_process(COMMAND "${FLUTTER_ROOT}\\bin\\flutter.bat" "pub" "run" "realm" "install" "--target-os-type" "windows" "--package-name" "realm" #"--debug"
+  OUTPUT_VARIABLE output
+  RESULT_VARIABLE result
+  COMMAND_ERROR_IS_FATAL ANY
+)
+message(STATUS "cmd output: ${output}")
+message(STATUS "cmd result: ${result}")
+
+# message("CMAKE_HOST_SYSTEM_VERSION ${CMAKE_HOST_SYSTEM_VERSION}")
+execute_process(
+  COMMAND "${FLUTTER_ROOT}\\bin\\flutter.bat" "pub" "run" "realm" "metrics" "--verbose" "--flutter-root" "${FLUTTER_ROOT}\\bin" "--target-os-type" "windows" "--target-os-version" "${CMAKE_HOST_SYSTEM_VERSION}" #"--pause-isolates-on-start" "--enable-vm-service"
+  # COMMAND ${CMAKE_COMMAND} -E true
+  OUTPUT_VARIABLE output
+  RESULT_VARIABLE result
+  # COMMAND_ERROR_IS_FATAL LAST
+)
+message(STATUS "cmd output: ${output}")
+message(STATUS "cmd result: ${result}")

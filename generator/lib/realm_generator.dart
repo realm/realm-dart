@@ -24,7 +24,6 @@
 library realm_generator;
 
 import 'package:build/build.dart';
-import 'package:realm_generator/src/session.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'src/realm_object_generator.dart';
@@ -33,7 +32,6 @@ export 'src/error.dart';
 
 /// @nodoc
 Builder generateRealmObjects([BuilderOptions? options]) {
-  clearMappings();
   return SharedPartBuilder(
       [RealmObjectGenerator()],
       'realm_objects',
