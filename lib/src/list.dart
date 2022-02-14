@@ -26,16 +26,6 @@ import 'realm_object.dart';
 import 'realm_class.dart';
 import 'results.dart';
 
-extension RealmListExtension<T extends Object> on List<T> {
-  bool get isValid {
-    final self = this;
-    if (self is RealmList<T>) {
-      return self.isValid;
-    }
-    return true;
-  } 
-}
-
 /// Instances of this class are live collections and will update as new elements are either
 /// added to or deleted from the Realm that match the underlying query.
 ///
