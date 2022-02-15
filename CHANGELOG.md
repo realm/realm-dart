@@ -2,7 +2,7 @@ vNext
 ==============================================================
 
 ### Changes
-* Primary key annotation no longer requires field to be final.
+* Added support for isValid() on RealmList and RealmObject. ([#183](https://github.com/realm/realm-dart/pull/183))
 
 ### Enhancements
 * Support query on lists of realm objects

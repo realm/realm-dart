@@ -456,6 +456,14 @@ class _RealmCore {
   bool equals(RealmObject first, RealmObject second) {
     return _realmLib.realm_equals(first.handle._pointer.cast(), second.handle._pointer.cast());
   }
+
+  bool objectIsValid(RealmObject object) {
+    return _realmLib.realm_object_is_valid(object.handle._pointer);
+  }
+
+   bool listIsValid(RealmList list) {
+    return _realmLib.realm_list_is_valid(list.handle._pointer);
+  }
 }
 
 class LastError {
