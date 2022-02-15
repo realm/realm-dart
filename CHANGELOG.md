@@ -8,7 +8,7 @@ vNext
 * Support query on lists of realm objects
 
 ### Fixed
-* Iterating RealmResult will snapshot the collection if the items are RealmObject from Realm.
+* Iterating RealmResult will snapshot the collection if the items are RealmObject from Realm. ([#258](https://github.com/realm/realm-dart/pull/258))
 
 
 0.2.0+alpha Release notes (2022-01-31)
