@@ -52,15 +52,18 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   /// Returns a new `Iterator` that allows iterating the elements in this `RealmResults`
   @override
   Iterator<T> get iterator {
-    final handle = realmCore.resultsSnapshot(this);
-    final results = RealmResultsInternal.create<T>(handle, _realm);
+    RealmResults<T> results = this;
+    bool isSubtypeOfRealmObject = (<T>[] is List<RealmObject?>);
+    if (isSubtypeOfRealmObject) {
+      final handle = realmCore.resultsSnapshot(this);
+      results = RealmResultsInternal.create<T>(handle, _realm);
+    }
     return _RealmResultsIterator(results);
   }
 
   /// The number of values in this `Results` collection.
   @override
   int get length => realmCore.getResultsCount(this);
-
 }
 
 /// @nodoc

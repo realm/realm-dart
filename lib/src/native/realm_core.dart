@@ -460,12 +460,13 @@ class _RealmCore {
   RealmResultsHandle resultsSnapshot(RealmResults results) {
     final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_snapshot(results.handle._pointer));
     return RealmResultsHandle._(resultsPointer);
+  }
 
   bool objectIsValid(RealmObject object) {
     return _realmLib.realm_object_is_valid(object.handle._pointer);
   }
 
-   bool listIsValid(RealmList list) {
+  bool listIsValid(RealmList list) {
     return _realmLib.realm_list_is_valid(list.handle._pointer);
   }
 }
