@@ -456,6 +456,11 @@ class _RealmCore {
   bool equals(RealmObject first, RealmObject second) {
     return _realmLib.realm_equals(first.handle._pointer.cast(), second.handle._pointer.cast());
   }
+
+  RealmResultsHandle resultsSnapshot(RealmResults results) {
+    final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_snapshot(results.handle._pointer));
+    return RealmResultsHandle._(resultsPointer);
+  }
 }
 
 class LastError {

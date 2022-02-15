@@ -20,8 +20,7 @@ import 'dart:collection' as collection;
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 
-
-/// Instances of this class are live collections and will update as new elements are either 
+/// Instances of this class are live collections and will update as new elements are either
 /// added to or deleted from the Realm that match the underlying query.
 ///
 /// {@category Realm}
@@ -52,11 +51,16 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
 
   /// Returns a new `Iterator` that allows iterating the elements in this `RealmResults`
   @override
-  Iterator<T> get iterator => _RealmResultsIterator(this);
+  Iterator<T> get iterator {
+    final handle = realmCore.resultsSnapshot(this);
+    final results = RealmResultsInternal.create<T>(handle, _realm);
+    return _RealmResultsIterator(results);
+  }
 
   /// The number of values in this `Results` collection.
   @override
   int get length => realmCore.getResultsCount(this);
+
 }
 
 /// @nodoc
