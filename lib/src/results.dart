@@ -27,6 +27,7 @@ import 'realm_class.dart';
 class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   final RealmResultsHandle _handle;
   final Realm _realm;
+  final _supportsSnapshot = <T>[] is List<RealmObject>;
 
   RealmResults._(this._handle, this._realm);
 
@@ -53,8 +54,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   @override
   Iterator<T> get iterator {
     RealmResults<T> results = this;
-    bool isSubtypeOfRealmObject = (<T>[] is List<RealmObject>);
-    if (isSubtypeOfRealmObject) {
+    if (_supportsSnapshot) {
       final handle = realmCore.resultsSnapshot(this);
       results = RealmResultsInternal.create<T>(handle, _realm);
     }
