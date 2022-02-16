@@ -233,6 +233,14 @@ class RealmObject {
     if (!isManaged || !other.isManaged) return false;
     return realmCore.equals(this, other);
   }
+
+  /// Gets a value indicating whether this object is managed and represents a row in the database.
+  ///
+  /// If a managed object has been removed from the [Realm], it is no longer valid and accessing properties on it
+  /// will throw an exception.
+  /// The Object is not valid if its [Realm] is closed or object is deleted.
+  /// Unmanaged objects are always considered valid.
+  bool get isValid => isManaged ? realmCore.objectIsValid(this) : true;
 }
 
 /// @nodoc

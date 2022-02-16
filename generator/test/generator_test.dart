@@ -33,7 +33,7 @@ class _Foo {
             '        \'x\': 0,\n'
             '      });\n'
             '    }\n'
-            '    this.x = x;\n'
+            '    RealmObject.set(this, \'x\', x);\n'
             '  }\n'
             '\n'
             '  Foo._();\n'
@@ -78,7 +78,7 @@ class _Foo {
 @RealmModel()
 class _Bar {
   @PrimaryKey()
-  late final String id;
+  late String id;
   late bool aBool, another;
   var data = Uint8List(16);
   // late RealmAny any; // not supported yet
@@ -91,9 +91,9 @@ class _Bar {
   // late Uuid uuid; // not supported yet
   @Ignored()
   var theMeaningOfEverything = 42;
-  final list = [0]; // list of ints with default value
-  // late final Set<int> set; // not supported yet
-  // final map = <String, int>{}; // not supported yet
+  var list = [0]; // list of ints with default value
+  // late Set<int> set; // not supported yet
+  // late map = <String, int>{}; // not supported yet
 
   @Indexed()
   String? anOptionalString;
@@ -241,7 +241,7 @@ part 'test.g.dart';
 class _Questionable {
   @PrimaryKey()
   @Indexed()
-  late final int primartKeysAreAlwaysIndexed;
+  late int primartKeysAreAlwaysIndexed;
 }'''
       },
       reader: await PackageAssetReader.currentIsolate(),
@@ -257,12 +257,12 @@ class _Questionable {
       sb.toString(),
       '[INFO] testBuilder: Indexed is implied for a primary key\n'
       '\n'
-      'in: package:pkg/src/test.dart:9:18\n'
+      'in: package:pkg/src/test.dart:9:12\n'
       '  ╷\n'
       '7 │   @PrimaryKey()\n'
       '8 │   @Indexed()\n'
-      '9 │   late final int primartKeysAreAlwaysIndexed;\n'
-      '  │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n'
+      '9 │   late int primartKeysAreAlwaysIndexed;\n'
+      '  │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n'
       '  ╵\n'
       'Remove either the @Indexed or @PrimaryKey annotation from \'primartKeysAreAlwaysIndexed\'.\n'
       '\n'
@@ -361,15 +361,15 @@ part 'test.g.dart';
 @RealmModel()
 class _Bad {
   @PrimaryKey()
-  late final int first;
+  late int first;
 
   @PrimaryKey()
-  late final String second;
+  late String second;
 
-  late final String another;
+  late String another;
 
   @PrimaryKey()
-  late final String third;
+  late String third;
 }
 '''
         },
@@ -380,22 +380,22 @@ class _Bad {
         'format()',
         'Duplicate primary keys\n'
             '\n'
-            'in: package:pkg/src/test.dart:11:21\n'
+            'in: package:pkg/src/test.dart:11:15\n'
             '    ╷\n'
             '5   │ @RealmModel()\n'
             '6   │ class _Bad {\n'
             '    │       ━━━━ in realm model for \'Bad\'\n'
             '7   │   @PrimaryKey()\n'
-            '8   │   late final int first;\n'
-            '    │                  ━━━━━ \n'
+            '8   │   late int first;\n'
+            '    │            ━━━━━ \n'
             '... │\n'
             '10  │   @PrimaryKey()\n'
-            '11  │   late final String second;\n'
-            '    │                     ^^^^^^ second primary key\n'
+            '11  │   late String second;\n'
+            '    │               ^^^^^^ second primary key\n'
             '... │\n'
             '15  │   @PrimaryKey()\n'
-            '16  │   late final String third;\n'
-            '    │                     ━━━━━ \n'
+            '16  │   late String third;\n'
+            '    │               ━━━━━ \n'
             '    ╵\n'
             'Avoid duplicated @PrimaryKey() on fields \'first\', \'second\', \'third\'\n'
             '',
@@ -531,7 +531,7 @@ class _Bad {
   @PrimaryKey()
   @MapTo('key')
   @PrimaryKey()
-  late final int id;
+  late int id;
 }
 '''
         },
@@ -552,7 +552,7 @@ class _Bad {
             '... │\n'
             '9   │   @PrimaryKey()\n'
             '    │   ^^^^^^^^^^^^^ duplicated annotation\n'
-            '10  │   late final int id;\n'
+            '10  │   late int id;\n'
             '    ╵\n'
             'Remove all duplicated @PrimaryKey() annotations.\n'
             '',
@@ -575,7 +575,7 @@ class Base {}
 @RealmModel()
 class _Bad extends Base { 
   @PrimaryKey()
-  late final int id;
+  late int id;
 }
 '''
         },
@@ -609,7 +609,7 @@ part 'test.g.dart';
 @RealmModel()
 class _Bad { 
   @PrimaryKey()
-  late final int id;
+  late int id;
 
   _Bad(this.id);
 }
@@ -637,47 +637,6 @@ class _Bad {
     );
   });
 
-  test('non-final list', () async {
-    await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class _Bad { 
-  @PrimaryKey()
-  late final int id;
-
-  List<int> wrong;
-}
-'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
-      ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'Realm collection field must be final\n'
-            '\n'
-            'in: package:pkg/src/test.dart:10:13\n'
-            '    ╷\n'
-            '5   │ @RealmModel()\n'
-            '6   │ class _Bad { \n'
-            '    │       ━━━━ in realm model for \'Bad\'\n'
-            '... │\n'
-            '10  │   List<int> wrong;\n'
-            '    │             ^^^^^ is not final\n'
-            '    ╵\n'
-            'Add a final keyword to the definition of \'wrong\'\n'
-            '',
-      )),
-    );
-  });
-
   test('nullable list', () async {
     await expectLater(
       () async => await testBuilder(
@@ -691,9 +650,9 @@ part 'test.g.dart';
 @RealmModel()
 class _Bad { 
   @PrimaryKey()
-  late final int id;
+  late int id;
 
-  final List<int>? wrong;
+  List<int>? wrong;
 }
 '''
         },
@@ -704,14 +663,14 @@ class _Bad {
         'format()',
         'Realm collections cannot be nullable\n'
             '\n'
-            'in: package:pkg/src/test.dart:10:9\n'
+            'in: package:pkg/src/test.dart:10:3\n'
             '    ╷\n'
             '5   │ @RealmModel()\n'
             '6   │ class _Bad { \n'
             '    │       ━━━━ in realm model for \'Bad\'\n'
             '... │\n'
-            '10  │   final List<int>? wrong;\n'
-            '    │         ^^^^^^^^^^ is nullable\n'
+            '10  │   List<int>? wrong;\n'
+            '    │   ^^^^^^^^^^ is nullable\n'
             '    ╵',
       )),
     );
@@ -733,10 +692,10 @@ class _Other {}
 @RealmModel()
 class _Bad { 
   @PrimaryKey()
-  late final int id;
+  late int id;
 
-  final List<int?> okay;
-  final List<_Other?> wrong;
+  late List<int?> okay;
+  late List<_Other?> wrong;
 }
 '''
         },
@@ -747,14 +706,14 @@ class _Bad {
         'format()',
         'Nullable realm objects are not allowed in collections\n'
             '\n'
-            'in: package:pkg/src/test.dart:14:9\n'
+            'in: package:pkg/src/test.dart:14:8\n'
             '    ╷\n'
             '8   │ @RealmModel()\n'
             '9   │ class _Bad { \n'
             '    │       ━━━━ in realm model for \'Bad\'\n'
             '... │\n'
-            '14  │   final List<_Other?> wrong;\n'
-            '    │         ^^^^^^^^^^^^^ which has a nullable realm object element type\n'
+            '14  │   late List<_Other?> wrong;\n'
+            '    │        ^^^^^^^^^^^^^ which has a nullable realm object element type\n'
             '    ╵\n'
             'Ensure element type is non-nullable\n'
             '',
@@ -778,7 +737,7 @@ class _Other {}
 @RealmModel()
 class _Bad { 
   @PrimaryKey()
-  late final int id;
+  late int id;
 
   late _Other wrong;
 }
@@ -945,7 +904,7 @@ part 'test.g.dart';
 @MapTo('Bad')
 class _Foo {
   @PrimaryKey()
-  late final bool bad;
+  late bool bad;
 }
 '''
         },
@@ -956,15 +915,15 @@ class _Foo {
         'format()',
         'Realm only support indexes on String, int, and bool fields\n'
             '\n'
-            'in: package:pkg/src/test.dart:9:14\n'
+            'in: package:pkg/src/test.dart:9:8\n'
             '  ╷\n'
             '5 │ @RealmModel()\n'
             '6 │ @MapTo(\'Bad\')\n'
             '7 │ class _Foo {\n'
             '  │       ━━━━ in realm model for \'Bad\'\n'
             '8 │   @PrimaryKey()\n'
-            '9 │   late final bool bad;\n'
-            '  │              ^^^^ bool is not an indexable type\n'
+            '9 │   late bool bad;\n'
+            '  │        ^^^^ bool is not an indexable type\n'
             '  ╵\n'
             'Change the type of \'bad\', or remove the @PrimaryKey() annotation\n'
             '',

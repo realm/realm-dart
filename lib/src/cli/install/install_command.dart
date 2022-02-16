@@ -340,7 +340,7 @@ class InstallCommand extends Command<void> {
   Future<String> getRealmPackagePath() async {
     final packageConfig = await findPackageConfig(Directory.current);
     if (packageConfig == null) {
-      throw Exception("Package configuration ('package_config.json' or '.packages') not found. "
+      throw Exception("Package configuration not found. "
           "Run the 'dart run $packageName install` command from the root directory of your application");
     }
 

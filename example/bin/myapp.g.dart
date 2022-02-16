@@ -21,9 +21,9 @@ class Car extends _Car with RealmObject {
       });
     }
     RealmObject.set(this, 'make', make);
-    this.model = model;
-    this.kilometers = kilometers;
-    this.owner = owner;
+    RealmObject.set(this, 'model', model);
+    RealmObject.set(this, 'kilometers', kilometers);
+    RealmObject.set(this, 'owner', owner);
   }
 
   Car._();
@@ -31,7 +31,7 @@ class Car extends _Car with RealmObject {
   @override
   String get make => RealmObject.get<String>(this, 'make') as String;
   @override
-  set make(String value) => throw RealmUnsupportedSetError();
+  set make(String value) => RealmObject.set(this, 'make', value);
 
   @override
   String? get model => RealmObject.get<String>(this, 'model') as String?;
@@ -68,16 +68,14 @@ class Person extends _Person with RealmObject {
   Person(
     String name, {
     int age = 1,
-    Iterable<Car> cars = const [],
   }) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObject.setDefaults<Person>({
         'age': 1,
       });
     }
-    this.name = name;
-    this.age = age;
-    RealmObject.set<List<Car>>(this, 'cars', cars.toList());
+    RealmObject.set(this, 'name', name);
+    RealmObject.set(this, 'age', age);
   }
 
   Person._();
@@ -92,11 +90,6 @@ class Person extends _Person with RealmObject {
   @override
   set age(int value) => RealmObject.set(this, 'age', value);
 
-  @override
-  List<Car> get cars => RealmObject.get<Car>(this, 'cars') as List<Car>;
-  @override
-  set cars(covariant List<Car> value) => throw RealmUnsupportedSetError();
-
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -104,8 +97,6 @@ class Person extends _Person with RealmObject {
     return const SchemaObject(Person, [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('age', RealmPropertyType.int),
-      SchemaProperty('cars', RealmPropertyType.object,
-          linkTarget: 'Car', collectionType: RealmCollectionType.list),
     ]);
   }
 }

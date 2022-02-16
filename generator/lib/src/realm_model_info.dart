@@ -65,10 +65,7 @@ class RealmModelInfo {
         }
 
         yield* allExceptCollections.map((f) {
-          if (f.isFinal) {
-            return "RealmObject.set(this, '${f.name}', ${f.name});"; // since no setter will be created!
-          }
-          return 'this.${f.name} = ${f.name};'; // defer to generated setter
+          return "RealmObject.set(this, '${f.name}', ${f.name});";
         });
 
         yield* collections.map((c) {
