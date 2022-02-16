@@ -53,7 +53,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   @override
   Iterator<T> get iterator {
     RealmResults<T> results = this;
-    bool isSubtypeOfRealmObject = (<T>[] is List<RealmObject?>);
+    bool isSubtypeOfRealmObject = (<T>[] is List<RealmObject>);
     if (isSubtypeOfRealmObject) {
       final handle = realmCore.resultsSnapshot(this);
       results = RealmResultsInternal.create<T>(handle, _realm);
