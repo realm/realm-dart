@@ -152,6 +152,16 @@ class _RealmCore {
     _realmLib.realm_config_set_schema_version(config.handle._pointer, version);
   }
 
+  bool getReadOnlyMode(Configuration config) {
+    int mode = _realmLib.realm_config_get_schema_mode(config.handle._pointer);
+    return mode == realm_schema_mode.RLM_SCHEMA_MODE_READ_ONLY;
+  }
+
+  void setReadOnlyMode(Configuration config, bool value) {
+    int mode = value ? realm_schema_mode.RLM_SCHEMA_MODE_READ_ONLY : realm_schema_mode.RLM_SCHEMA_MODE_AUTOMATIC;
+    _realmLib.realm_config_set_schema_mode(config.handle._pointer, mode);
+  }
+
   ConfigHandle createConfig() {
     final configPtr = _realmLib.realm_config_new();
     return ConfigHandle._(configPtr);
@@ -461,7 +471,7 @@ class _RealmCore {
     return _realmLib.realm_object_is_valid(object.handle._pointer);
   }
 
-   bool listIsValid(RealmList list) {
+  bool listIsValid(RealmList list) {
     return _realmLib.realm_list_is_valid(list.handle._pointer);
   }
 }

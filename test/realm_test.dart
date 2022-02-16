@@ -194,6 +194,51 @@ Future<void> main([List<String>? args]) async {
       config.schemaVersion = 3;
       expect(config.schemaVersion, equals(3));
     });
+
+    test('Configuration after isReadOnly can not open Realm', () {
+      Configuration config = Configuration([Car.schema]);
+      config.isReadOnly = true;
+      expect(() => Realm(config), throws<RealmException>("Error code: 19 . Message: No such table exists"));
+    });
+
+    test('Configuration after isReadOnly can read', () {
+      Configuration config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      var car = Car("Mustang");
+      realm.write(() => realm.add(car));
+      config.isReadOnly = true;
+      var cars = realm.all<Car>();
+      realm.close();
+    });
+
+    test('Configuration after isReadOnly can not write', () {
+      Configuration config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      config.isReadOnly = true;
+      var car = Car("Mustang");
+      expect(() => realm.write(() => realm.add(car)), throws<RealmException>);
+      realm.close();
+    });
+
+    test('Configuration after isReadOnly can not be edited', () {
+      Configuration config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      var car = Car("Mustang");
+      realm.write(() => realm.add(car));
+      config.isReadOnly = true;
+      expect(() => realm.write(() => car.make = "Opel"), throws<RealmException>);
+      realm.close();
+    });
+
+    test('Configuration after isReadOnly can not delete', () {
+      Configuration config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      var car = Car("Mustang");
+      realm.write(() => realm.add(car));
+      config.isReadOnly = true;
+      expect(() => realm.write(() => realm.delete(car)), throws<RealmException>);
+      realm.close();
+    });
   });
 
   group('RealmClass tests:', () {
@@ -1496,7 +1541,6 @@ Future<void> main([List<String>? args]) async {
       realm.close();
     });
 
-    
     test('Realm adding objects graph', () {
       var studentMichele = Student(1)
         ..name = "Michele Ernesto"

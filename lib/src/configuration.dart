@@ -53,7 +53,7 @@ class Configuration {
   }
 
   /// The platform dependent path to the default realm file - `default.realm`.
-  /// 
+  ///
   /// If set it should contain the name of the realm file. Ex. /mypath/myrealm.realm
   static String get defaultPath => _defaultPath ??= _initDefaultPath();
   static set defaultPath(String value) => _defaultPath = value;
@@ -83,10 +83,15 @@ class Configuration {
   /// If omitted the [defaultPath] for the platform will be used.
   String get path => realmCore.getConfigPath(this);
   set path(String value) => realmCore.setConfigPath(this, value);
+
+  /// Gets or sets a value indicating whether a [Realm] is opened as readonly. This allows opening it
+  /// from locked locations such as resources, bundled with an application.
+  bool get isReadOnly => realmCore.getReadOnlyMode(this);
+  set isReadOnly(bool value) => realmCore.setReadOnlyMode(this, value);
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].
-/// 
+///
 /// {@category Configuration}
 class SchemaObject {
   /// Schema object type.
@@ -103,7 +108,7 @@ class SchemaObject {
 }
 
 /// Describes the complete set of classes which may be stored in a `Realm`
-/// 
+///
 /// {@category Configuration}
 class RealmSchema extends Iterable<SchemaObject> {
   ///@nodoc
