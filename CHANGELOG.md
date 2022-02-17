@@ -1,14 +1,15 @@
-vNext
+x.x.x Release notes (yyyy-MM-dd)
 ==============================================================
 
-### Enhancements
-* Support change notifications on query results
+**This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
 
-### Changes
+### Enhancements
+* Support change notifications on query results.
 * Added support for isValid() on RealmList and RealmObject. ([#183](https://github.com/realm/realm-dart/pull/183))
+* Support query on lists of realm objects. ([239](https://github.com/realm/realm-dart/pull/239))
 
-### Enhancements
-* Support query on lists of realm objects
+### Compatibility
+* Dart ^2.15 on Windows, MacOS and Linux
 
 
 0.2.0+alpha Release notes (2022-01-31)

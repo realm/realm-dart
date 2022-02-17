@@ -19,7 +19,6 @@
 import 'dart:async';
 import 'dart:collection' as collection;
 
-import 'collections.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 
@@ -60,7 +59,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   @override
   int get length => realmCore.getResultsCount(this);
 
-  /// Allows listening for changes when this collection changes
+  /// Allows listening for changes when the contents of this collection changes
   Stream<RealmResultsChanges<T>> get changes => realmCore.resultsChanges(realm, this, realm.scheduler.handle).map((changes) => RealmResultsChanges(this, changes));
 }
 
