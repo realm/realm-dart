@@ -41,7 +41,7 @@ class RealmCollectionChanges {
   List<int> get modified => _changes.modifications;
   
   /// The indices of the objects in the collection which moved.
-  List<Move> get moves => _changes.moves;
+  List<Move> get moved => _changes.moves;
 
   /// The indices in the new version of the collection which were modified. Conceptually, it contains the same entries as [modified] but after the 
   /// insertions and deletions have been accounted for.
