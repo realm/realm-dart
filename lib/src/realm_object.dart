@@ -96,15 +96,6 @@ class RealmMetadata {
 
   RealmPropertyMetadata operator [](String propertyName) =>
       _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exists on class ${class_.type.runtimeType}"));
-
-  String findByKey(int propertyKey) {
-    return _propertyKeys.entries
-        .singleWhere(
-          (e) => e.value.key == propertyKey,
-          orElse: () => throw RealmException("Property with key $propertyKey does not exists on class ${class_.type.runtimeType}"),
-        )
-        .key;
-  }
 }
 
 class RealmClassMetadata {
