@@ -21,7 +21,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
-import 'dart:isolate';
 import 'dart:ffi' as ffi show Handle;
 import 'dart:typed_data';
 
@@ -56,7 +55,6 @@ class _RealmCore {
   _RealmCore._() {
     final lib = initRealm();
     _realmLib = RealmLibrary(lib);
-    isolateKey = Isolate.current.hashCode;
   }
 
   factory _RealmCore() {
@@ -651,10 +649,6 @@ extension _StringEx on String {
 
 extension _RealmLibraryEx on RealmLibrary {
   void invokeGetBool(bool Function() callback, [String? errorMessage]) {
-    if (Isolate.current.hashCode != realmCore.isolateKey) {
-      throw RealmError("Realm is accessed from an invalid Isolate");
-    }
-
     bool success = callback();
     if (!success) {
       realmCore.throwLastError(errorMessage);
@@ -662,10 +656,6 @@ extension _RealmLibraryEx on RealmLibrary {
   }
 
   Pointer<T> invokeGetPointer<T extends NativeType>(Pointer<T> Function() callback, [String? errorMessage]) {
-    if (Isolate.current.hashCode != realmCore.isolateKey) {
-      throw RealmError("Realm is accessed from an invalid Isolate");
-    }
-
     final result = callback();
     if (result == nullptr) {
       realmCore.throwLastError(errorMessage);

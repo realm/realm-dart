@@ -27,9 +27,11 @@
 #include "realm_dart_scheduler.h"
 
 struct SchedulerData {
+    //used for debugging
     std::thread::id threadId;
-    Dart_Port port;
     uint64_t isolateId;
+
+    Dart_Port port;
 
     realm_scheduler_notify_func_t callback = nullptr;
     void* callback_userData = nullptr;
@@ -61,10 +63,17 @@ void realm_dart_scheduler_notify(void* userData) {
     Dart_PostInteger_DL(schedulerData.port, pointer);
 }
 
+// This method is called by Realm Core to check if the realm access is on the correct thread. 
+//
+// Realm Dart Scheduler is always on the correct thread since:
+// 1) Realm access, the Dart to Native calls, happen always on the correct Isolate - a Realm instances can not be shared between Dart Isolates.
+// 2) It uses Dart Isolates which can receive messages from any thread and Realm Core always calls realm_dart_scheduler_notify on notifications, which always 
+//    schedules the callback on the Isolate thread.
+//
+// Note: Dart Isolates use a thread pool so the actual OS thread executing the Dart Isolate can change during even loops for the same Isolate. 
+// This fact does not negatively impact the Realm Dart Scheduler implementation
 bool realm_dart_scheduler_is_on_thread(void* userData) {
     return true;
-    // auto& schedulerData = *static_cast<SchedulerData*>(userData);
-    // return schedulerData.threadId == std::this_thread::get_id();
 }
 
 bool realm_dart_scheduler_is_same_as(const void* userData1, const void* userData2) {
@@ -103,15 +112,7 @@ RLM_API void realm_dart_scheduler_invoke(uint64_t isolateId, void* userData) {
     if (schedulerData->callback == nullptr) {
         return;
     }
-    /*
-    //Isolates can change their underlying native threads!!!
-    //We check if the invoking isolate is the same as the one that created this scheduler and update the thread id if it changed.
-    //This is safe since we care about being on the same Isolate rather than being on the same thread id. 
-    //Core asks the scheduler if this is on the correct thread so we need both ids
-    if (schedulerData->isolateId == isolateId && schedulerData->threadId != std::this_thread::get_id()) {
-        schedulerData->threadId = std::this_thread::get_id();
-    }*/
-
+    
     //invoke the notify callback
     schedulerData->callback(schedulerData->callback_userData);
 }
