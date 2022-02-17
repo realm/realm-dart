@@ -36,11 +36,14 @@ class Configuration {
   RealmSchema get schema => _schema;
 
   /// Creates a [Configuration] with schema objects for opening a [Realm].
-  Configuration(List<SchemaObject> schemaObjects)
+  /// Read-only configuration could be used for opening [Realm] only for reading data in case its file is locked.
+  /// Realm file must exist before to reopen [Realm] in read-only mode.
+  Configuration(List<SchemaObject> schemaObjects, {bool readOnly = false})
       : _schema = RealmSchema(schemaObjects),
         _handle = realmCore.createConfig() {
     schemaVersion = 0;
     path = defaultPath;
+    if (readOnly) isReadOnly = readOnly;
     realmCore.setSchema(this);
   }
 
@@ -86,6 +89,10 @@ class Configuration {
 
   /// Gets or sets a value indicating whether a [Realm] is opened as readonly. This allows opening it
   /// from locked locations such as resources, bundled with an application.
+  ///
+  /// Realm can not be opened in read-only mode if Realm files do not exist.
+  /// Opening Realm in read-only mode can be done after reopening existing Realm with read-only configuration.
+  /// First opening of Realm if configuration is read-only will throw an exception.
   bool get isReadOnly => realmCore.getReadOnlyMode(this);
   set isReadOnly(bool value) => realmCore.setReadOnlyMode(this, value);
 }
