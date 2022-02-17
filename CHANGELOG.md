@@ -3,6 +3,7 @@ vNext
 
 ### Changes
 * Added support for isValid() on RealmList and RealmObject. ([#183](https://github.com/realm/realm-dart/pull/183))
+* Added support for opening Realm in read-only mode. ([#260](https://github.com/realm/realm-dart/pull/260))
 
 ### Enhancements
 * Support query on lists of realm objects
