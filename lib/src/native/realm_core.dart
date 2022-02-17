@@ -399,7 +399,7 @@ class _RealmCore {
     });
   }
 
-  Counts getCollectionChangesCounts(RealmCollectionChangesHandle changes) {
+  CollectionChanges getCollectionChanges(RealmCollectionChangesHandle changes) {
     return using((arena) {
       final out_num_deletions = arena<IntPtr>();
       final out_num_insertions = arena<IntPtr>();
@@ -412,71 +412,47 @@ class _RealmCore {
         out_num_modifications,
         out_num_moves,
       );
-      return Counts(
-        out_num_deletions != nullptr ? out_num_deletions.value : 0,
-        out_num_insertions != nullptr ? out_num_insertions.value : 0,
-        out_num_modifications != nullptr ? out_num_modifications.value : 0,
-        out_num_moves != nullptr ? out_num_moves.value : 0,
-      );
-    });
-  }
 
-  IndexChanges getCollectionChanges(RealmCollectionChangesHandle changes, Counts maxCounts) {
-    return using((arena) {
-      final out_deletion_indices = arena<IntPtr>(maxCounts.deletions);
-      final out_insertion_indices = arena<IntPtr>(maxCounts.insertions);
-      final out_modification_indices = arena<IntPtr>(maxCounts.modifications);
-      final out_modification_indices_after = arena<IntPtr>(maxCounts.modifications);
-      final out_moves = arena<realm_collection_move_t>(maxCounts.moves);
+      final deletionsCount = out_num_deletions != nullptr ? out_num_deletions.value : 0;
+      final insertionCount = out_num_insertions != nullptr ? out_num_insertions.value : 0;
+      final modificationCount = out_num_modifications != nullptr ? out_num_modifications.value : 0;
+      var moveCount = out_num_moves != nullptr ? out_num_moves.value : 0;
+
+      final out_deletion_indices = arena<IntPtr>(deletionsCount);
+      final out_insertion_indices = arena<IntPtr>(insertionCount);
+      final out_modification_indices = arena<IntPtr>(modificationCount);
+      final out_modification_indices_after = arena<IntPtr>(modificationCount);
+      final out_moves = arena<realm_collection_move_t>(moveCount);
 
       _realmLib.realm_collection_changes_get_changes(
         changes._pointer,
         out_deletion_indices,
-        maxCounts.deletions,
+        deletionsCount,
         out_insertion_indices,
-        maxCounts.insertions,
+        insertionCount,
         out_modification_indices,
-        maxCounts.modifications,
+        modificationCount,
         out_modification_indices_after,
-        maxCounts.modifications,
+        modificationCount,
         out_moves,
-        maxCounts.moves,
+        moveCount,
       );
 
-      List<int> convert(Pointer<IntPtr> pointer, int size) {
-        if (sizeOf<IntPtr>() == 8) {
-          return pointer.cast<Int64>().asTypedList(size).toList(growable: false);
-        } else {
-          return pointer.cast<Int32>().asTypedList(size).toList(growable: false);
-        }
+      var elementZero = out_moves.elementAt(0);
+      List<Move> moves = List.filled(moveCount, Move(elementZero.ref.from, elementZero.ref.to));
+      for (var i = 1; i < moveCount; i++) {
+        final movePtr = out_moves.elementAt(i);
+        moves[i] = Move(movePtr.ref.from, movePtr.ref.to);
       }
 
-      // TODO: the toList below copies the data. It should be poss
-      return IndexChanges(
-        convert(out_deletion_indices, maxCounts.deletions),
-        convert(out_insertion_indices, maxCounts.insertions),
-        convert(out_modification_indices, maxCounts.modifications),
-        convert(out_modification_indices_after, maxCounts.modifications),
-        const [], // TODO: Not supported yet
-      );
+      return CollectionChanges(out_deletion_indices.toIntList(deletionsCount), out_insertion_indices.toIntList(insertionCount),
+          out_modification_indices.toIntList(modificationCount), out_modification_indices_after.toIntList(modificationCount), moves);
     });
   }
 
   Stream<RealmCollectionChanges> resultsChanges(Realm realm, RealmResults results, SchedulerHandle scheduler) {
     final controller = ResultsNotificationsController(results.handle, realm);
     return controller.createStream();
-    // return buildStream(
-    //   (Pointer<realm_collection_changes> data) => RealmCollectionChanges(
-    //     RealmCollectionChangesHandle._(_realmLib.realm_clone(data.cast()).cast()),
-    //     results.realm,
-    //   ),
-    //   (userdata) => RealmNotificationTokenHandle._(_realmLib.realm_dart_results_add_notification_callback(
-    //     results.handle._pointer,
-    //     userdata,
-    //     realmCollectionChangesTrampoline,
-    //     scheduler._pointer,
-    //   )),
-    // );
   }
 
   RealmLinkHandle _getObjectAsLink(RealmObject object) {
@@ -544,7 +520,7 @@ class _RealmCore {
     return _realmLib.realm_object_is_valid(object.handle._pointer);
   }
 
-   bool listIsValid(RealmList list) {
+  bool listIsValid(RealmList list) {
     return _realmLib.realm_list_is_valid(list.handle._pointer);
   }
 }
@@ -746,6 +722,16 @@ extension on Pointer<realm_value_t> {
       default:
         throw RealmException("realm_value_type ${ref.type} not supported");
     }
+  }
+}
+
+extension on Pointer<IntPtr> {
+  List<int> toIntList(int count) {
+    List<int> result = List.filled(count, elementAt(0).value);
+    for (var i = 1; i < count; i++) {
+      result[i] = elementAt(i).value;
+    }
+    return result;
   }
 }
 

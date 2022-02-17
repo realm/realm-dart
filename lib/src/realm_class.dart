@@ -36,7 +36,7 @@ export 'list.dart' show RealmList, RealmListOfObject;
 export 'realm_object.dart' show RealmException, RealmObject;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults;
-export 'collections.dart' show RealmResultsChanges, Move; 
+export 'collections.dart' show RealmResultsChanges; 
 
 /// A [Realm] instance represents a `Realm` database.
 ///
