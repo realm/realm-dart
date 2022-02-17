@@ -867,16 +867,16 @@ Future<void> main([List<String>? args]) async {
         final subscription = realm.all<Dog>().changes.listen((changes) {
           if (firstCall) {
             firstCall = false;
-            expect(changes.insertions.isEmpty, true);
-            expect(changes.modifications.isEmpty, true);
-            expect(changes.deletions.isEmpty, true);
-            expect(changes.modificationsAfter.isEmpty, true);
+            expect(changes.inserted.isEmpty, true);
+            expect(changes.modified.isEmpty, true);
+            expect(changes.deleted.isEmpty, true);
+            expect(changes.newModified.isEmpty, true);
             expect(changes.moves.isEmpty, true);
           } else {
-            expect(changes.insertions, [3]); //new object at index 3
-            expect(changes.modifications, [0]); //object at index 0 changed
-            expect(changes.deletions.isEmpty, true);
-            expect(changes.modificationsAfter, [0]);
+            expect(changes.inserted, [3]); //new object at index 3
+            expect(changes.modified, [0]); //object at index 0 changed
+            expect(changes.deleted.isEmpty, true);
+            expect(changes.newModified, [0]);
             expect(changes.moves.isEmpty, true);
           }
         });

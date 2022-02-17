@@ -32,7 +32,7 @@ class RealmCollectionChanges {
   CollectionChanges get _changes => _values ??= realmCore.getCollectionChanges(_handle);
 
   /// The indices in the previous version of the collection which have been removed from this one.
-  List<int> get deelted => _changes.deletions;
+  List<int> get deleted => _changes.deletions;
 
   /// The indices in the new collection which were added in this version.
   List<int> get inserted => _changes.insertions;
