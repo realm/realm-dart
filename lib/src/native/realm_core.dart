@@ -450,11 +450,6 @@ class _RealmCore {
     });
   }
 
-  Stream<RealmCollectionChanges> resultsChanges(Realm realm, RealmResults results, SchedulerHandle scheduler) {
-    final controller = ResultsNotificationsController(results.handle, realm);
-    return controller.createStream();
-  }
-
   RealmLinkHandle _getObjectAsLink(RealmObject object) {
     final realmLink = _realmLib.realm_object_as_link(object.handle._pointer);
     return RealmLinkHandle._(realmLink);
@@ -522,6 +517,34 @@ class _RealmCore {
 
   bool listIsValid(RealmList list) {
     return _realmLib.realm_list_is_valid(list.handle._pointer);
+  }
+
+  static void collection_change_callback(Object object, Pointer<realm_collection_changes> data) {
+    assert(object is NotificationsController, "Notification controller expected");
+
+    final controller = object as NotificationsController;
+
+    if (data == nullptr) {
+      //realm_collection_changes data clone is done in native code before this callback is invoked. nullptr data means cloning failed.
+      controller.onError(RealmError("Invalid notifications data received"));
+      return;
+    }
+
+    try {
+      final changesHandle = RealmCollectionChangesHandle._(data);
+      controller.onChanges(changesHandle);
+    } catch (e) {
+      controller.onError(RealmError("Error handling collection change notifications. Error: $e"));
+    }
+  }
+
+  RealmNotificationTokenHandle subscribeResultsNotifications(RealmResultsHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
+    final onChangeCallback = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_collection_changes>)>(collection_change_callback);
+
+    final pointer = _realmLib.invokeGetPointer(
+        () => _realmLib.realm_dart_results_add_notification_callback(handle._pointer, controller, onChangeCallback, schedulerHandle._pointer));
+
+    return RealmNotificationTokenHandle._(pointer);
   }
 }
 
@@ -732,64 +755,5 @@ extension on Pointer<IntPtr> {
       result[i] = elementAt(i).value;
     }
     return result;
-  }
-}
-
-abstract class NotificationsController {
-  late final StreamController<RealmCollectionChanges> streamController;
-  RealmNotificationTokenHandle? handle;
-  Realm realm;
-
-  NotificationsController(this.realm);
-
-  RealmNotificationTokenHandle _subscribe();
-
-  static void change_callback(Object object, Pointer<realm_collection_changes> data) {
-    if (data == nullptr) {
-      //realm_collection_changes clone is done in native before this callback invoked. nullptr data means cloning failed.
-      realmCore.throwLastError("Invalid notifications data received");
-    }
-
-    NotificationsController controller = object as NotificationsController;
-    final changesHandle = RealmCollectionChangesHandle._(data);
-    final changes = RealmCollectionChanges(changesHandle, controller.realm);
-    controller.streamController.add(changes);
-  }
-
-  void _start() {
-    if (handle != null) {
-      throw RealmStateError("Realm notifications subscription already started");
-    }
-
-    handle = _subscribe();
-  }
-
-  void _stop() {
-    if (handle == null) {
-      return;
-    }
-
-    handle!.release();
-    handle = null;
-  }
-
-  Stream<RealmCollectionChanges> createStream() {
-    streamController = StreamController<RealmCollectionChanges>(onListen: _start, onPause: _stop, onResume: _start, onCancel: _stop);
-    return streamController.stream;
-  }
-}
-
-class ResultsNotificationsController extends NotificationsController {
-  RealmResultsHandle results;
-  ResultsNotificationsController(this.results, Realm realm) : super(realm);
-
-  @override
-  RealmNotificationTokenHandle _subscribe() {
-    final onChangeCallback = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_collection_changes>)>(NotificationsController.change_callback);
-
-    final pointer = _realmLib.invokeGetPointer(
-        () => _realmLib.realm_dart_results_add_notification_callback(results._pointer, this, onChangeCallback, realm.scheduler.handle._pointer));
-
-    return RealmNotificationTokenHandle._(pointer);
   }
 }

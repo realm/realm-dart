@@ -19,6 +19,7 @@
 import 'dart:async';
 import 'dart:collection' as collection;
 
+import 'collections.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 
@@ -28,11 +29,13 @@ import 'realm_class.dart';
 /// {@category Realm}
 class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   final RealmResultsHandle _handle;
+
+  /// The Realm isntance this collection belongs to.
   final Realm realm;
 
   RealmResults._(this._handle, this.realm);
 
-  /// Returns the element of type `T` at the specified [index]
+  /// Returns the element of type `T` at the specified [index].
   T operator [](int index) {
     final handle = realmCore.getObjectAt(this, index);
     return realm.createObject(T, handle) as T;
@@ -47,11 +50,11 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
     return RealmResultsInternal.create<T>(handle, realm);
   }
 
-  /// `true` if the `Results` collection is empty
+  /// `true` if the `Results` collection is empty.
   @override
   bool get isEmpty => length == 0;
 
-  /// Returns a new `Iterator` that allows iterating the elements in this `RealmResults`
+  /// Returns a new `Iterator` that allows iterating the elements in this `RealmResults`.
   @override
   Iterator<T> get iterator => _RealmResultsIterator(this);
 
@@ -59,8 +62,11 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   @override
   int get length => realmCore.getResultsCount(this);
 
-  /// Allows listening for changes when the contents of this collection changes
-  Stream<RealmResultsChanges<T>> get changes => realmCore.resultsChanges(realm, this, realm.scheduler.handle).map((changes) => RealmResultsChanges(this, changes));
+  /// Allows listening for changes when the contents of this collection changes.
+  Stream<RealmResultsChanges<T>> get changes {
+    final controller = ResultsNotificationsController<T>(this);
+    return controller.createStream();
+  }
 }
 
 /// @nodoc
@@ -70,6 +76,43 @@ extension RealmResultsInternal on RealmResults {
 
   static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm) {
     return RealmResults<T>._(handle, realm);
+  }
+}
+
+/// Describes the changes in a Realm results collection since the last time the notification callback was invoked.
+class RealmResultsChanges<T extends RealmObject> extends RealmCollectionChanges {
+  /// The results collection being monitored for changes.
+  final RealmResults<T> results;
+
+  RealmResultsChanges._(RealmCollectionChangesHandle handle, this.results) : super(handle);
+}
+
+/// @nodoc
+class ResultsNotificationsController<T extends RealmObject> extends NotificationsController {
+  final RealmResults<T> results;
+  late final StreamController<RealmResultsChanges<T>> streamController;
+
+  ResultsNotificationsController(this.results);
+
+  @override
+  RealmNotificationTokenHandle subscribe() {
+    return realmCore.subscribeResultsNotifications(results._handle, this, results.realm.scheduler.handle);
+  }
+
+  Stream<RealmResultsChanges<T>> createStream() {
+    streamController = StreamController<RealmResultsChanges<T>>(onListen: start, onPause: stop, onResume: start, onCancel: stop);
+    return streamController.stream;
+  }
+
+  @override
+  void onChanges(RealmCollectionChangesHandle changesHandle) {
+    final changes = RealmResultsChanges._(changesHandle, results);
+    streamController.add(changes);
+  }
+
+  @override
+  void onError(RealmError error) {
+    streamController.addError(error);
   }
 }
 

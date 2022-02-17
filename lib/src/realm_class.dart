@@ -21,6 +21,8 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:realm_common/realm_common.dart';
+
 import 'configuration.dart';
 import 'list.dart';
 import 'native/realm_core.dart';
@@ -35,8 +37,7 @@ export "configuration.dart" show Configuration, RealmSchema, SchemaObject;
 export 'list.dart' show RealmList, RealmListOfObject;
 export 'realm_object.dart' show RealmException, RealmObject;
 export 'realm_property.dart';
-export 'results.dart' show RealmResults;
-export 'collections.dart' show RealmResultsChanges; 
+export 'results.dart' show RealmResults, RealmResultsChanges;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -279,5 +280,31 @@ extension RealmInternal on Realm {
 
   RealmList<T> createList<T extends Object>(RealmListHandle handle) {
     return RealmListInternal.create(handle, this);
+  }
+}
+
+/// @nodoc
+abstract class NotificationsController {
+  RealmNotificationTokenHandle? handle;
+
+  RealmNotificationTokenHandle subscribe();
+  void onChanges(RealmCollectionChangesHandle changesHandle);
+  void onError(RealmError error);
+
+  void start() {
+    if (handle != null) {
+      throw RealmStateError("Realm notifications subscription already started");
+    }
+
+    handle = subscribe();
+  }
+
+  void stop() {
+    if (handle == null) {
+      return;
+    }
+
+    handle!.release();
+    handle = null;
   }
 }

@@ -871,13 +871,13 @@ Future<void> main([List<String>? args]) async {
             expect(changes.modified.isEmpty, true);
             expect(changes.deleted.isEmpty, true);
             expect(changes.newModified.isEmpty, true);
-            expect(changes.moves.isEmpty, true);
+            expect(changes.moved.isEmpty, true);
           } else {
             expect(changes.inserted, [3]); //new object at index 3
             expect(changes.modified, [0]); //object at index 0 changed
             expect(changes.deleted.isEmpty, true);
             expect(changes.newModified, [0]);
-            expect(changes.moves.isEmpty, true);
+            expect(changes.moved.isEmpty, true);
           }
         });
 

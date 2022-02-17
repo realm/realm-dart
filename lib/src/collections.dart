@@ -11,6 +11,7 @@ class Move {
   const Move(this.from, this.to);
 }
 
+/// @nodoc
 class CollectionChanges {
   final List<int> deletions;
   final List<int> insertions;
@@ -24,10 +25,9 @@ class CollectionChanges {
 /// Describes the changes in a Realm collection since the last time the notification callback was invoked.
 class RealmCollectionChanges {
   final RealmCollectionChangesHandle _handle;
-  final Realm realm;
   CollectionChanges? _values;
-
-  RealmCollectionChanges(this._handle, this.realm);
+  
+  RealmCollectionChanges(this._handle);
 
   CollectionChanges get _changes => _values ??= realmCore.getCollectionChanges(_handle);
 
@@ -46,10 +46,4 @@ class RealmCollectionChanges {
   /// The indices in the new version of the collection which were modified. Conceptually, it contains the same entries as [modified] but after the 
   /// insertions and deletions have been accounted for.
   List<int> get newModified => _changes.modificationsAfter;
-}
-
-/// Describes the changes in a Realm results collection since the last time the notification callback was invoked.
-class RealmResultsChanges<T extends RealmObject> extends RealmCollectionChanges {
-  final RealmResults<T> results;
-  RealmResultsChanges(this.results, RealmCollectionChanges changes) : super(changes._handle, changes.realm);
 }
