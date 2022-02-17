@@ -59,8 +59,9 @@ This repository holds the source code for the Realm SDK for Flutterâ„¢ and Dartâ
     ```dart
     final cars = realm.all<Car>().query(r'make == $0', ['Tesla']);
     cars.changes.listen((changes) { 
-      print('insertions: ${changes.insertions}');
-      print('results: ${changes.results}');
+      print('Inserted indexes: ${changes.inserted}');
+      print('Deleted indexes: ${changes.deleted}');
+      print('Modified indexes: ${changes.modified}');
     });
     realm.write(() => realm.add(Car('VW', 'Polo', kilometers: 22000)));
     ```

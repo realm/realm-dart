@@ -31,19 +31,19 @@ class RealmCollectionChanges {
 
   CollectionChanges get _changes => _values ??= realmCore.getCollectionChanges(_handle);
 
-  /// The indices in the previous version of the collection which have been removed from this one.
+  /// The indexes in the previous version of the collection which have been removed from this one.
   List<int> get deleted => _changes.deletions;
 
-  /// The indices in the new collection which were added in this version.
+  /// The indexes in the new collection which were added in this version.
   List<int> get inserted => _changes.insertions;
 
-  /// The indices of the objects in the new collection which were modified in this version.
+  /// The indexes of the objects in the new collection which were modified in this version.
   List<int> get modified => _changes.modifications;
   
-  /// The indices of the objects in the collection which moved.
+  /// The indexes of the objects in the collection which moved.
   List<Move> get moved => _changes.moves;
 
-  /// The indices in the new version of the collection which were modified. Conceptually, it contains the same entries as [modified] but after the 
+  /// The indexes in the new version of the collection which were modified. Conceptually, it contains the same entries as [modified] but after the 
   /// insertions and deletions have been accounted for.
   List<int> get newModified => _changes.modificationsAfter;
 }

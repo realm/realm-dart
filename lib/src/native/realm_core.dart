@@ -418,21 +418,21 @@ class _RealmCore {
       final modificationCount = out_num_modifications != nullptr ? out_num_modifications.value : 0;
       var moveCount = out_num_moves != nullptr ? out_num_moves.value : 0;
 
-      final out_deletion_indices = arena<IntPtr>(deletionsCount);
-      final out_insertion_indices = arena<IntPtr>(insertionCount);
-      final out_modification_indices = arena<IntPtr>(modificationCount);
-      final out_modification_indices_after = arena<IntPtr>(modificationCount);
+      final out_deletion_indexes = arena<IntPtr>(deletionsCount);
+      final out_insertion_indexes = arena<IntPtr>(insertionCount);
+      final out_modification_indexes = arena<IntPtr>(modificationCount);
+      final out_modification_indexes_after = arena<IntPtr>(modificationCount);
       final out_moves = arena<realm_collection_move_t>(moveCount);
 
       _realmLib.realm_collection_changes_get_changes(
         changes._pointer,
-        out_deletion_indices,
+        out_deletion_indexes,
         deletionsCount,
-        out_insertion_indices,
+        out_insertion_indexes,
         insertionCount,
-        out_modification_indices,
+        out_modification_indexes,
         modificationCount,
-        out_modification_indices_after,
+        out_modification_indexes_after,
         modificationCount,
         out_moves,
         moveCount,
@@ -445,8 +445,8 @@ class _RealmCore {
         moves[i] = Move(movePtr.ref.from, movePtr.ref.to);
       }
 
-      return CollectionChanges(out_deletion_indices.toIntList(deletionsCount), out_insertion_indices.toIntList(insertionCount),
-          out_modification_indices.toIntList(modificationCount), out_modification_indices_after.toIntList(modificationCount), moves);
+      return CollectionChanges(out_deletion_indexes.toIntList(deletionsCount), out_insertion_indexes.toIntList(insertionCount),
+          out_modification_indexes.toIntList(modificationCount), out_modification_indexes_after.toIntList(modificationCount), moves);
     });
   }
 

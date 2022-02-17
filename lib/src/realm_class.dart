@@ -46,14 +46,14 @@ class Realm {
   final Configuration _config;
   final Map<Type, RealmMetadata> _metadata = <Type, RealmMetadata>{};
   late final RealmHandle _handle;
-  late final _Scheduler _scheduler;
+  late final Scheduler _scheduler;
 
   /// The [Configuration] object used to open this [Realm]
   Configuration get config => _config;
 
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : _config = config {
-    _scheduler = _Scheduler(config, close);
+    _scheduler = Scheduler(config, close);
 
     try {
       _handle = realmCore.openRealm(config);
@@ -235,14 +235,14 @@ class Realm {
   }
 }
 
-class _Scheduler {
+class Scheduler {
   // ignore: constant_identifier_names
   static const dynamic SCHEDULER_FINALIZE_OR_PROCESS_EXIT = null;
   late final SchedulerHandle handle;
   final void Function() onFinalize;
   final RawReceivePort receivePort = RawReceivePort();
 
-  _Scheduler(Configuration config, this.onFinalize) {
+  Scheduler(Configuration config, this.onFinalize) {
     receivePort.handler = (dynamic message) {
       if (message == SCHEDULER_FINALIZE_OR_PROCESS_EXIT) {
         onFinalize();
@@ -267,8 +267,7 @@ class _Scheduler {
 /// @nodoc
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
-  _Scheduler get scheduler => _scheduler;
-  Map<Type, RealmMetadata> get metadata => _metadata;
+  Scheduler get scheduler => _scheduler;
 
   RealmObject createObject(Type type, RealmObjectHandle handle) {
     RealmMetadata metadata = _getMetadata(type);
