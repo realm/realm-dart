@@ -33,7 +33,7 @@ class _Person {
             '        \'age\': 47,\n'
             '      });\n'
             '    }\n'
-            '    this.age = age;\n'
+            '    RealmObject.set(this, \'age\', age);\n'
             '  }\n'
             '\n'
             '  Person._();\n'
@@ -70,7 +70,7 @@ part 'test.g.dart';
 @RealmModel()
 class _Person {
   @PrimaryKey()
-  late final String name;
+  late String name;
 }''',
       },
       outputs: {
@@ -118,7 +118,7 @@ part 'test.g.dart';
 
 @RealmModel()
 class _Person {
-  late final List<_Person> children;
+  late List<_Person> children;
 }''',
       },
       outputs: {
@@ -181,7 +181,7 @@ class _Person {
             '  Person({\n'
             '    Person? spouse,\n'
             '  }) {\n'
-            '    this.spouse = spouse;\n'
+            '    RealmObject.set(this, \'spouse\', spouse);\n'
             '  }\n'
             '\n'
             '  Person._();\n'
@@ -231,7 +231,7 @@ class _Person {
             '  Person(\n'
             '    String name,\n'
             '  ) {\n'
-            '    this.name = name;\n'
+            '    RealmObject.set(this, \'name\', name);\n'
             '  }\n'
             '\n'
             '  Person._();\n'

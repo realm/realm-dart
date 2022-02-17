@@ -58,7 +58,13 @@ enum RealmCollectionType {
 
 /// A base class of all Realm errors.
 /// {@category Realm}
-class RealmError extends Error {}
+class RealmError extends Error {
+  final String? message;
+  RealmError(String this.message);
+  
+  @override
+  String toString() => "Realm error : $message";
+}
 
 /// Thrown if the operation is not supported.
 /// {@category Realm}

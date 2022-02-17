@@ -79,11 +79,19 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
   void clear() {
     realmCore.listClear(this);
   }
+
+  /// Gets a value indicating whether this collection is still valid to use.
+  ///
+  /// Indicates whether the [Realm] instance hasn't been closed,
+  /// if it represents a to-many relationship
+  /// and it's parent object hasn't been deleted.
+  bool get isValid => realmCore.listIsValid(this);
 }
 
 // The query operations on lists only work for list of objects (core restriction),
 // so we add it as an extension method to allow the compiler to prevent misuse.
 extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
+  
   /// Filters the list and returns a new [RealmResults] according to the provided query.
   ///
   /// Only works for lists of Realm objects.

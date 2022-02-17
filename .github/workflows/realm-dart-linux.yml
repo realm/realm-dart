@@ -4,24 +4,13 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      - 'flutter/**'
-      - 'generator/**'
-      - '.github/**'
-      - '!.github/workflows/realm-dart-linux.yml' # except this one
     tags:
       - '[0-9]+.[0-9]+.[0-9]+**' # matches tags like number(s).number(s).number(s)(any) for ex: 1.0.0 and also 1.0.0+beta
-
   pull_request:
-    paths-ignore:
-      - 'flutter/**'
-      - 'generator/**'
-      - '.github/**'
-      - '!.github/workflows/realm-dart-linux.yml' # except this one
 
 jobs:
   CI:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
       REALM_CI: true
 
@@ -37,10 +26,6 @@ jobs:
       - name: Build Realm Dart for Linux
         run: ./scripts/build-linux.sh
 
-      # Note: This workflow uses the latest stable version of the Dart SDK.
-      # You can specify other versions if desired, see documentation here:
-      # https://github.com/dart-lang/setup-dart/blob/main/README.md
-      # - uses: dart-lang/setup-dart@v1
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
@@ -51,7 +36,384 @@ jobs:
 
       - name: Run tests
         run: |
-          dart test -r expanded
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded --test-randomize-ordering-seed random
           echo "ARCHIVE_PATH=$(pwd)/binary/linux.tar.gz" >> $GITHUB_ENV
   
       - name: Archive binary
@@ -60,9 +422,6 @@ jobs:
           dart run realm_dart archive --source-dir $(pwd)/binary/linux --output-file $ARCHIVE_PATH
 
       - name: Release artifacts
-        # env:
-          # EVENT_CONTEXT: ${{ toJSON(github.event) }}
-          # EVENT_CONTEXT: ${{ toJSON(github) }}
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
         uses: ncipollo/release-action@v1
         with:
@@ -76,9 +435,3 @@ jobs:
           body: "ADD RELEASE NOTES"
           omitBodyDuringUpdate: true
           token: ${{ secrets.GITHUB_TOKEN }}
-        # run: | 
-        #   echo "Creating a release for tag ${{ github.ref_name }}"
-        #   # echo $EVENT_CONTEXT
-        #   # echo "github.event_name ${{ github.event_name }}"
-        #   # echo "github.ref_type ${{ github.ref_type }}"
-        #   # echo "github.ref_name ${{ github.ref_name }}"

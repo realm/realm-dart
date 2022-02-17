@@ -34,7 +34,7 @@ class Person extends _Person with RealmObject {
   Person(
     String name,
   ) {
-    this.name = name;
+    RealmObject.set(this, 'name', name);
   }
 
   Person._();
@@ -61,8 +61,8 @@ class Dog extends _Dog with RealmObject {
     Person? owner,
   }) {
     RealmObject.set(this, 'name', name);
-    this.age = age;
-    this.owner = owner;
+    RealmObject.set(this, 'age', age);
+    RealmObject.set(this, 'owner', owner);
   }
 
   Dog._();
@@ -101,7 +101,7 @@ class Team extends _Team with RealmObject {
     Iterable<Person> players = const [],
     Iterable<int> scores = const [],
   }) {
-    this.name = name;
+    RealmObject.set(this, 'name', name);
     RealmObject.set<List<Person>>(this, 'players', players.toList());
     RealmObject.set<List<int>>(this, 'scores', scores.toList());
   }
@@ -146,9 +146,9 @@ class Student extends _Student with RealmObject {
     School? school,
   }) {
     RealmObject.set(this, 'number', number);
-    this.name = name;
-    this.yearOfBirth = yearOfBirth;
-    this.school = school;
+    RealmObject.set(this, 'name', name);
+    RealmObject.set(this, 'yearOfBirth', yearOfBirth);
+    RealmObject.set(this, 'school', school);
   }
 
   Student._();
@@ -196,8 +196,8 @@ class School extends _School with RealmObject {
     Iterable<School> branches = const [],
   }) {
     RealmObject.set(this, 'name', name);
-    this.city = city;
-    this.branchOfSchool = branchOfSchool;
+    RealmObject.set(this, 'city', city);
+    RealmObject.set(this, 'branchOfSchool', branchOfSchool);
     RealmObject.set<List<Student>>(this, 'students', students.toList());
     RealmObject.set<List<School>>(this, 'branches', branches.toList());
   }
@@ -217,6 +217,9 @@ class School extends _School with RealmObject {
   @override
   List<Student> get students =>
       RealmObject.get<Student>(this, 'students') as List<Student>;
+  @override
+  set students(covariant List<Student> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
   School? get branchOfSchool =>

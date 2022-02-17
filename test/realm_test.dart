@@ -16,8 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:async';
-import 'dart:developer';
+// ignore_for_file: unused_local_variable
+
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
@@ -34,7 +34,7 @@ part 'realm_test.g.dart';
 @RealmModel()
 class _Car {
   @PrimaryKey()
-  late final String make;
+  late String make;
 }
 
 @RealmModel()
@@ -45,7 +45,7 @@ class _Person {
 @RealmModel()
 class _Dog {
   @PrimaryKey()
-  late final String name;
+  late String name;
 
   late int? age;
 
@@ -55,14 +55,14 @@ class _Dog {
 @RealmModel()
 class _Team {
   late String name;
-  late final List<_Person> players;
-  late final List<int> scores;
+  late List<_Person> players;
+  late List<int> scores;
 }
 
 @RealmModel()
 class _Student {
   @PrimaryKey()
-  late final int number;
+  late int number;
   late String? name;
   late int? yearOfBirth;
   late _School? school;
@@ -71,11 +71,11 @@ class _Student {
 @RealmModel()
 class _School {
   @PrimaryKey()
-  late final String name;
+  late String name;
   late String? city;
-  final List<_Student> students = [];
+  List<_Student> students = [];
   late _School? branchOfSchool;
-  late final List<_School> branches;
+  late List<_School> branches;
 }
 
 String? testName;
@@ -92,7 +92,7 @@ void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
     return true;
   }());
 
-  testing.test(name, testFunction, skip: skip, timeout: Timeout(Duration(seconds: timeout)));
+  testing.test(name, testFunction, skip: skip);
 }
 
 void xtest(String? name, dynamic Function() testFunction) {
@@ -127,20 +127,6 @@ Future<void> tryDeleteFile(FileSystemEntity fileEntity, {bool recursive = false}
       await Future<void>.delayed(Duration(milliseconds: 50));
     }
   }
-}
-
-List<String> _cleanupPathSegments(Uri uri) {
-  final pathSegments = <String>[];
-  if (uri.pathSegments.isNotEmpty) {
-    pathSegments.addAll(uri.pathSegments.where((s) => s.isNotEmpty));
-  }
-  return pathSegments;
-}
-
-String _toWebSocket(Uri uri) {
-  final pathSegments = _cleanupPathSegments(uri);
-  pathSegments.add('ws');
-  return uri.replace(scheme: 'ws', pathSegments: pathSegments).toString();
 }
 
 Future<void> main([List<String>? args]) async {
@@ -426,7 +412,7 @@ Future<void> main([List<String>? args]) async {
 
       expect(() {
         realm.write(() {
-          car.make = "Audi"; // setting late final is a runtime error :-/
+          car.make = "Audi";
         });
       }, throws<RealmUnsupportedSetError>());
 
@@ -797,20 +783,22 @@ Future<void> main([List<String>? args]) async {
         final config = Configuration([Team.schema, Person.schema]);
         final realm = Realm(config);
 
-        final person = Person('Kasper');
-        final team = Team('Realm-dart', players: [
-          Person('Lubo'),
+        final person = Person('John');
+        final team = Team('team1', players: [
+          Person('Pavel'),
           person,
-          Person('Desi'),
+          Person('Alex'),
         ]);
 
         realm.write(() => realm.add(team));
 
         // TODO: Get rid of cast, once type signature of team.players is a RealmList<Person>
         // as opposed to the List<Person> we have today.
-        final result = (team.players as RealmList<Person>).query(r'name BEGINSWITH $0', ['K']);
+        final result = (team.players as RealmList<Person>).query(r'name BEGINSWITH $0', ['J']);
 
         expect(result, [person]);
+
+        realm.close();
       });
 
       test('Sort result', () {
@@ -907,16 +895,16 @@ Future<void> main([List<String>? args]) async {
           }
         });
 
-        await Future<void>.delayed(Duration(milliseconds: 1));
+        await Future<void>.delayed(Duration(milliseconds: 10));
         realm.write(() {
           realm.all<Dog>().first.age = 2;
           realm.add(Dog("Fido4"));
         });
 
-        await Future<void>.delayed(Duration(milliseconds: 1));
+        await Future<void>.delayed(Duration(milliseconds: 10));
         subscription.cancel();
 
-        await Future<void>.delayed(Duration(milliseconds: 1));
+        await Future<void>.delayed(Duration(milliseconds: 10));
         realm.close();
       });
 
@@ -933,7 +921,7 @@ Future<void> main([List<String>? args]) async {
           callbackCalled = true;
         });
         
-        await Future<void>.delayed(Duration(milliseconds: 1));
+        await Future<void>.delayed(Duration(milliseconds: 10));
         expect(callbackCalled, true);
 
         subscription.pause();
@@ -944,10 +932,10 @@ Future<void> main([List<String>? args]) async {
 
         expect(callbackCalled, false);
 
-        await Future<void>.delayed(Duration(milliseconds: 1));
+        await Future<void>.delayed(Duration(milliseconds: 10));
         await subscription.cancel();
 
-        await Future<void>.delayed(Duration(milliseconds: 1));
+        await Future<void>.delayed(Duration(milliseconds: 10));
         realm.close();
       });
 
@@ -960,7 +948,7 @@ Future<void> main([List<String>? args]) async {
           callbackCalled = true;
         });
         
-        await Future<void>.delayed(Duration(milliseconds: 1));
+        await Future<void>.delayed(Duration(milliseconds: 10));
         expect(callbackCalled, true);
 
         subscription.pause();
@@ -968,7 +956,7 @@ Future<void> main([List<String>? args]) async {
         realm.write(() {
           realm.add(Dog("Lassy"));
         });
-        await Future<void>.delayed(Duration(milliseconds: 1));
+        await Future<void>.delayed(Duration(milliseconds: 10));
         expect(callbackCalled, false);
 
         subscription.resume();
@@ -976,12 +964,12 @@ Future<void> main([List<String>? args]) async {
         realm.write(() {
           realm.add(Dog("Lassy1"));
         });
-        await Future<void>.delayed(Duration(milliseconds: 1));
+        await Future<void>.delayed(Duration(milliseconds: 10));
         expect(callbackCalled,true);
 
 
         await subscription.cancel();
-        await Future<void>.delayed(Duration(milliseconds: 1));
+        await Future<void>.delayed(Duration(milliseconds: 10));
         realm.close();
       });
 
@@ -1487,8 +1475,157 @@ Future<void> main([List<String>? args]) async {
       expect(read, [person]);
       realm.close();
     });
-  });
-  group('Cycle referenced objects tests:', () {
+
+    test('RealmObject isValid', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      var team = Team("team one");
+      expect(team.isValid, true);
+      realm.write(() {
+        realm.add(team);
+      });
+      expect(team.isValid, true);
+      realm.close();
+      expect(team.isValid, false);
+    });
+
+    test('List isValid', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      realm.write(() {
+        realm.add(Team("Speed Team", players: [
+          Person("Michael Schumacher"),
+          Person("Sebastian Vettel"),
+          Person("Kimi Räikkönen"),
+        ]));
+      });
+
+      var teams = realm.all<Team>();
+
+      expect(teams, isNotNull);
+      expect(teams.length, 1);
+      final players = teams[0].players as RealmList<Person>;
+      expect(players.isValid, true);
+      realm.close();
+      expect(players.isValid, false);
+    });
+
+    test('Access results after realm closed', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      var team = Team("TeamOne");
+      realm.write(() => realm.add(team));
+      var teams = realm.all<Team>();
+      realm.close();
+      expect(() => teams[0], throws<RealmException>("Access to invalidated Results objects"));
+    });
+
+    test('Access deleted object', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      var team = Team("TeamOne");
+      realm.write(() => realm.add(team));
+      var teams = realm.all<Team>();
+      var teamBeforeDelete = teams[0];
+      realm.write(() => realm.delete(team));
+      expect(team.isValid, false);
+      expect(teamBeforeDelete.isValid, false);
+      expect(team, teamBeforeDelete);
+      expect(() => team.name, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
+      expect(() => teamBeforeDelete.name, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
+      realm.close();
+    });
+
+    test('Access deleted object collection', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      var team = Team("TeamOne");
+      realm.write(() => realm.add(team));
+      var teams = realm.all<Team>();
+      realm.write(() => realm.delete(team));
+      expect(() => team.players, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
+      realm.close();
+    });
+
+    test('Delete collection of deleted parent', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      var team = Team("TeamOne");
+      realm.write(() => realm.add(team));
+      var players = team.players;
+      realm.write(() => realm.delete(team));
+      expect(() => realm.write(() => realm.deleteMany(players)), throws<RealmException>("Access to invalidated Collection object"));
+      realm.close();
+    });
+
+    test('Add object after realm is closed', () {
+      var config = Configuration([Car.schema]);
+      var realm = Realm(config);
+
+      final car = Car('Tesla');
+
+      realm.close();
+      expect(() => realm.write(() => realm.add(car)), throws<RealmException>("Cannot access realm that has been closed"));
+    });
+
+    test('Edit object after realm is closed', () {
+      var config = Configuration([Person.schema]);
+      var realm = Realm(config);
+
+      final person = Person('Markos');
+
+      realm.write(() => realm.add(person));
+      realm.close();
+      expect(() => realm.write(() => person.name = "Markos Sanches"), throws<RealmException>("Cannot access realm that has been closed"));
+    });
+
+    test('Edit deleted object', () {
+      var config = Configuration([Person.schema]);
+      var realm = Realm(config);
+
+      final person = Person('Markos');
+
+      realm.write(() {
+        realm.add(person);
+        realm.delete(person);
+      });
+      expect(() => realm.write(() => person.name = "Markos Sanches"),
+          throws<RealmException>("Accessing object of type Person which has been invalidated or deleted"));
+      realm.close();
+    });
+
+    test('Get query results length after realm is clodes', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      var team = Team("TeamOne");
+      realm.write(() => realm.add(team));
+      final teams = realm.query<Team>('name BEGINSWITH "Team"');
+      realm.close();
+      expect(() => teams.length, throws<RealmException>("Access to invalidated Results objects"));
+    });
+
+    test('Get list length after deleting parent objects', () {
+      var config = Configuration([Team.schema, Person.schema]);
+      var realm = Realm(config);
+
+      var team = Team("TeamOne")..players.add(Person("Nikos"));
+      realm.write(() {
+        realm.add(team);
+        realm.delete(team);
+      });
+      expect(() => team.players.length, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
+
+      realm.close();
+    });
+
+    
     test('Realm adding objects graph', () {
       var studentMichele = Student(1)
         ..name = "Michele Ernesto"
