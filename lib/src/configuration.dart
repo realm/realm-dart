@@ -36,7 +36,9 @@ class Configuration {
   RealmSchema get schema => _schema;
 
   /// Creates a [Configuration] with schema objects for opening a [Realm].
-  /// [readOnly] controls whether a `Realm` is opened as readonly. This allows opening it from locked locations such as resources, bundled with an application.  The realm file must already exists.
+  /// [readOnly] controls whether a [Realm] is opened as readonly.
+  /// This allows opening it from locked locations such as resources,
+  /// bundled with an application.  The realm file must already exists.
   Configuration(List<SchemaObject> schemaObjects, {bool readOnly = false})
       : _schema = RealmSchema(schemaObjects),
         _handle = realmCore.createConfig() {
@@ -88,8 +90,9 @@ class Configuration {
   String get path => realmCore.getConfigPath(this);
   set path(String value) => realmCore.setConfigPath(this, value);
 
-  /// Gets or sets a value indicating whether a [Realm] is opened as readonly. This allows opening it
-  /// from locked locations such as resources, bundled with an application.
+  /// Gets or sets a value indicating whether a [Realm] is opened as readonly.
+  /// This allows opening it from locked locations such as resources,
+  /// bundled with an application.
   ///
   /// The realm file must already exists at [path]
   bool get isReadOnly => realmCore.getConfigReadOnly(this);
