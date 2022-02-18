@@ -92,8 +92,6 @@ class Configuration {
   /// from locked locations such as resources, bundled with an application.
   ///
   /// The realm file must already exists at [path]
- 
- 
   bool get isReadOnly => realmCore.getConfigReadOnly(this);
   set isReadOnly(bool value) => realmCore.setConfigReadOnly(this, value);
 }
