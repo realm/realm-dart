@@ -195,7 +195,7 @@ Future<void> main([List<String>? args]) async {
       expect(config.schemaVersion, equals(3));
     });
 
-    test('Configuration isReadOnly property - realm files must exist', () {
+    test('Configuration readOnly - opening non existing realm throws', () {
       Configuration config = Configuration([Car.schema]);
       config.isReadOnly = true;
       //You cannot open Realm in read-only mode if Realm files do not exist.
