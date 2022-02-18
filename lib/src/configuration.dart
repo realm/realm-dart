@@ -93,7 +93,7 @@ class Configuration {
   ///
   /// The realm file must already exists at [path]
  
-  /// First opening of Realm if configuration is read-only will throw an exception.
+ 
   bool get isReadOnly => realmCore.getReadOnlyMode(this);
   set isReadOnly(bool value) => realmCore.setReadOnlyMode(this, value);
 }
