@@ -204,108 +204,40 @@ Future<void> main([List<String>? args]) async {
     });
 
     test('Configuration readOnly - opening non existing realm throws', () {
-      Configuration config = Configuration([Car.schema]);
-      config.isReadOnly = true;
-      //You cannot open Realm in read-only mode if Realm files do not exist.
-      //Files are created the first time Realm is opened.
-      //Opening Realm in read-only mode can be done after reopening existing Realm with read-only configuration.
-      //First opening of Realm if configuration is read-only will throw an exception.
-      expect(() => Realm(config), throws<RealmException>("Message: No such table exists"));
-    });
-
-    test('Configuration readOnly argument - realm files must exist', () {
       Configuration config = Configuration([Car.schema], readOnly: true);
       expect(() => Realm(config), throws<RealmException>("Message: No such table exists"));
     });
 
-    test('Configuration read-only - open existing realm with read-only config', () {
-    
+    test('Configuration readOnly - open existing realm with read-only config', () {
       Configuration config = Configuration([Car.schema]);
       var realm = Realm(config);
       realm.close();
 
-      //Reconfigure existing realm for read-only mode.
       config = Configuration([Car.schema], readOnly: true);
       realm = Realm(config);
       realm.close();
     });
 
-    test('Configuration read-only - reading is possible', () {
+    test('Configuration readOnly - reading is possible', () {
       Configuration config = Configuration([Car.schema]);
       var realm = Realm(config);
       realm.write(() => realm.add(Car("Mustang")));
       realm.close();
 
-      //Reconfigure existing realm for read-only mode.
       config.isReadOnly = true;
       realm = Realm(config);
       var cars = realm.all<Car>();
       realm.close();
     });
 
-    test('Configuration read-only - writing on read-only Realms throws', () {
+    test('Configuration readOnly - writing on read-only Realms throws', () {
       Configuration config = Configuration([Car.schema]);
       var realm = Realm(config);
-      realm.close();
-
-      
-      config = Configuration([Car.schema], readOnly: true);
-      realm = Realm(config);
-      expect(() => realm.write(() => {})), throws<RealmException>("Can't perform transactions on read-only Realms."));
-      realm.close();
-    });
-
-    test('Configuration read-only - editing realm objects throws', () {
-      Configuration config = Configuration([Car.schema]);
-      var realm = Realm(config);
-      var car = Car("Mustang");
-      realm.write(() => realm.add(car));
-      realm.close();
-
-      config.isReadOnly = true;
-      realm = Realm(config);
-      expect(() => realm.write(() => car.make = "Opel"), throws<RealmException>("Can't perform transactions on read-only Realms."));
-      realm.close();
-    });
-
-    test('Configuration read-only - deleting realm object throws', () {
-      Configuration config = Configuration([Car.schema]);
-      var realm = Realm(config);
-      var car = Car("Mustang");
-      realm.write(() => realm.add(car));
       realm.close();
 
       config = Configuration([Car.schema], readOnly: true);
       realm = Realm(config);
-      expect(() => realm.write(() => realm.delete(car)), throws<RealmException>("Can't perform transactions on read-only Realms."));
-      realm.close();
-    });
-
-    test('Configuration read-only - deleting realm results throws', () {
-      Configuration config = Configuration([Car.schema]);
-      var realm = Realm(config);
-      realm.write(() => realm.addAll([Car("Mustang"), Car("Opel")]));
-      realm.close();
-
-      config = Configuration([Car.schema], readOnly: true);
-      realm = Realm(config);
-      var cars = realm.all<Car>();
-      expect(() => realm.write(() => realm.deleteMany(cars)), throws<RealmException>("Can't perform transactions on read-only Realms."));
-      realm.close();
-    });
-
-    test('Configuration read-only - changing realm lists throws', () {
-      Configuration config = Configuration([Person.schema, Team.schema]);
-      var realm = Realm(config);
-      realm.write(() => realm.add(Team("Boston")..players.addAll([Person("N.M"), Person("K.L")])));
-      realm.close();
-
-      config = Configuration([Person.schema, Team.schema], readOnly: true);
-      realm = Realm(config);
-      var team = realm.find<Team>("Boston");
-      expect(() => realm.write(() => team!.players.clear()), throws<RealmException>("Can't perform transactions on read-only Realms."));
-      expect(() => realm.write(() => team!.players.add(Person("O.P"))), throws<RealmException>("Can't perform transactions on read-only Realms."));
-      expect(() => realm.write(() => realm.deleteMany(team!.players)), throws<RealmException>("Can't perform transactions on read-only Realms."));
+      expect(() => realm.write(() {}), throws<RealmException>("Can't perform transactions on read-only Realms."));
       realm.close();
     });
   });
@@ -1004,15 +936,15 @@ Future<void> main([List<String>? args]) async {
         var config = Configuration([Dog.schema, Person.schema]);
         var realm = Realm(config);
 
-         realm.write(() {
+        realm.write(() {
           realm.add(Dog("Lassy"));
         });
 
         var callbackCalled = false;
-        final subscription = realm.all<Dog>().changes.listen((changes) { 
+        final subscription = realm.all<Dog>().changes.listen((changes) {
           callbackCalled = true;
         });
-        
+
         await Future<void>.delayed(Duration(milliseconds: 10));
         expect(callbackCalled, true);
 
@@ -1036,10 +968,10 @@ Future<void> main([List<String>? args]) async {
         var realm = Realm(config);
 
         var callbackCalled = false;
-        final subscription = realm.all<Dog>().changes.listen((changes) { 
+        final subscription = realm.all<Dog>().changes.listen((changes) {
           callbackCalled = true;
         });
-        
+
         await Future<void>.delayed(Duration(milliseconds: 10));
         expect(callbackCalled, true);
 
@@ -1057,8 +989,7 @@ Future<void> main([List<String>? args]) async {
           realm.add(Dog("Lassy1"));
         });
         await Future<void>.delayed(Duration(milliseconds: 10));
-        expect(callbackCalled,true);
-
+        expect(callbackCalled, true);
 
         await subscription.cancel();
         await Future<void>.delayed(Duration(milliseconds: 10));
