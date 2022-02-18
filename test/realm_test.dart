@@ -240,7 +240,7 @@ Future<void> main([List<String>? args]) async {
       var realm = Realm(config);
       realm.close();
 
-      //Reconfigure existing realm for read-only mode.
+      
       config = Configuration([Car.schema], readOnly: true);
       realm = Realm(config);
       expect(() => realm.write(() => realm.add(Car("Mustang"))), throws<RealmException>("Can't perform transactions on read-only Realms."));
