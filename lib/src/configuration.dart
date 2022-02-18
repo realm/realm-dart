@@ -91,7 +91,7 @@ class Configuration {
   /// Gets or sets a value indicating whether a [Realm] is opened as readonly. This allows opening it
   /// from locked locations such as resources, bundled with an application.
   ///
-  /// Realm can not be opened in read-only mode if Realm files do not exist.
+  /// The realm file must already exists at [path]
  
   /// First opening of Realm if configuration is read-only will throw an exception.
   bool get isReadOnly => realmCore.getReadOnlyMode(this);
