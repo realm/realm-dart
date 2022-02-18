@@ -21,9 +21,10 @@ Pod::Spec.new do |s|
   s.license                   = { :file => '../LICENSE' }
   s.author                    = { 'Realm' => 'help@realm.io' }
   s.source                    = { :path => '.' }
-  s.source_files               = 'Classes/**/*', 
+  s.source_files              = 'Classes/**/*', 
                                 'src/realm_dart.cpp'
                                 'src/realm_dart_scheduler.cpp'
+                                'src/realm_dart_collections.cpp'
   s.public_header_files       = 'Classes/**/*.h',
   s.vendored_frameworks       = 'realm_flutter_ios.xcframework'
   s.dependency                  'Flutter'
@@ -31,7 +32,7 @@ Pod::Spec.new do |s|
   s.library                   = 'c++', 'z'
     
   s.swift_version             = '5.0'
-  s.pod_target_xcconfig        = { 'DEFINES_MODULE' => 'YES',
+  s.pod_target_xcconfig       = { 'DEFINES_MODULE' => 'YES',
                                   'CURRENT_PROJECT_VERSION' => s.version,
                                   'VERSIONING_SYSTEM' => 'apple-generic',
                                   'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
