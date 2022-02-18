@@ -43,7 +43,9 @@ class Configuration {
         _handle = realmCore.createConfig() {
     schemaVersion = 0;
     path = defaultPath;
-    if (readOnly) isReadOnly = readOnly;
+    if (readOnly) {
+      isReadOnly = true;
+    }
     realmCore.setSchema(this);
   }
 
