@@ -157,7 +157,7 @@ class _RealmCore {
     return mode == realm_schema_mode.RLM_SCHEMA_MODE_READ_ONLY;
   }
 
-  void setReadOnlyMode(Configuration config, bool value) {
+  void setConfigReadOnly(Configuration config, bool value) {
     int mode = value ? realm_schema_mode.RLM_SCHEMA_MODE_READ_ONLY : realm_schema_mode.RLM_SCHEMA_MODE_AUTOMATIC;
     _realmLib.realm_config_set_schema_mode(config.handle._pointer, mode);
   }
