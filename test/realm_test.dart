@@ -20,6 +20,7 @@
 
 import 'dart:io';
 import 'dart:math';
+
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
@@ -82,6 +83,13 @@ void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
   if (testName != null && !name!.contains(testName!)) {
     return;
   }
+
+  var timeout = 30;
+  assert(() {
+    timeout = Duration.secondsPerDay;
+    return true;
+  }());
+
   testing.test(name, testFunction, skip: skip);
 }
 
@@ -297,12 +305,8 @@ Future<void> main([List<String>? args]) async {
         realm.addAll(cars);
       });
 
-      // RealmResults<T> does no implement Iterable<T> yet, hence the explicit loop.
-      // Also, generated classes don't handle equality correct yet, hence we compare 'make'.
       final allCars = realm.all<Car>();
-      for (int i = 0; i < cars.length; ++i) {
-        expect(allCars[i].make, cars[i].make);
-      }
+      expect(allCars, cars);
 
       realm.close();
     });
@@ -679,19 +683,19 @@ Future<void> main([List<String>? args]) async {
         var config = Configuration([Team.schema, Person.schema]);
         var realm = Realm(config);
 
-        final x = Person('x');
-        final y = Person('y');
-        final t1 = Team("A1", players: [x]); // match
-        final t2 = Team("A2", players: [y]); // correct prefix, but wrong player
-        final t3 = Team("B1", players: [x, y]); // wrong prefix, but correct player
+        final p1 = Person('p1');
+        final p2 = Person('p2');
+        final t1 = Team("A1", players: [p1]); // match
+        final t2 = Team("A2", players: [p2]); // correct prefix, but wrong player
+        final t3 = Team("B1", players: [p1, p2]); // wrong prefix, but correct player
 
         realm.write(() => realm.addAll([t1, t2, t3]));
 
-        expect(t1.players, [x]);
-        expect(t2.players, [y]);
-        expect(t3.players, [x, y]);
+        expect(t1.players, [p1]);
+        expect(t2.players, [p2]);
+        expect(t3.players, [p1, p2]);
 
-        final filteredTeams = realm.all<Team>().query(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']);
+        final filteredTeams = realm.all<Team>().query(r'$0 IN players AND name BEGINSWITH $1', [p1, 'A']);
         expect(filteredTeams.length, 1);
         expect(filteredTeams, [t1]);
 
@@ -715,29 +719,21 @@ Future<void> main([List<String>? args]) async {
         var config = Configuration([Team.schema, Person.schema]);
         var realm = Realm(config);
 
-        final x = Person('x');
-        final y = Person('y');
-        final t1 = Team("A1");
-        final t2 = Team("A2");
-        final t3 = Team("B1");
+        final p1 = Person('p1');
+        final p2 = Person('p2');
+        final t1 = Team("A1", players: [p1]);
+        final t2 = Team("A2", players: [p2]);
+        final t3 = Team("B1", players: [p1, p2]);
 
         realm.write(() => realm
           ..add(t1)
           ..add(t2)
           ..add(t3));
 
-        // TODO: Ugly that we need to add players in separate transaction :-/
-        realm.write(() {
-          t1.players.addAll([x]); // match!
-          t2.players.addAll([y]); // correct prefix, but wrong play
-          t3.players.addAll([x, y]); // wrong prefix, but correct player
-        });
-
-        // TODO: Still no equality :-/
-        expect(t1.players.map((p) => p.name), [x.name]);
-        expect(t2.players.map((p) => p.name), [y.name]);
-        expect(t3.players.map((p) => p.name), [x, y].map((p) => p.name));
-        final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH $1', [x, 'A']);
+        expect(t1.players, [p1]);
+        expect(t2.players, [p2]);
+        expect(t3.players, [p1, p2]);
+        final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH $1', [p1, 'A']);
         expect(filteredTeams.length, 1);
         expect(filteredTeams[0].name, "A1");
 
@@ -773,20 +769,21 @@ Future<void> main([List<String>? args]) async {
         final config = Configuration([Team.schema, Person.schema]);
         final realm = Realm(config);
 
-        final person = Person('Kasper');
-        final team = Team('Realm-dart', players: [
-          Person('Lubo'),
+        final person = Person('John');
+        final team = Team('team1', players: [
+          Person('Pavel'),
           person,
-          Person('Desi'),
+          Person('Alex'),
         ]);
 
         realm.write(() => realm.add(team));
 
         // TODO: Get rid of cast, once type signature of team.players is a RealmList<Person>
         // as opposed to the List<Person> we have today.
-        final result = (team.players as RealmList<Person>).query(r'name BEGINSWITH $0', ['K']);
+        final result = (team.players as RealmList<Person>).query(r'name BEGINSWITH $0', ['J']);
 
         expect(result, [person]);
+
         realm.close();
       });
 
@@ -817,7 +814,7 @@ Future<void> main([List<String>? args]) async {
 
         realm.write(() => realm.addAll([dog1, dog2, dog3]));
         var result = realm.query<Dog>('TRUEPREDICATE SORT(name ASC)');
-        final snapshot = result.toList(); // poor mans snapshot
+        final snapshot = result.toList();
 
         expect(result, orderedEquals(snapshot));
         expect(result.map((d) => d.name), snapshot.map((d) => d.name));
@@ -853,6 +850,123 @@ Future<void> main([List<String>? args]) async {
       expect(teams[0].players, isNotNull);
       expect(teams[0].players.length, 0);
       realm.close();
+    });
+
+    group('notification', () {
+      test('Results notifications', () async {
+        var config = Configuration([Dog.schema, Person.schema]);
+        var realm = Realm(config);
+
+        realm.write(() {
+          realm.add(Dog("Fido"));
+          realm.add(Dog("Fido1"));
+          realm.add(Dog("Fido2"));
+        });
+
+        var firstCall = true;
+        final subscription = realm.all<Dog>().changes.listen((changes) {
+          if (firstCall) {
+            firstCall = false;
+            expect(changes.inserted.isEmpty, true);
+            expect(changes.modified.isEmpty, true);
+            expect(changes.deleted.isEmpty, true);
+            expect(changes.newModified.isEmpty, true);
+            expect(changes.moved.isEmpty, true);
+          } else {
+            expect(changes.inserted, [3]); //new object at index 3
+            expect(changes.modified, [0]); //object at index 0 changed
+            expect(changes.deleted.isEmpty, true);
+            expect(changes.newModified, [0]);
+            expect(changes.moved.isEmpty, true);
+          }
+        });
+
+        await Future<void>.delayed(Duration(milliseconds: 10));
+        realm.write(() {
+          realm.all<Dog>().first.age = 2;
+          realm.add(Dog("Fido4"));
+        });
+
+        await Future<void>.delayed(Duration(milliseconds: 10));
+        subscription.cancel();
+
+        await Future<void>.delayed(Duration(milliseconds: 10));
+        realm.close();
+      });
+
+      test('Results notifications can be paused', () async {
+        var config = Configuration([Dog.schema, Person.schema]);
+        var realm = Realm(config);
+
+         realm.write(() {
+          realm.add(Dog("Lassy"));
+        });
+
+        var callbackCalled = false;
+        final subscription = realm.all<Dog>().changes.listen((changes) { 
+          callbackCalled = true;
+        });
+        
+        await Future<void>.delayed(Duration(milliseconds: 10));
+        expect(callbackCalled, true);
+
+        subscription.pause();
+        callbackCalled = false;
+        realm.write(() {
+          realm.add(Dog("Lassy1"));
+        });
+
+        expect(callbackCalled, false);
+
+        await Future<void>.delayed(Duration(milliseconds: 10));
+        await subscription.cancel();
+
+        await Future<void>.delayed(Duration(milliseconds: 10));
+        realm.close();
+      });
+
+      test('Results notifications can be resumed', () async {
+        var config = Configuration([Dog.schema, Person.schema]);
+        var realm = Realm(config);
+
+        var callbackCalled = false;
+        final subscription = realm.all<Dog>().changes.listen((changes) { 
+          callbackCalled = true;
+        });
+        
+        await Future<void>.delayed(Duration(milliseconds: 10));
+        expect(callbackCalled, true);
+
+        subscription.pause();
+        callbackCalled = false;
+        realm.write(() {
+          realm.add(Dog("Lassy"));
+        });
+        await Future<void>.delayed(Duration(milliseconds: 10));
+        expect(callbackCalled, false);
+
+        subscription.resume();
+        callbackCalled = false;
+        realm.write(() {
+          realm.add(Dog("Lassy1"));
+        });
+        await Future<void>.delayed(Duration(milliseconds: 10));
+        expect(callbackCalled,true);
+
+
+        await subscription.cancel();
+        await Future<void>.delayed(Duration(milliseconds: 10));
+        realm.close();
+      });
+
+      test('Results notifications can leak', () async {
+        var config = Configuration([Dog.schema, Person.schema]);
+        var realm = Realm(config);
+
+        final leak = realm.all<Dog>().changes.listen((data) {});
+        await Future<void>.delayed(Duration(milliseconds: 1));
+        realm.close();
+      });
     });
 
     test('RealmObject add with list properties', () {

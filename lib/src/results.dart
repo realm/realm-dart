@@ -15,26 +15,30 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+import 'dart:async';
 import 'dart:collection' as collection;
 
+import 'collections.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 
-
-/// Instances of this class are live collections and will update as new elements are either 
+/// Instances of this class are live collections and will update as new elements are either
 /// added to or deleted from the Realm that match the underlying query.
 ///
 /// {@category Realm}
 class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   final RealmResultsHandle _handle;
-  final Realm _realm;
 
-  RealmResults._(this._handle, this._realm);
+  /// The Realm isntance this collection belongs to.
+  final Realm realm;
 
-  /// Returns the element of type `T` at the specified [index]
+  RealmResults._(this._handle, this.realm);
+
+  /// Returns the element of type `T` at the specified [index].
   T operator [](int index) {
     final handle = realmCore.getObjectAt(this, index);
-    return _realm.createObject(T, handle) as T;
+    return realm.createObject(T, handle) as T;
   }
 
   /// Returns a new [RealmResults] filtered according to the provided query.
@@ -43,20 +47,26 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query(String query, [List<Object> args = const []]) {
     final handle = realmCore.queryResults(this, query, args);
-    return RealmResultsInternal.create<T>(handle, _realm);
+    return RealmResultsInternal.create<T>(handle, realm);
   }
 
-  /// `true` if the `Results` collection is empty
+  /// `true` if the `Results` collection is empty.
   @override
   bool get isEmpty => length == 0;
 
-  /// Returns a new `Iterator` that allows iterating the elements in this `RealmResults`
+  /// Returns a new `Iterator` that allows iterating the elements in this `RealmResults`.
   @override
   Iterator<T> get iterator => _RealmResultsIterator(this);
 
   /// The number of values in this `Results` collection.
   @override
   int get length => realmCore.getResultsCount(this);
+
+  /// Allows listening for changes when the contents of this collection changes.
+  Stream<RealmResultsChanges<T>> get changes {
+    final controller = ResultsNotificationsController<T>(this);
+    return controller.createStream();
+  }
 }
 
 /// @nodoc
@@ -66,6 +76,43 @@ extension RealmResultsInternal on RealmResults {
 
   static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm) {
     return RealmResults<T>._(handle, realm);
+  }
+}
+
+/// Describes the changes in a Realm results collection since the last time the notification callback was invoked.
+class RealmResultsChanges<T extends RealmObject> extends RealmCollectionChanges {
+  /// The results collection being monitored for changes.
+  final RealmResults<T> results;
+
+  RealmResultsChanges._(RealmCollectionChangesHandle handle, this.results) : super(handle);
+}
+
+/// @nodoc
+class ResultsNotificationsController<T extends RealmObject> extends NotificationsController {
+  final RealmResults<T> results;
+  late final StreamController<RealmResultsChanges<T>> streamController;
+
+  ResultsNotificationsController(this.results);
+
+  @override
+  RealmNotificationTokenHandle subscribe() {
+    return realmCore.subscribeResultsNotifications(results._handle, this, results.realm.scheduler.handle);
+  }
+
+  Stream<RealmResultsChanges<T>> createStream() {
+    streamController = StreamController<RealmResultsChanges<T>>(onListen: start, onPause: stop, onResume: start, onCancel: stop);
+    return streamController.stream;
+  }
+
+  @override
+  void onChanges(RealmCollectionChangesHandle changesHandle) {
+    final changes = RealmResultsChanges._(changesHandle, results);
+    streamController.add(changes);
+  }
+
+  @override
+  void onError(RealmError error) {
+    streamController.addError(error);
   }
 }
 

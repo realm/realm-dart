@@ -5,38 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug android install command",
-            "type": "dart",
-            "request": "launch",
-            "program": "bin/realm.dart",
-            "cwd": "${workspaceFolder}/flutter/realm_flutter",
-            "args": ["install", "--debug", "--target-os-type", "android", "--package-name", "realm"]
-        },
-        {
-            "name": "Debug ios install command",
-            "type": "dart",
-            "request": "launch",
-            "program": "bin/realm.dart",
-            "cwd": "${workspaceFolder}/flutter/realm_flutter",
-            "args": ["install", "--debug", "--target-os-type", "ios", "--package-name", "realm"]
-        },
-        {
-            "name": "Debug macos flutter install command",
-            "type": "dart",
-            "request": "launch",
-            "program": "bin/realm.dart",
-            "cwd": "${workspaceFolder}/flutter/realm_flutter",
-            "args": ["install", "--debug", "--target-os-type", "macos", "--package-name", "realm"]
-        },
-        {
-            "name": "Debug windows install command",
-            "type": "dart",
-            "request": "launch",
-            "program": "bin\\realm_dart.dart",
-            "cwd": "${workspaceFolder}",
-            "args": ["install", "realm_dart", "--debug"]
-        },
-        {
             "name": "Flutter: Attach to Device",
             "type": "dart",
             "request": "attach"
@@ -67,14 +35,14 @@
             "name": "Dart: Attach to Process",
             "type": "dart",
             "request": "attach",
-            "observatoryUri": "http://127.0.0.1:8181/ESrVZJKyfaQ=/",
+            "observatoryUri": "http://127.0.0.1:8181/CvAvF39i-48=/",
             "packages": "package:realm/main.dart"
         },
         {
             "name": "Dart: Debug",
             "type": "dart",
             "request": "launch",
-            "program": "lib/main.dart",
+            "program": "example/bin/myapp.dart",
             "cwd": "${workspaceFolder}"
         },
         {
