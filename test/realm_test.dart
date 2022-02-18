@@ -212,7 +212,8 @@ Future<void> main([List<String>? args]) async {
       Configuration config = Configuration([Car.schema]);
       var realm = Realm(config);
       realm.close();
-
+      
+      // Open an existing realm as readonly.
       config = Configuration([Car.schema], readOnly: true);
       realm = Realm(config);
       realm.close();
