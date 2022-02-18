@@ -898,15 +898,15 @@ Future<void> main([List<String>? args]) async {
         var config = Configuration([Dog.schema, Person.schema]);
         var realm = Realm(config);
 
-         realm.write(() {
+        realm.write(() {
           realm.add(Dog("Lassy"));
         });
 
         var callbackCalled = false;
-        final subscription = realm.all<Dog>().changes.listen((changes) { 
+        final subscription = realm.all<Dog>().changes.listen((changes) {
           callbackCalled = true;
         });
-        
+
         await Future<void>.delayed(Duration(milliseconds: 10));
         expect(callbackCalled, true);
 
@@ -930,10 +930,10 @@ Future<void> main([List<String>? args]) async {
         var realm = Realm(config);
 
         var callbackCalled = false;
-        final subscription = realm.all<Dog>().changes.listen((changes) { 
+        final subscription = realm.all<Dog>().changes.listen((changes) {
           callbackCalled = true;
         });
-        
+
         await Future<void>.delayed(Duration(milliseconds: 10));
         expect(callbackCalled, true);
 
@@ -951,8 +951,7 @@ Future<void> main([List<String>? args]) async {
           realm.add(Dog("Lassy1"));
         });
         await Future<void>.delayed(Duration(milliseconds: 10));
-        expect(callbackCalled,true);
-
+        expect(callbackCalled, true);
 
         await subscription.cancel();
         await Future<void>.delayed(Duration(milliseconds: 10));
@@ -965,6 +964,44 @@ Future<void> main([List<String>? args]) async {
 
         final leak = realm.all<Dog>().changes.listen((data) {});
         await Future<void>.delayed(Duration(milliseconds: 1));
+        realm.close();
+      });
+
+      test('List notifications', () async {
+        var config = Configuration([Team.schema, Person.schema]);
+        var realm = Realm(config);
+
+        final team = Team('t1', players: [Person("p1")]);
+        realm.write(() => realm.add(team));
+
+        var firstCall = true;
+        final subscription = (team.players as RealmList<Person>).changes.listen((changes) {
+          if (firstCall) {
+            firstCall = false;
+            expect(changes.inserted.isEmpty, true);
+            expect(changes.modified.isEmpty, true);
+            expect(changes.deleted.isEmpty, true);
+            expect(changes.newModified.isEmpty, true);
+            expect(changes.moved.isEmpty, true);
+          } else {
+            expect(changes.inserted, [1]); //new object at index 1
+            expect(changes.modified, [0]); //object at index 0 changed
+            expect(changes.deleted.isEmpty, true);
+            expect(changes.newModified, [0]);
+            expect(changes.moved.isEmpty, true);
+          }
+        });
+
+        await Future<void>.delayed(Duration(milliseconds: 10));
+        realm.write(() {
+          team.players.add(Person("p2"));
+          team.players.first.name = "p3";
+        });
+
+        await Future<void>.delayed(Duration(milliseconds: 10));
+        subscription.cancel();
+
+        await Future<void>.delayed(Duration(milliseconds: 10));
         realm.close();
       });
     });
@@ -1610,7 +1647,6 @@ Future<void> main([List<String>? args]) async {
       realm.close();
     });
 
-    
     test('Realm adding objects graph', () {
       var studentMichele = Student(1)
         ..name = "Michele Ernesto"

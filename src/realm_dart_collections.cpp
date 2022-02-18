@@ -45,7 +45,7 @@ class CallbackData {
 
 public:
     CallbackData(Dart_Handle handle, realm_dart_on_collection_change_func_t callback)
-        : m_handle(Dart_NewFinalizableHandle_DL(handle, nullptr, 1, finalize_handle)), m_callback(callback) 
+        : m_handle(Dart_NewFinalizableHandle_DL(handle, nullptr, 1, finalize_handle)), m_callback(callback)
     {}
 
     ~CallbackData() {
@@ -59,7 +59,7 @@ public:
             //This works since Dart_WeakPersistentHandle is equivalent to Dart_FinalizableHandle. They both are FinalizablePersistentHandle internally.
             Dart_WeakPersistentHandle weakHnd = reinterpret_cast<Dart_WeakPersistentHandle>(m_handle);
             auto handle = Dart_HandleFromWeakPersistent_DL(weakHnd);
-            
+
             //clone changes object since the Dart callback is async and changes object is valid for the duration of this method only
             //clone failures are handled in the Dart callback
             const realm_collection_changes_t* cloned = static_cast<realm_collection_changes_t*>(realm_clone(changes));
@@ -84,14 +84,30 @@ void free_callback(void* userdata) {
 }
 
 RLM_API realm_notification_token_t* realm_dart_results_add_notification_callback(
-    realm_results_t* results, 
+    realm_results_t* results,
     Dart_Handle notification_controller,
-    realm_dart_on_collection_change_func_t callback, 
-    realm_scheduler_t* scheduler) 
+    realm_dart_on_collection_change_func_t callback,
+    realm_scheduler_t* scheduler)
 {
     CallbackData* callback_data = new CallbackData(notification_controller, callback);
 
     return realm_results_add_notification_callback(results,
+        callback_data,
+        free_callback,
+        on_change_callback,
+        nullptr,
+        scheduler);
+}
+
+RLM_API realm_notification_token_t* realm_dart_list_add_notification_callback(
+    realm_list_t* list,
+    Dart_Handle notification_controller,
+    realm_dart_on_collection_change_func_t callback,
+    realm_scheduler_t* scheduler)
+{
+    CallbackData* callback_data = new CallbackData(notification_controller, callback);
+
+    return realm_list_add_notification_callback(list,
         callback_data,
         free_callback,
         on_change_callback,

@@ -546,6 +546,15 @@ class _RealmCore {
 
     return RealmNotificationTokenHandle._(pointer);
   }
+
+  RealmNotificationTokenHandle subscribeListNotifications(RealmListHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
+    final onChangeCallback = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_collection_changes>)>(collection_change_callback);
+
+    final pointer = _realmLib.invokeGetPointer(
+        () => _realmLib.realm_dart_list_add_notification_callback(handle._pointer, controller, onChangeCallback, schedulerHandle._pointer));
+
+    return RealmNotificationTokenHandle._(pointer);
+  }
 }
 
 class LastError {
