@@ -152,7 +152,7 @@ class _RealmCore {
     _realmLib.realm_config_set_schema_version(config.handle._pointer, version);
   }
 
-  bool getReadOnlyMode(Configuration config) {
+  bool getConfigReadOnly(Configuration config) {
     int mode = _realmLib.realm_config_get_schema_mode(config.handle._pointer);
     return mode == realm_schema_mode.RLM_SCHEMA_MODE_READ_ONLY;
   }
