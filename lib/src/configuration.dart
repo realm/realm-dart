@@ -37,7 +37,6 @@ class Configuration {
 
   /// Creates a [Configuration] with schema objects for opening a [Realm].
   /// [readOnly] controls whether a `Realm` is opened as readonly. This allows opening it from locked locations such as resources, bundled with an application.  The realm file must already exists.
-  /// Realm file must exist before to reopen [Realm] in read-only mode.
   Configuration(List<SchemaObject> schemaObjects, {bool readOnly = false})
       : _schema = RealmSchema(schemaObjects),
         _handle = realmCore.createConfig() {
