@@ -211,7 +211,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     test('Configuration read-only - open existing realm with read-only config', () {
-      //Create realm and its files
+    
       Configuration config = Configuration([Car.schema]);
       var realm = Realm(config);
       realm.close();
