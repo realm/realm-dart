@@ -881,16 +881,16 @@ Future<void> main([List<String>? args]) async {
           }
         });
 
-        await Future<void>.delayed(Duration(milliseconds: 10));
+        await Future<void>.delayed(Duration(milliseconds: 20));
         realm.write(() {
           realm.all<Dog>().first.age = 2;
           realm.add(Dog("Fido4"));
         });
 
-        await Future<void>.delayed(Duration(milliseconds: 10));
+        await Future<void>.delayed(Duration(milliseconds: 20));
         subscription.cancel();
 
-        await Future<void>.delayed(Duration(milliseconds: 10));
+        await Future<void>.delayed(Duration(milliseconds: 20));
         realm.close();
       });
 
@@ -907,7 +907,7 @@ Future<void> main([List<String>? args]) async {
           callbackCalled = true;
         });
 
-        await Future<void>.delayed(Duration(milliseconds: 10));
+        await Future<void>.delayed(Duration(milliseconds: 20));
         expect(callbackCalled, true);
 
         subscription.pause();
@@ -918,10 +918,10 @@ Future<void> main([List<String>? args]) async {
 
         expect(callbackCalled, false);
 
-        await Future<void>.delayed(Duration(milliseconds: 10));
+        await Future<void>.delayed(Duration(milliseconds: 20));
         await subscription.cancel();
 
-        await Future<void>.delayed(Duration(milliseconds: 10));
+        await Future<void>.delayed(Duration(milliseconds: 20));
         realm.close();
       });
 
@@ -934,7 +934,7 @@ Future<void> main([List<String>? args]) async {
           callbackCalled = true;
         });
 
-        await Future<void>.delayed(Duration(milliseconds: 10));
+        await Future<void>.delayed(Duration(milliseconds: 20));
         expect(callbackCalled, true);
 
         subscription.pause();
@@ -942,7 +942,7 @@ Future<void> main([List<String>? args]) async {
         realm.write(() {
           realm.add(Dog("Lassy"));
         });
-        await Future<void>.delayed(Duration(milliseconds: 10));
+        await Future<void>.delayed(Duration(milliseconds: 20));
         expect(callbackCalled, false);
 
         subscription.resume();
@@ -950,11 +950,11 @@ Future<void> main([List<String>? args]) async {
         realm.write(() {
           realm.add(Dog("Lassy1"));
         });
-        await Future<void>.delayed(Duration(milliseconds: 10));
+        await Future<void>.delayed(Duration(milliseconds: 20));
         expect(callbackCalled, true);
 
         await subscription.cancel();
-        await Future<void>.delayed(Duration(milliseconds: 10));
+        await Future<void>.delayed(Duration(milliseconds: 20));
         realm.close();
       });
 
@@ -963,7 +963,7 @@ Future<void> main([List<String>? args]) async {
         var realm = Realm(config);
 
         final leak = realm.all<Dog>().changes.listen((data) {});
-        await Future<void>.delayed(Duration(milliseconds: 1));
+        await Future<void>.delayed(Duration(milliseconds: 20));
         realm.close();
       });
 
@@ -992,16 +992,70 @@ Future<void> main([List<String>? args]) async {
           }
         });
 
-        await Future<void>.delayed(Duration(milliseconds: 10));
+        await Future<void>.delayed(Duration(milliseconds: 20));
         realm.write(() {
           team.players.add(Person("p2"));
           team.players.first.name = "p3";
         });
 
-        await Future<void>.delayed(Duration(milliseconds: 10));
+        await Future<void>.delayed(Duration(milliseconds: 20));
         subscription.cancel();
 
-        await Future<void>.delayed(Duration(milliseconds: 10));
+        await Future<void>.delayed(Duration(milliseconds: 20));
+        realm.close();
+      });
+
+      test('RealmObject notifications', () async {
+        var config = Configuration([Dog.schema, Person.schema]);
+        var realm = Realm(config);
+
+        final dog = Dog("Lassy");
+
+        //unmanaged objects can not be listened to
+        expect(() => dog.changes, throws<RealmStateError>());
+
+        realm.write(() {
+          realm.add(dog);
+        });
+
+        var callNum = 0;
+        final subscription = dog.changes.listen((changes) {
+          if (callNum == 0) {
+            callNum++;
+            expect(changes.isDeleted, false);
+            expect(changes.object, dog);
+            expect(changes.properties.isEmpty, true);
+          } else if (callNum == 1) {
+            //object is modified
+            callNum++;
+            expect(changes.isDeleted, false);
+            expect(changes.object, dog);
+            expect(changes.properties, ["age", "owner"]);
+          }
+          else {
+            //object is deleted
+            callNum++;
+            expect(changes.isDeleted, true);
+            expect(changes.object, dog);
+            expect(changes.properties, <String>[]);
+          }
+        });
+
+        await Future<void>.delayed(Duration(milliseconds: 20));
+        realm.write(() {
+          dog.age = 2;
+          dog.owner = Person("owner");
+        });
+
+        await Future<void>.delayed(Duration(milliseconds: 20));
+        realm.write(() {
+          realm.delete(dog);
+        });
+
+        await Future<void>.delayed(Duration(milliseconds: 20));
+        subscription.cancel();
+
+        await Future<void>.delayed(Duration(milliseconds: 20));
         realm.close();
       });
     });

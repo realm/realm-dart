@@ -105,7 +105,11 @@ class ResultsNotificationsController<T extends RealmObject> extends Notification
   }
 
   @override
-  void onChanges(RealmCollectionChangesHandle changesHandle) {
+  void onChanges(Handle changesHandle) {
+    if (changesHandle is! RealmCollectionChangesHandle) {
+      throw RealmError("Invalid changes handle. RealmCollectionChangesHandle expected");
+    }
+
     final changes = RealmResultsChanges._(changesHandle, results);
     streamController.add(changes);
   }

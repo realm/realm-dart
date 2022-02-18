@@ -267,7 +267,7 @@ class Scheduler {
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
   Scheduler get scheduler => _scheduler;
-
+  
   RealmObject createObject(Type type, RealmObjectHandle handle) {
     RealmMetadata metadata = _getMetadata(type);
 
@@ -279,6 +279,18 @@ extension RealmInternal on Realm {
   RealmList<T> createList<T extends Object>(RealmListHandle handle) {
     return RealmListInternal.create(handle, this);
   }
+
+  List<String> getPropertyNames(Type type, List<int> propertyKeys) {
+    RealmMetadata metadata = _getMetadata(type);
+    final result = <String>[];
+    for (var key in propertyKeys) {
+      final name = metadata.getPropertyName(key);
+      if (name != null) {
+        result.add(name);
+      }
+    }
+    return result;
+  }
 }
 
 /// @nodoc
@@ -286,7 +298,7 @@ abstract class NotificationsController {
   RealmNotificationTokenHandle? handle;
 
   RealmNotificationTokenHandle subscribe();
-  void onChanges(RealmCollectionChangesHandle changesHandle);
+  void onChanges(Handle changesHandle);
   void onError(RealmError error);
 
   void start() {

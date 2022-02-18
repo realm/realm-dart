@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:async';
+
 import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
@@ -96,6 +98,15 @@ class RealmMetadata {
 
   RealmPropertyMetadata operator [](String propertyName) =>
       _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exists on class ${class_.type.runtimeType}"));
+
+  String? getPropertyName(int propertyKey) {
+    for (final entry in _propertyKeys.entries) {
+      if (entry.value.key == propertyKey) {
+        return entry.key;
+      }
+    }
+    return null;
+  }
 }
 
 class RealmClassMetadata {
@@ -180,6 +191,7 @@ class RealmObject {
   RealmAccessor _accessor = RealmValuesAccessor();
   Realm? _realm;
   static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{};
+  // static final Map<Type, RealmObjectChangesBase Function<int>()> _changesFactories = <Type, RealmObjectChangesBase Function()>{};
 
   /// @nodoc
   static Object? get<T extends Object>(RealmObject object, String name) {
@@ -232,6 +244,18 @@ class RealmObject {
   /// The Object is not valid if its [Realm] is closed or object is deleted.
   /// Unmanaged objects are always considered valid.
   bool get isValid => isManaged ? realmCore.objectIsValid(this) : true;
+
+  /// Allows listening for propety changes on this Realm object
+  /// 
+  /// If the object is not managed a [RealmStateError] is thrown.
+  Stream<RealmObjectChanges> get changes {
+    if (!isManaged) {
+      throw RealmStateError("Object is not managed");
+    }
+
+    final controller = RealmObjectNotificationsController(this);
+    return controller.createStream();
+  }
 }
 
 /// @nodoc
@@ -282,5 +306,61 @@ class RealmException implements Exception {
   @override
   String toString() {
     return "RealmException: $message";
+  }
+}
+
+// class RealmObjectChangesBase {
+
+// }
+
+/// Describes the changes in on a single RealmObject since the last time the notification callback was invoked.
+class RealmObjectChanges/*<T extends RealmObject> extends RealmObjectChangesBase*/ {
+  // ignore: unused_field
+  final RealmObjectChangesHandle _handle;
+  
+  /// The realm object being monitored for changes
+  final /*T?*/ RealmObject object;
+
+  /// `True` if the object was deleted
+  bool get isDeleted => realmCore.getObjectChangesIsDeleted(_handle);
+
+  List<String> get properties {
+    final propertyKeys = realmCore.getObjectChangesProperties(_handle);
+    return object._realm!.getPropertyNames(object.runtimeType, propertyKeys);
+  }
+  
+  const RealmObjectChanges._(this._handle, this.object);
+}
+
+/// @nodoc
+class RealmObjectNotificationsController<T extends RealmObject> extends NotificationsController {
+  RealmObject realmObject;
+  late final StreamController<RealmObjectChanges/*<T>*/> streamController;
+
+  RealmObjectNotificationsController(this.realmObject);
+
+  @override
+  RealmNotificationTokenHandle subscribe() {
+    return realmCore.subscribeObjectNotifications(realmObject._handle!, this, realmObject._realm!.scheduler.handle);
+  }
+
+  Stream<RealmObjectChanges/*<T>*/> createStream() {
+    streamController = StreamController<RealmObjectChanges/*<T>*/>(onListen: start, onPause: stop, onResume: start, onCancel: stop);
+    return streamController.stream;
+  }
+
+  @override
+  void onChanges(Handle changesHandle) {
+    if (changesHandle is! RealmObjectChangesHandle) {
+      throw RealmError("Invalid changes handle. RealmObjectChangesHandle expected");
+    }
+
+    final changes = RealmObjectChanges._(changesHandle, realmObject);
+    streamController.add(changes);
+  }
+
+  @override
+  void onError(RealmError error) {
+    streamController.addError(error);
   }
 }
