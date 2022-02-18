@@ -3,9 +3,6 @@ x.x.x Release notes (yyyy-MM-dd)
 
 **This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
 
-### Changes
-
-
 ### Enhancements
 * Support change notifications on query results. ([208](https://github.com/realm/realm-dart/pull/208))
 * Added support checking if Realm lists and Realm objects are valid. ([#183](https://github.com/realm/realm-dart/pull/183))
