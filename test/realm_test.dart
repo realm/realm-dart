@@ -19,145 +19,18 @@
 // ignore_for_file: unused_local_variable
 
 import 'dart:io';
-import 'dart:math';
-
-import 'package:path/path.dart' as _path;
-import 'package:test/test.dart';
-import 'package:test/test.dart' as testing;
-
+import 'package:test/test.dart' hide test, throws;
+import 'test_base.dart';
 import '../lib/realm.dart';
+import 'test_model.dart';
 
-part 'realm_test.g.dart';
-
-@RealmModel()
-class _Car {
-  @PrimaryKey()
-  late String make;
-}
-
-@RealmModel()
-class _Person {
-  late String name;
-}
-
-@RealmModel()
-class _Dog {
-  @PrimaryKey()
-  late String name;
-
-  late int? age;
-
-  _Person? owner;
-}
-
-@RealmModel()
-class _Team {
-  late String name;
-  late List<_Person> players;
-  late List<int> scores;
-}
-
-@RealmModel()
-class _Student {
-  @PrimaryKey()
-  late int number;
-  late String? name;
-  late int? yearOfBirth;
-  late _School? school;
-}
-
-@RealmModel()
-class _School {
-  @PrimaryKey()
-  late String name;
-  late String? city;
-  List<_Student> students = [];
-  late _School? branchOfSchool;
-  late List<_School> branches;
-}
-
-String? testName;
-
-//Overrides test method so we can filter tests
-void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
-  if (testName != null && !name!.contains(testName!)) {
-    return;
-  }
-
-  var timeout = 30;
-  assert(() {
-    timeout = Duration.secondsPerDay;
-    return true;
-  }());
-
-  testing.test(name, testFunction, skip: skip);
-}
-
-void xtest(String? name, dynamic Function() testFunction) {
-  testing.test(name, testFunction, skip: "Test is disabled");
-}
-
-void parseTestNameFromArguments(List<String>? arguments) {
-  arguments = arguments ?? List.empty();
-  int nameArgIndex = arguments.indexOf("--name");
-  if (arguments.isNotEmpty) {
-    if (nameArgIndex >= 0 && arguments.length > 1) {
-      testName = arguments[nameArgIndex + 1];
-      print("testName: $testName");
-    }
-  }
-}
-
-Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
-
-final random = Random();
-String generateRandomString(int len) {
-  const _chars = 'abcdefghjklmnopqrstuvwxuz';
-  return List.generate(len, (index) => _chars[random.nextInt(_chars.length)]).join();
-}
-
-Future<void> tryDeleteFile(FileSystemEntity fileEntity, {bool recursive = false}) async {
-  for (var i = 0; i < 20; i++) {
-    try {
-      await fileEntity.delete(recursive: recursive);
-      break;
-    } catch (e) {
-      await Future<void>.delayed(Duration(milliseconds: 50));
-    }
-  }
-}
 
 Future<void> main([List<String>? args]) async {
   parseTestNameFromArguments(args);
 
   print("Current PID $pid");
 
-  setUp(() {
-    String path = "${generateRandomString(10)}.realm";
-    if (Platform.isAndroid || Platform.isIOS) {
-      path = _path.join(Configuration.filesPath, path);
-    }
-    Configuration.defaultPath = path;
-
-    addTearDown(() async {
-      var file = File(path);
-      if (await file.exists() && file.path.endsWith(".realm")) {
-        await tryDeleteFile(file);
-      }
-
-      file = File("$path.lock");
-      if (await file.exists()) {
-        await tryDeleteFile(file);
-      }
-
-      final dir = Directory("$path.management");
-      if (await dir.exists()) {
-        if ((await dir.stat()).type == FileSystemEntityType.directory) {
-          await tryDeleteFile(dir, recursive: true);
-        }
-      }
-    });
-  });
+  setupTests(Configuration.filesPath, (path) => {Configuration.defaultPath = path});
 
   group('Configuration tests:', () {
     test('Configuration can be created', () {

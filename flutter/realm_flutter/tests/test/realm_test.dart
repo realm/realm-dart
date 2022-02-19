@@ -6,12 +6,14 @@ import 'package:test_api/src/backend/invoker.dart';
 // ignore: implementation_imports
 import 'package:test_api/src/backend/state.dart' as test_api;
 
+import '../../test/config_test.dart' as config_tests;
 import '../../test/realm_test.dart' as realm_tests;
 
 Future<String> main(List<String> args) async {
   final Completer<String> completer = Completer<String>();
   final List<String> failedTests = [];
 
+  await config_tests.main(args);
   await realm_tests.main(args);
 
   tearDown(() {
