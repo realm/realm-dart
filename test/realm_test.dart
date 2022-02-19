@@ -31,7 +31,6 @@ Future<void> main([List<String>? args]) async {
 
   setupTests(Configuration.filesPath, (path) => {Configuration.defaultPath = path});
 
-
   test('Realm can be created', () {
     var config = Configuration([Car.schema]);
     var realm = Realm(config);
