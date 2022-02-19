@@ -20,6 +20,7 @@
 
 import 'dart:io';
 import 'dart:math';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
@@ -27,6 +28,7 @@ import 'package:test/test.dart' as testing;
 String? testName;
 
 //Overrides test method so we can filter tests
+@isTest
 void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
   if (testName != null && !name!.contains(testName!)) {
     return;
