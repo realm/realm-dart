@@ -141,6 +141,31 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
+  test('Results iteration test', () {
+    var config = Configuration([Team.schema, Person.schema]);
+    var realm = Realm(config);
+
+    //Create two teams
+    realm.write(() {
+      realm.add(Team("team One"));
+      realm.add(Team("team Two"));
+    });
+
+    //Reload teams from realm and ensure they exist
+    var teams = realm.all<Team>();
+    expect(teams.length, 2);
+
+    //Iterate through teams and add realm objects to a list
+    List<Team> list = [];
+    for (Team team in teams) {
+      list.add(team);
+    }
+
+    //Ensure list size is the same like teams collection size
+    expect(list.length, teams.length);
+    realm.close();
+  });
+
   test('Query results', () {
     var config = Configuration([Car.schema]);
     var realm = Realm(config);
@@ -335,6 +360,52 @@ Future<void> main([List<String>? args]) async {
 
     expect(result, isNot(orderedEquals(snapshot)));
     expect(result, containsAllInOrder(snapshot));
+    realm.close();
+  });
+
+  test('Get query results length after realm is clodes', () {
+    var config = Configuration([Team.schema, Person.schema]);
+    var realm = Realm(config);
+
+    var team = Team("TeamOne");
+    realm.write(() => realm.add(team));
+    final teams = realm.query<Team>('name BEGINSWITH "Team"');
+    realm.close();
+    expect(() => teams.length, throws<RealmException>("Access to invalidated Results objects"));
+  });
+
+  test('Access results after realm closed', () {
+    var config = Configuration([Team.schema, Person.schema]);
+    var realm = Realm(config);
+
+    var team = Team("TeamOne");
+    realm.write(() => realm.add(team));
+    var teams = realm.all<Team>();
+    realm.close();
+    expect(() => teams[0], throws<RealmException>("Access to invalidated Results objects"));
+  });
+
+  test('Realm deleteMany from results', () {
+    var config = Configuration([Team.schema, Person.schema]);
+    var realm = Realm(config);
+
+    //Create two teams
+    realm.write(() {
+      realm.add(Team("Ferrari"));
+      realm.add(Team("Maserati"));
+    });
+
+    //Ensule teams exist in realm
+    var teams = realm.all<Team>();
+    expect(teams.length, 2);
+
+    //Delete all objects in realmResults from realm
+    realm.write(() => realm.deleteMany(teams));
+    expect(teams.length, 0);
+
+    //Reload teams from realm and ensure they are deleted
+    teams = realm.all<Team>();
+    expect(teams.length, 0);
     realm.close();
   });
 }
