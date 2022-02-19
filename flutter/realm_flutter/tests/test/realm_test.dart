@@ -8,8 +8,10 @@ import 'package:test_api/src/backend/state.dart' as test_api;
 
 import '../../test/config_test.dart' as config_tests;
 import '../../test/realm_test.dart' as realm_tests;
+import '../../test/realm_object_test.dart' as realm_object_test;
 import '../../test/list_test.dart' as list_tests;
 import '../../test/results_test.dart' as results_tests;
+import '../../test/collections_test.dart' as collections_test;
 
 Future<String> main(List<String> args) async {
   final Completer<String> completer = Completer<String>();
@@ -17,8 +19,10 @@ Future<String> main(List<String> args) async {
 
   await config_tests.main(args);
   await realm_tests.main(args);
+  await realm_object_test.main(args);
   await list_tests.main(args);
   await results_tests.main(args);
+  await collections_test.main(args);
 
   tearDown(() {
     if (Invoker.current?.liveTest.state.result == test_api.Result.error || Invoker.current?.liveTest.state.result == test_api.Result.failure) {
