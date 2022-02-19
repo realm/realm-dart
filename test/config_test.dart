@@ -73,4 +73,43 @@ Future<void> main([List<String>? args]) async {
     config.schemaVersion = 3;
     expect(config.schemaVersion, equals(3));
   });
+
+  test('Configuration readOnly - opening non existing realm throws', () {
+    Configuration config = Configuration([Car.schema], readOnly: true);
+    expect(() => Realm(config), throws<RealmException>("Message: No such table exists"));
+  });
+
+  test('Configuration readOnly - open existing realm with read-only config', () {
+    Configuration config = Configuration([Car.schema]);
+    var realm = Realm(config);
+    realm.close();
+
+    // Open an existing realm as readonly.
+    config = Configuration([Car.schema], readOnly: true);
+    realm = Realm(config);
+    realm.close();
+  });
+
+  test('Configuration readOnly - reading is possible', () {
+    Configuration config = Configuration([Car.schema]);
+    var realm = Realm(config);
+    realm.write(() => realm.add(Car("Mustang")));
+    realm.close();
+
+    config.isReadOnly = true;
+    realm = Realm(config);
+    var cars = realm.all<Car>();
+    realm.close();
+  });
+
+  test('Configuration readOnly - writing on read-only Realms throws', () {
+    Configuration config = Configuration([Car.schema]);
+    var realm = Realm(config);
+    realm.close();
+
+    config = Configuration([Car.schema], readOnly: true);
+    realm = Realm(config);
+    expect(() => realm.write(() {}), throws<RealmException>("Can't perform transactions on read-only Realms."));
+    realm.close();
+  });
 }

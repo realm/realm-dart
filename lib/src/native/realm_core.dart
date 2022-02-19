@@ -155,6 +155,16 @@ class _RealmCore {
     _realmLib.realm_config_set_schema_version(config.handle._pointer, version);
   }
 
+  bool getConfigReadOnly(Configuration config) {
+    int mode = _realmLib.realm_config_get_schema_mode(config.handle._pointer);
+    return mode == realm_schema_mode.RLM_SCHEMA_MODE_READ_ONLY;
+  }
+
+  void setConfigReadOnly(Configuration config, bool value) {
+    int mode = value ? realm_schema_mode.RLM_SCHEMA_MODE_READ_ONLY : realm_schema_mode.RLM_SCHEMA_MODE_AUTOMATIC;
+    _realmLib.realm_config_set_schema_mode(config.handle._pointer, mode);
+  }
+
   ConfigHandle createConfig() {
     final configPtr = _realmLib.realm_config_new();
     return ConfigHandle._(configPtr);
@@ -543,6 +553,15 @@ class _RealmCore {
 
     final pointer = _realmLib.invokeGetPointer(
         () => _realmLib.realm_dart_results_add_notification_callback(handle._pointer, controller, onChangeCallback, schedulerHandle._pointer));
+
+    return RealmNotificationTokenHandle._(pointer);
+  }
+
+  RealmNotificationTokenHandle subscribeListNotifications(RealmListHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
+    final onChangeCallback = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_collection_changes>)>(collection_change_callback);
+
+    final pointer = _realmLib.invokeGetPointer(
+        () => _realmLib.realm_dart_list_add_notification_callback(handle._pointer, controller, onChangeCallback, schedulerHandle._pointer));
 
     return RealmNotificationTokenHandle._(pointer);
   }
