@@ -35,7 +35,7 @@ include(${EPHEMERAL_DIR}/generated_config.cmake)
 execute_process(COMMAND "${FLUTTER_ROOT}\\bin\\flutter.bat" "pub" "run" "realm" "install" "--target-os-type" "windows" "--package-name" "realm" #"--debug"
   OUTPUT_VARIABLE output
   RESULT_VARIABLE result
-  COMMAND_ERROR_IS_FATAL ANY
+  # COMMAND_ERROR_IS_FATAL ANY
 )
 message(STATUS "cmd output: ${output}")
 message(STATUS "cmd result: ${result}")
