@@ -1,3 +1,14 @@
+x.x.x Release notes (yyyy-MM-dd)
+==============================================================
+
+**This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
+
+### Fixes
+* Fix build on Flutter Windows.
+
+### Compatibility
+* Dart ^2.15 on Windows, MacOS and Linux
+
 0.2.0+alpha Release notes (2022-01-31)
 =============================================================
 
