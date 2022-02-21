@@ -21,6 +21,8 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:realm_common/realm_common.dart';
+
 import 'configuration.dart';
 import 'list.dart';
 import 'native/realm_core.dart';
@@ -29,13 +31,12 @@ import 'results.dart';
 
 // always expose with `show` to explicitly control the public API surface
 export 'package:realm_common/realm_common.dart'
-    show Ignored, Indexed, MapTo, PrimaryKey, RealmError, RealmModel, RealmUnsupportedSetError, RealmCollectionType, RealmPropertyType;
-
+    show Ignored, Indexed, MapTo, PrimaryKey, RealmError, RealmModel, RealmUnsupportedSetError, RealmStateError, RealmCollectionType, RealmPropertyType;
 export "configuration.dart" show Configuration, RealmSchema, SchemaObject;
-export 'list.dart' show RealmList, RealmListOfObject;
+export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
 export 'realm_object.dart' show RealmException, RealmObject;
 export 'realm_property.dart';
-export 'results.dart' show RealmResults;
+export 'results.dart' show RealmResults, RealmResultsChanges;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -44,14 +45,14 @@ class Realm {
   final Configuration _config;
   final Map<Type, RealmMetadata> _metadata = <Type, RealmMetadata>{};
   late final RealmHandle _handle;
-  late final _Scheduler _scheduler;
+  late final Scheduler _scheduler;
 
   /// The [Configuration] object used to open this [Realm]
   Configuration get config => _config;
 
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : _config = config {
-    _scheduler = _Scheduler(config, close);
+    _scheduler = Scheduler(config, close);
 
     try {
       _handle = realmCore.openRealm(config);
@@ -180,7 +181,7 @@ class Realm {
 
   /// Closes the `Realm`.
   ///
-  /// All [RealmObject]s and `Realm ` collections are invalidated and can not be used. 
+  /// All [RealmObject]s and `Realm ` collections are invalidated and can not be used.
   /// This method will not throw if called multiple times.
   void close() {
     realmCore.closeRealm(this);
@@ -233,14 +234,14 @@ class Realm {
   }
 }
 
-class _Scheduler {
+class Scheduler {
   // ignore: constant_identifier_names
   static const dynamic SCHEDULER_FINALIZE_OR_PROCESS_EXIT = null;
   late final SchedulerHandle handle;
   final void Function() onFinalize;
   final RawReceivePort receivePort = RawReceivePort();
 
-  _Scheduler(Configuration config, this.onFinalize) {
+  Scheduler(Configuration config, this.onFinalize) {
     receivePort.handler = (dynamic message) {
       if (message == SCHEDULER_FINALIZE_OR_PROCESS_EXIT) {
         onFinalize();
@@ -265,6 +266,7 @@ class _Scheduler {
 /// @nodoc
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
+  Scheduler get scheduler => _scheduler;
 
   RealmObject createObject(Type type, RealmObjectHandle handle) {
     RealmMetadata metadata = _getMetadata(type);
@@ -276,5 +278,31 @@ extension RealmInternal on Realm {
 
   RealmList<T> createList<T extends Object>(RealmListHandle handle) {
     return RealmListInternal.create(handle, this);
+  }
+}
+
+/// @nodoc
+abstract class NotificationsController {
+  RealmNotificationTokenHandle? handle;
+
+  RealmNotificationTokenHandle subscribe();
+  void onChanges(RealmCollectionChangesHandle changesHandle);
+  void onError(RealmError error);
+
+  void start() {
+    if (handle != null) {
+      throw RealmStateError("Realm notifications subscription already started");
+    }
+
+    handle = subscribe();
+  }
+
+  void stop() {
+    if (handle == null) {
+      return;
+    }
+
+    handle!.release();
+    handle = null;
   }
 }

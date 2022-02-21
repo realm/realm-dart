@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:realm_dart/realm.dart';
 
 part 'myapp.g.dart';
@@ -17,8 +19,17 @@ class _Person {
 }
 
 void main(List<String> arguments) async {
+  print("Current PID $pid");
   var config = Configuration([Car.schema, Person.schema]);
+
   var realm = Realm(config);
+
+  realm.all<Car>().changes.listen((e) {
+    print("listen callback called");
+  });
+
+  //allow changes event to fire
+  await Future<void>.delayed(Duration(milliseconds: 1));
 
   var myCar = Car("Tesla", model: "Model Y", kilometers: 1);
   realm.write(() {
@@ -46,6 +57,9 @@ void main(List<String> arguments) async {
   print("Getting all Tesla cars from the Realm.");
   var filteredCars = realm.all<Car>().query("make == 'Tesla'");
   print('Found ${filteredCars.length} Tesla cars');
+  
+  //allow changes event to fire
+  await Future<void>.delayed(Duration(milliseconds: 1));
 
   realm.close();
 

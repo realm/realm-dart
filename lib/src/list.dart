@@ -16,14 +16,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:core';
-import 'dart:core' as core;
+import 'dart:async';
 import 'dart:collection' as collection;
 
+import 'collections.dart';
 import 'native/realm_core.dart';
-
-import 'realm_object.dart';
 import 'realm_class.dart';
+import 'realm_object.dart';
 import 'results.dart';
 
 /// Instances of this class are live collections and will update as new elements are either
@@ -32,9 +31,11 @@ import 'results.dart';
 ///{@category Realm}
 class RealmList<T extends Object> extends collection.ListBase<T> {
   final RealmListHandle _handle;
-  final Realm _realm;
+  
+  /// The Realm isntance this collection belongs to.
+  final Realm realm;
 
-  RealmList._(this._handle, this._realm);
+  RealmList._(this._handle, this.realm);
 
   /// The length of this [RealmList].
   @override
@@ -56,7 +57,7 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
       final value = realmCore.listGetElementAt(this, index);
 
       if (value is RealmObjectHandle) {
-        return _realm.createObject(T, value) as T;
+        return realm.createObject(T, value) as T;
       }
 
       return value as T;
@@ -68,7 +69,7 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
   /// Sets the element at the specified index in the list.
   @override
   void operator []=(int index, T value) {
-    RealmListInternal.setValue(handle, _realm, index, value);
+    RealmListInternal.setValue(handle, realm, index, value);
   }
 
   /// Clears the collection in memory and the references
@@ -94,6 +95,7 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
 // The query operations on lists only work for list of objects (core restriction),
 // so we add it as an extension method to allow the compiler to prevent misuse.
 extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
+  
   /// Filters the list and returns a new [RealmResults] according to the provided query.
   ///
   /// Only works for lists of Realm objects.
@@ -111,12 +113,17 @@ extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
     final handle = realmCore.queryList(this, query, args);
     return RealmResultsInternal.create<T>(handle, realm);
   }
+
+  /// Allows listening for changes when the contents of this collection changes.
+  Stream<RealmListChanges<T>> get changes {
+    final controller = ListNotificationsController<T>(this);
+    return controller.createStream();
+  }
 }
 
 /// @nodoc
 extension RealmListInternal on RealmList {
   RealmListHandle get handle => _handle;
-  Realm get realm => _realm;
 
   static RealmList<T> create<T extends Object>(RealmListHandle handle, Realm realm) => RealmList<T>._(handle, realm);
 
@@ -141,3 +148,41 @@ extension RealmListInternal on RealmList {
     }
   }
 }
+
+/// Describes the changes in a Realm results collection since the last time the notification callback was invoked.
+class RealmListChanges<T extends Object> extends RealmCollectionChanges {
+  /// The collection being monitored for changes.
+  final RealmList<T> list;
+
+  RealmListChanges._(RealmCollectionChangesHandle handle, this.list) : super(handle);
+}
+
+/// @nodoc
+class ListNotificationsController<T extends Object> extends NotificationsController {
+  final RealmList<T> list;
+  late final StreamController<RealmListChanges<T>> streamController;
+
+  ListNotificationsController(this.list);
+
+  @override
+  RealmNotificationTokenHandle subscribe() {
+    return realmCore.subscribeListNotifications(list._handle, this, list.realm.scheduler.handle);
+  }
+
+  Stream<RealmListChanges<T>> createStream() {
+    streamController = StreamController<RealmListChanges<T>>(onListen: start, onPause: stop, onResume: start, onCancel: stop);
+    return streamController.stream;
+  }
+
+  @override
+  void onChanges(RealmCollectionChangesHandle changesHandle) {
+    final changes = RealmListChanges._(changesHandle, list);
+    streamController.add(changes);
+  }
+
+  @override
+  void onError(RealmError error) {
+    streamController.addError(error);
+  }
+}
+

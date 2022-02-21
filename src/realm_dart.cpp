@@ -46,8 +46,12 @@ void handle_finalizer(void* isolate_callback_data, void* realmPtr) {
   realm_release(realmPtr);
 }
 
-RLM_API bool realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size) {
-  return Dart_NewFinalizableHandle_DL(handle, realmPtr, size, handle_finalizer) != nullptr;
+RLM_API Dart_FinalizableHandle realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size) {
+  return Dart_NewFinalizableHandle_DL(handle, realmPtr, size, handle_finalizer);
+}
+
+RLM_API void realm_delete_finalizable(Dart_FinalizableHandle finalizable_handle, Dart_Handle handle) {
+  Dart_DeleteFinalizableHandle_DL(finalizable_handle, handle);
 }
 
 #if (ANDROID)
@@ -62,6 +66,7 @@ void dummy(void) {
   realm_get_library_version();
   realm_object_create(nullptr, 0);
   realm_results_get_object(nullptr, 0);
+  realm_results_add_notification_callback(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
   realm_results_snapshot(nullptr);
 #if (ANDROID)
   realm_android_dummy();

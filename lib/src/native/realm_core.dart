@@ -18,13 +18,16 @@
 
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
+import 'dart:ffi' as ffi show Handle;
 import 'dart:typed_data';
 
-// Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows to sliently allocating memory. Use toUtf8Ptr instead
+// Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 
+import '../collections.dart';
 import '../configuration.dart';
 import '../init.dart';
 import '../list.dart';
@@ -47,6 +50,7 @@ class _RealmCore {
 
   // Hide the RealmCore class and make it a singleton
   static _RealmCore? _instance;
+  late final int isolateKey;
 
   _RealmCore._() {
     final lib = initRealm();
@@ -56,7 +60,6 @@ class _RealmCore {
   factory _RealmCore() {
     return _instance ??= _RealmCore._();
   }
-  //
 
   String get libraryVersion => _realmLib.realm_get_library_version().cast<Utf8>().toDartString();
 
@@ -150,6 +153,16 @@ class _RealmCore {
 
   void setSchemaVersion(Configuration config, int version) {
     _realmLib.realm_config_set_schema_version(config.handle._pointer, version);
+  }
+
+  bool getConfigReadOnly(Configuration config) {
+    int mode = _realmLib.realm_config_get_schema_mode(config.handle._pointer);
+    return mode == realm_schema_mode.RLM_SCHEMA_MODE_READ_ONLY;
+  }
+
+  void setConfigReadOnly(Configuration config, bool value) {
+    int mode = value ? realm_schema_mode.RLM_SCHEMA_MODE_READ_ONLY : realm_schema_mode.RLM_SCHEMA_MODE_AUTOMATIC;
+    _realmLib.realm_config_set_schema_mode(config.handle._pointer, mode);
   }
 
   ConfigHandle createConfig() {
@@ -396,6 +409,57 @@ class _RealmCore {
     });
   }
 
+  CollectionChanges getCollectionChanges(RealmCollectionChangesHandle changes) {
+    return using((arena) {
+      final out_num_deletions = arena<IntPtr>();
+      final out_num_insertions = arena<IntPtr>();
+      final out_num_modifications = arena<IntPtr>();
+      final out_num_moves = arena<IntPtr>();
+      _realmLib.realm_collection_changes_get_num_changes(
+        changes._pointer,
+        out_num_deletions,
+        out_num_insertions,
+        out_num_modifications,
+        out_num_moves,
+      );
+
+      final deletionsCount = out_num_deletions != nullptr ? out_num_deletions.value : 0;
+      final insertionCount = out_num_insertions != nullptr ? out_num_insertions.value : 0;
+      final modificationCount = out_num_modifications != nullptr ? out_num_modifications.value : 0;
+      var moveCount = out_num_moves != nullptr ? out_num_moves.value : 0;
+
+      final out_deletion_indexes = arena<IntPtr>(deletionsCount);
+      final out_insertion_indexes = arena<IntPtr>(insertionCount);
+      final out_modification_indexes = arena<IntPtr>(modificationCount);
+      final out_modification_indexes_after = arena<IntPtr>(modificationCount);
+      final out_moves = arena<realm_collection_move_t>(moveCount);
+
+      _realmLib.realm_collection_changes_get_changes(
+        changes._pointer,
+        out_deletion_indexes,
+        deletionsCount,
+        out_insertion_indexes,
+        insertionCount,
+        out_modification_indexes,
+        modificationCount,
+        out_modification_indexes_after,
+        modificationCount,
+        out_moves,
+        moveCount,
+      );
+
+      var elementZero = out_moves.elementAt(0);
+      List<Move> moves = List.filled(moveCount, Move(elementZero.ref.from, elementZero.ref.to));
+      for (var i = 1; i < moveCount; i++) {
+        final movePtr = out_moves.elementAt(i);
+        moves[i] = Move(movePtr.ref.from, movePtr.ref.to);
+      }
+
+      return CollectionChanges(out_deletion_indexes.toIntList(deletionsCount), out_insertion_indexes.toIntList(insertionCount),
+          out_modification_indexes.toIntList(modificationCount), out_modification_indexes_after.toIntList(modificationCount), moves);
+    });
+  }
+
   RealmLinkHandle _getObjectAsLink(RealmObject object) {
     final realmLink = _realmLib.realm_object_as_link(object.handle._pointer);
     return RealmLinkHandle._(realmLink);
@@ -469,6 +533,43 @@ class _RealmCore {
   bool listIsValid(RealmList list) {
     return _realmLib.realm_list_is_valid(list.handle._pointer);
   }
+
+  static void collection_change_callback(Object object, Pointer<realm_collection_changes> data) {
+    assert(object is NotificationsController, "Notification controller expected");
+
+    final controller = object as NotificationsController;
+
+    if (data == nullptr) {
+      //realm_collection_changes data clone is done in native code before this callback is invoked. nullptr data means cloning failed.
+      controller.onError(RealmError("Invalid notifications data received"));
+      return;
+    }
+
+    try {
+      final changesHandle = RealmCollectionChangesHandle._(data);
+      controller.onChanges(changesHandle);
+    } catch (e) {
+      controller.onError(RealmError("Error handling collection change notifications. Error: $e"));
+    }
+  }
+
+  RealmNotificationTokenHandle subscribeResultsNotifications(RealmResultsHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
+    final onChangeCallback = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_collection_changes>)>(collection_change_callback);
+
+    final pointer = _realmLib.invokeGetPointer(
+        () => _realmLib.realm_dart_results_add_notification_callback(handle._pointer, controller, onChangeCallback, schedulerHandle._pointer));
+
+    return RealmNotificationTokenHandle._(pointer);
+  }
+
+  RealmNotificationTokenHandle subscribeListNotifications(RealmListHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
+    final onChangeCallback = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_collection_changes>)>(collection_change_callback);
+
+    final pointer = _realmLib.invokeGetPointer(
+        () => _realmLib.realm_dart_list_add_notification_callback(handle._pointer, controller, onChangeCallback, schedulerHandle._pointer));
+
+    return RealmNotificationTokenHandle._(pointer);
+  }
 }
 
 class LastError {
@@ -485,9 +586,11 @@ class LastError {
 
 abstract class Handle<T extends NativeType> {
   final Pointer<T> _pointer;
+  late final Dart_FinalizableHandle _finalizableHandle;
 
   Handle(this._pointer, int size) {
-    if (_realmLib.realm_attach_finalizer(this, _pointer.cast(), size) == false) {
+    _finalizableHandle = _realmLib.realm_attach_finalizer(this, _pointer.cast(), size);
+    if (_finalizableHandle == nullptr) {
       throw Exception("Error creating $runtimeType");
     }
   }
@@ -534,6 +637,25 @@ class RealmListHandle extends Handle<realm_list> {
 
 class RealmQueryHandle extends Handle<realm_query> {
   RealmQueryHandle._(Pointer<realm_query> pointer) : super(pointer, 256);
+}
+
+class RealmNotificationTokenHandle extends Handle<realm_notification_token> {
+  bool released = false;
+  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer) : super(pointer, 1 << 32);
+
+  void release() {
+    if (released) {
+      return;
+    }
+
+    _realmLib.realm_delete_finalizable(_finalizableHandle, this);
+    _realmLib.realm_release(_pointer.cast());
+    released = true;
+  }
+}
+
+class RealmCollectionChangesHandle extends Handle<realm_collection_changes> {
+  RealmCollectionChangesHandle._(Pointer<realm_collection_changes> pointer) : super(pointer, 256);
 }
 
 extension _StringEx on String {
@@ -647,5 +769,15 @@ extension on Pointer<realm_value_t> {
       default:
         throw RealmException("realm_value_type ${ref.type} not supported");
     }
+  }
+}
+
+extension on Pointer<IntPtr> {
+  List<int> toIntList(int count) {
+    List<int> result = List.filled(count, elementAt(0).value);
+    for (var i = 1; i < count; i++) {
+      result[i] = elementAt(i).value;
+    }
+    return result;
   }
 }

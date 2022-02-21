@@ -97,5 +97,8 @@
         "flutter/realm_flutter/lib/**": true,
         "flutter/realm_flutter/test/**": true
     },
-    "dart.lineLength": 160
+    "dart.lineLength": 160,
+    "cSpell.words": [
+        "Finalizable"
+    ]
 }
