@@ -374,7 +374,7 @@ Future<void> main([List<String>? args]) async {
     expect(() => teams.length, throws<RealmException>("Access to invalidated Results objects"));
   });
 
-  test('Access results after realm closed', () {
+  test('Results access after realm closed throws', () {
     var config = Configuration([Team.schema, Person.schema]);
     var realm = Realm(config);
 
