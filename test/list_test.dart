@@ -265,7 +265,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Access deleted object collection', () {
+test('Read list property of a deleted object', () {
     var config = Configuration([Team.schema, Person.schema]);
     var realm = Realm(config);
 
