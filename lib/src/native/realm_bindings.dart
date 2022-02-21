@@ -3844,6 +3844,98 @@ class RealmLibrary {
   late final _realm_results_count = _realm_results_countPtr.asFunction<
       int Function(ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.IntPtr>)>();
 
+  /// Create a new results object by further filtering existing result.
+  ///
+  /// @return A non-null pointer if no exception occurred.
+  ffi.Pointer<realm_results_t> realm_results_filter(
+    ffi.Pointer<realm_results_t> arg0,
+    ffi.Pointer<realm_query_t> arg1,
+  ) {
+    return _realm_results_filter(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_results_filterPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>,
+              ffi.Pointer<realm_query_t>)>>('realm_results_filter');
+  late final _realm_results_filter = _realm_results_filterPtr.asFunction<
+      ffi.Pointer<realm_results_t> Function(
+          ffi.Pointer<realm_results_t>, ffi.Pointer<realm_query_t>)>();
+
+  /// Create a new results object by further sorting existing result.
+  ///
+  /// @param sort_string Specifies a sort condition. It has the format
+  /// <param> ["," <param>]*
+  /// <param> ::= <prop> ["." <prop>]* <direction>,
+  /// <direction> ::= "ASCENDING" | "DESCENDING"
+  /// @return A non-null pointer if no exception occurred.
+  ffi.Pointer<realm_results_t> realm_results_sort(
+    ffi.Pointer<realm_results_t> results,
+    ffi.Pointer<ffi.Int8> sort_string,
+  ) {
+    return _realm_results_sort(
+      results,
+      sort_string,
+    );
+  }
+
+  late final _realm_results_sortPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>,
+              ffi.Pointer<ffi.Int8>)>>('realm_results_sort');
+  late final _realm_results_sort = _realm_results_sortPtr.asFunction<
+      ffi.Pointer<realm_results_t> Function(
+          ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Int8>)>();
+
+  /// Create a new results object by removing duplicates
+  ///
+  /// @param distinct_string Specifies a distinct condition. It has the format
+  /// <param> ["," <param>]*
+  /// <param> ::= <prop> ["." <prop>]*
+  /// @return A non-null pointer if no exception occurred.
+  ffi.Pointer<realm_results_t> realm_results_distinct(
+    ffi.Pointer<realm_results_t> results,
+    ffi.Pointer<ffi.Int8> distinct_string,
+  ) {
+    return _realm_results_distinct(
+      results,
+      distinct_string,
+    );
+  }
+
+  late final _realm_results_distinctPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>,
+              ffi.Pointer<ffi.Int8>)>>('realm_results_distinct');
+  late final _realm_results_distinct = _realm_results_distinctPtr.asFunction<
+      ffi.Pointer<realm_results_t> Function(
+          ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Int8>)>();
+
+  /// Create a new results object by limiting the number of items
+  ///
+  /// @param max_count Specifies the number of elements the new result can have at most
+  /// @return A non-null pointer if no exception occurred.
+  ffi.Pointer<realm_results_t> realm_results_limit(
+    ffi.Pointer<realm_results_t> results,
+    int max_count,
+  ) {
+    return _realm_results_limit(
+      results,
+      max_count,
+    );
+  }
+
+  late final _realm_results_limitPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>,
+              ffi.IntPtr)>>('realm_results_limit');
+  late final _realm_results_limit = _realm_results_limitPtr.asFunction<
+      ffi.Pointer<realm_results_t> Function(
+          ffi.Pointer<realm_results_t>, int)>();
+
   /// Get the matching element at @a index in the results.
   ///
   /// If the result is "live" (not a snapshot), this may rerun the query if things
