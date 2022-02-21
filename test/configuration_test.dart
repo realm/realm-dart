@@ -20,16 +20,15 @@
 
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
-import 'test_base.dart';
+import 'test.dart';
 import '../lib/realm.dart';
-import 'test_model.dart';
 
 Future<void> main([List<String>? args]) async {
   parseTestNameFromArguments(args);
 
   print("Current PID $pid");
 
-  setupTests(Configuration.filesPath, (path) => {Configuration.defaultPath = path});
+  setupTests();
 
   test('Configuration can be created', () {
     Configuration([Car.schema]);

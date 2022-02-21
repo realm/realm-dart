@@ -20,16 +20,15 @@
 
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
-import 'test_base.dart';
+import 'test.dart';
 import '../lib/realm.dart';
-import 'test_model.dart';
 
 Future<void> main([List<String>? args]) async {
   parseTestNameFromArguments(args);
 
   print("Current PID $pid");
 
-  setupTests(Configuration.filesPath, (path) => {Configuration.defaultPath = path});
+  setupTests();
 
   test('Results all should not return null', () {
     var config = Configuration([Car.schema]);
@@ -313,7 +312,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Sort result', () {
+  test('Results sort', () {
     var config = Configuration([Person.schema]);
     var realm = Realm(config);
 
@@ -330,7 +329,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Sort order preserved under db ops', () {
+  test('Results sort order is preserved', () {
     var config = Configuration([Dog.schema, Person.schema]);
     var realm = Realm(config);
 
@@ -348,8 +347,7 @@ Future<void> main([List<String>? args]) async {
     expect(result, orderedEquals(snapshot));
     expect(result.map((d) => d.name), snapshot.map((d) => d.name));
 
-    realm.write(() => realm.delete(dog1)); // result will update, snapshot will not, but an object has died
-
+    realm.write(() => realm.delete(dog1)); 
     expect(() => snapshot[0].name, throws<RealmException>());
     snapshot.removeAt(0); // remove dead object
 
@@ -363,7 +361,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Get query results length after realm is clodes', () {
+  test('Results - get query length after realm is closed throws', () {
     var config = Configuration([Team.schema, Person.schema]);
     var realm = Realm(config);
 
@@ -374,7 +372,7 @@ Future<void> main([List<String>? args]) async {
     expect(() => teams.length, throws<RealmException>("Access to invalidated Results objects"));
   });
 
-  test('Access results after realm closed', () {
+  test('Results access after realm closed throws', () {
     var config = Configuration([Team.schema, Person.schema]);
     var realm = Realm(config);
 
@@ -406,6 +404,120 @@ Future<void> main([List<String>? args]) async {
     //Reload teams from realm and ensure they are deleted
     teams = realm.all<Team>();
     expect(teams.length, 0);
+    realm.close();
+  });
+
+  test('Results notifications', () async {
+    var config = Configuration([Dog.schema, Person.schema]);
+    var realm = Realm(config);
+
+    realm.write(() {
+      realm.add(Dog("Fido"));
+      realm.add(Dog("Fido1"));
+      realm.add(Dog("Fido2"));
+    });
+
+    var firstCall = true;
+    final subscription = realm.all<Dog>().changes.listen((changes) {
+      if (firstCall) {
+        firstCall = false;
+        expect(changes.inserted.isEmpty, true);
+        expect(changes.modified.isEmpty, true);
+        expect(changes.deleted.isEmpty, true);
+        expect(changes.newModified.isEmpty, true);
+        expect(changes.moved.isEmpty, true);
+      } else {
+        expect(changes.inserted, [3]); //new object at index 3
+        expect(changes.modified, [0]); //object at index 0 changed
+        expect(changes.deleted.isEmpty, true);
+        expect(changes.newModified, [0]);
+        expect(changes.moved.isEmpty, true);
+      }
+    });
+
+    await Future<void>.delayed(Duration(milliseconds: 10));
+    realm.write(() {
+      realm.all<Dog>().first.age = 2;
+      realm.add(Dog("Fido4"));
+    });
+
+    await Future<void>.delayed(Duration(milliseconds: 10));
+    subscription.cancel();
+
+    await Future<void>.delayed(Duration(milliseconds: 10));
+    realm.close();
+  });
+
+  test('Results notifications can be paused', () async {
+    var config = Configuration([Dog.schema, Person.schema]);
+    var realm = Realm(config);
+
+    realm.write(() {
+      realm.add(Dog("Lassy"));
+    });
+
+    var callbackCalled = false;
+    final subscription = realm.all<Dog>().changes.listen((changes) {
+      callbackCalled = true;
+    });
+
+    await Future<void>.delayed(Duration(milliseconds: 10));
+    expect(callbackCalled, true);
+
+    subscription.pause();
+    callbackCalled = false;
+    realm.write(() {
+      realm.add(Dog("Lassy1"));
+    });
+
+    expect(callbackCalled, false);
+
+    await Future<void>.delayed(Duration(milliseconds: 10));
+    await subscription.cancel();
+
+    await Future<void>.delayed(Duration(milliseconds: 10));
+    realm.close();
+  });
+
+  test('Results notifications can be resumed', () async {
+    var config = Configuration([Dog.schema, Person.schema]);
+    var realm = Realm(config);
+
+    var callbackCalled = false;
+    final subscription = realm.all<Dog>().changes.listen((changes) {
+      callbackCalled = true;
+    });
+
+    await Future<void>.delayed(Duration(milliseconds: 10));
+    expect(callbackCalled, true);
+
+    subscription.pause();
+    callbackCalled = false;
+    realm.write(() {
+      realm.add(Dog("Lassy"));
+    });
+    await Future<void>.delayed(Duration(milliseconds: 10));
+    expect(callbackCalled, false);
+
+    subscription.resume();
+    callbackCalled = false;
+    realm.write(() {
+      realm.add(Dog("Lassy1"));
+    });
+    await Future<void>.delayed(Duration(milliseconds: 10));
+    expect(callbackCalled, true);
+
+    await subscription.cancel();
+    await Future<void>.delayed(Duration(milliseconds: 10));
+    realm.close();
+  });
+
+  test('Results notifications can leak', () async {
+    var config = Configuration([Dog.schema, Person.schema]);
+    var realm = Realm(config);
+
+    final leak = realm.all<Dog>().changes.listen((data) {});
+    await Future<void>.delayed(Duration(milliseconds: 1));
     realm.close();
   });
 }
