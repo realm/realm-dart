@@ -30,10 +30,9 @@ import 'realm_class.dart';
 class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   final RealmResultsHandle _handle;
  
-  
   /// The Realm isntance this collection belongs to.
   final Realm realm;
-  
+   
   final _supportsSnapshot = <T>[] is List<RealmObject?>;
 
   RealmResults._(this._handle, this.realm);
