@@ -277,7 +277,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Delete collection of deleted parent', () {
+test('Delete a list of objects through a deleted parent'
     var config = Configuration([Team.schema, Person.schema]);
     var realm = Realm(config);
 
