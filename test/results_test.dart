@@ -347,7 +347,7 @@ Future<void> main([List<String>? args]) async {
     expect(result, orderedEquals(snapshot));
     expect(result.map((d) => d.name), snapshot.map((d) => d.name));
 
-    realm.write(() => realm.delete(dog1)); 
+    realm.write(() => realm.delete(dog1));
     expect(() => snapshot[0].name, throws<RealmException>());
     snapshot.removeAt(0); // remove dead object
 

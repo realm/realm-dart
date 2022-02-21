@@ -264,7 +264,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-test('Read list property of a deleted object', () {
+  test('Read list property of a deleted object', () {
     var config = Configuration([Team.schema, Person.schema]);
     var realm = Realm(config);
 
@@ -286,7 +286,7 @@ test('Read list property of a deleted object', () {
     realm.write(() => realm.delete(team));
     expect(() => realm.write(() => realm.deleteMany(players)), throws<RealmException>("Access to invalidated Collection object"));
     realm.close();
-  });  
+  });
 
   test('Get length of list property on a deleted object', () {
     var config = Configuration([Team.schema, Person.schema]);
@@ -322,7 +322,7 @@ test('Read list property of a deleted object', () {
     expect(players.isValid, true);
     realm.close();
     expect(players.isValid, false);
-  });  
+  });
 
   test('List notifications', () async {
     var config = Configuration([Team.schema, Person.schema]);

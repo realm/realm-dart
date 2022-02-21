@@ -550,6 +550,7 @@ Future<void> main([List<String>? args]) async {
     expect(teams[0].name, teamTwo.name);
     realm.close();
   });
+  
   test('Equals', () {
     var config = Configuration([Dog.schema, Person.schema]);
     var realm = Realm(config);
