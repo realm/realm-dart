@@ -322,41 +322,7 @@ test('Read list property of a deleted object', () {
     expect(players.isValid, true);
     realm.close();
     expect(players.isValid, false);
-  });
-
-  
-
-  test('Realm deleteMany from realm list', () {
-    var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
-
-    //Create a team
-    final team = Team("Ferrari");
-    realm.write(() => realm.add(team));
-
-    //Add players to the team
-    final newPlayers = [
-      Person("Michael Schumacher"),
-      Person("Sebastian Vettel"),
-      Person("Kimi Räikkönen"),
-    ];
-    realm.write(() => team.players.addAll(newPlayers));
-
-    //Ensure the team exists in realm
-    var teams = realm.all<Team>();
-    expect(teams.length, 1);
-
-    //Delete team players
-    realm.write(() => realm.deleteMany(teams[0].players));
-
-    //Ensure players are deleted from collection
-    expect(teams[0].players.length, 0);
-
-    //Reload all persons from realm and ensure they are deleted
-    final allPersons = realm.all<Person>();
-    expect(allPersons.length, 0);
-    realm.close();
-  });
+  });  
 
   test('List notifications', () async {
     var config = Configuration([Team.schema, Person.schema]);
