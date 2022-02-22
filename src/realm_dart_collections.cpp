@@ -151,3 +151,19 @@ RLM_API realm_notification_token_t* realm_dart_object_add_notification_callback(
         nullptr,
         scheduler);
 }
+
+RLM_API realm_notification_token_t* realm_dart_list_add_notification_callback(
+    realm_list_t* list,
+    Dart_Handle notification_controller,
+    realm_dart_on_collection_change_func_t callback,
+    realm_scheduler_t* scheduler)
+{
+    CallbackData* callback_data = new CallbackData(notification_controller, callback);
+
+    return realm_list_add_notification_callback(list,
+        callback_data,
+        free_callback,
+        on_change_callback,
+        nullptr,
+        scheduler);
+}

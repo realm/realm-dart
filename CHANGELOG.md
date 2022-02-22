@@ -8,6 +8,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support change notifications on list collections. ([261](https://github.com/realm/realm-dart/pull/261))
 * Added support checking if Realm lists and Realm objects are valid. ([#183](https://github.com/realm/realm-dart/pull/183))
 * Support query on lists of realm objects. ([239](https://github.com/realm/realm-dart/pull/239))
+* Added support for opening Realm in read-only mode. ([#260](https://github.com/realm/realm-dart/pull/260))
 
 ### Compatibility
 * Dart ^2.15 on Windows, MacOS and Linux

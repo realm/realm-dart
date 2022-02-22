@@ -202,6 +202,45 @@ Future<void> main([List<String>? args]) async {
       config.schemaVersion = 3;
       expect(config.schemaVersion, equals(3));
     });
+
+    test('Configuration readOnly - opening non existing realm throws', () {
+      Configuration config = Configuration([Car.schema], readOnly: true);
+      expect(() => Realm(config), throws<RealmException>("Message: No such table exists"));
+    });
+
+    test('Configuration readOnly - open existing realm with read-only config', () {
+      Configuration config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      realm.close();
+      
+      // Open an existing realm as readonly.
+      config = Configuration([Car.schema], readOnly: true);
+      realm = Realm(config);
+      realm.close();
+    });
+
+    test('Configuration readOnly - reading is possible', () {
+      Configuration config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      realm.write(() => realm.add(Car("Mustang")));
+      realm.close();
+
+      config.isReadOnly = true;
+      realm = Realm(config);
+      var cars = realm.all<Car>();
+      realm.close();
+    });
+
+    test('Configuration readOnly - writing on read-only Realms throws', () {
+      Configuration config = Configuration([Car.schema]);
+      var realm = Realm(config);
+      realm.close();
+
+      config = Configuration([Car.schema], readOnly: true);
+      realm = Realm(config);
+      expect(() => realm.write(() {}), throws<RealmException>("Can't perform transactions on read-only Realms."));
+      realm.close();
+    });
   });
 
   group('RealmClass tests:', () {
@@ -950,6 +989,7 @@ Future<void> main([List<String>? args]) async {
         realm.write(() {
           realm.add(Dog("Lassy1"));
         });
+
         await Future<void>.delayed(Duration(milliseconds: 20));
         expect(callbackCalled, true);
 
@@ -1056,6 +1096,44 @@ Future<void> main([List<String>? args]) async {
         subscription.cancel();
 
         await Future<void>.delayed(Duration(milliseconds: 20));
+        realm.close();
+      });
+
+      test('List notifications', () async {
+        var config = Configuration([Team.schema, Person.schema]);
+        var realm = Realm(config);
+
+        final team = Team('t1', players: [Person("p1")]);
+        realm.write(() => realm.add(team));
+
+        var firstCall = true;
+        final subscription = (team.players as RealmList<Person>).changes.listen((changes) {
+          if (firstCall) {
+            firstCall = false;
+            expect(changes.inserted.isEmpty, true);
+            expect(changes.modified.isEmpty, true);
+            expect(changes.deleted.isEmpty, true);
+            expect(changes.newModified.isEmpty, true);
+            expect(changes.moved.isEmpty, true);
+          } else {
+            expect(changes.inserted, [1]); //new object at index 1
+            expect(changes.modified, [0]); //object at index 0 changed
+            expect(changes.deleted.isEmpty, true);
+            expect(changes.newModified, [0]);
+            expect(changes.moved.isEmpty, true);
+          }
+        });
+
+        await Future<void>.delayed(Duration(milliseconds: 10));
+        realm.write(() {
+          team.players.add(Person("p2"));
+          team.players.first.name = "p3";
+        });
+
+        await Future<void>.delayed(Duration(milliseconds: 10));
+        subscription.cancel();
+
+        await Future<void>.delayed(Duration(milliseconds: 10));
         realm.close();
       });
     });

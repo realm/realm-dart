@@ -72,5 +72,4 @@ realm_dart_object_add_notification_callback(realm_object_t* list,
                                           Dart_Handle notification_controller,
                                           realm_dart_on_object_change_func_t on_change,
                                           realm_scheduler_t* scheduler);
-
 #endif // REALM_DART_COLLECTIONS_H
