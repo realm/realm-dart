@@ -27,8 +27,6 @@ import '../lib/realm.dart';
 
 part 'test.g.dart';
 
-String? testName;
-
 @RealmModel()
 class _Car {
   @PrimaryKey()
@@ -76,35 +74,37 @@ class _School {
   late List<_School> branches;
 }
 
-//Overrides test method so we can filter tests
-void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
-  if (testName != null && !name!.contains(testName!)) {
-    return;
-  }
+// String? testName;
 
-  var timeout = 30;
-  assert(() {
-    timeout = Duration.secondsPerDay;
-    return true;
-  }());
+// //Overrides test method so we can filter tests
+// void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
+//   if (testName != null && !name!.contains(testName!)) {
+//     return;
+//   }
 
-  testing.test(name, testFunction, skip: skip);
-}
+//   var timeout = 30;
+//   assert(() {
+//     timeout = Duration.secondsPerDay;
+//     return true;
+//   }());
+
+//   testing.test(name, testFunction, skip: skip);
+// }
 
 void xtest(String? name, dynamic Function() testFunction) {
   testing.test(name, testFunction, skip: "Test is disabled");
 }
 
-void parseTestNameFromArguments(List<String>? arguments) {
-  arguments = arguments ?? List.empty();
-  int nameArgIndex = arguments.indexOf("--name");
-  if (arguments.isNotEmpty) {
-    if (nameArgIndex >= 0 && arguments.length > 1) {
-      testName = arguments[nameArgIndex + 1];
-      print("testName: $testName");
-    }
-  }
-}
+// void parseTestNameFromArguments(List<String>? arguments) {
+//   arguments = arguments ?? List.empty();
+//   int nameArgIndex = arguments.indexOf("--name");
+//   if (arguments.isNotEmpty) {
+//     if (nameArgIndex >= 0 && arguments.length > 1) {
+//       testName = arguments[nameArgIndex + 1];
+//       print("testName: $testName");
+//     }
+//   }
+// }
 
 void setupTests() {
   setUp(() {
@@ -153,3 +153,4 @@ Future<void> tryDeleteFile(FileSystemEntity fileEntity, {bool recursive = false}
     }
   }
 }
+

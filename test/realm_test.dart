@@ -19,12 +19,19 @@
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
 import 'dart:io';
-import 'package:test/test.dart' hide test, throws;
-import 'test.dart';
+import 'package:test/test.dart' hide throws; //as testing hide test, throws;
 import '../lib/realm.dart';
 
+import 'test.dart';
+
+// import 'configuration_test.dart';
+
+// part 'configuration_test.dart';
+// part 'list_test.dart';
+// part 'results_test.dart';
+
 Future<void> main([List<String>? args]) async {
-  parseTestNameFromArguments(args);
+  // parseTestNameFromArguments(args);
 
   print("Current PID $pid");
 
