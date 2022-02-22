@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
@@ -277,6 +277,59 @@ Future<void> main([List<String>? args]) async {
     });
 
     expect(car.make, equals('Tesla'));
+
+    realm.close();
+  });
+
+  test('Realm query', () {
+    var config = Configuration([Car.schema]);
+    var realm = Realm(config);
+    realm.write(() => realm
+      ..add(Car("Audi"))
+      ..add(Car("Tesla")));
+    final cars = realm.query<Car>('make == "Tesla"');
+    expect(cars.length, 1);
+    expect(cars[0].make, "Tesla");
+
+    realm.close();
+  });
+
+  
+  test('Realm query with parameter', () {
+    var config = Configuration([Car.schema]);
+    var realm = Realm(config);
+    realm.write(() => realm
+      ..add(Car("Audi"))
+      ..add(Car("Tesla")));
+    final cars = realm.query<Car>(r'make == $0', ['Tesla']);
+    expect(cars.length, 1);
+    expect(cars[0].make, "Tesla");
+
+    realm.close();
+  });
+
+  
+  test('Realm query with multiple parameters', () {
+    var config = Configuration([Team.schema, Person.schema]);
+    var realm = Realm(config);
+
+    final p1 = Person('p1');
+    final p2 = Person('p2');
+    final t1 = Team("A1", players: [p1]);
+    final t2 = Team("A2", players: [p2]);
+    final t3 = Team("B1", players: [p1, p2]);
+
+    realm.write(() => realm
+      ..add(t1)
+      ..add(t2)
+      ..add(t3));
+
+    expect(t1.players, [p1]);
+    expect(t2.players, [p2]);
+    expect(t3.players, [p1, p2]);
+    final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH $1', [p1, 'A']);
+    expect(filteredTeams.length, 1);
+    expect(filteredTeams[0].name, "A1");
 
     realm.close();
   });
@@ -550,8 +603,8 @@ Future<void> main([List<String>? args]) async {
     expect(teams[0].name, teamTwo.name);
     realm.close();
   });
-  
-  test('Equals', () {
+
+  test('RealmObject equals', () {
     var config = Configuration([Dog.schema, Person.schema]);
     var realm = Realm(config);
 

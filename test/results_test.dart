@@ -165,7 +165,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Query results', () {
+  test('Results query', () {
     var config = Configuration([Car.schema]);
     var realm = Realm(config);
     realm.write(() => realm
@@ -178,20 +178,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Query class', () {
-    var config = Configuration([Car.schema]);
-    var realm = Realm(config);
-    realm.write(() => realm
-      ..add(Car("Audi"))
-      ..add(Car("Tesla")));
-    final cars = realm.query<Car>('make == "Tesla"');
-    expect(cars.length, 1);
-    expect(cars[0].make, "Tesla");
-
-    realm.close();
-  });
-
-  test('Query results with parameter', () {
+  test('Results query with parameter', () {
     var config = Configuration([Car.schema]);
     var realm = Realm(config);
     realm.write(() => realm
@@ -204,7 +191,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Query results with multiple parameters', () {
+  test('Results query with multiple parameters', () {
     var config = Configuration([Team.schema, Person.schema]);
     var realm = Realm(config);
 
@@ -227,43 +214,6 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Query class with parameter', () {
-    var config = Configuration([Car.schema]);
-    var realm = Realm(config);
-    realm.write(() => realm
-      ..add(Car("Audi"))
-      ..add(Car("Tesla")));
-    final cars = realm.query<Car>(r'make == $0', ['Tesla']);
-    expect(cars.length, 1);
-    expect(cars[0].make, "Tesla");
-
-    realm.close();
-  });
-
-  test('Query class with multiple parameters', () {
-    var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
-
-    final p1 = Person('p1');
-    final p2 = Person('p2');
-    final t1 = Team("A1", players: [p1]);
-    final t2 = Team("A2", players: [p2]);
-    final t3 = Team("B1", players: [p1, p2]);
-
-    realm.write(() => realm
-      ..add(t1)
-      ..add(t2)
-      ..add(t3));
-
-    expect(t1.players, [p1]);
-    expect(t2.players, [p2]);
-    expect(t3.players, [p1, p2]);
-    final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH $1', [p1, 'A']);
-    expect(filteredTeams.length, 1);
-    expect(filteredTeams[0].name, "A1");
-
-    realm.close();
-  });
 
   test('Query results with no arguments throws', () {
     var config = Configuration([Car.schema]);
@@ -274,7 +224,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Query results with wrong argument types (int for string) throws', () {
+  test('Results query with wrong argument types (int for string) throws', () {
     var config = Configuration([Car.schema]);
     var realm = Realm(config);
     realm.write(() => realm.add(Car("Audi")));
@@ -282,33 +232,11 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Query results with wrong argument types (bool for int) throws ', () {
+  test('Results query with wrong argument types (bool for int) throws ', () {
     var config = Configuration([Dog.schema, Person.schema]);
     var realm = Realm(config);
     realm.write(() => realm.add(Dog("Foxi")));
     expect(() => realm.all<Dog>().query(r'age == $0', [true]), throws<RealmException>("Unsupported comparison between type"));
-    realm.close();
-  });
-
-  test('Query list', () {
-    final config = Configuration([Team.schema, Person.schema]);
-    final realm = Realm(config);
-
-    final person = Person('John');
-    final team = Team('team1', players: [
-      Person('Pavel'),
-      person,
-      Person('Alex'),
-    ]);
-
-    realm.write(() => realm.add(team));
-
-    // TODO: Get rid of cast, once type signature of team.players is a RealmList<Person>
-    // as opposed to the List<Person> we have today.
-    final result = (team.players as RealmList<Person>).query(r'name BEGINSWITH $0', ['J']);
-
-    expect(result, [person]);
-
     realm.close();
   });
 

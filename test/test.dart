@@ -20,7 +20,6 @@
 
 import 'dart:io';
 import 'dart:math';
-import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart';
 import 'package:test/test.dart' as testing;
@@ -30,8 +29,54 @@ part 'test.g.dart';
 
 String? testName;
 
+@RealmModel()
+class _Car {
+  @PrimaryKey()
+  late String make;
+}
+
+@RealmModel()
+class _Person {
+  late String name;
+}
+
+@RealmModel()
+class _Dog {
+  @PrimaryKey()
+  late String name;
+
+  late int? age;
+
+  _Person? owner;
+}
+
+@RealmModel()
+class _Team {
+  late String name;
+  late List<_Person> players;
+  late List<int> scores;
+}
+
+@RealmModel()
+class _Student {
+  @PrimaryKey()
+  late int number;
+  late String? name;
+  late int? yearOfBirth;
+  late _School? school;
+}
+
+@RealmModel()
+class _School {
+  @PrimaryKey()
+  late String name;
+  late String? city;
+  List<_Student> students = [];
+  late _School? branchOfSchool;
+  late List<_School> branches;
+}
+
 //Overrides test method so we can filter tests
-@isTest
 void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
   if (testName != null && !name!.contains(testName!)) {
     return;
@@ -107,51 +152,4 @@ Future<void> tryDeleteFile(FileSystemEntity fileEntity, {bool recursive = false}
       await Future<void>.delayed(Duration(milliseconds: 50));
     }
   }
-}
-
-@RealmModel()
-class _Car {
-  @PrimaryKey()
-  late String make;
-}
-
-@RealmModel()
-class _Person {
-  late String name;
-}
-
-@RealmModel()
-class _Dog {
-  @PrimaryKey()
-  late String name;
-
-  late int? age;
-
-  _Person? owner;
-}
-
-@RealmModel()
-class _Team {
-  late String name;
-  late List<_Person> players;
-  late List<int> scores;
-}
-
-@RealmModel()
-class _Student {
-  @PrimaryKey()
-  late int number;
-  late String? name;
-  late int? yearOfBirth;
-  late _School? school;
-}
-
-@RealmModel()
-class _School {
-  @PrimaryKey()
-  late String name;
-  late String? city;
-  List<_Student> students = [];
-  late _School? branchOfSchool;
-  late List<_School> branches;
 }
