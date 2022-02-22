@@ -316,7 +316,7 @@ Future<void> main([List<String>? args]) async {
 
     expect(teams, isNotNull);
     expect(teams.length, 1);
-    final players = teams[0].players as RealmList<Person>;
+    final players = teams[0].players;
     expect(players.isValid, true);
     realm.close();
     expect(players.isValid, false);
@@ -330,7 +330,7 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => realm.add(team));
 
     var firstCall = true;
-    final subscription = (team.players as RealmList<Person>).changes.listen((changes) {
+    final subscription = team.players.changes.listen((changes) {
       if (firstCall) {
         firstCall = false;
         expect(changes.inserted.isEmpty, true);
@@ -375,7 +375,7 @@ Future<void> main([List<String>? args]) async {
 
     // TODO: Get rid of cast, once type signature of team.players is a RealmList<Person>
     // as opposed to the List<Person> we have today.
-    final result = (team.players as RealmList<Person>).query(r'name BEGINSWITH $0', ['J']);
+    final result = team.players.query(r'name BEGINSWITH $0', ['J']);
 
     expect(result, [person]);
 

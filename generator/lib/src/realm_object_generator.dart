@@ -24,18 +24,18 @@ import 'dart:io';
 import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
-import 'class_element_ex.dart';
 import 'package:realm_generator/src/utils.dart';
 import 'package:source_gen/source_gen.dart';
 
-import 'meassure.dart';
+import 'class_element_ex.dart';
+import 'measure.dart';
 import 'realm_model_info.dart';
 import 'session.dart';
 
 class RealmObjectGenerator extends Generator {
   @override
   Future<String> generate(LibraryReader library, BuildStep buildStep) async {
-    return await meassure(
+    return await measure(
       () async {
         return await scopeSession(
           (await library.element.session.getResolvedLibraryByElement(library.element)) as ResolvedLibraryResult,

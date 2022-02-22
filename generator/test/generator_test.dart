@@ -22,7 +22,7 @@ class _Foo {
             '// RealmObjectGenerator\n'
             '// **************************************************************************\n'
             '\n'
-            'class Foo extends _Foo with RealmObject {\n'
+            'class Foo extends _Foo with RealmEntity, RealmObject {\n'
             '  static var _defaultsSet = false;\n'
             '\n'
             '  Foo({\n'
@@ -245,7 +245,7 @@ part 'test.g.dart';
 class _Questionable {
   @PrimaryKey()
   @Indexed()
-  late int primartKeysAreAlwaysIndexed;
+  late int primaryKeysAreAlwaysIndexed;
 }'''
       },
       reader: await PackageAssetReader.currentIsolate(),
@@ -265,10 +265,10 @@ class _Questionable {
       '  ╷\n'
       '7 │   @PrimaryKey()\n'
       '8 │   @Indexed()\n'
-      '9 │   late int primartKeysAreAlwaysIndexed;\n'
+      '9 │   late int primaryKeysAreAlwaysIndexed;\n'
       '  │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n'
       '  ╵\n'
-      'Remove either the @Indexed or @PrimaryKey annotation from \'primartKeysAreAlwaysIndexed\'.\n'
+      'Remove either the @Indexed or @PrimaryKey annotation from \'primaryKeysAreAlwaysIndexed\'.\n'
       '\n'
       '',
     );

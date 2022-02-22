@@ -15,40 +15,54 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
 import 'dart:async';
 import 'dart:collection' as collection;
 
 import 'collections.dart';
+import 'entity.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
-import 'realm_object.dart';
 import 'results.dart';
 
 /// Instances of this class are live collections and will update as new elements are either
 /// added to or deleted from the Realm that match the underlying query.
 ///
-///{@category Realm}
-class RealmList<T extends Object> extends collection.ListBase<T> {
-  final RealmListHandle _handle;
-  
-  /// The Realm isntance this collection belongs to.
-  final Realm realm;
+/// {@category Realm}
+class RealmList<T extends Object> extends collection.ListBase<T> with RealmEntity {
+  late final RealmListHandle _handle; // only use if isManaged
+  late final _unmanaged = <T?>[]; // lazy ctor'ed (use T? for length=)
 
-  RealmList._(this._handle, this.realm);
+  RealmList._(this._handle, Realm realm) {
+    setRealm(realm);
+  }
+
+  RealmList([Iterable<T>? items]) {
+    if (items != null && items.isNotEmpty) {
+      assert(!isManaged);
+      _unmanaged.addAll(items);
+    }
+  }
 
   /// The length of this [RealmList].
   @override
-  int get length => realmCore.getListSize(handle);
+  int get length => isManaged ? realmCore.getListSize(_handle) : _unmanaged.length;
 
   /// @nodoc
-  //settng lenght is no operation
   @override
-  set length(int length) {}
+  set length(int length) {
+    if (!isManaged) {
+      _unmanaged.length = length;
+    }
+    // no-op for managed lists
+  }
 
   /// Returns the element at the specified index.
   @override
   T operator [](int index) {
+    if (!isManaged) {
+      return _unmanaged[index] as T;
+    }
+
     if (index < 0) {
       throw RealmException("Index out of range $index");
     }
@@ -69,7 +83,11 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
   /// Sets the element at the specified index in the list.
   @override
   void operator []=(int index, T value) {
-    RealmListInternal.setValue(handle, realm, index, value);
+    if (isManaged) {
+      RealmListInternal.setValue(handle, realm, index, value);
+    } else {
+      _unmanaged[index] = value;
+    }
   }
 
   /// Clears the collection in memory and the references
@@ -80,22 +98,19 @@ class RealmList<T extends Object> extends collection.ListBase<T> {
   /// The length of the list becomes zero.
   /// If the elements are managed [RealmObject]s, they all remain in the Realm.
   @override
-  void clear() {
-    realmCore.listClear(this);
-  }
+  void clear() => isManaged ? realmCore.listClear(this) : _unmanaged.clear();
 
   /// Gets a value indicating whether this collection is still valid to use.
   ///
   /// Indicates whether the [Realm] instance hasn't been closed,
   /// if it represents a to-many relationship
   /// and it's parent object hasn't been deleted.
-  bool get isValid => realmCore.listIsValid(this);
+  bool get isValid => isManaged ? realmCore.listIsValid(this) : true;
 }
 
 // The query operations on lists only work for list of objects (core restriction),
 // so we add it as an extension method to allow the compiler to prevent misuse.
 extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
-  
   /// Filters the list and returns a new [RealmResults] according to the provided query.
   ///
   /// Only works for lists of Realm objects.
@@ -189,4 +204,3 @@ class ListNotificationsController<T extends Object> extends NotificationsControl
     streamController.addError(error);
   }
 }
-

@@ -6,7 +6,7 @@ part of 'test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
-class Car extends _Car with RealmObject {
+class Car extends _Car with RealmEntity, RealmObject {
   Car(
     String make,
   ) {
@@ -21,8 +21,7 @@ class Car extends _Car with RealmObject {
   set make(String value) => throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<Car>> get changes =>
-      RealmObject.getChanges<Car>(this);
+  Stream<RealmObjectChanges<Car>> get changes => RealmObject.getChanges<Car>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -34,7 +33,7 @@ class Car extends _Car with RealmObject {
   }
 }
 
-class Person extends _Person with RealmObject {
+class Person extends _Person with RealmEntity, RealmObject {
   Person(
     String name,
   ) {
@@ -49,8 +48,7 @@ class Person extends _Person with RealmObject {
   set name(String value) => RealmObject.set(this, 'name', value);
 
   @override
-  Stream<RealmObjectChanges<Person>> get changes =>
-      RealmObject.getChanges<Person>(this);
+  Stream<RealmObjectChanges<Person>> get changes => RealmObject.getChanges<Person>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -62,7 +60,7 @@ class Person extends _Person with RealmObject {
   }
 }
 
-class Dog extends _Dog with RealmObject {
+class Dog extends _Dog with RealmEntity, RealmObject {
   Dog(
     String name, {
     int? age,
@@ -91,8 +89,7 @@ class Dog extends _Dog with RealmObject {
   set owner(covariant Person? value) => RealmObject.set(this, 'owner', value);
 
   @override
-  Stream<RealmObjectChanges<Dog>> get changes =>
-      RealmObject.getChanges<Dog>(this);
+  Stream<RealmObjectChanges<Dog>> get changes => RealmObject.getChanges<Dog>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -101,21 +98,20 @@ class Dog extends _Dog with RealmObject {
     return const SchemaObject(Dog, [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('age', RealmPropertyType.int, optional: true),
-      SchemaProperty('owner', RealmPropertyType.object,
-          optional: true, linkTarget: 'Person'),
+      SchemaProperty('owner', RealmPropertyType.object, optional: true, linkTarget: 'Person'),
     ]);
   }
 }
 
-class Team extends _Team with RealmObject {
+class Team extends _Team with RealmEntity, RealmObject {
   Team(
     String name, {
     Iterable<Person> players = const [],
     Iterable<int> scores = const [],
   }) {
     RealmObject.set(this, 'name', name);
-    RealmObject.set<List<Person>>(this, 'players', players.toList());
-    RealmObject.set<List<int>>(this, 'scores', scores.toList());
+    RealmObject.set<RealmList<Person>>(this, 'players', RealmList<Person>(players));
+    RealmObject.set<RealmList<int>>(this, 'scores', RealmList<int>(scores));
   }
 
   Team._();
@@ -126,19 +122,17 @@ class Team extends _Team with RealmObject {
   set name(String value) => RealmObject.set(this, 'name', value);
 
   @override
-  List<Person> get players =>
-      RealmObject.get<Person>(this, 'players') as List<Person>;
+  RealmList<Person> get players => RealmObject.get<Person>(this, 'players') as RealmList<Person>;
   @override
-  set players(covariant List<Person> value) => throw RealmUnsupportedSetError();
+  set players(covariant RealmList<Person> value) => throw RealmUnsupportedSetError();
 
   @override
-  List<int> get scores => RealmObject.get<int>(this, 'scores') as List<int>;
+  RealmList<int> get scores => RealmObject.get<int>(this, 'scores') as RealmList<int>;
   @override
-  set scores(List<int> value) => throw RealmUnsupportedSetError();
+  set scores(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<Team>> get changes =>
-      RealmObject.getChanges<Team>(this);
+  Stream<RealmObjectChanges<Team>> get changes => RealmObject.getChanges<Team>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -146,15 +140,13 @@ class Team extends _Team with RealmObject {
     RealmObject.registerFactory(Team._);
     return const SchemaObject(Team, [
       SchemaProperty('name', RealmPropertyType.string),
-      SchemaProperty('players', RealmPropertyType.object,
-          linkTarget: 'Person', collectionType: RealmCollectionType.list),
-      SchemaProperty('scores', RealmPropertyType.int,
-          collectionType: RealmCollectionType.list),
+      SchemaProperty('players', RealmPropertyType.object, linkTarget: 'Person', collectionType: RealmCollectionType.list),
+      SchemaProperty('scores', RealmPropertyType.int, collectionType: RealmCollectionType.list),
     ]);
   }
 }
 
-class Student extends _Student with RealmObject {
+class Student extends _Student with RealmEntity, RealmObject {
   Student(
     int number, {
     String? name,
@@ -190,8 +182,7 @@ class Student extends _Student with RealmObject {
   set school(covariant School? value) => RealmObject.set(this, 'school', value);
 
   @override
-  Stream<RealmObjectChanges<Student>> get changes =>
-      RealmObject.getChanges<Student>(this);
+  Stream<RealmObjectChanges<Student>> get changes => RealmObject.getChanges<Student>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -201,13 +192,12 @@ class Student extends _Student with RealmObject {
       SchemaProperty('number', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
       SchemaProperty('yearOfBirth', RealmPropertyType.int, optional: true),
-      SchemaProperty('school', RealmPropertyType.object,
-          optional: true, linkTarget: 'School'),
+      SchemaProperty('school', RealmPropertyType.object, optional: true, linkTarget: 'School'),
     ]);
   }
 }
 
-class School extends _School with RealmObject {
+class School extends _School with RealmEntity, RealmObject {
   School(
     String name, {
     String? city,
@@ -218,8 +208,8 @@ class School extends _School with RealmObject {
     RealmObject.set(this, 'name', name);
     RealmObject.set(this, 'city', city);
     RealmObject.set(this, 'branchOfSchool', branchOfSchool);
-    RealmObject.set<List<Student>>(this, 'students', students.toList());
-    RealmObject.set<List<School>>(this, 'branches', branches.toList());
+    RealmObject.set<RealmList<Student>>(this, 'students', RealmList<Student>(students));
+    RealmObject.set<RealmList<School>>(this, 'branches', RealmList<School>(branches));
   }
 
   School._();
@@ -235,29 +225,22 @@ class School extends _School with RealmObject {
   set city(String? value) => RealmObject.set(this, 'city', value);
 
   @override
-  List<Student> get students =>
-      RealmObject.get<Student>(this, 'students') as List<Student>;
+  RealmList<Student> get students => RealmObject.get<Student>(this, 'students') as RealmList<Student>;
   @override
-  set students(covariant List<Student> value) =>
-      throw RealmUnsupportedSetError();
+  set students(covariant RealmList<Student> value) => throw RealmUnsupportedSetError();
 
   @override
-  School? get branchOfSchool =>
-      RealmObject.get<School>(this, 'branchOfSchool') as School?;
+  School? get branchOfSchool => RealmObject.get<School>(this, 'branchOfSchool') as School?;
   @override
-  set branchOfSchool(covariant School? value) =>
-      RealmObject.set(this, 'branchOfSchool', value);
+  set branchOfSchool(covariant School? value) => RealmObject.set(this, 'branchOfSchool', value);
 
   @override
-  List<School> get branches =>
-      RealmObject.get<School>(this, 'branches') as List<School>;
+  RealmList<School> get branches => RealmObject.get<School>(this, 'branches') as RealmList<School>;
   @override
-  set branches(covariant List<School> value) =>
-      throw RealmUnsupportedSetError();
+  set branches(covariant RealmList<School> value) => throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<School>> get changes =>
-      RealmObject.getChanges<School>(this);
+  Stream<RealmObjectChanges<School>> get changes => RealmObject.getChanges<School>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -266,12 +249,9 @@ class School extends _School with RealmObject {
     return const SchemaObject(School, [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('city', RealmPropertyType.string, optional: true),
-      SchemaProperty('students', RealmPropertyType.object,
-          linkTarget: 'Student', collectionType: RealmCollectionType.list),
-      SchemaProperty('branchOfSchool', RealmPropertyType.object,
-          optional: true, linkTarget: 'School'),
-      SchemaProperty('branches', RealmPropertyType.object,
-          linkTarget: 'School', collectionType: RealmCollectionType.list),
+      SchemaProperty('students', RealmPropertyType.object, linkTarget: 'Student', collectionType: RealmCollectionType.list),
+      SchemaProperty('branchOfSchool', RealmPropertyType.object, optional: true, linkTarget: 'School'),
+      SchemaProperty('branches', RealmPropertyType.object, linkTarget: 'School', collectionType: RealmCollectionType.list),
     ]);
   }
 }

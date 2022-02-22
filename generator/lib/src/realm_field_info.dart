@@ -21,7 +21,6 @@ import 'package:realm_common/realm_common.dart';
 
 import 'dart_type_ex.dart';
 import 'field_element_ex.dart';
-import 'session.dart';
 
 class RealmFieldInfo {
   final FieldElement fieldElement;
@@ -50,26 +49,26 @@ class RealmFieldInfo {
   String get name => fieldElement.name;
   String get realmName => mapTo ?? name;
 
-  String get basicTypeName => type.basicName;
+  String get basicMappedTypeName => type.basicMappedName;
 
-  String get typeModelName => fieldElement.typeModelName;
+  String get modelTypeName => fieldElement.modelTypeName;
 
-  String get typeName => typeModelName.replaceAll(session.prefix, ''); // TODO: using replaceAll is a hack
+  String get mappedTypeName => fieldElement.mappedTypeName;
 
   RealmCollectionType get realmCollectionType => type.realmCollectionType;
 
   Iterable<String> toCode() sync* {
     yield '@override';
-    yield "$typeName get $name => RealmObject.get<$basicTypeName>(this, '$realmName') as $typeName;";
+    yield "$mappedTypeName get $name => RealmObject.get<$basicMappedTypeName>(this, '$realmName') as $mappedTypeName;";
     bool generateSetter = !isFinal && !primaryKey && !isRealmCollection;
     if (generateSetter) {
       yield '@override';
-      yield "set $name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => RealmObject.set(this, '$realmName', value);";
+      yield "set $name(${mappedTypeName != modelTypeName ? 'covariant ' : ''}$mappedTypeName value) => RealmObject.set(this, '$realmName', value);";
     } else {
       bool generateThrowError = isLate || primaryKey || isRealmCollection;
       if (generateThrowError) {
         yield '@override';
-        yield "set $name(${typeName != typeModelName ? 'covariant ' : ''}$typeName value) => throw RealmUnsupportedSetError();";
+        yield "set $name(${mappedTypeName != modelTypeName ? 'covariant ' : ''}$mappedTypeName value) => throw RealmUnsupportedSetError();";
       }
     }
   }

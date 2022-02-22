@@ -1,4 +1,4 @@
-import 'package:realm_generator/src/meassure.dart';
+import 'package:realm_generator/src/measure.dart';
 import 'package:test/test.dart';
 
 void main() {

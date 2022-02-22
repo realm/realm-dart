@@ -169,7 +169,6 @@ extension ClassElementEx on ClassElement {
       rethrow;
     } catch (e, s) {
       // Fallback. Not perfect, but better than just forwarding original error.
-      print(s);
       throw RealmInvalidGenerationSourceError(
         '$e',
         todo: //

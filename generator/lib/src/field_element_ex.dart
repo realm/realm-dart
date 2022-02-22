@@ -17,9 +17,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:realm_generator/src/expanded_context_span.dart';
+import 'package:realm_generator/src/pseudo_type.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:source_span/source_span.dart';
 
@@ -55,17 +57,11 @@ extension FieldElementEx on FieldElement {
         [span!],
       );
 
-  // Works even if type of field is unresolved
-  String get typeText => (typeAnnotation ?? initializerExpression?.staticType ?? type).toString();
+  DartType get modelType => typeAnnotation?.type?.nullIfDynamic ?? initializerExpression?.staticType ?? PseudoType(typeAnnotation.toString());
+  
+  String get modelTypeName => modelType.getDisplayString(withNullability: true);
 
-  String get typeModelName => type.isDynamic ? typeText : type.getDisplayString(withNullability: true);
-
-  // TODO: using replaceAll is a temporary hack.
-  // It is needed for now, since we cannot construct a DartType for the yet to
-  // be generated classes, ie. for _A given A. Once the new static meta
-  // programming feature is added to dart, we should be able to resolve this
-  // using a ClassTypeMacro.
-  String get typeName => typeModelName.replaceAll(session.prefix, '');
+  String get mappedTypeName => modelType.mappedName;
 
   RealmFieldInfo? get realmInfo {
     try {
@@ -94,7 +90,7 @@ extension FieldElementEx on FieldElement {
             primaryLabel: 'is nullable',
             todo: //
                 'Consider using the @Indexed() annotation instead, '
-                "or make '$displayName' ${anOrA(typeText)} ${type.asNonNullable}.",
+                "or make '$displayName' ${anOrA(modelTypeName)} ${type.asNonNullable}.",
           );
         }
         if (indexed != null) {
@@ -146,7 +142,7 @@ extension FieldElementEx on FieldElement {
           'Realm only support indexes on String, int, and bool fields',
           element: this,
           primarySpan: typeSpan(file),
-          primaryLabel: "$typeText is not an indexable type",
+          primaryLabel: "$modelTypeName is not an indexable type",
           todo: //
               "Change the type of '$displayName', "
               "or remove the $annotation annotation",
@@ -162,10 +158,10 @@ extension FieldElementEx on FieldElement {
         String todo;
         if (notARealmTypeSpan != null) {
           todo = //
-              "Add a @RealmModel annotation on '$typeName', "
+              "Add a @RealmModel annotation on '$mappedTypeName', "
               "or an @Ignored annotation on '$displayName'.";
-        } else if (type.isDynamic && typeName != 'dynamic' && !typeName.startsWith(session.prefix)) {
-          todo = "Did you intend to use _$typeName as type for '$displayName'?";
+        } else if (type.isDynamic && mappedTypeName != 'dynamic' && !mappedTypeName.startsWith(session.prefix)) {
+          todo = "Did you intend to use _$mappedTypeName as type for '$displayName'?";
         } else {
           todo = "Remove the invalid field or add an @Ignored annotation on '$displayName'.";
         }
@@ -174,7 +170,7 @@ extension FieldElementEx on FieldElement {
           'Not a realm type',
           element: this,
           primarySpan: typeSpan(file),
-          primaryLabel: '$typeText is not a realm model type',
+          primaryLabel: '$modelTypeName is not a realm model type',
           secondarySpans: {
             modelSpan: "in realm model '${enclosingElement.displayName}'",
             // may go both above and below, or stem from another file
@@ -211,7 +207,7 @@ extension FieldElementEx on FieldElement {
               'Realm object references must be nullable',
               primarySpan: typeSpan(file),
               primaryLabel: 'is not nullable',
-              todo: 'Change type to $typeText?',
+              todo: 'Change type to $modelTypeName?',
               element: this,
             );
           }
@@ -229,7 +225,6 @@ extension FieldElementEx on FieldElement {
       rethrow;
     } catch (e, s) {
       // Fallback. Not perfect, but better than just forwarding original error.
-      print(s);
       throw RealmInvalidGenerationSourceError(
         '$e',
         todo: //

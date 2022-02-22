@@ -30,7 +30,7 @@ class RealmModelInfo {
   RealmModelInfo(this.name, this.modelName, this.fields);
 
   Iterable<String> toCode() sync* {
-    yield 'class $name extends $modelName with RealmObject {';
+    yield 'class $name extends $modelName with RealmEntity, RealmObject {';
     {
       final allExceptCollections = fields.where((f) => !f.type.isRealmCollection).toList();
 
@@ -43,14 +43,14 @@ class RealmModelInfo {
       yield '$name(';
       {
         final required = allExceptCollections.where((f) => f.isRequired);
-        yield* required.map((f) => '${f.typeName} ${f.name},');
+        yield* required.map((f) => '${f.mappedTypeName} ${f.name},');
 
         final notRequired = allExceptCollections.where((f) => !f.isRequired);
         final collections = fields.where((f) => f.type.isRealmCollection).toList();
         if (notRequired.isNotEmpty || collections.isNotEmpty) {
           yield '{';
-          yield* notRequired.map((f) => '${f.typeName} ${f.name}${f.hasDefaultValue ? ' = ${f.fieldElement.initializerExpression}' : ''},');
-          yield* collections.map((c) => 'Iterable<${c.type.basicName}> ${c.name} = const [],');
+          yield* notRequired.map((f) => '${f.mappedTypeName} ${f.name}${f.hasDefaultValue ? ' = ${f.fieldElement.initializerExpression}' : ''},');
+          yield* collections.map((c) => 'Iterable<${c.type.basicMappedName}> ${c.name} = const [],');
           yield '}';
         }
 
@@ -69,7 +69,7 @@ class RealmModelInfo {
         });
 
         yield* collections.map((c) {
-          return "RealmObject.set<${c.typeName}>(this, '${c.name}', ${c.name}.toList());";
+          return "RealmObject.set<${c.mappedTypeName}>(this, '${c.name}', ${c.mappedTypeName}(${c.name}));";
         });
       }
       yield '}';
@@ -98,7 +98,7 @@ class RealmModelInfo {
               if (f.name != f.realmName) 'mapTo': f.realmName,
               if (f.optional) 'optional': f.optional,
               if (f.primaryKey) 'primaryKey': f.primaryKey,
-              if (f.realmType == RealmPropertyType.object) 'linkTarget': f.basicTypeName,
+              if (f.realmType == RealmPropertyType.object) 'linkTarget': f.basicMappedTypeName,
               if (f.realmCollectionType != RealmCollectionType.none) 'collectionType': f.realmCollectionType,
             };
             return "SchemaProperty('${f.realmName}', ${f.realmType}${namedArgs.isNotEmpty ? ', ' + namedArgs.toArgsString() : ''}),";

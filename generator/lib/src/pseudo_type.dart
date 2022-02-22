@@ -1,0 +1,52 @@
+// ignore_for_file: implementation_imports
+
+import 'dart:mirrors';
+
+import 'package:analyzer/dart/element/nullability_suffix.dart';
+import 'package:analyzer/dart/element/type_visitor.dart';
+import 'package:analyzer/src/dart/element/display_string_builder.dart';
+import 'package:analyzer/src/dart/element/type.dart';
+
+// Used to represent a type that is not yet defined, such as the mapped type of a realm model (ie. A for _A)
+// Hopefully we can get rid of this when static meta programming lands
+class PseudoType extends TypeImpl {
+  @override
+  final NullabilitySuffix nullabilitySuffix;
+  final String _name;
+
+  PseudoType(this._name, {this.nullabilitySuffix = NullabilitySuffix.none}) : super(null);
+
+  Never get _never => throw UnimplementedError();
+
+  @override
+  R accept<R>(TypeVisitor<R> visitor) => _never;
+
+  @override
+  R acceptWithArgument<R, A>(TypeVisitorWithArgument<R, A> visitor, A argument) => _never;
+
+  @override
+  void appendTo(ElementDisplayStringBuilder builder) {
+    // Use reflection to call private methods:
+    //
+    //  builder._write(_name);
+    //  builder._writeNullability(nullabilitySuffix);
+
+    final im = reflect(builder);
+
+    // Private Symbols are suffixed with a secret '@<some int>'
+    // .. hence this ugly trick ヽ(ಠ_ಠ)ノ
+    final _writeSymbol = im.type.instanceMembers.keys.firstWhere((m) => '$m'.contains('"_write"'));
+    im.invoke(_writeSymbol, <dynamic>[_name]); // #_write won't work
+
+    final _writeNullability = im.type.instanceMembers.keys.firstWhere((m) => '$m'.contains('"_writeNullability"'));
+    im.invoke(_writeNullability, <dynamic>[nullabilitySuffix]); // #_writeNullability won't work
+  }
+
+  @override
+  String? get name => _name;
+
+  @override
+  PseudoType withNullability(NullabilitySuffix nullabilitySuffix) {
+    return PseudoType(_name, nullabilitySuffix: nullabilitySuffix);
+  }
+}

@@ -6,7 +6,7 @@ part of 'myapp.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
-class Car extends _Car with RealmObject {
+class Car extends _Car with RealmEntity, RealmObject {
   static var _defaultsSet = false;
 
   Car(
@@ -66,7 +66,7 @@ class Car extends _Car with RealmObject {
   }
 }
 
-class Person extends _Person with RealmObject {
+class Person extends _Person with RealmEntity, RealmObject {
   static var _defaultsSet = false;
 
   Person(
