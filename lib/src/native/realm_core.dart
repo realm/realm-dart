@@ -85,7 +85,6 @@ class _RealmCore {
     });
   }
 
-  //TODO: Use Finalizers, when available, instead of native WeakHandles https://github.com/dart-lang/language/issues/1847
   SchemaHandle createSchema(List<SchemaObject> schema) {
     return using((Arena arena) {
       final classCount = schema.length;
@@ -697,7 +696,7 @@ class RealmCollectionChangesHandle extends Handle<realm_collection_changes> {
 }
 
 class RealmObjectChangesHandle extends Handle<realm_object_changes> {
-  RealmObjectChangesHandle._(Pointer<realm_object_changes> pointer) : super(pointer, 88); // TODO: What should gc hint be?
+  RealmObjectChangesHandle._(Pointer<realm_object_changes> pointer) : super(pointer, 256);
 }
 
 extension _StringEx on String {

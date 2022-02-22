@@ -191,7 +191,6 @@ class RealmObject {
   RealmAccessor _accessor = RealmValuesAccessor();
   Realm? _realm;
   static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{};
-  // static final Map<Type, RealmObjectChangesBase Function<int>()> _changesFactories = <Type, RealmObjectChangesBase Function()>{};
 
   /// @nodoc
   static Object? get<T extends Object>(RealmObject object, String name) {
