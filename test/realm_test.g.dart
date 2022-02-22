@@ -5,7 +5,6 @@ part of 'realm_test.dart';
 // **************************************************************************
 // RealmObjectGenerator
 // **************************************************************************
-
 class Car extends _Car with RealmObject {
   Car(
     String make,
@@ -81,6 +80,9 @@ class Dog extends _Dog with RealmObject {
   Person? get owner => RealmObject.get<Person>(this, 'owner') as Person?;
   @override
   set owner(covariant Person? value) => RealmObject.set(this, 'owner', value);
+
+  @override
+  Stream<RealmObjectChanges<Dog>> get changes => RealmObject.getChanges<Dog>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;

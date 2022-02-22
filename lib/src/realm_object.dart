@@ -245,15 +245,20 @@ class RealmObject {
   /// Unmanaged objects are always considered valid.
   bool get isValid => isManaged ? realmCore.objectIsValid(this) : true;
 
-  /// Allows listening for propety changes on this Realm object
+  /// Allows listening for property changes on this Realm object
+  /// 
+  /// Returns a [Stream] of [RealmObjectChanges<T>] that can be listened to.
   /// 
   /// If the object is not managed a [RealmStateError] is thrown.
-  Stream<RealmObjectChanges> get changes {
-    if (!isManaged) {
+  Stream get changes => throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
+
+  /// @nodoc
+  static Stream<RealmObjectChanges<T>> getChanges<T extends RealmObject>(T object) {
+     if (!object.isManaged) {
       throw RealmStateError("Object is not managed");
     }
 
-    final controller = RealmObjectNotificationsController(this);
+    final controller = RealmObjectNotificationsController<T>(object);
     return controller.createStream();
   }
 }
@@ -309,21 +314,18 @@ class RealmException implements Exception {
   }
 }
 
-// class RealmObjectChangesBase {
-
-// }
-
 /// Describes the changes in on a single RealmObject since the last time the notification callback was invoked.
-class RealmObjectChanges/*<T extends RealmObject> extends RealmObjectChangesBase*/ {
+class RealmObjectChanges<T extends RealmObject> {
   // ignore: unused_field
   final RealmObjectChangesHandle _handle;
   
-  /// The realm object being monitored for changes
-  final /*T?*/ RealmObject object;
+  /// The realm object being monitored for changes.
+  final T object;
 
-  /// `True` if the object was deleted
+  /// `True` if the object was deleted.
   bool get isDeleted => realmCore.getObjectChangesIsDeleted(_handle);
 
+  /// The property names that have changed.
   List<String> get properties {
     final propertyKeys = realmCore.getObjectChangesProperties(_handle);
     return object._realm!.getPropertyNames(object.runtimeType, propertyKeys);
@@ -334,8 +336,8 @@ class RealmObjectChanges/*<T extends RealmObject> extends RealmObjectChangesBase
 
 /// @nodoc
 class RealmObjectNotificationsController<T extends RealmObject> extends NotificationsController {
-  RealmObject realmObject;
-  late final StreamController<RealmObjectChanges/*<T>*/> streamController;
+  T realmObject;
+  late final StreamController<RealmObjectChanges<T>> streamController;
 
   RealmObjectNotificationsController(this.realmObject);
 
@@ -344,8 +346,8 @@ class RealmObjectNotificationsController<T extends RealmObject> extends Notifica
     return realmCore.subscribeObjectNotifications(realmObject._handle!, this, realmObject._realm!.scheduler.handle);
   }
 
-  Stream<RealmObjectChanges/*<T>*/> createStream() {
-    streamController = StreamController<RealmObjectChanges/*<T>*/>(onListen: start, onPause: stop, onResume: start, onCancel: stop);
+  Stream<RealmObjectChanges<T>> createStream() {
+    streamController = StreamController<RealmObjectChanges<T>>(onListen: start, onPause: stop, onResume: start, onCancel: stop);
     return streamController.stream;
   }
 
@@ -355,7 +357,7 @@ class RealmObjectNotificationsController<T extends RealmObject> extends Notifica
       throw RealmError("Invalid changes handle. RealmObjectChangesHandle expected");
     }
 
-    final changes = RealmObjectChanges._(changesHandle, realmObject);
+    final changes = RealmObjectChanges<T>._(changesHandle, realmObject);
     streamController.add(changes);
   }
 
