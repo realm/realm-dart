@@ -5,6 +5,7 @@ part of 'realm_test.dart';
 // **************************************************************************
 // RealmObjectGenerator
 // **************************************************************************
+
 class Car extends _Car with RealmObject {
   Car(
     String make,
@@ -18,6 +19,10 @@ class Car extends _Car with RealmObject {
   String get make => RealmObject.get<String>(this, 'make') as String;
   @override
   set make(String value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Car>> get changes =>
+      RealmObject.getChanges<Car>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -42,6 +47,10 @@ class Person extends _Person with RealmObject {
   String get name => RealmObject.get<String>(this, 'name') as String;
   @override
   set name(String value) => RealmObject.set(this, 'name', value);
+
+  @override
+  Stream<RealmObjectChanges<Person>> get changes =>
+      RealmObject.getChanges<Person>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -82,7 +91,8 @@ class Dog extends _Dog with RealmObject {
   set owner(covariant Person? value) => RealmObject.set(this, 'owner', value);
 
   @override
-  Stream<RealmObjectChanges<Dog>> get changes => RealmObject.getChanges<Dog>(this);
+  Stream<RealmObjectChanges<Dog>> get changes =>
+      RealmObject.getChanges<Dog>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -125,6 +135,10 @@ class Team extends _Team with RealmObject {
   List<int> get scores => RealmObject.get<int>(this, 'scores') as List<int>;
   @override
   set scores(List<int> value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Team>> get changes =>
+      RealmObject.getChanges<Team>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -174,6 +188,10 @@ class Student extends _Student with RealmObject {
   School? get school => RealmObject.get<School>(this, 'school') as School?;
   @override
   set school(covariant School? value) => RealmObject.set(this, 'school', value);
+
+  @override
+  Stream<RealmObjectChanges<Student>> get changes =>
+      RealmObject.getChanges<Student>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -236,6 +254,10 @@ class School extends _School with RealmObject {
   @override
   set branches(covariant List<School> value) =>
       throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<School>> get changes =>
+      RealmObject.getChanges<School>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
