@@ -143,6 +143,20 @@ The Realm Flutter package name is `realm`
         int price = 42;
     }
     ```
+    
+    With underscore prefix, the class will be private, and other files won't be able to read it. If you want to class to be public for all project, use $ prefix instead:
+    
+     ```dart
+    @RealmModel()
+    class $Item {
+        @PrimaryKey()
+        late int id;
+
+        late String name;
+        
+        int price = 42;
+    }
+    ```
 
 * Generate RealmObject class `Item` from data model class `_Item`.
 
