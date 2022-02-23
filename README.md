@@ -66,6 +66,14 @@ This repository holds the source code for the Realm SDK for Flutterâ„¢ and Dartâ
     realm.write(() => realm.add(Car('VW', 'Polo', kilometers: 22000)));
     ```
 
+* Delete all Car objects.
+
+    ```dart
+    var config = Configuration([Car.schema]);
+    var realm = Realm(config);
+    realm.write(() => realm.deleteMany(realm.all<Car>()));
+    ```
+
 ## Samples
 
 For complete samples check the [Realm Flutter and Dart Samples](https://github.com/realm/realm-dart-samples).
