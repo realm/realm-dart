@@ -19,7 +19,7 @@
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
 import 'dart:io';
-import 'package:test/test.dart' hide throws;
+import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
 import 'test.dart';
@@ -27,7 +27,7 @@ import 'test.dart';
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
-  setupTests();
+  setupTests(args);
 
   test('Realm can be created', () {
     var config = Configuration([Car.schema]);
@@ -142,31 +142,6 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('RealmObject add with list properties', () {
-    var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
-
-    final team = Team("Ferrari")
-      ..players.addAll([Person("Michael"), Person("Kimi")])
-      ..scores.addAll([1, 2, 3]);
-
-    realm.write(() => realm.add(team));
-
-    final teams = realm.all<Team>();
-    expect(teams.length, 1);
-    expect(teams[0].name, "Ferrari");
-    expect(teams[0].players, isNotNull);
-    expect(teams[0].players.length, 2);
-    expect(teams[0].players[0].name, "Michael");
-    expect(teams[0].players[1].name, "Kimi");
-
-    expect(teams[0].scores.length, 3);
-    expect(teams[0].scores[0], 1);
-    expect(teams[0].scores[1], 2);
-    expect(teams[0].scores[2], 3);
-    realm.close();
-  });
-
   test('Realm add object', () {
     var config = Configuration([Car.schema]);
     var realm = Realm(config);
@@ -211,6 +186,31 @@ Future<void> main([List<String>? args]) async {
       expect(car1, equals(car));
     });
 
+    realm.close();
+  });
+
+  test('Realm add object with list properties', () {
+    var config = Configuration([Team.schema, Person.schema]);
+    var realm = Realm(config);
+
+    final team = Team("Ferrari")
+      ..players.addAll([Person("Michael"), Person("Kimi")])
+      ..scores.addAll([1, 2, 3]);
+
+    realm.write(() => realm.add(team));
+
+    final teams = realm.all<Team>();
+    expect(teams.length, 1);
+    expect(teams[0].name, "Ferrari");
+    expect(teams[0].players, isNotNull);
+    expect(teams[0].players.length, 2);
+    expect(teams[0].players[0].name, "Michael");
+    expect(teams[0].players[1].name, "Kimi");
+
+    expect(teams[0].scores.length, 3);
+    expect(teams[0].scores[0], 1);
+    expect(teams[0].scores[1], 2);
+    expect(teams[0].scores[2], 3);
     realm.close();
   });
 
@@ -266,18 +266,14 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('RealmObject get property', () {
+  test('Realm add object after realm is closed', () {
     var config = Configuration([Car.schema]);
     var realm = Realm(config);
 
     final car = Car('Tesla');
-    realm.write(() {
-      realm.add(car);
-    });
-
-    expect(car.make, equals('Tesla'));
 
     realm.close();
+    expect(() => realm.write(() => realm.add(car)), throws<RealmException>("Cannot access realm that has been closed"));
   });
 
   test('Realm query', () {
@@ -293,7 +289,6 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  
   test('Realm query with parameter', () {
     var config = Configuration([Car.schema]);
     var realm = Realm(config);
@@ -307,7 +302,6 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  
   test('Realm query with multiple parameters', () {
     var config = Configuration([Team.schema, Person.schema]);
     var realm = Realm(config);
@@ -329,78 +323,6 @@ Future<void> main([List<String>? args]) async {
     final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH $1', [p1, 'A']);
     expect(filteredTeams.length, 1);
     expect(filteredTeams[0].name, "A1");
-
-    realm.close();
-  });
-
-  test('RealmObject set property', () {
-    var config = Configuration([Car.schema]);
-    var realm = Realm(config);
-
-    final car = Car('Tesla');
-    realm.write(() {
-      realm.add(car);
-    });
-
-    expect(car.make, equals('Tesla'));
-
-    expect(() {
-      realm.write(() {
-        car.make = "Audi";
-      });
-    }, throws<RealmUnsupportedSetError>());
-
-    realm.close();
-  });
-
-  test('RealmObject set object type property (link)', () {
-    var config = Configuration([Person.schema, Dog.schema]);
-    var realm = Realm(config);
-
-    final dog = Dog(
-      "MyDog",
-      owner: Person("MyOwner"),
-    );
-    realm.write(() {
-      realm.add(dog);
-    });
-
-    expect(dog.name, 'MyDog');
-    expect(dog.owner, isNotNull);
-    expect(dog.owner!.name, 'MyOwner');
-
-    realm.close();
-  });
-
-  test('RealmObject set property null', () {
-    var config = Configuration([Person.schema, Dog.schema]);
-    var realm = Realm(config);
-
-    final dog = Dog(
-      "MyDog",
-      owner: Person("MyOwner"),
-      age: 5,
-    );
-    realm.write(() {
-      realm.add(dog);
-    });
-
-    expect(dog.name, 'MyDog');
-    expect(dog.age, 5);
-    expect(dog.owner, isNotNull);
-    expect(dog.owner!.name, 'MyOwner');
-
-    realm.write(() {
-      dog.age = null;
-    });
-
-    expect(dog.age, null);
-
-    realm.write(() {
-      dog.owner = null;
-    });
-
-    expect(dog.owner, null);
 
     realm.close();
   });
@@ -600,100 +522,6 @@ Future<void> main([List<String>? args]) async {
     //Ensure both teams are deleted and only teamTwo has left
     expect(teams.length, 1);
     expect(teams[0].name, teamTwo.name);
-    realm.close();
-  });
-
-  test('RealmObject equals', () {
-    var config = Configuration([Dog.schema, Person.schema]);
-    var realm = Realm(config);
-
-    final person = Person('Kasper');
-    final dog = Dog('Fido', owner: person);
-
-    expect(person, person);
-    expect(person, isNot(1));
-    expect(person, isNot(dog));
-
-    realm.write(() {
-      realm
-        ..add(person)
-        ..add(dog);
-    });
-
-    expect(person, person);
-    expect(person, isNot(1));
-    expect(person, isNot(dog));
-
-    final read = realm.query<Person>("name == 'Kasper'");
-
-    expect(read, [person]);
-    realm.close();
-  });
-
-  test('RealmObject isValid', () {
-    var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
-
-    var team = Team("team one");
-    expect(team.isValid, true);
-    realm.write(() {
-      realm.add(team);
-    });
-    expect(team.isValid, true);
-    realm.close();
-    expect(team.isValid, false);
-  });
-
-  test('Access deleted object', () {
-    var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
-
-    var team = Team("TeamOne");
-    realm.write(() => realm.add(team));
-    var teams = realm.all<Team>();
-    var teamBeforeDelete = teams[0];
-    realm.write(() => realm.delete(team));
-    expect(team.isValid, false);
-    expect(teamBeforeDelete.isValid, false);
-    expect(team, teamBeforeDelete);
-    expect(() => team.name, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
-    expect(() => teamBeforeDelete.name, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
-    realm.close();
-  });
-
-  test('Add object after realm is closed', () {
-    var config = Configuration([Car.schema]);
-    var realm = Realm(config);
-
-    final car = Car('Tesla');
-
-    realm.close();
-    expect(() => realm.write(() => realm.add(car)), throws<RealmException>("Cannot access realm that has been closed"));
-  });
-
-  test('Edit object after realm is closed', () {
-    var config = Configuration([Person.schema]);
-    var realm = Realm(config);
-
-    final person = Person('Markos');
-
-    realm.write(() => realm.add(person));
-    realm.close();
-    expect(() => realm.write(() => person.name = "Markos Sanches"), throws<RealmException>("Cannot access realm that has been closed"));
-  });
-
-  test('Edit deleted object', () {
-    var config = Configuration([Person.schema]);
-    var realm = Realm(config);
-
-    final person = Person('Markos');
-
-    realm.write(() {
-      realm.add(person);
-      realm.delete(person);
-    });
-    expect(() => realm.write(() => person.name = "Markos Sanches"),
-        throws<RealmException>("Accessing object of type Person which has been invalidated or deleted"));
     realm.close();
   });
 

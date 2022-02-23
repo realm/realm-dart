@@ -18,14 +18,14 @@
 
 // ignore_for_file: unused_local_variable
 import 'dart:io';
-import 'package:test/test.dart' hide throws;
+import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
-  setupTests();
+  setupTests(args);
 
   test('Configuration can be created', () {
     Configuration([Car.schema]);
@@ -72,7 +72,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration readOnly - opening non existing realm throws', () {
     Configuration config = Configuration([Car.schema], readOnly: true);
-    expect(() => Realm(config), throws<RealmException>("Message: No such table exists"));
+    expect(() => Realm(config), throws<RealmException>("at path '${config.path}' does not exist"));
   });
 
   test('Configuration readOnly - open existing realm with read-only config', () {

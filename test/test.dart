@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// ignore_for_file: unused_local_variable
-
 import 'dart:io';
 import 'dart:math';
 import 'package:path/path.dart' as _path;
@@ -74,21 +72,29 @@ class _School {
   late List<_School> branches;
 }
 
-// void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
-//   var timeout = 30;
-//   assert(() {
-//     timeout = Duration.secondsPerDay;
-//     return true;
-//   }());
+String? testName;
+//Overrides test method so we can filter tests
+void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
+  if (testName != null && !name!.contains(testName!)) {
+    return;
+  }
 
-//   testing.test(name, testFunction, skip: skip, timeout: Timeout(Duration(seconds: timeout)));
-// }
+  var timeout = 30;
+  assert(() {
+    timeout = Duration.secondsPerDay;
+    return true;
+  }());
+
+  testing.test(name, testFunction, skip: skip, timeout: Timeout(Duration(seconds: timeout)));
+}
 
 void xtest(String? name, dynamic Function() testFunction) {
   testing.test(name, testFunction, skip: "Test is disabled");
 }
 
-void setupTests() {
+void setupTests(List<String>? args) {
+  parseTestNameFromArguments(args);
+
   setUp(() {
     String path = "${generateRandomString(10)}.realm";
     if (Platform.isAndroid || Platform.isIOS) {
@@ -98,6 +104,12 @@ void setupTests() {
 
     addTearDown(() async {
       var file = File(path);
+      try {
+        Realm.deleteRealm(path);
+      } catch (e) {
+        fail("Can not delete realm at path: $path. Did you forget to close it?");
+      }
+
       if (await file.exists() && file.path.endsWith(".realm")) {
         await tryDeleteFile(file);
       }
@@ -133,5 +145,16 @@ Future<void> tryDeleteFile(FileSystemEntity fileEntity, {bool recursive = false}
     } catch (e) {
       await Future<void>.delayed(Duration(milliseconds: 50));
     }
+  }
+}
+
+void parseTestNameFromArguments(List<String>? arguments) {
+  if (testName != null || arguments == null || arguments.isEmpty) {
+    return;
+  }
+
+  int nameArgIndex = arguments.indexOf("--name");
+  if (nameArgIndex >= 0 && arguments.length > 1) {
+    testName = arguments[nameArgIndex + 1];
   }
 }
