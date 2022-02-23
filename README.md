@@ -102,7 +102,8 @@ The Realm Flutter package name is `realm`
 
 * Flutter ^2.8.0
 * For Flutter Desktop environment setup check the guide [here](https://docs.flutter.dev/desktop)
-* Cocoapods v1.11 or newer is required
+* Cocoapods v1.11 or newer
+* CMake 3.19 or newer
 
 ## Usage
 
