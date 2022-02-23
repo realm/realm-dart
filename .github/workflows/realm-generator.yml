@@ -46,7 +46,7 @@ jobs:
         run: ./scripts/build-linux.sh
 
       - name: Run realm_dart tests
-        run: dart test -r expanded --test-randomize-ordering-seed random
+        run: dart test -r expanded -j 1 --test-randomize-ordering-seed random
 
       - name: Generate generator coverage report
         run: |
