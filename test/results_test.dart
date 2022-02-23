@@ -24,7 +24,6 @@ import '../lib/realm.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
-  print(args);
   print("Current PID $pid");
 
   setupTests(args);
