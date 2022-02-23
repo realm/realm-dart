@@ -1,5 +1,5 @@
 import 'package:flutter_driver/driver_extension.dart';
-// import 'package:tests/main.dart' as app;
+
 import 'realm_test.dart' as tests;
 import 'const.dart';
 
@@ -29,6 +29,4 @@ void main(List<String> args) async {
       throw Exception('Unknown command: $command');
     }
   });
-
-  // app.main();
 }

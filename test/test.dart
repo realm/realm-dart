@@ -19,7 +19,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:path/path.dart' as _path;
-import 'package:test/test.dart';
+import 'package:test/test.dart' hide test;
 import 'package:test/test.dart' as testing;
 import '../lib/realm.dart';
 
