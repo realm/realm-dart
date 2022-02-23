@@ -18,10 +18,9 @@ Future<String> main(List<String> args) async {
 
   await configuration_test.main(args);
   await realm_tests.main(args);
+  await realm_object_tests.main(args);
   await list_tests.main(args);
   await results_tests.main(args);
-  await results_tests.main(args);
-  await realm_object_tests.main(args);
 
   tearDown(() {
     if (Invoker.current?.liveTest.state.result == test_api.Result.error || Invoker.current?.liveTest.state.result == test_api.Result.failure) {
