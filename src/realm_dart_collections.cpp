@@ -115,7 +115,6 @@ RLM_API realm_notification_token_t* realm_dart_results_add_notification_callback
         callback_data,
         free_collection_callback_data,
         on_collection_change_callback,
-        // on_collection_change_callback_type<CollectionCallbackData>,
         nullptr,
         scheduler);
 }
