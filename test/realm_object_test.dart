@@ -202,4 +202,57 @@ Future<void> main([List<String>? args]) async {
         throws<RealmException>("Accessing object of type Person which has been invalidated or deleted"));
     realm.close();
   });
+
+  test('RealmObject notifications', () async {
+    var config = Configuration([Dog.schema, Person.schema]);
+    var realm = Realm(config);
+
+    final dog = Dog("Lassy");
+
+    //unmanaged objects can not be listened to
+    expect(() => dog.changes, throws<RealmStateError>());
+
+    realm.write(() {
+      realm.add(dog);
+    });
+
+    var callNum = 0;
+    final subscription = dog.changes.listen((changes) {
+      if (callNum == 0) {
+        callNum++;
+        expect(changes.isDeleted, false);
+        expect(changes.object, dog);
+        expect(changes.properties.isEmpty, true);
+      } else if (callNum == 1) {
+        //object is modified
+        callNum++;
+        expect(changes.isDeleted, false);
+        expect(changes.object, dog);
+        expect(changes.properties, ["age", "owner"]);
+      } else {
+        //object is deleted
+        callNum++;
+        expect(changes.isDeleted, true);
+        expect(changes.object, dog);
+        expect(changes.properties, <String>[]);
+      }
+    });
+
+    await Future<void>.delayed(Duration(milliseconds: 20));
+    realm.write(() {
+      dog.age = 2;
+      dog.owner = Person("owner");
+    });
+
+    await Future<void>.delayed(Duration(milliseconds: 20));
+    realm.write(() {
+      realm.delete(dog);
+    });
+
+    await Future<void>.delayed(Duration(milliseconds: 20));
+    subscription.cancel();
+
+    await Future<void>.delayed(Duration(milliseconds: 20));
+    realm.close();
+  });
 }

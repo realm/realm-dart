@@ -23,9 +23,10 @@
 #include "dart_api_dl.h"
 
 typedef void (*realm_dart_on_collection_change_func_t)(Dart_Handle notification_controller, const realm_collection_changes_t*);
+typedef void (*realm_dart_on_object_change_func_t)(Dart_Handle notification_controller, const realm_object_changes_t*);
 
 /**
- * Subscribe for notifications of changes to a realm results collection.
+ * Subscribe for change notifications to a realm results collection.
  *
  * @param results The realm results to subscribe to.
  * @param notification_controller A handle to a Dart NotificationController instance that will be passed to the callback.
@@ -41,7 +42,7 @@ realm_dart_results_add_notification_callback(realm_results_t* results,
                                              realm_scheduler_t* scheduler);
 
 /**
-* Subscribe for notifications of changes to a realm list collection.
+* Subscribe for change notifications to a realm list collection.
 *
 * @param list The realm list to subscribe to.
 * @param notification_controller A handle to a Dart NotificationController instance that will be passed to the callback.
@@ -56,4 +57,19 @@ realm_dart_list_add_notification_callback(realm_list_t* list,
                                           realm_dart_on_collection_change_func_t on_change,
                                           realm_scheduler_t* scheduler);
 
+/**
+* Subscribe for change notifications to a realm object.
+*
+* @param realm_object The realm object to subscribe to.
+* @param notification_controller A handle to a Dart NotificationController instance that will be passed to the callback.
+* @param on_change The callback to invoke, if the realm list changes.
+* @return A notification token that can be released to unsubscribe.
+*
+* This is a dart specific wrapper for realm_object_add_notification_callback.
+*/
+RLM_API realm_notification_token_t*
+realm_dart_object_add_notification_callback(realm_object_t* list,
+                                          Dart_Handle notification_controller,
+                                          realm_dart_on_object_change_func_t on_change,
+                                          realm_scheduler_t* scheduler);
 #endif // REALM_DART_COLLECTIONS_H

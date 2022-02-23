@@ -7018,6 +7018,45 @@ class RealmLibrary {
               realm_dart_on_collection_change_func_t,
               ffi.Pointer<realm_scheduler_t>)>();
 
+  /// Subscribe for notifications of changes to a realm object.
+  ///
+  /// @param realm_object The realm object to subscribe to.
+  /// @param notification_controller A handle to a Dart NotificationController instance that will be passed to the callback.
+  /// @param on_change The callback to invoke, if the realm list changes.
+  /// @return A notification token that can be released to unsubscribe.
+  ///
+  /// This is a dart specific wrapper for realm_object_add_notification_callback.
+  ffi.Pointer<realm_notification_token_t>
+      realm_dart_object_add_notification_callback(
+    ffi.Pointer<realm_object_t> list,
+    Object notification_controller,
+    realm_dart_on_object_change_func_t on_change,
+    ffi.Pointer<realm_scheduler_t> scheduler,
+  ) {
+    return _realm_dart_object_add_notification_callback(
+      list,
+      notification_controller,
+      on_change,
+      scheduler,
+    );
+  }
+
+  late final _realm_dart_object_add_notification_callbackPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_notification_token_t> Function(
+                  ffi.Pointer<realm_object_t>,
+                  ffi.Handle,
+                  realm_dart_on_object_change_func_t,
+                  ffi.Pointer<realm_scheduler_t>)>>(
+      'realm_dart_object_add_notification_callback');
+  late final _realm_dart_object_add_notification_callback =
+      _realm_dart_object_add_notification_callbackPtr.asFunction<
+          ffi.Pointer<realm_notification_token_t> Function(
+              ffi.Pointer<realm_object_t>,
+              Object,
+              realm_dart_on_object_change_func_t,
+              ffi.Pointer<realm_scheduler_t>)>();
+
   ffi.Pointer<ffi.Int8> realm_dart_get_files_path() {
     return _realm_dart_get_files_path();
   }
@@ -7942,3 +7981,6 @@ typedef realm_dart_on_collection_change_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(
             ffi.Handle, ffi.Pointer<realm_collection_changes_t>)>>;
+typedef realm_dart_on_object_change_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(ffi.Handle, ffi.Pointer<realm_object_changes_t>)>>;

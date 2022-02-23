@@ -24,7 +24,6 @@ import '../lib/realm.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
-  print(args);
   print("Current PID $pid");
 
   setupTests(args);
@@ -362,16 +361,16 @@ Future<void> main([List<String>? args]) async {
       }
     });
 
-    await Future<void>.delayed(Duration(milliseconds: 10));
+    await Future<void>.delayed(const Duration(milliseconds: 20));
     realm.write(() {
       realm.all<Dog>().first.age = 2;
       realm.add(Dog("Fido4"));
     });
 
-    await Future<void>.delayed(Duration(milliseconds: 10));
+    await Future<void>.delayed(const Duration(milliseconds: 20));
     subscription.cancel();
 
-    await Future<void>.delayed(Duration(milliseconds: 10));
+    await Future<void>.delayed(const Duration(milliseconds: 20));
     realm.close();
   });
 
@@ -388,7 +387,7 @@ Future<void> main([List<String>? args]) async {
       callbackCalled = true;
     });
 
-    await Future<void>.delayed(Duration(milliseconds: 10));
+    await Future<void>.delayed(const Duration(milliseconds: 20));
     expect(callbackCalled, true);
 
     subscription.pause();
@@ -399,10 +398,10 @@ Future<void> main([List<String>? args]) async {
 
     expect(callbackCalled, false);
 
-    await Future<void>.delayed(Duration(milliseconds: 10));
+    await Future<void>.delayed(const Duration(milliseconds: 20));
     await subscription.cancel();
 
-    await Future<void>.delayed(Duration(milliseconds: 10));
+    await Future<void>.delayed(const Duration(milliseconds: 20));
     realm.close();
   });
 
@@ -415,7 +414,7 @@ Future<void> main([List<String>? args]) async {
       callbackCalled = true;
     });
 
-    await Future<void>.delayed(Duration(milliseconds: 10));
+    await Future<void>.delayed(const Duration(milliseconds: 20));
     expect(callbackCalled, true);
 
     subscription.pause();
@@ -423,7 +422,7 @@ Future<void> main([List<String>? args]) async {
     realm.write(() {
       realm.add(Dog("Lassy"));
     });
-    await Future<void>.delayed(Duration(milliseconds: 10));
+    await Future<void>.delayed(const Duration(milliseconds: 20));
     expect(callbackCalled, false);
 
     subscription.resume();
@@ -431,11 +430,11 @@ Future<void> main([List<String>? args]) async {
     realm.write(() {
       realm.add(Dog("Lassy1"));
     });
-    await Future<void>.delayed(Duration(milliseconds: 10));
+    await Future<void>.delayed(const Duration(milliseconds: 20));
     expect(callbackCalled, true);
 
     await subscription.cancel();
-    await Future<void>.delayed(Duration(milliseconds: 10));
+    await Future<void>.delayed(const Duration(milliseconds: 20));
     realm.close();
   });
 
@@ -444,7 +443,7 @@ Future<void> main([List<String>? args]) async {
     var realm = Realm(config);
 
     final leak = realm.all<Dog>().changes.listen((data) {});
-    await Future<void>.delayed(Duration(milliseconds: 1));
+    await Future<void>.delayed(const Duration(milliseconds: 20));
     realm.close();
   });
 }

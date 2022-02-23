@@ -347,16 +347,16 @@ Future<void> main([List<String>? args]) async {
       }
     });
 
-    await Future<void>.delayed(Duration(milliseconds: 10));
+    await Future<void>.delayed(Duration(milliseconds: 20));
     realm.write(() {
       team.players.add(Person("p2"));
       team.players.first.name = "p3";
     });
 
-    await Future<void>.delayed(Duration(milliseconds: 10));
+    await Future<void>.delayed(Duration(milliseconds: 20));
     subscription.cancel();
 
-    await Future<void>.delayed(Duration(milliseconds: 10));
+    await Future<void>.delayed(Duration(milliseconds: 20));
     realm.close();
   });
 
