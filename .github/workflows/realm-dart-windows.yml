@@ -37,7 +37,7 @@ jobs:
 
       - name: Run tests
         run: |
-          dart test -r expanded --test-randomize-ordering-seed random
+          dart test -r expanded -j 1 --test-randomize-ordering-seed random
           echo "ARCHIVE_PATH=$(pwd)\\binary\\windows.tar.gz" >> $env:GITHUB_ENV
           echo "ARCHIVE_SOURCE_PATH=$(pwd)\\binary\\windows" >> $env:GITHUB_ENV
 
