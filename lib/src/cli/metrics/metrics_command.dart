@@ -81,7 +81,7 @@ Future<void> uploadMetrics(Options options) async {
     realmDep = pubspec.dependencies["realm"];
     frameworkName = frameworkName ?? "Flutter";
   }
-  else if (pubspec.dependencies.containsKey('realm')) {
+  else if (pubspec.dependencies.containsKey('realm_dart')) {
     realmDep = pubspec.dependencies["realm_dart"];
     frameworkName = frameworkName ?? "Dart";
   }
