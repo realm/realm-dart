@@ -48,6 +48,10 @@ class Car extends _Car with RealmObject {
   @override
   set owner(covariant Person? value) => RealmObject.set(this, 'owner', value);
 
+  @override
+  Stream<RealmObjectChanges<Car>> get changes =>
+      RealmObject.getChanges<Car>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -89,6 +93,10 @@ class Person extends _Person with RealmObject {
   int get age => RealmObject.get<int>(this, 'age') as int;
   @override
   set age(int value) => RealmObject.set(this, 'age', value);
+
+  @override
+  Stream<RealmObjectChanges<Person>> get changes =>
+      RealmObject.getChanges<Person>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
