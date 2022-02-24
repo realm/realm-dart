@@ -66,6 +66,7 @@ void dummy(void) {
   realm_get_library_version();
   realm_object_create(nullptr, 0);
   realm_results_get_object(nullptr, 0);
+  realm_list_size(nullptr, 0);
   realm_results_add_notification_callback(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
 #if (ANDROID)
   realm_android_dummy();

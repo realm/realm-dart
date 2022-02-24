@@ -18,7 +18,6 @@
 
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 
-import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:ffi' as ffi show Handle;
@@ -184,12 +183,12 @@ class _RealmCore {
     return SchedulerHandle._(schedulerPtr);
   }
 
-  void invokeScheduler(int isolateId, int message) {
-    _realmLib.realm_dart_scheduler_invoke(isolateId, Pointer.fromAddress(message));
+  void invokeScheduler(SchedulerHandle schedulerHandle) {
+    _realmLib.realm_scheduler_perform_work(schedulerHandle._pointer);
   }
 
-  void setScheduler(Configuration config, SchedulerHandle scheduler) {
-    _realmLib.realm_config_set_scheduler(config.handle._pointer, scheduler._pointer);
+  void setScheduler(Configuration config, SchedulerHandle schedulerHandle) {
+    _realmLib.realm_config_set_scheduler(config.handle._pointer, schedulerHandle._pointer);
   }
 
   RealmHandle openRealm(Configuration config) {
