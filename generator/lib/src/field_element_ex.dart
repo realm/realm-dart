@@ -58,7 +58,7 @@ extension FieldElementEx on FieldElement {
       );
 
   DartType get modelType => typeAnnotation?.type?.nullIfDynamic ?? initializerExpression?.staticType ?? PseudoType(typeAnnotation.toString());
-  
+
   String get modelTypeName => modelType.getDisplayString(withNullability: true);
 
   String get mappedTypeName => modelType.mappedName;
@@ -77,6 +77,22 @@ extension FieldElementEx on FieldElement {
 
       final primaryKey = primaryKeyInfo;
       final indexed = indexedInfo;
+
+      // Check for as-of-yet unsupported type
+      if (type.isDartCoreSet || //
+          type.isDartCoreMap ||
+          type.isRealmAny ||
+          type.isExactly<Decimal128>() ||
+          type.isExactly<ObjectId>() ||
+          type.isExactly<Uuid>()) {
+        throw RealmInvalidGenerationSourceError(
+          'Field type not supported yet',
+          element: this,
+          primarySpan: typeSpan(span!.file),
+          primaryLabel: 'not yet supported',
+          todo: 'Avoid using $modelTypeName for now',
+        );
+      }
 
       // Validate primary key
       if (primaryKey != null) {
@@ -102,8 +118,8 @@ extension FieldElementEx on FieldElement {
           ));
         }
         // Since the setter of a dart late final public field without initializer is public,
-        // the error of setting a primary key after construction will be a runtime error no matter 
-        // what we do. See: 
+        // the error of setting a primary key after construction will be a runtime error no matter
+        // what we do. See:
         //
         //  https://github.com/dart-lang/language/issues/1239
         //  https://github.com/dart-lang/language/issues/2068
@@ -111,7 +127,7 @@ extension FieldElementEx on FieldElement {
         // Hence we may as well lift the restriction that primary keys must be declared final.
         //
         // However, this may change in the future. Either as the dart language team change this
-        // blemish. Or perhaps we can avoid the late modifier, once static meta programming lands 
+        // blemish. Or perhaps we can avoid the late modifier, once static meta programming lands
         // in dart. Therefor we keep the code outcommented for later.
         /*
         if (!isFinal) {

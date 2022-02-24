@@ -22,7 +22,7 @@ String formatSpans(
   String message, {
   required Element element,
   required String todo,
-  required SourceSpan primarySpan,
+  SourceSpan? primarySpan,
   String? primaryLabel,
   Map<SourceSpan, String> secondarySpans = const {},
   bool color = false,
@@ -30,17 +30,19 @@ String formatSpans(
   final buffer = StringBuffer(message);
   try {
     final span = primarySpan;
-    final formated = secondarySpans.isEmpty && primaryLabel == null
-        ? span.highlight(color: color)
-        : span.highlightMultiple(
-            primaryLabel ?? '!',
-            secondarySpans,
-            color: color,
-          );
-    buffer
-      ..write('\n' * 2 + 'in: ')
-      ..writeln(span.start.toolString)
-      ..write(formated);
+    if (span != null) {
+      final formatted = secondarySpans.isEmpty && primaryLabel == null
+          ? span.highlight(color: color)
+          : span.highlightMultiple(
+              primaryLabel ?? '!',
+              secondarySpans,
+              color: color,
+            );
+      buffer
+        ..write('\n' * 2 + 'in: ')
+        ..writeln(span.start.toolString)
+        ..write(formatted);
+    }
   } catch (e) {
     // Source for `element` wasn't found, it must be in a summary with no
     // associated source. We can still give the name.

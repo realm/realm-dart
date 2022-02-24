@@ -23,6 +23,7 @@ import 'package:realm_common/realm_common.dart';
 import 'package:realm_generator/src/pseudo_type.dart';
 import 'package:source_gen/source_gen.dart';
 
+import 'element.dart';
 import 'error.dart';
 import 'session.dart';
 import 'type_checkers.dart';
@@ -93,19 +94,6 @@ extension DartTypeEx on DartType {
   RealmPropertyType? get realmType => _realmType(true);
 
   RealmPropertyType? _realmType(bool recurse) {
-    // Check for as-of-yet unsupported type
-    if (isDartCoreSet || //
-        isDartCoreMap ||
-        isRealmAny ||
-        isExactly<Decimal128>() ||
-        isExactly<ObjectId>() ||
-        isExactly<Uuid>()) {
-      throw RealmInvalidGenerationSourceError(
-        'Not supported yet',
-        todo: 'Avoid using this type for now',
-        element: element!,
-      );
-    }
     if (isRealmCollection && recurse) {
       return (this as ParameterizedType).typeArguments.last._realmType(false); // only recurse once! (for now)
     }
