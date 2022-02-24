@@ -255,4 +255,27 @@ Future<void> main([List<String>? args]) async {
     await Future<void>.delayed(Duration(milliseconds: 20));
     realm.close();
   });
+
+  test('RealmObject.operator==', () {
+    var config = Configuration([Dog.schema, Person.schema]);
+    var realm = Realm(config);
+
+    final person = Person('Kasper');
+    final dog = Dog('Fido', owner: person);
+    expect(person, person);
+    expect(person, isNot(1));
+    expect(person, isNot(dog));
+    realm.write(() {
+      realm
+        ..add(person)
+        ..add(dog);
+    });
+    expect(person, person);
+    expect(person, isNot(1));
+    expect(person, isNot(dog));
+    final read = realm.query<Person>("name == 'Kasper'");
+
+    expect(read, [person]);
+    realm.close();
+  });
 }
