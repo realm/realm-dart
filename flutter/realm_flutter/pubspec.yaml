@@ -48,7 +48,9 @@ flutter:
         pluginClass: RealmPlugin
       ios:
         pluginClass: RealmPlugin
-      windows:
+      linux:
         pluginClass: RealmPlugin
       macos:
+        pluginClass: RealmPlugin
+      windows:
         pluginClass: RealmPlugin
