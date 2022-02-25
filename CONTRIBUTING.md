@@ -11,7 +11,7 @@ When filing an issue, please provide as much of the following information as pos
 3. **Actual results**
 4. **Steps to reproduce**
 5. **Code sample that highlights the issue** (full Flutter or Dart project that we can run ourselves are ideal)
-6. **Version of Realm / Flutter and Dart /**
+6. **Version of Realm, Flutter and Dart**
 7. **Version of desktop OS - Mac, Windows or Linux**
 8. **Version of target mobile OS**
 
