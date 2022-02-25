@@ -894,21 +894,90 @@ class RealmLibrary {
       _realm_config_set_max_number_of_active_versionsPtr
           .asFunction<void Function(ffi.Pointer<realm_config_t>, int)>();
 
+  /// Configure realm to be in memory
+  void realm_config_set_in_memory(
+    ffi.Pointer<realm_config_t> arg0,
+    bool arg1,
+  ) {
+    return _realm_config_set_in_memory(
+      arg0,
+      arg1 ? 1 : 0,
+    );
+  }
+
+  late final _realm_config_set_in_memoryPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<realm_config_t>,
+              ffi.Uint8)>>('realm_config_set_in_memory');
+  late final _realm_config_set_in_memory = _realm_config_set_in_memoryPtr
+      .asFunction<void Function(ffi.Pointer<realm_config_t>, int)>();
+
+  /// Check if realm is configured in memory
+  bool realm_config_get_in_memory(
+    ffi.Pointer<realm_config_t> arg0,
+  ) {
+    return _realm_config_get_in_memory(
+          arg0,
+        ) !=
+        0;
+  }
+
+  late final _realm_config_get_in_memoryPtr = _lookup<
+          ffi.NativeFunction<ffi.Uint8 Function(ffi.Pointer<realm_config_t>)>>(
+      'realm_config_get_in_memory');
+  late final _realm_config_get_in_memory = _realm_config_get_in_memoryPtr
+      .asFunction<int Function(ffi.Pointer<realm_config_t>)>();
+
+  /// Set FIFO path
+  void realm_config_set_fifo_path(
+    ffi.Pointer<realm_config_t> arg0,
+    ffi.Pointer<ffi.Int8> arg1,
+  ) {
+    return _realm_config_set_fifo_path(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_config_set_fifo_pathPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<realm_config_t>,
+              ffi.Pointer<ffi.Int8>)>>('realm_config_set_fifo_path');
+  late final _realm_config_set_fifo_path =
+      _realm_config_set_fifo_pathPtr.asFunction<
+          void Function(ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Int8>)>();
+
+  /// Check realm FIFO path
+  ffi.Pointer<ffi.Int8> realm_config_get_fifo_path(
+    ffi.Pointer<realm_config_t> arg0,
+  ) {
+    return _realm_config_get_fifo_path(
+      arg0,
+    );
+  }
+
+  late final _realm_config_get_fifo_pathPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Int8> Function(
+              ffi.Pointer<realm_config_t>)>>('realm_config_get_fifo_path');
+  late final _realm_config_get_fifo_path =
+      _realm_config_get_fifo_pathPtr.asFunction<
+          ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_config_t>)>();
+
   /// Create a custom scheduler object from callback functions.
   ///
   /// @param userdata Pointer passed to all callbacks.
-  /// @param notify Function to trigger a call to the registered callback on the
-  /// scheduler's event loop. This function must be thread-safe, or
-  /// NULL, in which case the scheduler is considered unable to
-  /// deliver notifications.
+  /// @param notify Function which will be called whenever the scheduler has work
+  /// to do. Each call to this should trigger a call to
+  /// `realm_scheduler_perform_work()` from within the scheduler's
+  /// event loop. This function must be thread-safe, or NULL, in
+  /// which case the scheduler is considered unable to deliver
+  /// notifications.
   /// @param is_on_thread Function to return true if called from the same thread as
   /// the scheduler. This function must be thread-safe.
   /// @param can_deliver_notifications Function to return true if the scheduler can
   /// support `notify()`. This function does not
   /// need to be thread-safe.
-  /// @param set_notify_callback Function to accept a callback that will be invoked
-  /// by `notify()` on the scheduler's event loop. This
-  /// function does not need to be thread-safe.
   ffi.Pointer<realm_scheduler_t> realm_scheduler_new(
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t arg1,
@@ -916,7 +985,6 @@ class RealmLibrary {
     realm_scheduler_is_on_thread_func_t is_on_thread,
     realm_scheduler_is_same_as_func_t is_same_as,
     realm_scheduler_can_deliver_notifications_func_t can_deliver_notifications,
-    realm_scheduler_set_notify_callback_func_t set_notify_callback,
   ) {
     return _realm_scheduler_new(
       userdata,
@@ -925,7 +993,6 @@ class RealmLibrary {
       is_on_thread,
       is_same_as,
       can_deliver_notifications,
-      set_notify_callback,
     );
   }
 
@@ -937,8 +1004,7 @@ class RealmLibrary {
                   realm_scheduler_notify_func_t,
                   realm_scheduler_is_on_thread_func_t,
                   realm_scheduler_is_same_as_func_t,
-                  realm_scheduler_can_deliver_notifications_func_t,
-                  realm_scheduler_set_notify_callback_func_t)>>(
+                  realm_scheduler_can_deliver_notifications_func_t)>>(
       'realm_scheduler_new');
   late final _realm_scheduler_new = _realm_scheduler_newPtr.asFunction<
       ffi.Pointer<realm_scheduler_t> Function(
@@ -947,8 +1013,27 @@ class RealmLibrary {
           realm_scheduler_notify_func_t,
           realm_scheduler_is_on_thread_func_t,
           realm_scheduler_is_same_as_func_t,
-          realm_scheduler_can_deliver_notifications_func_t,
-          realm_scheduler_set_notify_callback_func_t)>();
+          realm_scheduler_can_deliver_notifications_func_t)>();
+
+  /// Performs all of the pending work for the given scheduler.
+  ///
+  /// This function must be called from within the scheduler's event loop. It must
+  /// be called after each time that the notify function passed to the scheduler
+  /// is involved.
+  void realm_scheduler_perform_work(
+    ffi.Pointer<realm_scheduler_t> arg0,
+  ) {
+    return _realm_scheduler_perform_work(
+      arg0,
+    );
+  }
+
+  late final _realm_scheduler_perform_workPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<realm_scheduler_t>)>>('realm_scheduler_perform_work');
+  late final _realm_scheduler_perform_work = _realm_scheduler_perform_workPtr
+      .asFunction<void Function(ffi.Pointer<realm_scheduler_t>)>();
 
   /// Create an instance of the default scheduler for the current platform,
   /// normally confined to the calling thread.
@@ -1028,98 +1113,6 @@ class RealmLibrary {
       _realm_scheduler_set_default_factoryPtr.asFunction<
           int Function(ffi.Pointer<ffi.Void>, realm_free_userdata_func_t,
               realm_scheduler_default_factory_func_t)>();
-
-  /// Trigger a call to the registered notifier callback on the scheduler's event loop.
-  ///
-  /// This function is thread-safe.
-  void realm_scheduler_notify(
-    ffi.Pointer<realm_scheduler_t> arg0,
-  ) {
-    return _realm_scheduler_notify(
-      arg0,
-    );
-  }
-
-  late final _realm_scheduler_notifyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<realm_scheduler_t>)>>('realm_scheduler_notify');
-  late final _realm_scheduler_notify = _realm_scheduler_notifyPtr
-      .asFunction<void Function(ffi.Pointer<realm_scheduler_t>)>();
-
-  /// Returns true if the caller is currently running on the scheduler's thread.
-  ///
-  /// This function is thread-safe.
-  bool realm_scheduler_is_on_thread(
-    ffi.Pointer<realm_scheduler_t> arg0,
-  ) {
-    return _realm_scheduler_is_on_thread(
-          arg0,
-        ) !=
-        0;
-  }
-
-  late final _realm_scheduler_is_on_threadPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Uint8 Function(
-              ffi.Pointer<realm_scheduler_t>)>>('realm_scheduler_is_on_thread');
-  late final _realm_scheduler_is_on_thread = _realm_scheduler_is_on_threadPtr
-      .asFunction<int Function(ffi.Pointer<realm_scheduler_t>)>();
-
-  /// Returns true if the scheduler is able to deliver notifications.
-  ///
-  /// A false return value may indicate that notifications are not applicable for
-  /// the scheduler, not implementable, or a temporary inability to deliver
-  /// notifications.
-  ///
-  /// This function is not thread-safe.
-  bool realm_scheduler_can_deliver_notifications(
-    ffi.Pointer<realm_scheduler_t> arg0,
-  ) {
-    return _realm_scheduler_can_deliver_notifications(
-          arg0,
-        ) !=
-        0;
-  }
-
-  late final _realm_scheduler_can_deliver_notificationsPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Uint8 Function(ffi.Pointer<realm_scheduler_t>)>>(
-      'realm_scheduler_can_deliver_notifications');
-  late final _realm_scheduler_can_deliver_notifications =
-      _realm_scheduler_can_deliver_notificationsPtr
-          .asFunction<int Function(ffi.Pointer<realm_scheduler_t>)>();
-
-  /// Set the callback that will be invoked by `realm_scheduler_notify()`.
-  ///
-  /// This function is not thread-safe.
-  bool realm_scheduler_set_notify_callback(
-    ffi.Pointer<realm_scheduler_t> arg0,
-    ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t arg2,
-    realm_scheduler_notify_func_t arg3,
-  ) {
-    return _realm_scheduler_set_notify_callback(
-          arg0,
-          userdata,
-          arg2,
-          arg3,
-        ) !=
-        0;
-  }
-
-  late final _realm_scheduler_set_notify_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Uint8 Function(
-                  ffi.Pointer<realm_scheduler_t>,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  realm_scheduler_notify_func_t)>>(
-      'realm_scheduler_set_notify_callback');
-  late final _realm_scheduler_set_notify_callback =
-      _realm_scheduler_set_notify_callbackPtr.asFunction<
-          int Function(ffi.Pointer<realm_scheduler_t>, ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t, realm_scheduler_notify_func_t)>();
 
   /// Open a Realm file.
   ///
@@ -1504,6 +1497,23 @@ class RealmLibrary {
               ffi.Pointer<realm_t>)>>('realm_get_schema');
   late final _realm_get_schema = _realm_get_schemaPtr
       .asFunction<ffi.Pointer<realm_schema_t> Function(ffi.Pointer<realm_t>)>();
+
+  /// Get the schema version for this realm.
+  ///
+  /// This function cannot fail.
+  int realm_get_schema_version(
+    ffi.Pointer<realm_t> realm,
+  ) {
+    return _realm_get_schema_version(
+      realm,
+    );
+  }
+
+  late final _realm_get_schema_versionPtr =
+      _lookup<ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<realm_t>)>>(
+          'realm_get_schema_version');
+  late final _realm_get_schema_version = _realm_get_schema_versionPtr
+      .asFunction<int Function(ffi.Pointer<realm_t>)>();
 
   /// Update the schema of an open realm.
   ///
@@ -3200,6 +3210,11 @@ class RealmLibrary {
               ffi.Pointer<realm_collection_move_t>,
               int)>();
 
+  /// Get a set instance for the property of an object.
+  ///
+  /// Note: It is up to the caller to call `realm_release()` on the returned set.
+  ///
+  /// @return A non-null pointer if no exception occurred.
   ffi.Pointer<realm_set_t> realm_get_set(
     ffi.Pointer<realm_object_t> arg0,
     int arg1,
@@ -3217,20 +3232,107 @@ class RealmLibrary {
   late final _realm_get_set = _realm_get_setPtr.asFunction<
       ffi.Pointer<realm_set_t> Function(ffi.Pointer<realm_object_t>, int)>();
 
-  int realm_set_size(
+  /// Resolve the set in the context of a given Realm instance.
+  ///
+  /// This is equivalent to producing a thread-safe reference and resolving it in the frozen realm.
+  ///
+  /// If resolution is possible, a valid resolved object is produced at '*resolved*'.
+  /// If resolution is not possible, but no error occurs, '*resolved' is set to NULL
+  ///
+  /// @return true if no error occurred.
+  bool realm_set_resolve_in(
+    ffi.Pointer<realm_set_t> list,
+    ffi.Pointer<realm_t> target_realm,
+    ffi.Pointer<ffi.Pointer<realm_set_t>> resolved,
+  ) {
+    return _realm_set_resolve_in(
+          list,
+          target_realm,
+          resolved,
+        ) !=
+        0;
+  }
+
+  late final _realm_set_resolve_inPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Uint8 Function(ffi.Pointer<realm_set_t>, ffi.Pointer<realm_t>,
+              ffi.Pointer<ffi.Pointer<realm_set_t>>)>>('realm_set_resolve_in');
+  late final _realm_set_resolve_in = _realm_set_resolve_inPtr.asFunction<
+      int Function(ffi.Pointer<realm_set_t>, ffi.Pointer<realm_t>,
+          ffi.Pointer<ffi.Pointer<realm_set_t>>)>();
+
+  /// Check if a set is valid.
+  ///
+  /// @return True if the set is valid.
+  bool realm_set_is_valid(
     ffi.Pointer<realm_set_t> arg0,
   ) {
+    return _realm_set_is_valid(
+          arg0,
+        ) !=
+        0;
+  }
+
+  late final _realm_set_is_validPtr =
+      _lookup<ffi.NativeFunction<ffi.Uint8 Function(ffi.Pointer<realm_set_t>)>>(
+          'realm_set_is_valid');
+  late final _realm_set_is_valid = _realm_set_is_validPtr
+      .asFunction<int Function(ffi.Pointer<realm_set_t>)>();
+
+  /// Get the size of a set, in number of unique elements.
+  ///
+  /// This function may fail if the object owning the set has been deleted.
+  ///
+  /// @param out_size Where to put the set size. May be NULL.
+  /// @return True if no exception occurred.
+  bool realm_set_size(
+    ffi.Pointer<realm_set_t> arg0,
+    ffi.Pointer<ffi.IntPtr> out_size,
+  ) {
     return _realm_set_size(
-      arg0,
-    );
+          arg0,
+          out_size,
+        ) !=
+        0;
   }
 
   late final _realm_set_sizePtr = _lookup<
-          ffi.NativeFunction<ffi.IntPtr Function(ffi.Pointer<realm_set_t>)>>(
-      'realm_set_size');
-  late final _realm_set_size =
-      _realm_set_sizePtr.asFunction<int Function(ffi.Pointer<realm_set_t>)>();
+      ffi.NativeFunction<
+          ffi.Uint8 Function(ffi.Pointer<realm_set_t>,
+              ffi.Pointer<ffi.IntPtr>)>>('realm_set_size');
+  late final _realm_set_size = _realm_set_sizePtr.asFunction<
+      int Function(ffi.Pointer<realm_set_t>, ffi.Pointer<ffi.IntPtr>)>();
 
+  /// Get the property that this set came from.
+  ///
+  /// @return True if no exception occurred.
+  bool realm_set_get_property(
+    ffi.Pointer<realm_set_t> arg0,
+    ffi.Pointer<realm_property_info_t> out_property_info,
+  ) {
+    return _realm_set_get_property(
+          arg0,
+          out_property_info,
+        ) !=
+        0;
+  }
+
+  late final _realm_set_get_propertyPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Uint8 Function(ffi.Pointer<realm_set_t>,
+              ffi.Pointer<realm_property_info_t>)>>('realm_set_get_property');
+  late final _realm_set_get_property = _realm_set_get_propertyPtr.asFunction<
+      int Function(
+          ffi.Pointer<realm_set_t>, ffi.Pointer<realm_property_info_t>)>();
+
+  /// Get the value at @a index.
+  ///
+  /// Note that elements in a set move around arbitrarily when other elements are
+  /// inserted/removed.
+  ///
+  /// @param out_value The resulting value, if no error occurred. May be NULL,
+  /// though nonsensical.
+  /// @return True if no exception occurred.
   bool realm_set_get(
     ffi.Pointer<realm_set_t> arg0,
     int index,
@@ -3252,47 +3354,89 @@ class RealmLibrary {
       int Function(
           ffi.Pointer<realm_set_t>, int, ffi.Pointer<realm_value_t>)>();
 
+  /// Find an element in a set.
+  ///
+  /// If @a value has a type that is incompatible with the set, it will be reported
+  /// as not existing in the set.
+  ///
+  /// @param value The value to look for in the set.
+  /// @param out_index If non-null, and the element is found, this will be
+  /// populated with the index of the found element in the set.
+  /// @param out_found If non-null, will be set to true if the element was found,
+  /// otherwise will be set to false.
+  /// @return True if no exception occurred.
   bool realm_set_find(
     ffi.Pointer<realm_set_t> arg0,
     realm_value_t value,
     ffi.Pointer<ffi.IntPtr> out_index,
+    ffi.Pointer<ffi.Uint8> out_found,
   ) {
     return _realm_set_find(
           arg0,
           value,
           out_index,
+          out_found,
         ) !=
         0;
   }
 
   late final _realm_set_findPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Uint8 Function(ffi.Pointer<realm_set_t>, realm_value_t,
-              ffi.Pointer<ffi.IntPtr>)>>('realm_set_find');
+          ffi.Uint8 Function(
+              ffi.Pointer<realm_set_t>,
+              realm_value_t,
+              ffi.Pointer<ffi.IntPtr>,
+              ffi.Pointer<ffi.Uint8>)>>('realm_set_find');
   late final _realm_set_find = _realm_set_findPtr.asFunction<
-      int Function(
-          ffi.Pointer<realm_set_t>, realm_value_t, ffi.Pointer<ffi.IntPtr>)>();
+      int Function(ffi.Pointer<realm_set_t>, realm_value_t,
+          ffi.Pointer<ffi.IntPtr>, ffi.Pointer<ffi.Uint8>)>();
 
+  /// Insert an element in a set.
+  ///
+  /// If the element is already in the set, this function does nothing (and does
+  /// not report an error).
+  ///
+  /// @param value The value to insert.
+  /// @param out_index If non-null, will be set to the index of the inserted
+  /// element, or the index of the existing element.
+  /// @param out_inserted If non-null, will be set to true if the element did not
+  /// already exist in the set. Otherwise set to false.
+  /// @return True if no exception occurred.
   bool realm_set_insert(
     ffi.Pointer<realm_set_t> arg0,
     realm_value_t value,
-    int out_index,
+    ffi.Pointer<ffi.IntPtr> out_index,
+    ffi.Pointer<ffi.Uint8> out_inserted,
   ) {
     return _realm_set_insert(
           arg0,
           value,
           out_index,
+          out_inserted,
         ) !=
         0;
   }
 
   late final _realm_set_insertPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Uint8 Function(ffi.Pointer<realm_set_t>, realm_value_t,
-              ffi.IntPtr)>>('realm_set_insert');
-  late final _realm_set_insert = _realm_set_insertPtr
-      .asFunction<int Function(ffi.Pointer<realm_set_t>, realm_value_t, int)>();
+          ffi.Uint8 Function(
+              ffi.Pointer<realm_set_t>,
+              realm_value_t,
+              ffi.Pointer<ffi.IntPtr>,
+              ffi.Pointer<ffi.Uint8>)>>('realm_set_insert');
+  late final _realm_set_insert = _realm_set_insertPtr.asFunction<
+      int Function(ffi.Pointer<realm_set_t>, realm_value_t,
+          ffi.Pointer<ffi.IntPtr>, ffi.Pointer<ffi.Uint8>)>();
 
+  /// Erase an element from a set.
+  ///
+  /// If the element does not exist in the set, this function does nothing (and
+  /// does not report an error).
+  ///
+  /// @param value The value to erase.
+  /// @param out_erased If non-null, will be set to true if the element was found
+  /// and erased, and otherwise set to false.
+  /// @return True if no exception occurred.
   bool realm_set_erase(
     ffi.Pointer<realm_set_t> arg0,
     realm_value_t value,
@@ -3314,6 +3458,9 @@ class RealmLibrary {
       int Function(
           ffi.Pointer<realm_set_t>, realm_value_t, ffi.Pointer<ffi.Uint8>)>();
 
+  /// Clear a set of values.
+  ///
+  /// @return True if no exception occurred.
   bool realm_set_clear(
     ffi.Pointer<realm_set_t> arg0,
   ) {
@@ -3329,9 +3476,36 @@ class RealmLibrary {
   late final _realm_set_clear =
       _realm_set_clearPtr.asFunction<int Function(ffi.Pointer<realm_set_t>)>();
 
+  /// In a set of objects, delete all objects in the set and clear the set. In a
+  /// set of values, clear the set.
+  ///
+  /// @return True if no exception occurred.
+  bool realm_set_remove_all(
+    ffi.Pointer<realm_set_t> arg0,
+  ) {
+    return _realm_set_remove_all(
+          arg0,
+        ) !=
+        0;
+  }
+
+  late final _realm_set_remove_allPtr =
+      _lookup<ffi.NativeFunction<ffi.Uint8 Function(ffi.Pointer<realm_set_t>)>>(
+          'realm_set_remove_all');
+  late final _realm_set_remove_all = _realm_set_remove_allPtr
+      .asFunction<int Function(ffi.Pointer<realm_set_t>)>();
+
+  /// Replace the contents of a set with values.
+  ///
+  /// The provided values may contain duplicates, in which case the size of the set
+  /// after calling this function will be less than @a num_values.
+  ///
+  /// @param values The list of values to insert.
+  /// @param num_values The number of elements.
+  /// @return True if no exception occurred.
   bool realm_set_assign(
     ffi.Pointer<realm_set_t> arg0,
-    realm_value_t values,
+    ffi.Pointer<realm_value_t> values,
     int num_values,
   ) {
     return _realm_set_assign(
@@ -3344,13 +3518,17 @@ class RealmLibrary {
 
   late final _realm_set_assignPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Uint8 Function(ffi.Pointer<realm_set_t>, realm_value_t,
-              ffi.IntPtr)>>('realm_set_assign');
-  late final _realm_set_assign = _realm_set_assignPtr
-      .asFunction<int Function(ffi.Pointer<realm_set_t>, realm_value_t, int)>();
+          ffi.Uint8 Function(ffi.Pointer<realm_set_t>,
+              ffi.Pointer<realm_value_t>, ffi.IntPtr)>>('realm_set_assign');
+  late final _realm_set_assign = _realm_set_assignPtr.asFunction<
+      int Function(
+          ffi.Pointer<realm_set_t>, ffi.Pointer<realm_value_t>, int)>();
 
+  /// Subscribe to notifications for this object.
+  ///
+  /// @return A non-null pointer if no exception occurred.
   ffi.Pointer<realm_notification_token_t> realm_set_add_notification_callback(
-    ffi.Pointer<realm_object_t> arg0,
+    ffi.Pointer<realm_set_t> arg0,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t free,
     realm_on_collection_change_func_t on_change,
@@ -3370,7 +3548,7 @@ class RealmLibrary {
   late final _realm_set_add_notification_callbackPtr = _lookup<
           ffi.NativeFunction<
               ffi.Pointer<realm_notification_token_t> Function(
-                  ffi.Pointer<realm_object_t>,
+                  ffi.Pointer<realm_set_t>,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t,
                   realm_on_collection_change_func_t,
@@ -3380,13 +3558,40 @@ class RealmLibrary {
   late final _realm_set_add_notification_callback =
       _realm_set_add_notification_callbackPtr.asFunction<
           ffi.Pointer<realm_notification_token_t> Function(
-              ffi.Pointer<realm_object_t>,
+              ffi.Pointer<realm_set_t>,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
               realm_on_collection_change_func_t,
               realm_callback_error_func_t,
               ffi.Pointer<realm_scheduler_t>)>();
 
+  /// Get an set from a thread-safe reference, potentially originating in a
+  /// different `realm_t` instance
+  ffi.Pointer<realm_set_t> realm_set_from_thread_safe_reference(
+    ffi.Pointer<realm_t> arg0,
+    ffi.Pointer<realm_thread_safe_reference_t> arg1,
+  ) {
+    return _realm_set_from_thread_safe_reference(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_set_from_thread_safe_referencePtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_set_t> Function(ffi.Pointer<realm_t>,
+                  ffi.Pointer<realm_thread_safe_reference_t>)>>(
+      'realm_set_from_thread_safe_reference');
+  late final _realm_set_from_thread_safe_reference =
+      _realm_set_from_thread_safe_referencePtr.asFunction<
+          ffi.Pointer<realm_set_t> Function(ffi.Pointer<realm_t>,
+              ffi.Pointer<realm_thread_safe_reference_t>)>();
+
+  /// Get a dictionary instance for the property of an object.
+  ///
+  /// Note: It is up to the caller to call `realm_release()` on the returned dictionary.
+  ///
+  /// @return A non-null pointer if no exception occurred.
   ffi.Pointer<realm_dictionary_t> realm_get_dictionary(
     ffi.Pointer<realm_object_t> arg0,
     int arg1,
@@ -3405,28 +3610,119 @@ class RealmLibrary {
       ffi.Pointer<realm_dictionary_t> Function(
           ffi.Pointer<realm_object_t>, int)>();
 
-  int realm_dictionary_size(
+  /// Resolve the list in the context of a given Realm instance.
+  ///
+  /// This is equivalent to producing a thread-safe reference and resolving it in the frozen realm.
+  ///
+  /// If resolution is possible, a valid resolved object is produced at '*resolved*'.
+  /// If resolution is not possible, but no error occurs, '*resolved' is set to NULL
+  ///
+  /// @return true if no error occurred.
+  bool realm_dictionary_resolve_in(
+    ffi.Pointer<realm_dictionary_t> list,
+    ffi.Pointer<realm_t> target_realm,
+    ffi.Pointer<ffi.Pointer<realm_dictionary_t>> resolved,
+  ) {
+    return _realm_dictionary_resolve_in(
+          list,
+          target_realm,
+          resolved,
+        ) !=
+        0;
+  }
+
+  late final _realm_dictionary_resolve_inPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Uint8 Function(
+                  ffi.Pointer<realm_dictionary_t>,
+                  ffi.Pointer<realm_t>,
+                  ffi.Pointer<ffi.Pointer<realm_dictionary_t>>)>>(
+      'realm_dictionary_resolve_in');
+  late final _realm_dictionary_resolve_in =
+      _realm_dictionary_resolve_inPtr.asFunction<
+          int Function(ffi.Pointer<realm_dictionary_t>, ffi.Pointer<realm_t>,
+              ffi.Pointer<ffi.Pointer<realm_dictionary_t>>)>();
+
+  /// Check if a list is valid.
+  ///
+  /// @return True if the list is valid.
+  bool realm_dictionary_is_valid(
     ffi.Pointer<realm_dictionary_t> arg0,
   ) {
+    return _realm_dictionary_is_valid(
+          arg0,
+        ) !=
+        0;
+  }
+
+  late final _realm_dictionary_is_validPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Uint8 Function(
+              ffi.Pointer<realm_dictionary_t>)>>('realm_dictionary_is_valid');
+  late final _realm_dictionary_is_valid = _realm_dictionary_is_validPtr
+      .asFunction<int Function(ffi.Pointer<realm_dictionary_t>)>();
+
+  /// Get the size of a dictionary (the number of unique keys).
+  ///
+  /// This function may fail if the object owning the dictionary has been deleted.
+  ///
+  /// @param out_size Where to put the dictionary size. May be NULL.
+  /// @return True if no exception occurred.
+  bool realm_dictionary_size(
+    ffi.Pointer<realm_dictionary_t> arg0,
+    ffi.Pointer<ffi.IntPtr> out_size,
+  ) {
     return _realm_dictionary_size(
-      arg0,
-    );
+          arg0,
+          out_size,
+        ) !=
+        0;
   }
 
   late final _realm_dictionary_sizePtr = _lookup<
       ffi.NativeFunction<
-          ffi.IntPtr Function(
-              ffi.Pointer<realm_dictionary_t>)>>('realm_dictionary_size');
-  late final _realm_dictionary_size = _realm_dictionary_sizePtr
-      .asFunction<int Function(ffi.Pointer<realm_dictionary_t>)>();
+          ffi.Uint8 Function(ffi.Pointer<realm_dictionary_t>,
+              ffi.Pointer<ffi.IntPtr>)>>('realm_dictionary_size');
+  late final _realm_dictionary_size = _realm_dictionary_sizePtr.asFunction<
+      int Function(ffi.Pointer<realm_dictionary_t>, ffi.Pointer<ffi.IntPtr>)>();
 
-  bool realm_dictionary_get(
+  /// Get the property that this dictionary came from.
+  ///
+  /// @return True if no exception occurred.
+  bool realm_dictionary_get_property(
+    ffi.Pointer<realm_dictionary_t> arg0,
+    ffi.Pointer<realm_property_info_t> out_info,
+  ) {
+    return _realm_dictionary_get_property(
+          arg0,
+          out_info,
+        ) !=
+        0;
+  }
+
+  late final _realm_dictionary_get_propertyPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Uint8 Function(ffi.Pointer<realm_dictionary_t>,
+                  ffi.Pointer<realm_property_info_t>)>>(
+      'realm_dictionary_get_property');
+  late final _realm_dictionary_get_property =
+      _realm_dictionary_get_propertyPtr.asFunction<
+          int Function(ffi.Pointer<realm_dictionary_t>,
+              ffi.Pointer<realm_property_info_t>)>();
+
+  /// Find an element in a dictionary.
+  ///
+  /// @param key The key to look for.
+  /// @param out_value If non-null, the value for the corresponding key.
+  /// @param out_found If non-null, will be set to true if the dictionary contained the key.
+  /// @return True if no exception occurred.
+  bool realm_dictionary_find(
     ffi.Pointer<realm_dictionary_t> arg0,
     realm_value_t key,
     ffi.Pointer<realm_value_t> out_value,
     ffi.Pointer<ffi.Uint8> out_found,
   ) {
-    return _realm_dictionary_get(
+    return _realm_dictionary_find(
           arg0,
           key,
           out_value,
@@ -3435,30 +3731,76 @@ class RealmLibrary {
         0;
   }
 
-  late final _realm_dictionary_getPtr = _lookup<
+  late final _realm_dictionary_findPtr = _lookup<
       ffi.NativeFunction<
           ffi.Uint8 Function(
               ffi.Pointer<realm_dictionary_t>,
               realm_value_t,
               ffi.Pointer<realm_value_t>,
-              ffi.Pointer<ffi.Uint8>)>>('realm_dictionary_get');
-  late final _realm_dictionary_get = _realm_dictionary_getPtr.asFunction<
+              ffi.Pointer<ffi.Uint8>)>>('realm_dictionary_find');
+  late final _realm_dictionary_find = _realm_dictionary_findPtr.asFunction<
       int Function(ffi.Pointer<realm_dictionary_t>, realm_value_t,
           ffi.Pointer<realm_value_t>, ffi.Pointer<ffi.Uint8>)>();
 
+  /// Get the key-value pair at @a index.
+  ///
+  /// Note that the indices of elements in the dictionary move around as other
+  /// elements are inserted/removed.
+  ///
+  /// @param index The index in the dictionary.
+  /// @param out_key If non-null, will be set to the key at the corresponding index.
+  /// @param out_value If non-null, will be set to the value at the corresponding index.
+  /// @return True if no exception occurred.
+  bool realm_dictionary_get(
+    ffi.Pointer<realm_dictionary_t> arg0,
+    int index,
+    ffi.Pointer<realm_value_t> out_key,
+    ffi.Pointer<realm_value_t> out_value,
+  ) {
+    return _realm_dictionary_get(
+          arg0,
+          index,
+          out_key,
+          out_value,
+        ) !=
+        0;
+  }
+
+  late final _realm_dictionary_getPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Uint8 Function(
+              ffi.Pointer<realm_dictionary_t>,
+              ffi.IntPtr,
+              ffi.Pointer<realm_value_t>,
+              ffi.Pointer<realm_value_t>)>>('realm_dictionary_get');
+  late final _realm_dictionary_get = _realm_dictionary_getPtr.asFunction<
+      int Function(ffi.Pointer<realm_dictionary_t>, int,
+          ffi.Pointer<realm_value_t>, ffi.Pointer<realm_value_t>)>();
+
+  /// Insert or update an element in a dictionary.
+  ///
+  /// If the key already exists, the value will be overwritten.
+  ///
+  /// @param key The lookup key.
+  /// @param value The value to insert.
+  /// @param out_index If non-null, will be set to the index of the element after
+  /// insertion/update.
+  /// @param out_inserted If non-null, will be set to true if the key did not
+  /// already exist.
+  /// @return True if no exception occurred.
   bool realm_dictionary_insert(
     ffi.Pointer<realm_dictionary_t> arg0,
     realm_value_t key,
     realm_value_t value,
-    ffi.Pointer<ffi.Uint8> out_inserted,
     ffi.Pointer<ffi.IntPtr> out_index,
+    ffi.Pointer<ffi.Uint8> out_inserted,
   ) {
     return _realm_dictionary_insert(
           arg0,
           key,
           value,
-          out_inserted,
           out_index,
+          out_inserted,
         ) !=
         0;
   }
@@ -3469,12 +3811,18 @@ class RealmLibrary {
               ffi.Pointer<realm_dictionary_t>,
               realm_value_t,
               realm_value_t,
-              ffi.Pointer<ffi.Uint8>,
-              ffi.Pointer<ffi.IntPtr>)>>('realm_dictionary_insert');
+              ffi.Pointer<ffi.IntPtr>,
+              ffi.Pointer<ffi.Uint8>)>>('realm_dictionary_insert');
   late final _realm_dictionary_insert = _realm_dictionary_insertPtr.asFunction<
       int Function(ffi.Pointer<realm_dictionary_t>, realm_value_t,
-          realm_value_t, ffi.Pointer<ffi.Uint8>, ffi.Pointer<ffi.IntPtr>)>();
+          realm_value_t, ffi.Pointer<ffi.IntPtr>, ffi.Pointer<ffi.Uint8>)>();
 
+  /// Erase a dictionary element.
+  ///
+  /// @param key The key of the element to erase.
+  /// @param out_erased If non-null, will be set to true if the element was found
+  /// and erased.
+  /// @return True if no exception occurred.
   bool realm_dictionary_erase(
     ffi.Pointer<realm_dictionary_t> arg0,
     realm_value_t key,
@@ -3496,6 +3844,9 @@ class RealmLibrary {
       int Function(ffi.Pointer<realm_dictionary_t>, realm_value_t,
           ffi.Pointer<ffi.Uint8>)>();
 
+  /// Clear a dictionary.
+  ///
+  /// @return True if no exception occurred.
   bool realm_dictionary_clear(
     ffi.Pointer<realm_dictionary_t> arg0,
   ) {
@@ -3512,15 +3863,26 @@ class RealmLibrary {
   late final _realm_dictionary_clear = _realm_dictionary_clearPtr
       .asFunction<int Function(ffi.Pointer<realm_dictionary_t>)>();
 
+  /// Replace the contents of a dictionary with key/value pairs.
+  ///
+  /// The provided keys may contain duplicates, in which case the size of the
+  /// dictionary after calling this function will be less than @a num_pairs.
+  ///
+  /// @param keys An array of keys of length @a num_pairs.
+  /// @param values An array of values of length @a num_pairs.
+  /// @param num_pairs The number of key-value pairs to assign.
+  /// @return True if no exception occurred.
   bool realm_dictionary_assign(
     ffi.Pointer<realm_dictionary_t> arg0,
-    ffi.Pointer<ffi.Pointer<realm_value_t>> pairs,
     int num_pairs,
+    ffi.Pointer<realm_value_t> keys,
+    ffi.Pointer<realm_value_t> values,
   ) {
     return _realm_dictionary_assign(
           arg0,
-          pairs,
           num_pairs,
+          keys,
+          values,
         ) !=
         0;
   }
@@ -3529,15 +3891,19 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Uint8 Function(
               ffi.Pointer<realm_dictionary_t>,
-              ffi.Pointer<ffi.Pointer<realm_value_t>>,
-              ffi.IntPtr)>>('realm_dictionary_assign');
+              ffi.IntPtr,
+              ffi.Pointer<realm_value_t>,
+              ffi.Pointer<realm_value_t>)>>('realm_dictionary_assign');
   late final _realm_dictionary_assign = _realm_dictionary_assignPtr.asFunction<
-      int Function(ffi.Pointer<realm_dictionary_t>,
-          ffi.Pointer<ffi.Pointer<realm_value_t>>, int)>();
+      int Function(ffi.Pointer<realm_dictionary_t>, int,
+          ffi.Pointer<realm_value_t>, ffi.Pointer<realm_value_t>)>();
 
+  /// Subscribe to notifications for this object.
+  ///
+  /// @return A non-null pointer if no exception occurred.
   ffi.Pointer<realm_notification_token_t>
       realm_dictionary_add_notification_callback(
-    ffi.Pointer<realm_object_t> arg0,
+    ffi.Pointer<realm_dictionary_t> arg0,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t free,
     realm_on_collection_change_func_t on_change,
@@ -3557,7 +3923,7 @@ class RealmLibrary {
   late final _realm_dictionary_add_notification_callbackPtr = _lookup<
           ffi.NativeFunction<
               ffi.Pointer<realm_notification_token_t> Function(
-                  ffi.Pointer<realm_object_t>,
+                  ffi.Pointer<realm_dictionary_t>,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t,
                   realm_on_collection_change_func_t,
@@ -3567,12 +3933,34 @@ class RealmLibrary {
   late final _realm_dictionary_add_notification_callback =
       _realm_dictionary_add_notification_callbackPtr.asFunction<
           ffi.Pointer<realm_notification_token_t> Function(
-              ffi.Pointer<realm_object_t>,
+              ffi.Pointer<realm_dictionary_t>,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
               realm_on_collection_change_func_t,
               realm_callback_error_func_t,
               ffi.Pointer<realm_scheduler_t>)>();
+
+  /// Get an dictionary from a thread-safe reference, potentially originating in a
+  /// different `realm_t` instance
+  ffi.Pointer<realm_dictionary_t> realm_dictionary_from_thread_safe_reference(
+    ffi.Pointer<realm_t> arg0,
+    ffi.Pointer<realm_thread_safe_reference_t> arg1,
+  ) {
+    return _realm_dictionary_from_thread_safe_reference(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_dictionary_from_thread_safe_referencePtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_dictionary_t> Function(ffi.Pointer<realm_t>,
+                  ffi.Pointer<realm_thread_safe_reference_t>)>>(
+      'realm_dictionary_from_thread_safe_reference');
+  late final _realm_dictionary_from_thread_safe_reference =
+      _realm_dictionary_from_thread_safe_referencePtr.asFunction<
+          ffi.Pointer<realm_dictionary_t> Function(ffi.Pointer<realm_t>,
+              ffi.Pointer<realm_thread_safe_reference_t>)>();
 
   /// Parse a query string and bind it to a table.
   ///
@@ -3614,6 +4002,24 @@ class RealmLibrary {
   late final _realm_query_parse = _realm_query_parsePtr.asFunction<
       ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_t>, int,
           ffi.Pointer<ffi.Int8>, int, ffi.Pointer<realm_value_t>)>();
+
+  /// Get textual representation of query
+  ///
+  /// @return a string containing the description. The string memory is managed by the query object.
+  ffi.Pointer<ffi.Int8> realm_query_get_description(
+    ffi.Pointer<realm_query_t> arg0,
+  ) {
+    return _realm_query_get_description(
+      arg0,
+    );
+  }
+
+  late final _realm_query_get_descriptionPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Int8> Function(
+              ffi.Pointer<realm_query_t>)>>('realm_query_get_description');
+  late final _realm_query_get_description = _realm_query_get_descriptionPtr
+      .asFunction<ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_query_t>)>();
 
   /// Parse a query string and append it to an existing query via logical &&.
   /// The query string applies to the same table and Realm as the existing query.
@@ -3843,6 +4249,98 @@ class RealmLibrary {
               ffi.Pointer<ffi.IntPtr>)>>('realm_results_count');
   late final _realm_results_count = _realm_results_countPtr.asFunction<
       int Function(ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.IntPtr>)>();
+
+  /// Create a new results object by further filtering existing result.
+  ///
+  /// @return A non-null pointer if no exception occurred.
+  ffi.Pointer<realm_results_t> realm_results_filter(
+    ffi.Pointer<realm_results_t> arg0,
+    ffi.Pointer<realm_query_t> arg1,
+  ) {
+    return _realm_results_filter(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_results_filterPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>,
+              ffi.Pointer<realm_query_t>)>>('realm_results_filter');
+  late final _realm_results_filter = _realm_results_filterPtr.asFunction<
+      ffi.Pointer<realm_results_t> Function(
+          ffi.Pointer<realm_results_t>, ffi.Pointer<realm_query_t>)>();
+
+  /// Create a new results object by further sorting existing result.
+  ///
+  /// @param sort_string Specifies a sort condition. It has the format
+  /// <param> ["," <param>]*
+  /// <param> ::= <prop> ["." <prop>]* <direction>,
+  /// <direction> ::= "ASCENDING" | "DESCENDING"
+  /// @return A non-null pointer if no exception occurred.
+  ffi.Pointer<realm_results_t> realm_results_sort(
+    ffi.Pointer<realm_results_t> results,
+    ffi.Pointer<ffi.Int8> sort_string,
+  ) {
+    return _realm_results_sort(
+      results,
+      sort_string,
+    );
+  }
+
+  late final _realm_results_sortPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>,
+              ffi.Pointer<ffi.Int8>)>>('realm_results_sort');
+  late final _realm_results_sort = _realm_results_sortPtr.asFunction<
+      ffi.Pointer<realm_results_t> Function(
+          ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Int8>)>();
+
+  /// Create a new results object by removing duplicates
+  ///
+  /// @param distinct_string Specifies a distinct condition. It has the format
+  /// <param> ["," <param>]*
+  /// <param> ::= <prop> ["." <prop>]*
+  /// @return A non-null pointer if no exception occurred.
+  ffi.Pointer<realm_results_t> realm_results_distinct(
+    ffi.Pointer<realm_results_t> results,
+    ffi.Pointer<ffi.Int8> distinct_string,
+  ) {
+    return _realm_results_distinct(
+      results,
+      distinct_string,
+    );
+  }
+
+  late final _realm_results_distinctPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>,
+              ffi.Pointer<ffi.Int8>)>>('realm_results_distinct');
+  late final _realm_results_distinct = _realm_results_distinctPtr.asFunction<
+      ffi.Pointer<realm_results_t> Function(
+          ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Int8>)>();
+
+  /// Create a new results object by limiting the number of items
+  ///
+  /// @param max_count Specifies the number of elements the new result can have at most
+  /// @return A non-null pointer if no exception occurred.
+  ffi.Pointer<realm_results_t> realm_results_limit(
+    ffi.Pointer<realm_results_t> results,
+    int max_count,
+  ) {
+    return _realm_results_limit(
+      results,
+      max_count,
+    );
+  }
+
+  late final _realm_results_limitPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>,
+              ffi.IntPtr)>>('realm_results_limit');
+  late final _realm_results_limit = _realm_results_limitPtr.asFunction<
+      ffi.Pointer<realm_results_t> Function(
+          ffi.Pointer<realm_results_t>, int)>();
 
   /// Get the matching element at @a index in the results.
   ///
@@ -6940,7 +7438,7 @@ class RealmLibrary {
       _lookup<ffi.NativeFunction<ffi.Uint64 Function()>>('get_thread_id');
   late final _get_thread_id = _get_thread_idPtr.asFunction<int Function()>();
 
-  /// Subscribe for notifications of changes to a realm results collection.
+  /// Subscribe for change notifications to a realm results collection.
   ///
   /// @param results The realm results to subscribe to.
   /// @param notification_controller A handle to a Dart NotificationController instance that will be passed to the callback.
@@ -6979,7 +7477,7 @@ class RealmLibrary {
               realm_dart_on_collection_change_func_t,
               ffi.Pointer<realm_scheduler_t>)>();
 
-  /// Subscribe for notifications of changes to a realm list collection.
+  /// Subscribe for change notifications to a realm list collection.
   ///
   /// @param list The realm list to subscribe to.
   /// @param notification_controller A handle to a Dart NotificationController instance that will be passed to the callback.
@@ -7018,7 +7516,7 @@ class RealmLibrary {
               realm_dart_on_collection_change_func_t,
               ffi.Pointer<realm_scheduler_t>)>();
 
-  /// Subscribe for notifications of changes to a realm object.
+  /// Subscribe for change notifications to a realm object.
   ///
   /// @param realm_object The realm object to subscribe to.
   /// @param notification_controller A handle to a Dart NotificationController instance that will be passed to the callback.
@@ -7424,10 +7922,6 @@ typedef realm_scheduler_is_same_as_func_t = ffi.Pointer<
         ffi.Uint8 Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>;
 typedef realm_scheduler_can_deliver_notifications_func_t = ffi
     .Pointer<ffi.NativeFunction<ffi.Uint8 Function(ffi.Pointer<ffi.Void>)>>;
-typedef realm_scheduler_set_notify_callback_func_t = ffi.Pointer<
-    ffi.NativeFunction<
-        ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>,
-            realm_free_userdata_func_t, realm_scheduler_notify_func_t)>>;
 typedef realm_scheduler_default_factory_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Pointer<realm_scheduler_t> Function(ffi.Pointer<ffi.Void>)>>;

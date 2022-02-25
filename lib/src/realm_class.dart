@@ -249,7 +249,7 @@ class Scheduler {
         return;
       }
 
-      realmCore.invokeScheduler(Isolate.current.hashCode, message as int);
+      realmCore.invokeScheduler(handle);
     };
 
     final sendPort = receivePort.sendPort;
