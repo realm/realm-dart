@@ -34,7 +34,7 @@ export 'package:realm_common/realm_common.dart'
     show Ignored, Indexed, MapTo, PrimaryKey, RealmError, RealmModel, RealmUnsupportedSetError, RealmStateError, RealmCollectionType, RealmPropertyType;
 export "configuration.dart" show Configuration, RealmSchema, SchemaObject;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
-export 'realm_object.dart' show RealmException, RealmObject;
+export 'realm_object.dart' show RealmException, RealmObject, RealmObjectChanges;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 
@@ -249,7 +249,7 @@ class Scheduler {
         return;
       }
 
-      realmCore.invokeScheduler(Isolate.current.hashCode, message as int);
+      realmCore.invokeScheduler(handle);
     };
 
     final sendPort = receivePort.sendPort;
@@ -267,7 +267,7 @@ class Scheduler {
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
   Scheduler get scheduler => _scheduler;
-
+  
   RealmObject createObject(Type type, RealmObjectHandle handle) {
     RealmMetadata metadata = _getMetadata(type);
 
@@ -279,6 +279,18 @@ extension RealmInternal on Realm {
   RealmList<T> createList<T extends Object>(RealmListHandle handle) {
     return RealmListInternal.create(handle, this);
   }
+
+  List<String> getPropertyNames(Type type, List<int> propertyKeys) {
+    RealmMetadata metadata = _getMetadata(type);
+    final result = <String>[];
+    for (var key in propertyKeys) {
+      final name = metadata.getPropertyName(key);
+      if (name != null) {
+        result.add(name);
+      }
+    }
+    return result;
+  }
 }
 
 /// @nodoc
@@ -286,7 +298,7 @@ abstract class NotificationsController {
   RealmNotificationTokenHandle? handle;
 
   RealmNotificationTokenHandle subscribe();
-  void onChanges(RealmCollectionChangesHandle changesHandle);
+  void onChanges(Handle changesHandle);
   void onError(RealmError error);
 
   void start() {

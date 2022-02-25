@@ -1,6 +1,6 @@
 import 'package:flutter_driver/driver_extension.dart';
-import 'package:tests/main.dart' as app;
-import '../test/realm_test.dart' as tests;
+
+import 'realm_test.dart' as tests;
 import 'const.dart';
 
 void main(List<String> args) async {
@@ -10,7 +10,7 @@ void main(List<String> args) async {
       //Using the environment since --dart-entrypoint-args= is not working in 
       //Flutter 2.5 with command 
       //flutter drive -t test_driver/app.dart --dart-entrypoint-args="--testname"
-      var testName = String.fromEnvironment(envTestName);
+      var testName = const String.fromEnvironment(envTestName);
       if (testName.isEmpty && args.isNotEmpty) {
         print("Using testName: \"${args[0]}\" from args");
         testName = args[0];
@@ -29,6 +29,4 @@ void main(List<String> args) async {
       throw Exception('Unknown command: $command');
     }
   });
-
-  app.main();
 }

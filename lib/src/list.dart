@@ -175,7 +175,11 @@ class ListNotificationsController<T extends Object> extends NotificationsControl
   }
 
   @override
-  void onChanges(RealmCollectionChangesHandle changesHandle) {
+  void onChanges(Handle changesHandle) {
+    if (changesHandle is! RealmCollectionChangesHandle) {
+      throw RealmError("Invalid changes handle. RealmCollectionChangesHandle expected");
+    }
+
     final changes = RealmListChanges._(changesHandle, list);
     streamController.add(changes);
   }

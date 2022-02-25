@@ -31,6 +31,7 @@ struct HandleScope {
     }
 };
 
+template<typename Type, typename Func>
 class CallbackData {
     //This is no op and does not need to call delete_handle since ~CallbackData is always called by the RealmNotificationTokenHandle finalizer
     static void finalize_handle(void* isolate_callback_data, void* peer) {}
@@ -44,7 +45,7 @@ class CallbackData {
     }
 
 public:
-    CallbackData(Dart_Handle handle, realm_dart_on_collection_change_func_t callback)
+    CallbackData(Dart_Handle handle, Func callback)
         : m_handle(Dart_NewFinalizableHandle_DL(handle, nullptr, 1, finalize_handle)), m_callback(callback)
     {}
 
@@ -52,7 +53,7 @@ public:
         delete_handle();
     }
 
-    void callback(const realm_collection_changes_t* changes) {
+    void callback(const Type* changes) {
         if (m_handle) {
             HandleScope scope;
             //TODO: HACK. We can not release Dart persitent handles in delete_handle on Isolate teardown since the IsolateGroup is destroyed before it.
@@ -62,24 +63,43 @@ public:
 
             //clone changes object since the Dart callback is async and changes object is valid for the duration of this method only
             //clone failures are handled in the Dart callback
-            const realm_collection_changes_t* cloned = static_cast<realm_collection_changes_t*>(realm_clone(changes));
+            const Type* cloned = static_cast<Type*>(realm_clone(changes));
             m_callback(handle, cloned);
         }
     }
-
+   
 private:
     //TODO: We use FinalizableHandle since it is auto-deleting. Switch to Dart_WeakPersistentHandle when the HACK is removed
     Dart_FinalizableHandle m_handle;
-    realm_dart_on_collection_change_func_t m_callback;
+    Func m_callback;
 };
 
-void on_change_callback(void* userdata, const realm_collection_changes_t* changes) {
-    auto& callbackData = *reinterpret_cast<CallbackData*>(userdata);
+typedef CallbackData<realm_collection_changes_t, realm_dart_on_collection_change_func_t> CollectionCallbackData;
+typedef CallbackData<realm_object_changes_t, realm_dart_on_object_change_func_t> ObjectCallbackData;
+
+void on_collection_change_callback(void* userdata, const realm_collection_changes_t* changes) {
+    auto& callbackData = *reinterpret_cast<CollectionCallbackData*>(userdata);
     callbackData.callback(changes);
 }
 
-void free_callback(void* userdata) {
-    auto callback = reinterpret_cast<CallbackData*>(userdata);
+template<typename Type>
+void on_collection_change_callback_type(void* userdata, const realm_collection_changes_t* changes) {
+    auto& callbackData = *reinterpret_cast<Type*>(userdata);
+    callbackData.callback(changes);
+}
+
+void free_collection_callback_data(void* userdata) {
+    auto callback = reinterpret_cast<CollectionCallbackData*>(userdata);
+    delete callback;
+}
+
+void on_object_change_callback(void* userdata, const realm_object_changes* changes) {
+    auto& callbackData = *reinterpret_cast<ObjectCallbackData*>(userdata);
+    callbackData.callback(changes);
+}
+
+void free_object_callback_data(void* userdata) {
+    auto callback = reinterpret_cast<ObjectCallbackData*>(userdata);
     delete callback;
 }
 
@@ -89,12 +109,12 @@ RLM_API realm_notification_token_t* realm_dart_results_add_notification_callback
     realm_dart_on_collection_change_func_t callback,
     realm_scheduler_t* scheduler)
 {
-    CallbackData* callback_data = new CallbackData(notification_controller, callback);
+    auto callback_data = new CollectionCallbackData(notification_controller, callback);
 
     return realm_results_add_notification_callback(results,
         callback_data,
-        free_callback,
-        on_change_callback,
+        free_collection_callback_data,
+        on_collection_change_callback,
         nullptr,
         scheduler);
 }
@@ -105,12 +125,28 @@ RLM_API realm_notification_token_t* realm_dart_list_add_notification_callback(
     realm_dart_on_collection_change_func_t callback,
     realm_scheduler_t* scheduler)
 {
-    CallbackData* callback_data = new CallbackData(notification_controller, callback);
+    auto callback_data = new CollectionCallbackData(notification_controller, callback);
 
     return realm_list_add_notification_callback(list,
         callback_data,
-        free_callback,
-        on_change_callback,
+        free_collection_callback_data,
+        on_collection_change_callback,
+        nullptr,
+        scheduler);
+}
+
+RLM_API realm_notification_token_t* realm_dart_object_add_notification_callback(
+    realm_object_t* realm_object,
+    Dart_Handle notification_controller,
+    realm_dart_on_object_change_func_t callback,
+    realm_scheduler_t* scheduler)
+{
+    auto callback_data = new ObjectCallbackData(notification_controller, callback);
+
+    return realm_object_add_notification_callback(realm_object,
+        callback_data,
+        free_object_callback_data,
+        on_object_change_callback,
         nullptr,
         scheduler);
 }

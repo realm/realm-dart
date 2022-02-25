@@ -18,7 +18,6 @@
 
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 
-import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:ffi' as ffi show Handle;
@@ -85,7 +84,6 @@ class _RealmCore {
     });
   }
 
-  //TODO: Use Finalizers, when available, instead of native WeakHandles https://github.com/dart-lang/language/issues/1847
   SchemaHandle createSchema(List<SchemaObject> schema) {
     return using((Arena arena) {
       final classCount = schema.length;
@@ -157,11 +155,11 @@ class _RealmCore {
 
   bool getConfigReadOnly(Configuration config) {
     int mode = _realmLib.realm_config_get_schema_mode(config.handle._pointer);
-    return mode == realm_schema_mode.RLM_SCHEMA_MODE_READ_ONLY;
+    return mode == realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE;
   }
 
   void setConfigReadOnly(Configuration config, bool value) {
-    int mode = value ? realm_schema_mode.RLM_SCHEMA_MODE_READ_ONLY : realm_schema_mode.RLM_SCHEMA_MODE_AUTOMATIC;
+    int mode = value ? realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE : realm_schema_mode.RLM_SCHEMA_MODE_AUTOMATIC;
     _realmLib.realm_config_set_schema_mode(config.handle._pointer, mode);
   }
 
@@ -185,12 +183,12 @@ class _RealmCore {
     return SchedulerHandle._(schedulerPtr);
   }
 
-  void invokeScheduler(int isolateId, int message) {
-    _realmLib.realm_dart_scheduler_invoke(isolateId, Pointer.fromAddress(message));
+  void invokeScheduler(SchedulerHandle schedulerHandle) {
+    _realmLib.realm_scheduler_perform_work(schedulerHandle._pointer);
   }
 
-  void setScheduler(Configuration config, SchedulerHandle scheduler) {
-    _realmLib.realm_config_set_scheduler(config.handle._pointer, scheduler._pointer);
+  void setScheduler(Configuration config, SchedulerHandle schedulerHandle) {
+    _realmLib.realm_config_set_scheduler(config.handle._pointer, schedulerHandle._pointer);
   }
 
   RealmHandle openRealm(Configuration config) {
@@ -553,6 +551,25 @@ class _RealmCore {
     }
   }
 
+  static void object_change_callback(Object object, Pointer<realm_object_changes> data) {
+    assert(object is NotificationsController, "Notification controller expected");
+
+    final controller = object as NotificationsController;
+
+    if (data == nullptr) {
+      //realm_collection_changes data clone is done in native code before this callback is invoked. nullptr data means cloning failed.
+      controller.onError(RealmError("Invalid notifications data received"));
+      return;
+    }
+
+    try {
+      final changesHandle = RealmObjectChangesHandle._(data);
+      controller.onChanges(changesHandle);
+    } catch (e) {
+      controller.onError(RealmError("Error handling collection change notifications. Error: $e"));
+    }
+  }
+
   RealmNotificationTokenHandle subscribeResultsNotifications(RealmResultsHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
     final onChangeCallback = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_collection_changes>)>(collection_change_callback);
 
@@ -565,10 +582,34 @@ class _RealmCore {
   RealmNotificationTokenHandle subscribeListNotifications(RealmListHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
     final onChangeCallback = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_collection_changes>)>(collection_change_callback);
 
-    final pointer = _realmLib.invokeGetPointer(
-        () => _realmLib.realm_dart_list_add_notification_callback(handle._pointer, controller, onChangeCallback, schedulerHandle._pointer));
+    final pointer = _realmLib
+        .invokeGetPointer(() => _realmLib.realm_dart_list_add_notification_callback(handle._pointer, controller, onChangeCallback, schedulerHandle._pointer));
 
     return RealmNotificationTokenHandle._(pointer);
+  }
+
+  RealmNotificationTokenHandle subscribeObjectNotifications(RealmObjectHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
+    final onChangeCallback = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_object_changes>)>(object_change_callback);
+
+    final pointer = _realmLib
+        .invokeGetPointer(() => _realmLib.realm_dart_object_add_notification_callback(handle._pointer, controller, onChangeCallback, schedulerHandle._pointer));
+
+    return RealmNotificationTokenHandle._(pointer);
+  }
+
+  bool getObjectChangesIsDeleted(RealmObjectChangesHandle handle) {
+    return _realmLib.realm_object_changes_is_deleted(handle._pointer);
+  }
+
+  List<int> getObjectChangesProperties(RealmObjectChangesHandle handle) {
+    return using((arena) {
+      final count = _realmLib.realm_object_changes_get_num_modified_properties(handle._pointer);
+
+      final out_modified = arena<realm_property_key_t>(count);
+      _realmLib.realm_object_changes_get_modified_properties(handle._pointer, out_modified, count);
+
+      return out_modified.asTypedList(count).toList();
+    });
   }
 }
 
@@ -656,6 +697,10 @@ class RealmNotificationTokenHandle extends Handle<realm_notification_token> {
 
 class RealmCollectionChangesHandle extends Handle<realm_collection_changes> {
   RealmCollectionChangesHandle._(Pointer<realm_collection_changes> pointer) : super(pointer, 256);
+}
+
+class RealmObjectChangesHandle extends Handle<realm_object_changes> {
+  RealmObjectChangesHandle._(Pointer<realm_object_changes> pointer) : super(pointer, 256);
 }
 
 extension _StringEx on String {
