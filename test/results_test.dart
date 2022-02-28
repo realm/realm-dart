@@ -138,7 +138,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Results iterating test', () {
+  test('Results iteration test', () {
     var config = Configuration([Team.schema, Person.schema]);
     var realm = Realm(config);
 
@@ -163,7 +163,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Results snapshot iterating test', () {
+  test('Results snapshot iteration test', () {
     var config = Configuration([Team.schema, Person.schema]);
     var realm = Realm(config);
 
