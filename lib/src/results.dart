@@ -59,7 +59,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   /// Returns a new `Iterator` that allows iterating the elements in this `RealmResults`.
   @override
   Iterator<T> get iterator {
-    RealmResults<T> results = this;
+    var results = this;
     if (_supportsSnapshot) {
       final handle = realmCore.resultsSnapshot(this);
       results = RealmResultsInternal.create<T>(handle, realm);
