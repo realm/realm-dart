@@ -519,6 +519,11 @@ class _RealmCore {
     return _realmLib.realm_equals(first.handle._pointer.cast(), second.handle._pointer.cast());
   }
 
+  RealmResultsHandle resultsSnapshot(RealmResults results) {
+    final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_snapshot(results.handle._pointer));
+    return RealmResultsHandle._(resultsPointer);
+  }
+
   bool objectIsValid(RealmObject object) {
     return _realmLib.realm_object_is_valid(object.handle._pointer);
   }

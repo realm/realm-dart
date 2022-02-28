@@ -30,8 +30,10 @@ import 'realm_class.dart';
 class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   final RealmResultsHandle _handle;
 
-  /// The Realm isntance this collection belongs to.
+  /// The Realm instance this collection belongs to.
   final Realm realm;
+   
+  final _supportsSnapshot = <T>[] is List<RealmObject?>;
 
   RealmResults._(this._handle, this.realm);
 
@@ -56,7 +58,14 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
 
   /// Returns a new `Iterator` that allows iterating the elements in this `RealmResults`.
   @override
-  Iterator<T> get iterator => _RealmResultsIterator(this);
+  Iterator<T> get iterator {
+    var results = this;
+    if (_supportsSnapshot) {
+      final handle = realmCore.resultsSnapshot(this);
+      results = RealmResultsInternal.create<T>(handle, realm);
+    }
+    return _RealmResultsIterator(results);
+  }
 
   /// The number of values in this `Results` collection.
   @override

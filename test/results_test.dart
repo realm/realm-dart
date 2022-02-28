@@ -163,6 +163,45 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
+  test('Results snapshot iteration test', () {
+    var config = Configuration([Team.schema, Person.schema]);
+    var realm = Realm(config);
+
+    //Create two teams
+    realm.write(() {
+      realm.add(Team("team One"));
+      realm.add(Team("team Two"));
+    });
+
+    //Reload teams from realm and ensure they exist
+    var teams = realm.all<Team>();
+    expect(teams.length, 2);
+
+    //Adding new teams to real while iterating through them.
+    //Iterator use a snapshot of results collection and ignores newly added teams.
+    List<Team> list = [];
+    for (Team team in teams) {
+      list.add(team);
+      realm.write(() {
+        realm.add(Team("new team"));
+      });
+    }
+    //Ensure list size is the same like teams collection size was at the beginnig
+    expect(list.length, 2);
+
+    //Ensure teams collection is increased
+    expect(teams.length, 4);
+
+    //Iterating teams again will create a snapshot with the newly added items
+    list.clear();
+    for (Team team in teams) {
+      list.add(team);
+    }
+    expect(list.length, teams.length);
+
+    realm.close();
+  });
+
   test('Results query', () {
     var config = Configuration([Car.schema]);
     var realm = Realm(config);
@@ -211,7 +250,6 @@ Future<void> main([List<String>? args]) async {
 
     realm.close();
   });
-
 
   test('Query results with no arguments throws', () {
     var config = Configuration([Car.schema]);
