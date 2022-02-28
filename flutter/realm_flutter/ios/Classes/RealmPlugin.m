@@ -43,6 +43,7 @@ void dummy(void) {
   realm_results_get_object(NULL, 0);
   realm_list_size(NULL, 0);
   realm_dart_results_add_notification_callback(NULL, NULL, NULL, NULL);
+  realm_results_snapshot(NULL);
 }
 
 @end
