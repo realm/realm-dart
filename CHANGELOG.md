@@ -17,7 +17,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Dart ^2.15 on Windows, MacOS and Linux
 
 ### Fixed
-* Snapshot the results collection when Iterating if the items are realm objects. ([#258](https://github.com/realm/realm-dart/pull/258))
+* Snapshot the results collection when iterating if the items are realm objects. ([#258](https://github.com/realm/realm-dart/pull/258))
 
 
 0.2.0+alpha Release notes (2022-01-31)
