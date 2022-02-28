@@ -39,13 +39,16 @@ class Configuration {
   /// [readOnly] controls whether a [Realm] is opened as readonly.
   /// This allows opening it from locked locations such as resources,
   /// bundled with an application.  The realm file must already exists.
-  Configuration(List<SchemaObject> schemaObjects, {bool readOnly = false})
+  Configuration(List<SchemaObject> schemaObjects, {bool readOnly = false, bool inMemoryOnly = false})
       : _schema = RealmSchema(schemaObjects),
         _handle = realmCore.createConfig() {
     schemaVersion = 0;
     path = defaultPath;
     if (readOnly) {
       isReadOnly = true;
+    }
+    if (inMemoryOnly) {
+      inMemory = true;
     }
     realmCore.setSchema(this);
   }
@@ -97,6 +100,11 @@ class Configuration {
   /// The realm file must already exists at [path]
   bool get isReadOnly => realmCore.getConfigReadOnly(this);
   set isReadOnly(bool value) => realmCore.setConfigReadOnly(this, value);
+
+  /// Gets or sets a value specifying settings for an in-memory Realm.
+  /// When all in-memory instance of Realm is closed all data in that Realm is deleted.
+  bool get inMemory => realmCore.getConfigInMemory(this);
+  set inMemory(bool value) => realmCore.setConfigInMemory(this, value);
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].

@@ -108,4 +108,11 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.write(() {}), throws<RealmException>("Can't perform transactions on read-only Realms."));
     realm.close();
   });
+
+  test('Configuration inMemory', () {
+    Configuration config = Configuration([Car.schema], inMemoryOnly: true);
+    var realm = Realm(config);
+    expect(() => realm.write(() {}), throws<RealmException>("Can't perform transactions on read-only Realms."));
+    realm.close();
+  });
 }
