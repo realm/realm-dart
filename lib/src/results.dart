@@ -29,8 +29,8 @@ import 'realm_class.dart';
 /// {@category Realm}
 class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   final RealmResultsHandle _handle;
- 
-  /// The Realm isntance this collection belongs to.
+
+  /// The Realm instance this collection belongs to.
   final Realm realm;
    
   final _supportsSnapshot = <T>[] is List<RealmObject?>;
