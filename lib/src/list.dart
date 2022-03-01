@@ -25,44 +25,36 @@ import 'realm_class.dart';
 import 'results.dart';
 
 /// Instances of this class are live collections and will update as new elements are either
-/// added to or deleted from the Realm that match the underlying query.
+/// added to or deleted to the list or from the Realm.
 ///
 /// {@category Realm}
-class RealmList<T extends Object> extends collection.ListBase<T> with RealmEntity {
-  late final RealmListHandle _handle; // only use if isManaged
-  late final _unmanaged = <T?>[]; // lazy ctor'ed (use T? for length=)
+abstract class RealmList<T extends Object> with RealmEntity implements List<T> {
+  /// Gets a value indicating whether this collection is still valid to use.
+  ///
+  /// Indicates whether the [Realm] instance hasn't been closed,
+  /// if it represents a to-many relationship
+  /// and it's parent object hasn't been deleted.
+  bool get isValid;
 
-  RealmList._(this._handle, Realm realm) {
+  factory RealmList._(RealmListHandle handle, Realm realm) => _ManagedRealmList._(handle, realm);
+  factory RealmList(Iterable<T> items) => _UnmanagedRealmList(items);
+}
+
+class _ManagedRealmList<T extends Object> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
+  final RealmListHandle _handle;
+
+  _ManagedRealmList._(this._handle, Realm realm) {
     setRealm(realm);
   }
 
-  RealmList([Iterable<T>? items]) {
-    if (items != null && items.isNotEmpty) {
-      assert(!isManaged);
-      _unmanaged.addAll(items);
-    }
-  }
-
-  /// The length of this [RealmList].
   @override
-  int get length => isManaged ? realmCore.getListSize(_handle) : _unmanaged.length;
+  int get length => realmCore.getListSize(_handle);
 
-  /// @nodoc
   @override
-  set length(int length) {
-    if (!isManaged) {
-      _unmanaged.length = length;
-    }
-    // no-op for managed lists
-  }
+  set length(int length) {} // no-op for managed lists
 
-  /// Returns the element at the specified index.
   @override
   T operator [](int index) {
-    if (!isManaged) {
-      return _unmanaged[index] as T;
-    }
-
     if (index < 0) {
       throw RealmException("Index out of range $index");
     }
@@ -80,65 +72,73 @@ class RealmList<T extends Object> extends collection.ListBase<T> with RealmEntit
     }
   }
 
-  /// Sets the element at the specified index in the list.
   @override
   void operator []=(int index, T value) {
-    if (isManaged) {
-      RealmListInternal.setValue(handle, realm, index, value);
-    } else {
-      _unmanaged[index] = value;
+    RealmListInternal.setValue(handle, realm, index, value);
+  }
+
+  @override
+  void clear() => realmCore.listClear(this);
+
+  @override
+  bool get isValid => realmCore.listIsValid(this);
+}
+
+class _UnmanagedRealmList<T extends Object> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
+  late final _unmanaged = <T?>[]; // lazy ctor'ed (use T? for length=)
+
+  _UnmanagedRealmList([Iterable<T>? items]) {
+    if (items != null) {
+      _unmanaged.addAll(items);
     }
   }
 
-  /// Clears the collection in memory and the references
-  /// to the objects in this collection in Realm.
-
-  /// Removes all elements from this list.
-  ///
-  /// The length of the list becomes zero.
-  /// If the elements are managed [RealmObject]s, they all remain in the Realm.
   @override
-  void clear() => isManaged ? realmCore.listClear(this) : _unmanaged.clear();
+  int get length => _unmanaged.length;
 
-  /// Gets a value indicating whether this collection is still valid to use.
-  ///
-  /// Indicates whether the [Realm] instance hasn't been closed,
-  /// if it represents a to-many relationship
-  /// and it's parent object hasn't been deleted.
-  bool get isValid => isManaged ? realmCore.listIsValid(this) : true;
+  @override
+  set length(int length) => _unmanaged.length = length;
+
+  @override
+  T operator [](int index) => _unmanaged[index] as T;
+
+  @override
+  void operator []=(int index, T value) => _unmanaged[index] = value;
+
+  @override
+  void clear() => _unmanaged.clear();
+
+  @override
+  bool get isValid => true;
 }
 
-// The query operations on lists only work for list of objects (core restriction),
-// so we add it as an extension method to allow the compiler to prevent misuse.
+// The query operations on lists, as well as the ability to subscribe for notifications,
+// only work for list of objects (core restriction), so we add these as an extension methods
+// to allow the compiler to prevent misuse.
 extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
-  /// Filters the list and returns a new [RealmResults] according to the provided query.
+  /// Filters the list and returns a new [RealmResults] according to the provided [query] (with optional [arguments]).
   ///
-  /// Only works for lists of Realm objects.
-  ///
-  /// @param query The query used to filter the list
-  /// @param args Optional parameters for substitution in the query
-  ///
-  /// @return The live result
+  /// Only works for lists of [RealmObject]s.
   ///
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
-  ///
-  /// Only works for lists of objects.
-  RealmResults<T> query(String query, [List<Object> args = const []]) {
-    final handle = realmCore.queryList(this, query, args);
+  RealmResults<T> query(String query, [List<Object> arguments = const []]) {
+    final handle = realmCore.queryList(this, query, arguments);
     return RealmResultsInternal.create<T>(handle, realm);
   }
 
   /// Allows listening for changes when the contents of this collection changes.
   Stream<RealmListChanges<T>> get changes {
-    final controller = ListNotificationsController<T>(this);
+    final controller = ListNotificationsController<T>(managed);
     return controller.createStream();
   }
 }
 
 /// @nodoc
-extension RealmListInternal on RealmList {
-  RealmListHandle get handle => _handle;
+extension RealmListInternal<T extends Object> on RealmList<T> {
+  _ManagedRealmList<T> get managed => this as _ManagedRealmList<T>;
+  
+  RealmListHandle get handle => managed._handle;
 
   static RealmList<T> create<T extends Object>(RealmListHandle handle, Realm realm) => RealmList<T>._(handle, realm);
 
@@ -174,7 +174,7 @@ class RealmListChanges<T extends Object> extends RealmCollectionChanges {
 
 /// @nodoc
 class ListNotificationsController<T extends Object> extends NotificationsController {
-  final RealmList<T> list;
+  final _ManagedRealmList<T> list;
   late final StreamController<RealmListChanges<T>> streamController;
 
   ListNotificationsController(this.list);

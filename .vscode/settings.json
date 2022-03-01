@@ -99,6 +99,7 @@
     },
     "dart.lineLength": 160,
     "cSpell.words": [
-        "Finalizable"
+        "Finalizable",
+        "Unmanaged"
     ]
 }

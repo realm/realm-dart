@@ -315,7 +315,7 @@ class _RealmCore {
     return using((Arena arena) {
       final realm_value = arena<realm_value_t>();
       _realmLib.invokeGetBool(() => _realmLib.realm_get_value(object.handle._pointer, propertyKey, realm_value));
-      return realm_value.toDartValue(object.realm!);
+      return realm_value.toDartValue(object.realm);
     });
   }
 
