@@ -113,7 +113,7 @@ class Configuration {
   /// that does not allow the creation of FIFO special files (e.g. FAT32 filesystems), then the Realm cannot be opened.
   /// In that case Realm needs a different location to store these files and this property defines that location.
   /// The FIFO special files are very lightweight and the main Realm file will still be stored in the location defined
-  /// by the `path` property. This property is ignored if the directory defined by `path` allow FIFO special files.
+  /// by the [path] you  property. This property is ignored if the directory defined by [path] allow FIFO special files.
   String get fifoFilesFallbackPath => realmCore.getConfigFifoPath(this);
   set fifoFilesFallbackPath(String value) => realmCore.setConfigFifoPath(this, value);
 }
