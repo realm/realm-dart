@@ -163,6 +163,16 @@ class _RealmCore {
     _realmLib.realm_config_set_schema_mode(config.handle._pointer, mode);
   }
 
+  String getConfigFifoPath(Configuration config) {
+    return _realmLib.realm_config_get_fifo_path(config.handle._pointer).cast<Utf8>().toDartString();
+  }
+
+  void setConfigFifoPath(Configuration config, String path) {
+    return using((Arena arena) {
+      _realmLib.realm_config_set_fifo_path(config.handle._pointer, path.toUtf8Ptr(arena));
+    });
+  }
+
   ConfigHandle createConfig() {
     final configPtr = _realmLib.realm_config_new();
     return ConfigHandle._(configPtr);

@@ -108,4 +108,10 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.write(() {}), throws<RealmException>("Can't perform transactions on read-only Realms."));
     realm.close();
   });
+
+  test('Configuration - FIFO files fallback path', () {
+    Configuration config = Configuration([Car.schema], fifoFilesFallbackPath: "./fifo_folder");
+    var realm = Realm(config);
+    realm.close();
+  });
 }
