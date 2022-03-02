@@ -15,6 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 import 'dart:async';
 import 'dart:collection' as collection;
 
@@ -36,14 +37,14 @@ abstract class RealmList<T extends Object> with RealmEntity implements List<T> {
   /// and it's parent object hasn't been deleted.
   bool get isValid;
 
-  factory RealmList._(RealmListHandle handle, Realm realm) => _ManagedRealmList._(handle, realm);
-  factory RealmList(Iterable<T> items) => _UnmanagedRealmList(items);
+  factory RealmList._(RealmListHandle handle, Realm realm) => ManagedRealmList._(handle, realm);
+  factory RealmList(Iterable<T> items) => UnmanagedRealmList(items);
 }
 
-class _ManagedRealmList<T extends Object> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
+class ManagedRealmList<T extends Object> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
   final RealmListHandle _handle;
 
-  _ManagedRealmList._(this._handle, Realm realm) {
+  ManagedRealmList._(this._handle, Realm realm) {
     setRealm(realm);
   }
 
@@ -84,10 +85,10 @@ class _ManagedRealmList<T extends Object> extends collection.ListBase<T> with Re
   bool get isValid => realmCore.listIsValid(this);
 }
 
-class _UnmanagedRealmList<T extends Object> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
+class UnmanagedRealmList<T extends Object> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
   late final _unmanaged = <T?>[]; // lazy ctor'ed (use T? for length=)
 
-  _UnmanagedRealmList([Iterable<T>? items]) {
+  UnmanagedRealmList([Iterable<T>? items]) {
     if (items != null) {
       _unmanaged.addAll(items);
     }
@@ -136,8 +137,8 @@ extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
 
 /// @nodoc
 extension RealmListInternal<T extends Object> on RealmList<T> {
-  _ManagedRealmList<T> get managed => this as _ManagedRealmList<T>;
-  
+  ManagedRealmList<T> get managed => this as ManagedRealmList<T>;
+
   RealmListHandle get handle => managed._handle;
 
   static RealmList<T> create<T extends Object>(RealmListHandle handle, Realm realm) => RealmList<T>._(handle, realm);
@@ -174,7 +175,7 @@ class RealmListChanges<T extends Object> extends RealmCollectionChanges {
 
 /// @nodoc
 class ListNotificationsController<T extends Object> extends NotificationsController {
-  final _ManagedRealmList<T> list;
+  final ManagedRealmList<T> list;
   late final StreamController<RealmListChanges<T>> streamController;
 
   ListNotificationsController(this.list);
