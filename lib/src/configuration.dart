@@ -40,7 +40,7 @@ class Configuration {
   /// This allows opening it from locked locations such as resources,
   /// bundled with an application.  The realm file must already exists.
   ///
-  /// [inMemoryOnly] configure [Realm] instance to be deleted after it is closed.
+  /// [inMemoryOnly] configures [Realm] instance to be deleted after it is closed.
   Configuration(List<SchemaObject> schemaObjects, {bool readOnly = false, bool inMemoryOnly = false})
       : _schema = RealmSchema(schemaObjects),
         _handle = realmCore.createConfig() {
