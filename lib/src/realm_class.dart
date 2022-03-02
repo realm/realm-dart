@@ -232,6 +232,9 @@ class Realm {
     final handle = realmCore.queryClass(this, metadata.class_.key, query, args);
     return RealmResultsInternal.create<T>(handle, this);
   }
+
+  /// Deletes all [RealmObject]s of type `T` in the `Realm`
+  void deleteAll<T extends RealmObject>() => deleteMany(all<T>()); 
 }
 
 class Scheduler {
