@@ -45,7 +45,7 @@ if(REALM_BUILD_CORE_FROM_SOURCE)
     set(REALM_ENABLE_SYNC OFF)
 
     if(ANDROID)
-        message ("Realm Flutter Androd build enabled")
+        message ("Realm Flutter Android build enabled")
         set(REALM_ANDROID ON)
     endif()
 
