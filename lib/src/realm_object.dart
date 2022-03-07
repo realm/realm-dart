@@ -180,7 +180,9 @@ class RealmCoreAccessor implements RealmAccessor {
 
 mixin RealmEntity {
   Realm? _realm;
-  Realm get realm => _realm ?? (throw RealmException('$this not managed'));
+  /// The [Realm] instance this collection belongs to.
+  Realm get realm => _realm ?? (throw RealmStateError('$this not managed'));
+  /// True if the entity belongs to a realm.
   bool get isManaged => _realm != null;
 }
 

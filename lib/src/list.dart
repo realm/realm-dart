@@ -26,7 +26,7 @@ import 'realm_object.dart';
 import 'results.dart';
 
 /// Instances of this class are live collections and will update as new elements are either
-/// added to or deleted to the list or from the Realm.
+/// added to or deleted from the collection or from the Realm.
 ///
 /// {@category Realm}
 abstract class RealmList<T extends Object> with RealmEntity implements List<T> {
@@ -52,7 +52,9 @@ class ManagedRealmList<T extends Object> extends collection.ListBase<T> with Rea
   int get length => realmCore.getListSize(_handle);
 
   @override
-  set length(int length) {} // no-op for managed lists
+  /// Setting the `length` is a required method on [List], but makes no sense
+  /// for [RealmList]s. Hence this operation is a no-op
+  set length(int newLength) {} // no-op for managed lists
 
   @override
   T operator [](int index) {
@@ -86,7 +88,7 @@ class ManagedRealmList<T extends Object> extends collection.ListBase<T> with Rea
 }
 
 class UnmanagedRealmList<T extends Object> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
-  late final _unmanaged = <T?>[]; // lazy ctor'ed (use T? for length=)
+  final _unmanaged = <T?>[]; // use T? for length=
 
   UnmanagedRealmList([Iterable<T>? items]) {
     if (items != null) {
@@ -124,22 +126,22 @@ extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query(String query, [List<Object> arguments = const []]) {
-    final handle = realmCore.queryList(this, query, arguments);
+    final handle = realmCore.queryList(_ensureManaged, query, arguments);
     return RealmResultsInternal.create<T>(handle, realm);
   }
 
   /// Allows listening for changes when the contents of this collection changes.
   Stream<RealmListChanges<T>> get changes {
-    final controller = ListNotificationsController<T>(managed);
+    final controller = ListNotificationsController<T>(_ensureManaged);
     return controller.createStream();
   }
 }
 
 /// @nodoc
 extension RealmListInternal<T extends Object> on RealmList<T> {
-  ManagedRealmList<T> get managed => this as ManagedRealmList<T>;
+  ManagedRealmList<T> get _ensureManaged => this is ManagedRealmList<T> ? this as ManagedRealmList<T> : throw RealmStateError('$this is not managed');
 
-  RealmListHandle get handle => managed._handle;
+  RealmListHandle get handle => _ensureManaged._handle;
 
   static RealmList<T> create<T extends Object>(RealmListHandle handle, Realm realm) => RealmList<T>._(handle, realm);
 
