@@ -110,56 +110,19 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration inMemory - no files after closing realm', () {
-    Configuration config = Configuration([Car.schema], inMemoryOnly: true);
+    Configuration config = Configuration([Car.schema], inMemory: true);
     var realm = Realm(config);
     realm.write(() => realm.add(Car('Tesla')));
     realm.close();
     expect(Realm.existsSync(config.path), false);
   });
 
-  test('Configuration inMemory - lost objects after closing', () {
-    Configuration config = Configuration([Car.schema], inMemoryOnly: true);
-    var realm = Realm(config);
-    realm.write(() => realm.add(Car('Tesla')));
-    realm.close();
-
-    realm = Realm(config);
-    var cars = realm.all<Car>();
-    expect(cars.length, 0);
-    realm.close();
-  });
-
   test('Configuration inMemory can not be readOnly', () {
-    Configuration config = Configuration([Car.schema], inMemoryOnly: true);
+    Configuration config = Configuration([Car.schema], inMemory: true);
     var realm = Realm(config);
 
     config.isReadOnly = true;
     expect(() => Realm(config), throws<RealmException>("Realm at path '${config.path}' already opened with different read permissions"));
     realm.close();
-  });
-
-  test('Configuration inMemory and readOnly', () {
-    Configuration config = Configuration([Car.schema]);
-    var realm1 = Realm(config);
-    realm1.write(() => realm1.add(Car('Tesla')));
-    realm1.close();
-
-    config = Configuration([Car.schema], readOnly: true, inMemoryOnly: true);
-    var realm = Realm(config);
-
-    expect(Realm.existsSync(config.path), true);
-    var cars = realm.all<Car>();
-    expect(cars.length, 1);
-    expect(() => realm.write(() {}), throws<RealmException>("Can't perform transactions on read-only Realms."));
-    realm.close();
-    expect(Realm.existsSync(config.path), true);
-
-    config = Configuration([Car.schema], inMemoryOnly: true);
-    realm = Realm(config);
-    cars = realm.all<Car>();
-    expect(cars.length, 0);
-    realm.close();
-
-    expect(Realm.existsSync(config.path), false);
   });
 }

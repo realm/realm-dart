@@ -40,7 +40,11 @@ class Configuration {
   /// This allows opening it from locked locations such as resources,
   /// bundled with an application.  The realm file must already exists.
   ///
-  /// If [inMemoryOnly] is set, then the [Realm] instance will not be persisted, and hence be _deleted_ after it is closed.
+  /// [inMemory] specifies if this Realm should be opened in-memory.
+  /// This still requires a path (can be the default path) to identify the [Realm] so other processes can open the same [Realm].
+  /// The file will also be used as swap space if the [Realm] becomes bigger than what fits in memory,
+  /// but it is not persistent and will be removed when the last instance is closed.
+  /// When all in-memory instance of [Realm] is closed all data in that [Realm] is deleted.
   Configuration(List<SchemaObject> schemaObjects, {bool readOnly = false, bool inMemory = false})
       : _schema = RealmSchema(schemaObjects),
         _handle = realmCore.createConfig() {
@@ -49,8 +53,8 @@ class Configuration {
     if (readOnly) {
       isReadOnly = true;
     }
-    if (inMemoryOnly) {
-      inMemory = true;
+    if (inMemory) {
+      isInMemory = true;
     }
     realmCore.setSchema(this);
   }
@@ -103,10 +107,14 @@ class Configuration {
   bool get isReadOnly => realmCore.getConfigReadOnly(this);
   set isReadOnly(bool value) => realmCore.setConfigReadOnly(this, value);
 
-  /// Specifies if this Realm should be opened in-memory. This still requires a path (can be the default path) to identify the Realm so other processes can open the same Realm. The file will also be used as swap space if the Realm becomes bigger than what fits in memory, but it is not persistent and will be removed when the last instance is closed.
+  /// Specifies if this Realm should be opened in-memory.
+  ///
+  /// This still requires a path (can be the default path) to identify the Realm so other processes can open the same Realm.
+  /// The file will also be used as swap space if the Realm becomes bigger than what fits in memory,
+  /// but it is not persistent and will be removed when the last instance is closed.
   /// When all in-memory instance of Realm is closed all data in that Realm is deleted.
-  bool get inMemory => realmCore.getConfigInMemory(this);
-  set inMemory(bool value) => realmCore.setConfigInMemory(this, value);
+  bool get isInMemory => realmCore.getConfigInMemory(this);
+  set isInMemory(bool value) => realmCore.setConfigInMemory(this, value);
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].
