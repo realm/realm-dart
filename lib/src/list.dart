@@ -52,8 +52,9 @@ class ManagedRealmList<T extends Object> extends collection.ListBase<T> with Rea
   int get length => realmCore.getListSize(_handle);
 
   @override
+
   /// Setting the `length` is a required method on [List], but makes no sense
-  /// for [RealmList]s. Hence this operation is a no-op
+  /// for [RealmList]s. Hence this operation is a no-op that simply ignores [newLength]
   set length(int newLength) {} // no-op for managed lists
 
   @override
@@ -81,6 +82,9 @@ class ManagedRealmList<T extends Object> extends collection.ListBase<T> with Rea
   }
 
   @override
+
+  /// Removes all objects from this list; the length of the list becomes zero.
+  /// The objects are not deleted from the realm, but are no longer referenced from this list.
   void clear() => realmCore.listClear(this);
 
   @override
@@ -126,22 +130,24 @@ extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query(String query, [List<Object> arguments = const []]) {
-    final handle = realmCore.queryList(_ensureManaged, query, arguments);
+    final managedList = asManaged();
+    final handle = realmCore.queryList(managedList, query, arguments);
     return RealmResultsInternal.create<T>(handle, realm);
   }
 
   /// Allows listening for changes when the contents of this collection changes.
   Stream<RealmListChanges<T>> get changes {
-    final controller = ListNotificationsController<T>(_ensureManaged);
+    final managedList = asManaged();
+    final controller = ListNotificationsController<T>(managedList);
     return controller.createStream();
   }
 }
 
 /// @nodoc
 extension RealmListInternal<T extends Object> on RealmList<T> {
-  ManagedRealmList<T> get _ensureManaged => this is ManagedRealmList<T> ? this as ManagedRealmList<T> : throw RealmStateError('$this is not managed');
+  ManagedRealmList<T> asManaged() => this is ManagedRealmList<T> ? this as ManagedRealmList<T> : throw RealmStateError('$this is not managed');
 
-  RealmListHandle get handle => _ensureManaged._handle;
+  RealmListHandle get handle => asManaged()._handle;
 
   static RealmList<T> create<T extends Object>(RealmListHandle handle, Realm realm) => RealmList<T>._(handle, realm);
 
