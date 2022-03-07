@@ -41,7 +41,7 @@ class Configuration {
   /// bundled with an application.  The realm file must already exists.
   ///
   /// If [inMemoryOnly] is set, then the [Realm] instance will not be persisted, and hence be _deleted_ after it is closed.
-  Configuration(List<SchemaObject> schemaObjects, {bool readOnly = false, bool inMemoryOnly = false})
+  Configuration(List<SchemaObject> schemaObjects, {bool readOnly = false, bool inMemory = false})
       : _schema = RealmSchema(schemaObjects),
         _handle = realmCore.createConfig() {
     schemaVersion = 0;
