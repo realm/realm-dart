@@ -38,7 +38,7 @@ class Configuration {
   /// Creates a [Configuration] with schema objects for opening a [Realm].
   /// [readOnly] controls whether a [Realm] is opened as read-only.
   ///
-  /// [inMemory] specifies if this Realm should be opened in-memory.
+  /// [inMemory] specifies if this [Realm] should be opened in-memory.
   Configuration(List<SchemaObject> schemaObjects, {bool readOnly = false, bool inMemory = false})
       : _schema = RealmSchema(schemaObjects),
         _handle = realmCore.createConfig() {
