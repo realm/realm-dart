@@ -12,7 +12,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Added support for opening Realm in read-only mode. ([#260](https://github.com/realm/realm-dart/pull/260))
 * Primary key fields no longer required to be `final` in data model classes ([#240](https://github.com/realm/realm-dart/pull/240))
 * List fields no longer required to be `final` in data model classes. ([#253](https://github.com/realm/realm-dart/pull/253))
-* Support custom FIFO sperial files paths. ([#284](https://github.com/realm/realm-dart/pull/284))
+* Support custom FIFO special files. ([#284](https://github.com/realm/realm-dart/pull/284))
 
 ### Compatibility
 * Dart ^2.15 on Windows, MacOS and Linux
