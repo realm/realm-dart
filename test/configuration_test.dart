@@ -123,6 +123,7 @@ Future<void> main([List<String>? args]) async {
 
     config.isReadOnly = true;
     expect(() => Realm(config), throws<RealmException>("Realm at path '${config.path}' already opened with different read permissions"));
+    realm.close();
   });
   
   test('Configuration - FIFO files fallback path', () {
@@ -130,4 +131,5 @@ Future<void> main([List<String>? args]) async {
     var realm = Realm(config);
     realm.close();
   });
+  
 }

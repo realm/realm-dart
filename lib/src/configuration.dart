@@ -40,7 +40,7 @@ class Configuration {
   /// [fifoFilesFallbackPath] enables FIFO special files.
   /// [readOnly] controls whether a [Realm] is opened as read-only.
   /// [inMemory] specifies if a [Realm] should be opened in-memory.
-  Configuration(List<SchemaObject> schemaObjects, {bool readOnly = false, bool inMemory = false})
+  Configuration(List<SchemaObject> schemaObjects, {String? fifoFilesFallbackPath, bool readOnly = false, bool inMemory = false})
       : _schema = RealmSchema(schemaObjects),
         _handle = realmCore.createConfig() {
     schemaVersion = 0;
