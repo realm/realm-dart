@@ -103,7 +103,7 @@ class Configuration {
   bool get isReadOnly => realmCore.getConfigReadOnly(this);
   set isReadOnly(bool value) => realmCore.setConfigReadOnly(this, value);
 
-  /// Gets or sets a value specifying settings for an in-memory Realm.
+  /// Specifies if this Realm should be opened in-memory. This still requires a path (can be the default path) to identify the Realm so other processes can open the same Realm. The file will also be used as swap space if the Realm becomes bigger than what fits in memory, but it is not persistent and will be removed when the last instance is closed.
   /// When all in-memory instance of Realm is closed all data in that Realm is deleted.
   bool get inMemory => realmCore.getConfigInMemory(this);
   set inMemory(bool value) => realmCore.setConfigInMemory(this, value);
