@@ -108,4 +108,21 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.write(() {}), throws<RealmException>("Can't perform transactions on read-only Realms."));
     realm.close();
   });
+
+  test('Configuration inMemory - no files after closing realm', () {
+    Configuration config = Configuration([Car.schema], inMemory: true);
+    var realm = Realm(config);
+    realm.write(() => realm.add(Car('Tesla')));
+    realm.close();
+    expect(Realm.existsSync(config.path), false);
+  });
+
+  test('Configuration inMemory can not be readOnly', () {
+    Configuration config = Configuration([Car.schema], inMemory: true);
+    var realm = Realm(config);
+
+    config.isReadOnly = true;
+    expect(() => Realm(config), throws<RealmException>("Realm at path '${config.path}' already opened with different read permissions"));
+    realm.close();
+  });
 }

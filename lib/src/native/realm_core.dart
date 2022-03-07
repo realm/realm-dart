@@ -163,6 +163,14 @@ class _RealmCore {
     _realmLib.realm_config_set_schema_mode(config.handle._pointer, mode);
   }
 
+  bool getConfigInMemory(Configuration config) {
+    return _realmLib.realm_config_get_in_memory(config.handle._pointer);
+  }
+
+  void setConfigInMemory(Configuration config, bool value) {
+    _realmLib.realm_config_set_in_memory(config.handle._pointer, value);
+  }
+
   ConfigHandle createConfig() {
     final configPtr = _realmLib.realm_config_new();
     return ConfigHandle._(configPtr);

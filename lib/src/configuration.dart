@@ -36,16 +36,19 @@ class Configuration {
   RealmSchema get schema => _schema;
 
   /// Creates a [Configuration] with schema objects for opening a [Realm].
-  /// [readOnly] controls whether a [Realm] is opened as readonly.
-  /// This allows opening it from locked locations such as resources,
-  /// bundled with an application.  The realm file must already exists.
-  Configuration(List<SchemaObject> schemaObjects, {bool readOnly = false})
+  ///
+  /// [readOnly] controls whether a [Realm] is opened as read-only.
+  /// [inMemory] specifies if a [Realm] should be opened in-memory.
+  Configuration(List<SchemaObject> schemaObjects, {bool readOnly = false, bool inMemory = false})
       : _schema = RealmSchema(schemaObjects),
         _handle = realmCore.createConfig() {
     schemaVersion = 0;
     path = defaultPath;
     if (readOnly) {
       isReadOnly = true;
+    }
+    if (inMemory) {
+      isInMemory = true;
     }
     realmCore.setSchema(this);
   }
@@ -97,6 +100,15 @@ class Configuration {
   /// The realm file must already exists at [path]
   bool get isReadOnly => realmCore.getConfigReadOnly(this);
   set isReadOnly(bool value) => realmCore.setConfigReadOnly(this, value);
+
+  /// Specifies if a [Realm] should be opened in-memory.
+  ///
+  /// This still requires a [path] (can be the default path) to identify the [Realm] so other processes can open the same [Realm].
+  /// The file will also be used as swap space if the [Realm] becomes bigger than what fits in memory,
+  /// but it is not persistent and will be removed when the last instance is closed.
+  /// When all in-memory instance of [Realm] is closed all data in that [Realm] is deleted.
+  bool get isInMemory => realmCore.getConfigInMemory(this);
+  set isInMemory(bool value) => realmCore.setConfigInMemory(this, value);
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].
