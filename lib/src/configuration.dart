@@ -38,7 +38,6 @@ class Configuration {
   /// Creates a [Configuration] with schema objects for opening a [Realm].
   ///
   /// [fifoFilesFallbackPath] enables FIFO special files.
-  ///
   /// [readOnly] controls whether a [Realm] is opened as readonly.
   /// This allows opening it from locked locations such as resources,
   /// bundled with an application.  The realm file must already exists.
@@ -107,11 +106,11 @@ class Configuration {
   set isReadOnly(bool value) => realmCore.setConfigReadOnly(this, value);
 
   /// Gets or sets a value of FIFO special files location.
-  /// Opening a Realm creates a number of FIFO special files in order to
-  /// coordinate access to the Realm across threads and processes. If the Realm file is stored in a location
-  /// that does not allow the creation of FIFO special files (e.g. FAT32 filesystems), then the Realm cannot be opened.
-  /// In that case Realm needs a different location to store these files and this property defines that location.
-  /// The FIFO special files are very lightweight and the main Realm file will still be stored in the location defined
+  /// Opening a [Realm] creates a number of FIFO special files in order to
+  /// coordinate access to the [Realm] across threads and processes. If the [Realm] file is stored in a location
+  /// that does not allow the creation of FIFO special files (e.g. FAT32 filesystems), then the [Realm] cannot be opened.
+  /// In that case [Realm] needs a different location to store these files and this property defines that location.
+  /// The FIFO special files are very lightweight and the main [Realm] file will still be stored in the location defined
   /// by the [path] you  property. This property is ignored if the directory defined by [path] allow FIFO special files.
   String get fifoFilesFallbackPath => realmCore.getConfigFifoPath(this);
   set fifoFilesFallbackPath(String value) => realmCore.setConfigFifoPath(this, value);
