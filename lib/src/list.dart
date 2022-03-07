@@ -20,9 +20,9 @@ import 'dart:async';
 import 'dart:collection' as collection;
 
 import 'collections.dart';
-import 'entity.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
+import 'realm_object.dart';
 import 'results.dart';
 
 /// Instances of this class are live collections and will update as new elements are either

@@ -18,7 +18,6 @@
 
 import 'dart:async';
 
-import 'entity.dart';
 import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
@@ -177,6 +176,16 @@ class RealmCoreAccessor implements RealmAccessor {
       throw RealmException("Error setting property ${metadata.class_.type}.$name Error: $e");
     }
   }
+}
+
+mixin RealmEntity {
+  Realm? _realm;
+  Realm get realm => _realm ?? (throw RealmException('$this not managed'));
+  bool get isManaged => _realm != null;
+}
+
+extension RealmEntityInternal on RealmEntity {
+  void setRealm(Realm value) => _realm = value;
 }
 
 /// An object that is persisted in `Realm`.
