@@ -14,7 +14,9 @@ x.x.x Release notes (yyyy-MM-dd)
 * Primary key fields no longer required to be `final` in data model classes ([#240](https://github.com/realm/realm-dart/pull/240))
 * List fields no longer required to be `final` in data model classes. ([#253](https://github.com/realm/realm-dart/pull/253))
 * Support custom FIFO special files. ([#284](https://github.com/realm/realm-dart/pull/284))
-* Generated classes no longer use `List` class on interface, but instead use `RealmList`. This allow user to avoid casting, when accessing `RealmList` specific functionality. ([#270](https://github.com/realm/realm-dart/pull/270))
+
+### Internal
+ * Use `RealmList` instead of `List` in generated Realm object classes. It enables access to a Realm list specific APIs. ([#270](https://github.com/realm/realm-dart/pull/270))
 
 ### Compatibility
 * Dart ^2.15 on Windows, MacOS and Linux

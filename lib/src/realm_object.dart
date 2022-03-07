@@ -180,9 +180,9 @@ class RealmCoreAccessor implements RealmAccessor {
 
 mixin RealmEntity {
   Realm? _realm;
-  /// The [Realm] instance this entity belongs to.
+  /// The [Realm] instance this object belongs to.
   Realm get realm => _realm ?? (throw RealmStateError('$this not managed'));
-  /// True if the entity belongs to a realm.
+  /// True if the object belongs to a realm.
   bool get isManaged => _realm != null;
 }
 
@@ -276,7 +276,7 @@ extension RealmObjectInternal on RealmObject {
     }
 
     _handle = handle;
-    setRealm(realm);
+    _realm = realm;
 
     if (_accessor is RealmValuesAccessor) {
       (_accessor as RealmValuesAccessor).setAll(this, accessor);
@@ -293,7 +293,7 @@ extension RealmObjectInternal on RealmObject {
     final object = RealmObject._factories[type]!();
     object._handle = handle;
     object._accessor = accessor;
-    object.setRealm(realm);
+    object._realm = realm;
     return object;
   }
 
