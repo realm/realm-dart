@@ -38,7 +38,6 @@ class Configuration {
   /// Creates a [Configuration] with schema objects for opening a [Realm].
   ///
   /// [fifoFilesFallbackPath] enables FIFO special files.
-  /// in case the Realm file is in a location that does not allow the creation of FIFO special files.
   ///
   /// [readOnly] controls whether a [Realm] is opened as readonly.
   /// This allows opening it from locked locations such as resources,
