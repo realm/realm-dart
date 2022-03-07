@@ -163,6 +163,13 @@ class _RealmCore {
     _realmLib.realm_config_set_schema_mode(config.handle._pointer, mode);
   }
 
+  bool getConfigInMemory(Configuration config) {
+    return _realmLib.realm_config_get_in_memory(config.handle._pointer);
+  }
+
+  void setConfigInMemory(Configuration config, bool value) {
+    _realmLib.realm_config_set_in_memory(config.handle._pointer, value);
+    
   String getConfigFifoPath(Configuration config) {
     return _realmLib.realm_config_get_fifo_path(config.handle._pointer).cast<Utf8>().toDartString();
   }
