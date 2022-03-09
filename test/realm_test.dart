@@ -525,6 +525,25 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
+  test('Realm deleteAll', () {
+    var config = Configuration([Team.schema, Person.schema]);
+    var realm = Realm(config);
+
+    final denmark = Team('Denmark', players: ['Arnesen', 'Laudrup', 'Mølby'].map(Person.new));
+    final argentina = Team('Argentina', players: [Person('Maradona')]);
+    realm.write(() => realm.addAll([denmark, argentina]));
+
+    expect(realm.all<Person>().length, 4);
+    expect(realm.all<Team>().length, 2);
+
+    realm.write(realm.deleteAll<Team>);
+
+    expect(realm.all<Person>().length, 4); // no cascading deletes
+    expect(realm.all<Team>().length, 0);
+
+    realm.close();
+  });
+
   test('Realm adding objects graph', () {
     var studentMichele = Student(1)
       ..name = "Michele Ernesto"
