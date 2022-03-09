@@ -20,8 +20,10 @@ import 'dart:typed_data';
 
 import 'package:analyzer/dart/element/type.dart';
 import 'package:realm_common/realm_common.dart';
+import 'package:realm_generator/src/pseudo_type.dart';
 import 'package:source_gen/source_gen.dart';
 
+import 'element.dart';
 import 'error.dart';
 import 'session.dart';
 import 'type_checkers.dart';
@@ -32,7 +34,7 @@ extension DartTypeEx on DartType {
   bool get isRealmAny => const TypeChecker.fromRuntime(RealmAny).isAssignableFromType(this);
   bool get isRealmBacklink => false; // TODO
   bool get isRealmCollection => realmCollectionType != RealmCollectionType.none;
-  bool get isRealmModel => realmModelChecker.annotationsOfExact(element!).isNotEmpty;
+  bool get isRealmModel => element != null ? realmModelChecker.annotationsOfExact(element!).isNotEmpty : false;
 
   bool get isNullable => session.typeSystem.isNullable(this);
   DartType get asNonNullable => session.typeSystem.promoteToNonNull(this);
@@ -46,26 +48,16 @@ extension DartTypeEx on DartType {
     return RealmCollectionType.none;
   }
 
+  DartType? get nullIfDynamic => isDynamic ? null : this;
+
   DartType get basicType {
-    if (isDynamic) return this;
-    if (isNullable) return asNonNullable.basicType;
     if (isRealmCollection) {
       return (this as ParameterizedType).typeArguments.last;
-    }
-    if (isRealmModel) {
-      // TODO: convert _T to T using a ClassTypeMacro.
-      // This awaits the addition of the static meta programming feature to Dart.
-      // Until then we get by with a few wellplaced string operations.
     }
     return this;
   }
 
-  // TODO: Using replaceAll is a hack.
-  // It is needed for now, since we cannot construct a DartType for the yet to
-  // be generated classes, ie. for A given _A. Once the new static meta
-  // programming feature is added to dart, we should be able to resolve this
-  // using a ClassTypeMacro.
-  String get basicName => basicType.toString().replaceAll(session.prefix, '');
+  String get basicMappedName => basicType.asNonNullable.mappedName;
 
   DartType get mappedType {
     final self = this;
@@ -74,37 +66,34 @@ extension DartTypeEx on DartType {
         final provider = session.typeProvider;
         final mapped = self.typeArguments.last.mappedType;
         if (self != mapped) {
-          if (self.isDartCoreList) return provider.listType(mapped);
-          if (self.isDartCoreSet) return provider.setType(mapped);
+          if (self.isDartCoreList) {
+            final mappedList = provider.listType(mapped);
+            return PseudoType('Realm${mappedList.getDisplayString(withNullability: false)}', nullabilitySuffix: mappedList.nullabilitySuffix);
+          }
+          if (self.isDartCoreSet) {
+            final mappedSet = provider.setType(mapped);
+            return PseudoType('Realm${mappedSet.getDisplayString(withNullability: false)}', nullabilitySuffix: mappedSet.nullabilitySuffix);
+          }
           if (self.isDartCoreMap) {
-            return provider.mapType(self.typeArguments.first, mapped);
+            final mappedMap = provider.mapType(self.typeArguments.first, mapped);
+            return PseudoType('Realm${mappedMap.getDisplayString(withNullability: false)}', nullabilitySuffix: mappedMap.nullabilitySuffix);
           }
         }
       }
     } else if (isRealmModel) {
-      // TODO: convert _T to T using a ClassTypeMacro.
-      // This awaits the addition of the static meta programming feature to Dart.
-      // Until then we get by with a few wellplaced string operations.
+      return PseudoType(
+        getDisplayString(withNullability: false).replaceAll(session.prefix, ''),
+        nullabilitySuffix: nullabilitySuffix,
+      );
     }
     return self;
   }
 
+  String get mappedName => mappedType.getDisplayString(withNullability: true);
+
   RealmPropertyType? get realmType => _realmType(true);
 
   RealmPropertyType? _realmType(bool recurse) {
-    // Check for as-of-yet unsupported type
-    if (isDartCoreSet || //
-        isDartCoreMap ||
-        isRealmAny ||
-        isExactly<Decimal128>() ||
-        isExactly<ObjectId>() ||
-        isExactly<Uuid>()) {
-      throw RealmInvalidGenerationSourceError(
-        'Not supported yet',
-        todo: 'Avoid using this type for now',
-        element: element!,
-      );
-    }
     if (isRealmCollection && recurse) {
       return (this as ParameterizedType).typeArguments.last._realmType(false); // only recurse once! (for now)
     }

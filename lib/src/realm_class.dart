@@ -34,7 +34,7 @@ export 'package:realm_common/realm_common.dart'
     show Ignored, Indexed, MapTo, PrimaryKey, RealmError, RealmModel, RealmUnsupportedSetError, RealmStateError, RealmCollectionType, RealmPropertyType;
 export "configuration.dart" show Configuration, RealmSchema, SchemaObject;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
-export 'realm_object.dart' show RealmException, RealmObject, RealmObjectChanges;
+export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 

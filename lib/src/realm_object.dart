@@ -134,13 +134,13 @@ class RealmCoreAccessor implements RealmAccessor {
       final propertyMeta = metadata[name];
       if (propertyMeta.collectionType == RealmCollectionType.list) {
         final handle = realmCore.getListProperty(object, propertyMeta.key);
-        return object._realm!.createList<T>(handle);
+        return object.realm.createList<T>(handle);
       }
 
       Object? value = realmCore.getProperty(object, propertyMeta.key);
 
       if (value is RealmObjectHandle) {
-        return object._realm!.createObject(T, value);
+        return object.realm.createObject(T, value);
       }
 
       return value;
@@ -161,14 +161,14 @@ class RealmCoreAccessor implements RealmAccessor {
         //This assumes the target list property is empty. `value is List` should happen only when making a RealmObject managed
         final handle = realmCore.getListProperty(object, propertyMeta.key);
         for (var i = 0; i < value.length; i++) {
-          RealmListInternal.setValue(handle, object._realm!, i, value[i]);
+          RealmListInternal.setValue(handle, object.realm, i, value[i]);
         }
         return;
       }
 
       //If value is RealmObject - manage it
       if (value is RealmObject && !value.isManaged) {
-        object._realm!.add(value);
+        object.realm.add(value);
       }
 
       realmCore.setProperty(object, propertyMeta.key, value, isDefault);
@@ -176,6 +176,18 @@ class RealmCoreAccessor implements RealmAccessor {
       throw RealmException("Error setting property ${metadata.class_.type}.$name Error: $e");
     }
   }
+}
+
+mixin RealmEntity {
+  Realm? _realm;
+  /// The [Realm] instance this object belongs to.
+  Realm get realm => _realm ?? (throw RealmStateError('$this not managed'));
+  /// True if the object belongs to a realm.
+  bool get isManaged => _realm != null;
+}
+
+extension RealmEntityInternal on RealmEntity {
+  void setRealm(Realm value) => _realm = value;
 }
 
 /// An object that is persisted in `Realm`.
@@ -186,10 +198,9 @@ class RealmCoreAccessor implements RealmAccessor {
 ///
 /// [RealmObject] should not be used directly as it is part of the generated class hierarchy. ex: `MyClass extends _MyClass with RealmObject`.
 /// {@category Realm}
-class RealmObject {
+mixin RealmObject on RealmEntity {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
-  Realm? _realm;
   static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{};
 
   /// @nodoc
@@ -203,20 +214,13 @@ class RealmObject {
   }
 
   /// @nodoc
-  static void registerFactory<T extends RealmObject>(T Function() factory) {
-    if (_factories.containsKey(T)) {
-      return;
-    }
-
-    _factories[T] = factory;
-  }
+  static void registerFactory<T extends RealmObject>(T Function() factory) => _factories.putIfAbsent(T, () => factory);
 
   /// @nodoc
   static T create<T extends RealmObject>() {
     if (!_factories.containsKey(T)) {
       throw RealmException("Factory for Realm object type $T not found");
     }
-
     return _factories[T]!() as T;
   }
 
@@ -295,9 +299,6 @@ extension RealmObjectInternal on RealmObject {
 
   RealmObjectHandle get handle => _handle!;
   RealmAccessor get accessor => _accessor;
-  Realm? get realm => _realm;
-
-  bool get isManaged => _realm != null;
 }
 
 /// An exception being thrown when a `Realm` operation or [RealmObject] access fails.
@@ -327,7 +328,7 @@ class RealmObjectChanges<T extends RealmObject> {
   /// The property names that have changed.
   List<String> get properties {
     final propertyKeys = realmCore.getObjectChangesProperties(_handle);
-    return object._realm!.getPropertyNames(object.runtimeType, propertyKeys);
+    return object.realm.getPropertyNames(object.runtimeType, propertyKeys);
   }
   
   const RealmObjectChanges._(this._handle, this.object);
@@ -342,7 +343,7 @@ class RealmObjectNotificationsController<T extends RealmObject> extends Notifica
 
   @override
   RealmNotificationTokenHandle subscribe() {
-    return realmCore.subscribeObjectNotifications(realmObject._handle!, this, realmObject._realm!.scheduler.handle);
+    return realmCore.subscribeObjectNotifications(realmObject._handle!, this, realmObject.realm.scheduler.handle);
   }
 
   Stream<RealmObjectChanges<T>> createStream() {

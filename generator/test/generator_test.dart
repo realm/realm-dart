@@ -22,7 +22,7 @@ class _Foo {
             '// RealmObjectGenerator\n'
             '// **************************************************************************\n'
             '\n'
-            'class Foo extends _Foo with RealmObject {\n'
+            'class Foo extends _Foo with RealmEntity, RealmObject {\n'
             '  static var _defaultsSet = false;\n'
             '\n'
             '  Foo({\n'
@@ -245,7 +245,7 @@ part 'test.g.dart';
 class _Questionable {
   @PrimaryKey()
   @Indexed()
-  late int primartKeysAreAlwaysIndexed;
+  late int primaryKeysAreAlwaysIndexed;
 }'''
       },
       reader: await PackageAssetReader.currentIsolate(),
@@ -265,10 +265,10 @@ class _Questionable {
       '  ╷\n'
       '7 │   @PrimaryKey()\n'
       '8 │   @Indexed()\n'
-      '9 │   late int primartKeysAreAlwaysIndexed;\n'
+      '9 │   late int primaryKeysAreAlwaysIndexed;\n'
       '  │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n'
       '  ╵\n'
-      'Remove either the @Indexed or @PrimaryKey annotation from \'primartKeysAreAlwaysIndexed\'.\n'
+      'Remove either the @Indexed or @PrimaryKey annotation from \'primaryKeysAreAlwaysIndexed\'.\n'
       '\n'
       '',
     );
@@ -934,4 +934,77 @@ class _Foo {
       )),
     );
   });
+
+  test('set unsupported', () async {
+    await expectLater(
+      () async => await testBuilder(
+        generateRealmObjects(),
+        {
+          'pkg|lib/src/test.dart': r'''
+import 'package:realm_common/realm_common.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+class _Person {
+  late Set<_Person> children;
+}''',
+        },
+        reader: await PackageAssetReader.currentIsolate(),
+      ),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+        (e) => e.format(),
+        'format()',
+        'Field type not supported yet\n'
+            '\n'
+            'in: package:pkg/src/test.dart:7:8\n'
+            '  ╷\n'
+            '5 │ @RealmModel()\n'
+            '6 │ class _Person {\n'
+            '  │       ━━━━━━━ in realm model for \'Person\'\n'
+            '7 │   late Set<_Person> children;\n'
+            '  │        ^^^^^^^^^^^^ not yet supported\n'
+            '  ╵\n'
+            'Avoid using Set<_Person> for now\n'
+            '',
+      )),
+    );
+  });
+
+    test('map unsupported', () async {
+    await expectLater(
+      () async => await testBuilder(
+        generateRealmObjects(),
+        {
+          'pkg|lib/src/test.dart': r'''
+import 'package:realm_common/realm_common.dart';
+
+part 'test.g.dart';
+
+@RealmModel()
+class _Person {
+  late Map<String, _Person> relatives;
+}''',
+        },
+        reader: await PackageAssetReader.currentIsolate(),
+      ),
+      throwsA(isA<RealmInvalidGenerationSourceError>().having(
+        (e) => e.format(),
+        'format()',
+        'Field type not supported yet\n'
+            '\n'
+            'in: package:pkg/src/test.dart:7:8\n'
+            '  ╷\n'
+            '5 │ @RealmModel()\n'
+            '6 │ class _Person {\n'
+            '  │       ━━━━━━━ in realm model for \'Person\'\n'
+            '7 │   late Map<String, _Person> relatives;\n'
+            '  │        ^^^^^^^^^^^^^^^^^^^^ not yet supported\n'
+            '  ╵\n'
+            'Avoid using Map<String, _Person> for now\n'
+            '',
+      )),
+    );
+  });
+
 }

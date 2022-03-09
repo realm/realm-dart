@@ -25,7 +25,7 @@ import 'session.dart';
 import 'utils.dart';
 
 class RealmInvalidGenerationSourceError extends InvalidGenerationSourceError {
-  final FileSpan primarySpan;
+  final FileSpan? primarySpan;
   final String? primaryLabel;
   final Map<FileSpan, String> secondarySpans;
   bool color;
@@ -38,7 +38,7 @@ class RealmInvalidGenerationSourceError extends InvalidGenerationSourceError {
     bool? color,
     this.primaryLabel,
     Map<FileSpan, String> secondarySpans = const {},
-  })  : primarySpan = primarySpan ?? element.span!,
+  })  : primarySpan = primarySpan ?? element.span,
         secondarySpans = {...secondarySpans},
         color = color ?? session.color,
         super(message, todo: todo, element: element) {
