@@ -32,6 +32,10 @@ flutter/realm_flutter/.gradle/
 /build-linux/
 /build-macos/
 /build/
+/arm64-v8a/
+/armeabi-v7a/
+/x86/
+/x86_64/
 
 # Ignore example pubspec.lock since the example always reference the local package
 example/pubspec.lock
