@@ -349,6 +349,11 @@ The Realm Dart package is `realm_dart`
     ./scripts/build-macos.sh
     ```
 
+* Linux
+    ```
+    ./scripts/build-linux.sh
+    ```
+
 ## Building Realm Dart
 
 * Windows

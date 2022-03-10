@@ -8,12 +8,22 @@ set -o pipefail
 # Output is in PROJECT_DIR/binary directory 
 # example usage: ../realm-dart$./scripts/build-android.sh all
 
+if [ -z ${ANDROID_HOME} ]; then
+    echo "Environment variable ANDROID_HOME not set.";
+    exit 64 # Exit code 64 indicates a usage error.
+fi
+
+if [ -z ${ANDROID_NDK} ]; then
+    echo "Environment variable ANDROID_NDK not set.";
+    exit 64 # Exit code 64 indicates a usage error.
+fi
 
 # Start in the root directory of the project.
 cd "$(dirname "$0")/.."
 PROJECT_ROOT=$(pwd)
 
 mkdir -p build-android
+pushd build-android
 
 # build for x86 first to optimize for emulator testing
 
