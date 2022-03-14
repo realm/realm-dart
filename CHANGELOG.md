@@ -1,3 +1,12 @@
+
+x.x.x Release notes (yyyy-MM-dd)
+==============================================================
+
+**This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
+
+### Enhancements
+Support result value from write transaction callbacks ([#294](https://github.com/realm/realm-dart/pull/294/))
+
 x.x.x Release notes (yyyy-MM-dd)
 ==============================================================
 
