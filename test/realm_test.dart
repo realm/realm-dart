@@ -596,7 +596,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Realm write return added object', () {
+  test('Realm write returns added object', () {
     var config = Configuration([Car.schema]);
     var realm = Realm(config);
     var car = Car('Mustang');
