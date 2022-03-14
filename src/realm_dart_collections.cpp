@@ -38,15 +38,14 @@ class CallbackData {
 
     void delete_handle() {
         if (m_handle) {
-            //TODO: uncomment when the HACK is removed.
-            //Dart_DeleteWeakPersistentHandle_DL(m_handle);
+            Dart_DeleteWeakPersistentHandle_DL(m_handle);
             m_handle = nullptr;
         }
     }
 
 public:
     CallbackData(Dart_Handle handle, Func callback)
-        : m_handle(Dart_NewFinalizableHandle_DL(handle, nullptr, 1, finalize_handle)), m_callback(callback)
+        : m_handle(Dart_NewWeakPersistentHandle_DL(handle, nullptr, 1, finalize_handle)), m_callback(callback)
     {}
 
     ~CallbackData() {
@@ -56,21 +55,16 @@ public:
     void callback(const Type* changes) {
         if (m_handle) {
             HandleScope scope;
-            //TODO: HACK. We can not release Dart persitent handles in delete_handle on Isolate teardown since the IsolateGroup is destroyed before it.
-            //This works since Dart_WeakPersistentHandle is equivalent to Dart_FinalizableHandle. They both are FinalizablePersistentHandle internally.
-            Dart_WeakPersistentHandle weakHnd = reinterpret_cast<Dart_WeakPersistentHandle>(m_handle);
-            auto handle = Dart_HandleFromWeakPersistent_DL(weakHnd);
-
             //clone changes object since the Dart callback is async and changes object is valid for the duration of this method only
             //clone failures are handled in the Dart callback
             const Type* cloned = static_cast<Type*>(realm_clone(changes));
+            auto handle = Dart_HandleFromWeakPersistent_DL(m_handle);
             m_callback(handle, cloned);
         }
     }
    
 private:
-    //TODO: We use FinalizableHandle since it is auto-deleting. Switch to Dart_WeakPersistentHandle when the HACK is removed
-    Dart_FinalizableHandle m_handle;
+    Dart_WeakPersistentHandle m_handle;
     Func m_callback;
 };
 
