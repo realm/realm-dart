@@ -3,65 +3,6 @@ import 'package:realm_generator/realm_generator.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('pinhole', () async {
-    await testBuilder(
-      generateRealmObjects(),
-      {
-        'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class _Foo {
-  int x = 0;
-}''',
-      },
-      outputs: {
-        'pkg|lib/src/test.realm_objects.g.part': '// **************************************************************************\n'
-            '// RealmObjectGenerator\n'
-            '// **************************************************************************\n'
-            '\n'
-            'class Foo extends _Foo with RealmEntity, RealmObject {\n'
-            '  static var _defaultsSet = false;\n'
-            '\n'
-            '  Foo({\n'
-            '    int x = 0,\n'
-            '  }) {\n'
-            '    if (!_defaultsSet) {\n'
-            '      _defaultsSet = RealmObject.setDefaults<Foo>({\n'
-            '        \'x\': 0,\n'
-            '      });\n'
-            '    }\n'
-            '    RealmObject.set(this, \'x\', x);\n'
-            '  }\n'
-            '\n'
-            '  Foo._();\n'
-            '\n'
-            '  @override\n'
-            '  int get x => RealmObject.get<int>(this, \'x\') as int;\n'
-            '  @override\n'
-            '  set x(int value) => RealmObject.set(this, \'x\', value);\n'
-            '\n'
-            '  @override\n'
-            '  Stream<RealmObjectChanges<Foo>> get changes =>\n'
-            '      RealmObject.getChanges<Foo>(this);\n'
-            '\n'
-            '  static SchemaObject get schema => _schema ??= _initSchema();\n'
-            '  static SchemaObject? _schema;\n'
-            '  static SchemaObject _initSchema() {\n'
-            '    RealmObject.registerFactory(Foo._);\n'
-            '    return const SchemaObject(Foo, [\n'
-            '      SchemaProperty(\'x\', RealmPropertyType.int),\n'
-            '    ]);\n'
-            '  }\n'
-            '}\n'
-            '',
-      },
-      reader: await PackageAssetReader.currentIsolate(),
-    );
-  });
-
   test('all types', () async {
     await testBuilder(
       generateRealmObjects(),
