@@ -6,12 +6,12 @@ in: asset:pkg/test/generator_test_io/list_of_list_not_supported.dart:8:21
 6   │   class _Bad {
     │         ━━━━ in realm model for 'Bad'
 ... │
-8   |     var listOfLists = [
-    | ╷---------------------^
-9   | |     [0],
-10  | |     [1]
-11  | |   ];
-    | ╵---^ List<List<int>> is not a realm model type
+8   │     var listOfLists = [
+    │ ┌─────────────────────^
+9   │ │     [0],
+10  │ │     [1]
+11  │ │   ];
+    │ └───^ List<List<int>> is not a realm model type
     ╵
 Remove the invalid field or add an @Ignored annotation on 'listOfLists'.
 
