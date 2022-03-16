@@ -77,39 +77,15 @@ void main() {
 
   test('list of list not supported', () async {
     await expectLater(
-        () async => await testBuilder(
-              generateRealmObjects(),
-              {
-                'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class _Bad {
-  late int x;
-  var listOfLists = [[0], [1]];
-}
-
-'''
-              },
-              reader: await PackageAssetReader.currentIsolate(),
-            ),
-        throwsA(isA<RealmInvalidGenerationSourceError>().having(
-            (e) => e.format(),
-            'format()',
-            'Not a realm type\n'
-                '\n'
-                'in: package:pkg/src/test.dart:8:21\n'
-                '    ╷\n'
-                '5   │ @RealmModel()\n'
-                '6   │ class _Bad {\n'
-                '    │       ━━━━ in realm model for \'Bad\'\n'
-                '... │\n'
-                '8   │   var listOfLists = [[0], [1]];\n'
-                '    │                     ^^^^^^^^^^ List<List<int>> is not a realm model type\n'
-                '    ╵\n'
-                'Remove the invalid field or add an @Ignored annotation on \'listOfLists\'.\n')));
+      () async => await ioTestErrorBuilder(folderName, 'list_of_list_not_supported.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsErrorFormattedString(folderName, 'list_of_list_not_supported.log'),
+        ),
+      ),
+    );
   });
 
   test('missing underscore', () async {
