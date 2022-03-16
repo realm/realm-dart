@@ -42,39 +42,12 @@ void main() {
 
   test('primary key cannot be nullable', () async {
     await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class _Bad {
-  @PrimaryKey()
-  int? nullableKeyNotAllowed;
-}'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
-      ),
+      () async => await ioTestErrorBuilder(folderName, 'primary_key_not_be_nullable.dart'),
       throwsA(
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          'Primary key cannot be nullable\n'
-              '\n'
-              'in: package:pkg/src/test.dart:8:3\n'
-              '  ╷\n'
-              '5 │ @RealmModel()\n'
-              '6 │ class _Bad {\n'
-              '  │       ━━━━ in realm model for \'Bad\'\n'
-              '7 │   @PrimaryKey()\n'
-              '8 │   int? nullableKeyNotAllowed;\n'
-              '  │   ^^^^ is nullable\n'
-              '  ╵\n'
-              'Consider using the @Indexed() annotation instead, or make \'nullableKeyNotAllowed\' an int.\n'
-              '',
+          await readFileAsErrorFormattedString(folderName, 'primary_key_not_be_nullable.log'),
         ),
       ),
     );
@@ -83,21 +56,10 @@ class _Bad {
   test('primary keys always indexed', () async {
     final sb = StringBuffer();
     var done = false;
+
     await testBuilder(
       generateRealmObjects(),
-      {
-        'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class _Questionable {
-  @PrimaryKey()
-  @Indexed()
-  late int primaryKeysAreAlwaysIndexed;
-}'''
-      },
+      await getInputFileAsset('test/$folderName/primary_key_always_indexed.dart'),
       reader: await PackageAssetReader.currentIsolate(),
       onLog: (l) {
         if (!done) {
@@ -109,18 +71,7 @@ class _Questionable {
     );
     expect(
       sb.toString(),
-      '[INFO] testBuilder: Indexed is implied for a primary key\n'
-      '\n'
-      'in: package:pkg/src/test.dart:9:12\n'
-      '  ╷\n'
-      '7 │   @PrimaryKey()\n'
-      '8 │   @Indexed()\n'
-      '9 │   late int primaryKeysAreAlwaysIndexed;\n'
-      '  │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n'
-      '  ╵\n'
-      'Remove either the @Indexed or @PrimaryKey annotation from \'primaryKeysAreAlwaysIndexed\'.\n'
-      '\n'
-      '',
+      await readFileAsErrorFormattedString(folderName, 'primary_key_always_indexed.log'),
     );
   });
 
