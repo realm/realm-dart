@@ -114,6 +114,7 @@ cp "$PROJECT_ROOT"/src/realm-core/src/realm.h _include/realm_dart_ios/
 cp "$PROJECT_ROOT"/src/realm_dart.h _include/realm_dart_ios/
 cp "$PROJECT_ROOT"/src/realm_dart_scheduler.h _include/realm_dart_ios/
 cp "$PROJECT_ROOT"/src/realm_dart_collections.h _include/realm_dart_ios/
+cp "$PROJECT_ROOT"/src/realm_dart_http_transport.h _include/realm_dart_ios/
 cp -r "$PROJECT_ROOT"/src/dart-include _include/realm_dart_ios/
 
 
