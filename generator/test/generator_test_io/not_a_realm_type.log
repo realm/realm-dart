@@ -1,0 +1,15 @@
+Not a realm type
+
+  in: package:pkg/src/test.dart:9:8
+      ╷
+  5   │ class NonRealm {}
+      │       ━━━━━━━━ 
+  ... │
+  7   │ @RealmModel()
+  8   │ class _Bad {
+      │       ━━━━ in realm model for \'Bad\'
+  9   │   late NonRealm notARealmType;
+      │        ^^^^^^^^ NonRealm is not a realm model type
+      ╵
+  Add a @RealmModel annotation on \'NonRealm\', or an @Ignored annotation on \'notARealmType\'.
+  
