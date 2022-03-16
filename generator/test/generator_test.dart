@@ -21,50 +21,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsString('test/$folderName/not_a_realm_type.log'),
-        ),
-      ),
-    );
-  });
-
-  test('not a realm type old', () async {
-    await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-class NonRealm {}
-
-@RealmModel()
-class _Bad {
-  late NonRealm notARealmType;
-}'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
-      ),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          'Not a realm type\n'
-              '\n'
-              'in: package:pkg/src/test.dart:9:8\n'
-              '    ╷\n'
-              '5   │ class NonRealm {}\n'
-              '    │       ━━━━━━━━ \n'
-              '... │\n'
-              '7   │ @RealmModel()\n'
-              '8   │ class _Bad {\n'
-              '    │       ━━━━ in realm model for \'Bad\'\n'
-              '9   │   late NonRealm notARealmType;\n'
-              '    │        ^^^^^^^^ NonRealm is not a realm model type\n'
-              '    ╵\n'
-              'Add a @RealmModel annotation on \'NonRealm\', or an @Ignored annotation on \'notARealmType\'.\n'
-              '',
+          await readFileAsErrorFormattedString(folderName, 'not_a_realm_type.log'),
         ),
       ),
     );

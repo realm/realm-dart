@@ -3,7 +3,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:path/path.dart' as _path;
 import 'package:dart_style/dart_style.dart';
-import 'package:build/build.dart';
 import 'package:build_test/build_test.dart';
 import 'package:realm_generator/realm_generator.dart';
 
@@ -16,34 +15,18 @@ String _stringReplacements(String content) {
 
 Future<String> readFileAsDartFormattedString(String path) async {
   var file = File(_path.join(Directory.current.path, path));
-  return await file.readAsString(encoding: utf8).then((value) => _stringReplacements(value));
+  String content = await file.readAsString(encoding: utf8);
+  return _stringReplacements(content);
 }
 
-Future<String> readFileAsString(String path) async {
-  var file = File(_path.join(Directory.current.path, path));
-  return await file.readAsString(encoding: utf8).then((value) => LineSplitter.split(value).join('\n'));
-}
-
-class _OutputDartFileWriter extends RecordingAssetWriter {
-  final _assets = <AssetId, List<int>>{};
-
-  @override
-  Map<AssetId, List<int>> get assets => _assets;
-
-  @override
-  Future<void> writeAsBytes(AssetId id, List<int> bytes) {
-    return Future<void>(() {
-      String content = _stringReplacements(utf8.decode(bytes));
-      _assets.addAll({id: utf8.encode(content)});
-    });
-  }
-
-  @override
-  Future<void> writeAsString(AssetId id, String contents, {Encoding encoding = utf8}) {
-    return Future<void>(() {
-      _assets.addAll({id: encoding.encode(_stringReplacements(contents))});
-    });
-  }
+Future<String> readFileAsErrorFormattedString(String directoryName, String logFileName) async {
+  var file = File(_path.join(Directory.current.path, 'test/$directoryName/$logFileName'));
+  String content = await file.readAsString(encoding: utf8);
+  var macToWinSymbols = {'╷': ',', '━': '=', '╵': '\'', '│': '|'};
+  macToWinSymbols.forEach((key, value) {
+    content = Platform.isWindows ? content.replaceAll(key, value) : content.replaceAll(value, key);
+  });
+  return LineSplitter.split(content).join('\n');
 }
 
 Future<Map<String, Object>> getInputFileAsset(String inputFilePath) async {
@@ -59,13 +42,9 @@ Future<Map<String, Object>> getOutputFileAsset(String inputFilePath, String outp
 }
 
 Future<dynamic> ioTestBuilder(String directoryName, String inputFileName, [String outputFileName = ""]) async {
-  return testBuilder(
-    generateRealmObjects(),
-    await getInputFileAsset('test/$directoryName/$inputFileName'),
-    outputs: outputFileName.isEmpty ? null : await getOutputFileAsset('test/$directoryName/$inputFileName', 'test/$directoryName/$outputFileName'),
-    reader: await PackageAssetReader.currentIsolate(),
-    writer: _OutputDartFileWriter(),
-  );
+  return testBuilder(generateRealmObjects(), await getInputFileAsset('test/$directoryName/$inputFileName'),
+      outputs: outputFileName.isEmpty ? null : await getOutputFileAsset('test/$directoryName/$inputFileName', 'test/$directoryName/$outputFileName'),
+      reader: await PackageAssetReader.currentIsolate());
 }
 
 Future<dynamic> ioTestErrorBuilder(String directoryName, String inputFileName) async {
