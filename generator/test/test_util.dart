@@ -24,7 +24,7 @@ Future<String> readFileAsString(String path) async {
   return await file.readAsString(encoding: utf8).then((value) => LineSplitter.split(value).join('\n'));
 }
 
-class _OutputFileWriter extends RecordingAssetWriter {
+class _OutputDartFileWriter extends RecordingAssetWriter {
   final _assets = <AssetId, List<int>>{};
 
   @override
@@ -64,7 +64,7 @@ Future<dynamic> ioTestBuilder(String directoryName, String inputFileName, [Strin
     await getInputFileAsset('test/$directoryName/$inputFileName'),
     outputs: outputFileName.isEmpty ? null : await getOutputFileAsset('test/$directoryName/$inputFileName', 'test/$directoryName/$outputFileName'),
     reader: await PackageAssetReader.currentIsolate(),
-    writer: _OutputFileWriter(),
+    writer: _OutputDartFileWriter(),
   );
 }
 
