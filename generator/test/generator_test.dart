@@ -29,39 +29,12 @@ void main() {
 
   test('not an indexable type', () async {
     await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class _Bad {
-  @Indexed()
-  Double notAnIndexableType;
-}'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
-      ),
+      () async => await ioTestErrorBuilder(folderName, 'not_an_indexable_type.dart'),
       throwsA(
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          'Realm only support indexes on String, int, and bool fields\n'
-              '\n'
-              'in: package:pkg/src/test.dart:8:3\n'
-              '  ╷\n'
-              '5 │ @RealmModel()\n'
-              '6 │ class _Bad {\n'
-              '  │       ━━━━ in realm model for \'Bad\'\n'
-              '7 │   @Indexed()\n'
-              '8 │   Double notAnIndexableType;\n'
-              '  │   ^^^^^^ Double is not an indexable type\n'
-              '  ╵\n'
-              'Change the type of \'notAnIndexableType\', or remove the @Indexed() annotation\n'
-              '',
+          await readFileAsErrorFormattedString(folderName, 'not_an_indexable_type.log'),
         ),
       ),
     );
