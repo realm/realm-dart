@@ -23,7 +23,7 @@ Future<String> readFileAsErrorFormattedString(String directoryName, String logFi
   var file = File(_path.join(Directory.current.path, 'test/$directoryName/$logFileName'));
   String content = await file.readAsString(encoding: utf8);
   if (Platform.isWindows) {
-    var macToWinSymbols = {'╷': ',', '━': '=', '╵': '\'', '│': '|', '─': '-'};
+    var macToWinSymbols = {'╷': ',', '━': '=', '╵': '\'', '│': '|', '─': '-', '┌': ',', '└': '\''};
     macToWinSymbols.forEach((key, value) {
       content = content.replaceAll(key, value);
     });
