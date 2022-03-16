@@ -41,23 +41,26 @@ class _OutputFileWriter extends RecordingAssetWriter {
   }
 }
 
-Future<Map<String, Object>> getInputFileAsset(String path) async {
-  String input = await readFileAsFormattedString(path);
-  return {'pkg|$path': input};
+Future<Map<String, Object>> getInputFileAsset(String inputFilePath) async {
+  var key = 'pkg|$inputFilePath';
+  String inputContent = await readFileAsFormattedString(inputFilePath);
+  return {key: inputContent};
 }
 
-Future<Map<String, Object>> getOutputFileAsset(String path) async {
-  String output = await readFileAsFormattedString(path);
-  String fileNameWithoutExtensions = _path.basenameWithoutExtension(_path.basenameWithoutExtension(path));
-  var generatedFile = '${_path.dirname(path)}/$fileNameWithoutExtensions.realm_objects.g.part';
-  return {'pkg|$generatedFile': output};
+Future<Map<String, Object>> getOutputFileAsset(String inputFilePath, String outputFilePath) async {
+  var key = 'pkg|${_path.setExtension(inputFilePath, '.realm_objects.g.part')}';
+  String outputContent = await readFileAsFormattedString(outputFilePath);
+  return {key: outputContent};
 }
 
-Future<dynamic> ioTtestBuilder(String directoryName, String testFilesPreffix) async {
+Future<dynamic> ioTtestBuilder(String directoryName, String inputFileName, [String outputFileName = ""]) async {
+  if (outputFileName.isEmpty) {
+    outputFileName = _path.setExtension(inputFileName, '.g.dart');
+  }
   return testBuilder(
     generateRealmObjects(),
-    await getInputFileAsset('test/$directoryName/$testFilesPreffix.dart'),
-    outputs: await getOutputFileAsset('test/$directoryName/$testFilesPreffix.g.dart'),
+    await getInputFileAsset('test/$directoryName/$inputFileName'),
+    outputs: await getOutputFileAsset('test/$directoryName/$inputFileName', 'test/$directoryName/$outputFileName'),
     reader: await PackageAssetReader.currentIsolate(),
     writer: _OutputFileWriter(),
   );

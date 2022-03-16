@@ -1,8 +1,16 @@
 import 'package:build_test/build_test.dart';
 import 'package:realm_generator/realm_generator.dart';
 import 'package:test/test.dart';
+import 'test_util.dart';
 
 void main() {
+
+  final folderName = 'generator_test_io';
+
+  test('pinhole', () async {
+    await ioTtestBuilder(folderName, 'pinhole.dart');
+  });
+
   test('all types', () async {
     await testBuilder(
       generateRealmObjects(),
