@@ -4,59 +4,30 @@ import 'package:test/test.dart';
 import 'test_util.dart';
 
 void main() {
-
   final folderName = 'generator_test_io';
 
   test('pinhole', () async {
-    await ioTtestBuilder(folderName, 'pinhole.dart');
+    await ioTestBuilder(folderName, 'pinhole.dart', 'pinhole.g.dart');
   });
 
   test('all types', () async {
-    await testBuilder(
-      generateRealmObjects(),
-      {
-        'pkg|lib/src/test.dart': r'''
-import 'dart:typed_data';
-
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-@MapTo('Fooo')
-class _Foo {
-  int x = 0;
-} 
-
-@RealmModel()
-class _Bar {
-  @PrimaryKey()
-  late String id;
-  late bool aBool, another;
-  var data = Uint8List(16);
-  // late RealmAny any; // not supported yet
-  @MapTo('tidspunkt')
-  var timestamp = DateTime.now();
-  var aDouble = 0.0;
-  // late Decimal128 decimal; // not supported yet
-  _Foo? foo;
-  // late ObjectId id;
-  // late Uuid uuid; // not supported yet
-  @Ignored()
-  var theMeaningOfEverything = 42;
-  var list = [0]; // list of ints with default value
-  // late Set<int> set; // not supported yet
-  // late map = <String, int>{}; // not supported yet
-
-  @Indexed()
-  String? anOptionalString;
-}'''
-      },
-      reader: await PackageAssetReader.currentIsolate(),
-    );
+    await ioTestBuilder(folderName, 'all_types.dart');
   });
 
   test('not a realm type', () async {
+    await expectLater(
+      () async => await ioTestErrorBuilder(folderName, 'not_a_realm_type.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsString('test/$folderName/not_a_realm_type.log'),
+        ),
+      ),
+    );
+  });
+
+  test('not a realm type old', () async {
     await expectLater(
       () async => await testBuilder(
         generateRealmObjects(),
@@ -920,7 +891,7 @@ class _Person {
     );
   });
 
-    test('map unsupported', () async {
+  test('map unsupported', () async {
     await expectLater(
       () async => await testBuilder(
         generateRealmObjects(),
@@ -955,5 +926,4 @@ class _Person {
       )),
     );
   });
-
 }

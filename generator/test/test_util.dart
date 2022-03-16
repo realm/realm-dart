@@ -14,9 +14,14 @@ String _stringReplacements(String content) {
   return formatter.format(formattedContent);
 }
 
-Future<String> readFileAsFormattedString(String path) async {
+Future<String> readFileAsDartFormattedString(String path) async {
   var file = File(_path.join(Directory.current.path, path));
   return await file.readAsString(encoding: utf8).then((value) => _stringReplacements(value));
+}
+
+Future<String> readFileAsString(String path) async {
+  var file = File(_path.join(Directory.current.path, path));
+  return await file.readAsString(encoding: utf8).then((value) => LineSplitter.split(value).join('\n'));
 }
 
 class _OutputFileWriter extends RecordingAssetWriter {
@@ -43,25 +48,30 @@ class _OutputFileWriter extends RecordingAssetWriter {
 
 Future<Map<String, Object>> getInputFileAsset(String inputFilePath) async {
   var key = 'pkg|$inputFilePath';
-  String inputContent = await readFileAsFormattedString(inputFilePath);
+  String inputContent = await readFileAsDartFormattedString(inputFilePath);
   return {key: inputContent};
 }
 
 Future<Map<String, Object>> getOutputFileAsset(String inputFilePath, String outputFilePath) async {
   var key = 'pkg|${_path.setExtension(inputFilePath, '.realm_objects.g.part')}';
-  String outputContent = await readFileAsFormattedString(outputFilePath);
+  String outputContent = await readFileAsDartFormattedString(outputFilePath);
   return {key: outputContent};
 }
 
-Future<dynamic> ioTtestBuilder(String directoryName, String inputFileName, [String outputFileName = ""]) async {
-  if (outputFileName.isEmpty) {
-    outputFileName = _path.setExtension(inputFileName, '.g.dart');
-  }
+Future<dynamic> ioTestBuilder(String directoryName, String inputFileName, [String outputFileName = ""]) async {
   return testBuilder(
     generateRealmObjects(),
     await getInputFileAsset('test/$directoryName/$inputFileName'),
-    outputs: await getOutputFileAsset('test/$directoryName/$inputFileName', 'test/$directoryName/$outputFileName'),
+    outputs: outputFileName.isEmpty ? null : await getOutputFileAsset('test/$directoryName/$inputFileName', 'test/$directoryName/$outputFileName'),
     reader: await PackageAssetReader.currentIsolate(),
     writer: _OutputFileWriter(),
+  );
+}
+
+Future<dynamic> ioTestErrorBuilder(String directoryName, String inputFileName) async {
+  return testBuilder(
+    generateRealmObjects(),
+    await getInputFileAsset('test/$directoryName/$inputFileName'),
+    reader: await PackageAssetReader.currentIsolate(),
   );
 }
