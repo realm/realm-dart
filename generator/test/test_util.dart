@@ -22,10 +22,12 @@ Future<String> readFileAsDartFormattedString(String path) async {
 Future<String> readFileAsErrorFormattedString(String directoryName, String logFileName) async {
   var file = File(_path.join(Directory.current.path, 'test/$directoryName/$logFileName'));
   String content = await file.readAsString(encoding: utf8);
-  var macToWinSymbols = {'╷': ',', '━': '=', '╵': '\'', '│': '|'};
-  macToWinSymbols.forEach((key, value) {
-    content = Platform.isWindows ? content.replaceAll(key, value) : content.replaceAll(value, key);
-  });
+  if (Platform.isWindows) {
+    var macToWinSymbols = {'╷': ',', '━': '=', '╵': '\'', '│': '|'};
+    macToWinSymbols.forEach((key, value) {
+      content = content.replaceAll(key, value);
+    });
+  }
   return LineSplitter.split(content).join('\n');
 }
 
