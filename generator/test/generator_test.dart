@@ -114,92 +114,16 @@ void main() {
     );
   });
 
-  test('old double primary key', () async {
-    await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class _Bad {
-  @PrimaryKey()
-  late int first;
-
-  @PrimaryKey()
-  late String second;
-
-  late String another;
-
-  @PrimaryKey()
-  late String third;
-}
-'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
-      ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'Duplicate primary keys\n'
-            '\n'
-            'in: package:pkg/src/test.dart:11:15\n'
-            '    ╷\n'
-            '5   │ @RealmModel()\n'
-            '6   │ class _Bad {\n'
-            '    │       ━━━━ in realm model for \'Bad\'\n'
-            '7   │   @PrimaryKey()\n'
-            '8   │   late int first;\n'
-            '    │            ━━━━━ \n'
-            '... │\n'
-            '10  │   @PrimaryKey()\n'
-            '11  │   late String second;\n'
-            '    │               ^^^^^^ second primary key\n'
-            '... │\n'
-            '15  │   @PrimaryKey()\n'
-            '16  │   late String third;\n'
-            '    │               ━━━━━ \n'
-            '    ╵\n'
-            'Avoid duplicated @PrimaryKey() on fields \'first\', \'second\', \'third\'\n'
-            '',
-      )),
-    );
-  });
-
   test('invalid model name prefix', () async {
     await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class Bad { // missing _ or $ prefix
-}
-'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
+      () async => await ioTestErrorBuilder(folderName, 'invalid_model_name_prefix.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsErrorFormattedString(folderName, 'invalid_model_name_prefix.log'),
+        ),
       ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'Missing prefix on realm model name\n'
-            '\n'
-            'in: package:pkg/src/test.dart:6:7\n'
-            '  ╷\n'
-            '5 │ @RealmModel()\n'
-            '6 │ class Bad { // missing _ or \$ prefix\n'
-            '  │       ^^^ missing prefix\n'
-            '  ╵\n'
-            'Either align class name to match prefix [_\$] (regular expression), or add a @MapTo annotation.\n'
-            '',
-      )),
     );
   });
 
