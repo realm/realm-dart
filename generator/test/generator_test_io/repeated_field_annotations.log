@@ -1,0 +1,16 @@
+Repeated annotation
+
+in: asset:pkg/test/generator_test_io/repeated_field_annotations.dart:9:3
+    ╷
+5   │ @RealmModel()
+6   │ class _Bad {
+    │       ━━━━ in realm model for 'Bad'
+7   │   @PrimaryKey()
+    │   ━━━━━━━━━━━━━ 
+... │
+9   │   @PrimaryKey()
+    │   ^^^^^^^^^^^^^ duplicated annotation
+10  │   late int id;
+    ╵
+Remove all duplicated @PrimaryKey() annotations.
+

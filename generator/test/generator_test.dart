@@ -155,45 +155,14 @@ void main() {
 
   test('repeated field annotations', () async {
     await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class _Bad { 
-  @PrimaryKey()
-  @MapTo('key')
-  @PrimaryKey()
-  late int id;
-}
-'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
+      () async => await ioTestErrorBuilder(folderName, 'repeated_field_annotations.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsErrorFormattedString(folderName, 'repeated_field_annotations.log'),
+        ),
       ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'Repeated annotation\n'
-            '\n'
-            'in: package:pkg/src/test.dart:9:3\n'
-            '    ╷\n'
-            '5   │ @RealmModel()\n'
-            '6   │ class _Bad { \n'
-            '    │       ━━━━ in realm model for \'Bad\'\n'
-            '7   │   @PrimaryKey()\n'
-            '    │   ━━━━━━━━━━━━━ \n'
-            '... │\n'
-            '9   │   @PrimaryKey()\n'
-            '    │   ^^^^^^^^^^^^^ duplicated annotation\n'
-            '10  │   late int id;\n'
-            '    ╵\n'
-            'Remove all duplicated @PrimaryKey() annotations.\n'
-            '',
-      )),
     );
   });
 
