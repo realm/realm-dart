@@ -217,50 +217,20 @@ void main() {
       ),
     );
   });
-  
+
   test('non-nullable realm object reference', () async {
     await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class _Other {}
-
-@RealmModel()
-class _Bad { 
-  @PrimaryKey()
-  late int id;
-
-  late _Other wrong;
-}
-'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
+      () async => await ioTestErrorBuilder(folderName, 'non_nullable_ro_reference.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsErrorFormattedString(folderName, 'non_nullable_ro_reference.log'),
+        ),
       ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'Realm object references must be nullable\n'
-            '\n'
-            'in: package:pkg/src/test.dart:13:8\n'
-            '    ╷\n'
-            '8   │ @RealmModel()\n'
-            '9   │ class _Bad { \n'
-            '    │       ━━━━ in realm model for \'Bad\'\n'
-            '... │\n'
-            '13  │   late _Other wrong;\n'
-            '    │        ^^^^^^ is not nullable\n'
-            '    ╵\n'
-            'Change type to _Other?\n'
-            '',
-      )),
     );
   });
+  
 
   test('defining both _Bad and \$Bad', () async {
     await expectLater(
