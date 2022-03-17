@@ -142,39 +142,14 @@ void main() {
 
   test('repeated class annotations', () async {
     await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-@MapTo('Bad')
-@RealmModel()
-class _Bad {}
-'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
+      () async => await ioTestErrorBuilder(folderName, 'repeated_class_annotations.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsErrorFormattedString(folderName, 'repeated_class_annotations.log'),
+        ),
       ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'Repeated annotation\n'
-            '\n'
-            'in: package:pkg/src/test.dart:7:1\n'
-            '    ╷\n'
-            '5   │ @RealmModel()\n'
-            '    │ ━━━━━━━━━━━━━ \n'
-            '... │\n'
-            '7   │ @RealmModel()\n'
-            '    │ ^^^^^^^^^^^^^ duplicated annotation\n'
-            '8   │ class _Bad {}\n'
-            '    ╵\n'
-            'Remove all duplicated @RealmModel() annotations.\n'
-            '',
-      )),
     );
   });
 
