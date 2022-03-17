@@ -194,44 +194,18 @@ void main() {
 
   test('nullable list', () async {
     await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class _Bad { 
-  @PrimaryKey()
-  late int id;
-
-  List<int>? wrong;
-}
-'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
+      () async => await ioTestErrorBuilder(folderName, 'nullable_list.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsErrorFormattedString(folderName, 'nullable_list.log'),
+        ),
       ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'Realm collections cannot be nullable\n'
-            '\n'
-            'in: package:pkg/src/test.dart:10:3\n'
-            '    ╷\n'
-            '5   │ @RealmModel()\n'
-            '6   │ class _Bad { \n'
-            '    │       ━━━━ in realm model for \'Bad\'\n'
-            '... │\n'
-            '10  │   List<int>? wrong;\n'
-            '    │   ^^^^^^^^^^ is nullable\n'
-            '    ╵',
-      )),
     );
   });
 
-  test('nullable list elements', () async {
+ test('nullable list elements', () async {
     await expectLater(
       () async => await testBuilder(
         generateRealmObjects(),
