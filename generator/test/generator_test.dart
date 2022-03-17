@@ -243,9 +243,21 @@ void main() {
       ),
     );
   });
-  
 
   test('reusing mapTo name', () async {
+    await expectLater(
+      () async => await ioTestErrorBuilder(folderName, 'reusing_mapto_name.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsErrorFormattedString(folderName, 'reusing_mapto_name.log'),
+        ),
+      ),
+    );
+  });
+
+  test('old reusing mapTo name', () async {
     await expectLater(
       () async => await testBuilder(
         generateRealmObjects(),
