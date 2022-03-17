@@ -1,9 +1,9 @@
 import 'package:realm_common/realm_common.dart';
 import '../../../lib/realm.dart';
 
-part 'pinhole.g.dart';
+part 'optional_argument.g.dart';
 
 @RealmModel()
-class _Foo {
-  int x = 0;
+class _Person {
+  _Person? spouse;
 }
