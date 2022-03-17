@@ -103,6 +103,19 @@ void main() {
 
   test('double primary key', () async {
     await expectLater(
+      () async => await ioTestErrorBuilder(folderName, 'double_primary_key.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsErrorFormattedString(folderName, 'double_primary_key.log'),
+        ),
+      ),
+    );
+  });
+
+  test('old double primary key', () async {
+    await expectLater(
       () async => await testBuilder(
         generateRealmObjects(),
         {

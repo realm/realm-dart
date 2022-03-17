@@ -1,0 +1,21 @@
+Duplicate primary keys
+
+in: asset:pkg/test/generator_test_io/double_primary_key.dart:11:15
+    ╷
+5   │ @RealmModel()
+6   │ class _Bad {
+    │       ━━━━ in realm model for 'Bad'
+7   │   @PrimaryKey()
+8   │   late int first;
+    │            ━━━━━ 
+... │
+10  │   @PrimaryKey()
+11  │   late String second;
+    │               ^^^^^^ second primary key
+... │
+15  │   @PrimaryKey()
+16  │   late String third;
+    │               ━━━━━ 
+    ╵
+Avoid duplicated @PrimaryKey() on fields 'first', 'second', 'third'
+
