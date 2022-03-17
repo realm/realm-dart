@@ -964,6 +964,40 @@ class RealmLibrary {
       _realm_config_get_fifo_pathPtr.asFunction<
           ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_config_t>)>();
 
+  /// If 'cached' is false, always return a new Realm instance.
+  void realm_config_set_cached(
+    ffi.Pointer<realm_config_t> arg0,
+    bool cached,
+  ) {
+    return _realm_config_set_cached(
+      arg0,
+      cached ? 1 : 0,
+    );
+  }
+
+  late final _realm_config_set_cachedPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<realm_config_t>,
+              ffi.Uint8)>>('realm_config_set_cached');
+  late final _realm_config_set_cached = _realm_config_set_cachedPtr
+      .asFunction<void Function(ffi.Pointer<realm_config_t>, int)>();
+
+  /// Check if realms are cached
+  bool realm_config_get_cached(
+    ffi.Pointer<realm_config_t> arg0,
+  ) {
+    return _realm_config_get_cached(
+          arg0,
+        ) !=
+        0;
+  }
+
+  late final _realm_config_get_cachedPtr = _lookup<
+          ffi.NativeFunction<ffi.Uint8 Function(ffi.Pointer<realm_config_t>)>>(
+      'realm_config_get_cached');
+  late final _realm_config_get_cached = _realm_config_get_cachedPtr
+      .asFunction<int Function(ffi.Pointer<realm_config_t>)>();
+
   /// Create a custom scheduler object from callback functions.
   ///
   /// @param userdata Pointer passed to all callbacks.
@@ -2360,17 +2394,19 @@ class RealmLibrary {
     ffi.Pointer<realm_object_t> arg0,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t free,
+    ffi.Pointer<realm_key_path_array_t> arg3,
     realm_on_object_change_func_t on_change,
     realm_callback_error_func_t on_error,
-    ffi.Pointer<realm_scheduler_t> arg5,
+    ffi.Pointer<realm_scheduler_t> arg6,
   ) {
     return _realm_object_add_notification_callback(
       arg0,
       userdata,
       free,
+      arg3,
       on_change,
       on_error,
-      arg5,
+      arg6,
     );
   }
 
@@ -2380,6 +2416,7 @@ class RealmLibrary {
                   ffi.Pointer<realm_object_t>,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t,
+                  ffi.Pointer<realm_key_path_array_t>,
                   realm_on_object_change_func_t,
                   realm_callback_error_func_t,
                   ffi.Pointer<realm_scheduler_t>)>>(
@@ -2390,6 +2427,7 @@ class RealmLibrary {
               ffi.Pointer<realm_object_t>,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
+              ffi.Pointer<realm_key_path_array_t>,
               realm_on_object_change_func_t,
               realm_callback_error_func_t,
               ffi.Pointer<realm_scheduler_t>)>();
@@ -2856,17 +2894,19 @@ class RealmLibrary {
     ffi.Pointer<realm_list_t> arg0,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t free,
+    ffi.Pointer<realm_key_path_array_t> arg3,
     realm_on_collection_change_func_t on_change,
     realm_callback_error_func_t on_error,
-    ffi.Pointer<realm_scheduler_t> arg5,
+    ffi.Pointer<realm_scheduler_t> arg6,
   ) {
     return _realm_list_add_notification_callback(
       arg0,
       userdata,
       free,
+      arg3,
       on_change,
       on_error,
-      arg5,
+      arg6,
     );
   }
 
@@ -2876,6 +2916,7 @@ class RealmLibrary {
                   ffi.Pointer<realm_list_t>,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t,
+                  ffi.Pointer<realm_key_path_array_t>,
                   realm_on_collection_change_func_t,
                   realm_callback_error_func_t,
                   ffi.Pointer<realm_scheduler_t>)>>(
@@ -2886,6 +2927,7 @@ class RealmLibrary {
               ffi.Pointer<realm_list_t>,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
+              ffi.Pointer<realm_key_path_array_t>,
               realm_on_collection_change_func_t,
               realm_callback_error_func_t,
               ffi.Pointer<realm_scheduler_t>)>();
@@ -3531,17 +3573,19 @@ class RealmLibrary {
     ffi.Pointer<realm_set_t> arg0,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t free,
+    ffi.Pointer<realm_key_path_array_t> arg3,
     realm_on_collection_change_func_t on_change,
     realm_callback_error_func_t on_error,
-    ffi.Pointer<realm_scheduler_t> arg5,
+    ffi.Pointer<realm_scheduler_t> arg6,
   ) {
     return _realm_set_add_notification_callback(
       arg0,
       userdata,
       free,
+      arg3,
       on_change,
       on_error,
-      arg5,
+      arg6,
     );
   }
 
@@ -3551,6 +3595,7 @@ class RealmLibrary {
                   ffi.Pointer<realm_set_t>,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t,
+                  ffi.Pointer<realm_key_path_array_t>,
                   realm_on_collection_change_func_t,
                   realm_callback_error_func_t,
                   ffi.Pointer<realm_scheduler_t>)>>(
@@ -3561,6 +3606,7 @@ class RealmLibrary {
               ffi.Pointer<realm_set_t>,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
+              ffi.Pointer<realm_key_path_array_t>,
               realm_on_collection_change_func_t,
               realm_callback_error_func_t,
               ffi.Pointer<realm_scheduler_t>)>();
@@ -3906,17 +3952,19 @@ class RealmLibrary {
     ffi.Pointer<realm_dictionary_t> arg0,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t free,
+    ffi.Pointer<realm_key_path_array_t> arg3,
     realm_on_collection_change_func_t on_change,
     realm_callback_error_func_t on_error,
-    ffi.Pointer<realm_scheduler_t> arg5,
+    ffi.Pointer<realm_scheduler_t> arg6,
   ) {
     return _realm_dictionary_add_notification_callback(
       arg0,
       userdata,
       free,
+      arg3,
       on_change,
       on_error,
-      arg5,
+      arg6,
     );
   }
 
@@ -3926,6 +3974,7 @@ class RealmLibrary {
                   ffi.Pointer<realm_dictionary_t>,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t,
+                  ffi.Pointer<realm_key_path_array_t>,
                   realm_on_collection_change_func_t,
                   realm_callback_error_func_t,
                   ffi.Pointer<realm_scheduler_t>)>>(
@@ -3936,6 +3985,7 @@ class RealmLibrary {
               ffi.Pointer<realm_dictionary_t>,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
+              ffi.Pointer<realm_key_path_array_t>,
               realm_on_collection_change_func_t,
               realm_callback_error_func_t,
               ffi.Pointer<realm_scheduler_t>)>();
@@ -4603,9 +4653,10 @@ class RealmLibrary {
     ffi.Pointer<realm_results_t> arg0,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t arg2,
-    realm_on_collection_change_func_t arg3,
-    realm_callback_error_func_t arg4,
-    ffi.Pointer<realm_scheduler_t> arg5,
+    ffi.Pointer<realm_key_path_array_t> arg3,
+    realm_on_collection_change_func_t arg4,
+    realm_callback_error_func_t arg5,
+    ffi.Pointer<realm_scheduler_t> arg6,
   ) {
     return _realm_results_add_notification_callback(
       arg0,
@@ -4614,6 +4665,7 @@ class RealmLibrary {
       arg3,
       arg4,
       arg5,
+      arg6,
     );
   }
 
@@ -4623,6 +4675,7 @@ class RealmLibrary {
                   ffi.Pointer<realm_results_t>,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t,
+                  ffi.Pointer<realm_key_path_array_t>,
                   realm_on_collection_change_func_t,
                   realm_callback_error_func_t,
                   ffi.Pointer<realm_scheduler_t>)>>(
@@ -4633,6 +4686,7 @@ class RealmLibrary {
               ffi.Pointer<realm_results_t>,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
+              ffi.Pointer<realm_key_path_array_t>,
               realm_on_collection_change_func_t,
               realm_callback_error_func_t,
               ffi.Pointer<realm_scheduler_t>)>();
@@ -7598,10 +7652,11 @@ abstract class realm_schema_mode {
   static const int RLM_SCHEMA_MODE_AUTOMATIC = 0;
   static const int RLM_SCHEMA_MODE_IMMUTABLE = 1;
   static const int RLM_SCHEMA_MODE_READ_ONLY = 2;
-  static const int RLM_SCHEMA_MODE_RESET_FILE = 3;
-  static const int RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED = 4;
-  static const int RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT = 5;
-  static const int RLM_SCHEMA_MODE_MANUAL = 6;
+  static const int RLM_SCHEMA_MODE_SOFT_RESET_FILE = 3;
+  static const int RLM_SCHEMA_MODE_HARD_RESET_FILE = 4;
+  static const int RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED = 5;
+  static const int RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT = 6;
+  static const int RLM_SCHEMA_MODE_MANUAL = 7;
 }
 
 abstract class realm_value_type {
@@ -7718,6 +7773,34 @@ typedef realm_decimal128_t = realm_decimal128;
 typedef realm_object_id_t = realm_object_id;
 typedef realm_uuid_t = realm_uuid;
 typedef realm_link_t = realm_link;
+
+class realm_key_path_elem extends ffi.Struct {
+  @realm_class_key_t()
+  external int object;
+
+  @realm_property_key_t()
+  external int property;
+}
+
+typedef realm_property_key_t = ffi.Int64;
+
+class realm_key_path extends ffi.Struct {
+  @ffi.IntPtr()
+  external int nb_elements;
+
+  external ffi.Pointer<realm_key_path_elem_t> path_elements;
+}
+
+typedef realm_key_path_elem_t = realm_key_path_elem;
+
+class realm_key_path_array extends ffi.Struct {
+  @ffi.IntPtr()
+  external int nb_elements;
+
+  external ffi.Pointer<realm_key_path_t> paths;
+}
+
+typedef realm_key_path_t = realm_key_path;
 
 class realm_version_id extends ffi.Struct {
   @ffi.Uint64()
@@ -7854,8 +7937,6 @@ class realm_property_info extends ffi.Struct {
   external int flags;
 }
 
-typedef realm_property_key_t = ffi.Int64;
-
 class realm_class_info extends ffi.Struct {
   external ffi.Pointer<ffi.Int8> name;
 
@@ -7941,6 +8022,7 @@ typedef realm_object_t = realm_object;
 typedef realm_value_t = realm_value;
 typedef realm_results_t = realm_results;
 typedef realm_notification_token_t = realm_notification_token;
+typedef realm_key_path_array_t = realm_key_path_array;
 typedef realm_on_object_change_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(
