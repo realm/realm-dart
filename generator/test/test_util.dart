@@ -12,7 +12,7 @@ Function executeTest = test;
 Map<String, String> getListOfTestFiles(String directory) {
   Map<String, String> result = {};
   var files = Directory(_path.join(Directory.current.path, directory)).listSync();
-  files.where((file) => !file.path.endsWith('g.dart') && _path.extension(file.path) == '.dart').forEach((file) {
+  files.where((file) => _path.extension(file.path) == '.dart' && !file.path.endsWith('g.dart')).forEach((file) {
     var outputFileName = _path.setExtension(file.path, '.expected');
     if (!File(outputFileName).existsSync()) {
       outputFileName = '';
@@ -24,7 +24,7 @@ Map<String, String> getListOfTestFiles(String directory) {
 
 Future<dynamic> generatorTestBuilder(String directoryName, String inputFileName, [String outputFileName = ""]) async {
   return testBuilder(generateRealmObjects(), await getInputFileAsset('$directoryName/$inputFileName'),
-      outputs: outputFileName.isEmpty ? null : await getOutputFileAsset('$directoryName/$inputFileName', '$directoryName/$outputFileName'),
+      outputs: outputFileName.isNotEmpty ? await getOutputFileAsset('$directoryName/$inputFileName', '$directoryName/$outputFileName') : null,
       reader: await PackageAssetReader.currentIsolate());
 }
 
