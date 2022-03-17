@@ -1,6 +1,6 @@
 Duplicate definition
 
-in: asset:pkg/test/generator_test_io/defining_both_class_prefixes.dart:9:7
+in: asset:pkg/test/error_test_data/defining_both_class_prefixes.dart:9:7
     ╷
 5   │ @RealmModel()
 6   │ class $Bad1 {}

@@ -1,6 +1,6 @@
 Not a realm type
 
-in: asset:pkg/test/generator_test_io/not_a_realm_type.dart:9:8
+in: asset:pkg/test/error_test_data/not_a_realm_type.dart:9:8
     ╷
 5   │ class NonRealm {}
     │       ━━━━━━━━ 

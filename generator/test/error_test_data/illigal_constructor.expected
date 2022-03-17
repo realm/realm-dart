@@ -1,6 +1,6 @@
 No constructors allowed on realm model classes
 
-in: asset:pkg/test/generator_test_io/illigal_constructor.dart:10:3
+in: asset:pkg/test/error_test_data/illigal_constructor.dart:10:3
     ╷
 5   │ @RealmModel()
 6   │ class _Bad {

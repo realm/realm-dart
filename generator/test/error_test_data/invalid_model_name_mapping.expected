@@ -1,6 +1,6 @@
 Invalid class name
 
-in: asset:pkg/test/generator_test_io/invalid_model_name_mapping.dart:7:8
+in: asset:pkg/test/error_test_data/invalid_model_name_mapping.dart:7:8
    ╷
 6  │ @RealmModel()
 7  │ @MapTo(one) // <- invalid

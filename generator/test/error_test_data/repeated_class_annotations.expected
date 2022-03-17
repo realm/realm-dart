@@ -1,6 +1,6 @@
 Repeated annotation
 
-in: asset:pkg/test/generator_test_io/repeated_class_annotations.dart:7:1
+in: asset:pkg/test/error_test_data/repeated_class_annotations.dart:7:1
     ╷
 5   │ @RealmModel()
     │ ━━━━━━━━━━━━━ 

@@ -1,6 +1,6 @@
 [INFO] testBuilder: Indexed is implied for a primary key
 
-in: asset:pkg/test/generator_test_io/primary_key_always_indexed.dart:9:12
+in: asset:pkg/test/info_test_data/primary_key_always_indexed.dart:9:12
   ╷
 7 │   @PrimaryKey()
 8 │   @Indexed()

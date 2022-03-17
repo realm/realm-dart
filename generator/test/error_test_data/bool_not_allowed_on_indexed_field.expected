@@ -1,6 +1,6 @@
 Realm only support indexes on String, int, and bool fields
 
-in: asset:pkg/test/generator_test_io/bool_not_allowed_on_indexed_field.dart:9:8
+in: asset:pkg/test/error_test_data/bool_not_allowed_on_indexed_field.dart:9:8
   ╷
 5 │ @RealmModel()
 6 │ @MapTo('Bad')

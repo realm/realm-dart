@@ -1,6 +1,6 @@
 Realm object references must be nullable
 
-in: asset:pkg/test/generator_test_io/non_nullable_realm_object_reference.dart:13:8
+in: asset:pkg/test/error_test_data/non_nullable_realm_object_reference.dart:13:8
     ╷
 8   │ @RealmModel()
 9   │ class _Bad {

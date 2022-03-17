@@ -1,6 +1,6 @@
 Nullable realm objects are not allowed in collections
 
-in: asset:pkg/test/generator_test_io/nullable_list_elements.dart:14:8
+in: asset:pkg/test/error_test_data/nullable_list_elements.dart:14:8
     ╷
 8   │ @RealmModel()
 9   │ class _Bad {

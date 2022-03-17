@@ -1,6 +1,6 @@
 Realm only support indexes on String, int, and bool fields
 
-in: asset:pkg/test/generator_test_io/not_an_indexable_type.dart:9:8
+in: asset:pkg/test/error_test_data/not_an_indexable_type.dart:9:8
   ╷
 6 │ @RealmModel()
 7 │ class _Bad {

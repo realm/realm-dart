@@ -1,6 +1,6 @@
 Not a realm type
 
-in: asset:pkg/test/generator_test_io/list_of_list_not_supported.dart:8:21
+in: asset:pkg/test/error_test_data/list_of_list_not_supported.dart:8:21
     ╷
 5   │   @RealmModel()
 6   │   class _Bad {
