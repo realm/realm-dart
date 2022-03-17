@@ -1,6 +1,6 @@
 Missing prefix on realm model name
 
-in: asset:pkg/test/generator_test_io/invalid_model_name_prefix.dart:6:7
+in: asset:pkg/test/error_test_data/invalid_model_name_prefix.dart:6:7
   ╷
 5 │ @RealmModel()
 6 │ class Bad {

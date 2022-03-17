@@ -1,6 +1,6 @@
 Realm model classes can only extend Object
 
-in: asset:pkg/test/generator_test_io/invalid_extend.dart:8:7
+in: asset:pkg/test/error_test_data/invalid_extend.dart:8:7
   ╷
 7 │ @RealmModel()
 8 │ class _Bad extends Base {

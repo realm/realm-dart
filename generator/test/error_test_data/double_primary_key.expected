@@ -1,6 +1,6 @@
 Duplicate primary keys
 
-in: asset:pkg/test/generator_test_io/double_primary_key.dart:11:15
+in: asset:pkg/test/error_test_data/double_primary_key.dart:11:15
     ╷
 5   │ @RealmModel()
 6   │ class _Bad {
