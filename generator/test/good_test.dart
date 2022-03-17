@@ -19,56 +19,7 @@ void main() {
   });
 
   test('optional argument', () async {
-    await testBuilder(
-      generateRealmObjects(),
-      {
-        'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class _Person {
-  _Person? spouse;
-}''',
-      },
-      outputs: {
-        'pkg|lib/src/test.realm_objects.g.part': '// **************************************************************************\n'
-            '// RealmObjectGenerator\n'
-            '// **************************************************************************\n'
-            '\n'
-            'class Person extends _Person with RealmEntity, RealmObject {\n'
-            '  Person({\n'
-            '    Person? spouse,\n'
-            '  }) {\n'
-            '    RealmObject.set(this, \'spouse\', spouse);\n'
-            '  }\n'
-            '\n'
-            '  Person._();\n'
-            '\n'
-            '  @override\n'
-            '  Person? get spouse => RealmObject.get<Person>(this, \'spouse\') as Person?;\n'
-            '  @override\n'
-            '  set spouse(covariant Person? value) => RealmObject.set(this, \'spouse\', value);\n'
-            '\n'
-            '  @override\n'
-            '  Stream<RealmObjectChanges<Person>> get changes =>\n'
-            '      RealmObject.getChanges<Person>(this);\n'
-            '\n'
-            '  static SchemaObject get schema => _schema ??= _initSchema();\n'
-            '  static SchemaObject? _schema;\n'
-            '  static SchemaObject _initSchema() {\n'
-            '    RealmObject.registerFactory(Person._);\n'
-            '    return const SchemaObject(Person, [\n'
-            '      SchemaProperty(\'spouse\', RealmPropertyType.object,\n'
-            '          optional: true, linkTarget: \'Person\'),\n'
-            '    ]);\n'
-            '  }\n'
-            '}\n'
-            '',
-      },
-      reader: await PackageAssetReader.currentIsolate(),
-    );
+    await ioTestBuilder(folderName, 'optional_argument.dart', 'optional_argument.g.dart');
   });
 
   test('user defined getter', () async {
