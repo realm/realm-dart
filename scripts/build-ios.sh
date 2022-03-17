@@ -92,6 +92,7 @@ pushd build-ios
 # Configure CMake project
 cmake "$PROJECT_ROOT" -GXcode \
     -DCMAKE_SYSTEM_NAME=iOS \
+    -DCMAKE_TOOLCHAIN_FILE="$PROJECT_ROOT/src/realm-core/tools/cmake/xcode.toolchain.cmake" \
     -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY="$(pwd)/out/$<CONFIG>\$EFFECTIVE_PLATFORM_NAME"
     
 
