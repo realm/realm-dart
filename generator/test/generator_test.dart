@@ -257,50 +257,6 @@ void main() {
     );
   });
 
-  test('old reusing mapTo name', () async {
-    await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-@MapTo('Bad3')
-class _Foo {}
-
-@MapTo('Bad3')
-@RealmModel()
-class _Bar {}
-'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
-      ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'Duplicate definition\n'
-            '\n'
-            'in: package:pkg/src/test.dart:11:7\n'
-            '    ╷\n'
-            '5   │ @RealmModel()\n'
-            '6   │ @MapTo(\'Bad3\')\n'
-            '7   │ class _Foo {}\n'
-            '    │       ━━━━ \n'
-            '... │\n'
-            '9   │ @MapTo(\'Bad3\')\n'
-            '10  │ @RealmModel()\n'
-            '11  │ class _Bar {}\n'
-            '    │       ^^^^ realm model \'_Foo\' already defines \'Bad3\'\n'
-            '    ╵\n'
-            'Duplicate realm model definitions \'_Bar\' and \'_Foo\'.\n'
-            '',
-      )),
-    );
-  });
-
   test('bool not allowed on indexed field', () async {
     await expectLater(
       () async => await testBuilder(
