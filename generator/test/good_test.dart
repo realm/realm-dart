@@ -23,55 +23,6 @@ void main() {
   });
 
   test('user defined getter', () async {
-    await testBuilder(
-      generateRealmObjects(),
-      {
-        'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class _Person {
-  late String name;
-  String get lastName => name.split(' ').first; // <-- should be ignored by generator
-}''',
-      },
-      outputs: {
-        'pkg|lib/src/test.realm_objects.g.part': '// **************************************************************************\n'
-            '// RealmObjectGenerator\n'
-            '// **************************************************************************\n'
-            '\n'
-            'class Person extends _Person with RealmEntity, RealmObject {\n'
-            '  Person(\n'
-            '    String name,\n'
-            '  ) {\n'
-            '    RealmObject.set(this, \'name\', name);\n'
-            '  }\n'
-            '\n'
-            '  Person._();\n'
-            '\n'
-            '  @override\n'
-            '  String get name => RealmObject.get<String>(this, \'name\') as String;\n'
-            '  @override\n'
-            '  set name(String value) => RealmObject.set(this, \'name\', value);\n'
-            '\n'
-            '  @override\n'
-            '  Stream<RealmObjectChanges<Person>> get changes =>\n'
-            '      RealmObject.getChanges<Person>(this);\n'
-            '\n'
-            '  static SchemaObject get schema => _schema ??= _initSchema();\n'
-            '  static SchemaObject? _schema;\n'
-            '  static SchemaObject _initSchema() {\n'
-            '    RealmObject.registerFactory(Person._);\n'
-            '    return const SchemaObject(Person, [\n'
-            '      SchemaProperty(\'name\', RealmPropertyType.string),\n'
-            '    ]);\n'
-            '  }\n'
-            '}\n'
-            '',
-      },
-      reader: await PackageAssetReader.currentIsolate(),
-    );
+    await ioTestBuilder(folderName, 'user_defined_getter.dart', 'user_defined_getter.g.dart');
   });
 }

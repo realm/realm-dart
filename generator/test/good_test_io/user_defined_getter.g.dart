@@ -1,21 +1,21 @@
 // **************************************************************************
 // RealmObjectGenerator
 // **************************************************************************
-part of 'optional_argument.dart';
+part of 'user_defined_getter.dart';
 
 class Person extends _Person with RealmEntity, RealmObject {
-  Person({
-    Person? spouse,
-  }) {
-    RealmObject.set(this, 'spouse', spouse);
+  Person(
+    String name,
+  ) {
+    RealmObject.set(this, 'name', name);
   }
 
   Person._();
 
   @override
-  Person? get spouse => RealmObject.get<Person>(this, 'spouse') as Person?;
+  String get name => RealmObject.get<String>(this, 'name') as String;
   @override
-  set spouse(covariant Person? value) => RealmObject.set(this, 'spouse', value);
+  set name(String value) => RealmObject.set(this, 'name', value);
 
   @override
   Stream<RealmObjectChanges<Person>> get changes => RealmObject.getChanges<Person>(this);
@@ -25,7 +25,7 @@ class Person extends _Person with RealmEntity, RealmObject {
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Person._);
     return const SchemaObject(Person, [
-      SchemaProperty('spouse', RealmPropertyType.object, optional: true, linkTarget: 'Person'),
+      SchemaProperty('name', RealmPropertyType.string),
     ]);
   }
 }
