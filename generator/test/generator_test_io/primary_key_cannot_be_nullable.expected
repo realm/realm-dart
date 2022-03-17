@@ -1,6 +1,6 @@
 Primary key cannot be nullable
 
-in: asset:pkg/test/generator_test_io/primary_key_not_be_nullable.dart:8:3
+in: asset:pkg/test/generator_test_io/primary_key_cannot_be_nullable.dart:8:3
   ╷
 5 │ @RealmModel()
 6 │ class _Bad {

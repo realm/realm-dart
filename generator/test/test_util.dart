@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:path/path.dart' as _path;
 import 'package:dart_style/dart_style.dart';
 import 'package:build_test/build_test.dart';
+import 'package:test/test.dart';
 import 'package:realm_generator/realm_generator.dart';
 
 String _stringReplacements(String content) {
@@ -43,16 +44,10 @@ Future<Map<String, Object>> getOutputFileAsset(String inputFilePath, String outp
   return {key: outputContent};
 }
 
-Future<dynamic> ioTestBuilder(String directoryName, String inputFileName, [String outputFileName = ""]) async {
+Future<dynamic> generatorTestBuilder(String directoryName, String inputFileName, [String outputFileName = ""]) async {
   return testBuilder(generateRealmObjects(), await getInputFileAsset('test/$directoryName/$inputFileName'),
       outputs: outputFileName.isEmpty ? null : await getOutputFileAsset('test/$directoryName/$inputFileName', 'test/$directoryName/$outputFileName'),
       reader: await PackageAssetReader.currentIsolate());
 }
 
-Future<dynamic> ioTestErrorBuilder(String directoryName, String inputFileName) async {
-  return testBuilder(
-    generateRealmObjects(),
-    await getInputFileAsset('test/$directoryName/$inputFileName'),
-    reader: await PackageAssetReader.currentIsolate(),
-  );
-}
+Function generatorTest = test;
