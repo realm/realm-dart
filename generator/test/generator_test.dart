@@ -282,84 +282,21 @@ void main() {
       ),
     );
   });
-  test('old bool not allowed as primary key', () async {
-    await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-@MapTo('Bad')
-class _Foo {
-  @PrimaryKey()
-  late bool bad;
-}
-'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
-      ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'Realm only support indexes on String, int, and bool fields\n'
-            '\n'
-            'in: package:pkg/src/test.dart:9:8\n'
-            '  ╷\n'
-            '5 │ @RealmModel()\n'
-            '6 │ @MapTo(\'Bad\')\n'
-            '7 │ class _Foo {\n'
-            '  │       ━━━━ in realm model for \'Bad\'\n'
-            '8 │   @PrimaryKey()\n'
-            '9 │   late bool bad;\n'
-            '  │        ^^^^ bool is not an indexable type\n'
-            '  ╵\n'
-            'Change the type of \'bad\', or remove the @PrimaryKey() annotation\n'
-            '',
-      )),
-    );
-  });
 
   test('set unsupported', () async {
     await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class _Person {
-  late Set<_Person> children;
-}''',
-        },
-        reader: await PackageAssetReader.currentIsolate(),
+      () async => await ioTestErrorBuilder(folderName, 'set_unsupported.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsErrorFormattedString(folderName, 'set_unsupported.log'),
+        ),
       ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'Field type not supported yet\n'
-            '\n'
-            'in: package:pkg/src/test.dart:7:8\n'
-            '  ╷\n'
-            '5 │ @RealmModel()\n'
-            '6 │ class _Person {\n'
-            '  │       ━━━━━━━ in realm model for \'Person\'\n'
-            '7 │   late Set<_Person> children;\n'
-            '  │        ^^^^^^^^^^^^ not yet supported\n'
-            '  ╵\n'
-            'Avoid using Set<_Person> for now\n'
-            '',
-      )),
     );
   });
-
-  test('map unsupported', () async {
+  
+    test('map unsupported', () async {
     await expectLater(
       () async => await testBuilder(
         generateRealmObjects(),
