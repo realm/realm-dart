@@ -257,7 +257,6 @@ void main() {
     );
   });
 
-  
   test('bool not allowed on indexed field', () async {
     await expectLater(
       () async => await ioTestErrorBuilder(folderName, 'bool_not_for_indexed_field.dart'),
@@ -270,7 +269,20 @@ void main() {
       ),
     );
   });
+
   test('bool not allowed as primary key', () async {
+    await expectLater(
+      () async => await ioTestErrorBuilder(folderName, 'bool_not_for_primary_key.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsErrorFormattedString(folderName, 'bool_not_for_primary_key.log'),
+        ),
+      ),
+    );
+  });
+  test('old bool not allowed as primary key', () async {
     await expectLater(
       () async => await testBuilder(
         generateRealmObjects(),
