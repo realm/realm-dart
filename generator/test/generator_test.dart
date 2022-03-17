@@ -230,47 +230,20 @@ void main() {
       ),
     );
   });
-  
 
   test('defining both _Bad and \$Bad', () async {
     await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class $Bad1 {}
-
-@RealmModel()
-class _Bad1 {}
-'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
+      () async => await ioTestErrorBuilder(folderName, 'defining_both_class_prefixes.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsErrorFormattedString(folderName, 'defining_both_class_prefixes.log'),
+        ),
       ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'Duplicate definition\n'
-            '\n'
-            'in: package:pkg/src/test.dart:9:7\n'
-            '    ╷\n'
-            '5   │ @RealmModel()\n'
-            '6   │ class \$Bad1 {}\n'
-            '    │       ━━━━━ \n'
-            '... │\n'
-            '8   │ @RealmModel()\n'
-            '9   │ class _Bad1 {}\n'
-            '    │       ^^^^^ realm model \'\$Bad1\' already defines \'Bad1\'\n'
-            '    ╵\n'
-            'Duplicate realm model definitions \'_Bad1\' and \'\$Bad1\'.\n'
-            '',
-      )),
     );
   });
+  
 
   test('reusing mapTo name', () async {
     await expectLater(
