@@ -7,7 +7,7 @@ void main() {
   final folderName = 'generator_test_io';
 
   test('pinhole', () async {
-    await ioTestBuilder(folderName, 'pinhole.dart', 'pinhole.g.dart');
+    await ioTestBuilder(folderName, 'pinhole.dart', 'pinhole.expected');
   });
 
   test('all types', () async {
@@ -21,7 +21,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'not_a_realm_type.log'),
+          await readFileAsErrorFormattedString(folderName, 'not_a_realm_type.expected'),
         ),
       ),
     );
@@ -34,7 +34,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'not_an_indexable_type.log'),
+          await readFileAsErrorFormattedString(folderName, 'not_an_indexable_type.expected'),
         ),
       ),
     );
@@ -47,7 +47,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'primary_key_not_be_nullable.log'),
+          await readFileAsErrorFormattedString(folderName, 'primary_key_not_be_nullable.expected'),
         ),
       ),
     );
@@ -71,7 +71,7 @@ void main() {
     );
     expect(
       sb.toString(),
-      await readFileAsErrorFormattedString(folderName, 'primary_key_always_indexed.log'),
+      await readFileAsErrorFormattedString(folderName, 'primary_key_always_indexed.expected'),
     );
   });
 
@@ -82,7 +82,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'list_of_list_not_supported.log'),
+          await readFileAsErrorFormattedString(folderName, 'list_of_list_not_supported.expected'),
         ),
       ),
     );
@@ -95,7 +95,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'missing_underscore.log'),
+          await readFileAsErrorFormattedString(folderName, 'missing_underscore.expected'),
         ),
       ),
     );
@@ -108,7 +108,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'double_primary_key.log'),
+          await readFileAsErrorFormattedString(folderName, 'double_primary_key.expected'),
         ),
       ),
     );
@@ -121,7 +121,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'invalid_model_name_prefix.log'),
+          await readFileAsErrorFormattedString(folderName, 'invalid_model_name_prefix.expected'),
         ),
       ),
     );
@@ -134,7 +134,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'invalid_model_name_mapping.log'),
+          await readFileAsErrorFormattedString(folderName, 'invalid_model_name_mapping.expected'),
         ),
       ),
     );
@@ -147,7 +147,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'repeated_class_annotations.log'),
+          await readFileAsErrorFormattedString(folderName, 'repeated_class_annotations.expected'),
         ),
       ),
     );
@@ -160,7 +160,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'repeated_field_annotations.log'),
+          await readFileAsErrorFormattedString(folderName, 'repeated_field_annotations.expected'),
         ),
       ),
     );
@@ -173,7 +173,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'invalid_extend.log'),
+          await readFileAsErrorFormattedString(folderName, 'invalid_extend.expected'),
         ),
       ),
     );
@@ -186,7 +186,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'illigal_constructor.log'),
+          await readFileAsErrorFormattedString(folderName, 'illigal_constructor.expected'),
         ),
       ),
     );
@@ -199,7 +199,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'nullable_list.log'),
+          await readFileAsErrorFormattedString(folderName, 'nullable_list.expected'),
         ),
       ),
     );
@@ -212,7 +212,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'nullable_list_elements.log'),
+          await readFileAsErrorFormattedString(folderName, 'nullable_list_elements.expected'),
         ),
       ),
     );
@@ -225,7 +225,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'non_nullable_ro_reference.log'),
+          await readFileAsErrorFormattedString(folderName, 'non_nullable_ro_reference.expected'),
         ),
       ),
     );
@@ -238,7 +238,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'defining_both_class_prefixes.log'),
+          await readFileAsErrorFormattedString(folderName, 'defining_both_class_prefixes.expected'),
         ),
       ),
     );
@@ -251,7 +251,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'reusing_mapto_name.log'),
+          await readFileAsErrorFormattedString(folderName, 'reusing_mapto_name.expected'),
         ),
       ),
     );
@@ -264,7 +264,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'bool_not_for_indexed_field.log'),
+          await readFileAsErrorFormattedString(folderName, 'bool_not_for_indexed_field.expected'),
         ),
       ),
     );
@@ -277,7 +277,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'bool_not_for_primary_key.log'),
+          await readFileAsErrorFormattedString(folderName, 'bool_not_for_primary_key.expected'),
         ),
       ),
     );
@@ -290,7 +290,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'set_unsupported.log'),
+          await readFileAsErrorFormattedString(folderName, 'set_unsupported.expected'),
         ),
       ),
     );
@@ -303,7 +303,7 @@ void main() {
         isA<RealmInvalidGenerationSourceError>().having(
           (e) => e.format(),
           'format()',
-          await readFileAsErrorFormattedString(folderName, 'map_unsupported.log'),
+          await readFileAsErrorFormattedString(folderName, 'map_unsupported.expected'),
         ),
       ),
     );
