@@ -1,0 +1,31 @@
+// **************************************************************************
+// RealmObjectGenerator
+// **************************************************************************
+part of 'list_initialization.dart';
+
+class Person extends _Person with RealmEntity, RealmObject {
+  Person({
+    Iterable<Person> children = const [],
+  }) {
+    RealmObject.set<RealmList<Person>>(this, 'children', RealmList<Person>(children));
+  }
+
+  Person._();
+
+  @override
+  RealmList<Person> get children => RealmObject.get<Person>(this, 'children') as RealmList<Person>;
+  @override
+  set children(covariant RealmList<Person> value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Person>> get changes => RealmObject.getChanges<Person>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(Person._);
+    return const SchemaObject(Person, [
+      SchemaProperty('children', RealmPropertyType.object, linkTarget: 'Person', collectionType: RealmCollectionType.list),
+    ]);
+  }
+}
