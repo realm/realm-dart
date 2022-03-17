@@ -1,0 +1,14 @@
+Realm only support indexes on String, int, and bool fields
+
+in: asset:pkg/test/generator_test_io/bool_not_for_primary_key.dart:9:8
+  ╷
+5 │ @RealmModel()
+6 │ @MapTo('Bad')
+7 │ class _Foo {
+  │       ━━━━ in realm model for 'Bad'
+8 │   @PrimaryKey()
+9 │   late bool bad;
+  │        ^^^^ bool is not an indexable type
+  ╵
+Change the type of 'bad', or remove the @PrimaryKey() annotation
+
