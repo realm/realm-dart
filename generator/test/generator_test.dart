@@ -168,37 +168,14 @@ void main() {
 
   test('invalid extend', () async {
     await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-class Base {}
-
-@RealmModel()
-class _Bad extends Base { 
-  @PrimaryKey()
-  late int id;
-}
-'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
+      () async => await ioTestErrorBuilder(folderName, 'invalid_extend.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsErrorFormattedString(folderName, 'invalid_extend.log'),
+        ),
       ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'Realm model classes can only extend Object\n'
-            '\n'
-            'in: package:pkg/src/test.dart:8:7\n'
-            '  ╷\n'
-            '7 │ @RealmModel()\n'
-            '8 │ class _Bad extends Base { \n'
-            '  │       ^^^^ cannot extend Base\n'
-            '  ╵',
-      )),
     );
   });
 
