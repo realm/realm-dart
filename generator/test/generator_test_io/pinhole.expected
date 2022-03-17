@@ -1,7 +1,6 @@
 // **************************************************************************
 // RealmObjectGenerator
 // **************************************************************************
-part of 'pinhole.dart';
 
 class Foo extends _Foo with RealmEntity, RealmObject {
   static var _defaultsSet = false;
