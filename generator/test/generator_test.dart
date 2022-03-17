@@ -4,53 +4,55 @@ import 'package:test/test.dart';
 import 'test_util.dart';
 
 void main() {
+  
   final folderName = 'generator_test_io';
+  final tests = {
+    'not a realm type',
+    'not an indexable type',
+    'primary key cannot be nullable',
+    'list of list not supported',
+    'missing underscore',
+    'double primary key',
+    'invalid model name prefix',
+    'invalid model name mapping',
+    'repeated class annotations',
+    'repeated field annotations',
+    'invalid extend',
+    'illigal constructor',
+    'nullable list',
+    'nullable list elements',
+    'non nullable realm object reference',
+    'defining both class prefixes',
+    'reusing map_to name',
+    'bool not allowed on indexed field',
+    'bool not allowed as primary key',
+    'set unsupported',
+    'map unsupported',
+  };
+
+  for (var testData in tests) {
+    var fileName = testData.replaceAll(' ', '_');
+
+    generatorTest(testData, () async {
+      await expectLater(
+        () async => await generatorTestBuilder(folderName, '$fileName.dart'),
+        throwsA(
+          isA<RealmInvalidGenerationSourceError>().having(
+            (e) => e.format(),
+            'format()',
+            await readFileAsErrorFormattedString(folderName, '$fileName.expected'),
+          ),
+        ),
+      );
+    });
+  }
 
   test('pinhole', () async {
-    await ioTestBuilder(folderName, 'pinhole.dart', 'pinhole.expected');
+    await generatorTestBuilder(folderName, 'pinhole.dart', 'pinhole.expected');
   });
 
   test('all types', () async {
-    await ioTestBuilder(folderName, 'all_types.dart');
-  });
-
-  test('not a realm type', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'not_a_realm_type.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'not_a_realm_type.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('not an indexable type', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'not_an_indexable_type.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'not_an_indexable_type.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('primary key cannot be nullable', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'primary_key_not_be_nullable.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'primary_key_not_be_nullable.expected'),
-        ),
-      ),
-    );
+    await generatorTestBuilder(folderName, 'all_types.dart');
   });
 
   test('primary keys always indexed', () async {
@@ -72,240 +74,6 @@ void main() {
     expect(
       sb.toString(),
       await readFileAsErrorFormattedString(folderName, 'primary_key_always_indexed.expected'),
-    );
-  });
-
-  test('list of list not supported', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'list_of_list_not_supported.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'list_of_list_not_supported.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('missing underscore', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'missing_underscore.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'missing_underscore.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('double primary key', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'double_primary_key.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'double_primary_key.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('invalid model name prefix', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'invalid_model_name_prefix.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'invalid_model_name_prefix.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('invalid model name mapping', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'invalid_model_name_mapping.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'invalid_model_name_mapping.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('repeated class annotations', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'repeated_class_annotations.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'repeated_class_annotations.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('repeated field annotations', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'repeated_field_annotations.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'repeated_field_annotations.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('invalid extend', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'invalid_extend.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'invalid_extend.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('illigal constructor', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'illigal_constructor.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'illigal_constructor.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('nullable list', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'nullable_list.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'nullable_list.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('nullable list elements', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'nullable_list_elements.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'nullable_list_elements.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('non-nullable realm object reference', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'non_nullable_ro_reference.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'non_nullable_ro_reference.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('defining both _Bad and \$Bad', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'defining_both_class_prefixes.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'defining_both_class_prefixes.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('reusing mapTo name', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'reusing_mapto_name.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'reusing_mapto_name.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('bool not allowed on indexed field', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'bool_not_for_indexed_field.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'bool_not_for_indexed_field.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('bool not allowed as primary key', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'bool_not_for_primary_key.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'bool_not_for_primary_key.expected'),
-        ),
-      ),
-    );
-  });
-
-  test('set unsupported', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'set_unsupported.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'set_unsupported.expected'),
-        ),
-      ),
-    );
-  });
-
-    test('map unsupported', () async {
-    await expectLater(
-      () async => await ioTestErrorBuilder(folderName, 'map_unsupported.dart'),
-      throwsA(
-        isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format(),
-          'format()',
-          await readFileAsErrorFormattedString(folderName, 'map_unsupported.expected'),
-        ),
-      ),
     );
   });
 }

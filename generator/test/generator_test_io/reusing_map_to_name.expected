@@ -1,6 +1,6 @@
 Duplicate definition
 
-in: asset:pkg/test/generator_test_io/reusing_mapto_name.dart:11:7
+in: asset:pkg/test/generator_test_io/reusing_map_to_name.dart:11:7
     ╷
 5   │ @RealmModel()
 6   │ @MapTo('Bad3')
