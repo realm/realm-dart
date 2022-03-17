@@ -205,51 +205,19 @@ void main() {
     );
   });
 
- test('nullable list elements', () async {
+  test('nullable list elements', () async {
     await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class _Other {}
-
-@RealmModel()
-class _Bad { 
-  @PrimaryKey()
-  late int id;
-
-  late List<int?> okay;
-  late List<_Other?> wrong;
-}
-'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
+      () async => await ioTestErrorBuilder(folderName, 'nullable_list_elements.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsErrorFormattedString(folderName, 'nullable_list_elements.log'),
+        ),
       ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'Nullable realm objects are not allowed in collections\n'
-            '\n'
-            'in: package:pkg/src/test.dart:14:8\n'
-            '    ╷\n'
-            '8   │ @RealmModel()\n'
-            '9   │ class _Bad { \n'
-            '    │       ━━━━ in realm model for \'Bad\'\n'
-            '... │\n'
-            '14  │   late List<_Other?> wrong;\n'
-            '    │        ^^^^^^^^^^^^^ which has a nullable realm object element type\n'
-            '    ╵\n'
-            'Ensure element type is non-nullable\n'
-            '',
-      )),
     );
   });
-
+  
   test('non-nullable realm object reference', () async {
     await expectLater(
       () async => await testBuilder(
