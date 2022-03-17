@@ -129,42 +129,14 @@ void main() {
 
   test('invalid model name mapping', () async {
     await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-const one = '1';
-@RealmModel()
-@MapTo(one) // <- invalid
-// prefix is not important, as we explicitly define name with @MapTo, 
-// but obviously 1 is not a valid class name
-class Bad {}
-'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
+      () async => await ioTestErrorBuilder(folderName, 'invalid_model_name_mapping.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsErrorFormattedString(folderName, 'invalid_model_name_mapping.log'),
+        ),
       ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'Invalid class name\n'
-            '\n'
-            'in: package:pkg/src/test.dart:7:8\n'
-            '   ╷\n'
-            '6  │ @RealmModel()\n'
-            '7  │ @MapTo(one) // <- invalid\n'
-            '   │        ^^^ which evaluates to \'1\' is not a valid class name\n'
-            '8  │ // prefix is not important, as we explicitly define name with @MapTo, \n'
-            '9  │ // but obviously 1 is not a valid class name\n'
-            '10 │ class Bad {}\n'
-            '   │       ━━━ when generating realm object class for \'Bad\'\n'
-            '   ╵\n'
-            'We need a valid indentifier\n'
-            '',
-      )),
     );
   });
 
