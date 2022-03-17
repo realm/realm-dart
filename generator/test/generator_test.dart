@@ -181,42 +181,14 @@ void main() {
 
   test('illigal constructor', () async {
     await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class _Bad { 
-  @PrimaryKey()
-  late int id;
-
-  _Bad(this.id);
-}
-'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
+      () async => await ioTestErrorBuilder(folderName, 'illigal_constructor.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsErrorFormattedString(folderName, 'illigal_constructor.log'),
+        ),
       ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'No constructors allowed on realm model classes\n'
-            '\n'
-            'in: package:pkg/src/test.dart:10:3\n'
-            '    ╷\n'
-            '5   │ @RealmModel()\n'
-            '6   │ class _Bad { \n'
-            '    │       ━━━━ in realm model for \'Bad\'\n'
-            '... │\n'
-            '10  │   _Bad(this.id);\n'
-            '    │   ^ has constructor\n'
-            '    ╵\n'
-            'Remove constructor\n'
-            '',
-      )),
     );
   });
 
