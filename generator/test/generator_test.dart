@@ -90,42 +90,14 @@ void main() {
 
   test('missing underscore', () async {
     await expectLater(
-      () async => await testBuilder(
-        generateRealmObjects(),
-        {
-          'pkg|lib/src/test.dart': r'''
-import 'package:realm_common/realm_common.dart';
-
-part 'test.g.dart';
-
-@RealmModel()
-class _Bad {
-  late Other other;
-}
-
-@RealmModel()
-class _Other {}
-
-'''
-        },
-        reader: await PackageAssetReader.currentIsolate(),
+      () async => await ioTestErrorBuilder(folderName, 'missing_underscore.dart'),
+      throwsA(
+        isA<RealmInvalidGenerationSourceError>().having(
+          (e) => e.format(),
+          'format()',
+          await readFileAsErrorFormattedString(folderName, 'missing_underscore.log'),
+        ),
       ),
-      throwsA(isA<RealmInvalidGenerationSourceError>().having(
-        (e) => e.format(),
-        'format()',
-        'Not a realm type\n'
-            '\n'
-            'in: package:pkg/src/test.dart:7:8\n'
-            '  ╷\n'
-            '5 │ @RealmModel()\n'
-            '6 │ class _Bad {\n'
-            '  │       ━━━━ in realm model for \'Bad\'\n'
-            '7 │   late Other other;\n'
-            '  │        ^^^^^ Other is not a realm model type\n'
-            '  ╵\n'
-            'Did you intend to use _Other as type for \'other\'?\n'
-            '',
-      )),
     );
   });
 
