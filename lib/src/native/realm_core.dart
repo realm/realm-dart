@@ -26,7 +26,9 @@ import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
+import 'package:pub_semver/pub_semver.dart';
 
+import '../application_configuration.dart';
 import '../collections.dart';
 import '../configuration.dart';
 import '../init.dart';
@@ -817,6 +819,33 @@ class _RealmCore {
       return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_email_password(emailPtr, passwordPtr.ref));
     });
   }
+
+  AppConfigHandle createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
+    return using((arena) {
+      final c = configuration;
+      final app_id = c.appId.toUtf8Ptr(arena);
+      final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
+      if (c.baseUrl != null) {
+        _realmLib.realm_app_config_set_base_url(handle._pointer, c.baseUrl.toString().toUtf8Ptr(arena));
+      }
+      if (c.defaultRequestTimeout != null) {
+        _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, c.defaultRequestTimeout!.inMilliseconds);
+      }
+      if (c.localAppName != null) {
+        _realmLib.realm_app_config_set_local_app_name(handle._pointer, c.localAppName!.toUtf8Ptr(arena));
+      }
+      if (c.localAppVersion != null) {
+        final versionString = c.localAppVersion.toString();
+        _realmLib.realm_app_config_set_local_app_version(handle._pointer, versionString.toUtf8Ptr(arena));
+      }
+      _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toUtf8Ptr(arena));
+      _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toUtf8Ptr(arena));
+      final version = Version.parse(Platform.version);
+      _realmLib.realm_app_config_set_sdk_version(handle._pointer, version.toString().toUtf8Ptr(arena));
+
+      return handle;
+    });
+  }
 }
 
 class LastError {
@@ -915,6 +944,10 @@ class RealmAppCredentialsHandle extends Handle<realm_app_credentials> {
 
 class RealmHttpTransportHandle extends Handle<realm_http_transport> {
   RealmHttpTransportHandle._(Pointer<realm_http_transport> pointer) : super(pointer, 256); // TODO; What should hint be?
+}
+
+class AppConfigHandle extends Handle<realm_app_config> {
+  AppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 256); // TODO: What should hint be?
 }
 
 extension on List<int> {
