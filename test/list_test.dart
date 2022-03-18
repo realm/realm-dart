@@ -19,6 +19,7 @@
 // ignore_for_file: unused_local_variable
 
 import 'dart:io';
+import 'dart:math';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -365,6 +366,7 @@ Future<void> main([List<String>? args]) async {
     var realm1 = Realm(config);
     var realm2 = Realm(config);
 
+    expect(realm1, realm2);
     final team = Team('t1', players: [Person("p1")]);
     realm1.write(() => realm1.add(team));
 
