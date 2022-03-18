@@ -595,4 +595,51 @@ Future<void> main([List<String>? args]) async {
     expect(mainSchools[0].branches[0].students.length + mainSchools[0].branches[1].students.length, 3);
     realm.close();
   });
+
+  test('Realm.operator== ', () {
+    final config = Configuration([Dog.schema, Person.schema]);
+    final r1 = Realm(config);
+    expect(r1, r1);
+    r1.close();
+  });
+  
+  test('Realm.operator==', () {
+    final config = Configuration([Dog.schema, Person.schema]);
+    final r1 = Realm(config);
+    final r2 = Realm(config);
+
+    expect(r1, r1);
+    expect(r2, r2);
+    expect(r1, isNot(r2));
+
+    r1.write(() {
+      r1.add(Person('Kasper'));
+    });
+
+    final r3 = r1.all<Person>().first.realm;
+    expect(identical(r1, r3), isTrue);
+    expect(r1, r3);
+    r1.close();
+    r2.close();
+  });
+
+  test('Realm.operator== same config', () {
+    final config = Configuration([Dog.schema, Person.schema]);
+    final r1 = Realm(config);
+    final r2 = Realm(config);
+
+    expect(r1, isNot(r2));
+    r1.close();
+    r2.close();
+  });
+
+  test('Realm.operator== different config', () {
+    var config = Configuration([Dog.schema, Person.schema]);
+    final r1 = Realm(config);
+    config = Configuration([Dog.schema, Person.schema]);
+    final r2 = Realm(config);
+    expect(r1, isNot(r2));
+    r1.close();
+    r2.close();
+  });
 }
