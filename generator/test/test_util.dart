@@ -12,13 +12,13 @@ Function executeTest = test;
 Map<String, String> getListOfTestFiles(String directory) {
   Map<String, String> result = {};
   var files = Directory(_path.join(Directory.current.path, directory)).listSync();
-  files.where((file) => _path.extension(file.path) == '.dart' && !file.path.endsWith('g.dart')).forEach((file) {
-    var outputFileName = _path.setExtension(file.path, '.expected');
-    if (!File(outputFileName).existsSync()) {
-      outputFileName = '';
+  for (var file in files) {
+    if (_path.extension(file.path) == '.dart' && !file.path.endsWith('g.dart')) {
+      var outputFileName = _path.setExtension(file.path, '.expected');
+      if (!files.any((f) => f.path == outputFileName)) outputFileName = '';
+      result.addAll({_path.basename(file.path): _path.basename(outputFileName)});
     }
-    result.addAll({_path.basename(file.path): _path.basename(outputFileName)});
-  });
+  }
   return result;
 }
 
