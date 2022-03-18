@@ -26,6 +26,7 @@ import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
+import 'package:pub_semver/pub_semver.dart';
 
 import '../collections.dart';
 import '../configuration.dart';
@@ -751,6 +752,55 @@ class _RealmCore {
       return out_modified.asTypedList(count).toList();
     });
   }
+
+  RealmAppConfigHandle createAppConfig(String appId, RealmHttpTransportHandle httpTransport) {
+    return using((arena) {
+      final app_id = appId.toUtf8Ptr(arena);
+      return RealmAppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
+    });
+  }
+
+  void setAppConfigBaseUrl(RealmAppConfigHandle handle, Uri baseUrl) {
+    using((arena) {
+      _realmLib.realm_app_config_set_base_url(handle._pointer, baseUrl.toString().toUtf8Ptr(arena));
+    });
+  }
+
+  void setAppConfigDefaultRequestTimeout(RealmAppConfigHandle handle, Duration defaultRequestTimeout) {
+    _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, defaultRequestTimeout.inMilliseconds);
+  }
+
+  void setAppConfigLocalAppName(RealmAppConfigHandle handle, String localAppName) {
+    using((arena) {
+      _realmLib.realm_app_config_set_local_app_name(handle._pointer, localAppName.toUtf8Ptr(arena));
+    });
+  }
+
+  void setAppConfigLocalAppVersion(RealmAppConfigHandle handle, Version localAppVersion) {
+    using((arena) {
+      final versionString = localAppVersion.toString();
+      _realmLib.realm_app_config_set_local_app_version(handle._pointer, versionString.toUtf8Ptr(arena));
+    });
+  }
+
+  void setAppConfigPlatform(RealmAppConfigHandle handle, String platform) {
+    using((arena) {
+      _realmLib.realm_app_config_set_platform(handle._pointer, platform.toUtf8Ptr(arena));
+    });
+  }
+
+  void setAppConfigPlatformVersion(RealmAppConfigHandle handle, String platformVersion) {
+    using((arena) {
+      _realmLib.realm_app_config_set_platform_version(handle._pointer, platformVersion.toUtf8Ptr(arena));
+    });
+  }
+
+  void setAppConfigSdkVersion(RealmAppConfigHandle handle, Version sdkVersion) {
+    using((arena) {
+      final versionString = sdkVersion.toString();
+      _realmLib.realm_app_config_set_sdk_version(handle._pointer, versionString.toUtf8Ptr(arena));
+    });
+  }
 }
 
 class LastError {
@@ -845,6 +895,10 @@ class RealmObjectChangesHandle extends Handle<realm_object_changes> {
 
 class RealmHttpTransportHandle extends Handle<realm_http_transport> {
   RealmHttpTransportHandle._(Pointer<realm_http_transport> pointer) : super(pointer, 256); // TODO; What should hint be?
+}
+
+class RealmAppConfigHandle extends Handle<realm_app_config> {
+  RealmAppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 256); // TODO: What should hint be?
 }
 
 extension on List<int> {
