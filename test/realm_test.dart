@@ -602,7 +602,7 @@ Future<void> main([List<String>? args]) async {
     expect(r1, r1);
     r1.close();
   });
-  
+
   test('Realm.operator==', () {
     final config = Configuration([Dog.schema, Person.schema]);
     final r1 = Realm(config);
@@ -610,7 +610,7 @@ Future<void> main([List<String>? args]) async {
 
     expect(r1, r1);
     expect(r2, r2);
-    expect(r1, isNot(r2));
+    expect(r1, r2);
 
     r1.write(() {
       r1.add(Person('Kasper'));
@@ -628,7 +628,7 @@ Future<void> main([List<String>? args]) async {
     final r1 = Realm(config);
     final r2 = Realm(config);
 
-    expect(r1, isNot(r2));
+    expect(r1, r2);
     r1.close();
     r2.close();
   });
@@ -636,7 +636,7 @@ Future<void> main([List<String>? args]) async {
   test('Realm.operator== different config', () {
     var config = Configuration([Dog.schema, Person.schema]);
     final r1 = Realm(config);
-    config = Configuration([Dog.schema, Person.schema]);
+    config = Configuration([Dog.schema, Person.schema, Team.schema]);
     final r2 = Realm(config);
     expect(r1, isNot(r2));
     r1.close();
