@@ -108,7 +108,7 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.write(() {}), throws<RealmException>("Can't perform transactions on read-only Realms."));
     realm.close();
   });
-  
+
   test('Configuration inMemory - no files after closing realm', () {
     Configuration config = Configuration([Car.schema], inMemory: true);
     var realm = Realm(config);
@@ -125,13 +125,13 @@ Future<void> main([List<String>? args]) async {
     expect(() => Realm(config), throws<RealmException>("Realm at path '${config.path}' already opened with different read permissions"));
     realm.close();
   });
-  
+
   test('Configuration - FIFO files fallback path', () {
     Configuration config = Configuration([Car.schema], fifoFilesFallbackPath: "./fifo_folder");
     var realm = Realm(config);
     realm.close();
   });
-  
+
   test('Configuration.operator== same config', () {
     final config = Configuration([Dog.schema, Person.schema]);
     final r1 = Realm(config);

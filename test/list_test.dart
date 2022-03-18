@@ -360,6 +360,37 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
+  test('List notifications from equal Realms', () async {
+    var config = Configuration([Team.schema, Person.schema]);
+    var realm1 = Realm(config);
+    var realm2 = Realm(config);
+
+    final team = Team('t1', players: [Person("p1")]);
+    realm1.write(() => realm1.add(team));
+
+    var firstCall = true;
+    final subscription = team.players.changes.listen((changes) {
+      if (!firstCall) {
+        expect(changes.inserted, [1, 2]); //new object at index 1 and 2
+      }
+      firstCall = false;
+    });
+
+    await Future<void>.delayed(Duration(milliseconds: 20));
+    var teams = realm2.all<Team>();
+    realm2.write(() {
+      teams[0].players.add(Person("p2"));
+      teams[0].players.add(Person("p3"));
+    });
+
+    await Future<void>.delayed(Duration(milliseconds: 20));
+    subscription.cancel();
+
+    await Future<void>.delayed(Duration(milliseconds: 20));
+    realm1.close();
+    realm2.close();
+  });
+
   test('List query', () {
     final config = Configuration([Team.schema, Person.schema]);
     final realm = Realm(config);

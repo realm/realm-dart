@@ -45,14 +45,19 @@ class Realm {
   final Configuration _config;
   final Map<Type, RealmMetadata> _metadata = <Type, RealmMetadata>{};
   late final RealmHandle _handle;
-  late final Scheduler _scheduler;
+  static final Map<int, Scheduler> _schedulersPerConfiguration = {};
 
   /// The [Configuration] object used to open this [Realm]
   Configuration get config => _config;
 
+  Scheduler get _scheduler => _schedulersPerConfiguration[_config.hashCode]!;
+
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : _config = config {
-    _scheduler = Scheduler(config, close);
+    final firstSchedulerInit = _schedulersPerConfiguration[config.hashCode] == null;
+    if (firstSchedulerInit) {
+      _schedulersPerConfiguration.addAll({config.hashCode: Scheduler(config, close)});
+    }
 
     try {
       _handle = realmCore.openRealm(config);
@@ -64,7 +69,9 @@ class Realm {
         _metadata[realmClass.type] = metadata;
       }
     } catch (e) {
-      _scheduler.stop();
+      if (firstSchedulerInit) {
+        _scheduler.stop();
+      }
       rethrow;
     }
   }
@@ -234,7 +241,7 @@ class Realm {
   }
 
   /// Deletes all [RealmObject]s of type `T` in the `Realm`
-  void deleteAll<T extends RealmObject>() => deleteMany(all<T>()); 
+  void deleteAll<T extends RealmObject>() => deleteMany(all<T>());
 
   @override
   // ignore: hash_and_equals
@@ -250,10 +257,10 @@ class Scheduler {
   static const dynamic SCHEDULER_FINALIZE_OR_PROCESS_EXIT = null;
   late final SchedulerHandle handle;
   final void Function() onFinalize;
-  final RawReceivePort receivePort = RawReceivePort();
+  final RawReceivePort _receivePort = RawReceivePort();
 
   Scheduler(Configuration config, this.onFinalize) {
-    receivePort.handler = (dynamic message) {
+    _receivePort.handler = (dynamic message) {
       if (message == SCHEDULER_FINALIZE_OR_PROCESS_EXIT) {
         onFinalize();
         stop();
@@ -263,14 +270,14 @@ class Scheduler {
       realmCore.invokeScheduler(handle);
     };
 
-    final sendPort = receivePort.sendPort;
+    final sendPort = _receivePort.sendPort;
     handle = realmCore.createScheduler(Isolate.current.hashCode, sendPort.nativePort);
 
     realmCore.setScheduler(config, handle);
   }
 
   void stop() {
-    receivePort.close();
+    _receivePort.close();
   }
 }
 
@@ -278,7 +285,7 @@ class Scheduler {
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
   Scheduler get scheduler => _scheduler;
-  
+
   RealmObject createObject(Type type, RealmObjectHandle handle) {
     RealmMetadata metadata = _getMetadata(type);
 
