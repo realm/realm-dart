@@ -235,6 +235,14 @@ class Realm {
 
   /// Deletes all [RealmObject]s of type `T` in the `Realm`
   void deleteAll<T extends RealmObject>() => deleteMany(all<T>()); 
+
+  @override
+  // ignore: hash_and_equals
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! Realm) return false;
+    return realmCore.realmEquals(this, other);
+  }
 }
 
 class Scheduler {

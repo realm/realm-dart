@@ -83,6 +83,13 @@ class Configuration {
     return "";
   }
 
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! Configuration) return false;
+    return realmCore.configurationEquals(this, other);
+  }
+
   /// The schema version used to open the [Realm]
   ///
   /// If omitted the default value of `0` is used to open the [Realm]
