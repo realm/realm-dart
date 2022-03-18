@@ -21,6 +21,7 @@
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:ffi' as ffi show Handle;
+import 'dart:io';
 import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
@@ -179,6 +180,85 @@ class _RealmCore {
     return using((Arena arena) {
       _realmLib.realm_config_set_fifo_path(config.handle._pointer, path.toUtf8Ptr(arena));
     });
+  }
+
+  RealmHttpTransportHandle createHttpTransport(HttpClient httpClient) {
+    return RealmHttpTransportHandle._(_realmLib.realm_dart_http_transport_new(Pointer.fromFunction(request_callback), httpClient));
+  }
+
+  static void request_callback(Object userData, realm_http_request request, Pointer<Void> request_context) {
+    () async { // TODO: Use another isolate, perhaps?
+      final client = userData as HttpClient;
+      client.connectionTimeout = Duration(milliseconds: request.timeout_ms);
+      try {
+        final url = Uri.parse(request.url.cast<Utf8>().toDartString());
+        late HttpClientRequest mappedRequest;
+        switch (request.method) {
+          case 4: // DELETE
+            mappedRequest = await client.deleteUrl(url);
+            break;
+          case 3: // PUT
+            mappedRequest = await client.putUrl(url);
+            break;
+          case 2: // PATCH
+            mappedRequest = await client.patchUrl(url);
+            break;
+          case 1: // POST
+            mappedRequest = await client.postUrl(url);
+            break;
+          case 0: // GET
+          default:
+            mappedRequest = await client.getUrl(url);
+            break;
+        }
+
+        final body = request.body.asTypedList(request.body_size); // we avoid a potentially expensive copy here
+        mappedRequest.add(body);
+
+        // Unfortunately we need to copy the headers, due to the interface of HttpClientRequest
+        for (int i = 0; i < request.num_headers; ++i) {
+          final header = request.headers[i];
+          final name = header.name.cast<Utf8>().toDartString();
+          final value = header.value.cast<Utf8>().toDartString();
+          mappedRequest.headers.add(name, value);
+        }
+
+        // Do the call..
+        final response = await mappedRequest.close();
+        final responseBody = await response.fold<List<int>>([], (acc, l) => acc..addAll(l)); // gather response
+
+        // Report back to core
+        using((arena) {
+          final response_pointer = arena<realm_http_response>();
+          final responseRef = response_pointer.ref;
+
+          responseRef.body = responseBody.toInt8Ptr(arena); // need to copy here :-(
+          responseRef.body_size = responseBody.length;
+
+          int headerCnt = 0;
+          response.headers.forEach((name, values) {
+            // Freaking odd interface :-/
+            headerCnt += values.length;
+          });
+
+          responseRef.headers = arena<realm_http_header>(headerCnt);
+          responseRef.num_headers = headerCnt;
+
+          response.headers.forEach((name, values) {
+            int idx = 0;
+            for (final value in values) {
+              final headerRef = responseRef.headers.elementAt(idx).ref;
+              headerRef.name = name.toUtf8Ptr(arena);
+              headerRef.value = value.toUtf8Ptr(arena);
+            }
+          });
+
+          _realmLib.realm_http_transport_complete_request(request_context, response_pointer);
+        });
+      } catch (ex) {
+        print(ex); // TODO!
+      }
+    };
   }
 
   ConfigHandle createConfig() {
@@ -725,15 +805,25 @@ class RealmObjectChangesHandle extends Handle<realm_object_changes> {
   RealmObjectChangesHandle._(Pointer<realm_object_changes> pointer) : super(pointer, 256);
 }
 
+class RealmHttpTransportHandle extends Handle<realm_http_transport> {
+  RealmHttpTransportHandle._(Pointer<realm_http_transport> pointer) : super(pointer, 256); // TODO; What should hint be?
+}
+
+extension on List<int> {
+  Pointer<Int8> toInt8Ptr(Allocator allocator) {
+    final nativeSize = length + 1;
+    final result = allocator<Uint8>(nativeSize);
+    final Uint8List native = result.asTypedList(nativeSize);
+    native.setAll(0, this); // copy
+    native.last = 0; // zero terminate
+    return result.cast();
+  }
+}
+
 extension _StringEx on String {
   Pointer<Int8> toUtf8Ptr(Allocator allocator) {
     final units = utf8.encode(this);
-    final nativeStringSize = units.length + 1;
-    final result = allocator<Uint8>(nativeStringSize);
-    final Uint8List nativeString = result.asTypedList(nativeStringSize);
-    nativeString.setAll(0, units); // copy to native string
-    nativeString.last = 0; // zero terminate
-    return result.cast();
+    return units.toInt8Ptr(allocator);
   }
 }
 
