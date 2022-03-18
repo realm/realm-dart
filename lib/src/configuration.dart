@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:io';
+import 'dart:isolate';
 
 import 'native/realm_core.dart';
 
@@ -27,6 +28,7 @@ import 'package:path/path.dart' as _path;
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
 class Configuration {
+  final RawReceivePort receivePort = RawReceivePort();
   final ConfigHandle _handle;
   final RealmSchema _schema;
 
@@ -49,6 +51,8 @@ class Configuration {
     if (fifoFilesFallbackPath != null) {
       this.fifoFilesFallbackPath = fifoFilesFallbackPath;
     }
+
+    _isCached = true;
 
     if (readOnly) {
       isReadOnly = true;
@@ -132,6 +136,9 @@ class Configuration {
   /// by the [path] you  property. This property is ignored if the directory defined by [path] allow FIFO special files.
   String get fifoFilesFallbackPath => realmCore.getConfigFifoPath(this);
   set fifoFilesFallbackPath(String value) => realmCore.setConfigFifoPath(this, value);
+
+  bool get _isCached => realmCore.getConfigCached(this);
+  set _isCached(bool value) => realmCore.setConfigCached(this, value);
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].

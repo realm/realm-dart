@@ -181,6 +181,14 @@ class _RealmCore {
     });
   }
 
+  bool getConfigCached(Configuration config) {
+    return _realmLib.realm_config_get_cached(config.handle._pointer);
+  }
+
+  void setConfigCached(Configuration config, bool cached) {
+    _realmLib.realm_config_set_cached(config.handle._pointer, cached);
+  }
+
   ConfigHandle createConfig() {
     final configPtr = _realmLib.realm_config_new();
     return ConfigHandle._(configPtr);

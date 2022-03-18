@@ -135,6 +135,7 @@ Future<void> main([List<String>? args]) async {
     final read = realm.query<Person>("name == 'Kasper'");
 
     expect(read, [person]);
+    realm.close();
   });
 
   test('RealmObject isValid', () {
