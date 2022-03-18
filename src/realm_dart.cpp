@@ -70,6 +70,7 @@ void dummy(void) {
     realm_results_add_notification_callback(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
     realm_results_snapshot(nullptr);
     realm_app_credentials_new_anonymous();
+    realm_http_transport_new(nullptr, nullptr, nullptr);
 #if (ANDROID)
     realm_android_dummy();
 #endif

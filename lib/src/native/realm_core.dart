@@ -20,6 +20,8 @@
 
 import 'dart:convert';
 import 'dart:ffi';
+import 'dart:ffi' as ffi show Handle;
+import 'dart:io';
 import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
@@ -37,6 +39,48 @@ import 'realm_bindings.dart';
 late RealmLibrary _realmLib;
 
 final _RealmCore realmCore = _RealmCore();
+
+// TODO: Once enhanced-enums land in 2.17, replace with:
+/*
+enum _CustomErrorCode {
+  noError(0),
+  httpClientDisposed(997),
+  unknownHttp(998),
+  unknown(999),
+  timeout(1000);
+
+  final int code;
+  const _CustomErrorCode(this.code);
+}
+*/
+
+enum _CustomErrorCode {
+  noError,
+  httpClientDisposed,
+  unknownHttp,
+  unknown,
+  timeout,
+}
+
+extension on _CustomErrorCode {
+  int get code {
+    switch (this) {
+      case _CustomErrorCode.noError: return 0;
+      case _CustomErrorCode.httpClientDisposed: return 997;
+      case _CustomErrorCode.unknownHttp: return 998;
+      case _CustomErrorCode.unknown: return 999;
+      case _CustomErrorCode.timeout: return 1000;
+    }
+  }
+}
+
+enum _HttpMethod {
+  get,
+  post,
+  patch,
+  put,
+  delete,
+}
 
 class _RealmCore {
   // From realm.h. Currently not exported from the shared library
@@ -177,6 +221,123 @@ class _RealmCore {
   void setConfigFifoPath(Configuration config, String path) {
     return using((Arena arena) {
       _realmLib.realm_config_set_fifo_path(config.handle._pointer, path.toUtf8Ptr(arena));
+    });
+  }
+
+  RealmHttpTransportHandle createHttpTransport(HttpClient httpClient) {
+    return RealmHttpTransportHandle._(_realmLib.realm_http_transport_new(
+      Pointer.fromFunction(request_callback),
+      _realmLib.gc_handle_weak_new(httpClient),
+      nullptr,
+    ));
+  }
+
+  static void request_callback(Pointer<Void> userData, realm_http_request request, Pointer<Void> request_context) {
+    //
+    // The request struct only survives until end-of-call, even though
+    // we explicitly call realm_http_transport_complete_request to
+    // mark request as completed later.
+    //
+    // Therefor we need to copy everything out of request before returning.
+    // We cannot clone request on the native side with realm_clone,
+    // since realm_http_request does not inherit from WrapC.
+    //
+    final client = _realmLib.gc_handle_deref(userData) as HttpClient;
+    client.connectionTimeout = Duration(milliseconds: request.timeout_ms);
+
+    final url = Uri.parse(request.url.cast<Utf8>().toDartString());
+
+    final method = _HttpMethod.values[request.method];
+
+    final body = request.body.cast<Utf8>().toDartString();
+
+    final headers = <String, String>{};
+    for (int i = 0; i < request.num_headers; ++i) {
+      final header = request.headers[i];
+      final name = header.name.cast<Utf8>().toDartString();
+      final value = header.value.cast<Utf8>().toDartString();
+      headers[name] = value;
+    }
+
+    _request_callback_async(client, method, url, body, headers, request_context);
+    // The request struct dies here!
+  }
+
+  static void _request_callback_async(
+    HttpClient client,
+    _HttpMethod method,
+    Uri url,
+    String body,
+    Map<String, String> headers,
+    Pointer<Void> request_context,
+  ) async {
+    await using((arena) async {
+      final response_pointer = arena<realm_http_response>();
+      final responseRef = response_pointer.ref;
+      try {
+        // Build request
+        late HttpClientRequest request;
+        switch (method) {
+          case _HttpMethod.delete:
+            request = await client.deleteUrl(url);
+            break;
+          case _HttpMethod.put:
+            request = await client.putUrl(url);
+            break;
+          case _HttpMethod.patch:
+            request = await client.patchUrl(url);
+            break;
+          case _HttpMethod.post:
+            request = await client.postUrl(url);
+            break;
+          case _HttpMethod.get:
+            request = await client.getUrl(url);
+            break;
+        }
+
+        for (final header in headers.entries) {
+          request.headers.add(header.key, header.value);
+        }
+
+        request.add(utf8.encode(body));
+
+        // Do the call..
+        final response = await request.close();
+        final responseBody = await response.fold<List<int>>([], (acc, l) => acc..addAll(l)); // gather response
+
+        // Report back to core
+        responseRef.status_code = response.statusCode;
+        responseRef.body = responseBody.toInt8Ptr(arena);
+        responseRef.body_size = responseBody.length;
+
+        int headerCnt = 0;
+        response.headers.forEach((name, values) {
+          headerCnt += values.length;
+        });
+
+        responseRef.headers = arena<realm_http_header>(headerCnt);
+        responseRef.num_headers = headerCnt;
+
+        response.headers.forEach((name, values) {
+          int idx = 0;
+          for (final value in values) {
+            final headerRef = responseRef.headers.elementAt(idx).ref;
+            headerRef.name = name.toUtf8Ptr(arena);
+            headerRef.value = value.toUtf8Ptr(arena);
+          }
+        });
+
+        responseRef.custom_status_code = _CustomErrorCode.noError.code;
+      } on SocketException catch (_) {
+        // TODO: A Timeout causes a socket exception, but not all socket exceptions are due to timeouts
+        responseRef.custom_status_code = _CustomErrorCode.timeout.code;
+      } on HttpException catch (_) {
+        responseRef.custom_status_code = _CustomErrorCode.unknownHttp.code;
+      } catch (_) {
+        responseRef.custom_status_code = _CustomErrorCode.unknown.code;
+      } finally {
+        _realmLib.realm_http_transport_complete_request(request_context, response_pointer);
+      }
     });
   }
 
@@ -752,15 +913,25 @@ class RealmAppCredentialsHandle extends Handle<realm_app_credentials> {
   RealmAppCredentialsHandle._(Pointer<realm_app_credentials> pointer) : super(pointer, 16);
 }
 
+class RealmHttpTransportHandle extends Handle<realm_http_transport> {
+  RealmHttpTransportHandle._(Pointer<realm_http_transport> pointer) : super(pointer, 256); // TODO; What should hint be?
+}
+
+extension on List<int> {
+  Pointer<Int8> toInt8Ptr(Allocator allocator) {
+    final nativeSize = length + 1;
+    final result = allocator<Uint8>(nativeSize);
+    final Uint8List native = result.asTypedList(nativeSize);
+    native.setAll(0, this); // copy
+    native.last = 0; // zero terminate
+    return result.cast();
+  }
+}
+
 extension _StringEx on String {
   Pointer<Int8> toUtf8Ptr(Allocator allocator) {
     final units = utf8.encode(this);
-    final nativeStringSize = units.length + 1;
-    final result = allocator<Uint8>(nativeStringSize);
-    final Uint8List nativeString = result.asTypedList(nativeStringSize);
-    nativeString.setAll(0, units); // copy to native string
-    nativeString.last = 0; // zero terminate
-    return result.cast();
+    return units.toInt8Ptr(allocator);
   }
 
   Pointer<realm_string_t> toRealmString(Allocator allocator) {
