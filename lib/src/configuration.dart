@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:io';
-import 'dart:isolate';
 
 import 'native/realm_core.dart';
 
@@ -28,7 +27,6 @@ import 'package:path/path.dart' as _path;
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
 class Configuration {
-  final RawReceivePort receivePort = RawReceivePort();
   final ConfigHandle _handle;
   final RealmSchema _schema;
 
