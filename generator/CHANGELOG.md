@@ -1,3 +1,21 @@
+0.2.1+alpha Release notes (2022-03-20)
+=============================================================
+
+**This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
+
+### Enhancements 
+* Support for object notifications. Generated code for `RealmObject.changes` method. [#262](https://github.com/realm/realm-dart/pull/262)
+* Generated code now returns `RealmList` for `List<T>` model property types. [#270](https://github.com/realm/realm-dart/pull/270)
+* Removes `final` requirement for primary keys. [#253](https://github.com/realm/realm-dart/pull/253)
+* Removed `final` requirement for list properties. [#253](https://github.com/realm/realm-dart/pull/253)
+* Generated code throws exception if primary key is being set. [#253](https://github.com/realm/realm-dart/pull/253)
+
+### Internal
+* `RealmObject`s are now also `RealmEntity`. A class for sharing common logic. This class should not be used directly.
+
+### Compatibility
+* Flutter ^2.8 and Dart ^2.15
+
 0.2.0+alpha Release notes (2022-01-31)
 =============================================================
 
