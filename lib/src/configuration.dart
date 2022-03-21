@@ -29,6 +29,7 @@ import 'package:path/path.dart' as _path;
 class Configuration {
   final ConfigHandle _handle;
   final RealmSchema _schema;
+  bool _isInUse = false;
 
   static String? _defaultPath;
 
@@ -49,8 +50,6 @@ class Configuration {
     if (fifoFilesFallbackPath != null) {
       this.fifoFilesFallbackPath = fifoFilesFallbackPath;
     }
-
-    _isCached = true;
 
     if (readOnly) {
       isReadOnly = true;
@@ -134,9 +133,6 @@ class Configuration {
   /// by the [path] you  property. This property is ignored if the directory defined by [path] allow FIFO special files.
   String get fifoFilesFallbackPath => realmCore.getConfigFifoPath(this);
   set fifoFilesFallbackPath(String value) => realmCore.setConfigFifoPath(this, value);
-
-  bool get _isCached => realmCore.getConfigCached(this);
-  set _isCached(bool value) => realmCore.setConfigCached(this, value);
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].
@@ -191,4 +187,7 @@ class RealmSchema extends Iterable<SchemaObject> {
 extension ConfigurationInternal on Configuration {
   ///@nodoc
   ConfigHandle get handle => _handle;
+
+  bool get isInUse => _isInUse;
+  set isInUse(bool value) => _isInUse = value;
 }
