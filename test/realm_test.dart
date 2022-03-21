@@ -599,13 +599,6 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Realm.operator== ', () {
-    final config = Configuration([Dog.schema, Person.schema]);
-    final realm = Realm(config);
-    expect(realm, realm);
-    realm.close();
-  });
-
   test('Realm.operator==', () {
     var config = Configuration([Dog.schema, Person.schema]);
     final realm1 = Realm(config);
