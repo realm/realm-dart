@@ -52,12 +52,16 @@ class Realm {
 
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : _config = config {
-    _scheduler = Scheduler(config, close);
+    if (_config.isInUse) {
+      throw RealmException("A Realm instance for this configuraiton object already exists.");
+    }
+    _config.isInUse = true;
+    _scheduler = Scheduler(_config, close);
 
     try {
-      _handle = realmCore.openRealm(config);
+      _handle = realmCore.openRealm(_config);
 
-      for (var realmClass in config.schema) {
+      for (var realmClass in _config.schema) {
         final classMeta = realmCore.getClassMetadata(this, realmClass.name, realmClass.type);
         final propertyMeta = realmCore.getPropertyMetadata(this, classMeta.key);
         final metadata = RealmMetadata(classMeta, propertyMeta);
@@ -234,7 +238,7 @@ class Realm {
   }
 
   /// Deletes all [RealmObject]s of type `T` in the `Realm`
-  void deleteAll<T extends RealmObject>() => deleteMany(all<T>()); 
+  void deleteAll<T extends RealmObject>() => deleteMany(all<T>());
 
   @override
   // ignore: hash_and_equals
@@ -278,7 +282,7 @@ class Scheduler {
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
   Scheduler get scheduler => _scheduler;
-  
+
   RealmObject createObject(Type type, RealmObjectHandle handle) {
     RealmMetadata metadata = _getMetadata(type);
 
