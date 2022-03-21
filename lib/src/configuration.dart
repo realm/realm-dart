@@ -17,6 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:ffi';
 
 import 'native/realm_core.dart';
 
@@ -29,11 +31,12 @@ import 'package:path/path.dart' as _path;
 class Configuration {
   final ConfigHandle _handle;
   final RealmSchema _schema;
-
+  late final Scheduler _scheduler;
   static String? _defaultPath;
 
   /// The [RealmSchema] for this [Configuration]
   RealmSchema get schema => _schema;
+  Scheduler get scheduler => _scheduler;
 
   /// Creates a [Configuration] with schema objects for opening a [Realm].
   ///
@@ -45,7 +48,7 @@ class Configuration {
         _handle = realmCore.createConfig() {
     schemaVersion = 0;
     path = defaultPath;
-
+    _scheduler = Scheduler(this, _closeScheduler);
     if (fifoFilesFallbackPath != null) {
       this.fifoFilesFallbackPath = fifoFilesFallbackPath;
     }
@@ -137,6 +140,10 @@ class Configuration {
 
   bool get _isCached => realmCore.getConfigCached(this);
   set _isCached(bool value) => realmCore.setConfigCached(this, value);
+
+  void _closeScheduler() {
+    _scheduler.stop();
+  }
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].
@@ -185,6 +192,34 @@ class RealmSchema extends Iterable<SchemaObject> {
 
   @override
   SchemaObject elementAt(int index) => _schema.elementAt(index);
+}
+
+class Scheduler {
+  // ignore: constant_identifier_names
+  static const dynamic SCHEDULER_FINALIZE_OR_PROCESS_EXIT = null;
+  late final SchedulerHandle handle;
+  final void Function() onFinalize;
+  final RawReceivePort _receivePort = RawReceivePort();
+
+  Scheduler(Configuration config, this.onFinalize) {
+    _receivePort.handler = (dynamic message) {
+      if (message == SCHEDULER_FINALIZE_OR_PROCESS_EXIT) {
+        onFinalize();
+        stop();
+        return;
+      }
+
+      realmCore.invokeScheduler(handle);
+    };
+    final sendPort = _receivePort.sendPort;
+    handle = realmCore.createScheduler(Isolate.current.hashCode, sendPort.nativePort);
+
+    realmCore.setScheduler(config, handle);
+  }
+
+  void stop() {
+    _receivePort.close();
+  }
 }
 
 /// @nodoc

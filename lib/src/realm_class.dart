@@ -17,9 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
-import 'dart:ffi';
 import 'dart:io';
-import 'dart:isolate';
 
 import 'package:realm_common/realm_common.dart';
 
@@ -45,34 +43,21 @@ class Realm {
   final Configuration _config;
   final Map<Type, RealmMetadata> _metadata = <Type, RealmMetadata>{};
   late final RealmHandle _handle;
-  static final Map<int, Scheduler> _schedulersPerConfiguration = {};
 
   /// The [Configuration] object used to open this [Realm]
   Configuration get config => _config;
 
-  Scheduler get _scheduler => _schedulersPerConfiguration[_config.hashCode]!;
+  Scheduler get scheduler => config.scheduler;
 
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : _config = config {
-    final firstSchedulerInit = _schedulersPerConfiguration[config.hashCode] == null;
-    if (firstSchedulerInit) {
-      _schedulersPerConfiguration.addAll({config.hashCode: Scheduler(config, close)});
-    }
+    _handle = realmCore.openRealm(config);
 
-    try {
-      _handle = realmCore.openRealm(config);
-
-      for (var realmClass in config.schema) {
-        final classMeta = realmCore.getClassMetadata(this, realmClass.name, realmClass.type);
-        final propertyMeta = realmCore.getPropertyMetadata(this, classMeta.key);
-        final metadata = RealmMetadata(classMeta, propertyMeta);
-        _metadata[realmClass.type] = metadata;
-      }
-    } catch (e) {
-      if (firstSchedulerInit) {
-        _scheduler.stop();
-      }
-      rethrow;
+    for (var realmClass in config.schema) {
+      final classMeta = realmCore.getClassMetadata(this, realmClass.name, realmClass.type);
+      final propertyMeta = realmCore.getPropertyMetadata(this, classMeta.key);
+      final metadata = RealmMetadata(classMeta, propertyMeta);
+      _metadata[realmClass.type] = metadata;
     }
   }
 
@@ -192,7 +177,6 @@ class Realm {
   /// This method will not throw if called multiple times.
   void close() {
     realmCore.closeRealm(this);
-    _scheduler.stop();
   }
 
   /// Checks whether the `Realm` is closed.
@@ -252,40 +236,10 @@ class Realm {
   }
 }
 
-class Scheduler {
-  // ignore: constant_identifier_names
-  static const dynamic SCHEDULER_FINALIZE_OR_PROCESS_EXIT = null;
-  late final SchedulerHandle handle;
-  final void Function() onFinalize;
-  final RawReceivePort _receivePort = RawReceivePort();
-
-  Scheduler(Configuration config, this.onFinalize) {
-    _receivePort.handler = (dynamic message) {
-      if (message == SCHEDULER_FINALIZE_OR_PROCESS_EXIT) {
-        onFinalize();
-        stop();
-        return;
-      }
-
-      realmCore.invokeScheduler(handle);
-    };
-
-    final sendPort = _receivePort.sendPort;
-    handle = realmCore.createScheduler(Isolate.current.hashCode, sendPort.nativePort);
-
-    realmCore.setScheduler(config, handle);
-  }
-
-  void stop() {
-    _receivePort.close();
-  }
-}
-
 /// @nodoc
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
-  Scheduler get scheduler => _scheduler;
-
+ 
   RealmObject createObject(Type type, RealmObjectHandle handle) {
     RealmMetadata metadata = _getMetadata(type);
 
