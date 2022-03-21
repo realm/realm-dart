@@ -138,19 +138,19 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration.operator== equal configs', () {
-    final config1 = Configuration([Dog.schema, Person.schema]);
-    final r1 = Realm(config1);
-    expect(config1, r1.config);
-    r1.close();
+    final config = Configuration([Dog.schema, Person.schema]);
+    final realm = Realm(config);
+    expect(config, realm.config);
+    realm.close();
   });
  
   test('Configuration.operator== different configs', () {
     var config = Configuration([Dog.schema, Person.schema]);
-    final r1 = Realm(config);
+    final realm1 = Realm(config);
     config = Configuration([Dog.schema, Person.schema]);
-    final r2 = Realm(config);
-    expect(r1.config, isNot(r2.config));
-    r1.close();
-    r2.close();
+    final realm2 = Realm(config);
+    expect(realm1.config, isNot(realm2.config));
+    realm1.close();
+    realm2.close();
   });
 }
