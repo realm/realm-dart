@@ -601,47 +601,47 @@ Future<void> main([List<String>? args]) async {
 
   test('Realm.operator== ', () {
     final config = Configuration([Dog.schema, Person.schema]);
-    final r1 = Realm(config);
-    expect(r1, r1);
-    r1.close();
+    final realm = Realm(config);
+    expect(realm, realm);
+    realm.close();
   });
 
   test('Realm.operator==', () {
     var config = Configuration([Dog.schema, Person.schema]);
-    final r1 = Realm(config);
+    final realm1 = Realm(config);
     config = Configuration([Dog.schema, Person.schema]);
-    final r2 = Realm(config);
+    final realm2 = Realm(config);
 
-    expect(r1, r1);
-    expect(r2, r2);
-    expect(r1, isNot(r2));
+    expect(realm1, realm1);
+    expect(realm2, realm2);
+    expect(realm1, isNot(realm2));
 
-    r1.write(() {
-      r1.add(Person('Kasper'));
+    realm1.write(() {
+      realm1.add(Person('Kasper'));
     });
 
-    final r3 = r1.all<Person>().first.realm;
-    expect(identical(r1, r3), isTrue);
-    expect(r1, r3);
-    r1.close();
-    r2.close();
+    final realm3 = realm1.all<Person>().first.realm;
+    expect(identical(realm1, realm3), isTrue);
+    expect(realm1, realm3);
+    realm1.close();
+    realm2.close();
   });
 
   test('Opening Realm with same config throws error', () {
     final config = Configuration([Dog.schema, Person.schema]);
    
-    final r1 = Realm(config);
+    final realm = Realm(config);
     expect(() => Realm(config), throws<RealmException>("A Realm instance for this configuraiton object already exists."));
-    r1.close();
+    realm.close();
   });
 
   test('Realm.operator== different config', () {
     var config = Configuration([Dog.schema, Person.schema]);
-    final r1 = Realm(config);
+    final realm1 = Realm(config);
     config = Configuration([Dog.schema, Person.schema, Team.schema]);
-    final r2 = Realm(config);
-    expect(r1, isNot(r2));
-    r1.close();
-    r2.close();
+    final realm2 = Realm(config);
+    expect(realm1, isNot(realm2));
+    realm1.close();
+    realm2.close();
   });
 }
