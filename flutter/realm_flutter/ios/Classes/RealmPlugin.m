@@ -44,7 +44,6 @@ void dummy(void) {
   realm_list_size(NULL, 0);
   realm_dart_results_add_notification_callback(NULL, NULL, NULL, NULL);
   realm_results_snapshot(NULL);
-  realm_config_get_cached(NULL);
 }
 
 @end
