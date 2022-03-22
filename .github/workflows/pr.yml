@@ -32,7 +32,7 @@ jobs:
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
-          sdk: stable
+          sdk: beta
       - name: Deploy Apps
         run: |
           dart run realm_dart deploy-apps \
@@ -85,7 +85,7 @@ jobs:
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
-          sdk: stable
+          sdk: beta
       - name: Install dependencies
         run: dart pub get
       - name: Run tests
@@ -136,7 +136,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: beta
       - name: Enable Flutter Desktop support
         run: flutter config --enable-linux-desktop
       - name: Install dependencies
