@@ -40,6 +40,7 @@ class Configuration {
   /// [fifoFilesFallbackPath] enables FIFO special files.
   /// [readOnly] controls whether a [Realm] is opened as read-only.
   /// [inMemory] specifies if a [Realm] should be opened in-memory.
+  /// [disableFormatUpgrade] specifies if [Realm] file format should be automatically upgraded.
   Configuration(List<SchemaObject> schemaObjects,
       {String? fifoFilesFallbackPath, bool readOnly = false, bool inMemory = false, bool disableFormatUpgrade = false})
       : _schema = RealmSchema(schemaObjects),
@@ -130,7 +131,7 @@ class Configuration {
   String get fifoFilesFallbackPath => realmCore.getConfigFifoPath(this);
   set fifoFilesFallbackPath(String value) => realmCore.setConfigFifoPath(this, value);
 
-  /// Specifies if this [Realm]'s file format should be automatically upgraded
+  /// Specifies if a [Realm] file format should be automatically upgraded
   /// if it was created with an older version of the [Realm] library.
   /// If set to true and a file format upgrade is required, an error will be thrown instead.
   bool get disableFormatUpgrade => realmCore.getConfigDisableFormatUpgrade(this);
