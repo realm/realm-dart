@@ -133,13 +133,17 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration - disableFormatUpgrade=true throws error', () async {
-    const realmPath = "realm-bundle.realm";
+    const realmDir = "test/disableFormatUpgrade";
+    const realmFile = "realm-bundle.realm";
+    final realmPath = "$realmDir/$realmFile";
+
+    Directory(realmDir).create();
     var config = Configuration([Car.schema])..path = realmPath;
     var realm = Realm(config);
     realm.close();
 
     Realm.deleteRealm(realmPath);
-    var file = File('test/data/realm_files/$realmPath');
+    var file = File('test/data/realm_files/$realmFile');
     await file.copy(realmPath);
 
     config = Configuration([Car.schema], disableFormatUpgrade: true)..path = realmPath;
@@ -147,20 +151,26 @@ Future<void> main([List<String>? args]) async {
       realm = Realm(config);
     }, throws<RealmException>("The Realm file format must be allowed to be upgraded in order to proceed"));
     realm.close();
+    Directory(realmDir).delete(recursive: true);
   });
 
   test('Configuration - disableFormatUpgrade=false', () async {
-    const realmPath = "realm-bundle.realm";
+    const realmDir = "test/disableFormatUpgrade";
+    const realmFile = "realm-bundle.realm";
+    final realmPath = "$realmDir/$realmFile";
+
+    Directory(realmDir).create();
     var config = Configuration([Car.schema])..path = realmPath;
     var realm = Realm(config);
     realm.close();
 
     Realm.deleteRealm(realmPath);
-    var file = File('test/data/realm_files/$realmPath');
+    var file = File('test/data/realm_files/$realmFile');
     await file.copy(realmPath);
 
     config = Configuration([Car.schema], disableFormatUpgrade: false)..path = realmPath;
     realm = Realm(config);
     realm.close();
+    Directory(realmDir).delete(recursive: true);
   });
 }
