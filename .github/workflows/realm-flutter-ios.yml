@@ -6,7 +6,6 @@ on:
       - master
     tags:
       - '[0-9]+.[0-9]+.[0-9]+**' # matches tags like number(s).number(s).number(s)(any) for ex: 1.0.0 and also 1.0.0+beta
-  pull_request:
 
 jobs:
   CI:
@@ -48,7 +47,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-    
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -87,5 +86,5 @@ jobs:
           artifacts: ${{ env.ARCHIVE_PATH }}
           body: "ADD RELEASE NOTES"
           omitBodyDuringUpdate: true
-          token: ${{ secrets.GITHUB_TOKEN }}       
+          token: ${{ secrets.GITHUB_TOKEN }}
 

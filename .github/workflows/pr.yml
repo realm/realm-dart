@@ -1,0 +1,112 @@
+name: PR Build
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+**' # matches tags like number(s).number(s).number(s)(any) for ex: 1.0.0 and also 1.0.0+beta
+  pull_request:
+env:
+  REALM_CI: true
+
+jobs:
+  # deploy-baas:
+  #   runs-on: ubuntu-latest
+  #   name: Deploy BaaS
+  #   outputs:
+  #     clusterName: ${{ steps.deploy-mdb-apps.outputs.clusterName }}
+  #   timeout-minutes: 20
+  #   steps:
+  #     - uses: realm/ci-actions/mdb-realm/deployApps@fac1d6958f03d71de743305ce3ab27594efbe7b7
+  #       id: deploy-mdb-apps
+  #       with:
+  #         projectId: ${{ secrets.ATLAS_PROJECT_ID}}
+  #         realmUrl: https://realm-dev.mongodb.com
+  #         atlasUrl: https://cloud-dev.mongodb.com
+  #         apiKey: ${{ secrets.ATLAS_PUBLIC_API_KEY}}
+  #         privateApiKey: ${{ secrets.ATLAS_PRIVATE_API_KEY }}
+  #         differentiator: dart-linux
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+      - name: Build Realm Dart for Linux
+        run: ./scripts/build-linux.sh
+      - name: Store artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: librealm-linux
+          path: binary/**
+          retention-days: 1
+
+  tests-linux:
+    runs-on: ubuntu-latest
+    needs:
+      # - deploy-baas
+      - build-linux
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+      - name: Fetch artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-linux
+          path: binary
+
+      - name : Setup Dart SDK
+        uses: dart-lang/setup-dart@main
+        with:
+          sdk: stable
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Run tests
+        run: |
+          dart test -r expanded -j 1 --test-randomize-ordering-seed random
+          echo "ARCHIVE_PATH=$(pwd)/binary/linux.tar.gz" >> $GITHUB_ENV
+
+      - name: Archive binary
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: |
+          dart run realm_dart archive --source-dir $(pwd)/binary/linux --output-file $ARCHIVE_PATH
+
+      - name: Release artifacts
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates:  true
+          artifactErrorsFailBuild: true
+          draft: true
+          omitNameDuringUpdate: true
+          prerelease: false
+          omitPrereleaseDuringUpdate: true
+          artifacts: ${{ env.ARCHIVE_PATH }}
+          body: "ADD RELEASE NOTES"
+          omitBodyDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+  # cleanup-baas:
+  #   runs-on: ubuntu-latest
+  #   name: Cleanup BaaS
+  #   needs:
+  #     - CI
+  #   if: always()
+  #   timeout-minutes: 5
+  #   steps:
+  #     - uses: realm/ci-actions/mdb-realm/cleanup@fac1d6958f03d71de743305ce3ab27594efbe7b7
+  #       with:
+  #         projectId: ${{ secrets.ATLAS_PROJECT_ID}}
+  #         realmUrl: https://realm-dev.mongodb.com
+  #         atlasUrl: https://cloud-dev.mongodb.com
+  #         apiKey: ${{ secrets.ATLAS_PUBLIC_API_KEY}}
+  #         privateApiKey: ${{ secrets.ATLAS_PRIVATE_API_KEY }}
+  #         differentiator: dart-linux
