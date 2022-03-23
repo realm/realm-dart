@@ -120,8 +120,8 @@ Future<void> uploadMetrics(Options options) async {
   try {
     final request = await client.getUrl(
       Uri.parse(
-        'https://webhooks.mongodb-realm.com'
-        '/api/client/v2.0/app/realmsdkmetrics-zmhtm/service/metric_webhook/incoming_webhook/metric'
+        'https://data.mongodb-api.com'
+        '/app/realmsdkmetrics-zmhtm/endpoint/metric_webhook/metric_stage'
         '?data=$base64Payload}',
       ),
     );
