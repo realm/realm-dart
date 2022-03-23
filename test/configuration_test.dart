@@ -108,7 +108,7 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.write(() {}), throws<RealmException>("Can't perform transactions on read-only Realms."));
     realm.close();
   });
-  
+
   test('Configuration inMemory - no files after closing realm', () {
     Configuration config = Configuration([Car.schema], inMemory: true);
     var realm = Realm(config);
@@ -125,11 +125,42 @@ Future<void> main([List<String>? args]) async {
     expect(() => Realm(config), throws<RealmException>("Realm at path '${config.path}' already opened with different read permissions"));
     realm.close();
   });
-  
+
   test('Configuration - FIFO files fallback path', () {
     Configuration config = Configuration([Car.schema], fifoFilesFallbackPath: "./fifo_folder");
     var realm = Realm(config);
     realm.close();
   });
-  
+
+  test('Configuration - disableFormatUpgrade=true throws error', () async {
+    const realmPath = "realm-bundle.realm";
+    var config = Configuration([Car.schema])..path = realmPath;
+    var realm = Realm(config);
+    realm.close();
+
+    Realm.deleteRealm(realmPath);
+    var file = File('test/data/realm_files/$realmPath');
+    await file.copy(realmPath);
+
+    config = Configuration([Car.schema], disableFormatUpgrade: true)..path = realmPath;
+    expect(() {
+      realm = Realm(config);
+    }, throws<RealmException>("The Realm file format must be allowed to be upgraded in order to proceed"));
+    realm.close();
+  });
+
+  test('Configuration - disableFormatUpgrade=false', () async {
+    const realmPath = "realm-bundle.realm";
+    var config = Configuration([Car.schema])..path = realmPath;
+    var realm = Realm(config);
+    realm.close();
+
+    Realm.deleteRealm(realmPath);
+    var file = File('test/data/realm_files/$realmPath');
+    await file.copy(realmPath);
+
+    config = Configuration([Car.schema], disableFormatUpgrade: false)..path = realmPath;
+    realm = Realm(config);
+    realm.close();
+  });
 }

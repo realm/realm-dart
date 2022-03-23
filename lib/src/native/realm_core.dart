@@ -253,6 +253,14 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_refresh(realm.handle._pointer), "Could not refresh");
   }
 
+  bool getConfigDisableFormatUpgrade(Configuration config) {
+    return _realmLib.realm_config_get_disable_format_upgrade(config.handle._pointer);
+  }
+
+  void setConfigDisableFormatUpgrade(Configuration config, bool disabled) {
+    _realmLib.realm_config_set_disable_format_upgrade(config.handle._pointer, disabled);
+  }
+
   RealmClassMetadata getClassMetadata(Realm realm, String className, Type classType) {
     return using((Arena arena) {
       final found = arena<Uint8>();
