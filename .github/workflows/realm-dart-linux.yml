@@ -9,11 +9,28 @@ on:
   pull_request:
 
 jobs:
+  deploy-baas:
+    runs-on: ubuntu-latest
+    name: Deploy BaaS
+    outputs:
+      clusterName: ${{ steps.deploy-mdb-apps.outputs.clusterName }}
+    timeout-minutes: 20
+    steps:
+      - uses: realm/ci-actions/mdb-realm/deployApps@fac1d6958f03d71de743305ce3ab27594efbe7b7
+        id: deploy-mdb-apps
+        with:
+          projectId: ${{ secrets.ATLAS_PROJECT_ID}}
+          realmUrl: ${{ secrets.REALM_BASE_URL }}
+          atlasUrl: ${{ secrets.ATLAS_BASE_URL}}
+          apiKey: ${{ secrets.ATLAS_PUBLIC_API_KEY}}
+          privateApiKey: ${{ secrets.ATLAS_PRIVATE_API_KEY }}
+          differentiator: dart-linux
   CI:
     runs-on: ubuntu-latest
     env:
       REALM_CI: true
-
+    needs:
+      - deploy-baas
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -38,7 +55,7 @@ jobs:
         run: |
           dart test -r expanded -j 1 --test-randomize-ordering-seed random
           echo "ARCHIVE_PATH=$(pwd)/binary/linux.tar.gz" >> $GITHUB_ENV
-  
+
       - name: Archive binary
         if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
         run: |
@@ -58,3 +75,19 @@ jobs:
           body: "ADD RELEASE NOTES"
           omitBodyDuringUpdate: true
           token: ${{ secrets.GITHUB_TOKEN }}
+  cleanup-baas:
+    runs-on: ubuntu-latest
+    name: Cleanup BaaS
+    needs:
+      - CI
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - uses: realm/ci-actions/mdb-realm/cleanup@fac1d6958f03d71de743305ce3ab27594efbe7b7
+        with:
+          projectId: ${{ secrets.ATLAS_PROJECT_ID}}
+          realmUrl: ${{ secrets.REALM_BASE_URL }}
+          atlasUrl: ${{ secrets.ATLAS_BASE_URL}}
+          apiKey: ${{ secrets.ATLAS_PUBLIC_API_KEY}}
+          privateApiKey: ${{ secrets.ATLAS_PRIVATE_API_KEY }}
+          differentiator: dart-linux
