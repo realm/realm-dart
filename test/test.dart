@@ -22,6 +22,7 @@ import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' hide test;
 import 'package:test/test.dart' as testing;
 import '../lib/realm.dart';
+import './baas_client.dart';
 
 part 'test.g.dart';
 
@@ -73,6 +74,8 @@ class _School {
 }
 
 String? testName;
+List<String>? baasApps;
+
 //Overrides test method so we can filter tests
 void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
   if (testName != null && !name!.contains(testName!)) {
@@ -92,8 +95,10 @@ void xtest(String? name, dynamic Function() testFunction) {
   testing.test(name, testFunction, skip: "Test is disabled");
 }
 
-void setupTests(List<String>? args) {
+Future<void> setupTests(List<String>? args) async {
   parseTestNameFromArguments(args);
+
+  await setupBaas();
 
   setUp(() {
     String path = "${generateRandomString(10)}.realm";
@@ -153,8 +158,28 @@ void parseTestNameFromArguments(List<String>? arguments) {
     return;
   }
 
-  int nameArgIndex = arguments.indexOf("--name");
-  if (nameArgIndex >= 0 && arguments.length > 1) {
-    testName = arguments[nameArgIndex + 1];
+  testName = getArg("name", arguments);
+}
+
+Future<void> setupBaas() async {
+  var baasUrl = Platform.environment['BAAS_URL'];
+  var cluster = Platform.environment['BAAS_CLUSTER'];
+  var apiKey = Platform.environment['BAAS_API_KEY'];
+  var privateApiKey = Platform.environment['BAAS_PRIVATE_API_KEY'];
+  var projectId = Platform.environment['BAAS_PROJECT_ID'];
+
+  if (baasUrl == null) {
+    return;
   }
+
+  final BaasClient client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
+}
+
+String? getArg(String name, List<String> arguments) {
+  int argIndex = arguments.indexOf("--$name");
+  if (argIndex >= 0 && arguments.length > argIndex) {
+    return arguments[argIndex + 1];
+  }
+
+  return null;
 }
