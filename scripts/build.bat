@@ -14,6 +14,9 @@ pushd %PROJECT_ROOT%\build-windows
 cmake ^
     -G "Visual Studio 16 2019" ^
     -A x64 ^
+    -DCMAKE_TOOLCHAIN_FILE="%PROJECT_ROOT%/src/realm-core/tools/vcpkg/ports/scripts/buildsystems/vcpkg.cmake" ^
+    -DVCPKG_MANIFEST_DIR="%PROJECT_ROOT%/src/realm-core/tools/vcpkg" ^
+    -DVCPKG_TARGET_TRIPLET="x64-windows-static" ^
     %PROJECT_ROOT%
 
 cmake --build . --config MinSizeRel
