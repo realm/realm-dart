@@ -69,6 +69,7 @@ class Realm {
       }
     } catch (e) {
       _scheduler.stop();
+      _config.isInUse = false;
       rethrow;
     }
   }
@@ -190,6 +191,7 @@ class Realm {
   void close() {
     realmCore.closeRealm(this);
     _scheduler.stop();
+    _config.isInUse = false;
   }
 
   /// Checks whether the `Realm` is closed.
