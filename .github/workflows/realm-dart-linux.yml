@@ -25,6 +25,7 @@ jobs:
           apiKey: ${{ secrets.ATLAS_PUBLIC_API_KEY}}
           privateApiKey: ${{ secrets.ATLAS_PRIVATE_API_KEY }}
           differentiator: dart-linux
+
   CI:
     runs-on: ubuntu-latest
     env:
