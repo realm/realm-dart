@@ -166,7 +166,7 @@ class Realm {
   ///
   /// If no exception is thrown from within the callback, the transaction will be committed.
   /// It is more efficient to update several properties or even create multiple objects in a single write transaction.
-  TResult write<TResult>(TResult Function() writeCallback) {
+  T write<T>(T Function() writeCallback) {
     try {
       realmCore.beginWrite(this);
       TResult result = writeCallback();
