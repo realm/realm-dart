@@ -8,7 +8,7 @@ on:
 
 jobs:
   CI:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     env:
       REALM_CI: true
 
