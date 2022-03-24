@@ -22,7 +22,7 @@ import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' hide test;
 import 'package:test/test.dart' as testing;
 import '../lib/realm.dart';
-import './baas_client.dart';
+import '../lib/src/cli/deployapps/baas_client.dart';
 
 part 'test.g.dart';
 
@@ -173,16 +173,8 @@ Future<void> setupBaas() async {
   }
 
   final BaasClient client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
-  var apps = await client.getApps();
-  if (apps.isNotEmpty) {
-    for (var app in apps) {
-      baasApps[app.name] = app;
-    }
-  } else {
-    final defaultApp = await client.createApp("flexible");
 
-    baasApps[defaultApp.name] = defaultApp;
-  }
+  baasApps.addAll(await client.getOrCreateApps());
 }
 
 String? getArg(String name, List<String> arguments) {

@@ -73,7 +73,23 @@ class BaasClient {
     return result;
   }
 
-  Future<List<BaasApp>> getApps() async {
+  Future<Map<String, BaasApp>> getOrCreateApps() async {
+    final result = <String, BaasApp>{};
+    var apps = await _getApps();
+    if (apps.isNotEmpty) {
+      for (var app in apps) {
+        result[app.name] = app;
+      }
+    } else {
+      final defaultApp = await _createApp("flexible");
+
+      result[defaultApp.name] = defaultApp;
+    }
+
+    return result;
+  }
+
+  Future<List<BaasApp>> _getApps() async {
     final apps = await _get("groups/$_groupId/apps") as List<dynamic>;
     return apps
         .map((dynamic doc) {
@@ -90,7 +106,7 @@ class BaasClient {
         .toList();
   }
 
-  Future<BaasApp> createApp(String name) async {
+  Future<BaasApp> _createApp(String name) async {
     print("Creating app $name");
 
     final dynamic doc = await _post("groups/$_groupId/apps", '{ "name": "$name$_appSuffix" }');

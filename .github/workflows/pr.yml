@@ -19,13 +19,18 @@ jobs:
       - uses: realm/ci-actions/mdb-realm/deployApps@fac1d6958f03d71de743305ce3ab27594efbe7b7
         id: deploy-mdb-apps
         with:
-          projectId: ${{ secrets.ATLAS_PROJECT_ID}}
+          projectId: ${{ secrets.ATLAS_PROJECT_ID }}
           realmUrl: https://realm-dev.mongodb.com
           atlasUrl: https://cloud-dev.mongodb.com
-          apiKey: ${{ secrets.ATLAS_PUBLIC_API_KEY}}
+          apiKey: ${{ secrets.ATLAS_PUBLIC_API_KEY }}
           privateApiKey: ${{ secrets.ATLAS_PRIVATE_API_KEY }}
           differentiator: dart-linux
-
+      - name : Setup Dart SDK
+        uses: dart-lang/setup-dart@main
+        with:
+          sdk: stable
+      - name: Deploy Apps
+        run: dart run realm_dart deploy-apps --baas-url https://realm-dev.mongodb.com --atlas-cluster ${{ steps.deploy-mdb-apps.outputs.clusterName }} --api-key ${{ secrets.ATLAS_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_PROJECT_ID }}
   build-linux:
     runs-on: ubuntu-latest
     name: Build Linux
