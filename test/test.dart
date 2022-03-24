@@ -158,7 +158,10 @@ void parseTestNameFromArguments(List<String>? arguments) {
     return;
   }
 
-  testName = getArg("name", arguments);
+  int nameArgIndex = arguments.indexOf("--name");
+  if (nameArgIndex >= 0 && arguments.length > nameArgIndex) {
+    testName = arguments[nameArgIndex + 1];
+  }
 }
 
 Future<void> setupBaas() async {
@@ -175,13 +178,4 @@ Future<void> setupBaas() async {
   final BaasClient client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
 
   baasApps.addAll(await client.getOrCreateApps());
-}
-
-String? getArg(String name, List<String> arguments) {
-  int argIndex = arguments.indexOf("--$name");
-  if (argIndex >= 0 && arguments.length > argIndex) {
-    return arguments[argIndex + 1];
-  }
-
-  return null;
 }
