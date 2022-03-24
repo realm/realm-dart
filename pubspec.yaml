@@ -36,7 +36,11 @@ dev_dependencies:
   lints: ^1.0.1
   test: ^1.14.3
 
+dependency_overrides:
+  analyzer: 3.3.1
+
 platforms: 
   windows:
   linux:
   macos:
+
