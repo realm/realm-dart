@@ -240,7 +240,7 @@ class Realm {
 
 class Scheduler {
   // ignore: constant_identifier_names
-  static const dynamic SCHEDULER_FINALIZE_OR_PROCESS_EXIT = null;
+  static const dynamic SCHEDULER_FINALIZE_OR_PROCESS_EXIT = 0;
   late final SchedulerHandle handle;
   final void Function() onFinalize;
   final RawReceivePort receivePort = RawReceivePort();

@@ -40,7 +40,7 @@ struct SchedulerData {
     {}
 };
 
-static const int SCHEDULER_FINALIZE = NULL;
+static const int SCHEDULER_FINALIZE = 0;
 
 //This can be invoked on any thread
 void realm_dart_scheduler_free_userData(void* userData) {
