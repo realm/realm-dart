@@ -48,6 +48,12 @@ jobs:
   tests-linux:
     runs-on: ubuntu-latest
     name: Tests Linux
+    env:
+      BAAS_URL: https://realm-dev.mongodb.com
+      BAAS_CLUSTER: ${{ needs.baas-linux.outputs.clusterName }}
+      BAAS_API_KEY: ${{ secrets.ATLAS_PUBLIC_API_KEY }}
+      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_PRIVATE_API_KEY }}
+      BAAS_PROJECT_ID: ${{ secrets.ATLAS_PROJECT_ID}}
     needs:
       - baas-linux
       - build-linux

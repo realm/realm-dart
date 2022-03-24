@@ -74,7 +74,7 @@ class _School {
 }
 
 String? testName;
-List<String>? baasApps;
+Map<String, BaasApp> baasApps = <String, BaasApp>{};
 
 //Overrides test method so we can filter tests
 void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
@@ -173,6 +173,16 @@ Future<void> setupBaas() async {
   }
 
   final BaasClient client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
+  var apps = await client.getApps();
+  if (apps.isNotEmpty) {
+    for (var app in apps) {
+      baasApps[app.name] = app;
+    }
+  } else {
+    final defaultApp = await client.createApp("flexible");
+
+    baasApps[defaultApp.name] = defaultApp;
+  }
 }
 
 String? getArg(String name, List<String> arguments) {
