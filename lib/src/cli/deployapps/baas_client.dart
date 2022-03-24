@@ -50,6 +50,8 @@ class BaasClient {
         _headers = <String, String>{'Accept': 'application/json'},
         _appSuffix = '-$_clusterName';
 
+  /// A client that imports apps in a MongoDB Realm docker image. See https://github.com/realm/ci/tree/master/realm/docker/mongodb-realm
+  /// for instructions on how to set it up.
   static Future<BaasClient> docker(String baseUrl) async {
     final result = BaasClient._(baseUrl);
 
@@ -63,6 +65,7 @@ class BaasClient {
     return result;
   }
 
+  /// A client that imports apps to an MongoDB Realm environment (typically realm-dev or realm-qa).
   static Future<BaasClient> atlas(String baseUrl, String cluster, String apiKey, String privateApiKey, String groupId) async {
     final BaasClient result = BaasClient._(baseUrl, cluster);
 
@@ -73,6 +76,9 @@ class BaasClient {
     return result;
   }
 
+  /// Tries to look up the applications for the specified cluster. For [docker] client, returns all apps,
+  /// for [atlas] one, it will return only apps with suffix equal to the cluster name. If no apps exist,
+  /// then it will create the test applications and return them.
   Future<Map<String, BaasApp>> getOrCreateApps() async {
     final result = <String, BaasApp>{};
     var apps = await _getApps();
@@ -84,6 +90,8 @@ class BaasClient {
       final defaultApp = await _createApp('flexible');
 
       result[defaultApp.name] = defaultApp;
+
+      // Add more types of apps as we add more tests here.
     }
 
     return result;

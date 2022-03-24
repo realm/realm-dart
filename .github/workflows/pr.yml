@@ -84,6 +84,26 @@ jobs:
         run: |
           dart test -r expanded -j 1 --test-randomize-ordering-seed random
 
+      # TODO: these should go away once we have a proper release workflow
+      - name: Archive binary
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: |
+          dart run realm_dart archive --source-dir $(pwd)/binary/linux --output-file $ARCHIVE_PATH
+      - name: Release artifacts
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates:  true
+          artifactErrorsFailBuild: true
+          draft: true
+          omitNameDuringUpdate: true
+          prerelease: false
+          omitPrereleaseDuringUpdate: true
+          artifacts: ${{ env.ARCHIVE_PATH }}
+          body: "ADD RELEASE NOTES"
+          omitBodyDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
   cleanup-linux:
     runs-on: ubuntu-latest
     name: Cleanup Linux
