@@ -142,12 +142,8 @@ Future<void> main([List<String>? args]) async {
     var config = Configuration([Car.schema]);
     var realm = Realm(config);
 
-    final car = Car('');
-    realm.write(() => realm.add(car));
-
     final cars = realm.all<Car>();
-    realm.write(() => realm.deleteMany(cars));
-
+   
     expect(() => cars[0], throws<RealmException>("Requested index 0 in empty Results"));
 
     realm.close();
