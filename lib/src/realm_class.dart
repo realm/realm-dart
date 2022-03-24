@@ -169,7 +169,7 @@ class Realm {
   T write<T>(T Function() writeCallback) {
     try {
       realmCore.beginWrite(this);
-      TResult result = writeCallback();
+      T result = writeCallback();
       realmCore.commitWrite(this);
       return result;
     } catch (e) {
