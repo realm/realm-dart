@@ -22,19 +22,19 @@ part 'options.g.dart';
 
 @CliOptions()
 class Options {
-  @CliOption(help: "Url for MongoDB Realm.", defaultsTo: "http://localhost:9090")
+  @CliOption(help: 'Url for MongoDB Realm.', defaultsTo: 'http://localhost:9090')
   final String baasUrl;
 
-  @CliOption(help: "Atlas Cluster to link in the application.")
+  @CliOption(help: 'Atlas Cluster to link in the application.')
   final String? atlasCluster;
 
-  @CliOption(help: "Atlas API key to use for the import. Only used if atlas-cluster is specified.")
+  @CliOption(help: 'Atlas API key to use for the import. Only used if atlas-cluster is specified.')
   final String? apiKey;
 
-  @CliOption(help: "The private Atlas API key to use for the import. Only used if atlas-cluster is specified.")
+  @CliOption(help: 'The private Atlas API key to use for the import. Only used if atlas-cluster is specified.')
   final String? privateApiKey;
 
-  @CliOption(help: "The Atlas project id to use for the import. Only used if atlas-cluster is specified.")
+  @CliOption(help: 'The Atlas project id to use for the import. Only used if atlas-cluster is specified.')
   final String? projectId;
 
   Options(this.baasUrl, {this.atlasCluster, this.apiKey, this.privateApiKey, this.projectId});

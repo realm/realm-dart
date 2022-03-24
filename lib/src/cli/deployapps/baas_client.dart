@@ -46,19 +46,19 @@ class BaasClient {
   late String _groupId;
 
   BaasClient._(String baseUrl, [this._clusterName])
-      : _baseUrl = "$baseUrl/api/admin/v3.0",
+      : _baseUrl = '$baseUrl/api/admin/v3.0',
         _headers = <String, String>{'Accept': 'application/json'},
-        _appSuffix = "-$_clusterName";
+        _appSuffix = '-$_clusterName';
 
   static Future<BaasClient> docker(String baseUrl) async {
     final result = BaasClient._(baseUrl);
 
-    await result._authenticate("local-userpass", '{ "username": "unique_user@domain.com", "password": "password" }');
+    await result._authenticate('local-userpass', '{ "username": "unique_user@domain.com", "password": "password" }');
 
-    dynamic groupDoc = await result._get("auth/profile");
+    dynamic groupDoc = await result._get('auth/profile');
     result._groupId = (groupDoc['roles'] as List<dynamic>)[0]['group_id'] as String;
 
-    print("Current GroupID ${result._groupId}");
+    print('Current GroupID ${result._groupId}');
 
     return result;
   }
@@ -66,7 +66,7 @@ class BaasClient {
   static Future<BaasClient> atlas(String baseUrl, String cluster, String apiKey, String privateApiKey, String groupId) async {
     final BaasClient result = BaasClient._(baseUrl, cluster);
 
-    await result._authenticate("mongodb-cloud", '{ "username": "$apiKey", "apiKey": "$privateApiKey" }');
+    await result._authenticate('mongodb-cloud', '{ "username": "$apiKey", "apiKey": "$privateApiKey" }');
 
     result._groupId = groupId;
 
@@ -77,11 +77,11 @@ class BaasClient {
     final result = <String, BaasApp>{};
     var apps = await _getApps();
     if (apps.isNotEmpty) {
-      for (var app in apps) {
+      for (final app in apps) {
         result[app.name] = app;
       }
     } else {
-      final defaultApp = await _createApp("flexible");
+      final defaultApp = await _createApp('flexible');
 
       result[defaultApp.name] = defaultApp;
     }
@@ -90,7 +90,7 @@ class BaasClient {
   }
 
   Future<List<BaasApp>> _getApps() async {
-    final apps = await _get("groups/$_groupId/apps") as List<dynamic>;
+    final apps = await _get('groups/$_groupId/apps') as List<dynamic>;
     return apps
         .map((dynamic doc) {
           final name = doc['name'] as String;
@@ -107,19 +107,19 @@ class BaasClient {
   }
 
   Future<BaasApp> _createApp(String name) async {
-    print("Creating app $name");
+    print('Creating app $name');
 
-    final dynamic doc = await _post("groups/$_groupId/apps", '{ "name": "$name$_appSuffix" }');
+    final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$name$_appSuffix" }');
     final appId = doc['_id'] as String;
     final clientAppId = doc['client_app_id'] as String;
 
     final app = BaasApp(appId, clientAppId, name);
 
-    final confirmFuncId = await _createFunction(app, "confirmFunc", _confirmFuncSource);
-    final resetFuncId = await _createFunction(app, "resetFunc", _resetFuncSource);
+    final confirmFuncId = await _createFunction(app, 'confirmFunc', _confirmFuncSource);
+    final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
 
-    enableProvider(app, "anon-user");
-    enableProvider(app, "local-userpass", '''{
+    enableProvider(app, 'anon-user');
+    enableProvider(app, 'local-userpass', '''{
       "autoConfirm": false,
       "confirmEmailSubject": "",
       "confirmationFunctionName": "confirmFunc",
@@ -152,20 +152,20 @@ class BaasClient {
       }
     }''');
 
-    await _put("groups/$_groupId/apps/$app/sync/config", '{ "development_mode_enabled": true }');
+    await _put('groups/$_groupId/apps/$app/sync/config', '{ "development_mode_enabled": true }');
 
     return app;
   }
 
   Future<void> enableProvider(BaasApp app, String type, [String config = '{}']) async {
-    print("Enabling provider $type for ${app.name}");
+    print('Enabling provider $type for ${app.name}');
 
-    final url = "groups/$_groupId/apps/$app/auth_providers";
+    final url = 'groups/$_groupId/apps/$app/auth_providers';
     if (type == 'api-key') {
       final providers = await _get(url) as List<dynamic>;
       final apiKeyProviderId = providers.singleWhere((dynamic doc) => doc['type'] == 'api-key')['_id'] as String;
 
-      await _put("$url/$apiKeyProviderId/enable", "{}");
+      await _put('$url/$apiKeyProviderId/enable', '{}');
     } else {
       await _post(url, '''{
           "name": "$type",
@@ -177,15 +177,15 @@ class BaasClient {
   }
 
   Future<void> _authenticate(String provider, String credentials) async {
-    dynamic response = await _post("auth/providers/$provider/login", credentials);
+    dynamic response = await _post('auth/providers/$provider/login', credentials);
 
     _headers['Authorization'] = "Bearer ${response['access_token']}";
   }
 
   Future<String> _createFunction(BaasApp app, String name, String source) async {
-    print("Creating function $name for ${app.name}...");
+    print('Creating function $name for ${app.name}...');
 
-    final dynamic response = await _post("groups/$_groupId/apps/$app/functions", '''{
+    final dynamic response = await _post('groups/$_groupId/apps/$app/functions', '''{
         "name": "$name",
         "source": ${jsonEncode(source)},
         "private": false,
@@ -207,11 +207,11 @@ class BaasClient {
     var attempt = 0;
     while (true) {
       try {
-        await _patch("groups/$_groupId/apps/$app/services/$mongoServiceId/config", syncConfig);
+        await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', syncConfig);
         break;
       } catch (err) {
         if (attempt++ < 1) {
-          print("Failed to update service after ${attempt * 5} seconds. Will keep retrying ...");
+          print('Failed to update service after ${attempt * 5} seconds. Will keep retrying ...');
 
           await Future<dynamic>.delayed(Duration(seconds: 5));
         } else {
@@ -224,9 +224,9 @@ class BaasClient {
   }
 
   Future<String> createService(BaasApp app, String name, String type, String config) async {
-    print("Creating service $name for ${app.name}");
+    print('Creating service $name for ${app.name}');
 
-    final dynamic response = await _post("groups/$_groupId/apps/$app/services", '''{
+    final dynamic response = await _post('groups/$_groupId/apps/$app/services', '''{
         "name": "$name",
         "type": "$type",
         "config": $config
@@ -245,7 +245,7 @@ class BaasClient {
   }
 
   Uri _getUri(String relativePath) {
-    return Uri.parse("$_baseUrl/$relativePath");
+    return Uri.parse('$_baseUrl/$relativePath');
   }
 
   Future<dynamic> _post(String relativePath, String payload) async {
@@ -270,7 +270,7 @@ class BaasClient {
 
   dynamic _decodeResponse(http.Response response, [String? payload]) {
     if (response.statusCode > 399 || response.statusCode < 200) {
-      throw Exception("Failed to ${response.request?.method} ${response.request?.url}: ${response.statusCode} ${response.body}. Body: $payload");
+      throw Exception('Failed to ${response.request?.method} ${response.request?.url}: ${response.statusCode} ${response.body}. Body: $payload');
     }
 
     if (response.body.isEmpty) {
