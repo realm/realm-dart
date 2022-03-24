@@ -24,8 +24,6 @@ jobs:
         id: deploy-mdb-apps
         with:
           projectId: ${{ secrets.ATLAS_PROJECT_ID }}
-          realmUrl: https://realm-dev.mongodb.com
-          atlasUrl: https://cloud-dev.mongodb.com
           apiKey: ${{ secrets.ATLAS_PUBLIC_API_KEY }}
           privateApiKey: ${{ secrets.ATLAS_PRIVATE_API_KEY }}
           differentiator: dart-linux
@@ -97,8 +95,6 @@ jobs:
       - uses: realm/ci-actions/mdb-realm/cleanup@fac1d6958f03d71de743305ce3ab27594efbe7b7
         with:
           projectId: ${{ secrets.ATLAS_PROJECT_ID}}
-          realmUrl: https://realm-dev.mongodb.com
-          atlasUrl: https://cloud-dev.mongodb.com
           apiKey: ${{ secrets.ATLAS_PUBLIC_API_KEY}}
           privateApiKey: ${{ secrets.ATLAS_PRIVATE_API_KEY }}
           differentiator: dart-linux
