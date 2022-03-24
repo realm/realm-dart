@@ -16,6 +16,10 @@ jobs:
       clusterName: ${{ steps.deploy-mdb-apps.outputs.clusterName }}
     timeout-minutes: 20
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: false
       - uses: realm/ci-actions/mdb-realm/deployApps@fac1d6958f03d71de743305ce3ab27594efbe7b7
         id: deploy-mdb-apps
         with:
