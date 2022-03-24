@@ -165,17 +165,17 @@ void parseTestNameFromArguments(List<String>? arguments) {
 }
 
 Future<void> setupBaas() async {
-  var baasUrl = Platform.environment['BAAS_URL'];
-  var cluster = Platform.environment['BAAS_CLUSTER'];
-  var apiKey = Platform.environment['BAAS_API_KEY'];
-  var privateApiKey = Platform.environment['BAAS_PRIVATE_API_KEY'];
-  var projectId = Platform.environment['BAAS_PROJECT_ID'];
+  final baasUrl = Platform.environment['BAAS_URL'];
+  final cluster = Platform.environment['BAAS_CLUSTER'];
+  final apiKey = Platform.environment['BAAS_API_KEY'];
+  final privateApiKey = Platform.environment['BAAS_PRIVATE_API_KEY'];
+  final projectId = Platform.environment['BAAS_PROJECT_ID'];
 
   if (baasUrl == null) {
     return;
   }
 
-  final BaasClient client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
+  final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
 
   baasApps.addAll(await client.getOrCreateApps());
 }

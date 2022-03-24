@@ -51,7 +51,7 @@ class BaasClient {
         _appSuffix = "-$_clusterName";
 
   static Future<BaasClient> docker(String baseUrl) async {
-    final BaasClient result = BaasClient._(baseUrl);
+    final result = BaasClient._(baseUrl);
 
     await result._authenticate("local-userpass", '{ "username": "unique_user@domain.com", "password": "password" }');
 

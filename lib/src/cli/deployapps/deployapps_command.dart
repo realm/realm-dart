@@ -58,7 +58,7 @@ class DeployAppsCommand extends Command<void> {
       }
     }
 
-    final BaasClient client = await (options.atlasCluster == null
+    final client = await (options.atlasCluster == null
         ? BaasClient.docker(options.baasUrl)
         : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!));
 
