@@ -86,7 +86,7 @@ jobs:
         run: |
           dart test -r expanded -j 1 --test-randomize-ordering-seed random
 
-  cleanup-baas:
+  cleanup-linux:
     runs-on: ubuntu-latest
     name: Cleanup Linux
     needs:
