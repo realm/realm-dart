@@ -213,7 +213,7 @@ class BaasClient {
         if (attempt++ < 1) {
           print('Failed to update service after ${attempt * 5} seconds. Will keep retrying ...');
 
-          await Future<dynamic>.delayed(Duration(seconds: 5));
+          await Future<dynamic>.delayed(const Duration(seconds: 5));
         } else {
           rethrow;
         }
