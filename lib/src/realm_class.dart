@@ -171,11 +171,12 @@ class Realm {
   ///
   /// If no exception is thrown from within the callback, the transaction will be committed.
   /// It is more efficient to update several properties or even create multiple objects in a single write transaction.
-  void write(void Function() writeCallback) {
+  T write<T>(T Function() writeCallback) {
     try {
       realmCore.beginWrite(this);
-      writeCallback();
+      T result = writeCallback();
       realmCore.commitWrite(this);
+      return result;
     } catch (e) {
       if (_isInTransaction) {
         realmCore.rollbackWrite(this);
@@ -253,7 +254,7 @@ class Realm {
 
 class Scheduler {
   // ignore: constant_identifier_names
-  static const dynamic SCHEDULER_FINALIZE_OR_PROCESS_EXIT = null;
+  static const dynamic SCHEDULER_FINALIZE_OR_PROCESS_EXIT = 0;
   late final SchedulerHandle handle;
   final void Function() onFinalize;
   final RawReceivePort receivePort = RawReceivePort();

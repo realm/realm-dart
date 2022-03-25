@@ -637,4 +637,18 @@ Future<void> main([List<String>? args]) async {
     realm1.close();
     realm2.close();
   });
+
+  test('Realm write returns result', () {
+    var config = Configuration([Car.schema]);
+    var realm = Realm(config);
+    var car = Car('Mustang');
+
+    var returnedCar = realm.write(() {
+      return realm.add(car);
+    });
+    expect(returnedCar, car);
+
+    realm.close();
+  });
+
 }
