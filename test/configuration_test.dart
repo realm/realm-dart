@@ -152,7 +152,9 @@ Future<void> main([List<String>? args]) async {
       }, throws<RealmException>("The Realm file format must be allowed to be upgraded in order to proceed"));
       realm.close();
     } finally {
-      Directory(realmDir).deleteSync(recursive: true);
+      if (Directory(realmDir).existsSync()) {
+        Directory(realmDir).deleteSync(recursive: true);
+      }
     }
   });
 
@@ -175,7 +177,9 @@ Future<void> main([List<String>? args]) async {
       realm = Realm(config);
       realm.close();
     } finally {
-      Directory(realmDir).deleteSync(recursive: true);
+      if (Directory(realmDir).existsSync()) {
+        Directory(realmDir).deleteSync(recursive: true);
+      }
     }
   });
 }
