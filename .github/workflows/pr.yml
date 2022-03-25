@@ -249,7 +249,8 @@ jobs:
 
 # Windows jobs
   build-windows:
-    runs-on: windows-latest
+    # TODO: build on windows-latest
+    runs-on: windows-2019
     name: Build Windows
     steps:
       - name: Checkout
@@ -340,6 +341,7 @@ jobs:
 # generator
   generator:
     runs-on: ubuntu-latest
+    name: Generator Tests
     needs:
       - build-linux
     steps:
