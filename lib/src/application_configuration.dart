@@ -49,3 +49,7 @@ class ApplicationConfiguration {
     realmCore.setAppConfigSdkVersion(_handle, Version.parse(Platform.version.takeUntil(' ')));
   }
 }
+
+extension ApplicationConfigurationInternal on ApplicationConfiguration {
+  RealmAppConfigHandle get handle => _handle;
+}

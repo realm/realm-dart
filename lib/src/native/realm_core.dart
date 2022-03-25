@@ -18,6 +18,7 @@
 
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:ffi' as ffi show Handle;
@@ -801,6 +802,32 @@ class _RealmCore {
       _realmLib.realm_app_config_set_sdk_version(handle._pointer, versionString.toUtf8Ptr(arena));
     });
   }
+
+  RealmAppHandle getApp(RealmAppConfigHandle appConfig) {
+    return RealmAppHandle._(_realmLib.realm_app_get(appConfig._pointer, nullptr)); // TODO: realm_sync_client_config
+  }
+
+  static void _loginCallback(Object userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
+    if (userdata is Completer<RealmUserHandle>) {
+      if (error != nullptr) {
+        final message = error.ref.message.cast<Utf8>().toDartString();
+        userdata.completeError(RealmException(message));
+      } else {
+        userdata.complete(RealmUserHandle._(_realmLib.realm_clone(user.cast()).cast()));
+      }
+    }
+  }
+
+  Future<RealmUserHandle> logIn(RealmAppHandle app, RealmAppCredentialsHandle credentials) {
+    final completer = Completer<RealmUserHandle>();
+    _realmLib.invokeGetBool(() => _realmLib.realm_dart_app_log_in_with_credentials(
+          app._pointer,
+          credentials._pointer,
+          Pointer.fromFunction(_loginCallback),
+          completer,
+        ));
+    return completer.future;
+  }
 }
 
 class LastError {
@@ -899,6 +926,18 @@ class RealmHttpTransportHandle extends Handle<realm_http_transport> {
 
 class RealmAppConfigHandle extends Handle<realm_app_config> {
   RealmAppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 256); // TODO: What should hint be?
+}
+
+class RealmAppHandle extends Handle<realm_app> {
+  RealmAppHandle._(Pointer<realm_app> pointer) : super(pointer, 256); // TODO: What should hint be?
+}
+
+class RealmAppCredentialsHandle extends Handle<realm_app_credentials> {
+  RealmAppCredentialsHandle._(Pointer<realm_app_credentials> pointer) : super(pointer, 256); // TODO: What should hint be?
+}
+
+class RealmUserHandle extends Handle<realm_user> {
+  RealmUserHandle._(Pointer<realm_user> pointer) : super(pointer, 256); // TODO: What should hint be?
 }
 
 extension on List<int> {

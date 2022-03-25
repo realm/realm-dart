@@ -5,6 +5,7 @@ headers:
   entry-points:
     - 'realm.h'
     - 'realm_dart.h'
+    - 'realm_dart_app.h'
     - 'realm_dart_scheduler.h'
     - 'realm_dart_collections.h'
     - 'realm_dart_http_transport.h'
@@ -12,6 +13,7 @@ headers:
   include-directives: #generate only for these headers
     - 'realm.h'
     - 'realm_dart.h'
+    - 'realm_dart_app.h'
     - 'realm_dart_scheduler.h'
     - 'realm_dart_collections.h'
     - 'realm_dart_http_transport.h'
