@@ -125,11 +125,10 @@ Future<void> main([List<String>? args]) async {
     expect(() => Realm(config), throws<RealmException>("Realm at path '${config.path}' already opened with different read permissions"));
     realm.close();
   });
-  
+
   test('Configuration - FIFO files fallback path', () {
     Configuration config = Configuration([Car.schema], fifoFilesFallbackPath: "./fifo_folder");
     var realm = Realm(config);
     realm.close();
   });
-  
 }

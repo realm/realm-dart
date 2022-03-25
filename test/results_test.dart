@@ -138,6 +138,17 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
+  test('Results requested wrong index throws', () {
+    var config = Configuration([Car.schema]);
+    var realm = Realm(config);
+
+    final cars = realm.all<Car>();
+   
+    expect(() => cars[0], throws<RealmException>("Requested index 0 in empty Results"));
+
+    realm.close();
+  });
+
   test('Results iteration test', () {
     var config = Configuration([Team.schema, Person.schema]);
     var realm = Realm(config);
