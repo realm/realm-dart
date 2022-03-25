@@ -166,11 +166,12 @@ class Realm {
   ///
   /// If no exception is thrown from within the callback, the transaction will be committed.
   /// It is more efficient to update several properties or even create multiple objects in a single write transaction.
-  void write(void Function() writeCallback) {
+  T write<T>(T Function() writeCallback) {
     try {
       realmCore.beginWrite(this);
-      writeCallback();
+      T result = writeCallback();
       realmCore.commitWrite(this);
+      return result;
     } catch (e) {
       if (_isInTransaction) {
         realmCore.rollbackWrite(this);
@@ -234,7 +235,7 @@ class Realm {
   }
 
   /// Deletes all [RealmObject]s of type `T` in the `Realm`
-  void deleteAll<T extends RealmObject>() => deleteMany(all<T>()); 
+  void deleteAll<T extends RealmObject>() => deleteMany(all<T>());
 }
 
 class Scheduler {
@@ -270,7 +271,7 @@ class Scheduler {
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
   Scheduler get scheduler => _scheduler;
-  
+
   RealmObject createObject(Type type, RealmObjectHandle handle) {
     RealmMetadata metadata = _getMetadata(type);
 

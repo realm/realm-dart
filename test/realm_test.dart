@@ -595,4 +595,18 @@ Future<void> main([List<String>? args]) async {
     expect(mainSchools[0].branches[0].students.length + mainSchools[0].branches[1].students.length, 3);
     realm.close();
   });
+
+  test('Realm write returns result', () {
+    var config = Configuration([Car.schema]);
+    var realm = Realm(config);
+    var car = Car('Mustang');
+
+    var returnedCar = realm.write(() {
+      return realm.add(car);
+    });
+    expect(returnedCar, car);
+
+    realm.close();
+  });
+
 }
