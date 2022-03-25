@@ -133,7 +133,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration - disableFormatUpgrade=true throws error', () {
-    const realmBundleFile = "test/data/realm_files/realm-bundle.realm";
+    const realmBundleFile = "test/data/realm_files/realm-bundle";
     final realmDir = "test/${Configuration.defaultPath}true";
     final realmPath = "$realmDir/${Configuration.defaultPath}";
     try {
@@ -159,7 +159,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration - disableFormatUpgrade=false', () {
-    const realmBundleFile = "test/data/realm_files/realm-bundle.realm";
+    const realmBundleFile = "test/data/realm_files/realm-bundle";
     final realmDir = "test/${Configuration.defaultPath}false";
     final realmPath = "$realmDir/${Configuration.defaultPath}";
 
