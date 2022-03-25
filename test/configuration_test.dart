@@ -136,25 +136,22 @@ Future<void> main([List<String>? args]) async {
     const realmBundleFile = "test/data/realm_files/realm-bundle";
     final realmDir = "test/${Configuration.defaultPath}true";
     final realmPath = "$realmDir/${Configuration.defaultPath}";
-    try {
-      Directory(realmDir).createSync();
-      var config = Configuration([Car.schema])..path = realmPath;
-      var realm = Realm(config);
-      realm.close();
+    Directory(realmDir).createSync();
+    var config = Configuration([Car.schema])..path = realmPath;
+    var realm = Realm(config);
+    realm.close();
 
-      Realm.deleteRealm(realmPath);
-      var file = File(realmBundleFile);
-      file.copySync(realmPath);
+    Realm.deleteRealm(realmPath);
+    var file = File(realmBundleFile);
+    file.copySync(realmPath);
 
-      config = Configuration([Car.schema], disableFormatUpgrade: true)..path = realmPath;
-      expect(() {
-        realm = Realm(config);
-      }, throws<RealmException>("The Realm file format must be allowed to be upgraded in order to proceed"));
-      realm.close();
-    } finally {
-      if (Directory(realmDir).existsSync()) {
-        Directory(realmDir).deleteSync(recursive: true);
-      }
+    config = Configuration([Car.schema], disableFormatUpgrade: true)..path = realmPath;
+    expect(() {
+      realm = Realm(config);
+    }, throws<RealmException>("The Realm file format must be allowed to be upgraded in order to proceed"));
+    realm.close();
+    if (Directory(realmDir).existsSync()) {
+      Directory(realmDir).deleteSync(recursive: true);
     }
   });
 
@@ -163,23 +160,20 @@ Future<void> main([List<String>? args]) async {
     final realmDir = "test/${Configuration.defaultPath}false";
     final realmPath = "$realmDir/${Configuration.defaultPath}";
 
-    try {
-      Directory(realmDir).createSync();
-      var config = Configuration([Car.schema])..path = realmPath;
-      var realm = Realm(config);
-      realm.close();
+    Directory(realmDir).createSync();
+    var config = Configuration([Car.schema])..path = realmPath;
+    var realm = Realm(config);
+    realm.close();
 
-      Realm.deleteRealm(realmPath);
-      var file = File(realmBundleFile);
-      file.copySync(realmPath);
+    Realm.deleteRealm(realmPath);
+    var file = File(realmBundleFile);
+    file.copySync(realmPath);
 
-      config = Configuration([Car.schema], disableFormatUpgrade: false)..path = realmPath;
-      realm = Realm(config);
-      realm.close();
-    } finally {
-      if (Directory(realmDir).existsSync()) {
-        Directory(realmDir).deleteSync(recursive: true);
-      }
+    config = Configuration([Car.schema], disableFormatUpgrade: false)..path = realmPath;
+    realm = Realm(config);
+    realm.close();
+    if (Directory(realmDir).existsSync()) {
+      Directory(realmDir).deleteSync(recursive: true);
     }
   });
 }
