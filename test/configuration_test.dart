@@ -133,9 +133,9 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration - disableFormatUpgrade=true throws error', () {
-    const realmBundleFile = "test/data/realm_files/realm-bundle";
-    final realmDir = "test/${Configuration.defaultPath}true";
-    final realmPath = "$realmDir/${Configuration.defaultPath}";
+    final realmBundleFile = combinePaths(Configuration.defaultPath, "test/data/realm_files/realm-bundle.realm");
+    final realmDir = combinePaths(Configuration.defaultPath, "test/disableFormatUpgradeTrue");
+    final realmPath = fullFilePath(realmDir, Configuration.defaultPath);
     Directory(realmDir).createSync();
     var config = Configuration([Car.schema])..path = realmPath;
     var realm = Realm(config);
@@ -156,10 +156,10 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration - disableFormatUpgrade=false', () {
-    const realmBundleFile = "test/data/realm_files/realm-bundle";
-    final realmDir = "test/${Configuration.defaultPath}false";
-    final realmPath = "$realmDir/${Configuration.defaultPath}";
-
+    final realmBundleFile = combinePaths(Configuration.defaultPath, "test/data/realm_files/realm-bundle.realm");
+    final realmDir = combinePaths(Configuration.defaultPath, "test/disableFormatUpgradeFalse");
+    final realmPath = fullFilePath(realmDir, Configuration.defaultPath);
+   
     Directory(realmDir).createSync();
     var config = Configuration([Car.schema])..path = realmPath;
     var realm = Realm(config);
