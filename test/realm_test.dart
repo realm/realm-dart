@@ -599,32 +599,11 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Realm.operator==', () {
-    var config = Configuration([Dog.schema, Person.schema]);
-    final realm1 = Realm(config);
-    config = Configuration([Dog.schema, Person.schema]);
-    final realm2 = Realm(config);
-
-    expect(realm1, realm1);
-    expect(realm2, realm2);
-    expect(realm1, isNot(realm2));
-
-    realm1.write(() {
-      realm1.add(Person('Kasper'));
-    });
-
-    final realm3 = realm1.all<Person>().first.realm;
-    expect(identical(realm1, realm3), isTrue);
-    expect(realm1, realm3);
-    realm1.close();
-    realm2.close();
-  });
-
   test('Opening Realm with same config throws error', () {
     final config = Configuration([Dog.schema, Person.schema]);
-   
+
     final realm = Realm(config);
-    expect(() => Realm(config), throws<RealmException>("A Realm instance for this configuraiton object already exists."));
+    expect(() => Realm(config), throws<RealmStateError>("A Realm instance for this configuraiton object already exists."));
     realm.close();
   });
 

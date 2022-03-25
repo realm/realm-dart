@@ -53,9 +53,8 @@ class Realm {
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : _config = config {
     if (_config.isInUse) {
-      throw RealmException("A Realm instance for this configuraiton object already exists.");
+      throw RealmStateError("A Realm instance for this configuraiton object already exists.");
     }
-    _config.isInUse = true;
     _scheduler = Scheduler(_config, close);
 
     try {
@@ -69,9 +68,9 @@ class Realm {
       }
     } catch (e) {
       _scheduler.stop();
-      _config.isInUse = false;
       rethrow;
     }
+    _config.isInUse = true;    
   }
 
   /// Deletes all files associated with a `Realm` located at given [path]
