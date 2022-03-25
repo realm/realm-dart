@@ -133,9 +133,9 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration - disableFormatUpgrade=true throws error', () async {
-    const realmFile = "realm-bundle.realm";
-    const realmDir = "test/disableFormatUpgrade";
-    final realmPath = "$realmDir/$realmFile";
+    const realmBundleFile = "test/data/realm_files/realm-bundle.realm";
+    final realmDir = "test/${Configuration.defaultPath}";
+    final realmPath = "$realmDir/${Configuration.defaultPath}";
     try {
       await Directory(realmDir).create();
       var config = Configuration([Car.schema])..path = realmPath;
@@ -143,7 +143,7 @@ Future<void> main([List<String>? args]) async {
       realm.close();
 
       Realm.deleteRealm(realmPath);
-      var file = File('test/data/realm_files/$realmFile');
+      var file = File(realmBundleFile);
       await file.copy(realmPath);
 
       config = Configuration([Car.schema], disableFormatUpgrade: true)..path = realmPath;
@@ -157,9 +157,9 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration - disableFormatUpgrade=false', () async {
-    const realmFile = "realm-bundle.realm";
-    const realmDir = "test/disableFormatUpgrade";
-    final realmPath = "$realmDir/$realmFile";
+    const realmBundleFile = "test/data/realm_files/realm-bundle.realm";
+    final realmDir = "test/${Configuration.defaultPath}";
+    final realmPath = "$realmDir/${Configuration.defaultPath}";
 
     try {
       await Directory(realmDir).create();
@@ -168,7 +168,7 @@ Future<void> main([List<String>? args]) async {
       realm.close();
 
       Realm.deleteRealm(realmPath);
-      var file = File('test/data/realm_files/$realmFile');
+      var file = File(realmBundleFile);
       await file.copy(realmPath);
 
       config = Configuration([Car.schema], disableFormatUpgrade: false)..path = realmPath;
