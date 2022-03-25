@@ -312,7 +312,8 @@ jobs:
           omitBodyDuringUpdate: true
           token: ${{ secrets.GITHUB_TOKEN }}
   flutter-windows:
-    runs-on: windows-latest
+    # TODO: build on windows-latest
+    runs-on: windows-2019
     name: Flutter Tests Windows
     needs:
       - build-windows
