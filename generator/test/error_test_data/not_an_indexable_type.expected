@@ -1,0 +1,13 @@
+Realm only support indexes on String, int, and bool fields
+
+in: asset:pkg/test/error_test_data/not_an_indexable_type.dart:9:8
+  ╷
+6 │ @RealmModel()
+7 │ class _Bad {
+  │       ━━━━ in realm model for 'Bad'
+8 │   @Indexed()
+9 │   late Double notAnIndexableType;
+  │        ^^^^^^ Double is not an indexable type
+  ╵
+Change the type of 'notAnIndexableType', or remove the @Indexed() annotation
+
