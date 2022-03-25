@@ -247,3 +247,93 @@ jobs:
       - name: Run tests
         run: flutter drive -d macos --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
+
+# Windows jobs
+  build-windows:
+    runs-on: windows-latest
+    name: Build Windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+      - name: Build Realm Dart for Windows
+        run: scripts\build.bat
+      - name: Store artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: librealm-windows
+          path: binary/**
+          retention-days: 1
+  tests-windows:
+    runs-on: windows-latest
+    name: Tests Windows
+    needs:
+      - build-windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: false
+      - name: Fetch artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-windows
+          path: binary
+      - name : Setup Dart SDK
+        uses: dart-lang/setup-dart@main
+        with:
+          sdk: stable
+      - name: Install dependencies
+        run: dart pub get
+      - name: Run tests
+        run: |
+          dart test -r expanded -j 1 --test-randomize-ordering-seed random
+
+      # TODO: these should go away once we have a proper release workflow
+      - name: Archive binary
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: |
+          echo "ARCHIVE_PATH=$(pwd)\\binary\\windows.tar.gz" >> $env:GITHUB_ENV
+          echo "ARCHIVE_SOURCE_PATH=$(pwd)\\binary\\windows" >> $env:GITHUB_ENV
+          dart run realm_dart archive --source-dir ${{ env.ARCHIVE_SOURCE_PATH }} --output-file ${{ env.ARCHIVE_PATH }}
+      - name: Release artifacts
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates:  true
+          artifactErrorsFailBuild: true
+          draft: true
+          omitNameDuringUpdate: true
+          prerelease: false
+          omitPrereleaseDuringUpdate: true
+          artifacts: ${{ env.ARCHIVE_PATH }}
+          body: "ADD RELEASE NOTES"
+          omitBodyDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+  flutter-windows:
+    runs-on: windows-latest
+    name: Flutter Tests Windows
+    needs:
+      - build-windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: false
+      - name: Fetch artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-macos
+          path: binary
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - name: Enable Flutter Desktop support
+        run: flutter config --enable-windows-desktop
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Run tests
+        run: flutter drive -d windows --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
+        working-directory: ./flutter/realm_flutter/tests
