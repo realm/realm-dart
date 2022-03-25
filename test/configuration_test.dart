@@ -132,19 +132,19 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Configuration - disableFormatUpgrade=true throws error', () async {
+  test('Configuration - disableFormatUpgrade=true throws error', () {
     const realmBundleFile = "test/data/realm_files/realm-bundle.realm";
     final realmDir = "test/${Configuration.defaultPath}true";
     final realmPath = "$realmDir/${Configuration.defaultPath}";
     try {
-      await Directory(realmDir).create();
+      Directory(realmDir).createSync();
       var config = Configuration([Car.schema])..path = realmPath;
       var realm = Realm(config);
       realm.close();
 
       Realm.deleteRealm(realmPath);
       var file = File(realmBundleFile);
-      await file.copy(realmPath);
+      file.copySync(realmPath);
 
       config = Configuration([Car.schema], disableFormatUpgrade: true)..path = realmPath;
       expect(() {
@@ -152,30 +152,30 @@ Future<void> main([List<String>? args]) async {
       }, throws<RealmException>("The Realm file format must be allowed to be upgraded in order to proceed"));
       realm.close();
     } finally {
-      await Directory(realmDir).delete(recursive: true);
+      Directory(realmDir).deleteSync(recursive: true);
     }
   });
 
-  test('Configuration - disableFormatUpgrade=false', () async {
+  test('Configuration - disableFormatUpgrade=false', () {
     const realmBundleFile = "test/data/realm_files/realm-bundle.realm";
     final realmDir = "test/${Configuration.defaultPath}false";
     final realmPath = "$realmDir/${Configuration.defaultPath}";
 
     try {
-      await Directory(realmDir).create();
+      Directory(realmDir).createSync();
       var config = Configuration([Car.schema])..path = realmPath;
       var realm = Realm(config);
       realm.close();
 
       Realm.deleteRealm(realmPath);
       var file = File(realmBundleFile);
-      await file.copy(realmPath);
+      file.copySync(realmPath);
 
       config = Configuration([Car.schema], disableFormatUpgrade: false)..path = realmPath;
       realm = Realm(config);
       realm.close();
     } finally {
-      await Directory(realmDir).delete(recursive: true);
+      Directory(realmDir).deleteSync(recursive: true);
     }
   });
 }
