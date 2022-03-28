@@ -92,6 +92,7 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => realm.add(Car("Mustang")));
     realm.close();
 
+    config = Configuration([Car.schema]);
     config.isReadOnly = true;
     realm = Realm(config);
     var cars = realm.all<Car>();
@@ -108,7 +109,7 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.write(() {}), throws<RealmException>("Can't perform transactions on read-only Realms."));
     realm.close();
   });
-  
+
   test('Configuration inMemory - no files after closing realm', () {
     Configuration config = Configuration([Car.schema], inMemory: true);
     var realm = Realm(config);
@@ -121,8 +122,12 @@ Future<void> main([List<String>? args]) async {
     Configuration config = Configuration([Car.schema], inMemory: true);
     var realm = Realm(config);
 
-    config.isReadOnly = true;
-    expect(() => Realm(config), throws<RealmException>("Realm at path '${config.path}' already opened with different read permissions"));
+    expect(() {
+      config = Configuration([Car.schema]);
+      config.isReadOnly = true;
+      Realm(config);
+    }, throws<RealmException>("Realm at path '${config.path}' already opened with different read permissions"));
+
     realm.close();
   });
 
@@ -130,5 +135,22 @@ Future<void> main([List<String>? args]) async {
     Configuration config = Configuration([Car.schema], fifoFilesFallbackPath: "./fifo_folder");
     var realm = Realm(config);
     realm.close();
+  });
+
+  test('Configuration.operator== equal configs', () {
+    final config = Configuration([Dog.schema, Person.schema]);
+    final realm = Realm(config);
+    expect(config, realm.config);
+    realm.close();
+  });
+ 
+  test('Configuration.operator== different configs', () {
+    var config = Configuration([Dog.schema, Person.schema]);
+    final realm1 = Realm(config);
+    config = Configuration([Dog.schema, Person.schema]);
+    final realm2 = Realm(config);
+    expect(realm1.config, isNot(realm2.config));
+    realm1.close();
+    realm2.close();
   });
 }
