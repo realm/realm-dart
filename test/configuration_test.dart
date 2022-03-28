@@ -153,7 +153,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
 
     await Directory(realmDir).delete(recursive: true);
-  }, skip: Platform.isAndroid || Platform.isIOS);
+  }, skip: isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS));
 
   test('Configuration - disableFormatUpgrade=false', () async {
     final realmBundleFile = "test/data/realm_files/realm-bundle.realm";
@@ -174,5 +174,5 @@ Future<void> main([List<String>? args]) async {
     realm.close();
 
     await Directory(realmDir).delete(recursive: true);
-  }, skip: Platform.isAndroid || Platform.isIOS);
+  }, skip: isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS));
 }
