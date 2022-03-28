@@ -79,9 +79,9 @@ endif()
 
 
 string(APPEND OUTPUT_DIR "${PROJECT_SOURCE_DIR}/binary")
-if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     string(APPEND OUTPUT_DIR "/windows")
-elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/binary/linux")
 elseif (APPLE)
     string(APPEND OUTPUT_DIR "/macos")

@@ -53,7 +53,7 @@ jobs:
           submodules: 'recursive'
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@master
-      - name: Build Realm Dart for Linux
+      - name: Build Realm for Linux
         run: ./scripts/build-linux.sh
       - name: Store artifacts
         uses: actions/upload-artifact@v2
@@ -168,7 +168,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-      - name: Build Realm Dart for macOS
+      - name: Build Realm for macOS
         run: ./scripts/build-macos.sh
       - name: Store artifacts
         uses: actions/upload-artifact@v2
@@ -257,7 +257,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-      - name: Build Realm Dart for Windows
+      - name: Build Realm for Windows
         run: scripts\build.bat
       - name: Store artifacts
         uses: actions/upload-artifact@v2
@@ -360,7 +360,7 @@ jobs:
           key: ${{ env.CCACHE_ID }}
       - name: Enable ccache
         run: echo "PATH=/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH" >> $GITHUB_ENV
-      - name: Build Realm Flutter for iOS
+      - name: Build Realm for iOS
         # empty (all) for tags, simulator for PR/main builds
         run: ./scripts/build-ios.sh ${{ (github.event_name == 'push' && github.ref_type == 'tag' && '') || 'simulator' }}
       - name: Store artifacts
@@ -431,13 +431,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-
-      - name: Build Realm Flutter for Android
+      - name: Build Realm for Android
         # all for tags, empty (implicitly x86) for PR/main builds
         run: |
           export ANDROID_NDK=$ANDROID_NDK_HOME
           ./scripts/build-android.sh ${{ (github.event_name == 'push' && github.ref_type == 'tag' && 'all') || '' }}
-      - run: ls ./binary
       - name: Store artifacts
         uses: actions/upload-artifact@v2
         with:
