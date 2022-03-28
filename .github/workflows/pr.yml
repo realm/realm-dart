@@ -433,6 +433,42 @@ jobs:
           omitBodyDuringUpdate: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
+  temp:
+    name: Teeeemp
+    runs-on: macos-latest
+    env:
+      REALM_CI: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Set build platforms to 'simulator'
+        run: echo "BUILD_PLATFORMS=simulator" >> $GITHUB_ENV
+
+      - name: Set build platforms to all
+        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: echo "BUILD_PLATFORMS=" >> $GITHUB_ENV
+
+      - name: get-ccache-id
+        run: echo "CCACHE_ID=os:${{ runner.OS }} build:ios realm-core commit hash $(git submodule status src/realm-core | cut -c 1-41)" >> $GITHUB_ENV
+
+      - name: install ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ${{ env.CCACHE_ID }}
+
+      - name: enable ccache
+        run: |
+              echo "PATH=/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH" >> $GITHUB_ENV
+              echo "REALM_USE_CCACHE=TRUE" >> $GITHUB_ENV
+
+      - name: Build Realm Flutter for iOS
+        run: |
+              ./scripts/build-ios.sh $BUILD_PLATFORMS
+
 # Android jobs
   build-android:
     runs-on: ubuntu-latest
