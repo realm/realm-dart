@@ -344,7 +344,7 @@ jobs:
     runs-on: macos-latest
     name: Build iOS
     env:
-      REALM_USE_CCACHE: true
+      REALM_USE_CCACHE: "TRUE"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -373,7 +373,7 @@ jobs:
     runs-on: macos-latest
     name: Flutter Tests iOS
     env:
-      REALM_USE_CCACHE: true
+      REALM_USE_CCACHE: "TRUE"
     needs:
       - build-ios
     steps:
