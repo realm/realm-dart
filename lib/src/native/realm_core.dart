@@ -187,7 +187,7 @@ class _RealmCore {
   }
 
   static void request_callback(Object userData, realm_http_request request, Pointer<Void> request_context) {
-    () async { // TODO: Use another isolate, perhaps?
+    () async {
       final client = userData as HttpClient;
       client.connectionTimeout = Duration(milliseconds: request.timeout_ms);
       try {
@@ -232,12 +232,11 @@ class _RealmCore {
           final response_pointer = arena<realm_http_response>();
           final responseRef = response_pointer.ref;
 
-          responseRef.body = responseBody.toInt8Ptr(arena); // need to copy here :-(
+          responseRef.body = responseBody.toInt8Ptr(arena);
           responseRef.body_size = responseBody.length;
 
           int headerCnt = 0;
           response.headers.forEach((name, values) {
-            // Freaking odd interface :-/
             headerCnt += values.length;
           });
 
