@@ -378,7 +378,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          submodules: false
+          submodules: 'recursive'
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
@@ -426,8 +426,6 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     name: Build Android
-    env:
-      REALM_USE_CCACHE: true
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -437,11 +435,9 @@ jobs:
       - name: Build Realm Flutter for Android
         # all for tags, empty (implicitly x86) for PR/main builds
         run: |
-          mkdir build-android
-          cd build-android
           export ANDROID_NDK=$ANDROID_NDK_HOME
-          echo ANDROID_NDK: $ANDROID_NDK
-          ./../scripts/build-android.sh ${{ (github.event_name == 'push' && github.ref_type == 'tag' && 'all') || '' }}
+          ./scripts/build-android.sh ${{ (github.event_name == 'push' && github.ref_type == 'tag' && 'all') || '' }}
+      - run: ls ./binary
       - name: Store artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -457,7 +453,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          submodules: false
+          submodules: 'recursive'
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
