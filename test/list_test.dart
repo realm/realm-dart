@@ -26,7 +26,7 @@ import 'test.dart';
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
-  setupTests(args);
+  await setupTests(args);
 
   test('Lists add object with a list property', () {
     var config = Configuration([Team.schema, Person.schema]);

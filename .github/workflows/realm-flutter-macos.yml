@@ -37,4 +37,4 @@ jobs:
       - name: Run tests
         run: flutter drive -d macos --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
-        
+
