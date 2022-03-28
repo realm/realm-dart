@@ -372,6 +372,8 @@ jobs:
   flutter-ios:
     runs-on: macos-latest
     name: Flutter Tests iOS
+    env:
+      REALM_USE_CCACHE: true
     needs:
       - build-ios
     steps:
@@ -379,6 +381,15 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
+      # TODO: find a better ccache id
+      - name: get-ccache-id
+        run: echo "CCACHE_ID=os:${{ runner.OS }} build:ios realm-core commit hash $(git submodule status src/realm-core | cut -c 1-41)" >> $GITHUB_ENV
+      - name: Install ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ${{ env.CCACHE_ID }}
+      - name: Enable ccache
+        run: echo "PATH=/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH" >> $GITHUB_ENV
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
