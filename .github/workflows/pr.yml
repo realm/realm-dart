@@ -325,7 +325,7 @@ jobs:
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
-          name: librealm-macos
+          name: librealm-windows
           path: binary
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -338,6 +338,192 @@ jobs:
       - name: Run tests
         run: flutter drive -d windows --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
+
+# iOS jobs
+  build-ios:
+    runs-on: macos-latest
+    name: Build iOS
+    env:
+      REALM_USE_CCACHE: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      # TODO: find a better ccache id
+      - name: get-ccache-id
+        run: echo "CCACHE_ID=os:${{ runner.OS }} build:ios realm-core commit hash $(git submodule status src/realm-core | cut -c 1-41)" >> $GITHUB_ENV
+      - name: Install ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ${{ env.CCACHE_ID }}
+      - name: Enable ccache
+        run: echo "PATH=/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH" >> $GITHUB_ENV
+      - name: Build Realm Flutter for iOS
+        # empty (all) for tags, simulator for PR/main builds
+        run: ./scripts/build-ios.sh ${{ (github.event_name == 'push' && github.ref_type == 'tag' && '') || 'simulator' }}
+      - name: Store artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: librealm-ios
+          path: binary/**
+          retention-days: 1
+  flutter-ios:
+    runs-on: macos-latest
+    name: Flutter Tests iOS
+    needs:
+      - build-ios
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: false
+      - name: Fetch artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-ios
+          path: binary
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Launch Simulator
+        uses: futureware-tech/simulator-action@v1
+        with:
+          model: 'iPhone 8'
+          os: 'iOS'
+          os_version: '>= 14.0'
+      - name: Run tests on iOS Simulator
+        run: |
+          flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics
+        working-directory: ./flutter/realm_flutter/tests
+
+      # TODO: these should go away once we have a proper release workflow
+      - name: Archive binary
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: |
+          echo "ARCHIVE_PATH=$(pwd)/binary/ios.tar.gz" >> $GITHUB_ENV
+          dart run realm_dart archive --source-dir $(pwd)/binary/ios --output-file $ARCHIVE_PATH
+      - name: Release artifacts
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates:  true
+          artifactErrorsFailBuild: true
+          draft: true
+          omitNameDuringUpdate: true
+          prerelease: false
+          omitPrereleaseDuringUpdate: true
+          artifacts: ${{ env.ARCHIVE_PATH }}
+          body: "ADD RELEASE NOTES"
+          omitBodyDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+# Android jobs
+  build-android:
+    runs-on: ubuntu-latest
+    name: Build Android
+    env:
+      REALM_USE_CCACHE: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Build Realm Flutter for Android
+        # all for tags, empty (implicitly x86) for PR/main builds
+        run: |
+          mkdir build-android
+          cd build-android
+          export ANDROID_NDK=$ANDROID_NDK_HOME
+          echo ANDROID_NDK: $ANDROID_NDK
+          ./../scripts/build-android.sh ${{ (github.event_name == 'push' && github.ref_type == 'tag' && 'all') || '' }}
+      - name: Store artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: librealm-android
+          path: binary/**
+          retention-days: 1
+  flutter-android:
+    runs-on: macos-latest
+    name: Flutter Tests Android
+    needs:
+      - build-android
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: false
+      - name: Fetch artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-android
+          path: binary
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - name: Install dependencies
+        run: flutter pub get
+
+      # TODO: move this to device farm
+      - name: Setup Android Emulator cache
+        uses: actions/cache@v2
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-29
+      - name: Create Android Emulator and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          arch: x86
+          ndk: 21.0.6113669
+          cmake: 3.10.2.4988404
+          script: echo "Generated Emulator snapshot for caching."
+      - name: Run tests on Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          force-avd-creation: false
+          disable-animations: true
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          api-level: 29
+          ndk: 21.0.6113669
+          arch: x86
+          cmake: 3.10.2.4988404
+          script: flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics
+          working-directory: ./flutter/realm_flutter/tests
+
+      # TODO: these should go away once we have a proper release workflow
+      - name: Archive binary
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: |
+          echo "ARCHIVE_PATH=$(pwd)/binary/android.tar.gz" >> $GITHUB_ENV
+          dart run realm_dart archive --source-dir $(pwd)/binary/android --output-file $ARCHIVE_PATH
+      - name: Release artifacts
+        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates:  true
+          artifactErrorsFailBuild: true
+          draft: true
+          omitNameDuringUpdate: true
+          prerelease: false
+          omitPrereleaseDuringUpdate: true
+          artifacts: ${{ env.ARCHIVE_PATH }}
+          body: "ADD RELEASE NOTES"
+          omitBodyDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
 # generator
   generator:
