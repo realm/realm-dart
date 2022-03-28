@@ -40,6 +40,14 @@ late RealmLibrary _realmLib;
 
 final _RealmCore realmCore = _RealmCore();
 
+enum _HttpMethod {
+  get,
+  post,
+  patch,
+  put,
+  delete,
+}
+
 class _RealmCore {
   // From realm.h. Currently not exported from the shared library
   static const int RLM_INVALID_CLASS_KEY = 0x7FFFFFFF;
@@ -187,77 +195,108 @@ class _RealmCore {
   }
 
   static void request_callback(Object userData, realm_http_request request, Pointer<Void> request_context) {
-    () async {
-      final client = userData as HttpClient;
-      client.connectionTimeout = Duration(milliseconds: request.timeout_ms);
+    //
+    // The request struct only survives until end-of-call, even though
+    // we explicitly call realm_http_transport_complete_request to
+    // mark request as completed later.
+    //
+    // Therefor we need to copy everything out of request before returning.
+    // We cannot clone request on the native side with realm_clone,
+    // since realm_http_request does not inherit from WrapC.
+    //
+    final client = userData as HttpClient;
+    client.connectionTimeout = Duration(milliseconds: request.timeout_ms);
+
+    final url = Uri.parse(request.url.cast<Utf8>().toDartString());
+
+    final method = _HttpMethod.values[request.method];
+
+    final body = request.body.cast<Utf8>().toDartString();
+
+    final headers = <String, String>{};
+    for (int i = 0; i < request.num_headers; ++i) {
+      final header = request.headers[i];
+      final name = header.name.cast<Utf8>().toDartString();
+      final value = header.value.cast<Utf8>().toDartString();
+      headers[name] = value;
+    }
+
+    _request_callback_async(client, method, url, body, headers, request_context);
+    // The request struct dies here!
+  }
+
+  static void _request_callback_async(
+    HttpClient client,
+    _HttpMethod method,
+    Uri url,
+    String body,
+    Map<String, String> headers,
+    Pointer<Void> request_context,
+  ) async {
+    await using((arena) async {
+      final response_pointer = arena<realm_http_response>();
+      final responseRef = response_pointer.ref;
+      // pre-fill in case something fails
+      responseRef.custom_status_code = 100; // TODO!
+
       try {
-        final url = Uri.parse(request.url.cast<Utf8>().toDartString());
-        late HttpClientRequest mappedRequest;
-        switch (request.method) {
-          case 4: // DELETE
-            mappedRequest = await client.deleteUrl(url);
+        // Build request
+        late HttpClientRequest request;
+        switch (method) {
+          case _HttpMethod.delete:
+            request = await client.deleteUrl(url);
             break;
-          case 3: // PUT
-            mappedRequest = await client.putUrl(url);
+          case _HttpMethod.put:
+            request = await client.putUrl(url);
             break;
-          case 2: // PATCH
-            mappedRequest = await client.patchUrl(url);
+          case _HttpMethod.patch:
+            request = await client.patchUrl(url);
             break;
-          case 1: // POST
-            mappedRequest = await client.postUrl(url);
+          case _HttpMethod.post:
+            request = await client.postUrl(url);
             break;
-          case 0: // GET
-          default:
-            mappedRequest = await client.getUrl(url);
+          case _HttpMethod.get:
+            request = await client.getUrl(url);
             break;
         }
 
-        final body = request.body.asTypedList(request.body_size); // we avoid a potentially expensive copy here
-        mappedRequest.add(body);
-
-        // Unfortunately we need to copy the headers, due to the interface of HttpClientRequest
-        for (int i = 0; i < request.num_headers; ++i) {
-          final header = request.headers[i];
-          final name = header.name.cast<Utf8>().toDartString();
-          final value = header.value.cast<Utf8>().toDartString();
-          mappedRequest.headers.add(name, value);
+        for (final header in headers.entries) {
+          request.headers.add(header.key, header.value);
         }
+
+        request.add(utf8.encode(body));
 
         // Do the call..
-        final response = await mappedRequest.close();
+        final response = await request.close();
         final responseBody = await response.fold<List<int>>([], (acc, l) => acc..addAll(l)); // gather response
 
         // Report back to core
-        using((arena) {
-          final response_pointer = arena<realm_http_response>();
-          final responseRef = response_pointer.ref;
+        responseRef.status_code = response.statusCode;
+        responseRef.body = responseBody.toInt8Ptr(arena);
+        responseRef.body_size = responseBody.length;
 
-          responseRef.body = responseBody.toInt8Ptr(arena);
-          responseRef.body_size = responseBody.length;
-
-          int headerCnt = 0;
-          response.headers.forEach((name, values) {
-            headerCnt += values.length;
-          });
-
-          responseRef.headers = arena<realm_http_header>(headerCnt);
-          responseRef.num_headers = headerCnt;
-
-          response.headers.forEach((name, values) {
-            int idx = 0;
-            for (final value in values) {
-              final headerRef = responseRef.headers.elementAt(idx).ref;
-              headerRef.name = name.toUtf8Ptr(arena);
-              headerRef.value = value.toUtf8Ptr(arena);
-            }
-          });
-
-          _realmLib.realm_http_transport_complete_request(request_context, response_pointer);
+        int headerCnt = 0;
+        response.headers.forEach((name, values) {
+          headerCnt += values.length;
         });
-      } catch (ex) {
-        print(ex); // TODO!
+
+        responseRef.headers = arena<realm_http_header>(headerCnt);
+        responseRef.num_headers = headerCnt;
+
+        response.headers.forEach((name, values) {
+          int idx = 0;
+          for (final value in values) {
+            final headerRef = responseRef.headers.elementAt(idx).ref;
+            headerRef.name = name.toUtf8Ptr(arena);
+            headerRef.value = value.toUtf8Ptr(arena);
+          }
+        });
+
+        responseRef.custom_status_code = 0; // all is well, reset custom_status_code
+      } finally {
+        _realmLib.realm_http_transport_complete_request(request_context, response_pointer);
       }
-    };
+    });
   }
 
   ConfigHandle createConfig() {
