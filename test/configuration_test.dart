@@ -132,48 +132,47 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('Configuration - disableFormatUpgrade=true throws error', () {
-    final realmBundleFile = combinePaths(Configuration.defaultPath, "test/data/realm_files/realm-bundle.realm");
-    final realmDir = combinePaths(Configuration.defaultPath, "test/disableFormatUpgradeTrue");
+  test('Configuration - disableFormatUpgrade=true throws error', () async {
+    final realmBundleFile = "test/data/realm_files/realm-bundle.realm";
+    final realmDir = "test/disableFormatUpgradeTrue";
     final realmPath = fullFilePath(realmDir, Configuration.defaultPath);
-    Directory(realmDir).createSync();
+
+    await Directory(realmDir).create();
     var config = Configuration([Car.schema])..path = realmPath;
     var realm = Realm(config);
     realm.close();
 
     Realm.deleteRealm(realmPath);
     var file = File(realmBundleFile);
-    file.copySync(realmPath);
+    await file.copy(realmPath);
 
     config = Configuration([Car.schema], disableFormatUpgrade: true)..path = realmPath;
     expect(() {
       realm = Realm(config);
     }, throws<RealmException>("The Realm file format must be allowed to be upgraded in order to proceed"));
     realm.close();
-    if (Directory(realmDir).existsSync()) {
-      Directory(realmDir).deleteSync(recursive: true);
-    }
-  });
 
-  test('Configuration - disableFormatUpgrade=false', () {
-    final realmBundleFile = combinePaths(Configuration.defaultPath, "test/data/realm_files/realm-bundle.realm");
-    final realmDir = combinePaths(Configuration.defaultPath, "test/disableFormatUpgradeFalse");
+    await Directory(realmDir).delete(recursive: true);
+  }, skip: Platform.isAndroid || Platform.isIOS);
+
+  test('Configuration - disableFormatUpgrade=false', () async {
+    final realmBundleFile = "test/data/realm_files/realm-bundle.realm";
+    final realmDir = "test/disableFormatUpgradeFalse";
     final realmPath = fullFilePath(realmDir, Configuration.defaultPath);
-   
-    Directory(realmDir).createSync();
+
+    await Directory(realmDir).create();
     var config = Configuration([Car.schema])..path = realmPath;
     var realm = Realm(config);
     realm.close();
 
     Realm.deleteRealm(realmPath);
     var file = File(realmBundleFile);
-    file.copySync(realmPath);
+    await file.copy(realmPath);
 
     config = Configuration([Car.schema], disableFormatUpgrade: false)..path = realmPath;
     realm = Realm(config);
     realm.close();
-    if (Directory(realmDir).existsSync()) {
-      Directory(realmDir).deleteSync(recursive: true);
-    }
-  });
+
+    await Directory(realmDir).delete(recursive: true);
+  }, skip: Platform.isAndroid || Platform.isIOS);
 }
