@@ -1,0 +1,12 @@
+Not a realm type
+
+in: asset:pkg/test/error_test_data/missing_underscore.dart:7:8
+  ╷
+5 │ @RealmModel()
+6 │ class _Bad {
+  │       ━━━━ in realm model for 'Bad'
+7 │   late Other other;
+  │        ^^^^^ Other is not a realm model type
+  ╵
+Did you intend to use _Other as type for 'other'?
+

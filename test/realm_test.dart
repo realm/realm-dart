@@ -40,6 +40,7 @@ Future<void> main([List<String>? args]) async {
     var realm = Realm(config);
     realm.close();
 
+    config = Configuration([Car.schema]);
     realm = Realm(config);
     realm.close();
 
@@ -52,6 +53,7 @@ Future<void> main([List<String>? args]) async {
     var realm = Realm(config);
     realm.close();
 
+    config = Configuration([Car.schema]);
     //should not throw exception
     realm = Realm(config);
     realm.close();
@@ -492,6 +494,7 @@ Future<void> main([List<String>? args]) async {
         throws<RealmException>());
 
     //Ensure all persons still exists in realm
+    config = Configuration([Team.schema, Person.schema]);
     realm = Realm(config);
     final allPersons = realm.all<Person>();
     expect(allPersons.length, 3);
@@ -595,4 +598,36 @@ Future<void> main([List<String>? args]) async {
     expect(mainSchools[0].branches[0].students.length + mainSchools[0].branches[1].students.length, 3);
     realm.close();
   });
+
+  test('Opening Realm with same config throws error', () {
+    final config = Configuration([Dog.schema, Person.schema]);
+
+    final realm = Realm(config);
+    expect(() => Realm(config), throws<RealmStateError>("A Realm instance for this configuraiton object already exists."));
+    realm.close();
+  });
+
+  test('Realm.operator== different config', () {
+    var config = Configuration([Dog.schema, Person.schema]);
+    final realm1 = Realm(config);
+    config = Configuration([Dog.schema, Person.schema, Team.schema]);
+    final realm2 = Realm(config);
+    expect(realm1, isNot(realm2));
+    realm1.close();
+    realm2.close();
+  });
+
+  test('Realm write returns result', () {
+    var config = Configuration([Car.schema]);
+    var realm = Realm(config);
+    var car = Car('Mustang');
+
+    var returnedCar = realm.write(() {
+      return realm.add(car);
+    });
+    expect(returnedCar, car);
+
+    realm.close();
+  });
+
 }

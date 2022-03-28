@@ -52,12 +52,15 @@ class Realm {
 
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : _config = config {
-    _scheduler = Scheduler(config, close);
+    if (_config.isInUse) {
+      throw RealmStateError("A Realm instance for this configuraiton object already exists.");
+    }
+    _scheduler = Scheduler(_config, close);
 
     try {
-      _handle = realmCore.openRealm(config);
+      _handle = realmCore.openRealm(_config);
 
-      for (var realmClass in config.schema) {
+      for (var realmClass in _config.schema) {
         final classMeta = realmCore.getClassMetadata(this, realmClass.name, realmClass.type);
         final propertyMeta = realmCore.getPropertyMetadata(this, classMeta.key);
         final metadata = RealmMetadata(classMeta, propertyMeta);
@@ -67,6 +70,7 @@ class Realm {
       _scheduler.stop();
       rethrow;
     }
+    _config.isInUse = true;    
   }
 
   /// Deletes all files associated with a `Realm` located at given [path]
@@ -166,11 +170,12 @@ class Realm {
   ///
   /// If no exception is thrown from within the callback, the transaction will be committed.
   /// It is more efficient to update several properties or even create multiple objects in a single write transaction.
-  void write(void Function() writeCallback) {
+  T write<T>(T Function() writeCallback) {
     try {
       realmCore.beginWrite(this);
-      writeCallback();
+      T result = writeCallback();
       realmCore.commitWrite(this);
+      return result;
     } catch (e) {
       if (_isInTransaction) {
         realmCore.rollbackWrite(this);
@@ -186,6 +191,7 @@ class Realm {
   void close() {
     realmCore.closeRealm(this);
     _scheduler.stop();
+    _config.isInUse = false;
   }
 
   /// Checks whether the `Realm` is closed.
@@ -234,7 +240,15 @@ class Realm {
   }
 
   /// Deletes all [RealmObject]s of type `T` in the `Realm`
-  void deleteAll<T extends RealmObject>() => deleteMany(all<T>()); 
+  void deleteAll<T extends RealmObject>() => deleteMany(all<T>());
+
+  @override
+  // ignore: hash_and_equals
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! Realm) return false;
+    return realmCore.realmEquals(this, other);
+  }
 }
 
 class Scheduler {
@@ -270,7 +284,7 @@ class Scheduler {
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
   Scheduler get scheduler => _scheduler;
-  
+
   RealmObject createObject(Type type, RealmObjectHandle handle) {
     RealmMetadata metadata = _getMetadata(type);
 

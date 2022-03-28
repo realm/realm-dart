@@ -29,6 +29,7 @@ import 'package:path/path.dart' as _path;
 class Configuration {
   final ConfigHandle _handle;
   final RealmSchema _schema;
+  bool _isInUse = false;
 
   static String? _defaultPath;
 
@@ -81,6 +82,13 @@ class Configuration {
       return realmCore.getFilesPath();
     }
     return "";
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! Configuration) return false;
+    return realmCore.configurationEquals(this, other);
   }
 
   /// The schema version used to open the [Realm]
@@ -179,4 +187,7 @@ class RealmSchema extends Iterable<SchemaObject> {
 extension ConfigurationInternal on Configuration {
   ///@nodoc
   ConfigHandle get handle => _handle;
+
+  bool get isInUse => _isInUse;
+  set isInUse(bool value) => _isInUse = value;
 }

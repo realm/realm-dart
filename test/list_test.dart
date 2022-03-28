@@ -251,6 +251,7 @@ Future<void> main([List<String>? args]) async {
             }),
         throws<RealmException>());
 
+    config = Configuration([Team.schema, Person.schema]);
     realm = Realm(config);
 
     //Teams must be reloaded since realm was reopened
