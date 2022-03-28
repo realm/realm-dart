@@ -163,11 +163,21 @@ jobs:
   build-macos:
     runs-on: macos-latest
     name: Build macOS
+    env:
+      REALM_USE_CCACHE: "TRUE"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
+      - name: Install ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ccache-ios
+      - name: Enable ccache
+        run: |
+          echo "/usr/lib/ccache" >> $GITHUB_PATH
+          echo "/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
       - name: Build Realm for macOS
         run: ./scripts/build-macos.sh
       - name: Store artifacts
