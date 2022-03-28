@@ -48,7 +48,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-    
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -87,5 +87,5 @@ jobs:
           artifacts: ${{ env.ARCHIVE_PATH }}
           body: "ADD RELEASE NOTES"
           omitBodyDuringUpdate: true
-          token: ${{ secrets.GITHUB_TOKEN }}       
+          token: ${{ secrets.GITHUB_TOKEN }}
 

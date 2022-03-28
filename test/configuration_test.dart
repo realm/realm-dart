@@ -25,7 +25,7 @@ import 'test.dart';
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
-  setupTests(args);
+  await setupTests(args);
 
   test('Configuration can be created', () {
     Configuration([Car.schema]);
