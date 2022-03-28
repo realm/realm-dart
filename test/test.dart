@@ -166,14 +166,14 @@ void parseTestNameFromArguments(List<String>? arguments) {
 
 Future<void> setupBaas() async {
   final baasUrl = Platform.environment['BAAS_URL'];
+  if (baasUrl == null) {
+    return;
+  }
+
   final cluster = Platform.environment['BAAS_CLUSTER'];
   final apiKey = Platform.environment['BAAS_API_KEY'];
   final privateApiKey = Platform.environment['BAAS_PRIVATE_API_KEY'];
   final projectId = Platform.environment['BAAS_PROJECT_ID'];
-
-  if (baasUrl == null) {
-    return;
-  }
 
   final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
 

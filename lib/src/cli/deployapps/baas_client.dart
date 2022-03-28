@@ -52,6 +52,7 @@ class BaasClient {
 
   /// A client that imports apps in a MongoDB Realm docker image. See https://github.com/realm/ci/tree/master/realm/docker/mongodb-realm
   /// for instructions on how to set it up.
+  /// @nodoc
   static Future<BaasClient> docker(String baseUrl) async {
     final result = BaasClient._(baseUrl);
 
@@ -66,6 +67,7 @@ class BaasClient {
   }
 
   /// A client that imports apps to an MongoDB Realm environment (typically realm-dev or realm-qa).
+  /// @nodoc
   static Future<BaasClient> atlas(String baseUrl, String cluster, String apiKey, String privateApiKey, String groupId) async {
     final BaasClient result = BaasClient._(baseUrl, cluster);
 
@@ -79,6 +81,7 @@ class BaasClient {
   /// Tries to look up the applications for the specified cluster. For [docker] client, returns all apps,
   /// for [atlas] one, it will return only apps with suffix equal to the cluster name. If no apps exist,
   /// then it will create the test applications and return them.
+  /// @nodoc
   Future<Map<String, BaasApp>> getOrCreateApps() async {
     final result = <String, BaasApp>{};
     var apps = await _getApps();
@@ -206,7 +209,7 @@ class BaasClient {
   Future<String> _createMongoDBService(BaasApp app, String syncConfig) async {
     final serviceName = _clusterName == null ? 'mongodb' : 'mongodb-atlas';
     final mongoConfig = _clusterName == null ? '{ "uri": "mongodb://localhost:26000" }' : '{ "clusterName": "$_clusterName" }';
-    final mongoServiceId = await createService(app, 'BackingDB', serviceName, mongoConfig);
+    final mongoServiceId = await _createService(app, 'BackingDB', serviceName, mongoConfig);
 
     // The cluster linking must be separated from enabling sync because Atlas
     // takes a few seconds to provision a user for BaaS, meaning enabling sync
@@ -218,7 +221,7 @@ class BaasClient {
         await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', syncConfig);
         break;
       } catch (err) {
-        if (attempt++ < 1) {
+        if (attempt++ < 24) {
           print('Failed to update service after ${attempt * 5} seconds. Will keep retrying ...');
 
           await Future<dynamic>.delayed(const Duration(seconds: 5));
@@ -231,7 +234,7 @@ class BaasClient {
     return mongoServiceId;
   }
 
-  Future<String> createService(BaasApp app, String name, String type, String config) async {
+  Future<String> _createService(BaasApp app, String name, String type, String config) async {
     print('Creating service $name for ${app.name}');
 
     final dynamic response = await _post('groups/$_groupId/apps/$app/services', '''{
