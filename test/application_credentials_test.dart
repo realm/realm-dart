@@ -18,8 +18,8 @@
 
 import 'dart:io';
 
-import 'package:realm_dart/src/application_credentials.dart';
 import 'package:test/test.dart' hide test, throws;
+import '../lib/realm.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -29,7 +29,7 @@ Future<void> main([List<String>? args]) async {
 
   test('ApplicationCredentials anonymous', () {
     final credentials = ApplicationCredentials.anonymous();
-    expect(credentials.handle, isNotNull);
+    expect(credentials, isNotNull);
   });
 
   test('ApplicationCredentials unknown', () {
