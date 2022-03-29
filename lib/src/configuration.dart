@@ -30,6 +30,7 @@ class Configuration {
   final ConfigHandle _handle;
   final RealmSchema _schema;
   bool _isInUse = false;
+  late bool Function(int totalSize, int usedSize) _onShouldCompactCallback;
 
   static String? _defaultPath;
 
@@ -133,6 +134,8 @@ class Configuration {
   /// by the [path] you  property. This property is ignored if the directory defined by [path] allow FIFO special files.
   String get fifoFilesFallbackPath => realmCore.getConfigFifoPath(this);
   set fifoFilesFallbackPath(String value) => realmCore.setConfigFifoPath(this, value);
+
+  set ShouldCompactOnLaunchFunction(bool Function(int totalSize, int usedSize) value) => realmCore.setConfigShouldCompactOnLaunch(this, value);
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].
@@ -187,7 +190,9 @@ class RealmSchema extends Iterable<SchemaObject> {
 extension ConfigurationInternal on Configuration {
   ///@nodoc
   ConfigHandle get handle => _handle;
-
+  bool Function(int totalSize, int usedSize) get onShouldCompactCallback => _onShouldCompactCallback;
+  set onShouldCompactCallback(bool Function(int totalSize, int usedSize) value) => _onShouldCompactCallback = value;
+  
   bool get isInUse => _isInUse;
   set isInUse(bool value) => _isInUse = value;
 }

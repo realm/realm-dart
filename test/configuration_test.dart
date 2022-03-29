@@ -143,7 +143,7 @@ Future<void> main([List<String>? args]) async {
     expect(config, realm.config);
     realm.close();
   });
- 
+
   test('Configuration.operator== different configs', () {
     var config = Configuration([Dog.schema, Person.schema]);
     final realm1 = Realm(config);
@@ -152,5 +152,15 @@ Future<void> main([List<String>? args]) async {
     expect(realm1.config, isNot(realm2.config));
     realm1.close();
     realm2.close();
+  });
+
+  test('Configuration.CompactOnLaunch true', () {
+    var config = Configuration([Dog.schema, Person.schema]);
+    config.ShouldCompactOnLaunchFunction = (totalSize, usedSize) {
+      return false;
+    };
+    final realm = Realm(config);
+
+    realm.close();
   });
 }

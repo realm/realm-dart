@@ -181,6 +181,19 @@ class _RealmCore {
     });
   }
 
+  static int onShouldCompactCallback(Pointer<Void> funcValue, int totalSize, int usedSize) {
+    //return func_value.toDartValue(object.realm);
+    return 1;
+  }
+
+  void setConfigShouldCompactOnLaunch(Configuration config, bool Function(int totalSize, int usedSize) shouldCompact) {
+    using((Arena arena) {
+      final onShouldCompact = Pointer.fromFunction<Uint8 Function(Pointer<Void>, Uint64, Uint64)>(onShouldCompactCallback, 1);
+
+      _realmLib.realm_config_set_should_compact_on_launch_function(config.handle._pointer, onShouldCompact, config.handle._pointer.cast());
+    });
+  }
+
   ConfigHandle createConfig() {
     final configPtr = _realmLib.realm_config_new();
     return ConfigHandle._(configPtr);
