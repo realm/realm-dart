@@ -2,6 +2,7 @@ set(SOURCES
      realm_dart.cpp
      realm_dart_scheduler.cpp
      realm_dart_collections.cpp
+     realm_dart_configuration.cpp
      dart-include/dart_api_dl.c
 )
 
@@ -9,6 +10,7 @@ set(HEADERS
     realm_dart.h
     realm_dart_scheduler.h
     realm_dart_collections.h
+    realm_dart_configuration.h
     realm-core/src/realm.h
 )
 

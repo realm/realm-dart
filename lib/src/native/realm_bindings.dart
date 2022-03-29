@@ -7609,6 +7609,35 @@ class RealmLibrary {
               realm_dart_on_object_change_func_t,
               ffi.Pointer<realm_scheduler_t>)>();
 
+  /// Set the should-compact-on-launch callback.
+  ///
+  /// The callback is invoked the first time a realm file is opened in this process
+  /// to decide whether the realm file should be compacted.
+  ///
+  /// Note: If another process has the realm file open, it will not be compacted.
+  ///
+  /// This function cannot fail.
+  void realm_dart_config_set_should_compact_on_launch_function(
+    ffi.Pointer<realm_config_t> arg0,
+    realm_dart_should_compact_on_launch_func_t arg1,
+  ) {
+    return _realm_dart_config_set_should_compact_on_launch_function(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_dart_config_set_should_compact_on_launch_functionPtr =
+      _lookup<
+              ffi.NativeFunction<
+                  ffi.Void Function(ffi.Pointer<realm_config_t>,
+                      realm_dart_should_compact_on_launch_func_t)>>(
+          'realm_dart_config_set_should_compact_on_launch_function');
+  late final _realm_dart_config_set_should_compact_on_launch_function =
+      _realm_dart_config_set_should_compact_on_launch_functionPtr.asFunction<
+          void Function(ffi.Pointer<realm_config_t>,
+              realm_dart_should_compact_on_launch_func_t)>();
+
   ffi.Pointer<ffi.Int8> realm_dart_get_files_path() {
     return _realm_dart_get_files_path();
   }
@@ -8560,3 +8589,8 @@ typedef realm_dart_on_collection_change_func_t = ffi.Pointer<
 typedef realm_dart_on_object_change_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(ffi.Handle, ffi.Pointer<realm_object_changes_t>)>>;
+
+class realm_callback_struct extends ffi.Opaque {}
+
+typedef realm_dart_should_compact_on_launch_func_t = ffi
+    .Pointer<ffi.NativeFunction<ffi.Uint8 Function(ffi.Uint64, ffi.Uint64)>>;

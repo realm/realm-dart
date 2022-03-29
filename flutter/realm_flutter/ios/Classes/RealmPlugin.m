@@ -28,6 +28,8 @@
 #import "realm_dart.h"
 #import "realm_dart_scheduler.h"
 #import "realm_dart_collections.h"
+#import "realm_dart_configuration.h"
+
 #import "platform.h"
 @implementation RealmPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
@@ -44,6 +46,7 @@ void dummy(void) {
   realm_list_size(NULL, 0);
   realm_dart_results_add_notification_callback(NULL, NULL, NULL, NULL);
   realm_results_snapshot(NULL);
+  realm_dart_config_set_should_compact_on_launch_function(NULL, NULL);
 }
 
 @end
