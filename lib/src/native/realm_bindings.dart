@@ -7477,6 +7477,35 @@ class RealmLibrary {
   late final _gc_handle_to_object = _gc_handle_to_objectPtr
       .asFunction<Object Function(ffi.Pointer<ffi.Void>)>();
 
+  /// Install a data initialization callback
+  ///
+  /// @param config The config used to open the Realm.
+  /// @param managed_config A handle to the dart managed config
+  /// @param on_data_initialization The callback to invoke when the Realm is opened for the first time.
+  ///
+  /// This is a dart specific wrapper for realm_config_set_data_initialization_function.
+  void realm_dart_realm_config_set_initial_data_callback(
+    ffi.Pointer<realm_config_t> config,
+    Object managed_config,
+    realm_dart_data_initialization_func_t on_data_initialization,
+  ) {
+    return _realm_dart_realm_config_set_initial_data_callback(
+      config,
+      managed_config,
+      on_data_initialization,
+    );
+  }
+
+  late final _realm_dart_realm_config_set_initial_data_callbackPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<realm_config_t>, ffi.Handle,
+                  realm_dart_data_initialization_func_t)>>(
+      'realm_dart_realm_config_set_initial_data_callback');
+  late final _realm_dart_realm_config_set_initial_data_callback =
+      _realm_dart_realm_config_set_initial_data_callbackPtr.asFunction<
+          void Function(ffi.Pointer<realm_config_t>, Object,
+              realm_dart_data_initialization_func_t)>();
+
   ffi.Pointer<realm_scheduler_t> realm_dart_create_scheduler(
     int isolateId,
     int port,
@@ -8460,6 +8489,9 @@ typedef realm_sync_upload_completion_func_t = ffi.Pointer<
 typedef Dart_FinalizableHandle = ffi.Pointer<_Dart_FinalizableHandle>;
 
 class _Dart_FinalizableHandle extends ffi.Opaque {}
+
+typedef realm_dart_data_initialization_func_t = ffi.Pointer<
+    ffi.NativeFunction<ffi.Uint8 Function(ffi.Handle, ffi.Pointer<realm_t>)>>;
 
 /// A port is used to send or receive inter-isolate messages
 typedef Dart_Port = ffi.Int64;

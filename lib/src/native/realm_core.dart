@@ -46,6 +46,9 @@ class _RealmCore {
   // ignore: unused_field
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
+  static const int TRUE = 1;
+  static const int FALSE = 0;
+
   // Hide the RealmCore class and make it a singleton
   static _RealmCore? _instance;
   late final int isolateKey;
@@ -157,8 +160,29 @@ class _RealmCore {
         _realmLib.realm_config_set_disable_format_upgrade(configHandle._pointer, config.disableFormatUpgrade);
       }
 
+      if (config.initialDataCallback != null) {
+        _realmLib.realm_config_set_data_initialization_function(
+            configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), _realmLib.gc_handle_weak_new(config));
+      }
+
       return configHandle;
     });
+  }
+
+  static int initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmHandle) {
+    try {
+      final config = _realmLib.gc_handle_deref(userdata);
+      if (config is Configuration) {
+        final realm = RealmInternal.getUnowned(config, RealmHandle._unowned(realmHandle));
+        config.initialDataCallback!(realm);
+        return TRUE;
+      }
+    } catch (ex) {
+      // TODO: this should propagate the error to Core: https://github.com/realm/realm-core/issues/5366
+      print(ex);
+    }
+
+    return FALSE;
   }
 
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
@@ -783,6 +807,8 @@ abstract class Handle<T extends NativeType> {
     }
   }
 
+  Handle.unowned(this._pointer);
+
   @override
   String toString() => "${_pointer.toString()} value=${_pointer.cast<IntPtr>().value}";
 }
@@ -797,6 +823,8 @@ class ConfigHandle extends Handle<realm_config> {
 
 class RealmHandle extends Handle<shared_realm> {
   RealmHandle._(Pointer<shared_realm> pointer) : super(pointer, 24);
+
+  RealmHandle._unowned(Pointer<shared_realm> pointer) : super.unowned(pointer);
 }
 
 class SchedulerHandle extends Handle<realm_scheduler> {
