@@ -491,11 +491,14 @@ jobs:
     name: Publish Release artifacts
     if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
     needs:
-      - build-linux
-      - build-windows
-      - build-macos
-      - build-android
-      - build-ios
+      - tests-linux
+      - flutter-linux
+      - tests-windows
+      - flutter-windows
+      - tests-macos
+      - flutter-macos
+      - flutter-android
+      - flutter-ios
     steps:
       - name: Fetch Linux binaries
         uses: actions/download-artifact@v2
