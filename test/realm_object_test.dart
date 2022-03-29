@@ -27,7 +27,7 @@ import 'test.dart';
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
-  setupTests(args);
+  await setupTests(args);
 
   test('RealmObject get property', () {
     var config = Configuration([Car.schema]);
@@ -115,27 +115,23 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  test('RealmObject equals', () {
+  test('RealmObject.operator==', () {
     var config = Configuration([Dog.schema, Person.schema]);
     var realm = Realm(config);
 
     final person = Person('Kasper');
     final dog = Dog('Fido', owner: person);
-
     expect(person, person);
     expect(person, isNot(1));
     expect(person, isNot(dog));
-
     realm.write(() {
       realm
         ..add(person)
         ..add(dog);
     });
-
     expect(person, person);
     expect(person, isNot(1));
     expect(person, isNot(dog));
-
     final read = realm.query<Person>("name == 'Kasper'");
 
     expect(read, [person]);

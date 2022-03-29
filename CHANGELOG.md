@@ -7,6 +7,15 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support disableFormatUpgrade ([#310](https://github.com/realm/realm-dart/pull/310))
 * Support result value from write transaction callbacks ([#294](https://github.com/realm/realm-dart/pull/294/))
 
+### Fixed
+* None
+
+### Compatibility
+* Dart ^2.15 on Windows, MacOS and Linux
+
+### Internal
+* Added a command to deploy a MongoDB Realm app to `realm_dart`. Usage: `dart run realm_dart deploy-apps`. By default it will deploy apps to `http://localhost:9090` which is the endpoint of the local docker image. If `--atlas-cluster` is provided, it will authenticate, create an application and link the provided cluster to it. (PR [#309](https://github.com/realm/realm-dart/pull/309))
+* Unit tests will now attempt to lookup and create if necessary MongoDB applications (similarly to the above mentioned command). See `test.dart/setupBaas()` for the environment variables that control the Url and Atlas Cluster that will be used. If the `BAAS_URL` environment variable is not set, no apps will be imported and sync tests will not run. (PR [#309](https://github.com/realm/realm-dart/pull/309))
 
 0.2.1+alpha Release notes (2022-03-20)
 ==============================================================
@@ -15,7 +24,7 @@ x.x.x Release notes (yyyy-MM-dd)
 
 ### Enhancements
 * Support change notifications on query results. ([#208](https://github.com/realm/realm-dart/pull/208))
-    
+
     Every `RealmResults<T>` object now has a `changes` method returning a `Stream<RealmResultsChanges<T>>` which can be listened to.
 
     ```dart
@@ -80,7 +89,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Added support for opening in-memory realms. ([#280](https://github.com/realm/realm-dart/pull/280))
 * Primary key fields no longer required to be `final` in data model classes ([#240](https://github.com/realm/realm-dart/pull/240))
 
-    Previously primary key fields needed to be `final`. 
+    Previously primary key fields needed to be `final`.
 
     ```dart
     @RealmModel()
@@ -103,7 +112,7 @@ x.x.x Release notes (yyyy-MM-dd)
 
 * List fields no longer required to be `final` in data model classes. ([#253](https://github.com/realm/realm-dart/pull/253))
 
-    Previously list fields needed to be `final`. 
+    Previously list fields needed to be `final`.
 
     ```dart
     @RealmModel()
@@ -137,7 +146,7 @@ x.x.x Release notes (yyyy-MM-dd)
 
 **This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
 
-### Enhancements 
+### Enhancements
 * Completely rewritten from the ground up with sound null safety and using Dart FFI
 
 ### Compatibility
@@ -146,9 +155,9 @@ x.x.x Release notes (yyyy-MM-dd)
 0.2.0-alpha.2 Release notes (2022-01-29)
 ==============================================================
 
-Notes: This release is a prerelease version. All API's might change without warning and no guarantees are given about stability. 
+Notes: This release is a prerelease version. All API's might change without warning and no guarantees are given about stability.
 
-### Enhancements 
+### Enhancements
 * Completеly rewritten from the ground up with sound null safety and using Dart FFI
 
 ### Fixed
@@ -160,9 +169,9 @@ Notes: This release is a prerelease version. All API's might change without warn
 0.2.0-alpha.1 Release notes (2022-01-29)
 ==============================================================
 
-Notes: This release is a prerelease version. All API's might change without warning and no guarantees are given about stability. 
+Notes: This release is a prerelease version. All API's might change without warning and no guarantees are given about stability.
 
-### Enhancements 
+### Enhancements
 * Completеly rewritten from the ground up with sound null safety and using Dart FFI
 
 ### Fixed
@@ -177,9 +186,9 @@ Notes: This release is a prerelease version. All API's might change without warn
 0.2.0-alpha Release notes (2022-01-27)
 ==============================================================
 
-Notes: This release is a prerelease version. All API's might change without warning and no guarantees are given about stability. 
+Notes: This release is a prerelease version. All API's might change without warning and no guarantees are given about stability.
 
-### Enhancements 
+### Enhancements
 * Completеly rewritten from the ground up with sound null safety and using Dart FFI
 
 ### Compatibility
