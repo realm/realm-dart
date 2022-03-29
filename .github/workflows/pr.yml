@@ -91,27 +91,6 @@ jobs:
         run: dart pub get
       - name: Run tests
         run: dart test -r expanded -j 1 --test-randomize-ordering-seed random
-
-      # TODO: these should go away once we have a proper release workflow
-      - name: Archive binary
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        run: |
-          echo "ARCHIVE_PATH=$(pwd)/binary/linux.tar.gz" >> $GITHUB_ENV
-          dart run realm_dart archive --source-dir $(pwd)/binary/linux --output-file $ARCHIVE_PATH
-      - name: Release artifacts
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        uses: ncipollo/release-action@v1
-        with:
-          allowUpdates:  true
-          artifactErrorsFailBuild: true
-          draft: true
-          omitNameDuringUpdate: true
-          prerelease: false
-          omitPrereleaseDuringUpdate: true
-          artifacts: ${{ env.ARCHIVE_PATH }}
-          body: "ADD RELEASE NOTES"
-          omitBodyDuringUpdate: true
-          token: ${{ secrets.GITHUB_TOKEN }}
   flutter-linux:
     runs-on: ubuntu-latest
     name: Flutter Tests Linux
@@ -173,7 +152,7 @@ jobs:
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: ccache-ios
+          key: ccache-macos
       - name: Enable ccache
         run: |
           echo "/usr/lib/ccache" >> $GITHUB_PATH
@@ -209,27 +188,6 @@ jobs:
         run: dart pub get
       - name: Run tests
         run: dart test -r expanded -j 1 --test-randomize-ordering-seed random
-
-      # TODO: these should go away once we have a proper release workflow
-      - name: Archive binary
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        run: |
-          echo "ARCHIVE_PATH=$(pwd)/binary/macos.tar.gz" >> $GITHUB_ENV
-          dart run realm_dart archive --source-dir $(pwd)/binary/macos --output-file $ARCHIVE_PATH
-      - name: Release artifacts
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        uses: ncipollo/release-action@v1
-        with:
-          allowUpdates:  true
-          artifactErrorsFailBuild: true
-          draft: true
-          omitNameDuringUpdate: true
-          prerelease: false
-          omitPrereleaseDuringUpdate: true
-          artifacts: ${{ env.ARCHIVE_PATH }}
-          body: "ADD RELEASE NOTES"
-          omitBodyDuringUpdate: true
-          token: ${{ secrets.GITHUB_TOKEN }}
   flutter-macos:
     runs-on: macos-latest
     name: Flutter Tests macOS
@@ -299,28 +257,6 @@ jobs:
       - name: Run tests
         run: |
           dart test -r expanded -j 1 --test-randomize-ordering-seed random
-
-      # TODO: these should go away once we have a proper release workflow
-      - name: Archive binary
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        run: |
-          echo "ARCHIVE_PATH=$(pwd)\\binary\\windows.tar.gz" >> $env:GITHUB_ENV
-          echo "ARCHIVE_SOURCE_PATH=$(pwd)\\binary\\windows" >> $env:GITHUB_ENV
-          dart run realm_dart archive --source-dir ${{ env.ARCHIVE_SOURCE_PATH }} --output-file ${{ env.ARCHIVE_PATH }}
-      - name: Release artifacts
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        uses: ncipollo/release-action@v1
-        with:
-          allowUpdates:  true
-          artifactErrorsFailBuild: true
-          draft: true
-          omitNameDuringUpdate: true
-          prerelease: false
-          omitPrereleaseDuringUpdate: true
-          artifacts: ${{ env.ARCHIVE_PATH }}
-          body: "ADD RELEASE NOTES"
-          omitBodyDuringUpdate: true
-          token: ${{ secrets.GITHUB_TOKEN }}
   flutter-windows:
     # TODO: build on windows-latest
     runs-on: windows-2019
@@ -413,27 +349,6 @@ jobs:
           flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics
         working-directory: ./flutter/realm_flutter/tests
 
-      # TODO: these should go away once we have a proper release workflow
-      - name: Archive binary
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        run: |
-          echo "ARCHIVE_PATH=$(pwd)/binary/ios.tar.gz" >> $GITHUB_ENV
-          dart run realm_dart archive --source-dir $(pwd)/binary/ios --output-file $ARCHIVE_PATH
-      - name: Release artifacts
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        uses: ncipollo/release-action@v1
-        with:
-          allowUpdates:  true
-          artifactErrorsFailBuild: true
-          draft: true
-          omitNameDuringUpdate: true
-          prerelease: false
-          omitPrereleaseDuringUpdate: true
-          artifacts: ${{ env.ARCHIVE_PATH }}
-          body: "ADD RELEASE NOTES"
-          omitBodyDuringUpdate: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-
 # Android jobs
   build-android:
     runs-on: ubuntu-latest
@@ -510,27 +425,6 @@ jobs:
           script: flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics
           working-directory: ./flutter/realm_flutter/tests
 
-      # TODO: these should go away once we have a proper release workflow
-      - name: Archive binary
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        run: |
-          echo "ARCHIVE_PATH=$(pwd)/binary/android.tar.gz" >> $GITHUB_ENV
-          dart run realm_dart archive --source-dir $(pwd)/binary/android --output-file $ARCHIVE_PATH
-      - name: Release artifacts
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        uses: ncipollo/release-action@v1
-        with:
-          allowUpdates:  true
-          artifactErrorsFailBuild: true
-          draft: true
-          omitNameDuringUpdate: true
-          prerelease: false
-          omitPrereleaseDuringUpdate: true
-          artifacts: ${{ env.ARCHIVE_PATH }}
-          body: "ADD RELEASE NOTES"
-          omitBodyDuringUpdate: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-
 # generator
   generator:
     runs-on: ubuntu-latest
@@ -590,3 +484,62 @@ jobs:
         if: ${{ success() }}
         run: echo ${{ steps.publish-generator-coverage.outputs.coveralls-api-result }}
         working-directory: ./generator/
+
+# release
+  publish-artifacts:
+    runs-on: ubuntu-latest
+    name: Publish Release artifacts
+    if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
+    needs:
+      - build-linux
+      - build-windows
+      - build-macos
+      - build-android
+      - build-ios
+    steps:
+      - name: Fetch Linux binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-linux
+          path: binary
+      - name: Fetch Windows binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-windows
+          path: binary
+      - name: Fetch macOS binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-macos
+          path: binary
+      - name: Fetch Android binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-android
+          path: binary
+      - name: Fetch iOS binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-ios
+          path: binary
+      - name: Archive binaries
+        run: |
+          cd binary
+          tar -zcvf linux.tar.gz linux
+          tar -zcvf windows.tar.gz windows
+          tar -zcvf macos.tar.gz macos
+          tar -zcvf android.tar.gz android
+          tar -zcvf ios.tar.gz ios
+      - name: Release artifacts
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates:  true
+          artifactErrorsFailBuild: true
+          draft: true
+          omitNameDuringUpdate: true
+          prerelease: false
+          omitPrereleaseDuringUpdate: true
+          artifacts: binary/*.tar.gz
+          body: "ADD RELEASE NOTES"
+          omitBodyDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}
