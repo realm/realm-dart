@@ -633,6 +633,10 @@ class _RealmCore {
       return out_modified.asTypedList(count).toList();
     });
   }
+  
+  RealmAppCredentialsHandle createAppCredentialsAnonymous() {
+    return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_anonymous());
+  }
 }
 
 class LastError {
@@ -723,6 +727,10 @@ class RealmCollectionChangesHandle extends Handle<realm_collection_changes> {
 
 class RealmObjectChangesHandle extends Handle<realm_object_changes> {
   RealmObjectChangesHandle._(Pointer<realm_object_changes> pointer) : super(pointer, 256);
+}
+
+class RealmAppCredentialsHandle extends Handle<realm_app_credentials> {
+  RealmAppCredentialsHandle._(Pointer<realm_app_credentials> pointer) : super(pointer, 256); // TODO: What should hint be?
 }
 
 extension _StringEx on String {

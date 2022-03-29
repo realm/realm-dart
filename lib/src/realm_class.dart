@@ -37,6 +37,7 @@ export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
 export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
+export "application_credentials.dart" show ApplicationCredentials, CredentialsException, AuthProvider;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -70,7 +71,7 @@ class Realm {
       _scheduler.stop();
       rethrow;
     }
-    _config.isInUse = true;    
+    _config.isInUse = true;
   }
 
   /// Deletes all files associated with a `Realm` located at given [path]
