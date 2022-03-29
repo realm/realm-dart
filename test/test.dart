@@ -159,6 +159,6 @@ void parseTestNameFromArguments(List<String>? arguments) {
   }
 }
 
-String fullFilePath(String directory, String filename) {
+String combineFilePath(String directory, String filename) {
   return _path.join(directory, _path.basename(filename));
 }

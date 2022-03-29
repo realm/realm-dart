@@ -135,7 +135,7 @@ Future<void> main([List<String>? args]) async {
   test('Configuration - disableFormatUpgrade=true throws error', () async {
     final realmBundleFile = "test/data/realm_files/realm-bundle.realm";
     final realmDir = "test/disableFormatUpgradeTrue";
-    final realmPath = fullFilePath(realmDir, Configuration.defaultPath);
+    final realmPath = combineFilePath(realmDir, Configuration.defaultPath);
 
     await Directory(realmDir).create();
     var config = Configuration([Car.schema])..path = realmPath;
@@ -153,12 +153,12 @@ Future<void> main([List<String>? args]) async {
     realm.close();
 
     await Directory(realmDir).delete(recursive: true);
-  }, skip: isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS));
+  }, skip: isFlutterPlatform);
 
   test('Configuration - disableFormatUpgrade=false', () async {
     final realmBundleFile = "test/data/realm_files/realm-bundle.realm";
     final realmDir = "test/disableFormatUpgradeFalse";
-    final realmPath = fullFilePath(realmDir, Configuration.defaultPath);
+    final realmPath = combineFilePath(realmDir, Configuration.defaultPath);
 
     await Directory(realmDir).create();
     var config = Configuration([Car.schema])..path = realmPath;
@@ -174,5 +174,5 @@ Future<void> main([List<String>? args]) async {
     realm.close();
 
     await Directory(realmDir).delete(recursive: true);
-  }, skip: isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS));
+  }, skip: isFlutterPlatform);
 }
