@@ -499,6 +499,7 @@ jobs:
       - flutter-macos
       - flutter-android
       - flutter-ios
+      - generator
     steps:
       - name: Fetch Linux binaries
         uses: actions/download-artifact@v2
