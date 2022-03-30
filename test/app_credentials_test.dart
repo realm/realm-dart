@@ -28,11 +28,7 @@ Future<void> main([List<String>? args]) async {
   setupTests(args);
 
   test('ApplicationCredentials anonymous', () {
-    final credentials = ApplicationCredentials.anonymous();
+    final credentials = Credentials.anonymous();
     expect(credentials, isNotNull);
-  });
-
-  test('ApplicationCredentials unknown', () {
-    expect(() => ApplicationCredentials(AuthProvider.unknown), throws<CredentialsException>("Unsupported authentication provider."));
   });
 }

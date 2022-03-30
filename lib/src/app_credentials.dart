@@ -40,25 +40,17 @@ enum AuthProvider {
 }
 
 /// A class, representing the credentials used for authenticating a [User]
-class ApplicationCredentials {
+class Credentials {
   late final RealmAppCredentialsHandle _handle;
-  late final String _token;
-  late final String _additionalInfo;
 
   final AuthProvider provider;
 
-  ApplicationCredentials(
-    this.provider, {
-    String token = "",
-    String additionalInfo = "",
-  })  : _token = token,
-        _additionalInfo = additionalInfo,
-        _handle = _createHandle(provider);
-
   /// Returns a Credentials object that can be used to authenticate an anonymous user.
   /// [Anonymous Authentication Docs]("https://docs.mongodb.com/realm/authentication/anonymous/")
-  static ApplicationCredentials anonymous() => ApplicationCredentials(AuthProvider.anonymous);
-
+  Credentials.anonymous()
+      : _handle = realmCore.createAppCredentialsAnonymous(),
+        provider = AuthProvider.anonymous;
+  
   /// Returns a Credentials object that can be used to authenticate a user with their email and password.
   /// A user can login with email and password only after they've registered their account and verified their
   /// email.
@@ -67,37 +59,10 @@ class ApplicationCredentials {
       : _handle = realmCore.createAppCredentialsEmailPassword(email, password),
         provider = AuthProvider.emailPassword;
 
-  static RealmAppCredentialsHandle _createHandle(AuthProvider provider) {
-    RealmAppCredentialsHandle? handle;
-    switch (provider) {
-      case AuthProvider.anonymous:
-        handle = realmCore.createAppCredentialsAnonymous();
-        break;
-      default:
-        throw CredentialsException("Unsupported authentication provider.");
-    }
-    return handle;
-  }
 }
 
 /// @nodoc
-extension ApplicationCredentialsInternal on ApplicationCredentials {
+extension CredentialsInternal on Credentials {
   ///@nodoc
   RealmAppCredentialsHandle get handle => _handle;
-
-  String get token => _token;
-  String get additionalInfo => _additionalInfo;
-}
-
-/// An exception being thrown when creating [ApplicationCredentials] fails.
-/// {@category Application}
-class CredentialsException implements Exception {
-  final String message;
-
-  CredentialsException(this.message);
-
-  @override
-  String toString() {
-    return "CredentialsException: $message";
-  }
 }
