@@ -535,8 +535,6 @@ jobs:
   generator:
     runs-on: ubuntu-latest
     name: Generator Tests
-    needs:
-      - build-linux
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -558,26 +556,12 @@ jobs:
         run: |
           find . -name "*.g.dart" -delete
           dart run build_runner build --delete-conflicting-outputs
-
-      # TODO: fail the build if there are uncommitted changes as
-      # that would mean the generated files weren't pushed.
-      - name: Fetch artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: librealm-linux
-          path: binary
-      - name: Run realm_dart tests
-        run: dart test -r expanded -j 1 --test-randomize-ordering-seed random
-      - name: Generate generator coverage report
-        run: |
-          dart run coverage:format_coverage \
-            --in coverage/ \
-            --out ./coverage/lcov.info \
-            --check-ignore \
-            --lcov \
-            --packages .packages \
-            --report-on lib
-        working-directory: ./generator/
+      - name: Validate there are no uncommitted changes
+        uses: mskri/check-uncommitted-changes-action@v1.0.1
+        id: check-changes
+      - name: Print Uncommitted Changes
+        if: steps.check-changes.outputs.changes != ''
+        run: echo "${{ steps.check-changes.outputs.changes }}"
       - name: Publish Generator Coverage
         id: publish-generator-coverage
         uses: coverallsapp/github-action@1.1.3
