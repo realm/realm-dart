@@ -40,54 +40,20 @@ enum AuthProvider {
 }
 
 /// A class, representing the credentials used for authenticating a [User]
-class ApplicationCredentials {
+class Credentials {
   late final RealmAppCredentialsHandle _handle;
-  late final String _token;
-  late final String _additionalInfo;
 
   final AuthProvider provider;
 
-  ApplicationCredentials(
-    this.provider, {
-    String token = "",
-    String additionalInfo = "",
-  })  : _token = token,
-        _additionalInfo = additionalInfo,
-        _handle = _createHandle(provider);
-
-  static ApplicationCredentials anonymous() => ApplicationCredentials(AuthProvider.anonymous);
-
-  static RealmAppCredentialsHandle _createHandle(AuthProvider provider) {
-    RealmAppCredentialsHandle? handle;
-    switch (provider) {
-      case AuthProvider.anonymous:
-        handle = realmCore.createAppCredentialsAnonymous();
-        break;
-      default:
-        throw CredentialsException("Unsupported authentication provider.");
-    }
-    return handle;
-  }
+  /// Returns a Credentials object that can be used to authenticate an anonymous user.
+  /// [Anonymous Authentication Docs]("https://docs.mongodb.com/realm/authentication/anonymous/")
+  Credentials.anonymous()
+      : _handle = realmCore.createAppCredentialsAnonymous(),
+        provider = AuthProvider.anonymous;
 }
 
 /// @nodoc
-extension ApplicationCredentialsInternal on ApplicationCredentials {
+extension CredentialsInternal on Credentials {
   ///@nodoc
   RealmAppCredentialsHandle get handle => _handle;
-
-  String get token => _token;
-  String get additionalInfo => _additionalInfo;
-}
-
-/// An exception being thrown when creating [ApplicationCredentials] fails.
-/// {@category Application}
-class CredentialsException implements Exception {
-  final String message;
-
-  CredentialsException(this.message);
-
-  @override
-  String toString() {
-    return "CredentialsException: $message";
-  }
 }

@@ -37,7 +37,7 @@ export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
 export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
-export "application_credentials.dart" show ApplicationCredentials, CredentialsException, AuthProvider;
+export 'app_credentials.dart' show Credentials, AuthProvider;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
