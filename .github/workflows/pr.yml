@@ -544,18 +544,22 @@ jobs:
         uses: dart-lang/setup-dart@main
         with:
           sdk: stable
-      - name: Install generator dependencies
-        run: dart pub get
-        working-directory: ./generator/
       - name: Run generator tests
-        run: dart test --reporter expanded --coverage ./coverage/ --test-randomize-ordering-seed random
+        run: |
+          dart pub get
+          dart test --reporter expanded --coverage ./coverage/ --test-randomize-ordering-seed random
         working-directory: ./generator/
-      - name: Install realm_dart dependencies
-        run: dart pub get
+      - name: Delete generated files
+        run: find . -name "*.g.dart" -not -path "./generator/*" -delete
       - name: Run generator in realm-dart repo
         run: |
-          find . -name "*.g.dart" -delete
+          dart pub get
           dart run build_runner build --delete-conflicting-outputs
+      - name: Run generator in realm_flutter/example
+        run: |
+          dart pub get
+          dart run build_runner build --delete-conflicting-outputs
+        working-directory: ./flutter/realm_flutter/example/
       - name: Validate there are no uncommitted changes
         uses: mskri/check-uncommitted-changes-action@v1.0.1
         id: check-changes
