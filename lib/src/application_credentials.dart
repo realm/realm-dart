@@ -55,7 +55,17 @@ class ApplicationCredentials {
         _additionalInfo = additionalInfo,
         _handle = _createHandle(provider);
 
+  /// Returns a Credentials object that can be used to authenticate an anonymous user.
+  /// [Anonymous Authentication Docs]("https://docs.mongodb.com/realm/authentication/anonymous/")
   static ApplicationCredentials anonymous() => ApplicationCredentials(AuthProvider.anonymous);
+
+  /// Returns a Credentials object that can be used to authenticate a user with their email and password.
+  /// A user can login with email and password only after they've registered their account and verified their
+  /// email.
+  /// [Email/Password Authentication Docs]("https://docs.mongodb.com/realm/authentication/email-password/")
+  ApplicationCredentials.emailPassword(String email, String password)
+      : _handle = realmCore.createAppCredentialsEmailPassword(email, password),
+        provider = AuthProvider.emailPassword;
 
   static RealmAppCredentialsHandle _createHandle(AuthProvider provider) {
     RealmAppCredentialsHandle? handle;

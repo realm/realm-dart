@@ -637,6 +637,14 @@ class _RealmCore {
   RealmAppCredentialsHandle createAppCredentialsAnonymous() {
     return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_anonymous());
   }
+
+  RealmAppCredentialsHandle createAppCredentialsEmailPassword(String email, String password) {
+    return using((arena) {
+      final emailPtr = email.toUtf8Ptr(arena);
+      final passwordPtr = _toRealmString(password, arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_email_password(emailPtr, passwordPtr.ref));
+    });
+  }
 }
 
 class LastError {
@@ -760,6 +768,18 @@ extension _RealmLibraryEx on RealmLibrary {
     }
     return result;
   }
+}
+
+Pointer<realm_string_t> _toRealmString(String value, Allocator allocator) {
+  final realm_string = allocator<realm_string_t>();
+  _intoRealmString(value, realm_string, allocator);
+  return realm_string;
+}
+
+void _intoRealmString(String value, Pointer<realm_string_t> realm_string, Allocator allocator) {
+  realm_string.ref.data = value.toUtf8Ptr(allocator);
+  final units = utf8.encode(value);
+  realm_string.ref.size = units.length + 1;
 }
 
 Pointer<realm_value_t> _toRealmValue(Object? value, Allocator allocator) {
