@@ -28,4 +28,9 @@ RLM_API Dart_FinalizableHandle realm_attach_finalizer(Dart_Handle handle, void* 
 
 RLM_API void realm_delete_finalizable(Dart_FinalizableHandle finalizable_handle, Dart_Handle handle);
 
+// GC Handle stuff
+RLM_API void* gc_handle_new(Dart_Handle handle);
+RLM_API void gc_handle_delete(void* handler);
+RLM_API Dart_Handle gc_handle_deref(void* handler);
+
 #endif // REALM_DART_H
