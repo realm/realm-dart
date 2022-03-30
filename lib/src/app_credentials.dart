@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 import 'native/realm_core.dart';
 
-/// An enum containing the possible authentication providers. These have to manually be enabled for
+/// An enum containing all authentication providers. These have to be enabled manually for the application before they can be used
 /// your app before they can be used.
 /// [Authentication Providers Docs](https://docs.mongodb.com/realm/authentication/providers/)
 /// {@category Application}
