@@ -561,7 +561,9 @@ jobs:
         id: check-changes
       - name: Print Uncommitted Changes
         if: steps.check-changes.outputs.changes != ''
-        run: echo "${{ steps.check-changes.outputs.changes }}"
+        run: |
+          echo "${{ steps.check-changes.outputs.changes }}"
+          exit 1
       - name: Publish Generator Coverage
         id: publish-generator-coverage
         uses: coverallsapp/github-action@1.1.3
