@@ -533,15 +533,8 @@ jobs:
 
 # generator
   generator:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     name: Generator Tests
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -558,7 +551,6 @@ jobs:
         working-directory: ./generator/
       - name: Delete generated files
         run: find . -name "*.g.dart" -not -path "./generator/*" -delete
-        shell: bash
       - name: Run generator in realm-dart repo
         run: |
           dart pub get
@@ -576,13 +568,9 @@ jobs:
         run: |
           status=$(git status --porcelain)
           if [ -n "$status" ]; then
-            status="${status//'%'/'%25'}"
-            status="${status//$'\n'/'%0A'}"
-            status="${status//$'\r'/'%0D'}"
             echo "$status"
             exit 1
           fi
-        shell: bash
       - name: Publish Generator Coverage
         id: publish-generator-coverage
         uses: coverallsapp/github-action@1.1.3
