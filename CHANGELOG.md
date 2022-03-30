@@ -8,7 +8,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Added a property `Realm.isInTransaction` that indicates whether the Realm instance has an open write transaction associated with it.
 
 ### Fixed
-* Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. (Issue [#442](https://github.com/realm/realm-dart/issues/442))
+* Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))
 
 ### Compatibility
 * Dart ^2.15 on Windows, MacOS and Linux
