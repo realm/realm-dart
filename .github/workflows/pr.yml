@@ -558,6 +558,7 @@ jobs:
         working-directory: ./generator/
       - name: Delete generated files
         run: find . -name "*.g.dart" -not -path "./generator/*" -delete
+        shell: bash
       - name: Run generator in realm-dart repo
         run: |
           dart pub get
