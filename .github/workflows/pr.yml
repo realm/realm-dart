@@ -573,13 +573,16 @@ jobs:
           dart run build_runner build --delete-conflicting-outputs
         working-directory: ./flutter/realm_flutter/example/
       - name: Validate there are no uncommitted changes
-        uses: mskri/check-uncommitted-changes-action@v1.0.1
-        id: check-changes
-      - name: Print Uncommitted Changes
-        if: steps.check-changes.outputs.changes != ''
         run: |
-          echo "${{ steps.check-changes.outputs.changes }}"
-          exit 1
+          status=$(git status --porcelain)
+          if [ -n "$status" ]; then
+            status="${status//'%'/'%25'}"
+            status="${status//$'\n'/'%0A'}"
+            status="${status//$'\r'/'%0D'}"
+            echo "$status"
+            exit 1
+          fi
+        shell: bash
       - name: Publish Generator Coverage
         id: publish-generator-coverage
         uses: coverallsapp/github-action@1.1.3
