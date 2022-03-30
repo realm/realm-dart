@@ -29,6 +29,11 @@ Future<void> main([List<String>? args]) async {
 
   test('ApplicationCredentials anonymous', () {
     final credentials = Credentials.anonymous();
-    expect(credentials, isNotNull);
+    expect(credentials.provider, AuthProvider.anonymous);
+  });
+
+  test('ApplicationCredentials email/password', () {
+    final credentials = Credentials.emailPassword("test@email.com", "000000");
+    expect(credentials.provider, AuthProvider.emailPassword);
   });
 }

@@ -55,7 +55,7 @@ class Credentials {
   /// A user can login with email and password only after they've registered their account and verified their
   /// email.
   /// [Email/Password Authentication Docs]("https://docs.mongodb.com/realm/authentication/email-password/")
-  ApplicationCredentials.emailPassword(String email, String password)
+  Credentials.emailPassword(String email, String password)
       : _handle = realmCore.createAppCredentialsEmailPassword(email, password),
         provider = AuthProvider.emailPassword;
 
