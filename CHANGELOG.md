@@ -5,9 +5,10 @@ x.x.x Release notes (yyyy-MM-dd)
 
 ### Enhancements
 * Support result value from write transaction callbacks ([#294](https://github.com/realm/realm-dart/pull/294/))
+* Added a property `Realm.isInTransaction` that indicates whether the Realm instance has an open write transaction associated with it.
 
 ### Fixed
-* None
+* Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. (Issue [#442](https://github.com/realm/realm-dart/issues/442))
 
 ### Compatibility
 * Dart ^2.15 on Windows, MacOS and Linux

@@ -630,4 +630,44 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
+  test('Realm write inside another write throws', () {
+    final config = Configuration([Car.schema]);
+    final realm = Realm(config);
+    realm.write(() {
+      // Second write inside the first one fails but the error is caught
+      expect(() => realm.write(() {}), throws<RealmException>('The Realm is already in a write transaction'));
+    });
+
+    realm.close();
+  });
+
+  test('Realm isInTransaction returns true inside transaction', () {
+    final config = Configuration([Car.schema]);
+    final realm = Realm(config);
+    expect(realm.isInTransaction, false);
+    realm.write(() {
+      expect(realm.isInTransaction, true);
+    });
+
+    expect(realm.isInTransaction, false);
+
+    realm.close();
+  });
+
+  test('Realm write with error rolls back', () {
+    final config = Configuration([Car.schema]);
+    final realm = Realm(config);
+    expect(realm.isInTransaction, false);
+
+    expect(() {
+      realm.write(() {
+        throw Exception('uh oh!');
+      });
+    }, throws<Exception>('uh oh!'));
+
+    // We should not be in transaction here
+    expect(realm.isInTransaction, false);
+
+    realm.close();
+  });
 }
