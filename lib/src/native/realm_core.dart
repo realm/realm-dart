@@ -641,7 +641,7 @@ class _RealmCore {
   RealmAppCredentialsHandle createAppCredentialsEmailPassword(String email, String password) {
     return using((arena) {
       final emailPtr = email.toUtf8Ptr(arena);
-      final passwordPtr = _toRealmString(password, arena);
+      final passwordPtr = password.toRealmString(arena);
       return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_email_password(emailPtr, passwordPtr.ref));
     });
   }
@@ -751,6 +751,14 @@ extension _StringEx on String {
     nativeString.last = 0; // zero terminate
     return result.cast();
   }
+
+  Pointer<realm_string_t> toRealmString(Allocator allocator) {
+    final realm_string = allocator<realm_string_t>();
+    realm_string.ref.data = toUtf8Ptr(allocator);
+    final units = utf8.encode(this);
+    realm_string.ref.size = units.length + 1;
+    return realm_string;
+  }
 }
 
 extension _RealmLibraryEx on RealmLibrary {
@@ -768,18 +776,6 @@ extension _RealmLibraryEx on RealmLibrary {
     }
     return result;
   }
-}
-
-Pointer<realm_string_t> _toRealmString(String value, Allocator allocator) {
-  final realm_string = allocator<realm_string_t>();
-  _intoRealmString(value, realm_string, allocator);
-  return realm_string;
-}
-
-void _intoRealmString(String value, Pointer<realm_string_t> realm_string, Allocator allocator) {
-  realm_string.ref.data = value.toUtf8Ptr(allocator);
-  final units = utf8.encode(value);
-  realm_string.ref.size = units.length + 1;
 }
 
 Pointer<realm_value_t> _toRealmValue(Object? value, Allocator allocator) {
