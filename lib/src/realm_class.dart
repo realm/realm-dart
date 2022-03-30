@@ -33,6 +33,7 @@ import 'results.dart';
 export 'package:realm_common/realm_common.dart'
     show Ignored, Indexed, MapTo, PrimaryKey, RealmError, RealmModel, RealmUnsupportedSetError, RealmStateError, RealmCollectionType, RealmPropertyType;
 
+export 'email_password_provider.dart' show EmailPasswordProvider;
 export 'application.dart' show Application;
 export 'application_configuration.dart' show ApplicationConfiguration;
 export "configuration.dart" show Configuration, RealmSchema, SchemaObject;
@@ -74,7 +75,7 @@ class Realm {
       _scheduler.stop();
       rethrow;
     }
-    _config.isInUse = true;    
+    _config.isInUse = true;
   }
 
   /// Deletes all files associated with a `Realm` located at given [path]

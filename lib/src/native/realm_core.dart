@@ -828,6 +828,15 @@ class _RealmCore {
         ));
     return completer.future;
   }
+
+  Future<bool> appEmailPasswordRegisterUser(RealmAppHandle app, String email, String password) {
+    final completer = Completer<bool>();
+    using((arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_register_email(
+          app._pointer, email.toUtf8Ptr(arena), password.toRealmString(arena).ref, nullptr, nullptr, nullptr));
+    });
+    return completer.future;
+  }
 }
 
 class LastError {
@@ -955,6 +964,14 @@ extension _StringEx on String {
   Pointer<Int8> toUtf8Ptr(Allocator allocator) {
     final units = utf8.encode(this);
     return units.toInt8Ptr(allocator);
+  }
+
+  Pointer<realm_string_t> toRealmString(Allocator allocator) {
+    final realm_string = allocator<realm_string_t>();
+    realm_string.ref.data = toUtf8Ptr(allocator);
+    final units = utf8.encode(this);
+    realm_string.ref.size = units.length + 1;
+    return realm_string;
   }
 }
 

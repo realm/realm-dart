@@ -16,17 +16,26 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 import 'application_configuration.dart';
-
+import 'email_password_provider.dart';
 import 'native/realm_core.dart';
 import 'credentials.dart';
 import 'user.dart';
 
 class Application {
   final RealmAppHandle _handle;
+  late final EmailPasswordProvider _emailPasswordProvider;
 
-  Application(ApplicationConfiguration configuration) : _handle = realmCore.getApp(configuration.handle);
+  Application(ApplicationConfiguration configuration) : _handle = realmCore.getApp(configuration.handle) {
+    _emailPasswordProvider = EmailPasswordProvider(this);
+  }
+
+  EmailPasswordProvider get emailPasswordProvider => _emailPasswordProvider;
 
   Future<User> logIn(Credentials credentials) async {
     return UserInternal.create(await realmCore.logIn(_handle, credentials.handle));
   }
+}
+
+extension ApplicationInternal on Application {
+  RealmAppHandle get handle => _handle;
 }
