@@ -5,6 +5,7 @@ x.x.x Release notes (yyyy-MM-dd)
 
 ### Enhancements
 * Support anonymouse application credentials ([#443](https://github.com/realm/realm-dart/pull/443/))
+* Support email/password application credentials ([#445](https://github.com/realm/realm-dart/pull/445/))
 
 x.x.x Release notes (yyyy-MM-dd)
 ==============================================================
