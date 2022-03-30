@@ -730,7 +730,7 @@ class RealmObjectChangesHandle extends Handle<realm_object_changes> {
 }
 
 class RealmAppCredentialsHandle extends Handle<realm_app_credentials> {
-  RealmAppCredentialsHandle._(Pointer<realm_app_credentials> pointer) : super(pointer, 256); // TODO: What should hint be?
+  RealmAppCredentialsHandle._(Pointer<realm_app_credentials> pointer) : super(pointer, 16);
 }
 
 extension _StringEx on String {
