@@ -144,20 +144,21 @@ class _RealmCore {
   ConfigHandle _createConfig(Configuration config, SchedulerHandle schedulerHandle) {
     return using((Arena arena) {
       final configPtr = _realmLib.realm_config_new();
-      _realmLib.realm_config_set_schema(configPtr, config.schema.handle._pointer);
-      _realmLib.realm_config_set_schema_version(configPtr, config.schemaVersion);
+      final configHandle = ConfigHandle._(configPtr);
+      _realmLib.realm_config_set_schema(configHandle._pointer, config.schema.handle._pointer);
+      _realmLib.realm_config_set_schema_version(configHandle._pointer, config.schemaVersion);
 
-      int schemaMode = config.isReadOnly ? realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE : realm_schema_mode.RLM_SCHEMA_MODE_AUTOMATIC;
-      _realmLib.realm_config_set_schema_mode(configPtr, schemaMode);
-      _realmLib.realm_config_set_in_memory(configPtr, config.isInMemory);
+      final schemaMode = config.isReadOnly ? realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE : realm_schema_mode.RLM_SCHEMA_MODE_AUTOMATIC;
+      _realmLib.realm_config_set_schema_mode(configHandle._pointer, schemaMode);
+      _realmLib.realm_config_set_in_memory(configHandle._pointer, config.isInMemory);
 
       if (config.fifoFilesFallbackPath != null) {
-        _realmLib.realm_config_set_fifo_path(configPtr, config.fifoFilesFallbackPath!.toUtf8Ptr(arena));
+        _realmLib.realm_config_set_fifo_path(configHandle._pointer, config.fifoFilesFallbackPath!.toUtf8Ptr(arena));
       }
-      _realmLib.realm_config_set_path(configPtr, config.path.toUtf8Ptr(arena));
-      _realmLib.realm_config_set_scheduler(configPtr, schedulerHandle._pointer);
+      _realmLib.realm_config_set_path(configHandle._pointer, config.path.toUtf8Ptr(arena));
+      _realmLib.realm_config_set_scheduler(configHandle._pointer, schedulerHandle._pointer);
 
-      return ConfigHandle._(configPtr);
+      return configHandle;
     });
   }
 
