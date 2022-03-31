@@ -7449,6 +7449,34 @@ class RealmLibrary {
   late final _realm_delete_finalizable = _realm_delete_finalizablePtr
       .asFunction<void Function(Dart_FinalizableHandle, Object)>();
 
+  ffi.Pointer<ffi.Void> gc_handle_toPtr(
+    Object handle,
+  ) {
+    return _gc_handle_toPtr(
+      handle,
+    );
+  }
+
+  late final _gc_handle_toPtrPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>(
+          'gc_handle_toPtr');
+  late final _gc_handle_toPtr =
+      _gc_handle_toPtrPtr.asFunction<ffi.Pointer<ffi.Void> Function(Object)>();
+
+  Object gc_handle_fromPtr(
+    ffi.Pointer<ffi.Void> handler,
+  ) {
+    return _gc_handle_fromPtr(
+      handler,
+    );
+  }
+
+  late final _gc_handle_fromPtrPtr =
+      _lookup<ffi.NativeFunction<ffi.Handle Function(ffi.Pointer<ffi.Void>)>>(
+          'gc_handle_fromPtr');
+  late final _gc_handle_fromPtr = _gc_handle_fromPtrPtr
+      .asFunction<Object Function(ffi.Pointer<ffi.Void>)>();
+
   /// @brief
   ///
   /// @param completion

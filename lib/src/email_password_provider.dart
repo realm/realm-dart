@@ -32,7 +32,7 @@ class EmailPasswordProvider {
   /// The [password] to associate with the email. The password must be between 6 and 128 characters long.
   /// Returns an awaitable [Future<bool>] representing the asynchronous RegisterUser operation. Successful completion indicates that the user has been
   /// created on the server and can now be logged in calling [logIn] with [Credentials.emailPassword()]"
-  Future<bool> registerUser(String email, String password) async {
+  Future<void> registerUser(String email, String password) async {
     return await realmCore.appEmailPasswordRegisterUser(_handle, email, password);
   }
 }

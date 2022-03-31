@@ -71,7 +71,42 @@ void dummy(void) {
   realm_results_snapshot(nullptr);
   realm_http_transport_new(nullptr, nullptr, nullptr);
   realm_app_config_new(nullptr, nullptr);
+  gc_handle_toPtr(nullptr);
+  gc_handle_fromPtr(nullptr);
 #if (ANDROID)
   realm_android_dummy();
 #endif
+}
+
+
+class GCHandle {
+public:
+    GCHandle(Dart_Handle handle) : m_weakHandle(Dart_NewWeakPersistentHandle_DL(handle, this, 1, finalize_handle)) {}
+
+    Dart_Handle value() {
+        return Dart_HandleFromWeakPersistent_DL(m_weakHandle);
+    }
+
+private:
+    // destructor is private, only called by finalize_handle, when corresponding dart object is GCed
+    ~GCHandle() {
+        if (m_weakHandle) {
+            Dart_DeleteWeakPersistentHandle_DL(m_weakHandle);
+            m_weakHandle = nullptr;
+        }
+    }
+
+    static void finalize_handle(void* isolate_callback_data, void* peer) {
+        delete reinterpret_cast<GCHandle*>(peer);
+    } // no-op
+
+    Dart_WeakPersistentHandle m_weakHandle;
+};
+
+RLM_API void* gc_handle_toPtr(Dart_Handle handle) {
+    return new GCHandle(handle);
+}
+
+RLM_API Dart_Handle gc_handle_fromPtr(void* handle) {
+    return reinterpret_cast<GCHandle*>(handle)->value();
 }

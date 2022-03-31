@@ -829,11 +829,23 @@ class _RealmCore {
     return completer.future;
   }
 
-  Future<bool> appEmailPasswordRegisterUser(RealmAppHandle app, String email, String password) {
-    final completer = Completer<bool>();
+  static void _appEmailPasswordProviderCallback(Pointer<Void> completerPtr, Pointer<realm_app_error> error) {
+    final completer = _realmLib.gc_handle_fromPtr(completerPtr);
+    if (completer is Completer<void>) {
+      if (error != nullptr) {
+        final message = error.ref.message.cast<Utf8>().toDartString();
+        completer.completeError(RealmException(message));
+      } else {
+        completer.complete();
+      }
+    }
+  }
+
+  Future<void> appEmailPasswordRegisterUser(RealmAppHandle app, String email, String password) {
+    final completer = Completer<void>();
     using((arena) {
-      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_register_email(
-          app._pointer, email.toUtf8Ptr(arena), password.toRealmString(arena).ref, nullptr, nullptr, nullptr));
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_register_email(app._pointer, email.toUtf8Ptr(arena),
+          password.toRealmString(arena).ref, Pointer.fromFunction(_appEmailPasswordProviderCallback), _realmLib.gc_handle_toPtr(completer), nullptr));
     });
     return completer.future;
   }

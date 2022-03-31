@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright 2021 Realm Inc.
+// Copyright 2022 Realm Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,20 +16,25 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef REALM_DART_H
-#define REALM_DART_H
+import 'dart:io';
+import 'package:pub_semver/pub_semver.dart';
+import '../lib/realm.dart';
+import 'test.dart';
 
-#include "realm.h"
-#include "dart_api_dl.h"
+Future<void> main([List<String>? args]) async {
+  print("Current PID $pid");
 
-RLM_API void realm_initializeDartApiDL(void* data);
+  setupTests(args);
 
-RLM_API Dart_FinalizableHandle realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size);
-
-RLM_API void realm_delete_finalizable(Dart_FinalizableHandle finalizable_handle, Dart_Handle handle);
-
-// GC Handle stuff
-RLM_API void* gc_handle_toPtr(Dart_Handle handle);
-RLM_API Dart_Handle gc_handle_fromPtr(void* handler);
-
-#endif // REALM_DART_H
+  test('Email/Password - register user', () async {
+    final appConfig = ApplicationConfiguration(
+      'foo',
+      baseUrl: Uri.parse('https://not_re.al'),
+      defaultRequestTimeout: const Duration(seconds: 2),
+      localAppName: 'bar',
+      localAppVersion: Version(1, 0, 0),
+    );
+    final app = Application(appConfig);
+    await app.emailPasswordProvider.registerUser("foo@bar.com", "pwd");
+  });
+}
