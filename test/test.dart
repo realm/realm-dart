@@ -104,10 +104,7 @@ Future<void> setupTests(List<String>? args) async {
   await setupBaas();
 
   setUp(() {
-    String path = "${generateRandomString(10)}.realm";
-    if (Platform.isAndroid || Platform.isIOS) {
-      path = _path.join(Configuration.filesPath, path);
-    }
+    final path = generateRandomRealmPath();
     Configuration.defaultPath = path;
 
     addTearDown(() async {
@@ -149,6 +146,17 @@ Future<void> setupTests(List<String>? args) async {
 }
 
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
+
+String generateRandomRealmPath() {
+  var path = "${generateRandomString(10)}.realm";
+  if (Platform.isAndroid || Platform.isIOS) {
+    path = _path.join(Configuration.filesPath, path);
+  } else {
+    path = _path.join(Directory.systemTemp.createTempSync("rt_").path, path);
+  }
+
+  return path;
+}
 
 final random = Random();
 String generateRandomString(int len) {
