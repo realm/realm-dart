@@ -34,7 +34,7 @@ Future<void> main([List<String>? args]) async {
       localAppName: 'bar',
       localAppVersion: Version(1, 0, 0),
     );
-    final app = Application(appConfig);
-    await app.emailPasswordProvider.registerUser("foo@bar.com", "pwd");
+    //final app = Application(appConfig);
+    //await app.emailPasswordProvider.registerUser("foo@bar.com", "pwd");
   });
 }
