@@ -71,7 +71,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration readOnly - opening non existing realm throws', () {
-    Configuration config = Configuration([Car.schema], readOnly: true);
+    Configuration config = Configuration([Car.schema], isReadOnly: true);
     expect(() => getRealm(config), throws<RealmException>("at path '${config.path}' does not exist"));
   });
 
@@ -81,7 +81,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
 
     // Open an existing realm as readonly.
-    config = Configuration([Car.schema], readOnly: true);
+    config = Configuration([Car.schema], isReadOnly: true);
     realm = getRealm(config);
   });
 
@@ -103,13 +103,13 @@ Future<void> main([List<String>? args]) async {
     var realm = getRealm(config);
     realm.close();
 
-    config = Configuration([Car.schema], readOnly: true);
+    config = Configuration([Car.schema], isReadOnly: true);
     realm = getRealm(config);
     expect(() => realm.write(() {}), throws<RealmException>("Can't perform transactions on read-only Realms."));
   });
 
   test('Configuration inMemory - no files after closing realm', () {
-    Configuration config = Configuration([Car.schema], inMemory: true);
+    Configuration config = Configuration([Car.schema], isInMemory: true);
     var realm = getRealm(config);
     realm.write(() => realm.add(Car('Tesla')));
     realm.close();
@@ -117,7 +117,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration inMemory can not be readOnly', () {
-    Configuration config = Configuration([Car.schema], inMemory: true);
+    Configuration config = Configuration([Car.schema], isInMemory: true);
     final realm = getRealm(config);
 
     expect(() {
