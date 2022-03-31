@@ -173,7 +173,7 @@ jobs:
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: ccache-ios
+          key: ccache-macos
       - name: Enable ccache
         run: |
           echo "/usr/lib/ccache" >> $GITHUB_PATH
