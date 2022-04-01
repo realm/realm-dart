@@ -42,7 +42,7 @@ endif()
 option(REALM_BUILD_CORE_FROM_SOURCE "Build Realm Core from source" ON)
 if(REALM_BUILD_CORE_FROM_SOURCE)
     set(REALM_BUILD_LIB_ONLY ON)
-    set(REALM_ENABLE_SYNC OFF)
+    set(REALM_ENABLE_SYNC ON)
 
     if(ANDROID)
         message ("Realm Flutter Android build enabled")
