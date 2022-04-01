@@ -741,6 +741,10 @@ class RealmAppCredentialsHandle extends Handle<realm_app_credentials> {
   RealmAppCredentialsHandle._(Pointer<realm_app_credentials> pointer) : super(pointer, 16);
 }
 
+class RealmAppCredentialsHandle extends Handle<realm_app_credentials> {
+  RealmAppCredentialsHandle._(Pointer<realm_app_credentials> pointer) : super(pointer, 16);
+}
+
 extension _StringEx on String {
   Pointer<Int8> toUtf8Ptr(Allocator allocator) {
     final units = utf8.encode(this);
