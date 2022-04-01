@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // ignore_for_file: unused_local_variable
+import 'dart:async';
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
@@ -154,12 +155,16 @@ Future<void> main([List<String>? args]) async {
     realm2.close();
   });
 
-  test('Configuration.CompactOnLaunch true', () {
+  test('Configuration.CompactOnLaunch true', () async {
+    final done = Completer<bool>();
     var config = Configuration([Dog.schema, Person.schema]);
     config.ShouldCompactOnLaunchFunction = (totalSize, usedSize) {
+      done.complete(true);
       return false;
     };
     final realm = Realm(config);
+
+    await done.future;
 
     realm.close();
   });
