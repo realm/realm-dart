@@ -28,7 +28,6 @@
 #import "realm_dart.h"
 #import "realm_dart_scheduler.h"
 #import "realm_dart_collections.h"
-#import "realm_dart_configuration.h"
 
 #import "platform.h"
 @implementation RealmPlugin
