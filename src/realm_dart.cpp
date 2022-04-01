@@ -77,14 +77,26 @@ void dummy(void) {
 
 class GCHandle {
 public:
-    GCHandle(Dart_Handle handle, bool hard) : m_weakHandle(Dart_NewWeakPersistentHandle_DL(handle, this, 1, finalize_handle)) {
+    // TODO: HACK. Should be able to use the weak handle to get the handle.
+    // When hack removed, replace with:
+    // GCHandle(Dart_Handle handle) : m_weakHandle(Dart_NewWeakPersistentHandle_DL(handle, this, 1, finalize_handle)) {}
+    GCHandle(Dart_Handle handle, bool hard) : m_weakHandle(Dart_NewFinalizableHandle_DL(handle, this, 1, finalize_handle)) {
         if (hard) {
             m_hardHandle = Dart_NewPersistentHandle_DL(handle);
         }
     }
 
     Dart_Handle value() {
-        return Dart_HandleFromWeakPersistent_DL(m_weakHandle);
+        // TODO: HACK. We can not release Dart weak persistent handles in on Isolate teardown until
+        // https://github.com/dart-lang/sdk/issues/48321 is fixed and released, since the IsolateGroup 
+        // is destroyed before it happens.    
+        //
+        // This works since Dart_WeakPersistentHandle is equivalent to Dart_FinalizableHandle. 
+        // They both are FinalizablePersistentHandle internally. 
+        Dart_WeakPersistentHandle weakHnd = reinterpret_cast<Dart_WeakPersistentHandle>(m_weakHandle);
+        return Dart_HandleFromWeakPersistent_DL(weakHnd);
+        // When hack removed, replace with:
+        // return Dart_HandleFromFinalizable_DL(m_weakHandle);
     }
 
     void soften() {
@@ -96,18 +108,21 @@ public:
 
 private:
     // destructor is private, only called by finalize_handle, when corresponding dart object is GCed
+    /* TODO: HACK. Uncomment when hack removed
     ~GCHandle() {
         if (m_weakHandle) {
             Dart_DeleteWeakPersistentHandle_DL(m_weakHandle);
             m_weakHandle = nullptr;
         }
     }
+    */
 
     static void finalize_handle(void* isolate_callback_data, void* peer) {
         delete reinterpret_cast<GCHandle*>(peer);
-    } // no-op
+    }
 
-    Dart_WeakPersistentHandle m_weakHandle;
+    // TODO: HACK. Should be Dart_WeakPersistentHandle when hack removed
+    Dart_FinalizableHandle m_weakHandle;
     Dart_PersistentHandle m_hardHandle; // used to pin dart object from native side, if needed
 };
 
