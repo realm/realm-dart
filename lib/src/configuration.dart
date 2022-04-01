@@ -27,18 +27,15 @@ import 'package:path/path.dart' as _path;
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
 class Configuration {
-  final RealmSchema _schema;
-  bool _isInUse = false;
-
   static String? _defaultPath;
 
   /// The [RealmSchema] for this [Configuration]
-  RealmSchema get schema => _schema;
+  final RealmSchema schema;
 
   /// Creates a [Configuration] with schema objects for opening a [Realm].
   Configuration(List<SchemaObject> schemaObjects,
       {this.fifoFilesFallbackPath, this.isReadOnly = false, this.isInMemory = false, this.schemaVersion = 0, String? path})
-      : _schema = RealmSchema(schemaObjects),
+      : schema = RealmSchema(schemaObjects),
         path = path ?? defaultPath;
 
   static String _initDefaultPath() {
@@ -72,19 +69,19 @@ class Configuration {
   /// Realm with a schema that contains objects that differ from their previous
   /// specification. If the schema was updated and the schemaVersion was not,
   /// an [RealmException] will be thrown.
-  int schemaVersion;
+  final int schemaVersion;
 
   ///The path where the Realm should be stored.
   ///
   /// If omitted the [defaultPath] for the platform will be used.
-  String path;
+  final String path;
 
   /// Gets or sets a value indicating whether a [Realm] is opened as readonly.
   /// This allows opening it from locked locations such as resources,
   /// bundled with an application.
   ///
   /// The realm file must already exists at [path]
-  bool isReadOnly;
+  final bool isReadOnly;
 
   /// Specifies if a [Realm] should be opened in-memory.
   ///
@@ -92,7 +89,7 @@ class Configuration {
   /// The file will also be used as swap space if the [Realm] becomes bigger than what fits in memory,
   /// but it is not persistent and will be removed when the last instance is closed.
   /// When all in-memory instance of [Realm] is closed all data in that [Realm] is deleted.
-  bool isInMemory;
+  final bool isInMemory;
 
   /// Gets or sets a value of FIFO special files location.
   /// Opening a [Realm] creates a number of FIFO special files in order to
@@ -101,7 +98,7 @@ class Configuration {
   /// In that case [Realm] needs a different location to store these files and this property defines that location.
   /// The FIFO special files are very lightweight and the main [Realm] file will still be stored in the location defined
   /// by the [path] you  property. This property is ignored if the directory defined by [path] allow FIFO special files.
-  String? fifoFilesFallbackPath;
+  final String? fifoFilesFallbackPath;
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].
@@ -146,10 +143,4 @@ class RealmSchema extends Iterable<SchemaObject> {
 
   @override
   SchemaObject elementAt(int index) => _schema.elementAt(index);
-}
-
-/// @nodoc
-extension ConfigurationInternal on Configuration {
-  bool get isInUse => _isInUse;
-  set isInUse(bool value) => _isInUse = value;
 }
