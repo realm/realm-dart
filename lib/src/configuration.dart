@@ -135,7 +135,10 @@ class Configuration {
   String get fifoFilesFallbackPath => realmCore.getConfigFifoPath(this);
   set fifoFilesFallbackPath(String value) => realmCore.setConfigFifoPath(this, value);
 
-  set ShouldCompactOnLaunchFunction(bool Function(int totalSize, int usedSize) value) => realmCore.setConfigShouldCompactOnLaunch(this, value);
+  set ShouldCompactOnLaunchFunction(bool Function(int totalSize, int usedSize) value) {
+    _onShouldCompactCallback = value;
+    realmCore.setConfigShouldCompactOnLaunch(this, value);
+  }
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].
@@ -191,7 +194,6 @@ extension ConfigurationInternal on Configuration {
   ///@nodoc
   ConfigHandle get handle => _handle;
   bool Function(int totalSize, int usedSize) get onShouldCompactCallback => _onShouldCompactCallback;
-  set onShouldCompactCallback(bool Function(int totalSize, int usedSize) value) => _onShouldCompactCallback = value;
   
   bool get isInUse => _isInUse;
   set isInUse(bool value) => _isInUse = value;

@@ -21,6 +21,7 @@
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:ffi' as ffi show Handle;
+import 'dart:isolate';
 import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
