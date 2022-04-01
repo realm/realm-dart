@@ -125,9 +125,6 @@ class SchemaObject {
 ///
 /// {@category Configuration}
 class RealmSchema extends Iterable<SchemaObject> {
-  ///@nodoc
-  late final SchemaHandle handle;
-
   late final List<SchemaObject> _schema;
 
   /// Initializes [RealmSchema] instance representing ```schemaObjects``` collection
@@ -137,7 +134,6 @@ class RealmSchema extends Iterable<SchemaObject> {
     }
 
     _schema = schemaObjects;
-    handle = realmCore.createSchema(schemaObjects);
   }
 
   @override

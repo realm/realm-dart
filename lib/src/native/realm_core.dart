@@ -84,7 +84,7 @@ class _RealmCore {
     });
   }
 
-  SchemaHandle createSchema(List<SchemaObject> schema) {
+  SchemaHandle _createSchema(Iterable<SchemaObject> schema) {
     return using((Arena arena) {
       final classCount = schema.length;
 
@@ -136,16 +136,12 @@ class _RealmCore {
     });
   }
 
-  void validateSchema(RealmSchema schema) {
-    _realmLib.invokeGetBool(
-        () => _realmLib.realm_schema_validate(schema.handle._pointer, realm_schema_validation_mode.RLM_SCHEMA_VALIDATION_BASIC), "Invalid Realm schema.");
-  }
-
   ConfigHandle _createConfig(Configuration config, SchedulerHandle schedulerHandle) {
     return using((Arena arena) {
+      final schemaHandle = _createSchema(config.schema);
       final configPtr = _realmLib.realm_config_new();
       final configHandle = ConfigHandle._(configPtr);
-      _realmLib.realm_config_set_schema(configHandle._pointer, config.schema.handle._pointer);
+      _realmLib.realm_config_set_schema(configHandle._pointer, schemaHandle._pointer);
       _realmLib.realm_config_set_schema_version(configHandle._pointer, config.schemaVersion);
 
       final schemaMode = config.isReadOnly ? realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE : realm_schema_mode.RLM_SCHEMA_MODE_AUTOMATIC;
