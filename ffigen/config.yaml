@@ -1,7 +1,5 @@
+# Usage: dart run ffigen --config config.yaml 
 name: RealmLibrary
-description: >- 
-  A Windows config for ffigen
-  Usage: dart run ffigen --config windows.yaml 
 output: "../lib/src/native/realm_bindings.dart"
 headers:
   entry-points:
@@ -9,12 +7,14 @@ headers:
     - 'realm_dart.h'
     - 'realm_dart_scheduler.h'
     - 'realm_dart_collections.h'
+    - 'realm_dart_configiration.h'
     - 'realm_android_platform.h'
   include-directives: #generate only for these headers
     - 'realm.h'
     - 'realm_dart.h'
     - 'realm_dart_scheduler.h'
     - 'realm_dart_collections.h'
+    - 'realm_dart_configiration.h'
     - 'realm_android_platform.h'
 compiler-opts:  
   - '-DRLM_NO_ANON_UNIONS'
