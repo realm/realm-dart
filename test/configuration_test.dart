@@ -143,7 +143,7 @@ Future<void> main([List<String>? args]) async {
     expect(config, realm.config);
     realm.close();
   });
- 
+
   test('Configuration.operator== different configs', () {
     var config = Configuration([Dog.schema, Person.schema]);
     final realm1 = Realm(config);
@@ -153,48 +153,21 @@ Future<void> main([List<String>? args]) async {
     realm1.close();
     realm2.close();
   });
-  
+
   test('Configuration - disableFormatUpgrade=true throws error', () async {
-    final realmBundleFile = "test/data/realm_files/realm-bundle.realm";
-    final realmDir = "test/disableFormatUpgradeTrue";
-    final realmPath = combineFilePath(realmDir, Configuration.defaultPath);
-
-    await Directory(realmDir).create();
-    var config = Configuration([Car.schema])..path = realmPath;
-    var realm = Realm(config);
-    realm.close();
-
-    Realm.deleteRealm(realmPath);
-    var file = File(realmBundleFile);
-    await file.copy(realmPath);
-
-    config = Configuration([Car.schema], disableFormatUpgrade: true)..path = realmPath;
+    final realmBundleFile = "test/data/realm_files/old-format.realm";
+    var config = Configuration([Car.schema], disableFormatUpgrade: true);
+    await File(realmBundleFile).copy(config.path);
     expect(() {
-      realm = Realm(config);
+      Realm(config);
     }, throws<RealmException>("The Realm file format must be allowed to be upgraded in order to proceed"));
-    realm.close();
-
-    await Directory(realmDir).delete(recursive: true);
   }, skip: isFlutterPlatform);
 
   test('Configuration - disableFormatUpgrade=false', () async {
-    final realmBundleFile = "test/data/realm_files/realm-bundle.realm";
-    final realmDir = "test/disableFormatUpgradeFalse";
-    final realmPath = combineFilePath(realmDir, Configuration.defaultPath);
-
-    await Directory(realmDir).create();
-    var config = Configuration([Car.schema])..path = realmPath;
+    final realmBundleFile = "test/data/realm_files/old-format.realm";
+    var config = Configuration([Car.schema], disableFormatUpgrade: false);
+    await File(realmBundleFile).copy(config.path);
     var realm = Realm(config);
     realm.close();
-
-    Realm.deleteRealm(realmPath);
-    var file = File(realmBundleFile);
-    await file.copy(realmPath);
-
-    config = Configuration([Car.schema], disableFormatUpgrade: false)..path = realmPath;
-    realm = Realm(config);
-    realm.close();
-
-    await Directory(realmDir).delete(recursive: true);
   }, skip: isFlutterPlatform);
 }

@@ -101,35 +101,22 @@ Future<void> setupTests(List<String>? args) async {
   await setupBaas();
 
   setUp(() {
-    String path = "${generateRandomString(10)}.realm";
+    String pathKey = generateRandomString(10);
+    String path = "$pathKey.realm";
     if (Platform.isAndroid || Platform.isIOS) {
       path = _path.join(Configuration.filesPath, path);
     }
     Configuration.defaultPath = path;
 
     addTearDown(() async {
-      var file = File(path);
       try {
         Realm.deleteRealm(path);
       } catch (e) {
         fail("Can not delete realm at path: $path. Did you forget to close it?");
       }
-
-      if (await file.exists() && file.path.endsWith(".realm")) {
-        await tryDeleteFile(file);
-      }
-
-      file = File("$path.lock");
-      if (await file.exists()) {
-        await tryDeleteFile(file);
-      }
-
-      final dir = Directory("$path.management");
-      if (await dir.exists()) {
-        if ((await dir.stat()).type == FileSystemEntityType.directory) {
-          await tryDeleteFile(dir, recursive: true);
-        }
-      }
+      await Directory.current.list().forEach((f) {
+        if (f.path.contains(pathKey)) tryDeleteFile(f);
+      });
     });
   });
 }
@@ -162,10 +149,6 @@ void parseTestNameFromArguments(List<String>? arguments) {
   if (nameArgIndex >= 0 && arguments.length > nameArgIndex) {
     testName = arguments[nameArgIndex + 1];
   }
-}
-
-String combineFilePath(String directory, String filename) {
-  return _path.join(directory, _path.basename(filename));
 }
 
 Future<void> setupBaas() async {
