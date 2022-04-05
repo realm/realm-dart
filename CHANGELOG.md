@@ -4,7 +4,7 @@ x.x.x Release notes (yyyy-MM-dd)
 **This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
 
 ### Enhancements
-* Support disableFormatUpgrade ([#310](https://github.com/realm/realm-dart/pull/310))
+* Added a new `Configuration` option: `disableFormatUpgrade`. When set to `true`, opening a Realm with an older file format will throw an exception to avoid automatically migrating it. ([#310](https://github.com/realm/realm-dart/pull/310))
 * Support result value from write transaction callbacks ([#294](https://github.com/realm/realm-dart/pull/294/))
 
 ### Fixed
