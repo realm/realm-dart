@@ -633,9 +633,17 @@ class _RealmCore {
       return out_modified.asTypedList(count).toList();
     });
   }
-  
+
   RealmAppCredentialsHandle createAppCredentialsAnonymous() {
     return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_anonymous());
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsEmailPassword(String email, String password) {
+    return using((arena) {
+      final emailPtr = email.toUtf8Ptr(arena);
+      final passwordPtr = password.toRealmString(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_email_password(emailPtr, passwordPtr.ref));
+    });
   }
 }
 
@@ -742,6 +750,14 @@ extension _StringEx on String {
     nativeString.setAll(0, units); // copy to native string
     nativeString.last = 0; // zero terminate
     return result.cast();
+  }
+
+  Pointer<realm_string_t> toRealmString(Allocator allocator) {
+    final realm_string = allocator<realm_string_t>();
+    realm_string.ref.data = toUtf8Ptr(allocator);
+    final units = utf8.encode(this);
+    realm_string.ref.size = units.length + 1;
+    return realm_string;
   }
 }
 
