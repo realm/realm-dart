@@ -1,3 +1,4 @@
+import 'package:objectid/objectid.dart';
 import 'package:realm_common/realm_common.dart';
 
 //part 'nullable_primary_key.g.dart';
@@ -15,6 +16,12 @@ class _NullableStringPK {
 }
 
 @RealmModel()
+class _NullableObjectIdPK {
+  @PrimaryKey()
+  ObjectId? id;
+}
+
+@RealmModel()
 class _IntPK {
   @PrimaryKey()
   late int id;
@@ -24,4 +31,10 @@ class _IntPK {
 class _StringPK {
   @PrimaryKey()
   late String id;
+}
+
+@RealmModel()
+class _ObjectIdPK {
+  @PrimaryKey()
+  late ObjectId id;
 }

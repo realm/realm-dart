@@ -60,6 +60,36 @@ class NullableStringPK extends _NullableStringPK with RealmEntity, RealmObject {
   }
 }
 
+class NullableObjectIdPK extends _NullableObjectIdPK
+    with RealmEntity, RealmObject {
+  NullableObjectIdPK(
+    ObjectId? id,
+  ) {
+    RealmObject.set(this, 'id', id);
+  }
+
+  NullableObjectIdPK._();
+
+  @override
+  ObjectId? get id => RealmObject.get<ObjectId>(this, 'id') as ObjectId?;
+  @override
+  set id(ObjectId? value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<NullableObjectIdPK>> get changes =>
+      RealmObject.getChanges<NullableObjectIdPK>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(NullableObjectIdPK._);
+    return const SchemaObject(NullableObjectIdPK, [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          optional: true, primaryKey: true),
+    ]);
+  }
+}
+
 class IntPK extends _IntPK with RealmEntity, RealmObject {
   IntPK(
     int id,
@@ -112,6 +142,34 @@ class StringPK extends _StringPK with RealmEntity, RealmObject {
     RealmObject.registerFactory(StringPK._);
     return const SchemaObject(StringPK, [
       SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
+    ]);
+  }
+}
+
+class ObjectIdPK extends _ObjectIdPK with RealmEntity, RealmObject {
+  ObjectIdPK(
+    ObjectId id,
+  ) {
+    RealmObject.set(this, 'id', id);
+  }
+
+  ObjectIdPK._();
+
+  @override
+  ObjectId get id => RealmObject.get<ObjectId>(this, 'id') as ObjectId;
+  @override
+  set id(ObjectId value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<ObjectIdPK>> get changes =>
+      RealmObject.getChanges<ObjectIdPK>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(ObjectIdPK._);
+    return const SchemaObject(ObjectIdPK, [
+      SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
     ]);
   }
 }

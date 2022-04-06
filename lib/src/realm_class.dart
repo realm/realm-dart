@@ -199,7 +199,7 @@ class Realm {
   bool get isClosed => realmCore.isRealmClosed(this);
 
   /// Fast lookup for a [RealmObject] with the specified [primaryKey].
-  T? find<T extends RealmObject>(Object primaryKey) {
+  T? find<T extends RealmObject>(Object? primaryKey) {
     RealmMetadata metadata = _getMetadata(T);
 
     final handle = realmCore.find(this, metadata.class_.key, primaryKey);

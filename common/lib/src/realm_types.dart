@@ -18,6 +18,7 @@
 
 import 'dart:ffi';
 import 'dart:typed_data';
+import 'package:objectid/objectid.dart';
 
 /// All supported `Realm` property types.
 /// {@category Configuration}
@@ -61,7 +62,7 @@ enum RealmCollectionType {
 class RealmError extends Error {
   final String? message;
   RealmError(String this.message);
-  
+
   @override
   String toString() => "Realm error : $message";
 }
@@ -79,9 +80,6 @@ class RealmStateError extends StateError implements RealmError {
 
 /// @nodoc
 class Uuid {} // TODO!
-
-/// @nodoc
-class ObjectId {} // TODO!
 
 /// @nodoc
 class Decimal128 {} // TODO!

@@ -37,7 +37,7 @@ dev_dependencies:
   test: ^1.14.3
   http: ^0.13.4
 
-platforms: 
+platforms:
   windows:
   linux:
   macos:

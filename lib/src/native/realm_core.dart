@@ -25,6 +25,7 @@ import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
+import 'package:objectid/objectid.dart';
 
 import '../collections.dart';
 import '../configuration.dart';
@@ -330,7 +331,7 @@ class _RealmCore {
   // ignore: unused_element
   int get _threadId => _realmLib.get_thread_id();
 
-  RealmObjectHandle? find(Realm realm, int classKey, Object primaryKey) {
+  RealmObjectHandle? find(Realm realm, int classKey, Object? primaryKey) {
     return using((Arena arena) {
       final realm_value = _toRealmValue(primaryKey, arena);
       final pointer = _realmLib.realm_object_find_with_primary_key(realm.handle._pointer, classKey, realm_value.ref, nullptr);
@@ -817,6 +818,14 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
         realm_value.ref.values.dnum = value as double;
         realm_value.ref.type = realm_value_type.RLM_TYPE_DOUBLE;
         break;
+      case ObjectId:
+        final bytes = (value as ObjectId).bytes;
+        for (var i = 0; i < 12; i++) {
+          realm_value.ref.values.object_id.bytes[i] = bytes[i];
+        }
+
+        realm_value.ref.type = realm_value_type.RLM_TYPE_OBJECT_ID;
+        break;
       default:
         throw RealmException("Property type ${value.runtimeType} not supported");
     }
@@ -854,7 +863,13 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_DECIMAL128:
         throw Exception("Not implemented");
       case realm_value_type.RLM_TYPE_OBJECT_ID:
-        throw Exception("Not implemented");
+        final nativeBytes = ref.values.object_id.bytes;
+        final bytes = List<int>.filled(12, 0);
+        for (int i = 0; i < 12; i++) {
+          bytes[i] = nativeBytes[i];
+        }
+
+        return ObjectId.fromBytes(bytes);
       case realm_value_type.RLM_TYPE_UUID:
         throw Exception("Not implemented");
       default:

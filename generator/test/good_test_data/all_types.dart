@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:realm_common/realm_common.dart';
+import 'package:objectid/objectid.dart';
 
 @RealmModel()
 @MapTo('Fooo')
@@ -30,4 +31,16 @@ class _Bar {
 
   @Indexed()
   String? anOptionalString;
+
+  late ObjectId objectId;
+  ObjectId? nullableObjectId;
+}
+
+@RealmModel()
+class _PrimitiveTypes {
+  late String stringProp;
+  late bool boolProp;
+  late DateTime dateProp;
+  late double doubleProp;
+  late ObjectId objectIdProp;
 }

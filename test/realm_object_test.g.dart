@@ -121,3 +121,62 @@ class NullableStringPrimaryKey extends _NullableStringPrimaryKey
     ]);
   }
 }
+
+class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
+    with RealmEntity, RealmObject {
+  ObjectIdPrimaryKey(
+    ObjectId id,
+  ) {
+    RealmObject.set(this, 'id', id);
+  }
+
+  ObjectIdPrimaryKey._();
+
+  @override
+  ObjectId get id => RealmObject.get<ObjectId>(this, 'id') as ObjectId;
+  @override
+  set id(ObjectId value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<ObjectIdPrimaryKey>> get changes =>
+      RealmObject.getChanges<ObjectIdPrimaryKey>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(ObjectIdPrimaryKey._);
+    return const SchemaObject(ObjectIdPrimaryKey, [
+      SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
+    ]);
+  }
+}
+
+class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
+    with RealmEntity, RealmObject {
+  NullableObjectIdPrimaryKey(
+    ObjectId? id,
+  ) {
+    RealmObject.set(this, 'id', id);
+  }
+
+  NullableObjectIdPrimaryKey._();
+
+  @override
+  ObjectId? get id => RealmObject.get<ObjectId>(this, 'id') as ObjectId?;
+  @override
+  set id(ObjectId? value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<NullableObjectIdPrimaryKey>> get changes =>
+      RealmObject.getChanges<NullableObjectIdPrimaryKey>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(NullableObjectIdPrimaryKey._);
+    return const SchemaObject(NullableObjectIdPrimaryKey, [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          optional: true, primaryKey: true),
+    ]);
+  }
+}

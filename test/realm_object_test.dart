@@ -20,6 +20,7 @@
 
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
+import 'package:objectid/objectid.dart';
 import '../lib/realm.dart';
 
 import 'test.dart';
@@ -254,20 +255,35 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   });
 
-  for (final pk in [1, 0, -1, maxInt, jsMaxInt, minInt, jsMinInt]) {
+  final ints = [1, 0, -1, maxInt, jsMaxInt, minInt, jsMinInt];
+  for (final pk in ints) {
     testPrimaryKey(IntPrimaryKey.schema, () => IntPrimaryKey(pk), pk);
   }
 
-  for (final pk in [null, 1, 0, -1, minInt, maxInt]) {
+  for (final pk in [null, ...ints]) {
     testPrimaryKey(NullableIntPrimaryKey.schema, () => NullableIntPrimaryKey(pk), pk);
   }
 
-  for (final pk in ["", "1", "abc", "null"]) {
+  final strings = ["", "1", "abc", "null"];
+  for (final pk in strings) {
     testPrimaryKey(StringPrimaryKey.schema, () => StringPrimaryKey(pk), pk);
   }
 
-  for (final pk in [null, "", "1", "abc", "null"]) {
+  for (final pk in [null, ...strings]) {
     testPrimaryKey(NullableStringPrimaryKey.schema, () => NullableStringPrimaryKey(pk), pk);
+  }
+
+  final objectIds = [
+    ObjectId.fromHexString('624d9e04bd013db290785d04'),
+    ObjectId.fromHexString('000000000000000000000000'),
+    ObjectId.fromHexString('ffffffffffffffffffffffff')
+  ];
+  for (final pk in objectIds) {
+    testPrimaryKey(ObjectIdPrimaryKey.schema, () => ObjectIdPrimaryKey(pk), pk);
+  }
+
+  for (final pk in [null, ...objectIds]) {
+    testPrimaryKey(NullableObjectIdPrimaryKey.schema, () => NullableObjectIdPrimaryKey(pk), pk);
   }
 }
 
@@ -295,13 +311,28 @@ class _NullableStringPrimaryKey {
   String? id;
 }
 
+@RealmModel()
+class _ObjectIdPrimaryKey {
+  @PrimaryKey()
+  late ObjectId id;
+}
+
+@RealmModel()
+class _NullableObjectIdPrimaryKey {
+  @PrimaryKey()
+  ObjectId? id;
+}
+
 void testPrimaryKey<TObject extends RealmObject, TKey extends Object>(SchemaObject schema, TObject Function() createObject, TKey? key) {
-  test("RealmObject with $TKey primary key: $key", () {
+  test("$TObject primary key: $key", () {
     final pkProp = schema.properties.where((p) => p.primaryKey).single;
     final realm = Realm(Configuration([schema]));
     final obj = realm.write(() {
       return realm.add(createObject());
     });
+
+    final foundObj = realm.find<TObject>(key);
+    expect(foundObj, obj);
 
     final propValue = RealmObject.get<TKey>(obj, pkProp.name);
     expect(propValue, key);
