@@ -123,7 +123,7 @@ class _RealmCore {
 
           if (schemaProperty.primaryKey) {
             classInfo.primary_key = schemaProperty.name.toUtf8Ptr(arena);
-            propInfo.flags = realm_property_flags.RLM_PROPERTY_PRIMARY_KEY;
+            propInfo.flags |= realm_property_flags.RLM_PROPERTY_PRIMARY_KEY;
           }
         }
 
@@ -303,7 +303,7 @@ class _RealmCore {
     return RealmObjectHandle._(realmPtr);
   }
 
-  RealmObjectHandle createRealmObjectWithPrimaryKey(Realm realm, int classKey, Object primaryKey) {
+  RealmObjectHandle createRealmObjectWithPrimaryKey(Realm realm, int classKey, Object? primaryKey) {
     return using((Arena arena) {
       final realm_value = _toRealmValue(primaryKey, arena);
       final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_object_create_with_primary_key(realm.handle._pointer, classKey, realm_value.ref));

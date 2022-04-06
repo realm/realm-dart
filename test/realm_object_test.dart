@@ -24,6 +24,8 @@ import '../lib/realm.dart';
 
 import 'test.dart';
 
+part 'realm_object_test.g.dart';
+
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
@@ -249,6 +251,61 @@ Future<void> main([List<String>? args]) async {
     subscription.cancel();
 
     await Future<void>.delayed(Duration(milliseconds: 20));
+    realm.close();
+  });
+
+  for (final pk in [1, 0, -1, maxInt, jsMaxInt, minInt, jsMinInt]) {
+    testPrimaryKey(IntPrimaryKey.schema, () => IntPrimaryKey(pk), pk);
+  }
+
+  for (final pk in [null, 1, 0, -1, minInt, maxInt]) {
+    testPrimaryKey(NullableIntPrimaryKey.schema, () => NullableIntPrimaryKey(pk), pk);
+  }
+
+  for (final pk in ["", "1", "abc", "null"]) {
+    testPrimaryKey(StringPrimaryKey.schema, () => StringPrimaryKey(pk), pk);
+  }
+
+  for (final pk in [null, "", "1", "abc", "null"]) {
+    testPrimaryKey(NullableStringPrimaryKey.schema, () => NullableStringPrimaryKey(pk), pk);
+  }
+}
+
+@RealmModel()
+class _IntPrimaryKey {
+  @PrimaryKey()
+  late int id;
+}
+
+@RealmModel()
+class _NullableIntPrimaryKey {
+  @PrimaryKey()
+  int? id;
+}
+
+@RealmModel()
+class _StringPrimaryKey {
+  @PrimaryKey()
+  late String id;
+}
+
+@RealmModel()
+class _NullableStringPrimaryKey {
+  @PrimaryKey()
+  String? id;
+}
+
+void testPrimaryKey<TObject extends RealmObject, TKey extends Object>(SchemaObject schema, TObject Function() createObject, TKey? key) {
+  test("RealmObject with $TKey primary key: $key", () {
+    final pkProp = schema.properties.where((p) => p.primaryKey).single;
+    final realm = Realm(Configuration([schema]));
+    final obj = realm.write(() {
+      return realm.add(createObject());
+    });
+
+    final propValue = RealmObject.get<TKey>(obj, pkProp.name);
+    expect(propValue, key);
+
     realm.close();
   });
 }

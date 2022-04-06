@@ -42,10 +42,10 @@ class RealmModelInfo {
 
       yield '$name(';
       {
-        final required = allExceptCollections.where((f) => f.isRequired);
+        final required = allExceptCollections.where((f) => f.isRequired || f.primaryKey);
         yield* required.map((f) => '${f.mappedTypeName} ${f.name},');
 
-        final notRequired = allExceptCollections.where((f) => !f.isRequired);
+        final notRequired = allExceptCollections.where((f) => !f.isRequired && !f.primaryKey);
         final collections = fields.where((f) => f.type.isRealmCollection).toList();
         if (notRequired.isNotEmpty || collections.isNotEmpty) {
           yield '{';
