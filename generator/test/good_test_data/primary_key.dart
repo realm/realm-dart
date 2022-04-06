@@ -13,3 +13,15 @@ class _NullableStringPK {
   @PrimaryKey()
   String? id;
 }
+
+@RealmModel()
+class _IntPK {
+  @PrimaryKey()
+  late int id;
+}
+
+@RealmModel()
+class _StringPK {
+  @PrimaryKey()
+  late String id;
+}
