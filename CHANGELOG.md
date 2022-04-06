@@ -5,6 +5,12 @@ x.x.x Release notes (yyyy-MM-dd)
 
 ### Enhancements
 * Added a new `Configuration` option: `disableFormatUpgrade`. When set to `true`, opening a Realm with an older file format will throw an exception to avoid automatically migrating it. ([#310](https://github.com/realm/realm-dart/pull/310))
+    ```dart
+    var config = Configuration([Car.schema], disableFormatUpgrade: true);
+    await File('old-format.realm').copy(config.path);
+    var realm = Realm(config);
+    //Opening 'Realm' will throw a RealmException with message: "The Realm file format must be allowed to be upgraded in order to proceed." 
+    ```
 * Support result value from write transaction callbacks ([#294](https://github.com/realm/realm-dart/pull/294/))
 
 ### Fixed
