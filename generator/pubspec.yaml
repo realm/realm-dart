@@ -24,6 +24,7 @@ dependencies:
   source_gen: ^1.1.0
   source_span: ^1.8.0
   objectid: ^2.0.0
+  uuid: ^3.0.0
 
 dev_dependencies:
   build_test: ^2.1.4

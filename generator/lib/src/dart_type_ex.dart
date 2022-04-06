@@ -23,9 +23,8 @@ import 'package:realm_common/realm_common.dart';
 import 'package:realm_generator/src/pseudo_type.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:objectid/objectid.dart';
+import 'package:uuid/uuid.dart';
 
-import 'element.dart';
-import 'error.dart';
 import 'session.dart';
 import 'type_checkers.dart';
 
@@ -110,7 +109,7 @@ extension DartTypeEx on DartType {
     if (isRealmModel) return RealmPropertyType.object;
     if (isRealmBacklink) return RealmPropertyType.linkingObjects;
     if (isExactly<ObjectId>()) return RealmPropertyType.objectid;
-    if (isExactly<Uuid>()) return RealmPropertyType.uuid;
+    if (isExactly<UuidValue>()) return RealmPropertyType.uuid;
 
     return null;
   }

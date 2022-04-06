@@ -19,6 +19,7 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 import 'package:objectid/objectid.dart';
+import 'package:uuid/uuid.dart';
 
 /// All supported `Realm` property types.
 /// {@category Configuration}
@@ -79,9 +80,6 @@ class RealmStateError extends StateError implements RealmError {
 }
 
 /// @nodoc
-class Uuid {} // TODO!
-
-/// @nodoc
 class Decimal128 {} // TODO!
 
 /// @nodoc
@@ -108,5 +106,5 @@ class RealmAny {
   const RealmAny.dateTime(DateTime timestamp) : this._(timestamp);
   const RealmAny.objectId(ObjectId id) : this._(id);
   const RealmAny.decimal128(Decimal128 decimal) : this._(decimal);
-  const RealmAny.uuid(Uuid uuid) : this._(uuid);
+  const RealmAny.uuid(UuidValue uuid) : this._(uuid);
 }

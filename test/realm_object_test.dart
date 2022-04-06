@@ -21,6 +21,7 @@
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
 import 'package:objectid/objectid.dart';
+import 'package:uuid/uuid.dart';
 import '../lib/realm.dart';
 
 import 'test.dart';
@@ -285,6 +286,18 @@ Future<void> main([List<String>? args]) async {
   for (final pk in [null, ...objectIds]) {
     testPrimaryKey(NullableObjectIdPrimaryKey.schema, () => NullableObjectIdPrimaryKey(pk), pk);
   }
+
+  final uuids = [
+    UuidValue.fromList(Uuid.parse('0f1dea4d-074e-4c72-b505-e2e8a727602f')),
+    UuidValue.fromList(Uuid.parse('00000000-0000-0000-0000-000000000000')),
+  ];
+  for (final pk in uuids) {
+    testPrimaryKey(UuidPrimaryKey.schema, () => UuidPrimaryKey(pk), pk);
+  }
+
+  for (final pk in [null, ...uuids]) {
+    testPrimaryKey(NullableUuidPrimaryKey.schema, () => NullableUuidPrimaryKey(pk), pk);
+  }
 }
 
 @RealmModel()
@@ -321,6 +334,18 @@ class _ObjectIdPrimaryKey {
 class _NullableObjectIdPrimaryKey {
   @PrimaryKey()
   ObjectId? id;
+}
+
+@RealmModel()
+class _UuidPrimaryKey {
+  @PrimaryKey()
+  late UuidValue id;
+}
+
+@RealmModel()
+class _NullableUuidPrimaryKey {
+  @PrimaryKey()
+  UuidValue? id;
 }
 
 void testPrimaryKey<TObject extends RealmObject, TKey extends Object>(SchemaObject schema, TObject Function() createObject, TKey? key) {
