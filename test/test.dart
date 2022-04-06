@@ -114,7 +114,7 @@ Future<void> setupTests(List<String>? args) async {
       } catch (e) {
         fail("Can not delete realm at path: $path. Did you forget to close it?");
       }
-      await Directory.current.list().forEach((f) {
+      await Directory(_path.dirname(path)).list().forEach((f) {
         if (f.path.contains(pathKey)) tryDeleteFile(f);
       });
     });
