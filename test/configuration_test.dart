@@ -59,7 +59,7 @@ Future<void> main([List<String>? args]) async {
 
     const path = "my/path/default.realm";
     final explicitPathConfig = Configuration([Car.schema], path: path);
-    expect(config.path, equals(path));
+    expect(explicitPathConfig.path, equals(path));
   });
 
   test('Configuration get/set schema version', () {
@@ -67,7 +67,7 @@ Future<void> main([List<String>? args]) async {
     expect(config.schemaVersion, equals(0));
 
     final explicitSchemaConfig = Configuration([Car.schema], schemaVersion: 3);
-    expect(config.schemaVersion, equals(3));
+    expect(explicitSchemaConfig.schemaVersion, equals(3));
   });
 
   test('Configuration readOnly - opening non existing realm throws', () {
