@@ -48,7 +48,7 @@ DynamicLibrary initRealm() {
 
     if (Platform.isLinux) {
       if (isFlutterPlatform) {
-	return '${File(Platform.resolvedExecutable).parent.path}/lib/lib$binaryName.so';
+        return '${File(Platform.resolvedExecutable).parent.path}/lib/lib$binaryName.so';
       }
 
       if (path.isEmpty) {
