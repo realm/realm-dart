@@ -863,13 +863,7 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_DECIMAL128:
         throw Exception("Not implemented");
       case realm_value_type.RLM_TYPE_OBJECT_ID:
-        final nativeBytes = ref.values.object_id.bytes;
-        final bytes = List<int>.filled(12, 0);
-        for (int i = 0; i < 12; i++) {
-          bytes[i] = nativeBytes[i];
-        }
-
-        return ObjectId.fromBytes(bytes);
+        return ObjectId.fromBytes(cast<Uint8>().asTypedList(12));
       case realm_value_type.RLM_TYPE_UUID:
         throw Exception("Not implemented");
       default:
