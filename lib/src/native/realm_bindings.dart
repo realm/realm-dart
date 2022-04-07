@@ -7449,39 +7449,53 @@ class RealmLibrary {
   late final _realm_delete_finalizable = _realm_delete_finalizablePtr
       .asFunction<void Function(Dart_FinalizableHandle, Object)>();
 
-  ffi.Pointer<ffi.Void> gc_handle_new(
+  ffi.Pointer<ffi.Void> gc_handle_weak_new(
     Object handle,
   ) {
-    return _gc_handle_new(
+    return _gc_handle_weak_new(
       handle,
     );
   }
 
-  late final _gc_handle_newPtr =
+  late final _gc_handle_weak_newPtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>(
-          'gc_handle_new');
-  late final _gc_handle_new =
-      _gc_handle_newPtr.asFunction<ffi.Pointer<ffi.Void> Function(Object)>();
+          'gc_handle_weak_new');
+  late final _gc_handle_weak_new = _gc_handle_weak_newPtr
+      .asFunction<ffi.Pointer<ffi.Void> Function(Object)>();
 
-  void gc_handle_delete(
-    ffi.Pointer<ffi.Void> handler,
+  ffi.Pointer<ffi.Void> gc_handle_hard_new(
+    Object handle,
   ) {
-    return _gc_handle_delete(
-      handler,
+    return _gc_handle_hard_new(
+      handle,
     );
   }
 
-  late final _gc_handle_deletePtr =
+  late final _gc_handle_hard_newPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>(
+          'gc_handle_hard_new');
+  late final _gc_handle_hard_new = _gc_handle_hard_newPtr
+      .asFunction<ffi.Pointer<ffi.Void> Function(Object)>();
+
+  void gc_handle_soften(
+    ffi.Pointer<ffi.Void> handle,
+  ) {
+    return _gc_handle_soften(
+      handle,
+    );
+  }
+
+  late final _gc_handle_softenPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'gc_handle_delete');
-  late final _gc_handle_delete =
-      _gc_handle_deletePtr.asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+          'gc_handle_soften');
+  late final _gc_handle_soften =
+      _gc_handle_softenPtr.asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
   Object gc_handle_deref(
-    ffi.Pointer<ffi.Void> handler,
+    ffi.Pointer<ffi.Void> handle,
   ) {
     return _gc_handle_deref(
-      handler,
+      handle,
     );
   }
 

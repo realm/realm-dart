@@ -20,7 +20,6 @@
 
 import 'dart:convert';
 import 'dart:ffi';
-import 'dart:ffi' as ffi show Handle;
 import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
@@ -592,7 +591,7 @@ class _RealmCore {
   RealmNotificationTokenHandle subscribeResultsNotifications(RealmResultsHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_add_notification_callback(
           handle._pointer,
-          _realmLib.gc_handle_new(controller),
+          _realmLib.gc_handle_weak_new(controller),
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
@@ -606,7 +605,7 @@ class _RealmCore {
   RealmNotificationTokenHandle subscribeListNotifications(RealmListHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_list_add_notification_callback(
           handle._pointer,
-          _realmLib.gc_handle_new(controller),
+          _realmLib.gc_handle_weak_new(controller),
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
@@ -620,7 +619,7 @@ class _RealmCore {
   RealmNotificationTokenHandle subscribeObjectNotifications(RealmObjectHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_add_notification_callback(
           handle._pointer,
-          _realmLib.gc_handle_new(controller),
+          _realmLib.gc_handle_weak_new(controller),
           nullptr,
           nullptr,
           Pointer.fromFunction(object_change_callback),

@@ -70,8 +70,6 @@ void dummy(void) {
     realm_results_add_notification_callback(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
     realm_results_snapshot(nullptr);
     realm_app_credentials_new_anonymous();
-    gc_handle_new(nullptr);
-    gc_handle_deref(nullptr);
 #if (ANDROID)
     realm_android_dummy();
 #endif
@@ -79,10 +77,21 @@ void dummy(void) {
 
 class GCHandle {
 public:
-    GCHandle(Dart_Handle handle) : m_weakHandle(Dart_NewWeakPersistentHandle_DL(handle, this, 1, finalize_handle)) {}
+    GCHandle(Dart_Handle handle, bool hard) : m_weakHandle(Dart_NewWeakPersistentHandle_DL(handle, this, 1, finalize_handle)) {
+        if (hard) {
+            m_hardHandle = Dart_NewPersistentHandle_DL(handle);
+        }
+    }
 
     Dart_Handle value() {
         return Dart_HandleFromWeakPersistent_DL(m_weakHandle);
+    }
+
+    void soften() {
+        if (m_hardHandle) {
+            Dart_DeletePersistentHandle_DL(m_hardHandle);
+            m_hardHandle = nullptr;
+        }
     }
 
 private:
@@ -99,10 +108,19 @@ private:
     } // no-op
 
     Dart_WeakPersistentHandle m_weakHandle;
+    Dart_PersistentHandle m_hardHandle; // used to pin dart object from native side, if needed
 };
 
-RLM_API void* gc_handle_new(Dart_Handle handle) {
-    return new GCHandle(handle);
+RLM_API void* gc_handle_weak_new(Dart_Handle handle) {
+    return new GCHandle(handle, false);
+}
+
+RLM_API void* gc_handle_hard_new(Dart_Handle handle) {
+    return new GCHandle(handle, true);
+}
+
+RLM_API void gc_handle_soften(void* handle) {
+    return reinterpret_cast<GCHandle*>(handle)->soften();
 }
 
 RLM_API Dart_Handle gc_handle_deref(void* handle) {
