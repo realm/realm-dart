@@ -874,13 +874,7 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_OBJECT_ID:
         return ObjectId.fromBytes(cast<Uint8>().asTypedList(12));
       case realm_value_type.RLM_TYPE_UUID:
-        final nativeBytes = ref.values.uuid.bytes;
-        final bytes = List<int>.filled(16, 0);
-        for (int i = 0; i < 16; i++) {
-          bytes[i] = nativeBytes[i];
-        }
-
-        return UuidValue.fromList(bytes);
+        return UuidValue.fromList(cast<Uint8>().asTypedList(16));
       default:
         throw RealmException("realm_value_type ${ref.type} not supported");
     }
