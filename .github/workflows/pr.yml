@@ -570,12 +570,10 @@ jobs:
       - name: Publish Generator Coverage
         id: publish-generator-coverage
         uses: coverallsapp/github-action@1.1.3
-        if: success() && matrix.os == 'ubuntu-latest'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: realm_generator
           path-to-lcov: ./generator/coverage/lcov.info
         continue-on-error: true
       - name: Output Coveralls response
-        if: success() && matrix.os == 'ubuntu-latest'
         run: echo ${{ steps.publish-generator-coverage.outputs.coveralls-api-result }}
