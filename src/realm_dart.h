@@ -22,8 +22,6 @@
 #include "realm.h"
 #include "dart_api_dl.h"
 
-typedef bool (*realm_dart_data_initialization_func_t)(Dart_Handle managed_config, realm_t*);
-
 RLM_API void realm_initializeDartApiDL(void* data);
 
 RLM_API Dart_FinalizableHandle realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size);

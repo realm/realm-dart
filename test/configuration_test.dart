@@ -149,7 +149,7 @@ Future<void> main([List<String>? args]) async {
     var config = Configuration([Car.schema], disableFormatUpgrade: true);
     await File(realmBundleFile).copy(config.path);
     expect(() {
-      Realm(config);
+      getRealm(config);
     }, throws<RealmException>("The Realm file format must be allowed to be upgraded in order to proceed"));
   }, skip: isFlutterPlatform);
 
@@ -157,8 +157,7 @@ Future<void> main([List<String>? args]) async {
     final realmBundleFile = "test/data/realm_files/old-format.realm";
     var config = Configuration([Car.schema], disableFormatUpgrade: false);
     await File(realmBundleFile).copy(config.path);
-    var realm = Realm(config);
-    realm.close();
+    final realm = getRealm(config);
   }, skip: isFlutterPlatform);
 
   test('Configuration.initialDataCallback invoked', () {
@@ -199,7 +198,7 @@ Future<void> main([List<String>? args]) async {
       realm.add(Person('p2'));
     });
 
-    final realmAgain = getRealm(config);
+    final realmAgain = getRealm(configAgain);
     expect(invokedAgain, false);
     expect(realmAgain.all<Person>().length, 1);
   });

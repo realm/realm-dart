@@ -104,6 +104,11 @@ class Configuration {
   /// An exception will be thrown if a file format upgrade is required.
   final bool disableFormatUpgrade;
 
+  /// A function that will be executed only when the Realm is first created.
+  ///
+  /// The Realm instance passed in the callback already has a write transaction opened, so you can
+  /// add some initial data that your app needs. The function will not execute for existing
+  /// Realms, even if all objects in the Realm are deleted.
   final Function(Realm realm)? initialDataCallback;
 }
 
