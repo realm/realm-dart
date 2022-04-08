@@ -72,47 +72,45 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration readOnly - opening non existing realm throws', () {
     Configuration config = Configuration([Car.schema], readOnly: true);
-    expect(() => Realm(config), throws<RealmException>("at path '${config.path}' does not exist"));
+    expect(() => getRealm(config), throws<RealmException>("at path '${config.path}' does not exist"));
   });
 
   test('Configuration readOnly - open existing realm with read-only config', () {
     Configuration config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.close();
 
     // Open an existing realm as readonly.
     config = Configuration([Car.schema], readOnly: true);
-    realm = Realm(config);
-    realm.close();
+    realm = getRealm(config);
   });
 
   test('Configuration readOnly - reading is possible', () {
     Configuration config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.write(() => realm.add(Car("Mustang")));
     realm.close();
 
     config = Configuration([Car.schema]);
     config.isReadOnly = true;
-    realm = Realm(config);
+    realm = getRealm(config);
     var cars = realm.all<Car>();
-    realm.close();
+    expect(cars.length, 1);
   });
 
   test('Configuration readOnly - writing on read-only Realms throws', () {
     Configuration config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.close();
 
     config = Configuration([Car.schema], readOnly: true);
-    realm = Realm(config);
+    realm = getRealm(config);
     expect(() => realm.write(() {}), throws<RealmException>("Can't perform transactions on read-only Realms."));
-    realm.close();
   });
 
   test('Configuration inMemory - no files after closing realm', () {
     Configuration config = Configuration([Car.schema], inMemory: true);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.write(() => realm.add(Car('Tesla')));
     realm.close();
     expect(Realm.existsSync(config.path), false);
@@ -120,37 +118,31 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration inMemory can not be readOnly', () {
     Configuration config = Configuration([Car.schema], inMemory: true);
-    var realm = Realm(config);
+    final realm = getRealm(config);
 
     expect(() {
       config = Configuration([Car.schema]);
       config.isReadOnly = true;
-      Realm(config);
+      getRealm(config);
     }, throws<RealmException>("Realm at path '${config.path}' already opened with different read permissions"));
-
-    realm.close();
   });
 
   test('Configuration - FIFO files fallback path', () {
     Configuration config = Configuration([Car.schema], fifoFilesFallbackPath: "./fifo_folder");
-    var realm = Realm(config);
-    realm.close();
+    final realm = getRealm(config);
   });
 
   test('Configuration.operator== equal configs', () {
     final config = Configuration([Dog.schema, Person.schema]);
-    final realm = Realm(config);
+    final realm = getRealm(config);
     expect(config, realm.config);
-    realm.close();
   });
- 
+
   test('Configuration.operator== different configs', () {
     var config = Configuration([Dog.schema, Person.schema]);
-    final realm1 = Realm(config);
+    final realm1 = getRealm(config);
     config = Configuration([Dog.schema, Person.schema]);
-    final realm2 = Realm(config);
+    final realm2 = getRealm(config);
     expect(realm1.config, isNot(realm2.config));
-    realm1.close();
-    realm2.close();
   });
 }

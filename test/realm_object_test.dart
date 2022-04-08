@@ -31,7 +31,7 @@ Future<void> main([List<String>? args]) async {
 
   test('RealmObject get property', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final car = Car('Tesla');
     realm.write(() {
@@ -39,13 +39,11 @@ Future<void> main([List<String>? args]) async {
     });
 
     expect(car.make, equals('Tesla'));
-
-    realm.close();
   });
 
   test('RealmObject set property', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final car = Car('Tesla');
     realm.write(() {
@@ -59,13 +57,11 @@ Future<void> main([List<String>? args]) async {
         car.make = "Audi";
       });
     }, throws<RealmUnsupportedSetError>());
-
-    realm.close();
   });
 
   test('RealmObject set object type property (link)', () {
     var config = Configuration([Person.schema, Dog.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final dog = Dog(
       "MyDog",
@@ -78,13 +74,11 @@ Future<void> main([List<String>? args]) async {
     expect(dog.name, 'MyDog');
     expect(dog.owner, isNotNull);
     expect(dog.owner!.name, 'MyOwner');
-
-    realm.close();
   });
 
   test('RealmObject set property null', () {
     var config = Configuration([Person.schema, Dog.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final dog = Dog(
       "MyDog",
@@ -111,13 +105,11 @@ Future<void> main([List<String>? args]) async {
     });
 
     expect(dog.owner, null);
-
-    realm.close();
   });
 
   test('RealmObject.operator==', () {
     var config = Configuration([Dog.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final person = Person('Kasper');
     final dog = Dog('Fido', owner: person);
@@ -135,12 +127,11 @@ Future<void> main([List<String>? args]) async {
     final read = realm.query<Person>("name == 'Kasper'");
 
     expect(read, [person]);
-    realm.close();
   });
 
   test('RealmObject isValid', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     var team = Team("team one");
     expect(team.isValid, true);
@@ -154,7 +145,7 @@ Future<void> main([List<String>? args]) async {
 
   test('RealmObject read deleted object properties', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     var team = Team("TeamOne");
     realm.write(() => realm.add(team));
@@ -166,12 +157,11 @@ Future<void> main([List<String>? args]) async {
     expect(team, teamBeforeDelete);
     expect(() => team.name, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
     expect(() => teamBeforeDelete.name, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
-    realm.close();
   });
 
   test('RealmObject - write object property after realm is closed', () {
     var config = Configuration([Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final person = Person('Markos');
 
@@ -182,7 +172,7 @@ Future<void> main([List<String>? args]) async {
 
   test('RealmObject write deleted object property', () {
     var config = Configuration([Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final person = Person('Markos');
 
@@ -196,12 +186,11 @@ Future<void> main([List<String>? args]) async {
 
     expect(() => realm.write(() => person.name = "Markos Sanches"),
         throws<RealmException>("Accessing object of type Person which has been invalidated or deleted"));
-    realm.close();
   });
 
   test('RealmObject notifications', () async {
     var config = Configuration([Dog.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final dog = Dog("Lassy");
 
@@ -249,6 +238,5 @@ Future<void> main([List<String>? args]) async {
     subscription.cancel();
 
     await Future<void>.delayed(Duration(milliseconds: 20));
-    realm.close();
   });
 }
