@@ -539,49 +539,38 @@ jobs:
   generator:
     runs-on: ubuntu-latest
     name: Generator Tests
-    needs:
-      - build-linux
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           submodules: false
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          sdk: stable
-      - name: Install generator dependencies
-        run: dart pub get
-        working-directory: ./generator/
+          channel: 'stable'
       - name: Run generator tests
-        run: dart test --reporter expanded --coverage ./coverage/ --test-randomize-ordering-seed random
+        run: |
+          dart pub get
+          dart test --reporter expanded --coverage ./coverage/ --test-randomize-ordering-seed random
         working-directory: ./generator/
-      - name: Install realm_dart dependencies
-        run: dart pub get
+      - name: Delete generated files
+        run: find . -name "*.g.dart" -not -path "./generator/*" -delete
       - name: Run generator in realm-dart repo
         run: |
-          find . -name "*.g.dart" -delete
+          dart pub get
           dart run build_runner build --delete-conflicting-outputs
-
-      # TODO: fail the build if there are uncommitted changes as
-      # that would mean the generated files weren't pushed.
-      - name: Fetch artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: librealm-linux
-          path: binary
-      - name: Run realm_dart tests
-        run: dart test -r expanded -j 1 --test-randomize-ordering-seed random
-      - name: Generate generator coverage report
+      - name: Run generator in realm_flutter/example
         run: |
-          dart run coverage:format_coverage \
-            --in coverage/ \
-            --out ./coverage/lcov.info \
-            --check-ignore \
-            --lcov \
-            --packages .packages \
-            --report-on lib
-        working-directory: ./generator/
+          dart pub get
+          dart run build_runner build --delete-conflicting-outputs
+        working-directory: ./flutter/realm_flutter/example/
+      - name: Validate there are no uncommitted changes
+        run: |
+          status=$(git status --porcelain)
+          if [ -n "$status" ]; then
+            echo "$status"
+            exit 1
+          fi
       - name: Publish Generator Coverage
         id: publish-generator-coverage
         uses: coverallsapp/github-action@1.1.3
@@ -591,6 +580,4 @@ jobs:
           path-to-lcov: ./generator/coverage/lcov.info
         continue-on-error: true
       - name: Output Coveralls response
-        if: ${{ success() }}
         run: echo ${{ steps.publish-generator-coverage.outputs.coveralls-api-result }}
-        working-directory: ./generator/
