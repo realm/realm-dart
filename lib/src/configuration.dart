@@ -71,19 +71,19 @@ class Configuration {
   /// an [RealmException] will be thrown.
   final int schemaVersion;
 
-  ///The path where the Realm should be stored.
+  /// The path where the Realm should be stored.
   ///
   /// If omitted the [defaultPath] for the platform will be used.
   final String path;
 
-  /// Gets or sets a value indicating whether a [Realm] is opened as readonly.
+  /// Specifies whether a [Realm] should be opened as read-only.
   /// This allows opening it from locked locations such as resources,
   /// bundled with an application.
   ///
   /// The realm file must already exists at [path]
   final bool isReadOnly;
 
-  /// Specifies if a [Realm] should be opened in-memory.
+  /// Specifies whether a [Realm] should be opened in-memory.
   ///
   /// This still requires a [path] (can be the default path) to identify the [Realm] so other processes can open the same [Realm].
   /// The file will also be used as swap space if the [Realm] becomes bigger than what fits in memory,
@@ -91,7 +91,7 @@ class Configuration {
   /// When all in-memory instance of [Realm] is closed all data in that [Realm] is deleted.
   final bool isInMemory;
 
-  /// Gets or sets a value of FIFO special files location.
+  /// Specifies the FIFO special files fallback location.
   /// Opening a [Realm] creates a number of FIFO special files in order to
   /// coordinate access to the [Realm] across threads and processes. If the [Realm] file is stored in a location
   /// that does not allow the creation of FIFO special files (e.g. FAT32 filesystems), then the [Realm] cannot be opened.
