@@ -27,6 +27,8 @@ jobs:
       - uses: realm/ci-actions/mdb-realm/deployApps@fac1d6958f03d71de743305ce3ab27594efbe7b7
         id: deploy-mdb-apps
         with:
+          realmUrl: ${{ secrets.REALM_QA_URL }}
+          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
           projectId: ${{ secrets.ATLAS_QA_PROJECT_ID }}
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
@@ -38,7 +40,7 @@ jobs:
       - name: Deploy Apps
         run: |
           dart run realm_dart deploy-apps \
-            --baas-url https://realm-dev.mongodb.com \
+            --baas-url ${{ secrets.REALM_QA_URL }} \
             --atlas-cluster ${{ steps.deploy-mdb-apps.outputs.clusterName }} \
             --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} \
             --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} \
@@ -65,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Tests Linux
     env:
-      BAAS_URL: https://realm-dev.mongodb.com
+      BAAS_URL: ${{ secrets.REALM_QA_URL }}
       BAAS_CLUSTER: ${{ needs.baas-linux.outputs.clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
@@ -154,6 +156,8 @@ jobs:
     steps:
       - uses: realm/ci-actions/mdb-realm/cleanup@fac1d6958f03d71de743305ce3ab27594efbe7b7
         with:
+          realmUrl: ${{ secrets.REALM_QA_URL }}
+          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
           projectId: ${{ secrets.ATLAS_QA_PROJECT_ID}}
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
