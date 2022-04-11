@@ -20,7 +20,6 @@
 
 import 'dart:convert';
 import 'dart:ffi';
-import 'dart:html';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -38,53 +37,6 @@ import 'realm_bindings.dart';
 late RealmLibrary _realmLib;
 
 final _RealmCore realmCore = _RealmCore();
-
-// TODO: Once enhanced-enums land in 2.17, replace with:
-/*
-enum _CustomErrorCode {
-  noError(0),
-  httpClientDisposed(997),
-  unknownHttp(998),
-  unknown(999),
-  timeout(1000);
-
-  final int code;
-  const _CustomErrorCode(this.code);
-}
-*/
-
-enum _CustomErrorCode {
-  noError,
-  httpClientDisposed,
-  unknownHttp,
-  unknown,
-  timeout,
-}
-
-extension on _CustomErrorCode {
-  int get code {
-    switch (this) {
-      case _CustomErrorCode.noError:
-        return 0;
-      case _CustomErrorCode.httpClientDisposed:
-        return 997;
-      case _CustomErrorCode.unknownHttp:
-        return 998;
-      case _CustomErrorCode.unknown:
-        return 999;
-      case _CustomErrorCode.timeout:
-        return 1000;
-    }
-  }
-}
-
-enum _HttpMethod {
-  get,
-  post,
-  patch,
-  put,
-  delete,
-}
 
 class _RealmCore {
   // From realm.h. Currently not exported from the shared library
@@ -712,8 +664,6 @@ class _RealmCore {
 
     final url = Uri.parse(request.url.cast<Utf8>().toDartString());
 
-    final method = _HttpMethod.values[request.method];
-
     final body = request.body.cast<Utf8>().toDartString();
 
     final headers = <String, String>{};
@@ -724,13 +674,13 @@ class _RealmCore {
       headers[name] = value;
     }
 
-    _request_callback_async(client, method, url, body, headers, request_context);
+    _request_callback_async(client, request.method, url, body, headers, request_context);
     // The request struct dies here!
   }
 
   static void _request_callback_async(
     HttpClient client,
-    _HttpMethod method,
+    int requestMethod,
     Uri url,
     String body,
     Map<String, String> headers,
@@ -742,6 +692,10 @@ class _RealmCore {
       try {
         // Build request
         late HttpClientRequest request;
+
+        // this throws if requestMethod is unknown _HttpMethod
+        final method = _HttpMethod.values[requestMethod];
+           
         switch (method) {
           case _HttpMethod.delete:
             request = await client.deleteUrl(url);
@@ -1062,4 +1016,51 @@ extension on Object {
   Pointer<Void> toGCHandle() {
     return _realmLib.object_to_gc_handle(this);
   }
+}
+
+// TODO: Once enhanced-enums land in 2.17, replace with:
+/*
+enum _CustomErrorCode {
+  noError(0),
+  httpClientDisposed(997),
+  unknownHttp(998),
+  unknown(999),
+  timeout(1000);
+
+  final int code;
+  const _CustomErrorCode(this.code);
+}
+*/
+
+enum _CustomErrorCode {
+  noError,
+  httpClientDisposed,
+  unknownHttp,
+  unknown,
+  timeout,
+}
+
+extension on _CustomErrorCode {
+  int get code {
+    switch (this) {
+      case _CustomErrorCode.noError:
+        return 0;
+      case _CustomErrorCode.httpClientDisposed:
+        return 997;
+      case _CustomErrorCode.unknownHttp:
+        return 998;
+      case _CustomErrorCode.unknown:
+        return 999;
+      case _CustomErrorCode.timeout:
+        return 1000;
+    }
+  }
+}
+
+enum _HttpMethod {
+  get,
+  post,
+  patch,
+  put,
+  delete
 }
