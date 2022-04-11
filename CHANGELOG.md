@@ -17,6 +17,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support result value from write transaction callbacks ([#294](https://github.com/realm/realm-dart/pull/294/))
 * Added a property `Realm.isInTransaction` that indicates whether the Realm instance has an open write transaction associated with it.
 * Support anonymous application credentials ([#443](https://github.com/realm/realm-dart/pull/443/))
+* Support application configuration ([#306](https://github.com/realm/realm-dart/pull/306/))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))
