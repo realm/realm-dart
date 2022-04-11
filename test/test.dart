@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:collection';
 import 'dart:io';
 import 'dart:math';
 import 'package:path/path.dart' as _path;
@@ -76,6 +77,8 @@ class _School {
 String? testName;
 Map<String, BaasApp> baasApps = <String, BaasApp>{};
 
+final _openRealms = Queue<Realm>();
+
 //Overrides test method so we can filter tests
 void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
   if (testName != null && !name!.contains(testName!)) {
@@ -101,32 +104,58 @@ Future<void> setupTests(List<String>? args) async {
   await setupBaas();
 
   setUp(() {
-    String pathKey = generateRandomString(10);
-    String path = "$pathKey.realm";
-    if (Platform.isAndroid || Platform.isIOS) {
-      path = _path.join(Configuration.filesPath, path);
-    }
+    final path = generateRandomRealmPath();
     Configuration.defaultPath = path;
 
     addTearDown(() async {
-      try {
-        Realm.deleteRealm(path);
-      } catch (e) {
-        fail("Can not delete realm at path: $path. Did you forget to close it?");
+      final paths = HashSet<String>();
+      paths.add(path);
+
+      while (_openRealms.isNotEmpty) {
+        final realm = _openRealms.removeFirst();
+        paths.add(realm.config.path);
+        realm.close();
       }
-      await Directory(_path.dirname(path)).list().forEach((f) {
-        if (f.path.contains(pathKey)) tryDeleteFile(f);
-      });
+
+      for (final path in paths) {
+        var file = File(path);
+        try {
+          Realm.deleteRealm(path);
+        } catch (e) {
+          fail("Can not delete realm at path: $path. Did you forget to close it?");
+        }
+	await Directory(_path.dirname(path)).list().forEach((f) {
+       	 if (f.path.contains(pathKey)) await tryDeleteFile(f, recursive: true);
+      	});
+      
+      }
     });
   });
 }
 
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
 
+String generateRandomRealmPath() {
+  var path = "${generateRandomString(10)}.realm";
+  if (Platform.isAndroid || Platform.isIOS) {
+    path = _path.join(Configuration.filesPath, path);
+  } else {
+    path = _path.join(Directory.systemTemp.createTempSync("rt_").path, path);
+  }
+
+  return path;
+}
+
 final random = Random();
 String generateRandomString(int len) {
   const _chars = 'abcdefghjklmnopqrstuvwxuz';
   return List.generate(len, (index) => _chars[random.nextInt(_chars.length)]).join();
+}
+
+Realm getRealm(Configuration config) {
+  final realm = Realm(config);
+  _openRealms.add(realm);
+  return realm;
 }
 
 Future<void> tryDeleteFile(FileSystemEntity fileEntity, {bool recursive = false}) async {

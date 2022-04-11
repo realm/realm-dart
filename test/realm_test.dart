@@ -31,17 +31,16 @@ Future<void> main([List<String>? args]) async {
 
   test('Realm can be created', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
-    realm.close();
+    var realm = getRealm(config);
   });
 
   test('Realm can be closed', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.close();
 
     config = Configuration([Car.schema]);
-    realm = Realm(config);
+    realm = getRealm(config);
     realm.close();
 
     //Calling close() twice should not throw exceptions
@@ -50,18 +49,17 @@ Future<void> main([List<String>? args]) async {
 
   test('Realm can be closed and opened again', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.close();
 
     config = Configuration([Car.schema]);
     //should not throw exception
-    realm = Realm(config);
-    realm.close();
+    realm = getRealm(config);
   });
 
   test('Realm is closed', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     expect(realm.isClosed, false);
 
     realm.close();
@@ -70,61 +68,54 @@ Future<void> main([List<String>? args]) async {
 
   test('Realm open with schema subset', () {
     var config = Configuration([Car.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.close();
 
     config = Configuration([Car.schema]);
-    realm = Realm(config);
-    realm.close();
+    realm = getRealm(config);
   });
 
   test('Realm open with schema superset', () {
     var config = Configuration([Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.close();
 
     var config1 = Configuration([Person.schema, Car.schema]);
-    var realm1 = Realm(config1);
-    realm1.close();
+    var realm1 = getRealm(config1);
   });
 
   test('Realm open twice with same schema', () async {
     var config = Configuration([Person.schema, Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     var config1 = Configuration([Person.schema, Car.schema]);
-    var realm1 = Realm(config1);
-    realm.close();
-    realm1.close();
+    var realm1 = getRealm(config1);
   });
 
   test('Realm add throws when no write transaction', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     final car = Car('');
     expect(() => realm.add(car), throws<RealmException>("Wrong transactional state"));
-    realm.close();
   });
 
   test('Realm existsSync', () {
     var config = Configuration([Dog.schema, Person.schema]);
     expect(Realm.existsSync(config.path), false);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     expect(Realm.existsSync(config.path), true);
-    realm.close();
   });
 
   test('Realm exists', () async {
     var config = Configuration([Dog.schema, Person.schema]);
     expect(await Realm.exists(config.path), false);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     expect(await Realm.exists(config.path), true);
-    realm.close();
   });
 
   test('Realm deleteRealm succeeds', () {
     var config = Configuration([Dog.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     realm.close();
     Realm.deleteRealm(config.path);
@@ -135,29 +126,26 @@ Future<void> main([List<String>? args]) async {
 
   test('Realm deleteRealm throws exception on an open realm', () {
     var config = Configuration([Dog.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     expect(() => Realm.deleteRealm(config.path), throws<RealmException>());
 
     expect(File(config.path).existsSync(), true);
     expect(Directory("${config.path}.management").existsSync(), true);
-    realm.close();
   });
 
   test('Realm add object', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     realm.write(() {
       realm.add(Car(''));
     });
-
-    realm.close();
   });
 
   test('Realm add multiple objects', () {
     final config = Configuration([Car.schema]);
-    final realm = Realm(config);
+    final realm = getRealm(config);
 
     final cars = [
       Car('Mercedes'),
@@ -171,13 +159,11 @@ Future<void> main([List<String>? args]) async {
 
     final allCars = realm.all<Car>();
     expect(allCars, cars);
-
-    realm.close();
   });
 
   test('Realm add object twice does not throw', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     realm.write(() {
       final car = Car('');
@@ -187,13 +173,11 @@ Future<void> main([List<String>? args]) async {
       final car1 = realm.add(car);
       expect(car1, equals(car));
     });
-
-    realm.close();
   });
 
   test('Realm add object with list properties', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final team = Team("Ferrari")
       ..players.addAll([Person("Michael"), Person("Kimi")])
@@ -213,20 +197,18 @@ Future<void> main([List<String>? args]) async {
     expect(teams[0].scores[0], 1);
     expect(teams[0].scores[1], 2);
     expect(teams[0].scores[2], 3);
-    realm.close();
   });
 
   test('Realm adding not configured object throws exception', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     expect(() => realm.write(() => realm.add(Person(''))), throws<RealmException>("not configured"));
-    realm.close();
   });
 
   test('Realm add returns the same object', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final car = Car('');
     Car? addedCar;
@@ -235,13 +217,11 @@ Future<void> main([List<String>? args]) async {
     });
 
     expect(addedCar == car, isTrue);
-
-    realm.close();
   });
 
   test('Realm add object transaction rollbacks on exception', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     expect(() {
       realm.write(() {
@@ -252,25 +232,21 @@ Future<void> main([List<String>? args]) async {
 
     final car = realm.find<Car>("Telsa");
     expect(car, isNull);
-
-    realm.close();
   });
 
   test('Realm adding objects with duplicate primary keys throws', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final carOne = Car("Toyota");
     final carTwo = Car("Toyota");
     realm.write(() => realm.add(carOne));
     expect(() => realm.write(() => realm.add(carTwo)), throws<RealmException>());
-
-    realm.close();
   });
 
   test('Realm add object after realm is closed', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final car = Car('Tesla');
 
@@ -280,33 +256,29 @@ Future<void> main([List<String>? args]) async {
 
   test('Realm query', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.write(() => realm
       ..add(Car("Audi"))
       ..add(Car("Tesla")));
     final cars = realm.query<Car>('make == "Tesla"');
     expect(cars.length, 1);
     expect(cars[0].make, "Tesla");
-
-    realm.close();
   });
 
   test('Realm query with parameter', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.write(() => realm
       ..add(Car("Audi"))
       ..add(Car("Tesla")));
     final cars = realm.query<Car>(r'make == $0', ['Tesla']);
     expect(cars.length, 1);
     expect(cars[0].make, "Tesla");
-
-    realm.close();
   });
 
   test('Realm query with multiple parameters', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final p1 = Person('p1');
     final p2 = Person('p2');
@@ -325,59 +297,49 @@ Future<void> main([List<String>? args]) async {
     final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH $1', [p1, 'A']);
     expect(filteredTeams.length, 1);
     expect(filteredTeams[0].name, "A1");
-
-    realm.close();
   });
 
   test('Realm find object by primary key', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     realm.write(() => realm.add(Car("Opel")));
 
     final car = realm.find<Car>("Opel");
     expect(car, isNotNull);
-
-    realm.close();
   });
 
   test('Realm find not configured object by primary key throws exception', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     expect(() => realm.find<Person>("Me"), throws<RealmException>("not configured"));
-
-    realm.close();
   });
 
   test('Realm find object by primary key default value', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     realm.write(() => realm.add(Car('Tesla')));
 
     final car = realm.find<Car>("Tesla");
     expect(car, isNotNull);
     expect(car?.make, equals("Tesla"));
-
-    realm.close();
   });
 
   test('Realm find non existing object by primary key returns null', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     realm.write(() => realm.add(Car("Opel")));
 
     final car = realm.find<Car>("NonExistingPrimaryKey");
     expect(car, isNull);
-
-    realm.close();
   });
 
   test('Realm delete object', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final car = Car("SomeNewNonExistingValue");
     realm.write(() => realm.add(car));
@@ -389,13 +351,11 @@ Future<void> main([List<String>? args]) async {
 
     var car2 = realm.find<Car>("SomeNewNonExistingValue");
     expect(car2, isNull);
-
-    realm.close();
   });
 
   test('Realm deleteMany from realm list', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     //Create a team
     final team = Team("Ferrari");
@@ -422,12 +382,11 @@ Future<void> main([List<String>? args]) async {
     //Reload all persons from realm and ensure they are deleted
     final allPersons = realm.all<Person>();
     expect(allPersons.length, 0);
-    realm.close();
   });
 
   test('Realm deleteMany from list referenced by two objects', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     //Create two teams
     final teamOne = Team("Ferrari");
@@ -461,12 +420,11 @@ Future<void> main([List<String>? args]) async {
     //Reload all persons from realm and ensure they are deleted
     final allPersons = realm.all<Person>();
     expect(allPersons.length, 0);
-    realm.close();
   });
 
   test('Realm deleteMany from list after realm is closed', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     //Create a team
     final team = Team("Ferrari");
@@ -495,15 +453,14 @@ Future<void> main([List<String>? args]) async {
 
     //Ensure all persons still exists in realm
     config = Configuration([Team.schema, Person.schema]);
-    realm = Realm(config);
+    realm = getRealm(config);
     final allPersons = realm.all<Person>();
     expect(allPersons.length, 3);
-    realm.close();
   });
 
   test('Realm deleteMany from iterable', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     //Create two teams
     final teamOne = Team("Team one");
@@ -525,12 +482,11 @@ Future<void> main([List<String>? args]) async {
     //Ensure both teams are deleted and only teamTwo has left
     expect(teams.length, 1);
     expect(teams[0].name, teamTwo.name);
-    realm.close();
   });
 
   test('Realm deleteAll', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final denmark = Team('Denmark', players: ['Arnesen', 'Laudrup', 'Mølby'].map(Person.new));
     final argentina = Team('Argentina', players: [Person('Maradona')]);
@@ -543,8 +499,6 @@ Future<void> main([List<String>? args]) async {
 
     expect(realm.all<Person>().length, 4); // no cascading deletes
     expect(realm.all<Team>().length, 0);
-
-    realm.close();
   });
 
   test('Realm adding objects graph', () {
@@ -573,7 +527,7 @@ Future<void> main([List<String>? args]) async {
     school131.branches.addAll([school131Branch1, school131Branch2]);
 
     var config = Configuration([School.schema, Student.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     realm.write(() => realm.add(school131));
 
@@ -596,38 +550,66 @@ Future<void> main([List<String>? args]) async {
     expect(mainSchools[0].branches.length, 2);
     expect(mainSchools[0].students.length, 3);
     expect(mainSchools[0].branches[0].students.length + mainSchools[0].branches[1].students.length, 3);
-    realm.close();
   });
 
   test('Opening Realm with same config throws error', () {
     final config = Configuration([Dog.schema, Person.schema]);
 
-    final realm = Realm(config);
-    expect(() => Realm(config), throws<RealmStateError>("A Realm instance for this configuraiton object already exists."));
-    realm.close();
+    final realm = getRealm(config);
+    expect(() => getRealm(config), throws<RealmStateError>("A Realm instance for this configuraiton object already exists."));
   });
 
   test('Realm.operator== different config', () {
     var config = Configuration([Dog.schema, Person.schema]);
-    final realm1 = Realm(config);
+    final realm1 = getRealm(config);
     config = Configuration([Dog.schema, Person.schema, Team.schema]);
-    final realm2 = Realm(config);
+    final realm2 = getRealm(config);
     expect(realm1, isNot(realm2));
-    realm1.close();
-    realm2.close();
   });
 
   test('Realm write returns result', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     var car = Car('Mustang');
 
     var returnedCar = realm.write(() {
       return realm.add(car);
     });
     expect(returnedCar, car);
-
-    realm.close();
   });
 
+  test('Realm write inside another write throws', () {
+    final config = Configuration([Car.schema]);
+    final realm = getRealm(config);
+    realm.write(() {
+      // Second write inside the first one fails but the error is caught
+      expect(() => realm.write(() {}), throws<RealmException>('The Realm is already in a write transaction'));
+    });
+  });
+
+  test('Realm isInTransaction returns true inside transaction', () {
+    final config = Configuration([Car.schema]);
+    final realm = getRealm(config);
+    expect(realm.isInTransaction, false);
+    realm.write(() {
+      expect(realm.isInTransaction, true);
+    });
+
+    expect(realm.isInTransaction, false);
+  });
+
+  test('Realm write with error rolls back', () {
+    final config = Configuration([Car.schema]);
+    final realm = getRealm(config);
+    expect(realm.isInTransaction, false);
+
+    expect(() {
+      realm.write(() {
+        throw Exception('uh oh!');
+      });
+    }, throws<Exception>('uh oh!'));
+
+    // We should not be in transaction here
+    expect(realm.isInTransaction, false);
+  });
 }

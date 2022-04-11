@@ -1,7 +1,5 @@
+# Usage: dart run ffigen --config config.yaml 
 name: RealmLibrary
-description: >- 
-  A Windows config for ffigen
-  Usage: dart run ffigen --config windows.yaml 
 output: "../lib/src/native/realm_bindings.dart"
 headers:
   entry-points:

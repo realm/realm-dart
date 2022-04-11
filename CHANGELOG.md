@@ -12,16 +12,18 @@ x.x.x Release notes (yyyy-MM-dd)
     //Opening 'Realm' will throw a RealmException with message: "The Realm file format must be allowed to be upgraded in order to proceed." 
     ```
 * Support result value from write transaction callbacks ([#294](https://github.com/realm/realm-dart/pull/294/))
+* Added a property `Realm.isInTransaction` that indicates whether the Realm instance has an open write transaction associated with it.
+* Support anonymous application credentials ([#443](https://github.com/realm/realm-dart/pull/443/))
 
 ### Fixed
-* None
-
-### Compatibility
-* Dart ^2.15 on Windows, MacOS and Linux
+* Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))
 
 ### Internal
 * Added a command to deploy a MongoDB Realm app to `realm_dart`. Usage: `dart run realm_dart deploy-apps`. By default it will deploy apps to `http://localhost:9090` which is the endpoint of the local docker image. If `--atlas-cluster` is provided, it will authenticate, create an application and link the provided cluster to it. (PR [#309](https://github.com/realm/realm-dart/pull/309))
 * Unit tests will now attempt to lookup and create if necessary MongoDB applications (similarly to the above mentioned command). See `test.dart/setupBaas()` for the environment variables that control the Url and Atlas Cluster that will be used. If the `BAAS_URL` environment variable is not set, no apps will be imported and sync tests will not run. (PR [#309](https://github.com/realm/realm-dart/pull/309))
+
+### Compatibility
+* Dart ^2.15 on Windows, MacOS and Linux
 
 0.2.1+alpha Release notes (2022-03-20)
 ==============================================================
