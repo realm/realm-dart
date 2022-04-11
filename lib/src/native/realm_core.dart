@@ -554,44 +554,59 @@ class _RealmCore {
   }
 
   static void collection_change_callback(Pointer<Void> userdata, Pointer<realm_collection_changes> data) {
-    final controller = _realmLib.gc_handle_deref(userdata);
-    if (controller is NotificationsController) {
-      if (data == nullptr) {
-        controller.onError(RealmError("Invalid notifications data received"));
+    NotificationsController? controller = userdata.toObject();
+    if (controller == null) {
+      return;
+    }
+
+    if (data == nullptr) {
+      controller.onError(RealmError("Invalid notifications data received"));
+      return;
+    }
+
+    try {
+      final clonedData = _realmLib.realm_clone(data.cast());
+      if (clonedData == nullptr) {
+        controller.onError(RealmError("Error while cloning notifications data"));
         return;
       }
 
-      try {
-        final changesHandle = RealmCollectionChangesHandle._(_realmLib.realm_clone(data.cast()).cast());
-        controller.onChanges(changesHandle);
-      } catch (e) {
-        controller.onError(RealmError("Error handling collection change notifications. Error: $e"));
-      }
+      final changesHandle = RealmCollectionChangesHandle._(clonedData.cast());
+      controller.onChanges(changesHandle);
+    } catch (e) {
+      controller.onError(RealmError("Error handling collection change notifications. Error: $e"));
     }
   }
 
   static void object_change_callback(Pointer<Void> userdata, Pointer<realm_object_changes> data) {
-    final controller = _realmLib.gc_handle_deref(userdata);
-    if (controller is NotificationsController) {
-      if (data == nullptr) {
-        //realm_collection_changes data clone is done in native code before this callback is invoked. nullptr data means cloning failed.
-        controller.onError(RealmError("Invalid notifications data received"));
+    NotificationsController? controller = userdata.toObject();
+    if (controller == null) {
+      return;
+    }
+
+    if (data == nullptr) {
+      controller.onError(RealmError("Invalid notifications data received"));
+      return;
+    }
+
+    try {
+      final clonedData = _realmLib.realm_clone(data.cast());
+      if (clonedData == nullptr) {
+        controller.onError(RealmError("Error while cloning notifications data"));
         return;
       }
 
-      try {
-        final changesHandle = RealmObjectChangesHandle._(_realmLib.realm_clone(data.cast()).cast());
-        controller.onChanges(changesHandle);
-      } catch (e) {
-        controller.onError(RealmError("Error handling collection change notifications. Error: $e"));
-      }
+      final changesHandle = RealmObjectChangesHandle._(clonedData.cast());
+      controller.onChanges(changesHandle);
+    } catch (e) {
+      controller.onError(RealmError("Error handling collection change notifications. Error: $e"));
     }
   }
 
   RealmNotificationTokenHandle subscribeResultsNotifications(RealmResultsHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_add_notification_callback(
           handle._pointer,
-          _realmLib.gc_handle_weak_new(controller),
+          controller.toGCHandle(),
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
@@ -605,7 +620,7 @@ class _RealmCore {
   RealmNotificationTokenHandle subscribeListNotifications(RealmListHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_list_add_notification_callback(
           handle._pointer,
-          _realmLib.gc_handle_weak_new(controller),
+          controller.toGCHandle(),
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
@@ -619,7 +634,7 @@ class _RealmCore {
   RealmNotificationTokenHandle subscribeObjectNotifications(RealmObjectHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_add_notification_callback(
           handle._pointer,
-          _realmLib.gc_handle_weak_new(controller),
+          controller.toGCHandle(),
           nullptr,
           nullptr,
           Pointer.fromFunction(object_change_callback),
@@ -881,5 +896,26 @@ extension on Pointer<IntPtr> {
       result[i] = elementAt(i).value;
     }
     return result;
+  }
+}
+
+extension on Pointer<Void> {
+  T? toObject<T extends Object>() {
+    assert(this != nullptr, "Pointer<Void> is null");
+
+    final object = _realmLib.gc_handle_to_object(this);
+
+    assert(object is T, "$T expected");
+    if (object is! T) {
+      return null;
+    }
+
+    return object;
+  }
+}
+
+extension on Object {
+  Pointer<Void> toGCHandle() {
+    return _realmLib.object_to_gc_handle(this);
   }
 }

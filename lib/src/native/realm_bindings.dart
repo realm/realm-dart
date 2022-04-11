@@ -7449,61 +7449,33 @@ class RealmLibrary {
   late final _realm_delete_finalizable = _realm_delete_finalizablePtr
       .asFunction<void Function(Dart_FinalizableHandle, Object)>();
 
-  ffi.Pointer<ffi.Void> gc_handle_weak_new(
+  ffi.Pointer<ffi.Void> object_to_gc_handle(
     Object handle,
   ) {
-    return _gc_handle_weak_new(
+    return _object_to_gc_handle(
       handle,
     );
   }
 
-  late final _gc_handle_weak_newPtr =
+  late final _object_to_gc_handlePtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>(
-          'gc_handle_weak_new');
-  late final _gc_handle_weak_new = _gc_handle_weak_newPtr
+          'object_to_gc_handle');
+  late final _object_to_gc_handle = _object_to_gc_handlePtr
       .asFunction<ffi.Pointer<ffi.Void> Function(Object)>();
 
-  ffi.Pointer<ffi.Void> gc_handle_hard_new(
-    Object handle,
-  ) {
-    return _gc_handle_hard_new(
-      handle,
-    );
-  }
-
-  late final _gc_handle_hard_newPtr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>(
-          'gc_handle_hard_new');
-  late final _gc_handle_hard_new = _gc_handle_hard_newPtr
-      .asFunction<ffi.Pointer<ffi.Void> Function(Object)>();
-
-  void gc_handle_soften(
+  Object gc_handle_to_object(
     ffi.Pointer<ffi.Void> handle,
   ) {
-    return _gc_handle_soften(
+    return _gc_handle_to_object(
       handle,
     );
   }
 
-  late final _gc_handle_softenPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'gc_handle_soften');
-  late final _gc_handle_soften =
-      _gc_handle_softenPtr.asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  Object gc_handle_deref(
-    ffi.Pointer<ffi.Void> handle,
-  ) {
-    return _gc_handle_deref(
-      handle,
-    );
-  }
-
-  late final _gc_handle_derefPtr =
+  late final _gc_handle_to_objectPtr =
       _lookup<ffi.NativeFunction<ffi.Handle Function(ffi.Pointer<ffi.Void>)>>(
-          'gc_handle_deref');
-  late final _gc_handle_deref =
-      _gc_handle_derefPtr.asFunction<Object Function(ffi.Pointer<ffi.Void>)>();
+          'gc_handle_to_object');
+  late final _gc_handle_to_object = _gc_handle_to_objectPtr
+      .asFunction<Object Function(ffi.Pointer<ffi.Void>)>();
 
   ffi.Pointer<realm_scheduler_t> realm_dart_create_scheduler(
     int isolateId,
