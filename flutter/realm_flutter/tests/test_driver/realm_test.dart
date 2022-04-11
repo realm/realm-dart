@@ -11,6 +11,7 @@ import '../test/realm_test.dart' as realm_tests;
 import '../test/realm_object_test.dart' as realm_object_tests;
 import '../test/list_test.dart' as list_tests;
 import '../test/results_test.dart' as results_tests;
+import '../test/credentials_test.dart' as credentials;
 
 Future<String> main(List<String> args) async {
   final Completer<String> completer = Completer<String>();
@@ -21,6 +22,7 @@ Future<String> main(List<String> args) async {
   await realm_object_tests.main(args);
   await list_tests.main(args);
   await results_tests.main(args);
+  await credentials.main(args);
 
   tearDown(() {
     if (Invoker.current?.liveTest.state.result == test_api.Result.error || Invoker.current?.liveTest.state.result == test_api.Result.failure) {

@@ -54,103 +54,110 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration get/set path', () {
-    Configuration config = Configuration([Car.schema]);
+    final config = Configuration([Car.schema]);
     expect(config.path, endsWith('.realm'));
 
     const path = "my/path/default.realm";
-    config.path = path;
-    expect(config.path, equals(path));
+    final explicitPathConfig = Configuration([Car.schema], path: path);
+    expect(explicitPathConfig.path, equals(path));
   });
 
   test('Configuration get/set schema version', () {
-    Configuration config = Configuration([Car.schema]);
+    final config = Configuration([Car.schema]);
     expect(config.schemaVersion, equals(0));
 
-    config.schemaVersion = 3;
-    expect(config.schemaVersion, equals(3));
+    final explicitSchemaConfig = Configuration([Car.schema], schemaVersion: 3);
+    expect(explicitSchemaConfig.schemaVersion, equals(3));
   });
 
   test('Configuration readOnly - opening non existing realm throws', () {
-    Configuration config = Configuration([Car.schema], readOnly: true);
-    expect(() => Realm(config), throws<RealmException>("at path '${config.path}' does not exist"));
+    Configuration config = Configuration([Car.schema], isReadOnly: true);
+    expect(() => getRealm(config), throws<RealmException>("at path '${config.path}' does not exist"));
   });
 
   test('Configuration readOnly - open existing realm with read-only config', () {
     Configuration config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.close();
 
     // Open an existing realm as readonly.
-    config = Configuration([Car.schema], readOnly: true);
-    realm = Realm(config);
-    realm.close();
+    config = Configuration([Car.schema], isReadOnly: true);
+    realm = getRealm(config);
   });
 
   test('Configuration readOnly - reading is possible', () {
     Configuration config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.write(() => realm.add(Car("Mustang")));
     realm.close();
 
-    config = Configuration([Car.schema]);
-    config.isReadOnly = true;
-    realm = Realm(config);
+    config = Configuration([Car.schema], isReadOnly: true);
+    realm = getRealm(config);
     var cars = realm.all<Car>();
-    realm.close();
+    expect(cars.length, 1);
   });
 
   test('Configuration readOnly - writing on read-only Realms throws', () {
     Configuration config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.close();
 
-    config = Configuration([Car.schema], readOnly: true);
-    realm = Realm(config);
+    config = Configuration([Car.schema], isReadOnly: true);
+    realm = getRealm(config);
     expect(() => realm.write(() {}), throws<RealmException>("Can't perform transactions on read-only Realms."));
-    realm.close();
   });
 
   test('Configuration inMemory - no files after closing realm', () {
-    Configuration config = Configuration([Car.schema], inMemory: true);
-    var realm = Realm(config);
+    Configuration config = Configuration([Car.schema], isInMemory: true);
+    var realm = getRealm(config);
     realm.write(() => realm.add(Car('Tesla')));
     realm.close();
     expect(Realm.existsSync(config.path), false);
   });
 
   test('Configuration inMemory can not be readOnly', () {
-    Configuration config = Configuration([Car.schema], inMemory: true);
-    var realm = Realm(config);
+    Configuration config = Configuration([Car.schema], isInMemory: true);
+    final realm = getRealm(config);
 
     expect(() {
-      config = Configuration([Car.schema]);
-      config.isReadOnly = true;
-      Realm(config);
+      config = Configuration([Car.schema], isReadOnly: true);
+      getRealm(config);
     }, throws<RealmException>("Realm at path '${config.path}' already opened with different read permissions"));
-
-    realm.close();
   });
 
   test('Configuration - FIFO files fallback path', () {
     Configuration config = Configuration([Car.schema], fifoFilesFallbackPath: "./fifo_folder");
-    var realm = Realm(config);
-    realm.close();
+    final realm = getRealm(config);
   });
 
   test('Configuration.operator== equal configs', () {
     final config = Configuration([Dog.schema, Person.schema]);
-    final realm = Realm(config);
+    final realm = getRealm(config);
     expect(config, realm.config);
-    realm.close();
   });
- 
+
   test('Configuration.operator== different configs', () {
     var config = Configuration([Dog.schema, Person.schema]);
-    final realm1 = Realm(config);
+    final realm1 = getRealm(config);
     config = Configuration([Dog.schema, Person.schema]);
-    final realm2 = Realm(config);
+    final realm2 = getRealm(config);
     expect(realm1.config, isNot(realm2.config));
-    realm1.close();
-    realm2.close();
   });
+
+  test('Configuration - disableFormatUpgrade=true throws error', () async {
+    final realmBundleFile = "test/data/realm_files/old-format.realm";
+    var config = Configuration([Car.schema], disableFormatUpgrade: true);
+    await File(realmBundleFile).copy(config.path);
+    expect(() {
+      Realm(config);
+    }, throws<RealmException>("The Realm file format must be allowed to be upgraded in order to proceed"));
+  }, skip: isFlutterPlatform);
+
+  test('Configuration - disableFormatUpgrade=false', () async {
+    final realmBundleFile = "test/data/realm_files/old-format.realm";
+    var config = Configuration([Car.schema], disableFormatUpgrade: false);
+    await File(realmBundleFile).copy(config.path);
+    var realm = Realm(config);
+    realm.close();
+  }, skip: isFlutterPlatform);
 }

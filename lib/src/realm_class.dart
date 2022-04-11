@@ -30,16 +30,16 @@ import 'realm_object.dart';
 import 'results.dart';
 
 // always expose with `show` to explicitly control the public API surface
+export 'application.dart' show Application;
+export "application_configuration.dart" show ApplicationConfiguration, MetadataPersistenceMode;
 export 'package:realm_common/realm_common.dart'
     show Ignored, Indexed, MapTo, PrimaryKey, RealmError, RealmModel, RealmUnsupportedSetError, RealmStateError, RealmCollectionType, RealmPropertyType;
-
-export 'application.dart' show Application;
-export 'application_configuration.dart' show ApplicationConfiguration;
 export "configuration.dart" show Configuration, RealmSchema, SchemaObject;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
 export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
+export 'credentials.dart' show Credentials, AuthProvider;
 export 'user.dart' show User;
 
 /// A [Realm] instance represents a `Realm` database.
@@ -56,13 +56,10 @@ class Realm {
 
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : _config = config {
-    if (_config.isInUse) {
-      throw RealmStateError("A Realm instance for this configuraiton object already exists.");
-    }
-    _scheduler = Scheduler(_config, close);
+    _scheduler = Scheduler(close);
 
     try {
-      _handle = realmCore.openRealm(_config);
+      _handle = realmCore.openRealm(_config, _scheduler);
 
       for (var realmClass in _config.schema) {
         final classMeta = realmCore.getClassMetadata(this, realmClass.name, realmClass.type);
@@ -74,7 +71,6 @@ class Realm {
       _scheduler.stop();
       rethrow;
     }
-    _config.isInUse = true;    
   }
 
   /// Deletes all files associated with a `Realm` located at given [path]
@@ -168,22 +164,22 @@ class Realm {
     }
   }
 
-  bool get _isInTransaction => realmCore.getIsWritable(this);
+  /// Checks whether the `Realm` is in write transaction.
+  bool get isInTransaction => realmCore.getIsWritable(this);
 
   /// Synchronously calls the provided callback inside a write transaction.
   ///
   /// If no exception is thrown from within the callback, the transaction will be committed.
   /// It is more efficient to update several properties or even create multiple objects in a single write transaction.
   T write<T>(T Function() writeCallback) {
+    final transaction = Transaction._(this);
+
     try {
-      realmCore.beginWrite(this);
       T result = writeCallback();
-      realmCore.commitWrite(this);
+      transaction.commit();
       return result;
     } catch (e) {
-      if (_isInTransaction) {
-        realmCore.rollbackWrite(this);
-      }
+      transaction.rollback();
       rethrow;
     }
   }
@@ -195,7 +191,6 @@ class Realm {
   void close() {
     realmCore.closeRealm(this);
     _scheduler.stop();
-    _config.isInUse = false;
   }
 
   /// Checks whether the `Realm` is closed.
@@ -262,7 +257,7 @@ class Scheduler {
   final void Function() onFinalize;
   final RawReceivePort receivePort = RawReceivePort();
 
-  Scheduler(Configuration config, this.onFinalize) {
+  Scheduler(this.onFinalize) {
     receivePort.handler = (dynamic message) {
       if (message == SCHEDULER_FINALIZE_OR_PROCESS_EXIT) {
         onFinalize();
@@ -275,12 +270,38 @@ class Scheduler {
 
     final sendPort = receivePort.sendPort;
     handle = realmCore.createScheduler(Isolate.current.hashCode, sendPort.nativePort);
-
-    realmCore.setScheduler(config, handle);
   }
 
   void stop() {
     receivePort.close();
+  }
+}
+
+/// @nodoc
+class Transaction {
+  Realm? _realm;
+
+  Transaction._(Realm realm) {
+    _realm = realm;
+    realmCore.beginWrite(realm);
+  }
+
+  void commit() {
+    if (_realm == null) {
+      throw RealmException('Transaction was already closed. Cannot commit');
+    }
+
+    realmCore.commitWrite(_realm!);
+    _realm = null;
+  }
+
+  void rollback() {
+    if (_realm == null) {
+      throw RealmException('Transaction was already closed. Cannot rollback');
+    }
+
+    realmCore.rollbackWrite(_realm!);
+    _realm = null;
   }
 }
 
