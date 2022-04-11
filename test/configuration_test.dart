@@ -171,7 +171,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration - compact on open realm', () {
     var config = Configuration([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
-      return true;
+      return totalSize > 0;
     });
     final realm = getRealm(config);
   });

@@ -165,7 +165,7 @@ class _RealmCore {
     });
   }
 
-  static int should_compact_callbac(Pointer<Void> userdata, int totalSize, int usedSize) {
+  static int should_compact_callback(Pointer<Void> userdata, int totalSize, int usedSize) {
     final Configuration? config =  userdata.toObject();
     if (config== null) {
       return 0;
