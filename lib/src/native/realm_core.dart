@@ -651,8 +651,7 @@ class _RealmCore {
     // Therefor we need to copy everything out of request before returning.
     // We cannot clone request on the native side with realm_clone,
     // since realm_http_request does not inherit from WrapC.
-    //
-    // final client = _realmLib.gc_handle_deref(userData) as HttpClient;
+
     HttpClient? userObject = userData.toObject();
     if (userObject == null) {
       return;
