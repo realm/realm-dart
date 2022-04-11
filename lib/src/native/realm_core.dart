@@ -171,7 +171,10 @@ class _RealmCore {
 
   static int initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmHandle) {
     try {
-      final config = _realmLib.gc_handle_deref(userdata);
+      final Configuration? config =  userdata.toObject();
+      if (config== null) {
+          return;
+      }
       if (config is Configuration) {
         final realm = RealmInternal.getUnowned(config, RealmHandle._unowned(realmHandle));
         config.initialDataCallback!(realm);
