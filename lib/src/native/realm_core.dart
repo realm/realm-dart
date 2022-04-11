@@ -145,10 +145,9 @@ class _RealmCore {
       _realmLib.realm_config_set_schema_version(configHandle._pointer, config.schemaVersion);
       _realmLib.realm_config_set_path(configHandle._pointer, config.path.toUtf8Ptr(arena));
       _realmLib.realm_config_set_scheduler(configHandle._pointer, schedulerHandle._pointer);
-
-      final schemaMode = config.isReadOnly ? realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE : realm_schema_mode.RLM_SCHEMA_MODE_AUTOMATIC;
-      _realmLib.realm_config_set_schema_mode(configHandle._pointer, schemaMode);
-
+      if (config.isReadOnly) {
+        _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE);
+      }
       if (config.isInMemory) {
         _realmLib.realm_config_set_in_memory(configHandle._pointer, config.isInMemory);
       }
@@ -158,6 +157,7 @@ class _RealmCore {
       if (config.disableFormatUpgrade) {
         _realmLib.realm_config_set_disable_format_upgrade(configHandle._pointer, config.disableFormatUpgrade);
       }
+
       return configHandle;
     });
   }
