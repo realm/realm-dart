@@ -42,7 +42,7 @@ void dummy(void) {
   realm_results_get_object(NULL, 0);
   realm_list_size(NULL, 0);
   realm_results_snapshot(NULL);
-  realm_config_set_should_compact_on_launch_function(NULL, NULL);
+  realm_config_set_should_compact_on_launch_function(NULL, NULL, NULL);
   realm_app_credentials_new_anonymous();
 }
 
