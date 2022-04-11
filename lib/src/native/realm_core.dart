@@ -18,6 +18,7 @@
 
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
@@ -623,8 +624,8 @@ class _RealmCore {
       return out_modified.asTypedList(count).toList();
     });
   }
-  
-  AppConfigHandle createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
+
+  AppConfigHandle _createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
     return using((arena) {
       final c = configuration;
       final app_id = c.appId.toUtf8Ptr(arena);
@@ -633,7 +634,7 @@ class _RealmCore {
         _realmLib.realm_app_config_set_base_url(handle._pointer, c.baseUrl.toString().toUtf8Ptr(arena));
       }
       if (c.defaultRequestTimeout != null) {
-        _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, c.defaultRequestTimeout!.inMilliseconds);
+        _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, c.defaultRequestTimeout.inMilliseconds);
       }
       if (c.localAppName != null) {
         _realmLib.realm_app_config_set_local_app_name(handle._pointer, c.localAppName!.toUtf8Ptr(arena));
@@ -644,8 +645,7 @@ class _RealmCore {
       }
       _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toUtf8Ptr(arena));
       _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toUtf8Ptr(arena));
-      final version = Version.parse(Platform.version);
-      _realmLib.realm_app_config_set_sdk_version(handle._pointer, version.toString().toUtf8Ptr(arena));
+      _realmLib.realm_app_config_set_sdk_version(handle._pointer, Platform.version.toUtf8Ptr(arena));
 
       return handle;
     });
@@ -723,7 +723,7 @@ class _RealmCore {
 
         // this throws if requestMethod is unknown _HttpMethod
         final method = _HttpMethod.values[requestMethod];
-           
+
         switch (method) {
           case _HttpMethod.delete:
             request = await client.deleteUrl(url);
@@ -787,30 +787,31 @@ class _RealmCore {
       }
     });
   }
-  
-  RealmAppHandle getApp(RealmAppConfigHandle appConfig) {
-    return RealmAppHandle._(_realmLib.realm_app_get(appConfig._pointer, nullptr)); // TODO: realm_sync_client_config
+
+  RealmAppHandle getApp(ApplicationConfiguration appConfig) {
+    final httpHandle = createHttpTransport(appConfig.httpClient);
+    final appConfigHandle = _createAppConfig(appConfig, httpHandle);
+    return RealmAppHandle._(_realmLib.realm_app_get(appConfigHandle._pointer, nullptr)); // TODO: realm_sync_client_config
   }
 
-  static void _loginCallback(Object userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
-    if (userdata is Completer<RealmUserHandle>) {
-      if (error != nullptr) {
-        final message = error.ref.message.cast<Utf8>().toDartString();
-        userdata.completeError(RealmException(message));
-      } else {
-        userdata.complete(RealmUserHandle._(_realmLib.realm_clone(user.cast()).cast()));
-      }
+  static void app_log_in_with_credentials_callback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
+    final Completer<RealmUserHandle>? completer = userdata.toObject();
+    if (completer == null) {
+      return;
+    }
+    if (error != nullptr) {
+      final message = error.ref.message.cast<Utf8>().toDartString();
+      completer.completeError(RealmException(message));
+    } else {
+      completer.complete(RealmUserHandle._(_realmLib.realm_clone(user.cast()).cast()));
     }
   }
 
   Future<RealmUserHandle> logIn(RealmAppHandle app, RealmAppCredentialsHandle credentials) {
     final completer = Completer<RealmUserHandle>();
-    _realmLib.invokeGetBool(() => _realmLib.realm_dart_app_log_in_with_credentials(
-          app._pointer,
-          credentials._pointer,
-          Pointer.fromFunction(_loginCallback),
-          completer,
-        ));
+    final callback =
+        Pointer.fromFunction<Void Function(Pointer<Void>, Pointer<realm_user_t>, Pointer<realm_app_error_t>)>(app_log_in_with_credentials_callback);
+    _realmLib.invokeGetBool(() => _realmLib.realm_app_log_in_with_credentials(app._pointer, credentials._pointer, callback, completer.toGCHandle(), nullptr));
     return completer.future;
   }
 }
@@ -914,7 +915,7 @@ class RealmHttpTransportHandle extends Handle<realm_http_transport> {
 }
 
 class AppConfigHandle extends Handle<realm_app_config> {
-  AppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 256); // TODO: What should hint be?
+  AppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 8);
 }
 
 class RealmAppHandle extends Handle<realm_app> {
@@ -1123,10 +1124,4 @@ extension on _CustomErrorCode {
   }
 }
 
-enum _HttpMethod {
-  get,
-  post,
-  patch,
-  put,
-  delete
-}
+enum _HttpMethod { get, post, patch, put, delete }

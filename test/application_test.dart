@@ -15,18 +15,18 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-import 'application_configuration.dart';
+import 'dart:io';
 
-import 'native/realm_core.dart';
-import 'credentials.dart';
-import 'user.dart';
+import '../lib/realm.dart';
+import 'test.dart';
 
-class Application {
-  final RealmAppHandle _handle;
+Future<void> main([List<String>? args]) async {
+  print("Current PID $pid");
 
-  Application(ApplicationConfiguration configuration) : _handle = realmCore.getApp(configuration);
+  setupTests(args);
 
-  Future<User> logIn(Credentials credentials) async {
-    return UserInternal.create(await realmCore.logIn(_handle, credentials.handle));
-  }
+  test('Application can be created', () {
+    final appConfig = ApplicationConfiguration('a');
+    final app = Application(appConfig);
+  });
 }
