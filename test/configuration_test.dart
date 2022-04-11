@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // ignore_for_file: unused_local_variable
+import 'dart:async';
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
@@ -161,17 +162,17 @@ Future<void> main([List<String>? args]) async {
     realm.close();
   }, skip: isFlutterPlatform);
   
-  test('Configuration.CompactOnLaunch true', () async {
-    final done = Completer<bool>();
-    var config = Configuration([Dog.schema, Person.schema]);
-    config.ShouldCompactOnLaunchFunction = (totalSize, usedSize) {
-      done.complete(true);
+  test('Configuration - do not compact on open realm', () {
+    var config = Configuration([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
       return false;
-    };
-    final realm = Realm(config);
+    });
+    final realm = getRealm(config);
+  });
 
-    await done.future;
-
-    realm.close();
+  test('Configuration - compact on open realm', () {
+    var config = Configuration([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
+      return true;
+    });
+    final realm = getRealm(config);
   });
 }

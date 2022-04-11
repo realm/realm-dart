@@ -34,7 +34,13 @@ class Configuration {
 
   /// Creates a [Configuration] with schema objects for opening a [Realm].
   Configuration(List<SchemaObject> schemaObjects,
-      {String? path, this.fifoFilesFallbackPath, this.isReadOnly = false, this.isInMemory = false, this.schemaVersion = 0, this.disableFormatUpgrade = false, this.shouldCompactCallback})
+      {String? path,
+      this.fifoFilesFallbackPath,
+      this.isReadOnly = false,
+      this.isInMemory = false,
+      this.schemaVersion = 0,
+      this.disableFormatUpgrade = false,
+      this.shouldCompactCallback})
       : schema = RealmSchema(schemaObjects),
         path = path ?? defaultPath;
 
