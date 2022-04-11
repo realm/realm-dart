@@ -102,7 +102,7 @@ class Configuration {
 
   /// Specifies if a [Realm] file format should be automatically upgraded
   /// if it was created with an older version of the [Realm] library.
-  /// If set to true and a file format upgrade is required, an error will be thrown instead.
+  /// An exception will be thrown if a file format upgrade is required.
   final bool disableFormatUpgrade;
 }
 
