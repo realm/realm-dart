@@ -54,13 +54,10 @@ class Realm {
 
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : _config = config {
-    if (_config.isInUse) {
-      throw RealmStateError("A Realm instance for this configuraiton object already exists.");
-    }
-    _scheduler = Scheduler(_config, close);
+    _scheduler = Scheduler(close);
 
     try {
-      _handle = realmCore.openRealm(_config);
+      _handle = realmCore.openRealm(_config, _scheduler);
 
       for (var realmClass in _config.schema) {
         final classMeta = realmCore.getClassMetadata(this, realmClass.name, realmClass.type);
@@ -72,7 +69,6 @@ class Realm {
       _scheduler.stop();
       rethrow;
     }
-    _config.isInUse = true;
   }
 
   /// Deletes all files associated with a `Realm` located at given [path]
@@ -193,7 +189,6 @@ class Realm {
   void close() {
     realmCore.closeRealm(this);
     _scheduler.stop();
-    _config.isInUse = false;
   }
 
   /// Checks whether the `Realm` is closed.
@@ -260,7 +255,7 @@ class Scheduler {
   final void Function() onFinalize;
   final RawReceivePort receivePort = RawReceivePort();
 
-  Scheduler(Configuration config, this.onFinalize) {
+  Scheduler(this.onFinalize) {
     receivePort.handler = (dynamic message) {
       if (message == SCHEDULER_FINALIZE_OR_PROCESS_EXIT) {
         onFinalize();
@@ -273,8 +268,6 @@ class Scheduler {
 
     final sendPort = receivePort.sendPort;
     handle = realmCore.createScheduler(Isolate.current.hashCode, sendPort.nativePort);
-
-    realmCore.setScheduler(config, handle);
   }
 
   void stop() {
