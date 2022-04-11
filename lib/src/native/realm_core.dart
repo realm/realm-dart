@@ -574,7 +574,7 @@ class _RealmCore {
       final changesHandle = RealmCollectionChangesHandle._(clonedData.cast());
       controller.onChanges(changesHandle);
     } catch (e) {
-      controller.onError(RealmError("Error handling collection change notifications. Error: $e"));
+      controller.onError(RealmError("Error handling change notifications. Error: $e"));
     }
   }
 
@@ -599,7 +599,7 @@ class _RealmCore {
       final changesHandle = RealmObjectChangesHandle._(clonedData.cast());
       controller.onChanges(changesHandle);
     } catch (e) {
-      controller.onError(RealmError("Error handling collection change notifications. Error: $e"));
+      controller.onError(RealmError("Error handling change notifications. Error: $e"));
     }
   }
 
