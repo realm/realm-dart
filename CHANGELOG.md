@@ -3,6 +3,9 @@ x.x.x Release notes (yyyy-MM-dd)
 
 **This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
 
+### Breaking Changes
+* Made all `Configuration` fields final so they can only be initialized in the constructor. This better conveys the immutability of the configuration class. ([#455](https://github.com/realm/realm-dart/pull/455))
+
 ### Enhancements
 * Added a new `Configuration` option: `disableFormatUpgrade`. When set to `true`, opening a Realm with an older file format will throw an exception to avoid automatically migrating it. ([#310](https://github.com/realm/realm-dart/pull/310))
     ```dart
