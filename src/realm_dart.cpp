@@ -69,7 +69,7 @@ void dummy(void) {
     realm_list_size(nullptr, 0);
     realm_results_add_notification_callback(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
     realm_results_snapshot(nullptr);
-    realm_dart_config_set_should_compact_on_launch_function(nullptr, nullptr);
+    realm_config_set_should_compact_on_launch_function(nullptr, nullptr, nullptr);
     realm_app_credentials_new_anonymous();
     realm_http_transport_new(nullptr, nullptr, nullptr);
 #if (ANDROID)
