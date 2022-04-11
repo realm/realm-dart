@@ -173,13 +173,11 @@ class _RealmCore {
     try {
       final Configuration? config =  userdata.toObject();
       if (config== null) {
-          return;
+        return FALSE;
       }
-      if (config is Configuration) {
-        final realm = RealmInternal.getUnowned(config, RealmHandle._unowned(realmHandle));
+      final realm = RealmInternal.getUnowned(config, RealmHandle._unowned(realmHandle));
         config.initialDataCallback!(realm);
-        return TRUE;
-      }
+      return TRUE;
     } catch (ex) {
       // TODO: this should propagate the error to Core: https://github.com/realm/realm-core/issues/5366
       print(ex);
