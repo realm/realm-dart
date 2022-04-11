@@ -151,6 +151,9 @@ class _RealmCore {
       if (config.fifoFilesFallbackPath != null) {
         _realmLib.realm_config_set_fifo_path(configHandle._pointer, config.fifoFilesFallbackPath!.toUtf8Ptr(arena));
       }
+
+      _realmLib.realm_config_set_disable_format_upgrade(configHandle._pointer, config.disableFormatUpgrade);
+
       _realmLib.realm_config_set_path(configHandle._pointer, config.path.toUtf8Ptr(arena));
       _realmLib.realm_config_set_scheduler(configHandle._pointer, schedulerHandle._pointer);
 
@@ -210,14 +213,6 @@ class _RealmCore {
 
   void realmRefresh(Realm realm) {
     _realmLib.invokeGetBool(() => _realmLib.realm_refresh(realm.handle._pointer), "Could not refresh");
-  }
-
-  bool getConfigDisableFormatUpgrade(Configuration config) {
-    return _realmLib.realm_config_get_disable_format_upgrade(config.handle._pointer);
-  }
-
-  void setConfigDisableFormatUpgrade(Configuration config, bool disabled) {
-    _realmLib.realm_config_set_disable_format_upgrade(config.handle._pointer, disabled);
   }
 
   RealmClassMetadata getClassMetadata(Realm realm, String className, Type classType) {

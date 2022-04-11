@@ -34,7 +34,7 @@ class Configuration {
 
   /// Creates a [Configuration] with schema objects for opening a [Realm].
   Configuration(List<SchemaObject> schemaObjects,
-      {this.fifoFilesFallbackPath, this.isReadOnly = false, this.isInMemory = false, this.schemaVersion = 0, String? path, bool this.disableFormatUpgrade = false})
+      {this.fifoFilesFallbackPath, this.isReadOnly = false, this.isInMemory = false, this.schemaVersion = 0, String? path, this.disableFormatUpgrade = false})
       : schema = RealmSchema(schemaObjects),
         path = path ?? defaultPath;
 
@@ -99,7 +99,7 @@ class Configuration {
   /// The FIFO special files are very lightweight and the main [Realm] file will still be stored in the location defined
   /// by the [path] you  property. This property is ignored if the directory defined by [path] allow FIFO special files.
   final String? fifoFilesFallbackPath;
-  
+
   /// Specifies if a [Realm] file format should be automatically upgraded
   /// if it was created with an older version of the [Realm] library.
   /// If set to true and a file format upgrade is required, an error will be thrown instead.
