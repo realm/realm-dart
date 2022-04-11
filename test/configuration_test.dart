@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // ignore_for_file: unused_local_variable
-import 'dart:async';
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
