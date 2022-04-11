@@ -162,7 +162,7 @@ class _RealmCore {
 
       if (config.initialDataCallback != null) {
         _realmLib.realm_config_set_data_initialization_function(
-            configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), _realmLib.gc_handle_weak_new(config));
+            configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toGCHandle());
       }
 
       return configHandle;
