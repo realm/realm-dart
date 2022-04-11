@@ -6,13 +6,11 @@ headers:
     - 'realm.h'
     - 'realm_dart.h'
     - 'realm_dart_scheduler.h'
-    - 'realm_dart_collections.h'
     - 'realm_android_platform.h'
   include-directives: #generate only for these headers
     - 'realm.h'
     - 'realm_dart.h'
     - 'realm_dart_scheduler.h'
-    - 'realm_dart_collections.h'
     - 'realm_android_platform.h'
 compiler-opts:  
   - '-DRLM_NO_ANON_UNIONS'

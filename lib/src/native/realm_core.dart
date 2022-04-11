@@ -20,7 +20,6 @@
 
 import 'dart:convert';
 import 'dart:ffi';
-import 'dart:ffi' as ffi show Handle;
 import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
@@ -516,67 +515,94 @@ class _RealmCore {
     return _realmLib.realm_list_is_valid(list.handle._pointer);
   }
 
-  static void collection_change_callback(Object object, Pointer<realm_collection_changes> data) {
-    assert(object is NotificationsController, "Notification controller expected");
-
-    final controller = object as NotificationsController;
+  static void collection_change_callback(Pointer<Void> userdata, Pointer<realm_collection_changes> data) {
+    NotificationsController? controller = userdata.toObject();
+    if (controller == null) {
+      return;
+    }
 
     if (data == nullptr) {
-      //realm_collection_changes data clone is done in native code before this callback is invoked. nullptr data means cloning failed.
       controller.onError(RealmError("Invalid notifications data received"));
       return;
     }
 
     try {
-      final changesHandle = RealmCollectionChangesHandle._(data);
+      final clonedData = _realmLib.realm_clone(data.cast());
+      if (clonedData == nullptr) {
+        controller.onError(RealmError("Error while cloning notifications data"));
+        return;
+      }
+
+      final changesHandle = RealmCollectionChangesHandle._(clonedData.cast());
       controller.onChanges(changesHandle);
     } catch (e) {
-      controller.onError(RealmError("Error handling collection change notifications. Error: $e"));
+      controller.onError(RealmError("Error handling change notifications. Error: $e"));
     }
   }
 
-  static void object_change_callback(Object object, Pointer<realm_object_changes> data) {
-    assert(object is NotificationsController, "Notification controller expected");
-
-    final controller = object as NotificationsController;
+  static void object_change_callback(Pointer<Void> userdata, Pointer<realm_object_changes> data) {
+    NotificationsController? controller = userdata.toObject();
+    if (controller == null) {
+      return;
+    }
 
     if (data == nullptr) {
-      //realm_collection_changes data clone is done in native code before this callback is invoked. nullptr data means cloning failed.
       controller.onError(RealmError("Invalid notifications data received"));
       return;
     }
 
     try {
-      final changesHandle = RealmObjectChangesHandle._(data);
+      final clonedData = _realmLib.realm_clone(data.cast());
+      if (clonedData == nullptr) {
+        controller.onError(RealmError("Error while cloning notifications data"));
+        return;
+      }
+
+      final changesHandle = RealmObjectChangesHandle._(clonedData.cast());
       controller.onChanges(changesHandle);
     } catch (e) {
-      controller.onError(RealmError("Error handling collection change notifications. Error: $e"));
+      controller.onError(RealmError("Error handling change notifications. Error: $e"));
     }
   }
 
   RealmNotificationTokenHandle subscribeResultsNotifications(RealmResultsHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
-    final onChangeCallback = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_collection_changes>)>(collection_change_callback);
-
-    final pointer = _realmLib.invokeGetPointer(
-        () => _realmLib.realm_dart_results_add_notification_callback(handle._pointer, controller, onChangeCallback, schedulerHandle._pointer));
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_add_notification_callback(
+          handle._pointer,
+          controller.toGCHandle(),
+          nullptr,
+          nullptr,
+          Pointer.fromFunction(collection_change_callback),
+          nullptr,
+          schedulerHandle._pointer,
+        ));
 
     return RealmNotificationTokenHandle._(pointer);
   }
 
   RealmNotificationTokenHandle subscribeListNotifications(RealmListHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
-    final onChangeCallback = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_collection_changes>)>(collection_change_callback);
-
-    final pointer = _realmLib
-        .invokeGetPointer(() => _realmLib.realm_dart_list_add_notification_callback(handle._pointer, controller, onChangeCallback, schedulerHandle._pointer));
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_list_add_notification_callback(
+          handle._pointer,
+          controller.toGCHandle(),
+          nullptr,
+          nullptr,
+          Pointer.fromFunction(collection_change_callback),
+          nullptr,
+          schedulerHandle._pointer,
+        ));
 
     return RealmNotificationTokenHandle._(pointer);
   }
 
   RealmNotificationTokenHandle subscribeObjectNotifications(RealmObjectHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
-    final onChangeCallback = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_object_changes>)>(object_change_callback);
-
-    final pointer = _realmLib
-        .invokeGetPointer(() => _realmLib.realm_dart_object_add_notification_callback(handle._pointer, controller, onChangeCallback, schedulerHandle._pointer));
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_add_notification_callback(
+          handle._pointer,
+          controller.toGCHandle(),
+          nullptr,
+          nullptr,
+          Pointer.fromFunction(object_change_callback),
+          nullptr,
+          schedulerHandle._pointer,
+        ));
 
     return RealmNotificationTokenHandle._(pointer);
   }
@@ -832,5 +858,26 @@ extension on Pointer<IntPtr> {
       result[i] = elementAt(i).value;
     }
     return result;
+  }
+}
+
+extension on Pointer<Void> {
+  T? toObject<T extends Object>() {
+    assert(this != nullptr, "Pointer<Void> is null");
+
+    final object = _realmLib.gc_handle_to_object(this);
+
+    assert(object is T, "$T expected");
+    if (object is! T) {
+      return null;
+    }
+
+    return object;
+  }
+}
+
+extension on Object {
+  Pointer<Void> toGCHandle() {
+    return _realmLib.object_to_gc_handle(this);
   }
 }
