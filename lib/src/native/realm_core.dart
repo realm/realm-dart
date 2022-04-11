@@ -84,7 +84,7 @@ class _RealmCore {
     });
   }
 
-  SchemaHandle createSchema(List<SchemaObject> schema) {
+  SchemaHandle _createSchema(Iterable<SchemaObject> schema) {
     return using((Arena arena) {
       final classCount = schema.length;
 
@@ -136,63 +136,25 @@ class _RealmCore {
     });
   }
 
-  void setSchema(Configuration config) {
-    _realmLib.realm_config_set_schema(config.handle._pointer, config.schema.handle._pointer);
-  }
-
-  void validateSchema(RealmSchema schema) {
-    _realmLib.invokeGetBool(
-        () => _realmLib.realm_schema_validate(schema.handle._pointer, realm_schema_validation_mode.RLM_SCHEMA_VALIDATION_BASIC), "Invalid Realm schema.");
-  }
-
-  int getSchemaVersion(Configuration config) {
-    return _realmLib.realm_config_get_schema_version(config.handle._pointer);
-  }
-
-  void setSchemaVersion(Configuration config, int version) {
-    _realmLib.realm_config_set_schema_version(config.handle._pointer, version);
-  }
-
-  bool getConfigReadOnly(Configuration config) {
-    int mode = _realmLib.realm_config_get_schema_mode(config.handle._pointer);
-    return mode == realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE;
-  }
-
-  void setConfigReadOnly(Configuration config, bool value) {
-    int mode = value ? realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE : realm_schema_mode.RLM_SCHEMA_MODE_AUTOMATIC;
-    _realmLib.realm_config_set_schema_mode(config.handle._pointer, mode);
-  }
-
-  bool getConfigInMemory(Configuration config) {
-    return _realmLib.realm_config_get_in_memory(config.handle._pointer);
-  }
-
-  void setConfigInMemory(Configuration config, bool value) {
-    _realmLib.realm_config_set_in_memory(config.handle._pointer, value);
-  }
-
-  String getConfigFifoPath(Configuration config) {
-    return _realmLib.realm_config_get_fifo_path(config.handle._pointer).cast<Utf8>().toDartString();
-  }
-
-  void setConfigFifoPath(Configuration config, String path) {
+  ConfigHandle _createConfig(Configuration config, SchedulerHandle schedulerHandle) {
     return using((Arena arena) {
-      _realmLib.realm_config_set_fifo_path(config.handle._pointer, path.toUtf8Ptr(arena));
-    });
-  }
+      final schemaHandle = _createSchema(config.schema);
+      final configPtr = _realmLib.realm_config_new();
+      final configHandle = ConfigHandle._(configPtr);
+      _realmLib.realm_config_set_schema(configHandle._pointer, schemaHandle._pointer);
+      _realmLib.realm_config_set_schema_version(configHandle._pointer, config.schemaVersion);
 
-  ConfigHandle createConfig() {
-    final configPtr = _realmLib.realm_config_new();
-    return ConfigHandle._(configPtr);
-  }
+      final schemaMode = config.isReadOnly ? realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE : realm_schema_mode.RLM_SCHEMA_MODE_AUTOMATIC;
+      _realmLib.realm_config_set_schema_mode(configHandle._pointer, schemaMode);
+      _realmLib.realm_config_set_in_memory(configHandle._pointer, config.isInMemory);
 
-  String getConfigPath(Configuration config) {
-    return _realmLib.realm_config_get_path(config.handle._pointer).cast<Utf8>().toDartString();
-  }
+      if (config.fifoFilesFallbackPath != null) {
+        _realmLib.realm_config_set_fifo_path(configHandle._pointer, config.fifoFilesFallbackPath!.toUtf8Ptr(arena));
+      }
+      _realmLib.realm_config_set_path(configHandle._pointer, config.path.toUtf8Ptr(arena));
+      _realmLib.realm_config_set_scheduler(configHandle._pointer, schedulerHandle._pointer);
 
-  void setConfigPath(Configuration config, String path) {
-    return using((Arena arena) {
-      _realmLib.realm_config_set_path(config.handle._pointer, path.toUtf8Ptr(arena));
+      return configHandle;
     });
   }
 
@@ -205,12 +167,9 @@ class _RealmCore {
     _realmLib.realm_scheduler_perform_work(schedulerHandle._pointer);
   }
 
-  void setScheduler(Configuration config, SchedulerHandle schedulerHandle) {
-    _realmLib.realm_config_set_scheduler(config.handle._pointer, schedulerHandle._pointer);
-  }
-
-  RealmHandle openRealm(Configuration config) {
-    final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_open(config.handle._pointer), "Error opening realm at path ${config.path}");
+  RealmHandle openRealm(Configuration config, Scheduler scheduler) {
+    final configHandle = _createConfig(config, scheduler.handle);
+    final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_open(configHandle._pointer), "Error opening realm at path ${config.path}");
     return RealmHandle._(realmPtr);
   }
 
@@ -539,7 +498,6 @@ class _RealmCore {
 
   bool objectEquals(RealmObject first, RealmObject second) => _equals(first.handle, second.handle);
   bool realmEquals(Realm first, Realm second) => _equals(first.handle, second.handle);
-  bool configurationEquals(Configuration first, Configuration second) => _equals(first.handle, second.handle);
 
   RealmResultsHandle resultsSnapshot(RealmResults results) {
     final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_snapshot(results.handle._pointer));

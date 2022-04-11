@@ -552,11 +552,21 @@ Future<void> main([List<String>? args]) async {
     expect(mainSchools[0].branches[0].students.length + mainSchools[0].branches[1].students.length, 3);
   });
 
-  test('Opening Realm with same config throws error', () {
+  test('Opening Realm with same config does not throw', () async {
     final config = Configuration([Dog.schema, Person.schema]);
 
-    final realm = getRealm(config);
-    expect(() => getRealm(config), throws<RealmStateError>("A Realm instance for this configuraiton object already exists."));
+    final realm1 = getRealm(config);
+    final realm2 = getRealm(config);
+    realm1.write(() {
+      realm1.add(Person("Peter"));
+    });
+
+    // Wait for realm2 to see the changes. This would not be necessary if we
+    // cache native instances.
+    await Future<void>.delayed(Duration(milliseconds: 1));
+
+    expect(realm2.all<Person>().length, 1);
+    expect(realm2.all<Person>().single.name, "Peter");
   });
 
   test('Realm.operator== different config', () {
