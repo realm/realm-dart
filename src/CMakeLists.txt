@@ -1,14 +1,12 @@
 set(SOURCES
      realm_dart.cpp
      realm_dart_scheduler.cpp
-     realm_dart_collections.cpp
      dart-include/dart_api_dl.c
 )
 
 set(HEADERS
     realm_dart.h
     realm_dart_scheduler.h
-    realm_dart_collections.h
     realm-core/src/realm.h
 )
 
@@ -42,7 +40,7 @@ endif()
 option(REALM_BUILD_CORE_FROM_SOURCE "Build Realm Core from source" ON)
 if(REALM_BUILD_CORE_FROM_SOURCE)
     set(REALM_BUILD_LIB_ONLY ON)
-    set(REALM_ENABLE_SYNC OFF)
+    set(REALM_ENABLE_SYNC ON)
 
     if(ANDROID)
         message ("Realm Flutter Android build enabled")
@@ -79,9 +77,9 @@ endif()
 
 
 string(APPEND OUTPUT_DIR "${PROJECT_SOURCE_DIR}/binary")
-if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     string(APPEND OUTPUT_DIR "/windows")
-elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/binary/linux")
 elseif (APPLE)
     string(APPEND OUTPUT_DIR "/macos")

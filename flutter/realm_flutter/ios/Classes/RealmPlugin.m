@@ -27,8 +27,6 @@
 #endif
 #import "realm_dart.h"
 #import "realm_dart_scheduler.h"
-#import "realm_dart_collections.h"
-
 #import "platform.h"
 @implementation RealmPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
@@ -43,9 +41,9 @@ void dummy(void) {
   realm_dart_get_files_path();
   realm_results_get_object(NULL, 0);
   realm_list_size(NULL, 0);
-  realm_dart_results_add_notification_callback(NULL, NULL, NULL, NULL);
   realm_results_snapshot(NULL);
   realm_dart_config_set_should_compact_on_launch_function(NULL, NULL);
+  realm_app_credentials_new_anonymous();
 }
 
 @end

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright 2021 Realm Inc.
+// Copyright 2022 Realm Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,20 +16,24 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef REALM_DART_H
-#define REALM_DART_H
+import 'dart:io';
 
-#include "realm.h"
-#include "dart_api_dl.h"
+import 'package:test/test.dart' hide test, throws;
+import '../lib/realm.dart';
+import 'test.dart';
 
-RLM_API void realm_initializeDartApiDL(void* data);
+Future<void> main([List<String>? args]) async {
+  print("Current PID $pid");
 
-RLM_API Dart_FinalizableHandle realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size);
+  setupTests(args);
 
-RLM_API void realm_delete_finalizable(Dart_FinalizableHandle finalizable_handle, Dart_Handle handle);
+  test('ApplicationCredentials anonymous', () {
+    final credentials = Credentials.anonymous();
+    expect(credentials.provider, AuthProvider.anonymous);
+  });
 
-// GC Handle stuff
-RLM_API void* object_to_gc_handle(Dart_Handle handle);
-RLM_API Dart_Handle gc_handle_to_object(void* handle);
-
-#endif // REALM_DART_H
+  test('ApplicationCredentials email/password', () {
+    final credentials = Credentials.emailPassword("test@email.com", "000000");
+    expect(credentials.provider, AuthProvider.emailPassword);
+  });
+}
