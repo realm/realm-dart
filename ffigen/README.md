@@ -3,9 +3,7 @@ The is executed manually as needed and this package is never published.
 
 Usage: 
 
-On Windows: dart run ffigen --config windows.yaml
-On MacOS: dart run ffigen --config macos.yaml
-On Linux: dart run ffigen --config linux.yaml
+dart run ffigen --config config.yaml
 
 On linux you may need to install clang 11 dev tools. If you are using apt-get you can do:
 ```
