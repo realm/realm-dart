@@ -855,7 +855,7 @@ class RealmAppCredentialsHandle extends Handle<realm_app_credentials> {
 }
 
 class RealmHttpTransportHandle extends Handle<realm_http_transport> {
-  RealmHttpTransportHandle._(Pointer<realm_http_transport> pointer) : super(pointer, 256); // TODO; What should hint be?
+  RealmHttpTransportHandle._(Pointer<realm_http_transport> pointer) : super(pointer, 24); // TODO; What should hint be?
 }
 
 extension on List<int> {
