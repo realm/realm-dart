@@ -143,4 +143,21 @@ Future<void> main([List<String>? args]) async {
     final realm2 = getRealm(config);
     expect(realm1.config, isNot(realm2.config));
   });
+
+  test('Configuration - disableFormatUpgrade=true throws error', () async {
+    final realmBundleFile = "test/data/realm_files/old-format.realm";
+    var config = Configuration([Car.schema], disableFormatUpgrade: true);
+    await File(realmBundleFile).copy(config.path);
+    expect(() {
+      Realm(config);
+    }, throws<RealmException>("The Realm file format must be allowed to be upgraded in order to proceed"));
+  }, skip: isFlutterPlatform);
+
+  test('Configuration - disableFormatUpgrade=false', () async {
+    final realmBundleFile = "test/data/realm_files/old-format.realm";
+    var config = Configuration([Car.schema], disableFormatUpgrade: false);
+    await File(realmBundleFile).copy(config.path);
+    var realm = Realm(config);
+    realm.close();
+  }, skip: isFlutterPlatform);
 }

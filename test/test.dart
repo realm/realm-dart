@@ -118,28 +118,16 @@ Future<void> setupTests(List<String>? args) async {
       }
 
       for (final path in paths) {
-        var file = File(path);
         try {
           Realm.deleteRealm(path);
         } catch (e) {
           fail("Can not delete realm at path: $path. Did you forget to close it?");
         }
-
-        if (await file.exists() && file.path.endsWith(".realm")) {
-          await tryDeleteFile(file);
-        }
-
-        file = File("$path.lock");
-        if (await file.exists()) {
-          await tryDeleteFile(file);
-        }
-
-        final dir = Directory("$path.management");
-        if (await dir.exists()) {
-          if ((await dir.stat()).type == FileSystemEntityType.directory) {
-            await tryDeleteFile(dir, recursive: true);
-          }
-        }
+        String pathKey = _path.basenameWithoutExtension(path);
+        String realmDir = _path.dirname(path);
+        await Directory(realmDir).list().forEach((f) {
+          if (f.path.contains(pathKey)) tryDeleteFile(f, recursive: true);
+        });
       }
     });
   });
