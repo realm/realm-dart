@@ -100,6 +100,7 @@ class ApplicationConfiguration {
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
         baseFilePath = baseFilePath ?? Directory(Configuration.filesPath),
+        
         httpClient = httpClient ?? HttpClient();
 }
 
