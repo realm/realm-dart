@@ -20,9 +20,8 @@ import 'dart:io';
 
 import 'native/realm_core.dart';
 
-import 'realm_object.dart';
-import 'realm_property.dart';
 import 'package:path/path.dart' as _path;
+import 'realm_class.dart';
 
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
@@ -34,7 +33,7 @@ class Configuration {
 
   /// Creates a [Configuration] with schema objects for opening a [Realm].
   Configuration(List<SchemaObject> schemaObjects,
-      {String? path, this.fifoFilesFallbackPath, this.isReadOnly = false, this.isInMemory = false, this.schemaVersion = 0, this.disableFormatUpgrade = false})
+      {String? path, this.fifoFilesFallbackPath, this.isReadOnly = false, this.isInMemory = false, this.schemaVersion = 0, this.disableFormatUpgrade = false, this.initialDataCallback})
       : schema = RealmSchema(schemaObjects),
         path = path ?? defaultPath;
 
@@ -104,6 +103,13 @@ class Configuration {
   /// if it was created with an older version of the [Realm] library.
   /// An exception will be thrown if a file format upgrade is required.
   final bool disableFormatUpgrade;
+
+  /// A function that will be executed only when the Realm is first created.
+  ///
+  /// The Realm instance passed in the callback already has a write transaction opened, so you can
+  /// add some initial data that your app needs. The function will not execute for existing
+  /// Realms, even if all objects in the Realm are deleted.
+  final Function(Realm realm)? initialDataCallback;
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].

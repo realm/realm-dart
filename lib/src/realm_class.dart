@@ -58,16 +58,24 @@ class Realm {
 
     try {
       _handle = realmCore.openRealm(_config, _scheduler);
-
-      for (var realmClass in _config.schema) {
-        final classMeta = realmCore.getClassMetadata(this, realmClass.name, realmClass.type);
-        final propertyMeta = realmCore.getPropertyMetadata(this, classMeta.key);
-        final metadata = RealmMetadata(classMeta, propertyMeta);
-        _metadata[realmClass.type] = metadata;
-      }
+      _populateMetadata();
     } catch (e) {
       _scheduler.stop();
       rethrow;
+    }
+  }
+
+  Realm._unowned(Configuration config, RealmHandle handle) : _config = config {
+    _handle = handle;
+    _populateMetadata();
+  }
+
+  void _populateMetadata() {
+    for (var realmClass in _config.schema) {
+      final classMeta = realmCore.getClassMetadata(this, realmClass.name, realmClass.type);
+      final propertyMeta = realmCore.getPropertyMetadata(this, classMeta.key);
+      final metadata = RealmMetadata(classMeta, propertyMeta);
+      _metadata[realmClass.type] = metadata;
     }
   }
 
@@ -307,6 +315,10 @@ class Transaction {
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
   Scheduler get scheduler => _scheduler;
+
+  static Realm getUnowned(Configuration config, RealmHandle handle) {
+    return Realm._unowned(config, handle);
+  }
 
   RealmObject createObject(Type type, RealmObjectHandle handle) {
     RealmMetadata metadata = _getMetadata(type);
