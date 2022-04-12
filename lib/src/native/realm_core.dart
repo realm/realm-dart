@@ -945,13 +945,12 @@ class AppConfigHandle extends Handle<realm_app_config> {
 }
 
 class SyncClientConfigHandle extends Handle<realm_sync_client_config> {
-  SyncClientConfigHandle._(Pointer<realm_sync_client_config> pointer) : super(pointer, 256); // TODO: What should hint be?
+  SyncClientConfigHandle._(Pointer<realm_sync_client_config> pointer) : super(pointer, 8);
 }
 
 class AppHandle extends Handle<realm_app> {
   AppHandle._(
-    Pointer<realm_app> pointer,
-  ) : super(pointer, 256); // TODO: What should hint be?
+    Pointer<realm_app> pointer) : super(pointer, 16);
 }
 
 class UserHandle extends Handle<realm_user> {
