@@ -14,6 +14,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Added a property `Configuration.initialDataCallback`. This is a callback executed when a Realm file is first created and allows you to populate some initial data necessary for your application. ([#298](https://github.com/realm/realm-dart/issues/298))
 * Support application configuration ([#306](https://github.com/realm/realm-dart/pull/306/))
 * Support application ([#446](https://github.com/realm/realm-dart/pull/446/))
+* Support ObjectId ([#468](https://github.com/realm/realm-dart/pull/468))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))

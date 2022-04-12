@@ -32,7 +32,7 @@ import 'results.dart';
 // always expose with `show` to explicitly control the public API surface
 export 'application.dart' show ApplicationConfiguration, MetadataPersistenceMode, Application;
 export 'package:realm_common/realm_common.dart'
-    show Ignored, Indexed, MapTo, PrimaryKey, RealmError, RealmModel, RealmUnsupportedSetError, RealmStateError, RealmCollectionType, RealmPropertyType;
+    show Ignored, Indexed, MapTo, PrimaryKey, RealmError, RealmModel, RealmUnsupportedSetError, RealmStateError, RealmCollectionType, RealmPropertyType, ObjectId;
 export "configuration.dart" show Configuration, RealmSchema, SchemaObject;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
 export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges;

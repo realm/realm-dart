@@ -83,7 +83,6 @@ extension FieldElementEx on FieldElement {
           type.isDartCoreMap ||
           type.isRealmAny ||
           type.isExactly<Decimal128>() ||
-          type.isExactly<ObjectId>() ||
           type.isExactly<Uuid>()) {
         throw RealmInvalidGenerationSourceError(
           'Field type not supported yet',
@@ -146,11 +145,7 @@ extension FieldElementEx on FieldElement {
 
       // Validate indexes
       if ((primaryKey != null || indexed != null) &&
-          (![
-                RealmPropertyType.string,
-                RealmPropertyType.int,
-              ].contains(type.realmType) ||
-              type.isRealmCollection)) {
+          (![RealmPropertyType.string, RealmPropertyType.int, RealmPropertyType.objectid].contains(type.realmType) || type.isRealmCollection)) {
         final file = span!.file;
         final annotation = (primaryKey ?? indexed)!.annotation;
 
