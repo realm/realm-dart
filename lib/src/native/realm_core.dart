@@ -168,6 +168,11 @@ class _RealmCore {
         _realmLib.realm_config_set_data_initialization_function(configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toGCHandle());
       }
 
+      if (config.shouldCompactCallback != null) {
+        _realmLib.realm_config_set_should_compact_on_launch_function(
+            configHandle._pointer, Pointer.fromFunction(should_compact_callback, 0), config.toGCHandle());
+      }
+
       return configHandle;
     });
   }
@@ -186,6 +191,16 @@ class _RealmCore {
     }
 
     return FALSE;
+  }
+
+  static int should_compact_callback(Pointer<Void> userdata, int totalSize, int usedSize) {
+    final Configuration? config = userdata.toObject();
+    if (config == null) {
+      return 0;
+    }
+    config.shouldCompactCallback!(totalSize, usedSize);
+
+    return 1;
   }
 
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
