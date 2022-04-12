@@ -157,8 +157,8 @@ class _RealmCore {
         _realmLib.realm_config_set_disable_format_upgrade(configHandle._pointer, config.disableFormatUpgrade);
       }
       if (config.shouldCompactCallback != null) {
-      	final callback = Pointer.fromFunction<Uint8 Function(Pointer<Void>, Uint64, Uint64)>(should_compact_callback, 0);
-        _realmLib.realm_config_set_should_compact_on_launch_function(configHandle._pointer, callback, config.toGCHandle());
+        _realmLib.realm_config_set_should_compact_on_launch_function(
+            configHandle._pointer, Pointer.fromFunction(should_compact_callback, 0), config.toGCHandle());
       }
     
       return configHandle;
@@ -167,7 +167,7 @@ class _RealmCore {
 
   static int should_compact_callback(Pointer<Void> userdata, int totalSize, int usedSize) {
     final Configuration? config =  userdata.toObject();
-    if (config== null) {
+    if (config == null) {
       return 0;
     }
     config.shouldCompactCallback!(totalSize, usedSize);

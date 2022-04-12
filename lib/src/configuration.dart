@@ -111,12 +111,15 @@ class Configuration {
   /// An exception will be thrown if a file format upgrade is required.
   final bool disableFormatUpgrade;
   
-  // A function that will be executed each time a Realm is opened.
-  // It is passed the total bytes allocated for the file (file size)
-  // and the total bytes used by data in the file.
-  // Return `true` to indicate that an attempt to compact the file should be made
-  // if it is possible to do so.
-  // Won't compact the file if another process is accessing it.
+  // The function called when opening a Realm for the first time
+  // during the life of a process to determine if it should be compacted
+  // before being returned to the user.
+  //
+  // The function takes two arguments:
+  // - totalSize - The total file size (data + free space)
+  // - usedSize - The total bytes used by data in the file.
+  // It returns true to indicate that an attempt to compact the file should be made.
+  // The compaction will be skipped if another process is accessing it.
   final Function(int totalSize, int usedSize)? shouldCompactCallback;
 }
 
