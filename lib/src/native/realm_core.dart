@@ -25,7 +25,9 @@ import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
+import 'package:pub_semver/pub_semver.dart';
 
+import '../application.dart';
 import '../collections.dart';
 import '../init.dart';
 import '../list.dart';
@@ -45,6 +47,9 @@ class _RealmCore {
   static const int RLM_INVALID_PROPERTY_KEY = -1;
   // ignore: unused_field
   static const int RLM_INVALID_OBJECT_KEY = -1;
+
+  static const int TRUE = 1;
+  static const int FALSE = 0;
 
   // Hide the RealmCore class and make it a singleton
   static _RealmCore? _instance;
@@ -156,15 +161,36 @@ class _RealmCore {
       if (config.disableFormatUpgrade) {
         _realmLib.realm_config_set_disable_format_upgrade(configHandle._pointer, config.disableFormatUpgrade);
       }
+
+      if (config.initialDataCallback != null) {
+        _realmLib.realm_config_set_data_initialization_function(configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toGCHandle());
+      }
+      
       if (config.shouldCompactCallback != null) {
         _realmLib.realm_config_set_should_compact_on_launch_function(
             configHandle._pointer, Pointer.fromFunction(should_compact_callback, 0), config.toGCHandle());
       }
-    
+      
       return configHandle;
     });
   }
 
+  static int initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmHandle) {
+    try {
+      final Configuration? config = userdata.toObject();
+      if (config == null) {
+        return FALSE;
+      }
+      final realm = RealmInternal.getUnowned(config, RealmHandle._unowned(realmHandle));
+      config.initialDataCallback!(realm);
+      return TRUE;
+    } catch (ex) {
+      // TODO: this should propagate the error to Core: https://github.com/realm/realm-core/issues/5366
+    }
+
+    return FALSE;
+  }
+  
   static int should_compact_callback(Pointer<Void> userdata, int totalSize, int usedSize) {
     final Configuration? config =  userdata.toObject();
     if (config == null) {
@@ -635,6 +661,33 @@ class _RealmCore {
       return out_modified.asTypedList(count).toList();
     });
   }
+  
+  AppConfigHandle createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
+    return using((arena) {
+      final app_id = configuration.appId.toUtf8Ptr(arena);
+      final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
+      
+      _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toUtf8Ptr(arena));
+      _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout!.inMilliseconds);
+      
+      if (configuration.localAppName != null) {
+        _realmLib.realm_app_config_set_local_app_name(handle._pointer, configuration.localAppName!.toUtf8Ptr(arena));
+      }
+
+      if (configuration.localAppVersion != null) {
+        _realmLib.realm_app_config_set_local_app_version(handle._pointer, configuration.localAppVersion!.toUtf8Ptr(arena));
+      }
+
+      _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toUtf8Ptr(arena));
+      _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toUtf8Ptr(arena));
+      
+      //This sets the realm lib version instead of the SDK version.
+      //TODO:  Read the SDK version from code generated version field
+      _realmLib.realm_app_config_set_sdk_version(handle._pointer, libraryVersion.toUtf8Ptr(arena));
+
+      return handle;
+    });
+  }
 
   RealmAppCredentialsHandle createAppCredentialsAnonymous() {
     return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_anonymous());
@@ -708,7 +761,7 @@ class _RealmCore {
 
         // this throws if requestMethod is unknown _HttpMethod
         final method = _HttpMethod.values[requestMethod];
-           
+
         switch (method) {
           case _HttpMethod.delete:
             request = await client.deleteUrl(url);
@@ -797,6 +850,8 @@ abstract class Handle<T extends NativeType> {
     }
   }
 
+  Handle.unowned(this._pointer);
+
   @override
   String toString() => "${_pointer.toString()} value=${_pointer.cast<IntPtr>().value}";
 }
@@ -811,6 +866,8 @@ class ConfigHandle extends Handle<realm_config> {
 
 class RealmHandle extends Handle<shared_realm> {
   RealmHandle._(Pointer<shared_realm> pointer) : super(pointer, 24);
+
+  RealmHandle._unowned(Pointer<shared_realm> pointer) : super.unowned(pointer);
 }
 
 class SchedulerHandle extends Handle<realm_scheduler> {
@@ -870,6 +927,10 @@ class RealmAppCredentialsHandle extends Handle<realm_app_credentials> {
 
 class RealmHttpTransportHandle extends Handle<realm_http_transport> {
   RealmHttpTransportHandle._(Pointer<realm_http_transport> pointer) : super(pointer, 24);
+}
+
+class AppConfigHandle extends Handle<realm_app_config> {
+  AppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 256); // TODO: What should hint be?
 }
 
 extension on List<int> {
@@ -1075,5 +1136,5 @@ enum _HttpMethod {
   post,
   patch,
   put,
-  delete
+  delete,
 }

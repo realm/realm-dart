@@ -70,6 +70,7 @@ void dummy(void) {
     realm_results_add_notification_callback(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
     realm_results_snapshot(nullptr);
     realm_config_set_should_compact_on_launch_function(nullptr, nullptr, nullptr);
+    realm_app_config_new(nullptr, nullptr);
     realm_app_credentials_new_anonymous();
     realm_http_transport_new(nullptr, nullptr, nullptr);
 #if (ANDROID)
@@ -87,11 +88,11 @@ public:
 
     Dart_Handle value() {
         // TODO: HACK. We can not release Dart weak persistent handles in on Isolate teardown until
-        // https://github.com/dart-lang/sdk/issues/48321 is fixed and released, since the IsolateGroup 
-        // is destroyed before it happens.    
+        // https://github.com/dart-lang/sdk/issues/48321 is fixed and released, since the IsolateGroup
+        // is destroyed before it happens.
         //
-        // This works since Dart_WeakPersistentHandle is equivalent to Dart_FinalizableHandle. 
-        // They both are FinalizablePersistentHandle internally. 
+        // This works since Dart_WeakPersistentHandle is equivalent to Dart_FinalizableHandle.
+        // They both are FinalizablePersistentHandle internally.
         Dart_WeakPersistentHandle weakHnd = reinterpret_cast<Dart_WeakPersistentHandle>(m_weakHandle);
         return Dart_HandleFromWeakPersistent_DL(weakHnd);
         // When hack removed, replace with:

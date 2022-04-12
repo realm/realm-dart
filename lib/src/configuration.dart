@@ -23,6 +23,7 @@ import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'realm_property.dart';
 import 'package:path/path.dart' as _path;
+import 'realm_class.dart';
 
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
@@ -110,6 +111,13 @@ class Configuration {
   /// if it was created with an older version of the [Realm] library.
   /// An exception will be thrown if a file format upgrade is required.
   final bool disableFormatUpgrade;
+
+  /// A function that will be executed only when the Realm is first created.
+  ///
+  /// The Realm instance passed in the callback already has a write transaction opened, so you can
+  /// add some initial data that your app needs. The function will not execute for existing
+  /// Realms, even if all objects in the Realm are deleted.
+  final Function(Realm realm)? initialDataCallback;
   
   // The function called when opening a Realm for the first time
   // during the life of a process to determine if it should be compacted

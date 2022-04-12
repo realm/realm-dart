@@ -216,7 +216,7 @@ Future<FlutterInfo?> getInfo(Options options) async {
   // Sanity check full info, if we have it
   if (info != null && (version == null || version == info.frameworkVersion) && flutterVersionConstraints.allows(info.frameworkVersion)) {
     // The returned info match both the projects constraints and the
-    // flutter version of the lastest flutter command run on the project
+    // flutter version of the latest flutter command run on the project
     return info;
   }
 
@@ -224,6 +224,6 @@ Future<FlutterInfo?> getInfo(Options options) async {
   // secondly the min constraint of the flutter SDK used
   return FlutterInfo(
     frameworkVersion: version ?? (await safe(() => (flutterVersionConstraints as VersionRange).min!)) ?? Version.none,
-    dartSdkVersion: Version.parse(Platform.version.toString().takeUntil(' ')),
+    dartSdkVersion: Version.parse(Platform.version.takeUntil(' ')),
   );
 }
