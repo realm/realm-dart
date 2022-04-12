@@ -47,6 +47,12 @@ class _StringPrimaryKey {
   late String id;
 }
 
+@RealmModel()
+class _UuidPrimaryKey {
+  @PrimaryKey()
+  late UuidValue id;
+}
+
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
@@ -299,5 +305,13 @@ Future<void> main([List<String>? args]) async {
   
   for (final pk in objectIds) {
     testPrimaryKey(ObjectIdPrimaryKey.schema, () => ObjectIdPrimaryKey(pk), pk);
+  }
+
+  final uuids = [
+    UuidValue('0f1dea4d-074e-4c72-b505-e2e8a727602f'),
+    UuidValue('00000000-0000-0000-0000-000000000000'),
+  ];
+  for (final pk in uuids) {
+    testPrimaryKey(UuidPrimaryKey.schema, () => UuidPrimaryKey(pk), pk);
   }
 }

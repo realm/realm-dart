@@ -107,7 +107,7 @@ extension DartTypeEx on DartType {
     if (isRealmModel) return RealmPropertyType.object;
     if (isRealmBacklink) return RealmPropertyType.linkingObjects;
     if (isExactly<ObjectId>()) return RealmPropertyType.objectid;
-    if (isExactly<Uuid>()) return RealmPropertyType.uuid;
+    if (isExactly<UuidValue>()) return RealmPropertyType.uuid;
 
     return null;
   }

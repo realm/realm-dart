@@ -26,7 +26,6 @@ import 'dart:typed_data';
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 
-import '../application.dart';
 import '../collections.dart';
 import '../init.dart';
 import '../list.dart';
@@ -1020,8 +1019,14 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
         for (var i = 0; i < 12; i++) {
           realm_value.ref.values.object_id.bytes[i] = bytes[i];
         }
-
         realm_value.ref.type = realm_value_type.RLM_TYPE_OBJECT_ID;
+        break;
+      case UuidValue:
+        final bytes = (value as UuidValue).toBytes();
+        for (var i = 0; i < 16; i++) {
+          realm_value.ref.values.uuid.bytes[i] = bytes[i];
+        }
+        realm_value.ref.type = realm_value_type.RLM_TYPE_UUID;
         break;
       default:
         throw RealmException("Property type ${value.runtimeType} not supported");
@@ -1062,7 +1067,7 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_OBJECT_ID:
         return ObjectId.fromBytes(cast<Uint8>().asTypedList(12));
       case realm_value_type.RLM_TYPE_UUID:
-        throw Exception("Not implemented");
+        return UuidValue.fromList(cast<Uint8>().asTypedList(16));
       default:
         throw RealmException("realm_value_type ${ref.type} not supported");
     }
