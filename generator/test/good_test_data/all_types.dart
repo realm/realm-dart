@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:realm_common/realm_common.dart';
 
 @RealmModel()
-@MapTo('Fooo')
+@MapTo('MyFoo')
 class _Foo {
   int x = 0;
 }
