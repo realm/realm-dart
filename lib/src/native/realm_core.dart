@@ -671,7 +671,7 @@ class _RealmCore {
       _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toUtf8Ptr(arena));
 
       _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout.inMilliseconds);
-      
+
       if (configuration.localAppName != null) {
         _realmLib.realm_app_config_set_local_app_name(handle._pointer, configuration.localAppName!.toUtf8Ptr(arena));
       }
@@ -827,18 +827,18 @@ class _RealmCore {
       }
     });
   }
-  
+
   SyncClientConfigHandle createSyncClientConfig(ApplicationConfiguration configuration) {
     return using((arena) {
-      final c = configuration;
       final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
-      if (c.baseFilePath.path.isNotEmpty) {
-        _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, c.baseFilePath.path.toUtf8Ptr(arena));
+
+      _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toUtf8Ptr(arena));
+      _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
+
+      if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
+        _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
       }
-      _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, c.metadataPersistenceMode.index);
-      if (c.metadataEncryptionKey != null && c.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
-        _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, c.metadataEncryptionKey!.toUint8Ptr(arena));
-      }
+
       return handle;
     });
   }
@@ -847,7 +847,8 @@ class _RealmCore {
     final httpTransport = createHttpTransport(configuration.httpClient);
     final appConfig = createAppConfig(configuration, httpTransport);
     final syncClientConfig = createSyncClientConfig(configuration);
-    return AppHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfig._pointer, syncClientConfig._pointer)));
+    final realm_app = _realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfig._pointer, syncClientConfig._pointer));
+    return AppHandle._(realm_app);
   }
 }
 
@@ -966,16 +967,11 @@ class AppHandle extends Handle<realm_app> {
 }
 
 extension on List<int> {
- Pointer<Uint8> toUint8Ptr(Allocator allocator) {
-    final nativeSize = length + 1;
-    final result = allocator<Uint8>(nativeSize);
-    final Uint8List native = result.asTypedList(nativeSize);
-    native.setAll(0, this); // copy
-    native.last = 0; // zero terminate
-    return result;
-  }
-  
   Pointer<Int8> toInt8Ptr(Allocator allocator) {
+    return toUint8Ptr(allocator).cast();
+  }
+
+  Pointer<Uint8> toUint8Ptr(Allocator allocator) {
     final nativeSize = length + 1;
     final result = allocator<Uint8>(nativeSize);
     final Uint8List native = result.asTypedList(nativeSize);
@@ -988,7 +984,7 @@ extension on List<int> {
 extension _StringEx on String {
   Pointer<Int8> toUtf8Ptr(Allocator allocator) {
     final units = utf8.encode(this);
-    return units.toInt8Ptr(allocator).cast();
+    return units.toInt8Ptr(allocator);
   }
 
   Pointer<realm_string_t> toRealmString(Allocator allocator) {

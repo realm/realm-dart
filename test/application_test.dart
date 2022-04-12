@@ -53,8 +53,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Application can be created', () async {
-    final tmp = await Directory.systemTemp.createTemp();
-    final configuration = ApplicationConfiguration(generateRandomString(10), baseFilePath: tmp);
+    final configuration = ApplicationConfiguration(generateRandomString(10));
     final application = Application(configuration);
     expect(application.configuration, configuration);
   });

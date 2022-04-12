@@ -195,4 +195,3 @@ Future<void> setupBaas() async {
 
   baasApps.addAll(await client.getOrCreateApps());
 }
-
