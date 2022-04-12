@@ -12,11 +12,12 @@ x.x.x Release notes (yyyy-MM-dd)
     var config = Configuration([Car.schema], disableFormatUpgrade: true);
     await File('old-format.realm').copy(config.path);
     var realm = Realm(config);
-    //Opening 'Realm' will throw a RealmException with message: "The Realm file format must be allowed to be upgraded in order to proceed." 
+    // Opening 'Realm' will throw a RealmException with message: "The Realm file format must be allowed to be upgraded in order to proceed."
     ```
 * Support result value from write transaction callbacks ([#294](https://github.com/realm/realm-dart/pull/294/))
 * Added a property `Realm.isInTransaction` that indicates whether the Realm instance has an open write transaction associated with it.
 * Support anonymous application credentials ([#443](https://github.com/realm/realm-dart/pull/443/))
+* Added support for `Configuration.initialDataCallback`. This is a callback executed when a Realm file is first created and allows you to populate some initial data necessary for your application. ([#298](https://github.com/realm/realm-dart/issues/298))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))
