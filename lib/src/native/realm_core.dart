@@ -28,7 +28,8 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:pub_semver/pub_semver.dart';
 
-import '../application_configuration.dart';
+import '../application.dart';
+import '../credentials.dart';
 import '../collections.dart';
 import '../init.dart';
 import '../list.dart';
@@ -625,7 +626,7 @@ class _RealmCore {
     });
   }
 
-  AppConfigHandle _createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
+  AppConfigHandle createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
     return using((arena) {
       final c = configuration;
       final app_id = c.appId.toUtf8Ptr(arena);
@@ -755,7 +756,7 @@ class _RealmCore {
 
         // Report back to core
         responseRef.status_code = response.statusCode;
-        responseRef.body = responseBody.toUint8Ptr(arena);
+        responseRef.body = responseBody.toInt8Ptr(arena);
         responseRef.body_size = responseBody.length;
 
         int headerCnt = 0;
@@ -787,14 +788,14 @@ class _RealmCore {
         _realmLib.realm_http_transport_complete_request(request_context, response_pointer);
       }
     });
-  }       
+  }
 
   SyncClientConfigHandle createSyncClientConfig(ApplicationConfiguration configuration) {
     return using((arena) {
       final c = configuration;
       final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
       if (c.baseFilePath != null) {
-        _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, c.baseFilePath!.path.toUtf8Ptr(arena));
+        _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, c.baseFilePath.path.toUtf8Ptr(arena));
       }
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, c.metadataPersistenceMode.index);
       if (c.metadataEncryptionKey != null && c.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
@@ -812,20 +813,21 @@ class _RealmCore {
   }
 
   static void _logInCallback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
-    final userHandleCompleter = _realmLib.gc_handle_deref(userdata);
-    if (userHandleCompleter is Completer<UserHandle>) {
-      if (error == nullptr) {
-        userHandleCompleter.complete(UserHandle._(_realmLib.realm_clone(user.cast()).cast()));
-      } else {
-        final message = error.ref.message.cast<Utf8>().toDartString();
-        userHandleCompleter.completeError(RealmException(message));
-      }
+    final Completer<UserHandle>? userHandleCompleter = userdata.toObject();
+    if (userHandleCompleter == null) {
+      return;
+    }
+    if (error == nullptr) {
+      userHandleCompleter.complete(UserHandle._(_realmLib.realm_clone(user.cast()).cast()));
+    } else {
+      final message = error.ref.message.cast<Utf8>().toDartString();
+      userHandleCompleter.completeError(RealmException(message));
     }
   }
 
   static void _freeCallback(Pointer<Void> userdata) {
-    _realmLib.gc_handle_soften(userdata);
-  } 
+    userdata.toObject(); // TODO: release
+  }
 
   Future<UserHandle> logIn(Application application, Credentials credentials) async {
     final completer = Completer<UserHandle>();
@@ -833,7 +835,7 @@ class _RealmCore {
       application.handle._pointer,
       credentials.handle._pointer,
       Pointer.fromFunction(_logInCallback),
-      _realmLib.gc_handle_hard_new(completer),
+      completer.toGCHandle(),
       Pointer.fromFunction(_freeCallback),
     );
     return completer.future;
@@ -965,12 +967,21 @@ extension on List<int> {
     native.last = 0; // zero terminate
     return result;
   }
+
+  Pointer<Int8> toInt8Ptr(Allocator allocator) {
+    final nativeSize = length + 1;
+    final result = allocator<Int8>(nativeSize);
+    final Int8List native = result.asTypedList(nativeSize);
+    native.setAll(0, this); // copy
+    native.last = 0; // zero terminate
+    return result;
+  }
 }
 
 extension _StringEx on String {
   Pointer<Int8> toUtf8Ptr(Allocator allocator) {
     final units = utf8.encode(this);
-    return units.toUint8Ptr(allocator).cast();
+    return units.toInt8Ptr(allocator).cast();
   }
 
   Pointer<realm_string_t> toRealmString(Allocator allocator) {
