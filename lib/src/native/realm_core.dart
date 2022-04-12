@@ -810,36 +810,7 @@ class _RealmCore {
     final appConfig = createAppConfig(configuration, httpTransport);
     final syncClientConfig = createSyncClientConfig(configuration);
     return AppHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfig._pointer, syncClientConfig._pointer)));
-  }
-
-  static void _logInCallback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
-    final Completer<UserHandle>? userHandleCompleter = userdata.toObject();
-    if (userHandleCompleter == null) {
-      return;
-    }
-    if (error == nullptr) {
-      userHandleCompleter.complete(UserHandle._(_realmLib.realm_clone(user.cast()).cast()));
-    } else {
-      final message = error.ref.message.cast<Utf8>().toDartString();
-      userHandleCompleter.completeError(RealmException(message));
-    }
-  }
-
-  static void _freeCallback(Pointer<Void> userdata) {
-    userdata.toObject(); // TODO: release
-  }
-
-  Future<UserHandle> logIn(Application application, Credentials credentials) async {
-    final completer = Completer<UserHandle>();
-    _realmLib.realm_app_log_in_with_credentials(
-      application.handle._pointer,
-      credentials.handle._pointer,
-      Pointer.fromFunction(_logInCallback),
-      completer.toGCHandle(),
-      Pointer.fromFunction(_freeCallback),
-    );
-    return completer.future;
-  }
+  } 
 }
 
 class LastError {
@@ -952,10 +923,6 @@ class AppHandle extends Handle<realm_app> {
   AppHandle._(
     Pointer<realm_app> pointer,
   ) : super(pointer, 256); // TODO: What should hint be?
-}
-
-class UserHandle extends Handle<realm_user> {
-  UserHandle._(Pointer<realm_user> pointer) : super(pointer, 256); // TODO: What should hint be?
 }
 
 extension on List<int> {

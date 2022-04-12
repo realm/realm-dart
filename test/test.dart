@@ -197,27 +197,3 @@ Future<void> setupBaas() async {
   baasApps.addAll(await client.getOrCreateApps());
 }
 
-Future<void> testWithBaaS(
-  String? name,
-  FutureOr<void> Function(ApplicationConfiguration configuration) testFunction, {
-  String appName = 'flexible',
-  bool skip = false,
-}) async {
-  final url = Uri.tryParse(Platform.environment['BAAS_URL'] ?? 'https://realm-dev.mongodb.com');
-  final apiKey = Platform.environment['BAAS_API_KEY'];
-  final projectId = Platform.environment['BAAS_PROJECT_ID'];
-
-  final missingOrSkip = skip || url == null || apiKey == null || projectId == null;
-  test(name, () async {
-    if (!missingOrSkip) {
-      final app = baasApps[appName] ?? baasApps.values.first;
-      final temporary = await Directory.systemTemp.createTemp('realm_dart_test_');
-      final configuration = ApplicationConfiguration(
-        app.clientAppId,
-        baseUrl: url,
-        baseFilePath: temporary,
-      );
-      return await testFunction(configuration);
-    }
-  }, skip: missingOrSkip);
-}

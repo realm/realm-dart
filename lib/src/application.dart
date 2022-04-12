@@ -18,8 +18,6 @@
 import 'application_configuration.dart';
 
 import 'native/realm_core.dart';
-import 'credentials.dart';
-import 'user.dart';
 
 class Application {
   final AppHandle _handle;
@@ -27,9 +25,6 @@ class Application {
 
   Application(this.configuration) : _handle = realmCore.getApp(configuration);
 
-  Future<User> logIn(Credentials credentials) async {
-    return UserInternal.create(await realmCore.logIn(this, credentials));
-  }
 }
 
 extension ApplicationInternal on Application {
