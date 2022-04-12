@@ -21,7 +21,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
-import 'dart:ffi' as ffi show Handle;
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -29,8 +28,9 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:pub_semver/pub_semver.dart';
 
+import '../application.dart';
+import '../credentials.dart';
 import '../collections.dart';
-import '../configuration.dart';
 import '../init.dart';
 import '../list.dart';
 import '../realm_class.dart';
@@ -42,14 +42,6 @@ late RealmLibrary _realmLib;
 
 final _RealmCore realmCore = _RealmCore();
 
-enum _HttpMethod {
-  get,
-  post,
-  patch,
-  put,
-  delete,
-}
-
 class _RealmCore {
   // From realm.h. Currently not exported from the shared library
   static const int RLM_INVALID_CLASS_KEY = 0x7FFFFFFF;
@@ -57,6 +49,9 @@ class _RealmCore {
   static const int RLM_INVALID_PROPERTY_KEY = -1;
   // ignore: unused_field
   static const int RLM_INVALID_OBJECT_KEY = -1;
+
+  static const int TRUE = 1;
+  static const int FALSE = 0;
 
   // Hide the RealmCore class and make it a singleton
   static _RealmCore? _instance;
@@ -95,7 +90,7 @@ class _RealmCore {
     });
   }
 
-  SchemaHandle createSchema(List<SchemaObject> schema) {
+  SchemaHandle _createSchema(Iterable<SchemaObject> schema) {
     return using((Arena arena) {
       final classCount = schema.length;
 
@@ -147,173 +142,50 @@ class _RealmCore {
     });
   }
 
-  void setSchema(Configuration config) {
-    _realmLib.realm_config_set_schema(config.handle._pointer, config.schema.handle._pointer);
-  }
-
-  void validateSchema(RealmSchema schema) {
-    _realmLib.invokeGetBool(
-        () => _realmLib.realm_schema_validate(schema.handle._pointer, realm_schema_validation_mode.RLM_SCHEMA_VALIDATION_BASIC), "Invalid Realm schema.");
-  }
-
-  int getSchemaVersion(Configuration config) {
-    return _realmLib.realm_config_get_schema_version(config.handle._pointer);
-  }
-
-  void setSchemaVersion(Configuration config, int version) {
-    _realmLib.realm_config_set_schema_version(config.handle._pointer, version);
-  }
-
-  bool getConfigReadOnly(Configuration config) {
-    int mode = _realmLib.realm_config_get_schema_mode(config.handle._pointer);
-    return mode == realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE;
-  }
-
-  void setConfigReadOnly(Configuration config, bool value) {
-    int mode = value ? realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE : realm_schema_mode.RLM_SCHEMA_MODE_AUTOMATIC;
-    _realmLib.realm_config_set_schema_mode(config.handle._pointer, mode);
-  }
-
-  bool getConfigInMemory(Configuration config) {
-    return _realmLib.realm_config_get_in_memory(config.handle._pointer);
-  }
-
-  void setConfigInMemory(Configuration config, bool value) {
-    _realmLib.realm_config_set_in_memory(config.handle._pointer, value);
-  }
-
-  String getConfigFifoPath(Configuration config) {
-    return _realmLib.realm_config_get_fifo_path(config.handle._pointer).cast<Utf8>().toDartString();
-  }
-
-  void setConfigFifoPath(Configuration config, String path) {
+  ConfigHandle _createConfig(Configuration config, SchedulerHandle schedulerHandle) {
     return using((Arena arena) {
-      _realmLib.realm_config_set_fifo_path(config.handle._pointer, path.toUtf8Ptr(arena));
+      final schemaHandle = _createSchema(config.schema);
+      final configPtr = _realmLib.realm_config_new();
+      final configHandle = ConfigHandle._(configPtr);
+      _realmLib.realm_config_set_schema(configHandle._pointer, schemaHandle._pointer);
+      _realmLib.realm_config_set_schema_version(configHandle._pointer, config.schemaVersion);
+      _realmLib.realm_config_set_path(configHandle._pointer, config.path.toUtf8Ptr(arena));
+      _realmLib.realm_config_set_scheduler(configHandle._pointer, schedulerHandle._pointer);
+      if (config.isReadOnly) {
+        _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE);
+      }
+      if (config.isInMemory) {
+        _realmLib.realm_config_set_in_memory(configHandle._pointer, config.isInMemory);
+      }
+      if (config.fifoFilesFallbackPath != null) {
+        _realmLib.realm_config_set_fifo_path(configHandle._pointer, config.fifoFilesFallbackPath!.toUtf8Ptr(arena));
+      }
+      if (config.disableFormatUpgrade) {
+        _realmLib.realm_config_set_disable_format_upgrade(configHandle._pointer, config.disableFormatUpgrade);
+      }
+
+      if (config.initialDataCallback != null) {
+        _realmLib.realm_config_set_data_initialization_function(configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toGCHandle());
+      }
+
+      return configHandle;
     });
   }
 
-  RealmHttpTransportHandle createHttpTransport(HttpClient httpClient) {
-    return RealmHttpTransportHandle._(_realmLib.realm_dart_http_transport_new(Pointer.fromFunction(request_callback), httpClient));
-  }
-
-  static void request_callback(Object userData, realm_http_request request, Pointer<Void> request_context) {
-    //
-    // The request struct only survives until end-of-call, even though
-    // we explicitly call realm_http_transport_complete_request to
-    // mark request as completed later.
-    //
-    // Therefor we need to copy everything out of request before returning.
-    // We cannot clone request on the native side with realm_clone,
-    // since realm_http_request does not inherit from WrapC.
-    //
-    final client = userData as HttpClient;
-    client.connectionTimeout = Duration(milliseconds: request.timeout_ms);
-
-    final url = Uri.parse(request.url.cast<Utf8>().toDartString());
-
-    final method = _HttpMethod.values[request.method];
-
-    final body = request.body.cast<Utf8>().toDartString();
-
-    final headers = <String, String>{};
-    for (int i = 0; i < request.num_headers; ++i) {
-      final header = request.headers[i];
-      final name = header.name.cast<Utf8>().toDartString();
-      final value = header.value.cast<Utf8>().toDartString();
-      headers[name] = value;
+  static int initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmHandle) {
+    try {
+      final Configuration? config = userdata.toObject();
+      if (config == null) {
+        return FALSE;
+      }
+      final realm = RealmInternal.getUnowned(config, RealmHandle._unowned(realmHandle));
+      config.initialDataCallback!(realm);
+      return TRUE;
+    } catch (ex) {
+      // TODO: this should propagate the error to Core: https://github.com/realm/realm-core/issues/5366
     }
 
-    _request_callback_async(client, method, url, body, headers, request_context);
-    // The request struct dies here!
-  }
-
-  static void _request_callback_async(
-    HttpClient client,
-    _HttpMethod method,
-    Uri url,
-    String body,
-    Map<String, String> headers,
-    Pointer<Void> request_context,
-  ) async {
-    await using((arena) async {
-      final response_pointer = arena<realm_http_response>();
-      final responseRef = response_pointer.ref;
-      // pre-fill in case something fails
-      responseRef.custom_status_code = 100; // TODO!
-
-      try {
-        // Build request
-        late HttpClientRequest request;
-        switch (method) {
-          case _HttpMethod.delete:
-            request = await client.deleteUrl(url);
-            break;
-          case _HttpMethod.put:
-            request = await client.putUrl(url);
-            break;
-          case _HttpMethod.patch:
-            request = await client.patchUrl(url);
-            break;
-          case _HttpMethod.post:
-            request = await client.postUrl(url);
-            break;
-          case _HttpMethod.get:
-            request = await client.getUrl(url);
-            break;
-        }
-
-        for (final header in headers.entries) {
-          request.headers.add(header.key, header.value);
-        }
-
-        request.add(utf8.encode(body));
-
-        // Do the call..
-        final response = await request.close();
-        final responseBody = await response.fold<List<int>>([], (acc, l) => acc..addAll(l)); // gather response
-
-        // Report back to core
-        responseRef.status_code = response.statusCode;
-        responseRef.body = responseBody.toInt8Ptr(arena);
-        responseRef.body_size = responseBody.length;
-
-        int headerCnt = 0;
-        response.headers.forEach((name, values) {
-          headerCnt += values.length;
-        });
-
-        responseRef.headers = arena<realm_http_header>(headerCnt);
-        responseRef.num_headers = headerCnt;
-
-        response.headers.forEach((name, values) {
-          int idx = 0;
-          for (final value in values) {
-            final headerRef = responseRef.headers.elementAt(idx).ref;
-            headerRef.name = name.toUtf8Ptr(arena);
-            headerRef.value = value.toUtf8Ptr(arena);
-          }
-        });
-
-        responseRef.custom_status_code = 0; // all is well, reset custom_status_code
-      } finally {
-        _realmLib.realm_http_transport_complete_request(request_context, response_pointer);
-      }
-    });
-  }
-
-  ConfigHandle createConfig() {
-    final configPtr = _realmLib.realm_config_new();
-    return ConfigHandle._(configPtr);
-  }
-
-  String getConfigPath(Configuration config) {
-    return _realmLib.realm_config_get_path(config.handle._pointer).cast<Utf8>().toDartString();
-  }
-
-  void setConfigPath(Configuration config, String path) {
-    return using((Arena arena) {
-      _realmLib.realm_config_set_path(config.handle._pointer, path.toUtf8Ptr(arena));
-    });
+    return FALSE;
   }
 
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
@@ -325,12 +197,9 @@ class _RealmCore {
     _realmLib.realm_scheduler_perform_work(schedulerHandle._pointer);
   }
 
-  void setScheduler(Configuration config, SchedulerHandle schedulerHandle) {
-    _realmLib.realm_config_set_scheduler(config.handle._pointer, schedulerHandle._pointer);
-  }
-
-  RealmHandle openRealm(Configuration config) {
-    final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_open(config.handle._pointer), "Error opening realm at path ${config.path}");
+  RealmHandle openRealm(Configuration config, Scheduler scheduler) {
+    final configHandle = _createConfig(config, scheduler.handle);
+    final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_open(configHandle._pointer), "Error opening realm at path ${config.path}");
     return RealmHandle._(realmPtr);
   }
 
@@ -659,7 +528,6 @@ class _RealmCore {
 
   bool objectEquals(RealmObject first, RealmObject second) => _equals(first.handle, second.handle);
   bool realmEquals(Realm first, Realm second) => _equals(first.handle, second.handle);
-  bool configurationEquals(Configuration first, Configuration second) => _equals(first.handle, second.handle);
 
   RealmResultsHandle resultsSnapshot(RealmResults results) {
     final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_snapshot(results.handle._pointer));
@@ -674,67 +542,94 @@ class _RealmCore {
     return _realmLib.realm_list_is_valid(list.handle._pointer);
   }
 
-  static void collection_change_callback(Object object, Pointer<realm_collection_changes> data) {
-    assert(object is NotificationsController, "Notification controller expected");
-
-    final controller = object as NotificationsController;
+  static void collection_change_callback(Pointer<Void> userdata, Pointer<realm_collection_changes> data) {
+    NotificationsController? controller = userdata.toObject();
+    if (controller == null) {
+      return;
+    }
 
     if (data == nullptr) {
-      //realm_collection_changes data clone is done in native code before this callback is invoked. nullptr data means cloning failed.
       controller.onError(RealmError("Invalid notifications data received"));
       return;
     }
 
     try {
-      final changesHandle = RealmCollectionChangesHandle._(data);
+      final clonedData = _realmLib.realm_clone(data.cast());
+      if (clonedData == nullptr) {
+        controller.onError(RealmError("Error while cloning notifications data"));
+        return;
+      }
+
+      final changesHandle = RealmCollectionChangesHandle._(clonedData.cast());
       controller.onChanges(changesHandle);
     } catch (e) {
-      controller.onError(RealmError("Error handling collection change notifications. Error: $e"));
+      controller.onError(RealmError("Error handling change notifications. Error: $e"));
     }
   }
 
-  static void object_change_callback(Object object, Pointer<realm_object_changes> data) {
-    assert(object is NotificationsController, "Notification controller expected");
-
-    final controller = object as NotificationsController;
+  static void object_change_callback(Pointer<Void> userdata, Pointer<realm_object_changes> data) {
+    NotificationsController? controller = userdata.toObject();
+    if (controller == null) {
+      return;
+    }
 
     if (data == nullptr) {
-      //realm_collection_changes data clone is done in native code before this callback is invoked. nullptr data means cloning failed.
       controller.onError(RealmError("Invalid notifications data received"));
       return;
     }
 
     try {
-      final changesHandle = RealmObjectChangesHandle._(data);
+      final clonedData = _realmLib.realm_clone(data.cast());
+      if (clonedData == nullptr) {
+        controller.onError(RealmError("Error while cloning notifications data"));
+        return;
+      }
+
+      final changesHandle = RealmObjectChangesHandle._(clonedData.cast());
       controller.onChanges(changesHandle);
     } catch (e) {
-      controller.onError(RealmError("Error handling collection change notifications. Error: $e"));
+      controller.onError(RealmError("Error handling change notifications. Error: $e"));
     }
   }
 
   RealmNotificationTokenHandle subscribeResultsNotifications(RealmResultsHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
-    final onChangeCallback = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_collection_changes>)>(collection_change_callback);
-
-    final pointer = _realmLib.invokeGetPointer(
-        () => _realmLib.realm_dart_results_add_notification_callback(handle._pointer, controller, onChangeCallback, schedulerHandle._pointer));
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_add_notification_callback(
+          handle._pointer,
+          controller.toGCHandle(),
+          nullptr,
+          nullptr,
+          Pointer.fromFunction(collection_change_callback),
+          nullptr,
+          schedulerHandle._pointer,
+        ));
 
     return RealmNotificationTokenHandle._(pointer);
   }
 
   RealmNotificationTokenHandle subscribeListNotifications(RealmListHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
-    final onChangeCallback = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_collection_changes>)>(collection_change_callback);
-
-    final pointer = _realmLib
-        .invokeGetPointer(() => _realmLib.realm_dart_list_add_notification_callback(handle._pointer, controller, onChangeCallback, schedulerHandle._pointer));
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_list_add_notification_callback(
+          handle._pointer,
+          controller.toGCHandle(),
+          nullptr,
+          nullptr,
+          Pointer.fromFunction(collection_change_callback),
+          nullptr,
+          schedulerHandle._pointer,
+        ));
 
     return RealmNotificationTokenHandle._(pointer);
   }
 
   RealmNotificationTokenHandle subscribeObjectNotifications(RealmObjectHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
-    final onChangeCallback = Pointer.fromFunction<Void Function(ffi.Handle, Pointer<realm_object_changes>)>(object_change_callback);
-
-    final pointer = _realmLib
-        .invokeGetPointer(() => _realmLib.realm_dart_object_add_notification_callback(handle._pointer, controller, onChangeCallback, schedulerHandle._pointer));
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_add_notification_callback(
+          handle._pointer,
+          controller.toGCHandle(),
+          nullptr,
+          nullptr,
+          Pointer.fromFunction(object_change_callback),
+          nullptr,
+          schedulerHandle._pointer,
+        ));
 
     return RealmNotificationTokenHandle._(pointer);
   }
@@ -753,80 +648,191 @@ class _RealmCore {
       return out_modified.asTypedList(count).toList();
     });
   }
-
-  RealmAppConfigHandle createAppConfig(String appId, RealmHttpTransportHandle httpTransport) {
+  
+  AppConfigHandle createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
     return using((arena) {
-      final app_id = appId.toUtf8Ptr(arena);
-      return RealmAppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
-    });
-  }
-
-  void setAppConfigBaseUrl(RealmAppConfigHandle handle, Uri baseUrl) {
-    using((arena) {
-      _realmLib.realm_app_config_set_base_url(handle._pointer, baseUrl.toString().toUtf8Ptr(arena));
-    });
-  }
-
-  void setAppConfigDefaultRequestTimeout(RealmAppConfigHandle handle, Duration defaultRequestTimeout) {
-    _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, defaultRequestTimeout.inMilliseconds);
-  }
-
-  void setAppConfigLocalAppName(RealmAppConfigHandle handle, String localAppName) {
-    using((arena) {
-      _realmLib.realm_app_config_set_local_app_name(handle._pointer, localAppName.toUtf8Ptr(arena));
-    });
-  }
-
-  void setAppConfigLocalAppVersion(RealmAppConfigHandle handle, Version localAppVersion) {
-    using((arena) {
-      final versionString = localAppVersion.toString();
-      _realmLib.realm_app_config_set_local_app_version(handle._pointer, versionString.toUtf8Ptr(arena));
-    });
-  }
-
-  void setAppConfigPlatform(RealmAppConfigHandle handle, String platform) {
-    using((arena) {
-      _realmLib.realm_app_config_set_platform(handle._pointer, platform.toUtf8Ptr(arena));
-    });
-  }
-
-  void setAppConfigPlatformVersion(RealmAppConfigHandle handle, String platformVersion) {
-    using((arena) {
-      _realmLib.realm_app_config_set_platform_version(handle._pointer, platformVersion.toUtf8Ptr(arena));
-    });
-  }
-
-  void setAppConfigSdkVersion(RealmAppConfigHandle handle, Version sdkVersion) {
-    using((arena) {
-      final versionString = sdkVersion.toString();
-      _realmLib.realm_app_config_set_sdk_version(handle._pointer, versionString.toUtf8Ptr(arena));
-    });
-  }
-
-  RealmAppHandle getApp(RealmAppConfigHandle appConfig) {
-    return RealmAppHandle._(_realmLib.realm_app_get(appConfig._pointer, nullptr)); // TODO: realm_sync_client_config
-  }
-
-  static void _loginCallback(Object userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
-    if (userdata is Completer<RealmUserHandle>) {
-      if (error != nullptr) {
-        final message = error.ref.message.cast<Utf8>().toDartString();
-        userdata.completeError(RealmException(message));
-      } else {
-        userdata.complete(RealmUserHandle._(_realmLib.realm_clone(user.cast()).cast()));
+      final app_id = configuration.appId.toUtf8Ptr(arena);
+      final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
+      
+      _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toUtf8Ptr(arena));
+      _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout.inMilliseconds);
+      
+      if (configuration.localAppName != null) {
+        _realmLib.realm_app_config_set_local_app_name(handle._pointer, configuration.localAppName!.toUtf8Ptr(arena));
       }
-    }
+
+      if (configuration.localAppVersion != null) {
+        _realmLib.realm_app_config_set_local_app_version(handle._pointer, configuration.localAppVersion!.toUtf8Ptr(arena));
+      }
+
+      _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toUtf8Ptr(arena));
+      _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toUtf8Ptr(arena));
+      
+      //This sets the realm lib version instead of the SDK version.
+      //TODO:  Read the SDK version from code generated version field
+      _realmLib.realm_app_config_set_sdk_version(handle._pointer, libraryVersion.toUtf8Ptr(arena));
+
+      return handle;
+    });
   }
 
-  Future<RealmUserHandle> logIn(RealmAppHandle app, RealmAppCredentialsHandle credentials) {
-    final completer = Completer<RealmUserHandle>();
-    _realmLib.invokeGetBool(() => _realmLib.realm_dart_app_log_in_with_credentials(
-          app._pointer,
-          credentials._pointer,
-          Pointer.fromFunction(_loginCallback),
-          completer,
-        ));
-    return completer.future;
+  RealmAppCredentialsHandle createAppCredentialsAnonymous() {
+    return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_anonymous());
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsEmailPassword(String email, String password) {
+    return using((arena) {
+      final emailPtr = email.toUtf8Ptr(arena);
+      final passwordPtr = password.toRealmString(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_email_password(emailPtr, passwordPtr.ref));
+    });
+  }
+
+  RealmHttpTransportHandle createHttpTransport(HttpClient httpClient) {
+    return RealmHttpTransportHandle._(_realmLib.realm_http_transport_new(
+      Pointer.fromFunction(request_callback),
+      httpClient.toGCHandle(),
+      nullptr,
+    ));
+  }
+
+  static void request_callback(Pointer<Void> userData, realm_http_request request, Pointer<Void> request_context) {
+    //
+    // The request struct only survives until end-of-call, even though
+    // we explicitly call realm_http_transport_complete_request to
+    // mark request as completed later.
+    //
+    // Therefor we need to copy everything out of request before returning.
+    // We cannot clone request on the native side with realm_clone,
+    // since realm_http_request does not inherit from WrapC.
+
+    HttpClient? userObject = userData.toObject();
+    if (userObject == null) {
+      return;
+    }
+
+    HttpClient client = userObject;
+
+    client.connectionTimeout = Duration(milliseconds: request.timeout_ms);
+
+    final url = Uri.parse(request.url.cast<Utf8>().toDartString());
+
+    final body = request.body.cast<Utf8>().toDartString();
+
+    final headers = <String, String>{};
+    for (int i = 0; i < request.num_headers; ++i) {
+      final header = request.headers[i];
+      final name = header.name.cast<Utf8>().toDartString();
+      final value = header.value.cast<Utf8>().toDartString();
+      headers[name] = value;
+    }
+
+    _request_callback_async(client, request.method, url, body, headers, request_context);
+    // The request struct dies here!
+  }
+
+  static void _request_callback_async(
+    HttpClient client,
+    int requestMethod,
+    Uri url,
+    String body,
+    Map<String, String> headers,
+    Pointer<Void> request_context,
+  ) async {
+    await using((arena) async {
+      final response_pointer = arena<realm_http_response>();
+      final responseRef = response_pointer.ref;
+      try {
+        // Build request
+        late HttpClientRequest request;
+
+        // this throws if requestMethod is unknown _HttpMethod
+        final method = _HttpMethod.values[requestMethod];
+
+        switch (method) {
+          case _HttpMethod.delete:
+            request = await client.deleteUrl(url);
+            break;
+          case _HttpMethod.put:
+            request = await client.putUrl(url);
+            break;
+          case _HttpMethod.patch:
+            request = await client.patchUrl(url);
+            break;
+          case _HttpMethod.post:
+            request = await client.postUrl(url);
+            break;
+          case _HttpMethod.get:
+            request = await client.getUrl(url);
+            break;
+        }
+
+        for (final header in headers.entries) {
+          request.headers.add(header.key, header.value);
+        }
+
+        request.add(utf8.encode(body));
+
+        // Do the call..
+        final response = await request.close();
+        final responseBody = await response.fold<List<int>>([], (acc, l) => acc..addAll(l)); // gather response
+
+        // Report back to core
+        responseRef.status_code = response.statusCode;
+        responseRef.body = responseBody.toInt8Ptr(arena);
+        responseRef.body_size = responseBody.length;
+
+        int headerCnt = 0;
+        response.headers.forEach((name, values) {
+          headerCnt += values.length;
+        });
+
+        responseRef.headers = arena<realm_http_header>(headerCnt);
+        responseRef.num_headers = headerCnt;
+
+        response.headers.forEach((name, values) {
+          int idx = 0;
+          for (final value in values) {
+            final headerRef = responseRef.headers.elementAt(idx).ref;
+            headerRef.name = name.toUtf8Ptr(arena);
+            headerRef.value = value.toUtf8Ptr(arena);
+          }
+        });
+
+        responseRef.custom_status_code = _CustomErrorCode.noError.code;
+      } on SocketException catch (_) {
+        // TODO: A Timeout causes a socket exception, but not all socket exceptions are due to timeouts
+        responseRef.custom_status_code = _CustomErrorCode.timeout.code;
+      } on HttpException catch (_) {
+        responseRef.custom_status_code = _CustomErrorCode.unknownHttp.code;
+      } catch (_) {
+        responseRef.custom_status_code = _CustomErrorCode.unknown.code;
+      } finally {
+        _realmLib.realm_http_transport_complete_request(request_context, response_pointer);
+      }
+    });
+  }
+  
+  SyncClientConfigHandle createSyncClientConfig(ApplicationConfiguration configuration) {
+    return using((arena) {
+      final c = configuration;
+      final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
+      if (c.baseFilePath.path.isNotEmpty) {
+        _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, c.baseFilePath.path.toUtf8Ptr(arena));
+      }
+      _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, c.metadataPersistenceMode.index);
+      if (c.metadataEncryptionKey != null && c.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
+        _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, c.metadataEncryptionKey!.toUint8Ptr(arena));
+      }
+      return handle;
+    });
+  }
+
+  AppHandle getApp(ApplicationConfiguration configuration) {
+    final httpTransport = createHttpTransport(configuration.httpClient);
+    final appConfig = createAppConfig(configuration, httpTransport);
+    final syncClientConfig = createSyncClientConfig(configuration);
+    return AppHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfig._pointer, syncClientConfig._pointer)));
   }
 
   static void _appEmailPasswordProviderCallback(Pointer<Void> completerPtr, Pointer<realm_app_error> error) {
@@ -874,6 +880,8 @@ abstract class Handle<T extends NativeType> {
     }
   }
 
+  Handle.unowned(this._pointer);
+
   @override
   String toString() => "${_pointer.toString()} value=${_pointer.cast<IntPtr>().value}";
 }
@@ -888,6 +896,8 @@ class ConfigHandle extends Handle<realm_config> {
 
 class RealmHandle extends Handle<shared_realm> {
   RealmHandle._(Pointer<shared_realm> pointer) : super(pointer, 24);
+
+  RealmHandle._unowned(Pointer<shared_realm> pointer) : super.unowned(pointer);
 }
 
 class SchedulerHandle extends Handle<realm_scheduler> {
@@ -941,27 +951,36 @@ class RealmObjectChangesHandle extends Handle<realm_object_changes> {
   RealmObjectChangesHandle._(Pointer<realm_object_changes> pointer) : super(pointer, 256);
 }
 
-class RealmHttpTransportHandle extends Handle<realm_http_transport> {
-  RealmHttpTransportHandle._(Pointer<realm_http_transport> pointer) : super(pointer, 256); // TODO; What should hint be?
-}
-
-class RealmAppConfigHandle extends Handle<realm_app_config> {
-  RealmAppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 256); // TODO: What should hint be?
-}
-
-class RealmAppHandle extends Handle<realm_app> {
-  RealmAppHandle._(Pointer<realm_app> pointer) : super(pointer, 256); // TODO: What should hint be?
-}
-
 class RealmAppCredentialsHandle extends Handle<realm_app_credentials> {
-  RealmAppCredentialsHandle._(Pointer<realm_app_credentials> pointer) : super(pointer, 256); // TODO: What should hint be?
+  RealmAppCredentialsHandle._(Pointer<realm_app_credentials> pointer) : super(pointer, 16);
 }
 
-class RealmUserHandle extends Handle<realm_user> {
-  RealmUserHandle._(Pointer<realm_user> pointer) : super(pointer, 256); // TODO: What should hint be?
+class RealmHttpTransportHandle extends Handle<realm_http_transport> {
+  RealmHttpTransportHandle._(Pointer<realm_http_transport> pointer) : super(pointer, 24);
+}
+
+class AppConfigHandle extends Handle<realm_app_config> {
+  AppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 8);
+}
+
+class SyncClientConfigHandle extends Handle<realm_sync_client_config> {
+  SyncClientConfigHandle._(Pointer<realm_sync_client_config> pointer) : super(pointer, 8);
+}
+
+class AppHandle extends Handle<realm_app> {
+  AppHandle._(Pointer<realm_app> pointer) : super(pointer, 16);
 }
 
 extension on List<int> {
+ Pointer<Uint8> toUint8Ptr(Allocator allocator) {
+    final nativeSize = length + 1;
+    final result = allocator<Uint8>(nativeSize);
+    final Uint8List native = result.asTypedList(nativeSize);
+    native.setAll(0, this); // copy
+    native.last = 0; // zero terminate
+    return result;
+  }
+  
   Pointer<Int8> toInt8Ptr(Allocator allocator) {
     final nativeSize = length + 1;
     final result = allocator<Uint8>(nativeSize);
@@ -975,7 +994,15 @@ extension on List<int> {
 extension _StringEx on String {
   Pointer<Int8> toUtf8Ptr(Allocator allocator) {
     final units = utf8.encode(this);
-    return units.toInt8Ptr(allocator);
+    return units.toInt8Ptr(allocator).cast();
+  }
+
+  Pointer<realm_string_t> toRealmString(Allocator allocator) {
+    final realm_string = allocator<realm_string_t>();
+    realm_string.ref.data = toUtf8Ptr(allocator);
+    final units = utf8.encode(this);
+    realm_string.ref.size = units.length + 1;
+    return realm_string;
   }
 
   Pointer<realm_string_t> toRealmString(Allocator allocator) {
@@ -1097,4 +1124,72 @@ extension on Pointer<IntPtr> {
     }
     return result;
   }
+}
+
+extension on Pointer<Void> {
+  T? toObject<T extends Object>() {
+    assert(this != nullptr, "Pointer<Void> is null");
+
+    final object = _realmLib.gc_handle_to_object(this);
+
+    assert(object is T, "$T expected");
+    if (object is! T) {
+      return null;
+    }
+
+    return object;
+  }
+}
+
+extension on Object {
+  Pointer<Void> toGCHandle() {
+    return _realmLib.object_to_gc_handle(this);
+  }
+}
+
+// TODO: Once enhanced-enums land in 2.17, replace with:
+/*
+enum _CustomErrorCode {
+  noError(0),
+  httpClientDisposed(997),
+  unknownHttp(998),
+  unknown(999),
+  timeout(1000);
+
+  final int code;
+  const _CustomErrorCode(this.code);
+}
+*/
+
+enum _CustomErrorCode {
+  noError,
+  httpClientDisposed,
+  unknownHttp,
+  unknown,
+  timeout,
+}
+
+extension on _CustomErrorCode {
+  int get code {
+    switch (this) {
+      case _CustomErrorCode.noError:
+        return 0;
+      case _CustomErrorCode.httpClientDisposed:
+        return 997;
+      case _CustomErrorCode.unknownHttp:
+        return 998;
+      case _CustomErrorCode.unknown:
+        return 999;
+      case _CustomErrorCode.timeout:
+        return 1000;
+    }
+  }
+}
+
+enum _HttpMethod {
+  get,
+  post,
+  patch,
+  put,
+  delete,
 }

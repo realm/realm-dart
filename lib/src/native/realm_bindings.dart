@@ -7449,68 +7449,33 @@ class RealmLibrary {
   late final _realm_delete_finalizable = _realm_delete_finalizablePtr
       .asFunction<void Function(Dart_FinalizableHandle, Object)>();
 
-  ffi.Pointer<ffi.Void> gc_handle_toPtr(
+  ffi.Pointer<ffi.Void> object_to_gc_handle(
     Object handle,
   ) {
-    return _gc_handle_toPtr(
+    return _object_to_gc_handle(
       handle,
     );
   }
 
-  late final _gc_handle_toPtrPtr =
+  late final _object_to_gc_handlePtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>(
-          'gc_handle_toPtr');
-  late final _gc_handle_toPtr =
-      _gc_handle_toPtrPtr.asFunction<ffi.Pointer<ffi.Void> Function(Object)>();
+          'object_to_gc_handle');
+  late final _object_to_gc_handle = _object_to_gc_handlePtr
+      .asFunction<ffi.Pointer<ffi.Void> Function(Object)>();
 
-  Object gc_handle_fromPtr(
-    ffi.Pointer<ffi.Void> handler,
+  Object gc_handle_to_object(
+    ffi.Pointer<ffi.Void> handle,
   ) {
-    return _gc_handle_fromPtr(
-      handler,
+    return _gc_handle_to_object(
+      handle,
     );
   }
 
-  late final _gc_handle_fromPtrPtr =
+  late final _gc_handle_to_objectPtr =
       _lookup<ffi.NativeFunction<ffi.Handle Function(ffi.Pointer<ffi.Void>)>>(
-          'gc_handle_fromPtr');
-  late final _gc_handle_fromPtr = _gc_handle_fromPtrPtr
+          'gc_handle_to_object');
+  late final _gc_handle_to_object = _gc_handle_to_objectPtr
       .asFunction<Object Function(ffi.Pointer<ffi.Void>)>();
-
-  /// @brief
-  ///
-  /// @param completion
-  /// @param userdata
-  /// @return true if operation started successfully, false if an error occurred.
-  bool realm_dart_app_log_in_with_credentials(
-    ffi.Pointer<realm_app_t> arg0,
-    ffi.Pointer<realm_app_credentials_t> arg1,
-    realm_dart_app_user_completion_func_t completion,
-    Object userdata,
-  ) {
-    return _realm_dart_app_log_in_with_credentials(
-          arg0,
-          arg1,
-          completion,
-          userdata,
-        ) !=
-        0;
-  }
-
-  late final _realm_dart_app_log_in_with_credentialsPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Uint8 Function(
-              ffi.Pointer<realm_app_t>,
-              ffi.Pointer<realm_app_credentials_t>,
-              realm_dart_app_user_completion_func_t,
-              ffi.Handle)>>('realm_dart_app_log_in_with_credentials');
-  late final _realm_dart_app_log_in_with_credentials =
-      _realm_dart_app_log_in_with_credentialsPtr.asFunction<
-          int Function(
-              ffi.Pointer<realm_app_t>,
-              ffi.Pointer<realm_app_credentials_t>,
-              realm_dart_app_user_completion_func_t,
-              Object)>();
 
   ffi.Pointer<realm_scheduler_t> realm_dart_create_scheduler(
     int isolateId,
@@ -7553,146 +7518,6 @@ class RealmLibrary {
   late final _get_thread_idPtr =
       _lookup<ffi.NativeFunction<ffi.Uint64 Function()>>('get_thread_id');
   late final _get_thread_id = _get_thread_idPtr.asFunction<int Function()>();
-
-  /// Subscribe for change notifications to a realm results collection.
-  ///
-  /// @param results The realm results to subscribe to.
-  /// @param notification_controller A handle to a Dart NotificationController instance that will be passed to the callback.
-  /// @param on_change The callback to invoke, if the realm results changes.
-  /// @return A notification token that can be released to unsubscribe.
-  ///
-  /// This is a dart specific wrapper for realm_results_add_notification_callback.
-  ffi.Pointer<realm_notification_token_t>
-      realm_dart_results_add_notification_callback(
-    ffi.Pointer<realm_results_t> results,
-    Object notification_controller,
-    realm_dart_on_collection_change_func_t callback,
-    ffi.Pointer<realm_scheduler_t> scheduler,
-  ) {
-    return _realm_dart_results_add_notification_callback(
-      results,
-      notification_controller,
-      callback,
-      scheduler,
-    );
-  }
-
-  late final _realm_dart_results_add_notification_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_notification_token_t> Function(
-                  ffi.Pointer<realm_results_t>,
-                  ffi.Handle,
-                  realm_dart_on_collection_change_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>(
-      'realm_dart_results_add_notification_callback');
-  late final _realm_dart_results_add_notification_callback =
-      _realm_dart_results_add_notification_callbackPtr.asFunction<
-          ffi.Pointer<realm_notification_token_t> Function(
-              ffi.Pointer<realm_results_t>,
-              Object,
-              realm_dart_on_collection_change_func_t,
-              ffi.Pointer<realm_scheduler_t>)>();
-
-  /// Subscribe for change notifications to a realm list collection.
-  ///
-  /// @param list The realm list to subscribe to.
-  /// @param notification_controller A handle to a Dart NotificationController instance that will be passed to the callback.
-  /// @param on_change The callback to invoke, if the realm list changes.
-  /// @return A notification token that can be released to unsubscribe.
-  ///
-  /// This is a dart specific wrapper for realm_list_add_notification_callback.
-  ffi.Pointer<realm_notification_token_t>
-      realm_dart_list_add_notification_callback(
-    ffi.Pointer<realm_list_t> list,
-    Object notification_controller,
-    realm_dart_on_collection_change_func_t on_change,
-    ffi.Pointer<realm_scheduler_t> scheduler,
-  ) {
-    return _realm_dart_list_add_notification_callback(
-      list,
-      notification_controller,
-      on_change,
-      scheduler,
-    );
-  }
-
-  late final _realm_dart_list_add_notification_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_notification_token_t> Function(
-                  ffi.Pointer<realm_list_t>,
-                  ffi.Handle,
-                  realm_dart_on_collection_change_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>(
-      'realm_dart_list_add_notification_callback');
-  late final _realm_dart_list_add_notification_callback =
-      _realm_dart_list_add_notification_callbackPtr.asFunction<
-          ffi.Pointer<realm_notification_token_t> Function(
-              ffi.Pointer<realm_list_t>,
-              Object,
-              realm_dart_on_collection_change_func_t,
-              ffi.Pointer<realm_scheduler_t>)>();
-
-  /// Subscribe for change notifications to a realm object.
-  ///
-  /// @param realm_object The realm object to subscribe to.
-  /// @param notification_controller A handle to a Dart NotificationController instance that will be passed to the callback.
-  /// @param on_change The callback to invoke, if the realm list changes.
-  /// @return A notification token that can be released to unsubscribe.
-  ///
-  /// This is a dart specific wrapper for realm_object_add_notification_callback.
-  ffi.Pointer<realm_notification_token_t>
-      realm_dart_object_add_notification_callback(
-    ffi.Pointer<realm_object_t> list,
-    Object notification_controller,
-    realm_dart_on_object_change_func_t on_change,
-    ffi.Pointer<realm_scheduler_t> scheduler,
-  ) {
-    return _realm_dart_object_add_notification_callback(
-      list,
-      notification_controller,
-      on_change,
-      scheduler,
-    );
-  }
-
-  late final _realm_dart_object_add_notification_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_notification_token_t> Function(
-                  ffi.Pointer<realm_object_t>,
-                  ffi.Handle,
-                  realm_dart_on_object_change_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>(
-      'realm_dart_object_add_notification_callback');
-  late final _realm_dart_object_add_notification_callback =
-      _realm_dart_object_add_notification_callbackPtr.asFunction<
-          ffi.Pointer<realm_notification_token_t> Function(
-              ffi.Pointer<realm_object_t>,
-              Object,
-              realm_dart_on_object_change_func_t,
-              ffi.Pointer<realm_scheduler_t>)>();
-
-  /// Create a new HTTP transport with these callbacks implementing its functionality.
-  ///
-  /// This is a dart specific wrapper for realm_http_transport_new.
-  ffi.Pointer<realm_http_transport_t> realm_dart_http_transport_new(
-    realm_dart_http_request_func_t request_callback,
-    Object userdata,
-  ) {
-    return _realm_dart_http_transport_new(
-      request_callback,
-      userdata,
-    );
-  }
-
-  late final _realm_dart_http_transport_newPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_http_transport_t> Function(
-              realm_dart_http_request_func_t,
-              ffi.Handle)>>('realm_dart_http_transport_new');
-  late final _realm_dart_http_transport_new =
-      _realm_dart_http_transport_newPtr.asFunction<
-          ffi.Pointer<realm_http_transport_t> Function(
-              realm_dart_http_request_func_t, Object)>();
 
   ffi.Pointer<ffi.Int8> realm_dart_get_files_path() {
     return _realm_dart_get_files_path();
@@ -8636,40 +8461,5 @@ typedef Dart_FinalizableHandle = ffi.Pointer<_Dart_FinalizableHandle>;
 
 class _Dart_FinalizableHandle extends ffi.Opaque {}
 
-/// Completion callback for asynchronous Realm App operations that yield a user object.
-///
-/// @param userdata The userdata the asynchronous operation was started with.
-/// @param user User object produced by the operation, or null if it failed.
-/// The pointer is alive only for the duration of the callback,
-/// if you wish to use it further make a copy with realm_clone().
-/// @param error Pointer to an error object if the operation failed, otherwise null if it completed successfully.
-///
-/// This is a dart specific version of the completion callback for asynchronous Realm operations.
-typedef realm_dart_app_user_completion_func_t = ffi.Pointer<
-    ffi.NativeFunction<
-        ffi.Void Function(ffi.Handle, ffi.Pointer<realm_user_t>,
-            ffi.Pointer<realm_app_error_t>)>>;
-
 /// A port is used to send or receive inter-isolate messages
 typedef Dart_Port = ffi.Int64;
-typedef realm_dart_on_collection_change_func_t = ffi.Pointer<
-    ffi.NativeFunction<
-        ffi.Void Function(
-            ffi.Handle, ffi.Pointer<realm_collection_changes_t>)>>;
-typedef realm_dart_on_object_change_func_t = ffi.Pointer<
-    ffi.NativeFunction<
-        ffi.Void Function(ffi.Handle, ffi.Pointer<realm_object_changes_t>)>>;
-
-/// Callback function used by Core to make a HTTP request.
-///
-/// Complete the request by calling realm_dart_http_transport_complete_request(),
-/// passing in the request_context pointer here and the received response.
-/// Network request are expected to be asynchronous and can be completed on any thread.
-///
-/// @param userdata The userdata pointer passed to realm_dart_http_transport_new().
-/// @param request The request to send.
-/// @param request_context Internal state pointer of Core, needed by realm_http_transport_complete_request().
-typedef realm_dart_http_request_func_t = ffi.Pointer<
-    ffi.NativeFunction<
-        ffi.Void Function(
-            ffi.Handle, realm_http_request_t, ffi.Pointer<ffi.Void>)>>;

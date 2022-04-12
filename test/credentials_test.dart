@@ -17,8 +17,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:io';
-import 'package:pub_semver/pub_semver.dart';
-import 'package:realm_dart/src/application_configuration.dart';
+
+import 'package:test/test.dart' hide test, throws;
+import '../lib/realm.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -26,13 +27,13 @@ Future<void> main([List<String>? args]) async {
 
   setupTests(args);
 
-  test('ApplicationConfiguration can be created', () {
-    ApplicationConfiguration(
-      'foo',
-      baseUrl: Uri.parse('https://not_re.al'),
-      defaultRequestTimeout: const Duration(seconds: 2),
-      localAppName: 'bar',
-      localAppVersion: Version(1, 0, 0),
-    );
+  test('ApplicationCredentials anonymous', () {
+    final credentials = Credentials.anonymous();
+    expect(credentials.provider, AuthProvider.anonymous);
+  });
+
+  test('ApplicationCredentials email/password', () {
+    final credentials = Credentials.emailPassword("test@email.com", "000000");
+    expect(credentials.provider, AuthProvider.emailPassword);
   });
 }

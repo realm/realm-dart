@@ -9,7 +9,7 @@ lib/default.realm.lock
 
 # Dart packages and Flutter plugins should not commit these files
 pubspec.lock
-.packages 
+.packages
 
 # Ignore other packages files
 flutter/realm_flutter/.idea/
@@ -35,4 +35,4 @@ flutter/realm_flutter/.gradle/
 
 # Ignore example pubspec.lock since the example always reference the local package
 example/pubspec.lock
-
+/generator/coverage/
