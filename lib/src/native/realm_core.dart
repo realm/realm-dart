@@ -161,8 +161,7 @@ class _RealmCore {
       }
 
       if (config.initialDataCallback != null) {
-        _realmLib.realm_config_set_data_initialization_function(
-            configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toGCHandle());
+        _realmLib.realm_config_set_data_initialization_function(configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toGCHandle());
       }
 
       return configHandle;
@@ -171,16 +170,15 @@ class _RealmCore {
 
   static int initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmHandle) {
     try {
-      final Configuration? config =  userdata.toObject();
-      if (config== null) {
+      final Configuration? config = userdata.toObject();
+      if (config == null) {
         return FALSE;
       }
       final realm = RealmInternal.getUnowned(config, RealmHandle._unowned(realmHandle));
-        config.initialDataCallback!(realm);
+      config.initialDataCallback!(realm);
       return TRUE;
     } catch (ex) {
       // TODO: this should propagate the error to Core: https://github.com/realm/realm-core/issues/5366
-      print(ex);
     }
 
     return FALSE;
@@ -719,7 +717,7 @@ class _RealmCore {
 
         // this throws if requestMethod is unknown _HttpMethod
         final method = _HttpMethod.values[requestMethod];
-           
+
         switch (method) {
           case _HttpMethod.delete:
             request = await client.deleteUrl(url);
@@ -1090,5 +1088,5 @@ enum _HttpMethod {
   post,
   patch,
   put,
-  delete
+  delete,
 }
