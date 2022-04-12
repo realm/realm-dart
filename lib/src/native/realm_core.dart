@@ -25,7 +25,9 @@ import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
+import 'package:pub_semver/pub_semver.dart';
 
+import '../application.dart';
 import '../collections.dart';
 import '../init.dart';
 import '../list.dart';
@@ -644,6 +646,33 @@ class _RealmCore {
       return out_modified.asTypedList(count).toList();
     });
   }
+  
+  AppConfigHandle createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
+    return using((arena) {
+      final app_id = configuration.appId.toUtf8Ptr(arena);
+      final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
+      
+      _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toUtf8Ptr(arena));
+      _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout!.inMilliseconds);
+      
+      if (configuration.localAppName != null) {
+        _realmLib.realm_app_config_set_local_app_name(handle._pointer, configuration.localAppName!.toUtf8Ptr(arena));
+      }
+
+      if (configuration.localAppVersion != null) {
+        _realmLib.realm_app_config_set_local_app_version(handle._pointer, configuration.localAppVersion!.toUtf8Ptr(arena));
+      }
+
+      _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toUtf8Ptr(arena));
+      _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toUtf8Ptr(arena));
+      
+      //This sets the realm lib version instead of the SDK version.
+      //TODO:  Read the SDK version from code generated version field
+      _realmLib.realm_app_config_set_sdk_version(handle._pointer, libraryVersion.toUtf8Ptr(arena));
+
+      return handle;
+    });
+  }
 
   RealmAppCredentialsHandle createAppCredentialsAnonymous() {
     return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_anonymous());
@@ -883,6 +912,10 @@ class RealmAppCredentialsHandle extends Handle<realm_app_credentials> {
 
 class RealmHttpTransportHandle extends Handle<realm_http_transport> {
   RealmHttpTransportHandle._(Pointer<realm_http_transport> pointer) : super(pointer, 24);
+}
+
+class AppConfigHandle extends Handle<realm_app_config> {
+  AppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 256); // TODO: What should hint be?
 }
 
 extension on List<int> {

@@ -43,6 +43,7 @@ void dummy(void) {
   realm_list_size(NULL, 0);
   realm_results_snapshot(NULL);
   realm_app_credentials_new_anonymous();
+  realm_app_config_new(NULL, NULL);
 }
 
 @end
