@@ -17,24 +17,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:io';
-import 'package:pub_semver/pub_semver.dart';
 import '../lib/realm.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
-  setupTests(args);
+  await setupTests(args);
 
   test('Email/Password - register user', () async {
-    final appConfig = ApplicationConfiguration(
-      'foo',
-      baseUrl: Uri.parse('https://not_re.al'),
-      defaultRequestTimeout: const Duration(seconds: 2),
-      localAppName: 'bar',
-      localAppVersion: Version(1, 0, 0),
-    );
-    //final app = Application(appConfig);
-    //await app.emailPasswordProvider.registerUser("foo@bar.com", "pwd");
+    final tmp = await Directory.systemTemp.createTemp();
+    final configuration = ApplicationConfiguration(generateRandomString(10), baseFilePath: tmp);
+    final application = Application(configuration);
+    await application.emailPasswordProvider.registerUser("foo@bar.com", "pwd");
   });
 }

@@ -22,7 +22,7 @@ import 'native/realm_core.dart';
 /// It is always scoped to a particular app and can only be accessed via [emailPasswordProvider].
 /// {@category Application}
 class EmailPasswordProvider {
-  final RealmAppHandle _handle;
+  final AppHandle _handle;
 
   EmailPasswordProvider(Application app) : _handle = app.handle;
 

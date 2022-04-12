@@ -648,15 +648,15 @@ class _RealmCore {
       return out_modified.asTypedList(count).toList();
     });
   }
-  
+
   AppConfigHandle createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
     return using((arena) {
       final app_id = configuration.appId.toUtf8Ptr(arena);
       final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
-      
+
       _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toUtf8Ptr(arena));
       _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout.inMilliseconds);
-      
+
       if (configuration.localAppName != null) {
         _realmLib.realm_app_config_set_local_app_name(handle._pointer, configuration.localAppName!.toUtf8Ptr(arena));
       }
@@ -667,7 +667,7 @@ class _RealmCore {
 
       _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toUtf8Ptr(arena));
       _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toUtf8Ptr(arena));
-      
+
       //This sets the realm lib version instead of the SDK version.
       //TODO:  Read the SDK version from code generated version field
       _realmLib.realm_app_config_set_sdk_version(handle._pointer, libraryVersion.toUtf8Ptr(arena));
@@ -812,7 +812,7 @@ class _RealmCore {
       }
     });
   }
-  
+
   SyncClientConfigHandle createSyncClientConfig(ApplicationConfiguration configuration) {
     return using((arena) {
       final c = configuration;
@@ -835,23 +835,24 @@ class _RealmCore {
     return AppHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfig._pointer, syncClientConfig._pointer)));
   }
 
-  static void _appEmailPasswordProviderCallback(Pointer<Void> completerPtr, Pointer<realm_app_error> error) {
-    final completer = _realmLib.gc_handle_fromPtr(completerPtr);
-    if (completer is Completer<void>) {
-      if (error != nullptr) {
-        final message = error.ref.message.cast<Utf8>().toDartString();
-        completer.completeError(RealmException(message));
-      } else {
-        completer.complete();
-      }
+  static void app_email_password_provider_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
+    final Completer<void>? completer = userdata.toObject();
+    if (completer == null) {
+      return;
+    }
+    if (error != nullptr) {
+      final message = error.ref.message.cast<Utf8>().toDartString();
+      completer.completeError(RealmException(message));
+    } else {
+      completer.complete();
     }
   }
 
-  Future<void> appEmailPasswordRegisterUser(RealmAppHandle app, String email, String password) {
+  Future<void> appEmailPasswordRegisterUser(AppHandle application, String email, String password) {
     final completer = Completer<void>();
     using((arena) {
-      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_register_email(app._pointer, email.toUtf8Ptr(arena),
-          password.toRealmString(arena).ref, Pointer.fromFunction(_appEmailPasswordProviderCallback), _realmLib.gc_handle_toPtr(completer), nullptr));
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_register_email(application._pointer, email.toUtf8Ptr(arena),
+          password.toRealmString(arena).ref, Pointer.fromFunction(app_email_password_provider_callback), completer.toGCHandle(), nullptr));
     });
     return completer.future;
   }
@@ -972,7 +973,7 @@ class AppHandle extends Handle<realm_app> {
 }
 
 extension on List<int> {
- Pointer<Uint8> toUint8Ptr(Allocator allocator) {
+  Pointer<Uint8> toUint8Ptr(Allocator allocator) {
     final nativeSize = length + 1;
     final result = allocator<Uint8>(nativeSize);
     final Uint8List native = result.asTypedList(nativeSize);
@@ -980,7 +981,7 @@ extension on List<int> {
     native.last = 0; // zero terminate
     return result;
   }
-  
+
   Pointer<Int8> toInt8Ptr(Allocator allocator) {
     final nativeSize = length + 1;
     final result = allocator<Uint8>(nativeSize);
@@ -995,14 +996,6 @@ extension _StringEx on String {
   Pointer<Int8> toUtf8Ptr(Allocator allocator) {
     final units = utf8.encode(this);
     return units.toInt8Ptr(allocator).cast();
-  }
-
-  Pointer<realm_string_t> toRealmString(Allocator allocator) {
-    final realm_string = allocator<realm_string_t>();
-    realm_string.ref.data = toUtf8Ptr(allocator);
-    final units = utf8.encode(this);
-    realm_string.ref.size = units.length + 1;
-    return realm_string;
   }
 
   Pointer<realm_string_t> toRealmString(Allocator allocator) {
