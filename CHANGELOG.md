@@ -13,6 +13,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support anonymous application credentials ([#443](https://github.com/realm/realm-dart/pull/443/))
 * Added a property `Configuration.initialDataCallback`. This is a callback executed when a Realm file is first created and allows you to populate some initial data necessary for your application. ([#298](https://github.com/realm/realm-dart/issues/298))
 * Support application configuration ([#306](https://github.com/realm/realm-dart/pull/306/))
+* Support should realm compact on open callback `Configuration.shouldCompactCallback` as option when configuring a Realm to determine if it should be compacted before being returned.  ([#466](https://github.com/realm/realm-dart/pull/466/))
 * Support ObjectId ([#468](https://github.com/realm/realm-dart/pull/468))
 
 ### Fixed

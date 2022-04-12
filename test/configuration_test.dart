@@ -298,4 +298,18 @@ Future<void> main([List<String>? args]) async {
     expect(callbackEx, isNotNull);
     expect(callbackEx.toString(), contains('The Realm is already in a write transaction'));
   });
+  
+  test('Configuration - do not compact on open realm', () {
+    var config = Configuration([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
+      return false;
+    });
+    final realm = getRealm(config);
+  });
+
+  test('Configuration - compact on open realm', () {
+    var config = Configuration([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
+      return totalSize > 0;
+    });
+    final realm = getRealm(config);
+  });
 }
