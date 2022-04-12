@@ -120,15 +120,15 @@ class Configuration {
   /// Realms, even if all objects in the Realm are deleted.
   final Function(Realm realm)? initialDataCallback;
   
-  // The function called when opening a Realm for the first time
-  // during the life of a process to determine if it should be compacted
-  // before being returned to the user.
-  //
-  // The function takes two arguments:
-  // - totalSize - The total file size (data + free space)
-  // - usedSize - The total bytes used by data in the file.
-  // It returns true to indicate that an attempt to compact the file should be made.
-  // The compaction will be skipped if another process is accessing it.
+  /// The function called when opening a Realm for the first time
+  /// during the life of a process to determine if it should be compacted
+  /// before being returned to the user.
+  ///
+  /// The function takes two arguments:
+  /// - totalSize - The total file size (data + free space)
+  /// - usedSize - The total bytes used by data in the file.
+  /// It returns true to indicate that an attempt to compact the file should be made.
+  /// The compaction will be skipped if another process is accessing it.
   final Function(int totalSize, int usedSize)? shouldCompactCallback;
 }
 
