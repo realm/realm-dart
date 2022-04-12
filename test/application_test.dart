@@ -15,7 +15,10 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+import 'dart:async';
 import 'dart:io';
+
+import 'package:test/expect.dart';
 
 import '../lib/realm.dart';
 import 'test.dart';
@@ -23,10 +26,21 @@ import 'test.dart';
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
-  setupTests(args);
+  await setupTests(args);
 
-  test('Application can be created', () {
-    final appConfig = ApplicationConfiguration('a');
-    final app = Application(appConfig);
+  test('Application can be created', () async {
+    final tmp = await Directory.systemTemp.createTemp();
+    final configuration = ApplicationConfiguration(
+      generateRandomString(10),
+      baseFilePath: tmp,
+    );
+    final application = Application(configuration);
+    expect(application.configuration, configuration);
+  });
+
+  testWithBaaS('Application log in', (configuration) async {
+    final application = Application(configuration);
+    final credentials = Credentials.anonymous();
+    final user = await application.logIn(credentials);
   });
 }

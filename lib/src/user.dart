@@ -19,11 +19,11 @@
 import 'native/realm_core.dart';
 
 class User {
-  final RealmUserHandle _handle;
+  final UserHandle _handle;
 
   User._(this._handle); 
 }
 
 extension UserInternal on User {
-  static User create(RealmUserHandle handle) => User._(handle);
+  static User create(UserHandle handle) => User._(handle);
 }
