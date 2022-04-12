@@ -49,7 +49,6 @@ class LinesEqualsMatcher extends Matcher {
   @override
   // ignore: strict_raw_type
   bool matches(dynamic actual, Map matchState) {
-    try{
     final actualValue = utf8.decode(actual as List<int>);
     final actualLines = actualValue.split("\n");
 
@@ -71,11 +70,6 @@ class LinesEqualsMatcher extends Matcher {
     }
 
     return true;
-    }
-    catch (_) {
-      print("fali");
-      return false;
-    }
   }
 
   @override
