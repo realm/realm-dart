@@ -810,7 +810,7 @@ class _RealmCore {
     final appConfig = createAppConfig(configuration, httpTransport);
     final syncClientConfig = createSyncClientConfig(configuration);
     return AppHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfig._pointer, syncClientConfig._pointer)));
-  } 
+  }
 }
 
 class LastError {
@@ -916,13 +916,11 @@ class AppConfigHandle extends Handle<realm_app_config> {
 }
 
 class SyncClientConfigHandle extends Handle<realm_sync_client_config> {
-  SyncClientConfigHandle._(Pointer<realm_sync_client_config> pointer) : super(pointer, 256); // TODO: What should hint be?
+  SyncClientConfigHandle._(Pointer<realm_sync_client_config> pointer) : super(pointer, 8);
 }
 
 class AppHandle extends Handle<realm_app> {
-  AppHandle._(
-    Pointer<realm_app> pointer,
-  ) : super(pointer, 256); // TODO: What should hint be?
+  AppHandle._(Pointer<realm_app> pointer) : super(pointer, 16);
 }
 
 extension on List<int> {
