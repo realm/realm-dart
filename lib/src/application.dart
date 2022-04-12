@@ -18,8 +18,8 @@
 
 import 'dart:io';
 import 'package:meta/meta.dart';
-import 'package:realm_dart/realm.dart';
 import 'native/realm_core.dart';
+import 'configuration.dart';
 
 /// Specify if and how to persists user objects.
 enum MetadataPersistenceMode {
