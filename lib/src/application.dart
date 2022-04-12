@@ -15,8 +15,8 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-import 'dart:io';
 
+import 'dart:io';
 import 'package:meta/meta.dart';
 
 /// Specify if and how to persists user objects.
