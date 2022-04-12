@@ -27,7 +27,7 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:pub_semver/pub_semver.dart';
 
-import '../application_configuration.dart';
+import '../application.dart';
 import '../collections.dart';
 import '../init.dart';
 import '../list.dart';
@@ -626,26 +626,26 @@ class _RealmCore {
   
   AppConfigHandle createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
     return using((arena) {
-      final c = configuration;
-      final app_id = c.appId.toUtf8Ptr(arena);
+      final app_id = configuration.appId.toUtf8Ptr(arena);
       final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
-      if (c.baseUrl != null) {
-        _realmLib.realm_app_config_set_base_url(handle._pointer, c.baseUrl.toString().toUtf8Ptr(arena));
+      
+      _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toUtf8Ptr(arena));
+      _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout!.inMilliseconds);
+      
+      if (configuration.localAppName != null) {
+        _realmLib.realm_app_config_set_local_app_name(handle._pointer, configuration.localAppName!.toUtf8Ptr(arena));
       }
-      if (c.defaultRequestTimeout != null) {
-        _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, c.defaultRequestTimeout!.inMilliseconds);
+
+      if (configuration.localAppVersion != null) {
+        _realmLib.realm_app_config_set_local_app_version(handle._pointer, configuration.localAppVersion!.toUtf8Ptr(arena));
       }
-      if (c.localAppName != null) {
-        _realmLib.realm_app_config_set_local_app_name(handle._pointer, c.localAppName!.toUtf8Ptr(arena));
-      }
-      if (c.localAppVersion != null) {
-        final versionString = c.localAppVersion.toString();
-        _realmLib.realm_app_config_set_local_app_version(handle._pointer, versionString.toUtf8Ptr(arena));
-      }
+
       _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toUtf8Ptr(arena));
       _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toUtf8Ptr(arena));
-      final version = Version.parse(Platform.version);
-      _realmLib.realm_app_config_set_sdk_version(handle._pointer, version.toString().toUtf8Ptr(arena));
+      
+      //This sets the realm lib version instead of the SDK version.
+      //TODO:  Read the SDK version from code generated version field
+      _realmLib.realm_app_config_set_sdk_version(handle._pointer, libraryVersion.toUtf8Ptr(arena));
 
       return handle;
     });

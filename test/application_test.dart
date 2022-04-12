@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 import 'dart:io';
 
-import 'package:pub_semver/pub_semver.dart';
 import 'package:test/expect.dart';
 
 import '../lib/realm.dart';
@@ -29,24 +28,26 @@ Future<void> main([List<String>? args]) async {
   setupTests(args);
 
   test('ApplicationConfiguration can be created', () {
-    final a = ApplicationConfiguration('a');
-    expect(a.appId, 'a');
+    final a = ApplicationConfiguration('myapp');
+    expect(a.appId, 'myapp');
     expect(a.baseFilePath.path, Directory.current.path);
     expect(a.baseUrl, Uri.parse('https://realm.mongodb.com'));
     expect(a.defaultRequestTimeout, const Duration(minutes: 1));
 
+    final httpClient = HttpClient(context: SecurityContext(withTrustedRoots: false));
     final b = ApplicationConfiguration(
-      'b',
+      'myapp1',
       baseFilePath: Directory.systemTemp,
       baseUrl: Uri.parse('https://not_re.al'),
       defaultRequestTimeout: const Duration(seconds: 2),
       localAppName: 'bar',
-      localAppVersion: Version(1, 0, 0),
-      httpClient: HttpClient(context: SecurityContext(withTrustedRoots: false)),
+      localAppVersion: "1.0.0",
+      httpClient: httpClient,
     );
-    expect(b.appId, 'b');
+    expect(b.appId, 'myapp1');
     expect(b.baseFilePath.path, Directory.systemTemp.path);
     expect(b.baseUrl,Uri.parse('https://not_re.al'));
-    expect(b.defaultRequestTimeout, const Duration(milliseconds: 2000));
+    expect(b.defaultRequestTimeout, const Duration(seconds: 2));
+    expect(b.httpClient, httpClient);
   });
 }

@@ -18,7 +18,6 @@
 import 'dart:io';
 
 import 'package:meta/meta.dart';
-import 'package:pub_semver/pub_semver.dart';
 
 /// Specify if and how to persists user objects.
 enum MetadataPersistenceMode {
@@ -49,7 +48,7 @@ class ApplicationConfiguration {
   /// This can be the case if you're testing locally or are using a pre-production environment.
   final Uri baseUrl;
 
-  /// The [defaultRequestTimeout] for HTTP requests performed as part of authentication.
+  /// The [defaultRequestTimeout] for HTTP requests. Defaults to 60 seconds.
   final Duration defaultRequestTimeout;
 
   /// The [localAppName] is the friendly name identifying the current client application.
@@ -64,8 +63,9 @@ class ApplicationConfiguration {
 
   /// The [localAppVersion] can be specified, if you wish to distinguish different client versions of the
   /// same application.
-  final Version? localAppVersion;
+  final String? localAppVersion;
 
+  /// Enumeration that specifies how and if logged-in User objects are persisted across application launches.
   final MetadataPersistenceMode metadataPersistenceMode;
 
   /// The encryption key to use for user metadata on this device, if [metadataPersistenceMode] is
@@ -83,12 +83,12 @@ class ApplicationConfiguration {
   /// a more complex networking setup.
   final HttpClient httpClient;
 
-  /// Instantiates a new [ApplicationConfiguration].
+  /// Instantiates a new [ApplicationConfiguration] with the specified appId.
   ApplicationConfiguration(
     this.appId, {
     Uri? baseUrl,
     Directory? baseFilePath,
-    this.defaultRequestTimeout = const Duration(milliseconds: 60000),
+    this.defaultRequestTimeout = const Duration(seconds: 60),
     this.localAppName,
     this.localAppVersion,
     this.metadataPersistenceMode = MetadataPersistenceMode.unencrypted,
