@@ -16,6 +16,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support application ([#446](https://github.com/realm/realm-dart/pull/446/))
 * Support should realm compact on open callback `Configuration.shouldCompactCallback` as option when configuring a Realm to determine if it should be compacted before being returned.  ([#466](https://github.com/realm/realm-dart/pull/466/))
 * Support ObjectId ([#468](https://github.com/realm/realm-dart/pull/468))
+* Support application user login method ([#469](https://github.com/realm/realm-dart/pull/469/))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))
