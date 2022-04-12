@@ -18,6 +18,7 @@
 
 import 'dart:io';
 import 'package:meta/meta.dart';
+import 'package:realm_dart/realm.dart';
 import 'native/realm_core.dart';
 
 /// Specify if and how to persists user objects.
@@ -98,7 +99,7 @@ class ApplicationConfiguration {
     this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
-        baseFilePath = baseFilePath ?? Directory.current,
+        baseFilePath = baseFilePath ?? Directory(Configuration.filesPath),
         httpClient = httpClient ?? HttpClient();
 }
 
