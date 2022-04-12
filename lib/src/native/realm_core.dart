@@ -50,6 +50,9 @@ class _RealmCore {
   // ignore: unused_field
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
+  static const int TRUE = 1;
+  static const int FALSE = 0;
+
   // Hide the RealmCore class and make it a singleton
   static _RealmCore? _instance;
   late final int isolateKey;
@@ -161,8 +164,28 @@ class _RealmCore {
         _realmLib.realm_config_set_disable_format_upgrade(configHandle._pointer, config.disableFormatUpgrade);
       }
 
+      if (config.initialDataCallback != null) {
+        _realmLib.realm_config_set_data_initialization_function(configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toGCHandle());
+      }
+
       return configHandle;
     });
+  }
+
+  static int initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmHandle) {
+    try {
+      final Configuration? config = userdata.toObject();
+      if (config == null) {
+        return FALSE;
+      }
+      final realm = RealmInternal.getUnowned(config, RealmHandle._unowned(realmHandle));
+      config.initialDataCallback!(realm);
+      return TRUE;
+    } catch (ex) {
+      // TODO: this should propagate the error to Core: https://github.com/realm/realm-core/issues/5366
+    }
+
+    return FALSE;
   }
 
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
@@ -625,29 +648,29 @@ class _RealmCore {
       return out_modified.asTypedList(count).toList();
     });
   }
-
+  
   AppConfigHandle createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
     return using((arena) {
-      final c = configuration;
-      final app_id = c.appId.toUtf8Ptr(arena);
+      final app_id = configuration.appId.toUtf8Ptr(arena);
       final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
-      if (c.baseUrl != null) {
-        _realmLib.realm_app_config_set_base_url(handle._pointer, c.baseUrl.toString().toUtf8Ptr(arena));
+      
+      _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toUtf8Ptr(arena));
+      _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout!.inMilliseconds);
+      
+      if (configuration.localAppName != null) {
+        _realmLib.realm_app_config_set_local_app_name(handle._pointer, configuration.localAppName!.toUtf8Ptr(arena));
       }
-      if (c.defaultRequestTimeout != null) {
-        _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, c.defaultRequestTimeout.inMilliseconds);
+
+      if (configuration.localAppVersion != null) {
+        _realmLib.realm_app_config_set_local_app_version(handle._pointer, configuration.localAppVersion!.toUtf8Ptr(arena));
       }
-      if (c.localAppName != null) {
-        _realmLib.realm_app_config_set_local_app_name(handle._pointer, c.localAppName!.toUtf8Ptr(arena));
-      }
-      if (c.localAppVersion != null) {
-        final versionString = c.localAppVersion.toString();
-        _realmLib.realm_app_config_set_local_app_version(handle._pointer, versionString.toUtf8Ptr(arena));
-      }
+
       _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toUtf8Ptr(arena));
       _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toUtf8Ptr(arena));
-      final version = Version.parse(Platform.version.split(' ')[0]);
-      _realmLib.realm_app_config_set_sdk_version(handle._pointer, version.toString().toUtf8Ptr(arena));
+      
+      //This sets the realm lib version instead of the SDK version.
+      //TODO:  Read the SDK version from code generated version field
+      _realmLib.realm_app_config_set_sdk_version(handle._pointer, libraryVersion.toUtf8Ptr(arena));
 
       return handle;
     });
@@ -789,7 +812,7 @@ class _RealmCore {
       }
     });
   }
-
+  
   SyncClientConfigHandle createSyncClientConfig(ApplicationConfiguration configuration) {
     return using((arena) {
       final c = configuration;
@@ -811,6 +834,7 @@ class _RealmCore {
     final syncClientConfig = createSyncClientConfig(configuration);
     return AppHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfig._pointer, syncClientConfig._pointer)));
   }
+}
 }
 
 class LastError {
@@ -836,6 +860,8 @@ abstract class Handle<T extends NativeType> {
     }
   }
 
+  Handle.unowned(this._pointer);
+
   @override
   String toString() => "${_pointer.toString()} value=${_pointer.cast<IntPtr>().value}";
 }
@@ -850,6 +876,8 @@ class ConfigHandle extends Handle<realm_config> {
 
 class RealmHandle extends Handle<shared_realm> {
   RealmHandle._(Pointer<shared_realm> pointer) : super(pointer, 24);
+
+  RealmHandle._unowned(Pointer<shared_realm> pointer) : super.unowned(pointer);
 }
 
 class SchedulerHandle extends Handle<realm_scheduler> {
@@ -924,7 +952,7 @@ class AppHandle extends Handle<realm_app> {
 }
 
 extension on List<int> {
-  Pointer<Uint8> toUint8Ptr(Allocator allocator) {
+ Pointer<Uint8> toUint8Ptr(Allocator allocator) {
     final nativeSize = length + 1;
     final result = allocator<Uint8>(nativeSize);
     final Uint8List native = result.asTypedList(nativeSize);
@@ -932,14 +960,14 @@ extension on List<int> {
     native.last = 0; // zero terminate
     return result;
   }
-
+  
   Pointer<Int8> toInt8Ptr(Allocator allocator) {
     final nativeSize = length + 1;
-    final result = allocator<Int8>(nativeSize);
-    final Int8List native = result.asTypedList(nativeSize);
+    final result = allocator<Uint8>(nativeSize);
+    final Uint8List native = result.asTypedList(nativeSize);
     native.setAll(0, this); // copy
     native.last = 0; // zero terminate
-    return result;
+    return result.cast();
   }
 }
 
@@ -1130,4 +1158,10 @@ extension on _CustomErrorCode {
   }
 }
 
-enum _HttpMethod { get, post, patch, put, delete }
+enum _HttpMethod {
+  get,
+  post,
+  patch,
+  put,
+  delete,
+}

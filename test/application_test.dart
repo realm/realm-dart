@@ -15,6 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 import 'dart:io';
 
 import 'package:test/expect.dart';
@@ -27,6 +28,30 @@ Future<void> main([List<String>? args]) async {
 
   await setupTests(args);
 
+  test('ApplicationConfiguration can be created', () {
+    final a = ApplicationConfiguration('myapp');
+    expect(a.appId, 'myapp');
+    expect(a.baseFilePath.path, Directory.current.path);
+    expect(a.baseUrl, Uri.parse('https://realm.mongodb.com'));
+    expect(a.defaultRequestTimeout, const Duration(minutes: 1));
+
+    final httpClient = HttpClient(context: SecurityContext(withTrustedRoots: false));
+    final b = ApplicationConfiguration(
+      'myapp1',
+      baseFilePath: Directory.systemTemp,
+      baseUrl: Uri.parse('https://not_re.al'),
+      defaultRequestTimeout: const Duration(seconds: 2),
+      localAppName: 'bar',
+      localAppVersion: "1.0.0",
+      httpClient: httpClient,
+    );
+    expect(b.appId, 'myapp1');
+    expect(b.baseFilePath.path, Directory.systemTemp.path);
+    expect(b.baseUrl,Uri.parse('https://not_re.al'));
+    expect(b.defaultRequestTimeout, const Duration(seconds: 2));
+    expect(b.httpClient, httpClient);
+  });
+  
   test('Application can be created', () async {
     final tmp = await Directory.systemTemp.createTemp();
     final configuration = ApplicationConfiguration(
@@ -36,5 +61,4 @@ Future<void> main([List<String>? args]) async {
     final application = Application(configuration);
     expect(application.configuration, configuration);
   });
-
 }
