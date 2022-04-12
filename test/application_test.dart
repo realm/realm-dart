@@ -47,17 +47,14 @@ Future<void> main([List<String>? args]) async {
     );
     expect(b.appId, 'myapp1');
     expect(b.baseFilePath.path, Directory.systemTemp.path);
-    expect(b.baseUrl,Uri.parse('https://not_re.al'));
+    expect(b.baseUrl, Uri.parse('https://not_re.al'));
     expect(b.defaultRequestTimeout, const Duration(seconds: 2));
     expect(b.httpClient, httpClient);
   });
-  
+
   test('Application can be created', () async {
     final tmp = await Directory.systemTemp.createTemp();
-    final configuration = ApplicationConfiguration(
-      generateRandomString(10),
-      baseFilePath: tmp,
-    );
+    final configuration = ApplicationConfiguration(generateRandomString(10), baseFilePath: tmp);
     final application = Application(configuration);
     expect(application.configuration, configuration);
   });

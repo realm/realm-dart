@@ -105,8 +105,9 @@ class Application {
   final ApplicationConfiguration configuration;
 
   Application(this.configuration) : _handle = realmCore.getApp(configuration);
-
 }
 
 extension ApplicationInternal on Application {
   AppHandle get handle => _handle;
+}
+

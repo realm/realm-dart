@@ -655,7 +655,7 @@ class _RealmCore {
       final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
       
       _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toUtf8Ptr(arena));
-      _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout!.inMilliseconds);
+      _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout.inMilliseconds);
       
       if (configuration.localAppName != null) {
         _realmLib.realm_app_config_set_local_app_name(handle._pointer, configuration.localAppName!.toUtf8Ptr(arena));
@@ -817,7 +817,7 @@ class _RealmCore {
     return using((arena) {
       final c = configuration;
       final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
-      if (c.baseFilePath != null) {
+      if (c.baseFilePath.path.isNotEmpty) {
         _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, c.baseFilePath.path.toUtf8Ptr(arena));
       }
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, c.metadataPersistenceMode.index);
@@ -834,7 +834,6 @@ class _RealmCore {
     final syncClientConfig = createSyncClientConfig(configuration);
     return AppHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfig._pointer, syncClientConfig._pointer)));
   }
-}
 }
 
 class LastError {
