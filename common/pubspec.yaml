@@ -12,5 +12,8 @@ issue_tracker: https://github.com/realm/realm-dart/issues
 environment:
   sdk: '>=2.15.0 <3.0.0'
 
+dependencies: 
+  objectid: ^2.1.0
+
 dev_dependencies:
   lints: ^1.0.1

@@ -1,0 +1,87 @@
+// **************************************************************************
+// RealmObjectGenerator
+// **************************************************************************
+
+class IntPK extends _IntPK with RealmEntity, RealmObject {
+  IntPK(
+    int id,
+  ) {
+    RealmObject.set(this, 'id', id);
+  }
+
+  IntPK._();
+
+  @override
+  int get id => RealmObject.get<int>(this, 'id') as int;
+  @override
+  set id(int value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<IntPK>> get changes =>
+      RealmObject.getChanges<IntPK>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(IntPK._);
+    return const SchemaObject(IntPK, [
+      SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
+    ]);
+  }
+}
+
+class StringPK extends _StringPK with RealmEntity, RealmObject {
+  StringPK(
+    String id,
+  ) {
+    RealmObject.set(this, 'id', id);
+  }
+
+  StringPK._();
+
+  @override
+  String get id => RealmObject.get<String>(this, 'id') as String;
+  @override
+  set id(String value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<StringPK>> get changes =>
+      RealmObject.getChanges<StringPK>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(StringPK._);
+    return const SchemaObject(StringPK, [
+      SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
+    ]);
+  }
+}
+
+class ObjectIdPK extends _ObjectIdPK with RealmEntity, RealmObject {
+  ObjectIdPK(
+    ObjectId id,
+  ) {
+    RealmObject.set(this, 'id', id);
+  }
+
+  ObjectIdPK._();
+
+  @override
+  ObjectId get id => RealmObject.get<ObjectId>(this, 'id') as ObjectId;
+  @override
+  set id(ObjectId value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<ObjectIdPK>> get changes =>
+      RealmObject.getChanges<ObjectIdPK>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(ObjectIdPK._);
+    return const SchemaObject(ObjectIdPK, [
+      SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
+    ]);
+  }
+}

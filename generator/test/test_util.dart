@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
+import 'package:analyzer/file_system/overlay_file_system.dart';
 import 'package:path/path.dart' as _path;
 import 'package:dart_style/dart_style.dart';
 import 'package:build_test/build_test.dart';
@@ -14,30 +15,84 @@ Map<String, String> getListOfTestFiles(String directory) {
   var files = Directory(_path.join(Directory.current.path, directory)).listSync();
   for (var file in files) {
     if (_path.extension(file.path) == '.dart' && !file.path.endsWith('g.dart')) {
-      var outputFileName = _path.setExtension(file.path, '.expected');
-      if (!files.any((f) => f.path == outputFileName)) outputFileName = '';
-      result.addAll({_path.basename(file.path): _path.basename(outputFileName)});
+      var expectedFileName = _path.setExtension(file.path, '.expected');
+      if (!files.any((f) => f.path == expectedFileName)) expectedFileName = '';
+      result.addAll({_path.basename(file.path): _path.basename(expectedFileName)});
     }
   }
   return result;
 }
 
-Future<dynamic> generatorTestBuilder(String directoryName, String inputFileName, [String outputFileName = ""]) async {
+Future<dynamic> generatorTestBuilder(String directoryName, String inputFileName, [String expectedFileName = ""]) async {
   return testBuilder(generateRealmObjects(), await getInputFileAsset('$directoryName/$inputFileName'),
-      outputs: outputFileName.isNotEmpty ? await getOutputFileAsset('$directoryName/$inputFileName', '$directoryName/$outputFileName') : null,
+      outputs: expectedFileName.isNotEmpty ? await getExpectedFileAsset('$directoryName/$inputFileName', '$directoryName/$expectedFileName') : null,
       reader: await PackageAssetReader.currentIsolate());
 }
 
 Future<Map<String, Object>> getInputFileAsset(String inputFilePath) async {
   var key = 'pkg|$inputFilePath';
   String inputContent = await readFileAsDartFormattedString(inputFilePath);
-  return {key: inputContent};
+  return {key: inputContent };
 }
 
-Future<Map<String, Object>> getOutputFileAsset(String inputFilePath, String outputFilePath) async {
+/// A special equality matcher for strings.
+class LinesEqualsMatcher extends Matcher {
+  late final List<String> expectedLines;
+
+  LinesEqualsMatcher(String expexted) {
+    expectedLines = expexted.split("\n");
+  }
+
+  @override
+  Description describe(Description description) => description.add("LinesEqualsMatcher");
+
+  @override
+  // ignore: strict_raw_type
+  bool matches(dynamic actual, Map matchState) {
+    try{
+    final actualValue = utf8.decode(actual as List<int>);
+    final actualLines = actualValue.split("\n");
+
+    if (actualLines.length > expectedLines.length) {
+      matchState["Error"] = "Different number of lines. \nExpected: ${expectedLines.length}\nActual: ${actualLines.length}";
+      return false;
+    }
+
+    for (var i = 0; i < expectedLines.length - 1; i++) {
+      if (i >= actualLines.length) {
+        matchState["Error"] = "Difference at line ${i+1}. \nExpected: ${expectedLines[i]}.\n  Actual: empty";
+        return false;
+      }
+
+      if (expectedLines[i] != actualLines[i]) {
+        matchState["Error"] = "Difference at line ${i+1}. \nExpected: ${expectedLines[i]}.\n  Actual: ${actualLines[i]}";
+        return false;
+      }
+    }
+
+    return true;
+    }
+    catch (_) {
+      print("fali");
+      return false;
+    }
+  }
+
+  @override
+  Description describeMismatch(dynamic item, Description mismatchDescription, Map matchState, bool verbose) {
+    if (matchState["Error"] != null) {
+      mismatchDescription.add(matchState["Error"] as String);
+    }
+
+    return mismatchDescription;
+  }
+}
+
+Future<Map<String, Object>> getExpectedFileAsset(String inputFilePath, String expectedFilePath) async {
   var key = 'pkg|${_path.setExtension(inputFilePath, '.realm_objects.g.part')}';
-  String outputContent = await readFileAsDartFormattedString(outputFilePath);
-  return {key: outputContent};
+  String expectedContent = await readFileAsDartFormattedString(expectedFilePath);
+
+  return {key: LinesEqualsMatcher(expectedContent)};
 }
 
 Future<String> readFileAsDartFormattedString(String path) async {
