@@ -30,4 +30,15 @@ class _Bar {
 
   @Indexed()
   String? anOptionalString;
+
+  late ObjectId objectId;
+}
+
+@RealmModel()
+class _PrimitiveTypes {
+  late String stringProp;
+  late bool boolProp;
+  late DateTime dateProp;
+  late double doubleProp;
+  late ObjectId objectIdProp;
 }

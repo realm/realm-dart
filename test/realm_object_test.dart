@@ -24,6 +24,29 @@ import '../lib/realm.dart';
 
 import 'test.dart';
 
+part 'realm_object_test.g.dart';
+
+const int maxInt = 9223372036854775807;
+const int minInt = -9223372036854775808;
+
+@RealmModel()
+class _ObjectIdPrimaryKey {
+  @PrimaryKey()
+  late ObjectId id;
+}
+
+@RealmModel()
+class _IntPrimaryKey {
+  @PrimaryKey()
+  late int id;
+}
+
+@RealmModel()
+class _StringPrimaryKey {
+  @PrimaryKey()
+  late String id;
+}
+
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
@@ -239,4 +262,42 @@ Future<void> main([List<String>? args]) async {
 
     await Future<void>.delayed(Duration(milliseconds: 20));
   });
+
+  void testPrimaryKey<T extends RealmObject, K extends Object>(SchemaObject schema, T Function() createObject, K key) {
+    test("$T primary key: $key", () {
+      final pkProp = schema.properties.where((p) => p.primaryKey).single;
+      final realm = Realm(Configuration([schema]));
+      final obj = realm.write(() {
+        return realm.add(createObject());
+      });
+
+      final foundObj = realm.find<T>(key);
+      expect(foundObj, obj);
+
+      final propValue = RealmObject.get<K>(obj, pkProp.name);
+      expect(propValue, key);
+
+      realm.close();
+    });
+  }
+
+  final ints = [1, 0, -1, maxInt, minInt];
+  for (final pk in ints) {
+    testPrimaryKey(IntPrimaryKey.schema, () => IntPrimaryKey(pk), pk);
+  }
+
+  final strings = ["", "1", "abc", "null"];
+  for (final pk in strings) {
+    testPrimaryKey(StringPrimaryKey.schema, () => StringPrimaryKey(pk), pk);
+  }
+
+  final objectIds = [
+    ObjectId.fromHexString('624d9e04bd013db290785d04'),
+    ObjectId.fromHexString('000000000000000000000000'),
+    ObjectId.fromHexString('ffffffffffffffffffffffff')
+  ];
+  
+  for (final pk in objectIds) {
+    testPrimaryKey(ObjectIdPrimaryKey.schema, () => ObjectIdPrimaryKey(pk), pk);
+  }
 }

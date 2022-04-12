@@ -20,6 +20,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 import 'dart:math';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' hide test;
 import 'package:test/test.dart' as testing;
@@ -197,6 +198,7 @@ Future<void> setupBaas() async {
   baasApps.addAll(await client.getOrCreateApps());
 }
 
+@isTest
 Future<void> testWithBaaS(
   String? name,
   FutureOr<void> Function(ApplicationConfiguration configuration) testFunction, {

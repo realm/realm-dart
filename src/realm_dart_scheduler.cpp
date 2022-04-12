@@ -58,14 +58,14 @@ void realm_dart_scheduler_notify(void* userData) {
     Dart_PostInteger_DL(schedulerData.port, pointer);
 }
 
-// This method is called by Realm Core to check if the realm access is on the correct thread. 
+// This method is called by Realm Core to check if the realm access is on the correct thread.
 //
 // Realm Dart Scheduler is always on the correct thread since:
 // 1) Realm access, the Dart to Native calls, happen always on the correct Isolate - a Realm instances can not be shared between Dart Isolates.
-// 2) It uses Dart Isolates which can receive messages from any thread and Realm Core always calls realm_dart_scheduler_notify on notifications, which always 
+// 2) It uses Dart Isolates which can receive messages from any thread and Realm Core always calls realm_dart_scheduler_notify on notifications, which always
 //    schedules the callback on the Isolate thread.
 //
-// Note: Dart Isolates use a thread pool so the actual OS thread executing the Dart Isolate can change during even loops for the same Isolate. 
+// Note: Dart Isolates use a thread pool so the actual OS thread executing the Dart Isolate can change during even loops for the same Isolate.
 // This fact does not negatively impact the Realm Dart Scheduler implementation
 //
 //This method can be called on any thread
@@ -83,9 +83,9 @@ bool realm_dart_scheduler_can_deliver_notifications(void* userData) {
     return true;
 }
 
-//This methos is called from Dart on the Realm instance Isolate thread.
+//This method is called from Dart on the Realm instance Isolate thread.
 //
-// Note: Dart Isolates use a thread pool so the actual OS thread executing the Dart Isolate can change during even loops for the same Isolate. 
+// Note: Dart Isolates use a thread pool so the actual OS thread executing the Dart Isolate can change during even loops for the same Isolate.
 // This fact does not negatively impact the Realm Dart Scheduler implementation
 RLM_API realm_scheduler_t* realm_dart_create_scheduler(uint64_t isolateId, Dart_Port port) {
     SchedulerData* schedulerData = new SchedulerData(isolateId, port);

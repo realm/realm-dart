@@ -18,3 +18,5 @@
 
 export 'src/realm_common_base.dart';
 export 'src/realm_types.dart';
+
+export 'package:objectid/objectid.dart' show ObjectId;

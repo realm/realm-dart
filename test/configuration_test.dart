@@ -149,7 +149,7 @@ Future<void> main([List<String>? args]) async {
     var config = Configuration([Car.schema], disableFormatUpgrade: true);
     await File(realmBundleFile).copy(config.path);
     expect(() {
-      Realm(config);
+      getRealm(config);
     }, throws<RealmException>("The Realm file format must be allowed to be upgraded in order to proceed"));
   }, skip: isFlutterPlatform);
 
@@ -157,7 +157,145 @@ Future<void> main([List<String>? args]) async {
     final realmBundleFile = "test/data/realm_files/old-format.realm";
     var config = Configuration([Car.schema], disableFormatUpgrade: false);
     await File(realmBundleFile).copy(config.path);
-    var realm = Realm(config);
-    realm.close();
+    final realm = getRealm(config);
   }, skip: isFlutterPlatform);
+
+  test('Configuration.initialDataCallback invoked', () {
+    var invoked = false;
+    var config = Configuration([Dog.schema, Person.schema], initialDataCallback: (realm) {
+      invoked = true;
+      realm.add(Dog('fido', owner: Person('john')));
+    });
+
+    final realm = getRealm(config);
+    expect(invoked, true);
+
+    final people = realm.all<Person>();
+    expect(people.length, 1);
+    expect(people[0].name, 'john');
+
+    final dogs = realm.all<Dog>();
+    expect(dogs.length, 1);
+    expect(dogs[0].name, 'fido');
+  });
+
+  test('Configuration.initialDataCallback not invoked for existing realm', () {
+    var invoked = false;
+    final config = Configuration([Person.schema], initialDataCallback: (realm) {
+      invoked = true;
+      realm.add(Person('peter'));
+    });
+
+    final realm = getRealm(config);
+    expect(invoked, true);
+    expect(realm.all<Person>().length, 1);
+    realm.close();
+
+    var invokedAgain = false;
+    final configAgain = Configuration([Person.schema], initialDataCallback: (realm) {
+      invokedAgain = true;
+      realm.add(Person('p1'));
+      realm.add(Person('p2'));
+    });
+
+    final realmAgain = getRealm(configAgain);
+    expect(invokedAgain, false);
+    expect(realmAgain.all<Person>().length, 1);
+  });
+
+  test('Configuration.initialDataCallback with error', () {
+    var invoked = false;
+    var config = Configuration([Person.schema], initialDataCallback: (realm) {
+      invoked = true;
+      realm.add(Person('p1'));
+      throw Exception('very careless developer');
+    });
+
+    expect(() => getRealm(config), throws<RealmException>("User-provided callback failed"));
+    expect(invoked, true);
+
+    // No data should have been written to the Realm
+    config = Configuration([Person.schema]);
+    final realm = getRealm(config);
+
+    expect(realm.all<Person>().length, 0);
+  }, skip: 'TODO: fails to delete Realm - https://github.com/realm/realm-core/issues/5363');
+
+  test('Configuration.initialDataCallback with error, invoked on second attempt', () {
+    var invoked = false;
+    var config = Configuration([Person.schema], initialDataCallback: (realm) {
+      invoked = true;
+      realm.add(Person('p1'));
+      throw Exception('very careless developer');
+    });
+
+    expect(() => getRealm(config), throws<RealmException>("User-provided callback failed"));
+    expect(invoked, true);
+
+    var secondInvoked = false;
+    config = Configuration([Person.schema], initialDataCallback: (realm) {
+      invoked = true;
+      realm.add(Person('p1'));
+    });
+
+    final realm = getRealm(config);
+    expect(secondInvoked, true);
+    expect(realm.all<Person>().length, 1);
+  }, skip: 'TODO: Realm gets created even though it errors out on open - https://github.com/realm/realm-core/issues/5364');
+
+  test('Configuration.initialDataCallback is a no-op when opening an empty existing Realm', () {
+    var config = Configuration([Person.schema]);
+
+    // Create the Realm and close it
+    getRealm(config).close();
+
+    var invoked = false;
+    config = Configuration([Person.schema], initialDataCallback: (realm) {
+      invoked = true;
+      realm.add(Person("john"));
+    });
+
+    // Even though the Realm was empty, since we're not creating it,
+    // we expect initialDataCallback not to be invoked.
+    final realm = getRealm(config);
+
+    expect(invoked, false);
+    expect(realm.all<Person>().length, 0);
+  });
+
+  test('Configuration.initialDataCallback can use non-add API in callback', () {
+    Exception? callbackEx;
+    final config = Configuration([Person.schema], initialDataCallback: (realm) {
+      try {
+        final george = realm.add(Person("George"));
+
+        // We try to make sure some basic Realm API are available in the callback
+        expect(realm.all<Person>().length, 1);
+        realm.delete(george);
+      } on Exception catch (ex) {
+        callbackEx = ex;
+      }
+    });
+
+    final realm = getRealm(config);
+
+    expect(callbackEx, null);
+    expect(realm.all<Person>().length, 0);
+  });
+
+  test('Configuration.initialDataCallback realm.write fails', () {
+    Exception? callbackEx;
+    final config = Configuration([Person.schema], initialDataCallback: (realm) {
+      try {
+        realm.write(() => null);
+      } on RealmException catch (ex) {
+        callbackEx = ex;
+      }
+    });
+
+    final realm = getRealm(config);
+
+    expect(callbackEx, isNotNull);
+    expect(callbackEx.toString(), contains('The Realm is already in a write transaction'));
+  });
 }
