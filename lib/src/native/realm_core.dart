@@ -25,7 +25,6 @@ import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
-import 'package:pub_semver/pub_semver.dart';
 
 import '../application.dart';
 import '../collections.dart';
@@ -668,6 +667,7 @@ class _RealmCore {
       final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
 
       _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toUtf8Ptr(arena));
+
       _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout.inMilliseconds);
 
       if (configuration.localAppName != null) {
@@ -1015,6 +1015,14 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
         realm_value.ref.values.dnum = value as double;
         realm_value.ref.type = realm_value_type.RLM_TYPE_DOUBLE;
         break;
+      case ObjectId:
+        final bytes = (value as ObjectId).bytes;
+        for (var i = 0; i < 12; i++) {
+          realm_value.ref.values.object_id.bytes[i] = bytes[i];
+        }
+
+        realm_value.ref.type = realm_value_type.RLM_TYPE_OBJECT_ID;
+        break;
       default:
         throw RealmException("Property type ${value.runtimeType} not supported");
     }
@@ -1052,7 +1060,7 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_DECIMAL128:
         throw Exception("Not implemented");
       case realm_value_type.RLM_TYPE_OBJECT_ID:
-        throw Exception("Not implemented");
+        return ObjectId.fromBytes(cast<Uint8>().asTypedList(12));
       case realm_value_type.RLM_TYPE_UUID:
         throw Exception("Not implemented");
       default:
