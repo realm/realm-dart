@@ -165,12 +165,12 @@ class _RealmCore {
       if (config.initialDataCallback != null) {
         _realmLib.realm_config_set_data_initialization_function(configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toGCHandle());
       }
-      
+
       if (config.shouldCompactCallback != null) {
         _realmLib.realm_config_set_should_compact_on_launch_function(
             configHandle._pointer, Pointer.fromFunction(should_compact_callback, 0), config.toGCHandle());
       }
-      
+
       return configHandle;
     });
   }
@@ -190,14 +190,14 @@ class _RealmCore {
 
     return FALSE;
   }
-  
+
   static int should_compact_callback(Pointer<Void> userdata, int totalSize, int usedSize) {
-    final Configuration? config =  userdata.toObject();
+    final Configuration? config = userdata.toObject();
     if (config == null) {
       return 0;
     }
     config.shouldCompactCallback!(totalSize, usedSize);
-    
+
     return 1;
   }
 
@@ -661,15 +661,15 @@ class _RealmCore {
       return out_modified.asTypedList(count).toList();
     });
   }
-  
+
   AppConfigHandle createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
     return using((arena) {
       final app_id = configuration.appId.toUtf8Ptr(arena);
       final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
-      
+
       _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toUtf8Ptr(arena));
-      _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout!.inMilliseconds);
-      
+      _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout.inMilliseconds);
+
       if (configuration.localAppName != null) {
         _realmLib.realm_app_config_set_local_app_name(handle._pointer, configuration.localAppName!.toUtf8Ptr(arena));
       }
@@ -680,7 +680,7 @@ class _RealmCore {
 
       _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toUtf8Ptr(arena));
       _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toUtf8Ptr(arena));
-      
+
       //This sets the realm lib version instead of the SDK version.
       //TODO:  Read the SDK version from code generated version field
       _realmLib.realm_app_config_set_sdk_version(handle._pointer, libraryVersion.toUtf8Ptr(arena));

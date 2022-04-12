@@ -26,7 +26,7 @@ import 'test.dart';
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
-  setupTests(args);
+  await setupTests(args);
 
   test('ApplicationConfiguration can be created', () {
     final a = ApplicationConfiguration('myapp');
@@ -47,7 +47,7 @@ Future<void> main([List<String>? args]) async {
     );
     expect(b.appId, 'myapp1');
     expect(b.baseFilePath.path, Directory.systemTemp.path);
-    expect(b.baseUrl,Uri.parse('https://not_re.al'));
+    expect(b.baseUrl, Uri.parse('https://not_re.al'));
     expect(b.defaultRequestTimeout, const Duration(seconds: 2));
     expect(b.httpClient, httpClient);
   });
