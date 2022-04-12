@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-import 'dart:async';
 import 'dart:io';
 
 import 'package:test/expect.dart';
