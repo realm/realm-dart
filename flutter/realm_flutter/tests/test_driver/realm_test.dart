@@ -12,7 +12,6 @@ import '../test/realm_object_test.dart' as realm_object_tests;
 import '../test/list_test.dart' as list_tests;
 import '../test/results_test.dart' as results_tests;
 import '../test/credentials_test.dart' as credentials_tests;
-import '../test/application_configuration_test.dart' as application_configuration_tests;
 import '../test/application_test.dart' as application_tests;
 
 Future<String> main(List<String> args) async {
@@ -25,7 +24,6 @@ Future<String> main(List<String> args) async {
   await list_tests.main(args);
   await results_tests.main(args);
   await credentials_tests.main(args);
-  await application_configuration_tests.main(args);
   await application_tests.main(args);
 
   tearDown(() {
