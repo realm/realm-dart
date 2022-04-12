@@ -41,6 +41,7 @@ class Configuration {
       this.isInMemory = false,
       this.schemaVersion = 0,
       this.disableFormatUpgrade = false,
+      this.initialDataCallback,
       this.shouldCompactCallback})
       : schema = RealmSchema(schemaObjects),
         path = path ?? defaultPath;
