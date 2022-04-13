@@ -24,11 +24,5 @@ Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
   await setupTests(args);
-
-  test('Email/Password - register user', () async {
-    final tmp = await Directory.systemTemp.createTemp();
-    final configuration = ApplicationConfiguration(generateRandomString(10), baseFilePath: tmp);
-    final application = Application(configuration);
-    await application.emailPasswordProvider.registerUser("foo@bar.com", "pwd");
-  });
+ 
 }
