@@ -158,6 +158,12 @@ Realm getRealm(Configuration config) {
   return realm;
 }
 
+Future<Application> getApp() async {
+  final tmp = await Directory.systemTemp.createTemp();
+  final configuration = ApplicationConfiguration(generateRandomString(10), baseFilePath: tmp);
+  return Application(configuration);
+}
+
 Future<void> tryDeleteFile(FileSystemEntity fileEntity, {bool recursive = false}) async {
   for (var i = 0; i < 20; i++) {
     try {

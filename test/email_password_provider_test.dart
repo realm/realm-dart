@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:io';
+import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
 
@@ -26,9 +27,22 @@ Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
   test('Email/Password - register user', () async {
-    final tmp = await Directory.systemTemp.createTemp();
-    final configuration = ApplicationConfiguration(generateRandomString(10), baseFilePath: tmp);
-    final application = Application(configuration);
-    await application.emailPasswordProvider.registerUser("foo@bar.com", "pwd");
-  });
+    final application = await getApp();
+    await application.emailPasswordProvider.registerUser("foo@bar.com", "SWV23R#@T#VFQDV");
+  }, skip: "Skip until login is implemented.");
+
+  test('Email/Password - register user twice throws', () async {
+    final application = await getApp();
+    await application.emailPasswordProvider.registerUser("foo@bar.com", "SWV23R#@T#VFQDV");
+    expect(() async {
+      await application.emailPasswordProvider.registerUser("foo@bar.com", "SWV23R#@T#VFQDV");
+    }, throws<RealmException>("name already in use"));
+  }, skip: "Skip until login is implemented.");
+
+  test('Email/Password - register user with weak password throws', () async {
+    final application = await getApp();
+    expect(() async {
+      await application.emailPasswordProvider.registerUser("foo@bar.com", "pwd");
+    }, throws<RealmException>("password must be between 6 and 128 characters"));
+  }, skip: "Skip until login is implemented.");
 }
