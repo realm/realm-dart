@@ -2,21 +2,21 @@
 // RealmObjectGenerator
 // **************************************************************************
 
-class Fooo extends _Foo with RealmEntity, RealmObject {
+class MyFoo extends _Foo with RealmEntity, RealmObject {
   static var _defaultsSet = false;
 
-  Fooo({
+  MyFoo({
     int x = 0,
   }) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObject.setDefaults<Fooo>({
+      _defaultsSet = RealmObject.setDefaults<MyFoo>({
         'x': 0,
       });
     }
     RealmObject.set(this, 'x', x);
   }
 
-  Fooo._();
+  MyFoo._();
 
   @override
   int get x => RealmObject.get<int>(this, 'x') as int;
@@ -24,14 +24,14 @@ class Fooo extends _Foo with RealmEntity, RealmObject {
   set x(int value) => RealmObject.set(this, 'x', value);
 
   @override
-  Stream<RealmObjectChanges<Fooo>> get changes =>
-      RealmObject.getChanges<Fooo>(this);
+  Stream<RealmObjectChanges<MyFoo>> get changes =>
+      RealmObject.getChanges<MyFoo>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory(Fooo._);
-    return const SchemaObject(Fooo, [
+    RealmObject.registerFactory(MyFoo._);
+    return const SchemaObject(MyFoo, [
       SchemaProperty('x', RealmPropertyType.int),
     ]);
   }

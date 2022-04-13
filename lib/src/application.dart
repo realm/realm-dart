@@ -25,7 +25,7 @@ import 'user.dart';
 /// Specify if and how to persists user objects.
 enum MetadataPersistenceMode {
   /// Persist [User] objects, but do not encrypt them.
-  unencrypted,
+  plaintext,
 
   /// Persist [User] objects in an encrypted store.
   encrypted,
@@ -35,6 +35,8 @@ enum MetadataPersistenceMode {
 }
 
 @immutable
+
+/// A class exposing configuration options for an [Application]
 class ApplicationConfiguration {
   /// The [appId] is the unique id that identifies the Realm application.
   final String appId;
@@ -94,14 +96,19 @@ class ApplicationConfiguration {
     this.defaultRequestTimeout = const Duration(seconds: 60),
     this.localAppName,
     this.localAppVersion,
-    this.metadataPersistenceMode = MetadataPersistenceMode.unencrypted,
     this.metadataEncryptionKey,
+    this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
-        baseFilePath = baseFilePath ?? Directory.current,
+        baseFilePath = baseFilePath ?? Directory(Configuration.filesPath),
         httpClient = httpClient ?? HttpClient();
 }
 
+/// An [Application] is the main client-side entry point for interacting with a MongoDB Realm App.
+///
+/// The [Application]] can be used to
+/// * Register uses and perform various user-related operations through authentication providers
+/// * Synchronize data between the local device and a remote Realm App with Synchronized Realms
 class Application {
   final AppHandle _handle;
   final ApplicationConfiguration configuration;
@@ -116,4 +123,3 @@ class Application {
 extension ApplicationInternal on Application {
   AppHandle get handle => _handle;
 }
-
