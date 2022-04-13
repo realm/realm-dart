@@ -59,7 +59,7 @@ Future<void> main([List<String>? args]) async {
     expect(application.configuration, configuration);
   });
   
-  testWithBaaS('Application log in', (configuration) async {
+  syncTest('Application log in', (configuration) async {
     final application = Application(configuration);
     final credentials = Credentials.anonymous();
     final user = await application.logIn(credentials);

@@ -199,7 +199,7 @@ Future<void> setupBaas() async {
 }
 
 @isTest
-Future<void> testWithBaaS(
+Future<void> syncTest(
   String name,
   FutureOr<void> Function(ApplicationConfiguration configuration) testFunction, {
   String appName = 'flexible',
