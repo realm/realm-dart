@@ -852,20 +852,24 @@ class _RealmCore {
   }
 
   static void _logInCallback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
-    final Completer<UserHandle>? userHandleCompleter = userdata.toObject();
-    if (userHandleCompleter == null) {
+    final Completer<UserHandle>? completer = userdata.toObject();
+    if (completer == null) {
       return;
     }
-    if (error == nullptr) {
-      userHandleCompleter.complete(UserHandle._(_realmLib.realm_clone(user.cast()).cast()));
-    } else {
-      final message = error.ref.message.cast<Utf8>().toDartString();
-      userHandleCompleter.completeError(RealmException(message));
-    }
-  }
 
-  static void _freeCallback(Pointer<Void> userdata) {
-    userdata.toObject(); // TODO: release
+    if (error != nullptr) {
+      final message = error.ref.message.cast<Utf8>().toDartString();
+      completer.completeError(RealmException(message));
+      return;
+    }
+
+    var userClone = _realmLib.realm_clone(user.cast());
+    if (userClone == nullptr) {
+      completer.completeError(RealmException("Error while cloning login data"));
+      return;
+    }
+
+    completer.complete(UserHandle._(userClone.cast()));
   }
 
   Future<UserHandle> logIn(Application application, Credentials credentials) async {
@@ -875,7 +879,7 @@ class _RealmCore {
       credentials.handle._pointer,
       Pointer.fromFunction(_logInCallback),
       completer.toGCHandle(),
-      Pointer.fromFunction(_freeCallback),
+      nullptr,
     );
     return completer.future;
   }
