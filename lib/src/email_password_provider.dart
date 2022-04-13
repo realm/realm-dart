@@ -22,9 +22,9 @@ import 'native/realm_core.dart';
 /// It is always scoped to a particular app and can only be accessed via [emailPasswordProvider].
 /// {@category Application}
 class EmailPasswordProvider {
-  final AppHandle _handle;
+  final Application application;
 
-  EmailPasswordProvider(Application app) : _handle = app.handle;
+  EmailPasswordProvider(this.application);
 
   /// Registers a new user with the given email and password.
   /// The [email] to register with. This will be the user's username and, if user confirmation is enabled, this will be the address for
@@ -33,6 +33,6 @@ class EmailPasswordProvider {
   /// Returns an awaitable [Future<bool>] representing the asynchronous RegisterUser operation. Successful completion indicates that the user has been
   /// created on the server and can now be logged in calling [logIn] with [Credentials.emailPassword()]"
   Future<void> registerUser(String email, String password) async {
-    return await realmCore.appEmailPasswordRegisterUser(_handle, email, password);
+    return realmCore.appEmailPasswordRegisterUser(application, email, password);
   }
 }

@@ -850,25 +850,42 @@ class _RealmCore {
     final realm_app = _realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfig._pointer, syncClientConfig._pointer));
     return AppHandle._(realm_app);
   }
-  
-  static void app_email_password_provider_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
-    final Completer<void>? completer = userdata.toObject();
+
+  static void _app_email_password_provider_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
+    String? message = error != nullptr ? error.ref.message.cast<Utf8>().toDartString() : null;
+
+    final Completer<bool>? completer = userdata.toObject();
     if (completer == null) {
+      if (message != null) throw RealmError(message);
       return;
     }
-    if (error != nullptr) {
-      final message = error.ref.message.cast<Utf8>().toDartString();
+    if (message != null) {
       completer.completeError(RealmException(message));
     } else {
-      completer.complete();
+      completer.complete(true);
     }
   }
 
-  Future<void> appEmailPasswordRegisterUser(AppHandle application, String email, String password) {
-    final completer = Completer<void>();
+  static void _app_email_password_provider_free_userdata_callback(Pointer<Void> userdata) {
+    final Completer<bool>? completer = userdata.toObject();
+    if (completer == null) {
+      return;
+    }
+    if (!completer.isCompleted) {
+      completer.complete(false);
+    }
+  }
+
+  Future<void> appEmailPasswordRegisterUser(Application application, String email, String password) {
+    final completer = Completer<bool>();
     using((arena) {
-      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_register_email(application._pointer, email.toUtf8Ptr(arena),
-          password.toRealmString(arena).ref, Pointer.fromFunction(app_email_password_provider_callback), completer.toGCHandle(), nullptr));
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_register_email(
+          application.handle._pointer,
+          email.toUtf8Ptr(arena),
+          password.toRealmString(arena).ref,
+          Pointer.fromFunction(_app_email_password_provider_callback),
+          completer.toGCHandle(),
+          Pointer.fromFunction(_app_email_password_provider_free_userdata_callback)));
     });
     return completer.future;
   }

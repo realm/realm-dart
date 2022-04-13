@@ -116,16 +116,14 @@ class Application {
   final AppHandle _handle;
   final ApplicationConfiguration configuration;
   late final EmailPasswordProvider _emailPasswordProvider;
-  
-  Application(this.configuration) : _handle = realmCore.getApp(configuration)
-  {
+
+  Application(this.configuration) : _handle = realmCore.getApp(configuration) {
     _emailPasswordProvider = EmailPasswordProvider(this);
   }
-  
+
   EmailPasswordProvider get emailPasswordProvider => _emailPasswordProvider;
 }
 
 extension ApplicationInternal on Application {
   AppHandle get handle => _handle;
 }
-
