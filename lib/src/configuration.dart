@@ -20,6 +20,8 @@ import 'dart:io';
 
 import 'native/realm_core.dart';
 
+import 'realm_object.dart';
+import 'realm_property.dart';
 import 'package:path/path.dart' as _path;
 import 'realm_class.dart';
 
@@ -33,7 +35,14 @@ class Configuration {
 
   /// Creates a [Configuration] with schema objects for opening a [Realm].
   Configuration(List<SchemaObject> schemaObjects,
-      {String? path, this.fifoFilesFallbackPath, this.isReadOnly = false, this.isInMemory = false, this.schemaVersion = 0, this.disableFormatUpgrade = false, this.initialDataCallback})
+      {String? path,
+      this.fifoFilesFallbackPath,
+      this.isReadOnly = false,
+      this.isInMemory = false,
+      this.schemaVersion = 0,
+      this.disableFormatUpgrade = false,
+      this.initialDataCallback,
+      this.shouldCompactCallback})
       : schema = RealmSchema(schemaObjects),
         path = path ?? defaultPath;
 
@@ -58,7 +67,7 @@ class Configuration {
     if (Platform.isAndroid || Platform.isIOS) {
       return realmCore.getFilesPath();
     }
-    return "";
+    return Directory.current.absolute.path;
   }
 
   /// The schema version used to open the [Realm]
@@ -110,6 +119,16 @@ class Configuration {
   /// add some initial data that your app needs. The function will not execute for existing
   /// Realms, even if all objects in the Realm are deleted.
   final Function(Realm realm)? initialDataCallback;
+  
+  /// The function called when opening a Realm for the first time
+  /// during the life of a process to determine if it should be compacted
+  /// before being returned to the user.
+  ///
+  /// [totalSize] - The total file size (data + free space)
+  /// [usedSize] - The total bytes used by data in the file.
+  /// It returns true to indicate that an attempt to compact the file should be made.
+  /// The compaction will be skipped if another process is currently accessing the realm file.
+  final Function(int totalSize, int usedSize)? shouldCompactCallback;
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].

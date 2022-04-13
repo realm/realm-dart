@@ -69,6 +69,7 @@ void dummy(void) {
     realm_list_size(nullptr, 0);
     realm_results_add_notification_callback(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
     realm_results_snapshot(nullptr);
+    realm_config_set_should_compact_on_launch_function(nullptr, nullptr, nullptr);
     realm_app_config_new(nullptr, nullptr);
     realm_sync_client_config_new();
     realm_app_credentials_new_anonymous();

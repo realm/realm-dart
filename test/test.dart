@@ -140,7 +140,7 @@ String generateRandomRealmPath() {
   if (Platform.isAndroid || Platform.isIOS) {
     path = _path.join(Configuration.filesPath, path);
   } else {
-    path = _path.join(Directory.systemTemp.createTempSync("rt_").path, path);
+    path = _path.join(Directory.systemTemp.createTempSync("realm_test_").path, path);
   }
 
   return path;
@@ -195,4 +195,3 @@ Future<void> setupBaas() async {
 
   baasApps.addAll(await client.getOrCreateApps());
 }
-

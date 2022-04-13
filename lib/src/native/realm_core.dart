@@ -26,7 +26,6 @@ import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
-import 'package:pub_semver/pub_semver.dart';
 
 import '../application.dart';
 import '../credentials.dart';
@@ -168,6 +167,11 @@ class _RealmCore {
         _realmLib.realm_config_set_data_initialization_function(configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toGCHandle());
       }
 
+      if (config.shouldCompactCallback != null) {
+        _realmLib.realm_config_set_should_compact_on_launch_function(
+            configHandle._pointer, Pointer.fromFunction(should_compact_callback, 0), config.toGCHandle());
+      }
+
       return configHandle;
     });
   }
@@ -186,6 +190,16 @@ class _RealmCore {
     }
 
     return FALSE;
+  }
+
+  static int should_compact_callback(Pointer<Void> userdata, int totalSize, int usedSize) {
+    final Configuration? config = userdata.toObject();
+    if (config == null) {
+      return 0;
+    }
+    config.shouldCompactCallback!(totalSize, usedSize);
+
+    return 1;
   }
 
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
@@ -655,6 +669,7 @@ class _RealmCore {
       final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
 
       _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toUtf8Ptr(arena));
+
       _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout.inMilliseconds);
 
       if (configuration.localAppName != null) {
@@ -815,15 +830,15 @@ class _RealmCore {
 
   SyncClientConfigHandle createSyncClientConfig(ApplicationConfiguration configuration) {
     return using((arena) {
-      final c = configuration;
       final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
-      if (c.baseFilePath.path.isNotEmpty) {
-        _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, c.baseFilePath.path.toUtf8Ptr(arena));
+
+      _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toUtf8Ptr(arena));
+      _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
+
+      if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
+        _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
       }
-      _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, c.metadataPersistenceMode.index);
-      if (c.metadataEncryptionKey != null && c.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
-        _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, c.metadataEncryptionKey!.toUint8Ptr(arena));
-      }
+
       return handle;
     });
   }
@@ -832,9 +847,10 @@ class _RealmCore {
     final httpTransport = createHttpTransport(configuration.httpClient);
     final appConfig = createAppConfig(configuration, httpTransport);
     final syncClientConfig = createSyncClientConfig(configuration);
-    return AppHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfig._pointer, syncClientConfig._pointer)));
+    final realm_app = _realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfig._pointer, syncClientConfig._pointer));
+    return AppHandle._(realm_app);
   }
-
+  
   static void app_email_password_provider_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
     final Completer<void>? completer = userdata.toObject();
     if (completer == null) {
@@ -973,16 +989,11 @@ class AppHandle extends Handle<realm_app> {
 }
 
 extension on List<int> {
-  Pointer<Uint8> toUint8Ptr(Allocator allocator) {
-    final nativeSize = length + 1;
-    final result = allocator<Uint8>(nativeSize);
-    final Uint8List native = result.asTypedList(nativeSize);
-    native.setAll(0, this); // copy
-    native.last = 0; // zero terminate
-    return result;
+  Pointer<Int8> toInt8Ptr(Allocator allocator) {
+    return toUint8Ptr(allocator).cast();
   }
 
-  Pointer<Int8> toInt8Ptr(Allocator allocator) {
+  Pointer<Uint8> toUint8Ptr(Allocator allocator) {
     final nativeSize = length + 1;
     final result = allocator<Uint8>(nativeSize);
     final Uint8List native = result.asTypedList(nativeSize);
@@ -995,7 +1006,7 @@ extension on List<int> {
 extension _StringEx on String {
   Pointer<Int8> toUtf8Ptr(Allocator allocator) {
     final units = utf8.encode(this);
-    return units.toInt8Ptr(allocator).cast();
+    return units.toInt8Ptr(allocator);
   }
 
   Pointer<realm_string_t> toRealmString(Allocator allocator) {
@@ -1063,6 +1074,14 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
         realm_value.ref.values.dnum = value as double;
         realm_value.ref.type = realm_value_type.RLM_TYPE_DOUBLE;
         break;
+      case ObjectId:
+        final bytes = (value as ObjectId).bytes;
+        for (var i = 0; i < 12; i++) {
+          realm_value.ref.values.object_id.bytes[i] = bytes[i];
+        }
+
+        realm_value.ref.type = realm_value_type.RLM_TYPE_OBJECT_ID;
+        break;
       default:
         throw RealmException("Property type ${value.runtimeType} not supported");
     }
@@ -1100,7 +1119,7 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_DECIMAL128:
         throw Exception("Not implemented");
       case realm_value_type.RLM_TYPE_OBJECT_ID:
-        throw Exception("Not implemented");
+        return ObjectId.fromBytes(cast<Uint8>().asTypedList(12));
       case realm_value_type.RLM_TYPE_UUID:
         throw Exception("Not implemented");
       default:
