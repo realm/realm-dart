@@ -958,7 +958,7 @@ class RealmQueryHandle extends Handle<realm_query> {
 
 class RealmNotificationTokenHandle extends Handle<realm_notification_token> {
   bool released = false;
-  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer) : super(pointer, 1 << 32);
+  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer) : super(pointer, 32);
 
   void release() {
     if (released) {
@@ -1000,7 +1000,7 @@ class AppHandle extends Handle<realm_app> {
 }
 
 class UserHandle extends Handle<realm_user> {
-  UserHandle._(Pointer<realm_user> pointer) : super(pointer, 256); // TODO: What should hint be?
+  UserHandle._(Pointer<realm_user> pointer) : super(pointer, 24);
 }
 
 extension on List<int> {

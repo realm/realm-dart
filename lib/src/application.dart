@@ -117,7 +117,8 @@ class Application {
   Application(this.configuration) : _handle = realmCore.getApp(configuration);
 
   Future<User> logIn(Credentials credentials) async {
-    return UserInternal.create(await realmCore.logIn(this, credentials));
+    var userHandle = await realmCore.logIn(this, credentials);
+    return UserInternal.create(userHandle);
   }
 }
 
