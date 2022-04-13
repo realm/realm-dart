@@ -31,7 +31,7 @@ Future<void> main([List<String>? args]) async {
   test('ApplicationConfiguration can be created', () {
     final a = ApplicationConfiguration('myapp');
     expect(a.appId, 'myapp');
-    expect(a.baseFilePath.path, Directory.current.path);
+    expect(a.baseFilePath.path, Configuration.filesPath);
     expect(a.baseUrl, Uri.parse('https://realm.mongodb.com'));
     expect(a.defaultRequestTimeout, const Duration(minutes: 1));
 
@@ -50,5 +50,12 @@ Future<void> main([List<String>? args]) async {
     expect(b.baseUrl, Uri.parse('https://not_re.al'));
     expect(b.defaultRequestTimeout, const Duration(seconds: 2));
     expect(b.httpClient, httpClient);
+  });
+
+  test('Application can be created', () async {
+
+    final configuration = ApplicationConfiguration(generateRandomString(10));
+    final application = Application(configuration);
+    expect(application.configuration, configuration);
   });
 }

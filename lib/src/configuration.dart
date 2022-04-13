@@ -67,7 +67,7 @@ class Configuration {
     if (Platform.isAndroid || Platform.isIOS) {
       return realmCore.getFilesPath();
     }
-    return "";
+    return Directory.current.absolute.path;
   }
 
   /// The schema version used to open the [Realm]

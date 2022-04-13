@@ -18,6 +18,7 @@
 
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
@@ -27,6 +28,7 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 
 import '../application.dart';
+import '../credentials.dart';
 import '../collections.dart';
 import '../init.dart';
 import '../list.dart';
@@ -825,6 +827,29 @@ class _RealmCore {
       }
     });
   }
+
+  SyncClientConfigHandle createSyncClientConfig(ApplicationConfiguration configuration) {
+    return using((arena) {
+      final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
+
+      _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toUtf8Ptr(arena));
+      _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
+
+      if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
+        _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
+      }
+
+      return handle;
+    });
+  }
+
+  AppHandle getApp(ApplicationConfiguration configuration) {
+    final httpTransport = createHttpTransport(configuration.httpClient);
+    final appConfig = createAppConfig(configuration, httpTransport);
+    final syncClientConfig = createSyncClientConfig(configuration);
+    final realm_app = _realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfig._pointer, syncClientConfig._pointer));
+    return AppHandle._(realm_app);
+  }
 }
 
 class LastError {
@@ -930,11 +955,23 @@ class RealmHttpTransportHandle extends Handle<realm_http_transport> {
 }
 
 class AppConfigHandle extends Handle<realm_app_config> {
-  AppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 256); // TODO: What should hint be?
+  AppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 8);
+}
+
+class SyncClientConfigHandle extends Handle<realm_sync_client_config> {
+  SyncClientConfigHandle._(Pointer<realm_sync_client_config> pointer) : super(pointer, 8);
+}
+
+class AppHandle extends Handle<realm_app> {
+  AppHandle._(Pointer<realm_app> pointer) : super(pointer, 16);
 }
 
 extension on List<int> {
   Pointer<Int8> toInt8Ptr(Allocator allocator) {
+    return toUint8Ptr(allocator).cast();
+  }
+
+  Pointer<Uint8> toUint8Ptr(Allocator allocator) {
     final nativeSize = length + 1;
     final result = allocator<Uint8>(nativeSize);
     final Uint8List native = result.asTypedList(nativeSize);
