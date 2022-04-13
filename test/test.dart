@@ -82,8 +82,8 @@ Map<String, BaasApp> baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
 
 //Overrides test method so we can filter tests
-void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
-  if (testName != null && !name!.contains(testName!)) {
+void test(String name, dynamic Function() testFunction, {dynamic skip}) {
+  if (testName != null && !name.contains(testName!)) {
     return;
   }
 
@@ -92,7 +92,7 @@ void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
     timeout = Duration.secondsPerDay;
     return true;
   }());
-
+  
   testing.test(name, testFunction, skip: skip, timeout: Timeout(Duration(seconds: timeout)));
 }
 
@@ -200,26 +200,30 @@ Future<void> setupBaas() async {
 
 @isTest
 Future<void> testWithBaaS(
-  String? name,
+  String name,
   FutureOr<void> Function(ApplicationConfiguration configuration) testFunction, {
   String appName = 'flexible',
-  bool skip = false,
+  dynamic skip,
 }) async {
   final url = Uri.tryParse(Platform.environment['BAAS_URL'] ?? 'https://realm-dev.mongodb.com');
   final apiKey = Platform.environment['BAAS_API_KEY'];
   final projectId = Platform.environment['BAAS_PROJECT_ID'];
 
-  final missingOrSkip = skip || url == null || apiKey == null || projectId == null;
+  if (skip == null) {
+    skip = url == null || apiKey == null || projectId == null;
+  }
+  else if (skip is bool) {
+    skip = skip || url == null || apiKey == null || projectId == null;
+  }
+  
   test(name, () async {
-    if (!missingOrSkip) {
       final app = baasApps[appName] ?? baasApps.values.first;
-      final temporary = await Directory.systemTemp.createTemp('realm_dart_test_');
+      final temporary = await Directory.systemTemp.createTemp('realm_test_');
       final configuration = ApplicationConfiguration(
         app.clientAppId,
         baseUrl: url,
         baseFilePath: temporary,
       );
       return await testFunction(configuration);
-    }
-  }, skip: missingOrSkip);
+  }, skip: skip);
 }

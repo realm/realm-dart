@@ -21,6 +21,7 @@ import 'package:meta/meta.dart';
 import 'native/realm_core.dart';
 import 'credentials.dart';
 import 'user.dart';
+import 'configuration.dart';
 
 /// Specify if and how to persists user objects.
 enum MetadataPersistenceMode {

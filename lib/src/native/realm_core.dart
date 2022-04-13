@@ -849,6 +849,8 @@ class _RealmCore {
     final syncClientConfig = createSyncClientConfig(configuration);
     final realm_app = _realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfig._pointer, syncClientConfig._pointer));
     return AppHandle._(realm_app);
+  }
+
   static void _logInCallback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
     final Completer<UserHandle>? userHandleCompleter = userdata.toObject();
     if (userHandleCompleter == null) {
@@ -861,10 +863,11 @@ class _RealmCore {
       userHandleCompleter.completeError(RealmException(message));
     }
   }
+
   static void _freeCallback(Pointer<Void> userdata) {
     userdata.toObject(); // TODO: release
   }
-  
+
   Future<UserHandle> logIn(Application application, Credentials credentials) async {
     final completer = Completer<UserHandle>();
     _realmLib.realm_app_log_in_with_credentials(
@@ -995,6 +998,7 @@ class AppHandle extends Handle<realm_app> {
 class UserHandle extends Handle<realm_user> {
   UserHandle._(Pointer<realm_user> pointer) : super(pointer, 256); // TODO: What should hint be?
 }
+
 extension on List<int> {
   Pointer<Int8> toInt8Ptr(Allocator allocator) {
     return toUint8Ptr(allocator).cast();
