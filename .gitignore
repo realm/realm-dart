@@ -6,6 +6,7 @@ out
 # Ignore realm files
 lib/default.realm
 lib/default.realm.lock
+mongodb-realm/
 
 # Dart packages and Flutter plugins should not commit these files
 pubspec.lock

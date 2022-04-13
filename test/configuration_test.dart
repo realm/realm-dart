@@ -46,10 +46,10 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration files path', () {
     if (Platform.isAndroid || Platform.isIOS) {
-      expect(Configuration.filesPath, isNot(endsWith(".realm")), reason: "on Android and iOS the files path should be a directory");
-      expect(Configuration.filesPath, startsWith("/"), reason: "on Android and iOS the files path should be a directory");
+      expect(Configuration.filesPath, isNot(endsWith(".realm")), reason: "on Android and iOS the filesPath should be a directory");
+      expect(Configuration.filesPath, startsWith("/"), reason: "on Android and iOS the filesPath should be a directory");
     } else {
-      expect(Configuration.filesPath, equals(""), reason: "on Dart standalone the files path should be an empty string");
+      expect(Configuration.filesPath, equals(Directory.current.absolute.path), reason: "on Dart standalone the filesPath should be the current dir path");
     }
   });
 
