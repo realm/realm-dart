@@ -127,7 +127,17 @@ class Application {
   }
 
   Future<User> logIn(Credentials credentials) async {
-    var userHandle = await realmCore.logIn(this, credentials);
+    final userHandle = await realmCore.logIn(this, credentials);
+    return UserInternal.create(userHandle);
+  }
+
+  /// Gets the currently user. If none exists, null is returned.
+  User? get currentUser {
+    final userHandle = realmCore.getCurrentUser(_handle);
+    if (userHandle == null) {
+      return null;
+    }
+    
     return UserInternal.create(userHandle);
   }
 }
