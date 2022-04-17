@@ -85,3 +85,31 @@ class ObjectIdPK extends _ObjectIdPK with RealmEntity, RealmObject {
     ]);
   }
 }
+
+class UuidPK extends _UuidPK with RealmEntity, RealmObject {
+  UuidPK(
+    UuidValue id,
+  ) {
+    RealmObject.set(this, 'id', id);
+  }
+
+  UuidPK._();
+
+  @override
+  UuidValue get id => RealmObject.get<UuidValue>(this, 'id') as UuidValue;
+  @override
+  set id(UuidValue value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<UuidPK>> get changes =>
+      RealmObject.getChanges<UuidPK>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(UuidPK._);
+    return const SchemaObject(UuidPK, [
+      SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
+    ]);
+  }
+}
