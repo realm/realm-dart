@@ -111,10 +111,20 @@ class ApplicationConfiguration {
 /// * Register uses and perform various user-related operations through authentication providers
 /// * Synchronize data between the local device and a remote Realm App with Synchronized Realms
 class Application {
-  final AppHandle _handle;
+  late final AppHandle _handle;
   final ApplicationConfiguration configuration;
+  late final RealmHttpTransportHandle _httpTransportHandle;
+  // ignore: unused_field
+  late final AppConfigHandle _appConfigHandle;
+  // ignore: unused_field
+  late final SyncClientConfigHandle _syncClientConfigHandle;
 
-  Application(this.configuration) : _handle = realmCore.getApp(configuration);
+  Application(this.configuration) {
+    _httpTransportHandle = realmCore.createHttpTransport(configuration.httpClient);
+    _appConfigHandle = realmCore.createAppConfig(configuration, _httpTransportHandle);
+    _syncClientConfigHandle = realmCore.createSyncClientConfig(configuration);
+    _handle = realmCore.getApp(_appConfigHandle, _syncClientConfigHandle);
+  }
 
   Future<User> logIn(Credentials credentials) async {
     var userHandle = await realmCore.logIn(this, credentials);

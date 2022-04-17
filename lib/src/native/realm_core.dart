@@ -805,12 +805,13 @@ class _RealmCore {
         responseRef.headers = arena<realm_http_header>(headerCnt);
         responseRef.num_headers = headerCnt;
 
+        int index = 0;
         response.headers.forEach((name, values) {
-          int idx = 0;
           for (final value in values) {
-            final headerRef = responseRef.headers.elementAt(idx).ref;
+            final headerRef = responseRef.headers.elementAt(index).ref;
             headerRef.name = name.toUtf8Ptr(arena);
             headerRef.value = value.toUtf8Ptr(arena);
+            index++;
           }
         });
 
@@ -843,12 +844,9 @@ class _RealmCore {
     });
   }
 
-  AppHandle getApp(ApplicationConfiguration configuration) {
-    final httpTransport = createHttpTransport(configuration.httpClient);
-    final appConfig = createAppConfig(configuration, httpTransport);
-    final syncClientConfig = createSyncClientConfig(configuration);
-    final realm_app = _realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfig._pointer, syncClientConfig._pointer));
-    return AppHandle._(realm_app);
+  AppHandle getApp(AppConfigHandle appConfigHandle, SyncClientConfigHandle syncClientConfigHandle) {
+    final realmAppPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfigHandle._pointer, syncClientConfigHandle._pointer));
+    return AppHandle._(realmAppPtr);
   }
 
   static void _logInCallback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
@@ -874,13 +872,15 @@ class _RealmCore {
 
   Future<UserHandle> logIn(Application application, Credentials credentials) async {
     final completer = Completer<UserHandle>();
-    _realmLib.realm_app_log_in_with_credentials(
-      application.handle._pointer,
-      credentials.handle._pointer,
-      Pointer.fromFunction(_logInCallback),
-      completer.toGCHandle(),
-      nullptr,
-    );
+    _realmLib.invokeGetBool(
+        () => _realmLib.realm_app_log_in_with_credentials(
+              application.handle._pointer,
+              credentials.handle._pointer,
+              Pointer.fromFunction(_logInCallback),
+              completer.toGCHandle(),
+              nullptr,
+            ),
+        "Login failed");
     return completer.future;
   }
 }
