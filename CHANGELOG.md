@@ -15,7 +15,8 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support application configuration. ([#306](https://github.com/realm/realm-dart/pull/306/))
 * Support application class. ([#446](https://github.com/realm/realm-dart/pull/446/))
 * Support should realm compact on open callback `Configuration.shouldCompactCallback` as option when configuring a Realm to determine if it should be compacted before being returned.  ([#466](https://github.com/realm/realm-dart/pull/466/))
-* Support ObjectId. ([#468](https://github.com/realm/realm-dart/pull/468))
+* Support ObjectId type. ([#468](https://github.com/realm/realm-dart/pull/468))
+* Support Uuid type. ([#470](https://github.com/realm/realm-dart/pull/470))
 * Support application login. ([#469](https://github.com/realm/realm-dart/pull/469/))
 
 ### Fixed

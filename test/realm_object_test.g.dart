@@ -90,3 +90,31 @@ class StringPrimaryKey extends _StringPrimaryKey with RealmEntity, RealmObject {
     ]);
   }
 }
+
+class UuidPrimaryKey extends _UuidPrimaryKey with RealmEntity, RealmObject {
+  UuidPrimaryKey(
+    UuidValue id,
+  ) {
+    RealmObject.set(this, 'id', id);
+  }
+
+  UuidPrimaryKey._();
+
+  @override
+  UuidValue get id => RealmObject.get<UuidValue>(this, 'id') as UuidValue;
+  @override
+  set id(UuidValue value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<UuidPrimaryKey>> get changes =>
+      RealmObject.getChanges<UuidPrimaryKey>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(UuidPrimaryKey._);
+    return const SchemaObject(UuidPrimaryKey, [
+      SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
+    ]);
+  }
+}

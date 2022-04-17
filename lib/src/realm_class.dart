@@ -43,7 +43,8 @@ export 'package:realm_common/realm_common.dart'
         RealmStateError,
         RealmCollectionType,
         RealmPropertyType,
-        ObjectId;
+        ObjectId,
+        UuidValue;
 export "configuration.dart" show Configuration, RealmSchema, SchemaObject;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
 export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges;
