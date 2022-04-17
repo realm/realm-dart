@@ -850,6 +850,10 @@ class _RealmCore {
     final realm_app = _realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfig._pointer, syncClientConfig._pointer));
     return AppHandle._(realm_app);
   }
+
+  void clearCachedApps() {
+    _realmLib.realm_clear_cached_apps();
+  }
 }
 
 class LastError {
