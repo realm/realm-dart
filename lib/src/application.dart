@@ -116,7 +116,5 @@ class Application {
 }
 
 extension ApplicationInternal on Application {
-  AppHandle get handle => _handle;
-
   static void clearCachedApps() => realmCore.clearCachedApps();
 }
