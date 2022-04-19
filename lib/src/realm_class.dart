@@ -32,14 +32,26 @@ import 'results.dart';
 // always expose with `show` to explicitly control the public API surface
 export 'application.dart' show ApplicationConfiguration, MetadataPersistenceMode, Application;
 export 'package:realm_common/realm_common.dart'
-    show Ignored, Indexed, MapTo, PrimaryKey, RealmError, RealmModel, RealmUnsupportedSetError, RealmStateError, RealmCollectionType, RealmPropertyType, ObjectId;
+    show
+        Ignored,
+        Indexed,
+        MapTo,
+        PrimaryKey,
+        RealmError,
+        RealmModel,
+        RealmUnsupportedSetError,
+        RealmStateError,
+        RealmCollectionType,
+        RealmPropertyType,
+        ObjectId,
+        UuidValue;
 export 'email_password_provider.dart' show EmailPasswordProvider;
 export "configuration.dart" show Configuration, RealmSchema, SchemaObject;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
 export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
-export 'credentials.dart' show Credentials, AuthProvider;
+export 'credentials.dart' show Credentials, AuthProvider, EmailPasswordProvider;
 
 /// A [Realm] instance represents a `Realm` database.
 ///

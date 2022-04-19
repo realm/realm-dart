@@ -16,3 +16,9 @@ class _ObjectIdPK {
   @PrimaryKey()
   late ObjectId id;
 }
+
+@RealmModel()
+class _UuidPK {
+  @PrimaryKey()
+  late UuidValue id;
+}
