@@ -20,7 +20,6 @@ import 'dart:io';
 import 'package:meta/meta.dart';
 import 'native/realm_core.dart';
 import 'configuration.dart';
-import 'email_password_provider.dart';
 
 /// Specify if and how to persists user objects.
 /// {@category Application}
@@ -115,13 +114,8 @@ class ApplicationConfiguration {
 class Application {
   final AppHandle _handle;
   final ApplicationConfiguration configuration;
-  late final EmailPasswordProvider _emailPasswordProvider;
 
-  Application(this.configuration) : _handle = realmCore.getApp(configuration) {
-    _emailPasswordProvider = EmailPasswordProvider(this);
-  }
-
-  EmailPasswordProvider get emailPasswordProvider => _emailPasswordProvider;
+  Application(this.configuration) : _handle = realmCore.getApp(configuration);
 }
 
 extension ApplicationInternal on Application {

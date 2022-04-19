@@ -22,11 +22,11 @@ import 'application.dart';
 /// An enum containing all authentication providers. These have to be enabled manually for the application before they can be used.
 /// [Authentication Providers Docs](https://docs.mongodb.com/realm/authentication/providers/)
 /// {@category Application}
-enum AuthProvider {
-  /// Mechanism for authenticating without credentials.
+enum AuthProviderType {
+  /// For authenticating without credentials.
   anonymous,
 
-  /// Mechanism for authenticating with an email and a password.
+  /// For authenticating with an email and a password.
   emailPassword,
 }
 
@@ -35,13 +35,13 @@ enum AuthProvider {
 class Credentials {
   late final RealmAppCredentialsHandle _handle;
 
-  final AuthProvider provider;
+  final AuthProviderType providerType;
 
   /// Returns a [Credentials] object that can be used to authenticate an anonymous user.
   /// [Anonymous Authentication Docs](https://docs.mongodb.com/realm/authentication/anonymous)
   Credentials.anonymous()
       : _handle = realmCore.createAppCredentialsAnonymous(),
-        provider = AuthProvider.anonymous;
+        providerType = AuthProviderType.anonymous;
 
   /// Returns a [Credentials] object that can be used to authenticate a user with their email and password.
   /// A user can login with email and password only after they have registered their account and verified their
@@ -49,7 +49,7 @@ class Credentials {
   /// [Email/Password Authentication Docs](https://docs.mongodb.com/realm/authentication/email-password)
   Credentials.emailPassword(String email, String password)
       : _handle = realmCore.createAppCredentialsEmailPassword(email, password),
-        provider = AuthProvider.emailPassword;
+        providerType = AuthProviderType.emailPassword;
 }
 
 /// @nodoc
