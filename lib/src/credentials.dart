@@ -100,4 +100,9 @@ class EmailPasswordAuthProvider {
   Future<void> callResetPasswordFunction(String email, String password, String functionArgsAsJSON) {
     return realmCore.emailPasswordCallResetPasswordFunction(application, email, password, functionArgsAsJSON);
   }
+
+  /// Retries the custom confirmation function on a user for a given email.
+  Future<void> retryCustomConfirmationFunction(String email) {
+    return realmCore.emailPasswordRetryCustomConfirmation(application, email);
+  }
 }

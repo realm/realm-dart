@@ -955,6 +955,20 @@ class _RealmCore {
     });
     return completer.future;
   }
+
+  Future<void> emailPasswordRetryCustomConfirmationFunction(Application application, String email) {
+    final completer = Completer<void>();
+    using((arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_retry_custom_confirmation(
+            application.handle._pointer,
+            email.toUtf8Ptr(arena),
+            Pointer.fromFunction(void_completion_callback),
+            completer.toGCHandle(),
+            nullptr,
+          ));
+    });
+    return completer.future;
+  }
 }
 
 class LastError {
