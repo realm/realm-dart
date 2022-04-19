@@ -909,6 +909,22 @@ class _RealmCore {
     });
     return completer.future;
   }
+
+  Future<void> emailPasswordResetPassword(Application application, String password, String token, String tokenId) {
+    final completer = Completer<void>();
+    using((arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_reset_password(
+            application.handle._pointer,
+            password.toRealmString(arena).ref,
+            token.toUtf8Ptr(arena),
+            tokenId.toUtf8Ptr(arena),
+            Pointer.fromFunction(void_completion_callback),
+            completer.toGCHandle(),
+            nullptr,
+          ));
+    });
+    return completer.future;
+  }
 }
 
 class LastError {
