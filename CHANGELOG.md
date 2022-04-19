@@ -23,6 +23,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support EmailPassword complete reset password. ([#480](https://github.com/realm/realm-dart/pull/480))
 * Support EmailPassword reset password. ([#481](https://github.com/realm/realm-dart/pull/481))
 * Support EmailPassword calling custom reset password functions. ([#482](https://github.com/realm/realm-dart/pull/482))
+* Support EmailPassword retry custom user confirmation functions. ([#484](https://github.com/realm/realm-dart/pull/484))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))
