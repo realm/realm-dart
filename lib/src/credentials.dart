@@ -80,4 +80,9 @@ class EmailPasswordAuthProvider {
   Future<void> confirmUser(String token, String tokenId) {
     return realmCore.emailPasswordConfirmUser(application, token, tokenId);
   }
+
+  /// Resends the confirmation email for a user to the given email.
+  Future<void> resendUserConfirmation(String email) {
+    return realmCore.emailPasswordResendUserConfirmation(application, email);
+  }
 }
