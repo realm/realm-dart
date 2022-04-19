@@ -141,6 +141,7 @@ class Application {
     return UserInternal.create(userHandle);
   }
 
+  /// Removes the user's local credentials and attempts to invalidate their refresh token from the server.
   Future<void> logout(User user) async {
     return await realmCore.logOut(this, user);
   }
