@@ -72,7 +72,12 @@ class EmailPasswordAuthProvider {
   /// The [password] to associate with the email. The password must be between 6 and 128 characters long.
   ///
   /// Successful completion indicates that the user has been created on the server and can now be logged in with [Credentials.emailPassword()].
-  Future<void> registerUser(String email, String password) async {
-    return realmCore.appEmailPasswordRegisterUser(application, email, password);
+  Future<void> registerUser(String email, String password) {
+    return realmCore.emailPasswordRegisterUser(application, email, password);
+  }
+
+  /// Confirms a user with the given token and token id. These are typically included in the registration email.
+  Future<void> confirmUser(String token, String tokenId) {
+    return realmCore.emailPasswordConfirmUser(application, token, tokenId);
   }
 }
