@@ -36,6 +36,7 @@ import '../realm_class.dart';
 import '../realm_object.dart';
 import '../results.dart';
 import 'realm_bindings.dart';
+import '../user.dart';
 
 late RealmLibrary _realmLib;
 
@@ -889,8 +890,37 @@ class _RealmCore {
     if (userPtr == nullptr) {
       return null;
     }
-     
+
     return UserHandle._(userPtr);
+  }
+
+  static void _logOutCallback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
+    final Completer<void>? completer = userdata.toObject();
+    if (completer == null) {
+      return;
+    }
+
+    if (error != nullptr) {
+      final message = error.ref.message.cast<Utf8>().toDartString();
+      completer.completeError(RealmException(message));
+      return;
+    }
+
+    completer.complete();
+  }
+
+  Future<void> logOut(Application application, User user) async {
+    final completer = Completer<void>();
+    _realmLib.invokeGetBool(
+        () => _realmLib.realm_app_log_out(
+              application.handle._pointer,
+              user.handle._pointer,
+              Pointer.fromFunction(_logOutCallback),
+              completer.toGCHandle(),
+              nullptr,
+            ),
+        "Logout failed");
+    return completer.future;
   }
 }
 

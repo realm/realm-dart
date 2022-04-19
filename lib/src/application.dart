@@ -137,8 +137,12 @@ class Application {
     if (userHandle == null) {
       return null;
     }
-    
+
     return UserInternal.create(userHandle);
+  }
+
+  Future<void> logout(User user) async {
+    return await realmCore.logOut(this, user);
   }
 }
 

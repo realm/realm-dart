@@ -25,5 +25,7 @@ class User {
 }
 
 extension UserInternal on User {
+  UserHandle get handle => _handle;
+
   static User create(UserHandle handle) => User._(handle);
 }
