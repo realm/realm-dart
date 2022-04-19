@@ -133,12 +133,17 @@ class Application {
 
   /// Gets the currently user. If none exists, null is returned.
   User? get currentUser {
-    final userHandle = realmCore.getCurrentUser(_handle);
+    final userHandle = realmCore.getCurrentUser(this);
     if (userHandle == null) {
       return null;
     }
 
     return UserInternal.create(userHandle);
+  }
+
+  /// Gets all currently logged in users. 
+  Iterable<User> get users {
+    return realmCore.getUsers(this).map((handle) => UserInternal.create(handle));
   }
 
   /// Removes the user's local credentials and attempts to invalidate their refresh token from the server.

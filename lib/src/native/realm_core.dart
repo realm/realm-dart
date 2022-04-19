@@ -885,8 +885,8 @@ class _RealmCore {
     return completer.future;
   }
 
-  UserHandle? getCurrentUser(AppHandle appHandle) {
-    final userPtr = _realmLib.realm_app_get_current_user(appHandle._pointer);
+  UserHandle? getCurrentUser(Application app) {
+    final userPtr = _realmLib.realm_app_get_current_user(app.handle._pointer);
     if (userPtr == nullptr) {
       return null;
     }
@@ -921,6 +921,23 @@ class _RealmCore {
             ),
         "Logout failed");
     return completer.future;
+  }
+
+  List<UserHandle> getUsers(Application app) {
+    return using((arena) {
+      final usersCount = arena<IntPtr>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_get_all_users(app.handle._pointer, nullptr, 0, usersCount));
+
+      final usersPtr = arena<realm_user>(usersCount.value);
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_get_all_users(app.handle._pointer, Pointer.fromAddress(usersPtr.address), usersCount.value, usersCount));
+
+      final userHandles = <UserHandle>[];
+      for (var i = 0; i < usersCount.value; i++) {
+       userHandles.add(UserHandle._(usersPtr.elementAt(i)));
+      }
+
+      return userHandles;
+    });
   }
 }
 
