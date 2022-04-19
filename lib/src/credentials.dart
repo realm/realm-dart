@@ -103,6 +103,6 @@ class EmailPasswordAuthProvider {
 
   /// Retries the custom confirmation function on a user for a given email.
   Future<void> retryCustomConfirmationFunction(String email) {
-    return realmCore.emailPasswordRetryCustomConfirmation(application, email);
+    return realmCore.emailPasswordRetryCustomConfirmationFunction(application, email);
   }
 }
