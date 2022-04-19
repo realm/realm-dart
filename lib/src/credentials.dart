@@ -15,7 +15,9 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 import 'native/realm_core.dart';
+import 'application.dart';
 
 /// An enum containing all authentication providers. These have to be enabled manually for the application before they can be used.
 /// [Authentication Providers Docs](https://docs.mongodb.com/realm/authentication/providers/)
@@ -53,4 +55,24 @@ class Credentials {
 /// @nodoc
 extension CredentialsInternal on Credentials {
   RealmAppCredentialsHandle get handle => _handle;
+}
+
+/// A class, encapsulating functionality for users, logged in with [Credentials.emailPassword()].
+/// It is always scoped to a particular app.
+/// {@category Application}
+class EmailPasswordAuthProvider {
+  final Application application;
+
+  /// Create a new EmailPasswordAuthProvider for the [application]
+  EmailPasswordAuthProvider(this.application);
+
+  /// Registers a new user with the given email and password.
+  /// The [email] to register with. This will be the user's username and, if user confirmation is enabled, this will be the address for
+  /// the confirmation email.
+  /// The [password] to associate with the email. The password must be between 6 and 128 characters long.
+  ///
+  /// Successful completion indicates that the user has been created on the server and can now be logged in with [Credentials.emailPassword()].
+  Future<void> registerUser(String email, String password) async {
+    return realmCore.appEmailPasswordRegisterUser(application, email, password);
+  }
 }

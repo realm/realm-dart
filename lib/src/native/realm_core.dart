@@ -851,41 +851,32 @@ class _RealmCore {
     return AppHandle._(realm_app);
   }
 
-  static void _app_email_password_provider_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
-    String? message = error != nullptr ? error.ref.message.cast<Utf8>().toDartString() : null;
-
-    final Completer<bool>? completer = userdata.toObject();
+  static void void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
+    final Completer<void>? completer = userdata.toObject();
     if (completer == null) {
-      if (message != null) throw RealmError(message);
       return;
     }
-    if (message != null) {
+
+    if (error != nullptr) {
+      final message = error.ref.message.cast<Utf8>().toDartString();
       completer.completeError(RealmException(message));
-    } else {
-      completer.complete(true);
-    }
-  }
-
-  static void _app_email_password_provider_free_userdata_callback(Pointer<Void> userdata) {
-    final Completer<bool>? completer = userdata.toObject();
-    if (completer == null) {
       return;
     }
-    if (!completer.isCompleted) {
-      completer.complete(false);
-    }
+
+    completer.complete();
   }
 
   Future<void> appEmailPasswordRegisterUser(Application application, String email, String password) {
-    final completer = Completer<bool>();
+    final completer = Completer<void>();
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_register_email(
-          application.handle._pointer,
-          email.toUtf8Ptr(arena),
-          password.toRealmString(arena).ref,
-          Pointer.fromFunction(_app_email_password_provider_callback),
-          completer.toGCHandle(),
-          Pointer.fromFunction(_app_email_password_provider_free_userdata_callback)));
+            application.handle._pointer,
+            email.toUtf8Ptr(arena),
+            password.toRealmString(arena).ref,
+            Pointer.fromFunction(void_completion_callback),
+            completer.toGCHandle(),
+            nullptr,
+          ));
     });
     return completer.future;
   }
