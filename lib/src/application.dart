@@ -142,7 +142,14 @@ class Application {
   }
 
   /// Removes the user's local credentials and attempts to invalidate their refresh token from the server.
-  Future<void> logout(User user) async {
+  /// 
+  /// If [user] is null logs out [currentUser] if it exists.
+  Future<void> logout(User? user) async {
+    user ??= currentUser;
+    if (user == null) {
+      return;
+    }
+
     return await realmCore.logOut(this, user);
   }
 }
