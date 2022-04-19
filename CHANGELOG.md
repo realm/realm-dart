@@ -18,7 +18,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support ObjectId type. ([#468](https://github.com/realm/realm-dart/pull/468))
 * Support Uuid type. ([#470](https://github.com/realm/realm-dart/pull/470))
 * Support EmailPassword register user. ([#452](https://github.com/realm/realm-dart/pull/452))
-* Support EmailPassowrd confirm user.
+* Support EmailPassowrd confirm user. ([#478](https://github.com/realm/realm-dart/pull/478))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))
