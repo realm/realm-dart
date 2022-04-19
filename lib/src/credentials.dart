@@ -87,7 +87,12 @@ class EmailPasswordAuthProvider {
   }
 
   /// Completes the reset password procedure by providing the desired new password.
-  Future<void> resetPassword(String password, String token, String tokenId) {
-    return realmCore.emailPasswordResetPassword(application, password, token, tokenId);
+  Future<void> completeResetPassword(String password, String token, String tokenId) {
+    return realmCore.emailPasswordCompleteResetPassword(application, password, token, tokenId);
+  }
+
+  /// Sends a password reset email.
+  Future<void> resetPassword(String email) {
+    return realmCore.emailPasswordResetPassword(application, email);
   }
 }
