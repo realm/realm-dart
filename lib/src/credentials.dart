@@ -95,4 +95,9 @@ class EmailPasswordAuthProvider {
   Future<void> resetPassword(String email) {
     return realmCore.emailPasswordResetPassword(application, email);
   }
+
+  /// Calls the reset password function, configured on the server.
+  Future<void> callResetPasswordFunction(String email, String password, String functionArgsAsJSON) {
+    return realmCore.emailPasswordCallResetPasswordFunction(application, email, password, functionArgsAsJSON);
+  }
 }
