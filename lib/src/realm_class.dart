@@ -44,7 +44,7 @@ export 'package:realm_common/realm_common.dart'
         RealmCollectionType,
         RealmPropertyType,
         ObjectId,
-        UuidValue;
+        Uuid;
 export "configuration.dart" show Configuration, RealmSchema, SchemaObject;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
 export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges;
