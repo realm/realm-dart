@@ -35,7 +35,7 @@ enum AuthProviderType {
 class Credentials {
   late final RealmAppCredentialsHandle _handle;
 
-  final AuthProviderType providerType;
+  final AuthProviderType provider;
 
   /// Returns a [Credentials] object that can be used to authenticate an anonymous user.
   /// [Anonymous Authentication Docs](https://docs.mongodb.com/realm/authentication/anonymous)
