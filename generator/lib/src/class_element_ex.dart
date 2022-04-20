@@ -129,18 +129,18 @@ extension ClassElementEx on ClassElement {
         );
       }
 
-      final coreClassName = mapToInfo != null ? mapToInfo!.value.getField('name')!.toStringValue()! : name;
+      final realmName = mapToInfo != null ? mapToInfo!.value.getField('name')!.toStringValue()! : name;
 
-      // Core has a limit of 57 characters for SDK names (technically 63, but SDKs names are always preffixed class_)
-      if (coreClassName.length > 57) {
-        final clarification = coreClassName == name ? '' : ' which is stored as $coreClassName';
+      // Core has a limit of 57 characters for SDK names (technically 63, but SDKs names are always prefixed class_)
+      if (realmName.length > 57) {
+        final clarification = realmName == name ? '' : ' which is stored as $realmName';
         throw RealmInvalidGenerationSourceError(
           "Invalid model name",
           element: this,
           primarySpan: span,
-          primaryLabel: "$coreClassName is too long (> 57 characters)",
+          primaryLabel: "$realmName is too long (> 57 characters)",
           todo: //
-              '$name$clarification is too long (${coreClassName.length} characters when max is 57). '
+              '$name$clarification is too long (${realmName.length} characters when max is 57). '
               'Either rename it to something shorter or use the @MapTo annotation.',
         );
       }
@@ -149,7 +149,7 @@ extension ClassElementEx on ClassElement {
       return RealmModelInfo(
         name,
         modelName,
-        coreClassName,
+        realmName,
         mappedFields,
       );
     } on InvalidGenerationSourceError catch (_) {
