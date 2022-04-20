@@ -61,7 +61,7 @@ class _RealmCore {
   _RealmCore._() {
     final lib = initRealm();
     _realmLib = RealmLibrary(lib);
-    
+
     _deletePersistentHandlePtr = lib.lookup<NativeFunction<Void Function(Pointer<Void>)>>('delete_persistent_handle');
   }
 
@@ -888,7 +888,6 @@ class _RealmCore {
         "Login failed");
     return completer.future;
   }
-}
 
   static void void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
     final Completer<void>? completer = userdata.toObject();
@@ -913,8 +912,8 @@ class _RealmCore {
             email.toUtf8Ptr(arena),
             password.toRealmString(arena).ref,
             Pointer.fromFunction(void_completion_callback),
-            completer.toGCHandle(),
-            nullptr,
+            completer.toPersistentHandle(),
+            _deletePersistentHandlePtr,
           ));
     });
     return completer.future;
