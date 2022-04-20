@@ -15,9 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-// ignore_for_file: constant_identifier_names, non_constant_identifier_names
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
@@ -28,8 +25,9 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 
 import '../app.dart';
-import '../credentials.dart';
 import '../collections.dart';
+import '../configuration.dart';
+import '../credentials.dart';
 import '../init.dart';
 import '../list.dart';
 import '../realm_class.dart';
@@ -148,31 +146,36 @@ class _RealmCore {
       final schemaHandle = _createSchema(config.schema);
       final configPtr = _realmLib.realm_config_new();
       final configHandle = ConfigHandle._(configPtr);
+
       _realmLib.realm_config_set_schema(configHandle._pointer, schemaHandle._pointer);
       _realmLib.realm_config_set_schema_version(configHandle._pointer, config.schemaVersion);
       _realmLib.realm_config_set_path(configHandle._pointer, config.path.toUtf8Ptr(arena));
       _realmLib.realm_config_set_scheduler(configHandle._pointer, schedulerHandle._pointer);
-      if (config.isReadOnly) {
-        _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE);
-      }
-      if (config.isInMemory) {
-        _realmLib.realm_config_set_in_memory(configHandle._pointer, config.isInMemory);
-      }
-      if (config.fifoFilesFallbackPath != null) {
-        _realmLib.realm_config_set_fifo_path(configHandle._pointer, config.fifoFilesFallbackPath!.toUtf8Ptr(arena));
-      }
-      if (config.disableFormatUpgrade) {
-        _realmLib.realm_config_set_disable_format_upgrade(configHandle._pointer, config.disableFormatUpgrade);
-      }
 
-      if (config.initialDataCallback != null) {
-        _realmLib.realm_config_set_data_initialization_function(
-            configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toWeakHandle());
-      }
-
-      if (config.shouldCompactCallback != null) {
-        _realmLib.realm_config_set_should_compact_on_launch_function(
-            configHandle._pointer, Pointer.fromFunction(should_compact_callback, 0), config.toWeakHandle());
+      if (config is LocalConfiguration) {
+        if (config.initialDataCallback != null) {
+          _realmLib.realm_config_set_data_initialization_function(
+              configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toWeakHandle());
+        }
+        if (config.isReadOnly) {
+          _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE);
+        }
+        if (config.isInMemory) {
+          // TODO: Get rid of this
+          _realmLib.realm_config_set_in_memory(configHandle._pointer, config.isInMemory);
+        }
+        if (config.fifoFilesFallbackPath != null) {
+          _realmLib.realm_config_set_fifo_path(configHandle._pointer, config.fifoFilesFallbackPath!.toUtf8Ptr(arena));
+        }
+        if (config.disableFormatUpgrade) {
+          _realmLib.realm_config_set_disable_format_upgrade(configHandle._pointer, config.disableFormatUpgrade);
+        }
+        if (config.shouldCompactCallback != null) {
+          _realmLib.realm_config_set_should_compact_on_launch_function(
+              configHandle._pointer, Pointer.fromFunction(should_compact_callback, 0), config.toWeakHandle());
+        }
+      } else if (config is InMemoryConfiguration) {
+        _realmLib.realm_config_set_in_memory(configHandle._pointer, true);
       }
 
       return configHandle;
@@ -181,7 +184,7 @@ class _RealmCore {
 
   static int initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmHandle) {
     try {
-      final Configuration? config = userdata.toObject();
+      final LocalConfiguration? config = userdata.toObject();
       if (config == null) {
         return FALSE;
       }
@@ -196,7 +199,7 @@ class _RealmCore {
   }
 
   static int should_compact_callback(Pointer<Void> userdata, int totalSize, int usedSize) {
-    final Configuration? config = userdata.toObject();
+    final LocalConfiguration? config = userdata.toObject();
     if (config == null) {
       return FALSE;
     }
