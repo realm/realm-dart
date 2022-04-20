@@ -195,11 +195,10 @@ class _RealmCore {
   static int should_compact_callback(Pointer<Void> userdata, int totalSize, int usedSize) {
     final Configuration? config = userdata.toObject();
     if (config == null) {
-      return 0;
+      return FALSE;
     }
-    config.shouldCompactCallback!(totalSize, usedSize);
 
-    return 1;
+    return config.shouldCompactCallback!(totalSize, usedSize) ? TRUE : FALSE;
   }
 
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
