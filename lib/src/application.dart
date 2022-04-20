@@ -126,6 +126,7 @@ class Application {
     _handle = realmCore.getApp(_appConfigHandle, _syncClientConfigHandle);
   }
 
+  /// Logs in a user with the given credentials.
   Future<User> logIn(Credentials credentials) async {
     var userHandle = await realmCore.logIn(this, credentials);
     return UserInternal.create(userHandle);
