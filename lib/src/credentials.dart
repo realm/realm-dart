@@ -41,7 +41,7 @@ class Credentials {
   /// [Anonymous Authentication Docs](https://docs.mongodb.com/realm/authentication/anonymous)
   Credentials.anonymous()
       : _handle = realmCore.createAppCredentialsAnonymous(),
-        providerType = AuthProviderType.anonymous;
+        provider = AuthProviderType.anonymous;
 
   /// Returns a [Credentials] object that can be used to authenticate a user with their email and password.
   /// A user can login with email and password only after they have registered their account and verified their
@@ -49,7 +49,7 @@ class Credentials {
   /// [Email/Password Authentication Docs](https://docs.mongodb.com/realm/authentication/email-password)
   Credentials.emailPassword(String email, String password)
       : _handle = realmCore.createAppCredentialsEmailPassword(email, password),
-        providerType = AuthProviderType.emailPassword;
+        provider = AuthProviderType.emailPassword;
 }
 
 /// @nodoc
