@@ -18,36 +18,17 @@
 
 import 'dart:io';
 
-import 'native/realm_core.dart';
-
-import 'realm_object.dart';
-import 'realm_property.dart';
 import 'package:path/path.dart' as _path;
+
+import 'native/realm_core.dart';
 import 'realm_class.dart';
 
-/// Configuration used to create a [Realm] instance
-/// {@category Configuration}
-class Configuration {
-  static String? _defaultPath;
-
-  /// The [RealmSchema] for this [Configuration]
-  final RealmSchema schema;
-
-  /// Creates a [Configuration] with schema objects for opening a [Realm].
-  Configuration(List<SchemaObject> schemaObjects,
-      {String? path,
-      this.fifoFilesFallbackPath,
-      this.isReadOnly = false,
-      this.isInMemory = false,
-      this.schemaVersion = 0,
-      this.disableFormatUpgrade = false,
-      this.initialDataCallback,
-      this.shouldCompactCallback})
-      : schema = RealmSchema(schemaObjects),
-        path = path ?? defaultPath;
+abstract class Configuration {
+  /// The default filename of a [Realm] database
+  static const String defaultRealmName = "default.realm";
 
   static String _initDefaultPath() {
-    var path = "default.realm";
+    var path = defaultRealmName;
     if (Platform.isAndroid || Platform.isIOS) {
       path = _path.join(realmCore.getFilesPath(), path);
     }
@@ -57,8 +38,7 @@ class Configuration {
   /// The platform dependent path to the default realm file - `default.realm`.
   ///
   /// If set it should contain the name of the realm file. Ex. /mypath/myrealm.realm
-  static String get defaultPath => _defaultPath ??= _initDefaultPath();
-  static set defaultPath(String value) => _defaultPath = value;
+  static late String defaultPath = _initDefaultPath();
 
   /// The platform dependent directory path used to store realm files
   ///
@@ -70,6 +50,65 @@ class Configuration {
     return Directory.current.absolute.path;
   }
 
+  String? get fifoFilesFallbackPath;
+  String get path;
+  RealmSchema get schema;
+  int get schemaVersion;
+  List<int>? get encryptionKey;
+
+  @Deprecated('Use Configuration.local instead')
+  factory Configuration(
+    List<SchemaObject> schemaObjects, {
+    Function(Realm realm)? initialDataCallback,
+    int schemaVersion,
+    String? fifoFilesFallbackPath,
+    String? path,
+    bool disableFormatUpgrade,
+    bool isInMemory,
+    bool isReadOnly,
+    bool Function(int totalSize, int usedSize)? shouldCompactCallback,
+  }) = LocalConfiguration;
+
+  factory Configuration.local(
+    List<SchemaObject> schemaObjects, {
+    Function(Realm realm)? initialDataCallback,
+    int schemaVersion,
+    String? fifoFilesFallbackPath,
+    String? path,
+    bool disableFormatUpgrade,
+    bool isReadOnly,
+    bool Function(int totalSize, int usedSize)? shouldCompactCallback,
+  }) = LocalConfiguration;
+
+  factory Configuration.inMemory(
+    List<SchemaObject> schemaObjects,
+    String identifier, {
+    Function(Realm realm)? initialDataCallback,
+    int schemaVersion,
+    String? fifoFilesFallbackPath,
+    String? path,
+  }) = InMemoryConfiguration;
+
+  factory Configuration.flexibleSync(List<SchemaObject> schemaObjects) = FlexibleSyncConfiguration; // TODO!
+}
+
+/// Configuration used to create a [Realm] instance
+/// {@category Configuration}
+class _ConfigurationBase implements Configuration {
+  /// Creates a [Configuration] with schema objects for opening a [Realm].
+  _ConfigurationBase(
+    List<SchemaObject> schemaObjects, {
+    String? path,
+    this.fifoFilesFallbackPath,
+    this.schemaVersion = 0,
+    this.encryptionKey,
+  })  : schema = RealmSchema(schemaObjects),
+        path = path ?? Configuration.defaultPath;
+
+  /// The [RealmSchema] for this [Configuration]
+  @override
+  final RealmSchema schema;
+
   /// The schema version used to open the [Realm]
   ///
   /// If omitted the default value of `0` is used to open the [Realm]
@@ -77,12 +116,46 @@ class Configuration {
   /// Realm with a schema that contains objects that differ from their previous
   /// specification. If the schema was updated and the schemaVersion was not,
   /// an [RealmException] will be thrown.
+  @override
   final int schemaVersion;
 
   /// The path where the Realm should be stored.
   ///
   /// If omitted the [defaultPath] for the platform will be used.
+  @override
   final String path;
+
+  /// Specifies the FIFO special files fallback location.
+  /// Opening a [Realm] creates a number of FIFO special files in order to
+  /// coordinate access to the [Realm] across threads and processes. If the [Realm] file is stored in a location
+  /// that does not allow the creation of FIFO special files (e.g. FAT32 filesystems), then the [Realm] cannot be opened.
+  /// In that case [Realm] needs a different location to store these files and this property defines that location.
+  /// The FIFO special files are very lightweight and the main [Realm] file will still be stored in the location defined
+  /// by the [path] you  property. This property is ignored if the directory defined by [path] allow FIFO special files.
+  @override
+  final String? fifoFilesFallbackPath;
+
+  @override
+  final List<int>? encryptionKey;
+}
+
+class LocalConfiguration extends _ConfigurationBase {
+  LocalConfiguration(
+    List<SchemaObject> schemaObjects, {
+    this.initialDataCallback,
+    int schemaVersion = 0,
+    String? fifoFilesFallbackPath,
+    String? path,
+    this.disableFormatUpgrade = false,
+    this.isInMemory = false,
+    this.isReadOnly = false,
+    this.shouldCompactCallback,
+  }) : super(
+          schemaObjects,
+          path: path,
+          fifoFilesFallbackPath: fifoFilesFallbackPath,
+          schemaVersion: schemaVersion,
+        );
 
   /// Specifies whether a [Realm] should be opened as read-only.
   /// This allows opening it from locked locations such as resources,
@@ -97,28 +170,12 @@ class Configuration {
   /// The file will also be used as swap space if the [Realm] becomes bigger than what fits in memory,
   /// but it is not persistent and will be removed when the last instance is closed.
   /// When all in-memory instance of [Realm] is closed all data in that [Realm] is deleted.
-  final bool isInMemory;
-
-  /// Specifies the FIFO special files fallback location.
-  /// Opening a [Realm] creates a number of FIFO special files in order to
-  /// coordinate access to the [Realm] across threads and processes. If the [Realm] file is stored in a location
-  /// that does not allow the creation of FIFO special files (e.g. FAT32 filesystems), then the [Realm] cannot be opened.
-  /// In that case [Realm] needs a different location to store these files and this property defines that location.
-  /// The FIFO special files are very lightweight and the main [Realm] file will still be stored in the location defined
-  /// by the [path] you  property. This property is ignored if the directory defined by [path] allow FIFO special files.
-  final String? fifoFilesFallbackPath;
+  final bool isInMemory; // TODO: Get rid of this!
 
   /// Specifies if a [Realm] file format should be automatically upgraded
   /// if it was created with an older version of the [Realm] library.
   /// An exception will be thrown if a file format upgrade is required.
   final bool disableFormatUpgrade;
-
-  /// A function that will be executed only when the Realm is first created.
-  ///
-  /// The Realm instance passed in the callback already has a write transaction opened, so you can
-  /// add some initial data that your app needs. The function will not execute for existing
-  /// Realms, even if all objects in the Realm are deleted.
-  final Function(Realm realm)? initialDataCallback;
 
   /// The function called when opening a Realm for the first time
   /// during the life of a process to determine if it should be compacted
@@ -129,6 +186,39 @@ class Configuration {
   /// It returns true to indicate that an attempt to compact the file should be made.
   /// The compaction will be skipped if another process is currently accessing the realm file.
   final bool Function(int totalSize, int usedSize)? shouldCompactCallback;
+
+  /// A function that will be executed only when the Realm is first created.
+  ///
+  /// The Realm instance passed in the callback already has a write transaction opened, so you can
+  /// add some initial data that your app needs. The function will not execute for existing
+  /// Realms, even if all objects in the Realm are deleted.
+  final Function(Realm realm)? initialDataCallback;
+}
+
+class _SyncConfigurationBase extends _ConfigurationBase {
+  _SyncConfigurationBase(List<SchemaObject> schemaObjects) : super(schemaObjects);
+}
+
+class FlexibleSyncConfiguration extends _SyncConfigurationBase {
+  FlexibleSyncConfiguration(List<SchemaObject> schemaObjects) : super(schemaObjects);
+}
+
+class InMemoryConfiguration extends _ConfigurationBase {
+  InMemoryConfiguration(
+    List<SchemaObject> schemaObjects,
+    this.identifier, {
+    Function(Realm realm)? initialDataCallback,
+    int schemaVersion = 0,
+    String? fifoFilesFallbackPath,
+    String? path,
+  }) : super(
+          schemaObjects,
+          schemaVersion: schemaVersion,
+          fifoFilesFallbackPath: fifoFilesFallbackPath,
+          path: path,
+        );
+
+  final String identifier;
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].
