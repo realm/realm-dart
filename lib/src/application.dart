@@ -121,6 +121,7 @@ class Application {
   // ignore: unused_field
   late final SyncClientConfigHandle _syncClientConfigHandle;
 
+  /// Create an app with a particular [AppConfiguration]
   Application(this.configuration) {
     _httpTransportHandle = realmCore.createHttpTransport(configuration.httpClient);
     _appConfigHandle = realmCore.createAppConfig(configuration, _httpTransportHandle);
