@@ -38,6 +38,7 @@ enum MetadataPersistenceMode {
 @immutable
 
 /// A class exposing configuration options for an [Application]
+/// {@category Application}
 class ApplicationConfiguration {
   /// The [appId] is the unique id that identifies the Realm application.
   final String appId;
@@ -110,6 +111,7 @@ class ApplicationConfiguration {
 /// The [Application]] can be used to
 /// * Register uses and perform various user-related operations through authentication providers
 /// * Synchronize data between the local device and a remote Realm App with Synchronized Realms
+/// {@category Application}
 class Application {
   late final AppHandle _handle;
   final ApplicationConfiguration configuration;
@@ -133,6 +135,7 @@ class Application {
   }
 }
 
+/// @nodoc
 extension ApplicationInternal on Application {
   AppHandle get handle => _handle;
 }
