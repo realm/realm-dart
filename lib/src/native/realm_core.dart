@@ -18,7 +18,6 @@
 
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 
-import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
@@ -35,6 +34,7 @@ import '../list.dart';
 import '../realm_class.dart';
 import '../realm_object.dart';
 import '../results.dart';
+import '../migration.dart';
 import 'realm_bindings.dart';
 import '../user.dart';
 
@@ -171,9 +171,13 @@ class _RealmCore {
             configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toWeakHandle());
       }
 
+      if (config.migrationCallback != null) {
+        _realmLib.realm_config_set_migration_function(configHandle._pointer, Pointer.fromFunction(migration_callback, FALSE), config.toGCHandle());
+      }
+
       if (config.shouldCompactCallback != null) {
         _realmLib.realm_config_set_should_compact_on_launch_function(
-            configHandle._pointer, Pointer.fromFunction(should_compact_callback, 0), config.toWeakHandle());
+            configHandle._pointer, Pointer.fromFunction(should_compact_callback, FALSE), config.toWeakHandle());
       }
 
       return configHandle;
@@ -193,6 +197,30 @@ class _RealmCore {
       // TODO: this should propagate the error to Core: https://github.com/realm/realm-core/issues/5366
     }
 
+    return FALSE;
+  }
+
+  static int migration_callback(
+      Pointer<Void> userdata, Pointer<shared_realm> oldRealmHandle, Pointer<shared_realm> newRealmHandle, Pointer<realm_schema> schema) {
+    try {
+      final Configuration? config = userdata.toObject();
+      if (config == null) {
+        return FALSE;
+      }
+
+      final oldSchemaVersion = _realmLib.realm_get_schema_version(oldRealmHandle);
+      final oldConfig = Configuration([], path: config.path, isReadOnly: true, schemaVersion: oldSchemaVersion);
+      final oldRealm = RealmInternal.getUnowned(oldConfig, RealmHandle._unowned(oldRealmHandle));
+
+      final newRealm = RealmInternal.getUnowned(config, RealmHandle._unowned(newRealmHandle));
+
+      final migration = MigrationInternal.create(oldRealm, newRealm);
+      config.migrationCallback!(migration, oldSchemaVersion);
+      return TRUE;
+    } catch (ex) {
+      // TODO: this should propagate the error to Core: https://github.com/realm/realm-core/issues/5366
+      print(ex);
+    }
     return FALSE;
   }
 

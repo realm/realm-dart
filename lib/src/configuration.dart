@@ -22,6 +22,7 @@ import 'native/realm_core.dart';
 
 import 'package:path/path.dart' as _path;
 import 'realm_class.dart';
+import 'migration.dart';
 
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
@@ -41,7 +42,8 @@ class Configuration {
       this.schemaVersion = 0,
       this.disableFormatUpgrade = false,
       this.initialDataCallback,
-      this.shouldCompactCallback})
+      this.shouldCompactCallback,
+      this.migrationCallback})
       : path = path ?? defaultPath;
 
   static String _initDefaultPath() {
@@ -127,6 +129,8 @@ class Configuration {
   /// It returns true to indicate that an attempt to compact the file should be made.
   /// The compaction will be skipped if another process is currently accessing the realm file.
   final bool Function(int totalSize, int usedSize)? shouldCompactCallback;
+
+  final Function(Migration migration, int oldSchemaVersion)? migrationCallback;
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].
