@@ -10,7 +10,7 @@ mkdir -p build-linux
 pushd build-linux
 
 cmake -GNinja \
-      -DCMAKE_BUILD_TYPE=Debug \
+      -DCMAKE_BUILD_TYPE=MinSizeRel \
       ..
 
 cmake --build .
