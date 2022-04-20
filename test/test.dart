@@ -76,6 +76,13 @@ class _School {
   late List<_School> branches;
 }
 
+@RealmModel()
+@MapTo("__other class__")
+class _RemappedClass {
+  @MapTo("__ other property __")
+  late String remappedProperty;
+}
+
 String? testName;
 Map<String, BaasApp> baasApps = <String, BaasApp>{};
 

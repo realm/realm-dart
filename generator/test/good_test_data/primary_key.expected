@@ -24,7 +24,7 @@ class IntPK extends _IntPK with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(IntPK._);
-    return const SchemaObject(IntPK, [
+    return const SchemaObject(IntPK, 'IntPK', [
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
     ]);
   }
@@ -52,7 +52,7 @@ class StringPK extends _StringPK with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(StringPK._);
-    return const SchemaObject(StringPK, [
+    return const SchemaObject(StringPK, 'StringPK', [
       SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
     ]);
   }
@@ -80,7 +80,7 @@ class ObjectIdPK extends _ObjectIdPK with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(ObjectIdPK._);
-    return const SchemaObject(ObjectIdPK, [
+    return const SchemaObject(ObjectIdPK, 'ObjectIdPK', [
       SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
     ]);
   }
@@ -108,7 +108,7 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(UuidPK._);
-    return const SchemaObject(UuidPK, [
+    return const SchemaObject(UuidPK, 'UuidPK', [
       SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
     ]);
   }

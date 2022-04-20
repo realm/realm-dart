@@ -180,8 +180,10 @@ class RealmCoreAccessor implements RealmAccessor {
 
 mixin RealmEntity {
   Realm? _realm;
+
   /// The [Realm] instance this object belongs to.
   Realm get realm => _realm ?? (throw RealmStateError('$this not managed'));
+
   /// True if the object belongs to a realm.
   bool get isManaged => _realm != null;
 }
@@ -247,15 +249,15 @@ mixin RealmObject on RealmEntity {
   bool get isValid => isManaged ? realmCore.objectIsValid(this) : true;
 
   /// Allows listening for property changes on this Realm object
-  /// 
+  ///
   /// Returns a [Stream] of [RealmObjectChanges<T>] that can be listened to.
-  /// 
+  ///
   /// If the object is not managed a [RealmStateError] is thrown.
   Stream get changes => throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
 
   /// @nodoc
   static Stream<RealmObjectChanges<T>> getChanges<T extends RealmObject>(T object) {
-     if (!object.isManaged) {
+    if (!object.isManaged) {
       throw RealmStateError("Object is not managed");
     }
 
@@ -297,6 +299,8 @@ extension RealmObjectInternal on RealmObject {
 
   RealmObjectHandle get handle => _handle!;
   RealmAccessor get accessor => _accessor;
+
+  String toJson() => realmCore.objectToString(this);
 }
 
 /// An exception being thrown when a `Realm` operation or [RealmObject] access fails.
@@ -316,7 +320,7 @@ class RealmException implements Exception {
 class RealmObjectChanges<T extends RealmObject> {
   // ignore: unused_field
   final RealmObjectChangesHandle _handle;
-  
+
   /// The realm object being monitored for changes.
   final T object;
 
@@ -328,7 +332,7 @@ class RealmObjectChanges<T extends RealmObject> {
     final propertyKeys = realmCore.getObjectChangesProperties(_handle);
     return object.realm.getPropertyNames(object.runtimeType, propertyKeys);
   }
-  
+
   const RealmObjectChanges._(this._handle, this.object);
 }
 

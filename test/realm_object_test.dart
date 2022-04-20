@@ -20,7 +20,8 @@
 
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
-import '../lib/realm.dart';
+import '../lib/realm.dart' hide RealmObject;
+import '../lib/src/realm_object.dart' show RealmObject, RealmObjectInternal;
 
 import 'test.dart';
 
@@ -302,7 +303,7 @@ Future<void> main([List<String>? args]) async {
     ObjectId.fromHexString('000000000000000000000000'),
     ObjectId.fromHexString('ffffffffffffffffffffffff')
   ];
-  
+
   for (final pk in objectIds) {
     testPrimaryKey(ObjectIdPrimaryKey.schema, () => ObjectIdPrimaryKey(pk), pk);
   }
@@ -314,4 +315,16 @@ Future<void> main([List<String>? args]) async {
   for (final pk in uuids) {
     testPrimaryKey(UuidPrimaryKey.schema, () => UuidPrimaryKey(pk), pk);
   }
+
+  test('Remapped property has correct names in Core', () {
+    final config = Configuration([RemappedClass.schema]);
+    final realm = getRealm(config);
+
+    final obj = realm.write(() {
+      return realm.add(RemappedClass("some value"));
+    });
+
+    final json = obj.toJson();
+    expect(json, contains('"__ other property __":"some value"'));
+  });
 }

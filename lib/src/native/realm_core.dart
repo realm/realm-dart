@@ -334,6 +334,10 @@ class _RealmCore {
     });
   }
 
+  String objectToString(RealmObject object) {
+    return _realmLib.realm_object_to_string(object.handle._pointer).cast<Utf8>().toDartString();
+  }
+
   // For debugging
   // ignore: unused_element
   int get _threadId => _realmLib.get_thread_id();

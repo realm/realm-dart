@@ -119,7 +119,7 @@ class Configuration {
   /// add some initial data that your app needs. The function will not execute for existing
   /// Realms, even if all objects in the Realm are deleted.
   final Function(Realm realm)? initialDataCallback;
-  
+
   /// The function called when opening a Realm for the first time
   /// during the life of a process to determine if it should be compacted
   /// before being returned to the user.
@@ -142,10 +142,10 @@ class SchemaObject {
   final List<SchemaProperty> properties;
 
   /// Returns the name of this schema type.
-  String get name => type.toString();
+  final String name;
 
   /// Creates schema instance with object type and collection of object's properties.
-  const SchemaObject(this.type, this.properties);
+  const SchemaObject(this.type, this.name, this.properties);
 }
 
 /// Describes the complete set of classes which may be stored in a `Realm`
