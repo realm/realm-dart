@@ -19,6 +19,8 @@
 import 'dart:io';
 import 'package:meta/meta.dart';
 import 'native/realm_core.dart';
+import 'credentials.dart';
+import 'user.dart';
 import 'configuration.dart';
 
 /// Specify if and how to persists user objects.
@@ -112,12 +114,30 @@ class ApplicationConfiguration {
 /// * Synchronize data between the local device and a remote Realm App with Synchronized Realms
 /// {@category Application}
 class Application {
-  final AppHandle _handle;
+  late final AppHandle _handle;
   final ApplicationConfiguration configuration;
+  late final RealmHttpTransportHandle _httpTransportHandle;
+  // ignore: unused_field
+  late final AppConfigHandle _appConfigHandle;
+  // ignore: unused_field
+  late final SyncClientConfigHandle _syncClientConfigHandle;
 
-  Application(this.configuration) : _handle = realmCore.getApp(configuration);
+  /// Create an app with a particular [AppConfiguration]
+  Application(this.configuration) {
+    _httpTransportHandle = realmCore.createHttpTransport(configuration.httpClient);
+    _appConfigHandle = realmCore.createAppConfig(configuration, _httpTransportHandle);
+    _syncClientConfigHandle = realmCore.createSyncClientConfig(configuration);
+    _handle = realmCore.getApp(_appConfigHandle, _syncClientConfigHandle);
+  }
+
+  /// Logs in a user with the given credentials.
+  Future<User> logIn(Credentials credentials) async {
+    var userHandle = await realmCore.logIn(this, credentials);
+    return UserInternal.create(userHandle);
+  }
 }
 
+/// @nodoc
 extension ApplicationInternal on Application {
   AppHandle get handle => _handle;
 }
