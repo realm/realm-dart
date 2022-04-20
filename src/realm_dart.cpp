@@ -33,25 +33,25 @@
 BOOL APIENTRY DllMain(HMODULE module,
                       DWORD  reason,
                       LPVOID reserved) {
-  return true;
+    return true;
 }
 
 #endif  // defined(_WIN32)
 
 RLM_API void realm_initializeDartApiDL(void* data) {
-  Dart_InitializeApiDL(data);
+    Dart_InitializeApiDL(data);
 }
 
 void handle_finalizer(void* isolate_callback_data, void* realmPtr) {
-  realm_release(realmPtr);
+    realm_release(realmPtr);
 }
 
 RLM_API Dart_FinalizableHandle realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size) {
-  return Dart_NewFinalizableHandle_DL(handle, realmPtr, size, handle_finalizer);
+    return Dart_NewFinalizableHandle_DL(handle, realmPtr, size, handle_finalizer);
 }
 
 RLM_API void realm_delete_finalizable(Dart_FinalizableHandle finalizable_handle, Dart_Handle handle) {
-  Dart_DeleteFinalizableHandle_DL(finalizable_handle, handle);
+    Dart_DeleteFinalizableHandle_DL(finalizable_handle, handle);
 }
 
 #if (ANDROID)
@@ -75,16 +75,16 @@ void dummy(void) {
     realm_app_credentials_new_anonymous();
     realm_http_transport_new(nullptr, nullptr, nullptr);
 #if (ANDROID)
-  realm_android_dummy();
+    realm_android_dummy();
 #endif
 }
 
-class GCHandle {
+class WeakHandle {
 public:
     // TODO: HACK. Should be able to use the weak handle to get the handle.
     // When hack removed, replace with:
     // GCHandle(Dart_Handle handle) : m_weakHandle(Dart_NewWeakPersistentHandle_DL(handle, this, 1, finalize_handle)) {}
-    GCHandle(Dart_Handle handle, bool hard) : m_weakHandle(Dart_NewFinalizableHandle_DL(handle, this, 1, finalize_handle)) {
+    WeakHandle(Dart_Handle handle, bool pers) : m_weakHandle(Dart_NewFinalizableHandle_DL(handle, this, 1, finalize_handle)) {
     }
 
     Dart_Handle value() {
@@ -112,17 +112,32 @@ private:
     */
 
     static void finalize_handle(void* isolate_callback_data, void* peer) {
-        delete reinterpret_cast<GCHandle*>(peer);
+        delete reinterpret_cast<WeakHandle*>(peer);
     }
 
     // TODO: HACK. Should be Dart_WeakPersistentHandle when hack removed
     Dart_FinalizableHandle m_weakHandle;
 };
 
-RLM_API void* object_to_gc_handle(Dart_Handle handle) {
-    return new GCHandle(handle, false);
+RLM_API void* object_to_weak_handle(Dart_Handle handle) {
+    return new WeakHandle(handle, false);
 }
 
-RLM_API Dart_Handle gc_handle_to_object(void* handle) {
-    return reinterpret_cast<GCHandle*>(handle)->value();
+RLM_API Dart_Handle weak_handle_to_object(void* handle) {
+    return reinterpret_cast<WeakHandle*>(handle)->value();
 }
+
+RLM_API void* object_to_persistent_handle(Dart_Handle handle) {
+    return reinterpret_cast<void*>(Dart_NewPersistentHandle_DL(handle));
+}
+
+RLM_API Dart_Handle persistent_handle_to_object(void* handle) {
+    Dart_PersistentHandle persistentHandle = reinterpret_cast<Dart_PersistentHandle>(handle);
+    return Dart_HandleFromPersistent_DL(persistentHandle);
+}
+
+RLM_API void delete_persistent_handle(void* handle) {
+    Dart_PersistentHandle persistentHandle = reinterpret_cast<Dart_PersistentHandle>(handle);
+    Dart_DeletePersistentHandle_DL(persistentHandle);
+}
+
