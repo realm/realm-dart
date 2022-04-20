@@ -81,6 +81,9 @@ class _School {
 class _RemappedClass {
   @MapTo("__ other property __")
   late String remappedProperty;
+
+  @MapTo("_- realm -_- list -_")
+  late List<_RemappedClass> listProperty;
 }
 
 String? testName;

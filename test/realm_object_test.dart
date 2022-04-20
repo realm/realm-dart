@@ -321,10 +321,20 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
 
     final obj = realm.write(() {
-      return realm.add(RemappedClass("some value"));
+      final obj = realm.add(RemappedClass("some value"));
+      obj.listProperty.add(obj);
+      return obj;
     });
 
     final json = obj.toJson();
+
+    // remappedProperty is mapped as `__ other property __`
     expect(json, contains('"__ other property __":"some value"'));
+
+    // listProperty is mapped as `_- realm -_- list -_`
+    expect(json, contains('"_- realm -_- list -_":'));
+
+    // RemappedClass is mapped as `__other class__`
+    expect(json, contains('"table": "class___other class__"'));
   });
 }

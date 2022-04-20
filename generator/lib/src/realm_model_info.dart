@@ -99,7 +99,7 @@ class RealmModelInfo {
               if (f.name != f.realmName) 'mapTo': f.realmName,
               if (f.optional) 'optional': f.optional,
               if (f.primaryKey) 'primaryKey': f.primaryKey,
-              if (f.realmType == RealmPropertyType.object) 'linkTarget': f.basicMappedTypeName,
+              if (f.realmType == RealmPropertyType.object) 'linkTarget': f.basicRealmTypeName,
               if (f.realmCollectionType != RealmCollectionType.none) 'collectionType': f.realmCollectionType,
             };
             return "SchemaProperty('${f.realmName}', ${f.realmType}${namedArgs.isNotEmpty ? ', ' + namedArgs.toArgsString() : ''}),";

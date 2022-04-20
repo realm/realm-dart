@@ -71,7 +71,7 @@ extension ClassElementEx on ClassElement {
 
       final modelName = this.name;
 
-      // Else, ensure a valid prefix and suffix is used.
+      // ensure a valid prefix and suffix is used.
       final prefix = session.prefix;
       var suffix = session.suffix;
       if (!modelName.startsWith(prefix)) {
@@ -86,7 +86,7 @@ extension ClassElementEx on ClassElement {
 
       if (!modelName.endsWith(suffix)) {
         throw RealmInvalidGenerationSourceError('Missing suffix on realm model name',
-            element: this, primarySpan: span, primaryLabel: 'missing suffix', todo: 'Align class name to suffix $suffix,');
+            element: this, primarySpan: span, primaryLabel: 'missing suffix', todo: 'Align class name to have suffix $suffix,');
       }
 
       // Remove suffix and prefix, if any.
@@ -129,7 +129,7 @@ extension ClassElementEx on ClassElement {
         );
       }
 
-      final realmName = mapToInfo != null ? mapToInfo!.value.getField('name')!.toStringValue()! : name;
+      final realmName = remappedRealmName ?? name;
 
       // Core has a limit of 57 characters for SDK names (technically 63, but SDKs names are always prefixed class_)
       if (realmName.length > 57) {

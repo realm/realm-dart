@@ -229,7 +229,7 @@ extension FieldElementEx on FieldElement {
         fieldElement: this,
         indexed: indexed != null,
         primaryKey: primaryKey != null,
-        mapTo: mapToInfo?.value.getField('name')?.toStringValue(),
+        mapTo: remappedRealmName,
         realmType: realmType,
       );
     } on InvalidGenerationSourceError catch (_) {

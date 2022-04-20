@@ -104,7 +104,20 @@ extension ElementEx on Element {
     return annotations.singleOrNull;
   }
 
-  AnnotationValue? get mapToInfo => annotationInfoOfExact(mapToChecker);
+  String? get remappedRealmName {
+    AnnotationValue? mapTo;
+    try {
+      if (getDeclarationFromElement(this) != null) {
+        mapTo = annotationInfoOfExact(mapToChecker);
+      }
+    } on ArgumentError {
+      // This will happen for types defined in a different library
+      // In this case, fall back to not using the computed value
+      mapTo = mapToChecker.annotationsOfExact(this).singleOrNull as AnnotationValue?;
+    }
+
+    return mapTo?.value.getField('name')!.toStringValue();
+  }
 
   FileSpan? get span {
     FileSpan? elementSpan;

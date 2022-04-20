@@ -284,9 +284,12 @@ class School extends _School with RealmEntity, RealmObject {
 
 class RemappedClass extends _RemappedClass with RealmEntity, RealmObject {
   RemappedClass(
-    String remappedProperty,
-  ) {
+    String remappedProperty, {
+    Iterable<RemappedClass> listProperty = const [],
+  }) {
     RealmObject.set(this, '__ other property __', remappedProperty);
+    RealmObject.set<RealmList<RemappedClass>>(
+        this, '_- realm -_- list -_', RealmList<RemappedClass>(listProperty));
   }
 
   RemappedClass._();
@@ -299,6 +302,14 @@ class RemappedClass extends _RemappedClass with RealmEntity, RealmObject {
       RealmObject.set(this, '__ other property __', value);
 
   @override
+  RealmList<RemappedClass> get listProperty =>
+      RealmObject.get<RemappedClass>(this, '_- realm -_- list -_')
+          as RealmList<RemappedClass>;
+  @override
+  set listProperty(covariant RealmList<RemappedClass> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
   Stream<RealmObjectChanges<RemappedClass>> get changes =>
       RealmObject.getChanges<RemappedClass>(this);
 
@@ -309,6 +320,10 @@ class RemappedClass extends _RemappedClass with RealmEntity, RealmObject {
     return const SchemaObject(RemappedClass, '__other class__', [
       SchemaProperty('__ other property __', RealmPropertyType.string,
           mapTo: '__ other property __'),
+      SchemaProperty('_- realm -_- list -_', RealmPropertyType.object,
+          mapTo: '_- realm -_- list -_',
+          linkTarget: '__other class__',
+          collectionType: RealmCollectionType.list),
     ]);
   }
 }
