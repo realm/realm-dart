@@ -358,13 +358,13 @@ Future<void> main([List<String>? args]) async {
   _addDummyData(Realm realm) {
     for (var i = 0; i < dummyDataSize; i++) {
       realm.write(() {
-        realm.add(Person('Very long and space consuming name $i'));
+        realm.add(Person('Very long and space consuming name $i that goes on forever and ever and ever. This should take a whole lot of space!'));
       });
     }
 
     var rand = Random();
     var people = realm.all<Person>();
-    for (var i = 0; i < dummyDataSize / 2; i++) {
+    for (var i = 0; i < 3 * dummyDataSize / 4; i++) {
       realm.write(() {
         final toDelete = people[rand.nextInt(people.length)];
         realm.delete(toDelete);
@@ -400,7 +400,7 @@ Future<void> main([List<String>? args]) async {
         expect(newSize, oldSize);
       }
 
-      expect(compactedRealm.all<Person>().length, dummyDataSize / 2);
+      expect(compactedRealm.all<Person>().length, dummyDataSize / 4);
     });
   }
 }
