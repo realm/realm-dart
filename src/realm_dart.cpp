@@ -84,7 +84,7 @@ public:
     // TODO: HACK. Should be able to use the weak handle to get the handle.
     // When hack removed, replace with:
     // GCHandle(Dart_Handle handle) : m_weakHandle(Dart_NewWeakPersistentHandle_DL(handle, this, 1, finalize_handle)) {}
-    WeakHandle(Dart_Handle handle, bool pers) : m_weakHandle(Dart_NewFinalizableHandle_DL(handle, this, 1, finalize_handle)) {
+    WeakHandle(Dart_Handle handle) : m_weakHandle(Dart_NewFinalizableHandle_DL(handle, this, 1, finalize_handle)) {
     }
 
     Dart_Handle value() {
@@ -120,7 +120,7 @@ private:
 };
 
 RLM_API void* object_to_weak_handle(Dart_Handle handle) {
-    return new WeakHandle(handle, false);
+    return new WeakHandle(handle);
 }
 
 RLM_API Dart_Handle weak_handle_to_object(void* handle) {
