@@ -61,7 +61,7 @@ class _RealmCore {
   _RealmCore._() {
     final lib = initRealm();
     _realmLib = RealmLibrary(lib);
-    
+
     _deletePersistentHandlePtr = lib.lookup<NativeFunction<Void Function(Pointer<Void>)>>('delete_persistent_handle');
   }
 
@@ -668,7 +668,7 @@ class _RealmCore {
     });
   }
 
-  AppConfigHandle createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
+  AppConfigHandle _createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
     return using((arena) {
       final app_id = configuration.appId.toUtf8Ptr(arena);
       final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
@@ -708,7 +708,7 @@ class _RealmCore {
     });
   }
 
-  RealmHttpTransportHandle createHttpTransport(HttpClient httpClient) {
+  RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
     return RealmHttpTransportHandle._(_realmLib.realm_http_transport_new(
       Pointer.fromFunction(request_callback),
       httpClient.toWeakHandle(),
@@ -834,7 +834,7 @@ class _RealmCore {
     });
   }
 
-  SyncClientConfigHandle createSyncClientConfig(ApplicationConfiguration configuration) {
+  SyncClientConfigHandle _createSyncClientConfig(ApplicationConfiguration configuration) {
     return using((arena) {
       final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
 
@@ -849,7 +849,10 @@ class _RealmCore {
     });
   }
 
-  AppHandle getApp(AppConfigHandle appConfigHandle, SyncClientConfigHandle syncClientConfigHandle) {
+  AppHandle getApp(ApplicationConfiguration configuration) {
+    final httpTransportHandle = _createHttpTransport(configuration.httpClient);
+    final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
+    final syncClientConfigHandle = _createSyncClientConfig(configuration);
     final realmAppPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfigHandle._pointer, syncClientConfigHandle._pointer));
     return AppHandle._(realmAppPtr);
   }
