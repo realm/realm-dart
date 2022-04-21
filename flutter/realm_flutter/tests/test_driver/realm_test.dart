@@ -13,7 +13,6 @@ import '../test/list_test.dart' as list_tests;
 import '../test/results_test.dart' as results_tests;
 import '../test/credentials_test.dart' as credentials_tests;
 import '../test/application_test.dart' as application_tests;
-import '../test/email_password_provider_test.dart' as email_password_provider_test;
 
 Future<String> main(List<String> args) async {
   final Completer<String> completer = Completer<String>();
