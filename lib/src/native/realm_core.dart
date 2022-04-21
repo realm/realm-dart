@@ -56,13 +56,12 @@ class _RealmCore {
   static _RealmCore? _instance;
   late final int isolateKey;
 
-  late final Pointer<NativeFunction<Void Function(Pointer<Void>)>> _deletePersistentHandlePtr;
+  late final Pointer<NativeFunction<Void Function(Pointer<Void>)>> _deletePersistentHandleFuncPtr;
 
   _RealmCore._() {
     final lib = initRealm();
     _realmLib = RealmLibrary(lib);
-
-    _deletePersistentHandlePtr = lib.lookup<NativeFunction<Void Function(Pointer<Void>)>>('delete_persistent_handle');
+    _deletePersistentHandleFuncPtr = lib.lookup<NativeFunction<Void Function(Pointer<Void>)>>('delete_persistent_handle');
   }
 
   factory _RealmCore() {
@@ -886,9 +885,39 @@ class _RealmCore {
               credentials.handle._pointer,
               Pointer.fromFunction(_logInCallback),
               completer.toPersistentHandle(),
-              _deletePersistentHandlePtr,
+              _deletePersistentHandleFuncPtr,
             ),
         "Login failed");
+    return completer.future;
+  }
+
+  static void void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
+    final Completer<void>? completer = userdata.toObject();
+    if (completer == null) {
+      return;
+    }
+
+    if (error != nullptr) {
+      final message = error.ref.message.cast<Utf8>().toDartString();
+      completer.completeError(RealmException(message));
+      return;
+    }
+
+    completer.complete();
+  }
+
+  Future<void> appEmailPasswordRegisterUser(Application application, String email, String password) {
+    final completer = Completer<void>();
+    using((arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_register_email(
+            application.handle._pointer,
+            email.toUtf8Ptr(arena),
+            password.toRealmString(arena).ref,
+            Pointer.fromFunction(void_completion_callback),
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
+          ));
+    });
     return completer.future;
   }
 }

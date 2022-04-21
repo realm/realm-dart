@@ -17,23 +17,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:io';
-
-import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
-  setupTests(args);
-
-  test('ApplicationCredentials anonymous', () {
-    final credentials = Credentials.anonymous();
-    expect(credentials.provider, AuthProviderType.anonymous);
-  });
-
-  test('ApplicationCredentials email/password', () {
-    final credentials = Credentials.emailPassword("test@email.com", "000000");
-    expect(credentials.provider, AuthProviderType.emailPassword);
-  });
+  await setupTests(args);
+ 
 }

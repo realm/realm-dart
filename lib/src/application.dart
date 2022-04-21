@@ -24,6 +24,7 @@ import 'user.dart';
 import 'configuration.dart';
 
 /// Specify if and how to persists user objects.
+/// {@category Application}
 enum MetadataPersistenceMode {
   /// Persist [User] objects, but do not encrypt them.
   plaintext,

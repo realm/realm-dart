@@ -50,7 +50,7 @@ export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
 export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
-export 'credentials.dart' show Credentials, AuthProvider;
+export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'user.dart' show User;
 
 /// A [Realm] instance represents a `Realm` database.
