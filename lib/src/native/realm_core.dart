@@ -56,13 +56,13 @@ class _RealmCore {
   static _RealmCore? _instance;
   late final int isolateKey;
 
-  late final Pointer<NativeFunction<Void Function(Pointer<Void>)>> _deletePersistentHandlePtr;
+  late final Pointer<NativeFunction<Void Function(Pointer<Void>)>> _deletePersistentHandleFuncPtr;
 
   _RealmCore._() {
     final lib = initRealm();
     _realmLib = RealmLibrary(lib);
 
-    _deletePersistentHandlePtr = lib.lookup<NativeFunction<Void Function(Pointer<Void>)>>('delete_persistent_handle');
+    _deletePersistentHandleFuncPtr = lib.lookup<NativeFunction<Void Function(Pointer<Void>)>>('delete_persistent_handle');
   }
 
   factory _RealmCore() {
@@ -883,10 +883,10 @@ class _RealmCore {
               credentials.handle._pointer,
               Pointer.fromFunction(_logInCallback),
               completer.toPersistentHandle(),
-              _deletePersistentHandlePtr,
+              _deletePersistentHandleFuncPtr,
             ),
         "Login failed");
-    return completer.future;
+    return await completer.future;
   }
 
   static void void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
@@ -913,7 +913,7 @@ class _RealmCore {
             password.toRealmString(arena).ref,
             Pointer.fromFunction(void_completion_callback),
             completer.toPersistentHandle(),
-            _deletePersistentHandlePtr,
+            _deletePersistentHandleFuncPtr,
           ));
     });
     return completer.future;
