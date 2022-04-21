@@ -103,7 +103,7 @@ void xtest(String? name, dynamic Function() testFunction) {
 Future<void> setupTests(List<String>? args) async {
   parseTestNameFromArguments(args);
 
-  await setupBaas();
+  await setupServer();
 
   setUp(() {
     final path = generateRandomRealmPath();
@@ -182,7 +182,7 @@ void parseTestNameFromArguments(List<String>? arguments) {
   }
 }
 
-Future<void> setupBaas() async {
+Future<void> setupServer() async {
   final baasUrl = Platform.environment['BAAS_URL'];
   if (baasUrl == null) {
     return;
@@ -199,21 +199,19 @@ Future<void> setupBaas() async {
 }
 
 @isTest
-Future<void> syncTest(
+Future<void> serverTest(
   String name,
   FutureOr<void> Function(ApplicationConfiguration configuration) testFunction, {
   String appName = 'flexible',
   dynamic skip,
 }) async {
   final url = Uri.tryParse(Platform.environment['BAAS_URL'] ?? 'https://realm-dev.mongodb.com');
-  final apiKey = Platform.environment['BAAS_API_KEY'];
-  final projectId = Platform.environment['BAAS_PROJECT_ID'];
 
   if (skip == null) {
-    skip = url == null || apiKey == null || projectId == null;
+    skip = url == null;
   }
   else if (skip is bool) {
-    skip = skip || url == null || apiKey == null || projectId == null;
+    skip = skip || url == null;
   }
   
   test(name, () async {
