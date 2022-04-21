@@ -878,7 +878,7 @@ class _RealmCore {
     completer.complete(UserHandle._(userClone.cast()));
   }
 
-  Future<UserHandle> logIn(Application application, Credentials credentials) async {
+  Future<UserHandle> logIn(Application application, Credentials credentials) {
     final completer = Completer<UserHandle>();
     _realmLib.invokeGetBool(
         () => _realmLib.realm_app_log_in_with_credentials(
