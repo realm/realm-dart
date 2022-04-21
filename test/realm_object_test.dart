@@ -54,6 +54,13 @@ class _UuidPrimaryKey {
   late Uuid id;
 }
 
+@RealmModel()
+@MapTo('this_is_also_remapped')
+class _RemappedFromAnotherFile {
+  @MapTo("mapped property")
+  late $RemappedClass? linkToAnotherClass;
+}
+
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
@@ -336,5 +343,19 @@ Future<void> main([List<String>? args]) async {
 
     // RemappedClass is mapped as `__other class__`
     expect(json, contains('"table": "class___other class__"'));
+  });
+
+  test('Remapped class across different files works', () {
+    final config = Configuration([RemappedClass.schema, RemappedFromAnotherFile.schema]);
+    final realm = getRealm(config);
+    final obj = realm.write(() {
+      return realm.add(RemappedFromAnotherFile(linkToAnotherClass: RemappedClass("prop")));
+    });
+
+    final json = obj.toJson();
+
+    // linkToAnotherClass is mapped as `mapped property`
+    // RemappedClass is mapped as `__other class__`
+    expect(json, contains('"mapped property":{ "table": "class___other class__", "key": 0}'));
   });
 }

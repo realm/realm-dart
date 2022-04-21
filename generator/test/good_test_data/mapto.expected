@@ -2,7 +2,7 @@
 // RealmObjectGenerator
 // **************************************************************************
 
-class Original extends _Original with RealmEntity, RealmObject {
+class Original extends $Original with RealmEntity, RealmObject {
   static var _defaultsSet = false;
 
   Original({

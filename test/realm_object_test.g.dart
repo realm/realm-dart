@@ -118,3 +118,38 @@ class UuidPrimaryKey extends _UuidPrimaryKey with RealmEntity, RealmObject {
     ]);
   }
 }
+
+class RemappedFromAnotherFile extends _RemappedFromAnotherFile
+    with RealmEntity, RealmObject {
+  RemappedFromAnotherFile({
+    RemappedClass? linkToAnotherClass,
+  }) {
+    RealmObject.set(this, 'mapped property', linkToAnotherClass);
+  }
+
+  RemappedFromAnotherFile._();
+
+  @override
+  RemappedClass? get linkToAnotherClass =>
+      RealmObject.get<RemappedClass>(this, 'mapped property') as RemappedClass?;
+  @override
+  set linkToAnotherClass(covariant RemappedClass? value) =>
+      RealmObject.set(this, 'mapped property', value);
+
+  @override
+  Stream<RealmObjectChanges<RemappedFromAnotherFile>> get changes =>
+      RealmObject.getChanges<RemappedFromAnotherFile>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(RemappedFromAnotherFile._);
+    return const SchemaObject(
+        RemappedFromAnotherFile, 'this_is_also_remapped', [
+      SchemaProperty('mapped property', RealmPropertyType.object,
+          mapTo: 'mapped property',
+          optional: true,
+          linkTarget: '__other class__'),
+    ]);
+  }
+}

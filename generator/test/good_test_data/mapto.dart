@@ -1,16 +1,16 @@
-import 'dart:typed_data';
-
 import 'package:realm_common/realm_common.dart';
+
+//part 'mapto.g.dart';
 
 @RealmModel()
 @MapTo('another type')
-class _Original {
+class $Original {
   @MapTo('remapped primitive')
   int primitiveProperty = 0;
 
   @MapTo('remapped object')
-  late _Original? objectProperty;
+  late $Original? objectProperty;
 
   @MapTo('remapped list')
-  late List<_Original> listProperty;
+  late List<$Original> listProperty;
 }

@@ -78,12 +78,12 @@ class _School {
 
 @RealmModel()
 @MapTo("__other class__")
-class _RemappedClass {
+class $RemappedClass {
   @MapTo("__ other property __")
   late String remappedProperty;
 
   @MapTo("_- realm -_- list -_")
-  late List<_RemappedClass> listProperty;
+  late List<$RemappedClass> listProperty;
 }
 
 String? testName;

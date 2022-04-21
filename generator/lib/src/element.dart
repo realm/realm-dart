@@ -20,6 +20,7 @@ import 'dart:math';
 
 import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:realm_generator/src/annotation_value.dart';
 import 'package:realm_generator/src/expanded_context_span.dart';
@@ -105,18 +106,18 @@ extension ElementEx on Element {
   }
 
   String? get remappedRealmName {
-    AnnotationValue? mapTo;
+    DartObject? mapTo;
     try {
       if (getDeclarationFromElement(this) != null) {
-        mapTo = annotationInfoOfExact(mapToChecker);
+        mapTo = annotationInfoOfExact(mapToChecker)?.value;
       }
     } on ArgumentError {
       // This will happen for types defined in a different library
       // In this case, fall back to not using the computed value
-      mapTo = mapToChecker.annotationsOfExact(this).singleOrNull as AnnotationValue?;
+      mapTo = mapToChecker.annotationsOfExact(this).singleOrNull;
     }
 
-    return mapTo?.value.getField('name')!.toStringValue();
+    return mapTo?.getField('name')!.toStringValue();
   }
 
   FileSpan? get span {

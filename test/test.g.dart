@@ -282,7 +282,7 @@ class School extends _School with RealmEntity, RealmObject {
   }
 }
 
-class RemappedClass extends _RemappedClass with RealmEntity, RealmObject {
+class RemappedClass extends $RemappedClass with RealmEntity, RealmObject {
   RemappedClass(
     String remappedProperty, {
     Iterable<RemappedClass> listProperty = const [],
