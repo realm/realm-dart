@@ -25,7 +25,6 @@ Future<String> main(List<String> args) async {
   await results_tests.main(args);
   await credentials_tests.main(args);
   await application_tests.main(args);
-  await email_password_provider_test.main(args);
 
   tearDown(() {
     if (Invoker.current?.liveTest.state.result == test_api.Result.error || Invoker.current?.liveTest.state.result == test_api.Result.failure) {
