@@ -927,8 +927,8 @@ class _RealmCore {
             token.toUtf8Ptr(arena),
             tokenId.toUtf8Ptr(arena),
             Pointer.fromFunction(void_completion_callback),
-            completer.toGCHandle(),
-            nullptr,
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
           ));
     });
     return completer.future;
