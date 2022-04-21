@@ -213,6 +213,10 @@ Future<void> serverTest(
   else if (skip is bool) {
     skip = skip || url == null;
   }
+
+  if (skip && url == null) {
+    skip = "Server URL not present";
+  }
   
   test(name, () async {
       final app = baasApps[appName] ?? baasApps.values.first;
