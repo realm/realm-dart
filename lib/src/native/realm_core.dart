@@ -886,7 +886,7 @@ class _RealmCore {
               credentials.handle._pointer,
               Pointer.fromFunction(_logInCallback),
               completer.toPersistentHandle(),
-              _deletePersistentHandlePtr,
+              _deletePersistentHandleFuncPtr,
             ),
         "Login failed");
     return completer.future;
@@ -944,8 +944,8 @@ class _RealmCore {
             application.handle._pointer,
             email.toUtf8Ptr(arena),
             Pointer.fromFunction(void_completion_callback),
-            completer.toGCHandle(),
-            nullptr,
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
           ));
     });
     return completer.future;
