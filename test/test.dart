@@ -199,21 +199,19 @@ Future<void> setupBaas() async {
 }
 
 @isTest
-Future<void> syncTest(
+Future<void> baasTest(
   String name,
   FutureOr<void> Function(ApplicationConfiguration configuration) testFunction, {
   String appName = 'flexible',
   dynamic skip,
 }) async {
   final url = Uri.tryParse(Platform.environment['BAAS_URL'] ?? 'https://realm-dev.mongodb.com');
-  final apiKey = Platform.environment['BAAS_API_KEY'];
-  final projectId = Platform.environment['BAAS_PROJECT_ID'];
 
   if (skip == null) {
-    skip = url == null || apiKey == null || projectId == null;
+    skip = url == null ? "BAAS URL not present" : true;
   }
   else if (skip is bool) {
-    skip = skip || url == null || apiKey == null || projectId == null;
+    skip = skip || url == null ? "BAAS URL not present" : true;
   }
   
   test(name, () async {
