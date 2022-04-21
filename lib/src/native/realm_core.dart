@@ -27,7 +27,7 @@ import 'dart:typed_data';
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 
-import '../application.dart';
+import '../app.dart';
 import '../credentials.dart';
 import '../collections.dart';
 import '../init.dart';
@@ -667,7 +667,7 @@ class _RealmCore {
     });
   }
 
-  AppConfigHandle _createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
+  AppConfigHandle _createAppConfig(AppConfiguration configuration, RealmHttpTransportHandle httpTransport) {
     return using((arena) {
       final app_id = configuration.appId.toUtf8Ptr(arena);
       final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
@@ -833,7 +833,7 @@ class _RealmCore {
     });
   }
 
-  SyncClientConfigHandle _createSyncClientConfig(ApplicationConfiguration configuration) {
+  SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
     return using((arena) {
       final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
 
@@ -848,7 +848,7 @@ class _RealmCore {
     });
   }
 
-  AppHandle getApp(ApplicationConfiguration configuration) {
+  AppHandle getApp(AppConfiguration configuration) {
     final httpTransportHandle = _createHttpTransport(configuration.httpClient);
     final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
     final syncClientConfigHandle = _createSyncClientConfig(configuration);
@@ -877,11 +877,11 @@ class _RealmCore {
     completer.complete(UserHandle._(userClone.cast()));
   }
 
-  Future<UserHandle> logIn(Application application, Credentials credentials) {
+  Future<UserHandle> logIn(App app, Credentials credentials) {
     final completer = Completer<UserHandle>();
     _realmLib.invokeGetBool(
         () => _realmLib.realm_app_log_in_with_credentials(
-              application.handle._pointer,
+              app.handle._pointer,
               credentials.handle._pointer,
               Pointer.fromFunction(_logInCallback),
               completer.toPersistentHandle(),
@@ -906,11 +906,11 @@ class _RealmCore {
     completer.complete();
   }
 
-  Future<void> appEmailPasswordRegisterUser(Application application, String email, String password) {
+  Future<void> appEmailPasswordRegisterUser(App app, String email, String password) {
     final completer = Completer<void>();
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_register_email(
-            application.handle._pointer,
+            app.handle._pointer,
             email.toUtf8Ptr(arena),
             password.toRealmString(arena).ref,
             Pointer.fromFunction(void_completion_callback),

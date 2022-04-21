@@ -38,9 +38,9 @@ enum MetadataPersistenceMode {
 
 @immutable
 
-/// A class exposing configuration options for an [Application]
+/// A class exposing configuration options for an [App]
 /// {@category Application}
-class ApplicationConfiguration {
+class AppConfiguration {
   /// The [appId] is the unique id that identifies the Realm application.
   final String appId;
 
@@ -91,8 +91,8 @@ class ApplicationConfiguration {
   /// a more complex networking setup.
   final HttpClient httpClient;
 
-  /// Instantiates a new [ApplicationConfiguration] with the specified appId.
-  ApplicationConfiguration(
+  /// Instantiates a new [AppConfiguration] with the specified appId.
+  AppConfiguration(
     this.appId, {
     Uri? baseUrl,
     Directory? baseFilePath,
@@ -107,18 +107,18 @@ class ApplicationConfiguration {
         httpClient = httpClient ?? HttpClient();
 }
 
-/// An [Application] is the main client-side entry point for interacting with a MongoDB Realm App.
+/// An [App] is the main client-side entry point for interacting with a MongoDB Realm App.
 ///
-/// The [Application]] can be used to
+/// The [App]] can be used to
 /// * Register uses and perform various user-related operations through authentication providers
 /// * Synchronize data between the local device and a remote Realm App with Synchronized Realms
 /// {@category Application}
-class Application {
+class App {
   final AppHandle _handle;
-  final ApplicationConfiguration configuration;
+  final AppConfiguration configuration;
 
   /// Create an app with a particular [AppConfiguration]
-  Application(this.configuration) : 
+  App(this.configuration) : 
     _handle = realmCore.getApp(configuration);
 
   /// Logs in a user with the given credentials.
@@ -129,6 +129,6 @@ class Application {
 }
 
 /// @nodoc
-extension ApplicationInternal on Application {
+extension AppInternal on App {
   AppHandle get handle => _handle;
 }
