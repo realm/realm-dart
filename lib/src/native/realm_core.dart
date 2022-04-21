@@ -960,8 +960,8 @@ class _RealmCore {
             token.toUtf8Ptr(arena),
             tokenId.toUtf8Ptr(arena),
             Pointer.fromFunction(void_completion_callback),
-            completer.toGCHandle(),
-            nullptr,
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
           ));
     });
     return completer.future;
@@ -1243,7 +1243,7 @@ extension on Pointer<IntPtr> {
 }
 
 extension on Pointer<Void> {
-  T? toObject<T extends Object>([bool isPersistent = false]) {
+  T? toObject<T extends Object>({bool isPersistent = false}) {
     assert(this != nullptr, "Pointer<Void> is null");
 
     Object object = isPersistent ? _realmLib.persistent_handle_to_object(this) : _realmLib.weak_handle_to_object(this);
