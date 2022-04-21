@@ -1227,7 +1227,7 @@ extension on Pointer<IntPtr> {
 }
 
 extension on Pointer<Void> {
-  T? toObject<T extends Object>([bool isPersistent = false]) {
+  T? toObject<T extends Object>({bool isPersistent = false}) {
     assert(this != nullptr, "Pointer<Void> is null");
 
     Object object = isPersistent ? _realmLib.persistent_handle_to_object(this) : _realmLib.weak_handle_to_object(this);
