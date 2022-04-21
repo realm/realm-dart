@@ -11,6 +11,8 @@ SET PROJECT_ROOT=%CD%
 mkdir %PROJECT_ROOT%\build-windows 
 pushd %PROJECT_ROOT%\build-windows 
 
+SET EXIT_CODE=0
+
 cmake ^
     -G "Visual Studio 16 2019" ^
     -A x64 ^
@@ -19,8 +21,19 @@ cmake ^
     -DVCPKG_TARGET_TRIPLET="x64-windows-static" ^
     %PROJECT_ROOT%
 
+IF %ErrorLevel% NEQ 0 (
+ SET EXIT_CODE=%ErrorLevel%
+ GOTO popd_all
+)
+
 cmake --build . --config MinSizeRel
+
+IF %ErrorLevel% NEQ 0 (
+ SET EXIT_CODE=%ErrorLevel%
+ GOTO popd_all
+)
+
 
 @REM exit to caller's location with success
 :popd_all
-popd && goto popd_all || exit /b 0
+popd && goto popd_all || exit /b %EXIT_CODE%
