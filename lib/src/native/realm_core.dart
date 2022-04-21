@@ -1133,8 +1133,8 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
         }
         realm_value.ref.type = realm_value_type.RLM_TYPE_OBJECT_ID;
         break;
-      case UuidValue:
-        final bytes = (value as UuidValue).toBytes();
+      case Uuid:
+        final bytes = (value as Uuid).bytes.asUint8List();
         for (var i = 0; i < 16; i++) {
           realm_value.ref.values.uuid.bytes[i] = bytes[i];
         }
@@ -1179,7 +1179,7 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_OBJECT_ID:
         return ObjectId.fromBytes(cast<Uint8>().asTypedList(12));
       case realm_value_type.RLM_TYPE_UUID:
-        return UuidValue.fromList(cast<Uint8>().asTypedList(16));
+        return Uuid.fromBytes(cast<Uint8>().asTypedList(16).buffer);
       default:
         throw RealmException("realm_value_type ${ref.type} not supported");
     }

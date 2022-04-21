@@ -20,5 +20,5 @@ class _ObjectIdPK {
 @RealmModel()
 class _UuidPK {
   @PrimaryKey()
-  late UuidValue id;
+  late Uuid id;
 }
