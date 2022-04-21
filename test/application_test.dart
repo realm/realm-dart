@@ -58,4 +58,10 @@ Future<void> main([List<String>? args]) async {
     final application = Application(configuration);
     expect(application.configuration, configuration);
   });
+  
+  baasTest('Application log in', (configuration) async {
+    final application = Application(configuration);
+    final credentials = Credentials.anonymous();
+    final user = await application.logIn(credentials);
+  });
 }
