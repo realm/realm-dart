@@ -855,7 +855,7 @@ class _RealmCore {
   }
 
   static void _logInCallback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
-    final Completer<UserHandle>? completer = userdata.toObject(true);
+    final Completer<UserHandle>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
       return;
     }
@@ -1165,7 +1165,7 @@ extension on Pointer<IntPtr> {
 }
 
 extension on Pointer<Void> {
-  T? toObject<T extends Object>([bool isPersistent = false]) {
+  T? toObject<T extends Object>({bool isPersistent = false}) {
     assert(this != nullptr, "Pointer<Void> is null");
 
     Object object = isPersistent ? _realmLib.persistent_handle_to_object(this) : _realmLib.weak_handle_to_object(this);
