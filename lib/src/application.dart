@@ -19,6 +19,8 @@
 import 'dart:io';
 import 'package:meta/meta.dart';
 import 'native/realm_core.dart';
+import 'credentials.dart';
+import 'user.dart';
 import 'configuration.dart';
 
 /// Specify if and how to persists user objects.
@@ -36,6 +38,7 @@ enum MetadataPersistenceMode {
 @immutable
 
 /// A class exposing configuration options for an [Application]
+/// {@category Application}
 class ApplicationConfiguration {
   /// The [appId] is the unique id that identifies the Realm application.
   final String appId;
@@ -108,13 +111,23 @@ class ApplicationConfiguration {
 /// The [Application]] can be used to
 /// * Register uses and perform various user-related operations through authentication providers
 /// * Synchronize data between the local device and a remote Realm App with Synchronized Realms
+/// {@category Application}
 class Application {
   final AppHandle _handle;
   final ApplicationConfiguration configuration;
 
-  Application(this.configuration) : _handle = realmCore.getApp(configuration);
+  /// Create an app with a particular [AppConfiguration]
+  Application(this.configuration) : 
+    _handle = realmCore.getApp(configuration);
+
+  /// Logs in a user with the given credentials.
+  Future<User> logIn(Credentials credentials) async {
+    var userHandle = await realmCore.logIn(this, credentials);
+    return UserInternal.create(userHandle);
+  }
 }
 
+/// @nodoc
 extension ApplicationInternal on Application {
   AppHandle get handle => _handle;
 }
