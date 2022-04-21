@@ -103,7 +103,7 @@ void xtest(String? name, dynamic Function() testFunction) {
 Future<void> setupTests(List<String>? args) async {
   parseTestNameFromArguments(args);
 
-  await setupServer();
+  await setupBaas();
 
   setUp(() {
     final path = generateRandomRealmPath();
@@ -182,7 +182,7 @@ void parseTestNameFromArguments(List<String>? arguments) {
   }
 }
 
-Future<void> setupServer() async {
+Future<void> setupBaas() async {
   final baasUrl = Platform.environment['BAAS_URL'];
   if (baasUrl == null) {
     return;
@@ -199,7 +199,7 @@ Future<void> setupServer() async {
 }
 
 @isTest
-Future<void> serverTest(
+Future<void> baasTest(
   String name,
   FutureOr<void> Function(ApplicationConfiguration configuration) testFunction, {
   String appName = 'flexible',
@@ -215,7 +215,7 @@ Future<void> serverTest(
   }
 
   if (skip && url == null) {
-    skip = "Server URL not present";
+    skip = "BAAS URL not present";
   }
   
   test(name, () async {
