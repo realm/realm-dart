@@ -16,9 +16,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 import 'dart:math';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' hide test;
 import 'package:test/test.dart' as testing;
@@ -80,8 +82,8 @@ Map<String, BaasApp> baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
 
 //Overrides test method so we can filter tests
-void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
-  if (testName != null && !name!.contains(testName!)) {
+void test(String name, dynamic Function() testFunction, {dynamic skip}) {
+  if (testName != null && !name.contains(testName!)) {
     return;
   }
 
@@ -90,7 +92,7 @@ void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
     timeout = Duration.secondsPerDay;
     return true;
   }());
-
+  
   testing.test(name, testFunction, skip: skip, timeout: Timeout(Duration(seconds: timeout)));
 }
 
@@ -194,4 +196,34 @@ Future<void> setupBaas() async {
   final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
 
   baasApps.addAll(await client.getOrCreateApps());
+}
+
+@isTest
+Future<void> syncTest(
+  String name,
+  FutureOr<void> Function(ApplicationConfiguration configuration) testFunction, {
+  String appName = 'flexible',
+  dynamic skip,
+}) async {
+  final url = Uri.tryParse(Platform.environment['BAAS_URL'] ?? 'https://realm-dev.mongodb.com');
+  final apiKey = Platform.environment['BAAS_API_KEY'];
+  final projectId = Platform.environment['BAAS_PROJECT_ID'];
+
+  if (skip == null) {
+    skip = url == null || apiKey == null || projectId == null;
+  }
+  else if (skip is bool) {
+    skip = skip || url == null || apiKey == null || projectId == null;
+  }
+  
+  test(name, () async {
+      final app = baasApps[appName] ?? baasApps.values.first;
+      final temporary = await Directory.systemTemp.createTemp('realm_test_');
+      final configuration = ApplicationConfiguration(
+        app.clientAppId,
+        baseUrl: url,
+        baseFilePath: temporary,
+      );
+      return await testFunction(configuration);
+  }, skip: skip);
 }
