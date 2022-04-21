@@ -56,9 +56,13 @@ class _RealmCore {
   static _RealmCore? _instance;
   late final int isolateKey;
 
+  late final Pointer<NativeFunction<Void Function(Pointer<Void>)>> _deletePersistentHandleFuncPtr;
+
   _RealmCore._() {
     final lib = initRealm();
     _realmLib = RealmLibrary(lib);
+
+    _deletePersistentHandleFuncPtr = lib.lookup<NativeFunction<Void Function(Pointer<Void>)>>('delete_persistent_handle');
   }
 
   factory _RealmCore() {
@@ -164,12 +168,13 @@ class _RealmCore {
       }
 
       if (config.initialDataCallback != null) {
-        _realmLib.realm_config_set_data_initialization_function(configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toGCHandle());
+        _realmLib.realm_config_set_data_initialization_function(
+            configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toWeakHandle());
       }
 
       if (config.shouldCompactCallback != null) {
         _realmLib.realm_config_set_should_compact_on_launch_function(
-            configHandle._pointer, Pointer.fromFunction(should_compact_callback, 0), config.toGCHandle());
+            configHandle._pointer, Pointer.fromFunction(should_compact_callback, 0), config.toWeakHandle());
       }
 
       return configHandle;
@@ -609,7 +614,7 @@ class _RealmCore {
   RealmNotificationTokenHandle subscribeResultsNotifications(RealmResultsHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_add_notification_callback(
           handle._pointer,
-          controller.toGCHandle(),
+          controller.toWeakHandle(),
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
@@ -623,7 +628,7 @@ class _RealmCore {
   RealmNotificationTokenHandle subscribeListNotifications(RealmListHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_list_add_notification_callback(
           handle._pointer,
-          controller.toGCHandle(),
+          controller.toWeakHandle(),
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
@@ -637,7 +642,7 @@ class _RealmCore {
   RealmNotificationTokenHandle subscribeObjectNotifications(RealmObjectHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_add_notification_callback(
           handle._pointer,
-          controller.toGCHandle(),
+          controller.toWeakHandle(),
           nullptr,
           nullptr,
           Pointer.fromFunction(object_change_callback),
@@ -663,7 +668,7 @@ class _RealmCore {
     });
   }
 
-  AppConfigHandle createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
+  AppConfigHandle _createAppConfig(ApplicationConfiguration configuration, RealmHttpTransportHandle httpTransport) {
     return using((arena) {
       final app_id = configuration.appId.toUtf8Ptr(arena);
       final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
@@ -703,10 +708,10 @@ class _RealmCore {
     });
   }
 
-  RealmHttpTransportHandle createHttpTransport(HttpClient httpClient) {
+  RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
     return RealmHttpTransportHandle._(_realmLib.realm_http_transport_new(
       Pointer.fromFunction(request_callback),
-      httpClient.toGCHandle(),
+      httpClient.toWeakHandle(),
       nullptr,
     ));
   }
@@ -805,12 +810,13 @@ class _RealmCore {
         responseRef.headers = arena<realm_http_header>(headerCnt);
         responseRef.num_headers = headerCnt;
 
+        int index = 0;
         response.headers.forEach((name, values) {
-          int idx = 0;
           for (final value in values) {
-            final headerRef = responseRef.headers.elementAt(idx).ref;
+            final headerRef = responseRef.headers.elementAt(index).ref;
             headerRef.name = name.toUtf8Ptr(arena);
             headerRef.value = value.toUtf8Ptr(arena);
+            index++;
           }
         });
 
@@ -828,7 +834,7 @@ class _RealmCore {
     });
   }
 
-  SyncClientConfigHandle createSyncClientConfig(ApplicationConfiguration configuration) {
+  SyncClientConfigHandle _createSyncClientConfig(ApplicationConfiguration configuration) {
     return using((arena) {
       final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
 
@@ -844,11 +850,46 @@ class _RealmCore {
   }
 
   AppHandle getApp(ApplicationConfiguration configuration) {
-    final httpTransport = createHttpTransport(configuration.httpClient);
-    final appConfig = createAppConfig(configuration, httpTransport);
-    final syncClientConfig = createSyncClientConfig(configuration);
-    final realm_app = _realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfig._pointer, syncClientConfig._pointer));
-    return AppHandle._(realm_app);
+    final httpTransportHandle = _createHttpTransport(configuration.httpClient);
+    final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
+    final syncClientConfigHandle = _createSyncClientConfig(configuration);
+    final realmAppPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfigHandle._pointer, syncClientConfigHandle._pointer));
+    return AppHandle._(realmAppPtr);
+  }
+
+  static void _logInCallback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
+    final Completer<UserHandle>? completer = userdata.toObject(isPersistent: true);
+    if (completer == null) {
+      return;
+    }
+
+    if (error != nullptr) {
+      final message = error.ref.message.cast<Utf8>().toDartString();
+      completer.completeError(RealmException(message));
+      return;
+    }
+
+    var userClone = _realmLib.realm_clone(user.cast());
+    if (userClone == nullptr) {
+      completer.completeError(RealmException("Error while cloning login data"));
+      return;
+    }
+
+    completer.complete(UserHandle._(userClone.cast()));
+  }
+
+  Future<UserHandle> logIn(Application application, Credentials credentials) {
+    final completer = Completer<UserHandle>();
+    _realmLib.invokeGetBool(
+        () => _realmLib.realm_app_log_in_with_credentials(
+              application.handle._pointer,
+              credentials.handle._pointer,
+              Pointer.fromFunction(_logInCallback),
+              completer.toPersistentHandle(),
+              _deletePersistentHandleFuncPtr,
+            ),
+        "Login failed");
+    return completer.future;
   }
 
   static void void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
@@ -874,8 +915,8 @@ class _RealmCore {
             email.toUtf8Ptr(arena),
             password.toRealmString(arena).ref,
             Pointer.fromFunction(void_completion_callback),
-            completer.toGCHandle(),
-            nullptr,
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
           ));
     });
     return completer.future;
@@ -889,8 +930,8 @@ class _RealmCore {
             token.toUtf8Ptr(arena),
             tokenId.toUtf8Ptr(arena),
             Pointer.fromFunction(void_completion_callback),
-            completer.toGCHandle(),
-            nullptr,
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
           ));
     });
     return completer.future;
@@ -903,8 +944,8 @@ class _RealmCore {
             application.handle._pointer,
             email.toUtf8Ptr(arena),
             Pointer.fromFunction(void_completion_callback),
-            completer.toGCHandle(),
-            nullptr,
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
           ));
     });
     return completer.future;
@@ -919,8 +960,8 @@ class _RealmCore {
             token.toUtf8Ptr(arena),
             tokenId.toUtf8Ptr(arena),
             Pointer.fromFunction(void_completion_callback),
-            completer.toGCHandle(),
-            nullptr,
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
           ));
     });
     return completer.future;
@@ -933,8 +974,8 @@ class _RealmCore {
             application.handle._pointer,
             email.toUtf8Ptr(arena),
             Pointer.fromFunction(void_completion_callback),
-            completer.toGCHandle(),
-            nullptr,
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
           ));
     });
     return completer.future;
@@ -949,8 +990,8 @@ class _RealmCore {
             password.toRealmString(arena).ref,
             argsAsJSON.toUtf8Ptr(arena),
             Pointer.fromFunction(void_completion_callback),
-            completer.toGCHandle(),
-            nullptr,
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
           ));
     });
     return completer.future;
@@ -1044,7 +1085,7 @@ class RealmQueryHandle extends Handle<realm_query> {
 
 class RealmNotificationTokenHandle extends Handle<realm_notification_token> {
   bool released = false;
-  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer) : super(pointer, 1 << 32);
+  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer) : super(pointer, 32);
 
   void release() {
     if (released) {
@@ -1083,6 +1124,10 @@ class SyncClientConfigHandle extends Handle<realm_sync_client_config> {
 
 class AppHandle extends Handle<realm_app> {
   AppHandle._(Pointer<realm_app> pointer) : super(pointer, 16);
+}
+
+class UserHandle extends Handle<realm_user> {
+  UserHandle._(Pointer<realm_user> pointer) : super(pointer, 24);
 }
 
 extension on List<int> {
@@ -1242,10 +1287,10 @@ extension on Pointer<IntPtr> {
 }
 
 extension on Pointer<Void> {
-  T? toObject<T extends Object>() {
+  T? toObject<T extends Object>({bool isPersistent = false}) {
     assert(this != nullptr, "Pointer<Void> is null");
 
-    final object = _realmLib.gc_handle_to_object(this);
+    Object object = isPersistent ? _realmLib.persistent_handle_to_object(this) : _realmLib.weak_handle_to_object(this);
 
     assert(object is T, "$T expected");
     if (object is! T) {
@@ -1257,8 +1302,12 @@ extension on Pointer<Void> {
 }
 
 extension on Object {
-  Pointer<Void> toGCHandle() {
-    return _realmLib.object_to_gc_handle(this);
+  Pointer<Void> toWeakHandle() {
+    return _realmLib.object_to_weak_handle(this);
+  }
+
+  Pointer<Void> toPersistentHandle() {
+    return _realmLib.object_to_persistent_handle(this);
   }
 }
 
