@@ -875,7 +875,7 @@ class _RealmCore {
     completer.complete(UserHandle._(userClone.cast()));
   }
 
-  Future<UserHandle> logIn(Application application, Credentials credentials) async {
+  Future<UserHandle> logIn(Application application, Credentials credentials) {
     final completer = Completer<UserHandle>();
     _realmLib.invokeGetBool(
         () => _realmLib.realm_app_log_in_with_credentials(
@@ -886,7 +886,7 @@ class _RealmCore {
               _deletePersistentHandleFuncPtr,
             ),
         "Login failed");
-    return await completer.future;
+    return completer.future;
   }
 
   static void void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
