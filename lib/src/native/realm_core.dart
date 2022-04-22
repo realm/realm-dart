@@ -1050,7 +1050,7 @@ class _RealmCore {
     return completer.future;
   }
 
-  List<UserHandle> getUsers(Application app) {
+  List<UserHandle> getUsers(App app) {
     return using((arena) {
       final usersCount = arena<IntPtr>();
       _realmLib.invokeGetBool(() => _realmLib.realm_app_get_all_users(app.handle._pointer, nullptr, 0, usersCount));
