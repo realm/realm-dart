@@ -50,7 +50,7 @@ class _StringPrimaryKey {
 @RealmModel()
 class _UuidPrimaryKey {
   @PrimaryKey()
-  late UuidValue id;
+  late Uuid id;
 }
 
 Future<void> main([List<String>? args]) async {
@@ -308,8 +308,8 @@ Future<void> main([List<String>? args]) async {
   }
 
   final uuids = [
-    UuidValue('0f1dea4d-074e-4c72-b505-e2e8a727602f'),
-    UuidValue('00000000-0000-0000-0000-000000000000'),
+    Uuid.fromString('0f1dea4d-074e-4c72-b505-e2e8a727602f'),
+    Uuid.fromString('00000000-0000-0000-0000-000000000000'),
   ];
   for (final pk in uuids) {
     testPrimaryKey(UuidPrimaryKey.schema, () => UuidPrimaryKey(pk), pk);
