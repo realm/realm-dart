@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright 2021 Realm Inc.
+// Copyright 2022 Realm Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-export 'src/realm_common_base.dart';
-export 'src/realm_types.dart';
+import 'dart:io';
+import '../lib/realm.dart';
+import 'test.dart';
 
-export 'package:objectid/objectid.dart' show ObjectId;
-export 'package:sane_uuid/uuid.dart' show Uuid;
+Future<void> main([List<String>? args]) async {
+  print("Current PID $pid");
+
+  await setupTests(args);
+ 
+}

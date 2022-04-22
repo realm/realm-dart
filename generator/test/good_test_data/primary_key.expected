@@ -88,7 +88,7 @@ class ObjectIdPK extends _ObjectIdPK with RealmEntity, RealmObject {
 
 class UuidPK extends _UuidPK with RealmEntity, RealmObject {
   UuidPK(
-    UuidValue id,
+    Uuid id,
   ) {
     RealmObject.set(this, 'id', id);
   }
@@ -96,9 +96,9 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObject {
   UuidPK._();
 
   @override
-  UuidValue get id => RealmObject.get<UuidValue>(this, 'id') as UuidValue;
+  Uuid get id => RealmObject.get<Uuid>(this, 'id') as Uuid;
   @override
-  set id(UuidValue value) => throw RealmUnsupportedSetError();
+  set id(Uuid value) => throw RealmUnsupportedSetError();
 
   @override
   Stream<RealmObjectChanges<UuidPK>> get changes =>
