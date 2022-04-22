@@ -28,15 +28,15 @@ Future<void> main([List<String>? args]) async {
 
   await setupTests(args);
 
-  test('ApplicationConfiguration can be created', () {
-    final a = ApplicationConfiguration('myapp');
+  test('AppConfiguration can be created', () {
+    final a = AppConfiguration('myapp');
     expect(a.appId, 'myapp');
     expect(a.baseFilePath.path, Configuration.filesPath);
     expect(a.baseUrl, Uri.parse('https://realm.mongodb.com'));
     expect(a.defaultRequestTimeout, const Duration(minutes: 1));
 
     final httpClient = HttpClient(context: SecurityContext(withTrustedRoots: false));
-    final b = ApplicationConfiguration(
+    final b = AppConfiguration(
       'myapp1',
       baseFilePath: Directory.systemTemp,
       baseUrl: Uri.parse('https://not_re.al'),
@@ -52,16 +52,22 @@ Future<void> main([List<String>? args]) async {
     expect(b.httpClient, httpClient);
   });
 
-  test('Application can be created', () async {
-
-    final configuration = ApplicationConfiguration(generateRandomString(10));
-    final application = Application(configuration);
-    expect(application.configuration, configuration);
+  test('App can be created', () async {
+    final configuration = AppConfiguration(generateRandomString(10));
+    final app = App(configuration);
+    expect(app.configuration, configuration);
   });
   
-  syncTest('Application log in', (configuration) async {
-    final application = Application(configuration);
+  baasTest('App log in', (configuration) async {
+    final app = App(configuration);
     final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+  });
+  
+  baasTest('Application log in', (appConfig) async {
+    final application = App(appConfig);
+    final credentials = Credentials.anonymous();
+    // ignore: unused_local_variable
     final user = await application.logIn(credentials);
   });
 }

@@ -12,7 +12,8 @@ import '../test/realm_object_test.dart' as realm_object_tests;
 import '../test/list_test.dart' as list_tests;
 import '../test/results_test.dart' as results_tests;
 import '../test/credentials_test.dart' as credentials_tests;
-import '../test/application_test.dart' as application_tests;
+import '../test/app_test.dart' as app_tests;
+import '../test/email_password_provider_test.dart' as email_password_provider_test;
 
 Future<String> main(List<String> args) async {
   final Completer<String> completer = Completer<String>();
@@ -24,7 +25,8 @@ Future<String> main(List<String> args) async {
   await list_tests.main(args);
   await results_tests.main(args);
   await credentials_tests.main(args);
-  await application_tests.main(args);
+  await app_tests.main(args);
+  await email_password_provider_test.main(args);
 
   tearDown(() {
     if (Invoker.current?.liveTest.state.result == test_api.Result.error || Invoker.current?.liveTest.state.result == test_api.Result.failure) {
