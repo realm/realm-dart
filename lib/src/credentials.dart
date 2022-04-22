@@ -86,7 +86,8 @@ class EmailPasswordAuthProvider {
     return realmCore.emailPasswordResendUserConfirmation(application, email);
   }
 
-  /// Completes the reset password procedure by providing the desired new password.
+  /// Completes the reset password procedure by providing the desired new [password] using the 
+  /// password reset [token] and [tokenId] that were emailed to a user.
   Future<void> resetPassword(String password, String token, String tokenId) {
     return realmCore.emailPasswordResetPassword(application, password, token, tokenId);
   }
