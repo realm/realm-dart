@@ -64,7 +64,6 @@ abstract class Configuration {
     String? fifoFilesFallbackPath,
     String? path,
     bool disableFormatUpgrade,
-    bool isInMemory,
     bool isReadOnly,
     bool Function(int totalSize, int usedSize)? shouldCompactCallback,
   }) = LocalConfiguration;
