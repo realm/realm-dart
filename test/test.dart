@@ -227,7 +227,7 @@ Future<void> baasTest(
   test(name, () async {
     final app = baasApps[appName] ?? baasApps.values.first;
     final temporary = await Directory.systemTemp.createTemp('realm_test_');
-    final configuration = ApplicationConfiguration(
+    final configuration = AppConfiguration(
       app.clientAppId,
       baseUrl: url,
       baseFilePath: temporary,
