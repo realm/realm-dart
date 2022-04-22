@@ -212,7 +212,7 @@ Future<void> setupBaas() async {
 @isTest
 Future<void> baasTest(
   String name,
-  FutureOr<void> Function(ApplicationConfiguration configuration) testFunction, {
+  FutureOr<void> Function(AppConfiguration configuration) testFunction, {
   String appName = 'flexible',
   dynamic skip,
 }) async {
