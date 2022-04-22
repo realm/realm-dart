@@ -61,6 +61,7 @@ class _RealmCore {
   _RealmCore._() {
     final lib = initRealm();
     _realmLib = RealmLibrary(lib);
+
     _deletePersistentHandleFuncPtr = lib.lookup<NativeFunction<Void Function(Pointer<Void>)>>('delete_persistent_handle');
   }
 
@@ -928,6 +929,20 @@ class _RealmCore {
             application.handle._pointer,
             token.toUtf8Ptr(arena),
             tokenId.toUtf8Ptr(arena),
+            Pointer.fromFunction(void_completion_callback),
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
+          ));
+    });
+    return completer.future;
+  }
+
+  Future<void> emailPasswordResendUserConfirmation(Application application, String email) {
+    final completer = Completer<void>();
+    using((arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_resend_confirmation_email(
+            application.handle._pointer,
+            email.toUtf8Ptr(arena),
             Pointer.fromFunction(void_completion_callback),
             completer.toPersistentHandle(),
             _deletePersistentHandleFuncPtr,

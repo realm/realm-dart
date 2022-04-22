@@ -20,6 +20,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support application login. ([#469](https://github.com/realm/realm-dart/pull/469))
 * Support EmailPassword register user. ([#452](https://github.com/realm/realm-dart/pull/452))
 * Support EmailPassowrd confirm user. ([#478](https://github.com/realm/realm-dart/pull/478))
+* Support EmailPassowrd resend user confirmation email. ([#479](https://github.com/realm/realm-dart/pull/479))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))
