@@ -19,7 +19,9 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support Uuid type. ([#470](https://github.com/realm/realm-dart/pull/470))
 * Support application login. ([#469](https://github.com/realm/realm-dart/pull/469))
 * Support EmailPassword register user. ([#452](https://github.com/realm/realm-dart/pull/452))
-* Support EmailPassowrd confirm user. ([#478](https://github.com/realm/realm-dart/pull/478))
+* Support EmailPassword confirm user. ([#478](https://github.com/realm/realm-dart/pull/478))
+* Support EmailPassword resend user confirmation email. ([#479](https://github.com/realm/realm-dart/pull/479))
+* Support EmailPassword reset password. ([#480](https://github.com/realm/realm-dart/pull/480))
 * Support EmailPassowrd resend user confirmation email. ([#479](https://github.com/realm/realm-dart/pull/479))
 
 ### Fixed
