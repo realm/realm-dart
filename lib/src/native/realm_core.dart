@@ -1047,6 +1047,10 @@ class _RealmCore {
         "Logout failed");
     return completer.future;
   }
+
+  void clearCachedApps() {
+    _realmLib.realm_clear_cached_apps();
+  }
 }
 
 class LastError {
