@@ -133,7 +133,6 @@ class App {
     if (userHandle == null) {
       return null;
     }
-
     return UserInternal.create(userHandle);
   }
 

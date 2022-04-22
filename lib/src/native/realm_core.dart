@@ -1017,7 +1017,6 @@ class _RealmCore {
     if (userPtr == nullptr) {
       return null;
     }
-
     return UserHandle._(userPtr);
   }
 
