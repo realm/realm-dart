@@ -980,6 +980,22 @@ class _RealmCore {
     });
     return completer.future;
   }
+
+  Future<void> emailPasswordCallResetPasswordFunction(Application application, String email, String password, String argsAsJSON) {
+    final completer = Completer<void>();
+    using((arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_call_reset_password_function(
+            application.handle._pointer,
+            email.toUtf8Ptr(arena),
+            password.toRealmString(arena).ref,
+            argsAsJSON.toUtf8Ptr(arena),
+            Pointer.fromFunction(void_completion_callback),
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
+          ));
+    });
+    return completer.future;
+  }
 }
 
 class LastError {
