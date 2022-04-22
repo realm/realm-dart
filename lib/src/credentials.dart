@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:convert';
+
 import 'native/realm_core.dart';
 import 'application.dart';
 
@@ -97,7 +99,7 @@ class EmailPasswordAuthProvider {
   }
 
   /// Calls the reset password function, configured on the server.
-  Future<void> callResetPasswordFunction(String email, String password, String functionArgsAsJSON) {
-    return realmCore.emailPasswordCallResetPasswordFunction(application, email, password, functionArgsAsJSON);
+  Future<void> callResetPasswordFunction(String email, String password, Map<String, dynamic> functionArgs) {
+    return realmCore.emailPasswordCallResetPasswordFunction(application, email, password, jsonEncode(functionArgs));
   }
 }
