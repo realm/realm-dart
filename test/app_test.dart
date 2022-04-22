@@ -64,9 +64,10 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
   });
   
-  syncTest('Application log in', (configuration) async {
-    final application = Application(configuration);
+  baasTest('Application log in', (appConfig) async {
+    final application = App(appConfig);
     final credentials = Credentials.anonymous();
+    // ignore: unused_local_variable
     final user = await application.logIn(credentials);
   });
 }
