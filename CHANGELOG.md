@@ -21,7 +21,8 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support EmailPassword register user. ([#452](https://github.com/realm/realm-dart/pull/452))
 * Support EmailPassword confirm user. ([#478](https://github.com/realm/realm-dart/pull/478))
 * Support EmailPassword resend user confirmation email. ([#479](https://github.com/realm/realm-dart/pull/479))
-* Support EmailPassword reset password. ([#480](https://github.com/realm/realm-dart/pull/480))
+* Support EmailPassword complete reset password. ([#480](https://github.com/realm/realm-dart/pull/480))
+* Support EmailPassword reset password. ([#481](https://github.com/realm/realm-dart/pull/481))
 * Support EmailPassowrd resend user confirmation email. ([#479](https://github.com/realm/realm-dart/pull/479))
 
 ### Fixed
