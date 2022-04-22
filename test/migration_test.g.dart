@@ -6,14 +6,14 @@ part of 'migration_test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
-class Person extends _PersonIntName with RealmEntity, RealmObject {
-  Person(
+class PersonIntName extends _PersonIntName with RealmEntity, RealmObject {
+  PersonIntName(
     int name,
   ) {
     RealmObject.set(this, 'name', name);
   }
 
-  Person._();
+  PersonIntName._();
 
   @override
   int get name => RealmObject.get<int>(this, 'name') as int;
@@ -21,14 +21,14 @@ class Person extends _PersonIntName with RealmEntity, RealmObject {
   set name(int value) => RealmObject.set(this, 'name', value);
 
   @override
-  Stream<RealmObjectChanges<Person>> get changes =>
-      RealmObject.getChanges<Person>(this);
+  Stream<RealmObjectChanges<PersonIntName>> get changes =>
+      RealmObject.getChanges<PersonIntName>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory(Person._);
-    return const SchemaObject(Person, [
+    RealmObject.registerFactory(PersonIntName._);
+    return const SchemaObject(PersonIntName, 'Person', [
       SchemaProperty('name', RealmPropertyType.int),
     ]);
   }

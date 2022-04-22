@@ -21,9 +21,7 @@
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
-import 'test.dart' hide Person;
-
-import 'test.dart' as models show Person;
+import 'test.dart';
 
 part 'migration_test.g.dart';
 
@@ -39,7 +37,21 @@ Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
   test('Configuration.migrationCallback executed when schema version changes', () {
-    final config1 = Configuration([Person.schema], schemaVersion: 1);
+    final config1 = Configuration([PersonIntName.schema], schemaVersion: 1);
+    getRealm(config1).close();
+
+    var invoked = false;
+    final config2 = Configuration([PersonIntName.schema], schemaVersion: 2, migrationCallback: (migration, oldVersion) {
+      invoked = true;
+      expect(oldVersion, 1);
+    });
+
+    getRealm(config2);
+    expect(invoked, true);
+  });
+
+  test('Configuration.migrationCallback executed when schema changes', () {
+    final config1 = Configuration([PersonIntName.schema], schemaVersion: 1);
     getRealm(config1).close();
 
     var invoked = false;
@@ -52,17 +64,17 @@ Future<void> main([List<String>? args]) async {
     expect(invoked, true);
   });
 
-  test('Configuration.migrationCallback executed when schema changes', () {
-    final config1 = Configuration([Person.schema], schemaVersion: 1);
+  test('Configuration.migrationCallback not invoked when schemaVersion is the same', () {
+    final config1 = Configuration([PersonIntName.schema], schemaVersion: 1);
     getRealm(config1).close();
 
     var invoked = false;
-    final config2 = Configuration([models.Person.schema], schemaVersion: 2, migrationCallback: (migration, oldVersion) {
+    // Keep schema version the same
+    final config2 = Configuration([Person.schema], schemaVersion: 1, migrationCallback: (migration, oldVersion) {
       invoked = true;
-      expect(oldVersion, 1);
     });
 
-    getRealm(config2);
-    expect(invoked, true);
+    expect(() => getRealm(config2), throws<RealmException>('Migration is required due to the following errors'));
+    expect(invoked, false);
   });
 }

@@ -18,6 +18,7 @@
 
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
@@ -172,7 +173,7 @@ class _RealmCore {
       }
 
       if (config.migrationCallback != null) {
-        _realmLib.realm_config_set_migration_function(configHandle._pointer, Pointer.fromFunction(migration_callback, FALSE), config.toGCHandle());
+        _realmLib.realm_config_set_migration_function(configHandle._pointer, Pointer.fromFunction(migration_callback, FALSE), config.toWeakHandle());
       }
 
       if (config.shouldCompactCallback != null) {
