@@ -26,6 +26,7 @@ import 'package:test/test.dart' hide test;
 import 'package:test/test.dart' as testing;
 import '../lib/realm.dart';
 import '../lib/src/cli/deployapps/baas_client.dart';
+import '../lib/src/native/realm_core.dart';
 
 part 'test.g.dart';
 
@@ -76,6 +77,16 @@ class _School {
   late List<_School> branches;
 }
 
+@RealmModel()
+@MapTo("myRemappedClass")
+class $RemappedClass {
+  @MapTo("primitive_property")
+  late String remappedProperty;
+
+  @MapTo("list-with-dashes")
+  late List<$RemappedClass> listProperty;
+}
+
 String? testName;
 Map<String, BaasApp> baasApps = <String, BaasApp>{};
 
@@ -92,7 +103,7 @@ void test(String name, dynamic Function() testFunction, {dynamic skip}) {
     timeout = Duration.secondsPerDay;
     return true;
   }());
-  
+
   testing.test(name, testFunction, skip: skip, timeout: Timeout(Duration(seconds: timeout)));
 }
 
@@ -209,19 +220,22 @@ Future<void> baasTest(
 
   if (skip == null) {
     skip = url == null ? "BAAS URL not present" : true;
-  }
-  else if (skip is bool) {
+  } else if (skip is bool) {
     skip = skip || url == null ? "BAAS URL not present" : true;
   }
-  
+
   test(name, () async {
-      final app = baasApps[appName] ?? baasApps.values.first;
-      final temporary = await Directory.systemTemp.createTemp('realm_test_');
-      final configuration = AppConfiguration(
-        app.clientAppId,
-        baseUrl: url,
-        baseFilePath: temporary,
-      );
-      return await testFunction(configuration);
+    final app = baasApps[appName] ?? baasApps.values.first;
+    final temporary = await Directory.systemTemp.createTemp('realm_test_');
+    final configuration = AppConfiguration(
+      app.clientAppId,
+      baseUrl: url,
+      baseFilePath: temporary,
+    );
+    return await testFunction(configuration);
   }, skip: skip);
+}
+
+extension RealmObjectTest on RealmObject {
+  String toJson() => realmCore.objectToString(this);
 }

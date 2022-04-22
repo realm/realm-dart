@@ -21,6 +21,7 @@ import 'package:realm_common/realm_common.dart';
 
 import 'dart_type_ex.dart';
 import 'field_element_ex.dart';
+import 'element.dart';
 
 class RealmFieldInfo {
   final FieldElement fieldElement;
@@ -50,6 +51,8 @@ class RealmFieldInfo {
   String get realmName => mapTo ?? name;
 
   String get basicMappedTypeName => type.basicMappedName;
+
+  String get basicRealmTypeName => fieldElement.modelType.basicType.element?.remappedRealmName ?? fieldElement.modelType.basicMappedName;
 
   String get modelTypeName => fieldElement.modelTypeName;
 

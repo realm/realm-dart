@@ -28,7 +28,7 @@ class Car extends _Car with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Car._);
-    return const SchemaObject(Car, [
+    return const SchemaObject(Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
     ]);
   }
@@ -56,7 +56,7 @@ class Person extends _Person with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Person._);
-    return const SchemaObject(Person, [
+    return const SchemaObject(Person, 'Person', [
       SchemaProperty('name', RealmPropertyType.string),
     ]);
   }
@@ -98,7 +98,7 @@ class Dog extends _Dog with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Dog._);
-    return const SchemaObject(Dog, [
+    return const SchemaObject(Dog, 'Dog', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('age', RealmPropertyType.int, optional: true),
       SchemaProperty('owner', RealmPropertyType.object,
@@ -148,7 +148,7 @@ class Team extends _Team with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Team._);
-    return const SchemaObject(Team, [
+    return const SchemaObject(Team, 'Team', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('players', RealmPropertyType.object,
           linkTarget: 'Person', collectionType: RealmCollectionType.list),
@@ -201,7 +201,7 @@ class Student extends _Student with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Student._);
-    return const SchemaObject(Student, [
+    return const SchemaObject(Student, 'Student', [
       SchemaProperty('number', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
       SchemaProperty('yearOfBirth', RealmPropertyType.int, optional: true),
@@ -269,7 +269,7 @@ class School extends _School with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(School._);
-    return const SchemaObject(School, [
+    return const SchemaObject(School, 'School', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('city', RealmPropertyType.string, optional: true),
       SchemaProperty('students', RealmPropertyType.object,
@@ -278,6 +278,52 @@ class School extends _School with RealmEntity, RealmObject {
           optional: true, linkTarget: 'School'),
       SchemaProperty('branches', RealmPropertyType.object,
           linkTarget: 'School', collectionType: RealmCollectionType.list),
+    ]);
+  }
+}
+
+class RemappedClass extends $RemappedClass with RealmEntity, RealmObject {
+  RemappedClass(
+    String remappedProperty, {
+    Iterable<RemappedClass> listProperty = const [],
+  }) {
+    RealmObject.set(this, 'primitive_property', remappedProperty);
+    RealmObject.set<RealmList<RemappedClass>>(
+        this, 'list-with-dashes', RealmList<RemappedClass>(listProperty));
+  }
+
+  RemappedClass._();
+
+  @override
+  String get remappedProperty =>
+      RealmObject.get<String>(this, 'primitive_property') as String;
+  @override
+  set remappedProperty(String value) =>
+      RealmObject.set(this, 'primitive_property', value);
+
+  @override
+  RealmList<RemappedClass> get listProperty =>
+      RealmObject.get<RemappedClass>(this, 'list-with-dashes')
+          as RealmList<RemappedClass>;
+  @override
+  set listProperty(covariant RealmList<RemappedClass> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<RemappedClass>> get changes =>
+      RealmObject.getChanges<RemappedClass>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(RemappedClass._);
+    return const SchemaObject(RemappedClass, 'myRemappedClass', [
+      SchemaProperty('primitive_property', RealmPropertyType.string,
+          mapTo: 'primitive_property'),
+      SchemaProperty('list-with-dashes', RealmPropertyType.object,
+          mapTo: 'list-with-dashes',
+          linkTarget: 'myRemappedClass',
+          collectionType: RealmCollectionType.list),
     ]);
   }
 }

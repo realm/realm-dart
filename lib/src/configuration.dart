@@ -142,10 +142,10 @@ class SchemaObject {
   final List<SchemaProperty> properties;
 
   /// Returns the name of this schema type.
-  String get name => type.toString();
+  final String name;
 
   /// Creates schema instance with object type and collection of object's properties.
-  const SchemaObject(this.type, this.properties);
+  const SchemaObject(this.type, this.name, this.properties);
 }
 
 /// Describes the complete set of classes which may be stored in a `Realm`
