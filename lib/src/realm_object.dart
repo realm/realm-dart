@@ -299,8 +299,6 @@ extension RealmObjectInternal on RealmObject {
 
   RealmObjectHandle get handle => _handle!;
   RealmAccessor get accessor => _accessor;
-
-  String toJson() => realmCore.objectToString(this);
 }
 
 /// An exception being thrown when a `Realm` operation or [RealmObject] access fails.

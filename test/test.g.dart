@@ -287,23 +287,23 @@ class RemappedClass extends $RemappedClass with RealmEntity, RealmObject {
     String remappedProperty, {
     Iterable<RemappedClass> listProperty = const [],
   }) {
-    RealmObject.set(this, '__ other property __', remappedProperty);
+    RealmObject.set(this, 'primitive_property', remappedProperty);
     RealmObject.set<RealmList<RemappedClass>>(
-        this, '_- realm -_- list -_', RealmList<RemappedClass>(listProperty));
+        this, 'list-with-dashes', RealmList<RemappedClass>(listProperty));
   }
 
   RemappedClass._();
 
   @override
   String get remappedProperty =>
-      RealmObject.get<String>(this, '__ other property __') as String;
+      RealmObject.get<String>(this, 'primitive_property') as String;
   @override
   set remappedProperty(String value) =>
-      RealmObject.set(this, '__ other property __', value);
+      RealmObject.set(this, 'primitive_property', value);
 
   @override
   RealmList<RemappedClass> get listProperty =>
-      RealmObject.get<RemappedClass>(this, '_- realm -_- list -_')
+      RealmObject.get<RemappedClass>(this, 'list-with-dashes')
           as RealmList<RemappedClass>;
   @override
   set listProperty(covariant RealmList<RemappedClass> value) =>
@@ -317,12 +317,12 @@ class RemappedClass extends $RemappedClass with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(RemappedClass._);
-    return const SchemaObject(RemappedClass, '__other class__', [
-      SchemaProperty('__ other property __', RealmPropertyType.string,
-          mapTo: '__ other property __'),
-      SchemaProperty('_- realm -_- list -_', RealmPropertyType.object,
-          mapTo: '_- realm -_- list -_',
-          linkTarget: '__other class__',
+    return const SchemaObject(RemappedClass, 'myRemappedClass', [
+      SchemaProperty('primitive_property', RealmPropertyType.string,
+          mapTo: 'primitive_property'),
+      SchemaProperty('list-with-dashes', RealmPropertyType.object,
+          mapTo: 'list-with-dashes',
+          linkTarget: 'myRemappedClass',
           collectionType: RealmCollectionType.list),
     ]);
   }

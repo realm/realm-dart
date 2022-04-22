@@ -55,9 +55,9 @@ class _UuidPrimaryKey {
 }
 
 @RealmModel()
-@MapTo('this_is_also_remapped')
+@MapTo('class with spaces')
 class _RemappedFromAnotherFile {
-  @MapTo("mapped property")
+  @MapTo("property with spaces")
   late $RemappedClass? linkToAnotherClass;
 }
 
@@ -335,14 +335,14 @@ Future<void> main([List<String>? args]) async {
 
     final json = obj.toJson();
 
-    // remappedProperty is mapped as `__ other property __`
-    expect(json, contains('"__ other property __":"some value"'));
+    // remappedProperty is mapped as `primitive_property`
+    expect(json, contains('"primitive_property":"some value"'));
 
-    // listProperty is mapped as `_- realm -_- list -_`
-    expect(json, contains('"_- realm -_- list -_":'));
+    // listProperty is mapped as `list-with-dashes`
+    expect(json, contains('"list-with-dashes":'));
 
-    // RemappedClass is mapped as `__other class__`
-    expect(json, contains('"table": "class___other class__"'));
+    // RemappedClass is mapped as `myRemappedClass`
+    expect(json, contains('"table": "class_myRemappedClass"'));
   });
 
   test('Remapped class across different files works', () {
@@ -354,8 +354,8 @@ Future<void> main([List<String>? args]) async {
 
     final json = obj.toJson();
 
-    // linkToAnotherClass is mapped as `mapped property`
-    // RemappedClass is mapped as `__other class__`
-    expect(json, contains('"mapped property":{ "table": "class___other class__", "key": 0}'));
+    // linkToAnotherClass is mapped as `property with spaces`
+    // RemappedClass is mapped as `myRemappedClass`
+    expect(json, contains('"property with spaces":{ "table": "class_myRemappedClass", "key": 0}'));
   });
 }

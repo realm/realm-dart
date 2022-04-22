@@ -124,17 +124,18 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
   RemappedFromAnotherFile({
     RemappedClass? linkToAnotherClass,
   }) {
-    RealmObject.set(this, 'mapped property', linkToAnotherClass);
+    RealmObject.set(this, 'property with spaces', linkToAnotherClass);
   }
 
   RemappedFromAnotherFile._();
 
   @override
   RemappedClass? get linkToAnotherClass =>
-      RealmObject.get<RemappedClass>(this, 'mapped property') as RemappedClass?;
+      RealmObject.get<RemappedClass>(this, 'property with spaces')
+          as RemappedClass?;
   @override
   set linkToAnotherClass(covariant RemappedClass? value) =>
-      RealmObject.set(this, 'mapped property', value);
+      RealmObject.set(this, 'property with spaces', value);
 
   @override
   Stream<RealmObjectChanges<RemappedFromAnotherFile>> get changes =>
@@ -144,12 +145,11 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(RemappedFromAnotherFile._);
-    return const SchemaObject(
-        RemappedFromAnotherFile, 'this_is_also_remapped', [
-      SchemaProperty('mapped property', RealmPropertyType.object,
-          mapTo: 'mapped property',
+    return const SchemaObject(RemappedFromAnotherFile, 'class with spaces', [
+      SchemaProperty('property with spaces', RealmPropertyType.object,
+          mapTo: 'property with spaces',
           optional: true,
-          linkTarget: '__other class__'),
+          linkTarget: 'myRemappedClass'),
     ]);
   }
 }
