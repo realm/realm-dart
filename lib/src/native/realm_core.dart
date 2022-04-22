@@ -1011,7 +1011,7 @@ class _RealmCore {
     });
     return completer.future;
   }
-  
+
   UserHandle? getCurrentUser(AppHandle appHandle) {
     final userPtr = _realmLib.realm_app_get_current_user(appHandle._pointer);
     if (userPtr == nullptr) {
@@ -1036,15 +1036,15 @@ class _RealmCore {
     completer.complete();
   }
 
-  Future<void> logOut(Application application, User user) async {
+  Future<void> logOut(App application, User user) async {
     final completer = Completer<void>();
     _realmLib.invokeGetBool(
         () => _realmLib.realm_app_log_out(
               application.handle._pointer,
               user.handle._pointer,
               Pointer.fromFunction(_logOutCallback),
-              completer.toGCHandle(),
-              nullptr,
+              completer.toPersistentHandle(),
+              _deletePersistentHandleFuncPtr,
             ),
         "Logout failed");
     return completer.future;
