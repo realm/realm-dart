@@ -20,8 +20,7 @@
 
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
-import '../lib/realm.dart' hide RealmObject;
-import '../lib/src/realm_object.dart' show RealmObject, RealmObjectInternal;
+import '../lib/realm.dart';
 
 import 'test.dart';
 
