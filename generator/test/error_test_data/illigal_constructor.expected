@@ -7,7 +7,7 @@ in: asset:pkg/test/error_test_data/illigal_constructor.dart:10:3
     │       ━━━━ in realm model for 'Bad'
 ... │
 10  │   _Bad(this.id);
-    │   ^ has constructor
+    │   ^^^^ has constructor
     ╵
 Remove constructor
 
