@@ -19,7 +19,7 @@
 import 'dart:convert';
 
 import 'native/realm_core.dart';
-import 'application.dart';
+import 'app.dart';
 
 /// An enum containing all authentication providers. These have to be enabled manually for the application before they can be used.
 /// [Authentication Providers Docs](https://docs.mongodb.com/realm/authentication/providers/)
@@ -63,10 +63,10 @@ extension CredentialsInternal on Credentials {
 /// It is always scoped to a particular app.
 /// {@category Application}
 class EmailPasswordAuthProvider {
-  final Application application;
+  final App app;
 
-  /// Create a new EmailPasswordAuthProvider for the [application]
-  EmailPasswordAuthProvider(this.application);
+  /// Create a new EmailPasswordAuthProvider for the [app]
+  EmailPasswordAuthProvider(this.app);
 
   /// Registers a new user with the given email and password.
   /// The [email] to register with. This will be the user's username and, if user confirmation is enabled, this will be the address for
@@ -74,38 +74,38 @@ class EmailPasswordAuthProvider {
   /// The [password] to associate with the email. The password must be between 6 and 128 characters long.
   ///
   /// Successful completion indicates that the user has been created on the server and can now be logged in with [Credentials.emailPassword()].
-  Future<void> registerUser(String email, String password) {
-    return realmCore.emailPasswordRegisterUser(application, email, password);
+  Future<void> registerUser(String email, String password) async {
+    return realmCore.appEmailPasswordRegisterUser(app, email, password);
   }
 
   /// Confirms a user with the given token and token id. These are typically included in the registration email.
   Future<void> confirmUser(String token, String tokenId) {
-    return realmCore.emailPasswordConfirmUser(application, token, tokenId);
+    return realmCore.emailPasswordConfirmUser(app, token, tokenId);
   }
 
   /// Resends the confirmation email for a user to the given email.
   Future<void> resendUserConfirmation(String email) {
-    return realmCore.emailPasswordResendUserConfirmation(application, email);
+    return realmCore.emailPasswordResendUserConfirmation(app, email);
   }
 
   /// Completes the reset password procedure by providing the desired new [password] using the 
   /// password reset [token] and [tokenId] that were emailed to a user.
   Future<void> completeResetPassword(String password, String token, String tokenId) {
-    return realmCore.emailPasswordCompleteResetPassword(application, password, token, tokenId);
+    return realmCore.emailPasswordCompleteResetPassword(app, password, token, tokenId);
   }
 
   /// Sends a password reset email.
   Future<void> resetPassword(String email) {
-    return realmCore.emailPasswordResetPassword(application, email);
+    return realmCore.emailPasswordResetPassword(app, email);
   }
 
   /// Calls the reset password function, configured on the server.
   Future<void> callResetPasswordFunction(String email, String password, Map<String, dynamic> functionArgs) {
-    return realmCore.emailPasswordCallResetPasswordFunction(application, email, password, jsonEncode(functionArgs));
+    return realmCore.emailPasswordCallResetPasswordFunction(app, email, password, jsonEncode(functionArgs));
   }
   
   /// Retries the custom confirmation function on a user for a given email.
   Future<void> retryCustomConfirmationFunction(String email) {
-    return realmCore.emailPasswordRetryCustomConfirmationFunction(application, email);
+    return realmCore.emailPasswordRetryCustomConfirmationFunction(app, email);
   }
 }

@@ -27,12 +27,12 @@ Future<void> main([List<String>? args]) async {
 
   setupTests(args);
 
-  test('ApplicationCredentials anonymous', () {
+  test('Credentials anonymous', () {
     final credentials = Credentials.anonymous();
     expect(credentials.provider, AuthProviderType.anonymous);
   });
 
-  test('ApplicationCredentials email/password', () {
+  test('Credentials email/password', () {
     final credentials = Credentials.emailPassword("test@email.com", "000000");
     expect(credentials.provider, AuthProviderType.emailPassword);
   });

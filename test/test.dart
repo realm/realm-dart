@@ -201,7 +201,7 @@ Future<void> setupBaas() async {
 @isTest
 Future<void> baasTest(
   String name,
-  FutureOr<void> Function(ApplicationConfiguration configuration) testFunction, {
+  FutureOr<void> Function(AppConfiguration configuration) testFunction, {
   String appName = 'flexible',
   dynamic skip,
 }) async {
@@ -217,7 +217,7 @@ Future<void> baasTest(
   test(name, () async {
       final app = baasApps[appName] ?? baasApps.values.first;
       final temporary = await Directory.systemTemp.createTemp('realm_test_');
-      final configuration = ApplicationConfiguration(
+      final configuration = AppConfiguration(
         app.clientAppId,
         baseUrl: url,
         baseFilePath: temporary,
