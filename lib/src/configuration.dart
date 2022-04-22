@@ -88,7 +88,14 @@ abstract class Configuration {
     String? path,
   }) = InMemoryConfiguration;
 
-  factory Configuration.flexibleSync(List<SchemaObject> schemaObjects) = FlexibleSyncConfiguration; // TODO!
+  factory Configuration.flexibleSync(
+    User user,
+    List<SchemaObject> schemaObjects, {
+    Function(Realm realm)? initialDataCallback,
+    int schemaVersion,
+    String? fifoFilesFallbackPath,
+    String? path,
+  }) = FlexibleSyncConfiguration;
 }
 
 /// Configuration used to create a [Realm] instance
@@ -195,11 +202,36 @@ class LocalConfiguration extends _ConfigurationBase {
 }
 
 class _SyncConfigurationBase extends _ConfigurationBase {
-  _SyncConfigurationBase(List<SchemaObject> schemaObjects) : super(schemaObjects);
+  final User user;
+  _SyncConfigurationBase(
+    this.user,
+    List<SchemaObject> schemaObjects, {
+    int schemaVersion = 0,
+    String? fifoFilesFallbackPath,
+    String? path,
+  }) : super(
+          schemaObjects,
+          schemaVersion: schemaVersion,
+          fifoFilesFallbackPath: fifoFilesFallbackPath,
+          path: path,
+        );
 }
 
 class FlexibleSyncConfiguration extends _SyncConfigurationBase {
-  FlexibleSyncConfiguration(List<SchemaObject> schemaObjects) : super(schemaObjects);
+  FlexibleSyncConfiguration(
+    User user,
+    List<SchemaObject> schemaObjects, {
+    Function(Realm realm)? initialDataCallback,
+    int schemaVersion = 0,
+    String? fifoFilesFallbackPath,
+    String? path,
+  }) : super(
+          user,
+          schemaObjects,
+          schemaVersion: schemaVersion,
+          fifoFilesFallbackPath: fifoFilesFallbackPath,
+          path: path,
+        );
 }
 
 class InMemoryConfiguration extends _ConfigurationBase {
