@@ -109,7 +109,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration inMemory - no files after closing realm', () {
-    Configuration config = Configuration([Car.schema], isInMemory: true);
+    Configuration config = Configuration.inMemory([Car.schema], '');
     var realm = getRealm(config);
     realm.write(() => realm.add(Car('Tesla')));
     realm.close();
@@ -117,7 +117,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration inMemory can not be readOnly', () {
-    Configuration config = Configuration([Car.schema], isInMemory: true);
+    Configuration config = Configuration.inMemory([Car.schema], '');
     final realm = getRealm(config);
 
     expect(() {
