@@ -23,6 +23,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support EmailPassword resend user confirmation email. ([#479](https://github.com/realm/realm-dart/pull/479))
 * Support EmailPassword complete reset password. ([#480](https://github.com/realm/realm-dart/pull/480))
 * Support EmailPassword reset password. ([#481](https://github.com/realm/realm-dart/pull/481))
+* Support EmailPassowrd resend user confirmation email. ([#479](https://github.com/realm/realm-dart/pull/479))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))
