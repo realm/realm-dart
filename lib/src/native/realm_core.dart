@@ -922,11 +922,11 @@ class _RealmCore {
     return completer.future;
   }
 
-  Future<void> emailPasswordConfirmUser(Application application, String token, String tokenId) {
+  Future<void> emailPasswordConfirmUser(App app, String token, String tokenId) {
     final completer = Completer<void>();
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_confirm_user(
-            application.handle._pointer,
+            app.handle._pointer,
             token.toUtf8Ptr(arena),
             tokenId.toUtf8Ptr(arena),
             Pointer.fromFunction(void_completion_callback),
@@ -937,11 +937,11 @@ class _RealmCore {
     return completer.future;
   }
 
-  Future<void> emailPasswordResendUserConfirmation(Application application, String email) {
+  Future<void> emailPasswordResendUserConfirmation(App app, String email) {
     final completer = Completer<void>();
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_resend_confirmation_email(
-            application.handle._pointer,
+            app.handle._pointer,
             email.toUtf8Ptr(arena),
             Pointer.fromFunction(void_completion_callback),
             completer.toPersistentHandle(),
@@ -951,11 +951,11 @@ class _RealmCore {
     return completer.future;
   }
 
-  Future<void> emailPasswordCompleteResetPassword(Application application, String password, String token, String tokenId) {
+  Future<void> emailPasswordCompleteResetPassword(App app, String password, String token, String tokenId) {
     final completer = Completer<void>();
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_reset_password(
-            application.handle._pointer,
+            app.handle._pointer,
             password.toRealmString(arena).ref,
             token.toUtf8Ptr(arena),
             tokenId.toUtf8Ptr(arena),
@@ -967,11 +967,11 @@ class _RealmCore {
     return completer.future;
   }
 
-  Future<void> emailPasswordResetPassword(Application application, String email) {
+  Future<void> emailPasswordResetPassword(App app, String email) {
     final completer = Completer<void>();
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_send_reset_password_email(
-            application.handle._pointer,
+            app.handle._pointer,
             email.toUtf8Ptr(arena),
             Pointer.fromFunction(void_completion_callback),
             completer.toPersistentHandle(),
@@ -981,11 +981,11 @@ class _RealmCore {
     return completer.future;
   }
 
-  Future<void> emailPasswordCallResetPasswordFunction(Application application, String email, String password, String argsAsJSON) {
+  Future<void> emailPasswordCallResetPasswordFunction(App app, String email, String password, String argsAsJSON) {
     final completer = Completer<void>();
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_call_reset_password_function(
-            application.handle._pointer,
+            app.handle._pointer,
             email.toUtf8Ptr(arena),
             password.toRealmString(arena).ref,
             argsAsJSON.toUtf8Ptr(arena),
@@ -997,11 +997,11 @@ class _RealmCore {
     return completer.future;
   }
 
-  Future<void> emailPasswordRetryCustomConfirmationFunction(Application application, String email) {
+  Future<void> emailPasswordRetryCustomConfirmationFunction(App app, String email) {
     final completer = Completer<void>();
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_retry_custom_confirmation(
-            application.handle._pointer,
+            app.handle._pointer,
             email.toUtf8Ptr(arena),
             Pointer.fromFunction(void_completion_callback),
             completer.toPersistentHandle(),

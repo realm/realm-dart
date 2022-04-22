@@ -80,32 +80,32 @@ class EmailPasswordAuthProvider {
 
   /// Confirms a user with the given token and token id. These are typically included in the registration email.
   Future<void> confirmUser(String token, String tokenId) {
-    return realmCore.emailPasswordConfirmUser(application, token, tokenId);
+    return realmCore.emailPasswordConfirmUser(app, token, tokenId);
   }
 
   /// Resends the confirmation email for a user to the given email.
   Future<void> resendUserConfirmation(String email) {
-    return realmCore.emailPasswordResendUserConfirmation(application, email);
+    return realmCore.emailPasswordResendUserConfirmation(app, email);
   }
 
   /// Completes the reset password procedure by providing the desired new [password] using the 
   /// password reset [token] and [tokenId] that were emailed to a user.
   Future<void> completeResetPassword(String password, String token, String tokenId) {
-    return realmCore.emailPasswordCompleteResetPassword(application, password, token, tokenId);
+    return realmCore.emailPasswordCompleteResetPassword(app, password, token, tokenId);
   }
 
   /// Sends a password reset email.
   Future<void> resetPassword(String email) {
-    return realmCore.emailPasswordResetPassword(application, email);
+    return realmCore.emailPasswordResetPassword(app, email);
   }
 
   /// Calls the reset password function, configured on the server.
   Future<void> callResetPasswordFunction(String email, String password, Map<String, dynamic> functionArgs) {
-    return realmCore.emailPasswordCallResetPasswordFunction(application, email, password, jsonEncode(functionArgs));
+    return realmCore.emailPasswordCallResetPasswordFunction(app, email, password, jsonEncode(functionArgs));
   }
   
   /// Retries the custom confirmation function on a user for a given email.
   Future<void> retryCustomConfirmationFunction(String email) {
-    return realmCore.emailPasswordRetryCustomConfirmationFunction(application, email);
+    return realmCore.emailPasswordRetryCustomConfirmationFunction(app, email);
   }
 }
