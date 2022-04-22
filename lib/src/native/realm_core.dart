@@ -1010,6 +1010,15 @@ class _RealmCore {
     });
     return completer.future;
   }
+  
+  UserHandle? getCurrentUser(AppHandle appHandle) {
+    final userPtr = _realmLib.realm_app_get_current_user(appHandle._pointer);
+    if (userPtr == nullptr) {
+      return null;
+    }
+     
+    return UserHandle._(userPtr);
+  }
 }
 
 class LastError {

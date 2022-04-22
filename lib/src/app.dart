@@ -126,6 +126,16 @@ class App {
     var userHandle = await realmCore.logIn(this, credentials);
     return UserInternal.create(userHandle);
   }
+
+  /// Gets the currently logged in [User]. If none exists, `null` is returned.
+  User? get currentUser {
+    final userHandle = realmCore.getCurrentUser(_handle);
+    if (userHandle == null) {
+      return null;
+    }
+    
+    return UserInternal.create(userHandle);
+  }
 }
 
 /// @nodoc
