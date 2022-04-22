@@ -16,24 +16,23 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:io';
+import 'native/realm_core.dart';
 
-import 'package:test/test.dart' hide test, throws;
-import '../lib/realm.dart';
-import 'test.dart';
+/// This class represents a user in a MongoDB Realm app.
+/// A user can log in to the server and, if access is granted, it is possible to synchronize the local Realm to MongoDB.
+/// Moreover, synchronization is halted when the user is logged out. It is possible to persist a user. By retrieving a user, there is no need to log in again.
+/// Persisting a user between sessions, the user's credentials are stored
+/// locally on the device, and should be treated as sensitive data.
+/// {@category Application}
+class User {
+  final UserHandle _handle;
 
-Future<void> main([List<String>? args]) async {
-  print("Current PID $pid");
+  User._(this._handle);
+}
 
-  setupTests(args);
+/// @nodoc
+extension UserInternal on User {
+  UserHandle get handle => _handle;
 
-  test('Credentials anonymous', () {
-    final credentials = Credentials.anonymous();
-    expect(credentials.provider, AuthProviderType.anonymous);
-  });
-
-  test('Credentials email/password', () {
-    final credentials = Credentials.emailPassword("test@email.com", "000000");
-    expect(credentials.provider, AuthProviderType.emailPassword);
-  });
+  static User create(UserHandle handle) => User._(handle);
 }

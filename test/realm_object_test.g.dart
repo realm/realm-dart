@@ -93,7 +93,7 @@ class StringPrimaryKey extends _StringPrimaryKey with RealmEntity, RealmObject {
 
 class UuidPrimaryKey extends _UuidPrimaryKey with RealmEntity, RealmObject {
   UuidPrimaryKey(
-    UuidValue id,
+    Uuid id,
   ) {
     RealmObject.set(this, 'id', id);
   }
@@ -101,9 +101,9 @@ class UuidPrimaryKey extends _UuidPrimaryKey with RealmEntity, RealmObject {
   UuidPrimaryKey._();
 
   @override
-  UuidValue get id => RealmObject.get<UuidValue>(this, 'id') as UuidValue;
+  Uuid get id => RealmObject.get<Uuid>(this, 'id') as Uuid;
   @override
-  set id(UuidValue value) => throw RealmUnsupportedSetError();
+  set id(Uuid value) => throw RealmUnsupportedSetError();
 
   @override
   Stream<RealmObjectChanges<UuidPrimaryKey>> get changes =>

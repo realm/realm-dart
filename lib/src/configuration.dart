@@ -119,7 +119,7 @@ class Configuration {
   /// add some initial data that your app needs. The function will not execute for existing
   /// Realms, even if all objects in the Realm are deleted.
   final Function(Realm realm)? initialDataCallback;
-  
+
   /// The function called when opening a Realm for the first time
   /// during the life of a process to determine if it should be compacted
   /// before being returned to the user.
@@ -128,7 +128,7 @@ class Configuration {
   /// [usedSize] - The total bytes used by data in the file.
   /// It returns true to indicate that an attempt to compact the file should be made.
   /// The compaction will be skipped if another process is currently accessing the realm file.
-  final Function(int totalSize, int usedSize)? shouldCompactCallback;
+  final bool Function(int totalSize, int usedSize)? shouldCompactCallback;
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].
