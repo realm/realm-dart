@@ -61,6 +61,7 @@ class _RealmCore {
   _RealmCore._() {
     final lib = initRealm();
     _realmLib = RealmLibrary(lib);
+
     _deletePersistentHandleFuncPtr = lib.lookup<NativeFunction<Void Function(Pointer<Void>)>>('delete_persistent_handle');
   }
 
@@ -913,6 +914,95 @@ class _RealmCore {
             app.handle._pointer,
             email.toUtf8Ptr(arena),
             password.toRealmString(arena).ref,
+            Pointer.fromFunction(void_completion_callback),
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
+          ));
+    });
+    return completer.future;
+  }
+
+  Future<void> emailPasswordConfirmUser(Application application, String token, String tokenId) {
+    final completer = Completer<void>();
+    using((arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_confirm_user(
+            application.handle._pointer,
+            token.toUtf8Ptr(arena),
+            tokenId.toUtf8Ptr(arena),
+            Pointer.fromFunction(void_completion_callback),
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
+          ));
+    });
+    return completer.future;
+  }
+
+  Future<void> emailPasswordResendUserConfirmation(Application application, String email) {
+    final completer = Completer<void>();
+    using((arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_resend_confirmation_email(
+            application.handle._pointer,
+            email.toUtf8Ptr(arena),
+            Pointer.fromFunction(void_completion_callback),
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
+          ));
+    });
+    return completer.future;
+  }
+
+  Future<void> emailPasswordCompleteResetPassword(Application application, String password, String token, String tokenId) {
+    final completer = Completer<void>();
+    using((arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_reset_password(
+            application.handle._pointer,
+            password.toRealmString(arena).ref,
+            token.toUtf8Ptr(arena),
+            tokenId.toUtf8Ptr(arena),
+            Pointer.fromFunction(void_completion_callback),
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
+          ));
+    });
+    return completer.future;
+  }
+
+  Future<void> emailPasswordResetPassword(Application application, String email) {
+    final completer = Completer<void>();
+    using((arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_send_reset_password_email(
+            application.handle._pointer,
+            email.toUtf8Ptr(arena),
+            Pointer.fromFunction(void_completion_callback),
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
+          ));
+    });
+    return completer.future;
+  }
+
+  Future<void> emailPasswordCallResetPasswordFunction(Application application, String email, String password, String argsAsJSON) {
+    final completer = Completer<void>();
+    using((arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_call_reset_password_function(
+            application.handle._pointer,
+            email.toUtf8Ptr(arena),
+            password.toRealmString(arena).ref,
+            argsAsJSON.toUtf8Ptr(arena),
+            Pointer.fromFunction(void_completion_callback),
+            completer.toPersistentHandle(),
+            _deletePersistentHandleFuncPtr,
+          ));
+    });
+    return completer.future;
+  }
+
+  Future<void> emailPasswordRetryCustomConfirmationFunction(Application application, String email) {
+    final completer = Completer<void>();
+    using((arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_retry_custom_confirmation(
+            application.handle._pointer,
+            email.toUtf8Ptr(arena),
             Pointer.fromFunction(void_completion_callback),
             completer.toPersistentHandle(),
             _deletePersistentHandleFuncPtr,
