@@ -1078,6 +1078,22 @@ class _RealmCore {
       return userHandles;
     });
   }
+
+  void switchUser(App application, User user) {
+    return using((arena) {
+      final newUserPtr = arena<Pointer<realm_user>>();
+      _realmLib.invokeGetBool(
+          () => _realmLib.realm_app_switch_user(
+                application.handle._pointer,
+                user.handle._pointer,
+                newUserPtr,
+              ),
+          "Switch user failed");
+
+      //since we are not using the newUser instance we need to release it.
+      _realmLib.realm_release(newUserPtr.value.cast());
+    });
+  }
 }
 
 class LastError {

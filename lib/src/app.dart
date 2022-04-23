@@ -151,6 +151,11 @@ class App {
 
     return await realmCore.logOut(this, user);
   }
+
+  /// Switches the [currentUser] to the one specified in [user].
+  void switchUser(User user) {
+    realmCore.switchUser(this, user);
+  }
 }
 
 /// @nodoc
