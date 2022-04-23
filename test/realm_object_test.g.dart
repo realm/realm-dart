@@ -29,7 +29,7 @@ class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(ObjectIdPrimaryKey._);
-    return const SchemaObject(ObjectIdPrimaryKey, [
+    return const SchemaObject(ObjectIdPrimaryKey, 'ObjectIdPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
     ]);
   }
@@ -57,7 +57,7 @@ class IntPrimaryKey extends _IntPrimaryKey with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(IntPrimaryKey._);
-    return const SchemaObject(IntPrimaryKey, [
+    return const SchemaObject(IntPrimaryKey, 'IntPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
     ]);
   }
@@ -85,7 +85,7 @@ class StringPrimaryKey extends _StringPrimaryKey with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(StringPrimaryKey._);
-    return const SchemaObject(StringPrimaryKey, [
+    return const SchemaObject(StringPrimaryKey, 'StringPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
     ]);
   }
@@ -113,8 +113,43 @@ class UuidPrimaryKey extends _UuidPrimaryKey with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(UuidPrimaryKey._);
-    return const SchemaObject(UuidPrimaryKey, [
+    return const SchemaObject(UuidPrimaryKey, 'UuidPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
+    ]);
+  }
+}
+
+class RemappedFromAnotherFile extends _RemappedFromAnotherFile
+    with RealmEntity, RealmObject {
+  RemappedFromAnotherFile({
+    RemappedClass? linkToAnotherClass,
+  }) {
+    RealmObject.set(this, 'property with spaces', linkToAnotherClass);
+  }
+
+  RemappedFromAnotherFile._();
+
+  @override
+  RemappedClass? get linkToAnotherClass =>
+      RealmObject.get<RemappedClass>(this, 'property with spaces')
+          as RemappedClass?;
+  @override
+  set linkToAnotherClass(covariant RemappedClass? value) =>
+      RealmObject.set(this, 'property with spaces', value);
+
+  @override
+  Stream<RealmObjectChanges<RemappedFromAnotherFile>> get changes =>
+      RealmObject.getChanges<RemappedFromAnotherFile>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(RemappedFromAnotherFile._);
+    return const SchemaObject(RemappedFromAnotherFile, 'class with spaces', [
+      SchemaProperty('property with spaces', RealmPropertyType.object,
+          mapTo: 'property with spaces',
+          optional: true,
+          linkTarget: 'myRemappedClass'),
     ]);
   }
 }

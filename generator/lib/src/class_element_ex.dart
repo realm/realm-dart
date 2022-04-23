@@ -70,56 +70,27 @@ extension ClassElementEx on ClassElement {
       if (realmModelInfo == null) return null;
 
       final modelName = this.name;
-      String name;
 
-      // If mapTo annotation used, ensure that a valid name is specified.
-      final mapTo = mapToInfo;
-      if (mapTo != null) {
-        name = mapTo.value.getField('name')!.toStringValue()!;
-        if (!_validIdentifier.hasMatch(name)) {
-          final elementSpan = span!;
-          final file = elementSpan.file;
-          final nameExpression = mapTo.annotation.arguments!.arguments.first;
-          throw RealmInvalidGenerationSourceError(
-            "Invalid class name",
-            element: this,
-            primarySpan: ExpandedContextSpan(ExpandedContextSpan(nameExpression.span(file), [span!]), [span!]),
-            primaryLabel: "${'$nameExpression' == "'$name'" ? '' : "which evaluates to "}'$name' is not a valid class name",
-            secondarySpans: {
-              elementSpan: "when generating realm object class for '$displayName'",
-            },
-            todo: 'We need a valid indentifier',
-          );
-        }
-      } else {
-        // Else, ensure a valid prefix and suffix is used.
-        final prefix = session.prefix;
-        var suffix = session.suffix;
-        if (!modelName.startsWith(prefix)) {
-          throw RealmInvalidGenerationSourceError(
-            'Missing prefix on realm model name',
-            element: this,
-            primarySpan: span,
-            primaryLabel: 'missing prefix',
-            todo: //
-                'Either align class name to match prefix '
-                '${prefix is RegExp ? '${prefix.pattern} (regular expression)' : prefix}, '
-                'or add a @MapTo annotation.',
-          );
-        }
-        if (!modelName.endsWith(suffix)) {
-          throw RealmInvalidGenerationSourceError('Missing suffix on realm model name',
-              element: this,
-              primarySpan: span,
-              primaryLabel: 'missing suffix',
-              todo: //
-                  'Either align class name to suffix $suffix,'
-                  'or add a @MapTo annotation, ');
-        }
-
-        // Remove suffix and prefix, if any.
-        name = modelName.substring(0, modelName.length - suffix.length).replaceFirst(prefix, '');
+      // ensure a valid prefix and suffix is used.
+      final prefix = session.prefix;
+      var suffix = session.suffix;
+      if (!modelName.startsWith(prefix)) {
+        throw RealmInvalidGenerationSourceError(
+          'Missing prefix on realm model name',
+          element: this,
+          primarySpan: span,
+          primaryLabel: 'missing prefix',
+          todo: 'Align class name to match prefix ${prefix is RegExp ? '${prefix.pattern} (regular expression)' : prefix},',
+        );
       }
+
+      if (!modelName.endsWith(suffix)) {
+        throw RealmInvalidGenerationSourceError('Missing suffix on realm model name',
+            element: this, primarySpan: span, primaryLabel: 'missing suffix', todo: 'Align class name to have suffix $suffix,');
+      }
+
+      // Remove suffix and prefix, if any.
+      final name = modelName.substring(0, modelName.length - suffix.length).replaceFirst(prefix, '');
 
       // Check that mapping not already defined
       final mapped = session.mapping.putIfAbsent(name, () => this);
@@ -131,8 +102,7 @@ extension ClassElementEx on ClassElement {
             secondarySpans: {
               mapped.span!: '',
             },
-            todo: //
-                "Duplicate realm model definitions '$displayName' and '${mapped.displayName}'.");
+            todo: "Duplicate realm model definitions '$displayName' and '${mapped.displayName}'.");
       }
 
       // Check that realm model class does not extend another class than Object (not supported for now).
@@ -159,10 +129,27 @@ extension ClassElementEx on ClassElement {
         );
       }
 
+      final realmName = remappedRealmName ?? name;
+
+      // Core has a limit of 57 characters for SDK names (technically 63, but SDKs names are always prefixed class_)
+      if (realmName.length > 57) {
+        final clarification = realmName == name ? '' : ' which is stored as $realmName';
+        throw RealmInvalidGenerationSourceError(
+          "Invalid model name",
+          element: this,
+          primarySpan: span,
+          primaryLabel: "$realmName is too long (> 57 characters)",
+          todo: //
+              '$name$clarification is too long (${realmName.length} characters when max is 57). '
+              'Either rename it to something shorter or use the @MapTo annotation.',
+        );
+      }
+
       final mappedFields = fields.realmInfo.toList();
       return RealmModelInfo(
         name,
         modelName,
+        realmName,
         mappedFields,
       );
     } on InvalidGenerationSourceError catch (_) {

@@ -201,11 +201,10 @@ class _RealmCore {
   static int should_compact_callback(Pointer<Void> userdata, int totalSize, int usedSize) {
     final Configuration? config = userdata.toObject();
     if (config == null) {
-      return 0;
+      return FALSE;
     }
-    config.shouldCompactCallback!(totalSize, usedSize);
 
-    return 1;
+    return config.shouldCompactCallback!(totalSize, usedSize) ? TRUE : FALSE;
   }
 
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
@@ -333,6 +332,10 @@ class _RealmCore {
       final realm_value = _toRealmValue(value, arena);
       _realmLib.invokeGetBool(() => _realmLib.realm_set_value(object.handle._pointer, propertyKey, realm_value.ref, isDefault));
     });
+  }
+
+  String objectToString(RealmObject object) {
+    return _realmLib.realm_object_to_string(object.handle._pointer).cast<Utf8>().toDartString();
   }
 
   // For debugging
@@ -1017,7 +1020,6 @@ class _RealmCore {
     if (userPtr == nullptr) {
       return null;
     }
-
     return UserHandle._(userPtr);
   }
 
@@ -1048,6 +1050,10 @@ class _RealmCore {
             ),
         "Logout failed");
     return completer.future;
+  }
+
+  void clearCachedApps() {
+    _realmLib.realm_clear_cached_apps();
   }
 
   List<UserHandle> getUsers(App app) {

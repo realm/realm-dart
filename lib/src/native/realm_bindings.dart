@@ -2551,6 +2551,24 @@ class RealmLibrary {
   late final _realm_set_value = _realm_set_valuePtr.asFunction<
       int Function(ffi.Pointer<realm_object_t>, int, realm_value_t, int)>();
 
+  /// Serializes an object to json and returns it as string. Serializes a single level of properties only.
+  ///
+  /// @return a json-serialized representation of the object.
+  ffi.Pointer<ffi.Int8> realm_object_to_string(
+    ffi.Pointer<realm_object_t> arg0,
+  ) {
+    return _realm_object_to_string(
+      arg0,
+    );
+  }
+
+  late final _realm_object_to_stringPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Int8> Function(
+              ffi.Pointer<realm_object_t>)>>('realm_object_to_string');
+  late final _realm_object_to_string = _realm_object_to_stringPtr.asFunction<
+      ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_object_t>)>();
+
   /// Set the values for several properties.
   ///
   /// This is provided as an alternative to calling `realm_get_value()` multiple

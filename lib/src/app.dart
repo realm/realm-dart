@@ -118,8 +118,7 @@ class App {
   final AppConfiguration configuration;
 
   /// Create an app with a particular [AppConfiguration]
-  App(this.configuration) : 
-    _handle = realmCore.getApp(configuration);
+  App(this.configuration) : _handle = realmCore.getApp(configuration);
 
   /// Logs in a user with the given credentials.
   Future<User> logIn(Credentials credentials) async {
@@ -133,17 +132,16 @@ class App {
     if (userHandle == null) {
       return null;
     }
-
     return UserInternal.create(userHandle);
   }
 
-  /// Gets all currently logged in users. 
+  /// Gets all currently logged in users.
   Iterable<User> get users {
     return realmCore.getUsers(this).map((handle) => UserInternal.create(handle));
   }
 
   /// Removes the user's local credentials and attempts to invalidate their refresh token from the server.
-  /// 
+  ///
   /// If [user] is null logs out [currentUser] if it exists.
   Future<void> logout(User? user) async {
     user ??= currentUser;
