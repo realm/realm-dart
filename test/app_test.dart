@@ -57,17 +57,16 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     expect(app.configuration, configuration);
   });
-  
+
   baasTest('App log in', (configuration) async {
     final app = App(configuration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
   });
-  
-  baasTest('Application log in', (appConfig) async {
-    final application = App(appConfig);
-    final credentials = Credentials.anonymous();
-    // ignore: unused_local_variable
-    final user = await application.logIn(credentials);
+  test('Application get all users', () {
+    final configuration = AppConfiguration(generateRandomString(10));
+    final app = App(configuration);
+    var users = app.users;
+    expect(users.isEmpty, true);
   });
 }

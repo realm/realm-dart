@@ -212,7 +212,7 @@ Future<void> setupBaas() async {
 @isTest
 Future<void> baasTest(
   String name,
-  FutureOr<void> Function(AppConfiguration configuration) testFunction, {
+  FutureOr<void> Function(AppConfiguration appConfig) testFunction, {
   String appName = 'flexible',
   dynamic skip,
 }) async {
@@ -225,14 +225,14 @@ Future<void> baasTest(
   }
 
   test(name, () async {
-    final app = baasApps[appName] ?? baasApps.values.first;
-    final temporary = await Directory.systemTemp.createTemp('realm_test_');
-    final configuration = AppConfiguration(
+    final app = baasApps[appName] ?? baasApps.values.firstWhere((element) => true, orElse: () => throw RealmError("No BAAS apps"));
+    final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
+    final appConfig = AppConfiguration(
       app.clientAppId,
       baseUrl: url,
-      baseFilePath: temporary,
+      baseFilePath: temporaryDir,
     );
-    return await testFunction(configuration);
+    return await testFunction(appConfig);
   }, skip: skip);
 }
 

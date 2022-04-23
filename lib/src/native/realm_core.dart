@@ -1055,6 +1055,29 @@ class _RealmCore {
   void clearCachedApps() {
     _realmLib.realm_clear_cached_apps();
   }
+
+  List<UserHandle> getUsers(App app) {
+    return using((arena) {
+      final usersCount = arena<IntPtr>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_get_all_users(app.handle._pointer, nullptr, 0, usersCount));
+
+      final usersPtr = arena<Pointer<realm_user>>(usersCount.value);
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_get_all_users(
+            app.handle._pointer,
+            Pointer.fromAddress(usersPtr.address),
+            usersCount.value,
+            usersCount,
+          ));
+
+      final userHandles = <UserHandle>[];
+      for (var i = 0; i < usersCount.value; i++) {
+        final usrPtr = usersPtr.elementAt(i).value;
+        userHandles.add(UserHandle._(usrPtr));
+      }
+
+      return userHandles;
+    });
+  }
 }
 
 class LastError {
