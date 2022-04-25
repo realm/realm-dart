@@ -87,6 +87,13 @@ class $RemappedClass {
   late List<$RemappedClass> listProperty;
 }
 
+@RealmModel()
+class _Task {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+}
+
 String? testName;
 final baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
@@ -239,6 +246,7 @@ Future<void> baasTest(
     skip = skip || url == null ? "BAAS URL not present" : false;
   }
 
+  print('skip: $skip');
   test(name, () async {
     final app = baasApps[appName.name] ??
         baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
@@ -248,6 +256,7 @@ Future<void> baasTest(
       baseUrl: url,
       baseFilePath: temporaryDir,
     );
+    print('test');
     return await testFunction(appConfig);
   }, skip: skip);
 }

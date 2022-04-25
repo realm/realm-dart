@@ -28,14 +28,15 @@ import 'realm_class.dart';
 ///
 /// {@category Realm}
 class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
+  final RealmQueryHandle _queryHandle;
   final RealmResultsHandle _handle;
 
   /// The Realm instance this collection belongs to.
   final Realm realm;
-   
+
   final _supportsSnapshot = <T>[] is List<RealmObject?>;
 
-  RealmResults._(this._handle, this.realm);
+  RealmResults._(this._queryHandle, this._handle, this.realm);
 
   /// Returns the element of type `T` at the specified [index].
   T operator [](int index) {
@@ -48,8 +49,8 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query(String query, [List<Object> args = const []]) {
-    final handle = realmCore.queryResults(this, query, args);
-    return RealmResultsInternal.create<T>(handle, realm);
+    final queryHandle = realmCore.queryResults(this, query, args);
+    return RealmResultsInternal.create<T>(queryHandle, realm);
   }
 
   /// `true` if the `Results` collection is empty.
@@ -62,7 +63,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
     var results = this;
     if (_supportsSnapshot) {
       final handle = realmCore.resultsSnapshot(this);
-      results = RealmResultsInternal.create<T>(handle, realm);
+      results = RealmResults._(_queryHandle, handle, realm);
     }
     return _RealmResultsIterator(results);
   }
@@ -81,10 +82,11 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
 /// @nodoc
 //RealmResults package internal members
 extension RealmResultsInternal on RealmResults {
+  RealmQueryHandle get queryHandle => _queryHandle;
   RealmResultsHandle get handle => _handle;
 
-  static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm) {
-    return RealmResults<T>._(handle, realm);
+  static RealmResults<T> create<T extends RealmObject>(RealmQueryHandle queryHandle, Realm realm) {
+    return RealmResults<T>._(queryHandle, realmCore.queryFindAll(queryHandle), realm);
   }
 }
 
