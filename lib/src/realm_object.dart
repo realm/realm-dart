@@ -90,14 +90,20 @@ class RealmValuesAccessor implements RealmAccessor {
   }
 }
 
-class RealmMetadata {
-  RealmClassMetadata class_;
+class RealmObjectMetadata {
+  final int tableKey;
+  final String name;
+  final Type type;
+  final String? primaryKey;
+
   final Map<String, RealmPropertyMetadata> _propertyKeys;
 
-  RealmMetadata(this.class_, this._propertyKeys);
+  String get _nameForExceptions => type == RealmObject ? name : type.toString();
+
+  RealmObjectMetadata(this.name, this.type, this.primaryKey, this.tableKey, this._propertyKeys);
 
   RealmPropertyMetadata operator [](String propertyName) =>
-      _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exists on class ${class_.type.runtimeType}"));
+      _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exists on class $_nameForExceptions"));
 
   String? getPropertyName(int propertyKey) {
     for (final entry in _propertyKeys.entries) {
@@ -109,22 +115,15 @@ class RealmMetadata {
   }
 }
 
-class RealmClassMetadata {
-  final int key;
-  final Type type;
-  final String? primaryKey;
-
-  RealmClassMetadata(this.type, int classKey, [this.primaryKey]) : key = classKey;
-}
-
 class RealmPropertyMetadata {
   final int key;
   final RealmCollectionType collectionType;
-  const RealmPropertyMetadata(this.key, [this.collectionType = RealmCollectionType.none]);
+  final String? objectType;
+  const RealmPropertyMetadata(this.key, this.objectType, [this.collectionType = RealmCollectionType.none]);
 }
 
 class RealmCoreAccessor implements RealmAccessor {
-  final RealmMetadata metadata;
+  final RealmObjectMetadata metadata;
 
   RealmCoreAccessor(this.metadata);
 
@@ -134,18 +133,20 @@ class RealmCoreAccessor implements RealmAccessor {
       final propertyMeta = metadata[name];
       if (propertyMeta.collectionType == RealmCollectionType.list) {
         final handle = realmCore.getListProperty(object, propertyMeta.key);
-        return object.realm.createList<T>(handle);
+        final listMeta = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
+        return object.realm.createList<T>(handle, listMeta);
       }
 
       Object? value = realmCore.getProperty(object, propertyMeta.key);
 
       if (value is RealmObjectHandle) {
-        return object.realm.createObject(T, value);
+        final targetMetadata = propertyMeta.objectType != null ? object.realm.metadata.getByName(propertyMeta.objectType!) : object.realm.metadata.getByType(T);
+        return object.realm.createObject(T, value, targetMetadata);
       }
 
       return value;
     } on Exception catch (e) {
-      throw RealmException("Error getting property ${metadata.class_.type}.$name Error: $e");
+      throw RealmException("Error getting property ${metadata._nameForExceptions}.$name Error: $e");
     }
   }
 
@@ -173,7 +174,7 @@ class RealmCoreAccessor implements RealmAccessor {
 
       realmCore.setProperty(object, propertyMeta.key, value, isDefault);
     } on Exception catch (e) {
-      throw RealmException("Error setting property ${metadata.class_.type}.$name Error: $e");
+      throw RealmException("Error setting property ${metadata._nameForExceptions}.$name Error: $e");
     }
   }
 }
@@ -203,7 +204,9 @@ extension RealmEntityInternal on RealmEntity {
 mixin RealmObject on RealmEntity {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
-  static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{};
+  static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{
+    RealmObject: () => DynamicRealmObject._(),
+  };
 
   /// @nodoc
   static Object? get<T extends Object>(RealmObject object, String name) {
@@ -291,9 +294,7 @@ extension RealmObjectInternal on RealmObject {
     }
 
     final object = RealmObject._factories[type]!();
-    object._handle = handle;
-    object._accessor = accessor;
-    object._realm = realm;
+    object.manage(realm, handle, accessor);
     return object;
   }
 
@@ -365,4 +366,9 @@ class RealmObjectNotificationsController<T extends RealmObject> extends Notifica
   void onError(RealmError error) {
     streamController.addError(error);
   }
+}
+
+/// @nodoc
+class DynamicRealmObject with RealmEntity, RealmObject {
+  DynamicRealmObject._();
 }

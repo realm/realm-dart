@@ -5,6 +5,7 @@ class _IntPK {
   @PrimaryKey()
   late int id;
 }
+
 @RealmModel()
 class _StringPK {
   @PrimaryKey()

@@ -22,12 +22,14 @@ import 'dart:collection' as collection;
 import 'collections.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
+import 'realm_object.dart' show RealmObjectMetadata;
 
 /// Instances of this class are live collections and will update as new elements are either
 /// added to or deleted from the Realm that match the underlying query.
 ///
 /// {@category Realm}
 class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
+  final RealmObjectMetadata? _metadata;
   final RealmResultsHandle _handle;
 
   /// The Realm instance this collection belongs to.
@@ -35,12 +37,12 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
 
   final _supportsSnapshot = <T>[] is List<RealmObject?>;
 
-  RealmResults._(this._handle, this.realm);
+  RealmResults._(this._handle, this.realm, this._metadata);
 
   /// Returns the element of type `T` at the specified [index].
   T operator [](int index) {
     final handle = realmCore.getObjectAt(this, index);
-    return realm.createObject(T, handle) as T;
+    return realm.createObject(T, handle, _metadata!) as T;
   }
 
   /// Returns a new [RealmResults] filtered according to the provided query.
@@ -49,7 +51,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query(String query, [List<Object> args = const []]) {
     final handle = realmCore.queryResults(this, query, args);
-    return RealmResultsInternal.create<T>(handle, realm);
+    return RealmResultsInternal.create<T>(handle, realm, _metadata);
   }
 
   /// `true` if the `Results` collection is empty.
@@ -62,7 +64,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
     var results = this;
     if (_supportsSnapshot) {
       final handle = realmCore.resultsSnapshot(this);
-      results = RealmResults._(handle, realm);
+      results = RealmResultsInternal.create<T>(handle, realm, _metadata);
     }
     return _RealmResultsIterator(results);
   }
@@ -83,8 +85,8 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
 extension RealmResultsInternal on RealmResults {
   RealmResultsHandle get handle => _handle;
 
-  static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm) {
-    return RealmResults<T>._(handle, realm);
+  static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm, RealmObjectMetadata? metadata) {
+    return RealmResults<T>._(handle, realm, metadata);
   }
 }
 

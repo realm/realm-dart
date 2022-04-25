@@ -30,6 +30,8 @@ import 'results.dart';
 ///
 /// {@category Realm}
 abstract class RealmList<T extends Object> with RealmEntity implements List<T> {
+  late final RealmObjectMetadata? _metadata;
+
   /// Gets a value indicating whether this collection is still valid to use.
   ///
   /// Indicates whether the [Realm] instance hasn't been closed,
@@ -37,14 +39,17 @@ abstract class RealmList<T extends Object> with RealmEntity implements List<T> {
   /// and it's parent object hasn't been deleted.
   bool get isValid;
 
-  factory RealmList._(RealmListHandle handle, Realm realm) => ManagedRealmList._(handle, realm);
+  factory RealmList._(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => ManagedRealmList._(handle, realm, metadata);
   factory RealmList(Iterable<T> items) => UnmanagedRealmList(items);
 }
 
 class ManagedRealmList<T extends Object> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
   final RealmListHandle _handle;
 
-  ManagedRealmList._(this._handle, Realm realm) {
+  @override
+  late final RealmObjectMetadata? _metadata;
+
+  ManagedRealmList._(this._handle, Realm realm, this._metadata) {
     setRealm(realm);
   }
 
@@ -67,7 +72,7 @@ class ManagedRealmList<T extends Object> extends collection.ListBase<T> with Rea
       final value = realmCore.listGetElementAt(this, index);
 
       if (value is RealmObjectHandle) {
-        return realm.createObject(T, value) as T;
+        return realm.createObject(T, value, _metadata!) as T;
       }
 
       return value as T;
@@ -101,6 +106,12 @@ class UnmanagedRealmList<T extends Object> extends collection.ListBase<T> with R
   }
 
   @override
+  RealmObjectMetadata? get _metadata => throw RealmException("Unmanaged lists don't have metadata associated with them.");
+
+  @override
+  set _metadata(RealmObjectMetadata? _) => throw RealmException("Unmanaged lists don't have metadata associated with them.");
+
+  @override
   int get length => _unmanaged.length;
 
   @override
@@ -132,7 +143,7 @@ extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
   RealmResults<T> query(String query, [List<Object> arguments = const []]) {
     final managedList = asManaged();
     final handle = realmCore.queryList(managedList, query, arguments);
-    return RealmResultsInternal.create<T>(handle, realm);
+    return RealmResultsInternal.create<T>(handle, realm, _metadata);
   }
 
   /// Allows listening for changes when the contents of this collection changes.
@@ -149,7 +160,7 @@ extension RealmListInternal<T extends Object> on RealmList<T> {
 
   RealmListHandle get handle => asManaged()._handle;
 
-  static RealmList<T> create<T extends Object>(RealmListHandle handle, Realm realm) => RealmList<T>._(handle, realm);
+  static RealmList<T> create<T extends Object>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
 
   static void setValue(RealmListHandle handle, Realm realm, int index, Object? value) {
     if (index < 0) {
