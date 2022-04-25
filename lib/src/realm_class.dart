@@ -28,6 +28,7 @@ import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'results.dart';
+import 'subscription.dart';
 
 // always expose with `show` to explicitly control the public API surface
 export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App;
@@ -242,9 +243,13 @@ class Realm {
   ///
   /// The returned [RealmResults] allows iterating all the values without further filtering.
   RealmResults<T> all<T extends RealmObject>() {
+    return query('TRUEPREDICATE');
+    // TODO: The below is more efficient, but doesn't expose the query. We should fix the C-API.
+    /*
     RealmMetadata metadata = _getMetadata(T);
     final handle = realmCore.findAll(this, metadata.class_.key);
     return RealmResultsInternal.create<T>(handle, this);
+    */
   }
 
   /// Returns all [RealmObject]s that match the specified [query].
@@ -253,12 +258,21 @@ class Realm {
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query<T extends RealmObject>(String query, [List<Object> args = const []]) {
     RealmMetadata metadata = _getMetadata(T);
-    final handle = realmCore.queryClass(this, metadata.class_.key, query, args);
-    return RealmResultsInternal.create<T>(handle, this);
+    final queryHandle = realmCore.queryClass(this, metadata.class_.key, query, args);
+    return RealmResultsInternal.create<T>(queryHandle, this);
   }
 
   /// Deletes all [RealmObject]s of type `T` in the `Realm`
   void deleteAll<T extends RealmObject>() => deleteMany(all<T>());
+
+  SubscriptionSet? _subscriptions;
+  SubscriptionSet? get subscriptions {
+    if (config is FlexibleSyncConfiguration) {
+      _subscriptions ??= SubscriptionSetInternal.create(realmCore.getSubscriptions(this));
+      // TODO: Refresh _subscriptions, if needed.
+    }
+    return _subscriptions;
+  }
 
   @override
   // ignore: hash_and_equals
