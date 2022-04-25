@@ -32,10 +32,6 @@ Future<void> main([List<String>? args]) async {
     Configuration([Car.schema]);
   });
 
-  test('Configuration exception if no schema', () {
-    expect(() => Configuration([]), throws<RealmException>());
-  });
-
   test('Configuration default path', () {
     if (Platform.isAndroid || Platform.isIOS) {
       expect(Configuration.defaultPath, endsWith(".realm"));
