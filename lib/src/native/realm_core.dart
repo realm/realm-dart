@@ -70,7 +70,7 @@ class _RealmCore {
     return _instance ??= _RealmCore._();
   }
 
-  String get libraryVersion => _realmLib.realm_get_library_version().cast<Utf8>().toDartString();
+  String get libraryVersion => _realmLib.realm_get_library_version().toDartString()!;
 
   LastError? getLastError(Allocator allocator) {
     final error = allocator<realm_error_t>();
@@ -79,12 +79,7 @@ class _RealmCore {
       return null;
     }
 
-    String? message;
-    if (error.ref.message != nullptr) {
-      message = error.ref.message.cast<Utf8>().toDartString();
-    }
-
-    return LastError(error.ref.error, message);
+    return LastError(error.ref.error, error.ref.message.toDartString());
   }
 
   void throwLastError([String? errorMessage]) {
@@ -242,7 +237,7 @@ class _RealmCore {
     final classInfo = arena<realm_class_info>();
     _realmLib.invokeGetBool(() => _realmLib.realm_get_class(realm.handle._pointer, classKey, classInfo));
 
-    final name = classInfo.ref.name.cast<Utf8>().toDartString();
+    final name = classInfo.ref.name.toDartString()!;
 
     final nativeProperties = _getValues<realm_property_info, realm_property_info>(
         arena,
@@ -280,7 +275,7 @@ class _RealmCore {
   }
 
   String getFilesPath() {
-    return _realmLib.realm_dart_get_files_path().cast<Utf8>().toDartString();
+    return _realmLib.realm_dart_get_files_path().toDartString()!;
   }
 
   void closeRealm(Realm realm) {
@@ -322,13 +317,7 @@ class _RealmCore {
         throwLastError("Class $className not found in ${realm.config.path}");
       }
 
-      String? primaryKey;
-      if (classInfo.ref.primary_key != nullptr) {
-        primaryKey = classInfo.ref.primary_key.cast<Utf8>().toDartString();
-        if (primaryKey.isEmpty) {
-          primaryKey = null;
-        }
-      }
+      final primaryKey = classInfo.ref.primary_key.toDartString(treatEmptyAsNull: true);
       return RealmObjectMetadata(className, classType, primaryKey, classInfo.ref.key, _getPropertyMetadata(realm, classInfo.ref.key));
     });
   }
@@ -348,8 +337,8 @@ class _RealmCore {
       Map<String, RealmPropertyMetadata> result = <String, RealmPropertyMetadata>{};
       for (var i = 0; i < propertyCount; i++) {
         final property = propertiesPtr.elementAt(i);
-        final propertyName = property.ref.name.cast<Utf8>().toDartString();
-        final objectType = property.ref.link_target == nullptr ? null : property.ref.link_target.cast<Utf8>().toDartString();
+        final propertyName = property.ref.name.toDartString()!;
+        final objectType = property.ref.link_target.toDartString(treatEmptyAsNull: true);
         final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, RealmCollectionType.values.elementAt(property.ref.collection_type));
         result[propertyName] = propertyMeta;
       }
@@ -386,7 +375,7 @@ class _RealmCore {
   }
 
   String objectToString(RealmObject object) {
-    return _realmLib.realm_object_to_string(object.handle._pointer).cast<Utf8>().toDartString();
+    return _realmLib.realm_object_to_string(object.handle._pointer).toDartString()!;
   }
 
   // For debugging
@@ -790,15 +779,15 @@ class _RealmCore {
 
     client.connectionTimeout = Duration(milliseconds: request.timeout_ms);
 
-    final url = Uri.parse(request.url.cast<Utf8>().toDartString());
+    final url = Uri.parse(request.url.toDartString()!);
 
-    final body = request.body.cast<Utf8>().toDartString();
+    final body = request.body.toDartString()!;
 
     final headers = <String, String>{};
     for (int i = 0; i < request.num_headers; ++i) {
       final header = request.headers[i];
-      final name = header.name.cast<Utf8>().toDartString();
-      final value = header.value.cast<Utf8>().toDartString();
+      final name = header.name.toDartString()!;
+      final value = header.value.toDartString()!;
       headers[name] = value;
     }
 
@@ -919,7 +908,7 @@ class _RealmCore {
     }
 
     if (error != nullptr) {
-      final message = error.ref.message.cast<Utf8>().toDartString();
+      final message = error.ref.message.toDartString()!;
       completer.completeError(RealmException(message));
       return;
     }
@@ -954,7 +943,7 @@ class _RealmCore {
     }
 
     if (error != nullptr) {
-      final message = error.ref.message.cast<Utf8>().toDartString();
+      final message = error.ref.message.toDartString()!;
       completer.completeError(RealmException(message));
       return;
     }
@@ -1081,7 +1070,7 @@ class _RealmCore {
     }
 
     if (error != nullptr) {
-      final message = error.ref.message.cast<Utf8>().toDartString();
+      final message = error.ref.message.toDartString()!;
       completer.completeError(RealmException(message));
       return;
     }
@@ -1369,7 +1358,7 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_BOOL:
         return ref.values.boolean == 0;
       case realm_value_type.RLM_TYPE_STRING:
-        return ref.values.string.data.cast<Utf8>().toDartString(length: ref.values.string.size);
+        return ref.values.string.data.toDartString(length: ref.values.string.size);
       case realm_value_type.RLM_TYPE_FLOAT:
         return ref.values.fnum;
       case realm_value_type.RLM_TYPE_DOUBLE:
@@ -1420,6 +1409,20 @@ extension on Pointer<Void> {
   }
 }
 
+extension on Pointer<Int8> {
+  String? toDartString({bool treatEmptyAsNull = false, int? length}) {
+    if (this == nullptr) {
+      return null;
+    }
+
+    final result = cast<Utf8>().toDartString(length: length);
+    if (treatEmptyAsNull && result == '') {
+      return null;
+    }
+    return result;
+  }
+}
+
 extension on Object {
   Pointer<Void> toWeakHandle() {
     return _realmLib.object_to_weak_handle(this);
@@ -1432,11 +1435,10 @@ extension on Object {
 
 extension on realm_property_info {
   SchemaProperty toSchemaProperty() {
-    final linkTarget = link_target == nullptr ? null : link_target.cast<Utf8>().toDartString();
-    return SchemaProperty(name.cast<Utf8>().toDartString(), RealmPropertyType.values[type],
+    return SchemaProperty(name.toDartString()!, RealmPropertyType.values[type],
         optional: flags & realm_property_flags.RLM_PROPERTY_NULLABLE == realm_property_flags.RLM_PROPERTY_NULLABLE,
         primaryKey: flags & realm_property_flags.RLM_PROPERTY_PRIMARY_KEY == realm_property_flags.RLM_PROPERTY_PRIMARY_KEY,
-        linkTarget: linkTarget == null || linkTarget.isEmpty ? null : linkTarget,
+        linkTarget: link_target.toDartString(treatEmptyAsNull: true),
         collectionType: RealmCollectionType.values[collection_type]);
   }
 }
