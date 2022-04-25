@@ -148,10 +148,13 @@ class _RealmCore {
 
   ConfigHandle _createConfig(Configuration config, SchedulerHandle schedulerHandle) {
     return using((Arena arena) {
-      final schemaHandle = _createSchema(config.schema);
       final configPtr = _realmLib.realm_config_new();
       final configHandle = ConfigHandle._(configPtr);
-      _realmLib.realm_config_set_schema(configHandle._pointer, schemaHandle._pointer);
+      if (config.schemaObjects.isNotEmpty) {
+        final schemaHandle = _createSchema(config.schemaObjects);
+        _realmLib.realm_config_set_schema(configHandle._pointer, schemaHandle._pointer);
+      }
+
       _realmLib.realm_config_set_schema_version(configHandle._pointer, config.schemaVersion);
       _realmLib.realm_config_set_path(configHandle._pointer, config.path.toUtf8Ptr(arena));
       _realmLib.realm_config_set_scheduler(configHandle._pointer, schedulerHandle._pointer);
@@ -222,6 +225,53 @@ class _RealmCore {
     return RealmHandle._(realmPtr);
   }
 
+  RealmSchema readSchema(Realm realm) {
+    return using((Arena arena) {
+      final classKeys = _getValues<Uint32, int>(
+          arena,
+          (size) => arena<Uint32>(size),
+          (valuesPtr, size, outSize) => _realmLib.realm_get_class_keys(realm.handle._pointer, valuesPtr, size, outSize),
+          (values, index) => values.elementAt(index).value);
+
+      final result = classKeys.map((e) => _getSchemaForClassKey(realm, e, arena)).toList();
+      return RealmSchema(result);
+    });
+  }
+
+  SchemaObject _getSchemaForClassKey(Realm realm, int classKey, Arena arena) {
+    final classInfo = arena<realm_class_info>();
+    _realmLib.invokeGetBool(() => _realmLib.realm_get_class(realm.handle._pointer, classKey, classInfo));
+
+    final name = classInfo.ref.name.cast<Utf8>().toDartString();
+
+    final nativeProperties = _getValues<realm_property_info, realm_property_info>(
+        arena,
+        (size) => arena<realm_property_info>(size),
+        (valuesPtr, size, outSize) => _realmLib.realm_get_class_properties(realm.handle._pointer, classKey, valuesPtr, size, outSize),
+        (values, index) => values.elementAt(index).ref);
+
+    final properties = nativeProperties.map((e) => e.toSchemaProperty()).toList();
+
+    return SchemaObject(RealmObject, name, properties);
+  }
+
+  List<TReturn> _getValues<T extends NativeType, TReturn>(Arena arena, Pointer<T> Function(int size) createPtr,
+      bool Function(Pointer<T> valuesPtr, int size, Pointer<IntPtr> outSize) getValue, TReturn Function(Pointer<T> values, int index) getAtIndex) {
+    // TODO: this is a hack to get the size of the array and should not be needed once https://github.com/realm/realm-core/issues/5430 is addressed.
+    final valuesCount = arena<IntPtr>();
+    _realmLib.invokeGetBool(() => getValue(nullptr, 0, valuesCount));
+
+    final valuesPtr = createPtr(valuesCount.value);
+    _realmLib.invokeGetBool(() => getValue(valuesPtr, valuesCount.value, valuesCount));
+
+    final result = <TReturn>[];
+    for (var i = 0; i < valuesCount.value; i++) {
+      result.add(getAtIndex(valuesPtr, i));
+    }
+
+    return result;
+  }
+
   void deleteRealmFiles(String path) {
     using((Arena arena) {
       final realm_deleted = arena<Uint8>();
@@ -261,7 +311,7 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_refresh(realm.handle._pointer), "Could not refresh");
   }
 
-  RealmClassMetadata getClassMetadata(Realm realm, String className, Type classType) {
+  RealmObjectMetadata getObjectMedata(Realm realm, String className, Type classType) {
     return using((Arena arena) {
       final found = arena<Uint8>();
       final classInfo = arena<realm_class_info_t>();
@@ -279,11 +329,11 @@ class _RealmCore {
           primaryKey = null;
         }
       }
-      return RealmClassMetadata(classType, classInfo.ref.key, primaryKey);
+      return RealmObjectMetadata(className, classType, primaryKey, classInfo.ref.key, _getPropertyMetadata(realm, classInfo.ref.key));
     });
   }
 
-  Map<String, RealmPropertyMetadata> getPropertyMetadata(Realm realm, int classKey) {
+  Map<String, RealmPropertyMetadata> _getPropertyMetadata(Realm realm, int classKey) {
     return using((Arena arena) {
       final propertyCountPtr = arena<IntPtr>();
       _realmLib.invokeGetBool(
@@ -299,7 +349,8 @@ class _RealmCore {
       for (var i = 0; i < propertyCount; i++) {
         final property = propertiesPtr.elementAt(i);
         final propertyName = property.ref.name.cast<Utf8>().toDartString();
-        final propertyMeta = RealmPropertyMetadata(property.ref.key, RealmCollectionType.values.elementAt(property.ref.collection_type));
+        final objectType = property.ref.link_target == nullptr ? null : property.ref.link_target.cast<Utf8>().toDartString();
+        final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, RealmCollectionType.values.elementAt(property.ref.collection_type));
         result[propertyName] = propertyMeta;
       }
       return result;
@@ -1376,6 +1427,17 @@ extension on Object {
 
   Pointer<Void> toPersistentHandle() {
     return _realmLib.object_to_persistent_handle(this);
+  }
+}
+
+extension on realm_property_info {
+  SchemaProperty toSchemaProperty() {
+    final linkTarget = link_target == nullptr ? null : link_target.cast<Utf8>().toDartString();
+    return SchemaProperty(name.cast<Utf8>().toDartString(), RealmPropertyType.values[type],
+        optional: flags & realm_property_flags.RLM_PROPERTY_NULLABLE == realm_property_flags.RLM_PROPERTY_NULLABLE,
+        primaryKey: flags & realm_property_flags.RLM_PROPERTY_PRIMARY_KEY == realm_property_flags.RLM_PROPERTY_PRIMARY_KEY,
+        linkTarget: linkTarget == null || linkTarget.isEmpty ? null : linkTarget,
+        collectionType: RealmCollectionType.values[collection_type]);
   }
 }
 

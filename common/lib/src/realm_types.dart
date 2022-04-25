@@ -63,7 +63,7 @@ enum RealmCollectionType {
 class RealmError extends Error {
   final String? message;
   RealmError(String this.message);
-  
+
   @override
   String toString() => "Realm error : $message";
 }

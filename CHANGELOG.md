@@ -27,6 +27,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support EmailPassword retry custom user confirmation functions. ([#484](https://github.com/realm/realm-dart/pull/484))
 * Expose currentUser property on App. ([473](https://github.com/realm/realm-dart/pull/473))
 * Support logout user. ([#476](https://github.com/realm/realm-dart/pull/476))
+* Expose an API for string-based access to the objects in the `Realm`. Those are primarily intended to be used during migrations, but are available at all times for advanced use cases. [#495](https://github.com/realm/realm-dart/pull/495))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))

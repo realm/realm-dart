@@ -327,3 +327,192 @@ class RemappedClass extends $RemappedClass with RealmEntity, RealmObject {
     ]);
   }
 }
+
+class AllTypes extends _AllTypes with RealmEntity, RealmObject {
+  AllTypes(
+    String stringProp,
+    bool boolProp,
+    DateTime dateProp,
+    double doubleProp,
+    ObjectId objectIdProp,
+    Uuid uuidProp, {
+    String? nullableStringProp,
+    bool? nullableBoolProp,
+    DateTime? nullableDateProp,
+    double? nullableDoubleProp,
+    ObjectId? nullableObjectIdProp,
+    Uuid? nullableUuidProp,
+  }) {
+    RealmObject.set(this, 'stringProp', stringProp);
+    RealmObject.set(this, 'boolProp', boolProp);
+    RealmObject.set(this, 'dateProp', dateProp);
+    RealmObject.set(this, 'doubleProp', doubleProp);
+    RealmObject.set(this, 'objectIdProp', objectIdProp);
+    RealmObject.set(this, 'uuidProp', uuidProp);
+    RealmObject.set(this, 'nullableStringProp', nullableStringProp);
+    RealmObject.set(this, 'nullableBoolProp', nullableBoolProp);
+    RealmObject.set(this, 'nullableDateProp', nullableDateProp);
+    RealmObject.set(this, 'nullableDoubleProp', nullableDoubleProp);
+    RealmObject.set(this, 'nullableObjectIdProp', nullableObjectIdProp);
+    RealmObject.set(this, 'nullableUuidProp', nullableUuidProp);
+  }
+
+  AllTypes._();
+
+  @override
+  String get stringProp =>
+      RealmObject.get<String>(this, 'stringProp') as String;
+  @override
+  set stringProp(String value) => RealmObject.set(this, 'stringProp', value);
+
+  @override
+  bool get boolProp => RealmObject.get<bool>(this, 'boolProp') as bool;
+  @override
+  set boolProp(bool value) => RealmObject.set(this, 'boolProp', value);
+
+  @override
+  DateTime get dateProp =>
+      RealmObject.get<DateTime>(this, 'dateProp') as DateTime;
+  @override
+  set dateProp(DateTime value) => RealmObject.set(this, 'dateProp', value);
+
+  @override
+  double get doubleProp =>
+      RealmObject.get<double>(this, 'doubleProp') as double;
+  @override
+  set doubleProp(double value) => RealmObject.set(this, 'doubleProp', value);
+
+  @override
+  ObjectId get objectIdProp =>
+      RealmObject.get<ObjectId>(this, 'objectIdProp') as ObjectId;
+  @override
+  set objectIdProp(ObjectId value) =>
+      RealmObject.set(this, 'objectIdProp', value);
+
+  @override
+  Uuid get uuidProp => RealmObject.get<Uuid>(this, 'uuidProp') as Uuid;
+  @override
+  set uuidProp(Uuid value) => RealmObject.set(this, 'uuidProp', value);
+
+  @override
+  String? get nullableStringProp =>
+      RealmObject.get<String>(this, 'nullableStringProp') as String?;
+  @override
+  set nullableStringProp(String? value) =>
+      RealmObject.set(this, 'nullableStringProp', value);
+
+  @override
+  bool? get nullableBoolProp =>
+      RealmObject.get<bool>(this, 'nullableBoolProp') as bool?;
+  @override
+  set nullableBoolProp(bool? value) =>
+      RealmObject.set(this, 'nullableBoolProp', value);
+
+  @override
+  DateTime? get nullableDateProp =>
+      RealmObject.get<DateTime>(this, 'nullableDateProp') as DateTime?;
+  @override
+  set nullableDateProp(DateTime? value) =>
+      RealmObject.set(this, 'nullableDateProp', value);
+
+  @override
+  double? get nullableDoubleProp =>
+      RealmObject.get<double>(this, 'nullableDoubleProp') as double?;
+  @override
+  set nullableDoubleProp(double? value) =>
+      RealmObject.set(this, 'nullableDoubleProp', value);
+
+  @override
+  ObjectId? get nullableObjectIdProp =>
+      RealmObject.get<ObjectId>(this, 'nullableObjectIdProp') as ObjectId?;
+  @override
+  set nullableObjectIdProp(ObjectId? value) =>
+      RealmObject.set(this, 'nullableObjectIdProp', value);
+
+  @override
+  Uuid? get nullableUuidProp =>
+      RealmObject.get<Uuid>(this, 'nullableUuidProp') as Uuid?;
+  @override
+  set nullableUuidProp(Uuid? value) =>
+      RealmObject.set(this, 'nullableUuidProp', value);
+
+  @override
+  Stream<RealmObjectChanges<AllTypes>> get changes =>
+      RealmObject.getChanges<AllTypes>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(AllTypes._);
+    return const SchemaObject(AllTypes, 'AllTypes', [
+      SchemaProperty('stringProp', RealmPropertyType.string),
+      SchemaProperty('boolProp', RealmPropertyType.bool),
+      SchemaProperty('dateProp', RealmPropertyType.timestamp),
+      SchemaProperty('doubleProp', RealmPropertyType.double),
+      SchemaProperty('objectIdProp', RealmPropertyType.objectid),
+      SchemaProperty('uuidProp', RealmPropertyType.uuid),
+      SchemaProperty('nullableStringProp', RealmPropertyType.string,
+          optional: true),
+      SchemaProperty('nullableBoolProp', RealmPropertyType.bool,
+          optional: true),
+      SchemaProperty('nullableDateProp', RealmPropertyType.timestamp,
+          optional: true),
+      SchemaProperty('nullableDoubleProp', RealmPropertyType.double,
+          optional: true),
+      SchemaProperty('nullableObjectIdProp', RealmPropertyType.objectid,
+          optional: true),
+      SchemaProperty('nullableUuidProp', RealmPropertyType.uuid,
+          optional: true),
+    ]);
+  }
+}
+
+class LinksClass extends _LinksClass with RealmEntity, RealmObject {
+  LinksClass(
+    Uuid id, {
+    LinksClass? link,
+    Iterable<LinksClass> list = const [],
+  }) {
+    RealmObject.set(this, 'id', id);
+    RealmObject.set(this, 'link', link);
+    RealmObject.set<RealmList<LinksClass>>(
+        this, 'list', RealmList<LinksClass>(list));
+  }
+
+  LinksClass._();
+
+  @override
+  Uuid get id => RealmObject.get<Uuid>(this, 'id') as Uuid;
+  @override
+  set id(Uuid value) => throw RealmUnsupportedSetError();
+
+  @override
+  LinksClass? get link =>
+      RealmObject.get<LinksClass>(this, 'link') as LinksClass?;
+  @override
+  set link(covariant LinksClass? value) => RealmObject.set(this, 'link', value);
+
+  @override
+  RealmList<LinksClass> get list =>
+      RealmObject.get<LinksClass>(this, 'list') as RealmList<LinksClass>;
+  @override
+  set list(covariant RealmList<LinksClass> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<LinksClass>> get changes =>
+      RealmObject.getChanges<LinksClass>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(LinksClass._);
+    return const SchemaObject(LinksClass, 'LinksClass', [
+      SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
+      SchemaProperty('link', RealmPropertyType.object,
+          optional: true, linkTarget: 'LinksClass'),
+      SchemaProperty('list', RealmPropertyType.object,
+          linkTarget: 'LinksClass', collectionType: RealmCollectionType.list),
+    ]);
+  }
+}

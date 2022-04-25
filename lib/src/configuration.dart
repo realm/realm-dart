@@ -31,10 +31,10 @@ class Configuration {
   static String? _defaultPath;
 
   /// The [RealmSchema] for this [Configuration]
-  final RealmSchema schema;
+  final List<SchemaObject> schemaObjects;
 
   /// Creates a [Configuration] with schema objects for opening a [Realm].
-  Configuration(List<SchemaObject> schemaObjects,
+  Configuration(this.schemaObjects,
       {String? path,
       this.fifoFilesFallbackPath,
       this.isReadOnly = false,
@@ -43,8 +43,7 @@ class Configuration {
       this.disableFormatUpgrade = false,
       this.initialDataCallback,
       this.shouldCompactCallback})
-      : schema = RealmSchema(schemaObjects),
-        path = path ?? defaultPath;
+      : path = path ?? defaultPath;
 
   static String _initDefaultPath() {
     var path = "default.realm";
@@ -156,10 +155,6 @@ class RealmSchema extends Iterable<SchemaObject> {
 
   /// Initializes [RealmSchema] instance representing ```schemaObjects``` collection
   RealmSchema(List<SchemaObject> schemaObjects) {
-    if (schemaObjects.isEmpty) {
-      throw RealmException("No schema specified");
-    }
-
     _schema = schemaObjects;
   }
 

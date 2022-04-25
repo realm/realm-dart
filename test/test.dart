@@ -87,6 +87,32 @@ class $RemappedClass {
   late List<$RemappedClass> listProperty;
 }
 
+@RealmModel()
+class _AllTypes {
+  late String stringProp;
+  late bool boolProp;
+  late DateTime dateProp;
+  late double doubleProp;
+  late ObjectId objectIdProp;
+  late Uuid uuidProp;
+
+  late String? nullableStringProp;
+  late bool? nullableBoolProp;
+  late DateTime? nullableDateProp;
+  late double? nullableDoubleProp;
+  late ObjectId? nullableObjectIdProp;
+  late Uuid? nullableUuidProp;
+}
+
+@RealmModel()
+class _LinksClass {
+  @PrimaryKey()
+  late Uuid id;
+
+  late _LinksClass? link;
+  late List<_LinksClass> list;
+}
+
 String? testName;
 Map<String, BaasApp> baasApps = <String, BaasApp>{};
 
