@@ -28,8 +28,8 @@ jobs:
       - name: Create Release PR
         uses: peter-evans/create-pull-request@7380612b49221684fefa025244f2ef4008ae50ad #! 3.10.1
         with:
-          branch: test-release/${{ steps.update-changelog.outputs.new-version }}
-          base: test-master
+          branch: release/${{ steps.update-changelog.outputs.new-version }}
+          base: master
           title: Prepare for ${{ steps.update-changelog.outputs.new-version }}
           draft: false
           body: An automated PR for next release.
