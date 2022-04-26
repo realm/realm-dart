@@ -217,7 +217,15 @@ class _SyncConfigurationBase extends _ConfigurationBase {
         );
 }
 
+enum SessionStopPolicy {
+  immediately, // Immediately stop the session as soon as all Realms/Sessions go out of scope.
+  liveIndefinitely, // Never stop the session.
+  afterChangesUploaded, // Once all Realms/Sessions go out of scope, wait for uploads to complete and stop.
+}
+
 class FlexibleSyncConfiguration extends _SyncConfigurationBase {
+  SessionStopPolicy _sessionStopPolicy = SessionStopPolicy.afterChangesUploaded;
+
   FlexibleSyncConfiguration(
     User user,
     List<SchemaObject> schemaObjects, {
@@ -232,6 +240,11 @@ class FlexibleSyncConfiguration extends _SyncConfigurationBase {
           fifoFilesFallbackPath: fifoFilesFallbackPath,
           path: path,
         );
+}
+
+extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
+  SessionStopPolicy get sessionStopPolicy => _sessionStopPolicy;
+  set sessionStopPolicy(SessionStopPolicy value) => _sessionStopPolicy = value;
 }
 
 class InMemoryConfiguration extends _ConfigurationBase {
