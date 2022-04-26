@@ -1079,6 +1079,20 @@ class _RealmCore {
     });
   }
 
+  Future<void> removeUser(App app, User user) async {
+    final completer = Completer<void>();
+    _realmLib.invokeGetBool(
+        () => _realmLib.realm_app_remove_user(
+              app.handle._pointer,
+              user.handle._pointer,
+              Pointer.fromFunction(void_completion_callback),
+              completer.toPersistentHandle(),
+              _deletePersistentHandleFuncPtr,
+            ),
+        "Remove user failed");
+    return completer.future;
+  }
+  
   void switchUser(App application, User user) {
     return using((arena) {
       final newUserPtr = arena<Pointer<realm_user>>();

@@ -152,6 +152,11 @@ class App {
     return await realmCore.logOut(this, user);
   }
 
+  /// Removes a [user] and their local data from the device. If the user is logged in, they will be logged out in the process.
+  Future<void> removeUser(User user) async {
+    return await realmCore.removeUser(this, user);
+  }
+  
   /// Switches the [currentUser] to the one specified in [user].
   void switchUser(User user) {
     realmCore.switchUser(this, user);
