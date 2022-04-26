@@ -156,6 +156,11 @@ class App {
   Future<void> removeUser(User user) async {
     return await realmCore.removeUser(this, user);
   }
+  
+  /// Switches the [currentUser] to the one specified in [user].
+  void switchUser(User user) {
+    realmCore.switchUser(this, user);
+  }
 }
 
 /// @nodoc

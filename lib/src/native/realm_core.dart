@@ -1092,6 +1092,18 @@ class _RealmCore {
         "Remove user failed");
     return completer.future;
   }
+  
+  void switchUser(App application, User user) {
+    return using((arena) {
+      _realmLib.invokeGetBool(
+          () => _realmLib.realm_app_switch_user(
+                application.handle._pointer,
+                user.handle._pointer,
+                nullptr,
+              ),
+          "Switch user failed");
+    });
+  }
 }
 
 class LastError {
