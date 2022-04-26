@@ -78,7 +78,7 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
   @override
   _SubscriptionIterator get iterator => _SubscriptionIterator._(this);
 
-  void update(void Function(MutableSubscriptionSet subscriptions) action);
+  void update(void Function(MutableSubscriptionSet mutableSubscriptions) action);
 }
 
 extension SubscriptionSetInternal on SubscriptionSet {
@@ -93,7 +93,7 @@ class MutableSubscriptionSet extends SubscriptionSet {
   MutableSubscriptionSet._(SubscriptionSetHandle handle) : super._(handle);
 
   @override
-  void update(void Function(MutableSubscriptionSet subscriptions) action) {
+  void update(void Function(MutableSubscriptionSet mutableSubscriptions) action) {
     assert(_mutableHandle == null);
     var commit = false;
     try {
