@@ -897,7 +897,7 @@ class _RealmCore {
   }
 
   static void void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
-    final Completer<void>? completer = userdata.toObject();
+    final Completer<void>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
       return;
     }
