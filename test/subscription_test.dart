@@ -44,21 +44,21 @@ Future<void> main([List<String>? args]) async {
 
     expect(realm.subscriptions!.length, 1);
 
-    realm.subscriptions!.update((mutableSet) {
-      mutableSet.remove(query);
+    realm.subscriptions!.update((mutableSubscriptions) {
+      mutableSubscriptions.remove(query);
     });
 
     expect(realm.subscriptions, isEmpty);
 
     final name = 'a random name';
-    realm.subscriptions!.update((mutableSet) {
-      mutableSet.addOrUpdate(query, name: name);
+    realm.subscriptions!.update((mutableSubscriptions) {
+      mutableSubscriptions.addOrUpdate(query, name: name);
     });
 
     expect(realm.subscriptions!.findByName(name), isNotNull);
 
-    realm.subscriptions!.update((mutableSet) {
-      mutableSet.removeByName(name);
+    realm.subscriptions!.update((mutableSubscriptions) {
+      mutableSubscriptions.removeByName(name);
     });
 
     expect(realm.subscriptions, isEmpty);
