@@ -21,6 +21,7 @@ import 'dart:io';
 import 'package:test/expect.dart';
 
 import '../lib/realm.dart';
+import '../lib/src/configuration.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -28,11 +29,12 @@ Future<void> main([List<String>? args]) async {
 
   await setupTests(args);
 
-  baasTest('Get subscriptions', (configuration) async {
-    final app = App(configuration);
+  baasTest('Get subscriptions', (appConfiguration) async {
+    final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final realm = getRealm(Configuration.flexibleSync(user, [Task.schema]));
+    final configuration = (Configuration.flexibleSync(user, [Task.schema]) as FlexibleSyncConfiguration)..sessionStopPolicy = SessionStopPolicy.immediately;
+    final realm = getRealm(configuration);
 
     expect(realm.subscriptions, isEmpty);
 

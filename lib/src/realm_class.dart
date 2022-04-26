@@ -47,7 +47,7 @@ export 'package:realm_common/realm_common.dart'
 
 // always expose with `show` to explicitly control the public API surface
 export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App;
-export "configuration.dart" show Configuration, RealmSchema, SchemaObject;
+export "configuration.dart" show Configuration, RealmSchema, SchemaObject, FlexibleSyncConfiguration, LocalConfiguration, InMemoryConfiguration;
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
 export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges;
