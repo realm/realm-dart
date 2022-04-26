@@ -16,7 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:async';
 import 'dart:collection';
 
 import 'realm_class.dart';
@@ -42,6 +41,15 @@ class _SubscriptionIterator implements Iterator<Subscription> {
   bool moveNext() => ++_index < _subscriptions.length;
 }
 
+enum SubscriptionSetState {
+  uncommitted,
+  pending,
+  bootstrapping,
+  complete,
+  error,
+  superseded,
+}
+
 abstract class SubscriptionSet with IterableMixin<Subscription> {
   SubscriptionSetHandle _handle;
 
@@ -53,6 +61,10 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
 
   Subscription? findByName(String name) {
     return Subscription._(realmCore.findSubscriptionByName(this, name));
+  }
+
+  void waitForStateChange(SubscriptionSetState state) {
+    realmCore.waitForSubscriptionSetStateChangeSync(this, state);
   }
 
   @override
