@@ -69,6 +69,9 @@ class Realm {
   /// The [Configuration] object used to open this [Realm]
   Configuration get config => _config;
 
+  /// The schema of this [Realm]. If the [Configuration] was created with a
+  /// non-empty list of schemas, this will match the collection. Otherwise,
+  /// the schema will be read from the file.
   late final RealmSchema schema;
 
   /// Opens a `Realm` using a [Configuration] object.

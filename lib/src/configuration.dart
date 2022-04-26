@@ -20,8 +20,6 @@ import 'dart:io';
 
 import 'native/realm_core.dart';
 
-import 'realm_object.dart';
-import 'realm_property.dart';
 import 'package:path/path.dart' as _path;
 import 'realm_class.dart';
 
@@ -30,8 +28,9 @@ import 'realm_class.dart';
 class Configuration {
   static String? _defaultPath;
 
-  /// The [RealmSchema] for this [Configuration]
-  final List<SchemaObject> schemaObjects;
+  /// A collection of [SchemaObject] that will be used to construct the
+  /// [RealmSchema] once the Realm is opened.
+  final Iterable<SchemaObject> schemaObjects;
 
   /// Creates a [Configuration] with schema objects for opening a [Realm].
   Configuration(this.schemaObjects,
@@ -154,8 +153,8 @@ class RealmSchema extends Iterable<SchemaObject> {
   late final List<SchemaObject> _schema;
 
   /// Initializes [RealmSchema] instance representing ```schemaObjects``` collection
-  RealmSchema(List<SchemaObject> schemaObjects) {
-    _schema = schemaObjects;
+  RealmSchema(Iterable<SchemaObject> schemaObjects) {
+    _schema = schemaObjects.toList();
   }
 
   @override
