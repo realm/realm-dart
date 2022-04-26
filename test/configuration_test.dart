@@ -18,6 +18,7 @@
 
 // ignore_for_file: unused_local_variable
 import 'dart:io';
+import 'dart:math';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -298,18 +299,108 @@ Future<void> main([List<String>? args]) async {
     expect(callbackEx, isNotNull);
     expect(callbackEx.toString(), contains('The Realm is already in a write transaction'));
   });
-  
-  test('Configuration - do not compact on open realm', () {
+
+  test('Configuration.shouldCompact can return false', () {
+    var invoked = false;
     var config = Configuration([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
+      invoked = true;
       return false;
     });
+
     final realm = getRealm(config);
+    expect(invoked, true);
   });
 
-  test('Configuration - compact on open realm', () {
+  test('Configuration.shouldCompact invoked on every open', () {
+    var invoked = 0;
     var config = Configuration([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
+      invoked++;
+      return false;
+    });
+
+    final realm = getRealm(config);
+    expect(invoked, 1);
+    realm.close();
+
+    // Try to open the realm again - we should see the callback get invoked.
+    getRealm(config);
+    expect(invoked, 2);
+  });
+
+  test('Configuration.shouldCompact not invoked if a Realm is still open', () {
+    var invoked = 0;
+    var config = Configuration([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
+      invoked++;
+      return false;
+    });
+
+    final realm = getRealm(config);
+    expect(invoked, 1);
+
+    // Try to open the Realm again - callback should not be invoked because the first Realm
+    // is still open
+    getRealm(config);
+    expect(invoked, 1);
+  });
+
+  test('Configuration.shouldCompact can return true', () {
+    var invoked = false;
+    var config = Configuration([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
+      invoked = true;
       return totalSize > 0;
     });
+
     final realm = getRealm(config);
+    expect(invoked, true);
   });
+
+  const dummyDataSize = 100;
+  _addDummyData(Realm realm) {
+    for (var i = 0; i < dummyDataSize; i++) {
+      realm.write(() {
+        realm.add(Person(generateRandomString(1000)));
+      });
+    }
+
+    var rand = Random();
+    var people = realm.all<Person>();
+    for (var i = 0; i < dummyDataSize / 2; i++) {
+      realm.write(() {
+        final toDelete = people[rand.nextInt(people.length)];
+        realm.delete(toDelete);
+      });
+    }
+  }
+
+  for (var shouldCompact in [true, false]) {
+    test('Configuration.shouldCompact when return $shouldCompact triggers compaction', () {
+      var config = Configuration([Person.schema]);
+
+      final populateRealm = Realm(config);
+      _addDummyData(populateRealm);
+      populateRealm.close();
+
+      final oldSize = File(config.path).lengthSync();
+      var projectedNewSize = 0;
+
+      config = Configuration([Person.schema], shouldCompactCallback: (totalSize, usedSize) {
+        projectedNewSize = usedSize;
+        return shouldCompact;
+      });
+
+      final compactedRealm = getRealm(config);
+      final newSize = File(config.path).lengthSync();
+
+      if (shouldCompact) {
+        expect(newSize, lessThan(oldSize));
+
+        // Space occupied should be less than twice the data size
+        expect(newSize, lessThan(2 * projectedNewSize));
+      } else {
+        expect(newSize, oldSize);
+      }
+
+      expect(compactedRealm.all<Person>().length, dummyDataSize / 2);
+    });
+  }
 }

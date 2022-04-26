@@ -24,7 +24,7 @@ class IntPK extends _IntPK with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(IntPK._);
-    return const SchemaObject(IntPK, [
+    return const SchemaObject(IntPK, 'IntPK', [
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
     ]);
   }
@@ -52,7 +52,7 @@ class StringPK extends _StringPK with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(StringPK._);
-    return const SchemaObject(StringPK, [
+    return const SchemaObject(StringPK, 'StringPK', [
       SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
     ]);
   }
@@ -80,8 +80,36 @@ class ObjectIdPK extends _ObjectIdPK with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(ObjectIdPK._);
-    return const SchemaObject(ObjectIdPK, [
+    return const SchemaObject(ObjectIdPK, 'ObjectIdPK', [
       SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
+    ]);
+  }
+}
+
+class UuidPK extends _UuidPK with RealmEntity, RealmObject {
+  UuidPK(
+    Uuid id,
+  ) {
+    RealmObject.set(this, 'id', id);
+  }
+
+  UuidPK._();
+
+  @override
+  Uuid get id => RealmObject.get<Uuid>(this, 'id') as Uuid;
+  @override
+  set id(Uuid value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<UuidPK>> get changes =>
+      RealmObject.getChanges<UuidPK>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(UuidPK._);
+    return const SchemaObject(UuidPK, 'UuidPK', [
+      SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
     ]);
   }
 }

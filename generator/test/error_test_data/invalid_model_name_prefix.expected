@@ -6,5 +6,5 @@ in: asset:pkg/test/error_test_data/invalid_model_name_prefix.dart:6:7
 6 │ class Bad {
   │       ^^^ missing prefix
   ╵
-Either align class name to match prefix [_$] (regular expression), or add a @MapTo annotation.
+Align class name to match prefix [_$] (regular expression),
 

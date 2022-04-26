@@ -19,8 +19,9 @@
 import 'dart:io';
 import 'package:meta/meta.dart';
 import 'native/realm_core.dart';
+import 'credentials.dart';
+import 'user.dart';
 import 'configuration.dart';
-import 'email_password_provider.dart';
 
 /// Specify if and how to persists user objects.
 /// {@category Application}
@@ -37,9 +38,9 @@ enum MetadataPersistenceMode {
 
 @immutable
 
-/// A class exposing configuration options for an [Application]
+/// A class exposing configuration options for an [App]
 /// {@category Application}
-class ApplicationConfiguration {
+class AppConfiguration {
   /// The [appId] is the unique id that identifies the Realm application.
   final String appId;
 
@@ -90,8 +91,8 @@ class ApplicationConfiguration {
   /// a more complex networking setup.
   final HttpClient httpClient;
 
-  /// Instantiates a new [ApplicationConfiguration] with the specified appId.
-  ApplicationConfiguration(
+  /// Instantiates a new [AppConfiguration] with the specified appId.
+  AppConfiguration(
     this.appId, {
     Uri? baseUrl,
     Directory? baseFilePath,
@@ -106,24 +107,53 @@ class ApplicationConfiguration {
         httpClient = httpClient ?? HttpClient();
 }
 
-/// An [Application] is the main client-side entry point for interacting with a MongoDB Realm App.
+/// An [App] is the main client-side entry point for interacting with a MongoDB Realm App.
 ///
-/// The [Application]] can be used to
+/// The [App]] can be used to
 /// * Register uses and perform various user-related operations through authentication providers
 /// * Synchronize data between the local device and a remote Realm App with Synchronized Realms
 /// {@category Application}
-class Application {
+class App {
   final AppHandle _handle;
-  final ApplicationConfiguration configuration;
-  late final EmailPasswordProvider _emailPasswordProvider;
+  final AppConfiguration configuration;
 
-  Application(this.configuration) : _handle = realmCore.getApp(configuration) {
-    _emailPasswordProvider = EmailPasswordProvider(this);
+  /// Create an app with a particular [AppConfiguration]
+  App(this.configuration) : _handle = realmCore.getApp(configuration);
+
+  /// Logs in a user with the given credentials.
+  Future<User> logIn(Credentials credentials) async {
+    var userHandle = await realmCore.logIn(this, credentials);
+    return UserInternal.create(userHandle);
   }
 
-  EmailPasswordProvider get emailPasswordProvider => _emailPasswordProvider;
+  /// Gets the currently logged in [User]. If none exists, `null` is returned.
+  User? get currentUser {
+    final userHandle = realmCore.getCurrentUser(_handle);
+    if (userHandle == null) {
+      return null;
+    }
+    return UserInternal.create(userHandle);
+  }
+
+  /// Gets all currently logged in users.
+  Iterable<User> get users {
+    return realmCore.getUsers(this).map((handle) => UserInternal.create(handle));
+  }
+
+  /// Removes the user's local credentials and attempts to invalidate their refresh token from the server.
+  ///
+  /// If [user] is null logs out [currentUser] if it exists.
+  Future<void> logout(User? user) async {
+    user ??= currentUser;
+    if (user == null) {
+      return;
+    }
+
+    return await realmCore.logOut(this, user);
+  }
 }
 
-extension ApplicationInternal on Application {
+/// @nodoc
+extension AppInternal on App {
   AppHandle get handle => _handle;
 }

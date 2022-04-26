@@ -47,6 +47,19 @@ class _StringPrimaryKey {
   late String id;
 }
 
+@RealmModel()
+class _UuidPrimaryKey {
+  @PrimaryKey()
+  late Uuid id;
+}
+
+@RealmModel()
+@MapTo('class with spaces')
+class _RemappedFromAnotherFile {
+  @MapTo("property with spaces")
+  late $RemappedClass? linkToAnotherClass;
+}
+
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
@@ -296,8 +309,52 @@ Future<void> main([List<String>? args]) async {
     ObjectId.fromHexString('000000000000000000000000'),
     ObjectId.fromHexString('ffffffffffffffffffffffff')
   ];
-  
+
   for (final pk in objectIds) {
     testPrimaryKey(ObjectIdPrimaryKey.schema, () => ObjectIdPrimaryKey(pk), pk);
   }
+
+  final uuids = [
+    Uuid.fromString('0f1dea4d-074e-4c72-b505-e2e8a727602f'),
+    Uuid.fromString('00000000-0000-0000-0000-000000000000'),
+  ];
+  for (final pk in uuids) {
+    testPrimaryKey(UuidPrimaryKey.schema, () => UuidPrimaryKey(pk), pk);
+  }
+
+  test('Remapped property has correct names in Core', () {
+    final config = Configuration([RemappedClass.schema]);
+    final realm = getRealm(config);
+
+    final obj = realm.write(() {
+      final obj = realm.add(RemappedClass("some value"));
+      obj.listProperty.add(obj);
+      return obj;
+    });
+
+    final json = obj.toJson();
+
+    // remappedProperty is mapped as `primitive_property`
+    expect(json, contains('"primitive_property":"some value"'));
+
+    // listProperty is mapped as `list-with-dashes`
+    expect(json, contains('"list-with-dashes":'));
+
+    // RemappedClass is mapped as `myRemappedClass`
+    expect(json, contains('"table": "class_myRemappedClass"'));
+  });
+
+  test('Remapped class across different files works', () {
+    final config = Configuration([RemappedClass.schema, RemappedFromAnotherFile.schema]);
+    final realm = getRealm(config);
+    final obj = realm.write(() {
+      return realm.add(RemappedFromAnotherFile(linkToAnotherClass: RemappedClass("prop")));
+    });
+
+    final json = obj.toJson();
+
+    // linkToAnotherClass is mapped as `property with spaces`
+    // RemappedClass is mapped as `myRemappedClass`
+    expect(json, contains('"property with spaces":{ "table": "class_myRemappedClass", "key": 0}'));
+  });
 }

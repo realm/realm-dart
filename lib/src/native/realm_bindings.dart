@@ -2551,6 +2551,24 @@ class RealmLibrary {
   late final _realm_set_value = _realm_set_valuePtr.asFunction<
       int Function(ffi.Pointer<realm_object_t>, int, realm_value_t, int)>();
 
+  /// Serializes an object to json and returns it as string. Serializes a single level of properties only.
+  ///
+  /// @return a json-serialized representation of the object.
+  ffi.Pointer<ffi.Int8> realm_object_to_string(
+    ffi.Pointer<realm_object_t> arg0,
+  ) {
+    return _realm_object_to_string(
+      arg0,
+    );
+  }
+
+  late final _realm_object_to_stringPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Int8> Function(
+              ffi.Pointer<realm_object_t>)>>('realm_object_to_string');
+  late final _realm_object_to_string = _realm_object_to_stringPtr.asFunction<
+      ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_object_t>)>();
+
   /// Set the values for several properties.
   ///
   /// This is provided as an alternative to calling `realm_get_value()` multiple
@@ -7449,33 +7467,75 @@ class RealmLibrary {
   late final _realm_delete_finalizable = _realm_delete_finalizablePtr
       .asFunction<void Function(Dart_FinalizableHandle, Object)>();
 
-  ffi.Pointer<ffi.Void> object_to_gc_handle(
+  ffi.Pointer<ffi.Void> object_to_weak_handle(
     Object handle,
   ) {
-    return _object_to_gc_handle(
+    return _object_to_weak_handle(
       handle,
     );
   }
 
-  late final _object_to_gc_handlePtr =
+  late final _object_to_weak_handlePtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>(
-          'object_to_gc_handle');
-  late final _object_to_gc_handle = _object_to_gc_handlePtr
+          'object_to_weak_handle');
+  late final _object_to_weak_handle = _object_to_weak_handlePtr
       .asFunction<ffi.Pointer<ffi.Void> Function(Object)>();
 
-  Object gc_handle_to_object(
+  Object weak_handle_to_object(
     ffi.Pointer<ffi.Void> handle,
   ) {
-    return _gc_handle_to_object(
+    return _weak_handle_to_object(
       handle,
     );
   }
 
-  late final _gc_handle_to_objectPtr =
+  late final _weak_handle_to_objectPtr =
       _lookup<ffi.NativeFunction<ffi.Handle Function(ffi.Pointer<ffi.Void>)>>(
-          'gc_handle_to_object');
-  late final _gc_handle_to_object = _gc_handle_to_objectPtr
+          'weak_handle_to_object');
+  late final _weak_handle_to_object = _weak_handle_to_objectPtr
       .asFunction<Object Function(ffi.Pointer<ffi.Void>)>();
+
+  ffi.Pointer<ffi.Void> object_to_persistent_handle(
+    Object handle,
+  ) {
+    return _object_to_persistent_handle(
+      handle,
+    );
+  }
+
+  late final _object_to_persistent_handlePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>(
+          'object_to_persistent_handle');
+  late final _object_to_persistent_handle = _object_to_persistent_handlePtr
+      .asFunction<ffi.Pointer<ffi.Void> Function(Object)>();
+
+  Object persistent_handle_to_object(
+    ffi.Pointer<ffi.Void> handle,
+  ) {
+    return _persistent_handle_to_object(
+      handle,
+    );
+  }
+
+  late final _persistent_handle_to_objectPtr =
+      _lookup<ffi.NativeFunction<ffi.Handle Function(ffi.Pointer<ffi.Void>)>>(
+          'persistent_handle_to_object');
+  late final _persistent_handle_to_object = _persistent_handle_to_objectPtr
+      .asFunction<Object Function(ffi.Pointer<ffi.Void>)>();
+
+  void delete_persistent_handle(
+    ffi.Pointer<ffi.Void> handle,
+  ) {
+    return _delete_persistent_handle(
+      handle,
+    );
+  }
+
+  late final _delete_persistent_handlePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+          'delete_persistent_handle');
+  late final _delete_persistent_handle = _delete_persistent_handlePtr
+      .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
   ffi.Pointer<realm_scheduler_t> realm_dart_create_scheduler(
     int isolateId,

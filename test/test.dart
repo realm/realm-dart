@@ -16,14 +16,17 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 import 'dart:math';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' hide test;
 import 'package:test/test.dart' as testing;
 import '../lib/realm.dart';
 import '../lib/src/cli/deployapps/baas_client.dart';
+import '../lib/src/native/realm_core.dart';
 
 part 'test.g.dart';
 
@@ -74,14 +77,24 @@ class _School {
   late List<_School> branches;
 }
 
+@RealmModel()
+@MapTo("myRemappedClass")
+class $RemappedClass {
+  @MapTo("primitive_property")
+  late String remappedProperty;
+
+  @MapTo("list-with-dashes")
+  late List<$RemappedClass> listProperty;
+}
+
 String? testName;
 Map<String, BaasApp> baasApps = <String, BaasApp>{};
 
 final _openRealms = Queue<Realm>();
 
 //Overrides test method so we can filter tests
-void test(String? name, dynamic Function() testFunction, {dynamic skip}) {
-  if (testName != null && !name!.contains(testName!)) {
+void test(String name, dynamic Function() testFunction, {dynamic skip}) {
+  if (testName != null && !name.contains(testName!)) {
     return;
   }
 
@@ -200,4 +213,35 @@ Future<void> setupBaas() async {
   final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
 
   baasApps.addAll(await client.getOrCreateApps());
+}
+
+@isTest
+Future<void> baasTest(
+  String name,
+  FutureOr<void> Function(AppConfiguration appConfig) testFunction, {
+  String appName = 'flexible',
+  dynamic skip,
+}) async {
+  final url = Uri.tryParse(Platform.environment['BAAS_URL'] ?? 'https://realm-dev.mongodb.com');
+
+  if (skip == null) {
+    skip = url == null ? "BAAS URL not present" : true;
+  } else if (skip is bool) {
+    skip = skip || url == null ? "BAAS URL not present" : true;
+  }
+
+  test(name, () async {
+    final app = baasApps[appName] ?? baasApps.values.firstWhere((element) => true, orElse: () => throw RealmError("No BAAS apps"));
+    final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
+    final appConfig = AppConfiguration(
+      app.clientAppId,
+      baseUrl: url,
+      baseFilePath: temporaryDir,
+    );
+    return await testFunction(appConfig);
+  }, skip: skip);
+}
+
+extension RealmObjectTest on RealmObject {
+  String toJson() => realmCore.objectToString(this);
 }
