@@ -2,6 +2,7 @@ name: Prepare Release
 
 on:
   workflow_dispatch:
+  pull_request:
 env:
   REALM_CI: true
 
@@ -13,3 +14,23 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: false
+      - name: Update Changelog
+        id: update-changelog
+        uses: realm/ci-actions/update-changelog@dac063f8ebd86c201590d07536d6f56f86f66ba9
+        with:
+          changelog: ${{ github.workspace }}/CHANGELOG.md
+      - name: Update pubspec.yaml
+        uses: jacobtomlinson/gha-find-replace@0dfd0777cc234ef6947ec1f20873c632114c4167 #! 0.1.4
+        with:
+          find: '"version": "[^"]*"'
+          replace: '"version": "${{ steps.update-changelog.outputs.new-version }}+alpha"'
+          include: '**/pubspec.yaml'
+      - name: Create Release PR
+        uses: peter-evans/create-pull-request@7380612b49221684fefa025244f2ef4008ae50ad #! 3.10.1
+        with:
+          branch: test-release/${{ steps.update-changelog.outputs.new-version }}
+          base: test-master
+          title: Prepare for ${{ steps.update-changelog.outputs.new-version }}
+          draft: false
+          body: An automated PR for next release.
+          commit-message: Prepare for ${{ steps.update-changelog.outputs.new-version }}
