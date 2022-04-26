@@ -225,6 +225,13 @@ class _RealmCore {
         )));
   }
 
+  static void _stateChangeCallback(Pointer<realm_flx_sync_subscription_set> subscriptionSetPtr, int state) {
+  }
+
+  void waitForSubscriptionSetStateChangeSync(SubscriptionSet subscriptions, SubscriptionSetState state) {
+    _realmLib.realm_sync_on_subscription_set_state_change_wait(subscriptions.handle._pointer, state.index);
+  }
+
   MutableSubscriptionSetHandle makeSubscriptionSetMutable(SubscriptionSet subscriptions) {
     return MutableSubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_make_subscription_set_mutable(subscriptions.handle._pointer)));
   }

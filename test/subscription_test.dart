@@ -64,6 +64,8 @@ Future<void> main([List<String>? args]) async {
     expect(realm.subscriptions, isEmpty);
     // expect(realm.subscriptions!.findByName(name), isNull);
 
+    realm.subscriptions!.waitForStateChange(SubscriptionSetState.complete);
+
     realm.close();
     app.logout(user);
   });
