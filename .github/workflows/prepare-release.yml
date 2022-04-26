@@ -22,8 +22,8 @@ jobs:
       - name: Update pubspec.yaml
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
-          find: '"version": "[^"]*"'
-          replace: '"version": "${{ steps.update-changelog.outputs.new-version }}+alpha"'
+          find: 'version: *'
+          replace: 'version: ${{ steps.update-changelog.outputs.new-version }}+alpha'
           include: '**/pubspec.yaml'
       - name: Create Release PR
         uses: peter-evans/create-pull-request@7380612b49221684fefa025244f2ef4008ae50ad #! 3.10.1
