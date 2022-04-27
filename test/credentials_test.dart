@@ -43,7 +43,7 @@ Future<void> main([List<String>? args]) async {
     String username = "${generateRandomString(5)}@bar.com";
     String password = "SWV23R#@T#VFQDV";
     expect(() async {
-      // For application with name 'func' and with confirmationType = 'runConfirmationFunction'
+      // For confirmationType = 'runConfirmationFunction' as it is by default
       // only usernames that contain 'realm_tests_do_autoverify' are confirmed.
       await authProvider.registerUser(username, password);
     }, throws<RealmException>("failed to confirm user"));
@@ -66,7 +66,7 @@ Future<void> main([List<String>? args]) async {
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "${generateRandomString(5)}@bar.com";
     String password = "SWV23R#@T#VFQDV";
-    // For application with name 'auto' and with confirmationType = 'autoConfirm'
+    // For application with name 'autoConfirm' and with confirmationType = 'auto'
     // all the usernames are automatically confirmed.
     await authProvider.registerUser(username, password);
   }, appName: "autoConfirm");
@@ -155,5 +155,27 @@ Future<void> main([List<String>? args]) async {
       final user = await app.logIn(Credentials.emailPassword(username, password));
       await app.logout(user);
     }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
+  });
+
+  baasTest('Email/Password - retry custom confirmation after user is confirmed', (configuration) async {
+    final app = App(configuration);
+    final authProvider = EmailPasswordAuthProvider(app);
+    String username = "realm_tests_do_autoverify${generateRandomString(5)}@bar.com";
+    String password = "SWV23R#@T#VFQDV";
+    // Custom confirmation function requires username with 'realm_tests_do_autoverify'.
+    await authProvider.registerUser(username, password);
+
+    expect(() async {
+      await authProvider.retryCustomConfirmationFunction(username);
+    }, throws<RealmException>("already confirmed"));
+  });
+
+  baasTest('Email/Password - retry custom confirmation for not registered user', (configuration) async {
+    final app = App(configuration);
+    final authProvider = EmailPasswordAuthProvider(app);
+    String username = "${generateRandomString(5)}@bar.com";
+    expect(() async {
+      await authProvider.retryCustomConfirmationFunction(username);
+    }, throws<RealmException>("user not found"));
   });
 }

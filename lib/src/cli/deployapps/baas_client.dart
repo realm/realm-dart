@@ -90,21 +90,16 @@ class BaasClient {
         result[app.name] = app;
       }
     }
-    String appName = "flexible";
-    if (!result.containsKey(appName)) {
-      result[appName] = await _createApp(appName);
-    }
-    appName = "autoConfirm";
-    if (!result.containsKey(appName)) {
-      result[appName] = await _createApp(appName, confirmationType: 'auto');
-    }
-
-    appName = "emailConfirm";
-    if (!result.containsKey(appName)) {
-      result[appName] = await _createApp(appName, confirmationType: 'email');
-    }
-
+    await _createAppIfNotExists(result, "flexible");
+    await _createAppIfNotExists(result, "autoConfirm", "auto");
+    await _createAppIfNotExists(result, "emailConfirm", "email");
     return result;
+  }
+
+  Future<void> _createAppIfNotExists(Map<String, BaasApp> result, String appName, [String? confirmationType]) async {
+    if (!result.containsKey(appName)) {
+      result[appName] = await _createApp(appName, confirmationType: confirmationType);
+    }
   }
 
   Future<List<BaasApp>> _getApps() async {
@@ -124,7 +119,7 @@ class BaasClient {
         .toList();
   }
 
-  Future<BaasApp> _createApp(String name, {String confirmationType = "func"}) async {
+  Future<BaasApp> _createApp(String name, {String? confirmationType}) async {
     print('Creating app $name');
 
     final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$name$_appSuffix" }');
@@ -147,7 +142,7 @@ class BaasClient {
       "resetFunctionId": "$resetFuncId",
       "resetPasswordSubject": "",
       "resetPasswordUrl": "http://localhost/resetPassword",
-      "runConfirmationFunction": ${(confirmationType == "func").toString()},
+      "runConfirmationFunction": ${(confirmationType != "email" && confirmationType != "auto").toString()},
       "runResetFunction": true
     }''');
 
