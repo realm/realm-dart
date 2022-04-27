@@ -347,7 +347,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: librealm-windows
-          path: binary/**
+          path: binary/windows/**
           retention-days: 1
 
   tests-windows:
@@ -572,7 +572,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: librealm-android
-          path: binary/**
+          path: binary/android/**
           retention-days: 1
 
   flutter-android:
