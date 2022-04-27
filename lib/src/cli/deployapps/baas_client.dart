@@ -37,6 +37,7 @@ class BaasClient {
     // will not reset the password
     return { status: 'fail' };
   };''';
+  static const String defaultAppName = "flexible";
 
   final String _baseUrl;
   final String? _clusterName;
@@ -90,7 +91,7 @@ class BaasClient {
         result[app.name] = app;
       }
     }
-    await _createAppIfNotExists(result, "flexible");
+    await _createAppIfNotExists(result, defaultAppName);
     await _createAppIfNotExists(result, "autoConfirm", "auto");
     await _createAppIfNotExists(result, "emailConfirm", "email");
     return result;

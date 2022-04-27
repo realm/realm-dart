@@ -162,7 +162,7 @@ Future<void> main([List<String>? args]) async {
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "realm_tests_do_autoverify${generateRandomString(5)}@bar.com";
     String password = "SWV23R#@T#VFQDV";
-    // Custom confirmation function requires username with 'realm_tests_do_autoverify'.
+    // Custom confirmation function confirms automatically username with 'realm_tests_do_autoverify'.
     await authProvider.registerUser(username, password);
 
     expect(() async {
