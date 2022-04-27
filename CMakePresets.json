@@ -17,6 +17,16 @@
       }
     },
     {
+      "name": "linux",
+      "displayName": "Linux",
+      "inherits": "default",
+      "condition": {
+        "lhs": "${hostSystemName}",
+        "type": "equals",
+        "rhs": "Linux"
+      }
+    },
+    {
       "name": "windows",
       "inherits": "default",
       "hidden": true,
@@ -153,43 +163,57 @@
   "buildPresets": [
     {
       "name": "default",
-      "configurePreset": "default"
+      "configurePreset": "default",
+      "configuration": "Debug"
+    },
+    {
+      "name": "linux",
+      "configurePreset": "linux",
+      "displayName": "Linux",
+      "configuration": "Debug"
     },
     {
       "name": "windows-x64",
       "configurePreset": "windows-x64",
-      "displayName": "x64"
+      "displayName": "x64",
+      "configuration": "Debug"
     },
     {
       "name": "windows-arm64",
       "configurePreset": "windows-arm64",
-      "displayName": "ARM64"
+      "displayName": "ARM64",
+      "configuration": "Debug"
     },
     {
       "name": "android-x86",
       "configurePreset": "android-x86",
-      "displayName": "x86"
+      "displayName": "x86",
+      "configuration": "Debug"
     },
     {
       "name": "android-x86_64",
       "configurePreset": "android-x86_64",
-      "displayName": "x86_64"
+      "displayName": "x86_64",
+      "configuration": "Debug"
     },
     {
       "name": "android-armeabi-v7a",
       "configurePreset": "android-armeabi-v7a",
-      "displayName": "armeabi-v7a"
+      "displayName": "armeabi-v7a",
+      "configuration": "Debug"
     },
     {
       "name": "android-arm64-v8a",
       "configurePreset": "android-arm64-v8a",
-      "displayName": "arm64-v8a"
+      "displayName": "arm64-v8a",
+      "configuration": "Debug"
     },
     {
       "name": "macos",
       "displayName": "macOS",
       "configurePreset": "macos",
-      "nativeToolOptions": [ "-destination", "platform=macOS" ]
+      "nativeToolOptions": [ "-destination", "platform=macOS" ],
+      "configuration": "Debug"
     },
     {
       "name": "ios",
@@ -204,7 +228,8 @@
       "inherits": "ios",
       "environment": {
         "xcode_destination": "generic/platform=iOS"
-      }
+      },
+      "configuration": "Debug"
     },
     {
       "name": "ios-simulator",
@@ -212,7 +237,8 @@
       "inherits": "ios",
       "environment": {
         "xcode_destination": "platform=iOS Simulator,name=iPhone 8"
-      }
+      },
+      "configuration": "Debug"
     },
     {
       "name": "ios-catalyst",
@@ -220,7 +246,8 @@
       "inherits": "ios",
       "environment": {
         "xcode_destination": "platform=macOS,variant=Mac Catalyst"
-      }
+      },
+      "configuration": "Debug"
     }
   ]
 }
