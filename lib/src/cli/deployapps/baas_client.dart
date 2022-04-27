@@ -82,15 +82,17 @@ class BaasClient {
   /// for [atlas] one, it will return only apps with suffix equal to the cluster name. If no apps exist,
   /// then it will create the test applications and return them.
   /// @nodoc
-  Future<Map<String, BaasApp>> getOrCreateApps() async {
+  Future<Map<String, BaasApp>> getOrCreateApps({String appName = "flexible", String confirmationType = "runConfirmationFunction"}) async {
     final result = <String, BaasApp>{};
     var apps = await _getApps();
     if (apps.isNotEmpty) {
       for (final app in apps) {
-        result[app.name] = app;
+        result[app.name] = app;  
       }
-    } else {
-      final defaultApp = await _createApp('flexible');
+    }
+
+    if (!result.keys.contains(appName)) {
+      final defaultApp = await _createApp(appName, confirmationType: confirmationType);
 
       result[defaultApp.name] = defaultApp;
 
@@ -117,7 +119,7 @@ class BaasClient {
         .toList();
   }
 
-  Future<BaasApp> _createApp(String name) async {
+  Future<BaasApp> _createApp(String name, {String confirmationType = "runConfirmationFunction"}) async {
     print('Creating app $name');
 
     final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$name$_appSuffix" }');
@@ -131,8 +133,8 @@ class BaasClient {
 
     enableProvider(app, 'anon-user');
     enableProvider(app, 'local-userpass', '''{
-      "autoConfirm": false,
-      "confirmEmailSubject": "",
+      "autoConfirm": ${(confirmationType == "autoConfirm").toString()},
+      "confirmEmailSubject": "Confirmation required",
       "confirmationFunctionName": "confirmFunc",
       "confirmationFunctionId": "$confirmFuncId",
       "emailConfirmationUrl": "http://localhost/confirmEmail",
@@ -140,7 +142,7 @@ class BaasClient {
       "resetFunctionId": "$resetFuncId",
       "resetPasswordSubject": "",
       "resetPasswordUrl": "http://localhost/resetPassword",
-      "runConfirmationFunction": true,
+      "runConfirmationFunction": ${(confirmationType == "runConfirmationFunction").toString()},
       "runResetFunction": true
     }''');
 

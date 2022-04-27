@@ -111,11 +111,12 @@ void xtest(String? name, dynamic Function() testFunction) {
   testing.test(name, testFunction, skip: "Test is disabled");
 }
 
-Future<void> setupTests(List<String>? args) async {
+Future<void> setupTests(List<String>? args, {bool doSetupBaas = true}) async {
   parseTestNameFromArguments(args);
 
-  await setupBaas();
-
+  if (doSetupBaas) {
+    await setupBaas();
+  }
   setUp(() {
     final path = generateRandomRealmPath();
     Configuration.defaultPath = path;
@@ -193,7 +194,7 @@ void parseTestNameFromArguments(List<String>? arguments) {
   }
 }
 
-Future<void> setupBaas() async {
+Future<void> setupBaas({String appName = "flexible", String confirmationType = "runConfirmationFunction"}) async {
   final baasUrl = Platform.environment['BAAS_URL'];
   if (baasUrl == null) {
     return;
@@ -206,7 +207,7 @@ Future<void> setupBaas() async {
 
   final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
 
-  baasApps.addAll(await client.getOrCreateApps());
+  baasApps.addAll(await client.getOrCreateApps(appName: appName, confirmationType: confirmationType));
 }
 
 @isTest
