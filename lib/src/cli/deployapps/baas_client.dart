@@ -82,21 +82,26 @@ class BaasClient {
   /// for [atlas] one, it will return only apps with suffix equal to the cluster name. If no apps exist,
   /// then it will create the test applications and return them.
   /// @nodoc
-  Future<Map<String, BaasApp>> getOrCreateApps({String appName = "flexible", String confirmationType = "runConfirmationFunction"}) async {
+  Future<Map<String, BaasApp>> getOrCreateApps() async {
     final result = <String, BaasApp>{};
     var apps = await _getApps();
     if (apps.isNotEmpty) {
       for (final app in apps) {
-        result[app.name] = app;  
+        result[app.name] = app;
       }
     }
+    String appName = "flexible";
+    if (!result.containsKey(appName)) {
+      result[appName] = await _createApp(appName);
+    }
+    appName = "autoConfirm";
+    if (!result.containsKey(appName)) {
+      result[appName] = await _createApp(appName, confirmationType: 'auto');
+    }
 
-    if (!result.keys.contains(appName)) {
-      final defaultApp = await _createApp(appName, confirmationType: confirmationType);
-
-      result[defaultApp.name] = defaultApp;
-
-      // Add more types of apps as we add more tests here.
+    appName = "emailConfirm";
+    if (!result.containsKey(appName)) {
+      result[appName] = await _createApp(appName, confirmationType: 'email');
     }
 
     return result;
@@ -119,7 +124,7 @@ class BaasClient {
         .toList();
   }
 
-  Future<BaasApp> _createApp(String name, {String confirmationType = "runConfirmationFunction"}) async {
+  Future<BaasApp> _createApp(String name, {String confirmationType = "func"}) async {
     print('Creating app $name');
 
     final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$name$_appSuffix" }');
@@ -133,7 +138,7 @@ class BaasClient {
 
     enableProvider(app, 'anon-user');
     enableProvider(app, 'local-userpass', '''{
-      "autoConfirm": ${(confirmationType == "autoConfirm").toString()},
+      "autoConfirm": ${(confirmationType == "auto").toString()},
       "confirmEmailSubject": "Confirmation required",
       "confirmationFunctionName": "confirmFunc",
       "confirmationFunctionId": "$confirmFuncId",
@@ -142,7 +147,7 @@ class BaasClient {
       "resetFunctionId": "$resetFuncId",
       "resetPasswordSubject": "",
       "resetPasswordUrl": "http://localhost/resetPassword",
-      "runConfirmationFunction": ${(confirmationType == "runConfirmationFunction").toString()},
+      "runConfirmationFunction": ${(confirmationType == "func").toString()},
       "runResetFunction": true
     }''');
 

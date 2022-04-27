@@ -25,10 +25,7 @@ import 'test.dart';
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
-  await setupBaas(appName: "func", confirmationType: "runConfirmationFunction");
-  await setupBaas(appName: "auto", confirmationType: "autoConfirm");
-  await setupBaas(appName: "email", confirmationType: "sendConfirmationEmail");
-  await setupTests(args, doSetupBaas: false);
+  await setupTests(args);
 
   test('Credentials anonymous', () {
     final credentials = Credentials.anonymous();
@@ -50,7 +47,7 @@ Future<void> main([List<String>? args]) async {
       // only usernames that contain 'realm_tests_do_autoverify' are confirmed.
       await authProvider.registerUser(username, password);
     }, throws<RealmException>("failed to confirm user"));
-  }, appName: "func");
+  });
 
   baasTest('Email/Password - register user', (configuration) async {
     final app = App(configuration);
@@ -62,7 +59,7 @@ Future<void> main([List<String>? args]) async {
     await app.logout(user);
     await app.removeUser(user);
     expect(user, isNotNull);
-  }, appName: "func");
+  });
 
   baasTest('Email/Password - register user auto confirm', (configuration) async {
     final app = App(configuration);
@@ -72,7 +69,7 @@ Future<void> main([List<String>? args]) async {
     // For application with name 'auto' and with confirmationType = 'autoConfirm'
     // all the usernames are automatically confirmed.
     await authProvider.registerUser(username, password);
-  }, appName: "auto");
+  }, appName: "autoConfirm");
 
   baasTest('Email/Password - register user twice throws', (configuration) async {
     final app = App(configuration);
@@ -83,7 +80,7 @@ Future<void> main([List<String>? args]) async {
     expect(() async {
       await authProvider.registerUser(username, password);
     }, throws<RealmException>("name already in use"));
-  }, appName: "auto");
+  }, appName: "autoConfirm");
 
   baasTest('Email/Password - register user with weak/empty password throws', (configuration) async {
     final app = App(configuration);
@@ -95,7 +92,7 @@ Future<void> main([List<String>? args]) async {
     expect(() async {
       await authProvider.registerUser(username, "");
     }, throws<RealmException>("password must be between 6 and 128 characters"));
-  }, appName: "auto");
+  }, appName: "autoConfirm");
 
   baasTest('Email/Password - register user with empty email throws', (configuration) async {
     final app = App(configuration);
@@ -103,7 +100,7 @@ Future<void> main([List<String>? args]) async {
     expect(() async {
       await authProvider.registerUser("", "password");
     }, throws<RealmException>("email invalid"));
-  }, appName: "auto");
+  }, appName: "autoConfirm");
 
   baasTest('Email/Password - confirm user token expired', (configuration) async {
     final app = App(configuration);
@@ -116,7 +113,7 @@ Future<void> main([List<String>? args]) async {
           "0e6340a446e68fe02a1af1b53c34d5f630b601ebf807d73d10a7fed5c2e996d87d04a683030377ac6058824d8555b24c1417de79019b40f1299aada7ef37fddc",
           "6268f7dd73fafea76b730fc9");
     }, throws<RealmException>("userpass token is expired or invalid"));
-  }, appName: "email");
+  }, appName: "emailConfirm");
 
   baasTest('Email/Password - confirm user token invalid', (configuration) async {
     final app = App(configuration);
@@ -127,7 +124,7 @@ Future<void> main([List<String>? args]) async {
     expect(() async {
       await authProvider.confirmUser("abc", "123");
     }, throws<RealmException>("invalid token data"));
-  }, appName: "email");
+  }, appName: "emailConfirm");
 
   group("Email/Password - confirm user - manual tests", () {
     // The tests in this group are for manual testing, since they require interaction with mail box.
@@ -138,25 +135,25 @@ Future<void> main([List<String>? args]) async {
     // Make sure the email haven't been already registered in apllication.
 
     // Enter a valid email that is not registered
-    String username = "existing@mail.com";
+    String username = "existing_email@mail.com";
     String password = "SWV23R#@T#VFQDV";
 
     baasTest('1. Register a valid user for email confirmation', (configuration) async {
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
       await authProvider.registerUser(username, password);
-    }, appName: "email", skip: "It is a manual test");
+    }, appName: "emailConfirm", skip: "It is a manual test");
 
     baasTest('2. Take the recieved token from the email and confirm the user', (configuration) async {
-      //Enter valid token and tokenId from email
-      String token = "092ce189b8428242239704d9cbe6678ba967649e9d5aec03e4bc01d5e195f3d9ee020104dfa4a0a74a3565a782948b52f48fea64f7382b5e39303c062a6175a6";
-      String tokenId = "62691daa3a22b87daa20237e";
+      //Enter valid token and tokenId from the received email
+      String token = "3a8bdfa28e147f38e531cf5aca93d452a11efc4fc9a81f00219b0cb29cfb93858f6b174123659a6ef47b58a2b80eac3b406d7803605c17ef44401ec6cf2c8fa6";
+      String tokenId = "626934dcb4e7e5a0e2f1d85e";
 
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
       await authProvider.confirmUser(token, tokenId);
       final user = await app.logIn(Credentials.emailPassword(username, password));
       await app.logout(user);
-    }, appName: "email", skip: "Run this test manually after test 1 and after setting token and tokenId");
+    }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
   });
 }
