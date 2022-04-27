@@ -36,12 +36,7 @@ DynamicLibrary initRealm() {
     }());
   }
 
-  String _getBinaryPath(String binaryName, {String path = ""}) {
-    if (path.isNotEmpty && path.endsWith("/")) {
-      //remove trailing slash
-      path = path.substring(0, path.length - 1);
-    }
-
+  String _getBinaryPath(String binaryName) {
     if (Platform.isAndroid) {
       return "lib$binaryName.so";
     }
@@ -51,33 +46,15 @@ DynamicLibrary initRealm() {
         return '${File(Platform.resolvedExecutable).parent.path}/lib/lib$binaryName.so';
       }
 
-      if (path.isEmpty) {
-        path = 'binary/linux';
-      }
-      return "$path/lib$binaryName.so";
+      return "binary/linux/lib$binaryName.so";
     }
 
     if (Platform.isMacOS) {
       if (isFlutterPlatform) {
-        if (path.isEmpty) {
-          return "${File(Platform.resolvedExecutable).parent.absolute.path}/../Frameworks/realm.framework/Resources/lib$binaryName.dylib";
-        }
+        return "${File(Platform.resolvedExecutable).parent.absolute.path}/../Frameworks/realm.framework/Resources/lib$binaryName.dylib";
       }
 
-      if (path.isEmpty) {
-        Directory sourceDir = Directory.current;
-        path = sourceDir.path;
-      }
-
-      var fullPath = "$path/binary/macos/lib$binaryName.dylib";
-      _debugWrite("Full binary path $fullPath");
-
-      if (File(fullPath).existsSync()) {
-        return fullPath;
-      }
-
-      fullPath = "$path/lib$binaryName.dylib";
-      return fullPath;
+      return "binary/macos/lib$binaryName.dylib";
     }
 
     if (Platform.isWindows) {
@@ -85,11 +62,7 @@ DynamicLibrary initRealm() {
         return "$binaryName.dll";
       }
 
-      if (path.isEmpty) {
-        path = 'binary/windows';
-      }
-
-      return "$path/$binaryName.dll";
+      return "binary/windows/$binaryName.dll";
     }
 
     //ios links statically
@@ -99,12 +72,12 @@ DynamicLibrary initRealm() {
     throw Exception("Platform not implemented");
   }
 
-  DynamicLibrary dlopenPlatformSpecific(String binaryName, {String? path}) {
+  DynamicLibrary dlopenPlatformSpecific(String binaryName) {
     if (Platform.isIOS) {
       return DynamicLibrary.process();
     }
 
-    String fullPath = _getBinaryPath(binaryName, path: path ?? '');
+    String fullPath = _getBinaryPath(binaryName);
     return DynamicLibrary.open(fullPath);
   }
 
