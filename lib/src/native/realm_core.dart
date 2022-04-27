@@ -1024,7 +1024,7 @@ class _RealmCore {
   }
 
   static void _logOutCallback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
-    final Completer<void>? completer = userdata.toObject();
+    final Completer<void>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
       return;
     }
@@ -1092,7 +1092,7 @@ class _RealmCore {
         "Remove user failed");
     return completer.future;
   }
-  
+
   void switchUser(App application, User user) {
     return using((arena) {
       _realmLib.invokeGetBool(

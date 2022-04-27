@@ -56,6 +56,8 @@ Future<void> main([List<String>? args]) async {
     String password = "SWV23R#@T#VFQDV";
     await authProvider.registerUser(username, password);
     final user = await app.logIn(Credentials.emailPassword(username, password));
+    await app.logout(user);
+    await app.removeUser(user);
     expect(user, isNotNull);
   });
 
