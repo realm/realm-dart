@@ -21,6 +21,18 @@ jobs:
       with:
         submodules: false
 
+    - name: Read version
+      id: get-version
+      run: |
+        pkgVersion=$(sed -ne "s/^version: \(.*\)/\1/p" pubspec.yaml)
+        echo "::set-output name=version::$pkgVersion"
+      shell: bash
+
+    - name : Setup Dart SDK
+      uses: dart-lang/setup-dart@main
+      with:
+        sdk: stable
+
     - name: Download all artifacts
       uses: dawidd6/action-download-artifact@d0f291cf39bd21965ea9c4c6e210fc355c3844ed
       with:
@@ -29,21 +41,23 @@ jobs:
         path: ${{ github.workspace }}/binary/
         workflow_conclusion: completed
 
-    - name: Read version
-      id: get-version
+    - name: Rename all artifact folders
       run: |
-        pkgVersion=$(sed -ne "s/^version: \(.*\)/\1/p" pubspec.yaml)
-        echo "::set-output name=version::$pkgVersion"
-      shell: bash
+        for directory in *; do
+          mv "$directory" "${directory#*-}"
+        done
+      working-directory: binary
 
     - name: Temp
-      run: find .
+      run: find ./binary
 
     - name: Archive Linux binary
       run: dart run realm_dart archive --source-dir ${{ github.workspace }}/binary/linux
 
     - name: Archive iOS binary
-      run: dart run realm_dart archive --source-dir ${{ github.workspace }}/binary/ios
+      run: |
+        mv binary/librealm-linux binary/linux
+        dart run realm_dart archive --source-dir ${{ github.workspace }}/binary/ios
 
     - name: Archive macOS binary
       run: dart run realm_dart archive --source-dir ${{ github.workspace }}/binary/macos
@@ -55,7 +69,7 @@ jobs:
       run: dart run realm_dart archive --source-dir ${{ github.workspace }}/binary/android
 
     - name: Temp 2
-      run: find .
+      run: find ./binary
 
     # - name: Configure AWS Credentials
     #   uses: aws-actions/configure-aws-credentials@v1
@@ -78,24 +92,24 @@ jobs:
       with:
         branch: ${{ github.ref }}
 
-    - name: Merge Pull Request
-      uses: juliangruber/merge-pull-request-action@8a13f2645ad8b6ada32f829b2fae9c0955a5265d
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        number: ${{ steps.find-pull-request.outputs.number }}
-        method: squash
+    # - name: Merge Pull Request
+    #   uses: juliangruber/merge-pull-request-action@8a13f2645ad8b6ada32f829b2fae9c0955a5265d
+    #   with:
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     number: ${{ steps.find-pull-request.outputs.number }}
+    #     method: squash
 
-    - name: Publish Github Release
-      uses: ncipollo/release-action@10c84d509b28aae3903113151bfd832314964f2e
-      with:
-        artifacts: binary/*.tar.gz
-        body: 'Update release notes'
-        # bodyFile: Realm/packages/ExtractedChangelog/ExtractedChangelog.md
-        name: ${{ steps.get-version.outputs.version }}
-        commit: temp-master
-        tag: ${{ steps.get-version.outputs.version }}
-        token: ${{ secrets.GITHUB_TOKEN }}
-        draft: true
+    # - name: Publish Github Release
+    #   uses: ncipollo/release-action@10c84d509b28aae3903113151bfd832314964f2e
+    #   with:
+    #     artifacts: binary/*.tar.gz
+    #     body: 'Update release notes'
+    #     # bodyFile: Realm/packages/ExtractedChangelog/ExtractedChangelog.md
+    #     name: ${{ steps.get-version.outputs.version }}
+    #     commit: temp-master
+    #     tag: ${{ steps.get-version.outputs.version }}
+    #     token: ${{ secrets.GITHUB_TOKEN }}
+    #     draft: true
 
     # - name: Update Changelog
     #   run: |
