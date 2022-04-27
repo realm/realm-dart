@@ -1,0 +1,24 @@
+name: Publish Release
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Environment to publish packages to
+        options:
+        - public
+        - internal
+      dry-run:
+        type: boolean
+        description: Run the workflow without actually uploading packages
+env:
+  REALM_CI: true
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment == 'public' && 'Production' || 'Staging' }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        submodules: false
