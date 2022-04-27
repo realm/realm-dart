@@ -516,7 +516,10 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-      
+
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
       - name: Build Realm for Android
         # all for tags, empty (implicitly x86) for PR/main builds
         run: |
