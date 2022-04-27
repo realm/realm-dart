@@ -16,37 +16,40 @@ jobs:
 
       - name: Update Changelog
         id: update-changelog
-        uses: realm/ci-actions/update-changelog@dac063f8ebd86c201590d07536d6f56f86f66ba9
+        uses: realm/ci-actions/update-changelog@2258c53d191c9a483c0b56216a0b66ccdbb35895
         with:
           changelog: ${{ github.workspace }}/CHANGELOG.md
+          version-suffix: '+alpha'
+
 
       - name: Update pubspec.yaml
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
           find: 'version: .*'
-          replace: 'version: ${{ steps.update-changelog.outputs.new-version }}+alpha'
-          include: '**/pubspec.yaml'
+          replace: 'version: ${{ steps.update-changelog.outputs.new-version }}'
+          include: '**pubspec.yaml'
 
       - name: Update realm.podspec
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
           find: "  s.version(\\s+)= '[^']*'"
-          replace: "  s.version$1= '${{ steps.update-changelog.outputs.new-version }}+alpha'"
-          include: '**/realm.podspec'
+          replace: "  s.version$1= '${{ steps.update-changelog.outputs.new-version }}'"
+          include: '**realm.podspec'
 
       - name: Update realm_core.libraryVersion
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
           find: "  String get libraryVersion => '[^']*';"
-          replace: "  String get libraryVersion => '${{ steps.update-changelog.outputs.new-version }}+alpha';"
-          include: '**/realm_core.dart'
+          replace: "  String get libraryVersion => '${{ steps.update-changelog.outputs.new-version }}';"
+          include: '**realm_core.dart'
 
 
       - name: Create Release PR
         uses: peter-evans/create-pull-request@7380612b49221684fefa025244f2ef4008ae50ad #! 3.10.1
         with:
-          branch: release/${{ steps.update-changelog.outputs.new-version }}
-          base: master
+          # TODO: move to release/master
+          branch: test-release/${{ steps.update-changelog.outputs.new-version }}
+          base: test-master
           title: Prepare for ${{ steps.update-changelog.outputs.new-version }}
           draft: false
           body: An automated PR for next release.
