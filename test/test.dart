@@ -89,6 +89,7 @@ class $RemappedClass {
 
 String? testName;
 Map<String, BaasApp> baasApps = <String, BaasApp>{};
+late BaasClient client;
 
 final _openRealms = Queue<Realm>();
 
@@ -204,7 +205,7 @@ Future<void> setupBaas() async {
   final privateApiKey = Platform.environment['BAAS_PRIVATE_API_KEY'];
   final projectId = Platform.environment['BAAS_PROJECT_ID'];
 
-  final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
+  client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
 
   baasApps.addAll(await client.getOrCreateApps());
 }
@@ -237,6 +238,9 @@ Future<void> baasTest(
   }, skip: skip);
 }
 
+Future<void> updateConfirmFunctionSource(String appName, [String? source]) async {
+  return client.updateAppConfirmFunction(appName, source);
+}
 extension RealmObjectTest on RealmObject {
   String toJson() => realmCore.objectToString(this);
 }

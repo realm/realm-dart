@@ -52,7 +52,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Email/Password - register user', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "realm_tests_do_autoverify${generateRandomString(5)}@bar.com";
+    String username = "realm_tests_do_autoverify_${generateRandomString(5)}@bar.com";
     String password = "SWV23R#@T#VFQDV";
     await authProvider.registerUser(username, password);
     final user = await app.logIn(Credentials.emailPassword(username, password));
@@ -157,10 +157,27 @@ Future<void> main([List<String>? args]) async {
     }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
   });
 
+  baasTest('Email/Password - retry custom confirmation function', (configuration) async {
+    final app = App(configuration);
+    final authProvider = EmailPasswordAuthProvider(app);
+    String username = "realm_tests_pending_confirm_${generateRandomString(5)}@bar.com";
+    String password = "SWV23R#@T#VFQDV";
+    await authProvider.registerUser(username, password);
+
+    const String source = "exports = ({ token, tokenId, username }) => {return { status: 'success' }};";
+    await updateConfirmFunctionSource("flexible", source);
+
+    await authProvider.retryCustomConfirmationFunction(username);
+
+    await updateConfirmFunctionSource("flexible");
+    final user = await app.logIn(Credentials.emailPassword(username, password));
+    await app.logout(user);
+  }, appName: "flexible");
+
   baasTest('Email/Password - retry custom confirmation after user is confirmed', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "realm_tests_do_autoverify${generateRandomString(5)}@bar.com";
+    String username = "realm_tests_do_autoverify_${generateRandomString(5)}@bar.com";
     String password = "SWV23R#@T#VFQDV";
     // Custom confirmation function confirms automatically username with 'realm_tests_do_autoverify'.
     await authProvider.registerUser(username, password);
