@@ -47,12 +47,10 @@ class ArchiveCommand extends Command<void> {
       abort("source-dir option not specified");
     }
 
-    if (options.outputFile == null) {
-      abort("output-file option not specified");
-    }
+    final outputFile = options.outputFile ?? '${options.sourceDir}.tar.gz';
 
     final archive = Archive();
-    archive.archive(Directory(options.sourceDir!), File(options.outputFile!));
+    archive.archive(Directory(options.sourceDir!), File(outputFile));
   }
 
   void abort(String error) {
