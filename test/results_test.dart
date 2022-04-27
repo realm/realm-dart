@@ -30,17 +30,15 @@ Future<void> main([List<String>? args]) async {
 
   test('Results all should not return null', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final cars = realm.all<Car>();
     expect(cars, isNotNull);
-
-    realm.close();
   });
 
   test('Results length after deletedMany', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     var cars = realm.all<Car>();
     expect(cars.length, 0);
@@ -59,13 +57,11 @@ Future<void> main([List<String>? args]) async {
     expect(filteredCars.length, 0);
 
     expect(cars.length, 1);
-
-    realm.close();
   });
 
   test('Results length', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     var cars = realm.all<Car>();
     expect(cars.length, 0);
@@ -78,13 +74,11 @@ Future<void> main([List<String>? args]) async {
 
     final filteredCars = realm.query<Car>('make == "Toyota"');
     expect(filteredCars.length, 1);
-
-    realm.close();
   });
 
   test('Results isEmpty', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     var cars = realm.all<Car>();
     expect(cars.isEmpty, true);
@@ -97,13 +91,11 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => realm.delete(car));
 
     expect(cars.isEmpty, true);
-
-    realm.close();
   });
 
   test('Results from query isEmpty', () {
     var config = Configuration([Dog.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final dogOne = Dog("Pupu", age: 1);
     final dogTwo = Dog("Ostin", age: 2);
@@ -121,37 +113,31 @@ Future<void> main([List<String>? args]) async {
 
     dogs = realm.all<Dog>();
     expect(dogs.isEmpty, false);
-
-    realm.close();
   });
 
   test('Results get by index', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final car = Car('');
     realm.write(() => realm.add(car));
 
     final cars = realm.all<Car>();
     expect(cars[0].make, car.make);
-
-    realm.close();
   });
 
   test('Results requested wrong index throws', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final cars = realm.all<Car>();
-   
-    expect(() => cars[0], throws<RealmException>("Requested index 0 in empty Results"));
 
-    realm.close();
+    expect(() => cars[0], throws<RealmException>("Requested index 0 in empty Results"));
   });
 
   test('Results iteration test', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     //Create two teams
     realm.write(() {
@@ -171,12 +157,11 @@ Future<void> main([List<String>? args]) async {
 
     //Ensure list size is the same like teams collection size
     expect(list.length, teams.length);
-    realm.close();
   });
 
   test('Results snapshot iteration test', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     //Create two teams
     realm.write(() {
@@ -209,39 +194,33 @@ Future<void> main([List<String>? args]) async {
       list.add(team);
     }
     expect(list.length, teams.length);
-
-    realm.close();
   });
 
   test('Results query', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.write(() => realm
       ..add(Car("Audi"))
       ..add(Car("Tesla")));
     final cars = realm.all<Car>().query('make == "Tesla"');
     expect(cars.length, 1);
     expect(cars[0].make, "Tesla");
-
-    realm.close();
   });
 
   test('Results query with parameter', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.write(() => realm
       ..add(Car("Audi"))
       ..add(Car("Tesla")));
     final cars = realm.all<Car>().query(r'make == $0', ['Tesla']);
     expect(cars.length, 1);
     expect(cars[0].make, "Tesla");
-
-    realm.close();
   });
 
   test('Results query with multiple parameters', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final p1 = Person('p1');
     final p2 = Person('p2');
@@ -258,38 +237,32 @@ Future<void> main([List<String>? args]) async {
     final filteredTeams = realm.all<Team>().query(r'$0 IN players AND name BEGINSWITH $1', [p1, 'A']);
     expect(filteredTeams.length, 1);
     expect(filteredTeams, [t1]);
-
-    realm.close();
   });
 
   test('Query results with no arguments throws', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.write(() => realm.add(Car("Audi")));
     expect(() => realm.all<Car>().query(r'make == $0'), throws<RealmException>("no arguments are provided"));
-
-    realm.close();
   });
 
   test('Results query with wrong argument types (int for string) throws', () {
     var config = Configuration([Car.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.write(() => realm.add(Car("Audi")));
     expect(() => realm.all<Car>().query(r'make == $0', [1]), throws<RealmException>("Unsupported comparison between type"));
-    realm.close();
   });
 
   test('Results query with wrong argument types (bool for int) throws ', () {
     var config = Configuration([Dog.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
     realm.write(() => realm.add(Dog("Foxi")));
     expect(() => realm.all<Dog>().query(r'age == $0', [true]), throws<RealmException>("Unsupported comparison between type"));
-    realm.close();
   });
 
   test('Results sort', () {
     var config = Configuration([Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     realm.write(() => realm.addAll([
           Person("Michael"),
@@ -301,12 +274,11 @@ Future<void> main([List<String>? args]) async {
     final resultNames = result.map((p) => p.name).toList();
     final sortedNames = [...resultNames]..sort();
     expect(resultNames, sortedNames);
-    realm.close();
   });
 
   test('Results sort order is preserved', () {
     var config = Configuration([Dog.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final dog1 = Dog("Bella", age: 1);
     final dog2 = Dog("Fido", age: 2);
@@ -333,12 +305,11 @@ Future<void> main([List<String>? args]) async {
 
     expect(result, isNot(orderedEquals(snapshot)));
     expect(result, containsAllInOrder(snapshot));
-    realm.close();
   });
 
   test('Results - get query length after realm is closed throws', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     var team = Team("TeamOne");
     realm.write(() => realm.add(team));
@@ -349,7 +320,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Results access after realm closed throws', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     var team = Team("TeamOne");
     realm.write(() => realm.add(team));
@@ -360,7 +331,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Realm deleteMany from results', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     //Create two teams
     realm.write(() {
@@ -379,12 +350,11 @@ Future<void> main([List<String>? args]) async {
     //Reload teams from realm and ensure they are deleted
     teams = realm.all<Team>();
     expect(teams.length, 0);
-    realm.close();
   });
 
   test('Results notifications', () async {
     var config = Configuration([Dog.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     realm.write(() {
       realm.add(Dog("Fido"));
@@ -420,12 +390,11 @@ Future<void> main([List<String>? args]) async {
     subscription.cancel();
 
     await Future<void>.delayed(const Duration(milliseconds: 20));
-    realm.close();
   });
 
   test('Results notifications can be paused', () async {
     var config = Configuration([Dog.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     realm.write(() {
       realm.add(Dog("Lassy"));
@@ -451,12 +420,11 @@ Future<void> main([List<String>? args]) async {
     await subscription.cancel();
 
     await Future<void>.delayed(const Duration(milliseconds: 20));
-    realm.close();
   });
 
   test('Results notifications can be resumed', () async {
     var config = Configuration([Dog.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     var callbackCalled = false;
     final subscription = realm.all<Dog>().changes.listen((changes) {
@@ -484,15 +452,13 @@ Future<void> main([List<String>? args]) async {
 
     await subscription.cancel();
     await Future<void>.delayed(const Duration(milliseconds: 20));
-    realm.close();
   });
 
   test('Results notifications can leak', () async {
     var config = Configuration([Dog.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final leak = realm.all<Dog>().changes.listen((data) {});
     await Future<void>.delayed(const Duration(milliseconds: 20));
-    realm.close();
   });
 }

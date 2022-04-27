@@ -18,6 +18,8 @@
 
 import 'dart:ffi';
 import 'dart:typed_data';
+import 'package:objectid/objectid.dart';
+import 'package:sane_uuid/uuid.dart';
 
 /// All supported `Realm` property types.
 /// {@category Configuration}
@@ -76,12 +78,6 @@ class RealmUnsupportedSetError extends UnsupportedError implements RealmError {
 class RealmStateError extends StateError implements RealmError {
   RealmStateError(String message) : super(message);
 }
-
-/// @nodoc
-class Uuid {} // TODO!
-
-/// @nodoc
-class ObjectId {} // TODO!
 
 /// @nodoc
 class Decimal128 {} // TODO!

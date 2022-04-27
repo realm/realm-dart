@@ -1,0 +1,15 @@
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+env:
+  REALM_CI: true
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          submodules: false

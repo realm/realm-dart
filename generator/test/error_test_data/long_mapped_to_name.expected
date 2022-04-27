@@ -1,0 +1,11 @@
+Invalid model name
+
+in: asset:pkg/test/error_test_data/long_mapped_to_name.dart:7:7
+  ╷
+5 │ @RealmModel()
+6 │ @MapTo('ThisIsAVeryLongClassNameSoLongInFactThatItRunsOverThe57CharacterLimit')
+7 │ class _Foo {
+  │       ^^^^ ThisIsAVeryLongClassNameSoLongInFactThatItRunsOverThe57CharacterLimit is too long (> 57 characters)
+  ╵
+Foo which is stored as ThisIsAVeryLongClassNameSoLongInFactThatItRunsOverThe57CharacterLimit is too long (69 characters when max is 57). Either rename it to something shorter or use the @MapTo annotation.
+

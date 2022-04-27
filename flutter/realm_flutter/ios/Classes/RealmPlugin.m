@@ -27,7 +27,6 @@
 #endif
 #import "realm_dart.h"
 #import "realm_dart_scheduler.h"
-#import "realm_dart_collections.h"
 #import "platform.h"
 @implementation RealmPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {

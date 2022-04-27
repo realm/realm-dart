@@ -5,7 +5,7 @@ in: asset:pkg/test/error_test_data/bool_not_allowed_as_primary_key.dart:9:8
 5 │ @RealmModel()
 6 │ @MapTo('Bad')
 7 │ class _Foo {
-  │       ━━━━ in realm model for 'Bad'
+  │       ━━━━ in realm model for 'Foo'
 8 │   @PrimaryKey()
 9 │   late bool bad;
   │        ^^^^ bool is not an indexable type

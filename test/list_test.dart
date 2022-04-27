@@ -30,7 +30,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Lists add object with a list property', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final team = Team("Ferrari");
     realm.write(() => realm.add(team));
@@ -40,12 +40,11 @@ Future<void> main([List<String>? args]) async {
     expect(teams[0].name, "Ferrari");
     expect(teams[0].players, isNotNull);
     expect(teams[0].players.length, 0);
-    realm.close();
   });
 
   test('Lists get set', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final team = Team("Ferrari");
     realm.write(() => realm.add(team));
@@ -69,12 +68,11 @@ Future<void> main([List<String>? args]) async {
     expect(players[0].name, "Michael");
     expect(players[1].name, "Sebastian");
     expect(players[2].name, "Kimi");
-    realm.close();
   });
 
   test('Lists get invalid index throws exception', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final team = Team("Ferrari");
     realm.write(() => realm.add(team));
@@ -84,12 +82,11 @@ Future<void> main([List<String>? args]) async {
 
     expect(() => players[-1], throws<RealmException>("Index out of range"));
     expect(() => players[800], throws<RealmException>());
-    realm.close();
   });
 
   test('Lists set invalid index throws', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final team = Team("Ferrari");
     realm.write(() => realm.add(team));
@@ -99,12 +96,11 @@ Future<void> main([List<String>? args]) async {
 
     expect(() => realm.write(() => players[-1] = Person('')), throws<RealmException>("Index out of range"));
     expect(() => realm.write(() => players[800] = Person('')), throws<RealmException>());
-    realm.close();
   });
 
   test('List clear items from list', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     //Create a team
     final team = Team("Team");
@@ -137,12 +133,11 @@ Future<void> main([List<String>? args]) async {
     //Ensure that players objects still exist in realm detached from the team
     final allPlayers = realm.all<Person>();
     expect(allPlayers.length, 3);
-    realm.close();
   });
 
   test('List clear - same list related to two objects', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     //Create two teams
     final teamOne = Team("TeamOne");
@@ -181,12 +176,11 @@ Future<void> main([List<String>? args]) async {
     //Ensure players still exist in realm
     final players = realm.all<Person>();
     expect(players.length, 3);
-    realm.close();
   });
 
   test('List clear - same item added to two lists', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     //Create two Teams
     final teamOne = Team("TeamOne");
@@ -222,12 +216,11 @@ Future<void> main([List<String>? args]) async {
     //Ensure the player still exists in realm
     final allPlayers = realm.all<Person>();
     expect(allPlayers.length, 1);
-    realm.close();
   });
 
   test('List clear in closed realm - expected exception', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     //Create a team
     var team = Team("TeamOne");
@@ -252,7 +245,7 @@ Future<void> main([List<String>? args]) async {
         throws<RealmException>());
 
     config = Configuration([Team.schema, Person.schema]);
-    realm = Realm(config);
+    realm = getRealm(config);
 
     //Teams must be reloaded since realm was reopened
     teams = realm.all<Team>();
@@ -260,36 +253,33 @@ Future<void> main([List<String>? args]) async {
     //Ensure that the team is still related to the player
     expect(teams.length, 1);
     expect(teams[0].players.length, 1);
-    realm.close();
   });
 
   test('Read list property of a deleted object', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     var team = Team("TeamOne");
     realm.write(() => realm.add(team));
     var teams = realm.all<Team>();
     realm.write(() => realm.delete(team));
     expect(() => team.players, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
-    realm.close();
   });
 
   test('Delete a list of objects through a deleted parent', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     var team = Team("TeamOne");
     realm.write(() => realm.add(team));
     var players = team.players;
     realm.write(() => realm.delete(team));
     expect(() => realm.write(() => realm.deleteMany(players)), throws<RealmException>("Access to invalidated Collection object"));
-    realm.close();
   });
 
   test('Get length of list property on a deleted object', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     var team = Team("TeamOne")..players.add(Person("Nikos"));
     realm.write(() {
@@ -297,13 +287,11 @@ Future<void> main([List<String>? args]) async {
       realm.delete(team);
     });
     expect(() => team.players.length, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
-
-    realm.close();
   });
 
   test('List isValid', () {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     realm.write(() {
       realm.add(Team("Speed Team", players: [
@@ -325,7 +313,7 @@ Future<void> main([List<String>? args]) async {
 
   test('List notifications', () async {
     var config = Configuration([Team.schema, Person.schema]);
-    var realm = Realm(config);
+    var realm = getRealm(config);
 
     final team = Team('t1', players: [Person("p1")]);
     realm.write(() => realm.add(team));
@@ -358,12 +346,11 @@ Future<void> main([List<String>? args]) async {
     subscription.cancel();
 
     await Future<void>.delayed(Duration(milliseconds: 20));
-    realm.close();
   });
 
   test('List query', () {
     final config = Configuration([Team.schema, Person.schema]);
-    final realm = Realm(config);
+    final realm = getRealm(config);
 
     final person = Person('John');
     final team = Team('team1', players: [
@@ -374,12 +361,7 @@ Future<void> main([List<String>? args]) async {
 
     realm.write(() => realm.add(team));
 
-    // TODO: Get rid of cast, once type signature of team.players is a RealmList<Person>
-    // as opposed to the List<Person> we have today.
     final result = team.players.query(r'name BEGINSWITH $0', ['J']);
-
     expect(result, [person]);
-
-    realm.close();
   });
 }
