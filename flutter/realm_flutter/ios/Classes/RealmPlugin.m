@@ -34,16 +34,4 @@
   [SwiftRealmPlugin registerWithRegistrar:registrar];
 }
 
-void dummy(void) {
-  realm_get_library_version();
-  realm_initializeDartApiDL(NULL);
-  realm_dart_create_scheduler(0,0);
-  realm_object_create(NULL, 0);
-  realm_dart_get_files_path();
-  realm_results_get_object(NULL, 0);
-  realm_list_size(NULL, 0);
-  realm_dart_results_add_notification_callback(NULL, NULL, NULL, NULL);
-  realm_results_snapshot(NULL);
-}
-
 @end

@@ -1,0 +1,226 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+      "major": 3,
+      "minor": 21,
+      "patch": 0
+    },
+  "configurePresets": [
+    {
+      "name": "default",
+      "binaryDir": "${sourceDir}/build-native/${presetName}",
+      "generator": "Ninja Multi-Config",
+      "cacheVariables": {
+        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/vcpkg-overlay-triplets",
+        "VCPKG_MANIFEST_DIR": "${sourceDir}/src/realm-core/tools/vcpkg",
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo;MinSizeRel"
+      }
+    },
+    {
+      "name": "windows",
+      "inherits": "default",
+      "hidden": true,
+      "generator": "Visual Studio 17 2022",
+      "toolchainFile": "${sourceDir}/src/realm-core/tools/vcpkg/ports/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "$env{vcpkg_arch}-$env{vcpkg_platform}-static"
+      },
+      "environment": {
+        "vcpkg_platform": "windows"
+      },
+      "condition": {
+        "lhs": "${hostSystemName}",
+        "type": "equals",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "windows-x64",
+      "displayName": "Windows x64",
+      "inherits": "windows",
+      "architecture": "x64",
+      "environment": {
+        "vcpkg_arch": "x64"
+      }
+    },
+    {
+      "name": "windows-arm64",
+      "displayName": "Windows ARM64",
+      "inherits": "windows",
+      "architecture": "ARM64",
+      "environment": {
+        "vcpkg_arch": "arm64"
+      }
+    },
+    {
+      "name": "macos",
+      "displayName": "macOS",
+      "inherits": "default",
+      "generator": "Xcode",
+      "toolchainFile": "${sourceDir}/src/realm-core/tools/cmake/xcode.toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_MAKE_PROGRAM": "${sourceDir}/scripts/cmake-build-xcode.sh",
+        "CMAKE_SYSTEM_NAME": "Darwin",
+        "CMAKE_OSX_ARCHITECTURES": "x86_64;arm64",
+        "CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH": "YES"
+      },
+      "condition": {
+        "lhs": "${hostSystemName}",
+        "type": "equals",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "ios",
+      "displayName": "iOS",
+      "inherits": "default",
+      "condition": {
+        "lhs": "${hostSystemName}",
+        "type": "equals",
+        "rhs": "Darwin"
+      },
+      "generator": "Xcode",
+      "toolchainFile": "${sourceDir}/src/realm-core/tools/cmake/xcode.toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_MAKE_PROGRAM": "${sourceDir}/scripts/cmake-build-xcode.sh",
+        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/build-native/iOS/$<CONFIG>$(EFFECTIVE_PLATFORM_NAME)",
+        "CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH": "YES"
+      }
+    },
+    {
+      "name": "android",
+      "inherits": "default",
+      "hidden": true,
+      "condition": {
+        "lhs": "$env{ANDROID_NDK}",
+        "type": "notEquals",
+        "rhs": ""
+      },
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "Android",
+        "CMAKE_ANDROID_NDK": "$env{ANDROID_NDK}",
+        "VCPKG_TARGET_TRIPLET": "$env{vcpkg_arch}-android"
+      },
+      "environment": {
+        "ANDROID_NDK_HOME": "$env{ANDROID_NDK}"
+      }
+    },
+    {
+      "name": "android-x86",
+      "displayName": "Android x86",
+      "inherits": "android",
+      "cacheVariables": {
+        "CMAKE_ANDROID_ARCH_ABI": "x86"
+      },
+      "environment": {
+        "vcpkg_arch": "x86"
+      }
+    },
+    {
+      "name": "android-x86_64",
+      "displayName": "Android x86_64",
+      "inherits": "android",
+      "cacheVariables": {
+        "CMAKE_ANDROID_ARCH_ABI": "x86_64"
+      },
+      "environment": {
+        "vcpkg_arch": "x64"
+      }
+    },
+    {
+      "name": "android-armeabi-v7a",
+      "displayName": "Android armeabi-v7a",
+      "inherits": "android",
+      "cacheVariables": {
+        "CMAKE_ANDROID_ARCH_ABI": "armeabi-v7a"
+      },
+      "environment": {
+        "vcpkg_arch": "arm"
+      }
+    },
+    {
+      "name": "android-arm64-v8a",
+      "displayName": "Android arm64-v8a",
+      "inherits": "android",
+      "cacheVariables": {
+        "CMAKE_ANDROID_ARCH_ABI": "arm64-v8a"
+      },
+      "environment": {
+        "vcpkg_arch": "arm64"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default"
+    },
+    {
+      "name": "windows-x64",
+      "configurePreset": "windows-x64",
+      "displayName": "x64"
+    },
+    {
+      "name": "windows-arm64",
+      "configurePreset": "windows-arm64",
+      "displayName": "ARM64"
+    },
+    {
+      "name": "android-x86",
+      "configurePreset": "android-x86",
+      "displayName": "x86"
+    },
+    {
+      "name": "android-x86_64",
+      "configurePreset": "android-x86_64",
+      "displayName": "x86_64"
+    },
+    {
+      "name": "android-armeabi-v7a",
+      "configurePreset": "android-armeabi-v7a",
+      "displayName": "armeabi-v7a"
+    },
+    {
+      "name": "android-arm64-v8a",
+      "configurePreset": "android-arm64-v8a",
+      "displayName": "arm64-v8a"
+    },
+    {
+      "name": "macos",
+      "displayName": "macOS",
+      "configurePreset": "macos",
+      "nativeToolOptions": [ "-destination", "platform=macOS" ]
+    },
+    {
+      "name": "ios",
+      "hidden": true,
+      "inherits": "default",
+      "configurePreset": "ios",
+      "nativeToolOptions": [ "-destination", "$env{xcode_destination}" ]
+    },
+    {
+      "name": "ios-device",
+      "displayName": "Device",
+      "inherits": "ios",
+      "environment": {
+        "xcode_destination": "generic/platform=iOS"
+      }
+    },
+    {
+      "name": "ios-simulator",
+      "displayName": "Simulator",
+      "inherits": "ios",
+      "environment": {
+        "xcode_destination": "platform=iOS Simulator,name=iPhone 8"
+      }
+    },
+    {
+      "name": "ios-catalyst",
+      "displayName": "Catalyst",
+      "inherits": "ios",
+      "environment": {
+        "xcode_destination": "platform=macOS,variant=Mac Catalyst"
+      }
+    }
+  ]
+}

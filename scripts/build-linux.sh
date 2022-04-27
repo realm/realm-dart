@@ -6,11 +6,5 @@ set -o pipefail
 # Start in the root directory of the project.
 cd "$(dirname "$0")/.."
 
-mkdir -p build-linux
-pushd build-linux
-
-cmake -GNinja \
-      -DCMAKE_BUILD_TYPE=MinSizeRel \
-      ..
-
-cmake --build .
+cmake --preset default
+cmake --build --preset default --config MinSizeRel

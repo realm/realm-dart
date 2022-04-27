@@ -53,23 +53,3 @@ RLM_API Dart_FinalizableHandle realm_attach_finalizer(Dart_Handle handle, void* 
 RLM_API void realm_delete_finalizable(Dart_FinalizableHandle finalizable_handle, Dart_Handle handle) {
   Dart_DeleteFinalizableHandle_DL(finalizable_handle, handle);
 }
-
-#if (ANDROID)
-void realm_android_dummy();
-#endif
-
-// Force the linker to link all exports from realm-core C API
-void dummy(void) {
-  realm_scheduler_make_default();
-  realm_config_new();
-  realm_schema_new(nullptr, 0, nullptr);
-  realm_get_library_version();
-  realm_object_create(nullptr, 0);
-  realm_results_get_object(nullptr, 0);
-  realm_list_size(nullptr, 0);
-  realm_results_add_notification_callback(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
-  realm_results_snapshot(nullptr);
-#if (ANDROID)
-  realm_android_dummy();
-#endif
-}

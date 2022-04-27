@@ -56,25 +56,23 @@ else
     done
 fi
 
-DESTINATIONS=()
-LIBRARIES=()
+cmake --preset ios
+
+FRAMEWORKS=()
 BUILD_LIB_CMDS=()
 for platform in "${PLATFORMS[@]}"; do
-    case "$platform" in 
+    case "$platform" in
         ios)
-            DESTINATIONS+=(-destination 'generic/platform=iOS')
-            LIBRARIES+=(-library ./out/$CONFIGURATION-iphoneos/librealm_flutter_ios.a -headers ./_include)
-            BUILD_LIB_CMDS+=("xcrun libtool -static -o ./out/$CONFIGURATION-iphoneos/librealm_flutter_ios.a ./out/$CONFIGURATION-iphoneos/*.a")
+            cmake --build --preset ios-device --config $CONFIGURATION -- -destination "generic/platform=iOS"
+            FRAMEWORKS+=(-framework ./build-native/iOS/$CONFIGURATION-iphoneos/realm_dart.framework)
         ;;
         catalyst)
-            DESTINATIONS+=(-destination 'platform=macOS,arch=x86_64,variant=Mac Catalyst')
-            LIBRARIES+=(-library ./out/$CONFIGURATION-maccatalyst/librealm_flutter_ios.a -headers ./_include)
-            BUILD_LIB_CMDS+=("xcrun libtool -static -o ./out/$CONFIGURATION-maccatalyst/librealm_flutter_ios.a ./out/$CONFIGURATION-maccatalyst/*.a")
+            cmake --build --preset ios-catalyst --config $CONFIGURATION -- -destination "generic/platform=macOS,variant=Mac Catalyst"
+            FRAMEWORKS+=(-framework ./build-native/iOS/$CONFIGURATION-maccatalyst/realm_dart.framework)
         ;;
         simulator)
-            DESTINATIONS+=(-destination 'generic/platform=iOS Simulator')
-            LIBRARIES+=(-library ./out/$CONFIGURATION-iphonesimulator/librealm_flutter_ios.a -headers ./_include)
-            BUILD_LIB_CMDS+=("xcrun libtool -static -o ./out/$CONFIGURATION-iphonesimulator/librealm_flutter_ios.a ./out/$CONFIGURATION-iphonesimulator/*.a")
+            cmake --build --preset ios-simulator --config $CONFIGURATION -- -destination "generic/platform=iOS Simulator"
+            FRAMEWORKS+=(-framework ./build-native/iOS/$CONFIGURATION-iphonesimulator/realm_dart.framework)
         ;;
         *)
             echo "${platform} not supported"
@@ -84,43 +82,10 @@ for platform in "${PLATFORMS[@]}"; do
     esac
 done
 
-mkdir -p build-ios
-pushd build-ios
-
-
-
-# Configure CMake project
-cmake "$PROJECT_ROOT" -GXcode \
-    -DCMAKE_SYSTEM_NAME=iOS \
-    -DCMAKE_TOOLCHAIN_FILE="$PROJECT_ROOT/src/realm-core/tools/cmake/xcode.toolchain.cmake" \
-    -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY="$(pwd)/out/$<CONFIG>\$EFFECTIVE_PLATFORM_NAME"
-    
-
-# The above command cmake --build does the same as this one
-xcodebuild build \
-    -scheme realm_dart \
-    "${DESTINATIONS[@]}" \
-    -configuration $CONFIGURATION \
-    ONLY_ACTIVE_ARCH=NO \
-    BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
-    SUPPORTS_MACCATALYST=YES
-
-for cmd in "${BUILD_LIB_CMDS[@]}"; do
-    eval "${cmd}"
-done
-
-mkdir -p _include/realm_dart_ios
-cp "$PROJECT_ROOT"/src/realm-core/src/realm.h _include/realm_dart_ios/
-cp "$PROJECT_ROOT"/src/realm_dart.h _include/realm_dart_ios/
-cp "$PROJECT_ROOT"/src/realm_dart_scheduler.h _include/realm_dart_ios/
-cp "$PROJECT_ROOT"/src/realm_dart_collections.h _include/realm_dart_ios/
-cp -r "$PROJECT_ROOT"/src/dart-include _include/realm_dart_ios/
-
-
 # clean binary output directory
-rm -rf ../binary/ios/realm_flutter_ios.xcframework
+rm -rf ./binary/ios/realm_dart.xcframework
 
 # build an xcframework
 xcodebuild -create-xcframework \
-    "${LIBRARIES[@]}" \
-    -output ../binary/ios/realm_flutter_ios.xcframework
+    "${FRAMEWORKS[@]}" \
+    -output ./binary/ios/realm_dart.xcframework
