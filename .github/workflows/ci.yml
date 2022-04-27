@@ -103,7 +103,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-linux
-          path: binary
+          path: binary/linux
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
@@ -161,7 +161,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-linux
-          path: binary
+          path: binary/linux
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -253,7 +253,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-macos
-          path: binary
+          path: binary/macos
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
@@ -303,7 +303,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-macos
-          path: binary
+          path: binary/macos
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -365,7 +365,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-windows
-          path: binary
+          path: binary/windows
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
@@ -418,7 +418,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-windows
-          path: binary
+          path: binary/windows
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -499,7 +499,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-ios
-          path: binary
+          path: binary/ios
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -590,7 +590,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-android
-          path: binary
+          path: binary/android
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
