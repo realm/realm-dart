@@ -73,21 +73,21 @@ jobs:
 
     - name: Package common
       run: |
-        cp -r ../../common .
+        cp -Lr ../../common .
         cd common
         dart pub publish --dry-run
       working-directory: release/${{ steps.prepare-binaries.outputs.folder }}
 
     - name: Package generator
       run: |
-        cp -r ../../generator .
+        cp -Lr ../../generator .
         cd generator
         dart pub publish --dry-run
       working-directory: release/${{ steps.prepare-binaries.outputs.folder }}
 
     - name: Package realm_flutter
       run: |
-        cp -r ../../flutter/realm_flutter .
+        cp -Lr ../../flutter/realm_flutter .
         cd realm_flutter
         dart pub publish --dry-run
       working-directory: release/${{ steps.prepare-binaries.outputs.folder }}
@@ -95,7 +95,7 @@ jobs:
     - name: Package realm_dart
       run: |
         mkdir realm_dart
-        cp -r ../../bin ../../example ../../lib ../../test realm_dart
+        cp -Lr ../../bin ../../example ../../lib ../../test realm_dart
         cp ../../* realm_dart
         cd realm_dart
         dart pub publish --dry-run
