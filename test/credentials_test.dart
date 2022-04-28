@@ -35,6 +35,9 @@ Future<User> retryLogin(int retries, Future<User> Function(Credentials credentia
 }
 
 Future<void> main([List<String>? args]) async {
+
+  const String _strongPassword = "SWV23R#@T#VFQDV";
+
   print("Current PID $pid");
 
   await setupTests(args);
@@ -53,11 +56,10 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "${generateRandomString(5)}@bar.com";
-    String password = "SWV23R#@T#VFQDV";
     expect(() async {
       // For confirmationType = 'runConfirmationFunction' as it is by default
       // only usernames that contain 'realm_tests_do_autoverify' are confirmed.
-      await authProvider.registerUser(username, password);
+      await authProvider.registerUser(username, _strongPassword);
     }, throws<RealmException>("failed to confirm user"));
   });
 
@@ -65,9 +67,8 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "realm_tests_do_autoverify${generateRandomString(5)}@bar.com";
-    String password = "SWV23R#@T#VFQDV";
-    await authProvider.registerUser(username, password);
-    final user = retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
+    await authProvider.registerUser(username, _strongPassword);
+    final user = await retryLogin(3, app.logIn, Credentials.emailPassword(username, _strongPassword));
     expect(user, isNotNull);
   });
 
@@ -75,11 +76,10 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "${generateRandomString(5)}@bar.com";
-    String password = "SWV23R#@T#VFQDV";
     // For application with name 'autoConfirm' and with confirmationType = 'auto'
     // all the usernames are automatically confirmed.
-    await authProvider.registerUser(username, password);
-    final user = retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
+    await authProvider.registerUser(username, _strongPassword);
+    final user = await retryLogin(3, app.logIn, Credentials.emailPassword(username, _strongPassword));
     expect(user, isNotNull);
   }, appName: "autoConfirm");
 
@@ -87,10 +87,9 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "${generateRandomString(5)}@bar.com";
-    String password = "SWV23R#@T#VFQDV";
-    await authProvider.registerUser(username, password);
+    await authProvider.registerUser(username, _strongPassword);
     expect(() async {
-      await authProvider.registerUser(username, password);
+      await authProvider.registerUser(username, _strongPassword);
     }, throws<RealmException>("name already in use"));
   }, appName: "autoConfirm");
 
@@ -118,8 +117,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "${generateRandomString(5)}@hotmail.com";
-    String password = "SWV23R#@T#VFQDV";
-    await authProvider.registerUser(username, password);
+    await authProvider.registerUser(username, _strongPassword);
     expect(() async {
       await authProvider.confirmUser(
           "0e6340a446e68fe02a1af1b53c34d5f630b601ebf807d73d10a7fed5c2e996d87d04a683030377ac6058824d8555b24c1417de79019b40f1299aada7ef37fddc",
@@ -131,8 +129,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "${generateRandomString(5)}@hotmail.com";
-    String password = "SWV23R#@T#VFQDV";
-    await authProvider.registerUser(username, password);
+    await authProvider.registerUser(username, _strongPassword);
     expect(() async {
       await authProvider.confirmUser("abc", "123");
     }, throws<RealmException>("invalid token data"));
@@ -147,24 +144,22 @@ Future<void> main([List<String>? args]) async {
     // Make sure the email haven't been already registered in apllication.
 
     // Enter a valid email that is not registered
-    String username = "existing_email@mail.com";
-    String password = "SWV23R#@T#VFQDV";
-
+    const String _validUsername = "valid_email@mail.com";
     baasTest('1. Register a valid user for email confirmation', (configuration) async {
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
-      await authProvider.registerUser(username, password);
+      await authProvider.registerUser(_validUsername, _strongPassword);
     }, appName: "emailConfirm", skip: "It is a manual test");
 
     baasTest('2. Take the recieved token from the email and confirm the user', (configuration) async {
-      //Enter valid token and tokenId from the received email
+      // Enter valid token and tokenId from the received email
       String token = "3a8bdfa28e147f38e531cf5aca93d452a11efc4fc9a81f00219b0cb29cfb93858f6b174123659a6ef47b58a2b80eac3b406d7803605c17ef44401ec6cf2c8fa6";
       String tokenId = "626934dcb4e7e5a0e2f1d85e";
 
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
       await authProvider.confirmUser(token, tokenId);
-      final user = retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
+      final user = await retryLogin(3, app.logIn, Credentials.emailPassword(_validUsername, _strongPassword));
       expect(user, isNotNull);
     }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
   });
@@ -173,8 +168,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "realm_tests_pending_confirm_${generateRandomString(5)}@bar.com";
-    String password = "SWV23R#@T#VFQDV";
-    await authProvider.registerUser(username, password);
+    await authProvider.registerUser(username, _strongPassword);
 
     const String source = "exports = ({ token, tokenId, username }) => {return { status: 'success' }};";
     await updateConfirmFunctionSource("flexible", source);
@@ -182,16 +176,16 @@ Future<void> main([List<String>? args]) async {
     await authProvider.retryCustomConfirmationFunction(username);
 
     await updateConfirmFunctionSource("flexible");
-    final user = retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
+    final user = await retryLogin(3, app.logIn, Credentials.emailPassword(username, _strongPassword));
+    expect(user, isNotNull);
   }, appName: "flexible", skip: "Run this test manually, since it changes the function source of the app");
 
   baasTest('Email/Password - retry custom confirmation after user is confirmed', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "realm_tests_do_autoverify_${generateRandomString(5)}@bar.com";
-    String password = "SWV23R#@T#VFQDV";
     // Custom confirmation function confirms automatically username with 'realm_tests_do_autoverify'.
-    await authProvider.registerUser(username, password);
+    await authProvider.registerUser(username, _strongPassword);
 
     expect(() async {
       await authProvider.retryCustomConfirmationFunction(username);
@@ -205,5 +199,37 @@ Future<void> main([List<String>? args]) async {
     expect(() async {
       await authProvider.retryCustomConfirmationFunction(username);
     }, throws<RealmException>("user not found"));
+  });
+
+  group("Email/Password - resend confirm - manual tests", () {
+    // The tests in this group are for manual testing, since they require interaction with mail box.
+    // Please enter a valid data in the variables under comments.
+    // Run test 1, then make sure you have recieved two emails.
+    // Copy token and tokenId from the second email.
+    // Set the variables with token details and then run test 2.
+    // Go to the application and check whether the new registered user is confirmed.
+    // Make sure the email haven't been already registered in apllication.
+
+    // Enter a valid email that is not registered
+    const String _validUsername = "valid_email@mail.com";
+    baasTest('1. Register a valid user and resend email confirmation', (configuration) async {
+      final app = App(configuration);
+      final authProvider = EmailPasswordAuthProvider(app);
+      await authProvider.registerUser(_validUsername, _strongPassword);
+      await authProvider.resendUserConfirmation(_validUsername);
+    }, appName: "emailConfirm", skip: "It is a manual test");
+
+    baasTest('2. Take recieved token from any of both emails and confirm the user', (configuration) async {
+      // Make sure you have recieved two emails.
+      // Enter valid token and tokenId from the second received email
+      String token = "3eb9e380e925075af761fbf36273ad32c5ad898e7cd5fc2e7cf5d0296c5850222ecb55d5d39601f95fc81a67f4b4ca1f7386bc6fef62a0b27498c3157332e155";
+      String tokenId = "626b1977dbc08e4014bad1ec";
+
+      final app = App(configuration);
+      final authProvider = EmailPasswordAuthProvider(app);
+      await authProvider.confirmUser(token, tokenId);
+      final user = await retryLogin(3, app.logIn, Credentials.emailPassword(_validUsername, _strongPassword));
+      expect(user, isNotNull);
+    }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
   });
 }
