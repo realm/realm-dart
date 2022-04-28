@@ -22,6 +22,18 @@ import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
 
+Future<User> retryLogin(int retries, Future<User> Function(Credentials credentials) doFunction, Credentials credentials) async {
+  try {
+    return await doFunction(credentials);
+  } catch (e) {
+    if (retries > 1) {
+      await Future<User>.delayed(Duration(milliseconds: 150));
+      return retryLogin(retries - 1, doFunction, credentials);
+    }
+    rethrow;
+  }
+}
+
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
@@ -52,10 +64,10 @@ Future<void> main([List<String>? args]) async {
   baasTest('Email/Password - register user', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "realm_tests_do_autoverify_${generateRandomString(5)}@bar.com";
+    String username = "realm_tests_do_autoverify${generateRandomString(5)}@bar.com";
     String password = "SWV23R#@T#VFQDV";
     await authProvider.registerUser(username, password);
-    final user = await app.logIn(Credentials.emailPassword(username, password));
+    final user = retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
     expect(user, isNotNull);
   });
 
@@ -150,7 +162,8 @@ Future<void> main([List<String>? args]) async {
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
       await authProvider.confirmUser(token, tokenId);
-      await app.logIn(Credentials.emailPassword(username, password));
+      final user = retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
+      expect(user, isNotNull);
     }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
   });
 
@@ -167,7 +180,7 @@ Future<void> main([List<String>? args]) async {
     await authProvider.retryCustomConfirmationFunction(username);
 
     await updateConfirmFunctionSource("flexible");
-    await app.logIn(Credentials.emailPassword(username, password));
+    final user = retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
   }, appName: "flexible", skip: "Run this test manually, since it changes the function source of the app");
 
   baasTest('Email/Password - retry custom confirmation after user is confirmed', (configuration) async {
