@@ -493,6 +493,7 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
     Iterable<double> doubles = const [],
     Iterable<ObjectId> objectIds = const [],
     Iterable<Uuid> uuids = const [],
+    Iterable<int> ints = const [],
   }) {
     RealmObject.set<RealmList<String>>(
         this, 'strings', RealmList<String>(strings));
@@ -504,6 +505,7 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
     RealmObject.set<RealmList<ObjectId>>(
         this, 'objectIds', RealmList<ObjectId>(objectIds));
     RealmObject.set<RealmList<Uuid>>(this, 'uuids', RealmList<Uuid>(uuids));
+    RealmObject.set<RealmList<int>>(this, 'ints', RealmList<int>(ints));
   }
 
   AllCollections._();
@@ -551,6 +553,12 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
       throw RealmUnsupportedSetError();
 
   @override
+  RealmList<int> get ints =>
+      RealmObject.get<int>(this, 'ints') as RealmList<int>;
+  @override
+  set ints(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
+
+  @override
   Stream<RealmObjectChanges<AllCollections>> get changes =>
       RealmObject.getChanges<AllCollections>(this);
 
@@ -570,6 +578,8 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
       SchemaProperty('objectIds', RealmPropertyType.objectid,
           collectionType: RealmCollectionType.list),
       SchemaProperty('uuids', RealmPropertyType.uuid,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('ints', RealmPropertyType.int,
           collectionType: RealmCollectionType.list),
     ]);
   }
