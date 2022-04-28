@@ -98,14 +98,14 @@ class BaasClient {
       }
     }
     await _createAppIfNotExists(result, defaultAppName);
-    await _createAppIfNotExists(result, "autoConfirm", "auto");
-    await _createAppIfNotExists(result, "emailConfirm", "email");
+    await _createAppIfNotExists(result, "autoConfirm", confirmationType: "auto");
+    await _createAppIfNotExists(result, "emailConfirm", confirmationType: "email");
     return result;
   }
 
-  Future<void> _createAppIfNotExists(Map<String, BaasApp> result, String appName, [String? confirmationType]) async {
-    if (!result.containsKey(appName)) {
-      result[appName] = await _createApp(appName, confirmationType: confirmationType);
+  Future<void> _createAppIfNotExists(Map<String, BaasApp> existingApps, String appName, {String? confirmationType}) async {
+    if (!existingApps.containsKey(appName)) {
+      existingApps[appName] = await _createApp(appName, confirmationType: confirmationType);
     }
   }
 

@@ -56,8 +56,6 @@ Future<void> main([List<String>? args]) async {
     String password = "SWV23R#@T#VFQDV";
     await authProvider.registerUser(username, password);
     final user = await app.logIn(Credentials.emailPassword(username, password));
-    await app.logout(user);
-    await app.removeUser(user);
     expect(user, isNotNull);
   });
 
@@ -152,8 +150,7 @@ Future<void> main([List<String>? args]) async {
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
       await authProvider.confirmUser(token, tokenId);
-      final user = await app.logIn(Credentials.emailPassword(username, password));
-      await app.logout(user);
+      await app.logIn(Credentials.emailPassword(username, password));
     }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
   });
 
@@ -170,9 +167,8 @@ Future<void> main([List<String>? args]) async {
     await authProvider.retryCustomConfirmationFunction(username);
 
     await updateConfirmFunctionSource("flexible");
-    final user = await app.logIn(Credentials.emailPassword(username, password));
-    await app.logout(user);
-  }, appName: "flexible");
+    await app.logIn(Credentials.emailPassword(username, password));
+  }, appName: "flexible", skip: "Run this test manually, since it changes the function source of the app");
 
   baasTest('Email/Password - retry custom confirmation after user is confirmed', (configuration) async {
     final app = App(configuration);
