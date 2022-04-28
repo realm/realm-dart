@@ -67,7 +67,7 @@ Future<void> main([List<String>? args]) async {
     String username = "realm_tests_do_autoverify${generateRandomString(5)}@bar.com";
     String password = "SWV23R#@T#VFQDV";
     await authProvider.registerUser(username, password);
-    final user = retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
+    final user = await retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
     expect(user, isNotNull);
   });
 
@@ -79,7 +79,7 @@ Future<void> main([List<String>? args]) async {
     // For application with name 'autoConfirm' and with confirmationType = 'auto'
     // all the usernames are automatically confirmed.
     await authProvider.registerUser(username, password);
-    final user = retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
+    final user = await retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
     expect(user, isNotNull);
   }, appName: "autoConfirm");
 
@@ -164,7 +164,7 @@ Future<void> main([List<String>? args]) async {
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
       await authProvider.confirmUser(token, tokenId);
-      final user = retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
+      final user = await retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
       expect(user, isNotNull);
     }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
   });
