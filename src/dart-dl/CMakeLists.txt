@@ -1,5 +1,3 @@
-set(SOURCES)
-
 add_library(dart-dl OBJECT
     dart_api_dl.c
     dart_api_dl.h
