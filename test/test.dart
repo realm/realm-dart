@@ -219,9 +219,9 @@ Future<void> baasTest(
   final url = Uri.tryParse(Platform.environment['BAAS_URL'] ?? 'https://realm-dev.mongodb.com');
 
   if (skip == null) {
-    skip = url == null ? "BAAS URL not present" : true;
+    skip = url == null ? "BAAS URL not present" : null;
   } else if (skip is bool) {
-    skip = skip || url == null ? "BAAS URL not present" : true;
+    skip = skip || url == null ? "BAAS URL not present" : null;
   }
 
   test(name, () async {
