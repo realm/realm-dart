@@ -67,7 +67,7 @@ Future<void> main([List<String>? args]) async {
     String username = "realm_tests_do_autoverify${generateRandomString(5)}@bar.com";
     String password = "SWV23R#@T#VFQDV";
     await authProvider.registerUser(username, password);
-    final user = retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
+    final user = await retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
     expect(user, isNotNull);
   });
 
