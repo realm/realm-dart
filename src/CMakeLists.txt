@@ -65,6 +65,9 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
     set_target_properties(realm_dart PROPERTIES
         FRAMEWORK TRUE
         PUBLIC_HEADER "${HEADERS}"
+        MACOSX_FRAMEWORK_IDENTIFIER io.realm.dart
+        MACOSX_FRAMEWORK_SHORT_VERSION_STRING "1.0.0"
+        MACOSX_FRAMEWORK_BUNDLE_VERSION "1.0.0"
     )
 
     add_custom_command(TARGET realm_dart POST_BUILD
