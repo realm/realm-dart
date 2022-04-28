@@ -19,6 +19,7 @@
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
 import 'dart:io';
+import 'dart:math';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -79,119 +80,180 @@ Future<void> main([List<String>? args]) async {
       return original;
     }
 
-    test('dynamic.all (dynamic=$isDynamic) returns empty collection', () {
-      final config = Configuration([Car.schema]);
-      final staticRealm = getRealm(config);
+    group('Realm.dynamic when isDynamic=$isDynamic', () {
+      test('all returns empty collection', () {
+        final config = Configuration([Car.schema]);
+        final staticRealm = getRealm(config);
 
-      final realm = getDynamicRealm(staticRealm);
-      final allCars = realm.dynamic.all(Car.schema.name);
-      expect(allCars.length, 0);
-    });
-
-    test('dynamic.all (dynamic=$isDynamic) returns non-empty collection', () {
-      final config = Configuration([Car.schema]);
-      final staticRealm = getRealm(config);
-      staticRealm.write(() {
-        staticRealm.add(Car('Honda'));
+        final realm = getDynamicRealm(staticRealm);
+        final allCars = realm.dynamic.all(Car.schema.name);
+        expect(allCars.length, 0);
       });
 
-      final realm = getDynamicRealm(staticRealm);
-      final allCars = realm.dynamic.all(Car.schema.name);
-      expect(allCars.length, 1);
+      test('all returns non-empty collection', () {
+        final config = Configuration([Car.schema]);
+        final staticRealm = getRealm(config);
+        staticRealm.write(() {
+          staticRealm.add(Car('Honda'));
+        });
 
-      final car = allCars[0];
-      expect(RealmObject.get<String>(car, 'make'), 'Honda');
-    });
+        final realm = getDynamicRealm(staticRealm);
+        final allCars = realm.dynamic.all(Car.schema.name);
+        expect(allCars.length, 1);
 
-    test('dynamic.all (dynamic=$isDynamic) throws for non-existent type', () {
-      final config = Configuration([Car.schema]);
-      final staticRealm = getRealm(config);
-
-      final dynamicRealm = getDynamicRealm(staticRealm);
-
-      expect(() => dynamicRealm.dynamic.all('i-dont-exist'), throws<RealmException>("Object type i-dont-exist not configured in the current Realm's schema"));
-    });
-
-    test('dynamic.all (dynamic=$isDynamic) can follow links', () {
-      final config = Configuration([LinksClass.schema]);
-      final staticRealm = getRealm(config);
-
-      final id1 = Uuid.v4();
-      final id2 = Uuid.v4();
-      final id3 = Uuid.v4();
-
-      staticRealm.write(() {
-        final obj1 = staticRealm.add(LinksClass(id1));
-        final obj2 = staticRealm.add(LinksClass(id2));
-        final obj3 = staticRealm.add(LinksClass(id3));
-
-        obj1.link = obj2;
-        obj2.link = obj3;
-
-        obj1.list.addAll([obj1, obj2, obj3]);
+        final car = allCars[0];
+        expect(car.dynamic.get<String>('make'), 'Honda');
       });
 
-      final dynamicRealm = getDynamicRealm(staticRealm);
+      test('all throws for non-existent type', () {
+        final config = Configuration([Car.schema]);
+        final staticRealm = getRealm(config);
 
-      final objects = dynamicRealm.dynamic.all(LinksClass.schema.name);
-      final obj1 = objects.singleWhere((o) => RealmObject.get<Uuid>(o, 'id') as Uuid == id1);
-      final obj2 = objects.singleWhere((o) => RealmObject.get<Uuid>(o, 'id') as Uuid == id2);
-      final obj3 = objects.singleWhere((o) => RealmObject.get<Uuid>(o, 'id') as Uuid == id3);
+        final dynamicRealm = getDynamicRealm(staticRealm);
 
-      expect(RealmObject.get<RealmObject>(obj1, 'link'), obj2);
-      expect(RealmObject.get<RealmObject>(obj2, 'link'), obj3);
-
-      final list = RealmObject.get<RealmObject>(obj1, 'list') as List<RealmObject>;
-
-      expect(list[0], obj1);
-      expect(list[1], obj2);
-      expect(list[2], obj3);
-    });
-
-    test('dynamic.all (dynamic=$isDynamic) can be filtered', () {
-      final config = Configuration([Car.schema]);
-      final staticRealm = getRealm(config);
-
-      staticRealm.write(() {
-        staticRealm.add(Car('Honda'));
-        staticRealm.add(Car('Hyundai'));
-        staticRealm.add(Car('Suzuki'));
-        staticRealm.add(Car('Toyota'));
+        expect(() => dynamicRealm.dynamic.all('i-dont-exist'), throws<RealmException>("Object type i-dont-exist not configured in the current Realm's schema"));
       });
 
-      final dynamicRealm = getDynamicRealm(staticRealm);
+      test('all can follow links', () {
+        final config = Configuration([LinksClass.schema]);
+        final staticRealm = getRealm(config);
 
-      final carsWithH = dynamicRealm.dynamic.all(Car.schema.name).query('make BEGINSWITH "H"');
-      expect(carsWithH.length, 2);
-    });
+        final id1 = Uuid.v4();
+        final id2 = Uuid.v4();
+        final id3 = Uuid.v4();
 
-    test('dynamic.find (dynamic=$isDynamic) can find by primary key', () {
-      final config = Configuration([Car.schema]);
-      final staticRealm = getRealm(config);
+        staticRealm.write(() {
+          final obj1 = staticRealm.add(LinksClass(id1));
+          final obj2 = staticRealm.add(LinksClass(id2));
+          final obj3 = staticRealm.add(LinksClass(id3));
 
-      staticRealm.write(() {
-        staticRealm.add(Car('Honda'));
-        staticRealm.add(Car('Hyundai'));
+          obj1.link = obj2;
+          obj2.link = obj3;
+
+          obj1.list.addAll([obj1, obj2, obj3]);
+        });
+
+        final dynamicRealm = getDynamicRealm(staticRealm);
+
+        final objects = dynamicRealm.dynamic.all(LinksClass.schema.name);
+        final obj1 = objects.singleWhere((o) => o.dynamic.get<Uuid>('id') == id1);
+        final obj2 = objects.singleWhere((o) => o.dynamic.get<Uuid>('id') == id2);
+        final obj3 = objects.singleWhere((o) => o.dynamic.get<Uuid>('id') == id3);
+
+        expect(obj1.dynamic.get<RealmObject>('link'), obj2);
+        expect(obj2.dynamic.get<RealmObject>('link'), obj3);
+
+        final list = obj1.dynamic.getList<RealmObject>('list');
+
+        expect(list[0], obj1);
+        expect(list[1], obj2);
+        expect(list[2], obj3);
       });
 
-      final dynamicRealm = getDynamicRealm(staticRealm);
+      test('all can be filtered', () {
+        final config = Configuration([Car.schema]);
+        final staticRealm = getRealm(config);
 
-      final car = dynamicRealm.dynamic.find(Car.schema.name, 'Honda');
-      expect(car, isNotNull);
-      expect(RealmObject.get<String>(car!, 'make'), 'Honda');
+        staticRealm.write(() {
+          staticRealm.add(Car('Honda'));
+          staticRealm.add(Car('Hyundai'));
+          staticRealm.add(Car('Suzuki'));
+          staticRealm.add(Car('Toyota'));
+        });
 
-      final nonExistent = dynamicRealm.dynamic.find(Car.schema.name, 'i-dont-exist');
-      expect(nonExistent, isNull);
+        final dynamicRealm = getDynamicRealm(staticRealm);
+
+        final carsWithH = dynamicRealm.dynamic.all(Car.schema.name).query('make BEGINSWITH "H"');
+        expect(carsWithH.length, 2);
+      });
+
+      test('find can find by primary key', () {
+        final config = Configuration([Car.schema]);
+        final staticRealm = getRealm(config);
+
+        staticRealm.write(() {
+          staticRealm.add(Car('Honda'));
+          staticRealm.add(Car('Hyundai'));
+        });
+
+        final dynamicRealm = getDynamicRealm(staticRealm);
+
+        final car = dynamicRealm.dynamic.find(Car.schema.name, 'Honda');
+        expect(car, isNotNull);
+        expect(car!.dynamic.get<String>('make'), 'Honda');
+
+        final nonExistent = dynamicRealm.dynamic.find(Car.schema.name, 'i-dont-exist');
+        expect(nonExistent, isNull);
+      });
+
+      test('find fails to find non-existent type', () {
+        final config = Configuration([Car.schema]);
+        final staticRealm = getRealm(config);
+
+        final dynamicRealm = getDynamicRealm(staticRealm);
+
+        expect(() => dynamicRealm.dynamic.find('i-dont-exist', 'i-dont-exist'),
+            throws<RealmException>("Object type i-dont-exist not configured in the current Realm's schema"));
+      });
     });
 
-    test('dynamic.find (dynamic=$isDynamic) fails to find non-existent type', () {
-      final config = Configuration([Car.schema]);
-      final staticRealm = getRealm(config);
-
-      final dynamicRealm = getDynamicRealm(staticRealm);
-
-      expect(() => dynamicRealm.dynamic.find('i-dont-exist', 'i-dont-exist'),
-          throws<RealmException>("Object type i-dont-exist not configured in the current Realm's schema"));
-    });
+    group('RealmObject.dynamic when isDynamic=$isDynamic', () {});
   }
+
+  test('RealmObject.dynamic.get can get all property types', () {
+    final config = Configuration([AllTypes.schema]);
+    final staticRealm = getRealm(config);
+
+    final objectId = ObjectId();
+    final uuid = Uuid.v4();
+    final date = DateTime.now();
+
+    staticRealm.write(() {
+      staticRealm.add(AllTypes('abc', true, date, 123.456, objectId, uuid, 123));
+      staticRealm.add(AllTypes('', false, DateTime(0), 0, objectId, uuid, 0,
+          nullableStringProp: 'def',
+          nullableBoolProp: true,
+          nullableDateProp: date,
+          nullableDoubleProp: 999.999,
+          nullableObjectIdProp: objectId,
+          nullableUuidProp: uuid));
+    });
+
+    for (var obj in staticRealm.all<AllTypes>()) {
+      expect(obj.dynamic.get<String>('stringProp'), obj.stringProp);
+      expect(obj.dynamic.get('stringProp'), obj.stringProp);
+      expect(obj.dynamic.getNullable<String>('nullableStringProp'), obj.nullableStringProp);
+      expect(obj.dynamic.getNullable('nullableStringProp'), obj.nullableStringProp);
+
+      expect(obj.dynamic.get<bool>('boolProp'), obj.boolProp);
+      expect(obj.dynamic.get('boolProp'), obj.boolProp);
+      expect(obj.dynamic.getNullable<bool>('nullableBoolProp'), obj.nullableBoolProp);
+      expect(obj.dynamic.getNullable('nullableBoolProp'), obj.nullableBoolProp);
+
+      expect(obj.dynamic.get<DateTime>('dateProp'), obj.dateProp);
+      expect(obj.dynamic.get('dateProp'), obj.dateProp);
+      expect(obj.dynamic.getNullable<DateTime>('nullableDateProp'), obj.nullableDateProp);
+      expect(obj.dynamic.getNullable('nullableDateProp'), obj.nullableDateProp);
+
+      expect(obj.dynamic.get<double>('doubleProp'), obj.doubleProp);
+      expect(obj.dynamic.get('doubleProp'), obj.doubleProp);
+      expect(obj.dynamic.getNullable<double>('nullableDoubleProp'), obj.nullableDoubleProp);
+      expect(obj.dynamic.getNullable('nullableDoubleProp'), obj.nullableDoubleProp);
+
+      expect(obj.dynamic.get<ObjectId>('objectIdProp'), obj.objectIdProp);
+      expect(obj.dynamic.get('objectIdProp'), obj.objectIdProp);
+      expect(obj.dynamic.getNullable<ObjectId>('nullableObjectIdProp'), obj.nullableObjectIdProp);
+      expect(obj.dynamic.getNullable('nullableObjectIdProp'), obj.nullableObjectIdProp);
+
+      expect(obj.dynamic.get<Uuid>('uuidProp'), obj.uuidProp);
+      expect(obj.dynamic.get('uuidProp'), obj.uuidProp);
+      expect(obj.dynamic.getNullable<Uuid>('nullableUuidProp'), obj.nullableUuidProp);
+      expect(obj.dynamic.getNullable('nullableUuidProp'), obj.nullableUuidProp);
+
+      expect(obj.dynamic.get<int>('intProp'), obj.intProp);
+      expect(obj.dynamic.get('intProp'), obj.intProp);
+      expect(obj.dynamic.getNullable<int>('nullableIntProp'), obj.nullableIntProp);
+      expect(obj.dynamic.getNullable('nullableIntProp'), obj.nullableIntProp);
+    }
+  });
 }

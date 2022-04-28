@@ -205,7 +205,7 @@ mixin RealmObject on RealmEntity {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
   static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{
-    RealmObject: () => DynamicRealmObject._(),
+    RealmObject: () => ConcreteRealmObject._(),
   };
 
   /// @nodoc
@@ -267,6 +267,8 @@ mixin RealmObject on RealmEntity {
     final controller = RealmObjectNotificationsController<T>(object);
     return controller.createStream();
   }
+
+  late final DynamicRealmObject dynamic = DynamicRealmObject._(this);
 }
 
 /// @nodoc
@@ -369,6 +371,18 @@ class RealmObjectNotificationsController<T extends RealmObject> extends Notifica
 }
 
 /// @nodoc
-class DynamicRealmObject with RealmEntity, RealmObject {
-  DynamicRealmObject._();
+class ConcreteRealmObject with RealmEntity, RealmObject {
+  ConcreteRealmObject._();
+}
+
+class DynamicRealmObject {
+  final RealmObject _obj;
+
+  DynamicRealmObject._(this._obj);
+
+  T get<T extends Object>(String name) => RealmObject.get<T>(_obj, name) as T;
+
+  T? getNullable<T extends Object>(String name) => RealmObject.get<T>(_obj, name) as T?;
+
+  List<T> getList<T extends Object>(String name) => RealmObject.get<T>(_obj, name) as List<T>;
 }
