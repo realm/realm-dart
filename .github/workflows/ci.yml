@@ -94,7 +94,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-linux
-          path: binary
+          path: binary/linux
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
@@ -130,7 +130,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-linux
-          path: binary
+          path: binary/linux
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
