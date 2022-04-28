@@ -388,7 +388,7 @@ Future<void> main([List<String>? args]) async {
       });
 
       final json = obj.toJson();
-      expect(json, contains('"dateProp":"${DateTime(0).toRealmString()}"'));
+      expect(json, contains('"dateProp":"${DateTime.utc(0).toRealmString()}"'));
       expect(json, contains('"nullableDateProp":"${date.toRealmString()}"'));
       expect(obj.dateProp, equals(DateTime.utc(0)));
       expect(obj.nullableDateProp, equals(date));
