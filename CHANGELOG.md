@@ -30,7 +30,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support logout user. ([#476](https://github.com/realm/realm-dart/pull/476))
 * Expose an API for string-based access to the objects in the `Realm`. Those are primarily intended to be used during migrations, but are available at all times for advanced use cases. [#495](https://github.com/realm/realm-dart/pull/495))
 * Added `Realm.schema` property exposing the Realm's schema as passed through the Configuration or read from disk. [#495](https://github.com/realm/realm-dart/pull/495))
-
+* Added support for DateTime properties. ([#519](https://github.com/realm/realm-dart/pull/519))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))

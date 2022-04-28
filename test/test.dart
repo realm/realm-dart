@@ -114,6 +114,7 @@ class _AllCollections {
   late List<double> doubles;
   late List<ObjectId> objectIds;
   late List<Uuid> uuids;
+  late List<int> ints;
 }
 
 @RealmModel()
@@ -276,4 +277,15 @@ Future<void> baasTest(
 
 extension RealmObjectTest on RealmObject {
   String toJson() => realmCore.objectToString(this);
+}
+
+extension DateFormat on DateTime {
+  String toRealmString() {
+    final utc = toUtc();
+    // This is kind of silly, but Core serializes negative dates as -003-01-01 12:34:56
+    final year = utc.year < 0 ? '-${utc.year.abs().toString().padLeft(3, '0')}' : utc.year.toString().padLeft(4, '0');
+    return '$year-${_format(utc.month)}-${_format(utc.day)} ${_format(utc.hour)}:${_format(utc.minute)}:${_format(utc.second)}';
+  }
+
+  static String _format(int value) => value.toString().padLeft(2, '0');
 }

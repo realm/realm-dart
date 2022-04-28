@@ -1339,7 +1339,7 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
         realm_value.ref.type = realm_value_type.RLM_TYPE_UUID;
         break;
       case DateTime:
-        final microseconds = (value as DateTime).microsecondsSinceEpoch;
+        final microseconds = (value as DateTime).toUtc().microsecondsSinceEpoch;
         realm_value.ref.values.timestamp.seconds = microseconds ~/ 1000000;
         realm_value.ref.values.timestamp.nanoseconds = (microseconds % 1000000) * 1000;
         realm_value.ref.type = realm_value_type.RLM_TYPE_TIMESTAMP;
@@ -1379,7 +1379,7 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_TIMESTAMP:
         final seconds = ref.values.timestamp.seconds;
         final nanoseconds = ref.values.timestamp.nanoseconds;
-        return DateTime.fromMicrosecondsSinceEpoch(seconds * 1000000 + nanoseconds ~/ 1000);
+        return DateTime.fromMicrosecondsSinceEpoch(seconds * 1000000 + nanoseconds ~/ 1000).toUtc();
       case realm_value_type.RLM_TYPE_DECIMAL128:
         throw Exception("Not implemented");
       case realm_value_type.RLM_TYPE_OBJECT_ID:

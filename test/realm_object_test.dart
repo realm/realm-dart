@@ -19,6 +19,7 @@
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
 import 'dart:io';
+import 'dart:math';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -356,5 +357,134 @@ Future<void> main([List<String>? args]) async {
     // linkToAnotherClass is mapped as `property with spaces`
     // RemappedClass is mapped as `myRemappedClass`
     expect(json, contains('"property with spaces":{ "table": "class_myRemappedClass", "key": 0}'));
+  });
+
+  final dates = [
+    DateTime.utc(1970).add(Duration(days: 100000000)),
+    DateTime.utc(1970).subtract(Duration(days: 99999999)),
+    DateTime.utc(2020, 1, 1, 12, 34, 56, 789, 999),
+    DateTime.utc(2022),
+  ];
+  for (final date in dates) {
+    test('Date roundtrips correctly: $date', () {
+      final config = Configuration([AllTypes.schema]);
+      final realm = getRealm(config);
+      final obj = realm.write(() {
+        return realm.add(AllTypes('', false, date, 0, ObjectId(), Uuid.v4(), 0));
+      });
+
+      final json = obj.toJson();
+      expect(json, contains('"dateProp":"${date.toRealmString()}"'));
+      expect(json, contains('"nullableDateProp":null'));
+      expect(obj.dateProp, equals(date));
+      expect(obj.nullableDateProp, equals(null));
+    });
+
+    test('Nullable date roundtrips correctly: $date', () {
+      final config = Configuration([AllTypes.schema]);
+      final realm = getRealm(config);
+      final obj = realm.write(() {
+        return realm.add(AllTypes('', false, DateTime.utc(0), 0, ObjectId(), Uuid.v4(), 0, nullableDateProp: date));
+      });
+
+      final json = obj.toJson();
+      expect(json, contains('"dateProp":"${DateTime(0).toRealmString()}"'));
+      expect(json, contains('"nullableDateProp":"${date.toRealmString()}"'));
+      expect(obj.dateProp, equals(DateTime.utc(0)));
+      expect(obj.nullableDateProp, equals(date));
+    });
+  }
+
+  for (final list in [
+    dates,
+    <DateTime>{},
+    [DateTime(0)]
+  ]) {
+    test('List of ${list.length} dates roundtrips correctly', () {
+      final config = Configuration([AllCollections.schema]);
+      final realm = getRealm(config);
+      final obj = realm.write(() {
+        return realm.add(AllCollections(dates: list));
+      });
+
+      final json = obj.toJson();
+      expect(json, contains('"dates":[${list.map((e) => '"${e.toRealmString()}"').join(',')}]'));
+      for (var i = 0; i < list.length; i++) {
+        expect(obj.dates[i], equals(list.elementAt(i).toUtc()));
+      }
+    });
+  }
+
+  test('Date converts to utc', () {
+    final config = Configuration([AllTypes.schema]);
+    final realm = getRealm(config);
+
+    final date = DateTime.now();
+    expect(date.isUtc, isFalse);
+
+    final obj = realm.write(() {
+      return realm.add(AllTypes('', false, date, 0, ObjectId(), Uuid.v4(), 0, nullableDateProp: date));
+    });
+
+    final json = obj.toJson();
+    expect(json, contains('"dateProp":"${date.toRealmString()}"'));
+    expect(json, contains('"nullableDateProp":"${date.toRealmString()}"'));
+
+    expect(obj.dateProp.isUtc, isTrue);
+    expect(obj.dateProp, equals(date.toUtc()));
+
+    expect(obj.nullableDateProp?.isUtc, isTrue);
+    expect(obj.nullableDateProp, equals(date.toUtc()));
+  });
+
+  test('Date can be used in queries', () {
+    final config = Configuration([AllTypes.schema]);
+    final realm = getRealm(config);
+
+    final date = DateTime.now();
+
+    realm.write(() {
+      realm.add(AllTypes('abc', false, date, 0, ObjectId(), Uuid.v4(), 0, nullableDateProp: date));
+      realm.add(AllTypes('cde', false, DateTime.now(), 0, ObjectId(), Uuid.v4(), 0));
+    });
+
+    var results = realm.all<AllTypes>().query('dateProp = \$0', [date]);
+    expect(results.length, equals(1));
+    expect(results.first.stringProp, equals('abc'));
+
+    results = realm.all<AllTypes>().query('nullableDateProp = \$0', [date]);
+    expect(results.length, equals(1));
+    expect(results.first.stringProp, equals('abc'));
+
+    results = realm.all<AllTypes>().query('nullableDateProp = null');
+    expect(results.length, equals(1));
+    expect(results.first.stringProp, equals('cde'));
+  });
+
+  test('Date preserves precision', () {
+    final config = Configuration([AllTypes.schema]);
+    final realm = getRealm(config);
+
+    final date1 = DateTime.now().toUtc();
+    final date2 = date1.add(Duration(microseconds: 1));
+    final date3 = date1.subtract(Duration(microseconds: 1));
+
+    realm.write(() {
+      realm.add(AllTypes('1', false, date1, 0, ObjectId(), Uuid.v4(), 0));
+      realm.add(AllTypes('2', false, date2, 0, ObjectId(), Uuid.v4(), 0));
+      realm.add(AllTypes('3', false, date3, 0, ObjectId(), Uuid.v4(), 0));
+    });
+
+    final lessThan1 = realm.all<AllTypes>().query('dateProp < \$0', [date1]);
+    expect(lessThan1.single.stringProp, equals('3'));
+    expect(lessThan1.single.dateProp, equals(date3));
+
+    final moreThan1 = realm.all<AllTypes>().query('dateProp > \$0', [date1]);
+    expect(moreThan1.single.stringProp, equals('2'));
+    expect(moreThan1.single.dateProp, equals(date2));
+
+    final equals1 = realm.all<AllTypes>().query('dateProp = \$0', [date1]);
+    expect(equals1.single.stringProp, equals('1'));
+    expect(equals1.single.dateProp, equals(date1));
   });
 }
