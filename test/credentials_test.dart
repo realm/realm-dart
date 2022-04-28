@@ -22,6 +22,18 @@ import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
 
+Future<User> retryLogin(int retries, Future<User> Function(Credentials credentials) doFunction, Credentials credentials) async {
+  try {
+    return await doFunction(credentials);
+  } catch (e) {
+    if (retries > 1) {
+      await Future<User>.delayed(Duration(milliseconds: 150));
+      return retryLogin(retries - 1, doFunction, credentials);
+    }
+    rethrow;
+  }
+}
+
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
@@ -55,9 +67,7 @@ Future<void> main([List<String>? args]) async {
     String username = "realm_tests_do_autoverify$emailPrefix@bar.com";
     String password = "SWV23R#@T#VFQDV";
     await authProvider.registerUser(username, password);
-    final user = await app.logIn(Credentials.emailPassword(username, password));
-    await app.logout(user);
-    await app.removeUser(user);
+    final user = retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
     expect(user, isNotNull);
   });
 
