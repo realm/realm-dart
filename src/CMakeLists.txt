@@ -23,12 +23,14 @@ target_compile_definitions(RealmFFIStatic PUBLIC -DRealm_EXPORTS)
 
 target_link_libraries(realm_dart dart-dl RealmFFIStatic Realm::Storage)
 
-if(CMAKE_C_COMPILER_ID STREQUAL MSVC)
-    target_link_options(realm_dart PRIVATE /WHOLEARCHIVE:$<TARGET_FILE:RealmFFIStatic>)
-elseif(CMAKE_C_COMPILER_ID STREQUAL GCC)
-    target_link_options(realm_dart PRIVATE LINKER:--whole-archive,-l$<TARGET_FILE:RealmFFIStatic>,--no-whole-archive)
-elseif(CMAKE_C_COMPILER_ID MATCHES "Clang$")
+# Force the linker to include all symbols from RealmFFIStatic. realm-dart resolves them at runtime, so the linker considers them unused.
+# TODO: Switch to $<LINK_LIBRARY:WHOLE_ARCHIVE,RealmFFIStatic> when CMake releases it
+if(MSVC)
+    target_link_options(realm_dart PRIVATE /WHOLEARCHIVE:$<TARGET_FILE_BASE_NAME:RealmFFIStatic>)
+elseif(APPLE)
     target_link_options(realm_dart PRIVATE -force_load $<TARGET_FILE:RealmFFIStatic>)
+else()
+    target_link_options(realm_dart PRIVATE LINKER:--whole-archive $<TARGET_FILE:RealmFFIStatic> LINKER:--no-whole-archive)
 endif()
 
 string(APPEND OUTPUT_DIR "${PROJECT_SOURCE_DIR}/binary")
