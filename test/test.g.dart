@@ -335,13 +335,15 @@ class AllTypes extends _AllTypes with RealmEntity, RealmObject {
     DateTime dateProp,
     double doubleProp,
     ObjectId objectIdProp,
-    Uuid uuidProp, {
+    Uuid uuidProp,
+    int intProp, {
     String? nullableStringProp,
     bool? nullableBoolProp,
     DateTime? nullableDateProp,
     double? nullableDoubleProp,
     ObjectId? nullableObjectIdProp,
     Uuid? nullableUuidProp,
+    int? nullableIntProp,
   }) {
     RealmObject.set(this, 'stringProp', stringProp);
     RealmObject.set(this, 'boolProp', boolProp);
@@ -349,12 +351,14 @@ class AllTypes extends _AllTypes with RealmEntity, RealmObject {
     RealmObject.set(this, 'doubleProp', doubleProp);
     RealmObject.set(this, 'objectIdProp', objectIdProp);
     RealmObject.set(this, 'uuidProp', uuidProp);
+    RealmObject.set(this, 'intProp', intProp);
     RealmObject.set(this, 'nullableStringProp', nullableStringProp);
     RealmObject.set(this, 'nullableBoolProp', nullableBoolProp);
     RealmObject.set(this, 'nullableDateProp', nullableDateProp);
     RealmObject.set(this, 'nullableDoubleProp', nullableDoubleProp);
     RealmObject.set(this, 'nullableObjectIdProp', nullableObjectIdProp);
     RealmObject.set(this, 'nullableUuidProp', nullableUuidProp);
+    RealmObject.set(this, 'nullableIntProp', nullableIntProp);
   }
 
   AllTypes._();
@@ -393,6 +397,11 @@ class AllTypes extends _AllTypes with RealmEntity, RealmObject {
   Uuid get uuidProp => RealmObject.get<Uuid>(this, 'uuidProp') as Uuid;
   @override
   set uuidProp(Uuid value) => RealmObject.set(this, 'uuidProp', value);
+
+  @override
+  int get intProp => RealmObject.get<int>(this, 'intProp') as int;
+  @override
+  set intProp(int value) => RealmObject.set(this, 'intProp', value);
 
   @override
   String? get nullableStringProp =>
@@ -437,6 +446,13 @@ class AllTypes extends _AllTypes with RealmEntity, RealmObject {
       RealmObject.set(this, 'nullableUuidProp', value);
 
   @override
+  int? get nullableIntProp =>
+      RealmObject.get<int>(this, 'nullableIntProp') as int?;
+  @override
+  set nullableIntProp(int? value) =>
+      RealmObject.set(this, 'nullableIntProp', value);
+
+  @override
   Stream<RealmObjectChanges<AllTypes>> get changes =>
       RealmObject.getChanges<AllTypes>(this);
 
@@ -451,6 +467,7 @@ class AllTypes extends _AllTypes with RealmEntity, RealmObject {
       SchemaProperty('doubleProp', RealmPropertyType.double),
       SchemaProperty('objectIdProp', RealmPropertyType.objectid),
       SchemaProperty('uuidProp', RealmPropertyType.uuid),
+      SchemaProperty('intProp', RealmPropertyType.int),
       SchemaProperty('nullableStringProp', RealmPropertyType.string,
           optional: true),
       SchemaProperty('nullableBoolProp', RealmPropertyType.bool,
@@ -463,6 +480,97 @@ class AllTypes extends _AllTypes with RealmEntity, RealmObject {
           optional: true),
       SchemaProperty('nullableUuidProp', RealmPropertyType.uuid,
           optional: true),
+      SchemaProperty('nullableIntProp', RealmPropertyType.int, optional: true),
+    ]);
+  }
+}
+
+class AllCollections extends _AllCollections with RealmEntity, RealmObject {
+  AllCollections({
+    Iterable<String> strings = const [],
+    Iterable<bool> bools = const [],
+    Iterable<DateTime> dates = const [],
+    Iterable<double> doubles = const [],
+    Iterable<ObjectId> objectIds = const [],
+    Iterable<Uuid> uuids = const [],
+  }) {
+    RealmObject.set<RealmList<String>>(
+        this, 'strings', RealmList<String>(strings));
+    RealmObject.set<RealmList<bool>>(this, 'bools', RealmList<bool>(bools));
+    RealmObject.set<RealmList<DateTime>>(
+        this, 'dates', RealmList<DateTime>(dates));
+    RealmObject.set<RealmList<double>>(
+        this, 'doubles', RealmList<double>(doubles));
+    RealmObject.set<RealmList<ObjectId>>(
+        this, 'objectIds', RealmList<ObjectId>(objectIds));
+    RealmObject.set<RealmList<Uuid>>(this, 'uuids', RealmList<Uuid>(uuids));
+  }
+
+  AllCollections._();
+
+  @override
+  RealmList<String> get strings =>
+      RealmObject.get<String>(this, 'strings') as RealmList<String>;
+  @override
+  set strings(covariant RealmList<String> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<bool> get bools =>
+      RealmObject.get<bool>(this, 'bools') as RealmList<bool>;
+  @override
+  set bools(covariant RealmList<bool> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<DateTime> get dates =>
+      RealmObject.get<DateTime>(this, 'dates') as RealmList<DateTime>;
+  @override
+  set dates(covariant RealmList<DateTime> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<double> get doubles =>
+      RealmObject.get<double>(this, 'doubles') as RealmList<double>;
+  @override
+  set doubles(covariant RealmList<double> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<ObjectId> get objectIds =>
+      RealmObject.get<ObjectId>(this, 'objectIds') as RealmList<ObjectId>;
+  @override
+  set objectIds(covariant RealmList<ObjectId> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<Uuid> get uuids =>
+      RealmObject.get<Uuid>(this, 'uuids') as RealmList<Uuid>;
+  @override
+  set uuids(covariant RealmList<Uuid> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<AllCollections>> get changes =>
+      RealmObject.getChanges<AllCollections>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(AllCollections._);
+    return const SchemaObject(AllCollections, 'AllCollections', [
+      SchemaProperty('strings', RealmPropertyType.string,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('bools', RealmPropertyType.bool,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('dates', RealmPropertyType.timestamp,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('doubles', RealmPropertyType.double,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('objectIds', RealmPropertyType.objectid,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('uuids', RealmPropertyType.uuid,
+          collectionType: RealmCollectionType.list),
     ]);
   }
 }

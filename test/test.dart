@@ -95,6 +95,7 @@ class _AllTypes {
   late double doubleProp;
   late ObjectId objectIdProp;
   late Uuid uuidProp;
+  late int intProp;
 
   late String? nullableStringProp;
   late bool? nullableBoolProp;
@@ -102,6 +103,17 @@ class _AllTypes {
   late double? nullableDoubleProp;
   late ObjectId? nullableObjectIdProp;
   late Uuid? nullableUuidProp;
+  late int? nullableIntProp;
+}
+
+@RealmModel()
+class _AllCollections {
+  late List<String> strings;
+  late List<bool> bools;
+  late List<DateTime> dates;
+  late List<double> doubles;
+  late List<ObjectId> objectIds;
+  late List<Uuid> uuids;
 }
 
 @RealmModel()
