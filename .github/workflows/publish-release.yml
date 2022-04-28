@@ -14,7 +14,8 @@ on:
 jobs:
   main:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment == 'public' && 'Production' || 'Staging' }}
+    # TODO: uncomment
+    # environment: ${{ inputs.environment == 'public' && 'Production' || 'Staging' }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -41,33 +42,79 @@ jobs:
         path: ${{ github.workspace }}/binary/
         workflow_conclusion: completed
 
-    - name: Rename all artifact folders
+    # This is necessary because action-download-artifact will put things in a folder named the same
+    # as the artifact name - i.e. librealm-linux, etc.
+    - name: Archive binaries
       run: |
         for directory in *; do
-          mv "$directory" "${directory#*-}"
+          targetDir=$($directory#*-)
+          mv "$directory" "$targetDir"
+          dart run ../realm_dart archive --source-dir "${{ github.workspace }}/binary/$targetDir"
         done
       working-directory: binary
 
-    - name: Temp
-      run: find ./binary
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.S3_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.S3_SECRET_KEY }}
+        aws-region: us-east-1
 
-    - name: Archive Linux binary
-      run: dart run realm_dart archive --source-dir ${{ github.workspace }}/binary/linux
+    - name: Prepare binaries for upload
+      id: prepare-binaries
+      run: |
+        targetFolder="${{ inputs.environment == 'public' && steps.get-version.outputs.version || github.sha }}"
+        mkdir release/$targetFolder
+        mv binary/*.tar.gz release/$targetFolder
+        echo "::set-output name=folder::$targetFolder"
 
-    - name: Archive iOS binary
-      run: dart run realm_dart archive --source-dir ${{ github.workspace }}/binary/ios
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+        aws-region: us-east-1
 
-    - name: Archive macOS binary
-      run: dart run realm_dart archive --source-dir ${{ github.workspace }}/binary/macos
+    - name: Upload binaries
+      run: |
+        aws s3 sync --acl public-read "${{ github.workspace }}/release/${{ steps.prepare-binaries.outputs.folder }}" s3://static.realm.io/downloads/dart/${{ steps.prepare-binaries.outputs.folder }}
 
-    - name: Archive Windows binary
-      run: dart run realm_dart archive --source-dir ${{ github.workspace }}/binary/windows
+    - name: Package common
+      run: |
+        cp -r ../../common .
+        cd common
+        dart pub publish --dry-run
+      working-directory: release/${{ steps.prepare-binaries.outputs.folder }}
 
-    - name: Archive Android binary
-      run: dart run realm_dart archive --source-dir ${{ github.workspace }}/binary/android
+    - name: Package generator
+      run: |
+        cp -r ../../generator .
+        cd generator
+        dart pub publish --dry-run
+      working-directory: release/${{ steps.prepare-binaries.outputs.folder }}
 
-    - name: Temp 2
-      run: find ./binary
+    - name: Package realm_flutter
+      run: |
+        cp -r ../../flutter/realm_flutter .
+        cd realm_flutter
+        dart pub publish --dry-run
+      working-directory: release/${{ steps.prepare-binaries.outputs.folder }}
+
+    - name: Package realm_dart
+      run: |
+        mkdir realm_dart
+        cp -r ../../bin ../../example ../../lib ../../test realm_dart
+        cp ../../* realm_dart
+        cd realm_dart
+        dart pub publish --dry-run
+      working-directory: release/${{ steps.prepare-binaries.outputs.folder }}
+
+    - name: Archive packages
+      uses: actions/upload-artifact@v2
+        with:
+          name: packages
+          path: release/${{ steps.prepare-binaries.outputs.folder }}/**
+          retention-days: 30
 
     # - name: Configure AWS Credentials
     #   uses: aws-actions/configure-aws-credentials@v1
@@ -97,17 +144,18 @@ jobs:
     #     number: ${{ steps.find-pull-request.outputs.number }}
     #     method: squash
 
-    # - name: Publish Github Release
-    #   uses: ncipollo/release-action@10c84d509b28aae3903113151bfd832314964f2e
-    #   with:
-    #     artifacts: binary/*.tar.gz
-    #     body: 'Update release notes'
-    #     # bodyFile: Realm/packages/ExtractedChangelog/ExtractedChangelog.md
-    #     name: ${{ steps.get-version.outputs.version }}
-    #     commit: temp-master
-    #     tag: ${{ steps.get-version.outputs.version }}
-    #     token: ${{ secrets.GITHUB_TOKEN }}
-    #     draft: true
+    - name: Publish Github Release
+      uses: ncipollo/release-action@10c84d509b28aae3903113151bfd832314964f2e
+      with:
+        artifacts: release/${{ steps.prepare-binaries.outputs.folder }}/*.tar.gz
+        body: 'Update release notes'
+        # bodyFile: Realm/packages/ExtractedChangelog/ExtractedChangelog.md
+        name: ${{ steps.get-version.outputs.version }}
+        # TODO: move to master
+        commit: temp-master
+        tag: ${{ steps.get-version.outputs.version }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        draft: true
 
     # - name: Update Changelog
     #   run: |

@@ -37,6 +37,7 @@ jobs:
       - name: Create Release PR
         uses: peter-evans/create-pull-request@7380612b49221684fefa025244f2ef4008ae50ad #! 3.10.1
         with:
+          # TODO: move to release/master
           branch: test-release/${{ steps.update-changelog.outputs.new-version }}
           base: test-master
           title: Prepare for ${{ steps.update-changelog.outputs.new-version }}
