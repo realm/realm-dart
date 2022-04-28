@@ -79,6 +79,8 @@ Future<void> main([List<String>? args]) async {
     // For application with name 'autoConfirm' and with confirmationType = 'auto'
     // all the usernames are automatically confirmed.
     await authProvider.registerUser(username, password);
+    final user = retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
+    expect(user, isNotNull);
   }, appName: "autoConfirm");
 
   baasTest('Email/Password - register user twice throws', (configuration) async {
