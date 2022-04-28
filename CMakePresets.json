@@ -11,7 +11,7 @@
       "binaryDir": "${sourceDir}/build-native/${presetName}",
       "generator": "Ninja Multi-Config",
       "cacheVariables": {
-        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/vcpkg-overlay-triplets",
+        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/src/realm-core/tools/vcpkg/triplets",
         "VCPKG_MANIFEST_DIR": "${sourceDir}/src/realm-core/tools/vcpkg",
         "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo;MinSizeRel"
       }
