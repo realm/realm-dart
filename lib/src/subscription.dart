@@ -51,9 +51,10 @@ enum SubscriptionSetState {
 }
 
 abstract class SubscriptionSet with IterableMixin<Subscription> {
+  Realm _realm;
   SubscriptionSetHandle _handle;
 
-  SubscriptionSet._(this._handle);
+  SubscriptionSet._(this._realm, this._handle);
 
   Subscription? find<T extends RealmObject>(RealmResults<T> query) {
     return Subscription._(realmCore.findSubscriptionByQuery(this, query));
@@ -63,8 +64,8 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
     return Subscription._(realmCore.findSubscriptionByName(this, name));
   }
 
-  void waitForStateChange(SubscriptionSetState state) {
-    realmCore.waitForSubscriptionSetStateChangeSync(this, state);
+  Future<SubscriptionSetState> waitForStateChange(SubscriptionSetState state) async {
+    return SubscriptionSetState.values[await realmCore.waitForSubscriptionSetStateChange(this, state)];
   }
 
   @override
@@ -82,15 +83,16 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
 }
 
 extension SubscriptionSetInternal on SubscriptionSet {
+  Realm get realm => _realm;
   SubscriptionSetHandle get handle => _handle;
 
-  static SubscriptionSet create(SubscriptionSetHandle handle) => MutableSubscriptionSet._(handle);
+  static SubscriptionSet create(Realm realm, SubscriptionSetHandle handle) => MutableSubscriptionSet._(realm, handle);
 }
 
 class MutableSubscriptionSet extends SubscriptionSet {
   MutableSubscriptionSetHandle? _mutableHandle;
 
-  MutableSubscriptionSet._(SubscriptionSetHandle handle) : super._(handle);
+  MutableSubscriptionSet._(Realm realm, SubscriptionSetHandle handle) : super._(realm, handle);
 
   @override
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action) {
