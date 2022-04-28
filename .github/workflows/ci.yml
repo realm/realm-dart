@@ -58,11 +58,11 @@ jobs:
           submodules: 'recursive'
 
       - name: Setup Ninja
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Build Realm for Linux
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: ./scripts/build-linux.sh
 
       - name: Store artifacts
@@ -179,26 +179,26 @@ jobs:
 
       - name: Check cache
         id: check-cache
-        if: '!contains(github.head_ref, 'release/')'
+        if: ${{ !contains(github.head_ref, 'release/') }}
         uses: nirinchev/cache@d7c96a77c26ab70dd32b202c885cb4b34d95d8a8
         with:
           path: ./binary/macos/**
           key: binaries-macos-${{hashFiles('./src/**')}}
 
       - name: Install ccache
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: ccache-macos
 
       - name: Enable ccache
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: |
           echo "/usr/lib/ccache" >> $GITHUB_PATH
           echo "/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
 
       - name: Build Realm for macOS
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: ./scripts/build-macos.sh
 
       - name: Store artifacts
@@ -282,14 +282,14 @@ jobs:
 
       - name: Check cache
         id: check-cache
-        if: '!contains(github.head_ref, 'release/')'
+        if: ${{ !contains(github.head_ref, 'release/') }}
         uses: nirinchev/cache@d7c96a77c26ab70dd32b202c885cb4b34d95d8a8
         with:
           path: ./binary/windows/**
           key: binaries-windows-${{hashFiles('./src/**')}}
 
       - name: Build Realm for Windows
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: scripts\build.bat
 
       - name: Store artifacts
@@ -376,26 +376,26 @@ jobs:
 
       - name: Check cache
         id: check-cache
-        if: '!contains(github.head_ref, 'release/')'
+        if: ${{ !contains(github.head_ref, 'release/') }}
         uses: nirinchev/cache@d7c96a77c26ab70dd32b202c885cb4b34d95d8a8
         with:
           path: ./binary/ios/**
           key: binaries-ios-${{hashFiles('./src/**')}}
 
       - name: Install ccache
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: ccache-ios
 
       - name: Enable ccache
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: |
           echo "/usr/lib/ccache" >> $GITHUB_PATH
           echo "/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
 
       - name: Build Realm for iOS
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         # TODO: paralellize build to build for all architectures
         run: ./scripts/build-ios.sh simulator
 
@@ -461,14 +461,14 @@ jobs:
 
       - name: Check cache
         id: check-cache
-        if: '!contains(github.head_ref, 'release/')'
+        if: ${{ !contains(github.head_ref, 'release/') }}
         uses: nirinchev/cache@d7c96a77c26ab70dd32b202c885cb4b34d95d8a8
         with:
           path: ./binary/android/**
           key: binaries-android-${{hashFiles('./src/**')}}
 
       - name: Build Realm for Android
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         # TODO: parallelize build for all architectures
         run: |
           export ANDROID_NDK=$ANDROID_NDK_HOME
