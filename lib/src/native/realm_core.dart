@@ -226,18 +226,39 @@ class _RealmCore {
         )));
   }
 
-  static void _stateChangeCallback(Pointer<realm_flx_sync_subscription_set> subscriptionSetPtr, int state) {
+  static void _stateChangeCallback(Pointer<Void> userdata, int state) {
+    final completer = userdata.toObject<Completer<int>>(isPersistent: true);
+    if (completer == null) {
+      return;
+    }
+
+    // TODO: What about errors?!
+
+    completer.complete(state);
   }
 
   void waitForSubscriptionSetStateChangeSync(SubscriptionSet subscriptions, SubscriptionSetState state) {
     _realmLib.realm_sync_on_subscription_set_state_change_wait(subscriptions.handle._pointer, state.index);
   }
 
+  Future<int> waitForSubscriptionSetStateChange(SubscriptionSet subscriptions, SubscriptionSetState notifyWhen) {
+    final completer = Completer<int>();
+    _realmLib.realm_dart_sync_on_subscription_set_state_change_async(
+      subscriptions.handle._pointer,
+      notifyWhen.index,
+      Pointer.fromFunction(_stateChangeCallback),
+      completer.toPersistentHandle(),
+      _deletePersistentHandleFuncPtr,
+      subscriptions.realm.scheduler.handle._pointer,
+    );
+    return completer.future;
+  }
+
   MutableSubscriptionSetHandle makeSubscriptionSetMutable(SubscriptionSet subscriptions) {
     return MutableSubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_make_subscription_set_mutable(subscriptions.handle._pointer)));
   }
 
-  SubscriptionSetHandle subscriptionSetCommit(MutableSubscriptionSet subscriptions){
+  SubscriptionSetHandle subscriptionSetCommit(MutableSubscriptionSet subscriptions) {
     return SubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_subscription_set_commit(subscriptions.mutableHandle._pointer)));
   }
 
@@ -940,8 +961,10 @@ class _RealmCore {
     });
   }
 
+  final doNotDie = Set<dynamic>();
   AppHandle getApp(AppConfiguration configuration) {
     final httpTransportHandle = _createHttpTransport(configuration.httpClient);
+    doNotDie.add(httpTransportHandle);
     final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
     final syncClientConfigHandle = _createSyncClientConfig(configuration);
     final realmAppPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfigHandle._pointer, syncClientConfigHandle._pointer));

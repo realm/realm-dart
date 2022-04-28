@@ -35,5 +35,4 @@ RLM_API void* object_to_persistent_handle(Dart_Handle handle);
 RLM_API Dart_Handle persistent_handle_to_object(void* handle);
 RLM_API void delete_persistent_handle(void* handle);
 
-
 #endif // REALM_DART_H
