@@ -162,8 +162,8 @@ Future<void> main([List<String>? args]) async {
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
       await authProvider.confirmUser(token, tokenId);
-      final user = await app.logIn(Credentials.emailPassword(username, password));
-      await app.logout(user);
+      final user = retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
+      expect(user, isNotNull);
     }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
   });
 }
