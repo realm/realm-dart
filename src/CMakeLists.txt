@@ -8,14 +8,16 @@ endif()
 add_subdirectory(dart-dl)
 
 set(SOURCES
-    realm_dart.cpp
-    realm_dart_scheduler.cpp
+     realm_dart.cpp
+     realm_dart_scheduler.cpp
+     subscription_set.cpp
 )
 
 set(HEADERS
     realm_dart.h
     realm_dart_scheduler.h
     realm-core/src/realm.h
+    subscription_set.h
 )
 
 add_library(realm_dart SHARED ${SOURCES} ${HEADERS})
@@ -31,6 +33,10 @@ elseif(APPLE)
     target_link_options(realm_dart PRIVATE -force_load $<TARGET_FILE:RealmFFIStatic>)
 else()
     target_link_options(realm_dart PRIVATE LINKER:--whole-archive $<TARGET_FILE:RealmFFIStatic> LINKER:--no-whole-archive)
+endif()
+
+if(REALM_ENABLE_SYNC)
+    target_compile_definitions(realm_dart PUBLIC REALM_ENABLE_SYNC=1)
 endif()
 
 string(APPEND OUTPUT_DIR "${PROJECT_SOURCE_DIR}/binary")

@@ -270,7 +270,7 @@ class Realm {
   SubscriptionSet? _subscriptions;
   SubscriptionSet? get subscriptions {
     if (config is FlexibleSyncConfiguration) {
-      _subscriptions ??= SubscriptionSetInternal.create(realmCore.getSubscriptions(this));
+      _subscriptions ??= SubscriptionSetInternal.create(this, realmCore.getSubscriptions(this));
       // TODO: Refresh _subscriptions, if needed.
     }
     return _subscriptions;
