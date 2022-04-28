@@ -46,12 +46,11 @@ jobs:
     # as the artifact name - i.e. librealm-linux, etc.
     - name: Archive binaries
       run: |
-        for directory in *; do
-          targetDir=${directory#*-}
+        for directory in binary/*; do
+          targetDir="binary/${directory#*-}"
           mv "$directory" "$targetDir"
-          dart run ../realm_dart archive --source-dir "${{ github.workspace }}/binary/$targetDir"
+          dart run realm_dart archive --source-dir "${{ github.workspace }}/$targetDir"
         done
-      working-directory: binary
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -68,16 +67,16 @@ jobs:
         mv binary/*.tar.gz release/$targetFolder
         echo "::set-output name=folder::$targetFolder"
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
-        aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
-        aws-region: us-east-1
+    # - name: Configure AWS Credentials
+    #   uses: aws-actions/configure-aws-credentials@v1
+    #   with:
+    #     aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+    #     aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+    #     aws-region: us-east-1
 
-    - name: Upload binaries
-      run: |
-        aws s3 sync --acl public-read "${{ github.workspace }}/release/${{ steps.prepare-binaries.outputs.folder }}" s3://static.realm.io/downloads/dart/${{ steps.prepare-binaries.outputs.folder }}
+    # - name: Upload binaries
+    #   run: |
+    #     aws s3 sync --acl public-read "${{ github.workspace }}/release/${{ steps.prepare-binaries.outputs.folder }}" s3://static.realm.io/downloads/dart/${{ steps.prepare-binaries.outputs.folder }}
 
     - name: Package common
       run: |
