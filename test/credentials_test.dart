@@ -182,7 +182,8 @@ Future<void> main([List<String>? args]) async {
     await authProvider.retryCustomConfirmationFunction(username);
 
     await updateConfirmFunctionSource("flexible");
-    final user = retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
+    final user = await retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
+    expect(user, isNotNull);
   }, appName: "flexible", skip: "Run this test manually, since it changes the function source of the app");
 
   baasTest('Email/Password - retry custom confirmation after user is confirmed', (configuration) async {
