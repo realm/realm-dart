@@ -312,7 +312,14 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-      
+
+      - name: Setup Vcpkg
+        uses: friendlyanon/setup-vcpkg@v1
+        with:
+          path: src/realm-core/tools/vcpkg/ports
+          cache-key: vcpkg-windows-x64
+          cache-restore-keys: vcpkg-windows-x64
+
       - name: Build Realm for Windows
         run: scripts\build.bat
       
