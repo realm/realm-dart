@@ -56,7 +56,7 @@ jobs:
       id: prepare-binaries
       run: |
         targetFolder="${{ inputs.environment == 'public' && steps.get-version.outputs.version || github.sha }}"
-        mkdir release/$targetFolder
+        mkdir -p release/$targetFolder
         mv binary/*.tar.gz release/$targetFolder
         echo "::set-output name=folder::$targetFolder"
 
