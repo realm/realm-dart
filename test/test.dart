@@ -216,12 +216,13 @@ Future<void> baasTest(
   String appName = 'flexible',
   dynamic skip,
 }) async {
-  final url = Uri.tryParse(Platform.environment['BAAS_URL'] ?? 'https://realm-dev.mongodb.com');
+  final uriVariable = Platform.environment['BAAS_URL'];
+  final url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
 
   if (skip == null) {
-    skip = url == null ? "BAAS URL not present" : null;
+    skip = url == null ? "BAAS URL not present" : false;
   } else if (skip is bool) {
-    skip = skip || url == null ? "BAAS URL not present" : null;
+    skip = skip || url == null ? "BAAS URL not present" : false;
   }
 
   test(name, () async {
