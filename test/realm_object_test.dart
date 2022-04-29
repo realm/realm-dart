@@ -364,7 +364,7 @@ Future<void> main([List<String>? args]) async {
   bool _canCoreRepresentDateInJson(DateTime date) {
     // Core has a bug where negative and zero dates are not serialized correctly to json.
     // https://jira.mongodb.org/browse/RCORE-1083
-    if (date.compareTo(dateZero) < 0) {
+    if (date.compareTo(dateZero) <= 0) {
       return Platform.isMacOS || Platform.isIOS;
     }
 
