@@ -388,7 +388,14 @@ class DynamicRealmObject {
   }
 
   T? getNullable<T extends Object>(String name) {
-    _validatePropertyType<T>(name, RealmCollectionType.none, true);
+    final prop = _validatePropertyType<T>(name, RealmCollectionType.none, true);
+
+    // If the user didn't provide a type argument, but the target is object, we should
+    // use RealmObject, otherwise we won't be able to find a Factory for the object.
+    if (T == Object && prop?.propertyType == RealmPropertyType.object) {
+      return RealmObject.get<RealmObject>(_obj, name) as T?;
+    }
+
     return RealmObject.get<T>(_obj, name) as T?;
   }
 
@@ -397,7 +404,7 @@ class DynamicRealmObject {
     return RealmObject.get<T>(_obj, name) as List<T>;
   }
 
-  void _validatePropertyType<T extends Object>(String name, RealmCollectionType expectedCollectionType, bool isNullable) {
+  RealmPropertyMetadata? _validatePropertyType<T extends Object>(String name, RealmCollectionType expectedCollectionType, bool isNullable) {
     final accessor = _obj.accessor;
     if (accessor is RealmCoreAccessor) {
       final prop = accessor.metadata._propertyKeys[name];
@@ -420,7 +427,11 @@ class DynamicRealmObject {
         throw RealmException(
             "Property '$name' on class '${accessor.metadata.name}' is not the correct type. Expected '$targetType', got '${prop.propertyType}'.");
       }
+
+      return prop;
     }
+
+    return null;
   }
 
   RealmPropertyType? _getPropertyType<T extends Object>() {

@@ -280,8 +280,8 @@ Future<void> main([List<String>? args]) async {
       });
     });
 
-    group('Realm.dynamic when isDynamic=$isDynamic', () {
-      test('get can get all property types', () {
+    group('RealmObject.dynamic.get when isDynamic=$isDynamic', () {
+      test('gets all property types', () {
         final config = Configuration([AllTypes.schema]);
         final staticRealm = getRealm(config);
 
@@ -300,7 +300,32 @@ Future<void> main([List<String>? args]) async {
         _validateDynamic(obj2, _getEmptyAllTypes());
       });
 
-      test('get fails with non-existent property', () {
+      test('gets normal links', () {
+        final config = Configuration([LinksClass.schema]);
+        final staticRealm = getRealm(config);
+
+        final uuid1 = Uuid.v4();
+        final uuid2 = Uuid.v4();
+
+        staticRealm.write(() {
+          final obj1 = staticRealm.add(LinksClass(uuid1));
+          staticRealm.add(LinksClass(uuid2, link: obj1));
+        });
+
+        final dynamicRealm = _getDynamicRealm(staticRealm);
+
+        final obj1 = dynamicRealm.dynamic.find(LinksClass.schema.name, uuid1)!;
+        final obj2 = dynamicRealm.dynamic.find(LinksClass.schema.name, uuid2)!;
+
+        expect(obj1.dynamic.getNullable<RealmObject>('link'), isNull);
+        expect(obj1.dynamic.getNullable('link'), isNull);
+
+        expect(obj2.dynamic.getNullable<RealmObject>('link'), obj1);
+        expect(obj2.dynamic.getNullable('link'), obj1);
+        expect(obj2.dynamic.getNullable<RealmObject>('link')?.dynamic.get<Uuid>('id'), uuid1);
+      });
+
+      test('fails with non-existent property', () {
         final config = Configuration([AllTypes.schema]);
         final staticRealm = getRealm(config);
         staticRealm.write(() {
@@ -313,7 +338,7 @@ Future<void> main([List<String>? args]) async {
         expect(() => obj.dynamic.getNullable('i-dont-exist'), throws<RealmException>("Property 'i-dont-exist' does not exist on class 'AllTypes'"));
       });
 
-      test('get fails with wrong type', () {
+      test('fails with wrong type', () {
         final config = Configuration([AllTypes.schema]);
         final staticRealm = getRealm(config);
         staticRealm.write(() {
@@ -340,7 +365,7 @@ Future<void> main([List<String>? args]) async {
             throws<RealmException>("Property 'intProp' on class 'AllTypes' is required but the wrong method was used to access it."));
       });
 
-      test('get fails on collections', () {
+      test('fails on collection properties', () {
         final config = Configuration([AllCollections.schema]);
         final staticRealm = getRealm(config);
         staticRealm.write(() {
@@ -369,8 +394,10 @@ Future<void> main([List<String>? args]) async {
             throws<RealmException>(
                 "Property 'strings' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
       });
+    });
 
-      test('getList can get all list types', () {
+    group('RealmObject.dynamic.getList', () {
+      test('gets all list types', () {
         final config = Configuration([AllCollections.schema]);
         final staticRealm = getRealm(config);
         staticRealm.write(() {
@@ -387,7 +414,32 @@ Future<void> main([List<String>? args]) async {
         _validateDynamicLists(obj2, AllCollections());
       });
 
-      test('getList fails with non-existent property', () {
+      test('gets collections of objects', () {
+        final config = Configuration([LinksClass.schema]);
+        final staticRealm = getRealm(config);
+
+        final uuid1 = Uuid.v4();
+        final uuid2 = Uuid.v4();
+
+        staticRealm.write(() {
+          final obj1 = staticRealm.add(LinksClass(uuid1));
+          staticRealm.add(LinksClass(uuid2, list: [obj1, obj1]));
+        });
+
+        final dynamicRealm = _getDynamicRealm(staticRealm);
+
+        final obj1 = dynamicRealm.dynamic.find(LinksClass.schema.name, uuid1)!;
+        final obj2 = dynamicRealm.dynamic.find(LinksClass.schema.name, uuid2)!;
+
+        expect(obj1.dynamic.getList<RealmObject>('list'), isEmpty);
+        expect(obj1.dynamic.getList('list'), isEmpty);
+
+        expect(obj2.dynamic.getList<RealmObject>('list'), [obj1, obj1]);
+        expect(obj2.dynamic.getList('list'), [obj1, obj1]);
+        expect(obj2.dynamic.getList<RealmObject>('list')[0].dynamic.get<Uuid>('id'), uuid1);
+      });
+
+      test('fails with non-existent property', () {
         final config = Configuration([AllCollections.schema]);
         final staticRealm = getRealm(config);
         staticRealm.write(() {
@@ -399,7 +451,7 @@ Future<void> main([List<String>? args]) async {
         expect(() => obj.dynamic.getList('i-dont-exist'), throws<RealmException>("Property 'i-dont-exist' does not exist on class 'AllCollections'"));
       });
 
-      test('getList fails with wrong type', () {
+      test('fails with wrong type', () {
         final config = Configuration([AllCollections.schema]);
         final staticRealm = getRealm(config);
         staticRealm.write(() {
@@ -415,7 +467,7 @@ Future<void> main([List<String>? args]) async {
                 "Property 'strings' on class 'AllCollections' is not the correct type. Expected 'RealmPropertyType.int', got 'RealmPropertyType.string'"));
       });
 
-      test('getList fails on non-collection properties', () {
+      test('fails on non-collection properties', () {
         final config = Configuration([AllTypes.schema]);
         final staticRealm = getRealm(config);
         staticRealm.write(() {
