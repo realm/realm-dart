@@ -1404,7 +1404,7 @@ extension on Pointer<Int8> {
       return result;
     } finally {
       if (freeNativeMemory) {
-        _realmLib.realm_free(cast<Void>());
+        _realmLib.realm_free(cast());
       }
     }
   }
