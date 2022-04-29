@@ -88,9 +88,9 @@ class $RemappedClass {
 }
 
 String? testName;
-Map<String, BaasApp> baasApps = <String, BaasApp>{};
-
+final baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
+late Uri? url;
 
 //Overrides test method so we can filter tests
 void test(String name, dynamic Function() testFunction, {dynamic skip}) {
@@ -113,8 +113,6 @@ void xtest(String? name, dynamic Function() testFunction) {
 
 Future<void> setupTests(List<String>? args) async {
   parseTestNameFromArguments(args);
-
-  await setupBaas();
 
   setUp(() {
     final path = generateRandomRealmPath();
@@ -193,7 +191,10 @@ void parseTestNameFromArguments(List<String>? arguments) {
   }
 }
 
-Future<void> setupBaas() async {
+Future<void> setupBaas(String appSuffix) async {
+  final uriVariable = Platform.environment['BAAS_URL'];
+  url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
+
   final baasUrl = Platform.environment['BAAS_URL'];
   if (baasUrl == null) {
     return;
@@ -205,8 +206,7 @@ Future<void> setupBaas() async {
   final projectId = Platform.environment['BAAS_PROJECT_ID'];
 
   final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
-
-  baasApps.addAll(await client.getOrCreateApps());
+  baasApps.addAll(await client.getOrCreateApps(appSuffix));
 }
 
 @isTest
@@ -216,9 +216,6 @@ Future<void> baasTest(
   String appName = 'flexible',
   dynamic skip,
 }) async {
-  final uriVariable = Platform.environment['BAAS_URL'];
-  final url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
-
   if (skip == null) {
     skip = url == null ? "BAAS URL not present" : false;
   } else if (skip is bool) {
