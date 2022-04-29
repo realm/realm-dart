@@ -91,7 +91,7 @@ class BaasClient {
       }
     }
     if (!result.containsKey('flexible_$suffix')) {
-      final defaultApp = await _createApp('flexible_$suffix');
+      final defaultApp = await _createApp('flexible$suffix');
       result[defaultApp.name] = defaultApp;
     }
     // Add more types of apps as we add more tests here.

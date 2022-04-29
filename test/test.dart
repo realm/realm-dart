@@ -191,7 +191,7 @@ void parseTestNameFromArguments(List<String>? arguments) {
   }
 }
 
-Future<void> setupBaas(String appSuffix) async {
+Future<void> setupBaas({String? appSuffix}) async {
   final uriVariable = Platform.environment['BAAS_URL'];
   url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
 
