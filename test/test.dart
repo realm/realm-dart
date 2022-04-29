@@ -206,7 +206,7 @@ Future<void> setupBaas(String appSuffix) async {
   final projectId = Platform.environment['BAAS_PROJECT_ID'];
 
   final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
-  baasApps.addAll(await client.getOrCreateApps(appSuffix));
+  baasApps.addAll(await client.getOrCreateApps(suffix: appSuffix));
 }
 
 @isTest
