@@ -359,6 +359,22 @@ Future<void> main([List<String>? args]) async {
     expect(json, contains('"property with spaces":{ "table": "class_myRemappedClass", "key": 0}'));
   });
 
+  final dateZero = DateTime.utc(0);
+
+  bool _canCoreRepresentDateInJson(DateTime date) {
+    // Core has a bug where negative and zero dates are not serialized correctly to json.
+    // https://jira.mongodb.org/browse/RCORE-1083
+    return date.compareTo(dateZero) > 0 || Platform.isMacOS || Platform.isIOS;
+  }
+
+  void expectDateInJson(DateTime? date, String json, String propertyName) {
+    if (date == null) {
+      expect(json, contains('"$propertyName":null'));
+    } else if (_canCoreRepresentDateInJson(date)) {
+      expect(json, contains('"$propertyName":"${date.toRealmString()}"'));
+    }
+  }
+
   final dates = [
     DateTime.utc(1970).add(Duration(days: 100000000)),
     DateTime.utc(1970).subtract(Duration(days: 99999999)),
@@ -374,8 +390,9 @@ Future<void> main([List<String>? args]) async {
       });
 
       final json = obj.toJson();
-      expect(json, contains('"dateProp":"${date.toRealmString()}"'));
-      expect(json, contains('"nullableDateProp":null'));
+      expectDateInJson(date, json, 'dateProp');
+      expectDateInJson(null, json, 'nullableDateProp');
+
       expect(obj.dateProp, equals(date));
       expect(obj.nullableDateProp, equals(null));
     });
@@ -388,8 +405,9 @@ Future<void> main([List<String>? args]) async {
       });
 
       final json = obj.toJson();
-      expect(json, contains('"dateProp":"${DateTime.utc(0).toRealmString()}"'));
-      expect(json, contains('"nullableDateProp":"${date.toRealmString()}"'));
+      expectDateInJson(DateTime.utc(0), json, 'dateProp');
+      expectDateInJson(date, json, 'nullableDateProp');
+
       expect(obj.dateProp, equals(DateTime.utc(0)));
       expect(obj.nullableDateProp, equals(date));
     });
@@ -408,9 +426,13 @@ Future<void> main([List<String>? args]) async {
       });
 
       final json = obj.toJson();
-      expect(json, contains('"dates":[${list.map((e) => '"${e.toRealmString()}"').join(',')}]'));
       for (var i = 0; i < list.length; i++) {
-        expect(obj.dates[i], equals(list.elementAt(i).toUtc()));
+        final expectedDate = list.elementAt(i).toUtc();
+        if (_canCoreRepresentDateInJson(expectedDate)) {
+          expect(json, contains('"${expectedDate.toRealmString()}"'));
+        }
+
+        expect(obj.dates[i], equals(expectedDate));
       }
     });
   }
@@ -427,8 +449,8 @@ Future<void> main([List<String>? args]) async {
     });
 
     final json = obj.toJson();
-    expect(json, contains('"dateProp":"${date.toRealmString()}"'));
-    expect(json, contains('"nullableDateProp":"${date.toRealmString()}"'));
+    expectDateInJson(date, json, 'dateProp');
+    expectDateInJson(date, json, 'nullableDateProp');
 
     expect(obj.dateProp.isUtc, isTrue);
     expect(obj.dateProp, equals(date.toUtc()));
