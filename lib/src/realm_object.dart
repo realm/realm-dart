@@ -118,8 +118,10 @@ class RealmObjectMetadata {
 class RealmPropertyMetadata {
   final int key;
   final RealmCollectionType collectionType;
+  final RealmPropertyType propertyType;
+  final bool isNullable;
   final String? objectType;
-  const RealmPropertyMetadata(this.key, this.objectType, [this.collectionType = RealmCollectionType.none]);
+  const RealmPropertyMetadata(this.key, this.objectType, this.propertyType, this.isNullable, [this.collectionType = RealmCollectionType.none]);
 }
 
 class RealmCoreAccessor implements RealmAccessor {
@@ -380,9 +382,67 @@ class DynamicRealmObject {
 
   DynamicRealmObject._(this._obj);
 
-  T get<T extends Object>(String name) => RealmObject.get<T>(_obj, name) as T;
+  T get<T extends Object>(String name) {
+    _validatePropertyType<T>(name, RealmCollectionType.none, false);
+    return RealmObject.get<T>(_obj, name) as T;
+  }
 
-  T? getNullable<T extends Object>(String name) => RealmObject.get<T>(_obj, name) as T?;
+  T? getNullable<T extends Object>(String name) {
+    _validatePropertyType<T>(name, RealmCollectionType.none, true);
+    return RealmObject.get<T>(_obj, name) as T?;
+  }
 
-  List<T> getList<T extends Object>(String name) => RealmObject.get<T>(_obj, name) as List<T>;
+  List<T> getList<T extends Object>(String name) {
+    _validatePropertyType<T>(name, RealmCollectionType.list, false);
+    return RealmObject.get<T>(_obj, name) as List<T>;
+  }
+
+  void _validatePropertyType<T extends Object>(String name, RealmCollectionType expectedCollectionType, bool isNullable) {
+    final accessor = _obj.accessor;
+    if (accessor is RealmCoreAccessor) {
+      final prop = accessor.metadata._propertyKeys[name];
+      if (prop == null) {
+        throw RealmException("Property '$name' does not exist on class '${accessor.metadata.name}'");
+      }
+
+      if (prop.collectionType != expectedCollectionType) {
+        throw RealmException(
+            "Property '$name' on class '${accessor.metadata.name}' is '${prop.collectionType}' but the method used to access it expected '$expectedCollectionType'.");
+      }
+
+      if (prop.isNullable != isNullable) {
+        throw RealmException(
+            "Property '$name' on class '${accessor.metadata.name}' is ${prop.isNullable ? 'nullable' : 'required'} but the wrong method was used to access it. Use get<T> for required properties and getNullable<T> for nullable ones.");
+      }
+
+      final targetType = _getPropertyType<T>();
+      if (targetType != null && targetType != prop.propertyType) {
+        throw RealmException(
+            "Property '$name' on class '${accessor.metadata.name}' is not the correct type. Expected '$targetType', got '${prop.propertyType}'.");
+      }
+    }
+  }
+
+  RealmPropertyType? _getPropertyType<T extends Object>() {
+    switch (T) {
+      case int:
+        return RealmPropertyType.int;
+      case double:
+        return RealmPropertyType.double;
+      case String:
+        return RealmPropertyType.string;
+      case bool:
+        return RealmPropertyType.bool;
+      case DateTime:
+        return RealmPropertyType.timestamp;
+      case ObjectId:
+        return RealmPropertyType.objectid;
+      case Uuid:
+        return RealmPropertyType.uuid;
+      case RealmObject:
+        return RealmPropertyType.object;
+      default:
+        return null;
+    }
+  }
 }
