@@ -70,7 +70,7 @@ class _RealmCore {
     return _instance ??= _RealmCore._();
   }
 
-  String get libraryVersion => _realmLib.realm_get_library_version().toDartString()!;
+  String get libraryVersion => _realmLib.realm_get_library_version().cast<Utf8>().toRealmDartString()!;
 
   LastError? getLastError(Allocator allocator) {
     final error = allocator<realm_error_t>();
@@ -81,7 +81,7 @@ class _RealmCore {
 
     String? message;
     if (error.ref.message != nullptr) {
-      message = error.ref.message.toDartString();
+      message = error.ref.message.cast<Utf8>().toRealmDartString();
     }
 
     return LastError(error.ref.error, message);
@@ -230,7 +230,7 @@ class _RealmCore {
   }
 
   String getFilesPath() {
-    return _realmLib.realm_dart_get_files_path().toDartString()!;
+    return _realmLib.realm_dart_get_files_path().cast<Utf8>().toRealmDartString()!;
   }
 
   void closeRealm(Realm realm) {
@@ -272,7 +272,7 @@ class _RealmCore {
         throwLastError("Class $className not found in ${realm.config.path}");
       }
 
-      final primaryKey = classInfo.ref.primary_key.toDartString(treatEmptyAsNull: true);
+      final primaryKey = classInfo.ref.primary_key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
       return RealmClassMetadata(classType, classInfo.ref.key, primaryKey);
     });
   }
@@ -292,7 +292,7 @@ class _RealmCore {
       Map<String, RealmPropertyMetadata> result = <String, RealmPropertyMetadata>{};
       for (var i = 0; i < propertyCount; i++) {
         final property = propertiesPtr.elementAt(i);
-        final propertyName = property.ref.name.toDartString()!;
+        final propertyName = property.ref.name.cast<Utf8>().toRealmDartString()!;
         final propertyMeta = RealmPropertyMetadata(property.ref.key, RealmCollectionType.values.elementAt(property.ref.collection_type));
         result[propertyName] = propertyMeta;
       }
@@ -329,7 +329,7 @@ class _RealmCore {
   }
 
   String objectToString(RealmObject object) {
-    return _realmLib.realm_object_to_string(object.handle._pointer).toDartString(freeNativeMemory: true)!;
+    return _realmLib.realm_object_to_string(object.handle._pointer).cast<Utf8>().toRealmDartString(freeNativeMemory: true)!;
   }
 
   // For debugging
@@ -733,15 +733,15 @@ class _RealmCore {
 
     client.connectionTimeout = Duration(milliseconds: request.timeout_ms);
 
-    final url = Uri.parse(request.url.toDartString()!);
+    final url = Uri.parse(request.url.cast<Utf8>().toRealmDartString()!);
 
-    final body = request.body.toDartString()!;
+    final body = request.body.cast<Utf8>().toRealmDartString()!;
 
     final headers = <String, String>{};
     for (int i = 0; i < request.num_headers; ++i) {
       final header = request.headers[i];
-      final name = header.name.toDartString()!;
-      final value = header.value.toDartString()!;
+      final name = header.name.cast<Utf8>().toRealmDartString()!;
+      final value = header.value.cast<Utf8>().toRealmDartString()!;
       headers[name] = value;
     }
 
@@ -862,7 +862,7 @@ class _RealmCore {
     }
 
     if (error != nullptr) {
-      final message = error.ref.message.toDartString()!;
+      final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
       completer.completeError(RealmException(message));
       return;
     }
@@ -897,7 +897,7 @@ class _RealmCore {
     }
 
     if (error != nullptr) {
-      final message = error.ref.message.toDartString()!;
+      final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
       completer.completeError(RealmException(message));
       return;
     }
@@ -1024,7 +1024,7 @@ class _RealmCore {
     }
 
     if (error != nullptr) {
-      final message = error.ref.message.toDartString()!;
+      final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
       completer.completeError(RealmException(message));
       return;
     }
@@ -1338,7 +1338,7 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_BOOL:
         return ref.values.boolean == 0;
       case realm_value_type.RLM_TYPE_STRING:
-        return ref.values.string.data.toDartString(length: ref.values.string.size)!;
+        return ref.values.string.data.cast<Utf8>().toRealmDartString(length: ref.values.string.size)!;
       case realm_value_type.RLM_TYPE_FLOAT:
         return ref.values.fnum;
       case realm_value_type.RLM_TYPE_DOUBLE:
@@ -1389,14 +1389,14 @@ extension on Pointer<Void> {
   }
 }
 
-extension on Pointer<Int8> {
-  String? toDartString({bool treatEmptyAsNull = false, int? length, bool freeNativeMemory = false}) {
+extension on Pointer<Utf8> {
+  String? toRealmDartString({bool treatEmptyAsNull = false, int? length, bool freeNativeMemory = false}) {
     if (this == nullptr) {
       return null;
     }
 
     try {
-      final result = cast<Utf8>().toDartString(length: length);
+      final result = toDartString(length: length);
 
       if (treatEmptyAsNull && result == '') {
         return null;
