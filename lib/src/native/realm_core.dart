@@ -1291,6 +1291,9 @@ Pointer<realm_value_t> _toRealmValue(Object? value, Allocator allocator) {
   return realm_value;
 }
 
+const int microsecondsPerSecond = 1000 * 1000;
+const int nanosecondsPerMicrosecond = 1000;
+
 void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocator allocator) {
   if (value == null) {
     realm_value.ref.type = realm_value_type.RLM_TYPE_NULL;
@@ -1340,8 +1343,13 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
         break;
       case DateTime:
         final microseconds = (value as DateTime).toUtc().microsecondsSinceEpoch;
-        realm_value.ref.values.timestamp.seconds = microseconds ~/ 1000000;
-        realm_value.ref.values.timestamp.nanoseconds = (microseconds % 1000000) * 1000;
+        final seconds = microseconds ~/ microsecondsPerSecond;
+        int nanoseconds = nanosecondsPerMicrosecond * (microseconds % microsecondsPerSecond);
+        if (microseconds < 0 && nanoseconds != 0) {
+          nanoseconds = nanoseconds - nanosecondsPerMicrosecond * microsecondsPerSecond;
+        }
+        realm_value.ref.values.timestamp.seconds = seconds;
+        realm_value.ref.values.timestamp.nanoseconds = nanoseconds;
         realm_value.ref.type = realm_value_type.RLM_TYPE_TIMESTAMP;
         break;
       default:
@@ -1379,7 +1387,7 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_TIMESTAMP:
         final seconds = ref.values.timestamp.seconds;
         final nanoseconds = ref.values.timestamp.nanoseconds;
-        return DateTime.fromMicrosecondsSinceEpoch(seconds * 1000000 + nanoseconds ~/ 1000).toUtc();
+        return DateTime.fromMicrosecondsSinceEpoch(seconds * microsecondsPerSecond + nanoseconds ~/ nanosecondsPerMicrosecond).toUtc();
       case realm_value_type.RLM_TYPE_DECIMAL128:
         throw Exception("Not implemented");
       case realm_value_type.RLM_TYPE_OBJECT_ID:

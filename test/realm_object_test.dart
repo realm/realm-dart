@@ -389,6 +389,7 @@ Future<void> main([List<String>? args]) async {
     DateTime.utc(1970).subtract(Duration(days: 99999999)),
     DateTime.utc(2020, 1, 1, 12, 34, 56, 789, 999),
     DateTime.utc(2022),
+    DateTime.utc(1930, 1, 1, 12, 34, 56, 123, 456),
   ];
   for (final date in dates) {
     test('Date roundtrips correctly: $date', () {
