@@ -364,7 +364,16 @@ Future<void> main([List<String>? args]) async {
   bool _canCoreRepresentDateInJson(DateTime date) {
     // Core has a bug where negative and zero dates are not serialized correctly to json.
     // https://jira.mongodb.org/browse/RCORE-1083
-    return date.compareTo(dateZero) > 0 || Platform.isMacOS || Platform.isIOS;
+    if (date.compareTo(dateZero) < 0) {
+      return Platform.isMacOS || Platform.isIOS;
+    }
+
+    // Very large dates are also buggy on Android and Windows
+    if (date.compareTo(DateTime.utc(10000)) > 0) {
+      return Platform.isMacOS || Platform.isIOS || Platform.isLinux;
+    }
+
+    return true;
   }
 
   void expectDateInJson(DateTime? date, String json, String propertyName) {
@@ -467,7 +476,7 @@ Future<void> main([List<String>? args]) async {
 
     realm.write(() {
       realm.add(AllTypes('abc', false, date, 0, ObjectId(), Uuid.v4(), 0, nullableDateProp: date));
-      realm.add(AllTypes('cde', false, DateTime.now(), 0, ObjectId(), Uuid.v4(), 0));
+      realm.add(AllTypes('cde', false, DateTime.now().add(Duration(seconds: 1)), 0, ObjectId(), Uuid.v4(), 0));
     });
 
     var results = realm.all<AllTypes>().query('dateProp = \$0', [date]);
