@@ -90,8 +90,10 @@ class BaasClient {
         result[app.name] = app;
       }
     }
-    if (!result.containsKey('flexible_$suffix')) {
-      final defaultApp = await _createApp('flexible$suffix');
+    String appName = suffix == null ? 'flexible' : 'flexible_$suffix';
+
+    if (!result.containsKey(appName)) {
+      final defaultApp = await _createApp(appName);
       result[defaultApp.name] = defaultApp;
     }
     // Add more types of apps as we add more tests here.
