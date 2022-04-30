@@ -22,6 +22,19 @@ import 'package:realm_dart/realm.dart';
 
 import 'native/realm_core.dart';
 import 'app.dart';
+import 'credentials.dart';
+
+/// The current state of a [User].
+enum UserState{
+  /// The user is logged in, and any Realms associated with it are synchronizing with MongoDB Realm.
+  loogedIn,
+
+  /// The user is logged out. Call LogInAsync(Credentials) with valid credentials to log the user back in.
+  loggedOut,
+
+  /// The user has been logged out and their local data has been removed.
+  removed,
+}
 
 /// This class represents a user in a MongoDB Realm app.
 /// A user can log in to the server and, if access is granted, it is possible to synchronize the local Realm to MongoDB.
@@ -31,15 +44,15 @@ import 'app.dart';
 /// {@category Application}
 class User {
   final UserHandle _handle;
-  
+
   /// The [App] with which the user is associated with.
   final App app;
 
   User._(this.app, this._handle);
 
   /// The custom user data associated with this user.
-  /// 
-  /// The data is only refreshed when the user's access token is refreshed or when explicitly calling [refreshCustomData] 
+  ///
+  /// The data is only refreshed when the user's access token is refreshed or when explicitly calling [refreshCustomData]
   dynamic get customData {
     final data = realmCore.userGetCustomData(this);
     return jsonDecode(data);
@@ -59,6 +72,16 @@ class User {
   Future<User> linkCredentials(Credentials credentials) async {
     final userHandle = await realmCore.userLinkCredentials(app, this, credentials);
     return UserInternal.create(app, userHandle);
+  }
+
+  /// The current state of this [User].
+  UserState get state {
+    final nativeState = realmCore.userGetState(this);
+    if (!UserState.values.any((state) => state.index == nativeState)) {
+      throw RealmError("Unknown user state $nativeState");
+    }
+
+    return UserState.values[nativeState];
   }
 }
 

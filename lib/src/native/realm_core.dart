@@ -1143,6 +1143,10 @@ class _RealmCore {
         "Link credentials failed");
     return completer.future;
   }
+
+  int userGetState(User user) {
+    return _realmLib.realm_user_get_state(user.handle._pointer);
+  }
 }
 
 class LastError {
