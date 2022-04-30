@@ -29,6 +29,8 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support logout user. ([#476](https://github.com/realm/realm-dart/pull/476))
 * Support remove user. ([#492](https://github.com/realm/realm-dart/pull/492))
 * Support switch current user. ([#493](https://github.com/realm/realm-dart/pull/493))
+* Support user custom data and refresh. ([#525](https://github.com/realm/realm-dart/pull/525))
+* Support linking user credentials. ([#525](https://github.com/realm/realm-dart/pull/525))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))
