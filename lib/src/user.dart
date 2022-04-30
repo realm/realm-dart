@@ -18,11 +18,10 @@
 
 import 'dart:convert';
 
-import 'package:realm_dart/realm.dart';
-
 import 'native/realm_core.dart';
 import 'app.dart';
 import 'credentials.dart';
+import 'realm_class.dart';
 
 /// The current state of a [User].
 enum UserState{
