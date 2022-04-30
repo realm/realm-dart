@@ -897,7 +897,7 @@ class _RealmCore {
   }
 
   static void void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
-    final Completer<void>? completer = userdata.toObject();
+    final Completer<void>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
       return;
     }
@@ -1103,6 +1103,30 @@ class _RealmCore {
               ),
           "Switch user failed");
     });
+  }
+
+  String userGetCustomData(User user) {
+    final customDataPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_custom_data(user.handle._pointer));
+    try {
+      final customData = customDataPtr.cast<Utf8>().toDartString();
+      return customData;
+    } finally {
+      _realmLib.realm_free(customDataPtr.cast());
+    }
+  }
+
+  Future<void> userRefreshCustomData(App app, User user) {
+     final completer = Completer<void>();
+    _realmLib.invokeGetBool(
+        () => _realmLib.realm_app_refresh_custom_data(
+              app.handle._pointer,
+              user.handle._pointer,
+              Pointer.fromFunction(void_completion_callback),
+              completer.toPersistentHandle(),
+              _deletePersistentHandleFuncPtr,
+            ),
+        "Refresh custom data failed");
+    return completer.future;
   }
 }
 

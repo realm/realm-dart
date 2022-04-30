@@ -16,7 +16,10 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:convert';
+
 import 'native/realm_core.dart';
+import 'app.dart';
 
 /// This class represents a user in a MongoDB Realm app.
 /// A user can log in to the server and, if access is granted, it is possible to synchronize the local Realm to MongoDB.
@@ -26,13 +29,30 @@ import 'native/realm_core.dart';
 /// {@category Application}
 class User {
   final UserHandle _handle;
+  
+  /// The [App] with which the user is associated with.
+  final App app;
 
-  User._(this._handle);
+  User._(this.app, this._handle);
+
+  /// The custom user data associated with this user.
+  /// 
+  /// The data is only refreshed when the user's access token is refreshed or when explicitly calling [refreshCustomData] 
+  dynamic get customData {
+    final data = realmCore.userGetCustomData(this);
+    return jsonDecode(data);
+  }
+
+  /// Re-fetch the user's custom data from the server.
+  Future<dynamic> refreshCustomData() async {
+    await realmCore.userRefreshCustomData(app, this);
+    return customData;
+  }
 }
 
 /// @nodoc
 extension UserInternal on User {
   UserHandle get handle => _handle;
 
-  static User create(UserHandle handle) => User._(handle);
+  static User create(App app, UserHandle handle) => User._(app, handle);
 }
