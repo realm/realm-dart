@@ -861,7 +861,7 @@ class _RealmCore {
     return AppHandle._(realmAppPtr);
   }
 
-  static void _logInCallback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
+  static void _app_user_completion_callback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
     final Completer<UserHandle>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
       return;
@@ -875,7 +875,7 @@ class _RealmCore {
 
     var userClone = _realmLib.realm_clone(user.cast());
     if (userClone == nullptr) {
-      completer.completeError(RealmException("Error while cloning login data"));
+      completer.completeError(RealmException("Error while cloning user object."));
       return;
     }
 
@@ -888,7 +888,7 @@ class _RealmCore {
         () => _realmLib.realm_app_log_in_with_credentials(
               app.handle._pointer,
               credentials.handle._pointer,
-              Pointer.fromFunction(_logInCallback),
+              Pointer.fromFunction(_app_user_completion_callback),
               completer.toPersistentHandle(),
               _deletePersistentHandleFuncPtr,
             ),
@@ -1038,7 +1038,7 @@ class _RealmCore {
     completer.complete();
   }
 
-  Future<void> logOut(App application, User user) async {
+  Future<void> logOut(App application, User user) {
     final completer = Completer<void>();
     _realmLib.invokeGetBool(
         () => _realmLib.realm_app_log_out(
@@ -1079,7 +1079,7 @@ class _RealmCore {
     });
   }
 
-  Future<void> removeUser(App app, User user) async {
+  Future<void> removeUser(App app, User user) {
     final completer = Completer<void>();
     _realmLib.invokeGetBool(
         () => _realmLib.realm_app_remove_user(
@@ -1092,7 +1092,7 @@ class _RealmCore {
         "Remove user failed");
     return completer.future;
   }
-  
+
   void switchUser(App application, User user) {
     return using((arena) {
       _realmLib.invokeGetBool(
@@ -1116,7 +1116,7 @@ class _RealmCore {
   }
 
   Future<void> userRefreshCustomData(App app, User user) {
-     final completer = Completer<void>();
+    final completer = Completer<void>();
     _realmLib.invokeGetBool(
         () => _realmLib.realm_app_refresh_custom_data(
               app.handle._pointer,
@@ -1126,6 +1126,21 @@ class _RealmCore {
               _deletePersistentHandleFuncPtr,
             ),
         "Refresh custom data failed");
+    return completer.future;
+  }
+
+  Future<UserHandle> userLinkCredentials(App app, User user, Credentials credentials) {
+    final completer = Completer<UserHandle>();
+    _realmLib.invokeGetBool(
+        () => _realmLib.realm_app_link_user(
+              app.handle._pointer,
+              user.handle._pointer,
+              credentials.handle._pointer,
+              Pointer.fromFunction(_app_user_completion_callback),
+              completer.toPersistentHandle(),
+              _deletePersistentHandleFuncPtr,
+            ),
+        "Link credentials failed");
     return completer.future;
   }
 }

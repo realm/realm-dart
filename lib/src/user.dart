@@ -18,6 +18,8 @@
 
 import 'dart:convert';
 
+import 'package:realm_dart/realm.dart';
+
 import 'native/realm_core.dart';
 import 'app.dart';
 
@@ -47,6 +49,16 @@ class User {
   Future<dynamic> refreshCustomData() async {
     await realmCore.userRefreshCustomData(app, this);
     return customData;
+  }
+
+  /// Links this [User] with a new [User] identity represented by the given credentials.
+  ///
+  /// Linking a user with more credentials, mean the user can login either of these credentials. It also makes it possible to "upgrade" an anonymous user
+  /// by linking it with e.g. Email/Password credentials.
+  /// Note: It is not possible to link two existing users of MongoDB Realm. The provided credentials must not have been used by another user.
+  Future<User> linkCredentials(Credentials credentials) async {
+    final userHandle = await realmCore.userLinkCredentials(app, this, credentials);
+    return UserInternal.create(app, userHandle);
   }
 }
 
