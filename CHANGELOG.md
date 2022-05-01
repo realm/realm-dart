@@ -32,6 +32,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support user custom data and refresh. ([#525](https://github.com/realm/realm-dart/pull/525))
 * Support linking user credentials. ([#525](https://github.com/realm/realm-dart/pull/525))
 * Support user state. ([#525](https://github.com/realm/realm-dart/pull/525))
+* Support getting user identity and all identities. ([#525](https://github.com/realm/realm-dart/pull/525))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))

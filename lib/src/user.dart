@@ -23,18 +23,6 @@ import 'app.dart';
 import 'credentials.dart';
 import 'realm_class.dart';
 
-/// The current state of a [User].
-enum UserState{
-  /// The user is logged in, and any Realms associated with it are synchronizing with MongoDB Realm.
-  loogedIn,
-
-  /// The user is logged out. Call LogInAsync(Credentials) with valid credentials to log the user back in.
-  loggedOut,
-
-  /// The user has been logged out and their local data has been removed.
-  removed,
-}
-
 /// This class represents a user in a MongoDB Realm app.
 /// A user can log in to the server and, if access is granted, it is possible to synchronize the local Realm to MongoDB.
 /// Moreover, synchronization is halted when the user is logged out. It is possible to persist a user. By retrieving a user, there is no need to log in again.
@@ -76,11 +64,55 @@ class User {
   /// The current state of this [User].
   UserState get state {
     final nativeState = realmCore.userGetState(this);
-    if (!UserState.values.any((state) => state.index == nativeState)) {
-      throw RealmError("Unknown user state $nativeState");
+    return UserState.values.fromIndex(nativeState);
+  }
+
+  /// Get this [User]'s identity on MongoDB Realm
+  UserIdentity get identity {
+    return realmCore.userGetIdentity(this);
+  }
+
+  /// Gets a collection of all identities associated with this [User]
+  List<UserIdentity> get identities {
+    return realmCore.userGetIdentities(this);
+  }
+}
+
+/// The current state of a [User].
+enum UserState {
+  /// The user is logged in, and any Realms associated with it are synchronizing with MongoDB Realm.
+  loogedIn,
+
+  /// The user is logged out. Call LogInAsync(Credentials) with valid credentials to log the user back in.
+  loggedOut,
+
+  /// The user has been logged out and their local data has been removed.
+  removed,
+}
+
+/// The user identity associated with a [User]
+class UserIdentity {
+  /// The unique identifier for this [UserIdentity]
+  final String id;
+
+  /// The authentication provider defining this identity
+  final AuthProviderType provider;
+
+  const UserIdentity._(this.id, this.provider);
+}
+
+/// @nodoc
+extension UserIdentityInternal on UserIdentity {
+  static UserIdentity create(String identity, AuthProviderType provider) => UserIdentity._(identity, provider);
+}
+
+extension on List<UserState> {
+  UserState fromIndex(int index) {
+    if (!UserState.values.any((value) => value.index == index)) {
+      throw RealmError("Unknown user state $index");
     }
 
-    return UserState.values[nativeState];
+    return UserState.values[index];
   }
 }
 

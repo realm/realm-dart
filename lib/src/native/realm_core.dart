@@ -1147,6 +1147,34 @@ class _RealmCore {
   int userGetState(User user) {
     return _realmLib.realm_user_get_state(user.handle._pointer);
   }
+
+  UserIdentity userGetIdentity(User user) {
+    final idPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_identity(user.handle._pointer), "Error while getting user identity");
+    final userId = idPtr.cast<Utf8>().toDartString();
+
+    final authProvider = _realmLib.realm_user_get_auth_provider(user.handle._pointer);
+    return UserIdentityInternal.create(userId, AuthProviderType.values.fromIndex(authProvider));
+  }
+
+  List<UserIdentity> userGetIdentities(User user) {
+    return using((arena) {
+      final idsCount = arena<IntPtr>();
+      _realmLib.invokeGetBool(
+          () => _realmLib.realm_user_get_all_identities(user.handle._pointer, nullptr, 0, idsCount), "Error while getting user identities count");
+
+      final idsPtr = arena<realm_user_identity_t>(idsCount.value);
+      _realmLib.invokeGetBool(
+          () => _realmLib.realm_user_get_all_identities(user.handle._pointer, idsPtr, idsCount.value, idsCount), "Error while getting user identities");
+
+      final userIdentities = <UserIdentity>[];
+      for (var i = 0; i < idsCount.value; i++) {
+        final idPtr = idsPtr.elementAt(i);
+        userIdentities.add(UserIdentityInternal.create(idPtr.ref.id.cast<Utf8>().toDartString(), AuthProviderType.values.fromIndex(idPtr.ref.provider_type)));
+      }
+
+      return userIdentities;
+    });
+  }
 }
 
 class LastError {
@@ -1445,6 +1473,16 @@ extension on Object {
 
   Pointer<Void> toPersistentHandle() {
     return _realmLib.object_to_persistent_handle(this);
+  }
+}
+
+extension on List<AuthProviderType> {
+  AuthProviderType fromIndex(int index) {
+    if (!AuthProviderType.values.any((value) => value.index == index)) {
+      throw RealmError("Unknown AuthProviderType $index");
+    }
+
+    return AuthProviderType.values[index];
   }
 }
 
