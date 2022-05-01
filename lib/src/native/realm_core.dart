@@ -1175,6 +1175,11 @@ class _RealmCore {
       return userIdentities;
     });
   }
+
+  Future<void> userLogOut(User user) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_user_log_out(user.handle._pointer), "Logout failed");
+    return Future<void>.value();
+  }
 }
 
 class LastError {

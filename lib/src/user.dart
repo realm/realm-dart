@@ -74,6 +74,11 @@ class User {
   List<UserIdentity> get identities {
     return realmCore.userGetIdentities(this);
   }
+
+  /// Removes the user's local credentials. This will also close any associated Sessions.
+  Future<void> logout() async {
+    return await realmCore.userLogOut(this);
+  }
 }
 
 /// The current state of a [User].

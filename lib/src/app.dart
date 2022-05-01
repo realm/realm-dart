@@ -140,8 +140,8 @@ class App {
     return realmCore.getUsers(this).map((handle) => UserInternal.create(this, handle));
   }
 
-  /// Removes the user's local credentials and attempts to invalidate their refresh token from the server.
-  ///
+  /// Removes the user's local credentials. This will also close any associated Sessions.
+  /// 
   /// If [user] is null logs out [currentUser] if it exists.
   Future<void> logout(User? user) async {
     user ??= currentUser;
