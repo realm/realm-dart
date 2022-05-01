@@ -1,5 +1,5 @@
 x.x.x Release notes (yyyy-MM-dd)
-==============================================================
+==========================================
 
 **This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
 
