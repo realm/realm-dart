@@ -43,7 +43,7 @@ class User {
     return jsonDecode(data);
   }
 
-  /// Re-fetch the user's custom data from the server.
+  /// Refreshes the custom data for a this [User].
   Future<dynamic> refreshCustomData() async {
     await realmCore.userRefreshCustomData(app, this);
     return customData;
