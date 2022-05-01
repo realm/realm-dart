@@ -39,7 +39,7 @@ class User {
 
   /// The custom user data associated with this user.
   ///
-  /// The data is only refreshed when the user's access token is refreshed or when explicitly calling [refreshCustomData]
+  /// The data is only refreshed when explicitly calling [refreshCustomData]
   dynamic get customData {
     final data = realmCore.userGetCustomData(this);
     return jsonDecode(data);
