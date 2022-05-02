@@ -18,8 +18,6 @@
 
 #include "subscription_set.h"
 
-#include <iostream>
-
 #include <realm/sync/subscriptions.hpp>
 #include <realm/object-store/c_api/util.hpp>
 #include <realm/object-store/c_api/types.hpp>
