@@ -154,6 +154,39 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions, isEmpty);
   });
 
+  testSubscriptions('SubscriptionSet.removeAll', (realm) {
+    final subscriptions = realm.subscriptions;
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.addOrUpdate(realm.query<Task>(r'_id == $0', [ObjectId()]));
+      mutableSubscriptions.addOrUpdate(realm.all<Task>());
+    });
+    expect(subscriptions.length, 2);
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.removeAll();
+    });
+    expect(subscriptions, isEmpty);
+  });
+
+  testSubscriptions('SubscriptionSet.waitForStateChange', (realm) async {
+    final subscriptions = realm.subscriptions;
+    await subscriptions.waitForStateChange(SubscriptionSetState.complete);
+
+    final stateMachineSteps = [
+      subscriptions.waitForStateChange(SubscriptionSetState.uncommitted),
+      subscriptions.waitForStateChange(SubscriptionSetState.pending),
+      subscriptions.waitForStateChange(SubscriptionSetState.bootstrapping),
+      subscriptions.waitForStateChange(SubscriptionSetState.complete),
+    ];
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.addOrUpdate(realm.all<Task>());
+    });
+
+    await Future.wait(stateMachineSteps);
+  });
+
   testSubscriptions('Get subscriptions', (realm) async {
     final subscriptions = realm.subscriptions;
 
