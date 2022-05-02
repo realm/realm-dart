@@ -400,7 +400,11 @@ class DynamicRealmObject {
   }
 
   List<T> getList<T extends Object>(String name) {
-    _validatePropertyType<T>(name, RealmCollectionType.list, false);
+    final prop = _validatePropertyType<T>(name, RealmCollectionType.list, false);
+    if (T == Object && prop?.propertyType == RealmPropertyType.object) {
+      return RealmObject.get<RealmObject>(_obj, name) as List<T>;
+    }
+
     return RealmObject.get<T>(_obj, name) as List<T>;
   }
 
