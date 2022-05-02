@@ -32,7 +32,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
 
   /// The Realm instance this collection belongs to.
   final Realm realm;
-   
+
   final _supportsSnapshot = <T>[] is List<RealmObject?>;
 
   RealmResults._(this._handle, this.realm);
@@ -105,7 +105,7 @@ class ResultsNotificationsController<T extends RealmObject> extends Notification
 
   @override
   RealmNotificationTokenHandle subscribe() {
-    return realmCore.subscribeResultsNotifications(results._handle, this, results.realm.scheduler.handle);
+    return realmCore.subscribeResultsNotifications(results, this, results.realm.scheduler.handle);
   }
 
   Stream<RealmResultsChanges<T>> createStream() {

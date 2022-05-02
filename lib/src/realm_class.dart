@@ -67,7 +67,7 @@ class Realm {
 
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : _config = config {
-    _scheduler = Scheduler(close);
+    _scheduler = Scheduler();
 
     try {
       _handle = realmCore.openRealm(_config, _scheduler);
@@ -209,7 +209,8 @@ class Realm {
   /// This method will not throw if called multiple times.
   void close() {
     realmCore.closeRealm(this);
-    _scheduler.stop();
+    handle.release();
+    scheduler.stop();
   }
 
   /// Checks whether the `Realm` is closed.
@@ -273,13 +274,12 @@ class Scheduler {
   // ignore: constant_identifier_names
   static const dynamic SCHEDULER_FINALIZE_OR_PROCESS_EXIT = 0;
   late final SchedulerHandle handle;
-  final void Function() onFinalize;
+  bool released = false;
   final RawReceivePort receivePort = RawReceivePort();
 
-  Scheduler(this.onFinalize) {
+  Scheduler() {
     receivePort.handler = (dynamic message) {
       if (message == SCHEDULER_FINALIZE_OR_PROCESS_EXIT) {
-        onFinalize();
         stop();
         return;
       }
@@ -292,7 +292,13 @@ class Scheduler {
   }
 
   void stop() {
+    if (released) {
+      return;
+    }
+
+    released = true;
     receivePort.close();
+    handle.release();
   }
 }
 

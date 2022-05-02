@@ -76,7 +76,7 @@ Future<void> main([List<String>? args]) async {
     expect(() => getRealm(config), throws<RealmException>("at path '${config.path}' does not exist"));
   });
 
-  test('Configuration readOnly - open existing realm with read-only config', () {
+  test('Configuration readOnly - open existing realm with read-only config', () async {
     Configuration config = Configuration([Car.schema]);
     var realm = getRealm(config);
     realm.close();
@@ -220,7 +220,7 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
 
     expect(realm.all<Person>().length, 0);
-  }, skip: 'TODO: fails to delete Realm - https://github.com/realm/realm-core/issues/5363');
+  });
 
   test('Configuration.initialDataCallback with error, invoked on second attempt', () {
     var invoked = false;

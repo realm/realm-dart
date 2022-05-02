@@ -190,7 +190,7 @@ class ListNotificationsController<T extends Object> extends NotificationsControl
 
   @override
   RealmNotificationTokenHandle subscribe() {
-    return realmCore.subscribeListNotifications(list._handle, this, list.realm.scheduler.handle);
+    return realmCore.subscribeListNotifications(list, this, list.realm.scheduler.handle);
   }
 
   Stream<RealmListChanges<T>> createStream() {

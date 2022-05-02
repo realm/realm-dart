@@ -343,7 +343,7 @@ class RealmObjectNotificationsController<T extends RealmObject> extends Notifica
 
   @override
   RealmNotificationTokenHandle subscribe() {
-    return realmCore.subscribeObjectNotifications(realmObject._handle!, this, realmObject.realm.scheduler.handle);
+    return realmCore.subscribeObjectNotifications(realmObject, this, realmObject.realm.scheduler.handle);
   }
 
   Stream<RealmObjectChanges<T>> createStream() {
