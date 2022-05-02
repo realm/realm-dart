@@ -359,12 +359,12 @@ Future<void> main([List<String>? args]) async {
     expect(json, contains('"property with spaces":{ "table": "class_myRemappedClass", "key": 0}'));
   });
 
-  final dateZero = DateTime.utc(0);
+  final epochZero = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
   bool _canCoreRepresentDateInJson(DateTime date) {
     // Core has a bug where negative and zero dates are not serialized correctly to json.
     // https://jira.mongodb.org/browse/RCORE-1083
-    if (date.compareTo(dateZero) <= 0) {
+    if (date.compareTo(epochZero) <= 0) {
       return Platform.isMacOS || Platform.isIOS;
     }
 
