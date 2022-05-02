@@ -7216,7 +7216,7 @@ class RealmLibrary {
           ffi.Pointer<realm_flx_sync_subscription_set_t> Function(
               ffi.Pointer<realm_t>)>();
 
-  /// Wait until subscripton set state is equal to the state passed as parameter.
+  /// Wait uptill subscripton set state is equal to the state passed as parameter.
   /// This is a blocking operation.
   /// @return the current subscription state
   int realm_sync_on_subscription_set_state_change_wait(
@@ -7241,39 +7241,27 @@ class RealmLibrary {
   /// This is an asynchronous operation.
   /// @return true/false if the handler was registered correctly
   bool realm_sync_on_subscription_set_state_change_async(
-    ffi.Pointer<realm_flx_sync_subscription_set_t> subscription_set,
-    int notify_when,
-    realm_sync_on_subscription_state_changed callback,
-    ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t userdata_free,
+    ffi.Pointer<realm_flx_sync_subscription_set_t> arg0,
+    int arg1,
+    realm_sync_on_subscription_state_changed arg2,
   ) {
     return _realm_sync_on_subscription_set_state_change_async(
-          subscription_set,
-          notify_when,
-          callback,
-          userdata,
-          userdata_free,
+          arg0,
+          arg1,
+          arg2,
         ) !=
         0;
   }
 
   late final _realm_sync_on_subscription_set_state_change_asyncPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Uint8 Function(
-                  ffi.Pointer<realm_flx_sync_subscription_set_t>,
-                  ffi.Int32,
-                  realm_sync_on_subscription_state_changed,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t)>>(
+              ffi.Uint8 Function(ffi.Pointer<realm_flx_sync_subscription_set_t>,
+                  ffi.Int32, realm_sync_on_subscription_state_changed)>>(
       'realm_sync_on_subscription_set_state_change_async');
   late final _realm_sync_on_subscription_set_state_change_async =
       _realm_sync_on_subscription_set_state_change_asyncPtr.asFunction<
-          int Function(
-              ffi.Pointer<realm_flx_sync_subscription_set_t>,
-              int,
-              realm_sync_on_subscription_state_changed,
-              ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t)>();
+          int Function(ffi.Pointer<realm_flx_sync_subscription_set_t>, int,
+              realm_sync_on_subscription_state_changed)>();
 
   /// Retrieve version for the subscription set passed as parameter
   /// @return subscription set version if the poiter to the subscription is valid
@@ -8214,7 +8202,7 @@ class RealmLibrary {
   bool realm_dart_sync_on_subscription_set_state_change_async(
     ffi.Pointer<realm_flx_sync_subscription_set_t> subscription_set,
     int notify_when,
-    realm_sync_on_subscription_state_changed callback,
+    realm_dart_sync_on_subscription_state_changed callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
     ffi.Pointer<realm_scheduler_t> scheduler,
@@ -8236,7 +8224,7 @@ class RealmLibrary {
                   ffi.Uint8 Function(
                       ffi.Pointer<realm_flx_sync_subscription_set_t>,
                       ffi.Int32,
-                      realm_sync_on_subscription_state_changed,
+                      realm_dart_sync_on_subscription_state_changed,
                       ffi.Pointer<ffi.Void>,
                       realm_free_userdata_func_t,
                       ffi.Pointer<realm_scheduler_t>)>>(
@@ -8246,7 +8234,7 @@ class RealmLibrary {
           int Function(
               ffi.Pointer<realm_flx_sync_subscription_set_t>,
               int,
-              realm_sync_on_subscription_state_changed,
+              realm_dart_sync_on_subscription_state_changed,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
               ffi.Pointer<realm_scheduler_t>)>();
@@ -9173,7 +9161,9 @@ typedef realm_sync_ssl_verify_func_t = ffi.Pointer<
             ffi.Int32)>>;
 typedef realm_flx_sync_subscription_set_t = realm_flx_sync_subscription_set;
 typedef realm_sync_on_subscription_state_changed = ffi.Pointer<
-    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>;
+    ffi.NativeFunction<
+        ffi.Void Function(
+            ffi.Pointer<realm_flx_sync_subscription_set_t>, ffi.Int32)>>;
 typedef realm_flx_sync_subscription_t = realm_flx_sync_subscription;
 typedef realm_flx_sync_mutable_subscription_set_t
     = realm_flx_sync_mutable_subscription_set;
@@ -9213,3 +9203,5 @@ class _Dart_FinalizableHandle extends ffi.Opaque {}
 
 /// A port is used to send or receive inter-isolate messages
 typedef Dart_Port = ffi.Int64;
+typedef realm_dart_sync_on_subscription_state_changed = ffi.Pointer<
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>;

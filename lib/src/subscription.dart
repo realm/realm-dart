@@ -80,6 +80,10 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
   _SubscriptionIterator get iterator => _SubscriptionIterator._(this);
 
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action);
+
+  int get version => realmCore.subscriptionSetVersion(this);
+
+  SubscriptionSetState get state => SubscriptionSetState.values[realmCore.subscriptionSetState(this)];
 }
 
 extension SubscriptionSetInternal on SubscriptionSet {
@@ -116,14 +120,19 @@ class MutableSubscriptionSet extends SubscriptionSet {
     return realmCore.insertOrAssignSubscription(this, query, name);
   }
 
-  bool remove<T extends RealmObject>(RealmResults<T> query) {
+  void remove<T extends RealmObject>(RealmResults<T> query) {
     assert(_mutableHandle != null);
     return realmCore.eraseSubscriptionByQuery(this, query);
   }
 
-  bool removeByName(String name) {
+  void removeByName(String name) {
     assert(_mutableHandle != null);
     return realmCore.eraseSubscriptionByName(this, name);
+  }
+
+  void removeAll() {
+    assert(_mutableHandle != null);
+    return realmCore.clearSubscriptionSet(this);
   }
 }
 
