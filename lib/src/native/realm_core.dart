@@ -254,6 +254,14 @@ class _RealmCore {
     return completer.future;
   }
 
+  int subscriptionSetVersion(SubscriptionSet subscriptions) {
+    return _realmLib.realm_sync_subscription_set_version(subscriptions.handle._pointer);
+  }
+
+  int subscriptionSetState(SubscriptionSet subscriptions) {
+    return _realmLib.realm_sync_subscription_set_state(subscriptions.handle._pointer);
+  }
+
   MutableSubscriptionSetHandle makeSubscriptionSetMutable(SubscriptionSet subscriptions) {
     return MutableSubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_make_subscription_set_mutable(subscriptions.handle._pointer)));
   }
@@ -277,20 +285,28 @@ class _RealmCore {
     });
   }
 
-  bool eraseSubscriptionByName(MutableSubscriptionSet subscriptions, String name) {
-    return using((arena) {
-      return _realmLib.realm_sync_subscription_set_erase_by_name(
-        subscriptions.mutableHandle._pointer,
-        name.toUtf8Ptr(arena),
-      );
+  void eraseSubscriptionByName(MutableSubscriptionSet subscriptions, String name) {
+    using((arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_name(
+            subscriptions.mutableHandle._pointer,
+            name.toUtf8Ptr(arena),
+          ));
     });
   }
 
-  bool eraseSubscriptionByQuery(MutableSubscriptionSet subscriptions, RealmResults query) {
-    return _realmLib.realm_sync_subscription_set_erase_by_query(
-      subscriptions.mutableHandle._pointer,
-      query.queryHandle._pointer,
-    );
+  void eraseSubscriptionByQuery(MutableSubscriptionSet subscriptions, RealmResults query) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_query(
+          subscriptions.mutableHandle._pointer,
+          query.queryHandle._pointer,
+        ));
+  }
+
+  void clearSubscriptionSet(MutableSubscriptionSet subscriptions) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_clear(subscriptions.mutableHandle._pointer));
+  }
+
+  void refreshSubscriptionSet(MutableSubscriptionSet subscriptions) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_refresh(subscriptions.handle._pointer));
   }
 
   static int initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmHandle) {
