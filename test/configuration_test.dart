@@ -76,7 +76,7 @@ Future<void> main([List<String>? args]) async {
     expect(() => getRealm(config), throws<RealmException>("at path '${config.path}' does not exist"));
   });
 
-  test('Configuration readOnly - open existing realm with read-only config', () async {
+  test('Configuration readOnly - open existing realm with read-only config', () {
     Configuration config = Configuration([Car.schema]);
     var realm = getRealm(config);
     realm.close();

@@ -282,7 +282,6 @@ class Scheduler {
   // ignore: constant_identifier_names
   static const dynamic SCHEDULER_FINALIZE_OR_PROCESS_EXIT = 0;
   late final SchedulerHandle handle;
-  bool released = false;
   final RawReceivePort receivePort = RawReceivePort();
 
   Scheduler() {

@@ -1161,10 +1161,17 @@ abstract class Handle<T extends NativeType> {
   @override
   String toString() => "${_pointer.toString()} value=${_pointer.cast<IntPtr>().value}";
 
-  void _releaseCore() {
+  /// @nodoc
+  /// A method that will be invoked just before the handle is released. Allows to cleanup
+  /// any custom data that inheritors are storing.
+  void _releaseCore() {}
+
+  void release() {
     if (_isReleased) {
       return;
     }
+
+    _releaseCore();
 
     // _finalizableHandle is null if this is an unowned handle
     // we should not be releasing native resources in this case
@@ -1175,28 +1182,18 @@ abstract class Handle<T extends NativeType> {
 
     _isReleased = true;
   }
-
-  void release() {
-    _releaseCore();
-  }
 }
 
 abstract class OwnableHandle<T extends NativeType> extends Handle<T> {
   final RealmHandle? _root;
 
-  OwnableHandle(Pointer<T> pointer, int size, {RealmHandle? root})
-      : _root = root,
-        super(pointer, size) {
+  OwnableHandle(this._root, Pointer<T> pointer, int size) : super(pointer, size) {
     _root?.addChild(this);
   }
 
   @override
-  String toString() => "${_pointer.toString()} value=${_pointer.cast<IntPtr>().value}";
-
-  @override
-  void release() {
+  void _releaseCore() {
     _root?.removeChild(this);
-    _releaseCore();
   }
 }
 
@@ -1210,28 +1207,26 @@ class ConfigHandle extends Handle<realm_config> {
 
 class RealmHandle extends Handle<shared_realm> {
   // TODO: this should become WeakReferences when we upgrade to 2.17
-  final List<OwnableHandle<NativeType>> _children = [];
+  final List<OwnableHandle> _children = [];
 
   RealmHandle._(Pointer<shared_realm> pointer) : super(pointer, 24);
 
   RealmHandle._unowned(Pointer<shared_realm> pointer) : super.unowned(pointer);
 
-  void addChild<T extends NativeType>(OwnableHandle<T> child) {
+  void addChild(OwnableHandle child) {
     _children.add(child);
   }
 
-  void removeChild<T extends NativeType>(OwnableHandle<T> child) {
+  void removeChild(OwnableHandle child) {
     _children.remove(child);
   }
 
   @override
-  void release() {
+  void _releaseCore() {
     while (_children.isNotEmpty) {
       // The children will remove themselves from the list
       _children.first.release();
     }
-
-    _releaseCore();
   }
 }
 
@@ -1240,7 +1235,7 @@ class SchedulerHandle extends Handle<realm_scheduler> {
 }
 
 class RealmObjectHandle extends OwnableHandle<realm_object> {
-  RealmObjectHandle._(Pointer<realm_object> pointer, RealmHandle root) : super(pointer, 112, root: root.getIfUnowned());
+  RealmObjectHandle._(Pointer<realm_object> pointer, RealmHandle root) : super(root.getIfUnowned(), pointer, 112);
 }
 
 class RealmLinkHandle {
@@ -1252,19 +1247,19 @@ class RealmLinkHandle {
 }
 
 class RealmResultsHandle extends OwnableHandle<realm_results> {
-  RealmResultsHandle._(Pointer<realm_results> pointer, RealmHandle root) : super(pointer, 872, root: root.getIfUnowned());
+  RealmResultsHandle._(Pointer<realm_results> pointer, RealmHandle root) : super(root.getIfUnowned(), pointer, 872);
 }
 
 class RealmListHandle extends OwnableHandle<realm_list> {
-  RealmListHandle._(Pointer<realm_list> pointer, RealmHandle root) : super(pointer, 88, root: root.getIfUnowned());
+  RealmListHandle._(Pointer<realm_list> pointer, RealmHandle root) : super(root.getIfUnowned(), pointer, 88);
 }
 
 class RealmQueryHandle extends OwnableHandle<realm_query> {
-  RealmQueryHandle._(Pointer<realm_query> pointer, RealmHandle root) : super(pointer, 256, root: root.getIfUnowned());
+  RealmQueryHandle._(Pointer<realm_query> pointer, RealmHandle root) : super(root.getIfUnowned(), pointer, 256);
 }
 
 class RealmNotificationTokenHandle extends OwnableHandle<realm_notification_token> {
-  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer, RealmHandle root) : super(pointer, 32, root: root.getIfUnowned());
+  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer, RealmHandle root) : super(root.getIfUnowned(), pointer, 32);
 }
 
 class RealmCollectionChangesHandle extends Handle<realm_collection_changes> {
