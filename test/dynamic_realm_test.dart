@@ -516,4 +516,50 @@ Future<void> main([List<String>? args]) async {
       _validateDynamicLists(obj, obj);
     }
   });
+
+  test('RealmObject.dynamic.get when static can get links', () {
+    final config = Configuration([LinksClass.schema]);
+    final realm = getRealm(config);
+
+    final uuid1 = Uuid.v4();
+    final uuid2 = Uuid.v4();
+
+    realm.write(() {
+      final obj1 = realm.add(LinksClass(uuid1));
+      realm.add(LinksClass(uuid2, link: obj1));
+    });
+
+    final obj1 = realm.find<LinksClass>(uuid1)!;
+    final obj2 = realm.find<LinksClass>(uuid2)!;
+
+    expect(obj1.dynamic.getNullable<RealmObject>('link'), isNull);
+    expect(obj1.dynamic.getNullable('link'), isNull);
+
+    expect(obj2.dynamic.getNullable<RealmObject>('link'), obj1);
+    expect(obj2.dynamic.getNullable('link'), obj1);
+    expect(obj2.dynamic.getNullable<RealmObject>('link')?.dynamic.get<Uuid>('id'), uuid1);
+  });
+
+  test('RealmObject.dynamic.getList when static can get links', () {
+    final config = Configuration([LinksClass.schema]);
+    final realm = getRealm(config);
+
+    final uuid1 = Uuid.v4();
+    final uuid2 = Uuid.v4();
+
+    realm.write(() {
+      final obj1 = realm.add(LinksClass(uuid1));
+      realm.add(LinksClass(uuid2, list: [obj1, obj1]));
+    });
+
+    final obj1 = realm.find<LinksClass>(uuid1)!;
+    final obj2 = realm.find<LinksClass>(uuid2)!;
+
+    expect(obj1.dynamic.getList<RealmObject>('list'), isEmpty);
+    expect(obj1.dynamic.getList('list'), isEmpty);
+
+    expect(obj2.dynamic.getList<RealmObject>('list'), [obj1, obj1]);
+    expect(obj2.dynamic.getList('list'), [obj1, obj1]);
+    expect(obj2.dynamic.getList<RealmObject>('list')[0].dynamic.get<Uuid>('id'), uuid1);
+  });
 }
