@@ -1163,7 +1163,9 @@ abstract class StandaloneHandle<T extends NativeType> {
     _released = true;
   }
 
-  void release();
+  void release() {
+    _releaseCore();
+  }
 }
 
 abstract class Handle<T extends NativeType> extends StandaloneHandle<T> {
@@ -1185,11 +1187,11 @@ abstract class Handle<T extends NativeType> extends StandaloneHandle<T> {
   }
 }
 
-class SchemaHandle extends Handle<realm_schema> {
+class SchemaHandle extends StandaloneHandle<realm_schema> {
   SchemaHandle._(Pointer<realm_schema> pointer) : super(pointer, 24);
 }
 
-class ConfigHandle extends Handle<realm_config> {
+class ConfigHandle extends StandaloneHandle<realm_config> {
   ConfigHandle._(Pointer<realm_config> pointer) : super(pointer, 512);
 }
 
@@ -1220,7 +1222,7 @@ class RealmHandle extends StandaloneHandle<shared_realm> {
   }
 }
 
-class SchedulerHandle extends Handle<realm_scheduler> {
+class SchedulerHandle extends StandaloneHandle<realm_scheduler> {
   SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer, 24);
 }
 
@@ -1252,35 +1254,35 @@ class RealmNotificationTokenHandle extends Handle<realm_notification_token> {
   RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer, RealmHandle root) : super(pointer, 32, root: root.getIfUnowned());
 }
 
-class RealmCollectionChangesHandle extends Handle<realm_collection_changes> {
+class RealmCollectionChangesHandle extends StandaloneHandle<realm_collection_changes> {
   RealmCollectionChangesHandle._(Pointer<realm_collection_changes> pointer) : super(pointer, 256);
 }
 
-class RealmObjectChangesHandle extends Handle<realm_object_changes> {
+class RealmObjectChangesHandle extends StandaloneHandle<realm_object_changes> {
   RealmObjectChangesHandle._(Pointer<realm_object_changes> pointer) : super(pointer, 256);
 }
 
-class RealmAppCredentialsHandle extends Handle<realm_app_credentials> {
+class RealmAppCredentialsHandle extends StandaloneHandle<realm_app_credentials> {
   RealmAppCredentialsHandle._(Pointer<realm_app_credentials> pointer) : super(pointer, 16);
 }
 
-class RealmHttpTransportHandle extends Handle<realm_http_transport> {
+class RealmHttpTransportHandle extends StandaloneHandle<realm_http_transport> {
   RealmHttpTransportHandle._(Pointer<realm_http_transport> pointer) : super(pointer, 24);
 }
 
-class AppConfigHandle extends Handle<realm_app_config> {
+class AppConfigHandle extends StandaloneHandle<realm_app_config> {
   AppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 8);
 }
 
-class SyncClientConfigHandle extends Handle<realm_sync_client_config> {
+class SyncClientConfigHandle extends StandaloneHandle<realm_sync_client_config> {
   SyncClientConfigHandle._(Pointer<realm_sync_client_config> pointer) : super(pointer, 8);
 }
 
-class AppHandle extends Handle<realm_app> {
+class AppHandle extends StandaloneHandle<realm_app> {
   AppHandle._(Pointer<realm_app> pointer) : super(pointer, 16);
 }
 
-class UserHandle extends Handle<realm_user> {
+class UserHandle extends StandaloneHandle<realm_user> {
   UserHandle._(Pointer<realm_user> pointer) : super(pointer, 24);
 }
 
