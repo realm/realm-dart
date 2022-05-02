@@ -169,6 +169,27 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions, isEmpty);
   });
 
+  testSubscriptions('SubscriptionSet.elementAt', (realm) {
+    final subscriptions = realm.subscriptions;
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.addOrUpdate(realm.query<Task>(r'_id == $0', [ObjectId()]));
+      mutableSubscriptions.addOrUpdate(realm.all<Task>());
+    });
+    expect(subscriptions.length, 2);
+
+    int index = 0;
+    for (final s in subscriptions) {
+      expect(s, s);
+      expect(subscriptions[index], isNotNull);
+      /* TODO: Not posible yet
+      expect(subscriptions[index], subscriptions[index]);
+      expect(s, subscriptions[index]);
+      */
+      ++index;
+    }
+  });
+
   testSubscriptions('SubscriptionSet.waitForStateChange', (realm) async {
     final subscriptions = realm.subscriptions;
     await subscriptions.waitForStateChange(SubscriptionSetState.complete);

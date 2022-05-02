@@ -680,7 +680,8 @@ class _RealmCore {
   bool objectEquals(RealmObject first, RealmObject second) => _equals(first.handle, second.handle);
   bool realmEquals(Realm first, Realm second) => _equals(first.handle, second.handle);
   bool userEquals(User first, User second) => _equals(first.handle, second.handle);
-
+  bool subscriptionEquals(Subscription first, Subscription second) => _equals(first.handle, second.handle);
+  
   RealmResultsHandle resultsSnapshot(RealmResults results) {
     final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_snapshot(results.handle._pointer));
     return RealmResultsHandle._(resultsPointer);
