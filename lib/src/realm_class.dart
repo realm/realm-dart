@@ -268,12 +268,11 @@ class Realm {
   void deleteAll<T extends RealmObject>() => deleteMany(all<T>());
 
   SubscriptionSet? _subscriptions;
-  SubscriptionSet? get subscriptions {
-    if (config is FlexibleSyncConfiguration) {
-      _subscriptions ??= SubscriptionSetInternal.create(this, realmCore.getSubscriptions(this));
-      // TODO: Refresh _subscriptions, if needed.
-    }
-    return _subscriptions;
+  /// The active [subscriptions] for this [Realm]
+  SubscriptionSet get subscriptions {
+    if (config is! FlexibleSyncConfiguration) throw RealmError('Does not support flexible synchronization');
+    _subscriptions ??= SubscriptionSetInternal.create(this, realmCore.getSubscriptions(this));
+    return _subscriptions!;
   }
 
   @override
