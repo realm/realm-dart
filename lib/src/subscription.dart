@@ -26,6 +26,18 @@ class Subscription {
   final SubscriptionHandle _handle;
 
   Subscription._(this._handle);
+
+  @override
+  // ignore: hash_and_equals
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! Subscription) return false;
+    return realmCore.subscriptionEquals(this, other);
+  }
+}
+
+extension SubscriptionInternal on Subscription {
+  SubscriptionHandle get handle => _handle;
 }
 
 class _SubscriptionIterator implements Iterator<Subscription> {
@@ -76,7 +88,7 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
     return Subscription._(realmCore.subscriptionAt(this, index));
   }
 
-  Subscription operator[](int index) => elementAt(index);
+  Subscription operator [](int index) => elementAt(index);
 
   @override
   _SubscriptionIterator get iterator => _SubscriptionIterator._(this);
@@ -117,7 +129,7 @@ class MutableSubscriptionSet extends SubscriptionSet {
     }
   }
 
-  bool addOrUpdate<T extends RealmObject>(RealmResults<T> query, {String? name, bool update = true}) {
+  bool addOrUpdate<T extends RealmObject>(RealmResults<T> query, {String? name}) {
     assert(_mutableHandle != null);
     return realmCore.insertOrAssignSubscription(this, query, name);
   }
