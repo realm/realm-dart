@@ -98,7 +98,7 @@ class RealmModelInfo {
             final namedArgs = {
               if (f.name != f.realmName) 'mapTo': f.realmName,
               if (f.optional) 'optional': f.optional,
-              if (f.primaryKey) 'primaryKey': f.primaryKey,
+              if (f.isPrimaryKey) 'primaryKey': f.isPrimaryKey,
               if (f.realmType == RealmPropertyType.object) 'linkTarget': f.basicRealmTypeName,
               if (f.realmCollectionType != RealmCollectionType.none) 'collectionType': f.realmCollectionType,
             };

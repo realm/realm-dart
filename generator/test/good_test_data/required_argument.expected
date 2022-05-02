@@ -14,7 +14,7 @@ class Person extends _Person with RealmEntity, RealmObject {
   @override
   String get name => RealmObject.get<String>(this, 'name') as String;
   @override
-  set name(String value) => throw RealmUnsupportedSetError();
+  set name(String value) => RealmObject.setUnique(this, 'name', value);
 
   @override
   Stream<RealmObjectChanges<Person>> get changes => RealmObject.getChanges<Person>(this);

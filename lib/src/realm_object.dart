@@ -24,7 +24,7 @@ import 'realm_class.dart';
 
 abstract class RealmAccessor {
   Object? get<T extends Object>(RealmObject object, String name);
-  void set(RealmObject object, String name, Object? value, [bool isDefault = false]);
+  void set(RealmObject object, String name, Object? value, {bool isDefault = false, bool isPrimaryKey = false});
 
   static final Map<Type, Map<String, Object?>> _defaultValues = <Type, Map<String, Object?>>{};
 
@@ -68,7 +68,7 @@ class RealmValuesAccessor implements RealmAccessor {
   }
 
   @override
-  void set(RealmObject object, String name, Object? value, [bool isDefault = false]) {
+  void set(RealmObject object, String name, Object? value, {bool isDefault = false, isPrimaryKey = false}) {
     _values[name] = value;
   }
 
@@ -79,7 +79,7 @@ class RealmValuesAccessor implements RealmAccessor {
       for (var item in defaults.entries) {
         //check if a default value has been overwritten
         if (!_values.containsKey(item.key)) {
-          accessor.set(object, item.key, item.value, true);
+          accessor.set(object, item.key, item.value, isDefault: true);
         }
       }
     }
@@ -126,8 +126,9 @@ class RealmPropertyMetadata {
 
 class RealmCoreAccessor implements RealmAccessor {
   final RealmObjectMetadata metadata;
+  final bool isInMigration;
 
-  RealmCoreAccessor(this.metadata);
+  RealmCoreAccessor(this.metadata, this.isInMigration);
 
   @override
   Object? get<T extends Object>(RealmObject object, String name) {
@@ -153,7 +154,7 @@ class RealmCoreAccessor implements RealmAccessor {
   }
 
   @override
-  void set(RealmObject object, String name, Object? value, [bool isDefault = false]) {
+  void set(RealmObject object, String name, Object? value, {bool isDefault = false, isPrimaryKey = false}) {
     final propertyMeta = metadata[name];
     try {
       if (value is List) {
@@ -172,6 +173,13 @@ class RealmCoreAccessor implements RealmAccessor {
       //If value is RealmObject - manage it
       if (value is RealmObject && !value.isManaged) {
         object.realm.add(value);
+      }
+
+      if (isPrimaryKey && !isInMigration) {
+        final currentValue = realmCore.getProperty(object, propertyMeta.key);
+        if (currentValue != value) {
+          throw RealmException("Primary key cannot be changed");
+        }
       }
 
       realmCore.setProperty(object, propertyMeta.key, value, isDefault);
@@ -218,6 +226,10 @@ mixin RealmObject on RealmEntity {
   /// @nodoc
   static void set<T extends Object>(RealmObject object, String name, T? value) {
     object._accessor.set(object, name, value);
+  }
+
+  static void setUnique<T extends Object>(RealmObject object, String name, T? value) {
+    object._accessor.set(object, name, value, isPrimaryKey: true);
   }
 
   /// @nodoc

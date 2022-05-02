@@ -37,7 +37,7 @@ extension on Iterable<FieldElement> {
     for (final f in this) {
       final info = f.realmInfo;
       if (info == null) continue;
-      if (info.primaryKey) {
+      if (info.isPrimaryKey) {
         primaryKeys.add(info);
       }
       yield info;

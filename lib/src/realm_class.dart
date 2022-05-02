@@ -63,6 +63,8 @@ class Realm {
   late final RealmHandle _handle;
   late final Scheduler _scheduler;
 
+  final bool _isInMigration;
+
   /// An object encompassing this `Realm` instance's dynamic API.
   late final DynamicRealm dynamic = DynamicRealm._(this);
 
@@ -75,7 +77,9 @@ class Realm {
   late final RealmSchema schema;
 
   /// Opens a `Realm` using a [Configuration] object.
-  Realm(Configuration config) : _config = config {
+  Realm(Configuration config)
+      : _config = config,
+        _isInMigration = false {
     _scheduler = Scheduler(close);
 
     try {
@@ -87,8 +91,7 @@ class Realm {
     }
   }
 
-  Realm._unowned(Configuration config, RealmHandle handle) : _config = config {
-    _handle = handle;
+  Realm._unowned(this._config, this._handle, this._isInMigration) {
     _populateMetadata();
   }
 
@@ -143,7 +146,7 @@ class Realm {
         ? realmCore.createRealmObject(this, metadata.tableKey)
         : realmCore.createRealmObjectWithPrimaryKey(this, metadata.tableKey, object.accessor.get(object, metadata.primaryKey!)!);
 
-    final accessor = RealmCoreAccessor(metadata);
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
     object.manage(this, handle, accessor);
 
     return object;
@@ -224,7 +227,7 @@ class Realm {
       return null;
     }
 
-    final accessor = RealmCoreAccessor(metadata);
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
     var object = RealmObjectInternal.create(T, this, handle, accessor);
     return object as T;
   }
@@ -320,12 +323,12 @@ extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
   Scheduler get scheduler => _scheduler;
 
-  static Realm getUnowned(Configuration config, RealmHandle handle) {
-    return Realm._unowned(config, handle);
+  static Realm getUnowned(Configuration config, RealmHandle handle, bool isInMigration) {
+    return Realm._unowned(config, handle, isInMigration);
   }
 
   RealmObject createObject(Type type, RealmObjectHandle handle, RealmObjectMetadata metadata) {
-    final accessor = RealmCoreAccessor(metadata);
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
     return RealmObjectInternal.create(type, this, handle, accessor);
   }
 
@@ -440,7 +443,7 @@ class DynamicRealm {
       return null;
     }
 
-    final accessor = RealmCoreAccessor(metadata);
+    final accessor = RealmCoreAccessor(metadata, _realm._isInMigration);
     return RealmObjectInternal.create(RealmObject, _realm, handle, accessor);
   }
 }

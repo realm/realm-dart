@@ -191,7 +191,7 @@ class _RealmCore {
       if (config == null) {
         return FALSE;
       }
-      final realm = RealmInternal.getUnowned(config, RealmHandle._unowned(realmHandle));
+      final realm = RealmInternal.getUnowned(config, RealmHandle._unowned(realmHandle), false);
       config.initialDataCallback!(realm);
       return TRUE;
     } catch (ex) {
@@ -211,9 +211,9 @@ class _RealmCore {
 
       final oldSchemaVersion = _realmLib.realm_get_schema_version(oldRealmHandle);
       final oldConfig = Configuration([], path: config.path, isReadOnly: true, schemaVersion: oldSchemaVersion);
-      final oldRealm = RealmInternal.getUnowned(oldConfig, RealmHandle._unowned(oldRealmHandle));
+      final oldRealm = RealmInternal.getUnowned(oldConfig, RealmHandle._unowned(oldRealmHandle), true);
 
-      final newRealm = RealmInternal.getUnowned(config, RealmHandle._unowned(newRealmHandle));
+      final newRealm = RealmInternal.getUnowned(config, RealmHandle._unowned(newRealmHandle), true);
 
       final migration = MigrationInternal.create(oldRealm, newRealm);
       config.migrationCallback!(migration, oldSchemaVersion);
