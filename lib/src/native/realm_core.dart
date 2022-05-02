@@ -1130,9 +1130,11 @@ class LastError {
 abstract class StandaloneHandle<T extends NativeType> {
   final Pointer<T> _pointer;
   late final Dart_FinalizableHandle _finalizableHandle;
-  bool _released = false;
+  bool _isReleased = false;
 
   bool get isUnowned => _finalizableHandle == nullptr;
+
+  bool get isReleased => _isReleased;
 
   StandaloneHandle(this._pointer, int size) {
     _finalizableHandle = _realmLib.realm_attach_finalizer(this, _pointer.cast(), size);
@@ -1149,7 +1151,7 @@ abstract class StandaloneHandle<T extends NativeType> {
   String toString() => "${_pointer.toString()} value=${_pointer.cast<IntPtr>().value}";
 
   void _releaseCore() {
-    if (_released) {
+    if (_isReleased) {
       return;
     }
 
@@ -1160,7 +1162,7 @@ abstract class StandaloneHandle<T extends NativeType> {
       _realmLib.realm_release(_pointer.cast());
     }
 
-    _released = true;
+    _isReleased = true;
   }
 
   void release() {

@@ -208,13 +208,18 @@ class Realm {
   /// All [RealmObject]s and `Realm ` collections are invalidated and can not be used.
   /// This method will not throw if called multiple times.
   void close() {
+    if (isClosed) {
+      return;
+    }
+
     realmCore.closeRealm(this);
     handle.release();
-    scheduler.stop();
+
+    _scheduler.stop();
   }
 
   /// Checks whether the `Realm` is closed.
-  bool get isClosed => realmCore.isRealmClosed(this);
+  bool get isClosed => _handle.isReleased || realmCore.isRealmClosed(this);
 
   /// Fast lookup for a [RealmObject] with the specified [primaryKey].
   T? find<T extends RealmObject>(Object primaryKey) {
@@ -292,11 +297,10 @@ class Scheduler {
   }
 
   void stop() {
-    if (released) {
+    if (handle.isReleased) {
       return;
     }
 
-    released = true;
     receivePort.close();
     handle.release();
   }
@@ -332,7 +336,14 @@ class Transaction {
 
 /// @nodoc
 extension RealmInternal on Realm {
-  RealmHandle get handle => _handle;
+  RealmHandle get handle {
+    if (_handle.isReleased) {
+      throw RealmException('Cannot access realm that has been closed');
+    }
+
+    return _handle;
+  }
+
   Scheduler get scheduler => _scheduler;
 
   static Realm getUnowned(Configuration config, RealmHandle handle) {
