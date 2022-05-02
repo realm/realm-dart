@@ -210,20 +210,24 @@ class _RealmCore {
         )));
   }
 
-  SubscriptionHandle findSubscriptionByName(SubscriptionSet subscriptions, String name) {
+  SubscriptionHandle? findSubscriptionByName(SubscriptionSet subscriptions, String name) {
     return using((arena) {
-      return SubscriptionHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_find_subscription_by_name(
+      return _realmLib
+          .realm_sync_find_subscription_by_name(
             subscriptions.handle._pointer,
             name.toUtf8Ptr(arena),
-          )));
+          )
+          .convert(SubscriptionHandle._);
     });
   }
 
-  SubscriptionHandle findSubscriptionByQuery(SubscriptionSet subscriptions, RealmResults query) {
-    return SubscriptionHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_find_subscription_by_query(
+  SubscriptionHandle? findSubscriptionByQuery(SubscriptionSet subscriptions, RealmResults query) {
+    return _realmLib
+        .realm_sync_find_subscription_by_query(
           subscriptions.handle._pointer,
           query.queryHandle._pointer,
-        )));
+        )
+        .convert(SubscriptionHandle._);
   }
 
   static void _stateChangeCallback(Pointer<Void> userdata, int state) {
@@ -259,6 +263,7 @@ class _RealmCore {
   }
 
   int subscriptionSetState(SubscriptionSet subscriptions) {
+    refreshSubscriptionSet(subscriptions);
     return _realmLib.realm_sync_subscription_set_state(subscriptions.handle._pointer);
   }
 
@@ -305,7 +310,7 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_clear(subscriptions.mutableHandle._pointer));
   }
 
-  void refreshSubscriptionSet(MutableSubscriptionSet subscriptions) {
+  void refreshSubscriptionSet(SubscriptionSet subscriptions) {
     _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_refresh(subscriptions.handle._pointer));
   }
 
@@ -1643,6 +1648,13 @@ extension on Object {
 
   Pointer<Void> toPersistentHandle() {
     return _realmLib.object_to_persistent_handle(this);
+  }
+}
+
+extension<T extends NativeType> on Pointer<T> {
+  U? convert<U>(U Function(Pointer<T>) converter) {
+    if (this == nullptr) return null;
+    return converter(this);
   }
 }
 

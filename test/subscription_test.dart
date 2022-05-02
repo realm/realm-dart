@@ -53,8 +53,10 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.subscriptions, throws<RealmError>());
   });
 
-  testSubscriptions('SubscriptionSet.state', (realm) {
-    expect(realm.subscriptions.state, SubscriptionSetState.uncommitted);
+  testSubscriptions('SubscriptionSet.state', (realm) async {
+    final subscriptions = realm.subscriptions;
+    await subscriptions.waitForStateChange(SubscriptionSetState.complete);
+    expect(subscriptions.state, SubscriptionSetState.complete);
   });
 
   testSubscriptions('SubscriptionSet.version', (realm) async {
@@ -74,6 +76,82 @@ Future<void> main([List<String>? args]) async {
 
     expect(subscriptions.length, 0);
     expect(subscriptions.version, 2);
+  });
+
+  testSubscriptions('SubscriptionSet.add', (realm) {
+    final subscriptions = realm.subscriptions;
+    final query = realm.all<Task>();
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.addOrUpdate(query);
+    });
+    expect(subscriptions, isNotEmpty);
+    expect(subscriptions.find(query), isNotNull);
+  });
+
+  testSubscriptions('SubscriptionSet.add (named)', (realm) {
+    final subscriptions = realm.subscriptions;
+
+    const name = 'some name';
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.addOrUpdate(realm.all<Task>(), name: name);
+    });
+    expect(subscriptions, isNotEmpty);
+    expect(subscriptions.findByName(name), isNotNull);
+  });
+
+  testSubscriptions('SubscriptionSet.find', (realm) {
+    final subscriptions = realm.subscriptions;
+    final query = realm.all<Task>();
+
+    expect(subscriptions.find(query), isNull);
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.addOrUpdate(query);
+    });
+    expect(subscriptions.find(query), isNotNull);
+  });
+
+  testSubscriptions('SubscriptionSet.find (named)', (realm) {
+    final subscriptions = realm.subscriptions;
+
+    const name = 'some name';
+    expect(subscriptions.findByName(name), isNull);
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.addOrUpdate(realm.all<Task>(), name: name);
+    });
+    expect(subscriptions.findByName(name), isNotNull);
+  });
+
+  testSubscriptions('SubscriptionSet.remove', (realm) {
+    final subscriptions = realm.subscriptions;
+    final query = realm.all<Task>();
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.addOrUpdate(query);
+    });
+    expect(subscriptions, isNotEmpty);
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.remove(query);
+    });
+    expect(subscriptions, isEmpty);
+  });
+
+  testSubscriptions('SubscriptionSet.remove (named)', (realm) {
+    final subscriptions = realm.subscriptions;
+
+    const name = 'some name';
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.addOrUpdate(realm.all<Task>(), name: name);
+    });
+    expect(subscriptions, isNotEmpty);
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.removeByName(name);
+    });
+    expect(subscriptions, isEmpty);
   });
 
   testSubscriptions('Get subscriptions', (realm) async {
