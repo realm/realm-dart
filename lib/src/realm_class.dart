@@ -215,7 +215,10 @@ class Realm {
     realmCore.closeRealm(this);
     handle.release();
 
-    _scheduler.stop();
+    if (!_handle.isUnowned) {
+      // Don't stop the scheduler for Realms we didn't create
+      _scheduler.stop();
+    }
   }
 
   /// Checks whether the `Realm` is closed.
@@ -380,7 +383,7 @@ abstract class NotificationsController {
   RealmNotificationTokenHandle? handle;
 
   RealmNotificationTokenHandle subscribe();
-  void onChanges(StandaloneHandle changesHandle);
+  void onChanges(Handle changesHandle);
   void onError(RealmError error);
 
   void start() {

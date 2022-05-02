@@ -182,20 +182,22 @@ class _RealmCore {
     });
   }
 
-  static int initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmHandle) {
+  static int initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmPtr) {
     final Configuration? config = userdata.toObject();
     if (config == null) {
       return FALSE;
     }
-    final realm = RealmInternal.getUnowned(config, RealmHandle._unowned(realmHandle));
+
+    final realmHandle = RealmHandle._unowned(realmPtr);
     try {
+      final realm = RealmInternal.getUnowned(config, realmHandle);
       config.initialDataCallback!(realm);
       return TRUE;
     } catch (ex) {
       print(ex);
       // TODO: this should propagate the error to Core: https://github.com/realm/realm-core/issues/5366
     } finally {
-      realm.handle.release();
+      realmHandle.release();
     }
 
     return FALSE;
@@ -373,19 +375,21 @@ class _RealmCore {
       for (var i = 0; i < length; ++i) {
         _intoRealmValue(args[i], argsPointer.elementAt(i), arena);
       }
-      final queryHandle = RealmQueryHandle._(
-          _realmLib.invokeGetPointer(
-            () => _realmLib.realm_query_parse(
-              realm.handle._pointer,
-              classKey,
-              query.toUtf8Ptr(arena),
-              length,
-              argsPointer,
-            ),
-          ),
-          realm.handle);
-      final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_query_find_all(queryHandle._pointer));
-      return RealmResultsHandle._(resultsPointer, realm.handle);
+      final queryPtr = _realmLib.invokeGetPointer(
+        () => _realmLib.realm_query_parse(
+          realm.handle._pointer,
+          classKey,
+          query.toUtf8Ptr(arena),
+          length,
+          argsPointer,
+        ),
+      );
+      try {
+        final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_query_find_all(queryPtr));
+        return RealmResultsHandle._(resultsPointer, realm.handle);
+      } finally {
+        _realmLib.realm_release(queryPtr.cast());
+      }
     });
   }
 
@@ -396,18 +400,22 @@ class _RealmCore {
       for (var i = 0; i < length; ++i) {
         _intoRealmValue(args[i], argsPointer.elementAt(i), arena);
       }
-      final queryHandle = RealmQueryHandle._(
-          _realmLib.invokeGetPointer(
-            () => _realmLib.realm_query_parse_for_results(
-              target.handle._pointer,
-              query.toUtf8Ptr(arena),
-              length,
-              argsPointer,
-            ),
-          ),
-          target.realm.handle);
-      final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_query_find_all(queryHandle._pointer));
-      return RealmResultsHandle._(resultsPointer, target.realm.handle);
+
+      final queryPtr = _realmLib.invokeGetPointer(
+        () => _realmLib.realm_query_parse_for_results(
+          target.handle._pointer,
+          query.toUtf8Ptr(arena),
+          length,
+          argsPointer,
+        ),
+      );
+
+      try {
+        final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_query_find_all(queryPtr));
+        return RealmResultsHandle._(resultsPointer, target.realm.handle);
+      } finally {
+        _realmLib.realm_release(queryPtr.cast());
+      }
     });
   }
 
@@ -418,18 +426,21 @@ class _RealmCore {
       for (var i = 0; i < length; ++i) {
         _intoRealmValue(args[i], argsPointer.elementAt(i), arena);
       }
-      final queryHandle = RealmQueryHandle._(
-          _realmLib.invokeGetPointer(
-            () => _realmLib.realm_query_parse_for_list(
-              target.handle._pointer,
-              query.toUtf8Ptr(arena),
-              length,
-              argsPointer,
-            ),
-          ),
-          target.realm.handle);
-      final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_query_find_all(queryHandle._pointer));
-      return RealmResultsHandle._(resultsPointer, target.realm.handle);
+
+      final queryPtr = _realmLib.invokeGetPointer(
+        () => _realmLib.realm_query_parse_for_list(
+          target.handle._pointer,
+          query.toUtf8Ptr(arena),
+          length,
+          argsPointer,
+        ),
+      );
+      try {
+        final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_query_find_all(queryPtr));
+        return RealmResultsHandle._(resultsPointer, target.realm.handle);
+      } finally {
+        _realmLib.realm_release(queryPtr.cast());
+      }
     });
   }
 
@@ -554,7 +565,7 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(list.handle._pointer));
   }
 
-  bool _equals<T extends NativeType>(StandaloneHandle<T> first, StandaloneHandle<T> second) {
+  bool _equals<T extends NativeType>(Handle<T> first, Handle<T> second) {
     return _realmLib.realm_equals(first._pointer.cast(), second._pointer.cast());
   }
 
@@ -1127,7 +1138,7 @@ class LastError {
   }
 }
 
-abstract class StandaloneHandle<T extends NativeType> {
+abstract class Handle<T extends NativeType> {
   final Pointer<T> _pointer;
   late final Dart_FinalizableHandle _finalizableHandle;
   bool _isReleased = false;
@@ -1136,14 +1147,14 @@ abstract class StandaloneHandle<T extends NativeType> {
 
   bool get isReleased => _isReleased;
 
-  StandaloneHandle(this._pointer, int size) {
+  Handle(this._pointer, int size) {
     _finalizableHandle = _realmLib.realm_attach_finalizer(this, _pointer.cast(), size);
     if (_finalizableHandle == nullptr) {
       throw Exception("Error creating $runtimeType");
     }
   }
 
-  StandaloneHandle.unowned(this._pointer) {
+  Handle.unowned(this._pointer) {
     _finalizableHandle = nullptr;
   }
 
@@ -1170,10 +1181,10 @@ abstract class StandaloneHandle<T extends NativeType> {
   }
 }
 
-abstract class Handle<T extends NativeType> extends StandaloneHandle<T> {
+abstract class OwnableHandle<T extends NativeType> extends Handle<T> {
   final RealmHandle? _root;
 
-  Handle(Pointer<T> pointer, int size, {RealmHandle? root})
+  OwnableHandle(Pointer<T> pointer, int size, {RealmHandle? root})
       : _root = root,
         super(pointer, size) {
     _root?.addChild(this);
@@ -1189,27 +1200,27 @@ abstract class Handle<T extends NativeType> extends StandaloneHandle<T> {
   }
 }
 
-class SchemaHandle extends StandaloneHandle<realm_schema> {
+class SchemaHandle extends Handle<realm_schema> {
   SchemaHandle._(Pointer<realm_schema> pointer) : super(pointer, 24);
 }
 
-class ConfigHandle extends StandaloneHandle<realm_config> {
+class ConfigHandle extends Handle<realm_config> {
   ConfigHandle._(Pointer<realm_config> pointer) : super(pointer, 512);
 }
 
-class RealmHandle extends StandaloneHandle<shared_realm> {
+class RealmHandle extends Handle<shared_realm> {
   // TODO: this should become WeakReferences when we upgrade to 2.17
-  final List<Handle<NativeType>> _children = [];
+  final List<OwnableHandle<NativeType>> _children = [];
 
   RealmHandle._(Pointer<shared_realm> pointer) : super(pointer, 24);
 
   RealmHandle._unowned(Pointer<shared_realm> pointer) : super.unowned(pointer);
 
-  void addChild<T extends NativeType>(Handle<T> child) {
+  void addChild<T extends NativeType>(OwnableHandle<T> child) {
     _children.add(child);
   }
 
-  void removeChild<T extends NativeType>(Handle<T> child) {
+  void removeChild<T extends NativeType>(OwnableHandle<T> child) {
     _children.remove(child);
   }
 
@@ -1224,11 +1235,11 @@ class RealmHandle extends StandaloneHandle<shared_realm> {
   }
 }
 
-class SchedulerHandle extends StandaloneHandle<realm_scheduler> {
+class SchedulerHandle extends Handle<realm_scheduler> {
   SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer, 24);
 }
 
-class RealmObjectHandle extends Handle<realm_object> {
+class RealmObjectHandle extends OwnableHandle<realm_object> {
   RealmObjectHandle._(Pointer<realm_object> pointer, RealmHandle root) : super(pointer, 112, root: root.getIfUnowned());
 }
 
@@ -1240,51 +1251,51 @@ class RealmLinkHandle {
         classKey = link.target_table;
 }
 
-class RealmResultsHandle extends Handle<realm_results> {
+class RealmResultsHandle extends OwnableHandle<realm_results> {
   RealmResultsHandle._(Pointer<realm_results> pointer, RealmHandle root) : super(pointer, 872, root: root.getIfUnowned());
 }
 
-class RealmListHandle extends Handle<realm_list> {
+class RealmListHandle extends OwnableHandle<realm_list> {
   RealmListHandle._(Pointer<realm_list> pointer, RealmHandle root) : super(pointer, 88, root: root.getIfUnowned());
 }
 
-class RealmQueryHandle extends Handle<realm_query> {
+class RealmQueryHandle extends OwnableHandle<realm_query> {
   RealmQueryHandle._(Pointer<realm_query> pointer, RealmHandle root) : super(pointer, 256, root: root.getIfUnowned());
 }
 
-class RealmNotificationTokenHandle extends Handle<realm_notification_token> {
+class RealmNotificationTokenHandle extends OwnableHandle<realm_notification_token> {
   RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer, RealmHandle root) : super(pointer, 32, root: root.getIfUnowned());
 }
 
-class RealmCollectionChangesHandle extends StandaloneHandle<realm_collection_changes> {
+class RealmCollectionChangesHandle extends Handle<realm_collection_changes> {
   RealmCollectionChangesHandle._(Pointer<realm_collection_changes> pointer) : super(pointer, 256);
 }
 
-class RealmObjectChangesHandle extends StandaloneHandle<realm_object_changes> {
+class RealmObjectChangesHandle extends Handle<realm_object_changes> {
   RealmObjectChangesHandle._(Pointer<realm_object_changes> pointer) : super(pointer, 256);
 }
 
-class RealmAppCredentialsHandle extends StandaloneHandle<realm_app_credentials> {
+class RealmAppCredentialsHandle extends Handle<realm_app_credentials> {
   RealmAppCredentialsHandle._(Pointer<realm_app_credentials> pointer) : super(pointer, 16);
 }
 
-class RealmHttpTransportHandle extends StandaloneHandle<realm_http_transport> {
+class RealmHttpTransportHandle extends Handle<realm_http_transport> {
   RealmHttpTransportHandle._(Pointer<realm_http_transport> pointer) : super(pointer, 24);
 }
 
-class AppConfigHandle extends StandaloneHandle<realm_app_config> {
+class AppConfigHandle extends Handle<realm_app_config> {
   AppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 8);
 }
 
-class SyncClientConfigHandle extends StandaloneHandle<realm_sync_client_config> {
+class SyncClientConfigHandle extends Handle<realm_sync_client_config> {
   SyncClientConfigHandle._(Pointer<realm_sync_client_config> pointer) : super(pointer, 8);
 }
 
-class AppHandle extends StandaloneHandle<realm_app> {
+class AppHandle extends Handle<realm_app> {
   AppHandle._(Pointer<realm_app> pointer) : super(pointer, 16);
 }
 
-class UserHandle extends StandaloneHandle<realm_user> {
+class UserHandle extends Handle<realm_user> {
   UserHandle._(Pointer<realm_user> pointer) : super(pointer, 24);
 }
 

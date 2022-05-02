@@ -199,7 +199,7 @@ class ListNotificationsController<T extends Object> extends NotificationsControl
   }
 
   @override
-  void onChanges(StandaloneHandle changesHandle) {
+  void onChanges(Handle changesHandle) {
     if (changesHandle is! RealmCollectionChangesHandle) {
       throw RealmError("Invalid changes handle. RealmCollectionChangesHandle expected");
     }

@@ -114,7 +114,7 @@ class ResultsNotificationsController<T extends RealmObject> extends Notification
   }
 
   @override
-  void onChanges(StandaloneHandle changesHandle) {
+  void onChanges(Handle changesHandle) {
     if (changesHandle is! RealmCollectionChangesHandle) {
       throw RealmError("Invalid changes handle. RealmCollectionChangesHandle expected");
     }
