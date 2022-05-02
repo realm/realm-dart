@@ -18,9 +18,9 @@
 
 import 'dart:collection';
 
-import 'realm_class.dart';
-
 import 'native/realm_core.dart';
+import 'realm_class.dart';
+import 'util.dart';
 
 class Subscription {
   final SubscriptionHandle _handle;
@@ -57,11 +57,11 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
   SubscriptionSet._(this._realm, this._handle);
 
   Subscription? find<T extends RealmObject>(RealmResults<T> query) {
-    return Subscription._(realmCore.findSubscriptionByQuery(this, query));
+    return realmCore.findSubscriptionByQuery(this, query).convert(Subscription._);
   }
 
   Subscription? findByName(String name) {
-    return Subscription._(realmCore.findSubscriptionByName(this, name));
+    return realmCore.findSubscriptionByName(this, name).convert(Subscription._);
   }
 
   Future<SubscriptionSetState> waitForStateChange(SubscriptionSetState state) async {
@@ -75,6 +75,8 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
   Subscription elementAt(int index) {
     return Subscription._(realmCore.subscriptionAt(this, index));
   }
+
+  Subscription operator[](int index) => elementAt(index);
 
   @override
   _SubscriptionIterator get iterator => _SubscriptionIterator._(this);
