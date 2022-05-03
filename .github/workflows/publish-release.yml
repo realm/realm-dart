@@ -76,6 +76,13 @@ jobs:
         replace: "  realm_$1: ${{ steps.get-version.outputs.version }}"
         include: release/**/pubspec.yaml
 
+    - name: Remove pubspec.yaml/publish_to:none
+      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
+      with:
+        find: "publish_to: none"
+        replace: ""
+        include: release/**/pubspec.yaml
+
     - name: Package common
       run: |
         cp -Lr ../../common .
@@ -112,7 +119,7 @@ jobs:
       run: |
         mkdir realm_dart
         cp -Lr ../../bin ../../example ../../lib ../../test realm_dart
-        cp ../../* realm_dart
+        rsync -vt ../../* realm_dart/
         cd realm_dart
         dart pub publish --dry-run || true
       working-directory: release/${{ steps.archive-binaries.outputs.folder }}
