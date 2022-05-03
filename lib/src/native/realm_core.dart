@@ -79,10 +79,7 @@ class _RealmCore {
       return null;
     }
 
-    String? message;
-    if (error.ref.message != nullptr) {
-      message = error.ref.message.cast<Utf8>().toRealmDartString();
-    }
+    final message = error.ref.message.cast<Utf8>().toRealmDartString();
 
     return LastError(error.ref.error, message);
   }
