@@ -37,3 +37,4 @@ flutter/realm_flutter/.gradle/
 # Ignore example pubspec.lock since the example always reference the local package
 example/pubspec.lock
 /generator/coverage/
+release/
