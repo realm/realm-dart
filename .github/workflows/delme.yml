@@ -1,4 +1,4 @@
-name: Realm Dart CI
+name: Delme
 
 on:
   pull_request:
@@ -16,9 +16,9 @@ jobs:
       - name: Update pubspec.yaml
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
-          find: '  realm_(common|generator):\n    path:.*'
+          find: '  realm_(common|generator):(\n|\r\n)    path:.*'
           replace: '  realm_$1: 1.2.3'
-          include: '**/pubspec.yaml'
+          include: 'pubspec.yaml'
 
       - name: Output generator.yaml
         run: |
