@@ -70,7 +70,7 @@ class _RealmCore {
     return _instance ??= _RealmCore._();
   }
 
-  String get libraryVersion => _realmLib.realm_get_library_version().cast<Utf8>().toDartString();
+  String get libraryVersion => '0.2.1+alpha';
 
   LastError? getLastError(Allocator allocator) {
     final error = allocator<realm_error_t>();
@@ -1092,7 +1092,7 @@ class _RealmCore {
         "Remove user failed");
     return completer.future;
   }
-  
+
   void switchUser(App application, User user) {
     return using((arena) {
       _realmLib.invokeGetBool(
