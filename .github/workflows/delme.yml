@@ -1,0 +1,25 @@
+name: Realm Dart CI
+
+on:
+  pull_request:
+
+jobs:
+  test-job:
+    runs-on: ubuntu-latest
+    name: Regex test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: false
+
+      - name: Update pubspec.yaml
+        uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
+        with:
+          find: '  realm_common:\n.*'
+          replace: '  realm_common: "1.2.3"'
+          include: '**/pubspec.yaml'
+
+      - name: Output generator.yaml
+        run: |
+          cat generator/pubspec.yaml

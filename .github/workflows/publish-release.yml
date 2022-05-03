@@ -42,9 +42,10 @@ jobs:
         path: ${{ github.workspace }}/binary/
         workflow_conclusion: completed
 
-    # This is necessary because action-download-artifact will put things in a folder named the same
+    # The rename is necessary because action-download-artifact will put things in a folder named the same
     # as the artifact name - i.e. librealm-linux, etc.
     - name: Archive binaries
+      id: archive-binaries
       run: |
         for directory in binary/*; do
           targetDir="binary/${directory#*-}"
@@ -52,9 +53,6 @@ jobs:
           dart run realm_dart archive --source-dir "${{ github.workspace }}/$targetDir"
         done
 
-    - name: Prepare binaries for upload
-      id: prepare-binaries
-      run: |
         targetFolder="${{ inputs.environment == 'public' && steps.get-version.outputs.version || github.sha }}"
         mkdir -p release/$targetFolder
         mv binary/*.tar.gz release/$targetFolder
@@ -69,28 +67,28 @@ jobs:
 
     # - name: Upload binaries
     #   run: |
-    #     aws s3 sync --acl public-read "${{ github.workspace }}/release/${{ steps.prepare-binaries.outputs.folder }}" s3://static.realm.io/downloads/dart/${{ steps.prepare-binaries.outputs.folder }}
+    #     aws s3 sync --acl public-read "${{ github.workspace }}/release/${{ steps.archive-binaries.outputs.folder }}" s3://static.realm.io/downloads/dart/${{ steps.archive-binaries.outputs.folder }}
 
     - name: Package common
       run: |
         cp -Lr ../../common .
         cd common
         dart pub publish --dry-run
-      working-directory: release/${{ steps.prepare-binaries.outputs.folder }}
+      working-directory: release/${{ steps.archive-binaries.outputs.folder }}
 
     - name: Package generator
       run: |
         cp -Lr ../../generator .
         cd generator
         dart pub publish --dry-run
-      working-directory: release/${{ steps.prepare-binaries.outputs.folder }}
+      working-directory: release/${{ steps.archive-binaries.outputs.folder }}
 
     - name: Package realm_flutter
       run: |
         cp -Lr ../../flutter/realm_flutter .
         cd realm_flutter
         dart pub publish --dry-run
-      working-directory: release/${{ steps.prepare-binaries.outputs.folder }}
+      working-directory: release/${{ steps.archive-binaries.outputs.folder }}
 
     - name: Package realm_dart
       run: |
@@ -99,13 +97,13 @@ jobs:
         cp ../../* realm_dart
         cd realm_dart
         dart pub publish --dry-run
-      working-directory: release/${{ steps.prepare-binaries.outputs.folder }}
+      working-directory: release/${{ steps.archive-binaries.outputs.folder }}
 
     - name: Archive packages
       uses: actions/upload-artifact@v2
       with:
         name: packages
-        path: release/${{ steps.prepare-binaries.outputs.folder }}/**
+        path: release/${{ steps.archive-binaries.outputs.folder }}/**
         retention-days: 30
 
     # - name: Configure AWS Credentials
@@ -139,7 +137,7 @@ jobs:
     - name: Publish Github Release
       uses: ncipollo/release-action@10c84d509b28aae3903113151bfd832314964f2e
       with:
-        artifacts: release/${{ steps.prepare-binaries.outputs.folder }}/*.tar.gz
+        artifacts: release/${{ steps.archive-binaries.outputs.folder }}/*.tar.gz
         body: 'Update release notes'
         # bodyFile: Realm/packages/ExtractedChangelog/ExtractedChangelog.md
         name: ${{ steps.get-version.outputs.version }}
