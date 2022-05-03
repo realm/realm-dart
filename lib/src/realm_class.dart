@@ -330,7 +330,7 @@ extension RealmInternal on Realm {
   }
 
   RealmList<T> createList<T extends Object?>(RealmListHandle handle, RealmObjectMetadata? metadata) {
-    return RealmListInternal.create(handle, this, metadata);
+    return RealmListInternal.create<T>(handle, this, metadata);
   }
 
   List<String> getPropertyNames(Type type, List<int> propertyKeys) {

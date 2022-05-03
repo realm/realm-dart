@@ -17,10 +17,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
+import 'dart:mirrors';
 
 import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
+
+typedef DartDynamic = dynamic;
 
 abstract class RealmAccessor {
   Object? get<T extends Object?>(RealmObject object, String name);
@@ -136,6 +139,10 @@ class RealmCoreAccessor implements RealmAccessor {
       if (propertyMeta.collectionType == RealmCollectionType.list) {
         final handle = realmCore.getListProperty(object, propertyMeta.key);
         final listMeta = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
+        if (listMeta != null && _isTypeGenericObject<T>()) {
+          return object.realm.createList<RealmObject>(handle, listMeta);
+        }
+
         return object.realm.createList<T>(handle, listMeta);
       }
 
@@ -143,6 +150,10 @@ class RealmCoreAccessor implements RealmAccessor {
 
       if (value is RealmObjectHandle) {
         final targetMetadata = propertyMeta.objectType != null ? object.realm.metadata.getByName(propertyMeta.objectType!) : object.realm.metadata.getByType(T);
+        if (_isTypeGenericObject<T>()) {
+          return object.realm.createObject(RealmObject, value, targetMetadata);
+        }
+
         return object.realm.createObject(T, value, targetMetadata);
       }
 
@@ -274,6 +285,16 @@ mixin RealmObject on RealmEntity {
     return controller.createStream();
   }
 
+  @override
+  DartDynamic noSuchMethod(Invocation invocation) {
+    if (invocation.isGetter) {
+      final name = MirrorSystem.getName(invocation.memberName);
+      return get(this, name);
+    }
+
+    return super.noSuchMethod(invocation);
+  }
+
   late final DynamicRealmObject dynamic = DynamicRealmObject._(this);
 }
 
@@ -383,28 +404,20 @@ class ConcreteRealmObject with RealmEntity, RealmObject {
 
 Type _typeOf<T>() => T;
 
+bool _isTypeGenericObject<T>() => T == Object || T == _typeOf<Object?>();
+
 class DynamicRealmObject {
   final RealmObject _obj;
 
   DynamicRealmObject._(this._obj);
 
   T get<T extends Object?>(String name) {
-    final prop = _validatePropertyType<T>(name, RealmCollectionType.none);
-    // If the user didn't provide a type argument, but the target is object, we should
-    // use RealmObject, otherwise we won't be able to find a Factory for the object.
-    if (T == _typeOf<Object?>() && prop?.propertyType == RealmPropertyType.object) {
-      return RealmObject.get<RealmObject>(_obj, name) as T;
-    }
-
+    _validatePropertyType<T>(name, RealmCollectionType.none);
     return RealmObject.get<T>(_obj, name) as T;
   }
 
-  List<T> getList<T extends Object>(String name) {
-    final prop = _validatePropertyType<T>(name, RealmCollectionType.list);
-    if (T == _typeOf<Object?>() && prop?.propertyType == RealmPropertyType.object) {
-      return RealmObject.get<RealmObject>(_obj, name) as List<T>;
-    }
-
+  List<T> getList<T extends Object?>(String name) {
+    _validatePropertyType<T>(name, RealmCollectionType.list);
     return RealmObject.get<T>(_obj, name) as List<T>;
   }
 

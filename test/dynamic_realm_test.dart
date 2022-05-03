@@ -96,7 +96,6 @@ Future<void> main([List<String>? args]) async {
   void _validateDynamic(RealmObject actual, AllTypes expected) {
     expect(actual.dynamic.get<String>('stringProp'), expected.stringProp);
     expect(actual.dynamic.get('stringProp'), expected.stringProp);
-
     expect(actual.dynamic.get<String?>('nullableStringProp'), expected.nullableStringProp);
     expect(actual.dynamic.get('nullableStringProp'), expected.nullableStringProp);
 
@@ -129,6 +128,22 @@ Future<void> main([List<String>? args]) async {
     expect(actual.dynamic.get('intProp'), expected.intProp);
     expect(actual.dynamic.get<int?>('nullableIntProp'), expected.nullableIntProp);
     expect(actual.dynamic.get('nullableIntProp'), expected.nullableIntProp);
+
+    dynamic actualDynamic = actual;
+    expect(actualDynamic.stringProp, expected.stringProp);
+    expect(actualDynamic.nullableStringProp, expected.nullableStringProp);
+    expect(actualDynamic.boolProp, expected.boolProp);
+    expect(actualDynamic.nullableBoolProp, expected.nullableBoolProp);
+    expect(actualDynamic.dateProp, expected.dateProp);
+    expect(actualDynamic.nullableDateProp, expected.nullableDateProp);
+    expect(actualDynamic.doubleProp, expected.doubleProp);
+    expect(actualDynamic.nullableDoubleProp, expected.nullableDoubleProp);
+    expect(actualDynamic.objectIdProp, expected.objectIdProp);
+    expect(actualDynamic.nullableObjectIdProp, expected.nullableObjectIdProp);
+    expect(actualDynamic.uuidProp, expected.uuidProp);
+    expect(actualDynamic.nullableUuidProp, expected.nullableUuidProp);
+    expect(actualDynamic.intProp, expected.intProp);
+    expect(actualDynamic.nullableIntProp, expected.nullableIntProp);
   }
 
   void _validateDynamicLists(RealmObject actual, AllCollections expected) {
@@ -152,6 +167,15 @@ Future<void> main([List<String>? args]) async {
 
     expect(actual.dynamic.getList<int>('ints'), expected.ints);
     expect(actual.dynamic.getList('ints'), expected.ints);
+
+    dynamic actualDynamic = actual;
+    expect(actualDynamic.strings, expected.strings);
+    expect(actualDynamic.bools, expected.bools);
+    expect(actualDynamic.dates, expected.dates);
+    expect(actualDynamic.doubles, expected.doubles);
+    expect(actualDynamic.objectIds, expected.objectIds);
+    expect(actualDynamic.uuids, expected.uuids);
+    expect(actualDynamic.ints, expected.ints);
   }
 
   for (var isDynamic in [true, false]) {
