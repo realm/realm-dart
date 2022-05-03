@@ -79,8 +79,8 @@ jobs:
     - name: Remove pubspec.yaml/publish_to:none
       uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
       with:
-        find: "publish_to: none"
-        replace: ""
+        find: "publish_to: none(\\n|\\r\\n)"
+        replace: "\\n"
         include: release/**/pubspec.yaml
 
     - name: Package common
