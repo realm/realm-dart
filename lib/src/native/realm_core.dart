@@ -1158,6 +1158,7 @@ class _RealmCore {
 
   List<UserIdentity> userGetIdentities(User user) {
     return using((arena) {
+      //TODO: This approach is prone to race conditions. Fix this once Core changes how count is retrieved.
       final idsCount = arena<IntPtr>();
       _realmLib.invokeGetBool(
           () => _realmLib.realm_user_get_all_identities(user.handle._pointer, nullptr, 0, idsCount), "Error while getting user identities count");
