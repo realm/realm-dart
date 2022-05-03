@@ -329,7 +329,7 @@ extension RealmInternal on Realm {
     return RealmObjectInternal.create(type, this, handle, accessor);
   }
 
-  RealmList<T> createList<T extends Object>(RealmListHandle handle, RealmObjectMetadata? metadata) {
+  RealmList<T> createList<T extends Object?>(RealmListHandle handle, RealmObjectMetadata? metadata) {
     return RealmListInternal.create(handle, this, metadata);
   }
 

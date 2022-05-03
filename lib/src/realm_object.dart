@@ -23,7 +23,7 @@ import 'native/realm_core.dart';
 import 'realm_class.dart';
 
 abstract class RealmAccessor {
-  Object? get<T extends Object>(RealmObject object, String name);
+  Object? get<T extends Object?>(RealmObject object, String name);
   void set(RealmObject object, String name, Object? value, [bool isDefault = false]);
 
   static final Map<Type, Map<String, Object?>> _defaultValues = <Type, Map<String, Object?>>{};
@@ -59,7 +59,7 @@ class RealmValuesAccessor implements RealmAccessor {
   final Map<String, Object?> _values = <String, Object?>{};
 
   @override
-  Object? get<T extends Object>(RealmObject object, String name) {
+  Object? get<T extends Object?>(RealmObject object, String name) {
     if (!_values.containsKey(name)) {
       return RealmAccessor.getDefaultValue(object.runtimeType, name);
     }
@@ -130,7 +130,7 @@ class RealmCoreAccessor implements RealmAccessor {
   RealmCoreAccessor(this.metadata);
 
   @override
-  Object? get<T extends Object>(RealmObject object, String name) {
+  Object? get<T extends Object?>(RealmObject object, String name) {
     try {
       final propertyMeta = metadata[name];
       if (propertyMeta.collectionType == RealmCollectionType.list) {
@@ -208,10 +208,11 @@ mixin RealmObject on RealmEntity {
   RealmAccessor _accessor = RealmValuesAccessor();
   static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{
     RealmObject: () => ConcreteRealmObject._(),
+    _typeOf<RealmObject?>(): () => ConcreteRealmObject._(),
   };
 
   /// @nodoc
-  static Object? get<T extends Object>(RealmObject object, String name) {
+  static Object? get<T extends Object?>(RealmObject object, String name) {
     return object._accessor.get<T>(object, name);
   }
 
@@ -221,7 +222,10 @@ mixin RealmObject on RealmEntity {
   }
 
   /// @nodoc
-  static void registerFactory<T extends RealmObject>(T Function() factory) => _factories.putIfAbsent(T, () => factory);
+  static void registerFactory<T extends RealmObject>(T Function() factory) {
+    _factories.putIfAbsent(T, () => factory);
+    _factories.putIfAbsent(_typeOf<T?>(), () => factory);
+  }
 
   /// @nodoc
   static T create<T extends RealmObject>() {
@@ -377,38 +381,34 @@ class ConcreteRealmObject with RealmEntity, RealmObject {
   ConcreteRealmObject._();
 }
 
+Type _typeOf<T>() => T;
+
 class DynamicRealmObject {
   final RealmObject _obj;
 
   DynamicRealmObject._(this._obj);
 
-  T get<T extends Object>(String name) {
-    _validatePropertyType<T>(name, RealmCollectionType.none, false);
+  T get<T extends Object?>(String name) {
+    final prop = _validatePropertyType<T>(name, RealmCollectionType.none);
+    // If the user didn't provide a type argument, but the target is object, we should
+    // use RealmObject, otherwise we won't be able to find a Factory for the object.
+    if (T == _typeOf<Object?>() && prop?.propertyType == RealmPropertyType.object) {
+      return RealmObject.get<RealmObject>(_obj, name) as T;
+    }
+
     return RealmObject.get<T>(_obj, name) as T;
   }
 
-  T? getNullable<T extends Object>(String name) {
-    final prop = _validatePropertyType<T>(name, RealmCollectionType.none, true);
-
-    // If the user didn't provide a type argument, but the target is object, we should
-    // use RealmObject, otherwise we won't be able to find a Factory for the object.
-    if (T == Object && prop?.propertyType == RealmPropertyType.object) {
-      return RealmObject.get<RealmObject>(_obj, name) as T?;
-    }
-
-    return RealmObject.get<T>(_obj, name) as T?;
-  }
-
   List<T> getList<T extends Object>(String name) {
-    final prop = _validatePropertyType<T>(name, RealmCollectionType.list, false);
-    if (T == Object && prop?.propertyType == RealmPropertyType.object) {
+    final prop = _validatePropertyType<T>(name, RealmCollectionType.list);
+    if (T == _typeOf<Object?>() && prop?.propertyType == RealmPropertyType.object) {
       return RealmObject.get<RealmObject>(_obj, name) as List<T>;
     }
 
     return RealmObject.get<T>(_obj, name) as List<T>;
   }
 
-  RealmPropertyMetadata? _validatePropertyType<T extends Object>(String name, RealmCollectionType expectedCollectionType, bool isNullable) {
+  RealmPropertyMetadata? _validatePropertyType<T extends Object?>(String name, RealmCollectionType expectedCollectionType) {
     final accessor = _obj.accessor;
     if (accessor is RealmCoreAccessor) {
       final prop = accessor.metadata._propertyKeys[name];
@@ -421,9 +421,11 @@ class DynamicRealmObject {
             "Property '$name' on class '${accessor.metadata.name}' is '${prop.collectionType}' but the method used to access it expected '$expectedCollectionType'.");
       }
 
-      if (prop.isNullable != isNullable) {
+      // If the user passed in a type argument, we should validate its nullability; if they invoked
+      // the method without a type arg, we don't
+      if (T != _typeOf<Object?>() && prop.isNullable != null is T) {
         throw RealmException(
-            "Property '$name' on class '${accessor.metadata.name}' is ${prop.isNullable ? 'nullable' : 'required'} but the wrong method was used to access it. Use get<T> for required properties and getNullable<T> for nullable ones.");
+            "Property '$name' on class '${accessor.metadata.name}' is ${prop.isNullable ? 'nullable' : 'required'} but the generic argument passed to get<T> is $T.");
       }
 
       final targetType = _getPropertyType<T>();
@@ -438,26 +440,24 @@ class DynamicRealmObject {
     return null;
   }
 
-  RealmPropertyType? _getPropertyType<T extends Object>() {
-    switch (T) {
-      case int:
-        return RealmPropertyType.int;
-      case double:
-        return RealmPropertyType.double;
-      case String:
-        return RealmPropertyType.string;
-      case bool:
-        return RealmPropertyType.bool;
-      case DateTime:
-        return RealmPropertyType.timestamp;
-      case ObjectId:
-        return RealmPropertyType.objectid;
-      case Uuid:
-        return RealmPropertyType.uuid;
-      case RealmObject:
-        return RealmPropertyType.object;
-      default:
-        return null;
-    }
-  }
+  static final _propertyTypeMap = <Type, RealmPropertyType>{
+    int: RealmPropertyType.int,
+    _typeOf<int?>(): RealmPropertyType.int,
+    double: RealmPropertyType.double,
+    _typeOf<double?>(): RealmPropertyType.double,
+    String: RealmPropertyType.string,
+    _typeOf<String?>(): RealmPropertyType.string,
+    bool: RealmPropertyType.bool,
+    _typeOf<bool?>(): RealmPropertyType.bool,
+    DateTime: RealmPropertyType.timestamp,
+    _typeOf<DateTime?>(): RealmPropertyType.timestamp,
+    ObjectId: RealmPropertyType.objectid,
+    _typeOf<ObjectId?>(): RealmPropertyType.objectid,
+    Uuid: RealmPropertyType.uuid,
+    _typeOf<Uuid?>(): RealmPropertyType.uuid,
+    RealmObject: RealmPropertyType.object,
+    _typeOf<RealmObject?>(): RealmPropertyType.object,
+  };
+
+  RealmPropertyType? _getPropertyType<T extends Object?>() => _propertyTypeMap[T];
 }

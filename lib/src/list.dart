@@ -29,7 +29,7 @@ import 'results.dart';
 /// added to or deleted from the collection or from the Realm.
 ///
 /// {@category Realm}
-abstract class RealmList<T extends Object> with RealmEntity implements List<T> {
+abstract class RealmList<T extends Object?> with RealmEntity implements List<T> {
   late final RealmObjectMetadata? _metadata;
 
   /// Gets a value indicating whether this collection is still valid to use.
@@ -43,7 +43,7 @@ abstract class RealmList<T extends Object> with RealmEntity implements List<T> {
   factory RealmList(Iterable<T> items) => UnmanagedRealmList(items);
 }
 
-class ManagedRealmList<T extends Object> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
+class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
   final RealmListHandle _handle;
 
   @override
@@ -96,7 +96,7 @@ class ManagedRealmList<T extends Object> extends collection.ListBase<T> with Rea
   bool get isValid => realmCore.listIsValid(this);
 }
 
-class UnmanagedRealmList<T extends Object> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
+class UnmanagedRealmList<T extends Object?> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
   final _unmanaged = <T?>[]; // use T? for length=
 
   UnmanagedRealmList([Iterable<T>? items]) {
@@ -155,12 +155,12 @@ extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
 }
 
 /// @nodoc
-extension RealmListInternal<T extends Object> on RealmList<T> {
+extension RealmListInternal<T extends Object?> on RealmList<T> {
   ManagedRealmList<T> asManaged() => this is ManagedRealmList<T> ? this as ManagedRealmList<T> : throw RealmStateError('$this is not managed');
 
   RealmListHandle get handle => asManaged()._handle;
 
-  static RealmList<T> create<T extends Object>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
+  static RealmList<T> create<T extends Object?>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
 
   static void setValue(RealmListHandle handle, Realm realm, int index, Object? value) {
     if (index < 0) {

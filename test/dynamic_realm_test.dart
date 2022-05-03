@@ -96,38 +96,39 @@ Future<void> main([List<String>? args]) async {
   void _validateDynamic(RealmObject actual, AllTypes expected) {
     expect(actual.dynamic.get<String>('stringProp'), expected.stringProp);
     expect(actual.dynamic.get('stringProp'), expected.stringProp);
-    expect(actual.dynamic.getNullable<String>('nullableStringProp'), expected.nullableStringProp);
-    expect(actual.dynamic.getNullable('nullableStringProp'), expected.nullableStringProp);
+
+    expect(actual.dynamic.get<String?>('nullableStringProp'), expected.nullableStringProp);
+    expect(actual.dynamic.get('nullableStringProp'), expected.nullableStringProp);
 
     expect(actual.dynamic.get<bool>('boolProp'), expected.boolProp);
     expect(actual.dynamic.get('boolProp'), expected.boolProp);
-    expect(actual.dynamic.getNullable<bool>('nullableBoolProp'), expected.nullableBoolProp);
-    expect(actual.dynamic.getNullable('nullableBoolProp'), expected.nullableBoolProp);
+    expect(actual.dynamic.get<bool?>('nullableBoolProp'), expected.nullableBoolProp);
+    expect(actual.dynamic.get('nullableBoolProp'), expected.nullableBoolProp);
 
     expect(actual.dynamic.get<DateTime>('dateProp'), expected.dateProp);
     expect(actual.dynamic.get('dateProp'), expected.dateProp);
-    expect(actual.dynamic.getNullable<DateTime>('nullableDateProp'), expected.nullableDateProp);
-    expect(actual.dynamic.getNullable('nullableDateProp'), expected.nullableDateProp);
+    expect(actual.dynamic.get<DateTime?>('nullableDateProp'), expected.nullableDateProp);
+    expect(actual.dynamic.get('nullableDateProp'), expected.nullableDateProp);
 
     expect(actual.dynamic.get<double>('doubleProp'), expected.doubleProp);
     expect(actual.dynamic.get('doubleProp'), expected.doubleProp);
-    expect(actual.dynamic.getNullable<double>('nullableDoubleProp'), expected.nullableDoubleProp);
-    expect(actual.dynamic.getNullable('nullableDoubleProp'), expected.nullableDoubleProp);
+    expect(actual.dynamic.get<double?>('nullableDoubleProp'), expected.nullableDoubleProp);
+    expect(actual.dynamic.get('nullableDoubleProp'), expected.nullableDoubleProp);
 
     expect(actual.dynamic.get<ObjectId>('objectIdProp'), expected.objectIdProp);
     expect(actual.dynamic.get('objectIdProp'), expected.objectIdProp);
-    expect(actual.dynamic.getNullable<ObjectId>('nullableObjectIdProp'), expected.nullableObjectIdProp);
-    expect(actual.dynamic.getNullable('nullableObjectIdProp'), expected.nullableObjectIdProp);
+    expect(actual.dynamic.get<ObjectId?>('nullableObjectIdProp'), expected.nullableObjectIdProp);
+    expect(actual.dynamic.get('nullableObjectIdProp'), expected.nullableObjectIdProp);
 
     expect(actual.dynamic.get<Uuid>('uuidProp'), expected.uuidProp);
     expect(actual.dynamic.get('uuidProp'), expected.uuidProp);
-    expect(actual.dynamic.getNullable<Uuid>('nullableUuidProp'), expected.nullableUuidProp);
-    expect(actual.dynamic.getNullable('nullableUuidProp'), expected.nullableUuidProp);
+    expect(actual.dynamic.get<Uuid?>('nullableUuidProp'), expected.nullableUuidProp);
+    expect(actual.dynamic.get('nullableUuidProp'), expected.nullableUuidProp);
 
     expect(actual.dynamic.get<int>('intProp'), expected.intProp);
     expect(actual.dynamic.get('intProp'), expected.intProp);
-    expect(actual.dynamic.getNullable<int>('nullableIntProp'), expected.nullableIntProp);
-    expect(actual.dynamic.getNullable('nullableIntProp'), expected.nullableIntProp);
+    expect(actual.dynamic.get<int?>('nullableIntProp'), expected.nullableIntProp);
+    expect(actual.dynamic.get('nullableIntProp'), expected.nullableIntProp);
   }
 
   void _validateDynamicLists(RealmObject actual, AllCollections expected) {
@@ -223,8 +224,8 @@ Future<void> main([List<String>? args]) async {
         final obj2 = objects.singleWhere((o) => o.dynamic.get<Uuid>('id') == id2);
         final obj3 = objects.singleWhere((o) => o.dynamic.get<Uuid>('id') == id3);
 
-        expect(obj1.dynamic.getNullable<RealmObject>('link'), obj2);
-        expect(obj2.dynamic.getNullable<RealmObject>('link'), obj3);
+        expect(obj1.dynamic.get<RealmObject?>('link'), obj2);
+        expect(obj2.dynamic.get<RealmObject?>('link'), obj3);
 
         final list = obj1.dynamic.getList<RealmObject>('list');
 
@@ -317,12 +318,12 @@ Future<void> main([List<String>? args]) async {
         final obj1 = dynamicRealm.dynamic.find(LinksClass.schema.name, uuid1)!;
         final obj2 = dynamicRealm.dynamic.find(LinksClass.schema.name, uuid2)!;
 
-        expect(obj1.dynamic.getNullable<RealmObject>('link'), isNull);
-        expect(obj1.dynamic.getNullable('link'), isNull);
+        expect(obj1.dynamic.get<RealmObject?>('link'), isNull);
+        expect(obj1.dynamic.get('link'), isNull);
 
-        expect(obj2.dynamic.getNullable<RealmObject>('link'), obj1);
-        expect(obj2.dynamic.getNullable('link'), obj1);
-        expect(obj2.dynamic.getNullable<RealmObject>('link')?.dynamic.get<Uuid>('id'), uuid1);
+        expect(obj2.dynamic.get<RealmObject?>('link'), obj1);
+        expect(obj2.dynamic.get('link'), obj1);
+        expect(obj2.dynamic.get<RealmObject?>('link')?.dynamic.get<Uuid>('id'), uuid1);
       });
 
       test('fails with non-existent property', () {
@@ -335,7 +336,6 @@ Future<void> main([List<String>? args]) async {
 
         final obj = dynamicRealm.dynamic.all(AllTypes.schema.name).single;
         expect(() => obj.dynamic.get('i-dont-exist'), throws<RealmException>("Property 'i-dont-exist' does not exist on class 'AllTypes'"));
-        expect(() => obj.dynamic.getNullable('i-dont-exist'), throws<RealmException>("Property 'i-dont-exist' does not exist on class 'AllTypes'"));
       });
 
       test('fails with wrong type', () {
@@ -354,15 +354,15 @@ Future<void> main([List<String>? args]) async {
                 "Property 'stringProp' on class 'AllTypes' is not the correct type. Expected 'RealmPropertyType.int', got 'RealmPropertyType.string'."));
 
         expect(
-            () => obj.dynamic.getNullable<int>('nullableStringProp'),
+            () => obj.dynamic.get<int?>('nullableStringProp'),
             throws<RealmException>(
                 "Property 'nullableStringProp' on class 'AllTypes' is not the correct type. Expected 'RealmPropertyType.int', got 'RealmPropertyType.string'."));
 
         expect(() => obj.dynamic.get<int>('nullableIntProp'),
-            throws<RealmException>("Property 'nullableIntProp' on class 'AllTypes' is nullable but the wrong method was used to access it."));
+            throws<RealmException>("Property 'nullableIntProp' on class 'AllTypes' is nullable but the generic argument passed to get<T> is int."));
 
-        expect(() => obj.dynamic.getNullable<int>('intProp'),
-            throws<RealmException>("Property 'intProp' on class 'AllTypes' is required but the wrong method was used to access it."));
+        expect(() => obj.dynamic.get<int?>('intProp'),
+            throws<RealmException>("Property 'intProp' on class 'AllTypes' is required but the generic argument passed to get<T> is int?."));
       });
 
       test('fails on collection properties', () {
@@ -385,12 +385,7 @@ Future<void> main([List<String>? args]) async {
                 "Property 'strings' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
 
         expect(
-            () => obj.dynamic.getNullable<String>('strings'),
-            throws<RealmException>(
-                "Property 'strings' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
-
-        expect(
-            () => obj.dynamic.getNullable('strings'),
+            () => obj.dynamic.get<String?>('strings'),
             throws<RealmException>(
                 "Property 'strings' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
       });
@@ -532,12 +527,12 @@ Future<void> main([List<String>? args]) async {
     final obj1 = realm.find<LinksClass>(uuid1)!;
     final obj2 = realm.find<LinksClass>(uuid2)!;
 
-    expect(obj1.dynamic.getNullable<RealmObject>('link'), isNull);
-    expect(obj1.dynamic.getNullable('link'), isNull);
+    expect(obj1.dynamic.get<RealmObject?>('link'), isNull);
+    expect(obj1.dynamic.get('link'), isNull);
 
-    expect(obj2.dynamic.getNullable<RealmObject>('link'), obj1);
-    expect(obj2.dynamic.getNullable('link'), obj1);
-    expect(obj2.dynamic.getNullable<RealmObject>('link')?.dynamic.get<Uuid>('id'), uuid1);
+    expect(obj2.dynamic.get<RealmObject?>('link'), obj1);
+    expect(obj2.dynamic.get('link'), obj1);
+    expect(obj2.dynamic.get<RealmObject?>('link')?.dynamic.get<Uuid>('id'), uuid1);
   });
 
   test('RealmObject.dynamic.getList when static can get links', () {
