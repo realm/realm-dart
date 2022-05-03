@@ -109,16 +109,6 @@ extension UserIdentityInternal on UserIdentity {
   static UserIdentity create(String identity, AuthProviderType provider) => UserIdentity._(identity, provider);
 }
 
-extension on List<UserState> {
-  UserState fromIndex(int index) {
-    if (!UserState.values.any((value) => value.index == index)) {
-      throw RealmError("Unknown user state $index");
-    }
-
-    return UserState.values[index];
-  }
-}
-
 /// @nodoc
 extension UserInternal on User {
   UserHandle get handle => _handle;

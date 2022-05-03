@@ -1144,8 +1144,9 @@ class _RealmCore {
     return completer.future;
   }
 
-  int userGetState(User user) {
-    return _realmLib.realm_user_get_state(user.handle._pointer);
+  UserState userGetState(User user) {
+    final nativeUserState = _realmLib.realm_user_get_state(user.handle._pointer);
+    return UserState.values.fromIndex(nativeUserState);
   }
 
   UserIdentity userGetIdentity(User user) {
@@ -1489,6 +1490,16 @@ extension on List<AuthProviderType> {
     }
 
     return AuthProviderType.values[index];
+  }
+}
+
+extension on List<UserState> {
+  UserState fromIndex(int index) {
+    if (!UserState.values.any((value) => value.index == index)) {
+      throw RealmError("Unknown user state $index");
+    }
+
+    return UserState.values[index];
   }
 }
 
