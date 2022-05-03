@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - master
-    tags:
-      - '[0-9]+.[0-9]+.[0-9]+**' # matches tags like number(s).number(s).number(s)(any) for ex: 1.0.0 and also 1.0.0+beta
   pull_request:
 env:
   REALM_CI: true
@@ -25,7 +23,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: false
-      
+
       - uses: realm/ci-actions/mdb-realm/deployApps@fac1d6958f03d71de743305ce3ab27594efbe7b7
         id: deploy-mdb-apps
         with:
@@ -35,12 +33,12 @@ jobs:
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
           differentiator: dart-linux
-      
+
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
           sdk: stable
-      
+
       - name: Deploy Apps
         run: |
           dart run realm_dart deploy-apps \
@@ -49,7 +47,7 @@ jobs:
             --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} \
             --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} \
             --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }}
-  
+
   build-linux:
     runs-on: ubuntu-latest
     name: Build Linux
@@ -58,20 +56,30 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-      
+
+      - name: Check cache
+        id: check-cache
+        if: "!contains(github.head_ref, 'release/')"
+        uses: actions/cache@v3
+        with:
+          path: ./binary/linux/**
+          key: binaries-linux-${{hashFiles('./src/**')}}
+
       - name: Setup Ninja
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         uses: seanmiddleditch/gha-setup-ninja@master
-      
+
       - name: Build Realm for Linux
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         run: ./scripts/build-linux.sh
-      
+
       - name: Store artifacts
         uses: actions/upload-artifact@v2
         with:
           name: librealm-linux
-          path: binary/**
+          path: binary/linux/**
           retention-days: 1
-  
+
   tests-linux:
     runs-on: ubuntu-latest
     name: Tests Linux
@@ -89,46 +97,24 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: false
-      
+
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
           name: librealm-linux
-          path: binary
-      
+          path: binary/linux
+
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
           sdk: stable
-      
+
       - name: Install dependencies
         run: dart pub get
-      
+
       - name: Run tests
         run: dart test -r expanded -j 1 --test-randomize-ordering-seed random
 
-      # TODO: these should go away once we have a proper release workflow
-      - name: Archive binary
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        run: |
-          echo "ARCHIVE_PATH=$(pwd)/binary/linux.tar.gz" >> $GITHUB_ENV
-          dart run realm_dart archive --source-dir $(pwd)/binary/linux --output-file $ARCHIVE_PATH
-      
-      - name: Release artifacts
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        uses: ncipollo/release-action@v1
-        with:
-          allowUpdates:  true
-          artifactErrorsFailBuild: true
-          draft: true
-          omitNameDuringUpdate: true
-          prerelease: false
-          omitPrereleaseDuringUpdate: true
-          artifacts: ${{ env.ARCHIVE_PATH }}
-          body: "ADD RELEASE NOTES"
-          omitBodyDuringUpdate: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-  
   flutter-linux:
     runs-on: ubuntu-latest
     name: Flutter Tests Linux
@@ -139,36 +125,36 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: false
-      
+
       - name: Setup GTK
         run: |
           sudo apt-get update -y
           sudo apt-get install -y libgtk-3-dev xvfb
-      
+
       - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@master
-      
+
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
           name: librealm-linux
-          path: binary
-      
+          path: binary/linux
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      
+
       - name: Enable Flutter Desktop support
         run: flutter config --enable-linux-desktop
-      
+
       - name: Install dependencies
         run: flutter pub get
-      
+
       - name: Run tests
         run: xvfb-run flutter drive -d linux --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
-  
+
   cleanup-linux:
     runs-on: ubuntu-latest
     name: Cleanup Linux
@@ -198,27 +184,38 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-      
+
+      - name: Check cache
+        id: check-cache
+        if: "!contains(github.head_ref, 'release/')"
+        uses: actions/cache@v3
+        with:
+          path: ./binary/macos/**
+          key: binaries-macos-${{hashFiles('./src/**')}}
+
       - name: Install ccache
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: ccache-macos
-      
+
       - name: Enable ccache
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         run: |
           echo "/usr/lib/ccache" >> $GITHUB_PATH
           echo "/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-      
+
       - name: Build Realm for macOS
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         run: ./scripts/build-macos.sh
-      
+
       - name: Store artifacts
         uses: actions/upload-artifact@v2
         with:
           name: librealm-macos
-          path: binary/**
+          path: binary/macos/**
           retention-days: 1
-  
+
   tests-macos:
     runs-on: macos-latest
     name: Tests macOS
@@ -229,46 +226,24 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: false
-      
+
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
           name: librealm-macos
-          path: binary
-      
+          path: binary/macos
+
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
           sdk: stable
-      
+
       - name: Install dependencies
         run: dart pub get
-      
+
       - name: Run tests
         run: dart test -r expanded -j 1 --test-randomize-ordering-seed random
 
-      # TODO: these should go away once we have a proper release workflow
-      - name: Archive binary
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        run: |
-          echo "ARCHIVE_PATH=$(pwd)/binary/macos.tar.gz" >> $GITHUB_ENV
-          dart run realm_dart archive --source-dir $(pwd)/binary/macos --output-file $ARCHIVE_PATH
-      
-      - name: Release artifacts
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        uses: ncipollo/release-action@v1
-        with:
-          allowUpdates:  true
-          artifactErrorsFailBuild: true
-          draft: true
-          omitNameDuringUpdate: true
-          prerelease: false
-          omitPrereleaseDuringUpdate: true
-          artifacts: ${{ env.ARCHIVE_PATH }}
-          body: "ADD RELEASE NOTES"
-          omitBodyDuringUpdate: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-  
   flutter-macos:
     runs-on: macos-latest
     name: Flutter Tests macOS
@@ -279,24 +254,24 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: false
-      
+
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
           name: librealm-macos
-          path: binary
-      
+          path: binary/macos
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      
+
       - name: Enable Flutter Desktop support
         run: flutter config --enable-macos-desktop
-      
+
       - name: Install dependencies
         run: flutter pub get
-      
+
       - name: Run tests
         run: flutter drive -d macos --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
@@ -312,17 +287,26 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-      
+
+      - name: Check cache
+        id: check-cache
+        if: "!contains(github.head_ref, 'release/')"
+        uses: actions/cache@v3
+        with:
+          path: ./binary/windows/**
+          key: binaries-windows-${{hashFiles('./src/**')}}
+
       - name: Build Realm for Windows
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         run: scripts\build.bat
-      
+
       - name: Store artifacts
         uses: actions/upload-artifact@v2
         with:
           name: librealm-windows
-          path: binary/**
+          path: binary/windows/**
           retention-days: 1
-  
+
   tests-windows:
     runs-on: windows-latest
     name: Tests Windows
@@ -338,43 +322,20 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-windows
-          path: binary
-      
+          path: binary/windows
+
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
           sdk: stable
-      
+
       - name: Install dependencies
         run: dart pub get
-      
+
       - name: Run tests
         run: |
           dart test -r expanded -j 1 --test-randomize-ordering-seed random
 
-      # TODO: these should go away once we have a proper release workflow
-      - name: Archive binary
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        run: |
-          echo "ARCHIVE_PATH=$(pwd)\\binary\\windows.tar.gz" >> $env:GITHUB_ENV
-          echo "ARCHIVE_SOURCE_PATH=$(pwd)\\binary\\windows" >> $env:GITHUB_ENV
-          dart run realm_dart archive --source-dir ${{ env.ARCHIVE_SOURCE_PATH }} --output-file ${{ env.ARCHIVE_PATH }}
-      
-      - name: Release artifacts
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        uses: ncipollo/release-action@v1
-        with:
-          allowUpdates:  true
-          artifactErrorsFailBuild: true
-          draft: true
-          omitNameDuringUpdate: true
-          prerelease: false
-          omitPrereleaseDuringUpdate: true
-          artifacts: ${{ env.ARCHIVE_PATH }}
-          body: "ADD RELEASE NOTES"
-          omitBodyDuringUpdate: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-  
   flutter-windows:
     # TODO: build on windows-latest
     runs-on: windows-2019
@@ -386,24 +347,24 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: false
-      
+
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
           name: librealm-windows
-          path: binary
-      
+          path: binary/windows
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      
+
       - name: Enable Flutter Desktop support
         run: flutter config --enable-windows-desktop
-      
+
       - name: Install dependencies
         run: flutter pub get
-      
+
       - name: Run tests
         run: flutter drive -d windows --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
@@ -420,28 +381,39 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-      
+
+      - name: Check cache
+        id: check-cache
+        if: "!contains(github.head_ref, 'release/')"
+        uses: actions/cache@v3
+        with:
+          path: ./binary/ios/**
+          key: binaries-ios-${{hashFiles('./src/**')}}
+
       - name: Install ccache
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: ccache-ios
-      
+
       - name: Enable ccache
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         run: |
           echo "/usr/lib/ccache" >> $GITHUB_PATH
           echo "/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-      
+
       - name: Build Realm for iOS
-        # empty (all) for tags, simulator for PR/main builds
-        run: ./scripts/build-ios.sh ${{ (github.event_name == 'push' && github.ref_type == 'tag' && '') || 'simulator' }}
-      
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        # TODO: paralellize build to build for all architectures
+        run: ./scripts/build-ios.sh simulator
+
       - name: Store artifacts
         uses: actions/upload-artifact@v2
         with:
           name: librealm-ios
-          path: binary/**
+          path: binary/ios/**
           retention-days: 1
-  
+
   flutter-ios:
     runs-on: macos-latest
     name: Flutter Tests iOS
@@ -454,57 +426,35 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-      
+
       - name: Enable ccache
         run: echo "PATH=/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH" >> $GITHUB_ENV
-      
+
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
           name: librealm-ios
-          path: binary
-      
+          path: binary/ios
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      
+
       - name: Install dependencies
         run: flutter pub get
-      
+
       - name: Launch Simulator
         uses: futureware-tech/simulator-action@v1
         with:
           model: 'iPhone 8'
           os: 'iOS'
           os_version: '>= 14.0'
-      
+
       - name: Run tests on iOS Simulator
         run: |
           flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics
         working-directory: ./flutter/realm_flutter/tests
-
-      # TODO: these should go away once we have a proper release workflow
-      - name: Archive binary
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        run: |
-          echo "ARCHIVE_PATH=$(pwd)/binary/ios.tar.gz" >> $GITHUB_ENV
-          dart run realm_dart archive --source-dir $(pwd)/binary/ios --output-file $ARCHIVE_PATH
-      
-      - name: Release artifacts
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        uses: ncipollo/release-action@v1
-        with:
-          allowUpdates:  true
-          artifactErrorsFailBuild: true
-          draft: true
-          omitNameDuringUpdate: true
-          prerelease: false
-          omitPrereleaseDuringUpdate: true
-          artifacts: ${{ env.ARCHIVE_PATH }}
-          body: "ADD RELEASE NOTES"
-          omitBodyDuringUpdate: true
-          token: ${{ secrets.GITHUB_TOKEN }}
 
 # Android jobs
 
@@ -516,20 +466,29 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-      
+
+      - name: Check cache
+        id: check-cache
+        if: "!contains(github.head_ref, 'release/')"
+        uses: actions/cache@v3
+        with:
+          path: ./binary/android/**
+          key: binaries-android-${{hashFiles('./src/**')}}
+
       - name: Build Realm for Android
-        # all for tags, empty (implicitly x86) for PR/main builds
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        # TODO: parallelize build for all architectures
         run: |
           export ANDROID_NDK=$ANDROID_NDK_HOME
-          ./scripts/build-android.sh ${{ (github.event_name == 'push' && github.ref_type == 'tag' && 'all') || '' }}
-      
+          ./scripts/build-android.sh
+
       - name: Store artifacts
         uses: actions/upload-artifact@v2
         with:
           name: librealm-android
-          path: binary/**
+          path: binary/android/**
           retention-days: 1
-  
+
   flutter-android:
     runs-on: macos-latest
     name: Flutter Tests Android
@@ -540,18 +499,18 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-      
+
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
           name: librealm-android
-          path: binary
-      
+          path: binary/android
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -564,7 +523,7 @@ jobs:
             ~/.android/avd/*
             ~/.android/adb*
           key: avd-29
-      
+
       - name: Create Android Emulator and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@v2
@@ -577,7 +536,7 @@ jobs:
           ndk: 21.0.6113669
           cmake: 3.10.2.4988404
           script: echo "Generated Emulator snapshot for caching."
-      
+
       - name: Run tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -591,28 +550,6 @@ jobs:
           script: flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics
           working-directory: ./flutter/realm_flutter/tests
 
-      # TODO: these should go away once we have a proper release workflow
-      - name: Archive binary
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        run: |
-          echo "ARCHIVE_PATH=$(pwd)/binary/android.tar.gz" >> $GITHUB_ENV
-          dart run realm_dart archive --source-dir $(pwd)/binary/android --output-file $ARCHIVE_PATH
-      
-      - name: Release artifacts
-        if: ${{ success() && github.event_name == 'push' && github.ref_type == 'tag' }}
-        uses: ncipollo/release-action@v1
-        with:
-          allowUpdates:  true
-          artifactErrorsFailBuild: true
-          draft: true
-          omitNameDuringUpdate: true
-          prerelease: false
-          omitPrereleaseDuringUpdate: true
-          artifacts: ${{ env.ARCHIVE_PATH }}
-          body: "ADD RELEASE NOTES"
-          omitBodyDuringUpdate: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-
 # Generator jobs
 
   generator:
@@ -623,26 +560,26 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: false
-      
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      
+
       - name: Run generator tests
         run: |
           dart pub get
           dart test --reporter expanded --coverage ./coverage/ --test-randomize-ordering-seed random
         working-directory: ./generator/
-      
+
       - name: Delete generated files
         run: find . -name "*.g.dart" -not -path "./generator/*" -delete
-      
+
       - name: Run generator in realm-dart repo
         run: |
           dart pub get
           dart run build_runner build --delete-conflicting-outputs
-      
+
       - name: Run generator in realm_flutter/example
         run: |
           dart pub get
