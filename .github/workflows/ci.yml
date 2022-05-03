@@ -60,7 +60,7 @@ jobs:
       - name: Check cache
         id: check-cache
         if: '!contains(github.head_ref, 'release/')'
-        uses: actions/cache@v3
+        uses: actions/cache@v2
         with:
           path: ./binary/linux/**
           key: binaries-linux-${{hashFiles('./src/**')}}
@@ -188,7 +188,7 @@ jobs:
       - name: Check cache
         id: check-cache
         if: '!contains(github.head_ref, 'release/')'
-        uses: actions/cache@v3
+        uses: actions/cache@v2
         with:
           path: ./binary/macos/**
           key: binaries-macos-${{hashFiles('./src/**')}}
@@ -291,7 +291,7 @@ jobs:
       - name: Check cache
         id: check-cache
         if: '!contains(github.head_ref, 'release/')'
-        uses: actions/cache@v3
+        uses: actions/cache@v2
         with:
           path: ./binary/windows/**
           key: binaries-windows-${{hashFiles('./src/**')}}
@@ -385,7 +385,7 @@ jobs:
       - name: Check cache
         id: check-cache
         if: '!contains(github.head_ref, 'release/')'
-        uses: actions/cache@v3
+        uses: actions/cache@v2
         with:
           path: ./binary/ios/**
           key: binaries-ios-${{hashFiles('./src/**')}}
@@ -470,7 +470,7 @@ jobs:
       - name: Check cache
         id: check-cache
         if: '!contains(github.head_ref, 'release/')'
-        uses: actions/cache@v3
+        uses: actions/cache@v2
         with:
           path: ./binary/android/**
           key: binaries-android-${{hashFiles('./src/**')}}
