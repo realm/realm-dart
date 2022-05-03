@@ -69,25 +69,32 @@ jobs:
     #   run: |
     #     aws s3 sync --acl public-read "${{ github.workspace }}/release/${{ steps.archive-binaries.outputs.folder }}" s3://static.realm.io/downloads/dart/${{ steps.archive-binaries.outputs.folder }}
 
+    - name: Update realm_* path dependencies
+      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
+        with:
+          find: '  realm_(common|generator):(\n|\r\n)    path:.*'
+          replace: '  realm_$1: ${{ steps.get-version.outputs.version }}'
+          include: 'release/**/pubspec.yaml'
+
     - name: Package common
       run: |
         cp -Lr ../../common .
         cd common
-        dart pub publish --dry-run
+        dart pub publish --dry-run || true
       working-directory: release/${{ steps.archive-binaries.outputs.folder }}
 
     - name: Package generator
       run: |
         cp -Lr ../../generator .
         cd generator
-        dart pub publish --dry-run
+        dart pub publish --dry-run || true
       working-directory: release/${{ steps.archive-binaries.outputs.folder }}
 
     - name: Package realm_flutter
       run: |
         cp -Lr ../../flutter/realm_flutter .
         cd realm_flutter
-        dart pub publish --dry-run
+        dart pub publish --dry-run || true
       working-directory: release/${{ steps.archive-binaries.outputs.folder }}
 
     - name: Package realm_dart
@@ -96,7 +103,7 @@ jobs:
         cp -Lr ../../bin ../../example ../../lib ../../test realm_dart
         cp ../../* realm_dart
         cd realm_dart
-        dart pub publish --dry-run
+        dart pub publish --dry-run || true
       working-directory: release/${{ steps.archive-binaries.outputs.folder }}
 
     - name: Archive packages
