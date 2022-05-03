@@ -38,8 +38,6 @@ Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
   await setupTests(args);
-  await setupBaas(appSuffix: "_cred");
-
   
   test('Credentials anonymous', () {
     final credentials = Credentials.anonymous();

@@ -27,8 +27,6 @@ Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
   await setupTests(args);
-  await setupBaas();
-
 
   test('AppConfiguration can be created', () {
     final a = AppConfiguration('myapp');

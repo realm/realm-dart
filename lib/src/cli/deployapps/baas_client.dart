@@ -82,7 +82,7 @@ class BaasClient {
   /// for [atlas] one, it will return only apps with suffix equal to the cluster name. If no apps exist,
   /// then it will create the test applications and return them.
   /// @nodoc
-  Future<Map<String, BaasApp>> getOrCreateApps({String? suffix}) async {
+  Future<Map<String, BaasApp>> getOrCreateApps() async {
     final result = <String, BaasApp>{};
     var apps = await _getApps();
     if (apps.isNotEmpty) {
@@ -90,7 +90,7 @@ class BaasClient {
         result[app.name] = app;
       }
     }
-    String appName = suffix == null ? 'flexible' : 'flexible_$suffix';
+    const String appName = 'flexible';
 
     if (!result.containsKey(appName)) {
       final defaultApp = await _createApp(appName);

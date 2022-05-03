@@ -114,6 +114,8 @@ void xtest(String? name, dynamic Function() testFunction) {
 Future<void> setupTests(List<String>? args) async {
   parseTestNameFromArguments(args);
 
+  await setupBaas();
+
   setUp(() {
     final path = generateRandomRealmPath();
     Configuration.defaultPath = path;
@@ -191,7 +193,7 @@ void parseTestNameFromArguments(List<String>? arguments) {
   }
 }
 
-Future<void> setupBaas({String? appSuffix}) async {
+Future<void> setupBaas() async {
   final uriVariable = Platform.environment['BAAS_URL'];
   url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
 
@@ -206,7 +208,7 @@ Future<void> setupBaas({String? appSuffix}) async {
   final projectId = Platform.environment['BAAS_PROJECT_ID'];
 
   final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
-  baasApps.addAll(await client.getOrCreateApps(suffix: appSuffix));
+  baasApps.addAll(await client.getOrCreateApps());
 }
 
 @isTest
@@ -216,7 +218,6 @@ Future<void> baasTest(
   String appName = 'flexible',
   dynamic skip,
 }) async {
-
   if (skip == null) {
     skip = url == null ? "BAAS URL not present" : false;
   } else if (skip is bool) {
