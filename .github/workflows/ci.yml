@@ -59,14 +59,14 @@ jobs:
 
       - name: Check cache
         id: check-cache
-        if: ${{ !contains(github.head_ref, 'update-me-release/') }}
+        if: ${{ !contains(github.head_ref, 'release/') }}
         uses: actions/cache@v3
         with:
           path: ./binary/linux/**
           key: binaries-linux-${{hashFiles('./src/**')}}
 
       - name: Setup Ninja
-        if: ${{ contains(github.head_ref, 'update-me-release/') || steps.check-cache.outputs.cache-hit != 'true' }}
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Build Realm for Linux
