@@ -93,7 +93,7 @@ jobs:
     # realm_flutter has symlinks to native binaries which should not be packaged
     - name: Cleanup realm_flutter binary symlinks
       run: |
-        rm -rf android/gradle/src/main/cpp/lib
+        rm -rf android/src/main/cpp/lib
         rm ios/realm_flutter_ios.xcframework
         rm ios/src
         rm linux/binary
