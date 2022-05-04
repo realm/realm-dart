@@ -99,6 +99,9 @@ class InstallCommand extends Command<void> {
     }
 
     final destinationFile = File(path.join(Directory.systemTemp.absolute.path, "realm-binary", archiveName));
+    if (!await destinationFile.parent.exists()) {
+      await destinationFile.parent.create(recursive: true);
+    }
 
     print("Downloading Realm binaries for $_packageName@${realmPubspec.version} to ${destinationFile.absolute.path}");
     final client = HttpClient();

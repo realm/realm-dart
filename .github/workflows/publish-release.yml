@@ -82,7 +82,6 @@ jobs:
         replace: 'version: ${{ steps.get-version.outputs.version }}'
         include: '**pubspec.yaml'
 
-
     - name: Remove pubspec.yaml/publish_to:none
       uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
       with:
@@ -168,7 +167,7 @@ jobs:
     if: ${{ github.event.inputs.environment == 'Production' }}
     environment:
       name: 'Production'
-      url: ${{ steps.upload-to-s3.outputs.url }}
+      url: https://pub.dev/packages/realm/versions/${{ needs.prepare-packages.outputs.version }}
     name: Publish release
     needs:
     - prepare-packages
