@@ -50,38 +50,25 @@ class InstallCommand extends Command<void> {
     populateOptionsParser(argParser);
   }
 
-  final Map<TargetOsType, String> _flutterBinaryPaths = {
-    TargetOsType.android: path.join("android", "src", "main", "cpp", "lib"),
-    TargetOsType.ios: "ios",
-    TargetOsType.macos: "macos",
-    TargetOsType.windows: path.join("windows", "binary"),
-    TargetOsType.linux: path.join("linux", "binary"),
-  };
-
-  final Map<TargetOsType, String> _dartBinaryNames = {
-    TargetOsType.macos: "librealm_dart.dylib",
-    TargetOsType.windows: "realm_dart.dll",
-    TargetOsType.linux: "librealm_dart.so",
-  };
-
-  Future<bool> _skipInstall() async {
-    if (debug) {
-      print("Debug flag set. Continuing Realm install command execution");
-      return false;
+  String _getBinaryPath(String realmPackagePath) {
+    if (isFlutter) {
+      switch (options.targetOsType) {
+        case TargetOsType.android:
+          return path.join(realmPackagePath, "android", "src", "main", "cpp", "lib");
+        case TargetOsType.ios:
+          return path.join(realmPackagePath, "ios");
+        case TargetOsType.macos:
+          return path.join(realmPackagePath, "macos");
+        case TargetOsType.linux:
+          return path.join(realmPackagePath, "linux", "binary");
+        case TargetOsType.windows:
+          return path.join(realmPackagePath, "windows", "binary", "windows");
+        default:
+          throw Exception("Unsupported target OS type for Flutter: ${options.targetOsType}");
+      }
     }
 
-    var pubspecFile = await File("pubspec.yaml").readAsString();
-    final projectPubspec = Pubspec.parse(pubspecFile);
-    if (projectPubspec.name == "realm" || projectPubspec.name == "realm_dart" || projectPubspec.name == packageName) {
-      return true;
-    }
-
-    const realmPackages = <String>{"realm", "realm_dart", "realm_common", "realm_generator"};
-    isPathDependency(MapEntry<String, Dependency> entry) => (realmPackages.contains(entry.key) && entry.value is PathDependency);
-
-    bool hasPathDependency = projectPubspec.dependencies.entries.any(isPathDependency);
-    hasPathDependency = hasPathDependency || projectPubspec.dependencyOverrides.entries.any(isPathDependency);
-    return hasPathDependency;
+    return path.join(Directory.current.absolute.path, 'binary', options.targetOsType!.name);
   }
 
   Future<bool> _skipDownload(String binariesPath, String expectedVersion) async {
@@ -103,10 +90,11 @@ class InstallCommand extends Command<void> {
       return;
     }
 
-    final destinationFile = File(path.join(destinationDir.absolute.path, archiveName));
     if (!await destinationDir.exists()) {
       await destinationDir.create(recursive: true);
     }
+
+    final destinationFile = File(path.join(Directory.systemTemp.absolute.path, "realm-binary", archiveName));
 
     print("Downloading Realm binaries for $packageName@${realmPubspec.version} to ${destinationFile.absolute.path}");
     final client = HttpClient();
@@ -133,51 +121,6 @@ class InstallCommand extends Command<void> {
 
     final versionFile = File(path.join(destinationDir.absolute.path, versionFileName));
     await versionFile.writeAsString("${realmPubspec.version}");
-  }
-
-  Future<void> _copyRealmBinary(String binaryName, String target, Directory downloadDir) async {
-    final binaryFile = File(path.join(target, binaryName));
-    //create parent dirs if needed
-    await binaryFile.create(recursive: true);
-
-    final downloadedBinaryFile = File(path.join(downloadDir.absolute.path, binaryName));
-    print("Copying realm binary ${downloadedBinaryFile.absolute.path} to ${binaryFile.absolute.path}");
-    await downloadedBinaryFile.copy(binaryFile.absolute.path);
-  }
-
-  Future<void> _downloadAndExtractFlutterBinaries(String realmPackagePath, Pubspec realmPubspec) async {
-    final targetOs = options.targetOsType;
-    if (targetOs == null) {
-      throw Exception("Target OS not specified");
-    }
-
-    final flutterBinaryPath = _flutterBinaryPaths[targetOs];
-    if (flutterBinaryPath == null) {
-      throw Exception("Unsupported target OS: $targetOs");
-    }
-
-    final destinationDir = Directory(path.join(path.dirname(realmPackagePath), flutterBinaryPath));
-    final archiveName = "${targetOs.name}.tar.gz";
-    await _downloadAndExtractBinaries(destinationDir, realmPubspec, archiveName);
-  }
-
-  Future<void> _downloadAndExtractDartBinaries(Pubspec realmPubspec) async {
-    final targetOs = options.targetOsType;
-    if (targetOs == null) {
-      throw Exception("Target OS not specified");
-    }
-
-    final dartBinaryName = _dartBinaryNames[targetOs];
-    if (dartBinaryName == null) {
-      throw Exception("Unsupported target OS for dart: $targetOs");
-    }
-
-    final destinationDir = Directory(path.join(Directory.systemTemp.absolute.path, "realm-binary", targetOs.name));
-    final archiveName = "${targetOs.name}.tar.gz";
-    await _downloadAndExtractBinaries(destinationDir, realmPubspec, archiveName);
-
-    final binaryDir = path.join(Directory.current.absolute.path, 'binary', targetOs.name);
-    await _copyRealmBinary(dartBinaryName, binaryDir, destinationDir);
   }
 
   Future<String> _getRealmPackagePath() async {
@@ -210,36 +153,26 @@ class InstallCommand extends Command<void> {
 
       return pubspec;
     } on Exception catch (e) {
-      throw Exception("Error parsing package `$packageName` pubspect at $path. Error $e");
+      throw Exception("Error parsing package `$packageName` pubspec at $path. Error $e");
     }
   }
 
   @override
   FutureOr<void>? run() async {
     await _runInternal();
-    print("Realm install comamnd finished.");
+    print("Realm install command finished.");
   }
 
   FutureOr<void>? _runInternal() async {
     options = parseOptionsResult(argResults!);
     _validateOptions();
 
-    if (await _skipInstall()) {
-      print("Realm install command started from within the realm-dart repo or one of the realm packages is a path dependency or has a path dependency override."
-          " Skipping install.");
-      return;
-    }
-
     final realmPackagePath = await _getRealmPackagePath();
     final realmPubspec = await _parseRealmPubspec(realmPackagePath);
 
-    if (isFlutter) {
-      await _downloadAndExtractFlutterBinaries(realmPackagePath, realmPubspec);
-    } else if (isDart) {
-      await _downloadAndExtractDartBinaries(realmPubspec);
-    } else {
-      abort("Unsupported target package $packageName");
-    }
+    final binaryPath = Directory(_getBinaryPath(path.dirname(realmPackagePath)));
+    final archiveName = "${options.targetOsType!.name}.tar.gz";
+    await _downloadAndExtractBinaries(binaryPath, realmPubspec, archiveName);
   }
 
   void _validateOptions() {
