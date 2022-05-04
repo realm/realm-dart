@@ -144,7 +144,7 @@ Future<void> main([List<String>? args]) async {
     // Make sure the email haven't been already registered in apllication.
 
     // Enter a valid email that is not registered
-    const String _validUsername = "valid_email@mail.com";
+    const String validUsername = "valid_email@mail.com";
     baasTest('1. Register a valid user for email confirmation', (configuration) async {
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
