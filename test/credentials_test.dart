@@ -135,23 +135,23 @@ Future<void> main([List<String>? args]) async {
     }, throws<RealmException>("invalid token data"));
   }, appName: "emailConfirm");
 
-  group("Email/Password - confirm user - manual tests", () {
-    // The tests in this group are for manual testing, since they require interaction with mail box.
-    // Please enter a valid data in the variables under comments.
-    // Run test 1, then copy token and tokenId from mail box.
-    // Set the variables with token details and then run test 2.
-    // Go to the application and check whether the new registered user is confirmed.
-    // Make sure the email haven't been already registered in apllication.
-
+  // The tests in this group are for manual testing, since they require interaction with mail box.
+  // Please enter a valid data in the variables under comments.
+  // Run test 1, then copy token and tokenId from mail box.
+  // Set the variables with token details and then run test 2.
+  // Go to the application and check whether the new registered user is confirmed.
+  // Make sure the email haven't been already registered in apllication.
+group("Manual test: Email/Password - confirm user", () {
     // Enter a valid email that is not registered
-    const String _validUsername = "valid_email@mail.com";
-    baasTest('1. Register a valid user for email confirmation', (configuration) async {
+    const String validUsername = "valid_email@mail.com";
+
+    baasTest('Manual test 1. Register a valid user for email confirmation', (configuration) async {
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
-      await authProvider.registerUser(_validUsername, strongPassword);
+      await authProvider.registerUser(validUsername, strongPassword);
     }, appName: "emailConfirm", skip: "It is a manual test");
 
-    baasTest('2. Take the recieved token from the email and confirm the user', (configuration) async {
+    baasTest('Manual test 2. Take the recieved token from the email and confirm the user', (configuration) async {
       // Enter valid token and tokenId from the received email
       String token = "3a8bdfa28e147f38e531cf5aca93d452a11efc4fc9a81f00219b0cb29cfb93858f6b174123659a6ef47b58a2b80eac3b406d7803605c17ef44401ec6cf2c8fa6";
       String tokenId = "626934dcb4e7e5a0e2f1d85e";
@@ -159,7 +159,7 @@ Future<void> main([List<String>? args]) async {
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
       await authProvider.confirmUser(token, tokenId);
-      final user = await loginWithRetry(app, Credentials.emailPassword(_validUsername, strongPassword), 3);
+      final user = await loginWithRetry(app, Credentials.emailPassword(validUsername, strongPassword), 3);
       expect(user, isNotNull);
     }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
   });
@@ -170,15 +170,11 @@ Future<void> main([List<String>? args]) async {
     String username = "realm_tests_pending_confirm_${generateRandomString(5)}@bar.com";
     await authProvider.registerUser(username, strongPassword);
 
-    const String source = "exports = ({ token, tokenId, username }) => {return { status: 'success' }};";
-    await updateConfirmFunctionSource("flexible", source);
-
     await authProvider.retryCustomConfirmationFunction(username);
 
-    await updateConfirmFunctionSource("flexible");
     final user = await loginWithRetry(app, Credentials.emailPassword(username, strongPassword), 3);
     expect(user, isNotNull);
-  }, appName: "flexible", skip: "Run this test manually, since it changes the function source of the app");
+  }, appName: "flexible");
 
   baasTest('Email/Password - retry custom confirmation after user is confirmed', (configuration) async {
     final app = App(configuration);
@@ -201,25 +197,25 @@ Future<void> main([List<String>? args]) async {
     }, throws<RealmException>("user not found"));
   });
 
-  group("Email/Password - resend confirm - manual tests", () {
-    // The tests in this group are for manual testing, since they require interaction with mail box.
-    // Please enter a valid data in the variables under comments.
-    // Run test 1, then make sure you have recieved two emails.
-    // Copy token and tokenId from the second email.
-    // Set the variables with token details and then run test 2.
-    // Go to the application and check whether the new registered user is confirmed.
-    // Make sure the email haven't been already registered in apllication.
-
+  // The tests in this group are for manual testing, since they require interaction with mail box.
+  // Please enter a valid data in the variables under comments.
+  // Run test 1, then make sure you have recieved two emails.
+  // Copy token and tokenId from the second email.
+  // Set the variables with token details and then run test 2.
+  // Go to the application and check whether the new registered user is confirmed.
+  // Make sure the email haven't been already registered in apllication.
+  group("Manual test: Email/Password - resend confirm", () {
+    
     // Enter a valid email that is not registered
-    const String _validUsername = "valid_email@mail.com";
-    baasTest('1. Register a valid user and resend email confirmation', (configuration) async {
+    const String validUsername = "valid_email@mail.com";
+    baasTest('Manual test 1. Register a valid user and resend email confirmation', (configuration) async {
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
-      await authProvider.registerUser(_validUsername, strongPassword);
-      await authProvider.resendUserConfirmation(_validUsername);
+      await authProvider.registerUser(validUsername, strongPassword);
+      await authProvider.resendUserConfirmation(validUsername);
     }, appName: "emailConfirm", skip: "It is a manual test");
 
-    baasTest('2. Take recieved token from any of both emails and confirm the user', (configuration) async {
+    baasTest('Manual test 2. Take recieved token from any of both emails and confirm the user', (configuration) async {
       // Make sure you have recieved two emails.
       // Enter valid token and tokenId from the second received email
       String token = "3eb9e380e925075af761fbf36273ad32c5ad898e7cd5fc2e7cf5d0296c5850222ecb55d5d39601f95fc81a67f4b4ca1f7386bc6fef62a0b27498c3157332e155";
@@ -228,7 +224,7 @@ Future<void> main([List<String>? args]) async {
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
       await authProvider.confirmUser(token, tokenId);
-      final user = await loginWithRetry(app, Credentials.emailPassword(_validUsername, strongPassword), 3);
+      final user = await loginWithRetry(app, Credentials.emailPassword(validUsername, strongPassword), 3);
       expect(user, isNotNull);
     }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
   });
