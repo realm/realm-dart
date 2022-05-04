@@ -15,7 +15,6 @@ jobs:
     name: Prepare packages
     outputs:
       version: ${{ steps.get-version.outputs.version }}
-      release-folder: ${{ steps.archive-binaries.outputs.folder }}
 
     steps:
     - name: Checkout code
@@ -27,6 +26,7 @@ jobs:
       id: get-version
       run: |
         pkgVersion=$(sed -ne "s/^version: \(.*\)/\1/p" pubspec.yaml)
+        pkgVersion="$pkgVersion${{ github.event.inputs.environment != 'Production' && ('-' + github.sha) || '' }}"
         echo "::set-output name=version::$pkgVersion"
       shell: bash
 
@@ -46,7 +46,6 @@ jobs:
     # The rename is necessary because action-download-artifact will put things in a folder named the same
     # as the artifact name - i.e. librealm-linux, etc.
     - name: Archive binaries
-      id: archive-binaries
       run: |
         for directory in binary/*; do
           targetDir="binary/${directory#*-}"
@@ -54,10 +53,8 @@ jobs:
           dart run realm_dart archive --source-dir "${{ github.workspace }}/$targetDir"
         done
 
-        targetFolder="${{ github.event.inputs.environment == 'Production' && steps.get-version.outputs.version || github.sha }}"
-        mkdir -p release/$targetFolder
-        mv binary/*.tar.gz release/$targetFolder
-        echo "::set-output name=folder::$targetFolder"
+        mkdir -p release/${{ steps.get-version.outputs.version }}
+        mv binary/*.tar.gz release/${{ steps.get-version.outputs.version }}
 
     - name: Update realm_* path dependencies (Production)
       uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
@@ -75,6 +72,15 @@ jobs:
         replace: "  realm_$1:\n    path: ../$1"
         include: "**pubspec.yaml"
 
+    - name: Update pubspec.yaml version (Staging)
+      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
+      if: ${{ github.event.inputs.environment != 'Production' }}
+      with:
+        find: 'version: .*'
+        replace: 'version: ${{ steps.update-changelog.outputs.new-version }}'
+        include: '**pubspec.yaml'
+
+
     - name: Remove pubspec.yaml/publish_to:none
       uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
       with:
@@ -87,14 +93,14 @@ jobs:
         cp -Lr ../../common .
         cd common
         dart pub publish --dry-run || true
-      working-directory: release/${{ steps.archive-binaries.outputs.folder }}
+      working-directory: release/${{ steps.get-version.outputs.version }}
 
     - name: Package generator
       run: |
         cp -Lr ../../generator .
         cd generator
         dart pub publish --dry-run || true
-      working-directory: release/${{ steps.archive-binaries.outputs.folder }}
+      working-directory: release/${{ steps.get-version.outputs.version }}
 
     # realm_flutter has symlinks to native binaries which should not be packaged
     - name: Cleanup binary symlinks
@@ -112,7 +118,7 @@ jobs:
         cp -Lr ../../flutter/realm_flutter realm
         cd realm
         dart pub publish --dry-run || true
-      working-directory: release/${{ steps.archive-binaries.outputs.folder }}
+      working-directory: release/${{ steps.get-version.outputs.version }}
 
     - name: Package realm_dart
       run: |
@@ -121,14 +127,14 @@ jobs:
         rsync -vt ../../* realm_dart/
         cd realm_dart
         dart pub publish --dry-run || true
-      working-directory: release/${{ steps.archive-binaries.outputs.folder }}
+      working-directory: release/${{ steps.get-version.outputs.version }}
 
     - name: Extract Changelog
       run: |
         $match = Get-Content ../../CHANGELOG.md -Raw | select-string -pattern "(?ms)^(?<latestVersionChanges>.+?)(?=(\n|\r\n)## )"
         $latestChanges = $match.Matches[0].Groups["latestVersionChanges"].Value;
         $latestChanges | Out-File ExtractedChangelog.md
-      working-directory: release/${{ steps.archive-binaries.outputs.folder }}
+      working-directory: release/${{ steps.get-version.outputs.version }}
       shell: pwsh
 
     - name: Upload release folder
@@ -151,10 +157,10 @@ jobs:
         tar -zcvf packages.tar.gz common generator realm_dart realm ExtractedChangelog.md
         rm -rf common generator realm_dart realm ExtractedChangelog.md
 
-        s3_folder="static.realm.io/downloads/dart/${{ steps.archive-binaries.outputs.folder }}"
+        s3_folder="static.realm.io/downloads/dart/${{ steps.get-version.outputs.version }}"
         aws s3 sync --acl public-read . "s3://$s3_folder"
         echo "::set-output name=url::https://$s3_folder/packages.tar.gz"
-      working-directory: release/${{ steps.archive-binaries.outputs.folder }}
+      working-directory: release/${{ steps.get-version.outputs.version }}
   publish-packages:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.environment == 'Production' }}

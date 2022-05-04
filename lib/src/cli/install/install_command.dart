@@ -44,18 +44,27 @@ class InstallCommand extends Command<void> {
 
   bool get isFlutter => options.packageName == "realm";
   bool get isDart => options.packageName == "realm_dart";
-  bool get isTargetAndroid => options.targetOsType == TargetOsType.android;
-  bool get isTargetiOS => options.targetOsType == TargetOsType.ios;
-  bool get isTargetMacOS => options.targetOsType == TargetOsType.macos;
-  bool get isTargetWindows => options.targetOsType == TargetOsType.windows;
-  bool get isTargetLinux => options.targetOsType == TargetOsType.linux;
   bool get debug => options.debug ?? false;
 
   InstallCommand() {
     populateOptionsParser(argParser);
   }
 
-  Future<bool> skipInstall() async {
+  final Map<TargetOsType, String> _flutterBinaryPaths = {
+    TargetOsType.android: path.join("android", "src", "main", "cpp", "lib"),
+    TargetOsType.ios: "ios",
+    TargetOsType.macos: "macos",
+    TargetOsType.windows: path.join("windows", "binary"),
+    TargetOsType.linux: path.join("linux", "binary"),
+  };
+
+  final Map<TargetOsType, String> _dartBinaryNames = {
+    TargetOsType.macos: "librealm_dart.dylib",
+    TargetOsType.windows: "realm_dart.dll",
+    TargetOsType.linux: "librealm_dart.so",
+  };
+
+  Future<bool> _skipInstall() async {
     if (debug) {
       print("Debug flag set. Continuing Realm install command execution");
       return false;
@@ -75,7 +84,7 @@ class InstallCommand extends Command<void> {
     return hasPathDependency;
   }
 
-  Future<bool> skipDownload(String binariesPath, String expectedVersion) async {
+  Future<bool> _skipDownload(String binariesPath, String expectedVersion) async {
     final versionsFile = File(path.join(binariesPath, versionFileName));
 
     if (!await versionsFile.exists()) {
@@ -89,13 +98,11 @@ class InstallCommand extends Command<void> {
     return expectedVersion == existingVersion;
   }
 
-  Future<void> downloadAndExtractAndroidBinaries(String realmPackagePath, Pubspec realmPubspec) async {
-    var destinationDir = Directory(path.join(path.dirname(realmPackagePath), "android", "src", "main", "cpp", "lib"));
-    if (await skipDownload(destinationDir.absolute.path, realmPubspec.version.toString())) {
+  Future<void> _downloadAndExtractBinaries(Directory destinationDir, Pubspec realmPubspec, String archiveName) async {
+    if (await _skipDownload(destinationDir.absolute.path, realmPubspec.version.toString())) {
       return;
     }
 
-    var archiveName = "android.tar.gz";
     final destinationFile = File(path.join(destinationDir.absolute.path, archiveName));
     if (!await destinationDir.exists()) {
       await destinationDir.create(recursive: true);
@@ -103,7 +110,7 @@ class InstallCommand extends Command<void> {
 
     print("Downloading Realm binaries for $packageName@${realmPubspec.version} to ${destinationFile.absolute.path}");
     final client = HttpClient();
-    var url = 'https://github.com/realm/realm-dart/releases/download/${realmPubspec.version}/$archiveName';
+    var url = 'https://static.realm.io/downloads/dart/${realmPubspec.version}/$archiveName';
     if (debug) {
       url = 'http://localhost:8000/$archiveName';
     }
@@ -124,220 +131,56 @@ class InstallCommand extends Command<void> {
     final archive = Archive();
     await archive.extract(destinationFile, destinationDir);
 
-    await saveVersionFile(destinationDir, realmPubspec);
-  }
-
-  Future<void> downloadAndExtractiOSBinaries(String realmPackagePath, Pubspec realmPubspec) async {
-    var destinationDir = Directory(path.join(path.dirname(realmPackagePath), "ios"));
-    if (await skipDownload(destinationDir.absolute.path, realmPubspec.version.toString())) {
-      return;
-    }
-
-    var archiveName = "ios.tar.gz";
-    final destinationFile = File(path.join(destinationDir.absolute.path, archiveName));
-    if (!await destinationDir.exists()) {
-      await destinationDir.create(recursive: true);
-    }
-
-    print("Downloading Realm binaries for $packageName@${realmPubspec.version} to ${destinationFile.absolute.path}");
-    final client = HttpClient();
-    try {
-      var url = 'https://github.com/realm/realm-dart/releases/download/${realmPubspec.version}/$archiveName';
-      if (debug) {
-        url = 'http://localhost:8000/$archiveName';
-      }
-      final request = await HttpClient().getUrl(Uri.parse(url));
-      final response = await request.close();
-      if (response.statusCode >= 400) {
-        throw Exception("Error downloading Realm binaries from $url. Error code: ${response.statusCode}");
-      }
-      await response.pipe(destinationFile.openWrite());
-    }
-    //TODO: This does not handle download errors.
-     finally {
-      client.close(force: true);
-    }
-
-    print("Extracting Realm binaries to ${destinationDir.absolute.path}");
-    final archive = Archive();
-    await archive.extract(destinationFile, destinationDir);
-
-    await saveVersionFile(destinationDir, realmPubspec);
-  }
-
-  Future<void> downloadAndExtractMacOSFlutterBinaries(String realmPackagePath, Pubspec realmPubspec) async {
-    var destinationDir = Directory(path.join(path.dirname(realmPackagePath), "macos"));
-    if (await skipDownload(destinationDir.absolute.path, realmPubspec.version.toString())) {
-      return;
-    }
-
-    var archiveName = "macos.tar.gz";
-    final destinationFile = File(path.join(destinationDir.absolute.path, archiveName));
-    if (!await destinationDir.exists()) {
-      await destinationDir.create(recursive: true);
-    }
-
-    print("Downloading Realm binaries for $packageName@${realmPubspec.version} to ${destinationFile.absolute.path}");
-    final client = HttpClient();
-    try {
-      var url = 'https://github.com/realm/realm-dart/releases/download/${realmPubspec.version}/$archiveName';
-      if (debug) {
-        url = 'http://localhost:8000/$archiveName';
-      }
-      final request = await HttpClient().getUrl(Uri.parse(url));
-      final response = await request.close();
-      if (response.statusCode >= 400) {
-        throw Exception("Error downloading Realm binaries from $url. Error code: ${response.statusCode}");
-      }
-      await response.pipe(destinationFile.openWrite());
-    }
-    //TODO: This does not handle download errors.
-     finally {
-      client.close(force: true);
-    }
-
-    print("Extracting Realm binaries to ${destinationDir.absolute.path}");
-    final archive = Archive();
-    await archive.extract(destinationFile, destinationDir);
-    await saveVersionFile(destinationDir, realmPubspec);
-  }
-
-  Future<void> downloadAndExtractWindowsFlutterBinaries(String realmPackagePath, Pubspec realmPubspec) async {
-    var destinationDir = Directory(path.join(path.dirname(realmPackagePath), "windows", "binary", "windows"));
-    if (await skipDownload(destinationDir.absolute.path, realmPubspec.version.toString())) {
-      return;
-    }
-
-    var archiveName = "windows.tar.gz";
-    final destinationFile = File(path.join(destinationDir.absolute.path, archiveName));
-    if (!await destinationDir.exists()) {
-      await destinationDir.create(recursive: true);
-    }
-
-    print("Downloading Realm binaries for $packageName@${realmPubspec.version} to ${destinationFile.absolute.path}");
-    final client = HttpClient();
-    try {
-      // debug url
-      var url = 'https://github.com/realm/realm-dart/releases/download/${realmPubspec.version}/$archiveName';
-      if (debug) {
-        url = 'http://localhost:8000/$archiveName';
-      }
-      final request = await HttpClient().getUrl(Uri.parse(url));
-      final response = await request.close();
-      if (response.statusCode >= 400) {
-        throw Exception("Error downloading Realm binaries from $url. Error code: ${response.statusCode}");
-      }
-      await response.pipe(destinationFile.openWrite());
-    }
-    //TODO: This does not handle download errors.
-     finally {
-      client.close(force: true);
-    }
-
-    print("Extracting Realm binaries to ${destinationDir.absolute.path}");
-    final archive = Archive();
-    await archive.extract(destinationFile, destinationDir);
-    await saveVersionFile(destinationDir, realmPubspec);
-  }
-
-  Future<void> downloadAndExtractWindowsBinaries(String realmPackagePath, Pubspec realmPubspec) async {
-    final destinationDir = Directory(path.join(Directory.systemTemp.absolute.path, "realm-binary", "windows"));
-    final archiveName = "windows.tar.gz";
-    final destinationFile = File(path.join(destinationDir.absolute.path, archiveName));
-    if (!await skipDownload(destinationDir.absolute.path, realmPubspec.version.toString())) {
-      await download(destinationFile, realmPubspec, archiveName);
-    }
-
-    print("Extracting Realm binaries to ${destinationDir.absolute.path}");
-    final archive = Archive();
-    await archive.extract(destinationFile, destinationDir);
-    await saveVersionFile(destinationDir, realmPubspec);
-
-    final binaryName = "realm_dart.dll";
-    final binaryFile = File(path.join(Directory.current.absolute.path, "binary", "windows", binaryName));
-    //create parent dirs if needed
-    await binaryFile.create(recursive: true);
-
-    final dowloadedBinaryFile = File(path.join(destinationDir.absolute.path, binaryName));
-    print("Copying realm binary ${dowloadedBinaryFile.absolute.path} to ${binaryFile.absolute.path}");
-    await dowloadedBinaryFile.copy(binaryFile.absolute.path);
-  }
-
-  Future<void> downloadAndExtractMacOSBinaries(String realmPackagePath, Pubspec realmPubspec) async {
-    final destinationDir = Directory(path.join(Directory.systemTemp.absolute.path, "realm-binary", "macos"));
-    final archiveName = "macos.tar.gz";
-    final destinationFile = File(path.join(destinationDir.absolute.path, archiveName));
-    if (!await skipDownload(destinationDir.absolute.path, realmPubspec.version.toString())) {
-      await download(destinationFile, realmPubspec, archiveName);
-    }
-
-    print("Extracting Realm binaries to ${destinationDir.absolute.path}");
-    final archive = Archive();
-    await archive.extract(destinationFile, destinationDir);
-    await saveVersionFile(destinationDir, realmPubspec);
-
-    final binaryName = "librealm_dart.dylib";
-    final binaryFile = File(path.join(Directory.current.absolute.path, binaryName));
-
-    final dowloadedBinaryFile = File(path.join(destinationDir.absolute.path, binaryName));
-    print("Copying realm binary ${dowloadedBinaryFile.absolute.path} to ${binaryFile.absolute.path}");
-    await dowloadedBinaryFile.copy(binaryFile.absolute.path);
-  }
-
-  Future<void> downloadAndExtractLinuxBinaries(String realmPackagePath, Pubspec realmPubspec) async {
-    final destinationDir = Directory(path.join(Directory.systemTemp.absolute.path, "realm-binary", "linux"));
-    final archiveName = "linux.tar.gz";
-    final destinationFile = File(path.join(destinationDir.absolute.path, archiveName));
-    if (!await skipDownload(destinationDir.absolute.path, realmPubspec.version.toString())) {
-      await download(destinationFile, realmPubspec, archiveName);
-    }
-
-    print("Extracting Realm binaries to ${destinationDir.absolute.path}");
-    final archive = Archive();
-    await archive.extract(destinationFile, destinationDir);
-    await saveVersionFile(destinationDir, realmPubspec);
-
-    final binaryName = "librealm_dart.so";
-    final binaryFile = File(path.join(Directory.current.absolute.path, "binary", "linux", binaryName));
-    //create parent dirs if needed
-    await binaryFile.create(recursive: true);
-
-    final dowloadedBinaryFile = File(path.join(destinationDir.absolute.path, binaryName));
-    print("Copying realm binary ${dowloadedBinaryFile.absolute.path} to ${binaryFile.absolute.path}");
-    await dowloadedBinaryFile.copy(binaryFile.absolute.path);
-  }
-
-  Future<void> download(File destinationFile, Pubspec realmPubspec, String archiveName) async {
-    if (!await destinationFile.exists()) {
-      await destinationFile.create(recursive: true);
-    }
-
-    print("Downloading Realm binaries for $packageName@${realmPubspec.version} to ${destinationFile.absolute.path}");
-    final client = HttpClient();
-    try {
-      var url = 'https://github.com/realm/realm-dart/releases/download/${realmPubspec.version}/$archiveName';
-      if (debug) {
-        url = 'http://localhost:8000/$archiveName';
-      }
-      final request = await HttpClient().getUrl(Uri.parse(url));
-      final response = await request.close();
-      if (response.statusCode >= 400) {
-        throw Exception("Error downloading Realm binaries from $url. Error code: ${response.statusCode}");
-      }
-      await response.pipe(destinationFile.openWrite());
-    }
-    //TODO: This does not handle download errors.
-     finally {
-      client.close(force: true);
-    }
-  }
-
-  Future<void> saveVersionFile(Directory destinationDir, Pubspec realmPubspec) async {
-    var versionFile = File(path.join(destinationDir.absolute.path, versionFileName));
+    final versionFile = File(path.join(destinationDir.absolute.path, versionFileName));
     await versionFile.writeAsString("${realmPubspec.version}");
   }
 
-  Future<String> getRealmPackagePath() async {
+  Future<void> _copyRealmBinary(String binaryName, String target, Directory downloadDir) async {
+    final binaryFile = File(path.join(target, binaryName));
+    //create parent dirs if needed
+    await binaryFile.create(recursive: true);
+
+    final downloadedBinaryFile = File(path.join(downloadDir.absolute.path, binaryName));
+    print("Copying realm binary ${downloadedBinaryFile.absolute.path} to ${binaryFile.absolute.path}");
+    await downloadedBinaryFile.copy(binaryFile.absolute.path);
+  }
+
+  Future<void> _downloadAndExtractFlutterBinaries(String realmPackagePath, Pubspec realmPubspec) async {
+    final targetOs = options.targetOsType;
+    if (targetOs == null) {
+      throw Exception("Target OS not specified");
+    }
+
+    final flutterBinaryPath = _flutterBinaryPaths[targetOs];
+    if (flutterBinaryPath == null) {
+      throw Exception("Unsupported target OS: $targetOs");
+    }
+
+    final destinationDir = Directory(path.join(path.dirname(realmPackagePath), flutterBinaryPath));
+    final archiveName = "${targetOs.name}.tar.gz";
+    await _downloadAndExtractBinaries(destinationDir, realmPubspec, archiveName);
+  }
+
+  Future<void> _downloadAndExtractDartBinaries(Pubspec realmPubspec) async {
+    final targetOs = options.targetOsType;
+    if (targetOs == null) {
+      throw Exception("Target OS not specified");
+    }
+
+    final dartBinaryName = _dartBinaryNames[targetOs];
+    if (dartBinaryName == null) {
+      throw Exception("Unsupported target OS for dart: $targetOs");
+    }
+
+    final destinationDir = Directory(path.join(Directory.systemTemp.absolute.path, "realm-binary", targetOs.name));
+    final archiveName = "${targetOs.name}.tar.gz";
+    await _downloadAndExtractBinaries(destinationDir, realmPubspec, archiveName);
+
+    final binaryDir = path.join(Directory.current.absolute.path, 'binary', targetOs.name);
+    await _copyRealmBinary(dartBinaryName, binaryDir, destinationDir);
+  }
+
+  Future<String> _getRealmPackagePath() async {
     final packageConfig = await findPackageConfig(Directory.current);
     if (packageConfig == null) {
       throw Exception("Package configuration not found. "
@@ -357,7 +200,7 @@ class InstallCommand extends Command<void> {
     return realmPackagePath;
   }
 
-  Future<Pubspec> parseRealmPubspec(String path) async {
+  Future<Pubspec> _parseRealmPubspec(String path) async {
     try {
       var realmPubspecFile = await File(path).readAsString();
       final pubspec = Pubspec.parse(realmPubspecFile);
@@ -373,47 +216,37 @@ class InstallCommand extends Command<void> {
 
   @override
   FutureOr<void>? run() async {
-    await runInternal();
+    await _runInternal();
     print("Realm install comamnd finished.");
   }
 
-  FutureOr<void>? runInternal() async {
+  FutureOr<void>? _runInternal() async {
     options = parseOptionsResult(argResults!);
-    validateOptions();
+    _validateOptions();
 
-    if (await skipInstall()) {
+    if (await _skipInstall()) {
       print("Realm install command started from within the realm-dart repo or one of the realm packages is a path dependency or has a path dependency override."
           " Skipping install.");
       return;
     }
 
-    String realmPackagePath = await getRealmPackagePath();
-    Pubspec realmPubspec = await parseRealmPubspec(realmPackagePath);
+    final realmPackagePath = await _getRealmPackagePath();
+    final realmPubspec = await _parseRealmPubspec(realmPackagePath);
 
-    if (isTargetAndroid) {
-      return await downloadAndExtractAndroidBinaries(realmPackagePath, realmPubspec);
-    } else if (isTargetiOS) {
-      return await downloadAndExtractiOSBinaries(realmPackagePath, realmPubspec);
-    } else if (isTargetMacOS && isFlutter) {
-      return await downloadAndExtractMacOSFlutterBinaries(realmPackagePath, realmPubspec);
-    } else if (isTargetWindows && isFlutter) {
-      return await downloadAndExtractWindowsFlutterBinaries(realmPackagePath, realmPubspec);
-    } else if (isTargetWindows && isDart) {
-      return await downloadAndExtractWindowsBinaries(realmPackagePath, realmPubspec);
-    } else if (isTargetMacOS && isDart) {
-      return await downloadAndExtractMacOSBinaries(realmPackagePath, realmPubspec);
-    } else if (isTargetLinux && isDart) {
-      return await downloadAndExtractLinuxBinaries(realmPackagePath, realmPubspec);
+    if (isFlutter) {
+      await _downloadAndExtractFlutterBinaries(realmPackagePath, realmPubspec);
+    } else if (isDart) {
+      await _downloadAndExtractDartBinaries(realmPubspec);
     } else {
-      abort("Unsupported target OS ${options.targetOsType} or package $packageName");
+      abort("Unsupported target package $packageName");
     }
   }
 
-  void validateOptions() {
+  void _validateOptions() {
     if (options.targetOsType == null && options.packageName == "realm") {
       abort("Invalid target OS.");
     } else if (options.targetOsType == null && options.packageName == "realm_dart") {
-      options.targetOsType = getTargetOS();
+      options.targetOsType = _getTargetOS();
     }
 
     if (!["realm", "realm_dart"].contains(options.packageName)) {
@@ -425,7 +258,7 @@ class InstallCommand extends Command<void> {
     }
   }
 
-  TargetOsType getTargetOS() {
+  TargetOsType _getTargetOS() {
     if (Platform.isWindows) {
       return TargetOsType.windows;
     } else if (Platform.isLinux) {
