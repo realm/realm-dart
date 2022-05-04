@@ -88,9 +88,7 @@ class $RemappedClass {
 }
 
 String? testName;
-Map<String, BaasApp> baasApps = <String, BaasApp>{};
-late BaasClient client;
-
+final baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
 
 //Overrides test method so we can filter tests
@@ -116,7 +114,6 @@ Future<void> setupTests(List<String>? args) async {
   parseTestNameFromArguments(args);
 
   await setupBaas();
-
   setUp(() {
     final path = generateRandomRealmPath();
     Configuration.defaultPath = path;
@@ -124,6 +121,8 @@ Future<void> setupTests(List<String>? args) async {
     addTearDown(() async {
       final paths = HashSet<String>();
       paths.add(path);
+
+      realmCore.clearCachedApps();
 
       while (_openRealms.isNotEmpty) {
         final realm = _openRealms.removeFirst();
@@ -205,8 +204,7 @@ Future<void> setupBaas() async {
   final privateApiKey = Platform.environment['BAAS_PRIVATE_API_KEY'];
   final projectId = Platform.environment['BAAS_PROJECT_ID'];
 
-  client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
-
+  final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
   baasApps.addAll(await client.getOrCreateApps());
 }
 
@@ -217,12 +215,13 @@ Future<void> baasTest(
   String appName = 'flexible',
   dynamic skip,
 }) async {
-  final url = Uri.tryParse(Platform.environment['BAAS_URL'] ?? 'https://realm-dev.mongodb.com');
+  final uriVariable = Platform.environment['BAAS_URL'];
+  final url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
 
   if (skip == null) {
-    skip = url == null ? "BAAS URL not present" : true;
+    skip = url == null ? "BAAS URL not present" : false;
   } else if (skip is bool) {
-    skip = skip || url == null ? "BAAS URL not present" : true;
+    skip = skip || url == null ? "BAAS URL not present" : false;
   }
 
   test(name, () async {

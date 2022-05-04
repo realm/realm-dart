@@ -14,7 +14,7 @@ pushd %PROJECT_ROOT%\build-windows
 SET EXIT_CODE=0
 
 cmake ^
-    -G "Visual Studio 16 2019" ^
+    -G "Visual Studio 17 2022" ^
     -A x64 ^
     -DCMAKE_TOOLCHAIN_FILE="%PROJECT_ROOT%/src/realm-core/tools/vcpkg/ports/scripts/buildsystems/vcpkg.cmake" ^
     -DVCPKG_MANIFEST_DIR="%PROJECT_ROOT%/src/realm-core/tools/vcpkg" ^

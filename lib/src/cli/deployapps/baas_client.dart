@@ -160,8 +160,8 @@ class BaasClient {
     final confirmFuncId = await _createFunction(app, 'confirmFunc', _confirmFuncSource);
     final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
 
-    enableProvider(app, 'anon-user');
-    enableProvider(app, 'local-userpass', '''{
+    await enableProvider(app, 'anon-user');
+    await enableProvider(app, 'local-userpass', '''{
       "autoConfirm": ${(confirmationType == "auto").toString()},
       "confirmEmailSubject": "Confirmation required",
       "confirmationFunctionName": "confirmFunc",
