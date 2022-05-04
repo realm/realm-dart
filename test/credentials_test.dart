@@ -36,7 +36,7 @@ Future<User> loginWithRetry(App app, Credentials credentials, int retryCount) as
 
 Future<void> main([List<String>? args]) async {
 
-  const String _strongPassword = "SWV23R#@T#VFQDV";
+  const String strongPassword = "SWV23R#@T#VFQDV";
 
   print("Current PID $pid");
 
