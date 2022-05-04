@@ -61,8 +61,7 @@ class User {
 
   /// The current state of this [User].
   UserState get state {
-    final nativeState = realmCore.userGetState(this);
-    return UserState.values.fromIndex(nativeState);
+    return realmCore.userGetState(this);
   }
 
   /// Get this [User]'s identity on MongoDB Realm
