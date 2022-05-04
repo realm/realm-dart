@@ -105,6 +105,7 @@ jobs:
         rm linux/binary
         rm windows/binary
         rm macos/librealm_dart.dylib
+        rm example/binary
       working-directory: flutter/realm_flutter
 
     - name: Package realm_flutter
@@ -148,8 +149,18 @@ jobs:
     - name: Upload release folder to S3
       id: upload-to-s3
       run: |
-        tar --exclude='*.tar.gz' -zcvf packages.tar.gz .
-        rm -rf */
+        tar -zcvf common.tar.gz common
+        rm -rf common
+
+        tar -zcvf generator.tar.gz generator
+        rm -rf generator
+
+        tar -zcvf realm_dart.tar.gz realm_dart
+        rm -rf realm_dart
+
+        tar -zcvf realm_flutter.tar.gz realm_flutter
+        rm -rf realm_flutter
+
         s3_folder="static.realm.io/downloads/dart/${{ steps.archive-binaries.outputs.folder }}"
         aws s3 sync --acl public-read . "s3://$s3_folder"
         echo "::set-output name=url::https://$s3_folder/packages.tar.gz"
