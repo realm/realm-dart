@@ -1149,12 +1149,10 @@ class _RealmCore {
     return UserState.values.fromIndex(nativeUserState);
   }
 
-  UserIdentity userGetIdentity(User user) {
-    final idPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_identity(user.handle._pointer), "Error while getting user identity");
+  String userGetId(User user) {
+    final idPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_identity(user.handle._pointer), "Error while getting user id");
     final userId = idPtr.cast<Utf8>().toDartString();
-
-    final authProvider = _realmLib.realm_user_get_auth_provider(user.handle._pointer);
-    return UserIdentityInternal.create(userId, AuthProviderType.values.fromIndex(authProvider));
+    return userId;
   }
 
   List<UserIdentity> userGetIdentities(User user) {

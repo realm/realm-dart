@@ -64,9 +64,9 @@ class User {
     return realmCore.userGetState(this);
   }
 
-  /// Get this [User]'s identity on MongoDB Realm
-  UserIdentity get identity {
-    return realmCore.userGetIdentity(this);
+  /// Get this [User]'s id on MongoDB Realm
+  String get id {
+    return realmCore.userGetId(this);
   }
 
   /// Gets a collection of all identities associated with this [User]
