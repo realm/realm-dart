@@ -124,6 +124,8 @@ Future<void> setupTests(List<String>? args) async {
       final paths = HashSet<String>();
       paths.add(path);
 
+      realmCore.clearCachedApps();
+
       while (_openRealms.isNotEmpty) {
         final realm = _openRealms.removeFirst();
         paths.add(realm.config.path);
