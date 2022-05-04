@@ -151,8 +151,9 @@ jobs:
         tar --exclude='*.tar.gz' -zcvf packages.tar.gz .
         rm -rf */
         s3_folder="static.realm.io/downloads/dart/${{ steps.archive-binaries.outputs.folder }}"
-        aws s3 sync --acl public-read "${{ github.workspace }}/release/${{ steps.archive-binaries.outputs.folder }}" "s3://$s3_folder"
+        aws s3 sync --acl public-read . "s3://$s3_folder"
         echo "::set-output name=url::https://$s3_folder/packages.tar.gz"
+      working-directory: release/${{ steps.archive-binaries.outputs.folder }}
   publish-packages:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.environment == 'Production' }}
