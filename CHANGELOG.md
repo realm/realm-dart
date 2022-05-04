@@ -32,7 +32,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Support user custom data and refresh. ([#525](https://github.com/realm/realm-dart/pull/525))
 * Support linking user credentials. ([#525](https://github.com/realm/realm-dart/pull/525))
 * Support user state. ([#525](https://github.com/realm/realm-dart/pull/525))
-* Support getting user identity and all identities. ([#525](https://github.com/realm/realm-dart/pull/525))
+* Support getting user id and identities. ([#525](https://github.com/realm/realm-dart/pull/525))
 * Support user logout. ([#525](https://github.com/realm/realm-dart/pull/525))
 
 ### Fixed
