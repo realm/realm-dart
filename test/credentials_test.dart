@@ -196,36 +196,4 @@ group("Manual test: Email/Password - confirm user", () {
       await authProvider.retryCustomConfirmationFunction(username);
     }, throws<RealmException>("user not found"));
   });
-
-  // The tests in this group are for manual testing, since they require interaction with mail box.
-  // Please enter a valid data in the variables under comments.
-  // Run test 1, then make sure you have recieved two emails.
-  // Copy token and tokenId from the second email.
-  // Set the variables with token details and then run test 2.
-  // Go to the application and check whether the new registered user is confirmed.
-  // Make sure the email haven't been already registered in apllication.
-  group("Manual test: Email/Password - resend confirm", () {
-    
-    // Enter a valid email that is not registered
-    const String validUsername = "valid_email@mail.com";
-    baasTest('Manual test 1. Register a valid user and resend email confirmation', (configuration) async {
-      final app = App(configuration);
-      final authProvider = EmailPasswordAuthProvider(app);
-      await authProvider.registerUser(validUsername, strongPassword);
-      await authProvider.resendUserConfirmation(validUsername);
-    }, appName: "emailConfirm", skip: "It is a manual test");
-
-    baasTest('Manual test 2. Take recieved token from any of both emails and confirm the user', (configuration) async {
-      // Make sure you have recieved two emails.
-      // Enter valid token and tokenId from the second received email
-      String token = "3eb9e380e925075af761fbf36273ad32c5ad898e7cd5fc2e7cf5d0296c5850222ecb55d5d39601f95fc81a67f4b4ca1f7386bc6fef62a0b27498c3157332e155";
-      String tokenId = "626b1977dbc08e4014bad1ec";
-
-      final app = App(configuration);
-      final authProvider = EmailPasswordAuthProvider(app);
-      await authProvider.confirmUser(token, tokenId);
-      final user = await retryLogin(3, app.logIn, Credentials.emailPassword(validUsername, strongPassword));
-      expect(user, isNotNull);
-    }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
-  });
 }
