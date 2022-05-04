@@ -79,7 +79,7 @@ jobs:
       if: ${{ github.event.inputs.environment != 'Production' }}
       with:
         find: 'version: .*'
-        replace: 'version: ${{ steps.update-changelog.outputs.new-version }}'
+        replace: 'version: ${{ steps.get-version.outputs.version }}'
         include: '**pubspec.yaml'
 
 
