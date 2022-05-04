@@ -60,7 +60,7 @@ class InstallCommand extends Command<void> {
         case TargetOsType.macos:
           return path.join(realmPackagePath, "macos");
         case TargetOsType.linux:
-          return path.join(realmPackagePath, "linux", "binary");
+          return path.join(realmPackagePath, "linux", "binary", "linux");
         case TargetOsType.windows:
           return path.join(realmPackagePath, "windows", "binary", "windows");
         default:
