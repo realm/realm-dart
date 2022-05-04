@@ -54,7 +54,7 @@ DynamicLibrary initRealm() {
         return "${File(Platform.resolvedExecutable).parent.absolute.path}/../Frameworks/realm.framework/Resources/lib$binaryName.dylib";
       }
 
-      return "${Directory.current}/binary/macos/lib$binaryName.dylib";
+      return "${Directory.current.path}/binary/macos/lib$binaryName.dylib";
     }
 
     if (Platform.isWindows) {
