@@ -238,26 +238,25 @@ group("Manual test: Email/Password - confirm user", () {
     }, throws<RealmException>("user not found"));
   }, appName: "emailConfirm");
 
-  group("Email/Password - reset password - manual tests", () {
-    // The tests in this group are for manual testing, since they require interaction with mail box.
-    // Please enter a valid data in the variables under comments.
-    // The email should be already registered in the cloud Application.
-    // In case it is not registered you can create a new user with this email
-    // using test group "Email/Password - confirm user - manual tests"
-    // Then run test 1, then make sure you have recieved an email.
-    // Copy token and tokenId from the email.
-    // Set the variables with token details and then run test 2.
-    // Test 2 will set the pasword and will login the user with the new password.
-
+  // The tests in this group are for manual testing, since they require interaction with mail box.
+  // Please enter a valid data in the variables under comments.
+  // The email should be already registered in the cloud Application.
+  // In case it is not registered you can create a new user with this email
+  // using test group "Email/Password - confirm user - manual tests"
+  // Then run test 1, then make sure you have recieved an email.
+  // Copy token and tokenId from the email.
+  // Set the variables with token details and then run test 2.
+  // Test 2 will set the pasword and will login the user with the new password.
+group("Manual test: Email/Password - reset password - manual tests", () {
     // Enter a valid email that is not registered
-    const String _validUsername = "valid_email@mail.com";
-    baasTest('1. Reset user password email', (configuration) async {
+    const String validUsername = "valid_email@mail.com";
+    baasTest('Manual test 1. Reset user password email', (configuration) async {
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
-      await authProvider.resetPassword(_validUsername);
+      await authProvider.resetPassword(validUsername);
     }, appName: "emailConfirm", skip: "It is a manual test");
 
-    baasTest('2. Take recieved token from the email and complete resetting new password', (configuration) async {
+    baasTest('Manual test 2. Take recieved token from the email and complete resetting new password', (configuration) async {
       // Make sure you have recieved an emails with hyperlink ResetPassword.
       // Find the token and tokenId in the query parameters of the link received in the email and enter them in the following variables.
       String token = "fb485146b15497209a9d1b67128ae29199cdff2c26f389e0ee5d52ae6bc4228e5738b29256eade976e24767804bfb4dc68198075e3a461cd4f73864901fb09be";
@@ -267,7 +266,7 @@ group("Manual test: Email/Password - confirm user", () {
       final authProvider = EmailPasswordAuthProvider(app);
       String newPassword = "RWE@#EDE";
       await authProvider.completeResetPassword(newPassword, token, tokenId);
-      final user = await retryLogin(3, app.logIn, Credentials.emailPassword(_validUsername, newPassword));
+      final user = await loginWithRetry(app, Credentials.emailPassword(validUsername, strongPassword), 3);
       expect(user, isNotNull);
     }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
   });
