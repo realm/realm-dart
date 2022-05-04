@@ -26,8 +26,10 @@ jobs:
       id: get-version
       run: |
         pkgVersion=$(sed -ne "s/^version: \(.*\)/\1/p" pubspec.yaml)
-        pkgVersion="$pkgVersion${{ github.event.inputs.environment != 'Production' && format('-{0}', github.sha) || '' }}"
-        echo "::set-output name=version::$pkgVersion"
+        pkgSuffix="${{ github.event.inputs.environment != 'Production' && format('-{0}', github.sha) || '' }}"
+        echo $pkgVersion
+        echo $pkgSuffix
+        echo "::set-output name=version::$pkgVersion$pkgSuffix"
       shell: bash
 
     - name : Setup Dart SDK
