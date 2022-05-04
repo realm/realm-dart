@@ -64,14 +64,14 @@ jobs:
       with:
         find: "  realm_(common|generator):(\\n|\\r\\n)    path:.*"
         replace: "  realm_$1: ${{ steps.get-version.outputs.version }}"
-        include: "**/release/**/pubspec.yaml"
+        include: "**pubspec.yaml"
 
     - name: Remove pubspec.yaml/publish_to:none
       uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
       with:
         find: "publish_to: none(\\n|\\r\\n)"
         replace: "\\n"
-        include: "**/release/**/pubspec.yaml"
+        include: "**pubspec.yaml"
 
     - name: Package common
       run: |
@@ -222,13 +222,13 @@ jobs:
     - name: Publish Github Release
       uses: ncipollo/release-action@10c84d509b28aae3903113151bfd832314964f2e
       with:
-        artifacts: release/${{ steps.archive-binaries.outputs.folder }}/*.tar.gz
+        artifacts: release/${{ needs.prepare-packages.outputs.release-folder }}/*.tar.gz
         body: 'Update release notes'
         bodyFile: release/${{ needs.prepare-packages.outputs.release-folder }}/ExtractedChangelog.md
-        name: ${{ steps.get-version.outputs.version }}
+        name: ${{ needs.prepare-packages.outputs.version }}
         # TODO: move to master
         commit: test-master
-        tag: ${{ steps.get-version.outputs.version }}
+        tag: ${{ needs.prepare-packages.outputs.version }}
         token: ${{ secrets.GITHUB_TOKEN }}
         draft: true
 
