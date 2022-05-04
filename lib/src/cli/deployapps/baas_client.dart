@@ -90,7 +90,7 @@ class BaasClient {
         result[app.name] = app;
       }
     }
-    const String appName = "flexible";
+    String appName = "flexible";
     if (!result.containsKey(appName)) {
       result[appName] = await _createApp(appName);
     }
