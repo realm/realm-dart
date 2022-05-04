@@ -119,7 +119,7 @@ jobs:
     - name: Extract Changelog
       run: |
         $match = Get-Content ../../CHANGELOG.md -Raw | select-string -pattern "(?ms)^(?<latestVersionChanges>.+?)(?=(\n|\r\n)## )"
-        $latestChanges = $match.Matches[0].Groups["latestVersionChanges"];
+        $latestChanges = $match.Matches[0].Groups["latestVersionChanges"].Value;
         $latestChanges | Out-File ExtractedChangelog.md
       working-directory: release/${{ steps.archive-binaries.outputs.folder }}
       shell: pwsh
