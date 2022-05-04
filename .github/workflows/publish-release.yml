@@ -163,6 +163,7 @@ jobs:
         aws s3 sync --acl public-read . "s3://$s3_folder"
         echo "::set-output name=url::https://$s3_folder/packages.tar.gz"
       working-directory: release/${{ steps.get-version.outputs.version }}
+
   publish-packages:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.environment == 'Production' }}
@@ -196,7 +197,7 @@ jobs:
         dart pub publish --dry-run --directory generator || true
         dart pub publish --dry-run --directory realm_dart || true
         dart pub publish --dry-run --directory realm || true
-      working-directory: release/${{ needs.prepare-packages.outputs.release-folder }}
+      working-directory: release/${{ needs.prepare-packages.outputs.version }}
 
     # - name: Configure Docs Credentials
     #   uses: aws-actions/configure-aws-credentials@v1
@@ -229,8 +230,8 @@ jobs:
     - name: Publish Github Release
       uses: ncipollo/release-action@10c84d509b28aae3903113151bfd832314964f2e
       with:
-        artifacts: release/${{ needs.prepare-packages.outputs.release-folder }}/*.tar.gz
-        bodyFile: release/${{ needs.prepare-packages.outputs.release-folder }}/ExtractedChangelog.md
+        artifacts: release/${{ needs.prepare-packages.outputs.version }}/*.tar.gz
+        bodyFile: release/${{ needs.prepare-packages.outputs.version }}/ExtractedChangelog.md
         name: ${{ needs.prepare-packages.outputs.version }}
         # TODO: move to master
         commit: test-master
@@ -284,7 +285,7 @@ jobs:
     - name: 'Post to #realm-releases'
       uses: realm/ci-actions/release-to-slack@v3
       with:
-        changelog: release/${{ needs.prepare-packages.outputs.release-folder }}/ExtractedChangelog.md
+        changelog: release/${{ needs.prepare-packages.outputs.version }}/ExtractedChangelog.md
         sdk: dart
         webhook-url: ${{ secrets.SLACK_RELEASES_WEBHOOK }}
         version: ${{ needs.prepare-packages.outputs.version }}
