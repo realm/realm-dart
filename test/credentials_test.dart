@@ -145,7 +145,11 @@ group("Manual test: Email/Password - confirm user", () {
     
     // Enter a valid email that is not registered
     const String validUsername = "valid_email@mail.com";
+<<<<<<< HEAD
     baasTest('Manual test 1. Register a valid user for email confirmation', (configuration) async {
+=======
+    baasTest('1. Register a valid user for email confirmation', (configuration) async {
+>>>>>>> 3211a5dc9dfd6b36f7926608622921f124aa6627
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
       await authProvider.registerUser(validUsername, strongPassword);
