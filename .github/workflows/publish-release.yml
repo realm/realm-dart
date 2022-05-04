@@ -59,11 +59,20 @@ jobs:
         mv binary/*.tar.gz release/$targetFolder
         echo "::set-output name=folder::$targetFolder"
 
-    - name: Update realm_* path dependencies
+    - name: Update realm_* path dependencies (Production)
       uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
+      if: ${{ github.event.inputs.environment == 'Production' }}
       with:
         find: "  realm_(common|generator):(\\n|\\r\\n)    path:.*"
         replace: "  realm_$1: ${{ steps.get-version.outputs.version }}"
+        include: "**pubspec.yaml"
+
+    - name: Update realm_* path dependencies (Staging)
+      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
+      if: ${{ github.event.inputs.environment != 'Production' }}
+      with:
+        find: "  realm_(common|generator):(\\n|\\r\\n)    path:.*"
+        replace: "  realm_$1:\n    path: ../$1"
         include: "**pubspec.yaml"
 
     - name: Remove pubspec.yaml/publish_to:none
@@ -139,9 +148,11 @@ jobs:
     - name: Upload release folder to S3
       id: upload-to-s3
       run: |
-        s3_folder="static.realm.io/downloads/dart/${{ needs.prepare-packages.outputs.release-folder }}"
-        aws s3 sync --acl public-read "${{ github.workspace }}/release/${{ needs.prepare-packages.outputs.release-folder }}" "s3://$s3_folder"
-        echo "::set-output name=url::https://$s3_folder"
+        tar --exclude='*.tar.gz' -zcvf packages.tar.gz .
+        rm -rf */
+        s3_folder="static.realm.io/downloads/dart/${{ steps.archive-binaries.outputs.folder }}"
+        aws s3 sync --acl public-read "${{ github.workspace }}/release/${{ steps.archive-binaries.outputs.folder }}" "s3://$s3_folder"
+        echo "::set-output name=url::https://$s3_folder/packages.tar.gz"
   publish-packages:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.environment == 'Production' }}
