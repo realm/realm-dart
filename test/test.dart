@@ -238,9 +238,6 @@ Future<void> baasTest(
   }, skip: skip);
 }
 
-Future<void> updateConfirmFunctionSource(String appName, [String? source]) async {
-  return client.updateAppConfirmFunction(appName, source);
-}
 extension RealmObjectTest on RealmObject {
   String toJson() => realmCore.objectToString(this);
 }
