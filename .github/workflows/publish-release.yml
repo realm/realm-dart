@@ -11,8 +11,9 @@ on:
 jobs:
   prepare-packages:
     runs-on: ubuntu-latest
-    # TODO: uncomment
-    # environment: ${{ inputs.environment == 'public' && 'Production' || 'Staging' }}
+    environment:
+      name: Staging
+      url: https://static.realm.io/downloads/dart/1.2.3 # ${{ steps.upload-to-s3.outputs.url }}
     name: Prepare packages
     outputs:
       version: ${{ steps.get-version.outputs.version }}
@@ -130,13 +131,26 @@ jobs:
         path: release/**
         retention-days: 30
 
+    # - name: Configure AWS Credentials
+    #   uses: aws-actions/configure-aws-credentials@v1
+    #   with:
+    #     aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+    #     aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+    #     aws-region: us-east-1
+
+    # - name: Upload release folder to S3
+    #   id: upload-to-s3
+    #   run: |
+    #     s3_folder="static.realm.io/downloads/dart/${{ needs.prepare-packages.outputs.release-folder }}"
+    #     aws s3 sync --acl public-read "${{ github.workspace }}/release/${{ needs.prepare-packages.outputs.release-folder }}" "s3://$s3_folder"
+    #     echo "::set-output name=url::https://$s3_folder"
   publish-packages:
     runs-on: ubuntu-latest
-    # TODO: uncomment
+    if: ${{ inputs.environment == 'public' }}
     environment:
-      name: ${{ inputs.environment == 'public' && 'Production' || 'Staging' }}
-      # url: ${{ steps.upload-to-s3.outputs.url }}
-    name: Publish packages
+      name: 'Production'
+      url: ${{ steps.upload-to-s3.outputs.url }}
+    name: Publish release
     needs:
     - prepare-packages
     steps:
@@ -158,7 +172,6 @@ jobs:
 
     # TODO: remove --dry-run
     - name: Publish packages to pub.dev
-      if: ${{ inputs.environment == 'public' }}
       run: |
         dart pub publish --dry-run --directory common || true
         dart pub publish --dry-run --directory generator || true
