@@ -30,7 +30,7 @@ import '../common/utils.dart';
 import 'options.dart';
 
 class InstallCommand extends Command<void> {
-  static const versionFileName = "realm_version.txt";
+  static const _versionFileName = "realm_version.txt";
 
   @override
   final String description = 'Download & install Realm native binaries into a Flutter or Dart project';
@@ -38,21 +38,21 @@ class InstallCommand extends Command<void> {
   @override
   final String name = 'install';
 
-  late Options options;
+  late Options _options;
 
-  String get packageName => options.packageName!;
+  String get _packageName => _options.packageName!;
 
-  bool get isFlutter => options.packageName == "realm";
-  bool get isDart => options.packageName == "realm_dart";
-  bool get debug => options.debug ?? false;
+  bool get _isFlutter => _options.packageName == "realm";
+  bool get _isDart => _options.packageName == "realm_dart";
+  bool get _debug => _options.debug ?? false;
 
   InstallCommand() {
     populateOptionsParser(argParser);
   }
 
   String _getBinaryPath(String realmPackagePath) {
-    if (isFlutter) {
-      switch (options.targetOsType) {
+    if (_isFlutter) {
+      switch (_options.targetOsType) {
         case TargetOsType.android:
           return path.join(realmPackagePath, "android", "src", "main", "cpp", "lib");
         case TargetOsType.ios:
@@ -64,15 +64,19 @@ class InstallCommand extends Command<void> {
         case TargetOsType.windows:
           return path.join(realmPackagePath, "windows", "binary", "windows");
         default:
-          throw Exception("Unsupported target OS type for Flutter: ${options.targetOsType}");
+          throw Exception("Unsupported target OS type for Flutter: ${_options.targetOsType}");
       }
     }
 
-    return path.join(Directory.current.absolute.path, 'binary', options.targetOsType!.name);
+    if (_isDart) {
+      return path.join(Directory.current.absolute.path, 'binary', _options.targetOsType!.name);
+    }
+
+    throw Exception("Unsupported package name: $_packageName");
   }
 
   Future<bool> _skipDownload(String binariesPath, String expectedVersion) async {
-    final versionsFile = File(path.join(binariesPath, versionFileName));
+    final versionsFile = File(path.join(binariesPath, _versionFileName));
 
     if (!await versionsFile.exists()) {
       return false;
@@ -80,7 +84,7 @@ class InstallCommand extends Command<void> {
 
     final existingVersion = await versionsFile.readAsString();
     if (expectedVersion == existingVersion) {
-      print("Realm binaries for $packageName@$expectedVersion already downloaded");
+      print("Realm binaries for $_packageName@$expectedVersion already downloaded");
     }
     return expectedVersion == existingVersion;
   }
@@ -96,10 +100,10 @@ class InstallCommand extends Command<void> {
 
     final destinationFile = File(path.join(Directory.systemTemp.absolute.path, "realm-binary", archiveName));
 
-    print("Downloading Realm binaries for $packageName@${realmPubspec.version} to ${destinationFile.absolute.path}");
+    print("Downloading Realm binaries for $_packageName@${realmPubspec.version} to ${destinationFile.absolute.path}");
     final client = HttpClient();
     var url = 'https://static.realm.io/downloads/dart/${realmPubspec.version}/$archiveName';
-    if (debug) {
+    if (_debug) {
       url = 'http://localhost:8000/$archiveName';
     }
     try {
@@ -119,7 +123,7 @@ class InstallCommand extends Command<void> {
     final archive = Archive();
     await archive.extract(destinationFile, destinationDir);
 
-    final versionFile = File(path.join(destinationDir.absolute.path, versionFileName));
+    final versionFile = File(path.join(destinationDir.absolute.path, _versionFileName));
     await versionFile.writeAsString("${realmPubspec.version}");
   }
 
@@ -127,16 +131,16 @@ class InstallCommand extends Command<void> {
     final packageConfig = await findPackageConfig(Directory.current);
     if (packageConfig == null) {
       throw Exception("Package configuration not found. "
-          "Run the 'dart run $packageName install` command from the root directory of your application");
+          "Run the 'dart run $_packageName install` command from the root directory of your application");
     }
 
-    final realmDartPackage = packageConfig.packages.where((p) => p.name == packageName).firstOrNull;
+    final realmDartPackage = packageConfig.packages.where((p) => p.name == _packageName).firstOrNull;
     if (realmDartPackage == null) {
-      throw Exception("$packageName package not found in dependencies. Add $packageName package to your pubspec.yaml");
+      throw Exception("$_packageName package not found in dependencies. Add $_packageName package to your pubspec.yaml");
     }
 
     if (realmDartPackage.root.scheme != 'file') {
-      throw Exception("$packageName package uri ${realmDartPackage.root} is not supported. Uri should start with file://");
+      throw Exception("$_packageName package uri ${realmDartPackage.root} is not supported. Uri should start with file://");
     }
 
     final realmPackagePath = path.join(realmDartPackage.root.toFilePath(), "pubspec.yaml");
@@ -147,47 +151,44 @@ class InstallCommand extends Command<void> {
     try {
       var realmPubspecFile = await File(path).readAsString();
       final pubspec = Pubspec.parse(realmPubspecFile);
-      if (pubspec.name != packageName) {
-        throw Exception("Unexpected package name `${pubspec.name}` at $path. Realm install command expected package `$packageName`");
+      if (pubspec.name != _packageName) {
+        throw Exception("Unexpected package name `${pubspec.name}` at $path. Realm install command expected package `$_packageName`");
       }
 
       return pubspec;
     } on Exception catch (e) {
-      throw Exception("Error parsing package `$packageName` pubspec at $path. Error $e");
+      throw Exception("Error parsing package `$_packageName` pubspec at $path. Error $e");
     }
   }
 
   @override
   FutureOr<void>? run() async {
-    await _runInternal();
-    print("Realm install command finished.");
-  }
-
-  FutureOr<void>? _runInternal() async {
-    options = parseOptionsResult(argResults!);
+    _options = parseOptionsResult(argResults!);
     _validateOptions();
 
     final realmPackagePath = await _getRealmPackagePath();
     final realmPubspec = await _parseRealmPubspec(realmPackagePath);
 
     final binaryPath = Directory(_getBinaryPath(path.dirname(realmPackagePath)));
-    final archiveName = "${options.targetOsType!.name}.tar.gz";
+    final archiveName = "${_options.targetOsType!.name}.tar.gz";
     await _downloadAndExtractBinaries(binaryPath, realmPubspec, archiveName);
+
+    print("Realm install command finished.");
   }
 
   void _validateOptions() {
-    if (options.targetOsType == null && options.packageName == "realm") {
+    if (_options.targetOsType == null && _options.packageName == "realm") {
       abort("Invalid target OS.");
-    } else if (options.targetOsType == null && options.packageName == "realm_dart") {
-      options.targetOsType = _getTargetOS();
+    } else if (_options.targetOsType == null && _options.packageName == "realm_dart") {
+      _options.targetOsType = _getTargetOS();
     }
 
-    if (!["realm", "realm_dart"].contains(options.packageName)) {
+    if (!["realm", "realm_dart"].contains(_options.packageName)) {
       abort("Invalid package name.");
     }
 
-    if ((options.targetOsType == TargetOsType.ios || options.targetOsType == TargetOsType.android) && packageName != "realm") {
-      throw Exception("Invalid package name $packageName for target OS ${TargetOsType.values.elementAt(options.targetOsType!.index).name}");
+    if ((_options.targetOsType == TargetOsType.ios || _options.targetOsType == TargetOsType.android) && _packageName != "realm") {
+      throw Exception("Invalid package name $_packageName for target OS ${TargetOsType.values.elementAt(_options.targetOsType!.index).name}");
     }
   }
 
