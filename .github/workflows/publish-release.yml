@@ -107,10 +107,10 @@ jobs:
         rm flutter/realm_flutter/macos/librealm_dart.dylib
         rm example/binary
 
-    - name: Package realm_flutter
+    - name: Package realm (flutter)
       run: |
-        cp -Lr ../../flutter/realm_flutter .
-        cd realm_flutter
+        cp -Lr ../../flutter/realm_flutter realm
+        cd realm
         dart pub publish --dry-run || true
       working-directory: release/${{ steps.archive-binaries.outputs.folder }}
 
@@ -148,8 +148,8 @@ jobs:
     - name: Upload release folder to S3
       id: upload-to-s3
       run: |
-        tar -zcvf packages.tar.gz common generator realm_dart realm_flutter ExtractedChangelog.md
-        rm -rf common generator realm_dart realm_flutter ExtractedChangelog.md
+        tar -zcvf packages.tar.gz common generator realm_dart realm ExtractedChangelog.md
+        rm -rf common generator realm_dart realm ExtractedChangelog.md
 
         s3_folder="static.realm.io/downloads/dart/${{ steps.archive-binaries.outputs.folder }}"
         aws s3 sync --acl public-read . "s3://$s3_folder"
@@ -187,7 +187,7 @@ jobs:
         dart pub publish --dry-run --directory common || true
         dart pub publish --dry-run --directory generator || true
         dart pub publish --dry-run --directory realm_dart || true
-        dart pub publish --dry-run --directory realm_flutter || true
+        dart pub publish --dry-run --directory realm || true
       working-directory: release/${{ needs.prepare-packages.outputs.release-folder }}
 
     # - name: Configure Docs Credentials
