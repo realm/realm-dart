@@ -280,7 +280,7 @@ jobs:
 
   build-windows:
     # TODO: build on windows-latest
-    runs-on: windows-2019
+    runs-on: windows-2022
     name: Build Windows
     steps:
       - name: Checkout

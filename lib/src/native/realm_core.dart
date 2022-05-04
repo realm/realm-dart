@@ -861,7 +861,7 @@ class _RealmCore {
     return AppHandle._(realmAppPtr);
   }
 
-  static void _logInCallback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
+  static void _app_user_completion_callback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
     final Completer<UserHandle>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
       return;
@@ -875,7 +875,7 @@ class _RealmCore {
 
     var userClone = _realmLib.realm_clone(user.cast());
     if (userClone == nullptr) {
-      completer.completeError(RealmException("Error while cloning login data"));
+      completer.completeError(RealmException("Error while cloning user object."));
       return;
     }
 
@@ -888,7 +888,7 @@ class _RealmCore {
         () => _realmLib.realm_app_log_in_with_credentials(
               app.handle._pointer,
               credentials.handle._pointer,
-              Pointer.fromFunction(_logInCallback),
+              Pointer.fromFunction(_app_user_completion_callback),
               completer.toPersistentHandle(),
               _deletePersistentHandleFuncPtr,
             ),
@@ -897,7 +897,7 @@ class _RealmCore {
   }
 
   static void void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
-    final Completer<void>? completer = userdata.toObject();
+    final Completer<void>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
       return;
     }
@@ -1038,7 +1038,7 @@ class _RealmCore {
     completer.complete();
   }
 
-  Future<void> logOut(App application, User user) async {
+  Future<void> logOut(App application, User user) {
     final completer = Completer<void>();
     _realmLib.invokeGetBool(
         () => _realmLib.realm_app_log_out(
@@ -1079,7 +1079,7 @@ class _RealmCore {
     });
   }
 
-  Future<void> removeUser(App app, User user) async {
+  Future<void> removeUser(App app, User user) {
     final completer = Completer<void>();
     _realmLib.invokeGetBool(
         () => _realmLib.realm_app_remove_user(
@@ -1092,7 +1092,7 @@ class _RealmCore {
         "Remove user failed");
     return completer.future;
   }
-  
+
   void switchUser(App application, User user) {
     return using((arena) {
       _realmLib.invokeGetBool(
@@ -1103,6 +1103,82 @@ class _RealmCore {
               ),
           "Switch user failed");
     });
+  }
+
+  String userGetCustomData(User user) {
+    final customDataPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_custom_data(user.handle._pointer));
+    try {
+      final customData = customDataPtr.cast<Utf8>().toDartString();
+      return customData;
+    } finally {
+      _realmLib.realm_free(customDataPtr.cast());
+    }
+  }
+
+  Future<void> userRefreshCustomData(App app, User user) {
+    final completer = Completer<void>();
+    _realmLib.invokeGetBool(
+        () => _realmLib.realm_app_refresh_custom_data(
+              app.handle._pointer,
+              user.handle._pointer,
+              Pointer.fromFunction(void_completion_callback),
+              completer.toPersistentHandle(),
+              _deletePersistentHandleFuncPtr,
+            ),
+        "Refresh custom data failed");
+    return completer.future;
+  }
+
+  Future<UserHandle> userLinkCredentials(App app, User user, Credentials credentials) {
+    final completer = Completer<UserHandle>();
+    _realmLib.invokeGetBool(
+        () => _realmLib.realm_app_link_user(
+              app.handle._pointer,
+              user.handle._pointer,
+              credentials.handle._pointer,
+              Pointer.fromFunction(_app_user_completion_callback),
+              completer.toPersistentHandle(),
+              _deletePersistentHandleFuncPtr,
+            ),
+        "Link credentials failed");
+    return completer.future;
+  }
+
+  UserState userGetState(User user) {
+    final nativeUserState = _realmLib.realm_user_get_state(user.handle._pointer);
+    return UserState.values.fromIndex(nativeUserState);
+  }
+
+  String userGetId(User user) {
+    final idPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_identity(user.handle._pointer), "Error while getting user id");
+    final userId = idPtr.cast<Utf8>().toDartString();
+    return userId;
+  }
+
+  List<UserIdentity> userGetIdentities(User user) {
+    return using((arena) {
+      //TODO: This approach is prone to race conditions. Fix this once Core changes how count is retrieved.
+      final idsCount = arena<IntPtr>();
+      _realmLib.invokeGetBool(
+          () => _realmLib.realm_user_get_all_identities(user.handle._pointer, nullptr, 0, idsCount), "Error while getting user identities count");
+
+      final idsPtr = arena<realm_user_identity_t>(idsCount.value);
+      _realmLib.invokeGetBool(
+          () => _realmLib.realm_user_get_all_identities(user.handle._pointer, idsPtr, idsCount.value, idsCount), "Error while getting user identities");
+
+      final userIdentities = <UserIdentity>[];
+      for (var i = 0; i < idsCount.value; i++) {
+        final idPtr = idsPtr.elementAt(i);
+        userIdentities.add(UserIdentityInternal.create(idPtr.ref.id.cast<Utf8>().toDartString(), AuthProviderType.values.fromIndex(idPtr.ref.provider_type)));
+      }
+
+      return userIdentities;
+    });
+  }
+
+  Future<void> userLogOut(User user) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_user_log_out(user.handle._pointer), "Logout failed");
+    return Future<void>.value();
   }
 }
 
@@ -1402,6 +1478,26 @@ extension on Object {
 
   Pointer<Void> toPersistentHandle() {
     return _realmLib.object_to_persistent_handle(this);
+  }
+}
+
+extension on List<AuthProviderType> {
+  AuthProviderType fromIndex(int index) {
+    if (!AuthProviderType.values.any((value) => value.index == index)) {
+      throw RealmError("Unknown AuthProviderType $index");
+    }
+
+    return AuthProviderType.values[index];
+  }
+}
+
+extension on List<UserState> {
+  UserState fromIndex(int index) {
+    if (!UserState.values.any((value) => value.index == index)) {
+      throw RealmError("Unknown user state $index");
+    }
+
+    return UserState.values[index];
   }
 }
 
