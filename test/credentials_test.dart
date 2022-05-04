@@ -22,7 +22,7 @@ import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
 
-Future<User> retryLogin(int retries, Future<User> Function(Credentials credentials) doFunction, Credentials credentials) async {
+Future<User> loginWithRetry(App app, Credentials credentials, int retryCount) async {
   try {
     return await doFunction(credentials);
   } catch (e) {
