@@ -90,7 +90,6 @@ class $RemappedClass {
 String? testName;
 final baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
-late Uri? url;
 
 //Overrides test method so we can filter tests
 void test(String name, dynamic Function() testFunction, {dynamic skip}) {
@@ -196,9 +195,6 @@ void parseTestNameFromArguments(List<String>? arguments) {
 }
 
 Future<void> setupBaas() async {
-  final uriVariable = Platform.environment['BAAS_URL'];
-  url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
-
   final baasUrl = Platform.environment['BAAS_URL'];
   if (baasUrl == null) {
     return;
@@ -220,6 +216,9 @@ Future<void> baasTest(
   String appName = 'flexible',
   dynamic skip,
 }) async {
+  final uriVariable = Platform.environment['BAAS_URL'];
+  final url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
+
   if (skip == null) {
     skip = url == null ? "BAAS URL not present" : false;
   } else if (skip is bool) {
