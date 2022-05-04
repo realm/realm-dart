@@ -20,12 +20,20 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class BaasClient {
-  static const String _confirmFuncSource = '''exports = ({ token, tokenId, username }) => {
+  static const String _confirmFuncSource = '''exports = async ({ token, tokenId, username }) => {
     // process the confirm token, tokenId and username
     if (username.includes("realm_tests_do_autoverify")) {
       return { status: 'success' }
     }
     else if (username.includes("realm_tests_pending_confirm")) {
+      const mdb = context.services.get("BackingDB");
+      const collection = mdb.db("custom-auth").collection("users");
+      const existing = await collection.findOne({ username: username });
+      if (existing) {
+          return { status: 'success' };
+      }
+
+      await collection.insertOne({ username: username });
       return { status: 'pending' }
     }
     else

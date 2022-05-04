@@ -170,15 +170,11 @@ Future<void> main([List<String>? args]) async {
     String username = "realm_tests_pending_confirm_${generateRandomString(5)}@bar.com";
     await authProvider.registerUser(username, _strongPassword);
 
-    const String source = "exports = ({ token, tokenId, username }) => {return { status: 'success' }};";
-    await updateConfirmFunctionSource("flexible", source);
-
     await authProvider.retryCustomConfirmationFunction(username);
 
-    await updateConfirmFunctionSource("flexible");
     final user = await retryLogin(3, app.logIn, Credentials.emailPassword(username, _strongPassword));
     expect(user, isNotNull);
-  }, appName: "flexible", skip: "Run this test manually, since it changes the function source of the app");
+  }, appName: "flexible");
 
   baasTest('Email/Password - retry custom confirmation after user is confirmed', (configuration) async {
     final app = App(configuration);
