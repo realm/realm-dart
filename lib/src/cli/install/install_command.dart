@@ -169,6 +169,11 @@ class InstallCommand extends Command<void> {
     final realmPackagePath = await _getRealmPackagePath();
     final realmPubspec = await _parseRealmPubspec(realmPackagePath);
 
+    if (realmPubspec.publishTo == 'none') {
+      print("Referencing $_packageName@${realmPubspec.version} which hasn't been published. Skipping download.");
+      return;
+    }
+
     final binaryPath = Directory(_getBinaryPath(path.dirname(realmPackagePath)));
     final archiveName = "${_options.targetOsType!.name}.tar.gz";
     await _downloadAndExtractBinaries(binaryPath, realmPubspec, archiveName);
