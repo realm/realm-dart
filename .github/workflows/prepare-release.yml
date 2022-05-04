@@ -27,21 +27,21 @@ jobs:
         with:
           find: 'version: .*'
           replace: 'version: ${{ steps.update-changelog.outputs.new-version }}'
-          include: '**/pubspec.yaml'
+          include: '**pubspec.yaml'
 
       - name: Update realm.podspec
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
           find: "  s.version(\\s+)= '[^']*'"
           replace: "  s.version$1= '${{ steps.update-changelog.outputs.new-version }}'"
-          include: '**/realm.podspec'
+          include: '**realm.podspec'
 
       - name: Update realm_core.libraryVersion
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
           find: "  String get libraryVersion => '[^']*';"
           replace: "  String get libraryVersion => '${{ steps.update-changelog.outputs.new-version }}';"
-          include: '**/realm_core.dart'
+          include: '**realm_core.dart'
 
 
       - name: Create Release PR

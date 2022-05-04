@@ -70,7 +70,7 @@ jobs:
       uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
       with:
         find: "publish_to: none(\\n|\\r\\n)"
-        replace: "\\n"
+        replace: " "
         include: "**pubspec.yaml"
 
     - name: Package common
@@ -249,7 +249,6 @@ jobs:
         * Using Core x.y.z.
         " | cat - CHANGELOG.md >> temp
         mv temp CHANGELOG.md
-      shell: bash
 
     - name: Create vNext PR
       id: vnext-pr
@@ -259,7 +258,8 @@ jobs:
         title: Prepare for vNext
         body: Update Changelog for vNext
         delete-branch: true
-        base: main
+        # TODO: update to master
+        base: test-master
         commit-message: Prepare for vNext
 
     - name: Merge Pull Request
