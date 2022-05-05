@@ -173,7 +173,7 @@ Future<void> main([List<String>? args]) async {
 
     final user = await loginWithRetry(app, Credentials.emailPassword(username, strongPassword));
     expect(user, isNotNull);
-  }, appName: "flexible");
+  });
 
   baasTest('Email/Password - retry custom confirmation after user is confirmed', (configuration) async {
     final app = App(configuration);
