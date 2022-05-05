@@ -118,7 +118,14 @@ jobs:
   flutter-linux:
     runs-on: ubuntu-latest
     name: Flutter Tests Linux
+    env:
+      BAAS_URL: ${{ secrets.REALM_QA_URL }}
+      BAAS_CLUSTER: ${{ needs.baas-linux.outputs.clusterName }}
+      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
+      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
+      - baas-linux
       - build-linux
     steps:
       - name: Checkout
@@ -399,7 +406,14 @@ jobs:
     # TODO: build on windows-latest
     runs-on: windows-2019
     name: Flutter Tests Windows
+    env:
+      BAAS_URL: ${{ secrets.REALM_QA_URL }}
+      BAAS_CLUSTER: ${{ needs.baas-windows.outputs.clusterName }}
+      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
+      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
+      - baas-windows
       - build-windows
     steps:
       - name: Checkout
