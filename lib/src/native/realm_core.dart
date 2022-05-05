@@ -980,10 +980,8 @@ class _RealmCore {
     });
   }
 
-  final doNotDie = Set<dynamic>();
   AppHandle getApp(AppConfiguration configuration) {
     final httpTransportHandle = _createHttpTransport(configuration.httpClient);
-    doNotDie.add(httpTransportHandle);
     final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
     final syncClientConfigHandle = _createSyncClientConfig(configuration);
     final realmAppPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfigHandle._pointer, syncClientConfigHandle._pointer));
