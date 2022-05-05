@@ -174,7 +174,7 @@ group("Manual test: Email/Password - confirm user", () {
 
     final user = await retryLogin(3, app.logIn, Credentials.emailPassword(username, strongPassword));
     expect(user, isNotNull);
-  }, appName: "flexible");
+  });
 
   baasTest('Email/Password - retry custom confirmation after user is confirmed', (configuration) async {
     final app = App(configuration);
