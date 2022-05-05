@@ -1168,6 +1168,74 @@ class RealmLibrary {
   late final _realm_open = _realm_openPtr
       .asFunction<ffi.Pointer<realm_t> Function(ffi.Pointer<realm_config_t>)>();
 
+  /// The overloaded Realm::convert function offers a way to copy and/or convert a realm.
+  ///
+  /// The following options are supported:
+  /// - local -> local (config or path)
+  /// - local -> sync (config only)
+  /// - sync -> local (config only)
+  /// - sync -> sync  (config or path)
+  /// - sync -> bundlable sync (client file identifier removed)
+  ///
+  /// Note that for bundled realms it is required that all local changes are synchronized with the
+  /// server before the copy can be written. This is to be sure that the file can be used as a
+  /// stating point for a newly installed application. The function will throw if there are
+  /// pending uploads.
+  /// /
+  /// /**
+  /// Copy or convert a Realm using a config.
+  ///
+  /// If the file already exists, data will be copied over object per object.
+  /// If the file does not exist, the realm file will be exported to the new location and if the
+  /// configuration object contains a sync part, a sync history will be synthesized.
+  ///
+  /// @param config The realm configuration that should be used to create a copy.
+  /// This can be a local or a synced Realm, encrypted or not.
+  bool realm_convert_with_config(
+    ffi.Pointer<realm_t> realm,
+    ffi.Pointer<realm_config_t> config,
+  ) {
+    return _realm_convert_with_config(
+          realm,
+          config,
+        ) !=
+        0;
+  }
+
+  late final _realm_convert_with_configPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Uint8 Function(ffi.Pointer<realm_t>,
+              ffi.Pointer<realm_config_t>)>>('realm_convert_with_config');
+  late final _realm_convert_with_config =
+      _realm_convert_with_configPtr.asFunction<
+          int Function(ffi.Pointer<realm_t>, ffi.Pointer<realm_config_t>)>();
+
+  /// Copy a Realm using a path.
+  ///
+  /// @param path The path the realm should be copied to. Local realms will remain local, synced
+  /// realms will remain synced realms.
+  /// @param encryption_key The optional encryption key for the new realm.
+  bool realm_convert_with_path(
+    ffi.Pointer<realm_t> realm,
+    ffi.Pointer<ffi.Int8> path,
+    realm_binary_t encryption_key,
+  ) {
+    return _realm_convert_with_path(
+          realm,
+          path,
+          encryption_key,
+        ) !=
+        0;
+  }
+
+  late final _realm_convert_with_pathPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Uint8 Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Int8>,
+              realm_binary_t)>>('realm_convert_with_path');
+  late final _realm_convert_with_path = _realm_convert_with_pathPtr.asFunction<
+      int Function(
+          ffi.Pointer<realm_t>, ffi.Pointer<ffi.Int8>, realm_binary_t)>();
+
   /// Deletes the following files for the given `realm_file_path` if they exist:
   /// - the Realm file itself
   /// - the .management folder
@@ -7216,7 +7284,7 @@ class RealmLibrary {
           ffi.Pointer<realm_flx_sync_subscription_set_t> Function(
               ffi.Pointer<realm_t>)>();
 
-  /// Wait uptill subscripton set state is equal to the state passed as parameter.
+  /// Wait until subscripton set state is equal to the state passed as parameter.
   /// This is a blocking operation.
   /// @return the current subscription state
   int realm_sync_on_subscription_set_state_change_wait(
@@ -7241,27 +7309,39 @@ class RealmLibrary {
   /// This is an asynchronous operation.
   /// @return true/false if the handler was registered correctly
   bool realm_sync_on_subscription_set_state_change_async(
-    ffi.Pointer<realm_flx_sync_subscription_set_t> arg0,
-    int arg1,
-    realm_sync_on_subscription_state_changed arg2,
+    ffi.Pointer<realm_flx_sync_subscription_set_t> subscription_set,
+    int notify_when,
+    realm_sync_on_subscription_state_changed callback,
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_sync_on_subscription_set_state_change_async(
-          arg0,
-          arg1,
-          arg2,
+          subscription_set,
+          notify_when,
+          callback,
+          userdata,
+          userdata_free,
         ) !=
         0;
   }
 
   late final _realm_sync_on_subscription_set_state_change_asyncPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Uint8 Function(ffi.Pointer<realm_flx_sync_subscription_set_t>,
-                  ffi.Int32, realm_sync_on_subscription_state_changed)>>(
+              ffi.Uint8 Function(
+                  ffi.Pointer<realm_flx_sync_subscription_set_t>,
+                  ffi.Int32,
+                  realm_sync_on_subscription_state_changed,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t)>>(
       'realm_sync_on_subscription_set_state_change_async');
   late final _realm_sync_on_subscription_set_state_change_async =
       _realm_sync_on_subscription_set_state_change_asyncPtr.asFunction<
-          int Function(ffi.Pointer<realm_flx_sync_subscription_set_t>, int,
-              realm_sync_on_subscription_state_changed)>();
+          int Function(
+              ffi.Pointer<realm_flx_sync_subscription_set_t>,
+              int,
+              realm_sync_on_subscription_state_changed,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>();
 
   /// Retrieve version for the subscription set passed as parameter
   /// @return subscription set version if the poiter to the subscription is valid
@@ -9066,8 +9146,6 @@ abstract class realm_sync_errno_session {
   static const int RLM_SYNC_ERR_SESSION_BAD_CLIENT_VERSION = 210;
   static const int RLM_SYNC_ERR_SESSION_DIVERGING_HISTORIES = 211;
   static const int RLM_SYNC_ERR_SESSION_BAD_CHANGESET = 212;
-  static const int RLM_SYNC_ERR_SESSION_SUPERSEDED = 213;
-  static const int RLM_SYNC_ERR_SESSION_DISABLED_SESSION = 213;
   static const int RLM_SYNC_ERR_SESSION_PARTIAL_SYNC_DISABLED = 214;
   static const int RLM_SYNC_ERR_SESSION_UNSUPPORTED_SESSION_FEATURE = 215;
   static const int RLM_SYNC_ERR_SESSION_BAD_ORIGIN_FILE_IDENT = 216;
@@ -9161,9 +9239,7 @@ typedef realm_sync_ssl_verify_func_t = ffi.Pointer<
             ffi.Int32)>>;
 typedef realm_flx_sync_subscription_set_t = realm_flx_sync_subscription_set;
 typedef realm_sync_on_subscription_state_changed = ffi.Pointer<
-    ffi.NativeFunction<
-        ffi.Void Function(
-            ffi.Pointer<realm_flx_sync_subscription_set_t>, ffi.Int32)>>;
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>;
 typedef realm_flx_sync_subscription_t = realm_flx_sync_subscription;
 typedef realm_flx_sync_mutable_subscription_set_t
     = realm_flx_sync_mutable_subscription_set;
