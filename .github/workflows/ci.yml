@@ -167,6 +167,7 @@ jobs:
     name: Cleanup Linux
     needs:
       - tests-linux
+      - flutter-linux
     if: always()
     timeout-minutes: 5
     steps:
@@ -354,6 +355,7 @@ jobs:
     name: Cleanup Windows
     needs:
       - tests-windows
+      - flutter-windows
     if: always()
     timeout-minutes: 5
     steps:
