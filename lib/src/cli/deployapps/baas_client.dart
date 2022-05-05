@@ -90,13 +90,20 @@ class BaasClient {
         result[app.name] = app;
       }
     }
-    const String appName = 'flexible';
-
+    String appName = "flexible";
     if (!result.containsKey(appName)) {
-      final defaultApp = await _createApp(appName);
-      result[defaultApp.name] = defaultApp;
+      result[appName] = await _createApp(appName);
     }
-    // Add more types of apps as we add more tests here.
+    appName = "autoConfirm";
+    if (!result.containsKey(appName)) {
+      result[appName] = await _createApp(appName, confirmationType: 'auto');
+    }
+
+    appName = "emailConfirm";
+    if (!result.containsKey(appName)) {
+      result[appName] = await _createApp(appName, confirmationType: 'email');
+    }
+
     return result;
   }
 
@@ -117,7 +124,7 @@ class BaasClient {
         .toList();
   }
 
-  Future<BaasApp> _createApp(String name) async {
+  Future<BaasApp> _createApp(String name, {String confirmationType = "func"}) async {
     print('Creating app $name');
 
     final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$name$_appSuffix" }');
@@ -131,8 +138,8 @@ class BaasClient {
 
     await enableProvider(app, 'anon-user');
     await enableProvider(app, 'local-userpass', '''{
-      "autoConfirm": false,
-      "confirmEmailSubject": "",
+      "autoConfirm": ${(confirmationType == "auto").toString()},
+      "confirmEmailSubject": "Confirmation required",
       "confirmationFunctionName": "confirmFunc",
       "confirmationFunctionId": "$confirmFuncId",
       "emailConfirmationUrl": "http://localhost/confirmEmail",
@@ -140,7 +147,7 @@ class BaasClient {
       "resetFunctionId": "$resetFuncId",
       "resetPasswordSubject": "",
       "resetPasswordUrl": "http://localhost/resetPassword",
-      "runConfirmationFunction": true,
+      "runConfirmationFunction": ${(confirmationType == "func").toString()},
       "runResetFunction": true
     }''');
 
