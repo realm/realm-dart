@@ -54,31 +54,6 @@ RLM_API void realm_delete_finalizable(Dart_FinalizableHandle finalizable_handle,
     Dart_DeleteFinalizableHandle_DL(finalizable_handle, handle);
 }
 
-#if (ANDROID)
-void realm_android_dummy();
-#endif
-
-// Force the linker to link all exports from realm-core C API
-void dummy(void) {
-    realm_scheduler_make_default();
-    realm_config_new();
-    realm_schema_new(nullptr, 0, nullptr);
-    realm_get_library_version();
-    realm_object_create(nullptr, 0);
-    realm_results_get_object(nullptr, 0);
-    realm_list_size(nullptr, 0);
-    realm_results_add_notification_callback(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
-    realm_results_snapshot(nullptr);
-    realm_config_set_should_compact_on_launch_function(nullptr, nullptr, nullptr);
-    realm_app_config_new(nullptr, nullptr);
-    realm_sync_client_config_new();
-    realm_app_credentials_new_anonymous();
-    realm_http_transport_new(nullptr, nullptr, nullptr);
-#if (ANDROID)
-    realm_android_dummy();
-#endif
-}
-
 class WeakHandle {
 public:
     // TODO: HACK. Should be able to use the weak handle to get the handle.
@@ -140,4 +115,3 @@ RLM_API void delete_persistent_handle(void* handle) {
     Dart_PersistentHandle persistentHandle = reinterpret_cast<Dart_PersistentHandle>(handle);
     Dart_DeletePersistentHandle_DL(persistentHandle);
 }
-
