@@ -89,14 +89,14 @@ class BaasClient {
       for (final app in apps) {
         result[app.name] = app;
       }
-    } else {
-      final defaultApp = await _createApp('flexible');
-
-      result[defaultApp.name] = defaultApp;
-
-      // Add more types of apps as we add more tests here.
     }
+    const String appName = 'flexible';
 
+    if (!result.containsKey(appName)) {
+      final defaultApp = await _createApp(appName);
+      result[defaultApp.name] = defaultApp;
+    }
+    // Add more types of apps as we add more tests here.
     return result;
   }
 
@@ -129,8 +129,8 @@ class BaasClient {
     final confirmFuncId = await _createFunction(app, 'confirmFunc', _confirmFuncSource);
     final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
 
-    enableProvider(app, 'anon-user');
-    enableProvider(app, 'local-userpass', '''{
+    await enableProvider(app, 'anon-user');
+    await enableProvider(app, 'local-userpass', '''{
       "autoConfirm": false,
       "confirmEmailSubject": "",
       "confirmationFunctionName": "confirmFunc",

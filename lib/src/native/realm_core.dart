@@ -1015,7 +1015,7 @@ class _RealmCore {
   }
 
   static void _logOutCallback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
-    final Completer<void>? completer = userdata.toObject();
+    final Completer<void>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
       return;
     }

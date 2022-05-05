@@ -277,6 +277,41 @@ jobs:
         working-directory: ./flutter/realm_flutter/tests
 
 # Windows jobs
+  baas-windows:
+    runs-on: ubuntu-latest
+    name: BaaS Windows
+    outputs:
+      clusterName: ${{ steps.deploy-mdb-apps.outputs.clusterName }}
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: false
+      
+      - uses: realm/ci-actions/mdb-realm/deployApps@fac1d6958f03d71de743305ce3ab27594efbe7b7
+        id: deploy-mdb-apps
+        with:
+          realmUrl: ${{ secrets.REALM_QA_URL }}
+          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID }}
+          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
+          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+          differentiator: dart-windows
+      
+      - name : Setup Dart SDK
+        uses: dart-lang/setup-dart@main
+        with:
+          sdk: stable
+      
+      - name: Deploy Apps
+        run: |
+          dart run realm_dart deploy-apps \
+            --baas-url ${{ secrets.REALM_QA_URL }} \
+            --atlas-cluster ${{ steps.deploy-mdb-apps.outputs.clusterName }} \
+            --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} \
+            --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} \
+            --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }}
 
   build-windows:
     # TODO: build on windows-latest
@@ -314,11 +349,35 @@ jobs:
           name: librealm-windows
           path: binary/windows/**
           retention-days: 1
+  
+  cleanup-windows:
+    runs-on: ubuntu-latest
+    name: Cleanup Windows
+    needs:
+      - tests-windows
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - uses: realm/ci-actions/mdb-realm/cleanup@fac1d6958f03d71de743305ce3ab27594efbe7b7
+        with:
+          realmUrl: ${{ secrets.REALM_QA_URL }}
+          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID}}
+          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
+          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+          differentiator: dart-windows
 
   tests-windows:
     runs-on: windows-latest
     name: Tests Windows
+    env:
+      BAAS_URL: ${{ secrets.REALM_QA_URL }}
+      BAAS_CLUSTER: ${{ needs.baas-windows.outputs.clusterName }}
+      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
+      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
+      - baas-windows
       - build-windows
     steps:
       - name: Checkout

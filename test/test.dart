@@ -88,8 +88,7 @@ class $RemappedClass {
 }
 
 String? testName;
-Map<String, BaasApp> baasApps = <String, BaasApp>{};
-
+final baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
 
 //Overrides test method so we can filter tests
@@ -123,6 +122,8 @@ Future<void> setupTests(List<String>? args) async {
     addTearDown(() async {
       final paths = HashSet<String>();
       paths.add(path);
+
+      realmCore.clearCachedApps();
 
       while (_openRealms.isNotEmpty) {
         final realm = _openRealms.removeFirst();
@@ -205,7 +206,6 @@ Future<void> setupBaas() async {
   final projectId = Platform.environment['BAAS_PROJECT_ID'];
 
   final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
-
   baasApps.addAll(await client.getOrCreateApps());
 }
 
