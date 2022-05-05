@@ -28,7 +28,7 @@ Future<User> retryLogin(int retries, Future<User> Function(Credentials credentia
   } catch (e) {
     if (retries > 1) {
       await Future<User>.delayed(Duration(milliseconds: 150));
-      return retryLogin(retries - 1, doFunction, credentials);
+      return await retryLogin(retries - 1, doFunction, credentials);
     }
     rethrow;
   }
