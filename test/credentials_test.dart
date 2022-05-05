@@ -141,7 +141,7 @@ Future<void> main([List<String>? args]) async {
   // Set the variables with token details and then run test 2.
   // Go to the application and check whether the new registered user is confirmed.
   // Make sure the email haven't been already registered in apllication.
-group("Manual test: Email/Password - confirm user", () {
+  group("Manual test: Email/Password - confirm user", () {
     // Enter a valid email that is not registered
     const String validUsername = "valid_email@mail.com";
 
@@ -204,8 +204,7 @@ group("Manual test: Email/Password - confirm user", () {
   // Set the variables with token details and then run test 2.
   // Go to the application and check whether the new registered user is confirmed.
   // Make sure the email haven't been already registered in apllication.
-  group("Manual test: Email/Password - resend confirm", () {
-    
+  group("Manual test: Email/Password - resend confirm", () {    
     // Enter a valid email that is not registered
     const String validUsername = "valid_email@mail.com";
     baasTest('Manual test 1. Register a valid user and resend email confirmation', (configuration) async {
@@ -228,7 +227,7 @@ group("Manual test: Email/Password - confirm user", () {
       expect(user, isNotNull);
     }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
   });
-  
+
   baasTest('Email/Password - reset password of non-existent user throws', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
@@ -247,7 +246,7 @@ group("Manual test: Email/Password - confirm user", () {
   // Copy token and tokenId from the email.
   // Set the variables with token details and then run test 2.
   // Test 2 will set the pasword and will login the user with the new password.
-group("Manual test: Email/Password - reset password - manual tests", () {
+  group("Manual test: Email/Password - reset password - manual tests", () {
     // Enter a valid email that is not registered
     const String validUsername = "valid_email@mail.com";
     baasTest('Manual test 1. Reset user password email', (configuration) async {
@@ -270,4 +269,14 @@ group("Manual test: Email/Password - reset password - manual tests", () {
       expect(user, isNotNull);
     }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
   });
+
+  // baasTest('Email/Password - call reset password function', (configuration) async {
+  //   final app = App(configuration);
+  //   final authProvider = EmailPasswordAuthProvider(app);
+  //   String username = "realm_tests_do_reset${generateRandomString(5)}@bar.com";
+  //   final map = Map<String, dynamic>();
+  //   map['token'] = 'd';
+  //   map['tokenId'] = '';
+  //   await authProvider.callResetPasswordFunction(username, strongPassword, map);
+  // }, appName: "emailConfirm");
 }
