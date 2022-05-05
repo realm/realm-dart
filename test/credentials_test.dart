@@ -264,7 +264,7 @@ Future<void> main([List<String>? args]) async {
       final authProvider = EmailPasswordAuthProvider(app);
       String newPassword = "RWE@#EDE";
       await authProvider.completeResetPassword(newPassword, token, tokenId);
-      final user = await loginWithRetry(app, Credentials.emailPassword(validUsername, strongPassword), 3);
+      final user = await loginWithRetry(app, Credentials.emailPassword(validUsername, strongPassword));
       expect(user, isNotNull);
     }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
   });
