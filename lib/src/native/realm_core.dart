@@ -153,6 +153,10 @@ class _RealmCore {
       _realmLib.realm_config_set_path(configHandle._pointer, config.path.toUtf8Ptr(arena));
       _realmLib.realm_config_set_scheduler(configHandle._pointer, schedulerHandle._pointer);
 
+      if (config.fifoFilesFallbackPath != null) {
+        _realmLib.realm_config_set_fifo_path(configHandle._pointer, config.fifoFilesFallbackPath!.toUtf8Ptr(arena));
+      }
+
       if (config is LocalConfiguration) {
         if (config.initialDataCallback != null) {
           _realmLib.realm_config_set_data_initialization_function(
@@ -164,9 +168,6 @@ class _RealmCore {
         if (config.isInMemory) {
           // TODO: Get rid of this
           _realmLib.realm_config_set_in_memory(configHandle._pointer, config.isInMemory);
-        }
-        if (config.fifoFilesFallbackPath != null) {
-          _realmLib.realm_config_set_fifo_path(configHandle._pointer, config.fifoFilesFallbackPath!.toUtf8Ptr(arena));
         }
         if (config.disableFormatUpgrade) {
           _realmLib.realm_config_set_disable_format_upgrade(configHandle._pointer, config.disableFormatUpgrade);
@@ -239,10 +240,6 @@ class _RealmCore {
     // TODO: What about errors?!
 
     completer.complete(state);
-  }
-
-  void waitForSubscriptionSetStateChangeSync(SubscriptionSet subscriptions, SubscriptionSetState state) {
-    _realmLib.realm_sync_on_subscription_set_state_change_wait(subscriptions.handle._pointer, state.index);
   }
 
   Future<int> waitForSubscriptionSetStateChange(SubscriptionSet subscriptions, SubscriptionSetState notifyWhen) {

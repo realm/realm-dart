@@ -104,52 +104,55 @@ extension SubscriptionSetInternal on SubscriptionSet {
   Realm get realm => _realm;
   SubscriptionSetHandle get handle => _handle;
 
-  static SubscriptionSet create(Realm realm, SubscriptionSetHandle handle) => MutableSubscriptionSet._(realm, handle);
+  static SubscriptionSet create(Realm realm, SubscriptionSetHandle handle) => _ImmutableSubscriptionSet._(realm, handle);
 }
 
-class MutableSubscriptionSet extends SubscriptionSet {
-  MutableSubscriptionSetHandle? _mutableHandle;
-
-  MutableSubscriptionSet._(Realm realm, SubscriptionSetHandle handle) : super._(realm, handle);
+class _ImmutableSubscriptionSet extends SubscriptionSet {
+  _ImmutableSubscriptionSet._(Realm realm, SubscriptionSetHandle handle) : super._(realm, handle);
 
   @override
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action) {
-    assert(_mutableHandle == null);
+    final mutableSubscriptions = MutableSubscriptionSet._(realm, _handle, realmCore.makeSubscriptionSetMutable(this));
     var commit = false;
     try {
-      _mutableHandle = realmCore.makeSubscriptionSetMutable(this);
-      action(this);
+      action(mutableSubscriptions);
       commit = true;
     } finally {
       if (commit) {
-        _handle = realmCore.subscriptionSetCommit(this);
+        _handle = realmCore.subscriptionSetCommit(mutableSubscriptions);
       }
-      // _mutableHandle.release(); // TODO: Release early
-      _mutableHandle = null;
+      // _mutableHandle.release(); // TODO: Release early (awaiting refactored handles)
     }
+  }
+}
+
+class MutableSubscriptionSet extends SubscriptionSet {
+  final MutableSubscriptionSetHandle _mutableHandle;
+
+  MutableSubscriptionSet._(Realm realm, SubscriptionSetHandle handle, this._mutableHandle) : super._(realm, handle);
+
+  @override
+  void update(void Function(MutableSubscriptionSet mutableSubscriptions) action) {
+    action(this); // or should we just throw?
   }
 
   bool addOrUpdate<T extends RealmObject>(RealmResults<T> query, {String? name}) {
-    assert(_mutableHandle != null);
     return realmCore.insertOrAssignSubscription(this, query, name);
   }
 
   void remove<T extends RealmObject>(RealmResults<T> query) {
-    assert(_mutableHandle != null);
     return realmCore.eraseSubscriptionByQuery(this, query);
   }
 
   void removeByName(String name) {
-    assert(_mutableHandle != null);
     return realmCore.eraseSubscriptionByName(this, name);
   }
 
   void removeAll() {
-    assert(_mutableHandle != null);
     return realmCore.clearSubscriptionSet(this);
   }
 }
 
 extension MutableSubscriptionSetInternal on MutableSubscriptionSet {
-  MutableSubscriptionSetHandle get mutableHandle => _mutableHandle!;
+  MutableSubscriptionSetHandle get mutableHandle => _mutableHandle;
 }
