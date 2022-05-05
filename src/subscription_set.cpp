@@ -18,38 +18,43 @@
 
 #include "subscription_set.h"
 
-#include <realm/sync/subscriptions.hpp>
-#include <realm/object-store/c_api/util.hpp>
 #include <realm/object-store/c_api/types.hpp>
+#include <realm/object-store/c_api/util.hpp>
+#include <realm/sync/subscriptions.hpp>
 
 #include "event_loop_dispatcher.hpp"
 
-namespace realm::c_api {    
+namespace realm::c_api {
+namespace {
 
 using namespace realm::sync;
 
-RLM_API bool realm_dart_sync_on_subscription_set_state_change_async(
-    const realm_flx_sync_subscription_set_t* subscription_set,
-    realm_flx_sync_subscription_set_state_e notify_when,
-    realm_dart_sync_on_subscription_state_changed callback,
-    void* userdata,
-    realm_free_userdata_func_t userdata_free,
-    realm_scheduler_t* scheduler) noexcept
-{
-    return wrap_err([&]() {
-        auto future_state = subscription_set->get_state_change_notification(SubscriptionSet::State{notify_when});
-        std::move(future_state)
-            .get_async([callback, scheduler, userdata = SharedUserdata(userdata, util::DispatchFreeUserdata(*scheduler, userdata_free))](const StatusWith<SubscriptionSet::State>& state) -> void {
-                auto cb = util::EventLoopDispatcher{*scheduler, callback};     
-                if (state.is_ok()) {
-                    cb(userdata.get(), realm_flx_sync_subscription_set_state_e(static_cast<int>(state.get_value())));
-                }
-                else {
-                    cb(userdata.get(), realm_flx_sync_subscription_set_state_e::RLM_SYNC_SUBSCRIPTION_ERROR);
-                }
-            });
-        return true; 
-    });
+using FreeT = std::function<void()>;
+using CallbackT = std::function<void(realm_flx_sync_subscription_set_state)>; // Differs per callback
+using UserdataT = std::tuple<CallbackT, FreeT>;
+
+void _callback(void *userdata, realm_flx_sync_subscription_set_state state) {
+  auto u = reinterpret_cast<UserdataT *>(userdata);
+  std::get<0>(*u)(state);
 }
 
-} // namespace realm::c_api
+void _userdata_free(void *userdata) {
+  auto u = reinterpret_cast<UserdataT *>(userdata);
+  std::get<1>(*u)();
+  delete u;
+}
+
+RLM_API bool realm_dart_sync_on_subscription_set_state_change_async(
+    const realm_flx_sync_subscription_set_t *subscription_set,
+    realm_flx_sync_subscription_set_state_e notify_when,
+    realm_sync_on_subscription_state_changed callback, void *userdata,
+    realm_free_userdata_func_t userdata_free,
+    realm_scheduler_t *scheduler) noexcept 
+{
+  auto u = new UserdataT(std::bind(util::EventLoopDispatcher{*scheduler, callback}, userdata, std::placeholders::_1),
+                         std::bind(util::EventLoopDispatcher{*scheduler, userdata_free}, userdata));
+  return realm_sync_on_subscription_set_state_change_async(subscription_set, notify_when, _callback, u, _userdata_free);
+}
+
+} // anonymous namespace
+} // namespace realm::c_api 
