@@ -163,7 +163,7 @@ class _RealmCore {
       if (config is LocalConfiguration) {
         if (config.initialDataCallback != null) {
           _realmLib.realm_config_set_data_initialization_function(
-              configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toWeakHandle());
+              configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toWeakHandle(), nullptr);
         }
         if (config.isReadOnly) {
           _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE);
@@ -173,7 +173,7 @@ class _RealmCore {
         }
         if (config.shouldCompactCallback != null) {
           _realmLib.realm_config_set_should_compact_on_launch_function(
-              configHandle._pointer, Pointer.fromFunction(should_compact_callback, 0), config.toWeakHandle());
+              configHandle._pointer, Pointer.fromFunction(should_compact_callback, 0), config.toWeakHandle(), nullptr);
         }
       } else if (config is InMemoryConfiguration) {
         _realmLib.realm_config_set_in_memory(configHandle._pointer, true);
@@ -276,7 +276,7 @@ class _RealmCore {
     return using((arena) {
       final out_index = arena<IntPtr>();
       final out_inserted = arena<Uint8>();
-      _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_insert_or_assign(
+      _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_insert_or_assign_query(
             subscriptions.handle._mutablePointer,
             query.queryHandle._pointer,
             name?.toUtf8Ptr(arena) ?? nullptr,
