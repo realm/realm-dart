@@ -76,7 +76,7 @@ Future<void> main([List<String>? args]) async {
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "${generateRandomString(5)}@bar.com";
     String password = "SWV23R#@T#VFQDV";
-    // For application with name 'auto' and with confirmationType = 'autoConfirm'
+    // For application with name 'autoConfirm' and with confirmationType = 'auto'
     // all the usernames are automatically confirmed.
     await authProvider.registerUser(username, password);
     final user = await retryLogin(3, app.logIn, Credentials.emailPassword(username, password));
