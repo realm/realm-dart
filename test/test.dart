@@ -225,7 +225,8 @@ Future<void> baasTest(
   }
 
   test(name, () async {
-    final app = baasApps[appName] ?? baasApps.values.firstWhere((element) => true, orElse: () => throw RealmError("No BAAS apps"));
+    final app =
+        baasApps[appName] ?? baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
     final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
     final appConfig = AppConfiguration(
       app.clientAppId,

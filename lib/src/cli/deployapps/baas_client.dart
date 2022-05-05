@@ -20,13 +20,27 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class BaasClient {
-  static const String _confirmFuncSource = '''exports = ({ token, tokenId, username }) => {
+  static const String _confirmFuncSource = '''exports = async ({ token, tokenId, username }) => {
     // process the confirm token, tokenId and username
     if (username.includes("realm_tests_do_autoverify")) {
       return { status: 'success' }
     }
-    // do not confirm the user
-    return { status: 'fail' };
+    else if (username.includes("realm_tests_pending_confirm")) {
+      const mdb = context.services.get("BackingDB");
+      const collection = mdb.db("custom-auth").collection("users");
+      const existing = await collection.findOne({ username: username });
+      if (existing) {
+          return { status: 'success' };
+      }
+
+      await collection.insertOne({ username: username });
+      return { status: 'pending' }
+    }
+    else
+    {
+      // do not confirm the user
+      return { status: 'fail' };
+    }
   };''';
 
   static const String _resetFuncSource = '''exports = ({ token, tokenId, username, password }) => {
@@ -37,6 +51,7 @@ class BaasClient {
     // will not reset the password
     return { status: 'fail' };
   };''';
+  static const String defaultAppName = "flexible";
 
   final String _baseUrl;
   final String? _clusterName;
@@ -90,21 +105,16 @@ class BaasClient {
         result[app.name] = app;
       }
     }
-    String appName = "flexible";
-    if (!result.containsKey(appName)) {
-      result[appName] = await _createApp(appName);
-    }
-    appName = "autoConfirm";
-    if (!result.containsKey(appName)) {
-      result[appName] = await _createApp(appName, confirmationType: 'auto');
-    }
-
-    appName = "emailConfirm";
-    if (!result.containsKey(appName)) {
-      result[appName] = await _createApp(appName, confirmationType: 'email');
-    }
-
+    await _createAppIfNotExists(result, defaultAppName);
+    await _createAppIfNotExists(result, "autoConfirm", confirmationType: "auto");
+    await _createAppIfNotExists(result, "emailConfirm", confirmationType: "email");
     return result;
+  }
+
+  Future<void> _createAppIfNotExists(Map<String, BaasApp> existingApps, String appName, {String? confirmationType}) async {
+    if (!existingApps.containsKey(appName)) {
+      existingApps[appName] = await _createApp(appName, confirmationType: confirmationType);
+    }
   }
 
   Future<List<BaasApp>> _getApps() async {
@@ -124,7 +134,21 @@ class BaasClient {
         .toList();
   }
 
-  Future<BaasApp> _createApp(String name, {String confirmationType = "func"}) async {
+  Future<void> updateAppConfirmFunction(String name, [String? source]) async {
+    final dynamic docs = await _get('groups/$_groupId/apps');
+    dynamic doc = docs.firstWhere((dynamic d) => d["name"] == "$name$_appSuffix", orElse: () => throw Exception("BAAS app not found"));
+    final appId = doc['_id'] as String;
+    final clientAppId = doc['client_app_id'] as String;
+    final app = BaasApp(appId, clientAppId, name);
+
+    final dynamic functions = await _get('groups/$_groupId/apps/$appId/functions');
+    dynamic function = functions.firstWhere((dynamic f) => f["name"] == "confirmFunc", orElse: () => throw Exception("Func 'confirmFunc' not found"));
+    final confirmFuncId = function['_id'] as String;
+
+    await _updateFunction(app, 'confirmFunc', confirmFuncId, source ?? _confirmFuncSource);
+  }
+
+  Future<BaasApp> _createApp(String name, {String? confirmationType}) async {
     print('Creating app $name');
 
     final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$name$_appSuffix" }');
@@ -147,7 +171,7 @@ class BaasClient {
       "resetFunctionId": "$resetFuncId",
       "resetPasswordSubject": "",
       "resetPasswordUrl": "http://localhost/resetPassword",
-      "runConfirmationFunction": ${(confirmationType == "func").toString()},
+      "runConfirmationFunction": ${(confirmationType != "email" && confirmationType != "auto").toString()},
       "runResetFunction": true
     }''');
 
@@ -211,6 +235,17 @@ class BaasClient {
       }''');
 
     return response['_id'] as String;
+  }
+
+  Future<void> _updateFunction(BaasApp app, String name, String functionId, String source) async {
+    print('Updating function $name for ${app.name}...');
+
+    await _put('groups/$_groupId/apps/$app/functions/$functionId', '''{
+        "name": "$name",
+        "source": ${jsonEncode(source)},
+        "private": false,
+        "can_evaluate": {}
+      }''');
   }
 
   Future<String> _createMongoDBService(BaasApp app, String syncConfig) async {
