@@ -191,6 +191,36 @@ class _RealmCore {
     });
   }
 
+  ObjectId subscriptionId(Subscription subscription) {
+    final id = _realmLib.realm_flx_sync_subscription_id(subscription.handle._pointer);
+    return id.toDart();
+  }
+
+  String? subscriptionName(Subscription subscription) {
+    final name = _realmLib.realm_flx_sync_subscription_name(subscription.handle._pointer);
+    return name.toDart();
+  }
+
+  String subscriptionObjectClassName(Subscription subscription) {
+    final objectClassName = _realmLib.realm_flx_sync_subscription_object_class_name(subscription.handle._pointer);
+    return objectClassName.toDart()!;
+  }
+
+  String subscriptionQueryString(Subscription subscription) {
+    final queryString = _realmLib.realm_flx_sync_subscription_query_string(subscription.handle._pointer);
+    return queryString.toDart()!;
+  }
+
+  DateTime subscriptionCreatedAt(Subscription subscription) {
+    final createdAt = _realmLib.realm_flx_sync_subscription_created_at(subscription.handle._pointer);
+    return createdAt.toDart();
+  }
+
+  DateTime subscriptionUpdatedAt(Subscription subscription) {
+    final updatedAt = _realmLib.realm_flx_sync_subscription_updated_at(subscription.handle._pointer);
+    return updatedAt.toDart();
+  }
+
   SubscriptionSetHandle getSubscriptions(Realm realm) {
     return SubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_get_active_subscription_set(realm.handle._pointer)));
   }
@@ -1756,4 +1786,23 @@ enum _HttpMethod {
   patch,
   put,
   delete,
+}
+
+extension on realm_object_id {
+  ObjectId toDart() {
+    return ObjectId(); // TODO
+  }
+}
+
+extension on realm_timestamp_t {
+  DateTime toDart() {
+    return DateTime.fromMicrosecondsSinceEpoch(seconds * 1000000 + nanoseconds ~/ 1000, isUtc: true);
+  }
+}
+
+extension on realm_string_t {
+  String? toDart() {
+    if (data == nullptr) return null;
+    return data.cast<Utf8>().toDartString();
+  }
 }
