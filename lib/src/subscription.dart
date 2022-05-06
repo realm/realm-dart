@@ -23,10 +23,38 @@ import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'util.dart';
 
+/// A class representing a single query subscription. The server will continuously
+/// evaluate the query that the app subscribed to and will send data
+/// that matches it as well as remove data that no longer does.
 class Subscription {
   final SubscriptionHandle _handle;
 
   Subscription._(this._handle);
+
+  ObjectId get id => realmCore.subscriptionId(this);
+
+  /// Name of the [Subscription], if one was provided at creation time.
+  /// 
+  /// Otherwise returns null.
+  String? get name => realmCore.subscriptionName(this);
+
+  /// Class name of objects the [Subscription] refers to.
+  ///
+  /// If your types are remapped using [MapTo], the value
+  /// returned will be the mapped-to value - i.e. the one that Realm uses internally
+  /// rather than the name of the generated Dart class.
+  String get objectClassName => realmCore.subscriptionObjectClassName(this);
+
+  /// Query string that describes the [Subscription]. 
+  /// 
+  /// Objects matched by the query will be sent to the device by the server.
+  String get queryString => realmCore.subscriptionQueryString(this);
+
+  /// Timestamp when this [Subscription] was created.
+  DateTime get createdAt => realmCore.subscriptionCreatedAt(this);
+
+  /// Timestamp when this [Subscription] was last updated.
+  DateTime get updatedAt => realmCore.subscriptionUpdatedAt(this);
 
   @override
   // ignore: hash_and_equals
