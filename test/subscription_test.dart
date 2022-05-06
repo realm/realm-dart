@@ -278,4 +278,35 @@ Future<void> main([List<String>? args]) async {
 
     await subscriptions.waitForSynchronization();
   });
+
+  testSubscriptions('Subscription properties roundtrip', (realm) async {
+    final subscriptions = realm.subscriptions;
+
+    final before = DateTime.now().toUtc();
+
+    late ObjectId oid;
+    subscriptions.update((mutableSubscriptions) {
+      oid = mutableSubscriptions.add(realm.all<Task>(), name: 'foobar').id;
+    });
+
+    await subscriptions.waitForSynchronization(); // <-- Attempt at fixing windows
+
+    final after = DateTime.now().toUtc();
+    var s = subscriptions[0];
+
+    expect(s.id, oid);
+    expect(s.name, 'foobar');
+    expect(s.objectClassName, 'Task');
+    expect(s.queryString, 'TRUEPREDICATE');
+    expect(s.createdAt.isAfter(before), isTrue);
+    expect(s.createdAt.isBefore(after), isTrue);
+    expect(s.createdAt, s.updatedAt);
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [ObjectId()]), name: 'foobar', update: true);
+    });
+
+    s = subscriptions[0]; // WARNING: Needed in order to refresh properties! 
+    expect(s.createdAt.isBefore(s.updatedAt), isTrue);
+  });
 }

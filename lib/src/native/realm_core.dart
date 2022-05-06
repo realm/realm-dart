@@ -1772,12 +1772,6 @@ enum _HttpMethod {
   delete,
 }
 
-extension on realm_object_id {
-  ObjectId toDart() {
-    return ObjectId(); // TODO
-  }
-}
-
 extension on realm_timestamp_t {
   DateTime toDart() {
     return DateTime.fromMicrosecondsSinceEpoch(seconds * 1000000 + nanoseconds ~/ 1000, isUtc: true);
@@ -1788,5 +1782,25 @@ extension on realm_string_t {
   String? toDart() {
     if (data == nullptr) return null;
     return data.cast<Utf8>().toDartString();
+  }
+}
+
+extension on ObjectId {
+  Pointer<realm_object_id> toCapi(Allocator allocator) {
+    final result = allocator<realm_object_id>();
+    for (var i = 0; i < 12; i++) {
+      result.ref.bytes[i] = bytes[i];
+    }
+    return result;
+  }
+}
+
+extension on realm_object_id {
+  ObjectId toDart() {
+    final buffer = Uint8List(12);
+    for (int i = 0; i < 12; ++i) {
+      buffer[i] = bytes[i];
+    }
+    return ObjectId.fromBytes(buffer);
   }
 }
