@@ -153,3 +153,31 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
     ]);
   }
 }
+
+class BoolValue extends _BoolValue with RealmEntity, RealmObject {
+  BoolValue(
+    bool value,
+  ) {
+    RealmObject.set(this, 'value', value);
+  }
+
+  BoolValue._();
+
+  @override
+  bool get value => RealmObject.get<bool>(this, 'value') as bool;
+  @override
+  set value(bool value) => RealmObject.set(this, 'value', value);
+
+  @override
+  Stream<RealmObjectChanges<BoolValue>> get changes =>
+      RealmObject.getChanges<BoolValue>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(BoolValue._);
+    return const SchemaObject(BoolValue, 'BoolValue', [
+      SchemaProperty('value', RealmPropertyType.bool),
+    ]);
+  }
+}
