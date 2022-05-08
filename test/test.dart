@@ -128,7 +128,7 @@ Future<void> setupTests(List<String>? args) async {
 
   await setupBaas();
 
-  setUp(() async {
+  setUp(() {
     final path = generateRandomRealmPath();
     Configuration.defaultPath = path;
 
