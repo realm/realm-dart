@@ -379,17 +379,19 @@ A free-tier database should be enough for most contributors.
 2) Create an organization, if you don't already have one. You may choose to create one specifically for the
 purpose of these tests, if you prefer.
 3) Create a separate project for the purpose of running the tests.
-4) Build a database for the project. Choose a tier - FREE should service for most contributors. Default 
-settings are fine.
+4) Build a database for the project. Choose a tier - FREE should service for most contributors. Use the Default 
+settings.
 5) Add a user. Not really needed for the tests, but you cannot proceed without.
 6) Add your current IP address to IP address access list. You may need to revisit this step, if your IP changes.
 Or you can add a 0.0.0.0/0 entry to allow all IPs.
-7) Go to access manager, and choose project access for you project. Create an API key for the project. 
+7) Go to "Access manager -> Project Access". Located at the top of the page. Create an API key for the project. 
 Ensure that all permissions are granted, and copy the public and private key before proceeding.
 8) Note down the project id. It is the long number in the url (https://cloud.mongodb.com/v2/<project_id>/..). 
-You can also grab it from the project settings page.
-9) Setup environment variables locally:
+You can also find it at the project settings page.
+9) Find the cluster name in "Deployment -> Database" (located at the left of the page). Usually "Cluster0"
+10) Setup environment variables locally:
 ```
+BAAS_URL=https://realm.mongodb.com
 BAAS_CLUSTER=<cluster_name> # probably Cluster0
 BAAS_API_KEY=<public_key>
 BAAS_PRIVATE_API_KEY=<private_key>

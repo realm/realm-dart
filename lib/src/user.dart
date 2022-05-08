@@ -40,6 +40,10 @@ class User {
   /// The custom user data associated with this user.
   dynamic get customData {
     final data = realmCore.userGetCustomData(this);
+    if (data == null) {
+      return null;
+    }
+    
     return jsonDecode(data);
   }
 
@@ -53,7 +57,19 @@ class User {
   ///
   /// Linking a user with more credentials, mean the user can login either of these credentials. It also makes it possible to "upgrade" an anonymous user
   /// by linking it with e.g. Email/Password credentials.
-  /// Note: It is not possible to link two existing users of MongoDB Realm. The provided credentials must not have been used by another user.
+  /// *Note: It is not possible to link two existing users of MongoDB Realm. The provided credentials must not have been used by another user.*
+  /// 
+  /// The following snippet shows how to associate an email and password with an anonymous user allowing them to login on a different device.
+  /// ```dart
+  ///  final app = App(configuration);
+  ///  final user = await app.logIn(Credentials.anonymous());
+  ///
+  ///  // This step is only needed for email password auth - a password record must exist before you can link a user to it.
+  ///  final authProvider = EmailPasswordAuthProvider(app);
+  ///  await authProvider.registerUser("username", "password");
+  ///
+  ///  await user.linkCredentials(Credentials.emailPassword("username", "password"));
+  /// ```
   Future<User> linkCredentials(Credentials credentials) async {
     final userHandle = await realmCore.userLinkCredentials(app, this, credentials);
     return UserInternal.create(app, userHandle);
@@ -78,15 +94,23 @@ class User {
   Future<void> logout() async {
     return await realmCore.userLogOut(this);
   }
+
+  @override
+  // ignore: hash_and_equals
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! User) return false;
+    return realmCore.userEquals(this, other);
+  }
 }
 
 /// The current state of a [User].
 enum UserState {
-  /// The user is logged in, and any Realms associated with it are synchronizing with MongoDB Realm.
-  loogedIn,
-
   /// The user is logged out. Call LogInAsync(Credentials) with valid credentials to log the user back in.
   loggedOut,
+
+  /// The user is logged in, and any Realms associated with it are synchronizing with MongoDB Realm.
+  loggedIn,
 
   /// The user has been logged out and their local data has been removed.
   removed,
