@@ -20,7 +20,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
-        submodules: recursive
+        submodules: false
 
     - name: Read version
       id: get-version
@@ -103,6 +103,7 @@ jobs:
     - name: Cleanup binary symlinks
       run: |
         rm -rf flutter/realm_flutter/android/src/main/cpp/lib
+        rm flutter/realm_flutter/ios/src
         rm flutter/realm_flutter/ios/realm_dart.xcframework
         rm flutter/realm_flutter/linux/binary
         rm flutter/realm_flutter/windows/binary
