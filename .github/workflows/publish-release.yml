@@ -47,14 +47,12 @@ jobs:
     # as the artifact name - i.e. librealm-linux, etc.
     - name: Archive binaries
       run: |
-        for directory in binary/*; do
-          targetDir="binary/${directory#*-}"
-          mv "$directory" "$targetDir"
-          dart run realm_dart archive --source-dir "${{ github.workspace }}/$targetDir"
-        done
+        mkdir -p release
 
-        mkdir -p release/${{ steps.get-version.outputs.version }}
-        mv binary/*.tar.gz release/${{ steps.get-version.outputs.version }}
+        for directory in binary/*; do
+          targetFile="release/${directory#*-}.tar.gz"
+          dart run realm_dart archive --source-dir "${{ github.workspace }}/binary/directory" --output-file "${{ github.workspace }}/$targetFile"
+        done
 
     - name: Update realm_* path dependencies (Production)
       uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
@@ -89,17 +87,17 @@ jobs:
 
     - name: Package common
       run: |
-        cp -Lr ../../common .
+        cp -Lr ../common .
         cd common
         dart pub publish --dry-run || true
-      working-directory: release/${{ steps.get-version.outputs.version }}
+      working-directory: release
 
     - name: Package generator
       run: |
-        cp -Lr ../../generator .
+        cp -Lr ../generator .
         cd generator
         dart pub publish --dry-run || true
-      working-directory: release/${{ steps.get-version.outputs.version }}
+      working-directory: release
 
     # realm_flutter has symlinks to native binaries which should not be packaged
     - name: Cleanup binary symlinks
@@ -113,26 +111,26 @@ jobs:
 
     - name: Package realm (flutter)
       run: |
-        cp -Lr ../../flutter/realm_flutter realm
+        cp -Lr ../flutter/realm_flutter realm
         cd realm
         dart pub publish --dry-run || true
-      working-directory: release/${{ steps.get-version.outputs.version }}
+      working-directory: release
 
     - name: Package realm_dart
       run: |
         mkdir realm_dart
-        cp -Lr ../../bin ../../example ../../lib ../../test realm_dart
-        rsync -vt ../../* realm_dart/
+        cp -Lr ../bin ../example ../lib ../test realm_dart
+        rsync -vt ../* realm_dart/
         cd realm_dart
         dart pub publish --dry-run || true
-      working-directory: release/${{ steps.get-version.outputs.version }}
+      working-directory: release
 
     - name: Extract Changelog
       run: |
-        $match = Get-Content ../../CHANGELOG.md -Raw | select-string -pattern "(?ms)^(?<latestVersionChanges>.+?)(?=(\n|\r\n)## )"
+        $match = Get-Content ../CHANGELOG.md -Raw | select-string -pattern "(?ms)^(?<latestVersionChanges>.+?)(?=(\n|\r\n)## )"
         $latestChanges = $match.Matches[0].Groups["latestVersionChanges"].Value;
         $latestChanges | Out-File ExtractedChangelog.md
-      working-directory: release/${{ steps.get-version.outputs.version }}
+      working-directory: release
       shell: pwsh
 
     - name: Upload release folder
@@ -158,7 +156,7 @@ jobs:
         s3_folder="static.realm.io/downloads/dart/${{ steps.get-version.outputs.version }}"
         aws s3 sync --acl public-read . "s3://$s3_folder"
         echo "::set-output name=url::https://$s3_folder/packages.tar.gz"
-      working-directory: release/${{ steps.get-version.outputs.version }}
+      working-directory: release
 
   publish-packages:
     runs-on: ubuntu-latest
@@ -193,7 +191,7 @@ jobs:
         dart pub publish --dry-run --directory generator || true
         dart pub publish --dry-run --directory realm_dart || true
         dart pub publish --dry-run --directory realm || true
-      working-directory: release/${{ needs.prepare-packages.outputs.version }}
+      working-directory: release
 
     - name: Find Release PR
       uses: juliangruber/find-pull-request-action@f9f7484f8237cf8485e5ab826e542ba5dd9e9c6e
@@ -211,8 +209,8 @@ jobs:
     - name: Publish Github Release
       uses: ncipollo/release-action@10c84d509b28aae3903113151bfd832314964f2e
       with:
-        artifacts: release/${{ needs.prepare-packages.outputs.version }}/*.tar.gz
-        bodyFile: release/${{ needs.prepare-packages.outputs.version }}/ExtractedChangelog.md
+        artifacts: release/*.tar.gz
+        bodyFile: release/ExtractedChangelog.md
         name: ${{ needs.prepare-packages.outputs.version }}
         # TODO: move to master
         commit: test-master
@@ -220,10 +218,11 @@ jobs:
         token: ${{ secrets.REALM_CI_PAT }}
         draft: true
 
-    - name: 'Post to #realm-releases'
-      uses: realm/ci-actions/release-to-slack@v3
-      with:
-        changelog: release/${{ needs.prepare-packages.outputs.version }}/ExtractedChangelog.md
-        sdk: dart
-        webhook-url: ${{ secrets.SLACK_RELEASES_WEBHOOK }}
-        version: ${{ needs.prepare-packages.outputs.version }}
+    # TODO: reenable
+    # - name: 'Post to #realm-releases'
+    #   uses: realm/ci-actions/release-to-slack@v3
+    #   with:
+    #     changelog: release/ExtractedChangelog.md
+    #     sdk: dart
+    #     webhook-url: ${{ secrets.SLACK_RELEASES_WEBHOOK }}
+    #     version: ${{ needs.prepare-packages.outputs.version }}
