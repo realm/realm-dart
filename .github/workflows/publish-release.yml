@@ -185,13 +185,12 @@ jobs:
       with:
         sdk: stable
 
-    # TODO: remove --dry-run
     - name: Publish packages to pub.dev
       run: |
-        dart pub publish --dry-run --directory common || true
-        dart pub publish --dry-run --directory generator || true
-        dart pub publish --dry-run --directory realm_dart || true
-        dart pub publish --dry-run --directory realm || true
+        dart pub publish --directory common || true
+        dart pub publish --directory generator || true
+        dart pub publish --directory realm_dart || true
+        dart pub publish --directory realm || true
       working-directory: release
 
     - name: Find Release PR
@@ -213,17 +212,15 @@ jobs:
         artifacts: release/*.tar.gz
         bodyFile: release/ExtractedChangelog.md
         name: ${{ needs.prepare-packages.outputs.version }}
-        # TODO: move to master
-        commit: test-master
+        commit: master
         tag: ${{ needs.prepare-packages.outputs.version }}
         token: ${{ secrets.REALM_CI_PAT }}
-        draft: true
+        draft: false
 
-    # TODO: reenable
-    # - name: 'Post to #realm-releases'
-    #   uses: realm/ci-actions/release-to-slack@v3
-    #   with:
-    #     changelog: release/ExtractedChangelog.md
-    #     sdk: dart
-    #     webhook-url: ${{ secrets.SLACK_RELEASES_WEBHOOK }}
-    #     version: ${{ needs.prepare-packages.outputs.version }}
+    - name: 'Post to #realm-releases'
+      uses: realm/ci-actions/release-to-slack@v3
+      with:
+        changelog: release/ExtractedChangelog.md
+        sdk: dart
+        webhook-url: ${{ secrets.SLACK_RELEASES_WEBHOOK }}
+        version: ${{ needs.prepare-packages.outputs.version }}

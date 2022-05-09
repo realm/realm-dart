@@ -59,18 +59,18 @@ jobs:
 
       - name: Check cache
         id: check-cache
-        if: ${{ !contains(github.head_ref, 'todo-update-me-to-release/') }}
+        if: ${{ !contains(github.head_ref, 'release/') }}
         uses: actions/cache@v3
         with:
           path: ./binary/linux/**
           key: binaries-linux-${{hashFiles('./src/**')}}
 
       - name: Setup Ninja
-        if: ${{ contains(github.head_ref, 'todo-update-me-to-release/') || steps.check-cache.outputs.cache-hit != 'true' }}
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Build Realm for Linux
-        if: ${{ contains(github.head_ref, 'todo-update-me-to-release/') || steps.check-cache.outputs.cache-hit != 'true' }}
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: ./scripts/build-linux.sh
 
       - name: Store artifacts
@@ -187,26 +187,26 @@ jobs:
 
       - name: Check cache
         id: check-cache
-        if: ${{ !contains(github.head_ref, 'todo-update-me-to-release/') }}
+        if: ${{ !contains(github.head_ref, 'release/') }}
         uses: actions/cache@v3
         with:
           path: ./binary/macos/**
           key: binaries-macos-${{hashFiles('./src/**')}}
 
       - name: Install ccache
-        if: ${{ contains(github.head_ref, 'todo-update-me-to-release/') || steps.check-cache.outputs.cache-hit != 'true' }}
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: ccache-macos
 
       - name: Enable ccache
-        if: ${{ contains(github.head_ref, 'todo-update-me-to-release/') || steps.check-cache.outputs.cache-hit != 'true' }}
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: |
           echo "/usr/lib/ccache" >> $GITHUB_PATH
           echo "/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
 
       - name: Build Realm for macOS
-        if: ${{ contains(github.head_ref, 'todo-update-me-to-release/') || steps.check-cache.outputs.cache-hit != 'true' }}
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: ./scripts/build-macos.sh
 
       - name: Store artifacts
@@ -288,7 +288,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: false
-      
+
       - uses: realm/ci-actions/mdb-realm/deployApps@fac1d6958f03d71de743305ce3ab27594efbe7b7
         id: deploy-mdb-apps
         with:
@@ -298,12 +298,12 @@ jobs:
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
           differentiator: dart-windows
-      
+
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
           sdk: stable
-      
+
       - name: Deploy Apps
         run: |
           dart run realm_dart deploy-apps \
@@ -325,7 +325,7 @@ jobs:
 
       - name: Check cache
         id: check-cache
-        if: ${{ !contains(github.head_ref, 'todo-update-me-to-release/') }}
+        if: ${{ !contains(github.head_ref, 'release/') }}
         uses: actions/cache@v3
         with:
           path: ./binary/windows/**
@@ -340,7 +340,7 @@ jobs:
           cache-restore-keys: vcpkg-windows-x64
 
       - name: Build Realm for Windows
-        if: ${{ contains(github.head_ref, 'todo-update-me-to-release/') || steps.check-cache.outputs.cache-hit != 'true' }}
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: scripts\build.bat
 
       - name: Store artifacts
@@ -349,7 +349,7 @@ jobs:
           name: librealm-windows
           path: binary/windows/**
           retention-days: 1
-  
+
   cleanup-windows:
     runs-on: ubuntu-latest
     name: Cleanup Windows
@@ -451,26 +451,26 @@ jobs:
 
       - name: Check cache
         id: check-cache
-        if: ${{ !contains(github.head_ref, 'todo-update-me-to-release/') }}
+        if: ${{ !contains(github.head_ref, 'release/') }}
         uses: actions/cache@v3
         with:
           path: ./binary/ios/**
           key: binaries-ios-${{hashFiles('./src/**')}}
 
       - name: Install ccache
-        if: ${{ contains(github.head_ref, 'todo-update-me-to-release/') || steps.check-cache.outputs.cache-hit != 'true' }}
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         uses: hendrikmuhs/ccache-action@v1
         with:
           key: ccache-ios
 
       - name: Enable ccache
-        if: ${{ contains(github.head_ref, 'todo-update-me-to-release/') || steps.check-cache.outputs.cache-hit != 'true' }}
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: |
           echo "/usr/lib/ccache" >> $GITHUB_PATH
           echo "/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
 
       - name: Build Realm for iOS
-        if: ${{ contains(github.head_ref, 'todo-update-me-to-release/') || steps.check-cache.outputs.cache-hit != 'true' }}
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         # TODO: paralellize build to build for all architectures
         run: ./scripts/build-ios.sh simulator
 
@@ -536,7 +536,7 @@ jobs:
 
       - name: Check cache
         id: check-cache
-        if: ${{ !contains(github.head_ref, 'todo-update-me-to-release/') }}
+        if: ${{ !contains(github.head_ref, 'release/') }}
         uses: actions/cache@v3
         with:
           path: ./binary/android/**
@@ -547,7 +547,7 @@ jobs:
         uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Build Realm for Android
-        if: ${{ contains(github.head_ref, 'todo-update-me-to-release/') || steps.check-cache.outputs.cache-hit != 'true' }}
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         # TODO: parallelize build for all architectures
         run: |
           export ANDROID_NDK=$ANDROID_NDK_HOME
