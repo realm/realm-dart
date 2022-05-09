@@ -103,7 +103,7 @@ jobs:
     - name: Cleanup binary symlinks
       run: |
         rm -rf flutter/realm_flutter/android/src/main/cpp/lib
-        rm flutter/realm_flutter/ios/realm_flutter_ios.xcframework
+        rm flutter/realm_flutter/ios/realm_dart.xcframework
         rm flutter/realm_flutter/linux/binary
         rm flutter/realm_flutter/windows/binary
         rm flutter/realm_flutter/macos/librealm_dart.dylib
