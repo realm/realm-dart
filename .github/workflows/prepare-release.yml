@@ -35,12 +35,19 @@ jobs:
           include: '**/realm.podspec'
 
       - name: Update realm_core.libraryVersion
+        id: update-library-version
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
           find: "  String get libraryVersion => '[^']*';"
           replace: "  String get libraryVersion => '${{ steps.update-changelog.outputs.new-version }}+alpha';"
           include: '**/realm_core.dart'
 
+      - name: Make sure we updated libraryVersion
+        run: |
+          if [ ${{ steps.update-library-version.outputs.modifiedFiles }} -ne 1 ]; then
+            echo 'Expected exactly one modified file, got ${{ steps.update-library-version.outputs.modifiedFiles }}'
+            exit 1
+          fi
 
       - name: Create Release PR
         uses: peter-evans/create-pull-request@7380612b49221684fefa025244f2ef4008ae50ad #! 3.10.1
