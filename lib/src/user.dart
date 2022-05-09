@@ -106,7 +106,7 @@ class User {
 
 /// The current state of a [User].
 enum UserState {
-  /// The user is logged out. Call LogInAsync(Credentials) with valid credentials to log the user back in.
+  /// The user is logged out. Call [App.login] to log the user back in.
   loggedOut,
 
   /// The user is logged in, and any Realms associated with it are synchronizing with MongoDB Realm.
