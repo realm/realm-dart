@@ -294,7 +294,8 @@ Future<void> main([List<String>? args]) async {
   // Run first two steps (test 1 and test 2) to create and confirm the user.
   // Before running test 2 set the variables with token details received as link query parameters in the confirmation email.
   // Then run test 3 to call reset password function configured in the cloud.
-  // Run the last test 4 to check whether the new password is applied and the old password is rejected.
+  // Test 3 will check also whether the new password is applied and the old password is rejected.
+  // Run the last test 4 to call resetFunc without passing additional arguments.
   group("Manual test: Email/Password - call reset password function with new password", () {
     // Enter a valid email that is not registered
     const String validUsername = "desist81@hotmail.com"; //"valid_email@mail.com";
