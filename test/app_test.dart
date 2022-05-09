@@ -95,7 +95,7 @@ Future<void> main([List<String>? args]) async {
     expect(user.state, UserState.removed);
   });
 
-  baasTest('App log out anon user is marked as removed', (configuration) async {
+  baasTest('App log out anonymous user is marked as removed', (configuration) async {
     final app = App(configuration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -104,7 +104,7 @@ Future<void> main([List<String>? args]) async {
     expect(user.state, UserState.removed);
   });
 
-  baasTest('App remove anon user', (configuration) async {
+  baasTest('App remove anonymous user', (configuration) async {
     final app = App(configuration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
