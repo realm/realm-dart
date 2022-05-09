@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
                                 'src/realm_dart.cpp'
                                 'src/realm_dart_scheduler.cpp'
   s.public_header_files       = 'Classes/**/*.h',
-  s.vendored_frameworks       = 'realm_flutter_ios.xcframework'
+  s.vendored_frameworks       = 'realm_dart.xcframework'
   s.dependency                  'Flutter'
   s.platform                  = :ios, '8.0'
   s.library                   = 'c++', 'z', 'compression'

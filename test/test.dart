@@ -88,8 +88,7 @@ class $RemappedClass {
 }
 
 String? testName;
-Map<String, BaasApp> baasApps = <String, BaasApp>{};
-
+final baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
 
 //Overrides test method so we can filter tests
@@ -115,7 +114,6 @@ Future<void> setupTests(List<String>? args) async {
   parseTestNameFromArguments(args);
 
   await setupBaas();
-
   setUp(() {
     final path = generateRandomRealmPath();
     Configuration.defaultPath = path;
@@ -123,6 +121,8 @@ Future<void> setupTests(List<String>? args) async {
     addTearDown(() async {
       final paths = HashSet<String>();
       paths.add(path);
+
+      realmCore.clearCachedApps();
 
       while (_openRealms.isNotEmpty) {
         final realm = _openRealms.removeFirst();
@@ -205,7 +205,6 @@ Future<void> setupBaas() async {
   final projectId = Platform.environment['BAAS_PROJECT_ID'];
 
   final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
-
   baasApps.addAll(await client.getOrCreateApps());
 }
 
@@ -226,7 +225,8 @@ Future<void> baasTest(
   }
 
   test(name, () async {
-    final app = baasApps[appName] ?? baasApps.values.firstWhere((element) => true, orElse: () => throw RealmError("No BAAS apps"));
+    final app =
+        baasApps[appName] ?? baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
     final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
     final appConfig = AppConfiguration(
       app.clientAppId,

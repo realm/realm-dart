@@ -1,7 +1,10 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.21)
 
-if(APPLE)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14" CACHE STRING "Minimum OS X deployment version")
+if(CMAKE_SYSTEM_NAME STREQUAL Android)
+    message("Realm Flutter Android build enabled")
+    set(REALM_ANDROID ON)
+    set(CMAKE_ANDROID_STL_TYPE c++_static)
+    set(ANDROID_ALLOW_UNDEFINED_SYMBOLS ON)
 endif()
 
 project(realm-dart)

@@ -123,7 +123,7 @@ class App {
   /// Logs in a user with the given credentials.
   Future<User> logIn(Credentials credentials) async {
     var userHandle = await realmCore.logIn(this, credentials);
-    return UserInternal.create(userHandle);
+    return UserInternal.create(this, userHandle);
   }
 
   /// Gets the currently logged in [User]. If none exists, `null` is returned.
@@ -132,16 +132,16 @@ class App {
     if (userHandle == null) {
       return null;
     }
-    return UserInternal.create(userHandle);
+    return UserInternal.create(this, userHandle);
   }
 
   /// Gets all currently logged in users.
   Iterable<User> get users {
-    return realmCore.getUsers(this).map((handle) => UserInternal.create(handle));
+    return realmCore.getUsers(this).map((handle) => UserInternal.create(this, handle));
   }
 
-  /// Removes the user's local credentials and attempts to invalidate their refresh token from the server.
-  ///
+  /// Removes the user's local credentials. This will also close any associated Sessions.
+  /// 
   /// If [user] is null logs out [currentUser] if it exists.
   Future<void> logout(User? user) async {
     user ??= currentUser;

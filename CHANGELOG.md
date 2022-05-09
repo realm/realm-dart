@@ -25,12 +25,18 @@
 * Support EmailPassword calling custom reset password functions. ([#482](https://github.com/realm/realm-dart/pull/482))
 * Support EmailPassword retry custom user confirmation functions. ([#484](https://github.com/realm/realm-dart/pull/484))
 * Expose currentUser property on App. ([473](https://github.com/realm/realm-dart/pull/473))
-* Support logout user. ([#476](https://github.com/realm/realm-dart/pull/476))
+* Support app logout user. ([#476](https://github.com/realm/realm-dart/pull/476))
 * Support remove user. ([#492](https://github.com/realm/realm-dart/pull/492))
 * Support switch current user. ([#493](https://github.com/realm/realm-dart/pull/493))
+* Support user custom data and refresh. ([#525](https://github.com/realm/realm-dart/pull/525))
+* Support linking user credentials. ([#525](https://github.com/realm/realm-dart/pull/525))
+* Support user state. ([#525](https://github.com/realm/realm-dart/pull/525))
+* Support getting user id and identities. ([#525](https://github.com/realm/realm-dart/pull/525))
+* Support user logout. ([#525](https://github.com/realm/realm-dart/pull/525))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))
+* Fixed boolean value persistence ([#474](https://github.com/realm/realm-dart/issues/474))
 
 ### Internal
 * Added a command to deploy a MongoDB Realm app to `realm_dart`. Usage: `dart run realm_dart deploy-apps`. By default it will deploy apps to `http://localhost:9090` which is the endpoint of the local docker image. If `--atlas-cluster` is provided, it will authenticate, create an application and link the provided cluster to it. (PR [#309](https://github.com/realm/realm-dart/pull/309))
