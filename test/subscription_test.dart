@@ -32,13 +32,9 @@ void testSubscriptions(String name, FutureOr<void> Function(Realm) tester) async
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = (Configuration.flexibleSync(user, [Task.schema]) as FlexibleSyncConfiguration)..sessionStopPolicy = SessionStopPolicy.immediately;
+    final configuration = FlexibleSyncConfiguration(user, [Task.schema])..sessionStopPolicy = SessionStopPolicy.immediately;
     final realm = getRealm(configuration);
-    try {
-      await tester(realm);
-    } finally {
-      realm.close();
-    }
+    await tester(realm);
   });
 }
 
@@ -64,7 +60,7 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.version, 0);
 
     subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.addOrUpdate(realm.all<Task>());
+      mutableSubscriptions.add(realm.all<Task>());
     });
 
     expect(subscriptions.length, 1);
@@ -83,7 +79,7 @@ Future<void> main([List<String>? args]) async {
     final query = realm.all<Task>();
 
     subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.addOrUpdate(query);
+      mutableSubscriptions.add(query);
     });
     expect(subscriptions, isNotEmpty);
     expect(subscriptions.find(query), isNotNull);
@@ -94,7 +90,7 @@ Future<void> main([List<String>? args]) async {
 
     const name = 'some name';
     subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.addOrUpdate(realm.all<Task>(), name: name);
+      mutableSubscriptions.add(realm.all<Task>(), name: name);
     });
     expect(subscriptions, isNotEmpty);
     expect(subscriptions.findByName(name), isNotNull);
@@ -107,7 +103,7 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.find(query), isNull);
 
     subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.addOrUpdate(query);
+      mutableSubscriptions.add(query);
     });
     expect(subscriptions.find(query), isNotNull);
   });
@@ -119,7 +115,7 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.findByName(name), isNull);
 
     subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.addOrUpdate(realm.all<Task>(), name: name);
+      mutableSubscriptions.add(realm.all<Task>(), name: name);
     });
     expect(subscriptions.findByName(name), isNotNull);
   });
@@ -129,7 +125,7 @@ Future<void> main([List<String>? args]) async {
     final query = realm.all<Task>();
 
     subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.addOrUpdate(query);
+      mutableSubscriptions.add(query);
     });
     expect(subscriptions, isNotEmpty);
 
@@ -144,7 +140,7 @@ Future<void> main([List<String>? args]) async {
 
     const name = 'some name';
     subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.addOrUpdate(realm.all<Task>(), name: name);
+      mutableSubscriptions.add(realm.all<Task>(), name: name);
     });
     expect(subscriptions, isNotEmpty);
 
@@ -158,8 +154,8 @@ Future<void> main([List<String>? args]) async {
     final subscriptions = realm.subscriptions;
 
     subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.addOrUpdate(realm.query<Task>(r'_id == $0', [ObjectId()]));
-      mutableSubscriptions.addOrUpdate(realm.all<Task>());
+      mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [ObjectId()]));
+      mutableSubscriptions.add(realm.all<Task>());
     });
     expect(subscriptions.length, 2);
 
@@ -173,8 +169,8 @@ Future<void> main([List<String>? args]) async {
     final subscriptions = realm.subscriptions;
 
     subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.addOrUpdate(realm.query<Task>(r'_id == $0', [ObjectId()]));
-      mutableSubscriptions.addOrUpdate(realm.all<Task>());
+      mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [ObjectId()]));
+      mutableSubscriptions.add(realm.all<Task>());
     });
     expect(subscriptions.length, 2);
 
@@ -190,6 +186,65 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
+  testSubscriptions('MutableSubscriptionSet.elementAt', (realm) {
+    final subscriptions = realm.subscriptions;
+
+    subscriptions.update((mutableSubscriptions) {
+      final s = mutableSubscriptions.add(realm.all<Task>());
+      expect(mutableSubscriptions[0], isNotNull);
+      expect(s, isNotNull);
+      expect(mutableSubscriptions.state, SubscriptionSetState.uncommitted);
+      // expect(mutableSubscriptions[0], s); // TODO: Not posible yet
+    });
+  });
+
+  testSubscriptions('MutableSubscriptionSet.add double-add throws', (realm) {
+    final subscriptions = realm.subscriptions;
+
+    // Cannot add same query twice without requesting an update
+    expect(() {
+      subscriptions.update((mutableSubscriptions) {
+        mutableSubscriptions.add(realm.all<Task>());
+        mutableSubscriptions.add(realm.all<Task>());
+      });
+    }, throws<RealmException>('Duplicate subscription'));
+
+    // Okay to add same query under different names
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.all<Task>(), name: 'foo');
+      mutableSubscriptions.add(realm.all<Task>(), name: 'bar');
+    });
+
+    expect(subscriptions.length, 2);
+
+    // Cannot add different queries under same name, unless the second
+    // can update the first.
+    expect(() {
+      subscriptions.update((mutableSubscriptions) {
+        mutableSubscriptions.add(realm.all<Task>(), name: 'same');
+        mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [ObjectId()]), name: 'same');
+      });
+    }, throws<RealmException>('Duplicate subscription'));
+  });
+
+  testSubscriptions('MutableSubscriptionSet.add with update flag', (realm) {
+    final subscriptions = realm.subscriptions;
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.all<Task>());
+      mutableSubscriptions.add(realm.all<Task>(), update: true);
+    });
+    
+    expect(subscriptions.length, 1);
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.all<Task>(), name: 'same');
+      mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [ObjectId()]), name: 'same', update: true);
+    });
+
+    expect(subscriptions.length, 2);
+  });
+
   testSubscriptions('Get subscriptions', (realm) async {
     final subscriptions = realm.subscriptions;
 
@@ -198,7 +253,7 @@ Future<void> main([List<String>? args]) async {
     final query = realm.all<Task>();
 
     subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.addOrUpdate(query);
+      mutableSubscriptions.add(query);
     });
 
     expect(subscriptions.length, 1);
@@ -211,7 +266,7 @@ Future<void> main([List<String>? args]) async {
 
     const name = 'a random name';
     subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.addOrUpdate(query, name: name);
+      mutableSubscriptions.add(query, name: name);
     });
 
     expect(subscriptions.findByName(name), isNotNull);

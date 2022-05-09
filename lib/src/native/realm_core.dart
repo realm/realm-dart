@@ -264,28 +264,38 @@ class _RealmCore {
   }
 
   SubscriptionSetHandle subscriptionSetCommit(MutableSubscriptionSet subscriptions) {
-    return SubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_subscription_set_commit(subscriptions.mutableHandle._pointer)));
+    return SubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_subscription_set_commit(subscriptions.handle._mutablePointer)));
   }
 
-  bool insertOrAssignSubscription(MutableSubscriptionSet subscriptions, RealmResults query, String? name) {
+  SubscriptionHandle insertOrAssignSubscription(MutableSubscriptionSet subscriptions, RealmResults query, String? name, bool update) {
+    if (!update) {
+      if ((name != null && findSubscriptionByName(subscriptions, name) != null) || //
+          (name == null && findSubscriptionByQuery(subscriptions, query) != null)) {
+        throw RealmException('Duplicate subscription $query${name != null ? ' with name: $name' : ''}');
+      }
+    }
     return using((arena) {
       final out_index = arena<IntPtr>();
       final out_inserted = arena<Uint8>();
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_insert_or_assign(
-            subscriptions.mutableHandle._pointer,
+            subscriptions.handle._mutablePointer,
             query.queryHandle._pointer,
             name?.toUtf8Ptr(arena) ?? nullptr,
             out_index,
             out_inserted,
           ));
-      return out_inserted.value > 0;
+      return subscriptionAt(subscriptions, out_index.value);
     });
+  }
+
+  String describeQuery(RealmResults query) {
+    return _realmLib.realm_query_get_description(query.queryHandle._pointer).cast<Utf8>().toDartString();
   }
 
   void eraseSubscriptionByName(MutableSubscriptionSet subscriptions, String name) {
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_name(
-            subscriptions.mutableHandle._pointer,
+            subscriptions.handle._mutablePointer,
             name.toUtf8Ptr(arena),
           ));
     });
@@ -293,13 +303,13 @@ class _RealmCore {
 
   void eraseSubscriptionByQuery(MutableSubscriptionSet subscriptions, RealmResults query) {
     _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_query(
-          subscriptions.mutableHandle._pointer,
+          subscriptions.handle._mutablePointer,
           query.queryHandle._pointer,
         ));
   }
 
   void clearSubscriptionSet(MutableSubscriptionSet subscriptions) {
-    _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_clear(subscriptions.mutableHandle._pointer));
+    _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_clear(subscriptions.handle._mutablePointer));
   }
 
   void refreshSubscriptionSet(SubscriptionSet subscriptions) {
@@ -1381,10 +1391,9 @@ class RealmQueryHandle extends Handle<realm_query> {
   RealmQueryHandle._(Pointer<realm_query> pointer) : super(pointer, 256);
 }
 
-class RealmNotificationTokenHandle extends Handle<realm_notification_token> {
+class ReleasableHandle<T extends NativeType> extends Handle<T> {
   bool released = false;
-  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer) : super(pointer, 32);
-
+  ReleasableHandle(Pointer<T> pointer, int size) : super(pointer, size);
   void release() {
     if (released) {
       return;
@@ -1394,6 +1403,10 @@ class RealmNotificationTokenHandle extends Handle<realm_notification_token> {
     _realmLib.realm_release(_pointer.cast());
     released = true;
   }
+}
+
+class RealmNotificationTokenHandle extends ReleasableHandle<realm_notification_token> {
+  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer) : super(pointer, 32);
 }
 
 class RealmCollectionChangesHandle extends Handle<realm_collection_changes> {
@@ -1432,12 +1445,14 @@ class SubscriptionHandle extends Handle<realm_flx_sync_subscription> {
   SubscriptionHandle._(Pointer<realm_flx_sync_subscription> pointer) : super(pointer, 24);
 }
 
-class SubscriptionSetHandle extends Handle<realm_flx_sync_subscription_set> {
+class SubscriptionSetHandle extends ReleasableHandle<realm_flx_sync_subscription_set> {
   SubscriptionSetHandle._(Pointer<realm_flx_sync_subscription_set> pointer) : super(pointer, 24);
 }
 
-class MutableSubscriptionSetHandle extends Handle<realm_flx_sync_mutable_subscription_set> {
-  MutableSubscriptionSetHandle._(Pointer<realm_flx_sync_mutable_subscription_set> pointer) : super(pointer, 24);
+class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
+  MutableSubscriptionSetHandle._(Pointer<realm_flx_sync_mutable_subscription_set> pointer) : super._(pointer.cast());
+
+  Pointer<realm_flx_sync_mutable_subscription_set> get _mutablePointer => super._pointer.cast();
 }
 
 extension on List<int> {
