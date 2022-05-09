@@ -117,24 +117,29 @@ class _ImmutableSubscriptionSet extends SubscriptionSet {
 
   @override
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action) {
-    final mutableSubscriptions = MutableSubscriptionSet._(realm, _handle, realmCore.subscriptionSetMakeMutable(this));
-    action(mutableSubscriptions);
-    _handle = realmCore.subscriptionSetCommit(mutableSubscriptions);
+    final mutableSubscriptions = MutableSubscriptionSet._(realm, realmCore.subscriptionSetMakeMutable(this));
+    try {
+      action(mutableSubscriptions);
+      _handle = realmCore.subscriptionSetCommit(mutableSubscriptions);
+    } finally {
+      // Release as early as possible, as we cannot start new update, until this is released!
+      mutableSubscriptions._handle.release();
+    }
   }
 }
 
 class MutableSubscriptionSet extends SubscriptionSet {
-  final MutableSubscriptionSetHandle _mutableHandle;
+  final MutableSubscriptionSetHandle _handle;
 
-  MutableSubscriptionSet._(Realm realm, SubscriptionSetHandle handle, this._mutableHandle) : super._(realm, handle);
+  MutableSubscriptionSet._(Realm realm, this._handle) : super._(realm, _handle);
 
   @override
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action) {
     action(this); // or should we just throw?
   }
 
-  bool addOrUpdate<T extends RealmObject>(RealmResults<T> query, {String? name}) {
-    return realmCore.insertOrAssignSubscription(this, query, name);
+  Subscription add<T extends RealmObject>(RealmResults<T> query, {String? name, bool update = false}) {
+    return Subscription._(realmCore.insertOrAssignSubscription(this, query, name, update));
   }
 
   void remove<T extends RealmObject>(RealmResults<T> query) {
@@ -151,5 +156,5 @@ class MutableSubscriptionSet extends SubscriptionSet {
 }
 
 extension MutableSubscriptionSetInternal on MutableSubscriptionSet {
-  MutableSubscriptionSetHandle get mutableHandle => _mutableHandle;
+  MutableSubscriptionSetHandle get handle => _handle;
 }
