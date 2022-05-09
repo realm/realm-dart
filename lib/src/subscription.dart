@@ -63,16 +63,43 @@ enum SubscriptionSetState {
   superseded,
 }
 
+/// A collection representing the set of active subscriptions for a [Realm] instance.
+///
+/// This is used in combination with [FlexibleSyncConfiguration] to
+/// declare the set of queries you want to synchronize with the server. You can access and
+/// read the subscription set freely, but mutating it must happen in an [update]
+/// block.
+///
+/// Any changes to the subscription set will be persisted locally and be available the next
+/// time the application starts up - i.e. it's not necessary to subscribe for the same query
+/// every time. Updating the subscription set can be done while offline, and only the latest
+/// update will be sent to the server whenever connectivity is restored.
+///
+/// It is strongly recommended that you batch updates as much as possible and request the
+/// dataset your application needs upfront. Updating the set of active subscriptions for a
+/// Realm is an expensive operation serverside, even if there's very little data that needs
+/// downloading.
 abstract class SubscriptionSet with IterableMixin<Subscription> {
   Realm _realm;
   SubscriptionSetHandle _handle;
 
   SubscriptionSet._(this._realm, this._handle);
 
+  /// Finds an existing [Subscription] in this set by its query
+  ///
+  /// The [query] is represented by the corresponding [RealmResults] object.
+  /// Finds a subscription by query.
+  ///
+  /// If the Subscription set does not contain a subscription with the provided query,
+  /// return null
   Subscription? find<T extends RealmObject>(RealmResults<T> query) {
     return realmCore.findSubscriptionByQuery(this, query).convert(Subscription._);
   }
 
+  /// Finds an existing [Subscription] in this set by name.
+  ///
+  /// If the Subscription set does not contain a subscription with the provided name,
+  /// return null
   Subscription? findByName(String name) {
     return realmCore.findSubscriptionByName(this, name).convert(Subscription._);
   }
@@ -83,6 +110,12 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
     return result;
   }
 
+  /// Waits for the server to acknowledge the subscription set and return the matching objects.
+  ///
+  /// If the [state] of the subscription set is [SubscriptionSetState.complete]
+  /// the returned [Future] will complete immediately. If the state is
+  /// [SubscriptionSetState.error], the returned future will be throw an
+  /// error.
   Future<SubscriptionSetState> waitForSynchronization() => _waitForStateChange(SubscriptionSetState.complete);
 
   @override
@@ -93,15 +126,25 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
     return Subscription._(realmCore.subscriptionAt(this, index));
   }
 
+  /// Gets the [Subscription] at the specified index in the set.
   Subscription operator [](int index) => elementAt(index);
 
   @override
   _SubscriptionIterator get iterator => _SubscriptionIterator._(this);
 
+  /// Update the subscription set and send the request to the server in the background.
+  ///
+  /// Calling [update] is a prerequisite for mutating the subscription set,
+  /// using a [MutableSubscriptionSet] parsed to [action].
+  ///
+  /// If you want to wait for the server to acknowledge and send back the data that matches the updated
+  /// subscriptions, use [waitForSynchronization].
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action);
 
+  /// Gets the version of the subscription set.
   int get version => realmCore.subscriptionSetGetVersion(this);
 
+  /// Gets the state of the subscription set.
   SubscriptionSetState get state => realmCore.subscriptionSetGetState(this);
 }
 
@@ -128,6 +171,7 @@ class _ImmutableSubscriptionSet extends SubscriptionSet {
   }
 }
 
+/// A mutable view to a [SubscriptionSet]. Obtained by calling [SubscriptionSet.update].
 class MutableSubscriptionSet extends SubscriptionSet {
   final MutableSubscriptionSetHandle _handle;
 
@@ -138,18 +182,30 @@ class MutableSubscriptionSet extends SubscriptionSet {
     action(this); // or should we just throw?
   }
 
+  /// Adds a [query] to the set of active subscriptions. 
+  /// 
+  /// The query will be joined via an OR statement with any existing queries for the same type. 
+  /// 
+  /// If a [name] is given, then this will be used to match with any existing query, 
+  /// otherwise the [query] itself is used for matching.
+  /// 
+  /// If [update] is specified to [true], then any existing query will be replaced. 
+  /// Otherwise a [RealmException] is thrown, in case of duplicates.
   Subscription add<T extends RealmObject>(RealmResults<T> query, {String? name, bool update = false}) {
     return Subscription._(realmCore.insertOrAssignSubscription(this, query, name, update));
   }
 
+  /// Remove any [query] from the set that matches.
   void remove<T extends RealmObject>(RealmResults<T> query) {
     return realmCore.eraseSubscriptionByQuery(this, query);
   }
 
+  /// Remove any [query] from the set that matches by [name]
   void removeByName(String name) {
     return realmCore.eraseSubscriptionByName(this, name);
   }
 
+  /// Clear the subscription set.
   void removeAll() {
     return realmCore.clearSubscriptionSet(this);
   }
