@@ -330,7 +330,7 @@ Future<void> main([List<String>? args]) async {
       }, throws<RealmException>("invalid username/password"));
     }, appName: "emailConfirm", skip: "It is a manual test");
 
-    baasTest('Manual test 3 (callResetPasswordFunction). Call reset password function with null arguments', (configuration) async {
+    baasTest('Manual test 4 (callResetPasswordFunction). Call reset password function with no additional arguments', (configuration) async {
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
       expect(() async {
