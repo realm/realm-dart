@@ -43,13 +43,15 @@ class BaasClient {
     }
   };''';
 
-  static const String _resetFuncSource = '''exports = ({ token, tokenId, username, password }) => {
+  static const String _resetFuncSource = '''exports = ({ token, tokenId, username, password }, status) => {
     // process the reset token, tokenId, username and password
-    if (password.includes("realm_tests_do_reset")) {
-      return { status: 'success' };
+    if (status && status !== "") {
+      return { status: status };
     }
-    // will not reset the password
-    return { status: 'fail' };
+    else
+    {
+      return { status: 'fail' };
+    }
   };''';
   static const String defaultAppName = "flexible";
 
