@@ -51,7 +51,7 @@ jobs:
 
         for directory in binary/*; do
           targetFile="release/${directory#*-}.tar.gz"
-          dart run realm_dart archive --source-dir "${{ github.workspace }}/binary/$directory" --output-file "${{ github.workspace }}/$targetFile"
+          dart run realm_dart archive --source-dir "${{ github.workspace }}/$directory" --output-file "${{ github.workspace }}/$targetFile"
         done
 
     - name: Update realm_* path dependencies (Production)
