@@ -1,5 +1,4 @@
-x.x.x Release notes (yyyy-MM-dd)
-==============================================================
+## x.x.x Release notes (yyyy-MM-dd)
 
 **This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
 
@@ -37,6 +36,7 @@ x.x.x Release notes (yyyy-MM-dd)
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))
+* Fixed boolean value persistence ([#474](https://github.com/realm/realm-dart/issues/474))
 
 ### Internal
 * Added a command to deploy a MongoDB Realm app to `realm_dart`. Usage: `dart run realm_dart deploy-apps`. By default it will deploy apps to `http://localhost:9090` which is the endpoint of the local docker image. If `--atlas-cluster` is provided, it will authenticate, create an application and link the provided cluster to it. (PR [#309](https://github.com/realm/realm-dart/pull/309))
@@ -45,8 +45,7 @@ x.x.x Release notes (yyyy-MM-dd)
 ### Compatibility
 * Dart ^2.15 on Windows, MacOS and Linux
 
-0.2.1+alpha Release notes (2022-03-20)
-==============================================================
+## 0.2.1+alpha Release notes (2022-03-20)
 
 **This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
 
@@ -169,8 +168,7 @@ x.x.x Release notes (yyyy-MM-dd)
 * Dart ^2.15 on Windows, MacOS and Linux
 * Flutter ^2.10 on Android, iOS, Linux, MacOS and Windows
 
-0.2.0+alpha Release notes (2022-01-31)
-==============================================================
+## 0.2.0+alpha Release notes (2022-01-31)
 
 **This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
 
@@ -180,8 +178,7 @@ x.x.x Release notes (yyyy-MM-dd)
 ### Compatibility
 * Dart ^2.15 on Windows, MacOS and Linux
 
-0.2.0-alpha.2 Release notes (2022-01-29)
-==============================================================
+## 0.2.0-alpha.2 Release notes (2022-01-29)
 
 Notes: This release is a prerelease version. All API's might change without warning and no guarantees are given about stability.
 
@@ -194,8 +191,7 @@ Notes: This release is a prerelease version. All API's might change without warn
 ### Compatibility
 * Dart ^2.15 on Windows, MacOS and Linux
 
-0.2.0-alpha.1 Release notes (2022-01-29)
-==============================================================
+## 0.2.0-alpha.1 Release notes (2022-01-29)
 
 Notes: This release is a prerelease version. All API's might change without warning and no guarantees are given about stability.
 
@@ -211,8 +207,7 @@ Notes: This release is a prerelease version. All API's might change without warn
 ### Compatibility
 * Dart ^2.15 on Windows, MacOS and Linux
 
-0.2.0-alpha Release notes (2022-01-27)
-==============================================================
+## 0.2.0-alpha Release notes (2022-01-27)
 
 Notes: This release is a prerelease version. All API's might change without warning and no guarantees are given about stability.
 
@@ -225,8 +220,8 @@ Notes: This release is a prerelease version. All API's might change without warn
 ### Internal
 * Uses Realm Core v11.9.0
 
-0.1.1+preview Release notes (2021-04-01)
-=============================================================
+## 0.1.1+preview Release notes (2021-04-01)
+
 ### Fixed
 * `realm_dart install` command is correctly installing the realm native binary
 
@@ -234,8 +229,8 @@ Notes: This release is a prerelease version. All API's might change without warn
 * Windows and Mac
 * Dart SDK 2.12 stable from https://dart.dev/
 
-0.1.0+preview Release notes (2021-04-01)
-=============================================================
+## 0.1.0+preview Release notes (2021-04-01)
+
 ### Enhancements
 * The initial preview version of the Realm SDK for Dart.
 

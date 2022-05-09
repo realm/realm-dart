@@ -60,6 +60,14 @@ class _RemappedFromAnotherFile {
   late $RemappedClass? linkToAnotherClass;
 }
 
+@RealmModel()
+class _BoolValue {
+  @PrimaryKey()
+  late int key;
+
+  late bool value;
+}
+
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
@@ -356,5 +364,18 @@ Future<void> main([List<String>? args]) async {
     // linkToAnotherClass is mapped as `property with spaces`
     // RemappedClass is mapped as `myRemappedClass`
     expect(json, contains('"property with spaces":{ "table": "class_myRemappedClass", "key": 0}'));
+  });
+
+  test('RealmObject read/write bool value', () {
+    var config = Configuration([BoolValue.schema]);
+    var realm = getRealm(config);
+
+    realm.write(() {
+      realm.add(BoolValue(1, true));
+      realm.add(BoolValue(2, false));
+    });
+
+    expect(realm.find<BoolValue>(1)!.toJson().replaceAll('"', '').contains("value:true"), isTrue);
+    expect(realm.find<BoolValue>(2)!.toJson().replaceAll('"', '').contains("value:false"), isTrue);
   });
 }

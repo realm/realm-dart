@@ -70,7 +70,7 @@ class _RealmCore {
     return _instance ??= _RealmCore._();
   }
 
-  String get libraryVersion => _realmLib.realm_get_library_version().cast<Utf8>().toRealmDartString()!;
+  String get libraryVersion => '0.2.1+alpha';
 
   LastError? getLastError(Allocator allocator) {
     final error = allocator<realm_error_t>();
@@ -1376,7 +1376,7 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
         realm_value.ref.type = realm_value_type.RLM_TYPE_INT;
         break;
       case bool:
-        realm_value.ref.values.boolean = value as bool ? 0 : 1;
+        realm_value.ref.values.boolean = (value as bool) ? 1 : 0;
         realm_value.ref.type = realm_value_type.RLM_TYPE_BOOL;
         break;
       case String:
@@ -1425,7 +1425,7 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_INT:
         return ref.values.integer;
       case realm_value_type.RLM_TYPE_BOOL:
-        return ref.values.boolean == 0;
+        return ref.values.boolean != 0;
       case realm_value_type.RLM_TYPE_STRING:
         return ref.values.string.data.cast<Utf8>().toRealmDartString(length: ref.values.string.size)!;
       case realm_value_type.RLM_TYPE_FLOAT:
