@@ -20,7 +20,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
-        submodules: false
+        submodules: recursive
 
     - name: Read version
       id: get-version
