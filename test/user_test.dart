@@ -54,7 +54,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('User get identities', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
-    expect(user.identities.any((identity) => identity.provider == AuthProviderType.emailPassword), isTrue);
+    expect(user.identities.singleWhere((identity) => identity.provider == AuthProviderType.emailPassword), isTrue);
   }, skip: "Blocked on https://github.com/realm/realm-core/issues/5467");
 
   baasTest('User get customdata', (configuration) async {
