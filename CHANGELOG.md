@@ -1,4 +1,4 @@
-## x.x.x Release notes (yyyy-MM-dd)
+## 0.3.0+alpha (2022-05-09)
 
 **This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
 
