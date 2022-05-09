@@ -88,7 +88,7 @@ class EmailPasswordAuthProvider {
     return realmCore.emailPasswordResendUserConfirmation(app, email);
   }
 
-  /// Completes the reset password procedure by providing the desired new [password] using the 
+  /// Completes the reset password procedure by providing the desired new [password] using the
   /// password reset [token] and [tokenId] that were emailed to a user.
   Future<void> completeResetPassword(String password, String token, String tokenId) {
     return realmCore.emailPasswordCompleteResetPassword(app, password, token, tokenId);
@@ -100,10 +100,10 @@ class EmailPasswordAuthProvider {
   }
 
   /// Calls the reset password function, configured on the server.
-  Future<void> callResetPasswordFunction(String email, String password, Map<String, dynamic> functionArgs) {
-    return realmCore.emailPasswordCallResetPasswordFunction(app, email, password, jsonEncode(functionArgs));
+  Future<void> callResetPasswordFunction(String email, String password, {List<dynamic>? functionArgs}) {
+    return realmCore.emailPasswordCallResetPasswordFunction(app, email, password, functionArgs != null ? jsonEncode(functionArgs) : null);
   }
-  
+
   /// Retries the custom confirmation function on a user for a given email.
   Future<void> retryCustomConfirmationFunction(String email) {
     return realmCore.emailPasswordRetryCustomConfirmationFunction(app, email);

@@ -27,7 +27,7 @@ Future<User> loginWithRetry(App app, Credentials credentials, {int retryCount = 
     return await app.logIn(credentials);
   } catch (e) {
     if (retryCount > 1) {
-      await Future<User>.delayed(Duration(milliseconds: 150));
+      await Future<dynamic>.delayed(Duration(milliseconds: 150));
       return await loginWithRetry(app, credentials, retryCount: retryCount - 1);
     }
     rethrow;
@@ -238,23 +238,42 @@ Future<void> main([List<String>? args]) async {
 
   // The tests in this group are for manual testing, since they require interaction with mail box.
   // Please enter a valid data in the variables under comments.
-  // The email should be already registered in the cloud Application.
-  // In case it is not registered you can create a new user with this email
-  // using test group "Email/Password - confirm user - manual tests"
-  // Then run test 1, then make sure you have recieved an email.
-  // Copy token and tokenId from the email.
-  // Set the variables with token details and then run test 2.
-  // Test 2 will set the pasword and will login the user with the new password.
-  group("Manual test: Email/Password - reset password - manual tests", () {
+  // The email should be a valid and existing one in order you to be able to receive automatic emails.
+  // Run first two steps (test 1 and test 2) to create and confirm the user.
+  // Before running test 2 set the variables with token details received as link query parameters in the confirmation email.
+  // Then run test 3, then make sure you have recieved an email with link for reset password.
+  // Copy token and tokenId from the email link query parameters.
+  // Set the variables with token details and then run test 4.
+  // Test 4 will set the pasword and will login the user with the new password.
+  group("Manual test: Email/Password - reset password", () {
     // Enter a valid email that is not registered
     const String validUsername = "valid_email@mail.com";
-    baasTest('Manual test 1. Reset user password email', (configuration) async {
+
+    baasTest('Manual test 1 (resetPassword). Register a valid user', (configuration) async {
+      final app = App(configuration);
+      final authProvider = EmailPasswordAuthProvider(app);
+      await authProvider.registerUser(validUsername, strongPassword);
+    }, appName: "emailConfirm", skip: "It is a manual test");
+
+    baasTest('Manual test 2 (resetPassword). Take recieved token from the received email and confirm the user', (configuration) async {
+      // Enter valid token and tokenId from the received email
+      String token = "3e23e2e689fe1fdbbb51d3c090a216a4195a4f0a004a578787618d9dd39c791f4169511ee3820e4b6fa2bfdc14430f1e58356223d78e3bed3c86042c3a91a4db";
+      String tokenId = "6278cecd9106aa5b645999ba";
+
+      final app = App(configuration);
+      final authProvider = EmailPasswordAuthProvider(app);
+      await authProvider.confirmUser(token, tokenId);
+      final user = await loginWithRetry(app, Credentials.emailPassword(validUsername, strongPassword));
+      expect(user, isNotNull);
+    }, appName: "emailConfirm", skip: "It is a manual test");
+
+    baasTest('Manual test 3 (resetPassword). Reset user password email', (configuration) async {
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
       await authProvider.resetPassword(validUsername);
     }, appName: "emailConfirm", skip: "It is a manual test");
 
-    baasTest('Manual test 2. Take recieved token from the email and complete resetting new password', (configuration) async {
+    baasTest('Manual test 4 (resetPassword). Take recieved token from the email and complete resetting new password', (configuration) async {
       // Make sure you have recieved an emails with hyperlink ResetPassword.
       // Find the token and tokenId in the query parameters of the link received in the email and enter them in the following variables.
       String token = "fb485146b15497209a9d1b67128ae29199cdff2c26f389e0ee5d52ae6bc4228e5738b29256eade976e24767804bfb4dc68198075e3a461cd4f73864901fb09be";
@@ -269,13 +288,56 @@ Future<void> main([List<String>? args]) async {
     }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
   });
 
-  // baasTest('Email/Password - call reset password function', (configuration) async {
-  //   final app = App(configuration);
-  //   final authProvider = EmailPasswordAuthProvider(app);
-  //   String username = "desist81@hotmail.com";
-  //   final map = Map<String, dynamic>();
-  //   map['token'] = '6bd1b024839c41383c4a5feaaa1241c37d2cad4ef84483e5473e9c367d788764aec7c5612bbd04d392979d1838c2210c44f2a7f33762e851a4f7c4b618cf0ccc';
-  //   map['tokenId'] = '6273b8fd2e426f7688fa4771';
-  //   await authProvider.callResetPasswordFunction(username, strongPassword, map);
-  // }, appName: "emailConfirm");
+  // The tests in this group are for manual testing, since they require interaction with mail box.
+  // Please enter a valid data in the variables under comments.
+  // The email should be a valid and existing one in order you to be able to receive automatic emails.
+  // Run first two steps (test 1 and test 2) to create and confirm the user.
+  // Before running test 2 set the variables with token details received as link query parameters in the confirmation email.
+  // Then run test 3 to call reset password function configured in the cloud.
+  // Run the last test 4 to check whether the new password is applied and the old password is rejected.
+  group("Manual test: Email/Password - call reset password function with new password", () {
+    // Enter a valid email that is not registered
+    const String validUsername = "desist81@hotmail.com"; //"valid_email@mail.com";
+    // Enter a new password different from strongPassword
+    const String newPassword = "!@#!DQXQWD!223eda";
+
+    baasTest('Manual test 1 (callResetPasswordFunction). Register a valid user', (configuration) async {
+      final app = App(configuration);
+      final authProvider = EmailPasswordAuthProvider(app);
+      await authProvider.registerUser(validUsername, strongPassword);
+    }, appName: "emailConfirm", skip: "It is a manual test");
+
+    baasTest('Manual test 2 (callResetPasswordFunction). Take recieved token from the received email and confirm the user', (configuration) async {
+      // Enter valid token and tokenId from the received email
+      String token = "5dca12b5b161842e2800e9f8777b9b9e60906bb3aad6faafc17cea8aa25d0cdaecea60b364ec3b67ba2d89ce9dd12e207b6847e3e4b6cb26906a0f37e2781950";
+      String tokenId = "6278da4b85b695e670987717";
+
+      final app = App(configuration);
+      final authProvider = EmailPasswordAuthProvider(app);
+      await authProvider.confirmUser(token, tokenId);
+      final user = await loginWithRetry(app, Credentials.emailPassword(validUsername, strongPassword));
+      expect(user, isNotNull);
+    }, appName: "emailConfirm", skip: "It is a manual test");
+
+    baasTest('Manual test 3 (callResetPasswordFunction). Call reset password function and login with the new password', (configuration) async {
+      final app = App(configuration);
+      final authProvider = EmailPasswordAuthProvider(app);
+      await authProvider.callResetPasswordFunction(validUsername, newPassword, functionArgs: <dynamic>['success']);
+      final user = await loginWithRetry(app, Credentials.emailPassword(validUsername, newPassword));
+      expect(() async {
+        await loginWithRetry(app, Credentials.emailPassword(validUsername, strongPassword));
+      }, throws<RealmException>("invalid username/password"));
+    }, appName: "emailConfirm", skip: "It is a manual test");
+
+    baasTest('Manual test 3 (callResetPasswordFunction). Call reset password function with null arguments', (configuration) async {
+      final app = App(configuration);
+      final authProvider = EmailPasswordAuthProvider(app);
+      expect(() async {
+        // Calling this function with no additional arguments fails for the test
+        // beacause of the specific implementation of resetFunc in the cloud.
+        // resetFunc returns status 'fail' in case no other status is passed.
+        await authProvider.callResetPasswordFunction(validUsername, newPassword);
+      }, throws<RealmException>("failed to reset password for user $validUsername"));
+    }, appName: "emailConfirm", skip: "It is a manual test");
+  });
 }
