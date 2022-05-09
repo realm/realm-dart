@@ -156,12 +156,19 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
 
 class BoolValue extends _BoolValue with RealmEntity, RealmObject {
   BoolValue(
+    int key,
     bool value,
   ) {
+    RealmObject.set(this, 'key', key);
     RealmObject.set(this, 'value', value);
   }
 
   BoolValue._();
+
+  @override
+  int get key => RealmObject.get<int>(this, 'key') as int;
+  @override
+  set key(int value) => throw RealmUnsupportedSetError();
 
   @override
   bool get value => RealmObject.get<bool>(this, 'value') as bool;
@@ -177,6 +184,7 @@ class BoolValue extends _BoolValue with RealmEntity, RealmObject {
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(BoolValue._);
     return const SchemaObject(BoolValue, 'BoolValue', [
+      SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('value', RealmPropertyType.bool),
     ]);
   }

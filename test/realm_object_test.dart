@@ -62,6 +62,9 @@ class _RemappedFromAnotherFile {
 
 @RealmModel()
 class _BoolValue {
+  @PrimaryKey()
+  late int key;
+
   late bool value;
 }
 
@@ -368,11 +371,11 @@ Future<void> main([List<String>? args]) async {
     var realm = getRealm(config);
 
     realm.write(() {
-      realm.add(BoolValue(true));
-      realm.add(BoolValue(false));
+      realm.add(BoolValue(1, true));
+      realm.add(BoolValue(2, false));
     });
 
-    expect(realm.all<BoolValue>()[0].value, true);
-    expect(realm.all<BoolValue>()[1].value, false);
+    expect(realm.find<BoolValue>(1)!.toJson().replaceAll('"', '').contains("value:true"), isTrue);
+    expect(realm.find<BoolValue>(2)!.toJson().replaceAll('"', '').contains("value:false"), isTrue);
   });
 }
