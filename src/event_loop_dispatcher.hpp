@@ -36,7 +36,7 @@ class EventLoopDispatcher<void(Args...)> {
 
 private:
     const std::shared_ptr<util::UniqueFunction<void(Args...)>> m_func;
-    std::shared_ptr<util::Scheduler> m_scheduler; //  = util::Scheduler::make_default();
+    std::shared_ptr<util::Scheduler> m_scheduler;
 
 public:
     EventLoopDispatcher(std::shared_ptr<util::Scheduler> scheduler, util::UniqueFunction<void(Args...)> func)

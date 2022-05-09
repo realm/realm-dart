@@ -55,7 +55,7 @@ Future<void> main([List<String>? args]) async {
 
   testSubscriptions('SubscriptionSet.state', (realm) async {
     final subscriptions = realm.subscriptions;
-    await subscriptions.waitForStateChange(SubscriptionSetState.complete);
+    await subscriptions.waitForSynchronization();
     expect(subscriptions.state, SubscriptionSetState.complete);
   });
 
@@ -190,24 +190,6 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
-  testSubscriptions('SubscriptionSet.waitForStateChange', (realm) async {
-    final subscriptions = realm.subscriptions;
-    await subscriptions.waitForStateChange(SubscriptionSetState.complete);
-
-    final stateMachineSteps = [
-      subscriptions.waitForStateChange(SubscriptionSetState.uncommitted),
-      subscriptions.waitForStateChange(SubscriptionSetState.pending),
-      subscriptions.waitForStateChange(SubscriptionSetState.bootstrapping),
-      subscriptions.waitForStateChange(SubscriptionSetState.complete),
-    ];
-
-    subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.addOrUpdate(realm.all<Task>());
-    });
-
-    await Future.wait(stateMachineSteps);
-  });
-
   testSubscriptions('Get subscriptions', (realm) async {
     final subscriptions = realm.subscriptions;
 
@@ -227,7 +209,7 @@ Future<void> main([List<String>? args]) async {
 
     expect(subscriptions, isEmpty);
 
-    final name = 'a random name';
+    const name = 'a random name';
     subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.addOrUpdate(query, name: name);
     });
@@ -239,8 +221,8 @@ Future<void> main([List<String>? args]) async {
     });
 
     expect(subscriptions, isEmpty);
-    // expect(realm.subscriptions!.findByName(name), isNull); // TODO
+    expect(realm.subscriptions.findByName(name), isNull);
 
-    await subscriptions.waitForStateChange(SubscriptionSetState.complete);
+    await subscriptions.waitForSynchronization();
   });
 }

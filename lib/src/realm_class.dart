@@ -270,8 +270,9 @@ class Realm {
   SubscriptionSet? _subscriptions;
   /// The active [subscriptions] for this [Realm]
   SubscriptionSet get subscriptions {
-    if (config is! FlexibleSyncConfiguration) throw RealmError('Does not support flexible synchronization');
+    if (config is! FlexibleSyncConfiguration) throw RealmError('subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration');
     _subscriptions ??= SubscriptionSetInternal.create(this, realmCore.getSubscriptions(this));
+    realmCore.refreshSubscriptionSet(_subscriptions!);
     return _subscriptions!;
   }
 
