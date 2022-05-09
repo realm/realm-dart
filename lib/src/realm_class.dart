@@ -47,7 +47,17 @@ export 'package:realm_common/realm_common.dart'
 
 // always expose with `show` to explicitly control the public API surface
 export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App;
-export "configuration.dart" show Configuration, RealmSchema, SchemaObject, FlexibleSyncConfiguration, LocalConfiguration, InMemoryConfiguration;
+export "configuration.dart"
+    show
+        Configuration,
+        FlexibleSyncConfiguration,
+        InitialDataCallback,
+        InMemoryConfiguration,
+        LocalConfiguration,
+        RealmSchema,
+        SchemaObject,
+        ShouldCompactCallback;
+
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
 export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges;
@@ -268,6 +278,7 @@ class Realm {
   void deleteAll<T extends RealmObject>() => deleteMany(all<T>());
 
   SubscriptionSet? _subscriptions;
+
   /// The active [subscriptions] for this [Realm]
   SubscriptionSet get subscriptions {
     if (config is! FlexibleSyncConfiguration) throw RealmError('subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration');
