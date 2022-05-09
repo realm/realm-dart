@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:async';
 import 'dart:collection';
 
 import 'native/realm_core.dart';
@@ -76,9 +77,13 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
     return realmCore.findSubscriptionByName(this, name).convert(Subscription._);
   }
 
-  Future<SubscriptionSetState> waitForStateChange(SubscriptionSetState state) async {
-    return SubscriptionSetState.values[await realmCore.waitForSubscriptionSetStateChange(this, state)];
+  Future<SubscriptionSetState> _waitForStateChange(SubscriptionSetState state) async {
+    final result = await realmCore.waitForSubscriptionSetStateChange(this, state);
+    realmCore.refreshSubscriptionSet(this);
+    return result;
   }
+
+  Future<SubscriptionSetState> waitForSynchronization() => _waitForStateChange(SubscriptionSetState.complete);
 
   @override
   int get length => realmCore.getSubscriptionSetSize(this);
@@ -95,9 +100,9 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
 
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action);
 
-  int get version => realmCore.subscriptionSetVersion(this);
+  int get version => realmCore.subscriptionSetGetVersion(this);
 
-  SubscriptionSetState get state => SubscriptionSetState.values[realmCore.subscriptionSetState(this)];
+  SubscriptionSetState get state => realmCore.subscriptionSetGetState(this);
 }
 
 extension SubscriptionSetInternal on SubscriptionSet {
@@ -112,17 +117,9 @@ class _ImmutableSubscriptionSet extends SubscriptionSet {
 
   @override
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action) {
-    final mutableSubscriptions = MutableSubscriptionSet._(realm, _handle, realmCore.makeSubscriptionSetMutable(this));
-    var commit = false;
-    try {
-      action(mutableSubscriptions);
-      commit = true;
-    } finally {
-      if (commit) {
-        _handle = realmCore.subscriptionSetCommit(mutableSubscriptions);
-      }
-      // _mutableHandle.release(); // TODO: Release early (awaiting refactored handles)
-    }
+    final mutableSubscriptions = MutableSubscriptionSet._(realm, _handle, realmCore.subscriptionSetMakeMutable(this));
+    action(mutableSubscriptions);
+    _handle = realmCore.subscriptionSetCommit(mutableSubscriptions);
   }
 }
 

@@ -149,13 +149,16 @@ class _RealmCore {
       final configHandle = ConfigHandle._(configPtr);
 
       _realmLib.realm_config_set_schema(configHandle._pointer, schemaHandle._pointer);
-      _realmLib.realm_config_set_schema_version(configHandle._pointer, config.schemaVersion);
       _realmLib.realm_config_set_path(configHandle._pointer, config.path.toUtf8Ptr(arena));
       _realmLib.realm_config_set_scheduler(configHandle._pointer, schedulerHandle._pointer);
 
       if (config.fifoFilesFallbackPath != null) {
         _realmLib.realm_config_set_fifo_path(configHandle._pointer, config.fifoFilesFallbackPath!.toUtf8Ptr(arena));
       }
+
+      // Setting schema version only makes sense for local realms, but core insists it is always set,
+      // hence we set it to 0 in those cases.
+      _realmLib.realm_config_set_schema_version(configHandle._pointer, config is LocalConfiguration ? config.schemaVersion : 0);
 
       if (config is LocalConfiguration) {
         if (config.initialDataCallback != null) {
@@ -164,10 +167,6 @@ class _RealmCore {
         }
         if (config.isReadOnly) {
           _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE);
-        }
-        if (config.isInMemory) {
-          // TODO: Get rid of this
-          _realmLib.realm_config_set_in_memory(configHandle._pointer, config.isInMemory);
         }
         if (config.disableFormatUpgrade) {
           _realmLib.realm_config_set_disable_format_upgrade(configHandle._pointer, config.disableFormatUpgrade);
@@ -232,18 +231,15 @@ class _RealmCore {
   }
 
   static void _stateChangeCallback(Pointer<Void> userdata, int state) {
-    final completer = userdata.toObject<Completer<int>>(isPersistent: true);
+    final completer = userdata.toObject<Completer<SubscriptionSetState>>(isPersistent: true);
     if (completer == null) {
       return;
     }
-
-    // TODO: What about errors?!
-
-    completer.complete(state);
+    completer.complete(SubscriptionSetState.values[state]);
   }
 
-  Future<int> waitForSubscriptionSetStateChange(SubscriptionSet subscriptions, SubscriptionSetState notifyWhen) {
-    final completer = Completer<int>();
+  Future<SubscriptionSetState> waitForSubscriptionSetStateChange(SubscriptionSet subscriptions, SubscriptionSetState notifyWhen) {
+    final completer = Completer<SubscriptionSetState>();
     _realmLib.realm_dart_sync_on_subscription_set_state_change_async(
       subscriptions.handle._pointer,
       notifyWhen.index,
@@ -255,16 +251,15 @@ class _RealmCore {
     return completer.future;
   }
 
-  int subscriptionSetVersion(SubscriptionSet subscriptions) {
+  int subscriptionSetGetVersion(SubscriptionSet subscriptions) {
     return _realmLib.realm_sync_subscription_set_version(subscriptions.handle._pointer);
   }
 
-  int subscriptionSetState(SubscriptionSet subscriptions) {
-    refreshSubscriptionSet(subscriptions);
-    return _realmLib.realm_sync_subscription_set_state(subscriptions.handle._pointer);
+  SubscriptionSetState subscriptionSetGetState(SubscriptionSet subscriptions) {
+    return SubscriptionSetState.values[_realmLib.realm_sync_subscription_set_state(subscriptions.handle._pointer)];
   }
 
-  MutableSubscriptionSetHandle makeSubscriptionSetMutable(SubscriptionSet subscriptions) {
+  MutableSubscriptionSetHandle subscriptionSetMakeMutable(SubscriptionSet subscriptions) {
     return MutableSubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_make_subscription_set_mutable(subscriptions.handle._pointer)));
   }
 
