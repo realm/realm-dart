@@ -1110,16 +1110,7 @@ class _RealmCore {
 
   String? userGetCustomData(User user) {
     final customDataPtr = _realmLib.realm_user_get_custom_data(user.handle._pointer);
-    if (customDataPtr == nullptr) {
-      return null;
-    }
-    
-    try {
-      final customData = customDataPtr.cast<Utf8>().toDartString();
-      return customData;
-    } finally {
-      _realmLib.realm_free(customDataPtr.cast());
-    }
+    return customDataPtr.cast<Utf8>().toRealmDartString(freeNativeMemory: true, treatEmptyAsNull: true);
   }
 
   Future<void> userRefreshCustomData(App app, User user) {

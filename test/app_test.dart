@@ -121,27 +121,28 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
 
     expect(app.currentUser, isNotNull);
-    expect(app.currentUser!.id, user.id);
+    expect(app.currentUser, user);
   });
 
   baasTest('App switch user', (configuration) async {
     final app = App(configuration);
     expect(app.currentUser, isNull);
 
-    final user = await app.logIn(Credentials.anonymous());
-    expect(app.currentUser!.id, user.id);
-    
-    final user1 = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
-
+    final user1 = await app.logIn(Credentials.anonymous());
     expect(app.currentUser, user1);
+    
+    final user2 = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
 
-    app.switchUser(user);
-    expect(app.currentUser!.id, user.id);
+    expect(app.currentUser, user2);
+
+    app.switchUser(user1);
+    expect(app.currentUser, user1);
   });
 
   baasTest('App get users', (configuration) async {
     final app = App(configuration);
     expect(app.currentUser, isNull);
+    expect(app.users.length, 0);
 
     final user = await app.logIn(Credentials.anonymous());
     final user1 = await app.logIn(Credentials.emailPassword(testUsername, testPassword));

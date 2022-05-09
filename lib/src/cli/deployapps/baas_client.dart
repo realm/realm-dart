@@ -190,7 +190,7 @@ class BaasClient {
               "read": true,
               "write": true
             }
-          ]
+          ]2
         }
       }
     }''');
@@ -199,7 +199,7 @@ class BaasClient {
 
     //create email/password user for tests
     final dynamic createUserResult = await _post('groups/$_groupId/apps/$appId/users', '{"email": "realm-test@realm.io", "password":"123456"}');
-    print("Creat user result: $createUserResult");
+    print("Create user result: $createUserResult");
     return app;
   }
 

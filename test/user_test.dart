@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:io';
+import 'dart:math';
 
 import 'package:test/expect.dart';
 
@@ -71,20 +72,23 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('User link credentials', (configuration) async {
     final app = App(configuration);
-    final user = await app.logIn(Credentials.anonymous());
+    final user1 = await app.logIn(Credentials.anonymous());
   
-    expect(user.state, UserState.loggedIn);
-    expect(user.identities.length, 1);
-    expect(user.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous).provider, isNotNull);
+    expect(user1.state, UserState.loggedIn);
+    expect(user1.identities.length, 1);
+    expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous).provider, isNotNull);
 
     final authProvider = EmailPasswordAuthProvider(app);
     final username = "${generateRandomString(20)}@realm.io";
     final password = generateRandomString(8);
     await authProvider.registerUser(username, password);
 
-    await user.linkCredentials(Credentials.emailPassword(username, password));
-    expect(user.identities.length, 2);
-    expect(user.identities.singleWhere((identity) => identity.provider == AuthProviderType.emailPassword).provider, isNotNull);
-    expect(user.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous).provider, isNotNull);
+    await user1.linkCredentials(Credentials.emailPassword(username, password));
+    expect(user1.identities.length, 2);
+    expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.emailPassword).provider, isNotNull);
+    expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous).provider, isNotNull);
+
+    final user2 = await app.logIn(Credentials.emailPassword(username, password));
+    expect(user1, equals(user2));
   }, appName: AppNames.autoConfirm, skip: "Blocked on https://github.com/realm/realm-core/issues/5467");
 }

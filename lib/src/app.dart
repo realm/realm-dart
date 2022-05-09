@@ -156,6 +156,9 @@ class App {
   void switchUser(User user) {
     realmCore.switchUser(this, user);
   }
+
+  /// Returns an instance of [EmailPasswordAuthProvider]
+  EmailPasswordAuthProvider get emailPasswordAuthProvider => EmailPasswordAuthProviderInternal.create(this);
 }
 
 /// @nodoc

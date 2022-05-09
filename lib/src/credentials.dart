@@ -118,3 +118,7 @@ class EmailPasswordAuthProvider {
     return realmCore.emailPasswordRetryCustomConfirmationFunction(app, email);
   }
 }
+
+extension EmailPasswordAuthProviderInternal on EmailPasswordAuthProvider {
+  static EmailPasswordAuthProvider create(App app) => EmailPasswordAuthProvider(app);
+}
