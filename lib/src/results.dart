@@ -77,6 +77,9 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
     final controller = ResultsNotificationsController<T>(this);
     return controller.createStream();
   }
+
+  @override
+  String toString() => realmCore.describeQuery(this);
 }
 
 /// @nodoc
