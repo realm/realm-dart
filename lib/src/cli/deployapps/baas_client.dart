@@ -190,7 +190,7 @@ class BaasClient {
               "read": true,
               "write": true
             }
-          ]2
+          ]
         }
       }
     }''');
