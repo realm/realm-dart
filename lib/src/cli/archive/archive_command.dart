@@ -48,7 +48,7 @@ class ArchiveCommand extends Command<void> {
     }
 
     if (options.outputFile == null) {
-      abort('output-file option not specified');
+      abort("output-file option not specified");
     }
 
     final archive = Archive();
