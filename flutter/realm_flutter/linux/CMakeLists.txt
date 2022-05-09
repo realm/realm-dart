@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.10)
 
 set(PROJECT_NAME "realm")
 project(${PROJECT_NAME} LANGUAGES CXX)
@@ -37,7 +37,7 @@ include(${EPHEMERAL_DIR}/generated_config.cmake)
 execute_process(COMMAND "${FLUTTER_ROOT}/bin/flutter" "pub" "run" "realm" "install" "--target-os-type" "linux" "--package-name" "realm" #"--debug"
   OUTPUT_VARIABLE output
   RESULT_VARIABLE result
-  COMMAND_ERROR_IS_FATAL ANY
+  # COMMAND_ERROR_IS_FATAL ANY
 )
 message(STATUS "cmd output: ${output}")
 message(STATUS "cmd result: ${result}")
