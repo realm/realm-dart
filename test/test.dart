@@ -219,7 +219,7 @@ Future<void> setupBaas() async {
   final projectId = Platform.environment['BAAS_PROJECT_ID'];
 
   final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
-  var apps = await client.getOrCreateApps();
+  var apps = await client.getOrCreateApps(appSuffix: isFlutterPlatform ? 'Flutter' : 'Dart');
   baasApps.addAll(apps);
 }
 
