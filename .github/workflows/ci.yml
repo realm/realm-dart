@@ -10,11 +10,20 @@ env:
 
 jobs:
 
-# Linux jobs
-
-  baas-linux:
+  baas_matrix:
+    strategy:
+      matrix:
+        package: [flutter]
+        platform: [linux, windows, macos, ios, android]
+        include:
+          - platform: linux
+            package: dart
+          - platform: windows
+            package: dart
+          - platform: macos
+            package: dart
     runs-on: ubuntu-latest
-    name: BaaS Linux
+    name: BaaS ${{ matrix.platform }} for ${{ matrix.package }}
     outputs:
       clusterName: ${{ steps.deploy-mdb-apps.outputs.clusterName }}
     timeout-minutes: 20
@@ -32,7 +41,7 @@ jobs:
           projectId: ${{ secrets.ATLAS_QA_PROJECT_ID }}
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: dart-linux
+          differentiator: dart-${{ matrix.platform }}
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
@@ -47,6 +56,43 @@ jobs:
             --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} \
             --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} \
             --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }}
+
+  cleanup-matrix:
+    strategy:
+      matrix:
+        package: [flutter]
+        platform: [linux, windows, macos, ios, android]
+        include:
+          - platform: linux
+            package: dart
+          - platform: windows
+            package: dart
+          - platform: macos
+            package: dart
+    runs-on: ubuntu-latest
+    name: Cleanup ${{ matrix.platform }} for ${{ matrix.package }}
+    needs:
+      - tests-linux
+      - flutter-linux
+      - tests-macos
+      - flutter-macos
+      - tests-windows
+      - flutter-windows
+      - flutter-ios
+      - flutter-android
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - uses: realm/ci-actions/mdb-realm/cleanup@fac1d6958f03d71de743305ce3ab27594efbe7b7
+        with:
+          realmUrl: ${{ secrets.REALM_QA_URL }}
+          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID}}
+          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
+          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+          differentiator: ${{ matrix.platform }}-${{ matrix.package }}
+
+# Linux jobs
 
   build-linux:
     runs-on: ubuntu-latest
@@ -85,12 +131,12 @@ jobs:
     name: Tests Linux
     env:
       BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_CLUSTER: ${{ needs.baas-linux.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
       BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
-      - baas-linux
+      - baas_matrix
       - build-linux
     steps:
       - name: Checkout
@@ -120,12 +166,12 @@ jobs:
     name: Flutter Tests Linux
     env:
       BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_CLUSTER: ${{ needs.baas-linux.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
       BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
-      - baas-linux
+      - baas_matrix
       - build-linux
     steps:
       - name: Checkout
@@ -162,61 +208,7 @@ jobs:
         run: xvfb-run flutter drive -d linux --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
 
-  cleanup-linux:
-    runs-on: ubuntu-latest
-    name: Cleanup Linux
-    needs:
-      - tests-linux
-      - flutter-linux
-    if: always()
-    timeout-minutes: 5
-    steps:
-      - uses: realm/ci-actions/mdb-realm/cleanup@fac1d6958f03d71de743305ce3ab27594efbe7b7
-        with:
-          realmUrl: ${{ secrets.REALM_QA_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID}}
-          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
-          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: dart-linux
-
 # macOS jobs
-
-  baas-macos:
-    runs-on: ubuntu-latest
-    name: BaaS MacOS
-    outputs:
-      clusterName: ${{ steps.deploy-mdb-apps.outputs.clusterName }}
-    timeout-minutes: 20
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: false
-
-      - uses: realm/ci-actions/mdb-realm/deployApps@fac1d6958f03d71de743305ce3ab27594efbe7b7
-        id: deploy-mdb-apps
-        with:
-          realmUrl: ${{ secrets.REALM_QA_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID }}
-          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: dart-macos
-
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-
-      - name: Deploy Apps
-        run: |
-          dart run realm_dart deploy-apps \
-            --baas-url ${{ secrets.REALM_QA_URL }} \
-            --atlas-cluster ${{ steps.deploy-mdb-apps.outputs.clusterName }} \
-            --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} \
-            --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} \
-            --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }}
 
   build-macos:
     runs-on: macos-latest
@@ -265,12 +257,12 @@ jobs:
     name: Tests macOS
     env:
       BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_CLUSTER: ${{ needs.baas-macos.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
       BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
-      - baas-macos
+      - baas_matrix
       - build-macos
     steps:
       - name: Checkout
@@ -300,12 +292,12 @@ jobs:
     name: Flutter Tests macOS
     env:
       BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_CLUSTER: ${{ needs.baas-macos.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
       BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
-      - baas-macos
+      - baas_matrix
       - build-macos
     steps:
       - name: Checkout
@@ -334,60 +326,7 @@ jobs:
         run: flutter drive -d macos --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
 
-  cleanup-macos:
-    runs-on: ubuntu-latest
-    name: Cleanup MacOS
-    needs:
-      - tests-macos
-      - flutter-macos
-    if: always()
-    timeout-minutes: 5
-    steps:
-      - uses: realm/ci-actions/mdb-realm/cleanup@fac1d6958f03d71de743305ce3ab27594efbe7b7
-        with:
-          realmUrl: ${{ secrets.REALM_QA_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID}}
-          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
-          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: dart-macos
-
 # Windows jobs
-  baas-windows:
-    runs-on: ubuntu-latest
-    name: BaaS Windows
-    outputs:
-      clusterName: ${{ steps.deploy-mdb-apps.outputs.clusterName }}
-    timeout-minutes: 20
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: false
-      
-      - uses: realm/ci-actions/mdb-realm/deployApps@fac1d6958f03d71de743305ce3ab27594efbe7b7
-        id: deploy-mdb-apps
-        with:
-          realmUrl: ${{ secrets.REALM_QA_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID }}
-          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: dart-windows
-      
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-      
-      - name: Deploy Apps
-        run: |
-          dart run realm_dart deploy-apps \
-            --baas-url ${{ secrets.REALM_QA_URL }} \
-            --atlas-cluster ${{ steps.deploy-mdb-apps.outputs.clusterName }} \
-            --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} \
-            --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} \
-            --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }}
 
   build-windows:
     # TODO: build on windows-latest
@@ -431,12 +370,12 @@ jobs:
     name: Tests Windows
     env:
       BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_CLUSTER: ${{ needs.baas-windows.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
       BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
-      - baas-windows
+      - baas_matrix
       - build-windows
     steps:
       - name: Checkout
@@ -468,12 +407,12 @@ jobs:
     name: Flutter Tests Windows
     env:
       BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_CLUSTER: ${{ needs.baas-windows.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
       BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
-      - baas-windows
+      - baas_matrix
       - build-windows
     steps:
       - name: Checkout
@@ -502,61 +441,7 @@ jobs:
         run: flutter drive -d windows --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
 
-  cleanup-windows:
-    runs-on: ubuntu-latest
-    name: Cleanup Windows
-    needs:
-      - tests-windows
-      - flutter-windows
-    if: always()
-    timeout-minutes: 5
-    steps:
-      - uses: realm/ci-actions/mdb-realm/cleanup@fac1d6958f03d71de743305ce3ab27594efbe7b7
-        with:
-          realmUrl: ${{ secrets.REALM_QA_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID}}
-          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
-          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: dart-windows
-
-  # iOS jobs
-
-  baas-ios:
-    runs-on: ubuntu-latest
-    name: BaaS iOS
-    outputs:
-      clusterName: ${{ steps.deploy-mdb-apps.outputs.clusterName }}
-    timeout-minutes: 20
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: false
-
-      - uses: realm/ci-actions/mdb-realm/deployApps@fac1d6958f03d71de743305ce3ab27594efbe7b7
-        id: deploy-mdb-apps
-        with:
-          realmUrl: ${{ secrets.REALM_QA_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID }}
-          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: flutter-ios
-
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-
-      - name: Deploy Apps
-        run: |
-          dart run realm_dart deploy-apps \
-            --baas-url ${{ secrets.REALM_QA_URL }} \
-            --atlas-cluster ${{ steps.deploy-mdb-apps.outputs.clusterName }} \
-            --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} \
-            --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} \
-            --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }}
+# iOS jobs
 
   build-ios:
     runs-on: macos-latest
@@ -606,13 +491,13 @@ jobs:
     name: Flutter Tests iOS
     env:
       BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_CLUSTER: ${{ needs.baas-ios.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
       BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
       REALM_USE_CCACHE: "TRUE"
     needs:
-      - baas-ios
+      - baas_matrix
       - build-ios
     steps:
       - name: Checkout
@@ -649,60 +534,7 @@ jobs:
           flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics
         working-directory: ./flutter/realm_flutter/tests
 
-  cleanup-ios:
-    runs-on: ubuntu-latest
-    name: Cleanup iOS
-    needs:
-      - flutter-ios
-    if: always()
-    timeout-minutes: 5
-    steps:
-      - uses: realm/ci-actions/mdb-realm/cleanup@fac1d6958f03d71de743305ce3ab27594efbe7b7
-        with:
-          realmUrl: ${{ secrets.REALM_QA_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID}}
-          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
-          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: flutter-ios
-
 # Android jobs
-
-  baas-android:
-    runs-on: ubuntu-latest
-    name: BaaS Android
-    outputs:
-      clusterName: ${{ steps.deploy-mdb-apps.outputs.clusterName }}
-    timeout-minutes: 20
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: false
-
-      - uses: realm/ci-actions/mdb-realm/deployApps@fac1d6958f03d71de743305ce3ab27594efbe7b7
-        id: deploy-mdb-apps
-        with:
-          realmUrl: ${{ secrets.REALM_QA_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID }}
-          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: flutter-android
-
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-
-      - name: Deploy Apps
-        run: |
-          dart run realm_dart deploy-apps \
-            --baas-url ${{ secrets.REALM_QA_URL }} \
-            --atlas-cluster ${{ steps.deploy-mdb-apps.outputs.clusterName }} \
-            --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} \
-            --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} \
-            --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }}
 
   build-android:
     runs-on: ubuntu-latest
@@ -744,12 +576,12 @@ jobs:
     name: Flutter Tests Android
     env:
       BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_CLUSTER: ${{ needs.baas-android.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
       BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
-      - baas-android
+      - baas_matrix
       - build-android
     steps:
       - name: Checkout
@@ -806,23 +638,6 @@ jobs:
           cmake: 3.10.2.4988404
           script: flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics
           working-directory: ./flutter/realm_flutter/tests
-
-  cleanup-android:
-    runs-on: ubuntu-latest
-    name: Cleanup Android
-    needs:
-      - flutter-android
-    if: always()
-    timeout-minutes: 5
-    steps:
-      - uses: realm/ci-actions/mdb-realm/cleanup@fac1d6958f03d71de743305ce3ab27594efbe7b7
-        with:
-          realmUrl: ${{ secrets.REALM_QA_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID}}
-          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
-          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: flutter-android
 
 # Generator jobs
 
