@@ -284,7 +284,7 @@ Future<void> main([List<String>? args]) async {
     final authProvider = EmailPasswordAuthProvider(app);
     await authProvider.registerUser(username, strongPassword);
     await authProvider.callResetPasswordFunction(username, newPassword, functionArgs: <dynamic>['success']);
-    final user = await app.logIn(Credentials.emailPassword(username, newPassword));
+    await app.logIn(Credentials.emailPassword(username, newPassword));
     expect(() async {
       await app.logIn(Credentials.emailPassword(username, strongPassword));
     }, throws<RealmException>("invalid username/password"));
