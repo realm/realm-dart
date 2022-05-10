@@ -140,13 +140,6 @@ class App {
     return realmCore.getUsers(this).map((handle) => UserInternal.create(this, handle));
   }
 
-  /// Removes the user's local credentials. This will also close any associated Sessions.
-  /// 
-  /// If [user] is null logs out [currentUser] if it exists.
-  Future<void> logout([User? user]) async {
-    return await realmCore.logOut(this, user);
-  }
-
   /// Removes a [user] and their local data from the device. If the user is logged in, they will be logged out in the process.
   Future<void> removeUser(User user) async {
     return await realmCore.removeUser(this, user);

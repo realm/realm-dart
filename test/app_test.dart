@@ -74,7 +74,7 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('App log out no current user is no operation and does not crash', (configuration) async {
     final app = App(configuration);
-    await app.logout();
+    await app.currentUser?.logOut();
   });
 
   baasTest('App log out user', (configuration) async {
@@ -82,7 +82,7 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
 
     expect(user.state, UserState.loggedIn);
-    await app.logout(user);
+    await user.logOut();
     expect(user.state, UserState.loggedOut);
   });
 
@@ -100,7 +100,7 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     expect(user.state, UserState.loggedIn);
-    await app.logout(user);
+    await user.logOut();
     expect(user.state, UserState.removed);
   });
 

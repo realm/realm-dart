@@ -91,7 +91,7 @@ class User {
   }
 
   /// Removes the user's local credentials. This will also close any associated Sessions.
-  Future<void> logout() async {
+  Future<void> logOut() async {
     return await realmCore.userLogOut(this);
   }
 
