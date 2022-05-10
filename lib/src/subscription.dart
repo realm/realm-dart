@@ -26,6 +26,7 @@ import 'util.dart';
 /// A class representing a single query subscription. The server will continuously
 /// evaluate the query that the app subscribed to and will send data
 /// that matches it as well as remove data that no longer does.
+/// {@category Sync}
 class Subscription {
   final SubscriptionHandle _handle;
 
