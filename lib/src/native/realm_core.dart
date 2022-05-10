@@ -292,20 +292,32 @@ class _RealmCore {
     return _realmLib.realm_query_get_description(query.queryHandle._pointer).cast<Utf8>().toDartString();
   }
 
-  void eraseSubscriptionByName(MutableSubscriptionSet subscriptions, String name) {
-    using((arena) {
-      _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_name(
-            subscriptions.handle._mutablePointer,
-            name.toUtf8Ptr(arena),
-          ));
+  bool eraseSubscription(MutableSubscriptionSet subscriptions, Subscription subscription) {
+    // TODO: Awaiting fix for https://github.com/realm/realm-core/issues/5475
+    // Should look something like:
+    /* 
+    _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_subscription(
+          subscriptions.handle._mutablePointer,
+          subscription.handle._pointer,
+        ));
+    */
+    return false; // TEMPORARY!!
+  }
+
+  bool eraseSubscriptionByName(MutableSubscriptionSet subscriptions, String name) {
+    return using((arena) {
+      return _realmLib.realm_sync_subscription_set_erase_by_name(
+        subscriptions.handle._mutablePointer,
+        name.toUtf8Ptr(arena),
+      );
     });
   }
 
-  void eraseSubscriptionByQuery(MutableSubscriptionSet subscriptions, RealmResults query) {
-    _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_query(
-          subscriptions.handle._mutablePointer,
-          query.queryHandle._pointer,
-        ));
+  bool eraseSubscriptionByQuery(MutableSubscriptionSet subscriptions, RealmResults query) {
+    return _realmLib.realm_sync_subscription_set_erase_by_query(
+      subscriptions.handle._mutablePointer,
+      query.queryHandle._pointer,
+    );
   }
 
   void clearSubscriptionSet(MutableSubscriptionSet subscriptions) {
@@ -683,7 +695,7 @@ class _RealmCore {
   bool realmEquals(Realm first, Realm second) => _equals(first.handle, second.handle);
   bool userEquals(User first, User second) => _equals(first.handle, second.handle);
   bool subscriptionEquals(Subscription first, Subscription second) => _equals(first.handle, second.handle);
-  
+
   RealmResultsHandle resultsSnapshot(RealmResults results) {
     final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_snapshot(results.handle._pointer));
     return RealmResultsHandle._(resultsPointer);
