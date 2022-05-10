@@ -653,7 +653,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Cleanup iOS
     needs:
-      - tests-ios
       - flutter-ios
     if: always()
     timeout-minutes: 5
