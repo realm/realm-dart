@@ -125,13 +125,13 @@ void xtest(String? name, dynamic Function() testFunction) {
 
 Future<void> setupTests(List<String>? args) async {
   parseTestNameFromArguments(args);
-
+  
   await setupBaas();
 
   setUp(() {
     final path = generateRandomRealmPath();
     Configuration.defaultPath = path;
-
+   
     addTearDown(() async {
       final paths = HashSet<String>();
       paths.add(path);
