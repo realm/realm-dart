@@ -26,6 +26,7 @@ jobs:
     name: BaaS ${{ matrix.platform }} for ${{ matrix.package }}
     outputs:
       clusterName: ${{ steps.deploy-mdb-apps.outputs.clusterName }}
+      baasProcess: ${{ matrix.package }}-${{ matrix.platform }}
     timeout-minutes: 20
     steps:
       - name: Checkout
@@ -80,7 +81,7 @@ jobs:
       - flutter-windows
       - flutter-ios
       - flutter-android
-    if: always()
+    if: ${{ needs.baas_matrix.outputs.baasProcess }} == ${{ matrix.platform }}-${{ matrix.package }}
     timeout-minutes: 5
     steps:
       - uses: realm/ci-actions/mdb-realm/cleanup@fac1d6958f03d71de743305ce3ab27594efbe7b7
