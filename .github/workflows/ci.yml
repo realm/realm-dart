@@ -41,7 +41,7 @@ jobs:
           projectId: ${{ secrets.ATLAS_QA_PROJECT_ID }}
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: dart-${{ matrix.platform }}
+          differentiator: ${{ matrix.package }}-${{ matrix.platform }}
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
