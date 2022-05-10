@@ -93,7 +93,6 @@ final _openRealms = Queue<Realm>();
 
 String testUsername = "realm-test@realm.io";
 String testPassword = "123456";
-File skipBaasSetupFile = File("${Directory.systemTemp.path}${_path.separator}realm_test_baas_setup_for_pid_${pid}_at_${DateTime.now().minute}");
 
 enum AppNames {
   flexible,
@@ -214,11 +213,6 @@ Future<void> setupBaas() async {
     return;
   }
   
-  // Check if Baas was already initialzied for this process
-  if (skipBaasSetupFile.existsSync()) {
-    return;
-  }
-
   final cluster = Platform.environment['BAAS_CLUSTER'];
   final apiKey = Platform.environment['BAAS_API_KEY'];
   final privateApiKey = Platform.environment['BAAS_PRIVATE_API_KEY'];
@@ -227,8 +221,6 @@ Future<void> setupBaas() async {
   final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
   var apps = await client.getOrCreateApps();
   baasApps.addAll(apps);
-  
-  skipBaasSetupFile.createSync();
 }
 
 @isTest
