@@ -125,8 +125,8 @@ void xtest(String? name, dynamic Function() testFunction) {
 
 Future<void> setupTests(List<String>? args) async {
   parseTestNameFromArguments(args);
-  
-  await setupBaas();
+
+  setUpAll(() async => await setupBaas());
 
   setUp(() {
     final path = generateRandomRealmPath();
@@ -191,7 +191,7 @@ Future<void> tryDeleteFile(FileSystemEntity fileEntity, {bool recursive = false}
       await fileEntity.delete(recursive: recursive);
       break;
     } catch (e) {
-      await Future<void>.delayed(Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
     }
   }
 }
@@ -212,7 +212,7 @@ Future<void> setupBaas() async {
   if (baasUrl == null) {
     return;
   }
-
+  
   final cluster = Platform.environment['BAAS_CLUSTER'];
   final apiKey = Platform.environment['BAAS_API_KEY'];
   final privateApiKey = Platform.environment['BAAS_PRIVATE_API_KEY'];
@@ -257,7 +257,7 @@ Future<User> loginWithRetry(App app, Credentials credentials, {int retryCount = 
     return await app.logIn(credentials);
   } catch (e) {
     if (retryCount > 1) {
-      await Future<User>.delayed(Duration(milliseconds: 150));
+      await Future<void>.delayed(const Duration(milliseconds: 150));
       return await loginWithRetry(app, credentials, retryCount: retryCount - 1);
     }
     rethrow;
