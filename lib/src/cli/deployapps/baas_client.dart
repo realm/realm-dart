@@ -57,7 +57,7 @@ class BaasClient {
 
   final String _baseUrl;
   final String? _clusterName;
-  String _appSuffix;
+  final String _appSuffix;
   final Map<String, String> _headers;
 
   late String _groupId;
@@ -99,15 +99,14 @@ class BaasClient {
   /// for [atlas] one, it will return only apps with suffix equal to the cluster name. If no apps exist,
   /// then it will create the test applications and return them.
   /// @nodoc
-  Future<Map<String, BaasApp>> getOrCreateApps({String? appSuffix}) async {
+  Future<Map<String, BaasApp>> getOrCreateApps() async {
     final result = <String, BaasApp>{};
-    var apps = await _getApps(appSuffix: appSuffix);
+    var apps = await _getApps();
     if (apps.isNotEmpty) {
       for (final app in apps) {
         result[app.name] = app;
       }
     }
-    _appSuffix = appSuffix ?? _appSuffix;
     await _createAppIfNotExists(result, defaultAppName);
     await _createAppIfNotExists(result, "autoConfirm", confirmationType: "auto");
     await _createAppIfNotExists(result, "emailConfirm", confirmationType: "email");
@@ -121,9 +120,8 @@ class BaasClient {
     }
   }
 
-  Future<List<BaasApp>> _getApps({String? appSuffix}) async {
+  Future<List<BaasApp>> _getApps() async {
     final apps = await _get('groups/$_groupId/apps') as List<dynamic>;
-    _appSuffix = appSuffix ?? _appSuffix;
     return apps
         .map((dynamic doc) {
           final name = doc['name'] as String;
