@@ -47,6 +47,14 @@ typedef InitialDataCallback = void Function(Realm realm);
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
 abstract class Configuration {
+  Configuration._(
+    List<SchemaObject> schemaObjects, {
+    String? path,
+    this.fifoFilesFallbackPath,
+    this.encryptionKey,
+  })  : schema = RealmSchema(schemaObjects),
+        path = path ?? Configuration.defaultPath;
+
   static String _initDefaultPath() {
     var path = "default.realm";
     if (Platform.isAndroid || Platform.isIOS) {
@@ -78,16 +86,17 @@ abstract class Configuration {
   /// In that case [Realm] needs a different location to store these files and this property defines that location.
   /// The FIFO special files are very lightweight and the main [Realm] file will still be stored in the location defined
   /// by the [path] you  property. This property is ignored if the directory defined by [path] allow FIFO special files.
-  String? get fifoFilesFallbackPath;
+  final String? fifoFilesFallbackPath;
 
   /// The path where the Realm should be stored.
   ///
   /// If omitted the [defaultPath] for the platform will be used.
-  String get path;
+  final String path;
 
   /// The [RealmSchema] for this [Configuration]
-  RealmSchema get schema;
-  List<int>? get encryptionKey;
+  final RealmSchema schema;
+
+  final List<int>? encryptionKey;
 
   @Deprecated('Use Configuration.local instead')
   factory Configuration(
@@ -115,7 +124,6 @@ abstract class Configuration {
   factory Configuration.inMemory(
     List<SchemaObject> schemaObjects,
     String identifier, {
-    int schemaVersion,
     String? fifoFilesFallbackPath,
     String? path,
   }) = InMemoryConfiguration;
@@ -128,32 +136,10 @@ abstract class Configuration {
   }) = FlexibleSyncConfiguration;
 }
 
-abstract class _ConfigurationBase implements Configuration {
-  _ConfigurationBase(
-    List<SchemaObject> schemaObjects, {
-    String? path,
-    this.fifoFilesFallbackPath,
-    this.encryptionKey,
-  })  : schema = RealmSchema(schemaObjects),
-        path = path ?? Configuration.defaultPath;
-
-  @override
-  final RealmSchema schema;
-
-  @override
-  final String path;
-
-  @override
-  final String? fifoFilesFallbackPath;
-
-  @override
-  final List<int>? encryptionKey;
-}
-
 /// [LocalConfiguration] is used to open local [Realm] instances,
 /// that are persisted across runs.
 /// {@category Configuration}
-class LocalConfiguration extends _ConfigurationBase {
+class LocalConfiguration extends Configuration {
   LocalConfiguration(
     List<SchemaObject> schemaObjects, {
     this.initialDataCallback,
@@ -163,7 +149,7 @@ class LocalConfiguration extends _ConfigurationBase {
     this.disableFormatUpgrade = false,
     this.isReadOnly = false,
     this.shouldCompactCallback,
-  }) : super(
+  }) : super._(
           schemaObjects,
           path: path,
           fifoFilesFallbackPath: fifoFilesFallbackPath,
@@ -192,25 +178,11 @@ class LocalConfiguration extends _ConfigurationBase {
   /// An exception will be thrown if a file format upgrade is required.
   final bool disableFormatUpgrade;
 
-  /// The function will be called when opening a [Realm] for the first time
-  /// during the life of a process.
+  /// Called when opening a [Realm] for the first time, after process start.
   final ShouldCompactCallback? shouldCompactCallback;
 
+  /// Called when opening a [Realm] for the very first time, when db file is created.
   final InitialDataCallback? initialDataCallback;
-}
-
-class _SyncConfigurationBase extends _ConfigurationBase {
-  final User user;
-  _SyncConfigurationBase(
-    this.user,
-    List<SchemaObject> schemaObjects, {
-    String? fifoFilesFallbackPath,
-    String? path,
-  }) : super(
-          schemaObjects,
-          fifoFilesFallbackPath: fifoFilesFallbackPath,
-          path: path,
-        );
 }
 
 /// @nodoc
@@ -223,16 +195,17 @@ enum SessionStopPolicy {
 /// [FlexibleSyncConfiguration] is used to open [Realm] instances that are synchronized
 /// with MongoDB Realm.
 /// {@category Configuration}
-class FlexibleSyncConfiguration extends _SyncConfigurationBase {
+class FlexibleSyncConfiguration extends Configuration {
+  final User user;
+
   SessionStopPolicy _sessionStopPolicy = SessionStopPolicy.afterChangesUploaded;
 
   FlexibleSyncConfiguration(
-    User user,
+    this.user,
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
-  }) : super(
-          user,
+  }) : super._(
           schemaObjects,
           fifoFilesFallbackPath: fifoFilesFallbackPath,
           path: path,
@@ -247,14 +220,13 @@ extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
 /// [InMemoryConfiguration] is used to open [Realm] instances that
 /// are temporary to running process.
 /// {@category Configuration}
-class InMemoryConfiguration extends _ConfigurationBase {
+class InMemoryConfiguration extends Configuration {
   InMemoryConfiguration(
     List<SchemaObject> schemaObjects,
     this.identifier, {
-    int schemaVersion = 0,
     String? fifoFilesFallbackPath,
     String? path,
-  }) : super(
+  }) : super._(
           schemaObjects,
           fifoFilesFallbackPath: fifoFilesFallbackPath,
           path: path,

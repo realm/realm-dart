@@ -74,7 +74,7 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.version, 2);
   });
 
-  testSubscriptions('SubscriptionSet.add', (realm) {
+  testSubscriptions('MutableSubscriptionSet.add', (realm) {
     final subscriptions = realm.subscriptions;
     final query = realm.all<Task>();
 
@@ -85,7 +85,7 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.find(query), isNotNull);
   });
 
-  testSubscriptions('SubscriptionSet.add (named)', (realm) {
+  testSubscriptions('MutableSubscriptionSet.add (named)', (realm) {
     final subscriptions = realm.subscriptions;
 
     const name = 'some name';
@@ -120,7 +120,7 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.findByName(name), isNotNull);
   });
 
-  testSubscriptions('SubscriptionSet.remove', (realm) {
+  testSubscriptions('MutableSubscriptionSet.remove', (realm) {
     final subscriptions = realm.subscriptions;
     final query = realm.all<Task>();
 
@@ -135,7 +135,7 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions, isEmpty);
   });
 
-  testSubscriptions('SubscriptionSet.remove (named)', (realm) {
+  testSubscriptions('MutableSubscriptionSet.remove (named)', (realm) {
     final subscriptions = realm.subscriptions;
 
     const name = 'some name';
@@ -150,7 +150,7 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions, isEmpty);
   });
 
-  testSubscriptions('SubscriptionSet.removeAll', (realm) {
+  testSubscriptions('MutableSubscriptionSet.removeAll', (realm) {
     final subscriptions = realm.subscriptions;
 
     subscriptions.update((mutableSubscriptions) {
@@ -201,21 +201,19 @@ Future<void> main([List<String>? args]) async {
   testSubscriptions('MutableSubscriptionSet.add double-add throws', (realm) {
     final subscriptions = realm.subscriptions;
 
-    // Cannot add same query twice without requesting an update
-    expect(() {
-      subscriptions.update((mutableSubscriptions) {
-        mutableSubscriptions.add(realm.all<Task>());
-        mutableSubscriptions.add(realm.all<Task>());
-      });
-    }, throws<RealmException>('Duplicate subscription'));
+    // Adding same unnamed query twice without requesting an update will just de-duplicate
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.all<Task>());
+      mutableSubscriptions.add(realm.all<Task>());
+    });
+    expect(subscriptions.length, 1);
 
-    // Okay to add same query under different names
+    // Okay to add same query under different names, not de-duplicated
     subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Task>(), name: 'foo');
       mutableSubscriptions.add(realm.all<Task>(), name: 'bar');
     });
-
-    expect(subscriptions.length, 2);
+    expect(subscriptions.length, 3);
 
     // Cannot add different queries under same name, unless the second
     // can update the first.
@@ -234,7 +232,7 @@ Future<void> main([List<String>? args]) async {
       mutableSubscriptions.add(realm.all<Task>());
       mutableSubscriptions.add(realm.all<Task>(), update: true);
     });
-    
+
     expect(subscriptions.length, 1);
 
     subscriptions.update((mutableSubscriptions) {
