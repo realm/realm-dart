@@ -73,6 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Cleanup ${{ matrix.platform }} for ${{ matrix.package }}
     needs:
+      - baas_matrix
       - tests-linux
       - flutter-linux
       - tests-macos
