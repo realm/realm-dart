@@ -67,7 +67,7 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.version, 1);
 
     subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.removeAll();
+      mutableSubscriptions.clear();
     });
 
     expect(subscriptions.length, 0);
@@ -130,7 +130,7 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions, isNotEmpty);
 
     subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.remove(query);
+      mutableSubscriptions.removeByQuery(query);
     });
     expect(subscriptions, isEmpty);
   });
@@ -160,7 +160,7 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.length, 2);
 
     subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.removeAll();
+      mutableSubscriptions.clear();
     });
     expect(subscriptions, isEmpty);
   });
@@ -259,7 +259,7 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.length, 1);
 
     subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.remove(query);
+      mutableSubscriptions.removeByQuery(query);
     });
 
     expect(subscriptions, isEmpty);
