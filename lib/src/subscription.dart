@@ -54,12 +54,26 @@ class _SubscriptionIterator implements Iterator<Subscription> {
   bool moveNext() => ++_index < _subscriptions.length;
 }
 
+/// {@category Sync}
 enum SubscriptionSetState {
+  /// This subscription set has not been persisted and has not been sent to the server.
+  /// This state is only valid for MutableSubscriptionSets
   uncommitted,
+
+  /// The subscription set has been persisted locally but has not been acknowledged by the server yet.
   pending,
+
+  /// The server is currently sending the initial state that represents this subscription set to the client.
   bootstrapping,
+
+  /// This subscription set is the active subscription set that is currently being synchronized with the server.
   complete,
+
+  /// An error occurred while processing this subscription set on the server. Check error_str() for details.
   error,
+
+  /// The server responded to a later subscription set to this one and this one has been
+  /// trimmed from the local storage of subscription sets.
   superseded,
 }
 
@@ -79,6 +93,7 @@ enum SubscriptionSetState {
 /// dataset your application needs upfront. Updating the set of active subscriptions for a
 /// Realm is an expensive operation serverside, even if there's very little data that needs
 /// downloading.
+/// {@category Sync}
 abstract class SubscriptionSet with IterableMixin<Subscription> {
   Realm _realm;
   SubscriptionSetHandle _handle;
@@ -114,9 +129,14 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
   ///
   /// If the [state] of the subscription set is [SubscriptionSetState.complete]
   /// the returned [Future] will complete immediately. If the state is
-  /// [SubscriptionSetState.error], the returned future will be throw an
+  /// [SubscriptionSetState.error], the returned future will throw an
   /// error.
-  Future<SubscriptionSetState> waitForSynchronization() => _waitForStateChange(SubscriptionSetState.complete);
+  Future<void> waitForSynchronization() async {
+    final result = await _waitForStateChange(SubscriptionSetState.complete);
+    if (result == SubscriptionSetState.error) {
+      throw RealmException('Synchronization Failed');
+    }
+  }
 
   @override
   int get length => realmCore.getSubscriptionSetSize(this);
@@ -172,6 +192,7 @@ class _ImmutableSubscriptionSet extends SubscriptionSet {
 }
 
 /// A mutable view to a [SubscriptionSet]. Obtained by calling [SubscriptionSet.update].
+/// {@category Sync}
 class MutableSubscriptionSet extends SubscriptionSet {
   final MutableSubscriptionSetHandle _handle;
 
@@ -179,18 +200,19 @@ class MutableSubscriptionSet extends SubscriptionSet {
 
   @override
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action) {
-    action(this); // or should we just throw?
+    action(this);
   }
 
-  /// Adds a [query] to the set of active subscriptions. 
-  /// 
-  /// The query will be joined via an OR statement with any existing queries for the same type. 
-  /// 
-  /// If a [name] is given, then this will be used to match with any existing query, 
+  /// Adds a [query] to the set of active subscriptions.
+  ///
+  /// The query will be joined via an OR statement with any existing queries for the same type.
+  ///
+  /// If a [name] is given, then this will be used to match with any existing query,
   /// otherwise the [query] itself is used for matching.
-  /// 
-  /// If [update] is specified to [true], then any existing query will be replaced. 
+  ///
+  /// If [update] is specified to [true], then any existing query will be replaced.
   /// Otherwise a [RealmException] is thrown, in case of duplicates.
+  /// {@category Sync}
   Subscription add<T extends RealmObject>(RealmResults<T> query, {String? name, bool update = false}) {
     return Subscription._(realmCore.insertOrAssignSubscription(this, query, name, update));
   }
@@ -200,12 +222,12 @@ class MutableSubscriptionSet extends SubscriptionSet {
     return realmCore.eraseSubscription(this, subscription);
   }
 
-  /// Remove any [query] from the set that matches.
+  /// Remove the [query] from the set that matches, if any.
   bool removeByQuery<T extends RealmObject>(RealmResults<T> query) {
     return realmCore.eraseSubscriptionByQuery(this, query);
   }
 
-  /// Remove any [query] from the set that matches by [name]
+  /// Remove the [query] from the set that matches by [name], if any
   bool removeByName(String name) {
     return realmCore.eraseSubscriptionByName(this, name);
   }
