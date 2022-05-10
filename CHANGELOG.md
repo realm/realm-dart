@@ -32,6 +32,7 @@
 * Support user state. ([#525](https://github.com/realm/realm-dart/pull/525))
 * Support getting user id and identities. ([#525](https://github.com/realm/realm-dart/pull/525))
 * Support user logout. ([#525](https://github.com/realm/realm-dart/pull/525))
+* Support flexible synchronization ([#496](https://github.com/realm/realm-dart/pull/496))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))

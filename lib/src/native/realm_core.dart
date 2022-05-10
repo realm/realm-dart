@@ -269,8 +269,7 @@ class _RealmCore {
 
   SubscriptionHandle insertOrAssignSubscription(MutableSubscriptionSet subscriptions, RealmResults query, String? name, bool update) {
     if (!update) {
-      if ((name != null && findSubscriptionByName(subscriptions, name) != null) || //
-          (name == null && findSubscriptionByQuery(subscriptions, query) != null)) {
+      if (name != null && findSubscriptionByName(subscriptions, name) != null) {
         throw RealmException('Duplicate subscription $query${name != null ? ' with name: $name' : ''}');
       }
     }
