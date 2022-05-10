@@ -143,12 +143,7 @@ class App {
   /// Removes the user's local credentials. This will also close any associated Sessions.
   /// 
   /// If [user] is null logs out [currentUser] if it exists.
-  Future<void> logout(User? user) async {
-    user ??= currentUser;
-    if (user == null) {
-      return;
-    }
-
+  Future<void> logout([User? user]) async {
     return await realmCore.logOut(this, user);
   }
 
@@ -161,6 +156,9 @@ class App {
   void switchUser(User user) {
     realmCore.switchUser(this, user);
   }
+
+  /// Returns an instance of [EmailPasswordAuthProvider]
+  EmailPasswordAuthProvider get emailPasswordAuthProvider => EmailPasswordAuthProviderInternal.create(this);
 }
 
 /// @nodoc

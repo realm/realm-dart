@@ -28,8 +28,17 @@ enum AuthProviderType {
   /// For authenticating without credentials.
   anonymous,
 
+  _facebook,
+  _google,
+  _apple,
+  _custom,
+  
   /// For authenticating with an email and a password.
   emailPassword,
+
+  _function,
+  _userApiKey,
+  _serverApiKey
 }
 
 /// A class, representing the credentials used for authenticating a [User]
@@ -108,4 +117,8 @@ class EmailPasswordAuthProvider {
   Future<void> retryCustomConfirmationFunction(String email) {
     return realmCore.emailPasswordRetryCustomConfirmationFunction(app, email);
   }
+}
+
+extension EmailPasswordAuthProviderInternal on EmailPasswordAuthProvider {
+  static EmailPasswordAuthProvider create(App app) => EmailPasswordAuthProvider(app);
 }

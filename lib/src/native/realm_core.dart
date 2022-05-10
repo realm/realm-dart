@@ -542,6 +542,7 @@ class _RealmCore {
 
   bool objectEquals(RealmObject first, RealmObject second) => _equals(first.handle, second.handle);
   bool realmEquals(Realm first, Realm second) => _equals(first.handle, second.handle);
+  bool userEquals(User first, User second) => _equals(first.handle, second.handle);
 
   RealmResultsHandle resultsSnapshot(RealmResults results) {
     final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_snapshot(results.handle._pointer));
@@ -1029,17 +1030,28 @@ class _RealmCore {
     completer.complete();
   }
 
-  Future<void> logOut(App application, User user) {
+  Future<void> logOut(App application, User? user) {
     final completer = Completer<void>();
-    _realmLib.invokeGetBool(
-        () => _realmLib.realm_app_log_out(
-              application.handle._pointer,
-              user.handle._pointer,
-              Pointer.fromFunction(_logOutCallback),
-              completer.toPersistentHandle(),
-              _deletePersistentHandleFuncPtr,
-            ),
-        "Logout failed");
+    if (user == null) {
+      _realmLib.invokeGetBool(
+          () => _realmLib.realm_app_log_out_current_user(
+                application.handle._pointer,
+                Pointer.fromFunction(_logOutCallback),
+                completer.toPersistentHandle(),
+                _deletePersistentHandleFuncPtr,
+              ),
+          "Logout failed");
+    } else {
+      _realmLib.invokeGetBool(
+          () => _realmLib.realm_app_log_out(
+                application.handle._pointer,
+                user.handle._pointer,
+                Pointer.fromFunction(_logOutCallback),
+                completer.toPersistentHandle(),
+                _deletePersistentHandleFuncPtr,
+              ),
+          "Logout failed");
+    }
     return completer.future;
   }
 
@@ -1096,14 +1108,9 @@ class _RealmCore {
     });
   }
 
-  String userGetCustomData(User user) {
-    final customDataPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_custom_data(user.handle._pointer));
-    try {
-      final customData = customDataPtr.cast<Utf8>().toDartString();
-      return customData;
-    } finally {
-      _realmLib.realm_free(customDataPtr.cast());
-    }
+  String? userGetCustomData(User user) {
+    final customDataPtr = _realmLib.realm_user_get_custom_data(user.handle._pointer);
+    return customDataPtr.cast<Utf8>().toRealmDartString(freeNativeMemory: true, treatEmptyAsNull: true);
   }
 
   Future<void> userRefreshCustomData(App app, User user) {

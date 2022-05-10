@@ -110,6 +110,7 @@ class BaasClient {
     await _createAppIfNotExists(result, defaultAppName);
     await _createAppIfNotExists(result, "autoConfirm", confirmationType: "auto");
     await _createAppIfNotExists(result, "emailConfirm", confirmationType: "email");
+    
     return result;
   }
 
@@ -196,8 +197,11 @@ class BaasClient {
       }
     }''');
 
-    await _put('groups/$_groupId/apps/$app/sync/config', '{ "development_mode_enabled": true }');
+    await _put('groups/$_groupId/apps/$appId/sync/config', '{ "development_mode_enabled": true }');
 
+    //create email/password user for tests
+    final dynamic createUserResult = await _post('groups/$_groupId/apps/$appId/users', '{"email": "realm-test@realm.io", "password":"123456"}');
+    print("Create user result: $createUserResult");
     return app;
   }
 

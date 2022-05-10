@@ -91,6 +91,19 @@ String? testName;
 final baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
 
+String testUsername = "realm-test@realm.io";
+String testPassword = "123456";
+
+enum AppNames {
+  flexible,
+
+  // For application with name 'autoConfirm' and with confirmationType = 'auto'
+  // all the usernames are automatically confirmed.
+  autoConfirm,
+
+  emailConfirm,
+}
+
 //Overrides test method so we can filter tests
 void test(String name, dynamic Function() testFunction, {dynamic skip}) {
   if (testName != null && !name.contains(testName!)) {
@@ -113,9 +126,7 @@ void xtest(String? name, dynamic Function() testFunction) {
 Future<void> setupTests(List<String>? args) async {
   parseTestNameFromArguments(args);
   
-  setUpAll(() async {
-    await setupBaas();
-  });
+  await setupBaas();
 
   setUp(() {
     final path = generateRandomRealmPath();
@@ -208,14 +219,15 @@ Future<void> setupBaas() async {
   final projectId = Platform.environment['BAAS_PROJECT_ID'];
 
   final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
-  baasApps.addAll(await client.getOrCreateApps());
+  var apps = await client.getOrCreateApps();
+  baasApps.addAll(apps);
 }
 
 @isTest
 Future<void> baasTest(
   String name,
   FutureOr<void> Function(AppConfiguration appConfig) testFunction, {
-  String appName = 'flexible',
+  AppNames appName = AppNames.flexible,
   dynamic skip,
 }) async {
   final uriVariable = Platform.environment['BAAS_URL'];
@@ -228,8 +240,8 @@ Future<void> baasTest(
   }
 
   test(name, () async {
-    final app =
-        baasApps[appName] ?? baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
+    final app = baasApps[appName.name] ??
+        baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
     final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
     final appConfig = AppConfiguration(
       app.clientAppId,
@@ -238,6 +250,18 @@ Future<void> baasTest(
     );
     return await testFunction(appConfig);
   }, skip: skip);
+}
+
+Future<User> loginWithRetry(App app, Credentials credentials, {int retryCount = 3}) async {
+  try {
+    return await app.logIn(credentials);
+  } catch (e) {
+    if (retryCount > 1) {
+      await Future<User>.delayed(Duration(milliseconds: 150));
+      return await loginWithRetry(app, credentials, retryCount: retryCount - 1);
+    }
+    rethrow;
+  }
 }
 
 extension RealmObjectTest on RealmObject {

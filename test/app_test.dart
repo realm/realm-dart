@@ -62,11 +62,90 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
+    expect(user.state, UserState.loggedIn);
   });
+
   test('Application get all users', () {
     final configuration = AppConfiguration(generateRandomString(10));
     final app = App(configuration);
     var users = app.users;
     expect(users.isEmpty, true);
+  });
+
+  baasTest('App log out no current user is no operation and does not crash', (configuration) async {
+    final app = App(configuration);
+    await app.logout();
+  });
+
+  baasTest('App log out user', (configuration) async {
+    final app = App(configuration);
+    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
+
+    expect(user.state, UserState.loggedIn);
+    await app.logout(user);
+    expect(user.state, UserState.loggedOut);
+  });
+
+  baasTest('App remove user', (configuration) async {
+    final app = App(configuration);
+    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
+
+    expect(user.state, UserState.loggedIn);
+    await app.removeUser(user);
+    expect(user.state, UserState.removed);
+  });
+
+  baasTest('App log out anonymous user is marked as removed', (configuration) async {
+    final app = App(configuration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    expect(user.state, UserState.loggedIn);
+    await app.logout(user);
+    expect(user.state, UserState.removed);
+  });
+
+  baasTest('App remove anonymous user', (configuration) async {
+    final app = App(configuration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    expect(user.state, UserState.loggedIn);
+    await app.removeUser(user);
+    expect(user.state, UserState.removed);
+  });
+
+  baasTest('App get current user', (configuration) async {
+    final app = App(configuration);
+    final credentials = Credentials.anonymous();
+    expect(app.currentUser, isNull);
+
+    final user = await app.logIn(credentials);
+
+    expect(app.currentUser, isNotNull);
+    expect(app.currentUser, user);
+  });
+
+  baasTest('App switch user', (configuration) async {
+    final app = App(configuration);
+    expect(app.currentUser, isNull);
+
+    final user1 = await app.logIn(Credentials.anonymous());
+    expect(app.currentUser, user1);
+    
+    final user2 = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
+
+    expect(app.currentUser, user2);
+
+    app.switchUser(user1);
+    expect(app.currentUser, user1);
+  });
+
+  baasTest('App get users', (configuration) async {
+    final app = App(configuration);
+    expect(app.currentUser, isNull);
+    expect(app.users.length, 0);
+
+    final user = await app.logIn(Credentials.anonymous());
+    final user1 = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
+    expect(app.users, [user1, user]);
   });
 }
