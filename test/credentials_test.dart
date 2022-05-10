@@ -65,7 +65,7 @@ Future<void> main([List<String>? args]) async {
     String username = "${generateRandomString(5)}@realm.io";
     // For application with name 'autoConfirm' and with confirmationType = 'auto'
     // all the usernames are automatically confirmed.
-    
+
     await authProvider.registerUser(username, strongPassword);
     final user = await loginWithRetry(app, Credentials.emailPassword(username, strongPassword));
     expect(user, isNotNull);
@@ -223,7 +223,7 @@ Future<void> main([List<String>? args]) async {
     expect(() async {
       await authProvider.resetPassword(username);
     }, throws<RealmException>("user not found"));
-  }, appName: "emailConfirm");
+  }, appName: AppNames.emailConfirm);
 
   // The tests in this group are for manual testing, since they require interaction with mail box.
   // Please enter a valid data in the variables under comments.
@@ -242,7 +242,7 @@ Future<void> main([List<String>? args]) async {
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
       await authProvider.registerUser(validUsername, strongPassword);
-    }, appName: "emailConfirm", skip: "It is a manual test");
+    }, appName: AppNames.emailConfirm, skip: "It is a manual test");
 
     baasTest('Manual test 2 (resetPassword). Take recieved token from the received email and confirm the user', (configuration) async {
       // Enter valid token and tokenId from the received email
@@ -254,13 +254,13 @@ Future<void> main([List<String>? args]) async {
       await authProvider.confirmUser(token, tokenId);
       final user = await loginWithRetry(app, Credentials.emailPassword(validUsername, strongPassword));
       expect(user, isNotNull);
-    }, appName: "emailConfirm", skip: "It is a manual test");
+    }, appName: AppNames.emailConfirm, skip: "It is a manual test");
 
     baasTest('Manual test 3 (resetPassword). Reset user password email', (configuration) async {
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
       await authProvider.resetPassword(validUsername);
-    }, appName: "emailConfirm", skip: "It is a manual test");
+    }, appName: AppNames.emailConfirm, skip: "It is a manual test");
 
     baasTest('Manual test 4 (resetPassword). Take recieved token from the email and complete resetting new password', (configuration) async {
       // Make sure you have recieved an emails with hyperlink ResetPassword.
@@ -274,7 +274,7 @@ Future<void> main([List<String>? args]) async {
       await authProvider.completeResetPassword(newPassword, token, tokenId);
       final user = await app.logIn(Credentials.emailPassword(validUsername, strongPassword));
       expect(user, isNotNull);
-    }, appName: "emailConfirm", skip: "Run this test manually after test 1 and after setting token and tokenId");
+    }, appName: AppNames.emailConfirm, skip: "Run this test manually after test 1 and after setting token and tokenId");
   });
 
   baasTest('Email/Password - call reset password function and login with the new password', (configuration) async {
@@ -285,23 +285,22 @@ Future<void> main([List<String>? args]) async {
     await authProvider.registerUser(username, strongPassword);
     await authProvider.callResetPasswordFunction(username, newPassword, functionArgs: <dynamic>['success']);
     final user = await app.logIn(Credentials.emailPassword(username, newPassword));
-      expect(() async {
+    expect(() async {
       await app.logIn(Credentials.emailPassword(username, strongPassword));
-      }, throws<RealmException>("invalid username/password"));
-  }, appName: "autoConfirm");
+    }, throws<RealmException>("invalid username/password"));
+  }, appName: AppNames.autoConfirm);
 
   baasTest('Email/Password - call reset password function with no additional arguments', (configuration) async {
-      final app = App(configuration);
+    final app = App(configuration);
     String username = "${generateRandomString(5)}@realm.io";
     const String newPassword = "!@#!DQXQWD!223eda";
-      final authProvider = EmailPasswordAuthProvider(app);
+    final authProvider = EmailPasswordAuthProvider(app);
     await authProvider.registerUser(username, strongPassword);
-      expect(() async {
-        // Calling this function with no additional arguments fails for the test
-        // beacause of the specific implementation of resetFunc in the cloud.
-        // resetFunc returns status 'fail' in case no other status is passed.
+    expect(() async {
+      // Calling this function with no additional arguments fails for the test
+      // because of the specific implementation of resetFunc in the cloud.
+      // resetFunc returns status 'fail' in case no other status is passed.
       await authProvider.callResetPasswordFunction(username, newPassword);
     }, throws<RealmException>("failed to reset password for user $username"));
-  }, appName: "autoConfirm");
-  
+  }, appName: AppNames.autoConfirm);
 }
