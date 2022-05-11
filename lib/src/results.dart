@@ -28,7 +28,6 @@ import 'realm_class.dart';
 ///
 /// {@category Realm}
 class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
-  final RealmQueryHandle _queryHandle;
   final RealmResultsHandle _handle;
 
   /// The Realm instance this collection belongs to.
@@ -36,7 +35,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
 
   final _supportsSnapshot = <T>[] is List<RealmObject?>;
 
-  RealmResults._(this._queryHandle, this._handle, this.realm);
+  RealmResults._(this._handle, this.realm);
 
   /// Returns the element of type `T` at the specified [index].
   T operator [](int index) {
@@ -50,7 +49,8 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query(String query, [List<Object> args = const []]) {
     final queryHandle = realmCore.queryResults(this, query, args);
-    return RealmResultsInternal.create<T>(queryHandle, realm);
+    final handle = realmCore.queryFindAll(queryHandle);
+    return RealmResultsInternal.create<T>(handle, realm);
   }
 
   /// `true` if the `Results` collection is empty.
@@ -63,7 +63,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
     var results = this;
     if (_supportsSnapshot) {
       final handle = realmCore.resultsSnapshot(this);
-      results = RealmResults._(_queryHandle, handle, realm);
+      results = RealmResults._(handle, realm);
     }
     return _RealmResultsIterator(results);
   }
@@ -77,19 +77,15 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
     final controller = ResultsNotificationsController<T>(this);
     return controller.createStream();
   }
-
-  @override
-  String toString() => realmCore.describeQuery(this);
 }
 
 /// @nodoc
 //RealmResults package internal members
 extension RealmResultsInternal on RealmResults {
-  RealmQueryHandle get queryHandle => _queryHandle;
   RealmResultsHandle get handle => _handle;
 
-  static RealmResults<T> create<T extends RealmObject>(RealmQueryHandle queryHandle, Realm realm) {
-    return RealmResults<T>._(queryHandle, realmCore.queryFindAll(queryHandle), realm);
+  static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm) {
+    return RealmResults<T>._(handle, realm);
   }
 }
 

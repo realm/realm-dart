@@ -255,13 +255,9 @@ class Realm {
   ///
   /// The returned [RealmResults] allows iterating all the values without further filtering.
   RealmResults<T> all<T extends RealmObject>() {
-    return query('TRUEPREDICATE');
-    // TODO: The below is more efficient, but doesn't expose the query. We should fix the C-API.
-    /*
     RealmMetadata metadata = _getMetadata(T);
     final handle = realmCore.findAll(this, metadata.class_.key);
     return RealmResultsInternal.create<T>(handle, this);
-    */
   }
 
   /// Returns all [RealmObject]s that match the specified [query].
@@ -271,7 +267,8 @@ class Realm {
   RealmResults<T> query<T extends RealmObject>(String query, [List<Object> args = const []]) {
     RealmMetadata metadata = _getMetadata(T);
     final queryHandle = realmCore.queryClass(this, metadata.class_.key, query, args);
-    return RealmResultsInternal.create<T>(queryHandle, this);
+    final handle = realmCore.queryFindAll(queryHandle);
+    return RealmResultsInternal.create<T>(handle, this);
   }
 
   /// Deletes all [RealmObject]s of type `T` in the `Realm`
