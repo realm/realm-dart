@@ -35,7 +35,7 @@ void testSubscriptions(String name, FutureOr<void> Function(Realm) tester) async
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = FlexibleSyncConfiguration(user, [Task.schema])..sessionStopPolicy = SessionStopPolicy.immediately;
+    final configuration = FlexibleSyncConfiguration(user, [Task.schema, Schedule.schema])..sessionStopPolicy = SessionStopPolicy.immediately;
     final realm = getRealm(configuration);
     await tester(realm);
   });
@@ -288,6 +288,18 @@ Future<void> main([List<String>? args]) async {
     for (final s in subscriptions) {
       expect(s.id, isIn(oids));
     }
+  });
+
+  //multiple named with same name but different classes should throw.
+  testSubscriptions('MutableSubscriptionSet.add same name, different classes', (realm) {
+    final subscriptions = realm.subscriptions;
+
+    expect(
+        () => subscriptions.update((mutableSubscriptions) {
+              mutableSubscriptions.add(realm.all<Task>(), name: 'same');
+              mutableSubscriptions.add(realm.all<Schedule>(), name: 'same');
+            }),
+        throws<RealmException>());
   });
 
   testSubscriptions('Get subscriptions', (realm) async {
