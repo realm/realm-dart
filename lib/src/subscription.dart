@@ -62,7 +62,9 @@ class Subscription {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! Subscription) return false;
-    return realmCore.subscriptionEquals(this, other);
+    // TODO: Don't work, issue with C-API
+    // return realmCore.subscriptionEquals(this, other); 
+    return id == other.id; // <-- do this instead
   }
 }
 
