@@ -26,9 +26,9 @@ jobs:
     name: BaaS ${{ matrix.platform }} for ${{ matrix.package }}
     outputs:
       dart-linux-clusterName: ${{ steps.set-output.outputs.dart-linux-clusterName }}
-      dart-windows-clusterName: ${{ steps.set-output..outputs.dart-windows-clusterName }}
+      dart-windows-clusterName: ${{ steps.set-output.outputs.dart-windows-clusterName }}
       dart-macos-clusterName: ${{ steps.set-output.outputs.dart-macos-clusterName }}
-      flutter-linux-clusterName: ${{ steps.set-output..outputs.flutter-linux-clusterName }}
+      flutter-linux-clusterName: ${{ steps.set-output.outputs.flutter-linux-clusterName }}
       flutter-windows-clusterName: ${{ steps.set-output.outputs.flutter-windows-clusterName }}
       flutter-macos-clusterName: ${{ steps.set-output.outputs.flutter-macos-clusterName }}
       flutter-ios-clusterName: ${{ steps.set-output.outputs.flutter-ios-clusterName }}
