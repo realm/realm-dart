@@ -49,7 +49,7 @@ jobs:
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
           differentiator: dif-${{ matrix.package }}-${{ matrix.platform }}
-      
+
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
@@ -385,7 +385,7 @@ jobs:
           name: librealm-windows
           path: binary/windows/**
           retention-days: 1
-  
+
   tests-windows:
     runs-on: windows-latest
     name: Tests Windows
