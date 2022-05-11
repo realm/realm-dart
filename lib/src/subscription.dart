@@ -246,17 +246,17 @@ class MutableSubscriptionSet extends SubscriptionSet {
     return Subscription._(realmCore.insertOrAssignSubscription(this, query, name, update));
   }
 
-  // TODO: Make this public when C-API is in place (see: https://github.com/realm/realm-core/issues/5475)
-  bool _remove(Subscription subscription) {
-    return realmCore.eraseSubscription(this, subscription);
+  /// Remove the [subscription] from the set, if it exists.
+  bool remove(Subscription subscription) {
+    return realmCore.eraseSubscriptionById(this, subscription);
   }
 
-  /// Remove the [query] from the set that matches, if any.
+  /// Remove the [query] from the set, if it exists.
   bool removeByQuery<T extends RealmObject>(RealmResults<T> query) {
     return realmCore.eraseSubscriptionByQuery(this, query);
   }
 
-  /// Remove the [query] from the set that matches by [name], if any
+  /// Remove the [query] from the set that matches by [name], if it exists.
   bool removeByName(String name) {
     return realmCore.eraseSubscriptionByName(this, name);
   }
