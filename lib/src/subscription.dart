@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:async';
+import 'dart:core';
 import 'dart:collection';
 
 import 'native/realm_core.dart';
@@ -174,6 +174,7 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
 
   @override
   Subscription elementAt(int index) {
+    RangeError.checkValidRange(index, null, length);
     return Subscription._(realmCore.subscriptionAt(this, index));
   }
 
