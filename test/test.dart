@@ -94,6 +94,15 @@ class _Task {
   late ObjectId id;
 }
 
+@RealmModel()
+class _Schedule {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  final tasks = <_Task>[];
+}
+
+
 String? testName;
 final baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
