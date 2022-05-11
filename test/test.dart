@@ -278,16 +278,36 @@ Future<void> baasTest(
   }
 
   test(name, () async {
-    final app = baasApps[appName.name] ??
-        baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
-    final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
-    final appConfig = AppConfiguration(
-      app.clientAppId,
-      baseUrl: url,
-      baseFilePath: temporaryDir,
-    );
-    return await testFunction(appConfig);
+    final config = await getAppConfig(appName: appName);
+    return await testFunction(config);
   }, skip: skip);
+}
+
+Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) async {
+  final app = baasApps[appName.name] ??
+      baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
+
+  final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
+  return AppConfiguration(
+    app.clientAppId,
+    baseUrl: Uri.parse(Platform.environment['BAAS_URL']!),
+    baseFilePath: temporaryDir,
+  );
+}
+
+Future<User> getIntegrationUser(App app) async {
+  final email = 'realm_tests_do_autoverify_${generateRandomString(10)}@realm.io';
+  final password = 'password';
+  await app.emailPasswordAuthProvider.registerUser(email, password);
+
+  return await loginWithRetry(app, Credentials.emailPassword(email, password));
+}
+
+Future<Realm> getIntegrationRealm(List<SchemaObject> schemas, {App? app}) async {
+  app ??= App(await getAppConfig());
+  final user = await getIntegrationUser(app);
+  final config = Configuration.flexibleSync(user, schemas);
+  return getRealm(config);
 }
 
 Future<User> loginWithRetry(App app, Credentials credentials, {int retryCount = 3}) async {
