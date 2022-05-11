@@ -72,7 +72,6 @@ enum LogLevel {
 }
 
 @immutable
-
 /// A class exposing configuration options for an [App]
 /// {@category Application}
 class AppConfiguration {
@@ -112,7 +111,7 @@ class AppConfiguration {
   final MetadataPersistenceMode metadataPersistenceMode;
 
   /// Gets or sets the [LogLevel] for sync operations.
-  final LogLevel logLevel;
+  late LogLevel logLevel;
 
   /// The encryption key to use for user metadata on this device, if [metadataPersistenceMode] is
   /// [MetadataPersistenceMode.encrypted].
