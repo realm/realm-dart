@@ -345,6 +345,19 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
+  testSubscriptions('MutableSubscriptionSet.add illegal query', (realm) async {
+    final subscriptions = realm.subscriptions;
+
+    // Illegal query for subscription:
+    final query = realm.query<Schedule>('tasks.@count > 10');
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(query);
+    });
+
+    expect(() async => await subscriptions.waitForSynchronization(), throws<RealmException>());
+  });
+
   testSubscriptions('MutableSubscriptionSet.remove same query, different classes', (realm) {
     final subscriptions = realm.subscriptions;
 
