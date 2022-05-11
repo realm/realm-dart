@@ -290,7 +290,6 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
-  //multiple named with same name but different classes should throw.
   testSubscriptions('MutableSubscriptionSet.add same name, different classes', (realm) {
     final subscriptions = realm.subscriptions;
 
@@ -300,6 +299,19 @@ Future<void> main([List<String>? args]) async {
               mutableSubscriptions.add(realm.all<Schedule>(), name: 'same');
             }),
         throws<RealmException>());
+  });
+
+  testSubscriptions('MutableSubscriptionSet.add same name, different classes, with update flag', (realm) {
+    final subscriptions = realm.subscriptions;
+
+    late Subscription s;
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.all<Task>(), name: 'same');
+      s = mutableSubscriptions.add(realm.all<Schedule>(), name: 'same', update: true);
+    });
+
+    expect(subscriptions.length, 1);
+    expect(subscriptions[0], s); // last added wins
   });
 
   testSubscriptions('Get subscriptions', (realm) async {
