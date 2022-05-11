@@ -52,7 +52,7 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.subscriptions, throws<RealmError>());
   });
 
-  testSubscriptions('SubscriptionSet.state', (realm) async {
+  testSubscriptions('SubscriptionSet.state/waitForSynchronization', (realm) async {
     final subscriptions = realm.subscriptions;
     await subscriptions.waitForSynchronization();
     expect(subscriptions.state, SubscriptionSetState.complete);
@@ -109,6 +109,19 @@ Future<void> main([List<String>? args]) async {
       mutableSubscriptions.add(query);
     });
     expect(subscriptions.find(query), isNotNull);
+  });
+  
+  testSubscriptions('SubscriptionSet.find return match, even if named', (realm) {
+    final subscriptions = realm.subscriptions;
+    final query = realm.all<Task>();
+
+    expect(subscriptions.find(query), isNull);
+
+    late Subscription s;
+    subscriptions.update((mutableSubscriptions) {
+      s = mutableSubscriptions.add(query, name: 'foobar');
+    });
+    expect(subscriptions.find(query), s);
   });
 
   testSubscriptions('SubscriptionSet.findByName', (realm) {
