@@ -88,15 +88,16 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.find(query), isNotNull);
   });
 
-  testSubscriptions('MutableSubscriptionSet.add (named)', (realm) {
+  testSubscriptions('MutableSubscriptionSet.add named', (realm) {
     final subscriptions = realm.subscriptions;
 
     const name = 'some name';
+    late Subscription s;
     subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm.all<Task>(), name: name);
+      s = mutableSubscriptions.add(realm.all<Task>(), name: name);
     });
     expect(subscriptions, isNotEmpty);
-    expect(subscriptions.findByName(name), isNotNull);
+    expect(subscriptions.findByName(name), s);
   });
 
   testSubscriptions('SubscriptionSet.find', (realm) {
@@ -110,7 +111,7 @@ Future<void> main([List<String>? args]) async {
     });
     expect(subscriptions.find(query), isNotNull);
   });
-  
+
   testSubscriptions('SubscriptionSet.find return match, even if named', (realm) {
     final subscriptions = realm.subscriptions;
     final query = realm.all<Task>();
@@ -339,6 +340,24 @@ Future<void> main([List<String>? args]) async {
     for (final s in subscriptions) {
       expect(s.queryString, 'TRUEPREDICATE');
     }
+  });
+
+  testSubscriptions('MutableSubscriptionSet.remove same query, different classes', (realm) {
+    final subscriptions = realm.subscriptions;
+
+    late Subscription s;
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.all<Task>());
+      s = mutableSubscriptions.add(realm.all<Schedule>());
+    });
+
+    expect(subscriptions.length, 2);
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.removeByQuery(realm.all<Task>());
+    });
+
+    expect(subscriptions, [s]);
   });
 
   testSubscriptions('Get subscriptions', (realm) async {
