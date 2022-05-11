@@ -87,13 +87,13 @@ class _SubscriptionIterator implements Iterator<Subscription> {
 enum SubscriptionSetState {
   /// This subscription set has not been persisted and has not been sent to the server.
   /// This state is only valid for MutableSubscriptionSets
-  uncommitted,
+  _uncommitted, // ignore: unused_field
 
   /// The subscription set has been persisted locally but has not been acknowledged by the server yet.
   pending,
 
   /// The server is currently sending the initial state that represents this subscription set to the client.
-  bootstrapping,
+  _bootstrapping, // ignore: unused_field
 
   /// This subscription set is the active subscription set that is currently being synchronized with the server.
   complete,
@@ -194,7 +194,16 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
   int get version => realmCore.subscriptionSetGetVersion(this);
 
   /// Gets the state of the subscription set.
-  SubscriptionSetState get state => realmCore.subscriptionSetGetState(this);
+  SubscriptionSetState get state {
+    final state = realmCore.subscriptionSetGetState(this);
+    switch (state) {
+      case SubscriptionSetState._uncommitted:
+      case SubscriptionSetState._bootstrapping:
+        return SubscriptionSetState.pending;
+      default:
+        return state;  
+    }
+  }
 }
 
 extension SubscriptionSetInternal on SubscriptionSet {
