@@ -5,12 +5,12 @@ on:
 jobs:
   main:
     runs-on: ubuntu-latest
-      name: Wipe all clusters and apps
-      steps:
-      - uses: realm/ci-actions/mdb-realm/deleteAllClusters@1c6957bc0cac90eab1aeb06b2ba808a06aac6750
-        with:
-          realmUrl: ${{ secrets.REALM_QA_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID }}
-          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+    name: Wipe all clusters and apps
+    steps:
+    - uses: realm/ci-actions/mdb-realm/deleteAllClusters@1c6957bc0cac90eab1aeb06b2ba808a06aac6750
+      with:
+        realmUrl: ${{ secrets.REALM_QA_URL }}
+        atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+        projectId: ${{ secrets.ATLAS_QA_PROJECT_ID }}
+        apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
+        privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
