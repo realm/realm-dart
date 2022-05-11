@@ -69,6 +69,7 @@ jobs:
         run: echo '::set-output name=${{ matrix.package }}-${{ matrix.platform }}-clusterName::${{ steps.deploy-mdb-apps.outputs.clusterName }}'
 
   print-outputs:
+    name: Print env cluster names
     runs-on: ubuntu-latest
     needs:
       - baas_matrix
