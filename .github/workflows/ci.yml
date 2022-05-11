@@ -48,7 +48,11 @@ jobs:
           projectId: ${{ secrets.ATLAS_QA_PROJECT_ID }}
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: dif${{ matrix.package }}-${{ matrix.platform }}
+          differentiator: dif-${{ matrix.package }}-${{ matrix.platform }}
+      
+      - name: Set ${{ matrix.package }}-${{ matrix.platform }} outputs
+        id: ${{ matrix.package }}-${{ matrix.platform }}
+        run: echo '::set-output name=ClusterName::${{ steps.deploy-mdb-apps.outputs.clusterName }}'
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
@@ -64,10 +68,6 @@ jobs:
             --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} \
             --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }}
 
-      - name: Set ${{ matrix.package }}-${{ matrix.platform }} outputs 
-        id: ${{ matrix.package }}-${{ matrix.platform }}
-        run: echo '::set-output name=ClusterName::${{ steps.deploy-mdb-apps.outputs.clusterName }}'
-      
   print-outputs:
     runs-on: ubuntu-latest
     needs:
@@ -110,7 +110,7 @@ jobs:
           projectId: ${{ secrets.ATLAS_QA_PROJECT_ID}}
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: dif${{ matrix.platform }}-${{ matrix.package }}
+          differentiator: dif-${{ matrix.package }}-${{ matrix.platform }}
 
 # Linux jobs
 
