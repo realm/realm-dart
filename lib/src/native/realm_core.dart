@@ -1435,14 +1435,14 @@ class _RealmCore {
 
   int sessionRegisterProgressNotifier(Session session, ProgressDirection direction, ProgressMode mode, SessionProgressNotificationsController controller) {
     final isStreaming = mode == ProgressMode.reportIndefinitely;
-    // TODO: this should use the dart version of this method
-    return _realmLib.realm_sync_session_register_progress_notifier(
+    return _realmLib.realm_dart_sync_session_register_progress_notifier(
       session.handle._pointer,
       Pointer.fromFunction(on_sync_progress),
       direction.index,
       isStreaming,
       controller.toPersistentHandle(),
       _realmLib.addresses.realm_dart_delete_persistent_handle,
+      session.scheduler.handle._pointer,
     );
   }
 
