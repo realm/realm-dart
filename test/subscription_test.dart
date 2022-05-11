@@ -216,6 +216,9 @@ Future<void> main([List<String>? args]) async {
       expect(s, subscriptions[index]);
       ++index;
     }
+
+    expect(() => subscriptions[-1], throws<RangeError>());
+    expect(() => subscriptions[1000], throws<RangeError>());
   });
 
   testSubscriptions('MutableSubscriptionSet.elementAt', (realm) {
