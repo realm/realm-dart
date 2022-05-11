@@ -108,7 +108,7 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.find(query), isNotNull);
   });
 
-  testSubscriptions('SubscriptionSet.find (named)', (realm) {
+  testSubscriptions('SubscriptionSet.findByName', (realm) {
     final subscriptions = realm.subscriptions;
 
     const name = 'some name';
@@ -129,13 +129,30 @@ Future<void> main([List<String>? args]) async {
     });
     expect(subscriptions, isNotEmpty);
 
+    final s = subscriptions[0];
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.remove(s);
+    });
+    expect(subscriptions, isEmpty);
+  });
+
+  testSubscriptions('MutableSubscriptionSet.removeByQuery', (realm) {
+    final subscriptions = realm.subscriptions;
+    final query = realm.all<Task>();
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(query);
+    });
+    expect(subscriptions, isNotEmpty);
+
     subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.removeByQuery(query);
     });
     expect(subscriptions, isEmpty);
   });
 
-  testSubscriptions('MutableSubscriptionSet.remove (named)', (realm) {
+  testSubscriptions('MutableSubscriptionSet.removeByName', (realm) {
     final subscriptions = realm.subscriptions;
 
     const name = 'some name';

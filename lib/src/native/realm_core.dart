@@ -261,9 +261,9 @@ class _RealmCore {
 
   SubscriptionHandle? findSubscriptionByQuery(SubscriptionSet subscriptions, RealmResults query) {
     return _realmLib
-        .realm_sync_find_subscription_by_query(
+        .realm_sync_find_subscription_by_results(
           subscriptions.handle._pointer,
-          query.queryHandle._pointer,
+          query.handle._pointer,
         )
         .convert(SubscriptionHandle._);
   }
@@ -314,9 +314,9 @@ class _RealmCore {
     return using((arena) {
       final out_index = arena<IntPtr>();
       final out_inserted = arena<Uint8>();
-      _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_insert_or_assign_query(
+      _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_insert_or_assign_results(
             subscriptions.handle._mutablePointer,
-            query.queryHandle._pointer,
+            query.handle._pointer,
             name?.toUtf8Ptr(arena) ?? nullptr,
             out_index,
             out_inserted,
@@ -325,11 +325,7 @@ class _RealmCore {
     });
   }
 
-  String describeQuery(RealmResults query) {
-    return _realmLib.realm_query_get_description(query.queryHandle._pointer).cast<Utf8>().toDartString();
-  }
-
-  bool eraseSubscription(MutableSubscriptionSet subscriptions, Subscription subscription) {
+  bool eraseSubscriptionById(MutableSubscriptionSet subscriptions, Subscription subscription) {
     return using((arena) {
       final out_found = arena.allocate<Uint8>(1);
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_id(
@@ -353,12 +349,12 @@ class _RealmCore {
     });
   }
 
-  bool eraseSubscriptionByQuery(MutableSubscriptionSet subscriptions, RealmResults query) {
+  bool eraseSubscriptionByQuery(MutableSubscriptionSet subscriptions, RealmResults results) {
     return using((arena) {
       final out_found = arena.allocate<Uint8>(1);
-      _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_query(
+      _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_results(
             subscriptions.handle._mutablePointer,
-            query.queryHandle._pointer,
+            results.handle._pointer,
             out_found,
           ));
       return out_found.value != 0;
