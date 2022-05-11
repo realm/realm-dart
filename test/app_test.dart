@@ -72,11 +72,6 @@ Future<void> main([List<String>? args]) async {
     expect(users.isEmpty, true);
   });
 
-  baasTest('App log out no current user is no operation and does not crash', (configuration) async {
-    final app = App(configuration);
-    await app.currentUser?.logOut();
-  });
-
   baasTest('App log out user', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
