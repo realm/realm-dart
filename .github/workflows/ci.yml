@@ -296,7 +296,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: false
-      
+
       - uses: realm/ci-actions/mdb-realm/deployApps@fac1d6958f03d71de743305ce3ab27594efbe7b7
         id: deploy-mdb-apps
         with:
@@ -306,12 +306,12 @@ jobs:
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
           differentiator: dart-windows
-      
+
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
           sdk: stable
-      
+
       - name: Deploy Apps
         run: |
           dart run realm_dart deploy-apps \
@@ -357,7 +357,7 @@ jobs:
           name: librealm-windows
           path: binary/windows/**
           retention-days: 1
-  
+
   cleanup-windows:
     runs-on: ubuntu-latest
     name: Cleanup Windows

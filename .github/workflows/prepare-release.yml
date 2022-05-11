@@ -16,31 +16,33 @@ jobs:
 
       - name: Update Changelog
         id: update-changelog
-        uses: realm/ci-actions/update-changelog@dac063f8ebd86c201590d07536d6f56f86f66ba9
+        uses: realm/ci-actions/update-changelog@92b1c91f266809c4374947b8846c09c9049b6f3d
         with:
           changelog: ${{ github.workspace }}/CHANGELOG.md
+          version-suffix: '+alpha'
+
 
       - name: Update pubspec.yaml
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
           find: 'version: .*'
-          replace: 'version: ${{ steps.update-changelog.outputs.new-version }}+alpha'
-          include: '**/pubspec.yaml'
+          replace: 'version: ${{ steps.update-changelog.outputs.new-version }}'
+          include: '**pubspec.yaml'
 
       - name: Update realm.podspec
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
           find: "  s.version(\\s+)= '[^']*'"
-          replace: "  s.version$1= '${{ steps.update-changelog.outputs.new-version }}+alpha'"
-          include: '**/realm.podspec'
+          replace: "  s.version$1= '${{ steps.update-changelog.outputs.new-version }}'"
+          include: '**realm.podspec'
 
       - name: Update realm_core.libraryVersion
         id: update-library-version
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
           find: "  String get libraryVersion => '[^']*';"
-          replace: "  String get libraryVersion => '${{ steps.update-changelog.outputs.new-version }}+alpha';"
-          include: '**/realm_core.dart'
+          replace: "  String get libraryVersion => '${{ steps.update-changelog.outputs.new-version }}';"
+          include: '**realm_core.dart'
 
       - name: Make sure we updated libraryVersion
         run: |
