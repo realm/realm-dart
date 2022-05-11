@@ -38,6 +38,7 @@ enum MetadataPersistenceMode {
 
 /// Specifies the criticality level above which messages will be logged
 /// by the default sync client logger.
+/// {@category Application}
 enum LogLevel {
   /// Log everything. This will seriously harm the performance of the
   /// sync client and should never be used in production scenarios.
@@ -71,7 +72,30 @@ enum LogLevel {
   off,
 }
 
+/// Enum describing what should happen in case of a Client Resync.
+///
+/// A Client Resync is triggered if the device and server cannot agree
+/// on a common shared history for the Realm file,
+/// thus making it impossible for the device to upload or receive any changes.
+/// This can happen if the server is rolled back or restored from backup.
+/// {@category Application}
+enum ClientResyncMode {
+  /// A manual Client Resync is also known as a Client Reset.
+  ///
+  /// A ``ClientResetRequiredError` will be sent to `SyncSession.ErrorHandler.onError(SyncSession, ObjectServerError)`,
+  /// triggering a Client Reset. Doing this provides a handle to both the old and new Realm file,
+  /// enabling full control of which changes to move, if any.
+  /// This is the only supported mode for Query-based Realms.
+  Manual,
+
+  /// The local Realm will be discarded and replaced with the server side Realm.
+  /// All local changes will be lost.
+  /// This mode is not yet supported by Query-based Realms.
+  DiscardLocal,
+}
+
 @immutable
+
 /// A class exposing configuration options for an [App]
 /// {@category Application}
 class AppConfiguration {
@@ -110,15 +134,22 @@ class AppConfiguration {
   /// Enumeration that specifies how and if logged-in User objects are persisted across application launches.
   final MetadataPersistenceMode metadataPersistenceMode;
 
-  /// Gets or sets the [LogLevel] for sync operations.
-  late LogLevel logLevel;
-
   /// The encryption key to use for user metadata on this device, if [metadataPersistenceMode] is
   /// [MetadataPersistenceMode.encrypted].
   ///
   /// The [metadataEncryptionKey] must be exactly 64 bytes.
   /// Setting this will not change the encryption key for individual Realms, which is set in the [Configuration].
   final List<int>? metadataEncryptionKey;
+
+  /// The [LogLevel] for sync operations.
+  final LogLevel logLevel;
+
+  /// The default HTTP request timeout in milliseconds.
+  final int requestTimeout;
+
+  /// Value of [ClientResyncMode] describing what should happen in case of a Client Resync.
+  /// Default value is [ClientResyncMode.Manual].
+  final ClientResyncMode clientResyncMode;
 
   /// The [HttpClient] that will be used for HTTP requests during authentication.
   ///
@@ -138,6 +169,9 @@ class AppConfiguration {
     this.localAppVersion,
     this.metadataEncryptionKey,
     this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
+    this.logLevel = LogLevel.error,
+    this.requestTimeout = 0,
+    this.clientResyncMode = ClientResyncMode.Manual,
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
         baseFilePath = baseFilePath ?? Directory(Configuration.filesPath),
@@ -178,7 +212,7 @@ class App {
   }
 
   /// Removes the user's local credentials. This will also close any associated Sessions.
-  /// 
+  ///
   /// If [user] is null logs out [currentUser] if it exists.
   Future<void> logout([User? user]) async {
     return await realmCore.logOut(this, user);
@@ -188,7 +222,7 @@ class App {
   Future<void> removeUser(User user) async {
     return await realmCore.removeUser(this, user);
   }
-  
+
   /// Switches the [currentUser] to the one specified in [user].
   void switchUser(User user) {
     realmCore.switchUser(this, user);

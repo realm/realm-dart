@@ -837,6 +837,11 @@ class _RealmCore {
       _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toUtf8Ptr(arena));
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
       _realmLib.realm_sync_client_config_set_log_level(handle._pointer, configuration.logLevel.index);
+      if (configuration.requestTimeout > 0) {
+        _realmLib.realm_sync_client_config_set_connect_timeout(handle._pointer, configuration.requestTimeout);
+      }
+
+      //_realmLib.realm_sync_config_set_resync_mode(handle._pointer, configuration.clientResyncMode.index);
 
       if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
         _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
