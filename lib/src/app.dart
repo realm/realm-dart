@@ -36,6 +36,41 @@ enum MetadataPersistenceMode {
   disabled,
 }
 
+/// Specifies the criticality level above which messages will be logged
+/// by the default sync client logger.
+enum LogLevel {
+  /// Log everything. This will seriously harm the performance of the
+  /// sync client and should never be used in production scenarios.
+  all,
+
+  /// A version of 'debug' that allows for very high volume output.
+  /// This may seriously affect the performance of the sync client.
+  trace,
+
+  /// Reveal information that can aid debugging, no longer paying
+  /// attention to efficiency.
+  debug,
+
+  /// Same as 'Info', but prioritize completeness over minimalism.
+  detail,
+
+  /// Log operational sync client messages, but in a minimalistic fashion to
+  /// avoid general overhead from logging and to keep volume down.
+  info,
+
+  /// Log errors and warnings.
+  warn,
+
+  /// Log errors only.
+  error,
+
+  /// Log only fatal errors.
+  fatal,
+
+  /// Log nothing.
+  off,
+}
+
 @immutable
 
 /// A class exposing configuration options for an [App]
@@ -75,6 +110,9 @@ class AppConfiguration {
 
   /// Enumeration that specifies how and if logged-in User objects are persisted across application launches.
   final MetadataPersistenceMode metadataPersistenceMode;
+
+  /// Gets or sets the [LogLevel] for sync operations.
+  final LogLevel logLevel;
 
   /// The encryption key to use for user metadata on this device, if [metadataPersistenceMode] is
   /// [MetadataPersistenceMode.encrypted].
