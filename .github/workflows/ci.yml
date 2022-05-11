@@ -74,7 +74,8 @@ jobs:
     needs:
       - baas_matrix
     steps:
-      - env:
+      - name: baas-outputs 
+        env:
           NEEDS: ${{ toJSON(needs) }}
         run: echo "$NEEDS"
 
