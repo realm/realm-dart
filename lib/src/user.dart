@@ -105,7 +105,7 @@ class User {
   /// ```
   Future<User> linkCredentials(Credentials credentials) async {
     final userHandle = await realmCore.userLinkCredentials(app, this, credentials);
-    return UserInternal.create(app, userHandle);
+    return UserInternal.create(userHandle, app: app);
   }
 
   @override
@@ -186,5 +186,9 @@ extension UserIdentityInternal on UserIdentity {
 extension UserInternal on User {
   UserHandle get handle => _handle;
 
-  static User create(App app, UserHandle handle) => User._(app, handle);
+  static User create(UserHandle handle, {App? app}) {
+    app ??= AppInternal.create(realmCore.userGetApp(handle));
+
+    return User._(app, handle);
+  }
 }

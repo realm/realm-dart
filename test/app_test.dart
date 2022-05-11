@@ -101,8 +101,7 @@ test('AppConfiguration can be created with defaults', () {
 
   test('App can be created', () async {
     final configuration = AppConfiguration(generateRandomString(10));
-    final app = App(configuration);
-    expect(app.configuration, configuration);
+    App(configuration);
   });
 
   baasTest('App log in', (configuration) async {
@@ -163,7 +162,7 @@ test('AppConfiguration can be created with defaults', () {
 
     final user1 = await app.logIn(Credentials.anonymous());
     expect(app.currentUser, user1);
-    
+
     final user2 = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
 
     expect(app.currentUser, user2);

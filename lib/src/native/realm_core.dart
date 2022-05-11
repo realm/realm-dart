@@ -35,6 +35,7 @@ import '../realm_object.dart';
 import '../results.dart';
 import '../subscription.dart';
 import '../user.dart';
+import '../session.dart';
 import 'realm_bindings.dart';
 
 late RealmLibrary _realmLib;
@@ -1341,6 +1342,11 @@ class _RealmCore {
     return userId;
   }
 
+  AppHandle userGetApp(UserHandle userHandle) {
+    // TODO: we don't have an API to get the app for a user - https://github.com/realm/realm-core/issues/5478
+    return AppHandle._(nullptr);
+  }
+
   List<UserIdentity> userGetIdentities(User user) {
     return using((arena) {
       //TODO: This approach is prone to race conditions. Fix this once Core changes how count is retrieved.
@@ -1381,6 +1387,106 @@ class _RealmCore {
     final data = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_profile_data(user.handle._pointer));
     final dynamic profileData = jsonDecode(data.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!);
     return UserProfile(profileData as Map<String, dynamic>);
+  }
+
+  SessionHandle realmGetSession(Realm realm) {
+    return SessionHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_session_get(realm.handle._pointer)));
+  }
+
+  String sessionGetPath(Session session) {
+    return _realmLib.realm_sync_session_get_file_path(session.handle._pointer).cast<Utf8>().toRealmDartString()!;
+  }
+
+  SessionState sessionGetState(Session session) {
+    final value = _realmLib.realm_sync_session_get_state(session.handle._pointer);
+    return _convertCoreSessionState(value);
+  }
+
+  ConnectionState sessionGetConnectionState(Session session) {
+    final value = _realmLib.realm_sync_session_get_connection_state(session.handle._pointer);
+    return ConnectionState.values[value];
+  }
+
+  UserHandle sessionGetUser(Session session) {
+    return UserHandle._(_realmLib.realm_sync_session_get_user(session.handle._pointer));
+  }
+
+  SessionState _convertCoreSessionState(int value) {
+    switch (value) {
+      case 0: // RLM_SYNC_SESSION_STATE_ACTIVE
+      case 1: // RLM_SYNC_SESSION_STATE_DYING
+        return SessionState.active;
+      case 2: // RLM_SYNC_SESSION_STATE_INACTIVE
+      case 3: // RLM_SYNC_SESSION_STATE_WAITING_FOR_ACCESS_TOKEN
+        return SessionState.inactive;
+      default:
+        throw Exception("Unexpected SessionState: $value");
+    }
+  }
+
+  void sessionPause(Session session) {
+    _realmLib.realm_sync_session_pause(session.handle._pointer);
+  }
+
+  void sessionResume(Session session) {
+    _realmLib.realm_sync_session_resume(session.handle._pointer);
+  }
+
+  int sessionRegisterProgressNotifier(Session session, ProgressDirection direction, ProgressMode mode, SessionProgressNotificationsController controller) {
+    final isStreaming = mode == ProgressMode.reportIndefinitely;
+    // TODO: this should use the dart version of this method
+    return _realmLib.realm_sync_session_register_progress_notifier(session.handle._pointer, Pointer.fromFunction(on_sync_progress), direction.index,
+        isStreaming, controller.toPersistentHandle(), _deletePersistentHandleFuncPtr);
+  }
+
+  void sessionUnregisterProgressNotifier(Session session, int token) {
+    _realmLib.realm_sync_session_unregister_progress_notifier(session.handle._pointer, token);
+  }
+
+  static void on_sync_progress(Pointer<Void> userdata, int transferred, int transferable) {
+    final SessionProgressNotificationsController? controller = userdata.toObject(isPersistent: true);
+    if (controller == null) {
+      return;
+    }
+
+    controller.onProgress(transferred, transferable);
+  }
+
+  Future<void> sessionWaitForUpload(Session session) {
+    final completer = Completer<void>();
+    _realmLib.realm_dart_sync_session_wait_for_upload_completion(
+      session.handle._pointer,
+      Pointer.fromFunction(_waitCompletionCallback),
+      completer.toPersistentHandle(),
+      _deletePersistentHandleFuncPtr,
+      session.scheduler.handle._pointer,
+    );
+    return completer.future;
+  }
+
+  Future<void> sessionWaitForDownload(Session session) {
+    final completer = Completer<void>();
+    _realmLib.realm_dart_sync_session_wait_for_download_completion(
+      session.handle._pointer,
+      Pointer.fromFunction(_waitCompletionCallback),
+      completer.toPersistentHandle(),
+      _deletePersistentHandleFuncPtr,
+      session.scheduler.handle._pointer,
+    );
+    return completer.future;
+  }
+
+  static void _waitCompletionCallback(Pointer<Void> userdata, Pointer<realm_sync_error_code_t> errorCode) {
+    final completer = userdata.toObject<Completer<void>>(isPersistent: true);
+    if (completer == null) {
+      return;
+    }
+
+    if (errorCode != nullptr) {
+      completer.completeError(errorCode.toSyncError());
+    } else {
+      completer.complete();
+    }
   }
 }
 
@@ -1521,6 +1627,10 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
   MutableSubscriptionSetHandle._(Pointer<realm_flx_sync_mutable_subscription_set> pointer) : super._(pointer.cast());
 
   Pointer<realm_flx_sync_mutable_subscription_set> get _mutablePointer => super._pointer.cast();
+}
+
+class SessionHandle extends ReleasableHandle<realm_sync_session_t> {
+  SessionHandle._(Pointer<realm_sync_session_t> pointer) : super(pointer, 24); // TODO: what is the size?
 }
 
 extension on List<int> {
@@ -1728,6 +1838,13 @@ extension on Pointer<Utf8> {
         _realmLib.realm_free(cast());
       }
     }
+  }
+}
+
+extension on Pointer<realm_sync_error_code_t> {
+  SyncError toSyncError() {
+    final message = ref.message.cast<Utf8>().toRealmDartString()!;
+    return SyncError(message, SyncErrorCategory.values[ref.category], ref.value);
   }
 }
 
