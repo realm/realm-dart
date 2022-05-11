@@ -15,15 +15,16 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
 import 'dart:async';
 import 'dart:io';
 
 import 'package:meta/meta.dart';
+import 'package:path/path.dart' as path;
 import 'package:test/expect.dart';
 
 import '../lib/realm.dart';
 import '../lib/src/configuration.dart';
+import '../lib/src/native/realm_core.dart';
 import 'test.dart';
 
 @isTest
@@ -323,7 +324,48 @@ Future<void> main([List<String>? args]) async {
       mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [ObjectId()]), name: 'foobar', update: true);
     });
 
-    s = subscriptions[0]; // WARNING: Needed in order to refresh properties! 
+    s = subscriptions[0]; // WARNING: Needed in order to refresh properties!
     expect(s.createdAt.isBefore(s.updatedAt), isTrue);
+  });
+
+  baasTest('flexible sync roundtrip', (appConfigurationX) async {
+    final appX = App(appConfigurationX);
+    
+    realmCore.clearCachedApps();
+    final temporaryDir = await Directory.systemTemp.createTemp('realm_test_Y_');
+    final appConfigurationY = AppConfiguration(
+      appConfigurationX.appId,
+      baseUrl: appConfigurationX.baseUrl,
+      baseFilePath: temporaryDir,
+    );
+    final appY = App(appConfigurationY);
+
+    final credentials = Credentials.anonymous();
+    final userX = await appX.logIn(credentials);
+    final userY = await appY.logIn(credentials);
+
+    final realmX = getRealm(Configuration.flexibleSync(userX, [Task.schema]));
+    final pathY = path.join(temporaryDir.path, "Y.realm");
+    final realmY = getRealm(Configuration.flexibleSync(userY, [Task.schema], path: pathY)); // TODO: Why do I need to set path here?
+
+    realmX.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realmX.all<Task>());
+    });
+
+    final oid = ObjectId();
+    realmX.write(() => realmX.add(Task(oid)));
+
+    realmY.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realmY.all<Task>());
+    });
+
+    await realmX.subscriptions.waitForSynchronization();
+    await realmY.subscriptions.waitForSynchronization();
+
+    // TODO: Missing sync session wait methods here, so just add big timeout for now
+    await Future<void>.delayed(const Duration(seconds: 2));
+
+    final t = realmY.find<Task>(oid);
+    expect(t, isNotNull);
   });
 }
