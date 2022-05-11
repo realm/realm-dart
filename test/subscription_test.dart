@@ -17,6 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
@@ -196,10 +198,8 @@ Future<void> main([List<String>? args]) async {
     for (final s in subscriptions) {
       expect(s, s);
       expect(subscriptions[index], isNotNull);
-      /* TODO: Not posible yet, due to C-API
       expect(subscriptions[index], subscriptions[index]);
       expect(s, subscriptions[index]);
-      */
       ++index;
     }
   });
@@ -212,7 +212,7 @@ Future<void> main([List<String>? args]) async {
       expect(mutableSubscriptions[0], isNotNull);
       expect(s, isNotNull);
       expect(mutableSubscriptions.state, SubscriptionSetState.pending); // not _uncommitted!
-      // expect(mutableSubscriptions[0], s); // TODO: Not posible yet, due to C-API
+      expect(mutableSubscriptions[0], s);
     });
   });
 
@@ -259,6 +259,35 @@ Future<void> main([List<String>? args]) async {
     });
 
     expect(subscriptions.length, 2);
+  });
+
+  testSubscriptions('MutableSubscriptionSet.add multiple queries for same class', (realm) {
+    final subscriptions = realm.subscriptions;
+    final r = Random.secure();
+
+    Uint8List randomBytes(int n) {
+      final Uint8List random = Uint8List(n);
+      for (int i = 0; i < random.length; i++) {
+        random[i] = r.nextInt(255);
+      }
+      return random;
+    }
+
+    ObjectId newOid() => ObjectId.fromBytes(randomBytes(12));
+
+    final oids = <ObjectId>{};
+    const max = 1000;
+    subscriptions.update((mutableSubscriptions) {
+      oids.addAll([
+        for (int i = 0; i < max; ++i) mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [newOid()])).id
+      ]);
+    });
+    expect(oids.length, max); // no collisions
+    expect(subscriptions.length, max);
+
+    for (final s in subscriptions) {
+      expect(s.id, isIn(oids));
+    }
   });
 
   testSubscriptions('Get subscriptions', (realm) async {
@@ -330,7 +359,7 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('flexible sync roundtrip', (appConfigurationX) async {
     final appX = App(appConfigurationX);
-    
+
     realmCore.clearCachedApps();
     final temporaryDir = await Directory.systemTemp.createTemp('realm_test_Y_');
     final appConfigurationY = AppConfiguration(
