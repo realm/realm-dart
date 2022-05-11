@@ -196,7 +196,7 @@ Future<void> main([List<String>? args]) async {
     for (final s in subscriptions) {
       expect(s, s);
       expect(subscriptions[index], isNotNull);
-      /* TODO: Not posible yet
+      /* TODO: Not posible yet, due to C-API
       expect(subscriptions[index], subscriptions[index]);
       expect(s, subscriptions[index]);
       */
@@ -211,8 +211,8 @@ Future<void> main([List<String>? args]) async {
       final s = mutableSubscriptions.add(realm.all<Task>());
       expect(mutableSubscriptions[0], isNotNull);
       expect(s, isNotNull);
-      expect(mutableSubscriptions.state, SubscriptionSetState.uncommitted);
-      // expect(mutableSubscriptions[0], s); // TODO: Not posible yet
+      expect(mutableSubscriptions.state, SubscriptionSetState.pending); // not _uncommitted!
+      // expect(mutableSubscriptions[0], s); // TODO: Not posible yet, due to C-API
     });
   });
 
