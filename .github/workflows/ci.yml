@@ -83,7 +83,7 @@ jobs:
     strategy:
       matrix:
         package: [flutter]
-        platform: [linux, windows, macos, ios, android]
+        platform: [linux, windows, macos]
         include:
           - platform: linux
             package: dart
@@ -101,7 +101,6 @@ jobs:
       - tests-windows
       - flutter-windows
       - flutter-ios
-      - flutter-android
     if: always()
     timeout-minutes: 5
     steps:
@@ -113,6 +112,40 @@ jobs:
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
           differentiator: dif-${{ matrix.package }}-${{ matrix.platform }}
+
+  cleanup-ios:
+    runs-on: ubuntu-latest
+    name: Cleanup flutter for ios
+    needs:
+      - flutter-ios
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - uses: realm/ci-actions/mdb-realm/cleanup@fac1d6958f03d71de743305ce3ab27594efbe7b7
+        with:
+          realmUrl: ${{ secrets.REALM_QA_URL }}
+          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID}}
+          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
+          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+          differentiator: dif-flutter-ios
+
+  cleanup-android:
+    runs-on: ubuntu-latest
+    name: Cleanup flutter for android
+    needs:
+      - flutter-android
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - uses: realm/ci-actions/mdb-realm/cleanup@fac1d6958f03d71de743305ce3ab27594efbe7b7
+        with:
+          realmUrl: ${{ secrets.REALM_QA_URL }}
+          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID}}
+          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
+          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+          differentiator: dif-flutter-android
 
 # Linux jobs
 
