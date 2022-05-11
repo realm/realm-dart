@@ -43,7 +43,7 @@ class User {
     if (data == null) {
       return null;
     }
-    
+
     return jsonDecode(data);
   }
 
@@ -58,7 +58,7 @@ class User {
   /// Linking a user with more credentials, mean the user can login either of these credentials. It also makes it possible to "upgrade" an anonymous user
   /// by linking it with e.g. Email/Password credentials.
   /// *Note: It is not possible to link two existing users of MongoDB Realm. The provided credentials must not have been used by another user.*
-  /// 
+  ///
   /// The following snippet shows how to associate an email and password with an anonymous user allowing them to login on a different device.
   /// ```dart
   ///  final app = App(configuration);
@@ -72,7 +72,7 @@ class User {
   /// ```
   Future<User> linkCredentials(Credentials credentials) async {
     final userHandle = await realmCore.userLinkCredentials(app, this, credentials);
-    return UserInternal.create(app, userHandle);
+    return UserInternal.create(userHandle, app: app);
   }
 
   /// The current state of this [User].
@@ -136,5 +136,9 @@ extension UserIdentityInternal on UserIdentity {
 extension UserInternal on User {
   UserHandle get handle => _handle;
 
-  static User create(App app, UserHandle handle) => User._(app, handle);
+  static User create(UserHandle handle, {App? app}) {
+    app ??= AppInternal.create(realmCore.userGetApp(handle));
+
+    return User._(app, handle);
+  }
 }

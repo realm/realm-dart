@@ -29,6 +29,7 @@ import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'results.dart';
 import 'subscription.dart';
+import 'session.dart';
 
 export 'package:realm_common/realm_common.dart'
     show
@@ -37,6 +38,8 @@ export 'package:realm_common/realm_common.dart'
         MapTo,
         PrimaryKey,
         RealmError,
+        SyncError,
+        SyncErrorCategory,
         RealmModel,
         RealmUnsupportedSetError,
         RealmStateError,
@@ -65,6 +68,7 @@ export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState;
+export 'session.dart' show Session, SessionState, ConnectionState;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -221,6 +225,12 @@ class Realm {
   /// All [RealmObject]s and `Realm ` collections are invalidated and can not be used.
   /// This method will not throw if called multiple times.
   void close() {
+    _syncSession?.handle.release();
+    _syncSession = null;
+
+    _subscriptions?.handle.release();
+    _subscriptions = null;
+
     realmCore.closeRealm(this);
     _scheduler.stop();
   }
@@ -276,12 +286,25 @@ class Realm {
 
   SubscriptionSet? _subscriptions;
 
-  /// The active [subscriptions] for this [Realm]
+  /// The active [SubscriptionSet] for this [Realm]
   SubscriptionSet get subscriptions {
     if (config is! FlexibleSyncConfiguration) throw RealmError('subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration');
     _subscriptions ??= SubscriptionSetInternal.create(this, realmCore.getSubscriptions(this));
     realmCore.refreshSubscriptionSet(_subscriptions!);
     return _subscriptions!;
+  }
+
+  Session? _syncSession;
+
+  /// The [Session] for this [Realm]. The sync session is responsible for two-way synchronization
+  /// with MongoDB Atlas. If the [Realm] was is not synchronized, accessing this property will throw.
+  Session get syncSession {
+    if (config is! FlexibleSyncConfiguration) {
+      throw RealmError('session is only valid on synchronized Realms (i.e. opened with FlexibleSyncConfiguration)');
+    }
+
+    _syncSession ??= SessionInternal.create(realmCore.realmGetSession(this), scheduler);
+    return _syncSession!;
   }
 
   @override

@@ -63,7 +63,7 @@ enum RealmCollectionType {
 class RealmError extends Error {
   final String? message;
   RealmError(String this.message);
-  
+
   @override
   String toString() => "Realm error : $message";
 }
@@ -77,6 +77,36 @@ class RealmUnsupportedSetError extends UnsupportedError implements RealmError {
 /// Thrown if the Realm operation is not allowed by the current state of the object.
 class RealmStateError extends StateError implements RealmError {
   RealmStateError(String message) : super(message);
+}
+
+/// Thrown or reporeted if an error occurs during synchronization
+/// {@category Sync}
+class SyncError extends RealmError {
+  /// The code of the error
+  final int code; // TODO: this should be an enum
+
+  /// The category of the error
+  final SyncErrorCategory category;
+
+  SyncError(String message, this.category, this.code) : super(message);
+}
+
+/// The category of a [SyncError].
+enum SyncErrorCategory {
+  /// The error originated from the client
+  client,
+
+  /// The error originated from the connection
+  connection,
+
+  /// The error originated from the session
+  session,
+
+  /// Another low-level system error occurred
+  system,
+
+  /// The category is unknown
+  unknown,
 }
 
 /// @nodoc
