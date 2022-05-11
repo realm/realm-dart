@@ -25,14 +25,14 @@ jobs:
     runs-on: ubuntu-latest
     name: BaaS ${{ matrix.platform }} for ${{ matrix.package }}
     outputs:
-      dart-linux-clusterName: ${{ steps.dart-linux.outputs.ClusterName }}
-      dart-windows-clusterName: ${{ steps.dart-windows.outputs.ClusterName }}
-      dart-macos-clusterName: ${{ steps.dart-macos.outputs.ClusterName }}
-      flutter-linux-clusterName: ${{ steps.flutter-linux.outputs.ClusterName }}
-      flutter-windows-clusterName: ${{ steps.flutter-windows.outputs.ClusterName }}
-      flutter-macos-clusterName: ${{ steps.flutter-macos.outputs.ClusterName }}
-      flutter-ios-clusterName: ${{ steps.flutter-ios.outputs.ClusterName }}
-      flutter-android-clusterName: ${{ steps.flutter-android.outputs.ClusterName }}
+      dart-linux-clusterName: ${{ steps.set-output.outputs.dart-linux-clusterName }}
+      dart-windows-clusterName: ${{ steps.set-output..outputs.dart-windows-clusterName }}
+      dart-macos-clusterName: ${{ steps.set-output.outputs.dart-macos-clusterName }}
+      flutter-linux-clusterName: ${{ steps.set-output..outputs.flutter-linux-clusterName }}
+      flutter-windows-clusterName: ${{ steps.set-output.outputs.flutter-windows-clusterName }}
+      flutter-macos-clusterName: ${{ steps.set-output.outputs.flutter-macos-clusterName }}
+      flutter-ios-clusterName: ${{ steps.set-output.outputs.flutter-ios-clusterName }}
+      flutter-android-clusterName: ${{ steps.set-output.outputs.flutter-android-clusterName }}
     timeout-minutes: 20
     steps:
       - name: Checkout
@@ -51,8 +51,8 @@ jobs:
           differentiator: dif-${{ matrix.package }}-${{ matrix.platform }}
       
       - name: Set ${{ matrix.package }}-${{ matrix.platform }} outputs
-        id: dart-linux
-        run: echo '::set-output name=ClusterName::${{ steps.deploy-mdb-apps.outputs.clusterName }}'
+        id: set-output
+        run: echo '::set-output name= ${{ matrix.package }}-${{ matrix.platform }}-clusterName::${{ steps.deploy-mdb-apps.outputs.clusterName }}'
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
@@ -151,7 +151,7 @@ jobs:
     name: Tests Linux
     env:
       BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.dart-linux-clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
       BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
@@ -186,7 +186,7 @@ jobs:
     name: Flutter Tests Linux
     env:
       BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-linux-clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
       BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
@@ -277,7 +277,7 @@ jobs:
     name: Tests macOS
     env:
       BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.dart-macos-clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
       BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
@@ -312,7 +312,7 @@ jobs:
     name: Flutter Tests macOS
     env:
       BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-macos-clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
       BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
@@ -390,7 +390,7 @@ jobs:
     name: Tests Windows
     env:
       BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.dart-windows-clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
       BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
@@ -427,7 +427,7 @@ jobs:
     name: Flutter Tests Windows
     env:
       BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-windows-clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
       BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
@@ -511,7 +511,7 @@ jobs:
     name: Flutter Tests iOS
     env:
       BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-ios-clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
       BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
@@ -596,7 +596,7 @@ jobs:
     name: Flutter Tests Android
     env:
       BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-android-clusterName }}
       BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
       BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
       BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
