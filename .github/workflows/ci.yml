@@ -25,7 +25,14 @@ jobs:
     runs-on: ubuntu-latest
     name: BaaS ${{ matrix.platform }} for ${{ matrix.package }}
     outputs:
-      clusterName: ${{ steps.deploy-mdb-apps.outputs.clusterName }}
+      dart-linux-clusterName: ${{ steps.dart-linux.outputs.ClusterName }}
+      dart-windows-clusterName: ${{ steps.dart-windows.outputs.ClusterName }}
+      dart-macos-clusterName: ${{ steps.dart-macos.outputs.ClusterName }}
+      flutter-linux-clusterName: ${{ steps.flutter-linux.outputs.ClusterName }}
+      flutter-windows-clusterName: ${{ steps.flutter-windows.outputs.ClusterName }}
+      flutter-macos-clusterName: ${{ steps.flutter-macos.outputs.ClusterName }}
+      flutter-ios-clusterName: ${{ steps.flutter-ios.outputs.ClusterName }}
+      flutter-android-clusterName: ${{ steps.flutter-android.outputs.ClusterName }}
     timeout-minutes: 20
     steps:
       - name: Checkout
@@ -41,7 +48,7 @@ jobs:
           projectId: ${{ secrets.ATLAS_QA_PROJECT_ID }}
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: ${{ matrix.package }}-${{ matrix.platform }}
+          differentiator: dif${{ matrix.package }}-${{ matrix.platform }}
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
@@ -56,6 +63,18 @@ jobs:
             --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} \
             --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} \
             --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }}
+
+      - id: ${{ matrix.package }}-${{ matrix.platform }}
+        run: echo '::set-output name=ClusterName::${{ steps.deploy-mdb-apps.outputs.clusterName }}'
+      
+  print-outputs:
+    runs-on: ubuntu-latest
+    needs:
+      - baas_matrix
+    steps:
+      - env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: echo "$NEEDS"
 
   cleanup-matrix:
     strategy:
