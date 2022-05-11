@@ -51,7 +51,7 @@ jobs:
           differentiator: dif-${{ matrix.package }}-${{ matrix.platform }}
       
       - name: Set ${{ matrix.package }}-${{ matrix.platform }} outputs
-        id: ${{ matrix.package }}-${{ matrix.platform }}
+        id: dart-linux
         run: echo '::set-output name=ClusterName::${{ steps.deploy-mdb-apps.outputs.clusterName }}'
 
       - name : Setup Dart SDK
