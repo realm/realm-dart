@@ -4,6 +4,10 @@
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
+# Set user_agent explicitly to avoid https://github.com/CocoaPods/CocoaPods/issues/11355
+require 'typhoeus'
+Typhoeus::Config.user_agent = 'CocoaPods'
+
 project 'Runner', {
   'Debug' => :debug,
   'Profile' => :release,
