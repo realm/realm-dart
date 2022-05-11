@@ -25,7 +25,6 @@
 * Support EmailPassword calling custom reset password functions. ([#482](https://github.com/realm/realm-dart/pull/482))
 * Support EmailPassword retry custom user confirmation functions. ([#484](https://github.com/realm/realm-dart/pull/484))
 * Expose currentUser property on App. ([473](https://github.com/realm/realm-dart/pull/473))
-* Support app logout user. ([#476](https://github.com/realm/realm-dart/pull/476))
 * Support remove user. ([#492](https://github.com/realm/realm-dart/pull/492))
 * Support switch current user. ([#493](https://github.com/realm/realm-dart/pull/493))
 * Support user custom data and refresh. ([#525](https://github.com/realm/realm-dart/pull/525))

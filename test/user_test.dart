@@ -33,7 +33,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.anonymous());
     expect(user.state, UserState.loggedIn);
-    await user.logout();
+    await user.logOut();
     expect(user.state, UserState.removed);
   });
 
@@ -41,7 +41,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
     expect(user.state, UserState.loggedIn);
-    await user.logout();
+    await user.logOut();
     expect(user.state, UserState.loggedOut);
   });
 
