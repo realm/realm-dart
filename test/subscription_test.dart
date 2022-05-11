@@ -314,6 +314,20 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions[0], s); // last added wins
   });
 
+  testSubscriptions('MutableSubscriptionSet.add same query, different classes', (realm) {
+    final subscriptions = realm.subscriptions;
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.all<Task>());
+      mutableSubscriptions.add(realm.all<Schedule>());
+    });
+
+    expect(subscriptions.length, 2);
+    for (final s in subscriptions) {
+      expect(s.queryString, 'TRUEPREDICATE');
+    }
+  });
+
   testSubscriptions('Get subscriptions', (realm) async {
     final subscriptions = realm.subscriptions;
 
