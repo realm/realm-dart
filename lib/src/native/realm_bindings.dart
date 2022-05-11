@@ -7358,111 +7358,123 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
-  realm_object_id_t realm_flx_sync_subscription_id(
+  /// Fetch subscription id for the subscription passed as argument.
+  /// @return realm_object_id_t for the subscription passed as argument
+  realm_object_id_t realm_sync_subscription_id(
     ffi.Pointer<realm_flx_sync_subscription_t> subscription,
   ) {
-    return _realm_flx_sync_subscription_id(
+    return _realm_sync_subscription_id(
       subscription,
     );
   }
 
-  late final _realm_flx_sync_subscription_idPtr = _lookup<
+  late final _realm_sync_subscription_idPtr = _lookup<
           ffi.NativeFunction<
               realm_object_id_t Function(
                   ffi.Pointer<realm_flx_sync_subscription_t>)>>(
-      'realm_flx_sync_subscription_id');
-  late final _realm_flx_sync_subscription_id =
-      _realm_flx_sync_subscription_idPtr.asFunction<
+      'realm_sync_subscription_id');
+  late final _realm_sync_subscription_id =
+      _realm_sync_subscription_idPtr.asFunction<
           realm_object_id_t Function(
               ffi.Pointer<realm_flx_sync_subscription_t>)>();
 
-  realm_string_t realm_flx_sync_subscription_name(
+  /// Fetch subscription name for the subscription passed as argument.
+  /// @return realm_string_t which contains the name of the subscription.
+  realm_string_t realm_sync_subscription_name(
     ffi.Pointer<realm_flx_sync_subscription_t> subscription,
   ) {
-    return _realm_flx_sync_subscription_name(
+    return _realm_sync_subscription_name(
       subscription,
     );
   }
 
-  late final _realm_flx_sync_subscription_namePtr = _lookup<
+  late final _realm_sync_subscription_namePtr = _lookup<
           ffi.NativeFunction<
               realm_string_t Function(
                   ffi.Pointer<realm_flx_sync_subscription_t>)>>(
-      'realm_flx_sync_subscription_name');
-  late final _realm_flx_sync_subscription_name =
-      _realm_flx_sync_subscription_namePtr.asFunction<
+      'realm_sync_subscription_name');
+  late final _realm_sync_subscription_name =
+      _realm_sync_subscription_namePtr.asFunction<
           realm_string_t Function(
               ffi.Pointer<realm_flx_sync_subscription_t>)>();
 
-  realm_string_t realm_flx_sync_subscription_object_class_name(
+  /// Fetch object class name for the subscription passed as argument.
+  /// @return a realm_string_t which contains the class name of the subscription.
+  realm_string_t realm_sync_subscription_object_class_name(
     ffi.Pointer<realm_flx_sync_subscription_t> subscription,
   ) {
-    return _realm_flx_sync_subscription_object_class_name(
+    return _realm_sync_subscription_object_class_name(
       subscription,
     );
   }
 
-  late final _realm_flx_sync_subscription_object_class_namePtr = _lookup<
+  late final _realm_sync_subscription_object_class_namePtr = _lookup<
           ffi.NativeFunction<
               realm_string_t Function(
                   ffi.Pointer<realm_flx_sync_subscription_t>)>>(
-      'realm_flx_sync_subscription_object_class_name');
-  late final _realm_flx_sync_subscription_object_class_name =
-      _realm_flx_sync_subscription_object_class_namePtr.asFunction<
+      'realm_sync_subscription_object_class_name');
+  late final _realm_sync_subscription_object_class_name =
+      _realm_sync_subscription_object_class_namePtr.asFunction<
           realm_string_t Function(
               ffi.Pointer<realm_flx_sync_subscription_t>)>();
 
-  realm_string_t realm_flx_sync_subscription_query_string(
+  /// Fetch the query string associated with the subscription passed as argument.
+  /// @return realm_string_t which contains the query associated with the subscription.
+  realm_string_t realm_sync_subscription_query_string(
     ffi.Pointer<realm_flx_sync_subscription_t> subscription,
   ) {
-    return _realm_flx_sync_subscription_query_string(
+    return _realm_sync_subscription_query_string(
       subscription,
     );
   }
 
-  late final _realm_flx_sync_subscription_query_stringPtr = _lookup<
+  late final _realm_sync_subscription_query_stringPtr = _lookup<
           ffi.NativeFunction<
               realm_string_t Function(
                   ffi.Pointer<realm_flx_sync_subscription_t>)>>(
-      'realm_flx_sync_subscription_query_string');
-  late final _realm_flx_sync_subscription_query_string =
-      _realm_flx_sync_subscription_query_stringPtr.asFunction<
+      'realm_sync_subscription_query_string');
+  late final _realm_sync_subscription_query_string =
+      _realm_sync_subscription_query_stringPtr.asFunction<
           realm_string_t Function(
               ffi.Pointer<realm_flx_sync_subscription_t>)>();
 
-  realm_timestamp_t realm_flx_sync_subscription_created_at(
+  /// Fetch the timestamp in which the subscription was created for the subscription passed as argument.
+  /// @return realm_timestamp_t representing the timestamp in which the subscription for created.
+  realm_timestamp_t realm_sync_subscription_created_at(
     ffi.Pointer<realm_flx_sync_subscription_t> subscription,
   ) {
-    return _realm_flx_sync_subscription_created_at(
+    return _realm_sync_subscription_created_at(
       subscription,
     );
   }
 
-  late final _realm_flx_sync_subscription_created_atPtr = _lookup<
+  late final _realm_sync_subscription_created_atPtr = _lookup<
           ffi.NativeFunction<
               realm_timestamp_t Function(
                   ffi.Pointer<realm_flx_sync_subscription_t>)>>(
-      'realm_flx_sync_subscription_created_at');
-  late final _realm_flx_sync_subscription_created_at =
-      _realm_flx_sync_subscription_created_atPtr.asFunction<
+      'realm_sync_subscription_created_at');
+  late final _realm_sync_subscription_created_at =
+      _realm_sync_subscription_created_atPtr.asFunction<
           realm_timestamp_t Function(
               ffi.Pointer<realm_flx_sync_subscription_t>)>();
 
-  realm_timestamp_t realm_flx_sync_subscription_updated_at(
+  /// Fetch the timestamp in which the subscription was updated for the subscription passed as argument.
+  /// @return realm_timestamp_t representing the timestamp in which the subscription was updated.
+  realm_timestamp_t realm_sync_subscription_updated_at(
     ffi.Pointer<realm_flx_sync_subscription_t> subscription,
   ) {
-    return _realm_flx_sync_subscription_updated_at(
+    return _realm_sync_subscription_updated_at(
       subscription,
     );
   }
 
-  late final _realm_flx_sync_subscription_updated_atPtr = _lookup<
+  late final _realm_sync_subscription_updated_atPtr = _lookup<
           ffi.NativeFunction<
               realm_timestamp_t Function(
                   ffi.Pointer<realm_flx_sync_subscription_t>)>>(
-      'realm_flx_sync_subscription_updated_at');
-  late final _realm_flx_sync_subscription_updated_at =
-      _realm_flx_sync_subscription_updated_atPtr.asFunction<
+      'realm_sync_subscription_updated_at');
+  late final _realm_sync_subscription_updated_at =
+      _realm_sync_subscription_updated_atPtr.asFunction<
           realm_timestamp_t Function(
               ffi.Pointer<realm_flx_sync_subscription_t>)>();
 
@@ -7664,30 +7676,6 @@ class RealmLibrary {
           ffi.Pointer<realm_flx_sync_subscription_t> Function(
               ffi.Pointer<realm_flx_sync_subscription_set_t>, int)>();
 
-  /// Find subscription by name
-  /// @return a pointer to the subscription with the name passed as parameter
-  ffi.Pointer<realm_flx_sync_subscription_t>
-      realm_sync_find_subscription_by_name(
-    ffi.Pointer<realm_flx_sync_subscription_set_t> arg0,
-    ffi.Pointer<ffi.Int8> name,
-  ) {
-    return _realm_sync_find_subscription_by_name(
-      arg0,
-      name,
-    );
-  }
-
-  late final _realm_sync_find_subscription_by_namePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_flx_sync_subscription_t> Function(
-              ffi.Pointer<realm_flx_sync_subscription_set_t>,
-              ffi.Pointer<ffi.Int8>)>>('realm_sync_find_subscription_by_name');
-  late final _realm_sync_find_subscription_by_name =
-      _realm_sync_find_subscription_by_namePtr.asFunction<
-          ffi.Pointer<realm_flx_sync_subscription_t> Function(
-              ffi.Pointer<realm_flx_sync_subscription_set_t>,
-              ffi.Pointer<ffi.Int8>)>();
-
   /// Find subscription associated to the query passed as parameter
   /// @return a pointer to the subscription or nullptr if not found
   ffi.Pointer<realm_flx_sync_subscription_t>
@@ -7712,6 +7700,55 @@ class RealmLibrary {
           ffi.Pointer<realm_flx_sync_subscription_t> Function(
               ffi.Pointer<realm_flx_sync_subscription_set_t>,
               ffi.Pointer<realm_query_t>)>();
+
+  /// Find subscription associated to the results set  passed as parameter
+  /// @return a pointer to the subscription or nullptr if not found
+  ffi.Pointer<realm_flx_sync_subscription_t>
+      realm_sync_find_subscription_by_results(
+    ffi.Pointer<realm_flx_sync_subscription_set_t> arg0,
+    ffi.Pointer<realm_results_t> arg1,
+  ) {
+    return _realm_sync_find_subscription_by_results(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_sync_find_subscription_by_resultsPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_flx_sync_subscription_t> Function(
+                  ffi.Pointer<realm_flx_sync_subscription_set_t>,
+                  ffi.Pointer<realm_results_t>)>>(
+      'realm_sync_find_subscription_by_results');
+  late final _realm_sync_find_subscription_by_results =
+      _realm_sync_find_subscription_by_resultsPtr.asFunction<
+          ffi.Pointer<realm_flx_sync_subscription_t> Function(
+              ffi.Pointer<realm_flx_sync_subscription_set_t>,
+              ffi.Pointer<realm_results_t>)>();
+
+  /// Find subscription by name passed as parameter
+  /// @return a pointer to the subscription or nullptr if not found
+  ffi.Pointer<realm_flx_sync_subscription_t>
+      realm_sync_find_subscription_by_name(
+    ffi.Pointer<realm_flx_sync_subscription_set_t> arg0,
+    ffi.Pointer<ffi.Int8> name,
+  ) {
+    return _realm_sync_find_subscription_by_name(
+      arg0,
+      name,
+    );
+  }
+
+  late final _realm_sync_find_subscription_by_namePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_flx_sync_subscription_t> Function(
+              ffi.Pointer<realm_flx_sync_subscription_set_t>,
+              ffi.Pointer<ffi.Int8>)>>('realm_sync_find_subscription_by_name');
+  late final _realm_sync_find_subscription_by_name =
+      _realm_sync_find_subscription_by_namePtr.asFunction<
+          ffi.Pointer<realm_flx_sync_subscription_t> Function(
+              ffi.Pointer<realm_flx_sync_subscription_set_t>,
+              ffi.Pointer<ffi.Int8>)>();
 
   /// Refresh subscription
   /// @return true/false if the operation was successful or not
@@ -7853,15 +7890,44 @@ class RealmLibrary {
               ffi.Pointer<ffi.IntPtr>,
               ffi.Pointer<ffi.Uint8>)>();
 
-  /// Erase from subscription set by name
-  /// @return true/false if operation was successful
+  /// Erase from subscription set by id. If operation completes successfully set the bool out param.
+  /// @return true if no error occurred, false otherwise (use realm_get_last_error for fetching the error).
+  bool realm_sync_subscription_set_erase_by_id(
+    ffi.Pointer<realm_flx_sync_mutable_subscription_set_t> arg0,
+    ffi.Pointer<realm_object_id_t> arg1,
+    ffi.Pointer<ffi.Uint8> arg2,
+  ) {
+    return _realm_sync_subscription_set_erase_by_id(
+          arg0,
+          arg1,
+          arg2,
+        ) !=
+        0;
+  }
+
+  late final _realm_sync_subscription_set_erase_by_idPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Uint8 Function(
+                  ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
+                  ffi.Pointer<realm_object_id_t>,
+                  ffi.Pointer<ffi.Uint8>)>>(
+      'realm_sync_subscription_set_erase_by_id');
+  late final _realm_sync_subscription_set_erase_by_id =
+      _realm_sync_subscription_set_erase_by_idPtr.asFunction<
+          int Function(ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
+              ffi.Pointer<realm_object_id_t>, ffi.Pointer<ffi.Uint8>)>();
+
+  /// Erase from subscription set by name. If operation completes successfully set the bool out param.
+  /// @return true if no error occurred, false otherwise (use realm_get_last_error for fetching the error)
   bool realm_sync_subscription_set_erase_by_name(
     ffi.Pointer<realm_flx_sync_mutable_subscription_set_t> arg0,
     ffi.Pointer<ffi.Int8> arg1,
+    ffi.Pointer<ffi.Uint8> erased,
   ) {
     return _realm_sync_subscription_set_erase_by_name(
           arg0,
           arg1,
+          erased,
         ) !=
         0;
   }
@@ -7870,22 +7936,25 @@ class RealmLibrary {
           ffi.NativeFunction<
               ffi.Uint8 Function(
                   ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
-                  ffi.Pointer<ffi.Int8>)>>(
+                  ffi.Pointer<ffi.Int8>,
+                  ffi.Pointer<ffi.Uint8>)>>(
       'realm_sync_subscription_set_erase_by_name');
   late final _realm_sync_subscription_set_erase_by_name =
       _realm_sync_subscription_set_erase_by_namePtr.asFunction<
           int Function(ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
-              ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<ffi.Int8>, ffi.Pointer<ffi.Uint8>)>();
 
-  /// Erase from subscription set by query
-  /// @return true/false if operation was successful
+  /// Erase from subscription set by query. If operation completes successfully set the bool out param.
+  /// @return true if no error occurred, false otherwise (use realm_get_last_error for fetching the error)
   bool realm_sync_subscription_set_erase_by_query(
     ffi.Pointer<realm_flx_sync_mutable_subscription_set_t> arg0,
     ffi.Pointer<realm_query_t> arg1,
+    ffi.Pointer<ffi.Uint8> erased,
   ) {
     return _realm_sync_subscription_set_erase_by_query(
           arg0,
           arg1,
+          erased,
         ) !=
         0;
   }
@@ -7894,12 +7963,40 @@ class RealmLibrary {
           ffi.NativeFunction<
               ffi.Uint8 Function(
                   ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
-                  ffi.Pointer<realm_query_t>)>>(
+                  ffi.Pointer<realm_query_t>,
+                  ffi.Pointer<ffi.Uint8>)>>(
       'realm_sync_subscription_set_erase_by_query');
   late final _realm_sync_subscription_set_erase_by_query =
       _realm_sync_subscription_set_erase_by_queryPtr.asFunction<
           int Function(ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
-              ffi.Pointer<realm_query_t>)>();
+              ffi.Pointer<realm_query_t>, ffi.Pointer<ffi.Uint8>)>();
+
+  /// Erase from subscription set by results. If operation completes successfully set the bool out param.
+  /// @return true if no error occurred, false otherwise (use realm_get_last_error for fetching the error)
+  bool realm_sync_subscription_set_erase_by_results(
+    ffi.Pointer<realm_flx_sync_mutable_subscription_set_t> arg0,
+    ffi.Pointer<realm_results_t> arg1,
+    ffi.Pointer<ffi.Uint8> erased,
+  ) {
+    return _realm_sync_subscription_set_erase_by_results(
+          arg0,
+          arg1,
+          erased,
+        ) !=
+        0;
+  }
+
+  late final _realm_sync_subscription_set_erase_by_resultsPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Uint8 Function(
+                  ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
+                  ffi.Pointer<realm_results_t>,
+                  ffi.Pointer<ffi.Uint8>)>>(
+      'realm_sync_subscription_set_erase_by_results');
+  late final _realm_sync_subscription_set_erase_by_results =
+      _realm_sync_subscription_set_erase_by_resultsPtr.asFunction<
+          int Function(ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
+              ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Uint8>)>();
 
   /// Commit the subscription_set passed as parameter (in order that all the changes made will take effect)
   /// @return pointer to a valid immutable subscription if commit was successful
@@ -9554,6 +9651,8 @@ typedef realm_async_open_task_t = realm_async_open_task;
 /// @param realm Downloaded realm instance, or null if an error occurred.
 /// Move to the thread you want to use it on and
 /// thaw with @a realm_from_thread_safe_reference().
+/// Be aware that once received through this call, you own
+/// the object and must release it when used.
 /// @param error Null, if the operation complete successfully.
 typedef realm_async_open_task_completion_func_t = ffi.Pointer<
     ffi.NativeFunction<

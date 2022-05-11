@@ -163,7 +163,11 @@ class _RealmCore {
       if (config is LocalConfiguration) {
         if (config.initialDataCallback != null) {
           _realmLib.realm_config_set_data_initialization_function(
-              configHandle._pointer, Pointer.fromFunction(initial_data_callback, FALSE), config.toWeakHandle(), nullptr);
+            configHandle._pointer,
+            Pointer.fromFunction(initial_data_callback, FALSE),
+            config.toWeakHandle(),
+            nullptr,
+          );
         }
         if (config.isReadOnly) {
           _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE);
@@ -173,7 +177,11 @@ class _RealmCore {
         }
         if (config.shouldCompactCallback != null) {
           _realmLib.realm_config_set_should_compact_on_launch_function(
-              configHandle._pointer, Pointer.fromFunction(should_compact_callback, 0), config.toWeakHandle(), nullptr);
+            configHandle._pointer,
+            Pointer.fromFunction(should_compact_callback, 0),
+            config.toWeakHandle(),
+            nullptr,
+          );
         }
       } else if (config is InMemoryConfiguration) {
         _realmLib.realm_config_set_in_memory(configHandle._pointer, true);
@@ -192,32 +200,32 @@ class _RealmCore {
   }
 
   ObjectId subscriptionId(Subscription subscription) {
-    final id = _realmLib.realm_flx_sync_subscription_id(subscription.handle._pointer);
+    final id = _realmLib.realm_sync_subscription_id(subscription.handle._pointer);
     return id.toDart();
   }
 
   String? subscriptionName(Subscription subscription) {
-    final name = _realmLib.realm_flx_sync_subscription_name(subscription.handle._pointer);
+    final name = _realmLib.realm_sync_subscription_name(subscription.handle._pointer);
     return name.toDart();
   }
 
   String subscriptionObjectClassName(Subscription subscription) {
-    final objectClassName = _realmLib.realm_flx_sync_subscription_object_class_name(subscription.handle._pointer);
+    final objectClassName = _realmLib.realm_sync_subscription_object_class_name(subscription.handle._pointer);
     return objectClassName.toDart()!;
   }
 
   String subscriptionQueryString(Subscription subscription) {
-    final queryString = _realmLib.realm_flx_sync_subscription_query_string(subscription.handle._pointer);
+    final queryString = _realmLib.realm_sync_subscription_query_string(subscription.handle._pointer);
     return queryString.toDart()!;
   }
 
   DateTime subscriptionCreatedAt(Subscription subscription) {
-    final createdAt = _realmLib.realm_flx_sync_subscription_created_at(subscription.handle._pointer);
+    final createdAt = _realmLib.realm_sync_subscription_created_at(subscription.handle._pointer);
     return createdAt.toDart();
   }
 
   DateTime subscriptionUpdatedAt(Subscription subscription) {
-    final updatedAt = _realmLib.realm_flx_sync_subscription_updated_at(subscription.handle._pointer);
+    final updatedAt = _realmLib.realm_sync_subscription_updated_at(subscription.handle._pointer);
     return updatedAt.toDart();
   }
 
@@ -322,31 +330,39 @@ class _RealmCore {
   }
 
   bool eraseSubscription(MutableSubscriptionSet subscriptions, Subscription subscription) {
-    // TODO: Awaiting fix for https://github.com/realm/realm-core/issues/5475
-    // Should look something like:
-    /* 
-    _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_subscription(
-          subscriptions.handle._mutablePointer,
-          subscription.handle._pointer,
-        ));
-    */
-    return false; // TEMPORARY!!
+    return using((arena) {
+      final out_found = arena.allocate<Uint8>(1);
+      _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_id(
+            subscriptions.handle._mutablePointer,
+            subscription.id.toCapi(arena),
+            out_found,
+          ));
+      return out_found.value != 0;
+    });
   }
 
   bool eraseSubscriptionByName(MutableSubscriptionSet subscriptions, String name) {
     return using((arena) {
-      return _realmLib.realm_sync_subscription_set_erase_by_name(
-        subscriptions.handle._mutablePointer,
-        name.toUtf8Ptr(arena),
-      );
+      final out_found = arena.allocate<Uint8>(1);
+      _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_name(
+            subscriptions.handle._mutablePointer,
+            name.toUtf8Ptr(arena),
+            out_found,
+          ));
+      return out_found.value != 0;
     });
   }
 
   bool eraseSubscriptionByQuery(MutableSubscriptionSet subscriptions, RealmResults query) {
-    return _realmLib.realm_sync_subscription_set_erase_by_query(
-      subscriptions.handle._mutablePointer,
-      query.queryHandle._pointer,
-    );
+    return using((arena) {
+      final out_found = arena.allocate<Uint8>(1);
+      _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_query(
+            subscriptions.handle._mutablePointer,
+            query.queryHandle._pointer,
+            out_found,
+          ));
+      return out_found.value != 0;
+    });
   }
 
   void clearSubscriptionSet(MutableSubscriptionSet subscriptions) {
