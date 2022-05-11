@@ -15,13 +15,13 @@ jobs:
       matrix:
         package: [flutter]
         platform: [linux, windows, macos, ios, android]
-        include:
-          - platform: linux
-            package: dart
-          - platform: windows
-            package: dart
-          - platform: macos
-            package: dart
+        # include:
+        #   - platform: linux
+        #     package: dart
+        #   - platform: windows
+        #     package: dart
+        #   - platform: macos
+        #     package: dart
     runs-on: ubuntu-latest
     name: BaaS ${{ matrix.platform }} for ${{ matrix.package }}
     outputs:
