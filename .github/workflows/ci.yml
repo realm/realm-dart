@@ -695,6 +695,7 @@ jobs:
           fi
 
       - name: Generate generator coverage report
+        if: ${{ false }}
         run: |
           dart run coverage:format_coverage \
             --in coverage/ \

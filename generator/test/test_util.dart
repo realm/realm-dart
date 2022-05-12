@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
-import 'package:analyzer/file_system/overlay_file_system.dart';
 import 'package:path/path.dart' as _path;
 import 'package:dart_style/dart_style.dart';
 import 'package:build_test/build_test.dart';
@@ -32,7 +31,7 @@ Future<dynamic> generatorTestBuilder(String directoryName, String inputFileName,
 Future<Map<String, Object>> getInputFileAsset(String inputFilePath) async {
   var key = 'pkg|$inputFilePath';
   String inputContent = await readFileAsDartFormattedString(inputFilePath);
-  return {key: inputContent };
+  return {key: inputContent};
 }
 
 /// A special equality matcher for strings.
@@ -59,12 +58,12 @@ class LinesEqualsMatcher extends Matcher {
 
     for (var i = 0; i < expectedLines.length - 1; i++) {
       if (i >= actualLines.length) {
-        matchState["Error"] = "Difference at line ${i+1}. \nExpected: ${expectedLines[i]}.\n  Actual: empty";
+        matchState["Error"] = "Difference at line ${i + 1}. \nExpected: ${expectedLines[i]}.\n  Actual: empty";
         return false;
       }
 
       if (expectedLines[i] != actualLines[i]) {
-        matchState["Error"] = "Difference at line ${i+1}. \nExpected: ${expectedLines[i]}.\n  Actual: ${actualLines[i]}";
+        matchState["Error"] = "Difference at line ${i + 1}. \nExpected: ${expectedLines[i]}.\n  Actual: ${actualLines[i]}";
         return false;
       }
     }

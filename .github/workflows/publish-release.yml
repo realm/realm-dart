@@ -3,22 +3,224 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        type: choice
+        type: environment
+        required: true
         description: Environment to publish packages to
-        options:
-        - public
-        - internal
-      dry-run:
-        type: boolean
-        description: Run the workflow without actually uploading packages
-env:
-  REALM_CI: true
 jobs:
-  main:
+  prepare-packages:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment == 'public' && 'Production' || 'Staging' }}
+    environment:
+      name: Staging
+      url: ${{ steps.upload-to-s3.outputs.url }}
+    name: Prepare packages
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
         submodules: false
+
+    - name: Read version
+      id: get-version
+      run: |
+        pkgVersion=$(sed -ne "s/^version: \(.*\)/\1/p" pubspec.yaml)
+        pkgSuffix="${{ github.event.inputs.environment != 'Production' && format('-{0}', github.sha) || '' }}"
+        echo "::set-output name=version::$pkgVersion$pkgSuffix"
+      shell: bash
+
+    - name : Setup Dart SDK
+      uses: dart-lang/setup-dart@main
+      with:
+        sdk: stable
+
+    - name: Download all artifacts
+      uses: dawidd6/action-download-artifact@d0f291cf39bd21965ea9c4c6e210fc355c3844ed
+      with:
+        workflow: ci.yml
+        commit: ${{ github.sha }}
+        path: ${{ github.workspace }}/binary/
+        workflow_conclusion: completed
+
+    # The rename is necessary because action-download-artifact will put things in a folder named the same
+    # as the artifact name - i.e. librealm-linux, etc.
+    - name: Archive binaries
+      run: |
+        mkdir -p release
+
+        for directory in binary/*; do
+          targetFile="release/${directory#*-}.tar.gz"
+          dart run realm_dart archive --source-dir "${{ github.workspace }}/$directory" --output-file "${{ github.workspace }}/$targetFile"
+        done
+
+    - name: Update realm_* path dependencies (Production)
+      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
+      if: ${{ github.event.inputs.environment == 'Production' }}
+      with:
+        find: "  realm_(common|generator):(\\n|\\r\\n)    path:.*"
+        replace: "  realm_$1: ${{ steps.get-version.outputs.version }}"
+        include: "**pubspec.yaml"
+
+    - name: Update realm_* path dependencies (Staging)
+      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
+      if: ${{ github.event.inputs.environment != 'Production' }}
+      with:
+        find: "  realm_(common|generator):(\\n|\\r\\n)    path:.*"
+        replace: "  realm_$1:\n    path: ../$1"
+        include: "**pubspec.yaml"
+
+    - name: Update pubspec.yaml version (Staging)
+      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
+      if: ${{ github.event.inputs.environment != 'Production' }}
+      with:
+        find: 'version: .*'
+        replace: 'version: ${{ steps.get-version.outputs.version }}'
+        include: '**pubspec.yaml'
+
+    - name: Remove pubspec.yaml/publish_to:none
+      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
+      with:
+        find: "publish_to: none(\\n|\\r\\n)"
+        replace: " "
+        include: "**pubspec.yaml"
+
+    - name: Package common
+      run: |
+        cp -Lr ../common .
+        cd common
+        dart pub publish --dry-run || true
+      working-directory: release
+
+    - name: Package generator
+      run: |
+        cp -Lr ../generator .
+        cd generator
+        dart pub publish --dry-run || true
+      working-directory: release
+
+    # realm_flutter has symlinks to native binaries which should not be packaged
+    - name: Cleanup binary symlinks
+      run: |
+        rm -rf flutter/realm_flutter/android/src/main/cpp/lib
+        rm flutter/realm_flutter/ios/src
+        rm flutter/realm_flutter/ios/realm_dart.xcframework
+        rm flutter/realm_flutter/linux/binary
+        rm flutter/realm_flutter/windows/binary
+        rm flutter/realm_flutter/macos/librealm_dart.dylib
+        rm example/binary
+
+    - name: Package realm (flutter)
+      run: |
+        cp -Lr ../flutter/realm_flutter realm
+        cd realm
+        dart pub publish --dry-run || true
+      working-directory: release
+
+    - name: Package realm_dart
+      run: |
+        mkdir realm_dart
+        cp -Lr ../bin ../example ../lib ../test realm_dart
+        rsync -vt ../* realm_dart/
+        cd realm_dart
+        dart pub publish --dry-run || true
+      working-directory: release
+
+    - name: Extract Changelog
+      run: |
+        $match = Get-Content ../CHANGELOG.md -Raw | select-string -pattern "(?ms)^(?<latestVersionChanges>.+?)(?=(\n|\r\n)## )"
+        $latestChanges = $match.Matches[0].Groups["latestVersionChanges"].Value;
+        $latestChanges | Out-File ExtractedChangelog.md
+      working-directory: release
+      shell: pwsh
+
+    - name: Upload release folder
+      uses: actions/upload-artifact@v2
+      with:
+        name: release-bundle
+        path: release/**
+        retention-days: 30
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+        aws-region: us-east-1
+
+    - name: Upload release folder to S3
+      id: upload-to-s3
+      run: |
+        tar -zcvf packages.tar.gz common generator realm_dart realm ExtractedChangelog.md
+        rm -rf common generator realm_dart realm ExtractedChangelog.md
+
+        s3_folder="static.realm.io/downloads/dart/${{ steps.get-version.outputs.version }}"
+        aws s3 sync --acl public-read . "s3://$s3_folder"
+        echo "::set-output name=url::https://$s3_folder/packages.tar.gz"
+      working-directory: release
+
+  publish-packages:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.environment == 'Production' }}
+    environment:
+      name: 'Production'
+      url: https://pub.dev/packages/realm/versions/${{ needs.prepare-packages.outputs.version }}
+    name: Publish release
+    needs:
+    - prepare-packages
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        submodules: false
+
+    - name: Download release folder
+      uses: actions/download-artifact@v2
+      with:
+        name: release-bundle
+        path: release
+
+    - name : Setup Dart SDK
+      uses: dart-lang/setup-dart@main
+      with:
+        sdk: stable
+
+    - name: Publish packages to pub.dev
+      run: |
+        dart pub publish --directory common || true
+        dart pub publish --directory generator || true
+        dart pub publish --directory realm_dart || true
+        dart pub publish --directory realm || true
+      working-directory: release
+
+    - name: Find Release PR
+      uses: juliangruber/find-pull-request-action@f9f7484f8237cf8485e5ab826e542ba5dd9e9c6e
+      id: find-pull-request
+      with:
+        branch: ${{ github.ref }}
+
+    - name: Merge Pull Request
+      uses: juliangruber/merge-pull-request-action@8a13f2645ad8b6ada32f829b2fae9c0955a5265d
+      with:
+        github-token: ${{ secrets.REALM_CI_PAT }}
+        number: ${{ steps.find-pull-request.outputs.number }}
+        method: squash
+
+    - name: Publish Github Release
+      uses: ncipollo/release-action@10c84d509b28aae3903113151bfd832314964f2e
+      with:
+        artifacts: release/*.tar.gz
+        bodyFile: release/ExtractedChangelog.md
+        name: ${{ needs.prepare-packages.outputs.version }}
+        commit: master
+        tag: ${{ needs.prepare-packages.outputs.version }}
+        token: ${{ secrets.REALM_CI_PAT }}
+        draft: false
+
+    - name: 'Post to #realm-releases'
+      uses: realm/ci-actions/release-to-slack@v3
+      with:
+        changelog: release/ExtractedChangelog.md
+        sdk: dart
+        webhook-url: ${{ secrets.SLACK_RELEASES_WEBHOOK }}
+        version: ${{ needs.prepare-packages.outputs.version }}
