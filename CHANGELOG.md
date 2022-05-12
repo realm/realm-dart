@@ -4,6 +4,8 @@
 
 ### Breaking Changes
 * Made all `Configuration` fields final so they can only be initialized in the constructor. This better conveys the immutability of the configuration class. ([#455](https://github.com/realm/realm-dart/pull/455))
+* Removed `inMemory` field from `Configuration`. Use `Configuration.inMemory` factory instead.
+* Deprecated `Configuration` constructor. Prefer `Configuration.local` instead.
 
 ### Enhancements
 * Added a property `Configuration.disableFormatUpgrade`. When set to `true`, opening a Realm with an older file format will throw an exception to avoid automatically upgrading it. ([#310](https://github.com/realm/realm-dart/pull/310))
