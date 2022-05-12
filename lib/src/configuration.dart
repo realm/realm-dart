@@ -96,8 +96,13 @@ abstract class Configuration {
   /// The [RealmSchema] for this [Configuration]
   final RealmSchema schema;
 
+  /// The key used to encrypt the entire [Realm]. 
+  /// 
+  /// A full 64byte (512bit) key for AES-256 encryption.
+  /// Once set, must be specified each time the file is used.
   final List<int>? encryptionKey;
 
+  /// Constructs a [LocalConfiguration]
   @Deprecated('Use Configuration.local instead')
   factory Configuration(
     List<SchemaObject> schemaObjects, {
@@ -110,6 +115,7 @@ abstract class Configuration {
     ShouldCompactCallback? shouldCompactCallback,
   }) = LocalConfiguration;
 
+  /// Constructs a [LocalConfiguration]
   factory Configuration.local(
     List<SchemaObject> schemaObjects, {
     InitialDataCallback? initialDataCallback,
@@ -121,6 +127,7 @@ abstract class Configuration {
     ShouldCompactCallback? shouldCompactCallback,
   }) = LocalConfiguration;
 
+  /// Constructs a [InMemoryConfiguration]
   factory Configuration.inMemory(
     List<SchemaObject> schemaObjects,
     String identifier, {
@@ -128,6 +135,7 @@ abstract class Configuration {
     String? path,
   }) = InMemoryConfiguration;
 
+  /// Constructs a [FlexibleSyncConfiguration]
   factory Configuration.flexibleSync(
     User user,
     List<SchemaObject> schemaObjects, {
