@@ -46,7 +46,7 @@ jobs:
           projectId: ${{ secrets.ATLAS_QA_PROJECT_ID }}
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: dif-${{ matrix.package }}-${{ matrix.platform }}
+          differentiator: ${{ matrix.package }}-${{ matrix.platform }}
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
@@ -66,29 +66,14 @@ jobs:
         id: set-output
         run: echo '::set-output name=${{ matrix.package }}-${{ matrix.platform }}-clusterName::${{ steps.deploy-mdb-apps.outputs.clusterName }}'
 
-  print-outputs:
-    name: Print env cluster names
-    runs-on: ubuntu-latest
-    needs:
-      - baas_matrix
-    steps:
-      - name: baas-outputs 
-        env:
-          NEEDS: ${{ toJSON(needs) }}
-        run: echo "$NEEDS"
-
   cleanup-matrix:
     strategy:
       matrix:
-        package: [flutter]
+        package: [flutter, dart]
         platform: [linux, windows, macos]
         include:
-          - platform: linux
-            package: dart
-          - platform: windows
-            package: dart
-          - platform: macos
-            package: dart
+          - platform: ios
+            package: flutter          
     runs-on: ubuntu-latest
     name: Cleanup ${{ matrix.platform }} for ${{ matrix.package }}
     needs:
@@ -109,24 +94,7 @@ jobs:
           projectId: ${{ secrets.ATLAS_QA_PROJECT_ID}}
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: dif-${{ matrix.package }}-${{ matrix.platform }}
-
-  cleanup-ios:
-    runs-on: ubuntu-latest
-    name: Cleanup flutter for ios
-    needs:
-      - flutter-ios
-    if: always()
-    timeout-minutes: 5
-    steps:
-      - uses: realm/ci-actions/mdb-realm/cleanup@fac1d6958f03d71de743305ce3ab27594efbe7b7
-        with:
-          realmUrl: ${{ secrets.REALM_QA_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID}}
-          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
-          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: dif-flutter-ios
+          differentiator: ${{ matrix.package }}-${{ matrix.platform }}
 
   cleanup-android:
     runs-on: ubuntu-latest
@@ -143,13 +111,18 @@ jobs:
           projectId: ${{ secrets.ATLAS_QA_PROJECT_ID}}
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: dif-flutter-android
+          differentiator: flutter-android
 
 # Linux jobs
 
   build-linux:
     runs-on: ubuntu-latest
     name: Build Linux
+    env:
+      BAAS_URL: ${{ secrets.REALM_QA_URL }}
+      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
+      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -183,11 +156,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Tests Linux
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.dart-linux-clusterName }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
       - baas_matrix
       - build-linux
@@ -218,11 +187,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Flutter Tests Linux
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-linux-clusterName }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
       - baas_matrix
       - build-linux
@@ -267,6 +232,10 @@ jobs:
     runs-on: macos-latest
     name: Build macOS
     env:
+      BAAS_URL: ${{ secrets.REALM_QA_URL }}
+      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
+      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
       REALM_USE_CCACHE: "TRUE"
     steps:
       - name: Checkout
@@ -309,11 +278,7 @@ jobs:
     runs-on: macos-latest
     name: Tests macOS
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.dart-macos-clusterName }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
       - baas_matrix
       - build-macos
@@ -344,11 +309,7 @@ jobs:
     runs-on: macos-latest
     name: Flutter Tests macOS
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-macos-clusterName }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
       - baas_matrix
       - build-macos
@@ -385,6 +346,11 @@ jobs:
     # TODO: build on windows-latest
     runs-on: windows-2022
     name: Build Windows
+    env:
+      BAAS_URL: ${{ secrets.REALM_QA_URL }}
+      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
+      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -422,11 +388,7 @@ jobs:
     runs-on: windows-latest
     name: Tests Windows
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.dart-windows-clusterName }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
       - baas_matrix
       - build-windows
@@ -459,11 +421,7 @@ jobs:
     runs-on: windows-2019
     name: Flutter Tests Windows
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-windows-clusterName }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
       - baas_matrix
       - build-windows
@@ -500,6 +458,10 @@ jobs:
     runs-on: macos-latest
     name: Build iOS
     env:
+      BAAS_URL: ${{ secrets.REALM_QA_URL }}
+      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
+      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
       REALM_USE_CCACHE: "TRUE"
     steps:
       - name: Checkout
@@ -543,12 +505,7 @@ jobs:
     runs-on: macos-latest
     name: Flutter Tests iOS
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-ios-clusterName }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
-      REALM_USE_CCACHE: "TRUE"
     needs:
       - baas_matrix
       - build-ios
@@ -592,6 +549,11 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     name: Build Android
+    env:
+      BAAS_URL: ${{ secrets.REALM_QA_URL }}
+      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
+      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -628,11 +590,7 @@ jobs:
     runs-on: macos-latest
     name: Flutter Tests Android
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-android-clusterName }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     needs:
       - baas_matrix
       - build-android
