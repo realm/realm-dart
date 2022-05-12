@@ -13,15 +13,13 @@ jobs:
   baas_matrix:
     strategy:
       matrix:
-        package: [flutter]
-        platform: [linux, windows, macos, ios, android]
+        package: [flutter, dart]
+        platform: [linux, windows, macos]
         include:
-          - platform: linux
-            package: dart
-          - platform: windows
-            package: dart
-          - platform: macos
-            package: dart
+          - platform: ios
+            package: flutter
+          - platform: android
+            package: flutter
     runs-on: ubuntu-latest
     name: BaaS ${{ matrix.platform }} for ${{ matrix.package }}
     outputs:
