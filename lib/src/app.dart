@@ -72,28 +72,6 @@ enum LogLevel {
   off,
 }
 
-/// Enum describing what should happen in case of a Client Resync.
-///
-/// A Client Resync is triggered if the device and server cannot agree
-/// on a common shared history for the Realm file,
-/// thus making it impossible for the device to upload or receive any changes.
-/// This can happen if the server is rolled back or restored from backup.
-/// {@category Application}
-enum ClientResyncMode {
-  /// A manual Client Resync is also known as a Client Reset.
-  ///
-  /// A ``ClientResetRequiredError` will be sent to `SyncSession.ErrorHandler.onError(SyncSession, ObjectServerError)`,
-  /// triggering a Client Reset. Doing this provides a handle to both the old and new Realm file,
-  /// enabling full control of which changes to move, if any.
-  /// This is the only supported mode for Query-based Realms.
-  Manual,
-
-  /// The local Realm will be discarded and replaced with the server side Realm.
-  /// All local changes will be lost.
-  /// This mode is not yet supported by Query-based Realms.
-  DiscardLocal,
-}
-
 @immutable
 
 /// A class exposing configuration options for an [App]
@@ -147,10 +125,6 @@ class AppConfiguration {
   /// The default HTTP request timeout in milliseconds.
   final int requestTimeout;
 
-  /// Value of [ClientResyncMode] describing what should happen in case of a Client Resync.
-  /// Default value is [ClientResyncMode.Manual].
-  final ClientResyncMode clientResyncMode;
-
   /// The [HttpClient] that will be used for HTTP requests during authentication.
   ///
   /// You can use this to override the default http client handler and configure settings like proxies,
@@ -171,7 +145,6 @@ class AppConfiguration {
     this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
     this.logLevel = LogLevel.error,
     this.requestTimeout = 0,
-    this.clientResyncMode = ClientResyncMode.Manual,
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
         baseFilePath = baseFilePath ?? Directory(Configuration.filesPath),

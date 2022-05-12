@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:test/expect.dart';
@@ -34,6 +35,8 @@ Future<void> main([List<String>? args]) async {
     expect(a.baseFilePath.path, Configuration.filesPath);
     expect(a.baseUrl, Uri.parse('https://realm.mongodb.com'));
     expect(a.defaultRequestTimeout, const Duration(minutes: 1));
+    expect(a.logLevel, LogLevel.error);
+    expect(a.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
 
     final httpClient = HttpClient(context: SecurityContext(withTrustedRoots: false));
     final b = AppConfiguration(
@@ -43,13 +46,45 @@ Future<void> main([List<String>? args]) async {
       defaultRequestTimeout: const Duration(seconds: 2),
       localAppName: 'bar',
       localAppVersion: "1.0.0",
+      metadataPersistenceMode: MetadataPersistenceMode.disabled,
+      logLevel: LogLevel.info,
+      requestTimeout: 1000,
       httpClient: httpClient,
     );
     expect(b.appId, 'myapp1');
     expect(b.baseFilePath.path, Directory.systemTemp.path);
     expect(b.baseUrl, Uri.parse('https://not_re.al'));
     expect(b.defaultRequestTimeout, const Duration(seconds: 2));
+    expect(b.logLevel, LogLevel.info);
+    expect(b.metadataPersistenceMode, MetadataPersistenceMode.disabled);
+    expect(b.requestTimeout, 1000);
     expect(b.httpClient, httpClient);
+  });
+
+  test('AppConfiguration can be created and an App could be created', () {
+    final httpClient = HttpClient(context: SecurityContext(withTrustedRoots: false));
+    final appConfig = AppConfiguration(
+      'myapp1',
+      baseFilePath: Directory.systemTemp,
+      baseUrl: Uri.parse('https://not_re.al'),
+      defaultRequestTimeout: const Duration(seconds: 2),
+      localAppName: 'bar',
+      localAppVersion: "1.0.0",
+      metadataPersistenceMode: MetadataPersistenceMode.encrypted,
+      metadataEncryptionKey: base64.decode("ekey"),
+      logLevel: LogLevel.info,
+      requestTimeout: 1000,
+      httpClient: httpClient,
+    );
+    final app = App(appConfig);
+    expect(app.configuration.appId, 'myapp1');
+    expect(app.configuration.baseFilePath.path, Directory.systemTemp.path);
+    expect(app.configuration.baseUrl, Uri.parse('https://not_re.al'));
+    expect(app.configuration.defaultRequestTimeout, const Duration(seconds: 2));
+    expect(app.configuration.logLevel, LogLevel.info);
+    expect(app.configuration.metadataPersistenceMode, MetadataPersistenceMode.encrypted);
+    expect(app.configuration.requestTimeout, 1000);
+    expect(app.configuration.httpClient, httpClient);
   });
 
   test('App can be created', () async {

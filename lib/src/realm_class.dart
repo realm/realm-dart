@@ -30,7 +30,7 @@ import 'realm_object.dart';
 import 'results.dart';
 
 // always expose with `show` to explicitly control the public API surface
-export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App;
+export 'app.dart' show AppConfiguration, MetadataPersistenceMode, LogLevel, App;
 export 'package:realm_common/realm_common.dart'
     show
         Ignored,
