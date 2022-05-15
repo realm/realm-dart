@@ -32,7 +32,7 @@
 * Support user state. ([#525](https://github.com/realm/realm-dart/pull/525))
 * Support getting user id and identities. ([#525](https://github.com/realm/realm-dart/pull/525))
 * Support user logout. ([#525](https://github.com/realm/realm-dart/pull/525))
-* Added support for DateTime properties. ([#519](https://github.com/realm/realm-dart/pull/519))
+* Added support for DateTime properties. ([#569](https://github.com/realm/realm-dart/pull/569))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))
