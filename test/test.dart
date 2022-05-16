@@ -102,7 +102,6 @@ class _Schedule {
   final tasks = <_Task>[];
 }
 
-
 String? testName;
 final baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
@@ -284,7 +283,7 @@ Future<User> getIntegrationUser(App app) async {
 Future<Realm> getIntegrationRealm(List<SchemaObject> schemas, {App? app}) async {
   app ??= App(await getAppConfig());
   final user = await getIntegrationUser(app);
-  final config = Configuration.flexibleSync(user, schemas);
+  final config = Configuration.sync(user, schemas);
   return getRealm(config);
 }
 

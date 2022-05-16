@@ -52,7 +52,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession.user returns a valid user', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema]);
+    final config = Configuration.sync(user, [Task.schema]);
     final realm = getRealm(config);
 
     expect(realm.syncSession.user, user);
@@ -62,7 +62,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession when isolate is torn down does not crash', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema]);
+    final config = Configuration.sync(user, [Task.schema]);
 
     // Don't use getRealm because we want the Realm to survive
     final realm = Realm(config);
