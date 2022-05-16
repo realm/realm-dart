@@ -47,35 +47,29 @@ typedef InitialDataCallback = void Function(Realm realm);
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
 abstract class Configuration {
+  static const String _defaultRealmName = 'default.realm';
+
+  static String get _defaultStorageFolder {
+    if (Platform.isAndroid || Platform.isIOS) {
+      return realmCore.getFilesPath();
+    }
+
+    return Directory.current.path;
+  }
+
+  static String? _defaultPath;
+
   Configuration._(
     List<SchemaObject> schemaObjects, {
     String? path,
     this.fifoFilesFallbackPath,
     this.encryptionKey,
-  })  : schema = RealmSchema(schemaObjects),
-        path = path ?? Configuration.defaultPath;
-
-  static String _initDefaultPath() {
-    var path = "default.realm";
-    if (Platform.isAndroid || Platform.isIOS) {
-      path = _path.join(realmCore.getFilesPath(), path);
-    }
-    return path;
+  }) : schema = RealmSchema(schemaObjects) {
+    this.path = _getPath(path);
   }
 
-  /// The platform dependent path to the default realm file - `default.realm`.
-  ///
-  /// If set it should contain the name of the realm file. Ex. /mypath/myrealm.realm
-  static late String defaultPath = _initDefaultPath();
-
-  /// The platform dependent directory path used to store realm files
-  ///
-  /// On Android and iOS this is the application's data directory
-  static String get filesPath {
-    if (Platform.isAndroid || Platform.isIOS) {
-      return realmCore.getFilesPath();
-    }
-    return Directory.current.absolute.path;
+  String _getPath(String? path) {
+    return path ?? _defaultPath ?? _path.join(_defaultStorageFolder, _defaultRealmName);
   }
 
   /// Specifies the FIFO special files fallback location.
@@ -91,7 +85,7 @@ abstract class Configuration {
   /// The path where the Realm should be stored.
   ///
   /// If omitted the [defaultPath] for the platform will be used.
-  final String path;
+  late final String path;
 
   /// The [RealmSchema] for this [Configuration]
   final RealmSchema schema;
@@ -149,6 +143,13 @@ abstract class Configuration {
         fifoFilesFallbackPath: fifoFilesFallbackPath,
         path: path,
       );
+}
+
+extension ConfigurationInternal on Configuration {
+  static String? get defaultPath => Configuration._defaultPath;
+  static set defaultPath(String? value) => Configuration._defaultPath = value;
+
+  static String get defaultStorageFolder => Configuration._defaultStorageFolder;
 }
 
 /// [LocalConfiguration] is used to open local [Realm] instances,
@@ -225,6 +226,11 @@ class FlexibleSyncConfiguration extends Configuration {
           fifoFilesFallbackPath: fifoFilesFallbackPath,
           path: path,
         );
+
+  @override
+  String _getPath(String? path) {
+    return path ?? realmCore.getPathForConfig(this);
+  }
 }
 
 extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {

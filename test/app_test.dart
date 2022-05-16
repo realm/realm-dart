@@ -172,7 +172,7 @@ test('AppConfiguration can be created with defaults', () {
 
     final user1 = await app.logIn(Credentials.anonymous());
     expect(app.currentUser, user1);
-    
+
     final user2 = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
 
     expect(app.currentUser, user2);
