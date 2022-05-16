@@ -687,9 +687,7 @@ jobs:
         working-directory: ./flutter/realm_flutter/example/
 
       - name: Install LLVM
-        uses: KyleMayes/install-llvm-action@v1
-        with:
-          version: "11.0"
+        run: sudo apt update && sudo apt-get install -y libclang-dev
 
       - name: Run ffigen
         run: dart run ffigen --config config.yaml
