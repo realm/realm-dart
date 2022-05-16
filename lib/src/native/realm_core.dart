@@ -250,22 +250,20 @@ class _RealmCore {
 
   SubscriptionHandle? findSubscriptionByName(SubscriptionSet subscriptions, String name) {
     return using((arena) {
-      return _realmLib
-          .realm_sync_find_subscription_by_name(
-            subscriptions.handle._pointer,
-            name.toUtf8Ptr(arena),
-          )
-          .convert(SubscriptionHandle._);
+      final result = _realmLib.realm_sync_find_subscription_by_name(
+        subscriptions.handle._pointer,
+        name.toUtf8Ptr(arena),
+      );
+      return result == nullptr ? null : SubscriptionHandle._(result);
     });
   }
 
   SubscriptionHandle? findSubscriptionByQuery(SubscriptionSet subscriptions, RealmResults query) {
-    return _realmLib
-        .realm_sync_find_subscription_by_results(
-          subscriptions.handle._pointer,
-          query.handle._pointer,
-        )
-        .convert(SubscriptionHandle._);
+    final result = _realmLib.realm_sync_find_subscription_by_results(
+      subscriptions.handle._pointer,
+      query.handle._pointer,
+    );
+    return result == nullptr ? null : SubscriptionHandle._(result);
   }
 
   static void _stateChangeCallback(Pointer<Void> userdata, int state) {
@@ -349,7 +347,7 @@ class _RealmCore {
     });
   }
 
-  bool eraseSubscriptionByQuery(MutableSubscriptionSet subscriptions, RealmResults results) {
+  bool eraseSubscriptionByResults(MutableSubscriptionSet subscriptions, RealmResults results) {
     return using((arena) {
       final out_found = arena.allocate<Uint8>(1);
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_results(
@@ -544,7 +542,7 @@ class _RealmCore {
     return RealmResultsHandle._(pointer);
   }
 
-  RealmQueryHandle queryClass(Realm realm, int classKey, String query, List<Object> args) {
+  RealmResultsHandle queryClass(Realm realm, int classKey, String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
       final argsPointer = arena<realm_value_t>(length);
@@ -560,11 +558,11 @@ class _RealmCore {
           argsPointer,
         ),
       ));
-      return queryHandle;
+      return _queryFindAll(queryHandle);
     });
   }
 
-  RealmQueryHandle queryResults(RealmResults target, String query, List<Object> args) {
+  RealmResultsHandle queryResults(RealmResults target, String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
       final argsPointer = arena<realm_value_t>(length);
@@ -579,16 +577,16 @@ class _RealmCore {
           argsPointer,
         ),
       ));
-      return queryHandle;
+      return _queryFindAll(queryHandle);
     });
   }
 
-  RealmResultsHandle queryFindAll(RealmQueryHandle queryHandle) {
+  RealmResultsHandle _queryFindAll(RealmQueryHandle queryHandle) {
     final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_query_find_all(queryHandle._pointer));
     return RealmResultsHandle._(resultsPointer);
   }
 
-  RealmQueryHandle queryList(RealmList target, String query, List<Object> args) {
+  RealmResultsHandle queryList(RealmList target, String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
       final argsPointer = arena<realm_value_t>(length);
@@ -603,7 +601,7 @@ class _RealmCore {
           argsPointer,
         ),
       ));
-      return queryHandle;
+      return _queryFindAll(queryHandle);
     });
   }
 
@@ -1726,13 +1724,6 @@ extension on Object {
   }
 }
 
-extension<T extends NativeType> on Pointer<T> {
-  U? convert<U>(U Function(Pointer<T>) converter) {
-    if (this == nullptr) return null;
-    return converter(this);
-  }
-}
-
 extension on List<AuthProviderType> {
   AuthProviderType fromIndex(int index) {
     if (!AuthProviderType.values.any((value) => value.index == index)) {
@@ -1807,10 +1798,7 @@ extension on realm_timestamp_t {
 }
 
 extension on realm_string_t {
-  String? toDart() {
-    if (data == nullptr) return null;
-    return data.cast<Utf8>().toDartString();
-  }
+  String? toDart() => data.cast<Utf8>().toRealmDartString();
 }
 
 extension on ObjectId {

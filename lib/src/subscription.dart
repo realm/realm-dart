@@ -21,7 +21,6 @@ import 'dart:collection';
 
 import 'native/realm_core.dart';
 import 'realm_class.dart';
-import 'util.dart';
 
 /// A class representing a single query subscription. The server will continuously
 /// evaluate the query that the app subscribed to and will send data
@@ -32,7 +31,7 @@ class Subscription {
 
   Subscription._(this._handle);
 
-  ObjectId get id => realmCore.subscriptionId(this);
+  ObjectId get _id => realmCore.subscriptionId(this);
 
   /// Name of the [Subscription], if one was provided at creation time.
   /// 
@@ -70,6 +69,7 @@ class Subscription {
 
 extension SubscriptionInternal on Subscription {
   SubscriptionHandle get handle => _handle;
+  ObjectId get id => _id;
 }
 
 class _SubscriptionIterator implements Iterator<Subscription> {
@@ -136,18 +136,18 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
   /// The [query] is represented by the corresponding [RealmResults] object.
   /// Finds a subscription by query.
   ///
-  /// If the Subscription set does not contain a subscription with the provided query,
-  /// return null
+  /// Returns null, if not found
   Subscription? find<T extends RealmObject>(RealmResults<T> query) {
-    return realmCore.findSubscriptionByQuery(this, query).convert(Subscription._);
+    final result = realmCore.findSubscriptionByQuery(this, query);
+    return result == null ? null : Subscription._(result);
   }
 
   /// Finds an existing [Subscription] in this set by name.
   ///
-  /// If the Subscription set does not contain a subscription with the provided name,
-  /// return null
+  /// Returns null, if not found
   Subscription? findByName(String name) {
-    return realmCore.findSubscriptionByName(this, name).convert(Subscription._);
+    final result = realmCore.findSubscriptionByName(this, name);
+    return result == null ? null : Subscription._(result);
   }
 
   Future<SubscriptionSetState> _waitForStateChange(SubscriptionSetState state) async {
@@ -187,7 +187,7 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
   /// Update the subscription set and send the request to the server in the background.
   ///
   /// Calling [update] is a prerequisite for mutating the subscription set,
-  /// using a [MutableSubscriptionSet] parsed to [action].
+  /// using a [MutableSubscriptionSet] passed to the [action].
   ///
   /// If you want to wait for the server to acknowledge and send back the data that matches the updated
   /// subscriptions, use [waitForSynchronization].
@@ -265,7 +265,7 @@ class MutableSubscriptionSet extends SubscriptionSet {
 
   /// Remove the [query] from the set, if it exists.
   bool removeByQuery<T extends RealmObject>(RealmResults<T> query) {
-    return realmCore.eraseSubscriptionByQuery(this, query);
+    return realmCore.eraseSubscriptionByResults(this, query);
   }
 
   /// Remove the [query] from the set that matches by [name], if it exists.

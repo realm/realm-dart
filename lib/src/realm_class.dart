@@ -266,8 +266,7 @@ class Realm {
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query<T extends RealmObject>(String query, [List<Object> args = const []]) {
     RealmMetadata metadata = _getMetadata(T);
-    final queryHandle = realmCore.queryClass(this, metadata.class_.key, query, args);
-    final handle = realmCore.queryFindAll(queryHandle);
+    final handle = realmCore.queryClass(this, metadata.class_.key, query, args);
     return RealmResultsInternal.create<T>(handle, this);
   }
 
