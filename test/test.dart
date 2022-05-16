@@ -131,7 +131,7 @@ Future<void> setupTests(List<String>? args) async {
   setUp(() {
     final path = generateRandomRealmPath();
     Configuration.defaultPath = path;
-   
+
     addTearDown(() async {
       final paths = HashSet<String>();
       paths.add(path);
@@ -212,7 +212,7 @@ Future<void> setupBaas() async {
   if (baasUrl == null) {
     return;
   }
-  
+
   final cluster = Platform.environment['BAAS_CLUSTER'];
   final apiKey = Platform.environment['BAAS_API_KEY'];
   final privateApiKey = Platform.environment['BAAS_PRIVATE_API_KEY'];
