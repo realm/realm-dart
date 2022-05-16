@@ -96,24 +96,11 @@ abstract class Configuration {
   /// The [RealmSchema] for this [Configuration]
   final RealmSchema schema;
 
-  /// The key used to encrypt the entire [Realm]. 
-  /// 
+  /// The key used to encrypt the entire [Realm].
+  ///
   /// A full 64byte (512bit) key for AES-256 encryption.
   /// Once set, must be specified each time the file is used.
   final List<int>? encryptionKey;
-
-  /// Constructs a [LocalConfiguration]
-  @Deprecated('Use Configuration.local instead')
-  factory Configuration(
-    List<SchemaObject> schemaObjects, {
-    InitialDataCallback? initialDataCallback,
-    int schemaVersion,
-    String? fifoFilesFallbackPath,
-    String? path,
-    bool disableFormatUpgrade,
-    bool isReadOnly,
-    ShouldCompactCallback? shouldCompactCallback,
-  }) = LocalConfiguration;
 
   /// Constructs a [LocalConfiguration]
   factory Configuration.local(
