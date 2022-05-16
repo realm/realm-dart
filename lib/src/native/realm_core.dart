@@ -258,10 +258,10 @@ class _RealmCore {
     });
   }
 
-  SubscriptionHandle? findSubscriptionByQuery(SubscriptionSet subscriptions, RealmResults query) {
+  SubscriptionHandle? findSubscriptionByResults(SubscriptionSet subscriptions, RealmResults results) {
     final result = _realmLib.realm_sync_find_subscription_by_results(
       subscriptions.handle._pointer,
-      query.handle._pointer,
+      results.handle._pointer,
     );
     return result == nullptr ? null : SubscriptionHandle._(result);
   }
@@ -303,7 +303,7 @@ class _RealmCore {
     return SubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_subscription_set_commit(subscriptions.handle._mutablePointer)));
   }
 
-  SubscriptionHandle insertOrAssignSubscription(MutableSubscriptionSet subscriptions, RealmResults query, String? name, bool update) {
+  SubscriptionHandle insertOrAssignSubscription(MutableSubscriptionSet subscriptions, RealmResults results, String? name, bool update) {
     if (!update) {
       if (name != null && findSubscriptionByName(subscriptions, name) != null) {
         throw RealmException('Duplicate subscription with name: $name');
@@ -314,7 +314,7 @@ class _RealmCore {
       final out_inserted = arena<Uint8>();
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_insert_or_assign_results(
             subscriptions.handle._mutablePointer,
-            query.handle._pointer,
+            results.handle._pointer,
             name?.toUtf8Ptr(arena) ?? nullptr,
             out_index,
             out_inserted,
@@ -328,7 +328,7 @@ class _RealmCore {
       final out_found = arena<Uint8>();
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_id(
             subscriptions.handle._mutablePointer,
-            subscription.id.toCapi(arena),
+            subscription.id.toNative(arena),
             out_found,
           ));
       return out_found.value != 0;
@@ -1476,6 +1476,10 @@ class RealmNotificationTokenHandle extends ReleasableHandle<realm_notification_t
   RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer) : super(pointer, 32);
 }
 
+class RealmCallbackTokenHandle extends ReleasableHandle<realm_callback_token> {
+  RealmCallbackTokenHandle._(Pointer<realm_callback_token> pointer) : super(pointer, 32);
+}
+
 class RealmCollectionChangesHandle extends Handle<realm_collection_changes> {
   RealmCollectionChangesHandle._(Pointer<realm_collection_changes> pointer) : super(pointer, 256);
 }
@@ -1802,7 +1806,7 @@ extension on realm_string_t {
 }
 
 extension on ObjectId {
-  Pointer<realm_object_id> toCapi(Allocator allocator) {
+  Pointer<realm_object_id> toNative(Allocator allocator) {
     final result = allocator<realm_object_id>();
     for (var i = 0; i < 12; i++) {
       result.ref.bytes[i] = bytes[i];

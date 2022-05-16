@@ -460,9 +460,9 @@ Future<void> main([List<String>? args]) async {
     final userX = await appX.logIn(credentials);
     final userY = await appY.logIn(credentials);
 
-    final realmX = getRealm(Configuration.flexibleSync(userX, [Task.schema]));
+    final realmX = getRealm(Configuration.sync(userX, [Task.schema]));
     final pathY = path.join(temporaryDir.path, "Y.realm");
-    final realmY = getRealm(Configuration.flexibleSync(userY, [Task.schema], path: pathY)); // TODO: Why do I need to set path here?
+    final realmY = getRealm(Configuration.sync(userY, [Task.schema], path: pathY)); // TODO: Why do I need to set path here?
 
     realmX.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmX.all<Task>());

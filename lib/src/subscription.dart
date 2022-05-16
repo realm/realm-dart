@@ -138,7 +138,7 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
   ///
   /// Returns null, if not found
   Subscription? find<T extends RealmObject>(RealmResults<T> query) {
-    final result = realmCore.findSubscriptionByQuery(this, query);
+    final result = realmCore.findSubscriptionByResults(this, query);
     return result == null ? null : Subscription._(result);
   }
 
