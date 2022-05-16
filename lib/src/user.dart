@@ -142,18 +142,41 @@ class UserIdentity {
   const UserIdentity._(this.id, this.provider);
 }
 
+/// A class containing profile information about [User].
 class UserProfile {
-  final String? name;
-  final String? firstName;
-  final String? lastName;
-  final String? email;
-  final String? gender;
-  final String? birthDay;
-  final String? minAge;
-  final String? maxAge;
-  final String? pictureUrl;
+  final Map<String, dynamic> _data;
 
-  const UserProfile(this.name, this.firstName, this.lastName, this.email, this.gender, this.birthDay, this.minAge, this.maxAge, this.pictureUrl);
+  /// Gets the name of the [User].
+  String? get name => _data["name"] as String?;
+  
+  /// Gets the first name of the [User].
+  String? get firstName => _data["firstName"] as String?;
+
+  /// Gets the last name of the [User].
+  String? get lastName => _data["lastName"] as String?;
+  
+  /// Gets the email of the [User].
+  String? get email => _data["email"] as String?;
+  
+  /// Gets the gender of the [User].
+  String? get gender => _data["gender"] as String?;
+  
+  /// Gets the birthday of the user.
+  String? get birthDay => _data["birthDay"] as String?;
+  
+  /// Gets the minimum age of the [User].
+  String? get minAge => _data["minAge"] as String?;
+  
+  /// Gets the maximum age of the [User].
+  String? get maxAge => _data["maxAge"] as String?;
+
+  /// Gets the url for the [User]'s profile picture.
+  String? get pictureUrl => _data["pictureUrl"] as String?;
+
+  /// Gets a profile property of the [User].
+  dynamic operator[](String property) => _data[property];
+
+  const UserProfile(this._data);
 }
 
 /// @nodoc

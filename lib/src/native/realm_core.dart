@@ -1192,16 +1192,7 @@ class _RealmCore {
   UserProfile userGetProfileData(User user) {
     final data = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_profile_data(user.handle._pointer));
     final dynamic profileData = jsonDecode(data.cast<Utf8>().toRealmDartString(freeNativeMemory: true)!);
-    return UserProfile(
-        profileData["name"] as String?,
-        profileData["firstName"] as String?,
-        profileData["lastName"] as String?,
-        profileData["email"] as String?,
-        profileData["gender"] as String?,
-        profileData["birthDay"] as String?,
-        profileData["minAge"] as String?,
-        profileData["maxAge"] as String?,
-        profileData["pictureUrl"] as String?);
+    return UserProfile(profileData as Map<String, dynamic>);
   }
 }
 
