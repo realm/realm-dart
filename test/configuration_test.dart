@@ -64,10 +64,10 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration get/set schema version', () {
-    final config = LocalConfiguration([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     expect(config.schemaVersion, equals(0));
 
-    final explicitSchemaConfig = LocalConfiguration([Car.schema], schemaVersion: 3);
+    final explicitSchemaConfig = Configuration.local([Car.schema], schemaVersion: 3);
     expect(explicitSchemaConfig.schemaVersion, equals(3));
   });
 
