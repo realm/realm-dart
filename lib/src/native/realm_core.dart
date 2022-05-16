@@ -306,7 +306,7 @@ class _RealmCore {
   SubscriptionHandle insertOrAssignSubscription(MutableSubscriptionSet subscriptions, RealmResults query, String? name, bool update) {
     if (!update) {
       if (name != null && findSubscriptionByName(subscriptions, name) != null) {
-        throw RealmException('Duplicate subscription $query${name != null ? ' with name: $name' : ''}');
+        throw RealmException('Duplicate subscription with name: $name');
       }
     }
     return using((arena) {
@@ -325,7 +325,7 @@ class _RealmCore {
 
   bool eraseSubscriptionById(MutableSubscriptionSet subscriptions, Subscription subscription) {
     return using((arena) {
-      final out_found = arena.allocate<Uint8>(1);
+      final out_found = arena<Uint8>();
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_id(
             subscriptions.handle._mutablePointer,
             subscription.id.toCapi(arena),
@@ -337,7 +337,7 @@ class _RealmCore {
 
   bool eraseSubscriptionByName(MutableSubscriptionSet subscriptions, String name) {
     return using((arena) {
-      final out_found = arena.allocate<Uint8>(1);
+      final out_found = arena<Uint8>();
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_name(
             subscriptions.handle._mutablePointer,
             name.toUtf8Ptr(arena),
@@ -349,7 +349,7 @@ class _RealmCore {
 
   bool eraseSubscriptionByResults(MutableSubscriptionSet subscriptions, RealmResults results) {
     return using((arena) {
-      final out_found = arena.allocate<Uint8>(1);
+      final out_found = arena<Uint8>();
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_results(
             subscriptions.handle._mutablePointer,
             results.handle._pointer,
