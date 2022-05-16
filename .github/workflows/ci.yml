@@ -73,7 +73,7 @@ jobs:
         platform: [linux, windows, macos]
         include:
           - platform: ios
-            package: flutter          
+            package: flutter
     runs-on: ubuntu-latest
     name: Cleanup ${{ matrix.platform }} for ${{ matrix.package }}
     needs:
@@ -685,6 +685,10 @@ jobs:
           dart pub get
           dart run build_runner build --delete-conflicting-outputs
         working-directory: ./flutter/realm_flutter/example/
+
+      - name: Run ffi gen
+        run: dart run ffigen --config config.yaml
+        working-directory: ./ffigen
 
       - name: Validate there are no uncommitted changes
         run: |
