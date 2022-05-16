@@ -659,7 +659,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          submodules: false
+          submodules: 'recursive'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
