@@ -77,7 +77,6 @@ enum LogLevel {
 /// A class exposing configuration options for an [App]
 /// {@category Application}
 class AppConfiguration {
-  static const int defaultConnectionTimeout = 120000;
 
   /// The [appId] is the unique id that identifies the Realm application.
   final String appId;
