@@ -50,7 +50,7 @@ class Session {
   User get user => UserInternal.create(realmCore.sessionGetUser(this));
 
   Session._(this._handle, this._scheduler);
-
+  
   /// Pauses any synchronization with the server until the Realm is re-opened again
   /// after fully closing it or [resume] is called.
   void pause() => realmCore.sessionPause(this);
@@ -137,6 +137,7 @@ extension SessionInternal on Session {
   SessionHandle get handle => _handle;
 
   Scheduler get scheduler => _scheduler;
+
 }
 
 /// @nodoc

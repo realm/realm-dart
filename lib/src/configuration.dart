@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:path/path.dart' as _path;
@@ -43,6 +44,8 @@ typedef ShouldCompactCallback = bool Function(int totalSize, int usedSize);
 /// add some initial data that your app needs. The function will not execute for existing
 /// Realms, even if all objects in the Realm are deleted.
 typedef InitialDataCallback = void Function(Realm realm);
+
+typedef ErrorHandlerCallback = void Function(SessionHandle user, SyncError error);
 
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
@@ -96,8 +99,8 @@ abstract class Configuration {
   /// The [RealmSchema] for this [Configuration]
   final RealmSchema schema;
 
-  /// The key used to encrypt the entire [Realm]. 
-  /// 
+  /// The key used to encrypt the entire [Realm].
+  ///
   /// A full 64byte (512bit) key for AES-256 encryption.
   /// Once set, must be specified each time the file is used.
   final List<int>? encryptionKey;
@@ -208,11 +211,14 @@ class FlexibleSyncConfiguration extends Configuration {
 
   SessionStopPolicy _sessionStopPolicy = SessionStopPolicy.afterChangesUploaded;
 
+  final ErrorHandlerCallback? errorHandlerCallback;
+
   FlexibleSyncConfiguration(
     this.user,
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
+    this.errorHandlerCallback,
   }) : super._(
           schemaObjects,
           fifoFilesFallbackPath: fifoFilesFallbackPath,

@@ -190,6 +190,8 @@ class _RealmCore {
         final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
+          _realmLib.realm_sync_config_set_error_handler(
+              syncConfigPtr, Pointer.fromFunction(_syncErrorHandlerCallback), syncConfigPtr.toPersistentHandle(), nullptr);
           _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
         } finally {
           _realmLib.realm_release(syncConfigPtr.cast());
@@ -393,6 +395,16 @@ class _RealmCore {
     }
 
     return config.shouldCompactCallback!(totalSize, usedSize) ? TRUE : FALSE;
+  }
+  static void _syncErrorHandlerCallback(Pointer<Void> userdata, Pointer<realm_sync_session> user, realm_sync_error error) {
+    final FlexibleSyncConfiguration? syncConfig = userdata.toObject(isPersistent: true);
+    if (syncConfig == null) {
+      return;
+    }
+    if (syncConfig.errorHandlerCallback != null) {
+      final syncError = error.toSyncError();
+      syncConfig.errorHandlerCallback!(SessionHandle._(user), syncError);
+    }
   }
 
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
@@ -1464,14 +1476,14 @@ class _RealmCore {
     return completer.future;
   }
 
-  static void _waitCompletionCallback(Pointer<Void> userdata, Pointer<realm_sync_error_code_t> errorCode) {
+  static void _waitCompletionCallback(Pointer<Void> userdata, Pointer<realm_sync_error_code> errorCode) {
     final completer = userdata.toObject<Completer<void>>(isPersistent: true);
     if (completer == null) {
       return;
     }
 
     if (errorCode != nullptr) {
-      completer.completeError(errorCode.toSyncError());
+      completer.completeError(errorCode.ref.toSyncErrorCode());
     } else {
       completer.complete();
     }
@@ -1809,10 +1821,35 @@ extension on Pointer<Utf8> {
   }
 }
 
-extension on Pointer<realm_sync_error_code_t> {
+extension on realm_sync_error {
   SyncError toSyncError() {
-    final message = ref.message.cast<Utf8>().toRealmDartString()!;
-    return SyncError(message, SyncErrorCategory.values[ref.category], ref.value);
+    final messageText = detailed_message.cast<Utf8>().toRealmDartString()!;
+    final SyncErrorCode errorCode = error_code.toSyncErrorCode();
+    final isFatal = is_fatal == 0 ? false : true;
+    final isUnrecognizedByClient = is_unrecognized_by_client == 0 ? false : true;
+    final isClientResetRequested = is_client_reset_requested == 0 ? false : true;
+    final userInfoMapKey = user_info_map.ref.key.cast<Utf8>().toRealmDartString()!;
+    final userInfoMapValue = user_info_map.ref.value.cast<Utf8>().toRealmDartString()!;
+    final userInfoMap = <String, String>{};
+    userInfoMap[userInfoMapKey] = userInfoMapValue;
+    final userInfoLength = user_info_length;
+
+    return SyncError(
+      errorCode,
+      messageText,
+      isFatal,
+      isUnrecognizedByClient,
+      isClientResetRequested,
+      userInfoMap,
+      userInfoLength,
+    );
+  }
+}
+
+extension on realm_sync_error_code {
+  SyncErrorCode toSyncErrorCode() {
+    final messageText = message.cast<Utf8>().toRealmDartString()!;
+    return SyncErrorCode(messageText, SyncErrorCategory.values[category], value);
   }
 }
 

@@ -79,18 +79,6 @@ class RealmStateError extends StateError implements RealmError {
   RealmStateError(String message) : super(message);
 }
 
-/// Thrown or reporeted if an error occurs during synchronization
-/// {@category Sync}
-class SyncError extends RealmError {
-  /// The code of the error
-  final int code; // TODO: this should be an enum
-
-  /// The category of the error
-  final SyncErrorCategory category;
-
-  SyncError(String message, this.category, this.code) : super(message);
-}
-
 /// The category of a [SyncError].
 enum SyncErrorCategory {
   /// The error originated from the client
@@ -107,6 +95,37 @@ enum SyncErrorCategory {
 
   /// The category is unknown
   unknown,
+}
+
+/// Thrown or reporeted if an error occurs during synchronization
+/// {@category Sync}
+class SyncErrorCode extends RealmError {
+  /// The code of the error
+  final int code; // TODO: this should be an enum
+
+  /// The category of the error
+  final SyncErrorCategory category;
+
+  SyncErrorCode(String message, this.category, this.code) : super(message);
+}
+
+class SyncError extends RealmError {
+  final SyncErrorCode errorCode;
+  final bool isFatal;
+  final bool isUnrecognizedByClient;
+  final bool isClientResetRequested;
+  final Map<String, String> userInfoMap;
+  final int userInfoLength;
+
+  SyncError(
+    this.errorCode,
+    String message,
+    this.isFatal,
+    this.isUnrecognizedByClient,
+    this.isClientResetRequested,
+    this.userInfoMap,
+    this.userInfoLength,
+  ) : super(message);
 }
 
 /// @nodoc

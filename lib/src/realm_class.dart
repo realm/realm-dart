@@ -38,6 +38,7 @@ export 'package:realm_common/realm_common.dart'
         MapTo,
         PrimaryKey,
         RealmError,
+        SyncErrorCode,
         SyncError,
         SyncErrorCategory,
         RealmModel,
