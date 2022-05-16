@@ -123,7 +123,7 @@ abstract class Configuration {
   }) = InMemoryConfiguration;
 
   /// Constructs a [FlexibleSyncConfiguration]
-  factory Configuration.flexibleSync(
+  factory Configuration.sync(
     User user,
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
