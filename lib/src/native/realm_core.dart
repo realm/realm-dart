@@ -1178,6 +1178,22 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_user_log_out(user.handle._pointer), "Logout failed");
     return Future<void>.value();
   }
+
+  String? userGetDeviceId(User user) {
+    final deviceId = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_device_id(user.handle._pointer));
+    return deviceId.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true, freeNativeMemory: true);
+  }
+
+  AuthProviderType userGetAuthProviderType(User user) {
+    final provider = _realmLib.realm_user_get_auth_provider(user.handle._pointer);
+    return AuthProviderType.values.fromIndex(provider);
+  }
+
+  UserProfile userGetProfileData(User user) {
+    final data = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_profile_data(user.handle._pointer));
+    final dynamic profileData = jsonDecode(data.cast<Utf8>().toRealmDartString(freeNativeMemory: true)!);
+    return UserProfile(profileData as Map<String, dynamic>);
+  }
 }
 
 class LastError {
