@@ -29,7 +29,7 @@ Future<void> main([List<String>? args]) async {
 
   await setupTests(args);
 
-  test('AppConfiguration can be created', () {
+  test('AppConfiguration can be initialized', () {
     final a = AppConfiguration('myapp');
     expect(a.appId, 'myapp');
     expect(a.baseFilePath.path, Configuration.filesPath);
@@ -48,7 +48,7 @@ Future<void> main([List<String>? args]) async {
       localAppVersion: "1.0.0",
       metadataPersistenceMode: MetadataPersistenceMode.disabled,
       logLevel: LogLevel.info,
-      requestTimeout: 1000,
+      maxConnectionTimeout: const Duration(minutes: 1),
       httpClient: httpClient,
     );
     expect(b.appId, 'myapp1');
@@ -57,11 +57,23 @@ Future<void> main([List<String>? args]) async {
     expect(b.defaultRequestTimeout, const Duration(seconds: 2));
     expect(b.logLevel, LogLevel.info);
     expect(b.metadataPersistenceMode, MetadataPersistenceMode.disabled);
-    expect(b.requestTimeout, 1000);
+    expect(b.maxConnectionTimeout, const Duration(minutes: 1));
     expect(b.httpClient, httpClient);
   });
+  
+test('AppConfiguration can be created with defaults', () {
+    final appConfig = AppConfiguration('myapp1');
+    final app = App(appConfig);
+    expect(app.configuration.appId, 'myapp1');
+    expect(app.configuration.baseUrl, Uri.parse('https://realm.mongodb.com'));
+    expect(app.configuration.defaultRequestTimeout, const Duration(minutes: 1));
+    expect(app.configuration.logLevel, LogLevel.error);
+    expect(app.configuration.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
+    expect(app.configuration.maxConnectionTimeout, const Duration(minutes: 2));
+    expect(app.configuration.httpClient, isNotNull);
+  });
 
-  test('AppConfiguration can be created and an App could be created', () {
+  test('AppConfiguration can be created', () {
     final httpClient = HttpClient(context: SecurityContext(withTrustedRoots: false));
     final appConfig = AppConfiguration(
       'myapp1',
@@ -73,7 +85,7 @@ Future<void> main([List<String>? args]) async {
       metadataPersistenceMode: MetadataPersistenceMode.encrypted,
       metadataEncryptionKey: base64.decode("ekey"),
       logLevel: LogLevel.info,
-      requestTimeout: 1000,
+      maxConnectionTimeout: const Duration(minutes: 1),
       httpClient: httpClient,
     );
     final app = App(appConfig);
@@ -83,7 +95,7 @@ Future<void> main([List<String>? args]) async {
     expect(app.configuration.defaultRequestTimeout, const Duration(seconds: 2));
     expect(app.configuration.logLevel, LogLevel.info);
     expect(app.configuration.metadataPersistenceMode, MetadataPersistenceMode.encrypted);
-    expect(app.configuration.requestTimeout, 1000);
+    expect(app.configuration.maxConnectionTimeout, const Duration(minutes: 1));
     expect(app.configuration.httpClient, httpClient);
   });
 

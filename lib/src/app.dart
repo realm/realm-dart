@@ -77,6 +77,8 @@ enum LogLevel {
 /// A class exposing configuration options for an [App]
 /// {@category Application}
 class AppConfiguration {
+  static const int defaultConnectionTimeout = 120000;
+
   /// The [appId] is the unique id that identifies the Realm application.
   final String appId;
 
@@ -94,6 +96,12 @@ class AppConfiguration {
 
   /// The [defaultRequestTimeout] for HTTP requests. Defaults to 60 seconds.
   final Duration defaultRequestTimeout;
+
+  /// The maximum duration to allow for a connection to
+  /// become fully established. This includes the time to resolve the
+  /// network address, the TCP connect operation, the SSL handshake, and
+  /// the WebSocket handshake. Defaults to 2 minutes.
+  final Duration maxConnectionTimeout;
 
   /// The [localAppName] is the friendly name identifying the current client application.
   ///
@@ -122,9 +130,6 @@ class AppConfiguration {
   /// The [LogLevel] for sync operations.
   final LogLevel logLevel;
 
-  /// The default HTTP request timeout in milliseconds.
-  final int requestTimeout;
-
   /// The [HttpClient] that will be used for HTTP requests during authentication.
   ///
   /// You can use this to override the default http client handler and configure settings like proxies,
@@ -132,7 +137,7 @@ class AppConfiguration {
   /// normal circumstances, they can be useful if client devices are behind corporate firewall or use
   /// a more complex networking setup.
   final HttpClient httpClient;
-
+  
   /// Instantiates a new [AppConfiguration] with the specified appId.
   AppConfiguration(
     this.appId, {
@@ -144,7 +149,7 @@ class AppConfiguration {
     this.metadataEncryptionKey,
     this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
     this.logLevel = LogLevel.error,
-    this.requestTimeout = 0,
+    this.maxConnectionTimeout = const Duration(minutes: 2),
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
         baseFilePath = baseFilePath ?? Directory(Configuration.filesPath),
