@@ -686,7 +686,12 @@ jobs:
           dart run build_runner build --delete-conflicting-outputs
         working-directory: ./flutter/realm_flutter/example/
 
-      - name: Run ffi gen
+      - name: Install LLVM
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "11.0"
+
+      - name: Run ffigen
         run: dart run ffigen --config config.yaml
         working-directory: ./ffigen
 
