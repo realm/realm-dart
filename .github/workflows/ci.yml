@@ -73,7 +73,7 @@ jobs:
         platform: [linux, windows, macos]
         include:
           - platform: ios
-            package: flutter          
+            package: flutter
     runs-on: ubuntu-latest
     name: Cleanup ${{ matrix.platform }} for ${{ matrix.package }}
     needs:
@@ -659,7 +659,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          submodules: false
+          submodules: 'recursive'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -685,6 +685,13 @@ jobs:
           dart pub get
           dart run build_runner build --delete-conflicting-outputs
         working-directory: ./flutter/realm_flutter/example/
+
+      - name: Install LLVM
+        run: sudo apt update && sudo apt-get install -y libclang-dev
+
+      - name: Run ffigen
+        run: dart run ffigen --config config.yaml
+        working-directory: ./ffigen
 
       - name: Validate there are no uncommitted changes
         run: |
