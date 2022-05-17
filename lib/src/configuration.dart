@@ -16,7 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:async';
 import 'dart:io';
 
 import 'package:path/path.dart' as _path;
@@ -45,7 +44,7 @@ typedef ShouldCompactCallback = bool Function(int totalSize, int usedSize);
 /// Realms, even if all objects in the Realm are deleted.
 typedef InitialDataCallback = void Function(Realm realm);
 
-typedef ErrorHandlerCallback = void Function(SessionHandle user, SyncError error);
+typedef ErrorHandlerCallback = void Function(SessionError error);
 
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}

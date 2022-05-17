@@ -99,33 +99,25 @@ enum SyncErrorCategory {
 
 /// Thrown or reporeted if an error occurs during synchronization
 /// {@category Sync}
-class SyncErrorCode extends RealmError {
+class SyncError extends RealmError {
   /// The code of the error
   final int code; // TODO: this should be an enum
 
   /// The category of the error
   final SyncErrorCategory category;
 
-  SyncErrorCode(String message, this.category, this.code) : super(message);
+  SyncError(String message, this.category, this.code) : super(message);
 }
 
-class SyncError extends RealmError {
-  final SyncErrorCode errorCode;
+class SessionError extends SyncError {
   final bool isFatal;
-  final bool isUnrecognizedByClient;
-  final bool isClientResetRequested;
-  final Map<String, String> userInfoMap;
-  final int userInfoLength;
 
-  SyncError(
-    this.errorCode,
+  SessionError(
     String message,
-    this.isFatal,
-    this.isUnrecognizedByClient,
-    this.isClientResetRequested,
-    this.userInfoMap,
-    this.userInfoLength,
-  ) : super(message);
+    this.isFatal, {
+    SyncErrorCategory category = SyncErrorCategory.unknown,
+    int code = 0,
+  }) : super(message, category, code);
 }
 
 /// @nodoc

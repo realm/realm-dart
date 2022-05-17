@@ -396,14 +396,15 @@ class _RealmCore {
 
     return config.shouldCompactCallback!(totalSize, usedSize) ? TRUE : FALSE;
   }
+  
   static void _syncErrorHandlerCallback(Pointer<Void> userdata, Pointer<realm_sync_session> user, realm_sync_error error) {
     final FlexibleSyncConfiguration? syncConfig = userdata.toObject(isPersistent: true);
     if (syncConfig == null) {
       return;
     }
     if (syncConfig.errorHandlerCallback != null) {
-      final syncError = error.toSyncError();
-      syncConfig.errorHandlerCallback!(SessionHandle._(user), syncError);
+      final sessionError = error.toSessionError();
+      syncConfig.errorHandlerCallback!(sessionError);
     }
   }
 
@@ -1483,7 +1484,7 @@ class _RealmCore {
     }
 
     if (errorCode != nullptr) {
-      completer.completeError(errorCode.ref.toSyncErrorCode());
+      completer.completeError(errorCode.ref.toSyncError());
     } else {
       completer.complete();
     }
@@ -1822,34 +1823,24 @@ extension on Pointer<Utf8> {
 }
 
 extension on realm_sync_error {
-  SyncError toSyncError() {
+  SessionError toSessionError() {
     final messageText = detailed_message.cast<Utf8>().toRealmDartString()!;
-    final SyncErrorCode errorCode = error_code.toSyncErrorCode();
+    final SyncError errorCode = error_code.toSyncError();
     final isFatal = is_fatal == 0 ? false : true;
-    final isUnrecognizedByClient = is_unrecognized_by_client == 0 ? false : true;
-    final isClientResetRequested = is_client_reset_requested == 0 ? false : true;
-    final userInfoMapKey = user_info_map.ref.key.cast<Utf8>().toRealmDartString()!;
-    final userInfoMapValue = user_info_map.ref.value.cast<Utf8>().toRealmDartString()!;
-    final userInfoMap = <String, String>{};
-    userInfoMap[userInfoMapKey] = userInfoMapValue;
-    final userInfoLength = user_info_length;
-
-    return SyncError(
-      errorCode,
+    
+    return SessionError(
       messageText,
       isFatal,
-      isUnrecognizedByClient,
-      isClientResetRequested,
-      userInfoMap,
-      userInfoLength,
+      category: errorCode.category,
+      code: errorCode.code,
     );
   }
 }
 
 extension on realm_sync_error_code {
-  SyncErrorCode toSyncErrorCode() {
+  SyncError toSyncError() {
     final messageText = message.cast<Utf8>().toRealmDartString()!;
-    return SyncErrorCode(messageText, SyncErrorCategory.values[category], value);
+    return SyncError(messageText, SyncErrorCategory.values[category], value);
   }
 }
 
