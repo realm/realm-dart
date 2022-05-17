@@ -3134,6 +3134,40 @@ class RealmLibrary {
   late final _realm_dart_scheduler_invoke = _realm_dart_scheduler_invokePtr
       .asFunction<void Function(int, ffi.Pointer<ffi.Void>)>();
 
+  void realm_dart_sync_client_config_set_log_callback(
+    ffi.Pointer<realm_sync_client_config_t> config,
+    realm_log_func_t callback,
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t userdata_free,
+    ffi.Pointer<realm_scheduler_t> scheduler,
+  ) {
+    return _realm_dart_sync_client_config_set_log_callback(
+      config,
+      callback,
+      userdata,
+      userdata_free,
+      scheduler,
+    );
+  }
+
+  late final _realm_dart_sync_client_config_set_log_callbackPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<realm_sync_client_config_t>,
+                  realm_log_func_t,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t,
+                  ffi.Pointer<realm_scheduler_t>)>>(
+      'realm_dart_sync_client_config_set_log_callback');
+  late final _realm_dart_sync_client_config_set_log_callback =
+      _realm_dart_sync_client_config_set_log_callbackPtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_sync_client_config_t>,
+              realm_log_func_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              ffi.Pointer<realm_scheduler_t>)>();
+
   /// Register a handler in order to be notified when subscription set is equal to the one passed as parameter
   /// This is an asynchronous operation.
   ///
@@ -3145,7 +3179,7 @@ class RealmLibrary {
   bool realm_dart_sync_on_subscription_set_state_change_async(
     ffi.Pointer<realm_flx_sync_subscription_set_t> subscription_set,
     int notify_when,
-    realm_dart_sync_on_subscription_state_changed callback,
+    realm_sync_on_subscription_state_changed_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
     ffi.Pointer<realm_scheduler_t> scheduler,
@@ -3167,7 +3201,7 @@ class RealmLibrary {
                   ffi.Uint8 Function(
                       ffi.Pointer<realm_flx_sync_subscription_set_t>,
                       ffi.Int32,
-                      realm_dart_sync_on_subscription_state_changed,
+                      realm_sync_on_subscription_state_changed_t,
                       ffi.Pointer<ffi.Void>,
                       realm_free_userdata_func_t,
                       ffi.Pointer<realm_scheduler_t>)>>(
@@ -3177,7 +3211,7 @@ class RealmLibrary {
           int Function(
               ffi.Pointer<realm_flx_sync_subscription_set_t>,
               int,
-              realm_dart_sync_on_subscription_state_changed,
+              realm_sync_on_subscription_state_changed_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
               ffi.Pointer<realm_scheduler_t>)>();
@@ -9099,10 +9133,20 @@ class _SymbolAddresses {
           _library._realm_dart_scheduler_invokePtr;
   ffi.Pointer<
           ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<realm_sync_client_config_t>,
+                  realm_log_func_t,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t,
+                  ffi.Pointer<realm_scheduler_t>)>>
+      get realm_dart_sync_client_config_set_log_callback =>
+          _library._realm_dart_sync_client_config_set_log_callbackPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
               ffi.Uint8 Function(
                   ffi.Pointer<realm_flx_sync_subscription_set_t>,
                   ffi.Int32,
-                  realm_dart_sync_on_subscription_state_changed,
+                  realm_sync_on_subscription_state_changed_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t,
                   ffi.Pointer<realm_scheduler_t>)>>
@@ -9470,8 +9514,6 @@ abstract class realm_column_attr {
 class realm_config extends ffi.Opaque {}
 
 typedef realm_config_t = realm_config;
-typedef realm_dart_sync_on_subscription_state_changed = ffi.Pointer<
-    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>;
 typedef realm_data_initialization_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Uint8 Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>;
