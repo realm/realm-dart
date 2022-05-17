@@ -23,6 +23,42 @@ import 'credentials.dart';
 import 'user.dart';
 import 'configuration.dart';
 
+/// Specifies the criticality level above which messages will be logged
+/// by the default sync client logger.
+/// {@category Application}
+enum LogLevel {
+  /// Log everything. This will seriously harm the performance of the
+  /// sync client and should never be used in production scenarios.
+  all,
+
+  /// A version of 'debug' that allows for very high volume output.
+  /// This may seriously affect the performance of the sync client.
+  trace,
+
+  /// Reveal information that can aid debugging, no longer paying
+  /// attention to efficiency.
+  debug,
+
+  /// Same as 'Info', but prioritize completeness over minimalism.
+  detail,
+
+  /// Log operational sync client messages, but in a minimalistic fashion to
+  /// avoid general overhead from logging and to keep volume down.
+  info,
+
+  /// Log errors and warnings.
+  warn,
+
+  /// Log errors only.
+  error,
+
+  /// Log only fatal errors.
+  fatal,
+
+  /// Log nothing.
+  off,
+}
+
 /// A class exposing configuration options for an [App]
 /// {@category Application}
 @immutable
@@ -44,6 +80,12 @@ class AppConfiguration {
 
   /// The [defaultRequestTimeout] for HTTP requests. Defaults to 60 seconds.
   final Duration defaultRequestTimeout;
+
+  /// The maximum duration to allow for a connection to
+  /// become fully established. This includes the time to resolve the
+  /// network address, the TCP connect operation, the SSL handshake, and
+  /// the WebSocket handshake. Defaults to 2 minutes.
+  final Duration maxConnectionTimeout;
 
   /// The [localAppName] is the friendly name identifying the current client application.
   ///
@@ -69,6 +111,9 @@ class AppConfiguration {
   /// Setting this will not change the encryption key for individual Realms, which is set in the [Configuration].
   final List<int>? metadataEncryptionKey;
 
+  /// The [LogLevel] for sync operations.
+  final LogLevel logLevel;
+
   /// The [HttpClient] that will be used for HTTP requests during authentication.
   ///
   /// You can use this to override the default http client handler and configure settings like proxies,
@@ -87,6 +132,8 @@ class AppConfiguration {
     this.localAppVersion,
     this.metadataEncryptionKey,
     this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
+    this.logLevel = LogLevel.error,
+    this.maxConnectionTimeout = const Duration(minutes: 2),
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
         baseFilePath = baseFilePath ?? Directory(Configuration.filesPath),
