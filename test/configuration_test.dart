@@ -29,11 +29,11 @@ Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
   test('Configuration can be created', () {
-    Configuration([Car.schema]);
+    Configuration.local([Car.schema]);
   });
 
   test('Configuration exception if no schema', () {
-    expect(() => Configuration([]), throws<RealmException>());
+    expect(() => Configuration.local([]), throws<RealmException>());
   });
 
   test('Configuration default path', () {
@@ -55,61 +55,61 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration get/set path', () {
-    final config = Configuration([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     expect(config.path, endsWith('.realm'));
 
     const path = "my/path/default.realm";
-    final explicitPathConfig = Configuration([Car.schema], path: path);
+    final explicitPathConfig = Configuration.local([Car.schema], path: path);
     expect(explicitPathConfig.path, equals(path));
   });
 
   test('Configuration get/set schema version', () {
-    final config = Configuration([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     expect(config.schemaVersion, equals(0));
 
-    final explicitSchemaConfig = Configuration([Car.schema], schemaVersion: 3);
+    final explicitSchemaConfig = Configuration.local([Car.schema], schemaVersion: 3);
     expect(explicitSchemaConfig.schemaVersion, equals(3));
   });
 
   test('Configuration readOnly - opening non existing realm throws', () {
-    Configuration config = Configuration([Car.schema], isReadOnly: true);
+    Configuration config = Configuration.local([Car.schema], isReadOnly: true);
     expect(() => getRealm(config), throws<RealmException>("at path '${config.path}' does not exist"));
   });
 
   test('Configuration readOnly - open existing realm with read-only config', () {
-    Configuration config = Configuration([Car.schema]);
+    Configuration config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     realm.close();
 
     // Open an existing realm as readonly.
-    config = Configuration([Car.schema], isReadOnly: true);
+    config = Configuration.local([Car.schema], isReadOnly: true);
     realm = getRealm(config);
   });
 
   test('Configuration readOnly - reading is possible', () {
-    Configuration config = Configuration([Car.schema]);
+    Configuration config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     realm.write(() => realm.add(Car("Mustang")));
     realm.close();
 
-    config = Configuration([Car.schema], isReadOnly: true);
+    config = Configuration.local([Car.schema], isReadOnly: true);
     realm = getRealm(config);
     var cars = realm.all<Car>();
     expect(cars.length, 1);
   });
 
   test('Configuration readOnly - writing on read-only Realms throws', () {
-    Configuration config = Configuration([Car.schema]);
+    Configuration config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     realm.close();
 
-    config = Configuration([Car.schema], isReadOnly: true);
+    config = Configuration.local([Car.schema], isReadOnly: true);
     realm = getRealm(config);
     expect(() => realm.write(() {}), throws<RealmException>("Can't perform transactions on read-only Realms."));
   });
 
   test('Configuration inMemory - no files after closing realm', () {
-    Configuration config = Configuration([Car.schema], isInMemory: true);
+    Configuration config = Configuration.inMemory([Car.schema], '');
     var realm = getRealm(config);
     realm.write(() => realm.add(Car('Tesla')));
     realm.close();
@@ -117,37 +117,37 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration inMemory can not be readOnly', () {
-    Configuration config = Configuration([Car.schema], isInMemory: true);
+    Configuration config = Configuration.inMemory([Car.schema], '');
     final realm = getRealm(config);
 
     expect(() {
-      config = Configuration([Car.schema], isReadOnly: true);
+      config = Configuration.local([Car.schema], isReadOnly: true);
       getRealm(config);
     }, throws<RealmException>("Realm at path '${config.path}' already opened with different read permissions"));
   });
 
   test('Configuration - FIFO files fallback path', () {
-    Configuration config = Configuration([Car.schema], fifoFilesFallbackPath: "./fifo_folder");
+    Configuration config = Configuration.local([Car.schema], fifoFilesFallbackPath: "./fifo_folder");
     final realm = getRealm(config);
   });
 
   test('Configuration.operator== equal configs', () {
-    final config = Configuration([Dog.schema, Person.schema]);
+    final config = Configuration.local([Dog.schema, Person.schema]);
     final realm = getRealm(config);
     expect(config, realm.config);
   });
 
   test('Configuration.operator== different configs', () {
-    var config = Configuration([Dog.schema, Person.schema]);
+    var config = Configuration.local([Dog.schema, Person.schema]);
     final realm1 = getRealm(config);
-    config = Configuration([Dog.schema, Person.schema]);
+    config = Configuration.local([Dog.schema, Person.schema]);
     final realm2 = getRealm(config);
     expect(realm1.config, isNot(realm2.config));
   });
 
   test('Configuration - disableFormatUpgrade=true throws error', () async {
     final realmBundleFile = "test/data/realm_files/old-format.realm";
-    var config = Configuration([Car.schema], disableFormatUpgrade: true);
+    var config = Configuration.local([Car.schema], disableFormatUpgrade: true);
     await File(realmBundleFile).copy(config.path);
     expect(() {
       getRealm(config);
@@ -156,14 +156,14 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration - disableFormatUpgrade=false', () async {
     final realmBundleFile = "test/data/realm_files/old-format.realm";
-    var config = Configuration([Car.schema], disableFormatUpgrade: false);
+    var config = Configuration.local([Car.schema], disableFormatUpgrade: false);
     await File(realmBundleFile).copy(config.path);
     final realm = getRealm(config);
   }, skip: isFlutterPlatform);
 
   test('Configuration.initialDataCallback invoked', () {
     var invoked = false;
-    var config = Configuration([Dog.schema, Person.schema], initialDataCallback: (realm) {
+    var config = Configuration.local([Dog.schema, Person.schema], initialDataCallback: (realm) {
       invoked = true;
       realm.add(Dog('fido', owner: Person('john')));
     });
@@ -182,7 +182,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration.initialDataCallback not invoked for existing realm', () {
     var invoked = false;
-    final config = Configuration([Person.schema], initialDataCallback: (realm) {
+    final config = Configuration.local([Person.schema], initialDataCallback: (realm) {
       invoked = true;
       realm.add(Person('peter'));
     });
@@ -193,7 +193,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
 
     var invokedAgain = false;
-    final configAgain = Configuration([Person.schema], initialDataCallback: (realm) {
+    final configAgain = Configuration.local([Person.schema], initialDataCallback: (realm) {
       invokedAgain = true;
       realm.add(Person('p1'));
       realm.add(Person('p2'));
@@ -206,7 +206,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration.initialDataCallback with error', () {
     var invoked = false;
-    var config = Configuration([Person.schema], initialDataCallback: (realm) {
+    var config = Configuration.local([Person.schema], initialDataCallback: (realm) {
       invoked = true;
       realm.add(Person('p1'));
       throw Exception('very careless developer');
@@ -216,7 +216,7 @@ Future<void> main([List<String>? args]) async {
     expect(invoked, true);
 
     // No data should have been written to the Realm
-    config = Configuration([Person.schema]);
+    config = Configuration.local([Person.schema]);
     final realm = getRealm(config);
 
     expect(realm.all<Person>().length, 0);
@@ -224,7 +224,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration.initialDataCallback with error, invoked on second attempt', () {
     var invoked = false;
-    var config = Configuration([Person.schema], initialDataCallback: (realm) {
+    var config = Configuration.local([Person.schema], initialDataCallback: (realm) {
       invoked = true;
       realm.add(Person('p1'));
       throw Exception('very careless developer');
@@ -234,7 +234,7 @@ Future<void> main([List<String>? args]) async {
     expect(invoked, true);
 
     var secondInvoked = false;
-    config = Configuration([Person.schema], initialDataCallback: (realm) {
+    config = Configuration.local([Person.schema], initialDataCallback: (realm) {
       invoked = true;
       realm.add(Person('p1'));
     });
@@ -245,13 +245,13 @@ Future<void> main([List<String>? args]) async {
   }, skip: 'TODO: Realm gets created even though it errors out on open - https://github.com/realm/realm-core/issues/5364');
 
   test('Configuration.initialDataCallback is a no-op when opening an empty existing Realm', () {
-    var config = Configuration([Person.schema]);
+    var config = Configuration.local([Person.schema]);
 
     // Create the Realm and close it
     getRealm(config).close();
 
     var invoked = false;
-    config = Configuration([Person.schema], initialDataCallback: (realm) {
+    config = Configuration.local([Person.schema], initialDataCallback: (realm) {
       invoked = true;
       realm.add(Person("john"));
     });
@@ -266,7 +266,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration.initialDataCallback can use non-add API in callback', () {
     Exception? callbackEx;
-    final config = Configuration([Person.schema], initialDataCallback: (realm) {
+    final config = Configuration.local([Person.schema], initialDataCallback: (realm) {
       try {
         final george = realm.add(Person("George"));
 
@@ -286,7 +286,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration.initialDataCallback realm.write fails', () {
     Exception? callbackEx;
-    final config = Configuration([Person.schema], initialDataCallback: (realm) {
+    final config = Configuration.local([Person.schema], initialDataCallback: (realm) {
       try {
         realm.write(() => null);
       } on RealmException catch (ex) {
@@ -302,7 +302,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration.shouldCompact can return false', () {
     var invoked = false;
-    var config = Configuration([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
+    var config = Configuration.local([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
       invoked = true;
       return false;
     });
@@ -313,7 +313,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration.shouldCompact invoked on every open', () {
     var invoked = 0;
-    var config = Configuration([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
+    var config = Configuration.local([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
       invoked++;
       return false;
     });
@@ -329,7 +329,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration.shouldCompact not invoked if a Realm is still open', () {
     var invoked = 0;
-    var config = Configuration([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
+    var config = Configuration.local([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
       invoked++;
       return false;
     });
@@ -345,7 +345,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration.shouldCompact can return true', () {
     var invoked = false;
-    var config = Configuration([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
+    var config = Configuration.local([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {
       invoked = true;
       return totalSize > 0;
     });
@@ -374,7 +374,7 @@ Future<void> main([List<String>? args]) async {
 
   for (var shouldCompact in [true, false]) {
     test('Configuration.shouldCompact when return $shouldCompact triggers compaction', () {
-      var config = Configuration([Person.schema]);
+      var config = Configuration.local([Person.schema]);
 
       final populateRealm = Realm(config);
       _addDummyData(populateRealm);
@@ -383,7 +383,7 @@ Future<void> main([List<String>? args]) async {
       final oldSize = File(config.path).lengthSync();
       var projectedNewSize = 0;
 
-      config = Configuration([Person.schema], shouldCompactCallback: (totalSize, usedSize) {
+      config = Configuration.local([Person.schema], shouldCompactCallback: (totalSize, usedSize) {
         projectedNewSize = usedSize;
         return shouldCompact;
       });

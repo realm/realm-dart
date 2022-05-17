@@ -74,7 +74,7 @@ Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
   test('RealmObject get property', () {
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     final car = Car('Tesla');
@@ -86,7 +86,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject set property', () {
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     final car = Car('Tesla');
@@ -104,7 +104,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject set object type property (link)', () {
-    var config = Configuration([Person.schema, Dog.schema]);
+    var config = Configuration.local([Person.schema, Dog.schema]);
     var realm = getRealm(config);
 
     final dog = Dog(
@@ -121,7 +121,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject set property null', () {
-    var config = Configuration([Person.schema, Dog.schema]);
+    var config = Configuration.local([Person.schema, Dog.schema]);
     var realm = getRealm(config);
 
     final dog = Dog(
@@ -152,7 +152,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject.operator==', () {
-    var config = Configuration([Dog.schema, Person.schema]);
+    var config = Configuration.local([Dog.schema, Person.schema]);
     var realm = getRealm(config);
 
     final person = Person('Kasper');
@@ -174,7 +174,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject isValid', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     var team = Team("team one");
@@ -188,7 +188,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject read deleted object properties', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     var team = Team("TeamOne");
@@ -204,7 +204,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject - write object property after realm is closed', () {
-    var config = Configuration([Person.schema]);
+    var config = Configuration.local([Person.schema]);
     var realm = getRealm(config);
 
     final person = Person('Markos');
@@ -215,7 +215,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject write deleted object property', () {
-    var config = Configuration([Person.schema]);
+    var config = Configuration.local([Person.schema]);
     var realm = getRealm(config);
 
     final person = Person('Markos');
@@ -233,7 +233,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject notifications', () async {
-    var config = Configuration([Dog.schema, Person.schema]);
+    var config = Configuration.local([Dog.schema, Person.schema]);
     var realm = getRealm(config);
 
     final dog = Dog("Lassy");
@@ -287,7 +287,7 @@ Future<void> main([List<String>? args]) async {
   void testPrimaryKey<T extends RealmObject, K extends Object>(SchemaObject schema, T Function() createObject, K key) {
     test("$T primary key: $key", () {
       final pkProp = schema.properties.where((p) => p.primaryKey).single;
-      final realm = Realm(Configuration([schema]));
+      final realm = Realm(Configuration.local([schema]));
       final obj = realm.write(() {
         return realm.add(createObject());
       });
@@ -331,7 +331,7 @@ Future<void> main([List<String>? args]) async {
   }
 
   test('Remapped property has correct names in Core', () {
-    final config = Configuration([RemappedClass.schema]);
+    final config = Configuration.local([RemappedClass.schema]);
     final realm = getRealm(config);
 
     final obj = realm.write(() {
@@ -353,7 +353,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Remapped class across different files works', () {
-    final config = Configuration([RemappedClass.schema, RemappedFromAnotherFile.schema]);
+    final config = Configuration.local([RemappedClass.schema, RemappedFromAnotherFile.schema]);
     final realm = getRealm(config);
     final obj = realm.write(() {
       return realm.add(RemappedFromAnotherFile(linkToAnotherClass: RemappedClass("prop")));
@@ -367,7 +367,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject read/write bool value', () {
-    var config = Configuration([BoolValue.schema]);
+    var config = Configuration.local([BoolValue.schema]);
     var realm = getRealm(config);
 
     realm.write(() {

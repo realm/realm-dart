@@ -23,19 +23,6 @@ import 'credentials.dart';
 import 'user.dart';
 import 'configuration.dart';
 
-/// Specify if and how to persists user objects.
-/// {@category Application}
-enum MetadataPersistenceMode {
-  /// Persist [User] objects, but do not encrypt them.
-  plaintext,
-
-  /// Persist [User] objects in an encrypted store.
-  encrypted,
-
-  /// Do not persist [User] objects.
-  disabled,
-}
-
 /// Specifies the criticality level above which messages will be logged
 /// by the default sync client logger.
 /// {@category Application}
@@ -72,12 +59,10 @@ enum LogLevel {
   off,
 }
 
-@immutable
-
 /// A class exposing configuration options for an [App]
 /// {@category Application}
+@immutable
 class AppConfiguration {
-
   /// The [appId] is the unique id that identifies the Realm application.
   final String appId;
 
@@ -136,7 +121,7 @@ class AppConfiguration {
   /// normal circumstances, they can be useful if client devices are behind corporate firewall or use
   /// a more complex networking setup.
   final HttpClient httpClient;
-  
+
   /// Instantiates a new [AppConfiguration] with the specified appId.
   AppConfiguration(
     this.appId, {
@@ -200,6 +185,19 @@ class App {
 
   /// Returns an instance of [EmailPasswordAuthProvider]
   EmailPasswordAuthProvider get emailPasswordAuthProvider => EmailPasswordAuthProviderInternal.create(this);
+}
+
+/// Specify if and how to persists user objects.
+/// {@category Application}
+enum MetadataPersistenceMode {
+  /// Persist [User] objects, but do not encrypt them.
+  plaintext,
+
+  /// Persist [User] objects in an encrypted store.
+  encrypted,
+
+  /// Do not persist [User] objects.
+  disabled,
 }
 
 /// @nodoc
