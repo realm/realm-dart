@@ -134,7 +134,6 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
   /// Finds an existing [Subscription] in this set by its query
   ///
   /// The [query] is represented by the corresponding [RealmResults] object.
-  /// Finds a subscription by query.
   ///
   /// Returns null, if not found
   Subscription? find<T extends RealmObject>(RealmResults<T> query) {
