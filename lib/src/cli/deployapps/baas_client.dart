@@ -182,7 +182,7 @@ class BaasClient {
       "flexible_sync": {
         "state": "enabled",
         "database_name": "flexible_sync_data",
-        "queryable_fields_names": ["TODO"],
+        "queryable_fields_names": ["differentiator"],
         "permissions": {
           "rules": {},
           "defaultRoles": [
