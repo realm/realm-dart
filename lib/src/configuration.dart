@@ -124,8 +124,9 @@ class Configuration {
   /// during the life of a process to determine if it should be compacted
   /// before being returned to the user.
   ///
-  /// [totalSize] - The total file size (data + free space)
-  /// [usedSize] - The total bytes used by data in the file.
+  /// `totalSize` - The total file size (data + free space).
+  /// `usedSize` - The total bytes used by data in the file.
+  ///
   /// It returns true to indicate that an attempt to compact the file should be made.
   /// The compaction will be skipped if another process is currently accessing the realm file.
   final bool Function(int totalSize, int usedSize)? shouldCompactCallback;
