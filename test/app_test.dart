@@ -30,16 +30,16 @@ Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
   test('AppConfiguration can be initialized', () {
-    final a = AppConfiguration('myapp');
-    expect(a.appId, 'myapp');
-    expect(a.baseFilePath.path, Configuration.filesPath);
-    expect(a.baseUrl, Uri.parse('https://realm.mongodb.com'));
-    expect(a.defaultRequestTimeout, const Duration(minutes: 1));
-    expect(a.logLevel, LogLevel.error);
-    expect(a.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
+    final defaultAppConfig = AppConfiguration('myapp');
+    expect(defaultAppConfig.appId, 'myapp');
+    expect(defaultAppConfig.baseFilePath.path, Configuration.filesPath);
+    expect(defaultAppConfig.baseUrl, Uri.parse('https://realm.mongodb.com'));
+    expect(defaultAppConfig.defaultRequestTimeout, const Duration(minutes: 1));
+    expect(defaultAppConfig.logLevel, LogLevel.error);
+    expect(defaultAppConfig.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
 
     final httpClient = HttpClient(context: SecurityContext(withTrustedRoots: false));
-    final b = AppConfiguration(
+    final appConfig = AppConfiguration(
       'myapp1',
       baseFilePath: Directory.systemTemp,
       baseUrl: Uri.parse('https://not_re.al'),
@@ -51,14 +51,14 @@ Future<void> main([List<String>? args]) async {
       maxConnectionTimeout: const Duration(minutes: 1),
       httpClient: httpClient,
     );
-    expect(b.appId, 'myapp1');
-    expect(b.baseFilePath.path, Directory.systemTemp.path);
-    expect(b.baseUrl, Uri.parse('https://not_re.al'));
-    expect(b.defaultRequestTimeout, const Duration(seconds: 2));
-    expect(b.logLevel, LogLevel.info);
-    expect(b.metadataPersistenceMode, MetadataPersistenceMode.disabled);
-    expect(b.maxConnectionTimeout, const Duration(minutes: 1));
-    expect(b.httpClient, httpClient);
+    expect(appConfig.appId, 'myapp1');
+    expect(appConfig.baseFilePath.path, Directory.systemTemp.path);
+    expect(appConfig.baseUrl, Uri.parse('https://not_re.al'));
+    expect(appConfig.defaultRequestTimeout, const Duration(seconds: 2));
+    expect(appConfig.logLevel, LogLevel.info);
+    expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.disabled);
+    expect(appConfig.maxConnectionTimeout, const Duration(minutes: 1));
+    expect(appConfig.httpClient, httpClient);
   });
   
 test('AppConfiguration can be created with defaults', () {
