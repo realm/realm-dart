@@ -327,3 +327,72 @@ class RemappedClass extends $RemappedClass with RealmEntity, RealmObject {
     ]);
   }
 }
+
+class Task extends _Task with RealmEntity, RealmObject {
+  Task(
+    ObjectId id,
+  ) {
+    RealmObject.set(this, '_id', id);
+  }
+
+  Task._();
+
+  @override
+  ObjectId get id => RealmObject.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Task>> get changes =>
+      RealmObject.getChanges<Task>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(Task._);
+    return const SchemaObject(Task, 'Task', [
+      SchemaProperty('_id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+    ]);
+  }
+}
+
+class Schedule extends _Schedule with RealmEntity, RealmObject {
+  Schedule(
+    ObjectId id, {
+    Iterable<Task> tasks = const [],
+  }) {
+    RealmObject.set(this, '_id', id);
+    RealmObject.set<RealmList<Task>>(this, 'tasks', RealmList<Task>(tasks));
+  }
+
+  Schedule._();
+
+  @override
+  ObjectId get id => RealmObject.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<Task> get tasks =>
+      RealmObject.get<Task>(this, 'tasks') as RealmList<Task>;
+  @override
+  set tasks(covariant RealmList<Task> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Schedule>> get changes =>
+      RealmObject.getChanges<Schedule>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(Schedule._);
+    return const SchemaObject(Schedule, 'Schedule', [
+      SchemaProperty('_id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('tasks', RealmPropertyType.object,
+          linkTarget: 'Task', collectionType: RealmCollectionType.list),
+    ]);
+  }
+}

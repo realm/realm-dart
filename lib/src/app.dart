@@ -23,23 +23,9 @@ import 'credentials.dart';
 import 'user.dart';
 import 'configuration.dart';
 
-/// Specify if and how to persists user objects.
-/// {@category Application}
-enum MetadataPersistenceMode {
-  /// Persist [User] objects, but do not encrypt them.
-  plaintext,
-
-  /// Persist [User] objects in an encrypted store.
-  encrypted,
-
-  /// Do not persist [User] objects.
-  disabled,
-}
-
-@immutable
-
 /// A class exposing configuration options for an [App]
 /// {@category Application}
+@immutable
 class AppConfiguration {
   /// The [appId] is the unique id that identifies the Realm application.
   final String appId;
@@ -144,7 +130,7 @@ class App {
   Future<void> removeUser(User user) async {
     return await realmCore.removeUser(this, user);
   }
-  
+
   /// Switches the [currentUser] to the one specified in [user].
   void switchUser(User user) {
     realmCore.switchUser(this, user);
@@ -152,6 +138,19 @@ class App {
 
   /// Returns an instance of [EmailPasswordAuthProvider]
   EmailPasswordAuthProvider get emailPasswordAuthProvider => EmailPasswordAuthProviderInternal.create(this);
+}
+
+/// Specify if and how to persists user objects.
+/// {@category Application}
+enum MetadataPersistenceMode {
+  /// Persist [User] objects, but do not encrypt them.
+  plaintext,
+
+  /// Persist [User] objects in an encrypted store.
+  encrypted,
+
+  /// Do not persist [User] objects.
+  disabled,
 }
 
 /// @nodoc

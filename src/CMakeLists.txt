@@ -10,12 +10,14 @@ add_subdirectory(dart-dl)
 set(SOURCES
     realm_dart.cpp
     realm_dart_scheduler.cpp
+    subscription_set.cpp
 )
 
 set(HEADERS
     realm_dart.h
     realm_dart_scheduler.h
     realm-core/src/realm.h
+    subscription_set.h
 )
 
 add_library(realm_dart SHARED ${SOURCES} ${HEADERS})

@@ -28,9 +28,8 @@ import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'results.dart';
+import 'subscription.dart';
 
-// always expose with `show` to explicitly control the public API surface
-export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App;
 export 'package:realm_common/realm_common.dart'
     show
         Ignored,
@@ -45,12 +44,26 @@ export 'package:realm_common/realm_common.dart'
         RealmPropertyType,
         ObjectId,
         Uuid;
-export "configuration.dart" show Configuration, RealmSchema, SchemaObject;
+
+// always expose with `show` to explicitly control the public API surface
+export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App;
+export "configuration.dart"
+    show
+        Configuration,
+        FlexibleSyncConfiguration,
+        InitialDataCallback,
+        InMemoryConfiguration,
+        LocalConfiguration,
+        RealmSchema,
+        SchemaObject,
+        ShouldCompactCallback;
+
+export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
 export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
-export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
+export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState;
 
 /// A [Realm] instance represents a `Realm` database.
@@ -259,6 +272,16 @@ class Realm {
 
   /// Deletes all [RealmObject]s of type `T` in the `Realm`
   void deleteAll<T extends RealmObject>() => deleteMany(all<T>());
+
+  SubscriptionSet? _subscriptions;
+
+  /// The active [subscriptions] for this [Realm]
+  SubscriptionSet get subscriptions {
+    if (config is! FlexibleSyncConfiguration) throw RealmError('subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration');
+    _subscriptions ??= SubscriptionSetInternal.create(this, realmCore.getSubscriptions(this));
+    realmCore.refreshSubscriptionSet(_subscriptions!);
+    return _subscriptions!;
+  }
 
   @override
   // ignore: hash_and_equals

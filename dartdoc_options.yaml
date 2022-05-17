@@ -12,7 +12,10 @@ dartdoc:
     "Application":
       markdown: topic.md
       name: Application
-  categoryOrder: ["Realm", "Configuration", "Annotations", "Application"]
+    "Sync":
+      markdown: topic.md
+      name: Sync
+  categoryOrder: ["Realm", "Configuration", "Annotations", "Application", "Sync"]
   examplePathPrefix: 'example'
   # nodoc: ['generator/flutter/ffigen/scripts/src/test/*.g.dart']
   showUndocumentedCategories: true
