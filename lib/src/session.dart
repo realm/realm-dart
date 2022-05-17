@@ -145,7 +145,7 @@ class SessionProgressNotificationsController {
   final ProgressDirection _direction;
   final ProgressMode _mode;
 
-  late int? _token;
+  int? _token;
   late final StreamController<SyncProgress> _streamController;
 
   SessionProgressNotificationsController(this._session, this._direction, this._mode);
@@ -157,6 +157,10 @@ class SessionProgressNotificationsController {
 
   void onProgress(int transferredBytes, int transferableBytes) {
     _streamController.add(SyncProgress._(transferredBytes, transferableBytes));
+
+    if (transferredBytes >= transferableBytes && _mode == ProgressMode.forCurrentlyOutstandingWork) {
+      _streamController.close();
+    }
   }
 
   void _start() {

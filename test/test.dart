@@ -102,6 +102,23 @@ class _Schedule {
   final tasks = <_Task>[];
 }
 
+@RealmModel()
+class _NullableTypes {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+
+  late ObjectId differentiator;
+
+  late String? stringProp;
+  late bool? boolProp;
+  late DateTime? dateProp;
+  late double? doubleProp;
+  late ObjectId? objectIdProp;
+  late Uuid? uuidProp;
+  late int? intProp;
+}
+
 String? testName;
 final baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
@@ -280,11 +297,22 @@ Future<User> getIntegrationUser(App app) async {
   return await loginWithRetry(app, Credentials.emailPassword(email, password));
 }
 
-Future<Realm> getIntegrationRealm(List<SchemaObject> schemas, {App? app}) async {
+Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, String? path}) async {
   app ??= App(await getAppConfig());
   final user = await getIntegrationUser(app);
-  final config = Configuration.sync(user, schemas);
-  return getRealm(config);
+
+  // TODO: path will not be needed after https://github.com/realm/realm-dart/pull/574
+  final config = Configuration.sync(user, [Task.schema, Schedule.schema, NullableTypes.schema], path: path);
+  final realm = getRealm(config);
+  if (differentiator != null) {
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.query<NullableTypes>('differentiator = \$0', [differentiator]));
+    });
+
+    await realm.subscriptions.waitForSynchronization();
+  }
+
+  return realm;
 }
 
 Future<User> loginWithRetry(App app, Credentials credentials, {int retryCount = 3}) async {
