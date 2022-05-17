@@ -296,7 +296,7 @@ class Realm {
   Session? _syncSession;
 
   /// The [Session] for this [Realm]. The sync session is responsible for two-way synchronization
-  /// with MongoDB Atlas. If the [Realm] was is not synchronized, accessing this property will throw.
+  /// with MongoDB Atlas. If the [Realm] is not synchronized, accessing this property will throw.
   Session get syncSession {
     if (config is! FlexibleSyncConfiguration) {
       throw RealmError('session is only valid on synchronized Realms (i.e. opened with FlexibleSyncConfiguration)');
