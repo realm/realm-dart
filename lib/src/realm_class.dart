@@ -68,7 +68,7 @@ export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState;
-export 'session.dart' show Session, SessionState, ConnectionState;
+export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
