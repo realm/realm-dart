@@ -126,14 +126,12 @@ abstract class Configuration {
 
   /// Constructs a [InMemoryConfiguration]
   static InMemoryConfiguration inMemory(
-    List<SchemaObject> schemaObjects,
-    String identifier, {
+    List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
   }) =>
       InMemoryConfiguration._(
         schemaObjects,
-        identifier,
         fifoFilesFallbackPath: fifoFilesFallbackPath,
         path: path,
       );
@@ -239,8 +237,7 @@ extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
 /// {@category Configuration}
 class InMemoryConfiguration extends Configuration {
   InMemoryConfiguration._(
-    List<SchemaObject> schemaObjects,
-    this.identifier, {
+    List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
   }) : super._(
@@ -248,8 +245,6 @@ class InMemoryConfiguration extends Configuration {
           fifoFilesFallbackPath: fifoFilesFallbackPath,
           path: path,
         );
-
-  final String identifier;
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].
