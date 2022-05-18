@@ -60,17 +60,19 @@ Future<void> main([List<String>? args]) async {
     expect(appConfig.maxConnectionTimeout, const Duration(minutes: 1));
     expect(appConfig.httpClient, httpClient);
   });
-  
-test('AppConfiguration can be created with defaults', () {
+
+  test('AppConfiguration can be created with defaults', () {
     final appConfig = AppConfiguration('myapp1');
-    final app = App(appConfig);
     expect(appConfig.appId, 'myapp1');
     expect(appConfig.baseUrl, Uri.parse('https://realm.mongodb.com'));
     expect(appConfig.defaultRequestTimeout, const Duration(minutes: 1));
-    expect(appConfig.logLevel, LogLevel.error);
-    expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
-    expect(appConfig.maxConnectionTimeout, const Duration(minutes: 2));
     expect(appConfig.httpClient, isNotNull);
+    expect(appConfig.logLevel, LogLevel.error);
+    expect(appConfig.maxConnectionTimeout, const Duration(minutes: 2));
+    expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
+
+    // Check that the app constructor works
+    App(appConfig);
   });
 
   test('AppConfiguration can be created', () {
@@ -88,7 +90,7 @@ test('AppConfiguration can be created with defaults', () {
       maxConnectionTimeout: const Duration(minutes: 1),
       httpClient: httpClient,
     );
-    final app = App(appConfig);
+
     expect(appConfig.appId, 'myapp1');
     expect(appConfig.baseFilePath.path, Directory.systemTemp.path);
     expect(appConfig.baseUrl, Uri.parse('https://not_re.al'));
@@ -97,6 +99,9 @@ test('AppConfiguration can be created with defaults', () {
     expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.encrypted);
     expect(appConfig.maxConnectionTimeout, const Duration(minutes: 1));
     expect(appConfig.httpClient, httpClient);
+
+    // Check that the app constructor works
+    App(appConfig);
   });
 
   test('App can be created', () async {
