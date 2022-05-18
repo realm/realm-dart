@@ -8866,22 +8866,27 @@ class RealmLibrary {
   void realm_syncsession_report_error_for_testing(
     ffi.Pointer<realm_sync_session_t> session,
     int category,
+    int errorCode,
     bool isFatal,
   ) {
     return _realm_syncsession_report_error_for_testing(
       session,
       category,
+      errorCode,
       isFatal ? 1 : 0,
     );
   }
 
   late final _realm_syncsession_report_error_for_testingPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_sync_session_t>, ffi.Uint32,
+          ffi.Void Function(
+              ffi.Pointer<realm_sync_session_t>,
+              ffi.Uint32,
+              ffi.Int32,
               ffi.Uint8)>>('realm_syncsession_report_error_for_testing');
   late final _realm_syncsession_report_error_for_testing =
       _realm_syncsession_report_error_for_testingPtr.asFunction<
-          void Function(ffi.Pointer<realm_sync_session_t>, int, int)>();
+          void Function(ffi.Pointer<realm_sync_session_t>, int, int, int)>();
 }
 
 class shared_realm extends ffi.Opaque {}

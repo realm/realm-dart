@@ -1490,8 +1490,8 @@ class _RealmCore {
     }
   }
 
-  void raiseError(Session session, SyncErrorCategory category) {
-    _realmLib.realm_syncsession_report_error_for_testing(session.handle._pointer, SyncErrorCategory.client.index, false);
+  void raiseError(Session session, SyncErrorCategory category, int errorCode, bool isFatal) {
+    _realmLib.realm_syncsession_report_error_for_testing(session.handle._pointer, category.index, errorCode, isFatal);
   }
 }
 

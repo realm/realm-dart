@@ -128,15 +128,15 @@ RLM_API uint64_t realm_dart_sync_session_register_connection_state_change_callba
 
 } // anonymous namespace
 
-RLM_API void realm_syncsession_report_error_for_testing(realm_sync_session_t* session, uint32_t category, bool isFatal) noexcept
+RLM_API void realm_syncsession_report_error_for_testing(realm_sync_session_t* session, uint32_t category, int errorCode, bool isFatal) noexcept
 {
     std::error_code error_code;
     if (category == 0) {
-        error_code = std::error_code(0, realm::sync::client_error_category());
+        error_code = std::error_code(errorCode, realm::sync::client_error_category());
     }
     else
     {
-        error_code = std::error_code(1, realm::sync::protocol_error_category());
+        error_code = std::error_code(errorCode, realm::sync::protocol_error_category());
 
     }
     SyncSession::OnlyForTesting::handle_error(*(*session), SyncError{ error_code,"Error", isFatal });
