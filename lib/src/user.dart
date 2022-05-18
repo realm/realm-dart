@@ -107,7 +107,7 @@ class User {
   /// ```
   Future<User> linkCredentials(Credentials credentials) async {
     final userHandle = await realmCore.userLinkCredentials(app, this, credentials);
-    return UserInternal.create(userHandle, app: app);
+    return UserInternal.create(userHandle, app);
   }
 
   @override
@@ -148,25 +148,25 @@ class UserProfile {
 
   /// Gets the name of the [User].
   String? get name => _data["name"] as String?;
-  
+
   /// Gets the first name of the [User].
   String? get firstName => _data["firstName"] as String?;
 
   /// Gets the last name of the [User].
   String? get lastName => _data["lastName"] as String?;
-  
+
   /// Gets the email of the [User].
   String? get email => _data["email"] as String?;
-  
+
   /// Gets the gender of the [User].
   String? get gender => _data["gender"] as String?;
-  
+
   /// Gets the birthday of the user.
   String? get birthDay => _data["birthDay"] as String?;
-  
+
   /// Gets the minimum age of the [User].
   String? get minAge => _data["minAge"] as String?;
-  
+
   /// Gets the maximum age of the [User].
   String? get maxAge => _data["maxAge"] as String?;
 
@@ -174,7 +174,7 @@ class UserProfile {
   String? get pictureUrl => _data["pictureUrl"] as String?;
 
   /// Gets a profile property of the [User].
-  dynamic operator[](String property) => _data[property];
+  dynamic operator [](String property) => _data[property];
 
   const UserProfile(this._data);
 }
@@ -188,7 +188,7 @@ extension UserIdentityInternal on UserIdentity {
 extension UserInternal on User {
   UserHandle get handle => _handle;
 
-  static User create(UserHandle handle, {App? app}) {
+  static User create(UserHandle handle, [App? app]) {
     app ??= AppInternal.create(realmCore.userGetApp(handle));
 
     return User._(app, handle);
