@@ -1583,7 +1583,7 @@ class RealmNotificationTokenHandle extends ReleasableHandle<realm_notification_t
 }
 
 class RealmCallbackTokenHandle extends ReleasableHandle<realm_callback_token> {
-  RealmCallbackTokenHandle._(Pointer<realm_callback_token> pointer) : super(pointer, 32);
+  RealmCallbackTokenHandle._(Pointer<realm_callback_token> pointer) : super(pointer, 24);
 }
 
 class RealmCollectionChangesHandle extends Handle<realm_collection_changes> {
@@ -1619,11 +1619,11 @@ class UserHandle extends Handle<realm_user> {
 }
 
 class SubscriptionHandle extends Handle<realm_flx_sync_subscription> {
-  SubscriptionHandle._(Pointer<realm_flx_sync_subscription> pointer) : super(pointer, 24);
+  SubscriptionHandle._(Pointer<realm_flx_sync_subscription> pointer) : super(pointer, 184);
 }
 
 class SubscriptionSetHandle extends ReleasableHandle<realm_flx_sync_subscription_set> {
-  SubscriptionSetHandle._(Pointer<realm_flx_sync_subscription_set> pointer) : super(pointer, 24);
+  SubscriptionSetHandle._(Pointer<realm_flx_sync_subscription_set> pointer) : super(pointer, 128);
 }
 
 class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
@@ -1633,7 +1633,7 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
 }
 
 class SessionHandle extends ReleasableHandle<realm_sync_session_t> {
-  SessionHandle._(Pointer<realm_sync_session_t> pointer) : super(pointer, 24); // TODO: what is the size?
+  SessionHandle._(Pointer<realm_sync_session_t> pointer) : super(pointer, 24);
 }
 
 extension on List<int> {
