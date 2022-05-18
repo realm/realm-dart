@@ -38,7 +38,7 @@ Future<void> main([List<String>? args]) async {
     final realm = await getIntegrationRealm();
 
     expect(realm.syncSession, isNotNull);
-    expect(realm.syncSession.path, realm.config.path);
+    expect(realm.syncSession.realmPath, realm.config.path);
     expect(realm.syncSession, realm.syncSession);
   });
 
@@ -46,7 +46,7 @@ Future<void> main([List<String>? args]) async {
     final realm = await getIntegrationRealm();
 
     expect(realm.syncSession, isNotNull);
-    expect(realm.syncSession.path, realm.config.path);
+    expect(realm.syncSession.realmPath, realm.config.path);
     expect(realm.syncSession, realm.syncSession);
   });
 
@@ -71,56 +71,63 @@ Future<void> main([List<String>? args]) async {
     expect(realm.syncSession, isNotNull);
   }, skip: 'crashes');
 
-  Future<void> _validateSessionStates(Session session, {SessionState? sessionState, ConnectionState? connectionState}) async {
-    if (sessionState != null) {
-      expect(session.state.name, sessionState.name);
+  Future<void> validateSessionStates(Session session, {SessionState? expectedSessionState, ConnectionState? expectedConnectionState}) async {
+    if (expectedSessionState != null) {
+      expect(session.state.name, expectedSessionState.name);
     }
 
-    if (connectionState != null) {
-      // The connection requires a bit of time to update its state
-      await Future<void>.delayed(Duration(milliseconds: 100));
-      expect(session.connectionState.name, connectionState.name);
+    if (expectedConnectionState != null) {
+      for (var i = 0; i < 5; i++) {
+        if (session.connectionState.name == expectedConnectionState.name) {
+          break;
+        }
+
+        // The connection requires a bit of time to update its state
+        await Future<void>.delayed(Duration(milliseconds: 100));
+      }
+
+      expect(session.connectionState.name, expectedConnectionState.name);
     }
   }
 
   baasTest('SyncSession.pause/resume', (configuration) async {
     final realm = await getIntegrationRealm();
 
-    await _validateSessionStates(realm.syncSession, sessionState: SessionState.active, connectionState: ConnectionState.connected);
+    await validateSessionStates(realm.syncSession, expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
 
     realm.syncSession.pause();
 
-    await _validateSessionStates(realm.syncSession, sessionState: SessionState.inactive, connectionState: ConnectionState.disconnected);
+    await validateSessionStates(realm.syncSession, expectedSessionState: SessionState.inactive, expectedConnectionState: ConnectionState.disconnected);
 
     realm.syncSession.resume();
 
-    await _validateSessionStates(realm.syncSession, sessionState: SessionState.active, connectionState: ConnectionState.connected);
+    await validateSessionStates(realm.syncSession, expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
   });
 
   baasTest('SyncSession.pause called multiple times is a no-op', (configuration) async {
     final realm = await getIntegrationRealm();
 
-    await _validateSessionStates(realm.syncSession, sessionState: SessionState.active);
+    await validateSessionStates(realm.syncSession, expectedSessionState: SessionState.active);
 
     realm.syncSession.pause();
 
-    await _validateSessionStates(realm.syncSession, sessionState: SessionState.inactive);
+    await validateSessionStates(realm.syncSession, expectedSessionState: SessionState.inactive);
 
     // This should not do anything
     realm.syncSession.pause();
 
-    await _validateSessionStates(realm.syncSession, sessionState: SessionState.inactive);
+    await validateSessionStates(realm.syncSession, expectedSessionState: SessionState.inactive);
   });
 
   baasTest('SyncSession.resume called multiple times is a no-op', (configuration) async {
     final realm = await getIntegrationRealm();
 
-    await _validateSessionStates(realm.syncSession, sessionState: SessionState.active);
+    await validateSessionStates(realm.syncSession, expectedSessionState: SessionState.active);
 
     realm.syncSession.resume();
     realm.syncSession.resume();
 
-    await _validateSessionStates(realm.syncSession, sessionState: SessionState.active);
+    await validateSessionStates(realm.syncSession, expectedSessionState: SessionState.active);
   });
 
   baasTest('SyncSession.waitForUpload with no changes', (configuration) async {
