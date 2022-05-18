@@ -206,17 +206,17 @@ class _RealmCore {
 
   String? subscriptionName(Subscription subscription) {
     final name = _realmLib.realm_sync_subscription_name(subscription.handle._pointer);
-    return name.toDart();
+    return name.data.cast<Utf8>().toRealmDartString();
   }
 
   String subscriptionObjectClassName(Subscription subscription) {
     final objectClassName = _realmLib.realm_sync_subscription_object_class_name(subscription.handle._pointer);
-    return objectClassName.toDart()!;
+    return objectClassName.data.cast<Utf8>().toRealmDartString()!;
   }
 
   String subscriptionQueryString(Subscription subscription) {
     final queryString = _realmLib.realm_sync_subscription_query_string(subscription.handle._pointer);
-    return queryString.toDart()!;
+    return queryString.data.cast<Utf8>().toRealmDartString()!;
   }
 
   DateTime subscriptionCreatedAt(Subscription subscription) {
@@ -1800,10 +1800,6 @@ extension on realm_timestamp_t {
   DateTime toDart() {
     return DateTime.fromMicrosecondsSinceEpoch(seconds * 1000000 + nanoseconds ~/ 1000, isUtc: true);
   }
-}
-
-extension on realm_string_t {
-  String? toDart() => data.cast<Utf8>().toRealmDartString();
 }
 
 extension on ObjectId {
