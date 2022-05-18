@@ -253,22 +253,20 @@ class _RealmCore {
 
   SubscriptionHandle? findSubscriptionByName(SubscriptionSet subscriptions, String name) {
     return using((arena) {
-      return _realmLib
-          .realm_sync_find_subscription_by_name(
-            subscriptions.handle._pointer,
-            name.toUtf8Ptr(arena),
-          )
-          .convert(SubscriptionHandle._);
+      final result = _realmLib.realm_sync_find_subscription_by_name(
+        subscriptions.handle._pointer,
+        name.toUtf8Ptr(arena),
+      );
+      return result == nullptr ? null : SubscriptionHandle._(result);
     });
   }
 
-  SubscriptionHandle? findSubscriptionByQuery(SubscriptionSet subscriptions, RealmResults query) {
-    return _realmLib
-        .realm_sync_find_subscription_by_results(
-          subscriptions.handle._pointer,
-          query.handle._pointer,
-        )
-        .convert(SubscriptionHandle._);
+  SubscriptionHandle? findSubscriptionByResults(SubscriptionSet subscriptions, RealmResults results) {
+    final result = _realmLib.realm_sync_find_subscription_by_results(
+      subscriptions.handle._pointer,
+      results.handle._pointer,
+    );
+    return result == nullptr ? null : SubscriptionHandle._(result);
   }
 
   static void _stateChangeCallback(Pointer<Void> userdata, int state) {
@@ -308,10 +306,10 @@ class _RealmCore {
     return SubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_subscription_set_commit(subscriptions.handle._mutablePointer)));
   }
 
-  SubscriptionHandle insertOrAssignSubscription(MutableSubscriptionSet subscriptions, RealmResults query, String? name, bool update) {
+  SubscriptionHandle insertOrAssignSubscription(MutableSubscriptionSet subscriptions, RealmResults results, String? name, bool update) {
     if (!update) {
       if (name != null && findSubscriptionByName(subscriptions, name) != null) {
-        throw RealmException('Duplicate subscription $query${name != null ? ' with name: $name' : ''}');
+        throw RealmException('Duplicate subscription with name: $name');
       }
     }
     return using((arena) {
@@ -319,7 +317,7 @@ class _RealmCore {
       final out_inserted = arena<Uint8>();
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_insert_or_assign_results(
             subscriptions.handle._mutablePointer,
-            query.handle._pointer,
+            results.handle._pointer,
             name?.toUtf8Ptr(arena) ?? nullptr,
             out_index,
             out_inserted,
@@ -330,10 +328,10 @@ class _RealmCore {
 
   bool eraseSubscriptionById(MutableSubscriptionSet subscriptions, Subscription subscription) {
     return using((arena) {
-      final out_found = arena.allocate<Uint8>(1);
+      final out_found = arena<Uint8>();
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_id(
             subscriptions.handle._mutablePointer,
-            subscription.id.toCapi(arena),
+            subscription.id.toNative(arena),
             out_found,
           ));
       return out_found.value != 0;
@@ -342,7 +340,7 @@ class _RealmCore {
 
   bool eraseSubscriptionByName(MutableSubscriptionSet subscriptions, String name) {
     return using((arena) {
-      final out_found = arena.allocate<Uint8>(1);
+      final out_found = arena<Uint8>();
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_name(
             subscriptions.handle._mutablePointer,
             name.toUtf8Ptr(arena),
@@ -352,9 +350,9 @@ class _RealmCore {
     });
   }
 
-  bool eraseSubscriptionByQuery(MutableSubscriptionSet subscriptions, RealmResults results) {
+  bool eraseSubscriptionByResults(MutableSubscriptionSet subscriptions, RealmResults results) {
     return using((arena) {
-      final out_found = arena.allocate<Uint8>(1);
+      final out_found = arena<Uint8>();
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_results(
             subscriptions.handle._mutablePointer,
             results.handle._pointer,
@@ -402,9 +400,9 @@ class _RealmCore {
     if (syncConfig == null) {
       return;
     }
-    if (syncConfig.errorHandlerCallback != null) {
+    if (syncConfig.sessionErrorHandler != null) {
       final sessionError = error.toSessionError();
-      syncConfig.errorHandlerCallback!(sessionError);
+      syncConfig.sessionErrorHandler!(sessionError);
     }
   }
 
@@ -558,7 +556,7 @@ class _RealmCore {
     return RealmResultsHandle._(pointer);
   }
 
-  RealmQueryHandle queryClass(Realm realm, int classKey, String query, List<Object> args) {
+  RealmResultsHandle queryClass(Realm realm, int classKey, String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
       final argsPointer = arena<realm_value_t>(length);
@@ -574,11 +572,11 @@ class _RealmCore {
           argsPointer,
         ),
       ));
-      return queryHandle;
+      return _queryFindAll(queryHandle);
     });
   }
 
-  RealmQueryHandle queryResults(RealmResults target, String query, List<Object> args) {
+  RealmResultsHandle queryResults(RealmResults target, String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
       final argsPointer = arena<realm_value_t>(length);
@@ -593,16 +591,16 @@ class _RealmCore {
           argsPointer,
         ),
       ));
-      return queryHandle;
+      return _queryFindAll(queryHandle);
     });
   }
 
-  RealmResultsHandle queryFindAll(RealmQueryHandle queryHandle) {
+  RealmResultsHandle _queryFindAll(RealmQueryHandle queryHandle) {
     final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_query_find_all(queryHandle._pointer));
     return RealmResultsHandle._(resultsPointer);
   }
 
-  RealmQueryHandle queryList(RealmList target, String query, List<Object> args) {
+  RealmResultsHandle queryList(RealmList target, String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
       final argsPointer = arena<realm_value_t>(length);
@@ -617,7 +615,7 @@ class _RealmCore {
           argsPointer,
         ),
       ));
-      return queryHandle;
+      return _queryFindAll(queryHandle);
     });
   }
 
@@ -891,8 +889,6 @@ class _RealmCore {
       _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toUtf8Ptr(arena));
       _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toUtf8Ptr(arena));
 
-      //This sets the realm lib version instead of the SDK version.
-      //TODO:  Read the SDK version from code generated version field
       _realmLib.realm_app_config_set_sdk_version(handle._pointer, libraryVersion.toUtf8Ptr(arena));
 
       return handle;
@@ -914,8 +910,8 @@ class _RealmCore {
   RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
     return RealmHttpTransportHandle._(_realmLib.realm_http_transport_new(
       Pointer.fromFunction(request_callback),
-      httpClient.toWeakHandle(),
-      nullptr,
+      httpClient.toPersistentHandle(),
+      _deletePersistentHandleFuncPtr,
     ));
   }
 
@@ -1043,7 +1039,8 @@ class _RealmCore {
 
       _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toUtf8Ptr(arena));
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
-
+      _realmLib.realm_sync_client_config_set_log_level(handle._pointer, configuration.logLevel.index);
+      _realmLib.realm_sync_client_config_set_connect_timeout(handle._pointer, configuration.maxConnectionTimeout.inMicroseconds);
       if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
         _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
       }
@@ -1391,6 +1388,22 @@ class _RealmCore {
     return Future<void>.value();
   }
 
+  String? userGetDeviceId(User user) {
+    final deviceId = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_device_id(user.handle._pointer));
+    return deviceId.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true, freeNativeMemory: true);
+  }
+
+  AuthProviderType userGetAuthProviderType(User user) {
+    final provider = _realmLib.realm_user_get_auth_provider(user.handle._pointer);
+    return AuthProviderType.values.fromIndex(provider);
+  }
+
+  UserProfile userGetProfileData(User user) {
+    final data = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_profile_data(user.handle._pointer));
+    final dynamic profileData = jsonDecode(data.cast<Utf8>().toRealmDartString(freeNativeMemory: true)!);
+    return UserProfile(profileData as Map<String, dynamic>);
+  }
+
   SessionHandle realmGetSession(Realm realm) {
     return SessionHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_session_get(realm.handle._pointer)));
   }
@@ -1477,14 +1490,14 @@ class _RealmCore {
     return completer.future;
   }
 
-  static void _waitCompletionCallback(Pointer<Void> userdata, Pointer<realm_sync_error_code> errorCode) {
+  static void _waitCompletionCallback(Pointer<Void> userdata, Pointer<realm_sync_error_code_t> errorCode) {
     final completer = userdata.toObject<Completer<void>>(isPersistent: true);
     if (completer == null) {
       return;
     }
 
     if (errorCode != nullptr) {
-      completer.completeError(errorCode.ref.toSyncError());
+      completer.completeError(errorCode.toSyncError());
     } else {
       completer.complete();
     }
@@ -1584,6 +1597,10 @@ class RealmNotificationTokenHandle extends ReleasableHandle<realm_notification_t
   RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer) : super(pointer, 32);
 }
 
+class RealmCallbackTokenHandle extends ReleasableHandle<realm_callback_token> {
+  RealmCallbackTokenHandle._(Pointer<realm_callback_token> pointer) : super(pointer, 24);
+}
+
 class RealmCollectionChangesHandle extends Handle<realm_collection_changes> {
   RealmCollectionChangesHandle._(Pointer<realm_collection_changes> pointer) : super(pointer, 256);
 }
@@ -1617,11 +1634,11 @@ class UserHandle extends Handle<realm_user> {
 }
 
 class SubscriptionHandle extends Handle<realm_flx_sync_subscription> {
-  SubscriptionHandle._(Pointer<realm_flx_sync_subscription> pointer) : super(pointer, 24);
+  SubscriptionHandle._(Pointer<realm_flx_sync_subscription> pointer) : super(pointer, 184);
 }
 
 class SubscriptionSetHandle extends ReleasableHandle<realm_flx_sync_subscription_set> {
-  SubscriptionSetHandle._(Pointer<realm_flx_sync_subscription_set> pointer) : super(pointer, 24);
+  SubscriptionSetHandle._(Pointer<realm_flx_sync_subscription_set> pointer) : super(pointer, 128);
 }
 
 class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
@@ -1631,7 +1648,7 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
 }
 
 class SessionHandle extends ReleasableHandle<realm_sync_session_t> {
-  SessionHandle._(Pointer<realm_sync_session_t> pointer) : super(pointer, 24); // TODO: what is the size?
+  SessionHandle._(Pointer<realm_sync_session_t> pointer) : super(pointer, 24);
 }
 
 extension on List<int> {
@@ -1829,22 +1846,22 @@ extension on Pointer<Utf8> {
 extension on realm_sync_error {
   SessionError toSessionError() {
     final messageText = detailed_message.cast<Utf8>().toRealmDartString()!;
-    final SyncError errorCode = error_code.toSyncError();
+    final SyncErrorCategory errorCategory = SyncErrorCategory.values[error_code.category];
     final isFatal = is_fatal == 0 ? false : true;
 
     return SessionError(
       messageText,
       isFatal,
-      category: errorCode.category,
-      code: errorCode.code,
+      category: errorCategory,
+      code: error_code.value,
     );
   }
 }
 
-extension on realm_sync_error_code {
+extension on Pointer<realm_sync_error_code_t> {
   SyncError toSyncError() {
-    final messageText = message.cast<Utf8>().toRealmDartString()!;
-    return SyncError(messageText, SyncErrorCategory.values[category], value);
+    final message = ref.message.cast<Utf8>().toRealmDartString()!;
+    return SyncError(message, SyncErrorCategory.values[ref.category], ref.value);
   }
 }
 
@@ -1855,13 +1872,6 @@ extension on Object {
 
   Pointer<Void> toPersistentHandle() {
     return _realmLib.object_to_persistent_handle(this);
-  }
-}
-
-extension<T extends NativeType> on Pointer<T> {
-  U? convert<U>(U Function(Pointer<T>) converter) {
-    if (this == nullptr) return null;
-    return converter(this);
   }
 }
 
@@ -1939,14 +1949,11 @@ extension on realm_timestamp_t {
 }
 
 extension on realm_string_t {
-  String? toDart() {
-    if (data == nullptr) return null;
-    return data.cast<Utf8>().toDartString();
-  }
+  String? toDart() => data.cast<Utf8>().toRealmDartString();
 }
 
 extension on ObjectId {
-  Pointer<realm_object_id> toCapi(Allocator allocator) {
+  Pointer<realm_object_id> toNative(Allocator allocator) {
     final result = allocator<realm_object_id>();
     for (var i = 0; i < 12; i++) {
       result.ref.bytes[i] = bytes[i];

@@ -21,7 +21,6 @@ import 'dart:collection';
 
 import 'native/realm_core.dart';
 import 'realm_class.dart';
-import 'util.dart';
 
 /// A class representing a single query subscription. The server will continuously
 /// evaluate the query that the app subscribed to and will send data
@@ -32,11 +31,9 @@ class Subscription {
 
   Subscription._(this._handle);
 
-  ObjectId get id => realmCore.subscriptionId(this);
+  ObjectId get _id => realmCore.subscriptionId(this);
 
   /// Name of the [Subscription], if one was provided at creation time.
-  /// 
-  /// Otherwise returns null.
   String? get name => realmCore.subscriptionName(this);
 
   /// Class name of objects the [Subscription] refers to.
@@ -46,8 +43,8 @@ class Subscription {
   /// rather than the name of the generated Dart class.
   String get objectClassName => realmCore.subscriptionObjectClassName(this);
 
-  /// Query string that describes the [Subscription]. 
-  /// 
+  /// Query string that describes the [Subscription].
+  ///
   /// Objects matched by the query will be sent to the device by the server.
   String get queryString => realmCore.subscriptionQueryString(this);
 
@@ -63,13 +60,14 @@ class Subscription {
     if (identical(this, other)) return true;
     if (other is! Subscription) return false;
     // TODO: Don't work, issue with C-API
-    // return realmCore.subscriptionEquals(this, other); 
+    // return realmCore.subscriptionEquals(this, other);
     return id == other.id; // <-- do this instead
   }
 }
 
 extension SubscriptionInternal on Subscription {
   SubscriptionHandle get handle => _handle;
+  ObjectId get id => _id;
 }
 
 class _SubscriptionIterator implements Iterator<Subscription> {
@@ -134,20 +132,15 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
   /// Finds an existing [Subscription] in this set by its query
   ///
   /// The [query] is represented by the corresponding [RealmResults] object.
-  /// Finds a subscription by query.
-  ///
-  /// If the Subscription set does not contain a subscription with the provided query,
-  /// return null
   Subscription? find<T extends RealmObject>(RealmResults<T> query) {
-    return realmCore.findSubscriptionByQuery(this, query).convert(Subscription._);
+    final result = realmCore.findSubscriptionByResults(this, query);
+    return result == null ? null : Subscription._(result);
   }
 
   /// Finds an existing [Subscription] in this set by name.
-  ///
-  /// If the Subscription set does not contain a subscription with the provided name,
-  /// return null
   Subscription? findByName(String name) {
-    return realmCore.findSubscriptionByName(this, name).convert(Subscription._);
+    final result = realmCore.findSubscriptionByName(this, name);
+    return result == null ? null : Subscription._(result);
   }
 
   Future<SubscriptionSetState> _waitForStateChange(SubscriptionSetState state) async {
@@ -187,7 +180,7 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
   /// Update the subscription set and send the request to the server in the background.
   ///
   /// Calling [update] is a prerequisite for mutating the subscription set,
-  /// using a [MutableSubscriptionSet] parsed to [action].
+  /// using a [MutableSubscriptionSet] passed to the [action].
   ///
   /// If you want to wait for the server to acknowledge and send back the data that matches the updated
   /// subscriptions, use [waitForSynchronization].
@@ -204,7 +197,7 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
       case SubscriptionSetState._bootstrapping:
         return SubscriptionSetState.pending;
       default:
-        return state;  
+        return state;
     }
   }
 }
@@ -265,7 +258,7 @@ class MutableSubscriptionSet extends SubscriptionSet {
 
   /// Remove the [query] from the set, if it exists.
   bool removeByQuery<T extends RealmObject>(RealmResults<T> query) {
-    return realmCore.eraseSubscriptionByQuery(this, query);
+    return realmCore.eraseSubscriptionByResults(this, query);
   }
 
   /// Remove the [query] from the set that matches by [name], if it exists.

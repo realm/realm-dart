@@ -29,7 +29,7 @@ Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
   test('Results all should not return null', () {
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     final cars = realm.all<Car>();
@@ -37,7 +37,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results length after deletedMany', () {
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     var cars = realm.all<Car>();
@@ -60,7 +60,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results length', () {
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     var cars = realm.all<Car>();
@@ -77,7 +77,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results isEmpty', () {
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     var cars = realm.all<Car>();
@@ -94,7 +94,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results from query isEmpty', () {
-    var config = Configuration([Dog.schema, Person.schema]);
+    var config = Configuration.local([Dog.schema, Person.schema]);
     var realm = getRealm(config);
 
     final dogOne = Dog("Pupu", age: 1);
@@ -116,7 +116,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results get by index', () {
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     final car = Car('');
@@ -127,7 +127,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results requested wrong index throws', () {
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     final cars = realm.all<Car>();
@@ -136,7 +136,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results iteration test', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     //Create two teams
@@ -160,7 +160,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results snapshot iteration test', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     //Create two teams
@@ -197,7 +197,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results query', () {
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     realm.write(() => realm
       ..add(Car("Audi"))
@@ -208,7 +208,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results query with parameter', () {
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     realm.write(() => realm
       ..add(Car("Audi"))
@@ -219,7 +219,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results query with multiple parameters', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     final p1 = Person('p1');
@@ -240,28 +240,28 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Query results with no arguments throws', () {
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     realm.write(() => realm.add(Car("Audi")));
     expect(() => realm.all<Car>().query(r'make == $0'), throws<RealmException>("no arguments are provided"));
   });
 
   test('Results query with wrong argument types (int for string) throws', () {
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     realm.write(() => realm.add(Car("Audi")));
     expect(() => realm.all<Car>().query(r'make == $0', [1]), throws<RealmException>("Unsupported comparison between type"));
   });
 
   test('Results query with wrong argument types (bool for int) throws ', () {
-    var config = Configuration([Dog.schema, Person.schema]);
+    var config = Configuration.local([Dog.schema, Person.schema]);
     var realm = getRealm(config);
     realm.write(() => realm.add(Dog("Foxi")));
     expect(() => realm.all<Dog>().query(r'age == $0', [true]), throws<RealmException>("Unsupported comparison between type"));
   });
 
   test('Results sort', () {
-    var config = Configuration([Person.schema]);
+    var config = Configuration.local([Person.schema]);
     var realm = getRealm(config);
 
     realm.write(() => realm.addAll([
@@ -277,7 +277,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results sort order is preserved', () {
-    var config = Configuration([Dog.schema, Person.schema]);
+    var config = Configuration.local([Dog.schema, Person.schema]);
     var realm = getRealm(config);
 
     final dog1 = Dog("Bella", age: 1);
@@ -308,7 +308,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results - get query length after realm is closed throws', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     var team = Team("TeamOne");
@@ -319,7 +319,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results access after realm closed throws', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     var team = Team("TeamOne");
@@ -330,7 +330,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Realm deleteMany from results', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     //Create two teams
@@ -353,7 +353,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results notifications', () async {
-    var config = Configuration([Dog.schema, Person.schema]);
+    var config = Configuration.local([Dog.schema, Person.schema]);
     var realm = getRealm(config);
 
     realm.write(() {
@@ -393,7 +393,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results notifications can be paused', () async {
-    var config = Configuration([Dog.schema, Person.schema]);
+    var config = Configuration.local([Dog.schema, Person.schema]);
     var realm = getRealm(config);
 
     realm.write(() {
@@ -423,7 +423,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results notifications can be resumed', () async {
-    var config = Configuration([Dog.schema, Person.schema]);
+    var config = Configuration.local([Dog.schema, Person.schema]);
     var realm = getRealm(config);
 
     var callbackCalled = false;
@@ -455,7 +455,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results notifications can leak', () async {
-    var config = Configuration([Dog.schema, Person.schema]);
+    var config = Configuration.local([Dog.schema, Person.schema]);
     var realm = getRealm(config);
 
     final leak = realm.all<Dog>().changes.listen((data) {});

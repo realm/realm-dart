@@ -79,6 +79,32 @@ class RealmStateError extends StateError implements RealmError {
   RealmStateError(String message) : super(message);
 }
 
+/// An error type that describes a session-level error condition.
+/// /// {@category Sync}
+class SessionError extends SyncError {
+  /// If true the received error is fatal.
+  final bool isFatal;
+
+  SessionError(
+    String message,
+    this.isFatal, {
+    SyncErrorCategory category = SyncErrorCategory.unknown,
+    int code = 0,
+  }) : super(message, category, code);
+}
+
+/// Thrown or reporeted if an error occurs during synchronization
+/// {@category Sync}
+class SyncError extends RealmError {
+  /// The code of the error
+  final int code; // TODO: this should be an enum
+
+  /// The category of the error
+  final SyncErrorCategory category;
+
+  SyncError(String message, this.category, this.code) : super(message);
+}
+
 /// The category of a [SyncError].
 enum SyncErrorCategory {
   /// The error originated from the client
@@ -95,29 +121,6 @@ enum SyncErrorCategory {
 
   /// The category is unknown
   unknown,
-}
-
-/// Thrown or reporeted if an error occurs during synchronization
-/// {@category Sync}
-class SyncError extends RealmError {
-  /// The code of the error
-  final int code; // TODO: this should be an enum
-
-  /// The category of the error
-  final SyncErrorCategory category;
-
-  SyncError(String message, this.category, this.code) : super(message);
-}
-
-class SessionError extends SyncError {
-  final bool isFatal;
-
-  SessionError(
-    String message,
-    this.isFatal, {
-    SyncErrorCategory category = SyncErrorCategory.unknown,
-    int code = 0,
-  }) : super(message, category, code);
 }
 
 /// @nodoc

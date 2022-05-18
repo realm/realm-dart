@@ -29,7 +29,7 @@ Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
   test('Lists add object with a list property', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     final team = Team("Ferrari");
@@ -43,7 +43,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Lists get set', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     final team = Team("Ferrari");
@@ -71,7 +71,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Lists get invalid index throws exception', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     final team = Team("Ferrari");
@@ -85,7 +85,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Lists set invalid index throws', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     final team = Team("Ferrari");
@@ -99,7 +99,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('List clear items from list', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     //Create a team
@@ -136,7 +136,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('List clear - same list related to two objects', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     //Create two teams
@@ -179,7 +179,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('List clear - same item added to two lists', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     //Create two Teams
@@ -219,7 +219,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('List clear in closed realm - expected exception', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     //Create a team
@@ -244,7 +244,7 @@ Future<void> main([List<String>? args]) async {
             }),
         throws<RealmException>());
 
-    config = Configuration([Team.schema, Person.schema]);
+    config = Configuration.local([Team.schema, Person.schema]);
     realm = getRealm(config);
 
     //Teams must be reloaded since realm was reopened
@@ -256,7 +256,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Read list property of a deleted object', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     var team = Team("TeamOne");
@@ -267,7 +267,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Delete a list of objects through a deleted parent', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     var team = Team("TeamOne");
@@ -278,7 +278,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Get length of list property on a deleted object', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     var team = Team("TeamOne")..players.add(Person("Nikos"));
@@ -290,7 +290,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('List isValid', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     realm.write(() {
@@ -312,7 +312,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('List notifications', () async {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     final team = Team('t1', players: [Person("p1")]);
@@ -349,7 +349,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('List query', () {
-    final config = Configuration([Team.schema, Person.schema]);
+    final config = Configuration.local([Team.schema, Person.schema]);
     final realm = getRealm(config);
 
     final person = Person('John');

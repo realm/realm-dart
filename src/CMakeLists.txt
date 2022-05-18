@@ -8,10 +8,10 @@ endif()
 add_subdirectory(dart-dl)
 
 set(SOURCES
-     realm_dart.cpp
-     realm_dart_scheduler.cpp
-     subscription_set.cpp
-     sync_session.cpp
+    realm_dart.cpp
+    realm_dart_scheduler.cpp
+    subscription_set.cpp
+    sync_session.cpp
 )
 
 set(HEADERS
