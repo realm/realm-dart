@@ -6,6 +6,10 @@ on:
       - master
   pull_request:
 env:
+  BAAS_URL: ${{ secrets.REALM_QA_URL }}
+  BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
+  BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+  BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
   REALM_CI: true
 
 jobs:
@@ -151,10 +155,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Tests Linux
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.dart-linux-clusterName }}
     needs:
       - baas_matrix
@@ -186,10 +186,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Flutter Tests Linux
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-linux-clusterName }}
     needs:
       - baas_matrix
@@ -277,10 +273,6 @@ jobs:
     runs-on: macos-latest
     name: Tests macOS
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.dart-macos-clusterName }}
     needs:
       - baas_matrix
@@ -312,10 +304,6 @@ jobs:
     runs-on: macos-latest
     name: Flutter Tests macOS
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-macos-clusterName }}
     needs:
       - baas_matrix
@@ -390,10 +378,6 @@ jobs:
     runs-on: windows-latest
     name: Tests Windows
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.dart-windows-clusterName }}
     needs:
       - baas_matrix
@@ -427,10 +411,6 @@ jobs:
     runs-on: windows-2019
     name: Flutter Tests Windows
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-windows-clusterName }}
     needs:
       - baas_matrix
@@ -511,10 +491,6 @@ jobs:
     runs-on: macos-latest
     name: Flutter Tests iOS
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-ios-clusterName }}
     needs:
       - baas_matrix
@@ -595,10 +571,6 @@ jobs:
     runs-on: macos-latest
     name: Flutter Tests Android
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-android-clusterName }}
     needs:
       - baas_matrix
