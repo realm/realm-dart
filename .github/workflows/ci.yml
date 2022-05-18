@@ -698,6 +698,7 @@ jobs:
           status=$(git status --porcelain)
           if [ -n "$status" ]; then
             echo "$status"
+            git diff
             exit 1
           fi
 
