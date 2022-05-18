@@ -23,7 +23,7 @@ set(HEADERS
 )
 
 add_library(realm_dart SHARED ${SOURCES} ${HEADERS})
-target_compile_definitions(RealmFFIStatic PUBLIC -DRealm_EXPORTS)
+target_compile_definitions(RealmFFIStatic PUBLIC -DRealm_EXPORTS -DREALM_ENABLE_SYNC=1)
 
 target_link_libraries(realm_dart dart-dl RealmFFIStatic Realm::Storage)
 
