@@ -39,6 +39,7 @@
 * Support user authentication provider type. ([#570](https://github.com/realm/realm-dart/pull/570))
 * Support user profile data. ([#570](https://github.com/realm/realm-dart/pull/570))
 * Support flexible synchronization. ([#496](https://github.com/realm/realm-dart/pull/496))
+* Support session error handler. ([#577](https://github.com/realm/realm-dart/pull/577))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))
