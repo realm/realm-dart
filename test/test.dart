@@ -325,7 +325,7 @@ Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, String? p
   final user = await getIntegrationUser(app);
 
   // TODO: path will not be needed after https://github.com/realm/realm-dart/pull/574
-  final config = Configuration.sync(user, [Task.schema, Schedule.schema, NullableTypes.schema], path: path);
+  final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema, NullableTypes.schema], path: path);
   final realm = getRealm(config);
   if (differentiator != null) {
     realm.subscriptions.update((mutableSubscriptions) {
