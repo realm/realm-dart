@@ -46,7 +46,7 @@ typedef InitialDataCallback = void Function(Realm realm);
 
 ///The signature of a callback that will be invoked whenever a [SessionError] occurs for the synchronized Realm.
 ///
-/// Client reset errors will not be reported through this callback as they are handled by the set [ClientResetHandler].
+/// Client reset errors will not be reported through this callback as they are handled by [ClientResetHandler].
 typedef SessionErrorHandler = void Function(SessionError error);
 
 /// Configuration used to create a [Realm] instance
@@ -222,6 +222,7 @@ class FlexibleSyncConfiguration extends Configuration {
 
   SessionStopPolicy _sessionStopPolicy = SessionStopPolicy.afterChangesUploaded;
   
+  /// Called when a [SessionError] occurs for the synchronized Realm.
   final SessionErrorHandler? sessionErrorHandler;
 
   FlexibleSyncConfiguration._(
