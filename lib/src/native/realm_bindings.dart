@@ -8826,7 +8826,7 @@ class RealmLibrary {
 
   /// Register a callback that will be invoked every time the session's connection state changes.
   ///
-  /// @return A token value that can be used to unregiser the callback.
+  /// @return A token value that can be used to unregister the callback.
   int realm_dart_sync_session_register_connection_state_change_callback(
     ffi.Pointer<realm_sync_session_t> session,
     realm_sync_connection_state_changed_func_t callback,
@@ -8862,6 +8862,31 @@ class RealmLibrary {
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t,
                   ffi.Pointer<realm_scheduler_t>)>();
+
+  void realm_syncsession_report_error_for_testing(
+    ffi.Pointer<realm_sync_session_t> session,
+    int errCode,
+    bool isClient,
+    bool isFatal,
+  ) {
+    return _realm_syncsession_report_error_for_testing(
+      session,
+      errCode,
+      isClient ? 1 : 0,
+      isFatal ? 1 : 0,
+    );
+  }
+
+  late final _realm_syncsession_report_error_for_testingPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<realm_sync_session_t>,
+              ffi.Uint64,
+              ffi.Uint8,
+              ffi.Uint8)>>('realm_syncsession_report_error_for_testing');
+  late final _realm_syncsession_report_error_for_testing =
+      _realm_syncsession_report_error_for_testingPtr.asFunction<
+          void Function(ffi.Pointer<realm_sync_session_t>, int, int, int)>();
 }
 
 class shared_realm extends ffi.Opaque {}

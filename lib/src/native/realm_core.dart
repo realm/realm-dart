@@ -396,7 +396,7 @@ class _RealmCore {
 
     return config.shouldCompactCallback!(totalSize, usedSize) ? TRUE : FALSE;
   }
-  
+
   static void _syncErrorHandlerCallback(Pointer<Void> userdata, Pointer<realm_sync_session> user, realm_sync_error error) {
     final FlexibleSyncConfiguration? syncConfig = userdata.toObject(isPersistent: true);
     if (syncConfig == null) {
@@ -1489,6 +1489,10 @@ class _RealmCore {
       completer.complete();
     }
   }
+
+  void raiseError(Session session, SyncErrorCategory category) {
+    // _realmLib.realm_syncsession_report_error_for_testing(session.handle._pointer,)
+  }
 }
 
 class LastError {
@@ -1827,7 +1831,7 @@ extension on realm_sync_error {
     final messageText = detailed_message.cast<Utf8>().toRealmDartString()!;
     final SyncError errorCode = error_code.toSyncError();
     final isFatal = is_fatal == 0 ? false : true;
-    
+
     return SessionError(
       messageText,
       isFatal,

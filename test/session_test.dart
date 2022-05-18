@@ -121,4 +121,15 @@ Future<void> main([List<String>? args]) async {
 
     await _validateSessionStates(realm.syncSession, sessionState: SessionState.active);
   });
+
+  baasTest('SyncSession.user returns a valid user', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    final config = Configuration.flexibleSync(user, [Task.schema], errorHandlerCallback: (sessionError) {
+      print(sessionError.message);
+    });
+    final realm = getRealm(config);
+    //realm.syncSession.raiseSessionError(realm.syncSession);
+    expect(realm.syncSession.user.id, user.id);
+  });
 }

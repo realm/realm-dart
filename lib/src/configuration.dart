@@ -143,6 +143,7 @@ abstract class Configuration {
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
+    ErrorHandlerCallback? errorHandlerCallback,
   }) = FlexibleSyncConfiguration;
 }
 
