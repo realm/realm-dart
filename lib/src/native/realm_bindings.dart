@@ -8845,7 +8845,7 @@ class RealmLibrary {
 
   /// Register a callback that will be invoked every time the session's connection state changes.
   ///
-  /// @return A token value that can be used to unregiser the callback.
+  /// @return A token value that can be used to unregister the callback.
   int realm_dart_sync_session_register_connection_state_change_callback(
     ffi.Pointer<realm_sync_session_t> session,
     realm_sync_connection_state_changed_func_t callback,
