@@ -5,7 +5,7 @@
 ### Breaking Changes
 * Made all `Configuration` fields final so they can only be initialized in the constructor. This better conveys the immutability of the configuration class. ([#455](https://github.com/realm/realm-dart/pull/455))
 * Removed `inMemory` field from `Configuration`. Use `Configuration.inMemory` factory instead.
-* Deprecated `Configuration` constructor. Prefer `Configuration.local` instead.
+* Due to the introduction of different types of configurations the `Configuration` constructor has been removed. Use the `Configuration.local` factory instead. ([#496](https://github.com/realm/realm-dart/pull/496))
 
 ### Enhancements
 * Added a property `Configuration.disableFormatUpgrade`. When set to `true`, opening a Realm with an older file format will throw an exception to avoid automatically upgrading it. ([#310](https://github.com/realm/realm-dart/pull/310))
@@ -19,6 +19,7 @@
 * Support ObjectId type. ([#468](https://github.com/realm/realm-dart/pull/468))
 * Support Uuid type. ([#470](https://github.com/realm/realm-dart/pull/470))
 * Support application login. ([#469](https://github.com/realm/realm-dart/pull/469))
+* Support app configuration log level and request timeout.([#566](https://github.com/realm/realm-dart/pull/566))
 * Support EmailPassword register user. ([#452](https://github.com/realm/realm-dart/pull/452))
 * Support EmailPassword confirm user. ([#478](https://github.com/realm/realm-dart/pull/478))
 * Support EmailPassword resend user confirmation email. ([#479](https://github.com/realm/realm-dart/pull/479))
@@ -34,7 +35,10 @@
 * Support user state. ([#525](https://github.com/realm/realm-dart/pull/525))
 * Support getting user id and identities. ([#525](https://github.com/realm/realm-dart/pull/525))
 * Support user logout. ([#525](https://github.com/realm/realm-dart/pull/525))
-* Support flexible synchronization ([#496](https://github.com/realm/realm-dart/pull/496))
+* Support user deviceId. ([#570](https://github.com/realm/realm-dart/pull/570))
+* Support user authentication provider type. ([#570](https://github.com/realm/realm-dart/pull/570))
+* Support user profile data. ([#570](https://github.com/realm/realm-dart/pull/570))
+* Support flexible synchronization. ([#496](https://github.com/realm/realm-dart/pull/496))
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))

@@ -35,7 +35,7 @@ class Session {
   final Scheduler _scheduler;
 
   /// The on-disk path of the file backing the [Realm] this [Session] represents
-  String get path => realmCore.sessionGetPath(this);
+  String get realmPath => realmCore.sessionGetPath(this);
 
   /// The session’s current state. This is different from [connectionState] since a
   /// session may be active, even if the connection is disconnected (e.g. due to the device
@@ -50,7 +50,7 @@ class Session {
   User get user => UserInternal.create(realmCore.sessionGetUser(this));
 
   Session._(this._handle, this._scheduler);
-  
+
   /// Pauses any synchronization with the server until the Realm is re-opened again
   /// after fully closing it or [resume] is called.
   void pause() => realmCore.sessionPause(this);
@@ -105,7 +105,7 @@ enum ProgressDirection {
 
 /// The desired behavior of a progress notification subscription.
 enum ProgressMode {
-  /// The callback will be called forever, or until it is unregistered by disposing the subscription token.
+  /// The callback will be called forever, or until it is unregistered by closing the `Stream<SyncProgress>`.
   /// Notifications will always report the latest number of transferred bytes, and the most up-to-date number of
   /// total transferable bytes.
   reportIndefinitely,
@@ -137,7 +137,6 @@ extension SessionInternal on Session {
   SessionHandle get handle => _handle;
 
   Scheduler get scheduler => _scheduler;
-
 }
 
 /// @nodoc
@@ -146,7 +145,7 @@ class SessionProgressNotificationsController {
   final ProgressDirection _direction;
   final ProgressMode _mode;
 
-  late int? _token;
+  int? _token;
   late final StreamController<SyncProgress> _streamController;
 
   SessionProgressNotificationsController(this._session, this._direction, this._mode);
@@ -158,6 +157,10 @@ class SessionProgressNotificationsController {
 
   void onProgress(int transferredBytes, int transferableBytes) {
     _streamController.add(SyncProgress._(transferredBytes, transferableBytes));
+
+    if (transferredBytes >= transferableBytes && _mode == ProgressMode.forCurrentlyOutstandingWork) {
+      _streamController.close();
+    }
   }
 
   void _start() {
@@ -174,5 +177,6 @@ class SessionProgressNotificationsController {
     }
 
     realmCore.sessionUnregisterProgressNotifier(_session, _token!);
+    _token = null;
   }
 }

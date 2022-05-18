@@ -8484,6 +8484,25 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  /// In case of exception thrown in user code callbacks, this api will allow the sdk to store the user code exception
+  /// and retrieve a it later via realm_get_last_error.
+  /// Most importantly the SDK is responsible to handle the memory pointed by usercode_error.
+  /// @param usercode_error pointer representing whatever object the SDK treats as exception/error.
+  void realm_register_user_code_callback_error(
+    ffi.Pointer<ffi.Void> usercode_error,
+  ) {
+    return _realm_register_user_code_callback_error(
+      usercode_error,
+    );
+  }
+
+  late final _realm_register_user_code_callback_errorPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+          'realm_register_user_code_callback_error');
+  late final _realm_register_user_code_callback_error =
+      _realm_register_user_code_callback_errorPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
   void realm_initializeDartApiDL(
     ffi.Pointer<ffi.Void> data,
   ) {
@@ -9113,6 +9132,8 @@ class realm_error extends ffi.Struct {
   external int error;
 
   external ffi.Pointer<ffi.Int8> message;
+
+  external ffi.Pointer<ffi.Void> usercode_error;
 
   external UnnamedUnion2 kind;
 }

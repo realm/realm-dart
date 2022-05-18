@@ -110,7 +110,7 @@ class BaasClient {
     await _createAppIfNotExists(result, defaultAppName);
     await _createAppIfNotExists(result, "autoConfirm", confirmationType: "auto");
     await _createAppIfNotExists(result, "emailConfirm", confirmationType: "email");
-    
+
     return result;
   }
 
@@ -182,7 +182,7 @@ class BaasClient {
       "flexible_sync": {
         "state": "enabled",
         "database_name": "flexible_sync_data",
-        "queryable_fields_names": ["TODO"],
+        "queryable_fields_names": ["differentiator"],
         "permissions": {
           "rules": {},
           "defaultRoles": [

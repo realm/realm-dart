@@ -38,8 +38,8 @@ export 'package:realm_common/realm_common.dart'
         MapTo,
         PrimaryKey,
         RealmError,
-        SyncError,
         SessionError,
+        SyncError,
         SyncErrorCategory,
         RealmModel,
         RealmUnsupportedSetError,
@@ -50,7 +50,7 @@ export 'package:realm_common/realm_common.dart'
         Uuid;
 
 // always expose with `show` to explicitly control the public API surface
-export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App;
+export 'app.dart' show AppConfiguration, MetadataPersistenceMode, LogLevel, App;
 export "configuration.dart"
     show
         Configuration,
@@ -69,7 +69,7 @@ export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState;
-export 'session.dart' show Session, SessionState, ConnectionState;
+export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -277,8 +277,7 @@ class Realm {
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query<T extends RealmObject>(String query, [List<Object> args = const []]) {
     RealmMetadata metadata = _getMetadata(T);
-    final queryHandle = realmCore.queryClass(this, metadata.class_.key, query, args);
-    final handle = realmCore.queryFindAll(queryHandle);
+    final handle = realmCore.queryClass(this, metadata.class_.key, query, args);
     return RealmResultsInternal.create<T>(handle, this);
   }
 
@@ -298,7 +297,7 @@ class Realm {
   Session? _syncSession;
 
   /// The [Session] for this [Realm]. The sync session is responsible for two-way synchronization
-  /// with MongoDB Atlas. If the [Realm] was is not synchronized, accessing this property will throw.
+  /// with MongoDB Atlas. If the [Realm] is not synchronized, accessing this property will throw.
   Session get syncSession {
     if (config is! FlexibleSyncConfiguration) {
       throw RealmError('session is only valid on synchronized Realms (i.e. opened with FlexibleSyncConfiguration)');

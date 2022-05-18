@@ -27,6 +27,7 @@ import 'package:test/expect.dart';
 import '../lib/realm.dart';
 import '../lib/src/configuration.dart';
 import '../lib/src/native/realm_core.dart';
+import '../lib/src/subscription.dart';
 import 'test.dart';
 
 @isTest
@@ -35,7 +36,7 @@ void testSubscriptions(String name, FutureOr<void> Function(Realm) tester) async
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = FlexibleSyncConfiguration(user, [Task.schema, Schedule.schema])..sessionStopPolicy = SessionStopPolicy.immediately;
+    final configuration = Configuration.sync(user, [Task.schema, Schedule.schema])..sessionStopPolicy = SessionStopPolicy.immediately;
     final realm = getRealm(configuration);
     await tester(realm);
   });
@@ -459,9 +460,9 @@ Future<void> main([List<String>? args]) async {
     final userX = await appX.logIn(credentials);
     final userY = await appY.logIn(credentials);
 
-    final realmX = getRealm(Configuration.flexibleSync(userX, [Task.schema]));
+    final realmX = getRealm(Configuration.sync(userX, [Task.schema]));
     final pathY = path.join(temporaryDir.path, "Y.realm");
-    final realmY = getRealm(Configuration.flexibleSync(userY, [Task.schema], path: pathY)); // TODO: Why do I need to set path here?
+    final realmY = getRealm(Configuration.sync(userY, [Task.schema], path: pathY)); // TODO: Why do I need to set path here?
 
     realmX.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmX.all<Task>());

@@ -105,53 +105,61 @@ abstract class Configuration {
   final List<int>? encryptionKey;
 
   /// Constructs a [LocalConfiguration]
-  @Deprecated('Use Configuration.local instead')
-  factory Configuration(
+  static LocalConfiguration local(
     List<SchemaObject> schemaObjects, {
     InitialDataCallback? initialDataCallback,
-    int schemaVersion,
+    int schemaVersion = 0,
     String? fifoFilesFallbackPath,
     String? path,
-    bool disableFormatUpgrade,
-    bool isReadOnly,
+    bool disableFormatUpgrade = false,
+    bool isReadOnly = false,
     ShouldCompactCallback? shouldCompactCallback,
-  }) = LocalConfiguration;
-
-  /// Constructs a [LocalConfiguration]
-  factory Configuration.local(
-    List<SchemaObject> schemaObjects, {
-    InitialDataCallback? initialDataCallback,
-    int schemaVersion,
-    String? fifoFilesFallbackPath,
-    String? path,
-    bool disableFormatUpgrade,
-    bool isReadOnly,
-    ShouldCompactCallback? shouldCompactCallback,
-  }) = LocalConfiguration;
+  }) =>
+      LocalConfiguration._(
+        schemaObjects,
+        initialDataCallback: initialDataCallback,
+        schemaVersion: schemaVersion,
+        fifoFilesFallbackPath: fifoFilesFallbackPath,
+        path: path,
+        disableFormatUpgrade: disableFormatUpgrade,
+        isReadOnly: isReadOnly,
+        shouldCompactCallback: shouldCompactCallback,
+      );
 
   /// Constructs a [InMemoryConfiguration]
-  factory Configuration.inMemory(
-    List<SchemaObject> schemaObjects,
-    String identifier, {
+  static InMemoryConfiguration inMemory(
+    List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
-  }) = InMemoryConfiguration;
+  }) =>
+      InMemoryConfiguration._(
+        schemaObjects,
+        fifoFilesFallbackPath: fifoFilesFallbackPath,
+        path: path,
+      );
 
   /// Constructs a [FlexibleSyncConfiguration]
-  factory Configuration.flexibleSync(
+  static FlexibleSyncConfiguration sync(
     User user,
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
     ErrorHandlerCallback? errorHandlerCallback,
-  }) = FlexibleSyncConfiguration;
+  }) =>
+      FlexibleSyncConfiguration._(
+        user,
+        schemaObjects,
+        fifoFilesFallbackPath: fifoFilesFallbackPath,
+        path: path,
+        errorHandlerCallback: errorHandlerCallback,
+      );
 }
 
 /// [LocalConfiguration] is used to open local [Realm] instances,
 /// that are persisted across runs.
 /// {@category Configuration}
 class LocalConfiguration extends Configuration {
-  LocalConfiguration(
+  LocalConfiguration._(
     List<SchemaObject> schemaObjects, {
     this.initialDataCallback,
     this.schemaVersion = 0,
@@ -210,10 +218,10 @@ class FlexibleSyncConfiguration extends Configuration {
   final User user;
 
   SessionStopPolicy _sessionStopPolicy = SessionStopPolicy.afterChangesUploaded;
-
+  
   final ErrorHandlerCallback? errorHandlerCallback;
 
-  FlexibleSyncConfiguration(
+  FlexibleSyncConfiguration._(
     this.user,
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
@@ -235,9 +243,8 @@ extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
 /// are temporary to running process.
 /// {@category Configuration}
 class InMemoryConfiguration extends Configuration {
-  InMemoryConfiguration(
-    List<SchemaObject> schemaObjects,
-    this.identifier, {
+  InMemoryConfiguration._(
+    List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
   }) : super._(
@@ -245,8 +252,6 @@ class InMemoryConfiguration extends Configuration {
           fifoFilesFallbackPath: fifoFilesFallbackPath,
           path: path,
         );
-
-  final String identifier;
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].

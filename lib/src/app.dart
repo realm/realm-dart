@@ -23,23 +23,45 @@ import 'credentials.dart';
 import 'user.dart';
 import 'configuration.dart';
 
-/// Specify if and how to persists user objects.
+/// Specifies the criticality level above which messages will be logged
+/// by the default sync client logger.
 /// {@category Application}
-enum MetadataPersistenceMode {
-  /// Persist [User] objects, but do not encrypt them.
-  plaintext,
+enum LogLevel {
+  /// Log everything. This will seriously harm the performance of the
+  /// sync client and should never be used in production scenarios.
+  all,
 
-  /// Persist [User] objects in an encrypted store.
-  encrypted,
+  /// A version of 'debug' that allows for very high volume output.
+  /// This may seriously affect the performance of the sync client.
+  trace,
 
-  /// Do not persist [User] objects.
-  disabled,
+  /// Reveal information that can aid debugging, no longer paying
+  /// attention to efficiency.
+  debug,
+
+  /// Same as 'Info', but prioritize completeness over minimalism.
+  detail,
+
+  /// Log operational sync client messages, but in a minimalistic fashion to
+  /// avoid general overhead from logging and to keep volume down.
+  info,
+
+  /// Log errors and warnings.
+  warn,
+
+  /// Log errors only.
+  error,
+
+  /// Log only fatal errors.
+  fatal,
+
+  /// Log nothing.
+  off,
 }
-
-@immutable
 
 /// A class exposing configuration options for an [App]
 /// {@category Application}
+@immutable
 class AppConfiguration {
   /// The [appId] is the unique id that identifies the Realm application.
   final String appId;
@@ -58,6 +80,12 @@ class AppConfiguration {
 
   /// The [defaultRequestTimeout] for HTTP requests. Defaults to 60 seconds.
   final Duration defaultRequestTimeout;
+
+  /// The maximum duration to allow for a connection to
+  /// become fully established. This includes the time to resolve the
+  /// network address, the TCP connect operation, the SSL handshake, and
+  /// the WebSocket handshake. Defaults to 2 minutes.
+  final Duration maxConnectionTimeout;
 
   /// The [localAppName] is the friendly name identifying the current client application.
   ///
@@ -83,6 +111,9 @@ class AppConfiguration {
   /// Setting this will not change the encryption key for individual Realms, which is set in the [Configuration].
   final List<int>? metadataEncryptionKey;
 
+  /// The [LogLevel] for sync operations.
+  final LogLevel logLevel;
+
   /// The [HttpClient] that will be used for HTTP requests during authentication.
   ///
   /// You can use this to override the default http client handler and configure settings like proxies,
@@ -101,6 +132,8 @@ class AppConfiguration {
     this.localAppVersion,
     this.metadataEncryptionKey,
     this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
+    this.logLevel = LogLevel.error,
+    this.maxConnectionTimeout = const Duration(minutes: 2),
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
         baseFilePath = baseFilePath ?? Directory(Configuration.filesPath),
@@ -124,7 +157,7 @@ class App {
   /// Logs in a user with the given credentials.
   Future<User> logIn(Credentials credentials) async {
     var userHandle = await realmCore.logIn(this, credentials);
-    return UserInternal.create(userHandle, app: this);
+    return UserInternal.create(userHandle, this);
   }
 
   /// Gets the currently logged in [User]. If none exists, `null` is returned.
@@ -133,12 +166,12 @@ class App {
     if (userHandle == null) {
       return null;
     }
-    return UserInternal.create(userHandle, app: this);
+    return UserInternal.create(userHandle, this);
   }
 
   /// Gets all currently logged in users.
   Iterable<User> get users {
-    return realmCore.getUsers(this).map((handle) => UserInternal.create(handle, app: this));
+    return realmCore.getUsers(this).map((handle) => UserInternal.create(handle, this));
   }
 
   /// Removes a [user] and their local data from the device. If the user is logged in, they will be logged out in the process.
@@ -153,6 +186,19 @@ class App {
 
   /// Returns an instance of [EmailPasswordAuthProvider]
   EmailPasswordAuthProvider get emailPasswordAuthProvider => EmailPasswordAuthProviderInternal.create(this);
+}
+
+/// Specify if and how to persists user objects.
+/// {@category Application}
+enum MetadataPersistenceMode {
+  /// Persist [User] objects, but do not encrypt them.
+  plaintext,
+
+  /// Persist [User] objects in an encrypted store.
+  encrypted,
+
+  /// Do not persist [User] objects.
+  disabled,
 }
 
 /// @nodoc
