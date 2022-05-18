@@ -129,7 +129,7 @@ Future<void> main([List<String>? args]) async {
       print(sessionError.message);
     });
     final realm = getRealm(config);
-    //realm.syncSession.raiseSessionError(realm.syncSession);
-    expect(realm.syncSession.user.id, user.id);
+    realm.syncSession.raiseSessionError(SyncErrorCategory.session);
+   
   });
 }

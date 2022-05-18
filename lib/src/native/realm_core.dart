@@ -191,7 +191,7 @@ class _RealmCore {
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
           _realmLib.realm_sync_config_set_error_handler(
-              syncConfigPtr, Pointer.fromFunction(_syncErrorHandlerCallback), syncConfigPtr.toPersistentHandle(), nullptr);
+              syncConfigPtr, Pointer.fromFunction(_syncErrorHandlerCallback), config.toPersistentHandle(), nullptr);
           _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
         } finally {
           _realmLib.realm_release(syncConfigPtr.cast());
@@ -1491,7 +1491,7 @@ class _RealmCore {
   }
 
   void raiseError(Session session, SyncErrorCategory category) {
-    // _realmLib.realm_syncsession_report_error_for_testing(session.handle._pointer,)
+    _realmLib.realm_syncsession_report_error_for_testing(session.handle._pointer, SyncErrorCategory.client.index, false);
   }
 }
 

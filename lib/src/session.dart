@@ -72,8 +72,8 @@ class Session {
     return controller.createStream();
   }
 
-  void raiseSessionError() {
-    realmCore.raiseError(this, SyncErrorCategory.client);
+  void raiseSessionError(SyncErrorCategory category) {
+    realmCore.raiseError(this, category);
   }
 }
 

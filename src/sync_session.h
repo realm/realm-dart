@@ -69,5 +69,5 @@ RLM_API uint64_t realm_dart_sync_session_register_connection_state_change_callba
                                                                                    realm_scheduler_t* scheduler) RLM_API_NOEXCEPT;
 
 
-RLM_API void realm_syncsession_report_error_for_testing(realm_sync_session_t* session, uint64_t errCode, bool isClient, bool isFatal) RLM_API_NOEXCEPT;
+RLM_API void realm_syncsession_report_error_for_testing(realm_sync_session_t* session, uint32_t category, bool isFatal) RLM_API_NOEXCEPT;
 #endif // REALM_DART_SYNC_SESSION_H
