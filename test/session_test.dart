@@ -290,12 +290,14 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession.user returns a valid user', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema], errorHandlerCallback: (sessionError) {
-      print(sessionError.message);
+    final config = Configuration.flexibleSync(user, [Task.schema], sessionErrorHandler: (sessionError) {
+      expect(sessionError.category, SyncErrorCategory.session);
+      expect(sessionError.isFatal, false);
+      expect(sessionError.code, 100);
+      expect(sessionError.message, "Error");
     });
     final realm = getRealm(config);
-    realm.syncSession.raiseSessionError(SyncErrorCategory.session);
-   
+    realm.syncSession.raiseSessionError(SyncErrorCategory.session, 100, false);
   });
 }
 
