@@ -872,8 +872,6 @@ class _RealmCore {
       _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toUtf8Ptr(arena));
       _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toUtf8Ptr(arena));
 
-      //This sets the realm lib version instead of the SDK version.
-      //TODO:  Read the SDK version from code generated version field
       _realmLib.realm_app_config_set_sdk_version(handle._pointer, libraryVersion.toUtf8Ptr(arena));
 
       return handle;
@@ -895,8 +893,8 @@ class _RealmCore {
   RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
     return RealmHttpTransportHandle._(_realmLib.realm_http_transport_new(
       Pointer.fromFunction(request_callback),
-      httpClient.toWeakHandle(),
-      nullptr,
+      httpClient.toPersistentHandle(),
+      _realmLib.addresses.realm_dart_delete_persistent_handle,
     ));
   }
 
@@ -910,7 +908,7 @@ class _RealmCore {
     // We cannot clone request on the native side with realm_clone,
     // since realm_http_request does not inherit from WrapC.
 
-    HttpClient? userObject = userData.toObject();
+    HttpClient? userObject = userData.toObject(isPersistent: true);
     if (userObject == null) {
       return;
     }
