@@ -304,4 +304,3 @@ class StreamProgressData {
             doneInvoked: other.doneInvoked,
             transferredBytes: other.transferredBytes);
 }
--
