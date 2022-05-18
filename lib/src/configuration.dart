@@ -142,7 +142,7 @@ abstract class Configuration {
       );
 
   /// Constructs a [FlexibleSyncConfiguration]
-  static FlexibleSyncConfiguration sync(
+  static FlexibleSyncConfiguration flexibleSync(
     User user,
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
