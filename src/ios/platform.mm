@@ -19,7 +19,7 @@
 #include <string>
 #import <Foundation/Foundation.h>
 
-#include "platform.h"
+#include "../realm_dart.h"
 
 static std::string filesDir;
 
