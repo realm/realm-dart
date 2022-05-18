@@ -27,6 +27,7 @@ ffigen:
     - '-I../src/dart-dl'
   typedef-map:
     'size_t' : 'IntPtr'
+  sort: true
   functions:
     exclude:
       - '_.*' #exclude all starting with _
