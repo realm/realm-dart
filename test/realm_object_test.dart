@@ -428,7 +428,7 @@ Future<void> main([List<String>? args]) async {
   ];
   for (final date in dates) {
     test('Date roundtrips correctly: $date', () {
-      final config = Configuration([AllTypes.schema]);
+      final config = Configuration.local([AllTypes.schema]);
       final realm = getRealm(config);
       final obj = realm.write(() {
         return realm.add(AllTypes('', false, date, 0, ObjectId(), Uuid.v4(), 0));
@@ -447,7 +447,7 @@ Future<void> main([List<String>? args]) async {
     [DateTime(0)]
   ]) {
     test('List of ${list.length} dates roundtrips correctly', () {
-      final config = Configuration([AllCollections.schema]);
+      final config = Configuration.local([AllCollections.schema]);
       final realm = getRealm(config);
       final obj = realm.write(() {
         return realm.add(AllCollections(dates: list));
@@ -466,7 +466,7 @@ Future<void> main([List<String>? args]) async {
   }
 
   test('Date converts to utc', () {
-    final config = Configuration([AllTypes.schema]);
+    final config = Configuration.local([AllTypes.schema]);
     final realm = getRealm(config);
 
     final date = DateTime.now();
@@ -484,7 +484,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Date can be used in queries', () {
-    final config = Configuration([AllTypes.schema]);
+    final config = Configuration.local([AllTypes.schema]);
     final realm = getRealm(config);
 
     final date = DateTime.now();
@@ -500,7 +500,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Date preserves precision', () {
-    final config = Configuration([AllTypes.schema]);
+    final config = Configuration.local([AllTypes.schema]);
     final realm = getRealm(config);
 
     final date1 = DateTime.now().toUtc();
