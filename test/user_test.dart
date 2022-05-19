@@ -89,8 +89,8 @@ Future<void> main([List<String>? args]) async {
     expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous).provider, isNotNull);
 
     final user2 = await app.logIn(Credentials.emailPassword(username, password));
-    expect(user1, equals(user2));
-  }, appName: AppNames.autoConfirm, skip: "Blocked on https://github.com/realm/realm-core/issues/5467");
+    expect(user1.id, equals(user2.id));
+  }, appName: AppNames.autoConfirm);
 
   baasTest('User deviceId', (configuration) async {
     final app = App(configuration);

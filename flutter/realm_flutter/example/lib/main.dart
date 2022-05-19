@@ -52,7 +52,7 @@ class _MyAppState extends State<MyApp> {
   late Realm realm;
 
   _MyAppState() {
-    final config = Configuration([Car.schema, Person.schema]);
+    final config = Configuration.local([Car.schema, Person.schema]);
     realm = Realm(config);
   }
 

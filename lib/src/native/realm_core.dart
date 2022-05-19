@@ -514,7 +514,7 @@ class _RealmCore {
   }
 
   String objectToString(RealmObject object) {
-    return _realmLib.realm_object_to_string(object.handle._pointer).cast<Utf8>().toRealmDartString(freeNativeMemory: true)!;
+    return _realmLib.realm_object_to_string(object.handle._pointer).cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
   }
 
   // For debugging
@@ -1302,7 +1302,7 @@ class _RealmCore {
 
   String? userGetCustomData(User user) {
     final customDataPtr = _realmLib.realm_user_get_custom_data(user.handle._pointer);
-    return customDataPtr.cast<Utf8>().toRealmDartString(freeNativeMemory: true, treatEmptyAsNull: true);
+    return customDataPtr.cast<Utf8>().toRealmDartString(freeRealmMemory: true, treatEmptyAsNull: true);
   }
 
   Future<void> userRefreshCustomData(App app, User user) {
@@ -1359,7 +1359,7 @@ class _RealmCore {
       final userIdentities = <UserIdentity>[];
       for (var i = 0; i < idsCount.value; i++) {
         final idPtr = idsPtr.elementAt(i);
-        userIdentities.add(UserIdentityInternal.create(idPtr.ref.id.cast<Utf8>().toDartString(), AuthProviderType.values.fromIndex(idPtr.ref.provider_type)));
+        userIdentities.add(UserIdentityInternal.create(idPtr.ref.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderType.values.fromIndex(idPtr.ref.provider_type)));
       }
 
       return userIdentities;
@@ -1373,7 +1373,7 @@ class _RealmCore {
 
   String? userGetDeviceId(User user) {
     final deviceId = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_device_id(user.handle._pointer));
-    return deviceId.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true, freeNativeMemory: true);
+    return deviceId.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true, freeRealmMemory: true);
   }
 
   AuthProviderType userGetAuthProviderType(User user) {
@@ -1383,7 +1383,7 @@ class _RealmCore {
 
   UserProfile userGetProfileData(User user) {
     final data = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_profile_data(user.handle._pointer));
-    final dynamic profileData = jsonDecode(data.cast<Utf8>().toRealmDartString(freeNativeMemory: true)!);
+    final dynamic profileData = jsonDecode(data.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!);
     return UserProfile(profileData as Map<String, dynamic>);
   }
 }
@@ -1715,7 +1715,7 @@ extension on Pointer<Void> {
 }
 
 extension on Pointer<Utf8> {
-  String? toRealmDartString({bool treatEmptyAsNull = false, int? length, bool freeNativeMemory = false}) {
+  String? toRealmDartString({bool treatEmptyAsNull = false, int? length, bool freeRealmMemory = false}) {
     if (this == nullptr) {
       return null;
     }
@@ -1728,7 +1728,7 @@ extension on Pointer<Utf8> {
       }
       return result;
     } finally {
-      if (freeNativeMemory) {
+      if (freeRealmMemory) {
         _realmLib.realm_free(cast());
       }
     }

@@ -20,7 +20,7 @@ class _Person {
 
 void main(List<String> arguments) async {
   print("Current PID $pid");
-  var config = Configuration([Car.schema, Person.schema]);
+  var config = Configuration.local([Car.schema, Person.schema]);
 
   var realm = Realm(config);
 
