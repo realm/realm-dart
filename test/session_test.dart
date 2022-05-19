@@ -42,14 +42,6 @@ Future<void> main([List<String>? args]) async {
     expect(realm.syncSession, realm.syncSession);
   });
 
-  baasTest('Realm.syncSession returns on FLX configuration', (configuration) async {
-    final realm = await getIntegrationRealm();
-
-    expect(realm.syncSession, isNotNull);
-    expect(realm.syncSession.realmPath, realm.config.path);
-    expect(realm.syncSession, realm.syncSession);
-  });
-
   baasTest('SyncSession.user returns a valid user', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
