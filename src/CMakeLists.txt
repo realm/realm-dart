@@ -23,7 +23,7 @@ set(HEADERS
 add_library(realm_dart SHARED ${SOURCES} ${HEADERS})
 target_compile_definitions(RealmFFIStatic PUBLIC -DRealm_EXPORTS)
 
-target_link_libraries(realm_dart dart-dl RealmFFIStatic Realm::Storage)
+target_link_libraries(realm_dart dart-dl RealmFFIStatic Realm::ObjectStore)
 
 # Force the linker to include all symbols from RealmFFIStatic. realm-dart resolves them at runtime, so the linker considers them unused.
 # TODO: Switch to $<LINK_LIBRARY:WHOLE_ARCHIVE,RealmFFIStatic> when CMake releases it

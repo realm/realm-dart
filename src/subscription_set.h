@@ -19,7 +19,7 @@
 #ifndef REALM_DART_SUBSCRIPTION_SET_H
 #define REALM_DART_SUBSCRIPTION_SET_H
 
-#include "realm.h"
+#include <realm.h>
 
 typedef void (*realm_dart_sync_on_subscription_state_changed)(void* userdata,
                                                               realm_flx_sync_subscription_set_state_e state);

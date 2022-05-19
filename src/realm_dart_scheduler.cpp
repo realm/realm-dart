@@ -22,8 +22,6 @@
 #include <mutex>
 #include <thread>
 
-#include <realm.h>
-#include "dart_api_dl.h"
 #include "realm_dart_scheduler.h"
 
 struct SchedulerData {
@@ -101,7 +99,7 @@ RLM_API realm_scheduler_t* realm_dart_create_scheduler(uint64_t isolateId, Dart_
 }
 
 //Used for debugging
-RLM_API uint64_t get_thread_id() {
+RLM_API uint64_t realm_dart_get_thread_id() {
     std::stringstream ss;
     std::thread k;
     ss << std::this_thread::get_id();

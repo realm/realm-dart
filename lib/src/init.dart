@@ -66,7 +66,7 @@ DynamicLibrary initRealm() {
 
   final realmLibrary = DynamicLibrary.open(_getBinaryPath(realmBinaryName));
 
-  final initializeApi = realmLibrary.lookupFunction<IntPtr Function(Pointer<Void>), int Function(Pointer<Void>)>("realm_initializeDartApiDL");
+  final initializeApi = realmLibrary.lookupFunction<IntPtr Function(Pointer<Void>), int Function(Pointer<Void>)>("realm_dart_initializeDartApiDL");
   var initResult = initializeApi(NativeApi.initializeApiDLData);
   if (initResult != 0) {
     throw Exception("Realm initialization failed. Error: could not initialize Dart APIs");
