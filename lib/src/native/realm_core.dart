@@ -187,8 +187,9 @@ class _RealmCore {
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
           _realmLib.realm_sync_config_set_error_handler(
-              syncConfigPtr, Pointer.fromFunction(_syncErrorHandlerCallback), config.toPersistentHandle(), nullptr);
-           _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
+              syncConfigPtr, Pointer.fromFunction(_syncErrorHandlerCallback), config.toPersistentHandle(),
+              _realmLib.addresses.realm_dart_delete_persistent_handle);
+          _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
         } finally {
           _realmLib.realm_release(syncConfigPtr.cast());
         }
@@ -396,10 +397,8 @@ class _RealmCore {
     if (syncConfig == null) {
       return;
     }
-    if (syncConfig.sessionErrorHandler != null) {
-      final sessionError = error.toSessionError();
-      syncConfig.sessionErrorHandler!(sessionError);
-    }
+    final sessionError = error.toSessionError();
+    syncConfig.sessionErrorHandler!(sessionError);
   }
 
   SchedulerHandle createScheduler(int isolateId, int sendPort) {

@@ -87,8 +87,8 @@ class SessionError extends SyncError {
 
   SessionError(
     String message,
-    this.isFatal, {
-    SyncErrorCategory category = SyncErrorCategory.unknown,
+    SyncErrorCategory category, {
+    this.isFatal = false,
     int code = 0,
   }) : super(message, category, code);
 }
