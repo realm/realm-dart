@@ -119,15 +119,6 @@ test('AppConfiguration can be created with defaults', () {
     expect(users.isEmpty, true);
   });
 
-  baasTest('App log out user', (configuration) async {
-    final app = App(configuration);
-    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
-
-    expect(user.state, UserState.loggedIn);
-    await user.logOut();
-    expect(user.state, UserState.loggedOut);
-  });
-
   baasTest('App remove user', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
