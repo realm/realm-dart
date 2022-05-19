@@ -499,6 +499,46 @@ class RealmLibrary {
           ffi.Pointer<ffi.Int8> Function(
               ffi.Pointer<realm_app_credentials_t>)>();
 
+  /// Deletes a user and all its data from the server.
+  /// @param app ptr to realm_app
+  /// @param user ptr to the user to delete
+  /// @param callback invoked once operation has completed
+  /// @param userdata custom userdata ptr
+  /// @param userdata_free deleter for custom userdata
+  /// @return True if no error has been recorded, False otherwise
+  bool realm_app_delete_user(
+    ffi.Pointer<realm_app_t> app,
+    ffi.Pointer<realm_user_t> user,
+    realm_app_void_completion_func_t callback,
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t userdata_free,
+  ) {
+    return _realm_app_delete_user(
+          app,
+          user,
+          callback,
+          userdata,
+          userdata_free,
+        ) !=
+        0;
+  }
+
+  late final _realm_app_delete_userPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Uint8 Function(
+              ffi.Pointer<realm_app_t>,
+              ffi.Pointer<realm_user_t>,
+              realm_app_void_completion_func_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>>('realm_app_delete_user');
+  late final _realm_app_delete_user = _realm_app_delete_userPtr.asFunction<
+      int Function(
+          ffi.Pointer<realm_app_t>,
+          ffi.Pointer<realm_user_t>,
+          realm_app_void_completion_func_t,
+          ffi.Pointer<ffi.Void>,
+          realm_free_userdata_func_t)>();
+
   /// Run the Email/Password Authentication provider's password reset function.
   ///
   /// @param serialized_ejson_payload The arguments array to invoke the function with,
@@ -549,21 +589,29 @@ class RealmLibrary {
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>();
 
+  /// Confirms an email identity with the username/password provider.
+  /// @param app ptr to realm_app
+  /// @param token string emailed
+  /// @param token_id string emailed
+  /// @param callback invoked once operation has completed
+  /// @param userdata custom userdata ptr
+  /// @param userdata_free deleter for custom userdata
+  /// @return True if no error has been recorded, False otherwise
   bool realm_app_email_password_provider_client_confirm_user(
-    ffi.Pointer<realm_app_t> arg0,
+    ffi.Pointer<realm_app_t> app,
     ffi.Pointer<ffi.Int8> token,
     ffi.Pointer<ffi.Int8> token_id,
-    realm_app_void_completion_func_t arg3,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t arg5,
+    realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_app_email_password_provider_client_confirm_user(
-          arg0,
+          app,
           token,
           token_id,
-          arg3,
+          callback,
           userdata,
-          arg5,
+          userdata_free,
         ) !=
         0;
   }
@@ -589,21 +637,29 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  /// Registers a new email identity with the username/password provider and send confirmation email.
+  /// @param app ptr to realm_app
+  /// @param email identity email
+  /// @param password associated to the identity
+  /// @param callback invoked once operation has completed
+  /// @param userdata custom userdata ptr
+  /// @param userdata_free deleter for custom userdata
+  /// @return True if no error has been recorded, False otherwise
   bool realm_app_email_password_provider_client_register_email(
-    ffi.Pointer<realm_app_t> arg0,
+    ffi.Pointer<realm_app_t> app,
     ffi.Pointer<ffi.Int8> email,
     realm_string_t password,
-    realm_app_void_completion_func_t arg3,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t arg5,
+    realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_app_email_password_provider_client_register_email(
-          arg0,
+          app,
           email,
           password,
-          arg3,
+          callback,
           userdata,
-          arg5,
+          userdata_free,
         ) !=
         0;
   }
@@ -629,19 +685,26 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  /// Re-sends a confirmation email to a user that has registered but not yet confirmed their email address.
+  /// @param app ptr to realm_app
+  /// @param email to use
+  /// @param callback invoked once operation has completed
+  /// @param userdata custom userdata ptr
+  /// @param userdata_free deleter for custom userdata
+  /// @return True if no error has been recorded, False otherwise
   bool realm_app_email_password_provider_client_resend_confirmation_email(
-    ffi.Pointer<realm_app_t> arg0,
+    ffi.Pointer<realm_app_t> app,
     ffi.Pointer<ffi.Int8> email,
-    realm_app_void_completion_func_t arg2,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t arg4,
+    realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_app_email_password_provider_client_resend_confirmation_email(
-          arg0,
+          app,
           email,
-          arg2,
+          callback,
           userdata,
-          arg4,
+          userdata_free,
         ) !=
         0;
   }
@@ -666,23 +729,31 @@ class RealmLibrary {
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>();
 
+  /// Resets the password of an email identity using the password reset token emailed to a user.
+  /// @param app ptr to realm_app
+  /// @param password new password to set
+  /// @param token ptr to token string emailed to the user
+  /// @param token_id ptr to token_id emailed to the user
+  /// @param userdata  custom userdata ptr
+  /// @param userdata_free deleter for custom userdata
+  /// @return True if no error has been recorded, False otherwise
   bool realm_app_email_password_provider_client_reset_password(
-    ffi.Pointer<realm_app_t> arg0,
+    ffi.Pointer<realm_app_t> app,
     realm_string_t password,
     ffi.Pointer<ffi.Int8> token,
     ffi.Pointer<ffi.Int8> token_id,
-    realm_app_void_completion_func_t arg4,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t arg6,
+    realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_app_email_password_provider_client_reset_password(
-          arg0,
+          app,
           password,
           token,
           token_id,
-          arg4,
+          callback,
           userdata,
-          arg6,
+          userdata_free,
         ) !=
         0;
   }
@@ -710,19 +781,26 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  /// Retries the custom confirmation function on a user for a given email.
+  /// @param app ptr to realm_app
+  /// @param email email for the user
+  /// @param callback invoked once operation has completed
+  /// @param userdata custom userdata ptr
+  /// @param userdata_free deleter for custom userdata
+  /// @return True if no error has been recorded, False otherwise
   bool realm_app_email_password_provider_client_retry_custom_confirmation(
-    ffi.Pointer<realm_app_t> arg0,
+    ffi.Pointer<realm_app_t> app,
     ffi.Pointer<ffi.Int8> email,
-    realm_app_void_completion_func_t arg2,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t arg4,
+    realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_app_email_password_provider_client_retry_custom_confirmation(
-          arg0,
+          app,
           email,
-          arg2,
+          callback,
           userdata,
-          arg4,
+          userdata_free,
         ) !=
         0;
   }
@@ -747,19 +825,26 @@ class RealmLibrary {
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>();
 
+  /// Send reset password to the email specified in the parameter passed to the function.
+  /// @param app ptr to realm_app
+  /// @param email where to send the reset instructions
+  /// @param callback invoked once operation has completed
+  /// @param userdata custom userdata ptr
+  /// @param userdata_free deleter for custom userdata
+  /// @return True if no error has been recorded, False otherwise
   bool realm_app_email_password_provider_client_send_reset_password_email(
-    ffi.Pointer<realm_app_t> arg0,
+    ffi.Pointer<realm_app_t> app,
     ffi.Pointer<ffi.Int8> email,
-    realm_app_void_completion_func_t arg2,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t arg4,
+    realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_app_email_password_provider_client_send_reset_password_email(
-          arg0,
+          app,
           email,
-          arg2,
+          callback,
           userdata,
-          arg4,
+          userdata_free,
         ) !=
         0;
   }
@@ -807,11 +892,13 @@ class RealmLibrary {
           ffi.Pointer<realm_sync_client_config_t>)>();
 
   /// Get the list of active users in this @a app.
+  /// In case of errors this function will return false (errors to be fetched via `realm_get_last_error()`).
+  /// If data is not copied the function will return true and set  `out_n` with the capacity needed.
+  /// Data is only copied if the input array has enough capacity, otherwise the needed  array capacity will be set.
   ///
   /// @param out_users A pointer to an array of `realm_user_t*`, which
   /// will be populated with the list of active users in the app.
-  /// May be NULL, in which case this function can be used to
-  /// discover the number of active users by passing in just `out_n`.
+  /// Array may be NULL, in this case no data will be copied and `out_n` set if not NULL.
   /// @param capacity The maximum number of elements `out_users` can hold.
   /// @param out_n The actual number of entries written to `out_users`.
   /// May be NULL.
@@ -894,21 +981,30 @@ class RealmLibrary {
       _realm_app_get_current_userPtr.asFunction<
           ffi.Pointer<realm_user_t> Function(ffi.Pointer<realm_app_t>)>();
 
+  /// Links the currently authenticated user with a new identity, where the identity is defined by the credentia
+  /// specified as a parameter.
+  /// @param app ptr to realm_app
+  /// @param user ptr to the user to link
+  /// @param credentials sync credentials
+  /// @param callback invoked once operation has completed
+  /// @param userdata custom userdata ptr
+  /// @param userdata_free deleter for custom userdata
+  /// @return True if no error has been recorded, False otherwise
   bool realm_app_link_user(
-    ffi.Pointer<realm_app_t> arg0,
-    ffi.Pointer<realm_user_t> arg1,
-    ffi.Pointer<realm_app_credentials_t> arg2,
-    realm_app_user_completion_func_t arg3,
+    ffi.Pointer<realm_app_t> app,
+    ffi.Pointer<realm_user_t> user,
+    ffi.Pointer<realm_app_credentials_t> credentials,
+    realm_app_user_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t arg5,
+    realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_app_link_user(
-          arg0,
-          arg1,
-          arg2,
-          arg3,
+          app,
+          user,
+          credentials,
+          callback,
           userdata,
-          arg5,
+          userdata_free,
         ) !=
         0;
   }
@@ -931,19 +1027,26 @@ class RealmLibrary {
           ffi.Pointer<ffi.Void>,
           realm_free_userdata_func_t)>();
 
+  /// Log in a user and asynchronously retrieve a user object. Inform caller via callback once operation completes.
+  /// @param app ptr to realm_app
+  /// @param credentials sync credentials
+  /// @param callback invoked once operation has completed
+  /// @param userdata custom userdata ptr
+  /// @param userdata_free deleter for custom userdata
+  /// @return True if no error has been recorded, False otherwise
   bool realm_app_log_in_with_credentials(
-    ffi.Pointer<realm_app_t> arg0,
-    ffi.Pointer<realm_app_credentials_t> arg1,
-    realm_app_user_completion_func_t arg2,
+    ffi.Pointer<realm_app_t> app,
+    ffi.Pointer<realm_app_credentials_t> credentials,
+    realm_app_user_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t arg4,
+    realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_app_log_in_with_credentials(
-          arg0,
-          arg1,
-          arg2,
+          app,
+          credentials,
+          callback,
           userdata,
-          arg4,
+          userdata_free,
         ) !=
         0;
   }
@@ -966,19 +1069,26 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  /// Log out the given user if they are not already logged out.
+  /// @param app ptr to realm_app
+  /// @param user ptr to user
+  /// @param callback invoked once operation has completed
+  /// @param userdata custom userdata ptr
+  /// @param userdata_free deleter for custom userdata
+  /// @return True if no error has been recorded, False otherwise
   bool realm_app_log_out(
-    ffi.Pointer<realm_app_t> arg0,
-    ffi.Pointer<realm_user_t> arg1,
-    realm_app_void_completion_func_t arg2,
+    ffi.Pointer<realm_app_t> app,
+    ffi.Pointer<realm_user_t> user,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t arg4,
+    realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_app_log_out(
-          arg0,
-          arg1,
-          arg2,
+          app,
+          user,
+          callback,
           userdata,
-          arg4,
+          userdata_free,
         ) !=
         0;
   }
@@ -999,17 +1109,23 @@ class RealmLibrary {
           ffi.Pointer<ffi.Void>,
           realm_free_userdata_func_t)>();
 
+  /// Logout the current user.
+  /// @param app ptr to realm_app
+  /// @param callback invoked once operation has completed
+  /// @param userdata custom userdata ptr
+  /// @param userdata_free deleter for custom userdata
+  /// @return True if no error has been recorded, False otherwise
   bool realm_app_log_out_current_user(
-    ffi.Pointer<realm_app_t> arg0,
-    realm_app_void_completion_func_t arg1,
+    ffi.Pointer<realm_app_t> app,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t arg3,
+    realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_app_log_out_current_user(
-          arg0,
-          arg1,
+          app,
+          callback,
           userdata,
-          arg3,
+          userdata_free,
         ) !=
         0;
   }
@@ -1111,19 +1227,26 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  /// Refreshes the custom data for a specified user.
+  /// @param app ptr to realm_app
+  /// @param user ptr to user
+  /// @param callback invoked once operation has completed
+  /// @param userdata custom userdata ptr
+  /// @param userdata_free deleter for custom userdata
+  /// @return True if no error has been recorded, False otherwise
   bool realm_app_refresh_custom_data(
-    ffi.Pointer<realm_app_t> arg0,
-    ffi.Pointer<realm_user_t> arg1,
-    realm_app_void_completion_func_t arg2,
+    ffi.Pointer<realm_app_t> app,
+    ffi.Pointer<realm_user_t> user,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t arg4,
+    realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_app_refresh_custom_data(
-          arg0,
-          arg1,
-          arg2,
+          app,
+          user,
+          callback,
           userdata,
-          arg4,
+          userdata_free,
         ) !=
         0;
   }
@@ -1145,19 +1268,26 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  /// Logs out and removes the provided user.
+  /// @param app ptr to realm_app
+  /// @param user ptr to the user to remove
+  /// @param callback invoked once operation has completed
+  /// @param userdata custom userdata ptr
+  /// @param userdata_free deleter for custom userdata
+  /// @return True if no error has been recorded, False otherwise
   bool realm_app_remove_user(
-    ffi.Pointer<realm_app_t> arg0,
-    ffi.Pointer<realm_user_t> arg1,
-    realm_app_void_completion_func_t arg2,
+    ffi.Pointer<realm_app_t> app,
+    ffi.Pointer<realm_user_t> user,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t arg4,
+    realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_app_remove_user(
-          arg0,
-          arg1,
-          arg2,
+          app,
+          user,
+          callback,
           userdata,
-          arg4,
+          userdata_free,
         ) !=
         0;
   }
@@ -1178,14 +1308,20 @@ class RealmLibrary {
           ffi.Pointer<ffi.Void>,
           realm_free_userdata_func_t)>();
 
+  /// Switches the active user with the specified one. The user must exist in the list of all users who have logged into
+  /// this application.
+  /// @param app ptr to realm_app
+  /// @param user ptr to current user
+  /// @param new_user ptr to the new user to switch
+  /// @return True if no error has been recorded, False otherwise
   bool realm_app_switch_user(
-    ffi.Pointer<realm_app_t> arg0,
-    ffi.Pointer<realm_user_t> arg1,
+    ffi.Pointer<realm_app_t> app,
+    ffi.Pointer<realm_user_t> user,
     ffi.Pointer<ffi.Pointer<realm_user_t>> new_user,
   ) {
     return _realm_app_switch_user(
-          arg0,
-          arg1,
+          app,
+          user,
           new_user,
         ) !=
         0;
@@ -1209,13 +1345,11 @@ class RealmLibrary {
   ///
   /// Return value must be manually released with realm_free().
   ffi.Pointer<ffi.Int8> realm_app_sync_client_get_default_file_path_for_realm(
-    ffi.Pointer<realm_app_t> arg0,
-    ffi.Pointer<realm_sync_config_t> arg1,
+    ffi.Pointer<realm_sync_config_t> arg0,
     ffi.Pointer<ffi.Int8> custom_filename,
   ) {
     return _realm_app_sync_client_get_default_file_path_for_realm(
       arg0,
-      arg1,
       custom_filename,
     );
   }
@@ -1224,13 +1358,12 @@ class RealmLibrary {
       _lookup<
               ffi.NativeFunction<
                   ffi.Pointer<ffi.Int8> Function(
-                      ffi.Pointer<realm_app_t>,
                       ffi.Pointer<realm_sync_config_t>,
                       ffi.Pointer<ffi.Int8>)>>(
           'realm_app_sync_client_get_default_file_path_for_realm');
   late final _realm_app_sync_client_get_default_file_path_for_realm =
       _realm_app_sync_client_get_default_file_path_for_realmPtr.asFunction<
-          ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_app_t>,
+          ffi.Pointer<ffi.Int8> Function(
               ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Int8>)>();
 
   /// Get whether there are any active sync sessions for this app.
@@ -3830,10 +3963,12 @@ class RealmLibrary {
           ffi.Pointer<realm_t>, int, ffi.Pointer<realm_class_info_t>)>();
 
   /// Get the table keys for classes in the schema.
+  /// In case of errors this function will return false (errors to be fetched via `realm_get_last_error()`).
+  /// If data is not copied the function will return true and set  `out_n` with the capacity needed.
+  /// Data is only copied if the input array has enough capacity, otherwise the needed  array capacity will be set.
   ///
   /// @param out_keys An array that will contain the keys of each class in the
-  /// schema. May be NULL, in which case `out_n` can be used to
-  /// determine the number of classes in the schema.
+  /// schema. Array may be NULL, in this case no data will be copied and `out_n` set if not NULL.
   /// @param max The maximum number of keys to write to `out_keys`.
   /// @param out_n The actual number of classes. May be NULL.
   /// @return True if no exception occurred.
@@ -3864,15 +3999,14 @@ class RealmLibrary {
           ffi.Pointer<ffi.IntPtr>)>();
 
   /// Get the list of properties for the class with this @a key.
+  /// In case of errors this function will return false (errors to be fetched via `realm_get_last_error()`).
+  /// If data is not copied the function will return true and set  `out_n` with the capacity needed.
+  /// Data is only copied if the input array has enough capacity, otherwise the needed  array capacity will be set.
   ///
-  /// @param out_properties A pointer to an array of `realm_property_info_t`, which
+  /// @param out_properties  A pointer to an array of `realm_property_info_t`, which
   /// will be populated with the information about the
-  /// properties. To see all properties, the length of the
-  /// array should be at least the number of properties in
-  /// the class, as reported in the sum of persisted and
-  /// computed properties for the class. May be NULL, in
-  /// which case this function can be used to discover the
-  /// number of properties in the class.
+  /// properties.  Array may be NULL, in this case no data will be copied and `out_n` set if not
+  /// NULL.
   /// @param max The maximum number of entries to write to `out_properties`.
   /// @param out_n The actual number of properties written to `out_properties`.
   /// @return True if no exception occurred.
@@ -4199,15 +4333,18 @@ class RealmLibrary {
           ffi.Pointer<realm_property_info_t>)>();
 
   /// Get the property keys for the class with this @a key.
+  /// In case of errors this function will return false (errors to be fetched via `realm_get_last_error()`).
+  /// If data is not copied the function will return true and set  `out_n` with the capacity needed.
+  /// Data is only copied if the input array has enough capacity, otherwise the needed  array capacity will be set.
   ///
   /// @param key The class key.
-  /// @param out_col_keys An array of property keys. May be NULL, in which case
-  /// this function can be used to discover the number of
-  /// properties for this class.
+  /// @param out_col_keys An array of property keys. Array may be NULL,
+  /// in this case no data will be copied and `out_n` set if not NULL.
   /// @param max The maximum number of keys to write to `out_col_keys`. Ignored if
   /// `out_col_keys == NULL`.
   /// @param out_n The actual number of properties written to `out_col_keys` (if
   /// non-NULL), or number of properties in the class.
+  /// @return True if no exception occurred.
   bool realm_get_property_keys(
     ffi.Pointer<realm_t> arg0,
     int key,
@@ -7582,14 +7719,14 @@ class RealmLibrary {
   bool realm_sync_on_subscription_set_state_change_async(
     ffi.Pointer<realm_flx_sync_subscription_set_t> subscription_set,
     int notify_when,
-    realm_sync_on_subscription_state_changed callback,
+    realm_sync_on_subscription_state_changed_t arg2,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_sync_on_subscription_set_state_change_async(
           subscription_set,
           notify_when,
-          callback,
+          arg2,
           userdata,
           userdata_free,
         ) !=
@@ -7601,7 +7738,7 @@ class RealmLibrary {
               ffi.Uint8 Function(
                   ffi.Pointer<realm_flx_sync_subscription_set_t>,
                   ffi.Int32,
-                  realm_sync_on_subscription_state_changed,
+                  realm_sync_on_subscription_state_changed_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>>(
       'realm_sync_on_subscription_set_state_change_async');
@@ -7610,7 +7747,7 @@ class RealmLibrary {
           int Function(
               ffi.Pointer<realm_flx_sync_subscription_set_t>,
               int,
-              realm_sync_on_subscription_state_changed,
+              realm_sync_on_subscription_state_changed_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
@@ -8531,9 +8668,7 @@ class RealmLibrary {
   ///
   /// @param out_identities A pointer to an array of `realm_user_identity_t`, which
   /// will be populated with the list of identities of this user.
-  /// May be NULL, in which case this function can be used to
-  /// discover the number of identities of this user by passing in NULL here
-  /// and examining `*out_n`.
+  /// Array may be NULL, in this case no data will be copied and `out_n` set if not NULL.
   /// @param capacity The maximum number of elements `out_identities` can hold.
   /// @param out_n The actual number of entries written to `out_identities`. May be NULL.
   /// @return true, if no errors occurred.
@@ -8566,6 +8701,23 @@ class RealmLibrary {
               ffi.Pointer<realm_user_identity_t>,
               int,
               ffi.Pointer<ffi.IntPtr>)>();
+
+  /// Return the realm app for the user passed as parameter.
+  /// @return a ptr to the app for the user.
+  ffi.Pointer<realm_app_t> realm_user_get_app(
+    ffi.Pointer<realm_user_t> arg0,
+  ) {
+    return _realm_user_get_app(
+      arg0,
+    );
+  }
+
+  late final _realm_user_get_appPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_app_t> Function(
+              ffi.Pointer<realm_user_t>)>>('realm_user_get_app');
+  late final _realm_user_get_app = _realm_user_get_appPtr.asFunction<
+      ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_user_t>)>();
 
   int realm_user_get_auth_provider(
     ffi.Pointer<realm_user_t> arg0,
@@ -8617,11 +8769,14 @@ class RealmLibrary {
   late final _realm_user_get_device_id = _realm_user_get_device_idPtr
       .asFunction<ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_user_t>)>();
 
+  /// Return the identiy for the user passed as argument
+  /// @param user ptr to the user for which the identiy has to be retrieved
+  /// @return a ptr to the identity string
   ffi.Pointer<ffi.Int8> realm_user_get_identity(
-    ffi.Pointer<realm_user_t> arg0,
+    ffi.Pointer<realm_user_t> user,
   ) {
     return _realm_user_get_identity(
-      arg0,
+      user,
     );
   }
 
@@ -8685,11 +8840,14 @@ class RealmLibrary {
   late final _realm_user_get_refresh_token = _realm_user_get_refresh_tokenPtr
       .asFunction<ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_user_t>)>();
 
+  /// Retrieve the state for the user passed as argument
+  /// @param user ptr to the user for which the state has to be retrieved
+  /// @return realm_user_state_e value
   int realm_user_get_state(
-    ffi.Pointer<realm_user_t> arg0,
+    ffi.Pointer<realm_user_t> user,
   ) {
     return _realm_user_get_state(
-      arg0,
+      user,
     );
   }
 
@@ -9691,7 +9849,7 @@ class realm_sync_error_user_info extends ffi.Struct {
 }
 
 typedef realm_sync_error_user_info_t = realm_sync_error_user_info;
-typedef realm_sync_on_subscription_state_changed = ffi.Pointer<
+typedef realm_sync_on_subscription_state_changed_t = ffi.Pointer<
     ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>;
 
 abstract class realm_sync_progress_direction {
@@ -9756,12 +9914,16 @@ typedef realm_timestamp_t = realm_timestamp;
 
 class realm_user extends ffi.Opaque {}
 
-class realm_user_identity_t extends ffi.Struct {
+class realm_user_identity extends ffi.Struct {
+  /// Ptr to null terminated string representing user identity (memory has to be freed by SDK)
   external ffi.Pointer<ffi.Int8> id;
 
+  /// Enum representing the list of auth providers
   @ffi.Int32()
   external int provider_type;
 }
+
+typedef realm_user_identity_t = realm_user_identity;
 
 abstract class realm_user_state {
   static const int RLM_USER_STATE_LOGGED_OUT = 0;
