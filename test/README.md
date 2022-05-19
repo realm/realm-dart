@@ -5,7 +5,7 @@
 In order to run the tests that requires a backend, you need to setup a MongoDB cluster to run against.
 A free-tier database should be enough for most contributors.
 
-1) Log on to [MongoDB cloud](cloud.mongodb.com)
+1) Log on to [MongoDB cloud](https://cloud.mongodb.com)
 2) Create an organization, if you don't already have one. You may choose to create one specifically for the
 purpose of these tests, if you prefer.
 3) Create a separate project for the purpose of running the tests.
