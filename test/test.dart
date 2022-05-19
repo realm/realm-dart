@@ -242,7 +242,6 @@ Future<void> tryDeleteFile(FileSystemEntity fileEntity, {bool recursive = false}
 
 Map<String, String?> testArguments(List<String>? arguments) {
   Map<String, String?> testArgs = {};
-  if (arguments != null && arguments.isNotEmpty) {
     final parser = ArgParser()
       ..addOption("name")
       ..addOption(argBaasUrl)
@@ -251,21 +250,20 @@ Map<String, String?> testArguments(List<String>? arguments) {
       ..addOption(argBaasPrivateApiKey)
       ..addOption(argBaasProjectId);
 
-    final result = parser.parse(arguments);
+  final result = parser.parse(arguments ?? []);
     testArgs
       ..addArgument(result, "name")
       ..addArgument(result, argBaasUrl)
       ..addArgument(result, argBaasCluster)
       ..addArgument(result, argBaasApiKey)
       ..addArgument(result, argBaasPrivateApiKey)
-      ..addArgument(result, argBaasProjectId);
-  }
+    ..addArgument(result, argBaasProjectId);
   return testArgs;
 }
 
 extension on Map<String, String?> {
   void addArgument(ArgResults parsedResult, String argName) {
-    this[argName] = parsedResult.wasParsed(argName) ? parsedResult[argName] : Platform.environment[argName];
+    this[argName] = parsedResult.wasParsed(argName) ? parsedResult[argName]?.toString() : Platform.environment[argName];
   }
 }
 
