@@ -23,7 +23,6 @@ import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
-import 'package:realm_dart/realm.dart';
 
 import '../app.dart';
 import '../collections.dart';
@@ -909,7 +908,7 @@ class _RealmCore {
     // We cannot clone request on the native side with realm_clone,
     // since realm_http_request does not inherit from WrapC.
 
-    HttpClient? userObject = userData.toObject();
+    HttpClient? userObject = userData.toObject(isPersistent: true);
     if (userObject == null) {
       return;
     }
@@ -1343,7 +1342,7 @@ class _RealmCore {
 
   AppHandle userGetApp(UserHandle userHandle) {
     final appPtr = _realmLib.realm_user_get_app(userHandle._pointer);
-    if (appPtr != nullptr) {
+    if (appPtr == nullptr) {
       throw RealmException('User does not have an associated app. This is likely due to the user being logged out.');
     }
 
