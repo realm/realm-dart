@@ -110,7 +110,7 @@ class BaasClient {
     await _createAppIfNotExists(result, defaultAppName);
     await _createAppIfNotExists(result, "autoConfirm", confirmationType: "auto");
     await _createAppIfNotExists(result, "emailConfirm", confirmationType: "email");
-    
+
     return result;
   }
 

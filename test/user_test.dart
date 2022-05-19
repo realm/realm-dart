@@ -73,7 +73,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('User link credentials', (configuration) async {
     final app = App(configuration);
     final user1 = await app.logIn(Credentials.anonymous());
-  
+
     expect(user1.state, UserState.loggedIn);
     expect(user1.identities.length, 1);
     expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous).provider, isNotNull);
@@ -91,4 +91,29 @@ Future<void> main([List<String>? args]) async {
     final user2 = await app.logIn(Credentials.emailPassword(username, password));
     expect(user1, equals(user2));
   }, appName: AppNames.autoConfirm, skip: "Blocked on https://github.com/realm/realm-core/issues/5467");
+
+  baasTest('User deviceId', (configuration) async {
+    final app = App(configuration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    expect(user.deviceId, isNotNull);
+    user.logOut();
+    expect(user.deviceId, isNotNull);
+  });
+
+  baasTest('User provider', (configuration) async {
+    final app = App(configuration);
+    final credentials = Credentials.anonymous();
+    var user = await app.logIn(credentials);
+    expect(user.provider, AuthProviderType.anonymous);
+
+    user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
+    expect(user.provider, AuthProviderType.emailPassword);
+  });
+
+  baasTest('User profile', (configuration) async {
+    final app = App(configuration);
+    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
+    expect(user.profile.email, testUsername);
+  });
 }

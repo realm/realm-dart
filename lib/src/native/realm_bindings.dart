@@ -582,22 +582,28 @@ class RealmLibrary {
     ffi.Pointer<realm_config_t> arg0,
     realm_migration_func_t arg1,
     ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t callback,
   ) {
     return _realm_config_set_migration_function(
       arg0,
       arg1,
       userdata,
+      callback,
     );
   }
 
   late final _realm_config_set_migration_functionPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_config_t>, realm_migration_func_t,
-              ffi.Pointer<ffi.Void>)>>('realm_config_set_migration_function');
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<realm_config_t>,
+                  realm_migration_func_t,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t)>>(
+      'realm_config_set_migration_function');
   late final _realm_config_set_migration_function =
       _realm_config_set_migration_functionPtr.asFunction<
           void Function(ffi.Pointer<realm_config_t>, realm_migration_func_t,
-              ffi.Pointer<ffi.Void>)>();
+              ffi.Pointer<ffi.Void>, realm_free_userdata_func_t)>();
 
   /// Set the data initialization function.
   ///
@@ -611,23 +617,31 @@ class RealmLibrary {
     ffi.Pointer<realm_config_t> arg0,
     realm_data_initialization_func_t arg1,
     ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t callback,
   ) {
     return _realm_config_set_data_initialization_function(
       arg0,
       arg1,
       userdata,
+      callback,
     );
   }
 
   late final _realm_config_set_data_initialization_functionPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<realm_config_t>,
-                  realm_data_initialization_func_t, ffi.Pointer<ffi.Void>)>>(
+              ffi.Void Function(
+                  ffi.Pointer<realm_config_t>,
+                  realm_data_initialization_func_t,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t)>>(
       'realm_config_set_data_initialization_function');
   late final _realm_config_set_data_initialization_function =
       _realm_config_set_data_initialization_functionPtr.asFunction<
-          void Function(ffi.Pointer<realm_config_t>,
-              realm_data_initialization_func_t, ffi.Pointer<ffi.Void>)>();
+          void Function(
+              ffi.Pointer<realm_config_t>,
+              realm_data_initialization_func_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>();
 
   /// Set the should-compact-on-launch callback.
   ///
@@ -641,11 +655,13 @@ class RealmLibrary {
     ffi.Pointer<realm_config_t> arg0,
     realm_should_compact_on_launch_func_t arg1,
     ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t callback,
   ) {
     return _realm_config_set_should_compact_on_launch_function(
       arg0,
       arg1,
       userdata,
+      callback,
     );
   }
 
@@ -654,12 +670,16 @@ class RealmLibrary {
               ffi.Void Function(
                   ffi.Pointer<realm_config_t>,
                   realm_should_compact_on_launch_func_t,
-                  ffi.Pointer<ffi.Void>)>>(
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t)>>(
       'realm_config_set_should_compact_on_launch_function');
   late final _realm_config_set_should_compact_on_launch_function =
       _realm_config_set_should_compact_on_launch_functionPtr.asFunction<
-          void Function(ffi.Pointer<realm_config_t>,
-              realm_should_compact_on_launch_func_t, ffi.Pointer<ffi.Void>)>();
+          void Function(
+              ffi.Pointer<realm_config_t>,
+              realm_should_compact_on_launch_func_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>();
 
   /// True if file format upgrades on open are disabled.
   ///
@@ -1167,6 +1187,74 @@ class RealmLibrary {
               ffi.Pointer<realm_config_t>)>>('realm_open');
   late final _realm_open = _realm_openPtr
       .asFunction<ffi.Pointer<realm_t> Function(ffi.Pointer<realm_config_t>)>();
+
+  /// The overloaded Realm::convert function offers a way to copy and/or convert a realm.
+  ///
+  /// The following options are supported:
+  /// - local -> local (config or path)
+  /// - local -> sync (config only)
+  /// - sync -> local (config only)
+  /// - sync -> sync  (config or path)
+  /// - sync -> bundlable sync (client file identifier removed)
+  ///
+  /// Note that for bundled realms it is required that all local changes are synchronized with the
+  /// server before the copy can be written. This is to be sure that the file can be used as a
+  /// stating point for a newly installed application. The function will throw if there are
+  /// pending uploads.
+  /// /
+  /// /**
+  /// Copy or convert a Realm using a config.
+  ///
+  /// If the file already exists, data will be copied over object per object.
+  /// If the file does not exist, the realm file will be exported to the new location and if the
+  /// configuration object contains a sync part, a sync history will be synthesized.
+  ///
+  /// @param config The realm configuration that should be used to create a copy.
+  /// This can be a local or a synced Realm, encrypted or not.
+  bool realm_convert_with_config(
+    ffi.Pointer<realm_t> realm,
+    ffi.Pointer<realm_config_t> config,
+  ) {
+    return _realm_convert_with_config(
+          realm,
+          config,
+        ) !=
+        0;
+  }
+
+  late final _realm_convert_with_configPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Uint8 Function(ffi.Pointer<realm_t>,
+              ffi.Pointer<realm_config_t>)>>('realm_convert_with_config');
+  late final _realm_convert_with_config =
+      _realm_convert_with_configPtr.asFunction<
+          int Function(ffi.Pointer<realm_t>, ffi.Pointer<realm_config_t>)>();
+
+  /// Copy a Realm using a path.
+  ///
+  /// @param path The path the realm should be copied to. Local realms will remain local, synced
+  /// realms will remain synced realms.
+  /// @param encryption_key The optional encryption key for the new realm.
+  bool realm_convert_with_path(
+    ffi.Pointer<realm_t> realm,
+    ffi.Pointer<ffi.Int8> path,
+    realm_binary_t encryption_key,
+  ) {
+    return _realm_convert_with_path(
+          realm,
+          path,
+          encryption_key,
+        ) !=
+        0;
+  }
+
+  late final _realm_convert_with_pathPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Uint8 Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Int8>,
+              realm_binary_t)>>('realm_convert_with_path');
+  late final _realm_convert_with_path = _realm_convert_with_pathPtr.asFunction<
+      int Function(
+          ffi.Pointer<realm_t>, ffi.Pointer<ffi.Int8>, realm_binary_t)>();
 
   /// Deletes the following files for the given `realm_file_path` if they exist:
   /// - the Realm file itself
@@ -6639,6 +6727,40 @@ class RealmLibrary {
   late final _realm_user_get_profile_data = _realm_user_get_profile_dataPtr
       .asFunction<ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_user_t>)>();
 
+  /// Return the access token associated with the user.
+  /// @return a string that rapresents the access token
+  ffi.Pointer<ffi.Int8> realm_user_get_access_token(
+    ffi.Pointer<realm_user_t> arg0,
+  ) {
+    return _realm_user_get_access_token(
+      arg0,
+    );
+  }
+
+  late final _realm_user_get_access_tokenPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Int8> Function(
+              ffi.Pointer<realm_user_t>)>>('realm_user_get_access_token');
+  late final _realm_user_get_access_token = _realm_user_get_access_tokenPtr
+      .asFunction<ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_user_t>)>();
+
+  /// Return the refresh token associated with the user.
+  /// @return a string that represents the refresh token
+  ffi.Pointer<ffi.Int8> realm_user_get_refresh_token(
+    ffi.Pointer<realm_user_t> arg0,
+  ) {
+    return _realm_user_get_refresh_token(
+      arg0,
+    );
+  }
+
+  late final _realm_user_get_refresh_tokenPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Int8> Function(
+              ffi.Pointer<realm_user_t>)>>('realm_user_get_refresh_token');
+  late final _realm_user_get_refresh_token = _realm_user_get_refresh_tokenPtr
+      .asFunction<ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_user_t>)>();
+
   ffi.Pointer<realm_sync_client_config_t> realm_sync_client_config_new() {
     return _realm_sync_client_config_new();
   }
@@ -7176,6 +7298,186 @@ class RealmLibrary {
       _realm_sync_config_set_resync_modePtr
           .asFunction<void Function(ffi.Pointer<realm_sync_config_t>, int)>();
 
+  void realm_sync_config_set_before_client_reset_handler(
+    ffi.Pointer<realm_sync_config_t> arg0,
+    realm_sync_before_client_reset_func_t arg1,
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t arg3,
+  ) {
+    return _realm_sync_config_set_before_client_reset_handler(
+      arg0,
+      arg1,
+      userdata,
+      arg3,
+    );
+  }
+
+  late final _realm_sync_config_set_before_client_reset_handlerPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<realm_sync_config_t>,
+                  realm_sync_before_client_reset_func_t,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t)>>(
+      'realm_sync_config_set_before_client_reset_handler');
+  late final _realm_sync_config_set_before_client_reset_handler =
+      _realm_sync_config_set_before_client_reset_handlerPtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_sync_config_t>,
+              realm_sync_before_client_reset_func_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>();
+
+  void realm_sync_config_set_after_client_reset_handler(
+    ffi.Pointer<realm_sync_config_t> arg0,
+    realm_sync_after_client_reset_func_t arg1,
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t arg3,
+  ) {
+    return _realm_sync_config_set_after_client_reset_handler(
+      arg0,
+      arg1,
+      userdata,
+      arg3,
+    );
+  }
+
+  late final _realm_sync_config_set_after_client_reset_handlerPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<realm_sync_config_t>,
+                  realm_sync_after_client_reset_func_t,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t)>>(
+      'realm_sync_config_set_after_client_reset_handler');
+  late final _realm_sync_config_set_after_client_reset_handler =
+      _realm_sync_config_set_after_client_reset_handlerPtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_sync_config_t>,
+              realm_sync_after_client_reset_func_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>();
+
+  /// Fetch subscription id for the subscription passed as argument.
+  /// @return realm_object_id_t for the subscription passed as argument
+  realm_object_id_t realm_sync_subscription_id(
+    ffi.Pointer<realm_flx_sync_subscription_t> subscription,
+  ) {
+    return _realm_sync_subscription_id(
+      subscription,
+    );
+  }
+
+  late final _realm_sync_subscription_idPtr = _lookup<
+          ffi.NativeFunction<
+              realm_object_id_t Function(
+                  ffi.Pointer<realm_flx_sync_subscription_t>)>>(
+      'realm_sync_subscription_id');
+  late final _realm_sync_subscription_id =
+      _realm_sync_subscription_idPtr.asFunction<
+          realm_object_id_t Function(
+              ffi.Pointer<realm_flx_sync_subscription_t>)>();
+
+  /// Fetch subscription name for the subscription passed as argument.
+  /// @return realm_string_t which contains the name of the subscription.
+  realm_string_t realm_sync_subscription_name(
+    ffi.Pointer<realm_flx_sync_subscription_t> subscription,
+  ) {
+    return _realm_sync_subscription_name(
+      subscription,
+    );
+  }
+
+  late final _realm_sync_subscription_namePtr = _lookup<
+          ffi.NativeFunction<
+              realm_string_t Function(
+                  ffi.Pointer<realm_flx_sync_subscription_t>)>>(
+      'realm_sync_subscription_name');
+  late final _realm_sync_subscription_name =
+      _realm_sync_subscription_namePtr.asFunction<
+          realm_string_t Function(
+              ffi.Pointer<realm_flx_sync_subscription_t>)>();
+
+  /// Fetch object class name for the subscription passed as argument.
+  /// @return a realm_string_t which contains the class name of the subscription.
+  realm_string_t realm_sync_subscription_object_class_name(
+    ffi.Pointer<realm_flx_sync_subscription_t> subscription,
+  ) {
+    return _realm_sync_subscription_object_class_name(
+      subscription,
+    );
+  }
+
+  late final _realm_sync_subscription_object_class_namePtr = _lookup<
+          ffi.NativeFunction<
+              realm_string_t Function(
+                  ffi.Pointer<realm_flx_sync_subscription_t>)>>(
+      'realm_sync_subscription_object_class_name');
+  late final _realm_sync_subscription_object_class_name =
+      _realm_sync_subscription_object_class_namePtr.asFunction<
+          realm_string_t Function(
+              ffi.Pointer<realm_flx_sync_subscription_t>)>();
+
+  /// Fetch the query string associated with the subscription passed as argument.
+  /// @return realm_string_t which contains the query associated with the subscription.
+  realm_string_t realm_sync_subscription_query_string(
+    ffi.Pointer<realm_flx_sync_subscription_t> subscription,
+  ) {
+    return _realm_sync_subscription_query_string(
+      subscription,
+    );
+  }
+
+  late final _realm_sync_subscription_query_stringPtr = _lookup<
+          ffi.NativeFunction<
+              realm_string_t Function(
+                  ffi.Pointer<realm_flx_sync_subscription_t>)>>(
+      'realm_sync_subscription_query_string');
+  late final _realm_sync_subscription_query_string =
+      _realm_sync_subscription_query_stringPtr.asFunction<
+          realm_string_t Function(
+              ffi.Pointer<realm_flx_sync_subscription_t>)>();
+
+  /// Fetch the timestamp in which the subscription was created for the subscription passed as argument.
+  /// @return realm_timestamp_t representing the timestamp in which the subscription for created.
+  realm_timestamp_t realm_sync_subscription_created_at(
+    ffi.Pointer<realm_flx_sync_subscription_t> subscription,
+  ) {
+    return _realm_sync_subscription_created_at(
+      subscription,
+    );
+  }
+
+  late final _realm_sync_subscription_created_atPtr = _lookup<
+          ffi.NativeFunction<
+              realm_timestamp_t Function(
+                  ffi.Pointer<realm_flx_sync_subscription_t>)>>(
+      'realm_sync_subscription_created_at');
+  late final _realm_sync_subscription_created_at =
+      _realm_sync_subscription_created_atPtr.asFunction<
+          realm_timestamp_t Function(
+              ffi.Pointer<realm_flx_sync_subscription_t>)>();
+
+  /// Fetch the timestamp in which the subscription was updated for the subscription passed as argument.
+  /// @return realm_timestamp_t representing the timestamp in which the subscription was updated.
+  realm_timestamp_t realm_sync_subscription_updated_at(
+    ffi.Pointer<realm_flx_sync_subscription_t> subscription,
+  ) {
+    return _realm_sync_subscription_updated_at(
+      subscription,
+    );
+  }
+
+  late final _realm_sync_subscription_updated_atPtr = _lookup<
+          ffi.NativeFunction<
+              realm_timestamp_t Function(
+                  ffi.Pointer<realm_flx_sync_subscription_t>)>>(
+      'realm_sync_subscription_updated_at');
+  late final _realm_sync_subscription_updated_at =
+      _realm_sync_subscription_updated_atPtr.asFunction<
+          realm_timestamp_t Function(
+              ffi.Pointer<realm_flx_sync_subscription_t>)>();
+
   /// Get latest subscription set
   /// @return a non null subscription set pointer if such it exists.
   ffi.Pointer<realm_flx_sync_subscription_set_t>
@@ -7216,7 +7518,7 @@ class RealmLibrary {
           ffi.Pointer<realm_flx_sync_subscription_set_t> Function(
               ffi.Pointer<realm_t>)>();
 
-  /// Wait uptill subscripton set state is equal to the state passed as parameter.
+  /// Wait until subscripton set state is equal to the state passed as parameter.
   /// This is a blocking operation.
   /// @return the current subscription state
   int realm_sync_on_subscription_set_state_change_wait(
@@ -7241,27 +7543,39 @@ class RealmLibrary {
   /// This is an asynchronous operation.
   /// @return true/false if the handler was registered correctly
   bool realm_sync_on_subscription_set_state_change_async(
-    ffi.Pointer<realm_flx_sync_subscription_set_t> arg0,
-    int arg1,
-    realm_sync_on_subscription_state_changed arg2,
+    ffi.Pointer<realm_flx_sync_subscription_set_t> subscription_set,
+    int notify_when,
+    realm_sync_on_subscription_state_changed callback,
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_sync_on_subscription_set_state_change_async(
-          arg0,
-          arg1,
-          arg2,
+          subscription_set,
+          notify_when,
+          callback,
+          userdata,
+          userdata_free,
         ) !=
         0;
   }
 
   late final _realm_sync_on_subscription_set_state_change_asyncPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Uint8 Function(ffi.Pointer<realm_flx_sync_subscription_set_t>,
-                  ffi.Int32, realm_sync_on_subscription_state_changed)>>(
+              ffi.Uint8 Function(
+                  ffi.Pointer<realm_flx_sync_subscription_set_t>,
+                  ffi.Int32,
+                  realm_sync_on_subscription_state_changed,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t)>>(
       'realm_sync_on_subscription_set_state_change_async');
   late final _realm_sync_on_subscription_set_state_change_async =
       _realm_sync_on_subscription_set_state_change_asyncPtr.asFunction<
-          int Function(ffi.Pointer<realm_flx_sync_subscription_set_t>, int,
-              realm_sync_on_subscription_state_changed)>();
+          int Function(
+              ffi.Pointer<realm_flx_sync_subscription_set_t>,
+              int,
+              realm_sync_on_subscription_state_changed,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>();
 
   /// Retrieve version for the subscription set passed as parameter
   /// @return subscription set version if the poiter to the subscription is valid
@@ -7362,30 +7676,6 @@ class RealmLibrary {
           ffi.Pointer<realm_flx_sync_subscription_t> Function(
               ffi.Pointer<realm_flx_sync_subscription_set_t>, int)>();
 
-  /// Find subscription by name
-  /// @return a pointer to the subscription with the name passed as parameter
-  ffi.Pointer<realm_flx_sync_subscription_t>
-      realm_sync_find_subscription_by_name(
-    ffi.Pointer<realm_flx_sync_subscription_set_t> arg0,
-    ffi.Pointer<ffi.Int8> name,
-  ) {
-    return _realm_sync_find_subscription_by_name(
-      arg0,
-      name,
-    );
-  }
-
-  late final _realm_sync_find_subscription_by_namePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_flx_sync_subscription_t> Function(
-              ffi.Pointer<realm_flx_sync_subscription_set_t>,
-              ffi.Pointer<ffi.Int8>)>>('realm_sync_find_subscription_by_name');
-  late final _realm_sync_find_subscription_by_name =
-      _realm_sync_find_subscription_by_namePtr.asFunction<
-          ffi.Pointer<realm_flx_sync_subscription_t> Function(
-              ffi.Pointer<realm_flx_sync_subscription_set_t>,
-              ffi.Pointer<ffi.Int8>)>();
-
   /// Find subscription associated to the query passed as parameter
   /// @return a pointer to the subscription or nullptr if not found
   ffi.Pointer<realm_flx_sync_subscription_t>
@@ -7410,6 +7700,55 @@ class RealmLibrary {
           ffi.Pointer<realm_flx_sync_subscription_t> Function(
               ffi.Pointer<realm_flx_sync_subscription_set_t>,
               ffi.Pointer<realm_query_t>)>();
+
+  /// Find subscription associated to the results set  passed as parameter
+  /// @return a pointer to the subscription or nullptr if not found
+  ffi.Pointer<realm_flx_sync_subscription_t>
+      realm_sync_find_subscription_by_results(
+    ffi.Pointer<realm_flx_sync_subscription_set_t> arg0,
+    ffi.Pointer<realm_results_t> arg1,
+  ) {
+    return _realm_sync_find_subscription_by_results(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_sync_find_subscription_by_resultsPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_flx_sync_subscription_t> Function(
+                  ffi.Pointer<realm_flx_sync_subscription_set_t>,
+                  ffi.Pointer<realm_results_t>)>>(
+      'realm_sync_find_subscription_by_results');
+  late final _realm_sync_find_subscription_by_results =
+      _realm_sync_find_subscription_by_resultsPtr.asFunction<
+          ffi.Pointer<realm_flx_sync_subscription_t> Function(
+              ffi.Pointer<realm_flx_sync_subscription_set_t>,
+              ffi.Pointer<realm_results_t>)>();
+
+  /// Find subscription by name passed as parameter
+  /// @return a pointer to the subscription or nullptr if not found
+  ffi.Pointer<realm_flx_sync_subscription_t>
+      realm_sync_find_subscription_by_name(
+    ffi.Pointer<realm_flx_sync_subscription_set_t> arg0,
+    ffi.Pointer<ffi.Int8> name,
+  ) {
+    return _realm_sync_find_subscription_by_name(
+      arg0,
+      name,
+    );
+  }
+
+  late final _realm_sync_find_subscription_by_namePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_flx_sync_subscription_t> Function(
+              ffi.Pointer<realm_flx_sync_subscription_set_t>,
+              ffi.Pointer<ffi.Int8>)>>('realm_sync_find_subscription_by_name');
+  late final _realm_sync_find_subscription_by_name =
+      _realm_sync_find_subscription_by_namePtr.asFunction<
+          ffi.Pointer<realm_flx_sync_subscription_t> Function(
+              ffi.Pointer<realm_flx_sync_subscription_set_t>,
+              ffi.Pointer<ffi.Int8>)>();
 
   /// Refresh subscription
   /// @return true/false if the operation was successful or not
@@ -7473,18 +7812,18 @@ class RealmLibrary {
           int Function(
               ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>)>();
 
-  /// Insert ot update a query for the subscription set passed as parameter, if successful the index where the query was
-  /// inserted or updated is returned along with the info whether a new query was inserted or not. It is possible to
-  /// specify a name for the query inserted (optional).
+  /// Insert ot update the query contained inside a result object for the subscription set passed as parameter, if
+  /// successful the index where the query was inserted or updated is returned along with the info whether a new query
+  /// was inserted or not. It is possible to specify a name for the query inserted (optional).
   /// @return true/false if operation was successful
-  bool realm_sync_subscription_set_insert_or_assign(
+  bool realm_sync_subscription_set_insert_or_assign_results(
     ffi.Pointer<realm_flx_sync_mutable_subscription_set_t> arg0,
-    ffi.Pointer<realm_query_t> arg1,
+    ffi.Pointer<realm_results_t> arg1,
     ffi.Pointer<ffi.Int8> name,
     ffi.Pointer<ffi.IntPtr> out_index,
     ffi.Pointer<ffi.Uint8> out_inserted,
   ) {
-    return _realm_sync_subscription_set_insert_or_assign(
+    return _realm_sync_subscription_set_insert_or_assign_results(
           arg0,
           arg1,
           name,
@@ -7494,7 +7833,46 @@ class RealmLibrary {
         0;
   }
 
-  late final _realm_sync_subscription_set_insert_or_assignPtr = _lookup<
+  late final _realm_sync_subscription_set_insert_or_assign_resultsPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Uint8 Function(
+                  ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
+                  ffi.Pointer<realm_results_t>,
+                  ffi.Pointer<ffi.Int8>,
+                  ffi.Pointer<ffi.IntPtr>,
+                  ffi.Pointer<ffi.Uint8>)>>(
+      'realm_sync_subscription_set_insert_or_assign_results');
+  late final _realm_sync_subscription_set_insert_or_assign_results =
+      _realm_sync_subscription_set_insert_or_assign_resultsPtr.asFunction<
+          int Function(
+              ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
+              ffi.Pointer<realm_results_t>,
+              ffi.Pointer<ffi.Int8>,
+              ffi.Pointer<ffi.IntPtr>,
+              ffi.Pointer<ffi.Uint8>)>();
+
+  /// Insert ot update a query for the subscription set passed as parameter, if successful the index where the query
+  /// was inserted or updated is returned along with the info whether a new query was inserted or not. It is possible to
+  /// specify a name for the query inserted (optional).
+  /// @return true/false if operation was successful
+  bool realm_sync_subscription_set_insert_or_assign_query(
+    ffi.Pointer<realm_flx_sync_mutable_subscription_set_t> arg0,
+    ffi.Pointer<realm_query_t> arg1,
+    ffi.Pointer<ffi.Int8> name,
+    ffi.Pointer<ffi.IntPtr> out_index,
+    ffi.Pointer<ffi.Uint8> out_inserted,
+  ) {
+    return _realm_sync_subscription_set_insert_or_assign_query(
+          arg0,
+          arg1,
+          name,
+          out_index,
+          out_inserted,
+        ) !=
+        0;
+  }
+
+  late final _realm_sync_subscription_set_insert_or_assign_queryPtr = _lookup<
           ffi.NativeFunction<
               ffi.Uint8 Function(
                   ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
@@ -7502,9 +7880,9 @@ class RealmLibrary {
                   ffi.Pointer<ffi.Int8>,
                   ffi.Pointer<ffi.IntPtr>,
                   ffi.Pointer<ffi.Uint8>)>>(
-      'realm_sync_subscription_set_insert_or_assign');
-  late final _realm_sync_subscription_set_insert_or_assign =
-      _realm_sync_subscription_set_insert_or_assignPtr.asFunction<
+      'realm_sync_subscription_set_insert_or_assign_query');
+  late final _realm_sync_subscription_set_insert_or_assign_query =
+      _realm_sync_subscription_set_insert_or_assign_queryPtr.asFunction<
           int Function(
               ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
               ffi.Pointer<realm_query_t>,
@@ -7512,15 +7890,44 @@ class RealmLibrary {
               ffi.Pointer<ffi.IntPtr>,
               ffi.Pointer<ffi.Uint8>)>();
 
-  /// Erase from subscription set by name
-  /// @return true/false if operation was successful
+  /// Erase from subscription set by id. If operation completes successfully set the bool out param.
+  /// @return true if no error occurred, false otherwise (use realm_get_last_error for fetching the error).
+  bool realm_sync_subscription_set_erase_by_id(
+    ffi.Pointer<realm_flx_sync_mutable_subscription_set_t> arg0,
+    ffi.Pointer<realm_object_id_t> arg1,
+    ffi.Pointer<ffi.Uint8> arg2,
+  ) {
+    return _realm_sync_subscription_set_erase_by_id(
+          arg0,
+          arg1,
+          arg2,
+        ) !=
+        0;
+  }
+
+  late final _realm_sync_subscription_set_erase_by_idPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Uint8 Function(
+                  ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
+                  ffi.Pointer<realm_object_id_t>,
+                  ffi.Pointer<ffi.Uint8>)>>(
+      'realm_sync_subscription_set_erase_by_id');
+  late final _realm_sync_subscription_set_erase_by_id =
+      _realm_sync_subscription_set_erase_by_idPtr.asFunction<
+          int Function(ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
+              ffi.Pointer<realm_object_id_t>, ffi.Pointer<ffi.Uint8>)>();
+
+  /// Erase from subscription set by name. If operation completes successfully set the bool out param.
+  /// @return true if no error occurred, false otherwise (use realm_get_last_error for fetching the error)
   bool realm_sync_subscription_set_erase_by_name(
     ffi.Pointer<realm_flx_sync_mutable_subscription_set_t> arg0,
     ffi.Pointer<ffi.Int8> arg1,
+    ffi.Pointer<ffi.Uint8> erased,
   ) {
     return _realm_sync_subscription_set_erase_by_name(
           arg0,
           arg1,
+          erased,
         ) !=
         0;
   }
@@ -7529,22 +7936,25 @@ class RealmLibrary {
           ffi.NativeFunction<
               ffi.Uint8 Function(
                   ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
-                  ffi.Pointer<ffi.Int8>)>>(
+                  ffi.Pointer<ffi.Int8>,
+                  ffi.Pointer<ffi.Uint8>)>>(
       'realm_sync_subscription_set_erase_by_name');
   late final _realm_sync_subscription_set_erase_by_name =
       _realm_sync_subscription_set_erase_by_namePtr.asFunction<
           int Function(ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
-              ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<ffi.Int8>, ffi.Pointer<ffi.Uint8>)>();
 
-  /// Erase from subscription set by query
-  /// @return true/false if operation was successful
+  /// Erase from subscription set by query. If operation completes successfully set the bool out param.
+  /// @return true if no error occurred, false otherwise (use realm_get_last_error for fetching the error)
   bool realm_sync_subscription_set_erase_by_query(
     ffi.Pointer<realm_flx_sync_mutable_subscription_set_t> arg0,
     ffi.Pointer<realm_query_t> arg1,
+    ffi.Pointer<ffi.Uint8> erased,
   ) {
     return _realm_sync_subscription_set_erase_by_query(
           arg0,
           arg1,
+          erased,
         ) !=
         0;
   }
@@ -7553,12 +7963,40 @@ class RealmLibrary {
           ffi.NativeFunction<
               ffi.Uint8 Function(
                   ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
-                  ffi.Pointer<realm_query_t>)>>(
+                  ffi.Pointer<realm_query_t>,
+                  ffi.Pointer<ffi.Uint8>)>>(
       'realm_sync_subscription_set_erase_by_query');
   late final _realm_sync_subscription_set_erase_by_query =
       _realm_sync_subscription_set_erase_by_queryPtr.asFunction<
           int Function(ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
-              ffi.Pointer<realm_query_t>)>();
+              ffi.Pointer<realm_query_t>, ffi.Pointer<ffi.Uint8>)>();
+
+  /// Erase from subscription set by results. If operation completes successfully set the bool out param.
+  /// @return true if no error occurred, false otherwise (use realm_get_last_error for fetching the error)
+  bool realm_sync_subscription_set_erase_by_results(
+    ffi.Pointer<realm_flx_sync_mutable_subscription_set_t> arg0,
+    ffi.Pointer<realm_results_t> arg1,
+    ffi.Pointer<ffi.Uint8> erased,
+  ) {
+    return _realm_sync_subscription_set_erase_by_results(
+          arg0,
+          arg1,
+          erased,
+        ) !=
+        0;
+  }
+
+  late final _realm_sync_subscription_set_erase_by_resultsPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Uint8 Function(
+                  ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
+                  ffi.Pointer<realm_results_t>,
+                  ffi.Pointer<ffi.Uint8>)>>(
+      'realm_sync_subscription_set_erase_by_results');
+  late final _realm_sync_subscription_set_erase_by_results =
+      _realm_sync_subscription_set_erase_by_resultsPtr.asFunction<
+          int Function(ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
+              ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Uint8>)>();
 
   /// Commit the subscription_set passed as parameter (in order that all the changes made will take effect)
   /// @return pointer to a valid immutable subscription if commit was successful
@@ -7838,6 +8276,33 @@ class RealmLibrary {
   late final _realm_sync_session_resume = _realm_sync_session_resumePtr
       .asFunction<void Function(ffi.Pointer<realm_sync_session_t>)>();
 
+  /// In case manual reset is needed, run this function in order to reset sync client files.
+  /// The sync_path is going to passed into realm_sync_error_handler_func_t, if manual reset is needed.
+  /// This function is supposed to be called inside realm_sync_error_handler_func_t callback, if sync client reset is
+  /// needed
+  /// @param realm_app ptr to realm app.
+  /// @param sync_path path where the sync files are.
+  /// @return true if operation was succesful
+  bool realm_sync_immediately_run_file_actions(
+    ffi.Pointer<realm_app_t> realm_app,
+    ffi.Pointer<ffi.Int8> sync_path,
+  ) {
+    return _realm_sync_immediately_run_file_actions(
+          realm_app,
+          sync_path,
+        ) !=
+        0;
+  }
+
+  late final _realm_sync_immediately_run_file_actionsPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Uint8 Function(
+                  ffi.Pointer<realm_app_t>, ffi.Pointer<ffi.Int8>)>>(
+      'realm_sync_immediately_run_file_actions');
+  late final _realm_sync_immediately_run_file_actions =
+      _realm_sync_immediately_run_file_actionsPtr.asFunction<
+          int Function(ffi.Pointer<realm_app_t>, ffi.Pointer<ffi.Int8>)>();
+
   /// Register a callback that will be invoked every time the session's connection state changes.
   ///
   /// @return A token value that can be used to unregiser the callback.
@@ -8019,6 +8484,25 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  /// In case of exception thrown in user code callbacks, this api will allow the sdk to store the user code exception
+  /// and retrieve a it later via realm_get_last_error.
+  /// Most importantly the SDK is responsible to handle the memory pointed by usercode_error.
+  /// @param usercode_error pointer representing whatever object the SDK treats as exception/error.
+  void realm_register_user_code_callback_error(
+    ffi.Pointer<ffi.Void> usercode_error,
+  ) {
+    return _realm_register_user_code_callback_error(
+      usercode_error,
+    );
+  }
+
+  late final _realm_register_user_code_callback_errorPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+          'realm_register_user_code_callback_error');
+  late final _realm_register_user_code_callback_error =
+      _realm_register_user_code_callback_errorPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
   void realm_initializeDartApiDL(
     ffi.Pointer<ffi.Void> data,
   ) {
@@ -8190,6 +8674,54 @@ class RealmLibrary {
           'realm_dart_get_files_path');
   late final _realm_dart_get_files_path = _realm_dart_get_files_pathPtr
       .asFunction<ffi.Pointer<ffi.Int8> Function()>();
+
+  /// Register a handler in order to be notified when subscription set is equal to the one passed as parameter
+  /// This is an asynchronous operation.
+  ///
+  /// @return true/false if the handler was registered correctly
+  ///
+  /// This is dart specific version of realm_dart_on_subscription_set_state_change_async.
+  /// Unlike the original method, this one uses event_loop_dispatcher to ensure the callback
+  /// is handled on the correct isolate thread.
+  bool realm_dart_sync_on_subscription_set_state_change_async(
+    ffi.Pointer<realm_flx_sync_subscription_set_t> subscription_set,
+    int notify_when,
+    realm_dart_sync_on_subscription_state_changed callback,
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t userdata_free,
+    ffi.Pointer<realm_scheduler_t> scheduler,
+  ) {
+    return _realm_dart_sync_on_subscription_set_state_change_async(
+          subscription_set,
+          notify_when,
+          callback,
+          userdata,
+          userdata_free,
+          scheduler,
+        ) !=
+        0;
+  }
+
+  late final _realm_dart_sync_on_subscription_set_state_change_asyncPtr =
+      _lookup<
+              ffi.NativeFunction<
+                  ffi.Uint8 Function(
+                      ffi.Pointer<realm_flx_sync_subscription_set_t>,
+                      ffi.Int32,
+                      realm_dart_sync_on_subscription_state_changed,
+                      ffi.Pointer<ffi.Void>,
+                      realm_free_userdata_func_t,
+                      ffi.Pointer<realm_scheduler_t>)>>(
+          'realm_dart_sync_on_subscription_set_state_change_async');
+  late final _realm_dart_sync_on_subscription_set_state_change_async =
+      _realm_dart_sync_on_subscription_set_state_change_asyncPtr.asFunction<
+          int Function(
+              ffi.Pointer<realm_flx_sync_subscription_set_t>,
+              int,
+              realm_dart_sync_on_subscription_state_changed,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              ffi.Pointer<realm_scheduler_t>)>();
 }
 
 class shared_realm extends ffi.Opaque {}
@@ -8442,6 +8974,8 @@ class realm_error extends ffi.Struct {
 
   external ffi.Pointer<ffi.Int8> message;
 
+  external ffi.Pointer<ffi.Void> usercode_error;
+
   external UnnamedUnion2 kind;
 }
 
@@ -8559,6 +9093,8 @@ typedef realm_migration_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Uint8 Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>,
             ffi.Pointer<realm_t>, ffi.Pointer<realm_schema_t>)>>;
+typedef realm_free_userdata_func_t
+    = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>;
 typedef realm_data_initialization_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Uint8 Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>;
@@ -8567,8 +9103,6 @@ typedef realm_should_compact_on_launch_func_t = ffi.Pointer<
         ffi.Uint8 Function(ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64)>>;
 typedef realm_scheduler_t = realm_scheduler;
 typedef realm_sync_config_t = realm_sync_config;
-typedef realm_free_userdata_func_t
-    = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>;
 typedef realm_scheduler_notify_func_t
     = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>;
 typedef realm_scheduler_is_on_thread_func_t = ffi
@@ -9018,8 +9552,6 @@ abstract class realm_sync_errno_session {
   static const int RLM_SYNC_ERR_SESSION_BAD_CLIENT_VERSION = 210;
   static const int RLM_SYNC_ERR_SESSION_DIVERGING_HISTORIES = 211;
   static const int RLM_SYNC_ERR_SESSION_BAD_CHANGESET = 212;
-  static const int RLM_SYNC_ERR_SESSION_SUPERSEDED = 213;
-  static const int RLM_SYNC_ERR_SESSION_DISABLED_SESSION = 213;
   static const int RLM_SYNC_ERR_SESSION_PARTIAL_SYNC_DISABLED = 214;
   static const int RLM_SYNC_ERR_SESSION_UNSUPPORTED_SESSION_FEATURE = 215;
   static const int RLM_SYNC_ERR_SESSION_BAD_ORIGIN_FILE_IDENT = 216;
@@ -9059,11 +9591,18 @@ class realm_sync_error extends ffi.Struct {
 
   external ffi.Pointer<ffi.Int8> detailed_message;
 
+  external ffi.Pointer<ffi.Int8> c_original_file_path_key;
+
+  external ffi.Pointer<ffi.Int8> c_recovery_file_path_key;
+
   @ffi.Uint8()
   external int is_fatal;
 
   @ffi.Uint8()
   external int is_unrecognized_by_client;
+
+  @ffi.Uint8()
+  external int is_client_reset_requested;
 
   external ffi.Pointer<realm_sync_error_user_info_t> user_info_map;
 
@@ -9111,12 +9650,17 @@ typedef realm_sync_ssl_verify_func_t = ffi.Pointer<
             ffi.IntPtr,
             ffi.Int32,
             ffi.Int32)>>;
+typedef realm_sync_before_client_reset_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>;
+typedef realm_sync_after_client_reset_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>,
+            ffi.Pointer<realm_t>, ffi.Uint8)>>;
+typedef realm_flx_sync_subscription_t = realm_flx_sync_subscription;
 typedef realm_flx_sync_subscription_set_t = realm_flx_sync_subscription_set;
 typedef realm_sync_on_subscription_state_changed = ffi.Pointer<
-    ffi.NativeFunction<
-        ffi.Void Function(
-            ffi.Pointer<realm_flx_sync_subscription_set_t>, ffi.Int32)>>;
-typedef realm_flx_sync_subscription_t = realm_flx_sync_subscription;
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>;
 typedef realm_flx_sync_mutable_subscription_set_t
     = realm_flx_sync_mutable_subscription_set;
 typedef realm_async_open_task_t = realm_async_open_task;
@@ -9128,6 +9672,8 @@ typedef realm_async_open_task_t = realm_async_open_task;
 /// @param realm Downloaded realm instance, or null if an error occurred.
 /// Move to the thread you want to use it on and
 /// thaw with @a realm_from_thread_safe_reference().
+/// Be aware that once received through this call, you own
+/// the object and must release it when used.
 /// @param error Null, if the operation complete successfully.
 typedef realm_async_open_task_completion_func_t = ffi.Pointer<
     ffi.NativeFunction<
@@ -9155,3 +9701,5 @@ class _Dart_FinalizableHandle extends ffi.Opaque {}
 
 /// A port is used to send or receive inter-isolate messages
 typedef Dart_Port = ffi.Int64;
+typedef realm_dart_sync_on_subscription_state_changed = ffi.Pointer<
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>;
