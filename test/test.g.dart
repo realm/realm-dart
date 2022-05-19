@@ -395,8 +395,9 @@ class Schedule extends _Schedule with RealmEntity, RealmObject {
           linkTarget: 'Task', collectionType: RealmCollectionType.list),
     ]);
   }
-    
- class AllTypes extends _AllTypes with RealmEntity, RealmObject {
+}
+
+class AllTypes extends _AllTypes with RealmEntity, RealmObject {
   AllTypes(
     String stringProp,
     bool boolProp,
@@ -575,5 +576,4 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
           collectionType: RealmCollectionType.list),
     ]);
   }
-
 }
