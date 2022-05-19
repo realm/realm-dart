@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:io';
+import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'native/realm_core.dart';
 import 'credentials.dart';
@@ -29,35 +30,45 @@ import 'configuration.dart';
 enum LogLevel {
   /// Log everything. This will seriously harm the performance of the
   /// sync client and should never be used in production scenarios.
-  all,
+  all(Level.ALL),
 
   /// A version of 'debug' that allows for very high volume output.
   /// This may seriously affect the performance of the sync client.
-  trace,
+  trace(Level.FINEST),
 
   /// Reveal information that can aid debugging, no longer paying
   /// attention to efficiency.
-  debug,
+  debug(Level.FINER),
 
   /// Same as 'Info', but prioritize completeness over minimalism.
-  detail,
+  detail(Level.FINE),
 
   /// Log operational sync client messages, but in a minimalistic fashion to
   /// avoid general overhead from logging and to keep volume down.
-  info,
+  info(Level.INFO),
 
   /// Log errors and warnings.
-  warn,
+  warn(Level.WARNING),
 
   /// Log errors only.
-  error,
+  error(Level.SEVERE),
 
   /// Log only fatal errors.
-  fatal,
+  fatal(Level.SHOUT),
 
   /// Log nothing.
-  off,
+  off(Level.OFF);
+
+  /// The corresponding [Logger] [Level]
+  final Level loggerLevel;
+  const LogLevel(this.loggerLevel);
 }
+
+late final _defaultLogger = Logger.detached('realm')
+  ..level = Level.ALL
+  ..onRecord.listen((event) {
+    print(event.message);
+  });
 
 /// A class exposing configuration options for an [App]
 /// {@category Application}
@@ -114,6 +125,9 @@ class AppConfiguration {
   /// The [LogLevel] for sync operations.
   final LogLevel logLevel;
 
+  /// The [Logger] to be used.
+  final Logger logger;
+
   /// The [HttpClient] that will be used for HTTP requests during authentication.
   ///
   /// You can use this to override the default http client handler and configure settings like proxies,
@@ -133,11 +147,13 @@ class AppConfiguration {
     this.metadataEncryptionKey,
     this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
     this.logLevel = LogLevel.error,
+    Logger? logger,
     this.maxConnectionTimeout = const Duration(minutes: 2),
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
         baseFilePath = baseFilePath ?? Directory(ConfigurationInternal.defaultStorageFolder),
-        httpClient = httpClient ?? HttpClient();
+        httpClient = httpClient ?? HttpClient(),
+        logger = logger ?? _defaultLogger;
 }
 
 /// An [App] is the main client-side entry point for interacting with a MongoDB Realm App.

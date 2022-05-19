@@ -23,6 +23,7 @@ import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
+import 'package:logging/logging.dart';
 
 import '../app.dart';
 import '../collections.dart';
@@ -1026,6 +1027,20 @@ class _RealmCore {
     });
   }
 
+  static void _logCallback(Pointer<Void> userdata, int levelAsInt, Pointer<Int8> message) {
+    try {
+      final logger = userdata.toObject<Logger>(isPersistent: true)!;
+      final level = LogLevel.values[levelAsInt].loggerLevel;
+
+      // Don't do expensive utf8 to utf16 conversion unless we have to..
+      if (logger.isLoggable(level)) {
+        logger.log(level, message.cast<Utf8>().toDartString());
+      }
+    } finally {
+      _realmLib.realm_free(message.cast()); // .. but always free the message
+    }
+  }
+
   SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
     return using((arena) {
       final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
@@ -1033,6 +1048,13 @@ class _RealmCore {
       _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toUtf8Ptr(arena));
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
       _realmLib.realm_sync_client_config_set_log_level(handle._pointer, configuration.logLevel.index);
+      _realmLib.realm_dart_sync_client_config_set_log_callback(
+        handle._pointer,
+        Pointer.fromFunction(_logCallback),
+        configuration.logger.toPersistentHandle(),
+        _realmLib.addresses.realm_dart_delete_persistent_handle,
+        scheduler.handle._pointer,
+      );
       _realmLib.realm_sync_client_config_set_connect_timeout(handle._pointer, configuration.maxConnectionTimeout.inMicroseconds);
       if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
         _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));

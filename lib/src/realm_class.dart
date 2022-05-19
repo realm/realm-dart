@@ -342,6 +342,8 @@ class Scheduler {
   }
 }
 
+late final scheduler = Scheduler(() {});
+
 /// @nodoc
 class Transaction {
   Realm? _realm;
