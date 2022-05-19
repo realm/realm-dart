@@ -31,11 +31,9 @@ class Subscription {
 
   Subscription._(this._handle);
 
-  ObjectId get _id => realmCore.subscriptionId(this);
+  late final ObjectId _id = realmCore.subscriptionId(this);
 
   /// Name of the [Subscription], if one was provided at creation time.
-  /// 
-  /// Otherwise returns null.
   String? get name => realmCore.subscriptionName(this);
 
   /// Class name of objects the [Subscription] refers to.
@@ -45,8 +43,8 @@ class Subscription {
   /// rather than the name of the generated Dart class.
   String get objectClassName => realmCore.subscriptionObjectClassName(this);
 
-  /// Query string that describes the [Subscription]. 
-  /// 
+  /// Query string that describes the [Subscription].
+  ///
   /// Objects matched by the query will be sent to the device by the server.
   String get queryString => realmCore.subscriptionQueryString(this);
 
@@ -62,7 +60,7 @@ class Subscription {
     if (identical(this, other)) return true;
     if (other is! Subscription) return false;
     // TODO: Don't work, issue with C-API
-    // return realmCore.subscriptionEquals(this, other); 
+    // return realmCore.subscriptionEquals(this, other);
     return id == other.id; // <-- do this instead
   }
 }
@@ -134,16 +132,12 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
   /// Finds an existing [Subscription] in this set by its query
   ///
   /// The [query] is represented by the corresponding [RealmResults] object.
-  ///
-  /// Returns null, if not found
   Subscription? find<T extends RealmObject>(RealmResults<T> query) {
     final result = realmCore.findSubscriptionByResults(this, query);
     return result == null ? null : Subscription._(result);
   }
 
   /// Finds an existing [Subscription] in this set by name.
-  ///
-  /// Returns null, if not found
   Subscription? findByName(String name) {
     final result = realmCore.findSubscriptionByName(this, name);
     return result == null ? null : Subscription._(result);
@@ -203,7 +197,7 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
       case SubscriptionSetState._bootstrapping:
         return SubscriptionSetState.pending;
       default:
-        return state;  
+        return state;
     }
   }
 }
@@ -212,11 +206,11 @@ extension SubscriptionSetInternal on SubscriptionSet {
   Realm get realm => _realm;
   SubscriptionSetHandle get handle => _handle;
 
-  static SubscriptionSet create(Realm realm, SubscriptionSetHandle handle) => _ImmutableSubscriptionSet._(realm, handle);
+  static SubscriptionSet create(Realm realm, SubscriptionSetHandle handle) => ImmutableSubscriptionSet._(realm, handle);
 }
 
-class _ImmutableSubscriptionSet extends SubscriptionSet {
-  _ImmutableSubscriptionSet._(Realm realm, SubscriptionSetHandle handle) : super._(realm, handle);
+class ImmutableSubscriptionSet extends SubscriptionSet {
+  ImmutableSubscriptionSet._(Realm realm, SubscriptionSetHandle handle) : super._(realm, handle);
 
   @override
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action) {

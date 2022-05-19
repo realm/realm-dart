@@ -11,6 +11,7 @@ set(SOURCES
     realm_dart.cpp
     realm_dart_scheduler.cpp
     subscription_set.cpp
+    sync_session.cpp
 )
 
 set(HEADERS
@@ -18,6 +19,7 @@ set(HEADERS
     realm_dart_scheduler.h
     realm-core/src/realm.h
     subscription_set.h
+    sync_session.h
 )
 
 add_library(realm_dart SHARED ${SOURCES} ${HEADERS})

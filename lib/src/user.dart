@@ -20,6 +20,7 @@ import 'dart:convert';
 
 import 'native/realm_core.dart';
 import 'realm_class.dart';
+import './app.dart';
 
 /// This class represents a `user` in a MongoDB Realm app.
 /// A user can log in to the server and, if access is granted, it is possible to synchronize the local Realm to MongoDB.
@@ -28,12 +29,17 @@ import 'realm_class.dart';
 /// locally on the device, and should be treated as sensitive data.
 /// {@category Application}
 class User {
+  final App? _app;
   final UserHandle _handle;
 
   /// The [App] with which the [User] is associated with.
-  final App app;
+  App get app {
+    // The _app field may be null when we're retrieving a user from the session
+    // rather than from the app.
+    return _app ?? AppInternal.create(realmCore.userGetApp(_handle));
+  }
 
-  User._(this.app, this._handle);
+  User._(this._handle, this._app);
 
   /// The current state of this [User].
   UserState get state {
@@ -105,7 +111,7 @@ class User {
   /// ```
   Future<User> linkCredentials(Credentials credentials) async {
     final userHandle = await realmCore.userLinkCredentials(app, this, credentials);
-    return UserInternal.create(app, userHandle);
+    return UserInternal.create(userHandle, app);
   }
 
   @override
@@ -146,25 +152,25 @@ class UserProfile {
 
   /// Gets the name of the [User].
   String? get name => _data["name"] as String?;
-  
+
   /// Gets the first name of the [User].
   String? get firstName => _data["firstName"] as String?;
 
   /// Gets the last name of the [User].
   String? get lastName => _data["lastName"] as String?;
-  
+
   /// Gets the email of the [User].
   String? get email => _data["email"] as String?;
-  
+
   /// Gets the gender of the [User].
   String? get gender => _data["gender"] as String?;
-  
+
   /// Gets the birthday of the user.
   String? get birthDay => _data["birthDay"] as String?;
-  
+
   /// Gets the minimum age of the [User].
   String? get minAge => _data["minAge"] as String?;
-  
+
   /// Gets the maximum age of the [User].
   String? get maxAge => _data["maxAge"] as String?;
 
@@ -172,7 +178,7 @@ class UserProfile {
   String? get pictureUrl => _data["pictureUrl"] as String?;
 
   /// Gets a profile property of the [User].
-  dynamic operator[](String property) => _data[property];
+  dynamic operator [](String property) => _data[property];
 
   const UserProfile(this._data);
 }
@@ -186,5 +192,5 @@ extension UserIdentityInternal on UserIdentity {
 extension UserInternal on User {
   UserHandle get handle => _handle;
 
-  static User create(App app, UserHandle handle) => User._(app, handle);
+  static User create(UserHandle handle, [App? app]) => User._(handle, app);
 }
