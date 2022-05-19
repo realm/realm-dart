@@ -29,7 +29,7 @@ BAAS_PROJECT_ID=<project_id>
 ```
 10) Now you can run `dart test` and it should include the integration tests.
 
-If you are a MongoDB employee, you can instead choose to run the tests against [cloud-dev](cloud-dev.mongodb.com).
+If you are a MongoDB employee, you can instead choose to run the tests against [cloud-dev](https://cloud-dev.mongodb.com).
 The procedure is the same, except you need to use your qa credentials instead.
 
 
