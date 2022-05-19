@@ -19,7 +19,7 @@ import '../test/subscription_test.dart' as subscription_test;
 Future<String> main(List<String> args) async {
   final Completer<String> completer = Completer<String>();
   final List<String> failedTests = [];
-
+  
   await configuration_test.main(args);
   await realm_tests.main(args);
   await realm_object_tests.main(args);
