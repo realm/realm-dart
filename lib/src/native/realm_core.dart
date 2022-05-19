@@ -23,6 +23,7 @@ import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
+import 'package:realm_dart/realm.dart';
 
 import '../app.dart';
 import '../collections.dart';
@@ -894,7 +895,7 @@ class _RealmCore {
     return RealmHttpTransportHandle._(_realmLib.realm_http_transport_new(
       Pointer.fromFunction(request_callback),
       httpClient.toPersistentHandle(),
-      _deletePersistentHandleFuncPtr,
+      _realmLib.addresses.realm_dart_delete_persistent_handle,
     ));
   }
 
@@ -1341,8 +1342,12 @@ class _RealmCore {
   }
 
   AppHandle userGetApp(UserHandle userHandle) {
-    // TODO: we don't have an API to get the app for a user - https://github.com/realm/realm-core/issues/5478
-    return AppHandle._(nullptr);
+    final appPtr = _realmLib.realm_user_get_app(userHandle._pointer);
+    if (appPtr != nullptr) {
+      throw RealmException('User does not have an associated app. This is likely due to the user being logged out.');
+    }
+
+    return AppHandle._(appPtr);
   }
 
   List<UserIdentity> userGetIdentities(User user) {
@@ -1359,7 +1364,8 @@ class _RealmCore {
       final userIdentities = <UserIdentity>[];
       for (var i = 0; i < idsCount.value; i++) {
         final idPtr = idsPtr.elementAt(i);
-        userIdentities.add(UserIdentityInternal.create(idPtr.ref.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderType.values.fromIndex(idPtr.ref.provider_type)));
+        userIdentities.add(UserIdentityInternal.create(
+            idPtr.ref.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderType.values.fromIndex(idPtr.ref.provider_type)));
       }
 
       return userIdentities;
@@ -1433,7 +1439,7 @@ class _RealmCore {
   int sessionRegisterProgressNotifier(Session session, ProgressDirection direction, ProgressMode mode, SessionProgressNotificationsController controller) {
     final isStreaming = mode == ProgressMode.reportIndefinitely;
     return _realmLib.realm_dart_sync_session_register_progress_notifier(session.handle._pointer, Pointer.fromFunction(on_sync_progress), direction.index,
-        isStreaming, controller.toPersistentHandle(), _deletePersistentHandleFuncPtr, session.scheduler.handle._pointer);
+        isStreaming, controller.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, session.scheduler.handle._pointer);
   }
 
   void sessionUnregisterProgressNotifier(Session session, int token) {
@@ -1455,7 +1461,7 @@ class _RealmCore {
       session.handle._pointer,
       Pointer.fromFunction(_waitCompletionCallback),
       completer.toPersistentHandle(),
-      _deletePersistentHandleFuncPtr,
+      _realmLib.addresses.realm_dart_delete_persistent_handle,
       session.scheduler.handle._pointer,
     );
     return completer.future;
@@ -1467,7 +1473,7 @@ class _RealmCore {
       session.handle._pointer,
       Pointer.fromFunction(_waitCompletionCallback),
       completer.toPersistentHandle(),
-      _deletePersistentHandleFuncPtr,
+      _realmLib.addresses.realm_dart_delete_persistent_handle,
       session.scheduler.handle._pointer,
     );
     return completer.future;

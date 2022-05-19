@@ -20,6 +20,7 @@ import 'dart:convert';
 
 import 'native/realm_core.dart';
 import 'realm_class.dart';
+import './app.dart';
 
 /// This class represents a `user` in a MongoDB Realm app.
 /// A user can log in to the server and, if access is granted, it is possible to synchronize the local Realm to MongoDB.
