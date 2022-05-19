@@ -690,7 +690,7 @@ jobs:
         run: sudo apt update && sudo apt-get install -y libclang-dev
 
       - name: Run ffigen
-        run: dart run ffigen --config config.yaml
+        run: dart run ffigen
         working-directory: ./ffigen
 
       - name: Validate there are no uncommitted changes
@@ -698,6 +698,7 @@ jobs:
           status=$(git status --porcelain)
           if [ -n "$status" ]; then
             echo "$status"
+            git diff
             exit 1
           fi
 
@@ -714,6 +715,7 @@ jobs:
         working-directory: ./generator/
 
       - name: Publish Generator Coverage
+        if: ${{ false }}
         id: publish-generator-coverage
         uses: coverallsapp/github-action@1.1.3
         with:
@@ -723,4 +725,5 @@ jobs:
         continue-on-error: true
 
       - name: Output Coveralls response
+        if: ${{ false }}
         run: echo ${{ steps.publish-generator-coverage.outputs.coveralls-api-result }}

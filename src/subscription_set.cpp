@@ -47,7 +47,7 @@ void _userdata_free(void* userdata) {
 RLM_API bool realm_dart_sync_on_subscription_set_state_change_async(
     const realm_flx_sync_subscription_set_t* subscription_set,
     realm_flx_sync_subscription_set_state_e notify_when,
-    realm_sync_on_subscription_state_changed callback,
+    realm_sync_on_subscription_state_changed_t callback,
     void* userdata,
     realm_free_userdata_func_t userdata_free,
     realm_scheduler_t* scheduler) noexcept

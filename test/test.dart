@@ -103,21 +103,27 @@ class _Schedule {
 }
 
 @RealmModel()
-class _NullableTypes {
-  @PrimaryKey()
-  @MapTo('_id')
-  late ObjectId id;
-
-  late ObjectId differentiator;
-
-  late String? stringProp;
-  late bool? boolProp;
-  late DateTime? dateProp;
-  late double? doubleProp;
-  late ObjectId? objectIdProp;
-  late Uuid? uuidProp;
-  late int? intProp;
+class _AllTypes {
+  late String stringProp;
+  late bool boolProp;
+  late DateTime dateProp;
+  late double doubleProp;
+  late ObjectId objectIdProp;
+  late Uuid uuidProp;
+  late int intProp;
 }
+
+@RealmModel()
+class _AllCollections {
+  late List<String> strings;
+  late List<bool> bools;
+  late List<DateTime> dates;
+  late List<double> doubles;
+  late List<ObjectId> objectIds;
+  late List<Uuid> uuids;
+  late List<int> ints;
+}
+
 
 String? testName;
 final baasApps = <String, BaasApp>{};
@@ -272,47 +278,16 @@ Future<void> baasTest(
   }
 
   test(name, () async {
-    final config = await getAppConfig(appName: appName);
-    return await testFunction(config);
+    final app = baasApps[appName.name] ??
+        baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
+    final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
+    final appConfig = AppConfiguration(
+      app.clientAppId,
+      baseUrl: url,
+      baseFilePath: temporaryDir,
+    );
+    return await testFunction(appConfig);
   }, skip: skip);
-}
-
-Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) async {
-  final app = baasApps[appName.name] ??
-      baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
-
-  final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
-  return AppConfiguration(
-    app.clientAppId,
-    baseUrl: Uri.parse(Platform.environment['BAAS_URL']!),
-    baseFilePath: temporaryDir,
-  );
-}
-
-Future<User> getIntegrationUser(App app) async {
-  final email = 'realm_tests_do_autoverify_${generateRandomString(10)}@realm.io';
-  final password = 'password';
-  await app.emailPasswordAuthProvider.registerUser(email, password);
-
-  return await loginWithRetry(app, Credentials.emailPassword(email, password));
-}
-
-Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, String? path}) async {
-  app ??= App(await getAppConfig());
-  final user = await getIntegrationUser(app);
-
-  // TODO: path will not be needed after https://github.com/realm/realm-dart/pull/574
-  final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema, NullableTypes.schema], path: path);
-  final realm = getRealm(config);
-  if (differentiator != null) {
-    realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm.query<NullableTypes>('differentiator = \$0', [differentiator]));
-    });
-
-    await realm.subscriptions.waitForSynchronization();
-  }
-
-  return realm;
 }
 
 Future<User> loginWithRetry(App app, Credentials credentials, {int retryCount = 3}) async {
