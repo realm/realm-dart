@@ -21,6 +21,7 @@
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
+import '../lib/realm.dart';
 
 import 'test.dart';
 
@@ -68,13 +69,27 @@ class _BoolValue {
   late bool value;
 }
 
+extension on DateTime {
+  String toNormalizedDateString() {
+    final utc = toUtc();
+    // This is kind of silly, but Core serializes negative dates as -003-01-01 12:34:56
+    final utcYear = utc.year < 0 ? '-${utc.year.abs().toString().padLeft(3, '0')}' : utc.year.toString().padLeft(4, '0');
+
+    // For some reason Core always rounds up to the next second for negative dates, so we need to do the same
+    final seconds = utc.microsecondsSinceEpoch < 0 && utc.microsecondsSinceEpoch % 1000000 != 0 ? utc.second + 1 : utc.second;
+    return '$utcYear-${_format(utc.month)}-${_format(utc.day)} ${_format(utc.hour)}:${_format(utc.minute)}:${_format(seconds)}';
+  }
+
+  static String _format(int value) => value.toString().padLeft(2, '0');
+}
+
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
   await setupTests(args);
 
   test('RealmObject get property', () {
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     final car = Car('Tesla');
@@ -86,7 +101,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject set property', () {
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     final car = Car('Tesla');
@@ -104,7 +119,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject set object type property (link)', () {
-    var config = Configuration([Person.schema, Dog.schema]);
+    var config = Configuration.local([Person.schema, Dog.schema]);
     var realm = getRealm(config);
 
     final dog = Dog(
@@ -121,7 +136,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject set property null', () {
-    var config = Configuration([Person.schema, Dog.schema]);
+    var config = Configuration.local([Person.schema, Dog.schema]);
     var realm = getRealm(config);
 
     final dog = Dog(
@@ -152,7 +167,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject.operator==', () {
-    var config = Configuration([Dog.schema, Person.schema]);
+    var config = Configuration.local([Dog.schema, Person.schema]);
     var realm = getRealm(config);
 
     final person = Person('Kasper');
@@ -174,7 +189,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject isValid', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     var team = Team("team one");
@@ -188,7 +203,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject read deleted object properties', () {
-    var config = Configuration([Team.schema, Person.schema]);
+    var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     var team = Team("TeamOne");
@@ -204,7 +219,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject - write object property after realm is closed', () {
-    var config = Configuration([Person.schema]);
+    var config = Configuration.local([Person.schema]);
     var realm = getRealm(config);
 
     final person = Person('Markos');
@@ -215,7 +230,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject write deleted object property', () {
-    var config = Configuration([Person.schema]);
+    var config = Configuration.local([Person.schema]);
     var realm = getRealm(config);
 
     final person = Person('Markos');
@@ -233,7 +248,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject notifications', () async {
-    var config = Configuration([Dog.schema, Person.schema]);
+    var config = Configuration.local([Dog.schema, Person.schema]);
     var realm = getRealm(config);
 
     final dog = Dog("Lassy");
@@ -287,7 +302,7 @@ Future<void> main([List<String>? args]) async {
   void testPrimaryKey<T extends RealmObject, K extends Object>(SchemaObject schema, T Function() createObject, K key) {
     test("$T primary key: $key", () {
       final pkProp = schema.properties.where((p) => p.primaryKey).single;
-      final realm = Realm(Configuration([schema]));
+      final realm = Realm(Configuration.local([schema]));
       final obj = realm.write(() {
         return realm.add(createObject());
       });
@@ -331,7 +346,7 @@ Future<void> main([List<String>? args]) async {
   }
 
   test('Remapped property has correct names in Core', () {
-    final config = Configuration([RemappedClass.schema]);
+    final config = Configuration.local([RemappedClass.schema]);
     final realm = getRealm(config);
 
     final obj = realm.write(() {
@@ -353,7 +368,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Remapped class across different files works', () {
-    final config = Configuration([RemappedClass.schema, RemappedFromAnotherFile.schema]);
+    final config = Configuration.local([RemappedClass.schema, RemappedFromAnotherFile.schema]);
     final realm = getRealm(config);
     final obj = realm.write(() {
       return realm.add(RemappedFromAnotherFile(linkToAnotherClass: RemappedClass("prop")));
@@ -367,7 +382,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject read/write bool value', () {
-    var config = Configuration([BoolValue.schema]);
+    var config = Configuration.local([BoolValue.schema]);
     var realm = getRealm(config);
 
     realm.write(() {
@@ -377,5 +392,137 @@ Future<void> main([List<String>? args]) async {
 
     expect(realm.find<BoolValue>(1)!.toJson().replaceAll('"', '').contains("value:true"), isTrue);
     expect(realm.find<BoolValue>(2)!.toJson().replaceAll('"', '').contains("value:false"), isTrue);
+  });
+
+  final epochZero = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+
+  bool _canCoreRepresentDateInJson(DateTime date) {
+    // Core has a bug where negative and zero dates are not serialized correctly to json.
+    // https://jira.mongodb.org/browse/RCORE-1083
+    if (date.compareTo(epochZero) <= 0) {
+      return Platform.isMacOS || Platform.isIOS;
+    }
+
+    // Very large dates are also buggy on Android and Windows
+    if (date.compareTo(DateTime.utc(10000)) > 0) {
+      return Platform.isMacOS || Platform.isIOS || Platform.isLinux;
+    }
+
+    return true;
+  }
+
+  void expectDateInJson(DateTime? date, String json, String propertyName) {
+    if (date == null) {
+      expect(json, contains('"$propertyName":null'));
+    } else if (_canCoreRepresentDateInJson(date)) {
+      expect(json, contains('"$propertyName":"${date.toNormalizedDateString()}"'));
+    }
+  }
+
+  final dates = [
+    DateTime.utc(1970).add(Duration(days: 100000000)),
+    DateTime.utc(1970).subtract(Duration(days: 99999999)),
+    DateTime.utc(2020, 1, 1, 12, 34, 56, 789, 999),
+    DateTime.utc(2022),
+    DateTime.utc(1930, 1, 1, 12, 34, 56, 123, 456),
+  ];
+  for (final date in dates) {
+    test('Date roundtrips correctly: $date', () {
+      final config = Configuration.local([AllTypes.schema]);
+      final realm = getRealm(config);
+      final obj = realm.write(() {
+        return realm.add(AllTypes('', false, date, 0, ObjectId(), Uuid.v4(), 0));
+      });
+
+      final json = obj.toJson();
+      expectDateInJson(date, json, 'dateProp');
+
+      expect(obj.dateProp, equals(date));
+    });
+  }
+
+  for (final list in [
+    dates,
+    <DateTime>{},
+    [DateTime(0)]
+  ]) {
+    test('List of ${list.length} dates roundtrips correctly', () {
+      final config = Configuration.local([AllCollections.schema]);
+      final realm = getRealm(config);
+      final obj = realm.write(() {
+        return realm.add(AllCollections(dates: list));
+      });
+
+      final json = obj.toJson();
+      for (var i = 0; i < list.length; i++) {
+        final expectedDate = list.elementAt(i).toUtc();
+        if (_canCoreRepresentDateInJson(expectedDate)) {
+          expect(json, contains('"${expectedDate.toNormalizedDateString()}"'));
+        }
+
+        expect(obj.dates[i], equals(expectedDate));
+      }
+    });
+  }
+
+  test('Date converts to utc', () {
+    final config = Configuration.local([AllTypes.schema]);
+    final realm = getRealm(config);
+
+    final date = DateTime.now();
+    expect(date.isUtc, isFalse);
+
+    final obj = realm.write(() {
+      return realm.add(AllTypes('', false, date, 0, ObjectId(), Uuid.v4(), 0));
+    });
+
+    final json = obj.toJson();
+    expectDateInJson(date, json, 'dateProp');
+
+    expect(obj.dateProp.isUtc, isTrue);
+    expect(obj.dateProp, equals(date.toUtc()));
+  });
+
+  test('Date can be used in queries', () {
+    final config = Configuration.local([AllTypes.schema]);
+    final realm = getRealm(config);
+
+    final date = DateTime.now();
+
+    realm.write(() {
+      realm.add(AllTypes('abc', false, date, 0, ObjectId(), Uuid.v4(), 0));
+      realm.add(AllTypes('cde', false, DateTime.now().add(Duration(seconds: 1)), 0, ObjectId(), Uuid.v4(), 0));
+    });
+
+    var results = realm.all<AllTypes>().query('dateProp = \$0', [date]);
+    expect(results.length, equals(1));
+    expect(results.first.stringProp, equals('abc'));
+  });
+
+  test('Date preserves precision', () {
+    final config = Configuration.local([AllTypes.schema]);
+    final realm = getRealm(config);
+
+    final date1 = DateTime.now().toUtc();
+    final date2 = date1.add(Duration(microseconds: 1));
+    final date3 = date1.subtract(Duration(microseconds: 1));
+
+    realm.write(() {
+      realm.add(AllTypes('1', false, date1, 0, ObjectId(), Uuid.v4(), 0));
+      realm.add(AllTypes('2', false, date2, 0, ObjectId(), Uuid.v4(), 0));
+      realm.add(AllTypes('3', false, date3, 0, ObjectId(), Uuid.v4(), 0));
+    });
+
+    final lessThan1 = realm.all<AllTypes>().query('dateProp < \$0', [date1]);
+    expect(lessThan1.single.stringProp, equals('3'));
+    expect(lessThan1.single.dateProp, equals(date3));
+
+    final moreThan1 = realm.all<AllTypes>().query('dateProp > \$0', [date1]);
+    expect(moreThan1.single.stringProp, equals('2'));
+    expect(moreThan1.single.dateProp, equals(date2));
+
+    final equals1 = realm.all<AllTypes>().query('dateProp = \$0', [date1]);
+    expect(equals1.single.stringProp, equals('1'));
+    expect(equals1.single.dateProp, equals(date1));
   });
 }

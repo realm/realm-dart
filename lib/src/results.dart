@@ -32,7 +32,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
 
   /// The Realm instance this collection belongs to.
   final Realm realm;
-   
+
   final _supportsSnapshot = <T>[] is List<RealmObject?>;
 
   RealmResults._(this._handle, this.realm);
@@ -62,7 +62,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
     var results = this;
     if (_supportsSnapshot) {
       final handle = realmCore.resultsSnapshot(this);
-      results = RealmResultsInternal.create<T>(handle, realm);
+      results = RealmResults._(handle, realm);
     }
     return _RealmResultsIterator(results);
   }

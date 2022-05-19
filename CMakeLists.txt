@@ -27,6 +27,15 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
+# Needed for Win32 headers we might pull in
+if(CMAKE_SYSTEM_NAME MATCHES "^Windows")
+    add_compile_definitions(
+        WIN32_LEAN_AND_MEAN # include minimal Windows.h for faster builds
+        UNICODE # prefer Unicode variants of Windows APIs over ANSI variants
+        _UNICODE # prefer Unicode variants of C runtime APIs over ANSI variants
+    )
+endif()
+
 set(_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING=1)
 
 add_subdirectory(src)

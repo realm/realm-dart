@@ -87,6 +87,44 @@ class $RemappedClass {
   late List<$RemappedClass> listProperty;
 }
 
+@RealmModel()
+class _Task {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+}
+
+@RealmModel()
+class _Schedule {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  final tasks = <_Task>[];
+}
+
+@RealmModel()
+class _AllTypes {
+  late String stringProp;
+  late bool boolProp;
+  late DateTime dateProp;
+  late double doubleProp;
+  late ObjectId objectIdProp;
+  late Uuid uuidProp;
+  late int intProp;
+}
+
+@RealmModel()
+class _AllCollections {
+  late List<String> strings;
+  late List<bool> bools;
+  late List<DateTime> dates;
+  late List<double> doubles;
+  late List<ObjectId> objectIds;
+  late List<Uuid> uuids;
+  late List<int> ints;
+}
+
+
 String? testName;
 final baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
@@ -148,7 +186,7 @@ Future<void> setupTests(List<String>? args) async {
         try {
           Realm.deleteRealm(path);
         } catch (e) {
-          fail("Can not delete realm at path: $path. Did you forget to close it?");
+          print("Can not delete realm at path: $path. Did you forget to close it?");
         }
         String pathKey = _path.basenameWithoutExtension(path);
         String realmDir = _path.dirname(path);

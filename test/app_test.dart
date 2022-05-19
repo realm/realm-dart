@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:test/expect.dart';
@@ -28,28 +29,74 @@ Future<void> main([List<String>? args]) async {
 
   await setupTests(args);
 
-  test('AppConfiguration can be created', () {
-    final a = AppConfiguration('myapp');
-    expect(a.appId, 'myapp');
-    expect(a.baseFilePath.path, Configuration.filesPath);
-    expect(a.baseUrl, Uri.parse('https://realm.mongodb.com'));
-    expect(a.defaultRequestTimeout, const Duration(minutes: 1));
+  test('AppConfiguration can be initialized', () {
+    final defaultAppConfig = AppConfiguration('myapp');
+    expect(defaultAppConfig.appId, 'myapp');
+    expect(defaultAppConfig.baseFilePath.path, Configuration.filesPath);
+    expect(defaultAppConfig.baseUrl, Uri.parse('https://realm.mongodb.com'));
+    expect(defaultAppConfig.defaultRequestTimeout, const Duration(minutes: 1));
+    expect(defaultAppConfig.logLevel, LogLevel.error);
+    expect(defaultAppConfig.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
 
     final httpClient = HttpClient(context: SecurityContext(withTrustedRoots: false));
-    final b = AppConfiguration(
+    final appConfig = AppConfiguration(
       'myapp1',
       baseFilePath: Directory.systemTemp,
       baseUrl: Uri.parse('https://not_re.al'),
       defaultRequestTimeout: const Duration(seconds: 2),
       localAppName: 'bar',
       localAppVersion: "1.0.0",
+      metadataPersistenceMode: MetadataPersistenceMode.disabled,
+      logLevel: LogLevel.info,
+      maxConnectionTimeout: const Duration(minutes: 1),
       httpClient: httpClient,
     );
-    expect(b.appId, 'myapp1');
-    expect(b.baseFilePath.path, Directory.systemTemp.path);
-    expect(b.baseUrl, Uri.parse('https://not_re.al'));
-    expect(b.defaultRequestTimeout, const Duration(seconds: 2));
-    expect(b.httpClient, httpClient);
+    expect(appConfig.appId, 'myapp1');
+    expect(appConfig.baseFilePath.path, Directory.systemTemp.path);
+    expect(appConfig.baseUrl, Uri.parse('https://not_re.al'));
+    expect(appConfig.defaultRequestTimeout, const Duration(seconds: 2));
+    expect(appConfig.logLevel, LogLevel.info);
+    expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.disabled);
+    expect(appConfig.maxConnectionTimeout, const Duration(minutes: 1));
+    expect(appConfig.httpClient, httpClient);
+  });
+  
+test('AppConfiguration can be created with defaults', () {
+    final appConfig = AppConfiguration('myapp1');
+    final app = App(appConfig);
+    expect(app.configuration.appId, 'myapp1');
+    expect(app.configuration.baseUrl, Uri.parse('https://realm.mongodb.com'));
+    expect(app.configuration.defaultRequestTimeout, const Duration(minutes: 1));
+    expect(app.configuration.logLevel, LogLevel.error);
+    expect(app.configuration.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
+    expect(app.configuration.maxConnectionTimeout, const Duration(minutes: 2));
+    expect(app.configuration.httpClient, isNotNull);
+  });
+
+  test('AppConfiguration can be created', () {
+    final httpClient = HttpClient(context: SecurityContext(withTrustedRoots: false));
+    final appConfig = AppConfiguration(
+      'myapp1',
+      baseFilePath: Directory.systemTemp,
+      baseUrl: Uri.parse('https://not_re.al'),
+      defaultRequestTimeout: const Duration(seconds: 2),
+      localAppName: 'bar',
+      localAppVersion: "1.0.0",
+      metadataPersistenceMode: MetadataPersistenceMode.encrypted,
+      metadataEncryptionKey: base64.decode("ekey"),
+      logLevel: LogLevel.info,
+      maxConnectionTimeout: const Duration(minutes: 1),
+      httpClient: httpClient,
+    );
+    final app = App(appConfig);
+    expect(app.configuration.appId, 'myapp1');
+    expect(app.configuration.baseFilePath.path, Directory.systemTemp.path);
+    expect(app.configuration.baseUrl, Uri.parse('https://not_re.al'));
+    expect(app.configuration.defaultRequestTimeout, const Duration(seconds: 2));
+    expect(app.configuration.logLevel, LogLevel.info);
+    expect(app.configuration.metadataPersistenceMode, MetadataPersistenceMode.encrypted);
+    expect(app.configuration.maxConnectionTimeout, const Duration(minutes: 1));
+    expect(app.configuration.httpClient, httpClient);
   });
 
   test('App can be created', () async {
@@ -70,15 +117,6 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     var users = app.users;
     expect(users.isEmpty, true);
-  });
-
-  baasTest('App log out user', (configuration) async {
-    final app = App(configuration);
-    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
-
-    expect(user.state, UserState.loggedIn);
-    await user.logOut();
-    expect(user.state, UserState.loggedOut);
   });
 
   baasTest('App remove user', (configuration) async {

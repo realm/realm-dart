@@ -19,8 +19,6 @@
 import 'dart:convert';
 
 import 'native/realm_core.dart';
-import 'app.dart';
-import 'credentials.dart';
 import 'realm_class.dart';
 
 /// This class represents a `user` in a MongoDB Realm app.
@@ -121,7 +119,7 @@ class User {
 
 /// The current state of a [User].
 enum UserState {
-  /// The user is logged out. Call [App.login] to log the user back in.
+  /// The user is logged out. Call [App.logIn] to log the user back in.
   loggedOut,
 
   /// The user is logged in, and any Realms associated with it are synchronizing with MongoDB Realm.
