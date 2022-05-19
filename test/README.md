@@ -59,7 +59,7 @@ do day-to-day development as it allows you to get into a clean slate with a sing
       -u 1000:1000 \
       -p 9090:9090 -p 26000:26000 \ # Expose the baas and mongodb ports to the host. 9090 is baas and 26000 is mongodb.
       -it \ # interactive and attach tty
-      --rm \ # clean up the container at exit. omit this if you want to preserve the state between runs. resume with https://docs.docker.com/engine/reference/commandline/start/
+      --rm \ # clean up the container at exit. Omit this if you want to preserve the state between runs. Resume with https://docs.docker.com/engine/reference/commandline/start/
       ghcr.io/realm/ci/mongodb-realm-test-server:$baas_version
     ```
 6. Setup the `BAAS_URL` environment variable. On macOS, this can be done for example by adding the following to your profile:
