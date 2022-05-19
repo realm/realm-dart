@@ -695,6 +695,7 @@ jobs:
         working-directory: ./generator/
 
       - name: Publish Generator Coverage
+        if: ${{ false }}
         id: publish-generator-coverage
         uses: coverallsapp/github-action@1.1.3
         with:
@@ -704,4 +705,5 @@ jobs:
         continue-on-error: true
 
       - name: Output Coveralls response
+        if: ${{ false }}
         run: echo ${{ steps.publish-generator-coverage.outputs.coveralls-api-result }}

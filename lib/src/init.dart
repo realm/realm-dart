@@ -39,25 +39,21 @@ DynamicLibrary initRealm() {
   String _getBinaryPath(String binaryName) {
     if (Platform.isAndroid) {
       return "lib$binaryName.so";
-    }
-
-    if (Platform.isLinux) {
+    } else if (Platform.isLinux) {
       if (isFlutterPlatform) {
         return '${File(Platform.resolvedExecutable).parent.path}/lib/lib$binaryName.so';
       }
 
       return "binary/linux/lib$binaryName.so";
-    }
-
-    if (Platform.isMacOS) {
+    } else if (Platform.isMacOS) {
       if (isFlutterPlatform) {
         return "${File(Platform.resolvedExecutable).parent.absolute.path}/../Frameworks/realm.framework/Resources/lib$binaryName.dylib";
       }
 
       return "${Directory.current.path}/binary/macos/lib$binaryName.dylib";
-    }
-
-    if (Platform.isWindows) {
+    } else if (Platform.isIOS) {
+      return "${File(Platform.resolvedExecutable).parent.absolute.path}/Frameworks/realm_dart.framework/realm_dart";
+    } else if (Platform.isWindows) {
       if (isFlutterPlatform) {
         return "$binaryName.dll";
       }
@@ -65,28 +61,10 @@ DynamicLibrary initRealm() {
       return "binary/windows/$binaryName.dll";
     }
 
-    //ios links statically
-    //if (Platform.isIOS) {
-    //}
-
-    throw Exception("Platform not implemented");
+    throw Exception("Platform ${Platform.operatingSystem} not implemented");
   }
 
-  DynamicLibrary dlopenPlatformSpecific(String binaryName) {
-    if (Platform.isIOS) {
-      return DynamicLibrary.process();
-    }
-
-    String fullPath = _getBinaryPath(binaryName);
-    return DynamicLibrary.open(fullPath);
-  }
-
-  DynamicLibrary realmLibrary;
-  if (Platform.isAndroid || Platform.isWindows || Platform.isIOS || Platform.isLinux || Platform.isMacOS) {
-    realmLibrary = dlopenPlatformSpecific(realmBinaryName);
-  } else {
-    throw Exception("Unsupported platform: ${Platform.operatingSystem}");
-  }
+  final realmLibrary = DynamicLibrary.open(_getBinaryPath(realmBinaryName));
 
   final initializeApi = realmLibrary.lookupFunction<IntPtr Function(Pointer<Void>), int Function(Pointer<Void>)>("realm_initializeDartApiDL");
   var initResult = initializeApi(NativeApi.initializeApiDLData);
@@ -94,6 +72,5 @@ DynamicLibrary initRealm() {
     throw Exception("Realm initialization failed. Error: could not initialize Dart APIs");
   }
 
-  _library = realmLibrary;
-  return _library!;
+  return _library = realmLibrary;
 }

@@ -103,6 +103,28 @@ class _Schedule {
   final tasks = <_Task>[];
 }
 
+@RealmModel()
+class _AllTypes {
+  late String stringProp;
+  late bool boolProp;
+  late DateTime dateProp;
+  late double doubleProp;
+  late ObjectId objectIdProp;
+  late Uuid uuidProp;
+  late int intProp;
+}
+
+@RealmModel()
+class _AllCollections {
+  late List<String> strings;
+  late List<bool> bools;
+  late List<DateTime> dates;
+  late List<double> doubles;
+  late List<ObjectId> objectIds;
+  late List<Uuid> uuids;
+  late List<int> ints;
+}
+
 String? testName;
 Map<String, String?> arguments = {};
 final baasApps = <String, BaasApp>{};
