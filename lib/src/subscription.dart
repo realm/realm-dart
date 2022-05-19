@@ -31,7 +31,7 @@ class Subscription {
 
   Subscription._(this._handle);
 
-  ObjectId get _id => realmCore.subscriptionId(this);
+  late final ObjectId _id = realmCore.subscriptionId(this);
 
   /// Name of the [Subscription], if one was provided at creation time.
   String? get name => realmCore.subscriptionName(this);
@@ -206,11 +206,11 @@ extension SubscriptionSetInternal on SubscriptionSet {
   Realm get realm => _realm;
   SubscriptionSetHandle get handle => _handle;
 
-  static SubscriptionSet create(Realm realm, SubscriptionSetHandle handle) => _ImmutableSubscriptionSet._(realm, handle);
+  static SubscriptionSet create(Realm realm, SubscriptionSetHandle handle) => ImmutableSubscriptionSet._(realm, handle);
 }
 
-class _ImmutableSubscriptionSet extends SubscriptionSet {
-  _ImmutableSubscriptionSet._(Realm realm, SubscriptionSetHandle handle) : super._(realm, handle);
+class ImmutableSubscriptionSet extends SubscriptionSet {
+  ImmutableSubscriptionSet._(Realm realm, SubscriptionSetHandle handle) : super._(realm, handle);
 
   @override
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action) {
