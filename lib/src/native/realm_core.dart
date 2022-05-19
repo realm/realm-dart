@@ -1580,6 +1580,9 @@ Pointer<realm_value_t> _toRealmValue(Object? value, Allocator allocator) {
   return realm_value;
 }
 
+const int _microsecondsPerSecond = 1000 * 1000;
+const int _nanosecondsPerMicrosecond = 1000;
+
 void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocator allocator) {
   if (value == null) {
     realm_value.ref.type = realm_value_type.RLM_TYPE_NULL;
@@ -1627,6 +1630,17 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
         }
         realm_value.ref.type = realm_value_type.RLM_TYPE_UUID;
         break;
+      case DateTime:
+        final microseconds = (value as DateTime).toUtc().microsecondsSinceEpoch;
+        final seconds = microseconds ~/ _microsecondsPerSecond;
+        int nanoseconds = _nanosecondsPerMicrosecond * (microseconds % _microsecondsPerSecond);
+        if (microseconds < 0 && nanoseconds != 0) {
+          nanoseconds = nanoseconds - _nanosecondsPerMicrosecond * _microsecondsPerSecond;
+        }
+        realm_value.ref.values.timestamp.seconds = seconds;
+        realm_value.ref.values.timestamp.nanoseconds = nanoseconds;
+        realm_value.ref.type = realm_value_type.RLM_TYPE_TIMESTAMP;
+        break;
       default:
         throw RealmException("Property type ${value.runtimeType} not supported");
     }
@@ -1660,7 +1674,9 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_BINARY:
         throw Exception("Not implemented");
       case realm_value_type.RLM_TYPE_TIMESTAMP:
-        throw Exception("Not implemented");
+        final seconds = ref.values.timestamp.seconds;
+        final nanoseconds = ref.values.timestamp.nanoseconds;
+        return DateTime.fromMicrosecondsSinceEpoch(seconds * _microsecondsPerSecond + nanoseconds ~/ _nanosecondsPerMicrosecond, isUtc: true);
       case realm_value_type.RLM_TYPE_DECIMAL128:
         throw Exception("Not implemented");
       case realm_value_type.RLM_TYPE_OBJECT_ID:
