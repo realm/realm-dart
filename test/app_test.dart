@@ -192,7 +192,13 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('AppConfiguration.logger', (configuration) async {
     final logger = Logger.detached(generateRandomString(10))..level = LogLevel.all.loggerLevel;
-    configuration = AppConfiguration(configuration.appId, logLevel: LogLevel.all, logger: logger);
+    configuration = AppConfiguration(
+      configuration.appId,
+      logLevel: LogLevel.all,
+      logger: logger,
+      baseFilePath: configuration.baseFilePath,
+      baseUrl: configuration.baseUrl,
+    );
 
     await testLogger(
       configuration,
@@ -216,7 +222,12 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('App.defaultLogger', (configuration) async {
     App.defaultLogger = Logger.detached(generateRandomString(10))..level = LogLevel.all.loggerLevel;
-    configuration = AppConfiguration(configuration.appId, logLevel: LogLevel.all); // uses App.defaultLogger
+    configuration = AppConfiguration(
+      configuration.appId,
+      logLevel: LogLevel.all,
+      baseFilePath: configuration.baseFilePath,
+      baseUrl: configuration.baseUrl,
+    ); // uses App.defaultLogger
 
     await testLogger(
       configuration,
