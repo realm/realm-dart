@@ -23,7 +23,6 @@
 
 #include <tuple>
 #include <iostream>
-#include "dart_api_dl.h"
 
 namespace realm::util {
 

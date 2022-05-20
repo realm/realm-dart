@@ -19,4 +19,8 @@
             "visibility": "hidden"
         }
     },
+    "files.associations": {
+        "filesystem": "cpp",
+        "*.ipp": "cpp"
+    },
 }

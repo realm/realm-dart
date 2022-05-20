@@ -20,6 +20,7 @@
 #include <android/log.h>
 
 #include "platform.h"
+#include "../realm_dart.h"
 
 static std::string filesDir;
 

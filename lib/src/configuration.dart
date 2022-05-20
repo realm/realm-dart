@@ -30,8 +30,8 @@ import 'realm_class.dart';
 /// before being returned to the user.
 ///
 /// The callback is given two arguments:
-/// * the [totalSize] of the realm file (data + free space) in bytes, and
-/// * the [usedSize], which is the number bytes used by data in the file.
+/// * the `totalSize` of the realm file (data + free space) in bytes, and
+/// * the `usedSize`, which is the number bytes used by data in the file.
 ///
 /// It should return true to indicate that an attempt to compact the file should be made.
 /// The compaction will be skipped if another process is currently accessing the realm file.
@@ -131,7 +131,7 @@ abstract class Configuration {
       );
 
   /// Constructs a [FlexibleSyncConfiguration]
-  static FlexibleSyncConfiguration sync(
+  static FlexibleSyncConfiguration flexibleSync(
     User user,
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,

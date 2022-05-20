@@ -60,17 +60,19 @@ Future<void> main([List<String>? args]) async {
     expect(appConfig.maxConnectionTimeout, const Duration(minutes: 1));
     expect(appConfig.httpClient, httpClient);
   });
-  
-test('AppConfiguration can be created with defaults', () {
+
+  test('AppConfiguration can be created with defaults', () {
     final appConfig = AppConfiguration('myapp1');
-    final app = App(appConfig);
-    expect(app.configuration.appId, 'myapp1');
-    expect(app.configuration.baseUrl, Uri.parse('https://realm.mongodb.com'));
-    expect(app.configuration.defaultRequestTimeout, const Duration(minutes: 1));
-    expect(app.configuration.logLevel, LogLevel.error);
-    expect(app.configuration.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
-    expect(app.configuration.maxConnectionTimeout, const Duration(minutes: 2));
-    expect(app.configuration.httpClient, isNotNull);
+    expect(appConfig.appId, 'myapp1');
+    expect(appConfig.baseUrl, Uri.parse('https://realm.mongodb.com'));
+    expect(appConfig.defaultRequestTimeout, const Duration(minutes: 1));
+    expect(appConfig.logLevel, LogLevel.error);
+    expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
+    expect(appConfig.maxConnectionTimeout, const Duration(minutes: 2));
+    expect(appConfig.httpClient, isNotNull);
+
+    // Check that the app constructor works
+    App(appConfig);
   });
 
   test('AppConfiguration can be created', () {
@@ -88,21 +90,23 @@ test('AppConfiguration can be created with defaults', () {
       maxConnectionTimeout: const Duration(minutes: 1),
       httpClient: httpClient,
     );
-    final app = App(appConfig);
-    expect(app.configuration.appId, 'myapp1');
-    expect(app.configuration.baseFilePath.path, Directory.systemTemp.path);
-    expect(app.configuration.baseUrl, Uri.parse('https://not_re.al'));
-    expect(app.configuration.defaultRequestTimeout, const Duration(seconds: 2));
-    expect(app.configuration.logLevel, LogLevel.info);
-    expect(app.configuration.metadataPersistenceMode, MetadataPersistenceMode.encrypted);
-    expect(app.configuration.maxConnectionTimeout, const Duration(minutes: 1));
-    expect(app.configuration.httpClient, httpClient);
+
+    expect(appConfig.appId, 'myapp1');
+    expect(appConfig.baseFilePath.path, Directory.systemTemp.path);
+    expect(appConfig.baseUrl, Uri.parse('https://not_re.al'));
+    expect(appConfig.defaultRequestTimeout, const Duration(seconds: 2));
+    expect(appConfig.logLevel, LogLevel.info);
+    expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.encrypted);
+    expect(appConfig.maxConnectionTimeout, const Duration(minutes: 1));
+    expect(appConfig.httpClient, httpClient);
+
+    // Check that the app constructor works
+    App(appConfig);
   });
 
   test('App can be created', () async {
     final configuration = AppConfiguration(generateRandomString(10));
-    final app = App(configuration);
-    expect(app.configuration, configuration);
+    App(configuration);
   });
 
   baasTest('App log in', (configuration) async {
@@ -117,15 +121,6 @@ test('AppConfiguration can be created with defaults', () {
     final app = App(configuration);
     var users = app.users;
     expect(users.isEmpty, true);
-  });
-
-  baasTest('App log out user', (configuration) async {
-    final app = App(configuration);
-    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
-
-    expect(user.state, UserState.loggedIn);
-    await user.logOut();
-    expect(user.state, UserState.loggedOut);
   });
 
   baasTest('App remove user', (configuration) async {
