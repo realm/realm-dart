@@ -264,6 +264,9 @@ Future<void> main([List<String>? args]) async {
       realmA.add(NullableTypes(ObjectId(), differentiator, stringProp: generateRandomString(50)));
     });
 
+    await realmA.syncSession.waitForUpload();
+    await realmB.syncSession.waitForDownload();
+
     await validateData(uploadData);
     await validateData(downloadData);
 
