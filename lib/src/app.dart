@@ -153,7 +153,7 @@ class AppConfiguration {
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
         baseFilePath = baseFilePath ?? Directory(ConfigurationInternal.defaultStorageFolder),
         httpClient = httpClient ?? HttpClient(),
-        logger = logger ?? _defaultLogger;
+        logger = logger ?? App.defaultLogger;
 }
 
 /// An [App] is the main client-side entry point for interacting with a MongoDB Realm App.
@@ -163,6 +163,11 @@ class AppConfiguration {
 /// * Synchronize data between the local device and a remote Realm App with Synchronized Realms
 /// {@category Application}
 class App {
+  /// The [Logger] to use by default, when creating Apps. 
+  /// 
+  /// The logger used can also be customized by specifying it on the [AppConfiguration].
+  static late var defaultLogger = _defaultLogger;
+
   final AppHandle _handle;
 
   /// The id of this application. This is the same as the appId in the [AppConfiguration] used to
