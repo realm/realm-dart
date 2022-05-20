@@ -199,9 +199,8 @@ class _RealmCore {
   String getPathForConfig(FlexibleSyncConfiguration config) {
     final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
     try {
-      // TODO: we don't need to pass the app there: https://github.com/realm/realm-core/issues/5486
-      final path = _realmLib.realm_app_sync_client_get_default_file_path_for_realm(config.user.app.handle._pointer, syncConfigPtr, nullptr);
-      return path.cast<Utf8>().toRealmDartString(freeNativeMemory: true)!;
+      final path = _realmLib.realm_app_sync_client_get_default_file_path_for_realm(syncConfigPtr, nullptr);
+      return path.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
     } finally {
       _realmLib.realm_release(syncConfigPtr.cast());
     }

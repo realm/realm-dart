@@ -396,21 +396,21 @@ Future<void> main([List<String>? args]) async {
     });
   }
 
-  baasTest('Configuration.sync suggests correct path', (appConfig) async {
+  baasTest('Configuration.flexibleSync suggests correct path', (appConfig) async {
     final app = App(appConfig);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
 
-    final config = Configuration.sync(user, [Car.schema]);
+    final config = Configuration.flexibleSync(user, [Car.schema]);
 
     expect(config.path, contains(user.id));
     expect(config.path, contains(app.configuration.appId));
   });
 
-  baasTest('Configuration.sync when path is supplied, uses that', (appConfig) async {
+  baasTest('Configuration.flexibleSync when path is supplied, uses that', (appConfig) async {
     final app = App(appConfig);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
 
-    final config = Configuration.sync(user, [Car.schema], path: 'my-custom-path.realm');
+    final config = Configuration.flexibleSync(user, [Car.schema], path: 'my-custom-path.realm');
 
     expect(config.path, 'my-custom-path.realm');
   });
