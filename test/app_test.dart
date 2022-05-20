@@ -19,10 +19,12 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:logging/logging.dart';
 import 'package:test/expect.dart';
 
 import '../lib/src/configuration.dart';
 import '../lib/realm.dart';
+import 'realm_object_test.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -187,4 +189,86 @@ Future<void> main([List<String>? args]) async {
     final user1 = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
     expect(app.users, [user1, user]);
   });
+
+  baasTest('AppConfiguration.logger', (configuration) async {
+    final logger = Logger.detached(generateRandomString(10))..level = LogLevel.all.loggerLevel;
+    configuration = AppConfiguration(configuration.appId, logLevel: LogLevel.all, logger: logger);
+
+    await testLogger(
+      configuration,
+      logger,
+      maxExpectedCounts: {
+        // No problems expected!
+        LogLevel.fatal.loggerLevel: 0,
+        LogLevel.error.loggerLevel: 0,
+        LogLevel.warn.loggerLevel: 0,
+      },
+      minExpectedCounts: {
+        // these are set low (roughly half of what was seen when test was created),
+        // so that changes to core are less likely to break the test
+        LogLevel.trace.loggerLevel: 10,
+        LogLevel.debug.loggerLevel: 20,
+        LogLevel.detail.loggerLevel: 2,
+        LogLevel.info.loggerLevel: 1,
+      },
+    );
+  });
+
+  baasTest('App.defaultLogger', (configuration) async {
+    App.defaultLogger = Logger.detached(generateRandomString(10))..level = LogLevel.all.loggerLevel;
+    configuration = AppConfiguration(configuration.appId, logLevel: LogLevel.all); // uses App.defaultLogger
+
+    await testLogger(
+      configuration,
+      App.defaultLogger,
+      maxExpectedCounts: {
+        // No problems expected!
+        LogLevel.fatal.loggerLevel: 0,
+        LogLevel.error.loggerLevel: 0,
+        LogLevel.warn.loggerLevel: 0,
+      },
+      minExpectedCounts: {
+        // these are set low (roughly half of what was seen when test was created),
+        // so that changes to core are less likely to break the test
+        LogLevel.trace.loggerLevel: 10,
+        LogLevel.debug.loggerLevel: 20,
+        LogLevel.detail.loggerLevel: 2,
+        LogLevel.info.loggerLevel: 1,
+      },
+    );
+  });
+}
+
+Future<void> testLogger(
+  AppConfiguration configuration,
+  Logger logger, {
+  Map<Level, int> minExpectedCounts = const {},
+  Map<Level, int> maxExpectedCounts = const {},
+}) async {
+  // To see the trace, add this:
+  /*
+  logger.onRecord.listen((event) {
+    print('${event.sequenceNumber} ${event.level} ${event.message}');
+  });
+  */
+
+  // Setup
+  clearCachedApps();
+  final app = App(configuration);
+  final realm = await getIntegrationRealm(app: app);
+
+  // Prepare to capture trace
+  final counts = <Level, int>{};
+  logger.onRecord.listen((r) {
+    counts[r.level] = (counts[r.level] ?? 0) + 1;
+  });
+
+  // Trigger trace
+  await realm.syncSession.waitForDownload();
+
+  // Check count of various levels
+  for (final e in counts.entries) {
+    expect(e.value, lessThanOrEqualTo(maxExpectedCounts[e.key] ?? maxInt));
+    expect(e.value, greaterThanOrEqualTo(minExpectedCounts[e.key] ?? minInt));
+  }
 }

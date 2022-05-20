@@ -378,3 +378,5 @@ Future<User> loginWithRetry(App app, Credentials credentials, {int retryCount = 
 extension RealmObjectTest on RealmObject {
   String toJson() => realmCore.objectToString(this);
 }
+
+void clearCachedApps() => realmCore.clearCachedApps();
