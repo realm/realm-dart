@@ -21,36 +21,21 @@
 #include <stdio.h>
 #include <exception>
 
-#include <realm.h>
-#include "dart_api_dl.h"
 #include "realm_dart.h"
 
-#if defined(_WIN32)
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
-BOOL APIENTRY DllMain(HMODULE module,
-                      DWORD  reason,
-                      LPVOID reserved) {
-    return true;
-}
-
-#endif  // defined(_WIN32)
-
-RLM_API void realm_initializeDartApiDL(void* data) {
+RLM_API void realm_dart_initializeDartApiDL(void* data) {
     Dart_InitializeApiDL(data);
 }
 
-void handle_finalizer(void* isolate_callback_data, void* realmPtr) {
+static void handle_finalizer(void* isolate_callback_data, void* realmPtr) {
     realm_release(realmPtr);
 }
 
-RLM_API Dart_FinalizableHandle realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size) {
+RLM_API Dart_FinalizableHandle realm_dart_attach_finalizer(Dart_Handle handle, void* realmPtr, int size) {
     return Dart_NewFinalizableHandle_DL(handle, realmPtr, size, handle_finalizer);
 }
 
-RLM_API void realm_delete_finalizable(Dart_FinalizableHandle finalizable_handle, Dart_Handle handle) {
+RLM_API void realm_dart_delete_finalizable(Dart_FinalizableHandle finalizable_handle, Dart_Handle handle) {
     Dart_DeleteFinalizableHandle_DL(finalizable_handle, handle);
 }
 
@@ -94,24 +79,24 @@ private:
     Dart_FinalizableHandle m_weakHandle;
 };
 
-RLM_API void* object_to_weak_handle(Dart_Handle handle) {
+RLM_API void* realm_dart_object_to_weak_handle(Dart_Handle handle) {
     return new WeakHandle(handle);
 }
 
-RLM_API Dart_Handle weak_handle_to_object(void* handle) {
+RLM_API Dart_Handle realm_dart_weak_handle_to_object(void* handle) {
     return reinterpret_cast<WeakHandle*>(handle)->value();
 }
 
-RLM_API void* object_to_persistent_handle(Dart_Handle handle) {
+RLM_API void* realm_dart_object_to_persistent_handle(Dart_Handle handle) {
     return reinterpret_cast<void*>(Dart_NewPersistentHandle_DL(handle));
 }
 
-RLM_API Dart_Handle persistent_handle_to_object(void* handle) {
+RLM_API Dart_Handle realm_dart_persistent_handle_to_object(void* handle) {
     Dart_PersistentHandle persistentHandle = reinterpret_cast<Dart_PersistentHandle>(handle);
     return Dart_HandleFromPersistent_DL(persistentHandle);
 }
 
-RLM_API void delete_persistent_handle(void* handle) {
+RLM_API void realm_dart_delete_persistent_handle(void* handle) {
     Dart_PersistentHandle persistentHandle = reinterpret_cast<Dart_PersistentHandle>(handle);
     Dart_DeletePersistentHandle_DL(persistentHandle);
 }

@@ -19,13 +19,13 @@
 #ifndef REALM_DART_SCHEDULER_H
 #define REALM_DART_SCHEDULER_H
 
-#include "realm.h"
-#include "dart_api_dl.h"
+#include <realm.h>
+#include <dart_api_dl.h>
 
 RLM_API realm_scheduler_t* realm_dart_create_scheduler(uint64_t isolateId, Dart_Port port);
 
 RLM_API void realm_dart_scheduler_invoke(uint64_t isolateId, void* userData);
 
-RLM_API uint64_t get_thread_id();
+RLM_API uint64_t realm_dart_get_thread_id();
 
 #endif // REALM_DART_SCHEDULER_H

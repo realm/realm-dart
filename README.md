@@ -375,7 +375,7 @@ The Realm Dart package is `realm_dart`
 In order to run the tests that requires a backend, you need to setup a MongoDB cluster to run against. 
 A free-tier database should be enough for most contributors.
 
-1) Log on to [MongoDB cloud](cloud.mongodb.com)
+1) Log on to [MongoDB cloud](https://cloud.mongodb.com)
 2) Create an organization, if you don't already have one. You may choose to create one specifically for the
 purpose of these tests, if you prefer.
 3) Create a separate project for the purpose of running the tests.
@@ -399,7 +399,7 @@ BAAS_PROJECT_ID=<project_id>
 ```
 10) Now you can run `dart test` and it should include the integration tests.
 
-If you are a MongoDB employee, you can instead choose to run the tests against [cloud-dev](cloud-dev.mongodb.com).
+If you are a MongoDB employee, you can instead choose to run the tests against [cloud-dev](https://cloud-dev.mongodb.com).
 The procedure is the same, except you need to use your qa credentials instead.
 
 
