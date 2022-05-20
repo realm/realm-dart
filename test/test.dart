@@ -125,7 +125,6 @@ class _AllCollections {
   late List<int> ints;
 }
 
-
 @RealmModel()
 class _NullableTypes {
   @PrimaryKey()
@@ -186,7 +185,7 @@ void xtest(String? name, dynamic Function() testFunction) {
 }
 
 Future<void> setupTests(List<String>? args) async {
-  arguments = testArguments(args);
+  arguments = parseTestArguments(args);
   testName = arguments["name"];
   setUpAll(() async => await setupBaas());
 
@@ -258,23 +257,23 @@ Future<void> tryDeleteFile(FileSystemEntity fileEntity, {bool recursive = false}
   }
 }
 
-Map<String, String?> testArguments(List<String>? arguments) {
+Map<String, String?> parseTestArguments(List<String>? arguments) {
   Map<String, String?> testArgs = {};
-    final parser = ArgParser()
-      ..addOption("name")
-      ..addOption(argBaasUrl)
-      ..addOption(argBaasCluster)
-      ..addOption(argBaasApiKey)
-      ..addOption(argBaasPrivateApiKey)
-      ..addOption(argBaasProjectId);
+  final parser = ArgParser()
+    ..addOption("name")
+    ..addOption(argBaasUrl)
+    ..addOption(argBaasCluster)
+    ..addOption(argBaasApiKey)
+    ..addOption(argBaasPrivateApiKey)
+    ..addOption(argBaasProjectId);
 
   final result = parser.parse(arguments ?? []);
-    testArgs
-      ..addArgument(result, "name")
-      ..addArgument(result, argBaasUrl)
-      ..addArgument(result, argBaasCluster)
-      ..addArgument(result, argBaasApiKey)
-      ..addArgument(result, argBaasPrivateApiKey)
+  testArgs
+    ..addArgument(result, "name")
+    ..addArgument(result, argBaasUrl)
+    ..addArgument(result, argBaasCluster)
+    ..addArgument(result, argBaasApiKey)
+    ..addArgument(result, argBaasPrivateApiKey)
     ..addArgument(result, argBaasProjectId);
   return testArgs;
 }

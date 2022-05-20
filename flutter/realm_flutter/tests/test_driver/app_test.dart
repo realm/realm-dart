@@ -22,11 +22,11 @@ void main(List<String> args) {
     // This single tests runs all Realm tests and reports test run failure if any Realm test fails. Contains all failed tests names.
     test('run all', () async {
       String testCommandWithArgs = testCommand;
-      testCommandWithArgs += getEnvVariable("BAAS_URL");
-      testCommandWithArgs += getEnvVariable("BAAS_CLUSTER");
-      testCommandWithArgs += getEnvVariable("BAAS_API_KEY");
-      testCommandWithArgs += getEnvVariable("BAAS_PRIVATE_API_KEY");
-      testCommandWithArgs += getEnvVariable("BAAS_PROJECT_ID");
+      testCommandWithArgs += getArgFromEnvVariable("BAAS_URL");
+      testCommandWithArgs += getArgFromEnvVariable("BAAS_CLUSTER");
+      testCommandWithArgs += getArgFromEnvVariable("BAAS_API_KEY");
+      testCommandWithArgs += getArgFromEnvVariable("BAAS_PRIVATE_API_KEY");
+      testCommandWithArgs += getArgFromEnvVariable("BAAS_PROJECT_ID");
 
       String result = await driver!.requestData(testCommandWithArgs, timeout: const Duration(minutes: 30));
       if (result.isNotEmpty) {
@@ -36,6 +36,6 @@ void main(List<String> args) {
   });
 }
 
-String getEnvVariable(String argName) {
+String getArgFromEnvVariable(String argName) {
   return " --$argName ${Platform.environment[argName]}";
 }
