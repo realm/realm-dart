@@ -323,13 +323,15 @@ Future<void> baasTest(
 }
 
 Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) async {
+  final baasUrl = arguments[argBaasUrl];
+  
   final app = baasApps[appName.name] ??
       baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
 
   final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
   return AppConfiguration(
     app.clientAppId,
-    baseUrl: Uri.parse(Platform.environment['BAAS_URL']!),
+    baseUrl: Uri.parse(baasUrl!),
     baseFilePath: temporaryDir,
   );
 }
