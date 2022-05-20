@@ -21,10 +21,21 @@ void main(List<String> args) {
 
     // This single tests runs all Realm tests and reports test run failure if any Realm test fails. Contains all failed tests names.
     test('run all', () async {
-      String result = await driver!.requestData(testCommand, timeout: const Duration(minutes: 30));
+      String testCommandWithArgs = testCommand;
+      testCommandWithArgs += getArgFromEnvVariable("BAAS_URL");
+      testCommandWithArgs += getArgFromEnvVariable("BAAS_CLUSTER");
+      testCommandWithArgs += getArgFromEnvVariable("BAAS_API_KEY");
+      testCommandWithArgs += getArgFromEnvVariable("BAAS_PRIVATE_API_KEY");
+      testCommandWithArgs += getArgFromEnvVariable("BAAS_PROJECT_ID");
+
+      String result = await driver!.requestData(testCommandWithArgs, timeout: const Duration(minutes: 30));
       if (result.isNotEmpty) {
         fail("Failed tests: \n $result");
       }
     }, timeout: const Timeout(Duration(minutes: 30)));
   });
+}
+
+String getArgFromEnvVariable(String argName) {
+  return " --$argName ${Platform.environment[argName]}";
 }
