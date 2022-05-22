@@ -69,7 +69,7 @@ Future<void> main([List<String>? args]) async {
     }
 
     if (expectedConnectionState != null) {
-      for (var i = 0; i < 5; i++) {
+      for (var i = 0; i < 10; i++) {
         if (session.connectionState.name == expectedConnectionState.name) {
           break;
         }
