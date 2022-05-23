@@ -654,14 +654,9 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Run generator tests
-        run: |
-          dart pub get
-          dart test --reporter expanded --coverage ./coverage/ --test-randomize-ordering-seed random
-        working-directory: ./generator/
-
       - name: Delete generated files
         run: find . -name "*.g.dart" -not -path "./generator/*" -delete
+        shell: bash
 
       - name: Run generator in realm-dart repo
         run: |
@@ -690,6 +685,12 @@ jobs:
             git diff
             exit 1
           fi
+
+      - name: Run generator tests
+        run: |
+          dart pub get
+          dart test --reporter expanded --coverage ./coverage/ --test-randomize-ordering-seed random
+        working-directory: ./generator/
 
       - name: Generate generator coverage report
         if: ${{ false && matrix.os == 'ubuntu' }}
