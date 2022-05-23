@@ -28,6 +28,7 @@ import 'package:args/args.dart';
 import '../lib/realm.dart';
 import '../lib/src/cli/deployapps/baas_client.dart';
 import '../lib/src/native/realm_core.dart';
+import '../lib/src/configuration.dart';
 
 part 'test.g.dart';
 
@@ -324,7 +325,7 @@ Future<void> baasTest(
 
 Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) async {
   final baasUrl = arguments[argBaasUrl];
-  
+
   final app = baasApps[appName.name] ??
       baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
 

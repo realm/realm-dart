@@ -403,7 +403,7 @@ Future<void> main([List<String>? args]) async {
     final config = Configuration.flexibleSync(user, [Car.schema]);
 
     expect(config.path, contains(user.id));
-    expect(config.path, contains(app.configuration.appId));
+    expect(config.path, contains(appConfig.appId));
   });
 
   baasTest('Configuration.flexibleSync when path is supplied, uses that', (appConfig) async {
