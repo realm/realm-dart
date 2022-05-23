@@ -69,7 +69,7 @@ Future<void> main([List<String>? args]) async {
     }
 
     if (expectedConnectionState != null) {
-      for (var i = 0; i < 5; i++) {
+      for (var i = 0; i < 10; i++) {
         if (session.connectionState.name == expectedConnectionState.name) {
           break;
         }
@@ -263,6 +263,9 @@ Future<void> main([List<String>? args]) async {
     realmA.write(() {
       realmA.add(NullableTypes(ObjectId(), differentiator, stringProp: generateRandomString(50)));
     });
+
+    await realmA.syncSession.waitForUpload();
+    await realmB.syncSession.waitForDownload();
 
     await validateData(uploadData);
     await validateData(downloadData);

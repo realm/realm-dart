@@ -6,6 +6,10 @@ on:
       - master
   pull_request:
 env:
+  BAAS_URL: ${{ secrets.REALM_QA_URL }}
+  BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
+  BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+  BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
   REALM_CI: true
 
 jobs:
@@ -118,11 +122,6 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     name: Build Linux
-    env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -232,10 +231,6 @@ jobs:
     runs-on: macos-latest
     name: Build macOS
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
       REALM_USE_CCACHE: "TRUE"
     steps:
       - name: Checkout
@@ -346,11 +341,6 @@ jobs:
     # TODO: build on windows-latest
     runs-on: windows-2022
     name: Build Windows
-    env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -458,10 +448,6 @@ jobs:
     runs-on: macos-latest
     name: Build iOS
     env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
       REALM_USE_CCACHE: "TRUE"
     steps:
       - name: Checkout
@@ -549,11 +535,6 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     name: Build Android
-    env:
-      BAAS_URL: ${{ secrets.REALM_QA_URL }}
-      BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-      BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-      BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -690,7 +671,7 @@ jobs:
         run: sudo apt update && sudo apt-get install -y libclang-dev
 
       - name: Run ffigen
-        run: dart run ffigen
+        run: dart run ffigen --config config.yaml
         working-directory: ./ffigen
 
       - name: Validate there are no uncommitted changes

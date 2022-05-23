@@ -1,0 +1,48 @@
+# Usage: dart run ffigen --config config.yaml 
+name: RealmLibrary
+output: "../lib/src/native/realm_bindings.dart"
+description: "Binding for the realm-core C API"
+headers:
+  entry-points:
+    - 'realm.h'
+    - 'realm_dart.h'
+    - 'realm_dart_scheduler.h'
+    - 'realm_android_platform.h'
+    - 'subscription_set.h'
+    - 'sync_session.h'
+  include-directives: #generate only for these headers
+    - 'realm.h'
+    - 'realm_dart.h'
+    - 'realm_dart_scheduler.h'
+    - 'realm_android_platform.h'
+    - 'subscription_set.h'
+    - 'sync_session.h'
+compiler-opts:  
+  - '-DRLM_NO_ANON_UNIONS'
+  - '-DFFI_GEN'
+  - '-I../src/realm-core/src'
+  - '-I../src/dart-dl'
+typedef-map:
+  'size_t' : 'IntPtr'
+sort: true
+functions:
+  exclude:
+    - '_.*' #exclude all starting with _
+    - 'Dart_.*' #exlude all starting with Dart_
+  symbol-address:
+    include:
+      - 'realm_dart_.*'
+structs:
+  exclude:
+    - '_.*'
+    - 'Dart_.*' #exlude all starting with Dart_
+globals:
+  exclude:
+    - '_.*'
+    - 'RLM_.*' #exlude RLM_ globals constants since they are not exported from binary
+unions:
+  exclude:
+    - '_.*'
+enums:
+  exclude:
+    - '_.*'
