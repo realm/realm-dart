@@ -15,9 +15,8 @@ void main() {
         await getInputFileAsset('$directory/$inputFile'),
         reader: await PackageAssetReader.currentIsolate(),
         onLog: (l) {
-          // build_resolvers: Generating SDK summary is output on macOS the first time we run the generator
-          // after a fresh install of dart/flutter (i.e. every time on CI).
-          if (!done && !l.message.contains('build_resolvers: Generating SDK summary')) {
+          // we want to ignore the logs from other loggers (such as build_resolvers)
+          if (!done && l.loggerName == 'testBuilder') {
             // disregard all, but first record
             sb.writeln(l);
             done = true;

@@ -644,6 +644,7 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     name: Generator Tests
     steps:
+      - run: git config --global core.autocrlf true
       - name: Checkout
         uses: actions/checkout@v2
         with:
