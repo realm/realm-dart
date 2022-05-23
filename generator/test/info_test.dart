@@ -15,7 +15,9 @@ void main() {
         await getInputFileAsset('$directory/$inputFile'),
         reader: await PackageAssetReader.currentIsolate(),
         onLog: (l) {
-          if (!done) {
+          // build_resolvers: Generating SDK summary is output on macOS the first time we run the generator
+          // after a fresh install of dart/flutter (i.e. every time on CI).
+          if (!done && !l.message.contains('build_resolvers: Generating SDK summary')) {
             // disregard all, but first record
             sb.writeln(l);
             done = true;

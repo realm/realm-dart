@@ -685,6 +685,7 @@ jobs:
             git diff
             exit 1
           fi
+        shell: bash
 
       - name: Run generator tests
         run: |
