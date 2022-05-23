@@ -400,6 +400,10 @@ class _RealmCore {
     syncConfig.sessionErrorHandler!(sessionError);
   }
 
+  void raiseError(Session session, SyncErrorCategory category, int errorCode, bool isFatal) {
+    _realmLib.realm_dart_sync_session_report_error_for_testing(session.handle._pointer, category.index, errorCode, isFatal);
+  }
+
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
     final schedulerPtr = _realmLib.realm_dart_create_scheduler(isolateId, sendPort);
     return SchedulerHandle._(schedulerPtr);

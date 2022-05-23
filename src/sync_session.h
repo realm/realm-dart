@@ -68,5 +68,15 @@ RLM_API uint64_t realm_dart_sync_session_register_connection_state_change_callba
                                                                                    realm_free_userdata_func_t userdata_free,
                                                                                    realm_scheduler_t* scheduler) RLM_API_NOEXCEPT;
 
-
+/**
+ * Simulates a session error.
+ *
+ *  @param session The session where the simulated error will occur.
+ *  @param category The category of the error that to be simulated (client=0, connection=1, session=2, system=3, unknown=4)
+ *  @param errorCode Error code of the error that to be simulated.
+ *  @param isFatal >If set to `true` the error will be marked as fatal.
+ *
+ *  Use this method to test your error handling code without connecting to a MongoDB Realm Server.
+ */
+RLM_API void realm_dart_sync_session_report_error_for_testing(realm_sync_session_t* session, uint32_t category, int errorCode, bool isFatal) RLM_API_NOEXCEPT;
 #endif // REALM_DART_SYNC_SESSION_H

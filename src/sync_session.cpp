@@ -17,9 +17,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <realm/object-store/c_api/util.hpp>
-
+#include <realm/sync/client_base.hpp>
+#include <realm/object-store/sync/sync_session.hpp>
+#include <realm/sync/config.hpp>
 #include "sync_session.h"
 #include "event_loop_dispatcher.hpp"
+
 
 namespace realm::c_api {
 namespace _1 {
@@ -125,4 +128,17 @@ RLM_API uint64_t realm_dart_sync_session_register_connection_state_change_callba
 
 } // anonymous namespace
 
+RLM_API void realm_dart_sync_session_report_error_for_testing(realm_sync_session_t* session, uint32_t category, int errorCode, bool isFatal) noexcept
+{
+    std::error_code error_code;
+    if (category == 0) {
+        error_code = std::error_code(errorCode, realm::sync::client_error_category());
+    }
+    else
+    {
+        error_code = std::error_code(errorCode, realm::sync::protocol_error_category());
+
+    }
+    SyncSession::OnlyForTesting::handle_error(*(*session), SyncError{ error_code,"Error", isFatal });
+}
 } // namespace realm::c_api 

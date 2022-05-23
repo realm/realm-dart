@@ -281,6 +281,19 @@ Future<void> main([List<String>? args]) async {
     await uploadData.subscription.cancel();
     await downloadData.subscription.cancel();
   });
+
+  baasTest('SyncSession.user returns a valid user', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    final config = Configuration.flexibleSync(user, [Task.schema], sessionErrorHandler: (sessionError) {
+      expect(sessionError.category, SyncErrorCategory.session);
+      expect(sessionError.isFatal, false);
+      expect(sessionError.code, 100);
+      expect(sessionError.message, "Error");
+    });
+    final realm = getRealm(config);
+    realm.syncSession._raiseSessionError(SyncErrorCategory.session, 100, false);
+  });
 }
 
 class StreamProgressData {
