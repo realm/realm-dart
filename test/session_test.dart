@@ -42,14 +42,6 @@ Future<void> main([List<String>? args]) async {
     expect(realm.syncSession, realm.syncSession);
   });
 
-  baasTest('Realm.syncSession returns on FLX configuration', (configuration) async {
-    final realm = await getIntegrationRealm();
-
-    expect(realm.syncSession, isNotNull);
-    expect(realm.syncSession.realmPath, realm.config.path);
-    expect(realm.syncSession, realm.syncSession);
-  });
-
   baasTest('SyncSession.user returns a valid user', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
@@ -77,7 +69,7 @@ Future<void> main([List<String>? args]) async {
     }
 
     if (expectedConnectionState != null) {
-      for (var i = 0; i < 5; i++) {
+      for (var i = 0; i < 10; i++) {
         if (session.connectionState.name == expectedConnectionState.name) {
           break;
         }
@@ -271,6 +263,9 @@ Future<void> main([List<String>? args]) async {
     realmA.write(() {
       realmA.add(NullableTypes(ObjectId(), differentiator, stringProp: generateRandomString(50)));
     });
+
+    await realmA.syncSession.waitForUpload();
+    await realmB.syncSession.waitForDownload();
 
     await validateData(uploadData);
     await validateData(downloadData);

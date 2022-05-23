@@ -19,9 +19,8 @@
 import 'dart:convert';
 
 import 'native/realm_core.dart';
-import 'app.dart';
-import 'credentials.dart';
 import 'realm_class.dart';
+import './app.dart';
 
 /// This class represents a `user` in a MongoDB Realm app.
 /// A user can log in to the server and, if access is granted, it is possible to synchronize the local Realm to MongoDB.
@@ -30,12 +29,17 @@ import 'realm_class.dart';
 /// locally on the device, and should be treated as sensitive data.
 /// {@category Application}
 class User {
+  final App? _app;
   final UserHandle _handle;
 
   /// The [App] with which the [User] is associated with.
-  final App app;
+  App get app {
+    // The _app field may be null when we're retrieving a user from the session
+    // rather than from the app.
+    return _app ?? AppInternal.create(realmCore.userGetApp(_handle));
+  }
 
-  User._(this.app, this._handle);
+  User._(this._handle, this._app);
 
   /// The current state of this [User].
   UserState get state {
@@ -121,7 +125,7 @@ class User {
 
 /// The current state of a [User].
 enum UserState {
-  /// The user is logged out. Call [App.login] to log the user back in.
+  /// The user is logged out. Call [App.logIn] to log the user back in.
   loggedOut,
 
   /// The user is logged in, and any Realms associated with it are synchronizing with MongoDB Realm.
@@ -188,9 +192,5 @@ extension UserIdentityInternal on UserIdentity {
 extension UserInternal on User {
   UserHandle get handle => _handle;
 
-  static User create(UserHandle handle, [App? app]) {
-    app ??= AppInternal.create(realmCore.userGetApp(handle));
-
-    return User._(app, handle);
-  }
+  static User create(UserHandle handle, [App? app]) => User._(handle, app);
 }

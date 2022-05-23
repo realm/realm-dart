@@ -24,6 +24,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' hide test;
 import 'package:test/test.dart' as testing;
+import 'package:args/args.dart';
 import '../lib/realm.dart';
 import '../lib/src/cli/deployapps/baas_client.dart';
 import '../lib/src/native/realm_core.dart';
@@ -124,10 +125,32 @@ class _AllCollections {
   late List<int> ints;
 }
 
+@RealmModel()
+class _NullableTypes {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+
+  late ObjectId differentiator;
+
+  late String? stringProp;
+  late bool? boolProp;
+  late DateTime? dateProp;
+  late double? doubleProp;
+  late ObjectId? objectIdProp;
+  late Uuid? uuidProp;
+  late int? intProp;
+}
 
 String? testName;
+Map<String, String?> arguments = {};
 final baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
+const String argBaasUrl = "BAAS_URL";
+const String argBaasCluster = "BAAS_CLUSTER";
+const String argBaasApiKey = "BAAS_API_KEY";
+const String argBaasPrivateApiKey = "BAAS_PRIVATE_API_KEY";
+const String argBaasProjectId = "BAAS_PROJECT_ID";
 
 String testUsername = "realm-test@realm.io";
 String testPassword = "123456";
@@ -162,8 +185,8 @@ void xtest(String? name, dynamic Function() testFunction) {
 }
 
 Future<void> setupTests(List<String>? args) async {
-  parseTestNameFromArguments(args);
-
+  arguments = parseTestArguments(args);
+  testName = arguments["name"];
   setUpAll(() async => await setupBaas());
 
   setUp(() {
@@ -234,27 +257,43 @@ Future<void> tryDeleteFile(FileSystemEntity fileEntity, {bool recursive = false}
   }
 }
 
-void parseTestNameFromArguments(List<String>? arguments) {
-  if (testName != null || arguments == null || arguments.isEmpty) {
-    return;
-  }
+Map<String, String?> parseTestArguments(List<String>? arguments) {
+  Map<String, String?> testArgs = {};
+  final parser = ArgParser()
+    ..addOption("name")
+    ..addOption(argBaasUrl)
+    ..addOption(argBaasCluster)
+    ..addOption(argBaasApiKey)
+    ..addOption(argBaasPrivateApiKey)
+    ..addOption(argBaasProjectId);
 
-  int nameArgIndex = arguments.indexOf("--name");
-  if (nameArgIndex >= 0 && arguments.length > nameArgIndex) {
-    testName = arguments[nameArgIndex + 1];
+  final result = parser.parse(arguments ?? []);
+  testArgs
+    ..addArgument(result, "name")
+    ..addArgument(result, argBaasUrl)
+    ..addArgument(result, argBaasCluster)
+    ..addArgument(result, argBaasApiKey)
+    ..addArgument(result, argBaasPrivateApiKey)
+    ..addArgument(result, argBaasProjectId);
+  return testArgs;
+}
+
+extension on Map<String, String?> {
+  void addArgument(ArgResults parsedResult, String argName) {
+    this[argName] = parsedResult.wasParsed(argName) ? parsedResult[argName]?.toString() : Platform.environment[argName];
   }
 }
 
 Future<void> setupBaas() async {
-  final baasUrl = Platform.environment['BAAS_URL'];
+  final baasUrl = arguments[argBaasUrl];
   if (baasUrl == null) {
     return;
   }
 
-  final cluster = Platform.environment['BAAS_CLUSTER'];
-  final apiKey = Platform.environment['BAAS_API_KEY'];
-  final privateApiKey = Platform.environment['BAAS_PRIVATE_API_KEY'];
-  final projectId = Platform.environment['BAAS_PROJECT_ID'];
+  final cluster = arguments[argBaasCluster];
+  final apiKey = arguments[argBaasApiKey];
+  final privateApiKey = arguments[argBaasPrivateApiKey];
+  final projectId = arguments[argBaasProjectId];
 
   final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
   var apps = await client.getOrCreateApps();
@@ -268,7 +307,7 @@ Future<void> baasTest(
   AppNames appName = AppNames.flexible,
   dynamic skip,
 }) async {
-  final uriVariable = Platform.environment['BAAS_URL'];
+  final uriVariable = arguments[argBaasUrl];
   final url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
 
   if (skip == null) {
@@ -278,16 +317,49 @@ Future<void> baasTest(
   }
 
   test(name, () async {
-    final app = baasApps[appName.name] ??
-        baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
-    final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
-    final appConfig = AppConfiguration(
-      app.clientAppId,
-      baseUrl: url,
-      baseFilePath: temporaryDir,
-    );
-    return await testFunction(appConfig);
+    final config = await getAppConfig(appName: appName);
+    return await testFunction(config);
   }, skip: skip);
+}
+
+Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) async {
+  final baasUrl = arguments[argBaasUrl];
+  
+  final app = baasApps[appName.name] ??
+      baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
+
+  final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
+  return AppConfiguration(
+    app.clientAppId,
+    baseUrl: Uri.parse(baasUrl!),
+    baseFilePath: temporaryDir,
+  );
+}
+
+Future<User> getIntegrationUser(App app) async {
+  final email = 'realm_tests_do_autoverify_${generateRandomString(10)}@realm.io';
+  final password = 'password';
+  await app.emailPasswordAuthProvider.registerUser(email, password);
+
+  return await loginWithRetry(app, Credentials.emailPassword(email, password));
+}
+
+Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, String? path}) async {
+  app ??= App(await getAppConfig());
+  final user = await getIntegrationUser(app);
+
+  // TODO: path will not be needed after https://github.com/realm/realm-dart/pull/574
+  final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema, NullableTypes.schema], path: path);
+  final realm = getRealm(config);
+  if (differentiator != null) {
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.query<NullableTypes>('differentiator = \$0', [differentiator]));
+    });
+
+    await realm.subscriptions.waitForSynchronization();
+  }
+
+  return realm;
 }
 
 Future<User> loginWithRetry(App app, Credentials credentials, {int retryCount = 3}) async {
