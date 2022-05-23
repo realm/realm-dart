@@ -16,6 +16,7 @@ jobs:
 
   baas_matrix:
     strategy:
+      fail-fast: false
       matrix:
         package: [flutter, dart]
         platform: [linux, windows, macos]
@@ -72,6 +73,7 @@ jobs:
 
   cleanup-matrix:
     strategy:
+      fail-fast: false
       matrix:
         package: [flutter, dart]
         platform: [linux, windows, macos]
@@ -635,6 +637,7 @@ jobs:
 
   generator:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu, macos, windows]
 
