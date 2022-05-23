@@ -638,7 +638,7 @@ jobs:
       matrix:
         os: [ubuntu, macos, windows]
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}-latest
     name: Generator Tests
     steps:
       - name: Checkout
