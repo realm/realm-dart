@@ -1040,6 +1040,10 @@ class _RealmCore {
     return AppHandle._(realmAppPtr);
   }
 
+  String appGetId(App app) {
+    return _realmLib.realm_app_get_app_id(app.handle._pointer).cast<Utf8>().toRealmDartString()!;
+  }
+
   static void _app_user_completion_callback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
     final Completer<UserHandle>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
