@@ -283,7 +283,7 @@ Future<void> main([List<String>? args]) async {
     await downloadData.subscription.cancel();
   });
 
-  baasTest('SyncSession test error handles', (configuration) async {
+  baasTest('SyncSession test error handler', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
     final config = Configuration.flexibleSync(user, [Task.schema], sessionErrorHandler: (sessionError) {
