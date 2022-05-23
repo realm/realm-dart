@@ -290,7 +290,7 @@ Future<void> main([List<String>? args]) async {
       expect(sessionError.category, SyncErrorCategory.session);
       expect(sessionError.isFatal, false);
       expect(sessionError.code, 100);
-      expect(sessionError.message, "Error");
+      expect(sessionError.message, "Simulated sync session error");
     });
     final realm = getRealm(config);
 
