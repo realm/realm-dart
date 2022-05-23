@@ -28,6 +28,7 @@ import 'package:args/args.dart';
 import '../lib/realm.dart';
 import '../lib/src/cli/deployapps/baas_client.dart';
 import '../lib/src/native/realm_core.dart';
+import '../lib/src/configuration.dart';
 
 part 'test.g.dart';
 
@@ -191,7 +192,7 @@ Future<void> setupTests(List<String>? args) async {
 
   setUp(() {
     final path = generateRandomRealmPath();
-    Configuration.defaultPath = path;
+    ConfigurationInternal.defaultPath = path;
 
     addTearDown(() async {
       final paths = HashSet<String>();
@@ -226,7 +227,7 @@ Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic excepti
 String generateRandomRealmPath() {
   var path = "${generateRandomString(10)}.realm";
   if (Platform.isAndroid || Platform.isIOS) {
-    path = _path.join(Configuration.filesPath, path);
+    path = _path.join(ConfigurationInternal.defaultStorageFolder, path);
   } else {
     path = _path.join(Directory.systemTemp.createTempSync("realm_test_").path, path);
   }
@@ -324,7 +325,7 @@ Future<void> baasTest(
 
 Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) async {
   final baasUrl = arguments[argBaasUrl];
-  
+
   final app = baasApps[appName.name] ??
       baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
 

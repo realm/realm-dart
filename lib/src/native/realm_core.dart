@@ -196,6 +196,16 @@ class _RealmCore {
     });
   }
 
+  String getPathForConfig(FlexibleSyncConfiguration config) {
+    final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
+    try {
+      final path = _realmLib.realm_app_sync_client_get_default_file_path_for_realm(syncConfigPtr, nullptr);
+      return path.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
+    } finally {
+      _realmLib.realm_release(syncConfigPtr.cast());
+    }
+  }
+
   ObjectId subscriptionId(Subscription subscription) {
     final id = _realmLib.realm_sync_subscription_id(subscription.handle._pointer);
     return id.toDart();
