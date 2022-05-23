@@ -143,6 +143,12 @@ extension SessionInternal on Session {
   Scheduler get scheduler => _scheduler;
 }
 
+extension SessionDevInternal on Session {
+  void raiseSessionError(SyncErrorCategory category, int errorCode, bool isFatal) {
+    _raiseSessionError(category, errorCode, isFatal);
+  }
+}
+
 /// @nodoc
 class SessionProgressNotificationsController {
   final Session _session;
