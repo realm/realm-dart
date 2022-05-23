@@ -65,20 +65,11 @@ Future<void> main([List<String>? args]) async {
 
   Future<void> validateSessionStates(Session session, {SessionState? expectedSessionState, ConnectionState? expectedConnectionState}) async {
     if (expectedSessionState != null) {
-      expect(session.state.name, expectedSessionState.name);
+      await waitForCondition(() => session.state.name == expectedSessionState.name);
     }
 
     if (expectedConnectionState != null) {
-      for (var i = 0; i < 10; i++) {
-        if (session.connectionState.name == expectedConnectionState.name) {
-          break;
-        }
-
-        // The connection requires a bit of time to update its state
-        await Future<void>.delayed(Duration(milliseconds: 100));
-      }
-
-      expect(session.connectionState.name, expectedConnectionState.name);
+      await waitForCondition(() => session.connectionState.name == expectedConnectionState.name);
     }
   }
 

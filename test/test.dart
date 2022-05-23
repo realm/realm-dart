@@ -324,7 +324,7 @@ Future<void> baasTest(
 
 Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) async {
   final baasUrl = arguments[argBaasUrl];
-  
+
   final app = baasApps[appName.name] ??
       baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
 
@@ -371,6 +371,18 @@ Future<User> loginWithRetry(App app, Credentials credentials, {int retryCount = 
       return await loginWithRetry(app, credentials, retryCount: retryCount - 1);
     }
     rethrow;
+  }
+}
+
+Future<void> waitForCondition(bool Function() condition,
+    {Duration timeout = const Duration(seconds: 10), Duration retryDelay = const Duration(milliseconds: 100)}) async {
+  final start = DateTime.now();
+  while (!condition()) {
+    if (DateTime.now().difference(start) > timeout) {
+      throw TimeoutException('Condition not met within $timeout');
+    }
+
+    await Future<void>.delayed(retryDelay);
   }
 }
 
