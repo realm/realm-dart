@@ -188,13 +188,23 @@ void xtest(String? name, dynamic Function() testFunction) {
 Future<void> setupTests(List<String>? args) async {
   arguments = parseTestArguments(args);
   testName = arguments["name"];
-  setUpAll(() async => await setupBaas());
+  setUpAll(() async {
+    print('Running setUpAll for $pid');
+
+    await setupBaas();
+
+    print('Completed setUpAll for $pid');
+  });
 
   setUp(() {
+    print('Running setUp for $pid');
+
     final path = generateRandomRealmPath();
     ConfigurationInternal.defaultPath = path;
 
     addTearDown(() async {
+      print('Running tearDown for $pid');
+
       final paths = HashSet<String>();
       paths.add(path);
 
@@ -206,19 +216,16 @@ Future<void> setupTests(List<String>? args) async {
         realm.close();
       }
 
+      print('Deleting Realms in tearDown for $pid');
+
       for (final path in paths) {
-        try {
-          Realm.deleteRealm(path);
-        } catch (e) {
-          print("Can not delete realm at path: $path. Did you forget to close it?");
-        }
-        String pathKey = _path.basenameWithoutExtension(path);
-        String realmDir = _path.dirname(path);
-        await Directory(realmDir).list().forEach((f) {
-          if (f.path.contains(pathKey)) tryDeleteFile(f, recursive: true);
-        });
+        await tryDeleteRealm(path);
       }
+
+      print('Completed tearDown for $pid');
     });
+
+    print('Completed setUp for $pid');
   });
 }
 
@@ -247,15 +254,19 @@ Realm getRealm(Configuration config) {
   return realm;
 }
 
-Future<void> tryDeleteFile(FileSystemEntity fileEntity, {bool recursive = false}) async {
-  for (var i = 0; i < 20; i++) {
+Future<bool> tryDeleteRealm(String path) async {
+  for (var i = 0; i < 100; i++) {
     try {
-      await fileEntity.delete(recursive: recursive);
-      break;
+      Realm.deleteRealm(path);
+      await File('$path.lock').delete();
+      return true;
     } catch (e) {
       await Future<void>.delayed(const Duration(milliseconds: 50));
     }
   }
+
+  print("Can not delete realm at path: $path. Did you forget to close it?");
+  return false;
 }
 
 Map<String, String?> parseTestArguments(List<String>? arguments) {
