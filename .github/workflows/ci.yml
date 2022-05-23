@@ -671,7 +671,7 @@ jobs:
         run: sudo apt update && sudo apt-get install -y libclang-dev
 
       - name: Run ffigen
-        run: dart run ffigen
+        run: dart run ffigen --config config.yaml
         working-directory: ./ffigen
 
       - name: Validate there are no uncommitted changes
