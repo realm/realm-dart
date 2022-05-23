@@ -6,6 +6,7 @@ part of 'myapp.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// This is just a test - generator tests should fail now.
 class Car extends _Car with RealmEntity, RealmObject {
   static var _defaultsSet = false;
 
@@ -49,8 +50,7 @@ class Car extends _Car with RealmEntity, RealmObject {
   set owner(covariant Person? value) => RealmObject.set(this, 'owner', value);
 
   @override
-  Stream<RealmObjectChanges<Car>> get changes =>
-      RealmObject.getChanges<Car>(this);
+  Stream<RealmObjectChanges<Car>> get changes => RealmObject.getChanges<Car>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -60,8 +60,7 @@ class Car extends _Car with RealmEntity, RealmObject {
       SchemaProperty('make', RealmPropertyType.string),
       SchemaProperty('model', RealmPropertyType.string, optional: true),
       SchemaProperty('kilometers', RealmPropertyType.int, optional: true),
-      SchemaProperty('owner', RealmPropertyType.object,
-          optional: true, linkTarget: 'Person'),
+      SchemaProperty('owner', RealmPropertyType.object, optional: true, linkTarget: 'Person'),
     ]);
   }
 }
@@ -95,8 +94,7 @@ class Person extends _Person with RealmEntity, RealmObject {
   set age(int value) => RealmObject.set(this, 'age', value);
 
   @override
-  Stream<RealmObjectChanges<Person>> get changes =>
-      RealmObject.getChanges<Person>(this);
+  Stream<RealmObjectChanges<Person>> get changes => RealmObject.getChanges<Person>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
