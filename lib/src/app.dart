@@ -78,8 +78,6 @@ class AppConfiguration {
   /// Setting this will not change the encryption key for individual Realms, which is set in the [Configuration].
   final List<int>? metadataEncryptionKey;
 
-  final Logger _logger;
-
   /// The [HttpClient] that will be used for HTTP requests during authentication.
   ///
   /// You can use this to override the default http client handler and configure settings like proxies,
@@ -102,8 +100,7 @@ class AppConfiguration {
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
         baseFilePath = baseFilePath ?? Directory(ConfigurationInternal.defaultStorageFolder),
-        httpClient = httpClient ?? HttpClient(),
-        _logger = Realm.logger;
+        httpClient = httpClient ?? HttpClient();
 }
 
 /// An [App] is the main client-side entry point for interacting with a MongoDB Realm App.
