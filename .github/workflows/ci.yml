@@ -644,7 +644,8 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     name: Generator Tests
     steps:
-      - run: git config --global core.autocrlf true
+      - run: git config --global core.autocrlf false
+        if: ${{ matrix.os == 'windows' }}
       - name: Checkout
         uses: actions/checkout@v2
         with:
