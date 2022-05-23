@@ -15,7 +15,8 @@ void main() {
         await getInputFileAsset('$directory/$inputFile'),
         reader: await PackageAssetReader.currentIsolate(),
         onLog: (l) {
-          if (!done) {
+          // we want to ignore the logs from other loggers (such as build_resolvers)
+          if (!done && l.loggerName == 'testBuilder') {
             // disregard all, but first record
             sb.writeln(l);
             done = true;
