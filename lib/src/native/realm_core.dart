@@ -407,7 +407,9 @@ class _RealmCore {
       return;
     }
     final sessionError = error.toSessionError();
-    syncConfig.sessionErrorHandler!(sessionError);
+    if(syncConfig.sessionErrorHandler != null) {
+        syncConfig.sessionErrorHandler!(sessionError);
+    }
   }
 
   void raiseError(Session session, SyncErrorCategory category, int errorCode, bool isFatal) {
