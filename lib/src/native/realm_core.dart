@@ -1043,10 +1043,16 @@ class _RealmCore {
   }
 
   AppHandle getApp(AppConfiguration configuration) {
+    final sw = Stopwatch()..start();
+    print('getApp.1: ${sw.elapsedMilliseconds} ms');
     final httpTransportHandle = _createHttpTransport(configuration.httpClient);
+    print('getApp.2: ${sw.elapsedMilliseconds} ms');
     final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
+    print('getApp.3: ${sw.elapsedMilliseconds} ms');
     final syncClientConfigHandle = _createSyncClientConfig(configuration);
+    print('getApp.4: ${sw.elapsedMilliseconds} ms');
     final realmAppPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfigHandle._pointer, syncClientConfigHandle._pointer));
+    print('getApp.5: ${sw.elapsedMilliseconds} ms');
     return AppHandle._(realmAppPtr);
   }
 

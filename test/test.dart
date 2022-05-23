@@ -301,12 +301,12 @@ Future<void> setupBaas() async {
 }
 
 @isTest
-Future<void> baasTest(
+void baasTest(
   String name,
   FutureOr<void> Function(AppConfiguration appConfig) testFunction, {
   AppNames appName = AppNames.flexible,
   dynamic skip,
-}) async {
+}) {
   final uriVariable = arguments[argBaasUrl];
   final url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
 
@@ -337,11 +337,17 @@ Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) as
 }
 
 Future<User> getIntegrationUser(App app) async {
+  final sw = Stopwatch()..start();
   final email = 'realm_tests_do_autoverify_${generateRandomString(10)}@realm.io';
   final password = 'password';
-  await app.emailPasswordAuthProvider.registerUser(email, password);
 
-  return await loginWithRetry(app, Credentials.emailPassword(email, password));
+  print('getIntegrationUser.1: ${sw.elapsedMilliseconds} ms');
+  await app.emailPasswordAuthProvider.registerUser(email, password);
+  print('getIntegrationUser.2: ${sw.elapsedMilliseconds} ms');
+
+  final result = await loginWithRetry(app, Credentials.emailPassword(email, password));
+  print('getIntegrationUser.3: ${sw.elapsedMilliseconds} ms');
+  return result;
 }
 
 Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator}) async {

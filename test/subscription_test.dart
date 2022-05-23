@@ -29,7 +29,7 @@ import '../lib/src/subscription.dart';
 import 'test.dart';
 
 @isTest
-void testSubscriptions(String name, FutureOr<void> Function(Realm) tester) async {
+void testSubscriptions(String name, FutureOr<void> Function(Realm) tester) {
   baasTest(name, (appConfiguration) async {
     final stopwatch = Stopwatch()..start();
 
