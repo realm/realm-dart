@@ -106,7 +106,8 @@ Future<void> main([List<String>? args]) async {
 
   test('App can be created', () async {
     final configuration = AppConfiguration(generateRandomString(10));
-    App(configuration);
+    final app = App(configuration);
+    expect(app.id, configuration.appId);
   });
 
   baasTest('App log in', (configuration) async {

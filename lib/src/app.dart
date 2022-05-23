@@ -149,6 +149,10 @@ class AppConfiguration {
 class App {
   final AppHandle _handle;
 
+  /// The id of this application. This is the same as the appId in the [AppConfiguration] used to
+  /// create this [App].
+  String get id => realmCore.appGetId(this);
+
   /// Create an app with a particular [AppConfiguration]
   App(AppConfiguration configuration) : this._(realmCore.getApp(configuration));
 
