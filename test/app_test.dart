@@ -19,9 +19,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:realm_dart/src/configuration.dart';
 import 'package:test/expect.dart';
 
+import '../lib/src/configuration.dart';
 import '../lib/realm.dart';
 import 'test.dart';
 
