@@ -119,7 +119,7 @@ class User {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! User) return false;
-    return realmCore.userEquals(this, other);
+    return id == other.id;
   }
 }
 
