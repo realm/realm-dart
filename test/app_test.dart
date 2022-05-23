@@ -21,6 +21,7 @@ import 'dart:io';
 
 import 'package:test/expect.dart';
 
+import '../lib/src/configuration.dart';
 import '../lib/realm.dart';
 import 'test.dart';
 
@@ -32,7 +33,7 @@ Future<void> main([List<String>? args]) async {
   test('AppConfiguration can be initialized', () {
     final defaultAppConfig = AppConfiguration('myapp');
     expect(defaultAppConfig.appId, 'myapp');
-    expect(defaultAppConfig.baseFilePath.path, Configuration.filesPath);
+    expect(defaultAppConfig.baseFilePath.path, ConfigurationInternal.defaultStorageFolder);
     expect(defaultAppConfig.baseUrl, Uri.parse('https://realm.mongodb.com'));
     expect(defaultAppConfig.defaultRequestTimeout, const Duration(minutes: 1));
     expect(defaultAppConfig.logLevel, LogLevel.error);

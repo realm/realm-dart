@@ -37,20 +37,12 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration default path', () {
+    final config = Configuration.local([Car.schema]);
     if (Platform.isAndroid || Platform.isIOS) {
-      expect(Configuration.defaultPath, endsWith(".realm"));
-      expect(Configuration.defaultPath, startsWith("/"), reason: "on Android and iOS the default path should contain the path to the user data directory");
+      expect(config.path, endsWith(".realm"));
+      expect(config.path, startsWith("/"), reason: "on Android and iOS the default path should contain the path to the user data directory");
     } else {
-      expect(Configuration.defaultPath, endsWith(".realm"));
-    }
-  });
-
-  test('Configuration files path', () {
-    if (Platform.isAndroid || Platform.isIOS) {
-      expect(Configuration.filesPath, isNot(endsWith(".realm")), reason: "on Android and iOS the filesPath should be a directory");
-      expect(Configuration.filesPath, startsWith("/"), reason: "on Android and iOS the filesPath should be a directory");
-    } else {
-      expect(Configuration.filesPath, equals(Directory.current.absolute.path), reason: "on Dart standalone the filesPath should be the current dir path");
+      expect(config.path, endsWith(".realm"));
     }
   });
 
@@ -403,4 +395,23 @@ Future<void> main([List<String>? args]) async {
       expect(compactedRealm.all<Person>().length, dummyDataSize / 2);
     });
   }
+
+  baasTest('Configuration.flexibleSync suggests correct path', (appConfig) async {
+    final app = App(appConfig);
+    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
+
+    final config = Configuration.flexibleSync(user, [Car.schema]);
+
+    expect(config.path, contains(user.id));
+    expect(config.path, contains(appConfig.appId));
+  });
+
+  baasTest('Configuration.flexibleSync when path is supplied, uses that', (appConfig) async {
+    final app = App(appConfig);
+    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
+
+    final config = Configuration.flexibleSync(user, [Car.schema], path: 'my-custom-path.realm');
+
+    expect(config.path, 'my-custom-path.realm');
+  });
 }

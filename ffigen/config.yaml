@@ -1,4 +1,4 @@
-# Usage: dart run ffigen --config config.yaml 
+# Usage: dart run ffigen --config config.yaml
 name: RealmLibrary
 output: "../lib/src/native/realm_bindings.dart"
 description: "Binding for the realm-core C API"
@@ -17,7 +17,7 @@ headers:
     - 'realm_android_platform.h'
     - 'subscription_set.h'
     - 'sync_session.h'
-compiler-opts:  
+compiler-opts:
   - '-DRLM_NO_ANON_UNIONS'
   - '-DFFI_GEN'
   - '-I../src/realm-core/src'
