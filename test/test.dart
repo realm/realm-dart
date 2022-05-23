@@ -191,22 +191,14 @@ Future<void> setupTests(List<String>? args) async {
   arguments = parseTestArguments(args);
   testName = arguments["name"];
   setUpAll(() async {
-    final stopwatch = Stopwatch()..start();
-
     await setupBaas();
-
-    print('Completed setUpAll for ${stopwatch.elapsedMilliseconds} ms');
   });
 
   setUp(() {
-    final stopwatch = Stopwatch()..start();
-
     final path = generateRandomRealmPath();
     ConfigurationInternal.defaultPath = path;
 
     addTearDown(() async {
-      final stopwatch = Stopwatch()..start();
-
       final paths = HashSet<String>();
       paths.add(path);
 
@@ -221,11 +213,7 @@ Future<void> setupTests(List<String>? args) async {
       for (final path in paths) {
         await tryDeleteRealm(path);
       }
-
-      print('Completed tearDown for ${stopwatch.elapsedMilliseconds} ms');
     });
-
-    print('Completed setUp for ${stopwatch.elapsedMilliseconds} ms');
   });
 }
 

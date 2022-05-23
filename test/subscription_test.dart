@@ -33,19 +33,27 @@ void testSubscriptions(String name, FutureOr<void> Function(Realm) tester) async
   baasTest(name, (appConfiguration) async {
     final stopwatch = Stopwatch()..start();
 
+    print('testSubscriptions.1: ${stopwatch.elapsedMilliseconds} ms');
+
     final app = App(appConfiguration);
+
+    print('testSubscriptions.2: ${stopwatch.elapsedMilliseconds} ms');
+
     final user = await getIntegrationUser(app);
 
-    print('testSubscriptions.user: ${stopwatch.elapsedMilliseconds} ms');
+    print('testSubscriptions.3: ${stopwatch.elapsedMilliseconds} ms');
 
     final configuration = Configuration.flexibleSync(user, [Task.schema, Schedule.schema])..sessionStopPolicy = SessionStopPolicy.immediately;
+
+    print('testSubscriptions.4: ${stopwatch.elapsedMilliseconds} ms');
+
     final realm = getRealm(configuration);
 
-    print('testSubscriptions.realm: ${stopwatch.elapsedMilliseconds} ms');
+    print('testSubscriptions.5: ${stopwatch.elapsedMilliseconds} ms');
 
     await tester(realm);
 
-    print('testSubscriptions.done: ${stopwatch.elapsedMilliseconds} ms');
+    print('testSubscriptions.6: ${stopwatch.elapsedMilliseconds} ms');
   });
 }
 
@@ -416,8 +424,6 @@ Future<void> main([List<String>? args]) async {
 
     expect(subscriptions, isEmpty);
     expect(realm.subscriptions.findByName(name), isNull);
-
-    await subscriptions.waitForSynchronization();
   });
 
   testSubscriptions('Subscription properties roundtrip', (realm) async {
