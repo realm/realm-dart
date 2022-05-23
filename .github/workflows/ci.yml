@@ -644,8 +644,6 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     name: Generator Tests
     steps:
-      - run: git config --global core.autocrlf false
-        if: ${{ matrix.os == 'windows' }}
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -681,10 +679,9 @@ jobs:
 
       - name: Validate there are no uncommitted changes
         run: |
-          status=$(git status --porcelain)
-          if [ -n "$status" ]; then
-            echo "$status"
-            git diff
+          changedFiles=$(git --no-pager diff -w)
+          if [ "$changedFiles" ]; then
+            git --no-pager diff -w
             exit 1
           fi
         shell: bash
