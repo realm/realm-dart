@@ -15,60 +15,16 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
 import 'dart:io';
+
 import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
-import 'native/realm_core.dart';
-import 'credentials.dart';
-import 'user.dart';
+
+import '../realm.dart';
 import 'configuration.dart';
-
-/// Specifies the criticality level above which messages will be logged
-/// by the default sync client logger.
-/// {@category Application}
-enum LogLevel {
-  /// Log everything. This will seriously harm the performance of the
-  /// sync client and should never be used in production scenarios.
-  all(Level.ALL),
-
-  /// A version of 'debug' that allows for very high volume output.
-  /// This may seriously affect the performance of the sync client.
-  trace(Level.FINEST),
-
-  /// Reveal information that can aid debugging, no longer paying
-  /// attention to efficiency.
-  debug(Level.FINER),
-
-  /// Same as 'Info', but prioritize completeness over minimalism.
-  detail(Level.FINE),
-
-  /// Log operational sync client messages, but in a minimalistic fashion to
-  /// avoid general overhead from logging and to keep volume down.
-  info(Level.INFO),
-
-  /// Log errors and warnings.
-  warn(Level.WARNING),
-
-  /// Log errors only.
-  error(Level.SEVERE),
-
-  /// Log only fatal errors.
-  fatal(Level.SHOUT),
-
-  /// Log nothing.
-  off(Level.OFF);
-
-  /// The corresponding [Logger] [Level]
-  final Level loggerLevel;
-  const LogLevel(this.loggerLevel);
-}
-
-late final _defaultLogger = Logger.detached('realm')
-  ..level = Level.ALL
-  ..onRecord.listen((event) {
-    print(event.message);
-  });
+import 'credentials.dart';
+import 'native/realm_core.dart';
+import 'user.dart';
 
 /// A class exposing configuration options for an [App]
 /// {@category Application}
@@ -122,11 +78,7 @@ class AppConfiguration {
   /// Setting this will not change the encryption key for individual Realms, which is set in the [Configuration].
   final List<int>? metadataEncryptionKey;
 
-  /// The [LogLevel] for sync operations.
-  final LogLevel logLevel;
-
-  /// The [Logger] to be used.
-  final Logger logger;
+  final Logger _logger;
 
   /// The [HttpClient] that will be used for HTTP requests during authentication.
   ///
@@ -146,14 +98,12 @@ class AppConfiguration {
     this.localAppVersion,
     this.metadataEncryptionKey,
     this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
-    this.logLevel = LogLevel.error,
-    Logger? logger,
     this.maxConnectionTimeout = const Duration(minutes: 2),
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
         baseFilePath = baseFilePath ?? Directory(ConfigurationInternal.defaultStorageFolder),
         httpClient = httpClient ?? HttpClient(),
-        logger = logger ?? App.defaultLogger;
+        _logger = Realm.logger;
 }
 
 /// An [App] is the main client-side entry point for interacting with a MongoDB Realm App.
@@ -163,11 +113,6 @@ class AppConfiguration {
 /// * Synchronize data between the local device and a remote Realm App with Synchronized Realms
 /// {@category Application}
 class App {
-  /// The [Logger] to use by default, when creating Apps. 
-  /// 
-  /// The logger used can also be customized by specifying it on the [AppConfiguration].
-  static late var defaultLogger = _defaultLogger;
-
   final AppHandle _handle;
 
   /// The id of this application. This is the same as the appId in the [AppConfiguration] used to

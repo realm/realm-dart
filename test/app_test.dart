@@ -38,7 +38,6 @@ Future<void> main([List<String>? args]) async {
     expect(defaultAppConfig.baseFilePath.path, ConfigurationInternal.defaultStorageFolder);
     expect(defaultAppConfig.baseUrl, Uri.parse('https://realm.mongodb.com'));
     expect(defaultAppConfig.defaultRequestTimeout, const Duration(minutes: 1));
-    expect(defaultAppConfig.logLevel, LogLevel.error);
     expect(defaultAppConfig.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
 
     final httpClient = HttpClient(context: SecurityContext(withTrustedRoots: false));
@@ -50,7 +49,6 @@ Future<void> main([List<String>? args]) async {
       localAppName: 'bar',
       localAppVersion: "1.0.0",
       metadataPersistenceMode: MetadataPersistenceMode.disabled,
-      logLevel: LogLevel.info,
       maxConnectionTimeout: const Duration(minutes: 1),
       httpClient: httpClient,
     );
@@ -58,7 +56,6 @@ Future<void> main([List<String>? args]) async {
     expect(appConfig.baseFilePath.path, Directory.systemTemp.path);
     expect(appConfig.baseUrl, Uri.parse('https://not_re.al'));
     expect(appConfig.defaultRequestTimeout, const Duration(seconds: 2));
-    expect(appConfig.logLevel, LogLevel.info);
     expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.disabled);
     expect(appConfig.maxConnectionTimeout, const Duration(minutes: 1));
     expect(appConfig.httpClient, httpClient);
@@ -69,7 +66,6 @@ Future<void> main([List<String>? args]) async {
     expect(appConfig.appId, 'myapp1');
     expect(appConfig.baseUrl, Uri.parse('https://realm.mongodb.com'));
     expect(appConfig.defaultRequestTimeout, const Duration(minutes: 1));
-    expect(appConfig.logLevel, LogLevel.error);
     expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
     expect(appConfig.maxConnectionTimeout, const Duration(minutes: 2));
     expect(appConfig.httpClient, isNotNull);
@@ -89,7 +85,6 @@ Future<void> main([List<String>? args]) async {
       localAppVersion: "1.0.0",
       metadataPersistenceMode: MetadataPersistenceMode.encrypted,
       metadataEncryptionKey: base64.decode("ekey"),
-      logLevel: LogLevel.info,
       maxConnectionTimeout: const Duration(minutes: 1),
       httpClient: httpClient,
     );
@@ -98,7 +93,6 @@ Future<void> main([List<String>? args]) async {
     expect(appConfig.baseFilePath.path, Directory.systemTemp.path);
     expect(appConfig.baseUrl, Uri.parse('https://not_re.al'));
     expect(appConfig.defaultRequestTimeout, const Duration(seconds: 2));
-    expect(appConfig.logLevel, LogLevel.info);
     expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.encrypted);
     expect(appConfig.maxConnectionTimeout, const Duration(minutes: 1));
     expect(appConfig.httpClient, httpClient);
@@ -190,61 +184,31 @@ Future<void> main([List<String>? args]) async {
     expect(app.users, [user1, user]);
   });
 
-  baasTest('AppConfiguration.logger', (configuration) async {
-    final logger = Logger.detached(generateRandomString(10))..level = LogLevel.all.loggerLevel;
+
+  baasTest('Realm.logger', (configuration) async {
+    Realm.logger = Logger.detached(generateRandomString(10))..level = RealmLogLevel.all;
     configuration = AppConfiguration(
       configuration.appId,
-      logLevel: LogLevel.all,
-      logger: logger,
-      baseFilePath: configuration.baseFilePath,
-      baseUrl: configuration.baseUrl,
-    );
-
-    await testLogger(
-      configuration,
-      logger,
-      maxExpectedCounts: {
-        // No problems expected!
-        LogLevel.fatal.loggerLevel: 0,
-        LogLevel.error.loggerLevel: 0,
-        LogLevel.warn.loggerLevel: 0,
-      },
-      minExpectedCounts: {
-        // these are set low (roughly half of what was seen when test was created),
-        // so that changes to core are less likely to break the test
-        LogLevel.trace.loggerLevel: 10,
-        LogLevel.debug.loggerLevel: 20,
-        LogLevel.detail.loggerLevel: 2,
-        LogLevel.info.loggerLevel: 1,
-      },
-    );
-  });
-
-  baasTest('App.defaultLogger', (configuration) async {
-    App.defaultLogger = Logger.detached(generateRandomString(10))..level = LogLevel.all.loggerLevel;
-    configuration = AppConfiguration(
-      configuration.appId,
-      logLevel: LogLevel.all,
       baseFilePath: configuration.baseFilePath,
       baseUrl: configuration.baseUrl,
     ); // uses App.defaultLogger
 
     await testLogger(
       configuration,
-      App.defaultLogger,
+      Realm.logger,
       maxExpectedCounts: {
         // No problems expected!
-        LogLevel.fatal.loggerLevel: 0,
-        LogLevel.error.loggerLevel: 0,
-        LogLevel.warn.loggerLevel: 0,
+        RealmLogLevel.fatal: 0,
+        RealmLogLevel.error: 0,
+        RealmLogLevel.warn: 0,
       },
       minExpectedCounts: {
         // these are set low (roughly half of what was seen when test was created),
         // so that changes to core are less likely to break the test
-        LogLevel.trace.loggerLevel: 10,
-        LogLevel.debug.loggerLevel: 20,
-        LogLevel.detail.loggerLevel: 2,
-        LogLevel.info.loggerLevel: 1,
+        RealmLogLevel.trace: 10,
+        RealmLogLevel.debug: 20,
+        RealmLogLevel.detail: 2,
+        RealmLogLevel.info: 1,
       },
     );
   });
