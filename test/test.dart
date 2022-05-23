@@ -94,6 +94,8 @@ class _Task {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
+
+  late ObjectId differentiator;
 }
 
 @RealmModel()
@@ -189,21 +191,21 @@ Future<void> setupTests(List<String>? args) async {
   arguments = parseTestArguments(args);
   testName = arguments["name"];
   setUpAll(() async {
-    print('Running setUpAll for $pid');
+    final stopwatch = Stopwatch()..start();
 
     await setupBaas();
 
-    print('Completed setUpAll for $pid');
+    print('Completed setUpAll for ${stopwatch.elapsedMilliseconds} ms');
   });
 
   setUp(() {
-    print('Running setUp for $pid');
+    final stopwatch = Stopwatch()..start();
 
     final path = generateRandomRealmPath();
     ConfigurationInternal.defaultPath = path;
 
     addTearDown(() async {
-      print('Running tearDown for $pid');
+      final stopwatch = Stopwatch()..start();
 
       final paths = HashSet<String>();
       paths.add(path);
@@ -216,16 +218,14 @@ Future<void> setupTests(List<String>? args) async {
         realm.close();
       }
 
-      print('Deleting Realms in tearDown for $pid');
-
       for (final path in paths) {
         await tryDeleteRealm(path);
       }
 
-      print('Completed tearDown for $pid');
+      print('Completed tearDown for ${stopwatch.elapsedMilliseconds} ms');
     });
 
-    print('Completed setUp for $pid');
+    print('Completed setUp for ${stopwatch.elapsedMilliseconds} ms');
   });
 }
 
@@ -356,16 +356,16 @@ Future<User> getIntegrationUser(App app) async {
   return await loginWithRetry(app, Credentials.emailPassword(email, password));
 }
 
-Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, String? path}) async {
+Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator}) async {
   app ??= App(await getAppConfig());
   final user = await getIntegrationUser(app);
 
-  // TODO: path will not be needed after https://github.com/realm/realm-dart/pull/574
-  final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema, NullableTypes.schema], path: path);
+  final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema, NullableTypes.schema])..sessionStopPolicy = SessionStopPolicy.immediately;
   final realm = getRealm(config);
   if (differentiator != null) {
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.query<NullableTypes>('differentiator = \$0', [differentiator]));
+      mutableSubscriptions.add(realm.query<Task>('differentiator = \$0', [differentiator]));
     });
 
     await realm.subscriptions.waitForSynchronization();

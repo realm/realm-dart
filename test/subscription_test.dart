@@ -21,24 +21,31 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
-import 'package:path/path.dart' as path;
 import 'package:test/expect.dart';
 
 import '../lib/realm.dart';
 import '../lib/src/configuration.dart';
-import '../lib/src/native/realm_core.dart';
 import '../lib/src/subscription.dart';
 import 'test.dart';
 
 @isTest
 void testSubscriptions(String name, FutureOr<void> Function(Realm) tester) async {
   baasTest(name, (appConfiguration) async {
+    final stopwatch = Stopwatch()..start();
+
     final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
+    final user = await getIntegrationUser(app);
+
+    print('testSubscriptions.user: ${stopwatch.elapsedMilliseconds} ms');
+
     final configuration = Configuration.flexibleSync(user, [Task.schema, Schedule.schema])..sessionStopPolicy = SessionStopPolicy.immediately;
     final realm = getRealm(configuration);
+
+    print('testSubscriptions.realm: ${stopwatch.elapsedMilliseconds} ms');
+
     await tester(realm);
+
+    print('testSubscriptions.done: ${stopwatch.elapsedMilliseconds} ms');
   });
 }
 
@@ -444,42 +451,18 @@ Future<void> main([List<String>? args]) async {
     expect(s.createdAt.isBefore(s.updatedAt), isTrue);
   });
 
-  baasTest('flexible sync roundtrip', (appConfigurationX) async {
-    final appX = App(appConfigurationX);
+  baasTest('flexible sync roundtrip', (appConfiguration) async {
+    final app = App(appConfiguration);
 
-    realmCore.clearCachedApps();
-    final temporaryDir = await Directory.systemTemp.createTemp('realm_test_Y_');
-    final appConfigurationY = AppConfiguration(
-      appConfigurationX.appId,
-      baseUrl: appConfigurationX.baseUrl,
-      baseFilePath: temporaryDir,
-    );
-    final appY = App(appConfigurationY);
-
-    final credentials = Credentials.anonymous();
-    final userX = await appX.logIn(credentials);
-    final userY = await appY.logIn(credentials);
-
-    final realmX = getRealm(Configuration.flexibleSync(userX, [Task.schema]));
-    final pathY = path.join(temporaryDir.path, "Y.realm");
-    final realmY = getRealm(Configuration.flexibleSync(userY, [Task.schema], path: pathY)); // TODO: Why do I need to set path here?
-
-    realmX.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realmX.all<Task>());
-    });
+    final differentiator = ObjectId();
+    final realmX = await getIntegrationRealm(app: app, differentiator: differentiator);
+    final realmY = await getIntegrationRealm(app: app, differentiator: differentiator);
 
     final oid = ObjectId();
-    realmX.write(() => realmX.add(Task(oid)));
+    realmX.write(() => realmX.add(Task(oid, differentiator)));
 
-    realmY.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realmY.all<Task>());
-    });
-
-    await realmX.subscriptions.waitForSynchronization();
-    await realmY.subscriptions.waitForSynchronization();
-
-    // TODO: Missing sync session wait methods here, so just add big timeout for now
-    await Future<void>.delayed(const Duration(seconds: 2));
+    await realmX.syncSession.waitForUpload();
+    await realmY.syncSession.waitForDownload();
 
     final t = realmY.find<Task>(oid);
     expect(t, isNotNull);

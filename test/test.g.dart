@@ -331,8 +331,10 @@ class RemappedClass extends $RemappedClass with RealmEntity, RealmObject {
 class Task extends _Task with RealmEntity, RealmObject {
   Task(
     ObjectId id,
+    ObjectId differentiator,
   ) {
     RealmObject.set(this, '_id', id);
+    RealmObject.set(this, 'differentiator', differentiator);
   }
 
   Task._();
@@ -341,6 +343,13 @@ class Task extends _Task with RealmEntity, RealmObject {
   ObjectId get id => RealmObject.get<ObjectId>(this, '_id') as ObjectId;
   @override
   set id(ObjectId value) => throw RealmUnsupportedSetError();
+
+  @override
+  ObjectId get differentiator =>
+      RealmObject.get<ObjectId>(this, 'differentiator') as ObjectId;
+  @override
+  set differentiator(ObjectId value) =>
+      RealmObject.set(this, 'differentiator', value);
 
   @override
   Stream<RealmObjectChanges<Task>> get changes =>
@@ -353,6 +362,7 @@ class Task extends _Task with RealmEntity, RealmObject {
     return const SchemaObject(Task, 'Task', [
       SchemaProperty('_id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
+      SchemaProperty('differentiator', RealmPropertyType.objectid),
     ]);
   }
 }
