@@ -51,7 +51,8 @@
 * Unit tests will now attempt to lookup and create if necessary MongoDB applications (similarly to the above mentioned command). See `test.dart/setupBaas()` for the environment variables that control the Url and Atlas Cluster that will be used. If the `BAAS_URL` environment variable is not set, no apps will be imported and sync tests will not run. (PR [#309](https://github.com/realm/realm-dart/pull/309))
 
 ### Compatibility
-* Dart ^2.15 on Windows, MacOS and Linux
+* Dart ^2.17 on Windows, MacOS and Linux
+* Flutter ^3.0 on Android, iOS, Linux, MacOS and Windows
 
 ## 0.2.1+alpha Release notes (2022-03-20)
 
