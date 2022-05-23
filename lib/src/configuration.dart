@@ -49,6 +49,11 @@ typedef InitialDataCallback = void Function(Realm realm);
 /// Client reset errors will not be reported through this callback as they are handled by [ClientResetHandler].
 typedef SessionErrorHandler = void Function(SessionError error);
 
+/// The signature of a callback that will be invoked if a client reset error occurs for this [Realm].
+///
+/// Currently, Flexible sync only supports the Manual Recovery.
+typedef ClientResetHandler = void Function(SessionError error);
+
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
 abstract class Configuration {
@@ -142,6 +147,7 @@ abstract class Configuration {
     String? fifoFilesFallbackPath,
     String? path,
     SessionErrorHandler? sessionErrorHandler,
+    ClientResetHandler? clientResetHandler,
   }) =>
       FlexibleSyncConfiguration._(
         user,
@@ -149,6 +155,7 @@ abstract class Configuration {
         fifoFilesFallbackPath: fifoFilesFallbackPath,
         path: path,
         sessionErrorHandler: sessionErrorHandler,
+        clientResetHandler: clientResetHandler,
       );
 }
 
@@ -222,9 +229,12 @@ class FlexibleSyncConfiguration extends Configuration {
   final User user;
 
   SessionStopPolicy _sessionStopPolicy = SessionStopPolicy.afterChangesUploaded;
-  
-  /// Called when a [SessionError] occurs for the synchronized Realm.
+
+  /// Called when a [SessionError] occurs for the synchronized [Realm].
   final SessionErrorHandler? sessionErrorHandler;
+
+  /// Called when a [ClientResetError] occurs for this [Realm]
+  final ClientResetHandler? clientResetHandler;
 
   FlexibleSyncConfiguration._(
     this.user,
@@ -232,6 +242,7 @@ class FlexibleSyncConfiguration extends Configuration {
     String? fifoFilesFallbackPath,
     String? path,
     this.sessionErrorHandler,
+    this.clientResetHandler,
   }) : super._(
           schemaObjects,
           fifoFilesFallbackPath: fifoFilesFallbackPath,

@@ -79,8 +79,18 @@ class RealmStateError extends StateError implements RealmError {
   RealmStateError(String message) : super(message);
 }
 
+/// An error type that describes a client reset error condition.
+/// {@category Sync}
+class ClientResetError extends SessionError {
+  ClientResetError(
+    String message,
+    SyncErrorCategory category, {
+    bool isFatal = false,
+  }) : super(message, category, isFatal: isFatal, code: 132); //Code 132: ClientError.auto_client_reset_failure
+}
+
 /// An error type that describes a session-level error condition.
-/// /// {@category Sync}
+/// {@category Sync}
 class SessionError extends SyncError {
   /// If true the received error is fatal.
   final bool isFatal;
@@ -97,7 +107,7 @@ class SessionError extends SyncError {
 /// {@category Sync}
 class SyncError extends RealmError {
   /// The code of the error
-  final int code; // TODO: this should be an enum
+  final int code; // TODO: this should be an enum. There are two error codes enums in C-API realm::sync::ProtocolError and realm::sync::ClientError
 
   /// The category of the error
   final SyncErrorCategory category;

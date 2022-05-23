@@ -407,7 +407,12 @@ class _RealmCore {
       return;
     }
     final sessionError = error.toSessionError();
-    syncConfig.sessionErrorHandler!(sessionError);
+    if (error.is_client_reset_requested == 0 && syncConfig.sessionErrorHandler != null) {
+      syncConfig.sessionErrorHandler!(sessionError);
+    }
+    if (error.is_client_reset_requested == 1 && syncConfig.clientResetHandler != null) {
+      syncConfig.clientResetHandler!(ClientResetError(sessionError.message!, sessionError.category, isFatal: sessionError.isFatal));
+    }
   }
 
   void raiseError(Session session, SyncErrorCategory category, int errorCode, bool isFatal) {

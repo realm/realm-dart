@@ -132,16 +132,19 @@ RLM_API void realm_dart_sync_session_report_error_for_testing(realm_sync_session
 {
     std::error_code error_code;
     std::string msg;
-    if (category == 0) {
+    std::uint8_t throwError = 0;
+    if (category == realm_sync_error_category::RLM_SYNC_ERROR_CATEGORY_CLIENT) {
         error_code = std::error_code(errorCode, realm::sync::client_error_category());
-        msg = "Simulated client reset error";
+        msg = "Simulated client error";
+        throwError = 1;
     }
-    else
-    {
+    else if (category == realm_sync_error_category::RLM_SYNC_ERROR_CATEGORY_SESSION) {
         error_code = std::error_code(errorCode, realm::sync::protocol_error_category());
-        msg = "Simulated sync session error";
-
+        msg = "Simulated session error";
+        throwError = 1;
     }
-    SyncSession::OnlyForTesting::handle_error(*(*session), SyncError{ error_code, msg, isFatal });
+    if (throwError == 1) {
+        SyncSession::OnlyForTesting::handle_error(*(*session), SyncError{ error_code, msg, isFatal });
+    }
 }
-} // namespace realm::c_api 
+} // namespace realm::c_api
