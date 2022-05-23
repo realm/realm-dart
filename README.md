@@ -100,7 +100,7 @@ The Realm Flutter package name is `realm`
 
 * Supported platforms are Flutter (iOS, Android, Windows, MacOS) and Dart standalone (Windows, MacOS and Linux)
 
-* Flutter ^2.8.0
+* Flutter ^3.0
 * For Flutter Desktop environment setup check the guide [here](https://docs.flutter.dev/desktop)
 * Cocoapods v1.11 or newer
 * CMake 3.21 or newer
@@ -276,7 +276,7 @@ The Realm Dart package is `realm_dart`
 
 * Supported platforms are Windows, Mac and Linux.
 
-* Dart SDK ^2.15
+* Dart SDK ^2.17
 
 ## Usage
 
