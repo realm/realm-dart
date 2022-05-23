@@ -375,11 +375,11 @@ Future<User> loginWithRetry(App app, Credentials credentials, {int retryCount = 
 }
 
 Future<void> waitForCondition(bool Function() condition,
-    {Duration timeout = const Duration(seconds: 10), Duration retryDelay = const Duration(milliseconds: 100)}) async {
+    {Duration timeout = const Duration(seconds: 10), Duration retryDelay = const Duration(milliseconds: 100), String? message}) async {
   final start = DateTime.now();
   while (!condition()) {
     if (DateTime.now().difference(start) > timeout) {
-      throw TimeoutException('Condition not met within $timeout');
+      throw TimeoutException('Condition not met within $timeout${message != null ? ': $message' : ''}');
     }
 
     await Future<void>.delayed(retryDelay);
