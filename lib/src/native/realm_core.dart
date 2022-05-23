@@ -402,6 +402,7 @@ class _RealmCore {
   }
 
   static void _syncErrorHandlerCallback(Pointer<Void> userdata, Pointer<realm_sync_session> user, realm_sync_error error) {
+    print(error.detailed_message.cast<Utf8>().toRealmDartString()!);
     final FlexibleSyncConfiguration? syncConfig = userdata.toObject(isPersistent: true);
     if (syncConfig == null) {
       return;
