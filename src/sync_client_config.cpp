@@ -47,6 +47,8 @@ void _userdata_free(void* userdata) {
     delete u;
 }
 
+void _no_op() {}
+
 RLM_API void realm_dart_sync_client_config_set_log_callback(
     realm_sync_client_config_t* config, 
     realm_log_func_t callback, 
@@ -55,7 +57,7 @@ RLM_API void realm_dart_sync_client_config_set_log_callback(
     realm_scheduler_t* scheduler) noexcept
 {
     auto u = new UserdataT(std::bind(util::EventLoopDispatcher{ *scheduler, callback }, userdata, std::placeholders::_1, std::placeholders::_2),
-                           std::bind(util::EventLoopDispatcher{ *scheduler, userdata_free }, userdata));
+                           userdata_free != nullptr ? std::bind(util::EventLoopDispatcher{ *scheduler, userdata_free }, userdata) : std::function<void()>(_no_op));
     return realm_sync_client_config_set_log_callback(config, _callback, u, _userdata_free);
 }
 

@@ -1029,7 +1029,7 @@ class _RealmCore {
 
   static void _logCallback(Pointer<Void> userdata, int levelAsInt, Pointer<Int8> message) {
     try {
-      final logger = userdata.toObject<Logger>(isPersistent: true)!;
+      final logger = Realm.logger;
       final level = _LogLevel.values[levelAsInt].loggerLevel;
 
       // Don't do expensive utf8 to utf16 conversion unless we have to..
@@ -1048,13 +1048,12 @@ class _RealmCore {
       _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toUtf8Ptr(arena));
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
       
-      final logger = Realm.logger;
-      _realmLib.realm_sync_client_config_set_log_level(handle._pointer, _LogLevel.fromLevel(logger.level).index);
+      _realmLib.realm_sync_client_config_set_log_level(handle._pointer, _LogLevel.fromLevel(Realm.logger.level).index);
       _realmLib.realm_dart_sync_client_config_set_log_callback(
         handle._pointer,
         Pointer.fromFunction(_logCallback),
-        logger.toPersistentHandle(),
-        _realmLib.addresses.realm_dart_delete_persistent_handle,
+        nullptr,
+        nullptr,
         scheduler.handle._pointer,
       );
       
