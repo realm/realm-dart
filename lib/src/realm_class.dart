@@ -21,13 +21,13 @@ import 'dart:io';
 
 import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
-import 'package:realm_dart/src/scheduler.dart';
 
 import 'configuration.dart';
 import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'results.dart';
+import 'scheduler.dart';
 import 'subscription.dart';
 import 'session.dart';
 
