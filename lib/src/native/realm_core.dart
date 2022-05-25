@@ -1685,10 +1685,8 @@ class SessionHandle extends ReleasableHandle<realm_sync_session_t> {
 
 extension on List<int> {
   Pointer<Uint8> toUint8Buffer(Allocator allocator) {
-    final buffer = allocator.allocate<Uint8>(length);
-    for (int i = 0; i < length; i++) {
-      buffer[i] = this[i];
-    }
+    final buffer = allocator<Uint8>(length);
+    buffer.asTypedList(length).setAll(0, this);
     return buffer;
   }
 }
