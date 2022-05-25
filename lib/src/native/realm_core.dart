@@ -103,6 +103,7 @@ class _RealmCore {
 
         classInfo.name = schemaObject.name.toNativeUtf8(allocator: arena).cast();
         classInfo.num_properties = schemaObject.properties.length;
+        classInfo.primary_key = emptyStringPtr;
         classInfo.flags = realm_class_flags.RLM_CLASS_NORMAL;
 
         final propertiesCount = schemaObject.properties.length;
@@ -133,12 +134,9 @@ class _RealmCore {
           if (schemaProperty.primaryKey) {
             classInfo.primary_key = schemaProperty.name.toNativeUtf8(allocator: arena).cast();
             propInfo.flags = realm_property_flags.RLM_PROPERTY_PRIMARY_KEY;
-          } else {
-            classInfo.primary_key = emptyStringPtr;
           }
         }
 
-        schemaProperties[i] = properties;
         schemaProperties.elementAt(i).value = properties;
       }
 
