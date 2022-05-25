@@ -994,7 +994,7 @@ class _RealmCore {
 
         // Do the call..
         final response = await request.close();
-        // TOOD: this can be optimized to write directly to the arena-allocated buffer
+        // TODO: this can be optimized to write directly to the arena-allocated buffer
         final responseBody = await response.fold<List<int>>([], (acc, l) => acc..addAll(l)); // gather response
 
         final responseBuffer = arena<Uint8>(responseBody.length);
