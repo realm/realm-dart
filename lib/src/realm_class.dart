@@ -17,9 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
-import 'dart:ffi';
 import 'dart:io';
-import 'dart:isolate';
 
 import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
@@ -29,6 +27,7 @@ import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'results.dart';
+import 'scheduler.dart';
 import 'subscription.dart';
 import 'session.dart';
 
@@ -141,10 +140,8 @@ class RealmLogLevel {
 ///
 /// {@category Realm}
 class Realm {
-  final Configuration _config;
   final Map<Type, RealmMetadata> _metadata = <Type, RealmMetadata>{};
-  late final RealmHandle _handle;
-  late final Scheduler _scheduler;
+  final RealmHandle _handle;
 
   /// The logger to use.
   ///
@@ -153,29 +150,21 @@ class Realm {
     ..level = RealmLogLevel.info
     ..onRecord.listen((event) => print(event));
 
+  /// Shutdown.
+  static void shutdown() => scheduler.stop();
+
   /// The [Configuration] object used to open this [Realm]
-  Configuration get config => _config;
+  final Configuration config;
 
   /// Opens a `Realm` using a [Configuration] object.
-  Realm(Configuration config) : _config = config {
-    _scheduler = Scheduler(close);
+  Realm(Configuration config) : this._(config);
 
-    try {
-      _handle = realmCore.openRealm(_config, _scheduler);
-      _populateMetadata();
-    } catch (e) {
-      _scheduler.stop();
-      rethrow;
-    }
-  }
-
-  Realm._unowned(Configuration config, RealmHandle handle) : _config = config {
-    _handle = handle;
+  Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? realmCore.openRealm(config) {
     _populateMetadata();
   }
 
   void _populateMetadata() {
-    for (var realmClass in _config.schema) {
+    for (var realmClass in config.schema) {
       final classMeta = realmCore.getClassMetadata(this, realmClass.name, realmClass.type);
       final propertyMeta = realmCore.getPropertyMetadata(this, classMeta.key);
       final metadata = RealmMetadata(classMeta, propertyMeta);
@@ -306,7 +295,6 @@ class Realm {
     _subscriptions = null;
 
     realmCore.closeRealm(this);
-    _scheduler.stop();
   }
 
   /// Checks whether the `Realm` is closed.
@@ -376,7 +364,7 @@ class Realm {
       throw RealmError('session is only valid on synchronized Realms (i.e. opened with FlexibleSyncConfiguration)');
     }
 
-    _syncSession ??= SessionInternal.create(realmCore.realmGetSession(this), scheduler);
+    _syncSession ??= SessionInternal.create(realmCore.realmGetSession(this));
     return _syncSession!;
   }
 
@@ -388,35 +376,6 @@ class Realm {
     return realmCore.realmEquals(this, other);
   }
 }
-
-class Scheduler {
-  // ignore: constant_identifier_names
-  static const dynamic SCHEDULER_FINALIZE_OR_PROCESS_EXIT = 0;
-  late final SchedulerHandle handle;
-  final void Function() onFinalize;
-  final RawReceivePort receivePort = RawReceivePort();
-
-  Scheduler(this.onFinalize) {
-    receivePort.handler = (dynamic message) {
-      if (message == SCHEDULER_FINALIZE_OR_PROCESS_EXIT) {
-        onFinalize();
-        stop();
-        return;
-      }
-
-      realmCore.invokeScheduler(handle);
-    };
-
-    final sendPort = receivePort.sendPort;
-    handle = realmCore.createScheduler(Isolate.current.hashCode, sendPort.nativePort);
-  }
-
-  void stop() {
-    receivePort.close();
-  }
-}
-
-late final scheduler = Scheduler(() {});
 
 /// @nodoc
 class Transaction {
@@ -449,10 +408,9 @@ class Transaction {
 /// @nodoc
 extension RealmInternal on Realm {
   RealmHandle get handle => _handle;
-  Scheduler get scheduler => _scheduler;
 
   static Realm getUnowned(Configuration config, RealmHandle handle) {
-    return Realm._unowned(config, handle);
+    return Realm._(config, handle);
   }
 
   RealmObject createObject(Type type, RealmObjectHandle handle) {
