@@ -25,7 +25,6 @@ import 'package:path/path.dart' as path;
 import 'package:test/expect.dart';
 
 import '../lib/realm.dart';
-import '../lib/src/configuration.dart';
 import '../lib/src/native/realm_core.dart';
 import '../lib/src/subscription.dart';
 import 'test.dart';
@@ -36,7 +35,7 @@ void testSubscriptions(String name, FutureOr<void> Function(Realm) tester) async
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, [Task.schema, Schedule.schema])..sessionStopPolicy = SessionStopPolicy.immediately;
+    final configuration = Configuration.flexibleSync(user, [Task.schema, Schedule.schema]);
     final realm = getRealm(configuration);
     await tester(realm);
   });
