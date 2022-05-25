@@ -65,12 +65,13 @@ Future<void> main([List<String>? args]) async {
 
   Future<void> validateSessionStates(Session session, {SessionState? expectedSessionState, ConnectionState? expectedConnectionState}) async {
     if (expectedSessionState != null) {
-      await waitForCondition(() => session.state.name == expectedSessionState.name, message: 'Expected ${session.state} to equal $expectedSessionState');
+      await waitForCondition(() => session.state.name == expectedSessionState.name,
+          message: 'Expected ${session.state} to equal $expectedSessionState', timeout: Duration(seconds: 10));
     }
 
     if (expectedConnectionState != null) {
       await waitForCondition(() => session.connectionState.name == expectedConnectionState.name,
-          message: 'Expected ${session.connectionState} to equal $expectedConnectionState');
+          message: 'Expected ${session.connectionState} to equal $expectedConnectionState', timeout: Duration(seconds: 10));
     }
   }
 
