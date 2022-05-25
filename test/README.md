@@ -46,22 +46,55 @@ do day-to-day development as it allows you to get into a clean slate with a sing
 3. [Configure Docker for use with GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry) - you only need the authentication part.
 4. Take note of your IP address (it has to be the actual IP address, not localhost or 127.0.0.1).
 5. Run the docker image:
+
+    Required variables:
+    * `baas_hostname` is the IP address from step 4.
+    * `baas_access_key` is the credentials we got in step 2.
+    * `baas_secret_key` is the credentials we got in step 2.
+    * `some_empty_folder` is a mount empty folder to /apps. If not done, the docker image will import a sample app which will mess up the test setup.
+    * `baas_version` is the version of the image you'd like to use. See versions at [mongodb-realm-test-server](https://github.com/realm/ci/pkgs/container/ci%2Fmongodb-realm-test-server).
+    
+    For MacOS anf Linux:
     ```sh
-    baas_hostname="10.0.1.123"# $ the IP address from step   4.
-    baas_access_key="<public_key>" # the credentials we got in step 2.
-    baas_secret_key="<private_key>" # the credentials we got in step 2.
-    some_empty_folder="$(mktemp -d)" # mount an empty folder to /apps. If not done, the docker image will import a sample app which will mess up the test setup
-    baas_version="2022-05-16" # the version of the image you'd like to use. See versions at https://github.com/realm/ci/pkgs/container/ci%2Fmongodb-realm-test-server
+    baas_hostname="10.0.1.123"
+    baas_access_key="<public_key>" 
+    baas_secret_key="<private_key>"
+    some_empty_folder="$(mktemp -d)"
+    baas_version="2022-05-16"
 
     docker run \
       -e MONGODB_REALM_HOSTNAME=$baas_hostname -e AWS_ACCESS_KEY_ID=$baas_access_key -e AWS_SECRET_ACCESS_KEY=$baas_secret_key \
       --mount type=bind,src=$some_empty_folder,dst=/apps \
       -u 1000:1000 \
-      -p 9090:9090 -p 26000:26000 \ # Expose the baas and mongodb ports to the host. 9090 is baas and 26000 is mongodb.
-      -it \ # interactive and attach tty
-      --rm \ # clean up the container at exit. Omit this if you want to preserve the state between runs. Resume with https://docs.docker.com/engine/reference/commandline/start/
+      -p 9090:9090 -p 26000:26000 \
+      -it \
+      --rm \
       ghcr.io/realm/ci/mongodb-realm-test-server:$baas_version
     ```
+
+    For Windows powershell:
+    ```powershell
+    $baas_hostname="10.0.1.123"
+    $baas_access_key="<public_key>"
+    $baas_secret_key="<private_key>"
+    $some_empty_folder=%{ mkdir $_-d }
+    $baas_version="2022-05-16"
+
+    docker run `
+      -e MONGODB_REALM_HOSTNAME=$baas_hostname -e AWS_ACCESS_KEY_ID=$baas_access_key -e AWS_SECRET_ACCESS_KEY=$baas_secret_key `
+      --mount type=bind,src=$some_empty_folder,dst=/apps `
+      -u 1000:1000 `
+      -p 9090:9090 -p 26000:26000 `
+      -it `
+      --rm `
+      ghcr.io/realm/ci/mongodb-realm-test-server:$baas_version
+    ```
+    where `docker run` arguments:
+    * -p exposes the baas and mongodb ports to the host. 9090 is baas and 26000 is mongodb.
+    * -it instructs Docker to allocate a pseudo-TTY connected to the container’s stdin; creating an interactive bash shell in the container.
+    * --rm cleans up the container at exit. Omit this if you want to preserve the state between runs. Resume with [https://docs.docker.com/engine/reference/commandline/start/](https://docs.docker.com/engine/reference/commandline/start/)
+    * For more information go to [docker run command](https://docs.docker.com/engine/reference/commandline/run/)
+
 6. Setup the `BAAS_URL` environment variable. On macOS, this can be done for example by adding the following to your profile:
     ```sh
     launchctl setenv BAAS_URL "http://$baas_hostname:9090"
