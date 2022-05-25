@@ -375,7 +375,7 @@ Future<User> loginWithRetry(App app, Credentials credentials, {int retryCount = 
 }
 
 Future<void> waitForCondition(bool Function() condition,
-    {Duration timeout = const Duration(seconds: 10), Duration retryDelay = const Duration(milliseconds: 100), String? message}) async {
+    {Duration timeout = const Duration(seconds: 1), Duration retryDelay = const Duration(milliseconds: 100), String? message}) async {
   final start = DateTime.now();
   while (!condition()) {
     if (DateTime.now().difference(start) > timeout) {
