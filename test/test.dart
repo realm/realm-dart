@@ -242,19 +242,19 @@ Realm getRealm(Configuration config) {
   return realm;
 }
 
-Future<bool> tryDeleteRealm(String path) async {
+Future<void> tryDeleteRealm(String path) async {
   for (var i = 0; i < 100; i++) {
     try {
       Realm.deleteRealm(path);
       await File('$path.lock').delete();
-      return true;
+      return;
     } catch (e) {
+      print('Failed to delete realm at path $path. Trying again in 50ms');
       await Future<void>.delayed(const Duration(milliseconds: 50));
     }
   }
 
-  print("Can not delete realm at path: $path. Did you forget to close it?");
-  return false;
+  throw Exception('Failed to delete realm at path $path. Did you forget to close it?');
 }
 
 Map<String, String?> parseTestArguments(List<String>? arguments) {

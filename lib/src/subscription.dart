@@ -215,12 +215,14 @@ class ImmutableSubscriptionSet extends SubscriptionSet {
   @override
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action) {
     final mutableSubscriptions = MutableSubscriptionSet._(realm, realmCore.subscriptionSetMakeMutable(this));
+    final oldHandle = _handle;
     try {
       action(mutableSubscriptions);
       _handle = realmCore.subscriptionSetCommit(mutableSubscriptions);
     } finally {
       // Release as early as possible, as we cannot start new update, until this is released!
       mutableSubscriptions._handle.release();
+      oldHandle.release();
     }
   }
 }
