@@ -397,6 +397,67 @@ class Schedule extends _Schedule with RealmEntity, RealmObject {
   }
 }
 
+class Event extends _Event with RealmEntity, RealmObject {
+  Event(
+    ObjectId id, {
+    String? name,
+    bool? isCompleted,
+    int? durationInMinutes,
+  }) {
+    RealmObject.set(this, '_id', id);
+    RealmObject.set(this, 'stringQueryField', name);
+    RealmObject.set(this, 'boolQueryField', isCompleted);
+    RealmObject.set(this, 'intQueryField', durationInMinutes);
+  }
+
+  Event._();
+
+  @override
+  ObjectId get id => RealmObject.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => throw RealmUnsupportedSetError();
+
+  @override
+  String? get name =>
+      RealmObject.get<String>(this, 'stringQueryField') as String?;
+  @override
+  set name(String? value) => RealmObject.set(this, 'stringQueryField', value);
+
+  @override
+  bool? get isCompleted =>
+      RealmObject.get<bool>(this, 'boolQueryField') as bool?;
+  @override
+  set isCompleted(bool? value) =>
+      RealmObject.set(this, 'boolQueryField', value);
+
+  @override
+  int? get durationInMinutes =>
+      RealmObject.get<int>(this, 'intQueryField') as int?;
+  @override
+  set durationInMinutes(int? value) =>
+      RealmObject.set(this, 'intQueryField', value);
+
+  @override
+  Stream<RealmObjectChanges<Event>> get changes =>
+      RealmObject.getChanges<Event>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(Event._);
+    return const SchemaObject(Event, 'Event', [
+      SchemaProperty('_id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('stringQueryField', RealmPropertyType.string,
+          mapTo: 'stringQueryField', optional: true),
+      SchemaProperty('boolQueryField', RealmPropertyType.bool,
+          mapTo: 'boolQueryField', optional: true),
+      SchemaProperty('intQueryField', RealmPropertyType.int,
+          mapTo: 'intQueryField', optional: true),
+    ]);
+  }
+}
+
 class AllTypes extends _AllTypes with RealmEntity, RealmObject {
   AllTypes(
     String stringProp,

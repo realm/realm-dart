@@ -105,6 +105,19 @@ class _Schedule {
 }
 
 @RealmModel()
+class _Event {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  @MapTo('stringQueryField')
+  late String? name;
+  @MapTo('boolQueryField')
+  late bool? isCompleted;
+  @MapTo('intQueryField')
+  late int? durationInMinutes;
+}
+
+@RealmModel()
 class _AllTypes {
   late String stringProp;
   late bool boolProp;

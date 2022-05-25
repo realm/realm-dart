@@ -36,7 +36,12 @@ void testSubscriptions(String name, FutureOr<void> Function(Realm) tester) async
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, [Task.schema, Schedule.schema])..sessionStopPolicy = SessionStopPolicy.immediately;
+    final configuration = Configuration.flexibleSync(user, [
+      Task.schema,
+      Schedule.schema,
+      Event.schema,
+    ])
+      ..sessionStopPolicy = SessionStopPolicy.immediately;
     final realm = getRealm(configuration);
     await tester(realm);
   });
@@ -483,5 +488,34 @@ Future<void> main([List<String>? args]) async {
 
     final t = realmY.find<Task>(oid);
     expect(t, isNotNull);
+  });
+
+  testSubscriptions('Filter realm data using query subscription', (realm) async {
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.all<Event>());
+    });
+
+    realm.write(() {
+      realm.addAll([
+        Event(ObjectId(), name: "NPMG Event", isCompleted: true, durationInMinutes: 30),
+        Event(ObjectId(), name: "NPMG Meeting", isCompleted: false, durationInMinutes: 10),
+        Event(ObjectId(), name: "Some other eveent", isCompleted: true, durationInMinutes: 60),
+      ]);
+    });
+
+    await realm.syncSession.waitForUpload();
+
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.removeByQuery(realm.all<Event>());
+      mutableSubscriptions.add(realm.query<Event>(r'stringQueryField BEGINSWITH $0 AND boolQueryField == $1 AND intQueryField > $2', ["NPMG", true, 20]),
+          name: "filter");
+    });
+
+    await realm.subscriptions.waitForSynchronization();
+
+    var filtered = realm.query<Event>(realm.subscriptions.findByName("filter")!.queryString);
+    var all = realm.all<Event>();
+    expect(filtered, isNotEmpty);
+    expect(filtered.length, all.length);
   });
 }
