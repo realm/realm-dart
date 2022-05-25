@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:io';
-import 'dart:math';
 
 import 'package:test/expect.dart';
 
@@ -90,7 +89,7 @@ Future<void> main([List<String>? args]) async {
     expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous).provider, isNotNull);
 
     final user2 = await app.logIn(Credentials.emailPassword(username, password));
-    expect(user1.id, equals(user2.id));
+    expect(user1, user2);
   }, appName: AppNames.autoConfirm);
 
   baasTest('User deviceId', (configuration) async {

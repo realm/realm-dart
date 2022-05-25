@@ -15,49 +15,16 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
 import 'dart:io';
+
+import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
-import 'native/realm_core.dart';
-import 'credentials.dart';
-import 'user.dart';
+
+import '../realm.dart';
 import 'configuration.dart';
-
-/// Specifies the criticality level above which messages will be logged
-/// by the default sync client logger.
-/// {@category Application}
-enum LogLevel {
-  /// Log everything. This will seriously harm the performance of the
-  /// sync client and should never be used in production scenarios.
-  all,
-
-  /// A version of 'debug' that allows for very high volume output.
-  /// This may seriously affect the performance of the sync client.
-  trace,
-
-  /// Reveal information that can aid debugging, no longer paying
-  /// attention to efficiency.
-  debug,
-
-  /// Same as 'Info', but prioritize completeness over minimalism.
-  detail,
-
-  /// Log operational sync client messages, but in a minimalistic fashion to
-  /// avoid general overhead from logging and to keep volume down.
-  info,
-
-  /// Log errors and warnings.
-  warn,
-
-  /// Log errors only.
-  error,
-
-  /// Log only fatal errors.
-  fatal,
-
-  /// Log nothing.
-  off,
-}
+import 'credentials.dart';
+import 'native/realm_core.dart';
+import 'user.dart';
 
 /// A class exposing configuration options for an [App]
 /// {@category Application}
@@ -111,9 +78,6 @@ class AppConfiguration {
   /// Setting this will not change the encryption key for individual Realms, which is set in the [Configuration].
   final List<int>? metadataEncryptionKey;
 
-  /// The [LogLevel] for sync operations.
-  final LogLevel logLevel;
-
   /// The [HttpClient] that will be used for HTTP requests during authentication.
   ///
   /// You can use this to override the default http client handler and configure settings like proxies,
@@ -132,7 +96,6 @@ class AppConfiguration {
     this.localAppVersion,
     this.metadataEncryptionKey,
     this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
-    this.logLevel = LogLevel.error,
     this.maxConnectionTimeout = const Duration(minutes: 2),
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
