@@ -220,16 +220,7 @@ Future<void> setupTests(List<String>? args) async {
       }
 
       for (final path in paths) {
-        try {
-          Realm.deleteRealm(path);
-        } catch (e) {
-          print("Can not delete realm at path: $path. Did you forget to close it?");
-        }
-        String pathKey = _path.basenameWithoutExtension(path);
-        String realmDir = _path.dirname(path);
-        await Directory(realmDir).list().forEach((f) {
-          if (f.path.contains(pathKey)) tryDeleteFile(f, recursive: true);
-        });
+        await tryDeleteRealm(path);
       }
     });
   });
@@ -255,20 +246,28 @@ String generateRandomString(int len) {
 }
 
 Realm getRealm(Configuration config) {
+  if (config is FlexibleSyncConfiguration) {
+    config.sessionStopPolicy = SessionStopPolicy.immediately;
+  }
+
   final realm = Realm(config);
   _openRealms.add(realm);
   return realm;
 }
 
-Future<void> tryDeleteFile(FileSystemEntity fileEntity, {bool recursive = false}) async {
-  for (var i = 0; i < 20; i++) {
+Future<void> tryDeleteRealm(String path) async {
+  for (var i = 0; i < 100; i++) {
     try {
-      await fileEntity.delete(recursive: recursive);
-      break;
+      Realm.deleteRealm(path);
+      await File('$path.lock').delete();
+      return;
     } catch (e) {
+      print('Failed to delete realm at path $path. Trying again in 50ms');
       await Future<void>.delayed(const Duration(milliseconds: 50));
     }
   }
+
+  throw Exception('Failed to delete realm at path $path. Did you forget to close it?');
 }
 
 Map<String, String?> parseTestArguments(List<String>? arguments) {
@@ -385,6 +384,18 @@ Future<User> loginWithRetry(App app, Credentials credentials, {int retryCount = 
       return await loginWithRetry(app, credentials, retryCount: retryCount - 1);
     }
     rethrow;
+  }
+}
+
+Future<void> waitForCondition(bool Function() condition,
+    {Duration timeout = const Duration(seconds: 1), Duration retryDelay = const Duration(milliseconds: 100), String? message}) async {
+  final start = DateTime.now();
+  while (!condition()) {
+    if (DateTime.now().difference(start) > timeout) {
+      throw TimeoutException('Condition not met within $timeout${message != null ? ': $message' : ''}');
+    }
+
+    await Future<void>.delayed(retryDelay);
   }
 }
 
