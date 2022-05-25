@@ -518,4 +518,18 @@ Future<void> main([List<String>? args]) async {
     expect(filtered, isNotEmpty);
     expect(filtered.length, all.length);
   });
+
+  testSubscriptions('Writing before to subscribe throws', (realm) async {
+    realm.write(() {
+      realm.addAll([
+        Event(ObjectId(), name: "NPMG Event", isCompleted: true, durationInMinutes: 30),
+        Event(ObjectId(), name: "NPMG Meeting", isCompleted: false, durationInMinutes: 10),
+        Event(ObjectId(), name: "Some other eveent", isCompleted: true, durationInMinutes: 60),
+      ]);
+    });
+    expect(
+        () async => await realm.syncSession.waitForUpload(),
+        throws<SyncError>(
+            "Client attempted a write that is disallowed by permissions, or modifies an object outside the current query - requires client reset"));
+  });
 }
