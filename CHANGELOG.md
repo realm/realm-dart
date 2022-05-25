@@ -40,7 +40,8 @@
 * Support user profile data. ([#570](https://github.com/realm/realm-dart/pull/570))
 * Support flexible synchronization. ([#496](https://github.com/realm/realm-dart/pull/496))
 * Added support for DateTime properties. ([#569](https://github.com/realm/realm-dart/pull/569))
-* Support session error handler. ([#577](https://github.com/realm/realm-dart/pull/577))
+* Support SessionErrorHandler in FlexibleSyncConfiguration. ([#577](https://github.com/realm/realm-dart/pull/577))
+* Support ClientResetHandler in FlexibleSyncConfiguration. ([#608](https://github.com/realm/realm-dart/pull/608))
 * Support setting logger on AppConfiguration. ([#583](https://github.com/realm/realm-dart/pull/583))
 * Support setting logger on Realm class. Default is to print info message or worse to the console. ([#583](https://github.com/realm/realm-dart/pull/583))
 
