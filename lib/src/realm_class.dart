@@ -151,7 +151,7 @@ class Realm {
     ..onRecord.listen((event) => print(event));
 
   /// Shutdown.
-  static void shutdown() => Scheduler().stop();
+  static void shutdown() => scheduler.stop();
 
   /// The [Configuration] object used to open this [Realm]
   final Configuration config;

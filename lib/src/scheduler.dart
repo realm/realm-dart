@@ -22,6 +22,7 @@ import 'dart:isolate';
 import 'native/realm_core.dart';
 
 final _receivePortFinalizer = Finalizer<RawReceivePort>((p) => p.close());
+late final Scheduler scheduler = Scheduler._();
 
 class Scheduler {
   late final SchedulerHandle handle;
@@ -42,7 +43,4 @@ class Scheduler {
     receivePort.close();
     _receivePortFinalizer.detach(this);
   }
-
-  static late final Scheduler _instance = Scheduler._();
-  factory Scheduler() => _instance; // singleton
 }
