@@ -21,6 +21,7 @@
 #include <set>
 #include <mutex>
 #include <thread>
+#include <dart_api_dl.h>
 
 #include "realm_dart_scheduler.h"
 

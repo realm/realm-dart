@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <exception>
+#include <dart_api_dl.h>
 
 #include "realm_dart.h"
 

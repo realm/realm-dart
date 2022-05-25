@@ -95,11 +95,11 @@ class RealmLibrary {
   bool realm_app_call_function(
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
-    ffi.Pointer<ffi.Int8> function_name,
-    ffi.Pointer<ffi.Int8> serialized_ejson_args,
+    ffi.Pointer<ffi.Char> function_name,
+    ffi.Pointer<ffi.Char> serialized_ejson_args,
     ffi.Pointer<
             ffi.NativeFunction<
-                ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Int8>,
+                ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
                     ffi.Pointer<realm_app_error_t>)>>
         arg4,
     ffi.Pointer<ffi.Void> userdata,
@@ -122,13 +122,13 @@ class RealmLibrary {
           ffi.Uint8 Function(
               ffi.Pointer<realm_app_t>,
               ffi.Pointer<realm_user_t>,
-              ffi.Pointer<ffi.Int8>,
-              ffi.Pointer<ffi.Int8>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
               ffi.Pointer<
                   ffi.NativeFunction<
                       ffi.Void Function(
                           ffi.Pointer<ffi.Void>,
-                          ffi.Pointer<ffi.Int8>,
+                          ffi.Pointer<ffi.Char>,
                           ffi.Pointer<realm_app_error_t>)>>,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>>('realm_app_call_function');
@@ -136,12 +136,12 @@ class RealmLibrary {
       int Function(
           ffi.Pointer<realm_app_t>,
           ffi.Pointer<realm_user_t>,
-          ffi.Pointer<ffi.Int8>,
-          ffi.Pointer<ffi.Int8>,
+          ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>,
           ffi.Pointer<
               ffi.NativeFunction<
                   ffi.Void Function(ffi.Pointer<ffi.Void>,
-                      ffi.Pointer<ffi.Int8>, ffi.Pointer<realm_app_error_t>)>>,
+                      ffi.Pointer<ffi.Char>, ffi.Pointer<realm_app_error_t>)>>,
           ffi.Pointer<ffi.Void>,
           realm_free_userdata_func_t)>();
 
@@ -150,7 +150,7 @@ class RealmLibrary {
   /// @param app_id The MongoDB Realm app id.
   /// @param http_transport The HTTP transport used to make network calls.
   ffi.Pointer<realm_app_config_t> realm_app_config_new(
-    ffi.Pointer<ffi.Int8> app_id,
+    ffi.Pointer<ffi.Char> app_id,
     ffi.Pointer<realm_http_transport_t> http_transport,
   ) {
     return _realm_app_config_new(
@@ -161,15 +161,15 @@ class RealmLibrary {
 
   late final _realm_app_config_newPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<realm_app_config_t> Function(ffi.Pointer<ffi.Int8>,
+          ffi.Pointer<realm_app_config_t> Function(ffi.Pointer<ffi.Char>,
               ffi.Pointer<realm_http_transport_t>)>>('realm_app_config_new');
   late final _realm_app_config_new = _realm_app_config_newPtr.asFunction<
       ffi.Pointer<realm_app_config_t> Function(
-          ffi.Pointer<ffi.Int8>, ffi.Pointer<realm_http_transport_t>)>();
+          ffi.Pointer<ffi.Char>, ffi.Pointer<realm_http_transport_t>)>();
 
   void realm_app_config_set_base_url(
     ffi.Pointer<realm_app_config_t> arg0,
-    ffi.Pointer<ffi.Int8> arg1,
+    ffi.Pointer<ffi.Char> arg1,
   ) {
     return _realm_app_config_set_base_url(
       arg0,
@@ -180,11 +180,11 @@ class RealmLibrary {
   late final _realm_app_config_set_base_urlPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<realm_app_config_t>,
-              ffi.Pointer<ffi.Int8>)>>('realm_app_config_set_base_url');
+              ffi.Pointer<ffi.Char>)>>('realm_app_config_set_base_url');
   late final _realm_app_config_set_base_url =
       _realm_app_config_set_base_urlPtr.asFunction<
           void Function(
-              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
   void realm_app_config_set_default_request_timeout(
     ffi.Pointer<realm_app_config_t> arg0,
@@ -206,7 +206,7 @@ class RealmLibrary {
 
   void realm_app_config_set_local_app_name(
     ffi.Pointer<realm_app_config_t> arg0,
-    ffi.Pointer<ffi.Int8> arg1,
+    ffi.Pointer<ffi.Char> arg1,
   ) {
     return _realm_app_config_set_local_app_name(
       arg0,
@@ -217,15 +217,15 @@ class RealmLibrary {
   late final _realm_app_config_set_local_app_namePtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<realm_app_config_t>,
-              ffi.Pointer<ffi.Int8>)>>('realm_app_config_set_local_app_name');
+              ffi.Pointer<ffi.Char>)>>('realm_app_config_set_local_app_name');
   late final _realm_app_config_set_local_app_name =
       _realm_app_config_set_local_app_namePtr.asFunction<
           void Function(
-              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
   void realm_app_config_set_local_app_version(
     ffi.Pointer<realm_app_config_t> arg0,
-    ffi.Pointer<ffi.Int8> arg1,
+    ffi.Pointer<ffi.Char> arg1,
   ) {
     return _realm_app_config_set_local_app_version(
       arg0,
@@ -236,16 +236,16 @@ class RealmLibrary {
   late final _realm_app_config_set_local_app_versionPtr = _lookup<
           ffi.NativeFunction<
               ffi.Void Function(
-                  ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Int8>)>>(
+                  ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>>(
       'realm_app_config_set_local_app_version');
   late final _realm_app_config_set_local_app_version =
       _realm_app_config_set_local_app_versionPtr.asFunction<
           void Function(
-              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
   void realm_app_config_set_platform(
     ffi.Pointer<realm_app_config_t> arg0,
-    ffi.Pointer<ffi.Int8> arg1,
+    ffi.Pointer<ffi.Char> arg1,
   ) {
     return _realm_app_config_set_platform(
       arg0,
@@ -256,15 +256,15 @@ class RealmLibrary {
   late final _realm_app_config_set_platformPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<realm_app_config_t>,
-              ffi.Pointer<ffi.Int8>)>>('realm_app_config_set_platform');
+              ffi.Pointer<ffi.Char>)>>('realm_app_config_set_platform');
   late final _realm_app_config_set_platform =
       _realm_app_config_set_platformPtr.asFunction<
           void Function(
-              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
   void realm_app_config_set_platform_version(
     ffi.Pointer<realm_app_config_t> arg0,
-    ffi.Pointer<ffi.Int8> arg1,
+    ffi.Pointer<ffi.Char> arg1,
   ) {
     return _realm_app_config_set_platform_version(
       arg0,
@@ -275,15 +275,15 @@ class RealmLibrary {
   late final _realm_app_config_set_platform_versionPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<realm_app_config_t>,
-              ffi.Pointer<ffi.Int8>)>>('realm_app_config_set_platform_version');
+              ffi.Pointer<ffi.Char>)>>('realm_app_config_set_platform_version');
   late final _realm_app_config_set_platform_version =
       _realm_app_config_set_platform_versionPtr.asFunction<
           void Function(
-              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
   void realm_app_config_set_sdk_version(
     ffi.Pointer<realm_app_config_t> arg0,
-    ffi.Pointer<ffi.Int8> arg1,
+    ffi.Pointer<ffi.Char> arg1,
   ) {
     return _realm_app_config_set_sdk_version(
       arg0,
@@ -294,11 +294,11 @@ class RealmLibrary {
   late final _realm_app_config_set_sdk_versionPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<realm_app_config_t>,
-              ffi.Pointer<ffi.Int8>)>>('realm_app_config_set_sdk_version');
+              ffi.Pointer<ffi.Char>)>>('realm_app_config_set_sdk_version');
   late final _realm_app_config_set_sdk_version =
       _realm_app_config_set_sdk_versionPtr.asFunction<
           void Function(
-              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_anonymous() {
     return _realm_app_credentials_new_anonymous();
@@ -312,7 +312,7 @@ class RealmLibrary {
           .asFunction<ffi.Pointer<realm_app_credentials_t> Function()>();
 
   ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_apple(
-    ffi.Pointer<ffi.Int8> id_token,
+    ffi.Pointer<ffi.Char> id_token,
   ) {
     return _realm_app_credentials_new_apple(
       id_token,
@@ -322,14 +322,14 @@ class RealmLibrary {
   late final _realm_app_credentials_new_applePtr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<realm_app_credentials_t> Function(
-              ffi.Pointer<ffi.Int8>)>>('realm_app_credentials_new_apple');
+              ffi.Pointer<ffi.Char>)>>('realm_app_credentials_new_apple');
   late final _realm_app_credentials_new_apple =
       _realm_app_credentials_new_applePtr.asFunction<
           ffi.Pointer<realm_app_credentials_t> Function(
-              ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_email_password(
-    ffi.Pointer<ffi.Int8> email,
+    ffi.Pointer<ffi.Char> email,
     realm_string_t password,
   ) {
     return _realm_app_credentials_new_email_password(
@@ -340,15 +340,15 @@ class RealmLibrary {
 
   late final _realm_app_credentials_new_email_passwordPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<realm_app_credentials_t> Function(ffi.Pointer<ffi.Int8>,
+          ffi.Pointer<realm_app_credentials_t> Function(ffi.Pointer<ffi.Char>,
               realm_string_t)>>('realm_app_credentials_new_email_password');
   late final _realm_app_credentials_new_email_password =
       _realm_app_credentials_new_email_passwordPtr.asFunction<
           ffi.Pointer<realm_app_credentials_t> Function(
-              ffi.Pointer<ffi.Int8>, realm_string_t)>();
+              ffi.Pointer<ffi.Char>, realm_string_t)>();
 
   ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_facebook(
-    ffi.Pointer<ffi.Int8> access_token,
+    ffi.Pointer<ffi.Char> access_token,
   ) {
     return _realm_app_credentials_new_facebook(
       access_token,
@@ -358,11 +358,11 @@ class RealmLibrary {
   late final _realm_app_credentials_new_facebookPtr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<realm_app_credentials_t> Function(
-              ffi.Pointer<ffi.Int8>)>>('realm_app_credentials_new_facebook');
+              ffi.Pointer<ffi.Char>)>>('realm_app_credentials_new_facebook');
   late final _realm_app_credentials_new_facebook =
       _realm_app_credentials_new_facebookPtr.asFunction<
           ffi.Pointer<realm_app_credentials_t> Function(
-              ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<ffi.Char>)>();
 
   /// Create Custom Function authentication app credentials.
   ///
@@ -370,7 +370,7 @@ class RealmLibrary {
   /// serialized as an Extended JSON string.
   /// @return null, if an error occurred.
   ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_function(
-    ffi.Pointer<ffi.Int8> serialized_ejson_payload,
+    ffi.Pointer<ffi.Char> serialized_ejson_payload,
   ) {
     return _realm_app_credentials_new_function(
       serialized_ejson_payload,
@@ -380,15 +380,15 @@ class RealmLibrary {
   late final _realm_app_credentials_new_functionPtr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<realm_app_credentials_t> Function(
-              ffi.Pointer<ffi.Int8>)>>('realm_app_credentials_new_function');
+              ffi.Pointer<ffi.Char>)>>('realm_app_credentials_new_function');
   late final _realm_app_credentials_new_function =
       _realm_app_credentials_new_functionPtr.asFunction<
           ffi.Pointer<realm_app_credentials_t> Function(
-              ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<realm_app_credentials_t>
       realm_app_credentials_new_google_auth_code(
-    ffi.Pointer<ffi.Int8> auth_code,
+    ffi.Pointer<ffi.Char> auth_code,
   ) {
     return _realm_app_credentials_new_google_auth_code(
       auth_code,
@@ -398,16 +398,16 @@ class RealmLibrary {
   late final _realm_app_credentials_new_google_auth_codePtr = _lookup<
           ffi.NativeFunction<
               ffi.Pointer<realm_app_credentials_t> Function(
-                  ffi.Pointer<ffi.Int8>)>>(
+                  ffi.Pointer<ffi.Char>)>>(
       'realm_app_credentials_new_google_auth_code');
   late final _realm_app_credentials_new_google_auth_code =
       _realm_app_credentials_new_google_auth_codePtr.asFunction<
           ffi.Pointer<realm_app_credentials_t> Function(
-              ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<realm_app_credentials_t>
       realm_app_credentials_new_google_id_token(
-    ffi.Pointer<ffi.Int8> id_token,
+    ffi.Pointer<ffi.Char> id_token,
   ) {
     return _realm_app_credentials_new_google_id_token(
       id_token,
@@ -417,15 +417,15 @@ class RealmLibrary {
   late final _realm_app_credentials_new_google_id_tokenPtr = _lookup<
           ffi.NativeFunction<
               ffi.Pointer<realm_app_credentials_t> Function(
-                  ffi.Pointer<ffi.Int8>)>>(
+                  ffi.Pointer<ffi.Char>)>>(
       'realm_app_credentials_new_google_id_token');
   late final _realm_app_credentials_new_google_id_token =
       _realm_app_credentials_new_google_id_tokenPtr.asFunction<
           ffi.Pointer<realm_app_credentials_t> Function(
-              ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_jwt(
-    ffi.Pointer<ffi.Int8> jwt_token,
+    ffi.Pointer<ffi.Char> jwt_token,
   ) {
     return _realm_app_credentials_new_jwt(
       jwt_token,
@@ -435,14 +435,14 @@ class RealmLibrary {
   late final _realm_app_credentials_new_jwtPtr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<realm_app_credentials_t> Function(
-              ffi.Pointer<ffi.Int8>)>>('realm_app_credentials_new_jwt');
+              ffi.Pointer<ffi.Char>)>>('realm_app_credentials_new_jwt');
   late final _realm_app_credentials_new_jwt =
       _realm_app_credentials_new_jwtPtr.asFunction<
           ffi.Pointer<realm_app_credentials_t> Function(
-              ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_server_api_key(
-    ffi.Pointer<ffi.Int8> api_key,
+    ffi.Pointer<ffi.Char> api_key,
   ) {
     return _realm_app_credentials_new_server_api_key(
       api_key,
@@ -452,15 +452,15 @@ class RealmLibrary {
   late final _realm_app_credentials_new_server_api_keyPtr = _lookup<
           ffi.NativeFunction<
               ffi.Pointer<realm_app_credentials_t> Function(
-                  ffi.Pointer<ffi.Int8>)>>(
+                  ffi.Pointer<ffi.Char>)>>(
       'realm_app_credentials_new_server_api_key');
   late final _realm_app_credentials_new_server_api_key =
       _realm_app_credentials_new_server_api_keyPtr.asFunction<
           ffi.Pointer<realm_app_credentials_t> Function(
-              ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_user_api_key(
-    ffi.Pointer<ffi.Int8> api_key,
+    ffi.Pointer<ffi.Char> api_key,
   ) {
     return _realm_app_credentials_new_user_api_key(
       api_key,
@@ -470,18 +470,18 @@ class RealmLibrary {
   late final _realm_app_credentials_new_user_api_keyPtr = _lookup<
           ffi.NativeFunction<
               ffi.Pointer<realm_app_credentials_t> Function(
-                  ffi.Pointer<ffi.Int8>)>>(
+                  ffi.Pointer<ffi.Char>)>>(
       'realm_app_credentials_new_user_api_key');
   late final _realm_app_credentials_new_user_api_key =
       _realm_app_credentials_new_user_api_keyPtr.asFunction<
           ffi.Pointer<realm_app_credentials_t> Function(
-              ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<ffi.Char>)>();
 
   /// Get an existing @a realm_app_credentials_t and return it's json representation
   /// Note: the caller must delete the pointer to the string via realm_release
   ///
   /// @return: a non-null ptr to the string representing the json configuration.
-  ffi.Pointer<ffi.Int8> realm_app_credentials_serialize_as_json(
+  ffi.Pointer<ffi.Char> realm_app_credentials_serialize_as_json(
     ffi.Pointer<realm_app_credentials_t> arg0,
   ) {
     return _realm_app_credentials_serialize_as_json(
@@ -491,12 +491,12 @@ class RealmLibrary {
 
   late final _realm_app_credentials_serialize_as_jsonPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Pointer<ffi.Int8> Function(
+              ffi.Pointer<ffi.Char> Function(
                   ffi.Pointer<realm_app_credentials_t>)>>(
       'realm_app_credentials_serialize_as_json');
   late final _realm_app_credentials_serialize_as_json =
       _realm_app_credentials_serialize_as_jsonPtr.asFunction<
-          ffi.Pointer<ffi.Int8> Function(
+          ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<realm_app_credentials_t>)>();
 
   /// Deletes a user and all its data from the server.
@@ -546,9 +546,9 @@ class RealmLibrary {
   /// @return true, if no error occurred.
   bool realm_app_email_password_provider_client_call_reset_password_function(
     ffi.Pointer<realm_app_t> arg0,
-    ffi.Pointer<ffi.Int8> email,
+    ffi.Pointer<ffi.Char> email,
     realm_string_t password,
-    ffi.Pointer<ffi.Int8> serialized_ejson_payload,
+    ffi.Pointer<ffi.Char> serialized_ejson_payload,
     realm_app_void_completion_func_t arg4,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t arg6,
@@ -570,9 +570,9 @@ class RealmLibrary {
               ffi.NativeFunction<
                   ffi.Uint8 Function(
                       ffi.Pointer<realm_app_t>,
-                      ffi.Pointer<ffi.Int8>,
+                      ffi.Pointer<ffi.Char>,
                       realm_string_t,
-                      ffi.Pointer<ffi.Int8>,
+                      ffi.Pointer<ffi.Char>,
                       realm_app_void_completion_func_t,
                       ffi.Pointer<ffi.Void>,
                       realm_free_userdata_func_t)>>(
@@ -582,9 +582,9 @@ class RealmLibrary {
           .asFunction<
               int Function(
                   ffi.Pointer<realm_app_t>,
-                  ffi.Pointer<ffi.Int8>,
+                  ffi.Pointer<ffi.Char>,
                   realm_string_t,
-                  ffi.Pointer<ffi.Int8>,
+                  ffi.Pointer<ffi.Char>,
                   realm_app_void_completion_func_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>();
@@ -599,8 +599,8 @@ class RealmLibrary {
   /// @return True if no error has been recorded, False otherwise
   bool realm_app_email_password_provider_client_confirm_user(
     ffi.Pointer<realm_app_t> app,
-    ffi.Pointer<ffi.Int8> token,
-    ffi.Pointer<ffi.Int8> token_id,
+    ffi.Pointer<ffi.Char> token,
+    ffi.Pointer<ffi.Char> token_id,
     realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
@@ -621,8 +621,8 @@ class RealmLibrary {
               ffi.NativeFunction<
                   ffi.Uint8 Function(
                       ffi.Pointer<realm_app_t>,
-                      ffi.Pointer<ffi.Int8>,
-                      ffi.Pointer<ffi.Int8>,
+                      ffi.Pointer<ffi.Char>,
+                      ffi.Pointer<ffi.Char>,
                       realm_app_void_completion_func_t,
                       ffi.Pointer<ffi.Void>,
                       realm_free_userdata_func_t)>>(
@@ -631,8 +631,8 @@ class RealmLibrary {
       _realm_app_email_password_provider_client_confirm_userPtr.asFunction<
           int Function(
               ffi.Pointer<realm_app_t>,
-              ffi.Pointer<ffi.Int8>,
-              ffi.Pointer<ffi.Int8>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
               realm_app_void_completion_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
@@ -647,7 +647,7 @@ class RealmLibrary {
   /// @return True if no error has been recorded, False otherwise
   bool realm_app_email_password_provider_client_register_email(
     ffi.Pointer<realm_app_t> app,
-    ffi.Pointer<ffi.Int8> email,
+    ffi.Pointer<ffi.Char> email,
     realm_string_t password,
     realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
@@ -669,7 +669,7 @@ class RealmLibrary {
               ffi.NativeFunction<
                   ffi.Uint8 Function(
                       ffi.Pointer<realm_app_t>,
-                      ffi.Pointer<ffi.Int8>,
+                      ffi.Pointer<ffi.Char>,
                       realm_string_t,
                       realm_app_void_completion_func_t,
                       ffi.Pointer<ffi.Void>,
@@ -679,7 +679,7 @@ class RealmLibrary {
       _realm_app_email_password_provider_client_register_emailPtr.asFunction<
           int Function(
               ffi.Pointer<realm_app_t>,
-              ffi.Pointer<ffi.Int8>,
+              ffi.Pointer<ffi.Char>,
               realm_string_t,
               realm_app_void_completion_func_t,
               ffi.Pointer<ffi.Void>,
@@ -694,7 +694,7 @@ class RealmLibrary {
   /// @return True if no error has been recorded, False otherwise
   bool realm_app_email_password_provider_client_resend_confirmation_email(
     ffi.Pointer<realm_app_t> app,
-    ffi.Pointer<ffi.Int8> email,
+    ffi.Pointer<ffi.Char> email,
     realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
@@ -714,7 +714,7 @@ class RealmLibrary {
               ffi.NativeFunction<
                   ffi.Uint8 Function(
                       ffi.Pointer<realm_app_t>,
-                      ffi.Pointer<ffi.Int8>,
+                      ffi.Pointer<ffi.Char>,
                       realm_app_void_completion_func_t,
                       ffi.Pointer<ffi.Void>,
                       realm_free_userdata_func_t)>>(
@@ -724,7 +724,7 @@ class RealmLibrary {
           .asFunction<
               int Function(
                   ffi.Pointer<realm_app_t>,
-                  ffi.Pointer<ffi.Int8>,
+                  ffi.Pointer<ffi.Char>,
                   realm_app_void_completion_func_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>();
@@ -740,8 +740,8 @@ class RealmLibrary {
   bool realm_app_email_password_provider_client_reset_password(
     ffi.Pointer<realm_app_t> app,
     realm_string_t password,
-    ffi.Pointer<ffi.Int8> token,
-    ffi.Pointer<ffi.Int8> token_id,
+    ffi.Pointer<ffi.Char> token,
+    ffi.Pointer<ffi.Char> token_id,
     realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
@@ -764,8 +764,8 @@ class RealmLibrary {
                   ffi.Uint8 Function(
                       ffi.Pointer<realm_app_t>,
                       realm_string_t,
-                      ffi.Pointer<ffi.Int8>,
-                      ffi.Pointer<ffi.Int8>,
+                      ffi.Pointer<ffi.Char>,
+                      ffi.Pointer<ffi.Char>,
                       realm_app_void_completion_func_t,
                       ffi.Pointer<ffi.Void>,
                       realm_free_userdata_func_t)>>(
@@ -775,8 +775,8 @@ class RealmLibrary {
           int Function(
               ffi.Pointer<realm_app_t>,
               realm_string_t,
-              ffi.Pointer<ffi.Int8>,
-              ffi.Pointer<ffi.Int8>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
               realm_app_void_completion_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
@@ -790,7 +790,7 @@ class RealmLibrary {
   /// @return True if no error has been recorded, False otherwise
   bool realm_app_email_password_provider_client_retry_custom_confirmation(
     ffi.Pointer<realm_app_t> app,
-    ffi.Pointer<ffi.Int8> email,
+    ffi.Pointer<ffi.Char> email,
     realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
@@ -810,7 +810,7 @@ class RealmLibrary {
               ffi.NativeFunction<
                   ffi.Uint8 Function(
                       ffi.Pointer<realm_app_t>,
-                      ffi.Pointer<ffi.Int8>,
+                      ffi.Pointer<ffi.Char>,
                       realm_app_void_completion_func_t,
                       ffi.Pointer<ffi.Void>,
                       realm_free_userdata_func_t)>>(
@@ -820,7 +820,7 @@ class RealmLibrary {
           .asFunction<
               int Function(
                   ffi.Pointer<realm_app_t>,
-                  ffi.Pointer<ffi.Int8>,
+                  ffi.Pointer<ffi.Char>,
                   realm_app_void_completion_func_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>();
@@ -834,7 +834,7 @@ class RealmLibrary {
   /// @return True if no error has been recorded, False otherwise
   bool realm_app_email_password_provider_client_send_reset_password_email(
     ffi.Pointer<realm_app_t> app,
-    ffi.Pointer<ffi.Int8> email,
+    ffi.Pointer<ffi.Char> email,
     realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
@@ -854,7 +854,7 @@ class RealmLibrary {
               ffi.NativeFunction<
                   ffi.Uint8 Function(
                       ffi.Pointer<realm_app_t>,
-                      ffi.Pointer<ffi.Int8>,
+                      ffi.Pointer<ffi.Char>,
                       realm_app_void_completion_func_t,
                       ffi.Pointer<ffi.Void>,
                       realm_free_userdata_func_t)>>(
@@ -864,7 +864,7 @@ class RealmLibrary {
           .asFunction<
               int Function(
                   ffi.Pointer<realm_app_t>,
-                  ffi.Pointer<ffi.Int8>,
+                  ffi.Pointer<ffi.Char>,
                   realm_app_void_completion_func_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>();
@@ -907,7 +907,7 @@ class RealmLibrary {
     ffi.Pointer<realm_app_t> app,
     ffi.Pointer<ffi.Pointer<realm_user_t>> out_users,
     int capacity,
-    ffi.Pointer<ffi.IntPtr> out_n,
+    ffi.Pointer<ffi.Size> out_n,
   ) {
     return _realm_app_get_all_users(
           app,
@@ -923,16 +923,16 @@ class RealmLibrary {
           ffi.Uint8 Function(
               ffi.Pointer<realm_app_t>,
               ffi.Pointer<ffi.Pointer<realm_user_t>>,
-              ffi.IntPtr,
-              ffi.Pointer<ffi.IntPtr>)>>('realm_app_get_all_users');
+              ffi.Size,
+              ffi.Pointer<ffi.Size>)>>('realm_app_get_all_users');
   late final _realm_app_get_all_users = _realm_app_get_all_usersPtr.asFunction<
       int Function(
           ffi.Pointer<realm_app_t>,
           ffi.Pointer<ffi.Pointer<realm_user_t>>,
           int,
-          ffi.Pointer<ffi.IntPtr>)>();
+          ffi.Pointer<ffi.Size>)>();
 
-  ffi.Pointer<ffi.Int8> realm_app_get_app_id(
+  ffi.Pointer<ffi.Char> realm_app_get_app_id(
     ffi.Pointer<realm_app_t> arg0,
   ) {
     return _realm_app_get_app_id(
@@ -942,16 +942,16 @@ class RealmLibrary {
 
   late final _realm_app_get_app_idPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<ffi.Int8> Function(
+          ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<realm_app_t>)>>('realm_app_get_app_id');
   late final _realm_app_get_app_id = _realm_app_get_app_idPtr
-      .asFunction<ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_app_t>)>();
+      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_app_t>)>();
 
   /// Get an existing @a realm_app_t* instance from the cache.
   ///
   /// @return Cached app instance, or null if no cached app exists for this @a app_id.
   ffi.Pointer<realm_app_t> realm_app_get_cached(
-    ffi.Pointer<ffi.Int8> app_id,
+    ffi.Pointer<ffi.Char> app_id,
   ) {
     return _realm_app_get_cached(
       app_id,
@@ -961,9 +961,9 @@ class RealmLibrary {
   late final _realm_app_get_cachedPtr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<realm_app_t> Function(
-              ffi.Pointer<ffi.Int8>)>>('realm_app_get_cached');
+              ffi.Pointer<ffi.Char>)>>('realm_app_get_cached');
   late final _realm_app_get_cached = _realm_app_get_cachedPtr
-      .asFunction<ffi.Pointer<realm_app_t> Function(ffi.Pointer<ffi.Int8>)>();
+      .asFunction<ffi.Pointer<realm_app_t> Function(ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<realm_user_t> realm_app_get_current_user(
     ffi.Pointer<realm_app_t> arg0,
@@ -1148,7 +1148,7 @@ class RealmLibrary {
   bool realm_app_push_notification_client_deregister_device(
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
-    ffi.Pointer<ffi.Int8> service_name,
+    ffi.Pointer<ffi.Char> service_name,
     realm_app_void_completion_func_t arg3,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t arg5,
@@ -1169,7 +1169,7 @@ class RealmLibrary {
               ffi.Uint8 Function(
                   ffi.Pointer<realm_app_t>,
                   ffi.Pointer<realm_user_t>,
-                  ffi.Pointer<ffi.Int8>,
+                  ffi.Pointer<ffi.Char>,
                   realm_app_void_completion_func_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>>(
@@ -1179,7 +1179,7 @@ class RealmLibrary {
           int Function(
               ffi.Pointer<realm_app_t>,
               ffi.Pointer<realm_user_t>,
-              ffi.Pointer<ffi.Int8>,
+              ffi.Pointer<ffi.Char>,
               realm_app_void_completion_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
@@ -1187,8 +1187,8 @@ class RealmLibrary {
   bool realm_app_push_notification_client_register_device(
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
-    ffi.Pointer<ffi.Int8> service_name,
-    ffi.Pointer<ffi.Int8> registration_token,
+    ffi.Pointer<ffi.Char> service_name,
+    ffi.Pointer<ffi.Char> registration_token,
     realm_app_void_completion_func_t arg4,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t arg6,
@@ -1210,8 +1210,8 @@ class RealmLibrary {
               ffi.Uint8 Function(
                   ffi.Pointer<realm_app_t>,
                   ffi.Pointer<realm_user_t>,
-                  ffi.Pointer<ffi.Int8>,
-                  ffi.Pointer<ffi.Int8>,
+                  ffi.Pointer<ffi.Char>,
+                  ffi.Pointer<ffi.Char>,
                   realm_app_void_completion_func_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>>(
@@ -1221,8 +1221,8 @@ class RealmLibrary {
           int Function(
               ffi.Pointer<realm_app_t>,
               ffi.Pointer<realm_user_t>,
-              ffi.Pointer<ffi.Int8>,
-              ffi.Pointer<ffi.Int8>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
               realm_app_void_completion_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
@@ -1344,9 +1344,9 @@ class RealmLibrary {
   /// in which case a default name based on the config will be used.
   ///
   /// Return value must be manually released with realm_free().
-  ffi.Pointer<ffi.Int8> realm_app_sync_client_get_default_file_path_for_realm(
+  ffi.Pointer<ffi.Char> realm_app_sync_client_get_default_file_path_for_realm(
     ffi.Pointer<realm_sync_config_t> arg0,
-    ffi.Pointer<ffi.Int8> custom_filename,
+    ffi.Pointer<ffi.Char> custom_filename,
   ) {
     return _realm_app_sync_client_get_default_file_path_for_realm(
       arg0,
@@ -1357,14 +1357,14 @@ class RealmLibrary {
   late final _realm_app_sync_client_get_default_file_path_for_realmPtr =
       _lookup<
               ffi.NativeFunction<
-                  ffi.Pointer<ffi.Int8> Function(
+                  ffi.Pointer<ffi.Char> Function(
                       ffi.Pointer<realm_sync_config_t>,
-                      ffi.Pointer<ffi.Int8>)>>(
+                      ffi.Pointer<ffi.Char>)>>(
           'realm_app_sync_client_get_default_file_path_for_realm');
   late final _realm_app_sync_client_get_default_file_path_for_realm =
       _realm_app_sync_client_get_default_file_path_for_realmPtr.asFunction<
-          ffi.Pointer<ffi.Int8> Function(
-              ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Int8>)>();
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Char>)>();
 
   /// Get whether there are any active sync sessions for this app.
   bool realm_app_sync_client_has_sessions(
@@ -1424,7 +1424,7 @@ class RealmLibrary {
   bool realm_app_user_apikey_provider_client_create_apikey(
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
-    ffi.Pointer<ffi.Int8> name,
+    ffi.Pointer<ffi.Char> name,
     ffi.Pointer<
             ffi.NativeFunction<
                 ffi.Void Function(
@@ -1451,7 +1451,7 @@ class RealmLibrary {
               ffi.Uint8 Function(
                   ffi.Pointer<realm_app_t>,
                   ffi.Pointer<realm_user_t>,
-                  ffi.Pointer<ffi.Int8>,
+                  ffi.Pointer<ffi.Char>,
                   ffi.Pointer<
                       ffi.NativeFunction<
                           ffi.Void Function(
@@ -1466,7 +1466,7 @@ class RealmLibrary {
           int Function(
               ffi.Pointer<realm_app_t>,
               ffi.Pointer<realm_user_t>,
-              ffi.Pointer<ffi.Int8>,
+              ffi.Pointer<ffi.Char>,
               ffi.Pointer<
                   ffi.NativeFunction<
                       ffi.Void Function(
@@ -1656,7 +1656,7 @@ class RealmLibrary {
                 ffi.Void Function(
                     ffi.Pointer<ffi.Void>,
                     ffi.Pointer<realm_app_user_apikey_t>,
-                    ffi.IntPtr,
+                    ffi.Size,
                     ffi.Pointer<realm_app_error_t>)>>
         arg2,
     ffi.Pointer<ffi.Void> userdata,
@@ -1682,7 +1682,7 @@ class RealmLibrary {
                           ffi.Void Function(
                               ffi.Pointer<ffi.Void>,
                               ffi.Pointer<realm_app_user_apikey_t>,
-                              ffi.IntPtr,
+                              ffi.Size,
                               ffi.Pointer<realm_app_error_t>)>>,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>>(
@@ -1697,7 +1697,7 @@ class RealmLibrary {
                       ffi.Void Function(
                           ffi.Pointer<ffi.Void>,
                           ffi.Pointer<realm_app_user_apikey_t>,
-                          ffi.IntPtr,
+                          ffi.Size,
                           ffi.Pointer<realm_app_error_t>)>>,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
@@ -1955,13 +1955,13 @@ class RealmLibrary {
   /// @param max_moves The max number of pairs to write to @a out_moves.
   void realm_collection_changes_get_changes(
     ffi.Pointer<realm_collection_changes_t> arg0,
-    ffi.Pointer<ffi.IntPtr> out_deletion_indices,
+    ffi.Pointer<ffi.Size> out_deletion_indices,
     int max_deletion_indices,
-    ffi.Pointer<ffi.IntPtr> out_insertion_indices,
+    ffi.Pointer<ffi.Size> out_insertion_indices,
     int max_insertion_indices,
-    ffi.Pointer<ffi.IntPtr> out_modification_indices,
+    ffi.Pointer<ffi.Size> out_modification_indices,
     int max_modification_indices,
-    ffi.Pointer<ffi.IntPtr> out_modification_indices_after,
+    ffi.Pointer<ffi.Size> out_modification_indices_after,
     int max_modification_indices_after,
     ffi.Pointer<realm_collection_move_t> out_moves,
     int max_moves,
@@ -1985,27 +1985,27 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Void Function(
               ffi.Pointer<realm_collection_changes_t>,
-              ffi.Pointer<ffi.IntPtr>,
-              ffi.IntPtr,
-              ffi.Pointer<ffi.IntPtr>,
-              ffi.IntPtr,
-              ffi.Pointer<ffi.IntPtr>,
-              ffi.IntPtr,
-              ffi.Pointer<ffi.IntPtr>,
-              ffi.IntPtr,
+              ffi.Pointer<ffi.Size>,
+              ffi.Size,
+              ffi.Pointer<ffi.Size>,
+              ffi.Size,
+              ffi.Pointer<ffi.Size>,
+              ffi.Size,
+              ffi.Pointer<ffi.Size>,
+              ffi.Size,
               ffi.Pointer<realm_collection_move_t>,
-              ffi.IntPtr)>>('realm_collection_changes_get_changes');
+              ffi.Size)>>('realm_collection_changes_get_changes');
   late final _realm_collection_changes_get_changes =
       _realm_collection_changes_get_changesPtr.asFunction<
           void Function(
               ffi.Pointer<realm_collection_changes_t>,
-              ffi.Pointer<ffi.IntPtr>,
+              ffi.Pointer<ffi.Size>,
               int,
-              ffi.Pointer<ffi.IntPtr>,
+              ffi.Pointer<ffi.Size>,
               int,
-              ffi.Pointer<ffi.IntPtr>,
+              ffi.Pointer<ffi.Size>,
               int,
-              ffi.Pointer<ffi.IntPtr>,
+              ffi.Pointer<ffi.Size>,
               int,
               ffi.Pointer<realm_collection_move_t>,
               int)>();
@@ -2018,10 +2018,10 @@ class RealmLibrary {
   /// @param out_num_moves The number of moved elements. May be NULL.
   void realm_collection_changes_get_num_changes(
     ffi.Pointer<realm_collection_changes_t> arg0,
-    ffi.Pointer<ffi.IntPtr> out_num_deletions,
-    ffi.Pointer<ffi.IntPtr> out_num_insertions,
-    ffi.Pointer<ffi.IntPtr> out_num_modifications,
-    ffi.Pointer<ffi.IntPtr> out_num_moves,
+    ffi.Pointer<ffi.Size> out_num_deletions,
+    ffi.Pointer<ffi.Size> out_num_insertions,
+    ffi.Pointer<ffi.Size> out_num_modifications,
+    ffi.Pointer<ffi.Size> out_num_moves,
   ) {
     return _realm_collection_changes_get_num_changes(
       arg0,
@@ -2036,19 +2036,19 @@ class RealmLibrary {
           ffi.NativeFunction<
               ffi.Void Function(
                   ffi.Pointer<realm_collection_changes_t>,
-                  ffi.Pointer<ffi.IntPtr>,
-                  ffi.Pointer<ffi.IntPtr>,
-                  ffi.Pointer<ffi.IntPtr>,
-                  ffi.Pointer<ffi.IntPtr>)>>(
+                  ffi.Pointer<ffi.Size>,
+                  ffi.Pointer<ffi.Size>,
+                  ffi.Pointer<ffi.Size>,
+                  ffi.Pointer<ffi.Size>)>>(
       'realm_collection_changes_get_num_changes');
   late final _realm_collection_changes_get_num_changes =
       _realm_collection_changes_get_num_changesPtr.asFunction<
           void Function(
               ffi.Pointer<realm_collection_changes_t>,
-              ffi.Pointer<ffi.IntPtr>,
-              ffi.Pointer<ffi.IntPtr>,
-              ffi.Pointer<ffi.IntPtr>,
-              ffi.Pointer<ffi.IntPtr>)>();
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<ffi.Size>)>();
 
   /// Get the number of various types of changes in a collection notification,
   /// suitable for acquiring the change indices as ranges, which is much more
@@ -2062,10 +2062,10 @@ class RealmLibrary {
   /// @param out_num_moves The number of moved elements. May be NULL.
   void realm_collection_changes_get_num_ranges(
     ffi.Pointer<realm_collection_changes_t> arg0,
-    ffi.Pointer<ffi.IntPtr> out_num_deletion_ranges,
-    ffi.Pointer<ffi.IntPtr> out_num_insertion_ranges,
-    ffi.Pointer<ffi.IntPtr> out_num_modification_ranges,
-    ffi.Pointer<ffi.IntPtr> out_num_moves,
+    ffi.Pointer<ffi.Size> out_num_deletion_ranges,
+    ffi.Pointer<ffi.Size> out_num_insertion_ranges,
+    ffi.Pointer<ffi.Size> out_num_modification_ranges,
+    ffi.Pointer<ffi.Size> out_num_moves,
   ) {
     return _realm_collection_changes_get_num_ranges(
       arg0,
@@ -2080,19 +2080,19 @@ class RealmLibrary {
           ffi.NativeFunction<
               ffi.Void Function(
                   ffi.Pointer<realm_collection_changes_t>,
-                  ffi.Pointer<ffi.IntPtr>,
-                  ffi.Pointer<ffi.IntPtr>,
-                  ffi.Pointer<ffi.IntPtr>,
-                  ffi.Pointer<ffi.IntPtr>)>>(
+                  ffi.Pointer<ffi.Size>,
+                  ffi.Pointer<ffi.Size>,
+                  ffi.Pointer<ffi.Size>,
+                  ffi.Pointer<ffi.Size>)>>(
       'realm_collection_changes_get_num_ranges');
   late final _realm_collection_changes_get_num_ranges =
       _realm_collection_changes_get_num_rangesPtr.asFunction<
           void Function(
               ffi.Pointer<realm_collection_changes_t>,
-              ffi.Pointer<ffi.IntPtr>,
-              ffi.Pointer<ffi.IntPtr>,
-              ffi.Pointer<ffi.IntPtr>,
-              ffi.Pointer<ffi.IntPtr>)>();
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<ffi.Size>)>();
 
   void realm_collection_changes_get_ranges(
     ffi.Pointer<realm_collection_changes_t> arg0,
@@ -2127,15 +2127,15 @@ class RealmLibrary {
           ffi.Void Function(
               ffi.Pointer<realm_collection_changes_t>,
               ffi.Pointer<realm_index_range_t>,
-              ffi.IntPtr,
+              ffi.Size,
               ffi.Pointer<realm_index_range_t>,
-              ffi.IntPtr,
+              ffi.Size,
               ffi.Pointer<realm_index_range_t>,
-              ffi.IntPtr,
+              ffi.Size,
               ffi.Pointer<realm_index_range_t>,
-              ffi.IntPtr,
+              ffi.Size,
               ffi.Pointer<realm_collection_move_t>,
-              ffi.IntPtr)>>('realm_collection_changes_get_ranges');
+              ffi.Size)>>('realm_collection_changes_get_ranges');
   late final _realm_collection_changes_get_ranges =
       _realm_collection_changes_get_rangesPtr.asFunction<
           void Function(
@@ -2261,14 +2261,14 @@ class RealmLibrary {
 
   late final _realm_config_get_encryption_keyPtr = _lookup<
       ffi.NativeFunction<
-          ffi.IntPtr Function(ffi.Pointer<realm_config_t>,
+          ffi.Size Function(ffi.Pointer<realm_config_t>,
               ffi.Pointer<ffi.Uint8>)>>('realm_config_get_encryption_key');
   late final _realm_config_get_encryption_key =
       _realm_config_get_encryption_keyPtr.asFunction<
           int Function(ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Uint8>)>();
 
   /// Check realm FIFO path
-  ffi.Pointer<ffi.Int8> realm_config_get_fifo_path(
+  ffi.Pointer<ffi.Char> realm_config_get_fifo_path(
     ffi.Pointer<realm_config_t> arg0,
   ) {
     return _realm_config_get_fifo_path(
@@ -2278,11 +2278,11 @@ class RealmLibrary {
 
   late final _realm_config_get_fifo_pathPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<ffi.Int8> Function(
+          ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<realm_config_t>)>>('realm_config_get_fifo_path');
   late final _realm_config_get_fifo_path =
       _realm_config_get_fifo_pathPtr.asFunction<
-          ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_config_t>)>();
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_config_t>)>();
 
   /// Get whether the realm file should be forcibly initialized as a synchronized.
   ///
@@ -2341,7 +2341,7 @@ class RealmLibrary {
   /// Get the path of the realm being opened.
   ///
   /// This function cannot fail.
-  ffi.Pointer<ffi.Int8> realm_config_get_path(
+  ffi.Pointer<ffi.Char> realm_config_get_path(
     ffi.Pointer<realm_config_t> arg0,
   ) {
     return _realm_config_get_path(
@@ -2351,10 +2351,10 @@ class RealmLibrary {
 
   late final _realm_config_get_pathPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<ffi.Int8> Function(
+          ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<realm_config_t>)>>('realm_config_get_path');
   late final _realm_config_get_path = _realm_config_get_pathPtr.asFunction<
-      ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_config_t>)>();
+      ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_config_t>)>();
 
   /// Get the schema for this realm.
   ///
@@ -2568,7 +2568,7 @@ class RealmLibrary {
           ffi.Uint8 Function(
               ffi.Pointer<realm_config_t>,
               ffi.Pointer<ffi.Uint8>,
-              ffi.IntPtr)>>('realm_config_set_encryption_key');
+              ffi.Size)>>('realm_config_set_encryption_key');
   late final _realm_config_set_encryption_key =
       _realm_config_set_encryption_keyPtr.asFunction<
           int Function(
@@ -2577,7 +2577,7 @@ class RealmLibrary {
   /// Set FIFO path
   void realm_config_set_fifo_path(
     ffi.Pointer<realm_config_t> arg0,
-    ffi.Pointer<ffi.Int8> arg1,
+    ffi.Pointer<ffi.Char> arg1,
   ) {
     return _realm_config_set_fifo_path(
       arg0,
@@ -2588,10 +2588,10 @@ class RealmLibrary {
   late final _realm_config_set_fifo_pathPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.Pointer<ffi.Int8>)>>('realm_config_set_fifo_path');
+              ffi.Pointer<ffi.Char>)>>('realm_config_set_fifo_path');
   late final _realm_config_set_fifo_path =
       _realm_config_set_fifo_pathPtr.asFunction<
-          void Function(ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Int8>)>();
+          void Function(ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Char>)>();
 
   /// Force the realm file to be initialized as a synchronized realm, even if no
   /// sync config is provided (default: false).
@@ -2695,7 +2695,7 @@ class RealmLibrary {
   /// This function aborts when out of memory, but otherwise cannot fail.
   void realm_config_set_path(
     ffi.Pointer<realm_config_t> arg0,
-    ffi.Pointer<ffi.Int8> path,
+    ffi.Pointer<ffi.Char> path,
   ) {
     return _realm_config_set_path(
       arg0,
@@ -2706,9 +2706,9 @@ class RealmLibrary {
   late final _realm_config_set_pathPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.Pointer<ffi.Int8>)>>('realm_config_set_path');
+              ffi.Pointer<ffi.Char>)>>('realm_config_set_path');
   late final _realm_config_set_path = _realm_config_set_pathPtr.asFunction<
-      void Function(ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Int8>)>();
+      void Function(ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Char>)>();
 
   /// The scheduler which this realm should be bound to (default: NULL).
   ///
@@ -2911,7 +2911,7 @@ class RealmLibrary {
   /// @param encryption_key The optional encryption key for the new realm.
   bool realm_convert_with_path(
     ffi.Pointer<realm_t> realm,
-    ffi.Pointer<ffi.Int8> path,
+    ffi.Pointer<ffi.Char> path,
     realm_binary_t encryption_key,
   ) {
     return _realm_convert_with_path(
@@ -2924,11 +2924,11 @@ class RealmLibrary {
 
   late final _realm_convert_with_pathPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Uint8 Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Int8>,
+          ffi.Uint8 Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>,
               realm_binary_t)>>('realm_convert_with_path');
   late final _realm_convert_with_path = _realm_convert_with_pathPtr.asFunction<
       int Function(
-          ffi.Pointer<realm_t>, ffi.Pointer<ffi.Int8>, realm_binary_t)>();
+          ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>, realm_binary_t)>();
 
   /// Get a thread-safe reference representing the same underlying object as some
   /// API object.
@@ -2982,7 +2982,7 @@ class RealmLibrary {
   late final _realm_dart_attach_finalizerPtr = _lookup<
       ffi.NativeFunction<
           Dart_FinalizableHandle Function(ffi.Handle, ffi.Pointer<ffi.Void>,
-              ffi.Int32)>>('realm_dart_attach_finalizer');
+              ffi.Int)>>('realm_dart_attach_finalizer');
   late final _realm_dart_attach_finalizer =
       _realm_dart_attach_finalizerPtr.asFunction<
           Dart_FinalizableHandle Function(
@@ -3037,15 +3037,15 @@ class RealmLibrary {
       _realm_dart_delete_persistent_handlePtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
-  ffi.Pointer<ffi.Int8> realm_dart_get_files_path() {
+  ffi.Pointer<ffi.Char> realm_dart_get_files_path() {
     return _realm_dart_get_files_path();
   }
 
   late final _realm_dart_get_files_pathPtr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Int8> Function()>>(
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
           'realm_dart_get_files_path');
   late final _realm_dart_get_files_path = _realm_dart_get_files_pathPtr
-      .asFunction<ffi.Pointer<ffi.Int8> Function()>();
+      .asFunction<ffi.Pointer<ffi.Char> Function()>();
 
   int realm_dart_get_thread_id() {
     return _realm_dart_get_thread_id();
@@ -3410,7 +3410,7 @@ class RealmLibrary {
   /// @throws RLM_ERR_FILE_ACCESS_ERROR for any other error while trying to delete the file or folder.
   /// @throws RLM_ERR_DELETE_OPENED_REALM if the function was called on an open Realm.
   bool realm_delete_files(
-    ffi.Pointer<ffi.Int8> realm_file_path,
+    ffi.Pointer<ffi.Char> realm_file_path,
     ffi.Pointer<ffi.Uint8> did_delete_realm,
   ) {
     return _realm_delete_files(
@@ -3422,10 +3422,10 @@ class RealmLibrary {
 
   late final _realm_delete_filesPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Uint8 Function(ffi.Pointer<ffi.Int8>,
+          ffi.Uint8 Function(ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Uint8>)>>('realm_delete_files');
   late final _realm_delete_files = _realm_delete_filesPtr.asFunction<
-      int Function(ffi.Pointer<ffi.Int8>, ffi.Pointer<ffi.Uint8>)>();
+      int Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Uint8>)>();
 
   /// Subscribe to notifications for this object.
   ///
@@ -3501,7 +3501,7 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Uint8 Function(
               ffi.Pointer<realm_dictionary_t>,
-              ffi.IntPtr,
+              ffi.Size,
               ffi.Pointer<realm_value_t>,
               ffi.Pointer<realm_value_t>)>>('realm_dictionary_assign');
   late final _realm_dictionary_assign = _realm_dictionary_assignPtr.asFunction<
@@ -3636,7 +3636,7 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Uint8 Function(
               ffi.Pointer<realm_dictionary_t>,
-              ffi.IntPtr,
+              ffi.Size,
               ffi.Pointer<realm_value_t>,
               ffi.Pointer<realm_value_t>)>>('realm_dictionary_get');
   late final _realm_dictionary_get = _realm_dictionary_getPtr.asFunction<
@@ -3704,7 +3704,7 @@ class RealmLibrary {
     ffi.Pointer<realm_dictionary_t> arg0,
     realm_value_t key,
     realm_value_t value,
-    ffi.Pointer<ffi.IntPtr> out_index,
+    ffi.Pointer<ffi.Size> out_index,
     ffi.Pointer<ffi.Uint8> out_inserted,
   ) {
     return _realm_dictionary_insert(
@@ -3723,11 +3723,11 @@ class RealmLibrary {
               ffi.Pointer<realm_dictionary_t>,
               realm_value_t,
               realm_value_t,
-              ffi.Pointer<ffi.IntPtr>,
+              ffi.Pointer<ffi.Size>,
               ffi.Pointer<ffi.Uint8>)>>('realm_dictionary_insert');
   late final _realm_dictionary_insert = _realm_dictionary_insertPtr.asFunction<
       int Function(ffi.Pointer<realm_dictionary_t>, realm_value_t,
-          realm_value_t, ffi.Pointer<ffi.IntPtr>, ffi.Pointer<ffi.Uint8>)>();
+          realm_value_t, ffi.Pointer<ffi.Size>, ffi.Pointer<ffi.Uint8>)>();
 
   /// Insert an embedded object.
   ///
@@ -3811,7 +3811,7 @@ class RealmLibrary {
   /// @return True if no exception occurred.
   bool realm_dictionary_size(
     ffi.Pointer<realm_dictionary_t> arg0,
-    ffi.Pointer<ffi.IntPtr> out_size,
+    ffi.Pointer<ffi.Size> out_size,
   ) {
     return _realm_dictionary_size(
           arg0,
@@ -3823,9 +3823,9 @@ class RealmLibrary {
   late final _realm_dictionary_sizePtr = _lookup<
       ffi.NativeFunction<
           ffi.Uint8 Function(ffi.Pointer<realm_dictionary_t>,
-              ffi.Pointer<ffi.IntPtr>)>>('realm_dictionary_size');
+              ffi.Pointer<ffi.Size>)>>('realm_dictionary_size');
   late final _realm_dictionary_size = _realm_dictionary_sizePtr.asFunction<
-      int Function(ffi.Pointer<realm_dictionary_t>, ffi.Pointer<ffi.IntPtr>)>();
+      int Function(ffi.Pointer<realm_dictionary_t>, ffi.Pointer<ffi.Size>)>();
 
   /// Return true if two API objects refer to the same underlying data. Objects
   /// with different types are never equal.
@@ -3879,7 +3879,7 @@ class RealmLibrary {
   /// @return True if no exception occurred.
   bool realm_find_class(
     ffi.Pointer<realm_t> arg0,
-    ffi.Pointer<ffi.Int8> name,
+    ffi.Pointer<ffi.Char> name,
     ffi.Pointer<ffi.Uint8> out_found,
     ffi.Pointer<realm_class_info_t> out_class_info,
   ) {
@@ -3896,11 +3896,11 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Uint8 Function(
               ffi.Pointer<realm_t>,
-              ffi.Pointer<ffi.Int8>,
+              ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Uint8>,
               ffi.Pointer<realm_class_info_t>)>>('realm_find_class');
   late final _realm_find_class = _realm_find_classPtr.asFunction<
-      int Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Int8>,
+      int Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>,
           ffi.Pointer<ffi.Uint8>, ffi.Pointer<realm_class_info_t>)>();
 
   /// Find the primary key property for a class, if it has one.
@@ -3950,7 +3950,7 @@ class RealmLibrary {
   bool realm_find_property(
     ffi.Pointer<realm_t> arg0,
     int class_key,
-    ffi.Pointer<ffi.Int8> name,
+    ffi.Pointer<ffi.Char> name,
     ffi.Pointer<ffi.Uint8> out_found,
     ffi.Pointer<realm_property_info_t> out_property_info,
   ) {
@@ -3969,11 +3969,11 @@ class RealmLibrary {
           ffi.Uint8 Function(
               ffi.Pointer<realm_t>,
               realm_class_key_t,
-              ffi.Pointer<ffi.Int8>,
+              ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Uint8>,
               ffi.Pointer<realm_property_info_t>)>>('realm_find_property');
   late final _realm_find_property = _realm_find_propertyPtr.asFunction<
-      int Function(ffi.Pointer<realm_t>, int, ffi.Pointer<ffi.Int8>,
+      int Function(ffi.Pointer<realm_t>, int, ffi.Pointer<ffi.Char>,
           ffi.Pointer<ffi.Uint8>, ffi.Pointer<realm_property_info_t>)>();
 
   /// Find a property with the public name of @a name.
@@ -3989,7 +3989,7 @@ class RealmLibrary {
   bool realm_find_property_by_public_name(
     ffi.Pointer<realm_t> arg0,
     int class_key,
-    ffi.Pointer<ffi.Int8> public_name,
+    ffi.Pointer<ffi.Char> public_name,
     ffi.Pointer<ffi.Uint8> out_found,
     ffi.Pointer<realm_property_info_t> out_property_info,
   ) {
@@ -4008,13 +4008,13 @@ class RealmLibrary {
               ffi.Uint8 Function(
                   ffi.Pointer<realm_t>,
                   realm_class_key_t,
-                  ffi.Pointer<ffi.Int8>,
+                  ffi.Pointer<ffi.Char>,
                   ffi.Pointer<ffi.Uint8>,
                   ffi.Pointer<realm_property_info_t>)>>(
       'realm_find_property_by_public_name');
   late final _realm_find_property_by_public_name =
       _realm_find_property_by_public_namePtr.asFunction<
-          int Function(ffi.Pointer<realm_t>, int, ffi.Pointer<ffi.Int8>,
+          int Function(ffi.Pointer<realm_t>, int, ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Uint8>, ffi.Pointer<realm_property_info_t>)>();
 
   ffi.Pointer<realm_sync_config_t> realm_flx_sync_config_new(
@@ -4169,7 +4169,7 @@ class RealmLibrary {
     ffi.Pointer<realm_t> arg0,
     ffi.Pointer<realm_class_key_t> out_keys,
     int max,
-    ffi.Pointer<ffi.IntPtr> out_n,
+    ffi.Pointer<ffi.Size> out_n,
   ) {
     return _realm_get_class_keys(
           arg0,
@@ -4185,11 +4185,11 @@ class RealmLibrary {
           ffi.Uint8 Function(
               ffi.Pointer<realm_t>,
               ffi.Pointer<realm_class_key_t>,
-              ffi.IntPtr,
-              ffi.Pointer<ffi.IntPtr>)>>('realm_get_class_keys');
+              ffi.Size,
+              ffi.Pointer<ffi.Size>)>>('realm_get_class_keys');
   late final _realm_get_class_keys = _realm_get_class_keysPtr.asFunction<
       int Function(ffi.Pointer<realm_t>, ffi.Pointer<realm_class_key_t>, int,
-          ffi.Pointer<ffi.IntPtr>)>();
+          ffi.Pointer<ffi.Size>)>();
 
   /// Get the list of properties for the class with this @a key.
   /// In case of errors this function will return false (errors to be fetched via `realm_get_last_error()`).
@@ -4208,7 +4208,7 @@ class RealmLibrary {
     int key,
     ffi.Pointer<realm_property_info_t> out_properties,
     int max,
-    ffi.Pointer<ffi.IntPtr> out_n,
+    ffi.Pointer<ffi.Size> out_n,
   ) {
     return _realm_get_class_properties(
           arg0,
@@ -4226,8 +4226,8 @@ class RealmLibrary {
               ffi.Pointer<realm_t>,
               realm_class_key_t,
               ffi.Pointer<realm_property_info_t>,
-              ffi.IntPtr,
-              ffi.Pointer<ffi.IntPtr>)>>('realm_get_class_properties');
+              ffi.Size,
+              ffi.Pointer<ffi.Size>)>>('realm_get_class_properties');
   late final _realm_get_class_properties =
       _realm_get_class_propertiesPtr.asFunction<
           int Function(
@@ -4235,7 +4235,7 @@ class RealmLibrary {
               int,
               ffi.Pointer<realm_property_info_t>,
               int,
-              ffi.Pointer<ffi.IntPtr>)>();
+              ffi.Pointer<ffi.Size>)>();
 
   /// Get a dictionary instance for the property of an object.
   ///
@@ -4318,15 +4318,15 @@ class RealmLibrary {
   /// Get a string representing the version number of the Realm library.
   ///
   /// @return A null-terminated string.
-  ffi.Pointer<ffi.Int8> realm_get_library_version() {
+  ffi.Pointer<ffi.Char> realm_get_library_version() {
     return _realm_get_library_version();
   }
 
   late final _realm_get_library_versionPtr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Int8> Function()>>(
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
           'realm_get_library_version');
   late final _realm_get_library_version = _realm_get_library_versionPtr
-      .asFunction<ffi.Pointer<ffi.Int8> Function()>();
+      .asFunction<ffi.Pointer<ffi.Char> Function()>();
 
   /// Get individual components of the version number of the Realm library.
   ///
@@ -4335,10 +4335,10 @@ class RealmLibrary {
   /// @param out_patch The patch version number (0.0.X).
   /// @param out_extra The extra version string (0.0.0-X).
   void realm_get_library_version_numbers(
-    ffi.Pointer<ffi.Int32> out_major,
-    ffi.Pointer<ffi.Int32> out_minor,
-    ffi.Pointer<ffi.Int32> out_patch,
-    ffi.Pointer<ffi.Pointer<ffi.Int8>> out_extra,
+    ffi.Pointer<ffi.Int> out_major,
+    ffi.Pointer<ffi.Int> out_minor,
+    ffi.Pointer<ffi.Int> out_patch,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> out_extra,
   ) {
     return _realm_get_library_version_numbers(
       out_major,
@@ -4350,13 +4350,13 @@ class RealmLibrary {
 
   late final _realm_get_library_version_numbersPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<ffi.Int32>, ffi.Pointer<ffi.Int32>,
-                  ffi.Pointer<ffi.Int32>, ffi.Pointer<ffi.Pointer<ffi.Int8>>)>>(
+              ffi.Void Function(ffi.Pointer<ffi.Int>, ffi.Pointer<ffi.Int>,
+                  ffi.Pointer<ffi.Int>, ffi.Pointer<ffi.Pointer<ffi.Char>>)>>(
       'realm_get_library_version_numbers');
   late final _realm_get_library_version_numbers =
       _realm_get_library_version_numbersPtr.asFunction<
-          void Function(ffi.Pointer<ffi.Int32>, ffi.Pointer<ffi.Int32>,
-              ffi.Pointer<ffi.Int32>, ffi.Pointer<ffi.Pointer<ffi.Int8>>)>();
+          void Function(ffi.Pointer<ffi.Int>, ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>, ffi.Pointer<ffi.Pointer<ffi.Char>>)>();
 
   /// Return the object linked by the given property
   ///
@@ -4412,7 +4412,7 @@ class RealmLibrary {
   }
 
   late final _realm_get_num_classesPtr =
-      _lookup<ffi.NativeFunction<ffi.IntPtr Function(ffi.Pointer<realm_t>)>>(
+      _lookup<ffi.NativeFunction<ffi.Size Function(ffi.Pointer<realm_t>)>>(
           'realm_get_num_classes');
   late final _realm_get_num_classes = _realm_get_num_classesPtr
       .asFunction<int Function(ffi.Pointer<realm_t>)>();
@@ -4425,7 +4425,7 @@ class RealmLibrary {
   bool realm_get_num_objects(
     ffi.Pointer<realm_t> arg0,
     int arg1,
-    ffi.Pointer<ffi.IntPtr> out_count,
+    ffi.Pointer<ffi.Size> out_count,
   ) {
     return _realm_get_num_objects(
           arg0,
@@ -4438,9 +4438,9 @@ class RealmLibrary {
   late final _realm_get_num_objectsPtr = _lookup<
       ffi.NativeFunction<
           ffi.Uint8 Function(ffi.Pointer<realm_t>, realm_class_key_t,
-              ffi.Pointer<ffi.IntPtr>)>>('realm_get_num_objects');
+              ffi.Pointer<ffi.Size>)>>('realm_get_num_objects');
   late final _realm_get_num_objects = _realm_get_num_objectsPtr.asFunction<
-      int Function(ffi.Pointer<realm_t>, int, ffi.Pointer<ffi.IntPtr>)>();
+      int Function(ffi.Pointer<realm_t>, int, ffi.Pointer<ffi.Size>)>();
 
   /// Get the number of versions found in the Realm file.
   ///
@@ -4543,7 +4543,7 @@ class RealmLibrary {
     int key,
     ffi.Pointer<realm_property_key_t> out_col_keys,
     int max,
-    ffi.Pointer<ffi.IntPtr> out_n,
+    ffi.Pointer<ffi.Size> out_n,
   ) {
     return _realm_get_property_keys(
           arg0,
@@ -4561,11 +4561,11 @@ class RealmLibrary {
               ffi.Pointer<realm_t>,
               realm_class_key_t,
               ffi.Pointer<realm_property_key_t>,
-              ffi.IntPtr,
-              ffi.Pointer<ffi.IntPtr>)>>('realm_get_property_keys');
+              ffi.Size,
+              ffi.Pointer<ffi.Size>)>>('realm_get_property_keys');
   late final _realm_get_property_keys = _realm_get_property_keysPtr.asFunction<
       int Function(ffi.Pointer<realm_t>, int, ffi.Pointer<realm_property_key_t>,
-          int, ffi.Pointer<ffi.IntPtr>)>();
+          int, ffi.Pointer<ffi.Size>)>();
 
   /// Get the schema for this realm.
   ///
@@ -4687,7 +4687,7 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Uint8 Function(
               ffi.Pointer<realm_object_t>,
-              ffi.IntPtr,
+              ffi.Size,
               ffi.Pointer<realm_property_key_t>,
               ffi.Pointer<realm_value_t>)>>('realm_get_values');
   late final _realm_get_values = _realm_get_valuesPtr.asFunction<
@@ -4893,7 +4893,7 @@ class RealmLibrary {
   late final _realm_list_assignPtr = _lookup<
       ffi.NativeFunction<
           ffi.Uint8 Function(ffi.Pointer<realm_list_t>,
-              ffi.Pointer<realm_value_t>, ffi.IntPtr)>>('realm_list_assign');
+              ffi.Pointer<realm_value_t>, ffi.Size)>>('realm_list_assign');
   late final _realm_list_assign = _realm_list_assignPtr.asFunction<
       int Function(
           ffi.Pointer<realm_list_t>, ffi.Pointer<realm_value_t>, int)>();
@@ -4934,7 +4934,7 @@ class RealmLibrary {
   late final _realm_list_erasePtr = _lookup<
       ffi.NativeFunction<
           ffi.Uint8 Function(
-              ffi.Pointer<realm_list_t>, ffi.IntPtr)>>('realm_list_erase');
+              ffi.Pointer<realm_list_t>, ffi.Size)>>('realm_list_erase');
   late final _realm_list_erase = _realm_list_erasePtr
       .asFunction<int Function(ffi.Pointer<realm_list_t>, int)>();
 
@@ -4980,7 +4980,7 @@ class RealmLibrary {
 
   late final _realm_list_getPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Uint8 Function(ffi.Pointer<realm_list_t>, ffi.IntPtr,
+          ffi.Uint8 Function(ffi.Pointer<realm_list_t>, ffi.Size,
               ffi.Pointer<realm_value_t>)>>('realm_list_get');
   late final _realm_list_get = _realm_list_getPtr.asFunction<
       int Function(
@@ -5002,7 +5002,7 @@ class RealmLibrary {
   late final _realm_list_get_linked_objectPtr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_list_t>,
-              ffi.IntPtr)>>('realm_list_get_linked_object');
+              ffi.Size)>>('realm_list_get_linked_object');
   late final _realm_list_get_linked_object =
       _realm_list_get_linked_objectPtr.asFunction<
           ffi.Pointer<realm_object_t> Function(
@@ -5049,7 +5049,7 @@ class RealmLibrary {
 
   late final _realm_list_insertPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Uint8 Function(ffi.Pointer<realm_list_t>, ffi.IntPtr,
+          ffi.Uint8 Function(ffi.Pointer<realm_list_t>, ffi.Size,
               realm_value_t)>>('realm_list_insert');
   late final _realm_list_insert = _realm_list_insertPtr.asFunction<
       int Function(ffi.Pointer<realm_list_t>, int, realm_value_t)>();
@@ -5070,7 +5070,7 @@ class RealmLibrary {
   late final _realm_list_insert_embeddedPtr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_list_t>,
-              ffi.IntPtr)>>('realm_list_insert_embedded');
+              ffi.Size)>>('realm_list_insert_embedded');
   late final _realm_list_insert_embedded =
       _realm_list_insert_embeddedPtr.asFunction<
           ffi.Pointer<realm_object_t> Function(
@@ -5164,7 +5164,7 @@ class RealmLibrary {
 
   late final _realm_list_setPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Uint8 Function(ffi.Pointer<realm_list_t>, ffi.IntPtr,
+          ffi.Uint8 Function(ffi.Pointer<realm_list_t>, ffi.Size,
               realm_value_t)>>('realm_list_set');
   late final _realm_list_set = _realm_list_setPtr.asFunction<
       int Function(ffi.Pointer<realm_list_t>, int, realm_value_t)>();
@@ -5184,8 +5184,8 @@ class RealmLibrary {
 
   late final _realm_list_set_embeddedPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_list_t>,
-              ffi.IntPtr)>>('realm_list_set_embedded');
+          ffi.Pointer<realm_object_t> Function(
+              ffi.Pointer<realm_list_t>, ffi.Size)>>('realm_list_set_embedded');
   late final _realm_list_set_embedded = _realm_list_set_embeddedPtr.asFunction<
       ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_list_t>, int)>();
 
@@ -5197,7 +5197,7 @@ class RealmLibrary {
   /// @return True if no exception occurred.
   bool realm_list_size(
     ffi.Pointer<realm_list_t> arg0,
-    ffi.Pointer<ffi.IntPtr> out_size,
+    ffi.Pointer<ffi.Size> out_size,
   ) {
     return _realm_list_size(
           arg0,
@@ -5209,9 +5209,9 @@ class RealmLibrary {
   late final _realm_list_sizePtr = _lookup<
       ffi.NativeFunction<
           ffi.Uint8 Function(ffi.Pointer<realm_list_t>,
-              ffi.Pointer<ffi.IntPtr>)>>('realm_list_size');
+              ffi.Pointer<ffi.Size>)>>('realm_list_size');
   late final _realm_list_size = _realm_list_sizePtr.asFunction<
-      int Function(ffi.Pointer<realm_list_t>, ffi.Pointer<ffi.IntPtr>)>();
+      int Function(ffi.Pointer<realm_list_t>, ffi.Pointer<ffi.Size>)>();
 
   /// Subscribe to notifications for this object.
   ///
@@ -5300,10 +5300,10 @@ class RealmLibrary {
 
   late final _realm_object_changes_get_modified_propertiesPtr = _lookup<
       ffi.NativeFunction<
-          ffi.IntPtr Function(
+          ffi.Size Function(
               ffi.Pointer<realm_object_changes_t>,
               ffi.Pointer<realm_property_key_t>,
-              ffi.IntPtr)>>('realm_object_changes_get_modified_properties');
+              ffi.Size)>>('realm_object_changes_get_modified_properties');
   late final _realm_object_changes_get_modified_properties =
       _realm_object_changes_get_modified_propertiesPtr.asFunction<
           int Function(ffi.Pointer<realm_object_changes_t>,
@@ -5322,7 +5322,7 @@ class RealmLibrary {
 
   late final _realm_object_changes_get_num_modified_propertiesPtr = _lookup<
           ffi.NativeFunction<
-              ffi.IntPtr Function(ffi.Pointer<realm_object_changes_t>)>>(
+              ffi.Size Function(ffi.Pointer<realm_object_changes_t>)>>(
       'realm_object_changes_get_num_modified_properties');
   late final _realm_object_changes_get_num_modified_properties =
       _realm_object_changes_get_num_modified_propertiesPtr
@@ -5607,7 +5607,7 @@ class RealmLibrary {
   /// Serializes an object to json and returns it as string. Serializes a single level of properties only.
   ///
   /// @return a json-serialized representation of the object.
-  ffi.Pointer<ffi.Int8> realm_object_to_string(
+  ffi.Pointer<ffi.Char> realm_object_to_string(
     ffi.Pointer<realm_object_t> arg0,
   ) {
     return _realm_object_to_string(
@@ -5617,10 +5617,10 @@ class RealmLibrary {
 
   late final _realm_object_to_stringPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<ffi.Int8> Function(
+          ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<realm_object_t>)>>('realm_object_to_string');
   late final _realm_object_to_string = _realm_object_to_stringPtr.asFunction<
-      ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_object_t>)>();
+      ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_object_t>)>();
 
   /// Open a Realm file.
   ///
@@ -5678,7 +5678,7 @@ class RealmLibrary {
   /// exception occurred.
   ffi.Pointer<realm_query_t> realm_query_append_query(
     ffi.Pointer<realm_query_t> arg0,
-    ffi.Pointer<ffi.Int8> query_string,
+    ffi.Pointer<ffi.Char> query_string,
     int num_args,
     ffi.Pointer<realm_value_t> args,
   ) {
@@ -5694,18 +5694,18 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Pointer<realm_query_t> Function(
               ffi.Pointer<realm_query_t>,
-              ffi.Pointer<ffi.Int8>,
-              ffi.IntPtr,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
               ffi.Pointer<realm_value_t>)>>('realm_query_append_query');
   late final _realm_query_append_query =
       _realm_query_append_queryPtr.asFunction<
           ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_query_t>,
-              ffi.Pointer<ffi.Int8>, int, ffi.Pointer<realm_value_t>)>();
+              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_value_t>)>();
 
   /// Count the number of objects found by this query.
   bool realm_query_count(
     ffi.Pointer<realm_query_t> arg0,
-    ffi.Pointer<ffi.IntPtr> out_count,
+    ffi.Pointer<ffi.Size> out_count,
   ) {
     return _realm_query_count(
           arg0,
@@ -5717,9 +5717,9 @@ class RealmLibrary {
   late final _realm_query_countPtr = _lookup<
       ffi.NativeFunction<
           ffi.Uint8 Function(ffi.Pointer<realm_query_t>,
-              ffi.Pointer<ffi.IntPtr>)>>('realm_query_count');
+              ffi.Pointer<ffi.Size>)>>('realm_query_count');
   late final _realm_query_count = _realm_query_countPtr.asFunction<
-      int Function(ffi.Pointer<realm_query_t>, ffi.Pointer<ffi.IntPtr>)>();
+      int Function(ffi.Pointer<realm_query_t>, ffi.Pointer<ffi.Size>)>();
 
   /// Delete all objects matched by a query.
   bool realm_query_delete_all(
@@ -5794,7 +5794,7 @@ class RealmLibrary {
   /// Get textual representation of query
   ///
   /// @return a string containing the description. The string memory is managed by the query object.
-  ffi.Pointer<ffi.Int8> realm_query_get_description(
+  ffi.Pointer<ffi.Char> realm_query_get_description(
     ffi.Pointer<realm_query_t> arg0,
   ) {
     return _realm_query_get_description(
@@ -5804,10 +5804,10 @@ class RealmLibrary {
 
   late final _realm_query_get_descriptionPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<ffi.Int8> Function(
+          ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<realm_query_t>)>>('realm_query_get_description');
   late final _realm_query_get_description = _realm_query_get_descriptionPtr
-      .asFunction<ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_query_t>)>();
+      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_query_t>)>();
 
   /// Parse a query string and bind it to a table.
   ///
@@ -5825,7 +5825,7 @@ class RealmLibrary {
   ffi.Pointer<realm_query_t> realm_query_parse(
     ffi.Pointer<realm_t> arg0,
     int target_table,
-    ffi.Pointer<ffi.Int8> query_string,
+    ffi.Pointer<ffi.Char> query_string,
     int num_args,
     ffi.Pointer<realm_value_t> args,
   ) {
@@ -5843,12 +5843,12 @@ class RealmLibrary {
           ffi.Pointer<realm_query_t> Function(
               ffi.Pointer<realm_t>,
               realm_class_key_t,
-              ffi.Pointer<ffi.Int8>,
-              ffi.IntPtr,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
               ffi.Pointer<realm_value_t>)>>('realm_query_parse');
   late final _realm_query_parse = _realm_query_parsePtr.asFunction<
       ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_t>, int,
-          ffi.Pointer<ffi.Int8>, int, ffi.Pointer<realm_value_t>)>();
+          ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_value_t>)>();
 
   /// Parse a query string and bind it to a list.
   ///
@@ -5864,7 +5864,7 @@ class RealmLibrary {
   /// exception occurred.
   ffi.Pointer<realm_query_t> realm_query_parse_for_list(
     ffi.Pointer<realm_list_t> target_list,
-    ffi.Pointer<ffi.Int8> query_string,
+    ffi.Pointer<ffi.Char> query_string,
     int num_args,
     ffi.Pointer<realm_value_t> args,
   ) {
@@ -5880,13 +5880,13 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Pointer<realm_query_t> Function(
               ffi.Pointer<realm_list_t>,
-              ffi.Pointer<ffi.Int8>,
-              ffi.IntPtr,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
               ffi.Pointer<realm_value_t>)>>('realm_query_parse_for_list');
   late final _realm_query_parse_for_list =
       _realm_query_parse_for_listPtr.asFunction<
           ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_list_t>,
-              ffi.Pointer<ffi.Int8>, int, ffi.Pointer<realm_value_t>)>();
+              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_value_t>)>();
 
   /// Parse a query string and bind it to another query result.
   ///
@@ -5903,7 +5903,7 @@ class RealmLibrary {
   /// exception occurred.
   ffi.Pointer<realm_query_t> realm_query_parse_for_results(
     ffi.Pointer<realm_results_t> target_results,
-    ffi.Pointer<ffi.Int8> query_string,
+    ffi.Pointer<ffi.Char> query_string,
     int num_args,
     ffi.Pointer<realm_value_t> args,
   ) {
@@ -5919,13 +5919,13 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Pointer<realm_query_t> Function(
               ffi.Pointer<realm_results_t>,
-              ffi.Pointer<ffi.Int8>,
-              ffi.IntPtr,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
               ffi.Pointer<realm_value_t>)>>('realm_query_parse_for_results');
   late final _realm_query_parse_for_results =
       _realm_query_parse_for_resultsPtr.asFunction<
           ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_results_t>,
-              ffi.Pointer<ffi.Int8>, int, ffi.Pointer<realm_value_t>)>();
+              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_value_t>)>();
 
   /// Refresh the view of the realm file.
   ///
@@ -6079,7 +6079,7 @@ class RealmLibrary {
   /// @return True if no exception occurred.
   bool realm_results_count(
     ffi.Pointer<realm_results_t> arg0,
-    ffi.Pointer<ffi.IntPtr> out_count,
+    ffi.Pointer<ffi.Size> out_count,
   ) {
     return _realm_results_count(
           arg0,
@@ -6091,9 +6091,9 @@ class RealmLibrary {
   late final _realm_results_countPtr = _lookup<
       ffi.NativeFunction<
           ffi.Uint8 Function(ffi.Pointer<realm_results_t>,
-              ffi.Pointer<ffi.IntPtr>)>>('realm_results_count');
+              ffi.Pointer<ffi.Size>)>>('realm_results_count');
   late final _realm_results_count = _realm_results_countPtr.asFunction<
-      int Function(ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.IntPtr>)>();
+      int Function(ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Size>)>();
 
   /// Delete all objects in the result.
   ///
@@ -6124,7 +6124,7 @@ class RealmLibrary {
   /// @return A non-null pointer if no exception occurred.
   ffi.Pointer<realm_results_t> realm_results_distinct(
     ffi.Pointer<realm_results_t> results,
-    ffi.Pointer<ffi.Int8> distinct_string,
+    ffi.Pointer<ffi.Char> distinct_string,
   ) {
     return _realm_results_distinct(
       results,
@@ -6135,10 +6135,10 @@ class RealmLibrary {
   late final _realm_results_distinctPtr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>,
-              ffi.Pointer<ffi.Int8>)>>('realm_results_distinct');
+              ffi.Pointer<ffi.Char>)>>('realm_results_distinct');
   late final _realm_results_distinct = _realm_results_distinctPtr.asFunction<
       ffi.Pointer<realm_results_t> Function(
-          ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Int8>)>();
+          ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Char>)>();
 
   /// Create a new results object by further filtering existing result.
   ///
@@ -6211,7 +6211,7 @@ class RealmLibrary {
 
   late final _realm_results_getPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Uint8 Function(ffi.Pointer<realm_results_t>, ffi.IntPtr,
+          ffi.Uint8 Function(ffi.Pointer<realm_results_t>, ffi.Size,
               ffi.Pointer<realm_value_t>)>>('realm_results_get');
   late final _realm_results_get = _realm_results_getPtr.asFunction<
       int Function(
@@ -6243,7 +6243,7 @@ class RealmLibrary {
   late final _realm_results_get_objectPtr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_results_t>,
-              ffi.IntPtr)>>('realm_results_get_object');
+              ffi.Size)>>('realm_results_get_object');
   late final _realm_results_get_object =
       _realm_results_get_objectPtr.asFunction<
           ffi.Pointer<realm_object_t> Function(
@@ -6265,8 +6265,8 @@ class RealmLibrary {
 
   late final _realm_results_limitPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>,
-              ffi.IntPtr)>>('realm_results_limit');
+          ffi.Pointer<realm_results_t> Function(
+              ffi.Pointer<realm_results_t>, ffi.Size)>>('realm_results_limit');
   late final _realm_results_limit = _realm_results_limitPtr.asFunction<
       ffi.Pointer<realm_results_t> Function(
           ffi.Pointer<realm_results_t>, int)>();
@@ -6385,7 +6385,7 @@ class RealmLibrary {
   /// @return A non-null pointer if no exception occurred.
   ffi.Pointer<realm_results_t> realm_results_sort(
     ffi.Pointer<realm_results_t> results,
-    ffi.Pointer<ffi.Int8> sort_string,
+    ffi.Pointer<ffi.Char> sort_string,
   ) {
     return _realm_results_sort(
       results,
@@ -6396,10 +6396,10 @@ class RealmLibrary {
   late final _realm_results_sortPtr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>,
-              ffi.Pointer<ffi.Int8>)>>('realm_results_sort');
+              ffi.Pointer<ffi.Char>)>>('realm_results_sort');
   late final _realm_results_sort = _realm_results_sortPtr.asFunction<
       ffi.Pointer<realm_results_t> Function(
-          ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Int8>)>();
+          ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Char>)>();
 
   /// Compute the sum value of a property in the results.
   ///
@@ -6626,7 +6626,7 @@ class RealmLibrary {
           ffi.NativeFunction<
               ffi.Pointer<realm_schema_t> Function(
                   ffi.Pointer<realm_class_info_t>,
-                  ffi.IntPtr,
+                  ffi.Size,
                   ffi.Pointer<ffi.Pointer<realm_property_info_t>>)>>(
       'realm_schema_new');
   late final _realm_schema_new = _realm_schema_newPtr.asFunction<
@@ -6642,9 +6642,9 @@ class RealmLibrary {
   bool realm_schema_rename_property(
     ffi.Pointer<realm_t> realm,
     ffi.Pointer<realm_schema_t> schema,
-    ffi.Pointer<ffi.Int8> object_type,
-    ffi.Pointer<ffi.Int8> old_name,
-    ffi.Pointer<ffi.Int8> new_name,
+    ffi.Pointer<ffi.Char> object_type,
+    ffi.Pointer<ffi.Char> old_name,
+    ffi.Pointer<ffi.Char> new_name,
   ) {
     return _realm_schema_rename_property(
           realm,
@@ -6661,17 +6661,17 @@ class RealmLibrary {
           ffi.Uint8 Function(
               ffi.Pointer<realm_t>,
               ffi.Pointer<realm_schema_t>,
-              ffi.Pointer<ffi.Int8>,
-              ffi.Pointer<ffi.Int8>,
-              ffi.Pointer<ffi.Int8>)>>('realm_schema_rename_property');
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('realm_schema_rename_property');
   late final _realm_schema_rename_property =
       _realm_schema_rename_propertyPtr.asFunction<
           int Function(
               ffi.Pointer<realm_t>,
               ffi.Pointer<realm_schema_t>,
-              ffi.Pointer<ffi.Int8>,
-              ffi.Pointer<ffi.Int8>,
-              ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>();
 
   /// Validate the schema.
   ///
@@ -6768,7 +6768,7 @@ class RealmLibrary {
   late final _realm_set_assignPtr = _lookup<
       ffi.NativeFunction<
           ffi.Uint8 Function(ffi.Pointer<realm_set_t>,
-              ffi.Pointer<realm_value_t>, ffi.IntPtr)>>('realm_set_assign');
+              ffi.Pointer<realm_value_t>, ffi.Size)>>('realm_set_assign');
   late final _realm_set_assign = _realm_set_assignPtr.asFunction<
       int Function(
           ffi.Pointer<realm_set_t>, ffi.Pointer<realm_value_t>, int)>();
@@ -6855,7 +6855,7 @@ class RealmLibrary {
   bool realm_set_find(
     ffi.Pointer<realm_set_t> arg0,
     realm_value_t value,
-    ffi.Pointer<ffi.IntPtr> out_index,
+    ffi.Pointer<ffi.Size> out_index,
     ffi.Pointer<ffi.Uint8> out_found,
   ) {
     return _realm_set_find(
@@ -6872,11 +6872,11 @@ class RealmLibrary {
           ffi.Uint8 Function(
               ffi.Pointer<realm_set_t>,
               realm_value_t,
-              ffi.Pointer<ffi.IntPtr>,
+              ffi.Pointer<ffi.Size>,
               ffi.Pointer<ffi.Uint8>)>>('realm_set_find');
   late final _realm_set_find = _realm_set_findPtr.asFunction<
       int Function(ffi.Pointer<realm_set_t>, realm_value_t,
-          ffi.Pointer<ffi.IntPtr>, ffi.Pointer<ffi.Uint8>)>();
+          ffi.Pointer<ffi.Size>, ffi.Pointer<ffi.Uint8>)>();
 
   /// Get an set from a thread-safe reference, potentially originating in a
   /// different `realm_t` instance
@@ -6923,7 +6923,7 @@ class RealmLibrary {
 
   late final _realm_set_getPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Uint8 Function(ffi.Pointer<realm_set_t>, ffi.IntPtr,
+          ffi.Uint8 Function(ffi.Pointer<realm_set_t>, ffi.Size,
               ffi.Pointer<realm_value_t>)>>('realm_set_get');
   late final _realm_set_get = _realm_set_getPtr.asFunction<
       int Function(
@@ -6965,7 +6965,7 @@ class RealmLibrary {
   bool realm_set_insert(
     ffi.Pointer<realm_set_t> arg0,
     realm_value_t value,
-    ffi.Pointer<ffi.IntPtr> out_index,
+    ffi.Pointer<ffi.Size> out_index,
     ffi.Pointer<ffi.Uint8> out_inserted,
   ) {
     return _realm_set_insert(
@@ -6982,11 +6982,11 @@ class RealmLibrary {
           ffi.Uint8 Function(
               ffi.Pointer<realm_set_t>,
               realm_value_t,
-              ffi.Pointer<ffi.IntPtr>,
+              ffi.Pointer<ffi.Size>,
               ffi.Pointer<ffi.Uint8>)>>('realm_set_insert');
   late final _realm_set_insert = _realm_set_insertPtr.asFunction<
       int Function(ffi.Pointer<realm_set_t>, realm_value_t,
-          ffi.Pointer<ffi.IntPtr>, ffi.Pointer<ffi.Uint8>)>();
+          ffi.Pointer<ffi.Size>, ffi.Pointer<ffi.Uint8>)>();
 
   /// Check if a set is valid.
   ///
@@ -7062,7 +7062,7 @@ class RealmLibrary {
   /// @return True if no exception occurred.
   bool realm_set_size(
     ffi.Pointer<realm_set_t> arg0,
-    ffi.Pointer<ffi.IntPtr> out_size,
+    ffi.Pointer<ffi.Size> out_size,
   ) {
     return _realm_set_size(
           arg0,
@@ -7074,9 +7074,9 @@ class RealmLibrary {
   late final _realm_set_sizePtr = _lookup<
       ffi.NativeFunction<
           ffi.Uint8 Function(ffi.Pointer<realm_set_t>,
-              ffi.Pointer<ffi.IntPtr>)>>('realm_set_size');
+              ffi.Pointer<ffi.Size>)>>('realm_set_size');
   late final _realm_set_size = _realm_set_sizePtr.asFunction<
-      int Function(ffi.Pointer<realm_set_t>, ffi.Pointer<ffi.IntPtr>)>();
+      int Function(ffi.Pointer<realm_set_t>, ffi.Pointer<ffi.Size>)>();
 
   /// Set the value for a property.
   ///
@@ -7152,7 +7152,7 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Uint8 Function(
               ffi.Pointer<realm_object_t>,
-              ffi.IntPtr,
+              ffi.Size,
               ffi.Pointer<realm_property_key_t>,
               ffi.Pointer<realm_value_t>,
               ffi.Uint8)>>('realm_set_values');
@@ -7177,7 +7177,7 @@ class RealmLibrary {
 
   void realm_sync_client_config_set_base_file_path(
     ffi.Pointer<realm_sync_client_config_t> arg0,
-    ffi.Pointer<ffi.Int8> arg1,
+    ffi.Pointer<ffi.Char> arg1,
   ) {
     return _realm_sync_client_config_set_base_file_path(
       arg0,
@@ -7188,12 +7188,12 @@ class RealmLibrary {
   late final _realm_sync_client_config_set_base_file_pathPtr = _lookup<
           ffi.NativeFunction<
               ffi.Void Function(ffi.Pointer<realm_sync_client_config_t>,
-                  ffi.Pointer<ffi.Int8>)>>(
+                  ffi.Pointer<ffi.Char>)>>(
       'realm_sync_client_config_set_base_file_path');
   late final _realm_sync_client_config_set_base_file_path =
       _realm_sync_client_config_set_base_file_pathPtr.asFunction<
           void Function(ffi.Pointer<realm_sync_client_config_t>,
-              ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<ffi.Char>)>();
 
   void realm_sync_client_config_set_connect_timeout(
     ffi.Pointer<realm_sync_client_config_t> arg0,
@@ -7413,7 +7413,7 @@ class RealmLibrary {
 
   void realm_sync_client_config_set_user_agent_application_info(
     ffi.Pointer<realm_sync_client_config_t> arg0,
-    ffi.Pointer<ffi.Int8> arg1,
+    ffi.Pointer<ffi.Char> arg1,
   ) {
     return _realm_sync_client_config_set_user_agent_application_info(
       arg0,
@@ -7425,16 +7425,16 @@ class RealmLibrary {
       _lookup<
               ffi.NativeFunction<
                   ffi.Void Function(ffi.Pointer<realm_sync_client_config_t>,
-                      ffi.Pointer<ffi.Int8>)>>(
+                      ffi.Pointer<ffi.Char>)>>(
           'realm_sync_client_config_set_user_agent_application_info');
   late final _realm_sync_client_config_set_user_agent_application_info =
       _realm_sync_client_config_set_user_agent_application_infoPtr.asFunction<
           void Function(ffi.Pointer<realm_sync_client_config_t>,
-              ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<ffi.Char>)>();
 
   void realm_sync_client_config_set_user_agent_binding_info(
     ffi.Pointer<realm_sync_client_config_t> arg0,
-    ffi.Pointer<ffi.Int8> arg1,
+    ffi.Pointer<ffi.Char> arg1,
   ) {
     return _realm_sync_client_config_set_user_agent_binding_info(
       arg0,
@@ -7445,16 +7445,16 @@ class RealmLibrary {
   late final _realm_sync_client_config_set_user_agent_binding_infoPtr = _lookup<
           ffi.NativeFunction<
               ffi.Void Function(ffi.Pointer<realm_sync_client_config_t>,
-                  ffi.Pointer<ffi.Int8>)>>(
+                  ffi.Pointer<ffi.Char>)>>(
       'realm_sync_client_config_set_user_agent_binding_info');
   late final _realm_sync_client_config_set_user_agent_binding_info =
       _realm_sync_client_config_set_user_agent_binding_infoPtr.asFunction<
           void Function(ffi.Pointer<realm_sync_client_config_t>,
-              ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<realm_sync_config_t> realm_sync_config_new(
     ffi.Pointer<realm_user_t> arg0,
-    ffi.Pointer<ffi.Int8> partition_value,
+    ffi.Pointer<ffi.Char> partition_value,
   ) {
     return _realm_sync_config_new(
       arg0,
@@ -7465,10 +7465,10 @@ class RealmLibrary {
   late final _realm_sync_config_newPtr = _lookup<
       ffi.NativeFunction<
           ffi.Pointer<realm_sync_config_t> Function(ffi.Pointer<realm_user_t>,
-              ffi.Pointer<ffi.Int8>)>>('realm_sync_config_new');
+              ffi.Pointer<ffi.Char>)>>('realm_sync_config_new');
   late final _realm_sync_config_new = _realm_sync_config_newPtr.asFunction<
       ffi.Pointer<realm_sync_config_t> Function(
-          ffi.Pointer<realm_user_t>, ffi.Pointer<ffi.Int8>)>();
+          ffi.Pointer<realm_user_t>, ffi.Pointer<ffi.Char>)>();
 
   void realm_sync_config_set_after_client_reset_handler(
     ffi.Pointer<realm_sync_config_t> arg0,
@@ -7502,7 +7502,7 @@ class RealmLibrary {
 
   void realm_sync_config_set_authorization_header_name(
     ffi.Pointer<realm_sync_config_t> arg0,
-    ffi.Pointer<ffi.Int8> arg1,
+    ffi.Pointer<ffi.Char> arg1,
   ) {
     return _realm_sync_config_set_authorization_header_name(
       arg0,
@@ -7513,12 +7513,12 @@ class RealmLibrary {
   late final _realm_sync_config_set_authorization_header_namePtr = _lookup<
           ffi.NativeFunction<
               ffi.Void Function(
-                  ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Int8>)>>(
+                  ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Char>)>>(
       'realm_sync_config_set_authorization_header_name');
   late final _realm_sync_config_set_authorization_header_name =
       _realm_sync_config_set_authorization_header_namePtr.asFunction<
           void Function(
-              ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Char>)>();
 
   void realm_sync_config_set_before_client_reset_handler(
     ffi.Pointer<realm_sync_config_t> arg0,
@@ -7588,8 +7588,8 @@ class RealmLibrary {
 
   void realm_sync_config_set_custom_http_header(
     ffi.Pointer<realm_sync_config_t> arg0,
-    ffi.Pointer<ffi.Int8> name,
-    ffi.Pointer<ffi.Int8> value,
+    ffi.Pointer<ffi.Char> name,
+    ffi.Pointer<ffi.Char> value,
   ) {
     return _realm_sync_config_set_custom_http_header(
       arg0,
@@ -7601,12 +7601,12 @@ class RealmLibrary {
   late final _realm_sync_config_set_custom_http_headerPtr = _lookup<
           ffi.NativeFunction<
               ffi.Void Function(ffi.Pointer<realm_sync_config_t>,
-                  ffi.Pointer<ffi.Int8>, ffi.Pointer<ffi.Int8>)>>(
+                  ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>>(
       'realm_sync_config_set_custom_http_header');
   late final _realm_sync_config_set_custom_http_header =
       _realm_sync_config_set_custom_http_headerPtr.asFunction<
-          void Function(ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Int8>,
-              ffi.Pointer<ffi.Int8>)>();
+          void Function(ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>();
 
   void realm_sync_config_set_error_handler(
     ffi.Pointer<realm_sync_config_t> arg0,
@@ -7640,7 +7640,7 @@ class RealmLibrary {
 
   void realm_sync_config_set_recovery_directory_path(
     ffi.Pointer<realm_sync_config_t> arg0,
-    ffi.Pointer<ffi.Int8> arg1,
+    ffi.Pointer<ffi.Char> arg1,
   ) {
     return _realm_sync_config_set_recovery_directory_path(
       arg0,
@@ -7651,12 +7651,12 @@ class RealmLibrary {
   late final _realm_sync_config_set_recovery_directory_pathPtr = _lookup<
           ffi.NativeFunction<
               ffi.Void Function(
-                  ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Int8>)>>(
+                  ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Char>)>>(
       'realm_sync_config_set_recovery_directory_path');
   late final _realm_sync_config_set_recovery_directory_path =
       _realm_sync_config_set_recovery_directory_pathPtr.asFunction<
           void Function(
-              ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Char>)>();
 
   void realm_sync_config_set_resync_mode(
     ffi.Pointer<realm_sync_config_t> arg0,
@@ -7696,7 +7696,7 @@ class RealmLibrary {
 
   void realm_sync_config_set_ssl_trust_certificate_path(
     ffi.Pointer<realm_sync_config_t> arg0,
-    ffi.Pointer<ffi.Int8> arg1,
+    ffi.Pointer<ffi.Char> arg1,
   ) {
     return _realm_sync_config_set_ssl_trust_certificate_path(
       arg0,
@@ -7707,12 +7707,12 @@ class RealmLibrary {
   late final _realm_sync_config_set_ssl_trust_certificate_pathPtr = _lookup<
           ffi.NativeFunction<
               ffi.Void Function(
-                  ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Int8>)>>(
+                  ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Char>)>>(
       'realm_sync_config_set_ssl_trust_certificate_path');
   late final _realm_sync_config_set_ssl_trust_certificate_path =
       _realm_sync_config_set_ssl_trust_certificate_pathPtr.asFunction<
           void Function(
-              ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Char>)>();
 
   void realm_sync_config_set_ssl_verify_callback(
     ffi.Pointer<realm_sync_config_t> arg0,
@@ -7749,7 +7749,7 @@ class RealmLibrary {
   ffi.Pointer<realm_flx_sync_subscription_t>
       realm_sync_find_subscription_by_name(
     ffi.Pointer<realm_flx_sync_subscription_set_t> arg0,
-    ffi.Pointer<ffi.Int8> name,
+    ffi.Pointer<ffi.Char> name,
   ) {
     return _realm_sync_find_subscription_by_name(
       arg0,
@@ -7761,12 +7761,12 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Pointer<realm_flx_sync_subscription_t> Function(
               ffi.Pointer<realm_flx_sync_subscription_set_t>,
-              ffi.Pointer<ffi.Int8>)>>('realm_sync_find_subscription_by_name');
+              ffi.Pointer<ffi.Char>)>>('realm_sync_find_subscription_by_name');
   late final _realm_sync_find_subscription_by_name =
       _realm_sync_find_subscription_by_namePtr.asFunction<
           ffi.Pointer<realm_flx_sync_subscription_t> Function(
               ffi.Pointer<realm_flx_sync_subscription_set_t>,
-              ffi.Pointer<ffi.Int8>)>();
+              ffi.Pointer<ffi.Char>)>();
 
   /// Find subscription associated to the query passed as parameter
   /// @return a pointer to the subscription or nullptr if not found
@@ -7867,7 +7867,7 @@ class RealmLibrary {
   /// @return true if operation was succesful
   bool realm_sync_immediately_run_file_actions(
     ffi.Pointer<realm_app_t> realm_app,
-    ffi.Pointer<ffi.Int8> sync_path,
+    ffi.Pointer<ffi.Char> sync_path,
   ) {
     return _realm_sync_immediately_run_file_actions(
           realm_app,
@@ -7879,11 +7879,11 @@ class RealmLibrary {
   late final _realm_sync_immediately_run_file_actionsPtr = _lookup<
           ffi.NativeFunction<
               ffi.Uint8 Function(
-                  ffi.Pointer<realm_app_t>, ffi.Pointer<ffi.Int8>)>>(
+                  ffi.Pointer<realm_app_t>, ffi.Pointer<ffi.Char>)>>(
       'realm_sync_immediately_run_file_actions');
   late final _realm_sync_immediately_run_file_actions =
       _realm_sync_immediately_run_file_actionsPtr.asFunction<
-          int Function(ffi.Pointer<realm_app_t>, ffi.Pointer<ffi.Int8>)>();
+          int Function(ffi.Pointer<realm_app_t>, ffi.Pointer<ffi.Char>)>();
 
   /// Convert a subscription into a mutable one in order to alter the subscription itself
   /// @return a pointer to a mutable subscription
@@ -8003,7 +8003,7 @@ class RealmLibrary {
           .asFunction<int Function(ffi.Pointer<realm_sync_session_t>)>();
 
   /// Get the filesystem path of the realm file backing this session.
-  ffi.Pointer<ffi.Int8> realm_sync_session_get_file_path(
+  ffi.Pointer<ffi.Char> realm_sync_session_get_file_path(
     ffi.Pointer<realm_sync_session_t> arg0,
   ) {
     return _realm_sync_session_get_file_path(
@@ -8013,14 +8013,14 @@ class RealmLibrary {
 
   late final _realm_sync_session_get_file_pathPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Pointer<ffi.Int8> Function(
+              ffi.Pointer<ffi.Char> Function(
                   ffi.Pointer<realm_sync_session_t>)>>(
       'realm_sync_session_get_file_path');
   late final _realm_sync_session_get_file_path =
       _realm_sync_session_get_file_pathPtr.asFunction<
-          ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_sync_session_t>)>();
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_sync_session_t>)>();
 
-  ffi.Pointer<ffi.Int8> realm_sync_session_get_partition_value(
+  ffi.Pointer<ffi.Char> realm_sync_session_get_partition_value(
     ffi.Pointer<realm_sync_session_t> arg0,
   ) {
     return _realm_sync_session_get_partition_value(
@@ -8030,12 +8030,12 @@ class RealmLibrary {
 
   late final _realm_sync_session_get_partition_valuePtr = _lookup<
           ffi.NativeFunction<
-              ffi.Pointer<ffi.Int8> Function(
+              ffi.Pointer<ffi.Char> Function(
                   ffi.Pointer<realm_sync_session_t>)>>(
       'realm_sync_session_get_partition_value');
   late final _realm_sync_session_get_partition_value =
       _realm_sync_session_get_partition_valuePtr.asFunction<
-          ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_sync_session_t>)>();
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_sync_session_t>)>();
 
   int realm_sync_session_get_state(
     ffi.Pointer<realm_sync_session_t> arg0,
@@ -8303,7 +8303,7 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Pointer<realm_flx_sync_subscription_t> Function(
               ffi.Pointer<realm_flx_sync_subscription_set_t>,
-              ffi.IntPtr)>>('realm_sync_subscription_at');
+              ffi.Size)>>('realm_sync_subscription_at');
   late final _realm_sync_subscription_at =
       _realm_sync_subscription_atPtr.asFunction<
           ffi.Pointer<realm_flx_sync_subscription_t> Function(
@@ -8482,7 +8482,7 @@ class RealmLibrary {
   /// @return true if no error occurred, false otherwise (use realm_get_last_error for fetching the error)
   bool realm_sync_subscription_set_erase_by_name(
     ffi.Pointer<realm_flx_sync_mutable_subscription_set_t> arg0,
-    ffi.Pointer<ffi.Int8> arg1,
+    ffi.Pointer<ffi.Char> arg1,
     ffi.Pointer<ffi.Uint8> erased,
   ) {
     return _realm_sync_subscription_set_erase_by_name(
@@ -8497,13 +8497,13 @@ class RealmLibrary {
           ffi.NativeFunction<
               ffi.Uint8 Function(
                   ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
-                  ffi.Pointer<ffi.Int8>,
+                  ffi.Pointer<ffi.Char>,
                   ffi.Pointer<ffi.Uint8>)>>(
       'realm_sync_subscription_set_erase_by_name');
   late final _realm_sync_subscription_set_erase_by_name =
       _realm_sync_subscription_set_erase_by_namePtr.asFunction<
           int Function(ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
-              ffi.Pointer<ffi.Int8>, ffi.Pointer<ffi.Uint8>)>();
+              ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Uint8>)>();
 
   /// Erase from subscription set by query. If operation completes successfully set the bool out param.
   /// @return true if no error occurred, false otherwise (use realm_get_last_error for fetching the error)
@@ -8561,7 +8561,7 @@ class RealmLibrary {
 
   /// Query subscription set error string
   /// @return error string for the subscription passed as parameter
-  ffi.Pointer<ffi.Int8> realm_sync_subscription_set_error_str(
+  ffi.Pointer<ffi.Char> realm_sync_subscription_set_error_str(
     ffi.Pointer<realm_flx_sync_subscription_set_t> arg0,
   ) {
     return _realm_sync_subscription_set_error_str(
@@ -8571,12 +8571,12 @@ class RealmLibrary {
 
   late final _realm_sync_subscription_set_error_strPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Pointer<ffi.Int8> Function(
+              ffi.Pointer<ffi.Char> Function(
                   ffi.Pointer<realm_flx_sync_subscription_set_t>)>>(
       'realm_sync_subscription_set_error_str');
   late final _realm_sync_subscription_set_error_str =
       _realm_sync_subscription_set_error_strPtr.asFunction<
-          ffi.Pointer<ffi.Int8> Function(
+          ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<realm_flx_sync_subscription_set_t>)>();
 
   /// Insert ot update a query for the subscription set passed as parameter, if successful the index where the query
@@ -8586,8 +8586,8 @@ class RealmLibrary {
   bool realm_sync_subscription_set_insert_or_assign_query(
     ffi.Pointer<realm_flx_sync_mutable_subscription_set_t> arg0,
     ffi.Pointer<realm_query_t> arg1,
-    ffi.Pointer<ffi.Int8> name,
-    ffi.Pointer<ffi.IntPtr> out_index,
+    ffi.Pointer<ffi.Char> name,
+    ffi.Pointer<ffi.Size> out_index,
     ffi.Pointer<ffi.Uint8> out_inserted,
   ) {
     return _realm_sync_subscription_set_insert_or_assign_query(
@@ -8605,8 +8605,8 @@ class RealmLibrary {
               ffi.Uint8 Function(
                   ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
                   ffi.Pointer<realm_query_t>,
-                  ffi.Pointer<ffi.Int8>,
-                  ffi.Pointer<ffi.IntPtr>,
+                  ffi.Pointer<ffi.Char>,
+                  ffi.Pointer<ffi.Size>,
                   ffi.Pointer<ffi.Uint8>)>>(
       'realm_sync_subscription_set_insert_or_assign_query');
   late final _realm_sync_subscription_set_insert_or_assign_query =
@@ -8614,8 +8614,8 @@ class RealmLibrary {
           int Function(
               ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
               ffi.Pointer<realm_query_t>,
-              ffi.Pointer<ffi.Int8>,
-              ffi.Pointer<ffi.IntPtr>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Size>,
               ffi.Pointer<ffi.Uint8>)>();
 
   /// Insert ot update the query contained inside a result object for the subscription set passed as parameter, if
@@ -8625,8 +8625,8 @@ class RealmLibrary {
   bool realm_sync_subscription_set_insert_or_assign_results(
     ffi.Pointer<realm_flx_sync_mutable_subscription_set_t> arg0,
     ffi.Pointer<realm_results_t> arg1,
-    ffi.Pointer<ffi.Int8> name,
-    ffi.Pointer<ffi.IntPtr> out_index,
+    ffi.Pointer<ffi.Char> name,
+    ffi.Pointer<ffi.Size> out_index,
     ffi.Pointer<ffi.Uint8> out_inserted,
   ) {
     return _realm_sync_subscription_set_insert_or_assign_results(
@@ -8644,8 +8644,8 @@ class RealmLibrary {
               ffi.Uint8 Function(
                   ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
                   ffi.Pointer<realm_results_t>,
-                  ffi.Pointer<ffi.Int8>,
-                  ffi.Pointer<ffi.IntPtr>,
+                  ffi.Pointer<ffi.Char>,
+                  ffi.Pointer<ffi.Size>,
                   ffi.Pointer<ffi.Uint8>)>>(
       'realm_sync_subscription_set_insert_or_assign_results');
   late final _realm_sync_subscription_set_insert_or_assign_results =
@@ -8653,8 +8653,8 @@ class RealmLibrary {
           int Function(
               ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
               ffi.Pointer<realm_results_t>,
-              ffi.Pointer<ffi.Int8>,
-              ffi.Pointer<ffi.IntPtr>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Size>,
               ffi.Pointer<ffi.Uint8>)>();
 
   /// Refresh subscription
@@ -8689,7 +8689,7 @@ class RealmLibrary {
 
   late final _realm_sync_subscription_set_sizePtr = _lookup<
           ffi.NativeFunction<
-              ffi.IntPtr Function(
+              ffi.Size Function(
                   ffi.Pointer<realm_flx_sync_subscription_set_t>)>>(
       'realm_sync_subscription_set_size');
   late final _realm_sync_subscription_set_size =
@@ -8842,7 +8842,7 @@ class RealmLibrary {
 
   /// Return the access token associated with the user.
   /// @return a string that rapresents the access token
-  ffi.Pointer<ffi.Int8> realm_user_get_access_token(
+  ffi.Pointer<ffi.Char> realm_user_get_access_token(
     ffi.Pointer<realm_user_t> arg0,
   ) {
     return _realm_user_get_access_token(
@@ -8852,10 +8852,10 @@ class RealmLibrary {
 
   late final _realm_user_get_access_tokenPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<ffi.Int8> Function(
+          ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<realm_user_t>)>>('realm_user_get_access_token');
   late final _realm_user_get_access_token = _realm_user_get_access_tokenPtr
-      .asFunction<ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_user_t>)>();
+      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_user_t>)>();
 
   /// Get the list of identities of this @a user.
   ///
@@ -8869,7 +8869,7 @@ class RealmLibrary {
     ffi.Pointer<realm_user_t> user,
     ffi.Pointer<realm_user_identity_t> out_identities,
     int capacity,
-    ffi.Pointer<ffi.IntPtr> out_n,
+    ffi.Pointer<ffi.Size> out_n,
   ) {
     return _realm_user_get_all_identities(
           user,
@@ -8885,15 +8885,15 @@ class RealmLibrary {
           ffi.Uint8 Function(
               ffi.Pointer<realm_user_t>,
               ffi.Pointer<realm_user_identity_t>,
-              ffi.IntPtr,
-              ffi.Pointer<ffi.IntPtr>)>>('realm_user_get_all_identities');
+              ffi.Size,
+              ffi.Pointer<ffi.Size>)>>('realm_user_get_all_identities');
   late final _realm_user_get_all_identities =
       _realm_user_get_all_identitiesPtr.asFunction<
           int Function(
               ffi.Pointer<realm_user_t>,
               ffi.Pointer<realm_user_identity_t>,
               int,
-              ffi.Pointer<ffi.IntPtr>)>();
+              ffi.Pointer<ffi.Size>)>();
 
   /// Return the realm app for the user passed as parameter.
   /// @return a ptr to the app for the user.
@@ -8932,7 +8932,7 @@ class RealmLibrary {
   ///
   /// @return An Extended JSON document serialized as string,
   /// or null if token doesn't have any custom data.
-  ffi.Pointer<ffi.Int8> realm_user_get_custom_data(
+  ffi.Pointer<ffi.Char> realm_user_get_custom_data(
     ffi.Pointer<realm_user_t> arg0,
   ) {
     return _realm_user_get_custom_data(
@@ -8942,12 +8942,12 @@ class RealmLibrary {
 
   late final _realm_user_get_custom_dataPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<ffi.Int8> Function(
+          ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<realm_user_t>)>>('realm_user_get_custom_data');
   late final _realm_user_get_custom_data = _realm_user_get_custom_dataPtr
-      .asFunction<ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_user_t>)>();
+      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_user_t>)>();
 
-  ffi.Pointer<ffi.Int8> realm_user_get_device_id(
+  ffi.Pointer<ffi.Char> realm_user_get_device_id(
     ffi.Pointer<realm_user_t> arg0,
   ) {
     return _realm_user_get_device_id(
@@ -8957,15 +8957,15 @@ class RealmLibrary {
 
   late final _realm_user_get_device_idPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<ffi.Int8> Function(
+          ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<realm_user_t>)>>('realm_user_get_device_id');
   late final _realm_user_get_device_id = _realm_user_get_device_idPtr
-      .asFunction<ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_user_t>)>();
+      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_user_t>)>();
 
   /// Return the identiy for the user passed as argument
   /// @param user ptr to the user for which the identiy has to be retrieved
   /// @return a ptr to the identity string
-  ffi.Pointer<ffi.Int8> realm_user_get_identity(
+  ffi.Pointer<ffi.Char> realm_user_get_identity(
     ffi.Pointer<realm_user_t> user,
   ) {
     return _realm_user_get_identity(
@@ -8975,12 +8975,12 @@ class RealmLibrary {
 
   late final _realm_user_get_identityPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<ffi.Int8> Function(
+          ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<realm_user_t>)>>('realm_user_get_identity');
   late final _realm_user_get_identity = _realm_user_get_identityPtr
-      .asFunction<ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_user_t>)>();
+      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_user_t>)>();
 
-  ffi.Pointer<ffi.Int8> realm_user_get_local_identity(
+  ffi.Pointer<ffi.Char> realm_user_get_local_identity(
     ffi.Pointer<realm_user_t> arg0,
   ) {
     return _realm_user_get_local_identity(
@@ -8990,10 +8990,10 @@ class RealmLibrary {
 
   late final _realm_user_get_local_identityPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<ffi.Int8> Function(
+          ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<realm_user_t>)>>('realm_user_get_local_identity');
   late final _realm_user_get_local_identity = _realm_user_get_local_identityPtr
-      .asFunction<ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_user_t>)>();
+      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_user_t>)>();
 
   /// Get the user profile associated with this user.
   ///
@@ -9001,7 +9001,7 @@ class RealmLibrary {
   ///
   /// @return An Extended JSON document serialized as string,
   /// or null if an error occurred.
-  ffi.Pointer<ffi.Int8> realm_user_get_profile_data(
+  ffi.Pointer<ffi.Char> realm_user_get_profile_data(
     ffi.Pointer<realm_user_t> arg0,
   ) {
     return _realm_user_get_profile_data(
@@ -9011,14 +9011,14 @@ class RealmLibrary {
 
   late final _realm_user_get_profile_dataPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<ffi.Int8> Function(
+          ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<realm_user_t>)>>('realm_user_get_profile_data');
   late final _realm_user_get_profile_data = _realm_user_get_profile_dataPtr
-      .asFunction<ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_user_t>)>();
+      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_user_t>)>();
 
   /// Return the refresh token associated with the user.
   /// @return a string that represents the refresh token
-  ffi.Pointer<ffi.Int8> realm_user_get_refresh_token(
+  ffi.Pointer<ffi.Char> realm_user_get_refresh_token(
     ffi.Pointer<realm_user_t> arg0,
   ) {
     return _realm_user_get_refresh_token(
@@ -9028,10 +9028,10 @@ class RealmLibrary {
 
   late final _realm_user_get_refresh_tokenPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<ffi.Int8> Function(
+          ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<realm_user_t>)>>('realm_user_get_refresh_token');
   late final _realm_user_get_refresh_token = _realm_user_get_refresh_tokenPtr
-      .asFunction<ffi.Pointer<ffi.Int8> Function(ffi.Pointer<realm_user_t>)>();
+      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_user_t>)>();
 
   /// Retrieve the state for the user passed as argument
   /// @param user ptr to the user for which the state has to be retrieved
@@ -9094,7 +9094,7 @@ class _SymbolAddresses {
   ffi.Pointer<
           ffi.NativeFunction<
               Dart_FinalizableHandle Function(
-                  ffi.Handle, ffi.Pointer<ffi.Void>, ffi.Int32)>>
+                  ffi.Handle, ffi.Pointer<ffi.Void>, ffi.Int)>>
       get realm_dart_attach_finalizer =>
           _library._realm_dart_attach_finalizerPtr;
   ffi.Pointer<
@@ -9110,7 +9110,7 @@ class _SymbolAddresses {
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_delete_persistent_handle =>
           _library._realm_dart_delete_persistent_handlePtr;
-  ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Int8> Function()>>
+  ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
       get realm_dart_get_files_path => _library._realm_dart_get_files_pathPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Uint64 Function()>>
       get realm_dart_get_thread_id => _library._realm_dart_get_thread_idPtr;
@@ -9201,8 +9201,6 @@ class _SymbolAddresses {
 }
 
 typedef Dart_FinalizableHandle = ffi.Pointer<_Dart_FinalizableHandle>;
-
-/// A port is used to send or receive inter-isolate messages
 typedef Dart_Port = ffi.Int64;
 
 class UnnamedUnion1 extends ffi.Union {
@@ -9233,11 +9231,11 @@ class UnnamedUnion1 extends ffi.Union {
   external realm_link_t link;
 
   @ffi.Array.multi([16])
-  external ffi.Array<ffi.Int8> data;
+  external ffi.Array<ffi.Char> data;
 }
 
 class UnnamedUnion2 extends ffi.Union {
-  @ffi.Int32()
+  @ffi.Int()
   external int code;
 
   @ffi.Int32()
@@ -9328,19 +9326,19 @@ class realm_app_error extends ffi.Struct {
   @ffi.Int32()
   external int error_category;
 
-  @ffi.Int32()
+  @ffi.Int()
   external int error_code;
 
   /// The underlying HTTP status code returned by the server,
   /// otherwise zero.
-  @ffi.Int32()
+  @ffi.Int()
   external int http_status_code;
 
-  external ffi.Pointer<ffi.Int8> message;
+  external ffi.Pointer<ffi.Char> message;
 
   /// A link to MongoDB Realm server logs related to the error,
   /// or NULL if error response didn't contain log information.
-  external ffi.Pointer<ffi.Int8> link_to_server_logs;
+  external ffi.Pointer<ffi.Char> link_to_server_logs;
 }
 
 /// Possible error categories the realm_app_error_t error code can fall in.
@@ -9368,9 +9366,9 @@ typedef realm_app_t = realm_app;
 class realm_app_user_apikey extends ffi.Struct {
   external realm_object_id_t id;
 
-  external ffi.Pointer<ffi.Int8> key;
+  external ffi.Pointer<ffi.Char> key;
 
-  external ffi.Pointer<ffi.Int8> name;
+  external ffi.Pointer<ffi.Char> name;
 
   @ffi.Uint8()
   external int disabled;
@@ -9438,7 +9436,7 @@ abstract class realm_auth_provider {
 class realm_binary extends ffi.Struct {
   external ffi.Pointer<ffi.Uint8> data;
 
-  @ffi.IntPtr()
+  @ffi.Size()
   external int size;
 }
 
@@ -9458,20 +9456,20 @@ abstract class realm_class_flags {
 }
 
 class realm_class_info extends ffi.Struct {
-  external ffi.Pointer<ffi.Int8> name;
+  external ffi.Pointer<ffi.Char> name;
 
-  external ffi.Pointer<ffi.Int8> primary_key;
+  external ffi.Pointer<ffi.Char> primary_key;
 
-  @ffi.IntPtr()
+  @ffi.Size()
   external int num_properties;
 
-  @ffi.IntPtr()
+  @ffi.Size()
   external int num_computed_properties;
 
   @realm_class_key_t()
   external int key;
 
-  @ffi.Int32()
+  @ffi.Int()
   external int flags;
 }
 
@@ -9483,10 +9481,10 @@ class realm_collection_changes extends ffi.Opaque {}
 typedef realm_collection_changes_t = realm_collection_changes;
 
 class realm_collection_move extends ffi.Struct {
-  @ffi.IntPtr()
+  @ffi.Size()
   external int from;
 
-  @ffi.IntPtr()
+  @ffi.Size()
   external int to;
 }
 
@@ -9580,7 +9578,7 @@ class realm_error extends ffi.Struct {
   @ffi.Int32()
   external int error;
 
-  external ffi.Pointer<ffi.Int8> message;
+  external ffi.Pointer<ffi.Char> message;
 
   external ffi.Pointer<ffi.Void> usercode_error;
 
@@ -9615,9 +9613,9 @@ typedef realm_free_userdata_func_t
     = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>;
 
 class realm_http_header extends ffi.Struct {
-  external ffi.Pointer<ffi.Int8> name;
+  external ffi.Pointer<ffi.Char> name;
 
-  external ffi.Pointer<ffi.Int8> value;
+  external ffi.Pointer<ffi.Char> value;
 }
 
 typedef realm_http_header_t = realm_http_header;
@@ -9626,19 +9624,19 @@ class realm_http_request extends ffi.Struct {
   @ffi.Int32()
   external int method;
 
-  external ffi.Pointer<ffi.Int8> url;
+  external ffi.Pointer<ffi.Char> url;
 
   @ffi.Uint64()
   external int timeout_ms;
 
   external ffi.Pointer<realm_http_header_t> headers;
 
-  @ffi.IntPtr()
+  @ffi.Size()
   external int num_headers;
 
-  external ffi.Pointer<ffi.Int8> body;
+  external ffi.Pointer<ffi.Char> body;
 
-  @ffi.IntPtr()
+  @ffi.Size()
   external int body_size;
 }
 
@@ -9667,20 +9665,20 @@ abstract class realm_http_request_method {
 typedef realm_http_request_t = realm_http_request;
 
 class realm_http_response extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.Int()
   external int status_code;
 
-  @ffi.Int32()
+  @ffi.Int()
   external int custom_status_code;
 
   external ffi.Pointer<realm_http_header_t> headers;
 
-  @ffi.IntPtr()
+  @ffi.Size()
   external int num_headers;
 
-  external ffi.Pointer<ffi.Int8> body;
+  external ffi.Pointer<ffi.Char> body;
 
-  @ffi.IntPtr()
+  @ffi.Size()
   external int body_size;
 }
 
@@ -9691,24 +9689,24 @@ class realm_http_transport extends ffi.Opaque {}
 typedef realm_http_transport_t = realm_http_transport;
 
 class realm_index_range extends ffi.Struct {
-  @ffi.IntPtr()
+  @ffi.Size()
   external int from;
 
-  @ffi.IntPtr()
+  @ffi.Size()
   external int to;
 }
 
 typedef realm_index_range_t = realm_index_range;
 
 class realm_key_path extends ffi.Struct {
-  @ffi.IntPtr()
+  @ffi.Size()
   external int nb_elements;
 
   external ffi.Pointer<realm_key_path_elem_t> path_elements;
 }
 
 class realm_key_path_array extends ffi.Struct {
-  @ffi.IntPtr()
+  @ffi.Size()
   external int nb_elements;
 
   external ffi.Pointer<realm_key_path_t> paths;
@@ -9743,7 +9741,7 @@ typedef realm_list_t = realm_list;
 typedef realm_log_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(
-            ffi.Pointer<ffi.Void>, ffi.Int32, ffi.Pointer<ffi.Int8>)>>;
+            ffi.Pointer<ffi.Void>, ffi.Int32, ffi.Pointer<ffi.Char>)>>;
 
 abstract class realm_log_level {
   static const int RLM_LOG_LEVEL_ALL = 0;
@@ -9812,9 +9810,9 @@ abstract class realm_property_flags {
 }
 
 class realm_property_info extends ffi.Struct {
-  external ffi.Pointer<ffi.Int8> name;
+  external ffi.Pointer<ffi.Char> name;
 
-  external ffi.Pointer<ffi.Int8> public_name;
+  external ffi.Pointer<ffi.Char> public_name;
 
   @ffi.Int32()
   external int type;
@@ -9822,14 +9820,14 @@ class realm_property_info extends ffi.Struct {
   @ffi.Int32()
   external int collection_type;
 
-  external ffi.Pointer<ffi.Int8> link_target;
+  external ffi.Pointer<ffi.Char> link_target;
 
-  external ffi.Pointer<ffi.Int8> link_origin_property_name;
+  external ffi.Pointer<ffi.Char> link_origin_property_name;
 
   @realm_property_key_t()
   external int key;
 
-  @ffi.Int32()
+  @ffi.Int()
   external int flags;
 }
 
@@ -9905,9 +9903,9 @@ typedef realm_should_compact_on_launch_func_t = ffi.Pointer<
         ffi.Uint8 Function(ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64)>>;
 
 class realm_string extends ffi.Struct {
-  external ffi.Pointer<ffi.Int8> data;
+  external ffi.Pointer<ffi.Char> data;
 
-  @ffi.IntPtr()
+  @ffi.Size()
   external int size;
 }
 
@@ -10035,11 +10033,11 @@ abstract class realm_sync_errno_session {
 class realm_sync_error extends ffi.Struct {
   external realm_sync_error_code_t error_code;
 
-  external ffi.Pointer<ffi.Int8> detailed_message;
+  external ffi.Pointer<ffi.Char> detailed_message;
 
-  external ffi.Pointer<ffi.Int8> c_original_file_path_key;
+  external ffi.Pointer<ffi.Char> c_original_file_path_key;
 
-  external ffi.Pointer<ffi.Int8> c_recovery_file_path_key;
+  external ffi.Pointer<ffi.Char> c_recovery_file_path_key;
 
   @ffi.Uint8()
   external int is_fatal;
@@ -10052,7 +10050,7 @@ class realm_sync_error extends ffi.Struct {
 
   external ffi.Pointer<realm_sync_error_user_info_t> user_info_map;
 
-  @ffi.IntPtr()
+  @ffi.Size()
   external int user_info_length;
 }
 
@@ -10073,10 +10071,10 @@ class realm_sync_error_code extends ffi.Struct {
   @ffi.Int32()
   external int category;
 
-  @ffi.Int32()
+  @ffi.Int()
   external int value;
 
-  external ffi.Pointer<ffi.Int8> message;
+  external ffi.Pointer<ffi.Char> message;
 }
 
 typedef realm_sync_error_code_t = realm_sync_error_code;
@@ -10087,9 +10085,9 @@ typedef realm_sync_error_handler_func_t = ffi.Pointer<
 typedef realm_sync_error_t = realm_sync_error;
 
 class realm_sync_error_user_info extends ffi.Struct {
-  external ffi.Pointer<ffi.Int8> key;
+  external ffi.Pointer<ffi.Char> key;
 
-  external ffi.Pointer<ffi.Int8> value;
+  external ffi.Pointer<ffi.Char> value;
 }
 
 typedef realm_sync_error_user_info_t = realm_sync_error_user_info;
@@ -10128,14 +10126,8 @@ abstract class realm_sync_session_stop_policy {
 typedef realm_sync_session_t = realm_sync_session;
 typedef realm_sync_ssl_verify_func_t = ffi.Pointer<
     ffi.NativeFunction<
-        ffi.Uint8 Function(
-            ffi.Pointer<ffi.Void>,
-            ffi.Pointer<ffi.Int8>,
-            ffi.Int16,
-            ffi.Pointer<ffi.Int8>,
-            ffi.IntPtr,
-            ffi.Int32,
-            ffi.Int32)>>;
+        ffi.Uint8 Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
+            ffi.Short, ffi.Pointer<ffi.Char>, ffi.Size, ffi.Int, ffi.Int)>>;
 typedef realm_sync_upload_completion_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(
@@ -10160,7 +10152,7 @@ class realm_user extends ffi.Opaque {}
 
 class realm_user_identity extends ffi.Struct {
   /// Ptr to null terminated string representing user identity (memory has to be freed by SDK)
-  external ffi.Pointer<ffi.Int8> id;
+  external ffi.Pointer<ffi.Char> id;
 
   /// Enum representing the list of auth providers
   @ffi.Int32()

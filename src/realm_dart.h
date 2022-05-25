@@ -20,7 +20,7 @@
 #define REALM_DART_H
 
 #include <realm.h>
-#include <dart_api_dl.h>
+#include <dart_api.h>
 
 RLM_API void realm_dart_initializeDartApiDL(void* data);
 

@@ -20,7 +20,7 @@
 #define REALM_DART_SCHEDULER_H
 
 #include <realm.h>
-#include <dart_api_dl.h>
+#include <dart_api.h>
 
 RLM_API realm_scheduler_t* realm_dart_create_scheduler(uint64_t isolateId, Dart_Port port);
 

@@ -21,8 +21,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 
-// Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
-import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
+import 'package:ffi/ffi.dart';
 import 'package:logging/logging.dart';
 
 import '../app.dart';
@@ -53,6 +52,8 @@ class _RealmCore {
 
   static const int TRUE = 1;
   static const int FALSE = 0;
+
+  static final emptyStringPtr = calloc<Char>(1);
 
   // Hide the RealmCore class and make it a singleton
   static _RealmCore? _instance;
@@ -99,11 +100,8 @@ class _RealmCore {
         final schemaObject = schema.elementAt(i);
         final classInfo = schemaClasses.elementAt(i).ref;
 
-        classInfo.name = schemaObject.name.toUtf8Ptr(arena);
-        classInfo.primary_key = "".toUtf8Ptr(arena);
+        classInfo.name = schemaObject.name.toNativeUtf8(allocator: arena).cast();
         classInfo.num_properties = schemaObject.properties.length;
-        classInfo.num_computed_properties = 0;
-        classInfo.key = RLM_INVALID_CLASS_KEY;
         classInfo.flags = realm_class_flags.RLM_CLASS_NORMAL;
 
         final propertiesCount = schemaObject.properties.length;
@@ -112,11 +110,17 @@ class _RealmCore {
         for (var j = 0; j < propertiesCount; j++) {
           final schemaProperty = schemaObject.properties[j];
           final propInfo = properties.elementAt(j).ref;
-          propInfo.name = schemaProperty.name.toUtf8Ptr(arena);
+          propInfo.name = schemaProperty.name.toNativeUtf8(allocator: arena).cast();
           //TODO: assign the correct public name value.
-          propInfo.public_name = "".toUtf8Ptr(arena);
-          propInfo.link_target = (schemaProperty.linkTarget ?? "").toUtf8Ptr(arena);
-          propInfo.link_origin_property_name = "".toUtf8Ptr(arena);
+          propInfo.public_name = emptyStringPtr;
+
+          if (schemaProperty.linkTarget != null) {
+            propInfo.link_target = schemaProperty.linkTarget!.toNativeUtf8(allocator: arena).cast();
+          } else {
+            propInfo.link_target = emptyStringPtr;
+          }
+
+          propInfo.link_origin_property_name = emptyStringPtr;
           propInfo.type = schemaProperty.propertyType.index;
           propInfo.collection_type = schemaProperty.collectionType.index;
           propInfo.flags = realm_property_flags.RLM_PROPERTY_NORMAL;
@@ -126,8 +130,10 @@ class _RealmCore {
           }
 
           if (schemaProperty.primaryKey) {
-            classInfo.primary_key = schemaProperty.name.toUtf8Ptr(arena);
+            classInfo.primary_key = schemaProperty.name.toNativeUtf8(allocator: arena).cast();
             propInfo.flags = realm_property_flags.RLM_PROPERTY_PRIMARY_KEY;
+          } else {
+            classInfo.primary_key = emptyStringPtr;
           }
         }
 
@@ -147,11 +153,11 @@ class _RealmCore {
       final configHandle = ConfigHandle._(configPtr);
 
       _realmLib.realm_config_set_schema(configHandle._pointer, schemaHandle._pointer);
-      _realmLib.realm_config_set_path(configHandle._pointer, config.path.toUtf8Ptr(arena));
+      _realmLib.realm_config_set_path(configHandle._pointer, config.path.toNativeUtf8(allocator: arena).cast());
       _realmLib.realm_config_set_scheduler(configHandle._pointer, schedulerHandle._pointer);
 
       if (config.fifoFilesFallbackPath != null) {
-        _realmLib.realm_config_set_fifo_path(configHandle._pointer, config.fifoFilesFallbackPath!.toUtf8Ptr(arena));
+        _realmLib.realm_config_set_fifo_path(configHandle._pointer, config.fifoFilesFallbackPath!.toNativeUtf8(allocator: arena).cast());
       }
 
       // Setting schema version only makes sense for local realms, but core insists it is always set,
@@ -260,7 +266,7 @@ class _RealmCore {
     return using((arena) {
       final result = _realmLib.realm_sync_find_subscription_by_name(
         subscriptions.handle._pointer,
-        name.toUtf8Ptr(arena),
+        name.toNativeUtf8(allocator: arena).cast(),
       );
       return result == nullptr ? null : SubscriptionHandle._(result);
     });
@@ -318,12 +324,12 @@ class _RealmCore {
       }
     }
     return using((arena) {
-      final out_index = arena<IntPtr>();
+      final out_index = arena<Size>();
       final out_inserted = arena<Uint8>();
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_insert_or_assign_results(
             subscriptions.handle._mutablePointer,
             results.handle._pointer,
-            name?.toUtf8Ptr(arena) ?? nullptr,
+            name?.toNativeUtf8(allocator: arena).cast() ?? nullptr,
             out_index,
             out_inserted,
           ));
@@ -348,7 +354,7 @@ class _RealmCore {
       final out_found = arena<Uint8>();
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_erase_by_name(
             subscriptions.handle._mutablePointer,
-            name.toUtf8Ptr(arena),
+            name.toNativeUtf8(allocator: arena).cast(),
             out_found,
           ));
       return out_found.value != 0;
@@ -418,7 +424,8 @@ class _RealmCore {
   void deleteRealmFiles(String path) {
     using((Arena arena) {
       final realm_deleted = arena<Uint8>();
-      _realmLib.invokeGetBool(() => _realmLib.realm_delete_files(path.toUtf8Ptr(arena), realm_deleted), "Error deleting realm at path $path");
+      _realmLib.invokeGetBool(
+          () => _realmLib.realm_delete_files(path.toNativeUtf8(allocator: arena).cast(), realm_deleted), "Error deleting realm at path $path");
     });
   }
 
@@ -458,7 +465,7 @@ class _RealmCore {
     return using((Arena arena) {
       final found = arena<Uint8>();
       final classInfo = arena<realm_class_info_t>();
-      _realmLib.invokeGetBool(() => _realmLib.realm_find_class(realm.handle._pointer, className.toUtf8Ptr(arena), found, classInfo),
+      _realmLib.invokeGetBool(() => _realmLib.realm_find_class(realm.handle._pointer, className.toNativeUtf8(allocator: arena).cast(), found, classInfo),
           "Error getting class $className from realm at ${realm.config.path}");
 
       if (found.value == 0) {
@@ -472,7 +479,7 @@ class _RealmCore {
 
   Map<String, RealmPropertyMetadata> getPropertyMetadata(Realm realm, int classKey) {
     return using((Arena arena) {
-      final propertyCountPtr = arena<IntPtr>();
+      final propertyCountPtr = arena<Size>();
       _realmLib.invokeGetBool(
           () => _realmLib.realm_get_property_keys(realm.handle._pointer, classKey, nullptr, 0, propertyCountPtr), "Error getting property count");
 
@@ -561,7 +568,7 @@ class _RealmCore {
         () => _realmLib.realm_query_parse(
           realm.handle._pointer,
           classKey,
-          query.toUtf8Ptr(arena),
+          query.toNativeUtf8(allocator: arena).cast(),
           length,
           argsPointer,
         ),
@@ -580,7 +587,7 @@ class _RealmCore {
       final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
         () => _realmLib.realm_query_parse_for_results(
           target.handle._pointer,
-          query.toUtf8Ptr(arena),
+          query.toNativeUtf8(allocator: arena).cast(),
           length,
           argsPointer,
         ),
@@ -604,7 +611,7 @@ class _RealmCore {
       final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
         () => _realmLib.realm_query_parse_for_list(
           target.handle._pointer,
-          query.toUtf8Ptr(arena),
+          query.toNativeUtf8(allocator: arena).cast(),
           length,
           argsPointer,
         ),
@@ -620,7 +627,7 @@ class _RealmCore {
 
   int getResultsCount(RealmResults results) {
     return using((Arena arena) {
-      final countPtr = arena<IntPtr>();
+      final countPtr = arena<Size>();
       _realmLib.invokeGetBool(() => _realmLib.realm_results_count(results.handle._pointer, countPtr));
       return countPtr.value;
     });
@@ -628,10 +635,10 @@ class _RealmCore {
 
   CollectionChanges getCollectionChanges(RealmCollectionChangesHandle changes) {
     return using((arena) {
-      final out_num_deletions = arena<IntPtr>();
-      final out_num_insertions = arena<IntPtr>();
-      final out_num_modifications = arena<IntPtr>();
-      final out_num_moves = arena<IntPtr>();
+      final out_num_deletions = arena<Size>();
+      final out_num_insertions = arena<Size>();
+      final out_num_modifications = arena<Size>();
+      final out_num_moves = arena<Size>();
       _realmLib.realm_collection_changes_get_num_changes(
         changes._pointer,
         out_num_deletions,
@@ -645,10 +652,10 @@ class _RealmCore {
       final modificationCount = out_num_modifications != nullptr ? out_num_modifications.value : 0;
       var moveCount = out_num_moves != nullptr ? out_num_moves.value : 0;
 
-      final out_deletion_indexes = arena<IntPtr>(deletionsCount);
-      final out_insertion_indexes = arena<IntPtr>(insertionCount);
-      final out_modification_indexes = arena<IntPtr>(modificationCount);
-      final out_modification_indexes_after = arena<IntPtr>(modificationCount);
+      final out_deletion_indexes = arena<Size>(deletionsCount);
+      final out_insertion_indexes = arena<Size>(insertionCount);
+      final out_modification_indexes = arena<Size>(modificationCount);
+      final out_modification_indexes_after = arena<Size>(modificationCount);
       final out_moves = arena<realm_collection_move_t>(moveCount);
 
       _realmLib.realm_collection_changes_get_changes(
@@ -694,7 +701,7 @@ class _RealmCore {
 
   int getListSize(RealmListHandle handle) {
     return using((Arena arena) {
-      final size = arena<IntPtr>();
+      final size = arena<Size>();
       _realmLib.invokeGetBool(() => _realmLib.realm_list_size(handle._pointer, size));
       return size.value;
     });
@@ -865,25 +872,25 @@ class _RealmCore {
 
   AppConfigHandle _createAppConfig(AppConfiguration configuration, RealmHttpTransportHandle httpTransport) {
     return using((arena) {
-      final app_id = configuration.appId.toUtf8Ptr(arena);
-      final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
+      final app_id = configuration.appId.toNativeUtf8(allocator: arena);
+      final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id.cast(), httpTransport._pointer));
 
-      _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toUtf8Ptr(arena));
+      _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toNativeUtf8(allocator: arena).cast());
 
       _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout.inMilliseconds);
 
       if (configuration.localAppName != null) {
-        _realmLib.realm_app_config_set_local_app_name(handle._pointer, configuration.localAppName!.toUtf8Ptr(arena));
+        _realmLib.realm_app_config_set_local_app_name(handle._pointer, configuration.localAppName!.toNativeUtf8(allocator: arena).cast());
       }
 
       if (configuration.localAppVersion != null) {
-        _realmLib.realm_app_config_set_local_app_version(handle._pointer, configuration.localAppVersion!.toUtf8Ptr(arena));
+        _realmLib.realm_app_config_set_local_app_version(handle._pointer, configuration.localAppVersion!.toNativeUtf8(allocator: arena).cast());
       }
 
-      _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toUtf8Ptr(arena));
-      _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toUtf8Ptr(arena));
+      _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toNativeUtf8(allocator: arena).cast());
+      _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toNativeUtf8(allocator: arena).cast());
 
-      _realmLib.realm_app_config_set_sdk_version(handle._pointer, libraryVersion.toUtf8Ptr(arena));
+      _realmLib.realm_app_config_set_sdk_version(handle._pointer, libraryVersion.toNativeUtf8(allocator: arena).cast());
 
       return handle;
     });
@@ -895,9 +902,9 @@ class _RealmCore {
 
   RealmAppCredentialsHandle createAppCredentialsEmailPassword(String email, String password) {
     return using((arena) {
-      final emailPtr = email.toUtf8Ptr(arena);
+      final emailPtr = email.toNativeUtf8(allocator: arena);
       final passwordPtr = password.toRealmString(arena);
-      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_email_password(emailPtr, passwordPtr.ref));
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_email_password(emailPtr.cast(), passwordPtr.ref));
     });
   }
 
@@ -988,11 +995,15 @@ class _RealmCore {
 
         // Do the call..
         final response = await request.close();
+        // TOOD: this can be optimized to write directly to the arena-allocated buffer
         final responseBody = await response.fold<List<int>>([], (acc, l) => acc..addAll(l)); // gather response
+
+        final responseBuffer = arena<Uint8>(responseBody.length);
+        responseBuffer.asTypedList(responseBody.length).setAll(0, responseBody);
 
         // Report back to core
         responseRef.status_code = response.statusCode;
-        responseRef.body = responseBody.toInt8Ptr(arena);
+        responseRef.body = responseBuffer.cast();
         responseRef.body_size = responseBody.length;
 
         int headerCnt = 0;
@@ -1007,8 +1018,8 @@ class _RealmCore {
         response.headers.forEach((name, values) {
           for (final value in values) {
             final headerRef = responseRef.headers.elementAt(index).ref;
-            headerRef.name = name.toUtf8Ptr(arena);
-            headerRef.value = value.toUtf8Ptr(arena);
+            headerRef.name = name.toNativeUtf8(allocator: arena).cast();
+            headerRef.value = value.toNativeUtf8(allocator: arena).cast();
             index++;
           }
         });
@@ -1027,7 +1038,7 @@ class _RealmCore {
     });
   }
 
-  static void _logCallback(Pointer<Void> userdata, int levelAsInt, Pointer<Int8> message) {
+  static void _logCallback(Pointer<Void> userdata, int levelAsInt, Pointer<Char> message) {
     try {
       final logger = Realm.logger;
       final level = _LogLevel.values[levelAsInt].loggerLevel;
@@ -1045,9 +1056,9 @@ class _RealmCore {
     return using((arena) {
       final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
 
-      _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toUtf8Ptr(arena));
+      _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toNativeUtf8(allocator: arena).cast());
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
-      
+
       _realmLib.realm_sync_client_config_set_log_level(handle._pointer, _LogLevel.fromLevel(Realm.logger.level).index);
       _realmLib.realm_dart_sync_client_config_set_log_callback(
         handle._pointer,
@@ -1056,10 +1067,10 @@ class _RealmCore {
         nullptr,
         scheduler.handle._pointer,
       );
-      
+
       _realmLib.realm_sync_client_config_set_connect_timeout(handle._pointer, configuration.maxConnectionTimeout.inMicroseconds);
       if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
-        _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
+        _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Buffer(arena));
       }
 
       return handle;
@@ -1133,7 +1144,7 @@ class _RealmCore {
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_register_email(
             app.handle._pointer,
-            email.toUtf8Ptr(arena),
+            email.toNativeUtf8(allocator: arena).cast(),
             password.toRealmString(arena).ref,
             Pointer.fromFunction(void_completion_callback),
             completer.toPersistentHandle(),
@@ -1148,8 +1159,8 @@ class _RealmCore {
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_confirm_user(
             app.handle._pointer,
-            token.toUtf8Ptr(arena),
-            tokenId.toUtf8Ptr(arena),
+            token.toNativeUtf8(allocator: arena).cast(),
+            tokenId.toNativeUtf8(allocator: arena).cast(),
             Pointer.fromFunction(void_completion_callback),
             completer.toPersistentHandle(),
             _realmLib.addresses.realm_dart_delete_persistent_handle,
@@ -1163,7 +1174,7 @@ class _RealmCore {
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_resend_confirmation_email(
             app.handle._pointer,
-            email.toUtf8Ptr(arena),
+            email.toNativeUtf8(allocator: arena).cast(),
             Pointer.fromFunction(void_completion_callback),
             completer.toPersistentHandle(),
             _realmLib.addresses.realm_dart_delete_persistent_handle,
@@ -1178,8 +1189,8 @@ class _RealmCore {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_reset_password(
             app.handle._pointer,
             password.toRealmString(arena).ref,
-            token.toUtf8Ptr(arena),
-            tokenId.toUtf8Ptr(arena),
+            token.toNativeUtf8(allocator: arena).cast(),
+            tokenId.toNativeUtf8(allocator: arena).cast(),
             Pointer.fromFunction(void_completion_callback),
             completer.toPersistentHandle(),
             _realmLib.addresses.realm_dart_delete_persistent_handle,
@@ -1193,7 +1204,7 @@ class _RealmCore {
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_send_reset_password_email(
             app.handle._pointer,
-            email.toUtf8Ptr(arena),
+            email.toNativeUtf8(allocator: arena).cast(),
             Pointer.fromFunction(void_completion_callback),
             completer.toPersistentHandle(),
             _realmLib.addresses.realm_dart_delete_persistent_handle,
@@ -1207,9 +1218,9 @@ class _RealmCore {
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_call_reset_password_function(
             app.handle._pointer,
-            email.toUtf8Ptr(arena),
+            email.toNativeUtf8(allocator: arena).cast(),
             password.toRealmString(arena).ref,
-            argsAsJSON != null ? argsAsJSON.toUtf8Ptr(arena) : nullptr,
+            argsAsJSON != null ? argsAsJSON.toNativeUtf8(allocator: arena).cast() : nullptr,
             Pointer.fromFunction(void_completion_callback),
             completer.toPersistentHandle(),
             _realmLib.addresses.realm_dart_delete_persistent_handle,
@@ -1223,7 +1234,7 @@ class _RealmCore {
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_retry_custom_confirmation(
             app.handle._pointer,
-            email.toUtf8Ptr(arena),
+            email.toNativeUtf8(allocator: arena).cast(),
             Pointer.fromFunction(void_completion_callback),
             completer.toPersistentHandle(),
             _realmLib.addresses.realm_dart_delete_persistent_handle,
@@ -1286,7 +1297,7 @@ class _RealmCore {
 
   List<UserHandle> getUsers(App app) {
     return using((arena) {
-      final usersCount = arena<IntPtr>();
+      final usersCount = arena<Size>();
       _realmLib.invokeGetBool(() => _realmLib.realm_app_get_all_users(app.handle._pointer, nullptr, 0, usersCount));
 
       final usersPtr = arena<Pointer<realm_user>>(usersCount.value);
@@ -1390,7 +1401,7 @@ class _RealmCore {
   List<UserIdentity> userGetIdentities(User user) {
     return using((arena) {
       //TODO: This approach is prone to race conditions. Fix this once Core changes how count is retrieved.
-      final idsCount = arena<IntPtr>();
+      final idsCount = arena<Size>();
       _realmLib.invokeGetBool(
           () => _realmLib.realm_user_get_all_identities(user.handle._pointer, nullptr, 0, idsCount), "Error while getting user identities count");
 
@@ -1674,32 +1685,46 @@ class SessionHandle extends ReleasableHandle<realm_sync_session_t> {
 }
 
 extension on List<int> {
-  Pointer<Int8> toInt8Ptr(Allocator allocator) {
-    return toUint8Ptr(allocator).cast();
-  }
-
-  Pointer<Uint8> toUint8Ptr(Allocator allocator) {
-    final nativeSize = length + 1;
-    final result = allocator<Uint8>(nativeSize);
-    final Uint8List native = result.asTypedList(nativeSize);
-    native.setAll(0, this); // copy
-    native.last = 0; // zero terminate
-    return result.cast();
+  Pointer<Uint8> toUint8Buffer(Allocator allocator) {
+    final buffer = allocator.allocate<Uint8>(length);
+    for (int i = 0; i < length; i++) {
+      buffer[i] = this[i];
+    }
+    return buffer;
   }
 }
 
-extension _StringEx on String {
-  Pointer<Int8> toUtf8Ptr(Allocator allocator) {
+extension _RealmString on String {
+  Pointer<realm_string_t> toRealmString(Allocator allocator) {
     final units = utf8.encode(this);
-    return units.toInt8Ptr(allocator);
+
+    // We optimize and cheat by allocating a single buffer to hold both the realm_string_t and the string data.
+    // However, we need to allocate the buffer in a way that respects the alignment rules of the realm_string_t struct,
+    // and while we could use allocator.allocate(byteCount, alignment: xyz), there isn't an alignOf() equivalent to sizeOf()
+    // that would allow us to get the alignment of the struct to pass to allocator.allocate().
+    // That's why we allocate an array of realm_string_t, where the first element is the one we care about, and the rest
+    // of the array is big enough to hold the raw string buffer.
+    final string = allocator<realm_string_t>(1 + (units.length / sizeOf<realm_string>()).ceil());
+    final data = string.elementAt(1).cast<Uint8>();
+
+    _populateRealmString(units, string.ref, data);
+
+    return string;
   }
 
-  Pointer<realm_string_t> toRealmString(Allocator allocator) {
-    final realm_string = allocator<realm_string_t>();
-    realm_string.ref.data = toUtf8Ptr(allocator);
+  void writeToRealmString(realm_string_t string, Allocator allocator) {
     final units = utf8.encode(this);
-    realm_string.ref.size = units.length + 1;
-    return realm_string;
+    final nativeStringBuffer = allocator<Uint8>(units.length);
+
+    _populateRealmString(units, string, nativeStringBuffer);
+  }
+
+  static void _populateRealmString(List<int> utf8Units, realm_string_t string, Pointer<Uint8> buffer) {
+    final nativeString = buffer.asTypedList(utf8Units.length);
+    nativeString.setAll(0, utf8Units);
+
+    string.data = buffer.cast();
+    string.size = nativeString.length;
   }
 }
 
@@ -1750,12 +1775,7 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
         break;
       case String:
         String string = value as String;
-        final units = utf8.encode(string);
-        final result = allocator<Uint8>(units.length);
-        final Uint8List nativeString = result.asTypedList(units.length);
-        nativeString.setAll(0, units);
-        realm_value.ref.values.string.data = result.cast();
-        realm_value.ref.values.string.size = units.length;
+        string.writeToRealmString(realm_value.ref.values.string, allocator);
         realm_value.ref.type = realm_value_type.RLM_TYPE_STRING;
         break;
       case double:
@@ -1835,7 +1855,7 @@ extension on Pointer<realm_value_t> {
   }
 }
 
-extension on Pointer<IntPtr> {
+extension on Pointer<Size> {
   List<int> toIntList(int count) {
     List<int> result = List.filled(count, elementAt(0).value);
     for (var i = 1; i < count; i++) {
