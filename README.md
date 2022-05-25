@@ -371,7 +371,7 @@ The Realm Dart package is `realm_dart`
 
 ## Running tests
 
-See test/README.md for instructions on running tests.
+See [test/README.md](https://github.com/realm/realm-dart/master/test/README.md) for instructions on running tests.
 
 ## Versioning
 
