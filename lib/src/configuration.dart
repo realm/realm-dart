@@ -67,8 +67,7 @@ abstract class Configuration {
   Configuration._(
     List<SchemaObject> schemaObjects, {
     String? path,
-    this.fifoFilesFallbackPath,
-    this.encryptionKey,
+    this.fifoFilesFallbackPath
   }) : schema = RealmSchema(schemaObjects) {
     this.path = _getPath(path);
   }
@@ -95,11 +94,12 @@ abstract class Configuration {
   /// The [RealmSchema] for this [Configuration]
   final RealmSchema schema;
 
-  /// The key used to encrypt the entire [Realm].
-  ///
-  /// A full 64byte (512bit) key for AES-256 encryption.
-  /// Once set, must be specified each time the file is used.
-  final List<int>? encryptionKey;
+  //TODO: Not supported yet.
+  // /// The key used to encrypt the entire [Realm].
+  // ///
+  // /// A full 64byte (512bit) key for AES-256 encryption.
+  // /// Once set, must be specified each time the file is used.
+  // final List<int>? encryptionKey;
 
   /// Constructs a [LocalConfiguration]
   static LocalConfiguration local(
