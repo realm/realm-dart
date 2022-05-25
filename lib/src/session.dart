@@ -67,6 +67,10 @@ class Session {
     final controller = SessionProgressNotificationsController(this, direction, mode);
     return controller.createStream();
   }
+
+  void _raiseSessionError(SyncErrorCategory category, int errorCode, bool isFatal) {
+    realmCore.raiseError(this, category, errorCode, isFatal);
+  }
 }
 
 /// The current state of a [Session] object
@@ -131,6 +135,12 @@ extension SessionInternal on Session {
   static Session create(SessionHandle handle) => Session._(handle);
 
   SessionHandle get handle => _handle;
+}
+
+extension SessionDevInternal on Session {
+  void raiseSessionError(SyncErrorCategory category, int errorCode, bool isFatal) {
+    _raiseSessionError(category, errorCode, isFatal);
+  }
 }
 
 /// @nodoc

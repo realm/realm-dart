@@ -21,6 +21,7 @@ import 'dart:io';
 
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
+import '../lib/src/session.dart' show SessionDevInternal;
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -273,6 +274,20 @@ Future<void> main([List<String>? args]) async {
 
     await uploadData.subscription.cancel();
     await downloadData.subscription.cancel();
+  });
+
+  baasTest('SyncSession test error handler', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    final config = Configuration.flexibleSync(user, [Task.schema], sessionErrorHandler: (sessionError) {
+      expect(sessionError.category, SyncErrorCategory.session);
+      expect(sessionError.isFatal, false);
+      expect(sessionError.code, 100);
+      expect(sessionError.message, "Simulated sync session error");
+    });
+    final realm = getRealm(config);
+
+    realm.syncSession.raiseSessionError(SyncErrorCategory.session, 100, false);
   });
 }
 

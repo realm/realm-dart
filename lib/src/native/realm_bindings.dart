@@ -3305,6 +3305,39 @@ class RealmLibrary {
               realm_free_userdata_func_t,
               ffi.Pointer<realm_scheduler_t>)>();
 
+  /// Simulates a session error.
+  ///
+  /// @param session The session where the simulated error will occur.
+  /// @param category The category of the error that to be simulated (client=0, connection=1, session=2, system=3, unknown=4)
+  /// @param errorCode Error code of the error that to be simulated.
+  /// @param isFatal >If set to `true` the error will be marked as fatal.
+  ///
+  /// Use this method to test your error handling code without connecting to a MongoDB Realm Server.
+  void realm_dart_sync_session_report_error_for_testing(
+    ffi.Pointer<realm_sync_session_t> session,
+    int category,
+    int errorCode,
+    bool isFatal,
+  ) {
+    return _realm_dart_sync_session_report_error_for_testing(
+      session,
+      category,
+      errorCode,
+      isFatal ? 1 : 0,
+    );
+  }
+
+  late final _realm_dart_sync_session_report_error_for_testingPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<realm_sync_session_t>,
+              ffi.Uint32,
+              ffi.Int32,
+              ffi.Uint8)>>('realm_dart_sync_session_report_error_for_testing');
+  late final _realm_dart_sync_session_report_error_for_testing =
+      _realm_dart_sync_session_report_error_for_testingPtr.asFunction<
+          void Function(ffi.Pointer<realm_sync_session_t>, int, int, int)>();
+
   /// Register a callback that will be invoked when all pending downloads have completed.
   void realm_dart_sync_session_wait_for_download_completion(
     ffi.Pointer<realm_sync_session_t> session,
@@ -9175,6 +9208,12 @@ class _SymbolAddresses {
                   ffi.Pointer<realm_scheduler_t>)>>
       get realm_dart_sync_session_register_progress_notifier =>
           _library._realm_dart_sync_session_register_progress_notifierPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<realm_sync_session_t>, ffi.Uint32,
+                  ffi.Int32, ffi.Uint8)>>
+      get realm_dart_sync_session_report_error_for_testing =>
+          _library._realm_dart_sync_session_report_error_for_testingPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(

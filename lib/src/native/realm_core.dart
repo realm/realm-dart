@@ -188,6 +188,8 @@ class _RealmCore {
         final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
+          _realmLib.realm_sync_config_set_error_handler(syncConfigPtr, Pointer.fromFunction(_syncErrorHandlerCallback), config.toPersistentHandle(),
+              _realmLib.addresses.realm_dart_delete_persistent_handle);
           _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
         } finally {
           _realmLib.realm_release(syncConfigPtr.cast());
@@ -399,6 +401,22 @@ class _RealmCore {
     }
 
     return config.shouldCompactCallback!(totalSize, usedSize) ? TRUE : FALSE;
+  }
+
+  static void _syncErrorHandlerCallback(Pointer<Void> userdata, Pointer<realm_sync_session> user, realm_sync_error error) {
+    print(error.detailed_message.cast<Utf8>().toRealmDartString()!);
+    final FlexibleSyncConfiguration? syncConfig = userdata.toObject(isPersistent: true);
+    if (syncConfig == null) {
+      return;
+    }
+    final sessionError = error.toSessionError();
+    if(syncConfig.sessionErrorHandler != null) {
+        syncConfig.sessionErrorHandler!(sessionError);
+    }
+  }
+
+  void raiseError(Session session, SyncErrorCategory category, int errorCode, bool isFatal) {
+    _realmLib.realm_dart_sync_session_report_error_for_testing(session.handle._pointer, category.index, errorCode, isFatal);
   }
 
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
@@ -1879,6 +1897,21 @@ extension on Pointer<Utf8> {
         _realmLib.realm_free(cast());
       }
     }
+  }
+}
+
+extension on realm_sync_error {
+  SessionError toSessionError() {
+    final messageText = detailed_message.cast<Utf8>().toRealmDartString()!;
+    final SyncErrorCategory errorCategory = SyncErrorCategory.values[error_code.category];
+    final isFatal = is_fatal == 0 ? false : true;
+
+    return SessionError(
+      messageText,
+      errorCategory,
+      isFatal: isFatal,
+      code: error_code.value,
+    );
   }
 }
 
