@@ -20,7 +20,7 @@ import '../test/session_test.dart' as session_test;
 Future<String> main(List<String> args) async {
   final Completer<String> completer = Completer<String>();
   final List<String> failedTests = [];
-  
+
   await configuration_test.main(args);
   await realm_tests.main(args);
   await realm_object_tests.main(args);
@@ -31,7 +31,7 @@ Future<String> main(List<String> args) async {
   await user_tests.main(args);
   await subscription_test.main(args);
   await session_test.main(args);
-  
+
   tearDown(() {
     if (Invoker.current?.liveTest.state.result == test_api.Result.error || Invoker.current?.liveTest.state.result == test_api.Result.failure) {
       failedTests.add(Invoker.current!.liveTest.individualName);
