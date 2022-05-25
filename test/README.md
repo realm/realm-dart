@@ -43,8 +43,33 @@ do day-to-day development as it allows you to get into a clean slate with a sing
 
 1. You need a docker desktop license. Request one from OfficeIT ([example ticket](https://jira.mongodb.org/browse/OFFICEIT-67070))
 2. Request API keys for BaaS - reach out to Tim Sedgwick or Mike O'Brien for help.
-3. [Configure Docker for use with GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry) - you only need the authentication part.
-4. Take note of your IP address (it has to be the actual IP address, not localhost or 127.0.0.1).
+3. [Configure Docker for use with GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry) - you only need the authentication part. 
+    * First create a new token in [GitHub](https://github.com/) [Creating a token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token). Be sure to select the following permissions:
+      - repo 
+      - read:packages
+      - write:packages
+      - delete:packages
+
+    * Don't forget to Copy the new token.
+
+    * Then run the following commands:
+      - For MacOS anf Linux:
+      ```sh
+        $ export CR_PAT=YOUR_TOKEN
+        $ echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
+      ```
+      - For Windows powershell:
+      ```powershell
+        $env:CR_PAT="YOUR_TOKEN"
+        $env:CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
+      ```
+    where:
+    - USERNAME is your [GitHub](https://github.com/) username.
+    - YOUR_TOKEN is the token copied from the previous step.
+
+  * Enter your [GitHub](https://github.com/) password. And the output should be `> Login Succeeded`.
+
+4. Take note of your local machine IP address (it has to be the actual IP address, not localhost or 127.0.0.1).
 5. Run the docker image:
 
     Required variables:
@@ -96,7 +121,15 @@ do day-to-day development as it allows you to get into a clean slate with a sing
     * For more information go to [docker run command](https://docs.docker.com/engine/reference/commandline/run/)
 
 6. Setup the `BAAS_URL` environment variable. On macOS, this can be done for example by adding the following to your profile:
+
+    For MacOS anf Linux:
     ```sh
-    launchctl setenv BAAS_URL "http://$baas_hostname:9090"
+      launchctl setenv BAAS_URL "http://$baas_hostname:9090"
     ```
+
+    For Windows powershell:
+    ```powershell
+      $env:BAAS_URL="http://$baas_hostname:9090"
+    ```
+
 7. Now you can run `dart test` and it should include the integration tests.
