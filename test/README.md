@@ -58,10 +58,10 @@ do day-to-day development as it allows you to get into a clean slate with a sing
         $ export CR_PAT=YOUR_TOKEN
         $ echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
       ```
-      - For Windows powershell:
-      ```powershell
-        $env:CR_PAT="YOUR_TOKEN"
-        $env:CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
+      - For Windows:
+      ```
+        SET CR_PAT="YOUR_TOKEN"
+        docker login ghcr.io -u USERNAME --password-stdin
       ```
     where:
     - USERNAME is your [GitHub](https://github.com/) username.
@@ -97,22 +97,15 @@ do day-to-day development as it allows you to get into a clean slate with a sing
       ghcr.io/realm/ci/mongodb-realm-test-server:$baas_version
     ```
 
-    For Windows powershell:
-    ```powershell
-    $baas_hostname="10.0.1.123"
-    $baas_access_key="<public_key>"
-    $baas_secret_key="<private_key>"
-    $some_empty_folder=%{ mkdir $_-d }
-    $baas_version="2022-05-16"
+    For Windows:
+    ```
+    SET baas_hostname=10.0.1.123
+    SET baas_access_key="<public_key>"
+    SET baas_secret_key="<private_key>"
+    SET some_empty_folder="path to empty dir"
+    SET baas_version=2022-05-16
 
-    docker run `
-      -e MONGODB_REALM_HOSTNAME=$baas_hostname -e AWS_ACCESS_KEY_ID=$baas_access_key -e AWS_SECRET_ACCESS_KEY=$baas_secret_key `
-      --mount type=bind,src=$some_empty_folder,dst=/apps `
-      -u 1000:1000 `
-      -p 9090:9090 -p 26000:26000 `
-      -it `
-      --rm `
-      ghcr.io/realm/ci/mongodb-realm-test-server:$baas_version
+    docker run -e MONGODB_REALM_HOSTNAME=%baas_hostname% -e AWS_ACCESS_KEY_ID=%baas_access_key% -e AWS_SECRET_ACCESS_KEY=%baas_secret_key --mount type=bind,src=%some_empty_folder%,dst=/apps -u 1000:1000 -p 9090:9090 -p 26000:26000 -it --rm ghcr.io/realm/ci/mongodb-realm-test-server:%baas_version%
     ```
     where `docker run` arguments:
     * -p exposes the baas and mongodb ports to the host. 9090 is baas and 26000 is mongodb.
@@ -127,9 +120,9 @@ do day-to-day development as it allows you to get into a clean slate with a sing
       launchctl setenv BAAS_URL "http://$baas_hostname:9090"
     ```
 
-    For Windows powershell:
-    ```powershell
-      $env:BAAS_URL="http://$baas_hostname:9090"
+    For Windows:
+    ```
+      SET BAAS_URL="http://%baas_hostname%:9090"
     ```
 
 7. Now you can run `dart test` and it should include the integration tests.
