@@ -76,7 +76,7 @@ class RealmUnsupportedSetError extends UnsupportedError implements RealmError {
 
 /// Thrown if the Realm operation is not allowed by the current state of the object.
 class RealmStateError extends StateError implements RealmError {
-  RealmStateError(String message) : super(message);
+  RealmStateError(super.message);
 }
 
 /// An error type that describes a session-level error condition.
@@ -102,7 +102,7 @@ class SyncError extends RealmError {
   /// The category of the error
   final SyncErrorCategory category;
 
-  SyncError(String message, this.category, this.code) : super(message);
+  SyncError(super.message, this.category, this.code);
 }
 
 /// The category of a [SyncError].

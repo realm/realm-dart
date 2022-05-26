@@ -178,7 +178,7 @@ class RealmListChanges<T extends Object> extends RealmCollectionChanges {
   /// The collection being monitored for changes.
   final RealmList<T> list;
 
-  RealmListChanges._(RealmCollectionChangesHandle handle, this.list) : super(handle);
+  RealmListChanges._(super.handle, this.list);
 }
 
 /// @nodoc
