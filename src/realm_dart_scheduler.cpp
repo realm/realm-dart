@@ -16,7 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
 #include <sstream>
 #include <set>
 #include <mutex>
@@ -38,12 +37,9 @@ struct SchedulerData {
     {}
 };
 
-static const int SCHEDULER_FINALIZE = 0;
-
 //This can be invoked on any thread
 void realm_dart_scheduler_free_userData(void* userData) {
     SchedulerData* schedulerData = static_cast<SchedulerData*>(userData);
-    Dart_PostInteger_DL(schedulerData->port, SCHEDULER_FINALIZE);
 
     //delete the scheduler
     delete schedulerData;

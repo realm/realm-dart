@@ -21,6 +21,7 @@ import 'dart:io';
 
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
+import '../lib/src/session.dart' show SessionDevInternal;
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -65,20 +66,13 @@ Future<void> main([List<String>? args]) async {
 
   Future<void> validateSessionStates(Session session, {SessionState? expectedSessionState, ConnectionState? expectedConnectionState}) async {
     if (expectedSessionState != null) {
-      expect(session.state.name, expectedSessionState.name);
+      await waitForCondition(() => session.state.name == expectedSessionState.name,
+          message: 'Expected ${session.state} to equal $expectedSessionState', timeout: Duration(seconds: 10));
     }
 
     if (expectedConnectionState != null) {
-      for (var i = 0; i < 10; i++) {
-        if (session.connectionState.name == expectedConnectionState.name) {
-          break;
-        }
-
-        // The connection requires a bit of time to update its state
-        await Future<void>.delayed(Duration(milliseconds: 100));
-      }
-
-      expect(session.connectionState.name, expectedConnectionState.name);
+      await waitForCondition(() => session.connectionState.name == expectedConnectionState.name,
+          message: 'Expected ${session.connectionState} to equal $expectedConnectionState', timeout: Duration(seconds: 10));
     }
   }
 
@@ -280,6 +274,20 @@ Future<void> main([List<String>? args]) async {
 
     await uploadData.subscription.cancel();
     await downloadData.subscription.cancel();
+  });
+
+  baasTest('SyncSession test error handler', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    final config = Configuration.flexibleSync(user, [Task.schema], sessionErrorHandler: (sessionError) {
+      expect(sessionError.category, SyncErrorCategory.session);
+      expect(sessionError.isFatal, false);
+      expect(sessionError.code, 100);
+      expect(sessionError.message, "Simulated sync session error");
+    });
+    final realm = getRealm(config);
+
+    realm.syncSession.raiseSessionError(SyncErrorCategory.session, 100, false);
   });
 }
 

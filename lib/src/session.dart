@@ -30,10 +30,6 @@ import 'user.dart';
 class Session {
   final SessionHandle _handle;
 
-  // This is very unpleasant, but the way we dispatch callbacks from native into
-  // dart requires us to pass down the scheudler.
-  final Scheduler _scheduler;
-
   /// The on-disk path of the file backing the [Realm] this [Session] represents
   String get realmPath => realmCore.sessionGetPath(this);
 
@@ -49,7 +45,7 @@ class Session {
   /// The [User] that owns the [Realm] this [Session] is synchronizing.
   User get user => UserInternal.create(realmCore.sessionGetUser(this));
 
-  Session._(this._handle, this._scheduler);
+  Session._(this._handle);
 
   /// Pauses any synchronization with the server until the Realm is re-opened again
   /// after fully closing it or [resume] is called.
@@ -70,6 +66,10 @@ class Session {
   Stream<SyncProgress> getProgressStream(ProgressDirection direction, ProgressMode mode) {
     final controller = SessionProgressNotificationsController(this, direction, mode);
     return controller.createStream();
+  }
+
+  void _raiseSessionError(SyncErrorCategory category, int errorCode, bool isFatal) {
+    realmCore.raiseError(this, category, errorCode, isFatal);
   }
 }
 
@@ -132,11 +132,15 @@ class SyncProgress {
 }
 
 extension SessionInternal on Session {
-  static Session create(SessionHandle handle, Scheduler scheduler) => Session._(handle, scheduler);
+  static Session create(SessionHandle handle) => Session._(handle);
 
   SessionHandle get handle => _handle;
+}
 
-  Scheduler get scheduler => _scheduler;
+extension SessionDevInternal on Session {
+  void raiseSessionError(SyncErrorCategory category, int errorCode, bool isFatal) {
+    _raiseSessionError(category, errorCode, isFatal);
+  }
 }
 
 /// @nodoc

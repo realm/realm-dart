@@ -44,6 +44,11 @@ typedef ShouldCompactCallback = bool Function(int totalSize, int usedSize);
 /// Realms, even if all objects in the Realm are deleted.
 typedef InitialDataCallback = void Function(Realm realm);
 
+///The signature of a callback that will be invoked whenever a [SessionError] occurs for the synchronized Realm.
+///
+/// Client reset errors will not be reported through this callback as they are handled by [ClientResetHandler].
+typedef SessionErrorHandler = void Function(SessionError error);
+
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
 abstract class Configuration {
@@ -62,8 +67,7 @@ abstract class Configuration {
   Configuration._(
     List<SchemaObject> schemaObjects, {
     String? path,
-    this.fifoFilesFallbackPath,
-    this.encryptionKey,
+    this.fifoFilesFallbackPath
   }) : schema = RealmSchema(schemaObjects) {
     this.path = _getPath(path);
   }
@@ -90,11 +94,12 @@ abstract class Configuration {
   /// The [RealmSchema] for this [Configuration]
   final RealmSchema schema;
 
-  /// The key used to encrypt the entire [Realm].
-  ///
-  /// A full 64byte (512bit) key for AES-256 encryption.
-  /// Once set, must be specified each time the file is used.
-  final List<int>? encryptionKey;
+  //TODO: Not supported yet.
+  // /// The key used to encrypt the entire [Realm].
+  // ///
+  // /// A full 64byte (512bit) key for AES-256 encryption.
+  // /// Once set, must be specified each time the file is used.
+  // final List<int>? encryptionKey;
 
   /// Constructs a [LocalConfiguration]
   static LocalConfiguration local(
@@ -136,12 +141,14 @@ abstract class Configuration {
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
+    SessionErrorHandler? sessionErrorHandler,
   }) =>
       FlexibleSyncConfiguration._(
         user,
         schemaObjects,
         fifoFilesFallbackPath: fifoFilesFallbackPath,
         path: path,
+        sessionErrorHandler: sessionErrorHandler,
       );
 }
 
@@ -215,12 +222,16 @@ class FlexibleSyncConfiguration extends Configuration {
   final User user;
 
   SessionStopPolicy _sessionStopPolicy = SessionStopPolicy.afterChangesUploaded;
+  
+  /// Called when a [SessionError] occurs for the synchronized Realm.
+  final SessionErrorHandler? sessionErrorHandler;
 
   FlexibleSyncConfiguration._(
     this.user,
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
+    this.sessionErrorHandler,
   }) : super._(
           schemaObjects,
           fifoFilesFallbackPath: fifoFilesFallbackPath,

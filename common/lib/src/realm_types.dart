@@ -79,6 +79,20 @@ class RealmStateError extends StateError implements RealmError {
   RealmStateError(String message) : super(message);
 }
 
+/// An error type that describes a session-level error condition.
+/// /// {@category Sync}
+class SessionError extends SyncError {
+  /// If true the received error is fatal.
+  final bool isFatal;
+
+  SessionError(
+    String message,
+    SyncErrorCategory category, {
+    this.isFatal = false,
+    int code = 0,
+  }) : super(message, category, code);
+}
+
 /// Thrown or reporeted if an error occurs during synchronization
 /// {@category Sync}
 class SyncError extends RealmError {

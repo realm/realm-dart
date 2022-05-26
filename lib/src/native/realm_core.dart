@@ -23,6 +23,7 @@ import 'dart:typed_data';
 
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
+import 'package:logging/logging.dart';
 
 import '../app.dart';
 import '../collections.dart';
@@ -33,6 +34,7 @@ import '../list.dart';
 import '../realm_class.dart';
 import '../realm_object.dart';
 import '../results.dart';
+import '../scheduler.dart';
 import '../subscription.dart';
 import '../user.dart';
 import '../session.dart';
@@ -139,7 +141,7 @@ class _RealmCore {
     });
   }
 
-  ConfigHandle _createConfig(Configuration config, SchedulerHandle schedulerHandle) {
+  ConfigHandle _createConfig(Configuration config) {
     return using((Arena arena) {
       final schemaHandle = _createSchema(config.schema);
       final configPtr = _realmLib.realm_config_new();
@@ -147,7 +149,7 @@ class _RealmCore {
 
       _realmLib.realm_config_set_schema(configHandle._pointer, schemaHandle._pointer);
       _realmLib.realm_config_set_path(configHandle._pointer, config.path.toUtf8Ptr(arena));
-      _realmLib.realm_config_set_scheduler(configHandle._pointer, schedulerHandle._pointer);
+      _realmLib.realm_config_set_scheduler(configHandle._pointer, scheduler.handle._pointer);
 
       if (config.fifoFilesFallbackPath != null) {
         _realmLib.realm_config_set_fifo_path(configHandle._pointer, config.fifoFilesFallbackPath!.toUtf8Ptr(arena));
@@ -186,6 +188,8 @@ class _RealmCore {
         final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
+          _realmLib.realm_sync_config_set_error_handler(syncConfigPtr, Pointer.fromFunction(_syncErrorHandlerCallback), config.toPersistentHandle(),
+              _realmLib.addresses.realm_dart_delete_persistent_handle);
           _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
         } finally {
           _realmLib.realm_release(syncConfigPtr.cast());
@@ -289,7 +293,7 @@ class _RealmCore {
       Pointer.fromFunction(_stateChangeCallback),
       completer.toPersistentHandle(),
       _realmLib.addresses.realm_dart_delete_persistent_handle,
-      subscriptions.realm.scheduler.handle._pointer,
+      scheduler.handle._pointer,
     );
     return completer.future;
   }
@@ -399,6 +403,22 @@ class _RealmCore {
     return config.shouldCompactCallback!(totalSize, usedSize) ? TRUE : FALSE;
   }
 
+  static void _syncErrorHandlerCallback(Pointer<Void> userdata, Pointer<realm_sync_session> user, realm_sync_error error) {
+    print(error.detailed_message.cast<Utf8>().toRealmDartString()!);
+    final FlexibleSyncConfiguration? syncConfig = userdata.toObject(isPersistent: true);
+    if (syncConfig == null) {
+      return;
+    }
+    final sessionError = error.toSessionError();
+    if(syncConfig.sessionErrorHandler != null) {
+        syncConfig.sessionErrorHandler!(sessionError);
+    }
+  }
+
+  void raiseError(Session session, SyncErrorCategory category, int errorCode, bool isFatal) {
+    _realmLib.realm_dart_sync_session_report_error_for_testing(session.handle._pointer, category.index, errorCode, isFatal);
+  }
+
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
     final schedulerPtr = _realmLib.realm_dart_create_scheduler(isolateId, sendPort);
     return SchedulerHandle._(schedulerPtr);
@@ -408,8 +428,8 @@ class _RealmCore {
     _realmLib.realm_scheduler_perform_work(schedulerHandle._pointer);
   }
 
-  RealmHandle openRealm(Configuration config, Scheduler scheduler) {
-    final configHandle = _createConfig(config, scheduler.handle);
+  RealmHandle openRealm(Configuration config) {
+    final configHandle = _createConfig(config);
     final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_open(configHandle._pointer), "Error opening realm at path ${config.path}");
     return RealmHandle._(realmPtr);
   }
@@ -805,43 +825,43 @@ class _RealmCore {
     }
   }
 
-  RealmNotificationTokenHandle subscribeResultsNotifications(RealmResultsHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
+  RealmNotificationTokenHandle subscribeResultsNotifications(RealmResults results, NotificationsController controller) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_add_notification_callback(
-          handle._pointer,
+          results.handle._pointer,
           controller.toWeakHandle(),
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
           nullptr,
-          schedulerHandle._pointer,
+          scheduler.handle._pointer,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
   }
 
-  RealmNotificationTokenHandle subscribeListNotifications(RealmListHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
+  RealmNotificationTokenHandle subscribeListNotifications(RealmList list, NotificationsController controller) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_list_add_notification_callback(
-          handle._pointer,
+          list.handle._pointer,
           controller.toWeakHandle(),
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
           nullptr,
-          schedulerHandle._pointer,
+          scheduler.handle._pointer,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
   }
 
-  RealmNotificationTokenHandle subscribeObjectNotifications(RealmObjectHandle handle, NotificationsController controller, SchedulerHandle schedulerHandle) {
+  RealmNotificationTokenHandle subscribeObjectNotifications(RealmObject object, NotificationsController controller) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_add_notification_callback(
-          handle._pointer,
+          object.handle._pointer,
           controller.toWeakHandle(),
           nullptr,
           nullptr,
           Pointer.fromFunction(object_change_callback),
           nullptr,
-          schedulerHandle._pointer,
+          scheduler.handle._pointer,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -1026,13 +1046,36 @@ class _RealmCore {
     });
   }
 
+  static void _logCallback(Pointer<Void> userdata, int levelAsInt, Pointer<Int8> message) {
+    try {
+      final logger = Realm.logger;
+      final level = _LogLevel.values[levelAsInt].loggerLevel;
+
+      // Don't do expensive utf8 to utf16 conversion unless we have to..
+      if (logger.isLoggable(level)) {
+        logger.log(level, message.cast<Utf8>().toDartString());
+      }
+    } finally {
+      _realmLib.realm_free(message.cast()); // .. but always free the message
+    }
+  }
+
   SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
     return using((arena) {
       final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
 
       _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toUtf8Ptr(arena));
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
-      _realmLib.realm_sync_client_config_set_log_level(handle._pointer, configuration.logLevel.index);
+      
+      _realmLib.realm_sync_client_config_set_log_level(handle._pointer, _LogLevel.fromLevel(Realm.logger.level).index);
+      _realmLib.realm_dart_sync_client_config_set_log_callback(
+        handle._pointer,
+        Pointer.fromFunction(_logCallback),
+        nullptr,
+        nullptr,
+        scheduler.handle._pointer,
+      );
+      
       _realmLib.realm_sync_client_config_set_connect_timeout(handle._pointer, configuration.maxConnectionTimeout.inMicroseconds);
       if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
         _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
@@ -1458,7 +1501,7 @@ class _RealmCore {
   int sessionRegisterProgressNotifier(Session session, ProgressDirection direction, ProgressMode mode, SessionProgressNotificationsController controller) {
     final isStreaming = mode == ProgressMode.reportIndefinitely;
     return _realmLib.realm_dart_sync_session_register_progress_notifier(session.handle._pointer, Pointer.fromFunction(on_sync_progress), direction.index,
-        isStreaming, controller.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, session.scheduler.handle._pointer);
+        isStreaming, controller.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, scheduler.handle._pointer);
   }
 
   void sessionUnregisterProgressNotifier(Session session, int token) {
@@ -1481,7 +1524,7 @@ class _RealmCore {
       Pointer.fromFunction(_waitCompletionCallback),
       completer.toPersistentHandle(),
       _realmLib.addresses.realm_dart_delete_persistent_handle,
-      session.scheduler.handle._pointer,
+      scheduler.handle._pointer,
     );
     return completer.future;
   }
@@ -1493,7 +1536,7 @@ class _RealmCore {
       Pointer.fromFunction(_waitCompletionCallback),
       completer.toPersistentHandle(),
       _realmLib.addresses.realm_dart_delete_persistent_handle,
-      session.scheduler.handle._pointer,
+      scheduler.handle._pointer,
     );
     return completer.future;
   }
@@ -1863,6 +1906,21 @@ extension on Pointer<Utf8> {
   }
 }
 
+extension on realm_sync_error {
+  SessionError toSessionError() {
+    final messageText = detailed_message.cast<Utf8>().toRealmDartString()!;
+    final SyncErrorCategory errorCategory = SyncErrorCategory.values[error_code.category];
+    final isFatal = is_fatal == 0 ? false : true;
+
+    return SessionError(
+      messageText,
+      errorCategory,
+      isFatal: isFatal,
+      code: error_code.value,
+    );
+  }
+}
+
 extension on Pointer<realm_sync_error_code_t> {
   SyncError toSyncError() {
     final message = ref.message.cast<Utf8>().toRealmDartString()!;
@@ -1974,5 +2032,28 @@ extension on realm_object_id {
       buffer[i] = bytes[i];
     }
     return ObjectId.fromBytes(buffer);
+  }
+}
+
+// Helper enum for converting Level
+enum _LogLevel {
+  all(RealmLogLevel.all),
+  trace(RealmLogLevel.trace),
+  debug(RealmLogLevel.debug),
+  detail(RealmLogLevel.detail),
+  info(RealmLogLevel.info),
+  warn(RealmLogLevel.warn),
+  error(RealmLogLevel.error),
+  fatal(RealmLogLevel.fatal),
+  off(RealmLogLevel.off);
+
+  final Level loggerLevel;
+  const _LogLevel(this.loggerLevel);
+
+  factory _LogLevel.fromLevel(Level level) {
+    for (final candidate in _LogLevel.values) {
+      if (level.value > candidate.loggerLevel.value) return candidate;
+    }
+    return _LogLevel.off;
   }
 }

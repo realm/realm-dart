@@ -21,9 +21,6 @@
 
 #include <realm.h>
 
-typedef void (*realm_dart_sync_on_subscription_state_changed)(void* userdata,
-                                                              realm_flx_sync_subscription_set_state_e state);
-
 /**
  * Register a handler in order to be notified when subscription set is equal to the one passed as parameter
  * This is an asynchronous operation.
@@ -37,7 +34,7 @@ typedef void (*realm_dart_sync_on_subscription_state_changed)(void* userdata,
 RLM_API bool
 realm_dart_sync_on_subscription_set_state_change_async(const realm_flx_sync_subscription_set_t* subscription_set,
                                                        realm_flx_sync_subscription_set_state_e notify_when,
-                                                       realm_dart_sync_on_subscription_state_changed callback,
+                                                       realm_sync_on_subscription_state_changed_t callback,
                                                        void* userdata, 
                                                        realm_free_userdata_func_t userdata_free,
                                                        realm_scheduler_t* scheduler) RLM_API_NOEXCEPT;

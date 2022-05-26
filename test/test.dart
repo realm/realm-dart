@@ -94,8 +94,6 @@ class _Task {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
-
-  late ObjectId differentiator;
 }
 
 @RealmModel()
@@ -190,9 +188,7 @@ void xtest(String? name, dynamic Function() testFunction) {
 Future<void> setupTests(List<String>? args) async {
   arguments = parseTestArguments(args);
   testName = arguments["name"];
-  setUpAll(() async {
-    await setupBaas();
-  });
+  setUpAll(() async => await setupBaas());
 
   setUp(() {
     final path = generateRandomRealmPath();
@@ -237,24 +233,28 @@ String generateRandomString(int len) {
 }
 
 Realm getRealm(Configuration config) {
+  if (config is FlexibleSyncConfiguration) {
+    config.sessionStopPolicy = SessionStopPolicy.immediately;
+  }
+
   final realm = Realm(config);
   _openRealms.add(realm);
   return realm;
 }
 
-Future<bool> tryDeleteRealm(String path) async {
+Future<void> tryDeleteRealm(String path) async {
   for (var i = 0; i < 100; i++) {
     try {
       Realm.deleteRealm(path);
       await File('$path.lock').delete();
-      return true;
+      return;
     } catch (e) {
+      print('Failed to delete realm at path $path. Trying again in 50ms');
       await Future<void>.delayed(const Duration(milliseconds: 50));
     }
   }
 
-  print("Can not delete realm at path: $path. Did you forget to close it?");
-  return false;
+  throw Exception('Failed to delete realm at path $path. Did you forget to close it?');
 }
 
 Map<String, String?> parseTestArguments(List<String>? arguments) {
@@ -301,12 +301,12 @@ Future<void> setupBaas() async {
 }
 
 @isTest
-void baasTest(
+Future<void> baasTest(
   String name,
   FutureOr<void> Function(AppConfiguration appConfig) testFunction, {
   AppNames appName = AppNames.flexible,
   dynamic skip,
-}) {
+}) async {
   final uriVariable = arguments[argBaasUrl];
   final url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
 
@@ -337,29 +337,23 @@ Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) as
 }
 
 Future<User> getIntegrationUser(App app) async {
-  final sw = Stopwatch()..start();
   final email = 'realm_tests_do_autoverify_${generateRandomString(10)}@realm.io';
   final password = 'password';
-
-  print('getIntegrationUser.1: ${sw.elapsedMilliseconds} ms');
   await app.emailPasswordAuthProvider.registerUser(email, password);
-  print('getIntegrationUser.2: ${sw.elapsedMilliseconds} ms');
 
-  final result = await loginWithRetry(app, Credentials.emailPassword(email, password));
-  print('getIntegrationUser.3: ${sw.elapsedMilliseconds} ms');
-  return result;
+  return await loginWithRetry(app, Credentials.emailPassword(email, password));
 }
 
-Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator}) async {
+Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, String? path}) async {
   app ??= App(await getAppConfig());
   final user = await getIntegrationUser(app);
 
-  final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema, NullableTypes.schema])..sessionStopPolicy = SessionStopPolicy.immediately;
+  // TODO: path will not be needed after https://github.com/realm/realm-dart/pull/574
+  final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema, NullableTypes.schema], path: path);
   final realm = getRealm(config);
   if (differentiator != null) {
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.query<NullableTypes>('differentiator = \$0', [differentiator]));
-      mutableSubscriptions.add(realm.query<Task>('differentiator = \$0', [differentiator]));
     });
 
     await realm.subscriptions.waitForSynchronization();
@@ -380,6 +374,20 @@ Future<User> loginWithRetry(App app, Credentials credentials, {int retryCount = 
   }
 }
 
+Future<void> waitForCondition(bool Function() condition,
+    {Duration timeout = const Duration(seconds: 1), Duration retryDelay = const Duration(milliseconds: 100), String? message}) async {
+  final start = DateTime.now();
+  while (!condition()) {
+    if (DateTime.now().difference(start) > timeout) {
+      throw TimeoutException('Condition not met within $timeout${message != null ? ': $message' : ''}');
+    }
+
+    await Future<void>.delayed(retryDelay);
+  }
+}
+
 extension RealmObjectTest on RealmObject {
   String toJson() => realmCore.objectToString(this);
 }
+
+void clearCachedApps() => realmCore.clearCachedApps();

@@ -19,10 +19,12 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:logging/logging.dart';
 import 'package:test/expect.dart';
 
 import '../lib/src/configuration.dart';
 import '../lib/realm.dart';
+import 'realm_object_test.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -36,7 +38,6 @@ Future<void> main([List<String>? args]) async {
     expect(defaultAppConfig.baseFilePath.path, ConfigurationInternal.defaultStorageFolder);
     expect(defaultAppConfig.baseUrl, Uri.parse('https://realm.mongodb.com'));
     expect(defaultAppConfig.defaultRequestTimeout, const Duration(minutes: 1));
-    expect(defaultAppConfig.logLevel, LogLevel.error);
     expect(defaultAppConfig.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
 
     final httpClient = HttpClient(context: SecurityContext(withTrustedRoots: false));
@@ -48,7 +49,6 @@ Future<void> main([List<String>? args]) async {
       localAppName: 'bar',
       localAppVersion: "1.0.0",
       metadataPersistenceMode: MetadataPersistenceMode.disabled,
-      logLevel: LogLevel.info,
       maxConnectionTimeout: const Duration(minutes: 1),
       httpClient: httpClient,
     );
@@ -56,7 +56,6 @@ Future<void> main([List<String>? args]) async {
     expect(appConfig.baseFilePath.path, Directory.systemTemp.path);
     expect(appConfig.baseUrl, Uri.parse('https://not_re.al'));
     expect(appConfig.defaultRequestTimeout, const Duration(seconds: 2));
-    expect(appConfig.logLevel, LogLevel.info);
     expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.disabled);
     expect(appConfig.maxConnectionTimeout, const Duration(minutes: 1));
     expect(appConfig.httpClient, httpClient);
@@ -67,7 +66,6 @@ Future<void> main([List<String>? args]) async {
     expect(appConfig.appId, 'myapp1');
     expect(appConfig.baseUrl, Uri.parse('https://realm.mongodb.com'));
     expect(appConfig.defaultRequestTimeout, const Duration(minutes: 1));
-    expect(appConfig.logLevel, LogLevel.error);
     expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
     expect(appConfig.maxConnectionTimeout, const Duration(minutes: 2));
     expect(appConfig.httpClient, isNotNull);
@@ -87,7 +85,6 @@ Future<void> main([List<String>? args]) async {
       localAppVersion: "1.0.0",
       metadataPersistenceMode: MetadataPersistenceMode.encrypted,
       metadataEncryptionKey: base64.decode("ekey"),
-      logLevel: LogLevel.info,
       maxConnectionTimeout: const Duration(minutes: 1),
       httpClient: httpClient,
     );
@@ -96,7 +93,6 @@ Future<void> main([List<String>? args]) async {
     expect(appConfig.baseFilePath.path, Directory.systemTemp.path);
     expect(appConfig.baseUrl, Uri.parse('https://not_re.al'));
     expect(appConfig.defaultRequestTimeout, const Duration(seconds: 2));
-    expect(appConfig.logLevel, LogLevel.info);
     expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.encrypted);
     expect(appConfig.maxConnectionTimeout, const Duration(minutes: 1));
     expect(appConfig.httpClient, httpClient);
@@ -187,4 +183,67 @@ Future<void> main([List<String>? args]) async {
     final user1 = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
     expect(app.users, [user1, user]);
   });
+
+
+  baasTest('Realm.logger', (configuration) async {
+    Realm.logger = Logger.detached(generateRandomString(10))..level = RealmLogLevel.all;
+    configuration = AppConfiguration(
+      configuration.appId,
+      baseFilePath: configuration.baseFilePath,
+      baseUrl: configuration.baseUrl,
+    ); // uses App.defaultLogger
+
+    await testLogger(
+      configuration,
+      Realm.logger,
+      maxExpectedCounts: {
+        // No problems expected!
+        RealmLogLevel.fatal: 0,
+        RealmLogLevel.error: 0,
+        RealmLogLevel.warn: 0,
+      },
+      minExpectedCounts: {
+        // these are set low (roughly half of what was seen when test was created),
+        // so that changes to core are less likely to break the test
+        RealmLogLevel.trace: 10,
+        RealmLogLevel.debug: 20,
+        RealmLogLevel.detail: 2,
+        RealmLogLevel.info: 1,
+      },
+    );
+  });
+}
+
+Future<void> testLogger(
+  AppConfiguration configuration,
+  Logger logger, {
+  Map<Level, int> minExpectedCounts = const {},
+  Map<Level, int> maxExpectedCounts = const {},
+}) async {
+  // To see the trace, add this:
+  /*
+  logger.onRecord.listen((event) {
+    print('${event.sequenceNumber} ${event.level} ${event.message}');
+  });
+  */
+
+  // Setup
+  clearCachedApps();
+  final app = App(configuration);
+  final realm = await getIntegrationRealm(app: app);
+
+  // Prepare to capture trace
+  final counts = <Level, int>{};
+  logger.onRecord.listen((r) {
+    counts[r.level] = (counts[r.level] ?? 0) + 1;
+  });
+
+  // Trigger trace
+  await realm.syncSession.waitForDownload();
+
+  // Check count of various levels
+  for (final e in counts.entries) {
+    expect(e.value, lessThanOrEqualTo(maxExpectedCounts[e.key] ?? maxInt));
+    expect(e.value, greaterThanOrEqualTo(minExpectedCounts[e.key] ?? minInt));
+  }
 }
