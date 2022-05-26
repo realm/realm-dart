@@ -461,14 +461,14 @@ Future<void> main([List<String>? args]) async {
 
     final realmX = getRealm(Configuration.flexibleSync(userX, [Task.schema]));
     final pathY = path.join(temporaryDir.path, "Y.realm");
-    final realmY = getRealm(Configuration.flexibleSync(userY, [Task.schema], path: pathY)); // TODO: Why do I need to set path here?
+    final realmY = getRealm(Configuration.flexibleSync(userY, [Task.schema]));
 
     realmX.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmX.all<Task>());
     });
 
-    final oid = ObjectId();
-    realmX.write(() => realmX.add(Task(oid)));
+    final objectId = ObjectId();
+    realmX.write(() => realmX.add(Task(objectId)));
 
     realmY.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmY.all<Task>());
@@ -477,10 +477,10 @@ Future<void> main([List<String>? args]) async {
     await realmX.subscriptions.waitForSynchronization();
     await realmY.subscriptions.waitForSynchronization();
 
-    // TODO: Missing sync session wait methods here, so just add big timeout for now
-    await Future<void>.delayed(const Duration(seconds: 2));
+    await realmX.syncSession.waitForUpload();
+    await realmY.syncSession.waitForDownload();
 
-    final t = realmY.find<Task>(oid);
-    expect(t, isNotNull);
+    final task = realmY.find<Task>(objectId);
+    expect(task, isNotNull);
   });
 }
