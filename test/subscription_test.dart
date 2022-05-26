@@ -482,6 +482,8 @@ Future<void> main([List<String>? args]) async {
     await realmY.syncSession.waitForUpload();
     await realmY.syncSession.waitForDownload();
 
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+
     final task = realmY.find<Task>(objectId);
     expect(task, isNotNull);
   });
