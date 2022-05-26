@@ -15,13 +15,13 @@ This repository holds the source code for the Realm SDK for Flutterâ„¢ and Dartâ
     import 'package:realm/realm.dart';  // import realm package
 
     part 'app.g.dart'; // declare a part file.
-        
+
     @RealmModel() // define a data model class named `_Car`.
     class _Car {
       late String make;
 
       late String model;
-    
+
       int? kilometers = 500;
     }
     ```
@@ -58,7 +58,7 @@ This repository holds the source code for the Realm SDK for Flutterâ„¢ and Dartâ
 
     ```dart
     final cars = realm.all<Car>().query(r'make == $0', ['Tesla']);
-    cars.changes.listen((changes) { 
+    cars.changes.listen((changes) {
       print('Inserted indexes: ${changes.inserted}');
       print('Deleted indexes: ${changes.deleted}');
       print('Modified indexes: ${changes.modified}');
@@ -72,7 +72,7 @@ For complete samples check the [Realm Flutter and Dart Samples](https://github.c
 
 ## Documentation
 
-For API documentation go to 
+For API documentation go to
  * [Realm Flutter API Docs](https://pub.dev/documentation/realm/latest/)
 
  * [Realm Dart API Docs](https://pub.dev/documentation/realm_dart/latest/)
@@ -88,11 +88,11 @@ For a complete documentation go to [Realm Flutter and Dart SDK Docs](https://doc
 
 * Flutter Desktop on Linux is not supported yet.
 
-* Migrations are not supported yet. 
+* Migrations are not supported yet.
 
-    If you change your data models often and receive a migration exception be sure to delete the old `default.realm` file in your application directory. It will get recreated with the new schema the next time the Realm is opened. 
+    If you change your data models often and receive a migration exception be sure to delete the old `default.realm` file in your application directory. It will get recreated with the new schema the next time the Realm is opened.
 
-# Realm Flutter SDK 
+# Realm Flutter SDK
 
 The Realm Flutter package name is `realm`
 
@@ -115,8 +115,8 @@ The Realm Flutter package name is `realm`
     flutter pub add realm
     ```
 
-* Import Realm in a dart file (ex. `catalog.dart`). 
-    
+* Import Realm in a dart file (ex. `catalog.dart`).
+
     ```dart
     import 'package:realm/realm.dart';
     ```
@@ -140,7 +140,7 @@ The Realm Flutter package name is `realm`
         late int id;
 
         late String name;
-        
+
         int price = 42;
     }
     ```
@@ -153,7 +153,7 @@ The Realm Flutter package name is `realm`
     flutter pub run realm generate
     ```
     A new file `catalog.g.dart` will be created next to the `catalog.dart`.
-    
+
     _*This file should be committed to source control_
 
 * Use the RealmObject class `Item` with Realm.
@@ -189,13 +189,13 @@ The Realm Flutter package name is `realm`
 
     // Get all objects of type
     var items = realm.all<Item>();
-    
+
     // Get object by index
     var item = items[1];
-    
+
     // Get object by primary key
     var itemByKey = realm.find<Item>(0);
-    
+
     // Filter and sort object
     var objects = realm.query<Item>("name == 'Special Pencil'");
     var name = 'Pen';
@@ -218,7 +218,7 @@ class _Item {
     late int id;
 
     late String name;
-    
+
     int price = 42;
 }
 
@@ -268,7 +268,7 @@ objects = realm.query<Item>(r'name == $0', [name]]);
 realm.close();
 ```
 
-# Realm Dart SDK 
+# Realm Dart SDK
 
 The Realm Dart package is `realm_dart`
 
@@ -290,8 +290,8 @@ The Realm Dart package is `realm_dart`
 
     ```
     dart run realm_dart install
-    ``` 
- 
+    ```
+
 * Import realm_dart in a dart file (ex. `catalog.dart`).
 
     ```dart
@@ -299,14 +299,14 @@ The Realm Dart package is `realm_dart`
     ```
 
 * To generate RealmObject classes with realm_dart use this command.
-    
+
     _*On Dart use `dart run realm_dart` to run `realm_dart` package commands*_
 
     ```
     dart run realm_dart generate
     ```
     A new file `catalog.g.dart` will be created next to the `catalog.dart`.
-    
+
     _*This file should be committed to source control_
 
 * For more usage of Realm Dart see the Realm Flutter usage above.
@@ -316,7 +316,7 @@ The Realm Dart package is `realm_dart`
 
 ## Building Realm Flutter
 
-* Clone the repo 
+* Clone the repo
     ```
     git clone https://github.com/realm/realm-dart
     git submodule update --init --recursive
@@ -369,39 +369,9 @@ The Realm Dart package is `realm_dart`
     ./scripts/build-linux.sh
     ```
 
+## Running tests
 
-## Run integration tests against Atlas cluster on MongoDB cloud.
-
-In order to run the tests that requires a backend, you need to setup a MongoDB cluster to run against. 
-A free-tier database should be enough for most contributors.
-
-1) Log on to [MongoDB cloud](https://cloud.mongodb.com)
-2) Create an organization, if you don't already have one. You may choose to create one specifically for the
-purpose of these tests, if you prefer.
-3) Create a separate project for the purpose of running the tests.
-4) Build a database for the project. Choose a tier - FREE should service for most contributors. Use the Default 
-settings.
-5) Add a user. Not really needed for the tests, but you cannot proceed without.
-6) Add your current IP address to IP address access list. You may need to revisit this step, if your IP changes.
-Or you can add a 0.0.0.0/0 entry to allow all IPs.
-7) Go to "Access manager -> Project Access". Located at the top of the page. Create an API key for the project. 
-Ensure that all permissions are granted, and copy the public and private key before proceeding.
-8) Note down the project id. It is the long number in the url (https://cloud.mongodb.com/v2/<project_id>/..). 
-You can also find it at the project settings page.
-9) Find the cluster name in "Deployment -> Database" (located at the left of the page). Usually "Cluster0"
-10) Setup environment variables locally:
-```
-BAAS_URL=https://realm.mongodb.com
-BAAS_CLUSTER=<cluster_name> # probably Cluster0
-BAAS_API_KEY=<public_key>
-BAAS_PRIVATE_API_KEY=<private_key>
-BAAS_PROJECT_ID=<project_id>
-```
-10) Now you can run `dart test` and it should include the integration tests.
-
-If you are a MongoDB employee, you can instead choose to run the tests against [cloud-dev](https://cloud-dev.mongodb.com).
-The procedure is the same, except you need to use your qa credentials instead.
-
+See [test/README.md](https://github.com/realm/realm-dart/master/test/README.md) for instructions on running tests.
 
 ## Versioning
 
@@ -410,7 +380,7 @@ During the initial development the packages will be versioned according the sche
 
 The first versions will follow `0.1.0+preview`, `0.1.1+preview` etc.
 Then next release stages will pick up the next minor version `0.1.2+beta`, `0.1.3+beta`. This will ensure dependencies are updated on `dart pub get` with the new `alpha`, `beta` versions.
-If an `alpha` version is released before `beta` and it needs to not be considered for `pub get` then it should be marked as `prerelease` with `-alpha` so  `0.1.2-alpha` etc. 
+If an `alpha` version is released before `beta` and it needs to not be considered for `pub get` then it should be marked as `prerelease` with `-alpha` so  `0.1.2-alpha` etc.
 Updating the major version with every release stage is also possible - `0.2.0+alpha`, `0.3.0+beta`, `0.3.1+beta`.
 
 
@@ -428,6 +398,6 @@ Realm Flutter and Dart SDKs and [Realm Core](https://github.com/realm/realm-core
 North Korea, Sudan, Syria or the Crimea region, or to any other person that is
 not eligible to receive the product under U.S. law.**
 
-##### The "Dart" name and logo and the "Flutter" name and logo are trademarks owned by Google. 
+##### The "Dart" name and logo and the "Flutter" name and logo are trademarks owned by Google.
 
 <img style="width: 0px; height: 0px;" src="https://3eaz4mshcd.execute-api.us-east-1.amazonaws.com/prod?s=https://github.com/realm/realm-dart#README.md">
