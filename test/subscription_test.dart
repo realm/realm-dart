@@ -477,6 +477,9 @@ Future<void> main([List<String>? args]) async {
     await realmY.subscriptions.waitForSynchronization();
 
     await realmX.syncSession.waitForUpload();
+    await realmX.syncSession.waitForDownload();
+    
+    await realmY.syncSession.waitForUpload();
     await realmY.syncSession.waitForDownload();
 
     final task = realmY.find<Task>(objectId);
