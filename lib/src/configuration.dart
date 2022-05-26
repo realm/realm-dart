@@ -229,6 +229,7 @@ void _defaultSyncClientResetHandler(SyncError e) {
 /// with MongoDB Atlas.
 /// {@category Configuration}
 class FlexibleSyncConfiguration extends Configuration {
+  /// The user
   final User user;
 
   SessionStopPolicy _sessionStopPolicy = SessionStopPolicy.afterChangesUploaded;
@@ -261,6 +262,14 @@ class FlexibleSyncConfiguration extends Configuration {
 extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
   SessionStopPolicy get sessionStopPolicy => _sessionStopPolicy;
   set sessionStopPolicy(SessionStopPolicy value) => _sessionStopPolicy = value;
+}
+
+class SyncFollowerConfiguration extends Configuration {
+  SyncFollowerConfiguration._(
+    super.schemaObjects, {
+    super.fifoFilesFallbackPath,
+    super.path,
+  }) : super._();
 }
 
 /// [InMemoryConfiguration] is used to open [Realm] instances that
