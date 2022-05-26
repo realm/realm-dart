@@ -422,7 +422,7 @@ Future<void> main([List<String>? args]) async {
       oid = mutableSubscriptions.add(realm.all<Task>(), name: 'foobar').id;
     });
 
-    await subscriptions.waitForSynchronization(); // <-- Attempt at fixing windows
+    await subscriptions.waitForSynchronization();
 
     final after = DateTime.now().toUtc();
     var s = subscriptions[0];
@@ -430,7 +430,7 @@ Future<void> main([List<String>? args]) async {
     expect(s.id, oid);
     expect(s.name, 'foobar');
     expect(s.objectClassName, 'Task');
-    expect(s.queryString, 'TRUEPREDICATE');
+    expect(s.queryString, contains('TRUEPREDICATE'));
     expect(s.createdAt.isAfter(before), isTrue);
     expect(s.createdAt.isBefore(after), isTrue);
     expect(s.createdAt, s.updatedAt);
@@ -439,7 +439,7 @@ Future<void> main([List<String>? args]) async {
       mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [ObjectId()]), name: 'foobar', update: true);
     });
 
-    s = subscriptions[0]; // WARNING: Needed in order to refresh properties!
+    s = subscriptions[0]; // Needed in order to refresh properties!
     expect(s.createdAt.isBefore(s.updatedAt), isTrue);
   });
 
