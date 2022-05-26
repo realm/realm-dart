@@ -280,14 +280,14 @@ Future<void> main([List<String>? args]) async {
 
   testSubscriptions('MutableSubscriptionSet.add multiple queries for same class', (realm) {
     final subscriptions = realm.subscriptions;
-    final r = Random.secure();
+    final random = Random.secure();
 
     Uint8List randomBytes(int n) {
-      final Uint8List random = Uint8List(n);
-      for (int i = 0; i < random.length; i++) {
-        random[i] = r.nextInt(255);
+      final Uint8List randomList = Uint8List(n);
+      for (int i = 0; i < randomList.length; i++) {
+        randomList[i] = random.nextInt(255);
       }
-      return random;
+      return randomList;
     }
 
     ObjectId newOid() => ObjectId.fromBytes(randomBytes(12));
@@ -302,8 +302,8 @@ Future<void> main([List<String>? args]) async {
     expect(oids.length, max); // no collisions
     expect(subscriptions.length, max);
 
-    for (final s in subscriptions) {
-      expect(s.id, isIn(oids));
+    for (final sub in subscriptions) {
+      expect(sub.id, isIn(oids));
     }
   });
 
