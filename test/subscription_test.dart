@@ -280,14 +280,14 @@ Future<void> main([List<String>? args]) async {
 
   testSubscriptions('MutableSubscriptionSet.add multiple queries for same class', (realm) {
     final subscriptions = realm.subscriptions;
-    final r = Random.secure();
+    final random = Random.secure();
 
     Uint8List randomBytes(int n) {
-      final Uint8List random = Uint8List(n);
-      for (int i = 0; i < random.length; i++) {
-        random[i] = r.nextInt(255);
+      final Uint8List randomList = Uint8List(n);
+      for (int i = 0; i < randomList.length; i++) {
+        randomList[i] = random.nextInt(255);
       }
-      return random;
+      return randomList;
     }
 
     ObjectId newOid() => ObjectId.fromBytes(randomBytes(12));
@@ -302,8 +302,8 @@ Future<void> main([List<String>? args]) async {
     expect(oids.length, max); // no collisions
     expect(subscriptions.length, max);
 
-    for (final s in subscriptions) {
-      expect(s.id, isIn(oids));
+    for (final sub in subscriptions) {
+      expect(sub.id, isIn(oids));
     }
   });
 
@@ -321,14 +321,14 @@ Future<void> main([List<String>? args]) async {
   testSubscriptions('MutableSubscriptionSet.add same name, different classes, with update flag', (realm) {
     final subscriptions = realm.subscriptions;
 
-    late Subscription s;
+    late Subscription subscription;
     subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Task>(), name: 'same');
-      s = mutableSubscriptions.add(realm.all<Schedule>(), name: 'same', update: true);
+      subscription = mutableSubscriptions.add(realm.all<Schedule>(), name: 'same', update: true);
     });
 
     expect(subscriptions.length, 1);
-    expect(subscriptions[0], s); // last added wins
+    expect(subscriptions[0], subscription); // last added wins
   });
 
   testSubscriptions('MutableSubscriptionSet.add same query, different classes', (realm) {
@@ -341,7 +341,7 @@ Future<void> main([List<String>? args]) async {
 
     expect(subscriptions.length, 2);
     for (final s in subscriptions) {
-      expect(s.queryString, 'TRUEPREDICATE');
+      expect(s.queryString, contains('TRUEPREDICATE'));
     }
   });
 
@@ -422,7 +422,7 @@ Future<void> main([List<String>? args]) async {
       oid = mutableSubscriptions.add(realm.all<Task>(), name: 'foobar').id;
     });
 
-    await subscriptions.waitForSynchronization(); // <-- Attempt at fixing windows
+    await subscriptions.waitForSynchronization();
 
     final after = DateTime.now().toUtc();
     var s = subscriptions[0];
@@ -430,7 +430,7 @@ Future<void> main([List<String>? args]) async {
     expect(s.id, oid);
     expect(s.name, 'foobar');
     expect(s.objectClassName, 'Task');
-    expect(s.queryString, 'TRUEPREDICATE');
+    expect(s.queryString, contains('TRUEPREDICATE'));
     expect(s.createdAt.isAfter(before), isTrue);
     expect(s.createdAt.isBefore(after), isTrue);
     expect(s.createdAt, s.updatedAt);
@@ -439,7 +439,7 @@ Future<void> main([List<String>? args]) async {
       mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [ObjectId()]), name: 'foobar', update: true);
     });
 
-    s = subscriptions[0]; // WARNING: Needed in order to refresh properties!
+    s = subscriptions[0]; // Needed in order to refresh properties!
     expect(s.createdAt.isBefore(s.updatedAt), isTrue);
   });
 
@@ -447,7 +447,7 @@ Future<void> main([List<String>? args]) async {
     final appX = App(appConfigurationX);
 
     realmCore.clearCachedApps();
-    final temporaryDir = await Directory.systemTemp.createTemp('realm_test_Y_');
+    final temporaryDir = await Directory.systemTemp.createTemp('realm_test_flexible_sync_roundtrip_');
     final appConfigurationY = AppConfiguration(
       appConfigurationX.appId,
       baseUrl: appConfigurationX.baseUrl,
@@ -460,15 +460,14 @@ Future<void> main([List<String>? args]) async {
     final userY = await appY.logIn(credentials);
 
     final realmX = getRealm(Configuration.flexibleSync(userX, [Task.schema]));
-    final pathY = path.join(temporaryDir.path, "Y.realm");
-    final realmY = getRealm(Configuration.flexibleSync(userY, [Task.schema], path: pathY)); // TODO: Why do I need to set path here?
+    final realmY = getRealm(Configuration.flexibleSync(userY, [Task.schema]));
 
     realmX.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmX.all<Task>());
     });
 
-    final oid = ObjectId();
-    realmX.write(() => realmX.add(Task(oid)));
+    final objectId = ObjectId();
+    realmX.write(() => realmX.add(Task(objectId)));
 
     realmY.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmY.all<Task>());
@@ -477,10 +476,18 @@ Future<void> main([List<String>? args]) async {
     await realmX.subscriptions.waitForSynchronization();
     await realmY.subscriptions.waitForSynchronization();
 
-    // TODO: Missing sync session wait methods here, so just add big timeout for now
-    await Future<void>.delayed(const Duration(seconds: 2));
+    await realmX.syncSession.waitForUpload();
+    await realmX.syncSession.waitForDownload();
+    
+    await realmY.syncSession.waitForUpload();
+    await realmY.syncSession.waitForDownload();
 
-    final t = realmY.find<Task>(oid);
-    expect(t, isNotNull);
+    waitForCondition(() {
+      final task = realmY.find<Task>(objectId);  
+      return task != null;
+    });
+
+    final task = realmY.find<Task>(objectId);
+    expect(task, isNotNull);
   });
 }
