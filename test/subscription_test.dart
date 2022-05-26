@@ -447,7 +447,7 @@ Future<void> main([List<String>? args]) async {
     final appX = App(appConfigurationX);
 
     realmCore.clearCachedApps();
-    final temporaryDir = await Directory.systemTemp.createTemp('realm_test_Y_');
+    final temporaryDir = await Directory.systemTemp.createTemp('realm_test_flexible_sync_roundtrip_');
     final appConfigurationY = AppConfiguration(
       appConfigurationX.appId,
       baseUrl: appConfigurationX.baseUrl,
@@ -460,7 +460,6 @@ Future<void> main([List<String>? args]) async {
     final userY = await appY.logIn(credentials);
 
     final realmX = getRealm(Configuration.flexibleSync(userX, [Task.schema]));
-    final pathY = path.join(temporaryDir.path, "Y.realm");
     final realmY = getRealm(Configuration.flexibleSync(userY, [Task.schema]));
 
     realmX.subscriptions.update((mutableSubscriptions) {
