@@ -321,14 +321,14 @@ Future<void> main([List<String>? args]) async {
   testSubscriptions('MutableSubscriptionSet.add same name, different classes, with update flag', (realm) {
     final subscriptions = realm.subscriptions;
 
-    late Subscription s;
+    late Subscription subscription;
     subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Task>(), name: 'same');
-      s = mutableSubscriptions.add(realm.all<Schedule>(), name: 'same', update: true);
+      subscription = mutableSubscriptions.add(realm.all<Schedule>(), name: 'same', update: true);
     });
 
     expect(subscriptions.length, 1);
-    expect(subscriptions[0], s); // last added wins
+    expect(subscriptions[0], subscription); // last added wins
   });
 
   testSubscriptions('MutableSubscriptionSet.add same query, different classes', (realm) {
