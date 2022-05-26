@@ -341,7 +341,7 @@ Future<void> main([List<String>? args]) async {
 
     expect(subscriptions.length, 2);
     for (final s in subscriptions) {
-      expect(s.queryString, 'TRUEPREDICATE');
+      expect(s.queryString, contains('TRUEPREDICATE'));
     }
   });
 
