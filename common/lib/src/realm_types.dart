@@ -79,60 +79,6 @@ class RealmStateError extends StateError implements RealmError {
   RealmStateError(String message) : super(message);
 }
 
-/// An error type that describes a client reset error condition.
-/// {@category Sync}
-class ClientResetError extends SessionError {
-  ClientResetError(
-    String message,
-    SyncErrorCategory category, {
-    bool isFatal = false,
-  }) : super(message, category, isFatal: isFatal, code: 132); //Code 132: ClientError.auto_client_reset_failure
-}
-
-/// An error type that describes a session-level error condition.
-/// {@category Sync}
-class SessionError extends SyncError {
-  /// If true the received error is fatal.
-  final bool isFatal;
-
-  SessionError(
-    String message,
-    SyncErrorCategory category, {
-    this.isFatal = false,
-    int code = 0,
-  }) : super(message, category, code);
-}
-
-/// Thrown or reporeted if an error occurs during synchronization
-/// {@category Sync}
-class SyncError extends RealmError {
-  /// The code of the error
-  final int code; // TODO: this should be an enum. There are two error codes enums in C-API realm::sync::ProtocolError and realm::sync::ClientError
-
-  /// The category of the error
-  final SyncErrorCategory category;
-
-  SyncError(String message, this.category, this.code) : super(message);
-}
-
-/// The category of a [SyncError].
-enum SyncErrorCategory {
-  /// The error originated from the client
-  client,
-
-  /// The error originated from the connection
-  connection,
-
-  /// The error originated from the session
-  session,
-
-  /// Another low-level system error occurred
-  system,
-
-  /// The category is unknown
-  unknown,
-}
-
 /// @nodoc
 class Decimal128 {} // TODO!
 
@@ -161,4 +107,336 @@ class RealmAny {
   const RealmAny.objectId(ObjectId id) : this._(id);
   const RealmAny.decimal128(Decimal128 decimal) : this._(decimal);
   const RealmAny.uuid(Uuid uuid) : this._(uuid);
+}
+
+/// Thrown when an error occurs during synchronization
+/// {@category Sync}
+class SyncError<T extends Enum> extends RealmError {
+  /// The code indicating the type of the sync error.
+  final T code;
+
+  /// The category of the sync error
+  final SyncErrorCategory category;
+
+  SyncError(String message, this.category, this.code) : super(message);
+
+  static SyncError create(String message, SyncErrorCategory category, int code) {
+    switch (category) {
+      case SyncErrorCategory.client:
+        return SyncError<SyncClientErrorCode>(message, category, SyncClientErrorCode.values[code]);
+      case SyncErrorCategory.connection:
+        return SyncError<SyncConnectionErrorCode>(message, category, SyncConnectionErrorCode.values[code]);
+      case SyncErrorCategory.session:
+        return SyncError<SyncSessionErrorCode>(message, category, SyncSessionErrorCode.values[code]);
+      case SyncErrorCategory.system:
+      case SyncErrorCategory.unknown:
+      default:
+        return SyncError<SyncGeneralErrorCode>(message, category, SyncGeneralErrorCode.generalError);
+    }
+  }
+}
+
+/// A general or unknown sync error
+class GeneralSyncError extends SyncError<SyncGeneralErrorCode> {
+  @override
+  final int generalError;
+
+  GeneralSyncError(String message, SyncErrorCategory category, this.code) : super(message, category, SyncGeneralErrorCode.generalError);
+}
+
+/// An error type that describes a session-level error condition.
+/// {@category Sync}
+class SessionError<T extends Enum> extends SyncError<T> {
+  /// If true the received error is fatal.
+  final bool isFatal;
+
+  SessionError(
+    String message,
+    SyncErrorCategory category,
+    T code, {
+    this.isFatal = false,
+  }) : super(message, category, code);
+}
+
+/// An error type that describes a client reset error condition.
+/// {@category Sync}
+class ClientResetError extends SessionError<SyncClientErrorCode> {
+  ClientResetError(String message) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure, isFatal: true);
+}
+
+/// The category of a [SyncError].
+enum SyncErrorCategory {
+  /// The error originated from the client
+  client,
+
+  /// The error originated from the connection
+  connection,
+
+  /// The error originated from the session
+  session,
+
+  /// Another low-level system error occurred
+  system,
+
+  /// The category is unknown
+  unknown,
+}
+
+enum SyncGeneralErrorCode {
+  generalError(999)
+}
+
+/// Protocol errors discovered by the client.
+///
+/// These errors will terminate the network connection
+/// (disconnect all sessions  associated with the affected connection),
+/// and the error will be reported via the connection state change listeners of the affected sessions.
+enum SyncClientErrorCode {
+  /// Connection closed (no error)
+  connectionClosed(100),
+
+  /// Unknown type of input message
+  unknownMessage(101),
+
+  /// Bad syntax in input message head
+  badSyntax(102),
+
+  /// Limits exceeded in input message
+  limitsExceeded(103),
+
+  /// Bad session identifier in input message
+  badSessionIdent(104),
+
+  /// Bad input message order
+  badMessageOrder(105),
+
+  /// Bad client file identifier (IDENT)
+  badClientFileIdent(106),
+
+  /// Bad progress information (DOWNLOAD)
+  badProgress(107),
+
+  /// Bad syntax in changeset header (DOWNLOAD)
+  badChangesetHeaderSyntax(108),
+
+  /// Bad changeset size in changeset header (DOWNLOAD)
+  badChangesetSize(109),
+
+  /// Bad origin file identifier in changeset header (DOWNLOAD)
+  badOriginFileIdent(110),
+
+  /// Bad server version in changeset header (DOWNLOAD)
+  badServerVersion(111),
+
+  /// Bad changeset (DOWNLOAD)
+  badChangeset(112),
+
+  /// Bad request identifier (MARK)
+  badRequestIdent(113),
+
+  /// Bad error code (ERROR),
+  badErrorCode(114),
+
+  /// Bad compression (DOWNLOAD)
+  badCompression(115),
+
+  /// Bad last integrated client version in changeset header (DOWNLOAD)
+  badClientVersion(116),
+
+  /// SSL server certificate rejected
+  sslServerCertRejected(117),
+
+  /// Timeout on reception of PONG respone message
+  pongTimeout(118),
+
+  /// Bad client file identifier salt (IDENT)
+  badClientFileIdentSalt(119),
+
+  /// Bad file identifier (ALLOC)
+  badFileIdent(120),
+
+  /// Sync connection was not fully established in time
+  connectTimeout(121),
+
+  /// Bad timestamp (PONG)
+  badTimestamp(122),
+
+  /// Bad or missing protocol version information from server
+  badProtocolFromServer(123),
+
+  /// Protocol version negotiation failed: Client is too old for server
+  clientTooOldForServer(124),
+
+  /// Protocol version negotiation failed: Client is too new for server
+  clientTooNewForServer(125),
+
+  /// Protocol version negotiation failed: No version supported by both client and server
+  protocolMismatch(126),
+
+  /// Bad values in state message (STATE)
+  badStateMessage(127),
+
+  /// Requested feature missing in negotiated protocol version
+  missingProtocolFeature(128),
+
+  /// Failed to establish HTTP tunnel with configured proxy
+  httpTunnelFailed(131),
+
+  /// A fatal error was encountered which prevents completion of a client reset
+  autoClientResetFailure(132);
+
+  final int code;
+  const SyncClientErrorCode(this.code);
+}
+
+/// Protocol connection errors discovered by the server, and reported to the client
+///
+/// These errors will be reported via the error handlers of the affected sessions.
+enum SyncConnectionErrorCode {
+  // Connection level and protocol errors
+  /// Connection closed (no error)
+  connectionClosed(100),
+
+  /// Other connection level error
+  otherError(101),
+
+  /// Unknown type of input message
+  unknownMessage(102),
+
+  /// Bad syntax in input message head
+  badSyntax(103),
+
+  /// Limits exceeded in input message
+  limitsExceeded(104),
+
+  /// Wrong protocol version (CLIENT) (obsolete)
+  wrongProtocolVersion(105),
+
+  /// Bad session identifier in input message
+  badSessionIdent(106),
+
+  /// Overlapping reuse of session identifier (BIND)
+  reuseOfSessionIdent(107),
+
+  /// Client file bound in other session (IDENT)
+  boundInOtherSession(108),
+
+  /// Bad input message order
+  badMessageOrder(109),
+
+  /// Error in decompression (UPLOAD)
+  badDecompression(110),
+
+  /// Bad syntax in a changeset header (UPLOAD)
+  badChangesetHeaderSyntax(111),
+
+  /// Bad size specified in changeset header (UPLOAD)
+  badChangesetSize(112),
+
+  /// Connected with wrong wire protocol - should switch to FLX sync
+  switchToFlxSync(113),
+
+  /// Connected with wrong wire protocol - should switch to PBS
+  switchToPbs(114);
+  
+  final int code;
+  const SyncConnectionErrorCode(this.code);
+}
+
+/// Protocol session errors discovered by the server, and reported to the client
+///
+/// These errors will be reported via the error handlers of the affected sessions.
+enum SyncSessionErrorCode {
+  /// Session closed (no error)
+  sessionClosed(200),
+
+  /// Other session level error
+  otherSessionError(201),
+
+  /// Access token expired
+  tokenExpired(202),
+
+  /// Bad user authentication (BIND)
+  badAuthentication(203),
+
+  /// Illegal Realm path (BIND)
+  illegalRealmPath(204),
+
+  /// No such Realm (BIND)
+  noSuchRealm(205),
+
+  /// Permission denied (BIND)
+  permissionDenied(206),
+
+  /// Bad server file identifier (IDENT) (obsolete!)
+  badServerFileIdent(207),
+
+  /// Bad client file identifier (IDENT)
+  badClientFileIdent(208),
+
+  /// Bad server version (IDENT, UPLOAD, TRANSACT)
+  badServerVersion(209),
+
+  /// Bad client version (IDENT, UPLOAD)
+  badClientVersion(210),
+
+  /// Diverging histories (IDENT)
+  divergingHistories(211),
+
+  /// Bad changeset (UPLOAD)
+  badChangeset(212),
+
+  /// Partial sync disabled (BIND)
+  partialSyncDisabled(214),
+
+  /// Unsupported session-level feature
+  unsupportedSessionFeature(215),
+
+  /// Bad origin file identifier (UPLOAD)
+  badOriginFileIdent(216),
+
+  /// Synchronization no longer possible for client-side file
+  badClientFile(217),
+
+  /// Server file was deleted while session was bound to it
+  serverFileDeleted(218),
+
+  /// Client file has been blacklisted (IDENT)
+  clientFileBlacklisted(219),
+
+  /// User has been blacklisted (BIND)
+  userBlacklisted(220),
+
+  /// Serialized transaction before upload completion
+  transactBeforeUpload(221),
+
+  /// Client file has expired
+  clientFileExpired(222),
+
+  /// User mismatch for client file identifier (IDENT)
+  userMismatch(223),
+
+  /// Too many sessions in connection (BIND)
+  tooManySessions(224),
+
+  /// Invalid schema change (UPLOAD)
+  invalidSchemaChange(225),
+
+  /// Client query is invalid/malformed (IDENT, QUERY)
+  badQuery(226),
+
+  /// Client tried to create an object that already exists outside their (()UPLOAD)
+  objectAlreadyExists(227),
+
+  /// Server permissions for this file ident have changed since the last time it (used) (IDENT)
+  serverPermissionsChanged(228),
+
+  /// Client tried to open a session before initial sync is complete (BIND)
+  initialSyncNotCompleted(229),
+
+  /// Client attempted a write that is disallowed by permissions, or modifies an object outside the current query - requires client reset (UPLOAD)
+  writeNotAllowed(230);
+
+  final int code;
+  const SyncSessionErrorCode(this.code);
 }
