@@ -474,9 +474,6 @@ Future<void> main([List<String>? args]) async {
     realmX.write(() => realmX.add(Task(objectId)));
 
     await realmX.syncSession.waitForUpload();
-    await realmX.syncSession.waitForDownload();
-    
-    await realmY.syncSession.waitForUpload();
     await realmY.syncSession.waitForDownload();
 
     await Future<void>.delayed(Duration(seconds: 2));
