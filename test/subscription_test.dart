@@ -467,6 +467,8 @@ Future<void> main([List<String>? args]) async {
     realmX.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmX.all<Task>());
     });
+    
+    await realmX.subscriptions.waitForSynchronization();
 
     final objectId = ObjectId();
     realmX.write(() => realmX.add(Task(objectId)));
@@ -474,8 +476,7 @@ Future<void> main([List<String>? args]) async {
     realmY.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmY.all<Task>());
     });
-
-    await realmX.subscriptions.waitForSynchronization();
+    
     await realmY.subscriptions.waitForSynchronization();
 
     await realmX.syncSession.waitForUpload();
@@ -493,5 +494,5 @@ Future<void> main([List<String>? args]) async {
 
     final task = realmY.find<Task>(objectId);
     expect(task, isNotNull);
-  }, skip: "This test is super flaky. Disabling for now.");
+  }); //, skip: "This test is super flaky. Disabling for now."
 }
