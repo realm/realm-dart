@@ -481,7 +481,7 @@ Future<void> main([List<String>? args]) async {
     waitForCondition(() {
       final task = realmY.find<Task>(objectId);  
       return task != null;
-    }, timeout: Duration(seconds: 2), retryDelay: Duration(microseconds: 200));
+    }, timeout: Duration(seconds: 30), retryDelay: Duration(microseconds: 500));
 
     final task = realmY.find<Task>(objectId);
     expect(task, isNotNull);
