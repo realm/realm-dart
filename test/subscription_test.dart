@@ -464,28 +464,22 @@ Future<void> main([List<String>? args]) async {
 
     realmX.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmX.all<Task>());
-    });
-
-    final objectId = ObjectId();
-    realmX.write(() => realmX.add(Task(objectId)));
-
-    realmY.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmY.all<Task>());
     });
 
     await realmX.subscriptions.waitForSynchronization();
     await realmY.subscriptions.waitForSynchronization();
 
-    await realmX.syncSession.waitForUpload();
-    await realmX.syncSession.waitForDownload();
+    final objectId = ObjectId();
+    realmX.write(() => realmX.add(Task(objectId)));
     
-    await realmY.syncSession.waitForUpload();
+    await realmX.syncSession.waitForUpload();
     await realmY.syncSession.waitForDownload();
 
     waitForCondition(() {
       final task = realmY.find<Task>(objectId);  
       return task != null;
-    });
+    }, timeout: Duration(seconds: 2), retryDelay: Duration(microseconds: 200));
 
     final task = realmY.find<Task>(objectId);
     expect(task, isNotNull);
