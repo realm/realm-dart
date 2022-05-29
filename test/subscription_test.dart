@@ -460,24 +460,18 @@ Future<void> main([List<String>? args]) async {
     final userY = await appY.logIn(credentials);
 
     final realmX = getRealm(Configuration.flexibleSync(userX, [Task.schema]));
-
-    final pathY = path.join(temporaryDir.path, "Y.realm");
-    final realmY = getRealm(Configuration.flexibleSync(userY, [Task.schema], path: pathY));
+    final realmY = getRealm(Configuration.flexibleSync(userY, [Task.schema]));
 
     realmX.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmX.all<Task>());
+      mutableSubscriptions.add(realmY.all<Task>());
     });
-    
+
     await realmX.subscriptions.waitForSynchronization();
+    await realmY.subscriptions.waitForSynchronization();
 
     final objectId = ObjectId();
     realmX.write(() => realmX.add(Task(objectId)));
-
-    realmY.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realmY.all<Task>());
-    });
-    
-    await realmY.subscriptions.waitForSynchronization();
 
     await realmX.syncSession.waitForUpload();
     await realmX.syncSession.waitForDownload();
@@ -494,5 +488,5 @@ Future<void> main([List<String>? args]) async {
 
     final task = realmY.find<Task>(objectId);
     expect(task, isNotNull);
-  }); //, skip: "This test is super flaky. Disabling for now."
+  });
 }
