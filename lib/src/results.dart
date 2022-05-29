@@ -19,11 +19,10 @@
 import 'dart:async';
 import 'dart:collection' as collection;
 
-import 'package:realm_dart/src/scheduler.dart';
-
 import 'collections.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
+import 'scheduler.dart';
 
 /// Instances of this class are live collections and will update as new elements are either
 /// added to or deleted from the Realm that match the underlying query.

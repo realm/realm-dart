@@ -18,11 +18,10 @@
 
 import 'dart:async';
 
-import 'package:realm_dart/src/scheduler.dart';
-
 import '../realm.dart';
 import 'native/realm_core.dart';
 import 'user.dart';
+import 'scheduler.dart';
 
 /// An object encapsulating a synchronization session. Sessions represent the
 /// communication between the client (and a local Realm file on disk), and the

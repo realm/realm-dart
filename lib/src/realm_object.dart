@@ -18,11 +18,10 @@
 
 import 'dart:async';
 
-import 'package:realm_dart/src/scheduler.dart';
-
 import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
+import 'scheduler.dart';
 
 abstract class RealmAccessor {
   Object? get<T extends Object>(RealmObject object, String name);

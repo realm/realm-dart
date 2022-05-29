@@ -19,10 +19,9 @@
 import 'dart:core';
 import 'dart:collection';
 
-import 'package:realm_dart/src/scheduler.dart';
-
 import 'native/realm_core.dart';
 import 'realm_class.dart';
+import 'scheduler.dart';
 
 /// A class representing a single query subscription. The server will continuously
 /// evaluate the query that the app subscribed to and will send data
