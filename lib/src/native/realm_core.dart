@@ -2046,27 +2046,27 @@ extension LevelExt on Level {
   }
 
   static Level fromInt(int value) {
-    if (value == 0) {
-      return RealmLogLevel.all;
-    } else if (value == 1) {
-      return RealmLogLevel.trace;
-    } else if (value == 2) {
-      return RealmLogLevel.debug;
-    } else if (value == 3) {
-      return RealmLogLevel.detail;
-    } else if (value == 4) {
-      return RealmLogLevel.info;
-    } else if (value == 5) {
-      return RealmLogLevel.warn;
-    } else if (value == 6) {
-      return RealmLogLevel.error;
-    } else if (value == 7) {
-      return RealmLogLevel.fatal;
-    } else if (value == 8) {
-      return RealmLogLevel.off;
+    switch (value) {
+      case 0:
+        return RealmLogLevel.all;
+      case 1:
+        return RealmLogLevel.trace;
+      case 2:
+        return RealmLogLevel.debug;
+      case 3:
+        return RealmLogLevel.detail;
+      case 4:
+        return RealmLogLevel.info;
+      case 5:
+        return RealmLogLevel.warn;
+      case 6:
+        return RealmLogLevel.error;
+      case 7:
+        return RealmLogLevel.fatal;
+      case 8:
+      default:
+        // if unknown logging is off
+        return RealmLogLevel.off;
     }
-
-    // if unknown logging is off
-    return RealmLogLevel.off;
   }
 }
