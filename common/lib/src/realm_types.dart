@@ -111,57 +111,108 @@ class RealmAny {
 
 /// Thrown when an error occurs during synchronization
 /// {@category Sync}
-class SyncError<T extends Enum> extends RealmError {
-  /// The code indicating the type of the sync error.
-  final T code;
+class SyncError extends RealmError {
+  /// The numeric code value indicating the type of the sync error.
+  final int codeValue;
 
   /// The category of the sync error
   final SyncErrorCategory category;
 
-  SyncError(String message, this.category, this.code) : super(message);
+  SyncError(String message, this.category, this.codeValue) : super(message);
 
-  static SyncError create(String message, SyncErrorCategory category, int code) {
+  /// Creates a specific type of [SyncError] instance based on the [category] and the [code] supplied.
+  static SyncError create(String message, SyncErrorCategory category, int code, {bool isFatal = false}) {
     switch (category) {
       case SyncErrorCategory.client:
-        return SyncError<SyncClientErrorCode>(message, category, SyncClientErrorCode.values[code]);
+        final errorCode = SyncClientErrorCode.values[code];
+        if (errorCode == SyncClientErrorCode.autoClientResetFailure) {
+          return SyncClientResetError(message);
+        }
+        return SyncClientError(message, category, errorCode, isFatal: isFatal);
       case SyncErrorCategory.connection:
-        return SyncError<SyncConnectionErrorCode>(message, category, SyncConnectionErrorCode.values[code]);
+        return SyncConnectionError(message, category, SyncConnectionErrorCode.values[code], isFatal: isFatal);
       case SyncErrorCategory.session:
-        return SyncError<SyncSessionErrorCode>(message, category, SyncSessionErrorCode.values[code]);
+        return SyncSessionError(message, category, SyncSessionErrorCode.values[code], isFatal: isFatal);
       case SyncErrorCategory.system:
       case SyncErrorCategory.unknown:
       default:
-        return SyncError<SyncGeneralErrorCode>(message, category, SyncGeneralErrorCode.generalError);
+        return GeneralSyncError(message, category, code);
     }
   }
-}
 
-/// A general or unknown sync error
-class GeneralSyncError extends SyncError<SyncGeneralErrorCode> {
-  @override
-  final int generalError;
-
-  GeneralSyncError(String message, SyncErrorCategory category, this.code) : super(message, category, SyncGeneralErrorCode.generalError);
+  /// As a specific [SyncError] type.
+  T as<T extends SyncError>() => this as T;
 }
 
 /// An error type that describes a session-level error condition.
 /// {@category Sync}
-class SessionError<T extends Enum> extends SyncError<T> {
+class SyncClientError extends SyncError {
   /// If true the received error is fatal.
   final bool isFatal;
 
-  SessionError(
+  /// The [SyncClientErrorCode] value indicating the type of the sync error.
+  SyncClientErrorCode get code => SyncClientErrorCode.values[codeValue];
+
+  SyncClientError(
     String message,
     SyncErrorCategory category,
-    T code, {
+    SyncClientErrorCode errorCode, {
     this.isFatal = false,
-  }) : super(message, category, code);
+  }) : super(message, category, errorCode.index);
 }
 
 /// An error type that describes a client reset error condition.
 /// {@category Sync}
-class ClientResetError extends SessionError<SyncClientErrorCode> {
-  ClientResetError(String message) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure, isFatal: true);
+class SyncClientResetError extends SyncError {
+  /// If true the received error is fatal.
+  final bool isFatal = true;
+
+  /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
+  SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
+
+  SyncClientResetError(String message) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.index);
+}
+
+/// An error type that describes a connection-level error condition.
+/// {@category Sync}
+class SyncConnectionError extends SyncError {
+  /// If true the received error is fatal.
+  final bool isFatal;
+
+  /// The [SyncConnectionErrorCode] value indicating the type of the sync error.
+  SyncConnectionErrorCode get code => SyncConnectionErrorCode.values[codeValue];
+
+  SyncConnectionError(
+    String message,
+    SyncErrorCategory category,
+    SyncConnectionErrorCode errorCode, {
+    this.isFatal = false,
+  }) : super(message, category, errorCode.index);
+}
+
+/// An error type that describes a session-level error condition.
+/// {@category Sync}
+class SyncSessionError extends SyncError {
+  /// If true the received error is fatal.
+  final bool isFatal;
+
+  /// The [SyncSessionErrorCode] value indicating the type of the sync error.
+  SyncSessionErrorCode get code => SyncSessionErrorCode.values[codeValue];
+
+  SyncSessionError(
+    String message,
+    SyncErrorCategory category,
+    SyncSessionErrorCode errorCode, {
+    this.isFatal = false,
+  }) : super(message, category, errorCode.index);
+}
+
+/// A general or unknown sync error
+class GeneralSyncError extends SyncError {
+  /// The numeric value indicating the type of the general sync error.
+  int get code => codeValue;
+
+  GeneralSyncError(String message, SyncErrorCategory category, int code) : super(message, category, code);
 }
 
 /// The category of a [SyncError].
@@ -182,8 +233,13 @@ enum SyncErrorCategory {
   unknown,
 }
 
-enum SyncGeneralErrorCode {
-  generalError(999)
+/// General sync error codes
+enum GeneralSyncErrorCode {
+  // A general sync error code
+  unknown(9999);
+
+  final int code;
+  const GeneralSyncErrorCode(this.code);
 }
 
 /// Protocol errors discovered by the client.
@@ -338,7 +394,7 @@ enum SyncConnectionErrorCode {
 
   /// Connected with wrong wire protocol - should switch to PBS
   switchToPbs(114);
-  
+
   final int code;
   const SyncConnectionErrorCode(this.code);
 }
