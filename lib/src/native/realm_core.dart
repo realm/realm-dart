@@ -986,22 +986,22 @@ class _RealmCore {
         late HttpClientRequest request;
 
         // this throws if requestMethod is unknown _HttpMethod
-        final method = _HttpMethod.values[requestMethod];
+        final method = HttpMethod.values[requestMethod];
 
         switch (method) {
-          case _HttpMethod.delete:
+          case HttpMethod.delete:
             request = await client.deleteUrl(url);
             break;
-          case _HttpMethod.put:
+          case HttpMethod.put:
             request = await client.putUrl(url);
             break;
-          case _HttpMethod.patch:
+          case HttpMethod.patch:
             request = await client.patchUrl(url);
             break;
-          case _HttpMethod.post:
+          case HttpMethod.post:
             request = await client.postUrl(url);
             break;
-          case _HttpMethod.get:
+          case HttpMethod.get:
             request = await client.getUrl(url);
             break;
         }
@@ -1039,14 +1039,14 @@ class _RealmCore {
           }
         });
 
-        responseRef.custom_status_code = _CustomErrorCode.noError.code;
+        responseRef.custom_status_code = CustomErrorCode.noError.code;
       } on SocketException catch (_) {
         // TODO: A Timeout causes a socket exception, but not all socket exceptions are due to timeouts
-        responseRef.custom_status_code = _CustomErrorCode.timeout.code;
+        responseRef.custom_status_code = CustomErrorCode.timeout.code;
       } on HttpException catch (_) {
-        responseRef.custom_status_code = _CustomErrorCode.unknownHttp.code;
+        responseRef.custom_status_code = CustomErrorCode.unknownHttp.code;
       } catch (_) {
-        responseRef.custom_status_code = _CustomErrorCode.unknown.code;
+        responseRef.custom_status_code = CustomErrorCode.unknown.code;
       } finally {
         _realmLib.realm_http_transport_complete_request(request_context, response_pointer);
       }
@@ -1054,16 +1054,20 @@ class _RealmCore {
   }
 
   static void logCallback(Pointer<Void> userdata, int levelAsInt, Pointer<Int8> message) {
-    try {
-      final logger = Realm.logger;
-      final level = _LogLevel.values[levelAsInt].loggerLevel;
+    final logger = Realm.logger;
+    if (logger == null) {
+      return;
+    }
 
-      // Don't do expensive utf8 to utf16 conversion unless we have to..
+    try {
+      final level = LevelExt.fromInt(levelAsInt);
+
+      // Don't do expensive utf8 to utf16 conversion unless needed.
       if (logger.isLoggable(level)) {
         logger.log(level, message.cast<Utf8>().toDartString());
       }
     } finally {
-      _realmLib.realm_free(message.cast()); // .. but always free the message
+      _realmLib.realm_free(message.cast()); // always free the message.
     }
   }
 
@@ -1074,14 +1078,19 @@ class _RealmCore {
       _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toUtf8Ptr(arena));
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
 
-      _realmLib.realm_sync_client_config_set_log_level(handle._pointer, _LogLevel.fromLevel(Realm.logger.level).index);
-      _realmLib.realm_dart_sync_client_config_set_log_callback(
-        handle._pointer,
-        Pointer.fromFunction(logCallback),
-        nullptr,
-        nullptr,
-        scheduler.handle._pointer,
-      );
+      if (Realm.logger != null) {
+        _realmLib.realm_sync_client_config_set_log_level(handle._pointer, Realm.logger!.level.toInt());
+
+        _realmLib.realm_dart_sync_client_config_set_log_callback(
+          handle._pointer,
+          Pointer.fromFunction(logCallback),
+          nullptr,
+          nullptr,
+          scheduler.handle._pointer,
+        );
+      } else {
+        _realmLib.realm_sync_client_config_set_log_level(handle._pointer, RealmLogLevel.off.toInt());
+      }
 
       _realmLib.realm_sync_client_config_set_connect_timeout(handle._pointer, configuration.maxConnectionTimeout.inMicroseconds);
       if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
@@ -1960,18 +1969,19 @@ extension on List<UserState> {
   }
 }
 
-enum _CustomErrorCode {
+enum CustomErrorCode {
   noError(0),
+  // ignore: unused_field
   httpClientDisposed(997),
   unknownHttp(998),
   unknown(999),
   timeout(1000);
 
   final int code;
-  const _CustomErrorCode(this.code);
+  const CustomErrorCode(this.code);
 }
 
-enum _HttpMethod {
+enum HttpMethod {
   get,
   post,
   patch,
@@ -2009,25 +2019,54 @@ extension on realm_object_id {
   }
 }
 
-// Helper enum for converting Level
-enum _LogLevel {
-  all(RealmLogLevel.all),
-  trace(RealmLogLevel.trace),
-  debug(RealmLogLevel.debug),
-  detail(RealmLogLevel.detail),
-  info(RealmLogLevel.info),
-  warn(RealmLogLevel.warn),
-  error(RealmLogLevel.error),
-  fatal(RealmLogLevel.fatal),
-  off(RealmLogLevel.off);
-
-  final Level loggerLevel;
-  const _LogLevel(this.loggerLevel);
-
-  factory _LogLevel.fromLevel(Level level) {
-    for (final candidate in _LogLevel.values) {
-      if (level.value > candidate.loggerLevel.value) return candidate;
+extension LevelExt on Level {
+  int toInt() {
+    if (this == Level.ALL) {
+      return 0;
+    } else if (name == "TRACE") {
+      return 1;
+    } else if (name == "DEBUG") {
+      return 2;
+    } else if (name == "DETAIL") {
+      return 3;
+    } else if (this == Level.INFO) {
+      return 4;
+    } else if (this == Level.WARNING) {
+      return 5;
+    } else if (name == "ERROR") {
+      return 6;
+    } else if (name == "FATAL") {
+      return 7;
+    } else if (this == Level.OFF) {
+      return 8;
+    } else {
+      // if unknown logging is off
+      return 8;
     }
-    return _LogLevel.off;
+  }
+
+  static Level fromInt(int value) {
+    if (value == 0) {
+      return RealmLogLevel.all;
+    } else if (value == 1) {
+      return RealmLogLevel.trace;
+    } else if (value == 2) {
+      return RealmLogLevel.debug;
+    } else if (value == 3) {
+      return RealmLogLevel.detail;
+    } else if (value == 4) {
+      return RealmLogLevel.info;
+    } else if (value == 5) {
+      return RealmLogLevel.warn;
+    } else if (value == 6) {
+      return RealmLogLevel.error;
+    } else if (value == 7) {
+      return RealmLogLevel.fatal;
+    } else if (value == 8) {
+      return RealmLogLevel.off;
+    }
+
+    // if unknown logging is off
+    return RealmLogLevel.off;
   }
 }
