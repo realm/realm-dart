@@ -19,6 +19,7 @@ import 'dart:io';
 
 import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
+import 'package:realm_dart/src/scheduler.dart';
 
 import '../realm.dart';
 import 'configuration.dart';
@@ -117,7 +118,7 @@ class App {
   String get id => realmCore.appGetId(this);
 
   /// Create an app with a particular [AppConfiguration]
-  App(AppConfiguration configuration) : this._(realmCore.getApp(configuration));
+  App(AppConfiguration configuration) : this._(realmCore.getApp(configuration, scheduler.handle));
 
   App._(this._handle);
 

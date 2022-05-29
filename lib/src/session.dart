@@ -18,6 +18,8 @@
 
 import 'dart:async';
 
+import 'package:realm_dart/src/scheduler.dart';
+
 import '../realm.dart';
 import 'native/realm_core.dart';
 import 'user.dart';
@@ -57,10 +59,10 @@ class Session {
   void resume() => realmCore.sessionResume(this);
 
   /// Waits for the [Session] to finish all pending uploads.
-  Future<void> waitForUpload() => realmCore.sessionWaitForUpload(this);
+  Future<void> waitForUpload() => realmCore.sessionWaitForUpload(this, scheduler.handle);
 
   /// Waits for the [Session] to finish all pending downloads.
-  Future<void> waitForDownload() => realmCore.sessionWaitForDownload(this);
+  Future<void> waitForDownload() => realmCore.sessionWaitForDownload(this, scheduler.handle);
 
   /// Gets a [Stream] of [SyncProgress] that can be used to track upload or download progress.
   Stream<SyncProgress> getProgressStream(ProgressDirection direction, ProgressMode mode) {
@@ -166,7 +168,7 @@ class SessionProgressNotificationsController {
       throw RealmStateError("Session progress subscription already started");
     }
 
-    _token = realmCore.sessionRegisterProgressNotifier(_session, _direction, _mode, this);
+    _token = realmCore.sessionRegisterProgressNotifier(_session, _direction, _mode, this, scheduler.handle);
   }
 
   void _stop() {

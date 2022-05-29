@@ -19,6 +19,8 @@
 import 'dart:core';
 import 'dart:collection';
 
+import 'package:realm_dart/src/scheduler.dart';
+
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 
@@ -144,7 +146,7 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
   }
 
   Future<SubscriptionSetState> _waitForStateChange(SubscriptionSetState state) async {
-    final result = await realmCore.waitForSubscriptionSetStateChange(this, state);
+    final result = await realmCore.waitForSubscriptionSetStateChange(this, state, scheduler.handle);
     realmCore.refreshSubscriptionSet(this);
     return result;
   }

@@ -19,6 +19,8 @@
 import 'dart:async';
 import 'dart:collection' as collection;
 
+import 'package:realm_dart/src/scheduler.dart';
+
 import 'collections.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
@@ -190,7 +192,7 @@ class ListNotificationsController<T extends Object> extends NotificationsControl
 
   @override
   RealmNotificationTokenHandle subscribe() {
-    return realmCore.subscribeListNotifications(list, this);
+    return realmCore.subscribeListNotifications(list, this, scheduler.handle);
   }
 
   Stream<RealmListChanges<T>> createStream() {
