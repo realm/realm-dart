@@ -460,7 +460,9 @@ Future<void> main([List<String>? args]) async {
     final userY = await appY.logIn(credentials);
 
     final realmX = getRealm(Configuration.flexibleSync(userX, [Task.schema]));
-    final realmY = getRealm(Configuration.flexibleSync(userY, [Task.schema]));
+
+    final pathY = path.join(temporaryDir.path, "Y.realm");
+    final realmY = getRealm(Configuration.flexibleSync(userY, [Task.schema], path: pathY));
 
     realmX.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmX.all<Task>());
