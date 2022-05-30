@@ -1055,9 +1055,6 @@ class _RealmCore {
 
   static void _logCallback(Pointer<Void> userdata, int levelAsInt, Pointer<Int8> message) {
     final logger = Realm.logger;
-    if (logger == null) {
-      return;
-    }
 
     try {
       final level = LevelExt.fromInt(levelAsInt);
