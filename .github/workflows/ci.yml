@@ -190,6 +190,7 @@ jobs:
       - name: Build .xcframework
         run: |
           rm -rf ./binary/ios/realm_dart.xcframework
+          find .
           xcodebuild -create-xcframework \
             -framework ./binary/ios/Release-iphoneos/realm_dart.framework \
             -framework ./binary/ios/Release-iphonesimulator/realm_dart.framework \
