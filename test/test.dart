@@ -20,6 +20,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 import 'dart:math';
+import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' hide test;
@@ -191,6 +192,15 @@ Future<void> setupTests(List<String>? args) async {
   setUpAll(() async => await setupBaas());
 
   setUp(() {
+    // Setup fine-grained logging
+    final stopwatch = Stopwatch()..start();
+    final logger = Logger.detached('CI Test')
+      ..level = RealmLogLevel.trace
+      ..onRecord.listen((event) {
+        print('${stopwatch.elapsedMilliseconds.toString().padLeft(5)}ms $event');
+      });
+    Realm.logger = logger;
+
     final path = generateRandomRealmPath();
     ConfigurationInternal.defaultPath = path;
 
