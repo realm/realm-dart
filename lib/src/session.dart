@@ -68,6 +68,13 @@ class Session {
     return controller.createStream();
   }
 
+  /// Gets a [Stream] of [ConnectionState] that can be used to be notified whenever the
+  /// connection state changes.
+  Stream<ConnectionStateChange> getConnectionStateStream() {
+    final controller = SessionConnectionStateController(this);
+    return controller.createStream();
+  }
+
   void _raiseSessionError(SyncErrorCategory category, int errorCode, bool isFatal) {
     realmCore.raiseError(this, category, errorCode, isFatal);
   }
@@ -131,6 +138,17 @@ class SyncProgress {
   SyncProgress._(this.transferredBytes, this.transferableBytes);
 }
 
+/// A type containing information about the transition of a connection state from one value to another.
+class ConnectionStateChange {
+  /// The connection state before the transition.
+  final ConnectionState previous;
+
+  /// The current connection state of the session.
+  final ConnectionState current;
+
+  ConnectionStateChange._(this.previous, this.current);
+}
+
 extension SessionInternal on Session {
   static Session create(SessionHandle handle) => Session._(handle);
 
@@ -181,6 +199,41 @@ class SessionProgressNotificationsController {
     }
 
     realmCore.sessionUnregisterProgressNotifier(_session, _token!);
+    _token = null;
+  }
+}
+
+/// @nodoc
+class SessionConnectionStateController {
+  final Session _session;
+  late final StreamController<ConnectionStateChange> _streamController;
+  int? _token;
+
+  SessionConnectionStateController(this._session);
+
+  Stream<ConnectionStateChange> createStream() {
+    _streamController = StreamController<ConnectionStateChange>.broadcast(onListen: _start, onCancel: _stop);
+    return _streamController.stream;
+  }
+
+  void onConnectionStateChange(ConnectionState oldState, ConnectionState newState) {
+    _streamController.add(ConnectionStateChange._(oldState, newState));
+  }
+
+  void _start() {
+    if (_token != null) {
+      throw RealmStateError("Session connection state subscription already started");
+    }
+
+    _token = realmCore.sessionRegisterConnectionStateNotifier(_session, this);
+  }
+
+  void _stop() {
+    if (_token == null) {
+      return;
+    }
+
+    realmCore.sessionUnregisterConnectionStateNotifier(_session, _token!);
     _token = null;
   }
 }

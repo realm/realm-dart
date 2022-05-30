@@ -410,8 +410,8 @@ class _RealmCore {
       return;
     }
     final sessionError = error.toSessionError();
-    if(syncConfig.sessionErrorHandler != null) {
-        syncConfig.sessionErrorHandler!(sessionError);
+    if (syncConfig.sessionErrorHandler != null) {
+      syncConfig.sessionErrorHandler!(sessionError);
     }
   }
 
@@ -1066,7 +1066,7 @@ class _RealmCore {
 
       _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toUtf8Ptr(arena));
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
-      
+
       _realmLib.realm_sync_client_config_set_log_level(handle._pointer, _LogLevel.fromLevel(Realm.logger.level).index);
       _realmLib.realm_dart_sync_client_config_set_log_callback(
         handle._pointer,
@@ -1075,7 +1075,7 @@ class _RealmCore {
         nullptr,
         scheduler.handle._pointer,
       );
-      
+
       _realmLib.realm_sync_client_config_set_connect_timeout(handle._pointer, configuration.maxConnectionTimeout.inMicroseconds);
       if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
         _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
@@ -1500,6 +1500,28 @@ class _RealmCore {
 
   void sessionUnregisterProgressNotifier(Session session, int token) {
     _realmLib.realm_sync_session_unregister_progress_notifier(session.handle._pointer, token);
+  }
+
+  int sessionRegisterConnectionStateNotifier(Session session, SessionConnectionStateController controller) {
+    return _realmLib.realm_dart_sync_session_register_connection_state_change_callback(
+        session.handle._pointer,
+        Pointer.fromFunction(on_connection_state_change),
+        controller.toPersistentHandle(),
+        _realmLib.addresses.realm_dart_delete_persistent_handle,
+        scheduler.handle._pointer);
+  }
+
+  void sessionUnregisterConnectionStateNotifier(Session session, int token) {
+    _realmLib.realm_sync_session_unregister_connection_state_change_callback(session.handle._pointer, token);
+  }
+
+  static void on_connection_state_change(Pointer<Void> userdata, int oldState, int newState) {
+    final SessionConnectionStateController? controller = userdata.toObject(isPersistent: true);
+    if (controller == null) {
+      return;
+    }
+
+    controller.onConnectionStateChange(ConnectionState.values[oldState], ConnectionState.values[newState]);
   }
 
   static void on_sync_progress(Pointer<Void> userdata, int transferred, int transferable) {

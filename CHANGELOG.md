@@ -43,6 +43,17 @@
 * Support session error handler. ([#577](https://github.com/realm/realm-dart/pull/577))
 * Support setting logger on AppConfiguration. ([#583](https://github.com/realm/realm-dart/pull/583))
 * Support setting logger on Realm class. Default is to print info message or worse to the console. ([#583](https://github.com/realm/realm-dart/pull/583))
+* Support getting the `SyncSession` for a synchronized Realm via the `realm.syncSession` property.
+* Support the following `SyncSession` API:
+  * `realmPath` returning the path of the Realm for the session.
+  * `state` returning the current state of the session.
+  * `connectionState` returning the current state of the connection.
+  * `user` returning the user that owns the session.
+  * `pause()` pauses synchronization.
+  * `resume()` resumes synchronization.
+  * `waitForUpload/waitForDownload` returns a Future that completes when the session uploaded/downloaded all changes.
+  * `getProgressStream` returns a Stream that emits progress updates.
+  * `getConnectionStateStream` returns a Stream that emits connection state updates.
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))
