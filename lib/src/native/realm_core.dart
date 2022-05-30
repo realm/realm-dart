@@ -986,22 +986,22 @@ class _RealmCore {
         late HttpClientRequest request;
 
         // this throws if requestMethod is unknown _HttpMethod
-        final method = HttpMethod.values[requestMethod];
+        final method = _HttpMethod.values[requestMethod];
 
         switch (method) {
-          case HttpMethod.delete:
+          case _HttpMethod.delete:
             request = await client.deleteUrl(url);
             break;
-          case HttpMethod.put:
+          case _HttpMethod.put:
             request = await client.putUrl(url);
             break;
-          case HttpMethod.patch:
+          case _HttpMethod.patch:
             request = await client.patchUrl(url);
             break;
-          case HttpMethod.post:
+          case _HttpMethod.post:
             request = await client.postUrl(url);
             break;
-          case HttpMethod.get:
+          case _HttpMethod.get:
             request = await client.getUrl(url);
             break;
         }
@@ -1039,14 +1039,14 @@ class _RealmCore {
           }
         });
 
-        responseRef.custom_status_code = CustomErrorCode.noError.code;
+        responseRef.custom_status_code = _CustomErrorCode.noError.code;
       } on SocketException catch (_) {
         // TODO: A Timeout causes a socket exception, but not all socket exceptions are due to timeouts
-        responseRef.custom_status_code = CustomErrorCode.timeout.code;
+        responseRef.custom_status_code = _CustomErrorCode.timeout.code;
       } on HttpException catch (_) {
-        responseRef.custom_status_code = CustomErrorCode.unknownHttp.code;
+        responseRef.custom_status_code = _CustomErrorCode.unknownHttp.code;
       } catch (_) {
-        responseRef.custom_status_code = CustomErrorCode.unknown.code;
+        responseRef.custom_status_code = _CustomErrorCode.unknown.code;
       } finally {
         _realmLib.realm_http_transport_complete_request(request_context, response_pointer);
       }
@@ -1055,9 +1055,6 @@ class _RealmCore {
 
   static void logCallback(Pointer<Void> userdata, int levelAsInt, Pointer<Int8> message) {
     final logger = Realm.logger;
-    if (logger == null) {
-      return;
-    }
 
     try {
       final level = LevelExt.fromInt(levelAsInt);
@@ -1078,19 +1075,15 @@ class _RealmCore {
       _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toUtf8Ptr(arena));
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
 
-      if (Realm.logger != null) {
-        _realmLib.realm_sync_client_config_set_log_level(handle._pointer, Realm.logger!.level.toInt());
+      _realmLib.realm_sync_client_config_set_log_level(handle._pointer, Realm.logger.level.toInt());
 
-        _realmLib.realm_dart_sync_client_config_set_log_callback(
-          handle._pointer,
-          Pointer.fromFunction(logCallback),
-          nullptr,
-          nullptr,
-          scheduler.handle._pointer,
-        );
-      } else {
-        _realmLib.realm_sync_client_config_set_log_level(handle._pointer, RealmLogLevel.off.toInt());
-      }
+      _realmLib.realm_dart_sync_client_config_set_log_callback(
+        handle._pointer,
+        Pointer.fromFunction(logCallback),
+        nullptr,
+        nullptr,
+        scheduler.handle._pointer,
+      );
 
       _realmLib.realm_sync_client_config_set_connect_timeout(handle._pointer, configuration.maxConnectionTimeout.inMicroseconds);
       if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
@@ -1969,7 +1962,7 @@ extension on List<UserState> {
   }
 }
 
-enum CustomErrorCode {
+enum _CustomErrorCode {
   noError(0),
   // ignore: unused_field
   httpClientDisposed(997),
@@ -1978,10 +1971,10 @@ enum CustomErrorCode {
   timeout(1000);
 
   final int code;
-  const CustomErrorCode(this.code);
+  const _CustomErrorCode(this.code);
 }
 
-enum HttpMethod {
+enum _HttpMethod {
   get,
   post,
   patch,
