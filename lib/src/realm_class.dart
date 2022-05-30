@@ -311,13 +311,8 @@ class Realm {
     return realmCore.realmEquals(this, other);
   }
 
-  /// The logger to use for logging or null. 
-  /// 
-  /// To enable logging assign a logger instance and recreate any [FlexibleSyncConfiguration] configuraitons and reopen the synced [Realm]s.
-  static Logger? logger;
-
-  /// This default logger logs to the console with [RealmLogLevel.info] level.
-  static Logger get defaultLogger => Logger.detached('Realm')
+  /// The logger to use for logging
+  static Logger logger = Logger.detached('Realm')
     ..level = RealmLogLevel.info
     ..onRecord.listen((event) => print(event));
 

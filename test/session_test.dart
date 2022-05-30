@@ -279,14 +279,14 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession test error handler', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: SyncErrorHandler((syncError) {
+    final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
       expect(syncError, isA<SyncSessionError>());
       final sessionError = syncError.as<SyncSessionError>();
       expect(sessionError.category, SyncErrorCategory.session);
       expect(sessionError.isFatal, false);
       expect(sessionError.code, SyncSessionErrorCode.badAuthentication);
       expect(sessionError.message, "Simulated session error");
-    }));
+    });
 
     final realm = getRealm(config);
 
@@ -296,14 +296,14 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession test fatal error handler', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: SyncErrorHandler((syncError) {
+    final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
       expect(syncError, isA<SyncClientError>());
       final syncClientError = syncError.as<SyncClientError>();
       expect(syncClientError.category, SyncErrorCategory.client);
       expect(syncClientError.isFatal, true);
       expect(syncClientError.code, SyncClientErrorCode.badChangeset);
       expect(syncClientError.message, "Simulated client error");
-    }));
+    });
     final realm = getRealm(config);
 
     realm.syncSession.raiseError(SyncErrorCategory.client, SyncClientErrorCode.badChangeset.index, true);
@@ -312,14 +312,14 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession client reset handler', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: SyncErrorHandler((syncError) {
+    final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
       expect(syncError, isA<SyncClientResetError>());
       final syncClientResetError = syncError.as<SyncClientResetError>();
       expect(syncClientResetError.category, SyncErrorCategory.session);
       expect(syncClientResetError.isFatal, true);
       expect(syncClientResetError.code, SyncClientErrorCode.autoClientResetFailure);
       expect(syncClientResetError.message, "Simulated session error");
-    }));
+    });
     final realm = getRealm(config);
 
     realm.syncSession.raiseError(SyncErrorCategory.session, SyncClientErrorCode.autoClientResetFailure.index, true);

@@ -76,7 +76,7 @@ class RealmUnsupportedSetError extends UnsupportedError implements RealmError {
 
 /// Thrown if the Realm operation is not allowed by the current state of the object.
 class RealmStateError extends StateError implements RealmError {
-  RealmStateError(String message) : super(message);
+  RealmStateError(super.message);
 }
 
 /// @nodoc
@@ -124,15 +124,15 @@ class SyncError extends RealmError {
   static SyncError create(String message, SyncErrorCategory category, int code, {bool isFatal = false}) {
     switch (category) {
       case SyncErrorCategory.client:
-        final errorCode = SyncClientErrorCode.values[code];
+        final SyncClientErrorCode errorCode = SyncClientErrorCode.fromInt(code);
         if (errorCode == SyncClientErrorCode.autoClientResetFailure) {
           return SyncClientResetError(message);
         }
         return SyncClientError(message, category, errorCode, isFatal: isFatal);
       case SyncErrorCategory.connection:
-        return SyncConnectionError(message, category, SyncConnectionErrorCode.values[code], isFatal: isFatal);
+        return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.session:
-        return SyncSessionError(message, category, SyncSessionErrorCode.values[code], isFatal: isFatal);
+        return SyncSessionError(message, category, SyncSessionErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.system:
       case SyncErrorCategory.unknown:
       default:
@@ -158,7 +158,7 @@ class SyncClientError extends SyncError {
     SyncErrorCategory category,
     SyncClientErrorCode errorCode, {
     this.isFatal = false,
-  }) : super(message, category, errorCode.index);
+  }) : super(message, category, errorCode.code);
 }
 
 /// An error type that describes a client reset error condition.
@@ -170,7 +170,7 @@ class SyncClientResetError extends SyncError {
   /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
   SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
 
-  SyncClientResetError(String message) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.index);
+  SyncClientResetError(String message) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
 }
 
 /// An error type that describes a connection-level error condition.
@@ -180,14 +180,14 @@ class SyncConnectionError extends SyncError {
   final bool isFatal;
 
   /// The [SyncConnectionErrorCode] value indicating the type of the sync error.
-  SyncConnectionErrorCode get code => SyncConnectionErrorCode.values[codeValue];
+  SyncConnectionErrorCode get code => SyncConnectionErrorCode.fromInt(codeValue);
 
   SyncConnectionError(
     String message,
     SyncErrorCategory category,
     SyncConnectionErrorCode errorCode, {
     this.isFatal = false,
-  }) : super(message, category, errorCode.index);
+  }) : super(message, category, errorCode.code);
 }
 
 /// An error type that describes a session-level error condition.
@@ -204,7 +204,7 @@ class SyncSessionError extends SyncError {
     SyncErrorCategory category,
     SyncSessionErrorCode errorCode, {
     this.isFatal = false,
-  }) : super(message, category, errorCode.index);
+  }) : super(message, category, errorCode.code);
 }
 
 /// A general or unknown sync error
@@ -237,6 +237,17 @@ enum SyncErrorCategory {
 enum GeneralSyncErrorCode {
   // A general sync error code
   unknown(9999);
+
+  static final Map<int, GeneralSyncErrorCode> _valuesMap = {for (var value in GeneralSyncErrorCode.values) value.code: value};
+
+  static GeneralSyncErrorCode fromInt(int code) {
+    final mappedCode = GeneralSyncErrorCode._valuesMap[code];
+    if (mappedCode == null) {
+      throw RealmError("Unknown GeneralSyncErrorCode");
+    }
+
+    return mappedCode;
+  }
 
   final int code;
   const GeneralSyncErrorCode(this.code);
@@ -341,7 +352,19 @@ enum SyncClientErrorCode {
   /// A fatal error was encountered which prevents completion of a client reset
   autoClientResetFailure(132);
 
+  static final Map<int, SyncClientErrorCode> _valuesMap = {for (var value in SyncClientErrorCode.values) value.code: value};
+
+  static SyncClientErrorCode fromInt(int code) {
+    final mappedCode = SyncClientErrorCode._valuesMap[code];
+    if (mappedCode == null) {
+      throw RealmError("Unknown SyncClientErrorCode");
+    }
+
+    return mappedCode;
+  }
+
   final int code;
+
   const SyncClientErrorCode(this.code);
 }
 
@@ -394,6 +417,17 @@ enum SyncConnectionErrorCode {
 
   /// Connected with wrong wire protocol - should switch to PBS
   switchToPbs(114);
+
+  static final Map<int, SyncConnectionErrorCode> _valuesMap = {for (var value in SyncConnectionErrorCode.values) value.code: value};
+
+  static SyncConnectionErrorCode fromInt(int code) {
+    final mappedCode = SyncConnectionErrorCode._valuesMap[code];
+    if (mappedCode == null) {
+      throw RealmError("Unknown SyncConnectionErrorCode");
+    }
+
+    return mappedCode;
+  }
 
   final int code;
   const SyncConnectionErrorCode(this.code);
@@ -492,6 +526,17 @@ enum SyncSessionErrorCode {
 
   /// Client attempted a write that is disallowed by permissions, or modifies an object outside the current query - requires client reset (UPLOAD)
   writeNotAllowed(230);
+
+  static final Map<int, SyncSessionErrorCode> _valuesMap = {for (var value in SyncSessionErrorCode.values) value.code: value};
+
+  static SyncSessionErrorCode fromInt(int code) {
+    final mappedCode = SyncSessionErrorCode._valuesMap[code];
+    if (mappedCode == null) {
+      throw RealmError("Unknown SyncSessionErrorCode");
+    }
+
+    return mappedCode;
+  }
 
   final int code;
   const SyncSessionErrorCode(this.code);
