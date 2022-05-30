@@ -60,8 +60,6 @@ if(ANDROID)
     # Core requires these options for the final *.so file. See more realm-core/CMakeLists.txt
     target_link_options(realm_dart PRIVATE LINKER:-gc-sections)
 
-    set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/binary/android/${ANDROID_ABI}")
-
     # Add a custom target to strip the binary
     add_custom_target(strip ${CMAKE_STRIP} $<TARGET_FILE:realm_dart>)
 elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)

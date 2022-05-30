@@ -236,7 +236,7 @@
       "displayName": "Simulator",
       "inherits": "ios",
       "environment": {
-        "xcode_destination": "platform=iOS Simulator,name=iPhone 8"
+        "xcode_destination": "generic/platform=iOS Simulator"
       },
       "configuration": "Debug"
     },
@@ -245,7 +245,7 @@
       "displayName": "Catalyst",
       "inherits": "ios",
       "environment": {
-        "xcode_destination": "platform=macOS,variant=Mac Catalyst"
+        "xcode_destination": "generic/platform=macOS,variant=Mac Catalyst"
       },
       "configuration": "Debug"
     }
