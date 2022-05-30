@@ -48,12 +48,12 @@
   * `realmPath` returning the path of the Realm for the session.
   * `state` returning the current state of the session.
   * `connectionState` returning the current state of the connection.
+  * `connectionStateChanges` returns a Stream that emits connection state updates.
   * `user` returning the user that owns the session.
   * `pause()` pauses synchronization.
   * `resume()` resumes synchronization.
   * `waitForUpload/waitForDownload` returns a Future that completes when the session uploaded/downloaded all changes.
   * `getProgressStream` returns a Stream that emits progress updates.
-  * `getConnectionStateStream` returns a Stream that emits connection state updates.
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))

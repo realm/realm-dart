@@ -298,7 +298,7 @@ Future<void> main([List<String>? args]) async {
     await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.connected);
 
     final states = <ConnectionStateChange>[];
-    final stream = realm.syncSession.getConnectionStateStream();
+    final stream = realm.syncSession.connectionStateChanges;
     final subscription = stream.listen((event) {
       states.add(event);
     });

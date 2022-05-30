@@ -70,7 +70,7 @@ class Session {
 
   /// Gets a [Stream] of [ConnectionState] that can be used to be notified whenever the
   /// connection state changes.
-  Stream<ConnectionStateChange> getConnectionStateStream() {
+  Stream<ConnectionStateChange> get connectionStateChanges {
     final controller = SessionConnectionStateController(this);
     return controller.createStream();
   }
