@@ -136,6 +136,10 @@ jobs:
           path: ./binary/**
           key: binaries-${{ matrix.build || matrix.preset }}-${{hashFiles('./src/**')}}
 
+      - name: Setup Ninja
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        uses: seanmiddleditch/gha-setup-ninja@master
+
       - name: Setup Vcpkg
         if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         uses: friendlyanon/setup-vcpkg@v1
