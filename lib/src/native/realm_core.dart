@@ -1053,7 +1053,7 @@ class _RealmCore {
     });
   }
 
-  static void logCallback(Pointer<Void> userdata, int levelAsInt, Pointer<Int8> message) {
+  static void _logCallback(Pointer<Void> userdata, int levelAsInt, Pointer<Int8> message) {
     final logger = Realm.logger;
 
     try {
