@@ -365,7 +365,7 @@ class Realm {
       throw RealmError('session is only valid on synchronized Realms (i.e. opened with FlexibleSyncConfiguration)');
     }
 
-    _syncSession ??= SessionInternal.create(realmCore.realmGetSession(this));
+    _syncSession ??= SessionInternal.create(this, realmCore.realmGetSession(this));
     return _syncSession!;
   }
 

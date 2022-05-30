@@ -28,6 +28,7 @@ import 'user.dart';
 /// APIs. The lifespans of sessions associated with Realms are managed automatically.
 /// {@category Sync}
 class Session {
+  final Realm realm;
   final SessionHandle _handle;
 
   /// The on-disk path of the file backing the [Realm] this [Session] represents
@@ -45,7 +46,7 @@ class Session {
   /// The [User] that owns the [Realm] this [Session] is synchronizing.
   User get user => UserInternal.create(realmCore.sessionGetUser(this));
 
-  Session._(this._handle);
+  Session._(this.realm, this._handle);
 
   /// Pauses any synchronization with the server until the Realm is re-opened again
   /// after fully closing it or [resume] is called.
@@ -60,7 +61,10 @@ class Session {
   Future<void> waitForUpload() => realmCore.sessionWaitForUpload(this);
 
   /// Waits for the [Session] to finish all pending downloads.
-  Future<void> waitForDownload() => realmCore.sessionWaitForDownload(this);
+  Future<void> waitForDownload() async {
+    await realmCore.sessionWaitForDownload(this);
+    realmCore.realmRefresh(realm);
+  }
 
   /// Gets a [Stream] of [SyncProgress] that can be used to track upload or download progress.
   Stream<SyncProgress> getProgressStream(ProgressDirection direction, ProgressMode mode) {
@@ -132,7 +136,7 @@ class SyncProgress {
 }
 
 extension SessionInternal on Session {
-  static Session create(SessionHandle handle) => Session._(handle);
+  static Session create(Realm realm, SessionHandle handle) => Session._(realm, handle);
 
   SessionHandle get handle => _handle;
 }
