@@ -194,7 +194,7 @@ jobs:
             -framework ./binary/ios/Release-iphonesimulator/realm_dart.framework \
             -framework ./binary/ios/Release-maccatalyst/realm_dart.framework \
             -output ./binary/ios/realm_dart.xcframework
-          rm -rf .binary/ios/Release-*
+          rm -rf ./binary/ios/Release-*
 
       - name: Store .xcframework artifact
         uses: actions/upload-artifact@v2
@@ -450,7 +450,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-ios
-          path: binary/ios
+          path: binary/
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
