@@ -232,7 +232,7 @@ class FlexibleSyncConfiguration extends Configuration {
     super.schemaObjects, {
     super.fifoFilesFallbackPath,
     super.path,
-    this.sessionErrorHandler,
+    this.syncErrorHandler,
     this.syncClientResetErrorHandler,
   }) : super._();
 
