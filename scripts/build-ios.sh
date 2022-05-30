@@ -64,15 +64,15 @@ for platform in "${PLATFORMS[@]}"; do
     case "$platform" in
         ios)
             cmake --build --preset ios-device --config $CONFIGURATION
-            FRAMEWORKS+=(-framework ./build-native/iOS/$CONFIGURATION-iphoneos/realm_dart.framework)
+            FRAMEWORKS+=(-framework ./binary/ios/$CONFIGURATION-iphoneos/realm_dart.framework)
         ;;
         catalyst)
             cmake --build --preset ios-catalyst --config $CONFIGURATION
-            FRAMEWORKS+=(-framework ./build-native/iOS/$CONFIGURATION-maccatalyst/realm_dart.framework)
+            FRAMEWORKS+=(-framework ./binary/ios/$CONFIGURATION-maccatalyst/realm_dart.framework)
         ;;
         simulator)
             cmake --build --preset ios-simulator --config $CONFIGURATION
-            FRAMEWORKS+=(-framework ./build-native/iOS/$CONFIGURATION-iphonesimulator/realm_dart.framework)
+            FRAMEWORKS+=(-framework ./binary/ios/$CONFIGURATION-iphonesimulator/realm_dart.framework)
         ;;
         *)
             echo "${platform} not supported"

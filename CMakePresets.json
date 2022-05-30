@@ -93,7 +93,7 @@
       "toolchainFile": "${sourceDir}/src/realm-core/tools/cmake/xcode.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_MAKE_PROGRAM": "${sourceDir}/scripts/cmake-build-xcode.sh",
-        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/build-native/iOS/$<CONFIG>$(EFFECTIVE_PLATFORM_NAME)",
+        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/binary/ios/$<CONFIG>$(EFFECTIVE_PLATFORM_NAME)",
         "CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH": "YES"
       }
     },
