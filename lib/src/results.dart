@@ -106,7 +106,7 @@ class ResultsNotificationsController<T extends RealmObject> extends Notification
 
   @override
   RealmNotificationTokenHandle subscribe() {
-    return realmCore.subscribeResultsNotifications(results, this, scheduler.handle);
+    return realmCore.subscribeResultsNotifications(results, this);
   }
 
   Stream<RealmResultsChanges<T>> createStream() {

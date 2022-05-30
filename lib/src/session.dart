@@ -58,10 +58,10 @@ class Session {
   void resume() => realmCore.sessionResume(this);
 
   /// Waits for the [Session] to finish all pending uploads.
-  Future<void> waitForUpload() => realmCore.sessionWaitForUpload(this, scheduler.handle);
+  Future<void> waitForUpload() => realmCore.sessionWaitForUpload(this);
 
   /// Waits for the [Session] to finish all pending downloads.
-  Future<void> waitForDownload() => realmCore.sessionWaitForDownload(this, scheduler.handle);
+  Future<void> waitForDownload() => realmCore.sessionWaitForDownload(this);
 
   /// Gets a [Stream] of [SyncProgress] that can be used to track upload or download progress.
   Stream<SyncProgress> getProgressStream(ProgressDirection direction, ProgressMode mode) {
@@ -167,7 +167,7 @@ class SessionProgressNotificationsController {
       throw RealmStateError("Session progress subscription already started");
     }
 
-    _token = realmCore.sessionRegisterProgressNotifier(_session, _direction, _mode, this, scheduler.handle);
+    _token = realmCore.sessionRegisterProgressNotifier(_session, _direction, _mode, this);
   }
 
   void _stop() {

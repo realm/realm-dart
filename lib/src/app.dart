@@ -118,7 +118,7 @@ class App {
   String get id => realmCore.appGetId(this);
 
   /// Create an app with a particular [AppConfiguration]
-  App(AppConfiguration configuration) : this._(realmCore.getApp(configuration, scheduler.handle));
+  App(AppConfiguration configuration) : this._(realmCore.getApp(configuration));
 
   App._(this._handle);
 

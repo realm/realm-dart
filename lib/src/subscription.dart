@@ -145,7 +145,7 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
   }
 
   Future<SubscriptionSetState> _waitForStateChange(SubscriptionSetState state) async {
-    final result = await realmCore.waitForSubscriptionSetStateChange(this, state, scheduler.handle);
+    final result = await realmCore.waitForSubscriptionSetStateChange(this, state);
     realmCore.refreshSubscriptionSet(this);
     return result;
   }

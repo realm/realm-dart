@@ -94,7 +94,7 @@ class Realm {
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
-  Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? realmCore.openRealm(config, scheduler.handle) {
+  Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? realmCore.openRealm(config) {
     _populateMetadata();
   }
 
