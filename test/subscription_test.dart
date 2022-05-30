@@ -477,15 +477,9 @@ Future<void> main([List<String>? args]) async {
     await realmY.subscriptions.waitForSynchronization();
 
     await realmX.syncSession.waitForUpload();
-    await realmX.syncSession.waitForDownload();
-    
-    await realmY.syncSession.waitForUpload();
     await realmY.syncSession.waitForDownload();
 
-    waitForCondition(() {
-      final task = realmY.find<Task>(objectId);  
-      return task != null;
-    });
+    realmCore.realmRefresh(realmY);
 
     final task = realmY.find<Task>(objectId);
     expect(task, isNotNull);
