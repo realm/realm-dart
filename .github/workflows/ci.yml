@@ -148,11 +148,12 @@ jobs:
           cache-key: ${{ matrix.preset }}
           cache-restore-keys: ${{ matrix.preset }}
 
+      - name: Setup Android NDK
+        if: startsWith(matrix.preset, 'android-')
+        run: echo "ANDROID_NDK=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
+
       - name: Build
         if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
-        env:
-          # needed by the android preset
-          ANDROID_NDK: ${{ env.ANDROID_NDK_LATEST_HOME }}
         run: |
           cmake --preset ${{ matrix.preset }}
           cmake --build --preset ${{ matrix.build || matrix.preset }} --config Release
