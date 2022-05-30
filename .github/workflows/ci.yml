@@ -150,6 +150,9 @@ jobs:
 
       - name: Build
         if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
+        env:
+          # needed by the android preset
+          ANDROID_NDK: ${{ env.ANDROID_NDK_LATEST_HOME }}
         run: |
           cmake --preset ${{ matrix.preset }}
           cmake --build --preset ${{ matrix.build || matrix.preset }} --config Release
