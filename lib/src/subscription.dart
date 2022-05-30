@@ -210,7 +210,7 @@ extension SubscriptionSetInternal on SubscriptionSet {
 }
 
 class ImmutableSubscriptionSet extends SubscriptionSet {
-  ImmutableSubscriptionSet._(Realm realm, SubscriptionSetHandle handle) : super._(realm, handle);
+  ImmutableSubscriptionSet._(super.realm, super.handle) : super._();
 
   @override
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action) {

@@ -161,19 +161,15 @@ extension ConfigurationInternal on Configuration {
 /// {@category Configuration}
 class LocalConfiguration extends Configuration {
   LocalConfiguration._(
-    List<SchemaObject> schemaObjects, {
+    super.schemaObjects, {
     this.initialDataCallback,
     this.schemaVersion = 0,
-    String? fifoFilesFallbackPath,
-    String? path,
+    super.fifoFilesFallbackPath,
+    super.path,
     this.disableFormatUpgrade = false,
     this.isReadOnly = false,
     this.shouldCompactCallback,
-  }) : super._(
-          schemaObjects,
-          path: path,
-          fifoFilesFallbackPath: fifoFilesFallbackPath,
-        );
+  }) : super._();
 
   /// The schema version used to open the [Realm]. If omitted, the default value is `0`.
   ///
@@ -233,16 +229,12 @@ class FlexibleSyncConfiguration extends Configuration {
 
   FlexibleSyncConfiguration._(
     this.user,
-    List<SchemaObject> schemaObjects, {
-    String? fifoFilesFallbackPath,
-    String? path,
-    this.syncErrorHandler,
+    super.schemaObjects, {
+    super.fifoFilesFallbackPath,
+    super.path,
+    this.sessionErrorHandler,
     this.syncClientResetErrorHandler,
-  }) : super._(
-          schemaObjects,
-          fifoFilesFallbackPath: fifoFilesFallbackPath,
-          path: path,
-        );
+  }) : super._();
 
   @override
   String _getPath(String? path) {
@@ -260,14 +252,10 @@ extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
 /// {@category Configuration}
 class InMemoryConfiguration extends Configuration {
   InMemoryConfiguration._(
-    List<SchemaObject> schemaObjects, {
-    String? fifoFilesFallbackPath,
-    String? path,
-  }) : super._(
-          schemaObjects,
-          fifoFilesFallbackPath: fifoFilesFallbackPath,
-          path: path,
-        );
+    super.schemaObjects, {
+    super.fifoFilesFallbackPath,
+    super.path,
+  }) : super._();
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObject].

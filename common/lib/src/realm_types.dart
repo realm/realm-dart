@@ -76,7 +76,7 @@ class RealmUnsupportedSetError extends UnsupportedError implements RealmError {
 
 /// Thrown if the Realm operation is not allowed by the current state of the object.
 class RealmStateError extends StateError implements RealmError {
-  RealmStateError(String message) : super(message);
+  RealmStateError(super.message);
 }
 
 /// @nodoc
