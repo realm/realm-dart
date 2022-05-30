@@ -21,12 +21,13 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
-import 'package:path/path.dart' as path;
 import 'package:test/expect.dart';
 
 import '../lib/realm.dart';
 import '../lib/src/native/realm_core.dart';
 import '../lib/src/subscription.dart';
+import '../lib/src/configuration.dart';
+
 import 'test.dart';
 
 @isTest
@@ -483,5 +484,38 @@ Future<void> main([List<String>? args]) async {
 
     final task = realmY.find<Task>(objectId);
     expect(task, isNotNull);
+  });
+
+  baasTest('Writing before subscribe', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final completer = Completer<SyncError>();
+    final config = Configuration.flexibleSync(
+      user,
+      [Task.schema],
+      syncClientResetErrorHandler: ManualSyncClientResetHandler((syncError) {
+        completer.complete(syncError);
+      }),
+    );
+
+    final realm = getRealm(config);
+    realm.write(() => realm.add(Task(ObjectId())));
+
+    final syncError = await completer.future;
+    expect(syncError.category, SyncErrorCategory.client);
+  });
+
+  baasTest('Writing before subscribe + upload', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    final config = Configuration.flexibleSync(
+      user,
+      [Task.schema],
+    );
+
+    final realm = getRealm(config);
+    realm.write(() => realm.add(Task(ObjectId())));
+    expect(() async => await realm.syncSession.waitForUpload(), throws<RealmException>());
   });
 }
