@@ -93,7 +93,7 @@ class RealmResultsChanges<T extends RealmObject> extends RealmCollectionChanges 
   /// The results collection being monitored for changes.
   final RealmResults<T> results;
 
-  RealmResultsChanges._(RealmCollectionChangesHandle handle, this.results) : super(handle);
+  RealmResultsChanges._(super.handle, this.results);
 }
 
 /// @nodoc
