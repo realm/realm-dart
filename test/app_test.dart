@@ -195,7 +195,7 @@ Future<void> main([List<String>? args]) async {
 
     await testLogger(
       configuration,
-      Realm.logger!,
+      Realm.logger,
       maxExpectedCounts: {
         // No problems expected!
         RealmLogLevel.fatal: 0,
