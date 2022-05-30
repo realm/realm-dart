@@ -74,10 +74,12 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
         MACOSX_FRAMEWORK_BUNDLE_VERSION "1.0.0"
     )
 
-    add_custom_command(TARGET realm_dart POST_BUILD
-        COMMAND rm -rf ${OUTPUT_DIR}/realm_dart.xcframework
-        COMMAND xcodebuild -create-xcframework -framework $<TARGET_FILE:realm_dart>/.. -output ${OUTPUT_DIR}/realm_dart.xcframework
-    )
+    if(NOT $ENV{REALM_CI})
+        add_custom_command(TARGET realm_dart POST_BUILD
+            COMMAND rm -rf ${OUTPUT_DIR}/realm_dart.xcframework
+            COMMAND xcodebuild -create-xcframework -framework $<TARGET_FILE:realm_dart>/.. -output ${OUTPUT_DIR}/realm_dart.xcframework
+        )
+    endif()
 endif()
 
 if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
