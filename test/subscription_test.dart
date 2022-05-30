@@ -460,30 +460,34 @@ Future<void> main([List<String>? args]) async {
     final userY = await appY.logIn(credentials);
 
     final realmX = getRealm(Configuration.flexibleSync(userX, [Task.schema]));
-
-    final pathY = path.join(temporaryDir.path, "Y.realm");
-    final realmY = getRealm(Configuration.flexibleSync(userY, [Task.schema], path: pathY));
+    final realmY = getRealm(Configuration.flexibleSync(userY, [Task.schema]));
 
     realmX.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmX.all<Task>());
+    });
+
+    final objectId = ObjectId();
+    realmX.write(() => realmX.add(Task(objectId)));
+
+    realmY.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmY.all<Task>());
     });
 
     await realmX.subscriptions.waitForSynchronization();
     await realmY.subscriptions.waitForSynchronization();
 
-    final objectId = ObjectId();
-    realmX.write(() => realmX.add(Task(objectId)));
-    
     await realmX.syncSession.waitForUpload();
+    await realmX.syncSession.waitForDownload();
+    
+    await realmY.syncSession.waitForUpload();
     await realmY.syncSession.waitForDownload();
 
     waitForCondition(() {
       final task = realmY.find<Task>(objectId);  
       return task != null;
-    }, timeout: Duration(seconds: 30), retryDelay: Duration(microseconds: 500));
+    });
 
     final task = realmY.find<Task>(objectId);
     expect(task, isNotNull);
-  }, skip: "Not working");
+  });
 }
