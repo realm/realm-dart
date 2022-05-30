@@ -190,7 +190,7 @@ class _RealmCore {
         final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
-          _realmLib.realm_sync_config_set_error_handler(syncConfigPtr, Pointer.fromFunction(syncErrorHandlerCallback), config.toPersistentHandle(),
+          _realmLib.realm_sync_config_set_error_handler(syncConfigPtr, Pointer.fromFunction(_syncErrorHandlerCallback), config.toPersistentHandle(),
               _realmLib.addresses.realm_dart_delete_persistent_handle);
           _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
         } finally {
@@ -279,7 +279,7 @@ class _RealmCore {
     return result == nullptr ? null : SubscriptionHandle._(result);
   }
 
-  static void stateChangeCallback(Pointer<Void> userdata, int state) {
+  static void _stateChangeCallback(Pointer<Void> userdata, int state) {
     final completer = userdata.toObject<Completer<SubscriptionSetState>>(isPersistent: true);
     if (completer == null) {
       return;
@@ -292,7 +292,7 @@ class _RealmCore {
     _realmLib.realm_dart_sync_on_subscription_set_state_change_async(
       subscriptions.handle._pointer,
       notifyWhen.index,
-      Pointer.fromFunction(stateChangeCallback),
+      Pointer.fromFunction(_stateChangeCallback),
       completer.toPersistentHandle(),
       _realmLib.addresses.realm_dart_delete_persistent_handle,
       scheduler.handle._pointer,
@@ -405,7 +405,7 @@ class _RealmCore {
     return config.shouldCompactCallback!(totalSize, usedSize) ? TRUE : FALSE;
   }
 
-  static void syncErrorHandlerCallback(Pointer<Void> userdata, Pointer<realm_sync_session> user, realm_sync_error error) {
+  static void _syncErrorHandlerCallback(Pointer<Void> userdata, Pointer<realm_sync_session> user, realm_sync_error error) {
     final FlexibleSyncConfiguration? syncConfig = userdata.toObject(isPersistent: true);
     if (syncConfig == null) {
       return;
@@ -1053,7 +1053,7 @@ class _RealmCore {
     });
   }
 
-  static void logCallback(Pointer<Void> userdata, int levelAsInt, Pointer<Int8> message) {
+  static void _logCallback(Pointer<Void> userdata, int levelAsInt, Pointer<Int8> message) {
     try {
       final logger = Realm.logger;
       final level = _LogLevel.values[levelAsInt].loggerLevel;
@@ -1077,7 +1077,7 @@ class _RealmCore {
       _realmLib.realm_sync_client_config_set_log_level(handle._pointer, _LogLevel.fromLevel(Realm.logger.level).index);
       _realmLib.realm_dart_sync_client_config_set_log_callback(
         handle._pointer,
-        Pointer.fromFunction(logCallback),
+        Pointer.fromFunction(_logCallback),
         nullptr,
         nullptr,
         scheduler.handle._pointer,
@@ -1104,7 +1104,7 @@ class _RealmCore {
     return _realmLib.realm_app_get_app_id(app.handle._pointer).cast<Utf8>().toRealmDartString()!;
   }
 
-  static void app_user_completion_callback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
+  static void _app_user_completion_callback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
     final Completer<UserHandle>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
       return;
@@ -1131,7 +1131,7 @@ class _RealmCore {
         () => _realmLib.realm_app_log_in_with_credentials(
               app.handle._pointer,
               credentials.handle._pointer,
-              Pointer.fromFunction(app_user_completion_callback),
+              Pointer.fromFunction(_app_user_completion_callback),
               completer.toPersistentHandle(),
               _realmLib.addresses.realm_dart_delete_persistent_handle,
             ),
@@ -1266,7 +1266,7 @@ class _RealmCore {
     return UserHandle._(userPtr);
   }
 
-  static void logOutCallback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
+  static void _logOutCallback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
     final Completer<void>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
       return;
@@ -1287,7 +1287,7 @@ class _RealmCore {
       _realmLib.invokeGetBool(
           () => _realmLib.realm_app_log_out_current_user(
                 application.handle._pointer,
-                Pointer.fromFunction(logOutCallback),
+                Pointer.fromFunction(_logOutCallback),
                 completer.toPersistentHandle(),
                 _realmLib.addresses.realm_dart_delete_persistent_handle,
               ),
@@ -1297,7 +1297,7 @@ class _RealmCore {
           () => _realmLib.realm_app_log_out(
                 application.handle._pointer,
                 user.handle._pointer,
-                Pointer.fromFunction(logOutCallback),
+                Pointer.fromFunction(_logOutCallback),
                 completer.toPersistentHandle(),
                 _realmLib.addresses.realm_dart_delete_persistent_handle,
               ),
@@ -1385,7 +1385,7 @@ class _RealmCore {
               app.handle._pointer,
               user.handle._pointer,
               credentials.handle._pointer,
-              Pointer.fromFunction(app_user_completion_callback),
+              Pointer.fromFunction(_app_user_completion_callback),
               completer.toPersistentHandle(),
               _realmLib.addresses.realm_dart_delete_persistent_handle,
             ),
@@ -1522,7 +1522,7 @@ class _RealmCore {
     final completer = Completer<void>();
     _realmLib.realm_dart_sync_session_wait_for_upload_completion(
       session.handle._pointer,
-      Pointer.fromFunction(sessionWaitCompletionCallback),
+      Pointer.fromFunction(_sessionWaitCompletionCallback),
       completer.toPersistentHandle(),
       _realmLib.addresses.realm_dart_delete_persistent_handle,
       scheduler.handle._pointer,
@@ -1534,7 +1534,7 @@ class _RealmCore {
     final completer = Completer<void>();
     _realmLib.realm_dart_sync_session_wait_for_download_completion(
       session.handle._pointer,
-      Pointer.fromFunction(sessionWaitCompletionCallback),
+      Pointer.fromFunction(_sessionWaitCompletionCallback),
       completer.toPersistentHandle(),
       _realmLib.addresses.realm_dart_delete_persistent_handle,
       scheduler.handle._pointer,
@@ -1542,7 +1542,7 @@ class _RealmCore {
     return completer.future;
   }
 
-  static void sessionWaitCompletionCallback(Pointer<Void> userdata, Pointer<realm_sync_error_code_t> errorCode) {
+  static void _sessionWaitCompletionCallback(Pointer<Void> userdata, Pointer<realm_sync_error_code_t> errorCode) {
     final completer = userdata.toObject<Completer<void>>(isPersistent: true);
     if (completer == null) {
       return;

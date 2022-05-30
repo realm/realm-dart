@@ -59,7 +59,11 @@ abstract class Configuration {
 
   static String? _defaultPath;
 
-  Configuration._(List<SchemaObject> schemaObjects, {String? path, this.fifoFilesFallbackPath}) : schema = RealmSchema(schemaObjects) {
+  Configuration._(
+    List<SchemaObject> schemaObjects, {
+    String? path,
+    this.fifoFilesFallbackPath,
+  }) : schema = RealmSchema(schemaObjects) {
     this.path = _getPath(path);
   }
 
@@ -208,6 +212,11 @@ enum SessionStopPolicy {
   afterChangesUploaded, // Once all Realms/Sessions go out of scope, wait for uploads to complete and stop.
 }
 
+///The signature of a callback that will be invoked whenever a [SyncError] occurs for the synchronized Realm.
+///
+/// Client reset errors will not be reported through this callback as they are handled by [SyncClientResetErrorHandler].
+typedef SyncErrorHandler = void Function(SyncError);
+
 /// [FlexibleSyncConfiguration] is used to open [Realm] instances that are synchronized
 /// with MongoDB Realm.
 /// {@category Configuration}
@@ -303,20 +312,6 @@ class RealmSchema extends Iterable<SchemaObject> {
 
   @override
   SchemaObject elementAt(int index) => _schema.elementAt(index);
-}
-
-///The signature of a callback that will be invoked whenever a [SyncError] occurs for the synchronized Realm.
-///
-/// Client reset errors will not be reported through this callback as they are handled by [ClientResetHandler].
-class SyncErrorHandler {
-  /// The callback that handles the [SyncError].
-  void Function(SyncError code) callback;
-
-  /// Invokes the [SyncError] handling [callback].
-  void call(SyncError error) => callback(error);
-
-  /// Initializes a new instance of of [SyncErrorHandler].
-  SyncErrorHandler(this.callback);
 }
 
 /// The signature of a callback that will be invoked if a client reset error occurs for this [Realm].
