@@ -26,7 +26,7 @@ import 'baas_client.dart';
 
 class DeployAppsCommand extends Command<void> {
   @override
-  final String description = 'Deploys test applications to a MongoDB Realm server.';
+  final String description = 'Deploys test applications to MongoDB Atlas.';
 
   @override
   final String name = 'deploy-apps';

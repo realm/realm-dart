@@ -71,7 +71,7 @@ class Session {
 
 /// The current state of a [Session] object
 enum SessionState {
-  /// The session is connected to the MongoDB Realm server and is actively transferring data.
+  /// The session is connected to  MongoDB Atlas and is actively transferring data.
   active,
 
   /// The session is not currently communicating with the server.
@@ -80,13 +80,13 @@ enum SessionState {
 
 /// The current connection state of a [Session] object
 enum ConnectionState {
-  /// The session is disconnected from the MongoDB Realm server.
+  /// The session is disconnected from MongoDB Atlas.
   disconnected,
 
-  /// The session is connecting to the MongoDB Realm server.
+  /// The session is connecting to MongoDB Atlas.
   connecting,
 
-  /// The session is connected to the MongoDB Realm server.
+  /// The session is connected to MongoDB Atlas.
   connected,
 }
 

@@ -82,7 +82,7 @@ For a complete documentation go to [Realm Flutter and Dart SDK Docs](https://doc
 
 ## Limitations
 
-* This version of Realm Flutter and Dart SDK allows working with a local only (on device) Realm database in Flutter and Dart desktop. Realm Sync functionality is not implemented.
+* This version of Realm Flutter and Dart SDK allows working with a local only (on device) Realm database in Flutter and Dart desktop. Atlas Device Sync functionality is not implemented.
 
 * It provides the functionality for creating, retrieving, querying, sorting, filtering, updating Realm objects.
 
