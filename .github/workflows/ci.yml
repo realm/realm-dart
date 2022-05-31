@@ -80,6 +80,8 @@ jobs:
         include:
           - platform: ios
             package: flutter
+          - platform: android
+            package: flutter
     runs-on: ubuntu-latest
     name: Cleanup ${{ matrix.platform }} for ${{ matrix.package }}
     needs:
@@ -90,6 +92,7 @@ jobs:
       - tests-windows
       - flutter-windows
       - flutter-ios
+      - flutter-android
     if: always()
     timeout-minutes: 5
     steps:
@@ -102,28 +105,23 @@ jobs:
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
           differentiator: ${{ matrix.package }}-${{ matrix.platform }}
 
-  cleanup-android:
-    runs-on: ubuntu-latest
-    name: Cleanup flutter for android
-    needs:
-      - flutter-android
-    if: always()
-    timeout-minutes: 5
-    steps:
-      - uses: realm/ci-actions/mdb-realm/cleanup@fac1d6958f03d71de743305ce3ab27594efbe7b7
-        with:
-          realmUrl: ${{ secrets.REALM_QA_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID}}
-          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
-          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: flutter-android
-
-# Linux jobs
-
-  build-linux:
-    runs-on: ubuntu-latest
-    name: Build Linux
+  build-native:
+    runs-on: ${{ matrix.runner }}-latest
+    name: Build native
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { preset: windows, runner: windows }
+          - { preset: macos, runner: macos }
+          - { preset: linux, runner: ubuntu }
+          - { preset: ios, build: ios-device, runner: macos }
+          - { preset: ios, build: ios-simulator, runner: macos }
+          - { preset: ios, build: ios-catalyst, runner: macos }
+          - { preset: android-x86, binary: android, runner: ubuntu }
+          - { preset: android-x86_64, binary: android, runner: ubuntu }
+          - { preset: android-armeabi-v7a, binary: android, runner: ubuntu }
+          - { preset: android-arm64-v8a, binary: android, runner: ubuntu }
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -135,23 +133,128 @@ jobs:
         if: ${{ !contains(github.head_ref, 'release/') }}
         uses: actions/cache@v3
         with:
-          path: ./binary/linux/**
-          key: binaries-linux-${{hashFiles('./src/**')}}
+          path: ./binary/**
+          key: binaries-${{ matrix.build || matrix.preset }}-${{hashFiles('./src/**')}}
 
       - name: Setup Ninja
-        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         uses: seanmiddleditch/gha-setup-ninja@master
 
-      - name: Build Realm for Linux
+      - name: Setup Vcpkg
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        uses: friendlyanon/setup-vcpkg@v1
+        with:
+          path: src/realm-core/tools/vcpkg/ports
+          cache-key: ${{ matrix.preset }}
+          cache-restore-keys: ${{ matrix.preset }}
+
+      - name: Setup Android NDK
+        if: startsWith(matrix.preset, 'android-')
+        run: echo "ANDROID_NDK=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
+
+      - name: Build
         if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
-        run: ./scripts/build-linux.sh
+        run: |
+          cmake --preset ${{ matrix.preset }}
+          cmake --build --preset ${{ matrix.build || matrix.preset }} --config Release
 
       - name: Store artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: librealm-linux
-          path: binary/linux/**
+          name: librealm-${{ matrix.build || matrix.preset }}
+          path: binary/${{ matrix.binary || matrix.preset }}/**
           retention-days: 1
+
+  build-ios-xcframework:
+    name: Combine .xcframework
+    runs-on: macos-latest
+    needs: build-native
+    
+    steps:
+      - name: Fetch device build
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-ios-device
+          path: binary/ios
+      - name: Fetch simulator build
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-ios-simulator
+          path: binary/ios
+      - name: Fetch catalyst build
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-ios-catalyst
+          path: binary/ios
+
+      - name: Build .xcframework
+        run: |
+          xcodebuild -create-xcframework \
+            -framework ./binary/ios/Release-iphoneos/realm_dart.framework \
+            -framework ./binary/ios/Release-iphonesimulator/realm_dart.framework \
+            -framework ./binary/ios/Release-maccatalyst/realm_dart.framework \
+            -output ./binary/ios/realm_dart.xcframework
+          rm -rf ./binary/ios/Release-*
+
+      - name: Store .xcframework artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: librealm-ios
+          path: binary/ios
+          retention-days: 1
+
+      - name: Delete individual framework artifacts
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: |
+            librealm-ios-device
+            librealm-ios-simulator
+            librealm-ios-catalyst
+
+  build-android-combined:
+    name: Combine Android binaries
+    runs-on: ubuntu-latest
+    needs: build-native
+    
+    steps:
+      - name: Fetch x86 build
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-android-x86
+          path: binary/android
+      - name: Fetch x86_64 build
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-android-x86_64
+          path: binary/android
+      - name: Fetch armeabi-v7a build
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-android-armeabi-v7a
+          path: binary/android
+      - name: Fetch arm64-v8a build
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-android-arm64-v8a
+          path: binary/android
+
+      - name: Store combined artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: librealm-android
+          path: binary/android
+          retention-days: 1
+
+      - name: Delete individual build artifacts
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: |
+            librealm-android-x86
+            librealm-android-x86_64
+            librealm-android-armeabi-v7a
+            librealm-android-arm64-v8a
+
+# Linux jobs
 
   tests-linux:
     runs-on: ubuntu-latest
@@ -160,7 +263,7 @@ jobs:
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.dart-linux-clusterName }}
     needs:
       - baas_matrix
-      - build-linux
+      - build-native
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -191,7 +294,7 @@ jobs:
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-linux-clusterName }}
     needs:
       - baas_matrix
-      - build-linux
+      - build-native
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -229,48 +332,6 @@ jobs:
 
 # macOS jobs
 
-  build-macos:
-    runs-on: macos-latest
-    name: Build macOS
-    env:
-      REALM_USE_CCACHE: "TRUE"
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-
-      - name: Check cache
-        id: check-cache
-        if: ${{ !contains(github.head_ref, 'release/') }}
-        uses: actions/cache@v3
-        with:
-          path: ./binary/macos/**
-          key: binaries-macos-${{hashFiles('./src/**')}}
-
-      - name: Install ccache
-        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
-        uses: hendrikmuhs/ccache-action@v1
-        with:
-          key: ccache-macos
-
-      - name: Enable ccache
-        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
-        run: |
-          echo "/usr/lib/ccache" >> $GITHUB_PATH
-          echo "/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-
-      - name: Build Realm for macOS
-        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
-        run: ./scripts/build-macos.sh
-
-      - name: Store artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: librealm-macos
-          path: binary/macos/**
-          retention-days: 1
-
   tests-macos:
     runs-on: macos-latest
     name: Tests macOS
@@ -278,7 +339,7 @@ jobs:
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.dart-macos-clusterName }}
     needs:
       - baas_matrix
-      - build-macos
+      - build-native
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -309,7 +370,7 @@ jobs:
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-macos-clusterName }}
     needs:
       - baas_matrix
-      - build-macos
+      - build-native
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -337,44 +398,8 @@ jobs:
         run: flutter drive -d macos --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
 
+
 # Windows jobs
-
-  build-windows:
-    # TODO: build on windows-latest
-    runs-on: windows-2022
-    name: Build Windows
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-
-      - name: Check cache
-        id: check-cache
-        if: ${{ !contains(github.head_ref, 'release/') }}
-        uses: actions/cache@v3
-        with:
-          path: ./binary/windows/**
-          key: binaries-windows-${{hashFiles('./src/**')}}
-
-      - name: Setup Vcpkg
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
-        uses: friendlyanon/setup-vcpkg@v1
-        with:
-          path: src/realm-core/tools/vcpkg/ports
-          cache-key: vcpkg-windows-x64
-          cache-restore-keys: vcpkg-windows-x64
-
-      - name: Build Realm for Windows
-        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
-        run: scripts\build.bat
-
-      - name: Store artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: librealm-windows
-          path: binary/windows/**
-          retention-days: 1
 
   tests-windows:
     runs-on: windows-latest
@@ -383,7 +408,7 @@ jobs:
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.dart-windows-clusterName }}
     needs:
       - baas_matrix
-      - build-windows
+      - build-native
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -416,7 +441,7 @@ jobs:
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-windows-clusterName }}
     needs:
       - baas_matrix
-      - build-windows
+      - build-native
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -446,49 +471,6 @@ jobs:
 
 # iOS jobs
 
-  build-ios:
-    runs-on: macos-latest
-    name: Build iOS
-    env:
-      REALM_USE_CCACHE: "TRUE"
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-
-      - name: Check cache
-        id: check-cache
-        if: ${{ !contains(github.head_ref, 'release/') }}
-        uses: actions/cache@v3
-        with:
-          path: ./binary/ios/**
-          key: binaries-ios-${{hashFiles('./src/**')}}
-
-      - name: Install ccache
-        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
-        uses: hendrikmuhs/ccache-action@v1
-        with:
-          key: ccache-ios
-
-      - name: Enable ccache
-        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
-        run: |
-          echo "/usr/lib/ccache" >> $GITHUB_PATH
-          echo "/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
-
-      - name: Build Realm for iOS
-        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
-        # TODO: paralellize build to build for all architectures
-        run: ./scripts/build-ios.sh simulator
-
-      - name: Store artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: librealm-ios
-          path: binary/ios/**
-          retention-days: 1
-
   flutter-ios:
     runs-on: macos-latest
     name: Flutter Tests iOS
@@ -496,7 +478,7 @@ jobs:
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-ios-clusterName }}
     needs:
       - baas_matrix
-      - build-ios
+      - build-ios-xcframework
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -534,41 +516,6 @@ jobs:
 
 # Android jobs
 
-  build-android:
-    runs-on: ubuntu-latest
-    name: Build Android
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-
-      - name: Check cache
-        id: check-cache
-        if: ${{ !contains(github.head_ref, 'release/') }}
-        uses: actions/cache@v3
-        with:
-          path: ./binary/android/**
-          key: binaries-android-${{hashFiles('./src/**')}}
-
-      - name: Setup Ninja
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
-        uses: seanmiddleditch/gha-setup-ninja@master
-
-      - name: Build Realm for Android
-        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
-        # TODO: parallelize build for all architectures
-        run: |
-          export ANDROID_NDK=$ANDROID_NDK_HOME
-          ./scripts/build-android.sh
-
-      - name: Store artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: librealm-android
-          path: binary/android/**
-          retention-days: 1
-
   flutter-android:
     runs-on: macos-latest
     name: Flutter Tests Android
@@ -576,7 +523,7 @@ jobs:
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-android-clusterName }}
     needs:
       - baas_matrix
-      - build-android
+      - build-android-combined
     steps:
       - name: Checkout
         uses: actions/checkout@v2
