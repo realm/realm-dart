@@ -1884,7 +1884,7 @@ extension on Pointer<Utf8> {
 
 extension on Pointer<realm_sync_error_code_t> {
   SyncError toSyncError() {
-    final message = ref.message.cast<Utf8>().toRealmDartString()!;
+    final message = ref.message.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
     return SyncError(message, SyncErrorCategory.values[ref.category], ref.value);
   }
 }

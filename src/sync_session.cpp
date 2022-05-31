@@ -30,7 +30,21 @@ using UserdataT = std::tuple<CallbackT, FreeT>;
 
 void _callback(void* userdata, realm_sync_error_code_t* error) {
     auto u = reinterpret_cast<UserdataT*>(userdata);
-    std::get<0>(*u)(error);
+    if (error != nullptr) {
+        // we need to copy the message 
+        auto message = error->message;
+        auto len = strlen(message) + 1;
+        auto buffer = (char*)malloc(len);
+        strncpy(buffer, message, len);
+
+        realm_sync_error_code_t error_copy = *error;
+        error_copy.message = buffer;
+
+        std::get<0>(*u)(&error_copy);
+    }
+    else {
+        std::get<0>(*u)(nullptr);
+    }
 }
 
 void _userdata_free(void* userdata) {
