@@ -24,7 +24,6 @@ import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'realm_object.dart';
 import 'results.dart';
-import 'scheduler.dart';
 
 /// Instances of this class are live collections and will update as new elements are either
 /// added to or deleted from the collection or from the Realm.

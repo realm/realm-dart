@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 import 'dart:io';
 
-import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 
 import '../realm.dart';
@@ -25,7 +24,6 @@ import 'configuration.dart';
 import 'credentials.dart';
 import 'native/realm_core.dart';
 import 'user.dart';
-import 'scheduler.dart';
 
 /// A class exposing configuration options for an [App]
 /// {@category Application}
