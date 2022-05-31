@@ -28,11 +28,11 @@ void main(List<String> args) {
       testCommandWithArgs += getArgFromEnvVariable("BAAS_PRIVATE_API_KEY");
       testCommandWithArgs += getArgFromEnvVariable("BAAS_PROJECT_ID");
 
-      String result = await driver!.requestData(testCommandWithArgs, timeout: const Duration(minutes: 30));
+      String result = await driver!.requestData(testCommandWithArgs, timeout: const Duration(hours: 1));
       if (result.isNotEmpty) {
         fail("Failed tests: \n $result");
       }
-    }, timeout: const Timeout(Duration(minutes: 30)));
+    }, timeout: const Timeout(Duration(hours: 1)));
   });
 }
 

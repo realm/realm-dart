@@ -38,9 +38,17 @@ export 'package:realm_common/realm_common.dart'
         MapTo,
         PrimaryKey,
         RealmError,
-        SessionError,
         SyncError,
+        SyncClientError,
+        SyncClientResetError,
+        SyncConnectionError,
+        SyncSessionError,
+        GeneralSyncError,
         SyncErrorCategory,
+        GeneralSyncErrorCode,
+        SyncClientErrorCode,
+        SyncConnectionErrorCode,
+        SyncSessionErrorCode,
         RealmModel,
         RealmUnsupportedSetError,
         RealmStateError,
@@ -60,7 +68,9 @@ export "configuration.dart"
         LocalConfiguration,
         RealmSchema,
         SchemaObject,
-        ShouldCompactCallback;
+        ShouldCompactCallback,
+        SyncErrorHandler,
+        SyncClientResetErrorHandler;
 
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
