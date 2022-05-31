@@ -40,9 +40,12 @@
 * Support user profile data. ([#570](https://github.com/realm/realm-dart/pull/570))
 * Support flexible synchronization. ([#496](https://github.com/realm/realm-dart/pull/496))
 * Added support for DateTime properties. ([#569](https://github.com/realm/realm-dart/pull/569))
-* Support session error handler. ([#577](https://github.com/realm/realm-dart/pull/577))
 * Support setting logger on AppConfiguration. ([#583](https://github.com/realm/realm-dart/pull/583))
 * Support setting logger on Realm class. Default is to print info message or worse to the console. ([#583](https://github.com/realm/realm-dart/pull/583))
+* Support SyncErrorHandler in FlexibleSyncConfiguration. ([#577](https://github.com/realm/realm-dart/pull/577))
+* Support SyncClientResetHandler in FlexibleSyncConfiguration. ([#608](https://github.com/realm/realm-dart/pull/608))
+* [Dart] Added `Realm.Shutdown` method to allow normal process exit in Dart applications. ([#617](https://github.com/realm/realm-dart/pull/617))
+
 
 ### Fixed
 * Fixed an issue that would result in the wrong transaction being rolled back if you start a write transaction inside a write transaction. ([#442](https://github.com/realm/realm-dart/issues/442))

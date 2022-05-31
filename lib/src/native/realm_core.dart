@@ -15,6 +15,8 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
@@ -44,6 +46,9 @@ late RealmLibrary _realmLib;
 
 final _RealmCore realmCore = _RealmCore();
 
+const int TRUE = 1;
+const int FALSE = 0;
+
 class _RealmCore {
   // From realm.h. Currently not exported from the shared library
   static const int RLM_INVALID_CLASS_KEY = 0x7FFFFFFF;
@@ -51,9 +56,6 @@ class _RealmCore {
   static const int RLM_INVALID_PROPERTY_KEY = -1;
   // ignore: unused_field
   static const int RLM_INVALID_OBJECT_KEY = -1;
-
-  static const int TRUE = 1;
-  static const int FALSE = 0;
 
   // Hide the RealmCore class and make it a singleton
   static _RealmCore? _instance;
@@ -404,15 +406,19 @@ class _RealmCore {
   }
 
   static void _syncErrorHandlerCallback(Pointer<Void> userdata, Pointer<realm_sync_session> user, realm_sync_error error) {
-    print(error.detailed_message.cast<Utf8>().toRealmDartString()!);
     final FlexibleSyncConfiguration? syncConfig = userdata.toObject(isPersistent: true);
     if (syncConfig == null) {
       return;
     }
-    final sessionError = error.toSessionError();
-    if(syncConfig.sessionErrorHandler != null) {
-        syncConfig.sessionErrorHandler!(sessionError);
-    }
+
+    final syncError = error.toSyncError();
+
+    if (syncError is SyncClientResetError) {
+        syncConfig.syncClientResetErrorHandler.callback(syncError);
+        return;
+    } 
+
+    syncConfig.syncErrorHandler(syncError);
   }
 
   void raiseError(Session session, SyncErrorCategory category, int errorCode, bool isFatal) {
@@ -1047,16 +1053,17 @@ class _RealmCore {
   }
 
   static void _logCallback(Pointer<Void> userdata, int levelAsInt, Pointer<Int8> message) {
-    try {
-      final logger = Realm.logger;
-      final level = _LogLevel.values[levelAsInt].loggerLevel;
+    final logger = Realm.logger;
 
-      // Don't do expensive utf8 to utf16 conversion unless we have to..
+    try {
+      final level = LevelExt.fromInt(levelAsInt);
+
+      // Don't do expensive utf8 to utf16 conversion unless needed.
       if (logger.isLoggable(level)) {
         logger.log(level, message.cast<Utf8>().toDartString());
       }
     } finally {
-      _realmLib.realm_free(message.cast()); // .. but always free the message
+      _realmLib.realm_free(message.cast()); // always free the message.
     }
   }
 
@@ -1066,8 +1073,9 @@ class _RealmCore {
 
       _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toUtf8Ptr(arena));
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
-      
-      _realmLib.realm_sync_client_config_set_log_level(handle._pointer, _LogLevel.fromLevel(Realm.logger.level).index);
+
+      _realmLib.realm_sync_client_config_set_log_level(handle._pointer, Realm.logger.level.toInt());
+
       _realmLib.realm_dart_sync_client_config_set_log_callback(
         handle._pointer,
         Pointer.fromFunction(_logCallback),
@@ -1075,7 +1083,7 @@ class _RealmCore {
         nullptr,
         scheduler.handle._pointer,
       );
-      
+
       _realmLib.realm_sync_client_config_set_connect_timeout(handle._pointer, configuration.maxConnectionTimeout.inMicroseconds);
       if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
         _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
@@ -1515,7 +1523,7 @@ class _RealmCore {
     final completer = Completer<void>();
     _realmLib.realm_dart_sync_session_wait_for_upload_completion(
       session.handle._pointer,
-      Pointer.fromFunction(_waitCompletionCallback),
+      Pointer.fromFunction(_sessionWaitCompletionCallback),
       completer.toPersistentHandle(),
       _realmLib.addresses.realm_dart_delete_persistent_handle,
       scheduler.handle._pointer,
@@ -1527,7 +1535,7 @@ class _RealmCore {
     final completer = Completer<void>();
     _realmLib.realm_dart_sync_session_wait_for_download_completion(
       session.handle._pointer,
-      Pointer.fromFunction(_waitCompletionCallback),
+      Pointer.fromFunction(_sessionWaitCompletionCallback),
       completer.toPersistentHandle(),
       _realmLib.addresses.realm_dart_delete_persistent_handle,
       scheduler.handle._pointer,
@@ -1535,7 +1543,7 @@ class _RealmCore {
     return completer.future;
   }
 
-  static void _waitCompletionCallback(Pointer<Void> userdata, Pointer<realm_sync_error_code_t> errorCode) {
+  static void _sessionWaitCompletionCallback(Pointer<Void> userdata, Pointer<realm_sync_error_code_t> errorCode) {
     final completer = userdata.toObject<Completer<void>>(isPersistent: true);
     if (completer == null) {
       return;
@@ -1901,24 +1909,25 @@ extension on Pointer<Utf8> {
 }
 
 extension on realm_sync_error {
-  SessionError toSessionError() {
-    final messageText = detailed_message.cast<Utf8>().toRealmDartString()!;
-    final SyncErrorCategory errorCategory = SyncErrorCategory.values[error_code.category];
+  SyncError toSyncError() {
+    final message = detailed_message.cast<Utf8>().toRealmDartString()!;
+    final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
     final isFatal = is_fatal == 0 ? false : true;
+    final bool isClientResetRequested = is_client_reset_requested == TRUE;
 
-    return SessionError(
-      messageText,
-      errorCategory,
-      isFatal: isFatal,
-      code: error_code.value,
-    );
+    //client reset can be requested with is_client_reset_requested disregarding the error_code.value
+    if (isClientResetRequested) {
+      return SyncClientResetError(message);
+    }
+
+    return SyncError.create(message, category, error_code.value, isFatal: isFatal);
   }
 }
 
 extension on Pointer<realm_sync_error_code_t> {
   SyncError toSyncError() {
-    final message = ref.message.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
-    return SyncError(message, SyncErrorCategory.values[ref.category], ref.value);
+    final message = ref.message.cast<Utf8>().toDartString();
+    return SyncError.create(message, SyncErrorCategory.values[ref.category], ref.value, isFatal: false);
   }
 }
 
@@ -1952,43 +1961,14 @@ extension on List<UserState> {
   }
 }
 
-// TODO: Once enhanced-enums land in 2.17, replace with:
-/*
 enum _CustomErrorCode {
   noError(0),
-  httpClientDisposed(997),
   unknownHttp(998),
   unknown(999),
   timeout(1000);
 
   final int code;
   const _CustomErrorCode(this.code);
-}
-*/
-
-enum _CustomErrorCode {
-  noError,
-  httpClientDisposed,
-  unknownHttp,
-  unknown,
-  timeout,
-}
-
-extension on _CustomErrorCode {
-  int get code {
-    switch (this) {
-      case _CustomErrorCode.noError:
-        return 0;
-      case _CustomErrorCode.httpClientDisposed:
-        return 997;
-      case _CustomErrorCode.unknownHttp:
-        return 998;
-      case _CustomErrorCode.unknown:
-        return 999;
-      case _CustomErrorCode.timeout:
-        return 1000;
-    }
-  }
 }
 
 enum _HttpMethod {
@@ -2029,25 +2009,54 @@ extension on realm_object_id {
   }
 }
 
-// Helper enum for converting Level
-enum _LogLevel {
-  all(RealmLogLevel.all),
-  trace(RealmLogLevel.trace),
-  debug(RealmLogLevel.debug),
-  detail(RealmLogLevel.detail),
-  info(RealmLogLevel.info),
-  warn(RealmLogLevel.warn),
-  error(RealmLogLevel.error),
-  fatal(RealmLogLevel.fatal),
-  off(RealmLogLevel.off);
-
-  final Level loggerLevel;
-  const _LogLevel(this.loggerLevel);
-
-  factory _LogLevel.fromLevel(Level level) {
-    for (final candidate in _LogLevel.values) {
-      if (level.value > candidate.loggerLevel.value) return candidate;
+extension LevelExt on Level {
+  int toInt() {
+    if (this == Level.ALL) {
+      return 0;
+    } else if (name == "TRACE") {
+      return 1;
+    } else if (name == "DEBUG") {
+      return 2;
+    } else if (name == "DETAIL") {
+      return 3;
+    } else if (this == Level.INFO) {
+      return 4;
+    } else if (this == Level.WARNING) {
+      return 5;
+    } else if (name == "ERROR") {
+      return 6;
+    } else if (name == "FATAL") {
+      return 7;
+    } else if (this == Level.OFF) {
+      return 8;
+    } else {
+      // if unknown logging is off
+      return 8;
     }
-    return _LogLevel.off;
+  }
+
+  static Level fromInt(int value) {
+    switch (value) {
+      case 0:
+        return RealmLogLevel.all;
+      case 1:
+        return RealmLogLevel.trace;
+      case 2:
+        return RealmLogLevel.debug;
+      case 3:
+        return RealmLogLevel.detail;
+      case 4:
+        return RealmLogLevel.info;
+      case 5:
+        return RealmLogLevel.warn;
+      case 6:
+        return RealmLogLevel.error;
+      case 7:
+        return RealmLogLevel.fatal;
+      case 8:
+      default:
+        // if unknown logging is off
+        return RealmLogLevel.off;
+    }
   }
 }
