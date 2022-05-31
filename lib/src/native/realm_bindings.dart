@@ -3154,6 +3154,29 @@ class RealmLibrary {
       _realm_dart_sync_connection_state_changed_callbackPtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>, int, int)>();
 
+  void realm_dart_sync_error_handler_callback(
+    ffi.Pointer<ffi.Void> userdata,
+    ffi.Pointer<realm_sync_session_t> session,
+    realm_sync_error_t error,
+  ) {
+    return _realm_dart_sync_error_handler_callback(
+      userdata,
+      session,
+      error,
+    );
+  }
+
+  late final _realm_dart_sync_error_handler_callbackPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<realm_sync_session_t>,
+              realm_sync_error_t)>>('realm_dart_sync_error_handler_callback');
+  late final _realm_dart_sync_error_handler_callback =
+      _realm_dart_sync_error_handler_callbackPtr.asFunction<
+          void Function(ffi.Pointer<ffi.Void>,
+              ffi.Pointer<realm_sync_session_t>, realm_sync_error_t)>();
+
   void realm_dart_sync_on_subscription_state_changed_callback(
     ffi.Pointer<ffi.Void> userdata,
     int state,
@@ -9090,6 +9113,12 @@ class _SymbolAddresses {
               ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32, ffi.Int32)>>
       get realm_dart_sync_connection_state_changed_callback =>
           _library._realm_dart_sync_connection_state_changed_callbackPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<realm_sync_session_t>, realm_sync_error_t)>>
+      get realm_dart_sync_error_handler_callback =>
+          _library._realm_dart_sync_error_handler_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>

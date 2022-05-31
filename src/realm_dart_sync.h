@@ -16,10 +16,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef REALM_DART_SYNC_SESSION_H
-#define REALM_DART_SYNC_SESSION_H
+#pragma once
 
-#include "realm.h"
+#include <realm.h>
+
+RLM_API void realm_dart_sync_client_log_callback(realm_userdata_t userdata, realm_log_level_e level, const char* message);
+
+RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, realm_sync_session_t* session, realm_sync_error_t error);
 
 RLM_API void realm_dart_sync_wait_for_completion_callback(realm_userdata_t userdata, realm_sync_error_code_t* error);
 
@@ -28,6 +31,8 @@ RLM_API void realm_dart_sync_progress_callback(realm_userdata_t userdata, uint64
 RLM_API void realm_dart_sync_connection_state_changed_callback(realm_userdata_t userdata,
                                                                realm_sync_connection_state_e old_state,
                                                                realm_sync_connection_state_e new_state);
+
+RLM_API void realm_dart_sync_on_subscription_state_changed_callback(realm_userdata_t userdata, realm_flx_sync_subscription_set_state_e state);
 
 /**
  * Simulates a session error.
@@ -40,4 +45,3 @@ RLM_API void realm_dart_sync_connection_state_changed_callback(realm_userdata_t 
  *  Use this method to test your error handling code without connecting to a MongoDB Realm Server.
  */
 RLM_API void realm_dart_sync_session_report_error_for_testing(realm_sync_session_t* session, uint32_t category, int errorCode, bool isFatal) RLM_API_NOEXCEPT;
-#endif // REALM_DART_SYNC_SESSION_H

@@ -192,8 +192,13 @@ class _RealmCore {
         final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
-          _realmLib.realm_sync_config_set_error_handler(syncConfigPtr, Pointer.fromFunction(_syncErrorHandlerCallback), config.toPersistentHandle(),
-              _realmLib.addresses.realm_dart_delete_persistent_handle);
+
+          final errorHandlerCallback =
+              Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_session_t>, realm_sync_error_t)>(_syncErrorHandlerCallback);
+          final errorHandlerUserdata = _realmLib.realm_dart_userdata_async_new(config, errorHandlerCallback.cast(), scheduler.handle._pointer);
+          _realmLib.realm_sync_config_set_error_handler(syncConfigPtr, _realmLib.addresses.realm_dart_sync_error_handler_callback, errorHandlerUserdata.cast(),
+              _realmLib.addresses.realm_dart_userdata_async_free);
+
           _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
         } finally {
           _realmLib.realm_release(syncConfigPtr.cast());
@@ -401,11 +406,8 @@ class _RealmCore {
     return config.shouldCompactCallback!(totalSize, usedSize) ? TRUE : FALSE;
   }
 
-  static void _syncErrorHandlerCallback(Pointer<Void> userdata, Pointer<realm_sync_session> user, realm_sync_error error) {
-    final FlexibleSyncConfiguration? syncConfig = userdata.toObject(isPersistent: true);
-    if (syncConfig == null) {
-      return;
-    }
+  static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error) {
+    final syncConfig = userdata as FlexibleSyncConfiguration;
 
     final syncError = error.toSyncError();
 
