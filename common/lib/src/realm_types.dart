@@ -142,6 +142,11 @@ class SyncError extends RealmError {
 
   /// As a specific [SyncError] type.
   T as<T extends SyncError>() => this as T;
+
+  @override
+  String toString() {
+    return "SyncError message: $message category: $category code: $codeValue";
+  }
 }
 
 /// An error type that describes a session-level error condition.
@@ -159,6 +164,11 @@ class SyncClientError extends SyncError {
     SyncClientErrorCode errorCode, {
     this.isFatal = false,
   }) : super(message, category, errorCode.code);
+
+  @override
+  String toString() {
+    return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
+  }
 }
 
 /// An error type that describes a client reset error condition.
@@ -171,6 +181,11 @@ class SyncClientResetError extends SyncError {
   SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
 
   SyncClientResetError(String message) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
+
+  @override
+  String toString() {
+    return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
+  }
 }
 
 /// An error type that describes a connection-level error condition.
@@ -188,6 +203,11 @@ class SyncConnectionError extends SyncError {
     SyncConnectionErrorCode errorCode, {
     this.isFatal = false,
   }) : super(message, category, errorCode.code);
+
+  @override
+  String toString() {
+    return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
+  }
 }
 
 /// An error type that describes a session-level error condition.
@@ -205,6 +225,11 @@ class SyncSessionError extends SyncError {
     SyncSessionErrorCode errorCode, {
     this.isFatal = false,
   }) : super(message, category, errorCode.code);
+
+  @override
+  String toString() {
+    return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
+  }
 }
 
 /// A general or unknown sync error
@@ -213,6 +238,11 @@ class GeneralSyncError extends SyncError {
   int get code => codeValue;
 
   GeneralSyncError(String message, SyncErrorCategory category, int code) : super(message, category, code);
+
+  @override
+  String toString() {
+    return "SyncError message: $message category: $category code: $code";
+  }
 }
 
 /// The category of a [SyncError].
