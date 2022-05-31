@@ -81,88 +81,12 @@ export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetSt
 export 'user.dart' show User, UserState, UserIdentity;
 export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress;
 
-/// Specifies the criticality level above which messages will be logged
-/// by the default sync client logger.
-/// {@category Realm}
-class RealmLogLevel {
-  /// Log everything. This will seriously harm the performance of the
-  /// sync client and should never be used in production scenarios.
-  ///
-  /// Same as [Level.ALL]
-  static const all = Level.ALL;
-
-  /// A version of [debug] that allows for very high volume output.
-  /// This may seriously affect the performance of the sync client.
-  ///
-  /// Same as [Level.FINEST]
-  static const trace = Level('TRACE', 300);
-
-  /// Reveal information that can aid debugging, no longer paying
-  /// attention to efficiency.
-  ///
-  /// Same as [Level.FINER]
-  static const debug = Level('DEBUG', 400);
-
-  /// Same as [info], but prioritize completeness over minimalism.
-  ///
-  /// Same as [Level.FINE];
-  static const detail = Level('DETAIL', 500);
-
-  /// Log operational sync client messages, but in a minimalist fashion to
-  /// avoid general overhead from logging and to keep volume down.
-  ///
-  /// Same as [Level.INFO];
-  static const info = Level.INFO;
-
-  /// Log errors and warnings.
-  ///
-  /// Same as [Level.WARNING];
-  static const warn = Level.WARNING;
-
-  /// Log errors only.
-  ///
-  /// Same as [Level.SEVERE];
-  static const error = Level('ERROR', 1000);
-
-  /// Log only fatal errors.
-  ///
-  /// Same as [Level.SHOUT];
-  static const fatal = Level('FATAL', 1200);
-
-  /// Log nothing.
-  ///
-  /// Same as [Level.OFF];
-  static const off = Level.OFF;
-
-  static const levels = [
-    all,
-    trace,
-    debug,
-    detail,
-    info,
-    warn,
-    error,
-    fatal,
-    off,
-  ];
-}
-
 /// A [Realm] instance represents a `Realm` database.
 ///
 /// {@category Realm}
 class Realm {
   final Map<Type, RealmMetadata> _metadata = <Type, RealmMetadata>{};
   final RealmHandle _handle;
-
-  /// The logger to use.
-  ///
-  /// Defaults to printing info or worse to the console
-  static late var logger = Logger.detached('Realm')
-    ..level = RealmLogLevel.info
-    ..onRecord.listen((event) => print(event));
-
-  /// Shutdown.
-  static void shutdown() => scheduler.stop();
 
   /// The [Configuration] object used to open this [Realm]
   final Configuration config;
@@ -386,6 +310,14 @@ class Realm {
     if (other is! Realm) return false;
     return realmCore.realmEquals(this, other);
   }
+
+  /// The logger to use for logging
+  static Logger logger = Logger.detached('Realm')
+    ..level = RealmLogLevel.info
+    ..onRecord.listen((event) => print(event));
+
+  /// Shutdown.
+  static void shutdown() => scheduler.stop();
 }
 
 /// @nodoc
@@ -473,4 +405,58 @@ abstract class NotificationsController {
     handle!.release();
     handle = null;
   }
+}
+
+/// Specifies the criticality level above which messages will be logged
+/// by the default sync client logger.
+/// {@category Realm}
+class RealmLogLevel {
+  /// Log everything. This will seriously harm the performance of the
+  /// sync client and should never be used in production scenarios.
+  ///
+  /// Same as [Level.ALL]
+  static const all = Level.ALL;
+
+  /// A version of [debug] that allows for very high volume output.
+  /// This may seriously affect the performance of the sync client.
+  ///
+  /// Same as [Level.FINEST]
+  static const trace = Level('TRACE', 300);
+
+  /// Reveal information that can aid debugging, no longer paying
+  /// attention to efficiency.
+  ///
+  /// Same as [Level.FINER]
+  static const debug = Level('DEBUG', 400);
+
+  /// Same as [info], but prioritize completeness over minimalism.
+  ///
+  /// Same as [Level.FINE];
+  static const detail = Level('DETAIL', 500);
+
+  /// Log operational sync client messages, but in a minimalist fashion to
+  /// avoid general overhead from logging and to keep volume down.
+  ///
+  /// Same as [Level.INFO];
+  static const info = Level.INFO;
+
+  /// Log errors and warnings.
+  ///
+  /// Same as [Level.WARNING];
+  static const warn = Level.WARNING;
+
+  /// Log errors only.
+  ///
+  /// Same as [Level.SEVERE];
+  static const error = Level('ERROR', 1000);
+
+  /// Log only fatal errors.
+  ///
+  /// Same as [Level.SHOUT];
+  static const fatal = Level('FATAL', 1200);
+
+  /// Turn off logging.
+  ///
+  /// Same as [Level.OFF];
+  static const off = Level.OFF;
 }

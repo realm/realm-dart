@@ -1053,16 +1053,17 @@ class _RealmCore {
   }
 
   static void _logCallback(Pointer<Void> userdata, int levelAsInt, Pointer<Int8> message) {
-    try {
-      final logger = Realm.logger;
-      final level = _LogLevel.values[levelAsInt].loggerLevel;
+    final logger = Realm.logger;
 
-      // Don't do expensive utf8 to utf16 conversion unless we have to..
+    try {
+      final level = LevelExt.fromInt(levelAsInt);
+
+      // Don't do expensive utf8 to utf16 conversion unless needed.
       if (logger.isLoggable(level)) {
         logger.log(level, message.cast<Utf8>().toDartString());
       }
     } finally {
-      _realmLib.realm_free(message.cast()); // .. but always free the message
+      _realmLib.realm_free(message.cast()); // always free the message.
     }
   }
 
@@ -1073,7 +1074,8 @@ class _RealmCore {
       _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toUtf8Ptr(arena));
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
 
-      _realmLib.realm_sync_client_config_set_log_level(handle._pointer, _LogLevel.fromLevel(Realm.logger.level).index);
+      _realmLib.realm_sync_client_config_set_log_level(handle._pointer, Realm.logger.level.toInt());
+
       _realmLib.realm_dart_sync_client_config_set_log_callback(
         handle._pointer,
         Pointer.fromFunction(_logCallback),
@@ -2007,25 +2009,54 @@ extension on realm_object_id {
   }
 }
 
-// Helper enum for converting Level
-enum _LogLevel {
-  all(RealmLogLevel.all),
-  trace(RealmLogLevel.trace),
-  debug(RealmLogLevel.debug),
-  detail(RealmLogLevel.detail),
-  info(RealmLogLevel.info),
-  warn(RealmLogLevel.warn),
-  error(RealmLogLevel.error),
-  fatal(RealmLogLevel.fatal),
-  off(RealmLogLevel.off);
-
-  final Level loggerLevel;
-  const _LogLevel(this.loggerLevel);
-
-  factory _LogLevel.fromLevel(Level level) {
-    for (final candidate in _LogLevel.values) {
-      if (level.value > candidate.loggerLevel.value) return candidate;
+extension LevelExt on Level {
+  int toInt() {
+    if (this == Level.ALL) {
+      return 0;
+    } else if (name == "TRACE") {
+      return 1;
+    } else if (name == "DEBUG") {
+      return 2;
+    } else if (name == "DETAIL") {
+      return 3;
+    } else if (this == Level.INFO) {
+      return 4;
+    } else if (this == Level.WARNING) {
+      return 5;
+    } else if (name == "ERROR") {
+      return 6;
+    } else if (name == "FATAL") {
+      return 7;
+    } else if (this == Level.OFF) {
+      return 8;
+    } else {
+      // if unknown logging is off
+      return 8;
     }
-    return _LogLevel.off;
+  }
+
+  static Level fromInt(int value) {
+    switch (value) {
+      case 0:
+        return RealmLogLevel.all;
+      case 1:
+        return RealmLogLevel.trace;
+      case 2:
+        return RealmLogLevel.debug;
+      case 3:
+        return RealmLogLevel.detail;
+      case 4:
+        return RealmLogLevel.info;
+      case 5:
+        return RealmLogLevel.warn;
+      case 6:
+        return RealmLogLevel.error;
+      case 7:
+        return RealmLogLevel.fatal;
+      case 8:
+      default:
+        // if unknown logging is off
+        return RealmLogLevel.off;
+    }
   }
 }
