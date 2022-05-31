@@ -518,7 +518,7 @@ Future<void> main([List<String>? args]) async {
           name: "filter");
     });
 
-    expect(() async => await realm.subscriptions.waitForSynchronization(), throws<SyncError>());
+    expect(() async => await realm.subscriptions.waitForSynchronization(), throws<RealmException>());
   });
 
   testSubscriptions('Filter realm data using query subscription', (realm) async {
@@ -555,8 +555,8 @@ Future<void> main([List<String>? args]) async {
   baasTest('Writing before to subscribe throws SyncSession test error handler ', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Event.schema], sessionErrorHandler: (sessionError) {
-      expect(sessionError.category, SyncErrorCategory.session);
+    final config = Configuration.flexibleSync(user, [Event.schema], syncErrorHandler: (syncError) {
+      expect(syncError.category, SyncErrorCategory.session);
     });
     final realm = getRealm(config);
     realm.write(() {
