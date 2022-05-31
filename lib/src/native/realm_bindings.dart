@@ -3292,7 +3292,7 @@ class RealmLibrary {
   /// @param errorCode Error code of the error that to be simulated.
   /// @param isFatal >If set to `true` the error will be marked as fatal.
   ///
-  /// Use this method to test your error handling code without connecting to a MongoDB Realm Server.
+  /// Use this method to test your error handling code without connecting to MongoDB Atlas.
   void realm_dart_sync_session_report_error_for_testing(
     ffi.Pointer<realm_sync_session_t> session,
     int category,
