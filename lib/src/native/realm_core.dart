@@ -15,6 +15,8 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
@@ -44,6 +46,9 @@ late RealmLibrary _realmLib;
 
 final _RealmCore realmCore = _RealmCore();
 
+const int TRUE = 1;
+const int FALSE = 0;
+
 class _RealmCore {
   // From realm.h. Currently not exported from the shared library
   static const int RLM_INVALID_CLASS_KEY = 0x7FFFFFFF;
@@ -51,9 +56,6 @@ class _RealmCore {
   static const int RLM_INVALID_PROPERTY_KEY = -1;
   // ignore: unused_field
   static const int RLM_INVALID_OBJECT_KEY = -1;
-
-  static const int TRUE = 1;
-  static const int FALSE = 0;
 
   static Object noopUserdata = Object();
 
@@ -400,15 +402,19 @@ class _RealmCore {
   }
 
   static void _syncErrorHandlerCallback(Pointer<Void> userdata, Pointer<realm_sync_session> user, realm_sync_error error) {
-    print(error.detailed_message.cast<Utf8>().toRealmDartString()!);
     final FlexibleSyncConfiguration? syncConfig = userdata.toObject(isPersistent: true);
     if (syncConfig == null) {
       return;
     }
-    final sessionError = error.toSessionError();
-    if (syncConfig.sessionErrorHandler != null) {
-      syncConfig.sessionErrorHandler!(sessionError);
+
+    final syncError = error.toSyncError();
+
+    if (syncError is SyncClientResetError) {
+      syncConfig.syncClientResetErrorHandler.callback(syncError);
+      return;
     }
+
+    syncConfig.syncErrorHandler(syncError);
   }
 
   void raiseError(Session session, SyncErrorCategory category, int errorCode, bool isFatal) {
@@ -1502,7 +1508,7 @@ class _RealmCore {
 
   Future<void> sessionWaitForUpload(Session session) {
     final completer = Completer<void>();
-    final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_error_code_t>)>(_waitCompletionCallback);
+    final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_error_code_t>)>(_sessionWaitCompletionCallback);
     final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
     _realmLib.realm_sync_session_wait_for_upload_completion(session.handle._pointer, _realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
         userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
@@ -1511,14 +1517,14 @@ class _RealmCore {
 
   Future<void> sessionWaitForDownload(Session session) {
     final completer = Completer<void>();
-    final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_error_code_t>)>(_waitCompletionCallback);
+    final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_error_code_t>)>(_sessionWaitCompletionCallback);
     final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
     _realmLib.realm_sync_session_wait_for_download_completion(session.handle._pointer, _realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
         userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
     return completer.future;
   }
 
-  static void _waitCompletionCallback(Object userdata, Pointer<realm_sync_error_code_t> errorCode) {
+  static void _sessionWaitCompletionCallback(Object userdata, Pointer<realm_sync_error_code_t> errorCode) {
     final completer = userdata as Completer<void>;
 
     if (errorCode != nullptr) {
@@ -1881,24 +1887,25 @@ extension on Pointer<Utf8> {
 }
 
 extension on realm_sync_error {
-  SessionError toSessionError() {
-    final messageText = detailed_message.cast<Utf8>().toRealmDartString()!;
-    final SyncErrorCategory errorCategory = SyncErrorCategory.values[error_code.category];
+  SyncError toSyncError() {
+    final message = detailed_message.cast<Utf8>().toRealmDartString()!;
+    final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
     final isFatal = is_fatal == 0 ? false : true;
+    final bool isClientResetRequested = is_client_reset_requested == TRUE;
 
-    return SessionError(
-      messageText,
-      errorCategory,
-      isFatal: isFatal,
-      code: error_code.value,
-    );
+    //client reset can be requested with is_client_reset_requested disregarding the error_code.value
+    if (isClientResetRequested) {
+      return SyncClientResetError(message);
+    }
+
+    return SyncError.create(message, category, error_code.value, isFatal: isFatal);
   }
 }
 
 extension on Pointer<realm_sync_error_code_t> {
   SyncError toSyncError() {
-    final message = ref.message.cast<Utf8>().toRealmDartString()!;
-    return SyncError(message, SyncErrorCategory.values[ref.category], ref.value);
+    final message = ref.message.cast<Utf8>().toDartString();
+    return SyncError.create(message, SyncErrorCategory.values[ref.category], ref.value, isFatal: false);
   }
 }
 
@@ -1932,43 +1939,14 @@ extension on List<UserState> {
   }
 }
 
-// TODO: Once enhanced-enums land in 2.17, replace with:
-/*
 enum _CustomErrorCode {
   noError(0),
-  httpClientDisposed(997),
   unknownHttp(998),
   unknown(999),
   timeout(1000);
 
   final int code;
   const _CustomErrorCode(this.code);
-}
-*/
-
-enum _CustomErrorCode {
-  noError,
-  httpClientDisposed,
-  unknownHttp,
-  unknown,
-  timeout,
-}
-
-extension on _CustomErrorCode {
-  int get code {
-    switch (this) {
-      case _CustomErrorCode.noError:
-        return 0;
-      case _CustomErrorCode.httpClientDisposed:
-        return 997;
-      case _CustomErrorCode.unknownHttp:
-        return 998;
-      case _CustomErrorCode.unknown:
-        return 999;
-      case _CustomErrorCode.timeout:
-        return 1000;
-    }
-  }
 }
 
 enum _HttpMethod {

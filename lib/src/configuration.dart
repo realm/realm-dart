@@ -44,11 +44,6 @@ typedef ShouldCompactCallback = bool Function(int totalSize, int usedSize);
 /// Realms, even if all objects in the Realm are deleted.
 typedef InitialDataCallback = void Function(Realm realm);
 
-///The signature of a callback that will be invoked whenever a [SessionError] occurs for the synchronized Realm.
-///
-/// Client reset errors will not be reported through this callback as they are handled by [ClientResetHandler].
-typedef SessionErrorHandler = void Function(SessionError error);
-
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
 abstract class Configuration {
@@ -141,14 +136,16 @@ abstract class Configuration {
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
-    SessionErrorHandler? sessionErrorHandler,
+    SyncErrorHandler syncErrorHandler = defaultSyncErrorHandler,
+    SyncClientResetErrorHandler syncClientResetErrorHandler = const ManualSyncClientResetHandler(_defaultSyncClientResetHandler),
   }) =>
       FlexibleSyncConfiguration._(
         user,
         schemaObjects,
         fifoFilesFallbackPath: fifoFilesFallbackPath,
         path: path,
-        sessionErrorHandler: sessionErrorHandler,
+        syncErrorHandler: syncErrorHandler,
+        syncClientResetErrorHandler: syncClientResetErrorHandler,
       );
 }
 
@@ -211,6 +208,23 @@ enum SessionStopPolicy {
   afterChangesUploaded, // Once all Realms/Sessions go out of scope, wait for uploads to complete and stop.
 }
 
+///The signature of a callback that will be invoked whenever a [SyncError] occurs for the synchronized Realm.
+///
+/// Client reset errors will not be reported through this callback as they are handled by [SyncClientResetErrorHandler].
+typedef SyncErrorHandler = void Function(SyncError);
+
+void defaultSyncErrorHandler(SyncError e) {
+   Realm.logger.log(RealmLogLevel.error, e);
+}
+
+void _defaultSyncClientResetHandler(SyncError e) {
+  Realm.logger.log(RealmLogLevel.error, "A client reset error occurred but no handler was supplied. "
+    "Synchronization is now paused and will resume automatically once the app is restarted and "
+    "the server data is redownloaded. Any unsynchronized changes the client has made or will "
+    "make will be lost. To handle that scenario, pass in a non-null value to " 
+    "syncClientResetErrorHandler when constructing Configuration.flexibleSync.");
+}
+
 /// [FlexibleSyncConfiguration] is used to open [Realm] instances that are synchronized
 /// with MongoDB Realm.
 /// {@category Configuration}
@@ -219,15 +233,23 @@ class FlexibleSyncConfiguration extends Configuration {
 
   SessionStopPolicy _sessionStopPolicy = SessionStopPolicy.afterChangesUploaded;
 
-  /// Called when a [SessionError] occurs for the synchronized Realm.
-  final SessionErrorHandler? sessionErrorHandler;
+  /// Called when a [SyncError] occurs for this synchronized [Realm].
+  /// 
+  /// The default [SyncErrorHandler] prints to the console
+  final SyncErrorHandler syncErrorHandler;
+
+  /// Called when a [SyncClientResetError] occurs for this synchronized [Realm]
+  /// 
+  /// The default [SyncClientResetErrorHandler] logs a message using the current Realm.logger
+  final SyncClientResetErrorHandler syncClientResetErrorHandler;
 
   FlexibleSyncConfiguration._(
     this.user,
     super.schemaObjects, {
     super.fifoFilesFallbackPath,
     super.path,
-    this.sessionErrorHandler,
+    this.syncErrorHandler = defaultSyncErrorHandler,
+    this.syncClientResetErrorHandler = const ManualSyncClientResetHandler(_defaultSyncClientResetHandler),
   }) : super._();
 
   @override
@@ -295,3 +317,17 @@ class RealmSchema extends Iterable<SchemaObject> {
   @override
   SchemaObject elementAt(int index) => _schema.elementAt(index);
 }
+
+/// The signature of a callback that will be invoked if a client reset error occurs for this [Realm].
+///
+/// Currently, Flexible sync supports only the [ManualSyncClientResetHandler].
+class SyncClientResetErrorHandler {
+  /// The callback that handles the [SyncClientResetError].
+  final void Function(SyncClientResetError code) callback;
+
+  /// Initializes a new instance of of [SyncClientResetErrorHandler].
+  const SyncClientResetErrorHandler(this.callback);
+}
+
+/// A client reset strategy where the user needs to fully take care of a client reset.
+typedef ManualSyncClientResetHandler = SyncClientResetErrorHandler;

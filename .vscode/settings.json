@@ -22,6 +22,7 @@
     },
     "files.associations": {
         "filesystem": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "system_error": "cpp"
     },
 }
