@@ -403,11 +403,13 @@ class Event extends _Event with RealmEntity, RealmObject {
     String? name,
     bool? isCompleted,
     int? durationInMinutes,
+    String? assignedTo,
   }) {
     RealmObject.set(this, '_id', id);
     RealmObject.set(this, 'stringQueryField', name);
     RealmObject.set(this, 'boolQueryField', isCompleted);
     RealmObject.set(this, 'intQueryField', durationInMinutes);
+    RealmObject.set(this, 'assignedTo', assignedTo);
   }
 
   Event._();
@@ -438,6 +440,12 @@ class Event extends _Event with RealmEntity, RealmObject {
       RealmObject.set(this, 'intQueryField', value);
 
   @override
+  String? get assignedTo =>
+      RealmObject.get<String>(this, 'assignedTo') as String?;
+  @override
+  set assignedTo(String? value) => RealmObject.set(this, 'assignedTo', value);
+
+  @override
   Stream<RealmObjectChanges<Event>> get changes =>
       RealmObject.getChanges<Event>(this);
 
@@ -454,6 +462,7 @@ class Event extends _Event with RealmEntity, RealmObject {
           mapTo: 'boolQueryField', optional: true),
       SchemaProperty('intQueryField', RealmPropertyType.int,
           mapTo: 'intQueryField', optional: true),
+      SchemaProperty('assignedTo', RealmPropertyType.string, optional: true),
     ]);
   }
 }

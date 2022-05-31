@@ -115,6 +115,7 @@ class _Event {
   late bool? isCompleted;
   @MapTo('intQueryField')
   late int? durationInMinutes;
+  late String? assignedTo;
 }
 
 @RealmModel()
