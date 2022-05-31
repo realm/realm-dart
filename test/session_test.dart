@@ -290,7 +290,7 @@ Future<void> main([List<String>? args]) async {
 
     final realm = getRealm(config);
 
-    realm.syncSession.raiseError(SyncErrorCategory.session, SyncSessionErrorCode.badAuthentication.index, false);
+    realm.syncSession.raiseError(SyncErrorCategory.session, SyncSessionErrorCode.badAuthentication.code, false);
   });
 
   baasTest('SyncSession test fatal error handler', (configuration) async {
@@ -306,7 +306,7 @@ Future<void> main([List<String>? args]) async {
     });
     final realm = getRealm(config);
 
-    realm.syncSession.raiseError(SyncErrorCategory.client, SyncClientErrorCode.badChangeset.index, true);
+    realm.syncSession.raiseError(SyncErrorCategory.client, SyncClientErrorCode.badChangeset.code, true);
   });
 
   baasTest('SyncSession client reset handler', (configuration) async {
@@ -322,7 +322,7 @@ Future<void> main([List<String>? args]) async {
     });
     final realm = getRealm(config);
 
-    realm.syncSession.raiseError(SyncErrorCategory.session, SyncClientErrorCode.autoClientResetFailure.index, true);
+    realm.syncSession.raiseError(SyncErrorCategory.session, SyncClientErrorCode.autoClientResetFailure.code, true);
   });
 }
 

@@ -156,7 +156,7 @@ class SyncClientError extends SyncError {
   final bool isFatal;
 
   /// The [SyncClientErrorCode] value indicating the type of the sync error.
-  SyncClientErrorCode get code => SyncClientErrorCode.values[codeValue];
+  SyncClientErrorCode get code => SyncClientErrorCode.fromInt(codeValue);
 
   SyncClientError(
     String message,
@@ -177,7 +177,7 @@ class SyncClientResetError extends SyncError {
   /// If true the received error is fatal.
   final bool isFatal = true;
 
-  /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
+  /// The [SyncClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
   SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
 
   SyncClientResetError(String message) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
@@ -217,7 +217,7 @@ class SyncSessionError extends SyncError {
   final bool isFatal;
 
   /// The [SyncSessionErrorCode] value indicating the type of the sync error.
-  SyncSessionErrorCode get code => SyncSessionErrorCode.values[codeValue];
+  SyncSessionErrorCode get code => SyncSessionErrorCode.fromInt(codeValue);
 
   SyncSessionError(
     String message,
