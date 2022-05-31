@@ -136,8 +136,8 @@ abstract class Configuration {
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
-    SyncErrorHandler? syncErrorHandler,
-    SyncClientResetErrorHandler? syncClientResetErrorHandler,
+    SyncErrorHandler syncErrorHandler = defaultSyncErrorHandler,
+    SyncClientResetErrorHandler syncClientResetErrorHandler = const ManualSyncClientResetHandler(_defaultSyncClientResetHandler),
   }) =>
       FlexibleSyncConfiguration._(
         user,
@@ -213,6 +213,18 @@ enum SessionStopPolicy {
 /// Client reset errors will not be reported through this callback as they are handled by [SyncClientResetErrorHandler].
 typedef SyncErrorHandler = void Function(SyncError);
 
+void defaultSyncErrorHandler(SyncError e) {
+   Realm.logger.log(RealmLogLevel.error, e);
+}
+
+void _defaultSyncClientResetHandler(SyncError e) {
+  Realm.logger.log(RealmLogLevel.error, "A client reset error occurred but no handler was supplied. "
+    "Synchronization is now paused and will resume automatically once the app is restarted and "
+    "the server data is redownloaded. Any unsynchronized changes the client has made or will "
+    "make will be lost. To handle that scenario, pass in a non-null value to" 
+    "syncClientResetErrorHandler when constructing Configuration.flexibleSync.");
+}
+
 /// [FlexibleSyncConfiguration] is used to open [Realm] instances that are synchronized
 /// with MongoDB Realm.
 /// {@category Configuration}
@@ -222,18 +234,22 @@ class FlexibleSyncConfiguration extends Configuration {
   SessionStopPolicy _sessionStopPolicy = SessionStopPolicy.afterChangesUploaded;
 
   /// Called when a [SyncError] occurs for this synchronized [Realm].
-  final SyncErrorHandler? syncErrorHandler;
+  /// 
+  /// The default [SyncErrorHandler] prints to the console
+  final SyncErrorHandler syncErrorHandler;
 
   /// Called when a [SyncClientResetError] occurs for this synchronized [Realm]
-  final SyncClientResetErrorHandler? syncClientResetErrorHandler;
+  /// 
+  /// The default [SyncClientResetErrorHandler] logs a message using the current Realm.logger
+  final SyncClientResetErrorHandler syncClientResetErrorHandler;
 
   FlexibleSyncConfiguration._(
     this.user,
     super.schemaObjects, {
     super.fifoFilesFallbackPath,
     super.path,
-    this.syncErrorHandler,
-    this.syncClientResetErrorHandler,
+    this.syncErrorHandler = defaultSyncErrorHandler,
+    this.syncClientResetErrorHandler = const ManualSyncClientResetHandler(_defaultSyncClientResetHandler),
   }) : super._();
 
   @override
@@ -307,11 +323,10 @@ class RealmSchema extends Iterable<SchemaObject> {
 /// Currently, Flexible sync only supports the Manual Recovery.
 class SyncClientResetErrorHandler {
   /// The callback that handles the [SyncClientResetError].
-  void Function(SyncClientResetError code) callback;
-
-  /// Invokes the [SyncClientResetError] handling [callback].
-  void call(SyncClientResetError error) => callback(error);
+  final void Function(SyncClientResetError code) callback;
 
   /// Initializes a new instance of of [SyncClientResetErrorHandler].
-  SyncClientResetErrorHandler(this.callback);
+  const SyncClientResetErrorHandler(this.callback);
 }
+
+typedef ManualSyncClientResetHandler = SyncClientResetErrorHandler;

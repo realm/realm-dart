@@ -414,12 +414,11 @@ class _RealmCore {
     final syncError = error.toSyncError();
 
     if (syncError is SyncClientResetError) {
-      if (syncConfig.syncClientResetErrorHandler != null) {
-        syncConfig.syncClientResetErrorHandler!(syncError);
-      }
-    } else if (syncConfig.syncErrorHandler != null) {
-      syncConfig.syncErrorHandler!(syncError);
-    }
+        syncConfig.syncClientResetErrorHandler!.callback(syncError);
+        return;
+    } 
+
+    syncConfig.syncErrorHandler(syncError);
   }
 
   void raiseError(Session session, SyncErrorCategory category, int errorCode, bool isFatal) {
@@ -1962,7 +1961,6 @@ extension on List<UserState> {
 
 enum _CustomErrorCode {
   noError(0),
-  httpClientDisposed(997),
   unknownHttp(998),
   unknown(999),
   timeout(1000);
