@@ -21,22 +21,6 @@
 
 #include <realm.h>
 
-/**
- * Register a handler in order to be notified when subscription set is equal to the one passed as parameter
- * This is an asynchronous operation.
- * 
- * @return true/false if the handler was registered correctly
- * 
- * This is dart specific version of realm_dart_on_subscription_set_state_change_async.
- * Unlike the original method, this one uses event_loop_dispatcher to ensure the callback
- * is handled on the correct isolate thread.
- */
-RLM_API bool
-realm_dart_sync_on_subscription_set_state_change_async(const realm_flx_sync_subscription_set_t* subscription_set,
-                                                       realm_flx_sync_subscription_set_state_e notify_when,
-                                                       realm_sync_on_subscription_state_changed_t callback,
-                                                       void* userdata, 
-                                                       realm_free_userdata_func_t userdata_free,
-                                                       realm_scheduler_t* scheduler) RLM_API_NOEXCEPT;
+RLM_API void realm_dart_sync_on_subscription_state_changed_callback(realm_userdata_t userdata, realm_flx_sync_subscription_set_state_e state);
 
 #endif // REALM_DART_SUBSCRIPTION_SET_H

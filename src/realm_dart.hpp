@@ -16,11 +16,22 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef REALM_DART_SYNC_CLIENT_CONFIG_H
-#define REALM_DART_SYNC_CLIENT_CONFIG_H
+#include "realm_dart.h"
+#include <realm/object-store/c_api/types.hpp>
 
-#include "realm.h"
+struct realm_dart_userdata_async {
+public:
+    realm_dart_userdata_async(Dart_Handle handle, void* callback, realm_scheduler_t* scheduler)
+    : handle(Dart_NewPersistentHandle_DL(handle))
+    , dart_callback(callback)
+    , scheduler(*scheduler)
+    { }
 
-RLM_API void realm_dart_sync_client_log_callback(realm_userdata_t userdata, realm_log_level_e level, const char* message);
+    ~realm_dart_userdata_async() {
+        Dart_DeletePersistentHandle_DL(handle);
+    }
 
-#endif // REALM_DART_SYNC_CLIENT_CONFIG_H
+    Dart_PersistentHandle handle;
+    void* dart_callback;
+    std::shared_ptr<realm::util::Scheduler> scheduler;
+};

@@ -17,45 +17,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "subscription_set.h"
+#include "realm_dart.hpp"
 
-#include <realm/object-store/c_api/types.hpp>
-#include <realm/object-store/c_api/util.hpp>
-#include <realm/sync/subscriptions.hpp>
-
-#include "event_loop_dispatcher.hpp"
-
-namespace realm::c_api {
-namespace {
-
-using namespace realm::sync;
-
-using FreeT = std::function<void()>;
-using CallbackT = std::function<void(realm_flx_sync_subscription_set_state)>; // Differs per callback
-using UserdataT = std::tuple<CallbackT, FreeT>;
-
-void _callback(void* userdata, realm_flx_sync_subscription_set_state state) {
-    auto u = reinterpret_cast<UserdataT*>(userdata);
-    std::get<0>(*u)(state);
-}
-
-void _userdata_free(void* userdata) {
-    auto u = reinterpret_cast<UserdataT*>(userdata);
-    std::get<1>(*u)();
-    delete u;
-}
-
-RLM_API bool realm_dart_sync_on_subscription_set_state_change_async(
-    const realm_flx_sync_subscription_set_t* subscription_set,
-    realm_flx_sync_subscription_set_state_e notify_when,
-    realm_sync_on_subscription_state_changed_t callback,
-    void* userdata,
-    realm_free_userdata_func_t userdata_free,
-    realm_scheduler_t* scheduler) noexcept
+RLM_API void realm_dart_sync_on_subscription_state_changed_callback(realm_userdata_t userdata, realm_flx_sync_subscription_set_state_e state)
 {
-    auto u = new UserdataT(std::bind(util::EventLoopDispatcher{ *scheduler, callback }, userdata, std::placeholders::_1),
-                           std::bind(util::EventLoopDispatcher{ *scheduler, userdata_free }, userdata));
-    return realm_sync_on_subscription_set_state_change_async(subscription_set, notify_when, _callback, u, _userdata_free);
+    auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
+    ud->scheduler->invoke([ud, state]() {
+        (reinterpret_cast<realm_sync_on_subscription_state_changed_t>(ud->dart_callback))(ud->handle, state);
+    });
 }
-
-} // anonymous namespace
-} // namespace realm::c_api 
