@@ -29,37 +29,15 @@
     {
       "name": "windows",
       "inherits": "default",
-      "hidden": true,
       "generator": "Visual Studio 17 2022",
       "toolchainFile": "${sourceDir}/src/realm-core/tools/vcpkg/ports/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
-        "VCPKG_TARGET_TRIPLET": "$env{vcpkg_arch}-$env{vcpkg_platform}-static"
-      },
-      "environment": {
-        "vcpkg_platform": "windows"
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static"
       },
       "condition": {
         "lhs": "${hostSystemName}",
         "type": "equals",
         "rhs": "Windows"
-      }
-    },
-    {
-      "name": "windows-x64",
-      "displayName": "Windows x64",
-      "inherits": "windows",
-      "architecture": "x64",
-      "environment": {
-        "vcpkg_arch": "x64"
-      }
-    },
-    {
-      "name": "windows-arm64",
-      "displayName": "Windows ARM64",
-      "inherits": "windows",
-      "architecture": "ARM64",
-      "environment": {
-        "vcpkg_arch": "arm64"
       }
     },
     {
@@ -173,15 +151,9 @@
       "configuration": "Debug"
     },
     {
-      "name": "windows-x64",
-      "configurePreset": "windows-x64",
+      "name": "windows",
+      "configurePreset": "windows",
       "displayName": "x64",
-      "configuration": "Debug"
-    },
-    {
-      "name": "windows-arm64",
-      "configurePreset": "windows-arm64",
-      "displayName": "ARM64",
       "configuration": "Debug"
     },
     {

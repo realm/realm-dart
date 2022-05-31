@@ -112,16 +112,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { preset: windows-x64, runner: windows }
+          - { preset: windows, runner: windows }
           - { preset: macos, runner: macos }
           - { preset: linux, runner: ubuntu }
           - { preset: ios, build: ios-device, runner: macos }
           - { preset: ios, build: ios-simulator, runner: macos }
           - { preset: ios, build: ios-catalyst, runner: macos }
-          - { preset: android-x86, runner: ubuntu }
-          - { preset: android-x86_64, runner: ubuntu }
-          - { preset: android-armeabi-v7a, runner: ubuntu }
-          - { preset: android-arm64-v8a, runner: ubuntu }
+          - { preset: android-x86, binary: android, runner: ubuntu }
+          - { preset: android-x86_64, binary: android, runner: ubuntu }
+          - { preset: android-armeabi-v7a, binary: android, runner: ubuntu }
+          - { preset: android-arm64-v8a, binary: android, runner: ubuntu }
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -162,7 +162,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: librealm-${{ matrix.build || matrix.preset }}
-          path: binary/**
+          path: binary/${{ matrix.binary || matrix.preset }}/**
           retention-days: 1
 
   build-ios-xcframework:
@@ -175,17 +175,17 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-ios-device
-          path: binary/
+          path: binary/ios
       - name: Fetch simulator build
         uses: actions/download-artifact@v2
         with:
           name: librealm-ios-simulator
-          path: binary/
+          path: binary/ios
       - name: Fetch catalyst build
         uses: actions/download-artifact@v2
         with:
           name: librealm-ios-catalyst
-          path: binary/
+          path: binary/ios
 
       - name: Build .xcframework
         run: |
@@ -200,7 +200,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: librealm-ios
-          path: binary/**
+          path: binary/ios
           retention-days: 1
 
       - name: Delete individual framework artifacts
@@ -211,6 +211,48 @@ jobs:
             librealm-ios-simulator
             librealm-ios-catalyst
 
+  build-android-combined:
+    name: Combine Android binaries
+    runs-on: ubuntu-latest
+    needs: build-native
+    
+    steps:
+      - name: Fetch x86 build
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-android-x86
+          path: binary/android
+      - name: Fetch x86_64 build
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-android-x86_64
+          path: binary/android
+      - name: Fetch armeabi-v7a build
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-android-armeabi-v7a
+          path: binary/android
+      - name: Fetch arm64-v8a build
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-android-arm64-v8a
+          path: binary/android
+
+      - name: Store combined artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: librealm-android
+          path: binary/android
+          retention-days: 1
+
+      - name: Delete individual build artifacts
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: |
+            librealm-android-x86
+            librealm-android-x86_64
+            librealm-android-armeabi-v7a
+            librealm-android-arm64-v8a
 
 # Linux jobs
 
@@ -232,7 +274,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-linux
-          path: binary/
+          path: binary/linux
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
@@ -271,7 +313,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-linux
-          path: binary/
+          path: binary/linux
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -308,7 +350,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-macos
-          path: binary/
+          path: binary/macos
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
@@ -339,7 +381,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-macos
-          path: binary/
+          path: binary/macos
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -376,8 +418,8 @@ jobs:
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
-          name: librealm-windows-x64
-          path: binary/
+          name: librealm-windows
+          path: binary/windows
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
@@ -409,8 +451,8 @@ jobs:
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
-          name: librealm-windows-x64
-          path: binary/
+          name: librealm-windows
+          path: binary/windows
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -450,7 +492,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: librealm-ios
-          path: binary/
+          path: binary/ios
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -481,7 +523,7 @@ jobs:
       BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-android-clusterName }}
     needs:
       - baas_matrix
-      - build-native
+      - build-android-combined
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -491,8 +533,8 @@ jobs:
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
-          name: librealm-android-x86
-          path: binary/
+          name: librealm-android
+          path: binary/android
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
