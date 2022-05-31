@@ -221,7 +221,7 @@ void _defaultSyncClientResetHandler(SyncError e) {
   Realm.logger.log(RealmLogLevel.error, "A client reset error occurred but no handler was supplied. "
     "Synchronization is now paused and will resume automatically once the app is restarted and "
     "the server data is redownloaded. Any unsynchronized changes the client has made or will "
-    "make will be lost. To handle that scenario, pass in a non-null value to" 
+    "make will be lost. To handle that scenario, pass in a non-null value to " 
     "syncClientResetErrorHandler when constructing Configuration.flexibleSync.");
 }
 
@@ -320,7 +320,7 @@ class RealmSchema extends Iterable<SchemaObject> {
 
 /// The signature of a callback that will be invoked if a client reset error occurs for this [Realm].
 ///
-/// Currently, Flexible sync only supports the Manual Recovery.
+/// Currently, Flexible sync supports only the [ManualSyncClientResetHandler].
 class SyncClientResetErrorHandler {
   /// The callback that handles the [SyncClientResetError].
   final void Function(SyncClientResetError code) callback;
@@ -329,4 +329,5 @@ class SyncClientResetErrorHandler {
   const SyncClientResetErrorHandler(this.callback);
 }
 
+/// A client reset strategy where the user needs to fully take care of a client reset.
 typedef ManualSyncClientResetHandler = SyncClientResetErrorHandler;
