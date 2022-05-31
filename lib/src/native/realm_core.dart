@@ -414,7 +414,7 @@ class _RealmCore {
     final syncError = error.toSyncError();
 
     if (syncError is SyncClientResetError) {
-        syncConfig.syncClientResetErrorHandler!.callback(syncError);
+        syncConfig.syncClientResetErrorHandler.callback(syncError);
         return;
     } 
 
