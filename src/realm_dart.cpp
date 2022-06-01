@@ -22,7 +22,6 @@
 #include <exception>
 
 #include "realm_dart.h"
-#include "realm_dart.hpp"
 
 RLM_API void realm_dart_initializeDartApiDL(void* data) {
     Dart_InitializeApiDL(data);
@@ -84,17 +83,4 @@ RLM_API Dart_Handle realm_dart_persistent_handle_to_object(void* handle) {
 RLM_API void realm_dart_delete_persistent_handle(void* handle) {
     Dart_PersistentHandle persistentHandle = reinterpret_cast<Dart_PersistentHandle>(handle);
     Dart_DeletePersistentHandle_DL(persistentHandle);
-}
-
-RLM_API realm_dart_userdata_async_t realm_dart_userdata_async_new(Dart_Handle handle, void* callback, realm_scheduler_t* scheduler)
-{
-    return new realm_dart_userdata_async(handle, callback, scheduler);
-}
-
-RLM_API void realm_dart_userdata_async_free(void* userdata)
-{
-    auto async_userdata = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    async_userdata->scheduler->invoke([async_userdata]() {
-        delete async_userdata;
-    });
 }

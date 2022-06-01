@@ -352,7 +352,7 @@ class RealmObjectNotificationsController<T extends RealmObject> extends Notifica
   }
 
   @override
-  void onChanges(HandleBase changesHandle) {
+  void onChanges(Handle changesHandle) {
     if (changesHandle is! RealmObjectChangesHandle) {
       throw RealmError("Invalid changes handle. RealmObjectChangesHandle expected");
     }

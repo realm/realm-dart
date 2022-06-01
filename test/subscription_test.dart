@@ -33,7 +33,8 @@ import 'test.dart';
 void testSubscriptions(String name, FutureOr<void> Function(Realm) tester) async {
   baasTest(name, (appConfiguration) async {
     final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
+    //final credentials = Credentials.anonymous();
+    final credentials = Credentials.emailPassword("realm-test@realm.io", "123456");
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, [
       Task.schema,

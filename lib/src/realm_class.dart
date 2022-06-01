@@ -389,7 +389,7 @@ abstract class NotificationsController {
   RealmNotificationTokenHandle? handle;
 
   RealmNotificationTokenHandle subscribe();
-  void onChanges(HandleBase changesHandle);
+  void onChanges(Handle changesHandle);
   void onError(RealmError error);
 
   void start() {
