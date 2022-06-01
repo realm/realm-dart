@@ -190,8 +190,13 @@ class _RealmCore {
         final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
-          _realmLib.realm_sync_config_set_error_handler(syncConfigPtr, Pointer.fromFunction(_syncErrorHandlerCallback), config.toPersistentHandle(),
-              _realmLib.addresses.realm_dart_delete_persistent_handle);
+          _realmLib.realm_dart_sync_config_set_error_handler(
+            syncConfigPtr,
+            Pointer.fromFunction(_syncErrorHandlerCallback),
+            config.toPersistentHandle(),
+            _realmLib.addresses.realm_dart_delete_persistent_handle,
+            scheduler.handle._pointer,
+          );
           _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
         } finally {
           _realmLib.realm_release(syncConfigPtr.cast());
@@ -1568,6 +1573,7 @@ class _RealmCore {
   }
 
   static void _sessionWaitCompletionCallback(Pointer<Void> userdata, Pointer<realm_sync_error_code_t> errorCode) {
+    try {
     final completer = userdata.toObject<Completer<void>>(isPersistent: true);
     if (completer == null) {
       return;
@@ -1578,6 +1584,10 @@ class _RealmCore {
       completer.completeError(RealmException(errorCode.toSyncError().toString()));
     } else {
       completer.complete();
+    }
+    }
+    finally {
+      _realmLib.realm_free(errorCode.cast());
     }
   }
 }
@@ -1935,7 +1945,7 @@ extension on Pointer<Utf8> {
 
 extension on realm_sync_error {
   SyncError toSyncError() {
-    final message = detailed_message.cast<Utf8>().toRealmDartString()!;
+    final message = detailed_message.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
     final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
     final isFatal = is_fatal == 0 ? false : true;
     final bool isClientResetRequested = is_client_reset_requested == TRUE;
@@ -1951,7 +1961,7 @@ extension on realm_sync_error {
 
 extension on Pointer<realm_sync_error_code_t> {
   SyncError toSyncError() {
-    final message = ref.message.cast<Utf8>().toDartString();
+    final message = ref.message.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
     return SyncError.create(message, SyncErrorCategory.values[ref.category], ref.value, isFatal: false);
   }
 }

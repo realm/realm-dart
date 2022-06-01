@@ -13,6 +13,7 @@ set(SOURCES
     subscription_set.cpp
     sync_session.cpp
     sync_client_config.cpp
+    sync_client.cpp
 )
 
 set(HEADERS
@@ -22,6 +23,7 @@ set(HEADERS
     subscription_set.h
     sync_session.h
     sync_client_config.h
+    sync_client.h
 )
 
 add_library(realm_dart SHARED ${SOURCES} ${HEADERS})

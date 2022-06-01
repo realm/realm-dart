@@ -3148,6 +3148,40 @@ class RealmLibrary {
               realm_free_userdata_func_t,
               ffi.Pointer<realm_scheduler_t>)>();
 
+  void realm_dart_sync_config_set_error_handler(
+    ffi.Pointer<realm_sync_config_t> config,
+    realm_sync_error_handler_func_t handler,
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t userdata_free,
+    ffi.Pointer<realm_scheduler_t> scheduler,
+  ) {
+    return _realm_dart_sync_config_set_error_handler(
+      config,
+      handler,
+      userdata,
+      userdata_free,
+      scheduler,
+    );
+  }
+
+  late final _realm_dart_sync_config_set_error_handlerPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<realm_sync_config_t>,
+                  realm_sync_error_handler_func_t,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t,
+                  ffi.Pointer<realm_scheduler_t>)>>(
+      'realm_dart_sync_config_set_error_handler');
+  late final _realm_dart_sync_config_set_error_handler =
+      _realm_dart_sync_config_set_error_handlerPtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_sync_config_t>,
+              realm_sync_error_handler_func_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              ffi.Pointer<realm_scheduler_t>)>();
+
   /// Register a handler in order to be notified when subscription set is equal to the one passed as parameter
   /// This is an asynchronous operation.
   ///
@@ -9194,6 +9228,16 @@ class _SymbolAddresses {
                   ffi.Pointer<realm_scheduler_t>)>>
       get realm_dart_sync_client_config_set_log_callback =>
           _library._realm_dart_sync_client_config_set_log_callbackPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<realm_sync_config_t>,
+                  realm_sync_error_handler_func_t,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t,
+                  ffi.Pointer<realm_scheduler_t>)>>
+      get realm_dart_sync_config_set_error_handler =>
+          _library._realm_dart_sync_config_set_error_handlerPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Uint8 Function(
