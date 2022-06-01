@@ -490,7 +490,7 @@ Future<void> main([List<String>? args]) async {
     expect(task, isNotNull);
   });
 
-  testSubscriptions('Filter realm data using worng query fields subscription', (realm) async {
+  testSubscriptions('Subscription on unqueryable field sould throw', (realm) async {
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Event>());
     });
