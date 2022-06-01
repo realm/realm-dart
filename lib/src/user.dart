@@ -22,8 +22,8 @@ import 'native/realm_core.dart';
 import 'realm_class.dart';
 import './app.dart';
 
-/// This class represents a `user` in a MongoDB Realm app.
-/// A user can log in to the server and, if access is granted, it is possible to synchronize the local Realm to MongoDB.
+/// This class represents a `user` in an Atlas App Services application.
+/// A user can log in to the server and, if access is granted, it is possible to synchronize the local Realm to MongoDB Atlas.
 /// Moreover, synchronization is halted when the user is logged out. It is possible to persist a user. By retrieving a user, there is no need to log in again.
 /// Persisting a user between sessions, the user's credentials are stored
 /// locally on the device, and should be treated as sensitive data.
@@ -46,7 +46,7 @@ class User {
     return realmCore.userGetState(this);
   }
 
-  /// Get this [User]'s id on MongoDB Realm.
+  /// Get this [User]'s id on MongoDB Atlas.
   String get id {
     return realmCore.userGetId(this);
   }
@@ -96,7 +96,7 @@ class User {
   ///
   /// Linking a user with more credentials, mean the user can login either of these credentials. It also makes it possible to "upgrade" an anonymous user
   /// by linking it with e.g. Email/Password credentials.
-  /// *Note: It is not possible to link two existing users of MongoDB Realm. The provided credentials must not have been used by another user.*
+  /// *Note: It is not possible to link two existing users of MongoDB Atlas. The provided credentials must not have been used by another user.*
   ///
   /// The following snippet shows how to associate an email and password with an anonymous user allowing them to login on a different device.
   /// ```dart
@@ -129,7 +129,7 @@ enum UserState {
   /// The user is logged out. Call [App.logIn] to log the user back in.
   loggedOut,
 
-  /// The user is logged in, and any Realms associated with it are synchronizing with MongoDB Realm.
+  /// The user is logged in, and any Realms associated with it are synchronizing with MongoDB Atlas.
   loggedIn,
 
   /// The user has been logged out and their local data has been removed.

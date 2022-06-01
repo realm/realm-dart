@@ -226,7 +226,7 @@ void _defaultSyncClientResetHandler(SyncError e) {
 }
 
 /// [FlexibleSyncConfiguration] is used to open [Realm] instances that are synchronized
-/// with MongoDB Realm.
+/// with MongoDB Atlas.
 /// {@category Configuration}
 class FlexibleSyncConfiguration extends Configuration {
   final User user;
@@ -320,7 +320,7 @@ class RealmSchema extends Iterable<SchemaObject> {
 
 /// The signature of a callback that will be invoked if a client reset error occurs for this [Realm].
 ///
-/// Currently, Flexible sync supports only the [ManualSyncClientResetHandler].
+/// Currently, Flexible Sync supports only the [ManualSyncClientResetHandler].
 class SyncClientResetErrorHandler {
   /// The callback that handles the [SyncClientResetError].
   final void Function(SyncClientResetError code) callback;
