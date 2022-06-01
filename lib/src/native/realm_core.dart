@@ -1573,6 +1573,7 @@ class _RealmCore {
   }
 
   static void _sessionWaitCompletionCallback(Pointer<Void> userdata, Pointer<realm_sync_error_code_t> errorCode) {
+    try {
     final completer = userdata.toObject<Completer<void>>(isPersistent: true);
     if (completer == null) {
       return;
@@ -1583,6 +1584,10 @@ class _RealmCore {
       completer.completeError(RealmException(errorCode.toSyncError().toString()));
     } else {
       completer.complete();
+    }
+    }
+    finally {
+      _realmLib.realm_free(errorCode.cast());
     }
   }
 }
