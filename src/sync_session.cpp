@@ -39,11 +39,8 @@ void _callback(void* userdata, realm_sync_error_code_t* error) {
         *error_copy = *error; // copy struct
 
         // we need to copy the message 
-        auto message = error->message;
-        auto len = strlen(message) + 1;
-        auto buffer = (char*)malloc(len);
-        strncpy(buffer, message, len);
-        error_copy->message = buffer;
+        auto message = duplicate_string(std::string(error->message));
+        error_copy->message = message;
 
         std::get<0>(*u)(error_copy);
     }

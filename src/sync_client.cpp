@@ -34,11 +34,8 @@ void _callback(void* userdata, realm_sync_session_t* session, const realm_sync_e
     auto error_copy = error; // copy struct
 
     // we need to copy the detailed_message
-    auto message = error.detailed_message;
-    auto len = strlen(message) + 1;
-    auto buffer = (char*)malloc(len);
-    strncpy(buffer, message, len);
-    error_copy.detailed_message = buffer;
+    auto message = duplicate_string(std::string(error.detailed_message));
+    error_copy.detailed_message = message;
 
     // other strings are not read, so we skip those
     error_copy.c_original_file_path_key = nullptr;
