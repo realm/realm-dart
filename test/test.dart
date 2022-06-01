@@ -339,7 +339,7 @@ Future<void> baasTest(
 
   test(name, () async {
     final config = await getAppConfig(appName: appName);
-    return await testFunction(config);
+    await testFunction(config);
   }, skip: skip);
 }
 

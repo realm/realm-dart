@@ -21,7 +21,6 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
-import 'package:path/path.dart' as path;
 import 'package:test/expect.dart';
 
 import '../lib/realm.dart';
@@ -34,17 +33,14 @@ import 'test.dart';
 void testSubscriptions(String name, FutureOr<void> Function(Realm) tester) async {
   baasTest(name, (appConfiguration) async {
     final app = App(appConfiguration);
-    //final credentials = Credentials.anonymous();
-    final credentials = Credentials.emailPassword("realm-test@realm.io", "123456");
+    final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-
     final configuration = Configuration.flexibleSync(user, [
       Task.schema,
       Schedule.schema,
       Event.schema,
     ])
       ..sessionStopPolicy = SessionStopPolicy.immediately;
-
     final realm = getRealm(configuration);
     await tester(realm);
   });
@@ -494,35 +490,6 @@ Future<void> main([List<String>? args]) async {
     expect(task, isNotNull);
   });
 
-  testSubscriptions('Filter realm data using worng query fields subscription', (realm) async {
-    realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm.all<Event>());
-    });
-
-    realm.write(() {
-      realm.addAll([
-        Event(ObjectId(), name: "NPMG Event", isCompleted: true, durationInMinutes: 30, assignedTo: "@me"),
-        Event(
-          ObjectId(),
-          name: "NPMG Meeting",
-          isCompleted: false,
-          durationInMinutes: 10,
-        ),
-        Event(ObjectId(), name: "Some other eveent", isCompleted: true, durationInMinutes: 60),
-      ]);
-    });
-
-    await realm.syncSession.waitForUpload();
-
-    realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.removeByQuery(realm.all<Event>());
-      mutableSubscriptions.add(realm.query<Event>(r'assignedTo BEGINSWITH $0 AND boolQueryField == $1 AND intQueryField > $2', ["@me", true, 20]),
-          name: "filter");
-    });
-
-    expect(() async => await realm.subscriptions.waitForSynchronization(), throws<RealmException>());
-  });
-
   testSubscriptions('Filter realm data using query subscription', (realm) async {
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Event>());
@@ -546,8 +513,6 @@ Future<void> main([List<String>? args]) async {
 
     await realm.subscriptions.waitForSynchronization();
 
-    realmCore.realmRefresh(realm);
-
     var filtered = realm.query<Event>(realm.subscriptions.findByName("filter")!.queryString);
     var all = realm.all<Event>();
     expect(filtered, isNotEmpty);
@@ -557,17 +522,33 @@ Future<void> main([List<String>? args]) async {
   baasTest('Writing before to subscribe throws SyncSession test error handler ', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Event.schema], syncErrorHandler: (syncError) {
-      expect(syncError.category, SyncErrorCategory.session);
-    });
+
+    final completer = Completer<SyncError>();
+    final config = Configuration.flexibleSync(
+      user,
+      [Event.schema],
+      syncClientResetErrorHandler: ManualSyncClientResetHandler((syncError) {
+        completer.complete(syncError);
+      }),
+    );
+
     final realm = getRealm(config);
     realm.write(() {
       realm.addAll([
         Event(ObjectId(), name: "NPMG Event", isCompleted: true, durationInMinutes: 30),
         Event(ObjectId(), name: "NPMG Meeting", isCompleted: false, durationInMinutes: 10),
-        Event(ObjectId(), name: "Some other eveent", isCompleted: true, durationInMinutes: 60),
+        Event(ObjectId(), name: "Some other event", isCompleted: true, durationInMinutes: 60),
       ]);
     });
-    await realm.syncSession.waitForUpload();
-  }, skip: "Will be fixed");
+    final upload = realm.syncSession.waitForUpload(); // trigger error
+
+    final syncError = await completer.future;
+    expect(syncError.category, SyncErrorCategory.client);
+    try {
+      await upload;
+    } catch (e) {
+      expect(e, isA<SyncSessionError>());
+    }
+    print('Juhuu');
+  });
 }
