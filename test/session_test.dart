@@ -330,7 +330,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession.getConnectionStateStream', (configuration) async {
     final realm = await getIntegrationRealm();
 
-    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.connected);
+    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.connected, timeout: Duration(seconds: 5));
 
     final states = <ConnectionStateChange>[];
     final stream = realm.syncSession.connectionStateChanges;
