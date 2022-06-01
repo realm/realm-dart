@@ -3037,6 +3037,27 @@ class RealmLibrary {
   late final _realm_dart_get_thread_id =
       _realm_dart_get_thread_idPtr.asFunction<int Function()>();
 
+  void realm_dart_http_request_callback(
+    ffi.Pointer<ffi.Void> userdata,
+    realm_http_request_t request,
+    ffi.Pointer<ffi.Void> request_context,
+  ) {
+    return _realm_dart_http_request_callback(
+      userdata,
+      request,
+      request_context,
+    );
+  }
+
+  late final _realm_dart_http_request_callbackPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Void>, realm_http_request_t,
+              ffi.Pointer<ffi.Void>)>>('realm_dart_http_request_callback');
+  late final _realm_dart_http_request_callback =
+      _realm_dart_http_request_callbackPtr.asFunction<
+          void Function(ffi.Pointer<ffi.Void>, realm_http_request_t,
+              ffi.Pointer<ffi.Void>)>();
+
   void realm_dart_initializeDartApiDL(
     ffi.Pointer<ffi.Void> data,
   ) {
@@ -9085,6 +9106,11 @@ class _SymbolAddresses {
       get realm_dart_get_files_path => _library._realm_dart_get_files_pathPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Uint64 Function()>>
       get realm_dart_get_thread_id => _library._realm_dart_get_thread_idPtr;
+  ffi.Pointer<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Void>, realm_http_request_t,
+              ffi.Pointer<ffi.Void>)>> get realm_dart_http_request_callback =>
+      _library._realm_dart_http_request_callbackPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_initializeDartApiDL =>
           _library._realm_dart_initializeDartApiDLPtr;

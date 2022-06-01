@@ -20,6 +20,8 @@
 
 #include <realm.h>
 
+RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, const realm_http_request_t request, void* request_context);
+
 RLM_API void realm_dart_sync_client_log_callback(realm_userdata_t userdata, realm_log_level_e level, const char* message);
 
 RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, realm_sync_session_t* session, realm_sync_error_t error);

@@ -21,10 +21,44 @@
 #include "realm_dart.hpp"
 #include "realm_dart_sync.h"
 
+#include <iostream>
+
+using namespace std;
+
+RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, const realm_http_request_t request, void* request_context) {
+    // the pointers in error are to stack values, we need to make copies and move them into the scheduler invocation
+    struct request_copy_buf {
+        std::string url;
+        std::string body;
+        std::map<std::string, std::string> headers;
+        std::vector<realm_http_header_t> headers_vector;
+    } buf;
+
+    realm_http_request_t request_copy = request; // copy struct
+
+    buf.url = request.url;
+    request_copy.url = buf.url.c_str();
+    buf.body = std::string(request.body, request.body_size);
+    request_copy.body = buf.body.data();
+
+    buf.headers_vector.reserve(request.num_headers);
+    for (size_t i = 0; i < request.num_headers; i++) {
+        auto [it, _] = buf.headers.emplace(request.headers[i].name, request.headers[i].value);
+        buf.headers_vector[i].name = it->first.c_str();
+        buf.headers_vector[i].value = it->second.c_str();
+    }
+    request_copy.headers = buf.headers_vector.data();
+
+    auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
+    ud->scheduler->invoke([ud, request_copy = std::move(request_copy), buf = std::move(buf), request_context]() {
+        (reinterpret_cast<realm_http_request_func_t>(ud->dart_callback)(ud->handle, request_copy, request_context));
+    });
+}
+
 RLM_API void realm_dart_sync_client_log_callback(realm_userdata_t userdata, realm_log_level_e level, const char* message)
 {
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    ud->scheduler->invoke([ud, level, message=std::string(message)]() {
+    ud->scheduler->invoke([ud, level, message = std::string(message)]() {
         (reinterpret_cast<realm_log_func_t>(ud->dart_callback))(ud->handle, level, message.c_str());
     });
 }
@@ -54,7 +88,7 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
     error.user_info_map = buf.user_info_vector.data();
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    ud->scheduler->invoke([ud, session=*session, error=std::move(error), buf=std::move(buf)]() {
+    ud->scheduler->invoke([ud, session = *session, error = std::move(error), buf = std::move(buf)]() {
         (reinterpret_cast<realm_sync_error_handler_func_t>(ud->dart_callback))(ud->handle, const_cast<realm_sync_session_t*>(&session), error);
     });
 }
@@ -65,8 +99,8 @@ RLM_API void realm_dart_sync_wait_for_completion_callback(realm_userdata_t userd
     struct realm_dart_sync_error_code : realm_sync_error_code
     {
         realm_dart_sync_error_code(const realm_sync_error_code& error)
-        : realm_sync_error_code(error)
-        , message_buffer(error.message)
+            : realm_sync_error_code(error)
+            , message_buffer(error.message)
         {
             message = message_buffer.c_str();
         }
@@ -80,7 +114,7 @@ RLM_API void realm_dart_sync_wait_for_completion_callback(realm_userdata_t userd
     }
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    ud->scheduler->invoke([ud, error=std::move(error_copy)]() {
+    ud->scheduler->invoke([ud, error = std::move(error_copy)]() {
         (reinterpret_cast<realm_sync_download_completion_func_t>(ud->dart_callback))(ud->handle, error.get());
     });
 }
@@ -120,7 +154,8 @@ RLM_API void realm_dart_sync_session_report_error_for_testing(realm_sync_session
         error_code = std::error_code(errorCode, realm::sync::client_error_category());
         msg = "Simulated client error";
         throwError = true;
-    } else if (category == RLM_SYNC_ERROR_CATEGORY_SESSION) {
+    }
+    else if (category == RLM_SYNC_ERROR_CATEGORY_SESSION) {
         error_code = std::error_code(errorCode, realm::sync::protocol_error_category());
         msg = "Simulated session error";
         throwError = true;
