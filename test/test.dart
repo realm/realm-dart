@@ -256,27 +256,27 @@ Realm getRealm(Configuration config) {
   return realm;
 }
 
-// Future<void> tryDeleteRealm(String path) async {
-//   //Skip on CI to speed it up. We are creating the realms in $TEMP anyways.
-//   if (Platform.environment.containsKey("REALM_CI")) {
-//     return;
-//   }
+Future<void> tryDeleteRealm(String path) async {
+  //Skip on CI to speed it up. We are creating the realms in $TEMP anyways.
+  if (Platform.environment.containsKey("REALM_CI")) {
+    return;
+  }
 
-//   for (var i = 0; i < 5; i++) {
-//     try {
-//       Realm.deleteRealm(path);
-//       await File('$path.lock').delete();
-//       return;
-//     } catch (e) {
-//       const duration = Duration(milliseconds: 100);
-//       print('Failed to delete realm at path $path. Trying again in ${duration.inMilliseconds}ms');
-//       await Future<void>.delayed(duration);
-//     }
-//   }
+  for (var i = 0; i < 5; i++) {
+    try {
+      Realm.deleteRealm(path);
+      await File('$path.lock').delete();
+      return;
+    } catch (e) {
+      const duration = Duration(milliseconds: 100);
+      print('Failed to delete realm at path $path. Trying again in ${duration.inMilliseconds}ms');
+      await Future<void>.delayed(duration);
+    }
+  }
 
-//   // TODO: File deletions does not work after tests so don't fail for now
-//   // throw Exception('Failed to delete realm at path $path. Did you forget to close it?');
-// }
+  // TODO: File deletions does not work after tests so don't fail for now
+  // throw Exception('Failed to delete realm at path $path. Did you forget to close it?');
+}
 
 Map<String, String?> parseTestArguments(List<String>? arguments) {
   Map<String, String?> testArgs = {};

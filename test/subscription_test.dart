@@ -550,37 +550,5 @@ Future<void> main([List<String>? args]) async {
     expect(filtered, isNotEmpty);
     expect(filtered.length, all.length);
   });
-
-  baasTest('Writing before to subscribe throws SyncSession test error handler ', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
-
-    final completer = Completer<SyncError>();
-    final config = Configuration.flexibleSync(
-      user,
-      [Event.schema],
-      syncClientResetErrorHandler: ManualSyncClientResetHandler((syncError) {
-        completer.complete(syncError);
-      }),
-    );
-
-    final realm = getRealm(config);
-    realm.write(() {
-      realm.addAll([
-        Event(ObjectId(), name: "NPMG Event", isCompleted: true, durationInMinutes: 30),
-        Event(ObjectId(), name: "NPMG Meeting", isCompleted: false, durationInMinutes: 10),
-        Event(ObjectId(), name: "Some other event", isCompleted: true, durationInMinutes: 60),
-      ]);
-    });
-    final upload = realm.syncSession.waitForUpload(); // trigger error
-
-    final syncError = await completer.future;
-    expect(syncError.category, SyncErrorCategory.client);
-    try {
-      await upload;
-    } catch (e) {
-      expect(e, isA<SyncSessionError>());
-    }
-    print('Juhuu');
-  });
+  
 }
