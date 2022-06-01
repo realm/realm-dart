@@ -300,7 +300,7 @@ class RealmSchema extends Iterable<SchemaObject> {
   /// Initializes [RealmSchema] instance representing ```schemaObjects``` collection
   RealmSchema(List<SchemaObject> schemaObjects) {
     if (schemaObjects.isEmpty) {
-      throw RealmException("No schema specified");
+      throw RealmError("No schema specified");
     }
 
     _schema = schemaObjects;

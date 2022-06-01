@@ -150,7 +150,7 @@ class Realm {
 
     final metadata = _metadata[object.runtimeType];
     if (metadata == null) {
-      throw RealmException("Object type ${object.runtimeType} not configured in the current Realm's schema."
+      throw RealmError("Object type ${object.runtimeType} not configured in the current Realm's schema."
           " Add type ${object.runtimeType} to your config before opening the Realm");
     }
 
@@ -252,7 +252,7 @@ class Realm {
   RealmMetadata _getMetadata(Type type) {
     final metadata = _metadata[type];
     if (metadata == null) {
-      throw RealmException("Object type $type not configured in the current Realm's schema. Add type $type to your config before opening the Realm");
+      throw RealmError("Object type $type not configured in the current Realm's schema. Add type $type to your config before opening the Realm");
     }
 
     return metadata;
@@ -284,7 +284,10 @@ class Realm {
 
   /// The active [SubscriptionSet] for this [Realm]
   SubscriptionSet get subscriptions {
-    if (config is! FlexibleSyncConfiguration) throw RealmError('subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration');
+    if (config is! FlexibleSyncConfiguration) {
+      throw RealmError('subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration');
+    }
+
     _subscriptions ??= SubscriptionSetInternal.create(this, realmCore.getSubscriptions(this));
     realmCore.refreshSubscriptionSet(_subscriptions!);
     return _subscriptions!;
