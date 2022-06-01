@@ -254,6 +254,12 @@ class _RealmCore {
     return _realmLib.realm_sync_subscription_set_size(subscriptions.handle._pointer);
   }
 
+  Exception? getSubscriptionSetError(SubscriptionSet subscriptions) {
+    final error = _realmLib.realm_sync_subscription_set_error_str(subscriptions.handle._pointer);
+    final message = error.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+    return message == null ? null : RealmException(message);
+  }
+
   SubscriptionHandle subscriptionAt(SubscriptionSet subscriptions, int index) {
     return SubscriptionHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_subscription_at(
           subscriptions.handle._pointer,
@@ -414,9 +420,9 @@ class _RealmCore {
     final syncError = error.toSyncError();
 
     if (syncError is SyncClientResetError) {
-        syncConfig.syncClientResetErrorHandler.callback(syncError);
-        return;
-    } 
+      syncConfig.syncClientResetErrorHandler.callback(syncError);
+      return;
+    }
 
     syncConfig.syncErrorHandler(syncError);
   }
