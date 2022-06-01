@@ -24,6 +24,9 @@ set(realm_bundled_libraries
 # message ("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
 # message ("CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
 
+#message ("BINARY_NAME is ${BINARY_NAME}")
+add_definitions(-DAPP_DIR_NAME="${BINARY_NAME}")
+
 # This works cause realm plugin is always accessed through the .plugin_symlinks directory.
 # For example the tests app refers to the realm plugin using this path .../realm-dart/flutter/realm_flutter/tests/windows/flutter/ephemeral/.plugin_symlinks/realm/windows
 set(EPHEMERAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../ephemeral")

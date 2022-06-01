@@ -11,6 +11,12 @@
 #include <memory>
 #include <sstream>
 
+#ifndef APP_DIR_NAME
+#define APP_DIR_NAME "realm_app"
+#endif
+
+#pragma message("APP_DIR_NAME is " _CRT_STRINGIZE(APP_DIR_NAME))
+
 namespace
 {
   class RealmPlugin : public flutter::Plugin
@@ -63,4 +69,10 @@ void RealmPluginRegisterWithRegistrar(
     FlutterDesktopPluginRegistrarRef registrar)
 {
   RealmPlugin::RegisterWithRegistrar(flutter::PluginRegistrarManager::GetInstance()->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
+}
+
+static std::string appDirName = APP_DIR_NAME;
+
+const char* realm_dart_get_app_directory_name() {
+    return appDirName.c_str();
 }

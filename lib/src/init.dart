@@ -1,6 +1,8 @@
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:ffi/ffi.dart';
+
 import 'cli/metrics/metrics_command.dart';
 import 'cli/metrics/options.dart';
 import 'cli/common/target_os_type.dart';
@@ -64,12 +66,26 @@ DynamicLibrary initRealm() {
     throw Exception("Platform ${Platform.operatingSystem} not implemented");
   }
 
-  final realmLibrary = DynamicLibrary.open(_getBinaryPath(realmBinaryName));
+  var realmBinaryPath = _getBinaryPath(realmBinaryName);
+  final realmLibrary = DynamicLibrary.open(realmBinaryPath);
 
   final initializeApi = realmLibrary.lookupFunction<IntPtr Function(Pointer<Void>), int Function(Pointer<Void>)>("realm_dart_initializeDartApiDL");
   var initResult = initializeApi(NativeApi.initializeApiDLData);
   if (initResult != 0) {
     throw Exception("Realm initialization failed. Error: could not initialize Dart APIs");
+  }
+
+  if (isFlutterPlatform && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+    // String pathSeparator = Platform.isWindows ? "\\" : "/";
+    String binaryExt = Platform.isWindows ? ".dll" : Platform.isMacOS ? ".dylib" : ".so";
+    // final realmPluginBinaryPath = "${File(realmBinaryPath).absolute.parent}${pathSeparator}realm_plugin$binaryExt";
+    // print("realmBinaryPath ${File(realmBinaryPath)}");
+    // print("realmPluginBinaryPath: $realmPluginBinaryPath");
+    final realmPluginLib = DynamicLibrary.open("realm_plugin$binaryExt");
+    final getDirNameFunc = realmPluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory_name");
+    final m = getDirNameFunc();
+    final dir = m.cast<Utf8>().toDartString();
+    print("DIRECTORY NAME IS $dir");
   }
 
   return _library = realmLibrary;
