@@ -504,6 +504,12 @@ Future<void> main([List<String>? args]) async {
 
     final syncError = await completer.future;
     expect(syncError.category, SyncErrorCategory.client);
+    expect(
+        syncError.message!.startsWith(
+            "Client attempted a write that is outside of permissions or query filters: cannot write to table \"${(Task).toString()}\" before opening a subscription on it"),
+        isTrue);
+    expect(syncError is SyncClientResetError, isTrue);
+    expect((syncError as SyncClientResetError).code, SyncClientErrorCode.autoClientResetFailure);
   });
 
   baasTest('Writing before subscribe + upload', (configuration) async {
@@ -516,6 +522,6 @@ Future<void> main([List<String>? args]) async {
 
     final realm = getRealm(config);
     realm.write(() => realm.add(Task(ObjectId())));
-    expect(() async => await realm.syncSession.waitForUpload(), throws<RealmException>());
+    expect(() async => await realm.syncSession.waitForUpload(), throws<RealmException>("Client attempted a write that is disallowed by permissions, or modifies an object outside the current query"));
   });
 }
