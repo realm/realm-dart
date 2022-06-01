@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 import 'dart:io';
 
-import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 
 import '../realm.dart';
