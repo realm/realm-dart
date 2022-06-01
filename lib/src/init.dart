@@ -75,20 +75,15 @@ DynamicLibrary initRealm() {
     throw Exception("Realm initialization failed. Error: could not initialize Dart APIs");
   }
 
-  print("Checking DIRECTORY NAME"); 
-
   if (isFlutterPlatform && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
-    // String pathSeparator = Platform.isWindows ? "\\" : "/";
+    const String libName = 'realm_plugin';
     String binaryExt = Platform.isWindows ? ".dll" : Platform.isMacOS ? ".dylib" : ".so";
     String binaryNamePrefix = Platform.isWindows ? "" : "lib";
-    // final realmPluginBinaryPath = "${File(realmBinaryPath).absolute.parent}${pathSeparator}realm_plugin$binaryExt";
-    // print("realmBinaryPath ${File(realmBinaryPath)}");
-    // print("realmPluginBinaryPath: $realmPluginBinaryPath");
-    final realmPluginLib = DynamicLibrary.open("${binaryNamePrefix}realm_plugin$binaryExt");
+    final realmPluginLib = Platform.isMacOS == false ? DynamicLibrary.open("$binaryNamePrefix$libName$binaryExt") : DynamicLibrary.open('realm.framework/realm');
     final getDirNameFunc = realmPluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory_name");
-    final m = getDirNameFunc();
-    final dir = m.cast<Utf8>().toDartString();
-    print("DIRECTORY NAME IS $dir");
+    final dirNamePtr = getDirNameFunc();
+    final dirName = dirNamePtr.cast<Utf8>().toDartString();
+    print("DIRECTORY NAME: $dirName");
   }
 
   return _library = realmLibrary;
