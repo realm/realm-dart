@@ -1508,7 +1508,7 @@ class _RealmCore {
 
   int sessionRegisterProgressNotifier(Session session, ProgressDirection direction, ProgressMode mode, SessionProgressNotificationsController controller) {
     final isStreaming = mode == ProgressMode.reportIndefinitely;
-    return _realmLib.realm_dart_sync_session_register_progress_notifier(session.handle._pointer, Pointer.fromFunction(on_sync_progress), direction.index,
+    return _realmLib.realm_dart_sync_session_register_progress_notifier(session.handle._pointer, Pointer.fromFunction(_onSyncProgress), direction.index,
         isStreaming, controller.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, scheduler.handle._pointer);
   }
 
@@ -1516,13 +1516,31 @@ class _RealmCore {
     _realmLib.realm_sync_session_unregister_progress_notifier(session.handle._pointer, token);
   }
 
-  static void on_sync_progress(Pointer<Void> userdata, int transferred, int transferable) {
+  static void _onSyncProgress(Pointer<Void> userdata, int transferred, int transferable) {
     final SessionProgressNotificationsController? controller = userdata.toObject(isPersistent: true);
     if (controller == null) {
       return;
     }
 
     controller.onProgress(transferred, transferable);
+  }
+
+  int sessionRegisterConnectionStateNotifier(Session session, SessionConnectionStateController controller) {
+    return _realmLib.realm_dart_sync_session_register_connection_state_change_callback(session.handle._pointer, Pointer.fromFunction(_onConnectionStateChange),
+        controller.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, scheduler.handle._pointer);
+  }
+
+  void sessionUnregisterConnectionStateNotifier(Session session, int token) {
+    _realmLib.realm_sync_session_unregister_connection_state_change_callback(session.handle._pointer, token);
+  }
+
+  static void _onConnectionStateChange(Pointer<Void> userdata, int oldState, int newState) {
+    final SessionConnectionStateController? controller = userdata.toObject(isPersistent: true);
+    if (controller == null) {
+      return;
+    }
+
+    controller.onConnectionStateChange(ConnectionState.values[oldState], ConnectionState.values[newState]);
   }
 
   Future<void> sessionWaitForUpload(Session session) {
