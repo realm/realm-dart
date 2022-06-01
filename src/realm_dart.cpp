@@ -23,6 +23,13 @@
 
 #include "realm_dart.h"
 
+#include <realm/object-store/c_api/types.hpp>
+#include <realm/object-store/c_api/util.hpp>
+
+#include <iostream>
+
+namespace realm::c_api {
+
 RLM_API void realm_dart_initializeDartApiDL(void* data) {
     Dart_InitializeApiDL(data);
 }
@@ -84,3 +91,67 @@ RLM_API void realm_dart_delete_persistent_handle(void* handle) {
     Dart_PersistentHandle persistentHandle = reinterpret_cast<Dart_PersistentHandle>(handle);
     Dart_DeletePersistentHandle_DL(persistentHandle);
 }
+
+namespace {
+
+using FreeT = std::function<void()>;
+using CallbackT = std::function<void(const realm_http_request_t request, void* request_context)>; // Differs per callback
+using UserdataT = std::tuple<realm_scheduler_t*, CallbackT, FreeT>;
+
+
+void _callback(realm_userdata_t userdata, const realm_http_request_t request, void* request_context) {
+    // the pointers in error are to stack values, we need to make copies and move them into the scheduler invocation
+    struct request_copy_buf {
+        std::string url;
+        std::string body;
+        std::map<std::string, std::string> headers;
+        std::vector<realm_http_header_t> headers_vector;
+    } buf;
+
+    realm_http_request_t request_copy = request; // copy struct
+
+    buf.url = request.url;
+    request_copy.url = buf.url.c_str();
+    buf.body = std::string(request.body, request.body_size);
+    request_copy.body = buf.body.data();
+
+    buf.headers_vector.reserve(request.num_headers);
+    for (size_t i = 0; i < request.num_headers; i++) {
+        auto [it, _] = buf.headers.emplace(request.headers[i].name, request.headers[i].value);
+        buf.headers_vector[i].name = it->first.c_str();
+        buf.headers_vector[i].value = it->second.c_str();
+    }
+    request_copy.headers = buf.headers_vector.data();
+
+    // trampoline to scheduler
+    auto u = reinterpret_cast<UserdataT*>(userdata);
+    auto scheduler = std::get<0>(*u);
+    auto callback = std::get<1>(*u);
+    (*scheduler)->invoke([buf = std::move(buf), request = std::move(request_copy), callback = std::move(callback), request_context]{
+        callback(request, request_context);
+    });
+}
+
+void _userdata_free(void* userdata) {
+    auto u = reinterpret_cast<UserdataT*>(userdata);
+    auto scheduler = std::get<0>(*u);
+    auto userdata_free = std::get<2>(*u);
+    (*scheduler)->invoke([userdata_free = std::move(userdata_free), u]{
+        userdata_free();
+        delete u;
+    });
+}
+
+RLM_API realm_http_transport_t* realm_dart_http_transport_new(
+    realm_http_request_func_t callback,
+    realm_userdata_t userdata,
+    realm_free_userdata_func_t userdata_free,
+    realm_scheduler_t* scheduler)
+{
+    auto u = new UserdataT(scheduler,
+                           std::bind(callback, userdata, std::placeholders::_1, std::placeholders::_2),
+                           std::bind(userdata_free, userdata));
+    return realm_http_transport_new(_callback, u, nullptr); //_userdata_free); // <-- crash on exit
+}
+} // anonymous namespace
+} // namespace realm::c_api 

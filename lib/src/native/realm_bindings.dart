@@ -3037,6 +3037,36 @@ class RealmLibrary {
   late final _realm_dart_get_thread_id =
       _realm_dart_get_thread_idPtr.asFunction<int Function()>();
 
+  ffi.Pointer<realm_http_transport_t> realm_dart_http_transport_new(
+    realm_http_request_func_t callback,
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t userdata_free,
+    ffi.Pointer<realm_scheduler_t> scheduler,
+  ) {
+    return _realm_dart_http_transport_new(
+      callback,
+      userdata,
+      userdata_free,
+      scheduler,
+    );
+  }
+
+  late final _realm_dart_http_transport_newPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_http_transport_t> Function(
+                  realm_http_request_func_t,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t,
+                  ffi.Pointer<realm_scheduler_t>)>>(
+      'realm_dart_http_transport_new');
+  late final _realm_dart_http_transport_new =
+      _realm_dart_http_transport_newPtr.asFunction<
+          ffi.Pointer<realm_http_transport_t> Function(
+              realm_http_request_func_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              ffi.Pointer<realm_scheduler_t>)>();
+
   void realm_dart_initializeDartApiDL(
     ffi.Pointer<ffi.Void> data,
   ) {
@@ -9201,6 +9231,15 @@ class _SymbolAddresses {
       get realm_dart_get_files_path => _library._realm_dart_get_files_pathPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Uint64 Function()>>
       get realm_dart_get_thread_id => _library._realm_dart_get_thread_idPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_http_transport_t> Function(
+                  realm_http_request_func_t,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t,
+                  ffi.Pointer<realm_scheduler_t>)>>
+      get realm_dart_http_transport_new =>
+          _library._realm_dart_http_transport_newPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_initializeDartApiDL =>
           _library._realm_dart_initializeDartApiDLPtr;
