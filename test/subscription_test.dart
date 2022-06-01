@@ -515,8 +515,21 @@ Future<void> main([List<String>? args]) async {
       mutableSubscriptions.add(realm.query<Event>(r'assignedTo BEGINSWITH $0 AND boolQueryField == $1 AND intQueryField > $2', ["@me", true, 20]),
           name: "filter");
     });
-    expect(() async => await realm.subscriptions.waitForSynchronization(),
-        throws<RealmException>("Client provided query with bad syntax: unsupported query for table"));
+
+    String expectedErrorMessage =
+        "Client provided query with bad syntax: unsupported query for table \"${(Event).toString()}\": key \"assignedTo\" is not a queryable field";
+
+    try {
+      await realm.subscriptions.waitForSynchronization();
+      fail("Expected exception not thrown");
+    } catch (e) {
+      expect(e is RealmException, isTrue);
+      expect((e as RealmException).message, expectedErrorMessage);
+      expect(realm.subscriptions.state, SubscriptionSetState.error);
+      expect(realm.subscriptions.error, isNotNull);
+      expect(realm.subscriptions.error is RealmException, isTrue);
+      expect((realm.subscriptions.error as RealmException).message, expectedErrorMessage);
+    }
   });
 
   testSubscriptions('Filter realm data using query subscription', (realm) async {
