@@ -29,6 +29,7 @@ flutter/realm_flutter/.gradle/
 # Ignore native binaries build directories
 /build-native/
 /build/
+/build-linux/
 
 # Ignore example pubspec.lock since the example always reference the local package
 example/pubspec.lock
