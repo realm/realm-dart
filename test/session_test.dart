@@ -340,16 +340,16 @@ Future<void> main([List<String>? args]) async {
 
     // Verify we get a notification when we pause the session
     realm.syncSession.pause();
-    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.disconnected);
-    await waitForCondition(() => states.length == 1);
+    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.disconnected, timeout: Duration(seconds: 5));
+    await waitForCondition(() => states.length == 1, timeout: Duration(seconds: 5));
 
     expect(states[0].previous, ConnectionState.connected);
     expect(states[0].current, ConnectionState.disconnected);
 
     // When resuming, we should get two notifications - first we go to connecting, then connected
     realm.syncSession.resume();
-    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.connected);
-    await waitForCondition(() => states.length == 3);
+    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.connected, timeout: Duration(seconds: 5));
+    await waitForCondition(() => states.length == 3, timeout: Duration(seconds: 5));
 
     expect(states[1].previous, ConnectionState.disconnected);
     expect(states[1].current, ConnectionState.connecting);
