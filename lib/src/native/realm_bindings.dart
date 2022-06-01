@@ -3114,176 +3114,107 @@ class RealmLibrary {
   late final _realm_dart_scheduler_invoke = _realm_dart_scheduler_invokePtr
       .asFunction<void Function(int, ffi.Pointer<ffi.Void>)>();
 
-  void realm_dart_sync_client_config_set_log_callback(
-    ffi.Pointer<realm_sync_client_config_t> config,
-    realm_log_func_t callback,
+  void realm_dart_sync_client_log_callback(
     ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t userdata_free,
-    ffi.Pointer<realm_scheduler_t> scheduler,
+    int level,
+    ffi.Pointer<ffi.Int8> message,
   ) {
-    return _realm_dart_sync_client_config_set_log_callback(
-      config,
-      callback,
+    return _realm_dart_sync_client_log_callback(
       userdata,
-      userdata_free,
-      scheduler,
+      level,
+      message,
     );
   }
 
-  late final _realm_dart_sync_client_config_set_log_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<realm_sync_client_config_t>,
-                  realm_log_func_t,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>(
-      'realm_dart_sync_client_config_set_log_callback');
-  late final _realm_dart_sync_client_config_set_log_callback =
-      _realm_dart_sync_client_config_set_log_callbackPtr.asFunction<
-          void Function(
-              ffi.Pointer<realm_sync_client_config_t>,
-              realm_log_func_t,
-              ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t,
-              ffi.Pointer<realm_scheduler_t>)>();
+  late final _realm_dart_sync_client_log_callbackPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32,
+              ffi.Pointer<ffi.Int8>)>>('realm_dart_sync_client_log_callback');
+  late final _realm_dart_sync_client_log_callback =
+      _realm_dart_sync_client_log_callbackPtr.asFunction<
+          void Function(ffi.Pointer<ffi.Void>, int, ffi.Pointer<ffi.Int8>)>();
 
-  /// Register a handler in order to be notified when subscription set is equal to the one passed as parameter
-  /// This is an asynchronous operation.
-  ///
-  /// @return true/false if the handler was registered correctly
-  ///
-  /// This is dart specific version of realm_dart_on_subscription_set_state_change_async.
-  /// Unlike the original method, this one uses event_loop_dispatcher to ensure the callback
-  /// is handled on the correct isolate thread.
-  bool realm_dart_sync_on_subscription_set_state_change_async(
-    ffi.Pointer<realm_flx_sync_subscription_set_t> subscription_set,
-    int notify_when,
-    realm_sync_on_subscription_state_changed_t callback,
+  void realm_dart_sync_connection_state_changed_callback(
     ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t userdata_free,
-    ffi.Pointer<realm_scheduler_t> scheduler,
+    int old_state,
+    int new_state,
   ) {
-    return _realm_dart_sync_on_subscription_set_state_change_async(
-          subscription_set,
-          notify_when,
-          callback,
-          userdata,
-          userdata_free,
-          scheduler,
-        ) !=
-        0;
+    return _realm_dart_sync_connection_state_changed_callback(
+      userdata,
+      old_state,
+      new_state,
+    );
   }
 
-  late final _realm_dart_sync_on_subscription_set_state_change_asyncPtr =
-      _lookup<
-              ffi.NativeFunction<
-                  ffi.Uint8 Function(
-                      ffi.Pointer<realm_flx_sync_subscription_set_t>,
-                      ffi.Int32,
-                      realm_sync_on_subscription_state_changed_t,
-                      ffi.Pointer<ffi.Void>,
-                      realm_free_userdata_func_t,
-                      ffi.Pointer<realm_scheduler_t>)>>(
-          'realm_dart_sync_on_subscription_set_state_change_async');
-  late final _realm_dart_sync_on_subscription_set_state_change_async =
-      _realm_dart_sync_on_subscription_set_state_change_asyncPtr.asFunction<
-          int Function(
-              ffi.Pointer<realm_flx_sync_subscription_set_t>,
-              int,
-              realm_sync_on_subscription_state_changed_t,
-              ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t,
-              ffi.Pointer<realm_scheduler_t>)>();
+  late final _realm_dart_sync_connection_state_changed_callbackPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32,
+              ffi.Int32)>>('realm_dart_sync_connection_state_changed_callback');
+  late final _realm_dart_sync_connection_state_changed_callback =
+      _realm_dart_sync_connection_state_changed_callbackPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>, int, int)>();
 
-  /// Register a callback that will be invoked every time the session's connection state changes.
-  ///
-  /// @return A token value that can be used to unregister the callback.
-  int realm_dart_sync_session_register_connection_state_change_callback(
+  void realm_dart_sync_error_handler_callback(
+    ffi.Pointer<ffi.Void> userdata,
     ffi.Pointer<realm_sync_session_t> session,
-    realm_sync_connection_state_changed_func_t callback,
-    ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t userdata_free,
-    ffi.Pointer<realm_scheduler_t> scheduler,
+    realm_sync_error_t error,
   ) {
-    return _realm_dart_sync_session_register_connection_state_change_callback(
-      session,
-      callback,
+    return _realm_dart_sync_error_handler_callback(
       userdata,
-      userdata_free,
-      scheduler,
+      session,
+      error,
     );
   }
 
-  late final _realm_dart_sync_session_register_connection_state_change_callbackPtr =
-      _lookup<
-              ffi.NativeFunction<
-                  ffi.Uint64 Function(
-                      ffi.Pointer<realm_sync_session_t>,
-                      realm_sync_connection_state_changed_func_t,
-                      ffi.Pointer<ffi.Void>,
-                      realm_free_userdata_func_t,
-                      ffi.Pointer<realm_scheduler_t>)>>(
-          'realm_dart_sync_session_register_connection_state_change_callback');
-  late final _realm_dart_sync_session_register_connection_state_change_callback =
-      _realm_dart_sync_session_register_connection_state_change_callbackPtr
-          .asFunction<
-              int Function(
-                  ffi.Pointer<realm_sync_session_t>,
-                  realm_sync_connection_state_changed_func_t,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>();
-
-  /// Register a callback that will be invoked every time the session reports progress.
-  ///
-  /// @param is_streaming If true, then the notifier will be called forever, and will
-  /// always contain the most up-to-date number of downloadable or uploadable bytes.
-  /// Otherwise, the number of downloaded or uploaded bytes will always be reported
-  /// relative to the number of downloadable or uploadable bytes at the point in time
-  /// when the notifier was registered.
-  /// @return A token value that can be used to unregister the notifier.
-  int realm_dart_sync_session_register_progress_notifier(
-    ffi.Pointer<realm_sync_session_t> session,
-    realm_sync_progress_func_t callback,
-    int direction,
-    bool is_streaming,
-    ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t userdata_free,
-    ffi.Pointer<realm_scheduler_t> scheduler,
-  ) {
-    return _realm_dart_sync_session_register_progress_notifier(
-      session,
-      callback,
-      direction,
-      is_streaming ? 1 : 0,
-      userdata,
-      userdata_free,
-      scheduler,
-    );
-  }
-
-  late final _realm_dart_sync_session_register_progress_notifierPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Uint64 Function(
-                  ffi.Pointer<realm_sync_session_t>,
-                  realm_sync_progress_func_t,
-                  ffi.Int32,
-                  ffi.Uint8,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>(
-      'realm_dart_sync_session_register_progress_notifier');
-  late final _realm_dart_sync_session_register_progress_notifier =
-      _realm_dart_sync_session_register_progress_notifierPtr.asFunction<
-          int Function(
+  late final _realm_dart_sync_error_handler_callbackPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<ffi.Void>,
               ffi.Pointer<realm_sync_session_t>,
-              realm_sync_progress_func_t,
-              int,
-              int,
-              ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t,
-              ffi.Pointer<realm_scheduler_t>)>();
+              realm_sync_error_t)>>('realm_dart_sync_error_handler_callback');
+  late final _realm_dart_sync_error_handler_callback =
+      _realm_dart_sync_error_handler_callbackPtr.asFunction<
+          void Function(ffi.Pointer<ffi.Void>,
+              ffi.Pointer<realm_sync_session_t>, realm_sync_error_t)>();
+
+  void realm_dart_sync_on_subscription_state_changed_callback(
+    ffi.Pointer<ffi.Void> userdata,
+    int state,
+  ) {
+    return _realm_dart_sync_on_subscription_state_changed_callback(
+      userdata,
+      state,
+    );
+  }
+
+  late final _realm_dart_sync_on_subscription_state_changed_callbackPtr =
+      _lookup<
+              ffi.NativeFunction<
+                  ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>(
+          'realm_dart_sync_on_subscription_state_changed_callback');
+  late final _realm_dart_sync_on_subscription_state_changed_callback =
+      _realm_dart_sync_on_subscription_state_changed_callbackPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>, int)>();
+
+  void realm_dart_sync_progress_callback(
+    ffi.Pointer<ffi.Void> userdata,
+    int transferred_bytes,
+    int total_bytes,
+  ) {
+    return _realm_dart_sync_progress_callback(
+      userdata,
+      transferred_bytes,
+      total_bytes,
+    );
+  }
+
+  late final _realm_dart_sync_progress_callbackPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Uint64,
+              ffi.Uint64)>>('realm_dart_sync_progress_callback');
+  late final _realm_dart_sync_progress_callback =
+      _realm_dart_sync_progress_callbackPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>, int, int)>();
 
   /// Simulates a session error.
   ///
@@ -3318,75 +3249,62 @@ class RealmLibrary {
       _realm_dart_sync_session_report_error_for_testingPtr.asFunction<
           void Function(ffi.Pointer<realm_sync_session_t>, int, int, int)>();
 
-  /// Register a callback that will be invoked when all pending downloads have completed.
-  void realm_dart_sync_session_wait_for_download_completion(
-    ffi.Pointer<realm_sync_session_t> session,
-    realm_sync_download_completion_func_t callback,
+  void realm_dart_sync_wait_for_completion_callback(
     ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t userdata_free,
+    ffi.Pointer<realm_sync_error_code_t> error,
+  ) {
+    return _realm_dart_sync_wait_for_completion_callback(
+      userdata,
+      error,
+    );
+  }
+
+  late final _realm_dart_sync_wait_for_completion_callbackPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<realm_sync_error_code_t>)>>(
+      'realm_dart_sync_wait_for_completion_callback');
+  late final _realm_dart_sync_wait_for_completion_callback =
+      _realm_dart_sync_wait_for_completion_callbackPtr.asFunction<
+          void Function(
+              ffi.Pointer<ffi.Void>, ffi.Pointer<realm_sync_error_code_t>)>();
+
+  void realm_dart_userdata_async_free(
+    ffi.Pointer<ffi.Void> userdata,
+  ) {
+    return _realm_dart_userdata_async_free(
+      userdata,
+    );
+  }
+
+  late final _realm_dart_userdata_async_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+          'realm_dart_userdata_async_free');
+  late final _realm_dart_userdata_async_free =
+      _realm_dart_userdata_async_freePtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
+  realm_dart_userdata_async_t realm_dart_userdata_async_new(
+    Object handle,
+    ffi.Pointer<ffi.Void> callback,
     ffi.Pointer<realm_scheduler_t> scheduler,
   ) {
-    return _realm_dart_sync_session_wait_for_download_completion(
-      session,
+    return _realm_dart_userdata_async_new(
+      handle,
       callback,
-      userdata,
-      userdata_free,
       scheduler,
     );
   }
 
-  late final _realm_dart_sync_session_wait_for_download_completionPtr = _lookup<
+  late final _realm_dart_userdata_async_newPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<realm_sync_session_t>,
-                  realm_sync_download_completion_func_t,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>(
-      'realm_dart_sync_session_wait_for_download_completion');
-  late final _realm_dart_sync_session_wait_for_download_completion =
-      _realm_dart_sync_session_wait_for_download_completionPtr.asFunction<
-          void Function(
-              ffi.Pointer<realm_sync_session_t>,
-              realm_sync_download_completion_func_t,
-              ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t,
-              ffi.Pointer<realm_scheduler_t>)>();
-
-  /// Register a callback that will be invoked when all pending uploads have completed.
-  void realm_dart_sync_session_wait_for_upload_completion(
-    ffi.Pointer<realm_sync_session_t> session,
-    realm_sync_upload_completion_func_t callback,
-    ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t userdata_free,
-    ffi.Pointer<realm_scheduler_t> scheduler,
-  ) {
-    return _realm_dart_sync_session_wait_for_upload_completion(
-      session,
-      callback,
-      userdata,
-      userdata_free,
-      scheduler,
-    );
-  }
-
-  late final _realm_dart_sync_session_wait_for_upload_completionPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<realm_sync_session_t>,
-                  realm_sync_upload_completion_func_t,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>(
-      'realm_dart_sync_session_wait_for_upload_completion');
-  late final _realm_dart_sync_session_wait_for_upload_completion =
-      _realm_dart_sync_session_wait_for_upload_completionPtr.asFunction<
-          void Function(
-              ffi.Pointer<realm_sync_session_t>,
-              realm_sync_upload_completion_func_t,
-              ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t,
-              ffi.Pointer<realm_scheduler_t>)>();
+              realm_dart_userdata_async_t Function(ffi.Handle,
+                  ffi.Pointer<ffi.Void>, ffi.Pointer<realm_scheduler_t>)>>(
+      'realm_dart_userdata_async_new');
+  late final _realm_dart_userdata_async_new =
+      _realm_dart_userdata_async_newPtr.asFunction<
+          realm_dart_userdata_async_t Function(
+              Object, ffi.Pointer<ffi.Void>, ffi.Pointer<realm_scheduler_t>)>();
 
   Object realm_dart_weak_handle_to_object(
     ffi.Pointer<ffi.Void> handle,
@@ -9187,47 +9105,30 @@ class _SymbolAddresses {
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(
-                  ffi.Pointer<realm_sync_client_config_t>,
-                  realm_log_func_t,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>
-      get realm_dart_sync_client_config_set_log_callback =>
-          _library._realm_dart_sync_client_config_set_log_callbackPtr;
+                  ffi.Pointer<ffi.Void>, ffi.Int32, ffi.Pointer<ffi.Int8>)>>
+      get realm_dart_sync_client_log_callback =>
+          _library._realm_dart_sync_client_log_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
-              ffi.Uint8 Function(
-                  ffi.Pointer<realm_flx_sync_subscription_set_t>,
-                  ffi.Int32,
-                  realm_sync_on_subscription_state_changed_t,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>
-      get realm_dart_sync_on_subscription_set_state_change_async =>
-          _library._realm_dart_sync_on_subscription_set_state_change_asyncPtr;
+              ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32, ffi.Int32)>>
+      get realm_dart_sync_connection_state_changed_callback =>
+          _library._realm_dart_sync_connection_state_changed_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
-              ffi.Uint64 Function(
-                  ffi.Pointer<realm_sync_session_t>,
-                  realm_sync_connection_state_changed_func_t,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>
-      get realm_dart_sync_session_register_connection_state_change_callback =>
-          _library
-              ._realm_dart_sync_session_register_connection_state_change_callbackPtr;
+              ffi.Void Function(ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<realm_sync_session_t>, realm_sync_error_t)>>
+      get realm_dart_sync_error_handler_callback =>
+          _library._realm_dart_sync_error_handler_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
-              ffi.Uint64 Function(
-                  ffi.Pointer<realm_sync_session_t>,
-                  realm_sync_progress_func_t,
-                  ffi.Int32,
-                  ffi.Uint8,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>
-      get realm_dart_sync_session_register_progress_notifier =>
-          _library._realm_dart_sync_session_register_progress_notifierPtr;
+              ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>
+      get realm_dart_sync_on_subscription_state_changed_callback =>
+          _library._realm_dart_sync_on_subscription_state_changed_callbackPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64)>>
+      get realm_dart_sync_progress_callback =>
+          _library._realm_dart_sync_progress_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(ffi.Pointer<realm_sync_session_t>, ffi.Uint32,
@@ -9237,23 +9138,18 @@ class _SymbolAddresses {
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(
-                  ffi.Pointer<realm_sync_session_t>,
-                  realm_sync_download_completion_func_t,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>
-      get realm_dart_sync_session_wait_for_download_completion =>
-          _library._realm_dart_sync_session_wait_for_download_completionPtr;
+                  ffi.Pointer<ffi.Void>, ffi.Pointer<realm_sync_error_code_t>)>>
+      get realm_dart_sync_wait_for_completion_callback =>
+          _library._realm_dart_sync_wait_for_completion_callbackPtr;
+  ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
+      get realm_dart_userdata_async_free =>
+          _library._realm_dart_userdata_async_freePtr;
   ffi.Pointer<
           ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<realm_sync_session_t>,
-                  realm_sync_upload_completion_func_t,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>
-      get realm_dart_sync_session_wait_for_upload_completion =>
-          _library._realm_dart_sync_session_wait_for_upload_completionPtr;
+              realm_dart_userdata_async_t Function(ffi.Handle,
+                  ffi.Pointer<ffi.Void>, ffi.Pointer<realm_scheduler_t>)>>
+      get realm_dart_userdata_async_new =>
+          _library._realm_dart_userdata_async_newPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Handle Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_weak_handle_to_object =>
           _library._realm_dart_weak_handle_to_objectPtr;
@@ -9571,6 +9467,10 @@ abstract class realm_column_attr {
 class realm_config extends ffi.Opaque {}
 
 typedef realm_config_t = realm_config;
+
+class realm_dart_userdata_async extends ffi.Opaque {}
+
+typedef realm_dart_userdata_async_t = ffi.Pointer<realm_dart_userdata_async>;
 typedef realm_data_initialization_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Uint8 Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>;

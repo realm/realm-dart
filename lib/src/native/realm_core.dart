@@ -57,6 +57,8 @@ class _RealmCore {
   // ignore: unused_field
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
+  static Object noopUserdata = Object();
+
   // Hide the RealmCore class and make it a singleton
   static _RealmCore? _instance;
   late final int isolateKey;
@@ -190,8 +192,13 @@ class _RealmCore {
         final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
-          _realmLib.realm_sync_config_set_error_handler(syncConfigPtr, Pointer.fromFunction(_syncErrorHandlerCallback), config.toPersistentHandle(),
-              _realmLib.addresses.realm_dart_delete_persistent_handle);
+
+          final errorHandlerCallback =
+              Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_session_t>, realm_sync_error_t)>(_syncErrorHandlerCallback);
+          final errorHandlerUserdata = _realmLib.realm_dart_userdata_async_new(config, errorHandlerCallback.cast(), scheduler.handle._pointer);
+          _realmLib.realm_sync_config_set_error_handler(syncConfigPtr, _realmLib.addresses.realm_dart_sync_error_handler_callback, errorHandlerUserdata.cast(),
+              _realmLib.addresses.realm_dart_userdata_async_free);
+
           _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
         } finally {
           _realmLib.realm_release(syncConfigPtr.cast());
@@ -279,24 +286,18 @@ class _RealmCore {
     return result == nullptr ? null : SubscriptionHandle._(result);
   }
 
-  static void _stateChangeCallback(Pointer<Void> userdata, int state) {
-    final completer = userdata.toObject<Completer<SubscriptionSetState>>(isPersistent: true);
-    if (completer == null) {
-      return;
-    }
+  static void _stateChangeCallback(Object userdata, int state) {
+    final completer = userdata as Completer<SubscriptionSetState>;
+
     completer.complete(SubscriptionSetState.values[state]);
   }
 
   Future<SubscriptionSetState> waitForSubscriptionSetStateChange(SubscriptionSet subscriptions, SubscriptionSetState notifyWhen) {
     final completer = Completer<SubscriptionSetState>();
-    _realmLib.realm_dart_sync_on_subscription_set_state_change_async(
-      subscriptions.handle._pointer,
-      notifyWhen.index,
-      Pointer.fromFunction(_stateChangeCallback),
-      completer.toPersistentHandle(),
-      _realmLib.addresses.realm_dart_delete_persistent_handle,
-      scheduler.handle._pointer,
-    );
+    final callback = Pointer.fromFunction<Void Function(Handle, Int32)>(_stateChangeCallback);
+    final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
+    _realmLib.realm_sync_on_subscription_set_state_change_async(subscriptions.handle._pointer, notifyWhen.index,
+        _realmLib.addresses.realm_dart_sync_on_subscription_state_changed_callback, userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
     return completer.future;
   }
 
@@ -405,18 +406,15 @@ class _RealmCore {
     return config.shouldCompactCallback!(totalSize, usedSize) ? TRUE : FALSE;
   }
 
-  static void _syncErrorHandlerCallback(Pointer<Void> userdata, Pointer<realm_sync_session> user, realm_sync_error error) {
-    final FlexibleSyncConfiguration? syncConfig = userdata.toObject(isPersistent: true);
-    if (syncConfig == null) {
-      return;
-    }
+  static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error) {
+    final syncConfig = userdata as FlexibleSyncConfiguration;
 
     final syncError = error.toSyncError();
 
     if (syncError is SyncClientResetError) {
-        syncConfig.syncClientResetErrorHandler.callback(syncError);
-        return;
-    } 
+      syncConfig.syncClientResetErrorHandler.callback(syncError);
+      return;
+    }
 
     syncConfig.syncErrorHandler(syncError);
   }
@@ -759,7 +757,7 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(list.handle._pointer));
   }
 
-  bool _equals<T extends NativeType>(Handle<T> first, Handle<T> second) {
+  bool _equals<T extends NativeType>(HandleBase<T> first, HandleBase<T> second) {
     return _realmLib.realm_equals(first._pointer.cast(), second._pointer.cast());
   }
 
@@ -1052,18 +1050,13 @@ class _RealmCore {
     });
   }
 
-  static void _logCallback(Pointer<Void> userdata, int levelAsInt, Pointer<Int8> message) {
+  static void _logCallback(Object userdata, int levelAsInt, Pointer<Int8> message) {
     final logger = Realm.logger;
+    final level = LevelExt.fromInt(levelAsInt);
 
-    try {
-      final level = LevelExt.fromInt(levelAsInt);
-
-      // Don't do expensive utf8 to utf16 conversion unless needed.
-      if (logger.isLoggable(level)) {
-        logger.log(level, message.cast<Utf8>().toDartString());
-      }
-    } finally {
-      _realmLib.realm_free(message.cast()); // always free the message.
+    // Don't do expensive utf8 to utf16 conversion unless needed.
+    if (logger.isLoggable(level)) {
+      logger.log(level, message.cast<Utf8>().toDartString());
     }
   }
 
@@ -1076,15 +1069,12 @@ class _RealmCore {
 
       _realmLib.realm_sync_client_config_set_log_level(handle._pointer, Realm.logger.level.toInt());
 
-      _realmLib.realm_dart_sync_client_config_set_log_callback(
-        handle._pointer,
-        Pointer.fromFunction(_logCallback),
-        nullptr,
-        nullptr,
-        scheduler.handle._pointer,
-      );
+      final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
+      final logCallbackUserdata = _realmLib.realm_dart_userdata_async_new(noopUserdata, logCallback.cast(), scheduler.handle._pointer);
+      _realmLib.realm_sync_client_config_set_log_callback(handle._pointer, _realmLib.addresses.realm_dart_sync_client_log_callback, logCallbackUserdata.cast(),
+          _realmLib.addresses.realm_dart_userdata_async_free);
 
-      _realmLib.realm_sync_client_config_set_connect_timeout(handle._pointer, configuration.maxConnectionTimeout.inMicroseconds);
+      _realmLib.realm_sync_client_config_set_connect_timeout(handle._pointer, configuration.maxConnectionTimeout.inMilliseconds);
       if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
         _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
       }
@@ -1502,52 +1492,42 @@ class _RealmCore {
 
   int sessionRegisterProgressNotifier(Session session, ProgressDirection direction, ProgressMode mode, SessionProgressNotificationsController controller) {
     final isStreaming = mode == ProgressMode.reportIndefinitely;
-    return _realmLib.realm_dart_sync_session_register_progress_notifier(session.handle._pointer, Pointer.fromFunction(on_sync_progress), direction.index,
-        isStreaming, controller.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, scheduler.handle._pointer);
+    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64)>(_progressCallback);
+    final userdata = _realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle._pointer);
+    return _realmLib.realm_sync_session_register_progress_notifier(session.handle._pointer, _realmLib.addresses.realm_dart_sync_progress_callback,
+        direction.index, isStreaming, userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
   }
 
   void sessionUnregisterProgressNotifier(Session session, int token) {
     _realmLib.realm_sync_session_unregister_progress_notifier(session.handle._pointer, token);
   }
 
-  static void on_sync_progress(Pointer<Void> userdata, int transferred, int transferable) {
-    final SessionProgressNotificationsController? controller = userdata.toObject(isPersistent: true);
-    if (controller == null) {
-      return;
-    }
+  static void _progressCallback(Object userdata, int transferred, int transferable) {
+    final controller = userdata as SessionProgressNotificationsController;
 
     controller.onProgress(transferred, transferable);
   }
 
   Future<void> sessionWaitForUpload(Session session) {
     final completer = Completer<void>();
-    _realmLib.realm_dart_sync_session_wait_for_upload_completion(
-      session.handle._pointer,
-      Pointer.fromFunction(_sessionWaitCompletionCallback),
-      completer.toPersistentHandle(),
-      _realmLib.addresses.realm_dart_delete_persistent_handle,
-      scheduler.handle._pointer,
-    );
+    final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_error_code_t>)>(_sessionWaitCompletionCallback);
+    final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
+    _realmLib.realm_sync_session_wait_for_upload_completion(session.handle._pointer, _realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
+        userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
     return completer.future;
   }
 
   Future<void> sessionWaitForDownload(Session session) {
     final completer = Completer<void>();
-    _realmLib.realm_dart_sync_session_wait_for_download_completion(
-      session.handle._pointer,
-      Pointer.fromFunction(_sessionWaitCompletionCallback),
-      completer.toPersistentHandle(),
-      _realmLib.addresses.realm_dart_delete_persistent_handle,
-      scheduler.handle._pointer,
-    );
+    final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_error_code_t>)>(_sessionWaitCompletionCallback);
+    final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
+    _realmLib.realm_sync_session_wait_for_download_completion(session.handle._pointer, _realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
+        userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
     return completer.future;
   }
 
-  static void _sessionWaitCompletionCallback(Pointer<Void> userdata, Pointer<realm_sync_error_code_t> errorCode) {
-    final completer = userdata.toObject<Completer<void>>(isPersistent: true);
-    if (completer == null) {
-      return;
-    }
+  static void _sessionWaitCompletionCallback(Object userdata, Pointer<realm_sync_error_code_t> errorCode) {
+    final completer = userdata as Completer<void>;
 
     if (errorCode != nullptr) {
       completer.completeError(errorCode.toSyncError());
@@ -1569,42 +1549,42 @@ class LastError {
   }
 }
 
-abstract class Handle<T extends NativeType> {
+abstract class HandleBase<T extends NativeType> {
   final Pointer<T> _pointer;
   late final Dart_FinalizableHandle _finalizableHandle;
 
-  Handle(this._pointer, int size) {
+  HandleBase(this._pointer, int size) {
     _finalizableHandle = _realmLib.realm_dart_attach_finalizer(this, _pointer.cast(), size);
     if (_finalizableHandle == nullptr) {
       throw Exception("Error creating $runtimeType");
     }
   }
 
-  Handle.unowned(this._pointer);
+  HandleBase.unowned(this._pointer);
 
   @override
   String toString() => "${_pointer.toString()} value=${_pointer.cast<IntPtr>().value}";
 }
 
-class SchemaHandle extends Handle<realm_schema> {
+class SchemaHandle extends HandleBase<realm_schema> {
   SchemaHandle._(Pointer<realm_schema> pointer) : super(pointer, 24);
 }
 
-class ConfigHandle extends Handle<realm_config> {
+class ConfigHandle extends HandleBase<realm_config> {
   ConfigHandle._(Pointer<realm_config> pointer) : super(pointer, 512);
 }
 
-class RealmHandle extends Handle<shared_realm> {
+class RealmHandle extends HandleBase<shared_realm> {
   RealmHandle._(Pointer<shared_realm> pointer) : super(pointer, 24);
 
   RealmHandle._unowned(Pointer<shared_realm> pointer) : super.unowned(pointer);
 }
 
-class SchedulerHandle extends Handle<realm_scheduler> {
+class SchedulerHandle extends HandleBase<realm_scheduler> {
   SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer, 24);
 }
 
-class RealmObjectHandle extends Handle<realm_object> {
+class RealmObjectHandle extends HandleBase<realm_object> {
   RealmObjectHandle._(Pointer<realm_object> pointer) : super(pointer, 112);
 }
 
@@ -1616,19 +1596,19 @@ class RealmLinkHandle {
         classKey = link.target_table;
 }
 
-class RealmResultsHandle extends Handle<realm_results> {
+class RealmResultsHandle extends HandleBase<realm_results> {
   RealmResultsHandle._(Pointer<realm_results> pointer) : super(pointer, 872);
 }
 
-class RealmListHandle extends Handle<realm_list> {
+class RealmListHandle extends HandleBase<realm_list> {
   RealmListHandle._(Pointer<realm_list> pointer) : super(pointer, 88);
 }
 
-class RealmQueryHandle extends Handle<realm_query> {
+class RealmQueryHandle extends HandleBase<realm_query> {
   RealmQueryHandle._(Pointer<realm_query> pointer) : super(pointer, 256);
 }
 
-class ReleasableHandle<T extends NativeType> extends Handle<T> {
+class ReleasableHandle<T extends NativeType> extends HandleBase<T> {
   bool released = false;
   ReleasableHandle(Pointer<T> pointer, int size) : super(pointer, size);
   void release() {
@@ -1650,39 +1630,39 @@ class RealmCallbackTokenHandle extends ReleasableHandle<realm_callback_token> {
   RealmCallbackTokenHandle._(Pointer<realm_callback_token> pointer) : super(pointer, 24);
 }
 
-class RealmCollectionChangesHandle extends Handle<realm_collection_changes> {
+class RealmCollectionChangesHandle extends HandleBase<realm_collection_changes> {
   RealmCollectionChangesHandle._(Pointer<realm_collection_changes> pointer) : super(pointer, 256);
 }
 
-class RealmObjectChangesHandle extends Handle<realm_object_changes> {
+class RealmObjectChangesHandle extends HandleBase<realm_object_changes> {
   RealmObjectChangesHandle._(Pointer<realm_object_changes> pointer) : super(pointer, 256);
 }
 
-class RealmAppCredentialsHandle extends Handle<realm_app_credentials> {
+class RealmAppCredentialsHandle extends HandleBase<realm_app_credentials> {
   RealmAppCredentialsHandle._(Pointer<realm_app_credentials> pointer) : super(pointer, 16);
 }
 
-class RealmHttpTransportHandle extends Handle<realm_http_transport> {
+class RealmHttpTransportHandle extends HandleBase<realm_http_transport> {
   RealmHttpTransportHandle._(Pointer<realm_http_transport> pointer) : super(pointer, 24);
 }
 
-class AppConfigHandle extends Handle<realm_app_config> {
+class AppConfigHandle extends HandleBase<realm_app_config> {
   AppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 8);
 }
 
-class SyncClientConfigHandle extends Handle<realm_sync_client_config> {
+class SyncClientConfigHandle extends HandleBase<realm_sync_client_config> {
   SyncClientConfigHandle._(Pointer<realm_sync_client_config> pointer) : super(pointer, 8);
 }
 
-class AppHandle extends Handle<realm_app> {
+class AppHandle extends HandleBase<realm_app> {
   AppHandle._(Pointer<realm_app> pointer) : super(pointer, 16);
 }
 
-class UserHandle extends Handle<realm_user> {
+class UserHandle extends HandleBase<realm_user> {
   UserHandle._(Pointer<realm_user> pointer) : super(pointer, 24);
 }
 
-class SubscriptionHandle extends Handle<realm_flx_sync_subscription> {
+class SubscriptionHandle extends HandleBase<realm_flx_sync_subscription> {
   SubscriptionHandle._(Pointer<realm_flx_sync_subscription> pointer) : super(pointer, 184);
 }
 
