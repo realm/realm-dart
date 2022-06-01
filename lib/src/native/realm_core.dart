@@ -1550,7 +1550,8 @@ class _RealmCore {
     }
 
     if (errorCode != nullptr) {
-      completer.completeError(errorCode.toSyncError());
+      // Throw RealmException instead of RealmError to be recoverable by the user.
+      completer.completeError(RealmException(errorCode.toSyncError().toString()));
     } else {
       completer.complete();
     }
