@@ -147,6 +147,18 @@ abstract class Configuration {
         syncErrorHandler: syncErrorHandler,
         syncClientResetErrorHandler: syncClientResetErrorHandler,
       );
+
+  /// Constructs a [SessionlessSyncConfiguration]
+  static SessionlessSyncConfiguration sessionlessSync(
+    List<SchemaObject> schemaObjects, {
+    String? fifoFilesFallbackPath,
+    String? path,
+  }) =>
+      SessionlessSyncConfiguration._(
+        schemaObjects,
+        fifoFilesFallbackPath: fifoFilesFallbackPath,
+        path: path,
+      );
 }
 
 extension ConfigurationInternal on Configuration {
@@ -214,15 +226,17 @@ enum SessionStopPolicy {
 typedef SyncErrorHandler = void Function(SyncError);
 
 void defaultSyncErrorHandler(SyncError e) {
-   Realm.logger.log(RealmLogLevel.error, e);
+  Realm.logger.log(RealmLogLevel.error, e);
 }
 
 void _defaultSyncClientResetHandler(SyncError e) {
-  Realm.logger.log(RealmLogLevel.error, "A client reset error occurred but no handler was supplied. "
-    "Synchronization is now paused and will resume automatically once the app is restarted and "
-    "the server data is redownloaded. Any unsynchronized changes the client has made or will "
-    "make will be lost. To handle that scenario, pass in a non-null value to " 
-    "syncClientResetErrorHandler when constructing Configuration.flexibleSync.");
+  Realm.logger.log(
+      RealmLogLevel.error,
+      "A client reset error occurred but no handler was supplied. "
+      "Synchronization is now paused and will resume automatically once the app is restarted and "
+      "the server data is re-downloaded. Any un-synchronized changes the client has made or will "
+      "make will be lost. To handle that scenario, pass in a non-null value to "
+      "syncClientResetErrorHandler when constructing Configuration.flexibleSync.");
 }
 
 /// [FlexibleSyncConfiguration] is used to open [Realm] instances that are synchronized
@@ -235,12 +249,12 @@ class FlexibleSyncConfiguration extends Configuration {
   SessionStopPolicy _sessionStopPolicy = SessionStopPolicy.afterChangesUploaded;
 
   /// Called when a [SyncError] occurs for this synchronized [Realm].
-  /// 
+  ///
   /// The default [SyncErrorHandler] prints to the console
   final SyncErrorHandler syncErrorHandler;
 
   /// Called when a [SyncClientResetError] occurs for this synchronized [Realm]
-  /// 
+  ///
   /// The default [SyncClientResetErrorHandler] logs a message using the current Realm.logger
   final SyncClientResetErrorHandler syncClientResetErrorHandler;
 
@@ -264,8 +278,8 @@ extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
   set sessionStopPolicy(SessionStopPolicy value) => _sessionStopPolicy = value;
 }
 
-class SyncFollowerConfiguration extends Configuration {
-  SyncFollowerConfiguration._(
+class SessionlessSyncConfiguration extends Configuration {
+  SessionlessSyncConfiguration._(
     super.schemaObjects, {
     super.fifoFilesFallbackPath,
     super.path,

@@ -203,7 +203,7 @@ class _RealmCore {
         } finally {
           _realmLib.realm_release(syncConfigPtr.cast());
         }
-      } else if (config is SyncFollowerConfiguration) {
+      } else if (config is SessionlessSyncConfiguration) {
         _realmLib.realm_config_set_force_sync_history(configPtr, true);
       }
 
