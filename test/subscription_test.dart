@@ -490,6 +490,35 @@ Future<void> main([List<String>? args]) async {
     expect(task, isNotNull);
   });
 
+  testSubscriptions('Filter realm data using worng query fields subscription', (realm) async {
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.all<Event>());
+    });
+
+    realm.write(() {
+      realm.addAll([
+        Event(ObjectId(), name: "NPMG Event", isCompleted: true, durationInMinutes: 30, assignedTo: "@me"),
+        Event(
+          ObjectId(),
+          name: "NPMG Meeting",
+          isCompleted: false,
+          durationInMinutes: 10,
+        ),
+        Event(ObjectId(), name: "Some other eveent", isCompleted: true, durationInMinutes: 60),
+      ]);
+    });
+
+    await realm.syncSession.waitForUpload();
+
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.removeByQuery(realm.all<Event>());
+      mutableSubscriptions.add(realm.query<Event>(r'assignedTo BEGINSWITH $0 AND boolQueryField == $1 AND intQueryField > $2', ["@me", true, 20]),
+          name: "filter");
+    });
+
+    expect(() async => await realm.subscriptions.waitForSynchronization(), throws<RealmException>());
+  });
+
   testSubscriptions('Filter realm data using query subscription', (realm) async {
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Event>());
@@ -512,6 +541,8 @@ Future<void> main([List<String>? args]) async {
     });
 
     await realm.subscriptions.waitForSynchronization();
+
+    realmCore.realmRefresh(realm);
 
     var filtered = realm.query<Event>(realm.subscriptions.findByName("filter")!.queryString);
     var all = realm.all<Event>();
