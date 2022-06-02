@@ -190,8 +190,13 @@ class _RealmCore {
         final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
-          _realmLib.realm_sync_config_set_error_handler(syncConfigPtr, Pointer.fromFunction(_syncErrorHandlerCallback), config.toPersistentHandle(),
-              _realmLib.addresses.realm_dart_delete_persistent_handle);
+          _realmLib.realm_dart_sync_config_set_error_handler(
+            syncConfigPtr,
+            Pointer.fromFunction(_syncErrorHandlerCallback),
+            config.toPersistentHandle(),
+            _realmLib.addresses.realm_dart_delete_persistent_handle,
+            scheduler.handle._pointer,
+          );
           _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
         } finally {
           _realmLib.realm_release(syncConfigPtr.cast());
@@ -1059,16 +1064,17 @@ class _RealmCore {
   }
 
   static void _logCallback(Pointer<Void> userdata, int levelAsInt, Pointer<Int8> message) {
-    try {
-      final logger = Realm.logger;
-      final level = _LogLevel.values[levelAsInt].loggerLevel;
+    final logger = Realm.logger;
 
-      // Don't do expensive utf8 to utf16 conversion unless we have to..
+    try {
+      final level = LevelExt.fromInt(levelAsInt);
+
+      // Don't do expensive utf8 to utf16 conversion unless needed.
       if (logger.isLoggable(level)) {
         logger.log(level, message.cast<Utf8>().toDartString());
       }
     } finally {
-      _realmLib.realm_free(message.cast()); // .. but always free the message
+      _realmLib.realm_free(message.cast()); // always free the message.
     }
   }
 
@@ -1079,7 +1085,8 @@ class _RealmCore {
       _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toUtf8Ptr(arena));
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
 
-      _realmLib.realm_sync_client_config_set_log_level(handle._pointer, _LogLevel.fromLevel(Realm.logger.level).index);
+      _realmLib.realm_sync_client_config_set_log_level(handle._pointer, Realm.logger.level.toInt());
+
       _realmLib.realm_dart_sync_client_config_set_log_callback(
         handle._pointer,
         Pointer.fromFunction(_logCallback),
@@ -1506,7 +1513,7 @@ class _RealmCore {
 
   int sessionRegisterProgressNotifier(Session session, ProgressDirection direction, ProgressMode mode, SessionProgressNotificationsController controller) {
     final isStreaming = mode == ProgressMode.reportIndefinitely;
-    return _realmLib.realm_dart_sync_session_register_progress_notifier(session.handle._pointer, Pointer.fromFunction(on_sync_progress), direction.index,
+    return _realmLib.realm_dart_sync_session_register_progress_notifier(session.handle._pointer, Pointer.fromFunction(_onSyncProgress), direction.index,
         isStreaming, controller.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, scheduler.handle._pointer);
   }
 
@@ -1514,13 +1521,31 @@ class _RealmCore {
     _realmLib.realm_sync_session_unregister_progress_notifier(session.handle._pointer, token);
   }
 
-  static void on_sync_progress(Pointer<Void> userdata, int transferred, int transferable) {
+  static void _onSyncProgress(Pointer<Void> userdata, int transferred, int transferable) {
     final SessionProgressNotificationsController? controller = userdata.toObject(isPersistent: true);
     if (controller == null) {
       return;
     }
 
     controller.onProgress(transferred, transferable);
+  }
+
+  int sessionRegisterConnectionStateNotifier(Session session, SessionConnectionStateController controller) {
+    return _realmLib.realm_dart_sync_session_register_connection_state_change_callback(session.handle._pointer, Pointer.fromFunction(_onConnectionStateChange),
+        controller.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, scheduler.handle._pointer);
+  }
+
+  void sessionUnregisterConnectionStateNotifier(Session session, int token) {
+    _realmLib.realm_sync_session_unregister_connection_state_change_callback(session.handle._pointer, token);
+  }
+
+  static void _onConnectionStateChange(Pointer<Void> userdata, int oldState, int newState) {
+    final SessionConnectionStateController? controller = userdata.toObject(isPersistent: true);
+    if (controller == null) {
+      return;
+    }
+
+    controller.onConnectionStateChange(ConnectionState.values[oldState], ConnectionState.values[newState]);
   }
 
   Future<void> sessionWaitForUpload(Session session) {
@@ -1548,15 +1573,21 @@ class _RealmCore {
   }
 
   static void _sessionWaitCompletionCallback(Pointer<Void> userdata, Pointer<realm_sync_error_code_t> errorCode) {
+    try {
     final completer = userdata.toObject<Completer<void>>(isPersistent: true);
     if (completer == null) {
       return;
     }
 
     if (errorCode != nullptr) {
-      completer.completeError(errorCode.toSyncError());
+      // Throw RealmException instead of RealmError to be recoverable by the user.
+      completer.completeError(RealmException(errorCode.toSyncError().toString()));
     } else {
       completer.complete();
+    }
+    }
+    finally {
+      _realmLib.realm_free(errorCode.cast());
     }
   }
 }
@@ -1914,7 +1945,7 @@ extension on Pointer<Utf8> {
 
 extension on realm_sync_error {
   SyncError toSyncError() {
-    final message = detailed_message.cast<Utf8>().toRealmDartString()!;
+    final message = detailed_message.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
     final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
     final isFatal = is_fatal == 0 ? false : true;
     final bool isClientResetRequested = is_client_reset_requested == TRUE;
@@ -1930,7 +1961,7 @@ extension on realm_sync_error {
 
 extension on Pointer<realm_sync_error_code_t> {
   SyncError toSyncError() {
-    final message = ref.message.cast<Utf8>().toDartString();
+    final message = ref.message.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
     return SyncError.create(message, SyncErrorCategory.values[ref.category], ref.value, isFatal: false);
   }
 }
@@ -2013,25 +2044,54 @@ extension on realm_object_id {
   }
 }
 
-// Helper enum for converting Level
-enum _LogLevel {
-  all(RealmLogLevel.all),
-  trace(RealmLogLevel.trace),
-  debug(RealmLogLevel.debug),
-  detail(RealmLogLevel.detail),
-  info(RealmLogLevel.info),
-  warn(RealmLogLevel.warn),
-  error(RealmLogLevel.error),
-  fatal(RealmLogLevel.fatal),
-  off(RealmLogLevel.off);
-
-  final Level loggerLevel;
-  const _LogLevel(this.loggerLevel);
-
-  factory _LogLevel.fromLevel(Level level) {
-    for (final candidate in _LogLevel.values) {
-      if (level.value > candidate.loggerLevel.value) return candidate;
+extension LevelExt on Level {
+  int toInt() {
+    if (this == Level.ALL) {
+      return 0;
+    } else if (name == "TRACE") {
+      return 1;
+    } else if (name == "DEBUG") {
+      return 2;
+    } else if (name == "DETAIL") {
+      return 3;
+    } else if (this == Level.INFO) {
+      return 4;
+    } else if (this == Level.WARNING) {
+      return 5;
+    } else if (name == "ERROR") {
+      return 6;
+    } else if (name == "FATAL") {
+      return 7;
+    } else if (this == Level.OFF) {
+      return 8;
+    } else {
+      // if unknown logging is off
+      return 8;
     }
-    return _LogLevel.off;
+  }
+
+  static Level fromInt(int value) {
+    switch (value) {
+      case 0:
+        return RealmLogLevel.all;
+      case 1:
+        return RealmLogLevel.trace;
+      case 2:
+        return RealmLogLevel.debug;
+      case 3:
+        return RealmLogLevel.detail;
+      case 4:
+        return RealmLogLevel.info;
+      case 5:
+        return RealmLogLevel.warn;
+      case 6:
+        return RealmLogLevel.error;
+      case 7:
+        return RealmLogLevel.fatal;
+      case 8:
+      default:
+        // if unknown logging is off
+        return RealmLogLevel.off;
+    }
   }
 }

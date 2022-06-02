@@ -13,6 +13,7 @@ set(SOURCES
     subscription_set.cpp
     sync_session.cpp
     sync_client_config.cpp
+    sync_client.cpp
 )
 
 set(HEADERS
@@ -22,6 +23,7 @@ set(HEADERS
     subscription_set.h
     sync_session.h
     sync_client_config.h
+    sync_client.h
 )
 
 add_library(realm_dart SHARED ${SOURCES} ${HEADERS})
@@ -60,8 +62,6 @@ if(ANDROID)
     # Core requires these options for the final *.so file. See more realm-core/CMakeLists.txt
     target_link_options(realm_dart PRIVATE LINKER:-gc-sections)
 
-    set_target_properties(realm_dart PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/binary/android/${ANDROID_ABI}")
-
     # Add a custom target to strip the binary
     add_custom_target(strip ${CMAKE_STRIP} $<TARGET_FILE:realm_dart>)
 elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
@@ -76,10 +76,12 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
         MACOSX_FRAMEWORK_BUNDLE_VERSION "1.0.0"
     )
 
-    add_custom_command(TARGET realm_dart POST_BUILD
-        COMMAND rm -rf ${OUTPUT_DIR}/realm_dart.xcframework
-        COMMAND xcodebuild -create-xcframework -framework $<TARGET_FILE:realm_dart>/.. -output ${OUTPUT_DIR}/realm_dart.xcframework
-    )
+    if(NOT $ENV{REALM_CI})
+        add_custom_command(TARGET realm_dart POST_BUILD
+            COMMAND rm -rf ${OUTPUT_DIR}/realm_dart.xcframework
+            COMMAND xcodebuild -create-xcframework -framework $<TARGET_FILE:realm_dart>/.. -output ${OUTPUT_DIR}/realm_dart.xcframework
+        )
+    endif()
 endif()
 
 if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)

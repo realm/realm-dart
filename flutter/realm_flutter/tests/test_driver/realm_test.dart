@@ -19,32 +19,37 @@ import '../test/session_test.dart' as session_test;
 
 Future<String> main(List<String> args) async {
   final Completer<String> completer = Completer<String>();
-  final List<String> failedTests = [];
 
-  await configuration_test.main(args);
-  await realm_tests.main(args);
-  await realm_object_tests.main(args);
-  await list_tests.main(args);
-  await results_tests.main(args);
-  await credentials_tests.main(args);
-  await app_tests.main(args);
-  await user_tests.main(args);
-  await subscription_test.main(args);
-  await session_test.main(args);
+  try {
+    final List<String> failedTests = [];
 
-  tearDown(() {
-    if (Invoker.current?.liveTest.state.result == test_api.Result.error || Invoker.current?.liveTest.state.result == test_api.Result.failure) {
-      failedTests.add(Invoker.current!.liveTest.individualName);
-    }
-  });
+    await configuration_test.main(args);
+    await realm_tests.main(args);
+    await realm_object_tests.main(args);
+    await list_tests.main(args);
+    await results_tests.main(args);
+    await credentials_tests.main(args);
+    await app_tests.main(args);
+    await user_tests.main(args);
+    await subscription_test.main(args);
+    await session_test.main(args);
 
-  tearDownAll(() {
-    if (failedTests.isNotEmpty) {
-      completer.complete(failedTests.join('\n'));
-    } else {
-      completer.complete('');
-    }
-  });
+    tearDown(() {
+      if (Invoker.current?.liveTest.state.result == test_api.Result.error || Invoker.current?.liveTest.state.result == test_api.Result.failure) {
+        failedTests.add(Invoker.current!.liveTest.individualName);
+      }
+    });
+
+    tearDownAll(() {
+      if (failedTests.isNotEmpty) {
+        completer.complete(failedTests.join('\n'));
+      } else {
+        completer.complete('');
+      }
+    });
+  } catch (e) {
+    completer.complete(e.toString());
+  }
 
   return completer.future;
 }

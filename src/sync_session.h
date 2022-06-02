@@ -76,7 +76,7 @@ RLM_API uint64_t realm_dart_sync_session_register_connection_state_change_callba
  *  @param errorCode Error code of the error that to be simulated.
  *  @param isFatal >If set to `true` the error will be marked as fatal.
  *
- *  Use this method to test your error handling code without connecting to a MongoDB Realm Server.
+ *  Use this method to test your error handling code without connecting to MongoDB Atlas.
  */
 RLM_API void realm_dart_sync_session_report_error_for_testing(realm_sync_session_t* session, uint32_t category, int errorCode, bool isFatal) RLM_API_NOEXCEPT;
 #endif // REALM_DART_SYNC_SESSION_H

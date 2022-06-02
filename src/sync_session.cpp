@@ -23,6 +23,7 @@
 #include "sync_session.h"
 #include "event_loop_dispatcher.hpp"
 
+#include <iostream>
 
 namespace realm::c_api {
 namespace _1 {
@@ -33,7 +34,19 @@ using UserdataT = std::tuple<CallbackT, FreeT>;
 
 void _callback(void* userdata, realm_sync_error_code_t* error) {
     auto u = reinterpret_cast<UserdataT*>(userdata);
-    std::get<0>(*u)(error);
+    if (error != nullptr) {
+        auto error_copy = (realm_sync_error_code_t*)malloc(sizeof(realm_sync_error_code_t));
+        *error_copy = *error; // copy struct
+
+        // we need to copy the message 
+        auto message = duplicate_string(std::string(error->message));
+        error_copy->message = message;
+
+        std::get<0>(*u)(error_copy);
+    }
+    else {
+        std::get<0>(*u)(nullptr);
+    }
 }
 
 void _userdata_free(void* userdata) {

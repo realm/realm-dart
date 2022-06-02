@@ -203,7 +203,7 @@ Future<void> main([List<String>? args]) async {
     var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
-    expect(() => realm.write(() => realm.add(Person(''))), throws<RealmException>("not configured"));
+    expect(() => realm.write(() => realm.add(Person(''))), throws<RealmError>("not configured"));
   });
 
   test('Realm add returns the same object', () {
@@ -313,7 +313,7 @@ Future<void> main([List<String>? args]) async {
     var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
-    expect(() => realm.find<Person>("Me"), throws<RealmException>("not configured"));
+    expect(() => realm.find<Person>("Me"), throws<RealmError>("not configured"));
   });
 
   test('Realm find object by primary key default value', () {

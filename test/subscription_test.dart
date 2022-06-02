@@ -21,12 +21,13 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
-import 'package:path/path.dart' as path;
 import 'package:test/expect.dart';
-import '../lib/src/configuration.dart';
+
 import '../lib/realm.dart';
 import '../lib/src/native/realm_core.dart';
 import '../lib/src/subscription.dart';
+import '../lib/src/configuration.dart';
+
 import 'test.dart';
 
 @isTest
@@ -490,6 +491,45 @@ Future<void> main([List<String>? args]) async {
     expect(task, isNotNull);
   });
 
+  baasTest('Writing before subscribe', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final completer = Completer<SyncError>();
+    final config = Configuration.flexibleSync(
+      user,
+      [Task.schema],
+      syncClientResetErrorHandler: ManualSyncClientResetHandler((syncError) {
+        completer.complete(syncError);
+      }),
+    );
+
+    final realm = getRealm(config);
+    realm.write(() => realm.add(Task(ObjectId())));
+
+    final syncError = await completer.future;
+    expect(syncError.category, SyncErrorCategory.client);
+    expect(
+        syncError.message!.startsWith(
+            "Client attempted a write that is outside of permissions or query filters: cannot write to table \"${(Task).toString()}\" before opening a subscription on it"),
+        isTrue);
+    expect(syncError is SyncClientResetError, isTrue);
+    expect((syncError as SyncClientResetError).code, SyncClientErrorCode.autoClientResetFailure);
+  });
+
+  baasTest('Writing before subscribe + upload', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    final config = Configuration.flexibleSync(
+      user,
+      [Task.schema],
+    );
+
+    final realm = getRealm(config);
+    realm.write(() => realm.add(Task(ObjectId())));
+    expect(() async => await realm.syncSession.waitForUpload(), throws<RealmException>("Client attempted a write that is disallowed by permissions, or modifies an object outside the current query"));
+  });
+  
   testSubscriptions('Subscription on unqueryable field sould throw', (realm) async {
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Event>());

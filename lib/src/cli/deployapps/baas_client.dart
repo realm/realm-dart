@@ -67,7 +67,7 @@ class BaasClient {
         _headers = <String, String>{'Accept': 'application/json'},
         _appSuffix = '-$_clusterName';
 
-  /// A client that imports apps in a MongoDB Realm docker image. See https://github.com/realm/ci/tree/master/realm/docker/mongodb-realm
+  /// A client that imports apps in a MongoDB Atlas docker image. See https://github.com/realm/ci/tree/master/realm/docker/mongodb-realm
   /// for instructions on how to set it up.
   /// @nodoc
   static Future<BaasClient> docker(String baseUrl) async {
@@ -83,7 +83,7 @@ class BaasClient {
     return result;
   }
 
-  /// A client that imports apps to an MongoDB Realm environment (typically realm-dev or realm-qa).
+  /// A client that imports apps to a MongoDB Atlas environment (typically realm-dev or realm-qa).
   /// @nodoc
   static Future<BaasClient> atlas(String baseUrl, String cluster, String apiKey, String privateApiKey, String groupId) async {
     final BaasClient result = BaasClient._(baseUrl, cluster);

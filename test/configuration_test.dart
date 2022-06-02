@@ -33,7 +33,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration exception if no schema', () {
-    expect(() => Configuration.local([]), throws<RealmException>());
+    expect(() => Configuration.local([]), throws<RealmError>());
   });
 
   test('Configuration default path', () {
