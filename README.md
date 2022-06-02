@@ -5,7 +5,7 @@
 Realm is a mobile database that runs directly inside phones, tablets or wearables.
 This repository holds the source code for the Realm SDK for Flutter™ and Dart™.
 
-**This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
+**This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
 ## Getting Started
 
@@ -82,11 +82,7 @@ For a complete documentation go to [Realm Flutter and Dart SDK Docs](https://doc
 
 ## Limitations
 
-* This version of Realm Flutter and Dart SDK allows working with a local only (on device) Realm database in Flutter and Dart desktop. Atlas Device Sync functionality is not implemented.
-
 * It provides the functionality for creating, retrieving, querying, sorting, filtering, updating Realm objects.
-
-* Flutter Desktop on Linux is not supported yet.
 
 * Migrations are not supported yet.
 
