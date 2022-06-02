@@ -1,4 +1,4 @@
-## 0.3.0+alpha (2022-06-02)
+## 0.3.0-beta (2022-06-02)
 
 **This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
 

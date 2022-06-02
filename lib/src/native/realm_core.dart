@@ -70,7 +70,7 @@ class _RealmCore {
     return _instance ??= _RealmCore._();
   }
 
-  String get libraryVersion => '0.3.0+alpha';
+  String get libraryVersion => '0.3.0-beta';
 
   LastError? getLastError(Allocator allocator) {
     final error = allocator<realm_error_t>();
@@ -1570,19 +1570,18 @@ class _RealmCore {
 
   static void _sessionWaitCompletionCallback(Pointer<Void> userdata, Pointer<realm_sync_error_code_t> errorCode) {
     try {
-    final completer = userdata.toObject<Completer<void>>(isPersistent: true);
-    if (completer == null) {
-      return;
-    }
+      final completer = userdata.toObject<Completer<void>>(isPersistent: true);
+      if (completer == null) {
+        return;
+      }
 
-    if (errorCode != nullptr) {
-      // Throw RealmException instead of RealmError to be recoverable by the user.
-      completer.completeError(RealmException(errorCode.toSyncError().toString()));
-    } else {
-      completer.complete();
-    }
-    }
-    finally {
+      if (errorCode != nullptr) {
+        // Throw RealmException instead of RealmError to be recoverable by the user.
+        completer.completeError(RealmException(errorCode.toSyncError().toString()));
+      } else {
+        completer.complete();
+      }
+    } finally {
       _realmLib.realm_free(errorCode.cast());
     }
   }
