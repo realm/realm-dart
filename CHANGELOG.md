@@ -1,6 +1,6 @@
-## 0.3.0-beta (2022-06-02)
+## 0.3.0+beta (2022-06-02)
 
-**This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
+**This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
 ### Breaking Changes
 * Made all `Configuration` fields final so they can only be initialized in the constructor. This better conveys the immutability of the configuration class. ([#455](https://github.com/realm/realm-dart/pull/455))

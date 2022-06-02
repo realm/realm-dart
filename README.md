@@ -35,7 +35,7 @@ This repository holds the source code for the Realm SDK for Flutterâ„¢ and Dartâ
 * Open a Realm and add some objects.
 
     ```dart
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = Realm(config);
 
     var car = Car("Tesla", "Model Y", kilometers: 5);
@@ -156,7 +156,7 @@ The Realm Flutter package name is `realm`
 
     ```dart
     // Create a Configuration object
-    var config = Configuration([Item.schema]);
+    var config = Configuration.local([Item.schema]);
 
     // Opean a Realm
     var realm = Realm(config);
@@ -219,7 +219,7 @@ class _Item {
 }
 
 // Create a Configuration object
-var config = Configuration([Item.schema]);
+var config = Configuration.local([Item.schema]);
 
 // Opean a Realm
 var realm = Realm(config);
