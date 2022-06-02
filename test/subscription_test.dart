@@ -569,8 +569,6 @@ Future<void> main([List<String>? args]) async {
 
     await realm.subscriptions.waitForSynchronization();
 
-    realmCore.realmRefresh(realm);
-
     var filtered = realm.query<Event>(realm.subscriptions.findByName("filter")!.queryString);
     var all = realm.all<Event>();
     expect(filtered, isNotEmpty);
