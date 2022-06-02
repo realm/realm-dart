@@ -938,10 +938,11 @@ class _RealmCore {
   }
 
   RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
-    return RealmHttpTransportHandle._(_realmLib.realm_http_transport_new(
+    return RealmHttpTransportHandle._(_realmLib.realm_dart_http_transport_new(
       Pointer.fromFunction(request_callback),
       httpClient.toPersistentHandle(),
       _realmLib.addresses.realm_dart_delete_persistent_handle,
+      scheduler.handle._pointer,
     ));
   }
 
@@ -954,7 +955,6 @@ class _RealmCore {
     // Therefor we need to copy everything out of request before returning.
     // We cannot clone request on the native side with realm_clone,
     // since realm_http_request does not inherit from WrapC.
-
     HttpClient? userObject = userData.toObject(isPersistent: true);
     if (userObject == null) {
       return;
@@ -965,8 +965,7 @@ class _RealmCore {
     client.connectionTimeout = Duration(milliseconds: request.timeout_ms);
 
     final url = Uri.parse(request.url.cast<Utf8>().toRealmDartString()!);
-
-    final body = request.body.cast<Utf8>().toRealmDartString()!;
+    final body = request.body.cast<Utf8>().toRealmDartString(length: request.body_size)!;
 
     final headers = <String, String>{};
     for (int i = 0; i < request.num_headers; ++i) {
