@@ -108,19 +108,16 @@ void _callback(realm_userdata_t userdata, const realm_http_request_t request, vo
         std::vector<realm_http_header_t> headers_vector;
     } buf;
 
-    realm_http_request_t request_copy = request; // copy struct
-
     buf.url = request.url;
-    request_copy.url = buf.url.c_str();
-    buf.body = std::string(request.body, request.body_size);
-    request_copy.body = buf.body.data();
-
-    buf.headers_vector.reserve(request.num_headers);
+    buf.body = request.body;
     for (size_t i = 0; i < request.num_headers; i++) {
         auto [it, _] = buf.headers.emplace(request.headers[i].name, request.headers[i].value);
-        buf.headers_vector[i].name = it->first.c_str();
-        buf.headers_vector[i].value = it->second.c_str();
+        buf.headers_vector.push_back({ it->first.c_str(), it->second.c_str() });
     }
+
+    realm_http_request_t request_copy = request; // copy struct
+    request_copy.url = buf.url.c_str();
+    request_copy.body = buf.body.data();
     request_copy.headers = buf.headers_vector.data();
 
     // trampoline to scheduler
