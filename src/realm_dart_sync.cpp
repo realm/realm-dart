@@ -21,10 +21,6 @@
 #include "realm_dart.hpp"
 #include "realm_dart_sync.h"
 
-#include <iostream>
-
-using namespace std;
-
 RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, const realm_http_request_t request, void* request_context) {
     // the pointers in error are to stack values, we need to make copies and move them into the scheduler invocation
     struct request_copy_buf {
@@ -44,8 +40,7 @@ RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, const r
     buf.headers_vector.reserve(request.num_headers);
     for (size_t i = 0; i < request.num_headers; i++) {
         auto [it, _] = buf.headers.emplace(request.headers[i].name, request.headers[i].value);
-        buf.headers_vector[i].name = it->first.c_str();
-        buf.headers_vector[i].value = it->second.c_str();
+        buf.headers_vector.push_back({it->first.c_str(), it->second.c_str()});
     }
     request_copy.headers = buf.headers_vector.data();
 
@@ -82,8 +77,7 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
     buf.user_info_vector.reserve(error.user_info_length);
     for (size_t i = 0; i < error.user_info_length; i++) {
         auto [it, _] = buf.user_info_map.emplace(error.user_info_map[i].key, error.user_info_map[i].value);
-        buf.user_info_vector[i].key = it->first.c_str();
-        buf.user_info_vector[i].value = it->second.c_str();
+        buf.user_info_vector.push_back({it->first.c_str(), it->second.c_str()});
     }
     error.user_info_map = buf.user_info_vector.data();
 
