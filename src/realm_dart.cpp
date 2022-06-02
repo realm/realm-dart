@@ -109,7 +109,7 @@ void _callback(realm_userdata_t userdata, const realm_http_request_t request, vo
     } buf;
 
     buf.url = request.url;
-    buf.body = request.body;
+    buf.body = std::string(request.body, request.body_size);
     for (size_t i = 0; i < request.num_headers; i++) {
         auto [it, _] = buf.headers.emplace(request.headers[i].name, request.headers[i].value);
         buf.headers_vector.push_back({ it->first.c_str(), it->second.c_str() });
