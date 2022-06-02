@@ -70,7 +70,7 @@ class _RealmCore {
     return _instance ??= _RealmCore._();
   }
 
-  String get libraryVersion => '0.2.1+alpha';
+  String get libraryVersion => '0.3.0-beta';
 
   LastError? getLastError(Allocator allocator) {
     final error = allocator<realm_error_t>();
@@ -850,7 +850,6 @@ class _RealmCore {
           nullptr,
           Pointer.fromFunction(collection_change_callback),
           nullptr,
-          scheduler.handle._pointer,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -864,7 +863,6 @@ class _RealmCore {
           nullptr,
           Pointer.fromFunction(collection_change_callback),
           nullptr,
-          scheduler.handle._pointer,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -878,7 +876,6 @@ class _RealmCore {
           nullptr,
           Pointer.fromFunction(object_change_callback),
           nullptr,
-          scheduler.handle._pointer,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -938,10 +935,11 @@ class _RealmCore {
   }
 
   RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
-    return RealmHttpTransportHandle._(_realmLib.realm_http_transport_new(
+    return RealmHttpTransportHandle._(_realmLib.realm_dart_http_transport_new(
       Pointer.fromFunction(request_callback),
       httpClient.toPersistentHandle(),
       _realmLib.addresses.realm_dart_delete_persistent_handle,
+      scheduler.handle._pointer,
     ));
   }
 
@@ -954,7 +952,6 @@ class _RealmCore {
     // Therefor we need to copy everything out of request before returning.
     // We cannot clone request on the native side with realm_clone,
     // since realm_http_request does not inherit from WrapC.
-
     HttpClient? userObject = userData.toObject(isPersistent: true);
     if (userObject == null) {
       return;
@@ -965,8 +962,7 @@ class _RealmCore {
     client.connectionTimeout = Duration(milliseconds: request.timeout_ms);
 
     final url = Uri.parse(request.url.cast<Utf8>().toRealmDartString()!);
-
-    final body = request.body.cast<Utf8>().toRealmDartString()!;
+    final body = request.body.cast<Utf8>().toRealmDartString(length: request.body_size)!;
 
     final headers = <String, String>{};
     for (int i = 0; i < request.num_headers; ++i) {
@@ -1574,19 +1570,18 @@ class _RealmCore {
 
   static void _sessionWaitCompletionCallback(Pointer<Void> userdata, Pointer<realm_sync_error_code_t> errorCode) {
     try {
-    final completer = userdata.toObject<Completer<void>>(isPersistent: true);
-    if (completer == null) {
-      return;
-    }
+      final completer = userdata.toObject<Completer<void>>(isPersistent: true);
+      if (completer == null) {
+        return;
+      }
 
-    if (errorCode != nullptr) {
-      // Throw RealmException instead of RealmError to be recoverable by the user.
-      completer.completeError(RealmException(errorCode.toSyncError().toString()));
-    } else {
-      completer.complete();
-    }
-    }
-    finally {
+      if (errorCode != nullptr) {
+        // Throw RealmException instead of RealmError to be recoverable by the user.
+        completer.completeError(RealmException(errorCode.toSyncError().toString()));
+      } else {
+        completer.complete();
+      }
+    } finally {
       _realmLib.realm_free(errorCode.cast());
     }
   }
