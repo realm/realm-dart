@@ -58,11 +58,11 @@ class DeployAppsCommand extends Command<void> {
       }
     }
 
-    final databasePrefix = options.databasePrefix ?? 'local';
+    final differentiator = options.differentiator ?? 'local';
 
     final client = await (options.atlasCluster == null
-        ? BaasClient.docker(options.baasUrl, databasePrefix)
-        : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, databasePrefix));
+        ? BaasClient.docker(options.baasUrl, differentiator)
+        : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
 
     final apps = await client.getOrCreateApps();
 
