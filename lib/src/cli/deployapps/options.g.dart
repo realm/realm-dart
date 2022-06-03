@@ -12,7 +12,7 @@ Options _$parseOptionsResult(ArgResults result) => Options(
       apiKey: result['api-key'] as String?,
       privateApiKey: result['private-api-key'] as String?,
       projectId: result['project-id'] as String?,
-      databasePrefix: result['database-prefix'] as String?,
+      differentiator: result['differentiator'] as String?,
     );
 
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
@@ -22,7 +22,7 @@ ArgParser _$populateOptionsParser(ArgParser parser) => parser
     defaultsTo: 'http://localhost:9090',
   )
   ..addOption(
-    'database-prefix',
+    'differentiator',
     help: 'The database prefix that will be used for the sync service.',
   )
   ..addOption(

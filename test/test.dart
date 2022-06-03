@@ -152,7 +152,7 @@ const String argBaasCluster = "BAAS_CLUSTER";
 const String argBaasApiKey = "BAAS_API_KEY";
 const String argBaasPrivateApiKey = "BAAS_PRIVATE_API_KEY";
 const String argBaasProjectId = "BAAS_PROJECT_ID";
-const String argDatabasePrefix = "BAAS_DATABASE_PREFIX";
+const String argDifferentiator = "BAAS_DIFFERENTIATOR";
 
 String testUsername = "realm-test@realm.io";
 String testPassword = "123456";
@@ -274,7 +274,7 @@ Map<String, String?> parseTestArguments(List<String>? arguments) {
     ..addOption(argBaasApiKey)
     ..addOption(argBaasPrivateApiKey)
     ..addOption(argBaasProjectId)
-    ..addOption(argDatabasePrefix);
+    ..addOption(argDifferentiator);
 
   final result = parser.parse(arguments ?? []);
   testArgs
@@ -284,7 +284,7 @@ Map<String, String?> parseTestArguments(List<String>? arguments) {
     ..addArgument(result, argBaasApiKey)
     ..addArgument(result, argBaasPrivateApiKey)
     ..addArgument(result, argBaasProjectId)
-    ..addArgument(result, argDatabasePrefix);
+    ..addArgument(result, argDifferentiator);
 
   return testArgs;
 }
@@ -308,11 +308,12 @@ Future<void> setupBaas() async {
   final apiKey = arguments[argBaasApiKey];
   final privateApiKey = arguments[argBaasPrivateApiKey];
   final projectId = arguments[argBaasProjectId];
-  final databasePrefix = arguments[argDatabasePrefix];
+  final differentiator = arguments[argDifferentiator];
 
   final client = await (cluster == null
-      ? BaasClient.docker(baasUrl, databasePrefix)
-      : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, databasePrefix));
+      ? BaasClient.docker(baasUrl, differentiator)
+      : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
+
   var apps = await client.getOrCreateApps();
   baasApps.addAll(apps);
 }

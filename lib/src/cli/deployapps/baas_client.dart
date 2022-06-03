@@ -18,6 +18,7 @@
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 class BaasClient {
   static const String _confirmFuncSource = '''exports = async ({ token, tokenId, username }) => {
@@ -57,23 +58,22 @@ class BaasClient {
 
   final String _baseUrl;
   final String? _clusterName;
-  final String _appSuffix;
-  final String _databasePrefix;
+  final String _differentiator;
   final Map<String, String> _headers;
+  late final String _appSuffix = '-${shortenDifferentiator(_differentiator)}-$_clusterName';
 
   late String _groupId;
 
-  BaasClient._(String baseUrl, String? databasePrefix, [this._clusterName])
+  BaasClient._(String baseUrl, String? differentiator, [this._clusterName])
       : _baseUrl = '$baseUrl/api/admin/v3.0',
         _headers = <String, String>{'Accept': 'application/json'},
-        _appSuffix = '-$_clusterName',
-        _databasePrefix = databasePrefix ?? 'LOCAL';
+        _differentiator = differentiator ?? 'local';
 
   /// A client that imports apps in a MongoDB Atlas docker image. See https://github.com/realm/ci/tree/master/realm/docker/mongodb-realm
   /// for instructions on how to set it up.
   /// @nodoc
-  static Future<BaasClient> docker(String baseUrl, String? databasePrefix) async {
-    final result = BaasClient._(baseUrl, databasePrefix);
+  static Future<BaasClient> docker(String baseUrl, String? differentiator) async {
+    final result = BaasClient._(baseUrl, differentiator);
 
     await result._authenticate('local-userpass', '{ "username": "unique_user@domain.com", "password": "password" }');
 
@@ -87,8 +87,8 @@ class BaasClient {
 
   /// A client that imports apps to a MongoDB Atlas environment (typically realm-dev or realm-qa).
   /// @nodoc
-  static Future<BaasClient> atlas(String baseUrl, String cluster, String apiKey, String privateApiKey, String groupId, String? databasePrefix) async {
-    final BaasClient result = BaasClient._(baseUrl, databasePrefix, cluster);
+  static Future<BaasClient> atlas(String baseUrl, String cluster, String apiKey, String privateApiKey, String groupId, String? _differentiator) async {
+    final BaasClient result = BaasClient._(baseUrl, _differentiator, cluster);
 
     await result._authenticate('mongodb-cloud', '{ "username": "$apiKey", "apiKey": "$privateApiKey" }');
 
@@ -154,7 +154,7 @@ class BaasClient {
   }
 
   Future<BaasApp> _createApp(String name, {String? confirmationType}) async {
-    print('Creating app $name');
+    print('Creating app $name ($name$_appSuffix)');
 
     final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$name$_appSuffix" }');
     final appId = doc['_id'] as String;
@@ -183,7 +183,7 @@ class BaasClient {
     await _createMongoDBService(app, '''{
       "flexible_sync": {
         "state": "enabled",
-        "database_name": "${_databasePrefix}_$name",
+        "database_name": "$_differentiator-$name",
         "queryable_fields_names": ["differentiator"],
         "permissions": {
           "rules": {},
@@ -338,6 +338,15 @@ class BaasClient {
       return <String, dynamic>{};
     }
     return jsonDecode(response.body);
+  }
+
+  static String shortenDifferentiator(String input) {
+    if (input.length < 8) {
+      return input;
+    }
+
+    final hash = md5.convert(utf8.encode(input)).toString();
+    return hash.substring(0, 8);
   }
 }
 
