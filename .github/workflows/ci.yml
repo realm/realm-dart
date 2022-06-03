@@ -247,7 +247,7 @@ jobs:
     name: Tests Linux
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DATABASE_PREFIX: ${{ dart-linux }}
+      BAAS_DATABASE_PREFIX: dart-linux
     needs:
       - baas-matrix
       - deploy-cluster
@@ -280,7 +280,7 @@ jobs:
     name: Flutter Tests Linux
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DATABASE_PREFIX: ${{ flutter-linux }}
+      BAAS_DATABASE_PREFIX: flutter-linux
     needs:
       - baas-matrix
       - deploy-cluster
@@ -327,7 +327,7 @@ jobs:
     name: Tests macOS
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DATABASE_PREFIX: ${{ dart-macos }}
+      BAAS_DATABASE_PREFIX: dart-macos
     needs:
       - baas-matrix
       - deploy-cluster
@@ -360,7 +360,7 @@ jobs:
     name: Flutter Tests macOS
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DATABASE_PREFIX: ${{ flutter-macos }}
+      BAAS_DATABASE_PREFIX: flutter-macos
     needs:
       - baas-matrix
       - deploy-cluster
@@ -399,7 +399,7 @@ jobs:
     name: Tests Windows
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DATABASE_PREFIX: ${{ dart-windows }}
+      BAAS_DATABASE_PREFIX: dart-windows
     needs:
       - baas-matrix
       - deploy-cluster
@@ -434,7 +434,7 @@ jobs:
     name: Flutter Tests Windows
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DATABASE_PREFIX: ${{ flutter-windows }}
+      BAAS_DATABASE_PREFIX: flutter-windows
     needs:
       - baas-matrix
       - deploy-cluster
@@ -473,7 +473,7 @@ jobs:
     name: Flutter Tests iOS
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DATABASE_PREFIX: ${{ flutter-ios }}
+      BAAS_DATABASE_PREFIX: flutter-ios
     needs:
       - baas-matrix
       - deploy-cluster
@@ -520,7 +520,7 @@ jobs:
     name: Flutter Tests Android
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DATABASE_PREFIX: ${{ flutter-android }}
+      BAAS_DATABASE_PREFIX: flutter-android
     needs:
       - baas-matrix
       - deploy-cluster
