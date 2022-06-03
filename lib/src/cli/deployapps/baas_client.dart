@@ -58,20 +58,22 @@ class BaasClient {
   final String _baseUrl;
   final String? _clusterName;
   final String _appSuffix;
+  final String _databasePrefix;
   final Map<String, String> _headers;
 
   late String _groupId;
 
-  BaasClient._(String baseUrl, [this._clusterName])
+  BaasClient._(String baseUrl, String? databasePrefix, [this._clusterName])
       : _baseUrl = '$baseUrl/api/admin/v3.0',
         _headers = <String, String>{'Accept': 'application/json'},
-        _appSuffix = '-$_clusterName';
+        _appSuffix = '-$_clusterName',
+        _databasePrefix = databasePrefix ?? 'LOCAL';
 
   /// A client that imports apps in a MongoDB Atlas docker image. See https://github.com/realm/ci/tree/master/realm/docker/mongodb-realm
   /// for instructions on how to set it up.
   /// @nodoc
-  static Future<BaasClient> docker(String baseUrl) async {
-    final result = BaasClient._(baseUrl);
+  static Future<BaasClient> docker(String baseUrl, String? databasePrefix) async {
+    final result = BaasClient._(baseUrl, databasePrefix);
 
     await result._authenticate('local-userpass', '{ "username": "unique_user@domain.com", "password": "password" }');
 
@@ -85,8 +87,8 @@ class BaasClient {
 
   /// A client that imports apps to a MongoDB Atlas environment (typically realm-dev or realm-qa).
   /// @nodoc
-  static Future<BaasClient> atlas(String baseUrl, String cluster, String apiKey, String privateApiKey, String groupId) async {
-    final BaasClient result = BaasClient._(baseUrl, cluster);
+  static Future<BaasClient> atlas(String baseUrl, String cluster, String apiKey, String privateApiKey, String groupId, String? databasePrefix) async {
+    final BaasClient result = BaasClient._(baseUrl, databasePrefix, cluster);
 
     await result._authenticate('mongodb-cloud', '{ "username": "$apiKey", "apiKey": "$privateApiKey" }');
 
@@ -181,7 +183,7 @@ class BaasClient {
     await _createMongoDBService(app, '''{
       "flexible_sync": {
         "state": "enabled",
-        "database_name": "flexible_sync_data",
+        "database_name": "${_databasePrefix}_$name",
         "queryable_fields_names": ["differentiator"],
         "permissions": {
           "rules": {},
