@@ -330,7 +330,8 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession.getConnectionStateStream', (configuration) async {
     final realm = await getIntegrationRealm();
 
-    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.connected, timeout: Duration(seconds: 5));
+    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.connected,
+        timeout: Duration(seconds: 15), message: 'Expected session to be connected');
 
     final states = <ConnectionStateChange>[];
     final stream = realm.syncSession.connectionStateChanges;
@@ -340,16 +341,19 @@ Future<void> main([List<String>? args]) async {
 
     // Verify we get a notification when we pause the session
     realm.syncSession.pause();
-    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.disconnected, timeout: Duration(seconds: 5));
-    await waitForCondition(() => states.length == 1, timeout: Duration(seconds: 5));
+    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.disconnected,
+        timeout: Duration(seconds: 15), message: 'expected session to be disconnected');
+    await waitForCondition(() => states.length == 1, timeout: Duration(seconds: 15), message: 'expected to get a disconnected state change notification');
 
     expect(states[0].previous, ConnectionState.connected);
     expect(states[0].current, ConnectionState.disconnected);
 
     // When resuming, we should get two notifications - first we go to connecting, then connected
     realm.syncSession.resume();
-    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.connected, timeout: Duration(seconds: 5));
-    await waitForCondition(() => states.length == 3, timeout: Duration(seconds: 5));
+    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.connected,
+        timeout: Duration(seconds: 15), message: 'expected session to be reconnected');
+    await waitForCondition(() => states.length == 3,
+        timeout: Duration(seconds: 15), message: 'expected to get connection state change notifications for connecting and connected');
 
     expect(states[1].previous, ConnectionState.disconnected);
     expect(states[1].current, ConnectionState.connecting);
