@@ -341,19 +341,18 @@ Future<void> main([List<String>? args]) async {
 
     // Verify we get a notification when we pause the session
     realm.syncSession.pause();
-    await waitForCondition(() => realm.syncSession.connectionState.name == ConnectionState.disconnected.name,
-        timeout: Duration(seconds: 15), message: 'expected session to be disconnected');
-    await waitForCondition(() => states.length == 1, timeout: Duration(seconds: 15), message: 'expected to get a disconnected state change notification');
+
+    await validateSessionStates(realm.syncSession, expectedConnectionState: ConnectionState.disconnected);
+    await waitForCondition(() => states.length == 1, timeout: Duration(seconds: 15), message: 'expected 1 notification, got ${states.length}');
 
     expect(states[0].previous.name, ConnectionState.connected.name);
     expect(states[0].current.name, ConnectionState.disconnected.name);
 
     // When resuming, we should get two notifications - first we go to connecting, then connected
     realm.syncSession.resume();
-    await waitForCondition(() => realm.syncSession.connectionState.name == ConnectionState.connected.name,
-        timeout: Duration(seconds: 15), message: 'expected session to be reconnected');
-    await waitForCondition(() => states.length == 3,
-        timeout: Duration(seconds: 15), message: 'expected to get connection state change notifications for connecting and connected');
+
+    await validateSessionStates(realm.syncSession, expectedConnectionState: ConnectionState.connected);
+    await waitForCondition(() => states.length == 3, timeout: Duration(seconds: 15), message: 'expected 3 notifications, got ${states.length}');
 
     expect(states[1].previous.name, ConnectionState.disconnected.name);
     expect(states[1].current.name, ConnectionState.connecting.name);
