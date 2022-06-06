@@ -5,7 +5,7 @@
 Realm is a mobile database that runs directly inside phones, tablets or wearables.
 This repository holds the source code for the Realm SDK for Flutter™ and Dart™.
 
-**This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
+**This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
 ## Getting Started
 
@@ -35,7 +35,7 @@ This repository holds the source code for the Realm SDK for Flutter™ and Dart�
 * Open a Realm and add some objects.
 
     ```dart
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = Realm(config);
 
     var car = Car("Tesla", "Model Y", kilometers: 5);
@@ -82,11 +82,7 @@ For a complete documentation go to [Realm Flutter and Dart SDK Docs](https://doc
 
 ## Limitations
 
-* This version of Realm Flutter and Dart SDK allows working with a local only (on device) Realm database in Flutter and Dart desktop. Realm Sync functionality is not implemented.
-
 * It provides the functionality for creating, retrieving, querying, sorting, filtering, updating Realm objects.
-
-* Flutter Desktop on Linux is not supported yet.
 
 * Migrations are not supported yet.
 
@@ -160,7 +156,7 @@ The Realm Flutter package name is `realm`
 
     ```dart
     // Create a Configuration object
-    var config = Configuration([Item.schema]);
+    var config = Configuration.local([Item.schema]);
 
     // Opean a Realm
     var realm = Realm(config);
@@ -223,7 +219,7 @@ class _Item {
 }
 
 // Create a Configuration object
-var config = Configuration([Item.schema]);
+var config = Configuration.local([Item.schema]);
 
 // Opean a Realm
 var realm = Realm(config);

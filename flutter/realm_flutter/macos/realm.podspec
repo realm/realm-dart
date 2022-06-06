@@ -10,7 +10,7 @@ realmPackageDir = File.expand_path(__dir__)
 
 Pod::Spec.new do |s|
   s.name                      = 'realm'
-  s.version                   = '0.2.1+alpha'
+  s.version                   = '0.3.0+beta'
   s.summary                   = 'The official Realm SDK for Flutter'
   s.description               = <<-DESC
                                     Realm is a mobile database - an alternative to SQLite and key-value stores.
@@ -28,13 +28,13 @@ Pod::Spec.new do |s|
   s.resources                 = 'librealm_dart.dylib'
   s.prepare_command           = "touch #{realmPackageDir}/librealm_dart.dylib" #librealm_dart.dylib is needed before the build is started
   s.script_phases             = [
-                                  { :name => 'Download Realm Flutter iOS Binaries', 
+                                  { :name => 'Download Realm Flutter iOS Binaries',
                                     #Use --debug to debug the install command
                                     :script => 'source "$PROJECT_DIR/../Flutter/ephemeral/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/flutter" pub run realm install --target-os-type macos --package-name realm',
                                     :execution_position => :before_headers
                                   },
-                                  { :name => 'Report Metrics', 
-                                    :script => 'source "$PROJECT_DIR/../Flutter/ephemeral/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/flutter" pub run realm metrics --flutter-root "$FLUTTER_ROOT" --target-os-type macos --target-os-version "$MACOSX_DEPLOYMENT_TARGET"', 
+                                  { :name => 'Report Metrics',
+                                    :script => 'source "$PROJECT_DIR/../Flutter/ephemeral/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/flutter" pub run realm metrics --flutter-root "$FLUTTER_ROOT" --target-os-type macos --target-os-version "$MACOSX_DEPLOYMENT_TARGET"',
                                     :execution_position => :before_compile
                                   }
                                 ]

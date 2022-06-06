@@ -17,7 +17,7 @@ Options _$parseOptionsResult(ArgResults result) => Options(
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addOption(
     'baas-url',
-    help: 'Url for MongoDB Realm.',
+    help: 'Url for MongoDB Atlas.',
     defaultsTo: 'http://localhost:9090',
   )
   ..addOption(

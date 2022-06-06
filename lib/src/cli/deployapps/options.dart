@@ -22,7 +22,7 @@ part 'options.g.dart';
 
 @CliOptions()
 class Options {
-  @CliOption(help: 'Url for MongoDB Realm.', defaultsTo: 'http://localhost:9090')
+  @CliOption(help: 'Url for MongoDB Atlas.', defaultsTo: 'http://localhost:9090')
   final String baasUrl;
 
   @CliOption(help: 'Atlas Cluster to link in the application.')

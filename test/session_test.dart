@@ -51,6 +51,8 @@ Future<void> main([List<String>? args]) async {
 
     expect(realm.syncSession.user, user);
     expect(realm.syncSession.user.id, user.id);
+    expect(realm.syncSession.user.app.id, configuration.appId);
+    expect(realm.syncSession.user.app.currentUser, user);
   });
 
   baasTest('SyncSession when isolate is torn down does not crash', (configuration) async {
@@ -323,6 +325,39 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
 
     realm.syncSession.raiseError(SyncErrorCategory.session, SyncClientErrorCode.autoClientResetFailure.code, true);
+  });
+
+  baasTest('SyncSession.getConnectionStateStream', (configuration) async {
+    final realm = await getIntegrationRealm();
+
+    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.connected, timeout: Duration(seconds: 5));
+
+    final states = <ConnectionStateChange>[];
+    final stream = realm.syncSession.connectionStateChanges;
+    final subscription = stream.listen((event) {
+      states.add(event);
+    });
+
+    // Verify we get a notification when we pause the session
+    realm.syncSession.pause();
+    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.disconnected, timeout: Duration(seconds: 5));
+    await waitForCondition(() => states.length == 1, timeout: Duration(seconds: 5));
+
+    expect(states[0].previous, ConnectionState.connected);
+    expect(states[0].current, ConnectionState.disconnected);
+
+    // When resuming, we should get two notifications - first we go to connecting, then connected
+    realm.syncSession.resume();
+    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.connected, timeout: Duration(seconds: 5));
+    await waitForCondition(() => states.length == 3, timeout: Duration(seconds: 5));
+
+    expect(states[1].previous, ConnectionState.disconnected);
+    expect(states[1].current, ConnectionState.connecting);
+
+    expect(states[2].previous, ConnectionState.connecting);
+    expect(states[2].current, ConnectionState.connected);
+
+    await subscription.cancel();
   });
 }
 

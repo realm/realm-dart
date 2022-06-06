@@ -70,7 +70,7 @@ class _RealmCore {
     return _instance ??= _RealmCore._();
   }
 
-  String get libraryVersion => '0.2.1+alpha';
+  String get libraryVersion => '0.3.0+beta';
 
   LastError? getLastError(Allocator allocator) {
     final error = allocator<realm_error_t>();
@@ -190,8 +190,13 @@ class _RealmCore {
         final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
-          _realmLib.realm_sync_config_set_error_handler(syncConfigPtr, Pointer.fromFunction(_syncErrorHandlerCallback), config.toPersistentHandle(),
-              _realmLib.addresses.realm_dart_delete_persistent_handle);
+          _realmLib.realm_dart_sync_config_set_error_handler(
+            syncConfigPtr,
+            Pointer.fromFunction(_syncErrorHandlerCallback),
+            config.toPersistentHandle(),
+            _realmLib.addresses.realm_dart_delete_persistent_handle,
+            scheduler.handle._pointer,
+          );
           _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
         } finally {
           _realmLib.realm_release(syncConfigPtr.cast());
@@ -252,6 +257,12 @@ class _RealmCore {
 
   int getSubscriptionSetSize(SubscriptionSet subscriptions) {
     return _realmLib.realm_sync_subscription_set_size(subscriptions.handle._pointer);
+  }
+
+  Exception? getSubscriptionSetError(SubscriptionSet subscriptions) {
+    final error = _realmLib.realm_sync_subscription_set_error_str(subscriptions.handle._pointer);
+    final message = error.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+    return message == null ? null : RealmException(message);
   }
 
   SubscriptionHandle subscriptionAt(SubscriptionSet subscriptions, int index) {
@@ -414,9 +425,9 @@ class _RealmCore {
     final syncError = error.toSyncError();
 
     if (syncError is SyncClientResetError) {
-        syncConfig.syncClientResetErrorHandler.callback(syncError);
-        return;
-    } 
+      syncConfig.syncClientResetErrorHandler.callback(syncError);
+      return;
+    }
 
     syncConfig.syncErrorHandler(syncError);
   }
@@ -839,7 +850,6 @@ class _RealmCore {
           nullptr,
           Pointer.fromFunction(collection_change_callback),
           nullptr,
-          scheduler.handle._pointer,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -853,7 +863,6 @@ class _RealmCore {
           nullptr,
           Pointer.fromFunction(collection_change_callback),
           nullptr,
-          scheduler.handle._pointer,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -867,7 +876,6 @@ class _RealmCore {
           nullptr,
           Pointer.fromFunction(object_change_callback),
           nullptr,
-          scheduler.handle._pointer,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -927,10 +935,11 @@ class _RealmCore {
   }
 
   RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
-    return RealmHttpTransportHandle._(_realmLib.realm_http_transport_new(
+    return RealmHttpTransportHandle._(_realmLib.realm_dart_http_transport_new(
       Pointer.fromFunction(request_callback),
       httpClient.toPersistentHandle(),
       _realmLib.addresses.realm_dart_delete_persistent_handle,
+      scheduler.handle._pointer,
     ));
   }
 
@@ -943,7 +952,6 @@ class _RealmCore {
     // Therefor we need to copy everything out of request before returning.
     // We cannot clone request on the native side with realm_clone,
     // since realm_http_request does not inherit from WrapC.
-
     HttpClient? userObject = userData.toObject(isPersistent: true);
     if (userObject == null) {
       return;
@@ -954,8 +962,7 @@ class _RealmCore {
     client.connectionTimeout = Duration(milliseconds: request.timeout_ms);
 
     final url = Uri.parse(request.url.cast<Utf8>().toRealmDartString()!);
-
-    final body = request.body.cast<Utf8>().toRealmDartString()!;
+    final body = request.body.cast<Utf8>().toRealmDartString(length: request.body_size)!;
 
     final headers = <String, String>{};
     for (int i = 0; i < request.num_headers; ++i) {
@@ -1502,7 +1509,7 @@ class _RealmCore {
 
   int sessionRegisterProgressNotifier(Session session, ProgressDirection direction, ProgressMode mode, SessionProgressNotificationsController controller) {
     final isStreaming = mode == ProgressMode.reportIndefinitely;
-    return _realmLib.realm_dart_sync_session_register_progress_notifier(session.handle._pointer, Pointer.fromFunction(on_sync_progress), direction.index,
+    return _realmLib.realm_dart_sync_session_register_progress_notifier(session.handle._pointer, Pointer.fromFunction(_onSyncProgress), direction.index,
         isStreaming, controller.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, scheduler.handle._pointer);
   }
 
@@ -1510,13 +1517,31 @@ class _RealmCore {
     _realmLib.realm_sync_session_unregister_progress_notifier(session.handle._pointer, token);
   }
 
-  static void on_sync_progress(Pointer<Void> userdata, int transferred, int transferable) {
+  static void _onSyncProgress(Pointer<Void> userdata, int transferred, int transferable) {
     final SessionProgressNotificationsController? controller = userdata.toObject(isPersistent: true);
     if (controller == null) {
       return;
     }
 
     controller.onProgress(transferred, transferable);
+  }
+
+  int sessionRegisterConnectionStateNotifier(Session session, SessionConnectionStateController controller) {
+    return _realmLib.realm_dart_sync_session_register_connection_state_change_callback(session.handle._pointer, Pointer.fromFunction(_onConnectionStateChange),
+        controller.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, scheduler.handle._pointer);
+  }
+
+  void sessionUnregisterConnectionStateNotifier(Session session, int token) {
+    _realmLib.realm_sync_session_unregister_connection_state_change_callback(session.handle._pointer, token);
+  }
+
+  static void _onConnectionStateChange(Pointer<Void> userdata, int oldState, int newState) {
+    final SessionConnectionStateController? controller = userdata.toObject(isPersistent: true);
+    if (controller == null) {
+      return;
+    }
+
+    controller.onConnectionStateChange(ConnectionState.values[oldState], ConnectionState.values[newState]);
   }
 
   Future<void> sessionWaitForUpload(Session session) {
@@ -1544,15 +1569,20 @@ class _RealmCore {
   }
 
   static void _sessionWaitCompletionCallback(Pointer<Void> userdata, Pointer<realm_sync_error_code_t> errorCode) {
-    final completer = userdata.toObject<Completer<void>>(isPersistent: true);
-    if (completer == null) {
-      return;
-    }
+    try {
+      final completer = userdata.toObject<Completer<void>>(isPersistent: true);
+      if (completer == null) {
+        return;
+      }
 
-    if (errorCode != nullptr) {
-      completer.completeError(errorCode.toSyncError());
-    } else {
-      completer.complete();
+      if (errorCode != nullptr) {
+        // Throw RealmException instead of RealmError to be recoverable by the user.
+        completer.completeError(RealmException(errorCode.toSyncError().toString()));
+      } else {
+        completer.complete();
+      }
+    } finally {
+      _realmLib.realm_free(errorCode.cast());
     }
   }
 }
@@ -1910,7 +1940,7 @@ extension on Pointer<Utf8> {
 
 extension on realm_sync_error {
   SyncError toSyncError() {
-    final message = detailed_message.cast<Utf8>().toRealmDartString()!;
+    final message = detailed_message.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
     final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
     final isFatal = is_fatal == 0 ? false : true;
     final bool isClientResetRequested = is_client_reset_requested == TRUE;
@@ -1926,7 +1956,7 @@ extension on realm_sync_error {
 
 extension on Pointer<realm_sync_error_code_t> {
   SyncError toSyncError() {
-    final message = ref.message.cast<Utf8>().toDartString();
+    final message = ref.message.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
     return SyncError.create(message, SyncErrorCategory.values[ref.category], ref.value, isFatal: false);
   }
 }

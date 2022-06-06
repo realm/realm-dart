@@ -38,4 +38,9 @@ RLM_API void realm_dart_delete_persistent_handle(void* handle);
 // implemented for iOS and Android only
 RLM_API const char* realm_dart_get_files_path();
 
+RLM_API realm_http_transport_t* realm_dart_http_transport_new(realm_http_request_func_t callback, 
+                                                              realm_userdata_t userdata,
+                                                              realm_free_userdata_func_t userdata_free,
+                                                              realm_scheduler_t* scheduler);
+
 #endif // REALM_DART_H
