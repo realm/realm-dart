@@ -21,7 +21,6 @@ jobs:
           changelog: ${{ github.workspace }}/CHANGELOG.md
           version-suffix: '+alpha'
 
-
       - name: Update pubspec.yaml
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
