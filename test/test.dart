@@ -188,8 +188,6 @@ void xtest(String? name, dynamic Function() testFunction) {
 }
 
 Future<void> setupTests(List<String>? args) async {
-  await _printPlatformInfo();
-
   arguments = parseTestArguments(args);
   testName = arguments["name"];
   setUpAll(() async => await setupBaas());
@@ -215,6 +213,8 @@ Future<void> setupTests(List<String>? args) async {
       }
     });
   });
+
+  await _printPlatformInfo();
 }
 
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
