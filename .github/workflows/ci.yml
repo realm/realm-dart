@@ -43,6 +43,8 @@ jobs:
             package: flutter
           - platform: android
             package: flutter
+          - platform: macos-arm
+            package: dart
     runs-on: ubuntu-latest
     name: Deploy apps ${{ matrix.platform }} for ${{ matrix.package }}
     timeout-minutes: 20
@@ -240,14 +242,22 @@ jobs:
             librealm-android-armeabi-v7a
             librealm-android-arm64-v8a
 
-# Linux jobs
+# Dart jobs
 
-  tests-linux:
-    runs-on: ubuntu-latest
-    name: Tests Linux
+  tests-dart:
+    runs-on: ${{ matrix.platform == 'linux' && 'ubuntu' || matrix.platform }}-${{ matrix.architecture || 'latest' }}
+    name: Tests macOS
+    strategy:
+      fail-fast: false
+      matrix:
+        - platform: macos
+        - platform: macos
+          architecture: arm
+        - platform: windows
+        - platform: linux
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: dart-linux
+      BAAS_DIFFERENTIATOR: dart-${{ matrix.platform }}${{ matrix.architecture && format('-{0}', matrix.architecture) || '' }}
     needs:
       - baas-matrix
       - deploy-cluster
@@ -261,8 +271,8 @@ jobs:
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
-          name: librealm-linux
-          path: binary/linux
+          name: librealm-${{ matrix.platform }}
+          path: binary/${{ matrix.platform }}
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
@@ -274,6 +284,8 @@ jobs:
 
       - name: Run tests
         run: dart test -r expanded -j 1 --test-randomize-ordering-seed random
+
+# Flutter jobs
 
   flutter-linux:
     runs-on: ubuntu-latest
@@ -320,41 +332,6 @@ jobs:
         run: xvfb-run flutter drive -d linux --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
 
-# macOS jobs
-
-  tests-macos:
-    runs-on: macos-latest
-    name: Tests macOS
-    env:
-      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: dart-macos
-    needs:
-      - baas-matrix
-      - deploy-cluster
-      - build-native
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: false
-
-      - name: Fetch artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: librealm-macos
-          path: binary/macos
-
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-
-      - name: Install dependencies
-        run: dart pub get
-
-      - name: Run tests
-        run: dart test -r expanded -j 1 --test-randomize-ordering-seed random
-
   flutter-macos:
     runs-on: macos-latest
     name: Flutter Tests macOS
@@ -391,42 +368,6 @@ jobs:
       - name: Run tests
         run: flutter drive -d macos --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
-
-# Windows jobs
-
-  tests-windows:
-    runs-on: windows-latest
-    name: Tests Windows
-    env:
-      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: dart-windows
-    needs:
-      - baas-matrix
-      - deploy-cluster
-      - build-native
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: false
-
-      - name: Fetch artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: librealm-windows
-          path: binary/windows
-
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-
-      - name: Install dependencies
-        run: dart pub get
-
-      - name: Run tests
-        run: |
-          dart test -r expanded -j 1 --test-randomize-ordering-seed random
 
   flutter-windows:
     # TODO: build on windows-latest
@@ -465,8 +406,6 @@ jobs:
       - name: Run tests
         run: flutter drive -d windows --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
-
-# iOS jobs
 
   flutter-ios:
     runs-on: macos-latest
@@ -512,8 +451,6 @@ jobs:
         run: |
           flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics
         working-directory: ./flutter/realm_flutter/tests
-
-# Android jobs
 
   flutter-android:
     runs-on: macos-latest
