@@ -277,6 +277,7 @@ jobs:
         uses: dart-lang/setup-dart@main
         with:
           sdk: stable
+          architecture: ${{ matrix.architecture == 'arm' && 'arm64' || 'x64'}}
 
       - name: Install dependencies
         run: dart pub get
