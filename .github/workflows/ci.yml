@@ -282,7 +282,7 @@ jobs:
         run: dart pub get
 
       - name: Run tests
-        run: dart test -r expanded -j 1 --test-randomize-ordering-seed random
+        run: ${{ matrix.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -r expanded -j 1 --test-randomize-ordering-seed random
 
 # Flutter jobs
 

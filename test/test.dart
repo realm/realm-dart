@@ -420,7 +420,7 @@ extension RealmObjectTest on RealmObject {
 void clearCachedApps() => realmCore.clearCachedApps();
 
 Future<void> _printPlatformInfo() async {
-  final pointerSize = sizeOf<IntPtr>();
+  final pointerSize = sizeOf<IntPtr>() * 8;
   final os = Platform.operatingSystem;
   late String? cpu;
 
