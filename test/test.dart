@@ -422,16 +422,16 @@ void clearCachedApps() => realmCore.clearCachedApps();
 Future<void> _printPlatformInfo() async {
   final pointerSize = sizeOf<IntPtr>() * 8;
   final os = Platform.operatingSystem;
-  late String? cpu;
+  String? cpu;
 
-  if (Platform.isWindows) {
-    cpu = Platform.environment['PROCESSOR_ARCHITECTURE'];
-  } else if (Platform.isLinux || Platform.isMacOS) {
-    final info = await Process.run('uname', ['-m']);
-    cpu = info.stdout.toString().replaceAll('\n', '');
-  } else {
-    cpu = 'unknown';
+  if (!isFlutterPlatform) {
+    if (Platform.isWindows) {
+      cpu = Platform.environment['PROCESSOR_ARCHITECTURE'];
+    } else {
+      final info = await Process.run('uname', ['-m']);
+      cpu = info.stdout.toString().replaceAll('\n', '');
+    }
   }
 
-  print("Current PID $pid; OS $os, $pointerSize bit, CPU $cpu");
+  print('Current PID $pid; OS $os, $pointerSize bit, CPU ${cpu ?? 'unknown'}');
 }
