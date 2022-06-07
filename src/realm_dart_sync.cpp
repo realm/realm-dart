@@ -138,23 +138,3 @@ RLM_API void realm_dart_sync_on_subscription_state_changed_callback(realm_userda
         (reinterpret_cast<realm_sync_on_subscription_state_changed_t>(ud->dart_callback))(ud->handle, state);
     });
 }
-
-RLM_API void realm_dart_sync_session_report_error_for_testing(realm_sync_session_t* session, uint32_t category, int errorCode, bool isFatal) noexcept
-{
-    std::error_code error_code;
-    std::string msg;
-    bool throwError = false;
-    if (category == RLM_SYNC_ERROR_CATEGORY_CLIENT) {
-        error_code = std::error_code(errorCode, realm::sync::client_error_category());
-        msg = "Simulated client error";
-        throwError = true;
-    }
-    else if (category == RLM_SYNC_ERROR_CATEGORY_SESSION) {
-        error_code = std::error_code(errorCode, realm::sync::protocol_error_category());
-        msg = "Simulated session error";
-        throwError = true;
-    }
-    if (throwError) {
-        realm::SyncSession::OnlyForTesting::handle_error(*(*session), realm::SyncError{ error_code, msg, isFatal });
-    }
-}

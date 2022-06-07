@@ -3237,39 +3237,6 @@ class RealmLibrary {
       _realm_dart_sync_progress_callbackPtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>, int, int)>();
 
-  /// Simulates a session error.
-  ///
-  /// @param session The session where the simulated error will occur.
-  /// @param category The category of the error that to be simulated (client=0, connection=1, session=2, system=3, unknown=4)
-  /// @param errorCode Error code of the error that to be simulated.
-  /// @param isFatal >If set to `true` the error will be marked as fatal.
-  ///
-  /// Use this method to test your error handling code without connecting to a MongoDB Realm Server.
-  void realm_dart_sync_session_report_error_for_testing(
-    ffi.Pointer<realm_sync_session_t> session,
-    int category,
-    int errorCode,
-    bool isFatal,
-  ) {
-    return _realm_dart_sync_session_report_error_for_testing(
-      session,
-      category,
-      errorCode,
-      isFatal ? 1 : 0,
-    );
-  }
-
-  late final _realm_dart_sync_session_report_error_for_testingPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<realm_sync_session_t>,
-              ffi.Uint32,
-              ffi.Int32,
-              ffi.Uint8)>>('realm_dart_sync_session_report_error_for_testing');
-  late final _realm_dart_sync_session_report_error_for_testing =
-      _realm_dart_sync_session_report_error_for_testingPtr.asFunction<
-          void Function(ffi.Pointer<realm_sync_session_t>, int, int, int)>();
-
   void realm_dart_sync_wait_for_completion_callback(
     ffi.Pointer<ffi.Void> userdata,
     ffi.Pointer<realm_sync_error_code_t> error,
@@ -3390,7 +3357,6 @@ class RealmLibrary {
     ffi.Pointer<realm_key_path_array_t> arg3,
     realm_on_collection_change_func_t on_change,
     realm_callback_error_func_t on_error,
-    ffi.Pointer<realm_scheduler_t> arg6,
   ) {
     return _realm_dictionary_add_notification_callback(
       arg0,
@@ -3399,7 +3365,6 @@ class RealmLibrary {
       arg3,
       on_change,
       on_error,
-      arg6,
     );
   }
 
@@ -3411,8 +3376,7 @@ class RealmLibrary {
                   realm_free_userdata_func_t,
                   ffi.Pointer<realm_key_path_array_t>,
                   realm_on_collection_change_func_t,
-                  realm_callback_error_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>(
+                  realm_callback_error_func_t)>>(
       'realm_dictionary_add_notification_callback');
   late final _realm_dictionary_add_notification_callback =
       _realm_dictionary_add_notification_callbackPtr.asFunction<
@@ -3422,8 +3386,7 @@ class RealmLibrary {
               realm_free_userdata_func_t,
               ffi.Pointer<realm_key_path_array_t>,
               realm_on_collection_change_func_t,
-              realm_callback_error_func_t,
-              ffi.Pointer<realm_scheduler_t>)>();
+              realm_callback_error_func_t)>();
 
   /// Replace the contents of a dictionary with key/value pairs.
   ///
@@ -4788,7 +4751,6 @@ class RealmLibrary {
     ffi.Pointer<realm_key_path_array_t> arg3,
     realm_on_collection_change_func_t on_change,
     realm_callback_error_func_t on_error,
-    ffi.Pointer<realm_scheduler_t> arg6,
   ) {
     return _realm_list_add_notification_callback(
       arg0,
@@ -4797,7 +4759,6 @@ class RealmLibrary {
       arg3,
       on_change,
       on_error,
-      arg6,
     );
   }
 
@@ -4809,8 +4770,7 @@ class RealmLibrary {
                   realm_free_userdata_func_t,
                   ffi.Pointer<realm_key_path_array_t>,
                   realm_on_collection_change_func_t,
-                  realm_callback_error_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>(
+                  realm_callback_error_func_t)>>(
       'realm_list_add_notification_callback');
   late final _realm_list_add_notification_callback =
       _realm_list_add_notification_callbackPtr.asFunction<
@@ -4820,8 +4780,7 @@ class RealmLibrary {
               realm_free_userdata_func_t,
               ffi.Pointer<realm_key_path_array_t>,
               realm_on_collection_change_func_t,
-              realm_callback_error_func_t,
-              ffi.Pointer<realm_scheduler_t>)>();
+              realm_callback_error_func_t)>();
 
   /// Replace the contents of a list with values.
   ///
@@ -5176,7 +5135,6 @@ class RealmLibrary {
     ffi.Pointer<realm_key_path_array_t> arg3,
     realm_on_object_change_func_t on_change,
     realm_callback_error_func_t on_error,
-    ffi.Pointer<realm_scheduler_t> arg6,
   ) {
     return _realm_object_add_notification_callback(
       arg0,
@@ -5185,7 +5143,6 @@ class RealmLibrary {
       arg3,
       on_change,
       on_error,
-      arg6,
     );
   }
 
@@ -5197,8 +5154,7 @@ class RealmLibrary {
                   realm_free_userdata_func_t,
                   ffi.Pointer<realm_key_path_array_t>,
                   realm_on_object_change_func_t,
-                  realm_callback_error_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>(
+                  realm_callback_error_func_t)>>(
       'realm_object_add_notification_callback');
   late final _realm_object_add_notification_callback =
       _realm_object_add_notification_callbackPtr.asFunction<
@@ -5208,8 +5164,7 @@ class RealmLibrary {
               realm_free_userdata_func_t,
               ffi.Pointer<realm_key_path_array_t>,
               realm_on_object_change_func_t,
-              realm_callback_error_func_t,
-              ffi.Pointer<realm_scheduler_t>)>();
+              realm_callback_error_func_t)>();
 
   /// Get a `realm_link_t` representing a link to @a object.
   ///
@@ -5955,7 +5910,6 @@ class RealmLibrary {
     ffi.Pointer<realm_key_path_array_t> arg3,
     realm_on_collection_change_func_t arg4,
     realm_callback_error_func_t arg5,
-    ffi.Pointer<realm_scheduler_t> arg6,
   ) {
     return _realm_results_add_notification_callback(
       arg0,
@@ -5964,7 +5918,6 @@ class RealmLibrary {
       arg3,
       arg4,
       arg5,
-      arg6,
     );
   }
 
@@ -5976,8 +5929,7 @@ class RealmLibrary {
                   realm_free_userdata_func_t,
                   ffi.Pointer<realm_key_path_array_t>,
                   realm_on_collection_change_func_t,
-                  realm_callback_error_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>(
+                  realm_callback_error_func_t)>>(
       'realm_results_add_notification_callback');
   late final _realm_results_add_notification_callback =
       _realm_results_add_notification_callbackPtr.asFunction<
@@ -5987,8 +5939,7 @@ class RealmLibrary {
               realm_free_userdata_func_t,
               ffi.Pointer<realm_key_path_array_t>,
               realm_on_collection_change_func_t,
-              realm_callback_error_func_t,
-              ffi.Pointer<realm_scheduler_t>)>();
+              realm_callback_error_func_t)>();
 
   /// Compute the average value of a property in the results.
   ///
@@ -6499,8 +6450,8 @@ class RealmLibrary {
   /// Performs all of the pending work for the given scheduler.
   ///
   /// This function must be called from within the scheduler's event loop. It must
-  /// be called after each time that the notify function passed to the scheduler
-  /// is involved.
+  /// be called each time the notify callback passed to the scheduler
+  /// is invoked.
   void realm_scheduler_perform_work(
     ffi.Pointer<realm_scheduler_t> arg0,
   ) {
@@ -6660,7 +6611,6 @@ class RealmLibrary {
     ffi.Pointer<realm_key_path_array_t> arg3,
     realm_on_collection_change_func_t on_change,
     realm_callback_error_func_t on_error,
-    ffi.Pointer<realm_scheduler_t> arg6,
   ) {
     return _realm_set_add_notification_callback(
       arg0,
@@ -6669,7 +6619,6 @@ class RealmLibrary {
       arg3,
       on_change,
       on_error,
-      arg6,
     );
   }
 
@@ -6681,8 +6630,7 @@ class RealmLibrary {
                   realm_free_userdata_func_t,
                   ffi.Pointer<realm_key_path_array_t>,
                   realm_on_collection_change_func_t,
-                  realm_callback_error_func_t,
-                  ffi.Pointer<realm_scheduler_t>)>>(
+                  realm_callback_error_func_t)>>(
       'realm_set_add_notification_callback');
   late final _realm_set_add_notification_callback =
       _realm_set_add_notification_callbackPtr.asFunction<
@@ -6692,8 +6640,7 @@ class RealmLibrary {
               realm_free_userdata_func_t,
               ffi.Pointer<realm_key_path_array_t>,
               realm_on_collection_change_func_t,
-              realm_callback_error_func_t,
-              ffi.Pointer<realm_scheduler_t>)>();
+              realm_callback_error_func_t)>();
 
   /// Replace the contents of a set with values.
   ///
@@ -8035,26 +7982,38 @@ class RealmLibrary {
 
   /// Wrapper for SyncSession::OnlyForTesting::handle_error. This routine should be used only for testing.
   /// @param session ptr to a valid sync session
-  /// @param error sync error to simulate
+  /// @param error_code error code to simulate
+  /// @param category category of the error to simulate
+  /// @param error_message string representing the error
+  /// @param is_fatal boolean to signal if the error is fatal or not
   void realm_sync_session_handle_error_for_testing(
     ffi.Pointer<realm_sync_session_t> session,
-    ffi.Pointer<realm_sync_error_t> error,
+    int error_code,
+    int category,
+    ffi.Pointer<ffi.Int8> error_message,
+    bool is_fatal,
   ) {
     return _realm_sync_session_handle_error_for_testing(
       session,
-      error,
+      error_code,
+      category,
+      error_message,
+      is_fatal ? 1 : 0,
     );
   }
 
   late final _realm_sync_session_handle_error_for_testingPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<realm_sync_session_t>,
-                  ffi.Pointer<realm_sync_error_t>)>>(
-      'realm_sync_session_handle_error_for_testing');
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<realm_sync_session_t>,
+              ffi.Int32,
+              ffi.Int32,
+              ffi.Pointer<ffi.Int8>,
+              ffi.Uint8)>>('realm_sync_session_handle_error_for_testing');
   late final _realm_sync_session_handle_error_for_testing =
       _realm_sync_session_handle_error_for_testingPtr.asFunction<
-          void Function(ffi.Pointer<realm_sync_session_t>,
-              ffi.Pointer<realm_sync_error_t>)>();
+          void Function(ffi.Pointer<realm_sync_session_t>, int, int,
+              ffi.Pointer<ffi.Int8>, int)>();
 
   /// Ask the session to pause synchronization.
   ///
@@ -9155,12 +9114,6 @@ class _SymbolAddresses {
               ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64)>>
       get realm_dart_sync_progress_callback =>
           _library._realm_dart_sync_progress_callbackPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<realm_sync_session_t>, ffi.Uint32,
-                  ffi.Int32, ffi.Uint8)>>
-      get realm_dart_sync_session_report_error_for_testing =>
-          _library._realm_dart_sync_session_report_error_for_testingPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(

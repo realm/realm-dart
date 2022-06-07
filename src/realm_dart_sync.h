@@ -35,15 +35,3 @@ RLM_API void realm_dart_sync_connection_state_changed_callback(realm_userdata_t 
                                                                realm_sync_connection_state_e new_state);
 
 RLM_API void realm_dart_sync_on_subscription_state_changed_callback(realm_userdata_t userdata, realm_flx_sync_subscription_set_state_e state);
-
-/**
- * Simulates a session error.
- *
- *  @param session The session where the simulated error will occur.
- *  @param category The category of the error that to be simulated (client=0, connection=1, session=2, system=3, unknown=4)
- *  @param errorCode Error code of the error that to be simulated.
- *  @param isFatal >If set to `true` the error will be marked as fatal.
- *
- *  Use this method to test your error handling code without connecting to a MongoDB Realm Server.
- */
-RLM_API void realm_dart_sync_session_report_error_for_testing(realm_sync_session_t* session, uint32_t category, int errorCode, bool isFatal) RLM_API_NOEXCEPT;

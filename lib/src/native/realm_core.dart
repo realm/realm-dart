@@ -426,7 +426,10 @@ class _RealmCore {
   }
 
   void raiseError(Session session, SyncErrorCategory category, int errorCode, bool isFatal) {
-    _realmLib.realm_dart_sync_session_report_error_for_testing(session.handle._pointer, category.index, errorCode, isFatal);
+    using((arena) {
+      final message = "Simulated session error".toUtf8Ptr(arena);
+      _realmLib.realm_sync_session_handle_error_for_testing(session.handle._pointer, errorCode, category.index, message, isFatal);
+    });
   }
 
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
@@ -843,7 +846,6 @@ class _RealmCore {
           nullptr,
           Pointer.fromFunction(collection_change_callback),
           nullptr,
-          scheduler.handle._pointer,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -857,7 +859,6 @@ class _RealmCore {
           nullptr,
           Pointer.fromFunction(collection_change_callback),
           nullptr,
-          scheduler.handle._pointer,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -871,7 +872,6 @@ class _RealmCore {
           nullptr,
           Pointer.fromFunction(object_change_callback),
           nullptr,
-          scheduler.handle._pointer,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
