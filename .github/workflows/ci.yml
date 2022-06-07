@@ -244,7 +244,7 @@ jobs:
 
   tests-dart:
     runs-on: ${{ matrix.platform == 'linux' && 'ubuntu' || matrix.platform }}-${{ matrix.architecture || 'latest' }}
-    name: Tests macOS
+    name: Tests ${{ matrix.platform }} ${{ matrix.architecture }}
     strategy:
       fail-fast: false
       matrix:
