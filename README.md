@@ -35,7 +35,7 @@ This repository holds the source code for the Realm SDK for Flutterâ„¢ and Dartâ
 * Open a Realm and add some objects.
 
     ```dart
-    var config = Configuration([Car.schema]);
+    var config = Configuration.local([Car.schema]);
     var realm = Realm(config);
 
     var car = Car("Tesla", "Model Y", kilometers: 5);
@@ -156,7 +156,7 @@ The Realm Flutter package name is `realm`
 
     ```dart
     // Create a Configuration object
-    var config = Configuration([Item.schema]);
+    var config = Configuration.local([Item.schema]);
 
     // Opean a Realm
     var realm = Realm(config);
@@ -195,7 +195,7 @@ The Realm Flutter package name is `realm`
     // Filter and sort object
     var objects = realm.query<Item>("name == 'Special Pencil'");
     var name = 'Pen';
-    objects = realm.query<Item>(r'name == $0', [name]]);
+    objects = realm.query<Item>(r'name == $0', [name]);
 
     // Close the realm
     realm.close();
@@ -219,7 +219,7 @@ class _Item {
 }
 
 // Create a Configuration object
-var config = Configuration([Item.schema]);
+var config = Configuration.local([Item.schema]);
 
 // Opean a Realm
 var realm = Realm(config);
@@ -258,7 +258,7 @@ var itemByKey = realm.find<Item>(0);
 // Filter and sort object
 var objects = realm.query<Item>("name == 'Special Pencil'");
 var name = 'Pen';
-objects = realm.query<Item>(r'name == $0', [name]]);
+objects = realm.query<Item>(r'name == $0', [name]);
 
 // Close the realm
 realm.close();
