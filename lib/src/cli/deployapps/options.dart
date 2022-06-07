@@ -25,6 +25,9 @@ class Options {
   @CliOption(help: 'Url for MongoDB Atlas.', defaultsTo: 'http://localhost:9090')
   final String baasUrl;
 
+  @CliOption(help: 'The database prefix that will be used for the sync service.')
+  final String? differentiator;
+
   @CliOption(help: 'Atlas Cluster to link in the application.')
   final String? atlasCluster;
 
@@ -37,7 +40,7 @@ class Options {
   @CliOption(help: 'The Atlas project id to use for the import. Only used if atlas-cluster is specified.')
   final String? projectId;
 
-  Options(this.baasUrl, {this.atlasCluster, this.apiKey, this.privateApiKey, this.projectId});
+  Options(this.baasUrl, {this.atlasCluster, this.apiKey, this.privateApiKey, this.projectId, this.differentiator});
 }
 
 String get usage => _$parserForOptions.usage;

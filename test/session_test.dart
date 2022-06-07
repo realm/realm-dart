@@ -330,7 +330,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession.getConnectionStateStream', (configuration) async {
     final realm = await getIntegrationRealm();
 
-    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.connected, timeout: Duration(seconds: 5));
+    await validateSessionStates(realm.syncSession, expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
 
     final states = <ConnectionStateChange>[];
     final stream = realm.syncSession.connectionStateChanges;
@@ -340,22 +340,24 @@ Future<void> main([List<String>? args]) async {
 
     // Verify we get a notification when we pause the session
     realm.syncSession.pause();
-    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.disconnected, timeout: Duration(seconds: 5));
-    await waitForCondition(() => states.length == 1, timeout: Duration(seconds: 5));
 
-    expect(states[0].previous, ConnectionState.connected);
-    expect(states[0].current, ConnectionState.disconnected);
+    await validateSessionStates(realm.syncSession, expectedSessionState: SessionState.inactive, expectedConnectionState: ConnectionState.disconnected);
+    await waitForCondition(() => states.length == 1, timeout: Duration(seconds: 15), message: 'expected 1 notification, got ${states.length}');
+
+    expect(states[0].previous.name, ConnectionState.connected.name);
+    expect(states[0].current.name, ConnectionState.disconnected.name);
 
     // When resuming, we should get two notifications - first we go to connecting, then connected
     realm.syncSession.resume();
-    await waitForCondition(() => realm.syncSession.connectionState == ConnectionState.connected, timeout: Duration(seconds: 5));
-    await waitForCondition(() => states.length == 3, timeout: Duration(seconds: 5));
 
-    expect(states[1].previous, ConnectionState.disconnected);
-    expect(states[1].current, ConnectionState.connecting);
+    await validateSessionStates(realm.syncSession, expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
+    await waitForCondition(() => states.length == 3, timeout: Duration(seconds: 15), message: 'expected 3 notifications, got ${states.length}');
 
-    expect(states[2].previous, ConnectionState.connecting);
-    expect(states[2].current, ConnectionState.connected);
+    expect(states[1].previous.name, ConnectionState.disconnected.name);
+    expect(states[1].current.name, ConnectionState.connecting.name);
+
+    expect(states[2].previous.name, ConnectionState.connecting.name);
+    expect(states[2].current.name, ConnectionState.connected.name);
 
     await subscription.cancel();
   });
