@@ -250,11 +250,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        - platform: macos
-        - platform: macos
-          architecture: arm
-        - platform: windows
-        - platform: linux
+        include:
+          - platform: macos
+          - platform: macos
+            architecture: arm
+          - platform: windows
+          - platform: linux
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
       BAAS_DIFFERENTIATOR: dart-${{ matrix.platform }}${{ matrix.architecture && format('-{0}', matrix.architecture) || '' }}
