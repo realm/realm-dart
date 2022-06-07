@@ -131,8 +131,8 @@ jobs:
         uses: friendlyanon/setup-vcpkg@v1
         with:
           path: src/realm-core/tools/vcpkg/ports
-          cache-key: ${{ matrix.preset }}
-          cache-restore-keys: ${{ matrix.preset }}
+          cache-key: vcpkg-${{ matrix.preset }}-${{ hashFiles('./src/realm-core/tools/vcpkg/**') }}
+          cache-restore-keys: vcpkg-${{ matrix.preset }}-
 
       - name: Setup Android NDK
         if: startsWith(matrix.preset, 'android-')
