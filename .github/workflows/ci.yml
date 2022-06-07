@@ -289,7 +289,7 @@ jobs:
 # Flutter jobs
 
   flutter-desktop:
-    runs-on: ${{ matrix.platform == 'linux' && 'ubuntu' || matrix.platform }}-'latest'
+    runs-on: ${{ matrix.platform == 'linux' && 'ubuntu' || matrix.platform }}-latest
     strategy:
       fail-fast: false
       matrix:
