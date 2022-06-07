@@ -195,7 +195,7 @@ The Realm Flutter package name is `realm`
     // Filter and sort object
     var objects = realm.query<Item>("name == 'Special Pencil'");
     var name = 'Pen';
-    objects = realm.query<Item>(r'name == $0', [name]]);
+    objects = realm.query<Item>(r'name == $0', [name]);
 
     // Close the realm
     realm.close();
@@ -258,7 +258,7 @@ var itemByKey = realm.find<Item>(0);
 // Filter and sort object
 var objects = realm.query<Item>("name == 'Special Pencil'");
 var name = 'Pen';
-objects = realm.query<Item>(r'name == $0', [name]]);
+objects = realm.query<Item>(r'name == $0', [name]);
 
 // Close the realm
 realm.close();
