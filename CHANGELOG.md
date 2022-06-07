@@ -1,4 +1,4 @@
-## 0.3.1+alpha (2022-06-07)
+## 0.3.1+beta (2022-06-07)
 
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
