@@ -261,6 +261,12 @@ class _RealmCore {
     return _realmLib.realm_sync_subscription_set_size(subscriptions.handle._pointer);
   }
 
+  Exception? getSubscriptionSetError(SubscriptionSet subscriptions) {
+    final error = _realmLib.realm_sync_subscription_set_error_str(subscriptions.handle._pointer);
+    final message = error.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+    return message == null ? null : RealmException(message);
+  }
+
   SubscriptionHandle subscriptionAt(SubscriptionSet subscriptions, int index) {
     return SubscriptionHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_subscription_at(
           subscriptions.handle._pointer,
@@ -1503,6 +1509,23 @@ class _RealmCore {
     final controller = userdata as SessionProgressNotificationsController;
 
     controller.onProgress(transferred, transferable);
+  }
+
+  int sessionRegisterConnectionStateNotifier(Session session, SessionConnectionStateController controller) {
+    final callback = Pointer.fromFunction<Void Function(Handle, Int32, Int32)>(_onConnectionStateChange);
+    final userdata = _realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle._pointer);
+    return _realmLib.realm_sync_session_register_connection_state_change_callback(session.handle._pointer,
+        _realmLib.addresses.realm_dart_sync_connection_state_changed_callback, userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
+  }
+
+  void sessionUnregisterConnectionStateNotifier(Session session, int token) {
+    _realmLib.realm_sync_session_unregister_connection_state_change_callback(session.handle._pointer, token);
+  }
+
+  static void _onConnectionStateChange(Object userdata, int oldState, int newState) {
+    final controller = userdata as SessionConnectionStateController;
+
+    controller.onConnectionStateChange(ConnectionState.values[oldState], ConnectionState.values[newState]);
   }
 
   Future<void> sessionWaitForUpload(Session session) {
