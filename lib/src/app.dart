@@ -104,7 +104,7 @@ class AppConfiguration {
 
 /// An [App] is the main client-side entry point for interacting with an Atlas App Services application.
 ///
-/// The [App]] can be used to
+/// The [App] can be used to
 /// * Register uses and perform various user-related operations through authentication providers
 /// * Synchronize data between the local device and a remote Realm App with Synchronized Realms
 /// {@category Application}
