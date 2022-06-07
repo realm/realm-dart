@@ -290,7 +290,6 @@ jobs:
 
   flutter-desktop:
     runs-on: ${{ matrix.platform == 'linux' && 'ubuntu' || matrix.platform }}-'latest'
-    name: Tests ${{ matrix.platform }} ${{ matrix.architecture }}
     strategy:
       fail-fast: false
       matrix:
