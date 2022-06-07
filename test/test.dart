@@ -18,6 +18,7 @@
 
 import 'dart:async';
 import 'dart:collection';
+import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
 import 'package:meta/meta.dart';
@@ -187,6 +188,8 @@ void xtest(String? name, dynamic Function() testFunction) {
 }
 
 Future<void> setupTests(List<String>? args) async {
+  await _printPlatformInfo();
+
   arguments = parseTestArguments(args);
   testName = arguments["name"];
   setUpAll(() async => await setupBaas());
@@ -415,3 +418,20 @@ extension RealmObjectTest on RealmObject {
 }
 
 void clearCachedApps() => realmCore.clearCachedApps();
+
+Future<void> _printPlatformInfo() async {
+  final pointerSize = sizeOf<IntPtr>();
+  final os = Platform.operatingSystem;
+  late String? cpu;
+
+  if (Platform.isWindows) {
+    cpu = Platform.environment['PROCESSOR_ARCHITECTURE'];
+  } else if (Platform.isLinux || Platform.isMacOS) {
+    final info = await Process.run('uname', ['-m']);
+    cpu = info.stdout.toString().replaceAll('\n', '');
+  } else {
+    cpu = 'unknown';
+  }
+
+  print("Current PID $pid; OS $os, $pointerSize bit, CPU $cpu");
+}
