@@ -58,7 +58,7 @@ export 'package:realm_common/realm_common.dart'
         Uuid;
 
 // always expose with `show` to explicitly control the public API surface
-export 'app.dart' show AppConfiguration, MetadataPersistenceMode, LogLevel, App;
+export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App;
 export "configuration.dart"
     show
         Configuration,
@@ -79,7 +79,7 @@ export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, UserIdentity;
-export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress;
+export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -150,7 +150,7 @@ class Realm {
 
     final metadata = _metadata[object.runtimeType];
     if (metadata == null) {
-      throw RealmException("Object type ${object.runtimeType} not configured in the current Realm's schema."
+      throw RealmError("Object type ${object.runtimeType} not configured in the current Realm's schema."
           " Add type ${object.runtimeType} to your config before opening the Realm");
     }
 
@@ -252,7 +252,7 @@ class Realm {
   RealmMetadata _getMetadata(Type type) {
     final metadata = _metadata[type];
     if (metadata == null) {
-      throw RealmException("Object type $type not configured in the current Realm's schema. Add type $type to your config before opening the Realm");
+      throw RealmError("Object type $type not configured in the current Realm's schema. Add type $type to your config before opening the Realm");
     }
 
     return metadata;
@@ -284,7 +284,10 @@ class Realm {
 
   /// The active [SubscriptionSet] for this [Realm]
   SubscriptionSet get subscriptions {
-    if (config is! FlexibleSyncConfiguration) throw RealmError('subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration');
+    if (config is! FlexibleSyncConfiguration) {
+      throw RealmError('subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration');
+    }
+
     _subscriptions ??= SubscriptionSetInternal.create(this, realmCore.getSubscriptions(this));
     realmCore.refreshSubscriptionSet(_subscriptions!);
     return _subscriptions!;
@@ -316,7 +319,10 @@ class Realm {
     ..level = RealmLogLevel.info
     ..onRecord.listen((event) => print(event));
 
-  /// Shutdown.
+  /// Used to shutdown Realm and allow the process to correctly release native resources and exit. 
+  /// 
+  /// Disclaimer: This method is mostly needed on Dart standalone and if not called the Dart probram will hang and not exit. 
+  /// This is a workaround of a Dart VM bug and will be removed in a future version of the SDK.
   static void shutdown() => scheduler.stop();
 }
 

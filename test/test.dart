@@ -152,6 +152,7 @@ const String argBaasCluster = "BAAS_CLUSTER";
 const String argBaasApiKey = "BAAS_API_KEY";
 const String argBaasPrivateApiKey = "BAAS_PRIVATE_API_KEY";
 const String argBaasProjectId = "BAAS_PROJECT_ID";
+const String argDifferentiator = "BAAS_DIFFERENTIATOR";
 
 String testUsername = "realm-test@realm.io";
 String testPassword = "123456";
@@ -272,7 +273,8 @@ Map<String, String?> parseTestArguments(List<String>? arguments) {
     ..addOption(argBaasCluster)
     ..addOption(argBaasApiKey)
     ..addOption(argBaasPrivateApiKey)
-    ..addOption(argBaasProjectId);
+    ..addOption(argBaasProjectId)
+    ..addOption(argDifferentiator);
 
   final result = parser.parse(arguments ?? []);
   testArgs
@@ -281,13 +283,18 @@ Map<String, String?> parseTestArguments(List<String>? arguments) {
     ..addArgument(result, argBaasCluster)
     ..addArgument(result, argBaasApiKey)
     ..addArgument(result, argBaasPrivateApiKey)
-    ..addArgument(result, argBaasProjectId);
+    ..addArgument(result, argBaasProjectId)
+    ..addArgument(result, argDifferentiator);
+
   return testArgs;
 }
 
 extension on Map<String, String?> {
   void addArgument(ArgResults parsedResult, String argName) {
-    this[argName] = parsedResult.wasParsed(argName) ? parsedResult[argName]?.toString() : Platform.environment[argName];
+    final value = parsedResult.wasParsed(argName) ? parsedResult[argName]?.toString() : Platform.environment[argName];
+    if (value != null && value.isNotEmpty) {
+      this[argName] = value;
+    }
   }
 }
 
@@ -301,8 +308,12 @@ Future<void> setupBaas() async {
   final apiKey = arguments[argBaasApiKey];
   final privateApiKey = arguments[argBaasPrivateApiKey];
   final projectId = arguments[argBaasProjectId];
+  final differentiator = arguments[argDifferentiator];
 
-  final client = await (cluster == null ? BaasClient.docker(baasUrl) : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!));
+  final client = await (cluster == null
+      ? BaasClient.docker(baasUrl, differentiator)
+      : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
+
   var apps = await client.getOrCreateApps();
   baasApps.addAll(apps);
 }
@@ -325,7 +336,7 @@ Future<void> baasTest(
 
   test(name, () async {
     final config = await getAppConfig(appName: appName);
-    return await testFunction(config);
+    await testFunction(config);
   }, skip: skip);
 }
 

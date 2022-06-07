@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 import 'dart:io';
 
-import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 
 import '../realm.dart';
@@ -30,7 +29,7 @@ import 'user.dart';
 /// {@category Application}
 @immutable
 class AppConfiguration {
-  /// The [appId] is the unique id that identifies the Realm application.
+  /// The [appId] is the unique id that identifies the Atlas App Services application.
   final String appId;
 
   /// The [baseFilePath] is the [Directory] relative to which all local data for this application will be stored.
@@ -39,7 +38,7 @@ class AppConfiguration {
   /// directory exists.
   final Directory baseFilePath;
 
-  /// The [baseUrl] is the [Uri] used to reach the MongoDB Realm server.
+  /// The [baseUrl] is the [Uri] used to reach the MongoDB Atlas.
   ///
   /// [baseUrl] only needs to be set if for some reason your application isn't hosted on realm.mongodb.com.
   /// This can be the case if you're testing locally or are using a pre-production environment.
@@ -57,7 +56,7 @@ class AppConfiguration {
   /// The [localAppName] is the friendly name identifying the current client application.
   ///
   /// This is typically used to differentiate between client applications that use the same
-  /// MongoDB Realm app.
+  /// Atlas App Services application.
   ///
   /// These can be the same conceptual app developed for different platforms, or
   /// significantly different client side applications that operate on the same data - e.g. an event managing
@@ -81,7 +80,7 @@ class AppConfiguration {
   /// The [HttpClient] that will be used for HTTP requests during authentication.
   ///
   /// You can use this to override the default http client handler and configure settings like proxies,
-  /// client certificates, and cookies. While these are not required to connect to MongoDB Realm under
+  /// client certificates, and cookies. While these are not required to connect to MongoDB Atlas under
   /// normal circumstances, they can be useful if client devices are behind corporate firewall or use
   /// a more complex networking setup.
   final HttpClient httpClient;
@@ -103,9 +102,9 @@ class AppConfiguration {
         httpClient = httpClient ?? HttpClient();
 }
 
-/// An [App] is the main client-side entry point for interacting with a MongoDB Realm App.
+/// An [App] is the main client-side entry point for interacting with an Atlas App Services application.
 ///
-/// The [App]] can be used to
+/// The [App] can be used to
 /// * Register uses and perform various user-related operations through authentication providers
 /// * Synchronize data between the local device and a remote Realm App with Synchronized Realms
 /// {@category Application}

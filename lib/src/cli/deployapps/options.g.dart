@@ -12,13 +12,18 @@ Options _$parseOptionsResult(ArgResults result) => Options(
       apiKey: result['api-key'] as String?,
       privateApiKey: result['private-api-key'] as String?,
       projectId: result['project-id'] as String?,
+      differentiator: result['differentiator'] as String?,
     );
 
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addOption(
     'baas-url',
-    help: 'Url for MongoDB Realm.',
+    help: 'Url for MongoDB Atlas.',
     defaultsTo: 'http://localhost:9090',
+  )
+  ..addOption(
+    'differentiator',
+    help: 'The database prefix that will be used for the sync service.',
   )
   ..addOption(
     'atlas-cluster',

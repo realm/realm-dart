@@ -26,7 +26,7 @@ import 'baas_client.dart';
 
 class DeployAppsCommand extends Command<void> {
   @override
-  final String description = 'Deploys test applications to a MongoDB Realm server.';
+  final String description = 'Deploys test applications to MongoDB Atlas.';
 
   @override
   final String name = 'deploy-apps';
@@ -58,9 +58,11 @@ class DeployAppsCommand extends Command<void> {
       }
     }
 
+    final differentiator = options.differentiator ?? 'local';
+
     final client = await (options.atlasCluster == null
-        ? BaasClient.docker(options.baasUrl)
-        : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!));
+        ? BaasClient.docker(options.baasUrl, differentiator)
+        : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
 
     final apps = await client.getOrCreateApps();
 

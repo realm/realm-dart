@@ -129,7 +129,7 @@ class InstallCommand extends Command<void> {
 
     print("Downloading Realm binaries for $packageName@${realmPubspec.version} to ${destinationFile.absolute.path}");
     final client = HttpClient();
-    var url = 'https://static.realm.io/downloads/dart/${realmPubspec.version}/$archiveName';
+    var url = 'https://static.realm.io/downloads/dart/${Uri.encodeComponent(realmPubspec.version.toString())}/$archiveName';
     if (debug) {
       url = 'http://localhost:8000/$archiveName';
     }

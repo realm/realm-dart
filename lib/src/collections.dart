@@ -1,4 +1,3 @@
-import 'realm_class.dart';
 import 'native/realm_core.dart';
 
 /// Contains index information about objects that moved within the same collection.

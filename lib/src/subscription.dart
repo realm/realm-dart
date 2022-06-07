@@ -124,7 +124,7 @@ enum SubscriptionSetState {
 /// downloading.
 /// {@category Sync}
 abstract class SubscriptionSet with IterableMixin<Subscription> {
-  Realm _realm;
+  final Realm _realm;
   SubscriptionSetHandle _handle;
 
   SubscriptionSet._(this._realm, this._handle);
@@ -158,9 +158,12 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
   Future<void> waitForSynchronization() async {
     final result = await _waitForStateChange(SubscriptionSetState.complete);
     if (result == SubscriptionSetState.error) {
-      throw RealmException('Synchronization Failed');
+      throw error!;
     }
   }
+
+  /// Returns the error if the subscription set is in the [SubscriptionSetState.error] state.
+  Exception? get error => realmCore.getSubscriptionSetError(this);
 
   @override
   int get length => realmCore.getSubscriptionSetSize(this);

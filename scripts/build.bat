@@ -7,5 +7,5 @@
 pushd "%~dp0.."
 echo %CD%
 
-cmake --preset windows-x64
-cmake --build --preset windows-x64 --config MinSizeRel
+cmake --preset windows
+cmake --build --preset windows --config MinSizeRel

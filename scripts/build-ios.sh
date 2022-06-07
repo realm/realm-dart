@@ -63,16 +63,16 @@ BUILD_LIB_CMDS=()
 for platform in "${PLATFORMS[@]}"; do
     case "$platform" in
         ios)
-            cmake --build --preset ios-device --config $CONFIGURATION -- -destination "generic/platform=iOS"
-            FRAMEWORKS+=(-framework ./build-native/iOS/$CONFIGURATION-iphoneos/realm_dart.framework)
+            cmake --build --preset ios-device --config $CONFIGURATION
+            FRAMEWORKS+=(-framework ./binary/ios/$CONFIGURATION-iphoneos/realm_dart.framework)
         ;;
         catalyst)
-            cmake --build --preset ios-catalyst --config $CONFIGURATION -- -destination "generic/platform=macOS,variant=Mac Catalyst"
-            FRAMEWORKS+=(-framework ./build-native/iOS/$CONFIGURATION-maccatalyst/realm_dart.framework)
+            cmake --build --preset ios-catalyst --config $CONFIGURATION
+            FRAMEWORKS+=(-framework ./binary/ios/$CONFIGURATION-maccatalyst/realm_dart.framework)
         ;;
         simulator)
-            cmake --build --preset ios-simulator --config $CONFIGURATION -- -destination "generic/platform=iOS Simulator"
-            FRAMEWORKS+=(-framework ./build-native/iOS/$CONFIGURATION-iphonesimulator/realm_dart.framework)
+            cmake --build --preset ios-simulator --config $CONFIGURATION
+            FRAMEWORKS+=(-framework ./binary/ios/$CONFIGURATION-iphonesimulator/realm_dart.framework)
         ;;
         *)
             echo "${platform} not supported"
