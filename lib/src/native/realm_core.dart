@@ -925,14 +925,16 @@ class _RealmCore {
   }
 
   RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
+    final requestCallback = Pointer.fromFunction<Void Function(Handle, realm_http_request, Pointer<Void>)>(_request_callback);
+    final requestCallbackUserdata = _realmLib.realm_dart_userdata_async_new(httpClient, requestCallback.cast(), scheduler.handle._pointer);
     return RealmHttpTransportHandle._(_realmLib.realm_http_transport_new(
-      Pointer.fromFunction(request_callback),
-      httpClient.toPersistentHandle(),
-      _realmLib.addresses.realm_dart_delete_persistent_handle,
+      _realmLib.addresses.realm_dart_http_request_callback,
+      requestCallbackUserdata.cast(),
+      _realmLib.addresses.realm_dart_userdata_async_free,
     ));
   }
 
-  static void request_callback(Pointer<Void> userData, realm_http_request request, Pointer<Void> request_context) {
+  static void _request_callback(Object userData, realm_http_request request, Pointer<Void> request_context) {
     //
     // The request struct only survives until end-of-call, even though
     // we explicitly call realm_http_transport_complete_request to
@@ -942,18 +944,13 @@ class _RealmCore {
     // We cannot clone request on the native side with realm_clone,
     // since realm_http_request does not inherit from WrapC.
 
-    HttpClient? userObject = userData.toObject(isPersistent: true);
-    if (userObject == null) {
-      return;
-    }
-
-    HttpClient client = userObject;
+    final client = userData as HttpClient;
 
     client.connectionTimeout = Duration(milliseconds: request.timeout_ms);
 
     final url = Uri.parse(request.url.cast<Utf8>().toRealmDartString()!);
 
-    final body = request.body.cast<Utf8>().toRealmDartString()!;
+    final body = request.body.cast<Utf8>().toRealmDartString(length: request.body_size)!;
 
     final headers = <String, String>{};
     for (int i = 0; i < request.num_headers; ++i) {
