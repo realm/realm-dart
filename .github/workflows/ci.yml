@@ -73,14 +73,12 @@ jobs:
     runs-on: ubuntu-latest
     name: Cleanup cluster
     needs:
-      - tests-linux
       - flutter-linux
-      - tests-macos
       - flutter-macos
-      - tests-windows
       - flutter-windows
       - flutter-ios
       - flutter-android
+      - tests-dart
     if: always()
     timeout-minutes: 5
     steps:
