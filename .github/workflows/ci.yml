@@ -131,7 +131,7 @@ jobs:
         if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         working-directory: src/realm-core/tools/vcpkg/ports
         shell: bash
-        run: echo "::set-output name=commit::$(git rev-parse HEAD)\n"
+        run: echo "::set-output name=commit::$(git rev-parse HEAD)"
 
       - name: Setup Vcpkg
         if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
