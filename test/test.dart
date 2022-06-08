@@ -143,6 +143,20 @@ class _NullableTypes {
   late int? intProp;
 }
 
+@RealmModel()
+class _Event {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  @MapTo('stringQueryField')
+  late String? name;
+  @MapTo('boolQueryField')
+  late bool? isCompleted;
+  @MapTo('intQueryField')
+  late int? durationInMinutes;
+  late String? assignedTo;
+}
+
 String? testName;
 Map<String, String?> arguments = {};
 final baasApps = <String, BaasApp>{};

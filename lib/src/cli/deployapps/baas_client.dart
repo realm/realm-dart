@@ -184,7 +184,7 @@ class BaasClient {
       "flexible_sync": {
         "state": "enabled",
         "database_name": "$_differentiator-$name",
-        "queryable_fields_names": ["differentiator"],
+        "queryable_fields_names": ["differentiator", "stringQueryField", "boolQueryField", "intQueryField"],
         "permissions": {
           "rules": {},
           "defaultRoles": [
