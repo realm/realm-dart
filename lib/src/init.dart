@@ -17,6 +17,12 @@ void _debugWrite(String message) {
   }());
 }
 
+bool get isInDebugMode {
+  bool inDebugMode = false;
+  assert(inDebugMode = true);
+  return inDebugMode;
+}
+
 /// @nodoc
 // Initializes Realm library
 DynamicLibrary initRealm() {
@@ -55,7 +61,11 @@ DynamicLibrary initRealm() {
       return "${File(Platform.resolvedExecutable).parent.absolute.path}/Frameworks/realm_dart.framework/realm_dart";
     } else if (Platform.isWindows) {
       if (isFlutterPlatform) {
-        return "$binaryName.dll";
+        if (Platform.resolvedExecutable.startsWith(Directory.current.path)) {
+          return "$binaryName.dll";
+        } else {
+          return "./build/windows/runner/${isInDebugMode ? "Debug" : "Release"}/$binaryName.dll";
+        }
       }
 
       return "binary/windows/$binaryName.dll";
