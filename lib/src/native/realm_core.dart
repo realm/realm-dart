@@ -26,6 +26,7 @@ import 'dart:typed_data';
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:logging/logging.dart';
+import 'package:path/path.dart' as path;
 
 import '../app.dart';
 import '../collections.dart';
@@ -1584,6 +1585,50 @@ class _RealmCore {
     } finally {
       _realmLib.realm_free(errorCode.cast());
     }
+  }
+
+  static String? _appDirName;
+
+  String _getAppDirectoryName() {
+    if (isFlutterPlatform) {
+      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+        const String libName = 'realm_plugin';
+        String binaryExt = Platform.isWindows
+            ? ".dll"
+            : Platform.isMacOS
+                ? ".dylib"
+                : ".so";
+        String binaryNamePrefix = Platform.isWindows ? "" : "lib";
+        final realmPluginLib =
+            Platform.isMacOS == false ? DynamicLibrary.open("$binaryNamePrefix$libName$binaryExt") : DynamicLibrary.open('realm.framework/realm');
+        final getDirNameFunc = realmPluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory_name");
+        final dirNamePtr = getDirNameFunc();
+        final dirName = dirNamePtr.cast<Utf8>().toDartString();
+        return dirName;
+      }
+      return "";
+    } else {
+      return path.basenameWithoutExtension(File.fromUri(Platform.script).absolute.path);
+    }
+  }
+
+  String getAppDirectory() {
+    _appDirName ??= _getAppDirectoryName();
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      return path.join(realmCore.getFilesPath(), _appDirName);
+    } else if (Platform.isWindows) {
+      String homeDir = String.fromEnvironment("")
+      
+    } else if (Platform.isLinux || Platform.isMacOS) {
+      if (isFlutterPlatform) {
+        return "${File(Platform.resolvedExecutable).parent.absolute.path}/../Frameworks/realm.framework/Resources/lib$binaryName.dylib";
+      }
+
+      return "${Directory.current.path}/binary/macos/lib$binaryName.dylib";
+    } 
+
+    throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
   }
 }
 
