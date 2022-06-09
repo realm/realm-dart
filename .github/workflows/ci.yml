@@ -134,17 +134,18 @@ jobs:
           path: binary/${{ matrix.binary || matrix.preset }}/**
           retention-days: 1
 
-      - name: Combine Android binaries
-        if: ${{ matrix.binary == 'android' }}
-        uses: ./.github/workflows/binary-combine-android.yml
-        with:
-          os: ${{ matrix.runner }}
 
-      - name: Combine IOS binaries
-        if: ${{ matrix.preset == 'ios' }}
-        uses: ./.github/workflows/binary-combine-ios.yml
-        with:
-          os: ${{ matrix.runner }}
+  build-android-combined:
+    name: Combine Android binaries
+    uses: ./.github/workflows/binary-combine-android.yml
+    with:
+      os: ubuntu
+
+  build-ios-xcframework:
+    name: Combine IOS binaries
+    uses: ./.github/workflows/binary-combine-ios.yml
+    with:
+      os: macos
 
 # Linux jobs
 
