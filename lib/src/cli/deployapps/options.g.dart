@@ -41,10 +41,6 @@ ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addOption(
     'project-id',
     help: 'The Atlas project id to use for the import. Only used if atlas-cluster is specified.',
-  )
-  ..addOption(
-    "appIds",
-    help: "List of appIds of deployed apps on MongoDB Atlas.",
   );
 
 final _$parserForOptions = _$populateOptionsParser(ArgParser());

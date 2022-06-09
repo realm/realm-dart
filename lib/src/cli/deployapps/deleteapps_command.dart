@@ -36,17 +36,15 @@ class DeleteAppsCommand extends Command<void> {
   late Options options;
 
   DeleteAppsCommand() {
-    populateOptionsParser(argParser);
+    populateOptionsParser(argParser).addOption("appIds", help: "List of appIds of deployed apps on MongoDB Atlas.");
   }
 
   @override
   FutureOr<void>? run() async {
     options = parseOptionsResult(argResults!);
 
-    if (options.appIds == null) {
-      abort('--appIds must be supplied');
-    }
-    List<String> appIds = (options.appIds!).split(',');
+    var result = argParser.parse(argResults!.arguments);
+    List<String> appIds = (result['appIds'] as String).split(',');
 
     if (options.atlasCluster != null) {
       if (options.apiKey == null) {
@@ -60,6 +58,9 @@ class DeleteAppsCommand extends Command<void> {
       if (options.projectId == null) {
         abort('--project-id must be supplied when --atlas-cluster is not set');
       }
+    }
+    if (appIds.isEmpty) {
+      abort('--appIds must be supplied');
     }
 
     final differentiator = options.differentiator ?? 'local';
