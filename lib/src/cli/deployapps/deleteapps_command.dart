@@ -36,15 +36,17 @@ class DeleteAppsCommand extends Command<void> {
   late Options options;
 
   DeleteAppsCommand() {
-    populateOptionsParser(argParser).addOption("appIds", help: "List of appIds of deployed apps on MongoDB Atlas.");
+    populateOptionsParser(argParser);
   }
 
   @override
   FutureOr<void>? run() async {
     options = parseOptionsResult(argResults!);
 
-    var result = argParser.parse(argResults!.arguments);
-    List<String> appIds = (result['appIds'] as String).split(',');
+    if (options.appIds == null) {
+      abort('--appIds must be supplied');
+    }
+    List<String> appIds = (options.appIds!).split(',');
 
     if (options.atlasCluster != null) {
       if (options.apiKey == null) {
@@ -59,9 +61,6 @@ class DeleteAppsCommand extends Command<void> {
         abort('--project-id must be supplied when --atlas-cluster is not set');
       }
     }
-    if (appIds.isEmpty) {
-      abort('--appIds must be supplied');
-    }
 
     final differentiator = options.differentiator ?? 'local';
 
@@ -71,7 +70,7 @@ class DeleteAppsCommand extends Command<void> {
 
     appIds.forEach((appId) async {
       await client.deleteApp(appId);
-      print("  App '${appId}' is deleted.");
+      print("  App '$appId' is deleted.");
     });
   }
 

@@ -40,7 +40,10 @@ class Options {
   @CliOption(help: 'The Atlas project id to use for the import. Only used if atlas-cluster is specified.')
   final String? projectId;
 
-  Options(this.baasUrl, {this.atlasCluster, this.apiKey, this.privateApiKey, this.projectId, this.differentiator});
+  @CliOption(help: 'The Atlas application ids.')
+  final String? appIds;
+
+  Options(this.baasUrl, {this.atlasCluster, this.apiKey, this.privateApiKey, this.projectId, this.differentiator, this.appIds});
 }
 
 String get usage => _$parserForOptions.usage;

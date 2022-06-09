@@ -13,6 +13,7 @@ Options _$parseOptionsResult(ArgResults result) => Options(
       privateApiKey: result['private-api-key'] as String?,
       projectId: result['project-id'] as String?,
       differentiator: result['differentiator'] as String?,
+      appIds: result['appIds'] as String?,
     );
 
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
@@ -31,18 +32,19 @@ ArgParser _$populateOptionsParser(ArgParser parser) => parser
   )
   ..addOption(
     'api-key',
-    help:
-        'Atlas API key to use for the import. Only used if atlas-cluster is specified.',
+    help: 'Atlas API key to use for the import. Only used if atlas-cluster is specified.',
   )
   ..addOption(
     'private-api-key',
-    help:
-        'The private Atlas API key to use for the import. Only used if atlas-cluster is specified.',
+    help: 'The private Atlas API key to use for the import. Only used if atlas-cluster is specified.',
   )
   ..addOption(
     'project-id',
-    help:
-        'The Atlas project id to use for the import. Only used if atlas-cluster is specified.',
+    help: 'The Atlas project id to use for the import. Only used if atlas-cluster is specified.',
+  )
+  ..addOption(
+    "appIds",
+    help: "List of appIds of deployed apps on MongoDB Atlas.",
   );
 
 final _$parserForOptions = _$populateOptionsParser(ArgParser());
