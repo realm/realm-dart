@@ -285,7 +285,7 @@ jobs:
             --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} \
             --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} \
             --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} \
-            --differentiator "${{ matrix.package }}-${{ matrix.platform }}"
+            --differentiator "dart-${{  matrix.os }}"
 
       - name: Install dependencies
         run: dart pub get
