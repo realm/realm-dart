@@ -30,43 +30,6 @@ jobs:
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
           differentiator: realm-dart
 
-  baas-matrix:
-    needs:
-      - deploy-cluster
-    strategy:
-      fail-fast: false
-      matrix:
-        package: [flutter]
-        platform: [linux, windows, macos]
-        include:
-          - platform: ios
-            package: flutter
-          - platform: android
-            package: flutter
-    runs-on: ubuntu-latest
-    name: Deploy apps ${{ matrix.platform }} for ${{ matrix.package }}
-    timeout-minutes: 20
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: false
-
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-
-      - name: Deploy Apps
-        run: |
-          dart run realm_dart deploy-apps \
-            --baas-url ${{ secrets.REALM_QA_URL }} \
-            --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} \
-            --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} \
-            --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} \
-            --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} \
-            --differentiator "${{ matrix.package }}-${{ matrix.platform }}"
-
   build-native:
     runs-on: ${{ matrix.runner }}-latest
     name: Build native
@@ -133,7 +96,6 @@ jobs:
           name: librealm-${{ matrix.build || matrix.preset }}
           path: binary/${{ matrix.binary || matrix.preset }}/**
           retention-days: 1
-
 
   build-android-combined:
     name: Combine Android binaries
@@ -254,7 +216,6 @@ jobs:
         if: always()
         run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'flutter-${{  matrix.os }}'
 
-
 # iOS jobs
 
   flutter-ios:
@@ -264,7 +225,6 @@ jobs:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
       BAAS_DIFFERENTIATOR: flutter-ios
     needs:
-      - baas-matrix
       - deploy-cluster
       - build-ios-xcframework
     steps:
@@ -310,7 +270,6 @@ jobs:
         if: always()
         run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'flutter-${{  matrix.os }}'
 
-
 # Android jobs
 
   flutter-android:
@@ -320,7 +279,6 @@ jobs:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
       BAAS_DIFFERENTIATOR: flutter-android
     needs:
-      - baas-matrix
       - deploy-cluster
       - build-android-combined
     steps:
@@ -386,7 +344,6 @@ jobs:
       - name: Cleanup apps
         if: always()
         run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'flutter-${{  matrix.os }}'
-
 
 # Generator jobs
 
