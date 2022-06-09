@@ -286,7 +286,7 @@ jobs:
         run: dart test -r expanded -j 1 --test-randomize-ordering-seed random
 
       - name: Cleanup apps
-        if: always
+        if: always()
         run: dart run realm_dart delete-apps --appIds ${{ steps.deploy-apps.outputs.appIds }} --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'dart-${{  matrix.os }}'
 
 
@@ -346,7 +346,7 @@ jobs:
         working-directory: ./flutter/realm_flutter/tests
 
       - name: Cleanup apps
-        if: always
+        if: always()
         run: dart run realm_dart delete-apps --appIds ${{ steps.deploy-apps.outputs.appIds }} --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'flutter-${{  matrix.os }}'
 
 
