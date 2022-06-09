@@ -33,26 +33,47 @@ class DeleteAppsCommand extends Command<void> {
 
   @override
   bool get hidden => true;
-
   late Options options;
 
   DeleteAppsCommand() {
-    argParser.addOption('appIds', help: 'List of deployed apps MongoDB Atlas.');
+    populateOptionsParser(argParser);
+    argParser.addOption('appIds', help: 'List of appIds of deployed apps on MongoDB Atlas.');
   }
 
   @override
   FutureOr<void>? run() async {
-    List<String> appIds = (argResults!['appIds'] as String).split(',');
+    options = parseOptionsResult(argResults!);
 
-    if (appIds.length > 0) {
-      final client = await (options.atlasCluster == null
-          ? BaasClient.docker(options.baasUrl, null)
-          : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, null));
-      appIds.forEach((appId) async {
+    var result = argParser.parse(argResults!.arguments);
+    List<String> appIds = (result['appIds'] as String).split(',');
+
+    if (options.atlasCluster != null) {
+      if (options.apiKey == null) {
+        abort('--api-key must be supplied when --atlas-cluster is not set');
+      }
+
+      if (options.privateApiKey == null) {
+        abort('--private-api-key must be supplied when --atlas-cluster is not set');
+      }
+
+      if (options.projectId == null) {
+        abort('--project-id must be supplied when --atlas-cluster is not set');
+      }
+    }
+    if (appIds.isEmpty) {
+      abort('--appIds must be supplied');
+    }
+
+    final differentiator = options.differentiator ?? 'local';
+
+    final client = await (options.atlasCluster == null
+        ? BaasClient.docker(options.baasUrl, differentiator)
+        : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
+
+    appIds.forEach((appId) async {
         await client.deleteApp(appId);
         print("  App '${appId}' is deleted.");
-      });
-    }
+    });
   }
 
   void abort(String error) {
