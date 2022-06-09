@@ -70,8 +70,9 @@ class DeployAppsCommand extends Command<void> {
     String listApps = '';
     apps.forEach((_, value) {
       print("  App '${value.name}': '${value.clientAppId}'");
-      listApps += '${value.clientAppId},';
+      listApps += '${value.appId},';
     });
+    print("appIds: ");
     stdout.write(listApps.substring(0, listApps.length - 1));
   }
 
