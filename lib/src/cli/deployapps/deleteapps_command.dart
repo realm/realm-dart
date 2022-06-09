@@ -33,6 +33,7 @@ class DeleteAppsCommand extends Command<void> {
 
   @override
   bool get hidden => true;
+  
   late Options options;
 
   DeleteAppsCommand() {

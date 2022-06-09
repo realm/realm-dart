@@ -154,58 +154,17 @@ jobs:
           path: binary/${{ matrix.binary || matrix.preset }}/**
           retention-days: 1
 
-  build-ios-xcframework:
-    name: Combine .xcframework
-    runs-on: macos-latest
-    needs: build-native
-
-    steps:
-      - name: Fetch device build
-        uses: actions/download-artifact@v2
+      - name: Combine Android binaries
+        if: ${{ matrix.binary == 'android' }}
+        uses: ./.github/workflows/binary-combine-android.yml
         with:
-          name: librealm-ios-device
-          path: binary/ios
-      - name: Fetch simulator build
-        uses: actions/download-artifact@v2
-        with:
-          name: librealm-ios-simulator
-          path: binary/ios
-      - name: Fetch catalyst build
-        uses: actions/download-artifact@v2
-        with:
-          name: librealm-ios-catalyst
-          path: binary/ios
+          os: ${{ matrix.runner }}
 
-      - name: Build .xcframework
-        run: |
-          xcodebuild -create-xcframework \
-            -framework ./binary/ios/Release-iphoneos/realm_dart.framework \
-            -framework ./binary/ios/Release-iphonesimulator/realm_dart.framework \
-            -framework ./binary/ios/Release-maccatalyst/realm_dart.framework \
-            -output ./binary/ios/realm_dart.xcframework
-          rm -rf ./binary/ios/Release-*
-
-      - name: Store .xcframework artifact
-        uses: actions/upload-artifact@v2
+      - name: Combine IOS binaries
+        if: ${{ matrix.preset == 'ios' }}
+        uses: ./.github/workflows/binary-combine-ios.yml
         with:
-          name: librealm-ios
-          path: binary/ios
-          retention-days: 1
-
-      - name: Delete individual framework artifacts
-        uses: geekyeggo/delete-artifact@v1
-        with:
-          name: |
-            librealm-ios-device
-            librealm-ios-simulator
-            librealm-ios-catalyst
-
-  build-android-combined:
-    name: Combine Android binaries
-    needs: build-native
-    uses: ./.github/workflows/binary-combine.yml
-    with:
-      os: ubuntu
+          os: ${{ matrix.runner }}
 
 # Linux jobs
 
@@ -252,7 +211,6 @@ jobs:
       - name: Cleanup apps
         if: always()
         run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'dart-${{  matrix.os }}'
-
 
   flutter-tests:
     strategy:
