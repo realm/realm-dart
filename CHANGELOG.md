@@ -1,3 +1,10 @@
+## 0.3.1+beta (2022-06-07)
+
+**This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
+
+### Fixed
+* Fixed the Url command to correctly encode the SDK version. ([#650](https://github.com/realm/realm-dart/issues/650))
+
 ## 0.3.0+beta (2022-06-02)
 
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**

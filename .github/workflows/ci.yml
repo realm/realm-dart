@@ -14,7 +14,25 @@ env:
 
 jobs:
 
-  baas_matrix:
+  deploy-cluster:
+    runs-on: ubuntu-latest
+    name: Deploy Cluster
+    outputs:
+      clusterName: ${{ steps.deploy-mdb-apps.outputs.clusterName }}
+    steps:
+      - uses: realm/ci-actions/mdb-realm/deployApps@fac1d6958f03d71de743305ce3ab27594efbe7b7
+        id: deploy-mdb-apps
+        with:
+          realmUrl: ${{ secrets.REALM_QA_URL }}
+          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID }}
+          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
+          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+          differentiator: realm-dart
+
+  baas-matrix:
+    needs:
+      - deploy-cluster
     strategy:
       fail-fast: false
       matrix:
@@ -26,32 +44,13 @@ jobs:
           - platform: android
             package: flutter
     runs-on: ubuntu-latest
-    name: BaaS ${{ matrix.platform }} for ${{ matrix.package }}
-    outputs:
-      dart-linux-clusterName: ${{ steps.set-output.outputs.dart-linux-clusterName }}
-      dart-windows-clusterName: ${{ steps.set-output.outputs.dart-windows-clusterName }}
-      dart-macos-clusterName: ${{ steps.set-output.outputs.dart-macos-clusterName }}
-      flutter-linux-clusterName: ${{ steps.set-output.outputs.flutter-linux-clusterName }}
-      flutter-windows-clusterName: ${{ steps.set-output.outputs.flutter-windows-clusterName }}
-      flutter-macos-clusterName: ${{ steps.set-output.outputs.flutter-macos-clusterName }}
-      flutter-ios-clusterName: ${{ steps.set-output.outputs.flutter-ios-clusterName }}
-      flutter-android-clusterName: ${{ steps.set-output.outputs.flutter-android-clusterName }}
+    name: Deploy apps ${{ matrix.platform }} for ${{ matrix.package }}
     timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           submodules: false
-
-      - uses: realm/ci-actions/mdb-realm/deployApps@fac1d6958f03d71de743305ce3ab27594efbe7b7
-        id: deploy-mdb-apps
-        with:
-          realmUrl: ${{ secrets.REALM_QA_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ secrets.ATLAS_QA_PROJECT_ID }}
-          apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-          privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: ${{ matrix.package }}-${{ matrix.platform }}
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
@@ -62,28 +61,15 @@ jobs:
         run: |
           dart run realm_dart deploy-apps \
             --baas-url ${{ secrets.REALM_QA_URL }} \
-            --atlas-cluster ${{ steps.deploy-mdb-apps.outputs.clusterName }} \
+            --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} \
             --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} \
             --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} \
-            --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }}
+            --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} \
+            --differentiator "${{ matrix.package }}-${{ matrix.platform }}"
 
-      - name: Set ${{ matrix.package }}-${{ matrix.platform }} outputs
-        id: set-output
-        run: echo '::set-output name=${{ matrix.package }}-${{ matrix.platform }}-clusterName::${{ steps.deploy-mdb-apps.outputs.clusterName }}'
-
-  cleanup-matrix:
-    strategy:
-      fail-fast: false
-      matrix:
-        package: [flutter, dart]
-        platform: [linux, windows, macos]
-        include:
-          - platform: ios
-            package: flutter
-          - platform: android
-            package: flutter
+  cleanup-cluster:
     runs-on: ubuntu-latest
-    name: Cleanup ${{ matrix.platform }} for ${{ matrix.package }}
+    name: Cleanup cluster
     needs:
       - tests-linux
       - flutter-linux
@@ -103,7 +89,7 @@ jobs:
           projectId: ${{ secrets.ATLAS_QA_PROJECT_ID}}
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY}}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-          differentiator: ${{ matrix.package }}-${{ matrix.platform }}
+          differentiator: realm-dart
 
   build-native:
     runs-on: ${{ matrix.runner }}-latest
@@ -140,13 +126,20 @@ jobs:
         if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         uses: seanmiddleditch/gha-setup-ninja@master
 
+      - name: Get vcpkg submodule commit sha
+        id: vcpkg_cache_key
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        working-directory: src/realm-core/tools/vcpkg/ports
+        shell: bash
+        run: echo "::set-output name=commit::$(git rev-parse HEAD)"
+
       - name: Setup Vcpkg
         if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         uses: friendlyanon/setup-vcpkg@v1
         with:
           path: src/realm-core/tools/vcpkg/ports
-          cache-key: ${{ matrix.preset }}
-          cache-restore-keys: ${{ matrix.preset }}
+          cache-key: vcpkg-${{ matrix.preset }}-${{ hashFiles('./src/realm-core/tools/vcpkg/vcpkg.json') }}-${{ steps.vcpkg_cache_key.outputs.commit }}
+          cache-restore-keys: vcpkg-${{ matrix.preset }}-
 
       - name: Setup Android NDK
         if: startsWith(matrix.preset, 'android-')
@@ -169,7 +162,7 @@ jobs:
     name: Combine .xcframework
     runs-on: macos-latest
     needs: build-native
-    
+
     steps:
       - name: Fetch device build
         uses: actions/download-artifact@v2
@@ -215,7 +208,7 @@ jobs:
     name: Combine Android binaries
     runs-on: ubuntu-latest
     needs: build-native
-    
+
     steps:
       - name: Fetch x86 build
         uses: actions/download-artifact@v2
@@ -260,9 +253,11 @@ jobs:
     runs-on: ubuntu-latest
     name: Tests Linux
     env:
-      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.dart-linux-clusterName }}
+      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
+      BAAS_DIFFERENTIATOR: dart-linux
     needs:
-      - baas_matrix
+      - baas-matrix
+      - deploy-cluster
       - build-native
     steps:
       - name: Checkout
@@ -291,9 +286,11 @@ jobs:
     runs-on: ubuntu-latest
     name: Flutter Tests Linux
     env:
-      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-linux-clusterName }}
+      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
+      BAAS_DIFFERENTIATOR: flutter-linux
     needs:
-      - baas_matrix
+      - baas-matrix
+      - deploy-cluster
       - build-native
     steps:
       - name: Checkout
@@ -336,9 +333,11 @@ jobs:
     runs-on: macos-latest
     name: Tests macOS
     env:
-      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.dart-macos-clusterName }}
+      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
+      BAAS_DIFFERENTIATOR: dart-macos
     needs:
-      - baas_matrix
+      - baas-matrix
+      - deploy-cluster
       - build-native
     steps:
       - name: Checkout
@@ -367,9 +366,11 @@ jobs:
     runs-on: macos-latest
     name: Flutter Tests macOS
     env:
-      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-macos-clusterName }}
+      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
+      BAAS_DIFFERENTIATOR: flutter-macos
     needs:
-      - baas_matrix
+      - baas-matrix
+      - deploy-cluster
       - build-native
     steps:
       - name: Checkout
@@ -398,16 +399,17 @@ jobs:
         run: flutter drive -d macos --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
 
-
 # Windows jobs
 
   tests-windows:
     runs-on: windows-latest
     name: Tests Windows
     env:
-      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.dart-windows-clusterName }}
+      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
+      BAAS_DIFFERENTIATOR: dart-windows
     needs:
-      - baas_matrix
+      - baas-matrix
+      - deploy-cluster
       - build-native
     steps:
       - name: Checkout
@@ -438,9 +440,11 @@ jobs:
     runs-on: windows-2019
     name: Flutter Tests Windows
     env:
-      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-windows-clusterName }}
+      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
+      BAAS_DIFFERENTIATOR: flutter-windows
     needs:
-      - baas_matrix
+      - baas-matrix
+      - deploy-cluster
       - build-native
     steps:
       - name: Checkout
@@ -475,9 +479,11 @@ jobs:
     runs-on: macos-latest
     name: Flutter Tests iOS
     env:
-      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-ios-clusterName }}
+      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
+      BAAS_DIFFERENTIATOR: flutter-ios
     needs:
-      - baas_matrix
+      - baas-matrix
+      - deploy-cluster
       - build-ios-xcframework
     steps:
       - name: Checkout
@@ -520,9 +526,11 @@ jobs:
     runs-on: macos-latest
     name: Flutter Tests Android
     env:
-      BAAS_CLUSTER: ${{ needs.baas_matrix.outputs.flutter-android-clusterName }}
+      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
+      BAAS_DIFFERENTIATOR: flutter-android
     needs:
-      - baas_matrix
+      - baas-matrix
+      - deploy-cluster
       - build-android-combined
     steps:
       - name: Checkout

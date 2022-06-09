@@ -19,7 +19,7 @@ jobs:
         uses: realm/ci-actions/update-changelog@92b1c91f266809c4374947b8846c09c9049b6f3d
         with:
           changelog: ${{ github.workspace }}/CHANGELOG.md
-          version-suffix: '+alpha'
+          version-suffix: '+beta'
 
 
       - name: Update pubspec.yaml
