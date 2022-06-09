@@ -250,7 +250,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [linux, macos, windows]
-    runs-on: ${{ (matrix.os == 'linux' || matrix.os) == true &&  'ubuntu' }}-latest
+    runs-on: ${{ (matrix.os == 'linux' || matrix.os) == true || 'ubuntu' }}-latest
     name: Dart tests on ${{matrix.os  }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
@@ -276,7 +276,8 @@ jobs:
           sdk: stable
 
       - name: Deploy Apps for Dart tests on ${{ matrix.os }}
-        run: dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator "dart-${{  matrix.os }}"
+        id: deploy-apps
+        run: echo "::set-output name=apps::$(dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'dart-${{  matrix.os }}'"
 
       - name: Install dependencies
         run: dart pub get
@@ -284,12 +285,13 @@ jobs:
       - name: Run tests
         run: dart test -r expanded -j 1 --test-randomize-ordering-seed random
 
+     
   flutter-tests:
     strategy:
       fail-fast: false
       matrix:
         os: [linux, macos, windows]
-    runs-on: ${{ (matrix.os == 'linux' || matrix.os) == true && 'ubuntu' }}-latest
+    runs-on: ${{ (matrix.os == 'linux' || matrix.os) == true || 'ubuntu' }}-latest
     name: Flutter tests on ${{matrix.os  }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
