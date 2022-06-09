@@ -36,8 +36,7 @@ class DeleteAppsCommand extends Command<void> {
   late Options options;
 
   DeleteAppsCommand() {
-    populateOptionsParser(argParser);
-    argParser.addOption('appIds', help: 'List of appIds of deployed apps on MongoDB Atlas.');
+    populateOptionsParser(argParser).addOption("appIds", help: "List of appIds of deployed apps on MongoDB Atlas.");
   }
 
   @override
@@ -71,8 +70,8 @@ class DeleteAppsCommand extends Command<void> {
         : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
 
     appIds.forEach((appId) async {
-        await client.deleteApp(appId);
-        print("  App '${appId}' is deleted.");
+      await client.deleteApp(appId);
+      print("  App '${appId}' is deleted.");
     });
   }
 
