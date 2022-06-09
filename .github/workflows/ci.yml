@@ -250,7 +250,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [linux, macos, windows]
-    runs-on: ${{ (matrix.os == 'linux' || matrix.os) ||  'ubuntu' }}-latest
+    runs-on: ${{ (matrix.os == 'linux' || matrix.os) == true &&  'ubuntu' }}-latest
     name: Dart tests on ${{matrix.os  }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
@@ -289,7 +289,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [linux, macos, windows]
-    runs-on: ${{ (matrix.os == 'linux' || matrix.os) ||  'ubuntu' }}-latest
+    runs-on: ${{ (matrix.os == 'linux' || matrix.os) == true && 'ubuntu' }}-latest
     name: Flutter tests on ${{matrix.os  }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
