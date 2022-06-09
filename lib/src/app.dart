@@ -98,7 +98,7 @@ class AppConfiguration {
     this.maxConnectionTimeout = const Duration(minutes: 2),
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
-        baseFilePath = baseFilePath ?? Directory(ConfigurationInternal.defaultStorageFolder),
+        baseFilePath = baseFilePath ?? Directory(Configuration.defaultStoragePath),
         httpClient = httpClient ?? HttpClient();
 }
 

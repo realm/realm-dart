@@ -16,7 +16,7 @@ extern "C" {
 FLUTTER_PLUGIN_EXPORT void RealmPluginRegisterWithRegistrar(
     FlutterDesktopPluginRegistrarRef registrar);
 
-FLUTTER_PLUGIN_EXPORT const char* realm_dart_get_app_directory_name();
+FLUTTER_PLUGIN_EXPORT const wchar_t* realm_dart_get_app_directory();
 
 #if defined(__cplusplus)
 }  // extern "C"

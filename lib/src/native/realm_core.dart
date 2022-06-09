@@ -1572,9 +1572,9 @@ class _RealmCore {
         String binaryNamePrefix = Platform.isWindows ? "" : "lib";
         final realmPluginLib =
             Platform.isMacOS == false ? DynamicLibrary.open("$binaryNamePrefix$libName$binaryExt") : DynamicLibrary.open('realm.framework/realm');
-        final getDirNameFunc = realmPluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory_name");
+        final getDirNameFunc = realmPluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory");
         final dirNamePtr = getDirNameFunc();
-        final dirName = dirNamePtr.cast<Utf8>().toDartString();
+        final dirName = dirNamePtr.cast<Utf16>().toDartString();
         return dirName;
       }
       return "";
@@ -1589,14 +1589,10 @@ class _RealmCore {
     if (Platform.isAndroid || Platform.isIOS) {
       return path.join(realmCore.getFilesPath(), _appDirName);
     } else if (Platform.isWindows) {
-      String homeDir = String.fromEnvironment("")
+      return _appDirName ?? Directory.current.absolute.path;
       
     } else if (Platform.isLinux || Platform.isMacOS) {
-      if (isFlutterPlatform) {
-        return "${File(Platform.resolvedExecutable).parent.absolute.path}/../Frameworks/realm.framework/Resources/lib$binaryName.dylib";
-      }
-
-      return "${Directory.current.path}/binary/macos/lib$binaryName.dylib";
+      throw UnimplementedError();
     } 
 
     throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");

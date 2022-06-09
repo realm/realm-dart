@@ -1,9 +1,6 @@
 import 'dart:ffi';
 import 'dart:io';
 
-import 'package:ffi/ffi.dart';
-import 'package:realm_dart/src/native/realm_core.dart';
-
 import 'cli/metrics/metrics_command.dart';
 import 'cli/metrics/options.dart';
 import 'cli/common/target_os_type.dart';

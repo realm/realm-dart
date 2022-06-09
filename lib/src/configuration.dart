@@ -22,6 +22,7 @@ import 'package:path/path.dart' as _path;
 
 import 'native/realm_core.dart';
 import 'realm_class.dart';
+import 'init.dart';
 
 /// The signature of a callback used to determine if compaction
 /// should be attempted.
@@ -47,28 +48,48 @@ typedef InitialDataCallback = void Function(Realm realm);
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
 abstract class Configuration {
-  static const String _defaultRealmName = 'default.realm';
 
-  static String get _defaultStorageFolder {
+  /// The default realm filename to be used. 
+  static String defaultRealmName = 'default.realm';
+
+  /// The platform dependent path used to store realm files
+  ///
+  /// On Android and iOS this is the application's data directory.
+  /// On Flutter Windows this is the C:\Users\username\AppData\Roaming\app_name directory.
+  /// On Dart standalone Windows, macOS and Linux this is the current directory.
+  static String get defaultStoragePath {
     if (Platform.isAndroid || Platform.isIOS) {
       return realmCore.getFilesPath();
+    }
+
+    if (isFlutterPlatform) {
+      return realmCore.getAppDirectory();
     }
 
     return Directory.current.path;
   }
 
-  static String? _defaultPath;
+  /// The platform dependent path to the default realm file.
+  /// 
+  /// If set it should contain the path and the name of the realm file. Ex. "~/mypath/myrealm.realm"
+  /// [defaultStoragePath] can be used to build this path.
+  static String defaultRealmPath = _initDefaultRealmPath();
 
   Configuration._(
     List<SchemaObject> schemaObjects, {
     String? path,
     this.fifoFilesFallbackPath,
   }) : schema = RealmSchema(schemaObjects) {
-    this.path = _getPath(path);
+    this.path = path ?? Configuration.defaultRealmPath;
+    
+    var dir = File(this.path).parent;
+    if (!dir.existsSync()) {
+      dir.createSync(recursive: true);
+    }
   }
 
-  String _getPath(String? path) {
-    return path ?? _defaultPath ?? _path.join(_defaultStorageFolder, _defaultRealmName);
+  static String _initDefaultRealmPath() {
+    return _path.join(defaultStoragePath, defaultRealmName);
   }
 
   /// Specifies the FIFO special files fallback location.
@@ -147,13 +168,6 @@ abstract class Configuration {
         syncErrorHandler: syncErrorHandler,
         syncClientResetErrorHandler: syncClientResetErrorHandler,
       );
-}
-
-extension ConfigurationInternal on Configuration {
-  static String? get defaultPath => Configuration._defaultPath;
-  static set defaultPath(String? value) => Configuration._defaultPath = value;
-
-  static String get defaultStorageFolder => Configuration._defaultStorageFolder;
 }
 
 /// [LocalConfiguration] is used to open local [Realm] instances,
