@@ -6,15 +6,12 @@ part of 'options.dart';
 // CliGenerator
 // **************************************************************************
 
-Options _$parseOptionsResult(ArgResults result) => Options(
-      result['baas-url'] as String,
-      atlasCluster: result['atlas-cluster'] as String?,
-      apiKey: result['api-key'] as String?,
-      privateApiKey: result['private-api-key'] as String?,
-      projectId: result['project-id'] as String?,
-      differentiator: result['differentiator'] as String?,
-      appIds: result['appIds'] as String?,
-    );
+Options _$parseOptionsResult(ArgResults result) => Options(result['baas-url'] as String,
+    atlasCluster: result['atlas-cluster'] as String?,
+    apiKey: result['api-key'] as String?,
+    privateApiKey: result['private-api-key'] as String?,
+    projectId: result['project-id'] as String?,
+    differentiator: result['differentiator'] as String?);
 
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addOption(
