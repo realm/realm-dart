@@ -296,6 +296,11 @@ class BaasClient {
     return response['_id'] as String;
   }
 
+  Future<void> deleteApp(String appId) async {
+    print('Deleting app $appId');
+    await _delete('groups/$_groupId/apps/$appId');
+  }
+
   Map<String, String> _getHeaders([Map<String, String>? additionalHeaders]) {
     if (additionalHeaders == null) {
       return _headers;
@@ -326,6 +331,11 @@ class BaasClient {
 
   Future<dynamic> _patch(String relativePath, String payload) async {
     var response = await http.patch(_getUri(relativePath), headers: _getHeaders({'Content-Type': 'application/json'}), body: payload);
+    return _decodeResponse(response, payload);
+  }
+
+  Future<dynamic> _delete(String relativePath, {String? payload}) async {
+    var response = await http.delete(_getUri(relativePath), headers: _getHeaders({'Content-Type': 'application/json'}), body: payload);
     return _decodeResponse(response, payload);
   }
 
