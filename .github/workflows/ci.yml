@@ -137,12 +137,14 @@ jobs:
 
   build-android-combined:
     name: Combine Android binaries
+    needs: build-native
     uses: ./.github/workflows/binary-combine-android.yml
     with:
       os: ubuntu
 
   build-ios-xcframework:
     name: Combine IOS binaries
+    needs: build-native
     uses: ./.github/workflows/binary-combine-ios.yml
     with:
       os: macos
@@ -264,6 +266,7 @@ jobs:
     needs:
       - baas-matrix
       - deploy-cluster
+      - build-ios-xcframework
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -319,6 +322,7 @@ jobs:
     needs:
       - baas-matrix
       - deploy-cluster
+      - build-android-combined
     steps:
       - name: Checkout
         uses: actions/checkout@v2
