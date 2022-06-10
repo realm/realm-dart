@@ -20,7 +20,7 @@ jobs:
     outputs:
       clusterName: ${{ steps.deploy-mdb-apps.outputs.clusterName }}
     steps:
-      - uses: realm/ci-actions/mdb-realm/deployApps@825c9de4b04634826509fe516369afe7185b2bf2
+      - uses: realm/ci-actions/mdb-realm/deployApps@916d1585f7e066431830b195cdb8cf7855747c2a
         id: deploy-mdb-apps
         with:
           realmUrl: ${{ secrets.REALM_QA_URL }}
