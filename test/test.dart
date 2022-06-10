@@ -18,6 +18,7 @@
 
 import 'dart:async';
 import 'dart:collection';
+import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
 import 'package:meta/meta.dart';
@@ -209,9 +210,13 @@ Future<void> setupTests(List<String>? args) async {
 
   tearDownAll(() {
     final sorted = SplayTreeMap<String, int>.from(testsTime, (key1, key2) => testsTime[key1]!.compareTo(testsTime[key2]!));
+    Duration totalDuration = Duration();
     for (var item in sorted.entries) {
-      print("Test: ${item.key} , milliseconds: ${item.value}");
+      var testDuration = Duration(milliseconds: item.value);
+      totalDuration += testDuration;
+      print("Test: ${item.key}, milliseconds: ${testDuration.inMilliseconds}, seconds: ${testDuration.inSeconds}");
     }
+    print("Test: TOTAL milliseconds: $totalDuration");
   });
 
   setUp(() {
@@ -350,8 +355,6 @@ Future<void> baasTest(
 }) async {
   final uriVariable = arguments[argBaasUrl];
   final url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
-  Stopwatch sw = Stopwatch();
-  sw.start();
   if (skip == null) {
     skip = url == null ? "BAAS URL not present" : false;
   } else if (skip is bool) {
@@ -359,11 +362,13 @@ Future<void> baasTest(
   }
 
   test(name, () async {
+    Stopwatch sw = Stopwatch();
+    sw.start();
     final config = await getAppConfig(appName: appName);
     await testFunction(config);
+    sw.stop();
+    testsTime[name] = sw.elapsed.inMilliseconds;
   }, skip: skip);
-  testsTime[name] = sw.elapsed.inMilliseconds;
-  sw.stop();
 }
 
 Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) async {
