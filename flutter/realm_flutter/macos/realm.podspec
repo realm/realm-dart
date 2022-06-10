@@ -38,5 +38,4 @@ Pod::Spec.new do |s|
                                     :execution_position => :before_compile
                                   }
                                 ]
-  s.compiler_flags             =  '-DAPP_DIR_NAME="${PRODUCT_NAME}"'
 end

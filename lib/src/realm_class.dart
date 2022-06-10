@@ -96,8 +96,6 @@ class Realm {
 
   Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? realmCore.openRealm(config) {
     _populateMetadata();
-    //TODO: This is for debug. REMOVE!
-    print("AppDir: ${realmCore.getAppDirectory()}");
   }
 
   void _populateMetadata() {

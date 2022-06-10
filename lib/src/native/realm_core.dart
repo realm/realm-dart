@@ -1574,7 +1574,8 @@ class _RealmCore {
             Platform.isMacOS == false ? DynamicLibrary.open("$binaryNamePrefix$libName$binaryExt") : DynamicLibrary.open('realm.framework/realm');
         final getDirNameFunc = realmPluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory");
         final dirNamePtr = getDirNameFunc();
-        final dirName = dirNamePtr.cast<Utf16>().toDartString();
+        
+        final dirName = Platform.isMacOS ? dirNamePtr.cast<Utf8>().toDartString() : dirNamePtr.cast<Utf16>().toDartString();
         return dirName;
       }
       return "";
@@ -1591,8 +1592,11 @@ class _RealmCore {
     } else if (Platform.isWindows) {
       return _appDirName ?? Directory.current.absolute.path;
       
-    } else if (Platform.isLinux || Platform.isMacOS) {
+    } else if (Platform.isLinux) {
       throw UnimplementedError();
+    }
+    else if (Platform.isMacOS) {
+      return _appDirName ?? Directory.current.absolute.path;
     } 
 
     throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
