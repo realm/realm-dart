@@ -119,7 +119,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [linux, macos, windows]
+        os: [windows]
     runs-on: ${{ (matrix.os == 'linux' && 'ubuntu') || matrix.os }}-latest
     name: Dart tests on ${{matrix.os  }}
     env:
@@ -163,7 +163,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [linux, macos, windows]
+        os: [windows]
     runs-on: ${{ (matrix.os == 'linux' && 'ubuntu') || matrix.os }}-latest
     name: Flutter tests on ${{matrix.os  }}
     env:
