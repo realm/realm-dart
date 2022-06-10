@@ -360,7 +360,7 @@ Future<void> main([List<String>? args]) async {
     expect(states[2].current.name, ConnectionState.connected.name);
 
     await subscription.cancel();
-  });
+  }, skip: "Repeater many times on Windows");
 }
 
 class StreamProgressData {
