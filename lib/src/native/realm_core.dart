@@ -1558,46 +1558,55 @@ class _RealmCore {
     }
   }
 
-  static String? _appDirName;
+  static String? _appDir;
 
-  String _getAppDirectoryName() {
-    if (isFlutterPlatform) {
-      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-        const String libName = 'realm_plugin';
-        String binaryExt = Platform.isWindows
-            ? ".dll"
-            : Platform.isMacOS
-                ? ".dylib"
-                : ".so";
-        String binaryNamePrefix = Platform.isWindows ? "" : "lib";
-        final realmPluginLib =
-            Platform.isMacOS == false ? DynamicLibrary.open("$binaryNamePrefix$libName$binaryExt") : DynamicLibrary.open('realm.framework/realm');
-        final getDirNameFunc = realmPluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory");
-        final dirNamePtr = getDirNameFunc();
-        
-        final dirName = Platform.isMacOS ? dirNamePtr.cast<Utf8>().toDartString() : dirNamePtr.cast<Utf16>().toDartString();
-        return dirName;
-      }
-      return "";
-    } else {
+  String _getAppDirectory() {
+    if (!isFlutterPlatform) {
       return path.basenameWithoutExtension(File.fromUri(Platform.script).absolute.path);
     }
+
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      const String libName = 'realm_plugin';
+      String binaryExt = Platform.isWindows
+          ? ".dll"
+          : Platform.isMacOS
+              ? ".dylib"
+              : ".so";
+      String binaryNamePrefix = Platform.isWindows ? "" : "lib";
+      final realmPluginLib =
+          Platform.isMacOS == false ? DynamicLibrary.open("$binaryNamePrefix$libName$binaryExt") : DynamicLibrary.open('realm.framework/realm');
+      final getAppDirFunc = realmPluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory");
+      final dirNamePtr = getAppDirFunc();
+      if (dirNamePtr == nullptr) {
+        return "";
+      }
+
+      final dirName = Platform.isWindows ? dirNamePtr.cast<Utf16>().toDartString() : dirNamePtr.cast<Utf8>().toDartString();
+      print("dirname: ${dirName}");
+      return dirName;
+    }
+
+    return "";
   }
 
   String getAppDirectory() {
-    _appDirName ??= _getAppDirectoryName();
+    if (!isFlutterPlatform) {
+      return Directory.current.absolute.path;
+    }
+
+    _appDir ??= _getAppDirectory();
 
     if (Platform.isAndroid || Platform.isIOS) {
-      return path.join(realmCore.getFilesPath(), _appDirName);
+      return path.join(getFilesPath(), _appDir);
     } else if (Platform.isWindows) {
-      return _appDirName ?? Directory.current.absolute.path;
-      
+      return _appDir ?? Directory.current.absolute.path;
     } else if (Platform.isLinux) {
-      throw UnimplementedError();
+      String appSupportDir =
+          PlatformEx.fromEnvironment("XDG_DATA_HOME", defaultValue: PlatformEx.fromEnvironment("HOME", defaultValue: Directory.current.absolute.path));
+      return path.join(appSupportDir, ".local/share", _appDir);
+    } else if (Platform.isMacOS) {
+      return _appDir ?? Directory.current.absolute.path;
     }
-    else if (Platform.isMacOS) {
-      return _appDirName ?? Directory.current.absolute.path;
-    } 
 
     throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
   }
@@ -2104,5 +2113,16 @@ extension LevelExt on Level {
         // if unknown logging is off
         return RealmLogLevel.off;
     }
+  }
+}
+
+extension PlatformEx on Platform {
+  static String fromEnvironment(String name, {String defaultValue = "" }) {
+    final result = Platform.environment[name];
+    if (result == null) {
+      return defaultValue;
+    }
+
+    return result;
   }
 }

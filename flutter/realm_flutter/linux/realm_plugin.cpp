@@ -67,6 +67,6 @@ void realm_plugin_register_with_registrar(FlPluginRegistrar* registrar) {
 
 static std::string appDirName = APP_DIR_NAME;
 
-const char* realm_dart_get_app_directory_name() {
+const char* realm_dart_get_app_directory() {
     return appDirName.c_str();
 }

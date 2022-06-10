@@ -27,7 +27,6 @@ set(realm_bundled_libraries
 # message ("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
 # message ("CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
 
-message ("BINARY_NAME is ${APPLICATION_ID}")
 add_definitions(-DAPP_DIR_NAME="${APPLICATION_ID}")
 
 

@@ -22,14 +22,14 @@ set(realm_bundled_libraries
 
 # message ("CMAKE_BINARY_DIR is ${CMAKE_BINARY_DIR}")
 # message ("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
-message ("CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
+# message ("CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
 
 # This works cause realm plugin is always accessed through the .plugin_symlinks directory.
 # For example the tests app refers to the realm plugin using this path .../realm-dart/flutter/realm_flutter/tests/windows/flutter/ephemeral/.plugin_symlinks/realm/windows
 set(EPHEMERAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../ephemeral")
 include(${EPHEMERAL_DIR}/generated_config.cmake)
 set(APP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../..")
-message ("APP_DIR is ${APP_DIR}")
+# message ("APP_DIR is ${APP_DIR}")
 set(APP_PUBSPEC_FILE "${APP_DIR}/pubspec.yaml")
 # message ("APP_PUBSPEC_FILE is ${APP_PUBSPEC_FILE}")
 
@@ -38,7 +38,7 @@ file(READ "${APP_PUBSPEC_FILE}" PUBSPEC_CONTENT)
 # message ("${PUBSPEC_CONTENT}")
 string(REGEX MATCH "name:[ \r\n\t]*([a-z0-9_]*)" _ ${PUBSPEC_CONTENT})
 # message ("Pubspec name 0 is ${CMAKE_MATCH_0}")
-message ("Package name is ${CMAKE_MATCH_1}")
+# message ("Package name is ${CMAKE_MATCH_1}")
 set(APP_DIR_NAME ${CMAKE_MATCH_1})
 
 #message ("BINARY_NAME is ${BINARY_NAME}")

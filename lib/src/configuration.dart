@@ -54,15 +54,12 @@ abstract class Configuration {
 
   /// The platform dependent path used to store realm files
   ///
-  /// On Android and iOS this is the application's data directory.
-  /// On Flutter Windows this is the C:\Users\username\AppData\Roaming\app_name directory.
-  /// On Flutter macOS this is the /Users/username/Library/Containers/app_name/Data/Library/Application Support directory.
+  /// On Flutter Android and iOS this is the application's data directory.
+  /// On Flutter Windows this is the `C:\Users\username\AppData\Roaming\app_name` directory.
+  /// On Flutter macOS this is the `/Users/username/Library/Containers/app_name/Data/Library/Application Support` directory.
+  /// On Flutter Linux this is the `/home/username/.local/share/app_name` directory.
   /// On Dart standalone Windows, macOS and Linux this is the current directory.
   static String get defaultStoragePath {
-    if (Platform.isAndroid || Platform.isIOS) {
-      return realmCore.getFilesPath();
-    }
-
     if (isFlutterPlatform) {
       //TODO: This is for debug. REMOVE!
       print("AppDir: ${realmCore.getAppDirectory()}");
@@ -269,6 +266,7 @@ class FlexibleSyncConfiguration extends Configuration {
     this.syncClientResetErrorHandler = const ManualSyncClientResetHandler(_defaultSyncClientResetHandler),
   }) : super._();
 
+  //TODO: fix 
   @override
   String _getPath(String? path) {
     return path ?? realmCore.getPathForConfig(this);
