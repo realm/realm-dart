@@ -108,6 +108,19 @@ jobs:
       - deploy-cluster
       - build-native
     steps:
+      - name: Disable IPv6 teredo
+        if: ${{matrix.os == 'windows' }}
+        run: netsh interface teredo set state disabled
+      - name: Disable IPv6 6to4
+        if: ${{matrix.os == 'windows' }}
+        run: netsh interface ipv6 6to4 set state state=disabled undoonstop=disabled
+      - name: Disable IPv6 isatap
+        if: ${{matrix.os == 'windows' }}
+        run: netsh interface ipv6 isatap set state state=disabled
+      - name: DNS flush
+        if: ${{matrix.os == 'windows' }}
+        run: ipconfig /flushdns
+
       - name: Checkout
         uses: actions/checkout@v2
         with:
