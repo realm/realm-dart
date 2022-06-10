@@ -158,6 +158,8 @@ class _Event {
 }
 
 String? testName;
+Map<String, int> testsTime = {};
+
 Map<String, String?> arguments = {};
 final baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
@@ -204,6 +206,13 @@ Future<void> setupTests(List<String>? args) async {
   arguments = parseTestArguments(args);
   testName = arguments["name"];
   setUpAll(() async => await setupBaas());
+
+  tearDownAll(() {
+    final sorted = SplayTreeMap<String, int>.from(testsTime, (key1, key2) => testsTime[key1]!.compareTo(testsTime[key2]!));
+    for (var item in sorted.entries) {
+      print("Test: ${item.key} , milliseconds: ${item.value}");
+    }
+  });
 
   setUp(() {
     final path = generateRandomRealmPath();
@@ -341,7 +350,8 @@ Future<void> baasTest(
 }) async {
   final uriVariable = arguments[argBaasUrl];
   final url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
-
+  Stopwatch sw = Stopwatch();
+  sw.start();
   if (skip == null) {
     skip = url == null ? "BAAS URL not present" : false;
   } else if (skip is bool) {
@@ -352,6 +362,8 @@ Future<void> baasTest(
     final config = await getAppConfig(appName: appName);
     await testFunction(config);
   }, skip: skip);
+  testsTime[name] = sw.elapsed.inMilliseconds;
+  sw.stop();
 }
 
 Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) async {
