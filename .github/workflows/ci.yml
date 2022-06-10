@@ -120,10 +120,7 @@ jobs:
       - name: DNS flush
         if: ${{matrix.os == 'windows' }}
         run: ipconfig /flushdns
-      - name: WinDefend stop
-        if: ${{matrix.os == 'windows' }}
-        run:  powershell Set-MpPreference -DisableRealtimeMonitoring $true
-      
+       
       - name: Checkout
         uses: actions/checkout@v2
         with:
