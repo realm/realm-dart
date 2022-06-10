@@ -249,7 +249,7 @@ jobs:
       
       - name: Deploy Apps for Flutter IOS tests on ${{ matrix.os }}
         id: deploy-apps
-        run: echo "::set-output name=appIds::$(dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'flutter-${{  matrix.os }}' | tail -1)"
+        run: echo "::set-output name=appIds::$(dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'flutter-macos-ios' | tail -1)"
 
       - name: Install dependencies
         run: flutter pub get
@@ -268,12 +268,12 @@ jobs:
 
       - name: Cleanup apps
         if: always()
-        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'flutter-${{  matrix.os }}'
+        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'flutter-macos-ios'
 
 # Android jobs
 
   flutter-android:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     name: Flutter Tests Android
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
@@ -300,7 +300,7 @@ jobs:
 
       - name: Deploy Apps for Flutter Android tests on ${{ matrix.os }}
         id: deploy-apps
-        run: echo "::set-output name=appIds::$(dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'flutter-${{  matrix.os }}' | tail -1)"
+        run: echo "::set-output name=appIds::$(dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'flutter-ubuntu-android' | tail -1)"
 
       - name: Install dependencies
         run: flutter pub get
@@ -338,12 +338,12 @@ jobs:
           ndk: 21.0.6113669
           arch: x86
           cmake: 3.10.2.4988404
-          script: flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics
+          script: xvfb-run flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics
           working-directory: ./flutter/realm_flutter/tests
 
       - name: Cleanup apps
         if: always()
-        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'flutter-${{  matrix.os }}'
+        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'flutter-ubunto-android'
 
 # Generator jobs
 
