@@ -39,7 +39,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { preset: windows, runner: windows }         
+          - { preset: windows, runner: windows }
+          - { preset: linux, runner: ubuntu }         
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -97,7 +98,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows]
+        os: [linux, windows]
     runs-on: ${{ (matrix.os == 'linux' && 'ubuntu') || matrix.os }}-latest
     name: Dart tests on ${{matrix.os  }}
     env:
