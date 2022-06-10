@@ -120,9 +120,6 @@ jobs:
       - name: DNS flush
         if: ${{matrix.os == 'windows' }}
         run: ipconfig /flushdns
-      - name: NetBIOS disable
-        if: ${{matrix.os == 'windows' }}
-        run: wmic nicconfig where index='Index Number' call SetTcpipNetbios 2
       - name: WinDefend disable
         if: ${{matrix.os == 'windows' }}
         run:  sc config WinDefend start= disabled | sc stop WinDefend
