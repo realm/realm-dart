@@ -13,8 +13,6 @@ std::string default_realm_file_directory()
     @autoreleasepool {
         NSString *path = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES)[0];
         ret = path.UTF8String;
-        printf("ret: %s\n", ret.c_str());
-
         return ret;
     }
 }

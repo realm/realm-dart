@@ -20,7 +20,7 @@
 #define APP_DIR_NAME "realm_app"
 #endif
 
-#pragma message("APP_DIR_NAME is " _CRT_STRINGIZE(APP_DIR_NAME))
+// #pragma message("APP_DIR_NAME is " _CRT_STRINGIZE(APP_DIR_NAME))
 
 namespace
 {

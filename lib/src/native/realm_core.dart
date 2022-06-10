@@ -1582,7 +1582,6 @@ class _RealmCore {
       }
 
       final dirName = Platform.isWindows ? dirNamePtr.cast<Utf16>().toDartString() : dirNamePtr.cast<Utf8>().toDartString();
-      print("dirname: ${dirName}");
       return dirName;
     }
 

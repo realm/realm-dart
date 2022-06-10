@@ -66,7 +66,7 @@ DynamicLibrary initRealm() {
     }());
   }
 
-  var realmBinaryPath = _getBinaryPath(realmBinaryName);
+  final realmBinaryPath = _getBinaryPath(realmBinaryName);
   final realmLibrary = DynamicLibrary.open(realmBinaryPath);
 
   final initializeApi = realmLibrary.lookupFunction<IntPtr Function(Pointer<Void>), int Function(Pointer<Void>)>("realm_dart_initializeDartApiDL");
