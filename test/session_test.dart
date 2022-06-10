@@ -116,7 +116,7 @@ Future<void> main([List<String>? args]) async {
     realm.syncSession.resume();
 
     await validateSessionStates(realm.syncSession, expectedSessionState: SessionState.active);
-  });
+  }, skip: "Repeater many times on Windows");
 
   baasTest('SyncSession.waitForUpload with no changes', (configuration) async {
     final realm = await getIntegrationRealm();
