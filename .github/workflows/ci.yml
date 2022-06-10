@@ -20,7 +20,7 @@ jobs:
     outputs:
       clusterName: ${{ steps.deploy-mdb-apps.outputs.clusterName }}
     steps:
-      - uses: realm/ci-actions/mdb-realm/deployApps@fac1d6958f03d71de743305ce3ab27594efbe7b7
+      - uses: realm/ci-actions/mdb-realm/deployApps@825c9de4b04634826509fe516369afe7185b2bf2
         id: deploy-mdb-apps
         with:
           realmUrl: ${{ secrets.REALM_QA_URL }}
@@ -29,6 +29,8 @@ jobs:
           apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
           privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
           differentiator: realm-dart
+          clusterName: ci-dart-cluster
+          useExistingCluster: true
 
   build-native:
     runs-on: ${{ matrix.runner }}-latest
