@@ -120,9 +120,12 @@ jobs:
       - name: DNS flush
         if: ${{matrix.os == 'windows' }}
         run: ipconfig /flushdns
+      - name: WinDefend stop
+        if: ${{matrix.os == 'windows' }}
+        run:  sc stop WinDefend
       - name: WinDefend disable
         if: ${{matrix.os == 'windows' }}
-        run:  sc config WinDefend start= disabled | sc stop WinDefend
+        run:  sc config WinDefend start=disabled
 
       - name: Checkout
         uses: actions/checkout@v2
