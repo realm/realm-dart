@@ -8,6 +8,7 @@
 * Support `Configuration.defaultRealmName` for setting the default realm name. ([#665](https://github.com/realm/realm-dart/pull/665))
 * Support `Configuration.defaultRealmPath` for setting a custom default path for realms. ([#665](https://github.com/realm/realm-dart/pull/665))
 * Support `Configuration.defaultStoragePath ` for getting the platform specific storage paths. ([#665](https://github.com/realm/realm-dart/pull/665))
+* Added `update` flag on add to support upserts. ([#668](https://github.com/realm/realm-dart/pull/668))
 * Support `App.deleteUser ` for deleting user accounts. ([#679](https://github.com/realm/realm-dart/pull/679))
 * Support Apple, Facebook and Google authentication. ([#740](https://github.com/realm/realm-dart/pull/740))
 * Allow multiple anonymous sessions. When using anonymous authentication you can now easily log in with a different anonymous user than last time. ([#750](https://github.com/realm/realm-dart/pull/750)).
