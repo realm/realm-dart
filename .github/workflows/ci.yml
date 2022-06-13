@@ -118,6 +118,7 @@ jobs:
 
   dart-tests:
     strategy:
+      max-parallel: 1
       fail-fast: false
       matrix:
         include:
@@ -171,6 +172,7 @@ jobs:
 
   flutter-desktop-tests:
     strategy:
+      max-parallel: 1
       fail-fast: false
       matrix:
         os: ['macos', 'windows', 'linux']
@@ -182,6 +184,7 @@ jobs:
     needs:
       - deploy-cluster
       - build-native
+      - dart-tests
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -239,6 +242,7 @@ jobs:
     needs:
       - deploy-cluster
       - build-ios-xcframework
+      - flutter-desktop-tests
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -293,6 +297,7 @@ jobs:
     needs:
       - deploy-cluster
       - build-android-combined
+      - flutter-ios
     steps:
       - name: Checkout
         uses: actions/checkout@v2
