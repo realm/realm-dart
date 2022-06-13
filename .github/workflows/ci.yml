@@ -176,7 +176,8 @@ jobs:
   flutter-desktop-tests:
     strategy:
       fail-fast: false
-      matrix: [ macos, windows, linux ]
+      matrix:
+        os: ['macos', 'windows', 'linux']
     runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-latest
     name: Flutter tests on ${{matrix.os  }}
     env:
