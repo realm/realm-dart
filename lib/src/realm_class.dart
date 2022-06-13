@@ -178,9 +178,9 @@ class Realm {
   ///
   /// If the collection contains items that are already managed by this `Realm`, they will be ignored.
   /// This method behaves as calling [add] multiple times.
-  void addAll<T extends RealmObject>(Iterable<T> items) {
+  void addAll<T extends RealmObject>(Iterable<T> items, {bool update = false}) {
     for (final i in items) {
-      add(i);
+      add(i, update: update);
     }
   }
 
