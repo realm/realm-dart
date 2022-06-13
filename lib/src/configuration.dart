@@ -243,7 +243,7 @@ void _defaultSyncClientResetHandler(SyncError e) {
 /// with MongoDB Atlas.
 /// {@category Configuration}
 class FlexibleSyncConfiguration extends Configuration {
-  /// The user
+  /// The [User] used to created this [FlexibleSyncConfiguration]
   final User user;
 
   SessionStopPolicy _sessionStopPolicy = SessionStopPolicy.afterChangesUploaded;
