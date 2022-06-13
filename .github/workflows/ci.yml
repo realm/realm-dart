@@ -126,7 +126,7 @@ jobs:
             architecture: arm
           - os: windows
           - os: linux
-    runs-on: ${{ matrix.platform == 'linux' && 'ubuntu' || matrix.platform }}-${{ matrix.architecture || 'latest' }}
+    runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-${{ matrix.architecture || 'latest' }}
     name: Dart tests on ${{matrix.os  }} ${{ matrix.architecture }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
