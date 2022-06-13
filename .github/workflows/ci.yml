@@ -127,14 +127,19 @@ jobs:
           - os: windows
           - os: linux
     runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-${{ matrix.architecture || 'latest' }}
-    name: Dart tests on ${{matrix.os  }} ${{ matrix.architecture }}
+    name: Dart tests on ${{matrix.os }} ${{ matrix.architecture }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: dart-${{ matrix.os }}${{ matrix.architecture && format('-{0}', matrix.architecture) || '' }}
+      BAAS_DIFFERENTIATOR: ${{steps.generate_job_id.outputs.jobId}}
     needs:
       - deploy-cluster
       - build-native
     steps:
+
+      - name: Generate unique job id
+        id: generate_job_id
+        run: echo "::set-output name=jobId::$( ${{ matrix.os == 'windows' && echo %random% || echo $RANDOM }})"
+
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -172,17 +177,21 @@ jobs:
   flutter-desktop-tests:
     strategy:
       fail-fast: false
-      matrix:
-        os: ['macos', 'windows', 'linux']
+      matrix: [ macos, windows, linux ]
     runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-latest
     name: Flutter tests on ${{matrix.os  }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: flutter-${{ matrix.os }}
+      BAAS_DIFFERENTIATOR: ${{steps.generate_job_id.outputs.jobId}}
     needs:
       - deploy-cluster
       - build-native
     steps:
+
+      - name: Generate unique job id
+        id: generate_job_id
+        run: echo "::set-output name=jobId::$( ${{ matrix.os == 'windows' && echo %random% || echo $RANDOM }})"
+
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -235,11 +244,16 @@ jobs:
     name: Flutter Tests iOS
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: flutter-ios
+      BAAS_DIFFERENTIATOR: ${{steps.generate_job_id.outputs.jobId}}
     needs:
       - deploy-cluster
       - build-ios-xcframework
     steps:
+
+      - name: Generate unique job id
+        id: generate_job_id
+        run: echo "::set-output name=jobId::$( ${{ matrix.os == 'windows' && echo %random% || echo $RANDOM }})"
+
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -289,11 +303,16 @@ jobs:
     name: Flutter Tests Android
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: flutter-android
+      BAAS_DIFFERENTIATOR: ${{steps.generate_job_id.outputs.jobId}}
     needs:
       - deploy-cluster
       - build-android-combined
     steps:
+
+      - name: Generate unique job id
+        id: generate_job_id
+        run: echo "::set-output name=jobId::$( ${{ matrix.os == 'windows' && echo %random% || echo $RANDOM }})"
+
       - name: Checkout
         uses: actions/checkout@v2
         with:
