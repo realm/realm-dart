@@ -20,7 +20,7 @@ jobs:
     outputs:
       clusterName: ${{ steps.deploy-mdb-apps.outputs.clusterName }}
     steps:
-      - uses: realm/ci-actions/mdb-realm/deployApps@916d1585f7e066431830b195cdb8cf7855747c2a
+file:///C:/_LABS/app1/test/realm_dart.dll      - uses: realm/ci-actions/mdb-realm/deployApps@916d1585f7e066431830b195cdb8cf7855747c2a
         id: deploy-mdb-apps
         with:
           realmUrl: ${{ secrets.REALM_QA_URL }}
@@ -119,12 +119,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [linux, macos, windows]
-    runs-on: ${{ (matrix.os == 'linux' && 'ubuntu') || matrix.os }}-latest
-    name: Dart tests on ${{matrix.os  }}
+        include:
+          - os: macos
+          - os: macos
+            architecture: arm
+          - os: windows
+          - os: linux
+    runs-on: ${{ matrix.platform == 'linux' && 'ubuntu' || matrix.platform }}-${{ matrix.architecture || 'latest' }}    
+    name: Dart tests on ${{matrix.os  }} ${{ matrix.architecture }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: dart-${{ matrix.os }}
+      BAAS_DIFFERENTIATOR: dart-${{ matrix.os }}${{ matrix.architecture && format('-{0}', matrix.architecture) || '' }}
     needs:
       - deploy-cluster
       - build-native
@@ -133,7 +138,10 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: false
-
+          
+      - name: Cleanup Workspace
+        run: git clean -fdx
+        
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
@@ -144,6 +152,7 @@ jobs:
         uses: dart-lang/setup-dart@main
         with:
           sdk: stable
+          architecture: ${{ matrix.architecture == 'arm' && 'arm64' || 'x64'}}
 
       - name: Deploy Apps for Dart tests on ${{ matrix.os }}
         id: deploy-apps
@@ -153,18 +162,18 @@ jobs:
         run: dart pub get
 
       - name: Run tests
-        run: dart test -r expanded -j 1 --test-randomize-ordering-seed random
+        run: ${{ matrix.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -r expanded -j 1 --test-randomize-ordering-seed random
 
       - name: Cleanup apps
         if: always()
         run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'dart-${{  matrix.os }}'
 
-  flutter-tests:
+  flutter-desktop-tests:
     strategy:
       fail-fast: false
       matrix:
-        os: [linux, macos, windows]
-    runs-on: ${{ (matrix.os == 'linux' && 'ubuntu') || matrix.os }}-latest
+        os: ['macos', 'windows', 'linux']
+    runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-latest
     name: Flutter tests on ${{matrix.os  }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
@@ -211,7 +220,7 @@ jobs:
         run: flutter pub get
 
       - name: Run tests
-        run: ${{ (matrix.os == 'linux' && 'xvfb-run') || '' }} flutter drive -d ${{ matrix.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
+        run: ${{ matrix.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ matrix.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
 
       - name: Cleanup apps
