@@ -252,6 +252,16 @@ Future<void> main([List<String>? args]) async {
     expect(realm.write(() => realm.add(carTwo, update: true)), carTwo);
   });
 
+  test('Realm adding object graph with multiple existing objects with with update flag', () {
+    var config = Configuration.local([Car.schema]);
+    var realm = getRealm(config);
+
+    final carOne = Car("Toyota");
+    final carTwo = Car("Toyota");
+    realm.write(() => realm.add(carOne));
+    expect(realm.write(() => realm.add(carTwo, update: true)), carTwo);
+  });
+
   test('Realm add object after realm is closed', () {
     var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
