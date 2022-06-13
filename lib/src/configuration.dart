@@ -81,11 +81,6 @@ abstract class Configuration {
     this.fifoFilesFallbackPath,
   }) : schema = RealmSchema(schemaObjects) {
     this.path = path ?? _defaultPath;
-    
-    var dir = File(this.path).parent;
-    if (!dir.existsSync()) {
-      dir.createSync(recursive: true);
-    }
   }
 
   String get _defaultPath => Configuration.defaultRealmPath;

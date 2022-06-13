@@ -116,9 +116,14 @@ class App {
   String get id => realmCore.appGetId(this);
 
   /// Create an app with a particular [AppConfiguration]
-  App(AppConfiguration configuration) : this._(realmCore.getApp(configuration));
+  App(AppConfiguration configuration) : this._(_getApp(configuration));
 
   App._(this._handle);
+
+  static AppHandle _getApp(AppConfiguration configuration) {
+    configuration.baseFilePath.createSync(recursive:  true);
+    return realmCore.getApp(configuration);
+  }
 
   /// Logs in a user with the given credentials.
   Future<User> logIn(Credentials credentials) async {

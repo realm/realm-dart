@@ -94,8 +94,16 @@ class Realm {
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
-  Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? realmCore.openRealm(config) {
+  Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? _openRealm(config) {
     _populateMetadata();
+  }
+
+  static RealmHandle _openRealm(Configuration config) {
+    var dir = File(config.path).parent;
+    if (!dir.existsSync()) {
+      dir.createSync(recursive: true);
+    }
+    return realmCore.openRealm(config);
   }
 
   void _populateMetadata() {
