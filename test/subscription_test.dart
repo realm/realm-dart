@@ -24,9 +24,9 @@ import 'package:meta/meta.dart';
 import 'package:test/expect.dart';
 
 import '../lib/realm.dart';
+import '../lib/src/configuration.dart';
 import '../lib/src/native/realm_core.dart';
 import '../lib/src/subscription.dart';
-
 import 'test.dart';
 
 @isTest

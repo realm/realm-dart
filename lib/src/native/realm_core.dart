@@ -203,6 +203,8 @@ class _RealmCore {
         } finally {
           _realmLib.realm_release(syncConfigPtr.cast());
         }
+      } else if (config is DisconnectedSyncConfiguration) {
+        _realmLib.realm_config_set_force_sync_history(configPtr, true);
       }
 
       return configHandle;

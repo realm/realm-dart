@@ -1,3 +1,9 @@
+## vNext
+
+**This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
+### Enhancements
+* Added `DisconnectedSyncConfiguration` for opening a synchronized realm in a disconnected state. This configuration allows a synchronized realm to be opened by a secondary process, while a primary process handles synchronization. ([#621](https://github.com/realm/realm-dart/pull/621))
+
 ## 0.3.1+beta (2022-06-07)
 
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
