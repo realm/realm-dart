@@ -19,8 +19,8 @@ jobs:
     name: Deploy Cluster
     outputs:
       clusterName: ${{ steps.deploy-mdb-apps.outputs.clusterName }}
-    steps:
-file:///C:/_LABS/app1/test/realm_dart.dll      - uses: realm/ci-actions/mdb-realm/deployApps@916d1585f7e066431830b195cdb8cf7855747c2a
+    steps:    
+      - uses: realm/ci-actions/mdb-realm/deployApps@916d1585f7e066431830b195cdb8cf7855747c2a
         id: deploy-mdb-apps
         with:
           realmUrl: ${{ secrets.REALM_QA_URL }}
@@ -125,7 +125,7 @@ file:///C:/_LABS/app1/test/realm_dart.dll      - uses: realm/ci-actions/mdb-real
             architecture: arm
           - os: windows
           - os: linux
-    runs-on: ${{ matrix.platform == 'linux' && 'ubuntu' || matrix.platform }}-${{ matrix.architecture || 'latest' }}    
+    runs-on: ${{ matrix.platform == 'linux' && 'ubuntu' || matrix.platform }}-${{ matrix.architecture || 'latest' }}
     name: Dart tests on ${{matrix.os  }} ${{ matrix.architecture }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
@@ -138,10 +138,10 @@ file:///C:/_LABS/app1/test/realm_dart.dll      - uses: realm/ci-actions/mdb-real
         uses: actions/checkout@v2
         with:
           submodules: false
-          
+
       - name: Cleanup Workspace
         run: git clean -fdx
-        
+
       - name: Fetch artifacts
         uses: actions/download-artifact@v2
         with:
@@ -257,7 +257,7 @@ file:///C:/_LABS/app1/test/realm_dart.dll      - uses: realm/ci-actions/mdb-real
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      
+
       - name: Deploy Apps for Flutter IOS tests on ${{ matrix.os }}
         id: deploy-apps
         run: echo "::set-output name=appIds::$(dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator 'flutter-macos-ios' | tail -1)"
