@@ -140,7 +140,7 @@ jobs:
         run: echo "::set-output name=jobId::$(${{ matrix.os == 'windows' && '%random%' || '$RANDOM' }})"
 
       - name: Set BAAS_DIFFERENTIATOR
-        id: generate_job_id
+        id: set_differentiator
         run: ${{ matrix.os == 'windows' && 'set BAAS_DIFFERENTIATOR=${{ steps.generate_job_id.outputs.jobId }}' || 'export BAAS_DIFFERENTIATOR=${{ steps.generate_job_id.outputs.jobId }}' }}
 
       - name: Checkout
@@ -196,7 +196,7 @@ jobs:
         run: echo "::set-output name=jobId::$(${{ matrix.os == 'windows' && '%random%' || '$RANDOM' }})"
 
       - name: Set BAAS_DIFFERENTIATOR
-        id: generate_job_id
+        id: set_differentiator
         run: ${{ matrix.os == 'windows' && 'set BAAS_DIFFERENTIATOR=${{ steps.generate_job_id.outputs.jobId }}' || 'export BAAS_DIFFERENTIATOR=${{ steps.generate_job_id.outputs.jobId }}' }}
 
       - name: Checkout
@@ -261,7 +261,7 @@ jobs:
         run: echo "::set-output name=jobId::$(${{ matrix.os == 'windows' && '%random%' || '$RANDOM' }})"
 
       - name: Set BAAS_DIFFERENTIATOR
-        id: generate_job_id
+        id: set_differentiator
         run: ${{ matrix.os == 'windows' && 'set BAAS_DIFFERENTIATOR=${{ steps.generate_job_id.outputs.jobId }}' || 'export BAAS_DIFFERENTIATOR=${{ steps.generate_job_id.outputs.jobId }}' }}
 
       - name: Checkout
@@ -323,7 +323,7 @@ jobs:
         run: echo "::set-output name=jobId::$(${{ matrix.os == 'windows' && '%random%' || '$RANDOM' }})"
 
       - name: Set BAAS_DIFFERENTIATOR
-        id: generate_job_id
+        id: set_differentiator
         run: ${{ matrix.os == 'windows' && 'set BAAS_DIFFERENTIATOR=${{ steps.generate_job_id.outputs.jobId }}' || 'export BAAS_DIFFERENTIATOR=${{ steps.generate_job_id.outputs.jobId }}' }}
 
       - name: Checkout
