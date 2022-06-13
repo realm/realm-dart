@@ -75,7 +75,8 @@ jobs:
         run: echo "::set-output name=commit::$(git rev-parse HEAD)"
 
       - name: Setup Vcpkg
-        if: ${{ false }} #contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+	continue-on-error: true
         uses: friendlyanon/setup-vcpkg@v1
         with:
           path: src/realm-core/tools/vcpkg/ports
