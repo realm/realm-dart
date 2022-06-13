@@ -185,13 +185,7 @@ class Realm {
   }
 
   /// Deletes a [RealmObject] from this `Realm`.
-  void delete<T extends RealmObject>(T object) {
-    try {
-      realmCore.deleteRealmObject(object);
-    } catch (e) {
-      throw RealmException("Error deleting object from databse. Error: $e");
-    }
-  }
+  void delete<T extends RealmObject>(T object) => realmCore.deleteRealmObject(object);
 
   /// Deletes many [RealmObject]s from this `Realm`.
   ///
