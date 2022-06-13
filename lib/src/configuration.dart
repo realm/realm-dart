@@ -80,13 +80,15 @@ abstract class Configuration {
     String? path,
     this.fifoFilesFallbackPath,
   }) : schema = RealmSchema(schemaObjects) {
-    this.path = path ?? Configuration.defaultRealmPath;
+    this.path = path ?? _defaultPath;
     
     var dir = File(this.path).parent;
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }
   }
+
+  String get _defaultPath => Configuration.defaultRealmPath;
 
   static String _initDefaultRealmPath() {
     return _path.join(defaultStoragePath, defaultRealmName);
@@ -266,11 +268,8 @@ class FlexibleSyncConfiguration extends Configuration {
     this.syncClientResetErrorHandler = const ManualSyncClientResetHandler(_defaultSyncClientResetHandler),
   }) : super._();
 
-  //TODO: fix 
   @override
-  String _getPath(String? path) {
-    return path ?? realmCore.getPathForConfig(this);
-  }
+  String get _defaultPath => realmCore.getPathForConfig(this);
 }
 
 extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {

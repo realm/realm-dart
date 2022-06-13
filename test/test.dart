@@ -231,13 +231,7 @@ Future<void> setupTests(List<String>? args) async {
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
 
 String generateRandomRealmPath() {
-  var path = "${generateRandomString(10)}.realm";
-  if (Platform.isAndroid || Platform.isIOS) {
-    path = _path.join(Configuration.defaultStoragePath, path);
-  } else {
-    path = _path.join(Directory.systemTemp.createTempSync("realm_test_").path, path);
-  }
-
+  final path = _path.join(Directory.systemTemp.createTempSync("realm_test_").path, "${generateRandomString(10)}.realm");
   return path;
 }
 
