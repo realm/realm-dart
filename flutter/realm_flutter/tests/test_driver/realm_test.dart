@@ -8,6 +8,7 @@ import 'package:test_api/src/backend/state.dart' as test_api;
 
 import '../test/configuration_test.dart' as configuration_test;
 import '../test/realm_test.dart' as realm_tests;
+import '../test/add_or_update_test.dart' as add_or_update_tests;
 import '../test/realm_object_test.dart' as realm_object_tests;
 import '../test/list_test.dart' as list_tests;
 import '../test/results_test.dart' as results_tests;
@@ -25,6 +26,7 @@ Future<String> main(List<String> args) async {
 
     await configuration_test.main(args);
     await realm_tests.main(args);
+    await add_or_update_tests.main(args);
     await realm_object_tests.main(args);
     await list_tests.main(args);
     await results_tests.main(args);
