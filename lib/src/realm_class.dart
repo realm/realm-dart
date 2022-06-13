@@ -151,7 +151,7 @@ class Realm {
   /// Returns the same instance as managed. This is just meant as a convenience to enable fluent syntax scenarios.
   /// Throws [RealmException] when trying to add objects with the same primary key.
   /// Throws [RealmException] if there is no write transaction created with [write].
-  T add<T extends RealmObject>(T object) {
+  T add<T extends RealmObject>(T object, {bool update = false}) {
     if (object.isManaged) {
       return object;
     }
@@ -164,7 +164,9 @@ class Realm {
 
     final handle = metadata.class_.primaryKey == null
         ? realmCore.createRealmObject(this, metadata.class_.key)
-        : realmCore.createRealmObjectWithPrimaryKey(this, metadata.class_.key, object.accessor.get(object, metadata.class_.primaryKey!)!);
+        : update
+            ? realmCore.getOrCreateRealmObjectWithPrimaryKey(this, metadata.class_.key, object.accessor.get(object, metadata.class_.primaryKey!)!)
+            : realmCore.createRealmObjectWithPrimaryKey(this, metadata.class_.key, object.accessor.get(object, metadata.class_.primaryKey!)!);
 
     final accessor = RealmCoreAccessor(metadata);
     object.manage(this, handle, accessor);
@@ -327,9 +329,9 @@ class Realm {
     ..level = RealmLogLevel.info
     ..onRecord.listen((event) => print(event));
 
-  /// Used to shutdown Realm and allow the process to correctly release native resources and exit. 
-  /// 
-  /// Disclaimer: This method is mostly needed on Dart standalone and if not called the Dart probram will hang and not exit. 
+  /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
+  ///
+  /// Disclaimer: This method is mostly needed on Dart standalone and if not called the Dart probram will hang and not exit.
   /// This is a workaround of a Dart VM bug and will be removed in a future version of the SDK.
   static void shutdown() => scheduler.stop();
 }

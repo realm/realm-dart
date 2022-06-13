@@ -531,6 +531,20 @@ class _RealmCore {
     return RealmObjectHandle._(realmPtr);
   }
 
+  RealmObjectHandle getOrCreateRealmObjectWithPrimaryKey(Realm realm, int classKey, Object primaryKey) {
+    return using((Arena arena) {
+      final realm_value = _toRealmValue(primaryKey, arena);
+      final didCreate = arena<Bool>();
+      final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_object_get_or_create_with_primary_key(
+            realm.handle._pointer,
+            classKey,
+            realm_value.ref,
+            didCreate,
+          ));
+      return RealmObjectHandle._(realmPtr);
+    });
+  }
+
   RealmObjectHandle createRealmObjectWithPrimaryKey(Realm realm, int classKey, Object primaryKey) {
     return using((Arena arena) {
       final realm_value = _toRealmValue(primaryKey, arena);
