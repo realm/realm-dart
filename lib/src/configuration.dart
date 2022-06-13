@@ -50,7 +50,9 @@ typedef InitialDataCallback = void Function(Realm realm);
 abstract class Configuration {
 
   /// The default realm filename to be used. 
-  static String defaultRealmName = 'default.realm';
+  static String get defaultRealmName => _path.basename(defaultRealmPath);
+  static set defaultRealmName(String name) => defaultRealmPath = _path.join(_path.dirname(defaultRealmPath), _path.basename(name));
+  
 
   /// The platform dependent path used to store realm files
   ///
@@ -73,21 +75,18 @@ abstract class Configuration {
   /// 
   /// If set it should contain the path and the name of the realm file. Ex. "~/mypath/myrealm.realm"
   /// [defaultStoragePath] can be used to build this path.
-  static String defaultRealmPath = _initDefaultRealmPath();
+  static late String defaultRealmPath = _path.join(defaultStoragePath, 'default.realm');
 
   Configuration._(
     List<SchemaObject> schemaObjects, {
     String? path,
     this.fifoFilesFallbackPath,
   }) : schema = RealmSchema(schemaObjects) {
-    this.path = path ?? _defaultPath;
+    this.path = path ?? _path.join(_path.dirname(_defaultPath), _path.basename(defaultRealmName));
   }
 
+  // allow inheritors to override the _defaultPath value
   String get _defaultPath => Configuration.defaultRealmPath;
-
-  static String _initDefaultRealmPath() {
-    return _path.join(defaultStoragePath, defaultRealmName);
-  }
 
   /// Specifies the FIFO special files fallback location.
   ///

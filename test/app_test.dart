@@ -21,8 +21,8 @@ import 'dart:io';
 
 import 'package:logging/logging.dart';
 import 'package:test/expect.dart';
+import 'package:path/path.dart' as path;
 
-import '../lib/src/configuration.dart';
 import '../lib/realm.dart';
 import 'realm_object_test.dart';
 import 'test.dart';
@@ -31,6 +31,7 @@ Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
   test('AppConfiguration can be initialized', () {
+    Configuration.defaultRealmPath = path.join(Configuration.defaultStoragePath, Configuration.defaultRealmName);
     final defaultAppConfig = AppConfiguration('myapp');
     expect(defaultAppConfig.appId, 'myapp');
     expect(defaultAppConfig.baseFilePath.path, Configuration.defaultStoragePath);

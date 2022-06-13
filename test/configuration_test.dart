@@ -45,6 +45,94 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
+  test('Configuration defaultRealmName can be set for LocalConfiguration', () {
+    var customDefaultRealmName = "myRealmName.realm";
+    Configuration.defaultRealmName = customDefaultRealmName;
+    final config = Configuration.local([Car.schema]);
+    expect(path.basename(config.path), path.basename(customDefaultRealmName));
+
+    final realm = getRealm(config);
+    expect(path.basename(realm.config.path), customDefaultRealmName);
+
+    //set a new defaultRealmName
+    customDefaultRealmName = "anotherRealmName.realm";
+    Configuration.defaultRealmName = customDefaultRealmName;
+    final config1 = Configuration.local([Car.schema]);
+    final realm1 = getRealm(config1);
+    expect(path.basename(realm1.config.path), customDefaultRealmName);
+  });
+
+  test('Configuration defaultRealmPath can be set for LocalConfiguration', () async {
+    final customDefaultRealmPath = path.join((await Directory.systemTemp.createTemp()).path, Configuration.defaultRealmName);
+    Configuration.defaultRealmPath = customDefaultRealmPath;
+    final config = Configuration.local([Car.schema]);
+    expect(path.dirname(config.path), path.dirname(customDefaultRealmPath));
+
+    final realm = getRealm(config);
+    expect(path.dirname(realm.config.path), path.dirname(customDefaultRealmPath));
+
+    //set a new defaultRealmPath
+    final customDefaultRealmPath1 = path.join((await Directory.systemTemp.createTemp()).path, Configuration.defaultRealmName);
+    Configuration.defaultRealmPath = customDefaultRealmPath1;
+    final config1 = Configuration.local([Car.schema]);
+    final realm1 = getRealm(config1);
+    expect(path.dirname(realm1.config.path), path.dirname(customDefaultRealmPath1));
+  });
+
+  baasTest('Configuration defaultRealmName can be set for FlexibleSyncConfiguration', (configuration) async {
+    final app = App(configuration);
+    final user = await app.logIn(Credentials.anonymous());
+
+    var customDefaultRealmName = "myRealmName.realm";
+    Configuration.defaultRealmName = customDefaultRealmName;
+    var config = Configuration.flexibleSync(user, [Task.schema]);
+    expect(path.basename(config.path), path.basename(customDefaultRealmName));
+
+    var realm = getRealm(config);
+    expect(path.basename(realm.config.path), customDefaultRealmName);
+
+    //set a new defaultRealmName
+    customDefaultRealmName = "anotherRealmName.realm";
+    Configuration.defaultRealmName = customDefaultRealmName;
+    config = Configuration.flexibleSync(user, [Task.schema]);
+    realm = getRealm(config);
+    expect(path.basename(realm.config.path), customDefaultRealmName);
+  });
+
+  baasTest('Configuration defaultRealmPath can be set for FlexibleSyncConfiguration', (_) async {
+    var customDefaultRealmPath = path.join((await Directory.systemTemp.createTemp()).path, Configuration.defaultRealmName);
+    Configuration.defaultRealmPath = customDefaultRealmPath;
+
+    final appClientId = baasApps[AppNames.flexible.name]!.clientAppId;
+    final baasUrl = arguments[argBaasUrl];
+    var appConfig = AppConfiguration(appClientId, baseUrl: Uri.parse(baasUrl!));
+    expect(appConfig.baseFilePath.path, path.dirname(customDefaultRealmPath));
+
+    var app = App(appConfig);
+    var user = await app.logIn(Credentials.anonymous());
+
+    var config = Configuration.flexibleSync(user, [Task.schema]);
+    expect(path.dirname(config.path), startsWith(path.dirname(customDefaultRealmPath)));
+
+    var realm = getRealm(config);
+    expect(path.dirname(realm.config.path), startsWith(path.dirname(customDefaultRealmPath)));
+
+    //set a new defaultRealmPath
+    customDefaultRealmPath = path.join((await Directory.systemTemp.createTemp()).path, Configuration.defaultRealmName);
+    Configuration.defaultRealmPath = customDefaultRealmPath;
+
+    appConfig = AppConfiguration(appClientId, baseUrl: Uri.parse(baasUrl));
+    expect(appConfig.baseFilePath.path, path.dirname(customDefaultRealmPath));
+
+    clearCachedApps();
+
+    app = App(appConfig);
+    user = await app.logIn(Credentials.anonymous());
+    config = Configuration.flexibleSync(user, [Task.schema]);
+    realm = getRealm(config);
+    expect(path.dirname(realm.config.path), startsWith(path.dirname(customDefaultRealmPath)));
+  });
+
   test('Configuration get/set path', () {
     final config = Configuration.local([Car.schema]);
     expect(config.path, endsWith('.realm'));
@@ -425,7 +513,7 @@ Future<void> main([List<String>? args]) async {
     final flexibleSyncConfig = Configuration.flexibleSync(user, schema, path: realmPath);
     final realm = Realm(flexibleSyncConfig);
     final oid = ObjectId();
-    realm.subscriptions.update((mutableSubscriptions) { 
+    realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [oid]));
     });
     realm.write(() => realm.add(Task(oid)));

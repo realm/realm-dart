@@ -18,9 +18,9 @@
 import 'dart:io';
 
 import 'package:meta/meta.dart';
+import 'package:path/path.dart' as _path;
 
 import '../realm.dart';
-import 'configuration.dart';
 import 'credentials.dart';
 import 'native/realm_core.dart';
 import 'user.dart';
@@ -98,7 +98,7 @@ class AppConfiguration {
     this.maxConnectionTimeout = const Duration(minutes: 2),
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
-        baseFilePath = baseFilePath ?? Directory(Configuration.defaultStoragePath),
+        baseFilePath = baseFilePath ?? Directory(_path.dirname(Configuration.defaultRealmPath)),
         httpClient = httpClient ?? HttpClient();
 }
 
