@@ -169,7 +169,7 @@ class Realm {
             : realmCore.createRealmObjectWithPrimaryKey(this, metadata.class_.key, object.accessor.get(object, metadata.class_.primaryKey!)!);
 
     final accessor = RealmCoreAccessor(metadata);
-    object.manage(this, handle, accessor);
+    object.manage(this, handle, accessor, update);
 
     return object;
   }

@@ -24,7 +24,7 @@ import 'realm_class.dart';
 
 abstract class RealmAccessor {
   Object? get<T extends Object>(RealmObject object, String name);
-  void set(RealmObject object, String name, Object? value, [bool isDefault = false]);
+  void set(RealmObject object, String name, Object? value, {bool isDefault = false, bool update = false});
 
   static final Map<Type, Map<String, Object?>> _defaultValues = <Type, Map<String, Object?>>{};
 
@@ -68,24 +68,24 @@ class RealmValuesAccessor implements RealmAccessor {
   }
 
   @override
-  void set(RealmObject object, String name, Object? value, [bool isDefault = false]) {
+  void set(RealmObject object, String name, Object? value, {bool isDefault = false, bool update = false}) {
     _values[name] = value;
   }
 
-  void setAll(RealmObject object, RealmAccessor accessor) {
+  void setAll(RealmObject object, RealmAccessor accessor, bool update) {
     final defaults = RealmAccessor.getDefaults(object.runtimeType);
 
     if (defaults != null) {
       for (var item in defaults.entries) {
         //check if a default value has been overwritten
         if (!_values.containsKey(item.key)) {
-          accessor.set(object, item.key, item.value, true);
+          accessor.set(object, item.key, item.value, isDefault: true, update: update);
         }
       }
     }
 
     for (var entry in _values.entries) {
-      accessor.set(object, entry.key, entry.value);
+      accessor.set(object, entry.key, entry.value, update: update);
     }
   }
 }
@@ -150,28 +150,22 @@ class RealmCoreAccessor implements RealmAccessor {
   }
 
   @override
-  void set(RealmObject object, String name, Object? value, [bool isDefault = false]) {
+  void set(RealmObject object, String name, Object? value, {bool isDefault = false, bool update = false}) {
     final propertyMeta = metadata[name];
     try {
-      if (value is List) {
-        if (value.isEmpty) {
-          return;
-        }
-
-        //This assumes the target list property is empty. `value is List` should happen only when making a RealmObject managed
+      if (value is RealmList<Object>) {
         final handle = realmCore.getListProperty(object, propertyMeta.key);
-        for (var i = 0; i < value.length; i++) {
-          RealmListInternal.setValue(handle, object.realm, i, value[i]);
+        if (value.isNotEmpty) {
+          for (var i = 0; i < value.length; i++) {
+            RealmListInternal.setValue(handle, object.realm, i, value[i]);
+          }
         }
-        return;
+      } else {
+        if (value is RealmObject && !value.isManaged) {
+          object.realm.add(value, update: update);
+        }
+        realmCore.setProperty(object, propertyMeta.key, value, isDefault);
       }
-
-      //If value is RealmObject - manage it
-      if (value is RealmObject && !value.isManaged) {
-        object.realm.add(value);
-      }
-
-      realmCore.setProperty(object, propertyMeta.key, value, isDefault);
     } on Exception catch (e) {
       throw RealmException("Error setting property ${metadata.class_.type}.$name Error: $e");
     }
@@ -211,8 +205,8 @@ mixin RealmObject on RealmEntity {
   }
 
   /// @nodoc
-  static void set<T extends Object>(RealmObject object, String name, T? value) {
-    object._accessor.set(object, name, value);
+  static void set<T extends Object>(RealmObject object, String name, T? value, {bool update = false}) {
+    object._accessor.set(object, name, value, update: update);
   }
 
   /// @nodoc
@@ -269,7 +263,7 @@ mixin RealmObject on RealmEntity {
 /// @nodoc
 //RealmObject package internal members
 extension RealmObjectInternal on RealmObject {
-  void manage(Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor) {
+  void manage(Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor, bool update) {
     if (_handle != null) {
       //most certainly a bug hence we throw an Error
       throw ArgumentError("Object is already managed");
@@ -279,7 +273,7 @@ extension RealmObjectInternal on RealmObject {
     _realm = realm;
 
     if (_accessor is RealmValuesAccessor) {
-      (_accessor as RealmValuesAccessor).setAll(this, accessor);
+      (_accessor as RealmValuesAccessor).setAll(this, accessor, update);
     }
 
     _accessor = accessor;
