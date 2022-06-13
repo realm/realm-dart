@@ -414,7 +414,7 @@ Future<void> main([List<String>? args]) async {
     expect(config.path, 'my-custom-path.realm');
   });
 
-  baasTest('Configuration.sessionlessSync', (appConfig) async {
+  baasTest('Configuration.disconnectedSync', (appConfig) async {
     final app = App(appConfig);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
 
@@ -431,8 +431,8 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => realm.add(Task(oid)));
     realm.close();
 
-    final sessionlessSyncConfig = Configuration.sessionlessSync(schema, path: realmPath);
-    final sessionlessRealm = Realm(sessionlessSyncConfig);
-    expect(sessionlessRealm.find<Task>(oid), isNotNull);
+    final disconnectedSyncConfig = Configuration.disconnectedSync(schema, path: realmPath);
+    final disconnectedRealm = Realm(disconnectedSyncConfig);
+    expect(disconnectedRealm.find<Task>(oid), isNotNull);
   });
 }

@@ -148,13 +148,13 @@ abstract class Configuration {
         syncClientResetErrorHandler: syncClientResetErrorHandler,
       );
 
-  /// Constructs a [SessionlessSyncConfiguration]
-  static SessionlessSyncConfiguration sessionlessSync(
+  /// Constructs a [DisconnectedSyncConfiguration]
+  static DisconnectedSyncConfiguration disconnectedSync(
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
   }) =>
-      SessionlessSyncConfiguration._(
+      DisconnectedSyncConfiguration._(
         schemaObjects,
         fifoFilesFallbackPath: fifoFilesFallbackPath,
         path: path,
@@ -278,8 +278,14 @@ extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
   set sessionStopPolicy(SessionStopPolicy value) => _sessionStopPolicy = value;
 }
 
-class SessionlessSyncConfiguration extends Configuration {
-  SessionlessSyncConfiguration._(
+/// [DisconnectedSyncConfiguration] is used to open [Realm] instances that are synchronized
+/// with MongoDB Atlas, without establishing a connection to Atlas App Services. This allows
+/// for the synchronized realm to be opened in multiple processes concurrently, as long as 
+/// at most one of them uses a a [FlexibleSyncConfiguration].
+/// {@category Configuration}
+
+class DisconnectedSyncConfiguration extends Configuration {
+  DisconnectedSyncConfiguration._(
     super.schemaObjects, {
     super.fifoFilesFallbackPath,
     super.path,
