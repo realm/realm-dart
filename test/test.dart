@@ -18,6 +18,7 @@
 
 import 'dart:async';
 import 'dart:collection';
+import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
 import 'package:meta/meta.dart';
@@ -226,6 +227,8 @@ Future<void> setupTests(List<String>? args) async {
       }
     });
   });
+
+  await _printPlatformInfo();
 }
 
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
@@ -429,3 +432,20 @@ extension RealmObjectTest on RealmObject {
 }
 
 void clearCachedApps() => realmCore.clearCachedApps();
+
+Future<void> _printPlatformInfo() async {
+  final pointerSize = sizeOf<IntPtr>() * 8;
+  final os = Platform.operatingSystem;
+  String? cpu;
+
+  if (!isFlutterPlatform) {
+    if (Platform.isWindows) {
+      cpu = Platform.environment['PROCESSOR_ARCHITECTURE'];
+    } else {
+      final info = await Process.run('uname', ['-m']);
+      cpu = info.stdout.toString().replaceAll('\n', '');
+    }
+  }
+
+  print('Current PID $pid; OS $os, $pointerSize bit, CPU ${cpu ?? 'unknown'}');
+}

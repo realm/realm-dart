@@ -16,16 +16,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:io';
-
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
   const String strongPassword = "SWV23R#@T#VFQDV";
-
-  print("Current PID $pid");
 
   await setupTests(args);
 

@@ -21,7 +21,6 @@
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
-import '../lib/realm.dart';
 
 import 'test.dart';
 
@@ -84,8 +83,6 @@ extension on DateTime {
 }
 
 Future<void> main([List<String>? args]) async {
-  print("Current PID $pid");
-
   await setupTests(args);
 
   test('RealmObject get property', () {

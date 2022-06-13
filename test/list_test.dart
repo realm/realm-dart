@@ -18,14 +18,11 @@
 
 // ignore_for_file: unused_local_variable
 
-import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
-  print("Current PID $pid");
-
   await setupTests(args);
 
   test('Lists add object with a list property', () {
