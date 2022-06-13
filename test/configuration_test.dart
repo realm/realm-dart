@@ -20,12 +20,11 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:test/test.dart' hide test, throws;
+import 'package:path/path.dart' as path;
 import '../lib/realm.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
-  print("Current PID $pid");
-
   await setupTests(args);
 
   test('Configuration can be created', () {
@@ -413,5 +412,27 @@ Future<void> main([List<String>? args]) async {
     final config = Configuration.flexibleSync(user, [Car.schema], path: 'my-custom-path.realm');
 
     expect(config.path, 'my-custom-path.realm');
+  });
+
+  baasTest('Configuration.disconnectedSync', (appConfig) async {
+    final app = App(appConfig);
+    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
+
+    final dir = await Directory.systemTemp.createTemp();
+    final realmPath = path.join(dir.path, 'test.realm');
+
+    final schema = [Task.schema];
+    final flexibleSyncConfig = Configuration.flexibleSync(user, schema, path: realmPath);
+    final realm = Realm(flexibleSyncConfig);
+    final oid = ObjectId();
+    realm.subscriptions.update((mutableSubscriptions) { 
+      mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [oid]));
+    });
+    realm.write(() => realm.add(Task(oid)));
+    realm.close();
+
+    final disconnectedSyncConfig = Configuration.disconnectedSync(schema, path: realmPath);
+    final disconnectedRealm = Realm(disconnectedSyncConfig);
+    expect(disconnectedRealm.find<Task>(oid), isNotNull);
   });
 }

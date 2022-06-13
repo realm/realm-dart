@@ -170,6 +170,18 @@ abstract class Configuration {
         syncErrorHandler: syncErrorHandler,
         syncClientResetErrorHandler: syncClientResetErrorHandler,
       );
+
+  /// Constructs a [DisconnectedSyncConfiguration]
+  static DisconnectedSyncConfiguration disconnectedSync(
+    List<SchemaObject> schemaObjects, {
+    String? fifoFilesFallbackPath,
+    String? path,
+  }) =>
+      DisconnectedSyncConfiguration._(
+        schemaObjects,
+        fifoFilesFallbackPath: fifoFilesFallbackPath,
+        path: path,
+      );
 }
 
 /// [LocalConfiguration] is used to open local [Realm] instances,
@@ -230,32 +242,35 @@ enum SessionStopPolicy {
 typedef SyncErrorHandler = void Function(SyncError);
 
 void defaultSyncErrorHandler(SyncError e) {
-   Realm.logger.log(RealmLogLevel.error, e);
+  Realm.logger.log(RealmLogLevel.error, e);
 }
 
 void _defaultSyncClientResetHandler(SyncError e) {
-  Realm.logger.log(RealmLogLevel.error, "A client reset error occurred but no handler was supplied. "
-    "Synchronization is now paused and will resume automatically once the app is restarted and "
-    "the server data is redownloaded. Any unsynchronized changes the client has made or will "
-    "make will be lost. To handle that scenario, pass in a non-null value to " 
-    "syncClientResetErrorHandler when constructing Configuration.flexibleSync.");
+  Realm.logger.log(
+      RealmLogLevel.error,
+      "A client reset error occurred but no handler was supplied. "
+      "Synchronization is now paused and will resume automatically once the app is restarted and "
+      "the server data is re-downloaded. Any un-synchronized changes the client has made or will "
+      "make will be lost. To handle that scenario, pass in a non-null value to "
+      "syncClientResetErrorHandler when constructing Configuration.flexibleSync.");
 }
 
 /// [FlexibleSyncConfiguration] is used to open [Realm] instances that are synchronized
 /// with MongoDB Atlas.
 /// {@category Configuration}
 class FlexibleSyncConfiguration extends Configuration {
+  /// The [User] used to created this [FlexibleSyncConfiguration]
   final User user;
 
   SessionStopPolicy _sessionStopPolicy = SessionStopPolicy.afterChangesUploaded;
 
   /// Called when a [SyncError] occurs for this synchronized [Realm].
-  /// 
+  ///
   /// The default [SyncErrorHandler] prints to the console
   final SyncErrorHandler syncErrorHandler;
 
   /// Called when a [SyncClientResetError] occurs for this synchronized [Realm]
-  /// 
+  ///
   /// The default [SyncClientResetErrorHandler] logs a message using the current Realm.logger
   final SyncClientResetErrorHandler syncClientResetErrorHandler;
 
@@ -275,6 +290,19 @@ class FlexibleSyncConfiguration extends Configuration {
 extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
   SessionStopPolicy get sessionStopPolicy => _sessionStopPolicy;
   set sessionStopPolicy(SessionStopPolicy value) => _sessionStopPolicy = value;
+}
+
+/// [DisconnectedSyncConfiguration] is used to open [Realm] instances that are synchronized
+/// with MongoDB Atlas, without establishing a connection to Atlas App Services. This allows
+/// for the synchronized realm to be opened in multiple processes concurrently, as long as 
+/// only one of them uses a [FlexibleSyncConfiguration] to sync changes.
+/// {@category Configuration}
+class DisconnectedSyncConfiguration extends Configuration {
+  DisconnectedSyncConfiguration._(
+    super.schemaObjects, {
+    super.fifoFilesFallbackPath,
+    super.path,
+  }) : super._();
 }
 
 /// [InMemoryConfiguration] is used to open [Realm] instances that

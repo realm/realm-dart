@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
@@ -25,8 +24,6 @@ import '../lib/src/session.dart' show SessionInternal;
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
-  print("Current PID $pid");
-
   await setupTests(args);
 
   test('Realm.syncSession throws on wrong configuration', () {

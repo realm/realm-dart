@@ -28,8 +28,6 @@ import 'realm_object_test.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
-  print("Current PID $pid");
-
   await setupTests(args);
 
   test('AppConfiguration can be initialized', () {
@@ -183,7 +181,6 @@ Future<void> main([List<String>? args]) async {
     final user1 = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
     expect(app.users, [user1, user]);
   });
-
 
   baasTest('Realm.logger', (configuration) async {
     Realm.logger = Logger.detached(generateRandomString(10))..level = RealmLogLevel.all;
