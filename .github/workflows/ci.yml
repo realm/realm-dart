@@ -137,7 +137,7 @@ jobs:
 
       - name: Generate unique job id
         id: generate_job_id
-        run: echo "::set-output name=jobId::$(${{ matrix.os == 'windows' && set BAAS_DIFFERENTIATOR=%random% || export BAAS_DIFFERENTIATOR=$RANDOM }} | ${{ matrix.os == 'windows' && echo %BAAS_DIFFERENTIATOR% || echo $BAAS_DIFFERENTIATOR }})"
+        run: echo "::set-output name=jobId::$(${{ matrix.os == 'windows' && 'set BAAS_DIFFERENTIATOR=%random%' || 'export BAAS_DIFFERENTIATOR=$RANDOM' }} | ${{ matrix.os == 'windows' && 'echo %BAAS_DIFFERENTIATOR%' || 'echo $BAAS_DIFFERENTIATOR' }})"
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -161,7 +161,7 @@ jobs:
 
       - name: Deploy Apps for Dart tests on ${{ matrix.os }}
         id: deploy-apps
-        run: echo "::set-output name=appIds::$(dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}' | tail -1)"
+        run: echo "::set-output name=appIds::$(dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ steps.generate_job_id.outputs.jobId }}' | tail -1)"
 
       - name: Install dependencies
         run: dart pub get
@@ -171,7 +171,7 @@ jobs:
 
       - name: Cleanup apps
         if: always()
-        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
+        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ steps.generate_job_id.outputs.jobId }}'
 
   flutter-desktop-tests:
     strategy:
@@ -188,7 +188,7 @@ jobs:
 
       - name: Generate unique job id
         id: generate_job_id
-        run: echo "::set-output name=jobId::$(${{ matrix.os == 'windows' && set BAAS_DIFFERENTIATOR=%random% || export BAAS_DIFFERENTIATOR=$RANDOM }} | ${{ matrix.os == 'windows' && echo %BAAS_DIFFERENTIATOR% || echo $BAAS_DIFFERENTIATOR }})"
+        run: echo "::set-output name=jobId::$(${{ matrix.os == 'windows' && 'set BAAS_DIFFERENTIATOR=%random%' || 'export BAAS_DIFFERENTIATOR=$RANDOM' }} | ${{ matrix.os == 'windows' && 'echo %BAAS_DIFFERENTIATOR%' || 'echo $BAAS_DIFFERENTIATOR' }})"
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -221,7 +221,7 @@ jobs:
 
       - name: Deploy Apps for Dart tests on ${{ matrix.os }}
         id: deploy-apps
-        run: echo "::set-output name=appIds::$(dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}' | tail -1)"
+        run: echo "::set-output name=appIds::$(dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ steps.generate_job_id.outputs.jobId }}' | tail -1)"
 
 
       - name: Install dependencies
@@ -233,7 +233,7 @@ jobs:
 
       - name: Cleanup apps
         if: always()
-        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
+        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ steps.generate_job_id.outputs.jobId }}'
 
 # iOS jobs
 
@@ -249,7 +249,7 @@ jobs:
 
       - name: Generate unique job id
         id: generate_job_id
-        run: echo "::set-output name=jobId::$(${{ matrix.os == 'windows' && set BAAS_DIFFERENTIATOR=%random% || export BAAS_DIFFERENTIATOR=$RANDOM }} | ${{ matrix.os == 'windows' && echo %BAAS_DIFFERENTIATOR% || echo $BAAS_DIFFERENTIATOR }})"
+        run: echo "::set-output name=jobId::$(${{ matrix.os == 'windows' && 'set BAAS_DIFFERENTIATOR=%random%' || 'export BAAS_DIFFERENTIATOR=$RANDOM' }} | ${{ matrix.os == 'windows' && 'echo %BAAS_DIFFERENTIATOR%' || 'echo $BAAS_DIFFERENTIATOR' }})"
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -272,7 +272,7 @@ jobs:
 
       - name: Deploy Apps for Flutter IOS tests on ${{ matrix.os }}
         id: deploy-apps
-        run: echo "::set-output name=appIds::$(dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}' | tail -1)"
+        run: echo "::set-output name=appIds::$(dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ steps.generate_job_id.outputs.jobId }}' | tail -1)"
 
       - name: Install dependencies
         run: flutter pub get
@@ -291,7 +291,7 @@ jobs:
 
       - name: Cleanup apps
         if: always()
-        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
+        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ steps.generate_job_id.outputs.jobId }}'
 
 # Android jobs
 
@@ -307,7 +307,7 @@ jobs:
 
       - name: Generate unique job id
         id: generate_job_id
-        run: echo "::set-output name=jobId::$(${{ matrix.os == 'windows' && set BAAS_DIFFERENTIATOR=%random% || export BAAS_DIFFERENTIATOR=$RANDOM }} | ${{ matrix.os == 'windows' && echo %BAAS_DIFFERENTIATOR% || echo $BAAS_DIFFERENTIATOR }})"
+        run: echo "::set-output name=jobId::$(${{ matrix.os == 'windows' && 'set BAAS_DIFFERENTIATOR=%random%' || 'export BAAS_DIFFERENTIATOR=$RANDOM' }} | ${{ matrix.os == 'windows' && 'echo %BAAS_DIFFERENTIATOR%' || 'echo $BAAS_DIFFERENTIATOR' }})"
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -327,7 +327,7 @@ jobs:
 
       - name: Deploy Apps for Flutter Android tests on ${{ matrix.os }}
         id: deploy-apps
-        run: echo "::set-output name=appIds::$(dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}' | tail -1)"
+        run: echo "::set-output name=appIds::$(dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ steps.generate_job_id.outputs.jobId }}' | tail -1)"
 
       - name: Install dependencies
         run: flutter pub get
@@ -370,7 +370,7 @@ jobs:
 
       - name: Cleanup apps
         if: always()
-        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
+        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ steps.generate_job_id.outputs.jobId }}'
 
 # Generator jobs
 
