@@ -132,6 +132,7 @@ jobs:
         run: echo "::set-output name=commit::$(git rev-parse HEAD)"
 
       - name: Setup Vcpkg
+        continue-on-error: true
         if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         uses: friendlyanon/setup-vcpkg@v1
         with:
