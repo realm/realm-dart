@@ -167,11 +167,20 @@ class Realm {
           " Add type ${object.runtimeType} to your config before opening the Realm");
     }
 
-    final handle = metadata.class_.primaryKey == null
-        ? realmCore.createRealmObject(this, metadata.class_.key)
-        : update
-            ? realmCore.getOrCreateRealmObjectWithPrimaryKey(this, metadata.class_.key, object.accessor.get(object, metadata.class_.primaryKey!)!)
-            : realmCore.createRealmObjectWithPrimaryKey(this, metadata.class_.key, object.accessor.get(object, metadata.class_.primaryKey!)!);
+    late RealmObjectHandle handle;
+    final key = metadata.class_.key;
+    final primaryKey = metadata.class_.primaryKey;
+    if (primaryKey == null) {
+      handle = realmCore.createRealmObject(this, key); 
+    }
+    else {
+      if (update) {
+        handle = realmCore.getOrCreateRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey)!);
+      }
+      else {
+        handle = realmCore.createRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey)!);
+      }
+    }
 
     final accessor = RealmCoreAccessor(metadata);
     object.manage(this, handle, accessor, update);
