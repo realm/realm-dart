@@ -167,25 +167,27 @@ class Realm {
           " Add type ${object.runtimeType} to your config before opening the Realm");
     }
 
-    late RealmObjectHandle handle;
-    final key = metadata.class_.key;
-    final primaryKey = metadata.class_.primaryKey;
-    if (primaryKey == null) {
-      handle = realmCore.createRealmObject(this, key); 
-    }
-    else {
-      if (update) {
-        handle = realmCore.getOrCreateRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey)!);
-      }
-      else {
-        handle = realmCore.createRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey)!);
-      }
-    }
-
+    final handle = _createObject(object, metadata, update);
     final accessor = RealmCoreAccessor(metadata);
     object.manage(this, handle, accessor, update);
 
     return object;
+  }
+
+  RealmObjectHandle _createObject(RealmObject object, RealmMetadata metadata, bool update) {
+    final key = metadata.class_.key;
+    final primaryKey = metadata.class_.primaryKey;
+    if (primaryKey == null) {
+      return realmCore.createRealmObject(this, key); 
+    }
+    else {
+      if (update) {
+        return realmCore.getOrCreateRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey)!);
+      }
+      else {
+        return realmCore.createRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey)!);
+      }
+    }
   }
 
   /// Adds a collection [RealmObject]s to this `Realm`.
