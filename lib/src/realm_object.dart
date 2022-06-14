@@ -159,12 +159,12 @@ class RealmCoreAccessor implements RealmAccessor {
         for (var i = 0; i < value.length; i++) {
           RealmListInternal.setValue(handle, object.realm, i, value[i]);
         }
-      } else {
-        if (value is RealmObject && !value.isManaged) {
-          object.realm.add(value, update: update);
-        }
-        realmCore.setProperty(object, propertyMeta.key, value, isDefault);
+        return;
       }
+      if (value is RealmObject && !value.isManaged) {
+        object.realm.add(value, update: update);
+      }
+      realmCore.setProperty(object, propertyMeta.key, value, isDefault);
     } on Exception catch (e) {
       throw RealmException("Error setting property ${metadata.class_.type}.$name Error: $e");
     }

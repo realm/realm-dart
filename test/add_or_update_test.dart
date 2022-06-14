@@ -37,30 +37,30 @@ Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
   test('Transitive adds', () {
-    final r = getRealm(Configuration.local([Friend.schema]));
+    final realm = getRealm(Configuration.local([Friend.schema]));
 
     var alice = Friend(1);
     var bob = Friend(2, bestFriend: alice);
 
-    r.write(() => r.add(bob));
+    realm.write(() => realm.add(bob));
     expect(bob.isManaged, true);
     expect(alice.isManaged, true);
-    expect(r.find<Friend>(bob.id), bob);
-    expect(r.find<Friend>(alice.id), alice);
+    expect(realm.find<Friend>(bob.id), bob);
+    expect(realm.find<Friend>(alice.id), alice);
   });
 
   test('Transitive updates', () {
-    final r = getRealm(Configuration.local([Friend.schema]));
+    final realm = getRealm(Configuration.local([Friend.schema]));
 
     var alice = Friend(1);
     var bob = Friend(2, bestFriend: alice);
 
-    r.write(() => r.add(bob));
+    realm.write(() => realm.add(bob));
 
     final aliceAgain = Friend(1);
     final bobAgain = Friend(2, bestFriend: aliceAgain);
 
-    r.write(() => r.add(bobAgain, update: true));
+    realm.write(() => realm.add(bobAgain, update: true));
 
     expect(bob.isManaged, true);
     expect(alice.isManaged, true);
@@ -68,8 +68,8 @@ Future<void> main([List<String>? args]) async {
     expect(aliceAgain.isManaged, true);
 
     // Re-fetch from realm
-    alice = r.find(alice.id)!;
-    bob = r.find(bob.id)!;
+    alice = realm.find(alice.id)!;
+    bob = realm.find(bob.id)!;
 
     expect(bob, bobAgain);
     expect(alice, aliceAgain);
@@ -77,17 +77,17 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Cycles added correctly', () {
-    final r = getRealm(Configuration.local([Friend.schema]));
+    final realm = getRealm(Configuration.local([Friend.schema]));
 
     var alice = Friend(1);
     var bob = Friend(2, bestFriend: alice);
     alice.bestFriend = bob; // form cycle
 
-    r.write(() => r.add(alice));
+    realm.write(() => realm.add(alice));
 
     // Re-fetch from realm
-    alice = r.find(alice.id)!;
-    bob = r.find(bob.id)!;
+    alice = realm.find(alice.id)!;
+    bob = realm.find(bob.id)!;
 
     expect(alice.bestFriend, bob);
     expect(alice.bestFriend!.bestFriend, alice);
@@ -95,23 +95,23 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Cycles updated correctly', () {
-    final r = getRealm(Configuration.local([Friend.schema]));
+    final realm = getRealm(Configuration.local([Friend.schema]));
 
     var alice = Friend(1);
     var bob = Friend(2, bestFriend: alice);
     alice.bestFriend = bob; // form cycle
 
-    r.write(() => r.add(alice));
+    realm.write(() => realm.add(alice));
 
     final aliceAgain = Friend(1);
     final bobAgain = Friend(2, bestFriend: aliceAgain);
     aliceAgain.bestFriend = bobAgain;
 
-    alice = r.write(() => r.add(aliceAgain, update: true));
+    alice = realm.write(() => realm.add(aliceAgain, update: true));
 
     // Re-fetch from realm
-    alice = r.find(alice.id)!;
-    bob = r.find(bob.id)!;
+    alice = realm.find(alice.id)!;
+    bob = realm.find(bob.id)!;
 
     expect(alice.bestFriend, bobAgain);
     expect(alice.bestFriend!.bestFriend, aliceAgain);
@@ -119,24 +119,24 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Lists updated correctly', () {
-    final r = getRealm(Configuration.local([Friend.schema]));
+    final realm = getRealm(Configuration.local([Friend.schema]));
 
     var alice = Friend(1);
     var bob = Friend(2);
     var carol = Friend(3);
     alice.friends.addAll([bob, carol]);
 
-    r.write(() => r.add(alice));
+    realm.write(() => realm.add(alice));
 
     expect(alice.friends, [bob, carol]);
 
     var dan = Friend(4);
     final aliceAgain = Friend(1, friends: [dan]);
 
-    r.write(() => r.add(aliceAgain, update: true));
+    realm.write(() => realm.add(aliceAgain, update: true));
 
     // Re-fetch from realm
-    alice = r.find(alice.id)!;
+    alice = realm.find(alice.id)!;
 
     expect(alice.friends, [dan]);
   });
