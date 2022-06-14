@@ -126,7 +126,7 @@ jobs:
     name: Dart tests on ${{matrix.os }} ${{ matrix.architecture }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: dart-${{ matrix.os }}${{ matrix.architecture && format('-{0}', matrix.architecture) || '' }}-${{env.GITHUB_RUN_ID}}
+      BAAS_DIFFERENTIATOR: dart-${{ matrix.os }}${{ matrix.architecture && format('-{0}', matrix.architecture) || '' }}-${{ github.run_id }}-${{ github.run_number }}
     needs:
       - deploy-cluster
       - build-native
@@ -175,7 +175,7 @@ jobs:
     name: Flutter tests on ${{matrix.os  }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: flutter-${{ matrix.os }}${{ matrix.architecture && format('-{0}', matrix.architecture) || '' }}-${{env.GITHUB_RUN_ID}}
+      BAAS_DIFFERENTIATOR: flutter-${{ matrix.os }}${{ matrix.architecture && format('-{0}', matrix.architecture) || '' }}-${{ github.run_id }}-${{ github.run_number }}
 
     needs:
       - deploy-cluster
