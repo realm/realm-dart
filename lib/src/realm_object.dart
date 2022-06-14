@@ -79,7 +79,7 @@ class RealmValuesAccessor implements RealmAccessor {
       for (var item in defaults.entries) {
         //check if a default value has been overwritten
         if (!_values.containsKey(item.key)) {
-          accessor.set(object, item.key, item.value, isDefault: true, update: update);
+          accessor.set(object, item.key, item.value, isDefault: true);
         }
       }
     }
