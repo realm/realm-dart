@@ -137,7 +137,7 @@ jobs:
 
       - name: Generate unique job id
         id: generate_job_id
-        run: echo "${{ format('{0}BAAS_DIFFERENTIATOR=d{1}RANDOM{1}100', matrix.os == 'windows' && 'set ' || '', matrix.os == 'windows' && '%' || '$' )}}" >> ${{ matrix.os == 'windows' && $env:GITHUB_ENV || $GITHUB_ENV }}
+        run: echo "${{ format('{0}BAAS_DIFFERENTIATOR=d{1}RANDOM{1}100', matrix.os == 'windows' && 'set ' || '', matrix.os == 'windows' && '%' || '$' )}}" >> $env:GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -189,7 +189,7 @@ jobs:
 
       - name: Generate unique job id
         id: generate_job_id
-        run: echo "${{ format('{0}BAAS_DIFFERENTIATOR=d{1}RANDOM{1}100', matrix.os == 'windows' && 'set ' || '', matrix.os == 'windows' && '%' || '$' )}}" >> ${{ matrix.os == 'windows' && $env:GITHUB_ENV || $GITHUB_ENV }}
+        run: echo "${{ format('{0}BAAS_DIFFERENTIATOR=d{1}RANDOM{1}100', matrix.os == 'windows' && 'set ' || '', matrix.os == 'windows' && '%' || '$' )}}" >> $env:GITHUB_ENV 
 
       - name: Checkout
         uses: actions/checkout@v2
