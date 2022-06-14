@@ -483,7 +483,7 @@ class RealmMetadata {
   RealmObjectMetadata getByType(Type type) {
     final metadata = _typeMap[type];
     if (metadata == null) {
-      throw RealmException("Object type $type not configured in the current Realm's schema. Add type $type to your config before opening the Realm");
+      throw RealmError("Object type $type not configured in the current Realm's schema. Add type $type to your config before opening the Realm");
     }
 
     return metadata;
@@ -494,7 +494,7 @@ class RealmMetadata {
     if (metadata == null) {
       metadata = _typeMap.values.firstWhereOrNull((v) => v.name == type);
       if (metadata == null) {
-        throw RealmException("Object type $type not configured in the current Realm's schema. Add type $type to your config before opening the Realm");
+        throw RealmError("Object type $type not configured in the current Realm's schema. Add type $type to your config before opening the Realm");
       }
 
       _stringMap[type] = metadata;

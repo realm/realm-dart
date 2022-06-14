@@ -109,7 +109,7 @@ Future<void> main([List<String>? args]) async {
 
       final dynamicRealm = getDynamicRealm(staticRealm);
 
-      expect(() => dynamicRealm.dynamic.all('i-dont-exist'), throws<RealmException>("Object type i-dont-exist not configured in the current Realm's schema"));
+      expect(() => dynamicRealm.dynamic.all('i-dont-exist'), throws<RealmError>("Object type i-dont-exist not configured in the current Realm's schema"));
     });
 
     test('dynamic.all (dynamic=$isDynamic) can follow links', () {
@@ -191,7 +191,7 @@ Future<void> main([List<String>? args]) async {
       final dynamicRealm = getDynamicRealm(staticRealm);
 
       expect(() => dynamicRealm.dynamic.find('i-dont-exist', 'i-dont-exist'),
-          throws<RealmException>("Object type i-dont-exist not configured in the current Realm's schema"));
+          throws<RealmError>("Object type i-dont-exist not configured in the current Realm's schema"));
     });
   }
 }
