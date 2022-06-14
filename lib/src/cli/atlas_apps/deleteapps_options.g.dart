@@ -6,16 +6,17 @@ part of 'deleteapps_options.dart';
 // CliGenerator
 // **************************************************************************
 
-DeleteAppsOptions _$parseOptionsResult(ArgResults result) => Options(
+DeleteAppsOptions _$parseDeleteAppsOptionsResult(ArgResults result) =>
+    DeleteAppsOptions(
       result['baas-url'] as String,
+      result['app-ids'] as String,
       atlasCluster: result['atlas-cluster'] as String?,
       apiKey: result['api-key'] as String?,
       privateApiKey: result['private-api-key'] as String?,
       projectId: result['project-id'] as String?,
-      appIds: result['appIds'] as String,
     );
 
-ArgParser _$populateOptionsParser(ArgParser parser) => parser
+ArgParser _$populateDeleteAppsOptionsParser(ArgParser parser) => parser
   ..addOption(
     'baas-url',
     help: 'Url for MongoDB Atlas.',
@@ -41,13 +42,15 @@ ArgParser _$populateOptionsParser(ArgParser parser) => parser
         'The Atlas project id to use for the import. Only used if atlas-cluster is specified.',
   )
   ..addOption(
-    'appIds',
-    help: 'The Atlas application Ids - comma separated list.',
+    'app-ids',
+    help: 'The Atlas application Ids - comma separated list',
+    defaultsTo: '',
   );
 
-final _$parserForOptions = _$populateOptionsParser(ArgParser());
+final _$parserForDeleteAppsOptions =
+    _$populateDeleteAppsOptionsParser(ArgParser());
 
-Options parseOptions(List<String> args) {
-  final result = _$parserForOptions.parse(args);
-  return _$parseOptionsResult(result);
+DeleteAppsOptions parseDeleteAppsOptions(List<String> args) {
+  final result = _$parserForDeleteAppsOptions.parse(args);
+  return _$parseDeleteAppsOptionsResult(result);
 }
