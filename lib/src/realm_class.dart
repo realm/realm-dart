@@ -149,11 +149,11 @@ class Realm {
   /// If the object is already managed by this `Realm`, this method does nothing.
   /// This method modifies the object in-place as it becomes managed. Managed instances are persisted and become live objects.
   /// Returns the same instance as managed. This is just meant as a convenience to enable fluent syntax scenarios.
-  /// 
+  ///
   /// By setting the [update] flag you can update any existing object with the same primary key.
   /// Updating only makes sense for objects with primary keys, and is effectively ignored
   /// otherwise.
-  /// 
+  ///
   /// Throws [RealmException] when trying to add objects with the same primary key.
   /// Throws [RealmException] if there is no write transaction created with [write].
   T add<T extends RealmObject>(T object, {bool update = false}) {
@@ -178,23 +178,19 @@ class Realm {
     final key = metadata.class_.key;
     final primaryKey = metadata.class_.primaryKey;
     if (primaryKey == null) {
-      return realmCore.createRealmObject(this, key); 
+      return realmCore.createRealmObject(this, key);
     }
-    else {
-      if (update) {
-        return realmCore.getOrCreateRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey)!);
-      }
-      else {
-        return realmCore.createRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey)!);
-      }
+    if (update) {
+      return realmCore.getOrCreateRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey)!);
     }
+    return realmCore.createRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey)!);
   }
 
   /// Adds a collection [RealmObject]s to this `Realm`.
   ///
   /// If the collection contains items that are already managed by this `Realm`, they will be ignored.
   /// This method behaves as calling [add] multiple times.
-  /// 
+  ///
   /// By setting the [update] flag you can update any existing object with the same primary key.
   /// Updating only makes sense for objects with primary keys, and is effectively ignored
   /// otherwise.
