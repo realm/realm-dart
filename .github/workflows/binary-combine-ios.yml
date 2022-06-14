@@ -10,7 +10,7 @@ on:
 jobs:
   build-ios-xcframework:
     name: Combine .xcframework
-    runs-on: ${{ inputs.os }}-latest
+    runs-on: macos-latest
 
     steps:
       - name: Fetch device build

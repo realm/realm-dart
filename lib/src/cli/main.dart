@@ -25,8 +25,8 @@ import 'install/install_command.dart';
 import 'metrics/metrics_command.dart';
 import 'archive/archive_command.dart';
 import 'extract/extract_command.dart';
-import 'deployapps/deployapps_command.dart';
-import 'deployapps/deleteapps_command.dart';
+import 'atlas_apps/deployapps_command.dart';
+import 'atlas_apps/deleteapps_command.dart';
 
 void main(List<String> arguments) {
   CommandRunner<void>("dart run realm|realm_dart", 'Realm commands for working with Realm Flutter & Dart SDKs.')

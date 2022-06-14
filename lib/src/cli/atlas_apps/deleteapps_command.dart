@@ -20,23 +20,22 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-
-import 'options.dart';
+import 'deleteapps_options.dart';
 import 'baas_client.dart';
 
-class DeployAppsCommand extends Command<void> {
+class DeleteAppsCommand extends Command<void> {
   @override
-  final String description = 'Deploys test applications to MongoDB Atlas.';
+  final String description = 'Delete test applications from MongoDB Atlas.';
 
   @override
-  final String name = 'deploy-apps';
+  final String name = 'delete-apps';
 
   @override
   bool get hidden => true;
 
-  late Options options;
+  late DeleteAppsOptions options;
 
-  DeployAppsCommand() {
+  DeleteAppsCommand() {
     populateOptionsParser(argParser);
   }
 
@@ -57,23 +56,20 @@ class DeployAppsCommand extends Command<void> {
         abort('--project-id must be supplied when --atlas-cluster is not set');
       }
     }
-
-    final differentiator = options.differentiator ?? 'local';
+    if (options.appIds.isEmpty) {
+      abort('--appIds must be supplied');
+    }
 
     final client = await (options.atlasCluster == null
-        ? BaasClient.docker(options.baasUrl, differentiator)
-        : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
+        ? BaasClient.docker(options.baasUrl, null)
+        : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, null));
 
-    final apps = await client.getOrCreateApps();
+    List<String> appIds = options.appIds.split(',');
 
-    print('App import is complete. There are: ${apps.length} apps on the server:');
-    String listApps = '';
-    apps.forEach((_, value) {
-      print("  App '${value.name}': '${value.clientAppId}'");
-      listApps += '${value.appId},';
+    appIds.forEach((appId) async {
+      await client.deleteApp(appId);
+      print("  App '$appId' is deleted.");
     });
-    print("appIds: ");
-    stdout.write(listApps.substring(0, listApps.length - 1));
   }
 
   void abort(String error) {

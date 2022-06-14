@@ -24,28 +24,25 @@ import 'package:args/command_runner.dart';
 import 'options.dart';
 import 'baas_client.dart';
 
-class DeleteAppsCommand extends Command<void> {
+class DeployAppsCommand extends Command<void> {
   @override
-  final String description = 'Delete test applications from MongoDB Atlas.';
+  final String description = 'Deploys test applications to MongoDB Atlas.';
 
   @override
-  final String name = 'delete-apps';
+  final String name = 'deploy-apps';
 
   @override
   bool get hidden => true;
-  
+
   late Options options;
 
-  DeleteAppsCommand() {
-    populateOptionsParser(argParser).addOption("appIds", help: "List of appIds of deployed apps on MongoDB Atlas.");
+  DeployAppsCommand() {
+    populateOptionsParser(argParser);
   }
 
   @override
   FutureOr<void>? run() async {
     options = parseOptionsResult(argResults!);
-
-    var result = argParser.parse(argResults!.arguments);
-    List<String> appIds = (result['appIds'] as String).split(',');
 
     if (options.atlasCluster != null) {
       if (options.apiKey == null) {
@@ -60,9 +57,6 @@ class DeleteAppsCommand extends Command<void> {
         abort('--project-id must be supplied when --atlas-cluster is not set');
       }
     }
-    if (appIds.isEmpty) {
-      abort('--appIds must be supplied');
-    }
 
     final differentiator = options.differentiator ?? 'local';
 
@@ -70,10 +64,16 @@ class DeleteAppsCommand extends Command<void> {
         ? BaasClient.docker(options.baasUrl, differentiator)
         : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
 
-    appIds.forEach((appId) async {
-      await client.deleteApp(appId);
-      print("  App '$appId' is deleted.");
+    final apps = await client.getOrCreateApps();
+
+    print('App import is complete. There are: ${apps.length} apps on the server:');
+    List<String> listApps = [];
+    apps.forEach((_, value) {
+      print("  App '${value.name}': '${value.clientAppId}'");
+      listApps.add(value.appId);
     });
+    print("appIds: ");
+    stdout.write(listApps.join(","));
   }
 
   void abort(String error) {

@@ -104,15 +104,11 @@ jobs:
     name: Combine Android binaries
     needs: build-native
     uses: ./.github/workflows/binary-combine-android.yml
-    with:
-      os: ubuntu
 
   build-ios-xcframework:
     name: Combine IOS binaries
     needs: build-native
     uses: ./.github/workflows/binary-combine-ios.yml
-    with:
-      os: macos
 
 # Linux jobs
 
@@ -130,20 +126,11 @@ jobs:
     name: Dart tests on ${{matrix.os }} ${{ matrix.architecture }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
+      BAAS_DIFFERENTIATOR: dart-${{ matrix.os }}${{ matrix.architecture && format('-{0}', matrix.architecture) || '' }}-${GITHUB_RUN_ID}
     needs:
       - deploy-cluster
       - build-native
     steps:
-
-      - name: Generate unique job id
-        id: generate_job_id
-        if: ${{matrix.os != 'windows'}}
-        run: echo "BAAS_DIFFERENTIATOR=d$RANDOM$100" >> $GITHUB_ENV
-        
-      - name: Generate unique job id on Windows
-        id: generate_job_id_win
-        if: ${{matrix.os == 'windows'}}
-        run: echo "BAAS_DIFFERENTIATOR=d$(Get-Random)" >> $env:GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -177,7 +164,7 @@ jobs:
 
       - name: Cleanup apps
         if: always()
-        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
+        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }}
 
   flutter-desktop-tests:
     strategy:
@@ -188,20 +175,12 @@ jobs:
     name: Flutter tests on ${{matrix.os  }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
+      BAAS_DIFFERENTIATOR: flutter-${{ matrix.os }}${{ matrix.architecture && format('-{0}', matrix.architecture) || '' }}-${GITHUB_RUN_ID}
+   
     needs:
       - deploy-cluster
       - build-native
     steps:
-
-      - name: Generate unique job id
-        id: generate_job_id
-        if: ${{matrix.os != 'windows'}}
-        run: echo "BAAS_DIFFERENTIATOR=f$RANDOM$100" >> $GITHUB_ENV
-
-      - name: Generate unique job id on Windows
-        id: generate_job_id_win
-        if: ${{matrix.os == 'windows'}}
-        run: echo "BAAS_DIFFERENTIATOR=f$(Get-Random)" >> $env:GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -236,7 +215,6 @@ jobs:
         id: deploy-apps
         run: echo "::set-output name=appIds::$(dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}' | tail -1)"
 
-
       - name: Install dependencies
         run: flutter pub get
 
@@ -246,7 +224,7 @@ jobs:
 
       - name: Cleanup apps
         if: always()
-        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
+        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }}
 
 # iOS jobs
 
@@ -304,12 +282,12 @@ jobs:
 
       - name: Cleanup apps
         if: always()
-        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
+        run: dart run realm_dart delete-apps --appIds '${{ steps.deploy-apps.outputs.appIds }}' --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }}
 
 # Android jobs
 
   flutter-android:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     name: Flutter Tests Android
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
