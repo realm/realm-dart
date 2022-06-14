@@ -189,7 +189,7 @@ jobs:
 
       - name: Generate unique job id
         id: generate_job_id
-        run: echo "${{ format('BAAS_DIFFERENTIATOR=ф{0}RANDOM{0}100', matrix.os == 'windows' && '%' || '$' )}}" >> $GITHUB_ENV
+        run: echo "${{ format('BAAS_DIFFERENTIATOR=f{0}RANDOM{0}100', matrix.os == 'windows' && '%' || '$' )}}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v2
