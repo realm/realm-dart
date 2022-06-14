@@ -6,6 +6,12 @@
 
 #include <cstring>
 
+#include <string>
+
+#ifndef APP_DIR_NAME
+#define APP_DIR_NAME "realm_app"
+#endif
+
 #define REALM_PLUGIN(obj) \
   (G_TYPE_CHECK_INSTANCE_CAST((obj), realm_plugin_get_type(), \
                               RealmPlugin))
@@ -57,4 +63,10 @@ void realm_plugin_register_with_registrar(FlPluginRegistrar* registrar) {
                                             g_object_unref);
 
   g_object_unref(plugin);
+}
+
+static std::string appDirName = APP_DIR_NAME;
+
+const char* realm_dart_get_app_directory() {
+    return appDirName.c_str();
 }

@@ -28,6 +28,22 @@ set(realm_bundled_libraries
 # For example the tests app refers to the realm plugin using this path .../realm-dart/flutter/realm_flutter/tests/windows/flutter/ephemeral/.plugin_symlinks/realm/windows
 set(EPHEMERAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../ephemeral")
 include(${EPHEMERAL_DIR}/generated_config.cmake)
+set(APP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../..")
+# message ("APP_DIR is ${APP_DIR}")
+set(APP_PUBSPEC_FILE "${APP_DIR}/pubspec.yaml")
+# message ("APP_PUBSPEC_FILE is ${APP_PUBSPEC_FILE}")
+
+file(READ "${APP_PUBSPEC_FILE}" PUBSPEC_CONTENT)
+# name:\\s*([a-z0-9_]+)
+# message ("${PUBSPEC_CONTENT}")
+string(REGEX MATCH "name:[ \r\n\t]*([a-z0-9_]*)" _ ${PUBSPEC_CONTENT})
+# message ("Pubspec name 0 is ${CMAKE_MATCH_0}")
+# message ("Package name is ${CMAKE_MATCH_1}")
+set(APP_DIR_NAME ${CMAKE_MATCH_1})
+
+#message ("BINARY_NAME is ${BINARY_NAME}")
+add_definitions(-DAPP_DIR_NAME="${APP_DIR_NAME}")
+
 
 # message ("FLUTTER_TOOL_ENVIRONMENT is ${FLUTTER_TOOL_ENVIRONMENT}")
 # message ("FLUTTER_ROOT is ${FLUTTER_ROOT}")

@@ -21,6 +21,8 @@ FLUTTER_PLUGIN_EXPORT GType realm_plugin_get_type();
 FLUTTER_PLUGIN_EXPORT void realm_plugin_register_with_registrar(
     FlPluginRegistrar* registrar);
 
+FLUTTER_PLUGIN_EXPORT const char* realm_dart_get_app_directory();
+
 G_END_DECLS
 
 #endif  // FLUTTER_PLUGIN_REALM_PLUGIN_H_

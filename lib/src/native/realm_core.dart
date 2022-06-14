@@ -26,6 +26,7 @@ import 'dart:typed_data';
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:logging/logging.dart';
+import 'package:path/path.dart' as path;
 
 import '../app.dart';
 import '../collections.dart';
@@ -1558,6 +1559,58 @@ class _RealmCore {
       completer.complete();
     }
   }
+
+  static String? _appDir;
+
+  String _getAppDirectory() {
+    if (!isFlutterPlatform) {
+      return path.basenameWithoutExtension(File.fromUri(Platform.script).absolute.path);
+    }
+
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      const String libName = 'realm_plugin';
+      String binaryExt = Platform.isWindows
+          ? ".dll"
+          : Platform.isMacOS
+              ? ".dylib"
+              : ".so";
+      String binaryNamePrefix = Platform.isWindows ? "" : "lib";
+      final realmPluginLib =
+          Platform.isMacOS == false ? DynamicLibrary.open("$binaryNamePrefix$libName$binaryExt") : DynamicLibrary.open('realm.framework/realm');
+      final getAppDirFunc = realmPluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory");
+      final dirNamePtr = getAppDirFunc();
+      if (dirNamePtr == nullptr) {
+        return "";
+      }
+
+      final dirName = Platform.isWindows ? dirNamePtr.cast<Utf16>().toDartString() : dirNamePtr.cast<Utf8>().toDartString();
+      return dirName;
+    }
+
+    return "";
+  }
+
+  String getAppDirectory() {
+    if (!isFlutterPlatform) {
+      return Directory.current.absolute.path;
+    }
+
+    _appDir ??= _getAppDirectory();
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      return path.join(getFilesPath(), _appDir);
+    } else if (Platform.isWindows) {
+      return _appDir ?? Directory.current.absolute.path;
+    } else if (Platform.isLinux) {
+      String appSupportDir =
+          PlatformEx.fromEnvironment("XDG_DATA_HOME", defaultValue: PlatformEx.fromEnvironment("HOME", defaultValue: Directory.current.absolute.path));
+      return path.join(appSupportDir, ".local/share", _appDir);
+    } else if (Platform.isMacOS) {
+      return _appDir ?? Directory.current.absolute.path;
+    }
+
+    throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
+  }
 }
 
 class LastError {
@@ -2061,5 +2114,16 @@ extension LevelExt on Level {
         // if unknown logging is off
         return RealmLogLevel.off;
     }
+  }
+}
+
+extension PlatformEx on Platform {
+  static String fromEnvironment(String name, {String defaultValue = "" }) {
+    final result = Platform.environment[name];
+    if (result == null) {
+      return defaultValue;
+    }
+
+    return result;
   }
 }

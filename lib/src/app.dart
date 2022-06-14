@@ -18,9 +18,9 @@
 import 'dart:io';
 
 import 'package:meta/meta.dart';
+import 'package:path/path.dart' as _path;
 
 import '../realm.dart';
-import 'configuration.dart';
 import 'credentials.dart';
 import 'native/realm_core.dart';
 import 'user.dart';
@@ -98,7 +98,7 @@ class AppConfiguration {
     this.maxConnectionTimeout = const Duration(minutes: 2),
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
-        baseFilePath = baseFilePath ?? Directory(ConfigurationInternal.defaultStorageFolder),
+        baseFilePath = baseFilePath ?? Directory(_path.dirname(Configuration.defaultRealmPath)),
         httpClient = httpClient ?? HttpClient();
 }
 
@@ -116,9 +116,14 @@ class App {
   String get id => realmCore.appGetId(this);
 
   /// Create an app with a particular [AppConfiguration]
-  App(AppConfiguration configuration) : this._(realmCore.getApp(configuration));
+  App(AppConfiguration configuration) : this._(_getApp(configuration));
 
   App._(this._handle);
+
+  static AppHandle _getApp(AppConfiguration configuration) {
+    configuration.baseFilePath.createSync(recursive:  true);
+    return realmCore.getApp(configuration);
+  }
 
   /// Logs in a user with the given credentials.
   Future<User> logIn(Credentials credentials) async {

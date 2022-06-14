@@ -208,7 +208,7 @@ Future<void> setupTests(List<String>? args) async {
 
   setUp(() {
     final path = generateRandomRealmPath();
-    ConfigurationInternal.defaultPath = path;
+    Configuration.defaultRealmPath = path;
 
     addTearDown(() async {
       final paths = HashSet<String>();
@@ -234,13 +234,7 @@ Future<void> setupTests(List<String>? args) async {
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
 
 String generateRandomRealmPath() {
-  var path = "${generateRandomString(10)}.realm";
-  if (Platform.isAndroid || Platform.isIOS) {
-    path = _path.join(ConfigurationInternal.defaultStorageFolder, path);
-  } else {
-    path = _path.join(Directory.systemTemp.createTempSync("realm_test_").path, path);
-  }
-
+  final path = _path.join(Directory.systemTemp.createTempSync("realm_test_").path, "${generateRandomString(10)}.realm");
   return path;
 }
 
@@ -379,12 +373,11 @@ Future<User> getIntegrationUser(App app) async {
   return await loginWithRetry(app, Credentials.emailPassword(email, password));
 }
 
-Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, String? path}) async {
+Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator}) async {
   app ??= App(await getAppConfig());
   final user = await getIntegrationUser(app);
 
-  // TODO: path will not be needed after https://github.com/realm/realm-dart/pull/574
-  final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema, NullableTypes.schema], path: path);
+  final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema, NullableTypes.schema]);
   final realm = getRealm(config);
   if (differentiator != null) {
     realm.subscriptions.update((mutableSubscriptions) {
