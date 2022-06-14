@@ -140,4 +140,22 @@ Future<void> main([List<String>? args]) async {
 
     expect(alice.friends, [dan]);
   });
+
+  test('Cycles via lists updated correctly', () {
+    final realm = getRealm(Configuration.local([Friend.schema]));
+
+    var alice = Friend(1);
+    var bob = Friend(2);
+    var carol = Friend(3);
+    alice.friends.addAll([bob, carol]);
+
+    realm.write(() => realm.add(alice));
+
+    var aliceAgain = Friend(1);
+    var bobAgain = Friend(2);
+    var carolAgain = Friend(3);
+    aliceAgain.friends.addAll([bobAgain, carolAgain]);
+
+    realm.write(() => realm.add(aliceAgain, update: true));
+  });
 }
