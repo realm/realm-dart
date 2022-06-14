@@ -32,45 +32,6 @@ jobs:
           clusterName: ci-dart
           useExistingCluster: true
 
-  deploy-apps:
-    needs:
-      - deploy-cluster
-    strategy:
-      fail-fast: false
-      matrix:
-        package: [flutter, dart]
-        platform: [linux, windows, macos]
-        include:
-          - platform: ios
-            package: flutter
-          - platform: android
-            package: flutter
-          - platform: macos-arm
-            package: dart
-    runs-on: ubuntu-latest
-    name: Deploy apps ${{ matrix.platform }} for ${{ matrix.package }}
-    timeout-minutes: 20
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: false
-
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-
-      - name: Deploy Apps
-        run: |
-          dart run realm_dart deploy-apps \
-            --baas-url ${{ secrets.REALM_QA_URL }} \
-            --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} \
-            --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} \
-            --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} \
-            --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} \
-            --differentiator "dart-${{ matrix.platform }}${{ matrix.architecture && format('-{0}', matrix.architecture) || '' }}-${{ github.run_id }}-${{ github.run_number }}"
-
   build-native:
     runs-on: ${{ matrix.runner }}-latest
     name: Build native
@@ -169,7 +130,6 @@ jobs:
     needs:
       - deploy-cluster
       - build-native
-      - deploy-apps
     steps:
 
       - name: Checkout
@@ -191,6 +151,10 @@ jobs:
         with:
           sdk: stable
           architecture: ${{ matrix.architecture == 'arm' && 'arm64' || 'x64'}}
+
+      - name: Deploy Apps for Dart tests on ${{ matrix.os }}
+        id: deploy-apps
+        run: dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
 
       - name: Install dependencies
         run: dart pub get
@@ -216,7 +180,6 @@ jobs:
     needs:
       - deploy-cluster
       - build-native
-      - deploy-apps
     steps:
 
       - name: Checkout
@@ -245,6 +208,10 @@ jobs:
         with:
           channel: 'stable'
 
+      - name: Deploy Apps for Flutter tests on ${{ matrix.os }}
+        id: deploy-apps
+        run: dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
+
       - name: Enable Flutter Desktop support
         run: flutter config --enable-${{ matrix.os }}-desktop
 
@@ -270,7 +237,6 @@ jobs:
     needs:
       - deploy-cluster
       - build-ios-xcframework
-      - deploy-apps
     steps:
 
       - name: Generate unique job id
@@ -295,6 +261,10 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+
+      - name: Deploy Apps for Flutter IOS tests on ${{ matrix.os }}
+        id: deploy-apps
+        run: dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
 
       - name: Install dependencies
         run: flutter pub get
@@ -326,7 +296,6 @@ jobs:
     needs:
       - deploy-cluster
       - build-android-combined
-      - deploy-apps
     steps:
 
       - name: Generate unique job id
@@ -348,6 +317,10 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+
+      - name: Deploy Apps for Flutter Android tests on ${{ matrix.os }}
+        id: deploy-apps
+        run: dart run realm_dart deploy-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
 
       - name: Install dependencies
         run: flutter pub get

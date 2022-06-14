@@ -67,12 +67,13 @@ class DeployAppsCommand extends Command<void> {
     final apps = await client.getOrCreateApps();
 
     print('App import is complete. There are: ${apps.length} apps on the server:');
-    List<String> appIds = [];
+    List<String> listApps = [];
     apps.forEach((_, value) {
       print("  App '${value.name}': '${value.clientAppId}'");
-      appIds.add(value.appId);
+      listApps.add(value.appId);
     });
-    print("appIds: ${appIds.join(',')}");
+    print("appIds: ");
+    stdout.write(listApps.join(","));
   }
 
   void abort(String error) {
