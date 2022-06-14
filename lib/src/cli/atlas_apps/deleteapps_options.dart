@@ -43,8 +43,8 @@ class DeleteAppsOptions {
   DeleteAppsOptions(this.baasUrl, this.appIds, {this.atlasCluster, this.apiKey, this.privateApiKey, this.projectId});
 }
 
-String get usage => _$parserForOptions.usage;
+String get usage => _$parserForDeleteAppsOptions.usage;
 
-ArgParser populateOptionsParser(ArgParser p) => _$populateOptionsParser(p);
+ArgParser populateOptionsParser(ArgParser p) => _$populateDeleteAppsOptionsParser(p);
 
-DeleteAppsOptions parseOptionsResult(ArgResults results) => _$parseOptionsResult(results);
+DeleteAppsOptions parseOptionsResult(ArgResults results) => _$parseDeleteAppsOptionsResult(results);
