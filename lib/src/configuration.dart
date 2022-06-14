@@ -63,8 +63,6 @@ abstract class Configuration {
   /// On Dart standalone Windows, macOS and Linux this is the current directory.
   static String get defaultStoragePath {
     if (isFlutterPlatform) {
-      //TODO: This is for debug. REMOVE!
-      print("AppDir: ${realmCore.getAppDirectory()}");
       return realmCore.getAppDirectory(); 
     }
 
