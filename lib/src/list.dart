@@ -85,7 +85,7 @@ class ManagedRealmList<T extends Object> extends collection.ListBase<T> with Rea
 
   /// Removes all objects from this list; the length of the list becomes zero.
   /// The objects are not deleted from the realm, but are no longer referenced from this list.
-  void clear() => realmCore.listClear(this);
+  void clear() => realmCore.listClear(handle);
 
   @override
   bool get isValid => realmCore.listIsValid(this);

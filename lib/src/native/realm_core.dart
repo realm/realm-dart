@@ -777,8 +777,8 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_results_delete_all(results.handle._pointer));
   }
 
-  void listClear(RealmList list) {
-    _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(list.handle._pointer));
+  void listClear(RealmListHandle listHandle) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(listHandle._pointer));
   }
 
   bool _equals<T extends NativeType>(HandleBase<T> first, HandleBase<T> second) {

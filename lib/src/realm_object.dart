@@ -155,10 +155,9 @@ class RealmCoreAccessor implements RealmAccessor {
     try {
       if (value is RealmList<Object>) {
         final handle = realmCore.getListProperty(object, propertyMeta.key);
-        if (value.isNotEmpty) {
-          for (var i = 0; i < value.length; i++) {
-            RealmListInternal.setValue(handle, object.realm, i, value[i]);
-          }
+        if (update) realmCore.listClear(handle);
+        for (var i = 0; i < value.length; i++) {
+          RealmListInternal.setValue(handle, object.realm, i, value[i]);
         }
       } else {
         if (value is RealmObject && !value.isManaged) {
