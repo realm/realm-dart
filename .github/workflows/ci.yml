@@ -139,6 +139,7 @@ jobs:
         id: generate_job_id
         if: ${{matrix.os != 'windows'}}
         run: echo "BAAS_DIFFERENTIATOR=d$RANDOM$100" >> $GITHUB_ENV
+        
       - name: Generate unique job id on Windows
         id: generate_job_id_win
         if: ${{matrix.os == 'windows'}}
@@ -196,6 +197,7 @@ jobs:
         id: generate_job_id
         if: ${{matrix.os != 'windows'}}
         run: echo "BAAS_DIFFERENTIATOR=f$RANDOM$100" >> $GITHUB_ENV
+
       - name: Generate unique job id on Windows
         id: generate_job_id_win
         if: ${{matrix.os == 'windows'}}
