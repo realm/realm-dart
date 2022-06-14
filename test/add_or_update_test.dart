@@ -29,7 +29,8 @@ part 'add_or_update_test.g.dart';
 class _Friend {
   @PrimaryKey()
   late int id;
-  _Friend? friend;
+  _Friend? bestFriend;
+  final friends = <_Friend>[];
 }
 
 Future<void> main([List<String>? args]) async {
@@ -39,7 +40,7 @@ Future<void> main([List<String>? args]) async {
     final r = getRealm(Configuration.local([Friend.schema]));
 
     var alice = Friend(1);
-    var bob = Friend(2, friend: alice);
+    var bob = Friend(2, bestFriend: alice);
 
     r.write(() => r.add(bob));
     expect(bob.isManaged, true);
@@ -52,12 +53,12 @@ Future<void> main([List<String>? args]) async {
     final r = getRealm(Configuration.local([Friend.schema]));
 
     var alice = Friend(1);
-    var bob = Friend(2, friend: alice);
+    var bob = Friend(2, bestFriend: alice);
 
     r.write(() => r.add(bob));
 
     final aliceAgain = Friend(1);
-    final bobAgain = Friend(2, friend: aliceAgain);
+    final bobAgain = Friend(2, bestFriend: aliceAgain);
 
     r.write(() => r.add(bobAgain, update: true));
 
@@ -68,19 +69,19 @@ Future<void> main([List<String>? args]) async {
 
     // Re-fetch from realm
     alice = r.find(alice.id)!;
-    bob = r.find(bob.id)!;    
+    bob = r.find(bob.id)!;
 
     expect(bob, bobAgain);
     expect(alice, aliceAgain);
-    expect(bob.friend, alice);
+    expect(bob.bestFriend, alice);
   });
 
   test('Cycles added correctly', () {
     final r = getRealm(Configuration.local([Friend.schema]));
 
     var alice = Friend(1);
-    var bob = Friend(2, friend: alice);
-    alice.friend = bob; // form cycle
+    var bob = Friend(2, bestFriend: alice);
+    alice.bestFriend = bob; // form cycle
 
     r.write(() => r.add(alice));
 
@@ -88,23 +89,23 @@ Future<void> main([List<String>? args]) async {
     alice = r.find(alice.id)!;
     bob = r.find(bob.id)!;
 
-    expect(alice.friend, bob);
-    expect(alice.friend!.friend, alice);
-    expect(alice.friend!.friend!.friend, bob);
+    expect(alice.bestFriend, bob);
+    expect(alice.bestFriend!.bestFriend, alice);
+    expect(alice.bestFriend!.bestFriend!.bestFriend, bob);
   });
 
   test('Cycles updated correctly', () {
     final r = getRealm(Configuration.local([Friend.schema]));
 
     var alice = Friend(1);
-    var bob = Friend(2, friend: alice);
-    alice.friend = bob; // form cycle
+    var bob = Friend(2, bestFriend: alice);
+    alice.bestFriend = bob; // form cycle
 
     r.write(() => r.add(alice));
 
     final aliceAgain = Friend(1);
-    final bobAgain = Friend(2, friend: aliceAgain);
-    aliceAgain.friend = bobAgain;
+    final bobAgain = Friend(2, bestFriend: aliceAgain);
+    aliceAgain.bestFriend = bobAgain;
 
     alice = r.write(() => r.add(aliceAgain, update: true));
 
@@ -112,33 +113,31 @@ Future<void> main([List<String>? args]) async {
     alice = r.find(alice.id)!;
     bob = r.find(bob.id)!;
 
-    expect(alice.friend, bobAgain);
-    expect(alice.friend!.friend, aliceAgain);
-    expect(alice.friend!.friend!.friend, bobAgain);
+    expect(alice.bestFriend, bobAgain);
+    expect(alice.bestFriend!.bestFriend, aliceAgain);
+    expect(alice.bestFriend!.bestFriend!.bestFriend, bobAgain);
   });
 
-  test('Cycles updated correctly 2', () {
+  test('Lists updated correctly', () {
     final r = getRealm(Configuration.local([Friend.schema]));
 
     var alice = Friend(1);
-    var bob = Friend(2, friend: alice);
-    alice.friend = bob; // form cycle
+    var bob = Friend(2);
+    var carol = Friend(3);
+    alice.friends.addAll([bob, carol]);
 
     r.write(() => r.add(alice));
 
-    var carol = Friend(3, friend: alice);
-    final aliceAgain = Friend(1, friend: carol); // form new cycle
+    expect(alice.friends, [bob, carol]);
 
-    alice = r.write(() => r.add(aliceAgain, update: true));
+    var dan = Friend(4);
+    final aliceAgain = Friend(1, friends: [dan]);
+
+    r.write(() => r.add(aliceAgain, update: true));
 
     // Re-fetch from realm
     alice = r.find(alice.id)!;
-    bob = r.find(bob.id)!;
-    carol = r.find(carol.id)!;
 
-    expect(bob.friend, alice);
-    expect(alice.friend, carol);
-    expect(alice.friend!.friend, alice);
-    expect(alice.friend!.friend!.friend, carol);
+    expect(alice.friends, [dan]);
   });
 }

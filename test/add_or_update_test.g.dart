@@ -9,10 +9,13 @@ part of 'add_or_update_test.dart';
 class Friend extends _Friend with RealmEntity, RealmObject {
   Friend(
     int id, {
-    Friend? friend,
+    Friend? bestFriend,
+    Iterable<Friend> friends = const [],
   }) {
     RealmObject.set(this, 'id', id);
-    RealmObject.set(this, 'friend', friend);
+    RealmObject.set(this, 'bestFriend', bestFriend);
+    RealmObject.set<RealmList<Friend>>(
+        this, 'friends', RealmList<Friend>(friends));
   }
 
   Friend._();
@@ -23,9 +26,18 @@ class Friend extends _Friend with RealmEntity, RealmObject {
   set id(int value) => throw RealmUnsupportedSetError();
 
   @override
-  Friend? get friend => RealmObject.get<Friend>(this, 'friend') as Friend?;
+  Friend? get bestFriend =>
+      RealmObject.get<Friend>(this, 'bestFriend') as Friend?;
   @override
-  set friend(covariant Friend? value) => RealmObject.set(this, 'friend', value);
+  set bestFriend(covariant Friend? value) =>
+      RealmObject.set(this, 'bestFriend', value);
+
+  @override
+  RealmList<Friend> get friends =>
+      RealmObject.get<Friend>(this, 'friends') as RealmList<Friend>;
+  @override
+  set friends(covariant RealmList<Friend> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
   Stream<RealmObjectChanges<Friend>> get changes =>
@@ -37,8 +49,10 @@ class Friend extends _Friend with RealmEntity, RealmObject {
     RealmObject.registerFactory(Friend._);
     return const SchemaObject(Friend, 'Friend', [
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
-      SchemaProperty('friend', RealmPropertyType.object,
+      SchemaProperty('bestFriend', RealmPropertyType.object,
           optional: true, linkTarget: 'Friend'),
+      SchemaProperty('friends', RealmPropertyType.object,
+          linkTarget: 'Friend', collectionType: RealmCollectionType.list),
     ]);
   }
 }
