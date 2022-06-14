@@ -226,6 +226,16 @@ class BaasClient {
     }
   }
 
+  Future<void> deleteApps() async {
+    var apps = await _getApps();
+    if (apps.isNotEmpty) {
+      for (final app in apps) {
+        await _deleteApp(app.appId);
+        print("  App '${app.appId}' is deleted.");
+      }
+    }
+  }
+
   Future<void> _authenticate(String provider, String credentials) async {
     dynamic response = await _post('auth/providers/$provider/login', credentials);
 
@@ -296,7 +306,7 @@ class BaasClient {
     return response['_id'] as String;
   }
 
-  Future<void> deleteApp(String appId) async {
+  Future<void> _deleteApp(String appId) async {
     print('Deleting app $appId');
     await _delete('groups/$_groupId/apps/$appId');
   }

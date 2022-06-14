@@ -20,7 +20,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'deleteapps_options.dart';
+import 'options.dart';
 import 'baas_client.dart';
 
 class DeleteAppsCommand extends Command<void> {
@@ -33,7 +33,7 @@ class DeleteAppsCommand extends Command<void> {
   @override
   bool get hidden => true;
 
-  late DeleteAppsOptions options;
+  late Options options;
 
   DeleteAppsCommand() {
     populateOptionsParser(argParser);
@@ -56,20 +56,13 @@ class DeleteAppsCommand extends Command<void> {
         abort('--project-id must be supplied when --atlas-cluster is not set');
       }
     }
-    if (options.appIds.isEmpty) {
-      abort('--appIds must be supplied');
-    }
+    final differentiator = options.differentiator ?? 'local';
 
     final client = await (options.atlasCluster == null
-        ? BaasClient.docker(options.baasUrl, null)
-        : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, null));
+        ? BaasClient.docker(options.baasUrl, differentiator)
+        : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
 
-    List<String> appIds = options.appIds.split(',');
-
-    appIds.forEach((appId) async {
-      await client.deleteApp(appId);
-      print("  App '$appId' is deleted.");
-    });
+    await client.deleteApps();    
   }
 
   void abort(String error) {
