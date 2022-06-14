@@ -373,7 +373,7 @@ Future<User> getIntegrationUser(App app) async {
   return await loginWithRetry(app, Credentials.emailPassword(email, password));
 }
 
-Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, String? path}) async {
+Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator}) async {
   app ??= App(await getAppConfig());
   final user = await getIntegrationUser(app);
 
