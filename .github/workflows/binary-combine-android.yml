@@ -2,10 +2,6 @@ name: Android Build Combine
 
 on:
   workflow_call:
-   inputs:
-      os:
-        required: true
-        type: string
 
 jobs:
   build-android-combined:

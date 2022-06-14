@@ -2,10 +2,6 @@ name: IOS Build Combine
 
 on:
   workflow_call:
-   inputs:
-      os:
-        required: true
-        type: string
 
 jobs:
   build-ios-xcframework:
