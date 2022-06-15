@@ -126,7 +126,7 @@ jobs:
     name: Dart tests on ${{matrix.os }} ${{ matrix.architecture }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: dart-${{ matrix.os }}${{ matrix.architecture && format('-{0}', matrix.architecture) || '' }}-${{ github.run_id }}-${{ github.run_number }}
+      BAAS_DIFFERENTIATOR: dart-${{ matrix.os }}${{ matrix.architecture && format('-{0}', matrix.architecture) || '' }}-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
     needs:
       - deploy-cluster
       - build-native
@@ -175,7 +175,7 @@ jobs:
     name: Flutter tests on ${{matrix.os  }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: flutter-${{ matrix.os }}${{ matrix.architecture && format('-{0}', matrix.architecture) || '' }}-${{ github.run_id }}-${{ github.run_number }}
+      BAAS_DIFFERENTIATOR: flutter-${{ matrix.os }}${{ matrix.architecture && format('-{0}', matrix.architecture) || '' }}-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
 
     needs:
       - deploy-cluster
@@ -233,7 +233,7 @@ jobs:
     name: Flutter Tests iOS
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: flutter-ios-${{ github.run_id }}-${{ github.run_number }}
+      BAAS_DIFFERENTIATOR: flutter-ios-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
     needs:
       - deploy-cluster
       - build-ios-xcframework
@@ -288,7 +288,7 @@ jobs:
     name: Flutter Tests Android
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: flutter-android-${{ github.run_id }}-${{ github.run_number }}
+      BAAS_DIFFERENTIATOR: flutter-android-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
     needs:
       - deploy-cluster
       - build-android-combined
