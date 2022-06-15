@@ -33,7 +33,7 @@ jobs:
           useExistingCluster: true
 
   build-native:
-    runs-on: windows-2019
+    runs-on: ${{ matrix.runner }}-latest
     name: Build native
     strategy:
       fail-fast: false
@@ -95,7 +95,12 @@ jobs:
 # Linux jobs
 
   dart-tests:
-    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows
+    runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-${{ matrix.architecture || 'latest' }}
     name: Dart tests on ${{matrix.os }} ${{ matrix.architecture }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
