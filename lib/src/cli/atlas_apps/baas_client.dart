@@ -154,7 +154,7 @@ class BaasClient {
   }
 
   Future<BaasApp> _createApp(String name, {String? confirmationType}) async {
-    print('Creating app $name ($name$_appSuffix)');
+    print('Creating app $name$_appSuffix');
 
     final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$name$_appSuffix" }');
     final appId = doc['_id'] as String;
@@ -180,10 +180,12 @@ class BaasClient {
       "runResetFunction": true
     }''');
 
+    print('Creating database db_$name$_appSuffix');
+
     await _createMongoDBService(app, '''{
       "flexible_sync": {
         "state": "enabled",
-        "database_name": "$_differentiator-$name",
+        "database_name": "db_$name$_appSuffix",
         "queryable_fields_names": ["differentiator", "stringQueryField", "boolQueryField", "intQueryField"],
         "permissions": {
           "rules": {},
@@ -208,7 +210,7 @@ class BaasClient {
   }
 
   Future<void> enableProvider(BaasApp app, String type, [String config = '{}']) async {
-    print('Enabling provider $type for ${app.name}');
+    print('Enabling provider $type for ${app.clientAppId}');
 
     final url = 'groups/$_groupId/apps/$app/auth_providers';
     if (type == 'api-key') {
@@ -228,10 +230,12 @@ class BaasClient {
 
   Future<void> deleteApps() async {
     var apps = await _getApps();
-      for (final app in apps) {
-        await _deleteApp(app.appId);
-        print("App '${app.appId}' is deleted.");
-      }
+    for (final app in apps) {
+      print('Deleting app ${app.clientAppId}');
+
+      await _deleteApp(app.appId);
+      print("App with id='${app.appId}' is deleted.");
+    }
   }
 
   Future<void> _authenticate(String provider, String credentials) async {
@@ -241,7 +245,7 @@ class BaasClient {
   }
 
   Future<String> _createFunction(BaasApp app, String name, String source) async {
-    print('Creating function $name for ${app.name}...');
+    print('Creating function $name for ${app.clientAppId}...');
 
     final dynamic response = await _post('groups/$_groupId/apps/$app/functions', '''{
         "name": "$name",
@@ -254,7 +258,7 @@ class BaasClient {
   }
 
   Future<void> _updateFunction(BaasApp app, String name, String functionId, String source) async {
-    print('Updating function $name for ${app.name}...');
+    print('Updating function $name for ${app.clientAppId}...');
 
     await _put('groups/$_groupId/apps/$app/functions/$functionId', '''{
         "name": "$name",
@@ -293,7 +297,7 @@ class BaasClient {
   }
 
   Future<String> _createService(BaasApp app, String name, String type, String config) async {
-    print('Creating service $name for ${app.name}');
+    print('Creating service $name for ${app.clientAppId}');
 
     final dynamic response = await _post('groups/$_groupId/apps/$app/services', '''{
         "name": "$name",
@@ -305,7 +309,6 @@ class BaasClient {
   }
 
   Future<void> _deleteApp(String appId) async {
-    print('Deleting app $appId');
     await _delete('groups/$_groupId/apps/$appId');
   }
 
