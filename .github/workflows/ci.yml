@@ -95,7 +95,7 @@ jobs:
 # Linux jobs
 
   dart-tests:
-    runs-on: windows-2022
+    runs-on: windows-2019
     name: Dart tests on ${{matrix.os }} ${{ matrix.architecture }}
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
