@@ -292,7 +292,7 @@ jobs:
         run: dart pub get
 
       - name: Run tests
-        run: ${{ matrix.architecture == 'arm' && 'arch -arm64 ' || '' }} dart test -r expanded -j 1
+        run: ${{ matrix.architecture == 'arm' && 'arch -arm64 ' || '' }} dart test -r expanded -j 1 -n "FIFO files fallback path"
 
 # Flutter jobs
 
