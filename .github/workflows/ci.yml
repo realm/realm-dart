@@ -68,10 +68,9 @@ jobs:
         run: echo "ANDROID_NDK=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
 
       - name: Build
-        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: |
           cmake --preset ${{ matrix.preset }}
-          cmake --build --preset ${{ matrix.build || matrix.preset }} --config Release
+          cmake --build --preset ${{ matrix.build || matrix.preset }} --config Debug
 
       - name: Store artifacts
         uses: actions/upload-artifact@v2
