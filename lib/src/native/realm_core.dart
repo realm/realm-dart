@@ -481,21 +481,31 @@ class _RealmCore {
     return SchemaObject(RealmObject, name, properties);
   }
 
-  List<TReturn> _getValues<T extends NativeType, TReturn>(Arena arena, Pointer<T> Function(int size) createPtr,
-      bool Function(Pointer<T> valuesPtr, int size, Pointer<IntPtr> outSize) getValue, TReturn Function(Pointer<T> values, int index) getAtIndex) {
-    // TODO: this is a hack to get the size of the array and should not be needed once https://github.com/realm/realm-core/issues/5430 is addressed.
+  // allocator and getAtIndex can't be implemented in a generic way because the type arguments must be compile-time constants
+  List<TReturn> _getValues<T extends NativeType, TReturn>(Arena arena, Pointer<T> Function(int size) allocator,
+      bool Function(Pointer<T> valuesPtr, int size, Pointer<IntPtr> outSize) getValue, TReturn Function(Pointer<T> values, int index) getAtIndex,
+      {int defaultSize = 10}) {
     final valuesCount = arena<IntPtr>();
-    _realmLib.invokeGetBool(() => getValue(nullptr, 0, valuesCount));
+    Pointer<T> valuesPtr;
 
-    final valuesPtr = createPtr(valuesCount.value);
-    _realmLib.invokeGetBool(() => getValue(valuesPtr, valuesCount.value, valuesCount));
+    while (true) {
+      valuesPtr = allocator(defaultSize);
+      _realmLib.invokeGetBool(() => getValue(valuesPtr, defaultSize, valuesCount));
 
-    final result = <TReturn>[];
-    for (var i = 0; i < valuesCount.value; i++) {
-      result.add(getAtIndex(valuesPtr, i));
+      if (defaultSize < valuesCount.value) {
+        // The supplied array was too small - resize it
+        defaultSize = valuesCount.value;
+        arena.free(valuesPtr);
+        continue;
+      }
+
+      final result = <TReturn>[];
+      for (var i = 0; i < valuesCount.value; i++) {
+        result.add(getAtIndex(valuesPtr, i));
+      }
+
+      return result;
     }
-
-    return result;
   }
 
   void deleteRealmFiles(String path) {
@@ -1400,24 +1410,12 @@ class _RealmCore {
 
   List<UserHandle> getUsers(App app) {
     return using((arena) {
-      final usersCount = arena<Size>();
-      _realmLib.invokeGetBool(() => _realmLib.realm_app_get_all_users(app.handle._pointer, nullptr, 0, usersCount));
-
-      final usersPtr = arena<Pointer<realm_user>>(usersCount.value);
-      _realmLib.invokeGetBool(() => _realmLib.realm_app_get_all_users(
-            app.handle._pointer,
-            Pointer.fromAddress(usersPtr.address),
-            usersCount.value,
-            usersCount,
-          ));
-
-      final userHandles = <UserHandle>[];
-      for (var i = 0; i < usersCount.value; i++) {
-        final usrPtr = usersPtr.elementAt(i).value;
-        userHandles.add(UserHandle._(usrPtr));
-      }
-
-      return userHandles;
+      return _getValues<Pointer<realm_user>, UserHandle>(
+          arena,
+          (size) => arena<Pointer<realm_user>>(size),
+          (valuesPtr, size, outSize) => _realmLib.realm_app_get_all_users(app.handle._pointer, valuesPtr, size, outSize),
+          (values, index) => UserHandle._(values.elementAt(index).value),
+          defaultSize: 2);
     });
   }
 
@@ -1503,24 +1501,12 @@ class _RealmCore {
 
   List<UserIdentity> userGetIdentities(User user) {
     return using((arena) {
-      // TODO: Fix countIds in userGetIdentities once Core changes how count is retrieved. https://github.com/realm/realm-dart/issues/690
-      // This approach is prone to race conditions.
-      final idsCount = arena<Size>();
-      _realmLib.invokeGetBool(
-          () => _realmLib.realm_user_get_all_identities(user.handle._pointer, nullptr, 0, idsCount), "Error while getting user identities count");
-
-      final idsPtr = arena<realm_user_identity_t>(idsCount.value);
-      _realmLib.invokeGetBool(
-          () => _realmLib.realm_user_get_all_identities(user.handle._pointer, idsPtr, idsCount.value, idsCount), "Error while getting user identities");
-
-      final userIdentities = <UserIdentity>[];
-      for (var i = 0; i < idsCount.value; i++) {
-        final idPtr = idsPtr.elementAt(i);
-        userIdentities.add(UserIdentityInternal.create(
-            idPtr.ref.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderType.values.fromIndex(idPtr.ref.provider_type)));
-      }
-
-      return userIdentities;
+      return _getValues<realm_user_identity_t, UserIdentity>(arena, (size) => arena<realm_user_identity_t>(size),
+          (valuesPtr, size, outSize) => _realmLib.realm_user_get_all_identities(user.handle._pointer, valuesPtr, size, outSize), (values, index) {
+        final idPtr = values.elementAt(index);
+        return UserIdentityInternal.create(
+            idPtr.ref.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderType.values.fromIndex(idPtr.ref.provider_type));
+      });
     });
   }
 
