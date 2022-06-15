@@ -29,9 +29,14 @@ BAAS_PROJECT_ID=<project_id>
 ```
 10) Now you can run `dart test` and it should include the integration tests.
 
-If you are a MongoDB employee, you can instead choose to run the tests against [cloud-dev](https://cloud-dev.mongodb.com).
+If you are a MongoDB employee, you can instead choose to run the tests against [cloud-qa](https://cloud-qa.mongodb.com).
 The procedure is the same, except you need to use your qa credentials instead.
-
+  * If you don't have access to [cloud-qa](https://cloud-qa.mongodb.com), please follow these steps:
+    * Make request for access to Okta Group `10gen-mms-non-prod` using [mana](https://mana.corp.mongodbgov.com/).
+    * Browse [cloud-qa](https://cloud-qa.mongodb.com/) and try to reset your password using `Forgot password` option.
+    * Then login into [cloud-qa](https://cloud-qa.mongodb.com/) and you can create your own `Organisation`
+    * The CI workflow is working with `Realm CI QA` organisation. In order to have access to this organisation you have to be invited.
+    * `Dart GHA QA` is the name of the project used by CI workflow.
 
 
 ## Run integration tests against the BaaS docker image
