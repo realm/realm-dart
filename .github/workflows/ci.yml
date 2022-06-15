@@ -249,7 +249,7 @@ jobs:
 # Dart jobs
 
   tests-dart:
-    runs-on: ${{ matrix.platform == 'linux' && 'ubuntu' matrix.platform == 'windows' && 'windows-2019' || matrix.platform }}-${{ matrix.architecture || 'latest' }}
+    runs-on: ${{ matrix.platform == 'linux' && 'ubuntu' || matrix.platform == 'windows' && 'windows-2019' || matrix.platform }}-${{ matrix.architecture || 'latest' }}
     name: Tests ${{ matrix.platform }} ${{ matrix.architecture }}
     strategy:
       fail-fast: false
@@ -263,7 +263,7 @@ jobs:
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
       BAAS_DIFFERENTIATOR: dart-${{ matrix.platform }}${{ matrix.architecture && format('-{0}', matrix.architecture) || '' }}
-      
+
     needs:
       - baas-matrix
       - deploy-cluster
