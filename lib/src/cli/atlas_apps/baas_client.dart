@@ -231,7 +231,7 @@ class BaasClient {
     if (apps.isNotEmpty) {
       for (final app in apps) {
         await _deleteApp(app.appId);
-        print("  App '${app.appId}' is deleted.");
+        print("App '${app.appId}' is deleted.");
       }
     }
   }
