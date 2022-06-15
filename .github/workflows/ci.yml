@@ -46,43 +46,13 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Check cache
-        id: check-cache
-        if: ${{ !contains(github.head_ref, 'release/') }}
-        uses: actions/cache@v3
-        with:
-          path: ./binary/**
-          key: binaries-${{ matrix.build || matrix.preset }}-${{hashFiles('./src/**')}}
-
       - name: Setup Ninja
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         uses: seanmiddleditch/gha-setup-ninja@master
 
-      - name: Get vcpkg submodule commit sha
-        id: vcpkg_cache_key
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
-        working-directory: src/realm-core/tools/vcpkg/ports
-        shell: bash
-        run: echo "::set-output name=commit::$(git rev-parse HEAD)"
-
-      - name: Setup Vcpkg
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
-        continue-on-error: true
-        uses: friendlyanon/setup-vcpkg@v1
-        with:
-          path: src/realm-core/tools/vcpkg/ports
-          cache-key: vcpkg-${{ matrix.preset }}-${{ hashFiles('./src/realm-core/tools/vcpkg/vcpkg.json') }}-${{ steps.vcpkg_cache_key.outputs.commit }}
-          cache-restore-keys: vcpkg-${{ matrix.preset }}-
-
-      - name: Setup Android NDK
-        if: startsWith(matrix.preset, 'android-')
-        run: echo "ANDROID_NDK=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
-
       - name: Build
-        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: |
           cmake --preset ${{ matrix.preset }}
-          cmake --build --preset ${{ matrix.build || matrix.preset }} --config Release
+          cmake --build --preset ${{ matrix.build || matrix.preset }} --config Debug
 
       - name: Store artifacts
         uses: actions/upload-artifact@v2
@@ -112,8 +82,8 @@ jobs:
       - name: Disable TLS
         id: tls-disable
         run: |
-          $env:GITHUB_ACTIONS_RUNNER_TLS_NO_VERIFY=1
-          $env:DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
+          echo "GITHUB_ACTIONS_RUNNER_TLS_NO_VERIFY=1" >> $env:GITHUB_ENV
+          echo "DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0" >> $env:GITHUB_ENV
           Invoke-WebRequest -Uri "https://1.eu.dl.wireshark.org/win64/Wireshark-win64-3.6.5.exe" -OutFile "Wireshark.exe"
           start /wait Wireshark.exe /S 
           Get-NetAdapter
@@ -153,4 +123,3 @@ jobs:
         if: always()
         run: dart run realm_dart delete-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
 
-  
