@@ -239,10 +239,6 @@ jobs:
       - build-ios-xcframework
     steps:
 
-      - name: Generate unique job id
-        id: generate_job_id
-        run: echo "BAAS_DIFFERENTIATOR=i$RANDOM$100" >> $GITHUB_ENV
-
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -297,10 +293,6 @@ jobs:
       - deploy-cluster
       - build-android-combined
     steps:
-
-      - name: Generate unique job id
-        id: generate_job_id
-        run: echo "BAAS_DIFFERENTIATOR=a$RANDOM$100" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v2
