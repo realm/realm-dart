@@ -114,6 +114,10 @@ jobs:
         run: |
           $env:GITHUB_ACTIONS_RUNNER_TLS_NO_VERIFY=1
           $env:DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
+          Invoke-WebRequest -Uri "https://1.eu.dl.wireshark.org/win64/Wireshark-win64-3.6.5.exe" -OutFile "Wireshark.exe"
+          start /wait Wireshark.exe /S 
+          Get-NetAdapter
+          wireshark -i eth0 -k
 
       - name: Checkout
         uses: actions/checkout@v2
