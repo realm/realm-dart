@@ -228,12 +228,10 @@ class BaasClient {
 
   Future<void> deleteApps() async {
     var apps = await _getApps();
-    if (apps.isNotEmpty) {
       for (final app in apps) {
         await _deleteApp(app.appId);
         print("  App '${app.appId}' is deleted.");
       }
-    }
   }
 
   Future<void> _authenticate(String provider, String credentials) async {
