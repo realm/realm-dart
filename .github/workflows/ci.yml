@@ -249,7 +249,7 @@ jobs:
 # Dart jobs
 
   tests-dart:
-    runs-on: ${{ matrix.platform == 'linux' && 'ubuntu' || matrix.platform == 'windows' && 'windows-2019' || matrix.platform }}-${{ matrix.architecture || 'latest' }}
+    runs-on: ${{ matrix.platform == 'linux' && 'ubuntu' || matrix.platform }}-${{ matrix.architecture || 'latest' }}
     name: Tests ${{ matrix.platform }} ${{ matrix.architecture }}
     strategy:
       fail-fast: false
@@ -259,6 +259,7 @@ jobs:
           - platform: macos
             architecture: arm
           - platform: windows
+            architecture: 2019
           - platform: linux
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
