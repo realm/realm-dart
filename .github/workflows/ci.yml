@@ -112,8 +112,8 @@ jobs:
       - name: Disable TLS
         id: tls-disable
         run: |
-          set GITHUB_ACTIONS_RUNNER_TLS_NO_VERIFY=1
-          set DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
+          $env:GITHUB_ACTIONS_RUNNER_TLS_NO_VERIFY=1
+          $env:DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
 
       - name: Checkout
         uses: actions/checkout@v2
