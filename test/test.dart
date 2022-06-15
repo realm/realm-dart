@@ -26,6 +26,12 @@ import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' hide test;
 import 'package:test/test.dart' as testing;
 import 'package:args/args.dart';
+
+// ignore: implementation_imports
+import 'package:test_api/src/backend/invoker.dart';
+// ignore: implementation_imports
+import 'package:test_api/src/backend/state.dart' as test_api;
+
 import '../lib/realm.dart';
 import '../lib/src/cli/deployapps/baas_client.dart';
 import '../lib/src/native/realm_core.dart';
@@ -201,16 +207,30 @@ void xtest(String? name, dynamic Function() testFunction) {
   testing.test(name, testFunction, skip: "Test is disabled");
 }
 
+final Map<String, int> testRuns = <String, int>{};
 Future<void> setupTests(List<String>? args) async {
+  Realm.logger.level = RealmLogLevel.off;
   arguments = parseTestArguments(args);
   testName = arguments["name"];
-  setUpAll(() async => await setupBaas());
+  setUpAll(() async {
+    await setupBaas();
+
+    addTearDown(() {
+      for (var test in testRuns.entries) {
+        print("======== Test ${test.key} took ${test.value}");
+      }
+    });
+  });
 
   setUp(() {
+    Stopwatch watch = Stopwatch();
     final path = generateRandomRealmPath();
     Configuration.defaultRealmPath = path;
 
     addTearDown(() async {
+      watch.stop();
+      testRuns.putIfAbsent(Invoker.current!.liveTest.individualName, () => watch.elapsedMilliseconds);
+
       final paths = HashSet<String>();
       paths.add(path);
 
@@ -226,6 +246,8 @@ Future<void> setupTests(List<String>? args) async {
         await tryDeleteRealm(path);
       }
     });
+
+    watch.start();
   });
 
   await _printPlatformInfo();
