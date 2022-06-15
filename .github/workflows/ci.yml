@@ -33,7 +33,7 @@ jobs:
           useExistingCluster: true
 
   build-native:
-    runs-on: ${{ matrix.runner }}-latest
+    runs-on: windows-2019
     name: Build native
     strategy:
       fail-fast: false
