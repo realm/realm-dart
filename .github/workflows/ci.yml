@@ -46,26 +46,8 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Setup Ninja        
+      - name: Setup Ninja
         uses: seanmiddleditch/gha-setup-ninja@master
-
-      - name: Get vcpkg submodule commit sha
-        id: vcpkg_cache_key        
-        working-directory: src/realm-core/tools/vcpkg/ports
-        shell: bash
-        run: echo "::set-output name=commit::$(git rev-parse HEAD)"
-
-      - name: Setup Vcpkg        
-        continue-on-error: true
-        uses: friendlyanon/setup-vcpkg@v1
-        with:
-          path: src/realm-core/tools/vcpkg/ports
-          cache-key: vcpkg-${{ matrix.preset }}-${{ hashFiles('./src/realm-core/tools/vcpkg/vcpkg.json') }}-${{ steps.vcpkg_cache_key.outputs.commit }}
-          cache-restore-keys: vcpkg-${{ matrix.preset }}-
-
-      - name: Setup Android NDK
-        if: startsWith(matrix.preset, 'android-')
-        run: echo "ANDROID_NDK=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
 
       - name: Build
         run: |
@@ -100,8 +82,8 @@ jobs:
       - name: Disable TLS
         id: tls-disable
         run: |
-          $env:GITHUB_ACTIONS_RUNNER_TLS_NO_VERIFY=1
-          $env:DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
+          echo "GITHUB_ACTIONS_RUNNER_TLS_NO_VERIFY=1" >> $env:GITHUB_ENV
+          echo "DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0" >> $env:GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v2
