@@ -365,9 +365,9 @@ class BaasClient {
     if (input.length < 8) {
       return input;
     }
-
-    final hash = md5.convert(utf8.encode(input)).toString();
-    return hash.substring(0, 8);
+    //Take first 3 and last 5 symbols
+    final result = "${input.substring(0, 2)}${input.substring(input.length - 6)}";
+    return result;
   }
 }
 
