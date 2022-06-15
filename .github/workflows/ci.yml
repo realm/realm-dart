@@ -149,4 +149,3 @@ jobs:
         if: always()
         run: dart run realm_dart delete-apps --baas-url ${{ secrets.REALM_QA_URL }} --atlas-cluster ${{ needs.deploy-cluster.outputs.clusterName }} --api-key ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }} --private-api-key ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }} --project-id ${{ secrets.ATLAS_QA_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
 
-  
