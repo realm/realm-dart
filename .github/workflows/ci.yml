@@ -46,27 +46,16 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Check cache
-        id: check-cache
-        if: ${{ !contains(github.head_ref, 'release/') }}
-        uses: actions/cache@v3
-        with:
-          path: ./binary/**
-          key: binaries-${{ matrix.build || matrix.preset }}-${{hashFiles('./src/**')}}
-
-      - name: Setup Ninja
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+      - name: Setup Ninja        
         uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Get vcpkg submodule commit sha
-        id: vcpkg_cache_key
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        id: vcpkg_cache_key        
         working-directory: src/realm-core/tools/vcpkg/ports
         shell: bash
         run: echo "::set-output name=commit::$(git rev-parse HEAD)"
 
-      - name: Setup Vcpkg
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+      - name: Setup Vcpkg        
         continue-on-error: true
         uses: friendlyanon/setup-vcpkg@v1
         with:
