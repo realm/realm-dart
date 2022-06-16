@@ -41,8 +41,8 @@ The procedure is the same, except you need to use your qa credentials instead.
 
 ## Run integration tests against the BaaS docker image
 
-MongoDB employees can run a local docker image that hosts baas and a mongodb database. It is the recommended way to
-do day-to-day development as it allows you to get into a clean slate with a single command.
+MongoDB employees can run a local docker image that hosts BaaS and a MongoDb database. It is the recommended way to
+do day-to-day development as it allows you to get into a clean state with a single command.
 
 ### Prerequisites
 
@@ -58,7 +58,7 @@ do day-to-day development as it allows you to get into a clean slate with a sing
     * Don't forget to Copy the new token.
 
     * Then run the following commands:
-      - For MacOS anf Linux:
+      - For MacOS and Linux:
       ```sh
         $ export CR_PAT=YOUR_TOKEN
         $ echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
@@ -72,7 +72,7 @@ do day-to-day development as it allows you to get into a clean slate with a sing
     - USERNAME is your [GitHub](https://github.com/) username.
     - YOUR_TOKEN is the token copied from the previous step.
 
-  * Enter your [GitHub](https://github.com/) password. And the output should be `> Login Succeeded`.
+    * Enter your [GitHub](https://github.com/) password. And the output should be `> Login Succeeded`.
 
 4. Take note of your local machine IP address (it has to be the actual IP address, not localhost or 127.0.0.1).
 5. Run the docker image:
@@ -84,7 +84,7 @@ do day-to-day development as it allows you to get into a clean slate with a sing
     * `some_empty_folder` is a mount empty folder to /apps. If not done, the docker image will import a sample app which will mess up the test setup.
     * `baas_version` is the version of the image you'd like to use. See versions at [mongodb-realm-test-server](https://github.com/realm/ci/pkgs/container/ci%2Fmongodb-realm-test-server).
     
-    For MacOS anf Linux:
+    For MacOS and Linux:
     ```sh
     baas_hostname="10.0.1.123"
     baas_access_key="<public_key>" 
