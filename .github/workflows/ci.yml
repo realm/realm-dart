@@ -259,7 +259,6 @@ jobs:
           - platform: macos
             architecture: arm
           - platform: windows
-            architecture: 2019
           - platform: linux
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
@@ -294,7 +293,7 @@ jobs:
         run: dart pub get
 
       - name: Run tests
-        run: ${{ matrix.architecture == 'arm' && 'arch -arm64 ' || '' }} dart test -r expanded -j 1
+        run: ${{ matrix.architecture == 'arm' && 'arch -arm64 ' || '' }} dart test -r expanded -j 1 --test-randomize-ordering-seed random
 
 # Flutter jobs
 
@@ -516,7 +515,7 @@ jobs:
       - name: Run generator tests
         run: |
           dart pub get
-          dart test --reporter expanded --coverage ./coverage/
+          dart test --reporter expanded --coverage ./coverage/ --test-randomize-ordering-seed random
         working-directory: ./generator/
 
       - name: Generate generator coverage report
