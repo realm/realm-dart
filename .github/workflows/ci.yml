@@ -474,10 +474,10 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - name : Setup Dart SDK
+        uses: dart-lang/setup-dart@main
         with:
-          channel: 'stable'
+          sdk: stable
 
       - name: Delete generated files
         run: find . -name "*.g.dart" -not -path "./generator/*" -delete
