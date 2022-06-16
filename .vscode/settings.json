@@ -43,6 +43,11 @@
         "xstring": "cpp",
         "xutility": "cpp",
         "iosfwd": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "condition_variable": "cpp",
+        "csignal": "cpp",
+        "future": "cpp",
+        "mutex": "cpp",
+        "istream": "cpp"
     },
 }
