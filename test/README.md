@@ -34,8 +34,8 @@ The procedure is the same, except you need to use your qa credentials instead.
   * If you don't have access to [cloud-qa](https://cloud-qa.mongodb.com), please follow these steps:
     * Make request for access to Okta Group `10gen-mms-non-prod` using [mana](https://mana.corp.mongodbgov.com/).
     * Browse [cloud-qa](https://cloud-qa.mongodb.com/) and try to reset your password using `Forgot password` option.
-    * Then login into [cloud-qa](https://cloud-qa.mongodb.com/) and you can create your own `Organisation`
-    * The CI workflow is working with `Realm CI QA` organisation. In order to have access to this organisation you have to be invited.
+    * Then login into [cloud-qa](https://cloud-qa.mongodb.com/) and you can create your own `Organization`
+    * The CI workflow is working with `Realm CI QA` organization. In order to have access to this organization you have to be invited.
     * `Dart GHA QA` is the name of the project used by CI workflow.
 
 
