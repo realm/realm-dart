@@ -365,8 +365,8 @@ class BaasClient {
     if (input.length < 8) {
       return input;
     }
-    //Take first 3 and last 5 symbols
-    final result = "${input.substring(0, 2)}${input.substring(input.length - 6)}";
+    //Take first 4 and last 4 symbols
+    final result = "${input.substring(0, 4)}${input.substring(input.length - 4)}";
     return result;
   }
 }
