@@ -368,8 +368,6 @@ Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) as
     app.clientAppId,
     baseUrl: Uri.parse(baasUrl!),
     baseFilePath: temporaryDir,
-    maxConnectionTimeout: Duration(minutes: 10),
-    defaultRequestTimeout: Duration(minutes: 7),
   );
 }
 
