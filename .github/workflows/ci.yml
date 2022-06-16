@@ -22,7 +22,7 @@ jobs:
     steps:
       - name: Get cluster suffix
         id: cluster-name
-        run: echo "::set-output name=clusterName::realm-dart$(date +'%d%tt')"
+        run: echo "::set-output name=clusterName::dartSDK$(date +'%d%p')"
 
       - uses: realm/ci-actions/mdb-realm/deployApps@916d1585f7e066431830b195cdb8cf7855747c2a
         id: deploy-mdb-apps
@@ -171,7 +171,7 @@ jobs:
         run: ${{ matrix.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -r expanded -j 1 --test-randomize-ordering-seed random
 
       - name: Cleanup apps
-        #if: always()
+        if: always()
         run: dart run realm_dart delete-apps --baas-url ${{ env.BAAS_URL }} --atlas-cluster ${{ env.BAAS_CLUSTER }} --api-key ${{ env.BAAS_API_KEY }} --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} --project-id ${{ env.BAAS_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
 
   flutter-desktop-tests:
@@ -237,7 +237,7 @@ jobs:
         working-directory: ./flutter/realm_flutter/tests
 
       - name: Cleanup apps
-        #if: always()
+        if: always()
         run: dart run realm_dart delete-apps --baas-url ${{ env.BAAS_URL }} --atlas-cluster ${{ env.BAAS_CLUSTER }} --api-key ${{ env.BAAS_API_KEY }} --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} --project-id ${{ env.BAAS_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
 
 # iOS jobs
@@ -292,7 +292,7 @@ jobs:
         working-directory: ./flutter/realm_flutter/tests
 
       - name: Cleanup apps
-        #if: always()
+        if: always()
         run: dart run realm_dart delete-apps --baas-url ${{ env.BAAS_URL }} --atlas-cluster ${{ env.BAAS_CLUSTER }} --api-key ${{ env.BAAS_API_KEY }} --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} --project-id ${{ env.BAAS_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
 
 # Android jobs
@@ -368,7 +368,7 @@ jobs:
           working-directory: ./flutter/realm_flutter/tests
 
       - name: Cleanup apps
-        #if: always()
+        if: always()
         run: dart run realm_dart delete-apps --baas-url ${{ env.BAAS_URL }} --atlas-cluster ${{ env.BAAS_CLUSTER }} --api-key ${{ env.BAAS_API_KEY }} --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} --project-id ${{ env.BAAS_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
 
 # Generator jobs
