@@ -366,7 +366,7 @@ class BaasClient {
       return input;
     }
     //Take first 4 and last 4 symbols
-    final result = "${input.substring(0, 4)}${input.substring(input.length - 4)}";
+    final result = input.replaceRange(4, input.length - 4, '');
     return result;
   }
 }
