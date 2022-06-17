@@ -18,9 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy Cluster
     outputs:
-      clusterName: ${{ steps.cluster-name.outputs.clusterName }}
+      clusterName: ${{ steps.deploy-atlas-cluster.outputs.clusterName }}
     steps:
       - uses: realm/ci-actions/mdb-realm/deployApps@916d1585f7e066431830b195cdb8cf7855747c2a
+        id: deploy-atlas-cluster
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
