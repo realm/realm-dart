@@ -13,18 +13,6 @@ env:
   REALM_CI: true
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    name: Test
-    steps:
-      - run: |
-          echo '${{ secrets.TEST_SECRET }}' >> test.txt
-      - name: Store artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: test.txt
-          path: test.txt
-          retention-days: 1
 
   deploy-cluster:
     runs-on: ubuntu-latest
