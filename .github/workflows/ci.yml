@@ -168,6 +168,7 @@ jobs:
       - flutter-desktop-tests
       - flutter-ios
       - flutter-android
+      - deploy-cluster
     strategy:
       fail-fast: false
       matrix:
