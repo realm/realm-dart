@@ -187,10 +187,13 @@ jobs:
 
     - name: Publish packages to pub.dev
       run: |
-        dart pub publish --directory common || true
-        dart pub publish --directory generator || true
-        dart pub publish --directory realm_dart || true
-        dart pub publish --directory realm || true
+        mkdir -p $HOME/.config/dart
+        echo '${{ secrets.PUB_CREDENTIALS }}' >> $HOME/.config/dart/pub-credentials.json
+
+        dart pub publish --directory common --force
+        dart pub publish --directory generator --force
+        dart pub publish --directory realm_dart --force
+        dart pub publish --directory realm --force
       working-directory: release
 
     - name: Find Release PR
