@@ -1,6 +1,7 @@
 ## vNext
 
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
+
 ### Enhancements
 * Added `DisconnectedSyncConfiguration` for opening a synchronized realm in a disconnected state. This configuration allows a synchronized realm to be opened by a secondary process, while a primary process handles synchronization. ([#621](https://github.com/realm/realm-dart/pull/621))
 * Support better default paths on Flutter. ([#665](https://github.com/realm/realm-dart/pull/665))
