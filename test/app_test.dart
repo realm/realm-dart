@@ -210,6 +210,22 @@ Future<void> main([List<String>? args]) async {
       },
     );
   });
+
+  baasTest('App delete user', (configuration) async {
+    final app = App(configuration);
+    final authProvider = EmailPasswordAuthProvider(app);
+    String username = "realm_tests_do_autoverify${generateRandomString(5)}@realm.io";
+    const String strongPassword = "SWV23R#@T#VFQDV";
+    await authProvider.registerUser(username, strongPassword);
+    final user = await loginWithRetry(app, Credentials.emailPassword(username, strongPassword));
+    expect(user, isNotNull);
+    expect(user.state, UserState.loggedIn);
+
+    await app.deleteUser(user);
+    expect(user.state, UserState.removed);
+
+    expect(() async => await loginWithRetry(app, Credentials.emailPassword(username, strongPassword)), throws<RealmException>("invalid username/password"));
+  });
 }
 
 Future<void> testLogger(

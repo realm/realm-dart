@@ -7,6 +7,7 @@
 * Support `Configuration.defaultRealmName` for setting the default realm name. ([#665](https://github.com/realm/realm-dart/pull/665))
 * Support `Configuration.defaultRealmPath` for setting a custom default path for realms. ([#665](https://github.com/realm/realm-dart/pull/665))
 * Support `Configuration.defaultStoragePath ` for getting the platform specific storage paths. ([#665](https://github.com/realm/realm-dart/pull/665))
+* Support `App.deleteUser ` for deleting user accounts. ([#](https://github.com/realm/realm-dart/pull/))
 
 ## 0.3.1+beta (2022-06-07)
 

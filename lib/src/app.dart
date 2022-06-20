@@ -150,6 +150,11 @@ class App {
     return await realmCore.removeUser(this, user);
   }
 
+  /// Deletes a user and all its data from the server.
+  Future<void> deleteUser(User user) async {
+    return await realmCore.deleteUser(this, user);
+  }
+
   /// Switches the [currentUser] to the one specified in [user].
   void switchUser(User user) {
     realmCore.switchUser(this, user);
