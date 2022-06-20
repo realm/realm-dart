@@ -1127,6 +1127,8 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  /// Deregister a device for push notificatons
+  /// @return True if no error was recorded. False otherwise
   bool realm_app_push_notification_client_deregister_device(
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
@@ -1166,6 +1168,8 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  /// Register a device for push notifications.
+  /// @return True if no error was recorded. False otherwise
   bool realm_app_push_notification_client_register_device(
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
@@ -1401,6 +1405,8 @@ class RealmLibrary {
       _realm_app_sync_client_wait_for_sessions_to_terminatePtr
           .asFunction<void Function(ffi.Pointer<realm_app_t>)>();
 
+  /// Creates a user API key that can be used to authenticate as the current user.
+  /// @return True if no error was recorded. False otherwise
   bool realm_app_user_apikey_provider_client_create_apikey(
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
@@ -1456,6 +1462,8 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  /// Deletes a user API key associated with the current user.
+  /// @return True if no error was recorded. False otherwise
   bool realm_app_user_apikey_provider_client_delete_apikey(
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
@@ -1495,6 +1503,8 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  /// Disables a user API key associated with the current user.
+  /// @return True if no error was recorded. False otherwise
   bool realm_app_user_apikey_provider_client_disable_apikey(
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
@@ -1534,6 +1544,8 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  /// Enables a user API key associated with the current user.
+  /// @return True if no error was recorded. False otherwise
   bool realm_app_user_apikey_provider_client_enable_apikey(
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
@@ -1573,6 +1585,8 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  /// Fetches a user API key associated with the current user.
+  /// @return True if no error was recorded. False otherwise
   bool realm_app_user_apikey_provider_client_fetch_apikey(
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
@@ -1628,6 +1642,8 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  /// Fetches the user API keys associated with the current user.
+  /// @return True if no error was recorded. False otherwise
   bool realm_app_user_apikey_provider_client_fetch_apikeys(
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
@@ -8179,7 +8195,7 @@ class RealmLibrary {
   /// Register a callback that will be invoked when all pending downloads have completed.
   void realm_sync_session_wait_for_download_completion(
     ffi.Pointer<realm_sync_session_t> arg0,
-    realm_sync_download_completion_func_t arg1,
+    realm_sync_wait_for_completion_func_t arg1,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
@@ -8195,7 +8211,7 @@ class RealmLibrary {
           ffi.NativeFunction<
               ffi.Void Function(
                   ffi.Pointer<realm_sync_session_t>,
-                  realm_sync_download_completion_func_t,
+                  realm_sync_wait_for_completion_func_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>>(
       'realm_sync_session_wait_for_download_completion');
@@ -8203,14 +8219,14 @@ class RealmLibrary {
       _realm_sync_session_wait_for_download_completionPtr.asFunction<
           void Function(
               ffi.Pointer<realm_sync_session_t>,
-              realm_sync_download_completion_func_t,
+              realm_sync_wait_for_completion_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
   /// Register a callback that will be invoked when all pending uploads have completed.
   void realm_sync_session_wait_for_upload_completion(
     ffi.Pointer<realm_sync_session_t> arg0,
-    realm_sync_upload_completion_func_t arg1,
+    realm_sync_wait_for_completion_func_t arg1,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
@@ -8226,7 +8242,7 @@ class RealmLibrary {
           ffi.NativeFunction<
               ffi.Void Function(
                   ffi.Pointer<realm_sync_session_t>,
-                  realm_sync_upload_completion_func_t,
+                  realm_sync_wait_for_completion_func_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>>(
       'realm_sync_session_wait_for_upload_completion');
@@ -8234,7 +8250,7 @@ class RealmLibrary {
       _realm_sync_session_wait_for_upload_completionPtr.asFunction<
           void Function(
               ffi.Pointer<realm_sync_session_t>,
-              realm_sync_upload_completion_func_t,
+              realm_sync_wait_for_completion_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
@@ -9849,11 +9865,11 @@ class realm_string extends ffi.Struct {
 typedef realm_string_t = realm_string;
 typedef realm_sync_after_client_reset_func_t = ffi.Pointer<
     ffi.NativeFunction<
-        ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>,
+        ffi.Uint8 Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>,
             ffi.Pointer<realm_t>, ffi.Uint8)>>;
 typedef realm_sync_before_client_reset_func_t = ffi.Pointer<
     ffi.NativeFunction<
-        ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>;
+        ffi.Uint8 Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>;
 
 class realm_sync_client_config extends ffi.Opaque {}
 
@@ -9883,10 +9899,6 @@ abstract class realm_sync_connection_state {
 typedef realm_sync_connection_state_changed_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32, ffi.Int32)>>;
-typedef realm_sync_download_completion_func_t = ffi.Pointer<
-    ffi.NativeFunction<
-        ffi.Void Function(
-            ffi.Pointer<ffi.Void>, ffi.Pointer<realm_sync_error_code_t>)>>;
 
 abstract class realm_sync_errno_client {
   static const int RLM_SYNC_ERR_CLIENT_CONNECTION_CLOSED = 100;
@@ -10077,7 +10089,15 @@ typedef realm_sync_ssl_verify_func_t = ffi.Pointer<
             ffi.IntPtr,
             ffi.Int32,
             ffi.Int32)>>;
-typedef realm_sync_upload_completion_func_t = ffi.Pointer<
+
+/// Callback function invoked by the sync session once it has uploaded or download
+/// all available changesets. See @a realm_sync_session_wait_for_upload and
+/// @a realm_sync_session_wait_for_download.
+///
+/// This callback is invoked on the sync client's worker thread.
+///
+/// @param error Null, if the operation completed successfully.
+typedef realm_sync_wait_for_completion_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(
             ffi.Pointer<ffi.Void>, ffi.Pointer<realm_sync_error_code_t>)>>;
