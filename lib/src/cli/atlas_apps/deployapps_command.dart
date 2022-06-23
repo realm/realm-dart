@@ -73,7 +73,7 @@ class DeployAppsCommand extends Command<void> {
       listApps.add(value.appId);
     });
     print("appIds: ");
-    stdout.write(listApps.join(","));
+    print(listApps.join(","));
   }
 
   void abort(String error) {

@@ -62,7 +62,7 @@ class DeleteAppsCommand extends Command<void> {
         ? BaasClient.docker(options.baasUrl, differentiator)
         : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
 
-    await client.deleteApps();    
+    await client.deleteApps();
   }
 
   void abort(String error) {

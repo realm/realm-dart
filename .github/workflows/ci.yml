@@ -24,7 +24,7 @@ jobs:
         id: cluster-name
         run: echo "::set-output name=clusterName::dart$(date +'%d%p')"
 
-      - uses: realm/ci-actions/mdb-realm/deployApps@916d1585f7e066431830b195cdb8cf7855747c2a
+      - uses: realm/ci-actions/mdb-realm/deployApps
         id: deploy-mdb-apps
         with:
           realmUrl: ${{ env.BAAS_URL }}
@@ -32,7 +32,6 @@ jobs:
           projectId: ${{ env.BAAS_PROJECT_ID }}
           apiKey: ${{ env.BAAS_API_KEY }}
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-          differentiator: ${{ steps.cluster-name.outputs.clusterName }}
           clusterName: ${{ steps.cluster-name.outputs.clusterName }}
           useExistingCluster: true
 
