@@ -154,6 +154,11 @@ jobs:
         with:
           sdk: stable
 
+      - name: Sleep for ${{ $RANDOM$ }} miliseconds
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '${{ $RANDOM$ }}ms'
+
       - name: Deploy Apps
         run: |
           dart run realm_dart deploy-apps \
