@@ -25,7 +25,6 @@ jobs:
         run: echo "::set-output name=clusterName::dart$(date +'%d%p')"
 
       - uses: realm/ci-actions/mdb-realm/deployApps@5a92f55213cad94fb27f979ed84c7948559d9f21
-        id: deploy-mdb-apps
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -113,7 +112,116 @@ jobs:
     needs: build-native
     uses: ./.github/workflows/binary-combine-ios.yml
 
-# Linux jobs
+  baas-matrix:
+    needs:
+      - deploy-cluster
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: dm
+            description: dart macos
+          - app: dma
+            description: dart macos-arm
+          - app: dl
+            description: dart linux
+          - app: dw
+            description: dart windows
+          - app: fm
+            description: flutter macos
+          - app: fl
+            description: flutter linux
+          - app: fw
+            description: flutter windows
+          - app: fa
+            description: flutter android
+          - app: fi
+            description: flutter iOS
+    runs-on: ubuntu-latest
+    name: Deploy apps for ${{ matrix.description }}
+    timeout-minutes: 20
+    env:
+      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
+      BAAS_DIFFERENTIATOR: ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: false
+
+      - name : Setup Dart SDK
+        uses: dart-lang/setup-dart@main
+        with:
+          sdk: stable
+
+      - name: Deploy Apps
+        run: |
+          dart run realm_dart deploy-apps \
+            --baas-url ${{ env.BAAS_URL }} \
+            --atlas-cluster ${{ env.BAAS_CLUSTER }} \
+            --api-key ${{ env.BAAS_API_KEY }} \
+            --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} \
+            --project-id ${{ env.BAAS_PROJECT_ID }} \
+            --differentiator "${{ env.BAAS_DIFFERENTIATOR }}"
+
+  cleanup-matrix:
+    needs:
+      - dart-tests
+      - flutter-desktop-tests
+      - flutter-ios
+      - flutter-android
+      - deploy-cluster
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: dm
+            description: dart macos
+          - app: dma
+            description: dart macos-arm
+          - app: dl
+            description: dart linux
+          - app: dw
+            description: dart windows
+          - app: fm
+            description: flutter macos
+          - app: fl
+            description: flutter linux
+          - app: fw
+            description: flutter windows
+          - app: fa
+            description: flutter android
+          - app: fi
+            description: flutter iOS
+    runs-on: ubuntu-latest
+    name: Cleanup apps for ${{ matrix.description }}
+    timeout-minutes: 20
+    if: always()
+    env:
+      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
+      BAAS_DIFFERENTIATOR: ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: false
+
+      - name : Setup Dart SDK
+        uses: dart-lang/setup-dart@main
+        with:
+          sdk: stable
+
+      - name: Cleanup apps
+        run: |
+          dart run realm_dart delete-apps \
+            --baas-url ${{ env.BAAS_URL }} \
+            --atlas-cluster ${{ env.BAAS_CLUSTER }} \
+            --api-key ${{ env.BAAS_API_KEY }} \
+            --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} \
+            --project-id ${{ env.BAAS_PROJECT_ID }} \
+            --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
+
+# Dart jobs
 
   dart-tests:
     strategy:
@@ -137,8 +245,8 @@ jobs:
     needs:
       - deploy-cluster
       - build-native
+      - baas-matrix
     steps:
-
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -159,19 +267,13 @@ jobs:
           sdk: stable
           architecture: ${{ matrix.architecture == 'arm' && 'arm64' || 'x64'}}
 
-      - name: Deploy Apps for Dart tests on ${{ matrix.os }}
-        id: deploy-apps
-        run: dart run realm_dart deploy-apps --baas-url ${{ env.BAAS_URL }} --atlas-cluster ${{ env.BAAS_CLUSTER }} --api-key ${{ env.BAAS_API_KEY }} --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} --project-id ${{ env.BAAS_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
-
       - name: Install dependencies
         run: dart pub get
 
       - name: Run tests
         run: ${{ matrix.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -r expanded -j 1 --test-randomize-ordering-seed random
 
-      - name: Cleanup apps
-        if: always()
-        run: dart run realm_dart delete-apps --baas-url ${{ env.BAAS_URL }} --atlas-cluster ${{ env.BAAS_CLUSTER }} --api-key ${{ env.BAAS_API_KEY }} --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} --project-id ${{ env.BAAS_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
+# Flutter jobs
 
   flutter-desktop-tests:
     strategy:
@@ -189,10 +291,10 @@ jobs:
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
       BAAS_DIFFERENTIATOR:  ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
-
     needs:
       - deploy-cluster
       - build-native
+      - baas-matrix
     steps:
 
       - name: Checkout
@@ -221,10 +323,6 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Deploy Apps for Flutter tests on ${{ matrix.os }}
-        id: deploy-apps
-        run: dart run realm_dart deploy-apps --baas-url ${{ env.BAAS_URL }} --atlas-cluster ${{ env.BAAS_CLUSTER }} --api-key ${{ env.BAAS_API_KEY }} --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} --project-id ${{ env.BAAS_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
-
       - name: Enable Flutter Desktop support
         run: flutter config --enable-${{ matrix.os }}-desktop
 
@@ -235,12 +333,6 @@ jobs:
         run: ${{ matrix.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ matrix.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
 
-      - name: Cleanup apps
-        if: always()
-        run: dart run realm_dart delete-apps --baas-url ${{ env.BAAS_URL }} --atlas-cluster ${{ env.BAAS_CLUSTER }} --api-key ${{ env.BAAS_API_KEY }} --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} --project-id ${{ env.BAAS_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
-
-# iOS jobs
-
   flutter-ios:
     runs-on: macos-latest
     name: Flutter Tests iOS
@@ -250,6 +342,7 @@ jobs:
     needs:
       - deploy-cluster
       - build-ios-xcframework
+      - baas-matrix
     steps:
 
       - name: Checkout
@@ -271,10 +364,6 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Deploy Apps for Flutter IOS tests on ${{ matrix.os }}
-        id: deploy-apps
-        run: dart run realm_dart deploy-apps --baas-url ${{ env.BAAS_URL }} --atlas-cluster ${{ env.BAAS_CLUSTER }} --api-key ${{ env.BAAS_API_KEY }} --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} --project-id ${{ env.BAAS_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
-
       - name: Install dependencies
         run: flutter pub get
 
@@ -290,12 +379,6 @@ jobs:
           flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics
         working-directory: ./flutter/realm_flutter/tests
 
-      - name: Cleanup apps
-        if: always()
-        run: dart run realm_dart delete-apps --baas-url ${{ env.BAAS_URL }} --atlas-cluster ${{ env.BAAS_CLUSTER }} --api-key ${{ env.BAAS_API_KEY }} --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} --project-id ${{ env.BAAS_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
-
-# Android jobs
-
   flutter-android:
     runs-on: macos-latest
     name: Flutter Tests Android
@@ -305,6 +388,7 @@ jobs:
     needs:
       - deploy-cluster
       - build-android-combined
+      - baas-matrix
     steps:
 
       - name: Checkout
@@ -322,10 +406,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-
-      - name: Deploy Apps for Flutter Android tests on ${{ matrix.os }}
-        id: deploy-apps
-        run: dart run realm_dart deploy-apps --baas-url ${{ env.BAAS_URL }} --atlas-cluster ${{ env.BAAS_CLUSTER }} --api-key ${{ env.BAAS_API_KEY }} --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} --project-id ${{ env.BAAS_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
 
       - name: Install dependencies
         run: flutter pub get
@@ -365,10 +445,6 @@ jobs:
           cmake: 3.10.2.4988404
           script: flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics
           working-directory: ./flutter/realm_flutter/tests
-
-      - name: Cleanup apps
-        if: always()
-        run: dart run realm_dart delete-apps --baas-url ${{ env.BAAS_URL }} --atlas-cluster ${{ env.BAAS_CLUSTER }} --api-key ${{ env.BAAS_API_KEY }} --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} --project-id ${{ env.BAAS_PROJECT_ID }} --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
 
 # Generator jobs
 
