@@ -22,7 +22,7 @@ jobs:
     steps:
       - name: Get cluster suffix
         id: cluster-name
-        run: echo "::set-output name=clusterName::dart$(date +'%d%p')"
+        run: echo "::set-output name=clusterName::dart1$(date +'%d%p')"
 
       - uses: realm/ci-actions/mdb-realm/deployApps@5a92f55213cad94fb27f979ed84c7948559d9f21
         with:
