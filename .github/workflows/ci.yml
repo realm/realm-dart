@@ -18,18 +18,20 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy Cluster
     outputs:
-      clusterName: ${{ steps.deploy-atlas-cluster.outputs.clusterName }}
+      clusterName: ${{ steps.cluster-name.outputs.clusterName }}
     steps:
+      - name: Get cluster suffix
+        id: cluster-name
+        run: echo "::set-output name=clusterName::dart$(date +'%d%p')"
+
       - uses: realm/ci-actions/mdb-realm/deployApps@916d1585f7e066431830b195cdb8cf7855747c2a
-        id: deploy-atlas-cluster
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
           projectId: ${{ env.BAAS_PROJECT_ID }}
           apiKey: ${{ env.BAAS_API_KEY }}
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-          differentiator: dart
-          clusterName: dart
+          clusterName: ${{ steps.cluster-name.outputs.clusterName }}
           useExistingCluster: true
 
   build-native:
