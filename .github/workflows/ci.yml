@@ -16,7 +16,6 @@ jobs:
 
   deploy-cluster:
     runs-on: ubuntu-latest
-    if: always()
     name: Deploy Cluster
     outputs:
       clusterName: ${{ steps.cluster-name.outputs.clusterName }}
