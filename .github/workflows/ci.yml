@@ -154,10 +154,9 @@ jobs:
         with:
           sdk: stable
 
-      - name: Sleep for ${{ $RANDOM$ }} miliseconds
-        uses: jakejarvis/wait-action@master
-        with:
-          time: '${{ $RANDOM$ }}ms'
+      - name: Random delay
+        id: cluster-name
+        run: echo "sleep $((RANDOM % 10))"
 
       - name: Deploy Apps
         run: |
