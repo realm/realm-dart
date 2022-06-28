@@ -104,7 +104,6 @@ abstract class Configuration {
   /// The [RealmSchema] for this [Configuration]
   final RealmSchema schema;
 
-  //TODO: Not supported yet.
   // /// The key used to encrypt the entire [Realm].
   // ///
   // /// A full 64byte (512bit) key for AES-256 encryption.
