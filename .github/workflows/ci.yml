@@ -422,7 +422,7 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # TODO: move this to device farm
+      # TODO: Move CI run tests on Android Emulator into device farm https://github.com/realm/realm-dart/issues/691
       - name: Setup Android Emulator cache
         uses: actions/cache@v2
         id: avd-cache

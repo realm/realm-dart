@@ -119,7 +119,7 @@ class _RealmCore {
           final schemaProperty = schemaObject.properties[j];
           final propInfo = properties.elementAt(j).ref;
           propInfo.name = schemaProperty.name.toUtf8Ptr(arena);
-          //TODO: assign the correct public name value.
+          //TODO: Assign the correct public name value https://github.com/realm/realm-dart/issues/697
           propInfo.public_name = "".toUtf8Ptr(arena);
           propInfo.link_target = (schemaProperty.linkTarget ?? "").toUtf8Ptr(arena);
           propInfo.link_origin_property_name = "".toUtf8Ptr(arena);
@@ -400,7 +400,8 @@ class _RealmCore {
       config.initialDataCallback!(realm);
       return TRUE;
     } catch (ex) {
-      // TODO: this should propagate the error to Core: https://github.com/realm/realm-core/issues/5366
+      // TODO: Propagate error to Core in initial_data_callback https://github.com/realm/realm-dart/issues/698
+      // Core issue: https://github.com/realm/realm-core/issues/5366
     }
 
     return FALSE;
@@ -1044,7 +1045,9 @@ class _RealmCore {
 
         responseRef.custom_status_code = _CustomErrorCode.noError.code;
       } on SocketException catch (_) {
-        // TODO: A Timeout causes a socket exception, but not all socket exceptions are due to timeouts
+        // TODO: Define the correct status code on SocketException in _request_callback_async
+        // https://github.com/realm/realm-dart/issues/699
+        // A Timeout causes a socket exception, but not all socket exceptions are due to timeouts
         responseRef.custom_status_code = _CustomErrorCode.timeout.code;
       } on HttpException catch (_) {
         responseRef.custom_status_code = _CustomErrorCode.unknownHttp.code;
@@ -1412,7 +1415,9 @@ class _RealmCore {
 
   List<UserIdentity> userGetIdentities(User user) {
     return using((arena) {
-      //TODO: This approach is prone to race conditions. Fix this once Core changes how count is retrieved.
+      // TODO: Fix countIds in userGetIdentities once Core changes how count is retrieved.
+      // https://github.com/realm/realm-dart/issues/690
+      // This approach is prone to race conditions.
       final idsCount = arena<IntPtr>();
       _realmLib.invokeGetBool(
           () => _realmLib.realm_user_get_all_identities(user.handle._pointer, nullptr, 0, idsCount), "Error while getting user identities count");
