@@ -482,8 +482,6 @@ Future<void> main([List<String>? args]) async {
     await realmX.syncSession.waitForUpload();
     await realmY.syncSession.waitForDownload();
 
-    realmCore.realmRefresh(realmY);
-
     final task = realmY.find<Task>(objectId);
     expect(task, isNotNull);
   });
@@ -500,7 +498,7 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
     expect(() => realm.write(() => realm.add(Task(ObjectId()))), throws<RealmException>("no flexible sync subscription has been created"));
   });
-  
+
   testSubscriptions('Subscription on unqueryable field sould throw', (realm) async {
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Event>());
