@@ -271,9 +271,6 @@ Future<void> tryDeleteRealm(String path) async {
       await Future<void>.delayed(duration);
     }
   }
-
-  // TODO: File deletions does not work after tests so don't fail for now
-  // throw Exception('Failed to delete realm at path $path. Did you forget to close it?');
 }
 
 Map<String, String?> parseTestArguments(List<String>? arguments) {

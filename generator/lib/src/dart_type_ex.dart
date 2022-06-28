@@ -30,7 +30,7 @@ extension DartTypeEx on DartType {
   bool isExactly<T>() => TypeChecker.fromRuntime(T).isExactlyType(this);
 
   bool get isRealmAny => const TypeChecker.fromRuntime(RealmAny).isAssignableFromType(this);
-  bool get isRealmBacklink => false; // TODO
+  bool get isRealmBacklink => false;
   bool get isRealmCollection => realmCollectionType != RealmCollectionType.none;
   bool get isRealmModel => element != null ? realmModelChecker.annotationsOfExact(element!).isNotEmpty : false;
 

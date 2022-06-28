@@ -119,7 +119,6 @@ class _RealmCore {
           final schemaProperty = schemaObject.properties[j];
           final propInfo = properties.elementAt(j).ref;
           propInfo.name = schemaProperty.name.toUtf8Ptr(arena);
-          //TODO: assign the correct public name value.
           propInfo.public_name = "".toUtf8Ptr(arena);
           propInfo.link_target = (schemaProperty.linkTarget ?? "").toUtf8Ptr(arena);
           propInfo.link_origin_property_name = "".toUtf8Ptr(arena);
@@ -400,9 +399,8 @@ class _RealmCore {
       config.initialDataCallback!(realm);
       return TRUE;
     } catch (ex) {
-      // TODO: this should propagate the error to Core: https://github.com/realm/realm-core/issues/5366
+      // Propagate the error to Core: https://github.com/realm/realm-core/issues/5366
     }
-
     return FALSE;
   }
 
@@ -1044,7 +1042,6 @@ class _RealmCore {
 
         responseRef.custom_status_code = _CustomErrorCode.noError.code;
       } on SocketException catch (_) {
-        // TODO: A Timeout causes a socket exception, but not all socket exceptions are due to timeouts
         responseRef.custom_status_code = _CustomErrorCode.timeout.code;
       } on HttpException catch (_) {
         responseRef.custom_status_code = _CustomErrorCode.unknownHttp.code;
@@ -1412,7 +1409,6 @@ class _RealmCore {
 
   List<UserIdentity> userGetIdentities(User user) {
     return using((arena) {
-      //TODO: This approach is prone to race conditions. Fix this once Core changes how count is retrieved.
       final idsCount = arena<IntPtr>();
       _realmLib.invokeGetBool(
           () => _realmLib.realm_user_get_all_identities(user.handle._pointer, nullptr, 0, idsCount), "Error while getting user identities count");
