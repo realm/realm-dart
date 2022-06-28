@@ -24,7 +24,7 @@ jobs:
         id: cluster-name
         run: echo "::set-output name=clusterName::dart$(date +'%d%p')"
 
-      - uses: realm/ci-actions/mdb-realm/deployApps@5a92f55213cad94fb27f979ed84c7948559d9f21
+      - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -274,7 +274,7 @@ jobs:
       - name: Install dependencies
         run: dart pub get
 
-      - uses: realm/ci-actions/mdb-realm/deployApps@5a92f55213cad94fb27f979ed84c7948559d9f21
+      - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -343,7 +343,7 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - uses: realm/ci-actions/mdb-realm/deployApps@5a92f55213cad94fb27f979ed84c7948559d9f21
+      - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -398,7 +398,7 @@ jobs:
           os: 'iOS'
           os_version: '>= 14.0'
 
-      - uses: realm/ci-actions/mdb-realm/deployApps@5a92f55213cad94fb27f979ed84c7948559d9f21
+      - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -467,7 +467,7 @@ jobs:
           cmake: 3.10.2.4988404
           script: echo "Generated Emulator snapshot for caching."
 
-      - uses: realm/ci-actions/mdb-realm/deployApps@5a92f55213cad94fb27f979ed84c7948559d9f21
+      - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
