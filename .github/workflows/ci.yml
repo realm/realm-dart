@@ -343,6 +343,8 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # This will be a no-op under normal circumstances since the cluster would have been deployed
+      # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
         with:
           realmUrl: ${{ env.BAAS_URL }}
