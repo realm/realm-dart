@@ -22,9 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-          runner: [ ${{ inputs.runner }} ]
-          binary: [ ${{ inputs.binary }} ]
-          build: ${{ fromJSON(inputs.build) }}
+         build: ${{ fromJSON(inputs.build) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -73,5 +71,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: librealm-${{ matrix.build }}
-          path: binary/${{ matrix.binary }}/**
+          path: binary/${{ inputs.binary }}/**
           retention-days: 1
