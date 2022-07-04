@@ -22,9 +22,9 @@ jobs:
     steps:
       - name: Get cluster suffix
         id: cluster-name
-        #Set first 8 symbols from pr/branch name as cluster name to have one cluster per PR or different cluster per run in master branch.
+        #Set first 8 symbols from pr/branch name as cluster name to have one cluster per PR(AM/PM) or different cluster per each run in master branch.
         run: |
-          if [[ '${{github.ref_name }}' == 'master' ]]; then triggerName=$(date +"master%S"); else triggerName=pr${{ github.ref_name}}; fi
+          if [[ '${{github.ref_name }}' == 'master' ]]; then triggerName=$("m$RANDOM"); else triggerName=${{ github.ref_name}}$(date +"%p%d"); fi
           cluster=${triggerName/'/merge'/''}
           echo "::set-output name=clusterName::$(cut -c 1-8 <<< ${cluster})"
 
@@ -37,56 +37,6 @@ jobs:
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
           clusterName: ${{ steps.cluster-name.outputs.clusterName }}
           useExistingCluster: true
-
-  build-windows:
-    name: Build Windows
-    uses: ./.github/workflows/build-native.yml
-    with:
-     runner: windows
-     binary: windows
-     build: '["windows"]'
-
-  build-macos:
-    name: Build MacOS
-    uses: ./.github/workflows/build-native.yml
-    with:
-     runner: macos
-     binary: macos
-     build: '["macos"]'
-
-  build-linux:
-    name: Build Linux
-    uses: ./.github/workflows/build-native.yml
-    with:
-     runner: ubuntu
-     binary: linux
-     build: '["linux"]'
-
-  build-android:
-    name: Build Android
-    uses: ./.github/workflows/build-native.yml
-    with:
-     runner: ubuntu
-     binary: android
-     build: '["android-x86", "android-x86_64", "android-armeabi-v7a", "android-arm64-v8a"]'
-
-  build-android-combined:
-    name: Combine Android binaries
-    needs: build-android
-    uses: ./.github/workflows/binary-combine-android.yml
-
-  build-ios:
-    name: Build IOS
-    uses: ./.github/workflows/build-native.yml
-    with:
-      runner: macos
-      binary: ios
-      build: '["ios-device", "ios-simulator", "ios-catalyst"]'
-
-  build-ios-xcframework:
-    name: Combine IOS binaries
-    needs: build-ios
-    uses: ./.github/workflows/binary-combine-ios.yml
 
   cleanup-matrix:
     needs:
@@ -145,141 +95,129 @@ jobs:
             --project-id ${{ env.BAAS_PROJECT_ID }} \
             --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
 
+  build-windows:
+    name: Build Windows
+    uses: ./.github/workflows/build-native.yml
+    with:
+     runner: windows
+     binary: windows
+     build: '["windows"]'
+
+  build-macos:
+    name: Build MacOS
+    uses: ./.github/workflows/build-native.yml
+    with:
+     runner: macos
+     binary: macos
+     build: '["macos"]'
+
+  build-linux:
+    name: Build Linux
+    uses: ./.github/workflows/build-native.yml
+    with:
+     runner: ubuntu
+     binary: linux
+     build: '["linux"]'
+
+  build-android:
+    name: Build Android
+    uses: ./.github/workflows/build-native.yml
+    with:
+     runner: ubuntu
+     binary: android
+     build: '["android-x86", "android-x86_64", "android-armeabi-v7a", "android-arm64-v8a"]'
+
+  build-ios:
+    name: Build IOS
+    uses: ./.github/workflows/build-native.yml
+    with:
+      runner: macos
+      binary: ios
+      build: '["ios-device", "ios-simulator", "ios-catalyst"]'
+
+  build-android-combined:
+    name: Combine Android binaries
+    needs: build-android
+    uses: ./.github/workflows/binary-combine-android.yml
+
+  build-ios-xcframework:
+    name: Combine IOS binaries
+    needs: build-ios
+    uses: ./.github/workflows/binary-combine-ios.yml
+
 # Dart jobs
-
-  dart-tests:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: macos
-            app: dm
-          - os: macos
-            architecture: arm
-            app: dma
-          - os: windows
-            app: dw
-          - os: linux
-            app: dl
-    runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-${{ matrix.architecture || 'latest' }}
-    name: Dart tests on ${{matrix.os }} ${{ matrix.architecture }}
-    env:
-      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
+  dart-tests-windows:
+    name: Dart tests on Windows
+    uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
-      - deploy-cluster
       - build-windows
+      - deploy-cluster
+    with:
+     os: windows
+     app: dw
+  
+  dart-tests-macos:
+    name: Dart tests on MacOS
+    uses: ./.github/workflows/dart-desktop-tests.yml
+    needs:
       - build-macos
+      - deploy-cluster
+    with:
+     os: macos
+     app: dm
+
+  dart-tests-macos-arm:
+    name: Dart tests on MacOS Arm
+    uses: ./.github/workflows/dart-desktop-tests.yml
+    needs:
+      - build-macos
+      - deploy-cluster
+    with:
+     os: macos
+     architecture: arm
+     app: dm
+
+  dart-tests-linux:
+    name: Dart tests on Linux
+    uses: ./.github/workflows/dart-desktop-tests.yml
+    needs:
       - build-linux
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: false
-
-      - name: Cleanup Workspace
-        run: git clean -fdx
-
-      - name: Fetch artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: librealm-${{ matrix.os }}
-          path: binary/${{ matrix.os }}
-
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-          architecture: ${{ matrix.architecture == 'arm' && 'arm64' || 'x64'}}
-
-      - name: Install dependencies
-        run: dart pub get
-
-      - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
-        with:
-          realmUrl: ${{ env.BAAS_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ env.BAAS_PROJECT_ID }}
-          apiKey: ${{ env.BAAS_API_KEY }}
-          privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-          clusterName: ${{ env.BAAS_CLUSTER }}
-          useExistingCluster: true
-
-      - name: Run tests
-        run: ${{ matrix.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -r expanded -j 1 --test-randomize-ordering-seed random
+      - deploy-cluster
+    with:
+     os: linux
+     app: dl
 
 # Flutter jobs
 
-  flutter-desktop-tests:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-            - os: macos
-              app: fm
-            - os: windows
-              app: fw
-            - os: linux
-              app: fl
-    runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-latest
-    name: Flutter tests on ${{matrix.os  }}
-    env:
-      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR:  ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
+  flutter-desktop-tests-windows:
+    name: Flutter desktop tests on Windows
+    uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
-      - deploy-cluster
       - build-windows
+      - deploy-cluster
+    with:
+     os: windows
+     app: fw
+
+  flutter-desktop-tests-macos:
+    name: Flutter desktop tests on MacOS
+    uses: ./.github/workflows/flutter-desktop-tests.yml
+    needs:
       - build-macos
+      - deploy-cluster
+    with:
+     os: macos
+     app: fm
+
+  flutter-desktop-tests-linux:
+    name: Flutter desktop tests on Linux
+    uses: ./.github/workflows/flutter-desktop-tests.yml
+    needs:
       - build-linux
-    steps:
-
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: false
-
-      - name: Setup GTK
-        if: ${{ matrix.os == 'linux' }}
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y libgtk-3-dev xvfb
-
-      - name: Setup Ninja
-        if: ${{ matrix.os == 'linux' }}
-        uses: seanmiddleditch/gha-setup-ninja@master
-
-      - name: Fetch artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: librealm-${{ matrix.os }}
-          path: binary/${{ matrix.os }}
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-
-      - name: Enable Flutter Desktop support
-        run: flutter config --enable-${{ matrix.os }}-desktop
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      # This will be a no-op under normal circumstances since the cluster would have been deployed
-      # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
-      - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
-        with:
-          realmUrl: ${{ env.BAAS_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ env.BAAS_PROJECT_ID }}
-          apiKey: ${{ env.BAAS_API_KEY }}
-          privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-          clusterName: ${{ env.BAAS_CLUSTER }}
-          useExistingCluster: true
-
-      - name: Run tests
-        run: ${{ matrix.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ matrix.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
-        working-directory: ./flutter/realm_flutter/tests
+      - deploy-cluster
+    with:
+     os: linux
+     app: fl
 
   flutter-ios:
     runs-on: macos-latest

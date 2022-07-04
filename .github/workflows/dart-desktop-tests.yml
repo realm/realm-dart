@@ -1,0 +1,61 @@
+name: Dart desktop tests
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: OS to execute on.
+        required: true
+        type: string
+      architecture:
+        description: Architecture to execute on.
+        required: false
+        type: string
+      app:
+        description: App name prefix
+        required: true
+        type: string
+jobs:
+  dart-tests:
+    runs-on: ${{ inputs.os == 'linux' && 'ubuntu' || inputs.os }}-${{ inputs.architecture || 'latest' }}
+    name: Dart tests on ${{inputs.os }} ${{ inputs.architecture }}
+    env:
+      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
+      BAAS_DIFFERENTIATOR: ${{ inputs.app }}${{ github.run_id }}${{ github.run_attempt }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: false
+
+      - name: Cleanup Workspace
+        run: git clean -fdx
+
+      - name: Fetch artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-${{ inputs.os }}
+          path: binary/${{ inputs.os }}
+
+      - name : Setup Dart SDK
+        uses: dart-lang/setup-dart@main
+        with:
+          sdk: stable
+          architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
+        with:
+          realmUrl: ${{ env.BAAS_URL }}
+          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+          projectId: ${{ env.BAAS_PROJECT_ID }}
+          apiKey: ${{ env.BAAS_API_KEY }}
+          privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
+          clusterName: ${{ env.BAAS_CLUSTER }}
+          useExistingCluster: true
+
+      - name: Run tests
+        run: ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -r expanded -j 1 --test-randomize-ordering-seed random
