@@ -22,7 +22,8 @@ jobs:
     steps:
       - name: Get cluster suffix
         id: cluster-name
-        run: echo "::set-output name=clusterName::id$(date +'%H%M%S')"
+        #Set first 8 symbols from branch name as cluster name to have one cluster per PR or branch
+        run: echo "::set-output name=clusterName::$(cut -c 1-8 <<< $GITHUB_REF)"
 
       - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
         with:
