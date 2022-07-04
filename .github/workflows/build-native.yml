@@ -64,7 +64,7 @@ jobs:
       - name: Build
         if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: |
-          cmake --preset ${{ matrix.build }}
+          cmake --preset ${{ startsWith(matrix.build, 'ios-') && 'ios' || matrix.build }}
           cmake --build --preset ${{ matrix.build }} --config Release
 
       - name: Store artifacts
