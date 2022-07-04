@@ -154,7 +154,7 @@ class BaasClient {
   }
 
   Future<BaasApp> _createApp(String name, {String? confirmationType}) async {
-    print('Creating app $name ($name$_appSuffix)');
+    print('Creating app $name$_appSuffix');
 
     final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$name$_appSuffix" }');
     final appId = doc['_id'] as String;
@@ -180,10 +180,12 @@ class BaasClient {
       "runResetFunction": true
     }''');
 
+    print('Creating database db_$name$_appSuffix');
+
     await _createMongoDBService(app, '''{
       "flexible_sync": {
         "state": "enabled",
-        "database_name": "$_differentiator-$name",
+        "database_name": "db_$name$_appSuffix",
         "queryable_fields_names": ["differentiator", "stringQueryField", "boolQueryField", "intQueryField"],
         "permissions": {
           "rules": {},
@@ -208,7 +210,7 @@ class BaasClient {
   }
 
   Future<void> enableProvider(BaasApp app, String type, [String config = '{}']) async {
-    print('Enabling provider $type for ${app.name}');
+    print('Enabling provider $type for ${app.clientAppId}');
 
     final url = 'groups/$_groupId/apps/$app/auth_providers';
     if (type == 'api-key') {
@@ -226,6 +228,16 @@ class BaasClient {
     }
   }
 
+  Future<void> deleteApps() async {
+    var apps = await _getApps();
+    for (final app in apps) {
+      print('Deleting app ${app.clientAppId}');
+
+      await _deleteApp(app.appId);
+      print("App with id='${app.appId}' is deleted.");
+    }
+  }
+
   Future<void> _authenticate(String provider, String credentials) async {
     dynamic response = await _post('auth/providers/$provider/login', credentials);
 
@@ -233,7 +245,7 @@ class BaasClient {
   }
 
   Future<String> _createFunction(BaasApp app, String name, String source) async {
-    print('Creating function $name for ${app.name}...');
+    print('Creating function $name for ${app.clientAppId}...');
 
     final dynamic response = await _post('groups/$_groupId/apps/$app/functions', '''{
         "name": "$name",
@@ -246,7 +258,7 @@ class BaasClient {
   }
 
   Future<void> _updateFunction(BaasApp app, String name, String functionId, String source) async {
-    print('Updating function $name for ${app.name}...');
+    print('Updating function $name for ${app.clientAppId}...');
 
     await _put('groups/$_groupId/apps/$app/functions/$functionId', '''{
         "name": "$name",
@@ -285,7 +297,7 @@ class BaasClient {
   }
 
   Future<String> _createService(BaasApp app, String name, String type, String config) async {
-    print('Creating service $name for ${app.name}');
+    print('Creating service $name for ${app.clientAppId}');
 
     final dynamic response = await _post('groups/$_groupId/apps/$app/services', '''{
         "name": "$name",
@@ -294,6 +306,10 @@ class BaasClient {
       }''');
 
     return response['_id'] as String;
+  }
+
+  Future<void> _deleteApp(String appId) async {
+    await _delete('groups/$_groupId/apps/$appId');
   }
 
   Map<String, String> _getHeaders([Map<String, String>? additionalHeaders]) {
@@ -329,6 +345,11 @@ class BaasClient {
     return _decodeResponse(response, payload);
   }
 
+  Future<dynamic> _delete(String relativePath, {String? payload}) async {
+    var response = await http.delete(_getUri(relativePath), headers: _getHeaders({'Content-Type': 'application/json'}), body: payload);
+    return _decodeResponse(response, payload);
+  }
+
   dynamic _decodeResponse(http.Response response, [String? payload]) {
     if (response.statusCode > 399 || response.statusCode < 200) {
       throw Exception('Failed to ${response.request?.method} ${response.request?.url}: ${response.statusCode} ${response.body}. Body: $payload');
@@ -344,9 +365,9 @@ class BaasClient {
     if (input.length < 8) {
       return input;
     }
-
-    final hash = md5.convert(utf8.encode(input)).toString();
-    return hash.substring(0, 8);
+    //Take first 4 and last 4 symbols
+    final result = input.replaceRange(4, input.length - 4, '');
+    return result;
   }
 }
 
