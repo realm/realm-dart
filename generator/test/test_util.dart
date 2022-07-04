@@ -22,13 +22,13 @@ Map<String, String> getListOfTestFiles(String directory) {
   return result;
 }
 
-Future<dynamic> generatorTestBuilder(String directoryName, String inputFileName, [String expectedFileName = ""]) async {
+Future<dynamic> generatorTestBuilder(String directoryName, String inputFileName) async {
   final inputPath = _path.join(directoryName, inputFileName);
-  final expectedPath = _path.setExtension(inputPath, 'expected');
+  final expectedPath = _path.setExtension(inputPath, '.expected');
   return testBuilder(
     generateRealmObjects(),
     await getInputFileAsset(inputPath),
-    outputs: expectedFileName.isNotEmpty ? await getExpectedFileAsset('$directoryName/$inputFileName', '$directoryName/$expectedFileName') : null,
+    outputs: await getExpectedFileAsset(inputPath, expectedPath),
     reader: await PackageAssetReader.currentIsolate(),
   );
 }
@@ -119,9 +119,7 @@ class LinesEqualsMatcher extends Matcher {
 
 Future<Map<String, Object>> getExpectedFileAsset(String inputFilePath, String expectedFilePath) async {
   var key = 'pkg|${_path.setExtension(inputFilePath, '.realm_objects.g.part')}';
-  String expectedContent = await readFileAsDartFormattedString(expectedFilePath);
-
-  return {key: LinesEqualsMatcher(expectedContent)};
+  return {key: GoldenFileMatcher(File(expectedFilePath), (f) => LinesEqualsMatcher(f.readAsStringSync()))};
 }
 
 Future<String> readFileAsDartFormattedString(String path) async {
