@@ -18,17 +18,20 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy Cluster
     outputs:
-      clusterName: ${{ steps.deploy-atlas-cluster.outputs.clusterName }}
+      clusterName: ${{ steps.cluster-name.outputs.clusterName }}
     steps:
+      - name: Get cluster suffix
+        id: cluster-name
+        run: echo "::set-output name=clusterName::id$(date +'%H%M%S')"
+
       - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
-        id: deploy-atlas-cluster
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
           projectId: ${{ env.BAAS_PROJECT_ID }}
           apiKey: ${{ env.BAAS_API_KEY }}
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-          clusterName: runid${{ github.run_id }}
+          clusterName: ${{ steps.cluster-name.outputs.clusterName }}
           useExistingCluster: true
 
   build-native:
@@ -150,6 +153,10 @@ jobs:
         uses: dart-lang/setup-dart@main
         with:
           sdk: stable
+
+      - name: Random delay
+        id: cluster-name
+        run: echo "sleep $((RANDOM % 10))"
 
       - name: Deploy Apps
         run: |
