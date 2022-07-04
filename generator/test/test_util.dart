@@ -23,9 +23,14 @@ Map<String, String> getListOfTestFiles(String directory) {
 }
 
 Future<dynamic> generatorTestBuilder(String directoryName, String inputFileName, [String expectedFileName = ""]) async {
-  return testBuilder(generateRealmObjects(), await getInputFileAsset('$directoryName/$inputFileName'),
-      outputs: expectedFileName.isNotEmpty ? await getExpectedFileAsset('$directoryName/$inputFileName', '$directoryName/$expectedFileName') : null,
-      reader: await PackageAssetReader.currentIsolate());
+  final inputPath = _path.join(directoryName, inputFileName);
+  final expectedPath = _path.setExtension(inputPath, 'expected');
+  return testBuilder(
+    generateRealmObjects(),
+    await getInputFileAsset(inputPath),
+    outputs: expectedFileName.isNotEmpty ? await getExpectedFileAsset('$directoryName/$inputFileName', '$directoryName/$expectedFileName') : null,
+    reader: await PackageAssetReader.currentIsolate(),
+  );
 }
 
 Future<Map<String, Object>> getInputFileAsset(String inputFilePath) async {
@@ -34,12 +39,43 @@ Future<Map<String, Object>> getInputFileAsset(String inputFilePath) async {
   return {key: inputContent};
 }
 
+class GoldenFileMatcher extends Matcher {
+  final File golden;
+  final Matcher Function(File) matcherFactory;
+  late final Matcher _matcher;
+
+  GoldenFileMatcher(this.golden, this.matcherFactory);
+
+  @override
+  Description describe(Description description) {
+    return _matcher.describe(description);
+  }
+
+  @override
+  bool matches(dynamic item, Map<dynamic, dynamic> matchState) {
+    // create golden, if missing
+    if (!golden.existsSync()) {
+      var bytes = <int>[];
+      if (item is File) {
+        bytes = item.readAsBytesSync();
+      } else if (item is List<int>) {
+        bytes = item;
+      } else if (item is String) {
+        bytes = utf8.encode(item);
+      }
+      golden.writeAsBytesSync(bytes, flush: true);
+    }
+    _matcher = matcherFactory(golden);
+    return _matcher.matches(item, matchState);
+  }
+}
+
 /// A special equality matcher for strings.
 class LinesEqualsMatcher extends Matcher {
   late final List<String> expectedLines;
 
-  LinesEqualsMatcher(String expexted) {
-    expectedLines = expexted.split("\n");
+  LinesEqualsMatcher(String expected) {
+    expectedLines = expected.split("\n");
   }
 
   @override
