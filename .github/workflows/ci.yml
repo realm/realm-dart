@@ -24,9 +24,9 @@ jobs:
         id: cluster-name
         #Set first 8 symbols from branch name as cluster name to have one cluster per PR or branch
         run: |
-          pr=$(${{github.ref_name}})
+          pr=${{github.ref_name}}
           cluster=${pr/'/merge'/''}
-          echo "::set-output name=clusterName::$(cut -c 1-8 <<< cluster)"
+          echo "::set-output name=clusterName::$(cut -c 1-8 <<< ${cluster})"
 
       - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
         with:
