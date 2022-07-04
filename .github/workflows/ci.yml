@@ -63,8 +63,8 @@ jobs:
     name: Build Android
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: '[ubuntu]'
-     binary: '[android]'
+     runner: ubuntu
+     binary: android
      build: '["android-x86", "android-x86_64", "android-armeabi-v7a", "android-arm64-v8a"]'
 
   build-android-combined:
@@ -76,8 +76,8 @@ jobs:
     name: Build IOS
     uses: ./.github/workflows/build-native.yml
     with:
-      runner: '[macos]'
-      binary: '[ios]'
+      runner: macos
+      binary: ios
       build: '["ios-device", "ios-simulator", "ios-catalyst"]'
 
   build-ios-xcframework:
