@@ -4,11 +4,11 @@ on:
   workflow_call:
     inputs:
       runner:
-        description: Platforms to execute on, in format of a string JSON array
+        description: Platforms to execute on.
         required: true
         type: string
       binary:
-        description: Binary to build, in format of a string JSON array
+        description: Binary to build.
         required: true
         type: string
       build:

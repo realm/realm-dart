@@ -40,7 +40,7 @@ jobs:
     with:
      runner: windows
      binary: windows
-     build: '[windows]'
+     build: '["windows"]'
 
   build-macos:
     name: Build MacOS
@@ -48,7 +48,7 @@ jobs:
     with:
      runner: macos
      binary: macos
-     build: '[macos]'
+     build: '["macos"]'
 
   build-linux:
     name: Build Linux
@@ -56,7 +56,7 @@ jobs:
     with:
      runner: ubuntu
      binary: linux
-     build: linux
+     build: '["linux"]'
 
   build-android:
     name: Build Android
@@ -64,7 +64,7 @@ jobs:
     with:
      runner: '[ubuntu]'
      binary: '[android]'
-     build: '[android-x86, android-x86_64, android-armeabi-v7a, android-arm64-v8a]'
+     build: '["android-x86", "android-x86_64", "android-armeabi-v7a", "android-arm64-v8a"]'
 
   build-android-combined:
     name: Combine Android binaries
@@ -77,7 +77,7 @@ jobs:
     with:
       runner: '[macos]'
       binary: '[ios]'
-      build: '[ios-device, ios-simulator, ios-catalyst]'
+      build: '["ios-device", "ios-simulator", "ios-catalyst"]'
 
   build-ios-xcframework:
     name: Combine IOS binaries
