@@ -7,104 +7,113 @@ part of 'main.dart';
 // **************************************************************************
 
 class Car extends _Car with RealmEntity, RealmObject {
-  static var _defaultsSet = false;
-
   Car(
     String make, {
     String? model,
     int? kilometers = 500,
     Person? owner,
   }) {
-    if (!_defaultsSet) {
-      _defaultsSet = RealmObject.setDefaults<Car>({
-        'kilometers': 500,
-      });
-    }
-    RealmObject.set(this, 'make', make);
-    RealmObject.set(this, 'model', model);
-    RealmObject.set(this, 'kilometers', kilometers);
-    RealmObject.set(this, 'owner', owner);
+    _makeProperty.setValue(this, make);
+    _modelProperty.setValue(this, model);
+    _kilometersProperty.setValue(this, kilometers);
+    _ownerProperty.setValue(this, owner);
   }
 
   Car._();
 
+  static const _makeProperty = ValueProperty<String>(
+    'make',
+    RealmPropertyType.string,
+  );
   @override
-  String get make => RealmObject.get<String>(this, 'make') as String;
+  String get make => _makeProperty.getValue(this);
   @override
-  set make(String value) => RealmObject.set(this, 'make', value);
+  set make(String value) => _makeProperty.setValue(this, value);
+
+  static const _modelProperty = ValueProperty<String?>(
+    'model',
+    RealmPropertyType.string,
+  );
+  @override
+  String? get model => _modelProperty.getValue(this);
+  @override
+  set model(String? value) => _modelProperty.setValue(this, value);
+
+  static const _kilometersProperty = ValueProperty<int?>(
+    'kilometers',
+    RealmPropertyType.int,
+    defaultValue: 500,
+  );
+  @override
+  int? get kilometers => _kilometersProperty.getValue(this);
+  @override
+  set kilometers(int? value) => _kilometersProperty.setValue(this, value);
+
+  static const _ownerProperty = ObjectProperty<Person>('owner');
+  @override
+  Person? get owner => _ownerProperty.getValue(this);
+  @override
+  set owner(covariant Person? value) => _ownerProperty.setValue(this, value);
 
   @override
-  String? get model => RealmObject.get<String>(this, 'model') as String?;
-  @override
-  set model(String? value) => RealmObject.set(this, 'model', value);
+  Stream<RealmObjectChanges<Car>> get changes => RealmObject.getChanges(this);
 
+  static const schema = SchemaObject<Car>(
+    Car._,
+    'Car',
+    {
+      'make': _makeProperty,
+      'model': _modelProperty,
+      'kilometers': _kilometersProperty,
+      'owner': _ownerProperty,
+    },
+  );
   @override
-  int? get kilometers => RealmObject.get<int>(this, 'kilometers') as int?;
-  @override
-  set kilometers(int? value) => RealmObject.set(this, 'kilometers', value);
-
-  @override
-  Person? get owner => RealmObject.get<Person>(this, 'owner') as Person?;
-  @override
-  set owner(covariant Person? value) => RealmObject.set(this, 'owner', value);
-
-  @override
-  Stream<RealmObjectChanges<Car>> get changes =>
-      RealmObject.getChanges<Car>(this);
-
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
-    RealmObject.registerFactory(Car._);
-    return const SchemaObject(Car, 'Car', [
-      SchemaProperty('make', RealmPropertyType.string),
-      SchemaProperty('model', RealmPropertyType.string, optional: true),
-      SchemaProperty('kilometers', RealmPropertyType.int, optional: true),
-      SchemaProperty('owner', RealmPropertyType.object,
-          optional: true, linkTarget: 'Person'),
-    ]);
-  }
+  Map<String, ValueProperty> get properties => schema.properties;
 }
 
 class Person extends _Person with RealmEntity, RealmObject {
-  static var _defaultsSet = false;
-
   Person(
     String name, {
     int age = 1,
   }) {
-    if (!_defaultsSet) {
-      _defaultsSet = RealmObject.setDefaults<Person>({
-        'age': 1,
-      });
-    }
-    RealmObject.set(this, 'name', name);
-    RealmObject.set(this, 'age', age);
+    _nameProperty.setValue(this, name);
+    _ageProperty.setValue(this, age);
   }
 
   Person._();
 
+  static const _nameProperty = ValueProperty<String>(
+    'name',
+    RealmPropertyType.string,
+  );
   @override
-  String get name => RealmObject.get<String>(this, 'name') as String;
+  String get name => _nameProperty.getValue(this);
   @override
-  set name(String value) => RealmObject.set(this, 'name', value);
+  set name(String value) => _nameProperty.setValue(this, value);
 
+  static const _ageProperty = ValueProperty<int>(
+    'age',
+    RealmPropertyType.int,
+    defaultValue: 1,
+  );
   @override
-  int get age => RealmObject.get<int>(this, 'age') as int;
+  int get age => _ageProperty.getValue(this);
   @override
-  set age(int value) => RealmObject.set(this, 'age', value);
+  set age(int value) => _ageProperty.setValue(this, value);
 
   @override
   Stream<RealmObjectChanges<Person>> get changes =>
-      RealmObject.getChanges<Person>(this);
+      RealmObject.getChanges(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
-    RealmObject.registerFactory(Person._);
-    return const SchemaObject(Person, 'Person', [
-      SchemaProperty('name', RealmPropertyType.string),
-      SchemaProperty('age', RealmPropertyType.int),
-    ]);
-  }
+  static const schema = SchemaObject<Person>(
+    Person._,
+    'Person',
+    {
+      'name': _nameProperty,
+      'age': _ageProperty,
+    },
+  );
+  @override
+  Map<String, ValueProperty> get properties => schema.properties;
 }
