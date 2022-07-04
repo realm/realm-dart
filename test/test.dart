@@ -27,7 +27,7 @@ import 'package:test/test.dart' hide test;
 import 'package:test/test.dart' as testing;
 import 'package:args/args.dart';
 import '../lib/realm.dart';
-import '../lib/src/cli/deployapps/baas_client.dart';
+import '../lib/src/cli/atlas_apps/baas_client.dart';
 import '../lib/src/native/realm_core.dart';
 import '../lib/src/configuration.dart';
 
@@ -362,6 +362,8 @@ Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) as
     app.clientAppId,
     baseUrl: Uri.parse(baasUrl!),
     baseFilePath: temporaryDir,
+    maxConnectionTimeout: Duration(minutes: 10),
+    defaultRequestTimeout: Duration(minutes: 7),
   );
 }
 

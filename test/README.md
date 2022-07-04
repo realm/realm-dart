@@ -29,15 +29,20 @@ BAAS_PROJECT_ID=<project_id>
 ```
 10) Now you can run `dart test` and it should include the integration tests.
 
-If you are a MongoDB employee, you can instead choose to run the tests against [cloud-dev](https://cloud-dev.mongodb.com).
+If you are a MongoDB employee, you can instead choose to run the tests against [cloud-qa](https://cloud-qa.mongodb.com).
 The procedure is the same, except you need to use your qa credentials instead.
-
+  * If you don't have access to [cloud-qa](https://cloud-qa.mongodb.com), please follow these steps:
+    * Make request for access to Okta Group `10gen-mms-non-prod` using [mana](https://mana.corp.mongodbgov.com/).
+    * Browse [cloud-qa](https://cloud-qa.mongodb.com/) and try to reset your password using `Forgot password` option.
+    * Then login into [cloud-qa](https://cloud-qa.mongodb.com/) and you can create your own `Organization`
+    * The CI workflow is working with `Realm CI QA` organization. In order to have access to this organization you have to be invited.
+    * `Dart GHA QA` is the name of the project used by CI workflow.
 
 
 ## Run integration tests against the BaaS docker image
 
-MongoDB employees can run a local docker image that hosts baas and a mongodb database. It is the recommended way to
-do day-to-day development as it allows you to get into a clean slate with a single command.
+MongoDB employees can run a local docker image that hosts BaaS and a MongoDb database. It is the recommended way to
+do day-to-day development as it allows you to get into a clean state with a single command.
 
 ### Prerequisites
 
@@ -53,7 +58,7 @@ do day-to-day development as it allows you to get into a clean slate with a sing
     * Don't forget to Copy the new token.
 
     * Then run the following commands:
-      - For MacOS anf Linux:
+      - For MacOS and Linux:
       ```sh
         $ export CR_PAT=YOUR_TOKEN
         $ echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
@@ -67,7 +72,7 @@ do day-to-day development as it allows you to get into a clean slate with a sing
     - USERNAME is your [GitHub](https://github.com/) username.
     - YOUR_TOKEN is the token copied from the previous step.
 
-  * Enter your [GitHub](https://github.com/) password. And the output should be `> Login Succeeded`.
+    * Enter your [GitHub](https://github.com/) password. And the output should be `> Login Succeeded`.
 
 4. Take note of your local machine IP address (it has to be the actual IP address, not localhost or 127.0.0.1).
 5. Run the docker image:
@@ -79,7 +84,7 @@ do day-to-day development as it allows you to get into a clean slate with a sing
     * `some_empty_folder` is a mount empty folder to /apps. If not done, the docker image will import a sample app which will mess up the test setup.
     * `baas_version` is the version of the image you'd like to use. See versions at [mongodb-realm-test-server](https://github.com/realm/ci/pkgs/container/ci%2Fmongodb-realm-test-server).
     
-    For MacOS anf Linux:
+    For MacOS and Linux:
     ```sh
     baas_hostname="10.0.1.123"
     baas_access_key="<public_key>" 

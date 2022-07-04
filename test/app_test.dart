@@ -184,31 +184,36 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Realm.logger', (configuration) async {
-    Realm.logger = Logger.detached(generateRandomString(10))..level = RealmLogLevel.all;
-    configuration = AppConfiguration(
-      configuration.appId,
-      baseFilePath: configuration.baseFilePath,
-      baseUrl: configuration.baseUrl,
-    ); // uses App.defaultLogger
+    final oldLogger = Realm.logger;
+    try {
+      Realm.logger = Logger.detached(generateRandomString(10))..level = RealmLogLevel.all;
+      configuration = AppConfiguration(
+        configuration.appId,
+        baseFilePath: configuration.baseFilePath,
+        baseUrl: configuration.baseUrl,
+      ); // uses App.defaultLogger
 
-    await testLogger(
-      configuration,
-      Realm.logger,
-      maxExpectedCounts: {
-        // No problems expected!
-        RealmLogLevel.fatal: 0,
-        RealmLogLevel.error: 0,
-        RealmLogLevel.warn: 0,
-      },
-      minExpectedCounts: {
-        // these are set low (roughly half of what was seen when test was created),
-        // so that changes to core are less likely to break the test
-        RealmLogLevel.trace: 10,
-        RealmLogLevel.debug: 20,
-        RealmLogLevel.detail: 2,
-        RealmLogLevel.info: 1,
-      },
-    );
+      await testLogger(
+        configuration,
+        Realm.logger,
+        maxExpectedCounts: {
+          // No problems expected!
+          RealmLogLevel.fatal: 0,
+          RealmLogLevel.error: 0,
+          RealmLogLevel.warn: 0,
+        },
+        minExpectedCounts: {
+          // these are set low (roughly half of what was seen when test was created),
+          // so that changes to core are less likely to break the test
+          RealmLogLevel.trace: 10,
+          RealmLogLevel.debug: 20,
+          RealmLogLevel.detail: 2,
+          RealmLogLevel.info: 1,
+        },
+      );
+    } finally {
+      Realm.logger = oldLogger; // re-instate previous
+    }
   });
 }
 
@@ -241,7 +246,7 @@ Future<void> testLogger(
 
   // Check count of various levels
   for (final e in counts.entries) {
-    expect(e.value, lessThanOrEqualTo(maxExpectedCounts[e.key] ?? maxInt));
-    expect(e.value, greaterThanOrEqualTo(minExpectedCounts[e.key] ?? minInt));
+    expect(e.value, lessThanOrEqualTo(maxExpectedCounts[e.key] ?? maxInt), reason: '${e.key}');
+    expect(e.value, greaterThanOrEqualTo(minExpectedCounts[e.key] ?? minInt), reason: '${e.key}');
   }
 }

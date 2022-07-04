@@ -27,6 +27,7 @@ void main(List<String> args) {
       testCommandWithArgs += getArgFromEnvVariable("BAAS_API_KEY");
       testCommandWithArgs += getArgFromEnvVariable("BAAS_PRIVATE_API_KEY");
       testCommandWithArgs += getArgFromEnvVariable("BAAS_PROJECT_ID");
+      testCommandWithArgs += getArgFromEnvVariable("BAAS_DIFFERENTIATOR");
 
       String result = await driver!.requestData(testCommandWithArgs, timeout: const Duration(hours: 1));
       if (result.isNotEmpty) {
