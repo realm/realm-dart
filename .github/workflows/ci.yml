@@ -79,19 +79,19 @@ jobs:
       build: '["ios-device", "ios-simulator", "ios-catalyst"]'
 
   build-android-combined:
-    name: Combine Android binaries
+    name: Android binaries combine
     needs: build-android
     uses: ./.github/workflows/binary-combine-android.yml
 
   build-ios-xcframework:
-    name: Combine IOS binaries
+    name: IOS binaries combine
     needs: build-ios
     uses: ./.github/workflows/binary-combine-ios.yml
 
 # Dart jobs
 
   dart-tests-windows:
-    name: Dart tests on Windows
+    name: Windows Dart Tests
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-windows
@@ -103,7 +103,7 @@ jobs:
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   dart-tests-macos:
-    name: Dart tests on MacOS
+    name: MacOS Dart Tests
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-macos
@@ -115,7 +115,7 @@ jobs:
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   dart-tests-macos-arm:
-    name: Dart tests on MacOS Arm
+    name: MacOS Arm Dart Tests
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-macos
@@ -128,7 +128,7 @@ jobs:
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   dart-tests-linux:
-    name: Dart tests on Linux
+    name: Linux Dart Tests
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-linux
@@ -142,7 +142,7 @@ jobs:
 # Flutter jobs
 
   flutter-desktop-tests-windows:
-    name: Flutter desktop tests on Windows
+    name: Windows Flutter Tests
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-windows
@@ -154,7 +154,7 @@ jobs:
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   flutter-desktop-tests-macos:
-    name: Flutter desktop tests on MacOS
+    name: MacOS Flutter Tests
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-macos
@@ -166,7 +166,7 @@ jobs:
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   flutter-desktop-tests-linux:
-    name: Flutter desktop tests on Linux
+    name: Linux Flutter Tests
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-linux
@@ -179,7 +179,7 @@ jobs:
 
   flutter-ios:
     runs-on: macos-latest
-    name: Flutter Tests iOS
+    name: IOS Flutter Tests
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
       BAAS_DIFFERENTIATOR: fi${{ github.run_id }}${{ github.run_attempt }}
@@ -238,7 +238,7 @@ jobs:
 
   flutter-android:
     runs-on: macos-latest
-    name: Flutter Tests Android
+    name: Android Flutter Tests
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
       BAAS_DIFFERENTIATOR: fa${{ github.run_id }}${{ github.run_attempt }}
