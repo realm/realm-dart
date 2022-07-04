@@ -124,7 +124,7 @@ jobs:
     with:
      os: macos
      architecture: arm
-     app: dm
+     app: dma
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   dart-tests-linux:
