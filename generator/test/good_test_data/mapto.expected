@@ -3,65 +3,58 @@
 // **************************************************************************
 
 class Original extends $Original with RealmEntity, RealmObject {
-  static var _defaultsSet = false;
-
   Original({
     int primitiveProperty = 0,
     Original? objectProperty,
     Iterable<Original> listProperty = const [],
   }) {
-    if (!_defaultsSet) {
-      _defaultsSet = RealmObject.setDefaults<Original>({
-        'remapped primitive': 0,
-      });
-    }
-    RealmObject.set(this, 'remapped primitive', primitiveProperty);
-    RealmObject.set(this, 'remapped object', objectProperty);
-    RealmObject.set<RealmList<Original>>(
-        this, 'remapped list', RealmList<Original>(listProperty));
+    _primitivePropertyProperty.setValue(this, primitiveProperty);
+    _objectPropertyProperty.setValue(this, objectProperty);
+    _listPropertyProperty.setValue(this, RealmList<Original>(listProperty));
   }
 
   Original._();
 
+  static const _primitivePropertyProperty = ValueProperty<int>(
+    'remapped primitive',
+    RealmPropertyType.int,
+    defaultValue: 0,
+  );
   @override
-  int get primitiveProperty =>
-      RealmObject.get<int>(this, 'remapped primitive') as int;
+  int get primitiveProperty => _primitivePropertyProperty.getValue(this);
   @override
   set primitiveProperty(int value) =>
-      RealmObject.set(this, 'remapped primitive', value);
+      _primitivePropertyProperty.setValue(this, value);
 
+  static const _objectPropertyProperty =
+      ObjectProperty<Original>('remapped object');
   @override
-  Original? get objectProperty =>
-      RealmObject.get<Original>(this, 'remapped object') as Original?;
+  Original? get objectProperty => _objectPropertyProperty.getValue(this);
   @override
   set objectProperty(covariant Original? value) =>
-      RealmObject.set(this, 'remapped object', value);
+      _objectPropertyProperty.setValue(this, value);
 
+  static const _listPropertyProperty =
+      ListProperty<Original>('remapped list', RealmPropertyType.object);
   @override
-  RealmList<Original> get listProperty =>
-      RealmObject.get<Original>(this, 'remapped list') as RealmList<Original>;
+  RealmList<Original> get listProperty => _listPropertyProperty.getValue(this);
   @override
   set listProperty(covariant RealmList<Original> value) =>
       throw RealmUnsupportedSetError();
 
   @override
   Stream<RealmObjectChanges<Original>> get changes =>
-      RealmObject.getChanges<Original>(this);
+      RealmObject.getChanges(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
-    RealmObject.registerFactory(Original._);
-    return const SchemaObject(Original, 'another type', [
-      SchemaProperty('remapped primitive', RealmPropertyType.int,
-          mapTo: 'remapped primitive'),
-      SchemaProperty('remapped object', RealmPropertyType.object,
-          mapTo: 'remapped object', optional: true, linkTarget: 'another type'),
-      SchemaProperty('remapped list', RealmPropertyType.object,
-          mapTo: 'remapped list',
-          linkTarget: 'another type',
-          collectionType: RealmCollectionType.list),
-    ]);
-  }
+  static const schema = SchemaObject<Original>(
+    Original._,
+    'another type',
+    {
+      'remapped primitive': _primitivePropertyProperty,
+      'remapped object': _objectPropertyProperty,
+      'remapped list': _listPropertyProperty,
+    },
+  );
+  @override
+  Map<String, ValueProperty> get properties => schema.properties;
 }
-

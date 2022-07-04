@@ -6,25 +6,31 @@ class Person extends _Person with RealmEntity, RealmObject {
   Person(
     String name,
   ) {
-    RealmObject.set(this, 'name', name);
+    _nameProperty.setValue(this, name);
   }
 
   Person._();
 
+  static const _nameProperty = ValueProperty<String>(
+    'name',
+    RealmPropertyType.string,
+  );
   @override
-  String get name => RealmObject.get<String>(this, 'name') as String;
+  String get name => _nameProperty.getValue(this);
   @override
-  set name(String value) => RealmObject.set(this, 'name', value);
+  set name(String value) => _nameProperty.setValue(this, value);
 
   @override
-  Stream<RealmObjectChanges<Person>> get changes => RealmObject.getChanges<Person>(this);
+  Stream<RealmObjectChanges<Person>> get changes =>
+      RealmObject.getChanges(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
-    RealmObject.registerFactory(Person._);
-    return const SchemaObject(Person, 'Person', [
-      SchemaProperty('name', RealmPropertyType.string),
-    ]);
-  }
+  static const schema = SchemaObject<Person>(
+    Person._,
+    'Person',
+    {
+      'name': _nameProperty,
+    },
+  );
+  @override
+  Map<String, ValueProperty> get properties => schema.properties;
 }

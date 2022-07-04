@@ -3,35 +3,34 @@
 // **************************************************************************
 
 class Foo extends _Foo with RealmEntity, RealmObject {
-  static var _defaultsSet = false;
-
   Foo({
     int x = 0,
   }) {
-    if (!_defaultsSet) {
-      _defaultsSet = RealmObject.setDefaults<Foo>({
-        'x': 0,
-      });
-    }
-    RealmObject.set(this, 'x', x);
+    _xProperty.setValue(this, x);
   }
 
   Foo._();
 
+  static const _xProperty = ValueProperty<int>(
+    'x',
+    RealmPropertyType.int,
+    defaultValue: 0,
+  );
   @override
-  int get x => RealmObject.get<int>(this, 'x') as int;
+  int get x => _xProperty.getValue(this);
   @override
-  set x(int value) => RealmObject.set(this, 'x', value);
+  set x(int value) => _xProperty.setValue(this, value);
 
   @override
-  Stream<RealmObjectChanges<Foo>> get changes => RealmObject.getChanges<Foo>(this);
+  Stream<RealmObjectChanges<Foo>> get changes => RealmObject.getChanges(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
-    RealmObject.registerFactory(Foo._);
-    return const SchemaObject(Foo, 'Foo', [
-      SchemaProperty('x', RealmPropertyType.int),
-    ]);
-  }
+  static const schema = SchemaObject<Foo>(
+    Foo._,
+    'Foo',
+    {
+      'x': _xProperty,
+    },
+  );
+  @override
+  Map<String, ValueProperty> get properties => schema.properties;
 }

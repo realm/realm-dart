@@ -6,25 +6,28 @@ class Person extends _Person with RealmEntity, RealmObject {
   Person({
     Person? spouse,
   }) {
-    RealmObject.set(this, 'spouse', spouse);
+    _spouseProperty.setValue(this, spouse);
   }
 
   Person._();
 
+  static const _spouseProperty = ObjectProperty<Person>('spouse');
   @override
-  Person? get spouse => RealmObject.get<Person>(this, 'spouse') as Person?;
+  Person? get spouse => _spouseProperty.getValue(this);
   @override
-  set spouse(covariant Person? value) => RealmObject.set(this, 'spouse', value);
+  set spouse(covariant Person? value) => _spouseProperty.setValue(this, value);
 
   @override
-  Stream<RealmObjectChanges<Person>> get changes => RealmObject.getChanges<Person>(this);
+  Stream<RealmObjectChanges<Person>> get changes =>
+      RealmObject.getChanges(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
-    RealmObject.registerFactory(Person._);
-    return const SchemaObject(Person, 'Person', [
-      SchemaProperty('spouse', RealmPropertyType.object, optional: true, linkTarget: 'Person'),
-    ]);
-  }
+  static const schema = SchemaObject<Person>(
+    Person._,
+    'Person',
+    {
+      'spouse': _spouseProperty,
+    },
+  );
+  @override
+  Map<String, ValueProperty> get properties => schema.properties;
 }

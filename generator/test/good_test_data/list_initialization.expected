@@ -6,25 +6,30 @@ class Person extends _Person with RealmEntity, RealmObject {
   Person({
     Iterable<Person> children = const [],
   }) {
-    RealmObject.set<RealmList<Person>>(this, 'children', RealmList<Person>(children));
+    _childrenProperty.setValue(this, RealmList<Person>(children));
   }
 
   Person._();
 
+  static const _childrenProperty =
+      ListProperty<Person>('children', RealmPropertyType.object);
   @override
-  RealmList<Person> get children => RealmObject.get<Person>(this, 'children') as RealmList<Person>;
+  RealmList<Person> get children => _childrenProperty.getValue(this);
   @override
-  set children(covariant RealmList<Person> value) => throw RealmUnsupportedSetError();
+  set children(covariant RealmList<Person> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<Person>> get changes => RealmObject.getChanges<Person>(this);
+  Stream<RealmObjectChanges<Person>> get changes =>
+      RealmObject.getChanges(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
-    RealmObject.registerFactory(Person._);
-    return const SchemaObject(Person, 'Person', [
-      SchemaProperty('children', RealmPropertyType.object, linkTarget: 'Person', collectionType: RealmCollectionType.list),
-    ]);
-  }
+  static const schema = SchemaObject<Person>(
+    Person._,
+    'Person',
+    {
+      'children': _childrenProperty,
+    },
+  );
+  @override
+  Map<String, ValueProperty> get properties => schema.properties;
 }
