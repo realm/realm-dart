@@ -15,6 +15,7 @@ on:
         description: Build for devices, in format of a string JSON array
         required: true
         type: string
+
 jobs:
   build-native:
     runs-on: ${{ inputs.runner }}-latest
