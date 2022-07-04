@@ -24,7 +24,7 @@ jobs:
         id: cluster-name
         #Set first 8 symbols from branch name as cluster name to have one cluster per PR or branch
         run: |
-          pr=if [[ '${{github.ref_name }}'' == 'master' ]]; then master$(date + '%S'); else '${{ github.ref_name}}''; fi
+          pr=if [[ '${{github.ref_name }}' == 'master' ]]; then master$(date + '%S'); else '${{ github.ref_name}}'; fi
           cluster=${pr/'/merge'/''}
           echo "::set-output name=clusterName::$(cut -c 1-8 <<< ${cluster})"
 
