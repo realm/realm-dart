@@ -6,6 +6,7 @@ on:
       - master
   pull_request:
 env:
+  BAAS_ATLAS_URL: ${{ secrets.ATLAS_QA_URL }}
   BAAS_URL: ${{ secrets.REALM_QA_URL }}
   BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
   BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
@@ -31,7 +32,7 @@ jobs:
       - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
         with:
           realmUrl: ${{ env.BAAS_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+          atlasUrl: ${{ env.BAAS_ATLAS_URL }}
           projectId: ${{ env.BAAS_PROJECT_ID }}
           apiKey: ${{ env.BAAS_API_KEY }}
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
@@ -99,7 +100,7 @@ jobs:
      os: windows
      app: dw
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
-  
+
   dart-tests-macos:
     name: Dart tests on MacOS
     uses: ./.github/workflows/dart-desktop-tests.yml
@@ -212,7 +213,7 @@ jobs:
       - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
         with:
           realmUrl: ${{ env.BAAS_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+          atlasUrl: ${{ env.BAAS_ATLAS_URL }}
           projectId: ${{ env.BAAS_PROJECT_ID }}
           apiKey: ${{ env.BAAS_API_KEY }}
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
@@ -285,7 +286,7 @@ jobs:
       - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
         with:
           realmUrl: ${{ env.BAAS_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+          atlasUrl: ${{ env.BAAS_ATLAS_URL }}
           projectId: ${{ env.BAAS_PROJECT_ID }}
           apiKey: ${{ env.BAAS_API_KEY }}
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
