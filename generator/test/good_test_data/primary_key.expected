@@ -6,250 +6,137 @@ class IntPK extends _IntPK with RealmEntity, RealmObject {
   IntPK(
     int id,
   ) {
-    RealmObject.set(this, 'id', id);
+    _idProperty.setValue(this, id);
   }
 
   IntPK._();
 
+  static const _idProperty = ValueProperty<int>(
+    'id',
+    RealmPropertyType.int,
+    primaryKey: true,
+  );
   @override
-  int get id => RealmObject.get<int>(this, 'id') as int;
+  int get id => _idProperty.getValue(this);
   @override
-  set id(int value) => RealmObject.set(this, 'id', value);
-
-  @override
-  Stream<RealmObjectChanges<IntPK>> get changes =>
-      RealmObject.getChanges<IntPK>(this);
-
-  @override
-  IntPK freeze() => RealmObject.freezeObject<IntPK>(this);
-
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
-    RealmObject.registerFactory(IntPK._);
-    return const SchemaObject(IntPK, 'IntPK', [
-      SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
-    ]);
-  }
-}
-
-class NullableIntPK extends _NullableIntPK with RealmEntity, RealmObject {
-  NullableIntPK(
-    int? id,
-  ) {
-    RealmObject.set(this, 'id', id);
-  }
-
-  NullableIntPK._();
+  set id(int value) => throw RealmUnsupportedSetError();
 
   @override
-  int? get id => RealmObject.get<int>(this, 'id') as int?;
-  @override
-  set id(int? value) => RealmObject.set(this, 'id', value);
+  Stream<RealmObjectChanges<IntPK>> get changes => RealmObject.getChanges(this);
 
+  static const schema = SchemaObject<IntPK>(
+    IntPK._,
+    'IntPK',
+    {
+      'id': _idProperty,
+    },
+    _idProperty,
+  );
   @override
-  Stream<RealmObjectChanges<NullableIntPK>> get changes =>
-      RealmObject.getChanges<NullableIntPK>(this);
-
-  @override
-  NullableIntPK freeze() => RealmObject.freezeObject<NullableIntPK>(this);
-
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
-    RealmObject.registerFactory(NullableIntPK._);
-    return const SchemaObject(NullableIntPK, 'NullableIntPK', [
-      SchemaProperty('id', RealmPropertyType.int,
-          optional: true, primaryKey: true),
-    ]);
-  }
+  Map<String, ValueProperty> get properties => schema.properties;
 }
 
 class StringPK extends _StringPK with RealmEntity, RealmObject {
   StringPK(
     String id,
   ) {
-    RealmObject.set(this, 'id', id);
+    _idProperty.setValue(this, id);
   }
 
   StringPK._();
 
+  static const _idProperty = ValueProperty<String>(
+    'id',
+    RealmPropertyType.string,
+    primaryKey: true,
+  );
   @override
-  String get id => RealmObject.get<String>(this, 'id') as String;
+  String get id => _idProperty.getValue(this);
   @override
-  set id(String value) => RealmObject.set(this, 'id', value);
+  set id(String value) => throw RealmUnsupportedSetError();
 
   @override
   Stream<RealmObjectChanges<StringPK>> get changes =>
-      RealmObject.getChanges<StringPK>(this);
+      RealmObject.getChanges(this);
 
+  static const schema = SchemaObject<StringPK>(
+    StringPK._,
+    'StringPK',
+    {
+      'id': _idProperty,
+    },
+    _idProperty,
+  );
   @override
-  StringPK freeze() => RealmObject.freezeObject<StringPK>(this);
-
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
-    RealmObject.registerFactory(StringPK._);
-    return const SchemaObject(StringPK, 'StringPK', [
-      SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
-    ]);
-  }
-}
-
-class NullableStringPK extends _NullableStringPK with RealmEntity, RealmObject {
-  NullableStringPK(
-    String? id,
-  ) {
-    RealmObject.set(this, 'id', id);
-  }
-
-  NullableStringPK._();
-
-  @override
-  String? get id => RealmObject.get<String>(this, 'id') as String?;
-  @override
-  set id(String? value) => RealmObject.set(this, 'id', value);
-
-  @override
-  Stream<RealmObjectChanges<NullableStringPK>> get changes =>
-      RealmObject.getChanges<NullableStringPK>(this);
-
-  @override
-  NullableStringPK freeze() => RealmObject.freezeObject<NullableStringPK>(this);
-
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
-    RealmObject.registerFactory(NullableStringPK._);
-    return const SchemaObject(NullableStringPK, 'NullableStringPK', [
-      SchemaProperty('id', RealmPropertyType.string,
-          optional: true, primaryKey: true),
-    ]);
-  }
+  Map<String, ValueProperty> get properties => schema.properties;
 }
 
 class ObjectIdPK extends _ObjectIdPK with RealmEntity, RealmObject {
   ObjectIdPK(
     ObjectId id,
   ) {
-    RealmObject.set(this, 'id', id);
+    _idProperty.setValue(this, id);
   }
 
   ObjectIdPK._();
 
+  static const _idProperty = ValueProperty<ObjectId>(
+    'id',
+    RealmPropertyType.objectid,
+    primaryKey: true,
+  );
   @override
-  ObjectId get id => RealmObject.get<ObjectId>(this, 'id') as ObjectId;
+  ObjectId get id => _idProperty.getValue(this);
   @override
-  set id(ObjectId value) => RealmObject.set(this, 'id', value);
+  set id(ObjectId value) => throw RealmUnsupportedSetError();
 
   @override
   Stream<RealmObjectChanges<ObjectIdPK>> get changes =>
-      RealmObject.getChanges<ObjectIdPK>(this);
+      RealmObject.getChanges(this);
 
+  static const schema = SchemaObject<ObjectIdPK>(
+    ObjectIdPK._,
+    'ObjectIdPK',
+    {
+      'id': _idProperty,
+    },
+    _idProperty,
+  );
   @override
-  ObjectIdPK freeze() => RealmObject.freezeObject<ObjectIdPK>(this);
-
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
-    RealmObject.registerFactory(ObjectIdPK._);
-    return const SchemaObject(ObjectIdPK, 'ObjectIdPK', [
-      SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
-    ]);
-  }
-}
-
-class NullableObjectIdPK extends _NullableObjectIdPK with RealmEntity, RealmObject {
-  NullableObjectIdPK(
-    ObjectId? id,
-  ) {
-    RealmObject.set(this, 'id', id);
-  }
-
-  NullableObjectIdPK._();
-
-  @override
-  ObjectId? get id => RealmObject.get<ObjectId>(this, 'id') as ObjectId?;
-  @override
-  set id(ObjectId? value) => RealmObject.set(this, 'id', value);
-
-  @override
-  Stream<RealmObjectChanges<NullableObjectIdPK>> get changes =>
-      RealmObject.getChanges<NullableObjectIdPK>(this);
-
-  @override
-  NullableObjectIdPK freeze() => RealmObject.freezeObject<NullableObjectIdPK>(this);
-
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
-    RealmObject.registerFactory(NullableObjectIdPK._);
-    return const SchemaObject(NullableObjectIdPK, 'NullableObjectIdPK', [
-      SchemaProperty('id', RealmPropertyType.objectid,
-          optional: true, primaryKey: true),
-    ]);
-  }
+  Map<String, ValueProperty> get properties => schema.properties;
 }
 
 class UuidPK extends _UuidPK with RealmEntity, RealmObject {
   UuidPK(
     Uuid id,
   ) {
-    RealmObject.set(this, 'id', id);
+    _idProperty.setValue(this, id);
   }
 
   UuidPK._();
 
+  static const _idProperty = ValueProperty<Uuid>(
+    'id',
+    RealmPropertyType.uuid,
+    primaryKey: true,
+  );
   @override
-  Uuid get id => RealmObject.get<Uuid>(this, 'id') as Uuid;
+  Uuid get id => _idProperty.getValue(this);
   @override
-  set id(Uuid value) => RealmObject.set(this, 'id', value);
+  set id(Uuid value) => throw RealmUnsupportedSetError();
 
   @override
   Stream<RealmObjectChanges<UuidPK>> get changes =>
-      RealmObject.getChanges<UuidPK>(this);
+      RealmObject.getChanges(this);
 
+  static const schema = SchemaObject<UuidPK>(
+    UuidPK._,
+    'UuidPK',
+    {
+      'id': _idProperty,
+    },
+    _idProperty,
+  );
   @override
-  UuidPK freeze() => RealmObject.freezeObject<UuidPK>(this);
-
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
-    RealmObject.registerFactory(UuidPK._);
-    return const SchemaObject(UuidPK, 'UuidPK', [
-      SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
-    ]);
-  }
-}
-
-class NullableUuidPK extends _NullableUuidPK with RealmEntity, RealmObject {
-  NullableUuidPK(
-    Uuid? id,
-  ) {
-    RealmObject.set(this, 'id', id);
-  }
-
-  NullableUuidPK._();
-
-  @override
-  Uuid? get id => RealmObject.get<Uuid>(this, 'id') as Uuid?;
-  @override
-  set id(Uuid? value) => RealmObject.set(this, 'id', value);
-
-  @override
-  Stream<RealmObjectChanges<NullableUuidPK>> get changes =>
-      RealmObject.getChanges<NullableUuidPK>(this);
-
-  @override
-  NullableUuidPK freeze() => RealmObject.freezeObject<NullableUuidPK>(this);
-
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
-    RealmObject.registerFactory(NullableUuidPK._);
-    return const SchemaObject(NullableUuidPK, 'NullableUuidPK', [
-      SchemaProperty('id', RealmPropertyType.uuid,
-          optional: true, primaryKey: true),
-    ]);
-  }
+  Map<String, ValueProperty> get properties => schema.properties;
 }
