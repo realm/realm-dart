@@ -12,7 +12,11 @@ on:
         required: false
         type: string
       app:
-        description: App name prefix
+        description: App name prefix.
+        required: true
+        type: string
+      cluster:
+        description: Cluster name to deploy.
         required: true
         type: string
 jobs:
@@ -20,7 +24,7 @@ jobs:
     runs-on: ${{ inputs.os == 'linux' && 'ubuntu' || inputs.os }}-${{ inputs.architecture || 'latest' }}
     name: Dart tests on ${{inputs.os }} ${{ inputs.architecture }}
     env:
-      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ inputs.cluster }}
       BAAS_DIFFERENTIATOR: ${{ inputs.app }}${{ github.run_id }}${{ github.run_attempt }}
 
     steps:

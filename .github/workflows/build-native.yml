@@ -29,13 +29,13 @@ jobs:
         with:
           submodules: 'recursive'
 
-      # - name: Check cache
-      #   id: check-cache
-      #   if: ${{ !contains(github.head_ref, 'release/') }}
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ./binary/**
-      #     key: binaries-${{ matrix.build }}-${{hashFiles('./src/**')}}
+      - name: Check cache
+        id: check-cache
+        if: ${{ !contains(github.head_ref, 'release/') }}
+        uses: actions/cache@v3
+        with:
+          path: ./binary/**
+          key: binaries-${{ matrix.build }}-${{hashFiles('./src/**')}}
 
       - name: Setup Ninja
         if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'

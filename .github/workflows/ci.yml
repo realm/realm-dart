@@ -98,6 +98,7 @@ jobs:
     with:
      os: windows
      app: dw
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
   
   dart-tests-macos:
     name: Dart tests on MacOS
@@ -108,6 +109,7 @@ jobs:
     with:
      os: macos
      app: dm
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   dart-tests-macos-arm:
     name: Dart tests on MacOS Arm
@@ -119,6 +121,7 @@ jobs:
      os: macos
      architecture: arm
      app: dm
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   dart-tests-linux:
     name: Dart tests on Linux
@@ -129,6 +132,7 @@ jobs:
     with:
      os: linux
      app: dl
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
 # Flutter jobs
 
@@ -141,6 +145,7 @@ jobs:
     with:
      os: windows
      app: fw
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   flutter-desktop-tests-macos:
     name: Flutter desktop tests on MacOS
@@ -151,6 +156,7 @@ jobs:
     with:
      os: macos
      app: fm
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   flutter-desktop-tests-linux:
     name: Flutter desktop tests on Linux
@@ -161,6 +167,7 @@ jobs:
     with:
      os: linux
      app: fl
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   flutter-ios:
     runs-on: macos-latest

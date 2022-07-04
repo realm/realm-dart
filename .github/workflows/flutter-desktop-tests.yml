@@ -15,12 +15,16 @@ on:
         description: App name prefix
         required: true
         type: string
+      cluster:
+        description: Cluster name to deploy.
+        required: true
+        type: string
 jobs:
   flutter-tests:
     runs-on: ${{ inputs.os == 'linux' && 'ubuntu' || inputs.os }}-latest
     name: Flutter tests on ${{inputs.os  }}
     env:
-      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
+      BAAS_CLUSTER: ${{ inputs.cluster }}
       BAAS_DIFFERENTIATOR:  ${{ inputs.app }}${{ github.run_id }}${{ github.run_attempt }}
     steps:
 
