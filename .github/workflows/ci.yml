@@ -38,25 +38,25 @@ jobs:
     name: Build Windows
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: '[windows]'
-     binary: '[windows]'
+     runner: windows
+     binary: windows
      build: '[windows]'
 
   build-macos:
     name: Build MacOS
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: '[macos]'
-     binary: '[macos]'
+     runner: macos
+     binary: macos
      build: '[macos]'
 
   build-linux:
     name: Build Linux
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: '[ubuntu]'
-     binary: '[linux]'
-     build: '[linux]'
+     runner: ubuntu
+     binary: linux
+     build: linux
 
   build-android:
     name: Build Android

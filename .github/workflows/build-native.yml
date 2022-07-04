@@ -22,9 +22,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-          runner: ${{ inputs.runner }}
-          binary: ${{ inputs.binary }}
-          build: ${{ inputs.build }}
+          runner: [ ${{ inputs.runner }} ]
+          binary: [ ${{ inputs.binary }} ]
+          build: ${{ fromJSON(inputs.build) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
