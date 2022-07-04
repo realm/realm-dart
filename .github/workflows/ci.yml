@@ -34,139 +34,55 @@ jobs:
           clusterName: ${{ steps.cluster-name.outputs.clusterName }}
           useExistingCluster: true
 
-  build-native:
-    runs-on: ${{ matrix.runner }}-latest
-    name: Build native
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - { preset: windows, runner: windows }
-          - { preset: macos, runner: macos }
-          - { preset: linux, runner: ubuntu }
-          - { preset: ios, build: ios-device, runner: macos }
-          - { preset: ios, build: ios-simulator, runner: macos }
-          - { preset: ios, build: ios-catalyst, runner: macos }
-          - { preset: android-x86, binary: android, runner: ubuntu }
-          - { preset: android-x86_64, binary: android, runner: ubuntu }
-          - { preset: android-armeabi-v7a, binary: android, runner: ubuntu }
-          - { preset: android-arm64-v8a, binary: android, runner: ubuntu }
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
+  build-windows:
+    name: Build Windows
+    uses: ./.github/workflows/build-native.yml
+    with:
+     runner: '[windows]'
+     binary: '[windows]'
+     build: '[windows]'
 
-      - name: Check cache
-        id: check-cache
-        if: ${{ !contains(github.head_ref, 'release/') }}
-        uses: actions/cache@v3
-        with:
-          path: ./binary/**
-          key: binaries-${{ matrix.build || matrix.preset }}-${{hashFiles('./src/**')}}
+  build-macos:
+    name: Build MacOS
+    uses: ./.github/workflows/build-native.yml
+    with:
+     runner: '[macos]'
+     binary: '[macos]'
+     build: '[macos]'
 
-      - name: Setup Ninja
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
-        uses: seanmiddleditch/gha-setup-ninja@master
+  build-linux:
+    name: Build Linux
+    uses: ./.github/workflows/build-native.yml
+    with:
+     runner: '[ubuntu]'
+     binary: '[linux]'
+     build: '[linux]'
 
-      - name: Get vcpkg submodule commit sha
-        id: vcpkg_cache_key
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
-        working-directory: src/realm-core/tools/vcpkg/ports
-        shell: bash
-        run: echo "::set-output name=commit::$(git rev-parse HEAD)"
-
-      - name: Setup Vcpkg
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
-        continue-on-error: true
-        uses: friendlyanon/setup-vcpkg@v1
-        with:
-          path: src/realm-core/tools/vcpkg/ports
-          cache-key: vcpkg-${{ matrix.preset }}-${{ hashFiles('./src/realm-core/tools/vcpkg/vcpkg.json') }}-${{ steps.vcpkg_cache_key.outputs.commit }}
-          cache-restore-keys: vcpkg-${{ matrix.preset }}-
-
-      - name: Setup Android NDK
-        if: startsWith(matrix.preset, 'android-')
-        run: echo "ANDROID_NDK=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
-
-      - name: Build
-        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
-        run: |
-          cmake --preset ${{ matrix.preset }}
-          cmake --build --preset ${{ matrix.build || matrix.preset }} --config Release
-
-      - name: Store artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: librealm-${{ matrix.build || matrix.preset }}
-          path: binary/${{ matrix.binary || matrix.preset }}/**
-          retention-days: 1
+  build-android:
+    name: Build Android
+    uses: ./.github/workflows/build-native.yml
+    with:
+     runner: '[ubuntu]'
+     binary: '[android]'
+     build: '[android-x86, android-x86_64, android-armeabi-v7a, android-arm64-v8a]'
 
   build-android-combined:
     name: Combine Android binaries
-    needs: build-native
+    needs: build-android
     uses: ./.github/workflows/binary-combine-android.yml
+
+  build-ios:
+    name: Build IOS
+    uses: ./.github/workflows/build-native.yml
+    with:
+      runner: '[macos]'
+      binary: '[ios]'
+      build: '[ios-device, ios-simulator, ios-catalyst]'
 
   build-ios-xcframework:
     name: Combine IOS binaries
-    needs: build-native
+    needs: build-ios
     uses: ./.github/workflows/binary-combine-ios.yml
-
-  baas-matrix:
-    needs:
-      - deploy-cluster
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - app: dm
-            description: dart macos
-          - app: dma
-            description: dart macos-arm
-          - app: dl
-            description: dart linux
-          - app: dw
-            description: dart windows
-          - app: fm
-            description: flutter macos
-          - app: fl
-            description: flutter linux
-          - app: fw
-            description: flutter windows
-          - app: fa
-            description: flutter android
-          - app: fi
-            description: flutter iOS
-    runs-on: ubuntu-latest
-    name: Deploy apps for ${{ matrix.description }}
-    timeout-minutes: 20
-    env:
-      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: false
-
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-
-      - name: Random delay
-        id: cluster-name
-        run: echo "sleep $((RANDOM % 10))"
-
-      - name: Deploy Apps
-        run: |
-          dart run realm_dart deploy-apps \
-            --baas-url ${{ env.BAAS_URL }} \
-            --atlas-cluster ${{ env.BAAS_CLUSTER }} \
-            --api-key ${{ env.BAAS_API_KEY }} \
-            --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} \
-            --project-id ${{ env.BAAS_PROJECT_ID }} \
-            --differentiator "${{ env.BAAS_DIFFERENTIATOR }}"
 
   cleanup-matrix:
     needs:
@@ -248,8 +164,9 @@ jobs:
       BAAS_DIFFERENTIATOR: ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
     needs:
       - deploy-cluster
-      - build-native
-      - baas-matrix
+      - build-windows
+      - build-macos
+      - build-linux
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -307,8 +224,9 @@ jobs:
       BAAS_DIFFERENTIATOR:  ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
     needs:
       - deploy-cluster
-      - build-native
-      - baas-matrix
+      - build-windows
+      - build-macos
+      - build-linux
     steps:
 
       - name: Checkout
@@ -368,7 +286,6 @@ jobs:
     needs:
       - deploy-cluster
       - build-ios-xcframework
-      - baas-matrix
     steps:
 
       - name: Checkout
@@ -424,7 +341,6 @@ jobs:
     needs:
       - deploy-cluster
       - build-android-combined
-      - baas-matrix
     steps:
 
       - name: Checkout
