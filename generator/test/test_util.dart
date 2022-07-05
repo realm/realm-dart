@@ -52,8 +52,17 @@ class GoldenFileMatcher extends Matcher {
   }
 
   @override
+  Description describeMismatch(
+    dynamic item,
+    Description mismatchDescription,
+    Map<dynamic, dynamic> matchState,
+    bool verbose,
+  ) =>
+      _matcher.describeMismatch(item, mismatchDescription, matchState, verbose);
+
+  @override
   bool matches(dynamic item, Map<dynamic, dynamic> matchState) {
-    // create golden, if missing
+    // create golden master, if missing
     if (!golden.existsSync()) {
       var bytes = <int>[];
       if (item is File) {
@@ -72,19 +81,19 @@ class GoldenFileMatcher extends Matcher {
 
 /// A special equality matcher for strings.
 class LinesEqualsMatcher extends Matcher {
-  late final List<String> expectedLines;
+  final String expected;
 
-  LinesEqualsMatcher(String expected) {
-    expectedLines = expected.split("\n");
-  }
+  LinesEqualsMatcher(this.expected);
 
   @override
-  Description describe(Description description) => description.add("LinesEqualsMatcher");
+  Description describe(Description description) => description.add(expected);
 
   @override
   // ignore: strict_raw_type
   bool matches(dynamic actual, Map matchState) {
     final actualValue = utf8.decode(actual as List<int>);
+
+    final expectedLines = expected.split("\n");
     final actualLines = actualValue.split("\n");
 
     if (actualLines.length > expectedLines.length) {
@@ -109,6 +118,7 @@ class LinesEqualsMatcher extends Matcher {
 
   @override
   Description describeMismatch(dynamic item, Description mismatchDescription, Map matchState, bool verbose) {
+    mismatchDescription.addDescriptionOf(item).replace(utf8.decode(item as List<int>));
     if (matchState["Error"] != null) {
       mismatchDescription.add(matchState["Error"] as String);
     }

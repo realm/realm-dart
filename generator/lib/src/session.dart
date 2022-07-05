@@ -27,7 +27,7 @@ const _sessionKey = #SessionKey;
 // in case multiple libs are processed concurrently, we make session zone local
 Session get session => Zone.current[_sessionKey] as Session;
 
-Future<T> scopeSession<T>(
+FutureOr<T> scopeSession<T>(
   ResolvedLibraryResult resolvedLibrary,
   FutureOr<T> Function() fn, {
   String? prefix,
