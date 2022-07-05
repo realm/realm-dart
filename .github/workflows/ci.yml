@@ -38,6 +38,23 @@ jobs:
           clusterName: ${{ steps.cluster-name.outputs.clusterName }}
           useExistingCluster: true
 
+  delete-cluster:
+    runs-on: ubuntu-latest
+    name: Delete Cluster
+    needs:
+      - deploy-cluster
+      - cleanup-matrix
+    steps:
+      - uses: realm/ci-actions/mdb-realm/deleteCluster@b348124b892f9bb2b2ef5287739d82e48541d853
+        with:
+          realmUrl: ${{ env.BAAS_URL }}
+          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+          projectId: ${{ env.BAAS_PROJECT_ID }}
+          apiKey: ${{ env.BAAS_API_KEY }}
+          privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
+          clusterName: ${{ needs.deploy-cluster.outputs.clusterName }}
+
+
   cleanup-matrix:
     needs:
       - deploy-cluster
