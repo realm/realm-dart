@@ -22,11 +22,9 @@ jobs:
     steps:
       - name: Get cluster suffix
         id: cluster-name
-        #Set first 8 symbols from pr/branch name as cluster name to have one cluster per PR(AM/PM) or different cluster per each run in master branch.
-        #if [[ '${{github.ref_name }}' == 'master' ]]; then triggerName=$("m$RANDOM"); else triggerName=${{ github.ref_name}}$(date +"%p%d"); fi
         run: |
           randomNum=$("$RANDOM")
-          triggerName=${{ github.ref_name}}${randomNum}
+          triggerName=${{ github.ref_name}}_${randomNum}
           cluster=${triggerName/'/merge'/''}
           echo "::set-output name=clusterName::$(cut -c 1-8 <<< ${cluster})"
 
