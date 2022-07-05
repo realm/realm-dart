@@ -40,6 +40,7 @@ jobs:
 
   cleanup-matrix:
     needs:
+      - deploy-cluster
       - dart-tests-windows
       - dart-tests-macos
       - dart-tests-macos-arm
