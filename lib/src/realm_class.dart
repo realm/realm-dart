@@ -163,8 +163,8 @@ class Realm {
 
     final metadata = _metadata.getByType(object.runtimeType);
     final handle = metadata.primaryKey == null
-        ? realmCore.createRealmObject(this, metadata.tableKey)
-        : realmCore.createRealmObjectWithPrimaryKey(this, metadata.tableKey, object.accessor.get(object, metadata.primaryKey!)!);
+        ? realmCore.createRealmObject(this, metadata.classKey)
+        : realmCore.createRealmObjectWithPrimaryKey(this, metadata.classKey, object.accessor.get(object, metadata.primaryKey!)!);
 
     final accessor = RealmCoreAccessor(metadata);
     object.manage(this, handle, accessor);
@@ -247,7 +247,7 @@ class Realm {
   T? find<T extends RealmObject>(Object primaryKey) {
     final metadata = _metadata.getByType(T);
 
-    final handle = realmCore.find(this, metadata.tableKey, primaryKey);
+    final handle = realmCore.find(this, metadata.classKey, primaryKey);
     if (handle == null) {
       return null;
     }
@@ -262,7 +262,7 @@ class Realm {
   /// The returned [RealmResults] allows iterating all the values without further filtering.
   RealmResults<T> all<T extends RealmObject>() {
     final metadata = _metadata.getByType(T);
-    final handle = realmCore.findAll(this, metadata.tableKey);
+    final handle = realmCore.findAll(this, metadata.classKey);
     return RealmResultsInternal.create<T>(handle, this, metadata);
   }
 
@@ -272,7 +272,7 @@ class Realm {
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query<T extends RealmObject>(String query, [List<Object> args = const []]) {
     final metadata = _metadata.getByType(T);
-    final handle = realmCore.queryClass(this, metadata.tableKey, query, args);
+    final handle = realmCore.queryClass(this, metadata.classKey, query, args);
     return RealmResultsInternal.create<T>(handle, this, metadata);
   }
 
@@ -470,12 +470,12 @@ class RealmMetadata {
   final Map<Type, RealmObjectMetadata> _typeMap = <Type, RealmObjectMetadata>{};
   final Map<String, RealmObjectMetadata> _stringMap = <String, RealmObjectMetadata>{};
 
-  RealmMetadata._(Iterable<RealmObjectMetadata> objects) {
-    for (final meta in objects) {
-      if (meta.type != RealmObject) {
-        _typeMap[meta.type] = meta;
+  RealmMetadata._(Iterable<RealmObjectMetadata> objectMetadatas) {
+    for (final metadata in objectMetadatas) {
+      if (metadata.type != RealmObject) {
+        _typeMap[metadata.type] = metadata;
       } else {
-        _stringMap[meta.name] = meta;
+        _stringMap[metadata.name] = metadata;
       }
     }
   }
@@ -518,7 +518,7 @@ class DynamicRealm {
   /// The returned [RealmResults] allows iterating all the values without further filtering.
   RealmResults<RealmObject> all(String className) {
     final metadata = _realm._metadata.getByName(className);
-    final handle = realmCore.findAll(_realm, metadata.tableKey);
+    final handle = realmCore.findAll(_realm, metadata.classKey);
     return RealmResultsInternal.create<RealmObject>(handle, _realm, metadata);
   }
 
@@ -526,7 +526,7 @@ class DynamicRealm {
   RealmObject? find(String className, Object primaryKey) {
     final metadata = _realm._metadata.getByName(className);
 
-    final handle = realmCore.find(_realm, metadata.tableKey, primaryKey);
+    final handle = realmCore.find(_realm, metadata.classKey, primaryKey);
     if (handle == null) {
       return null;
     }

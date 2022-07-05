@@ -91,19 +91,19 @@ class RealmValuesAccessor implements RealmAccessor {
 }
 
 class RealmObjectMetadata {
-  final int tableKey;
+  final int classKey;
   final String name;
   final Type type;
   final String? primaryKey;
 
   final Map<String, RealmPropertyMetadata> _propertyKeys;
 
-  String get _nameForExceptions => type == RealmObject ? name : type.toString();
+  String get _realmObjectTypeName => type == RealmObject ? name : type.toString();
 
-  RealmObjectMetadata(this.name, this.type, this.primaryKey, this.tableKey, this._propertyKeys);
+  RealmObjectMetadata(this.name, this.type, this.primaryKey, this.classKey, this._propertyKeys);
 
   RealmPropertyMetadata operator [](String propertyName) =>
-      _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exists on class $_nameForExceptions"));
+      _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exists on class $_realmObjectTypeName"));
 
   String? getPropertyName(int propertyKey) {
     for (final entry in _propertyKeys.entries) {
@@ -133,8 +133,8 @@ class RealmCoreAccessor implements RealmAccessor {
       final propertyMeta = metadata[name];
       if (propertyMeta.collectionType == RealmCollectionType.list) {
         final handle = realmCore.getListProperty(object, propertyMeta.key);
-        final listMeta = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
-        return object.realm.createList<T>(handle, listMeta);
+        final listMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
+        return object.realm.createList<T>(handle, listMetadata);
       }
 
       Object? value = realmCore.getProperty(object, propertyMeta.key);
@@ -146,7 +146,7 @@ class RealmCoreAccessor implements RealmAccessor {
 
       return value;
     } on Exception catch (e) {
-      throw RealmException("Error getting property ${metadata._nameForExceptions}.$name Error: $e");
+      throw RealmException("Error getting property ${metadata._realmObjectTypeName}.$name Error: $e");
     }
   }
 
@@ -174,7 +174,7 @@ class RealmCoreAccessor implements RealmAccessor {
 
       realmCore.setProperty(object, propertyMeta.key, value, isDefault);
     } on Exception catch (e) {
-      throw RealmException("Error setting property ${metadata._nameForExceptions}.$name Error: $e");
+      throw RealmException("Error setting property ${metadata._realmObjectTypeName}.$name Error: $e");
     }
   }
 }
