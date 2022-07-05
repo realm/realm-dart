@@ -29,7 +29,7 @@ void main(List<String> args) {
       testCommandWithArgs += getArgFromEnvVariable("BAAS_PROJECT_ID");
       testCommandWithArgs += getArgFromEnvVariable("BAAS_DIFFERENTIATOR");
 
-      String result = await driver!.requestData(testCommandWithArgs, timeout: const Duration(hours: 1));
+      String result = await driver!.requestData(testCommandWithArgs, timeout: const Duration(minutes: 30));
       if (result.isNotEmpty) {
         fail("Failed tests: \n $result");
       }
