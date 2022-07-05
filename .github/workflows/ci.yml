@@ -23,10 +23,9 @@ jobs:
       - name: Get cluster suffix
         id: cluster-name
         run: |
-          randomNum=$("$RANDOM")
-          triggerName=${{ github.ref_name}}_${randomNum}
+          triggerName=${{ github.ref_name}}
           cluster=${triggerName/'/merge'/''}
-          echo "::set-output name=clusterName::$(cut -c 1-8 <<< ${cluster})"
+          echo "::set-output name=clusterName::$(cut -c 1-8 <<< ${cluster}$RANDOM)"
 
       - uses: realm/ci-actions/mdb-realm/deployApps@3f810b2d04e9dada2bde0b33ec90102e52a0b30a
         with:
