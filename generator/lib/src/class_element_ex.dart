@@ -18,17 +18,15 @@
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:source_gen/source_gen.dart';
+
 import 'annotation_value.dart';
+import 'element.dart';
 import 'error.dart';
 import 'field_element_ex.dart';
-
-import 'element.dart';
 import 'realm_field_info.dart';
 import 'realm_model_info.dart';
-import 'type_checkers.dart';
 import 'session.dart';
-
-final _validIdentifier = RegExp(r'^[a-zA-Z]\w*$');
+import 'type_checkers.dart';
 
 extension on Iterable<FieldElement> {
   Iterable<RealmFieldInfo> get realmInfo sync* {
