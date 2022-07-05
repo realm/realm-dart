@@ -22,10 +22,10 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type_provider.dart';
 import 'package:analyzer/dart/element/type_system.dart';
 
-const _sessionKey = #SessonKey;
+const _sessionKey = #SessionKey;
 
 // in case multiple libs are processed concurrently, we make session zone local
-_Session get session => Zone.current[_sessionKey] as _Session;
+Session get session => Zone.current[_sessionKey] as Session;
 
 Future<T> scopeSession<T>(
   ResolvedLibraryResult resolvedLibrary,
@@ -34,7 +34,7 @@ Future<T> scopeSession<T>(
   String? suffix,
   bool color = false,
 }) async {
-  final s = _Session(
+  final s = Session._(
     resolvedLibrary,
     prefix: prefix,
     suffix: suffix,
@@ -47,14 +47,14 @@ Future<T> scopeSession<T>(
   )!;
 }
 
-class _Session {
+class Session {
   final ResolvedLibraryResult resolvedLibrary;
   final Pattern prefix;
   final String suffix;
   final bool color;
-  final mapping = <String, ClassElement>{}; // shared
+  final mapping = <String, ClassElement>{};
 
-  _Session(this.resolvedLibrary, {String? prefix, String? suffix, this.color = false})
+  Session._(this.resolvedLibrary, {String? prefix, String? suffix, this.color = false})
       : prefix = prefix ?? RegExp(r'[_$]'), // defaults to _ or $
         suffix = suffix ?? '';
 
