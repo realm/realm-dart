@@ -179,7 +179,12 @@ class LinesEqualsMatcher extends Matcher {
 
 Future<Map<String, Object>> getExpectedFileAsset(String inputFilePath, String expectedFilePath) async {
   var key = 'pkg|${_path.setExtension(inputFilePath, '.realm_objects.g.part')}';
-  return {key: GoldenFileMatcher(File(expectedFilePath), (f) => MyersDiffMatcher(f.readAsStringSync()))};
+  return {
+    key: GoldenFileMatcher(
+      File(expectedFilePath),
+      (f) => MyersDiffMatcher(DartFormatter(lineEnding: '\n').format(f.readAsStringSync())),
+    )
+  };
 }
 
 Future<String> readFileAsDartFormattedString(String path) async {
