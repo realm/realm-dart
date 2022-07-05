@@ -43,7 +43,7 @@ jobs:
       - dart-tests-windows
       - dart-tests-macos
       - dart-tests-macos-arm
-      - dart-tests-macos-linux
+      - dart-tests-linux
       - flutter-desktop-tests-windows
       - flutter-desktop-tests-macos
       - flutter-desktop-tests-linux
