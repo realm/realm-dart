@@ -41,9 +41,19 @@ jobs:
   delete-cluster:
     runs-on: ubuntu-latest
     name: Delete Cluster
+    if: always()
+    continue-on-error: true
     needs:
       - deploy-cluster
-      - cleanup-matrix
+      - dart-tests-windows
+      - dart-tests-macos
+      - dart-tests-macos-arm
+      - dart-tests-linux
+      - flutter-desktop-tests-windows
+      - flutter-desktop-tests-macos
+      - flutter-desktop-tests-linux
+      - flutter-ios
+      - flutter-android
     steps:
       - uses: realm/ci-actions/mdb-realm/deleteCluster@b348124b892f9bb2b2ef5287739d82e48541d853
         with:
