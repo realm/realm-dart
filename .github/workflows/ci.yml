@@ -26,7 +26,7 @@ jobs:
         run: |
           if [[ '${{github.ref_name }}' == 'master' ]]; then triggerName=$("m$RANDOM"); else triggerName=${{ github.ref_name}}$(date +"%p%d"); fi
           cluster=${triggerName/'/merge'/''}
-          echo "::set-output name=clusterName::$(cut -c 1-8 <<< ${cluster})"
+          echo "::set-output name=clusterName::$(cut -c 1-8 <<< ${cluster})1"
 
       - uses: realm/ci-actions/mdb-realm/deployApps@3f810b2d04e9dada2bde0b33ec90102e52a0b30a
         with:
@@ -45,15 +45,7 @@ jobs:
     continue-on-error: true
     needs:
       - deploy-cluster
-      - dart-tests-windows
-      - dart-tests-macos
-      - dart-tests-macos-arm
-      - dart-tests-linux
-      - flutter-desktop-tests-windows
-      - flutter-desktop-tests-macos
-      - flutter-desktop-tests-linux
-      - flutter-ios
-      - flutter-android
+      
     steps:
       - uses: realm/ci-actions/mdb-realm/deleteCluster@b348124b892f9bb2b2ef5287739d82e48541d853
         with:
