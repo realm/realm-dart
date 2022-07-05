@@ -33,7 +33,7 @@ void main(List<String> args) {
       if (result.isNotEmpty) {
         fail("Failed tests: \n $result");
       }
-    }, timeout: const Timeout(Duration(hours: 1)));
+    }, timeout: const Timeout(Duration(minutes: 30)));
   });
 }
 
