@@ -1,11 +1,14 @@
-import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
-import 'package:path/path.dart' as _path;
-import 'package:dart_style/dart_style.dart';
+import 'dart:io';
+
+import 'package:ansicolor/ansicolor.dart';
 import 'package:build_test/build_test.dart';
-import 'package:test/test.dart';
+import 'package:dart_style/dart_style.dart';
+import 'package:diff_match_patch/diff_match_patch.dart';
+import 'package:path/path.dart' as _path;
 import 'package:realm_generator/realm_generator.dart';
+import 'package:test/test.dart';
 
 Function executeTest = test;
 
@@ -79,6 +82,53 @@ class GoldenFileMatcher extends Matcher {
   }
 }
 
+class MyersDiffMatcher extends Matcher {
+  final String expected;
+
+  MyersDiffMatcher(this.expected);
+
+  @override
+  Description describe(Description description) => description.add(expected);
+
+  String _getText(dynamic item) {
+    if (item is String) {
+      return item;
+    } else if (item is List<int>) {
+      return utf8.decode(item);
+    }
+    return item.toString();
+  }
+
+  @override
+  bool matches(dynamic item, Map<dynamic, dynamic> matchState) => expected == _getText(item);
+
+  @override
+  Description describeMismatch(
+    dynamic item,
+    Description mismatchDescription,
+    Map<dynamic, dynamic> matchState,
+    bool verbose,
+  ) {
+    final actual = _getText(item);
+    final dmp = DiffMatchPatch();
+    final diffs = dmp.diff(actual, expected);
+    dmp.diffCleanupSemantic(diffs);
+    ansiColorDisabled = false;
+    final pen = AnsiPen();
+    for (final d in diffs) {
+      if (d.operation < 0) {
+        pen.red(bg: true); // delete
+      } else if (d.operation == 0) {
+        pen.reset(); // no-edit
+      } else if (d.operation > 0) {
+        pen.green(bg: true); // insert
+      }
+      mismatchDescription = mismatchDescription.add(pen(d.text));
+    }
+    return mismatchDescription;
+  }
+}
+
 /// A special equality matcher for strings.
 class LinesEqualsMatcher extends Matcher {
   final String expected;
@@ -129,7 +179,7 @@ class LinesEqualsMatcher extends Matcher {
 
 Future<Map<String, Object>> getExpectedFileAsset(String inputFilePath, String expectedFilePath) async {
   var key = 'pkg|${_path.setExtension(inputFilePath, '.realm_objects.g.part')}';
-  return {key: GoldenFileMatcher(File(expectedFilePath), (f) => LinesEqualsMatcher(f.readAsStringSync()))};
+  return {key: GoldenFileMatcher(File(expectedFilePath), (f) => MyersDiffMatcher(f.readAsStringSync()))};
 }
 
 Future<String> readFileAsDartFormattedString(String path) async {
