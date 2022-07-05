@@ -32,14 +32,34 @@ import 'measure.dart';
 import 'realm_model_info.dart';
 import 'session.dart';
 
+Future<ResolvedLibraryResult?> _getResolvedLibrary(LibraryElement library, Resolver resolver) async {
+  var attempts = 0;
+  while (true) {
+    try {
+      final freshLibrary = await resolver.libraryFor(await resolver.assetIdForElement(library));
+      final freshSession = freshLibrary.session;
+      var someResult = await freshSession.getResolvedLibraryByElement(freshLibrary);
+      if (someResult is ResolvedLibraryResult) return someResult;
+    } catch (_) {
+      ++attempts;
+      if (attempts == 10) {
+        log.severe('Internal error: Analysis session '
+            'did not stabilize after ten attempts!');
+        return null;
+      }
+    }
+  }
+}
+
 class RealmObjectGenerator extends Generator {
   @override
   Future<String> generate(LibraryReader library, BuildStep buildStep) async {
     return await measure(
       () async {
-        return await scopeSession(
-          (await library.element.session.getResolvedLibraryByElement(library.element)) as ResolvedLibraryResult,
-          () async => library.classes.realmInfo.expand((m) => m.toCode()).join('\n'),
+        final result = await _getResolvedLibrary(library.element, buildStep.resolver);
+        return scopeSession(
+          result!,
+          () => library.classes.realmInfo.expand((m) => m.toCode()).join('\n'),
           color: stdout.supportsAnsiEscapes,
         );
       },
