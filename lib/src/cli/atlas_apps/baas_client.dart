@@ -166,7 +166,7 @@ class BaasClient {
     final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
 
     await enableProvider(app, 'anon-user');
-    await enableProvider(app, 'local-userpass', '''{
+    await enableProvider(app, 'local-userpass', config: '''{
       "autoConfirm": ${(confirmationType == "auto").toString()},
       "confirmEmailSubject": "Confirmation required",
       "confirmationFunctionName": "confirmFunc",
@@ -179,6 +179,21 @@ class BaasClient {
       "runConfirmationFunction": ${(confirmationType != "email" && confirmationType != "auto").toString()},
       "runResetFunction": true
     }''');
+
+    //https://www.mongodb.com/docs/atlas/app-services/admin/api/v3/#operation/adminListValues
+    // await enableProvider(app, 'custom-token',
+    //     config: '''{
+    //       "audience": mongodb.com,
+    //       "signingAlgorithm": "RS256",
+    //       "useJWKURI": false,
+    //       "jwkURI": ""
+    //       }''',
+    //     secretConfig: '''{
+    //       "signingKeys": ["rsPublicKey"],
+    //       "useJWKURI": false,
+    //       "jwkURI": ""
+    //       }''',
+    //     metadataFelds: '');
 
     print('Creating database db_$name$_appSuffix');
 
@@ -209,7 +224,7 @@ class BaasClient {
     return app;
   }
 
-  Future<void> enableProvider(BaasApp app, String type, [String config = '{}']) async {
+  Future<void> enableProvider(BaasApp app, String type, {String config = '{}', String secretConfig = '{}', String metadataFelds = '{}'}) async {
     print('Enabling provider $type for ${app.clientAppId}');
 
     final url = 'groups/$_groupId/apps/$app/auth_providers';
@@ -223,7 +238,9 @@ class BaasClient {
           "name": "$type",
           "type": "$type",
           "disabled": false,
-          "config": $config
+          "config": $config,
+          "secret_config": $secretConfig,
+          "metadata_fields": $metadataFelds
         }''');
     }
   }

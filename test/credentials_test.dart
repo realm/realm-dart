@@ -16,7 +16,10 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:io';
+
 import 'package:test/test.dart' hide test, throws;
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import '../lib/realm.dart';
 import 'test.dart';
 
@@ -299,4 +302,20 @@ Future<void> main([List<String>? args]) async {
       await authProvider.callResetPasswordFunction(username, newPassword);
     }, throws<RealmException>("failed to reset password for user $username"));
   }, appName: AppNames.autoConfirm);
+
+  baasTest('JWT - login', (configuration) async {
+    final app = App(configuration);
+    final jwt = JWT(
+      {'sub': '62c570355a3411a70841e356', 'name': 'realm-test@realm.io'},
+      issuer: 'https://github.com/realm/realm-dart',
+      audience: Audience(["mongodb.com"]),
+    );
+    String privateKey = File(r"test/data/jwt_keys/private.pem").readAsStringSync();
+    var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
+
+    print('Signed token: $token\n');
+    final credentials = Credentials.jwt(token);
+    final user = await app.logIn(credentials);
+    expect(user.state, UserState.loggedIn);
+  }, appName: AppNames.autoConfirm, skip: "In development");
 }
