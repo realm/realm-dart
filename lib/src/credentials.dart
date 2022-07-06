@@ -35,6 +35,7 @@ enum AuthProviderType {
   
   /// For authenticating with an email and a password.
   emailPassword,
+  jwt,
 
   _function,
   _userApiKey,
@@ -61,6 +62,12 @@ class Credentials {
   Credentials.emailPassword(String email, String password)
       : _handle = realmCore.createAppCredentialsEmailPassword(email, password),
         provider = AuthProviderType.emailPassword;
+
+  /// Returns a [Credentials] object that can be used to authenticate a user with a custom JWT.
+  /// [Custom-JWT Authentication Docs](https://docs.mongodb.com/realm/authentication/custom-jwt)
+  Credentials.jwt(String token)
+      : _handle = realmCore.createAppCredentialsJwt(token),
+        provider = AuthProviderType.jwt;
 }
 
 /// @nodoc
