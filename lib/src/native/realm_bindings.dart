@@ -299,6 +299,27 @@ class RealmLibrary {
           void Function(
               ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
+  /// Create realm_app_t* instance given a valid realm configuration and sync client configuration.
+  ///
+  /// @return A non-null pointer if no error occurred.
+  ffi.Pointer<realm_app_t> realm_app_create(
+    ffi.Pointer<realm_app_config_t> arg0,
+    ffi.Pointer<realm_sync_client_config_t> arg1,
+  ) {
+    return _realm_app_create(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_app_createPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>,
+              ffi.Pointer<realm_sync_client_config_t>)>>('realm_app_create');
+  late final _realm_app_create = _realm_app_createPtr.asFunction<
+      ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>,
+          ffi.Pointer<realm_sync_client_config_t>)>();
+
   ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_anonymous() {
     return _realm_app_credentials_new_anonymous();
   }
@@ -846,6 +867,8 @@ class RealmLibrary {
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>();
 
+  /// @note this API will be removed and it is now deprecated in favour of realm_app_create
+  ///
   /// Get an existing @a realm_app_t* instance with the same app id, or create it with the
   /// configuration if it doesn't exist.
   ///
@@ -923,6 +946,8 @@ class RealmLibrary {
   late final _realm_app_get_app_id = _realm_app_get_app_idPtr
       .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_app_t>)>();
 
+  /// @note this API will be removed and it is now deprecated in favour of realm_app_create
+  ///
   /// Get an existing @a realm_app_t* instance from the cache.
   ///
   /// @return Cached app instance, or null if no cached app exists for this @a app_id.
