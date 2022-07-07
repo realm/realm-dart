@@ -304,7 +304,7 @@ Future<void> main([List<String>? args]) async {
     }, throws<RealmException>("failed to reset password for user $username"));
   }, appName: AppNames.autoConfirm);
 
-  baasTest('JWT - login with new user', (configuration) async {
+  baasTest('JWT public key validation - login with new user', (configuration) async {
     final app = App(configuration);
     var newUserId = ObjectId();
     String username = "${generateRandomString(5)}@realm.io";
@@ -323,4 +323,25 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
     expect(user.state, UserState.loggedIn);
   });
+
+  baasTest('JWT jwks url validation - login with new user', (configuration) async {
+    final app = App(configuration);
+    var newUserId = ObjectId();
+    String username = "${generateRandomString(5)}@realm.io";
+    final jwt = JWT(
+      {"sub": "$newUserId", "name": username},
+      issuer: 'https://github.com/realm/realm-dart',
+      audience: Audience(["mongodb.com"]),
+    );
+
+    final rootFolder = Directory.current.absolute.path.replaceFirst(r"flutter\realm_flutter\tests", "");
+    String privateKey = File(_path.join(rootFolder, "test/data/jwt_keys/private.pem")).readAsStringSync();
+    var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
+
+    print('Signed token: $token\n');
+    final credentials = Credentials.jwt(token);
+    final user = await app.logIn(credentials);
+    expect(user.state, UserState.loggedIn);
+  }, appName: AppNames.autoConfirm);
+
 }

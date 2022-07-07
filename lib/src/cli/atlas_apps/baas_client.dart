@@ -64,6 +64,8 @@ class BaasClient {
 
   late String _groupId;
   late String publicRSAKey = '';
+  late String jwksUrl = '';
+
   BaasClient._(String baseUrl, String? differentiator, [this._clusterName])
       : _baseUrl = '$baseUrl/api/admin/v3.0',
         _headers = <String, String>{'Accept': 'application/json'},
@@ -180,16 +182,18 @@ class BaasClient {
       "runResetFunction": true
     }''');
 
-    if (publicRSAKey.isNotEmpty) {
-      String publicRSAKeyEncoded = jsonEncode(publicRSAKey);
-      final dynamic createSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"rsPublicKey","value":$publicRSAKeyEncoded}');
-      final String keyName = createSecretResult['name'] as String;
-
+    if (publicRSAKey.isNotEmpty || jwksUrl.isNotEmpty) {
+      String keyName = "";
+      if (publicRSAKey.isNotEmpty) {
+        String publicRSAKeyEncoded = jsonEncode(publicRSAKey);
+        final dynamic createSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"rsPublicKey","value":$publicRSAKeyEncoded}');
+        keyName = createSecretResult['name'] as String;
+      }
       await enableProvider(app, 'custom-token', config: '''{
           "audience": "mongodb.com",
           "signingAlgorithm": "RS256",
-          "useJWKURI": false,
-          "jwkURI": ""
+          "useJWKURI": ${(jwksUrl.isNotEmpty && (confirmationType == "auto")).toString()},
+          "jwkURI": "$jwksUrl"
           }''', secretConfig: '''{
           "signingKeys": ["$keyName"]
           }''', metadataFelds: '''{
