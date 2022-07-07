@@ -63,7 +63,7 @@ class BaasClient {
   late final String _appSuffix = '-${shortenDifferentiator(_differentiator)}-$_clusterName';
 
   late String _groupId;
-  late String publicRSAKey;
+  late String publicRSAKey = '';
   BaasClient._(String baseUrl, String? differentiator, [this._clusterName])
       : _baseUrl = '$baseUrl/api/admin/v3.0',
         _headers = <String, String>{'Accept': 'application/json'},

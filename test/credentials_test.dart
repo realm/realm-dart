@@ -319,5 +319,5 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.jwt(token);
     final user = await app.logIn(credentials);
     expect(user.state, UserState.loggedIn);
-  }, appName: AppNames.autoConfirm, skip: "In development");
+  });
 }
