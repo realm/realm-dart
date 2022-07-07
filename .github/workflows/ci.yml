@@ -22,9 +22,12 @@ jobs:
     steps:
       - name: Get cluster suffix
         id: cluster-name
-        run: echo "::set-output name=clusterName::dart$(date +'%d%p')"
+        run: |
+          triggerName=${{ github.ref_name}}
+          cluster=${triggerName/'/merge'/''}
+          echo "::set-output name=clusterName::$(cut -c 1-8 <<< ${cluster}$RANDOM)"
 
-      - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
+      - uses: realm/ci-actions/mdb-realm/deployApps@3f810b2d04e9dada2bde0b33ec90102e52a0b30a
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -34,147 +37,44 @@ jobs:
           clusterName: ${{ steps.cluster-name.outputs.clusterName }}
           useExistingCluster: true
 
-  build-native:
-    runs-on: ${{ matrix.runner }}-latest
-    name: Build native
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - { preset: windows, runner: windows }
-          - { preset: macos, runner: macos }
-          - { preset: linux, runner: ubuntu }
-          - { preset: ios, build: ios-device, runner: macos }
-          - { preset: ios, build: ios-simulator, runner: macos }
-          - { preset: ios, build: ios-catalyst, runner: macos }
-          - { preset: android-x86, binary: android, runner: ubuntu }
-          - { preset: android-x86_64, binary: android, runner: ubuntu }
-          - { preset: android-armeabi-v7a, binary: android, runner: ubuntu }
-          - { preset: android-arm64-v8a, binary: android, runner: ubuntu }
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-
-      - name: Check cache
-        id: check-cache
-        if: ${{ !contains(github.head_ref, 'release/') }}
-        uses: actions/cache@v3
-        with:
-          path: ./binary/**
-          key: binaries-${{ matrix.build || matrix.preset }}-${{hashFiles('./src/**')}}
-
-      - name: Setup Ninja
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
-        uses: seanmiddleditch/gha-setup-ninja@master
-
-      - name: Get vcpkg submodule commit sha
-        id: vcpkg_cache_key
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
-        working-directory: src/realm-core/tools/vcpkg/ports
-        shell: bash
-        run: echo "::set-output name=commit::$(git rev-parse HEAD)"
-
-      - name: Setup Vcpkg
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
-        continue-on-error: true
-        uses: friendlyanon/setup-vcpkg@v1
-        with:
-          path: src/realm-core/tools/vcpkg/ports
-          cache-key: vcpkg-${{ matrix.preset }}-${{ hashFiles('./src/realm-core/tools/vcpkg/vcpkg.json') }}-${{ steps.vcpkg_cache_key.outputs.commit }}
-          cache-restore-keys: vcpkg-${{ matrix.preset }}-
-
-      - name: Setup Android NDK
-        if: startsWith(matrix.preset, 'android-')
-        run: echo "ANDROID_NDK=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
-
-      - name: Build
-        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
-        run: |
-          cmake --preset ${{ matrix.preset }}
-          cmake --build --preset ${{ matrix.build || matrix.preset }} --config Release
-
-      - name: Store artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: librealm-${{ matrix.build || matrix.preset }}
-          path: binary/${{ matrix.binary || matrix.preset }}/**
-          retention-days: 1
-
-  build-android-combined:
-    name: Combine Android binaries
-    needs: build-native
-    uses: ./.github/workflows/binary-combine-android.yml
-
-  build-ios-xcframework:
-    name: Combine IOS binaries
-    needs: build-native
-    uses: ./.github/workflows/binary-combine-ios.yml
-
-  baas-matrix:
+  delete-cluster:
+    runs-on: ubuntu-latest
+    name: Delete Cluster
+    continue-on-error: true
     needs:
       - deploy-cluster
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - app: dm
-            description: dart macos
-          - app: dma
-            description: dart macos-arm
-          - app: dl
-            description: dart linux
-          - app: dw
-            description: dart windows
-          - app: fm
-            description: flutter macos
-          - app: fl
-            description: flutter linux
-          - app: fw
-            description: flutter windows
-          - app: fa
-            description: flutter android
-          - app: fi
-            description: flutter iOS
-    runs-on: ubuntu-latest
-    name: Deploy apps for ${{ matrix.description }}
-    timeout-minutes: 20
-    env:
-      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
+      - dart-tests-windows
+      - dart-tests-macos
+      - dart-tests-macos-arm
+      - dart-tests-linux
+      - flutter-desktop-tests-windows
+      - flutter-desktop-tests-macos
+      - flutter-desktop-tests-linux
+      - flutter-ios
+      - flutter-android
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: realm/ci-actions/mdb-realm/deleteCluster@b348124b892f9bb2b2ef5287739d82e48541d853
         with:
-          submodules: false
+          realmUrl: ${{ env.BAAS_URL }}
+          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+          projectId: ${{ env.BAAS_PROJECT_ID }}
+          apiKey: ${{ env.BAAS_API_KEY }}
+          privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
+          clusterName: ${{ needs.deploy-cluster.outputs.clusterName }}
 
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-
-      - name: Random delay
-        id: cluster-name
-        run: echo "sleep $((RANDOM % 10))"
-
-      - name: Deploy Apps
-        run: |
-          dart run realm_dart deploy-apps \
-            --baas-url ${{ env.BAAS_URL }} \
-            --atlas-cluster ${{ env.BAAS_CLUSTER }} \
-            --api-key ${{ env.BAAS_API_KEY }} \
-            --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} \
-            --project-id ${{ env.BAAS_PROJECT_ID }} \
-            --differentiator "${{ env.BAAS_DIFFERENTIATOR }}"
 
   cleanup-matrix:
     needs:
-      - dart-tests
-      - flutter-desktop-tests
+      - deploy-cluster
+      - dart-tests-windows
+      - dart-tests-macos
+      - dart-tests-macos-arm
+      - dart-tests-linux
+      - flutter-desktop-tests-windows
+      - flutter-desktop-tests-macos
+      - flutter-desktop-tests-linux
       - flutter-ios
       - flutter-android
-      - deploy-cluster
     strategy:
       fail-fast: false
       matrix:
@@ -225,150 +125,154 @@ jobs:
             --project-id ${{ env.BAAS_PROJECT_ID }} \
             --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
 
+  build-windows:
+    name: Build Windows
+    uses: ./.github/workflows/build-native.yml
+    with:
+     runner: windows
+     binary: windows
+     build: '["windows"]'
+
+  build-macos:
+    name: Build MacOS
+    uses: ./.github/workflows/build-native.yml
+    with:
+     runner: macos
+     binary: macos
+     build: '["macos"]'
+
+  build-linux:
+    name: Build Linux
+    uses: ./.github/workflows/build-native.yml
+    with:
+     runner: ubuntu
+     binary: linux
+     build: '["linux"]'
+
+  build-android:
+    name: Build Android
+    uses: ./.github/workflows/build-native.yml
+    with:
+     runner: ubuntu
+     binary: android
+     build: '["android-x86", "android-x86_64", "android-armeabi-v7a", "android-arm64-v8a"]'
+
+  build-ios:
+    name: Build IOS
+    uses: ./.github/workflows/build-native.yml
+    with:
+      runner: macos
+      binary: ios
+      build: '["ios-device", "ios-simulator", "ios-catalyst"]'
+
+  build-android-combined:
+    name: Android binaries combine
+    needs: build-android
+    uses: ./.github/workflows/binary-combine-android.yml
+
+  build-ios-xcframework:
+    name: IOS binaries combine
+    needs: build-ios
+    uses: ./.github/workflows/binary-combine-ios.yml
+
 # Dart jobs
 
-  dart-tests:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: macos
-            app: dm
-          - os: macos
-            architecture: arm
-            app: dma
-          - os: windows
-            app: dw
-          - os: linux
-            app: dl
-    runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-${{ matrix.architecture || 'latest' }}
-    name: Dart tests on ${{matrix.os }} ${{ matrix.architecture }}
-    env:
-      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
+  dart-tests-windows:
+    name: Windows Dart Tests
+    uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
+      - build-windows
       - deploy-cluster
-      - build-native
-      - baas-matrix
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: false
+    secrets: inherit
+    with:
+     os: windows
+     app: dw
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
-      - name: Cleanup Workspace
-        run: git clean -fdx
+  dart-tests-macos:
+    name: MacOS Dart Tests
+    uses: ./.github/workflows/dart-desktop-tests.yml
+    needs:
+      - build-macos
+      - deploy-cluster
+    secrets: inherit
+    with:
+     os: macos
+     app: dm
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
-      - name: Fetch artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: librealm-${{ matrix.os }}
-          path: binary/${{ matrix.os }}
+  dart-tests-macos-arm:
+    name: MacOS Arm Dart Tests
+    uses: ./.github/workflows/dart-desktop-tests.yml
+    needs:
+      - build-macos
+      - deploy-cluster
+    secrets: inherit
+    with:
+     os: macos
+     architecture: arm
+     app: dma
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-          architecture: ${{ matrix.architecture == 'arm' && 'arm64' || 'x64'}}
-
-      - name: Install dependencies
-        run: dart pub get
-
-      - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
-        with:
-          realmUrl: ${{ env.BAAS_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ env.BAAS_PROJECT_ID }}
-          apiKey: ${{ env.BAAS_API_KEY }}
-          privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-          clusterName: ${{ env.BAAS_CLUSTER }}
-          useExistingCluster: true
-
-      - name: Run tests
-        run: ${{ matrix.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -r expanded -j 1 --test-randomize-ordering-seed random
+  dart-tests-linux:
+    name: Linux Dart Tests
+    uses: ./.github/workflows/dart-desktop-tests.yml
+    needs:
+      - build-linux
+      - deploy-cluster
+    secrets: inherit
+    with:
+     os: linux
+     app: dl
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
 # Flutter jobs
 
-  flutter-desktop-tests:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-            - os: macos
-              app: fm
-            - os: windows
-              app: fw
-            - os: linux
-              app: fl
-    runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-latest
-    name: Flutter tests on ${{matrix.os  }}
-    env:
-      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR:  ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
+  flutter-desktop-tests-windows:
+    name: Windows Flutter Tests
+    uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
+      - build-windows
       - deploy-cluster
-      - build-native
-      - baas-matrix
-    steps:
+    secrets: inherit
+    with:
+     os: windows
+     app: fw
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: false
+  flutter-desktop-tests-macos:
+    name: MacOS Flutter Tests
+    uses: ./.github/workflows/flutter-desktop-tests.yml
+    needs:
+      - build-macos
+      - deploy-cluster
+    secrets: inherit
+    with:
+     os: macos
+     app: fm
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
-      - name: Setup GTK
-        if: ${{ matrix.os == 'linux' }}
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y libgtk-3-dev xvfb
-
-      - name: Setup Ninja
-        if: ${{ matrix.os == 'linux' }}
-        uses: seanmiddleditch/gha-setup-ninja@master
-
-      - name: Fetch artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: librealm-${{ matrix.os }}
-          path: binary/${{ matrix.os }}
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-
-      - name: Enable Flutter Desktop support
-        run: flutter config --enable-${{ matrix.os }}-desktop
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      # This will be a no-op under normal circumstances since the cluster would have been deployed
-      # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
-      - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
-        with:
-          realmUrl: ${{ env.BAAS_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ env.BAAS_PROJECT_ID }}
-          apiKey: ${{ env.BAAS_API_KEY }}
-          privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-          clusterName: ${{ env.BAAS_CLUSTER }}
-          useExistingCluster: true
-
-      - name: Run tests
-        run: ${{ matrix.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ matrix.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
-        working-directory: ./flutter/realm_flutter/tests
+  flutter-desktop-tests-linux:
+    name: Linux Flutter Tests
+    uses: ./.github/workflows/flutter-desktop-tests.yml
+    needs:
+      - build-linux
+      - deploy-cluster
+    secrets: inherit
+    with:
+     os: linux
+     app: fl
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   flutter-ios:
     runs-on: macos-latest
-    name: Flutter Tests iOS
+    name: IOS Flutter Tests
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
       BAAS_DIFFERENTIATOR: fi${{ github.run_id }}${{ github.run_attempt }}
     needs:
       - deploy-cluster
       - build-ios-xcframework
-      - baas-matrix
     steps:
 
       - name: Checkout
@@ -399,8 +303,10 @@ jobs:
           model: 'iPhone 8'
           os: 'iOS'
           os_version: '>= 14.0'
-
-      - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
+      
+      # This will be a no-op under normal circumstances since the cluster would have been deployed
+      # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
+      - uses: realm/ci-actions/mdb-realm/deployApps@3f810b2d04e9dada2bde0b33ec90102e52a0b30a
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -417,14 +323,13 @@ jobs:
 
   flutter-android:
     runs-on: macos-latest
-    name: Flutter Tests Android
+    name: Android Flutter Tests
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
       BAAS_DIFFERENTIATOR: fa${{ github.run_id }}${{ github.run_attempt }}
     needs:
       - deploy-cluster
       - build-android-combined
-      - baas-matrix
     steps:
 
       - name: Checkout
@@ -469,7 +374,9 @@ jobs:
           cmake: 3.10.2.4988404
           script: echo "Generated Emulator snapshot for caching."
 
-      - uses: realm/ci-actions/mdb-realm/deployApps@63fb0c1678dd750e92709bb6c78aaafd03c5fade
+      # This will be a no-op under normal circumstances since the cluster would have been deployed
+      # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
+      - uses: realm/ci-actions/mdb-realm/deployApps@3f810b2d04e9dada2bde0b33ec90102e52a0b30a
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}

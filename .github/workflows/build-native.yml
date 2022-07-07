@@ -1,0 +1,76 @@
+name: Build native
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: Platforms to execute on.
+        required: true
+        type: string
+      binary:
+        description: Binary to build.
+        required: true
+        type: string
+      build:
+        description: Build for devices, in format of a string JSON array
+        required: true
+        type: string
+
+jobs:
+  build-native:
+    runs-on: ${{ inputs.runner }}-latest
+    name: Build native
+    strategy:
+      fail-fast: false
+      matrix:
+         build: ${{ fromJSON(inputs.build) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Check cache
+        id: check-cache
+        if: ${{ !contains(github.head_ref, 'release/') }}
+        uses: actions/cache@v3
+        with:
+          path: ./binary/**
+          key: binaries-${{ matrix.build }}-${{hashFiles('./src/**')}}
+
+      - name: Setup Ninja
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Get vcpkg submodule commit sha
+        id: vcpkg_cache_key
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        working-directory: src/realm-core/tools/vcpkg/ports
+        shell: bash
+        run: echo "::set-output name=commit::$(git rev-parse HEAD)"
+
+      - name: Setup Vcpkg
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: friendlyanon/setup-vcpkg@v1
+        with:
+          path: src/realm-core/tools/vcpkg/ports
+          cache-key: vcpkg-${{ matrix.build }}-${{ hashFiles('./src/realm-core/tools/vcpkg/vcpkg.json') }}-${{ steps.vcpkg_cache_key.outputs.commit }}
+          cache-restore-keys: vcpkg-${{ matrix.build }}-
+
+      - name: Setup Android NDK
+        if: startsWith(matrix.build, 'android-')
+        run: echo "ANDROID_NDK=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
+
+      - name: Build
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
+        run: |
+          cmake --preset ${{ startsWith(matrix.build, 'ios-') && 'ios' || matrix.build }}
+          cmake --build --preset ${{ matrix.build }} --config Release
+
+      - name: Store artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: librealm-${{ matrix.build }}
+          path: binary/${{ inputs.binary }}/**
+          retention-days: 1
