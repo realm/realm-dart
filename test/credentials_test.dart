@@ -20,6 +20,7 @@ import 'dart:io';
 
 import 'package:test/test.dart' hide test, throws;
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'package:path/path.dart' as _path;
 import '../lib/realm.dart';
 import 'test.dart';
 
@@ -306,13 +307,13 @@ Future<void> main([List<String>? args]) async {
   baasTest('JWT - login with new user', (configuration) async {
     final app = App(configuration);
     var newUserId = ObjectId();
-    String username = "${generateRandomString(5)}@realm.io";    
+    String username = "${generateRandomString(5)}@realm.io";
     final jwt = JWT(
       {"sub": "$newUserId", "name": username},
       issuer: 'https://github.com/realm/realm-dart',
       audience: Audience(["mongodb.com"]),
     );
-    String privateKey = File(r"test/data/jwt_keys/private.pem").readAsStringSync();
+    String privateKey = File(_path.join(Directory.current.absolute.path, "test/data/jwt_keys/private.pem")).readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
 
     print('Signed token: $token\n');

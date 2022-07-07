@@ -325,7 +325,7 @@ Future<void> setupBaas() async {
       ? BaasClient.docker(baasUrl, differentiator)
       : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
 
-  client.publicRSAKey = File("test/data/jwt_keys/public.pem").readAsStringSync();
+  client.publicRSAKey = File(_path.join(Directory.current.absolute.path, "test/data/jwt_keys/public.pem")).readAsStringSync();
    
   var apps = await client.getOrCreateApps();
   baasApps.addAll(apps);
