@@ -313,7 +313,9 @@ Future<void> main([List<String>? args]) async {
       issuer: 'https://github.com/realm/realm-dart',
       audience: Audience(["mongodb.com"]),
     );
-    String privateKey = File(_path.join(Directory.current.absolute.path, "test/data/jwt_keys/private.pem")).readAsStringSync();
+
+    final rootFolder = Directory.current.absolute.path.replaceFirst(r"flutter\realm_flutter\tests", "");
+    String privateKey = File(_path.join(rootFolder, "test/data/jwt_keys/private.pem")).readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
 
     print('Signed token: $token\n');
