@@ -116,13 +116,13 @@ class App {
   String get id => realmCore.appGetId(this);
 
   /// Create an app with a particular [AppConfiguration]
-  App(AppConfiguration configuration) : this._(_getApp(configuration));
+  App(AppConfiguration configuration) : this._(_createApp(configuration));
 
   App._(this._handle);
 
-  static AppHandle _getApp(AppConfiguration configuration) {
-    configuration.baseFilePath.createSync(recursive:  true);
-    return realmCore.getApp(configuration);
+  static AppHandle _createApp(AppConfiguration configuration) {
+    configuration.baseFilePath.createSync(recursive: true);
+    return realmCore.createApp(configuration);
   }
 
   /// Logs in a user with the given credentials.
