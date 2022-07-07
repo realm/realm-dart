@@ -303,10 +303,12 @@ Future<void> main([List<String>? args]) async {
     }, throws<RealmException>("failed to reset password for user $username"));
   }, appName: AppNames.autoConfirm);
 
-  baasTest('JWT - login', (configuration) async {
+  baasTest('JWT - login with new user', (configuration) async {
     final app = App(configuration);
+    var newUserId = ObjectId();
+    String username = "${generateRandomString(5)}@realm.io";    
     final jwt = JWT(
-      {'sub': '62c570355a3411a70841e356', 'name': 'realm-test@realm.io'},
+      {"sub": "$newUserId", "name": username},
       issuer: 'https://github.com/realm/realm-dart',
       audience: Audience(["mongodb.com"]),
     );

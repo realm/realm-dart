@@ -63,7 +63,7 @@ class BaasClient {
   late final String _appSuffix = '-${shortenDifferentiator(_differentiator)}-$_clusterName';
 
   late String _groupId;
-
+  late String publicRSAKey;
   BaasClient._(String baseUrl, String? differentiator, [this._clusterName])
       : _baseUrl = '$baseUrl/api/admin/v3.0',
         _headers = <String, String>{'Accept': 'application/json'},
@@ -180,21 +180,29 @@ class BaasClient {
       "runResetFunction": true
     }''');
 
-    //https://www.mongodb.com/docs/atlas/app-services/admin/api/v3/#operation/adminListValues
-    // await enableProvider(app, 'custom-token',
-    //     config: '''{
-    //       "audience": mongodb.com,
-    //       "signingAlgorithm": "RS256",
-    //       "useJWKURI": false,
-    //       "jwkURI": ""
-    //       }''',
-    //     secretConfig: '''{
-    //       "signingKeys": ["rsPublicKey"],
-    //       "useJWKURI": false,
-    //       "jwkURI": ""
-    //       }''',
-    //     metadataFelds: '');
+    if (publicRSAKey.isNotEmpty) {
+      String publicRSAKeyEncoded = jsonEncode(publicRSAKey);
+      final dynamic createSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"rsPublicKey","value":$publicRSAKeyEncoded}');
+      final String keyName = createSecretResult['name'] as String;
 
+      await enableProvider(app, 'custom-token', config: '''{
+          "audience": "mongodb.com",
+          "signingAlgorithm": "RS256",
+          "useJWKURI": false,
+          "jwkURI": ""
+          }''', secretConfig: '''{
+          "signingKeys": ["$keyName"]
+          }''', metadataFelds: '''{
+            "required": true,
+            "name": "name",
+            "field_name": "name"
+          },
+          {
+            "required": false,
+            "name": "company",
+            "field_name": "company"
+          }''');
+    }
     print('Creating database db_$name$_appSuffix');
 
     await _createMongoDBService(app, '''{
@@ -240,7 +248,7 @@ class BaasClient {
           "disabled": false,
           "config": $config,
           "secret_config": $secretConfig,
-          "metadata_fields": $metadataFelds
+          "metadata_fields": [$metadataFelds]
         }''');
     }
   }
