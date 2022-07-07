@@ -20,13 +20,6 @@ on:
         required: true
         type: string
 
-env:
-  BAAS_URL: ${{ secrets.REALM_QA_URL }}
-  BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-  BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-  BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
-  REALM_CI: true
-
 jobs:
   flutter-tests:
     runs-on: ${{ inputs.os == 'linux' && 'ubuntu' || inputs.os }}-latest
