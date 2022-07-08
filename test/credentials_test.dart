@@ -322,7 +322,7 @@ Future<void> main([List<String>? args]) async {
       audience: Audience(["mongodb.com"]),
     );
 
-    String privateKey = File("test/data/jwt_keys/private.pem").readAsStringSync();
+    String privateKey = File("test/data/jwt_keys/private_key.pem").readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
     print('Signed token: $token\n');
     final credentials = Credentials.jwt(token);
@@ -360,7 +360,7 @@ Future<void> main([List<String>? args]) async {
       audience: Audience(["mongodb.com"]),
     )..header = <String, dynamic>{"kid": "1"};
 
-    String privateKey = File("test/data/jwt_keys/private.pem").readAsStringSync();
+    String privateKey = File("test/data/jwt_keys/private_key.pem").readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
     print('Signed token: $token\n');
     final credentials = Credentials.jwt(token);
@@ -401,7 +401,7 @@ Future<void> main([List<String>? args]) async {
       audience: Audience(["mongodb.com"]),
     )..header = <String, dynamic>{"kid": "1"};
 
-    String privateKey = File("test/data/jwt_keys/private.pem").readAsStringSync();
+    String privateKey = File("test/data/jwt_keys/private_key.pem").readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
     print('Signed token: $token\n');
     await app.logIn(Credentials.jwt(token));
@@ -442,4 +442,28 @@ Future<void> main([List<String>? args]) async {
   },
       appName: AppNames.autoConfirm,
       skip: Platform.environment["BAAS_JWKS_URL"] == null || (isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS)));
+
+  baasTest('JWT with wrong signiture key - login fails', (configuration) async {
+    final app = App(configuration);
+    var newUserId = ObjectId();
+    String username = "${generateRandomString(5)}@realm.io";
+    final jwt = JWT(
+      {
+        "sub": "$newUserId",
+        "email": username,
+      },
+      issuer: 'https://realm.io',
+      audience: Audience(["mongodb.com"]),
+    );
+
+    String privateKey = File("test/data/jwt_keys/wrong_private_key.pem").readAsStringSync();
+    var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
+
+    print('Signed token: $token\n');
+    final credentials = Credentials.jwt(token);
+    expect(() async {
+      final user = await app.logIn(credentials);
+    }, throws<RealmException>("crypto/rsa: verification error"));
+  }, skip: isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS));
+  
 }
