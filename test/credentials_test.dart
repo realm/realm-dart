@@ -310,7 +310,12 @@ Future<void> main([List<String>? args]) async {
     final jwt = JWT(
       {
         "sub": "$newUserId",
-        "name": username,
+        "name": {"firstName": "John", "lastName": "Doe"},
+        "email": username,
+        "gender": "male",
+        "birthDay": "1999-10-11",
+        "minAge": "10",
+        "maxAge": "90",
         "company": "Realm",
       },
       issuer: 'https://realm.io',
@@ -319,11 +324,20 @@ Future<void> main([List<String>? args]) async {
 
     String privateKey = File("test/data/jwt_keys/private.pem").readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
-
     print('Signed token: $token\n');
     final credentials = Credentials.jwt(token);
     final user = await app.logIn(credentials);
+
     expect(user.state, UserState.loggedIn);
+    expect(user.profile.email, username);
+    expect(user.profile.name, username); //In metadataFelds email is mapped to two fields: email and name
+    expect(user.profile.gender, "male");
+    expect(user.profile.birthDay, "1999-10-11");
+    expect(user.profile.minAge, "10");
+    expect(user.profile.maxAge, "90");
+    expect(user.profile.firstName, "John");
+    expect(user.profile.lastName, "Doe");
+    expect(user.profile["company"], "Realm");
   }, skip: isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS));
 
   baasTest('JWT validation by using JWK URI - login with new user', (configuration) async {
@@ -334,20 +348,34 @@ Future<void> main([List<String>? args]) async {
     final jwt = JWT(
       {
         "sub": "$newUserId",
-        "name": username,
+        "name": {"firstName": "John", "lastName": "Doe"},
+        "email": username,
+        "gender": "male",
+        "birthDay": "1999-10-11",
+        "minAge": "10",
+        "maxAge": "90",
         "company": "Realm",
       },
       issuer: 'https://realm.io',
       audience: Audience(["mongodb.com"]),
-    );
-    jwt.header = <String, dynamic>{"kid": "1"};
+    )..header = <String, dynamic>{"kid": "1"};
    
     String privateKey = File("test/data/jwt_keys/private.pem").readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
     print('Signed token: $token\n');
     final credentials = Credentials.jwt(token);
     final user = await app.logIn(credentials);
+
     expect(user.state, UserState.loggedIn);
+    expect(user.profile.email, username);
+    expect(user.profile.name, username); //In metadataFelds email is mapped to two fields: email and name
+    expect(user.profile.gender, "male");
+    expect(user.profile.birthDay, "1999-10-11");
+    expect(user.profile.minAge, "10");
+    expect(user.profile.maxAge, "90");
+    expect(user.profile.firstName, "John");
+    expect(user.profile.lastName, "Doe");
+    expect(user.profile["company"], "Realm");
   },
       appName: AppNames.autoConfirm,
       skip: Platform.environment["BAAS_JWKS_URL"] == null || (isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS)));

@@ -197,9 +197,44 @@ class BaasClient {
           }''', secretConfig: '''{
           "signingKeys": ["$keyName"]
           }''', metadataFelds: '''{
+            "required": false,
+            "name": "name.firstName",
+            "field_name": "firstName"
+          },
+          {
+            "required": false,
+            "name": "name.lastName",
+            "field_name": "lastName"
+          },
+          {
             "required": true,
-            "name": "name",
+            "name": "email",
             "field_name": "name"
+          },
+          {
+            "required": true,
+            "name": "email",
+            "field_name": "email"
+          },
+          {
+            "required": false,
+            "name": "gender",
+            "field_name": "gender"
+          },
+          {
+            "required": false,
+            "name": "birthDay",
+            "field_name": "birthDay"
+          },
+          {
+            "required": false,
+            "name": "minAge",
+            "field_name": "minAge"
+          },
+          {
+            "required": false,
+            "name": "maxAge",
+            "field_name": "maxAge"
           },
           {
             "required": false,
