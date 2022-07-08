@@ -307,6 +307,7 @@ jobs:
       
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
+      - name: Try to create cluster
       - uses: realm/ci-actions/mdb-realm/deployApps@3f810b2d04e9dada2bde0b33ec90102e52a0b30a
         with:
           realmUrl: ${{ env.BAAS_URL }}
@@ -377,6 +378,7 @@ jobs:
 
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
+      - name: Try to create cluster
       - uses: realm/ci-actions/mdb-realm/deployApps@3f810b2d04e9dada2bde0b33ec90102e52a0b30a
         with:
           realmUrl: ${{ env.BAAS_URL }}
