@@ -1,2 +1,5 @@
 openssl genrsa -out private.pem 2048
 openssl rsa -in private.pem -pubout -out public.pem
+
+Generate jwks.json using some generator. For example: https://mkjwk.org/ or https://russelldavies.github.io/jwk-creator/
+Only public key should be included in jwk.

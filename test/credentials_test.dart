@@ -17,9 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:io';
-
-import 'package:test/test.dart' hide test, throws;
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'package:test/test.dart' hide test, throws;
 import 'package:path/path.dart' as _path;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -310,7 +309,7 @@ Future<void> main([List<String>? args]) async {
     String username = "${generateRandomString(5)}@realm.io";
     final jwt = JWT(
       {"sub": "$newUserId", "name": username},
-      issuer: 'https://github.com/realm/realm-dart',
+      issuer: 'https://realm.io',
       audience: Audience(["mongodb.com"]),
     );
 
@@ -330,18 +329,16 @@ Future<void> main([List<String>? args]) async {
     String username = "${generateRandomString(5)}@realm.io";
     final jwt = JWT(
       {"sub": "$newUserId", "name": username},
-      issuer: 'https://github.com/realm/realm-dart',
+      issuer: 'https://realm.io',
       audience: Audience(["mongodb.com"]),
     );
 
     final rootFolder = Directory.current.absolute.path.replaceFirst(r"flutter\realm_flutter\tests", "");
     String privateKey = File(_path.join(rootFolder, "test/data/jwt_keys/private.pem")).readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
-
     print('Signed token: $token\n');
     final credentials = Credentials.jwt(token);
     final user = await app.logIn(credentials);
     expect(user.state, UserState.loggedIn);
-  }, appName: AppNames.autoConfirm);
-
+  }, appName: AppNames.autoConfirm, skip: Platform.environment["BAAS_JWKS_URL"] == null);
 }
