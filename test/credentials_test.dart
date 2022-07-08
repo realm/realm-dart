@@ -329,11 +329,11 @@ Future<void> main([List<String>? args]) async {
     var newUserId = ObjectId();
     String username = "${generateRandomString(5)}@realm.io";
     final jwt = JWT(
-      {"kid": "1", "sub": "$newUserId", "name": username},
+      {"sub": "$newUserId", "name": username},
       issuer: 'https://realm.io',
       audience: Audience(["mongodb.com"]),
     );
-
+    jwt.header = <String, dynamic>{"kid": "1"};
     final rootFolder = Directory.current.absolute.path.replaceFirst(r"flutter\realm_flutter\tests", "");
     String privateKey = File(_path.join(rootFolder, "test/data/jwt_keys/private.pem")).readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
