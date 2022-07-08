@@ -329,8 +329,7 @@ Future<void> setupBaas() async {
       ? BaasClient.docker(baasUrl, differentiator)
       : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
 
-  final rootFolder = Directory.current.absolute.path.replaceFirst(r"flutter\realm_flutter\tests", "");
-  client.publicRSAKey = File(_path.join(rootFolder, "test/data/jwt_keys/public.pem")).readAsStringSync();
+  client.publicRSAKey = File("test/data/jwt_keys/public.pem").readAsStringSync();
   client.jwksUrl = jwksUrl ?? "";
 
   var apps = await client.getOrCreateApps();
