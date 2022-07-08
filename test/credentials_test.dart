@@ -329,7 +329,7 @@ Future<void> main([List<String>? args]) async {
     var newUserId = ObjectId();
     String username = "${generateRandomString(5)}@realm.io";
     final jwt = JWT(
-      {"sub": "$newUserId", "name": username},
+      {"kid": "1", "sub": "$newUserId", "name": username},
       issuer: 'https://realm.io',
       audience: Audience(["mongodb.com"]),
     );
