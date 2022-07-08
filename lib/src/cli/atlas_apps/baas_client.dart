@@ -182,13 +182,11 @@ class BaasClient {
       "runResetFunction": true
     }''');
 
-    if (publicRSAKey.isNotEmpty || jwksUrl.isNotEmpty) {
-      String keyName = "";
-      if (publicRSAKey.isNotEmpty) {
-        String publicRSAKeyEncoded = jsonEncode(publicRSAKey);
-        final dynamic createSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"rsPublicKey","value":$publicRSAKeyEncoded}');
-        keyName = createSecretResult['name'] as String;
-      }
+    if (publicRSAKey.isNotEmpty) {
+      String publicRSAKeyEncoded = jsonEncode(publicRSAKey);
+      final dynamic createSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"rsPublicKey","value":$publicRSAKeyEncoded}');
+      String keyName = createSecretResult['name'] as String;
+
       await enableProvider(app, 'custom-token', config: '''{
           "audience": "mongodb.com",
           "signingAlgorithm": "RS256",
