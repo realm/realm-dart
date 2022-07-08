@@ -324,6 +324,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('JWT jwks url validation - login with new user', (configuration) async {
+    //autoConfirm app is configured to validate tokens with public key dtored in JWKS url
     final app = App(configuration);
     var newUserId = ObjectId();
     String username = "${generateRandomString(5)}@realm.io";
