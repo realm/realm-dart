@@ -303,18 +303,21 @@ Future<void> main([List<String>? args]) async {
     }, throws<RealmException>("failed to reset password for user $username"));
   }, appName: AppNames.autoConfirm);
 
-  baasTest('JWT public key validation - login with new user', (configuration) async {
+  baasTest('JWT validation by specified public key  - login with new user', (configuration) async {
     final app = App(configuration);
     var newUserId = ObjectId();
     String username = "${generateRandomString(5)}@realm.io";
     final jwt = JWT(
-      {"sub": "$newUserId", "name": username},
+      {
+        "sub": "$newUserId",
+        "name": username,
+        "company": "Realm",
+      },
       issuer: 'https://realm.io',
       audience: Audience(["mongodb.com"]),
     );
 
-    final rootFolder = Directory.current.absolute.path.replaceFirst(r"flutter\realm_flutter\tests", "");
-    String privateKey = File(_path.join(rootFolder, "test/data/jwt_keys/private.pem")).readAsStringSync();
+    String privateKey = File("test/data/jwt_keys/private.pem").readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
 
     print('Signed token: $token\n');
@@ -323,19 +326,23 @@ Future<void> main([List<String>? args]) async {
     expect(user.state, UserState.loggedIn);
   }, skip: isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS));
 
-  baasTest('JWT jwks url validation - login with new user', (configuration) async {
+  baasTest('JWT validation by using JWK URI - login with new user', (configuration) async {
     //autoConfirm app is configured to validate tokens with public key dtored in JWKS url
     final app = App(configuration);
     var newUserId = ObjectId();
     String username = "${generateRandomString(5)}@realm.io";
     final jwt = JWT(
-      {"sub": "$newUserId", "name": username},
+      {
+        "sub": "$newUserId",
+        "name": username,
+        "company": "Realm",
+      },
       issuer: 'https://realm.io',
       audience: Audience(["mongodb.com"]),
     );
     jwt.header = <String, dynamic>{"kid": "1"};
-    final rootFolder = Directory.current.absolute.path.replaceFirst(r"flutter\realm_flutter\tests", "");
-    String privateKey = File(_path.join(rootFolder, "test/data/jwt_keys/private.pem")).readAsStringSync();
+   
+    String privateKey = File("test/data/jwt_keys/private.pem").readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
     print('Signed token: $token\n');
     final credentials = Credentials.jwt(token);
