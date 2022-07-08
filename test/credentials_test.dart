@@ -321,7 +321,7 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.jwt(token);
     final user = await app.logIn(credentials);
     expect(user.state, UserState.loggedIn);
-  });
+  }, skip: isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS));
 
   baasTest('JWT jwks url validation - login with new user', (configuration) async {
     //autoConfirm app is configured to validate tokens with public key dtored in JWKS url
@@ -341,5 +341,7 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.jwt(token);
     final user = await app.logIn(credentials);
     expect(user.state, UserState.loggedIn);
-  }, appName: AppNames.autoConfirm, skip: Platform.environment["BAAS_JWKS_URL"] == null);
+  },
+      appName: AppNames.autoConfirm,
+      skip: Platform.environment["BAAS_JWKS_URL"] == null || (isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS)));
 }
