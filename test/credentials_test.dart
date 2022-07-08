@@ -338,7 +338,7 @@ Future<void> main([List<String>? args]) async {
     expect(user.profile.firstName, "John");
     expect(user.profile.lastName, "Doe");
     expect(user.profile["company"], "Realm");
-  }, skip: isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS));
+  }, skip: (isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS)) ? "No jwt_keys" : false);
 
   baasTest('JWT validation by using JWK URI - login with new user', (configuration) async {
     //autoConfirm app is configured to validate tokens with public key dtored in JWKS url
@@ -378,7 +378,9 @@ Future<void> main([List<String>? args]) async {
     expect(user.profile["company"], "Realm");
   },
       appName: AppNames.autoConfirm,
-      skip: Platform.environment["BAAS_JWKS_URL"] == null || (isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS)));
+      skip: (Platform.environment["BAAS_JWKS_URL"] == null || (isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS)))
+          ? "No jwt_keys"
+          : false);
 
   baasTest('JWT - login with existing user and edit profile', (configuration) async {
     final app = App(configuration);
@@ -441,7 +443,9 @@ Future<void> main([List<String>? args]) async {
     expect(user.profile["company"], "MongoDB");
   },
       appName: AppNames.autoConfirm,
-      skip: Platform.environment["BAAS_JWKS_URL"] == null || (isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS)));
+      skip: (Platform.environment["BAAS_JWKS_URL"] == null || (isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS)))
+          ? "No jwt_keys"
+          : false);
 
   baasTest('JWT with wrong signiture key - login fails', (configuration) async {
     final app = App(configuration);
@@ -464,6 +468,6 @@ Future<void> main([List<String>? args]) async {
     expect(() async {
       final user = await app.logIn(credentials);
     }, throws<RealmException>("crypto/rsa: verification error"));
-  }, skip: isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS));
+  }, skip: (isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS)) ? "No jwt_keys" : false);
   
 }

@@ -350,7 +350,7 @@ Future<void> baasTest(
   if (skip == null) {
     skip = url == null ? "BAAS URL not present" : false;
   } else if (skip is bool) {
-    skip = skip || url == null ? "BAAS URL not present" : false;
+    if (url == null) skip = "BAAS URL not present";
   }
 
   test(name, () async {
