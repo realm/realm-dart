@@ -14,7 +14,7 @@ This repository holds the source code for the Realm SDK for Flutterâ„¢ and Dartâ
     ```dart
     import 'package:realm/realm.dart';  // import realm package
 
-    part 'app.g.dart'; // declare a part file.
+    part 'car.g.dart'; // declare a part file.
 
     @RealmModel() // define a data model class named `_Car`.
     class _Car {
