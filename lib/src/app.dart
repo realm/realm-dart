@@ -116,13 +116,13 @@ class App {
   String get id => realmCore.appGetId(this);
 
   /// Create an app with a particular [AppConfiguration]
-  App(AppConfiguration configuration) : this._(_getApp(configuration));
+  App(AppConfiguration configuration) : this._(_createApp(configuration));
 
   App._(this._handle);
 
-  static AppHandle _getApp(AppConfiguration configuration) {
-    configuration.baseFilePath.createSync(recursive:  true);
-    return realmCore.getApp(configuration);
+  static AppHandle _createApp(AppConfiguration configuration) {
+    configuration.baseFilePath.createSync(recursive: true);
+    return realmCore.createApp(configuration);
   }
 
   /// Logs in a user with the given credentials.
@@ -148,6 +148,11 @@ class App {
   /// Removes a [user] and their local data from the device. If the user is logged in, they will be logged out in the process.
   Future<void> removeUser(User user) async {
     return await realmCore.removeUser(this, user);
+  }
+
+  /// Deletes a user and all its data from the server.
+  Future<void> deleteUser(User user) async {
+    return await realmCore.deleteUser(this, user);
   }
 
   /// Switches the [currentUser] to the one specified in [user].

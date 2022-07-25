@@ -1089,11 +1089,11 @@ class _RealmCore {
     });
   }
 
-  AppHandle getApp(AppConfiguration configuration) {
+  AppHandle createApp(AppConfiguration configuration) {
     final httpTransportHandle = _createHttpTransport(configuration.httpClient);
     final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
     final syncClientConfigHandle = _createSyncClientConfig(configuration);
-    final realmAppPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_get(appConfigHandle._pointer, syncClientConfigHandle._pointer));
+    final realmAppPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_create(appConfigHandle._pointer, syncClientConfigHandle._pointer));
     return AppHandle._(realmAppPtr);
   }
 
@@ -1612,6 +1612,20 @@ class _RealmCore {
     }
 
     throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
+  }
+
+  Future<void> deleteUser(App app, User user) {
+    final completer = Completer<void>();
+    _realmLib.invokeGetBool(
+        () => _realmLib.realm_app_delete_user(
+              app.handle._pointer,
+              user.handle._pointer,
+              Pointer.fromFunction(void_completion_callback),
+              completer.toPersistentHandle(),
+              _realmLib.addresses.realm_dart_delete_persistent_handle,
+            ),
+        "Delete user failed");
+    return completer.future;
   }
 }
 

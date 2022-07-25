@@ -1,0 +1,85 @@
+name: Flutter desktop tests
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: OS to execute on.
+        required: true
+        type: string
+      architecture:
+        description: Architecture to execute on.
+        required: false
+        type: string
+      app:
+        description: App name prefix
+        required: true
+        type: string
+      cluster:
+        description: Cluster name to deploy.
+        required: true
+        type: string
+
+env:
+  BAAS_URL: ${{ secrets.REALM_QA_URL }}
+  BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
+  BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+  BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
+  REALM_CI: true
+
+jobs:
+  flutter-tests:
+    runs-on: ${{ inputs.os == 'linux' && 'ubuntu' || inputs.os }}-latest
+    name: Flutter tests on ${{inputs.os  }}
+    env:
+      BAAS_CLUSTER: ${{ inputs.cluster }}
+      BAAS_DIFFERENTIATOR:  ${{ inputs.app }}${{ github.run_id }}${{ github.run_attempt }}
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: false
+
+      - name: Setup GTK
+        if: ${{ inputs.os == 'linux' }}
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libgtk-3-dev xvfb
+
+      - name: Setup Ninja
+        if: ${{ inputs.os == 'linux' }}
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Fetch artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: librealm-${{ inputs.os }}
+          path: binary/${{ inputs.os }}
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Enable Flutter Desktop support
+        run: flutter config --enable-${{ inputs.os }}-desktop
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # This will be a no-op under normal circumstances since the cluster would have been deployed
+      # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
+      - uses: realm/ci-actions/mdb-realm/deployApps@3f810b2d04e9dada2bde0b33ec90102e52a0b30a
+        with:
+          realmUrl: ${{ env.BAAS_URL }}
+          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+          projectId: ${{ env.BAAS_PROJECT_ID }}
+          apiKey: ${{ env.BAAS_API_KEY }}
+          privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
+          clusterName: ${{ env.BAAS_CLUSTER }}
+          useExistingCluster: true
+
+      - name: Run tests
+        run: ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ inputs.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
+        working-directory: ./flutter/realm_flutter/tests
