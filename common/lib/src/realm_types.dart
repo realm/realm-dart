@@ -80,7 +80,7 @@ class RealmStateError extends StateError implements RealmError {
 }
 
 /// @nodoc
-class Decimal128 {} // TODO! ???
+class Decimal128 {} // TODO Support decimal128 datatype
 
 /// @nodoc
 class RealmObjectMarker {}
