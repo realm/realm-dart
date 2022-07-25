@@ -78,9 +78,8 @@ class RealmUnsupportedSetError extends UnsupportedError implements RealmError {
 class RealmStateError extends StateError implements RealmError {
   RealmStateError(super.message);
 }
-
 /// @nodoc
-class Decimal128 {} // TODO Support decimal128 datatype
+class Decimal128 {} // TODO Support decimal128 datatype https://github.com/realm/realm-dart/issues/725
 
 /// @nodoc
 class RealmObjectMarker {}
