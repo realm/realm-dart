@@ -99,9 +99,7 @@ class RealmAny {
   const RealmAny.float(Float f) : this._(f);
   const RealmAny.double(double d) : this._(d);
   const RealmAny.uint8List(Uint8List data) : this._(data);
-  // TODO: RealmObjectMarker introduced to avoid dependency inversion.
-  // It would be better if we could use RealmObject directly
-  // https://github.com/realm/realm-dart/issues/701
+  // TODO: RealmObjectMarker introduced to avoid dependency inversion. It would be better if we could use RealmObject directly. https://github.com/realm/realm-dart/issues/701
   const RealmAny.realmObject(RealmObjectMarker o) : this._(o);
   const RealmAny.dateTime(DateTime timestamp) : this._(timestamp);
   const RealmAny.objectId(ObjectId id) : this._(id);
