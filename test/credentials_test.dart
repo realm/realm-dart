@@ -321,7 +321,7 @@ Future<void> main([List<String>? args]) async {
       issuer: 'https://realm.io',
       audience: Audience(["mongodb.com"]),
     );
-
+print(Directory.current.path);
     String privateKey = File("test_resources/jwt_keys/private_key.pem").readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
     print('Signed token: $token\n');

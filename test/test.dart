@@ -208,6 +208,7 @@ Future<void> setupTests(List<String>? args) async {
   if (Directory.current.path.endsWith(Platform.pathSeparator + 'test')) {
     Directory.current = Directory.current.parent;
   }
+  print(Directory.current.path);
   setUpAll(() async => await setupBaas());
 
   setUp(() {
