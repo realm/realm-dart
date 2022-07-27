@@ -205,6 +205,9 @@ void xtest(String? name, dynamic Function() testFunction) {
 Future<void> setupTests(List<String>? args) async {
   arguments = parseTestArguments(args);
   testName = arguments["name"];
+  if (Directory.current.path.endsWith(Platform.pathSeparator + 'test')) {
+    Directory.current = Directory.current.parent;
+  }
   setUpAll(() async => await setupBaas());
 
   setUp(() {
@@ -329,7 +332,7 @@ Future<void> setupBaas() async {
       ? BaasClient.docker(baasUrl, differentiator)
       : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
   if (!isFlutterPlatform || (Platform.isWindows || Platform.isLinux)) {
-    client.publicRSAKey = File("test/data/jwt_keys/public_key.pem").readAsStringSync();
+    client.publicRSAKey = File("test_resources/jwt_keys/public_key.pem").readAsStringSync();
   }
   client.jwksUrl = jwksUrl ?? "";
 

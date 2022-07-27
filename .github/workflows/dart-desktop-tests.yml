@@ -25,7 +25,7 @@ env:
   BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
   BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
   BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
-  BAAS_JWKS_URL: https://raw.githubusercontent.com/realm/realm-dart/${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}/test/data/jwt_keys/jwks.json
+  BAAS_JWKS_URL: https://raw.githubusercontent.com/realm/realm-dart/${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}/test_resources/jwt_keys/jwks.json
   REALM_CI: true
 
 jobs:

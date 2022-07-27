@@ -322,7 +322,7 @@ Future<void> main([List<String>? args]) async {
       audience: Audience(["mongodb.com"]),
     );
 
-    String privateKey = File("test/data/jwt_keys/private_key.pem").readAsStringSync();
+    String privateKey = File("test_resources/jwt_keys/private_key.pem").readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
     print('Signed token: $token\n');
     final credentials = Credentials.jwt(token);
@@ -360,7 +360,7 @@ Future<void> main([List<String>? args]) async {
       audience: Audience(["mongodb.com"]),
     )..header = <String, dynamic>{"kid": "1"};
 
-    String privateKey = File("test/data/jwt_keys/private_key.pem").readAsStringSync();
+    String privateKey = File("test_resources/jwt_keys/private_key.pem").readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
     print('Signed token: $token\n');
     final credentials = Credentials.jwt(token);
@@ -403,7 +403,7 @@ Future<void> main([List<String>? args]) async {
       audience: Audience(["mongodb.com"]),
     )..header = <String, dynamic>{"kid": "1"};
 
-    String privateKey = File("test/data/jwt_keys/private_key.pem").readAsStringSync();
+    String privateKey = File("test_resources/jwt_keys/private_key.pem").readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
     print('Signed token: $token\n');
     await app.logIn(Credentials.jwt(token));
@@ -460,7 +460,7 @@ Future<void> main([List<String>? args]) async {
       audience: Audience(["mongodb.com"]),
     );
 
-    String privateKey = File("test/data/jwt_keys/wrong_private_key.pem").readAsStringSync();
+    String privateKey = File("test_resources/jwt_keys/wrong_private_key.pem").readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
 
     print('Signed token: $token\n');

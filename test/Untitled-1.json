@@ -1,0 +1,447 @@
+{
+    "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+    "id": "1599198",
+    "self": "https://jira.mongodb.org/rest/api/2/issue/1599198",
+    "key": "RDART-4",
+    "fields": {
+        "customfield_14270": null,
+        "customfield_20550": null,
+        "customfield_20276": null,
+        "customfield_20152": null,
+        "customfield_14275": null,
+        "customfield_16452": null,
+        "customfield_20153": null,
+        "customfield_14272": null,
+        "customfield_16457": null,
+        "fixVersions": [],
+        "resolution": {
+            "self": "https://jira.mongodb.org/rest/api/2/resolution/9",
+            "id": "9",
+            "description": "GreenHopper Managed Resolution. Grab-bag resolution for other things (e.g.: re-directing users to google groups)",
+            "name": "Done"
+        },
+        "customfield_18358": null,
+        "customfield_18359": null,
+        "customfield_19162": null,
+        "lastViewed": "2022-07-26T13:04:04.680+0000",
+        "customfield_19950": null,
+        "customfield_19951": null,
+        "customfield_14263": {
+            "self": "https://jira.mongodb.org/rest/api/2/customFieldOption/21015",
+            "value": "?",
+            "id": "21015",
+            "disabled": false
+        },
+        "customfield_18063": null,
+        "customfield_19152": null,
+        "customfield_20263": null,
+        "customfield_19153": null,
+        "customfield_14261": "2022-02-01",
+        "customfield_13450": null,
+        "customfield_19550": null,
+        "customfield_14262": "2022-06-06",
+        "customfield_11151": "2021-01-25 11:00:04.0",
+        "customfield_18066": null,
+        "customfield_20382": null,
+        "customfield_13850": null,
+        "customfield_14266": null,
+        "priority": {
+            "self": "https://jira.mongodb.org/rest/api/2/priority/3",
+            "iconUrl": "https://jira.mongodb.org/images/icons/priorities/major.svg",
+            "name": "Major - P3",
+            "id": "3"
+        },
+        "customfield_10860": "ghx-label-9",
+        "labels": [
+            "MDBW22"
+        ],
+        "customfield_10856": 38.0,
+        "customfield_10857": null,
+        "versions": [],
+        "customfield_10858": "Phase 3: Sync Beta - MDBW",
+        "customfield_10859": {
+            "self": "https://jira.mongodb.org/rest/api/2/customFieldOption/10640",
+            "value": "To Do",
+            "id": "10640",
+            "disabled": false
+        },
+        "issuelinks": [
+            {
+                "id": "896679",
+                "self": "https://jira.mongodb.org/rest/api/2/issueLink/896679",
+                "type": {
+                    "id": "10011",
+                    "name": "Depends",
+                    "inward": "is depended on by",
+                    "outward": "depends on",
+                    "self": "https://jira.mongodb.org/rest/api/2/issueLinkType/10011"
+                },
+                "inwardIssue": {
+                    "id": "996276",
+                    "key": "RDART-1",
+                    "self": "https://jira.mongodb.org/rest/api/2/issue/996276",
+                    "fields": {
+                        "summary": "Flutter/Dart SDK",
+                        "status": {
+                            "self": "https://jira.mongodb.org/rest/api/2/status/10045",
+                            "description": "",
+                            "iconUrl": "https://jira.mongodb.org/images/icons/statuses/generic.png",
+                            "name": "Ready for Work",
+                            "id": "10045",
+                            "statusCategory": {
+                                "self": "https://jira.mongodb.org/rest/api/2/statuscategory/2",
+                                "id": 2,
+                                "key": "new",
+                                "colorName": "blue-gray",
+                                "name": "To Do"
+                            }
+                        },
+                        "priority": {
+                            "self": "https://jira.mongodb.org/rest/api/2/priority/3",
+                            "iconUrl": "https://jira.mongodb.org/images/icons/priorities/major.svg",
+                            "name": "Major - P3",
+                            "id": "3"
+                        },
+                        "issuetype": {
+                            "self": "https://jira.mongodb.org/rest/api/2/issuetype/11",
+                            "id": "11",
+                            "description": "Created by Jira Software - do not edit or delete. Issue type for a big user story that needs to be broken down.",
+                            "iconUrl": "https://jira.mongodb.org/secure/viewavatar?size=xsmall&avatarId=14707&avatarType=issuetype",
+                            "name": "Epic",
+                            "subtask": false,
+                            "avatarId": 14707
+                        }
+                    }
+                }
+            },
+            {
+                "id": "1089825",
+                "self": "https://jira.mongodb.org/rest/api/2/issueLink/1089825",
+                "type": {
+                    "id": "10820",
+                    "name": "Initiative",
+                    "inward": "included in Initiative",
+                    "outward": "includes Epic(s)",
+                    "self": "https://jira.mongodb.org/rest/api/2/issueLinkType/10820"
+                },
+                "inwardIssue": {
+                    "id": "1867060",
+                    "key": "INIT-254",
+                    "self": "https://jira.mongodb.org/rest/api/2/issue/1867060",
+                    "fields": {
+                        "summary": "Realm Dart/Flutter SDK",
+                        "status": {
+                            "self": "https://jira.mongodb.org/rest/api/2/status/3",
+                            "description": "This issue is being actively worked on at the moment by the assignee.",
+                            "iconUrl": "https://jira.mongodb.org/images/icons/statuses/inprogress.png",
+                            "name": "In Progress",
+                            "id": "3",
+                            "statusCategory": {
+                                "self": "https://jira.mongodb.org/rest/api/2/statuscategory/4",
+                                "id": 4,
+                                "key": "indeterminate",
+                                "colorName": "yellow",
+                                "name": "In Progress"
+                            }
+                        },
+                        "priority": {
+                            "self": "https://jira.mongodb.org/rest/api/2/priority/3",
+                            "iconUrl": "https://jira.mongodb.org/images/icons/priorities/major.svg",
+                            "name": "Major - P3",
+                            "id": "3"
+                        },
+                        "issuetype": {
+                            "self": "https://jira.mongodb.org/rest/api/2/issuetype/13800",
+                            "id": "13800",
+                            "description": "",
+                            "iconUrl": "https://jira.mongodb.org/secure/viewavatar?size=xsmall&avatarId=14704&avatarType=issuetype",
+                            "name": "Initiative",
+                            "subtask": false,
+                            "avatarId": 14704
+                        }
+                    }
+                }
+            },
+            {
+                "id": "1176720",
+                "self": "https://jira.mongodb.org/rest/api/2/issueLink/1176720",
+                "type": {
+                    "id": "10520",
+                    "name": "Problem/Incident",
+                    "inward": "is caused by",
+                    "outward": "causes",
+                    "self": "https://jira.mongodb.org/rest/api/2/issueLinkType/10520"
+                },
+                "outwardIssue": {
+                    "id": "1971356",
+                    "key": "TSEXP-1051",
+                    "self": "https://jira.mongodb.org/rest/api/2/issue/1971356",
+                    "fields": {
+                        "summary": "Investigate RDART-4: Phase 3 - Sync MVP Alpha",
+                        "status": {
+                            "self": "https://jira.mongodb.org/rest/api/2/status/3",
+                            "description": "This issue is being actively worked on at the moment by the assignee.",
+                            "iconUrl": "https://jira.mongodb.org/images/icons/statuses/inprogress.png",
+                            "name": "In Progress",
+                            "id": "3",
+                            "statusCategory": {
+                                "self": "https://jira.mongodb.org/rest/api/2/statuscategory/4",
+                                "id": 4,
+                                "key": "indeterminate",
+                                "colorName": "yellow",
+                                "name": "In Progress"
+                            }
+                        },
+                        "priority": {
+                            "self": "https://jira.mongodb.org/rest/api/2/priority/3",
+                            "iconUrl": "https://jira.mongodb.org/images/icons/priorities/major.svg",
+                            "name": "Major - P3",
+                            "id": "3"
+                        },
+                        "issuetype": {
+                            "self": "https://jira.mongodb.org/rest/api/2/issuetype/12405",
+                            "id": "12405",
+                            "description": "",
+                            "iconUrl": "https://jira.mongodb.org/secure/viewavatar?size=xsmall&avatarId=17800&avatarType=issuetype",
+                            "name": "Readiness",
+                            "subtask": false,
+                            "avatarId": 17800
+                        }
+                    }
+                }
+            }
+        ],
+        "customfield_19150": null,
+        "customfield_19151": null,
+        "assignee": {
+            "self": "https://jira.mongodb.org/rest/api/2/user?username=lubo.blagoev%40mongodb.com",
+            "name": "lubo.blagoev@mongodb.com",
+            "key": "lubo.blagoev",
+            "emailAddress": "lubo.blagoev@mongodb.com",
+            "avatarUrls": {
+                "48x48": "https://jira.mongodb.org/secure/useravatar?avatarId=10122",
+                "24x24": "https://jira.mongodb.org/secure/useravatar?size=small&avatarId=10122",
+                "16x16": "https://jira.mongodb.org/secure/useravatar?size=xsmall&avatarId=10122",
+                "32x32": "https://jira.mongodb.org/secure/useravatar?size=medium&avatarId=10122"
+            },
+            "displayName": "Lubo Blagoev",
+            "active": true,
+            "timeZone": "UTC"
+        },
+        "status": {
+            "self": "https://jira.mongodb.org/rest/api/2/status/6",
+            "description": "The issue is considered finished, the resolution is correct. Issues which are closed can be reopened.",
+            "iconUrl": "https://jira.mongodb.org/images/icons/statuses/closed.png",
+            "name": "Closed",
+            "id": "6",
+            "statusCategory": {
+                "self": "https://jira.mongodb.org/rest/api/2/statuscategory/3",
+                "id": 3,
+                "key": "done",
+                "colorName": "green",
+                "name": "Done"
+            }
+        },
+        "customfield_22159": null,
+        "customfield_20377": null,
+        "components": [],
+        "customfield_22278": null,
+        "customfield_17480": null,
+        "customfield_14252": null,
+        "customfield_10050": "0.0",
+        "customfield_10051": [
+            "brian.munkholm@mongodb.com(brian.munkholm)",
+            "lubo.blagoev@mongodb.com(lubo.blagoev)"
+        ],
+        "customfield_10052": "47260800",
+        "customfield_10053": "3_*:*_1_*:*_11553040000_*|*_6_*:*_1_*:*_0_*|*_10451_*:*_1_*:*_9414919000_*|*_10045_*:*_1_*:*_578000_*|*_10038_*:*_1_*:*_22732945000",
+        "customfield_14254": "1|hyr2in:",
+        "customfield_16950": null,
+        "customfield_10054": null,
+        "customfield_10055": null,
+        "customfield_10056": "brian.munkholm@mongodb.com(brian.munkholm)",
+        "customfield_10057": "true",
+        "customfield_14258": null,
+        "customfield_14259": null,
+        "customfield_13956": null,
+        "creator": {
+            "self": "https://jira.mongodb.org/rest/api/2/user?username=brian.munkholm%40mongodb.com",
+            "name": "brian.munkholm@mongodb.com",
+            "key": "brian.munkholm",
+            "emailAddress": "brian.munkholm@mongodb.com",
+            "avatarUrls": {
+                "48x48": "https://jira.mongodb.org/secure/useravatar?ownerId=brian.munkholm&avatarId=23432",
+                "24x24": "https://jira.mongodb.org/secure/useravatar?size=small&ownerId=brian.munkholm&avatarId=23432",
+                "16x16": "https://jira.mongodb.org/secure/useravatar?size=xsmall&ownerId=brian.munkholm&avatarId=23432",
+                "32x32": "https://jira.mongodb.org/secure/useravatar?size=medium&ownerId=brian.munkholm&avatarId=23432"
+            },
+            "displayName": "Brian Munkholm",
+            "active": true,
+            "timeZone": "Europe/Copenhagen"
+        },
+        "customfield_17476": null,
+        "customfield_21450": null,
+        "subtasks": [],
+        "customfield_17474": null,
+        "customfield_17473": null,
+        "customfield_15851": null,
+        "customfield_13550": null,
+        "customfield_17479": null,
+        "reporter": {
+            "self": "https://jira.mongodb.org/rest/api/2/user?username=brian.munkholm%40mongodb.com",
+            "name": "brian.munkholm@mongodb.com",
+            "key": "brian.munkholm",
+            "emailAddress": "brian.munkholm@mongodb.com",
+            "avatarUrls": {
+                "48x48": "https://jira.mongodb.org/secure/useravatar?ownerId=brian.munkholm&avatarId=23432",
+                "24x24": "https://jira.mongodb.org/secure/useravatar?size=small&ownerId=brian.munkholm&avatarId=23432",
+                "16x16": "https://jira.mongodb.org/secure/useravatar?size=xsmall&ownerId=brian.munkholm&avatarId=23432",
+                "32x32": "https://jira.mongodb.org/secure/useravatar?size=medium&ownerId=brian.munkholm&avatarId=23432"
+            },
+            "displayName": "Brian Munkholm",
+            "active": true,
+            "timeZone": "Europe/Copenhagen"
+        },
+        "customfield_13552": null,
+        "customfield_15850": "{summaryBean=com.atlassian.jira.plugin.devstatus.rest.SummaryBean@1e794faa[summary={pullrequest=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@3d024230[overall=PullRequestOverallBean{stateCount=0, state='OPEN', details=PullRequestOverallDetails{openCount=0, mergedCount=0, declinedCount=0}},byInstanceType={}], build=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@4c7560fe[overall=com.atlassian.jira.plugin.devstatus.summary.beans.BuildOverallBean@63c9a882[failedBuildCount=0,successfulBuildCount=0,unknownBuildCount=0,count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>],byInstanceType={}], review=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@48097fba[overall=com.atlassian.jira.plugin.devstatus.summary.beans.ReviewsOverallBean@7b5d9164[stateCount=0,state=<null>,dueDate=<null>,overDue=false,count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>],byInstanceType={}], deployment-environment=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@1c487c61[overall=com.atlassian.jira.plugin.devstatus.summary.beans.DeploymentOverallBean@32eb4ad2[topEnvironments=[],showProjects=false,successfulCount=0,count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>],byInstanceType={}], repository=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@311c179a[overall=com.atlassian.jira.plugin.devstatus.summary.beans.CommitOverallBean@265d766c[count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>],byInstanceType={}], branch=com.atlassian.jira.plugin.devstatus.rest.SummaryItemBean@79a9bdb2[overall=com.atlassian.jira.plugin.devstatus.summary.beans.BranchOverallBean@117cc58f[count=0,lastUpdated=<null>,lastUpdatedTimestamp=<null>],byInstanceType={}]},errors=[],configErrors=[]], devSummaryJson={\"cachedValue\":{\"errors\":[],\"configErrors\":[],\"summary\":{\"pullrequest\":{\"overall\":{\"count\":0,\"lastUpdated\":null,\"stateCount\":0,\"state\":\"OPEN\",\"details\":{\"openCount\":0,\"mergedCount\":0,\"declinedCount\":0,\"total\":0},\"open\":true},\"byInstanceType\":{}},\"build\":{\"overall\":{\"count\":0,\"lastUpdated\":null,\"failedBuildCount\":0,\"successfulBuildCount\":0,\"unknownBuildCount\":0},\"byInstanceType\":{}},\"review\":{\"overall\":{\"count\":0,\"lastUpdated\":null,\"stateCount\":0,\"state\":null,\"dueDate\":null,\"overDue\":false,\"completed\":false},\"byInstanceType\":{}},\"deployment-environment\":{\"overall\":{\"count\":0,\"lastUpdated\":null,\"topEnvironments\":[],\"showProjects\":false,\"successfulCount\":0},\"byInstanceType\":{}},\"repository\":{\"overall\":{\"count\":0,\"lastUpdated\":null},\"byInstanceType\":{}},\"branch\":{\"overall\":{\"count\":0,\"lastUpdated\":null},\"byInstanceType\":{}}}},\"isStale\":false}}",
+        "customfield_10555": null,
+        "customfield_10556": 0.0,
+        "customfield_10557": null,
+        "customfield_10558": "9223372036854775807",
+        "customfield_10559": null,
+        "votes": {
+            "self": "https://jira.mongodb.org/rest/api/2/issue/RDART-4/votes",
+            "votes": 0,
+            "hasVoted": false
+        },
+        "customfield_20358": null,
+        "customfield_20359": null,
+        "issuetype": {
+            "self": "https://jira.mongodb.org/rest/api/2/issuetype/11",
+            "id": "11",
+            "description": "Created by Jira Software - do not edit or delete. Issue type for a big user story that needs to be broken down.",
+            "iconUrl": "https://jira.mongodb.org/secure/viewavatar?size=xsmall&avatarId=14707&avatarType=issuetype",
+            "name": "Epic",
+            "subtask": false,
+            "avatarId": 14707
+        },
+        "customfield_22653": null,
+        "customfield_20078": null,
+        "customfield_18950": null,
+        "customfield_17465": null,
+        "customfield_14352": null,
+        "customfield_17463": null,
+        "customfield_14350": "1|hyqorr:",
+        "customfield_12055": null,
+        "customfield_14355": null,
+        "customfield_17469": null,
+        "customfield_18955": null,
+        "customfield_10031": null,
+        "customfield_17468": null,
+        "project": {
+            "self": "https://jira.mongodb.org/rest/api/2/project/19680",
+            "id": "19680",
+            "key": "RDART",
+            "name": "Realm Dart SDK",
+            "projectTypeKey": "software",
+            "avatarUrls": {
+                "48x48": "https://jira.mongodb.org/secure/projectavatar?pid=19680&avatarId=28502",
+                "24x24": "https://jira.mongodb.org/secure/projectavatar?size=small&pid=19680&avatarId=28502",
+                "16x16": "https://jira.mongodb.org/secure/projectavatar?size=xsmall&pid=19680&avatarId=28502",
+                "32x32": "https://jira.mongodb.org/secure/projectavatar?size=medium&pid=19680&avatarId=28502"
+            },
+            "projectCategory": {
+                "self": "https://jira.mongodb.org/rest/api/2/projectCategory/11210",
+                "id": "11210",
+                "description": "Realm projects that are synced to public github repos.",
+                "name": "Realm Public"
+            }
+        },
+        "customfield_17467": null,
+        "customfield_10550": null,
+        "customfield_17466": null,
+        "customfield_10551": null,
+        "customfield_18951": null,
+        "customfield_18952": null,
+        "customfield_10553": null,
+        "customfield_14995": null,
+        "customfield_10554": null,
+        "customfield_14996": null,
+        "customfield_18954": null,
+        "resolutiondate": "2022-06-15T06:18:05.000+0000",
+        "workratio": -1,
+        "customfield_21556": 10800000,
+        "customfield_17450": null,
+        "watches": {
+            "self": "https://jira.mongodb.org/rest/api/2/issue/RDART-4/watchers",
+            "watchCount": 1,
+            "isWatching": false
+        },
+        "customfield_21550": null,
+        "customfield_18263": null,
+        "customfield_20062": {
+            "self": "https://jira.mongodb.org/rest/api/2/customFieldOption/23741",
+            "value": "Green",
+            "id": "23741",
+            "disabled": false
+        },
+        "created": "2021-01-25T11:00:04.000+0000",
+        "customfield_18264": null,
+        "customfield_19353": null,
+        "customfield_20063": null,
+        "customfield_13653": "Engineers: Desi, Lubo, Kasper, Yavor (80%), Nikola (80%)\r\n\r\n2022-06-14\r\n* Beta released for MDBW on time.\r\n* Closing this phase.\r\n\r\n----\r\n\r\n2022-06-1\r\n\r\nOn track for release before MDBW.\r\n\r\nLast week\r\n * Investigated ffigen 5 and it has a bug so we postponed migration.\r\n * Done SyncClient error handler\r\n * Fix default paths on Flutter Desktop and Dart\r\n * Investigated Windows performance issues. No fix found and needs more work.\r\n * Done SyncSession connection state notifications\r\n * Use NativeFinalizer for session progress token\r\n * Do pre-release\r\n * Do a final release for MDBW \r\n\r\nThis week\r\n * Fixing bugs we found for the MDBW\r\n * Fix default paths on Flutter Desktop and Dart\r\n * Use NativeFinalizer for session progress token\r\n * Do a pre-release\r\n * Do a final release of Realm Flutter Beta\r\n \r\n\r\n----\r\n\r\n2022-05-24\r\nOn track for release before MDBW.\r\n\r\nLast week\r\n \r\n * Done. SyncSession APIs\r\n * Support DateTime properties.\r\n * Migrated to Flutter 3 and Dart 2.17\r\n * Worked on SyncClient error handler\r\n * Done SyncClient logger support\r\n * Fixed User equals operator\r\n * Run generator tests on all platforms\r\n * Fix path for flexible sync configs\r\n * Expose appId on App\r\n * Added CI logging to investigate slow tests runs\r\n\r\nNext week\r\n * Investigate ffigen and fix Windows paths support.\r\n * Review SyncClient error handler\r\n * Fix default paths on Flutter Desktop and Dart\r\n * Investigate Windows performance issues\r\n * Support SyncSession connection state notifications\r\n * Use NativeFinalizer for session progress token\r\n * Do pre-release\r\n * Do a final release for MDBW \r\n\r\n----\r\n2022-05-18\r\n\r\nLast week:\r\n \r\n * Done Subscriptions API\r\n * Refactored CI jobs to run on different clusters\r\n * Worked on SyncSession APIs\r\n * Completed the User API\r\n * Support DateTime properties\r\n\r\nThis week:\r\n \r\n * Review SyncSession API\r\n * Work on SyncClient logger callback\r\n * Work on SyncClient error handler callback\r\n * Review DateTime properties\r\n * Enable CI build on all architectures to prepare (required for release)\r\n * Migrate to Flutter 3 and Dart 2.17 and remove an internal hacky workaround for a Dart bug.\r\n\r\n----\r\n2022-05-10\r\n\r\nLast week:\r\n * Completed user APIs.\r\n * Completed cmake build improvements\r\n * Completed iOS transition to dynamic library\r\n * Subscriptions APIs are in review \r\n * Fixed crash on app events\r\n\r\nThis week:\r\n * Continue with reviewing Subscriptions APIs\r\n * Support Sync client configuration\r\n * Enable CI jobs on different clusters\r\n * Support Sync Session wait for upload and download events\r\n * Support for user device id, auth provider, profile data\r\n * Support Sync session state, users, get file path, pause and resume.\r\n\r\n----\r\n2022-05-04:\r\n\r\nLast week:\r\n * Continued with Subscriptions API.\r\n * Manually test EmailPassowrd auth provider. We found a critical bug in app events resulting in a crash\r\n * Investigate handling callbacks from arbitrary threads. (Needed for all flx sync callbacks)\r\n * Continue on App and User APIs\r\n\r\nThis week:\r\n * User APIs are in review. (Users custom data, linking credentials, getting user id and identities, user logout)\r\n * Continue with Cmake build improvements\r\n * Support for DateTime type is in review\r\n * Continue with SubscriptionsAPI\r\n * Investigate crash on app events.\r\n\r\n----\r\n2022-04-26:\r\n\r\nLast week:\r\n * Completed App login, logout, get all users, support current user, EmailPasswordProvider\r\n * Started migrations support. It turned out we have some more work to support it. But no showstoppers\r\n * Semi-automatic release process is in review.\r\n * Made progress on the Subscriptions APIs.\r\n * Introduced CMake presets and fixed various suboptimal solutions. Moved to a dynamic lib on iOS - reduces our binary size and enables link time optimizations.\r\n\r\nThis week:\r\n * Continue with Subscriptions API.\r\n * Manually test EmailPassowrd auth provider. No automation since this one is difficult to automate.\r\n * Investigate handling callbacks from arbitrary threads. (Needed for all flx sync callbacks)\r\n * Continue on App and User APIs\r\n\r\n----\r\n2022-04-20:\r\n\r\nLast week:\r\n Support EmailPasswordAuthProvider - in review\r\n Support App login, logout, get all users, support current user - in review\r\n\r\nThis week:\r\n  Support App remove user, switch user, refresh custom data, \r\n  Add tests for App functionality\r\n  Flexible sync config\r\n  Start on Subscriptions API\r\n  Automate releasing\r\n  Start migrations support\r\n----\r\n2022-04-13:\r\n\r\nWe are at reduced capacity this sprint due to holidays in Copenhagen.\r\n * Continue with Email/Password provider\r\n * Support User logging/logout\r\n * Support App caching and users\r\n * Added Application and App config support\r\n * Added support for SyncClient config\r\n * Added anonymous auth provider\r\n * Added support for uuid and objectid types\r\n * Added Realm compact on open\r\n * Added data init callback support on open\r\n * Implemented http transport\r\n * Refactored CI workflows and added support for BASS server\r\n * Refactored Realm Configuration instance to be immutable\r\n * Refactored project tests\r\n\r\n----\r\n2022-03-29:\r\nProject Status: YELLOW (tight scope with no capacity for delays)\r\n * We have scoped this phase to target a useful subset of Sync suitable for announcement as a beta at MDBW. The full scope is captured in this Epic.\r\n * Yavor and Nikola from the .NET team will help out with 80% capacity until MDBW.\r\n * We are now doing weekly sprints and the detailed tasks can be seen in the [team sprint board|https://jira.mongodb.org/secure/RapidBoard.jspa?rapidView=1802&projectKey=RDART].\r\n\r\n----\r\n2022-03-15:\r\n * Support for remove all objects by type\r\n * Support realm.write should return a value.\r\n * Support FIFO files paths\r\n * Investigate Dart static meta programming\r\n * Support for dart init function on realm open\r\n * Support disabling format upgrade\r\n * Implement sync http transport for Dart\r\n * Support realm compact on open\r\n\r\n----\r\n2022-03-01:\r\n * Plan all tasks in this phase.\r\n * Refactor collection support in data models so we return a custom list type instead of Dart Lists (in review)\r\n * Added support for inMemory realms. (in review)\r\n * Added Flutter Linux Desktop support (in review)\r\n * Support for remove all objects by type\r\n * Support realm.write should return a value.\r\n * Support FIFO files paths.\r\n\r\n----\r\n2022-02-22:\r\nDone:\r\n * Added Realm Results notifications support \r\n * Added Realm Lists notifications support\r\n * Added Realm single object change notifications are in review\r\n\r\nPlans:\r\n * Plan all tasks in this phase.\r\n * Refactored our tests into multiple files - better maintainability (in review)\r\n * We plan to refactor collection support in data models so we return a custom list type instead of Dart Lists\r\n\r\n----\r\n2022-02-08:\r\nPlans:\r\n * Support queries on lists of realm object\r\n * Relaxed model primary key definition to not require final field.\r\n * Results notifications support is almost ready, we are investigating a sporadic crash triggered of our usage of threads\r\n * We enabled a CI job for our generator tests. \r\n * Plan all tasks in this phase.\r\n\r\n----\r\n2022-02-01:\r\nPlans:\r\n * Plan all tasks in this phase.\r\n * Finish review of notifications\r\n * For other tasks see the [planned sprint|https://jira.mongodb.org/secure/RapidBoard.jspa?rapidView=1802&view=detail]",
+        "updated": "2022-06-15T06:18:23.000+0000",
+        "customfield_14050": null,
+        "customfield_18254": "",
+        "customfield_14051": null,
+        "customfield_20176": null,
+        "customfield_20177": null,
+        "customfield_14450": null,
+        "customfield_14451": null,
+        "customfield_20175": null,
+        "customfield_19463": null,
+        "customfield_12550": "2|hzk2zj:",
+        "description": "Phase 3 of Flutter Support.\r\nSee Scope in [master Epic|https://jira.mongodb.org/browse/RDART-1].\r\n\r\n* Minimal API's to support sync MVP Alpha\r\n",
+        "customfield_14452": null,
+        "customfield_12551": [],
+        "customfield_10257": null,
+        "customfield_17959": null,
+        "customfield_17958": null,
+        "attachment": [],
+        "customfield_20965": null,
+        "customfield_20963": 49.0,
+        "customfield_20964": 49.0,
+        "summary": "Phase 3 - Sync Beta - MDBW",
+        "customfield_20167": null,
+        "customfield_20288": null,
+        "customfield_20289": null,
+        "customfield_20287": null,
+        "customfield_18360": null,
+        "customfield_16463": null,
+        "customfield_18361": null,
+        "customfield_17551": null,
+        "customfield_18362": null,
+        "customfield_20283": null,
+        "customfield_11450": null,
+        "customfield_15654": null,
+        "customfield_16467": null,
+        "customfield_14166": null,
+        "customfield_11452": null,
+        "customfield_15651": null,
+        "customfield_16466": null,
+        "customfield_11451": null,
+        "customfield_11453": null,
+        "customfield_15655": null,
+        "customfield_15656": null,
+        "environment": null,
+        "duedate": null,
+        "customfield_19050": null,
+        "comment": {
+            "comments": [],
+            "maxResults": 0,
+            "total": 0,
+            "startAt": 0
+        },
+        "customfield_20279": null
+    }
+}
