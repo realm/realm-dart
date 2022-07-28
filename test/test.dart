@@ -209,6 +209,9 @@ Future<void> setupTests(List<String>? args) async {
     Directory.current = Directory.current.parent;
   }
   print(Directory.current.path);
+  await for (var entity in Directory.current.list(recursive: true, followLinks: true)) {
+    print(entity.path);
+  }
   setUpAll(() async => await setupBaas());
 
   setUp(() {
