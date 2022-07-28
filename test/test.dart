@@ -207,10 +207,9 @@ void xtest(String? name, dynamic Function() testFunction) {
 Future<void> setupTests(List<String>? args) async {
   arguments = parseTestArguments(args);
   testName = arguments["name"];
-  await for (var entity in Directory.current.list(recursive: true, followLinks: true)) {
-    print(entity.path);
-  }
+
   rootDir = arguments[rootTestDirectory] ?? "";
+  print("rootDir: $rootDir");
 
   setUpAll(() async => await setupBaas());
 
