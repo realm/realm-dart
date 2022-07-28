@@ -321,8 +321,8 @@ Future<void> main([List<String>? args]) async {
       issuer: 'https://realm.io',
       audience: Audience(["mongodb.com"]),
     );
-print(Directory.current.path);
-    String privateKey = File("test_resources/jwt_keys/private_key.pem").readAsStringSync();
+    print(Directory.current.path);
+    String privateKey = File("$rootDir/test/test_resources/jwt_keys/private_key.pem").readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
     print('Signed token: $token\n');
     final credentials = Credentials.jwt(token);
@@ -360,7 +360,7 @@ print(Directory.current.path);
       audience: Audience(["mongodb.com"]),
     )..header = <String, dynamic>{"kid": "1"};
 
-    String privateKey = File("test_resources/jwt_keys/private_key.pem").readAsStringSync();
+    String privateKey = File("$rootDir/test/test_resources/jwt_keys/private_key.pem").readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
     print('Signed token: $token\n');
     final credentials = Credentials.jwt(token);
@@ -376,8 +376,7 @@ print(Directory.current.path);
     expect(user.profile.firstName, "John");
     expect(user.profile.lastName, "Doe");
     expect(user.profile["company"], "Realm");
-  },
-      appName: AppNames.autoConfirm);
+  }, appName: AppNames.autoConfirm);
 
   baasTest('JWT - login with existing user and edit profile', (configuration) async {
     final app = App(configuration);
@@ -400,7 +399,7 @@ print(Directory.current.path);
       audience: Audience(["mongodb.com"]),
     )..header = <String, dynamic>{"kid": "1"};
 
-    String privateKey = File("test_resources/jwt_keys/private_key.pem").readAsStringSync();
+    String privateKey = File("$rootDir/test/test_resources/jwt_keys/private_key.pem").readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
     print('Signed token: $token\n');
     await app.logIn(Credentials.jwt(token));
@@ -438,8 +437,7 @@ print(Directory.current.path);
     expect(user.profile.firstName, "Jonathan");
     expect(user.profile.lastName, "Doe");
     expect(user.profile["company"], "MongoDB");
-  },
-      appName: AppNames.autoConfirm);
+  }, appName: AppNames.autoConfirm);
 
   baasTest('JWT with wrong signiture key - login fails', (configuration) async {
     final app = App(configuration);
@@ -454,7 +452,7 @@ print(Directory.current.path);
       audience: Audience(["mongodb.com"]),
     );
 
-    String privateKey = File("test_resources/jwt_keys/wrong_private_key.pem").readAsStringSync();
+    String privateKey = File("$rootDir/test/test_resources/jwt_keys/wrong_private_key.pem").readAsStringSync();
     var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
 
     print('Signed token: $token\n');
@@ -463,5 +461,4 @@ print(Directory.current.path);
       final user = await app.logIn(credentials);
     }, throws<RealmException>("crypto/rsa: verification error"));
   });
-  
 }

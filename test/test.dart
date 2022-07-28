@@ -159,6 +159,7 @@ class _Event {
 }
 
 String? testName;
+String rootDir = "";
 Map<String, String?> arguments = {};
 final baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
@@ -169,6 +170,7 @@ const String argBaasPrivateApiKey = "BAAS_PRIVATE_API_KEY";
 const String argBaasProjectId = "BAAS_PROJECT_ID";
 const String argDifferentiator = "BAAS_DIFFERENTIATOR";
 const String argJwksUrl = "BAAS_JWKS_URL";
+const String rootTestDirectory = "rootDir";
 
 String testUsername = "realm-test@realm.io";
 String testPassword = "123456";
@@ -205,13 +207,11 @@ void xtest(String? name, dynamic Function() testFunction) {
 Future<void> setupTests(List<String>? args) async {
   arguments = parseTestArguments(args);
   testName = arguments["name"];
-  if (Directory.current.path.endsWith(Platform.pathSeparator + 'test')) {
-    Directory.current = Directory.current.parent;
-  }
-  print(Directory.current.path);
   await for (var entity in Directory.current.list(recursive: true, followLinks: true)) {
     print(entity.path);
   }
+  rootDir = arguments[rootTestDirectory] ?? "";
+
   setUpAll(() async => await setupBaas());
 
   setUp(() {
@@ -294,7 +294,8 @@ Map<String, String?> parseTestArguments(List<String>? arguments) {
     ..addOption(argBaasPrivateApiKey)
     ..addOption(argBaasProjectId)
     ..addOption(argDifferentiator)
-    ..addOption(argJwksUrl);
+    ..addOption(argJwksUrl)
+    ..addOption(rootTestDirectory);
 
   final result = parser.parse(arguments ?? []);
   testArgs
@@ -305,7 +306,8 @@ Map<String, String?> parseTestArguments(List<String>? arguments) {
     ..addArgument(result, argBaasPrivateApiKey)
     ..addArgument(result, argBaasProjectId)
     ..addArgument(result, argDifferentiator)
-    ..addArgument(result, argJwksUrl);
+    ..addArgument(result, argJwksUrl)
+    ..addArgument(result, rootTestDirectory);
 
   return testArgs;
 }
@@ -336,7 +338,7 @@ Future<void> setupBaas() async {
       ? BaasClient.docker(baasUrl, differentiator)
       : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
   if (!isFlutterPlatform || (Platform.isWindows || Platform.isLinux)) {
-    client.publicRSAKey = File("test_resources/jwt_keys/public_key.pem").readAsStringSync();
+    client.publicRSAKey = File("$rootDir/test/test_resources/jwt_keys/public_key.pem").readAsStringSync();
   }
   client.jwksUrl = jwksUrl ?? "";
 
