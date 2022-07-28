@@ -104,7 +104,7 @@ Future<void> main([List<String>? args]) async {
     Configuration.defaultRealmPath = customDefaultRealmPath;
 
     final appClientId = baasApps[AppNames.flexible.name]!.clientAppId;
-    final baasUrl = arguments[argBaasUrl];
+    final baasUrl = arguments[argBaasUrlArgName];
     var appConfig = AppConfiguration(appClientId, baseUrl: Uri.parse(baasUrl!));
     expect(appConfig.baseFilePath.path, path.dirname(customDefaultRealmPath));
 
@@ -225,7 +225,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration - disableFormatUpgrade=true throws error', () async {
-    final realmBundleFile = "test/test_resources/realm_files/old-format.realm";
+    final realmBundleFile = "${rootDir}test/test_resources/realm_files/old-format.realm";
     var config = Configuration.local([Car.schema], disableFormatUpgrade: true);
     await File(realmBundleFile).copy(config.path);
     expect(() {
@@ -234,7 +234,7 @@ Future<void> main([List<String>? args]) async {
   }, skip: isFlutterPlatform);
 
   test('Configuration - disableFormatUpgrade=false', () async {
-    final realmBundleFile = "test/test_resources/realm_files/old-format.realm";
+    final realmBundleFile = "${rootDir}test/test_resources/realm_files/old-format.realm";
     var config = Configuration.local([Car.schema], disableFormatUpgrade: false);
     await File(realmBundleFile).copy(config.path);
     final realm = getRealm(config);

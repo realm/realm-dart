@@ -163,14 +163,14 @@ String rootDir = "";
 Map<String, String?> arguments = {};
 final baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
-const String argBaasUrl = "BAAS_URL";
-const String argBaasCluster = "BAAS_CLUSTER";
-const String argBaasApiKey = "BAAS_API_KEY";
-const String argBaasPrivateApiKey = "BAAS_PRIVATE_API_KEY";
-const String argBaasProjectId = "BAAS_PROJECT_ID";
-const String argDifferentiator = "BAAS_DIFFERENTIATOR";
-const String argJwksUrl = "BAAS_JWKS_URL";
-const String rootTestDirectory = "rootDir";
+const String argBaasUrlArgName = "BAAS_URL";
+const String argBaasClusterArgName = "BAAS_CLUSTER";
+const String argBaasApiKeyArgName = "BAAS_API_KEY";
+const String argBaasPrivateApiKeyArgName = "BAAS_PRIVATE_API_KEY";
+const String argBaasProjectIdArgName = "BAAS_PROJECT_ID";
+const String argDifferentiatorArgName = "BAAS_DIFFERENTIATOR";
+const String argJwksUrlArgName = "BAAS_JWKS_URL";
+const String rootTestDirectoryArgName = "rootDir";
 
 String testUsername = "realm-test@realm.io";
 String testPassword = "123456";
@@ -208,7 +208,7 @@ Future<void> setupTests(List<String>? args) async {
   arguments = parseTestArguments(args);
   testName = arguments["name"];
 
-  rootDir = arguments[rootTestDirectory] ?? "";
+  rootDir = arguments[rootTestDirectoryArgName] ?? "";
   print("rootDir: $rootDir");
 
   setUpAll(() async => await setupBaas());
@@ -287,26 +287,26 @@ Map<String, String?> parseTestArguments(List<String>? arguments) {
   Map<String, String?> testArgs = {};
   final parser = ArgParser()
     ..addOption("name")
-    ..addOption(argBaasUrl)
-    ..addOption(argBaasCluster)
-    ..addOption(argBaasApiKey)
-    ..addOption(argBaasPrivateApiKey)
-    ..addOption(argBaasProjectId)
-    ..addOption(argDifferentiator)
-    ..addOption(argJwksUrl)
-    ..addOption(rootTestDirectory);
+    ..addOption(argBaasUrlArgName)
+    ..addOption(argBaasClusterArgName)
+    ..addOption(argBaasApiKeyArgName)
+    ..addOption(argBaasPrivateApiKeyArgName)
+    ..addOption(argBaasProjectIdArgName)
+    ..addOption(argDifferentiatorArgName)
+    ..addOption(argJwksUrlArgName)
+    ..addOption(rootTestDirectoryArgName);
 
   final result = parser.parse(arguments ?? []);
   testArgs
     ..addArgument(result, "name")
-    ..addArgument(result, argBaasUrl)
-    ..addArgument(result, argBaasCluster)
-    ..addArgument(result, argBaasApiKey)
-    ..addArgument(result, argBaasPrivateApiKey)
-    ..addArgument(result, argBaasProjectId)
-    ..addArgument(result, argDifferentiator)
-    ..addArgument(result, argJwksUrl)
-    ..addArgument(result, rootTestDirectory);
+    ..addArgument(result, argBaasUrlArgName)
+    ..addArgument(result, argBaasClusterArgName)
+    ..addArgument(result, argBaasApiKeyArgName)
+    ..addArgument(result, argBaasPrivateApiKeyArgName)
+    ..addArgument(result, argBaasProjectIdArgName)
+    ..addArgument(result, argDifferentiatorArgName)
+    ..addArgument(result, argJwksUrlArgName)
+    ..addArgument(result, rootTestDirectoryArgName);
 
   return testArgs;
 }
@@ -321,23 +321,23 @@ extension on Map<String, String?> {
 }
 
 Future<void> setupBaas() async {
-  final baasUrl = arguments[argBaasUrl];
+  final baasUrl = arguments[argBaasUrlArgName];
   if (baasUrl == null) {
     return;
   }
 
-  final cluster = arguments[argBaasCluster];
-  final apiKey = arguments[argBaasApiKey];
-  final privateApiKey = arguments[argBaasPrivateApiKey];
-  final projectId = arguments[argBaasProjectId];
-  final differentiator = arguments[argDifferentiator];
-  final jwksUrl = arguments[argJwksUrl];
+  final cluster = arguments[argBaasClusterArgName];
+  final apiKey = arguments[argBaasApiKeyArgName];
+  final privateApiKey = arguments[argBaasPrivateApiKeyArgName];
+  final projectId = arguments[argBaasProjectIdArgName];
+  final differentiator = arguments[argDifferentiatorArgName];
+  final jwksUrl = arguments[argJwksUrlArgName];
 
   final client = await (cluster == null
       ? BaasClient.docker(baasUrl, differentiator)
       : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
   if (!isFlutterPlatform || (Platform.isWindows || Platform.isLinux)) {
-    client.publicRSAKey = File("$rootDir/test/test_resources/jwt_keys/public_key.pem").readAsStringSync();
+    client.publicRSAKey = File("${rootDir}test/test_resources/jwt_keys/public_key.pem").readAsStringSync();
   }
   client.jwksUrl = jwksUrl ?? "";
 
@@ -352,7 +352,7 @@ Future<void> baasTest(
   AppNames appName = AppNames.flexible,
   dynamic skip,
 }) async {
-  final uriVariable = arguments[argBaasUrl];
+  final uriVariable = arguments[argBaasUrlArgName];
   final url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
 
   if (skip == null) {
@@ -368,7 +368,7 @@ Future<void> baasTest(
 }
 
 Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) async {
-  final baasUrl = arguments[argBaasUrl];
+  final baasUrl = arguments[argBaasUrlArgName];
 
   final app = baasApps[appName.name] ??
       baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
