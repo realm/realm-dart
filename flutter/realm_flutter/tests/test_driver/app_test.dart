@@ -29,7 +29,7 @@ void main(List<String> args) {
       testCommandWithArgs += getArgFromEnvVariable("BAAS_PROJECT_ID");
       testCommandWithArgs += getArgFromEnvVariable("BAAS_DIFFERENTIATOR");
       testCommandWithArgs += getArgFromEnvVariable("BAAS_JWKS_URL");
-      testCommandWithArgs += " --rootDir ${Directory.current.path}/";
+      testCommandWithArgs += " --rootDir /";
 
       String result = await driver!.requestData(testCommandWithArgs, timeout: const Duration(minutes: 30));
       if (result.isNotEmpty) {
