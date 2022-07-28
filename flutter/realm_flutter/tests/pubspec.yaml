@@ -34,4 +34,4 @@ flutter:
   assets:
     - test_resources/
     - test_resources/jwt_keys/
-    - test_resources/data/
+    - test_resources/realm_files/
