@@ -336,9 +336,8 @@ Future<void> setupBaas() async {
   final client = await (cluster == null
       ? BaasClient.docker(baasUrl, differentiator)
       : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
-  if (!isFlutterPlatform || (Platform.isWindows || Platform.isLinux)) {
-    client.publicRSAKey = File("${rootDir}test/test_resources/jwt_keys/public_key.pem").readAsStringSync();
-  }
+  
+  client.publicRSAKey = File("${rootDir}test/test_resources/jwt_keys/public_key.pem").readAsStringSync();
   client.jwksUrl = jwksUrl ?? "";
 
   var apps = await client.getOrCreateApps();
