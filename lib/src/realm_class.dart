@@ -103,7 +103,14 @@ class Realm {
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }
-    return realmCore.openRealm(config);
+
+    RealmHandle realm = realmCore.openRealm(config);
+    if (config is FlexibleSyncConfiguration) {
+      if (config.initialSubscriptionsConfiguration != null && config.initialSubscriptionsConfiguration!.rerunOnOpen) {
+        config.initialSubscriptionsConfiguration!.callback();
+      }
+    }
+    return realm;
   }
 
   void _populateMetadata() {
@@ -327,9 +334,9 @@ class Realm {
     ..level = RealmLogLevel.info
     ..onRecord.listen((event) => print(event));
 
-  /// Used to shutdown Realm and allow the process to correctly release native resources and exit. 
-  /// 
-  /// Disclaimer: This method is mostly needed on Dart standalone and if not called the Dart probram will hang and not exit. 
+  /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
+  ///
+  /// Disclaimer: This method is mostly needed on Dart standalone and if not called the Dart probram will hang and not exit.
   /// This is a workaround of a Dart VM bug and will be removed in a future version of the SDK.
   static void shutdown() => scheduler.stop();
 }

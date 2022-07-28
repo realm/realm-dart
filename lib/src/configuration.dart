@@ -48,11 +48,9 @@ typedef InitialDataCallback = void Function(Realm realm);
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
 abstract class Configuration {
-
-  /// The default realm filename to be used. 
+  /// The default realm filename to be used.
   static String get defaultRealmName => _path.basename(defaultRealmPath);
   static set defaultRealmName(String name) => defaultRealmPath = _path.join(_path.dirname(defaultRealmPath), _path.basename(name));
-  
 
   /// The platform dependent path used to store realm files
   ///
@@ -63,14 +61,14 @@ abstract class Configuration {
   /// On Dart standalone Windows, macOS and Linux this is the current directory.
   static String get defaultStoragePath {
     if (isFlutterPlatform) {
-      return realmCore.getAppDirectory(); 
+      return realmCore.getAppDirectory();
     }
 
     return Directory.current.path;
   }
 
   /// The platform dependent path to the default realm file.
-  /// 
+  ///
   /// If set it should contain the path and the name of the realm file. Ex. "~/mypath/myrealm.realm"
   /// [defaultStoragePath] can be used to build this path.
   static late String defaultRealmPath = _path.join(defaultStoragePath, 'default.realm');
@@ -153,6 +151,7 @@ abstract class Configuration {
     String? path,
     SyncErrorHandler syncErrorHandler = defaultSyncErrorHandler,
     SyncClientResetErrorHandler syncClientResetErrorHandler = const ManualSyncClientResetHandler(_defaultSyncClientResetHandler),
+    InitialSubscriptionsConfiguration? initialSubscriptionsConfiguration,
   }) =>
       FlexibleSyncConfiguration._(
         user,
@@ -161,6 +160,7 @@ abstract class Configuration {
         path: path,
         syncErrorHandler: syncErrorHandler,
         syncClientResetErrorHandler: syncClientResetErrorHandler,
+        initialSubscriptionsConfiguration: initialSubscriptionsConfiguration,
       );
 
   /// Constructs a [DisconnectedSyncConfiguration]
@@ -266,6 +266,8 @@ class FlexibleSyncConfiguration extends Configuration {
   /// The default [SyncClientResetErrorHandler] logs a message using the current Realm.logger
   final SyncClientResetErrorHandler syncClientResetErrorHandler;
 
+  final InitialSubscriptionsConfiguration? initialSubscriptionsConfiguration;
+
   FlexibleSyncConfiguration._(
     this.user,
     super.schemaObjects, {
@@ -273,6 +275,7 @@ class FlexibleSyncConfiguration extends Configuration {
     super.path,
     this.syncErrorHandler = defaultSyncErrorHandler,
     this.syncClientResetErrorHandler = const ManualSyncClientResetHandler(_defaultSyncClientResetHandler),
+    this.initialSubscriptionsConfiguration,
   }) : super._();
 
   @override
@@ -286,7 +289,7 @@ extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
 
 /// [DisconnectedSyncConfiguration] is used to open [Realm] instances that are synchronized
 /// with MongoDB Atlas, without establishing a connection to Atlas App Services. This allows
-/// for the synchronized realm to be opened in multiple processes concurrently, as long as 
+/// for the synchronized realm to be opened in multiple processes concurrently, as long as
 /// only one of them uses a [FlexibleSyncConfiguration] to sync changes.
 /// {@category Configuration}
 class DisconnectedSyncConfiguration extends Configuration {
@@ -365,3 +368,11 @@ class SyncClientResetErrorHandler {
 
 /// A client reset strategy where the user needs to fully take care of a client reset.
 typedef ManualSyncClientResetHandler = SyncClientResetErrorHandler;
+
+class InitialSubscriptionsConfiguration {
+  final void Function() callback;
+
+  final bool rerunOnOpen = false;
+
+  const InitialSubscriptionsConfiguration(this.callback);
+}
