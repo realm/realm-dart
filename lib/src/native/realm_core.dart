@@ -1622,6 +1622,31 @@ class _RealmCore {
         "Delete user failed");
     return completer.future;
   }
+
+  static void _openRealmAsync(Handle userdata, Pointer<realm_thread_safe_reference_t> realm, Pointer<realm_async_error_t> errorCode) {
+    final completer = userdata as Completer<RealmHandle>;
+
+    if (errorCode != nullptr) {
+      completer.completeError(RealmException(errorCode.toString()));
+    } else {
+      final realmPtr =
+          _realmLib.invokeGetPointer(() => _realmLib.realm_from_thread_safe_reference(realm, scheduler.handle._pointer), "Error opening synchronized realm");
+      completer.complete(RealmHandle._(realmPtr));
+    }
+  }
+
+  Future<RealmHandle> openRealmAsync(Configuration config) {
+    final configHandle = _createConfig(config);
+    final realmAsyncOpenTaskPtr =
+        _realmLib.invokeGetPointer(() => _realmLib.realm_open_synchronized(configHandle._pointer), "Error opening synchronized realm at path ${config.path}");
+    final completer = Completer<RealmHandle>();
+    final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_thread_safe_reference_t>, Pointer<realm_async_error_t>)>(_openRealmAsync);
+    final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
+
+    _realmLib.realm_async_open_task_start(realmAsyncOpenTaskPtr, _realmLib.addresses.realm_dart_async_open_task_completion_callback, userdata.cast(),
+        _realmLib.addresses.realm_dart_userdata_async_free);
+    return completer.future;
+  }
 }
 
 class LastError {

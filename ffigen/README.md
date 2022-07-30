@@ -3,7 +3,7 @@ The is executed manually as needed and this package is never published.
 
 Usage: 
 
-dart run ffigen
+dart run ffigen --config config.yaml
 
 On linux you may need to install clang 11 dev tools. If you are using apt-get you can do:
 ```
