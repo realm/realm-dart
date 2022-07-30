@@ -1622,6 +1622,28 @@ class _RealmCore {
         "Delete user failed");
     return completer.future;
   }
+
+  static void _openRealmAsync(Handle userdata, Pointer<realm_thread_safe_reference_t> realm, Pointer<realm_async_error_t> errorCode) {
+    final completer = userdata as Completer<void>;
+
+    if (errorCode != nullptr) {
+      completer.completeError(RealmException(errorCode.toString()));
+    } else {
+      completer.complete();
+    }
+  }
+
+  Future<void> openRealmAsync(Configuration config) {
+    final configHandle = _createConfig(config);
+    final realmAsyncOpenTaskPtr = _realmLib.realm_open_synchronized(configHandle._pointer);
+    final completer = Completer<void>();
+    final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_thread_safe_reference_t>, Pointer<realm_async_error_t>)>(_openRealmAsync);
+    final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
+
+    _realmLib.realm_async_open_task_start(realmAsyncOpenTaskPtr, _realmLib.addresses.realm_dart_async_open_task_completion_callback, userdata.cast(),
+        _realmLib.addresses.realm_dart_userdata_async_free);
+    return completer.future;
+  }
 }
 
 class LastError {
