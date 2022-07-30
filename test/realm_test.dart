@@ -621,6 +621,12 @@ Future<void> main([List<String>? args]) async {
     expect(realm.isInTransaction, false);
   });
 
+  test('Realm openSync', () {
+    var config = Configuration.local([Car.schema, Person.schema]);
+    final realm = Realm.openSync(config);
+    realm.close();
+  });
+  
   test('Realm open async with local configuration throws', () async {
     var config = Configuration.local([Car.schema, Person.schema]);
     expect(() async => await Realm.open(config), throws<RealmException>("This method is only available for fully synchronized Realms"));
