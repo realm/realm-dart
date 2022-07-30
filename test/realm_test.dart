@@ -620,4 +620,23 @@ Future<void> main([List<String>? args]) async {
     // We should not be in transaction here
     expect(realm.isInTransaction, false);
   });
+
+  test('Realm open async with local configuration throws', () async {
+    var config = Configuration.local([Car.schema, Person.schema]);
+    expect(() async => await Realm.open(config), throws<RealmException>("This method is only available for fully synchronized Realms"));
+  });
+
+  baasTest('Realm open async', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    final configuration = Configuration.flexibleSync(user, [
+      Task.schema,
+      Schedule.schema,
+      Event.schema,
+    ]);
+
+    final realm = await Realm.open(configuration);
+    realm.close();
+  });
 }

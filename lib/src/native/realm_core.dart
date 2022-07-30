@@ -1624,19 +1624,22 @@ class _RealmCore {
   }
 
   static void _openRealmAsync(Handle userdata, Pointer<realm_thread_safe_reference_t> realm, Pointer<realm_async_error_t> errorCode) {
-    final completer = userdata as Completer<void>;
+    final completer = userdata as Completer<RealmHandle>;
 
     if (errorCode != nullptr) {
       completer.completeError(RealmException(errorCode.toString()));
     } else {
-      completer.complete();
+      final realmPtr =
+          _realmLib.invokeGetPointer(() => _realmLib.realm_from_thread_safe_reference(realm, scheduler.handle._pointer), "Error opening synchronized realm");
+      completer.complete(RealmHandle._(realmPtr));
     }
   }
 
-  Future<void> openRealmAsync(Configuration config) {
+  Future<RealmHandle> openRealmAsync(Configuration config) {
     final configHandle = _createConfig(config);
-    final realmAsyncOpenTaskPtr = _realmLib.realm_open_synchronized(configHandle._pointer);
-    final completer = Completer<void>();
+    final realmAsyncOpenTaskPtr =
+        _realmLib.invokeGetPointer(() => _realmLib.realm_open_synchronized(configHandle._pointer), "Error opening synchronized realm at path ${config.path}");
+    final completer = Completer<RealmHandle>();
     final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_thread_safe_reference_t>, Pointer<realm_async_error_t>)>(_openRealmAsync);
     final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
 

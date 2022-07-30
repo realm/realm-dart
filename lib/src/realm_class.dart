@@ -94,11 +94,24 @@ class Realm {
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
-  Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? _openRealm(config) {
+  Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? _openRealmSync(config) {
     _populateMetadata();
   }
 
-  static RealmHandle _openRealm(Configuration config) {
+  /// Opens a `Realm` async using a [Configuration] object.
+  static Future<Realm> open(Configuration config) async {
+    var dir = File(config.path).parent;
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
+    }
+    RealmHandle handle = await realmCore.openRealmAsync(config);
+    return Realm._(config, handle);
+  }
+
+  /// Opens a `Realm` using a [Configuration] object.
+  static Realm openSync(Configuration config) => Realm._(config);
+
+  static RealmHandle _openRealmSync(Configuration config) {
     var dir = File(config.path).parent;
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
@@ -327,9 +340,9 @@ class Realm {
     ..level = RealmLogLevel.info
     ..onRecord.listen((event) => print(event));
 
-  /// Used to shutdown Realm and allow the process to correctly release native resources and exit. 
-  /// 
-  /// Disclaimer: This method is mostly needed on Dart standalone and if not called the Dart probram will hang and not exit. 
+  /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
+  ///
+  /// Disclaimer: This method is mostly needed on Dart standalone and if not called the Dart probram will hang and not exit.
   /// This is a workaround of a Dart VM bug and will be removed in a future version of the SDK.
   static void shutdown() => scheduler.stop();
 }
