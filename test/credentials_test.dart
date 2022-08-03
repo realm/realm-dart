@@ -382,7 +382,7 @@ Future<void> main([List<String>? args]) async {
           ? "No jwt_keys"
           : false);
 
-  baasTest('JWT - login with existing user and edit profile', (configuration) async {
+  baasTest('JWT with JWK URL validation - login with existing user and edit profile', (configuration) async {
     final app = App(configuration);
 
     //Create a new user with profile
