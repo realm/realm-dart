@@ -55,7 +55,7 @@ class BaasClient {
     }
   };''';
   static const String _authFuncSource = '''exports = (loginPayload) => {
-    return;
+    return loginPayload["userId"];
   };''';
   static const String defaultAppName = "flexible";
 
