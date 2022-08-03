@@ -166,7 +166,7 @@ class BaasClient {
     final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
 
     await enableProvider(app, 'anon-user');
-    await enableProvider(app, 'local-userpass', '''{
+    await enableProvider(app, 'local-userpass', config: '''{
       "autoConfirm": ${(confirmationType == "auto").toString()},
       "confirmEmailSubject": "Confirmation required",
       "confirmationFunctionName": "confirmFunc",
@@ -179,6 +179,50 @@ class BaasClient {
       "runConfirmationFunction": ${(confirmationType != "email" && confirmationType != "auto").toString()},
       "runResetFunction": true
     }''');
+
+    const facebookSecret = "876750ac6d06618b323dee591602897f";
+    final dynamic createSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
+    String facebookClientSecretKeyName = createSecretResult['name'] as String;
+    await enableProvider(app, 'oauth2-facebook', config: '''{
+          "clientId": "1265617494254819"
+          }''', secretConfig: '''{
+          "clientSecret": "$facebookClientSecretKeyName"
+          }''', metadataFelds: '''{
+            "required": true,
+            "name": "name"
+          },
+          {
+            "required": true,
+            "name": "first_name"
+          },
+          {
+            "required": true,
+            "name": "last_name"
+          },
+          {
+            "required": false,
+            "name": "email"
+          },
+          {
+            "required": false,
+            "name": "gender"
+          },
+          {
+            "required": false,
+            "name": "birthday"
+          },
+          {
+            "required": false,
+            "name": "min_age"
+          },
+          {
+            "required": false,
+            "name": "max_age"
+          },
+          {
+            "required": false,
+            "name": "picture"
+          }''');
 
     print('Creating database db_$name$_appSuffix');
 
@@ -209,21 +253,22 @@ class BaasClient {
     return app;
   }
 
-  Future<void> enableProvider(BaasApp app, String type, [String config = '{}']) async {
+  Future<void> enableProvider(BaasApp app, String type, {String config = '{}', String secretConfig = '{}', String metadataFelds = '{}'}) async {
     print('Enabling provider $type for ${app.clientAppId}');
 
     final url = 'groups/$_groupId/apps/$app/auth_providers';
     if (type == 'api-key') {
       final providers = await _get(url) as List<dynamic>;
       final apiKeyProviderId = providers.singleWhere((dynamic doc) => doc['type'] == 'api-key')['_id'] as String;
-
       await _put('$url/$apiKeyProviderId/enable', '{}');
     } else {
       await _post(url, '''{
           "name": "$type",
           "type": "$type",
           "disabled": false,
-          "config": $config
+          "config": $config,
+          "secret_config": $secretConfig,
+          "metadata_fields": [$metadataFelds]
         }''');
     }
   }
