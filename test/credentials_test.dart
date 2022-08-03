@@ -483,23 +483,25 @@ Future<void> main([List<String>? args]) async {
     final payload = '{"username":"$username","userId":"$userId"}';
     final credentials = Credentials.function(payload);
     final user = await app.logIn(credentials);
-    expect(user.id, userId);
     expect(user.identities[0].id, userId);
     expect(user.identities[0].provider, AuthProviderType.function);
-
-    user.logOut();
   });
 
   baasTest('Function credentials - login with existing user', (configuration) async {
     final app = App(configuration);
-    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
-    final payload = '{"username":"${user.profile.name}","userId":"${user.id}"}';
-    user.logOut();
+    var userId = ObjectId().toString();
+    final payload = '{"userId":"$userId"}';
+
     final credentials = Credentials.function(payload);
+    final user = await app.logIn(credentials);
+    expect(user.identities[0].id, userId);
+    expect(user.identities[0].provider, AuthProviderType.function);
+    user.logOut();
+
     final sameUser = await app.logIn(credentials);
     expect(sameUser.id, user.id);
-    expect(sameUser.identities[0].id, user.id);
+
+    expect(sameUser.identities[0].id, userId);
     expect(sameUser.identities[0].provider, AuthProviderType.function);
-    sameUser.logOut();
   });
 }
