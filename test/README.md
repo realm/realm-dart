@@ -26,6 +26,7 @@ BAAS_CLUSTER=<cluster_name> # probably Cluster0
 BAAS_API_KEY=<public_key>
 BAAS_PRIVATE_API_KEY=<private_key>
 BAAS_PROJECT_ID=<project_id>
+BAAS_JWKS_URL=https://raw.githubusercontent.com/realm/realm-dart/tree/master/test/data/jwt_keys/jwks.json
 ```
 10) Now you can run `dart test` and it should include the integration tests.
 
@@ -131,3 +132,12 @@ do day-to-day development as it allows you to get into a clean state with a sing
     ```
 
 7. Now you can run `dart test` and it should include the integration tests.
+
+## Manually configure Facebook, Google and Apple authentication providers
+### Facebook login
+1. Login to https://developers.facebook.com/ with account dart.CI.test@gmail.com
+2. Go to facebook app `"DartCI"`
+3. Go to [Settings/Basic](https://developers.facebook.com/apps/1265617494254819/settings/basic/) and you will find `App ID` and `App secret`
+4. Following [Facebook Authentication Instruction](https://www.mongodb.com/docs/atlas/app-services/authentication/facebook/) you have to enable facebook authentication provider in [cloud-qa](https://cloud-qa.mongodb.com/) app. Then set `Client ID = App ID` and `Client Secret = App secret`
+5. Go back to https://developers.facebook.com/ in menu [Roles/Test Users](https://developers.facebook.com/apps/1265617494254819/roles/test-users/) and select `"Get a user access token"` option for one of the test users. 
+This access token could be used for facebook login tests with `Credentials.facebook(accessToken)`. Be sure that this token will never expire by selecting `No` in option `"Change data access expiration time"`.

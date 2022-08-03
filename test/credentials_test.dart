@@ -302,9 +302,9 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('Facebook credentials - login', (configuration) async {
     final app = App(configuration);
-    final payload =
+    final accessToken =
         'EAARZCEokqpOMBALs6FuRh6lBW0OElbnCKurX5aWZArRsp6rimRU9Ei9HdHsULkamzjhGMLtAasGQw9tYEQfT452a4adckA7GVYTNhOzLRnwETDU2ouNKBZCGUkDLnQlKNJUf6RSZCaAKwhiCzozyfuAU2ynCyFmo00sftRlTEYnyq0cBUpyUvMSa3CGJD9eqKpZCjF3ZCv9wZDZD';
-    final credentials = Credentials.facebook(payload);
+    final credentials = Credentials.facebook(accessToken);
     final user = await app.logIn(credentials);
     expect(user.state, UserState.loggedIn);
     expect(user.provider, AuthProviderType.facebook);
