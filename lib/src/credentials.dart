@@ -27,16 +27,16 @@ import 'app.dart';
 enum AuthProviderType {
   /// For authenticating without credentials.
   anonymous,
-
+  _apple,
   _facebook,
   _google,
-  _apple,
-  _custom,
-  
-  /// For authenticating with an email and a password.
-  emailPassword,
+
   /// For authenticating with JSON web token.
   jwt,
+
+  /// For authenticating with an email and a password.
+  emailPassword,
+
   /// For authenticating with custom function with payload argument.
   function,
 

@@ -484,6 +484,7 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.function(payload);
     final user = await app.logIn(credentials);
     expect(user.identities[0].id, userId);
+    expect(user.provider, AuthProviderType.function);
     expect(user.identities[0].provider, AuthProviderType.function);
   });
 
@@ -495,13 +496,13 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.function(payload);
     final user = await app.logIn(credentials);
     expect(user.identities[0].id, userId);
-    expect(user.identities[0].provider, AuthProviderType.function);
+    expect(user.provider, AuthProviderType.function);
     user.logOut();
 
     final sameUser = await app.logIn(credentials);
     expect(sameUser.id, user.id);
 
     expect(sameUser.identities[0].id, userId);
-    expect(sameUser.identities[0].provider, AuthProviderType.function);
+    expect(sameUser.provider, AuthProviderType.function);
   });
 }
