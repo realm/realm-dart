@@ -329,6 +329,7 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
 
     expect(user.state, UserState.loggedIn);
+    expect(user.provider, AuthProviderType.jwt);
     expect(user.profile.email, username);
     expect(user.profile.name, username); //In metadataFelds email is mapped to two fields: email and name
     expect(user.profile.gender, "male");
@@ -367,6 +368,7 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
 
     expect(user.state, UserState.loggedIn);
+    expect(user.provider, AuthProviderType.jwt);
     expect(user.profile.email, username);
     expect(user.profile.name, username); //In metadataFelds email is mapped to two fields: email and name
     expect(user.profile.gender, "male");
@@ -432,6 +434,7 @@ Future<void> main([List<String>? args]) async {
 
     //Profile fields are equal to the profile fields of the created user.
     expect(user.state, UserState.loggedIn);
+    expect(user.provider, AuthProviderType.jwt);
     expect(user.profile.email, username);
     expect(user.profile.name, username); //In metadataFelds email is mapped to two fields: email and name
     expect(user.profile.gender, "male");
