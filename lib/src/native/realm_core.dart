@@ -940,7 +940,8 @@ class _RealmCore {
   RealmAppCredentialsHandle createAppCredentialsFunction(String payload) {
     return using((arena) {
       final payloadPtr = payload.toCharPtr(arena);
-      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_function(payloadPtr));
+      final credentialsPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_credentials_new_function(payloadPtr));
+      return RealmAppCredentialsHandle._(credentialsPtr);
     });
   }
 

@@ -469,5 +469,10 @@ Future<void> main([List<String>? args]) async {
       final user = await app.logIn(credentials);
     }, throws<RealmException>("crypto/rsa: verification error"));
   }, skip: (isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS)) ? "No jwt_keys" : false);
-  
+
+  baasTest('Function credentials - wrong payload', (configuration) async {
+    final app = App(configuration);
+    final payload = 'Wrong EJSON format';
+    expect(() => Credentials.function(payload), throws<RealmException>("parse error"));
+  });
 }
