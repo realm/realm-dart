@@ -35,9 +35,11 @@ enum AuthProviderType {
   
   /// For authenticating with an email and a password.
   emailPassword,
+  /// For authenticating with JSON web token.
   jwt,
+  /// For authenticating with custom function with payload argument.
+  function,
 
-  _function,
   _userApiKey,
   _serverApiKey
 }
@@ -68,6 +70,12 @@ class Credentials {
   Credentials.jwt(String token)
       : _handle = realmCore.createAppCredentialsJwt(token),
         provider = AuthProviderType.jwt;
+
+  /// Returns a [Credentials] object that can be used to authenticate a user with a custom Function.
+  /// [Custom Function Authentication Docs](https://www.mongodb.com/docs/atlas/app-services/authentication/custom-function/)
+  Credentials.function(String payload)
+      : _handle = realmCore.createAppCredentialsFunction(payload),
+        provider = AuthProviderType.function;
 }
 
 /// @nodoc
