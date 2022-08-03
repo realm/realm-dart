@@ -28,15 +28,15 @@ enum AuthProviderType {
   /// For authenticating without credentials.
   anonymous,
 
+  /// Authenticate with Apple Id
+  apple,
+
   /// Authenticate with Facebook account.
   facebook,
 
   /// Authenticate with Google account
   google,
-
-  /// Authenticate with Apple Id
-  apple,
-
+  
   _custom,
 
   /// For authenticating with an email and a password.
