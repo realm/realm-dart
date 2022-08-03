@@ -54,6 +54,9 @@ class BaasClient {
       return { status: 'fail' };
     }
   };''';
+  static const String _authFuncSource = '''exports = (loginPayload) => {
+    return;
+  };''';
   static const String defaultAppName = "flexible";
 
   final String _baseUrl;
@@ -166,6 +169,7 @@ class BaasClient {
 
     final confirmFuncId = await _createFunction(app, 'confirmFunc', _confirmFuncSource);
     final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
+    final authFuncId = await _createFunction(app, 'authFunc', _authFuncSource);
 
     await enableProvider(app, 'anon-user');
     await enableProvider(app, 'local-userpass', config: '''{
@@ -240,6 +244,11 @@ class BaasClient {
             "field_name": "company"
           }''');
     }
+    await enableProvider(app, 'custom-function', config: '''{
+          "authFunctionName": "authFunc",
+          "authFunctionId": "$authFuncId"
+          }''');
+
     print('Creating database db_$name$_appSuffix');
 
     await _createMongoDBService(app, '''{
