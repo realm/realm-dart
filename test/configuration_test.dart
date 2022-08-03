@@ -299,7 +299,7 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
 
     expect(realm.all<Person>().length, 0);
-  }, skip: 'TODO: fails to delete Realm - https://github.com/realm/realm-core/issues/5363');
+  });
 
   test('Configuration.initialDataCallback with error, invoked on second attempt', () {
     var invoked = false;
@@ -314,14 +314,14 @@ Future<void> main([List<String>? args]) async {
 
     var secondInvoked = false;
     config = Configuration.local([Person.schema], initialDataCallback: (realm) {
-      invoked = true;
+      secondInvoked = true;
       realm.add(Person('p1'));
     });
 
     final realm = getRealm(config);
     expect(secondInvoked, true);
     expect(realm.all<Person>().length, 1);
-  }, skip: 'TODO: Realm gets created even though it errors out on open - https://github.com/realm/realm-core/issues/5364');
+  });
 
   test('Configuration.initialDataCallback is a no-op when opening an empty existing Realm', () {
     var config = Configuration.local([Person.schema]);
