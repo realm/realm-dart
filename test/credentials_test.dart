@@ -16,9 +16,15 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:async';
+import 'dart:io';
+import 'dart:isolate';
+
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
+import 'package:http/http.dart' as http;
+import 'package:test/test.dart' as testing;
 
 Future<void> main([List<String>? args]) async {
   const String strongPassword = "SWV23R#@T#VFQDV";
@@ -303,11 +309,11 @@ Future<void> main([List<String>? args]) async {
   baasTest('Facebook credentials - login', (configuration) async {
     final app = App(configuration);
     final accessToken =
-        'EAARZCEokqpOMBALs6FuRh6lBW0OElbnCKurX5aWZArRsp6rimRU9Ei9HdHsULkamzjhGMLtAasGQw9tYEQfT452a4adckA7GVYTNhOzLRnwETDU2ouNKBZCGUkDLnQlKNJUf6RSZCaAKwhiCzozyfuAU2ynCyFmo00sftRlTEYnyq0cBUpyUvMSa3CGJD9eqKpZCjF3ZCv9wZDZD';
+        'EAARZCEokqpOMBAKoIHgaG6bqY6LLseGHcQjYdoPhv9FdB89mkVZBWQFOmZCuVeuRfIa5cMtQANLpZBUQI0n4qb4TZCZCAI3vXZC9Oud2qRiieQDtXqE4abZBQJorcBMzECVfsDlus7hk63zW3XzuFCZAxF4BCdRZBHXlGXIzaHhFHhY72aU1apX0tC';
     final credentials = Credentials.facebook(accessToken);
     final user = await app.logIn(credentials);
     expect(user.state, UserState.loggedIn);
     expect(user.provider, AuthProviderType.facebook);
-    expect(user.profile.name, "Dart CI Test User");
-  });
+    expect(user.profile.name, "Open Graph Test User");
+  }); 
 }
