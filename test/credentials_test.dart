@@ -306,6 +306,7 @@ Future<void> main([List<String>? args]) async {
     }, throws<RealmException>("failed to reset password for user $username"));
   }, appName: AppNames.autoConfirm);
 
+  ///See test/README.md section 'Manually configure Facebook, Google and Apple authentication providers'"
   baasTest('Facebook credentials - login', (configuration) async {
     final app = App(configuration);
     final accessToken =
@@ -315,5 +316,29 @@ Future<void> main([List<String>? args]) async {
     expect(user.state, UserState.loggedIn);
     expect(user.provider, AuthProviderType.facebook);
     expect(user.profile.name, "Open Graph Test User");
-  }, skip: "Manual test. See README.md section 'Manually configure Facebook, Google and Apple authentication providers'"); 
+  }, skip: "Manual test");
+
+  baasTest('Facebook credentials - invalid or expired token', (configuration) async {
+    final app = App(configuration);
+    final accessToken = 'invalid or expired token';
+    final credentials = Credentials.facebook(accessToken);
+    expect(() async => await app.logIn(credentials), throws<RealmException>("error fetching info from OAuth2 provider"));
+  });
+
+  ///See test/README.md section 'Manually configure Facebook, Google and Apple authentication providers'"
+  baasTest('Google auth code credentials - login', (configuration) async {
+    final app = App(configuration);
+    final authCode = 'some google code';
+    final credentials = Credentials.googleAuthCode(authCode);
+    final user = await app.logIn(credentials);
+    expect(user.state, UserState.loggedIn);
+    expect(user.provider, AuthProviderType.google);
+  }, skip: "Manual test");
+
+  baasTest('Google auth code credentials - wrong code', (configuration) async {
+    final app = App(configuration);
+    final authCode = 'wrong_code.apps.googleusercontent.com';
+    final credentials = Credentials.googleAuthCode(authCode);
+    expect(() async => await app.logIn(credentials), throws<RealmException>("error exchanging access code with OAuth2 provider"));
+  });
 }
