@@ -18,7 +18,6 @@
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:crypto/crypto.dart';
 
 class BaasClient {
   static const String _confirmFuncSource = '''exports = async ({ token, tokenId, username }) => {
@@ -181,12 +180,56 @@ class BaasClient {
     }''');
 
     const facebookSecret = "876750ac6d06618b323dee591602897f";
-    final dynamic createSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
-    String facebookClientSecretKeyName = createSecretResult['name'] as String;
+    final dynamic createFacebookSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
+    String facebookClientSecretKeyName = createFacebookSecretResult['name'] as String;
     await enableProvider(app, 'oauth2-facebook', config: '''{
           "clientId": "1265617494254819"
           }''', secretConfig: '''{
           "clientSecret": "$facebookClientSecretKeyName"
+          }''', metadataFelds: '''{
+            "required": true,
+            "name": "name"
+          },
+          {
+            "required": true,
+            "name": "first_name"
+          },
+          {
+            "required": true,
+            "name": "last_name"
+          },
+          {
+            "required": false,
+            "name": "email"
+          },
+          {
+            "required": false,
+            "name": "gender"
+          },
+          {
+            "required": false,
+            "name": "birthday"
+          },
+          {
+            "required": false,
+            "name": "min_age"
+          },
+          {
+            "required": false,
+            "name": "max_age"
+          },
+          {
+            "required": false,
+            "name": "picture"
+          }''');
+
+    const googleSecret = "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";
+    final dynamic createGoogleSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"googleSecret","value":"$googleSecret"}');
+    String googleClientSecretKeyName = createGoogleSecretResult['name'] as String;
+    await enableProvider(app, 'oauth2-google', config: '''{
+          "clientId": "377665229332-n7bf1pongaoqsica7l00a52oi8hsolqm.apps.googleusercontent.com"
+          }''', secretConfig: '''{
+          "clientSecret": "$googleClientSecretKeyName"
           }''', metadataFelds: '''{
             "required": true,
             "name": "name"
