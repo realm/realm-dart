@@ -930,6 +930,34 @@ class _RealmCore {
     });
   }
 
+  RealmAppCredentialsHandle createAppCredentialsApple(String idToken) {
+    return using((arena) {
+      final idTokenPtr = idToken.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_apple(idTokenPtr));
+    });
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsFacebook(String accessToken) {
+    return using((arena) {
+      final accessTokenPtr = accessToken.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_facebook(accessTokenPtr));
+    });
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsGoogleIdToken(String idToken) {
+    return using((arena) {
+      final idTokenPtr = idToken.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_google_id_token(idTokenPtr));
+    });
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsGoogleAuthCode(String authCode) {
+    return using((arena) {
+      final authCodePtr = authCode.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_google_auth_code(authCodePtr));
+    });
+  }
+
   RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
     final requestCallback = Pointer.fromFunction<Void Function(Handle, realm_http_request, Pointer<Void>)>(_request_callback);
     final requestCallbackUserdata = _realmLib.realm_dart_userdata_async_new(httpClient, requestCallback.cast(), scheduler.handle._pointer);
