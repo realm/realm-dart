@@ -145,3 +145,13 @@ This token will expire fast. If you need long term token you can receive it from
 https://graph.facebook.com/v14.0/oauth/access_token?grant_type=fb_exchange_token&client_id={`Client ID`}&client_secret={`Client Secret`}&fb_exchange_token={copied access token from `"Get a user access token"`}
 6. Use the recieved token in the test. It will be available for 3.5 days.
 
+### Google login
+1. [Google Cloud Console](https://console.cloud.google.com)
+2. Create anew project.
+3. Go to `"OAuth consent screen"` enter required emails and create test accounts.
+4. Go to `"Credentials"` And create new credentials.
+5. Select application type `Web Application`.
+6. Copy generated `"Client ID"` and `"Client secret"` to use them in the tests.
+
+
+
