@@ -36,8 +36,9 @@ enum AuthProviderType {
 
   /// Authenticate with Google account
   google,
-  
-  _custom,
+
+  /// For authenticating with JSON web token.
+  jwt,
 
   /// For authenticating with an email and a password.
   emailPassword,

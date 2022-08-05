@@ -10,7 +10,6 @@ environment:
   flutter: ">=3.0.0"
 
 dependencies:
-  dart_jsonwebtoken: ^2.4.1
   flutter:
     sdk: flutter
   realm:
