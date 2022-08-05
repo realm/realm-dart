@@ -17,14 +17,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
-import 'dart:io';
-import 'dart:isolate';
 
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
-import 'package:http/http.dart' as http;
-import 'package:test/test.dart' as testing;
+import 'package:googleapis_auth/auth_browser.dart';
 
 Future<void> main([List<String>? args]) async {
   const String strongPassword = "SWV23R#@T#VFQDV";

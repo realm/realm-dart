@@ -223,11 +223,11 @@ class BaasClient {
             "name": "picture"
           }''');
 
-    const googleSecret = "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";
+    const googleSecret = "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";
     final dynamic createGoogleSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"googleSecret","value":"$googleSecret"}');
     String googleClientSecretKeyName = createGoogleSecretResult['name'] as String;
     await enableProvider(app, 'oauth2-google', config: '''{
-          "clientId": "377665229332-n7bf1pongaoqsica7l00a52oi8hsolqm.apps.googleusercontent.com"
+          "clientId": "377665229332-shbj370s8kacqbtienng93ospv5kbijb.apps.googleusercontent.com"
           }''', secretConfig: '''{
           "clientSecret": "$googleClientSecretKeyName"
           }''', metadataFelds: '''{
