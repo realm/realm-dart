@@ -930,10 +930,37 @@ class _RealmCore {
     });
   }
 
+
   RealmAppCredentialsHandle createAppCredentialsJwt(String token) {
     return using((arena) {
       final tokenPtr = token.toCharPtr(arena);
       return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_jwt(tokenPtr));
+
+  RealmAppCredentialsHandle createAppCredentialsApple(String idToken) {
+    return using((arena) {
+      final idTokenPtr = idToken.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_apple(idTokenPtr));
+    });
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsFacebook(String accessToken) {
+    return using((arena) {
+      final accessTokenPtr = accessToken.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_facebook(accessTokenPtr));
+    });
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsGoogleIdToken(String idToken) {
+    return using((arena) {
+      final idTokenPtr = idToken.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_google_id_token(idTokenPtr));
+    });
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsGoogleAuthCode(String authCode) {
+    return using((arena) {
+      final authCodePtr = authCode.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_google_auth_code(authCodePtr));
     });
   }
 

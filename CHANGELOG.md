@@ -7,8 +7,9 @@
 * Support better default paths on Flutter. ([#665](https://github.com/realm/realm-dart/pull/665))
 * Support `Configuration.defaultRealmName` for setting the default realm name. ([#665](https://github.com/realm/realm-dart/pull/665))
 * Support `Configuration.defaultRealmPath` for setting a custom default path for realms. ([#665](https://github.com/realm/realm-dart/pull/665))
-* Support `Configuration.defaultStoragePath` for getting the platform specific storage paths. ([#665](https://github.com/realm/realm-dart/pull/665))
-* Support `App.deleteUser` for deleting user accounts. ([#679](https://github.com/realm/realm-dart/pull/679))
+* Support `Configuration.defaultStoragePath ` for getting the platform specific storage paths. ([#665](https://github.com/realm/realm-dart/pull/665))
+* Support `App.deleteUser ` for deleting user accounts. ([#679](https://github.com/realm/realm-dart/pull/679))
+* Support Apple, Facebook and Google authentication. ([#740](https://github.com/realm/realm-dart/pull/740))
 * Support `Credentials.jwt` for login user with JWT issued by custom provider . ([#715](https://github.com/realm/realm-dart/pull/715))
 
 ### Internal
