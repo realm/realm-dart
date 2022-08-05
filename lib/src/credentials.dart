@@ -27,9 +27,15 @@ import 'app.dart';
 enum AuthProviderType {
   /// For authenticating without credentials.
   anonymous,
-  _apple,
-  _facebook,
-  _google,
+
+  /// Authenticate with Apple Id
+  apple,
+
+  /// Authenticate with Facebook account.
+  facebook,
+
+  /// Authenticate with Google account
+  google,
 
   /// For authenticating with JSON web token.
   jwt,
@@ -47,8 +53,7 @@ enum AuthProviderType {
 /// A class, representing the credentials used for authenticating a [User]
 /// {@category Application}
 class Credentials {
-  late final RealmAppCredentialsHandle _handle;
-
+  final RealmAppCredentialsHandle _handle;
   final AuthProviderType provider;
 
   /// Returns a [Credentials] object that can be used to authenticate an anonymous user.
@@ -56,6 +61,11 @@ class Credentials {
   Credentials.anonymous()
       : _handle = realmCore.createAppCredentialsAnonymous(),
         provider = AuthProviderType.anonymous;
+
+  /// Returns a [Credentials] object that can be used to authenticate a user with a Google account using an id token.
+  Credentials.apple(String idToken)
+      : _handle = realmCore.createAppCredentialsApple(idToken),
+        provider = AuthProviderType.apple;
 
   /// Returns a [Credentials] object that can be used to authenticate a user with their email and password.
   /// A user can login with email and password only after they have registered their account and verified their
@@ -71,6 +81,21 @@ class Credentials {
       : _handle = realmCore.createAppCredentialsJwt(token),
         provider = AuthProviderType.jwt;
 
+  /// Returns a [Credentials] object that can be used to authenticate a user with a Facebook account.
+  Credentials.facebook(String accessToken)
+      : _handle = realmCore.createAppCredentialsFacebook(accessToken),
+        provider = AuthProviderType.facebook;
+
+  /// Returns a [Credentials] object that can be used to authenticate a user with a Google account using an authentication code.
+  Credentials.googleAuthCode(String authCode)
+      : _handle = realmCore.createAppCredentialsGoogleAuthCode(authCode),
+        provider = AuthProviderType.google;
+
+  /// Returns a [Credentials] object that can be used to authenticate a user with a Google account using an id token.
+  Credentials.googleIdToken(String idToken)
+      : _handle = realmCore.createAppCredentialsGoogleIdToken(idToken),
+        provider = AuthProviderType.google;  
+  
   /// Returns a [Credentials] object that can be used to authenticate a user with a custom Function.
   /// [Custom Function Authentication Docs](https://www.mongodb.com/docs/atlas/app-services/authentication/custom-function/)
   Credentials.function(String payload)
