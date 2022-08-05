@@ -19,7 +19,6 @@
 import 'dart:io';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:test/test.dart' hide test, throws;
-import 'package:path/path.dart' as _path;
 import '../lib/realm.dart';
 import 'test.dart';
 
