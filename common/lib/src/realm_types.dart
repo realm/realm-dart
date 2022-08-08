@@ -78,9 +78,8 @@ class RealmUnsupportedSetError extends UnsupportedError implements RealmError {
 class RealmStateError extends StateError implements RealmError {
   RealmStateError(super.message);
 }
-
 /// @nodoc
-class Decimal128 {} // TODO!
+class Decimal128 {} // TODO Support decimal128 datatype https://github.com/realm/realm-dart/issues/725
 
 /// @nodoc
 class RealmObjectMarker {}
@@ -100,8 +99,7 @@ class RealmAny {
   const RealmAny.float(Float f) : this._(f);
   const RealmAny.double(double d) : this._(d);
   const RealmAny.uint8List(Uint8List data) : this._(data);
-  // TODO: RealmObjectMarker introduced to avoid dependency invertion.
-  // It would be better if we could use RealmObject directly
+  // TODO: RealmObjectMarker introduced to avoid dependency inversion. It would be better if we could use RealmObject directly. https://github.com/realm/realm-dart/issues/701
   const RealmAny.realmObject(RealmObjectMarker o) : this._(o);
   const RealmAny.dateTime(DateTime timestamp) : this._(timestamp);
   const RealmAny.objectId(ObjectId id) : this._(id);

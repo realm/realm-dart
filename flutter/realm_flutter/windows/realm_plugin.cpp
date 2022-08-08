@@ -43,7 +43,7 @@ private:
 // static
 void RealmPlugin::RegisterWithRegistrar(flutter::PluginRegistrarWindows* registrar)
 {
-    //TODO: these channels seem unneccessary. Remove if not needed
+    //TODO: Remove 'channel' variable if not needed https://github.com/realm/realm-dart/issues/694
     auto channel = std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(registrar->messenger(), "realm", &flutter::StandardMethodCodec::GetInstance());
 
     auto plugin = std::make_unique<RealmPlugin>();
