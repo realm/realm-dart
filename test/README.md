@@ -147,7 +147,7 @@ https://graph.facebook.com/v14.0/oauth/access_token?grant_type=fb_exchange_token
 
 ### Google login
 1. [Google Cloud Console](https://console.cloud.google.com)
-2. Create anew project.
+2. Create a new project.
 3. Go to `"OAuth consent screen"` enter required emails and create test accounts.
 4. Go to `"Credentials"` And create new credentials.
 5. Select application type `Web Application`.
