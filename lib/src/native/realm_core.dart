@@ -1070,8 +1070,6 @@ class _RealmCore {
 
         responseRef.custom_status_code = _CustomErrorCode.noError.code;
       } on SocketException catch (_) {
-        // TODO: Define the correct status code on SocketException in _request_callback_async. https://github.com/realm/realm-dart/issues/699
-        // A Timeout causes a socket exception, but not all socket exceptions are due to timeouts
         responseRef.custom_status_code = _CustomErrorCode.timeout.code;
       } on HttpException catch (_) {
         responseRef.custom_status_code = _CustomErrorCode.unknownHttp.code;

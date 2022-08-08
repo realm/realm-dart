@@ -48,7 +48,6 @@ extension FieldElementEx on FieldElement {
 
   Expression? get initializerExpression => declarationAstNode.fields.variables.singleWhere((v) => v.name.name == name).initializer;
 
-  // TODO: Why twice? - https://github.com/realm/realm-dart/issues/695
   FileSpan? typeSpan(SourceFile file) => ExpandedContextSpan(
         ExpandedContextSpan(
           (typeAnnotation ?? initializerExpression)?.span(file) ?? span!,
@@ -204,7 +203,7 @@ extension FieldElementEx on FieldElement {
           final itemType = type.basicType;
           if (itemType.isRealmModel && itemType.isNullable) {
             throw RealmInvalidGenerationSourceError('Nullable realm objects are not allowed in collections',
-                primarySpan: typeSpan(file), // TODO: Restrict span to the parameter type - https://github.com/realm/realm-dart/issues/695
+                primarySpan: typeSpan(file),
                 primaryLabel: 'which has a nullable realm object element type',
                 element: this,
                 todo: 'Ensure element type is non-nullable');
