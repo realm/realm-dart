@@ -266,6 +266,15 @@ class BaasClient {
             "required": false,
             "name": "picture"
           }''');
+
+      const appleSecret = "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";
+      final dynamic createAppkeSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"appleSecret","value":"$appleSecret"}');
+      String appleClientSecretKeyName = createAppkeSecretResult['name'] as String;
+      await enableProvider(app, 'oauth2-apple', config: '''{
+          "clientId": "377665229332-shbj370s8kacqbtienng93ospv5kbijb.apps.googleusercontent.co"
+          }''', secretConfig: '''{
+          "clientSecret": "$googleClientSecretKeyName"
+          }''');
     }
     print('Creating database db_$name$_appSuffix');
 
