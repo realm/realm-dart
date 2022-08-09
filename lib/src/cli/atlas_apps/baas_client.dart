@@ -178,11 +178,11 @@ class BaasClient {
       "runConfirmationFunction": ${(confirmationType != "email" && confirmationType != "auto").toString()},
       "runResetFunction": true
     }''');
-
-    const facebookSecret = "876750ac6d06618b323dee591602897f";
-    final dynamic createFacebookSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
-    String facebookClientSecretKeyName = createFacebookSecretResult['name'] as String;
-    await enableProvider(app, 'oauth2-facebook', config: '''{
+    if (confirmationType == null) {
+      const facebookSecret = "876750ac6d06618b323dee591602897f";
+      final dynamic createFacebookSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
+      String facebookClientSecretKeyName = createFacebookSecretResult['name'] as String;
+      await enableProvider(app, 'oauth2-facebook', config: '''{
           "clientId": "1265617494254819"
           }''', secretConfig: '''{
           "clientSecret": "$facebookClientSecretKeyName"
@@ -223,11 +223,11 @@ class BaasClient {
             "name": "picture"
           }''');
 
-    const googleSecret = "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";
-    final dynamic createGoogleSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"googleSecret","value":"$googleSecret"}');
-    String googleClientSecretKeyName = createGoogleSecretResult['name'] as String;
-    await enableProvider(app, 'oauth2-google', config: '''{
-          "clientId": "377665229332-shbj370s8kacqbtienng93ospv5kbijb.apps.googleusercontent.com"
+      const googleSecret = "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";
+      final dynamic createGoogleSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"googleSecret","value":"$googleSecret"}');
+      String googleClientSecretKeyName = createGoogleSecretResult['name'] as String;
+      await enableProvider(app, 'oauth2-google', config: '''{
+          "clientId": "377665229332-shbj370s8kacqbtienng93ospv5kbijb.apps.googleusercontent.co"
           }''', secretConfig: '''{
           "clientSecret": "$googleClientSecretKeyName"
           }''', metadataFelds: '''{
@@ -266,7 +266,7 @@ class BaasClient {
             "required": false,
             "name": "picture"
           }''');
-
+    }
     print('Creating database db_$name$_appSuffix');
 
     await _createMongoDBService(app, '''{

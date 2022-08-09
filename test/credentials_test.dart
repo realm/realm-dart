@@ -21,7 +21,6 @@ import 'dart:async';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
-import 'package:googleapis_auth/auth_browser.dart';
 
 Future<void> main([List<String>? args]) async {
   const String strongPassword = "SWV23R#@T#VFQDV";
@@ -325,8 +324,21 @@ Future<void> main([List<String>? args]) async {
   ///See test/README.md section 'Manually configure Facebook, Google and Apple authentication providers'"
   baasTest('Google auth code credentials - login', (configuration) async {
     final app = App(configuration);
-    final authCode = 'some google code';
+    final authCode =
+        "ya29.A0AVA9y1tt1nGTu9efoukLKprVEOWomTpSMn4tBGnmHwzsUZq0EsxLZvK7Mg6VNZYlbqQA_qro1_bIRmAyQvMbtwDrTXV08PHAd7uLfnGKunOUoe_UYzzR7JsrukZ6AlW28I4X9bzLFiFfaX1itXwIv0l7VusAaCgYKATASATASFQE65dr8aev5oXgvBVLgMf98xzwvNA0163";
     final credentials = Credentials.googleAuthCode(authCode);
+    final user = await app.logIn(credentials);
+    expect(user.state, UserState.loggedIn);
+    expect(user.provider, AuthProviderType.google);
+  }, skip: "Manual test");
+
+  ///See test/README.md section 'Manually configure Facebook, Google and Apple authentication providers'"
+  baasTest('Google Id token credentials - login', (configuration) async {
+    final app = App(configuration);
+    final tokenId =
+        "eyJhbGciOiJSUzI1NiIsImtpZCI6ImZkYTEwNjY0NTNkYzlkYzNkZDkzM2E0MWVhNTdkYTNlZjI0MmIwZjciLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIzNzc2NjUyMjkzMzItbjdiZjFwb25nYW9xc2ljYTdsMDBhNTJvaThoc29scW0uYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIzNzc2NjUyMjkzMzItbjdiZjFwb25nYW9xc2ljYTdsMDBhNTJvaThoc29scW0uYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTc0OTk4MzAxNDUzODEzMTE1MzQiLCJoZCI6Im1vbmdvZGIuY29tIiwiZW1haWwiOiJkZXNpc2xhdmEuc3RlZmFub3ZhQG1vbmdvZGIuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImF0X2hhc2giOiJ4SnZsMzNFTzFfWU1mMUpGcUVpMHh3IiwiaWF0IjoxNjYwMDU0OTA4LCJleHAiOjE2NjAwNTg1MDh9.A7wGRk3gUgzbH46RYRYaUcOgA1dtFGep2IrpwAshTdze1fRbCN3swoZoHmKZY-kBc8UtXfJvBv9PmXefKm1dGZp94xYECrEWG8MtwySjWAAzVZFvSolxkCpz5M10mTvZuuJcz6Np9XvlPhlcJ0QyJivVbKB8ai4pujsPJMd7uww-WA57xrX4V5AaWgVFKyle1AcG38lgshhKECO-xTL04EDMsVMixwcZMnHv0raZyp52DJiOBaj1-AYVuY60V3REspkxB-GzWYpp8qpqVccgKvo9CymSecZyI2oG7kgq6yZJZtG4R1op6ix63fiLUVTyLyEKyRl4euqw4sSP18XQGg";
+
+    final credentials = Credentials.googleIdToken(tokenId);
     final user = await app.logIn(credentials);
     expect(user.state, UserState.loggedIn);
     expect(user.provider, AuthProviderType.google);

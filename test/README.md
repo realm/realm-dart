@@ -146,7 +146,7 @@ https://graph.facebook.com/v14.0/oauth/access_token?grant_type=fb_exchange_token
 6. Use the recieved token in the test. It will be available for 3.5 days.
 
 ### Google login
-1. [Google Cloud Console](https://console.cloud.google.com)
+1. [Google Cloud Console Credentials](https://console.cloud.google.com/apis/credentials)
 2. Create a new project.
 3. Go to `"OAuth consent screen"` enter required emails and create test accounts.
 4. Go to `"Credentials"` And create new credentials.
