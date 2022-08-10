@@ -350,4 +350,12 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.googleAuthCode(authCode);
     expect(() async => await app.logIn(credentials), throws<RealmException>("error exchanging access code with OAuth2 provider"));
   });
+
+  baasTest('Apple Id token  credentials - wrong token format', (configuration) async {
+    final app = App(configuration);
+    final idToken = 'wrong token format';
+    final credentials = Credentials.apple(idToken);
+    expect(() async => await app.logIn(credentials), throws<RealmException>("token contains an invalid number of segments"));
+  });
+  
 }

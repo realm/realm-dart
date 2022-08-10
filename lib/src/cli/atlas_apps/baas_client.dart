@@ -267,11 +267,11 @@ class BaasClient {
             "name": "picture"
           }''');
 
-      const appleSecret = "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";
+      const appleSecret = "Generated apple secret";
       final dynamic createAppkeSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"appleSecret","value":"$appleSecret"}');
       String appleClientSecretKeyName = createAppkeSecretResult['name'] as String;
       await enableProvider(app, 'oauth2-apple', config: '''{
-          "clientId": "377665229332-shbj370s8kacqbtienng93ospv5kbijb.apps.googleusercontent.co"
+          "clientId": "Generated Apple Client Id"
           }''', secretConfig: '''{
           "clientSecret": "$googleClientSecretKeyName"
           }''');
