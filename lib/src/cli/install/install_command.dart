@@ -141,7 +141,7 @@ class InstallCommand extends Command<void> {
       }
       await response.pipe(destinationFile.openWrite());
     }
-    //TODO: This does not handle download errors.
+    // TODO: Handle download errors in Install command catch https://github.com/realm/realm-dart/issues/696.
      finally {
       client.close(force: true);
     }
