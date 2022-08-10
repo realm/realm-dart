@@ -168,7 +168,6 @@ const String argBaasApiKey = "BAAS_API_KEY";
 const String argBaasPrivateApiKey = "BAAS_PRIVATE_API_KEY";
 const String argBaasProjectId = "BAAS_PROJECT_ID";
 const String argDifferentiator = "BAAS_DIFFERENTIATOR";
-const String argJwksUrl = "BAAS_JWKS_URL";
 
 String testUsername = "realm-test@realm.io";
 String testPassword = "123456";
@@ -295,8 +294,7 @@ Map<String, String?> parseTestArguments(List<String>? arguments) {
     ..addOption(argBaasApiKey)
     ..addOption(argBaasPrivateApiKey)
     ..addOption(argBaasProjectId)
-    ..addOption(argDifferentiator)
-    ..addOption(argJwksUrl);
+    ..addOption(argDifferentiator);
 
   final result = parser.parse(arguments ?? []);
   testArgs
@@ -306,8 +304,7 @@ Map<String, String?> parseTestArguments(List<String>? arguments) {
     ..addArgument(result, argBaasApiKey)
     ..addArgument(result, argBaasPrivateApiKey)
     ..addArgument(result, argBaasProjectId)
-    ..addArgument(result, argDifferentiator)
-    ..addArgument(result, argJwksUrl);
+    ..addArgument(result, argDifferentiator);
 
   return testArgs;
 }
@@ -332,14 +329,12 @@ Future<void> setupBaas() async {
   final privateApiKey = arguments[argBaasPrivateApiKey];
   final projectId = arguments[argBaasProjectId];
   final differentiator = arguments[argDifferentiator];
-  final jwksUrl = arguments[argJwksUrl];
 
   final client = await (cluster == null
       ? BaasClient.docker(baasUrl, differentiator)
       : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
 
   client.publicRSAKey = publicRSAKeyForJWTValidation;
-  client.jwksUrl = jwksUrl ?? "";
 
   var apps = await client.getOrCreateApps();
   baasApps.addAll(apps);

@@ -344,48 +344,6 @@ Future<void> main([List<String>? args]) async {
 
   /// JWT Payload data
   /// {
-  ///    "sub": "62f39187e4b27ad3fb6483ca",  //User.identities.id: If it is a new id the user is created, if it is an existing id the user and profile are updated.
-  ///    "name": {
-  ///      "firstName": "John",
-  ///      "lastName": "Doe"
-  ///    },
-  ///    "email": "JWK_URI_validated_user@realm.io",
-  ///    "gender": "male",
-  ///    "birthDay": "1999-10-11",
-  ///    "minAge": "10",
-  ///    "maxAge": "90",
-  ///    "company": "Realm",
-  ///    "iat": 1660145781,
-  ///    "exp": 4813745781, //100 years after Aug 2022
-  ///    "aud": "mongodb.com",
-  ///    "iss": "https://realm.io"
-  /// }
-  /// JWKS url validation is configured in autoConfirm app.
-  baasTest('JWT validation by using JWK URI - login', (configuration) async {
-    final app = App(configuration);
-    String username = "JWK_URI_validated_user@realm.io";
-    String userId = "62f39187e4b27ad3fb6483ca";
-    var token =
-        "eyJraWQiOiIxIiwiYWxnIjoiUlMyNTYiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiI2MmYzOTE4N2U0YjI3YWQzZmI2NDgzY2EiLCJuYW1lIjp7ImZpcnN0TmFtZSI6IkpvaG4iLCJsYXN0TmFtZSI6IkRvZSJ9LCJlbWFpbCI6IkpXS19VUklfdmFsaWRhdGVkX3VzZXJAcmVhbG0uaW8iLCJnZW5kZXIiOiJtYWxlIiwiYmlydGhEYXkiOiIxOTk5LTEwLTExIiwibWluQWdlIjoiMTAiLCJtYXhBZ2UiOiI5MCIsImNvbXBhbnkiOiJSZWFsbSIsImlhdCI6MTY2MDE0NTc4MSwiZXhwIjo0ODEzNzQ1NzgxLCJhdWQiOiJtb25nb2RiLmNvbSIsImlzcyI6Imh0dHBzOi8vcmVhbG0uaW8ifQ.Zk2S4WqcPECd2IxPRbGEPkTQ86wxgy_rjSGS5Mlmy8pzVpHE-VRa97qxVZy1zIMNXbVR8jFqbPjSix09f4wclPTqz639kwYr8msnF2DQE2ir7xcw6uOAfwNxVW1YIAkZbETaLiQI2I0Wb7gbEp8CPa1VMbg5D295_jjGNSuAuPgSa352OAL3NrJKHwsmTtRset0x_rcheogW-3fDvi4AQreAqT1xpCgPMq5dvspV6cOVXT0gJ8m1VhIHVZyHngeMkAkdGlIQqVLh1ipDwEuxbpfvt5hyxfXQbUCQs7pmkxCyuSXSr7Kqj3-VEFDtdLFGKuXDG572KlbC4fia9Ap-Dw";
-    final credentials = Credentials.jwt(token);
-    final user = await app.logIn(credentials);
-
-    expect(user.state, UserState.loggedIn);
-    expect(user.identities[0].id, userId);
-    expect(user.provider, AuthProviderType.jwt);
-    expect(user.profile.email, username);
-    expect(user.profile.name, username);
-    expect(user.profile.gender, "male");
-    expect(user.profile.birthDay, "1999-10-11");
-    expect(user.profile.minAge, "10");
-    expect(user.profile.maxAge, "90");
-    expect(user.profile.firstName, "John");
-    expect(user.profile.lastName, "Doe");
-    expect(user.profile["company"], "Realm");
-  }, appName: AppNames.autoConfirm);
-
-  /// JWT Payload data
-  /// {
   ///   "sub": "62f3840b4ac43f38a50b9e2b", //User.identities.id of the existing user realm-test@realm.io
   ///   "name": {
   ///     "firstName": "John",

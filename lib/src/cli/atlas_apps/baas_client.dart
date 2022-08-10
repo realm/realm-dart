@@ -64,7 +64,6 @@ class BaasClient {
 
   late String _groupId;
   late String publicRSAKey = '';
-  late String jwksUrl = '';
 
   BaasClient._(String baseUrl, String? differentiator, [this._clusterName])
       : _baseUrl = '$baseUrl/api/admin/v3.0',
@@ -190,9 +189,8 @@ class BaasClient {
       await enableProvider(app, 'custom-token', config: '''{
           "audience": "mongodb.com",
           "signingAlgorithm": "RS256",
-          "useJWKURI": ${(jwksUrl.isNotEmpty && (confirmationType == "auto")).toString()},
-          "jwkURI": "$jwksUrl"
-          }''', secretConfig: '''{
+          "useJWKURI": false
+           }''', secretConfig: '''{
           "signingKeys": ["$keyName"]
           }''', metadataFelds: '''{
             "required": false,
