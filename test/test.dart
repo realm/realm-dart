@@ -282,7 +282,7 @@ Future<void> tryDeleteRealm(String path) async {
     }
   }
 
-  // TODO: File deletions does not work after tests so don't fail for now
+  // File deletions does not work after tests so don't fail for now
   // throw Exception('Failed to delete realm at path $path. Did you forget to close it?');
 }
 
@@ -337,7 +337,7 @@ Future<void> setupBaas() async {
   final client = await (cluster == null
       ? BaasClient.docker(baasUrl, differentiator)
       : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
-  
+
   client.publicRSAKey = publicRSAKeyForJWTValidation;
   client.jwksUrl = jwksUrl ?? "";
 

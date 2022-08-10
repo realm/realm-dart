@@ -396,7 +396,7 @@ Future<void> main([List<String>? args]) async {
     expect(user.profile["company"], "Realm");
   }, appName: AppNames.autoConfirm);
 
-/// JWT Header:
+  /// JWT Header:
   /// {
   ///   "kid": "1",
   ///   "alg": "RS256",
@@ -423,7 +423,9 @@ Future<void> main([List<String>? args]) async {
   baasTest('JWT - login with existing user and edit profile', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
-    var userId = user.identities[0].id;
+    UserIdentity emailIdentity = user.identities.singleWhere((identity) => identity.provider == AuthProviderType.emailPassword);
+    expect(emailIdentity.provider, isNotNull);
+    var userId = emailIdentity.id;
 
     expect(user.state, UserState.loggedIn);
     expect(user.provider, AuthProviderType.emailPassword);
@@ -439,10 +441,17 @@ Future<void> main([List<String>? args]) async {
 
     var token =
         "eyJraWQiOiIxIiwiYWxnIjoiUlMyNTYiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiI2MmYzODQwYjRhYzQzZjM4YTUwYjllMmIiLCJuYW1lIjp7ImZpcnN0TmFtZSI6IkpvaG4iLCJsYXN0TmFtZSI6IkRvZSJ9LCJlbWFpbCI6InJlYWxtLXRlc3RAcmVhbG0uaW8iLCJnZW5kZXIiOiJtYWxlIiwiYmlydGhEYXkiOiIxOTk5LTEwLTExIiwibWluQWdlIjoiMTAiLCJtYXhBZ2UiOiI5MCIsImNvbXBhbnkiOiJSZWFsbSIsImlhdCI6MTY2MDEzMTg4MCwiZXhwIjoxNjYwMzUwODgwLCJhdWQiOiJtb25nb2RiLmNvbSIsImlzcyI6Imh0dHBzOi8vcmVhbG0uaW8ifQ.CXfGI04etO2B98-BA87-1YuQZlcg8Rg62kRjXXxblYaB_I6PDFm9-VfuaBtqtBW8i8DU5gBsoLniByKpy2FhN-CtTImTRu4Zf69jMnKME1l3KMjsYOnXKATSu8RVg9nuSFSAHBzYHOHvSKCKXk_sEH8y4O6GqBGcWHAY2TVlqSCk4ttsg1-lmdCM3fl7P7qwW0bJSeAmTHlm_g-Dh1-4a12_011c9LPoNUKHKwfVsKxn1SJzBzQRDQrn1Zzv_l-rGWCKr7ijrjmDrAi2vDWFxXYhPPFW8Mymn5W0RRV9AmoeUx8gqfyw565l5IHndKEzmsofK6RQtfyFK6EeX-tBQg";
+    await user.linkCredentials(Credentials.jwt(token));
+
+    UserIdentity jwtIdentity = user.identities.singleWhere((identity) => identity.provider == AuthProviderType.jwt);
+    expect(jwtIdentity.provider, isNotNull);
+    var jwtUserId = jwtIdentity.id;
+
     var jwtUser = await app.logIn(Credentials.jwt(token));
 
     expect(jwtUser.state, UserState.loggedIn);
-    expect(jwtUser.identities[0].id, userId);
+    expect(jwtUser.identities.singleWhere((identity) => identity.provider == AuthProviderType.jwt).id, jwtUserId);
+    expect(jwtUser.identities.singleWhere((identity) => identity.provider == AuthProviderType.emailPassword).id, userId);
     expect(jwtUser.provider, AuthProviderType.jwt);
     expect(jwtUser.profile.email, testUsername);
     expect(jwtUser.profile.name, testUsername);
