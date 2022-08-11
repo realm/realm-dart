@@ -158,7 +158,3 @@ https://graph.facebook.com/v14.0/oauth/access_token?grant_type=fb_exchange_token
 1. Follow [Configure Apple ID Authentication](https://www.mongodb.com/docs/atlas/app-services/authentication/apple/?_ga=2.164705531.571461401.1659951211-1571915642.1647002315&_gac=1.262923902.1657013958.CjwKCAjwwo-WBhAMEiwAV4dybbvQofeEDE30ZwA4sJ8VQtXHHzdK0LjoiYwBvDy1wem3UiFlgh_RzxoCAnIQAvD_BwE#configure-apple-id-authentication)
 2. In order to create an identifier from ["Certificates, Identifiers & Profiles"](https://developer.apple.com/account/resources/) you have to be a part of `"Apple Developer Program"`.
 3. [Apple Developer Program Enrollment](https://developer.apple.com/enroll/purchase) - you may skip this step in case your AppleId is already a part of the program.
-
-
-
-
