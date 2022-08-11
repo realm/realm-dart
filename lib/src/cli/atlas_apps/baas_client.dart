@@ -222,59 +222,6 @@ class BaasClient {
             "required": false,
             "name": "picture"
           }''');
-
-      const googleSecret = "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";
-      final dynamic createGoogleSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"googleSecret","value":"$googleSecret"}');
-      String googleClientSecretKeyName = createGoogleSecretResult['name'] as String;
-      await enableProvider(app, 'oauth2-google', config: '''{
-          "clientId": "377665229332-shbj370s8kacqbtienng93ospv5kbijb.apps.googleusercontent.co"
-          }''', secretConfig: '''{
-          "clientSecret": "$googleClientSecretKeyName"
-          }''', metadataFelds: '''{
-            "required": true,
-            "name": "name"
-          },
-          {
-            "required": true,
-            "name": "first_name"
-          },
-          {
-            "required": true,
-            "name": "last_name"
-          },
-          {
-            "required": false,
-            "name": "email"
-          },
-          {
-            "required": false,
-            "name": "gender"
-          },
-          {
-            "required": false,
-            "name": "birthday"
-          },
-          {
-            "required": false,
-            "name": "min_age"
-          },
-          {
-            "required": false,
-            "name": "max_age"
-          },
-          {
-            "required": false,
-            "name": "picture"
-          }''');
-
-      const appleSecret = "Generated apple secret";
-      final dynamic createAppkeSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"appleSecret","value":"$appleSecret"}');
-      String appleClientSecretKeyName = createAppkeSecretResult['name'] as String;
-      await enableProvider(app, 'oauth2-apple', config: '''{
-          "clientId": "Generated Apple Client Id"
-          }''', secretConfig: '''{
-          "clientSecret": "$googleClientSecretKeyName"
-          }''');
     }
     print('Creating database db_$name$_appSuffix');
 
