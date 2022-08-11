@@ -351,7 +351,7 @@ Future<void> main([List<String>? args]) async {
     expect(() async => await app.logIn(credentials), throws<RealmException>("error exchanging access code with OAuth2 provider"));
   });
 
-  baasTest('Apple Id token  credentials - wrong token format', (configuration) async {
+  baasTest('Apple Id token credentials - wrong token format', (configuration) async {
     final app = App(configuration);
     final idToken = 'wrong token format';
     final credentials = Credentials.apple(idToken);
