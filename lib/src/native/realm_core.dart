@@ -1694,15 +1694,23 @@ class LastError {
   }
 }
 
-abstract class HandleBase<T extends NativeType> {
+void _traceFinalization(Object o) {
+  Realm.logger.log(RealmLogLevel.info, 'Finalizing: $o');
+}
+
+final _debugFinalizer = Finalizer<Object>(_traceFinalization);
+
+final _nativeFinalizer = NativeFinalizer(_realmLib.addresses.realm_release);
+
+abstract class HandleBase<T extends NativeType> implements Finalizable {
   final Pointer<T> _pointer;
-  late final Dart_FinalizableHandle _finalizableHandle;
 
   HandleBase(this._pointer, int size) {
-    _finalizableHandle = _realmLib.realm_dart_attach_finalizer(this, _pointer.cast(), size);
-    if (_finalizableHandle == nullptr) {
-      throw Exception("Error creating $runtimeType");
-    }
+    _nativeFinalizer.attach(this, _pointer.cast(), detach: this, externalSize: size);
+    assert(() {
+      _debugFinalizer.attach(this, _pointer);
+      return true;
+    }());
   }
 
   HandleBase.unowned(this._pointer);
@@ -1760,8 +1768,12 @@ class ReleasableHandle<T extends NativeType> extends HandleBase<T> {
     if (released) {
       return;
     }
-
-    _realmLib.realm_dart_delete_finalizable(_finalizableHandle, this);
+    _nativeFinalizer.detach(this);
+    assert(() {
+      _traceFinalization(_pointer);
+      _debugFinalizer.detach(this);
+      return true;
+    }());
     _realmLib.realm_release(_pointer.cast());
     released = true;
   }

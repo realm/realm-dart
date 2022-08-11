@@ -28,18 +28,6 @@ RLM_API void realm_dart_initializeDartApiDL(void* data) {
     Dart_InitializeApiDL(data);
 }
 
-static void handle_finalizer(void* isolate_callback_data, void* realmPtr) {
-    realm_release(realmPtr);
-}
-
-RLM_API Dart_FinalizableHandle realm_dart_attach_finalizer(Dart_Handle handle, void* realmPtr, int size) {
-    return Dart_NewFinalizableHandle_DL(handle, realmPtr, size, handle_finalizer);
-}
-
-RLM_API void realm_dart_delete_finalizable(Dart_FinalizableHandle finalizable_handle, Dart_Handle handle) {
-    Dart_DeleteFinalizableHandle_DL(finalizable_handle, handle);
-}
-
 class WeakHandle {
 public:
     WeakHandle(Dart_Handle handle) : m_weakHandle(Dart_NewWeakPersistentHandle_DL(handle, this, 1, finalize_handle)) {
