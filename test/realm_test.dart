@@ -19,6 +19,7 @@
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
 import 'dart:io';
+import 'dart:js_util';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -620,10 +621,10 @@ Future<void> main([List<String>? args]) async {
     // We should not be in transaction here
     expect(realm.isInTransaction, false);
   });
-  
+
   test('Realm open async with local configuration throws', () async {
     var config = Configuration.local([Car.schema, Person.schema]);
-    expect(() async => await Realm.open(config), throws<RealmException>("This method is only available for fully synchronized Realms"));
+    expect(() async => await Realm.open(config).value, throws<RealmException>("This method is only available for fully synchronized Realms"));
   });
 
   baasTest('Realm open async', (appConfiguration) async {
@@ -636,7 +637,8 @@ Future<void> main([List<String>? args]) async {
       Event.schema,
     ]);
 
-    final realm = await Realm.open(configuration);
+    final operationOpen = Realm.open(configuration);
+    final realm = await operationOpen.value;
     realm.close();
   });
 }

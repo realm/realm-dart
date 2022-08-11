@@ -21,6 +21,7 @@ import 'dart:io';
 
 import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
+import 'package:async/async.dart';
 
 import 'configuration.dart';
 import 'list.dart';
@@ -99,13 +100,20 @@ class Realm {
   }
 
   /// Opens a `Realm` async using a [Configuration] object.
-  static Future<Realm> open(Configuration config) async {
+  static CancelableOperation<Realm> open(Configuration config) {
+
     var dir = File(config.path).parent;
-    if (!await dir.exists()) {
-      await dir.create(recursive: true);
+    if (!dir.existsSync()) {
+      dir.createSync(recursive: true);
     }
-    RealmHandle handle = await realmCore.openRealmAsync(config);
-    return Realm._(config, handle);
+
+    var openRealmAsyncOperation = realmCore.openRealmAsync(config);
+    CancelableOperation<Realm> cancelableOperation =
+        CancelableOperation<Realm>.fromFuture(openRealmAsyncOperation.valueOrCancellation(null).then<Realm>((handle) => Realm._(config, handle)),
+            onCancel: () => {
+                  if (!openRealmAsyncOperation.isCompleted) {openRealmAsyncOperation.cancel()}
+                });
+    return cancelableOperation;
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
