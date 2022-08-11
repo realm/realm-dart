@@ -281,7 +281,7 @@ Future<void> tryDeleteRealm(String path) async {
     }
   }
 
-  // File deletions does not work after tests so don't fail for now
+  // TODO: File deletions does not work after tests so don't fail for now https://github.com/realm/realm-dart/issues/751
   // throw Exception('Failed to delete realm at path $path. Did you forget to close it?');
 }
 
