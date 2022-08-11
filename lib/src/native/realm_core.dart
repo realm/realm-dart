@@ -116,7 +116,7 @@ class _RealmCore {
           final schemaProperty = schemaObject.properties[j];
           final propInfo = properties.elementAt(j).ref;
           propInfo.name = schemaProperty.name.toCharPtr(arena);
-          //TODO: assign the correct public name value.
+          //TODO: Assign the correct public name value https://github.com/realm/realm-dart/issues/697
           propInfo.public_name = "".toCharPtr(arena);
           propInfo.link_target = (schemaProperty.linkTarget ?? "").toCharPtr(arena);
           propInfo.link_origin_property_name = "".toCharPtr(arena);
@@ -397,7 +397,8 @@ class _RealmCore {
       config.initialDataCallback!(realm);
       return true;
     } catch (ex) {
-      // TODO: this should propagate the error to Core: https://github.com/realm/realm-core/issues/5366
+      // TODO: Propagate error to Core in initial_data_callback https://github.com/realm/realm-dart/issues/698
+      // Core issue: https://github.com/realm/realm-core/issues/5366
     }
 
     return false;
@@ -930,6 +931,34 @@ class _RealmCore {
     });
   }
 
+  RealmAppCredentialsHandle createAppCredentialsApple(String idToken) {
+    return using((arena) {
+      final idTokenPtr = idToken.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_apple(idTokenPtr));
+    });
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsFacebook(String accessToken) {
+    return using((arena) {
+      final accessTokenPtr = accessToken.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_facebook(accessTokenPtr));
+    });
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsGoogleIdToken(String idToken) {
+    return using((arena) {
+      final idTokenPtr = idToken.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_google_id_token(idTokenPtr));
+    });
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsGoogleAuthCode(String authCode) {
+    return using((arena) {
+      final authCodePtr = authCode.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_google_auth_code(authCodePtr));
+    });
+  }
+
   RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
     final requestCallback = Pointer.fromFunction<Void Function(Handle, realm_http_request, Pointer<Void>)>(_request_callback);
     final requestCallbackUserdata = _realmLib.realm_dart_userdata_async_new(httpClient, requestCallback.cast(), scheduler.handle._pointer);
@@ -1041,7 +1070,6 @@ class _RealmCore {
 
         responseRef.custom_status_code = _CustomErrorCode.noError.code;
       } on SocketException catch (_) {
-        // TODO: A Timeout causes a socket exception, but not all socket exceptions are due to timeouts
         responseRef.custom_status_code = _CustomErrorCode.timeout.code;
       } on HttpException catch (_) {
         responseRef.custom_status_code = _CustomErrorCode.unknownHttp.code;
@@ -1409,7 +1437,8 @@ class _RealmCore {
 
   List<UserIdentity> userGetIdentities(User user) {
     return using((arena) {
-      //TODO: This approach is prone to race conditions. Fix this once Core changes how count is retrieved.
+      // TODO: Fix countIds in userGetIdentities once Core changes how count is retrieved. https://github.com/realm/realm-dart/issues/690
+      // This approach is prone to race conditions.
       final idsCount = arena<Size>();
       _realmLib.invokeGetBool(
           () => _realmLib.realm_user_get_all_identities(user.handle._pointer, nullptr, 0, idsCount), "Error while getting user identities count");
