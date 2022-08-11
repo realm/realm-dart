@@ -620,12 +620,6 @@ Future<void> main([List<String>? args]) async {
     // We should not be in transaction here
     expect(realm.isInTransaction, false);
   });
-
-  test('Realm openSync', () {
-    var config = Configuration.local([Car.schema, Person.schema]);
-    final realm = Realm.openSync(config);
-    realm.close();
-  });
   
   test('Realm open async with local configuration throws', () async {
     var config = Configuration.local([Car.schema, Person.schema]);

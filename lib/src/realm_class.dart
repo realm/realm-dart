@@ -108,9 +108,6 @@ class Realm {
     return Realm._(config, handle);
   }
 
-  /// Opens a `Realm` using a [Configuration] object.
-  static Realm openSync(Configuration config) => Realm._(config);
-
   static RealmHandle _openRealmSync(Configuration config) {
     var dir = File(config.path).parent;
     if (!dir.existsSync()) {
