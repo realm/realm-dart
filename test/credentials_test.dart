@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:io';
-import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -302,35 +300,39 @@ Future<void> main([List<String>? args]) async {
     }, throws<RealmException>("failed to reset password for user $username"));
   }, appName: AppNames.autoConfirm);
 
-  baasTest('JWT validation by specified public key  - login with new user', (configuration) async {
+  /// JWT Payload data
+  /// {
+  ///    "sub": "62f394e9bcb9fee0c9aecb76",  //User.identities.id: If it is a new id the user is created, if it is an existing id the user and profile are updated.
+  ///    "name": {
+  ///      "firstName": "John",
+  ///      "lastName": "Doe"
+  ///    },
+  ///    "email": "JWT_privatekey_validated_user@realm.io",
+  ///    "gender": "male",
+  ///    "birthDay": "1999-10-11",
+  ///    "minAge": "10",
+  ///    "maxAge": "90",
+  ///    "company": "Realm",
+  ///    "iat": 1660145686,
+  ///    "exp": 4813745686, //100 years after Aug 2022
+  ///    "aud": "mongodb.com",
+  ///    "iss": "https://realm.io"
+  /// }
+  /// JWT with private key validation is configured in flexible app wich is used by the tests by default.
+  baasTest('JWT validation by specified public key  - login', (configuration) async {
     final app = App(configuration);
-    var newUserId = ObjectId();
-    String username = "${generateRandomString(5)}@realm.io";
-    final jwt = JWT(
-      {
-        "sub": "$newUserId",
-        "name": {"firstName": "John", "lastName": "Doe"},
-        "email": username,
-        "gender": "male",
-        "birthDay": "1999-10-11",
-        "minAge": "10",
-        "maxAge": "90",
-        "company": "Realm",
-      },
-      issuer: 'https://realm.io',
-      audience: Audience(["mongodb.com"]),
-    );
-
-    String privateKey = File("test/data/jwt_keys/private_key.pem").readAsStringSync();
-    var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
-    print('Signed token: $token\n');
+    String username = "JWT_privatekey_validated_user@realm.io";
+    String userId = "62f394e9bcb9fee0c9aecb76";
+    var token =
+        "eyJraWQiOiIxIiwiYWxnIjoiUlMyNTYiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiI2MmYzOTRlOWJjYjlmZWUwYzlhZWNiNzYiLCJuYW1lIjp7ImZpcnN0TmFtZSI6IkpvaG4iLCJsYXN0TmFtZSI6IkRvZSJ9LCJlbWFpbCI6IkpXVF9wcml2YXRla2V5X3ZhbGlkYXRlZF91c2VyQHJlYWxtLmlvIiwiZ2VuZGVyIjoibWFsZSIsImJpcnRoRGF5IjoiMTk5OS0xMC0xMSIsIm1pbkFnZSI6IjEwIiwibWF4QWdlIjoiOTAiLCJjb21wYW55IjoiUmVhbG0iLCJpYXQiOjE2NjAxNDU2ODYsImV4cCI6NDgxMzc0NTY4NiwiYXVkIjoibW9uZ29kYi5jb20iLCJpc3MiOiJodHRwczovL3JlYWxtLmlvIn0.NAy60d4zpzRyJayO9qa6i7T3Yui4vrEJNK5FYhlQGAPCCKmPpBBrPZnOH2QwTsE1sW5jr9EsUPix6PLIauSY4nE-s4JrFb9Yu1QmhzYiXAzzyRK_yJOLmrOujqnWb57Z1KvZo5CsUafTgB5-mbs4t4-udIZEubEgr7sgH51rHK7F1r7EArwT3Fbx-EjPDTN1cWn4945Hku6wk0WgdXwVg6TEaNtT0RrEegw9t63sW1UvOYsgXpHfCePGH8VRX7yYYqu1xBnS1S1ZHNgGNZp3t8pu4lod6jHho0dPetAq9oMSmUP9H2uiKkwqFmWC_bVEjTxX4bGSbLGKZQRkiOn38w";
     final credentials = Credentials.jwt(token);
     final user = await app.logIn(credentials);
 
     expect(user.state, UserState.loggedIn);
+    expect(user.identities[0].id, userId);
     expect(user.provider, AuthProviderType.jwt);
     expect(user.profile.email, username);
-    expect(user.profile.name, username); //In metadataFelds email is mapped to two fields: email and name
+    expect(user.profile.name, username);
     expect(user.profile.gender, "male");
     expect(user.profile.birthDay, "1999-10-11");
     expect(user.profile.minAge, "10");
@@ -338,139 +340,104 @@ Future<void> main([List<String>? args]) async {
     expect(user.profile.firstName, "John");
     expect(user.profile.lastName, "Doe");
     expect(user.profile["company"], "Realm");
-  }, skip: (isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS)) ? "No jwt_keys" : false);
+  });
 
-  baasTest('JWT validation by using JWK URI - login with new user', (configuration) async {
-    //autoConfirm app is configured to validate tokens with public key dtored in JWKS url
+  /// JWT Payload data
+  /// {
+  ///   "sub": "62f3840b4ac43f38a50b9e2b", //User.identities.id of the existing user realm-test@realm.io
+  ///   "name": {
+  ///     "firstName": "John",
+  ///     "lastName": "Doe"
+  ///   },
+  ///   "email": "jwt_user@#r@D@realm.io",
+  ///   "gender": "male",
+  ///   "birthDay": "1999-10-11",
+  ///   "minAge": "10",
+  ///   "maxAge": "90",
+  ///   "company": "Realm",
+  ///   "iat": 1660145055,
+  ///   "exp": 4813745055, //100 years after Aug 2022
+  ///   "aud": "mongodb.com",
+  ///   "iss": "https://realm.io"
+  /// }
+  baasTest('JWT - login with existing user and edit profile', (configuration) async {
     final app = App(configuration);
-    var newUserId = ObjectId();
-    String username = "${generateRandomString(5)}@realm.io";
-    final jwt = JWT(
+    final username = "jwt_user@#r@D@realm.io";
+    final authProvider = EmailPasswordAuthProvider(app);
+    // Always register jwt_user@#r@D@realm.io as a new user.
+    try {
+      await authProvider.registerUser(username, strongPassword);
+    } on RealmException catch (e) {
       {
-        "sub": "$newUserId",
-        "name": {"firstName": "John", "lastName": "Doe"},
-        "email": username,
-        "gender": "male",
-        "birthDay": "1999-10-11",
-        "minAge": "10",
-        "maxAge": "90",
-        "company": "Realm",
-      },
-      issuer: 'https://realm.io',
-      audience: Audience(["mongodb.com"]),
-    )..header = <String, dynamic>{"kid": "1"};
-
-    String privateKey = File("test/data/jwt_keys/private_key.pem").readAsStringSync();
-    var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
-    print('Signed token: $token\n');
-    final credentials = Credentials.jwt(token);
-    final user = await app.logIn(credentials);
+        if (e.message.contains("name already in use")) {
+          // If the user exists, delete it and register a new one with the same name and empty profile
+          final user1 = await loginWithRetry(app, Credentials.emailPassword(username, strongPassword));
+          await app.deleteUser(user1);
+          await authProvider.registerUser(username, strongPassword);
+        }
+      }
+    }
+    final user = await app.logIn(Credentials.emailPassword(username, strongPassword));
+    UserIdentity emailIdentity = user.identities.singleWhere((identity) => identity.provider == AuthProviderType.emailPassword);
+    expect(emailIdentity.provider, isNotNull);
+    var userId = emailIdentity.id;
 
     expect(user.state, UserState.loggedIn);
-    expect(user.provider, AuthProviderType.jwt);
+    expect(user.provider, AuthProviderType.emailPassword);
     expect(user.profile.email, username);
-    expect(user.profile.name, username); //In metadataFelds email is mapped to two fields: email and name
-    expect(user.profile.gender, "male");
-    expect(user.profile.birthDay, "1999-10-11");
-    expect(user.profile.minAge, "10");
-    expect(user.profile.maxAge, "90");
-    expect(user.profile.firstName, "John");
-    expect(user.profile.lastName, "Doe");
-    expect(user.profile["company"], "Realm");
-  },
-      appName: AppNames.autoConfirm,
-      skip: (Platform.environment["BAAS_JWKS_URL"] == null || (isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS)))
-          ? "No jwt_keys"
-          : false);
+    expect(user.profile.name, isNull);
+    expect(user.profile.gender, isNull);
+    expect(user.profile.birthDay, isNull);
+    expect(user.profile.minAge, isNull);
+    expect(user.profile.maxAge, isNull);
+    expect(user.profile.firstName, isNull);
+    expect(user.profile.lastName, isNull);
+    expect(user.profile["company"], isNull);
 
-  baasTest('JWT with JWK URL validation - login with existing user and edit profile', (configuration) async {
-    final app = App(configuration);
+    var token =
+        "eyJraWQiOiIxIiwiYWxnIjoiUlMyNTYiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiI2MmYzODQwYjRhYzQzZjM4YTUwYjllMmIiLCJuYW1lIjp7ImZpcnN0TmFtZSI6IkpvaG4iLCJsYXN0TmFtZSI6IkRvZSJ9LCJlbWFpbCI6Imp3dF91c2VyQCNyQERAcmVhbG0uaW8iLCJnZW5kZXIiOiJtYWxlIiwiYmlydGhEYXkiOiIxOTk5LTEwLTExIiwibWluQWdlIjoiMTAiLCJtYXhBZ2UiOiI5MCIsImNvbXBhbnkiOiJSZWFsbSIsImlhdCI6MTY2MDE0NTA1NSwiZXhwIjo0ODEzNzQ1MDU1LCJhdWQiOiJtb25nb2RiLmNvbSIsImlzcyI6Imh0dHBzOi8vcmVhbG0uaW8ifQ.AHi4eh3wT9VifM0Hy07vVa2Sck8qlv4st71GaR5UFaytgDW7a-zhLRpPXYt6RX8mjzx6aCenbVr7-Cg8kKxL8XT5x-kmswse8FVtRXi-G5TU2C3AMuMTavP9KCMSpU6_IUfpF_i8kQbrke-YzfS5jflspyEgxHrHTcG0aRIRqBHAmu78er7t3MMv2tbScmipZv-QOXczhTBt0o2wk8iZ-qqTK2X6xb1wbhUS9YtY4oqmuE7n-I_1xah_yd4yF-aS3n13vT-nrm6aIdjwR_EVxAoekN9TTqs0WzpCjy2CcL-LO3RcepUCPQTGwKg9ObTFjJ2URw4FJ_BEA8EfpT_fBg";
+    await user.linkCredentials(Credentials.jwt(token));
 
-    //Create a new user with profile
-    var newUserId = ObjectId();
-    String username = "${generateRandomString(5)}@realm.io";
-    final jwt = JWT(
-      {
-        "sub": "$newUserId",
-        "name": {"firstName": "John", "lastName": "Doe"},
-        "email": username,
-        "gender": "male",
-        "birthDay": "1999-10-11",
-        "minAge": "10",
-        "maxAge": "90",
-        "company": "Realm",
-      },
-      issuer: 'https://realm.io',
-      audience: Audience(["mongodb.com"]),
-    )..header = <String, dynamic>{"kid": "1"};
+    UserIdentity jwtIdentity = user.identities.singleWhere((identity) => identity.provider == AuthProviderType.jwt);
+    expect(jwtIdentity.provider, isNotNull);
+    var jwtUserId = jwtIdentity.id;
 
-    String privateKey = File("test/data/jwt_keys/private_key.pem").readAsStringSync();
-    var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
-    print('Signed token: $token\n');
-    await app.logIn(Credentials.jwt(token));
+    var jwtUser = await app.logIn(Credentials.jwt(token));
 
-    //Login existing user without to pass profile fields
-    var existingUser = app.users.first;
-    var profileExistingUser = existingUser.profile;
-    final jwtExistingUser = JWT(
-      {
-        "sub": "${existingUser.id}}",
-        "email": profileExistingUser.email,
-        "name": {"firstName": "Jonathan", "lastName": profileExistingUser.lastName},
-        "gender": profileExistingUser.gender,
-        "birthDay": profileExistingUser.birthDay,
-        "minAge": profileExistingUser.minAge,
-        "maxAge": profileExistingUser.maxAge,
-        "company": "MongoDB",
-      },
-      issuer: 'https://realm.io',
-      audience: Audience(["mongodb.com"]),
-    )..header = <String, dynamic>{"kid": "1"};
+    expect(jwtUser.state, UserState.loggedIn);
+    expect(jwtUser.identities.singleWhere((identity) => identity.provider == AuthProviderType.jwt).id, jwtUserId);
+    expect(jwtUser.identities.singleWhere((identity) => identity.provider == AuthProviderType.emailPassword).id, userId);
+    expect(jwtUser.provider, AuthProviderType.jwt);
+    expect(jwtUser.profile.email, username);
+    expect(jwtUser.profile.name, username);
+    expect(jwtUser.profile.gender, "male");
+    expect(jwtUser.profile.birthDay, "1999-10-11");
+    expect(jwtUser.profile.minAge, "10");
+    expect(jwtUser.profile.maxAge, "90");
+    expect(jwtUser.profile.firstName, "John");
+    expect(jwtUser.profile.lastName, "Doe");
+    expect(jwtUser.profile["company"], "Realm");
+  }, appName: AppNames.autoConfirm);
 
-    var tokenExistingUser = jwtExistingUser.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
-    print('Signed token: $tokenExistingUser\n');
-    final user = await app.logIn(Credentials.jwt(tokenExistingUser));
-
-    //Profile fields are equal to the profile fields of the created user.
-    expect(user.state, UserState.loggedIn);
-    expect(user.provider, AuthProviderType.jwt);
-    expect(user.profile.email, username);
-    expect(user.profile.name, username); //In metadataFelds email is mapped to two fields: email and name
-    expect(user.profile.gender, "male");
-    expect(user.profile.birthDay, "1999-10-11");
-    expect(user.profile.minAge, "10");
-    expect(user.profile.maxAge, "90");
-    expect(user.profile.firstName, "Jonathan");
-    expect(user.profile.lastName, "Doe");
-    expect(user.profile["company"], "MongoDB");
-  },
-      appName: AppNames.autoConfirm,
-      skip: (Platform.environment["BAAS_JWKS_URL"] == null || (isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS)))
-          ? "No jwt_keys"
-          : false);
-
+  /// Token signed with private key different than the one configured in Atlas 'flexible' app JWT authentication provider
+  /// JWT Payload data
+  /// {
+  ///  "sub": "62f396888af8720b373ff06a",
+  ///  "email": "wong_signiture_key@realm.io",
+  ///  "iat": 1660142215,
+  ///  "exp": 4813742215, //100 years after Aug 2022
+  ///  "aud": "mongodb.com",
+  ///  "iss": "https://realm.io"
+  /// }
   baasTest('JWT with wrong signiture key - login fails', (configuration) async {
     final app = App(configuration);
-    var newUserId = ObjectId();
-    String username = "${generateRandomString(5)}@realm.io";
-    final jwt = JWT(
-      {
-        "sub": "$newUserId",
-        "email": username,
-      },
-      issuer: 'https://realm.io',
-      audience: Audience(["mongodb.com"]),
-    );
-
-    String privateKey = File("test/data/jwt_keys/wrong_private_key.pem").readAsStringSync();
-    var token = jwt.sign(RSAPrivateKey(privateKey), algorithm: JWTAlgorithm.RS256, expiresIn: Duration(minutes: 3));
-
-    print('Signed token: $token\n');
+    var token =
+        "eyJraWQiOiIxIiwiYWxnIjoiUlMyNTYiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiI2MmYzOTY4ODhhZjg3MjBiMzczZmYwNmEiLCJlbWFpbCI6Indvbmdfc2lnbml0dXJlX2tleUByZWFsbS5pbyIsImlhdCI6MTY2MDE0MjIxNSwiZXhwIjo0ODEzNzQyMjE1LCJhdWQiOiJtb25nb2RiLmNvbSIsImlzcyI6Imh0dHBzOi8vcmVhbG0uaW8ifQ.Af--ZUCL_KC7lAhrD_d1lq91O7qVwu7GqXifwxKojkLCkbjmAER9K2Xa7BPO8xNstFeX8m9uBo4BCD5B6XmngSmyCj5OZWdiG5LTR_uhA3MnpqcV3Vu40K4Yx8XrjPuCL39xVPnEfPKLGz5TjEcMLa8xMPqo51byX0q3mR2eSS4w1A7c5TiTNuQ23_SCO8aK95SyXwuUmU4mH0iR4sHPtf64WyoAXkx8w5twXExzky1_h473CwtAERdMsBhwz1YzFKP0kxU31pg5SRciF5Ly66sK1fSPTMQPuVdS_wKvAYll8_trWnWS83M3_PWs4UxzOdjSpoK0uqhN-_IC38YOGg";
     final credentials = Credentials.jwt(token);
     expect(() async {
-      final user = await app.logIn(credentials);
+      await app.logIn(credentials);
     }, throws<RealmException>("crypto/rsa: verification error"));
-  }, skip: (isFlutterPlatform && (Platform.isMacOS || Platform.isAndroid || Platform.isIOS)) ? "No jwt_keys" : false);
+ });
 
   baasTest('Function credentials - wrong payload', (configuration) {
     final app = App(configuration);

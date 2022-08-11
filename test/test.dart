@@ -168,10 +168,18 @@ const String argBaasApiKey = "BAAS_API_KEY";
 const String argBaasPrivateApiKey = "BAAS_PRIVATE_API_KEY";
 const String argBaasProjectId = "BAAS_PROJECT_ID";
 const String argDifferentiator = "BAAS_DIFFERENTIATOR";
-const String argJwksUrl = "BAAS_JWKS_URL";
 
 String testUsername = "realm-test@realm.io";
 String testPassword = "123456";
+const String publicRSAKeyForJWTValidation = '''-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvNHHs8T0AHD7SJ+CKvVR
+leeJa4wqYTnaVYV+5bX9FmFXVoN+vHbMLEteMvSw4L3kSRZdcqxY7cTuhlpAvkXP
+Yq6qSI+bW8T4jGW963uCc83UhVMx4MH/PzipAlfcPjVO2u4c+dmpgZQpgEmA467u
+tauXUhmTsGpgNg2Gvc61B7Ny4LphshsyrfaJ9WjA/NM6LOmEBW3JPNcVG2qyU+gt
+O8BM8KOSx9wGyoGs4+OusvRkJizhPaIwa3FInLs4r+xZW9Bp6RndsmVECtvXRv5d
+87ztpg6o3DZJRmTp2lAnkNLmxXlFkOSNIwiT3qqyRZOh4DuxPOpfg9K+vtFmRdEJ
+RwIDAQAB
+-----END PUBLIC KEY-----''';
 
 enum AppNames {
   flexible,
@@ -273,7 +281,7 @@ Future<void> tryDeleteRealm(String path) async {
     }
   }
 
-  // TODO: File deletions does not work after tests so don't fail for now
+  // TODO: File deletions does not work after tests so don't fail for now https://github.com/realm/realm-dart/issues/751
   // throw Exception('Failed to delete realm at path $path. Did you forget to close it?');
 }
 
@@ -286,8 +294,7 @@ Map<String, String?> parseTestArguments(List<String>? arguments) {
     ..addOption(argBaasApiKey)
     ..addOption(argBaasPrivateApiKey)
     ..addOption(argBaasProjectId)
-    ..addOption(argDifferentiator)
-    ..addOption(argJwksUrl);
+    ..addOption(argDifferentiator);
 
   final result = parser.parse(arguments ?? []);
   testArgs
@@ -297,8 +304,7 @@ Map<String, String?> parseTestArguments(List<String>? arguments) {
     ..addArgument(result, argBaasApiKey)
     ..addArgument(result, argBaasPrivateApiKey)
     ..addArgument(result, argBaasProjectId)
-    ..addArgument(result, argDifferentiator)
-    ..addArgument(result, argJwksUrl);
+    ..addArgument(result, argDifferentiator);
 
   return testArgs;
 }
@@ -323,15 +329,12 @@ Future<void> setupBaas() async {
   final privateApiKey = arguments[argBaasPrivateApiKey];
   final projectId = arguments[argBaasProjectId];
   final differentiator = arguments[argDifferentiator];
-  final jwksUrl = arguments[argJwksUrl];
 
   final client = await (cluster == null
       ? BaasClient.docker(baasUrl, differentiator)
       : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
-  if (!isFlutterPlatform || (Platform.isWindows || Platform.isLinux)) {
-    client.publicRSAKey = File("test/data/jwt_keys/public_key.pem").readAsStringSync();
-  }
-  client.jwksUrl = jwksUrl ?? "";
+
+  client.publicRSAKey = publicRSAKeyForJWTValidation;
 
   var apps = await client.getOrCreateApps();
   baasApps.addAll(apps);

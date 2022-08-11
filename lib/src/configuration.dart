@@ -48,11 +48,9 @@ typedef InitialDataCallback = void Function(Realm realm);
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
 abstract class Configuration {
-
-  /// The default realm filename to be used. 
+  /// The default realm filename to be used.
   static String get defaultRealmName => _path.basename(defaultRealmPath);
   static set defaultRealmName(String name) => defaultRealmPath = _path.join(_path.dirname(defaultRealmPath), _path.basename(name));
-  
 
   /// The platform dependent path used to store realm files
   ///
@@ -63,14 +61,14 @@ abstract class Configuration {
   /// On Dart standalone Windows, macOS and Linux this is the current directory.
   static String get defaultStoragePath {
     if (isFlutterPlatform) {
-      return realmCore.getAppDirectory(); 
+      return realmCore.getAppDirectory();
     }
 
     return Directory.current.path;
   }
 
   /// The platform dependent path to the default realm file.
-  /// 
+  ///
   /// If set it should contain the path and the name of the realm file. Ex. "~/mypath/myrealm.realm"
   /// [defaultStoragePath] can be used to build this path.
   static late String defaultRealmPath = _path.join(defaultStoragePath, 'default.realm');
@@ -104,7 +102,7 @@ abstract class Configuration {
   /// The [RealmSchema] for this [Configuration]
   final RealmSchema schema;
 
-  //TODO: Not supported yet.
+  //TODO: Config: Support encryption keys. https://github.com/realm/realm-dart/issues/88
   // /// The key used to encrypt the entire [Realm].
   // ///
   // /// A full 64byte (512bit) key for AES-256 encryption.
@@ -286,7 +284,7 @@ extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
 
 /// [DisconnectedSyncConfiguration] is used to open [Realm] instances that are synchronized
 /// with MongoDB Atlas, without establishing a connection to Atlas App Services. This allows
-/// for the synchronized realm to be opened in multiple processes concurrently, as long as 
+/// for the synchronized realm to be opened in multiple processes concurrently, as long as
 /// only one of them uses a [FlexibleSyncConfiguration] to sync changes.
 /// {@category Configuration}
 class DisconnectedSyncConfiguration extends Configuration {
