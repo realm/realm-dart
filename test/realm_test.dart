@@ -624,7 +624,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Realm open async with local configuration throws', () async {
     var config = Configuration.local([Car.schema, Person.schema]);
-    expect(() async => await Realm.open(config).value, throws<RealmException>("This method is only available for fully synchronized Realms"));
+    expect(() async => await Realm.open(config).realm, throws<RealmException>("This method is only available for fully synchronized Realms"));
   });
 
   baasTest('Realm open async', (appConfiguration) async {
