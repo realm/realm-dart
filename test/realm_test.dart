@@ -631,14 +631,25 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, [
-      Task.schema,
-      Schedule.schema,
-      Event.schema,
-    ]);
+    final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-    final operationOpen = Realm.open(configuration);
-    final realm = await operationOpen.value;
-    realm.close();
+    final realmTask = Realm.open(configuration);
+    final realm = await realmTask.realm;
+    expect(realm, isNotNull);
+    if (realm != null) {
+      realm.close();
+    }
+  });
+
+  baasTest('Realm open async', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    final configuration = Configuration.flexibleSync(user, [Task.schema]);
+
+    final realmTask = Realm.open(configuration);
+    realmTask.cancel();
+    final realm = realmTask.realm;
+    expect(realm, isNull);
   });
 }

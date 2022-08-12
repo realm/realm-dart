@@ -19,6 +19,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/gestures.dart';
 import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:async/async.dart';
@@ -100,8 +101,7 @@ class Realm {
   }
 
   /// Opens a `Realm` async using a [Configuration] object.
-  static CancelableOperation<Realm> open(Configuration config) {
-
+  static RealmAsyncTask open(Configuration config) {
     var dir = File(config.path).parent;
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
@@ -113,7 +113,7 @@ class Realm {
             onCancel: () => {
                   if (!openRealmAsyncOperation.isCompleted) {openRealmAsyncOperation.cancel()}
                 });
-    return cancelableOperation;
+    return RealmAsyncTask(cancelableOperation);
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
@@ -491,4 +491,18 @@ class RealmLogLevel {
   ///
   /// Same as [Level.OFF];
   static const off = Level.OFF;
+}
+
+class RealmAsyncTask {
+  final CancelableOperation<Realm> _cancelableOperation;
+
+  RealmAsyncTask(CancelableOperation<Realm> cancelableOperation) : _cancelableOperation = cancelableOperation;
+
+  Future<Realm?> get realm => _cancelableOperation.valueOrCancellation(null);
+
+  void cancel() {
+    if (!(_cancelableOperation.isCanceled || _cancelableOperation.isCompleted)) {
+      _cancelableOperation.cancel();
+    }
+  }
 }
