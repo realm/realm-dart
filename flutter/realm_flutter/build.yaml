@@ -1,0 +1,8 @@
+builders:
+  realm_generator:
+    import: "package:realm_generator/realm_generator.dart"
+    builder_factories: ["generateRealmObjects"]
+    build_extensions: { ".dart": ["realm_objects.g.part"] }
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
