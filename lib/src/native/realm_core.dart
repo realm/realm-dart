@@ -965,6 +965,14 @@ class _RealmCore {
       return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_google_auth_code(authCodePtr));
     });
   }
+  
+  RealmAppCredentialsHandle createAppCredentialsFunction(String payload) {
+    return using((arena) {
+      final payloadPtr = payload.toCharPtr(arena);
+      final credentialsPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_credentials_new_function(payloadPtr));
+      return RealmAppCredentialsHandle._(credentialsPtr);
+    });
+  }
 
   RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
     final requestCallback = Pointer.fromFunction<Void Function(Handle, realm_http_request, Pointer<Void>)>(_request_callback);
