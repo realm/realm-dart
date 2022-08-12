@@ -932,6 +932,13 @@ class _RealmCore {
     });
   }
 
+  RealmAppCredentialsHandle createAppCredentialsJwt(String token) {
+    return using((arena) {
+      final tokenPtr = token.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_jwt(tokenPtr));
+    });
+  }
+
   RealmAppCredentialsHandle createAppCredentialsApple(String idToken) {
     return using((arena) {
       final idTokenPtr = idToken.toCharPtr(arena);
