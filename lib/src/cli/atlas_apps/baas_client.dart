@@ -63,6 +63,7 @@ class BaasClient {
   late final String _appSuffix = '-${shortenDifferentiator(_differentiator)}-$_clusterName';
 
   late String _groupId;
+  late String publicRSAKey = '';
 
   BaasClient._(String baseUrl, String? differentiator, [this._clusterName])
       : _baseUrl = '$baseUrl/api/admin/v3.0',
@@ -166,7 +167,7 @@ class BaasClient {
     final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
 
     await enableProvider(app, 'anon-user');
-    await enableProvider(app, 'local-userpass', '''{
+    await enableProvider(app, 'local-userpass', config: '''{
       "autoConfirm": ${(confirmationType == "auto").toString()},
       "confirmEmailSubject": "Confirmation required",
       "confirmationFunctionName": "confirmFunc",
@@ -180,6 +181,63 @@ class BaasClient {
       "runResetFunction": true
     }''');
 
+    if (publicRSAKey.isNotEmpty) {
+      String publicRSAKeyEncoded = jsonEncode(publicRSAKey);
+      final dynamic createSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"rsPublicKey","value":$publicRSAKeyEncoded}');
+      String keyName = createSecretResult['name'] as String;
+
+      await enableProvider(app, 'custom-token', config: '''{
+          "audience": "mongodb.com",
+          "signingAlgorithm": "RS256",
+          "useJWKURI": false
+           }''', secretConfig: '''{
+          "signingKeys": ["$keyName"]
+          }''', metadataFelds: '''{
+            "required": false,
+            "name": "name.firstName",
+            "field_name": "firstName"
+          },
+          {
+            "required": false,
+            "name": "name.lastName",
+            "field_name": "lastName"
+          },
+          {
+            "required": true,
+            "name": "email",
+            "field_name": "name"
+          },
+          {
+            "required": true,
+            "name": "email",
+            "field_name": "email"
+          },
+          {
+            "required": false,
+            "name": "gender",
+            "field_name": "gender"
+          },
+          {
+            "required": false,
+            "name": "birthDay",
+            "field_name": "birthDay"
+          },
+          {
+            "required": false,
+            "name": "minAge",
+            "field_name": "minAge"
+          },
+          {
+            "required": false,
+            "name": "maxAge",
+            "field_name": "maxAge"
+          },
+          {
+            "required": false,
+            "name": "company",
+            "field_name": "company"
+          }''');
+    }
     print('Creating database db_$name$_appSuffix');
 
     await _createMongoDBService(app, '''{
@@ -209,7 +267,7 @@ class BaasClient {
     return app;
   }
 
-  Future<void> enableProvider(BaasApp app, String type, [String config = '{}']) async {
+  Future<void> enableProvider(BaasApp app, String type, {String config = '{}', String secretConfig = '{}', String metadataFelds = '{}'}) async {
     print('Enabling provider $type for ${app.clientAppId}');
 
     final url = 'groups/$_groupId/apps/$app/auth_providers';
@@ -223,7 +281,9 @@ class BaasClient {
           "name": "$type",
           "type": "$type",
           "disabled": false,
-          "config": $config
+          "config": $config,
+          "secret_config": $secretConfig,
+          "metadata_fields": [$metadataFelds]
         }''');
     }
   }

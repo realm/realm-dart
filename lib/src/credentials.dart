@@ -40,7 +40,8 @@ enum AuthProviderType {
   /// Authenticate with Google account
   google,
 
-  _custom,
+  /// For authenticating with JSON web token.
+  jwt,
 
   /// For authenticating with an email and a password.
   emailPassword,
@@ -75,6 +76,12 @@ class Credentials {
   Credentials.emailPassword(String email, String password)
       : _handle = realmCore.createAppCredentialsEmailPassword(email, password),
         provider = AuthProviderType.emailPassword;
+
+  /// Returns a [Credentials] object that can be used to authenticate a user with a custom JWT.
+  /// [Custom-JWT Authentication Docs](https://docs.mongodb.com/realm/authentication/custom-jwt)
+  Credentials.jwt(String token)
+      : _handle = realmCore.createAppCredentialsJwt(token),
+        provider = AuthProviderType.jwt;
 
   /// Returns a [Credentials] object that can be used to authenticate a user with a Facebook account.
   Credentials.facebook(String accessToken)
