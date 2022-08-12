@@ -100,15 +100,14 @@ class Realm {
   }
 
   /// Opens a `Realm` async using a [Configuration] object.
-  static RealmAsyncTask open(Configuration config) {
+  static RealmAsyncOpenTask open(Configuration config) {
     _createFileDirectory(config.path);
     CancelableOperation<RealmHandle?> openRealmAsyncOperation = realmCore.openRealmAsync(config);
 
     CancelableOperation<Realm?> cancelableOperation = CancelableOperation<Realm?>.fromFuture(
         openRealmAsyncOperation.valueOrCancellation(null).then<Realm?>((handle) => handle != null ? Realm._(config, handle) : null),
-        onCancel: () => {
-              if (!(openRealmAsyncOperation.isCompleted || openRealmAsyncOperation.isCanceled)) openRealmAsyncOperation.cancel()});
-    return RealmAsyncTask(cancelableOperation);
+        onCancel: () => {if (!(openRealmAsyncOperation.isCompleted || openRealmAsyncOperation.isCanceled)) openRealmAsyncOperation.cancel()});
+    return RealmAsyncOpenTask(cancelableOperation);
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
@@ -492,10 +491,10 @@ class RealmLogLevel {
   static const off = Level.OFF;
 }
 
-class RealmAsyncTask {
+class RealmAsyncOpenTask {
   final CancelableOperation<Realm?> _cancelableOperation;
 
-  RealmAsyncTask(CancelableOperation<Realm?> cancelableOperation) : _cancelableOperation = cancelableOperation;
+  RealmAsyncOpenTask(CancelableOperation<Realm?> cancelableOperation) : _cancelableOperation = cancelableOperation;
 
   Future<Realm?> get realm => _cancelableOperation.valueOrCancellation(null);
 
@@ -504,4 +503,6 @@ class RealmAsyncTask {
       _cancelableOperation.cancel();
     }
   }
+
+  void addProgressNotificationCallback() {}
 }

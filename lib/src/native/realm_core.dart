@@ -1684,8 +1684,9 @@ class _RealmCore {
     _realmLib.realm_async_open_task_start(realmAsyncOpenTaskPtr, _realmLib.addresses.realm_dart_async_open_task_completion_callback, userdata.cast(),
         _realmLib.addresses.realm_dart_userdata_async_free);
 
-    CancelableOperation<RealmHandle?> cancelOperation =
-        CancelableOperation.fromFuture(completer.future, onCancel: () => {_realmLib.realm_async_open_task_cancel(realmAsyncOpenTaskPtr)});
+    CancelableOperation<RealmHandle?> cancelOperation = CancelableOperation.fromFuture(completer.future, onCancel: () {
+      _realmLib.realm_async_open_task_cancel(realmAsyncOpenTaskPtr);
+    });
     return cancelOperation;
   }
 }
