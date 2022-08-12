@@ -242,11 +242,12 @@ class BaasClient {
             "field_name": "company"
           }''');
     }
-    await enableProvider(app, 'custom-function', config: '''{
-          "authFunctionName": "authFunc",
-          "authFunctionId": "$authFuncId"
-          }''');
-
+    if (confirmationType == null) {
+      await enableProvider(app, 'custom-function', config: '''{
+            "authFunctionName": "authFunc",
+            "authFunctionId": "$authFuncId"
+            }''');
+    }
     print('Creating database db_$name$_appSuffix');
 
     await _createMongoDBService(app, '''{
