@@ -18,6 +18,7 @@
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 class BaasClient {
   static const String _confirmFuncSource = '''exports = async ({ token, tokenId, username }) => {
@@ -62,6 +63,7 @@ class BaasClient {
   late final String _appSuffix = '-${shortenDifferentiator(_differentiator)}-$_clusterName';
 
   late String _groupId;
+  late String publicRSAKey = '';
 
   BaasClient._(String baseUrl, String? differentiator, [this._clusterName])
       : _baseUrl = '$baseUrl/api/admin/v3.0',
@@ -178,6 +180,65 @@ class BaasClient {
       "runConfirmationFunction": ${(confirmationType != "email" && confirmationType != "auto").toString()},
       "runResetFunction": true
     }''');
+
+    if (publicRSAKey.isNotEmpty) {
+      String publicRSAKeyEncoded = jsonEncode(publicRSAKey);
+      final dynamic createSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"rsPublicKey","value":$publicRSAKeyEncoded}');
+      String keyName = createSecretResult['name'] as String;
+
+      await enableProvider(app, 'custom-token', config: '''{
+          "audience": "mongodb.com",
+          "signingAlgorithm": "RS256",
+          "useJWKURI": false
+           }''', secretConfig: '''{
+          "signingKeys": ["$keyName"]
+          }''', metadataFelds: '''{
+            "required": false,
+            "name": "name.firstName",
+            "field_name": "firstName"
+          },
+          {
+            "required": false,
+            "name": "name.lastName",
+            "field_name": "lastName"
+          },
+          {
+            "required": true,
+            "name": "email",
+            "field_name": "name"
+          },
+          {
+            "required": true,
+            "name": "email",
+            "field_name": "email"
+          },
+          {
+            "required": false,
+            "name": "gender",
+            "field_name": "gender"
+          },
+          {
+            "required": false,
+            "name": "birthDay",
+            "field_name": "birthDay"
+          },
+          {
+            "required": false,
+            "name": "minAge",
+            "field_name": "minAge"
+          },
+          {
+            "required": false,
+            "name": "maxAge",
+            "field_name": "maxAge"
+          },
+          {
+            "required": false,
+            "name": "company",
+            "field_name": "company"
+          }''');
+    }
+    
     if (confirmationType == null) {
       const facebookSecret = "876750ac6d06618b323dee591602897f";
       final dynamic createFacebookSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
@@ -223,6 +284,7 @@ class BaasClient {
             "name": "picture"
           }''');
     }
+    
     print('Creating database db_$name$_appSuffix');
 
     await _createMongoDBService(app, '''{
@@ -259,6 +321,7 @@ class BaasClient {
     if (type == 'api-key') {
       final providers = await _get(url) as List<dynamic>;
       final apiKeyProviderId = providers.singleWhere((dynamic doc) => doc['type'] == 'api-key')['_id'] as String;
+
       await _put('$url/$apiKeyProviderId/enable', '{}');
     } else {
       await _post(url, '''{
