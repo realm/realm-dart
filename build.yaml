@@ -11,6 +11,9 @@ targets:
       realm_generator|realm_object_builder:
         generate_for:
           include:
+            - test/**.dart
+            - example/**.dart
+            
 builders:
   realm_generator:
     import: "package:realm_generator/realm_generator.dart"
