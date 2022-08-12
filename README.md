@@ -310,75 +310,11 @@ The Realm Dart package is `realm_dart`
 
 # Building the source
 
-## Building Realm Flutter
+See [CONTRIBUTING.md](https://github.com/realm/realm-dart/blob/master/CONTRIBUTING.md#building-the-source) for instructions about building the source.
 
-* Clone the repo
-    ```
-    git clone https://github.com/realm/realm-dart
-    git submodule update --init --recursive
-    ```
-
-### Build Realm Flutter native binaries
-
-* Android
-    ```bash
-    ./scripts/build-android.sh all
-    scripts\build-android.bat all
-    # Or for Android Emulator only
-    ./scripts/build-android.sh x86
-    scripts\build-android.bat x86
-    ```
-
-* iOS
-    ```bash
-    ./scripts/build-ios.sh
-    # Or for iOS Simulator only
-    ./scripts/build-ios.sh simulator
-    ```
-
-* Windows
-    ```
-    scripts\build.bat
-    ```
-* MacOS
-    ```
-    ./scripts/build-macos.sh
-    ```
-
-* Linux
-    ```
-    ./scripts/build-linux.sh
-    ```
-
-## Building Realm Dart
-
-* Windows
-    ```
-    scripts\build.bat
-    ```
-* MacOS
-    ```
-    ./scripts/build-macos.sh
-    ```
-* Linux
-    ```
-    ./scripts/build-linux.sh
-    ```
-
-## Running tests
+# Running tests
 
 See [test/README.md](https://github.com/realm/realm-dart/blob/master/test/README.md) for instructions on running tests.
-
-## Versioning
-
-Realm Flutter and Dart SDK packages follow [Semantic Versioning](https://semver.org/).
-During the initial development the packages will be versioned according the scheme `0.major.minor+release stage` until the first stable version is reached then packages will be versioned with `major.minor.patch` scheme.
-
-The first versions will follow `0.1.0+preview`, `0.1.1+preview` etc.
-Then next release stages will pick up the next minor version `0.1.2+beta`, `0.1.3+beta`. This will ensure dependencies are updated on `dart pub get` with the new `alpha`, `beta` versions.
-If an `alpha` version is released before `beta` and it needs to not be considered for `pub get` then it should be marked as `prerelease` with `-alpha` so  `0.1.2-alpha` etc.
-Updating the major version with every release stage is also possible - `0.2.0+alpha`, `0.3.0+beta`, `0.3.1+beta`.
-
 
 # Code of Conduct
 
