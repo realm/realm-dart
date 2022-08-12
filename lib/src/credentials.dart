@@ -28,7 +28,7 @@ enum AuthProviderType {
   /// For authenticating without credentials.
   anonymous,
 
-  /// For authenticating without credentials.
+  /// For authenticating without credentials using a new anonymous user.
   anonymousNoReuse,
 
   /// Authenticate with Apple Id
