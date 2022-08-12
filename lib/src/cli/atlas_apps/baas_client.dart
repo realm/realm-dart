@@ -247,7 +247,52 @@ class BaasClient {
             "authFunctionName": "authFunc",
             "authFunctionId": "$authFuncId"
             }''');
+    
+      const facebookSecret = "876750ac6d06618b323dee591602897f";
+      final dynamic createFacebookSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
+      String facebookClientSecretKeyName = createFacebookSecretResult['name'] as String;
+      await enableProvider(app, 'oauth2-facebook', config: '''{
+          "clientId": "1265617494254819"
+          }''', secretConfig: '''{
+          "clientSecret": "$facebookClientSecretKeyName"
+          }''', metadataFelds: '''{
+            "required": true,
+            "name": "name"
+          },
+          {
+            "required": true,
+            "name": "first_name"
+          },
+          {
+            "required": true,
+            "name": "last_name"
+          },
+          {
+            "required": false,
+            "name": "email"
+          },
+          {
+            "required": false,
+            "name": "gender"
+          },
+          {
+            "required": false,
+            "name": "birthday"
+          },
+          {
+            "required": false,
+            "name": "min_age"
+          },
+          {
+            "required": false,
+            "name": "max_age"
+          },
+          {
+            "required": false,
+            "name": "picture"
+          }''');
     }
+    
     print('Creating database db_$name$_appSuffix');
 
     await _createMongoDBService(app, '''{

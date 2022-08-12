@@ -449,6 +449,25 @@ Future<void> main([List<String>? args]) async {
     }, throws<RealmException>("crypto/rsa: verification error"));
   });
   
+  ///See test/README.md section 'Manually configure Facebook, Google and Apple authentication providers'"
+  baasTest('Facebook credentials - login', (configuration) async {
+    final app = App(configuration);
+    final accessToken =
+        'EAARZCEokqpOMBAKoIHgaG6bqY6LLseGHcQjYdoPhv9FdB89mkVZBWQFOmZCuVeuRfIa5cMtQANLpZBUQI0n4qb4TZCZCAI3vXZC9Oud2qRiieQDtXqE4abZBQJorcBMzECVfsDlus7hk63zW3XzuFCZAxF4BCdRZBHXlGXIzaHhFHhY72aU1apX0tC';
+    final credentials = Credentials.facebook(accessToken);
+    final user = await app.logIn(credentials);
+    expect(user.state, UserState.loggedIn);
+    expect(user.provider, AuthProviderType.facebook);
+    expect(user.profile.name, "Open Graph Test User");
+  }, skip: "Manual test");
+
+  baasTest('Facebook credentials - invalid or expired token', (configuration) async {
+    final app = App(configuration);
+    final accessToken = 'invalid or expired token';
+    final credentials = Credentials.facebook(accessToken);
+    expect(() async => await app.logIn(credentials), throws<RealmException>("error fetching info from OAuth2 provider"));
+  });
+  
   baasTest('Function credentials - wrong payload', (configuration) {
     final app = App(configuration);
     final payload = 'Wrong EJSON format';
