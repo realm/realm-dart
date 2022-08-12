@@ -32,6 +32,16 @@ Future<void> main([List<String>? args]) async {
     expect(credentials.provider, AuthProviderType.anonymous);
   });
 
+  baasTest('Anonymous - new user', (configuration) async {
+    final app = App(configuration);
+    final user1 = await app.logIn(Credentials.anonymous());
+    final user2 = await app.logIn(Credentials.anonymous());
+    final user3 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+
+    expect(user1, user2);
+    expect(user1, isNot(user3));
+  });
+
   test('Credentials email/password', () {
     final credentials = Credentials.emailPassword("test@email.com", "000000");
     expect(credentials.provider, AuthProviderType.emailPassword);
