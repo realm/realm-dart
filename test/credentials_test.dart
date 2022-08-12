@@ -447,8 +447,8 @@ Future<void> main([List<String>? args]) async {
     expect(() async {
       await app.logIn(credentials);
     }, throws<RealmException>("crypto/rsa: verification error"));
- });
-
+  });
+  
   baasTest('Function credentials - wrong payload', (configuration) {
     final app = App(configuration);
     final payload = 'Wrong EJSON format';
