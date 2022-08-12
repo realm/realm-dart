@@ -320,16 +320,21 @@ class RealmLibrary {
       ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>,
           ffi.Pointer<realm_sync_client_config_t>)>();
 
-  ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_anonymous() {
-    return _realm_app_credentials_new_anonymous();
+  ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_anonymous(
+    bool reuse_credentials,
+  ) {
+    return _realm_app_credentials_new_anonymous(
+      reuse_credentials,
+    );
   }
 
   late final _realm_app_credentials_new_anonymousPtr = _lookup<
-          ffi.NativeFunction<ffi.Pointer<realm_app_credentials_t> Function()>>(
-      'realm_app_credentials_new_anonymous');
+      ffi.NativeFunction<
+          ffi.Pointer<realm_app_credentials_t> Function(
+              ffi.Bool)>>('realm_app_credentials_new_anonymous');
   late final _realm_app_credentials_new_anonymous =
       _realm_app_credentials_new_anonymousPtr
-          .asFunction<ffi.Pointer<realm_app_credentials_t> Function()>();
+          .asFunction<ffi.Pointer<realm_app_credentials_t> Function(bool)>();
 
   ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_apple(
     ffi.Pointer<ffi.Char> id_token,
@@ -6183,7 +6188,7 @@ class RealmLibrary {
     ffi.Pointer<realm_query_t> arg0,
     ffi.Pointer<ffi.Char> query_string,
     int num_args,
-    ffi.Pointer<realm_value_t> args,
+    ffi.Pointer<realm_query_arg_t> args,
   ) {
     return _realm_query_append_query(
       arg0,
@@ -6199,11 +6204,11 @@ class RealmLibrary {
               ffi.Pointer<realm_query_t>,
               ffi.Pointer<ffi.Char>,
               ffi.Size,
-              ffi.Pointer<realm_value_t>)>>('realm_query_append_query');
+              ffi.Pointer<realm_query_arg_t>)>>('realm_query_append_query');
   late final _realm_query_append_query =
       _realm_query_append_queryPtr.asFunction<
           ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_query_t>,
-              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_value_t>)>();
+              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
 
   /// Count the number of objects found by this query.
   bool realm_query_count(
@@ -6327,7 +6332,7 @@ class RealmLibrary {
     int target_table,
     ffi.Pointer<ffi.Char> query_string,
     int num_args,
-    ffi.Pointer<realm_value_t> args,
+    ffi.Pointer<realm_query_arg_t> args,
   ) {
     return _realm_query_parse(
       arg0,
@@ -6345,10 +6350,10 @@ class RealmLibrary {
               realm_class_key_t,
               ffi.Pointer<ffi.Char>,
               ffi.Size,
-              ffi.Pointer<realm_value_t>)>>('realm_query_parse');
+              ffi.Pointer<realm_query_arg_t>)>>('realm_query_parse');
   late final _realm_query_parse = _realm_query_parsePtr.asFunction<
       ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_t>, int,
-          ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_value_t>)>();
+          ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
 
   /// Parse a query string and bind it to a list.
   ///
@@ -6366,7 +6371,7 @@ class RealmLibrary {
     ffi.Pointer<realm_list_t> target_list,
     ffi.Pointer<ffi.Char> query_string,
     int num_args,
-    ffi.Pointer<realm_value_t> args,
+    ffi.Pointer<realm_query_arg_t> args,
   ) {
     return _realm_query_parse_for_list(
       target_list,
@@ -6382,11 +6387,11 @@ class RealmLibrary {
               ffi.Pointer<realm_list_t>,
               ffi.Pointer<ffi.Char>,
               ffi.Size,
-              ffi.Pointer<realm_value_t>)>>('realm_query_parse_for_list');
+              ffi.Pointer<realm_query_arg_t>)>>('realm_query_parse_for_list');
   late final _realm_query_parse_for_list =
       _realm_query_parse_for_listPtr.asFunction<
           ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_list_t>,
-              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_value_t>)>();
+              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
 
   /// Parse a query string and bind it to another query result.
   ///
@@ -6405,7 +6410,7 @@ class RealmLibrary {
     ffi.Pointer<realm_results_t> target_results,
     ffi.Pointer<ffi.Char> query_string,
     int num_args,
-    ffi.Pointer<realm_value_t> args,
+    ffi.Pointer<realm_query_arg_t> args,
   ) {
     return _realm_query_parse_for_results(
       target_results,
@@ -6416,16 +6421,17 @@ class RealmLibrary {
   }
 
   late final _realm_query_parse_for_resultsPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_query_t> Function(
-              ffi.Pointer<realm_results_t>,
-              ffi.Pointer<ffi.Char>,
-              ffi.Size,
-              ffi.Pointer<realm_value_t>)>>('realm_query_parse_for_results');
+          ffi.NativeFunction<
+              ffi.Pointer<realm_query_t> Function(
+                  ffi.Pointer<realm_results_t>,
+                  ffi.Pointer<ffi.Char>,
+                  ffi.Size,
+                  ffi.Pointer<realm_query_arg_t>)>>(
+      'realm_query_parse_for_results');
   late final _realm_query_parse_for_results =
       _realm_query_parse_for_resultsPtr.asFunction<
           ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_results_t>,
-              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_value_t>)>();
+              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
 
   /// Refresh the view of the realm file.
   ///
@@ -9915,14 +9921,15 @@ typedef realm_async_open_task_t = realm_async_open_task;
 
 abstract class realm_auth_provider {
   static const int RLM_AUTH_PROVIDER_ANONYMOUS = 0;
-  static const int RLM_AUTH_PROVIDER_FACEBOOK = 1;
-  static const int RLM_AUTH_PROVIDER_GOOGLE = 2;
-  static const int RLM_AUTH_PROVIDER_APPLE = 3;
-  static const int RLM_AUTH_PROVIDER_CUSTOM = 4;
-  static const int RLM_AUTH_PROVIDER_EMAIL_PASSWORD = 5;
-  static const int RLM_AUTH_PROVIDER_FUNCTION = 6;
-  static const int RLM_AUTH_PROVIDER_USER_API_KEY = 7;
-  static const int RLM_AUTH_PROVIDER_SERVER_API_KEY = 8;
+  static const int RLM_AUTH_PROVIDER_ANONYMOUS_NO_REUSE = 1;
+  static const int RLM_AUTH_PROVIDER_FACEBOOK = 2;
+  static const int RLM_AUTH_PROVIDER_GOOGLE = 3;
+  static const int RLM_AUTH_PROVIDER_APPLE = 4;
+  static const int RLM_AUTH_PROVIDER_CUSTOM = 5;
+  static const int RLM_AUTH_PROVIDER_EMAIL_PASSWORD = 6;
+  static const int RLM_AUTH_PROVIDER_FUNCTION = 7;
+  static const int RLM_AUTH_PROVIDER_USER_API_KEY = 8;
+  static const int RLM_AUTH_PROVIDER_SERVER_API_KEY = 9;
 }
 
 class realm_binary extends ffi.Struct {
@@ -10383,6 +10390,17 @@ abstract class realm_property_type {
 
 class realm_query extends ffi.Opaque {}
 
+class realm_query_arg extends ffi.Struct {
+  @ffi.Size()
+  external int nb_args;
+
+  @ffi.Bool()
+  external bool is_list;
+
+  external ffi.Pointer<realm_value_t> arg;
+}
+
+typedef realm_query_arg_t = realm_query_arg;
 typedef realm_query_t = realm_query;
 
 class realm_results extends ffi.Opaque {}
