@@ -19,7 +19,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/gestures.dart';
 import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:async/async.dart';
@@ -102,26 +101,26 @@ class Realm {
 
   /// Opens a `Realm` async using a [Configuration] object.
   static RealmAsyncTask open(Configuration config) {
-    var dir = File(config.path).parent;
-    if (!dir.existsSync()) {
-      dir.createSync(recursive: true);
-    }
+    _createFileDirectory(config.path);
+    CancelableOperation<RealmHandle?> openRealmAsyncOperation = realmCore.openRealmAsync(config);
 
-    var openRealmAsyncOperation = realmCore.openRealmAsync(config);
-    CancelableOperation<Realm> cancelableOperation =
-        CancelableOperation<Realm>.fromFuture(openRealmAsyncOperation.valueOrCancellation(null).then<Realm>((handle) => Realm._(config, handle)),
-            onCancel: () => {
-                  if (!openRealmAsyncOperation.isCompleted) {openRealmAsyncOperation.cancel()}
-                });
+    CancelableOperation<Realm?> cancelableOperation = CancelableOperation<Realm?>.fromFuture(
+        openRealmAsyncOperation.valueOrCancellation(null).then<Realm?>((handle) => handle != null ? Realm._(config, handle) : null),
+        onCancel: () => {
+              if (!(openRealmAsyncOperation.isCompleted || openRealmAsyncOperation.isCanceled)) openRealmAsyncOperation.cancel()});
     return RealmAsyncTask(cancelableOperation);
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
-    var dir = File(config.path).parent;
+    _createFileDirectory(config.path);
+    return realmCore.openRealm(config);
+  }
+
+  static void _createFileDirectory(String filePath) {
+    var dir = File(filePath).parent;
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }
-    return realmCore.openRealm(config);
   }
 
   void _populateMetadata() {
@@ -494,9 +493,9 @@ class RealmLogLevel {
 }
 
 class RealmAsyncTask {
-  final CancelableOperation<Realm> _cancelableOperation;
+  final CancelableOperation<Realm?> _cancelableOperation;
 
-  RealmAsyncTask(CancelableOperation<Realm> cancelableOperation) : _cancelableOperation = cancelableOperation;
+  RealmAsyncTask(CancelableOperation<Realm?> cancelableOperation) : _cancelableOperation = cancelableOperation;
 
   Future<Realm?> get realm => _cancelableOperation.valueOrCancellation(null);
 

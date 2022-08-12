@@ -19,7 +19,6 @@
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
 import 'dart:io';
-import 'dart:js_util';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -641,7 +640,7 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
-  baasTest('Realm open async', (appConfiguration) async {
+  baasTest('Realm open async and cancel', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -649,7 +648,7 @@ Future<void> main([List<String>? args]) async {
 
     final realmTask = Realm.open(configuration);
     realmTask.cancel();
-    final realm = realmTask.realm;
+    final realm = await realmTask.realm;
     expect(realm, isNull);
   });
 }
