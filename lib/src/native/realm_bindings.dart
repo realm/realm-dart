@@ -2865,54 +2865,66 @@ class RealmLibrary {
   /// /**
   /// Copy or convert a Realm using a config.
   ///
-  /// If the file already exists, data will be copied over object per object.
+  /// If the file already exists and merge_with_existing is true, data will be copied over object per object.
+  /// When merging, all classes must have a pk called '_id" otherwise an exception is thrown.
+  /// If the file exists and merge_with_existing is false, an exception is thrown.
   /// If the file does not exist, the realm file will be exported to the new location and if the
   /// configuration object contains a sync part, a sync history will be synthesized.
   ///
   /// @param config The realm configuration that should be used to create a copy.
   /// This can be a local or a synced Realm, encrypted or not.
+  /// @param merge_with_existing If this is true and the destination file exists, data will be copied over object by
+  /// object. Otherwise, if this is false and the destination file exists, an exception is thrown.
   bool realm_convert_with_config(
     ffi.Pointer<realm_t> realm,
     ffi.Pointer<realm_config_t> config,
+    bool merge_with_existing,
   ) {
     return _realm_convert_with_config(
       realm,
       config,
+      merge_with_existing,
     );
   }
 
   late final _realm_convert_with_configPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_t>,
-              ffi.Pointer<realm_config_t>)>>('realm_convert_with_config');
+          ffi.Bool Function(ffi.Pointer<realm_t>, ffi.Pointer<realm_config_t>,
+              ffi.Bool)>>('realm_convert_with_config');
   late final _realm_convert_with_config =
       _realm_convert_with_configPtr.asFunction<
-          bool Function(ffi.Pointer<realm_t>, ffi.Pointer<realm_config_t>)>();
+          bool Function(
+              ffi.Pointer<realm_t>, ffi.Pointer<realm_config_t>, bool)>();
 
   /// Copy a Realm using a path.
   ///
   /// @param path The path the realm should be copied to. Local realms will remain local, synced
   /// realms will remain synced realms.
   /// @param encryption_key The optional encryption key for the new realm.
+  /// @param merge_with_existing If this is true and the destination file exists, data will be copied over object by
+  /// object.
+  /// Otherwise, if this is false and the destination file exists, an exception is thrown.
   bool realm_convert_with_path(
     ffi.Pointer<realm_t> realm,
     ffi.Pointer<ffi.Char> path,
     realm_binary_t encryption_key,
+    bool merge_with_existing,
   ) {
     return _realm_convert_with_path(
       realm,
       path,
       encryption_key,
+      merge_with_existing,
     );
   }
 
   late final _realm_convert_with_pathPtr = _lookup<
       ffi.NativeFunction<
           ffi.Bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>,
-              realm_binary_t)>>('realm_convert_with_path');
+              realm_binary_t, ffi.Bool)>>('realm_convert_with_path');
   late final _realm_convert_with_path = _realm_convert_with_pathPtr.asFunction<
       bool Function(
-          ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>, realm_binary_t)>();
+          ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>, realm_binary_t, bool)>();
 
   /// Get a thread-safe reference representing the same underlying object as some
   /// API object.
@@ -10565,6 +10577,7 @@ abstract class realm_sync_errno_session {
   static const int RLM_SYNC_ERR_SESSION_SERVER_PERMISSIONS_CHANGED = 228;
   static const int RLM_SYNC_ERR_SESSION_INITIAL_SYNC_NOT_COMPLETED = 229;
   static const int RLM_SYNC_ERR_SESSION_WRITE_NOT_ALLOWED = 230;
+  static const int RLM_SYNC_ERR_SESSION_COMPENSATING_WRITE = 231;
 }
 
 class realm_sync_error extends ffi.Struct {
