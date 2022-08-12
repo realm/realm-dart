@@ -586,9 +586,9 @@ class _RealmCore {
   RealmResultsHandle queryClass(Realm realm, int classKey, String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
-      final argsPointer = arena<realm_value_t>(length);
+      final argsPointer = arena<realm_query_arg_t>(length);
       for (var i = 0; i < length; ++i) {
-        _intoRealmValue(args[i], argsPointer.elementAt(i), arena);
+        _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
       }
       final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
         () => _realmLib.realm_query_parse(
@@ -606,9 +606,9 @@ class _RealmCore {
   RealmResultsHandle queryResults(RealmResults target, String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
-      final argsPointer = arena<realm_value_t>(length);
+      final argsPointer = arena<realm_query_arg_t>(length);
       for (var i = 0; i < length; ++i) {
-        _intoRealmValue(args[i], argsPointer.elementAt(i), arena);
+        _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
       }
       final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
         () => _realmLib.realm_query_parse_for_results(
@@ -630,9 +630,9 @@ class _RealmCore {
   RealmResultsHandle queryList(RealmList target, String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
-      final argsPointer = arena<realm_value_t>(length);
+      final argsPointer = arena<realm_query_arg_t>(length);
       for (var i = 0; i < length; ++i) {
-        _intoRealmValue(args[i], argsPointer.elementAt(i), arena);
+        _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
       }
       final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
         () => _realmLib.realm_query_parse_for_list(
@@ -919,8 +919,8 @@ class _RealmCore {
     });
   }
 
-  RealmAppCredentialsHandle createAppCredentialsAnonymous() {
-    return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_anonymous());
+  RealmAppCredentialsHandle createAppCredentialsAnonymous(bool reuseCredentials) {
+    return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_anonymous(reuseCredentials));
   }
 
   RealmAppCredentialsHandle createAppCredentialsEmailPassword(String email, String password) {
@@ -1851,6 +1851,13 @@ Pointer<realm_value_t> _toRealmValue(Object? value, Allocator allocator) {
 
 const int _microsecondsPerSecond = 1000 * 1000;
 const int _nanosecondsPerMicrosecond = 1000;
+
+void _intoRealmQueryArg(Object? value, Pointer<realm_query_arg_t> realm_query_arg, Allocator allocator) {
+  realm_query_arg.ref.arg = allocator<realm_value_t>();
+  realm_query_arg.ref.nb_args = 1;
+  realm_query_arg.ref.is_list = false;
+  _intoRealmValue(value, realm_query_arg.ref.arg, allocator);
+}
 
 void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocator allocator) {
   if (value == null) {
