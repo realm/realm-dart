@@ -115,7 +115,10 @@ class Realm {
     _createFileDirectory(config.path);
     RealmAsyncOpenTaskHandle realmAsyncOpenTaskHandle = realmCore.createRealmAsyncOpenTask(config);
     final completer = Completer<RealmHandle?>();
-    Future<Realm?> realm = realmCore.openRealmAsync(realmAsyncOpenTaskHandle, completer).then((handle) {
+    Future<Realm?> realm = realmCore.openRealmAsync(realmAsyncOpenTaskHandle, completer).onError((error, stackTrace) {
+      print(error);
+      return null;
+    }).then((handle) {
       return handle != null ? Realm._(config, handle) : null;
     });
     return RealmAsyncOpenTask._(realmAsyncOpenTaskHandle, config, realm, onProgressCallback, completer);
@@ -525,7 +528,7 @@ class RealmAsyncOpenTask {
   final RealmAsyncOpenTaskHandle _handle;
   final Configuration _config;
   final Future<Realm?> _realm;
-  late int _progressToken;  
+  late int _progressToken;
   final ProgressCallback? _progressCallback;
   final Completer<RealmHandle?> _completer;
 

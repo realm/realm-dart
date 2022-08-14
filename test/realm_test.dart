@@ -666,4 +666,17 @@ Future<void> main([List<String>? args]) async {
     realmTask.cancel();
     expect(await realmTask.realm, isNull);
   });
+
+  baasTest('Realm open async many times and cancel once', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    final configuration = Configuration.flexibleSync(user, [Task.schema]);
+
+    final realmTaskFirst = Realm.open(configuration);
+    final realmTaskSecond = Realm.open(configuration);
+    realmTaskFirst.cancel();
+    expect(await realmTaskFirst.realm, isNull);
+    expect(await realmTaskSecond.realm, isNull);
+  });
 }

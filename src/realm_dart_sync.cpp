@@ -141,6 +141,7 @@ RLM_API void realm_dart_sync_on_subscription_state_changed_callback(realm_userda
 
 RLM_API void realm_dart_async_open_task_completion_callback(realm_userdata_t userdata, realm_thread_safe_reference_t* realm, realm_async_error_t* error)
 {
+    //TODO: Read and copy the error with the correct message or code.
     struct realm_dart_async_error : realm_async_error
     {
         realm_dart_async_error(const realm_async_error& error)
