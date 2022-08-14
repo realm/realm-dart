@@ -107,7 +107,7 @@ class Realm {
   ///
   /// Open realm async arguments are:
   /// * `config`- a configuration object that describes the realm.
-  /// * `onProgressCallback` - a function that is registered as a callback for receiving download progress notifications
+  /// * `onProgressCallback` - a function that is registered as a callback for receiving download progress notifications. It is not mandatory.
   ///
   /// The returned task has an awaitable [RealmAsyncOpenTask.realm] future that is completed once the remote realm is fully synchronized.
   /// It provides a method [RealmAsyncOpenTask.cancel] that cancels any current running download.
@@ -511,13 +511,13 @@ class RealmLogLevel {
 /// {@category Realm}
 typedef ProgressCallback = void Function(int transferredBytes, int totalBytes);
 
-/// A task object which can be used to await for a realm to open async or to cancel it.
+/// Represents a task object which can be used to await for a realm to open asynchronously or to cancel opening.
 ///
-/// When a synchronized Realm is opened asynchronously,
+/// When a [Realm] with [FlexibleSyncConfiguration] is opened asynchronously,
 /// the latest state of the Realm is downloaded from the server before the completion callback is invoked.
-/// This task object can be used to await the the download process to complete or to cancel it.
+/// This task object can be used to await the download process to complete or to cancel downloading.
 /// A download progress notifier is registered is case of having [ProgressCallback],
-/// which allows you to observe the state of the download.
+/// which allows you to observe the state of the download progress.
 /// Once the process completes the download progress notifier is unregistered.
 ///
 /// {@category Realm}
@@ -526,16 +526,18 @@ class RealmAsyncOpenTask {
   final Configuration _config;
   final Future<Realm?> _realm;
   late int _progressToken;
-  final ProgressCallback? progressCallback;
+  final ProgressCallback? _progressCallback;
   final Completer<RealmHandle?> _completer;
 
-  RealmAsyncOpenTask._(this._handle, this._config, this._realm, this.progressCallback, this._completer) {
-    if (progressCallback != null) {
+  RealmAsyncOpenTask._(this._handle, this._config, this._realm, this._progressCallback, this._completer) {
+    if (_progressCallback != null) {
       _progressToken = realmCore.realmAsyncOpenRegisterProgressNotifier(this);
     }
   }
 
-  RealmAsyncOpenTaskHandle get handle => _handle;
+  /// This is the registered callback to receive progress notifications
+  /// while the download is in progress.
+  ProgressCallback? get progressCallback => _progressCallback;
 
   /// The configuration object that describes the realm.
   Configuration get config => _config;
