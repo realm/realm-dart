@@ -634,8 +634,24 @@ Future<void> main([List<String>? args]) async {
 
     final realmTask = Realm.open(configuration);
     final realm = await realmTask.realm;
-    expect(realm, isNotNull);
     if (realm != null) {
+      expect(realm.isClosed, false);
+      realm.close();
+    }
+  });
+
+  baasTest('Realm open async and get progress', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    final configuration = Configuration.flexibleSync(user, [Task.schema]);
+
+    final realmTask = Realm.open(configuration, onProgressCallback: (transferredBytes, totalBytes) {
+      print("transferredBytes: $transferredBytes, totalBytes:$totalBytes");
+    });
+    final realm = await realmTask.realm;
+    if (realm != null) {
+      expect(realm.isClosed, false);
       realm.close();
     }
   });
@@ -648,7 +664,6 @@ Future<void> main([List<String>? args]) async {
 
     final realmTask = Realm.open(configuration);
     realmTask.cancel();
-    final realm = await realmTask.realm;
-    expect(realm, isNull);
+    expect(await realmTask.realm, isNull);
   });
 }

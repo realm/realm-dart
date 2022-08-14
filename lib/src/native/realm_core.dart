@@ -1662,32 +1662,58 @@ class _RealmCore {
 
   static void _openRealmAsyncCallback(Handle userdata, Pointer<realm_thread_safe_reference_t> realm, Pointer<realm_async_error_t> errorCode) {
     final completer = userdata as Completer<RealmHandle?>;
-
     if (errorCode != nullptr) {
-      completer.completeError(RealmException(errorCode.toString()));
+      {
+        completer.completeError(RealmException(errorCode.toString()));
+      }
     } else {
       final realmPtr =
           _realmLib.invokeGetPointer(() => _realmLib.realm_from_thread_safe_reference(realm, scheduler.handle._pointer), "Error opening synchronized realm");
-      completer.complete(RealmHandle._(realmPtr));
+      if (completer.isCompleted) {
+        //Task is canceled before to complete but the realm was created.
+        _realmLib.invokeGetBool(() => _realmLib.realm_close(realmPtr), "Realm close failed");
+      } else {
+        completer.complete(RealmHandle._(realmPtr));
+      }
     }
   }
 
-  CancelableOperation<RealmHandle?> openRealmAsync(Configuration config) {
-    final configHandle = _createConfig(config);
-    final realmAsyncOpenTaskPtr =
-        _realmLib.invokeGetPointer(() => _realmLib.realm_open_synchronized(configHandle._pointer), "Error opening synchronized realm at path ${config.path}");
-    final completer = Completer<RealmHandle?>();
-
+  Future<RealmHandle?> openRealmAsync(RealmAsyncOpenTaskHandle handle, Completer<RealmHandle?> completer) {
     final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_thread_safe_reference_t>, Pointer<realm_async_error_t>)>(_openRealmAsyncCallback);
     final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
 
-    _realmLib.realm_async_open_task_start(realmAsyncOpenTaskPtr, _realmLib.addresses.realm_dart_async_open_task_completion_callback, userdata.cast(),
+    _realmLib.realm_async_open_task_start(handle._pointer, _realmLib.addresses.realm_dart_async_open_task_completion_callback, userdata.cast(),
         _realmLib.addresses.realm_dart_userdata_async_free);
+    return completer.future;
+  }
 
-    CancelableOperation<RealmHandle?> cancelOperation = CancelableOperation.fromFuture(completer.future, onCancel: () {
-      _realmLib.realm_async_open_task_cancel(realmAsyncOpenTaskPtr);
-    });
-    return cancelOperation;
+  RealmAsyncOpenTaskHandle createRealmAsyncOpenTask(Configuration config) {
+    final configHandle = _createConfig(config);
+    final realmAsyncOpenTaskPtr =
+        _realmLib.invokeGetPointer(() => _realmLib.realm_open_synchronized(configHandle._pointer), "Error opening synchronized realm at path ${config.path}");
+    return RealmAsyncOpenTaskHandle._(realmAsyncOpenTaskPtr);
+  }
+
+  void cancelRealmAsyncOpenTask(RealmAsyncOpenTaskHandle handle) {
+    _realmLib.realm_async_open_task_cancel(handle._pointer);
+  }
+
+  static void _realmAsyncOpenRegisterProgressNotifierCallback(Handle userdata, int transferredBytes, int totalBytes) {
+    final realmAsyncOpenTask = userdata as RealmAsyncOpenTask;
+    if (realmAsyncOpenTask.progressCallback != null) {
+      realmAsyncOpenTask.progressCallback!(transferredBytes, totalBytes);
+    }
+  }
+
+  int realmAsyncOpenRegisterProgressNotifier(RealmAsyncOpenTask task) {
+    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64)>(_realmAsyncOpenRegisterProgressNotifierCallback);
+    final userdata = _realmLib.realm_dart_userdata_async_new(task, callback.cast(), scheduler.handle._pointer);
+    return _realmLib.realm_async_open_task_register_download_progress_notifier(
+        task.handle._pointer, _realmLib.addresses.realm_dart_sync_progress_callback, userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
+  }
+
+  void realmAsyncOpenUnregisterProgressNotifier(RealmAsyncOpenTaskHandle handle, int token) {
+    _realmLib.realm_async_open_task_unregister_download_progress_notifier(handle._pointer, token);
   }
 }
 
@@ -1732,6 +1758,10 @@ class RealmHandle extends HandleBase<shared_realm> {
   RealmHandle._(Pointer<shared_realm> pointer) : super(pointer, 24);
 
   RealmHandle._unowned(Pointer<shared_realm> pointer) : super.unowned(pointer);
+}
+
+class RealmAsyncOpenTaskHandle extends HandleBase<realm_async_open_task> {
+  RealmAsyncOpenTaskHandle._(Pointer<realm_async_open_task> pointer) : super(pointer, 24);
 }
 
 class SchedulerHandle extends HandleBase<realm_scheduler> {

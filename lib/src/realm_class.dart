@@ -100,14 +100,14 @@ class Realm {
   }
 
   /// Opens a `Realm` async using a [Configuration] object.
-  static RealmAsyncOpenTask open(Configuration config) {
+  static RealmAsyncOpenTask open(Configuration config, {ProgressCallback? onProgressCallback}) {
     _createFileDirectory(config.path);
-    CancelableOperation<RealmHandle?> openRealmAsyncOperation = realmCore.openRealmAsync(config);
-
-    CancelableOperation<Realm?> cancelableOperation = CancelableOperation<Realm?>.fromFuture(
-        openRealmAsyncOperation.valueOrCancellation(null).then<Realm?>((handle) => handle != null ? Realm._(config, handle) : null),
-        onCancel: () => {if (!(openRealmAsyncOperation.isCompleted || openRealmAsyncOperation.isCanceled)) openRealmAsyncOperation.cancel()});
-    return RealmAsyncOpenTask(cancelableOperation);
+    RealmAsyncOpenTaskHandle realmAsyncOpenTaskHandle = realmCore.createRealmAsyncOpenTask(config);
+    final completer = Completer<RealmHandle?>();
+    Future<Realm?> realm = realmCore.openRealmAsync(realmAsyncOpenTaskHandle, completer).then((handle) {
+      return handle != null ? Realm._(config, handle) : null;
+    });
+    return RealmAsyncOpenTask._(realmAsyncOpenTaskHandle, config, realm, onProgressCallback, completer);
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
@@ -491,18 +491,38 @@ class RealmLogLevel {
   static const off = Level.OFF;
 }
 
+typedef ProgressCallback = void Function(int transferredBytes, int totalBytes);
+
 class RealmAsyncOpenTask {
-  final CancelableOperation<Realm?> _cancelableOperation;
+  final RealmAsyncOpenTaskHandle _handle;
+  final Configuration _config;
+  final Future<Realm?> _realm;
+  late int _progressToken;
+  final ProgressCallback? progressCallback;
+  final Completer<RealmHandle?> _completer;
 
-  RealmAsyncOpenTask(CancelableOperation<Realm?> cancelableOperation) : _cancelableOperation = cancelableOperation;
-
-  Future<Realm?> get realm => _cancelableOperation.valueOrCancellation(null);
-
-  void cancel() {
-    if (!(_cancelableOperation.isCanceled || _cancelableOperation.isCompleted)) {
-      _cancelableOperation.cancel();
+  RealmAsyncOpenTask._(this._handle, this._config, this._realm, this.progressCallback, this._completer) {
+    if (progressCallback != null) {
+      _progressToken = realmCore.realmAsyncOpenRegisterProgressNotifier(this);
     }
   }
 
-  void addProgressNotificationCallback() {}
+  RealmAsyncOpenTaskHandle get handle => _handle;
+
+  Completer<RealmHandle?> get completer => _completer;
+
+  Configuration get config => _config;
+
+  Future<Realm?> get realm => _realm.whenComplete(() {
+        if (progressCallback != null) {
+          realmCore.realmAsyncOpenUnregisterProgressNotifier(_handle, _progressToken);
+        }
+      });
+
+  void cancel() {
+    realmCore.cancelRealmAsyncOpenTask(_handle);
+    if (!_completer.isCompleted) {
+      _completer.complete(null);
+    }
+  }
 }
