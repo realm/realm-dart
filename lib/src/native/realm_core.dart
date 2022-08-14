@@ -27,7 +27,6 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
-import 'package:async/async.dart';
 
 import '../app.dart';
 import '../collections.dart';
@@ -966,7 +965,7 @@ class _RealmCore {
       return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_google_auth_code(authCodePtr));
     });
   }
-  
+
   RealmAppCredentialsHandle createAppCredentialsFunction(String payload) {
     return using((arena) {
       final payloadPtr = payload.toCharPtr(arena);

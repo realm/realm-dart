@@ -21,7 +21,6 @@ import 'dart:io';
 
 import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
-import 'package:async/async.dart';
 
 import 'configuration.dart';
 import 'list.dart';
