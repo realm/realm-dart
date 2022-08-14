@@ -525,7 +525,7 @@ class RealmAsyncOpenTask {
   final RealmAsyncOpenTaskHandle _handle;
   final Configuration _config;
   final Future<Realm?> _realm;
-  late int _progressToken;
+  late int _progressToken;  
   final ProgressCallback? _progressCallback;
   final Completer<RealmHandle?> _completer;
 
@@ -534,6 +534,8 @@ class RealmAsyncOpenTask {
       _progressToken = realmCore.realmAsyncOpenRegisterProgressNotifier(this);
     }
   }
+
+  RealmAsyncOpenTaskHandle get handle => _handle;
 
   /// This is the registered callback to receive progress notifications
   /// while the download is in progress.
