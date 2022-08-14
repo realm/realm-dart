@@ -54,6 +54,9 @@ class BaasClient {
       return { status: 'fail' };
     }
   };''';
+  static const String _authFuncSource = '''exports = (loginPayload) => {
+    return loginPayload["userId"];
+  };''';
   static const String defaultAppName = "flexible";
 
   final String _baseUrl;
@@ -165,6 +168,7 @@ class BaasClient {
 
     final confirmFuncId = await _createFunction(app, 'confirmFunc', _confirmFuncSource);
     final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
+    final authFuncId = await _createFunction(app, 'authFunc', _authFuncSource);
 
     await enableProvider(app, 'anon-user');
     await enableProvider(app, 'local-userpass', config: '''{
@@ -238,8 +242,12 @@ class BaasClient {
             "field_name": "company"
           }''');
     }
-    
     if (confirmationType == null) {
+      await enableProvider(app, 'custom-function', config: '''{
+            "authFunctionName": "authFunc",
+            "authFunctionId": "$authFuncId"
+            }''');
+    
       const facebookSecret = "876750ac6d06618b323dee591602897f";
       final dynamic createFacebookSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
       String facebookClientSecretKeyName = createFacebookSecretResult['name'] as String;

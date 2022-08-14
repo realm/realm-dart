@@ -467,4 +467,40 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.facebook(accessToken);
     expect(() async => await app.logIn(credentials), throws<RealmException>("error fetching info from OAuth2 provider"));
   });
+  
+  baasTest('Function credentials - wrong payload', (configuration) {
+    final app = App(configuration);
+    final payload = 'Wrong EJSON format';
+    expect(() => Credentials.function(payload), throws<RealmException>("parse error"));
+  });
+
+  baasTest('Function credentials - login with new user', (configuration) async {
+    final app = App(configuration);
+    var userId = ObjectId().toString();
+    String username = "${generateRandomString(5)}@realm.io";
+    final payload = '{"username":"$username","userId":"$userId"}';
+    final credentials = Credentials.function(payload);
+    final user = await app.logIn(credentials);
+    expect(user.identities[0].id, userId);
+    expect(user.provider, AuthProviderType.function);
+    expect(user.identities[0].provider, AuthProviderType.function);
+  });
+
+  baasTest('Function credentials - login with existing user', (configuration) async {
+    final app = App(configuration);
+    var userId = ObjectId().toString();
+    final payload = '{"userId":"$userId"}';
+
+    final credentials = Credentials.function(payload);
+    final user = await app.logIn(credentials);
+    expect(user.identities[0].id, userId);
+    expect(user.provider, AuthProviderType.function);
+    user.logOut();
+
+    final sameUser = await app.logIn(credentials);
+    expect(sameUser.id, user.id);
+
+    expect(sameUser.identities[0].id, userId);
+    expect(sameUser.provider, AuthProviderType.function);
+  });
 }
