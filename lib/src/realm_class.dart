@@ -99,7 +99,18 @@ class Realm {
     _populateMetadata();
   }
 
-  /// Opens a `Realm` async using a [Configuration] object.
+  /// A method for asynchronously obtaining and opening a [Realm].
+  ///
+  /// If the configuration is [FlexibleSyncConfiguration], the realm will be downloaded and fully
+  /// synchronized with the server prior to the completion of the returned [RealmAsyncOpenTask].
+  /// Otherwise this method will throw an exception.
+  ///
+  /// Open realm async arguments are:
+  /// * `config`- a configuration object that describes the realm.
+  /// * `onProgressCallback` - a function that is registered as a callback for receiving download progress notifications
+  ///
+  /// The returned task has an awaitable [RealmAsyncOpenTask.realm] future that is completed once the remote realm is fully synchronized.
+  /// It provides a method [RealmAsyncOpenTask.cancel] that cancels any current running download.
   static RealmAsyncOpenTask open(Configuration config, {ProgressCallback? onProgressCallback}) {
     _createFileDirectory(config.path);
     RealmAsyncOpenTaskHandle realmAsyncOpenTaskHandle = realmCore.createRealmAsyncOpenTask(config);
@@ -491,8 +502,25 @@ class RealmLogLevel {
   static const off = Level.OFF;
 }
 
+/// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].
+/// This is the registered callback [onProgressCallback] to receive progress notifications while the download is in progress.
+///
+/// It is called with the following arguments:
+/// * `transferredBytes` - the current number of bytes already transferred
+/// * `totalBytes` - the total number of transferable bytes (the number of bytes already transferred plus the number of bytes pending transfer)
+/// {@category Realm}
 typedef ProgressCallback = void Function(int transferredBytes, int totalBytes);
 
+/// A task object which can be used to await for a realm to open async or to cancel it.
+///
+/// When a synchronized Realm is opened asynchronously,
+/// the latest state of the Realm is downloaded from the server before the completion callback is invoked.
+/// This task object can be used to await the the download process to complete or to cancel it.
+/// A download progress notifier is registered is case of having [ProgressCallback],
+/// which allows you to observe the state of the download.
+/// Once the process completes the download progress notifier is unregistered.
+///
+/// {@category Realm}
 class RealmAsyncOpenTask {
   final RealmAsyncOpenTaskHandle _handle;
   final Configuration _config;
@@ -509,16 +537,21 @@ class RealmAsyncOpenTask {
 
   RealmAsyncOpenTaskHandle get handle => _handle;
 
-  Completer<RealmHandle?> get completer => _completer;
-
+  /// The configuration object that describes the realm.
   Configuration get config => _config;
 
+  /// An awaitable future that is completed once
+  /// the remote realm is fully synchronized or download is canceled.
+  /// Returns null when the process is canceled.
   Future<Realm?> get realm => _realm.whenComplete(() {
         if (progressCallback != null) {
           realmCore.realmAsyncOpenUnregisterProgressNotifier(_handle, _progressToken);
         }
       });
 
+  /// Cancels any current running download.
+  /// If multiple [RealmAsyncOpenTask] are all in the progress for the same Realm,
+  /// then canceling one of them will cancel all of them.
   void cancel() {
     realmCore.cancelRealmAsyncOpenTask(_handle);
     if (!_completer.isCompleted) {
