@@ -250,11 +250,6 @@ class Realm implements Finalizable {
     _subscriptions?.handle.release();
     _subscriptions = null;
 
-    final c = config;
-    if (c is FlexibleSyncConfiguration) {
-      final i = c.user.app.id;
-    }
-
     realmCore.closeRealm(this);
   }
 
