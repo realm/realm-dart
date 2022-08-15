@@ -142,6 +142,14 @@ class _AllCollections {
   late List<ObjectId> objectIds;
   late List<Uuid> uuids;
   late List<int> ints;
+
+  late List<String?> nullableStrings;
+  late List<bool?> nullableBools;
+  late List<DateTime?> nullableDates;
+  late List<double?> nullableDoubles;
+  late List<ObjectId?> nullableObjectIds;
+  late List<Uuid?> nullableUuids;
+  late List<int?> nullableInts;
 }
 
 @RealmModel()

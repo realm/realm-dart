@@ -724,6 +724,13 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
     Iterable<ObjectId> objectIds = const [],
     Iterable<Uuid> uuids = const [],
     Iterable<int> ints = const [],
+    Iterable<String?> nullableStrings = const [],
+    Iterable<bool?> nullableBools = const [],
+    Iterable<DateTime?> nullableDates = const [],
+    Iterable<double?> nullableDoubles = const [],
+    Iterable<ObjectId?> nullableObjectIds = const [],
+    Iterable<Uuid?> nullableUuids = const [],
+    Iterable<int?> nullableInts = const [],
   }) {
     _stringsProperty.setValue(this, RealmList<String>(strings));
     _boolsProperty.setValue(this, RealmList<bool>(bools));
@@ -732,6 +739,16 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
     _objectIdsProperty.setValue(this, RealmList<ObjectId>(objectIds));
     _uuidsProperty.setValue(this, RealmList<Uuid>(uuids));
     _intsProperty.setValue(this, RealmList<int>(ints));
+    _nullableStringsProperty.setValue(
+        this, RealmList<String?>(nullableStrings));
+    _nullableBoolsProperty.setValue(this, RealmList<bool?>(nullableBools));
+    _nullableDatesProperty.setValue(this, RealmList<DateTime?>(nullableDates));
+    _nullableDoublesProperty.setValue(
+        this, RealmList<double?>(nullableDoubles));
+    _nullableObjectIdsProperty.setValue(
+        this, RealmList<ObjectId?>(nullableObjectIds));
+    _nullableUuidsProperty.setValue(this, RealmList<Uuid?>(nullableUuids));
+    _nullableIntsProperty.setValue(this, RealmList<int?>(nullableInts));
   }
 
   AllCollections._();
@@ -790,6 +807,66 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
   @override
   set ints(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
 
+  static const _nullableStringsProperty =
+      ListProperty<String?>('nullableStrings', RealmPropertyType.string);
+  @override
+  RealmList<String?> get nullableStrings =>
+      _nullableStringsProperty.getValue(this);
+  @override
+  set nullableStrings(covariant RealmList<String?> value) =>
+      throw RealmUnsupportedSetError();
+
+  static const _nullableBoolsProperty =
+      ListProperty<bool?>('nullableBools', RealmPropertyType.bool);
+  @override
+  RealmList<bool?> get nullableBools => _nullableBoolsProperty.getValue(this);
+  @override
+  set nullableBools(covariant RealmList<bool?> value) =>
+      throw RealmUnsupportedSetError();
+
+  static const _nullableDatesProperty =
+      ListProperty<DateTime?>('nullableDates', RealmPropertyType.timestamp);
+  @override
+  RealmList<DateTime?> get nullableDates =>
+      _nullableDatesProperty.getValue(this);
+  @override
+  set nullableDates(covariant RealmList<DateTime?> value) =>
+      throw RealmUnsupportedSetError();
+
+  static const _nullableDoublesProperty =
+      ListProperty<double?>('nullableDoubles', RealmPropertyType.double);
+  @override
+  RealmList<double?> get nullableDoubles =>
+      _nullableDoublesProperty.getValue(this);
+  @override
+  set nullableDoubles(covariant RealmList<double?> value) =>
+      throw RealmUnsupportedSetError();
+
+  static const _nullableObjectIdsProperty =
+      ListProperty<ObjectId?>('nullableObjectIds', RealmPropertyType.objectid);
+  @override
+  RealmList<ObjectId?> get nullableObjectIds =>
+      _nullableObjectIdsProperty.getValue(this);
+  @override
+  set nullableObjectIds(covariant RealmList<ObjectId?> value) =>
+      throw RealmUnsupportedSetError();
+
+  static const _nullableUuidsProperty =
+      ListProperty<Uuid?>('nullableUuids', RealmPropertyType.uuid);
+  @override
+  RealmList<Uuid?> get nullableUuids => _nullableUuidsProperty.getValue(this);
+  @override
+  set nullableUuids(covariant RealmList<Uuid?> value) =>
+      throw RealmUnsupportedSetError();
+
+  static const _nullableIntsProperty =
+      ListProperty<int?>('nullableInts', RealmPropertyType.int);
+  @override
+  RealmList<int?> get nullableInts => _nullableIntsProperty.getValue(this);
+  @override
+  set nullableInts(covariant RealmList<int?> value) =>
+      throw RealmUnsupportedSetError();
+
   @override
   Stream<RealmObjectChanges<AllCollections>> get changes =>
       RealmObject.getChanges(this);
@@ -805,6 +882,13 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
       'objectIds': _objectIdsProperty,
       'uuids': _uuidsProperty,
       'ints': _intsProperty,
+      'nullableStrings': _nullableStringsProperty,
+      'nullableBools': _nullableBoolsProperty,
+      'nullableDates': _nullableDatesProperty,
+      'nullableDoubles': _nullableDoublesProperty,
+      'nullableObjectIds': _nullableObjectIdsProperty,
+      'nullableUuids': _nullableUuidsProperty,
+      'nullableInts': _nullableIntsProperty,
     },
   );
   @override
