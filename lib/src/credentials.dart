@@ -99,8 +99,8 @@ class Credentials implements Finalizable {
   /// Returns a [Credentials] object that can be used to authenticate a user with a Google account using an id token.
   Credentials.googleIdToken(String idToken)
       : _handle = realmCore.createAppCredentialsGoogleIdToken(idToken),
-        provider = AuthProviderType.google;  
-  
+        provider = AuthProviderType.google;
+
   /// Returns a [Credentials] object that can be used to authenticate a user with a custom Function.
   /// [Custom Function Authentication Docs](https://www.mongodb.com/docs/atlas/app-services/authentication/custom-function/)
   Credentials.function(String payload)

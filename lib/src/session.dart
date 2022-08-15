@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
+import 'dart:ffi';
 
 import '../realm.dart';
 import 'native/realm_core.dart';
@@ -27,7 +28,7 @@ import 'user.dart';
 /// server. Sessions are always created by the SDK and vended out through various
 /// APIs. The lifespans of sessions associated with Realms are managed automatically.
 /// {@category Sync}
-class Session {
+class Session implements Finalizable {
   final SessionHandle _handle;
 
   /// The on-disk path of the file backing the [Realm] this [Session] represents
@@ -150,6 +151,11 @@ class ConnectionStateChange {
 }
 
 extension SessionInternal on Session {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _handle.keepAlive();
+  }
+
   static Session create(SessionHandle handle) => Session._(handle);
 
   SessionHandle get handle => _handle;
