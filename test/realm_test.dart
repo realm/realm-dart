@@ -640,4 +640,96 @@ Future<void> main([List<String>? args]) async {
     // We should not be in transaction here
     expect(realm.isInTransaction, false);
   });
+
+  test('Transitive updates', () {
+    final realm = getRealm(Configuration.local([Friend.schema, Party.schema]));
+
+    var alice = Friend(1);
+    var bob = Friend(2, bestFriend: alice);
+
+    realm.write(() => realm.add(bob));
+
+    expect(bob.isManaged, true);
+    expect(alice.isManaged, true);
+
+    final aliceAgain = Friend(1, age: 50);
+    final bobAgain = Friend(2, age: 50, bestFriend: aliceAgain);
+    final party = Party(guests: [aliceAgain, bobAgain]);
+
+    realm.write(() => realm.add(party, update: true));
+
+    expect(bobAgain.isManaged, true);
+    expect(aliceAgain.isManaged, true);
+
+    expect(bob.age, 50);
+    expect(alice.age, 50);
+    expect(bob, bobAgain);
+    expect(alice, aliceAgain);
+    expect(bob.bestFriend, alice);
+  });
+
+  test('Cycles updated correctly', () {
+    final realm = getRealm(Configuration.local([Friend.schema]));
+
+    var alice = Friend(1);
+    var bob = Friend(2, bestFriend: alice);
+    alice.bestFriend = bob; // form cycle
+
+    realm.write(() => realm.add(alice));
+
+    final aliceAgain = Friend(1);
+    final bobAgain = Friend(2, bestFriend: aliceAgain);
+    aliceAgain.bestFriend = bobAgain;
+
+    alice = realm.write(() => realm.add(aliceAgain, update: true));
+
+    // Re-fetch from realm
+    alice = realm.find(alice.id)!;
+    bob = realm.find(bob.id)!;
+
+    expect(alice.bestFriend, bobAgain);
+    expect(alice.bestFriend!.bestFriend, aliceAgain);
+    expect(alice.bestFriend!.bestFriend!.bestFriend, bobAgain);
+  });
+
+  test('Lists updated correctly', () {
+    final realm = getRealm(Configuration.local([Friend.schema]));
+
+    var alice = Friend(1);
+    var bob = Friend(2);
+    var carol = Friend(3);
+    alice.friends.addAll([bob, carol]);
+
+    realm.write(() => realm.add(alice));
+
+    expect(alice.friends, [bob, carol]);
+
+    var dan = Friend(4);
+    final aliceAgain = Friend(1, friends: [dan]);
+
+    realm.write(() => realm.add(aliceAgain, update: true));
+
+    // Re-fetch from realm
+    alice = realm.find(alice.id)!;
+
+    expect(alice.friends, [dan]);
+  });
+
+  test('Cycles via lists updated correctly', () {
+    final realm = getRealm(Configuration.local([Friend.schema]));
+
+    var alice = Friend(1);
+    var bob = Friend(2);
+    var carol = Friend(3);
+    alice.friends.addAll([bob, carol]);
+
+    realm.write(() => realm.add(alice));
+
+    var aliceAgain = Friend(1);
+    var bobAgain = Friend(2);
+    var carolAgain = Friend(3);
+    aliceAgain.friends.addAll([bobAgain, carolAgain]);
+
+    realm.write(() => realm.add(aliceAgain, update: true));
+  });
 }

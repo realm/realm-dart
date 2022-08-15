@@ -158,6 +158,21 @@ class _Event {
   late String? assignedTo;
 }
 
+@RealmModel()
+class _Party {
+  // no primary key!
+  final guests = <_Friend>[];
+}
+
+@RealmModel()
+class _Friend {
+  @PrimaryKey()
+  late int id;
+  var age = 42;
+  _Friend? bestFriend;
+  final friends = <_Friend>[];
+}
+
 String? testName;
 Map<String, String?> arguments = {};
 final baasApps = <String, BaasApp>{};

@@ -748,3 +748,101 @@ class Event extends _Event with RealmEntity, RealmObject {
     ]);
   }
 }
+
+class Party extends _Party with RealmEntity, RealmObject {
+  Party({
+    Iterable<Friend> guests = const [],
+  }) {
+    RealmObject.set<RealmList<Friend>>(
+        this, 'guests', RealmList<Friend>(guests));
+  }
+
+  Party._();
+
+  @override
+  RealmList<Friend> get guests =>
+      RealmObject.get<Friend>(this, 'guests') as RealmList<Friend>;
+  @override
+  set guests(covariant RealmList<Friend> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Party>> get changes =>
+      RealmObject.getChanges<Party>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(Party._);
+    return const SchemaObject(Party, 'Party', [
+      SchemaProperty('guests', RealmPropertyType.object,
+          linkTarget: 'Friend', collectionType: RealmCollectionType.list),
+    ]);
+  }
+}
+
+class Friend extends _Friend with RealmEntity, RealmObject {
+  static var _defaultsSet = false;
+
+  Friend(
+    int id, {
+    int age = 42,
+    Friend? bestFriend,
+    Iterable<Friend> friends = const [],
+  }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObject.setDefaults<Friend>({
+        'age': 42,
+      });
+    }
+    RealmObject.set(this, 'id', id);
+    RealmObject.set(this, 'age', age);
+    RealmObject.set(this, 'bestFriend', bestFriend);
+    RealmObject.set<RealmList<Friend>>(
+        this, 'friends', RealmList<Friend>(friends));
+  }
+
+  Friend._();
+
+  @override
+  int get id => RealmObject.get<int>(this, 'id') as int;
+  @override
+  set id(int value) => throw RealmUnsupportedSetError();
+
+  @override
+  int get age => RealmObject.get<int>(this, 'age') as int;
+  @override
+  set age(int value) => RealmObject.set(this, 'age', value);
+
+  @override
+  Friend? get bestFriend =>
+      RealmObject.get<Friend>(this, 'bestFriend') as Friend?;
+  @override
+  set bestFriend(covariant Friend? value) =>
+      RealmObject.set(this, 'bestFriend', value);
+
+  @override
+  RealmList<Friend> get friends =>
+      RealmObject.get<Friend>(this, 'friends') as RealmList<Friend>;
+  @override
+  set friends(covariant RealmList<Friend> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Friend>> get changes =>
+      RealmObject.getChanges<Friend>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(Friend._);
+    return const SchemaObject(Friend, 'Friend', [
+      SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
+      SchemaProperty('age', RealmPropertyType.int),
+      SchemaProperty('bestFriend', RealmPropertyType.object,
+          optional: true, linkTarget: 'Friend'),
+      SchemaProperty('friends', RealmPropertyType.object,
+          linkTarget: 'Friend', collectionType: RealmCollectionType.list),
+    ]);
+  }
+}
