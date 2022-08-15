@@ -482,7 +482,7 @@ Future<void> main([List<String>? args]) async {
       final config = Configuration.local([AllCollections.schema]);
       final realm = getRealm(config);
       final obj = realm.write(() {
-        return realm.add(AllCollections(dates: list));
+        return realm.add(AllCollections(dates: list, nullableDates: [null]));
       });
 
       final json = obj.toJson();
