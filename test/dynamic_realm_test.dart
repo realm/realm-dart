@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// ignore_for_file: unused_local_variable, avoid_relative_lib_imports
+// ignore_for_file: avoid_relative_lib_imports
 
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
