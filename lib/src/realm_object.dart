@@ -172,7 +172,7 @@ class RealmCoreAccessor implements RealmAccessor {
   }
 }
 
-mixin RealmEntity implements Finalizable {
+mixin RealmEntity {
   Realm? _realm;
 
   /// The [Realm] instance this object belongs to.
@@ -183,11 +183,6 @@ mixin RealmEntity implements Finalizable {
 }
 
 extension RealmEntityInternal on RealmEntity {
-  @pragma('vm:never-inline')
-  void keepAlive() {
-    _realm?.keepAlive();
-  }
-
   void setRealm(Realm value) => _realm = value;
 }
 
@@ -199,7 +194,7 @@ extension RealmEntityInternal on RealmEntity {
 ///
 /// [RealmObject] should not be used directly as it is part of the generated class hierarchy. ex: `MyClass extends _MyClass with RealmObject`.
 /// {@category Realm}
-mixin RealmObject on RealmEntity {
+mixin RealmObject on RealmEntity implements Finalizable {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
   static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{};
@@ -268,6 +263,12 @@ mixin RealmObject on RealmEntity {
 /// @nodoc
 //RealmObject package internal members
 extension RealmObjectInternal on RealmObject {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _realm?.keepAlive();
+    _handle?.keepAlive();
+  }
+
   void manage(Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor, bool update) {
     if (_handle != null) {
       //most certainly a bug hence we throw an Error
@@ -314,7 +315,7 @@ class RealmException implements Exception {
 }
 
 /// Describes the changes in on a single RealmObject since the last time the notification callback was invoked.
-class RealmObjectChanges<T extends RealmObject> {
+class RealmObjectChanges<T extends RealmObject> implements Finalizable {
   // ignore: unused_field
   final RealmObjectChangesHandle _handle;
 
@@ -331,6 +332,14 @@ class RealmObjectChanges<T extends RealmObject> {
   }
 
   const RealmObjectChanges._(this._handle, this.object);
+}
+
+/// @nodoc
+extension RealmObjectChangesInternal<T extends RealmObject> on RealmObjectChanges<T> {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _handle.keepAlive();
+  }
 }
 
 /// @nodoc

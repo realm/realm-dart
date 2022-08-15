@@ -18,6 +18,7 @@
 
 import 'dart:async';
 import 'dart:collection' as collection;
+import 'dart:ffi';
 
 import 'collections.dart';
 import 'native/realm_core.dart';
@@ -29,7 +30,7 @@ import 'results.dart';
 /// added to or deleted from the collection or from the Realm.
 ///
 /// {@category Realm}
-abstract class RealmList<T extends Object> with RealmEntity implements List<T> {
+abstract class RealmList<T extends Object> with RealmEntity implements List<T>, Finalizable {
   /// Gets a value indicating whether this collection is still valid to use.
   ///
   /// Indicates whether the [Realm] instance hasn't been closed,
@@ -149,6 +150,7 @@ extension RealmListInternal<T extends Object> on RealmList<T> {
   void keepAlive() {
     final self = this;
     if (self is ManagedRealmList<T>) {
+      realm.keepAlive();
       self._handle.keepAlive();
     }
   }

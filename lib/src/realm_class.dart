@@ -418,7 +418,7 @@ extension RealmInternal on Realm {
 }
 
 /// @nodoc
-abstract class NotificationsController {
+abstract class NotificationsController implements Finalizable {
   RealmNotificationTokenHandle? handle;
 
   RealmNotificationTokenHandle subscribe();
