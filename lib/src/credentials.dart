@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'native/realm_core.dart';
 import 'app.dart';
@@ -55,7 +56,7 @@ enum AuthProviderType {
 
 /// A class, representing the credentials used for authenticating a [User]
 /// {@category Application}
-class Credentials {
+class Credentials implements Finalizable {
   final RealmAppCredentialsHandle _handle;
   final AuthProviderType provider;
 
@@ -109,13 +110,18 @@ class Credentials {
 
 /// @nodoc
 extension CredentialsInternal on Credentials {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _handle.keepAlive();
+  }
+
   RealmAppCredentialsHandle get handle => _handle;
 }
 
 /// A class, encapsulating functionality for users, logged in with [Credentials.emailPassword()].
 /// It is always scoped to a particular app.
 /// {@category Application}
-class EmailPasswordAuthProvider {
+class EmailPasswordAuthProvider implements Finalizable {
   final App app;
 
   /// Create a new EmailPasswordAuthProvider for the [app]
@@ -164,5 +170,10 @@ class EmailPasswordAuthProvider {
 }
 
 extension EmailPasswordAuthProviderInternal on EmailPasswordAuthProvider {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    app.keepAlive();
+  }
+
   static EmailPasswordAuthProvider create(App app) => EmailPasswordAuthProvider(app);
 }

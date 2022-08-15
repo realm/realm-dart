@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
+import 'dart:ffi';
 
 import 'list.dart';
 import 'native/realm_core.dart';
@@ -171,7 +172,7 @@ class RealmCoreAccessor implements RealmAccessor {
   }
 }
 
-mixin RealmEntity {
+mixin RealmEntity implements Finalizable {
   Realm? _realm;
 
   /// The [Realm] instance this object belongs to.
@@ -182,6 +183,11 @@ mixin RealmEntity {
 }
 
 extension RealmEntityInternal on RealmEntity {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _realm?.keepAlive();
+  }
+
   void setRealm(Realm value) => _realm = value;
 }
 

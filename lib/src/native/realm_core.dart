@@ -1695,7 +1695,7 @@ class LastError {
 }
 
 void _traceFinalization(Object o) {
-  Realm.logger.log(RealmLogLevel.info, 'Finalizing: $o');
+  Realm.logger.log(RealmLogLevel.trace, 'Finalizing: $o');
 }
 
 final _debugFinalizer = Finalizer<Object>(_traceFinalization);
@@ -1704,6 +1704,9 @@ final _nativeFinalizer = NativeFinalizer(_realmLib.addresses.realm_release);
 
 abstract class HandleBase<T extends NativeType> implements Finalizable {
   final Pointer<T> _pointer;
+
+  @pragma('vm:never-inline')
+  void keepAlive() {}
 
   HandleBase(this._pointer, int size) {
     _nativeFinalizer.attach(this, _pointer.cast(), detach: this, externalSize: size);
@@ -1769,13 +1772,13 @@ class ReleasableHandle<T extends NativeType> extends HandleBase<T> {
       return;
     }
     _nativeFinalizer.detach(this);
-    assert(() {
-      _traceFinalization(_pointer);
-      _debugFinalizer.detach(this);
-      return true;
-    }());
     _realmLib.realm_release(_pointer.cast());
     released = true;
+    assert(() {
+      _debugFinalizer.detach(this);
+      _traceFinalization(_pointer);
+      return true;
+    }());
   }
 }
 

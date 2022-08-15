@@ -145,6 +145,14 @@ extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
 
 /// @nodoc
 extension RealmListInternal<T extends Object> on RealmList<T> {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    final self = this;
+    if (self is ManagedRealmList<T>) {
+      self._handle.keepAlive();
+    }
+  }
+
   ManagedRealmList<T> asManaged() => this is ManagedRealmList<T> ? this as ManagedRealmList<T> : throw RealmStateError('$this is not managed');
 
   RealmListHandle get handle => asManaged()._handle;
