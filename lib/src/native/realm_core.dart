@@ -453,14 +453,29 @@ class _RealmCore {
 
   RealmSchema readSchema(Realm realm) {
     return using((Arena arena) {
-      final classKeys = _getValues<Uint32, int>(
-          arena,
-          (size) => arena<Uint32>(size),
-          (valuesPtr, size, outSize) => _realmLib.realm_get_class_keys(realm.handle._pointer, valuesPtr, size, outSize),
-          (values, index) => values.elementAt(index).value);
+      final actualCount = arena<Size>();
+      Pointer<Uint32> classesPtr;
+      var classesSize = 10;
 
-      final result = classKeys.map((e) => _getSchemaForClassKey(realm, e, arena)).toList();
-      return RealmSchema(result);
+      while (true) {
+        classesPtr = arena<Uint32>(classesSize);
+        _realmLib.invokeGetBool(() => _realmLib.realm_get_class_keys(realm.handle._pointer, classesPtr, classesSize, actualCount));
+
+        if (classesSize < actualCount.value) {
+          // The supplied array was too small - resize it
+          classesSize = actualCount.value;
+          arena.free(classesPtr);
+          continue;
+        }
+
+        final schemas = <SchemaObject>[];
+        for (var i = 0; i < actualCount.value; i++) {
+          final schema = _getSchemaForClassKey(realm, classesPtr.elementAt(i).value, arena);
+          schemas.add(schema);
+        }
+
+        return RealmSchema(schemas);
+      }
     });
   }
 
@@ -470,41 +485,28 @@ class _RealmCore {
 
     final name = classInfo.ref.name.cast<Utf8>().toDartString();
 
-    final nativeProperties = _getValues<realm_property_info, realm_property_info>(
-        arena,
-        (size) => arena<realm_property_info>(size),
-        (valuesPtr, size, outSize) => _realmLib.realm_get_class_properties(realm.handle._pointer, classKey, valuesPtr, size, outSize),
-        (values, index) => values.elementAt(index).ref);
-
-    final properties = nativeProperties.map((e) => e.toSchemaProperty()).toList();
-
-    return SchemaObject(RealmObject, name, properties);
-  }
-
-  // allocator and getAtIndex can't be implemented in a generic way because the type arguments must be compile-time constants
-  List<TReturn> _getValues<T extends NativeType, TReturn>(Arena arena, Pointer<T> Function(int size) allocator,
-      bool Function(Pointer<T> valuesPtr, int size, Pointer<IntPtr> outSize) getValue, TReturn Function(Pointer<T> values, int index) getAtIndex,
-      {int defaultSize = 10}) {
-    final valuesCount = arena<IntPtr>();
-    Pointer<T> valuesPtr;
+    final actualCount = arena<Size>();
+    Pointer<realm_property_info> propertiesPtr;
+    var propertiesSize = 10;
 
     while (true) {
-      valuesPtr = allocator(defaultSize);
-      _realmLib.invokeGetBool(() => getValue(valuesPtr, defaultSize, valuesCount));
+      propertiesPtr = arena<realm_property_info>(propertiesSize);
+      _realmLib.invokeGetBool(() => _realmLib.realm_get_class_properties(realm.handle._pointer, classKey, propertiesPtr, propertiesSize, actualCount));
 
-      if (defaultSize < valuesCount.value) {
+      if (propertiesSize < actualCount.value) {
         // The supplied array was too small - resize it
-        defaultSize = valuesCount.value;
-        arena.free(valuesPtr);
+        propertiesSize = actualCount.value;
+        arena.free(propertiesPtr);
         continue;
       }
 
-      final result = <TReturn>[];
-      for (var i = 0; i < valuesCount.value; i++) {
-        result.add(getAtIndex(valuesPtr, i));
+      final result = <SchemaProperty>[];
+      for (var i = 0; i < actualCount.value; i++) {
+        final property = propertiesPtr.elementAt(i).ref.toSchemaProperty();
+        result.add(property);
       }
 
-      return result;
+      return SchemaObject(RealmObject, name, result);
     }
   }
 
@@ -1026,7 +1028,7 @@ class _RealmCore {
       return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_google_auth_code(authCodePtr));
     });
   }
-  
+
   RealmAppCredentialsHandle createAppCredentialsFunction(String payload) {
     return using((arena) {
       final payloadPtr = payload.toCharPtr(arena);
@@ -1410,12 +1412,28 @@ class _RealmCore {
 
   List<UserHandle> getUsers(App app) {
     return using((arena) {
-      return _getValues<Pointer<realm_user>, UserHandle>(
-          arena,
-          (size) => arena<Pointer<realm_user>>(size),
-          (valuesPtr, size, outSize) => _realmLib.realm_app_get_all_users(app.handle._pointer, valuesPtr, size, outSize),
-          (values, index) => UserHandle._(values.elementAt(index).value),
-          defaultSize: 2);
+      final actualCount = arena<Size>();
+      Pointer<Pointer<realm_user>> usersPtr;
+      var usersSize = 2;
+
+      while (true) {
+        usersPtr = arena<Pointer<realm_user>>(usersSize);
+        _realmLib.invokeGetBool(() => _realmLib.realm_app_get_all_users(app.handle._pointer, usersPtr, usersSize, actualCount));
+
+        if (usersSize < actualCount.value) {
+          // The supplied array was too small - resize it
+          usersSize = actualCount.value;
+          arena.free(usersPtr);
+          continue;
+        }
+
+        final result = <UserHandle>[];
+        for (var i = 0; i < actualCount.value; i++) {
+          result.add(UserHandle._(usersPtr.elementAt(i).value));
+        }
+
+        return result;
+      }
     });
   }
 
@@ -1501,12 +1519,31 @@ class _RealmCore {
 
   List<UserIdentity> userGetIdentities(User user) {
     return using((arena) {
-      return _getValues<realm_user_identity_t, UserIdentity>(arena, (size) => arena<realm_user_identity_t>(size),
-          (valuesPtr, size, outSize) => _realmLib.realm_user_get_all_identities(user.handle._pointer, valuesPtr, size, outSize), (values, index) {
-        final idPtr = values.elementAt(index);
-        return UserIdentityInternal.create(
-            idPtr.ref.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderType.values.fromIndex(idPtr.ref.provider_type));
-      });
+      final actualCount = arena<Size>();
+      Pointer<realm_user_identity_t> identitiesPtr;
+      var identitiesSize = 3;
+
+      while (true) {
+        identitiesPtr = arena<realm_user_identity_t>(identitiesSize);
+        _realmLib.invokeGetBool(() => _realmLib.realm_user_get_all_identities(user.handle._pointer, identitiesPtr, identitiesSize, actualCount));
+
+        if (identitiesSize < actualCount.value) {
+          // The supplied array was too small - resize it
+          identitiesSize = actualCount.value;
+          arena.free(identitiesPtr);
+          continue;
+        }
+
+        final result = <UserIdentity>[];
+        for (var i = 0; i < actualCount.value; i++) {
+          final identity = identitiesPtr.elementAt(i).ref;
+
+          result.add(UserIdentityInternal.create(
+              identity.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderType.values.fromIndex(identity.provider_type)));
+        }
+
+        return result;
+      }
     });
   }
 
