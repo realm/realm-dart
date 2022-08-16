@@ -250,7 +250,7 @@ Future<void> main([List<String>? args]) async {
     final carOne = Car("Toyota");
     final carTwo = Car("Toyota");
     realm.write(() => realm.add(carOne));
-    expect(realm.write(() => realm.add(carTwo, update: true)), carTwo);
+    expect(realm.write(() => realm.add(carTwo, update: true)), carOne);
   });
 
   test('Realm adding object graph with multiple existing objects with with update flag', () {
