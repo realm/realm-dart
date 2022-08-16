@@ -24,10 +24,6 @@
 
 RLM_API void realm_dart_initializeDartApiDL(void* data);
 
-RLM_API Dart_FinalizableHandle realm_dart_attach_finalizer(Dart_Handle handle, void* realmPtr, int size);
-
-RLM_API void realm_dart_delete_finalizable(Dart_FinalizableHandle finalizable_handle, Dart_Handle handle);
-
 RLM_API void* realm_dart_object_to_weak_handle(Dart_Handle handle);
 RLM_API Dart_Handle realm_dart_weak_handle_to_object(void* handle);
 

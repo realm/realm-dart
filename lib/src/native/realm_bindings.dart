@@ -2963,27 +2963,6 @@ class RealmLibrary {
           ffi.Pointer<realm_thread_safe_reference_t> Function(
               ffi.Pointer<ffi.Void>)>();
 
-  Dart_FinalizableHandle realm_dart_attach_finalizer(
-    Object handle,
-    ffi.Pointer<ffi.Void> realmPtr,
-    int size,
-  ) {
-    return _realm_dart_attach_finalizer(
-      handle,
-      realmPtr,
-      size,
-    );
-  }
-
-  late final _realm_dart_attach_finalizerPtr = _lookup<
-      ffi.NativeFunction<
-          Dart_FinalizableHandle Function(ffi.Handle, ffi.Pointer<ffi.Void>,
-              ffi.Int)>>('realm_dart_attach_finalizer');
-  late final _realm_dart_attach_finalizer =
-      _realm_dart_attach_finalizerPtr.asFunction<
-          Dart_FinalizableHandle Function(
-              Object, ffi.Pointer<ffi.Void>, int)>();
-
   ffi.Pointer<realm_scheduler_t> realm_dart_create_scheduler(
     int isolateId,
     int port,
@@ -3000,23 +2979,6 @@ class RealmLibrary {
               ffi.Uint64, Dart_Port)>>('realm_dart_create_scheduler');
   late final _realm_dart_create_scheduler = _realm_dart_create_schedulerPtr
       .asFunction<ffi.Pointer<realm_scheduler_t> Function(int, int)>();
-
-  void realm_dart_delete_finalizable(
-    Dart_FinalizableHandle finalizable_handle,
-    Object handle,
-  ) {
-    return _realm_dart_delete_finalizable(
-      finalizable_handle,
-      handle,
-    );
-  }
-
-  late final _realm_dart_delete_finalizablePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(Dart_FinalizableHandle,
-              ffi.Handle)>>('realm_dart_delete_finalizable');
-  late final _realm_dart_delete_finalizable = _realm_dart_delete_finalizablePtr
-      .asFunction<void Function(Dart_FinalizableHandle, Object)>();
 
   void realm_dart_delete_persistent_handle(
     ffi.Pointer<ffi.Void> handle,
@@ -9586,20 +9548,9 @@ class _SymbolAddresses {
   _SymbolAddresses(this._library);
   ffi.Pointer<
           ffi.NativeFunction<
-              Dart_FinalizableHandle Function(
-                  ffi.Handle, ffi.Pointer<ffi.Void>, ffi.Int)>>
-      get realm_dart_attach_finalizer =>
-          _library._realm_dart_attach_finalizerPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
               ffi.Pointer<realm_scheduler_t> Function(ffi.Uint64, Dart_Port)>>
       get realm_dart_create_scheduler =>
           _library._realm_dart_create_schedulerPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(Dart_FinalizableHandle, ffi.Handle)>>
-      get realm_dart_delete_finalizable =>
-          _library._realm_dart_delete_finalizablePtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_delete_persistent_handle =>
           _library._realm_dart_delete_persistent_handlePtr;
@@ -9674,9 +9625,9 @@ class _SymbolAddresses {
   ffi.Pointer<ffi.NativeFunction<ffi.Handle Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_weak_handle_to_object =>
           _library._realm_dart_weak_handle_to_objectPtr;
+  ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
+      get realm_release => _library._realm_releasePtr;
 }
-
-typedef Dart_FinalizableHandle = ffi.Pointer<_Dart_FinalizableHandle>;
 
 /// A port is used to send or receive inter-isolate messages
 typedef Dart_Port = ffi.Int64;
@@ -9719,8 +9670,6 @@ class UnnamedUnion2 extends ffi.Union {
   @ffi.Int32()
   external int logic_error_kind;
 }
-
-class _Dart_FinalizableHandle extends ffi.Opaque {}
 
 class realm_app extends ffi.Opaque {}
 

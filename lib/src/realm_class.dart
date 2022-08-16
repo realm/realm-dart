@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:logging/logging.dart';
@@ -84,7 +85,7 @@ export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirec
 /// A [Realm] instance represents a `Realm` database.
 ///
 /// {@category Realm}
-class Realm {
+class Realm implements Finalizable {
   final Map<Type, RealmMetadata> _metadata = <Type, RealmMetadata>{};
   final RealmHandle _handle;
 
@@ -376,6 +377,15 @@ class Transaction {
 
 /// @nodoc
 extension RealmInternal on Realm {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _handle.keepAlive();
+    final c = config;
+    if (c is FlexibleSyncConfiguration) {
+      c.keepAlive();
+    }
+  }
+
   RealmHandle get handle => _handle;
 
   static Realm getUnowned(Configuration config, RealmHandle handle) {
@@ -408,7 +418,7 @@ extension RealmInternal on Realm {
 }
 
 /// @nodoc
-abstract class NotificationsController {
+abstract class NotificationsController implements Finalizable {
   RealmNotificationTokenHandle? handle;
 
   RealmNotificationTokenHandle subscribe();

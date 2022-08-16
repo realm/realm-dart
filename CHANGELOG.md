@@ -15,6 +15,9 @@
 * Support `Credentials.function` for login user with Custom Function Authentication Provider. ([#742](https://github.com/realm/realm-dart/pull/742))
 * Added `update` flag on `Realm.add` and `Realm.addAll` to support upserts. ([#668](https://github.com/realm/realm-dart/pull/668))
 
+### Fixed
+* Use Dart 2.17 `Finalizable` to ensure lexically scoped lifetime of finalizable resources (Realm, App, etc.). ([#754](https://github.com/realm/realm-dart/pull/754))
+
 ### Internal
 * Added a command to `realm_dart` for deleting Atlas App Services applications. Usage: `dart run realm_dart delete-apps`. By default it will delete apps from `http://localhost:9090` which is the endpoint of the local docker image. If `--atlas-cluster` is provided, it will authenticate, delete the application from the provided cluster. (PR [#663](https://github.com/realm/realm-dart/pull/663))
 * Uses Realm Core v12.5.0

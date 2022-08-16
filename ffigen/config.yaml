@@ -28,6 +28,7 @@ functions:
   symbol-address:
     include:
       - 'realm_dart_.*'
+      - 'realm_release'
 structs:
   exclude:
     - '_.*'
