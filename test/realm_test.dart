@@ -19,6 +19,7 @@
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
 import 'dart:io';
+import 'dart:math';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -644,92 +645,79 @@ Future<void> main([List<String>? args]) async {
   test('Transitive updates', () {
     final realm = getRealm(Configuration.local([Friend.schema, Party.schema]));
 
-    var alice = Friend(1);
-    var bob = Friend(2, bestFriend: alice);
+    // A group of friends (all 42)
+    final alice = Friend('alice');
+    final bob = Friend('bob', bestFriend: alice);
+    final carol = Friend('carol', bestFriend: bob);
+    final dan = Friend('dan', bestFriend: bob);
+    alice.bestFriend = bob;
+    final friends = [alice, bob, carol, dan];
+    for (final f in friends) {
+      f.friends.addAll(friends.except(f));
+    }
 
-    realm.write(() => realm.add(bob));
+    // In 92 everybody is invited
+    final partyOf92 = Party(1992, host: alice, guests: friends.except(alice));
 
-    expect(bob.isManaged, true);
-    expect(alice.isManaged, true);
+    // Store everything transitively by adding the party
+    realm.write(() => realm.add(partyOf92));
 
-    final aliceAgain = Friend(1, age: 50);
-    final bobAgain = Friend(2, age: 50, bestFriend: aliceAgain);
-    final party = Party(guests: [aliceAgain, bobAgain]);
+    // As a prelude check that every object is added correctly
+    for (final f in friends) {
+      expect(f.isManaged, isTrue);
+      final friend = realm.find<Friend>(f.name);
+      expect(friend, isNotNull);
+      expect(friend!.name, f.name);
+      expect(friend.age, 42);
+      expect(friend.friends, friends.except(f)); // all are friends
+      if (f != bob) expect(friend.bestFriend, bob); // everybody loves bob
+    }
+    expect(realm.all<Party>(), [partyOf92]);
 
-    realm.write(() => realm.add(party, update: true));
+    // 7 years pass, dan falls out of favor, and carol and alice becomes BFF
+    final aliceAgain = Friend('alice', age: 50);
+    final bobAgain = Friend('bob', age: 50); // alice prefer carol
+    final carolAgain = Friend('carol', bestFriend: aliceAgain, age: 50);
+    final danAgain = Friend('dan', bestFriend: bobAgain, age: 50);
+    aliceAgain.bestFriend = carolAgain;
+    final everyOne = [aliceAgain, bobAgain, carolAgain, danAgain];
+    for (final f in everyOne) {
+      f.friends.addAll(everyOne.except(f).except(danAgain)); // nobody likes dan anymore
+    }
 
-    expect(bobAgain.isManaged, true);
-    expect(aliceAgain.isManaged, true);
+    // In 99, dan is not invited
+    final partyOf99 = Party(
+      1999,
+      host: bobAgain,
+      guests: everyOne.except(bobAgain).except(danAgain),
+      previous: partyOf92,
+    );
 
-    expect(bob.age, 50);
-    expect(alice.age, 50);
-    expect(bob, bobAgain);
-    expect(alice, aliceAgain);
-    expect(bob.bestFriend, alice);
+    // Cannot just add the party of 99, as it transitively updates a lot of existing objects
+    //expect(() => realm.write(() => realm.add(partyOf99)), throwsA(TypeMatcher<RealmException>()));
+
+    // So let's use the update flag..
+    expect(() => realm.write(() => realm.add(partyOf99, update: true)), returnsNormally);
+
+    // Now let's test that the original added objects are all correctly updated,
+    // except dan who is not in the graph
+    for (final f in friends.except(dan)) {
+      //friends) {
+      expect(f.isManaged, isTrue);
+      expect(f.age, 50);
+      expect(f.friends, friends.except(f).except(dan));
+      expect(f.friends, everyOne.except(realm.find(f.name)!).except(danAgain)); // same
+    }
+    expect(alice.bestFriend, carol);
+    expect(carol.bestFriend, alice);
+    expect(bob.bestFriend, isNull);
+    expect(dan.bestFriend, bob);
+    expect(dan.age, 42);
+    expect(dan.friends, [alice, bob, carol]);
+    expect(danAgain.isManaged, isFalse); // dan wasn't updated
   });
+}
 
-  test('Cycles updated correctly', () {
-    final realm = getRealm(Configuration.local([Friend.schema]));
-
-    var alice = Friend(1);
-    var bob = Friend(2, bestFriend: alice);
-    alice.bestFriend = bob; // form cycle
-
-    realm.write(() => realm.add(alice));
-
-    final aliceAgain = Friend(1);
-    final bobAgain = Friend(2, bestFriend: aliceAgain);
-    aliceAgain.bestFriend = bobAgain;
-
-    alice = realm.write(() => realm.add(aliceAgain, update: true));
-
-    // Re-fetch from realm
-    alice = realm.find(alice.id)!;
-    bob = realm.find(bob.id)!;
-
-    expect(alice.bestFriend, bobAgain);
-    expect(alice.bestFriend!.bestFriend, aliceAgain);
-    expect(alice.bestFriend!.bestFriend!.bestFriend, bobAgain);
-  });
-
-  test('Lists updated correctly', () {
-    final realm = getRealm(Configuration.local([Friend.schema]));
-
-    var alice = Friend(1);
-    var bob = Friend(2);
-    var carol = Friend(3);
-    alice.friends.addAll([bob, carol]);
-
-    realm.write(() => realm.add(alice));
-
-    expect(alice.friends, [bob, carol]);
-
-    var dan = Friend(4);
-    final aliceAgain = Friend(1, friends: [dan]);
-
-    realm.write(() => realm.add(aliceAgain, update: true));
-
-    // Re-fetch from realm
-    alice = realm.find(alice.id)!;
-
-    expect(alice.friends, [dan]);
-  });
-
-  test('Cycles via lists updated correctly', () {
-    final realm = getRealm(Configuration.local([Friend.schema]));
-
-    var alice = Friend(1);
-    var bob = Friend(2);
-    var carol = Friend(3);
-    alice.friends.addAll([bob, carol]);
-
-    realm.write(() => realm.add(alice));
-
-    var aliceAgain = Friend(1);
-    var bobAgain = Friend(2);
-    var carolAgain = Friend(3);
-    aliceAgain.friends.addAll([bobAgain, carolAgain]);
-
-    realm.write(() => realm.add(aliceAgain, update: true));
-  });
+extension _IterableEx<T> on Iterable<T> {
+  Iterable<T> except(T exclude) => where((o) => o != exclude);
 }

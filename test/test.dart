@@ -161,13 +161,16 @@ class _Event {
 @RealmModel()
 class _Party {
   // no primary key!
+  _Friend? host;
+  late int year;
   final guests = <_Friend>[];
+  _Party? previous;
 }
 
 @RealmModel()
 class _Friend {
   @PrimaryKey()
-  late int id;
+  late String name;
   var age = 42;
   _Friend? bestFriend;
   final friends = <_Friend>[];

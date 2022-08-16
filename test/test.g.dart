@@ -750,9 +750,15 @@ class Event extends _Event with RealmEntity, RealmObject {
 }
 
 class Party extends _Party with RealmEntity, RealmObject {
-  Party({
+  Party(
+    int year, {
+    Friend? host,
+    Party? previous,
     Iterable<Friend> guests = const [],
   }) {
+    RealmObject.set(this, 'host', host);
+    RealmObject.set(this, 'year', year);
+    RealmObject.set(this, 'previous', previous);
     RealmObject.set<RealmList<Friend>>(
         this, 'guests', RealmList<Friend>(guests));
   }
@@ -760,11 +766,27 @@ class Party extends _Party with RealmEntity, RealmObject {
   Party._();
 
   @override
+  Friend? get host => RealmObject.get<Friend>(this, 'host') as Friend?;
+  @override
+  set host(covariant Friend? value) => RealmObject.set(this, 'host', value);
+
+  @override
+  int get year => RealmObject.get<int>(this, 'year') as int;
+  @override
+  set year(int value) => RealmObject.set(this, 'year', value);
+
+  @override
   RealmList<Friend> get guests =>
       RealmObject.get<Friend>(this, 'guests') as RealmList<Friend>;
   @override
   set guests(covariant RealmList<Friend> value) =>
       throw RealmUnsupportedSetError();
+
+  @override
+  Party? get previous => RealmObject.get<Party>(this, 'previous') as Party?;
+  @override
+  set previous(covariant Party? value) =>
+      RealmObject.set(this, 'previous', value);
 
   @override
   Stream<RealmObjectChanges<Party>> get changes =>
@@ -775,8 +797,13 @@ class Party extends _Party with RealmEntity, RealmObject {
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Party._);
     return const SchemaObject(Party, 'Party', [
+      SchemaProperty('host', RealmPropertyType.object,
+          optional: true, linkTarget: 'Friend'),
+      SchemaProperty('year', RealmPropertyType.int),
       SchemaProperty('guests', RealmPropertyType.object,
           linkTarget: 'Friend', collectionType: RealmCollectionType.list),
+      SchemaProperty('previous', RealmPropertyType.object,
+          optional: true, linkTarget: 'Party'),
     ]);
   }
 }
@@ -785,7 +812,7 @@ class Friend extends _Friend with RealmEntity, RealmObject {
   static var _defaultsSet = false;
 
   Friend(
-    int id, {
+    String name, {
     int age = 42,
     Friend? bestFriend,
     Iterable<Friend> friends = const [],
@@ -795,7 +822,7 @@ class Friend extends _Friend with RealmEntity, RealmObject {
         'age': 42,
       });
     }
-    RealmObject.set(this, 'id', id);
+    RealmObject.set(this, 'name', name);
     RealmObject.set(this, 'age', age);
     RealmObject.set(this, 'bestFriend', bestFriend);
     RealmObject.set<RealmList<Friend>>(
@@ -805,9 +832,9 @@ class Friend extends _Friend with RealmEntity, RealmObject {
   Friend._();
 
   @override
-  int get id => RealmObject.get<int>(this, 'id') as int;
+  String get name => RealmObject.get<String>(this, 'name') as String;
   @override
-  set id(int value) => throw RealmUnsupportedSetError();
+  set name(String value) => throw RealmUnsupportedSetError();
 
   @override
   int get age => RealmObject.get<int>(this, 'age') as int;
@@ -837,7 +864,7 @@ class Friend extends _Friend with RealmEntity, RealmObject {
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Friend._);
     return const SchemaObject(Friend, 'Friend', [
-      SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
+      SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('age', RealmPropertyType.int),
       SchemaProperty('bestFriend', RealmPropertyType.object,
           optional: true, linkTarget: 'Friend'),
