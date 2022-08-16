@@ -85,7 +85,7 @@ class ManagedRealmList<T extends Object> extends collection.ListBase<T> with Rea
 
   /// Removes all objects from this list; the length of the list becomes zero.
   /// The objects are not deleted from the realm, but are no longer referenced from this list.
-  void clear() => realmCore.listClear(this);
+  void clear() => realmCore.listClear(handle);
 
   @override
   bool get isValid => realmCore.listIsValid(this);
@@ -151,14 +151,14 @@ extension RealmListInternal<T extends Object> on RealmList<T> {
 
   static RealmList<T> create<T extends Object>(RealmListHandle handle, Realm realm) => RealmList<T>._(handle, realm);
 
-  static void setValue(RealmListHandle handle, Realm realm, int index, Object? value) {
+  static void setValue(RealmListHandle handle, Realm realm, int index, Object? value, {bool update = false}) {
     if (index < 0) {
       throw RealmException("Index out of range $index");
     }
 
     try {
       if (value is RealmObject && !value.isManaged) {
-        realm.add<RealmObject>(value);
+        realm.add<RealmObject>(value, update: update);
       }
 
       final length = realmCore.getListSize(handle);
