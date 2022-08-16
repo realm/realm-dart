@@ -1,4 +1,4 @@
-## vNext
+## 0.4.0+beta (2022-08-16)
 
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
