@@ -979,7 +979,7 @@ class _RealmCore {
       return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_google_auth_code(authCodePtr));
     });
   }
-  
+
   RealmAppCredentialsHandle createAppCredentialsFunction(String payload) {
     return using((arena) {
       final payloadPtr = payload.toCharPtr(arena);
@@ -1694,11 +1694,32 @@ class LastError {
   }
 }
 
+// Flag to enable trace on finalization.
+//
+// Be aware that the trace is likely late, and it might in rare case be missing,
+// as there are no absolute guarantees with Finalizer.
+//
+// It is often beneficial to also instrument the native realm_release to
+// print the address released to get the exact time.
+const _enableFinalizerTrace = false;
+
+// Level used for finalization trace, if enabled.
+const _finalizerTraceLevel = RealmLogLevel.trace;
+
 void _traceFinalization(Object o) {
-  Realm.logger.log(RealmLogLevel.trace, 'Finalizing: $o');
+  Realm.logger.log(_finalizerTraceLevel, 'Finalizing: $o');
 }
 
 final _debugFinalizer = Finalizer<Object>(_traceFinalization);
+
+void _setupFinalizationTrace(Object value, Object finalizationToken) {
+  _debugFinalizer.attach(value, finalizationToken, detach: value);
+}
+
+void _tearDownFinalizationTrace(Object value, Object finalizationToken) {
+  _debugFinalizer.detach(value);
+  _traceFinalization(finalizationToken);
+}
 
 final _nativeFinalizer = NativeFinalizer(_realmLib.addresses.realm_release);
 
@@ -1710,10 +1731,7 @@ abstract class HandleBase<T extends NativeType> implements Finalizable {
 
   HandleBase(this._pointer, int size) {
     _nativeFinalizer.attach(this, _pointer.cast(), detach: this, externalSize: size);
-    assert(() {
-      _debugFinalizer.attach(this, _pointer);
-      return true;
-    }());
+    if (_enableFinalizerTrace) _setupFinalizationTrace(this, _pointer);
   }
 
   HandleBase.unowned(this._pointer);
@@ -1774,11 +1792,7 @@ class ReleasableHandle<T extends NativeType> extends HandleBase<T> {
     _nativeFinalizer.detach(this);
     _realmLib.realm_release(_pointer.cast());
     released = true;
-    assert(() {
-      _debugFinalizer.detach(this);
-      _traceFinalization(_pointer);
-      return true;
-    }());
+    if (_enableFinalizerTrace) _tearDownFinalizationTrace(this, _pointer);
   }
 }
 
