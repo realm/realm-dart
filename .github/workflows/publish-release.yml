@@ -224,6 +224,6 @@ jobs:
       uses: realm/ci-actions/release-to-slack@v3
       with:
         changelog: release/ExtractedChangelog.md
-        sdk: dart
+        sdk: Flutter/Dart
         webhook-url: ${{ secrets.SLACK_RELEASES_WEBHOOK }}
         version: ${{ needs.prepare-packages.outputs.version }}
