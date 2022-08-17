@@ -9,10 +9,9 @@ realmPackageDir = File.expand_path(__dir__)
 # For example the tests app refers to the realm plugin using this path .../realm-dart/flutter/realm_flutter/tests/ios/.symlinks/plugins/realm/ios
 project_dir = File.expand_path("../../../../", realmPackageDir)
 
-# //TODO read the version from pubspec.yaml
 Pod::Spec.new do |s|
   s.name                      = 'realm'
-  s.version                   = '0.3.1+beta'
+  s.version                   = '0.3.2+beta'
   s.summary                   = 'The official Realm SDK for Flutter'
   s.description               = <<-DESC
                                     Realm is a mobile database - an alternative to SQLite and key-value stores.

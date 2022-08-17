@@ -224,6 +224,45 @@ jobs:
       uses: realm/ci-actions/release-to-slack@v3
       with:
         changelog: release/ExtractedChangelog.md
-        sdk: dart
+        sdk: Flutter/Dart
         webhook-url: ${{ secrets.SLACK_RELEASES_WEBHOOK }}
         version: ${{ needs.prepare-packages.outputs.version }}
+
+    - name: Update Changelog
+      run: |
+        echo "## vNext (TBD)
+
+        **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
+
+        ### Enhancements
+        * None
+
+        ### Fixed
+        * None
+
+        ### Compatibility
+        * Realm Studio: 12.0.0 or later.
+
+        ### Internal
+        * Using Core x.y.z.
+        " | cat - CHANGELOG.md >> temp
+        mv temp CHANGELOG.md
+      shell: bash
+
+    - name: Add vNext Changelog header
+      id: vnext-pr
+      uses: peter-evans/create-pull-request@7380612b49221684fefa025244f2ef4008ae50ad
+      with:
+        branch: vnext-changelog
+        title: Add vNext Changelog header
+        body: Update Changelog for vNext
+        delete-branch: true
+        base: master
+        commit-message: Add vNext Changelog header
+
+    - name: Merge Pull Request
+      uses: juliangruber/merge-pull-request-action@8a13f2645ad8b6ada32f829b2fae9c0955a5265d
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        number: ${{ steps.vnext-pr.outputs.pull-request-number }}
+        method: squash

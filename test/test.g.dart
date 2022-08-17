@@ -748,3 +748,128 @@ class Event extends _Event with RealmEntity, RealmObject {
     ]);
   }
 }
+
+class Party extends _Party with RealmEntity, RealmObject {
+  Party(
+    int year, {
+    Friend? host,
+    Party? previous,
+    Iterable<Friend> guests = const [],
+  }) {
+    RealmObject.set(this, 'host', host);
+    RealmObject.set(this, 'year', year);
+    RealmObject.set(this, 'previous', previous);
+    RealmObject.set<RealmList<Friend>>(
+        this, 'guests', RealmList<Friend>(guests));
+  }
+
+  Party._();
+
+  @override
+  Friend? get host => RealmObject.get<Friend>(this, 'host') as Friend?;
+  @override
+  set host(covariant Friend? value) => RealmObject.set(this, 'host', value);
+
+  @override
+  int get year => RealmObject.get<int>(this, 'year') as int;
+  @override
+  set year(int value) => RealmObject.set(this, 'year', value);
+
+  @override
+  RealmList<Friend> get guests =>
+      RealmObject.get<Friend>(this, 'guests') as RealmList<Friend>;
+  @override
+  set guests(covariant RealmList<Friend> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Party? get previous => RealmObject.get<Party>(this, 'previous') as Party?;
+  @override
+  set previous(covariant Party? value) =>
+      RealmObject.set(this, 'previous', value);
+
+  @override
+  Stream<RealmObjectChanges<Party>> get changes =>
+      RealmObject.getChanges<Party>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(Party._);
+    return const SchemaObject(Party, 'Party', [
+      SchemaProperty('host', RealmPropertyType.object,
+          optional: true, linkTarget: 'Friend'),
+      SchemaProperty('year', RealmPropertyType.int),
+      SchemaProperty('guests', RealmPropertyType.object,
+          linkTarget: 'Friend', collectionType: RealmCollectionType.list),
+      SchemaProperty('previous', RealmPropertyType.object,
+          optional: true, linkTarget: 'Party'),
+    ]);
+  }
+}
+
+class Friend extends _Friend with RealmEntity, RealmObject {
+  static var _defaultsSet = false;
+
+  Friend(
+    String name, {
+    int age = 42,
+    Friend? bestFriend,
+    Iterable<Friend> friends = const [],
+  }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObject.setDefaults<Friend>({
+        'age': 42,
+      });
+    }
+    RealmObject.set(this, 'name', name);
+    RealmObject.set(this, 'age', age);
+    RealmObject.set(this, 'bestFriend', bestFriend);
+    RealmObject.set<RealmList<Friend>>(
+        this, 'friends', RealmList<Friend>(friends));
+  }
+
+  Friend._();
+
+  @override
+  String get name => RealmObject.get<String>(this, 'name') as String;
+  @override
+  set name(String value) => throw RealmUnsupportedSetError();
+
+  @override
+  int get age => RealmObject.get<int>(this, 'age') as int;
+  @override
+  set age(int value) => RealmObject.set(this, 'age', value);
+
+  @override
+  Friend? get bestFriend =>
+      RealmObject.get<Friend>(this, 'bestFriend') as Friend?;
+  @override
+  set bestFriend(covariant Friend? value) =>
+      RealmObject.set(this, 'bestFriend', value);
+
+  @override
+  RealmList<Friend> get friends =>
+      RealmObject.get<Friend>(this, 'friends') as RealmList<Friend>;
+  @override
+  set friends(covariant RealmList<Friend> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Friend>> get changes =>
+      RealmObject.getChanges<Friend>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(Friend._);
+    return const SchemaObject(Friend, 'Friend', [
+      SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
+      SchemaProperty('age', RealmPropertyType.int),
+      SchemaProperty('bestFriend', RealmPropertyType.object,
+          optional: true, linkTarget: 'Friend'),
+      SchemaProperty('friends', RealmPropertyType.object,
+          linkTarget: 'Friend', collectionType: RealmCollectionType.list),
+    ]);
+  }
+}

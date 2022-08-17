@@ -70,7 +70,7 @@ class _RealmCore {
     return _instance ??= _RealmCore._();
   }
 
-  String get libraryVersion => '0.3.1+beta';
+  String get libraryVersion => '0.3.2+beta';
 
   LastError? getLastError(Allocator allocator) {
     final error = allocator<realm_error_t>();
@@ -116,7 +116,7 @@ class _RealmCore {
           final schemaProperty = schemaObject.properties[j];
           final propInfo = properties.elementAt(j).ref;
           propInfo.name = schemaProperty.name.toCharPtr(arena);
-          //TODO: assign the correct public name value.
+          //TODO: Assign the correct public name value https://github.com/realm/realm-dart/issues/697
           propInfo.public_name = "".toCharPtr(arena);
           propInfo.link_target = (schemaProperty.linkTarget ?? "").toCharPtr(arena);
           propInfo.link_origin_property_name = "".toCharPtr(arena);
@@ -397,7 +397,8 @@ class _RealmCore {
       config.initialDataCallback!(realm);
       return true;
     } catch (ex) {
-      // TODO: this should propagate the error to Core: https://github.com/realm/realm-core/issues/5366
+      // TODO: Propagate error to Core in initial_data_callback https://github.com/realm/realm-dart/issues/698
+      // Core issue: https://github.com/realm/realm-core/issues/5366
     }
 
     return false;
@@ -530,6 +531,20 @@ class _RealmCore {
     return RealmObjectHandle._(realmPtr);
   }
 
+  RealmObjectHandle getOrCreateRealmObjectWithPrimaryKey(Realm realm, int classKey, Object primaryKey) {
+    return using((Arena arena) {
+      final realm_value = _toRealmValue(primaryKey, arena);
+      final didCreate = arena<Bool>();
+      final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_object_get_or_create_with_primary_key(
+            realm.handle._pointer,
+            classKey,
+            realm_value.ref,
+            didCreate,
+          ));
+      return RealmObjectHandle._(realmPtr);
+    });
+  }
+
   RealmObjectHandle createRealmObjectWithPrimaryKey(Realm realm, int classKey, Object primaryKey) {
     return using((Arena arena) {
       final realm_value = _toRealmValue(primaryKey, arena);
@@ -585,9 +600,9 @@ class _RealmCore {
   RealmResultsHandle queryClass(Realm realm, int classKey, String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
-      final argsPointer = arena<realm_value_t>(length);
+      final argsPointer = arena<realm_query_arg_t>(length);
       for (var i = 0; i < length; ++i) {
-        _intoRealmValue(args[i], argsPointer.elementAt(i), arena);
+        _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
       }
       final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
         () => _realmLib.realm_query_parse(
@@ -605,9 +620,9 @@ class _RealmCore {
   RealmResultsHandle queryResults(RealmResults target, String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
-      final argsPointer = arena<realm_value_t>(length);
+      final argsPointer = arena<realm_query_arg_t>(length);
       for (var i = 0; i < length; ++i) {
-        _intoRealmValue(args[i], argsPointer.elementAt(i), arena);
+        _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
       }
       final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
         () => _realmLib.realm_query_parse_for_results(
@@ -629,9 +644,9 @@ class _RealmCore {
   RealmResultsHandle queryList(RealmList target, String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
-      final argsPointer = arena<realm_value_t>(length);
+      final argsPointer = arena<realm_query_arg_t>(length);
       for (var i = 0; i < length; ++i) {
-        _intoRealmValue(args[i], argsPointer.elementAt(i), arena);
+        _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
       }
       final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
         () => _realmLib.realm_query_parse_for_list(
@@ -762,8 +777,8 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_results_delete_all(results.handle._pointer));
   }
 
-  void listClear(RealmList list) {
-    _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(list.handle._pointer));
+  void listClear(RealmListHandle listHandle) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(listHandle._pointer));
   }
 
   bool _equals<T extends NativeType>(HandleBase<T> first, HandleBase<T> second) {
@@ -918,8 +933,8 @@ class _RealmCore {
     });
   }
 
-  RealmAppCredentialsHandle createAppCredentialsAnonymous() {
-    return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_anonymous());
+  RealmAppCredentialsHandle createAppCredentialsAnonymous(bool reuseCredentials) {
+    return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_anonymous(reuseCredentials));
   }
 
   RealmAppCredentialsHandle createAppCredentialsEmailPassword(String email, String password) {
@@ -927,6 +942,49 @@ class _RealmCore {
       final emailPtr = email.toCharPtr(arena);
       final passwordPtr = password.toRealmString(arena);
       return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_email_password(emailPtr, passwordPtr.ref));
+    });
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsJwt(String token) {
+    return using((arena) {
+      final tokenPtr = token.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_jwt(tokenPtr));
+    });
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsApple(String idToken) {
+    return using((arena) {
+      final idTokenPtr = idToken.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_apple(idTokenPtr));
+    });
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsFacebook(String accessToken) {
+    return using((arena) {
+      final accessTokenPtr = accessToken.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_facebook(accessTokenPtr));
+    });
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsGoogleIdToken(String idToken) {
+    return using((arena) {
+      final idTokenPtr = idToken.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_google_id_token(idTokenPtr));
+    });
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsGoogleAuthCode(String authCode) {
+    return using((arena) {
+      final authCodePtr = authCode.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_google_auth_code(authCodePtr));
+    });
+  }
+
+  RealmAppCredentialsHandle createAppCredentialsFunction(String payload) {
+    return using((arena) {
+      final payloadPtr = payload.toCharPtr(arena);
+      final credentialsPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_credentials_new_function(payloadPtr));
+      return RealmAppCredentialsHandle._(credentialsPtr);
     });
   }
 
@@ -1041,7 +1099,6 @@ class _RealmCore {
 
         responseRef.custom_status_code = _CustomErrorCode.noError.code;
       } on SocketException catch (_) {
-        // TODO: A Timeout causes a socket exception, but not all socket exceptions are due to timeouts
         responseRef.custom_status_code = _CustomErrorCode.timeout.code;
       } on HttpException catch (_) {
         responseRef.custom_status_code = _CustomErrorCode.unknownHttp.code;
@@ -1409,7 +1466,8 @@ class _RealmCore {
 
   List<UserIdentity> userGetIdentities(User user) {
     return using((arena) {
-      //TODO: This approach is prone to race conditions. Fix this once Core changes how count is retrieved.
+      // TODO: Fix countIds in userGetIdentities once Core changes how count is retrieved. https://github.com/realm/realm-dart/issues/690
+      // This approach is prone to race conditions.
       final idsCount = arena<Size>();
       _realmLib.invokeGetBool(
           () => _realmLib.realm_user_get_all_identities(user.handle._pointer, nullptr, 0, idsCount), "Error while getting user identities count");
@@ -1623,29 +1681,60 @@ class _RealmCore {
     return completer.future;
   }
 
-  static void _openRealmAsync(Handle userdata, Pointer<realm_thread_safe_reference_t> realm, Pointer<realm_async_error_t> errorCode) {
-    final completer = userdata as Completer<RealmHandle>;
-
+  static void _openRealmAsyncCallback(Handle userdata, Pointer<realm_thread_safe_reference_t> realm, Pointer<realm_async_error_t> errorCode) {
+    final completer = userdata as Completer<RealmHandle?>;
     if (errorCode != nullptr) {
-      completer.completeError(RealmException(errorCode.toString()));
+      {
+        completer.completeError(RealmException(errorCode.toString()));
+      }
     } else {
       final realmPtr =
           _realmLib.invokeGetPointer(() => _realmLib.realm_from_thread_safe_reference(realm, scheduler.handle._pointer), "Error opening synchronized realm");
-      completer.complete(RealmHandle._(realmPtr));
+      if (completer.isCompleted) {
+        //Task is canceled before to complete but the realm was created.
+        _realmLib.invokeGetBool(() => _realmLib.realm_close(realmPtr), "Realm close failed");
+      } else {
+        completer.complete(RealmHandle._(realmPtr));
+      }
     }
   }
 
-  Future<RealmHandle> openRealmAsync(Configuration config) {
+  Future<RealmHandle?> openRealmAsync(RealmAsyncOpenTaskHandle handle, Completer<RealmHandle?> completer) {
+    final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_thread_safe_reference_t>, Pointer<realm_async_error_t>)>(_openRealmAsyncCallback);
+    final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
+
+    _realmLib.realm_async_open_task_start(handle._pointer, _realmLib.addresses.realm_dart_async_open_task_completion_callback, userdata.cast(),
+        _realmLib.addresses.realm_dart_userdata_async_free);
+    return completer.future;
+  }
+
+  RealmAsyncOpenTaskHandle createRealmAsyncOpenTask(Configuration config) {
     final configHandle = _createConfig(config);
     final realmAsyncOpenTaskPtr =
         _realmLib.invokeGetPointer(() => _realmLib.realm_open_synchronized(configHandle._pointer), "Error opening synchronized realm at path ${config.path}");
-    final completer = Completer<RealmHandle>();
-    final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_thread_safe_reference_t>, Pointer<realm_async_error_t>)>(_openRealmAsync);
-    final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
+    return RealmAsyncOpenTaskHandle._(realmAsyncOpenTaskPtr);
+  }
 
-    _realmLib.realm_async_open_task_start(realmAsyncOpenTaskPtr, _realmLib.addresses.realm_dart_async_open_task_completion_callback, userdata.cast(),
-        _realmLib.addresses.realm_dart_userdata_async_free);
-    return completer.future;
+  void cancelRealmAsyncOpenTask(RealmAsyncOpenTaskHandle handle) {
+    _realmLib.realm_async_open_task_cancel(handle._pointer);
+  }
+
+  static void _realmAsyncOpenRegisterProgressNotifierCallback(Handle userdata, int transferredBytes, int totalBytes) {
+    final realmAsyncOpenTask = userdata as RealmAsyncOpenTask;
+    if (realmAsyncOpenTask.progressCallback != null) {
+      realmAsyncOpenTask.progressCallback!(transferredBytes, totalBytes);
+    }
+  }
+
+  int realmAsyncOpenRegisterProgressNotifier(RealmAsyncOpenTask task) {
+    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64)>(_realmAsyncOpenRegisterProgressNotifierCallback);
+    final userdata = _realmLib.realm_dart_userdata_async_new(task, callback.cast(), scheduler.handle._pointer);
+    return _realmLib.realm_async_open_task_register_download_progress_notifier(
+        task.handle._pointer, _realmLib.addresses.realm_dart_sync_progress_callback, userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
+  }
+
+  void realmAsyncOpenUnregisterProgressNotifier(RealmAsyncOpenTaskHandle handle, int token) {
+    _realmLib.realm_async_open_task_unregister_download_progress_notifier(handle._pointer, token);
   }
 }
 
@@ -1661,15 +1750,44 @@ class LastError {
   }
 }
 
-abstract class HandleBase<T extends NativeType> {
+// Flag to enable trace on finalization.
+//
+// Be aware that the trace is likely late, and it might in rare case be missing,
+// as there are no absolute guarantees with Finalizer.
+//
+// It is often beneficial to also instrument the native realm_release to
+// print the address released to get the exact time.
+const _enableFinalizerTrace = false;
+
+// Level used for finalization trace, if enabled.
+const _finalizerTraceLevel = RealmLogLevel.trace;
+
+void _traceFinalization(Object o) {
+  Realm.logger.log(_finalizerTraceLevel, 'Finalizing: $o');
+}
+
+final _debugFinalizer = Finalizer<Object>(_traceFinalization);
+
+void _setupFinalizationTrace(Object value, Object finalizationToken) {
+  _debugFinalizer.attach(value, finalizationToken, detach: value);
+}
+
+void _tearDownFinalizationTrace(Object value, Object finalizationToken) {
+  _debugFinalizer.detach(value);
+  _traceFinalization(finalizationToken);
+}
+
+final _nativeFinalizer = NativeFinalizer(_realmLib.addresses.realm_release);
+
+abstract class HandleBase<T extends NativeType> implements Finalizable {
   final Pointer<T> _pointer;
-  late final Dart_FinalizableHandle _finalizableHandle;
+
+  @pragma('vm:never-inline')
+  void keepAlive() {}
 
   HandleBase(this._pointer, int size) {
-    _finalizableHandle = _realmLib.realm_dart_attach_finalizer(this, _pointer.cast(), size);
-    if (_finalizableHandle == nullptr) {
-      throw Exception("Error creating $runtimeType");
-    }
+    _nativeFinalizer.attach(this, _pointer.cast(), detach: this, externalSize: size);
+    if (_enableFinalizerTrace) _setupFinalizationTrace(this, _pointer);
   }
 
   HandleBase.unowned(this._pointer);
@@ -1690,6 +1808,10 @@ class RealmHandle extends HandleBase<shared_realm> {
   RealmHandle._(Pointer<shared_realm> pointer) : super(pointer, 24);
 
   RealmHandle._unowned(Pointer<shared_realm> pointer) : super.unowned(pointer);
+}
+
+class RealmAsyncOpenTaskHandle extends HandleBase<realm_async_open_task> {
+  RealmAsyncOpenTaskHandle._(Pointer<realm_async_open_task> pointer) : super(pointer, 24);
 }
 
 class SchedulerHandle extends HandleBase<realm_scheduler> {
@@ -1727,10 +1849,10 @@ class ReleasableHandle<T extends NativeType> extends HandleBase<T> {
     if (released) {
       return;
     }
-
-    _realmLib.realm_dart_delete_finalizable(_finalizableHandle, this);
+    _nativeFinalizer.detach(this);
     _realmLib.realm_release(_pointer.cast());
     released = true;
+    if (_enableFinalizerTrace) _tearDownFinalizationTrace(this, _pointer);
   }
 }
 
@@ -1847,6 +1969,13 @@ Pointer<realm_value_t> _toRealmValue(Object? value, Allocator allocator) {
 
 const int _microsecondsPerSecond = 1000 * 1000;
 const int _nanosecondsPerMicrosecond = 1000;
+
+void _intoRealmQueryArg(Object? value, Pointer<realm_query_arg_t> realm_query_arg, Allocator allocator) {
+  realm_query_arg.ref.arg = allocator<realm_value_t>();
+  realm_query_arg.ref.nb_args = 1;
+  realm_query_arg.ref.is_list = false;
+  _intoRealmValue(value, realm_query_arg.ref.arg, allocator);
+}
 
 void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocator allocator) {
   if (value == null) {

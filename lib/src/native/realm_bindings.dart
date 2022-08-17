@@ -320,16 +320,21 @@ class RealmLibrary {
       ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>,
           ffi.Pointer<realm_sync_client_config_t>)>();
 
-  ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_anonymous() {
-    return _realm_app_credentials_new_anonymous();
+  ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_anonymous(
+    bool reuse_credentials,
+  ) {
+    return _realm_app_credentials_new_anonymous(
+      reuse_credentials,
+    );
   }
 
   late final _realm_app_credentials_new_anonymousPtr = _lookup<
-          ffi.NativeFunction<ffi.Pointer<realm_app_credentials_t> Function()>>(
-      'realm_app_credentials_new_anonymous');
+      ffi.NativeFunction<
+          ffi.Pointer<realm_app_credentials_t> Function(
+              ffi.Bool)>>('realm_app_credentials_new_anonymous');
   late final _realm_app_credentials_new_anonymous =
       _realm_app_credentials_new_anonymousPtr
-          .asFunction<ffi.Pointer<realm_app_credentials_t> Function()>();
+          .asFunction<ffi.Pointer<realm_app_credentials_t> Function(bool)>();
 
   ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_apple(
     ffi.Pointer<ffi.Char> id_token,
@@ -2860,54 +2865,66 @@ class RealmLibrary {
   /// /**
   /// Copy or convert a Realm using a config.
   ///
-  /// If the file already exists, data will be copied over object per object.
+  /// If the file already exists and merge_with_existing is true, data will be copied over object per object.
+  /// When merging, all classes must have a pk called '_id" otherwise an exception is thrown.
+  /// If the file exists and merge_with_existing is false, an exception is thrown.
   /// If the file does not exist, the realm file will be exported to the new location and if the
   /// configuration object contains a sync part, a sync history will be synthesized.
   ///
   /// @param config The realm configuration that should be used to create a copy.
   /// This can be a local or a synced Realm, encrypted or not.
+  /// @param merge_with_existing If this is true and the destination file exists, data will be copied over object by
+  /// object. Otherwise, if this is false and the destination file exists, an exception is thrown.
   bool realm_convert_with_config(
     ffi.Pointer<realm_t> realm,
     ffi.Pointer<realm_config_t> config,
+    bool merge_with_existing,
   ) {
     return _realm_convert_with_config(
       realm,
       config,
+      merge_with_existing,
     );
   }
 
   late final _realm_convert_with_configPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_t>,
-              ffi.Pointer<realm_config_t>)>>('realm_convert_with_config');
+          ffi.Bool Function(ffi.Pointer<realm_t>, ffi.Pointer<realm_config_t>,
+              ffi.Bool)>>('realm_convert_with_config');
   late final _realm_convert_with_config =
       _realm_convert_with_configPtr.asFunction<
-          bool Function(ffi.Pointer<realm_t>, ffi.Pointer<realm_config_t>)>();
+          bool Function(
+              ffi.Pointer<realm_t>, ffi.Pointer<realm_config_t>, bool)>();
 
   /// Copy a Realm using a path.
   ///
   /// @param path The path the realm should be copied to. Local realms will remain local, synced
   /// realms will remain synced realms.
   /// @param encryption_key The optional encryption key for the new realm.
+  /// @param merge_with_existing If this is true and the destination file exists, data will be copied over object by
+  /// object.
+  /// Otherwise, if this is false and the destination file exists, an exception is thrown.
   bool realm_convert_with_path(
     ffi.Pointer<realm_t> realm,
     ffi.Pointer<ffi.Char> path,
     realm_binary_t encryption_key,
+    bool merge_with_existing,
   ) {
     return _realm_convert_with_path(
       realm,
       path,
       encryption_key,
+      merge_with_existing,
     );
   }
 
   late final _realm_convert_with_pathPtr = _lookup<
       ffi.NativeFunction<
           ffi.Bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>,
-              realm_binary_t)>>('realm_convert_with_path');
+              realm_binary_t, ffi.Bool)>>('realm_convert_with_path');
   late final _realm_convert_with_path = _realm_convert_with_pathPtr.asFunction<
       bool Function(
-          ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>, realm_binary_t)>();
+          ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>, realm_binary_t, bool)>();
 
   /// Get a thread-safe reference representing the same underlying object as some
   /// API object.
@@ -2972,27 +2989,6 @@ class RealmLibrary {
               ffi.Pointer<realm_thread_safe_reference_t>,
               ffi.Pointer<realm_async_error_t>)>();
 
-  Dart_FinalizableHandle realm_dart_attach_finalizer(
-    Object handle,
-    ffi.Pointer<ffi.Void> realmPtr,
-    int size,
-  ) {
-    return _realm_dart_attach_finalizer(
-      handle,
-      realmPtr,
-      size,
-    );
-  }
-
-  late final _realm_dart_attach_finalizerPtr = _lookup<
-      ffi.NativeFunction<
-          Dart_FinalizableHandle Function(ffi.Handle, ffi.Pointer<ffi.Void>,
-              ffi.Int)>>('realm_dart_attach_finalizer');
-  late final _realm_dart_attach_finalizer =
-      _realm_dart_attach_finalizerPtr.asFunction<
-          Dart_FinalizableHandle Function(
-              Object, ffi.Pointer<ffi.Void>, int)>();
-
   ffi.Pointer<realm_scheduler_t> realm_dart_create_scheduler(
     int isolateId,
     int port,
@@ -3009,23 +3005,6 @@ class RealmLibrary {
               ffi.Uint64, Dart_Port)>>('realm_dart_create_scheduler');
   late final _realm_dart_create_scheduler = _realm_dart_create_schedulerPtr
       .asFunction<ffi.Pointer<realm_scheduler_t> Function(int, int)>();
-
-  void realm_dart_delete_finalizable(
-    Dart_FinalizableHandle finalizable_handle,
-    Object handle,
-  ) {
-    return _realm_dart_delete_finalizable(
-      finalizable_handle,
-      handle,
-    );
-  }
-
-  late final _realm_dart_delete_finalizablePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(Dart_FinalizableHandle,
-              ffi.Handle)>>('realm_dart_delete_finalizable');
-  late final _realm_dart_delete_finalizable = _realm_dart_delete_finalizablePtr
-      .asFunction<void Function(Dart_FinalizableHandle, Object)>();
 
   void realm_dart_delete_persistent_handle(
     ffi.Pointer<ffi.Void> handle,
@@ -5106,6 +5085,624 @@ class RealmLibrary {
   late final _realm_list_size = _realm_list_sizePtr.asFunction<
       bool Function(ffi.Pointer<realm_list_t>, ffi.Pointer<ffi.Size>)>();
 
+  /// Implement aggregate for mongodb collection
+  /// @param collection ptr to the collection to fetch from
+  /// @param filter_ejson extended json string serialization representing the filter to apply to this operation
+  /// @param data user data to pass down to this function
+  /// @param delete_data deleter for user data
+  /// @param callback to invoke with the result
+  /// @return True if completes successfully, False otherwise
+  bool realm_mongo_collection_aggregate(
+    ffi.Pointer<realm_mongodb_collection_t> collection,
+    realm_string_t filter_ejson,
+    ffi.Pointer<ffi.Void> data,
+    realm_free_userdata_func_t delete_data,
+    realm_mongodb_callback_t callback,
+  ) {
+    return _realm_mongo_collection_aggregate(
+      collection,
+      filter_ejson,
+      data,
+      delete_data,
+      callback,
+    );
+  }
+
+  late final _realm_mongo_collection_aggregatePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>>('realm_mongo_collection_aggregate');
+  late final _realm_mongo_collection_aggregate =
+      _realm_mongo_collection_aggregatePtr.asFunction<
+          bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>();
+
+  /// Implement count for mongodb collection
+  /// @param collection ptr to the collection to fetch from
+  /// @param filter_ejson extended json string serialization representing the filter to apply to this operation
+  /// @param limit number of collectio
+  /// @param data user data to pass down to this function
+  /// @param delete_data deleter for user data
+  /// @param callback to invoke with the result
+  /// @return True if completes successfully, False otherwise
+  bool realm_mongo_collection_count(
+    ffi.Pointer<realm_mongodb_collection_t> collection,
+    realm_string_t filter_ejson,
+    int limit,
+    ffi.Pointer<ffi.Void> data,
+    realm_free_userdata_func_t delete_data,
+    realm_mongodb_callback_t callback,
+  ) {
+    return _realm_mongo_collection_count(
+      collection,
+      filter_ejson,
+      limit,
+      data,
+      delete_data,
+      callback,
+    );
+  }
+
+  late final _realm_mongo_collection_countPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              ffi.Int64,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>>('realm_mongo_collection_count');
+  late final _realm_mongo_collection_count =
+      _realm_mongo_collection_countPtr.asFunction<
+          bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              int,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>();
+
+  /// Implement delete_many for mongodb collection
+  /// @param collection name of the collection to fetch from
+  /// @param filter_ejson extended json string serialization representing the filter to apply to this operation
+  /// @param data user data to pass down to this function
+  /// @param delete_data deleter for user data
+  /// @param callback to invoke with the result
+  bool realm_mongo_collection_delete_many(
+    ffi.Pointer<realm_mongodb_collection_t> collection,
+    realm_string_t filter_ejson,
+    ffi.Pointer<ffi.Void> data,
+    realm_free_userdata_func_t delete_data,
+    realm_mongodb_callback_t callback,
+  ) {
+    return _realm_mongo_collection_delete_many(
+      collection,
+      filter_ejson,
+      data,
+      delete_data,
+      callback,
+    );
+  }
+
+  late final _realm_mongo_collection_delete_manyPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>>('realm_mongo_collection_delete_many');
+  late final _realm_mongo_collection_delete_many =
+      _realm_mongo_collection_delete_manyPtr.asFunction<
+          bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>();
+
+  /// Implement delete_one for mongodb collection
+  /// @param collection name of the collection to fetch from
+  /// @param filter_ejson extended json string serialization representing the filter to apply to this operation
+  /// @param data user data to pass down to this function
+  /// @param delete_data deleter for user data
+  /// @param callback to invoke with the result
+  /// @return True if completes successfully, False otherwise
+  bool realm_mongo_collection_delete_one(
+    ffi.Pointer<realm_mongodb_collection_t> collection,
+    realm_string_t filter_ejson,
+    ffi.Pointer<ffi.Void> data,
+    realm_free_userdata_func_t delete_data,
+    realm_mongodb_callback_t callback,
+  ) {
+    return _realm_mongo_collection_delete_one(
+      collection,
+      filter_ejson,
+      data,
+      delete_data,
+      callback,
+    );
+  }
+
+  late final _realm_mongo_collection_delete_onePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>>('realm_mongo_collection_delete_one');
+  late final _realm_mongo_collection_delete_one =
+      _realm_mongo_collection_delete_onePtr.asFunction<
+          bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>();
+
+  /// Implement find for mongodb collection
+  /// @param collection ptr to the collection to fetch from
+  /// @param filter_ejson extended json string serialization representing the filter to apply to this operation
+  /// @param options set of possible options to apply to this operation
+  /// @param data user data to pass down to this function
+  /// @param delete_data deleter for user data
+  /// @param callback to invoke with the result
+  /// @return True if completes successfully, False otherwise
+  bool realm_mongo_collection_find(
+    ffi.Pointer<realm_mongodb_collection_t> collection,
+    realm_string_t filter_ejson,
+    ffi.Pointer<realm_mongodb_find_options_t> options,
+    ffi.Pointer<ffi.Void> data,
+    realm_free_userdata_func_t delete_data,
+    realm_mongodb_callback_t callback,
+  ) {
+    return _realm_mongo_collection_find(
+      collection,
+      filter_ejson,
+      options,
+      data,
+      delete_data,
+      callback,
+    );
+  }
+
+  late final _realm_mongo_collection_findPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              ffi.Pointer<realm_mongodb_find_options_t>,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>>('realm_mongo_collection_find');
+  late final _realm_mongo_collection_find =
+      _realm_mongo_collection_findPtr.asFunction<
+          bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              ffi.Pointer<realm_mongodb_find_options_t>,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>();
+
+  /// Implement find_one for mongodb collection
+  /// @param collection ptr to the collection to fetch from
+  /// @param filter_ejson extended json string serialization representing the filter to apply to this operation
+  /// @param options set of possible options to apply to this operation
+  /// @param data user data to pass down to this function
+  /// @param delete_data deleter for user data
+  /// @param callback to invoke with the result
+  /// @return True if completes successfully, False otherwise
+  bool realm_mongo_collection_find_one(
+    ffi.Pointer<realm_mongodb_collection_t> collection,
+    realm_string_t filter_ejson,
+    ffi.Pointer<realm_mongodb_find_options_t> options,
+    ffi.Pointer<ffi.Void> data,
+    realm_free_userdata_func_t delete_data,
+    realm_mongodb_callback_t callback,
+  ) {
+    return _realm_mongo_collection_find_one(
+      collection,
+      filter_ejson,
+      options,
+      data,
+      delete_data,
+      callback,
+    );
+  }
+
+  late final _realm_mongo_collection_find_onePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              ffi.Pointer<realm_mongodb_find_options_t>,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>>('realm_mongo_collection_find_one');
+  late final _realm_mongo_collection_find_one =
+      _realm_mongo_collection_find_onePtr.asFunction<
+          bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              ffi.Pointer<realm_mongodb_find_options_t>,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>();
+
+  /// Implement find_one and delete  for mongodb collection
+  /// @param collection name of the collection to fetch from
+  /// @param filter_ejson extended json string serialization representing the filter to apply to this operation
+  /// @param options set of possible options to apply to this operation
+  /// @param data user data to pass down to this function
+  /// @param delete_data deleter for user data
+  /// @param callback to invoke with the result
+  /// @return True if completes successfully, False otherwise
+  bool realm_mongo_collection_find_one_and_delete(
+    ffi.Pointer<realm_mongodb_collection_t> collection,
+    realm_string_t filter_ejson,
+    ffi.Pointer<realm_mongodb_find_one_and_modify_options_t> options,
+    ffi.Pointer<ffi.Void> data,
+    realm_free_userdata_func_t delete_data,
+    realm_mongodb_callback_t callback,
+  ) {
+    return _realm_mongo_collection_find_one_and_delete(
+      collection,
+      filter_ejson,
+      options,
+      data,
+      delete_data,
+      callback,
+    );
+  }
+
+  late final _realm_mongo_collection_find_one_and_deletePtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Bool Function(
+                  ffi.Pointer<realm_mongodb_collection_t>,
+                  realm_string_t,
+                  ffi.Pointer<realm_mongodb_find_one_and_modify_options_t>,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t,
+                  realm_mongodb_callback_t)>>(
+      'realm_mongo_collection_find_one_and_delete');
+  late final _realm_mongo_collection_find_one_and_delete =
+      _realm_mongo_collection_find_one_and_deletePtr.asFunction<
+          bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              ffi.Pointer<realm_mongodb_find_one_and_modify_options_t>,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>();
+
+  /// Implement find_one and replace for mongodb collection
+  /// @param collection name of the collection to fetch from
+  /// @param filter_ejson extended json string serialization representing the filter to apply to this operation
+  /// @param replacement_ejson extended json string serialization representing the replacement object to apply to this
+  /// operation
+  /// @param options set of possible options to apply to this operation
+  /// @param data user data to pass down to this function
+  /// @param delete_data deleter for user data
+  /// @param callback to invoke with the result
+  /// @return True if completes successfully, False otherwise
+  bool realm_mongo_collection_find_one_and_replace(
+    ffi.Pointer<realm_mongodb_collection_t> collection,
+    realm_string_t filter_ejson,
+    realm_string_t replacement_ejson,
+    ffi.Pointer<realm_mongodb_find_one_and_modify_options_t> options,
+    ffi.Pointer<ffi.Void> data,
+    realm_free_userdata_func_t delete_data,
+    realm_mongodb_callback_t callback,
+  ) {
+    return _realm_mongo_collection_find_one_and_replace(
+      collection,
+      filter_ejson,
+      replacement_ejson,
+      options,
+      data,
+      delete_data,
+      callback,
+    );
+  }
+
+  late final _realm_mongo_collection_find_one_and_replacePtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Bool Function(
+                  ffi.Pointer<realm_mongodb_collection_t>,
+                  realm_string_t,
+                  realm_string_t,
+                  ffi.Pointer<realm_mongodb_find_one_and_modify_options_t>,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t,
+                  realm_mongodb_callback_t)>>(
+      'realm_mongo_collection_find_one_and_replace');
+  late final _realm_mongo_collection_find_one_and_replace =
+      _realm_mongo_collection_find_one_and_replacePtr.asFunction<
+          bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              realm_string_t,
+              ffi.Pointer<realm_mongodb_find_one_and_modify_options_t>,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>();
+
+  /// Implement find one and update for mongodb collection
+  /// @param collection name of the collection to fetch from
+  /// @param filter_ejson extended json string serialization representing the filter to apply to this operation
+  /// @param update_ejson extended json string serialization representing the update to apply to this operation
+  /// @param options set of possible options to apply to this operation
+  /// @param data user data to pass down to this function
+  /// @param delete_data deleter for user data
+  /// @param callback to invoke with the result
+  /// @return True if completes successfully, False otherwise
+  bool realm_mongo_collection_find_one_and_update(
+    ffi.Pointer<realm_mongodb_collection_t> collection,
+    realm_string_t filter_ejson,
+    realm_string_t update_ejson,
+    ffi.Pointer<realm_mongodb_find_one_and_modify_options_t> options,
+    ffi.Pointer<ffi.Void> data,
+    realm_free_userdata_func_t delete_data,
+    realm_mongodb_callback_t callback,
+  ) {
+    return _realm_mongo_collection_find_one_and_update(
+      collection,
+      filter_ejson,
+      update_ejson,
+      options,
+      data,
+      delete_data,
+      callback,
+    );
+  }
+
+  late final _realm_mongo_collection_find_one_and_updatePtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Bool Function(
+                  ffi.Pointer<realm_mongodb_collection_t>,
+                  realm_string_t,
+                  realm_string_t,
+                  ffi.Pointer<realm_mongodb_find_one_and_modify_options_t>,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t,
+                  realm_mongodb_callback_t)>>(
+      'realm_mongo_collection_find_one_and_update');
+  late final _realm_mongo_collection_find_one_and_update =
+      _realm_mongo_collection_find_one_and_updatePtr.asFunction<
+          bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              realm_string_t,
+              ffi.Pointer<realm_mongodb_find_one_and_modify_options_t>,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>();
+
+  /// Get mongo db collection from realm mongo db client
+  /// @param user ptr to the sync realm user of which we want to retrieve the remote collection for
+  /// @param service name of the service where the collection will be found
+  /// @param database name of the database where the collection will be found
+  /// @param collection name of the collection to fetch
+  /// @return a ptr to a valid mongodb collection if such collection exists, nullptr otherwise
+  ffi.Pointer<realm_mongodb_collection_t> realm_mongo_collection_get(
+    ffi.Pointer<realm_user_t> user,
+    ffi.Pointer<ffi.Char> service,
+    ffi.Pointer<ffi.Char> database,
+    ffi.Pointer<ffi.Char> collection,
+  ) {
+    return _realm_mongo_collection_get(
+      user,
+      service,
+      database,
+      collection,
+    );
+  }
+
+  late final _realm_mongo_collection_getPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_mongodb_collection_t> Function(
+              ffi.Pointer<realm_user_t>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('realm_mongo_collection_get');
+  late final _realm_mongo_collection_get =
+      _realm_mongo_collection_getPtr.asFunction<
+          ffi.Pointer<realm_mongodb_collection_t> Function(
+              ffi.Pointer<realm_user_t>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>();
+
+  /// Implement insert_many for mongodb collection
+  /// @param collection name of the collection to fetch from
+  /// @param filter_ejson extended json string serialization representing the filter to apply to this operation
+  /// @param data user data to pass down to this function
+  /// @param delete_data deleter for user data
+  /// @param callback to invoke with the result
+  /// @return True if completes successfully, False otherwise
+  bool realm_mongo_collection_insert_many(
+    ffi.Pointer<realm_mongodb_collection_t> collection,
+    realm_string_t filter_ejson,
+    ffi.Pointer<ffi.Void> data,
+    realm_free_userdata_func_t delete_data,
+    realm_mongodb_callback_t callback,
+  ) {
+    return _realm_mongo_collection_insert_many(
+      collection,
+      filter_ejson,
+      data,
+      delete_data,
+      callback,
+    );
+  }
+
+  late final _realm_mongo_collection_insert_manyPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>>('realm_mongo_collection_insert_many');
+  late final _realm_mongo_collection_insert_many =
+      _realm_mongo_collection_insert_manyPtr.asFunction<
+          bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>();
+
+  /// Implement insert_one for mongodb collection
+  /// @param collection name of the collection to fetch from
+  /// @param filter_ejson extended json string serialization representing the filter to apply to this operation
+  /// @param data user data to pass down to this function
+  /// @param delete_data deleter for user data
+  /// @param callback to invoke with the result
+  /// @return True if completes successfully, False otherwise
+  bool realm_mongo_collection_insert_one(
+    ffi.Pointer<realm_mongodb_collection_t> collection,
+    realm_string_t filter_ejson,
+    ffi.Pointer<ffi.Void> data,
+    realm_free_userdata_func_t delete_data,
+    realm_mongodb_callback_t callback,
+  ) {
+    return _realm_mongo_collection_insert_one(
+      collection,
+      filter_ejson,
+      data,
+      delete_data,
+      callback,
+    );
+  }
+
+  late final _realm_mongo_collection_insert_onePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>>('realm_mongo_collection_insert_one');
+  late final _realm_mongo_collection_insert_one =
+      _realm_mongo_collection_insert_onePtr.asFunction<
+          bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>();
+
+  /// Implement update_many for mongodb collection
+  /// @param collection name of the collection to fetch from
+  /// @param filter_ejson extended json string serialization representing the filter to apply to this operation
+  /// @param update_ejson extended json string serialization representing the update to apply to this operation
+  /// @param upsert boolean flag to set for enable or disable upsert for the collection
+  /// @param data user data to pass down to this function
+  /// @param delete_data deleter for user data
+  /// @param callback to invoke with the result
+  /// @return True if completes successfully, False otherwise
+  bool realm_mongo_collection_update_many(
+    ffi.Pointer<realm_mongodb_collection_t> collection,
+    realm_string_t filter_ejson,
+    realm_string_t update_ejson,
+    bool upsert,
+    ffi.Pointer<ffi.Void> data,
+    realm_free_userdata_func_t delete_data,
+    realm_mongodb_callback_t callback,
+  ) {
+    return _realm_mongo_collection_update_many(
+      collection,
+      filter_ejson,
+      update_ejson,
+      upsert,
+      data,
+      delete_data,
+      callback,
+    );
+  }
+
+  late final _realm_mongo_collection_update_manyPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              realm_string_t,
+              ffi.Bool,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>>('realm_mongo_collection_update_many');
+  late final _realm_mongo_collection_update_many =
+      _realm_mongo_collection_update_manyPtr.asFunction<
+          bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              realm_string_t,
+              bool,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>();
+
+  /// Implement update_one for mongodb collection
+  /// @param collection name of the collection to fetch from
+  /// @param filter_ejson extended json string serialization representing the filter to apply to this operation
+  /// @param update_ejson extended json string serialization representing the update to apply to this operation
+  /// @param upsert boolean flag to set for enable or disable upsert for the collection
+  /// @param data user data to pass down to this function
+  /// @param delete_data deleter for user data
+  /// @param callback to invoke with the result
+  /// @return True if completes successfully, False otherwise
+  bool realm_mongo_collection_update_one(
+    ffi.Pointer<realm_mongodb_collection_t> collection,
+    realm_string_t filter_ejson,
+    realm_string_t update_ejson,
+    bool upsert,
+    ffi.Pointer<ffi.Void> data,
+    realm_free_userdata_func_t delete_data,
+    realm_mongodb_callback_t callback,
+  ) {
+    return _realm_mongo_collection_update_one(
+      collection,
+      filter_ejson,
+      update_ejson,
+      upsert,
+      data,
+      delete_data,
+      callback,
+    );
+  }
+
+  late final _realm_mongo_collection_update_onePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              realm_string_t,
+              ffi.Bool,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>>('realm_mongo_collection_update_one');
+  late final _realm_mongo_collection_update_one =
+      _realm_mongo_collection_update_onePtr.asFunction<
+          bool Function(
+              ffi.Pointer<realm_mongodb_collection_t>,
+              realm_string_t,
+              realm_string_t,
+              bool,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_mongodb_callback_t)>();
+
   /// Subscribe to notifications for this object.
   ///
   /// @return A non-null pointer if no exception occurred.
@@ -5565,7 +6162,7 @@ class RealmLibrary {
     ffi.Pointer<realm_query_t> arg0,
     ffi.Pointer<ffi.Char> query_string,
     int num_args,
-    ffi.Pointer<realm_value_t> args,
+    ffi.Pointer<realm_query_arg_t> args,
   ) {
     return _realm_query_append_query(
       arg0,
@@ -5581,11 +6178,11 @@ class RealmLibrary {
               ffi.Pointer<realm_query_t>,
               ffi.Pointer<ffi.Char>,
               ffi.Size,
-              ffi.Pointer<realm_value_t>)>>('realm_query_append_query');
+              ffi.Pointer<realm_query_arg_t>)>>('realm_query_append_query');
   late final _realm_query_append_query =
       _realm_query_append_queryPtr.asFunction<
           ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_query_t>,
-              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_value_t>)>();
+              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
 
   /// Count the number of objects found by this query.
   bool realm_query_count(
@@ -5709,7 +6306,7 @@ class RealmLibrary {
     int target_table,
     ffi.Pointer<ffi.Char> query_string,
     int num_args,
-    ffi.Pointer<realm_value_t> args,
+    ffi.Pointer<realm_query_arg_t> args,
   ) {
     return _realm_query_parse(
       arg0,
@@ -5727,10 +6324,10 @@ class RealmLibrary {
               realm_class_key_t,
               ffi.Pointer<ffi.Char>,
               ffi.Size,
-              ffi.Pointer<realm_value_t>)>>('realm_query_parse');
+              ffi.Pointer<realm_query_arg_t>)>>('realm_query_parse');
   late final _realm_query_parse = _realm_query_parsePtr.asFunction<
       ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_t>, int,
-          ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_value_t>)>();
+          ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
 
   /// Parse a query string and bind it to a list.
   ///
@@ -5748,7 +6345,7 @@ class RealmLibrary {
     ffi.Pointer<realm_list_t> target_list,
     ffi.Pointer<ffi.Char> query_string,
     int num_args,
-    ffi.Pointer<realm_value_t> args,
+    ffi.Pointer<realm_query_arg_t> args,
   ) {
     return _realm_query_parse_for_list(
       target_list,
@@ -5764,11 +6361,11 @@ class RealmLibrary {
               ffi.Pointer<realm_list_t>,
               ffi.Pointer<ffi.Char>,
               ffi.Size,
-              ffi.Pointer<realm_value_t>)>>('realm_query_parse_for_list');
+              ffi.Pointer<realm_query_arg_t>)>>('realm_query_parse_for_list');
   late final _realm_query_parse_for_list =
       _realm_query_parse_for_listPtr.asFunction<
           ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_list_t>,
-              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_value_t>)>();
+              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
 
   /// Parse a query string and bind it to another query result.
   ///
@@ -5787,7 +6384,7 @@ class RealmLibrary {
     ffi.Pointer<realm_results_t> target_results,
     ffi.Pointer<ffi.Char> query_string,
     int num_args,
-    ffi.Pointer<realm_value_t> args,
+    ffi.Pointer<realm_query_arg_t> args,
   ) {
     return _realm_query_parse_for_results(
       target_results,
@@ -5798,16 +6395,17 @@ class RealmLibrary {
   }
 
   late final _realm_query_parse_for_resultsPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_query_t> Function(
-              ffi.Pointer<realm_results_t>,
-              ffi.Pointer<ffi.Char>,
-              ffi.Size,
-              ffi.Pointer<realm_value_t>)>>('realm_query_parse_for_results');
+          ffi.NativeFunction<
+              ffi.Pointer<realm_query_t> Function(
+                  ffi.Pointer<realm_results_t>,
+                  ffi.Pointer<ffi.Char>,
+                  ffi.Size,
+                  ffi.Pointer<realm_query_arg_t>)>>(
+      'realm_query_parse_for_results');
   late final _realm_query_parse_for_results =
       _realm_query_parse_for_resultsPtr.asFunction<
           ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_results_t>,
-              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_value_t>)>();
+              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
 
   /// Refresh the view of the realm file.
   ///
@@ -8984,20 +9582,9 @@ class _SymbolAddresses {
           _library._realm_dart_async_open_task_completion_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
-              Dart_FinalizableHandle Function(
-                  ffi.Handle, ffi.Pointer<ffi.Void>, ffi.Int)>>
-      get realm_dart_attach_finalizer =>
-          _library._realm_dart_attach_finalizerPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
               ffi.Pointer<realm_scheduler_t> Function(ffi.Uint64, Dart_Port)>>
       get realm_dart_create_scheduler =>
           _library._realm_dart_create_schedulerPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(Dart_FinalizableHandle, ffi.Handle)>>
-      get realm_dart_delete_finalizable =>
-          _library._realm_dart_delete_finalizablePtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_delete_persistent_handle =>
           _library._realm_dart_delete_persistent_handlePtr;
@@ -9072,9 +9659,9 @@ class _SymbolAddresses {
   ffi.Pointer<ffi.NativeFunction<ffi.Handle Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_weak_handle_to_object =>
           _library._realm_dart_weak_handle_to_objectPtr;
+  ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
+      get realm_release => _library._realm_releasePtr;
 }
-
-typedef Dart_FinalizableHandle = ffi.Pointer<_Dart_FinalizableHandle>;
 
 /// A port is used to send or receive inter-isolate messages
 typedef Dart_Port = ffi.Int64;
@@ -9117,8 +9704,6 @@ class UnnamedUnion2 extends ffi.Union {
   @ffi.Int32()
   external int logic_error_kind;
 }
-
-class _Dart_FinalizableHandle extends ffi.Opaque {}
 
 class realm_app extends ffi.Opaque {}
 
@@ -9297,14 +9882,15 @@ typedef realm_async_open_task_t = realm_async_open_task;
 
 abstract class realm_auth_provider {
   static const int RLM_AUTH_PROVIDER_ANONYMOUS = 0;
-  static const int RLM_AUTH_PROVIDER_FACEBOOK = 1;
-  static const int RLM_AUTH_PROVIDER_GOOGLE = 2;
-  static const int RLM_AUTH_PROVIDER_APPLE = 3;
-  static const int RLM_AUTH_PROVIDER_CUSTOM = 4;
-  static const int RLM_AUTH_PROVIDER_EMAIL_PASSWORD = 5;
-  static const int RLM_AUTH_PROVIDER_FUNCTION = 6;
-  static const int RLM_AUTH_PROVIDER_USER_API_KEY = 7;
-  static const int RLM_AUTH_PROVIDER_SERVER_API_KEY = 8;
+  static const int RLM_AUTH_PROVIDER_ANONYMOUS_NO_REUSE = 1;
+  static const int RLM_AUTH_PROVIDER_FACEBOOK = 2;
+  static const int RLM_AUTH_PROVIDER_GOOGLE = 3;
+  static const int RLM_AUTH_PROVIDER_APPLE = 4;
+  static const int RLM_AUTH_PROVIDER_CUSTOM = 5;
+  static const int RLM_AUTH_PROVIDER_EMAIL_PASSWORD = 6;
+  static const int RLM_AUTH_PROVIDER_FUNCTION = 7;
+  static const int RLM_AUTH_PROVIDER_USER_API_KEY = 8;
+  static const int RLM_AUTH_PROVIDER_SERVER_API_KEY = 9;
 }
 
 class realm_binary extends ffi.Struct {
@@ -9643,6 +10229,40 @@ typedef realm_migration_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>,
             ffi.Pointer<realm_t>, ffi.Pointer<realm_schema_t>)>>;
+typedef realm_mongodb_callback_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(ffi.Pointer<ffi.Void>, realm_string_t,
+            ffi.Pointer<realm_app_error_t>)>>;
+
+class realm_mongodb_collection extends ffi.Opaque {}
+
+typedef realm_mongodb_collection_t = realm_mongodb_collection;
+
+class realm_mongodb_find_one_and_modify_options extends ffi.Struct {
+  external realm_string_t projection_bson;
+
+  external realm_string_t sort_bson;
+
+  @ffi.Bool()
+  external bool upsert;
+
+  @ffi.Bool()
+  external bool return_new_document;
+}
+
+typedef realm_mongodb_find_one_and_modify_options_t
+    = realm_mongodb_find_one_and_modify_options;
+
+class realm_mongodb_find_options extends ffi.Struct {
+  external realm_string_t projection_bson;
+
+  external realm_string_t sort_bson;
+
+  @ffi.Int64()
+  external int limit;
+}
+
+typedef realm_mongodb_find_options_t = realm_mongodb_find_options;
 
 class realm_notification_token extends ffi.Opaque {}
 
@@ -9731,6 +10351,17 @@ abstract class realm_property_type {
 
 class realm_query extends ffi.Opaque {}
 
+class realm_query_arg extends ffi.Struct {
+  @ffi.Size()
+  external int nb_args;
+
+  @ffi.Bool()
+  external bool is_list;
+
+  external ffi.Pointer<realm_value_t> arg;
+}
+
+typedef realm_query_arg_t = realm_query_arg;
 typedef realm_query_t = realm_query;
 
 class realm_results extends ffi.Opaque {}
@@ -9781,6 +10412,16 @@ typedef realm_should_compact_on_launch_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64)>>;
 
+/// Represents a view over a UTF-8 string buffer. The buffer is unowned by this struct.
+///
+/// This string can have three states:
+/// - null
+/// When the data member is NULL.
+/// - empty
+/// When the data member is non-NULL, and the size member is 0. The actual contents of the data member in this case
+/// don't matter.
+/// - non-empty
+/// When the data member is non-NULL, and the size member is greater than 0.
 class realm_string extends ffi.Struct {
   external ffi.Pointer<ffi.Char> data;
 
@@ -9788,6 +10429,16 @@ class realm_string extends ffi.Struct {
   external int size;
 }
 
+/// Represents a view over a UTF-8 string buffer. The buffer is unowned by this struct.
+///
+/// This string can have three states:
+/// - null
+/// When the data member is NULL.
+/// - empty
+/// When the data member is non-NULL, and the size member is 0. The actual contents of the data member in this case
+/// don't matter.
+/// - non-empty
+/// When the data member is non-NULL, and the size member is greater than 0.
 typedef realm_string_t = realm_string;
 typedef realm_sync_after_client_reset_func_t = ffi.Pointer<
     ffi.NativeFunction<
@@ -9909,6 +10560,7 @@ abstract class realm_sync_errno_session {
   static const int RLM_SYNC_ERR_SESSION_SERVER_PERMISSIONS_CHANGED = 228;
   static const int RLM_SYNC_ERR_SESSION_INITIAL_SYNC_NOT_COMPLETED = 229;
   static const int RLM_SYNC_ERR_SESSION_WRITE_NOT_ALLOWED = 230;
+  static const int RLM_SYNC_ERR_SESSION_COMPENSATING_WRITE = 231;
 }
 
 class realm_sync_error extends ffi.Struct {
@@ -9989,6 +10641,8 @@ class realm_sync_session extends ffi.Opaque {}
 abstract class realm_sync_session_resync_mode {
   static const int RLM_SYNC_SESSION_RESYNC_MODE_MANUAL = 0;
   static const int RLM_SYNC_SESSION_RESYNC_MODE_DISCARD_LOCAL = 1;
+  static const int RLM_SYNC_SESSION_RESYNC_MODE_RECOVER = 2;
+  static const int RLM_SYNC_SESSION_RESYNC_MODE_RECOVER_OR_DISCARD = 3;
 }
 
 abstract class realm_sync_session_state {

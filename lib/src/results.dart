@@ -18,6 +18,7 @@
 
 import 'dart:async';
 import 'dart:collection' as collection;
+import 'dart:ffi';
 
 import 'collections.dart';
 import 'native/realm_core.dart';
@@ -27,7 +28,7 @@ import 'realm_class.dart';
 /// added to or deleted from the Realm that match the underlying query.
 ///
 /// {@category Realm}
-class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
+class RealmResults<T extends RealmObject> extends collection.IterableBase<T> implements Finalizable {
   final RealmResultsHandle _handle;
 
   /// The Realm instance this collection belongs to.
@@ -81,6 +82,11 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> {
 /// @nodoc
 //RealmResults package internal members
 extension RealmResultsInternal on RealmResults {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _handle.keepAlive();
+  }
+
   RealmResultsHandle get handle => _handle;
 
   static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm) {

@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:logging/logging.dart';
@@ -84,7 +85,7 @@ export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirec
 /// A [Realm] instance represents a `Realm` database.
 ///
 /// {@category Realm}
-class Realm {
+class Realm implements Finalizable {
   final Map<Type, RealmMetadata> _metadata = <Type, RealmMetadata>{};
   final RealmHandle _handle;
 
@@ -98,32 +99,44 @@ class Realm {
     _populateMetadata();
   }
 
-  /// Opens a `Realm` async using a [Configuration] object.
-  static Future<Realm> open(Configuration config) async {
-    var dir = File(config.path).parent;
-    if (!await dir.exists()) {
-      await dir.create(recursive: true);
-    }
-    RealmHandle handle = await realmCore.openRealmAsync(config);
-    return Realm._(config, handle);
+  /// A method for asynchronously obtaining and opening a [Realm].
+  ///
+  /// If the configuration is [FlexibleSyncConfiguration], the realm will be downloaded and fully
+  /// synchronized with the server prior to the completion of the returned [RealmAsyncOpenTask].
+  /// Otherwise this method will throw an exception.
+  ///
+  /// Open realm async arguments are:
+  /// * `config`- a configuration object that describes the realm.
+  /// * `onProgressCallback` - a function that is registered as a callback for receiving download progress notifications. It is not mandatory.
+  ///
+  /// The returned task has an awaitable [RealmAsyncOpenTask.realm] future that is completed once the remote realm is fully synchronized.
+  /// It provides a method [RealmAsyncOpenTask.cancel] that cancels any current running download.
+  static RealmAsyncOpenTask open(Configuration config, {ProgressCallback? onProgressCallback}) {
+    _createFileDirectory(config.path);
+    RealmAsyncOpenTaskHandle realmAsyncOpenTaskHandle = realmCore.createRealmAsyncOpenTask(config);
+    final completer = Completer<RealmHandle?>();
+    Future<Realm?> realm = realmCore.openRealmAsync(realmAsyncOpenTaskHandle, completer).onError((error, stackTrace) {
+      print(error);
+      return null;
+    }).then((handle) {
+      // if (config.initialSubscriptionsConfiguration != null && config.initialSubscriptionsConfiguration!.rerunOnOpen) {
+      //   config.initialSubscriptionsConfiguration!.callback();
+      // }
+      return handle != null ? Realm._(config, handle) : null;
+    });
+    return RealmAsyncOpenTask._(realmAsyncOpenTaskHandle, config, realm, onProgressCallback, completer);
   }
 
-  /// Opens a `Realm` using a [Configuration] object.
-  static Realm openSync(Configuration config) => Realm._(config);
-
   static RealmHandle _openRealmSync(Configuration config) {
-    var dir = File(config.path).parent;
+    _createFileDirectory(config.path);
+    return realmCore.openRealm(config);
+  }
+
+  static void _createFileDirectory(String filePath) {
+    var dir = File(filePath).parent;
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }
-
-    RealmHandle realm = realmCore.openRealm(config);
-    if (config is FlexibleSyncConfiguration) {
-      if (config.initialSubscriptionsConfiguration != null && config.initialSubscriptionsConfiguration!.rerunOnOpen) {
-        config.initialSubscriptionsConfiguration!.callback();
-      }
-    }
-    return realm;
   }
 
   void _populateMetadata() {
@@ -169,9 +182,14 @@ class Realm {
   /// If the object is already managed by this `Realm`, this method does nothing.
   /// This method modifies the object in-place as it becomes managed. Managed instances are persisted and become live objects.
   /// Returns the same instance as managed. This is just meant as a convenience to enable fluent syntax scenarios.
+  ///
+  /// By setting the [update] flag you can update any existing object with the same primary key.
+  /// Updating only makes sense for objects with primary keys, and is effectively ignored
+  /// otherwise.
+  ///
   /// Throws [RealmException] when trying to add objects with the same primary key.
   /// Throws [RealmException] if there is no write transaction created with [write].
-  T add<T extends RealmObject>(T object) {
+  T add<T extends RealmObject>(T object, {bool update = false}) {
     if (object.isManaged) {
       return object;
     }
@@ -182,34 +200,41 @@ class Realm {
           " Add type ${object.runtimeType} to your config before opening the Realm");
     }
 
-    final handle = metadata.class_.primaryKey == null
-        ? realmCore.createRealmObject(this, metadata.class_.key)
-        : realmCore.createRealmObjectWithPrimaryKey(this, metadata.class_.key, object.accessor.get(object, metadata.class_.primaryKey!)!);
-
+    final handle = _createObject(object, metadata, update);
     final accessor = RealmCoreAccessor(metadata);
-    object.manage(this, handle, accessor);
+    object.manage(this, handle, accessor, update);
 
     return object;
+  }
+
+  RealmObjectHandle _createObject(RealmObject object, RealmMetadata metadata, bool update) {
+    final key = metadata.class_.key;
+    final primaryKey = metadata.class_.primaryKey;
+    if (primaryKey == null) {
+      return realmCore.createRealmObject(this, key);
+    }
+    if (update) {
+      return realmCore.getOrCreateRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey)!);
+    }
+    return realmCore.createRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey)!);
   }
 
   /// Adds a collection [RealmObject]s to this `Realm`.
   ///
   /// If the collection contains items that are already managed by this `Realm`, they will be ignored.
   /// This method behaves as calling [add] multiple times.
-  void addAll<T extends RealmObject>(Iterable<T> items) {
+  ///
+  /// By setting the [update] flag you can update any existing object with the same primary key.
+  /// Updating only makes sense for objects with primary keys, and is effectively ignored
+  /// otherwise.
+  void addAll<T extends RealmObject>(Iterable<T> items, {bool update = false}) {
     for (final i in items) {
-      add(i);
+      add(i, update: update);
     }
   }
 
   /// Deletes a [RealmObject] from this `Realm`.
-  void delete<T extends RealmObject>(T object) {
-    try {
-      realmCore.deleteRealmObject(object);
-    } catch (e) {
-      throw RealmException("Error deleting object from databse. Error: $e");
-    }
-  }
+  void delete<T extends RealmObject>(T object) => realmCore.deleteRealmObject(object);
 
   /// Deletes many [RealmObject]s from this `Realm`.
   ///
@@ -384,6 +409,15 @@ class Transaction {
 
 /// @nodoc
 extension RealmInternal on Realm {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _handle.keepAlive();
+    final c = config;
+    if (c is FlexibleSyncConfiguration) {
+      c.keepAlive();
+    }
+  }
+
   RealmHandle get handle => _handle;
 
   static Realm getUnowned(Configuration config, RealmHandle handle) {
@@ -416,7 +450,7 @@ extension RealmInternal on Realm {
 }
 
 /// @nodoc
-abstract class NotificationsController {
+abstract class NotificationsController implements Finalizable {
   RealmNotificationTokenHandle? handle;
 
   RealmNotificationTokenHandle subscribe();
@@ -493,4 +527,66 @@ class RealmLogLevel {
   ///
   /// Same as [Level.OFF];
   static const off = Level.OFF;
+}
+
+/// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].
+/// This is the registered callback [onProgressCallback] to receive progress notifications while the download is in progress.
+///
+/// It is called with the following arguments:
+/// * `transferredBytes` - the current number of bytes already transferred
+/// * `totalBytes` - the total number of transferable bytes (the number of bytes already transferred plus the number of bytes pending transfer)
+/// {@category Realm}
+typedef ProgressCallback = void Function(int transferredBytes, int totalBytes);
+
+/// Represents a task object which can be used to await for a realm to open asynchronously or to cancel opening.
+///
+/// When a [Realm] with [FlexibleSyncConfiguration] is opened asynchronously,
+/// the latest state of the Realm is downloaded from the server before the completion callback is invoked.
+/// This task object can be used to await the download process to complete or to cancel downloading.
+/// A download progress notifier is registered is case of having [ProgressCallback],
+/// which allows you to observe the state of the download progress.
+/// Once the process completes the download progress notifier is unregistered.
+///
+/// {@category Realm}
+class RealmAsyncOpenTask {
+  final RealmAsyncOpenTaskHandle _handle;
+  final Configuration _config;
+  final Future<Realm?> _realm;
+  late int _progressToken;
+  final ProgressCallback? _progressCallback;
+  final Completer<RealmHandle?> _completer;
+
+  RealmAsyncOpenTask._(this._handle, this._config, this._realm, this._progressCallback, this._completer) {
+    if (_progressCallback != null) {
+      _progressToken = realmCore.realmAsyncOpenRegisterProgressNotifier(this);
+    }
+  }
+
+  RealmAsyncOpenTaskHandle get handle => _handle;
+
+  /// This is the registered callback to receive progress notifications
+  /// while the download is in progress.
+  ProgressCallback? get progressCallback => _progressCallback;
+
+  /// The configuration object that describes the realm.
+  Configuration get config => _config;
+
+  /// An awaitable future that is completed once
+  /// the remote realm is fully synchronized or download is canceled.
+  /// Returns null when the process is canceled.
+  Future<Realm?> get realm => _realm.whenComplete(() {
+        if (progressCallback != null) {
+          realmCore.realmAsyncOpenUnregisterProgressNotifier(_handle, _progressToken);
+        }
+      });
+
+  /// Cancels any current running download.
+  /// If multiple [RealmAsyncOpenTask] are all in the progress for the same Realm,
+  /// then canceling one of them will cancel all of them.
+  void cancel() {
+    realmCore.cancelRealmAsyncOpenTask(_handle);
+    if (!_completer.isCompleted) {
+      _completer.complete(null);
+    }
+  }
 }

@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'native/realm_core.dart';
 import 'app.dart';
@@ -28,31 +29,48 @@ enum AuthProviderType {
   /// For authenticating without credentials.
   anonymous,
 
-  _facebook,
-  _google,
-  _apple,
-  _custom,
-  
+  /// For authenticating without credentials using a new anonymous user.
+  anonymousNoReuse,
+
+  /// Authenticate with Apple Id
+  apple,
+
+  /// Authenticate with Facebook account.
+  facebook,
+
+  /// Authenticate with Google account
+  google,
+
+  /// For authenticating with JSON web token.
+  jwt,
+
   /// For authenticating with an email and a password.
   emailPassword,
 
-  _function,
+  /// For authenticating with custom function with payload argument.
+  function,
+
   _userApiKey,
   _serverApiKey
 }
 
 /// A class, representing the credentials used for authenticating a [User]
 /// {@category Application}
-class Credentials {
-  late final RealmAppCredentialsHandle _handle;
-
+class Credentials implements Finalizable {
+  final RealmAppCredentialsHandle _handle;
   final AuthProviderType provider;
 
   /// Returns a [Credentials] object that can be used to authenticate an anonymous user.
+  /// Setting [reuseCredentials] to [false] will create a new anonymous user, upon [App.logIn].
   /// [Anonymous Authentication Docs](https://docs.mongodb.com/realm/authentication/anonymous)
-  Credentials.anonymous()
-      : _handle = realmCore.createAppCredentialsAnonymous(),
-        provider = AuthProviderType.anonymous;
+  Credentials.anonymous({bool reuseCredentials = true})
+      : _handle = realmCore.createAppCredentialsAnonymous(reuseCredentials),
+        provider = reuseCredentials ? AuthProviderType.anonymous : AuthProviderType.anonymousNoReuse;
+
+  /// Returns a [Credentials] object that can be used to authenticate a user with a Google account using an id token.
+  Credentials.apple(String idToken)
+      : _handle = realmCore.createAppCredentialsApple(idToken),
+        provider = AuthProviderType.apple;
 
   /// Returns a [Credentials] object that can be used to authenticate a user with their email and password.
   /// A user can login with email and password only after they have registered their account and verified their
@@ -61,17 +79,49 @@ class Credentials {
   Credentials.emailPassword(String email, String password)
       : _handle = realmCore.createAppCredentialsEmailPassword(email, password),
         provider = AuthProviderType.emailPassword;
+
+  /// Returns a [Credentials] object that can be used to authenticate a user with a custom JWT.
+  /// [Custom-JWT Authentication Docs](https://docs.mongodb.com/realm/authentication/custom-jwt)
+  Credentials.jwt(String token)
+      : _handle = realmCore.createAppCredentialsJwt(token),
+        provider = AuthProviderType.jwt;
+
+  /// Returns a [Credentials] object that can be used to authenticate a user with a Facebook account.
+  Credentials.facebook(String accessToken)
+      : _handle = realmCore.createAppCredentialsFacebook(accessToken),
+        provider = AuthProviderType.facebook;
+
+  /// Returns a [Credentials] object that can be used to authenticate a user with a Google account using an authentication code.
+  Credentials.googleAuthCode(String authCode)
+      : _handle = realmCore.createAppCredentialsGoogleAuthCode(authCode),
+        provider = AuthProviderType.google;
+
+  /// Returns a [Credentials] object that can be used to authenticate a user with a Google account using an id token.
+  Credentials.googleIdToken(String idToken)
+      : _handle = realmCore.createAppCredentialsGoogleIdToken(idToken),
+        provider = AuthProviderType.google;
+
+  /// Returns a [Credentials] object that can be used to authenticate a user with a custom Function.
+  /// [Custom Function Authentication Docs](https://www.mongodb.com/docs/atlas/app-services/authentication/custom-function/)
+  Credentials.function(String payload)
+      : _handle = realmCore.createAppCredentialsFunction(payload),
+        provider = AuthProviderType.function;
 }
 
 /// @nodoc
 extension CredentialsInternal on Credentials {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _handle.keepAlive();
+  }
+
   RealmAppCredentialsHandle get handle => _handle;
 }
 
 /// A class, encapsulating functionality for users, logged in with [Credentials.emailPassword()].
 /// It is always scoped to a particular app.
 /// {@category Application}
-class EmailPasswordAuthProvider {
+class EmailPasswordAuthProvider implements Finalizable {
   final App app;
 
   /// Create a new EmailPasswordAuthProvider for the [app]
@@ -120,5 +170,10 @@ class EmailPasswordAuthProvider {
 }
 
 extension EmailPasswordAuthProviderInternal on EmailPasswordAuthProvider {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    app.keepAlive();
+  }
+
   static EmailPasswordAuthProvider create(App app) => EmailPasswordAuthProvider(app);
 }

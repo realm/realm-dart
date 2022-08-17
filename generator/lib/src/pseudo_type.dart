@@ -2,6 +2,7 @@
 
 import 'dart:mirrors';
 
+import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type_visitor.dart';
 import 'package:analyzer/src/dart/element/display_string_builder.dart';
@@ -49,4 +50,7 @@ class PseudoType extends TypeImpl {
   PseudoType withNullability(NullabilitySuffix nullabilitySuffix) {
     return PseudoType(_name, nullabilitySuffix: nullabilitySuffix);
   }
+
+  @override
+  Element? get element2 => throw UnimplementedError();
 }

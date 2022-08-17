@@ -15,6 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:meta/meta.dart';
@@ -108,7 +109,7 @@ class AppConfiguration {
 /// * Register uses and perform various user-related operations through authentication providers
 /// * Synchronize data between the local device and a remote Realm App with Synchronized Realms
 /// {@category Application}
-class App {
+class App implements Finalizable {
   final AppHandle _handle;
 
   /// The id of this application. This is the same as the appId in the [AppConfiguration] used to
@@ -179,6 +180,11 @@ enum MetadataPersistenceMode {
 
 /// @nodoc
 extension AppInternal on App {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _handle.keepAlive();
+  }
+
   AppHandle get handle => _handle;
 
   static App create(AppHandle handle) => App._(handle);

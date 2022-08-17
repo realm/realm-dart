@@ -29,14 +29,14 @@ import './app.dart';
 /// locally on the device, and should be treated as sensitive data.
 /// {@category Application}
 class User {
-  final App? _app;
+  App? _app;
   final UserHandle _handle;
 
   /// The [App] with which the [User] is associated with.
   App get app {
     // The _app field may be null when we're retrieving a user from the session
     // rather than from the app.
-    return _app ?? AppInternal.create(realmCore.userGetApp(_handle));
+    return _app ??= AppInternal.create(realmCore.userGetApp(_handle));
   }
 
   User._(this._handle, this._app);
@@ -190,6 +190,12 @@ extension UserIdentityInternal on UserIdentity {
 
 /// @nodoc
 extension UserInternal on User {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _handle.keepAlive();
+    _app?.keepAlive();
+  }
+
   UserHandle get handle => _handle;
 
   static User create(UserHandle handle, [App? app]) => User._(handle, app);

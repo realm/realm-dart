@@ -38,3 +38,6 @@ src/realm-core/**/*.pem
 # Ignore realm-core doc
 src/realm-core/doc
 
+# Ignore test resources
+test/data
+

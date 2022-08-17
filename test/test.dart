@@ -158,6 +158,24 @@ class _Event {
   late String? assignedTo;
 }
 
+@RealmModel()
+class _Party {
+  // no primary key!
+  _Friend? host;
+  late int year;
+  final guests = <_Friend>[];
+  _Party? previous;
+}
+
+@RealmModel()
+class _Friend {
+  @PrimaryKey()
+  late String name;
+  var age = 42;
+  _Friend? bestFriend;
+  final friends = <_Friend>[];
+}
+
 String? testName;
 Map<String, String?> arguments = {};
 final baasApps = <String, BaasApp>{};
@@ -171,6 +189,15 @@ const String argDifferentiator = "BAAS_DIFFERENTIATOR";
 
 String testUsername = "realm-test@realm.io";
 String testPassword = "123456";
+const String publicRSAKeyForJWTValidation = '''-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvNHHs8T0AHD7SJ+CKvVR
+leeJa4wqYTnaVYV+5bX9FmFXVoN+vHbMLEteMvSw4L3kSRZdcqxY7cTuhlpAvkXP
+Yq6qSI+bW8T4jGW963uCc83UhVMx4MH/PzipAlfcPjVO2u4c+dmpgZQpgEmA467u
+tauXUhmTsGpgNg2Gvc61B7Ny4LphshsyrfaJ9WjA/NM6LOmEBW3JPNcVG2qyU+gt
+O8BM8KOSx9wGyoGs4+OusvRkJizhPaIwa3FInLs4r+xZW9Bp6RndsmVECtvXRv5d
+87ztpg6o3DZJRmTp2lAnkNLmxXlFkOSNIwiT3qqyRZOh4DuxPOpfg9K+vtFmRdEJ
+RwIDAQAB
+-----END PUBLIC KEY-----''';
 
 enum AppNames {
   flexible,
@@ -272,7 +299,7 @@ Future<void> tryDeleteRealm(String path) async {
     }
   }
 
-  // TODO: File deletions does not work after tests so don't fail for now
+  // TODO: File deletions does not work after tests so don't fail for now https://github.com/realm/realm-dart/issues/751
   // throw Exception('Failed to delete realm at path $path. Did you forget to close it?');
 }
 
@@ -325,6 +352,8 @@ Future<void> setupBaas() async {
       ? BaasClient.docker(baasUrl, differentiator)
       : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
 
+  client.publicRSAKey = publicRSAKeyForJWTValidation;
+
   var apps = await client.getOrCreateApps();
   baasApps.addAll(apps);
 }
@@ -342,7 +371,7 @@ Future<void> baasTest(
   if (skip == null) {
     skip = url == null ? "BAAS URL not present" : false;
   } else if (skip is bool) {
-    skip = skip || url == null ? "BAAS URL not present" : false;
+    if (url == null) skip = "BAAS URL not present";
   }
 
   test(name, () async {
