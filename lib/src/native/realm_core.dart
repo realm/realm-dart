@@ -70,7 +70,7 @@ class _RealmCore {
     return _instance ??= _RealmCore._();
   }
 
-  String get libraryVersion => '0.3.1+beta';
+  String get libraryVersion => '0.3.2+beta';
 
   LastError? getLastError(Allocator allocator) {
     final error = allocator<realm_error_t>();
@@ -531,6 +531,20 @@ class _RealmCore {
     return RealmObjectHandle._(realmPtr);
   }
 
+  RealmObjectHandle getOrCreateRealmObjectWithPrimaryKey(Realm realm, int classKey, Object primaryKey) {
+    return using((Arena arena) {
+      final realm_value = _toRealmValue(primaryKey, arena);
+      final didCreate = arena<Bool>();
+      final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_object_get_or_create_with_primary_key(
+            realm.handle._pointer,
+            classKey,
+            realm_value.ref,
+            didCreate,
+          ));
+      return RealmObjectHandle._(realmPtr);
+    });
+  }
+
   RealmObjectHandle createRealmObjectWithPrimaryKey(Realm realm, int classKey, Object primaryKey) {
     return using((Arena arena) {
       final realm_value = _toRealmValue(primaryKey, arena);
@@ -763,8 +777,8 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_results_delete_all(results.handle._pointer));
   }
 
-  void listClear(RealmList list) {
-    _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(list.handle._pointer));
+  void listClear(RealmListHandle listHandle) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(listHandle._pointer));
   }
 
   bool _equals<T extends NativeType>(HandleBase<T> first, HandleBase<T> second) {
@@ -1736,15 +1750,44 @@ class LastError {
   }
 }
 
-abstract class HandleBase<T extends NativeType> {
+// Flag to enable trace on finalization.
+//
+// Be aware that the trace is likely late, and it might in rare case be missing,
+// as there are no absolute guarantees with Finalizer.
+//
+// It is often beneficial to also instrument the native realm_release to
+// print the address released to get the exact time.
+const _enableFinalizerTrace = false;
+
+// Level used for finalization trace, if enabled.
+const _finalizerTraceLevel = RealmLogLevel.trace;
+
+void _traceFinalization(Object o) {
+  Realm.logger.log(_finalizerTraceLevel, 'Finalizing: $o');
+}
+
+final _debugFinalizer = Finalizer<Object>(_traceFinalization);
+
+void _setupFinalizationTrace(Object value, Object finalizationToken) {
+  _debugFinalizer.attach(value, finalizationToken, detach: value);
+}
+
+void _tearDownFinalizationTrace(Object value, Object finalizationToken) {
+  _debugFinalizer.detach(value);
+  _traceFinalization(finalizationToken);
+}
+
+final _nativeFinalizer = NativeFinalizer(_realmLib.addresses.realm_release);
+
+abstract class HandleBase<T extends NativeType> implements Finalizable {
   final Pointer<T> _pointer;
-  late final Dart_FinalizableHandle _finalizableHandle;
+
+  @pragma('vm:never-inline')
+  void keepAlive() {}
 
   HandleBase(this._pointer, int size) {
-    _finalizableHandle = _realmLib.realm_dart_attach_finalizer(this, _pointer.cast(), size);
-    if (_finalizableHandle == nullptr) {
-      throw Exception("Error creating $runtimeType");
-    }
+    _nativeFinalizer.attach(this, _pointer.cast(), detach: this, externalSize: size);
+    if (_enableFinalizerTrace) _setupFinalizationTrace(this, _pointer);
   }
 
   HandleBase.unowned(this._pointer);
@@ -1806,10 +1849,10 @@ class ReleasableHandle<T extends NativeType> extends HandleBase<T> {
     if (released) {
       return;
     }
-
-    _realmLib.realm_dart_delete_finalizable(_finalizableHandle, this);
+    _nativeFinalizer.detach(this);
     _realmLib.realm_release(_pointer.cast());
     released = true;
+    if (_enableFinalizerTrace) _tearDownFinalizationTrace(this, _pointer);
   }
 }
 

@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:path/path.dart' as _path;
@@ -23,6 +24,7 @@ import 'package:path/path.dart' as _path;
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'init.dart';
+import 'user.dart';
 
 /// The signature of a callback used to determine if compaction
 /// should be attempted.
@@ -47,7 +49,7 @@ typedef InitialDataCallback = void Function(Realm realm);
 
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
-abstract class Configuration {
+abstract class Configuration implements Finalizable {
   /// The default realm filename to be used.
   static String get defaultRealmName => _path.basename(defaultRealmPath);
   static set defaultRealmName(String name) => defaultRealmPath = _path.join(_path.dirname(defaultRealmPath), _path.basename(name));
@@ -278,6 +280,11 @@ class FlexibleSyncConfiguration extends Configuration {
 }
 
 extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    user.keepAlive();
+  }
+
   SessionStopPolicy get sessionStopPolicy => _sessionStopPolicy;
   set sessionStopPolicy(SessionStopPolicy value) => _sessionStopPolicy = value;
 }

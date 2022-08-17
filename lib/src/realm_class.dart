@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:logging/logging.dart';
@@ -84,7 +85,7 @@ export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirec
 /// A [Realm] instance represents a `Realm` database.
 ///
 /// {@category Realm}
-class Realm {
+class Realm implements Finalizable {
   final Map<Type, RealmMetadata> _metadata = <Type, RealmMetadata>{};
   final RealmHandle _handle;
 
@@ -178,9 +179,14 @@ class Realm {
   /// If the object is already managed by this `Realm`, this method does nothing.
   /// This method modifies the object in-place as it becomes managed. Managed instances are persisted and become live objects.
   /// Returns the same instance as managed. This is just meant as a convenience to enable fluent syntax scenarios.
+  ///
+  /// By setting the [update] flag you can update any existing object with the same primary key.
+  /// Updating only makes sense for objects with primary keys, and is effectively ignored
+  /// otherwise.
+  ///
   /// Throws [RealmException] when trying to add objects with the same primary key.
   /// Throws [RealmException] if there is no write transaction created with [write].
-  T add<T extends RealmObject>(T object) {
+  T add<T extends RealmObject>(T object, {bool update = false}) {
     if (object.isManaged) {
       return object;
     }
@@ -191,34 +197,41 @@ class Realm {
           " Add type ${object.runtimeType} to your config before opening the Realm");
     }
 
-    final handle = metadata.class_.primaryKey == null
-        ? realmCore.createRealmObject(this, metadata.class_.key)
-        : realmCore.createRealmObjectWithPrimaryKey(this, metadata.class_.key, object.accessor.get(object, metadata.class_.primaryKey!)!);
-
+    final handle = _createObject(object, metadata, update);
     final accessor = RealmCoreAccessor(metadata);
-    object.manage(this, handle, accessor);
+    object.manage(this, handle, accessor, update);
 
     return object;
+  }
+
+  RealmObjectHandle _createObject(RealmObject object, RealmMetadata metadata, bool update) {
+    final key = metadata.class_.key;
+    final primaryKey = metadata.class_.primaryKey;
+    if (primaryKey == null) {
+      return realmCore.createRealmObject(this, key);
+    }
+    if (update) {
+      return realmCore.getOrCreateRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey)!);
+    }
+    return realmCore.createRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey)!);
   }
 
   /// Adds a collection [RealmObject]s to this `Realm`.
   ///
   /// If the collection contains items that are already managed by this `Realm`, they will be ignored.
   /// This method behaves as calling [add] multiple times.
-  void addAll<T extends RealmObject>(Iterable<T> items) {
+  ///
+  /// By setting the [update] flag you can update any existing object with the same primary key.
+  /// Updating only makes sense for objects with primary keys, and is effectively ignored
+  /// otherwise.
+  void addAll<T extends RealmObject>(Iterable<T> items, {bool update = false}) {
     for (final i in items) {
-      add(i);
+      add(i, update: update);
     }
   }
 
   /// Deletes a [RealmObject] from this `Realm`.
-  void delete<T extends RealmObject>(T object) {
-    try {
-      realmCore.deleteRealmObject(object);
-    } catch (e) {
-      throw RealmException("Error deleting object from databse. Error: $e");
-    }
-  }
+  void delete<T extends RealmObject>(T object) => realmCore.deleteRealmObject(object);
 
   /// Deletes many [RealmObject]s from this `Realm`.
   ///
@@ -393,6 +406,15 @@ class Transaction {
 
 /// @nodoc
 extension RealmInternal on Realm {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _handle.keepAlive();
+    final c = config;
+    if (c is FlexibleSyncConfiguration) {
+      c.keepAlive();
+    }
+  }
+
   RealmHandle get handle => _handle;
 
   static Realm getUnowned(Configuration config, RealmHandle handle) {
@@ -425,7 +447,7 @@ extension RealmInternal on Realm {
 }
 
 /// @nodoc
-abstract class NotificationsController {
+abstract class NotificationsController implements Finalizable {
   RealmNotificationTokenHandle? handle;
 
   RealmNotificationTokenHandle subscribe();

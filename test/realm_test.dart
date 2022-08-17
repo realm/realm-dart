@@ -19,6 +19,7 @@
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
 import 'dart:io';
+import 'dart:math';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -228,7 +229,7 @@ Future<void> main([List<String>? args]) async {
       });
     }, throws<Exception>("some exception while adding objects"));
 
-    final car = realm.find<Car>("Telsa");
+    final car = realm.find<Car>("Tesla");
     expect(car, isNull);
   });
 
@@ -240,6 +241,26 @@ Future<void> main([List<String>? args]) async {
     final carTwo = Car("Toyota");
     realm.write(() => realm.add(carOne));
     expect(() => realm.write(() => realm.add(carTwo)), throws<RealmException>());
+  });
+
+  test('Realm adding objects with duplicate primary with update flag', () {
+    var config = Configuration.local([Car.schema]);
+    var realm = getRealm(config);
+
+    final carOne = Car("Toyota");
+    final carTwo = Car("Toyota");
+    realm.write(() => realm.add(carOne));
+    expect(realm.write(() => realm.add(carTwo, update: true)), carOne);
+  });
+
+  test('Realm adding object graph with multiple existing objects with with update flag', () {
+    var config = Configuration.local([Car.schema]);
+    var realm = getRealm(config);
+
+    final carOne = Car("Toyota");
+    final carTwo = Car("Toyota");
+    realm.write(() => realm.add(carOne));
+    expect(realm.write(() => realm.add(carTwo, update: true)), carTwo);
   });
 
   test('Realm add object after realm is closed', () {
@@ -621,7 +642,82 @@ Future<void> main([List<String>? args]) async {
     expect(realm.isInTransaction, false);
   });
 
-  test('Realm open async with local configuration throws', () async {
+  test('Transitive updates', () {
+    final realm = getRealm(Configuration.local([Friend.schema, Party.schema]));
+
+    // A group of friends (all 42)
+    final alice = Friend('alice');
+    final bob = Friend('bob', bestFriend: alice);
+    final carol = Friend('carol', bestFriend: bob);
+    final dan = Friend('dan', bestFriend: bob);
+    alice.bestFriend = bob;
+    final friends = [alice, bob, carol, dan];
+    for (final f in friends) {
+      f.friends.addAll(friends.except(f));
+    }
+
+    // In 92 everybody is invited
+    final partyOf92 = Party(1992, host: alice, guests: friends.except(alice));
+
+    // Store everything transitively by adding the party
+    realm.write(() => realm.add(partyOf92));
+
+    // As a prelude check that every object is added correctly
+    for (final f in friends) {
+      expect(f.isManaged, isTrue);
+      final friend = realm.find<Friend>(f.name);
+      expect(friend, isNotNull);
+      expect(friend!.name, f.name);
+      expect(friend.age, 42);
+      expect(friend.friends, friends.except(f)); // all are friends
+      if (f != bob) expect(friend.bestFriend, bob); // everybody loves bob
+    }
+    expect(realm.all<Party>(), [partyOf92]);
+
+    // 7 years pass, dan falls out of favor, and carol and alice becomes BFF
+    final aliceAgain = Friend('alice', age: 50);
+    final bobAgain = Friend('bob', age: 50); // alice prefer carol
+    final carolAgain = Friend('carol', bestFriend: aliceAgain, age: 50);
+    final danAgain = Friend('dan', bestFriend: bobAgain, age: 50);
+    aliceAgain.bestFriend = carolAgain;
+    final everyOne = [aliceAgain, bobAgain, carolAgain, danAgain];
+    for (final f in everyOne) {
+      f.friends.addAll(everyOne.except(f).except(danAgain)); // nobody likes dan anymore
+    }
+
+    // In 99, dan is not invited
+    final partyOf99 = Party(
+      1999,
+      host: bobAgain,
+      guests: everyOne.except(bobAgain).except(danAgain),
+      previous: partyOf92,
+    );
+
+    // Cannot just add the party of 99, as it transitively updates a lot of existing objects
+    //expect(() => realm.write(() => realm.add(partyOf99)), throwsA(TypeMatcher<RealmException>()));
+
+    // So let's use the update flag..
+    expect(() => realm.write(() => realm.add(partyOf99, update: true)), returnsNormally);
+
+    // Now let's test that the original added objects are all correctly updated,
+    // except dan who is not in the graph
+    for (final f in friends.except(dan)) {
+      //friends) {
+      expect(f.isManaged, isTrue);
+      expect(f.age, 50);
+      expect(f.friends, friends.except(f).except(dan));
+      expect(f.friends, everyOne.except(realm.find(f.name)!).except(danAgain)); // same
+    }
+    expect(alice.bestFriend, carol);
+    expect(carol.bestFriend, alice);
+    expect(bob.bestFriend, isNull);
+    expect(dan.bestFriend, bob);
+    expect(dan.age, 42);
+    expect(dan.friends, [alice, bob, carol]);
+    expect(danAgain.isManaged, isFalse); // dan wasn't updated
+  });
+  
+    test('Realm open async with local configuration throws', () async {
     var config = Configuration.local([Car.schema, Person.schema]);
     expect(() async => await Realm.open(config).realm, throws<RealmException>("This method is only available for fully synchronized Realms"));
   });
@@ -679,4 +775,9 @@ Future<void> main([List<String>? args]) async {
     expect(await realmTaskFirst.realm, isNull);
     expect(await realmTaskSecond.realm, isNull);
   });
+}
+
+extension _IterableEx<T> on Iterable<T> {
+  Iterable<T> except(T exclude) => where((o) => o != exclude);
+
 }
