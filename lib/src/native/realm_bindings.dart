@@ -2989,28 +2989,6 @@ class RealmLibrary {
               ffi.Pointer<realm_thread_safe_reference_t>,
               ffi.Pointer<realm_async_error_t>)>();
 
-  Dart_FinalizableHandle realm_dart_attach_finalizer(
-    Object handle,
-    ffi.Pointer<ffi.Void> realmPtr,
-    int size,
-  ) {
-    return _realm_dart_attach_finalizer(
-      handle,
-      realmPtr,
-      size,
-    );
-  }
-
-  late final _realm_dart_attach_finalizerPtr = _lookup<
-      ffi.NativeFunction<
-          Dart_FinalizableHandle Function(ffi.Handle, ffi.Pointer<ffi.Void>,
-              ffi.Int)>>('realm_dart_attach_finalizer');
-  late final _realm_dart_attach_finalizer =
-      _realm_dart_attach_finalizerPtr.asFunction<
-          Dart_FinalizableHandle Function(
-              Object, ffi.Pointer<ffi.Void>, int)>();
-
-
   ffi.Pointer<realm_scheduler_t> realm_dart_create_scheduler(
     int isolateId,
     int port,
@@ -9604,13 +9582,6 @@ class _SymbolAddresses {
           _library._realm_dart_async_open_task_completion_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
-              Dart_FinalizableHandle Function(
-                  ffi.Handle, ffi.Pointer<ffi.Void>, ffi.Int)>>
-      get realm_dart_attach_finalizer =>
-          _library._realm_dart_attach_finalizerPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
-
               ffi.Pointer<realm_scheduler_t> Function(ffi.Uint64, Dart_Port)>>
       get realm_dart_create_scheduler =>
           _library._realm_dart_create_schedulerPtr;
