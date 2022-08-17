@@ -1,3 +1,19 @@
+## vNext (TBD)
+
+**This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
+
+### Enhancements
+* None
+
+### Fixed
+* None
+
+### Compatibility
+* Realm Studio: 12.0.0 or later.
+
+### Internal
+* Using Core x.y.z.
+
 ## 0.3.2+beta (2022-08-16)
 
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
@@ -35,7 +51,6 @@
 ### Internal
 * Added a command to `realm_dart` for deleting Atlas App Services applications. Usage: `dart run realm_dart delete-apps`. By default it will delete apps from `http://localhost:9090` which is the endpoint of the local docker image. If `--atlas-cluster` is provided, it will authenticate, delete the application from the provided cluster. (PR [#663](https://github.com/realm/realm-dart/pull/663))
 * Uses Realm Core v12.5.1
-
 
 ## 0.3.1+beta (2022-06-07)
 
