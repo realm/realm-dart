@@ -55,7 +55,7 @@ jobs:
         with:
           branch: release/${{ steps.update-changelog.outputs.new-version }}
           base: master
-          title: [Release ${{ steps.update-changelog.outputs.new-version }}]
+          title: '[Release ${{ steps.update-changelog.outputs.new-version }}]'
           draft: false
           body: An automated PR for next release.
           commit-message: Prepare for ${{ steps.update-changelog.outputs.new-version }}
