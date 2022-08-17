@@ -93,19 +93,6 @@ extension FieldElementEx on FieldElement {
 
       // Validate primary key
       if (primaryKey != null) {
-        if (type.isNullable) {
-          final modelSpan = enclosingElement.span!;
-          final file = modelSpan.file;
-          throw RealmInvalidGenerationSourceError(
-            'Primary key cannot be nullable',
-            element: this,
-            primarySpan: typeSpan(file),
-            primaryLabel: 'is nullable',
-            todo: //
-                'Consider using the @Indexed() annotation instead, '
-                "or make '$displayName' ${anOrA(modelTypeName)} ${type.asNonNullable}.",
-          );
-        }
         if (indexed != null) {
           log.info(formatSpans(
             'Indexed is implied for a primary key',

@@ -24,7 +24,6 @@ import 'package:test/expect.dart';
 import 'package:path/path.dart' as path;
 
 import '../lib/realm.dart';
-import 'realm_object_test.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
