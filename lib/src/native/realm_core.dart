@@ -70,7 +70,7 @@ class _RealmCore {
     return _instance ??= _RealmCore._();
   }
 
-  String get libraryVersion => '0.3.1+beta';
+  String get libraryVersion => '0.3.2+beta';
 
   LastError? getLastError(Allocator allocator) {
     final error = allocator<realm_error_t>();
