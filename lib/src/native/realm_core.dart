@@ -453,61 +453,51 @@ class _RealmCore {
 
   RealmSchema readSchema(Realm realm) {
     return using((Arena arena) {
-      final actualCount = arena<Size>();
-      Pointer<Uint32> classesPtr;
-      var classesSize = 10;
-
-      while (true) {
-        classesPtr = arena<Uint32>(classesSize);
-        _realmLib.invokeGetBool(() => _realmLib.realm_get_class_keys(realm.handle._pointer, classesPtr, classesSize, actualCount));
-
-        if (classesSize < actualCount.value) {
-          // The supplied array was too small - resize it
-          classesSize = actualCount.value;
-          arena.free(classesPtr);
-          continue;
-        }
-
-        final schemas = <SchemaObject>[];
-        for (var i = 0; i < actualCount.value; i++) {
-          final schema = _getSchemaForClassKey(realm, classesPtr.elementAt(i).value, arena);
-          schemas.add(schema);
-        }
-
-        return RealmSchema(schemas);
-      }
+      return _readSchema(realm, arena);
     });
   }
 
-  SchemaObject _getSchemaForClassKey(Realm realm, int classKey, Arena arena) {
-    final classInfo = arena<realm_class_info>();
-    _realmLib.invokeGetBool(() => _realmLib.realm_get_class(realm.handle._pointer, classKey, classInfo));
-
-    final name = classInfo.ref.name.cast<Utf8>().toDartString();
-
+  RealmSchema _readSchema(Realm realm, Arena arena, {int expectedSize = 10}) {
+    final classesPtr = arena<Uint32>(expectedSize);
     final actualCount = arena<Size>();
-    Pointer<realm_property_info> propertiesPtr;
-    var propertiesSize = 10;
-
-    while (true) {
-      propertiesPtr = arena<realm_property_info>(propertiesSize);
-      _realmLib.invokeGetBool(() => _realmLib.realm_get_class_properties(realm.handle._pointer, classKey, propertiesPtr, propertiesSize, actualCount));
-
-      if (propertiesSize < actualCount.value) {
-        // The supplied array was too small - resize it
-        propertiesSize = actualCount.value;
-        arena.free(propertiesPtr);
-        continue;
-      }
-
-      final result = <SchemaProperty>[];
-      for (var i = 0; i < actualCount.value; i++) {
-        final property = propertiesPtr.elementAt(i).ref.toSchemaProperty();
-        result.add(property);
-      }
-
-      return SchemaObject(RealmObject, name, result);
+    _realmLib.invokeGetBool(() => _realmLib.realm_get_class_keys(realm.handle._pointer, classesPtr, expectedSize, actualCount));
+    if (expectedSize < actualCount.value) {
+      arena.free(classesPtr);
+      return _readSchema(realm, arena, expectedSize: actualCount.value);
     }
+
+    final schemas = <SchemaObject>[];
+    for (var i = 0; i < actualCount.value; i++) {
+      final classInfo = arena<realm_class_info>();
+      final classKey = classesPtr.elementAt(i).value;
+      _realmLib.invokeGetBool(() => _realmLib.realm_get_class(realm.handle._pointer, classKey, classInfo));
+
+      final name = classInfo.ref.name.cast<Utf8>().toDartString();
+      final schema = _getSchemaForClassKey(realm, classKey, name, arena, expectedSize: classInfo.ref.num_properties + classInfo.ref.num_computed_properties);
+      schemas.add(schema);
+    }
+
+    return RealmSchema(schemas);
+  }
+
+  SchemaObject _getSchemaForClassKey(Realm realm, int classKey, String name, Arena arena, {int expectedSize = 10}) {
+    final actualCount = arena<Size>();
+    final propertiesPtr = arena<realm_property_info>(expectedSize);
+    _realmLib.invokeGetBool(() => _realmLib.realm_get_class_properties(realm.handle._pointer, classKey, propertiesPtr, expectedSize, actualCount));
+
+    if (expectedSize < actualCount.value) {
+      // The supplied array was too small - resize it
+      arena.free(propertiesPtr);
+      return _getSchemaForClassKey(realm, classKey, name, arena, expectedSize: actualCount.value);
+    }
+
+    final result = <SchemaProperty>[];
+    for (var i = 0; i < actualCount.value; i++) {
+      final property = propertiesPtr.elementAt(i).ref.toSchemaProperty();
+      result.add(property);
+    }
+
+    return SchemaObject(RealmObject, name, result);
   }
 
   void deleteRealmFiles(String path) {
@@ -1412,29 +1402,27 @@ class _RealmCore {
 
   List<UserHandle> getUsers(App app) {
     return using((arena) {
-      final actualCount = arena<Size>();
-      Pointer<Pointer<realm_user>> usersPtr;
-      var usersSize = 2;
-
-      while (true) {
-        usersPtr = arena<Pointer<realm_user>>(usersSize);
-        _realmLib.invokeGetBool(() => _realmLib.realm_app_get_all_users(app.handle._pointer, usersPtr, usersSize, actualCount));
-
-        if (usersSize < actualCount.value) {
-          // The supplied array was too small - resize it
-          usersSize = actualCount.value;
-          arena.free(usersPtr);
-          continue;
-        }
-
-        final result = <UserHandle>[];
-        for (var i = 0; i < actualCount.value; i++) {
-          result.add(UserHandle._(usersPtr.elementAt(i).value));
-        }
-
-        return result;
-      }
+      return _getUsers(app, arena);
     });
+  }
+
+  List<UserHandle> _getUsers(App app, Arena arena, {int expectedSize = 2}) {
+    final actualCount = arena<Size>();
+    final usersPtr = arena<Pointer<realm_user>>(expectedSize);
+    _realmLib.invokeGetBool(() => _realmLib.realm_app_get_all_users(app.handle._pointer, usersPtr, expectedSize, actualCount));
+
+    if (expectedSize < actualCount.value) {
+      // The supplied array was too small - resize it
+      arena.free(usersPtr);
+      return _getUsers(app, arena, expectedSize: actualCount.value);
+    }
+
+    final result = <UserHandle>[];
+    for (var i = 0; i < actualCount.value; i++) {
+      result.add(UserHandle._(usersPtr.elementAt(i).value));
+    }
+
+    return result;
   }
 
   Future<void> removeUser(App app, User user) {
@@ -1519,32 +1507,30 @@ class _RealmCore {
 
   List<UserIdentity> userGetIdentities(User user) {
     return using((arena) {
-      final actualCount = arena<Size>();
-      Pointer<realm_user_identity_t> identitiesPtr;
-      var identitiesSize = 3;
-
-      while (true) {
-        identitiesPtr = arena<realm_user_identity_t>(identitiesSize);
-        _realmLib.invokeGetBool(() => _realmLib.realm_user_get_all_identities(user.handle._pointer, identitiesPtr, identitiesSize, actualCount));
-
-        if (identitiesSize < actualCount.value) {
-          // The supplied array was too small - resize it
-          identitiesSize = actualCount.value;
-          arena.free(identitiesPtr);
-          continue;
-        }
-
-        final result = <UserIdentity>[];
-        for (var i = 0; i < actualCount.value; i++) {
-          final identity = identitiesPtr.elementAt(i).ref;
-
-          result.add(UserIdentityInternal.create(
-              identity.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderType.values.fromIndex(identity.provider_type)));
-        }
-
-        return result;
-      }
+      return _userGetIdentities(user, arena);
     });
+  }
+
+  List<UserIdentity> _userGetIdentities(User user, Arena arena, {int expectedSize = 2}) {
+    final actualCount = arena<Size>();
+    final identitiesPtr = arena<realm_user_identity_t>(expectedSize);
+    _realmLib.invokeGetBool(() => _realmLib.realm_user_get_all_identities(user.handle._pointer, identitiesPtr, expectedSize, actualCount));
+
+    if (expectedSize < actualCount.value) {
+      // The supplied array was too small - resize it
+      arena.free(identitiesPtr);
+      return _userGetIdentities(user, arena, expectedSize: actualCount.value);
+    }
+
+    final result = <UserIdentity>[];
+    for (var i = 0; i < actualCount.value; i++) {
+      final identity = identitiesPtr.elementAt(i).ref;
+
+      result.add(UserIdentityInternal.create(
+          identity.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderType.values.fromIndex(identity.provider_type)));
+    }
+
+    return result;
   }
 
   Future<void> userLogOut(User user) {
