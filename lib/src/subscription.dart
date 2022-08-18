@@ -18,6 +18,7 @@
 
 import 'dart:core';
 import 'dart:collection';
+import 'dart:ffi';
 
 import 'native/realm_core.dart';
 import 'realm_class.dart';
@@ -26,7 +27,7 @@ import 'realm_class.dart';
 /// evaluate the query that the app subscribed to and will send data
 /// that matches it as well as remove data that no longer does.
 /// {@category Sync}
-class Subscription {
+class Subscription implements Finalizable {
   final SubscriptionHandle _handle;
 
   Subscription._(this._handle);
@@ -64,6 +65,11 @@ class Subscription {
 }
 
 extension SubscriptionInternal on Subscription {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _handle.keepAlive();
+  }
+
   SubscriptionHandle get handle => _handle;
   ObjectId get id => _id;
 }
@@ -121,7 +127,7 @@ enum SubscriptionSetState {
 /// Realm is an expensive operation serverside, even if there's very little data that needs
 /// downloading.
 /// {@category Sync}
-abstract class SubscriptionSet with IterableMixin<Subscription> {
+abstract class SubscriptionSet with IterableMixin<Subscription> implements Finalizable {
   final Realm _realm;
   SubscriptionSetHandle _handle;
 
@@ -204,6 +210,12 @@ abstract class SubscriptionSet with IterableMixin<Subscription> {
 }
 
 extension SubscriptionSetInternal on SubscriptionSet {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _realm.keepAlive();
+    _handle.keepAlive();
+  }
+
   Realm get realm => _realm;
   SubscriptionSetHandle get handle => _handle;
 

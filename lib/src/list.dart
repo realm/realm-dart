@@ -18,6 +18,7 @@
 
 import 'dart:async';
 import 'dart:collection' as collection;
+import 'dart:ffi';
 
 import 'collections.dart';
 import 'native/realm_core.dart';
@@ -29,7 +30,7 @@ import 'results.dart';
 /// added to or deleted from the collection or from the Realm.
 ///
 /// {@category Realm}
-abstract class RealmList<T extends Object> with RealmEntity implements List<T> {
+abstract class RealmList<T extends Object> with RealmEntity implements List<T>, Finalizable {
   late final RealmObjectMetadata? _metadata;
 
   /// Gets a value indicating whether this collection is still valid to use.
@@ -90,7 +91,7 @@ class ManagedRealmList<T extends Object> extends collection.ListBase<T> with Rea
 
   /// Removes all objects from this list; the length of the list becomes zero.
   /// The objects are not deleted from the realm, but are no longer referenced from this list.
-  void clear() => realmCore.listClear(this);
+  void clear() => realmCore.listClear(handle);
 
   @override
   bool get isValid => realmCore.listIsValid(this);
@@ -156,20 +157,29 @@ extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
 
 /// @nodoc
 extension RealmListInternal<T extends Object> on RealmList<T> {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    final self = this;
+    if (self is ManagedRealmList<T>) {
+      realm.keepAlive();
+      self._handle.keepAlive();
+    }
+  }
+
   ManagedRealmList<T> asManaged() => this is ManagedRealmList<T> ? this as ManagedRealmList<T> : throw RealmStateError('$this is not managed');
 
   RealmListHandle get handle => asManaged()._handle;
 
   static RealmList<T> create<T extends Object>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
 
-  static void setValue(RealmListHandle handle, Realm realm, int index, Object? value) {
+  static void setValue(RealmListHandle handle, Realm realm, int index, Object? value, {bool update = false}) {
     if (index < 0) {
       throw RealmException("Index out of range $index");
     }
 
     try {
       if (value is RealmObject && !value.isManaged) {
-        realm.add<RealmObject>(value);
+        realm.add<RealmObject>(value, update: update);
       }
 
       final length = realmCore.getListSize(handle);

@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
+import 'dart:ffi';
 
 import 'list.dart';
 import 'native/realm_core.dart';
@@ -24,7 +25,7 @@ import 'realm_class.dart';
 
 abstract class RealmAccessor {
   Object? get<T extends Object>(RealmObject object, String name);
-  void set(RealmObject object, String name, Object? value, [bool isDefault = false]);
+  void set(RealmObject object, String name, Object? value, {bool isDefault = false, bool update = false});
 
   static final Map<Type, Map<String, Object?>> _defaultValues = <Type, Map<String, Object?>>{};
 
@@ -68,24 +69,24 @@ class RealmValuesAccessor implements RealmAccessor {
   }
 
   @override
-  void set(RealmObject object, String name, Object? value, [bool isDefault = false]) {
+  void set(RealmObject object, String name, Object? value, {bool isDefault = false, bool update = false}) {
     _values[name] = value;
   }
 
-  void setAll(RealmObject object, RealmAccessor accessor) {
+  void setAll(RealmObject object, RealmAccessor accessor, bool update) {
     final defaults = RealmAccessor.getDefaults(object.runtimeType);
 
     if (defaults != null) {
       for (var item in defaults.entries) {
         //check if a default value has been overwritten
         if (!_values.containsKey(item.key)) {
-          accessor.set(object, item.key, item.value, true);
+          accessor.set(object, item.key, item.value, isDefault: true);
         }
       }
     }
 
     for (var entry in _values.entries) {
-      accessor.set(object, entry.key, entry.value);
+      accessor.set(object, entry.key, entry.value, update: update);
     }
   }
 }
@@ -151,27 +152,20 @@ class RealmCoreAccessor implements RealmAccessor {
   }
 
   @override
-  void set(RealmObject object, String name, Object? value, [bool isDefault = false]) {
+  void set(RealmObject object, String name, Object? value, {bool isDefault = false, bool update = false}) {
     final propertyMeta = metadata[name];
     try {
-      if (value is List) {
-        if (value.isEmpty) {
-          return;
-        }
-
-        //This assumes the target list property is empty. `value is List` should happen only when making a RealmObject managed
+      if (value is RealmList<Object>) {
         final handle = realmCore.getListProperty(object, propertyMeta.key);
+        if (update) realmCore.listClear(handle);
         for (var i = 0; i < value.length; i++) {
-          RealmListInternal.setValue(handle, object.realm, i, value[i]);
+          RealmListInternal.setValue(handle, object.realm, i, value[i], update: update);
         }
         return;
       }
-
-      //If value is RealmObject - manage it
       if (value is RealmObject && !value.isManaged) {
-        object.realm.add(value);
+        object.realm.add(value, update: update);
       }
-
       realmCore.setProperty(object, propertyMeta.key, value, isDefault);
     } on Exception catch (e) {
       throw RealmException("Error setting property ${metadata._realmObjectTypeName}.$name Error: $e");
@@ -201,7 +195,7 @@ extension RealmEntityInternal on RealmEntity {
 ///
 /// [RealmObject] should not be used directly as it is part of the generated class hierarchy. ex: `MyClass extends _MyClass with RealmObject`.
 /// {@category Realm}
-mixin RealmObject on RealmEntity {
+mixin RealmObject on RealmEntity implements Finalizable {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
   static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{
@@ -214,8 +208,8 @@ mixin RealmObject on RealmEntity {
   }
 
   /// @nodoc
-  static void set<T extends Object>(RealmObject object, String name, T? value) {
-    object._accessor.set(object, name, value);
+  static void set<T extends Object>(RealmObject object, String name, T? value, {bool update = false}) {
+    object._accessor.set(object, name, value, update: update);
   }
 
   /// @nodoc
@@ -272,7 +266,13 @@ mixin RealmObject on RealmEntity {
 /// @nodoc
 //RealmObject package internal members
 extension RealmObjectInternal on RealmObject {
-  void manage(Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor) {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _realm?.keepAlive();
+    _handle?.keepAlive();
+  }
+
+  void manage(Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor, bool update) {
     if (_handle != null) {
       //most certainly a bug hence we throw an Error
       throw ArgumentError("Object is already managed");
@@ -282,7 +282,7 @@ extension RealmObjectInternal on RealmObject {
     _realm = realm;
 
     if (_accessor is RealmValuesAccessor) {
-      (_accessor as RealmValuesAccessor).setAll(this, accessor);
+      (_accessor as RealmValuesAccessor).setAll(this, accessor, update);
     }
 
     _accessor = accessor;
@@ -294,7 +294,9 @@ extension RealmObjectInternal on RealmObject {
     }
 
     final object = RealmObject._factories[type]!();
-    object.manage(realm, handle, accessor);
+    object._handle = handle;
+    object._accessor = accessor;
+    object._realm = realm;
     return object;
   }
 
@@ -316,7 +318,7 @@ class RealmException implements Exception {
 }
 
 /// Describes the changes in on a single RealmObject since the last time the notification callback was invoked.
-class RealmObjectChanges<T extends RealmObject> {
+class RealmObjectChanges<T extends RealmObject> implements Finalizable {
   // ignore: unused_field
   final RealmObjectChangesHandle _handle;
 
@@ -333,6 +335,14 @@ class RealmObjectChanges<T extends RealmObject> {
   }
 
   const RealmObjectChanges._(this._handle, this.object);
+}
+
+/// @nodoc
+extension RealmObjectChangesInternal<T extends RealmObject> on RealmObjectChanges<T> {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _handle.keepAlive();
+  }
 }
 
 /// @nodoc

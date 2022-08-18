@@ -30,6 +30,35 @@ class IntPK extends _IntPK with RealmEntity, RealmObject {
   }
 }
 
+class NullableIntPK extends _NullableIntPK with RealmEntity, RealmObject {
+  NullableIntPK(
+    int? id,
+  ) {
+    RealmObject.set(this, 'id', id);
+  }
+
+  NullableIntPK._();
+
+  @override
+  int? get id => RealmObject.get<int>(this, 'id') as int?;
+  @override
+  set id(int? value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<NullableIntPK>> get changes =>
+      RealmObject.getChanges<NullableIntPK>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(NullableIntPK._);
+    return const SchemaObject(NullableIntPK, 'NullableIntPK', [
+      SchemaProperty('id', RealmPropertyType.int,
+          optional: true, primaryKey: true),
+    ]);
+  }
+}
+
 class StringPK extends _StringPK with RealmEntity, RealmObject {
   StringPK(
     String id,
@@ -54,6 +83,35 @@ class StringPK extends _StringPK with RealmEntity, RealmObject {
     RealmObject.registerFactory(StringPK._);
     return const SchemaObject(StringPK, 'StringPK', [
       SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
+    ]);
+  }
+}
+
+class NullableStringPK extends _NullableStringPK with RealmEntity, RealmObject {
+  NullableStringPK(
+    String? id,
+  ) {
+    RealmObject.set(this, 'id', id);
+  }
+
+  NullableStringPK._();
+
+  @override
+  String? get id => RealmObject.get<String>(this, 'id') as String?;
+  @override
+  set id(String? value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<NullableStringPK>> get changes =>
+      RealmObject.getChanges<NullableStringPK>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(NullableStringPK._);
+    return const SchemaObject(NullableStringPK, 'NullableStringPK', [
+      SchemaProperty('id', RealmPropertyType.string,
+          optional: true, primaryKey: true),
     ]);
   }
 }
@@ -86,6 +144,35 @@ class ObjectIdPK extends _ObjectIdPK with RealmEntity, RealmObject {
   }
 }
 
+class NullableObjectIdPK extends _NullableObjectIdPK with RealmEntity, RealmObject {
+  NullableObjectIdPK(
+    ObjectId? id,
+  ) {
+    RealmObject.set(this, 'id', id);
+  }
+
+  NullableObjectIdPK._();
+
+  @override
+  ObjectId? get id => RealmObject.get<ObjectId>(this, 'id') as ObjectId?;
+  @override
+  set id(ObjectId? value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<NullableObjectIdPK>> get changes =>
+      RealmObject.getChanges<NullableObjectIdPK>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(NullableObjectIdPK._);
+    return const SchemaObject(NullableObjectIdPK, 'NullableObjectIdPK', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          optional: true, primaryKey: true),
+    ]);
+  }
+}
+
 class UuidPK extends _UuidPK with RealmEntity, RealmObject {
   UuidPK(
     Uuid id,
@@ -110,6 +197,35 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObject {
     RealmObject.registerFactory(UuidPK._);
     return const SchemaObject(UuidPK, 'UuidPK', [
       SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
+    ]);
+  }
+}
+
+class NullableUuidPK extends _NullableUuidPK with RealmEntity, RealmObject {
+  NullableUuidPK(
+    Uuid? id,
+  ) {
+    RealmObject.set(this, 'id', id);
+  }
+
+  NullableUuidPK._();
+
+  @override
+  Uuid? get id => RealmObject.get<Uuid>(this, 'id') as Uuid?;
+  @override
+  set id(Uuid? value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<NullableUuidPK>> get changes =>
+      RealmObject.getChanges<NullableUuidPK>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(NullableUuidPK._);
+    return const SchemaObject(NullableUuidPK, 'NullableUuidPK', [
+      SchemaProperty('id', RealmPropertyType.uuid,
+          optional: true, primaryKey: true),
     ]);
   }
 }
