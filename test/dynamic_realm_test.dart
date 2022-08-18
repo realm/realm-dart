@@ -351,6 +351,14 @@ Future<void> main([List<String>? args]) async {
         expect(obj2.dynamic.get<RealmObject?>('link'), obj1);
         expect(obj2.dynamic.get('link'), obj1);
         expect(obj2.dynamic.get<RealmObject?>('link')?.dynamic.get<Uuid>('id'), uuid1);
+
+        dynamic dynamicObj1 = obj1;
+        dynamic dynamicObj2 = obj2;
+
+        expect(dynamicObj1.link, isNull);
+
+        expect(dynamicObj2.link, obj1);
+        expect(dynamicObj2.link.id, uuid1);
       });
 
       test('fails with non-existent property', () {
@@ -362,7 +370,9 @@ Future<void> main([List<String>? args]) async {
         final dynamicRealm = _getDynamicRealm(staticRealm);
 
         final obj = dynamicRealm.dynamic.all(AllTypes.schema.name).single;
+        dynamic dynamicObj = obj;
         expect(() => obj.dynamic.get('i-dont-exist'), throws<RealmException>("Property 'i-dont-exist' does not exist on class 'AllTypes'"));
+        expect(() => dynamicObj.idontexist, throws<RealmException>("Property idontexist does not exist on class AllTypes"));
       });
 
       test('fails with wrong type', () {
@@ -459,6 +469,14 @@ Future<void> main([List<String>? args]) async {
         expect(obj2.dynamic.getList<RealmObject>('list'), [obj1, obj1]);
         expect(obj2.dynamic.getList('list'), [obj1, obj1]);
         expect(obj2.dynamic.getList<RealmObject>('list')[0].dynamic.get<Uuid>('id'), uuid1);
+
+        dynamic dynamicObj1 = obj1;
+        dynamic dynamicObj2 = obj2;
+
+        expect(dynamicObj1.list, isEmpty);
+
+        expect(dynamicObj2.list, [obj1, obj1]);
+        expect(dynamicObj2.list[0].id, uuid1);
       });
 
       test('fails with non-existent property', () {
@@ -510,10 +528,6 @@ Future<void> main([List<String>? args]) async {
     final config = Configuration.local([AllTypes.schema]);
     final staticRealm = getRealm(config);
 
-    final objectId = ObjectId();
-    final uuid = Uuid.v4();
-    final date = DateTime.now();
-
     staticRealm.write(() {
       staticRealm.add(_getPopulatedAllTypes());
       staticRealm.add(_getEmptyAllTypes());
@@ -560,6 +574,14 @@ Future<void> main([List<String>? args]) async {
     expect(obj2.dynamic.get<RealmObject?>('link'), obj1);
     expect(obj2.dynamic.get('link'), obj1);
     expect(obj2.dynamic.get<RealmObject?>('link')?.dynamic.get<Uuid>('id'), uuid1);
+
+    dynamic dynamicObj1 = obj1;
+    dynamic dynamicObj2 = obj2;
+
+    expect(dynamicObj1.link, isNull);
+
+    expect(dynamicObj2.link, obj1);
+    expect(dynamicObj2.link.id, uuid1);
   });
 
   test('RealmObject.dynamic.getList when static can get links', () {
@@ -583,5 +605,13 @@ Future<void> main([List<String>? args]) async {
     expect(obj2.dynamic.getList<RealmObject>('list'), [obj1, obj1]);
     expect(obj2.dynamic.getList('list'), [obj1, obj1]);
     expect(obj2.dynamic.getList<RealmObject>('list')[0].dynamic.get<Uuid>('id'), uuid1);
+
+    dynamic dynamicObj1 = obj1;
+    dynamic dynamicObj2 = obj2;
+
+    expect(dynamicObj1.list, isEmpty);
+
+    expect(dynamicObj2.list, [obj1, obj1]);
+    expect(dynamicObj2.list[0].id, uuid1);
   });
 }
