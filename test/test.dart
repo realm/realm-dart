@@ -209,6 +209,11 @@ enum AppNames {
   emailConfirm,
 }
 
+const int maxInt = 9223372036854775807;
+const int minInt = -9223372036854775808;
+const int jsMaxInt = 9007199254740991;
+const int jsMinInt = -9007199254740991;
+
 //Overrides test method so we can filter tests
 void test(String name, dynamic Function() testFunction, {dynamic skip}) {
   if (testName != null && !name.contains(testName!)) {

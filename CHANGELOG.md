@@ -6,7 +6,7 @@
 * None
 
 ### Fixed
-* None
+* Lifted a limitation that only allowed non-nullable primary keys. ([#458](https://github.com/realm/realm-dart/issues/458))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.

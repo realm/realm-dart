@@ -182,9 +182,9 @@ class Realm implements Finalizable {
       return realmCore.createRealmObject(this, key);
     }
     if (update) {
-      return realmCore.getOrCreateRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey)!);
+      return realmCore.getOrCreateRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey));
     }
-    return realmCore.createRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey)!);
+    return realmCore.createRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey));
   }
 
   /// Adds a collection [RealmObject]s to this `Realm`.
@@ -257,7 +257,7 @@ class Realm implements Finalizable {
   bool get isClosed => realmCore.isRealmClosed(this);
 
   /// Fast lookup for a [RealmObject] with the specified [primaryKey].
-  T? find<T extends RealmObject>(Object primaryKey) {
+  T? find<T extends RealmObject>(Object? primaryKey) {
     RealmMetadata metadata = _getMetadata(T);
 
     final handle = realmCore.find(this, metadata.class_.key, primaryKey);
