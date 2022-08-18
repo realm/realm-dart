@@ -572,7 +572,9 @@ class _RealmCore {
         final property = propertiesPtr.elementAt(i);
         final propertyName = property.ref.name.cast<Utf8>().toRealmDartString()!;
         final objectType = property.ref.link_target.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
-        final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, RealmCollectionType.values.elementAt(property.ref.collection_type));
+        final isNullable = property.ref.flags & realm_property_flags.RLM_PROPERTY_NULLABLE != 0;
+        final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, RealmPropertyType.values.elementAt(property.ref.type), isNullable,
+            RealmCollectionType.values.elementAt(property.ref.collection_type));
         result[propertyName] = propertyMeta;
       }
       return result;
@@ -2053,7 +2055,7 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_INT:
         return ref.values.integer;
       case realm_value_type.RLM_TYPE_BOOL:
-        return ref.values.boolean != 0;
+        return ref.values.boolean;
       case realm_value_type.RLM_TYPE_STRING:
         return ref.values.string.data.cast<Utf8>().toRealmDartString(length: ref.values.string.size)!;
       case realm_value_type.RLM_TYPE_FLOAT:
