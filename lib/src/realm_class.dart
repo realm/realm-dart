@@ -76,7 +76,7 @@ export "configuration.dart"
 
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
-export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges;
+export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges, DynamicRealmObject;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;

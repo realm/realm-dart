@@ -140,6 +140,10 @@ class RealmCoreAccessor implements RealmAccessor {
       if (propertyMeta.collectionType == RealmCollectionType.list) {
         final handle = realmCore.getListProperty(object, propertyMeta.key);
         final listMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
+
+        // listMetadata is not null when we have list of RealmObjects. If the API was
+        // called with a generic object arg - get<Object> we construct a list of
+        // RealmObjects since we don't know the type of the object.
         if (listMetadata != null && _isTypeGenericObject<T>()) {
           return object.realm.createList<RealmObject>(handle, listMetadata);
         }
@@ -151,6 +155,9 @@ class RealmCoreAccessor implements RealmAccessor {
 
       if (value is RealmObjectHandle) {
         final targetMetadata = propertyMeta.objectType != null ? object.realm.metadata.getByName(propertyMeta.objectType!) : object.realm.metadata.getByType(T);
+
+        // If we have an object but the user called the API without providing a generic
+        // arg, we construct a RealmObject since we don't know the type of the object.
         if (_isTypeGenericObject<T>()) {
           return object.realm.createObject(RealmObject, value, targetMetadata);
         }
@@ -212,8 +219,10 @@ mixin RealmObject on RealmEntity implements Finalizable {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
   static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{
-    RealmObject: () => ConcreteRealmObject._(),
-    _typeOf<RealmObject?>(): () => ConcreteRealmObject._(),
+    // Register default factories for `RealmObject` and `RealmObject?`. Whenever the user
+    // asks for these types, we'll use the ConcreteRealmObject implementation.
+    RealmObject: () => _ConcreteRealmObject(),
+    _typeOf<RealmObject?>(): () => _ConcreteRealmObject(),
   };
 
   /// @nodoc
@@ -228,6 +237,8 @@ mixin RealmObject on RealmEntity implements Finalizable {
 
   /// @nodoc
   static void registerFactory<T extends RealmObject>(T Function() factory) {
+    // We register a factory for both the type itself, but also the nullable
+    // version of the type.
     _factories.putIfAbsent(T, () => factory);
     _factories.putIfAbsent(_typeOf<T?>(), () => factory);
   }
@@ -408,24 +419,33 @@ class RealmObjectNotificationsController<T extends RealmObject> extends Notifica
 }
 
 /// @nodoc
-class ConcreteRealmObject with RealmEntity, RealmObject {
-  ConcreteRealmObject._();
-}
+class _ConcreteRealmObject with RealmEntity, RealmObject {}
 
+// This is necessary whenever we need to pass T? as the type.
 Type _typeOf<T>() => T;
 
 bool _isTypeGenericObject<T>() => T == Object || T == _typeOf<Object?>();
 
+/// Exposes a set of dynamic methods on the RealmObject type. These allow you to
+/// access properties by name rather than via the strongly typed API.
+///
+/// {@category Realm}
 class DynamicRealmObject {
   final RealmObject _obj;
 
   DynamicRealmObject._(this._obj);
 
+  /// Gets a property by its name. If a generic type is specified, the property
+  /// type will be validated against the type. Otherwise the result will be wrapped
+  /// in [Object].
   T get<T extends Object?>(String name) {
     _validatePropertyType<T>(name, RealmCollectionType.none);
     return RealmObject.get<T>(_obj, name) as T;
   }
 
+  /// Gets a list by the property name. If a generic type is specified, the property
+  /// type will be validated against the type. Otherwise, a `List<Object>` will be
+  /// returned.
   List<T> getList<T extends Object?>(String name) {
     _validatePropertyType<T>(name, RealmCollectionType.list);
     return RealmObject.get<T>(_obj, name) as List<T>;
