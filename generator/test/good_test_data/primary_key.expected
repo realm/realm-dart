@@ -36,6 +36,41 @@ class IntPK extends _IntPK with RealmEntity, RealmObject {
   Map<String, ValueProperty> get properties => schema.properties;
 }
 
+class NullableIntPK extends _NullableIntPK with RealmEntity, RealmObject {
+  NullableIntPK(
+    int? id,
+  ) {
+    _idProperty.setValue(this, id);
+  }
+
+  NullableIntPK._();
+
+  static const _idProperty = ValueProperty<int?>(
+    'id',
+    RealmPropertyType.int,
+    primaryKey: true,
+  );
+  @override
+  int? get id => _idProperty.getValue(this);
+  @override
+  set id(int? value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<NullableIntPK>> get changes =>
+      RealmObject.getChanges(this);
+
+  static const schema = SchemaObject<NullableIntPK>(
+    NullableIntPK._,
+    'NullableIntPK',
+    {
+      'id': _idProperty,
+    },
+    _idProperty,
+  );
+  @override
+  Map<String, ValueProperty> get properties => schema.properties;
+}
+
 class StringPK extends _StringPK with RealmEntity, RealmObject {
   StringPK(
     String id,
@@ -62,6 +97,41 @@ class StringPK extends _StringPK with RealmEntity, RealmObject {
   static const schema = SchemaObject<StringPK>(
     StringPK._,
     'StringPK',
+    {
+      'id': _idProperty,
+    },
+    _idProperty,
+  );
+  @override
+  Map<String, ValueProperty> get properties => schema.properties;
+}
+
+class NullableStringPK extends _NullableStringPK with RealmEntity, RealmObject {
+  NullableStringPK(
+    String? id,
+  ) {
+    _idProperty.setValue(this, id);
+  }
+
+  NullableStringPK._();
+
+  static const _idProperty = ValueProperty<String?>(
+    'id',
+    RealmPropertyType.string,
+    primaryKey: true,
+  );
+  @override
+  String? get id => _idProperty.getValue(this);
+  @override
+  set id(String? value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<NullableStringPK>> get changes =>
+      RealmObject.getChanges(this);
+
+  static const schema = SchemaObject<NullableStringPK>(
+    NullableStringPK._,
+    'NullableStringPK',
     {
       'id': _idProperty,
     },
@@ -106,6 +176,42 @@ class ObjectIdPK extends _ObjectIdPK with RealmEntity, RealmObject {
   Map<String, ValueProperty> get properties => schema.properties;
 }
 
+class NullableObjectIdPK extends _NullableObjectIdPK
+    with RealmEntity, RealmObject {
+  NullableObjectIdPK(
+    ObjectId? id,
+  ) {
+    _idProperty.setValue(this, id);
+  }
+
+  NullableObjectIdPK._();
+
+  static const _idProperty = ValueProperty<ObjectId?>(
+    'id',
+    RealmPropertyType.objectid,
+    primaryKey: true,
+  );
+  @override
+  ObjectId? get id => _idProperty.getValue(this);
+  @override
+  set id(ObjectId? value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<NullableObjectIdPK>> get changes =>
+      RealmObject.getChanges(this);
+
+  static const schema = SchemaObject<NullableObjectIdPK>(
+    NullableObjectIdPK._,
+    'NullableObjectIdPK',
+    {
+      'id': _idProperty,
+    },
+    _idProperty,
+  );
+  @override
+  Map<String, ValueProperty> get properties => schema.properties;
+}
+
 class UuidPK extends _UuidPK with RealmEntity, RealmObject {
   UuidPK(
     Uuid id,
@@ -132,6 +238,41 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObject {
   static const schema = SchemaObject<UuidPK>(
     UuidPK._,
     'UuidPK',
+    {
+      'id': _idProperty,
+    },
+    _idProperty,
+  );
+  @override
+  Map<String, ValueProperty> get properties => schema.properties;
+}
+
+class NullableUuidPK extends _NullableUuidPK with RealmEntity, RealmObject {
+  NullableUuidPK(
+    Uuid? id,
+  ) {
+    _idProperty.setValue(this, id);
+  }
+
+  NullableUuidPK._();
+
+  static const _idProperty = ValueProperty<Uuid?>(
+    'id',
+    RealmPropertyType.uuid,
+    primaryKey: true,
+  );
+  @override
+  Uuid? get id => _idProperty.getValue(this);
+  @override
+  set id(Uuid? value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<NullableUuidPK>> get changes =>
+      RealmObject.getChanges(this);
+
+  static const schema = SchemaObject<NullableUuidPK>(
+    NullableUuidPK._,
+    'NullableUuidPK',
     {
       'id': _idProperty,
     },
