@@ -54,6 +54,10 @@ abstract class Configuration implements Finalizable {
   static String get defaultRealmName => _path.basename(defaultRealmPath);
   static set defaultRealmName(String name) => defaultRealmPath = _path.join(_path.dirname(defaultRealmPath), _path.basename(name));
 
+  /// A collection of [SchemaObject] that will be used to construct the
+  /// [RealmSchema] once the Realm is opened.
+  final Iterable<SchemaObject> schemaObjects;
+
   /// The platform dependent path used to store realm files
   ///
   /// On Flutter Android and iOS this is the application's data directory.
@@ -76,10 +80,10 @@ abstract class Configuration implements Finalizable {
   static late String defaultRealmPath = _path.join(defaultStoragePath, 'default.realm');
 
   Configuration._(
-    List<SchemaObject> schemaObjects, {
+    this.schemaObjects, {
     String? path,
     this.fifoFilesFallbackPath,
-  }) : schema = RealmSchema(schemaObjects) {
+  }) {
     this.path = path ?? _path.join(_path.dirname(_defaultPath), _path.basename(defaultRealmName));
   }
 
@@ -100,9 +104,6 @@ abstract class Configuration implements Finalizable {
   ///
   /// If omitted the [defaultPath] for the platform will be used.
   late final String path;
-
-  /// The [RealmSchema] for this [Configuration]
-  final RealmSchema schema;
 
   //TODO: Config: Support encryption keys. https://github.com/realm/realm-dart/issues/88
   // /// The key used to encrypt the entire [Realm].
@@ -337,12 +338,8 @@ class RealmSchema extends Iterable<SchemaObject> {
   late final List<SchemaObject> _schema;
 
   /// Initializes [RealmSchema] instance representing ```schemaObjects``` collection
-  RealmSchema(List<SchemaObject> schemaObjects) {
-    if (schemaObjects.isEmpty) {
-      throw RealmError("No schema specified");
-    }
-
-    _schema = schemaObjects;
+  RealmSchema(Iterable<SchemaObject> schemaObjects) {
+    _schema = schemaObjects.toList();
   }
 
   @override

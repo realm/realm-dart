@@ -31,10 +31,6 @@ Future<void> main([List<String>? args]) async {
     Configuration.local([Car.schema]);
   });
 
-  test('Configuration exception if no schema', () {
-    expect(() => Configuration.local([]), throws<RealmError>());
-  });
-
   test('Configuration default path', () {
     final config = Configuration.local([Car.schema]);
     if (Platform.isAndroid || Platform.isIOS) {
