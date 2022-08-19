@@ -107,7 +107,7 @@ class RealmObjectMetadata {
   RealmObjectMetadata(this.name, this.type, this.primaryKey, this.classKey, this._propertyKeys);
 
   RealmPropertyMetadata operator [](String propertyName) =>
-      _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exists on class $_realmObjectTypeName"));
+      _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exist on class $_realmObjectTypeName"));
 
   String? getPropertyName(int propertyKey) {
     for (final entry in _propertyKeys.entries) {

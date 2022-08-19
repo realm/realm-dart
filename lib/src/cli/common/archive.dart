@@ -24,7 +24,7 @@ class Archive {
 // Create an archive of files
   Future<void> archive(Directory sourceDir, File outputFile) async {
     if (!await sourceDir.exists()) {
-      throw Exception("Source directory $sourceDir does not exists");
+      throw Exception("Source directory $sourceDir does not exist");
     }
 
     await findEntries(sourceDir).transform(tarWriter).transform(gzip.encoder).pipe(outputFile.openWrite());
