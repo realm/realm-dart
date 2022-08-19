@@ -26,13 +26,16 @@ import 'test.dart';
 
 part 'realm_object_test.g.dart';
 
-const int maxInt = 9223372036854775807;
-const int minInt = -9223372036854775808;
-
 @RealmModel()
 class _ObjectIdPrimaryKey {
   @PrimaryKey()
   late ObjectId id;
+}
+
+@RealmModel()
+class _NullableObjectIdPrimaryKey {
+  @PrimaryKey()
+  late ObjectId? id;
 }
 
 @RealmModel()
@@ -42,15 +45,33 @@ class _IntPrimaryKey {
 }
 
 @RealmModel()
+class _NullableIntPrimaryKey {
+  @PrimaryKey()
+  int? id;
+}
+
+@RealmModel()
 class _StringPrimaryKey {
   @PrimaryKey()
   late String id;
 }
 
 @RealmModel()
+class _NullableStringPrimaryKey {
+  @PrimaryKey()
+  late String? id;
+}
+
+@RealmModel()
 class _UuidPrimaryKey {
   @PrimaryKey()
   late Uuid id;
+}
+
+@RealmModel()
+class _NullableUuidPrimaryKey {
+  @PrimaryKey()
+  late Uuid? id;
 }
 
 @RealmModel()
@@ -296,7 +317,7 @@ Future<void> main([List<String>? args]) async {
     await Future<void>.delayed(Duration(milliseconds: 20));
   });
 
-  void testPrimaryKey<T extends RealmObject, K extends Object>(SchemaObject schema, T Function() createObject, K key) {
+  void testPrimaryKey<T extends RealmObject, K extends Object>(SchemaObject schema, T Function() createObject, K? key) {
     test("$T primary key: $key", () {
       final pkProp = schema.properties.where((p) => p.primaryKey).single;
       final realm = Realm(Configuration.local([schema]));
@@ -314,14 +335,22 @@ Future<void> main([List<String>? args]) async {
     });
   }
 
-  final ints = [1, 0, -1, maxInt, minInt];
+  final ints = [1, 0, -1, maxInt, jsMaxInt, minInt, jsMinInt];
   for (final pk in ints) {
     testPrimaryKey(IntPrimaryKey.schema, () => IntPrimaryKey(pk), pk);
+  }
+
+  for (final pk in [null, ...ints]) {
+    testPrimaryKey(NullableIntPrimaryKey.schema, () => NullableIntPrimaryKey(pk), pk);
   }
 
   final strings = ["", "1", "abc", "null"];
   for (final pk in strings) {
     testPrimaryKey(StringPrimaryKey.schema, () => StringPrimaryKey(pk), pk);
+  }
+
+  for (final pk in [null, ...strings]) {
+    testPrimaryKey(NullableStringPrimaryKey.schema, () => NullableStringPrimaryKey(pk), pk);
   }
 
   final objectIds = [
@@ -334,12 +363,21 @@ Future<void> main([List<String>? args]) async {
     testPrimaryKey(ObjectIdPrimaryKey.schema, () => ObjectIdPrimaryKey(pk), pk);
   }
 
+  for (final pk in [null, ...objectIds]) {
+    testPrimaryKey(NullableObjectIdPrimaryKey.schema, () => NullableObjectIdPrimaryKey(pk), pk);
+  }
+
   final uuids = [
     Uuid.fromString('0f1dea4d-074e-4c72-b505-e2e8a727602f'),
     Uuid.fromString('00000000-0000-0000-0000-000000000000'),
   ];
+
   for (final pk in uuids) {
     testPrimaryKey(UuidPrimaryKey.schema, () => UuidPrimaryKey(pk), pk);
+  }
+
+  for (final pk in [null, ...uuids]) {
+    testPrimaryKey(NullableUuidPrimaryKey.schema, () => NullableUuidPrimaryKey(pk), pk);
   }
 
   test('Remapped property has correct names in Core', () {
@@ -378,7 +416,7 @@ Future<void> main([List<String>? args]) async {
     expect(json, contains('"property with spaces":{ "table": "class_myRemappedClass", "key": 0}'));
   });
 
-  test('RealmObject read/write bool value', () {
+  test('RealmObject read/write bool value with json', () {
     var config = Configuration.local([BoolValue.schema]);
     var realm = getRealm(config);
 
@@ -521,5 +559,47 @@ Future<void> main([List<String>? args]) async {
     final equals1 = realm.all<AllTypes>().query('dateProp = \$0', [date1]);
     expect(equals1.single.stringProp, equals('1'));
     expect(equals1.single.dateProp, equals(date1));
+  });
+
+  test('get/set all property types', () {
+    final config = Configuration.local([AllTypes.schema]);
+    final realm = getRealm(config);
+    
+    var date = DateTime.now().toUtc();
+    var objectId = ObjectId();
+    var uuid = Uuid.v4();
+
+    final object = realm.write(() {
+      return realm.add(AllTypes('cde', false, date, 0.1, objectId, uuid, 4));
+    });
+
+    expect(object.stringProp, 'cde');
+    expect(object.boolProp, false);
+    expect(object.dateProp, date);
+    expect(object.doubleProp, 0.1);
+    expect(object.objectIdProp, objectId);
+    expect(object.uuidProp, uuid);
+    expect(object.intProp, 4);
+
+    date = DateTime.now().add(Duration(days: 1)).toUtc();
+    objectId = ObjectId();
+    uuid = Uuid.v4();
+    realm.write(() {
+      object.stringProp = "abc";
+      object.boolProp = true;
+      object.dateProp = date;
+      object.doubleProp = 1.1;
+      object.objectIdProp = objectId;
+      object.uuidProp = uuid;
+      object.intProp = 5;
+    });
+
+    expect(object.stringProp, 'abc');
+    expect(object.boolProp, true);
+    expect(object.dateProp, date);
+    expect(object.doubleProp, 1.1);
+    expect(object.objectIdProp, objectId);
+    expect(object.uuidProp, uuid);
+    expect(object.intProp, 5);
   });
 }

@@ -2,11 +2,17 @@
 
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
+### Breaking Changes
+* Changed the name of `Configuration.schema` to `Configuration.schemaObjects` and changed its type to `Iterable<SchemaObject>`. You can now access the Realm's schema via the new `Realm.schema` property. [#495](https://github.com/realm/realm-dart/pull/495))
+
 ### Enhancements
-* None
+* Expose an API for string-based access to the objects in the `Realm`. Those are primarily intended to be used during migrations, but are available at all times for advanced use cases. [#495](https://github.com/realm/realm-dart/pull/495))
+* Added `Realm.schema` property exposing the Realm's schema as passed through the Configuration or read from disk. [#495](https://github.com/realm/realm-dart/pull/495))
+* Support `Realm.open` API to asynchronously open a synchronized Realm. It will download all remote content available at the time the operation began on a background thread and then return a usable Realm. ([#731](https://github.com/realm/realm-dart/pull/731))
 
 ### Fixed
-* None
+* Lifted a limitation that only allowed non-nullable primary keys. ([#458](https://github.com/realm/realm-dart/issues/458))
+* Fix boolean values get/set after ffigen update. ([#854](https://github.com/realm/realm-dart/pull/854))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
@@ -30,8 +36,6 @@
 * Support `Credentials.jwt` for login user with JWT issued by custom provider . ([#715](https://github.com/realm/realm-dart/pull/715))
 * Support `Credentials.function` for login user with Custom Function Authentication Provider. ([#742](https://github.com/realm/realm-dart/pull/742))
 * Added `update` flag on `Realm.add` and `Realm.addAll` to support upserts. ([#668](https://github.com/realm/realm-dart/pull/668))
-* Support `Realm.open` API to asynchronously open a synchronized Realm. It will download all remote content available at the time the operation began on a background thread and then return a usable Realm. ([#731](https://github.com/realm/realm-dart/pull/731))
-
 * Allow multiple anonymous sessions. ([PR #5693](https://github.com/realm/realm-core/pull/5693)).
 * Introducing query parser support for constant list expressions such as `fruit IN {'apple', 'orange'}`. This also includes general query support for list vs list matching such as `NONE fruits IN {'apple', 'orange'}`. ([Issue #4266](https://github.com/realm/realm-core/issues/4266))
 * SubscriptionSet::refresh() does less work if no commits have been made since the last call to refresh(). ([PR #5695](https://github.com/realm/realm-core/pull/5695))
