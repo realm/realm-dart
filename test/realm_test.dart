@@ -748,6 +748,36 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
+  baasTest('Realm open async, add data and get progress', (appConfiguration) async {
+    final app = App(appConfiguration);
+
+    final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final configuration1 = Configuration.flexibleSync(user1, [Task.schema], path: '${user1.id}.realm');
+    final realm1 = Realm(configuration1);
+    realm1.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm1.all<Task>()));
+    realm1.close();
+
+    final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final configuration2 = Configuration.flexibleSync(user2, [Task.schema], path: '${user2.id}.realm');
+    final realm2 = Realm(configuration2);
+    realm2.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm2.all<Task>()));
+    realm2.write(() {
+      for (var i = 0; i < 100; i++) {
+        realm2.add(Task(ObjectId()));
+      }
+    });
+    realm2.close();
+
+    final realmAsync1 = Realm.open(configuration1, onProgressCallback: (transferredBytes, totalBytes) {
+      print("transferredBytes: $transferredBytes, totalBytes:$totalBytes");
+    });
+    var syncedRealm = await realmAsync1;
+    if (syncedRealm != null) {
+      expect(syncedRealm.isClosed, false);
+      syncedRealm.close();
+    }
+  });
+
   baasTest('Realm open async and cancel', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();

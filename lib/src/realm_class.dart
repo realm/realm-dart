@@ -145,7 +145,8 @@ class Realm implements Finalizable {
 
     Completer<RealmHandle?> completer = Completer<RealmHandle?>();
     Future<Realm?> realmFuture = realmCore.openRealmAsync(realmAsyncOpenTaskHandle, completer).onError((error, stackTrace) {
-      throw RealmException(error.toString());
+      print(error);
+      return null;
     }).then((handle) {
       if (progressToken > 0) {
         realmCore.realmAsyncOpenUnregisterProgressNotifier(realmAsyncOpenTaskHandle, progressToken);
