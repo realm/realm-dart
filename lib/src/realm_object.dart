@@ -18,7 +18,6 @@
 
 import 'dart:async';
 import 'dart:ffi';
-import 'dart:mirrors';
 
 import 'list.dart';
 import 'native/realm_core.dart';
@@ -290,10 +289,21 @@ mixin RealmObject on RealmEntity implements Finalizable {
     return controller.createStream();
   }
 
+  // invocation.memberName in noSuchMethod is a Symbol, which hides its _name field. The idiomatic
+  // way to obtain it is via Mirrors, which is not not available in Flutter. Symbol.toString returns
+  // Symbole("name"), so we use a simple regex to extract the symbol name. This is a bit fragile, but
+  // is the approach used by the Flutter team as well: https://github.com/dart-lang/sdk/issues/28372
+  static final RegExp _symbolRegex = RegExp('Symbol\\("(?<symbolName>.*)"\\)');
+
   @override
   DartDynamic noSuchMethod(Invocation invocation) {
     if (invocation.isGetter) {
-      final name = MirrorSystem.getName(invocation.memberName);
+      final name = _symbolRegex.firstMatch(invocation.memberName.toString())?.namedGroup("symbolName");
+      if (name == null) {
+        throw RealmError(
+            "Could not find symbol name for ${invocation.memberName}. This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues");
+      }
+
       return get(this, name);
     }
 
