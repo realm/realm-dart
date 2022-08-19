@@ -1,6 +1,6 @@
 name: realm_example
 description: Demonstrates how to use the Realm SDK for Flutter.
-version: 0.3.2+beta
+version: 0.3.3+beta
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.

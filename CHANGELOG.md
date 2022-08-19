@@ -1,9 +1,6 @@
-## vNext (TBD)
+## 0.3.3+beta (2022-08-19)
 
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
-
-### Enhancements
-* None
 
 ### Fixed
 * Lifted a limitation that only allowed non-nullable primary keys. ([#458](https://github.com/realm/realm-dart/issues/458))
