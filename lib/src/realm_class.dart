@@ -19,9 +19,9 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
-
 import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
+import 'package:async/async.dart';
 
 import 'configuration.dart';
 import 'list.dart';
@@ -102,26 +102,59 @@ class Realm implements Finalizable {
   /// A method for asynchronously obtaining and opening a [Realm].
   ///
   /// If the configuration is [FlexibleSyncConfiguration], the realm will be downloaded and fully
-  /// synchronized with the server prior to the completion of the returned [RealmAsyncOpenTask].
+  /// synchronized with the server prior to the completion of the returned [Future].
   /// Otherwise this method will throw an exception.
   ///
   /// Open realm async arguments are:
   /// * `config`- a configuration object that describes the realm.
+  /// * `cancelationController` - an initialized object of [RealmCancelationController] that is used to cancel the operation. It is not mandatory.
   /// * `onProgressCallback` - a function that is registered as a callback for receiving download progress notifications. It is not mandatory.
   ///
-  /// The returned task has an awaitable [RealmAsyncOpenTask.realm] future that is completed once the remote realm is fully synchronized.
-  /// It provides a method [RealmAsyncOpenTask.cancel] that cancels any current running download.
-  static RealmAsyncOpenTask open(Configuration config, {ProgressCallback? onProgressCallback}) {
+  /// The returned type is [Future<Realm?>] that is completed once the remote realm is fully synchronized or canceled.
+  /// [RealmCancelationController] provides method [cancel] that cancels any current running download.
+  /// If multiple [Realm.open] operations are all in the progress for the same Realm,
+  /// then canceling one of them will cancel all of them.
+  static Future<Realm?> open(Configuration config, {RealmCancelationController? cancelationController, ProgressCallback? onProgressCallback}) {
     _createFileDirectory(config.path);
+
+    if (cancelationController != null) {
+      if (cancelationController._canceledCalled) {
+        return Future<Realm?>.value(null);
+      }
+      if (cancelationController._opration != null) {
+        throw RealmException("RealmCancelableOperation is already in use.");
+      }
+    }
+
     RealmAsyncOpenTaskHandle realmAsyncOpenTaskHandle = realmCore.createRealmAsyncOpenTask(config);
-    final completer = Completer<RealmHandle?>();
-    Future<Realm?> realm = realmCore.openRealmAsync(realmAsyncOpenTaskHandle, completer).onError((error, stackTrace) {
-      print(error);
-      return null;
+
+    int progressToken = 0;
+    if (onProgressCallback != null) {
+      progressToken = realmCore.realmAsyncOpenRegisterProgressNotifier(realmAsyncOpenTaskHandle, onProgressCallback);
+    }
+
+    Completer<RealmHandle?> completer = Completer<RealmHandle?>();
+    Future<Realm?> realmFuture = realmCore.openRealmAsync(realmAsyncOpenTaskHandle, completer).onError((error, stackTrace) {
+      throw RealmException(error.toString());
     }).then((handle) {
+      if (progressToken > 0) {
+        realmCore.realmAsyncOpenUnregisterProgressNotifier(realmAsyncOpenTaskHandle, progressToken);
+      }
+      cancelationController?._opration = null;
       return handle != null ? Realm._(config, handle) : null;
     });
-    return RealmAsyncOpenTask._(realmAsyncOpenTaskHandle, config, realm, onProgressCallback, completer);
+
+    var cancelableOperation = CancelableOperation.fromFuture(realmFuture, onCancel: () {
+      if (!completer.isCompleted) {
+        realmCore.cancelRealmAsyncOpenTask(realmAsyncOpenTaskHandle);
+        completer.complete(null);
+      }
+    });
+
+    cancelationController?._opration = cancelableOperation;
+    if (cancelationController != null && cancelationController._canceledCalled) cancelationController.cancel();
+
+    return cancelableOperation.valueOrCancellation(null);
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
@@ -527,7 +560,7 @@ class RealmLogLevel {
 }
 
 /// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].
-/// This is the registered callback [onProgressCallback] to receive progress notifications while the download is in progress.
+/// This is the registered callback onProgressCallback to receive progress notifications while the download is in progress.
 ///
 /// It is called with the following arguments:
 /// * `transferredBytes` - the current number of bytes already transferred
@@ -535,55 +568,22 @@ class RealmLogLevel {
 /// {@category Realm}
 typedef ProgressCallback = void Function(int transferredBytes, int totalBytes);
 
-/// Represents a task object which can be used to await for a realm to open asynchronously or to cancel opening.
+/// Represents an object containing [CancelableOperation] that allows a [Future] operations to be canceled.
 ///
-/// When a [Realm] with [FlexibleSyncConfiguration] is opened asynchronously,
-/// the latest state of the Realm is downloaded from the server before the completion callback is invoked.
-/// This task object can be used to await the download process to complete or to cancel downloading.
-/// A download progress notifier is registered is case of having [ProgressCallback],
-/// which allows you to observe the state of the download progress.
-/// Once the process completes the download progress notifier is unregistered.
+/// Provides a method cancel that canceles the initiated [CancelableOperation].
+/// The [CancelableOperation] is initiated internaly by the Future method that this object is passed to as an argument.
 ///
 /// {@category Realm}
-class RealmAsyncOpenTask {
-  final RealmAsyncOpenTaskHandle _handle;
-  final Configuration _config;
-  final Future<Realm?> _realm;
-  late int _progressToken;
-  final ProgressCallback? _progressCallback;
-  final Completer<RealmHandle?> _completer;
+class RealmCancelationController {
+  bool _canceledCalled = false;
 
-  RealmAsyncOpenTask._(this._handle, this._config, this._realm, this._progressCallback, this._completer) {
-    if (_progressCallback != null) {
-      _progressToken = realmCore.realmAsyncOpenRegisterProgressNotifier(this);
-    }
-  }
+  CancelableOperation<Realm?>? _opration;
 
-  RealmAsyncOpenTaskHandle get handle => _handle;
-
-  /// This is the registered callback to receive progress notifications
-  /// while the download is in progress.
-  ProgressCallback? get progressCallback => _progressCallback;
-
-  /// The configuration object that describes the realm.
-  Configuration get config => _config;
-
-  /// An awaitable future that is completed once
-  /// the remote realm is fully synchronized or download is canceled.
-  /// Returns null when the process is canceled.
-  Future<Realm?> get realm => _realm.whenComplete(() {
-        if (progressCallback != null) {
-          realmCore.realmAsyncOpenUnregisterProgressNotifier(_handle, _progressToken);
-        }
-      });
-
-  /// Cancels any current running download.
-  /// If multiple [RealmAsyncOpenTask] are all in the progress for the same Realm,
-  /// then canceling one of them will cancel all of them.
+  /// Cancels any running operation.
   void cancel() {
-    realmCore.cancelRealmAsyncOpenTask(_handle);
-    if (!_completer.isCompleted) {
-      _completer.complete(null);
+    if (_opration != null) {
+      _opration!.cancel();
     }
+    _canceledCalled = true;
   }
 }

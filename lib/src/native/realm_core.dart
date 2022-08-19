@@ -1681,12 +1681,15 @@ class _RealmCore {
     return completer.future;
   }
 
-  static void _openRealmAsyncCallback(Handle userdata, Pointer<realm_thread_safe_reference_t> realm, Pointer<realm_async_error_t> errorCode) {
+  static void _openRealmAsyncCallback(Handle userdata, Pointer<realm_thread_safe_reference_t> realm, Pointer<realm_async_error> error) {
     final completer = userdata as Completer<RealmHandle?>;
-    if (errorCode != nullptr) {
-      {
-        completer.completeError(RealmException(errorCode.toString()));
-      }
+    if (error != nullptr) {
+      using((Arena arena) {
+        final out_error = arena<realm_error>();
+        _realmLib.realm_get_async_error(error, out_error);
+        final message = out_error.ref.message.cast<Utf8>().toRealmDartString();
+        completer.completeError(RealmException(message!));
+      });
     } else {
       final realmPtr =
           _realmLib.invokeGetPointer(() => _realmLib.realm_from_thread_safe_reference(realm, scheduler.handle._pointer), "Error opening synchronized realm");
@@ -1720,17 +1723,15 @@ class _RealmCore {
   }
 
   static void _realmAsyncOpenRegisterProgressNotifierCallback(Handle userdata, int transferredBytes, int totalBytes) {
-    final realmAsyncOpenTask = userdata as RealmAsyncOpenTask;
-    if (realmAsyncOpenTask.progressCallback != null) {
-      realmAsyncOpenTask.progressCallback!(transferredBytes, totalBytes);
-    }
+    final progressCallback = userdata as void Function(int transferredBytes, int totalBytes);
+    progressCallback(transferredBytes, totalBytes);
   }
 
-  int realmAsyncOpenRegisterProgressNotifier(RealmAsyncOpenTask task) {
+  int realmAsyncOpenRegisterProgressNotifier(RealmAsyncOpenTaskHandle handle, void Function(int transferredBytes, int totalBytes) progressCallback) {
     final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64)>(_realmAsyncOpenRegisterProgressNotifierCallback);
-    final userdata = _realmLib.realm_dart_userdata_async_new(task, callback.cast(), scheduler.handle._pointer);
+    final userdata = _realmLib.realm_dart_userdata_async_new(progressCallback, callback.cast(), scheduler.handle._pointer);
     return _realmLib.realm_async_open_task_register_download_progress_notifier(
-        task.handle._pointer, _realmLib.addresses.realm_dart_sync_progress_callback, userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
+        handle._pointer, _realmLib.addresses.realm_dart_sync_progress_callback, userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
   }
 
   void realmAsyncOpenUnregisterProgressNotifier(RealmAsyncOpenTaskHandle handle, int token) {
