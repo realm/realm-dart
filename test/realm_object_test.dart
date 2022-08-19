@@ -378,7 +378,7 @@ Future<void> main([List<String>? args]) async {
     expect(json, contains('"property with spaces":{ "table": "class_myRemappedClass", "key": 0}'));
   });
 
-  test('RealmObject read/write bool value', () {
+  test('RealmObject read/write bool value with json', () {
     var config = Configuration.local([BoolValue.schema]);
     var realm = getRealm(config);
 
@@ -521,5 +521,47 @@ Future<void> main([List<String>? args]) async {
     final equals1 = realm.all<AllTypes>().query('dateProp = \$0', [date1]);
     expect(equals1.single.stringProp, equals('1'));
     expect(equals1.single.dateProp, equals(date1));
+  });
+
+  test('get/set all property types', () {
+    final config = Configuration.local([AllTypes.schema]);
+    final realm = getRealm(config);
+    
+    var date = DateTime.now().toUtc();
+    var objectId = ObjectId();
+    var uuid = Uuid.v4();
+
+    final object = realm.write(() {
+      return realm.add(AllTypes('cde', false, date, 0.1, objectId, uuid, 4));
+    });
+
+    expect(object.stringProp, 'cde');
+    expect(object.boolProp, false);
+    expect(object.dateProp, date);
+    expect(object.doubleProp, 0.1);
+    expect(object.objectIdProp, objectId);
+    expect(object.uuidProp, uuid);
+    expect(object.intProp, 4);
+
+    date = DateTime.now().add(Duration(days: 1)).toUtc();
+    objectId = ObjectId();
+    uuid = Uuid.v4();
+    realm.write(() {
+      object.stringProp = "abc";
+      object.boolProp = true;
+      object.dateProp = date;
+      object.doubleProp = 1.1;
+      object.objectIdProp = objectId;
+      object.uuidProp = uuid;
+      object.intProp = 5;
+    });
+
+    expect(object.stringProp, 'abc');
+    expect(object.boolProp, true);
+    expect(object.dateProp, date);
+    expect(object.doubleProp, 1.1);
+    expect(object.objectIdProp, objectId);
+    expect(object.uuidProp, uuid);
+    expect(object.intProp, 5);
   });
 }
