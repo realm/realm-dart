@@ -787,6 +787,27 @@ Future<void> main([List<String>? args]) async {
     expect(() async => await realm2, throws<RealmException>("operation canceled"));
   });
 
+  baasTest('Realm open async to different Realms and cancel only the first', (appConfiguration) async {
+    final app = App(appConfiguration);
+
+    final user1 = await app.logIn(Credentials.anonymous());
+    final configuration1 = Configuration.flexibleSync(user1, [Task.schema], path: '${user1.id}.realm');
+    var cancelationController1 = RealmCancelationController();
+    final realm1 = Realm.open(configuration1, cancelationController: cancelationController1);
+
+    final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final configuration2 = Configuration.flexibleSync(user2, [Task.schema], path: '${user2.id}.realm');
+    var cancelationController2 = RealmCancelationController();
+    final realm2 = Realm.open(configuration2, cancelationController: cancelationController2);
+
+    cancelationController1.cancel();
+
+    expect(await realm1, isNull);
+    var realm = await realm2;
+    expect(realm, isNotNull);
+    realm!.close();
+  });
+
   baasTest('RealmCancelableOperation.cancel before initialization also cancel the operation', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
