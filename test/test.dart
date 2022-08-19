@@ -114,6 +114,23 @@ class _AllTypes {
   late ObjectId objectIdProp;
   late Uuid uuidProp;
   late int intProp;
+
+  late String? nullableStringProp;
+  late bool? nullableBoolProp;
+  late DateTime? nullableDateProp;
+  late double? nullableDoubleProp;
+  late ObjectId? nullableObjectIdProp;
+  late Uuid? nullableUuidProp;
+  late int? nullableIntProp;
+}
+
+@RealmModel()
+class _LinksClass {
+  @PrimaryKey()
+  late Uuid id;
+
+  late _LinksClass? link;
+  late List<_LinksClass> list;
 }
 
 @RealmModel()
@@ -208,6 +225,11 @@ enum AppNames {
 
   emailConfirm,
 }
+
+const int maxInt = 9223372036854775807;
+const int minInt = -9223372036854775808;
+const int jsMaxInt = 9007199254740991;
+const int jsMinInt = -9007199254740991;
 
 //Overrides test method so we can filter tests
 void test(String name, dynamic Function() testFunction, {dynamic skip}) {

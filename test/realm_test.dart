@@ -19,10 +19,8 @@
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
 import 'dart:io';
-import 'dart:math';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
-
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -716,10 +714,10 @@ Future<void> main([List<String>? args]) async {
     expect(dan.friends, [alice, bob, carol]);
     expect(danAgain.isManaged, isFalse); // dan wasn't updated
   });
-  
-    test('Realm open async with local configuration throws', () async {
+
+  test('Realm open async with local configuration throws', () async {
     var config = Configuration.local([Car.schema, Person.schema]);
-    expect(() async => await Realm.open(config).realm, throws<RealmException>("This method is only available for fully synchronized Realms"));
+    expect(() async => await Realm.open(config), throws<RealmException>("This method is only available for fully synchronized Realms"));
   });
 
   baasTest('Realm open async', (appConfiguration) async {
@@ -728,8 +726,7 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-    final realmTask = Realm.open(configuration);
-    final realm = await realmTask.realm;
+    final realm = await Realm.open(configuration);
     if (realm != null) {
       expect(realm.isClosed, false);
       realm.close();
@@ -742,13 +739,42 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-    final realmTask = Realm.open(configuration, onProgressCallback: (transferredBytes, totalBytes) {
+    final realm = await Realm.open(configuration, onProgressCallback: (transferredBytes, totalBytes) {
       print("transferredBytes: $transferredBytes, totalBytes:$totalBytes");
     });
-    final realm = await realmTask.realm;
     if (realm != null) {
       expect(realm.isClosed, false);
       realm.close();
+    }
+  });
+
+  baasTest('Realm open async, add data and get progress', (appConfiguration) async {
+    final app = App(appConfiguration);
+
+    final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final configuration1 = Configuration.flexibleSync(user1, [Task.schema], path: '${user1.id}.realm');
+    final realm1 = Realm(configuration1);
+    realm1.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm1.all<Task>()));
+    realm1.close();
+
+    final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final configuration2 = Configuration.flexibleSync(user2, [Task.schema], path: '${user2.id}.realm');
+    final realm2 = Realm(configuration2);
+    realm2.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm2.all<Task>()));
+    realm2.write(() {
+      for (var i = 0; i < 100; i++) {
+        realm2.add(Task(ObjectId()));
+      }
+    });
+    realm2.close();
+
+    final realmAsync1 = Realm.open(configuration1, onProgressCallback: (transferredBytes, totalBytes) {
+      print("transferredBytes: $transferredBytes, totalBytes:$totalBytes");
+    });
+    var syncedRealm = await realmAsync1;
+    if (syncedRealm != null) {
+      expect(syncedRealm.isClosed, false);
+      syncedRealm.close();
     }
   });
 
@@ -758,9 +784,22 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-    final realmTask = Realm.open(configuration);
-    realmTask.cancel();
-    expect(await realmTask.realm, isNull);
+    var cancelationController = RealmCancelationController();
+    final realm = Realm.open(configuration, cancelationController: cancelationController);
+    cancelationController.cancel();
+    expect(await realm, isNull);
+  });
+
+  baasTest('Realm open async with the same cancelationController throws', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    final configuration = Configuration.flexibleSync(user, [Task.schema]);
+
+    var cancelationController = RealmCancelationController();
+    final realm1 = Realm.open(configuration, cancelationController: cancelationController);
+    expect(() => Realm.open(configuration, cancelationController: cancelationController), throws<RealmException>("RealmCancelableOperation is already in use"));
+    (await realm1)!.close();
   });
 
   baasTest('Realm open async many times and cancel once', (appConfiguration) async {
@@ -769,15 +808,62 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-    final realmTaskFirst = Realm.open(configuration);
-    final realmTaskSecond = Realm.open(configuration);
-    realmTaskFirst.cancel();
-    expect(await realmTaskFirst.realm, isNull);
-    expect(await realmTaskSecond.realm, isNull);
+    var cancelationController1 = RealmCancelationController();
+    final realm1 = Realm.open(configuration, cancelationController: cancelationController1);
+    var cancelationController2 = RealmCancelationController();
+    final realm2 = Realm.open(configuration, cancelationController: cancelationController2);
+    cancelationController1.cancel();
+    expect(await realm1, isNull);
+    expect(await realm2, isNull);
+  });
+
+  baasTest('Realm open async to different Realms and cancel only the first', (appConfiguration) async {
+    final app = App(appConfiguration);
+
+    final user1 = await app.logIn(Credentials.anonymous());
+    final configuration1 = Configuration.flexibleSync(user1, [Task.schema], path: '${user1.id}.realm');
+    var cancelationController1 = RealmCancelationController();
+    final realm1 = Realm.open(configuration1, cancelationController: cancelationController1);
+
+    final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final configuration2 = Configuration.flexibleSync(user2, [Task.schema], path: '${user2.id}.realm');
+    var cancelationController2 = RealmCancelationController();
+    final realm2 = Realm.open(configuration2, cancelationController: cancelationController2);
+
+    cancelationController1.cancel();
+
+    expect(await realm1, isNull);
+    var realm = await realm2;
+    expect(realm, isNotNull);
+    realm!.close();
+  });
+
+  baasTest('RealmCancelableOperation.cancel before initialization also cancel the operation', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    final configuration = Configuration.flexibleSync(user, [Task.schema]);
+
+    var cancelationController = RealmCancelationController();
+    cancelationController.cancel();
+    final realm = await Realm.open(configuration, cancelationController: cancelationController);
+    expect(realm, isNull);
+  });
+
+  baasTest('RealmCancelableOperation.cancel after realm is obtained', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    final configuration = Configuration.flexibleSync(user, [Task.schema]);
+
+    var cancelationController = RealmCancelationController();
+    final realm = await Realm.open(configuration, cancelationController: cancelationController);
+    expect(realm, isNotNull);
+    cancelationController.cancel();
+    realm!.close();
   });
 }
 
 extension _IterableEx<T> on Iterable<T> {
   Iterable<T> except(T exclude) => where((o) => o != exclude);
-
 }
