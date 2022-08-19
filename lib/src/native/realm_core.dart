@@ -2053,7 +2053,7 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_INT:
         return ref.values.integer;
       case realm_value_type.RLM_TYPE_BOOL:
-        return ref.values.boolean != 0;
+        return ref.values.boolean;
       case realm_value_type.RLM_TYPE_STRING:
         return ref.values.string.data.cast<Utf8>().toRealmDartString(length: ref.values.string.size)!;
       case realm_value_type.RLM_TYPE_FLOAT:

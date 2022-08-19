@@ -7,6 +7,7 @@
 
 ### Fixed
 * Lifted a limitation that only allowed non-nullable primary keys. ([#458](https://github.com/realm/realm-dart/issues/458))
+* Fix boolean values get/set after ffigen update. ([#854](https://github.com/realm/realm-dart/pull/854))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
