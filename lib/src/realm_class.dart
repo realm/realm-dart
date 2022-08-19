@@ -105,7 +105,7 @@ class Realm implements Finalizable {
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
-   Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? _openRealmSync(config) {
+  Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? _openRealmSync(config) {
     _populateMetadata();
   }
 
@@ -620,17 +620,9 @@ class DynamicRealm {
     final accessor = RealmCoreAccessor(metadata);
     return RealmObjectInternal.create(RealmObject, _realm, handle, accessor);
   }
-  
-  /// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].
-  /// This is the registered callback [onProgressCallback] to receive progress notifications while the download is in progress.
-  ///
-  /// It is called with the following arguments:
-  /// * `transferredBytes` - the current number of bytes already transferred
-  /// * `totalBytes` - the total number of transferable bytes (the number of bytes already transferred plus the number of bytes pending transfer)
-  /// {@category Realm}
-  typedef ProgressCallback = void Function(int transferredBytes, int totalBytes);
+}
 
-  /// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].
+/// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].
 /// This is the registered callback onProgressCallback to receive progress notifications while the download is in progress.
 ///
 /// It is called with the following arguments:
