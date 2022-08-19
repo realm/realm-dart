@@ -814,7 +814,7 @@ Future<void> main([List<String>? args]) async {
     final realm2 = Realm.open(configuration, cancelationController: cancelationController2);
     cancelationController1.cancel();
     expect(await realm1, isNull);
-    expect(() async => await realm2, throws<RealmException>("operation canceled"));
+    expect(await realm2, isNull);
   });
 
   baasTest('Realm open async to different Realms and cancel only the first', (appConfiguration) async {
