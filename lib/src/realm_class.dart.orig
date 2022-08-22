@@ -106,9 +106,6 @@ class Realm implements Finalizable {
   Realm(Configuration config) : this._(config);
 
   Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? _openRealmSync(config) {
-    if (config is FlexibleSyncConfiguration) {
-      (config as FlexibleSyncConfiguration).initialSubscriptionsConfiguration?.callback(this);
-    }
     _populateMetadata();
   }
 
@@ -151,10 +148,16 @@ class Realm implements Finalizable {
       print(error);
       return null;
     }).then((handle) {
+<<<<<<< HEAD
+      // if (config.initialSubscriptionsConfiguration != null && config.initialSubscriptionsConfiguration!.rerunOnOpen) {
+      //   config.initialSubscriptionsConfiguration!.callback();
+      // }
+=======
       if (progressToken > 0) {
         realmCore.realmAsyncOpenUnregisterProgressNotifier(realmAsyncOpenTaskHandle, progressToken);
       }
       cancelationController?._opration = null;
+>>>>>>> ds/open_realm_async
       return handle != null ? Realm._(config, handle) : null;
     });
 

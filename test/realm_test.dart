@@ -21,6 +21,7 @@
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
+import '../lib/src/configuration.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -862,6 +863,28 @@ Future<void> main([List<String>? args]) async {
     cancelationController.cancel();
     realm!.close();
   });
+
+  baasTest('Realm open async with initial subscriptions and get progress', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+
+    var initalSubscriptions = InitialSubscriptionsConfiguration((realm) {
+      realm.subscriptions.update((mutableSubscriptions) {
+        mutableSubscriptions.add(realm.all<Task>());
+      });
+    }, rerunOnOpen: true);
+
+    final configuration = Configuration.flexibleSync(user, [Task.schema], initialSubscriptionsConfiguration: initalSubscriptions);
+
+    final realm = await Realm.open(configuration, onProgressCallback: (transferredBytes, totalBytes) {
+      print("transferredBytes: $transferredBytes, totalBytes:$totalBytes");
+    });
+    if (realm != null) {
+      expect(realm.isClosed, false);
+      realm.close();
+    }
+  }, skip: "Not working");
 }
 
 extension _IterableEx<T> on Iterable<T> {

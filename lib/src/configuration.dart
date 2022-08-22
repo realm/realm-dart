@@ -51,7 +51,6 @@ typedef InitialDataCallback = void Function(Realm realm);
 /// {@category Configuration}
 
 abstract class Configuration implements Finalizable {
-
   /// The default realm filename to be used.
   static String get defaultRealmName => _path.basename(defaultRealmPath);
   static set defaultRealmName(String name) => defaultRealmPath = _path.join(_path.dirname(defaultRealmPath), _path.basename(name));
@@ -376,9 +375,9 @@ class SyncClientResetErrorHandler {
 typedef ManualSyncClientResetHandler = SyncClientResetErrorHandler;
 
 class InitialSubscriptionsConfiguration {
-  final void Function() callback;
+  final void Function(Realm) callback;
 
-  final bool rerunOnOpen = false;
+  final bool rerunOnOpen;
 
-  const InitialSubscriptionsConfiguration(this.callback);
+  const InitialSubscriptionsConfiguration(this.callback, {this.rerunOnOpen = false});
 }
