@@ -753,13 +753,13 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
 
     final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final configuration1 = Configuration.flexibleSync(user1, [Task.schema], path: '${user1.id}.realm');
+    final configuration1 = Configuration.flexibleSync(user1, [Task.schema], path: '${Configuration.defaultStoragePath}/${user1.id}.realm');
     final realm1 = Realm(configuration1);
     realm1.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm1.all<Task>()));
     realm1.close();
 
     final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final configuration2 = Configuration.flexibleSync(user2, [Task.schema], path: '${user2.id}.realm');
+    final configuration2 = Configuration.flexibleSync(user2, [Task.schema], path: '${Configuration.defaultStoragePath}/${user2.id}.realm');
     final realm2 = Realm(configuration2);
     realm2.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm2.all<Task>()));
     realm2.write(() {
@@ -822,12 +822,12 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
 
     final user1 = await app.logIn(Credentials.anonymous());
-    final configuration1 = Configuration.flexibleSync(user1, [Task.schema], path: '${user1.id}.realm');
+    final configuration1 = Configuration.flexibleSync(user1, [Task.schema], path: '${Configuration.defaultStoragePath}/${user1.id}.realm');
     var cancelationController1 = RealmCancelationController();
     final realm1 = Realm.open(configuration1, cancelationController: cancelationController1);
 
     final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final configuration2 = Configuration.flexibleSync(user2, [Task.schema], path: '${user2.id}.realm');
+    final configuration2 = Configuration.flexibleSync(user2, [Task.schema], path: '${Configuration.defaultStoragePath}/${user2.id}.realm');
     var cancelationController2 = RealmCancelationController();
     final realm2 = Realm.open(configuration2, cancelationController: cancelationController2);
 
