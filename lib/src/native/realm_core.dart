@@ -693,6 +693,12 @@ class _RealmCore {
     });
   }
 
+  void removeType(Realm realm, String objectType) {
+    using((Arena arena) {
+      // TODO: this does not work since there's no Core API to remove types. https://github.com/realm/realm-core/issues/5766
+    });
+  }
+
   void deleteRealmObject(RealmObject object) {
     _realmLib.invokeGetBool(() => _realmLib.realm_object_delete(object.handle._pointer));
   }

@@ -280,4 +280,79 @@ Future<void> main([List<String>? args]) async {
     expect(() => getRealm(renameNonExistentClassClass),
         throws<UserCallbackException>("Cannot rename properties for type 'non-existent' because it does not exist"));
   });
+
+  test('Migration error in callback gets propagated correctly', () {
+    final v1Config = Configuration.local([Person.schema], schemaVersion: 1);
+    final v1Realm = getRealm(v1Config);
+    v1Realm.close();
+
+    final userError = Exception('this is a user error');
+
+    final v2Config = Configuration.local([Person.schema], schemaVersion: 2, migrationCallback: (migration, oldSchemaVersion) {
+      throw userError;
+    });
+
+    expect(() => getRealm(v2Config), throwsA(isA<UserCallbackException>().having((error) => error.userException, 'userException', userError)));
+  });
+
+  test('Migration when type is not removed table remains', () {
+    final v1Config = Configuration.local([Person.schema, Dog.schema], schemaVersion: 1);
+    final v1Realm = getRealm(v1Config);
+    v1Realm.write(() {
+      v1Realm.add(Dog('Fido'));
+      v1Realm.add(Person('Peter'));
+    });
+
+    v1Realm.close();
+
+    final v2Config = Configuration.local([Person.schema], schemaVersion: 2, migrationCallback: (migration, oldSchemaVersion) {
+      // We remove the Dog type from the list of types, but don't explicitly delete the table.
+      // Core will not remove it automatically, so it will still be there, even if it's invisible
+      // when opening the Realm with a specific schema.
+      expect(migration.oldRealm.schema.length, 2);
+      expect(migration.newRealm.schema.length, 1);
+    });
+
+    final v2Realm = getRealm(v2Config);
+    expect(v2Realm.schema.length, 1);
+    v2Realm.close();
+
+    // We reopen the Realm as dynamic - the schema will be read from disk and the Dog type should still be there.
+    final dynamicConfig = Configuration.local([], schemaVersion: 2);
+    final dynamicRealm = getRealm(dynamicConfig);
+
+    expect(dynamicRealm.schema.length, 2);
+
+    final dogs = dynamicRealm.dynamic.all('Dog');
+    expect(dogs.length, 1);
+    expect(dogs[0].dynamic.get<String>('name'), 'Fido');
+  });
+
+  test('Migration when type is removed table is removed as well', () {
+    final v1Config = Configuration.local([Person.schema, Dog.schema], schemaVersion: 1);
+    final v1Realm = getRealm(v1Config);
+    v1Realm.write(() {
+      v1Realm.add(Dog('Fido'));
+      v1Realm.add(Person('Peter'));
+    });
+
+    v1Realm.close();
+
+    final v2Config = Configuration.local([Person.schema], schemaVersion: 2, migrationCallback: (migration, oldSchemaVersion) {
+      expect(migration.oldRealm.schema.length, 2);
+      expect(migration.newRealm.schema.length, 1);
+
+      migration.removeType('Dog');
+    });
+
+    final v2Realm = getRealm(v2Config);
+    expect(v2Realm.schema.length, 1);
+    v2Realm.close();
+
+    // We reopen the Realm as dynamic - the schema will be read from disk and the Dog type should be gone because we explicitly removed it
+    final dynamicConfig = Configuration.local([], schemaVersion: 2);
+    final dynamicRealm = getRealm(dynamicConfig);
+
+    expect(dynamicRealm.schema.length, 1);
+  }, skip: 'This is blocked on removeType being implementable in the C API: https://github.com/realm/realm-core/issues/5766');
 }

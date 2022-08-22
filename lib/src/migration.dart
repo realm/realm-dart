@@ -46,6 +46,10 @@ class Migration {
   void renameProperty(String className, String oldPropertyName, String newPropertyName) {
     realmCore.renameProperty(newRealm, className, oldPropertyName, newPropertyName, _schema);
   }
+
+  void removeType(String className) {
+    realmCore.removeType(newRealm, className);
+  }
 }
 
 /// @nodoc
