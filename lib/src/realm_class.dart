@@ -76,7 +76,7 @@ export "configuration.dart"
 
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
-export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges, DynamicRealmObject;
+export 'realm_object.dart' show RealmEntity, RealmException, UserCallbackException, RealmObject, RealmObjectChanges, DynamicRealmObject;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
@@ -89,6 +89,7 @@ export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirec
 class Realm implements Finalizable {
   late final RealmMetadata _metadata;
   late final RealmHandle _handle;
+  final bool _isInMigration;
 
   /// An object encompassing this `Realm` instance's dynamic API.
   late final DynamicRealm dynamic = DynamicRealm._(this);
@@ -104,7 +105,7 @@ class Realm implements Finalizable {
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
-  Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? _openRealm(config) {
+  Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) : _handle = handle ?? _openRealm(config) {
     _populateMetadata();
   }
 
@@ -170,7 +171,7 @@ class Realm implements Finalizable {
     final metadata = _metadata.getByType(object.runtimeType);
     final handle = _createObject(object, metadata, update);
 
-    final accessor = RealmCoreAccessor(metadata);
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
     object.manage(this, handle, accessor, update);
 
     return object;
@@ -266,7 +267,7 @@ class Realm implements Finalizable {
       return null;
     }
 
-    final accessor = RealmCoreAccessor(metadata);
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
     var object = RealmObjectInternal.create(T, this, handle, accessor);
     return object as T;
   }
@@ -380,12 +381,12 @@ extension RealmInternal on Realm {
 
   RealmHandle get handle => _handle;
 
-  static Realm getUnowned(Configuration config, RealmHandle handle) {
-    return Realm._(config, handle);
+  static Realm getUnowned(Configuration config, RealmHandle handle, {bool isInMigration = false}) {
+    return Realm._(config, handle, isInMigration);
   }
 
   RealmObject createObject(Type type, RealmObjectHandle handle, RealmObjectMetadata metadata) {
-    final accessor = RealmCoreAccessor(metadata);
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
     return RealmObjectInternal.create(type, this, handle, accessor);
   }
 
@@ -554,7 +555,7 @@ class DynamicRealm {
       return null;
     }
 
-    final accessor = RealmCoreAccessor(metadata);
+    final accessor = RealmCoreAccessor(metadata, _realm._isInMigration);
     return RealmObjectInternal.create(RealmObject, _realm, handle, accessor);
   }
 }

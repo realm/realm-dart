@@ -42,6 +42,7 @@ import '../subscription.dart';
 import '../user.dart';
 import '../session.dart';
 import 'realm_bindings.dart';
+import '../migration.dart';
 
 late RealmLibrary _realmLib;
 
@@ -80,14 +81,23 @@ class _RealmCore {
     }
 
     final message = error.ref.message.cast<Utf8>().toRealmDartString();
+    Object? userError;
+    if (error.ref.usercode_error != nullptr) {
+      userError = error.ref.usercode_error.toObject(isPersistent: true);
+      _realmLib.realm_dart_delete_persistent_handle(error.ref.usercode_error);
+    }
 
-    return LastError(error.ref.error, message);
+    return LastError(error.ref.error, message, userError);
   }
 
   void throwLastError([String? errorMessage]) {
     using((Arena arena) {
       final lastError = getLastError(arena);
-      throw RealmException('${errorMessage != null ? errorMessage + ". " : ""}${lastError ?? ""}');
+      if (lastError?.userError != null) {
+        throw UserCallbackException(lastError!.userError!);
+      }
+
+      throw RealmException('${errorMessage != null ? "$errorMessage. " : ""}${lastError ?? ""}');
     });
   }
 
@@ -186,6 +196,9 @@ class _RealmCore {
             config.toWeakHandle(),
             nullptr,
           );
+        }
+        if (config.migrationCallback != null) {
+          _realmLib.realm_config_set_migration_function(configHandle._pointer, Pointer.fromFunction(migration_callback, false), config.toWeakHandle(), nullptr);
         }
       } else if (config is InMemoryConfiguration) {
         _realmLib.realm_config_set_in_memory(configHandle._pointer, true);
@@ -416,6 +429,29 @@ class _RealmCore {
     return config.shouldCompactCallback!(totalSize, usedSize);
   }
 
+  static bool migration_callback(
+      Pointer<Void> userdata, Pointer<shared_realm> oldRealmHandle, Pointer<shared_realm> newRealmHandle, Pointer<realm_schema> schema) {
+    try {
+      final LocalConfiguration? config = userdata.toObject();
+      if (config == null) {
+        return false;
+      }
+
+      final oldSchemaVersion = _realmLib.realm_get_schema_version(oldRealmHandle);
+      final oldConfig = Configuration.local([], path: config.path, isReadOnly: true, schemaVersion: oldSchemaVersion);
+      final oldRealm = RealmInternal.getUnowned(oldConfig, RealmHandle._unowned(oldRealmHandle), isInMigration: true);
+
+      final newRealm = RealmInternal.getUnowned(config, RealmHandle._unowned(newRealmHandle), isInMigration: true);
+
+      final migration = MigrationInternal.create(oldRealm, newRealm, SchemaHandle.unowned(schema));
+      config.migrationCallback!(migration, oldSchemaVersion);
+      return true;
+    } catch (ex) {
+      _realmLib.realm_register_user_code_callback_error(ex.toPersistentHandle());
+    }
+    return false;
+  }
+
   static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error) {
     final syncConfig = userdata as FlexibleSyncConfiguration;
 
@@ -551,11 +587,11 @@ class _RealmCore {
       }
 
       final primaryKey = classInfo.ref.primary_key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
-      return RealmObjectMetadata(className, classType, primaryKey, classInfo.ref.key, _getPropertyMetadata(realm, classInfo.ref.key));
+      return RealmObjectMetadata(className, classType, primaryKey, classInfo.ref.key, _getPropertyMetadata(realm, classInfo.ref.key, primaryKey));
     });
   }
 
-  Map<String, RealmPropertyMetadata> _getPropertyMetadata(Realm realm, int classKey) {
+  Map<String, RealmPropertyMetadata> _getPropertyMetadata(Realm realm, int classKey, String? primaryKeyName) {
     return using((Arena arena) {
       final propertyCountPtr = arena<Size>();
       _realmLib.invokeGetBool(
@@ -573,8 +609,9 @@ class _RealmCore {
         final propertyName = property.ref.name.cast<Utf8>().toRealmDartString()!;
         final objectType = property.ref.link_target.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
         final isNullable = property.ref.flags & realm_property_flags.RLM_PROPERTY_NULLABLE != 0;
+        final isPrimaryKey = propertyName == primaryKeyName;
         final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, RealmPropertyType.values.elementAt(property.ref.type), isNullable,
-            RealmCollectionType.values.elementAt(property.ref.collection_type));
+            isPrimaryKey, RealmCollectionType.values.elementAt(property.ref.collection_type));
         result[propertyName] = propertyMeta;
       }
       return result;
@@ -640,6 +677,19 @@ class _RealmCore {
       }
 
       return RealmObjectHandle._(pointer);
+    });
+  }
+
+  RealmObjectHandle? findExisting(Realm realm, int classKey, RealmObjectHandle other) {
+    final key = _realmLib.realm_object_get_key(other._pointer);
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_object(realm.handle._pointer, classKey, key));
+    return RealmObjectHandle._(pointer);
+  }
+
+  void renameProperty(Realm realm, String objectType, String oldName, String newName, SchemaHandle schema) {
+    using((Arena arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_schema_rename_property(
+          realm.handle._pointer, schema._pointer, objectType.toCharPtr(arena), oldName.toCharPtr(arena), newName.toCharPtr(arena)));
     });
   }
 
@@ -1747,8 +1797,9 @@ class _RealmCore {
 class LastError {
   final int code;
   final String? message;
+  final Object? userError;
 
-  LastError(this.code, [this.message]);
+  LastError(this.code, [this.message, this.userError]);
 
   @override
   String toString() {
@@ -1804,6 +1855,8 @@ abstract class HandleBase<T extends NativeType> implements Finalizable {
 
 class SchemaHandle extends HandleBase<realm_schema> {
   SchemaHandle._(Pointer<realm_schema> pointer) : super(pointer, 24);
+
+  SchemaHandle.unowned(Pointer<realm_schema> pointer) : super.unowned(pointer);
 }
 
 class ConfigHandle extends HandleBase<realm_config> {
@@ -1832,15 +1885,15 @@ class RealmLinkHandle {
         classKey = link.target_table;
 }
 
-class RealmResultsHandle extends HandleBase<realm_results> {
+class RealmResultsHandle extends ReleasableHandle<realm_results> {
   RealmResultsHandle._(Pointer<realm_results> pointer) : super(pointer, 872);
 }
 
-class RealmListHandle extends HandleBase<realm_list> {
+class RealmListHandle extends ReleasableHandle<realm_list> {
   RealmListHandle._(Pointer<realm_list> pointer) : super(pointer, 88);
 }
 
-class RealmQueryHandle extends HandleBase<realm_query> {
+class RealmQueryHandle extends ReleasableHandle<realm_query> {
   RealmQueryHandle._(Pointer<realm_query> pointer) : super(pointer, 256);
 }
 

@@ -43,10 +43,10 @@ class RealmModelInfo {
 
       yield '$name(';
       {
-        final required = allExceptCollections.where((f) => f.isRequired || f.primaryKey);
+        final required = allExceptCollections.where((f) => f.isRequired || f.isPrimaryKey);
         yield* required.map((f) => '${f.mappedTypeName} ${f.name},');
 
-        final notRequired = allExceptCollections.where((f) => !f.isRequired && !f.primaryKey);
+        final notRequired = allExceptCollections.where((f) => !f.isRequired && !f.isPrimaryKey);
         final collections = fields.where((f) => f.type.isRealmCollection).toList();
         if (notRequired.isNotEmpty || collections.isNotEmpty) {
           yield '{';
@@ -98,11 +98,11 @@ class RealmModelInfo {
             final namedArgs = {
               if (f.name != f.realmName) 'mapTo': f.realmName,
               if (f.optional) 'optional': f.optional,
-              if (f.primaryKey) 'primaryKey': f.primaryKey,
+              if (f.isPrimaryKey) 'primaryKey': f.isPrimaryKey,
               if (f.realmType == RealmPropertyType.object) 'linkTarget': f.basicRealmTypeName,
               if (f.realmCollectionType != RealmCollectionType.none) 'collectionType': f.realmCollectionType,
             };
-            return "SchemaProperty('${f.realmName}', ${f.realmType}${namedArgs.isNotEmpty ? ', ' + namedArgs.toArgsString() : ''}),";
+            return "SchemaProperty('${f.realmName}', ${f.realmType}${namedArgs.isNotEmpty ? ', ${namedArgs.toArgsString()}' : ''}),";
           });
         }
         yield ']);';
