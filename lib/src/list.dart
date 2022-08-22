@@ -30,7 +30,7 @@ import 'results.dart';
 /// added to or deleted from the collection or from the Realm.
 ///
 /// {@category Realm}
-abstract class RealmList<T extends Object> with RealmEntity implements List<T>, Finalizable {
+abstract class RealmList<T extends Object?> with RealmEntity implements List<T>, Finalizable {
   late final RealmObjectMetadata? _metadata;
 
   /// Gets a value indicating whether this collection is still valid to use.
@@ -44,7 +44,7 @@ abstract class RealmList<T extends Object> with RealmEntity implements List<T>, 
   factory RealmList(Iterable<T> items) => UnmanagedRealmList(items);
 }
 
-class ManagedRealmList<T extends Object> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
+class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
   final RealmListHandle _handle;
 
   @override
@@ -97,7 +97,7 @@ class ManagedRealmList<T extends Object> extends collection.ListBase<T> with Rea
   bool get isValid => realmCore.listIsValid(this);
 }
 
-class UnmanagedRealmList<T extends Object> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
+class UnmanagedRealmList<T extends Object?> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
   final _unmanaged = <T?>[]; // use T? for length=
 
   UnmanagedRealmList([Iterable<T>? items]) {
@@ -156,7 +156,7 @@ extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
 }
 
 /// @nodoc
-extension RealmListInternal<T extends Object> on RealmList<T> {
+extension RealmListInternal<T extends Object?> on RealmList<T> {
   @pragma('vm:never-inline')
   void keepAlive() {
     final self = this;
@@ -170,7 +170,7 @@ extension RealmListInternal<T extends Object> on RealmList<T> {
 
   RealmListHandle get handle => asManaged()._handle;
 
-  static RealmList<T> create<T extends Object>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
+  static RealmList<T> create<T extends Object?>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
 
   static void setValue(RealmListHandle handle, Realm realm, int index, Object? value, {bool update = false}) {
     if (index < 0) {

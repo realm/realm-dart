@@ -76,7 +76,7 @@ export "configuration.dart"
 
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
-export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges;
+export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges, DynamicRealmObject;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
@@ -389,8 +389,8 @@ extension RealmInternal on Realm {
     return RealmObjectInternal.create(type, this, handle, accessor);
   }
 
-  RealmList<T> createList<T extends Object>(RealmListHandle handle, RealmObjectMetadata? metadata) {
-    return RealmListInternal.create(handle, this, metadata);
+  RealmList<T> createList<T extends Object?>(RealmListHandle handle, RealmObjectMetadata? metadata) {
+    return RealmListInternal.create<T>(handle, this, metadata);
   }
 
   List<String> getPropertyNames(Type type, List<int> propertyKeys) {
