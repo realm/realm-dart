@@ -133,7 +133,14 @@ Future<void> main([List<String>? args]) async {
       realm.write(() {
         car.make = "Audi";
       });
-    }, throws<RealmUnsupportedSetError>());
+    }, throws<RealmException>("Primary key cannot be changed (original value: 'Tesla', supplied value: 'Audi'"));
+
+    // If we don't change the PK, setting it is a no-op
+    expect(() {
+      realm.write(() {
+        car.make = 'Tesla';
+      });
+    }, returnsNormally);
   });
 
   test('RealmObject set object type property (link)', () {
@@ -564,7 +571,7 @@ Future<void> main([List<String>? args]) async {
   test('get/set all property types', () {
     final config = Configuration.local([AllTypes.schema]);
     final realm = getRealm(config);
-    
+
     var date = DateTime.now().toUtc();
     var objectId = ObjectId();
     var uuid = Uuid.v4();
