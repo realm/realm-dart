@@ -83,7 +83,7 @@ jobs:
             --out ./coverage/lcov.info \
             --check-ignore \
             --lcov \
-            --packages packages \
+            --packages .packages \
             --report-on lib
 
       - name: Publish realm_dart coverage
