@@ -303,7 +303,7 @@ jobs:
           model: 'iPhone 8'
           os: 'iOS'
           os_version: '>= 14.0'
-      
+
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - name: Create cluster
@@ -473,7 +473,7 @@ jobs:
         working-directory: ./generator/
 
       - name: Publish Generator Coverage
-        if: ${{ false && matrix.os == 'ubuntu' }}
+        if: matrix.os == 'ubuntu'
         id: publish-generator-coverage
         uses: coverallsapp/github-action@1.1.3
         with:
@@ -483,5 +483,5 @@ jobs:
         continue-on-error: true
 
       - name: Output Coveralls response
-        if: ${{ false && matrix.os == 'ubuntu' }}
+        if: matrix.os == 'ubuntu'
         run: echo ${{ steps.publish-generator-coverage.outputs.coveralls-api-result }}
