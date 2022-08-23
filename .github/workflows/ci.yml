@@ -501,4 +501,4 @@ jobs:
           parallel-finished: true
 
       - name: Output Coveralls response
-        run: echo ${{ steps.publish-generator-coverage.outputs.coveralls-api-result }}
+        run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}

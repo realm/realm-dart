@@ -101,4 +101,4 @@ jobs:
 
       - name: Output Coveralls response
         if: inputs.os == 'linux'
-        run: echo ${{ steps.publish.outputs.coveralls-api-result }}
+        run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
