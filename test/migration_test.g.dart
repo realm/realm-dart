@@ -142,3 +142,32 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
     ]);
   }
 }
+
+class MyObjectWithoutValue extends _MyObjectWithoutValue
+    with RealmEntity, RealmObject {
+  MyObjectWithoutValue(
+    String name,
+  ) {
+    RealmObject.set(this, 'name', name);
+  }
+
+  MyObjectWithoutValue._();
+
+  @override
+  String get name => RealmObject.get<String>(this, 'name') as String;
+  @override
+  set name(String value) => RealmObject.set(this, 'name', value);
+
+  @override
+  Stream<RealmObjectChanges<MyObjectWithoutValue>> get changes =>
+      RealmObject.getChanges<MyObjectWithoutValue>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(MyObjectWithoutValue._);
+    return const SchemaObject(MyObjectWithoutValue, 'MyObject', [
+      SchemaProperty('name', RealmPropertyType.string),
+    ]);
+  }
+}

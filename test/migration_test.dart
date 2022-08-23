@@ -61,6 +61,12 @@ class _MyObjectWithoutTypo {
   late int value;
 }
 
+@RealmModel()
+@MapTo('MyObject')
+class _MyObjectWithoutValue {
+  late String name;
+}
+
 Future<void> main([List<String>? args]) async {
   print("Current PID $pid");
 
@@ -355,4 +361,31 @@ Future<void> main([List<String>? args]) async {
 
     expect(dynamicRealm.schema.length, 1);
   }, skip: 'This is blocked on removeType being implementable in the C API: https://github.com/realm/realm-core/issues/5766');
+
+  test('Migration when property is removed, column gets removed as well', () {
+    final v1Config = Configuration.local([MyObjectWithoutTypo.schema], schemaVersion: 1);
+    final v1Realm = getRealm(v1Config);
+    v1Realm.write(() {
+      v1Realm.add(MyObjectWithoutTypo('name', 123));
+    });
+
+    v1Realm.close();
+
+    final v2Config = Configuration.local([MyObjectWithoutValue.schema], schemaVersion: 2, migrationCallback: (migration, oldSchemaVersion) {
+      expect(migration.oldRealm.schema.single.properties.length, 2);
+      expect(migration.newRealm.schema.single.properties.length, 1);
+    });
+
+    final v2Realm = getRealm(v2Config);
+    expect(v2Realm.schema.single.properties.length, 1);
+    expect(v2Realm.all<MyObjectWithoutValue>().single.name, 'name');
+    v2Realm.close();
+
+    // We reopen the Realm as dynamic - the schema will be read from disk and the Dog type should be gone because we explicitly removed it
+    final dynamicConfig = Configuration.local([], schemaVersion: 2);
+    final dynamicRealm = getRealm(dynamicConfig);
+
+    expect(dynamicRealm.schema.single.properties.length, 1);
+    expect(dynamicRealm.dynamic.all('MyObject').single.dynamic.get<String>('name'), 'name');
+  });
 }
