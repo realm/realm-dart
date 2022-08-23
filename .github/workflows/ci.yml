@@ -461,7 +461,7 @@ jobs:
         working-directory: ./generator/
 
       - name: Generate generator coverage report
-        if: ${{ false && matrix.os == 'ubuntu' }}
+        if: matrix.os == 'ubuntu'
         run: |
           dart run coverage:format_coverage \
             --in coverage/ \
