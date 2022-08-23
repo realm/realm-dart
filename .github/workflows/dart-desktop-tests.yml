@@ -94,7 +94,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: realm_dart
           path-to-lcov: ./coverage/lcov.info
-          base-path: lib
         continue-on-error: true
 
       - name: Output Coveralls response
