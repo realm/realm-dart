@@ -75,6 +75,7 @@ jobs:
       - name: Run tests
         run: ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -r expanded --coverage ./coverage/ -j 1 --test-randomize-ordering-seed random
 
+      # we're pruning generated files, the cli folder, as well as realm_bindings.dart from our coverage reports
       - name: Generate realm_dart coverage report
         if: inputs.os == 'linux'
         run: |
@@ -86,19 +87,18 @@ jobs:
             --lcov \
             --packages .dart_tool/package_config.json \
             --report-on lib
-          lcov --remove ./coverage/lcov.info '*.g.dart' '*/lib/src/cli/*' '*/lib/src/native/*' -o coverage/pruned-lcov.info
+          lcov --remove ./coverage/lcov.info '*.g.dart' '*/lib/src/cli/*' '*/lib/src/native/realm_bindings.dart' -o coverage/pruned-lcov.info
 
       - name: Publish realm_dart coverage
         if: inputs.os == 'linux'
-        id: publish-realm-coverage
+        id: publish-coverage
         uses: coverallsapp/github-action@1.1.3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: realm_dart
           path-to-lcov: ./coverage/pruned-lcov.info
           parallel: true
-        continue-on-error: true
 
       - name: Output Coveralls response
         if: inputs.os == 'linux'
-        run: echo ${{ steps.publish-realm-coverage.outputs.coveralls-api-result }}
+        run: echo ${{ steps.publish.outputs.coveralls-api-result }}
