@@ -78,6 +78,7 @@ jobs:
       - name: Generate realm_dart coverage report
         if: inputs.os == 'linux'
         run: |
+          sudo apt-get install -y lcov
           dart run coverage:format_coverage \
             --in coverage/ \
             --out ./coverage/lcov.info \
@@ -85,6 +86,7 @@ jobs:
             --lcov \
             --packages .dart_tool/package_config.json \
             --report-on lib
+          lcov --remove ./coverage/lcov.info '*.g.dart' '*/lib/src/cli/*' '*/lib/src/native/*' -o coverage/pruned-lcov.info
 
       - name: Publish realm_dart coverage
         if: inputs.os == 'linux'
@@ -93,7 +95,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: realm_dart
-          path-to-lcov: ./coverage/lcov.info
+          path-to-lcov: ./coverage/pruned-lcov.info
+          parallel: true
         continue-on-error: true
 
       - name: Output Coveralls response
