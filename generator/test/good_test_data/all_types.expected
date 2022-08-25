@@ -2,7 +2,7 @@
 // RealmObjectGenerator
 // **************************************************************************
 
-class Foo extends _Foo with RealmEntity, RealmObject {
+class Foo extends _Foo with RealmEntityMixin, RealmObjectMixin {
   Foo({
     int x = 0,
   }) {
@@ -22,7 +22,8 @@ class Foo extends _Foo with RealmEntity, RealmObject {
   set x(int value) => _xProperty.setValue(this, value);
 
   @override
-  Stream<RealmObjectChanges<Foo>> get changes => RealmObject.getChanges(this);
+  Stream<RealmObjectChanges<Foo>> get changes =>
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<Foo>(
     Foo._,
@@ -35,7 +36,7 @@ class Foo extends _Foo with RealmEntity, RealmObject {
   SchemaObject get instanceSchema => schema;
 }
 
-class Bar extends _Bar with RealmEntity, RealmObject {
+class Bar extends _Bar with RealmEntityMixin, RealmObjectMixin {
   Bar(
     String id,
     bool aBool,
@@ -152,7 +153,8 @@ class Bar extends _Bar with RealmEntity, RealmObject {
   set objectId(ObjectId value) => _objectIdProperty.setValue(this, value);
 
   @override
-  Stream<RealmObjectChanges<Bar>> get changes => RealmObject.getChanges(this);
+  Stream<RealmObjectChanges<Bar>> get changes =>
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<Bar>(
     Bar._,
@@ -175,7 +177,8 @@ class Bar extends _Bar with RealmEntity, RealmObject {
   SchemaObject get instanceSchema => schema;
 }
 
-class PrimitiveTypes extends _PrimitiveTypes with RealmEntity, RealmObject {
+class PrimitiveTypes extends _PrimitiveTypes
+    with RealmEntityMixin, RealmObjectMixin {
   PrimitiveTypes(
     String stringProp,
     bool boolProp,
@@ -240,7 +243,7 @@ class PrimitiveTypes extends _PrimitiveTypes with RealmEntity, RealmObject {
 
   @override
   Stream<RealmObjectChanges<PrimitiveTypes>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<PrimitiveTypes>(
     PrimitiveTypes._,
