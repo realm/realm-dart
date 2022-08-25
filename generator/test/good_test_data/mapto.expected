@@ -48,6 +48,9 @@ class Original extends $Original with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<Original>> get changes =>
       RealmObject.getChanges<Original>(this);
 
+  @override
+  Original freeze() => RealmObject.freezeObject<Original>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
