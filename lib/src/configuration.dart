@@ -21,7 +21,6 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:path/path.dart' as _path;
-import 'package:realm_dart/src/cli/metrics/metrics.dart';
 
 import 'native/realm_core.dart';
 import 'realm_class.dart';

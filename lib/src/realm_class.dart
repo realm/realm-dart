@@ -430,19 +430,6 @@ extension RealmInternal on Realm {
     return Realm._(config, handle, isInMigration);
   }
 
-/*
-  T createObject<T extends Object?>(RealmObjectHandle handle, [RealmObjectMetadata? metadata]) {
-    metadata ??= _isTypedRealmObject<T>() ? _metadata.getByType(T) : null;
-    final object = RealmObjectInternal.create<T>(this, handle, metadata!);
-    return object;
-  }
-
-  RealmList<T> createList<T extends Object?>(RealmListHandle handle, RealmPropertyMetadata backlinkMeta) {
-    var metadata = _isTypedRealmObject<T>() ? _metadata.getByType(T) : null;
-    metadata ??= _isRealmObject<T>() ? _metadata.getByName(backlinkMeta.schema.linkTarget!) : null;
-    return RealmListInternal.create<T>(handle, this, metadata);
-  }
-*/
   List<String> getPropertyNames(Type type, List<int> propertyKeys) {
     final metadata = _metadata.getByType(type);
     return propertyKeys.map((k) => metadata.getPropertyMetaByKey(k).name).toList();
