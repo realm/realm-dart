@@ -156,7 +156,7 @@ class RealmCoreAccessor implements RealmAccessor {
   }
 }
 
-mixin RealmEntity {
+mixin RealmEntityMixin {
   Realm? _realm;
 
   /// The [Realm] instance this object belongs to.
@@ -166,7 +166,7 @@ mixin RealmEntity {
   bool get isManaged => _realm != null;
 }
 
-extension RealmEntityInternal on RealmEntity {
+extension RealmEntityInternal on RealmEntityMixin {
   void setRealm(Realm value) => _realm = value;
 }
 
@@ -178,11 +178,38 @@ extension RealmEntityInternal on RealmEntity {
 ///
 /// [RealmObject] should not be used directly as it is part of the generated class hierarchy. ex: `MyClass extends _MyClass with RealmObject`.
 /// {@category Realm}
-mixin RealmObject on RealmEntity implements Finalizable, RealmObjectMarker {
+abstract class RealmObject implements RealmObjectMarker {
+  /// Get a reference to the static [T.schema] from an instance.
+  SchemaObject get instanceSchema;
+
+  /// The [Realm] instance this object belongs to.
+  Realm get realm;
+
+  /// True if the object belongs to a realm.
+  bool get isManaged;
+
+  /// Gets a value indicating whether this object is managed and represents a row in the database.
+  ///
+  /// If a managed object has been removed from the [Realm], it is no longer valid and accessing properties on it
+  /// will throw an exception.
+  /// The Object is not valid if its [Realm] is closed or object is deleted.
+  /// Unmanaged objects are always considered valid.
+  bool get isValid;
+
+  /// Allows listening for property changes on this Realm object
+  ///
+  /// Returns a [Stream] of [RealmObjectChanges<T>] that can be listened to.
+  ///
+  /// If the object is not managed a [RealmStateError] is thrown.
+  Stream get changes;
+
+  DynamicRealmObject get dynamic;
+}
+
+/// @nodoc
+mixin RealmObjectMixin on RealmEntityMixin implements Finalizable, RealmObject {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
-
-  SchemaObject get instanceSchema;
 
   @override
   bool operator ==(Object other) {
@@ -192,19 +219,10 @@ mixin RealmObject on RealmEntity implements Finalizable, RealmObjectMarker {
     return realmCore.objectEquals(this, other);
   }
 
-  /// Gets a value indicating whether this object is managed and represents a row in the database.
-  ///
-  /// If a managed object has been removed from the [Realm], it is no longer valid and accessing properties on it
-  /// will throw an exception.
-  /// The Object is not valid if its [Realm] is closed or object is deleted.
-  /// Unmanaged objects are always considered valid.
+  @override
   bool get isValid => isManaged ? realmCore.objectIsValid(this) : true;
 
-  /// Allows listening for property changes on this Realm object
-  ///
-  /// Returns a [Stream] of [RealmObjectChanges<T>] that can be listened to.
-  ///
-  /// If the object is not managed a [RealmStateError] is thrown.
+  @override
   Stream<RealmObjectChanges<RealmObject>> get changes => throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
 
   /// @nodoc
@@ -247,37 +265,39 @@ mixin RealmObject on RealmEntity implements Finalizable, RealmObjectMarker {
 extension RealmObjectInternal on RealmObject {
   @pragma('vm:never-inline')
   void keepAlive() {
-    _realm?.keepAlive();
-    _handle?.keepAlive();
+    realm.keepAlive();
+    handle.keepAlive();
   }
 
   void manage(Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor, bool update) {
-    if (_handle != null) {
+    final self = this as RealmObjectMixin;
+
+    if (self._handle != null) {
       //most certainly a bug hence we throw an Error
       throw ArgumentError("Object is already managed");
     }
 
-    _handle = handle;
-    _realm = realm;
+    self._handle = handle;
+    self._realm = realm;
 
-    final a = _accessor;
+    final a = self._accessor;
     if (a is RealmValuesAccessor) {
       a.setAll(this, accessor, update: update);
     }
 
-    _accessor = accessor;
+    self._accessor = accessor;
   }
 
   static T create<T extends Object?>(Realm realm, RealmObjectHandle handle, RealmObjectMetadata metadata) {
     T? object;
-    if (isStrictSubtype<T, RealmObject?>()) {
+    if (isStrictSubtype<T, RealmObjectMixin?>()) {
       final schema = realm.schema.getByType<T>();
       object = schema?.objectFactory();
     } else {
       // dynamic
       object = _ConcreteRealmObject() as T; // compiler needs the cast
     }
-    if (object is RealmObject) {
+    if (object is RealmObjectMixin) {
       object._handle = handle;
       object._accessor = RealmCoreAccessor(metadata);
       object._realm = realm;
@@ -286,8 +306,8 @@ extension RealmObjectInternal on RealmObject {
     throw RealmError('$T is not a RealmObject');
   }
 
-  RealmObjectHandle get handle => _handle!;
-  RealmAccessor get accessor => _accessor;
+  RealmObjectHandle get handle => (this as RealmObjectMixin)._handle!;
+  RealmAccessor get accessor => (this as RealmObjectMixin)._accessor;
 }
 
 /// An exception being thrown when a `Realm` operation or [RealmObject] access fails.
@@ -365,7 +385,7 @@ class RealmObjectNotificationsController<T extends RealmObject> extends Notifica
 }
 
 /// @nodoc
-class _ConcreteRealmObject with RealmEntity, RealmObject {
+class _ConcreteRealmObject with RealmEntityMixin, RealmObjectMixin {
   @override
   SchemaObject get instanceSchema => (_accessor as RealmCoreAccessor).metadata.schema;
 }

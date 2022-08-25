@@ -7,7 +7,7 @@ part of 'realm_object_test.dart';
 // **************************************************************************
 
 class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
-    with RealmEntity, RealmObject {
+    with RealmEntityMixin, RealmObjectMixin {
   ObjectIdPrimaryKey(
     ObjectId id,
   ) {
@@ -28,7 +28,7 @@ class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
 
   @override
   Stream<RealmObjectChanges<ObjectIdPrimaryKey>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<ObjectIdPrimaryKey>(
     ObjectIdPrimaryKey._,
@@ -43,7 +43,7 @@ class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
 }
 
 class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
-    with RealmEntity, RealmObject {
+    with RealmEntityMixin, RealmObjectMixin {
   NullableObjectIdPrimaryKey(
     ObjectId? id,
   ) {
@@ -64,7 +64,7 @@ class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
 
   @override
   Stream<RealmObjectChanges<NullableObjectIdPrimaryKey>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableObjectIdPrimaryKey>(
     NullableObjectIdPrimaryKey._,
@@ -78,7 +78,8 @@ class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
   SchemaObject get instanceSchema => schema;
 }
 
-class IntPrimaryKey extends _IntPrimaryKey with RealmEntity, RealmObject {
+class IntPrimaryKey extends _IntPrimaryKey
+    with RealmEntityMixin, RealmObjectMixin {
   IntPrimaryKey(
     int id,
   ) {
@@ -99,7 +100,7 @@ class IntPrimaryKey extends _IntPrimaryKey with RealmEntity, RealmObject {
 
   @override
   Stream<RealmObjectChanges<IntPrimaryKey>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<IntPrimaryKey>(
     IntPrimaryKey._,
@@ -114,7 +115,7 @@ class IntPrimaryKey extends _IntPrimaryKey with RealmEntity, RealmObject {
 }
 
 class NullableIntPrimaryKey extends _NullableIntPrimaryKey
-    with RealmEntity, RealmObject {
+    with RealmEntityMixin, RealmObjectMixin {
   NullableIntPrimaryKey(
     int? id,
   ) {
@@ -135,7 +136,7 @@ class NullableIntPrimaryKey extends _NullableIntPrimaryKey
 
   @override
   Stream<RealmObjectChanges<NullableIntPrimaryKey>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableIntPrimaryKey>(
     NullableIntPrimaryKey._,
@@ -149,7 +150,8 @@ class NullableIntPrimaryKey extends _NullableIntPrimaryKey
   SchemaObject get instanceSchema => schema;
 }
 
-class StringPrimaryKey extends _StringPrimaryKey with RealmEntity, RealmObject {
+class StringPrimaryKey extends _StringPrimaryKey
+    with RealmEntityMixin, RealmObjectMixin {
   StringPrimaryKey(
     String id,
   ) {
@@ -170,7 +172,7 @@ class StringPrimaryKey extends _StringPrimaryKey with RealmEntity, RealmObject {
 
   @override
   Stream<RealmObjectChanges<StringPrimaryKey>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<StringPrimaryKey>(
     StringPrimaryKey._,
@@ -185,7 +187,7 @@ class StringPrimaryKey extends _StringPrimaryKey with RealmEntity, RealmObject {
 }
 
 class NullableStringPrimaryKey extends _NullableStringPrimaryKey
-    with RealmEntity, RealmObject {
+    with RealmEntityMixin, RealmObjectMixin {
   NullableStringPrimaryKey(
     String? id,
   ) {
@@ -206,7 +208,7 @@ class NullableStringPrimaryKey extends _NullableStringPrimaryKey
 
   @override
   Stream<RealmObjectChanges<NullableStringPrimaryKey>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableStringPrimaryKey>(
     NullableStringPrimaryKey._,
@@ -220,7 +222,8 @@ class NullableStringPrimaryKey extends _NullableStringPrimaryKey
   SchemaObject get instanceSchema => schema;
 }
 
-class UuidPrimaryKey extends _UuidPrimaryKey with RealmEntity, RealmObject {
+class UuidPrimaryKey extends _UuidPrimaryKey
+    with RealmEntityMixin, RealmObjectMixin {
   UuidPrimaryKey(
     Uuid id,
   ) {
@@ -241,7 +244,7 @@ class UuidPrimaryKey extends _UuidPrimaryKey with RealmEntity, RealmObject {
 
   @override
   Stream<RealmObjectChanges<UuidPrimaryKey>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<UuidPrimaryKey>(
     UuidPrimaryKey._,
@@ -256,7 +259,7 @@ class UuidPrimaryKey extends _UuidPrimaryKey with RealmEntity, RealmObject {
 }
 
 class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
-    with RealmEntity, RealmObject {
+    with RealmEntityMixin, RealmObjectMixin {
   NullableUuidPrimaryKey(
     Uuid? id,
   ) {
@@ -277,7 +280,7 @@ class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
 
   @override
   Stream<RealmObjectChanges<NullableUuidPrimaryKey>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableUuidPrimaryKey>(
     NullableUuidPrimaryKey._,
@@ -292,7 +295,7 @@ class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
 }
 
 class RemappedFromAnotherFile extends _RemappedFromAnotherFile
-    with RealmEntity, RealmObject {
+    with RealmEntityMixin, RealmObjectMixin {
   RemappedFromAnotherFile({
     RemappedClass? linkToAnotherClass,
   }) {
@@ -312,7 +315,7 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
 
   @override
   Stream<RealmObjectChanges<RemappedFromAnotherFile>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<RemappedFromAnotherFile>(
     RemappedFromAnotherFile._,
@@ -325,7 +328,7 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
   SchemaObject get instanceSchema => schema;
 }
 
-class BoolValue extends _BoolValue with RealmEntity, RealmObject {
+class BoolValue extends _BoolValue with RealmEntityMixin, RealmObjectMixin {
   BoolValue(
     int key,
     bool value,
@@ -357,7 +360,7 @@ class BoolValue extends _BoolValue with RealmEntity, RealmObject {
 
   @override
   Stream<RealmObjectChanges<BoolValue>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<BoolValue>(
     BoolValue._,
