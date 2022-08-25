@@ -315,7 +315,7 @@ Future<void> main([List<String>? args]) async {
     expect(() => teams.length, throws<RealmException>("Access to invalidated Results objects"));
   });
 
-  test('Results - query with nil', () {
+  test('Results - query with null', () {
     var config = Configuration.local([Dog.schema, Person.schema]);
     var realm = getRealm(config);
 
