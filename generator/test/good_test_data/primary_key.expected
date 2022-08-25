@@ -2,7 +2,7 @@
 // RealmObjectGenerator
 // **************************************************************************
 
-class IntPK extends _IntPK with RealmEntity, RealmObject {
+class IntPK extends _IntPK with RealmEntityMixin, RealmObjectMixin {
   IntPK(
     int id,
   ) {
@@ -22,7 +22,8 @@ class IntPK extends _IntPK with RealmEntity, RealmObject {
   set id(int value) => throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<IntPK>> get changes => RealmObject.getChanges(this);
+  Stream<RealmObjectChanges<IntPK>> get changes =>
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<IntPK>(
     IntPK._,
@@ -36,7 +37,8 @@ class IntPK extends _IntPK with RealmEntity, RealmObject {
   SchemaObject get instanceSchema => schema;
 }
 
-class NullableIntPK extends _NullableIntPK with RealmEntity, RealmObject {
+class NullableIntPK extends _NullableIntPK
+    with RealmEntityMixin, RealmObjectMixin {
   NullableIntPK(
     int? id,
   ) {
@@ -57,7 +59,7 @@ class NullableIntPK extends _NullableIntPK with RealmEntity, RealmObject {
 
   @override
   Stream<RealmObjectChanges<NullableIntPK>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableIntPK>(
     NullableIntPK._,
@@ -71,7 +73,7 @@ class NullableIntPK extends _NullableIntPK with RealmEntity, RealmObject {
   SchemaObject get instanceSchema => schema;
 }
 
-class StringPK extends _StringPK with RealmEntity, RealmObject {
+class StringPK extends _StringPK with RealmEntityMixin, RealmObjectMixin {
   StringPK(
     String id,
   ) {
@@ -92,7 +94,7 @@ class StringPK extends _StringPK with RealmEntity, RealmObject {
 
   @override
   Stream<RealmObjectChanges<StringPK>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<StringPK>(
     StringPK._,
@@ -106,7 +108,8 @@ class StringPK extends _StringPK with RealmEntity, RealmObject {
   SchemaObject get instanceSchema => schema;
 }
 
-class NullableStringPK extends _NullableStringPK with RealmEntity, RealmObject {
+class NullableStringPK extends _NullableStringPK
+    with RealmEntityMixin, RealmObjectMixin {
   NullableStringPK(
     String? id,
   ) {
@@ -127,7 +130,7 @@ class NullableStringPK extends _NullableStringPK with RealmEntity, RealmObject {
 
   @override
   Stream<RealmObjectChanges<NullableStringPK>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableStringPK>(
     NullableStringPK._,
@@ -141,7 +144,7 @@ class NullableStringPK extends _NullableStringPK with RealmEntity, RealmObject {
   SchemaObject get instanceSchema => schema;
 }
 
-class ObjectIdPK extends _ObjectIdPK with RealmEntity, RealmObject {
+class ObjectIdPK extends _ObjectIdPK with RealmEntityMixin, RealmObjectMixin {
   ObjectIdPK(
     ObjectId id,
   ) {
@@ -162,7 +165,7 @@ class ObjectIdPK extends _ObjectIdPK with RealmEntity, RealmObject {
 
   @override
   Stream<RealmObjectChanges<ObjectIdPK>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<ObjectIdPK>(
     ObjectIdPK._,
@@ -177,7 +180,7 @@ class ObjectIdPK extends _ObjectIdPK with RealmEntity, RealmObject {
 }
 
 class NullableObjectIdPK extends _NullableObjectIdPK
-    with RealmEntity, RealmObject {
+    with RealmEntityMixin, RealmObjectMixin {
   NullableObjectIdPK(
     ObjectId? id,
   ) {
@@ -198,7 +201,7 @@ class NullableObjectIdPK extends _NullableObjectIdPK
 
   @override
   Stream<RealmObjectChanges<NullableObjectIdPK>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableObjectIdPK>(
     NullableObjectIdPK._,
@@ -212,7 +215,7 @@ class NullableObjectIdPK extends _NullableObjectIdPK
   SchemaObject get instanceSchema => schema;
 }
 
-class UuidPK extends _UuidPK with RealmEntity, RealmObject {
+class UuidPK extends _UuidPK with RealmEntityMixin, RealmObjectMixin {
   UuidPK(
     Uuid id,
   ) {
@@ -233,7 +236,7 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObject {
 
   @override
   Stream<RealmObjectChanges<UuidPK>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<UuidPK>(
     UuidPK._,
@@ -247,7 +250,8 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObject {
   SchemaObject get instanceSchema => schema;
 }
 
-class NullableUuidPK extends _NullableUuidPK with RealmEntity, RealmObject {
+class NullableUuidPK extends _NullableUuidPK
+    with RealmEntityMixin, RealmObjectMixin {
   NullableUuidPK(
     Uuid? id,
   ) {
@@ -268,7 +272,7 @@ class NullableUuidPK extends _NullableUuidPK with RealmEntity, RealmObject {
 
   @override
   Stream<RealmObjectChanges<NullableUuidPK>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableUuidPK>(
     NullableUuidPK._,
