@@ -32,7 +32,7 @@ class Foo extends _Foo with RealmEntity, RealmObject {
     },
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }
 
 class Bar extends _Bar with RealmEntity, RealmObject {
@@ -120,7 +120,7 @@ class Bar extends _Bar with RealmEntity, RealmObject {
   @override
   set aDouble(double value) => _aDoubleProperty.setValue(this, value);
 
-  static const _fooProperty = ObjectProperty<Foo>('foo');
+  static const _fooProperty = ObjectProperty<Foo>('foo', 'MyFoo');
   @override
   Foo? get foo => _fooProperty.getValue(this);
   @override
@@ -172,7 +172,7 @@ class Bar extends _Bar with RealmEntity, RealmObject {
     _idProperty,
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }
 
 class PrimitiveTypes extends _PrimitiveTypes with RealmEntity, RealmObject {
@@ -254,5 +254,5 @@ class PrimitiveTypes extends _PrimitiveTypes with RealmEntity, RealmObject {
     },
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }

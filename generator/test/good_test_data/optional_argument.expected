@@ -11,7 +11,7 @@ class Person extends _Person with RealmEntity, RealmObject {
 
   Person._();
 
-  static const _spouseProperty = ObjectProperty<Person>('spouse');
+  static const _spouseProperty = ObjectProperty<Person>('spouse', 'Person');
   @override
   Person? get spouse => _spouseProperty.getValue(this);
   @override
@@ -29,5 +29,5 @@ class Person extends _Person with RealmEntity, RealmObject {
     },
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }

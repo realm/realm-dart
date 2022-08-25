@@ -11,8 +11,9 @@ class Person extends _Person with RealmEntity, RealmObject {
 
   Person._();
 
-  static const _childrenProperty =
-      ListProperty<Person>('children', RealmPropertyType.object);
+  static const _childrenProperty = ListProperty<Person>(
+      'children', RealmPropertyType.object,
+      linkTarget: 'Person');
   @override
   RealmList<Person> get children => _childrenProperty.getValue(this);
   @override
@@ -31,5 +32,5 @@ class Person extends _Person with RealmEntity, RealmObject {
     },
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }

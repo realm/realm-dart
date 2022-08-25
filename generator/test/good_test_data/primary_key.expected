@@ -33,7 +33,7 @@ class IntPK extends _IntPK with RealmEntity, RealmObject {
     _idProperty,
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }
 
 class NullableIntPK extends _NullableIntPK with RealmEntity, RealmObject {
@@ -68,7 +68,7 @@ class NullableIntPK extends _NullableIntPK with RealmEntity, RealmObject {
     _idProperty,
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }
 
 class StringPK extends _StringPK with RealmEntity, RealmObject {
@@ -103,7 +103,7 @@ class StringPK extends _StringPK with RealmEntity, RealmObject {
     _idProperty,
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }
 
 class NullableStringPK extends _NullableStringPK with RealmEntity, RealmObject {
@@ -138,7 +138,7 @@ class NullableStringPK extends _NullableStringPK with RealmEntity, RealmObject {
     _idProperty,
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }
 
 class ObjectIdPK extends _ObjectIdPK with RealmEntity, RealmObject {
@@ -173,7 +173,7 @@ class ObjectIdPK extends _ObjectIdPK with RealmEntity, RealmObject {
     _idProperty,
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }
 
 class NullableObjectIdPK extends _NullableObjectIdPK
@@ -209,7 +209,7 @@ class NullableObjectIdPK extends _NullableObjectIdPK
     _idProperty,
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }
 
 class UuidPK extends _UuidPK with RealmEntity, RealmObject {
@@ -244,7 +244,7 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObject {
     _idProperty,
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }
 
 class NullableUuidPK extends _NullableUuidPK with RealmEntity, RealmObject {
@@ -279,5 +279,5 @@ class NullableUuidPK extends _NullableUuidPK with RealmEntity, RealmObject {
     _idProperty,
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }

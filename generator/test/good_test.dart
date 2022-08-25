@@ -47,15 +47,17 @@ class MappedToo extends _MappedToo with RealmEntity, RealmObject {
 
   MappedToo._();
 
-  static const _singleLinkProperty = ObjectProperty<Original>('singleLink');
+  static const _singleLinkProperty =
+      ObjectProperty<Original>('singleLink', 'another type');
   @override
   Original? get singleLink => _singleLinkProperty.getValue(this);
   @override
   set singleLink(covariant Original? value) =>
       _singleLinkProperty.setValue(this, value);
 
-  static const _listLinkProperty =
-      ListProperty<Original>('listLink', RealmPropertyType.object);
+  static const _listLinkProperty = ListProperty<Original>(
+      'listLink', RealmPropertyType.object,
+      linkTarget: 'another type');
   @override
   RealmList<Original> get listLink => _listLinkProperty.getValue(this);
   @override
@@ -75,7 +77,7 @@ class MappedToo extends _MappedToo with RealmEntity, RealmObject {
     },
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }
 ''';
     await testBuilder(generateRealmObjects(), inputs, outputs: outputs, reader: await PackageAssetReader.currentIsolate());
