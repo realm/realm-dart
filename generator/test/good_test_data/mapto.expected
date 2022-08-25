@@ -27,15 +27,16 @@ class Original extends $Original with RealmEntity, RealmObject {
       _primitivePropertyProperty.setValue(this, value);
 
   static const _objectPropertyProperty =
-      ObjectProperty<Original>('remapped object');
+      ObjectProperty<Original>('remapped object', 'another type');
   @override
   Original? get objectProperty => _objectPropertyProperty.getValue(this);
   @override
   set objectProperty(covariant Original? value) =>
       _objectPropertyProperty.setValue(this, value);
 
-  static const _listPropertyProperty =
-      ListProperty<Original>('remapped list', RealmPropertyType.object);
+  static const _listPropertyProperty = ListProperty<Original>(
+      'remapped list', RealmPropertyType.object,
+      linkTarget: 'another type');
   @override
   RealmList<Original> get listProperty => _listPropertyProperty.getValue(this);
   @override
@@ -56,5 +57,5 @@ class Original extends $Original with RealmEntity, RealmObject {
     },
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }

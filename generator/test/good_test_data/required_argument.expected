@@ -34,5 +34,5 @@ class Person extends _Person with RealmEntity, RealmObject {
     _nameProperty,
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }
