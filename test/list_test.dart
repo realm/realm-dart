@@ -361,4 +361,43 @@ Future<void> main([List<String>? args]) async {
     final result = team.players.query(r'name BEGINSWITH $0', ['J']);
     expect(result, [person]);
   });
+
+  test('List.freeze freezes the list', () {
+    final config = Configuration.local([Person.schema, Team.schema]);
+    final realm = getRealm(config);
+
+    final livePlayers = realm.write(() {
+      return realm.add(Team('team', players: [Person('Peter')], scores: [123]));
+    }).players;
+
+    final frozenPlayers = livePlayers.freeze();
+
+    expect(frozenPlayers.length, 1);
+    expect(frozenPlayers.isFrozen, true);
+    expect(frozenPlayers.realm.isFrozen, true);
+    expect(frozenPlayers.single.isFrozen, true);
+
+    realm.write(() {
+      livePlayers.single.name = 'Peter II';
+      livePlayers.add(Person('George'));
+    });
+
+    expect(livePlayers.length, 2);
+    expect(livePlayers.first.name, 'Peter II');
+    expect(frozenPlayers.length, 1);
+    expect(frozenPlayers.single.name, 'Peter');
+  });
+
+  test("FrozenList.changes throws", () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    realm.write(() {
+      realm.add(Team('team'));
+    });
+
+    final frozenPlayers = realm.all<Team>().single.players.freeze();
+
+    expect(() => frozenPlayers.changes, throws<RealmStateError>('List is frozen and cannot emit changes'));
+  });
 }

@@ -80,6 +80,10 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> imp
 
   /// Allows listening for changes when the contents of this collection changes.
   Stream<RealmResultsChanges<T>> get changes {
+    if (isFrozen) {
+      throw RealmStateError('Results are frozen and cannot emit changes');
+    }
+
     final controller = ResultsNotificationsController<T>(this);
     return controller.createStream();
   }

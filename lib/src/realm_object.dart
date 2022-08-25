@@ -346,8 +346,10 @@ mixin RealmObject on RealmEntity implements Finalizable {
     return super.noSuchMethod(invocation);
   }
 
+  /// An object exposing dynamic API for this [RealmObject] instance.
   late final DynamicRealmObject dynamic = DynamicRealmObject._(this);
 
+  /// Creates a frozen snapshot of this [RealmObject].
   RealmObject freeze() => freezeObject(this);
 }
 

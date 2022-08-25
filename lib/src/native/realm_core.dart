@@ -1768,6 +1768,18 @@ class _RealmCore {
       return null;
     });
   }
+
+  RealmListHandle? resolveList(ManagedRealmList list, Realm frozenRealm) {
+    return using((Arena arena) {
+      final resultPtr = arena<Pointer<realm_list>>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_list_resolve_in(list.handle._pointer, frozenRealm.handle._pointer, resultPtr));
+      if (resultPtr != nullptr) {
+        return RealmListHandle._(resultPtr.value);
+      }
+
+      return null;
+    });
+  }
 }
 
 class LastError {

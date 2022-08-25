@@ -18,8 +18,6 @@
 
 // ignore_for_file: unused_local_variable
 
-import 'dart:math';
-
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -486,5 +484,14 @@ Future<void> main([List<String>? args]) async {
     expect(livePeople.first.name, 'Peter II');
     expect(frozenPeople.length, 1);
     expect(frozenPeople.single.name, 'Peter');
+  });
+
+  test("FrozenResults.changes throws", () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final frozenPeople = realm.all<Person>().freeze();
+
+    expect(() => frozenPeople.changes, throws<RealmStateError>('Results are frozen and cannot emit changes'));
   });
 }
