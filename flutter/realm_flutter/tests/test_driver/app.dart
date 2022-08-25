@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter_driver/driver_extension.dart';
 import 'realm_test.dart' as tests;
 import 'const.dart';
@@ -20,7 +18,7 @@ void main(List<String> args) async {
         // Build correct test arguments using the dart test arg name '--name'
         testArgs.addAll(['--name', testName]);
       }
-      
+
       if (command.contains("--")) {
         testArgs.addAll(command.substring(command.indexOf("--")).split(" "));
       }

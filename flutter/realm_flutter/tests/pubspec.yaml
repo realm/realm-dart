@@ -6,12 +6,17 @@ publish_to: "none"
 version: 0.4.0+beta
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=2.17.4 <3.0.0"
   flutter: ">=3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+  test_api: any
+  args: any
+  path: any 
+  meta: any
+  logging: any
   realm:
     # When depending on this package from a real application you should use:
     #   realm_flutter: ^x.y.z
