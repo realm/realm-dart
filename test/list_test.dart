@@ -400,4 +400,25 @@ Future<void> main([List<String>? args]) async {
 
     expect(() => frozenPlayers.changes, throws<RealmStateError>('List is frozen and cannot emit changes'));
   });
+
+  test('UnmanagedList.freeze throws', () {
+    final team = Team('team');
+
+    expect(() => team.players.freeze(), throws<RealmStateError>("Unmanaged lists can't be frozen"));
+  });
+
+  test('List.freeze when frozen returns same object', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final team = realm.write(() => realm.add(Team('Barcelona', players: [Person('Peter')])));
+
+    final frozenPlayers = team.players.freeze();
+    final deepFrozenPlayers = frozenPlayers.freeze();
+
+    expect(identical(frozenPlayers, deepFrozenPlayers), true);
+
+    final frozenPlayersAgain = team.players.freeze();
+    expect(identical(frozenPlayers, frozenPlayersAgain), false);
+  });
 }

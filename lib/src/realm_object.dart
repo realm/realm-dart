@@ -259,9 +259,10 @@ mixin RealmObject on RealmEntity implements Finalizable {
     return true;
   }
 
+  /// @nodoc
   static T freezeObject<T extends RealmObject>(T object) {
     if (!object.isManaged) {
-      throw RealmError("Can't freeze unmanaged objects.");
+      throw RealmStateError("Can't freeze unmanaged objects.");
     }
 
     if (object.isFrozen) {

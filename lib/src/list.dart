@@ -145,7 +145,7 @@ class UnmanagedRealmList<T extends Object?> extends collection.ListBase<T> with 
   bool get isValid => true;
 
   @override
-  RealmList<T> freeze() => throw RealmException("Unmanaged lists can't be frozen");
+  RealmList<T> freeze() => throw RealmStateError("Unmanaged lists can't be frozen");
 }
 
 // The query operations on lists, as well as the ability to subscribe for notifications,

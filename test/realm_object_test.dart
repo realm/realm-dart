@@ -670,4 +670,24 @@ Future<void> main([List<String>? args]) async {
 
     expect(frozenPeter.name, 'Peter');
   });
+
+  test('RealmObject.freeze when unmanaged throws', () {
+    final person = Person('Peter');
+    expect(() => person.freeze(), throws<RealmStateError>("Can't freeze unmanaged objects"));
+  });
+
+  test('RealmObject.freeze when frozen returns same object', () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final liveObject = realm.write(() => realm.add(Person('Peter')));
+
+    final frozenObject = liveObject.freeze();
+    final deepFrozenObject = frozenObject.freeze();
+
+    expect(identical(frozenObject, deepFrozenObject), true);
+
+    final anotherFrozenObject = liveObject.freeze();
+    expect(identical(frozenObject, anotherFrozenObject), false);
+  });
 }
