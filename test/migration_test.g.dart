@@ -6,7 +6,8 @@ part of 'migration_test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
-class PersonIntName extends _PersonIntName with RealmEntity, RealmObject {
+class PersonIntName extends _PersonIntName
+    with RealmEntityMixin, RealmObjectMixin {
   PersonIntName(
     int name,
   ) {
@@ -26,7 +27,7 @@ class PersonIntName extends _PersonIntName with RealmEntity, RealmObject {
 
   @override
   Stream<RealmObjectChanges<PersonIntName>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<PersonIntName>(
     PersonIntName._,
@@ -39,7 +40,7 @@ class PersonIntName extends _PersonIntName with RealmEntity, RealmObject {
   SchemaObject get instanceSchema => schema;
 }
 
-class StudentV1 extends _StudentV1 with RealmEntity, RealmObject {
+class StudentV1 extends _StudentV1 with RealmEntityMixin, RealmObjectMixin {
   StudentV1(
     String name, {
     int? yearOfBirth,
@@ -71,7 +72,7 @@ class StudentV1 extends _StudentV1 with RealmEntity, RealmObject {
 
   @override
   Stream<RealmObjectChanges<StudentV1>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<StudentV1>(
     StudentV1._,
@@ -86,7 +87,8 @@ class StudentV1 extends _StudentV1 with RealmEntity, RealmObject {
   SchemaObject get instanceSchema => schema;
 }
 
-class MyObjectWithTypo extends _MyObjectWithTypo with RealmEntity, RealmObject {
+class MyObjectWithTypo extends _MyObjectWithTypo
+    with RealmEntityMixin, RealmObjectMixin {
   MyObjectWithTypo(
     String nmae,
     int vlaue,
@@ -117,7 +119,7 @@ class MyObjectWithTypo extends _MyObjectWithTypo with RealmEntity, RealmObject {
 
   @override
   Stream<RealmObjectChanges<MyObjectWithTypo>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<MyObjectWithTypo>(
     MyObjectWithTypo._,
@@ -132,7 +134,7 @@ class MyObjectWithTypo extends _MyObjectWithTypo with RealmEntity, RealmObject {
 }
 
 class MyObjectWithoutTypo extends _MyObjectWithoutTypo
-    with RealmEntity, RealmObject {
+    with RealmEntityMixin, RealmObjectMixin {
   MyObjectWithoutTypo(
     String name,
     int value,
@@ -163,7 +165,7 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
 
   @override
   Stream<RealmObjectChanges<MyObjectWithoutTypo>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<MyObjectWithoutTypo>(
     MyObjectWithoutTypo._,
@@ -178,7 +180,7 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
 }
 
 class MyObjectWithoutValue extends _MyObjectWithoutValue
-    with RealmEntity, RealmObject {
+    with RealmEntityMixin, RealmObjectMixin {
   MyObjectWithoutValue(
     String name,
   ) {
@@ -198,7 +200,7 @@ class MyObjectWithoutValue extends _MyObjectWithoutValue
 
   @override
   Stream<RealmObjectChanges<MyObjectWithoutValue>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<MyObjectWithoutValue>(
     MyObjectWithoutValue._,

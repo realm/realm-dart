@@ -28,7 +28,7 @@ class RealmModelInfo {
   RealmModelInfo(this.name, this.modelName, this.realmName, this.fields);
 
   Iterable<String> toCode() sync* {
-    yield 'class $name extends $modelName with RealmEntity, RealmObject {';
+    yield 'class $name extends $modelName with RealmEntityMixin, RealmObjectMixin {';
     {
       final allExceptCollections = fields.where((f) => !f.type.isRealmCollection).toList();
 
@@ -67,7 +67,7 @@ class RealmModelInfo {
           ]);
 
       yield '@override';
-      yield 'Stream<RealmObjectChanges<$name>> get changes => RealmObject.getChanges(this);';
+      yield 'Stream<RealmObjectChanges<$name>> get changes => RealmObjectMixin.getChanges(this);';
       yield '';
 
       final primaryKey = fields.cast<RealmFieldInfo?>().firstWhere((element) => element!.isPrimaryKey, orElse: () => null);

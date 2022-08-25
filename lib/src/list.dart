@@ -32,7 +32,7 @@ import 'results.dart';
 /// added to or deleted from the collection or from the Realm.
 ///
 /// {@category Realm}
-abstract class RealmList<T extends Object?> with RealmEntity implements List<T>, Finalizable {
+abstract class RealmList<T extends Object?> with RealmEntityMixin implements List<T>, Finalizable {
   late final RealmObjectMetadata? _metadata;
 
   /// Gets a value indicating whether this collection is still valid to use.
@@ -49,7 +49,7 @@ abstract class RealmList<T extends Object?> with RealmEntity implements List<T>,
   RealmList<T> freeze();
 }
 
-class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> implements RealmList<T> {
+class ManagedRealmList<T extends Object?> with RealmEntityMixin, ListMixin<T> implements RealmList<T> {
   final RealmListHandle _handle;
 
   @override
@@ -166,7 +166,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
   }
 }
 
-class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T> with RealmEntity implements RealmList<T> {
+class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T> with RealmEntityMixin implements RealmList<T> {
   UnmanagedRealmList([Iterable<T>? items]) : super(List<T>.from(items ?? <T>[]));
 
   @override

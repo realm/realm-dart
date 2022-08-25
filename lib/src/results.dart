@@ -29,7 +29,7 @@ import 'realm_object.dart';
 /// added to or deleted from the Realm that match the underlying query.
 ///
 /// {@category Realm}
-class RealmResults<T extends Object?> extends collection.IterableBase<T> with RealmEntity implements Finalizable {
+class RealmResults<T extends Object?> extends collection.IterableBase<T> with RealmEntityMixin implements Finalizable {
   final RealmObjectMetadata? _metadata;
   final RealmResultsHandle _handle;
 
