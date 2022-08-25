@@ -6,7 +6,7 @@ part of 'main.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
-class Car extends _Car with RealmEntity, RealmObject {
+class Car extends _Car with RealmEntityMixin, RealmObjectMixin {
   Car(
     String make, {
     String? model,
@@ -49,14 +49,15 @@ class Car extends _Car with RealmEntity, RealmObject {
   @override
   set kilometers(int? value) => _kilometersProperty.setValue(this, value);
 
-  static const _ownerProperty = ObjectProperty<Person>('owner');
+  static const _ownerProperty = ObjectProperty<Person>('owner', 'Person');
   @override
   Person? get owner => _ownerProperty.getValue(this);
   @override
   set owner(covariant Person? value) => _ownerProperty.setValue(this, value);
 
   @override
-  Stream<RealmObjectChanges<Car>> get changes => RealmObject.getChanges(this);
+  Stream<RealmObjectChanges<Car>> get changes =>
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<Car>(
     Car._,
@@ -69,10 +70,10 @@ class Car extends _Car with RealmEntity, RealmObject {
     },
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }
 
-class Person extends _Person with RealmEntity, RealmObject {
+class Person extends _Person with RealmEntityMixin, RealmObjectMixin {
   Person(
     String name, {
     int age = 1,
@@ -104,7 +105,7 @@ class Person extends _Person with RealmEntity, RealmObject {
 
   @override
   Stream<RealmObjectChanges<Person>> get changes =>
-      RealmObject.getChanges(this);
+      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<Person>(
     Person._,
@@ -115,5 +116,5 @@ class Person extends _Person with RealmEntity, RealmObject {
     },
   );
   @override
-  Map<String, ValueProperty> get properties => schema.properties;
+  SchemaObject get instanceSchema => schema;
 }
