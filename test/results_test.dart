@@ -468,7 +468,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     final livePeople = realm.all<Person>();
-    final frozenPeople = livePeople.freeze();
+    final frozenPeople = freezeResults(livePeople);
 
     expect(frozenPeople.length, 1);
     expect(frozenPeople.isFrozen, true);
@@ -490,7 +490,7 @@ Future<void> main([List<String>? args]) async {
     final config = Configuration.local([Person.schema]);
     final realm = getRealm(config);
 
-    final frozenPeople = realm.all<Person>().freeze();
+    final frozenPeople = freezeResults(realm.all<Person>());
 
     expect(() => frozenPeople.changes, throws<RealmStateError>('Results are frozen and cannot emit changes'));
   });
@@ -501,12 +501,12 @@ Future<void> main([List<String>? args]) async {
 
     final people = realm.all<Person>();
 
-    final frozenPeople = people.freeze();
-    final deepFrozenPeople = frozenPeople.freeze();
+    final frozenPeople = freezeResults(people);
+    final deepFrozenPeople = freezeResults(frozenPeople);
 
     expect(identical(frozenPeople, deepFrozenPeople), true);
 
-    final frozenPeopleAgain = people.freeze();
+    final frozenPeopleAgain = freezeResults(people);
     expect(identical(frozenPeople, frozenPeopleAgain), false);
   });
 }

@@ -610,7 +610,7 @@ Future<void> main([List<String>? args]) async {
     final liveTeam = realm.write(() {
       return realm.add(Team('team', players: [Person('Peter')], scores: [123]));
     });
-    final frozenTeam = liveTeam.freeze();
+    final frozenTeam = freezeObject(liveTeam);
 
     expect(frozenTeam.isFrozen, true);
     expect(frozenTeam.realm.isFrozen, true);
@@ -629,7 +629,7 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
 
     final peter = realm.write(() => realm.add(Person('Peter')));
-    final frozenPeter = peter.freeze();
+    final frozenPeter = freezeObject(peter);
 
     expect(() => frozenPeter.changes, throws<RealmStateError>('Object is frozen and cannot emit changes'));
   });
@@ -643,7 +643,7 @@ Future<void> main([List<String>? args]) async {
       return realm.add(Team('team', players: [Person('Peter')], scores: [123]));
     });
 
-    final frozenTeam = liveTeam.freeze();
+    final frozenTeam = freezeObject(liveTeam);
     expect(frozenTeam.runtimeType, Team);
 
     final frozenPlayers = frozenTeam.dynamic.getList<RealmObject>('players');
@@ -659,7 +659,7 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => realm.add(Person('Peter')));
 
     dynamic peter = realm.dynamic.all('Person').single;
-    dynamic frozenPeter = peter.freeze();
+    dynamic frozenPeter = freezeDynamic(peter);
     expect(frozenPeter.runtimeType.toString(), '_ConcreteRealmObject');
     expect(frozenPeter.isFrozen, true);
     expect(frozenPeter.name, 'Peter');
@@ -673,7 +673,7 @@ Future<void> main([List<String>? args]) async {
 
   test('RealmObject.freeze when unmanaged throws', () {
     final person = Person('Peter');
-    expect(() => person.freeze(), throws<RealmStateError>("Can't freeze unmanaged objects"));
+    expect(() => freezeObject(person), throws<RealmStateError>("Can't freeze unmanaged objects"));
   });
 
   test('RealmObject.freeze when frozen returns same object', () {
@@ -682,12 +682,12 @@ Future<void> main([List<String>? args]) async {
 
     final liveObject = realm.write(() => realm.add(Person('Peter')));
 
-    final frozenObject = liveObject.freeze();
-    final deepFrozenObject = frozenObject.freeze();
+    final frozenObject = freezeObject(liveObject);
+    final deepFrozenObject = freezeObject(frozenObject);
 
     expect(identical(frozenObject, deepFrozenObject), true);
 
-    final anotherFrozenObject = liveObject.freeze();
+    final anotherFrozenObject = freezeObject(liveObject);
     expect(identical(frozenObject, anotherFrozenObject), false);
   });
 }

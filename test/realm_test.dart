@@ -726,7 +726,7 @@ Future<void> main([List<String>? args]) async {
       realm.add(team);
     });
 
-    final frozenRealm = realm.freeze();
+    final frozenRealm = freezeRealm(realm);
     expect(frozenRealm.isFrozen, true);
     expect(realm.isFrozen, false);
 
@@ -753,7 +753,7 @@ Future<void> main([List<String>? args]) async {
     final config = Configuration.local([Person.schema]);
     final realm = getRealm(config);
 
-    final frozenRealm = realm.freeze();
+    final frozenRealm = freezeRealm(realm);
     expect(() => frozenRealm.write(() {}), throws<RealmException>("Can't perform transactions on a frozen Realm"));
   });
 
@@ -761,9 +761,48 @@ Future<void> main([List<String>? args]) async {
     final config = Configuration.local([Person.schema]);
     final realm = getRealm(config);
 
-    final frozenRealm = realm.freeze();
-    final deepFrozenRealm = frozenRealm.freeze();
+    final frozenRealm = freezeRealm(realm);
+    final deepFrozenRealm = freezeRealm(frozenRealm);
     expect(identical(frozenRealm, deepFrozenRealm), true);
+
+    final frozenAgain = freezeRealm(realm);
+    expect(identical(frozenAgain, frozenRealm), false);
+  });
+
+  test("FrozenRealm.close doesn't close other instances", () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final frozen1 = freezeRealm(realm);
+    final frozen2 = freezeRealm(realm);
+    expect(identical(frozen2, frozen1), false);
+
+    expect(frozen1.isClosed, false);
+    expect(frozen2.isClosed, false);
+
+    frozen1.close();
+
+    expect(frozen1.isClosed, true);
+    expect(frozen2.isClosed, false);
+    expect(realm.isClosed, false);
+  });
+
+  test("Realm.close doesn't close frozen instances", () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final frozen = freezeRealm(realm);
+
+    expect(realm.isClosed, false);
+    expect(frozen.isClosed, false);
+
+    realm.close();
+    expect(realm.isClosed, true);
+    expect(frozen.isClosed, false);
+
+    frozen.close();
+    expect(realm.isClosed, true);
+    expect(frozen.isClosed, true);
   });
 }
 
