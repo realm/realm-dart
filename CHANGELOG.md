@@ -6,7 +6,7 @@
 * None
 
 ### Fixed
-* None
+* Allow null arguments on query. ([#872](https://github.com/realm/realm-dart/pull/872)). Fixes [#871](https://github.com/realm/realm-dart/issues/871)
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
