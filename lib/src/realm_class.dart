@@ -101,11 +101,16 @@ class Realm implements Finalizable {
   /// the schema will be read from the file.
   late final RealmSchema schema;
 
+  /// Gets a value indicating whether this [Realm] is frozen. Frozen Realms are immutable
+  /// and will not update when writes are made to the database.
+  late final bool isFrozen;
+
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
   Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? _openRealm(config) {
     _populateMetadata();
+    isFrozen = realmCore.isFrozen(this);
   }
 
   static RealmHandle _openRealm(Configuration config) {
@@ -292,6 +297,26 @@ class Realm implements Finalizable {
 
   /// Deletes all [RealmObject]s of type `T` in the `Realm`
   void deleteAll<T extends RealmObject>() => deleteMany(all<T>());
+
+  /// Returns a frozen (immutable) snapshot of this Realm.
+  ///
+  /// A frozen Realm is an immutable snapshot view of a particular version of a
+  /// Realm's data. Unlike normal [Realm] instances, it does not live-update to
+  /// reflect writes made to the Realm, and can be accessed from any thread. Writing
+  /// to a frozen Realm is not allowed, and attempting to begin a write transaction
+  /// will throw an exception.
+  ///
+  /// All objects and collections read from a frozen Realm will also be frozen.
+  ///
+  /// Note: Keeping a large number of frozen Realms with different versions alive can have a negative impact on the filesize
+  /// of the underlying database.
+  Realm freeze() {
+    if (isFrozen) {
+      return this;
+    }
+
+    return Realm._(config, realmCore.freeze(this));
+  }
 
   SubscriptionSet? _subscriptions;
 

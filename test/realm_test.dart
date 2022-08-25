@@ -715,6 +715,56 @@ Future<void> main([List<String>? args]) async {
     expect(dan.friends, [alice, bob, carol]);
     expect(danAgain.isManaged, isFalse); // dan wasn't updated
   });
+
+  test('Realm.freeze returns frozen Realm', () {
+    final config = Configuration.local([Person.schema, Team.schema]);
+    final realm = getRealm(config);
+
+    realm.write(() {
+      final person = Person('Peter');
+      final team = Team('Man U', players: [person], scores: [1, 2, 3]);
+      realm.add(team);
+    });
+
+    final frozenRealm = realm.freeze();
+    expect(frozenRealm.isFrozen, true);
+    expect(realm.isFrozen, false);
+
+    final frozenTeams = frozenRealm.all<Team>();
+    expect(frozenTeams.isFrozen, true);
+
+    final manU = frozenTeams.single;
+    expect(manU.isFrozen, true);
+    expect(manU.scores.isFrozen, true);
+    expect(manU.players.isFrozen, true);
+    expect(manU.players.single.isFrozen, true);
+
+    expect(frozenRealm.all<Person>().length, 1);
+
+    realm.write(() {
+      realm.deleteAll<Person>();
+    });
+
+    expect(frozenRealm.all<Person>().length, 1);
+    expect(realm.all<Person>().length, 0);
+  });
+
+  test('FrozenRealm cannot write', () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final frozenRealm = realm.freeze();
+    expect(() => frozenRealm.write(() {}), throws<RealmException>("Can't perform transactions on a frozen Realm"));
+  });
+
+  test('realm.freeze when frozen returns the same instance', () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final frozenRealm = realm.freeze();
+    final deepFrozenRealm = frozenRealm.freeze();
+    expect(identical(frozenRealm, deepFrozenRealm), true);
+  });
 }
 
 extension _IterableEx<T> on Iterable<T> {

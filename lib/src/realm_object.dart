@@ -198,8 +198,11 @@ mixin RealmEntity {
   /// The [Realm] instance this object belongs to.
   Realm get realm => _realm ?? (throw RealmStateError('$this not managed'));
 
-  /// True if the object belongs to a realm.
+  /// True if the object belongs to a [Realm].
   bool get isManaged => _realm != null;
+
+  /// True if the entity belongs to a frozen [Realm].
+  bool get isFrozen => _realm?.isFrozen == true;
 }
 
 extension RealmEntityInternal on RealmEntity {
@@ -256,6 +259,23 @@ mixin RealmObject on RealmEntity implements Finalizable {
     return true;
   }
 
+  static T freezeObject<T extends RealmObject>(T object) {
+    if (!object.isManaged) {
+      throw RealmError("Can't freeze unmanaged objects.");
+    }
+
+    if (object.isFrozen) {
+      return object;
+    }
+
+    final frozenRealm = object.realm.freeze();
+    final frozenHandle = realmCore.resolveObject(object, frozenRealm)!;
+
+    final metadata = (object.accessor as RealmCoreAccessor).metadata;
+
+    return RealmObjectInternal.create(T, frozenRealm, frozenHandle, RealmCoreAccessor(metadata)) as T;
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -285,6 +305,10 @@ mixin RealmObject on RealmEntity implements Finalizable {
       throw RealmStateError("Object is not managed");
     }
 
+    if (object.isFrozen) {
+      throw RealmStateError('Object is frozen and cannot emit changes.');
+    }
+
     final controller = RealmObjectNotificationsController<T>(object);
     return controller.createStream();
   }
@@ -295,7 +319,7 @@ mixin RealmObject on RealmEntity implements Finalizable {
   // is the approach used by the Flutter team as well: https://github.com/dart-lang/sdk/issues/28372.
   // If it turns out not to be reliable, we can instead construct symbols from the property names in
   // the Accessor metadata and compare symbols directly.
-  static final RegExp _symbolRegex = RegExp('Symbol\\("(?<symbolName>.*)"\\)');
+  static final RegExp _symbolRegex = RegExp('Symbol\\("(?<symbolName>.*?)=?"\\)');
 
   @override
   DartDynamic noSuchMethod(Invocation invocation) {
@@ -309,10 +333,22 @@ mixin RealmObject on RealmEntity implements Finalizable {
       return get(this, name);
     }
 
+    if (invocation.isSetter) {
+      final name = _symbolRegex.firstMatch(invocation.memberName.toString())?.namedGroup("symbolName");
+      if (name == null) {
+        throw RealmError(
+            "Could not find symbol name for ${invocation.memberName}. This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues");
+      }
+
+      return set(this, name, invocation.positionalArguments.single);
+    }
+
     return super.noSuchMethod(invocation);
   }
 
   late final DynamicRealmObject dynamic = DynamicRealmObject._(this);
+
+  RealmObject freeze() => freezeObject(this);
 }
 
 /// @nodoc
@@ -458,9 +494,9 @@ class DynamicRealmObject {
   /// Gets a list by the property name. If a generic type is specified, the property
   /// type will be validated against the type. Otherwise, a `List<Object>` will be
   /// returned.
-  List<T> getList<T extends Object?>(String name) {
+  RealmList<T> getList<T extends Object?>(String name) {
     _validatePropertyType<T>(name, RealmCollectionType.list);
-    return RealmObject.get<T>(_obj, name) as List<T>;
+    return RealmObject.get<T>(_obj, name) as RealmList<T>;
   }
 
   RealmPropertyMetadata? _validatePropertyType<T extends Object?>(String name, RealmCollectionType expectedCollectionType) {

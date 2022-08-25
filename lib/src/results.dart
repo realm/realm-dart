@@ -36,6 +36,10 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> imp
   /// The Realm instance this collection belongs to.
   final Realm realm;
 
+  /// Gets a value indicating whether this [Realm] is frozen. Frozen Realms are immutable
+  /// and will not update when writes are made to the database.
+  bool get isFrozen => realm.isFrozen;
+
   final _supportsSnapshot = <T>[] is List<RealmObject?>;
 
   RealmResults._(this._handle, this.realm, this._metadata);
@@ -78,6 +82,17 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> imp
   Stream<RealmResultsChanges<T>> get changes {
     final controller = ResultsNotificationsController<T>(this);
     return controller.createStream();
+  }
+
+  /// Creates a frozen snapshot of this query.
+  RealmResults<T> freeze() {
+    if (isFrozen) {
+      return this;
+    }
+
+    final frozenRealm = realm.freeze();
+    final frozenHandle = realmCore.resolveResults(this, frozenRealm);
+    return RealmResults._(frozenHandle, frozenRealm, _metadata);
   }
 }
 

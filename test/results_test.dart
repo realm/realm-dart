@@ -18,6 +18,8 @@
 
 // ignore_for_file: unused_local_variable
 
+import 'dart:math';
+
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -452,10 +454,37 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results notifications can leak', () async {
-    var config = Configuration.local([Dog.schema, Person.schema]);
-    var realm = getRealm(config);
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
 
     final leak = realm.all<Dog>().changes.listen((data) {});
     await Future<void>.delayed(const Duration(milliseconds: 20));
+  });
+
+  test('Results.freeze freezes query', () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    realm.write(() {
+      realm.add(Person('Peter'));
+    });
+
+    final livePeople = realm.all<Person>();
+    final frozenPeople = livePeople.freeze();
+
+    expect(frozenPeople.length, 1);
+    expect(frozenPeople.isFrozen, true);
+    expect(frozenPeople.realm.isFrozen, true);
+    expect(frozenPeople.single.isFrozen, true);
+
+    realm.write(() {
+      livePeople.single.name = 'Peter II';
+      realm.add(Person('George'));
+    });
+
+    expect(livePeople.length, 2);
+    expect(livePeople.first.name, 'Peter II');
+    expect(frozenPeople.length, 1);
+    expect(frozenPeople.single.name, 'Peter');
   });
 }
