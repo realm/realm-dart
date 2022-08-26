@@ -1253,3 +1253,91 @@ class Friend extends _Friend with RealmEntityMixin, RealmObjectMixin {
   @override
   SchemaObject get instanceSchema => schema;
 }
+
+class Player extends _Player with RealmEntityMixin, RealmObjectMixin {
+  Player(
+    String name, {
+    Game? game,
+    Iterable<int?> scoresByRound = const [],
+  }) {
+    _nameProperty.setValue(this, name);
+    _gameProperty.setValue(this, game);
+    _scoresByRoundProperty.setValue(this, RealmList<int?>(scoresByRound));
+  }
+
+  Player._();
+
+  static const _nameProperty = ValueProperty<String>(
+    'name',
+    RealmPropertyType.string,
+    primaryKey: true,
+  );
+  @override
+  String get name => _nameProperty.getValue(this);
+  @override
+  set name(String value) => throw RealmUnsupportedSetError();
+
+  static const _gameProperty = ObjectProperty<Game>('game', 'Game');
+  @override
+  Game? get game => _gameProperty.getValue(this);
+  @override
+  set game(covariant Game? value) => _gameProperty.setValue(this, value);
+
+  static const _scoresByRoundProperty =
+      ListProperty<int?>('scoresByRound', RealmPropertyType.int);
+  @override
+  RealmList<int?> get scoresByRound => _scoresByRoundProperty.getValue(this);
+  @override
+  set scoresByRound(covariant RealmList<int?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Player>> get changes =>
+      RealmObjectMixin.getChanges(this);
+
+  static const schema = SchemaObject<Player>(
+    Player._,
+    'Player',
+    {
+      'name': _nameProperty,
+      'game': _gameProperty,
+      'scoresByRound': _scoresByRoundProperty,
+    },
+    _nameProperty,
+  );
+  @override
+  SchemaObject get instanceSchema => schema;
+}
+
+class Game extends _Game with RealmEntityMixin, RealmObjectMixin {
+  Game({
+    Iterable<Player> winnerByRound = const [],
+  }) {
+    _winnerByRoundProperty.setValue(this, RealmList<Player>(winnerByRound));
+  }
+
+  Game._();
+
+  static const _winnerByRoundProperty = ListProperty<Player>(
+      'winnerByRound', RealmPropertyType.object,
+      linkTarget: 'Player');
+  @override
+  RealmList<Player> get winnerByRound => _winnerByRoundProperty.getValue(this);
+  @override
+  set winnerByRound(covariant RealmList<Player> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Game>> get changes =>
+      RealmObjectMixin.getChanges(this);
+
+  static const schema = SchemaObject<Game>(
+    Game._,
+    'Game',
+    {
+      'winnerByRound': _winnerByRoundProperty,
+    },
+  );
+  @override
+  SchemaObject get instanceSchema => schema;
+}

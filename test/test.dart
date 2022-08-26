@@ -201,6 +201,20 @@ class _Friend {
   final friends = <_Friend>[];
 }
 
+@RealmModel()
+class _Player {
+  @PrimaryKey()
+  late String name;
+  _Game? game;
+  final scoresByRound = <int?>[]; // null means player didn't finish
+}
+
+@RealmModel()
+class _Game {
+  final winnerByRound = <_Player>[]; // null means no winner yet
+  int get rounds => winnerByRound.length;
+}
+
 String? testName;
 Map<String, String?> arguments = {};
 final baasApps = <String, BaasApp>{};
