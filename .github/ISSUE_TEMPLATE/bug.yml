@@ -28,13 +28,13 @@ body:
     id: version
     attributes:
       label: Version
-      description: What version of the dart/Flutter SDK are you using?
+      description: What version of the Dart/Flutter SDK are you using?
     validations:
       required: true
   - type: dropdown
     id: flavour
     attributes:
-      label: What SDK flavour are you using?
+      label: What Realm SDK flavor are you using?
       options:
         - MongoDB Atlas (i.e. Sync, auth, functions)
         - Local Database only
@@ -45,8 +45,8 @@ body:
     attributes:
       label: What type of application is this?
       options:
-        - Dart
-        - Flutter
+        - Flutter Application
+        - Dart standalone application
         - Other
     validations:
       required: true
