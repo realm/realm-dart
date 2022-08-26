@@ -48,7 +48,7 @@ class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with Re
   final RealmListHandle _handle;
 
   @override
-  late final RealmObjectMetadata? _metadata;
+  late final RealmObjectMetadata? _metadata; // TODO: Why nullable?
 
   ManagedRealmList._(this._handle, Realm realm, this._metadata) {
     setRealm(realm);
@@ -88,7 +88,7 @@ class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with Re
       final value = realmCore.listGetElementAt(this, index);
 
       if (value is RealmObjectHandle) {
-        return realm.createObject(T, value, _metadata!) as T;
+        return RealmObjectInternal.create<T>(realm, value, _metadata!);
       }
 
       return value as T;

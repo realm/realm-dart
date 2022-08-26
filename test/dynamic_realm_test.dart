@@ -30,11 +30,11 @@ Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
   _assertSchemaExists(Realm realm, SchemaObject expected) {
-    final foundSchema = realm.schema.singleWhere((e) => e.name == expected.name);
+    final foundSchema = realm.schema[expected.name]!;
     expect(foundSchema.properties.length, expected.properties.length);
 
-    for (final prop in foundSchema.properties) {
-      final expectedProp = expected.properties.singleWhere((e) => e.name == prop.name);
+    for (final prop in foundSchema.properties.values) {
+      final expectedProp = expected.properties[prop.name]!;
       expect(prop.collectionType, expectedProp.collectionType);
       expect(prop.linkTarget, expectedProp.linkTarget);
       expect(prop.optional, expectedProp.optional);
@@ -149,24 +149,38 @@ Future<void> main([List<String>? args]) async {
   void _validateDynamicLists(RealmObject actual, AllCollections expected) {
     expect(actual.dynamic.getList<String>('strings'), expected.strings);
     expect(actual.dynamic.getList('strings'), expected.strings);
+    expect(actual.dynamic.get<List<String>>('strings'), expected.strings);
+    expect(actual.dynamic.get('strings'), expected.strings);
 
     expect(actual.dynamic.getList<bool>('bools'), expected.bools);
     expect(actual.dynamic.getList('bools'), expected.bools);
+    expect(actual.dynamic.get<List<bool>>('bools'), expected.bools);
+    expect(actual.dynamic.get('bools'), expected.bools);
 
     expect(actual.dynamic.getList<DateTime>('dates'), expected.dates);
     expect(actual.dynamic.getList('dates'), expected.dates);
+    expect(actual.dynamic.get<List<DateTime>>('dates'), expected.dates);
+    expect(actual.dynamic.get('dates'), expected.dates);
 
     expect(actual.dynamic.getList<double>('doubles'), expected.doubles);
     expect(actual.dynamic.getList('doubles'), expected.doubles);
+    expect(actual.dynamic.get<List<double>>('doubles'), expected.doubles);
+    expect(actual.dynamic.get('doubles'), expected.doubles);
 
     expect(actual.dynamic.getList<ObjectId>('objectIds'), expected.objectIds);
     expect(actual.dynamic.getList('objectIds'), expected.objectIds);
+    expect(actual.dynamic.get<List<ObjectId>>('objectIds'), expected.objectIds);
+    expect(actual.dynamic.get('objectIds'), expected.objectIds);
 
     expect(actual.dynamic.getList<Uuid>('uuids'), expected.uuids);
     expect(actual.dynamic.getList('uuids'), expected.uuids);
+    expect(actual.dynamic.get<List<Uuid>>('uuids'), expected.uuids);
+    expect(actual.dynamic.get('uuids'), expected.uuids);
 
     expect(actual.dynamic.getList<int>('ints'), expected.ints);
     expect(actual.dynamic.getList('ints'), expected.ints);
+    expect(actual.dynamic.get<List<int>>('ints'), expected.ints);
+    expect(actual.dynamic.get('ints'), expected.ints);
 
     dynamic actualDynamic = actual;
     expect(actualDynamic.strings, expected.strings);
@@ -372,7 +386,7 @@ Future<void> main([List<String>? args]) async {
         final obj = dynamicRealm.dynamic.all(AllTypes.schema.name).single;
         dynamic dynamicObj = obj;
         expect(() => obj.dynamic.get('i-dont-exist'), throws<RealmException>("Property 'i-dont-exist' does not exist on class 'AllTypes'"));
-        expect(() => dynamicObj.idontexist, throws<RealmException>("Property idontexist does not exist on class AllTypes"));
+        expect(() => dynamicObj.idontexist, throws<RealmException>("Property 'idontexist' does not exist on class 'AllTypes'"));
       });
 
       test('fails with wrong type', () {
@@ -385,15 +399,11 @@ Future<void> main([List<String>? args]) async {
 
         final obj = dynamicRealm.dynamic.all(AllTypes.schema.name).single;
 
-        expect(
-            () => obj.dynamic.get<int>('stringProp'),
-            throws<RealmException>(
-                "Property 'stringProp' on class 'AllTypes' is not the correct type. Expected 'RealmPropertyType.int', got 'RealmPropertyType.string'."));
+        expect(() => obj.dynamic.get<int>('stringProp'),
+            throws<RealmException>("Property 'stringProp' on class 'AllTypes' is not the correct type. Expected 'int', got 'String'."));
 
-        expect(
-            () => obj.dynamic.get<int?>('nullableStringProp'),
-            throws<RealmException>(
-                "Property 'nullableStringProp' on class 'AllTypes' is not the correct type. Expected 'RealmPropertyType.int', got 'RealmPropertyType.string'."));
+        expect(() => obj.dynamic.get<int?>('nullableStringProp'),
+            throws<RealmException>("Property 'nullableStringProp' on class 'AllTypes' is not the correct type. Expected 'int?', got 'String?'."));
 
         expect(() => obj.dynamic.get<int>('nullableIntProp'),
             throws<RealmException>("Property 'nullableIntProp' on class 'AllTypes' is nullable but the generic argument passed to get<T> is int."));
@@ -411,20 +421,14 @@ Future<void> main([List<String>? args]) async {
         final dynamicRealm = _getDynamicRealm(staticRealm);
 
         final obj = dynamicRealm.dynamic.all(AllCollections.schema.name).single;
-        expect(
-            () => obj.dynamic.get<String>('strings'),
-            throws<RealmException>(
-                "Property 'strings' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
+        expect(() => obj.dynamic.get<String>('strings'),
+            throws<RealmException>("Property 'strings' on class 'AllCollections' is not the correct type. Expected 'String', got 'ManagedRealmList<String>'."));
 
-        expect(
-            () => obj.dynamic.get('strings'),
-            throws<RealmException>(
-                "Property 'strings' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
-
+        expect(obj.dynamic.get('strings'), <String>[]);
         expect(
             () => obj.dynamic.get<String?>('strings'),
             throws<RealmException>(
-                "Property 'strings' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
+                "Property 'strings' on class 'AllCollections' is not the correct type. Expected 'String?', got 'ManagedRealmList<String>'."));
       });
     });
 
@@ -504,7 +508,7 @@ Future<void> main([List<String>? args]) async {
         expect(
             () => obj.dynamic.getList<int>('strings'),
             throws<RealmException>(
-                "Property 'strings' on class 'AllCollections' is not the correct type. Expected 'RealmPropertyType.int', got 'RealmPropertyType.string'"));
+                "Property 'strings' on class 'AllCollections' is not the correct type. Expected 'List<int>', got 'ManagedRealmList<String>'."));
       });
 
       test('fails on non-collection properties', () {
@@ -516,10 +520,8 @@ Future<void> main([List<String>? args]) async {
         final dynamicRealm = _getDynamicRealm(staticRealm);
 
         final obj = dynamicRealm.dynamic.all(AllTypes.schema.name).single;
-        expect(
-            () => obj.dynamic.getList('intProp'),
-            throws<RealmException>(
-                "Property 'intProp' on class 'AllTypes' is 'RealmCollectionType.none' but the method used to access it expected 'RealmCollectionType.list'."));
+        expect(() => obj.dynamic.getList('intProp'),
+            throws<RealmException>("Property 'intProp' on class 'AllTypes' is not the correct type. Expected 'List<Object?>', got 'int'."));
       });
     });
   }
@@ -602,7 +604,9 @@ Future<void> main([List<String>? args]) async {
     expect(obj1.dynamic.getList<RealmObject>('list'), isEmpty);
     expect(obj1.dynamic.getList('list'), isEmpty);
 
+    expect(obj2.dynamic.getList<LinksClass>('list'), [obj1, obj1]);
     expect(obj2.dynamic.getList<RealmObject>('list'), [obj1, obj1]);
+    final x = obj2.dynamic.getList('list');
     expect(obj2.dynamic.getList('list'), [obj1, obj1]);
     expect(obj2.dynamic.getList<RealmObject>('list')[0].dynamic.get<Uuid>('id'), uuid1);
 

@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
-import 'package:realm_generator/src/expanded_context_span.dart';
 import 'package:source_gen/source_gen.dart';
 import 'annotation_value.dart';
 import 'error.dart';
@@ -154,7 +153,7 @@ extension ClassElementEx on ClassElement {
       );
     } on InvalidGenerationSourceError catch (_) {
       rethrow;
-    } catch (e, s) {
+    } catch (e) {
       // Fallback. Not perfect, but better than just forwarding original error.
       throw RealmInvalidGenerationSourceError(
         '$e',

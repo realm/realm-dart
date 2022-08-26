@@ -15,14 +15,12 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 
 import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
-import 'package:collection/collection.dart';
 
 import 'configuration.dart';
 import 'list.dart';
@@ -30,8 +28,9 @@ import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'results.dart';
 import 'scheduler.dart';
-import 'subscription.dart';
 import 'session.dart';
+import 'subscription.dart';
+import 'type_utils.dart';
 
 export 'package:realm_common/realm_common.dart'
     show
@@ -73,22 +72,21 @@ export "configuration.dart"
         ShouldCompactCallback,
         SyncErrorHandler,
         SyncClientResetErrorHandler;
-
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
 export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges, DynamicRealmObject;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
+export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, UserIdentity;
-export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
 /// {@category Realm}
 class Realm implements Finalizable {
   late final RealmMetadata _metadata;
-  late final RealmHandle _handle;
+  final RealmHandle _handle;
 
   /// An object encompassing this `Realm` instance's dynamic API.
   late final DynamicRealm dynamic = DynamicRealm._(this);
@@ -117,8 +115,9 @@ class Realm implements Finalizable {
   }
 
   void _populateMetadata() {
-    schema = config.schemaObjects.isNotEmpty ? RealmSchema(config.schemaObjects) : realmCore.readSchema(this);
-    _metadata = RealmMetadata._(schema.map((c) => realmCore.getObjectMetadata(this, c.name, c.type)));
+    final schemaObjects = config.schemaObjects.isNotEmpty ? config.schemaObjects : realmCore.readSchema(this);
+    schema = RealmSchema({for (final o in schemaObjects) o.name: o});
+    _metadata = RealmMetadata._(schema, schemaObjects.map((s) => realmCore.getObjectMetadata(this, s)).toList());
   }
 
   /// Deletes all files associated with a `Realm` located at given [path]
@@ -177,15 +176,15 @@ class Realm implements Finalizable {
   }
 
   RealmObjectHandle _createObject(RealmObject object, RealmObjectMetadata metadata, bool update) {
-    final key = metadata.classKey;
+    final key = metadata.key;
     final primaryKey = metadata.primaryKey;
     if (primaryKey == null) {
       return realmCore.createRealmObject(this, key);
     }
     if (update) {
-      return realmCore.getOrCreateRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey));
+      return realmCore.getOrCreateRealmObjectWithPrimaryKey(this, key, object.accessor.getValue(object, primaryKey.name));
     }
-    return realmCore.createRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey));
+    return realmCore.createRealmObjectWithPrimaryKey(this, key, object.accessor.getValue(object, primaryKey.name));
   }
 
   /// Adds a collection [RealmObject]s to this `Realm`.
@@ -259,24 +258,23 @@ class Realm implements Finalizable {
 
   /// Fast lookup for a [RealmObject] with the specified [primaryKey].
   T? find<T extends RealmObject>(Object? primaryKey) {
-    final metadata = _metadata.getByType(T);
+    final metadata = _metadata.getByStaticType<T>();
 
-    final handle = realmCore.find(this, metadata.classKey, primaryKey);
+    final handle = realmCore.find(this, metadata.key, primaryKey);
     if (handle == null) {
       return null;
     }
 
-    final accessor = RealmCoreAccessor(metadata);
-    var object = RealmObjectInternal.create(T, this, handle, accessor);
-    return object as T;
+    var object = RealmObjectInternal.create<T>(this, handle, metadata);
+    return object;
   }
 
   /// Returns all [RealmObject]s of type `T` in the `Realm`
   ///
   /// The returned [RealmResults] allows iterating all the values without further filtering.
   RealmResults<T> all<T extends RealmObject>() {
-    final metadata = _metadata.getByType(T);
-    final handle = realmCore.findAll(this, metadata.classKey);
+    final metadata = _metadata.getByStaticType<T>();
+    final handle = realmCore.findAll(this, metadata.key);
     return RealmResultsInternal.create<T>(handle, this, metadata);
   }
 
@@ -285,8 +283,8 @@ class Realm implements Finalizable {
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query<T extends RealmObject>(String query, [List<Object?> args = const []]) {
-    final metadata = _metadata.getByType(T);
-    final handle = realmCore.queryClass(this, metadata.classKey, query, args);
+    final metadata = _metadata.getByStaticType<T>();
+    final handle = realmCore.queryClass(this, metadata.key, query, args);
     return RealmResultsInternal.create<T>(handle, this, metadata);
   }
 
@@ -367,6 +365,8 @@ class Transaction {
   }
 }
 
+bool _isTypedRealmObject<T>() => isStrictSubtype<T, RealmObject?>();
+
 /// @nodoc
 extension RealmInternal on Realm {
   @pragma('vm:never-inline')
@@ -384,25 +384,22 @@ extension RealmInternal on Realm {
     return Realm._(config, handle);
   }
 
-  RealmObject createObject(Type type, RealmObjectHandle handle, RealmObjectMetadata metadata) {
-    final accessor = RealmCoreAccessor(metadata);
-    return RealmObjectInternal.create(type, this, handle, accessor);
+/*
+  T createObject<T extends Object?>(RealmObjectHandle handle, [RealmObjectMetadata? metadata]) {
+    metadata ??= _isTypedRealmObject<T>() ? _metadata.getByType(T) : null;
+    final object = RealmObjectInternal.create<T>(this, handle, metadata!);
+    return object;
   }
 
-  RealmList<T> createList<T extends Object?>(RealmListHandle handle, RealmObjectMetadata? metadata) {
+  RealmList<T> createList<T extends Object?>(RealmListHandle handle, RealmPropertyMetadata backlinkMeta) {
+    var metadata = _isTypedRealmObject<T>() ? _metadata.getByType(T) : null;
+    metadata ??= _isRealmObject<T>() ? _metadata.getByName(backlinkMeta.schema.linkTarget!) : null;
     return RealmListInternal.create<T>(handle, this, metadata);
   }
-
+*/
   List<String> getPropertyNames(Type type, List<int> propertyKeys) {
     final metadata = _metadata.getByType(type);
-    final result = <String>[];
-    for (var key in propertyKeys) {
-      final name = metadata.getPropertyName(key);
-      if (name != null) {
-        result.add(name);
-      }
-    }
-    return result;
+    return propertyKeys.map((k) => metadata.getPropertyMetaByKey(k).name).toList();
   }
 
   RealmMetadata get metadata => _metadata;
@@ -490,40 +487,34 @@ class RealmLogLevel {
 
 /// @nodoc
 class RealmMetadata {
-  final Map<Type, RealmObjectMetadata> _typeMap = <Type, RealmObjectMetadata>{};
-  final Map<String, RealmObjectMetadata> _stringMap = <String, RealmObjectMetadata>{};
+  final RealmSchema schema;
+  final Map<Type, RealmObjectMetadata> _typeMap;
+  final Map<String, RealmObjectMetadata> _stringMap;
 
-  RealmMetadata._(Iterable<RealmObjectMetadata> objectMetadatas) {
-    for (final metadata in objectMetadatas) {
-      if (metadata.type != RealmObject) {
-        _typeMap[metadata.type] = metadata;
-      } else {
-        _stringMap[metadata.name] = metadata;
-      }
+  RealmMetadata._(this.schema, Iterable<RealmObjectMetadata> objectMetadatas)
+      : _typeMap = <Type, RealmObjectMetadata>{
+          for (final o in objectMetadatas)
+            if (o.type != RealmObject) o.type: o
+        },
+        _stringMap = <String, RealmObjectMetadata>{for (final o in objectMetadatas) o.name: o};
+
+  RealmObjectMetadata getByType(Type type) =>
+      _typeMap[type] ??
+      (throw RealmError("Object type $type not configured in the current Realm's schema. Add type $type to your config before opening the Realm"));
+
+  RealmObjectMetadata getByStaticType<T extends RealmObject>() => getByType(T);
+
+  RealmObjectMetadata getByName(String name) =>
+      _stringMap[name] ??
+      (throw RealmError("Object type $name not configured in the current Realm's schema. Add type $name to your config before opening the Realm"));
+
+  RealmObjectMetadata? getLinkMeta<LinkT extends Object?>(RealmPropertyMetadata propertyMeta) {
+    if (_isTypedRealmObject<LinkT>()) return getByType(LinkT);
+    final target = propertyMeta.schema.linkTarget;
+    if (target != null) {
+      return getByName(target);
     }
-  }
-
-  RealmObjectMetadata getByType(Type type) {
-    final metadata = _typeMap[type];
-    if (metadata == null) {
-      throw RealmError("Object type $type not configured in the current Realm's schema. Add type $type to your config before opening the Realm");
-    }
-
-    return metadata;
-  }
-
-  RealmObjectMetadata getByName(String type) {
-    var metadata = _stringMap[type];
-    if (metadata == null) {
-      metadata = _typeMap.values.firstWhereOrNull((v) => v.name == type);
-      if (metadata == null) {
-        throw RealmError("Object type $type not configured in the current Realm's schema. Add type $type to your config before opening the Realm");
-      }
-
-      _stringMap[type] = metadata;
-    }
-
-    return metadata;
+    return null;
   }
 }
 
@@ -541,7 +532,7 @@ class DynamicRealm {
   /// The returned [RealmResults] allows iterating all the values without further filtering.
   RealmResults<RealmObject> all(String className) {
     final metadata = _realm._metadata.getByName(className);
-    final handle = realmCore.findAll(_realm, metadata.classKey);
+    final handle = realmCore.findAll(_realm, metadata.key);
     return RealmResultsInternal.create<RealmObject>(handle, _realm, metadata);
   }
 
@@ -549,12 +540,11 @@ class DynamicRealm {
   RealmObject? find(String className, Object primaryKey) {
     final metadata = _realm._metadata.getByName(className);
 
-    final handle = realmCore.find(_realm, metadata.classKey, primaryKey);
+    final handle = realmCore.find(_realm, metadata.key, primaryKey);
     if (handle == null) {
       return null;
     }
 
-    final accessor = RealmCoreAccessor(metadata);
-    return RealmObjectInternal.create(RealmObject, _realm, handle, accessor);
+    return RealmObjectInternal.create<RealmObject>(_realm, handle, metadata);
   }
 }

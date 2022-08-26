@@ -23,13 +23,13 @@ import 'dart:ffi';
 import 'collections.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
-import 'realm_object.dart' show RealmObjectMetadata;
+import 'realm_object.dart' show RealmObjectMetadata, RealmObjectInternal;
 
 /// Instances of this class are live collections and will update as new elements are either
 /// added to or deleted from the Realm that match the underlying query.
 ///
 /// {@category Realm}
-class RealmResults<T extends RealmObject> extends collection.IterableBase<T> implements Finalizable {
+class RealmResults<T extends Object?> extends collection.IterableBase<T> implements Finalizable {
   final RealmObjectMetadata? _metadata;
   final RealmResultsHandle _handle;
 
@@ -43,7 +43,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> imp
   /// Returns the element of type `T` at the specified [index].
   T operator [](int index) {
     final handle = realmCore.getObjectAt(this, index);
-    return realm.createObject(T, handle, _metadata!) as T;
+    return RealmObjectInternal.create<T>(realm, handle, _metadata!);
   }
 
   /// Returns a new [RealmResults] filtered according to the provided query.
@@ -65,7 +65,7 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> imp
     var results = this;
     if (_supportsSnapshot) {
       final handle = realmCore.resultsSnapshot(this);
-      results = RealmResultsInternal.create<T>(handle, realm, _metadata);
+      results = RealmResults._(handle, realm, _metadata);
     }
     return _RealmResultsIterator(results);
   }
@@ -91,13 +91,13 @@ extension RealmResultsInternal on RealmResults {
 
   RealmResultsHandle get handle => _handle;
 
-  static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm, RealmObjectMetadata? metadata) {
+  static RealmResults<T> create<T extends Object?>(RealmResultsHandle handle, Realm realm, RealmObjectMetadata? metadata) {
     return RealmResults<T>._(handle, realm, metadata);
   }
 }
 
 /// Describes the changes in a Realm results collection since the last time the notification callback was invoked.
-class RealmResultsChanges<T extends RealmObject> extends RealmCollectionChanges {
+class RealmResultsChanges<T extends Object?> extends RealmCollectionChanges {
   /// The results collection being monitored for changes.
   final RealmResults<T> results;
 
@@ -105,7 +105,7 @@ class RealmResultsChanges<T extends RealmObject> extends RealmCollectionChanges 
 }
 
 /// @nodoc
-class ResultsNotificationsController<T extends RealmObject> extends NotificationsController {
+class ResultsNotificationsController<T extends Object?> extends NotificationsController {
   final RealmResults<T> results;
   late final StreamController<RealmResultsChanges<T>> streamController;
 
@@ -137,7 +137,7 @@ class ResultsNotificationsController<T extends RealmObject> extends Notification
   }
 }
 
-class _RealmResultsIterator<T extends RealmObject> implements Iterator<T> {
+class _RealmResultsIterator<T extends Object?> implements Iterator<T> {
   final RealmResults<T> _results;
   int _index;
   T? _current;

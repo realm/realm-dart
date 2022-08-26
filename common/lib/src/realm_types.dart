@@ -21,32 +21,63 @@ import 'dart:typed_data';
 import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
 
+/// @nodoc
+abstract class RealmAccessorMarker {
+  T getValue<T>(RealmObjectMarker object, String propertyName);
+  T? getObject<T>(RealmObjectMarker object, String propertyName);
+  List<T> getList<T>(RealmObjectMarker object, String propertyName);
+  void set<T>(RealmObjectMarker object, String propertyName, T value, {bool isDefault = false, bool update = false});
+}
+
+Type _typeOf<T>() => T; // TODO(kasper): Replace with public version once realm_common contains all
+
+/// @nodoc
+class Mapping<T> {
+  const Mapping();
+
+  // Types
+  Type get type => T;
+  Type get nullableType => _typeOf<T?>();
+  Type get listType => List<T>;
+  Type get listOfNullablesType => List<T?>;
+
+  // Factories
+  T? getObject(RealmAccessorMarker accessor, RealmObjectMarker object, String propertyName) => accessor.getObject<T>(object, propertyName);
+  T getValue(RealmAccessorMarker accessor, RealmObjectMarker object, String propertyName) => accessor.getValue<T>(object, propertyName);
+  T? getNullableValue(RealmAccessorMarker accessor, RealmObjectMarker object, String propertyName) => accessor.getValue<T?>(object, propertyName);
+  List<T> getList(RealmAccessorMarker accessor, RealmObjectMarker object, String propertyName) => accessor.getList<T>(object, propertyName);
+  List<T?> getListOfNullables(RealmAccessorMarker accessor, RealmObjectMarker object, String propertyName) => accessor.getList<T?>(object, propertyName);
+}
+
+const _intMapping = Mapping<int>();
+const _boolMapping = Mapping<bool>();
+const _doubleMapping = Mapping<double>();
+
 /// All supported `Realm` property types.
 /// {@category Configuration}
 enum RealmPropertyType {
-  int,
-  bool,
-  string,
-  // ignore: unused_field, constant_identifier_names
-  _3,
-  binary,
-  // ignore: unused_field, constant_identifier_names
-  _5,
-  mixed,
-  // ignore: unused_field, constant_identifier_names
-  _7,
-  timestamp,
-  float,
-  double,
+  int(_intMapping),
+  bool(_boolMapping),
+  string(Mapping<String>()),
+  _3, // ignore: unused_field, constant_identifier_names
+  binary(Mapping<Uint8List>()),
+  _5, // ignore: unused_field, constant_identifier_names
+  mixed(Mapping<RealmAny>()),
+  _7, // ignore: unused_field, constant_identifier_names
+  timestamp(Mapping<DateTime>()),
+  float(Mapping<Float>()),
+  double(_doubleMapping),
   decimal128,
-  object,
-  // ignore: unused_field, constant_identifier_names
-  _13,
+  object(Mapping<RealmObjectMarker>()),
+  _13, // ignore: unused_field, constant_identifier_names
   linkingObjects,
-  objectid,
-  // ignore: unused_field, constant_identifier_names
-  _16,
-  uuid,
+  objectid(Mapping<ObjectId>()),
+  _16, // ignore: unused_field, constant_identifier_names
+  uuid(Mapping<Uuid>());
+
+  const RealmPropertyType([this.mapping = const Mapping<Never>()]);
+
+  final Mapping<dynamic> mapping;
 }
 
 /// All supported `Realm` collection types.
@@ -78,6 +109,7 @@ class RealmUnsupportedSetError extends UnsupportedError implements RealmError {
 class RealmStateError extends StateError implements RealmError {
   RealmStateError(super.message);
 }
+
 /// @nodoc
 class Decimal128 {} // TODO Support decimal128 datatype https://github.com/realm/realm-dart/issues/725
 
