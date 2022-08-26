@@ -20,8 +20,8 @@ import 'package:analyzer/dart/element/type.dart';
 import 'package:realm_common/realm_common.dart';
 
 import 'dart_type_ex.dart';
-import 'field_element_ex.dart';
 import 'element.dart';
+import 'field_element_ex.dart';
 
 class RealmFieldInfo {
   final FieldElement fieldElement;
@@ -52,7 +52,8 @@ class RealmFieldInfo {
 
   String get basicMappedTypeName => type.basicMappedName;
 
-  String get basicRealmTypeName => fieldElement.modelType.basicType.element?.remappedRealmName ?? fieldElement.modelType.basicMappedName;
+  String get basicRealmTypeName =>
+      fieldElement.modelType.basicType.asNonNullable.element2?.remappedRealmName ?? fieldElement.modelType.asNonNullable.basicMappedName;
 
   String get modelTypeName => fieldElement.modelTypeName;
 
@@ -61,12 +62,30 @@ class RealmFieldInfo {
   RealmCollectionType get realmCollectionType => type.realmCollectionType;
 
   Iterable<String> toCode() sync* {
+    final property = '_${name}Property';
+    if (realmCollectionType == RealmCollectionType.list) {
+      if (realmType == RealmPropertyType.object) {
+        yield "static const $property = ListProperty<$basicMappedTypeName>('$realmName', $realmType, linkTarget: '$basicRealmTypeName');";
+      } else {
+        yield "static const $property = ListProperty<$basicMappedTypeName>('$realmName', $realmType);";
+      }
+    } else if (realmType == RealmPropertyType.object) {
+      yield "static const $property = ObjectProperty<$basicMappedTypeName>('$realmName', '$basicRealmTypeName');";
+    } else {
+      yield [
+        "static const $property = ValueProperty<$mappedTypeName>('$realmName', $realmType,",
+        if (isPrimaryKey) ' primaryKey: true,',
+        if (isRealmCollection) " collectionType: $realmCollectionType,",
+        if (hasDefaultValue && !isRealmCollection) ' defaultValue: ${fieldElement.initializerExpression},',
+        ");",
+      ].join();
+    }
     yield '@override';
-    yield "$mappedTypeName get $name => RealmObject.get<$basicMappedTypeName>(this, '$realmName') as $mappedTypeName;";
-    bool generateSetter = !isFinal && !isRealmCollection;
+    yield "$mappedTypeName get $name => $property.getValue(this);";
+    bool generateSetter = !isFinal && !isPrimaryKey && !isRealmCollection;
     if (generateSetter) {
       yield '@override';
-      yield "set $name(${mappedTypeName != modelTypeName ? 'covariant ' : ''}$mappedTypeName value) => RealmObject.set(this, '$realmName', value);";
+      yield "set $name(${mappedTypeName != modelTypeName ? 'covariant ' : ''}$mappedTypeName value) => $property.setValue(this, value);";
     } else {
       bool generateThrowError = isLate || isRealmCollection;
       if (generateThrowError) {

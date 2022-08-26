@@ -15,9 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-import 'package:realm_common/realm_common.dart';
-
 import 'dart_type_ex.dart';
 import 'field_element_ex.dart';
 import 'realm_field_info.dart';
@@ -35,12 +32,6 @@ class RealmModelInfo {
     {
       final allExceptCollections = fields.where((f) => !f.type.isRealmCollection).toList();
 
-      final hasDefaults = allExceptCollections.where((f) => f.hasDefaultValue).toList();
-      if (hasDefaults.isNotEmpty) {
-        yield 'static var _defaultsSet = false;';
-        yield '';
-      }
-
       yield '$name(';
       {
         final required = allExceptCollections.where((f) => f.isRequired || f.isPrimaryKey);
@@ -57,20 +48,12 @@ class RealmModelInfo {
 
         yield ') {';
 
-        if (hasDefaults.isNotEmpty) {
-          yield 'if (!_defaultsSet) {';
-          yield '  _defaultsSet = RealmObject.setDefaults<$name>({';
-          yield* hasDefaults.map((f) => "'${f.realmName}': ${f.fieldElement.initializerExpression},");
-          yield '  });';
-          yield '}';
-        }
-
         yield* allExceptCollections.map((f) {
-          return "RealmObject.set(this, '${f.realmName}', ${f.name});";
+          return '_${f.name}Property.setValue(this, ${f.name});';
         });
 
         yield* collections.map((c) {
-          return "RealmObject.set<${c.mappedTypeName}>(this, '${c.realmName}', ${c.mappedTypeName}(${c.name}));";
+          return '_${c.name}Property.setValue(this, ${c.mappedTypeName}(${c.name}));';
         });
       }
       yield '}';
@@ -84,50 +67,25 @@ class RealmModelInfo {
           ]);
 
       yield '@override';
-      yield 'Stream<RealmObjectChanges<$name>> get changes => RealmObject.getChanges<$name>(this);';
+      yield 'Stream<RealmObjectChanges<$name>> get changes => RealmObject.getChanges(this);';
       yield '';
 
-      yield '@override';
-      yield '$name freeze() => RealmObject.freezeObject<$name>(this);';
-      yield '';
-
-      yield 'static SchemaObject get schema => _schema ??= _initSchema();';
-      yield 'static SchemaObject? _schema;';
-      yield 'static SchemaObject _initSchema() {';
+      final primaryKey = fields.cast<RealmFieldInfo?>().firstWhere((element) => element!.isPrimaryKey, orElse: () => null);
+      yield 'static const schema = SchemaObject<$name>(';
       {
-        yield 'RealmObject.registerFactory($name._);';
-        yield "return const SchemaObject($name, '$realmName', [";
+        yield '$name._,';
+        yield "'$realmName',";
+        yield '{';
         {
-          yield* fields.map((f) {
-            final namedArgs = {
-              if (f.name != f.realmName) 'mapTo': f.realmName,
-              if (f.optional) 'optional': f.optional,
-              if (f.isPrimaryKey) 'primaryKey': f.isPrimaryKey,
-              if (f.realmType == RealmPropertyType.object) 'linkTarget': f.basicRealmTypeName,
-              if (f.realmCollectionType != RealmCollectionType.none) 'collectionType': f.realmCollectionType,
-            };
-            return "SchemaProperty('${f.realmName}', ${f.realmType}${namedArgs.isNotEmpty ? ', ${namedArgs.toArgsString()}' : ''}),";
-          });
+          yield* fields.map((f) => "'${f.realmName}': _${f.name}Property,");
         }
-        yield ']);';
+        yield '},';
+        if (primaryKey != null) yield '_${primaryKey.name}Property,';
       }
-      yield '}';
+      yield ');';
+      yield '@override';
+      yield 'SchemaObject get instanceSchema => schema;';
     }
     yield '}';
-  }
-}
-
-extension<K, V> on Map<K, V> {
-  String toArgsString() {
-    return () sync* {
-      for (final e in entries) {
-        if (e.value is String) {
-          yield "${e.key}: '${e.value}'";
-        } else {
-          yield '${e.key}: ${e.value}';
-        }
-      }
-    }()
-        .join(',');
   }
 }

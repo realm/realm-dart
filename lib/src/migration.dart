@@ -48,14 +48,12 @@ class Migration {
     }
 
     final metadata = newRealm.metadata.getByType(T);
-    final handle = realmCore.findExisting(newRealm, metadata.classKey, oldObject.handle);
+    final handle = realmCore.findExisting(newRealm, metadata.key, oldObject.handle);
     if (handle == null) {
       return null;
     }
 
-    final accessor = RealmCoreAccessor(metadata, true);
-    var object = RealmObjectInternal.create(T, newRealm, handle, accessor);
-    return object as T;
+    return RealmObjectInternal.create<T>(newRealm, handle, metadata, true);
   }
 
   /// Renames a property during a migration.

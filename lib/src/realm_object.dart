@@ -15,119 +15,85 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:realm_common/realm_common.dart';
+
 import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
+import 'type_utils.dart';
 
 typedef DartDynamic = dynamic;
 
-abstract class RealmAccessor {
-  Object? get<T extends Object?>(RealmObject object, String name);
-  void set(RealmObject object, String name, Object? value, {bool isDefault = false, bool update = false});
-
-  static final Map<Type, Map<String, Object?>> _defaultValues = <Type, Map<String, Object?>>{};
-
-  static void setDefaults<T extends RealmObject>(Map<String, Object?> values) {
-    _defaultValues[T] = values;
-  }
-
-  static Object? getDefaultValue(Type realmObjectType, String name) {
-    final type = realmObjectType;
-    if (!_defaultValues.containsKey(type)) {
-      throw RealmException("Type $type not found.");
-    }
-
-    final values = _defaultValues[type]!;
-    if (values.containsKey(name)) {
-      return values[name];
-    }
-
-    return null;
-  }
-
-  static Map<String, Object?>? getDefaults(Type realmObjectType) {
-    if (!_defaultValues.containsKey(realmObjectType)) {
-      return null;
-    }
-
-    return _defaultValues[realmObjectType]!;
-  }
+abstract class RealmAccessor implements RealmAccessorMarker {
+  @override
+  T getValue<T>(covariant RealmObject object, String propertyName);
+  @override
+  T? getObject<T>(covariant RealmObject object, String propertyName);
+  @override
+  RealmList<T> getList<T>(covariant RealmObject object, String propertyName);
+  @override
+  void set<T>(covariant RealmObject object, String propertyName, T value, {bool isDefault = false, bool update = false});
 }
 
 class RealmValuesAccessor implements RealmAccessor {
   final Map<String, Object?> _values = <String, Object?>{};
 
   @override
-  Object? get<T extends Object?>(RealmObject object, String name) {
-    if (!_values.containsKey(name)) {
-      return RealmAccessor.getDefaultValue(object.runtimeType, name);
-    }
-
-    return _values[name];
-  }
+  T getValue<T>(RealmObject object, String propertyName) => _values[propertyName] as T;
 
   @override
-  void set(RealmObject object, String name, Object? value, {bool isDefault = false, bool update = false}) {
-    _values[name] = value;
+  T? getObject<T>(RealmObject object, String propertyName) => _values[propertyName] as T?;
+
+  @override
+  RealmList<T> getList<T>(RealmObject object, String propertyName) => _values[propertyName] as RealmList<T>;
+
+  @override
+  void set<T extends Object?>(RealmObject object, String propertyName, T value, {bool isDefault = false, bool update = false}) {
+    _values[propertyName] = value;
   }
 
-  void setAll(RealmObject object, RealmAccessor accessor, bool update) {
-    final defaults = RealmAccessor.getDefaults(object.runtimeType);
-
-    if (defaults != null) {
-      for (var item in defaults.entries) {
-        //check if a default value has been overwritten
-        if (!_values.containsKey(item.key)) {
-          accessor.set(object, item.key, item.value, isDefault: true);
-        }
-      }
-    }
-
-    for (var entry in _values.entries) {
-      accessor.set(object, entry.key, entry.value, update: update);
+  void setAll(RealmObject object, RealmCoreAccessor accessor, {bool update = false}) {
+    for (final p in object.instanceSchema) {
+      var value = _values[p.name];
+      final isDefault = value == null;
+      value ??= p.defaultValue;
+      accessor.set(object, p.name, value, isDefault: isDefault, update: update);
     }
   }
 }
 
 class RealmObjectMetadata {
-  final int classKey;
-  final String name;
-  final Type type;
-  final String? primaryKey;
+  final int key;
+  final SchemaObject schema;
+  final Map<String, RealmPropertyMetadata> _byName;
+  final Map<int, RealmPropertyMetadata> _byKey;
 
-  final Map<String, RealmPropertyMetadata> _propertyKeys;
-
-  String get _realmObjectTypeName => type == RealmObject ? name : type.toString();
-
-  RealmObjectMetadata(this.name, this.type, this.primaryKey, this.classKey, this._propertyKeys);
+  RealmObjectMetadata(this.key, this.schema, Iterable<RealmPropertyMetadata> propertyMetadata)
+      : _byKey = <int, RealmPropertyMetadata>{for (final m in propertyMetadata) m.key: m},
+        _byName = <String, RealmPropertyMetadata>{for (final m in propertyMetadata) m.schema.name: m};
 
   RealmPropertyMetadata operator [](String propertyName) =>
-      _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exist on class $_realmObjectTypeName"));
+      _byName[propertyName] ?? (throw RealmException("Property '$propertyName' does not exist on class '${schema.name}'"));
 
-  String? getPropertyName(int propertyKey) {
-    for (final entry in _propertyKeys.entries) {
-      if (entry.value.key == propertyKey) {
-        return entry.key;
-      }
-    }
-    return null;
-  }
+  RealmPropertyMetadata getPropertyMetaByKey(int propertyKey) => _byKey[propertyKey]!;
+
+  String get name => schema.name;
+  Type get type => schema.type;
+  SchemaProperty? get primaryKey => schema.primaryKey;
 }
 
 class RealmPropertyMetadata {
   final int key;
-  final RealmCollectionType collectionType;
-  final RealmPropertyType propertyType;
-  final bool isNullable;
-  final String? objectType;
-  final bool isPrimaryKey;
-  const RealmPropertyMetadata(this.key, this.objectType, this.propertyType, this.isNullable, this.isPrimaryKey,
-      [this.collectionType = RealmCollectionType.none]);
+  final SchemaProperty schema;
+
+  const RealmPropertyMetadata(this.key, this.schema);
+
+  String get name => schema.name;
+  Type get type => schema.type;
 }
 
 class RealmCoreAccessor implements RealmAccessor {
@@ -137,46 +103,38 @@ class RealmCoreAccessor implements RealmAccessor {
   RealmCoreAccessor(this.metadata, this.isInMigration);
 
   @override
-  Object? get<T extends Object?>(RealmObject object, String name) {
-    try {
-      final propertyMeta = metadata[name];
-      if (propertyMeta.collectionType == RealmCollectionType.list) {
-        final handle = realmCore.getListProperty(object, propertyMeta.key);
-        final listMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
-
-        // listMetadata is not null when we have list of RealmObjects. If the API was
-        // called with a generic object arg - get<Object> we construct a list of
-        // RealmObjects since we don't know the type of the object.
-        if (listMetadata != null && _isTypeGenericObject<T>()) {
-          return object.realm.createList<RealmObject>(handle, listMetadata);
-        }
-
-        return object.realm.createList<T>(handle, listMetadata);
-      }
-
-      Object? value = realmCore.getProperty(object, propertyMeta.key);
-
-      if (value is RealmObjectHandle) {
-        final targetMetadata = propertyMeta.objectType != null ? object.realm.metadata.getByName(propertyMeta.objectType!) : object.realm.metadata.getByType(T);
-
-        // If we have an object but the user called the API without providing a generic
-        // arg, we construct a RealmObject since we don't know the type of the object.
-        if (_isTypeGenericObject<T>()) {
-          return object.realm.createObject(RealmObject, value, targetMetadata);
-        }
-
-        return object.realm.createObject(T, value, targetMetadata);
-      }
-
-      return value;
-    } on Exception catch (e) {
-      throw RealmException("Error getting property ${metadata._realmObjectTypeName}.$name Error: $e");
-    }
+  T getValue<T>(RealmObject object, String propertyName) {
+    final propertyMeta = metadata[propertyName];
+    final value = realmCore.getProperty(object, propertyMeta.key);
+    return value as T;
   }
 
   @override
-  void set(RealmObject object, String name, Object? value, {bool isDefault = false, bool update = false}) {
-    final propertyMeta = metadata[name];
+  T? getObject<T>(RealmObject object, String propertyName) {
+    final propertyMeta = metadata[propertyName];
+    final value = realmCore.getProperty(object, propertyMeta.key);
+    if (value is RealmObjectHandle) {
+      final realm = object.realm;
+      return RealmObjectInternal.create<T>(realm, value, realm.metadata.getLinkMeta<T>(propertyMeta)!, isInMigration);
+    }
+    return null;
+  }
+
+  @override
+  RealmList<ElementT> getList<ElementT>(RealmObject object, String propertyName) {
+    final propertyMeta = metadata[propertyName];
+    final handle = realmCore.getListProperty(object, propertyMeta.key);
+    final realm = object.realm;
+    return RealmListInternal.create(
+      handle,
+      realm,
+      realm.metadata.getLinkMeta<ElementT>(propertyMeta),
+    );
+  }
+
+  @override
+  void set<T>(RealmObject object, String propertyName, T value, {bool isDefault = false, bool update = false}) {
+    final propertyMeta = metadata[propertyName];
     try {
       if (value is RealmList<Object?>) {
         final handle = realmCore.getListProperty(object, propertyMeta.key);
@@ -188,10 +146,10 @@ class RealmCoreAccessor implements RealmAccessor {
       }
 
       if (value is RealmObject && !value.isManaged) {
-        object.realm.add(value, update: update);
+        object.realm.add<RealmObject>(value, update: update); // Compiler issue. Why is the explicit type argument needed?
       }
 
-      if (propertyMeta.isPrimaryKey && !isInMigration) {
+      if (propertyMeta.schema.primaryKey && !isInMigration) {
         final currentValue = realmCore.getProperty(object, propertyMeta.key);
         if (currentValue != value) {
           throw RealmException("Primary key cannot be changed (original value: '$currentValue', supplied value: '$value')");
@@ -200,7 +158,7 @@ class RealmCoreAccessor implements RealmAccessor {
 
       realmCore.setProperty(object, propertyMeta.key, value, isDefault);
     } on Exception catch (e) {
-      throw RealmException("Error setting property ${metadata._realmObjectTypeName}.$name Error: $e");
+      throw RealmException("Error setting property ${metadata.type}.$propertyName Error: $e");
     }
   }
 }
@@ -230,47 +188,11 @@ extension RealmEntityInternal on RealmEntity {
 ///
 /// [RealmObject] should not be used directly as it is part of the generated class hierarchy. ex: `MyClass extends _MyClass with RealmObject`.
 /// {@category Realm}
-mixin RealmObject on RealmEntity implements Finalizable {
+mixin RealmObject on RealmEntity implements Finalizable, RealmObjectMarker {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
-  static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{
-    // Register default factories for `RealmObject` and `RealmObject?`. Whenever the user
-    // asks for these types, we'll use the ConcreteRealmObject implementation.
-    RealmObject: () => _ConcreteRealmObject(),
-    _typeOf<RealmObject?>(): () => _ConcreteRealmObject(),
-  };
 
-  /// @nodoc
-  static Object? get<T extends Object?>(RealmObject object, String name) {
-    return object._accessor.get<T>(object, name);
-  }
-
-  /// @nodoc
-  static void set<T extends Object>(RealmObject object, String name, T? value, {bool update = false}) {
-    object._accessor.set(object, name, value, update: update);
-  }
-
-  /// @nodoc
-  static void registerFactory<T extends RealmObject>(T Function() factory) {
-    // We register a factory for both the type itself, but also the nullable
-    // version of the type.
-    _factories.putIfAbsent(T, () => factory);
-    _factories.putIfAbsent(_typeOf<T?>(), () => factory);
-  }
-
-  /// @nodoc
-  static T create<T extends RealmObject>() {
-    if (!_factories.containsKey(T)) {
-      throw RealmException("Factory for Realm object type $T not found");
-    }
-    return _factories[T]!() as T;
-  }
-
-  /// @nodoc
-  static bool setDefaults<T extends RealmObject>(Map<String, Object> values) {
-    RealmAccessor.setDefaults<T>(values);
-    return true;
-  }
+  SchemaObject get instanceSchema;
 
   /// @nodoc
   static T freezeObject<T extends RealmObject>(T object) {
@@ -343,8 +265,7 @@ mixin RealmObject on RealmEntity implements Finalizable {
         throw RealmError(
             "Could not find symbol name for ${invocation.memberName}. This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues");
       }
-
-      return get(this, name);
+      return instanceSchema[name].getValue(this);
     }
 
     if (invocation.isSetter) {
@@ -353,8 +274,8 @@ mixin RealmObject on RealmEntity implements Finalizable {
         throw RealmError(
             "Could not find symbol name for ${invocation.memberName}. This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues");
       }
-
-      return set(this, name, invocation.positionalArguments.single);
+      instanceSchema[name].setValue(this, invocation.positionalArguments.single);
+      return null; // setters don't return anything
     }
 
     return super.noSuchMethod(invocation);
@@ -385,23 +306,30 @@ extension RealmObjectInternal on RealmObject {
     _handle = handle;
     _realm = realm;
 
-    if (_accessor is RealmValuesAccessor) {
-      (_accessor as RealmValuesAccessor).setAll(this, accessor, update);
+    final a = _accessor;
+    if (a is RealmValuesAccessor) {
+      a.setAll(this, accessor, update: update);
     }
 
     _accessor = accessor;
   }
 
-  static RealmObject create(Type type, Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor) {
-    if (!RealmObject._factories.containsKey(type)) {
-      throw Exception("Factory for object type $type not found.");
+  static T create<T extends Object?>(Realm realm, RealmObjectHandle handle, RealmObjectMetadata metadata, bool isInMigration) {
+    T? object;
+    if (isStrictSubtype<T, RealmObject?>()) {
+      final schema = realm.schema.getByType<T>();
+      object = schema?.objectFactory();
+    } else {
+      // dynamic
+      object = _ConcreteRealmObject() as T; // compiler needs the cast
     }
-
-    final object = RealmObject._factories[type]!();
-    object._handle = handle;
-    object._accessor = accessor;
-    object._realm = realm;
-    return object;
+    if (object is RealmObject) {
+      object._handle = handle;
+      object._accessor = RealmCoreAccessor(metadata, isInMigration);
+      object._realm = realm;
+      return object;
+    }
+    throw RealmError('$T is not a RealmObject');
   }
 
   RealmObjectHandle get handle {
@@ -500,12 +428,10 @@ class RealmObjectNotificationsController<T extends RealmObject> extends Notifica
 }
 
 /// @nodoc
-class _ConcreteRealmObject with RealmEntity, RealmObject {}
-
-// This is necessary whenever we need to pass T? as the type.
-Type _typeOf<T>() => T;
-
-bool _isTypeGenericObject<T>() => T == Object || T == _typeOf<Object?>();
+class _ConcreteRealmObject with RealmEntity, RealmObject {
+  @override
+  SchemaObject get instanceSchema => (_accessor as RealmCoreAccessor).metadata.schema;
+}
 
 /// Exposes a set of dynamic methods on the RealmObject type. These allow you to
 /// access properties by name rather than via the strongly typed API.
@@ -518,44 +444,43 @@ class DynamicRealmObject {
 
   /// Gets a property by its name. If a generic type is specified, the property
   /// type will be validated against the type. Otherwise the result will be wrapped
-  /// in [Object].
-  T get<T extends Object?>(String name) {
-    _validatePropertyType<T>(name, RealmCollectionType.none);
-    return RealmObject.get<T>(_obj, name) as T;
+  /// in [Object?].
+  T get<T extends Object?>(String propertyName) {
+    final property = _obj.instanceSchema[propertyName];
+    final result = property.getValue(_obj);
+    if (result is T) return result;
+    throw RealmException(
+        "Property '$propertyName' on class '${_obj.instanceSchema.name}' is not the correct type. Expected '$T', got '${result.runtimeType}'.");
   }
 
   /// Gets a list by the property name. If a generic type is specified, the property
-  /// type will be validated against the type. Otherwise, a `List<Object>` will be
+  /// type will be validated against the type. Otherwise, a `List<Object?>` will be
   /// returned.
-  RealmList<T> getList<T extends Object?>(String name) {
-    _validatePropertyType<T>(name, RealmCollectionType.list);
-    return RealmObject.get<T>(_obj, name) as RealmList<T>;
+  List<T> getList<T extends Object?>(String propertyName) {
+    return get<List<T>>(propertyName);
   }
 
   RealmPropertyMetadata? _validatePropertyType<T extends Object?>(String name, RealmCollectionType expectedCollectionType) {
     final accessor = _obj.accessor;
     if (accessor is RealmCoreAccessor) {
-      final prop = accessor.metadata._propertyKeys[name];
-      if (prop == null) {
-        throw RealmException("Property '$name' does not exist on class '${accessor.metadata.name}'");
-      }
+      final prop = accessor.metadata[name];
 
-      if (prop.collectionType != expectedCollectionType) {
+      if (prop.schema.collectionType != expectedCollectionType) {
         throw RealmException(
-            "Property '$name' on class '${accessor.metadata.name}' is '${prop.collectionType}' but the method used to access it expected '$expectedCollectionType'.");
+            "Property '$name' on class '${accessor.metadata.name}' is '${prop.schema.collectionType}' but the method used to access it expected '$expectedCollectionType'.");
       }
 
       // If the user passed in a type argument, we should validate its nullability; if they invoked
       // the method without a type arg, we don't
-      if (T != _typeOf<Object?>() && prop.isNullable != null is T) {
+      if (!isNullable<T>() && prop.schema.optional) {
         throw RealmException(
-            "Property '$name' on class '${accessor.metadata.name}' is ${prop.isNullable ? 'nullable' : 'required'} but the generic argument passed to get<T> is $T.");
+            "Property '$name' on class '${accessor.metadata.name}' is ${prop.schema.optional ? 'nullable' : 'required'} but the generic argument passed to get<T> is $T.");
       }
 
       final targetType = _getPropertyType<T>();
-      if (targetType != null && targetType != prop.propertyType) {
+      if (targetType != null && targetType != prop.schema.propertyType) {
         throw RealmException(
-            "Property '$name' on class '${accessor.metadata.name}' is not the correct type. Expected '$targetType', got '${prop.propertyType}'.");
+            "Property '$name' on class '${accessor.metadata.name}' is not the correct type. Expected '$targetType', got '${prop.schema.propertyType}'.");
       }
 
       return prop;
@@ -566,21 +491,21 @@ class DynamicRealmObject {
 
   static final _propertyTypeMap = <Type, RealmPropertyType>{
     int: RealmPropertyType.int,
-    _typeOf<int?>(): RealmPropertyType.int,
+    typeOf<int?>(): RealmPropertyType.int,
     double: RealmPropertyType.double,
-    _typeOf<double?>(): RealmPropertyType.double,
+    typeOf<double?>(): RealmPropertyType.double,
     String: RealmPropertyType.string,
-    _typeOf<String?>(): RealmPropertyType.string,
+    typeOf<String?>(): RealmPropertyType.string,
     bool: RealmPropertyType.bool,
-    _typeOf<bool?>(): RealmPropertyType.bool,
+    typeOf<bool?>(): RealmPropertyType.bool,
     DateTime: RealmPropertyType.timestamp,
-    _typeOf<DateTime?>(): RealmPropertyType.timestamp,
+    typeOf<DateTime?>(): RealmPropertyType.timestamp,
     ObjectId: RealmPropertyType.objectid,
-    _typeOf<ObjectId?>(): RealmPropertyType.objectid,
+    typeOf<ObjectId?>(): RealmPropertyType.objectid,
     Uuid: RealmPropertyType.uuid,
-    _typeOf<Uuid?>(): RealmPropertyType.uuid,
+    typeOf<Uuid?>(): RealmPropertyType.uuid,
     RealmObject: RealmPropertyType.object,
-    _typeOf<RealmObject?>(): RealmPropertyType.object,
+    typeOf<RealmObject?>(): RealmPropertyType.object,
   };
 
   RealmPropertyType? _getPropertyType<T extends Object?>() => _propertyTypeMap[T];
