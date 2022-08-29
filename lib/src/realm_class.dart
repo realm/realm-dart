@@ -40,6 +40,7 @@ export 'package:realm_common/realm_common.dart'
         MapTo,
         PrimaryKey,
         RealmError,
+        RealmClosedError,
         SyncError,
         SyncClientError,
         SyncClientResetError,
@@ -245,17 +246,16 @@ class Realm implements Finalizable {
   /// All [RealmObject]s and `Realm ` collections are invalidated and can not be used.
   /// This method will not throw if called multiple times.
   void close() {
-    _syncSession?.handle.release();
-    _syncSession = null;
-
-    _subscriptions?.handle.release();
-    _subscriptions = null;
+    if (isClosed) {
+      return;
+    }
 
     realmCore.closeRealm(this);
+    handle.release();
   }
 
   /// Checks whether the `Realm` is closed.
-  bool get isClosed => realmCore.isRealmClosed(this);
+  bool get isClosed => _handle.released || realmCore.isRealmClosed(this);
 
   /// Fast lookup for a [RealmObject] with the specified [primaryKey].
   T? find<T extends RealmObject>(Object? primaryKey) {
@@ -293,7 +293,7 @@ class Realm implements Finalizable {
   /// Deletes all [RealmObject]s of type `T` in the `Realm`
   void deleteAll<T extends RealmObject>() => deleteMany(all<T>());
 
-  SubscriptionSet? _subscriptions;
+  WeakReference<SubscriptionSet>? _subscriptions;
 
   /// The active [SubscriptionSet] for this [Realm]
   SubscriptionSet get subscriptions {
@@ -301,12 +301,18 @@ class Realm implements Finalizable {
       throw RealmError('subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration');
     }
 
-    _subscriptions ??= SubscriptionSetInternal.create(this, realmCore.getSubscriptions(this));
-    realmCore.refreshSubscriptionSet(_subscriptions!);
-    return _subscriptions!;
+    var result = _subscriptions?.target;
+
+    if (result == null) {
+      result = SubscriptionSetInternal.create(this, realmCore.getSubscriptions(this));
+      realmCore.refreshSubscriptionSet(result);
+      _subscriptions = WeakReference(result);
+    }
+
+    return result;
   }
 
-  Session? _syncSession;
+  WeakReference<Session>? _syncSession;
 
   /// The [Session] for this [Realm]. The sync session is responsible for two-way synchronization
   /// with MongoDB Atlas. If the [Realm] is not synchronized, accessing this property will throw.
@@ -315,8 +321,14 @@ class Realm implements Finalizable {
       throw RealmError('session is only valid on synchronized Realms (i.e. opened with FlexibleSyncConfiguration)');
     }
 
-    _syncSession ??= SessionInternal.create(realmCore.realmGetSession(this));
-    return _syncSession!;
+    var result = _syncSession?.target;
+
+    if (result == null) {
+      result = SessionInternal.create(realmCore.realmGetSession(this));
+      _syncSession = WeakReference(result);
+    }
+
+    return result;
   }
 
   @override
@@ -378,7 +390,13 @@ extension RealmInternal on Realm {
     }
   }
 
-  RealmHandle get handle => _handle;
+  RealmHandle get handle {
+    if (_handle.released) {
+      throw RealmClosedError('Cannot access realm that has been closed');
+    }
+
+    return _handle;
+  }
 
   static Realm getUnowned(Configuration config, RealmHandle handle) {
     return Realm._(config, handle);

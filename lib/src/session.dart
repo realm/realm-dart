@@ -158,7 +158,13 @@ extension SessionInternal on Session {
 
   static Session create(SessionHandle handle) => Session._(handle);
 
-  SessionHandle get handle => _handle;
+  SessionHandle get handle {
+    if (_handle.released) {
+      throw RealmClosedError("Can't use a session that belongs to a closed Realm.");
+    }
+
+    return _handle;
+  }
 
   void raiseError(SyncErrorCategory category, int errorCode, bool isFatal) {
     realmCore.raiseError(this, category, errorCode, isFatal);

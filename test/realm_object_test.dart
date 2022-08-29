@@ -236,17 +236,6 @@ Future<void> main([List<String>? args]) async {
     expect(() => teamBeforeDelete.name, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
   });
 
-  test('RealmObject - write object property after realm is closed', () {
-    var config = Configuration.local([Person.schema]);
-    var realm = getRealm(config);
-
-    final person = Person('Markos');
-
-    realm.write(() => realm.add(person));
-    realm.close();
-    expect(() => realm.write(() => person.name = "Markos Sanches"), throws<RealmException>("Cannot access realm that has been closed"));
-  });
-
   test('RealmObject write deleted object property', () {
     var config = Configuration.local([Person.schema]);
     var realm = getRealm(config);
@@ -564,7 +553,7 @@ Future<void> main([List<String>? args]) async {
   test('get/set all property types', () {
     final config = Configuration.local([AllTypes.schema]);
     final realm = getRealm(config);
-    
+
     var date = DateTime.now().toUtc();
     var objectId = ObjectId();
     var uuid = Uuid.v4();

@@ -253,7 +253,7 @@ class _RealmCore {
   }
 
   SubscriptionSetHandle getSubscriptions(Realm realm) {
-    return SubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_get_active_subscription_set(realm.handle._pointer)));
+    return SubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_get_active_subscription_set(realm.handle._pointer)), realm.handle);
   }
 
   void refreshSubscriptions(SubscriptionSet subscriptions) {
@@ -319,11 +319,13 @@ class _RealmCore {
   }
 
   MutableSubscriptionSetHandle subscriptionSetMakeMutable(SubscriptionSet subscriptions) {
-    return MutableSubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_make_subscription_set_mutable(subscriptions.handle._pointer)));
+    return MutableSubscriptionSetHandle._(
+        _realmLib.invokeGetPointer(() => _realmLib.realm_sync_make_subscription_set_mutable(subscriptions.handle._pointer)), subscriptions.realm.handle);
   }
 
   SubscriptionSetHandle subscriptionSetCommit(MutableSubscriptionSet subscriptions) {
-    return SubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_subscription_set_commit(subscriptions.handle._mutablePointer)));
+    return SubscriptionSetHandle._(
+        _realmLib.invokeGetPointer(() => _realmLib.realm_sync_subscription_set_commit(subscriptions.handle._mutablePointer)), subscriptions.realm.handle);
   }
 
   SubscriptionHandle insertOrAssignSubscription(MutableSubscriptionSet subscriptions, RealmResults results, String? name, bool update) {
@@ -390,18 +392,21 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_refresh(subscriptions.handle._pointer));
   }
 
-  static bool initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmHandle) {
+  static bool initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmPtr) {
+    final realmHandle = RealmHandle._unowned(realmPtr);
     try {
       final LocalConfiguration? config = userdata.toObject();
       if (config == null) {
         return false;
       }
-      final realm = RealmInternal.getUnowned(config, RealmHandle._unowned(realmHandle));
+      final realm = RealmInternal.getUnowned(config, realmHandle);
       config.initialDataCallback!(realm);
       return true;
     } catch (ex) {
       // TODO: Propagate error to Core in initial_data_callback https://github.com/realm/realm-dart/issues/698
       // Core issue: https://github.com/realm/realm-core/issues/5366
+    } finally {
+      realmHandle.release();
     }
 
     return false;
@@ -1571,7 +1576,7 @@ class _RealmCore {
   }
 
   SessionHandle realmGetSession(Realm realm) {
-    return SessionHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_session_get(realm.handle._pointer)));
+    return SessionHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_session_get(realm.handle._pointer)), realm.handle);
   }
 
   String sessionGetPath(Session session) {
@@ -1787,19 +1792,63 @@ final _nativeFinalizer = NativeFinalizer(_realmLib.addresses.realm_release);
 
 abstract class HandleBase<T extends NativeType> implements Finalizable {
   final Pointer<T> _pointer;
+  bool released = false;
+  final bool isUnowned;
 
   @pragma('vm:never-inline')
   void keepAlive() {}
 
-  HandleBase(this._pointer, int size) {
+  HandleBase(this._pointer, int size) : isUnowned = false {
     _nativeFinalizer.attach(this, _pointer.cast(), detach: this, externalSize: size);
-    if (_enableFinalizerTrace) _setupFinalizationTrace(this, _pointer);
+    if (_enableFinalizerTrace) {
+      _setupFinalizationTrace(this, _pointer);
+    }
   }
 
-  HandleBase.unowned(this._pointer);
+  HandleBase.unowned(this._pointer) : isUnowned = true;
 
   @override
   String toString() => "${_pointer.toString()} value=${_pointer.cast<IntPtr>().value}";
+
+  /// @nodoc
+  /// A method that will be invoked just before the handle is released. Allows to cleanup
+  /// any custom data that inheritors are storing.
+  void _releaseCore() {}
+
+  void release() {
+    if (released) {
+      return;
+    }
+
+    _releaseCore();
+
+    if (!isUnowned) {
+      _nativeFinalizer.detach(this);
+      _realmLib.realm_release(_pointer.cast());
+    }
+
+    released = true;
+
+    if (_enableFinalizerTrace) {
+      _tearDownFinalizationTrace(this, _pointer);
+    }
+  }
+}
+
+abstract class RootedHandleBase<T extends NativeType> extends HandleBase<T> {
+  final RealmHandle? _root;
+  int? _id;
+
+  RootedHandleBase(this._root, Pointer<T> pointer, int size) : super(pointer, size) {
+    _id = _root?.addChild(this);
+  }
+
+  @override
+  void _releaseCore() {
+    if (_id != null) {
+      _root?.removeChild(_id!);
+    }
+  }
 }
 
 class SchemaHandle extends HandleBase<realm_schema> {
@@ -1811,9 +1860,32 @@ class ConfigHandle extends HandleBase<realm_config> {
 }
 
 class RealmHandle extends HandleBase<shared_realm> {
+  int _counter = 0;
+
+  final Map<int, WeakReference<RootedHandleBase>> _children = {};
+
   RealmHandle._(Pointer<shared_realm> pointer) : super(pointer, 24);
 
   RealmHandle._unowned(Pointer<shared_realm> pointer) : super.unowned(pointer);
+
+  int addChild(RootedHandleBase child) {
+    final id = _counter++;
+    _children[id] = WeakReference(child);
+    return id;
+  }
+
+  void removeChild(int id) {
+    _children.remove(id);
+  }
+
+  @override
+  void _releaseCore() {
+    final keys = _children.keys.toList();
+
+    for (final key in keys) {
+      _children[key]?.target?.release();
+    }
+  }
 }
 
 class SchedulerHandle extends HandleBase<realm_scheduler> {
@@ -1844,25 +1916,11 @@ class RealmQueryHandle extends HandleBase<realm_query> {
   RealmQueryHandle._(Pointer<realm_query> pointer) : super(pointer, 256);
 }
 
-class ReleasableHandle<T extends NativeType> extends HandleBase<T> {
-  bool released = false;
-  ReleasableHandle(Pointer<T> pointer, int size) : super(pointer, size);
-  void release() {
-    if (released) {
-      return;
-    }
-    _nativeFinalizer.detach(this);
-    _realmLib.realm_release(_pointer.cast());
-    released = true;
-    if (_enableFinalizerTrace) _tearDownFinalizationTrace(this, _pointer);
-  }
-}
-
-class RealmNotificationTokenHandle extends ReleasableHandle<realm_notification_token> {
+class RealmNotificationTokenHandle extends HandleBase<realm_notification_token> {
   RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer) : super(pointer, 32);
 }
 
-class RealmCallbackTokenHandle extends ReleasableHandle<realm_callback_token> {
+class RealmCallbackTokenHandle extends HandleBase<realm_callback_token> {
   RealmCallbackTokenHandle._(Pointer<realm_callback_token> pointer) : super(pointer, 24);
 }
 
@@ -1902,18 +1960,29 @@ class SubscriptionHandle extends HandleBase<realm_flx_sync_subscription> {
   SubscriptionHandle._(Pointer<realm_flx_sync_subscription> pointer) : super(pointer, 184);
 }
 
-class SubscriptionSetHandle extends ReleasableHandle<realm_flx_sync_subscription_set> {
-  SubscriptionSetHandle._(Pointer<realm_flx_sync_subscription_set> pointer) : super(pointer, 128);
+class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription_set> {
+  SubscriptionSetHandle._(Pointer<realm_flx_sync_subscription_set> pointer, RealmHandle root) : super(root, pointer, 128);
 }
 
 class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
-  MutableSubscriptionSetHandle._(Pointer<realm_flx_sync_mutable_subscription_set> pointer) : super._(pointer.cast());
+  MutableSubscriptionSetHandle._(Pointer<realm_flx_sync_mutable_subscription_set> pointer, RealmHandle root) : super._(pointer.cast(), root);
 
   Pointer<realm_flx_sync_mutable_subscription_set> get _mutablePointer => super._pointer.cast();
 }
 
-class SessionHandle extends ReleasableHandle<realm_sync_session_t> {
-  SessionHandle._(Pointer<realm_sync_session_t> pointer) : super(pointer, 24);
+class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
+  SessionHandle._(Pointer<realm_sync_session_t> pointer, RealmHandle root) : super(root, pointer, 24);
+}
+
+extension on RealmHandle {
+  // A lot of children handles only need to reference the root if its unowned (for cleanup purposes).
+  RealmHandle? getIfUnowned() {
+    if (isUnowned) {
+      return this;
+    }
+
+    return null;
+  }
 }
 
 extension on List<int> {

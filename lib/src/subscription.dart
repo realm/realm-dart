@@ -217,7 +217,13 @@ extension SubscriptionSetInternal on SubscriptionSet {
   }
 
   Realm get realm => _realm;
-  SubscriptionSetHandle get handle => _handle;
+  SubscriptionSetHandle get handle {
+    if (_handle.released) {
+      throw RealmClosedError('Cannot access a SubscriptionSet that belongs to a closed Realm');
+    }
+
+    return _handle;
+  }
 
   static SubscriptionSet create(Realm realm, SubscriptionSetHandle handle) => ImmutableSubscriptionSet._(realm, handle);
 }

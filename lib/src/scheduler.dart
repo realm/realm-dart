@@ -22,7 +22,7 @@ import 'dart:isolate';
 import 'native/realm_core.dart';
 
 final _receivePortFinalizer = Finalizer<RawReceivePort>((p) => p.close());
-late final Scheduler scheduler = Scheduler._();
+final Scheduler scheduler = Scheduler._();
 
 class Scheduler {
   late final SchedulerHandle handle;
@@ -40,7 +40,12 @@ class Scheduler {
   }
 
   void stop() {
+    if (handle.released) {
+      return;
+    }
+
     receivePort.close();
     _receivePortFinalizer.detach(this);
+    handle.release();
   }
 }
