@@ -52,5 +52,5 @@ class PseudoType extends TypeImpl {
   }
 
   @override
-  Element? get element2 => throw UnimplementedError();
+  Element? get element2 => null;
 }
