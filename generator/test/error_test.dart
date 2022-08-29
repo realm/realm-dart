@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:path/path.dart' as path;
 import 'package:realm_generator/realm_generator.dart';
 import 'package:test/test.dart';
 import 'test_util.dart';
@@ -10,9 +12,11 @@ void main() {
         () async => await generatorTestBuilder(directory, inputFile),
         throwsA(
           isA<RealmInvalidGenerationSourceError>().having(
-            (e) => e.format(),
+            (e) => e.format().trim(),
             'format()',
-            await readFileAsErrorFormattedString(directory, outputFile),
+            myersDiff(
+              (await File(path.join(directory, outputFile)).readAsString()).trim(),
+            ),
           ),
         ),
       );

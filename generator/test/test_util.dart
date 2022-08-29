@@ -44,14 +44,13 @@ Future<Map<String, Object>> getInputFileAsset(String inputFilePath) async {
 
 class GoldenFileMatcher extends Matcher {
   final File golden;
-  final Matcher Function(File) matcherFactory;
-  late final Matcher _matcher;
+  final Matcher matcher;
 
-  GoldenFileMatcher(this.golden, this.matcherFactory);
+  GoldenFileMatcher(this.golden, this.matcher);
 
   @override
   Description describe(Description description) {
-    return _matcher.describe(description);
+    return matcher.describe(description);
   }
 
   @override
@@ -61,7 +60,7 @@ class GoldenFileMatcher extends Matcher {
     Map<dynamic, dynamic> matchState,
     bool verbose,
   ) =>
-      _matcher.describeMismatch(item, mismatchDescription, matchState, verbose);
+      matcher.describeMismatch(item, mismatchDescription, matchState, verbose);
 
   @override
   bool matches(dynamic item, Map<dynamic, dynamic> matchState) {
@@ -77,20 +76,21 @@ class GoldenFileMatcher extends Matcher {
       }
       golden.writeAsBytesSync(bytes, flush: true);
     }
-    _matcher = matcherFactory(golden);
-    return _matcher.matches(item, matchState);
+    return matcher.matches(item, matchState);
   }
 }
 
-class MyersDiffMatcher extends Matcher {
-  final String expected;
+Matcher myersDiff(String expected) => MyersDiffMatcher(expected);
 
-  MyersDiffMatcher(this.expected);
+class MyersDiffMatcher extends Matcher {
+  final String _expected;
+
+  MyersDiffMatcher(dynamic expected) : _expected = _getText(expected);
 
   @override
-  Description describe(Description description) => description.add(expected);
+  Description describe(Description description) => description.add(_expected);
 
-  String _getText(dynamic item) {
+  static String _getText(dynamic item) {
     if (item is String) {
       return item;
     } else if (item is List<int>) {
@@ -100,7 +100,7 @@ class MyersDiffMatcher extends Matcher {
   }
 
   @override
-  bool matches(dynamic item, Map<dynamic, dynamic> matchState) => expected == _getText(item);
+  bool matches(dynamic item, Map<dynamic, dynamic> matchState) => _expected == _getText(item);
 
   @override
   Description describeMismatch(
@@ -111,19 +111,18 @@ class MyersDiffMatcher extends Matcher {
   ) {
     final actual = _getText(item);
     final dmp = DiffMatchPatch();
-    final diffs = dmp.diff(actual, expected);
+    final diffs = dmp.diff(actual, _expected);
     dmp.diffCleanupSemantic(diffs);
     ansiColorDisabled = false;
     final pen = AnsiPen();
     for (final d in diffs) {
       if (d.operation < 0) {
         pen.red(bg: true); // delete
-      } else if (d.operation == 0) {
-        pen.reset(); // no-edit
       } else if (d.operation > 0) {
         pen.green(bg: true); // insert
       }
       mismatchDescription = mismatchDescription.add(pen(d.text));
+      pen.reset();
     }
     return mismatchDescription;
   }
@@ -180,10 +179,7 @@ class LinesEqualsMatcher extends Matcher {
 Future<Map<String, Object>> getExpectedFileAsset(String inputFilePath, String expectedFilePath) async {
   var key = 'pkg|${_path.setExtension(inputFilePath, '.realm_objects.g.part')}';
   return {
-    key: GoldenFileMatcher(
-      File(expectedFilePath),
-      (f) => MyersDiffMatcher(DartFormatter(lineEnding: '\n').format(f.readAsStringSync())),
-    )
+    key: myersDiff(await File(expectedFilePath).readAsString()),
   };
 }
 
