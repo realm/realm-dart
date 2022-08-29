@@ -1,0 +1,185 @@
+// **************************************************************************
+// RealmObjectGenerator
+// **************************************************************************
+
+class Indexable extends _Indexable with RealmEntityMixin, RealmObjectMixin {
+  Indexable(
+    bool aBool,
+    int anInt,
+    String aString,
+    ObjectId anObjectId,
+    Uuid anUuid,
+    DateTime aDateTime, {
+    bool? aNullableBool,
+    int? aNullableInt,
+    String? aNullableString,
+    ObjectId? aNullableObjectId,
+    Uuid? aNullableUuid,
+    DateTime? aNullableDateTime,
+  }) {
+    _aBoolProperty.setValue(this, aBool);
+    _aNullableBoolProperty.setValue(this, aNullableBool);
+    _anIntProperty.setValue(this, anInt);
+    _aNullableIntProperty.setValue(this, aNullableInt);
+    _aStringProperty.setValue(this, aString);
+    _aNullableStringProperty.setValue(this, aNullableString);
+    _anObjectIdProperty.setValue(this, anObjectId);
+    _aNullableObjectIdProperty.setValue(this, aNullableObjectId);
+    _anUuidProperty.setValue(this, anUuid);
+    _aNullableUuidProperty.setValue(this, aNullableUuid);
+    _aDateTimeProperty.setValue(this, aDateTime);
+    _aNullableDateTimeProperty.setValue(this, aNullableDateTime);
+  }
+
+  Indexable._();
+
+  static const _aBoolProperty = ValueProperty<bool>(
+    'aBool',
+    RealmPropertyType.bool,
+    indexed: true,
+  );
+  @override
+  bool get aBool => _aBoolProperty.getValue(this);
+  @override
+  set aBool(bool value) => _aBoolProperty.setValue(this, value);
+
+  static const _aNullableBoolProperty = ValueProperty<bool?>(
+    'aNullableBool',
+    RealmPropertyType.bool,
+    indexed: true,
+  );
+  @override
+  bool? get aNullableBool => _aNullableBoolProperty.getValue(this);
+  @override
+  set aNullableBool(bool? value) =>
+      _aNullableBoolProperty.setValue(this, value);
+
+  static const _anIntProperty = ValueProperty<int>(
+    'anInt',
+    RealmPropertyType.int,
+    indexed: true,
+  );
+  @override
+  int get anInt => _anIntProperty.getValue(this);
+  @override
+  set anInt(int value) => _anIntProperty.setValue(this, value);
+
+  static const _aNullableIntProperty = ValueProperty<int?>(
+    'aNullableInt',
+    RealmPropertyType.int,
+    indexed: true,
+  );
+  @override
+  int? get aNullableInt => _aNullableIntProperty.getValue(this);
+  @override
+  set aNullableInt(int? value) => _aNullableIntProperty.setValue(this, value);
+
+  static const _aStringProperty = ValueProperty<String>(
+    'aString',
+    RealmPropertyType.string,
+    indexed: true,
+  );
+  @override
+  String get aString => _aStringProperty.getValue(this);
+  @override
+  set aString(String value) => _aStringProperty.setValue(this, value);
+
+  static const _aNullableStringProperty = ValueProperty<String?>(
+    'aNullableString',
+    RealmPropertyType.string,
+    indexed: true,
+  );
+  @override
+  String? get aNullableString => _aNullableStringProperty.getValue(this);
+  @override
+  set aNullableString(String? value) =>
+      _aNullableStringProperty.setValue(this, value);
+
+  static const _anObjectIdProperty = ValueProperty<ObjectId>(
+    'anObjectId',
+    RealmPropertyType.objectid,
+    indexed: true,
+  );
+  @override
+  ObjectId get anObjectId => _anObjectIdProperty.getValue(this);
+  @override
+  set anObjectId(ObjectId value) => _anObjectIdProperty.setValue(this, value);
+
+  static const _aNullableObjectIdProperty = ValueProperty<ObjectId?>(
+    'aNullableObjectId',
+    RealmPropertyType.objectid,
+    indexed: true,
+  );
+  @override
+  ObjectId? get aNullableObjectId => _aNullableObjectIdProperty.getValue(this);
+  @override
+  set aNullableObjectId(ObjectId? value) =>
+      _aNullableObjectIdProperty.setValue(this, value);
+
+  static const _anUuidProperty = ValueProperty<Uuid>(
+    'anUuid',
+    RealmPropertyType.uuid,
+    indexed: true,
+  );
+  @override
+  Uuid get anUuid => _anUuidProperty.getValue(this);
+  @override
+  set anUuid(Uuid value) => _anUuidProperty.setValue(this, value);
+
+  static const _aNullableUuidProperty = ValueProperty<Uuid?>(
+    'aNullableUuid',
+    RealmPropertyType.uuid,
+    indexed: true,
+  );
+  @override
+  Uuid? get aNullableUuid => _aNullableUuidProperty.getValue(this);
+  @override
+  set aNullableUuid(Uuid? value) =>
+      _aNullableUuidProperty.setValue(this, value);
+
+  static const _aDateTimeProperty = ValueProperty<DateTime>(
+    'aDateTime',
+    RealmPropertyType.timestamp,
+    indexed: true,
+  );
+  @override
+  DateTime get aDateTime => _aDateTimeProperty.getValue(this);
+  @override
+  set aDateTime(DateTime value) => _aDateTimeProperty.setValue(this, value);
+
+  static const _aNullableDateTimeProperty = ValueProperty<DateTime?>(
+    'aNullableDateTime',
+    RealmPropertyType.timestamp,
+    indexed: true,
+  );
+  @override
+  DateTime? get aNullableDateTime => _aNullableDateTimeProperty.getValue(this);
+  @override
+  set aNullableDateTime(DateTime? value) =>
+      _aNullableDateTimeProperty.setValue(this, value);
+
+  @override
+  Stream<RealmObjectChanges<Indexable>> get changes =>
+      RealmObjectMixin.getChanges(this);
+
+  static const schema = SchemaObject<Indexable>(
+    Indexable._,
+    'Indexable',
+    {
+      'aBool': _aBoolProperty,
+      'aNullableBool': _aNullableBoolProperty,
+      'anInt': _anIntProperty,
+      'aNullableInt': _aNullableIntProperty,
+      'aString': _aStringProperty,
+      'aNullableString': _aNullableStringProperty,
+      'anObjectId': _anObjectIdProperty,
+      'aNullableObjectId': _aNullableObjectIdProperty,
+      'anUuid': _anUuidProperty,
+      'aNullableUuid': _aNullableUuidProperty,
+      'aDateTime': _aDateTimeProperty,
+      'aNullableDateTime': _aNullableDateTimeProperty,
+    },
+  );
+  @override
+  SchemaObject get instanceSchema => schema;
+}
