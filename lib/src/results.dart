@@ -89,7 +89,13 @@ extension RealmResultsInternal on RealmResults {
     _handle.keepAlive();
   }
 
-  RealmResultsHandle get handle => _handle;
+  RealmResultsHandle get handle {
+    if (_handle.released) {
+      throw RealmClosedError('Cannot access Results that belongs to a closed Realm');
+    }
+
+    return _handle;
+  }
 
   static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm, RealmObjectMetadata? metadata) {
     return RealmResults<T>._(handle, realm, metadata);

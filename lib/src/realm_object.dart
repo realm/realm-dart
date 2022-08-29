@@ -352,7 +352,14 @@ extension RealmObjectInternal on RealmObject {
     return object;
   }
 
-  RealmObjectHandle get handle => _handle!;
+  RealmObjectHandle get handle {
+    if (_handle?.released == true) {
+      throw RealmClosedError('Cannot access an object that belongs to a closed Realm');
+    }
+
+    return _handle!;
+  }
+
   RealmAccessor get accessor => _accessor;
 }
 

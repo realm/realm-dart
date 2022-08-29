@@ -55,7 +55,7 @@ class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with Re
   }
 
   @override
-  int get length => realmCore.getListSize(_handle);
+  int get length => realmCore.getListSize(handle);
 
   @override
 
@@ -168,7 +168,14 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
 
   ManagedRealmList<T> asManaged() => this is ManagedRealmList<T> ? this as ManagedRealmList<T> : throw RealmStateError('$this is not managed');
 
-  RealmListHandle get handle => asManaged()._handle;
+  RealmListHandle get handle {
+    final result = asManaged()._handle;
+    if (result.released) {
+      throw RealmClosedError('Cannot access a list that belongs to a closed Realm');
+    }
+
+    return result;
+  }
 
   static RealmList<T> create<T extends Object?>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
 

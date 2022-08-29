@@ -375,6 +375,26 @@ Future<void> main([List<String>? args]) async {
     expect(callbackEx.toString(), contains('The Realm is already in a write transaction'));
   });
 
+  test("Configuration.initialDataCallback destroys objects after callback", () {
+    Exception? callbackEx;
+    late RealmResults<Person> people;
+    late Person george;
+    final config = Configuration.local([Person.schema], initialDataCallback: (realm) {
+      george = realm.add(Person('George'));
+      people = realm.all<Person>();
+      expect(people.length, 1);
+    });
+
+    final realm = getRealm(config);
+
+    expect(() => people.length, throws<RealmClosedError>());
+    expect(() => george.name, throws<RealmClosedError>());
+    expect(people.realm.isClosed, true);
+
+    final peopleAagain = realm.all<Person>();
+    expect(peopleAagain.length, 1);
+  });
+
   test('Configuration.shouldCompact can return false', () {
     var invoked = false;
     var config = Configuration.local([Dog.schema, Person.schema], shouldCompactCallback: (totalSize, usedSize) {

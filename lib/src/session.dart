@@ -160,7 +160,7 @@ extension SessionInternal on Session {
 
   SessionHandle get handle {
     if (_handle.released) {
-      throw RealmClosedError("Can't use a session that belongs to a closed Realm.");
+      throw RealmClosedError('Cannot access a Session that belongs to a closed Realm');
     }
 
     return _handle;

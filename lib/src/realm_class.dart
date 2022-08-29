@@ -443,7 +443,8 @@ abstract class NotificationsController implements Finalizable {
   }
 
   void stop() {
-    if (handle == null) {
+    // If handle is null or released, no-op
+    if (handle?.released != false) {
       return;
     }
 
