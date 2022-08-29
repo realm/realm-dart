@@ -136,6 +136,7 @@ class Bar extends _Bar with RealmEntityMixin, RealmObjectMixin {
   static const _anOptionalStringProperty = ValueProperty<String?>(
     'anOptionalString',
     RealmPropertyType.string,
+    indexed: true,
   );
   @override
   String? get anOptionalString => _anOptionalStringProperty.getValue(this);
