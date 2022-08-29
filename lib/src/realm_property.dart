@@ -34,6 +34,9 @@ abstract class SchemaProperty {
   /// `true` if the property is a primary key.
   bool get primaryKey;
 
+  /// `true` if the property is a primary key.
+  bool get indexed;
+
   /// Defines the [Realm] collection type if this property is a collection.
   RealmCollectionType get collectionType;
 
@@ -59,6 +62,7 @@ abstract class SchemaProperty {
     required String name,
     required RealmPropertyType propertyType,
     required bool primaryKey,
+    required bool indexed,
     required bool optional,
     required RealmCollectionType collectionType,
     required String? linkTarget,
@@ -71,6 +75,7 @@ abstract class BaseProperty<T extends Object?> implements SchemaProperty {
     this.name,
     this.propertyType, {
     this.primaryKey = false,
+    this.indexed = false,
     this.collectionType = RealmCollectionType.none,
     this.linkTarget,
     this.defaultValue,
@@ -84,6 +89,9 @@ abstract class BaseProperty<T extends Object?> implements SchemaProperty {
 
   @override
   final bool primaryKey;
+
+  @override
+  final bool indexed;
 
   @override
   final RealmCollectionType collectionType;
@@ -105,7 +113,14 @@ abstract class BaseProperty<T extends Object?> implements SchemaProperty {
 
 /// @nodoc
 class ValueProperty<T extends Object?> extends BaseProperty<T> {
-  const ValueProperty(super.name, super.propertyType, {super.primaryKey = false, super.defaultValue, super.collectionType = RealmCollectionType.none});
+  const ValueProperty(
+    super.name,
+    super.propertyType, {
+    super.primaryKey = false,
+    super.indexed = false,
+    super.defaultValue,
+    super.collectionType = RealmCollectionType.none,
+  });
 
   @override
   T getValue(RealmObject object) {
@@ -148,6 +163,7 @@ class _DynamicProperty implements SchemaProperty {
     required this.name,
     required this.propertyType,
     required this.primaryKey,
+    required this.indexed,
     required this.optional,
     required this.collectionType,
     required this.linkTarget,
@@ -159,6 +175,8 @@ class _DynamicProperty implements SchemaProperty {
   final RealmPropertyType propertyType;
   @override
   final bool primaryKey;
+  @override
+  final bool indexed;
   @override
   final bool optional;
   @override

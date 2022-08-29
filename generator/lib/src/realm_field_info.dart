@@ -75,7 +75,7 @@ class RealmFieldInfo {
       yield [
         "static const $property = ValueProperty<$mappedTypeName>('$realmName', $realmType,",
         if (primaryKey) ' primaryKey: true,',
-        if (isRealmCollection) " collectionType: $realmCollectionType,",
+        if (indexed) ' indexed: true,',
         if (hasDefaultValue && !isRealmCollection) ' defaultValue: ${fieldElement.initializerExpression},',
         ");",
       ].join();

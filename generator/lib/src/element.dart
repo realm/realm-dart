@@ -15,19 +15,17 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
 import 'dart:math';
 
 import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
-import 'package:realm_generator/src/annotation_value.dart';
-import 'package:realm_generator/src/expanded_context_span.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:source_span/source_span.dart';
 
 import 'annotation_value.dart';
+import 'expanded_context_span.dart';
 import 'class_element_ex.dart';
 import 'error.dart';
 import 'field_element_ex.dart';

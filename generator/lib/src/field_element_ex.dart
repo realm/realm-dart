@@ -33,7 +33,6 @@ import 'format_spans.dart';
 import 'realm_field_info.dart';
 import 'session.dart';
 import 'type_checkers.dart';
-import 'utils.dart';
 
 extension FieldElementEx on FieldElement {
   FieldDeclaration get declarationAstNode => getDeclarationFromElement(this)!.node.parent!.parent as FieldDeclaration;
@@ -46,7 +45,7 @@ extension FieldElementEx on FieldElement {
 
   TypeAnnotation? get typeAnnotation => declarationAstNode.fields.type;
 
-  Expression? get initializerExpression => declarationAstNode.fields.variables.singleWhere((v) => v.name.name == name).initializer;
+  Expression? get initializerExpression => declarationAstNode.fields.variables.singleWhere((v) => '${v.name2}' == name).initializer;
 
   FileSpan? typeSpan(SourceFile file) => ExpandedContextSpan(
         ExpandedContextSpan(
@@ -128,15 +127,17 @@ extension FieldElementEx on FieldElement {
         */
       }
 
-      // Validate indexes
-      if ((primaryKey != null || indexed != null) &&
-          (![RealmPropertyType.string, RealmPropertyType.int, RealmPropertyType.objectid, RealmPropertyType.uuid].contains(type.realmType) ||
-              type.isRealmCollection)) {
+      // Validate primary keys and indexes
+      if ((primaryKey != null || indexed != null) && !(type.realmType?.mapping.indexable ?? false)) {
         final file = span!.file;
         final annotation = (primaryKey ?? indexed)!.annotation;
+        final listOfIndexableTypes = RealmPropertyType.values //
+            .map((t) => t.mapping)
+            .where((m) => m.indexable)
+            .expand((m) => [m.type, m.nullableType]);
 
         throw RealmInvalidGenerationSourceError(
-          'Realm only support indexes on String, int, and bool fields',
+          'Realm only support indexes on fields of type\n${listOfIndexableTypes.join(', ')}',
           element: this,
           primarySpan: typeSpan(file),
           primaryLabel: "$modelTypeName is not an indexable type",
@@ -147,11 +148,11 @@ extension FieldElementEx on FieldElement {
       }
 
       // Validate field type
-      final modelSpan = enclosingElement.span!;
+      final modelSpan = enclosingElement3.span!;
       final file = modelSpan.file;
       final realmType = type.realmType;
       if (realmType == null) {
-        final notARealmTypeSpan = type.element?.span;
+        final notARealmTypeSpan = type.element2?.span;
         String todo;
         if (notARealmTypeSpan != null) {
           todo = //
@@ -169,7 +170,7 @@ extension FieldElementEx on FieldElement {
           primarySpan: typeSpan(file),
           primaryLabel: '$modelTypeName is not a realm model type',
           secondarySpans: {
-            modelSpan: "in realm model '${enclosingElement.displayName}'",
+            modelSpan: "in realm model '${enclosingElement3.displayName}'",
             // may go both above and below, or stem from another file
             if (notARealmTypeSpan != null) notARealmTypeSpan: ''
           },

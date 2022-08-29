@@ -32,7 +32,7 @@ extension DartTypeEx on DartType {
   bool get isRealmAny => const TypeChecker.fromRuntime(RealmAny).isAssignableFromType(this);
   bool get isRealmBacklink => false; // TODO: Implement Backlink support https://github.com/realm/realm-dart/issues/693
   bool get isRealmCollection => realmCollectionType != RealmCollectionType.none;
-  bool get isRealmModel => element != null ? realmModelChecker.annotationsOfExact(element!).isNotEmpty : false;
+  bool get isRealmModel => element2 != null ? realmModelChecker.annotationsOfExact(element2!).isNotEmpty : false;
 
   bool get isNullable => session.typeSystem.isNullable(this);
   DartType get asNonNullable => session.typeSystem.promoteToNonNull(this);

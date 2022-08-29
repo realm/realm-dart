@@ -33,7 +33,9 @@ Type _typeOf<T>() => T; // TODO(kasper): Replace with public version once realm_
 
 /// @nodoc
 class Mapping<T> {
-  const Mapping();
+  const Mapping({this.indexable = false});
+
+  final bool indexable;
 
   // Types
   Type get type => T;
@@ -49,30 +51,30 @@ class Mapping<T> {
   List<T?> getListOfNullables(RealmAccessorMarker accessor, RealmObjectMarker object, String propertyName) => accessor.getList<T?>(object, propertyName);
 }
 
-const _intMapping = Mapping<int>();
-const _boolMapping = Mapping<bool>();
+const _intMapping = Mapping<int>(indexable: true);
+const _boolMapping = Mapping<bool>(indexable: true); // oddly enough :-)
 const _doubleMapping = Mapping<double>();
 
 /// @nodoc
 enum RealmPropertyType {
   int(_intMapping),
   bool(_boolMapping),
-  string(Mapping<String>()),
+  string(Mapping<String>(indexable: true)),
   _3, // ignore: unused_field, constant_identifier_names
   binary(Mapping<Uint8List>()),
   _5, // ignore: unused_field, constant_identifier_names
   mixed(Mapping<RealmAny>()),
   _7, // ignore: unused_field, constant_identifier_names
-  timestamp(Mapping<DateTime>()),
+  timestamp(Mapping<DateTime>(indexable: true)),
   float(Mapping<Float>()),
   double(_doubleMapping),
   decimal128,
   object(Mapping<RealmObjectMarker>()),
   _13, // ignore: unused_field, constant_identifier_names
   linkingObjects,
-  objectid(Mapping<ObjectId>()),
+  objectid(Mapping<ObjectId>(indexable: true)),
   _16, // ignore: unused_field, constant_identifier_names
-  uuid(Mapping<Uuid>());
+  uuid(Mapping<Uuid>(indexable: true));
 
   const RealmPropertyType([this.mapping = const Mapping<Never>()]);
 
