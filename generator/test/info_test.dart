@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:build_test/build_test.dart';
+import 'package:path/path.dart' as path;
 import 'package:realm_generator/realm_generator.dart';
 import 'package:test/test.dart';
 import 'test_util.dart';
@@ -25,8 +28,8 @@ void main() {
       );
 
       expect(
-        sb.toString(),
-        await readFileAsErrorFormattedString(directory, outputFile),
+        sb.toString().trim(),
+        (await File(path.join(directory, outputFile)).readFileAsErrorFormattedString()).trim(),
       );
     });
   });

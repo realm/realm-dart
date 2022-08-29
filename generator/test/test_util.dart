@@ -25,20 +25,20 @@ Map<String, String> getListOfTestFiles(String directory) {
   return result;
 }
 
-Future<dynamic> generatorTestBuilder(String directoryName, String inputFileName) async {
+Future<dynamic> generatorTestBuilder(String directoryName, String inputFileName, {bool expectError = false}) async {
   final inputPath = _path.join(directoryName, inputFileName);
   final expectedPath = _path.setExtension(inputPath, '.expected');
   return testBuilder(
     generateRealmObjects(),
     await getInputFileAsset(inputPath),
-    outputs: await getExpectedFileAsset(inputPath, expectedPath),
+    outputs: expectError ? null : await getExpectedFileAsset(inputPath, expectedPath),
     reader: await PackageAssetReader.currentIsolate(),
   );
 }
 
 Future<Map<String, Object>> getInputFileAsset(String inputFilePath) async {
   var key = 'pkg|$inputFilePath';
-  String inputContent = await readFileAsDartFormattedString(inputFilePath);
+  String inputContent = await File(inputFilePath).readFileAsDartCode();
   return {key: inputContent};
 }
 
@@ -179,33 +179,27 @@ class LinesEqualsMatcher extends Matcher {
 Future<Map<String, Object>> getExpectedFileAsset(String inputFilePath, String expectedFilePath) async {
   var key = 'pkg|${_path.setExtension(inputFilePath, '.realm_objects.g.part')}';
   return {
-    key: myersDiff(await File(expectedFilePath).readAsString()),
+    key: myersDiff(await File(expectedFilePath).readFileAsDartCode()),
   };
 }
 
-Future<String> readFileAsDartFormattedString(String path) async {
-  var file = File(_path.join(Directory.current.path, path));
-  String content = await file.readAsString(encoding: utf8);
-  return _stringReplacements(content);
-}
-
-Future<String> readFileAsErrorFormattedString(String directoryName, String outputFilePath) async {
-  var file = File(_path.join(Directory.current.path, '$directoryName/$outputFilePath'));
-  String content = await file.readAsString(encoding: utf8);
-  if (Platform.isWindows) {
-    var macToWinSymbols = {'╷': ',', '━': '=', '╵': '\'', '│': '|', '─': '-', '┌': ',', '└': '\''};
-    macToWinSymbols.forEach((key, value) {
-      content = content.replaceAll(key, value);
-    });
+extension FileEx on File {
+  Future<String> readFileAsErrorFormattedString() async {
+    var content = await readAsString(encoding: utf8);
+    if (Platform.isWindows) {
+      var macToWinSymbols = {'╷': ',', '━': '=', '╵': '\'', '│': '|', '─': '-', '┌': ',', '└': '\''};
+      macToWinSymbols.forEach((key, value) {
+        content = content.replaceAll(key, value);
+      });
+    }
+    return LineSplitter.split(content).join('\n');
   }
-  return LineSplitter.split(content).join('\n');
-}
 
-String _stringReplacements(String content) {
-  final formatter = DartFormatter();
-  var lines = LineSplitter.split(content);
-  String formattedContent = lines.where((element) => !element.startsWith("part of")).join('\n');
-  return formatter.format(formattedContent);
+  Future<String> readFileAsDartCode() async {
+    final content = await readAsString(encoding: utf8);
+    final formatter = DartFormatter(lineEnding: '\n');
+    return formatter.format(content);
+  }
 }
 
 String getTestName(String file) {

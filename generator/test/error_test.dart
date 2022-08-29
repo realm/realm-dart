@@ -9,13 +9,13 @@ void main() {
   getListOfTestFiles(directory).forEach((inputFile, outputFile) {
     executeTest(getTestName(inputFile), () async {
       await expectLater(
-        () async => await generatorTestBuilder(directory, inputFile),
+        () async => await generatorTestBuilder(directory, inputFile, expectError: true),
         throwsA(
           isA<RealmInvalidGenerationSourceError>().having(
             (e) => e.format().trim(),
             'format()',
             myersDiff(
-              (await File(path.join(directory, outputFile)).readAsString()).trim(),
+              (await File(path.join(directory, outputFile)).readFileAsErrorFormattedString()).trim(),
             ),
           ),
         ),
