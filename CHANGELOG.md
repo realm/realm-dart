@@ -3,7 +3,34 @@
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
 ### Enhancements
-* None
+* Added support for migrations for local Realms. You can now construct a configuration with a migration callback that will be invoked if the schema version of the file on disk is lower than the schema version supplied by the callback. A minimal example looks like this:
+  ```dart
+  final config = Configuration.local([Person.schema], schemaVersion: 4, migrationCallback: (migration, oldSchemaVersion) {
+    if (oldSchemaVersion == 1) {
+      // Between v1 and v2 we removed the Bar type
+      migration.removeType('Bar');
+    }
+
+    if (oldSchemaVersion == 2) {
+      // Between v2 and v3 we fixed a typo where someone had mispelled the 'Foo.name' property.
+      migration.renameProperty('Person', 'nmae', 'name');
+    }
+
+    if (oldSchemaVersion == 3) {
+      final oldPeople = migration.oldRealm.dynamic.all('Person');
+      for (final oldPerson in oldPeople) {
+        final newPerson = migration.findInNewRealm<Person>(oldPerson);
+        if (newPerson == null) {
+          // That person must have been deleted, so nothing to do.
+          continue;
+        }
+
+        // Between v3 and v4 we're obfuscating the users' exact age by storing age group instead.
+        newPerson.ageGroup = calculateAgeGroup(oldPerson.dynamic.get<int>('age'));
+      }
+    }
+  });
+  ```
 
 ### Fixed
 * Allow null arguments on query. ([#872](https://github.com/realm/realm-dart/pull/872)). Fixes [#871](https://github.com/realm/realm-dart/issues/871)
