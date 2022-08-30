@@ -708,7 +708,7 @@ class _RealmCore {
     return RealmResultsHandle._(pointer);
   }
 
-  RealmResultsHandle queryClass(Realm realm, int classKey, String query, List<Object> args) {
+  RealmResultsHandle queryClass(Realm realm, int classKey, String query, List<Object?> args) {
     return using((arena) {
       final length = args.length;
       final argsPointer = arena<realm_query_arg_t>(length);

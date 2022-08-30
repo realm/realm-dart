@@ -1,6 +1,8 @@
 ![Realm](https://github.com/realm/realm-dart/raw/master/logo.png)
 
 [![License](https://img.shields.io/badge/License-Apache-blue.svg)](LICENSE)
+[![Realm Dart CI](https://github.com/realm/realm-dart/actions/workflows/ci.yml/badge.svg)](https://github.com/realm/realm-dart/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/realm/realm-dart/badge.svg?branch=master)](https://coveralls.io/github/realm/realm-dart?branch=master)
 
 Realm is a mobile database that runs directly inside phones, tablets or wearables.
 This repository holds the source code for the Realm SDK for Flutter™ and Dart™.
