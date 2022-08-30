@@ -246,7 +246,7 @@ Future<void> main([List<String>? args]) async {
 
     final v2Realm = getRealm(v2Config);
 
-    // We renamed nmae to name, but don't rename vlaue to value so we expect
+    // We renamed 'nmae' to 'name', but don't rename 'vlaue' to 'value' so we expect
     // the names to have been preserved, but the values - not.
     final names = v2Realm.all<MyObjectWithoutTypo>().map((e) => e.name);
     final values = v2Realm.all<MyObjectWithoutTypo>().map((e) => e.value);

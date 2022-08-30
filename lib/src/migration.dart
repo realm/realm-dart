@@ -20,13 +20,27 @@ import 'realm_class.dart';
 import 'native/realm_core.dart';
 import './realm_object.dart';
 
+/// A [Migration] object is passed to you when you migrate your database from one version
+/// to another. It contains the properties for the Realm before and after the migration.
+/// After the migration is complete, [newRealm] will become the authoritative version of
+/// the file.
 class Migration {
   final SchemaHandle _schema;
+
+  /// The Realm as it existed just before the migration. Since the models have changed,
+  /// this Realm can only be accessed via the dynamic API (i.e. [Realm.dynamic] and
+  /// [RealmObject.dynamic]).
   final Realm oldRealm;
+
+  /// The Realm as it exists after the migration. Before the end of the callback, you need
+  /// to make sure that all relevant data has been migrated from [oldRealm] into [newRealm].
   final Realm newRealm;
 
   Migration._(this.oldRealm, this.newRealm, this._schema);
 
+  /// Finds an object obtained from [oldRealm] in [newRealm]. This is useful when you
+  /// are working with objects without primary keys and want to update some information
+  /// about the object as part of the migration.
   T? findInNewRealm<T extends RealmObject>(RealmObject oldObject) {
     if (!oldObject.isManaged) {
       throw UnsupportedError('Only managed RealmObject instances can be looked up in the new Realm');
@@ -43,10 +57,15 @@ class Migration {
     return object as T;
   }
 
+  /// Renames a property during a migration.
   void renameProperty(String className, String oldPropertyName, String newPropertyName) {
     realmCore.renameProperty(newRealm, className, oldPropertyName, newPropertyName, _schema);
   }
 
+  /// Removes a type during a migration. All the data associated with the type, as well as its schema,
+  /// will be removed from the Realm.
+  ///
+  /// If you don't call this, the data will not be deleted, even if the type is not present in the new schema.
   void removeType(String className) {
     realmCore.removeType(newRealm, className);
   }

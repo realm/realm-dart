@@ -303,7 +303,7 @@ jobs:
           model: 'iPhone 8'
           os: 'iOS'
           os_version: '>= 14.0'
-      
+
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - name: Create cluster
@@ -430,6 +430,12 @@ jobs:
         run: |
           dart pub get
           dart run build_runner build --delete-conflicting-outputs
+
+      - name: Run generator in realm-dart/example
+        run: |
+          dart pub get
+          dart run build_runner build --delete-conflicting-outputs
+        working-directory: ./example/
 
       - name: Run generator in realm_flutter/example
         run: |

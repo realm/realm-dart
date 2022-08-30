@@ -48,7 +48,8 @@ typedef ShouldCompactCallback = bool Function(int totalSize, int usedSize);
 /// Realms, even if all objects in the Realm are deleted.
 typedef InitialDataCallback = void Function(Realm realm);
 
-/// the signature of a callback that will be executed when the schema of the Realm changes.
+/// The signature of a callback that will be executed when the schema of the Realm changes.
+///
 /// The `oldSchemaVersion` argument indicates the version from which the Realm migrates while
 /// the `migration` argument contains references to the Realm just before and just after the migration.
 typedef MigrationCallback = void Function(Migration migration, int oldSchemaVersion);
@@ -241,7 +242,7 @@ enum SessionStopPolicy {
   afterChangesUploaded, // Once all Realms/Sessions go out of scope, wait for uploads to complete and stop.
 }
 
-///The signature of a callback that will be invoked whenever a [SyncError] occurs for the synchronized Realm.
+/// The signature of a callback that will be invoked whenever a [SyncError] occurs for the synchronized Realm.
 ///
 /// Client reset errors will not be reported through this callback as they are handled by [SyncClientResetErrorHandler].
 typedef SyncErrorHandler = void Function(SyncError);
