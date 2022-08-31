@@ -20,7 +20,7 @@ void _debugWrite(String message) {
 
 String _resolveLibPath(String binaryName, String binaryPath) {
   String libPath = resolveDylibPath(
-      binaryName, // foo.dll, libfoo.so, libfoo.dylib...
+    binaryName, // foo.dll, libfoo.so, libfoo.dylib...
     dartDefine: 'LIB${binaryName.toUpperCase()}_PATH',
     environmentVariable: 'LIB${binaryName.toUpperCase()}_PATH',
   );
