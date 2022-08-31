@@ -18,6 +18,23 @@ void _debugWrite(String message) {
   }());
 }
 
+String _resolveLibPath(String binaryName, String binaryPath) {
+  String libPath = resolveDylibPath(
+      binaryName, // foo.dll, libfoo.so, libfoo.dylib...
+    dartDefine: 'LIB${binaryName.toUpperCase()}_PATH',
+    environmentVariable: 'LIB${binaryName.toUpperCase()}_PATH',
+  );
+  if(FileSystemEntityType.notFound == FileSystemEntity.typeSync(libPath)) {
+    libPath = resolveDylibPath(
+      binaryName, // foo.dll, libfoo.so, libfoo.dylib...
+      path: binaryPath,
+      dartDefine: 'LIB${binaryName.toUpperCase()}_PATH',
+      environmentVariable: 'LIB${binaryName.toUpperCase()}_PATH',
+    );
+  }
+  return libPath;
+}
+
 String _getBinaryPath(String binaryName) {
   if (Platform.isAndroid) {
     return "lib$binaryName.so";
@@ -26,39 +43,13 @@ String _getBinaryPath(String binaryName) {
       return '${File(Platform.resolvedExecutable).parent.path}/lib/lib$binaryName.so';
     }
 
-    String libPath = resolveDylibPath(
-      binaryName, // foo.dll, libfoo.so, libfoo.dylib...
-      dartDefine: 'LIB${binaryName.toUpperCase()}_PATH',
-      environmentVariable: 'LIB${binaryName.toUpperCase()}_PATH',
-    );
-    if(FileSystemEntityType.notFound == FileSystemEntity.typeSync(libPath)) {
-      libPath = resolveDylibPath(
-        binaryName, // foo.dll, libfoo.so, libfoo.dylib...
-        path: "binary/linux",
-        dartDefine: 'LIB${binaryName.toUpperCase()}_PATH',
-        environmentVariable: 'LIB${binaryName.toUpperCase()}_PATH',
-      );
-    }
-    return libPath;
+    return _resolveLibPath(binaryName, 'binary/linux');
   } else if (Platform.isMacOS) {
     if (isFlutterPlatform) {
       return "${File(Platform.resolvedExecutable).parent.absolute.path}/../Frameworks/realm.framework/Resources/lib$binaryName.dylib";
     }
 
-    String libPath = resolveDylibPath(
-      binaryName, // foo.dll, libfoo.so, libfoo.dylib...
-      dartDefine: 'LIB${binaryName.toUpperCase()}_PATH',
-      environmentVariable: 'LIB${binaryName.toUpperCase()}_PATH',
-    );
-    if(FileSystemEntityType.notFound == FileSystemEntity.typeSync(libPath)) {
-      libPath = resolveDylibPath(
-        binaryName, // foo.dll, libfoo.so, libfoo.dylib...
-        path: "${Directory.current.path}/binary/macos",
-        dartDefine: 'LIB${binaryName.toUpperCase()}_PATH',
-        environmentVariable: 'LIB${binaryName.toUpperCase()}_PATH',
-      );
-    }
-    return libPath;
+    return _resolveLibPath(binaryName, '${Directory.current.path}/binary/macos');
   } else if (Platform.isIOS) {
     return "${File(Platform.resolvedExecutable).parent.absolute.path}/Frameworks/realm_dart.framework/realm_dart";
   } else if (Platform.isWindows) {
@@ -66,20 +57,7 @@ String _getBinaryPath(String binaryName) {
       return "$binaryName.dll";
     }
 
-    String libPath = resolveDylibPath(
-      binaryName, // foo.dll, libfoo.so, libfoo.dylib...
-      dartDefine: 'LIB${binaryName.toUpperCase()}_PATH',
-      environmentVariable: 'LIB${binaryName.toUpperCase()}_PATH',
-    );
-    if(FileSystemEntityType.notFound == FileSystemEntity.typeSync(libPath)) {
-      libPath = resolveDylibPath(
-        binaryName, // foo.dll, libfoo.so, libfoo.dylib...
-        path: "binary/windows",
-        dartDefine: 'LIB${binaryName.toUpperCase()}_PATH',
-        environmentVariable: 'LIB${binaryName.toUpperCase()}_PATH',
-      );
-    }
-    return libPath;
+    return _resolveLibPath(binaryName, 'binary/windows');
   }
 
   throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
