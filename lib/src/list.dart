@@ -106,8 +106,7 @@ class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with Re
     }
 
     final frozenRealm = realm.freeze();
-    final frozenHandle = realmCore.resolveList(this, frozenRealm)!;
-    return ManagedRealmList._(frozenHandle, frozenRealm, _metadata);
+    return frozenRealm.resolveList(this)!;
   }
 }
 
@@ -190,6 +189,8 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
   ManagedRealmList<T> asManaged() => this is ManagedRealmList<T> ? this as ManagedRealmList<T> : throw RealmStateError('$this is not managed');
 
   RealmListHandle get handle => asManaged()._handle;
+
+  RealmObjectMetadata? get metadata => asManaged()._metadata;
 
   static RealmList<T> create<T extends Object?>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
 

@@ -431,6 +431,31 @@ extension RealmInternal on Realm {
   }
 
   RealmMetadata get metadata => _metadata;
+
+  T? resolveObject<T extends RealmObject>(T object) {
+    final handle = realmCore.resolveObject(object, this);
+    if (handle == null) {
+      return null;
+    }
+
+    final metadata = (object.accessor as RealmCoreAccessor).metadata;
+
+    return RealmObjectInternal.create(T, this, handle, RealmCoreAccessor(metadata)) as T;
+  }
+
+  RealmList<T>? resolveList<T extends Object?>(ManagedRealmList<T> list) {
+    final handle = realmCore.resolveList(list, this);
+    if (handle == null) {
+      return null;
+    }
+
+    return createList<T>(handle, list.metadata);
+  }
+
+  RealmResults<T> resolveResults<T extends RealmObject>(RealmResults<T> results) {
+    final handle = realmCore.resolveResults(results, this);
+    return RealmResultsInternal.create<T>(handle, this, results.metadata);
+  }
 }
 
 /// @nodoc

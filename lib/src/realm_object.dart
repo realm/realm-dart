@@ -270,11 +270,7 @@ mixin RealmObject on RealmEntity implements Finalizable {
     }
 
     final frozenRealm = object.realm.freeze();
-    final frozenHandle = realmCore.resolveObject(object, frozenRealm)!;
-
-    final metadata = (object.accessor as RealmCoreAccessor).metadata;
-
-    return RealmObjectInternal.create(T, frozenRealm, frozenHandle, RealmCoreAccessor(metadata)) as T;
+    return frozenRealm.resolveObject(object)!;
   }
 
   @override
