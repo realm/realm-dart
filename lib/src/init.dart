@@ -1,6 +1,8 @@
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:path/path.dart' as p;
+
 import 'cli/metrics/metrics_command.dart';
 import 'cli/metrics/options.dart';
 import 'cli/common/target_os_type.dart';
@@ -17,35 +19,69 @@ void _debugWrite(String message) {
   }());
 }
 
-String _getBinaryPath(String binaryName) {
+String _getBinaryPath(String libName) {
   if (Platform.isAndroid) {
-    return "lib$binaryName.so";
-  } else if (Platform.isLinux) {
-    if (isFlutterPlatform) {
-      return '${File(Platform.resolvedExecutable).parent.path}/lib/lib$binaryName.so';
-    }
-
-    return "binary/linux/lib$binaryName.so";
-  } else if (Platform.isMacOS) {
-    if (isFlutterPlatform) {
-      return "${File(Platform.resolvedExecutable).parent.absolute.path}/../Frameworks/realm.framework/Resources/lib$binaryName.dylib";
-    }
-
-    return "${Directory.current.path}/binary/macos/lib$binaryName.dylib";
-  } else if (Platform.isIOS) {
-    return "${File(Platform.resolvedExecutable).parent.absolute.path}/Frameworks/realm_dart.framework/realm_dart";
-  } else if (Platform.isWindows) {
-    if (isFlutterPlatform) {
-      return "$binaryName.dll";
-    }
-
-    return "binary/windows/$binaryName.dll";
+    return libName;
   }
-
-  throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
+  if (Platform.isLinux) {
+    return '$_exeDirName/lib/$libName';
+  }
+  if (Platform.isMacOS) {
+    return '$_exeDirName/../Frameworks/realm.framework/Resources/$libName';
+  }
+  if (Platform.isIOS) {
+    return '$_exeDirName/Frameworks/realm_dart.framework/$libName';
+  }
+  if (Platform.isWindows) {
+    return libName;
+  }
+  _platformNotSupported();
 }
 
 bool get isFlutterPlatform => realm.isFlutterPlatform;
+
+String _getLibName(String stem) {
+  if (Platform.isMacOS) return 'lib$stem.dylib';
+  if (Platform.isIOS) return stem;
+  if (Platform.isWindows) return '$stem.dll';
+  if (Platform.isAndroid || Platform.isLinux) return 'lib$stem.so';
+  _platformNotSupported(); // we don't support Fuchsia yet
+}
+
+String? _getNearestProjectRoot(String dir) {
+  while (dir != p.dirname(dir)) {
+    if (File(p.join(dir, 'pubspec.yaml')).existsSync()) return dir;
+    dir = p.dirname(dir);
+  }
+  return null;
+}
+
+Never _platformNotSupported() => throw UnsupportedError('Platform ${Platform.operatingSystem} is not supported');
+
+String get _exeDirName => p.dirname(Platform.resolvedExecutable);
+
+DynamicLibrary _openRealmLib() {
+  final libName = _getLibName(realmBinaryName);
+  final root = _getNearestProjectRoot(Platform.script.path) ?? _getNearestProjectRoot(p.current);
+
+  // Try to open lib from various candidate paths
+  Error? ex;
+  for (final open in [
+    () => _open(libName), // just ask OS..
+    () => _open(p.join(_exeDirName, libName)), // try finding it next to the executable
+    if (root != null) () => _open(p.join(root, 'binary', Platform.operatingSystem, libName)), // try finding it relative to project
+    () => _open(_getBinaryPath(libName)), // find it where it is installed by plugin
+  ]) {
+    try {
+      return open();
+    } on Error catch (e) {
+      ex ??= e; // remember first exception, if everything fails
+    }
+  }
+  throw ex!; // rethrow first
+}
+
+DynamicLibrary _open(String lib) => DynamicLibrary.open(lib);
 
 /// @nodoc
 // Initializes Realm library
@@ -66,13 +102,12 @@ DynamicLibrary initRealm() {
     }());
   }
 
-  final realmBinaryPath = _getBinaryPath(realmBinaryName);
-  final realmLibrary = DynamicLibrary.open(realmBinaryPath);
+  final realmLibrary = _openRealmLib();
 
-  final initializeApi = realmLibrary.lookupFunction<IntPtr Function(Pointer<Void>), int Function(Pointer<Void>)>("realm_dart_initializeDartApiDL");
+  final initializeApi = realmLibrary.lookupFunction<IntPtr Function(Pointer<Void>), int Function(Pointer<Void>)>('realm_dart_initializeDartApiDL');
   var initResult = initializeApi(NativeApi.initializeApiDLData);
   if (initResult != 0) {
-    throw AssertionError("Realm initialization failed. Error: could not initialize Dart APIs");
+    throw AssertionError('Realm initialization failed. Error: could not initialize Dart APIs');
   }
 
   return _library = realmLibrary;
