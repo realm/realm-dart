@@ -88,6 +88,11 @@ class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with Re
   }
 
   @override
+  T removeAt(int index) {
+    final result = this[index];
+    realmCore.listRemoveElementAt(handle, index);
+    return result;
+  }
 
   /// Removes all objects from this list; the length of the list becomes zero.
   /// The objects are not deleted from the realm, but are no longer referenced from this list.

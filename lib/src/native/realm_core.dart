@@ -824,6 +824,12 @@ class _RealmCore {
     });
   }
 
+  void listRemoveElementAt(RealmListHandle handle, int index) {
+    return using((Arena arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_list_erase(handle._pointer, index));
+    });
+  }
+
   void listDeleteAll(RealmList list) {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_remove_all(list.handle._pointer));
   }

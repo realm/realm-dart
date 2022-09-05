@@ -361,4 +361,27 @@ Future<void> main([List<String>? args]) async {
     final result = team.players.query(r'name BEGINSWITH $0', ['J']);
     expect(result, [person]);
   });
+
+  test('List removeAt', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final team = Team('Class of 92', players: [alice, bob, carol, dan]);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 4);
+    expect(team.players, [alice, bob, carol, dan]);
+
+    expect(realm.write(() => team.players.removeAt(2)), carol);
+    //expect(team.players.length, 3);
+    expect(team.players, [alice, bob, dan]);
+
+    expect(realm.write(() => team.players.removeAt(0)), alice);
+    expect(team.players.length, 2);
+    expect(team.players, [bob, dan]);
+  });
 }
