@@ -63,7 +63,8 @@ Future<void> main([List<String>? args]) async {
     expect(realm.syncSession, isNotNull);
   }, skip: 'crashes');
 
-  Future<void> validateSessionStates(String validationName, Session session, {SessionState? expectedSessionState, ConnectionState? expectedConnectionState}) async {
+  Future<void> validateSessionStates(String validationName, Session session,
+      {SessionState? expectedSessionState, ConnectionState? expectedConnectionState}) async {
     if (expectedSessionState != null) {
       await waitForCondition(() => session.state.name == expectedSessionState.name,
           message: 'Expected ${session.state} to equal $expectedSessionState. Validation: $validationName', timeout: const Duration(seconds: 15));
@@ -78,15 +79,18 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession.pause/resume', (configuration) async {
     final realm = await getIntegrationRealm();
 
-    await validateSessionStates("Initial state", realm.syncSession, expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
+    await validateSessionStates("Initial state", realm.syncSession,
+        expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
 
     realm.syncSession.pause();
 
-    await validateSessionStates("State after pause", realm.syncSession, expectedSessionState: SessionState.inactive, expectedConnectionState: ConnectionState.disconnected);
+    await validateSessionStates("State after pause", realm.syncSession,
+        expectedSessionState: SessionState.inactive, expectedConnectionState: ConnectionState.disconnected);
 
     realm.syncSession.resume();
 
-    await validateSessionStates("State after resume", realm.syncSession, expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
+    await validateSessionStates("State after resume", realm.syncSession,
+        expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
   });
 
   baasTest('SyncSession.pause called multiple times is a no-op', (configuration) async {
@@ -308,26 +312,11 @@ Future<void> main([List<String>? args]) async {
     realm.syncSession.raiseError(SyncErrorCategory.client, SyncClientErrorCode.badChangeset.code, true);
   });
 
-  baasTest('SyncSession client reset handler', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
-      expect(syncError, isA<SyncClientResetError>());
-      final syncClientResetError = syncError.as<SyncClientResetError>();
-      expect(syncClientResetError.category, SyncErrorCategory.session);
-      expect(syncClientResetError.isFatal, true);
-      expect(syncClientResetError.code, SyncClientErrorCode.autoClientResetFailure);
-      expect(syncClientResetError.message, "Simulated session error");
-    });
-    final realm = getRealm(config);
-
-    realm.syncSession.raiseError(SyncErrorCategory.session, SyncClientErrorCode.autoClientResetFailure.code, true);
-  });
-
   baasTest('SyncSession.getConnectionStateStream', (configuration) async {
     final realm = await getIntegrationRealm();
 
-    await validateSessionStates("Initial state", realm.syncSession, expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
+    await validateSessionStates("Initial state", realm.syncSession,
+        expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
 
     final states = <ConnectionStateChange>[];
     final stream = realm.syncSession.connectionStateChanges;
@@ -338,7 +327,8 @@ Future<void> main([List<String>? args]) async {
     // Verify we get a notification when we pause the session
     realm.syncSession.pause();
 
-    await validateSessionStates("State after pause", realm.syncSession, expectedSessionState: SessionState.inactive, expectedConnectionState: ConnectionState.disconnected);
+    await validateSessionStates("State after pause", realm.syncSession,
+        expectedSessionState: SessionState.inactive, expectedConnectionState: ConnectionState.disconnected);
     await waitForCondition(() => states.length == 1, timeout: const Duration(seconds: 15), message: 'expected 1 notification, got ${states.length}');
 
     expect(states[0].previous.name, ConnectionState.connected.name);
@@ -347,7 +337,8 @@ Future<void> main([List<String>? args]) async {
     // When resuming, we should get two notifications - first we go to connecting, then connected
     realm.syncSession.resume();
 
-    await validateSessionStates("State after resume", realm.syncSession, expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
+    await validateSessionStates("State after resume", realm.syncSession,
+        expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
     await waitForCondition(() => states.length == 3, timeout: const Duration(seconds: 15), message: 'expected 3 notifications, got ${states.length}');
 
     expect(states[1].previous.name, ConnectionState.disconnected.name);

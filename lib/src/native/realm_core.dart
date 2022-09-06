@@ -921,7 +921,6 @@ class _RealmCore {
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
-          nullptr,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -934,7 +933,6 @@ class _RealmCore {
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
-          nullptr,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -947,7 +945,6 @@ class _RealmCore {
           nullptr,
           nullptr,
           Pointer.fromFunction(object_change_callback),
-          nullptr,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
