@@ -372,7 +372,8 @@ Future<void> main([List<String>? args]) async {
     final bob = Person('Bob');
     final carol = Person('Carol');
     final dan = Person('Dan');
-    final team = Team('Class of 92', players: [alice, bob, carol, dan]);
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
 
     realm.write(() => realm.add(team));
     expect(team.players.length, 4);
@@ -385,6 +386,8 @@ Future<void> main([List<String>? args]) async {
     expect(realm.write(() => team.players.removeAt(0)), alice);
     expect(team.players.length, 2);
     expect(team.players, [bob, dan]);
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
   });
 
   test('ManagedRealmList.length set', () {
@@ -395,7 +398,8 @@ Future<void> main([List<String>? args]) async {
     final bob = Person('Bob');
     final carol = Person('Carol');
     final dan = Person('Dan');
-    final team = Team('Class of 92', players: [alice, bob, carol, dan]);
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
 
     realm.write(() => realm.add(team));
     expect(team.players.length, 4);
@@ -404,6 +408,8 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => team.players.length = 2);
     expect(team.players.length, 2);
     expect(team.players, [alice, bob]);
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
   });
 
   test('ManagedRealmList.contains', () {
@@ -438,7 +444,8 @@ Future<void> main([List<String>? args]) async {
     final bob = Person('Bob');
     final carol = Person('Carol');
     final dan = Person('Dan');
-    final team = Team('Class of 92', players: [alice, bob, carol, dan]);
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
 
     realm.write(() => realm.add(team));
     expect(team.players.length, 4);
@@ -447,6 +454,8 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => team.players.removeRange(1, 3)); // removes [1; 3)
     expect(team.players.length, 2);
     expect(team.players, [alice, dan]);
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
   });
 
   test('ManagedRealmList.removeWhere', () {
@@ -457,7 +466,8 @@ Future<void> main([List<String>? args]) async {
     final bob = Person('Bob');
     final carol = Person('Carol');
     final dan = Person('Dan');
-    final team = Team('Class of 92', players: [alice, bob, carol, dan]);
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
 
     realm.write(() => realm.add(team));
     expect(team.players.length, 4);
@@ -466,6 +476,8 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => team.players.removeWhere((p) => p.name.contains('a')));
     expect(team.players.length, 2);
     expect(team.players, [alice, bob]); // Alice is capital 'a'
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
   });
 
   test('ManagedRealmList.retainWhere', () {
@@ -476,7 +488,8 @@ Future<void> main([List<String>? args]) async {
     final bob = Person('Bob');
     final carol = Person('Carol');
     final dan = Person('Dan');
-    final team = Team('Class of 92', players: [alice, bob, carol, dan]);
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
 
     realm.write(() => realm.add(team));
     expect(team.players.length, 4);
@@ -485,6 +498,8 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => team.players.retainWhere((p) => p.name.contains('a')));
     expect(team.players.length, 2);
     expect(team.players, [carol, dan]); // Alice is capital 'a', so not included
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
   });
 
   test('ManagedRealmList.removeLast', () {
@@ -495,7 +510,8 @@ Future<void> main([List<String>? args]) async {
     final bob = Person('Bob');
     final carol = Person('Carol');
     final dan = Person('Dan');
-    final team = Team('Class of 92', players: [alice, bob, carol, dan]);
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
 
     realm.write(() => realm.add(team));
     expect(team.players.length, 4);
@@ -504,6 +520,8 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => team.players.removeLast());
     expect(team.players.length, 3);
     expect(team.players, [alice, bob, carol]);
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
   });
 
   test('ManagedRealmList.replaceRange', () {
@@ -514,7 +532,8 @@ Future<void> main([List<String>? args]) async {
     final bob = Person('Bob');
     final carol = Person('Carol');
     final dan = Person('Dan');
-    final team = Team('Class of 92', players: [alice, bob, carol, dan]);
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
 
     realm.write(() => realm.add(team));
     expect(team.players.length, 4);
@@ -525,5 +544,7 @@ Future<void> main([List<String>? args]) async {
 
     realm.write(() => team.players.replaceRange(0, 3, [bob, carol]));
     expect(team.players, [bob, carol, dan]);
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
   });
 }
