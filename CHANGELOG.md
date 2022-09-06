@@ -7,12 +7,13 @@
 
 ### Fixed
 * Allow null arguments on query. ([#872](https://github.com/realm/realm-dart/pull/872)). Fixes [#871](https://github.com/realm/realm-dart/issues/871)
+* Previously removeAt did not truncate length. ([#884](https://github.com/realm/realm-dart/pull/884)). Fixes [#883](https://github.com/realm/realm-dart/issues/883)
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
 
 ### Internal
-* Uses Realm Core v12.5.1
+* Uses Realm Core v12.6.0
 
 ## 0.4.0+beta (2022-08-19)
 
