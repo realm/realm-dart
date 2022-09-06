@@ -315,6 +315,20 @@ Future<void> main([List<String>? args]) async {
     expect(() => teams.length, throws<RealmException>("Access to invalidated Results objects"));
   });
 
+  test('Results - query with null', () {
+    var config = Configuration.local([Dog.schema, Person.schema]);
+    var realm = getRealm(config);
+
+    var ben = Person('Ben');
+    final fido = Dog('Fido', owner: ben);
+    final laika = Dog('Laika'); // no owner;
+    realm.write(() {
+      realm.addAll([fido, laika]);
+    });
+    expect(realm.query<Dog>(r'owner = $0', [ben]), [fido]);
+    expect(realm.query<Dog>(r'owner = $0', [null]), [laika]);
+  });
+
   test('Results access after realm closed throws', () {
     var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);

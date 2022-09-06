@@ -652,7 +652,7 @@ class _RealmCore {
     return RealmResultsHandle._(pointer);
   }
 
-  RealmResultsHandle queryClass(Realm realm, int classKey, String query, List<Object> args) {
+  RealmResultsHandle queryClass(Realm realm, int classKey, String query, List<Object?> args) {
     return using((arena) {
       final length = args.length;
       final argsPointer = arena<realm_query_arg_t>(length);
@@ -824,6 +824,12 @@ class _RealmCore {
     });
   }
 
+  void listRemoveElementAt(RealmListHandle handle, int index) {
+    return using((Arena arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_list_erase(handle._pointer, index));
+    });
+  }
+
   void listDeleteAll(RealmList list) {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_remove_all(list.handle._pointer));
   }
@@ -915,7 +921,6 @@ class _RealmCore {
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
-          nullptr,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -928,7 +933,6 @@ class _RealmCore {
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
-          nullptr,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -941,7 +945,6 @@ class _RealmCore {
           nullptr,
           nullptr,
           Pointer.fromFunction(object_change_callback),
-          nullptr,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
