@@ -1845,17 +1845,35 @@ abstract class HandleBase<T extends NativeType> implements Finalizable {
   }
 }
 
+class FinalizationToken {
+  final WeakReference<RealmHandle> root;
+  final int id;
+
+  FinalizationToken(RealmHandle handle, this.id) : root = WeakReference(handle);
+}
+
+// This finalizer is intended to prevent the list of children in the RealmHandle
+// from growing endlessly. It's not intended to replace the native finalizer which
+// will free the actual resources owned by the handle.
+final _rootedHandleFinalizer = Finalizer<FinalizationToken>((token) {
+  token.root.target?.removeChild(token.id);
+});
+
 abstract class RootedHandleBase<T extends NativeType> extends HandleBase<T> {
   final RealmHandle? _root;
-  int? _id;
+  late final int? _id;
 
   RootedHandleBase(this._root, Pointer<T> pointer, int size) : super(pointer, size) {
     _id = _root?.addChild(this);
+    if (_id != null) {
+      _rootedHandleFinalizer.attach(this, FinalizationToken(_root!, _id!), detach: this);
+    }
   }
 
   @override
   void _releaseCore() {
     if (_id != null) {
+      _rootedHandleFinalizer.detach(this);
       _root?.removeChild(_id!);
     }
   }
