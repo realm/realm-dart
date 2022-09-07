@@ -142,7 +142,7 @@ class EmailPasswordAuthProvider implements Finalizable {
     return realmCore.emailPasswordConfirmUser(app, token, tokenId);
   }
 
-  /// Resends the confirmation email for a user to the given email.
+  /// Resend the confirmation email for a user to the given email.
   Future<void> resendUserConfirmation(String email) {
     return realmCore.emailPasswordResendUserConfirmation(app, email);
   }

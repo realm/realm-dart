@@ -277,7 +277,7 @@ mixin RealmObject on RealmEntity implements Finalizable {
   /// Returns a [Stream] of [RealmObjectChanges<T>] that can be listened to.
   ///
   /// If the object is not managed a [RealmStateError] is thrown.
-  Stream get changes => throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
+  Stream<RealmObjectChanges<RealmObject>> get changes => throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
 
   /// @nodoc
   static Stream<RealmObjectChanges<T>> getChanges<T extends RealmObject>(T object) {
