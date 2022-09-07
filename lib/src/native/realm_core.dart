@@ -539,7 +539,7 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_refresh(realm.handle._pointer), "Could not refresh");
   }
 
-  RealmObjectMetadata getObjectMedata(Realm realm, String className, Type classType) {
+  RealmObjectMetadata getObjectMetadata(Realm realm, String className, Type classType) {
     return using((Arena arena) {
       final found = arena<Bool>();
       final classInfo = arena<realm_class_info_t>();

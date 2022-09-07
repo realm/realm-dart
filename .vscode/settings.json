@@ -1,48 +1,52 @@
 {
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-    // Don't search in symlinked directories. Removes duplicates
-    "search.exclude": {
-        "flutter/realm_flutter/ios/src/**": true,
-        "flutter/realm_flutter/lib/**": true,
-        "flutter/realm_flutter/test/**": true
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+  "search.exclude": {
+    "flutter/realm_flutter/ios/src/**": true,
+    "flutter/realm_flutter/lib/**": true,
+    "flutter/realm_flutter/test/**": true
+  },
+  "dart.lineLength": 160,
+  "cSpell.words": [
+    "dnum",
+    "dylib",
+    "finalizable",
+    "finalizer",
+    "fnum",
+    "loggable",
+    "unmanaged",
+    "userdata"
+  ],
+  "cmake.statusbar.advanced": {
+    "ctest": {
+      "visibility": "hidden"
     },
-    "dart.lineLength": 160,
-    "cSpell.words": [
-        "Finalizable",
-        "Finalizer",
-        "Unmanaged"
-    ],
-    "cmake.statusbar.advanced": {
-        "ctest": {
-            "visibility": "hidden"
-        },
-        "testPreset": {
-            "visibility": "hidden"
-        }
-    },
-    "files.associations": {
-        "filesystem": "cpp",
-        "*.ipp": "cpp",
-        "system_error": "cpp",
-        "algorithm": "cpp",
-        "atomic": "cpp",
-        "chrono": "cpp",
-        "compare": "cpp",
-        "concepts": "cpp",
-        "format": "cpp",
-        "fstream": "cpp",
-        "functional": "cpp",
-        "iterator": "cpp",
-        "memory": "cpp",
-        "optional": "cpp",
-        "variant": "cpp",
-        "vector": "cpp",
-        "xlocale": "cpp",
-        "xlocmon": "cpp",
-        "xmemory": "cpp",
-        "xstring": "cpp",
-        "xutility": "cpp",
-        "iosfwd": "cpp",
-        "sstream": "cpp"
-    },
+    "testPreset": {
+      "visibility": "hidden"
+    }
+  },
+  "files.associations": {
+    "filesystem": "cpp",
+    "*.ipp": "cpp",
+    "system_error": "cpp",
+    "algorithm": "cpp",
+    "atomic": "cpp",
+    "chrono": "cpp",
+    "compare": "cpp",
+    "concepts": "cpp",
+    "format": "cpp",
+    "fstream": "cpp",
+    "functional": "cpp",
+    "iterator": "cpp",
+    "memory": "cpp",
+    "optional": "cpp",
+    "variant": "cpp",
+    "vector": "cpp",
+    "xlocale": "cpp",
+    "xlocmon": "cpp",
+    "xmemory": "cpp",
+    "xstring": "cpp",
+    "xutility": "cpp",
+    "iosfwd": "cpp",
+    "sstream": "cpp"
+  }
 }
