@@ -64,13 +64,18 @@ class _RealmCore {
   _RealmCore._() {
     final lib = initRealm();
     _realmLib = RealmLibrary(lib);
+    if (libraryVersion != nativeLibraryVersion) {
+      throw RealmException('Dart package version does not match dynamically loaded native library version ($libraryVersion != $nativeLibraryVersion)');
+    }
   }
 
   factory _RealmCore() {
     return _instance ??= _RealmCore._();
   }
 
-  String get libraryVersion => '0.4.0+beta';
+  // stamped into the library by the build system (see prepare-release.yml)
+  static const libraryVersion = '0.4.0+beta';
+  late String nativeLibraryVersion = _realmLib.realm_dart_library_version().cast<Utf8>().toDartString();
 
   LastError? getLastError(Allocator allocator) {
     final error = allocator<realm_error_t>();
