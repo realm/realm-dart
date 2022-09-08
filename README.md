@@ -328,31 +328,6 @@ unacceptable behavior to [community-conduct@mongodb.com](mailto:community-conduc
 
 Realm Flutter and Dart SDKs and [Realm Core](https://github.com/realm/realm-core) are published under the Apache License 2.0.
 
-**This product is not being made available to any person located in Cuba, Iran,
-North Korea, Sudan, Syria or the Crimea region, or to any other person that is
-not eligible to receive the product under U.S. law.**
-
-# Export Compliance
-
-You understand that the Software may contain cryptographic functions that may be
-subject to export restrictions, and you represent and warrant that you are not
-(i) located in a jurisdiction that is subject to United States economic
-sanctions (“Prohibited Jurisdiction”), including Cuba, Iran, North Korea,
-Sudan, Syria or the Crimea region, (ii) a person listed on any U.S. government
-blacklist (to include the List of Specially Designated Nationals and Blocked
-Persons or the Consolidated Sanctions List administered by the U.S. Department
-of the Treasury’s Office of Foreign Assets Control, or the Denied Persons List
-or Entity List administered by the U.S. Department of Commerce)
-(“Sanctioned Person”), or (iii) controlled or 50% or more owned by a Sanctioned
-Person.
-
-You agree to comply with all export, re-export and import restrictions and
-regulations of the U.S. Department of Commerce or other agency or authority of
-the United States or other applicable countries. You also agree not to transfer,
-or authorize the transfer of, directly or indirectly, of the Software to any
-Prohibited Jurisdiction, or otherwise in violation of any such restrictions or
-regulations.
-
 ##### The "Dart" name and logo and the "Flutter" name and logo are trademarks owned by Google.
 
 <img style="width: 0px; height: 0px;" src="https://3eaz4mshcd.execute-api.us-east-1.amazonaws.com/prod?s=https://github.com/realm/realm-dart#README.md">
