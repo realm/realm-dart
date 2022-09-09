@@ -2,7 +2,8 @@
 // RealmObjectGenerator
 // **************************************************************************
 
-class Foo extends _Foo with RealmEntityMixin, RealmObjectMixin {
+class Foo extends _Foo
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   Foo({
     int x = 0,
   }) {
@@ -23,7 +24,7 @@ class Foo extends _Foo with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<Foo>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Foo>(
     Foo._,

@@ -16,12 +16,37 @@
 //
 // //////////////////////////////////////////////////////////////////////////////
 
+/// An enum controlling the base type for a [RealmModel].
+///
+/// {@category Annotations}
+enum ObjectType {
+  /// A standalone top-level object that can be persisted in Realm. It can link
+  /// to other objects or collections of other objects.
+  topLevel('RealmObject'),
+
+  /// An object that can be embedded in other objects. It is considered owned
+  /// by its parent and will be deleted if its parent is deleted.
+  embedded('EmbeddedObject'),
+
+  /// A special type of object used to facilitate unidirectional synchronization
+  /// with Atlas App Services. It is used to push data to Realm without the ability
+  /// to query or modify it.
+  asymmetric('AsymmetricObject');
+
+  const ObjectType([this.className = 'Unknown']);
+
+  /// The name of the base class exposed by the Realm SDK.
+  final String className;
+}
 
 /// Annotation class used to define `Realm` data model classes and their properties
 ///
 /// {@category Annotations}
 class RealmModel {
-  const RealmModel();
+  /// The type of the base class for this model.
+  final ObjectType type;
+
+  const RealmModel({this.type = ObjectType.topLevel});
 }
 
 /// MapTo annotation for class member level.
@@ -36,7 +61,7 @@ class MapTo {
 }
 
 /// Indicates a primary key property.
-/// 
+///
 /// It enables quick lookup of objects and enforces uniqueness of the values stored.
 /// It may only be applied to a single property in a [RealmModel] class.
 /// Only [String] and [int] can be used as primary keys.
@@ -47,8 +72,8 @@ class PrimaryKey {
   const PrimaryKey();
 }
 
-/// Indicates an indexed property. 
-/// 
+/// Indicates an indexed property.
+///
 /// Indexed properties slightly slow down insertions but can greatly speed up queries.
 ///
 /// {@category Annotations}
@@ -57,7 +82,7 @@ class Indexed {
 }
 
 /// Indicates an ignored property.
-/// 
+///
 /// Ignored properties will not be persisted in the `Realm`.
 ///
 /// {@category Annotations}

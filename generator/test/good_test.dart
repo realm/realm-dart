@@ -36,7 +36,8 @@ class _MappedToo {
 // RealmObjectGenerator
 // **************************************************************************
 
-class MappedToo extends _MappedToo with RealmEntityMixin, RealmObjectMixin {
+class MappedToo extends _MappedToo
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   MappedToo({
     Original? singleLink,
     Iterable<Original> listLink = const [],
@@ -66,7 +67,7 @@ class MappedToo extends _MappedToo with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<MappedToo>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<MappedToo>(
     MappedToo._,

@@ -6,7 +6,8 @@ part of 'myapp.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
-class Car extends _Car with RealmEntityMixin, RealmObjectMixin {
+class Car extends _Car
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   Car(
     String make, {
     String? model,
@@ -57,7 +58,7 @@ class Car extends _Car with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<Car>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Car>(
     Car._,
@@ -73,7 +74,8 @@ class Car extends _Car with RealmEntityMixin, RealmObjectMixin {
   SchemaObject get instanceSchema => schema;
 }
 
-class Person extends _Person with RealmEntityMixin, RealmObjectMixin {
+class Person extends _Person
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   Person(
     String name, {
     int age = 1,
@@ -105,7 +107,7 @@ class Person extends _Person with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<Person>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Person>(
     Person._,

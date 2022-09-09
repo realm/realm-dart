@@ -6,7 +6,8 @@ part of 'test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
-class Car extends _Car with RealmEntityMixin, RealmObjectMixin {
+class Car extends _Car
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   Car(
     String make,
   ) {
@@ -27,7 +28,7 @@ class Car extends _Car with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<Car>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Car>(
     Car._,
@@ -41,7 +42,8 @@ class Car extends _Car with RealmEntityMixin, RealmObjectMixin {
   SchemaObject get instanceSchema => schema;
 }
 
-class Person extends _Person with RealmEntityMixin, RealmObjectMixin {
+class Person extends _Person
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   Person(
     String name,
   ) {
@@ -61,7 +63,7 @@ class Person extends _Person with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<Person>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Person>(
     Person._,
@@ -74,7 +76,8 @@ class Person extends _Person with RealmEntityMixin, RealmObjectMixin {
   SchemaObject get instanceSchema => schema;
 }
 
-class Dog extends _Dog with RealmEntityMixin, RealmObjectMixin {
+class Dog extends _Dog
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   Dog(
     String name, {
     int? age,
@@ -114,7 +117,7 @@ class Dog extends _Dog with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<Dog>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Dog>(
     Dog._,
@@ -130,7 +133,8 @@ class Dog extends _Dog with RealmEntityMixin, RealmObjectMixin {
   SchemaObject get instanceSchema => schema;
 }
 
-class Team extends _Team with RealmEntityMixin, RealmObjectMixin {
+class Team extends _Team
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   Team(
     String name, {
     Iterable<Person> players = const [],
@@ -171,7 +175,7 @@ class Team extends _Team with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<Team>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Team>(
     Team._,
@@ -186,7 +190,8 @@ class Team extends _Team with RealmEntityMixin, RealmObjectMixin {
   SchemaObject get instanceSchema => schema;
 }
 
-class Student extends _Student with RealmEntityMixin, RealmObjectMixin {
+class Student extends _Student
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   Student(
     int number, {
     String? name,
@@ -237,7 +242,7 @@ class Student extends _Student with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<Student>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Student>(
     Student._,
@@ -254,7 +259,8 @@ class Student extends _Student with RealmEntityMixin, RealmObjectMixin {
   SchemaObject get instanceSchema => schema;
 }
 
-class School extends _School with RealmEntityMixin, RealmObjectMixin {
+class School extends _School
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   School(
     String name, {
     String? city,
@@ -318,7 +324,7 @@ class School extends _School with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<School>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<School>(
     School._,
@@ -337,7 +343,7 @@ class School extends _School with RealmEntityMixin, RealmObjectMixin {
 }
 
 class RemappedClass extends $RemappedClass
-    with RealmEntityMixin, RealmObjectMixin {
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   RemappedClass(
     String remappedProperty, {
     Iterable<RemappedClass> listProperty = const [],
@@ -371,7 +377,7 @@ class RemappedClass extends $RemappedClass
 
   @override
   Stream<RealmObjectChanges<RemappedClass>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<RemappedClass>(
     RemappedClass._,
@@ -385,7 +391,8 @@ class RemappedClass extends $RemappedClass
   SchemaObject get instanceSchema => schema;
 }
 
-class Task extends _Task with RealmEntityMixin, RealmObjectMixin {
+class Task extends _Task
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   Task(
     ObjectId id,
   ) {
@@ -406,7 +413,7 @@ class Task extends _Task with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<Task>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Task>(
     Task._,
@@ -420,7 +427,8 @@ class Task extends _Task with RealmEntityMixin, RealmObjectMixin {
   SchemaObject get instanceSchema => schema;
 }
 
-class Schedule extends _Schedule with RealmEntityMixin, RealmObjectMixin {
+class Schedule extends _Schedule
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   Schedule(
     ObjectId id, {
     Iterable<Task> tasks = const [],
@@ -451,7 +459,7 @@ class Schedule extends _Schedule with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<Schedule>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Schedule>(
     Schedule._,
@@ -466,7 +474,8 @@ class Schedule extends _Schedule with RealmEntityMixin, RealmObjectMixin {
   SchemaObject get instanceSchema => schema;
 }
 
-class AllTypes extends _AllTypes with RealmEntityMixin, RealmObjectMixin {
+class AllTypes extends _AllTypes
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   AllTypes(
     String stringProp,
     bool boolProp,
@@ -638,7 +647,7 @@ class AllTypes extends _AllTypes with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<AllTypes>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<AllTypes>(
     AllTypes._,
@@ -664,7 +673,8 @@ class AllTypes extends _AllTypes with RealmEntityMixin, RealmObjectMixin {
   SchemaObject get instanceSchema => schema;
 }
 
-class LinksClass extends _LinksClass with RealmEntityMixin, RealmObjectMixin {
+class LinksClass extends _LinksClass
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   LinksClass(
     Uuid id, {
     LinksClass? link,
@@ -704,7 +714,7 @@ class LinksClass extends _LinksClass with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<LinksClass>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<LinksClass>(
     LinksClass._,
@@ -721,7 +731,7 @@ class LinksClass extends _LinksClass with RealmEntityMixin, RealmObjectMixin {
 }
 
 class AllCollections extends _AllCollections
-    with RealmEntityMixin, RealmObjectMixin {
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   AllCollections({
     Iterable<String> strings = const [],
     Iterable<bool> bools = const [],
@@ -875,7 +885,7 @@ class AllCollections extends _AllCollections
 
   @override
   Stream<RealmObjectChanges<AllCollections>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<AllCollections>(
     AllCollections._,
@@ -902,7 +912,7 @@ class AllCollections extends _AllCollections
 }
 
 class NullableTypes extends _NullableTypes
-    with RealmEntityMixin, RealmObjectMixin {
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   NullableTypes(
     ObjectId id,
     ObjectId differentiator, {
@@ -1013,7 +1023,7 @@ class NullableTypes extends _NullableTypes
 
   @override
   Stream<RealmObjectChanges<NullableTypes>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableTypes>(
     NullableTypes._,
@@ -1035,7 +1045,8 @@ class NullableTypes extends _NullableTypes
   SchemaObject get instanceSchema => schema;
 }
 
-class Event extends _Event with RealmEntityMixin, RealmObjectMixin {
+class Event extends _Event
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   Event(
     ObjectId id, {
     String? name,
@@ -1101,7 +1112,7 @@ class Event extends _Event with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<Event>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Event>(
     Event._,
@@ -1119,7 +1130,8 @@ class Event extends _Event with RealmEntityMixin, RealmObjectMixin {
   SchemaObject get instanceSchema => schema;
 }
 
-class Party extends _Party with RealmEntityMixin, RealmObjectMixin {
+class Party extends _Party
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   Party(
     int year, {
     Friend? host,
@@ -1167,7 +1179,7 @@ class Party extends _Party with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<Party>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Party>(
     Party._,
@@ -1183,7 +1195,8 @@ class Party extends _Party with RealmEntityMixin, RealmObjectMixin {
   SchemaObject get instanceSchema => schema;
 }
 
-class Friend extends _Friend with RealmEntityMixin, RealmObjectMixin {
+class Friend extends _Friend
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   Friend(
     String name, {
     int age = 42,
@@ -1237,7 +1250,7 @@ class Friend extends _Friend with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<Friend>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Friend>(
     Friend._,
@@ -1254,7 +1267,8 @@ class Friend extends _Friend with RealmEntityMixin, RealmObjectMixin {
   SchemaObject get instanceSchema => schema;
 }
 
-class Player extends _Player with RealmEntityMixin, RealmObjectMixin {
+class Player extends _Player
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   Player(
     String name, {
     Game? game,
@@ -1293,7 +1307,7 @@ class Player extends _Player with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<Player>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Player>(
     Player._,
@@ -1309,7 +1323,8 @@ class Player extends _Player with RealmEntityMixin, RealmObjectMixin {
   SchemaObject get instanceSchema => schema;
 }
 
-class Game extends _Game with RealmEntityMixin, RealmObjectMixin {
+class Game extends _Game
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   Game({
     Iterable<Player> winnerByRound = const [],
   }) {
@@ -1329,7 +1344,7 @@ class Game extends _Game with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<Game>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Game>(
     Game._,

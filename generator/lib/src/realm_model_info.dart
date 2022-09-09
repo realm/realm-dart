@@ -15,6 +15,8 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+import 'package:realm_common/realm_common.dart';
+
 import 'dart_type_ex.dart';
 import 'field_element_ex.dart';
 import 'realm_field_info.dart';
@@ -24,11 +26,12 @@ class RealmModelInfo {
   final String modelName;
   final String realmName;
   final List<RealmFieldInfo> fields;
+  final ObjectType baseType;
 
-  RealmModelInfo(this.name, this.modelName, this.realmName, this.fields);
+  RealmModelInfo(this.name, this.modelName, this.realmName, this.fields, this.baseType);
 
   Iterable<String> toCode() sync* {
-    yield 'class $name extends $modelName with RealmEntityMixin, RealmObjectMixin {';
+    yield 'class $name extends $modelName with RealmEntityMixin, RealmObjectBaseMixin, ${baseType.className}Mixin {';
     {
       final allExceptCollections = fields.where((f) => !f.type.isRealmCollection).toList();
 
@@ -67,7 +70,7 @@ class RealmModelInfo {
           ]);
 
       yield '@override';
-      yield 'Stream<RealmObjectChanges<$name>> get changes => RealmObjectMixin.getChanges(this);';
+      yield 'Stream<RealmObjectChanges<$name>> get changes => RealmObjectBaseMixin.getChanges(this);';
       yield '';
 
       final primaryKey = fields.cast<RealmFieldInfo?>().firstWhere((element) => element!.primaryKey, orElse: () => null);

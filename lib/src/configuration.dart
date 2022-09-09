@@ -316,7 +316,7 @@ class InMemoryConfiguration extends Configuration {
   }) : super._();
 }
 
-/// A collection of properties describing the underlying schema of a [RealmObject].
+/// A collection of properties describing the underlying schema of a [RealmObjectBase].
 ///
 /// {@category Configuration}
 class SchemaObject<T extends Object?> with IterableMixin<SchemaProperty> {
@@ -355,7 +355,7 @@ class RealmSchema extends MapView<String, SchemaObject> {
   RealmSchema(super.map)
       : _byType = {
           for (final s in map.values)
-            if (s.type != RealmObject) s.nullableType: s // only register subtypes (the nullable form)
+            if (s.type != RealmObjectBase) s.nullableType: s // only register subtypes (the nullable form)
         };
 
   SchemaObject<T>? getByType<T extends Object?>() => _byType[typeOf<T?>()] as SchemaObject<T>?;

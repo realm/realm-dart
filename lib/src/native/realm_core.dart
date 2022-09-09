@@ -509,7 +509,7 @@ class _RealmCore {
       result[property.name] = property;
     }
 
-    return SchemaObject<RealmObject>(() => throw Error(), name, result, result.values.singleWhereOrNull((s) => s.primaryKey));
+    return SchemaObject<RealmObjectBase>(() => throw Error(), name, result, result.values.singleWhereOrNull((s) => s.primaryKey));
   }
 
   void deleteRealmFiles(String path) {
@@ -628,7 +628,7 @@ class _RealmCore {
     });
   }
 
-  Object? getProperty(RealmObject object, int propertyKey) {
+  Object? getProperty(RealmObjectBase object, int propertyKey) {
     return using((Arena arena) {
       final realm_value = arena<realm_value_t>();
       _realmLib.invokeGetBool(() => _realmLib.realm_get_value(object.handle._pointer, propertyKey, realm_value));
@@ -636,14 +636,14 @@ class _RealmCore {
     });
   }
 
-  void setProperty(RealmObject object, int propertyKey, Object? value, bool isDefault) {
+  void setProperty(RealmObjectBase object, int propertyKey, Object? value, bool isDefault) {
     return using((Arena arena) {
       final realm_value = _toRealmValue(value, arena);
       _realmLib.invokeGetBool(() => _realmLib.realm_set_value(object.handle._pointer, propertyKey, realm_value.ref, isDefault));
     });
   }
 
-  String objectToString(RealmObject object) {
+  String objectToString(RealmObjectBase object) {
     return _realmLib.realm_object_to_string(object.handle._pointer).cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
   }
 
@@ -799,7 +799,7 @@ class _RealmCore {
     });
   }
 
-  RealmLinkHandle _getObjectAsLink(RealmObject object) {
+  RealmLinkHandle _getObjectAsLink(RealmObjectBase object) {
     final realmLink = _realmLib.realm_object_as_link(object.handle._pointer);
     return RealmLinkHandle._(realmLink);
   }
@@ -809,7 +809,7 @@ class _RealmCore {
     return RealmObjectHandle._(pointer);
   }
 
-  RealmListHandle getListProperty(RealmObject object, int propertyKey) {
+  RealmListHandle getListProperty(RealmObjectBase object, int propertyKey) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_list(object.handle._pointer, propertyKey));
     return RealmListHandle._(pointer);
   }
@@ -866,7 +866,7 @@ class _RealmCore {
     return _realmLib.realm_equals(first._pointer.cast(), second._pointer.cast());
   }
 
-  bool objectEquals(RealmObject first, RealmObject second) => _equals(first.handle, second.handle);
+  bool objectEquals(RealmObjectBase first, RealmObjectBase second) => _equals(first.handle, second.handle);
   bool realmEquals(Realm first, Realm second) => _equals(first.handle, second.handle);
   bool userEquals(User first, User second) => _equals(first.handle, second.handle);
   bool subscriptionEquals(Subscription first, Subscription second) => _equals(first.handle, second.handle);
@@ -876,7 +876,7 @@ class _RealmCore {
     return RealmResultsHandle._(resultsPointer);
   }
 
-  bool objectIsValid(RealmObject object) {
+  bool objectIsValid(RealmObjectBase object) {
     return _realmLib.realm_object_is_valid(object.handle._pointer);
   }
 
@@ -958,7 +958,7 @@ class _RealmCore {
     return RealmNotificationTokenHandle._(pointer);
   }
 
-  RealmNotificationTokenHandle subscribeObjectNotifications(RealmObject object, NotificationsController controller) {
+  RealmNotificationTokenHandle subscribeObjectNotifications(RealmObjectBase object, NotificationsController controller) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_add_notification_callback(
           object.handle._pointer,
           controller.toWeakHandle(),
@@ -2005,7 +2005,7 @@ void _intoRealmQueryArg(Object? value, Pointer<realm_query_arg_t> realm_query_ar
 void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocator allocator) {
   if (value == null) {
     realm_value.ref.type = realm_value_type.RLM_TYPE_NULL;
-  } else if (value is RealmObject) {
+  } else if (value is RealmObjectBase) {
     //when converting a RealmObject to realm_value.link we assume the object is managed
     final link = realmCore._getObjectAsLink(value);
     realm_value.ref.values.link.target = link.targetKey;

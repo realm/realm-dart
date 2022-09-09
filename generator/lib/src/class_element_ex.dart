@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:realm_common/realm_common.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'annotation_value.dart';
@@ -64,7 +65,10 @@ extension ClassElementEx on ClassElement {
 
   RealmModelInfo? get realmInfo {
     try {
-      if (realmModelInfo == null) return null;
+      final modelInfo = realmModelInfo;
+      if (modelInfo == null) {
+        return null;
+      }
 
       final modelName = this.name;
 
@@ -142,13 +146,10 @@ extension ClassElementEx on ClassElement {
         );
       }
 
+      final objectType = modelInfo.value.getField('type')!.getField('index')!.toIntValue()!;
+
       final mappedFields = fields.realmInfo.toList();
-      return RealmModelInfo(
-        name,
-        modelName,
-        realmName,
-        mappedFields,
-      );
+      return RealmModelInfo(name, modelName, realmName, mappedFields, ObjectType.values[objectType]);
     } on InvalidGenerationSourceError catch (_) {
       rethrow;
     } catch (e) {

@@ -36,7 +36,7 @@ class RealmResults<T extends Object?> extends collection.IterableBase<T> impleme
   /// The Realm instance this collection belongs to.
   final Realm realm;
 
-  final _supportsSnapshot = <T>[] is List<RealmObject?>;
+  final _supportsSnapshot = <T>[] is List<RealmObjectBase?>;
 
   RealmResults._(this._handle, this.realm, this._metadata);
 

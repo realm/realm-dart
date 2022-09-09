@@ -74,7 +74,8 @@ export "configuration.dart"
         SyncClientResetErrorHandler;
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
-export 'realm_object.dart' show RealmEntityMixin, RealmObjectMixin, RealmException, RealmObject, RealmObjectChanges, DynamicRealmObject;
+export 'realm_object.dart'
+    show RealmEntityMixin, RealmObjectBaseMixin, RealmException, RealmObject, RealmObjectChanges, DynamicRealmObject, RealmObjectBase, RealmObjectMixin;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
@@ -175,7 +176,7 @@ class Realm implements Finalizable {
     return object;
   }
 
-  RealmObjectHandle _createObject(RealmObject object, RealmObjectMetadata metadata, bool update) {
+  RealmObjectHandle _createObject(RealmObjectBase object, RealmObjectMetadata metadata, bool update) {
     final key = metadata.key;
     final primaryKey = metadata.primaryKey;
     if (primaryKey == null) {
@@ -365,7 +366,7 @@ class Transaction {
   }
 }
 
-bool _isTypedRealmObject<T>() => isStrictSubtype<T, RealmObject?>();
+bool _isTypedRealmObject<T>() => isStrictSubtype<T, RealmObjectBase?>();
 
 /// @nodoc
 extension RealmInternal on Realm {
@@ -489,7 +490,7 @@ class RealmMetadata {
       _typeMap[type] ??
       (throw RealmError("Object type $type not configured in the current Realm's schema. Add type $type to your config before opening the Realm"));
 
-  RealmObjectMetadata getByStaticType<T extends RealmObject>() => getByType(T);
+  RealmObjectMetadata getByStaticType<T extends RealmObjectBase>() => getByType(T);
 
   RealmObjectMetadata getByName(String name) =>
       _stringMap[name] ??

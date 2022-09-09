@@ -23,10 +23,10 @@ import 'package:sane_uuid/uuid.dart';
 
 /// @nodoc
 abstract class RealmAccessorMarker {
-  T getValue<T>(RealmObjectMarker object, String propertyName);
-  T? getObject<T>(RealmObjectMarker object, String propertyName);
-  List<T> getList<T>(RealmObjectMarker object, String propertyName);
-  void set<T>(RealmObjectMarker object, String propertyName, T value, {bool isDefault = false, bool update = false});
+  T getValue<T>(RealmObjectBaseMarker object, String propertyName);
+  T? getObject<T>(RealmObjectBaseMarker object, String propertyName);
+  List<T> getList<T>(RealmObjectBaseMarker object, String propertyName);
+  void set<T>(RealmObjectBaseMarker object, String propertyName, T value, {bool isDefault = false, bool update = false});
 }
 
 Type _typeOf<T>() => T; // TODO(kasper): Replace with public version once realm_common contains all
@@ -44,11 +44,11 @@ class Mapping<T> {
   Type get listOfNullablesType => List<T?>;
 
   // Factories
-  T? getObject(RealmAccessorMarker accessor, RealmObjectMarker object, String propertyName) => accessor.getObject<T>(object, propertyName);
-  T getValue(RealmAccessorMarker accessor, RealmObjectMarker object, String propertyName) => accessor.getValue<T>(object, propertyName);
-  T? getNullableValue(RealmAccessorMarker accessor, RealmObjectMarker object, String propertyName) => accessor.getValue<T?>(object, propertyName);
-  List<T> getList(RealmAccessorMarker accessor, RealmObjectMarker object, String propertyName) => accessor.getList<T>(object, propertyName);
-  List<T?> getListOfNullables(RealmAccessorMarker accessor, RealmObjectMarker object, String propertyName) => accessor.getList<T?>(object, propertyName);
+  T? getObject(RealmAccessorMarker accessor, RealmObjectBaseMarker object, String propertyName) => accessor.getObject<T>(object, propertyName);
+  T getValue(RealmAccessorMarker accessor, RealmObjectBaseMarker object, String propertyName) => accessor.getValue<T>(object, propertyName);
+  T? getNullableValue(RealmAccessorMarker accessor, RealmObjectBaseMarker object, String propertyName) => accessor.getValue<T?>(object, propertyName);
+  List<T> getList(RealmAccessorMarker accessor, RealmObjectBaseMarker object, String propertyName) => accessor.getList<T>(object, propertyName);
+  List<T?> getListOfNullables(RealmAccessorMarker accessor, RealmObjectBaseMarker object, String propertyName) => accessor.getList<T?>(object, propertyName);
 }
 
 const _intMapping = Mapping<int>(indexable: true);
@@ -114,7 +114,13 @@ class RealmStateError extends StateError implements RealmError {
 class Decimal128 {} // TODO Support decimal128 datatype https://github.com/realm/realm-dart/issues/725
 
 /// @nodoc
-class RealmObjectMarker {}
+class RealmObjectBaseMarker {}
+
+/// @nodoc
+class RealmObjectMarker extends RealmObjectBaseMarker {}
+
+/// @nodoc
+class EmbeddedObjectMarker extends RealmObjectBaseMarker {}
 
 // Union type
 /// @nodoc

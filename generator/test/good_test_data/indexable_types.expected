@@ -2,7 +2,8 @@
 // RealmObjectGenerator
 // **************************************************************************
 
-class Indexable extends _Indexable with RealmEntityMixin, RealmObjectMixin {
+class Indexable extends _Indexable
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   Indexable(
     bool aBool,
     int anInt,
@@ -160,7 +161,7 @@ class Indexable extends _Indexable with RealmEntityMixin, RealmObjectMixin {
 
   @override
   Stream<RealmObjectChanges<Indexable>> get changes =>
-      RealmObjectMixin.getChanges(this);
+      RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Indexable>(
     Indexable._,
