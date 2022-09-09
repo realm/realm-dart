@@ -8,6 +8,7 @@
   "dart.lineLength": 160,
   "cSpell.words": [
     "apikeys",
+    "BEGINSWITH",
     "bson",
     "deallocated",
     "deleter",

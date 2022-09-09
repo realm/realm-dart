@@ -84,10 +84,10 @@ export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
 export 'realm_object.dart'
     show RealmEntity, RealmException, UserCallbackException, RealmObject, RealmObjectBase, EmbeddedObject, RealmObjectChanges, DynamicRealmObject;
 export 'realm_property.dart';
-export 'results.dart' show RealmResults, RealmResultsChanges;
+export 'results.dart' show RealmResults, RealmResultsChanges, RealmResultsOfObject;
+export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, UserIdentity, ApiKeyClient, ApiKey, FunctionsClient;
-export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
 export 'migration.dart' show Migration;
 export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
 
@@ -628,12 +628,14 @@ extension RealmInternal on Realm {
     return createList<T>(handle, list.metadata);
   }
 
-  RealmResults<T> resolveResults<T extends RealmObjectBase>(RealmResults<T> results) {
+  RealmResults<T> resolveResults<T extends Object?>(RealmResults<T> results) {
     final handle = realmCore.resolveResults(results, this);
     return RealmResultsInternal.create<T>(handle, this, results.metadata);
   }
 
   static MigrationRealm getMigrationRealm(Realm realm) => MigrationRealm._(realm);
+
+  bool get isInMigration => _isInMigration;
 }
 
 /// @nodoc

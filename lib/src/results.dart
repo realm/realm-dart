@@ -15,7 +15,6 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
 import 'dart:async';
 import 'dart:collection' as collection;
 import 'dart:ffi';
@@ -29,7 +28,7 @@ import 'realm_object.dart';
 /// added to or deleted from the Realm that match the underlying query.
 ///
 /// {@category Realm}
-class RealmResults<T extends RealmObjectBase> extends collection.IterableBase<T> with RealmEntity implements Finalizable {
+class RealmResults<T extends Object?> extends collection.IterableBase<T> with RealmEntity implements Finalizable {
   final RealmObjectMetadata? _metadata;
   final RealmResultsHandle _handle;
 
@@ -41,17 +40,14 @@ class RealmResults<T extends RealmObjectBase> extends collection.IterableBase<T>
 
   /// Returns the element of type `T` at the specified [index].
   T operator [](int index) {
-    final handle = realmCore.getObjectAt(this, index);
-    return realm.createObject(T, handle, _metadata!) as T;
-  }
-
-  /// Returns a new [RealmResults] filtered according to the provided query.
-  ///
-  /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
-  /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
-  RealmResults<T> query(String query, [List<Object> args = const []]) {
-    final handle = realmCore.queryResults(this, query, args);
-    return RealmResultsInternal.create<T>(handle, realm, _metadata);
+    final meta = _metadata;
+    if (meta != null) {
+      final handle = realmCore.resultsGetObjectAt(this, index);
+      final accessor = RealmCoreAccessor(metadata, realm.isInMigration);
+      return RealmObjectInternal.create(T, realm, handle, accessor) as T;
+    } else {
+      return realmCore.resultsGetElementAt(this, index) as T;
+    }
   }
 
   /// `true` if the `Results` collection is empty.
@@ -73,16 +69,6 @@ class RealmResults<T extends RealmObjectBase> extends collection.IterableBase<T>
   @override
   int get length => realmCore.getResultsCount(this);
 
-  /// Allows listening for changes when the contents of this collection changes.
-  Stream<RealmResultsChanges<T>> get changes {
-    if (isFrozen) {
-      throw RealmStateError('Results are frozen and cannot emit changes');
-    }
-
-    final controller = ResultsNotificationsController<T>(this);
-    return controller.createStream();
-  }
-
   /// Creates a frozen snapshot of this query.
   RealmResults<T> freeze() {
     if (isFrozen) {
@@ -91,6 +77,35 @@ class RealmResults<T extends RealmObjectBase> extends collection.IterableBase<T>
 
     final frozenRealm = realm.freeze();
     return frozenRealm.resolveResults(this);
+  }
+}
+
+// The query operations on results, as well as the ability to subscribe for notifications,
+// only work for results of objects (core restriction), so we add these as an extension methods
+// to allow the compiler to prevent misuse.
+extension RealmResultsOfObject<T extends RealmObjectBase> on RealmResults<T> {
+  RealmResults<T> snapshot() {
+    final handle = realmCore.resultsSnapshot(this);
+    return RealmResults<T>._(handle, realm, _metadata);
+  }
+
+  /// Returns a new [RealmResults] filtered according to the provided query.
+  ///
+  /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
+  /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
+  RealmResults<T> query(String query, [List<Object> args = const []]) {
+    final handle = realmCore.queryResults(this, query, args);
+    return RealmResultsInternal.create<T>(handle, realm, _metadata);
+  }
+
+  /// Allows listening for changes when the contents of this collection changes.
+  Stream<RealmResultsChanges<T>> get changes {
+    if (isFrozen) {
+      throw RealmStateError('Results are frozen and cannot emit changes');
+    }
+
+    final controller = ResultsNotificationsController<T>(this);
+    return controller.createStream();
   }
 }
 
@@ -110,11 +125,21 @@ extension RealmResultsInternal on RealmResults {
     return _handle;
   }
 
-  RealmObjectMetadata? get metadata => _metadata;
+  RealmObjectMetadata get metadata => _metadata!;
 
-  static RealmResults<T> create<T extends RealmObjectBase>(RealmResultsHandle handle, Realm realm, RealmObjectMetadata? metadata) {
-    return RealmResults<T>._(handle, realm, metadata);
-  }
+  static RealmResults<T> create<T extends Object?>(
+    RealmResultsHandle handle,
+    Realm realm,
+    RealmObjectMetadata? metadata,
+  ) =>
+      RealmResults<T>._(handle, realm, metadata);
+
+  static RealmResults<T> createFromList<T extends Object?>(
+    RealmList list,
+    Realm realm,
+    RealmObjectMetadata? metadata,
+  ) =>
+      RealmResults<T>._(realmCore.resultsFromList(list), realm, metadata);
 }
 
 /// Describes the changes in a Realm results collection since the last time the notification callback was invoked.
@@ -158,7 +183,7 @@ class ResultsNotificationsController<T extends RealmObjectBase> extends Notifica
   }
 }
 
-class _RealmResultsIterator<T extends RealmObjectBase> implements Iterator<T> {
+class _RealmResultsIterator<T extends Object?> implements Iterator<T> {
   final RealmResults<T> _results;
   int _index;
   T? _current;

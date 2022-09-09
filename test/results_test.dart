@@ -549,4 +549,16 @@ Future<void> main([List<String>? args]) async {
     expect(realm.query<Person>("name CONTAINS 'a'").query("name CONTAINS 'l'"), isNot([alice, carol]));
     expect(realm.query<Person>("name CONTAINS 'a'").query("name CONTAINS 'l'"), [carol]);
   });
+
+  test('Results of primitives', () {
+    var config = Configuration.local([Player.schema, Game.schema]);
+    var realm = getRealm(config);
+
+    final scores = [-1, null, 0, 1];
+    final alice = Player('Alice', scoresByRound: scores);
+    realm.write(() => realm.add(alice));
+
+    expect(alice.scoresByRound, scores);
+    expect(alice.scoresByRound.asResults, scores);
+  });
 }
