@@ -46,7 +46,7 @@ class RealmModel {
   /// The type of the base class for this model.
   final ObjectType type;
 
-  const RealmModel({this.type = ObjectType.topLevel});
+  const RealmModel([this.type = ObjectType.topLevel]);
 }
 
 /// MapTo annotation for class member level.

@@ -31,6 +31,7 @@ class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<ObjectIdPrimaryKey>(
+    ObjectType.topLevel,
     ObjectIdPrimaryKey._,
     'ObjectIdPrimaryKey',
     {
@@ -67,6 +68,7 @@ class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableObjectIdPrimaryKey>(
+    ObjectType.topLevel,
     NullableObjectIdPrimaryKey._,
     'NullableObjectIdPrimaryKey',
     {
@@ -103,6 +105,7 @@ class IntPrimaryKey extends _IntPrimaryKey
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<IntPrimaryKey>(
+    ObjectType.topLevel,
     IntPrimaryKey._,
     'IntPrimaryKey',
     {
@@ -139,6 +142,7 @@ class NullableIntPrimaryKey extends _NullableIntPrimaryKey
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableIntPrimaryKey>(
+    ObjectType.topLevel,
     NullableIntPrimaryKey._,
     'NullableIntPrimaryKey',
     {
@@ -175,6 +179,7 @@ class StringPrimaryKey extends _StringPrimaryKey
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<StringPrimaryKey>(
+    ObjectType.topLevel,
     StringPrimaryKey._,
     'StringPrimaryKey',
     {
@@ -211,6 +216,7 @@ class NullableStringPrimaryKey extends _NullableStringPrimaryKey
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableStringPrimaryKey>(
+    ObjectType.topLevel,
     NullableStringPrimaryKey._,
     'NullableStringPrimaryKey',
     {
@@ -247,6 +253,7 @@ class UuidPrimaryKey extends _UuidPrimaryKey
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<UuidPrimaryKey>(
+    ObjectType.topLevel,
     UuidPrimaryKey._,
     'UuidPrimaryKey',
     {
@@ -283,6 +290,7 @@ class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableUuidPrimaryKey>(
+    ObjectType.topLevel,
     NullableUuidPrimaryKey._,
     'NullableUuidPrimaryKey',
     {
@@ -318,6 +326,7 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<RemappedFromAnotherFile>(
+    ObjectType.topLevel,
     RemappedFromAnotherFile._,
     'class with spaces',
     {
@@ -364,6 +373,7 @@ class BoolValue extends _BoolValue
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<BoolValue>(
+    ObjectType.topLevel,
     BoolValue._,
     'BoolValue',
     {

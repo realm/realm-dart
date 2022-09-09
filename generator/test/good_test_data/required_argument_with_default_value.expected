@@ -27,6 +27,7 @@ class Person extends _Person
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Person>(
+    ObjectType.topLevel,
     Person._,
     'Person',
     {

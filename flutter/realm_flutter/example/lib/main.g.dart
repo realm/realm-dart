@@ -61,6 +61,7 @@ class Car extends _Car
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Car>(
+    ObjectType.topLevel,
     Car._,
     'Car',
     {
@@ -110,6 +111,7 @@ class Person extends _Person
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Person>(
+    ObjectType.topLevel,
     Person._,
     'Person',
     {

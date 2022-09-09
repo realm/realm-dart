@@ -49,6 +49,7 @@ class Original extends $Original
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Original>(
+    ObjectType.topLevel,
     Original._,
     'another type',
     {

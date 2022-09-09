@@ -205,19 +205,33 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
 
   static void setValue(RealmListHandle handle, Realm realm, int index, Object? value, {bool update = false}) {
     if (index < 0) {
-      throw RealmException("Index out of range $index");
+      throw RealmException("Index can not be negative: $index");
+    }
+
+    final length = realmCore.getListSize(handle);
+    if (index > length) {
+      throw RealmException('Index can not exceed the size of the list: $index, size: $length');
     }
 
     try {
+      if (value is EmbeddedObject) {
+        if (value.isManaged) {
+          throw RealmError("Can't add to list an embedded object that is already managed");
+        }
+
+        final objHandle = index < length ? realmCore.listSetEmbeddedObjectAt(handle, index) : realmCore.listInsertEmbeddedObjectAt(handle, index);
+        realm.manageEmbedded(objHandle, value);
+        return;
+      }
+
       if (value is RealmObject && !value.isManaged) {
         realm.add<RealmObject>(value, update: update);
       }
 
-      final length = realmCore.getListSize(handle);
-      if (index >= length) {
-        realmCore.listInsertElementAt(handle, index, value);
-      } else {
+      if (index < length) {
         realmCore.listSetElementAt(handle, index, value);
+      } else {
+        realmCore.listInsertElementAt(handle, index, value);
       }
     } on Exception catch (e) {
       throw RealmException("Error setting value at index $index. Error: $e");

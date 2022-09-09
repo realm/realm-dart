@@ -27,6 +27,7 @@ class IntPK extends _IntPK
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<IntPK>(
+    ObjectType.topLevel,
     IntPK._,
     'IntPK',
     {
@@ -63,6 +64,7 @@ class NullableIntPK extends _NullableIntPK
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableIntPK>(
+    ObjectType.topLevel,
     NullableIntPK._,
     'NullableIntPK',
     {
@@ -99,6 +101,7 @@ class StringPK extends _StringPK
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<StringPK>(
+    ObjectType.topLevel,
     StringPK._,
     'StringPK',
     {
@@ -135,6 +138,7 @@ class NullableStringPK extends _NullableStringPK
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableStringPK>(
+    ObjectType.topLevel,
     NullableStringPK._,
     'NullableStringPK',
     {
@@ -171,6 +175,7 @@ class ObjectIdPK extends _ObjectIdPK
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<ObjectIdPK>(
+    ObjectType.topLevel,
     ObjectIdPK._,
     'ObjectIdPK',
     {
@@ -207,6 +212,7 @@ class NullableObjectIdPK extends _NullableObjectIdPK
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableObjectIdPK>(
+    ObjectType.topLevel,
     NullableObjectIdPK._,
     'NullableObjectIdPK',
     {
@@ -243,6 +249,7 @@ class UuidPK extends _UuidPK
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<UuidPK>(
+    ObjectType.topLevel,
     UuidPK._,
     'UuidPK',
     {
@@ -279,6 +286,7 @@ class NullableUuidPK extends _NullableUuidPK
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<NullableUuidPK>(
+    ObjectType.topLevel,
     NullableUuidPK._,
     'NullableUuidPK',
     {

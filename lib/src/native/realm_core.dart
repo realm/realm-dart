@@ -114,7 +114,7 @@ class _RealmCore {
         classInfo.num_properties = schemaObject.properties.length;
         classInfo.num_computed_properties = 0;
         classInfo.key = RLM_INVALID_CLASS_KEY;
-        classInfo.flags = realm_class_flags.RLM_CLASS_NORMAL;
+        classInfo.flags = schemaObject.baseType.toFlags();
 
         final propertiesCount = schemaObject.properties.length;
         final properties = arena<realm_property_info_t>(propertiesCount);
@@ -202,6 +202,7 @@ class _RealmCore {
       } else if (config is InMemoryConfiguration) {
         _realmLib.realm_config_set_in_memory(configHandle._pointer, true);
       } else if (config is FlexibleSyncConfiguration) {
+        _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT);
         final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
@@ -485,14 +486,16 @@ class _RealmCore {
       _realmLib.invokeGetBool(() => _realmLib.realm_get_class(realm.handle._pointer, classKey, classInfo));
 
       final name = classInfo.ref.name.cast<Utf8>().toDartString();
-      final schema = _getSchemaForClassKey(realm, classKey, name, arena, expectedSize: classInfo.ref.num_properties + classInfo.ref.num_computed_properties);
+      final baseType = ObjectTypeNative.fromFlags(classInfo.ref.flags);
+      final schema =
+          _getSchemaForClassKey(realm, classKey, name, baseType, arena, expectedSize: classInfo.ref.num_properties + classInfo.ref.num_computed_properties);
       schemas.add(schema);
     }
 
     return schemas;
   }
 
-  SchemaObject _getSchemaForClassKey(Realm realm, int classKey, String name, Arena arena, {int expectedSize = 10}) {
+  SchemaObject _getSchemaForClassKey(Realm realm, int classKey, String name, ObjectType baseType, Arena arena, {int expectedSize = 10}) {
     final actualCount = arena<Size>();
     final propertiesPtr = arena<realm_property_info>(expectedSize);
     _realmLib.invokeGetBool(() => _realmLib.realm_get_class_properties(realm.handle._pointer, classKey, propertiesPtr, expectedSize, actualCount));
@@ -500,7 +503,7 @@ class _RealmCore {
     if (expectedSize < actualCount.value) {
       // The supplied array was too small - resize it
       arena.free(propertiesPtr);
-      return _getSchemaForClassKey(realm, classKey, name, arena, expectedSize: actualCount.value);
+      return _getSchemaForClassKey(realm, classKey, name, baseType, arena, expectedSize: actualCount.value);
     }
 
     final result = <String, SchemaProperty>{};
@@ -509,7 +512,7 @@ class _RealmCore {
       result[property.name] = property;
     }
 
-    return SchemaObject<RealmObjectBase>(() => throw Error(), name, result, result.values.singleWhereOrNull((s) => s.primaryKey));
+    return SchemaObject<RealmObjectBase>(baseType, () => throw Error(), name, result, result.values.singleWhereOrNull((s) => s.primaryKey));
   }
 
   void deleteRealmFiles(String path) {
@@ -603,6 +606,11 @@ class _RealmCore {
 
   RealmObjectHandle createRealmObject(Realm realm, int classKey) {
     final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_object_create(realm.handle._pointer, classKey));
+    return RealmObjectHandle._(realmPtr);
+  }
+
+  RealmObjectHandle createEmbeddedObject(RealmObjectBase obj, int propertyKey) {
+    final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_set_embedded(obj.handle._pointer, propertyKey));
     return RealmObjectHandle._(realmPtr);
   }
 
@@ -841,6 +849,20 @@ class _RealmCore {
     return using((Arena arena) {
       final realm_value = _toRealmValue(value, arena);
       _realmLib.invokeGetBool(() => _realmLib.realm_list_insert(handle._pointer, index, realm_value.ref));
+    });
+  }
+
+  RealmObjectHandle listSetEmbeddedObjectAt(RealmListHandle handle, int index) {
+    return using((Arena arena) {
+      final ptr = _realmLib.invokeGetPointer(() => _realmLib.realm_list_set_embedded(handle._pointer, index));
+      return RealmObjectHandle._(ptr);
+    });
+  }
+
+  RealmObjectHandle listInsertEmbeddedObjectAt(RealmListHandle handle, int index) {
+    return using((Arena arena) {
+      final ptr = _realmLib.invokeGetPointer(() => _realmLib.realm_list_insert_embedded(handle._pointer, index));
+      return RealmObjectHandle._(ptr);
     });
   }
 
@@ -2005,7 +2027,7 @@ void _intoRealmQueryArg(Object? value, Pointer<realm_query_arg_t> realm_query_ar
 void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocator allocator) {
   if (value == null) {
     realm_value.ref.type = realm_value_type.RLM_TYPE_NULL;
-  } else if (value is RealmObjectBase) {
+  } else if (value is RealmObject) {
     //when converting a RealmObject to realm_value.link we assume the object is managed
     final link = realmCore._getObjectAsLink(value);
     realm_value.ref.values.link.target = link.targetKey;
@@ -2217,6 +2239,34 @@ extension on realm_property_info {
       linkTarget: linkTarget == null || linkTarget.isEmpty ? null : linkTarget,
       collectionType: RealmCollectionType.values[collection_type],
     );
+  }
+}
+
+extension ObjectTypeNative on ObjectType {
+  int toFlags() {
+    switch (this) {
+      case ObjectType.topLevel:
+        return realm_class_flags.RLM_CLASS_NORMAL;
+      case ObjectType.embedded:
+        return realm_class_flags.RLM_CLASS_EMBEDDED;
+      case ObjectType.asymmetric:
+        return realm_class_flags.RLM_CLASS_ASYMMETRIC;
+      default:
+        throw RealmException('Invalid ObjectType: $this');
+    }
+  }
+
+  static ObjectType fromFlags(int flags) {
+    switch (flags) {
+      case realm_class_flags.RLM_CLASS_NORMAL:
+        return ObjectType.topLevel;
+      case realm_class_flags.RLM_CLASS_EMBEDDED:
+        return ObjectType.embedded;
+      case realm_class_flags.RLM_CLASS_ASYMMETRIC:
+        return ObjectType.asymmetric;
+      default:
+        throw RealmException('Invalid ObjectType: $flags');
+    }
   }
 }
 

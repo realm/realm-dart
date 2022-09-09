@@ -215,6 +215,77 @@ class _Game {
   int get rounds => winnerByRound.length;
 }
 
+@RealmModel(ObjectType.embedded)
+class _AllTypesEmbedded {
+  late String stringProp;
+  late bool boolProp;
+  late DateTime dateProp;
+  late double doubleProp;
+  late ObjectId objectIdProp;
+  late Uuid uuidProp;
+  late int intProp;
+
+  late String? nullableStringProp;
+  late bool? nullableBoolProp;
+  late DateTime? nullableDateProp;
+  late double? nullableDoubleProp;
+  late ObjectId? nullableObjectIdProp;
+  late Uuid? nullableUuidProp;
+  late int? nullableIntProp;
+
+  late List<String> strings;
+  late List<bool> bools;
+  late List<DateTime> dates;
+  late List<double> doubles;
+  late List<ObjectId> objectIds;
+  late List<Uuid> uuids;
+  late List<int> ints;
+
+  late List<String?> nullableStrings;
+  late List<bool?> nullableBools;
+  late List<DateTime?> nullableDates;
+  late List<double?> nullableDoubles;
+  late List<ObjectId?> nullableObjectIds;
+  late List<Uuid?> nullableUuids;
+  late List<int?> nullableInts;
+}
+
+@RealmModel()
+class _ObjectWithEmbedded {
+  late String value;
+
+  late _AllTypesEmbedded? singleObject;
+
+  late List<_AllTypesEmbedded> list;
+
+  late _RecursiveEmbedded1? recursiveObject;
+}
+
+@RealmModel(ObjectType.embedded)
+class _RecursiveEmbedded1 {
+  late String value;
+
+  late _RecursiveEmbedded2? child;
+  late List<_RecursiveEmbedded2> children;
+
+  late _ObjectWithEmbedded? topLevel;
+}
+
+@RealmModel(ObjectType.embedded)
+class _RecursiveEmbedded2 {
+  late String value;
+
+  late _RecursiveEmbedded3? child;
+  late List<_RecursiveEmbedded3> children;
+
+  late _ObjectWithEmbedded? topLevel;
+}
+
+@RealmModel(ObjectType.embedded)
+class _RecursiveEmbedded3 {
+  late String value;
+}
+
 String? testName;
 Map<String, String?> arguments = {};
 final baasApps = <String, BaasApp>{};
@@ -495,8 +566,22 @@ Future<void> waitForCondition(
   ]);
 }
 
-extension RealmObjectTest on RealmObject {
+extension RealmObjectTest on RealmObjectBase {
   String toJson() => realmCore.objectToString(this);
+}
+
+extension DateTimeTest on DateTime {
+  String toNormalizedDateString() {
+    final utc = toUtc();
+    // This is kind of silly, but Core serializes negative dates as -003-01-01 12:34:56
+    final utcYear = utc.year < 0 ? '-${utc.year.abs().toString().padLeft(3, '0')}' : utc.year.toString().padLeft(4, '0');
+
+    // For some reason Core always rounds up to the next second for negative dates, so we need to do the same
+    final seconds = utc.microsecondsSinceEpoch < 0 && utc.microsecondsSinceEpoch % 1000000 != 0 ? utc.second + 1 : utc.second;
+    return '$utcYear-${_format(utc.month)}-${_format(utc.day)} ${_format(utc.hour)}:${_format(utc.minute)}:${_format(seconds)}';
+  }
+
+  static String _format(int value) => value.toString().padLeft(2, '0');
 }
 
 void clearCachedApps() => realmCore.clearCachedApps();

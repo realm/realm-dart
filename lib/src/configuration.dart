@@ -332,6 +332,8 @@ class SchemaObject<T extends Object?> with IterableMixin<SchemaProperty> {
   /// Returns the name of this schema type.
   final String name;
 
+  final ObjectType baseType;
+
   SchemaProperty operator [](String propertyName) =>
       properties[propertyName] ?? (throw RealmException("Property '$propertyName' does not exist on class '$name'"));
 
@@ -339,7 +341,7 @@ class SchemaObject<T extends Object?> with IterableMixin<SchemaProperty> {
   final SchemaProperty? primaryKey;
 
   /// Creates schema instance with object type and collection of object's properties.
-  const SchemaObject(this.objectFactory, this.name, this.properties, [this.primaryKey]);
+  const SchemaObject(this.baseType, this.objectFactory, this.name, this.properties, [this.primaryKey]);
 
   @override
   Iterator<SchemaProperty> get iterator => properties.values.iterator;

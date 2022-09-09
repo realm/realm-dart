@@ -146,9 +146,21 @@ class RealmCoreAccessor implements RealmAccessor {
         }
         return;
       }
+
+      if (value is EmbeddedObject) {
+        if (value.isManaged) {
+          throw RealmError("Can't set an embedded object that is already managed");
+        }
+
+        final handle = realmCore.createEmbeddedObject(object, propertyMeta.key);
+        object.realm.manageEmbedded(handle, value, update: update);
+        return;
+      }
+
       if (value is RealmObject && !value.isManaged) {
         object.realm.add<RealmObject>(value, update: update); // Compiler issue. Why is the explicit type argument needed?
       }
+
       realmCore.setProperty(object, propertyMeta.key, value, isDefault);
     } on Exception catch (e) {
       throw RealmException("Error setting property ${metadata.type}.$propertyName Error: $e");
@@ -156,6 +168,7 @@ class RealmCoreAccessor implements RealmAccessor {
   }
 }
 
+/// @nodoc
 mixin RealmEntityMixin {
   Realm? _realm;
 
@@ -274,6 +287,9 @@ mixin RealmObjectBaseMixin on RealmEntityMixin implements Finalizable, RealmObje
 
 /// @nodoc
 mixin RealmObjectMixin on RealmObjectBaseMixin implements RealmObject {}
+
+/// @nodoc
+mixin EmbeddedObjectMixin on RealmObjectBaseMixin implements EmbeddedObject {}
 
 /// @nodoc
 //RealmObject package internal members

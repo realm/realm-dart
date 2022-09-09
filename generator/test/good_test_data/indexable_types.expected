@@ -164,6 +164,7 @@ class Indexable extends _Indexable
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Indexable>(
+    ObjectType.topLevel,
     Indexable._,
     'Indexable',
     {

@@ -27,6 +27,7 @@ class Foo extends _Foo
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Foo>(
+    ObjectType.topLevel,
     Foo._,
     'Foo',
     {

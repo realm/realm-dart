@@ -51,6 +51,7 @@ export 'package:realm_common/realm_common.dart'
         SyncConnectionErrorCode,
         SyncSessionErrorCode,
         RealmModel,
+        ObjectType,
         RealmUnsupportedSetError,
         RealmStateError,
         RealmCollectionType,
@@ -75,7 +76,17 @@ export "configuration.dart"
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
 export 'realm_object.dart'
-    show RealmEntityMixin, RealmObjectBaseMixin, RealmException, RealmObject, RealmObjectChanges, DynamicRealmObject, RealmObjectBase, RealmObjectMixin;
+    show
+        RealmEntityMixin,
+        RealmObjectBaseMixin,
+        RealmObjectMixin,
+        EmbeddedObjectMixin,
+        RealmException,
+        RealmObjectBase,
+        RealmObject,
+        EmbeddedObject,
+        DynamicRealmObject,
+        RealmObjectChanges;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
@@ -391,6 +402,13 @@ extension RealmInternal on Realm {
   }
 
   RealmMetadata get metadata => _metadata;
+
+  void manageEmbedded(RealmObjectHandle handle, EmbeddedObject object, {bool update = false}) {
+    final metadata = _metadata.getByType(object.runtimeType);
+
+    final accessor = RealmCoreAccessor(metadata);
+    object.manage(this, handle, accessor, update);
+  }
 }
 
 /// @nodoc

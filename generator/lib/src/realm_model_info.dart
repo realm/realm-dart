@@ -76,6 +76,7 @@ class RealmModelInfo {
       final primaryKey = fields.cast<RealmFieldInfo?>().firstWhere((element) => element!.primaryKey, orElse: () => null);
       yield 'static const schema = SchemaObject<$name>(';
       {
+        yield 'ObjectType.${baseType.name},';
         yield '$name._,';
         yield "'$realmName',";
         yield '{';

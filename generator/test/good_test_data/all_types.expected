@@ -28,6 +28,7 @@ class Foo extends _Foo
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Foo>(
+    ObjectType.topLevel,
     Foo._,
     'MyFoo',
     {
@@ -177,6 +178,7 @@ class Bar extends _Bar
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<Bar>(
+    ObjectType.topLevel,
     Bar._,
     'Bar',
     {
@@ -267,6 +269,7 @@ class PrimitiveTypes extends _PrimitiveTypes
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<PrimitiveTypes>(
+    ObjectType.topLevel,
     PrimitiveTypes._,
     'PrimitiveTypes',
     {

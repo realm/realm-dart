@@ -70,6 +70,7 @@ class MappedToo extends _MappedToo
       RealmObjectBaseMixin.getChanges(this);
 
   static const schema = SchemaObject<MappedToo>(
+    ObjectType.topLevel,
     MappedToo._,
     'this is also mapped',
     {
