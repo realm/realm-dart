@@ -409,6 +409,13 @@ extension RealmInternal on Realm {
     final accessor = RealmCoreAccessor(metadata);
     object.manage(this, handle, accessor, update);
   }
+
+  /// This should only be used for testing
+  RealmResults<T> allEmbedded<T extends EmbeddedObject>() {
+    final metadata = _metadata.getByStaticType<T>();
+    final handle = realmCore.findAll(this, metadata.key);
+    return RealmResultsInternal.create<T>(handle, this, metadata);
+  }
 }
 
 /// @nodoc

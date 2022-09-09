@@ -240,25 +240,23 @@ class _AllTypesEmbedded {
   late List<ObjectId> objectIds;
   late List<Uuid> uuids;
   late List<int> ints;
-
-  late List<String?> nullableStrings;
-  late List<bool?> nullableBools;
-  late List<DateTime?> nullableDates;
-  late List<double?> nullableDoubles;
-  late List<ObjectId?> nullableObjectIds;
-  late List<Uuid?> nullableUuids;
-  late List<int?> nullableInts;
 }
 
 @RealmModel()
 class _ObjectWithEmbedded {
-  late String value;
+  @PrimaryKey()
+  @MapTo('_id')
+  late String id;
+
+  late Uuid? differentiator;
 
   late _AllTypesEmbedded? singleObject;
 
   late List<_AllTypesEmbedded> list;
 
   late _RecursiveEmbedded1? recursiveObject;
+
+  late List<_RecursiveEmbedded1> recursiveList;
 }
 
 @RealmModel(ObjectType.embedded)
@@ -517,6 +515,10 @@ Future<User> getIntegrationUser(App app) async {
   await app.emailPasswordAuthProvider.registerUser(email, password);
 
   return await loginWithRetry(app, Credentials.emailPassword(email, password));
+}
+
+Future<User> getAnonymousUser(App app) {
+  return app.logIn(Credentials.anonymous(reuseCredentials: false));
 }
 
 Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator}) async {

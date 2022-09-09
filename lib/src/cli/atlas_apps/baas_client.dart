@@ -18,7 +18,6 @@
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:crypto/crypto.dart';
 
 class BaasClient {
   static const String _confirmFuncSource = '''exports = async ({ token, tokenId, username }) => {
@@ -247,7 +246,7 @@ class BaasClient {
             "authFunctionName": "authFunc",
             "authFunctionId": "$authFuncId"
             }''');
-    
+
       const facebookSecret = "876750ac6d06618b323dee591602897f";
       final dynamic createFacebookSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
       String facebookClientSecretKeyName = createFacebookSecretResult['name'] as String;
@@ -292,7 +291,7 @@ class BaasClient {
             "name": "picture"
           }''');
     }
-    
+
     print('Creating database db_$name$_appSuffix');
 
     await _createMongoDBService(app, '''{

@@ -19,11 +19,29 @@
 // ignore_for_file: unused_local_variable
 
 import 'package:test/test.dart' hide test, throws;
+
 import '../lib/realm.dart';
 import 'test.dart';
 
+// This is required to be able to use the API for querying embedded objects.
+import '../lib/src/realm_class.dart' show RealmInternal;
+
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
+
+  Realm getLocalRealm() {
+    final config = Configuration.local(
+        [AllTypesEmbedded.schema, ObjectWithEmbedded.schema, RecursiveEmbedded1.schema, RecursiveEmbedded2.schema, RecursiveEmbedded3.schema]);
+    return getRealm(config);
+  }
+
+  Future<Realm> getSyncRealm(AppConfiguration config) async {
+    final app = App(config);
+    final user = await getAnonymousUser(app);
+    final realmConfig = Configuration.flexibleSync(
+        user, [AllTypesEmbedded.schema, ObjectWithEmbedded.schema, RecursiveEmbedded1.schema, RecursiveEmbedded2.schema, RecursiveEmbedded3.schema]);
+    return getRealm(realmConfig);
+  }
 
   test('local Realm with orphan embedded schemas works', () {
     final config = Configuration.local([AllTypesEmbedded.schema]);
@@ -45,9 +63,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Embedded object roundtrip', () {
-    final config = Configuration.local(
-        [AllTypesEmbedded.schema, ObjectWithEmbedded.schema, RecursiveEmbedded1.schema, RecursiveEmbedded2.schema, RecursiveEmbedded3.schema]);
-    final realm = getRealm(config);
+    final realm = getLocalRealm();
 
     final now = DateTime.now();
     final oid = ObjectId();
@@ -99,7 +115,7 @@ Future<void> main([List<String>? args]) async {
     final refetched = realm.all<ObjectWithEmbedded>().first;
 
     expect(refetched, graph);
-    expect(refetched.value, 'TopLevel1');
+    expect(refetched.id, 'TopLevel1');
 
     final child1 = refetched.recursiveObject;
     expect(child1, isNotNull);
@@ -119,11 +135,314 @@ Future<void> main([List<String>? args]) async {
     expect(listChild1.isManaged, true);
     expect(listChild1.value, 'List1');
     expect(listChild1.child!.value, 'Child3');
-    expect(listChild1.topLevel!.value, 'TopLeve2');
+    expect(listChild1.topLevel!.id, 'TopLeve2');
 
     final listChild2 = child1.children[1];
     expect(listChild2.isManaged, true);
     expect(listChild2.value, 'List2');
     expect(listChild2.child, isNull);
+  });
+
+  test('Embedded object when replaced invalidates old object', () {
+    final realm = getLocalRealm();
+    final topLevel = realm.write(() {
+      return realm.add(ObjectWithEmbedded('', recursiveObject: RecursiveEmbedded1('first')));
+    });
+
+    final firstEmbeded = topLevel.recursiveObject!;
+    expect(firstEmbeded.isManaged, true);
+    expect(firstEmbeded.isValid, true);
+    expect(firstEmbeded.value, 'first');
+
+    realm.write(() {
+      topLevel.recursiveObject = RecursiveEmbedded1('second');
+    });
+
+    // We replaced firstEmbedded with another one, so we expect it to be invalid
+    expect(firstEmbeded.isManaged, true);
+    expect(firstEmbeded.isValid, false);
+
+    final secondEmbedded = topLevel.recursiveObject!;
+    expect(secondEmbedded.value, 'second');
+
+    realm.write(() {
+      topLevel.recursiveObject = null;
+    });
+
+    // We replaced secondEmbedded with null, so we expect it to be invalid
+    expect(secondEmbedded.isManaged, true);
+    expect(secondEmbedded.isValid, false);
+
+    expect(topLevel.recursiveObject, isNull);
+  });
+
+  test('Embedded object in list when replaced invalidates old object', () {
+    final realm = getLocalRealm();
+    final topLevel = realm.write(() {
+      return realm.add(ObjectWithEmbedded('', recursiveList: [RecursiveEmbedded1('first'), RecursiveEmbedded1('second'), RecursiveEmbedded1('third')]));
+    });
+
+    final list = topLevel.recursiveList;
+
+    final first = list[0];
+
+    realm.write(() {
+      list.remove(first);
+    });
+
+    expect(list.length, 2);
+    expect(first.isManaged, true);
+    expect(first.isValid, false);
+
+    final second = list[0];
+    realm.write(() {
+      list.removeAt(0);
+    });
+
+    expect(list.length, 1);
+    expect(second.isManaged, true);
+    expect(second.isValid, false);
+
+    final third = list.first;
+    realm.write(() {
+      list[0] = RecursiveEmbedded1('fourth');
+    });
+
+    expect(list.length, 1);
+    expect(third.isManaged, true);
+    expect(third.isValid, false);
+
+    final fourth = list.first;
+
+    realm.write(() {
+      list.clear();
+    });
+
+    expect(list.length, 0);
+    expect(fourth.isManaged, true);
+    expect(fourth.isValid, false);
+  });
+
+  test('Embedded list .add', () {
+    final realm = getLocalRealm();
+
+    final obj = realm.write(() {
+      return realm.add(ObjectWithEmbedded(''));
+    });
+
+    realm.write(() {
+      obj.recursiveList.add(RecursiveEmbedded1('1'));
+      obj.recursiveList.add(RecursiveEmbedded1('2'));
+    });
+
+    expect(obj.recursiveList.length, 2);
+    expect(obj.recursiveList[0].value, '1');
+    expect(obj.recursiveList[1].value, '2');
+  });
+
+  test('Embedded list .insert', () {
+    final realm = getLocalRealm();
+
+    final obj = realm.write(() {
+      return realm.add(ObjectWithEmbedded(''));
+    });
+
+    realm.write(() {
+      obj.recursiveList.insert(0, RecursiveEmbedded1('1'));
+      obj.recursiveList.insert(0, RecursiveEmbedded1('2'));
+    });
+
+    expect(obj.recursiveList.length, 2);
+    expect(obj.recursiveList[0].value, '2');
+    expect(obj.recursiveList[1].value, '1');
+  }, skip: 'Needs https://github.com/realm/realm-dart/pull/894');
+
+  test('Embedded list .set', () {
+    final realm = getLocalRealm();
+
+    final obj = realm.write(() {
+      return realm.add(ObjectWithEmbedded(''));
+    });
+
+    realm.write(() {
+      obj.recursiveList[0] = RecursiveEmbedded1('1');
+    });
+
+    expect(obj.recursiveList.length, 1);
+    expect(obj.recursiveList[0].value, '1');
+
+    realm.write(() {
+      obj.recursiveList[0] = RecursiveEmbedded1('5');
+    });
+
+    expect(obj.recursiveList.length, 1);
+    expect(obj.recursiveList[0].value, '5');
+  });
+
+  test('Embedded property when set to a managed object fails', () {
+    final realm = getLocalRealm();
+    final parent = realm.write(() {
+      return realm.add(ObjectWithEmbedded('1', recursiveObject: RecursiveEmbedded1('1')));
+    });
+
+    realm.write(() {
+      expect(() => realm.add(ObjectWithEmbedded('2', recursiveObject: parent.recursiveObject)), throws<RealmError>());
+    });
+
+    realm.write(() {
+      expect(() => parent.recursiveObject = parent.recursiveObject, throws<RealmError>());
+    });
+  });
+
+  test('Embedded list when adding managed object fails', () {
+    final realm = getLocalRealm();
+    final parent = realm.write(() {
+      return realm.add(ObjectWithEmbedded('', recursiveList: [RecursiveEmbedded1('1')], recursiveObject: RecursiveEmbedded1('2')));
+    });
+
+    final list = parent.recursiveList;
+
+    realm.write(() {
+      expect(() => list.add(list[0]), throws<RealmError>());
+      expect(() => list.add(parent.recursiveObject!), throws<RealmError>());
+      expect(() => list[0] = list[0], throws<RealmError>());
+      expect(() => list[0] = parent.recursiveObject!, throws<RealmError>());
+      expect(() => list.insert(0, list[0]), throws<RealmError>());
+      expect(() => list.insert(0, parent.recursiveObject!), throws<RealmError>());
+    });
+  });
+
+  test('Parent with embedded addOrUpdate invalidates old embedded', () {
+    final realm = getLocalRealm();
+
+    final parent = realm.write(() {
+      return realm.add(ObjectWithEmbedded('123', recursiveList: [RecursiveEmbedded1('list')], recursiveObject: RecursiveEmbedded1('link')));
+    });
+
+    final listObj = parent.recursiveList[0];
+    final obj = parent.recursiveObject!;
+
+    expect(listObj.isValid, true);
+    expect(obj.isValid, true);
+
+    realm.write(() {
+      realm.add(ObjectWithEmbedded('123', recursiveList: [RecursiveEmbedded1('list 2')], recursiveObject: RecursiveEmbedded1('link 2')), update: true);
+    });
+
+    expect(listObj.isValid, false);
+    expect(obj.isValid, false);
+
+    expect(parent.recursiveList[0].value, 'list 2');
+    expect(parent.recursiveObject!.value, 'link 2');
+  });
+
+  test('Parent with embedded addOrUpdate correctly propagates graph', () {
+    final realm = getLocalRealm();
+
+    final parent = realm.write(() {
+      return realm.add(ObjectWithEmbedded('123', recursiveList: [RecursiveEmbedded1('list')], recursiveObject: RecursiveEmbedded1('link')));
+    });
+
+    final listObj = parent.recursiveList[0];
+    final obj = parent.recursiveObject!;
+
+    expect(listObj.isValid, true);
+    expect(obj.isValid, true);
+
+    final newGraph = ObjectWithEmbedded('456',
+        recursiveObject: RecursiveEmbedded1('embedded 456', topLevel: ObjectWithEmbedded('123', recursiveList: [RecursiveEmbedded1('value')])));
+
+    realm.write(() {
+      realm.add(newGraph, update: true);
+    });
+
+    expect(realm.all<ObjectWithEmbedded>().length, 2);
+
+    expect(listObj.isValid, false);
+    expect(obj.isValid, false);
+
+    expect(parent.recursiveList[0].value, 'value');
+    expect(parent.recursiveObject, isNull);
+  });
+
+  test('Parent when deleted cleans up embedded graph', () {
+    final realm = getLocalRealm();
+
+    final parent = ObjectWithEmbedded('123',
+        recursiveList: [
+          RecursiveEmbedded1('1.1', child: RecursiveEmbedded2('2.1', child: RecursiveEmbedded3('3.1'), children: [RecursiveEmbedded3('3.2')])),
+          RecursiveEmbedded1('1.2', child: RecursiveEmbedded2('2.2', children: [RecursiveEmbedded3('3.3'), RecursiveEmbedded3('3.4')])),
+        ],
+        recursiveObject: RecursiveEmbedded1('1.3', child: RecursiveEmbedded2('2.3')));
+
+    realm.write(() {
+      realm.add(parent);
+    });
+
+    final embedded1s = realm.allEmbedded<RecursiveEmbedded1>();
+    final embedded2s = realm.allEmbedded<RecursiveEmbedded2>();
+    final embedded3s = realm.allEmbedded<RecursiveEmbedded3>();
+
+    expect(embedded1s.length, 3);
+    expect(embedded2s.length, 3);
+    expect(embedded3s.length, 4);
+
+    realm.write(() {
+      realm.delete(parent);
+    });
+
+    expect(embedded1s.length, 0);
+    expect(embedded2s.length, 0);
+    expect(embedded3s.length, 0);
+  });
+
+  baasTest('Embedded objects synchronization', (config) async {
+    final realm1 = await getSyncRealm(config);
+
+    final differentiator = Uuid.v4();
+    realm1.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm1.query<ObjectWithEmbedded>(r'differentiator = $0', [differentiator]));
+    });
+
+    final obj1 = realm1.write(() {
+      return realm1.add(ObjectWithEmbedded(Uuid.v4().toString(),
+          differentiator: differentiator,
+          recursiveObject: RecursiveEmbedded1('1.1', child: RecursiveEmbedded2('2.1'), children: [RecursiveEmbedded2('2.2')]),
+          recursiveList: [RecursiveEmbedded1('1.2')]));
+    });
+
+    await realm1.subscriptions.waitForSynchronization();
+    await realm1.syncSession.waitForUpload();
+
+    final realm2 = await getSyncRealm(config);
+    realm2.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm2.query<ObjectWithEmbedded>(r'differentiator = $0', [differentiator]));
+    });
+
+    await realm2.subscriptions.waitForSynchronization();
+    await realm2.syncSession.waitForDownload();
+
+    final obj2 = realm2.all<ObjectWithEmbedded>().single;
+
+    expect(obj2.recursiveObject!.value, '1.1');
+    expect(obj2.recursiveObject!.child!.value, '2.1');
+    expect(obj2.recursiveObject!.children.length, 1);
+    expect(obj2.recursiveObject!.children[0].value, '2.2');
+    expect(obj2.recursiveList.length, 1);
+    expect(obj2.recursiveList[0].value, '1.2');
+    expect(obj2.recursiveList[0].child, isNull);
+    expect(obj2.recursiveList[0].children, isEmpty);
+
+    realm2.write(() {
+      obj2.recursiveObject = null;
+    });
+
+    await realm2.syncSession.waitForUpload();
+    await realm1.syncSession.waitForDownload();
+
+    expect(obj1.recursiveObject, isNull);
+
+    expect(realm1.allEmbedded<RecursiveEmbedded1>().length, 1);
+    expect(realm1.allEmbedded<RecursiveEmbedded2>().length, 0);
   });
 }

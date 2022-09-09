@@ -839,37 +839,31 @@ class _RealmCore {
   }
 
   void listSetElementAt(RealmListHandle handle, int index, Object? value) {
-    return using((Arena arena) {
+    using((Arena arena) {
       final realm_value = _toRealmValue(value, arena);
       _realmLib.invokeGetBool(() => _realmLib.realm_list_set(handle._pointer, index, realm_value.ref));
     });
   }
 
   void listInsertElementAt(RealmListHandle handle, int index, Object? value) {
-    return using((Arena arena) {
+    using((Arena arena) {
       final realm_value = _toRealmValue(value, arena);
       _realmLib.invokeGetBool(() => _realmLib.realm_list_insert(handle._pointer, index, realm_value.ref));
     });
   }
 
   RealmObjectHandle listSetEmbeddedObjectAt(RealmListHandle handle, int index) {
-    return using((Arena arena) {
-      final ptr = _realmLib.invokeGetPointer(() => _realmLib.realm_list_set_embedded(handle._pointer, index));
-      return RealmObjectHandle._(ptr);
-    });
+    final ptr = _realmLib.invokeGetPointer(() => _realmLib.realm_list_set_embedded(handle._pointer, index));
+    return RealmObjectHandle._(ptr);
   }
 
   RealmObjectHandle listInsertEmbeddedObjectAt(RealmListHandle handle, int index) {
-    return using((Arena arena) {
-      final ptr = _realmLib.invokeGetPointer(() => _realmLib.realm_list_insert_embedded(handle._pointer, index));
-      return RealmObjectHandle._(ptr);
-    });
+    final ptr = _realmLib.invokeGetPointer(() => _realmLib.realm_list_insert_embedded(handle._pointer, index));
+    return RealmObjectHandle._(ptr);
   }
 
   void listRemoveElementAt(RealmListHandle handle, int index) {
-    return using((Arena arena) {
-      _realmLib.invokeGetBool(() => _realmLib.realm_list_erase(handle._pointer, index));
-    });
+    _realmLib.invokeGetBool(() => _realmLib.realm_list_erase(handle._pointer, index));
   }
 
   void listDeleteAll(RealmList list) {

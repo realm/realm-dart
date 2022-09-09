@@ -1399,13 +1399,6 @@ class AllTypesEmbedded extends _AllTypesEmbedded
     Iterable<ObjectId> objectIds = const [],
     Iterable<Uuid> uuids = const [],
     Iterable<int> ints = const [],
-    Iterable<String?> nullableStrings = const [],
-    Iterable<bool?> nullableBools = const [],
-    Iterable<DateTime?> nullableDates = const [],
-    Iterable<double?> nullableDoubles = const [],
-    Iterable<ObjectId?> nullableObjectIds = const [],
-    Iterable<Uuid?> nullableUuids = const [],
-    Iterable<int?> nullableInts = const [],
   }) {
     _stringPropProperty.setValue(this, stringProp);
     _boolPropProperty.setValue(this, boolProp);
@@ -1428,16 +1421,6 @@ class AllTypesEmbedded extends _AllTypesEmbedded
     _objectIdsProperty.setValue(this, RealmList<ObjectId>(objectIds));
     _uuidsProperty.setValue(this, RealmList<Uuid>(uuids));
     _intsProperty.setValue(this, RealmList<int>(ints));
-    _nullableStringsProperty.setValue(
-        this, RealmList<String?>(nullableStrings));
-    _nullableBoolsProperty.setValue(this, RealmList<bool?>(nullableBools));
-    _nullableDatesProperty.setValue(this, RealmList<DateTime?>(nullableDates));
-    _nullableDoublesProperty.setValue(
-        this, RealmList<double?>(nullableDoubles));
-    _nullableObjectIdsProperty.setValue(
-        this, RealmList<ObjectId?>(nullableObjectIds));
-    _nullableUuidsProperty.setValue(this, RealmList<Uuid?>(nullableUuids));
-    _nullableIntsProperty.setValue(this, RealmList<int?>(nullableInts));
   }
 
   AllTypesEmbedded._();
@@ -1631,66 +1614,6 @@ class AllTypesEmbedded extends _AllTypesEmbedded
   @override
   set ints(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
 
-  static const _nullableStringsProperty =
-      ListProperty<String?>('nullableStrings', RealmPropertyType.string);
-  @override
-  RealmList<String?> get nullableStrings =>
-      _nullableStringsProperty.getValue(this);
-  @override
-  set nullableStrings(covariant RealmList<String?> value) =>
-      throw RealmUnsupportedSetError();
-
-  static const _nullableBoolsProperty =
-      ListProperty<bool?>('nullableBools', RealmPropertyType.bool);
-  @override
-  RealmList<bool?> get nullableBools => _nullableBoolsProperty.getValue(this);
-  @override
-  set nullableBools(covariant RealmList<bool?> value) =>
-      throw RealmUnsupportedSetError();
-
-  static const _nullableDatesProperty =
-      ListProperty<DateTime?>('nullableDates', RealmPropertyType.timestamp);
-  @override
-  RealmList<DateTime?> get nullableDates =>
-      _nullableDatesProperty.getValue(this);
-  @override
-  set nullableDates(covariant RealmList<DateTime?> value) =>
-      throw RealmUnsupportedSetError();
-
-  static const _nullableDoublesProperty =
-      ListProperty<double?>('nullableDoubles', RealmPropertyType.double);
-  @override
-  RealmList<double?> get nullableDoubles =>
-      _nullableDoublesProperty.getValue(this);
-  @override
-  set nullableDoubles(covariant RealmList<double?> value) =>
-      throw RealmUnsupportedSetError();
-
-  static const _nullableObjectIdsProperty =
-      ListProperty<ObjectId?>('nullableObjectIds', RealmPropertyType.objectid);
-  @override
-  RealmList<ObjectId?> get nullableObjectIds =>
-      _nullableObjectIdsProperty.getValue(this);
-  @override
-  set nullableObjectIds(covariant RealmList<ObjectId?> value) =>
-      throw RealmUnsupportedSetError();
-
-  static const _nullableUuidsProperty =
-      ListProperty<Uuid?>('nullableUuids', RealmPropertyType.uuid);
-  @override
-  RealmList<Uuid?> get nullableUuids => _nullableUuidsProperty.getValue(this);
-  @override
-  set nullableUuids(covariant RealmList<Uuid?> value) =>
-      throw RealmUnsupportedSetError();
-
-  static const _nullableIntsProperty =
-      ListProperty<int?>('nullableInts', RealmPropertyType.int);
-  @override
-  RealmList<int?> get nullableInts => _nullableIntsProperty.getValue(this);
-  @override
-  set nullableInts(covariant RealmList<int?> value) =>
-      throw RealmUnsupportedSetError();
-
   @override
   Stream<RealmObjectChanges<AllTypesEmbedded>> get changes =>
       RealmObjectBaseMixin.getChanges(this);
@@ -1721,13 +1644,6 @@ class AllTypesEmbedded extends _AllTypesEmbedded
       'objectIds': _objectIdsProperty,
       'uuids': _uuidsProperty,
       'ints': _intsProperty,
-      'nullableStrings': _nullableStringsProperty,
-      'nullableBools': _nullableBoolsProperty,
-      'nullableDates': _nullableDatesProperty,
-      'nullableDoubles': _nullableDoublesProperty,
-      'nullableObjectIds': _nullableObjectIdsProperty,
-      'nullableUuids': _nullableUuidsProperty,
-      'nullableInts': _nullableIntsProperty,
     },
   );
   @override
@@ -1737,27 +1653,43 @@ class AllTypesEmbedded extends _AllTypesEmbedded
 class ObjectWithEmbedded extends _ObjectWithEmbedded
     with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
   ObjectWithEmbedded(
-    String value, {
+    String id, {
+    Uuid? differentiator,
     AllTypesEmbedded? singleObject,
     RecursiveEmbedded1? recursiveObject,
     Iterable<AllTypesEmbedded> list = const [],
+    Iterable<RecursiveEmbedded1> recursiveList = const [],
   }) {
-    _valueProperty.setValue(this, value);
+    _idProperty.setValue(this, id);
+    _differentiatorProperty.setValue(this, differentiator);
     _singleObjectProperty.setValue(this, singleObject);
     _recursiveObjectProperty.setValue(this, recursiveObject);
     _listProperty.setValue(this, RealmList<AllTypesEmbedded>(list));
+    _recursiveListProperty.setValue(
+        this, RealmList<RecursiveEmbedded1>(recursiveList));
   }
 
   ObjectWithEmbedded._();
 
-  static const _valueProperty = ValueProperty<String>(
-    'value',
+  static const _idProperty = ValueProperty<String>(
+    '_id',
     RealmPropertyType.string,
+    primaryKey: true,
   );
   @override
-  String get value => _valueProperty.getValue(this);
+  String get id => _idProperty.getValue(this);
   @override
-  set value(String value) => _valueProperty.setValue(this, value);
+  set id(String value) => throw RealmUnsupportedSetError();
+
+  static const _differentiatorProperty = ValueProperty<Uuid?>(
+    'differentiator',
+    RealmPropertyType.uuid,
+  );
+  @override
+  Uuid? get differentiator => _differentiatorProperty.getValue(this);
+  @override
+  set differentiator(Uuid? value) =>
+      _differentiatorProperty.setValue(this, value);
 
   static const _singleObjectProperty =
       ObjectProperty<AllTypesEmbedded>('singleObject', 'AllTypesEmbedded');
@@ -1785,6 +1717,16 @@ class ObjectWithEmbedded extends _ObjectWithEmbedded
   set recursiveObject(covariant RecursiveEmbedded1? value) =>
       _recursiveObjectProperty.setValue(this, value);
 
+  static const _recursiveListProperty = ListProperty<RecursiveEmbedded1>(
+      'recursiveList', RealmPropertyType.object,
+      linkTarget: 'RecursiveEmbedded1');
+  @override
+  RealmList<RecursiveEmbedded1> get recursiveList =>
+      _recursiveListProperty.getValue(this);
+  @override
+  set recursiveList(covariant RealmList<RecursiveEmbedded1> value) =>
+      throw RealmUnsupportedSetError();
+
   @override
   Stream<RealmObjectChanges<ObjectWithEmbedded>> get changes =>
       RealmObjectBaseMixin.getChanges(this);
@@ -1794,11 +1736,14 @@ class ObjectWithEmbedded extends _ObjectWithEmbedded
     ObjectWithEmbedded._,
     'ObjectWithEmbedded',
     {
-      'value': _valueProperty,
+      '_id': _idProperty,
+      'differentiator': _differentiatorProperty,
       'singleObject': _singleObjectProperty,
       'list': _listProperty,
       'recursiveObject': _recursiveObjectProperty,
+      'recursiveList': _recursiveListProperty,
     },
+    _idProperty,
   );
   @override
   SchemaObject get instanceSchema => schema;
