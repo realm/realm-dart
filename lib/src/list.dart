@@ -63,7 +63,11 @@ class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with Re
   @override
   set length(int newLength) {
     var l = length;
-    if (newLength < l) removeRange(newLength, l);
+    if (newLength < l) {
+      removeRange(newLength, l);
+    } else {
+      throw RealmException('You cannot increase length on a realm list without adding elements');
+    }
   }
 
   @override
@@ -91,6 +95,16 @@ class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with Re
     } on Exception catch (e) {
       throw RealmException("Error getting value at index $index. Error: $e");
     }
+  }
+
+  @override
+  void add(T element) {
+    RealmListInternal.setValue(handle, realm, length, element);
+  }
+
+  @override
+  void insert(int index, T element) {
+    realmCore.listInsertElementAt(handle, index, element);
   }
 
   @override
