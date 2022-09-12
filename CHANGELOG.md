@@ -8,6 +8,7 @@
 ### Fixed
 * Allow null arguments on query. ([#872](https://github.com/realm/realm-dart/pull/872)). Fixes [#871](https://github.com/realm/realm-dart/issues/871)
 * Previously removeAt did not truncate length. ([#884](https://github.com/realm/realm-dart/pull/884)). Fixes [#883](https://github.com/realm/realm-dart/issues/883)
+* List.length= now throws, if you try to increase length, ([#894](https://github.com/realm/realm-dart/pull/894)).
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
