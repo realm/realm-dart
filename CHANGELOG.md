@@ -1,3 +1,21 @@
+## vNext (TBD)
+
+**This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
+
+### Enhancements
+* None
+
+### Fixed
+* Allow null arguments on query. ([#872](https://github.com/realm/realm-dart/pull/872)). Fixes [#871](https://github.com/realm/realm-dart/issues/871)
+* Previously removeAt did not truncate length. ([#884](https://github.com/realm/realm-dart/pull/884)). Fixes [#883](https://github.com/realm/realm-dart/issues/883)
+* List.length= now throws, if you try to increase length, ([#894](https://github.com/realm/realm-dart/pull/894)).
+
+### Compatibility
+* Realm Studio: 12.0.0 or later.
+
+### Internal
+* Uses Realm Core v12.6.0
+
 ## 0.4.0+beta (2022-08-19)
 
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
@@ -18,7 +36,7 @@
 * Realm Studio: 12.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Uses Realm Core v12.5.1
 
 ## 0.3.2+beta (2022-08-16)
 
@@ -130,6 +148,7 @@
 ### Internal
 * Added a command to deploy an Atlas App Services application to `realm_dart`. Usage: `dart run realm_dart deploy-apps`. By default it will deploy apps to `http://localhost:9090` which is the endpoint of the local docker image. If `--atlas-cluster` is provided, it will authenticate, create an application and link the provided cluster to it. (PR [#309](https://github.com/realm/realm-dart/pull/309))
 * Unit tests will now attempt to lookup and create if necessary Atlas App Services applications (similarly to the above mentioned command). See `test.dart/setupBaas()` for the environment variables that control the Url and Atlas Cluster that will be used. If the `BAAS_URL` environment variable is not set, no apps will be imported and sync tests will not run. (PR [#309](https://github.com/realm/realm-dart/pull/309))
+* Uses Realm Core v12.1.0
 
 ### Compatibility
 * Dart ^2.17 on Windows, MacOS and Linux

@@ -77,7 +77,7 @@ export "configuration.dart"
 
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
-export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges;
+export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges, DynamicRealmObject;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
@@ -166,7 +166,7 @@ class Realm implements Finalizable {
     });
 
     cancelationController?._opration = cancelableOperation;
-    if (cancelationController != null && cancelationController._canceledCalled) cancelationController.cancel();
+    if (cancelationController?._canceledCalled == false) cancelationController?.cancel();
 
     return cancelableOperation.valueOrCancellation(null);
   }
@@ -185,7 +185,7 @@ class Realm implements Finalizable {
 
   void _populateMetadata() {
     schema = config.schemaObjects.isNotEmpty ? RealmSchema(config.schemaObjects) : realmCore.readSchema(this);
-    _metadata = RealmMetadata._(schema.map((c) => realmCore.getObjectMedata(this, c.name, c.type)));
+    _metadata = RealmMetadata._(schema.map((c) => realmCore.getObjectMetadata(this, c.name, c.type)));
   }
 
   /// Deletes all files associated with a `Realm` located at given [path]
@@ -351,7 +351,7 @@ class Realm implements Finalizable {
   ///
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
-  RealmResults<T> query<T extends RealmObject>(String query, [List<Object> args = const []]) {
+  RealmResults<T> query<T extends RealmObject>(String query, [List<Object?> args = const []]) {
     final metadata = _metadata.getByType(T);
     final handle = realmCore.queryClass(this, metadata.classKey, query, args);
     return RealmResultsInternal.create<T>(handle, this, metadata);
@@ -401,7 +401,7 @@ class Realm implements Finalizable {
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
   ///
-  /// Disclaimer: This method is mostly needed on Dart standalone and if not called the Dart probram will hang and not exit.
+  /// Disclaimer: This method is mostly needed on Dart standalone and if not called the Dart program will hang and not exit.
   /// This is a workaround of a Dart VM bug and will be removed in a future version of the SDK.
   static void shutdown() => scheduler.stop();
 }
@@ -456,8 +456,8 @@ extension RealmInternal on Realm {
     return RealmObjectInternal.create(type, this, handle, accessor);
   }
 
-  RealmList<T> createList<T extends Object>(RealmListHandle handle, RealmObjectMetadata? metadata) {
-    return RealmListInternal.create(handle, this, metadata);
+  RealmList<T> createList<T extends Object?>(RealmListHandle handle, RealmObjectMetadata? metadata) {
+    return RealmListInternal.create<T>(handle, this, metadata);
   }
 
   List<String> getPropertyNames(Type type, List<int> propertyKeys) {
@@ -637,7 +637,7 @@ typedef ProgressCallback = void Function(int transferredBytes, int totalBytes);
 
 /// Represents an object containing [CancelableOperation] that allows a [Future] operations to be canceled.
 ///
-/// Provides a method cancel that canceles the initiated [CancelableOperation].
+/// Provides a method cancel that cancels the initiated [CancelableOperation].
 /// The [CancelableOperation] is initiated internaly by the Future method that this object is passed to as an argument.
 ///
 /// {@category Realm}
@@ -648,9 +648,7 @@ class RealmCancelationController {
 
   /// Cancels any running operation.
   void cancel() {
-    if (_opration != null) {
-      _opration!.cancel();
-    }
+    _opration?.cancel();
     _canceledCalled = true;
   }
 }
