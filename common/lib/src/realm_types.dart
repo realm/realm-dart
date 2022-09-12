@@ -53,8 +53,7 @@ const _intMapping = Mapping<int>();
 const _boolMapping = Mapping<bool>();
 const _doubleMapping = Mapping<double>();
 
-/// All supported `Realm` property types.
-/// {@category Configuration}
+/// @nodoc
 enum RealmPropertyType {
   int(_intMapping),
   bool(_boolMapping),
@@ -80,8 +79,7 @@ enum RealmPropertyType {
   final Mapping<dynamic> mapping;
 }
 
-/// All supported `Realm` collection types.
-/// {@category Configuration}
+/// @nodoc
 enum RealmCollectionType {
   none,
   list,
