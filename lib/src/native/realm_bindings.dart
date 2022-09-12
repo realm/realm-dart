@@ -3181,6 +3181,16 @@ class RealmLibrary {
       _realm_dart_initializeDartApiDLPtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
+  ffi.Pointer<ffi.Char> realm_dart_library_version() {
+    return _realm_dart_library_version();
+  }
+
+  late final _realm_dart_library_versionPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+          'realm_dart_library_version');
+  late final _realm_dart_library_version = _realm_dart_library_versionPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
   ffi.Pointer<ffi.Void> realm_dart_object_to_persistent_handle(
     Object handle,
   ) {
@@ -9700,6 +9710,8 @@ class _SymbolAddresses {
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_initializeDartApiDL =>
           _library._realm_dart_initializeDartApiDLPtr;
+  ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
+      get realm_dart_library_version => _library._realm_dart_library_versionPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>
       get realm_dart_object_to_persistent_handle =>
           _library._realm_dart_object_to_persistent_handlePtr;

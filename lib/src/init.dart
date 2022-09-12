@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
-import 'cli/metrics/metrics_command.dart';
-import 'cli/metrics/options.dart';
-import 'cli/common/target_os_type.dart';
-
 import '../realm.dart' as realm show isFlutterPlatform;
 import '../realm.dart' show realmBinaryName;
+import 'cli/common/target_os_type.dart';
+import 'cli/metrics/metrics_command.dart';
+import 'cli/metrics/options.dart';
+import 'native/realm_core.dart';
 
 DynamicLibrary? _library;
 
