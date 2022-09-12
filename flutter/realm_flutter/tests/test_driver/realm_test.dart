@@ -35,7 +35,7 @@ Future<String> main(List<String> args) async {
     await session_test.main(args);
 
     tearDown(() {
-      if (Invoker.current?.liveTest.state.result != test_api.Result.skipped && Invoker.current?.liveTest.state.result != test_api.Result.success) {
+      if (Invoker.current?.liveTest.state.result == test_api.Result.error || Invoker.current?.liveTest.state.result == test_api.Result.failure) {
         failedTests.add(Invoker.current!.liveTest.individualName);
       }
     });
