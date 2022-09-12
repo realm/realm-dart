@@ -1,6 +1,8 @@
 ![Realm](https://github.com/realm/realm-dart/raw/master/logo.png)
 
 [![License](https://img.shields.io/badge/License-Apache-blue.svg)](LICENSE)
+[![Realm Dart CI](https://github.com/realm/realm-dart/actions/workflows/ci.yml/badge.svg)](https://github.com/realm/realm-dart/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/realm/realm-dart/badge.svg?branch=master)](https://coveralls.io/github/realm/realm-dart?branch=master)
 
 Realm is a mobile database that runs directly inside phones, tablets or wearables.
 This repository holds the source code for the Realm SDK for Flutter™ and Dart™.
@@ -325,10 +327,6 @@ unacceptable behavior to [community-conduct@mongodb.com](mailto:community-conduc
 # License
 
 Realm Flutter and Dart SDKs and [Realm Core](https://github.com/realm/realm-core) are published under the Apache License 2.0.
-
-**This product is not being made available to any person located in Cuba, Iran,
-North Korea, Sudan, Syria or the Crimea region, or to any other person that is
-not eligible to receive the product under U.S. law.**
 
 ##### The "Dart" name and logo and the "Flutter" name and logo are trademarks owned by Google.
 

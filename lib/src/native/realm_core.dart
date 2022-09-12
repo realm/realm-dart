@@ -64,13 +64,18 @@ class _RealmCore {
   _RealmCore._() {
     final lib = initRealm();
     _realmLib = RealmLibrary(lib);
+    if (libraryVersion != nativeLibraryVersion) {
+      throw RealmException('Dart package version does not match dynamically loaded native library version ($libraryVersion != $nativeLibraryVersion)');
+    }
   }
 
   factory _RealmCore() {
     return _instance ??= _RealmCore._();
   }
 
-  String get libraryVersion => '0.4.0+beta';
+  // stamped into the library by the build system (see prepare-release.yml)
+  static const libraryVersion = '0.4.0+beta';
+  late String nativeLibraryVersion = _realmLib.realm_dart_library_version().cast<Utf8>().toDartString();
 
   LastError? getLastError(Allocator allocator) {
     final error = allocator<realm_error_t>();
@@ -539,7 +544,7 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_refresh(realm.handle._pointer), "Could not refresh");
   }
 
-  RealmObjectMetadata getObjectMedata(Realm realm, String className, Type classType) {
+  RealmObjectMetadata getObjectMetadata(Realm realm, String className, Type classType) {
     return using((Arena arena) {
       final found = arena<Bool>();
       final classInfo = arena<realm_class_info_t>();
@@ -572,7 +577,9 @@ class _RealmCore {
         final property = propertiesPtr.elementAt(i);
         final propertyName = property.ref.name.cast<Utf8>().toRealmDartString()!;
         final objectType = property.ref.link_target.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
-        final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, RealmCollectionType.values.elementAt(property.ref.collection_type));
+        final isNullable = property.ref.flags & realm_property_flags.RLM_PROPERTY_NULLABLE != 0;
+        final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, RealmPropertyType.values.elementAt(property.ref.type), isNullable,
+            RealmCollectionType.values.elementAt(property.ref.collection_type));
         result[propertyName] = propertyMeta;
       }
       return result;
@@ -650,7 +657,7 @@ class _RealmCore {
     return RealmResultsHandle._(pointer);
   }
 
-  RealmResultsHandle queryClass(Realm realm, int classKey, String query, List<Object> args) {
+  RealmResultsHandle queryClass(Realm realm, int classKey, String query, List<Object?> args) {
     return using((arena) {
       final length = args.length;
       final argsPointer = arena<realm_query_arg_t>(length);
@@ -822,6 +829,12 @@ class _RealmCore {
     });
   }
 
+  void listRemoveElementAt(RealmListHandle handle, int index) {
+    return using((Arena arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_list_erase(handle._pointer, index));
+    });
+  }
+
   void listDeleteAll(RealmList list) {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_remove_all(list.handle._pointer));
   }
@@ -913,7 +926,6 @@ class _RealmCore {
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
-          nullptr,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -926,7 +938,6 @@ class _RealmCore {
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
-          nullptr,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -939,7 +950,6 @@ class _RealmCore {
           nullptr,
           nullptr,
           Pointer.fromFunction(object_change_callback),
-          nullptr,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
