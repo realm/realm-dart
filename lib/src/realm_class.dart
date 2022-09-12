@@ -522,11 +522,15 @@ class RealmMetadata {
       (throw RealmError("Object type $name not configured in the current Realm's schema. Add type $name to your config before opening the Realm"));
 
   RealmObjectMetadata? getLinkMeta<LinkT extends Object?>(RealmPropertyMetadata propertyMeta) {
-    if (_isTypedRealmObject<LinkT>()) return getByType(LinkT);
+    if (_isTypedRealmObject<LinkT>()) {
+      return getByType(LinkT);
+    }
+
     final target = propertyMeta.schema.linkTarget;
     if (target != null) {
       return getByName(target);
     }
+
     return null;
   }
 }

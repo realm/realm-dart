@@ -192,12 +192,21 @@ class _DynamicProperty implements SchemaProperty {
     final map = propertyType.mapping;
     final accessor = object.accessor;
     if (collectionType == RealmCollectionType.none) {
-      if (propertyType == RealmPropertyType.object) return map.getObject(accessor, object, name);
-      if (optional) return map.getNullableValue(accessor, object, name);
+      if (propertyType == RealmPropertyType.object) {
+        return map.getObject(accessor, object, name);
+      }
+
+      if (optional) {
+        return map.getNullableValue(accessor, object, name);
+      }
+
       return map.getValue(accessor, object, name);
     }
     if (collectionType == RealmCollectionType.list) {
-      if (optional) return map.getListOfNullables(accessor, object, name);
+      if (optional) {
+        return map.getListOfNullables(accessor, object, name);
+      }
+
       return map.getList(accessor, object, name);
     }
     throw RealmError('Unsupported collection type: $collectionType');

@@ -127,10 +127,34 @@ class RealmCoreAccessor implements RealmAccessor {
     final propertyMeta = metadata[propertyName];
     final handle = realmCore.getListProperty(object, propertyMeta.key);
     final realm = object.realm;
-    return RealmListInternal.create(
+
+    // TODO: is there a better way?
+    final listMeta = realm.metadata.getLinkMeta<ElementT>(propertyMeta);
+    if (ElementT == RealmObjectBaseMarker) {
+      switch (listMeta?.schema.baseType) {
+        case ObjectType.topLevel:
+          return RealmListInternal.create<RealmObject>(
+            handle,
+            realm,
+            listMeta,
+          ) as RealmList<ElementT>;
+        case ObjectType.embedded:
+          return RealmListInternal.create<EmbeddedObject>(
+            handle,
+            realm,
+            listMeta,
+          ) as RealmList<ElementT>;
+        case ObjectType.asymmetric:
+          throw RealmError("Getting a list of asymmetric objects is not supported");
+        default:
+          // Fallback
+          break;
+      }
+    }
+    return RealmListInternal.create<ElementT>(
       handle,
       realm,
-      realm.metadata.getLinkMeta<ElementT>(propertyMeta),
+      listMeta,
     );
   }
 
@@ -326,7 +350,16 @@ extension RealmObjectInternal on RealmObjectBase {
       object = schema?.objectFactory();
     } else {
       // dynamic
-      object = _ConcreteRealmObject() as T; // compiler needs the cast
+      switch (metadata.schema.baseType) {
+        case ObjectType.topLevel:
+          object = _ConcreteRealmObject() as T; // compiler needs the cast
+          break;
+        case ObjectType.embedded:
+          object = _ConcreteEmbeddedObject() as T; // compiler needs the cast
+          break;
+        case ObjectType.asymmetric:
+          throw RealmError('Asymmetric objects are not supported yet.');
+      }
     }
     if (object is RealmObjectBaseMixin) {
       object._handle = handle;
@@ -417,6 +450,12 @@ class RealmObjectNotificationsController<T extends RealmObjectBase> extends Noti
 
 /// @nodoc
 class _ConcreteRealmObject with RealmEntityMixin, RealmObjectBaseMixin implements RealmObject {
+  @override
+  SchemaObject get instanceSchema => (_accessor as RealmCoreAccessor).metadata.schema;
+}
+
+/// @nodoc
+class _ConcreteEmbeddedObject with RealmEntityMixin, RealmObjectBaseMixin implements EmbeddedObject {
   @override
   SchemaObject get instanceSchema => (_accessor as RealmCoreAccessor).metadata.schema;
 }

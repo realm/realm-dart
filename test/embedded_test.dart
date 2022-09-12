@@ -445,4 +445,88 @@ Future<void> main([List<String>? args]) async {
     expect(realm1.allEmbedded<RecursiveEmbedded1>().length, 1);
     expect(realm1.allEmbedded<RecursiveEmbedded2>().length, 0);
   });
+
+  for (final isDynamic in [true, false]) {
+    Realm _getDynamicRealm(Realm original) {
+      if (isDynamic) {
+        original.close();
+        return getRealm(Configuration.local([]));
+      }
+
+      return original;
+    }
+
+    test('Dynamic embedded object can read properties when isDynamic=$isDynamic', () {
+      final realm = getLocalRealm();
+
+      realm.write(() {
+        realm.add(ObjectWithEmbedded('123',
+            recursiveObject:
+                RecursiveEmbedded1('1.1', child: RecursiveEmbedded2('2.1', child: RecursiveEmbedded3('3.1')), children: [RecursiveEmbedded2('2.2')]),
+            recursiveList: [RecursiveEmbedded1('1.2')]));
+      });
+
+      final dynamicRealm = _getDynamicRealm(realm);
+      final parent = dynamicRealm.dynamic.find('ObjectWithEmbedded', '123')!;
+
+      // String API with casting
+      final child11 = parent.dynamic.get<EmbeddedObject>('recursiveObject');
+      expect(child11.dynamic.get<String>('value'), '1.1');
+      expect(child11.instanceSchema.name, 'RecursiveEmbedded1');
+      expect(child11.instanceSchema.baseType, ObjectType.embedded);
+
+      final list1 = parent.dynamic.get<List<EmbeddedObject>>('recursiveList');
+      expect(list1.length, 1);
+      expect(list1[0].dynamic.get<String>('value'), '1.2');
+      expect(list1[0].instanceSchema.name, 'RecursiveEmbedded1');
+      expect(list1[0].instanceSchema.baseType, ObjectType.embedded);
+
+      final child21 = child11.dynamic.get<EmbeddedObject>('child');
+      expect(child21.dynamic.get<String>('value'), '2.1');
+      expect(child21.instanceSchema.name, 'RecursiveEmbedded2');
+      expect(child21.instanceSchema.baseType, ObjectType.embedded);
+
+      final list2 = child11.dynamic.get<List<EmbeddedObject>>('children');
+      expect(list2.length, 1);
+      expect(list2[0].dynamic.get<String>('value'), '2.2');
+      expect(list2[0].instanceSchema.name, 'RecursiveEmbedded2');
+      expect(list2[0].instanceSchema.baseType, ObjectType.embedded);
+
+      final child31 = child21.dynamic.get<EmbeddedObject>('child');
+      expect(child31.dynamic.get<String>('value'), '3.1');
+      expect(child31.instanceSchema.name, 'RecursiveEmbedded3');
+      expect(child31.instanceSchema.baseType, ObjectType.embedded);
+
+      // String API without casting
+      final genericChild11 = parent.dynamic.get('recursiveObject');
+      expect(genericChild11 is EmbeddedObject, true);
+      final castChild11 = genericChild11 as EmbeddedObject;
+      expect(castChild11.dynamic.get<String>('value'), '1.1');
+
+      final genericList1 = parent.dynamic.get('recursiveList');
+      expect(genericList1 is List<EmbeddedObject>, true);
+
+      final castList1 = genericList1 as List<EmbeddedObject>;
+      expect(castList1.length, 1);
+
+      // Dynamic API
+      dynamic dynamicParent = parent;
+      dynamic dynamicChild11 = dynamicParent.recursiveObject;
+      expect(dynamicChild11.value, '1.1');
+
+      dynamic dynamicList1 = dynamicParent.recursiveList;
+      expect(dynamicList1.length, 1);
+      expect(dynamicList1[0].value, '1.2');
+
+      dynamic dynamicChild21 = dynamicChild11.child;
+      expect(dynamicChild21.value, '2.1');
+
+      dynamic dynamicList2 = dynamicChild11.children;
+      expect(dynamicList2.length, 1);
+      expect(dynamicList2[0].value, '2.2');
+
+      dynamic dynamicChild31 = dynamicChild21.child;
+      expect(dynamicChild31.value, '3.1');
+    });
+  }
 }

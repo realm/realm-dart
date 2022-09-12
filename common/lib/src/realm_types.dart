@@ -69,7 +69,7 @@ enum RealmPropertyType {
   float(Mapping<Float>()),
   double(_doubleMapping),
   decimal128,
-  object(Mapping<RealmObjectMarker>()),
+  object(Mapping<RealmObjectBaseMarker>()),
   _13, // ignore: unused_field, constant_identifier_names
   linkingObjects,
   objectid(Mapping<ObjectId>(indexable: true)),
