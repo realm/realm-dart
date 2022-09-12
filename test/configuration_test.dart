@@ -502,7 +502,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfig);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
     var customPath = path.join(
-      path.dirname('${Configuration.defaultStoragePath}/mongodb-realm/${appConfig.appId}/${user.id}'),
+      '${path.dirname(Configuration.defaultStoragePath)}/mongodb-realm/${appConfig.appId}/${user.id}',
       path.basename('my-custom-realm-name.realm'),
     );
     final config = Configuration.flexibleSync(user, [Event.schema], path: customPath);
