@@ -163,7 +163,7 @@ class Realm implements Finalizable {
     });
 
     cancelationController?._opration = cancelableOperation;
-    if (cancelationController != null && cancelationController._canceledCalled) cancelationController.cancel();
+    if (cancelationController?._canceledCalled == false) cancelationController?.cancel();
 
     return cancelableOperation.valueOrCancellation(null);
   }
@@ -634,7 +634,7 @@ typedef ProgressCallback = void Function(int transferredBytes, int totalBytes);
 
 /// Represents an object containing [CancelableOperation] that allows a [Future] operations to be canceled.
 ///
-/// Provides a method cancel that canceles the initiated [CancelableOperation].
+/// Provides a method cancel that cancels the initiated [CancelableOperation].
 /// The [CancelableOperation] is initiated internaly by the Future method that this object is passed to as an argument.
 ///
 /// {@category Realm}
@@ -645,9 +645,7 @@ class RealmCancelationController {
 
   /// Cancels any running operation.
   void cancel() {
-    if (_opration != null) {
-      _opration!.cancel();
-    }
+    _opration?.cancel();
     _canceledCalled = true;
   }
 }
