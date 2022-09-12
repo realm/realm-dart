@@ -146,10 +146,21 @@ extension ClassElementEx on ClassElement {
         );
       }
 
-      final objectType = modelInfo.value.getField('type')!.getField('index')!.toIntValue()!;
+      final objectType = ObjectType.values[modelInfo.value.getField('type')!.getField('index')!.toIntValue()!];
 
       final mappedFields = fields.realmInfo.toList();
-      return RealmModelInfo(name, modelName, realmName, mappedFields, ObjectType.values[objectType]);
+
+      if (objectType == ObjectType.embedded && mappedFields.any((field) => field.primaryKey)) {
+        final pkSpan = fields.firstWhere((field) => field.realmInfo?.primaryKey == true).span;
+        throw RealmInvalidGenerationSourceError("Primary key not allowed on embedded objects",
+            element: this,
+            primarySpan: pkSpan,
+            secondarySpans: {span!: ''},
+            primaryLabel: "$realmName is marked as embedded but has primary key defined",
+            todo: 'Remove the @PrimaryKey annotation from the field or set the object type to topLevel.');
+      }
+
+      return RealmModelInfo(name, modelName, realmName, mappedFields, objectType);
     } on InvalidGenerationSourceError catch (_) {
       rethrow;
     } catch (e) {

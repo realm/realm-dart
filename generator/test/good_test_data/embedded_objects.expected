@@ -1,0 +1,314 @@
+// **************************************************************************
+// RealmObjectGenerator
+// **************************************************************************
+
+class Parent extends _Parent
+    with RealmEntityMixin, RealmObjectBaseMixin, RealmObjectMixin {
+  Parent({
+    Child1? child,
+    Iterable<Child1> children = const [],
+  }) {
+    _childProperty.setValue(this, child);
+    _childrenProperty.setValue(this, RealmList<Child1>(children));
+  }
+
+  Parent._();
+
+  static const _childProperty = ObjectProperty<Child1>('child', 'Child1');
+  @override
+  Child1? get child => _childProperty.getValue(this);
+  @override
+  set child(covariant Child1? value) => _childProperty.setValue(this, value);
+
+  static const _childrenProperty = ListProperty<Child1>(
+      'children', RealmPropertyType.object,
+      linkTarget: 'Child1');
+  @override
+  RealmList<Child1> get children => _childrenProperty.getValue(this);
+  @override
+  set children(covariant RealmList<Child1> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Parent>> get changes =>
+      RealmObjectBaseMixin.getChanges(this);
+
+  static const schema = SchemaObject<Parent>(
+    ObjectType.topLevel,
+    Parent._,
+    'Parent',
+    {
+      'child': _childProperty,
+      'children': _childrenProperty,
+    },
+  );
+  @override
+  SchemaObject get instanceSchema => schema;
+  }
+
+  class Child1 extends _Child1
+    with RealmEntityMixin, RealmObjectBaseMixin, EmbeddedObjectMixin {
+  Child1(
+    String value, {
+    Child2? child,
+    Parent? linkToParent,
+    Iterable<Child2> children = const [],
+  }) {
+    _valueProperty.setValue(this, value);
+    _childProperty.setValue(this, child);
+    _linkToParentProperty.setValue(this, linkToParent);
+    _childrenProperty.setValue(this, RealmList<Child2>(children));
+  }
+
+  Child1._();
+
+  static const _valueProperty = ValueProperty<String>(
+    'value',
+    RealmPropertyType.string,
+  );
+  @override
+  String get value => _valueProperty.getValue(this);
+  @override
+  set value(String value) => _valueProperty.setValue(this, value);
+
+  static const _childProperty = ObjectProperty<Child2>('child', 'Child2');
+  @override
+  Child2? get child => _childProperty.getValue(this);
+  @override
+  set child(covariant Child2? value) => _childProperty.setValue(this, value);
+
+  static const _childrenProperty = ListProperty<Child2>(
+      'children', RealmPropertyType.object,
+      linkTarget: 'Child2');
+  @override
+  RealmList<Child2> get children => _childrenProperty.getValue(this);
+  @override
+  set children(covariant RealmList<Child2> value) =>
+      throw RealmUnsupportedSetError();
+
+  static const _linkToParentProperty =
+      ObjectProperty<Parent>('linkToParent', 'Parent');
+  @override
+  Parent? get linkToParent => _linkToParentProperty.getValue(this);
+  @override
+  set linkToParent(covariant Parent? value) =>
+      _linkToParentProperty.setValue(this, value);
+
+  @override
+  Stream<RealmObjectChanges<Child1>> get changes =>
+      RealmObjectBaseMixin.getChanges(this);
+
+  static const schema = SchemaObject<Child1>(
+    ObjectType.embedded,
+    Child1._,
+    'Child1',
+    {
+      'value': _valueProperty,
+      'child': _childProperty,
+      'children': _childrenProperty,
+      'linkToParent': _linkToParentProperty,
+    },
+  );
+  @override
+  SchemaObject get instanceSchema => schema;
+  }
+
+  class Child2 extends _Child2
+    with RealmEntityMixin, RealmObjectBaseMixin, EmbeddedObjectMixin {
+  Child2(
+    bool boolProp,
+    int intProp,
+    double doubleProp,
+    String stringProp,
+    DateTime dateProp,
+    ObjectId objectIdProp,
+    Uuid uuidProp, {
+    bool? nullableBoolProp,
+    int? nullableIntProp,
+    double? nullableDoubleProp,
+    String? nullableStringProp,
+    DateTime? nullableDateProp,
+    ObjectId? nullableObjectIdProp,
+    Uuid? nullableUuidProp,
+  }) {
+    _boolPropProperty.setValue(this, boolProp);
+    _intPropProperty.setValue(this, intProp);
+    _doublePropProperty.setValue(this, doubleProp);
+    _stringPropProperty.setValue(this, stringProp);
+    _datePropProperty.setValue(this, dateProp);
+    _objectIdPropProperty.setValue(this, objectIdProp);
+    _uuidPropProperty.setValue(this, uuidProp);
+    _nullableBoolPropProperty.setValue(this, nullableBoolProp);
+    _nullableIntPropProperty.setValue(this, nullableIntProp);
+    _nullableDoublePropProperty.setValue(this, nullableDoubleProp);
+    _nullableStringPropProperty.setValue(this, nullableStringProp);
+    _nullableDatePropProperty.setValue(this, nullableDateProp);
+    _nullableObjectIdPropProperty.setValue(this, nullableObjectIdProp);
+    _nullableUuidPropProperty.setValue(this, nullableUuidProp);
+  }
+
+  Child2._();
+
+  static const _boolPropProperty = ValueProperty<bool>(
+    'boolProp',
+    RealmPropertyType.bool,
+  );
+  @override
+  bool get boolProp => _boolPropProperty.getValue(this);
+  @override
+  set boolProp(bool value) => _boolPropProperty.setValue(this, value);
+
+  static const _intPropProperty = ValueProperty<int>(
+    'intProp',
+    RealmPropertyType.int,
+  );
+  @override
+  int get intProp => _intPropProperty.getValue(this);
+  @override
+  set intProp(int value) => _intPropProperty.setValue(this, value);
+
+  static const _doublePropProperty = ValueProperty<double>(
+    'doubleProp',
+    RealmPropertyType.double,
+  );
+  @override
+  double get doubleProp => _doublePropProperty.getValue(this);
+  @override
+  set doubleProp(double value) => _doublePropProperty.setValue(this, value);
+
+  static const _stringPropProperty = ValueProperty<String>(
+    'stringProp',
+    RealmPropertyType.string,
+  );
+  @override
+  String get stringProp => _stringPropProperty.getValue(this);
+  @override
+  set stringProp(String value) => _stringPropProperty.setValue(this, value);
+
+  static const _datePropProperty = ValueProperty<DateTime>(
+    'dateProp',
+    RealmPropertyType.timestamp,
+  );
+  @override
+  DateTime get dateProp => _datePropProperty.getValue(this);
+  @override
+  set dateProp(DateTime value) => _datePropProperty.setValue(this, value);
+
+  static const _objectIdPropProperty = ValueProperty<ObjectId>(
+    'objectIdProp',
+    RealmPropertyType.objectid,
+  );
+  @override
+  ObjectId get objectIdProp => _objectIdPropProperty.getValue(this);
+  @override
+  set objectIdProp(ObjectId value) =>
+      _objectIdPropProperty.setValue(this, value);
+
+  static const _uuidPropProperty = ValueProperty<Uuid>(
+    'uuidProp',
+    RealmPropertyType.uuid,
+  );
+  @override
+  Uuid get uuidProp => _uuidPropProperty.getValue(this);
+  @override
+  set uuidProp(Uuid value) => _uuidPropProperty.setValue(this, value);
+
+  static const _nullableBoolPropProperty = ValueProperty<bool?>(
+    'nullableBoolProp',
+    RealmPropertyType.bool,
+  );
+  @override
+  bool? get nullableBoolProp => _nullableBoolPropProperty.getValue(this);
+  @override
+  set nullableBoolProp(bool? value) =>
+      _nullableBoolPropProperty.setValue(this, value);
+
+  static const _nullableIntPropProperty = ValueProperty<int?>(
+    'nullableIntProp',
+    RealmPropertyType.int,
+  );
+  @override
+  int? get nullableIntProp => _nullableIntPropProperty.getValue(this);
+  @override
+  set nullableIntProp(int? value) =>
+      _nullableIntPropProperty.setValue(this, value);
+
+  static const _nullableDoublePropProperty = ValueProperty<double?>(
+    'nullableDoubleProp',
+    RealmPropertyType.double,
+  );
+  @override
+  double? get nullableDoubleProp => _nullableDoublePropProperty.getValue(this);
+  @override
+  set nullableDoubleProp(double? value) =>
+      _nullableDoublePropProperty.setValue(this, value);
+
+  static const _nullableStringPropProperty = ValueProperty<String?>(
+    'nullableStringProp',
+    RealmPropertyType.string,
+  );
+  @override
+  String? get nullableStringProp => _nullableStringPropProperty.getValue(this);
+  @override
+  set nullableStringProp(String? value) =>
+      _nullableStringPropProperty.setValue(this, value);
+
+  static const _nullableDatePropProperty = ValueProperty<DateTime?>(
+    'nullableDateProp',
+    RealmPropertyType.timestamp,
+  );
+  @override
+  DateTime? get nullableDateProp => _nullableDatePropProperty.getValue(this);
+  @override
+  set nullableDateProp(DateTime? value) =>
+      _nullableDatePropProperty.setValue(this, value);
+
+  static const _nullableObjectIdPropProperty = ValueProperty<ObjectId?>(
+    'nullableObjectIdProp',
+    RealmPropertyType.objectid,
+  );
+  @override
+  ObjectId? get nullableObjectIdProp =>
+      _nullableObjectIdPropProperty.getValue(this);
+  @override
+  set nullableObjectIdProp(ObjectId? value) =>
+      _nullableObjectIdPropProperty.setValue(this, value);
+
+  static const _nullableUuidPropProperty = ValueProperty<Uuid?>(
+    'nullableUuidProp',
+    RealmPropertyType.uuid,
+  );
+  @override
+  Uuid? get nullableUuidProp => _nullableUuidPropProperty.getValue(this);
+  @override
+  set nullableUuidProp(Uuid? value) =>
+      _nullableUuidPropProperty.setValue(this, value);
+
+  @override
+  Stream<RealmObjectChanges<Child2>> get changes =>
+      RealmObjectBaseMixin.getChanges(this);
+
+  static const schema = SchemaObject<Child2>(
+    ObjectType.embedded,
+    Child2._,
+    'Child2',
+    {
+      'boolProp': _boolPropProperty,
+      'intProp': _intPropProperty,
+      'doubleProp': _doublePropProperty,
+      'stringProp': _stringPropProperty,
+      'dateProp': _datePropProperty,
+      'objectIdProp': _objectIdPropProperty,
+      'uuidProp': _uuidPropProperty,
+      'nullableBoolProp': _nullableBoolPropProperty,
+      'nullableIntProp': _nullableIntPropProperty,
+      'nullableDoubleProp': _nullableDoublePropProperty,
+      'nullableStringProp': _nullableStringPropProperty,
+      'nullableDateProp': _nullableDatePropProperty,
+      'nullableObjectIdProp': _nullableObjectIdPropProperty,
+      'nullableUuidProp': _nullableUuidPropProperty,
+    },
+  );
+  @override
+  SchemaObject get instanceSchema => schema;
+}
