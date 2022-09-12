@@ -251,16 +251,9 @@ void xtest(String? name, dynamic Function() testFunction) {
 }
 
 Future<void> setupTests(List<String>? args) async {
-  Object? error;
   arguments = parseTestArguments(args);
   testName = arguments["name"];
-  setUpAll(() async {
-    try {
-      await setupBaas();
-    } catch (e) {
-      error = e;
-    }
-  });
+  setUpAll(() async => await setupBaas());
 
   setUp(() {
     final path = generateRandomRealmPath();
@@ -285,7 +278,6 @@ Future<void> setupTests(List<String>? args) async {
   });
 
   await _printPlatformInfo();
-  if (error != null) throw error!;
 }
 
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
@@ -371,6 +363,7 @@ Future<void> setupBaas() async {
   if (baasUrl == null) {
     return;
   }
+
   final cluster = arguments[argBaasCluster];
   final apiKey = arguments[argBaasApiKey];
   final privateApiKey = arguments[argBaasPrivateApiKey];
