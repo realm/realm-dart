@@ -700,7 +700,7 @@ Future<void> main([List<String>? args]) async {
     expect(team.players, unorderedMatches(players));
   });
 
-  test('ManagedRealmList.length= throws', () {
+  test('ManagedRealmList.length= throws on increase', () {
     final config = Configuration.local([Team.schema, Person.schema]);
     final realm = getRealm(config);
 
@@ -709,5 +709,19 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => realm.add(team));
 
     expect(() => realm.write(() => team.players.length = 100), throws<RealmException>('You cannot increase length on a realm list without adding elements'));
+  });
+
+  test('ManagedRealmList.length= truncates on decrease', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final team = Team('sad team', players: [for (int i = 0; i < 100; ++i) Person('$i')]);
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 100);
+    expect(realm.all<Person>().length, 100);
+
+    expect(realm.write(() => team.players.length = 10), 10);
+    expect(team.players.length, 10);
+    expect(realm.all<Person>().length, 100);
   });
 }
