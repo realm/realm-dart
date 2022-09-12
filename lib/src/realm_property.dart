@@ -65,6 +65,7 @@ abstract class SchemaProperty {
   }) = _DynamicProperty;
 }
 
+/// @nodoc
 abstract class BaseProperty<T extends Object?> implements SchemaProperty {
   const BaseProperty(
     this.name,
@@ -102,6 +103,7 @@ abstract class BaseProperty<T extends Object?> implements SchemaProperty {
   }
 }
 
+/// @nodoc
 class ValueProperty<T extends Object?> extends BaseProperty<T> {
   const ValueProperty(super.name, super.propertyType, {super.primaryKey = false, super.defaultValue, super.collectionType = RealmCollectionType.none});
 
@@ -114,6 +116,7 @@ class ValueProperty<T extends Object?> extends BaseProperty<T> {
   bool get optional => isNullable<T>() || defaultValue != null;
 }
 
+/// @nodoc
 class ObjectProperty<LinkT extends RealmObject> extends BaseProperty<LinkT?> {
   const ObjectProperty(String name, String linkTarget) : super(name, RealmPropertyType.object, linkTarget: linkTarget);
 
@@ -126,6 +129,7 @@ class ObjectProperty<LinkT extends RealmObject> extends BaseProperty<LinkT?> {
   bool get optional => true;
 }
 
+/// @nodoc
 class ListProperty<ElementT extends Object?> extends BaseProperty<RealmList<ElementT>> {
   const ListProperty(super.name, super.propertyType, {super.linkTarget}) : super(collectionType: RealmCollectionType.list);
 
@@ -138,6 +142,7 @@ class ListProperty<ElementT extends Object?> extends BaseProperty<RealmList<Elem
   bool get optional => isNullable<ElementT>();
 }
 
+/// @nodoc
 class _DynamicProperty implements SchemaProperty {
   _DynamicProperty({
     required this.name,
