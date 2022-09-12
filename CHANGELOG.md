@@ -1,9 +1,6 @@
-## vNext (TBD)
+## 0.4.1+beta (2022-09-12)
 
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
-
-### Enhancements
-* None
 
 ### Fixed
 * Allow null arguments on query. ([#872](https://github.com/realm/realm-dart/pull/872)). Fixes [#871](https://github.com/realm/realm-dart/issues/871)
