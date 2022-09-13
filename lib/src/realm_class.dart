@@ -23,7 +23,7 @@ import 'dart:io';
 import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:collection/collection.dart';
-import 'package:async/async.dart';
+import 'package:cancellation_token/cancellation_token.dart';
 
 import 'configuration.dart';
 import 'list.dart';
@@ -83,6 +83,7 @@ export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, UserIdentity;
 export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
+export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -124,48 +125,26 @@ class Realm implements Finalizable {
   /// [RealmCancelationController] provides method [cancel] that cancels any current running download.
   /// If multiple [Realm.open] operations are all in the progress for the same Realm,
   /// then canceling one of them will cancel all of them.
-  static Future<Realm?> open(Configuration config, {RealmCancelationController? cancelationController, ProgressCallback? onProgressCallback}) {
+  static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
+    Realm realm = await _open(config, onProgressCallback).asCancellable(cancellationToken);
+    return realm;
+  }
+
+  static Future<Realm> _open(Configuration config, ProgressCallback? onProgressCallback) async {
     _createFileDirectory(config.path);
-
-    if (cancelationController != null) {
-      if (cancelationController._canceledCalled) {
-        return Future<Realm?>.value(null);
-      }
-      if (cancelationController._opration != null) {
-        throw RealmException("RealmCancelableOperation is already in use.");
+    final realm = Realm(config);
+    //Initial subscriptions to be loaded here
+    if (config is FlexibleSyncConfiguration) {
+      final session = realm.syncSession;
+      if (onProgressCallback != null) {
+        await session
+            .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
+            .forEach((s) => onProgressCallback.call(s.transferredBytes, s.transferableBytes));
+      } else {
+        await session.waitForDownload();
       }
     }
-
-    RealmAsyncOpenTaskHandle realmAsyncOpenTaskHandle = realmCore.createRealmAsyncOpenTask(config);
-
-    int progressToken = 0;
-    if (onProgressCallback != null) {
-      progressToken = realmCore.realmAsyncOpenRegisterProgressNotifier(realmAsyncOpenTaskHandle, onProgressCallback);
-    }
-
-    Completer<RealmHandle?> completer = Completer<RealmHandle?>();
-    Future<Realm?> realmFuture = realmCore.openRealmAsync(realmAsyncOpenTaskHandle, completer).onError((error, stackTrace) {
-      print(error);
-      return null;
-    }).then((handle) {
-      if (progressToken > 0) {
-        realmCore.realmAsyncOpenUnregisterProgressNotifier(realmAsyncOpenTaskHandle, progressToken);
-      }
-      cancelationController?._opration = null;
-      return handle != null ? Realm._(config, handle) : null;
-    });
-
-    var cancelableOperation = CancelableOperation.fromFuture(realmFuture, onCancel: () {
-      if (!completer.isCompleted) {
-        realmCore.cancelRealmAsyncOpenTask(realmAsyncOpenTaskHandle);
-        completer.complete(null);
-      }
-    });
-
-    cancelationController?._opration = cancelableOperation;
-    if (cancelationController?._canceledCalled == false) cancelationController?.cancel();
-
-    return cancelableOperation.valueOrCancellation(null);
+    return realm;
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
@@ -631,21 +610,3 @@ class DynamicRealm {
 /// * `totalBytes` - the total number of transferable bytes (the number of bytes already transferred plus the number of bytes pending transfer)
 /// {@category Realm}
 typedef ProgressCallback = void Function(int transferredBytes, int totalBytes);
-
-/// Represents an object containing [CancelableOperation] that allows a [Future] operations to be canceled.
-///
-/// Provides a method cancel that cancels the initiated [CancelableOperation].
-/// The [CancelableOperation] is initiated internaly by the Future method that this object is passed to as an argument.
-///
-/// {@category Realm}
-class RealmCancelationController {
-  bool _canceledCalled = false;
-
-  CancelableOperation<Realm?>? _opration;
-
-  /// Cancels any running operation.
-  void cancel() {
-    _opration?.cancel();
-    _canceledCalled = true;
-  }
-}
