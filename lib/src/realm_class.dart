@@ -127,9 +127,9 @@ class Realm implements Finalizable {
   /// [RealmCancelationController] provides method [cancel] that cancels any current running download.
   /// If multiple [Realm.open] operations are all in the progress for the same Realm,
   /// then canceling one of them will cancel all of them.
-  static Future<Realm?> open(Configuration config, {RealmCancelationController? cancelationController, ProgressCallback? onProgressCallback}) {
+  static Future<Realm?> open(Configuration config, {RealmCancelationController? cancelationController, ProgressCallback? onProgressCallback}) async {
     _createFileDirectory(config.path);
-
+    bool openedFirstTime = File(config.path).existsSync();
     if (cancelationController != null) {
       if (cancelationController._canceledCalled) {
         return Future<Realm?>.value(null);
@@ -154,8 +154,13 @@ class Realm implements Finalizable {
       if (progressToken > 0) {
         realmCore.realmAsyncOpenUnregisterProgressNotifier(realmAsyncOpenTaskHandle, progressToken);
       }
-      cancelationController?._opration = null;
-      return handle != null ? Realm._(config, handle) : null;
+      var openedRealm = handle != null ? Realm._(config, handle) : null;
+      if (openedRealm != null && config is FlexibleSyncConfiguration) {
+        if (openedFirstTime || config.initialSubscriptionsConfiguration?.rerunOnOpen == true) {
+          config.initialSubscriptionsConfiguration?.callback(openedRealm);
+        }
+      }
+      return openedRealm;
     });
 
     var cancelableOperation = CancelableOperation.fromFuture(realmFuture, onCancel: () {

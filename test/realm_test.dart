@@ -822,15 +822,15 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
 
     final user1 = await app.logIn(Credentials.anonymous());
-    final configuration1 = Configuration.flexibleSync(user1, [Task.schema], path: '${Configuration.defaultStoragePath}/${user1.id}.realm');
+    final configuration1 = Configuration.flexibleSync(user1, [Task.schema]);
     var cancelationController1 = RealmCancelationController();
     final realm1 = Realm.open(configuration1, cancelationController: cancelationController1);
 
     final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final configuration2 = Configuration.flexibleSync(user2, [Task.schema], path: '${Configuration.defaultStoragePath}/${user2.id}.realm');
+    final configuration2 = Configuration.flexibleSync(user2, [Task.schema]);
     var cancelationController2 = RealmCancelationController();
     final realm2 = Realm.open(configuration2, cancelationController: cancelationController2);
-
+    expect(configuration1.path, isNot(configuration2.path));
     cancelationController1.cancel();
 
     expect(await realm1, isNull);
@@ -869,9 +869,9 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
 
-    var initalSubscriptions = InitialSubscriptionsConfiguration((realm) {
-      realm.subscriptions.update((mutableSubscriptions) {
-        mutableSubscriptions.add(realm.all<Task>());
+    var initalSubscriptions = InitialSubscriptionsConfiguration((r) {
+      r.subscriptions.update((mutableSubscriptions) {
+        mutableSubscriptions.add(r.all<Task>());
       });
     }, rerunOnOpen: true);
 
