@@ -172,7 +172,7 @@ class Realm implements Finalizable {
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
-    Future<void>.sync(() => _createFileDirectory(config.path));
+    Future<void>.sync(() async => await _createFileDirectory(config.path));
     return realmCore.openRealm(config);
   }
 
