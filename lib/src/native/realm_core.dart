@@ -2242,8 +2242,6 @@ extension ObjectTypeNative on ObjectType {
         return realm_class_flags.RLM_CLASS_NORMAL;
       case ObjectType.embedded:
         return realm_class_flags.RLM_CLASS_EMBEDDED;
-      case ObjectType.asymmetric:
-        return realm_class_flags.RLM_CLASS_ASYMMETRIC;
       default:
         throw RealmException('Invalid ObjectType: $this');
     }
@@ -2255,8 +2253,6 @@ extension ObjectTypeNative on ObjectType {
         return ObjectType.topLevel;
       case realm_class_flags.RLM_CLASS_EMBEDDED:
         return ObjectType.embedded;
-      case realm_class_flags.RLM_CLASS_ASYMMETRIC:
-        return ObjectType.asymmetric;
       default:
         throw RealmException('Invalid ObjectType: $flags');
     }

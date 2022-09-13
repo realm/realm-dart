@@ -144,8 +144,6 @@ class RealmCoreAccessor implements RealmAccessor {
             realm,
             listMeta,
           ) as RealmList<ElementT>;
-        case ObjectType.asymmetric:
-          throw RealmError("Getting a list of asymmetric objects is not supported");
         default:
           // Fallback
           break;
@@ -357,8 +355,6 @@ extension RealmObjectInternal on RealmObjectBase {
         case ObjectType.embedded:
           object = _ConcreteEmbeddedObject() as T; // compiler needs the cast
           break;
-        case ObjectType.asymmetric:
-          throw RealmError('Asymmetric objects are not supported yet.');
       }
     }
     if (object is RealmObjectBaseMixin) {
