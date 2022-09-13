@@ -3093,32 +3093,6 @@ class RealmLibrary {
           ffi.Pointer<realm_thread_safe_reference_t> Function(
               ffi.Pointer<ffi.Void>)>();
 
-  void realm_dart_async_open_task_completion_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    ffi.Pointer<realm_thread_safe_reference_t> realm,
-    ffi.Pointer<realm_async_error_t> error,
-  ) {
-    return _realm_dart_async_open_task_completion_callback(
-      userdata,
-      realm,
-      error,
-    );
-  }
-
-  late final _realm_dart_async_open_task_completion_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<ffi.Void>,
-                  ffi.Pointer<realm_thread_safe_reference_t>,
-                  ffi.Pointer<realm_async_error_t>)>>(
-      'realm_dart_async_open_task_completion_callback');
-  late final _realm_dart_async_open_task_completion_callback =
-      _realm_dart_async_open_task_completion_callbackPtr.asFunction<
-          void Function(
-              ffi.Pointer<ffi.Void>,
-              ffi.Pointer<realm_thread_safe_reference_t>,
-              ffi.Pointer<realm_async_error_t>)>();
-
   ffi.Pointer<realm_scheduler_t> realm_dart_create_scheduler(
     int isolateId,
     int port,
@@ -9716,14 +9690,6 @@ class RealmLibrary {
 class _SymbolAddresses {
   final RealmLibrary _library;
   _SymbolAddresses(this._library);
-  ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<ffi.Void>,
-                  ffi.Pointer<realm_thread_safe_reference_t>,
-                  ffi.Pointer<realm_async_error_t>)>>
-      get realm_dart_async_open_task_completion_callback =>
-          _library._realm_dart_async_open_task_completion_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Pointer<realm_scheduler_t> Function(ffi.Uint64, Dart_Port)>>
