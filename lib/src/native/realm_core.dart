@@ -1824,10 +1824,6 @@ class RealmHandle extends HandleBase<shared_realm> {
   RealmHandle._unowned(Pointer<shared_realm> pointer) : super.unowned(pointer);
 }
 
-class RealmAsyncOpenTaskHandle extends HandleBase<realm_async_open_task> {
-  RealmAsyncOpenTaskHandle._(Pointer<realm_async_open_task> pointer) : super(pointer, 24);
-}
-
 class SchedulerHandle extends HandleBase<realm_scheduler> {
   SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer, 24);
 }
