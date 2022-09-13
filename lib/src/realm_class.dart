@@ -83,7 +83,6 @@ export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, UserIdentity;
 export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
-export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -125,37 +124,62 @@ class Realm implements Finalizable {
   /// [RealmCancelationController] provides method [cancel] that cancels any current running download.
   /// If multiple [Realm.open] operations are all in the progress for the same Realm,
   /// then canceling one of them will cancel all of them.
-  static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
-    Realm realm = await _open(config, onProgressCallback).asCancellable(cancellationToken);
+  static Future<Realm> open(Configuration config, {RealmCancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
+    CancelledException? exception;
+    await _createFileDirectory(config.path);
+    final realm = Realm(config);
+    //Initial subscriptions to be loaded here
+    try {
+      if (config is FlexibleSyncConfiguration) {
+        final session = realm.syncSession;
+        if (onProgressCallback != null) {
+          await session
+              .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
+              .forEach((s) => onProgressCallback.call(s.transferredBytes, s.transferableBytes))
+              .asCancellable(cancellationToken?.token);
+        } else {
+          await session.waitForDownload().asCancellable(cancellationToken?.token);
+        }
+      }
+    } on CancelledException catch (e) {
+      exception = e;
+    } catch (e) {
+      rethrow;
+    }
+    if (cancellationToken?.token.isCancelled == true && exception != null) {
+      throw exception;
+    }
     return realm;
+
+    //return await _open(config, onProgressCallback).asCancellable(cancellationToken?.token);
   }
 
   static Future<Realm> _open(Configuration config, ProgressCallback? onProgressCallback) async {
-    _createFileDirectory(config.path);
+    await _createFileDirectory(config.path);
     final realm = Realm(config);
     //Initial subscriptions to be loaded here
     if (config is FlexibleSyncConfiguration) {
-      final session = realm.syncSession;
-      if (onProgressCallback != null) {
-        await session
-            .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
-            .forEach((s) => onProgressCallback.call(s.transferredBytes, s.transferableBytes));
-      } else {
-        await session.waitForDownload();
-      }
+      // final session = realm.syncSession;
+      // if (onProgressCallback != null) {
+      //   await session
+      //       .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
+      //       .forEach((s) => onProgressCallback.call(s.transferredBytes, s.transferableBytes));
+      // } else {
+      //   await session.waitForDownload();
+      // }
     }
     return realm;
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
-    _createFileDirectory(config.path);
+    Future<void>.sync(() => _createFileDirectory(config.path));
     return realmCore.openRealm(config);
   }
 
-  static void _createFileDirectory(String filePath) {
+  static Future<void> _createFileDirectory(String filePath) async {
     var dir = File(filePath).parent;
-    if (!dir.existsSync()) {
-      dir.createSync(recursive: true);
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
     }
   }
 
@@ -610,3 +634,20 @@ class DynamicRealm {
 /// * `totalBytes` - the total number of transferable bytes (the number of bytes already transferred plus the number of bytes pending transfer)
 /// {@category Realm}
 typedef ProgressCallback = void Function(int transferredBytes, int totalBytes);
+
+class RealmCancelledException implements CancelledException {
+  final Exception _exception;
+  RealmCancelledException(Exception exception) : _exception = exception;
+  String get message => (_exception is CancelledException) ? (_exception as CancelledException).cancellationReason ?? "" : _exception.toString();
+
+  @override
+  String? get cancellationReason => message;
+}
+
+class RealmCancellationToken {
+  final token = CancellationToken();
+
+  void cancel() {
+    token.cancel(RealmCancelledException(CancelledException(cancellationReason: "Operation cancelled request")));
+  }
+}
