@@ -303,7 +303,7 @@ class Realm implements Finalizable {
 
     var result = _subscriptions?.target;
 
-    if (result == null) {
+    if (result == null || result.handle.released) {
       result = SubscriptionSetInternal.create(this, realmCore.getSubscriptions(this));
       realmCore.refreshSubscriptionSet(result);
       _subscriptions = WeakReference(result);
@@ -323,7 +323,7 @@ class Realm implements Finalizable {
 
     var result = _syncSession?.target;
 
-    if (result == null) {
+    if (result == null || result.handle.released) {
       result = SessionInternal.create(realmCore.realmGetSession(this));
       _syncSession = WeakReference(result);
     }
