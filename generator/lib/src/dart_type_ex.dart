@@ -36,6 +36,7 @@ extension DartTypeEx on DartType {
 
   bool get isNullable => session.typeSystem.isNullable(this);
   DartType get asNonNullable => session.typeSystem.promoteToNonNull(this);
+  DartType get asNullable => session.typeSystem.leastUpperBound(this, session.typeProvider.nullType);
 
   RealmCollectionType get realmCollectionType {
     if (isDartCoreSet) return RealmCollectionType.set;

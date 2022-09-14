@@ -101,6 +101,10 @@ abstract class BaseProperty<T extends Object?> implements SchemaProperty {
   void setValue(RealmObject object, covariant T value) {
     object.accessor.set(object, name, value);
   }
+
+  void setInitialValue(RealmObject object, T initialValue) {
+    if (initialValue != defaultValue) setValue(object, initialValue);
+  }
 }
 
 /// @nodoc

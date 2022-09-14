@@ -8,7 +8,7 @@ class Original extends $Original with RealmEntityMixin, RealmObjectMixin {
     Original? objectProperty,
     Iterable<Original> listProperty = const [],
   }) {
-    _primitivePropertyProperty.setValue(this, primitiveProperty);
+    _primitivePropertyProperty.setInitialValue(this, primitiveProperty);
     _objectPropertyProperty.setValue(this, objectProperty);
     _listPropertyProperty.setValue(this, RealmList<Original>(listProperty));
   }

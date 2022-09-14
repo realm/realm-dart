@@ -6,7 +6,7 @@ class Foo extends _Foo with RealmEntityMixin, RealmObjectMixin {
   Foo({
     int x = 0,
   }) {
-    _xProperty.setValue(this, x);
+    _xProperty.setInitialValue(this, x);
   }
 
   Foo._();

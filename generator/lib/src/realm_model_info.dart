@@ -49,7 +49,7 @@ class RealmModelInfo {
         yield ') {';
 
         yield* allExceptCollections.map((f) {
-          return '_${f.name}Property.setValue(this, ${f.name});';
+          return '_${f.name}Property.set${f.hasDefaultValue ? 'Initial' : ''}Value(this, ${f.name});';
         });
 
         yield* collections.map((c) {

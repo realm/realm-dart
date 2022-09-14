@@ -6,7 +6,7 @@ class Person extends _Person with RealmEntityMixin, RealmObjectMixin {
   Person({
     int age = 47,
   }) {
-    _ageProperty.setValue(this, age);
+    _ageProperty.setInitialValue(this, age);
   }
 
   Person._();

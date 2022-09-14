@@ -6,7 +6,7 @@ class Foo extends _Foo with RealmEntityMixin, RealmObjectMixin {
   Foo({
     int x = 0,
   }) {
-    _xProperty.setValue(this, x);
+    _xProperty.setInitialValue(this, x);
   }
 
   Foo._();
@@ -52,9 +52,9 @@ class Bar extends _Bar with RealmEntityMixin, RealmObjectMixin {
     _idProperty.setValue(this, id);
     _aBoolProperty.setValue(this, aBool);
     _anotherProperty.setValue(this, another);
-    _dataProperty.setValue(this, data);
-    _timestampProperty.setValue(this, timestamp);
-    _aDoubleProperty.setValue(this, aDouble);
+    _dataProperty.setInitialValue(this, data);
+    _timestampProperty.setInitialValue(this, timestamp);
+    _aDoubleProperty.setInitialValue(this, aDouble);
     _fooProperty.setValue(this, foo);
     _anOptionalStringProperty.setValue(this, anOptionalString);
     _objectIdProperty.setValue(this, objectId);

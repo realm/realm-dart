@@ -1191,7 +1191,7 @@ class Friend extends _Friend with RealmEntityMixin, RealmObjectMixin {
     Iterable<Friend> friends = const [],
   }) {
     _nameProperty.setValue(this, name);
-    _ageProperty.setValue(this, age);
+    _ageProperty.setInitialValue(this, age);
     _bestFriendProperty.setValue(this, bestFriend);
     _friendsProperty.setValue(this, RealmList<Friend>(friends));
   }

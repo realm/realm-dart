@@ -15,7 +15,7 @@ class Car extends _Car with RealmEntityMixin, RealmObjectMixin {
   }) {
     _makeProperty.setValue(this, make);
     _modelProperty.setValue(this, model);
-    _kilometersProperty.setValue(this, kilometers);
+    _kilometersProperty.setInitialValue(this, kilometers);
     _ownerProperty.setValue(this, owner);
   }
 
@@ -79,7 +79,7 @@ class Person extends _Person with RealmEntityMixin, RealmObjectMixin {
     int age = 1,
   }) {
     _nameProperty.setValue(this, name);
-    _ageProperty.setValue(this, age);
+    _ageProperty.setInitialValue(this, age);
   }
 
   Person._();
