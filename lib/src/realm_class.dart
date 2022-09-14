@@ -119,7 +119,7 @@ class Realm implements Finalizable {
 
   void _populateMetadata() {
     schema = config.schemaObjects.isNotEmpty ? RealmSchema(config.schemaObjects) : realmCore.readSchema(this);
-    _metadata = RealmMetadata._(schema.map((c) => realmCore.getObjectMedata(this, c.name, c.type)));
+    _metadata = RealmMetadata._(schema.map((c) => realmCore.getObjectMetadata(this, c.name, c.type)));
   }
 
   /// Deletes all files associated with a `Realm` located at given [path]
@@ -335,7 +335,7 @@ class Realm implements Finalizable {
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
   ///
-  /// Disclaimer: This method is mostly needed on Dart standalone and if not called the Dart probram will hang and not exit.
+  /// Disclaimer: This method is mostly needed on Dart standalone and if not called the Dart program will hang and not exit.
   /// This is a workaround of a Dart VM bug and will be removed in a future version of the SDK.
   static void shutdown() => scheduler.stop();
 }

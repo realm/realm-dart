@@ -18,6 +18,8 @@
 
 // ignore_for_file: unused_local_variable
 
+import 'dart:math';
+
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -360,5 +362,366 @@ Future<void> main([List<String>? args]) async {
 
     final result = team.players.query(r'name BEGINSWITH $0', ['J']);
     expect(result, [person]);
+  });
+
+  test('ManagedRealmList.removeAt', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 4);
+    expect(team.players, [alice, bob, carol, dan]);
+
+    expect(realm.write(() => team.players.removeAt(2)), carol);
+    expect(team.players.length, 3);
+    expect(team.players, [alice, bob, dan]);
+
+    expect(realm.write(() => team.players.removeAt(0)), alice);
+    expect(team.players.length, 2);
+    expect(team.players, [bob, dan]);
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
+  });
+
+  test('ManagedRealmList.length set', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 4);
+    expect(team.players, [alice, bob, carol, dan]);
+
+    realm.write(() => team.players.length = 2);
+    expect(team.players.length, 2);
+    expect(team.players, [alice, bob]);
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
+  });
+
+  test('ManagedRealmList.contains', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+
+    for (var p in players) {
+      expect(team.players.contains(p), isTrue);
+    }
+
+    realm.write(() => team.players.clear());
+
+    for (var p in players) {
+      expect(team.players.contains(p), isFalse);
+    }
+  });
+
+  test('ManagedRealmList.removeRange', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 4);
+    expect(team.players, [alice, bob, carol, dan]);
+
+    realm.write(() => team.players.removeRange(1, 3)); // removes [1; 3)
+    expect(team.players.length, 2);
+    expect(team.players, [alice, dan]);
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
+  });
+
+  test('ManagedRealmList.removeWhere', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 4);
+    expect(team.players, [alice, bob, carol, dan]);
+
+    realm.write(() => team.players.removeWhere((p) => p.name.contains('a')));
+    expect(team.players.length, 2);
+    expect(team.players, [alice, bob]); // Alice is capital 'a'
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
+  });
+
+  test('ManagedRealmList.retainWhere', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 4);
+    expect(team.players, [alice, bob, carol, dan]);
+
+    realm.write(() => team.players.retainWhere((p) => p.name.contains('a')));
+    expect(team.players.length, 2);
+    expect(team.players, [carol, dan]); // Alice is capital 'a', so not included
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
+  });
+
+  test('ManagedRealmList.removeLast', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 4);
+    expect(team.players, [alice, bob, carol, dan]);
+
+    realm.write(() => team.players.removeLast());
+    expect(team.players.length, 3);
+    expect(team.players, [alice, bob, carol]);
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
+  });
+
+  test('ManagedRealmList.replaceRange', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 4);
+    expect(team.players, [alice, bob, carol, dan]);
+
+    realm.write(() => team.players.replaceRange(1, 3, [dan, alice]));
+    expect(team.players, [alice, dan, alice, dan]);
+
+    realm.write(() => team.players.replaceRange(0, 3, [bob, carol]));
+    expect(team.players, [bob, carol, dan]);
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
+  });
+
+  test('ManagedRealmList.setAll', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 4);
+    expect(team.players, [alice, bob, carol, dan]);
+
+    realm.write(() => team.players.setAll(1, [dan, alice]));
+    expect(team.players, [alice, dan, alice, dan]);
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
+  });
+
+  test('ManagedRealmList.fillRange', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 4);
+    expect(team.players, [alice, bob, carol, dan]);
+
+    realm.write(() => team.players.fillRange(1, 3, dan));
+    expect(team.players, [alice, dan, dan, dan]);
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
+  });
+
+  test('ManagedRealmList.insert', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 4);
+    expect(team.players, [alice, bob, carol, dan]);
+
+    realm.write(() => team.players.insert(1, dan));
+    expect(team.players, [alice, dan, bob, carol, dan]);
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
+  });
+
+  test('ManagedRealmList.insertAll', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 4);
+    expect(team.players, [alice, bob, carol, dan]);
+
+    realm.write(() => team.players.insertAll(1, [dan, bob]));
+    expect(team.players, [alice, dan, bob, bob, carol, dan]);
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
+  });
+
+  test('ManagedRealmList.remove', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, dan, bob, carol, dan]; // extra dan after alice!
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 5);
+    expect(team.players, players);
+
+    expect(realm.write(() => team.players.remove(dan)), isTrue); // only removes first instance
+    expect(team.players, [alice, bob, carol, dan]);
+
+    expect(realm.write(() => team.players.remove(dan)), isTrue);
+    expect(team.players, [alice, bob, carol]);
+
+    expect(realm.write(() => team.players.remove(dan)), isFalse);
+
+    expect(team.players.every((p) => p.isValid && p.isManaged), isTrue);
+  });
+
+  test('ManagedRealmList.setRange', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 4);
+    expect(team.players, [alice, bob, carol, dan]);
+
+    realm.write(() => team.players.setRange(1, 3, [dan, dan, dan, bob, carol], 2));
+    expect(team.players, [alice, dan, bob, dan]);
+
+    expect(realm.all<Person>(), players); // nothing disappeared from realm
+  });
+
+  test('ManagedRealmList.insertAll', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 4);
+    expect(team.players, [alice, bob, carol, dan]);
+
+    final r = Random(42);
+    realm.write(() => team.players.shuffle(r));
+    expect(team.players, isNot(players));
+    expect(team.players, unorderedMatches(players));
+  });
+
+  test('ManagedRealmList.length= throws on increase', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final team = Team('sad team');
+
+    realm.write(() => realm.add(team));
+
+    expect(() => realm.write(() => team.players.length = 100), throws<RealmException>('You cannot increase length on a realm list without adding elements'));
+  });
+
+  test('ManagedRealmList.length= truncates on decrease', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final team = Team('sad team', players: [for (int i = 0; i < 100; ++i) Person('$i')]);
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 100);
+    expect(realm.all<Person>().length, 100);
+
+    expect(realm.write(() => team.players.length = 10), 10);
+    expect(team.players.length, 10);
+    expect(realm.all<Person>().length, 100);
   });
 }

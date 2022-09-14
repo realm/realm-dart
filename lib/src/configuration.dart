@@ -82,9 +82,9 @@ abstract class Configuration implements Finalizable {
 
   /// The platform dependent path to the default realm file.
   ///
-  /// If set it should contain the path and the name of the realm file. Ex. "~/mypath/myrealm.realm"
+  /// If set it should contain the path and the name of the realm file. Ex. "~/my_path/my_realm.realm"
   /// [defaultStoragePath] can be used to build this path.
-  static late String defaultRealmPath = _path.join(defaultStoragePath, 'default.realm');
+  static String defaultRealmPath = _path.join(defaultStoragePath, 'default.realm');
 
   Configuration._(
     this.schemaObjects, {
@@ -101,7 +101,7 @@ abstract class Configuration implements Finalizable {
   ///
   /// Opening a [Realm] creates a number of FIFO special files in order to
   /// coordinate access to the [Realm] across threads and processes. If the [Realm] file is stored in a location
-  /// that does not allow the creation of FIFO special files (e.g. FAT32 filesystems), then the [Realm] cannot be opened.
+  /// that does not allow the creation of FIFO special files (e.g. the FAT32 filesystem), then the [Realm] cannot be opened.
   /// In that case [Realm] needs a different location to store these files and this property defines that location.
   /// The FIFO special files are very lightweight and the main [Realm] file will still be stored in the location defined
   /// by the [path] you  property. This property is ignored if the directory defined by [path] allow FIFO special files.

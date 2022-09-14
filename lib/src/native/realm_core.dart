@@ -65,13 +65,18 @@ class _RealmCore {
   _RealmCore._() {
     final lib = initRealm();
     _realmLib = RealmLibrary(lib);
+    if (libraryVersion != nativeLibraryVersion) {
+      throw RealmException('Dart package version does not match dynamically loaded native library version ($libraryVersion != $nativeLibraryVersion)');
+    }
   }
 
   factory _RealmCore() {
     return _instance ??= _RealmCore._();
   }
 
-  String get libraryVersion => '0.4.0+beta';
+  // stamped into the library by the build system (see prepare-release.yml)
+  static const libraryVersion = '0.4.0+beta';
+  late String nativeLibraryVersion = _realmLib.realm_dart_library_version().cast<Utf8>().toDartString();
 
   LastError? getLastError(Allocator allocator) {
     final error = allocator<realm_error_t>();
@@ -575,7 +580,7 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_refresh(realm.handle._pointer), "Could not refresh");
   }
 
-  RealmObjectMetadata getObjectMedata(Realm realm, String className, Type classType) {
+  RealmObjectMetadata getObjectMetadata(Realm realm, String className, Type classType) {
     return using((Arena arena) {
       final found = arena<Bool>();
       final classInfo = arena<realm_class_info_t>();
@@ -880,6 +885,12 @@ class _RealmCore {
     });
   }
 
+  void listRemoveElementAt(RealmListHandle handle, int index) {
+    return using((Arena arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_list_erase(handle._pointer, index));
+    });
+  }
+
   void listDeleteAll(RealmList list) {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_remove_all(list.handle._pointer));
   }
@@ -971,7 +982,6 @@ class _RealmCore {
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
-          nullptr,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -984,7 +994,6 @@ class _RealmCore {
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
-          nullptr,
         ));
 
     return RealmNotificationTokenHandle._(pointer);
@@ -997,7 +1006,6 @@ class _RealmCore {
           nullptr,
           nullptr,
           Pointer.fromFunction(object_change_callback),
-          nullptr,
         ));
 
     return RealmNotificationTokenHandle._(pointer);

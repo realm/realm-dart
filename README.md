@@ -328,10 +328,6 @@ unacceptable behavior to [community-conduct@mongodb.com](mailto:community-conduc
 
 Realm Flutter and Dart SDKs and [Realm Core](https://github.com/realm/realm-core) are published under the Apache License 2.0.
 
-**This product is not being made available to any person located in Cuba, Iran,
-North Korea, Sudan, Syria or the Crimea region, or to any other person that is
-not eligible to receive the product under U.S. law.**
-
 ##### The "Dart" name and logo and the "Flutter" name and logo are trademarks owned by Google.
 
 <img style="width: 0px; height: 0px;" src="https://3eaz4mshcd.execute-api.us-east-1.amazonaws.com/prod?s=https://github.com/realm/realm-dart#README.md">

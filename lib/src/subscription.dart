@@ -124,7 +124,7 @@ enum SubscriptionSetState {
 ///
 /// It is strongly recommended that you batch updates as much as possible and request the
 /// dataset your application needs upfront. Updating the set of active subscriptions for a
-/// Realm is an expensive operation serverside, even if there's very little data that needs
+/// Realm is an expensive operation server-side, even if there's very little data that needs
 /// downloading.
 /// {@category Sync}
 abstract class SubscriptionSet with IterableMixin<Subscription> implements Finalizable {
