@@ -12,7 +12,7 @@
     }
 
     if (oldSchemaVersion == 2) {
-      // Between v2 and v3 we fixed a typo where someone had mispelled the 'Foo.name' property.
+      // Between v2 and v3 we fixed a typo where someone had mispelled the 'Person.name' property.
       migration.renameProperty('Person', 'nmae', 'name');
     }
 

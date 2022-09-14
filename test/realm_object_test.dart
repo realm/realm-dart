@@ -609,4 +609,24 @@ Future<void> main([List<String>? args]) async {
     expect(object.uuidProp, uuid);
     expect(object.intProp, 5);
   });
+
+  test('Update primary key on unmanaged object', () {
+    final obj = StringPrimaryKey('abc');
+    obj.id = 'cde';
+
+    expect(obj.id, 'cde');
+
+    final realm = getRealm(Configuration.local([StringPrimaryKey.schema]));
+    realm.write(() {
+      realm.add(obj);
+    });
+
+    expect(realm.find<StringPrimaryKey>('cde'), isNotNull);
+    expect(realm.find<StringPrimaryKey>('abc'), isNull);
+
+    realm.write(() {
+      expect(() => obj.id = 'cde', returnsNormally);
+      expect(() => obj.id = 'abc', throws<RealmException>('Primary key cannot be changed'));
+    });
+  });
 }
