@@ -126,23 +126,22 @@ class Realm implements Finalizable {
   /// then canceling one of them will cancel all of them.
   static Future<Realm> open(Configuration config, {RealmCancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
     CancelledException? exception;
-    await _createFileDirectory(config.path);
+    _createFileDirectory(config.path);
     final realm = Realm(config);
     //Initial subscriptions to be loaded here
-    try {
+     try {
       if (config is FlexibleSyncConfiguration) {
         final session = realm.syncSession;
         if (onProgressCallback != null) {
-          await session
-              .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
-              .forEach((s) => onProgressCallback.call(s.transferredBytes, s.transferableBytes))
-              .asCancellable(cancellationToken?.token);
+          await session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
+          .forEach((s)=>onProgressCallback.call(s.transferredBytes, s.transferableBytes)).asCancellable(cancellationToken?.token);
         } else {
           await session.waitForDownload().asCancellable(cancellationToken?.token);
         }
       }
     } on CancelledException catch (e) {
       exception = e;
+      realm.close();
     } catch (e) {
       rethrow;
     }
@@ -150,36 +149,17 @@ class Realm implements Finalizable {
       throw exception;
     }
     return realm;
-
-    //return await _open(config, onProgressCallback).asCancellable(cancellationToken?.token);
-  }
-
-  static Future<Realm> _open(Configuration config, ProgressCallback? onProgressCallback) async {
-    await _createFileDirectory(config.path);
-    final realm = Realm(config);
-    //Initial subscriptions to be loaded here
-    if (config is FlexibleSyncConfiguration) {
-      // final session = realm.syncSession;
-      // if (onProgressCallback != null) {
-      //   await session
-      //       .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
-      //       .forEach((s) => onProgressCallback.call(s.transferredBytes, s.transferableBytes));
-      // } else {
-      //   await session.waitForDownload();
-      // }
-    }
-    return realm;
-  }
+   }
 
   static RealmHandle _openRealmSync(Configuration config) {
-    Future<void>.sync(() async => await _createFileDirectory(config.path));
+    _createFileDirectory(config.path);
     return realmCore.openRealm(config);
   }
 
-  static Future<void> _createFileDirectory(String filePath) async {
+  static void _createFileDirectory(String filePath) {
     var dir = File(filePath).parent;
-    if (!await dir.exists()) {
-      await dir.create(recursive: true);
+    if (!dir.existsSync()) {
+      dir.createSync(recursive: true);
     }
   }
 
