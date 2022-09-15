@@ -15,12 +15,11 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-// ignore_for_file: unused_local_variable
-
 import 'dart:math';
 
+import 'package:realm_dart/src/list.dart';
 import 'package:test/test.dart' hide test, throws;
+
 import '../lib/realm.dart';
 import 'test.dart';
 
