@@ -3,7 +3,7 @@
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
 ### Enhancements
-* None
+* Performance of indexOf on realm lists has been improved. It now uses realm-core instead of the generic version from ListMixin. ([#911](https://github.com/realm/realm-dart/pull/911)). Fixes issue [#910](https://github.com/realm/realm-dart/issues/910).
 
 ### Fixed
 * Allow null arguments on query. ([#872](https://github.com/realm/realm-dart/pull/872)). Fixes [#871](https://github.com/realm/realm-dart/issues/871)
