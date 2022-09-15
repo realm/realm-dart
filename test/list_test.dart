@@ -724,4 +724,31 @@ Future<void> main([List<String>? args]) async {
     expect(team.players.length, 10);
     expect(realm.all<Person>().length, 100);
   });
+
+  test('ManagedRealmList.indexOf', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final team = Team('sad team', players: [for (int i = 0; i < 100; ++i) Person('$i')]);
+    realm.write(() => realm.add(team));
+    final players = team.players;
+
+    // expect(players, isA<ManagedRealmList<Person>>());
+    expect(players.indexOf(players.first, -1), 0); // okay to start from negative index
+    expect(players.indexOf(players.first, 1), -1); // start respected
+    expect(players.indexOf(players.first, 101), -1); // okay to start from non-existent index
+
+    var index = 0;
+    final r = Random(42); // deterministic
+    for (final p in players) {
+      expect(players.indexOf(p, r.nextInt(index + 1) - 1), index++);
+    }
+
+    // indexOf with wrong type of element, just returns -1. Proof:
+    final dartList = <int>[1, 2, 3];
+    expect((dartList as List<Object>).indexOf("abc"), -1); // ignore: unnecessary_cast
+
+    // Test that realm list behaves the same
+    expect((players as List<Object>).indexOf(1), -1); // ignore: unnecessary_cast
+  });
 }
