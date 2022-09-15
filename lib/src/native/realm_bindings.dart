@@ -3845,6 +3845,26 @@ class RealmLibrary {
   late final _realm_dictionary_size = _realm_dictionary_sizePtr.asFunction<
       bool Function(ffi.Pointer<realm_dictionary_t>, ffi.Pointer<ffi.Size>)>();
 
+  /// Convert a dictionary to results.
+  ///
+  /// @return A non-null pointer if no exception occurred.
+  ffi.Pointer<realm_results_t> realm_dictionary_to_results(
+    ffi.Pointer<realm_dictionary_t> arg0,
+  ) {
+    return _realm_dictionary_to_results(
+      arg0,
+    );
+  }
+
+  late final _realm_dictionary_to_resultsPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_results_t> Function(
+              ffi.Pointer<realm_dictionary_t>)>>('realm_dictionary_to_results');
+  late final _realm_dictionary_to_results =
+      _realm_dictionary_to_resultsPtr.asFunction<
+          ffi.Pointer<realm_results_t> Function(
+              ffi.Pointer<realm_dictionary_t>)>();
+
   /// Return true if two API objects refer to the same underlying data. Objects
   /// with different types are never equal.
   ///
@@ -4926,6 +4946,36 @@ class RealmLibrary {
   late final _realm_list_erase = _realm_list_erasePtr
       .asFunction<bool Function(ffi.Pointer<realm_list_t>, int)>();
 
+  /// Find the value in the list passed as parameter.
+  /// @param value to search in the list
+  /// @param out_index the index in the list where the value has been found or realm::not_found.
+  /// @param out_found boolean that indicates whether the value is found or not
+  /// @return true if no exception occurred.
+  bool realm_list_find(
+    ffi.Pointer<realm_list_t> arg0,
+    ffi.Pointer<realm_value_t> value,
+    ffi.Pointer<ffi.Size> out_index,
+    ffi.Pointer<ffi.Bool> out_found,
+  ) {
+    return _realm_list_find(
+      arg0,
+      value,
+      out_index,
+      out_found,
+    );
+  }
+
+  late final _realm_list_findPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_list_t>,
+              ffi.Pointer<realm_value_t>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<ffi.Bool>)>>('realm_list_find');
+  late final _realm_list_find = _realm_list_findPtr.asFunction<
+      bool Function(ffi.Pointer<realm_list_t>, ffi.Pointer<realm_value_t>,
+          ffi.Pointer<ffi.Size>, ffi.Pointer<ffi.Bool>)>();
+
   /// Get an list from a thread-safe reference, potentially originating in a
   /// different `realm_t` instance
   ffi.Pointer<realm_list_t> realm_list_from_thread_safe_reference(
@@ -5190,6 +5240,24 @@ class RealmLibrary {
               ffi.Pointer<ffi.Size>)>>('realm_list_size');
   late final _realm_list_size = _realm_list_sizePtr.asFunction<
       bool Function(ffi.Pointer<realm_list_t>, ffi.Pointer<ffi.Size>)>();
+
+  /// Convert a list to results.
+  ///
+  /// @return A non-null pointer if no exception occurred.
+  ffi.Pointer<realm_results_t> realm_list_to_results(
+    ffi.Pointer<realm_list_t> arg0,
+  ) {
+    return _realm_list_to_results(
+      arg0,
+    );
+  }
+
+  late final _realm_list_to_resultsPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_results_t> Function(
+              ffi.Pointer<realm_list_t>)>>('realm_list_to_results');
+  late final _realm_list_to_results = _realm_list_to_resultsPtr.asFunction<
+      ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_list_t>)>();
 
   /// Implement aggregate for mongodb collection
   /// @param collection ptr to the collection to fetch from
@@ -6147,6 +6215,26 @@ class RealmLibrary {
           ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_t>, int,
               realm_value_t, ffi.Pointer<ffi.Bool>)>();
 
+  /// Get the parent object for the object passed as argument. Only works for embedded objects.
+  /// @return true, if no errors occurred.
+  bool realm_object_get_parent(
+    ffi.Pointer<realm_object_t> object,
+    ffi.Pointer<realm_object_t> parent,
+  ) {
+    return _realm_object_get_parent(
+      object,
+      parent,
+    );
+  }
+
+  late final _realm_object_get_parentPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<realm_object_t>,
+              ffi.Pointer<realm_object_t>)>>('realm_object_get_parent');
+  late final _realm_object_get_parent = _realm_object_get_parentPtr.asFunction<
+      bool Function(
+          ffi.Pointer<realm_object_t>, ffi.Pointer<realm_object_t>)>();
+
   /// Get the table for this object.
   ///
   /// This function cannot fail.
@@ -6599,6 +6687,30 @@ class RealmLibrary {
           'realm_release');
   late final _realm_release =
       _realm_releasePtr.asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
+  /// Find and delete the table passed as parementer for the realm instance passed to this function.
+  /// @param table_name for the table the user wants to delete
+  /// @param table_deleted in order to indicate if the table was actually deleted from realm
+  /// @return true if no error has occured, false otherwise
+  bool realm_remove_table(
+    ffi.Pointer<realm_t> arg0,
+    ffi.Pointer<ffi.Char> table_name,
+    ffi.Pointer<ffi.Bool> table_deleted,
+  ) {
+    return _realm_remove_table(
+      arg0,
+      table_name,
+      table_deleted,
+    );
+  }
+
+  late final _realm_remove_tablePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Bool>)>>('realm_remove_table');
+  late final _realm_remove_table = _realm_remove_tablePtr.asFunction<
+      bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Bool>)>();
 
   ffi.Pointer<realm_notification_token_t>
       realm_results_add_notification_callback(
@@ -7640,6 +7752,24 @@ class RealmLibrary {
               ffi.Pointer<ffi.Size>)>>('realm_set_size');
   late final _realm_set_size = _realm_set_sizePtr.asFunction<
       bool Function(ffi.Pointer<realm_set_t>, ffi.Pointer<ffi.Size>)>();
+
+  /// Convert a set to results.
+  ///
+  /// @return A non-null pointer if no exception occurred.
+  ffi.Pointer<realm_results_t> realm_set_to_results(
+    ffi.Pointer<realm_set_t> arg0,
+  ) {
+    return _realm_set_to_results(
+      arg0,
+    );
+  }
+
+  late final _realm_set_to_resultsPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_results_t> Function(
+              ffi.Pointer<realm_set_t>)>>('realm_set_to_results');
+  late final _realm_set_to_results = _realm_set_to_resultsPtr.asFunction<
+      ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_set_t>)>();
 
   /// Set the value for a property.
   ///
@@ -10521,8 +10651,9 @@ typedef realm_schema_t = realm_schema;
 
 abstract class realm_schema_validation_mode {
   static const int RLM_SCHEMA_VALIDATION_BASIC = 0;
-  static const int RLM_SCHEMA_VALIDATION_SYNC = 1;
+  static const int RLM_SCHEMA_VALIDATION_SYNC_PBS = 1;
   static const int RLM_SCHEMA_VALIDATION_REJECT_EMBEDDED_ORPHANS = 2;
+  static const int RLM_SCHEMA_VALIDATION_SYNC_FLX = 4;
 }
 
 class realm_set extends ffi.Opaque {}

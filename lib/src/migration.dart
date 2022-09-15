@@ -66,8 +66,10 @@ class Migration {
   /// will be removed from the Realm.
   ///
   /// If you don't call this, the data will not be deleted, even if the type is not present in the new schema.
-  void removeType(String className) {
-    realmCore.removeType(newRealm, className);
+  ///
+  /// Returns `true` if the table was present in the old Realm and was deleted. Returns `false` if it didn't exist.
+  bool removeType(String className) {
+    return realmCore.removeType(newRealm, className);
   }
 }
 

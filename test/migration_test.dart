@@ -344,23 +344,48 @@ Future<void> main([List<String>? args]) async {
 
     v1Realm.close();
 
+    // Verify that just removing a type does not actually delete it.
     final v2Config = Configuration.local([Person.schema], schemaVersion: 2, migrationCallback: (migration, oldSchemaVersion) {
       expect(migration.oldRealm.schema.length, 2);
       expect(migration.newRealm.schema.length, 1);
-
-      migration.removeType('Dog');
     });
 
     final v2Realm = getRealm(v2Config);
     expect(v2Realm.schema.length, 1);
     v2Realm.close();
 
-    // We reopen the Realm as dynamic - the schema will be read from disk and the Dog type should be gone because we explicitly removed it
-    final dynamicConfig = Configuration.local([], schemaVersion: 2);
-    final dynamicRealm = getRealm(dynamicConfig);
+    // We reopen the Realm as dynamic - the schema will be read from disk and the Dog type should be there because we didn't remove it
+    final v2DynamicConfig = Configuration.local([], schemaVersion: 2);
+    final v2DynamicRealm = getRealm(v2DynamicConfig);
 
-    expect(dynamicRealm.schema.length, 1);
-  }, skip: 'This is blocked on removeType being implementable in the C API: https://github.com/realm/realm-core/issues/5766');
+    expect(v2DynamicRealm.schema.length, 2);
+    expect(v2DynamicRealm.schema.any((element) => element.name == 'Dog'), true);
+    expect(v2DynamicRealm.dynamic.all('Dog').single.dynamic.get('name'), 'Fido');
+
+    v2DynamicRealm.close();
+
+    // Verify that calling removeType removes the table
+
+    final v3Config = Configuration.local([Person.schema], schemaVersion: 3, migrationCallback: ((migration, oldSchemaVersion) {
+      expect(migration.oldRealm.schema.length, 2);
+      expect(migration.newRealm.schema.length, 1);
+
+      expect(migration.removeType('Dog'), true);
+      expect(migration.removeType('i-dont-exist'), false);
+    }));
+
+    final v3Realm = getRealm(v3Config);
+    expect(v3Realm.schema.length, 1);
+    v3Realm.close();
+
+    // We reopen the Realm as dynamic - the schema will be read from disk and the Dog type should be there because we didn't remove it
+    final v3DynamicConfig = Configuration.local([], schemaVersion: 2);
+    final v3DynamicRealm = getRealm(v3DynamicConfig);
+
+    expect(v3DynamicRealm.schema.length, 1);
+    expect(v3DynamicRealm.schema.any((element) => element.name == 'Dog'), false);
+    expect(() => v3DynamicRealm.dynamic.all('Dog'), throws<RealmError>("Object type Dog not configured in the current Realm's schema"));
+  });
 
   test('Migration when property is removed, column gets removed as well', () {
     final v1Config = Configuration.local([MyObjectWithoutTypo.schema], schemaVersion: 1);

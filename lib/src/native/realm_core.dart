@@ -698,9 +698,11 @@ class _RealmCore {
     });
   }
 
-  void removeType(Realm realm, String objectType) {
-    using((Arena arena) {
-      // TODO: this does not work since there's no Core API to remove types. https://github.com/realm/realm-core/issues/5766
+  bool removeType(Realm realm, String objectType) {
+    return using((Arena arena) {
+      final deletedPtr = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_remove_table(realm.handle._pointer, objectType.toCharPtr(arena), deletedPtr));
+      return deletedPtr.value;
     });
   }
 
