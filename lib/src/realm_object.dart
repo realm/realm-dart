@@ -352,7 +352,12 @@ extension RealmObjectInternal on RealmObject {
     return object;
   }
 
-  RealmObjectHandle get handle => _handle!;
+  RealmObjectHandle get handle {
+    final h = _handle;
+    if (h != null) return h;
+    throw RealmStateError('$this is not managed');
+  }
+
   RealmAccessor get accessor => _accessor;
 }
 

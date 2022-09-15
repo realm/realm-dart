@@ -750,5 +750,7 @@ Future<void> main([List<String>? args]) async {
 
     // Realm list behaves differently
     expect(() => (players as List<Object>).indexOf(1), throwsA(isA<RealmException>())); // ignore: unnecessary_cast
+
+    expect(() => players.indexOf(Person('10')), throwsA(isA<RealmStateError>()));
   });
 }
