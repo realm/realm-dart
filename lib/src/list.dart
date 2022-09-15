@@ -130,6 +130,13 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
   void clear() => realmCore.listClear(handle);
 
   @override
+  int indexOf(Object? element, [int start = 0]) {
+    if (start < 0) start = 0;
+    final index = realmCore.listFind(this, element);
+    return index < start ? -1 : index; // to align with dart list semantics
+  }
+
+  @override
   bool get isValid => realmCore.listIsValid(this);
 
   @override
