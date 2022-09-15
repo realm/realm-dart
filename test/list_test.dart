@@ -808,7 +808,7 @@ Future<void> main([List<String>? args]) async {
     final dartList = <int>[1, 2, 3];
     expect((dartList as List<Object>).indexOf("abc"), -1); // ignore: unnecessary_cast
 
-    // Test that realm list behaves the same
-    expect((players as List<Object>).indexOf(1), -1); // ignore: unnecessary_cast
+    // Realm list behaves differently
+    expect(() => (players as List<Object>).indexOf(1), throwsA(isA<RealmException>())); // ignore: unnecessary_cast
   });
 }
