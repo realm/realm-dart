@@ -839,6 +839,23 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_remove_all(list.handle._pointer));
   }
 
+  int listFind(RealmList list, Object? value) {
+    return using((Arena arena) {
+      final out_index = arena<Size>();
+      final out_found = arena<Bool>();
+      final realm_value = _toRealmValue(value, arena);
+      _realmLib.invokeGetBool(
+        () => _realmLib.realm_list_find(
+          list.handle._pointer,
+          realm_value,
+          out_index,
+          out_found,
+        ),
+      );
+      return out_found.value ? out_index.value : -1;
+    });
+  }
+
   void resultsDeleteAll(RealmResults results) {
     _realmLib.invokeGetBool(() => _realmLib.realm_results_delete_all(results.handle._pointer));
   }
