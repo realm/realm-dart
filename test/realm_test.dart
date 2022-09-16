@@ -773,84 +773,89 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-    var cancellationToken = RealmCancellationToken();
+    var cancellationToken = CancellationToken();
     final realm = Realm.open(configuration, cancellationToken: cancellationToken);
     cancellationToken.cancel();
-    expect(() async => await realm, throws<RealmCancelledException>());
+    expect(() async => await realm, throws<CancelledException>());
   });
 
-  // baasTest('Realm open async with the same cancelationController throws', (appConfiguration) async {
-  //   final app = App(appConfiguration);
-  //   final credentials = Credentials.anonymous();
-  //   final user = await app.logIn(credentials);
-  //   final configuration = Configuration.flexibleSync(user, [Task.schema]);
+  baasTest('Realm open async with the same CancelationToken cancels all', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-  //   var cancellationToken = CancellationToken();
-  //   final realm1 = Realm.open(configuration, cancellationToken: cancellationToken);
-  //   expect(() => Realm.open(configuration, cancellationToken: cancellationToken), throws<RealmException>("RealmCancelableOperation is already in use"));
-  //   (await realm1).close();
-  // });
+    var cancellationToken = CancellationToken();
+    final realm1 = Realm.open(configuration, cancellationToken: cancellationToken);
+    final realm2 = Realm.open(configuration, cancellationToken: cancellationToken);
+    cancellationToken.cancel();
+    expect(() async => await realm1, throws<CancelledException>());
+    expect(() async => await realm2, throws<CancelledException>());
+  });
 
-  // baasTest('Realm open async many times and cancel once', (appConfiguration) async {
-  //   final app = App(appConfiguration);
-  //   final credentials = Credentials.anonymous();
-  //   final user = await app.logIn(credentials);
-  //   final configuration = Configuration.flexibleSync(user, [Task.schema]);
+  baasTest('Realm open async - open twice the same realm and cancel the first only', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-  //   var cancellationToken1 = CancellationToken();
-  //   final realm1 = Realm.open(configuration, cancellationToken: cancellationToken1);
-  //   var cancellationToken2 = CancellationToken();
-  //   final realm2 = Realm.open(configuration, cancellationToken: cancellationToken2);
-  //   cancellationToken1.cancel();
-  //   expect(await realm1, isNull);
-  //   expect(await realm2, isNull);
-  // });
+    var cancellationToken1 = CancellationToken();
+    final realm1 = Realm.open(configuration, cancellationToken: cancellationToken1);
+    var cancellationToken2 = CancellationToken();
+    final realm2 = Realm.open(configuration, cancellationToken: cancellationToken2);
+    cancellationToken1.cancel();
+    expect(() async => await realm1, throws<CancelledException>());
+    final openedRealm = await realm2;
+    expect(openedRealm, isNotNull);
+    expect(openedRealm.isClosed, false);
+    openedRealm.close();
+  });
 
-  // baasTest('Realm open async to different Realms and cancel only the first', (appConfiguration) async {
-  //   final app = App(appConfiguration);
+  baasTest('Realm open async - open two different Realms(for user1 and user2) and cancel only the second', (appConfiguration) async {
+    final app = App(appConfiguration);
 
-  //   final user1 = await app.logIn(Credentials.anonymous());
-  //   final configuration1 = Configuration.flexibleSync(user1, [Task.schema], path: '${Configuration.defaultStoragePath}/${user1.id}.realm');
-  //   var cancellationToken1 = CancellationToken();
-  //   final realm1 = Realm.open(configuration1, cancellationToken: cancellationToken1);
+    final user1 = await app.logIn(Credentials.anonymous());
+    final configuration1 = Configuration.flexibleSync(user1, [Task.schema]);
+    var cancellationToken1 = CancellationToken();
+    final realm1 = Realm.open(configuration1, cancellationToken: cancellationToken1);
 
-  //   final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-  //   final configuration2 = Configuration.flexibleSync(user2, [Task.schema], path: '${Configuration.defaultStoragePath}/${user2.id}.realm');
-  //   var cancellationToken2 = CancellationToken();
-  //   final realm2 = Realm.open(configuration2, cancellationToken: cancellationToken2);
+    final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final configuration2 = Configuration.flexibleSync(user2, [Task.schema]);
+    var cancellationToken2 = CancellationToken();
+    final realm2 = Realm.open(configuration2, cancellationToken: cancellationToken2);
 
-  //   cancellationToken1.cancel();
+    cancellationToken2.cancel();
+    final openedRealm = await realm1;
+    expect(openedRealm, isNotNull);
+    expect(openedRealm.isClosed, false);
+    openedRealm.close();
+    expect(() async => await realm2, throws<CancelledException>());
+  });
 
-  //   expect(await realm1, isNull);
-  //   var realm = await realm2;
-  //   expect(realm, isNotNull);
-  //   realm.close();
-  // });
+  baasTest('Realm open async - CancellationToken.cancel before Realm.open', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-  // baasTest('RealmCancelableOperation.cancel before initialization also cancel the operation', (appConfiguration) async {
-  //   final app = App(appConfiguration);
-  //   final credentials = Credentials.anonymous();
-  //   final user = await app.logIn(credentials);
-  //   final configuration = Configuration.flexibleSync(user, [Task.schema]);
+    var cancellationToken = CancellationToken();
+    cancellationToken.cancel();
+    expect(() async => await Realm.open(configuration, cancellationToken: cancellationToken), throws<CancelledException>());
+  });
 
-  //   var cancellationToken = CancellationToken();
-  //   cancellationToken.cancel();
-  //   final realm = await Realm.open(configuration, cancellationToken: cancellationToken);
-  //   expect(realm, isNull);
-  // });
+  baasTest('Realm open async - CancellationToken.cancel after realm is obtained', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-  // baasTest('RealmCancelableOperation.cancel after realm is obtained', (appConfiguration) async {
-  //   final app = App(appConfiguration);
-  //   final credentials = Credentials.anonymous();
-  //   final user = await app.logIn(credentials);
-  //   final configuration = Configuration.flexibleSync(user, [Task.schema]);
-
-  //   var cancellationToken = CancellationToken();
-  //   final realm = await Realm.open(configuration, cancellationToken: cancellationToken);
-  //   expect(realm, isNotNull);
-  //   cancellationToken.cancel();
-  //   realm.close();
-  // });
+    var cancellationToken = CancellationToken();
+    final realm = await Realm.open(configuration, cancellationToken: cancellationToken);
+    expect(realm, isNotNull);
+    expect(realm.isClosed, false);
+    cancellationToken.cancel();
+    realm.close();
+  });
 }
 
 extension _IterableEx<T> on Iterable<T> {
