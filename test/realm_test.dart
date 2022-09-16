@@ -715,12 +715,19 @@ Future<void> main([List<String>? args]) async {
     expect(danAgain.isManaged, isFalse); // dan wasn't updated
   });
 
-  baasTest('Realm open async', (appConfiguration) async {
+  baasTest('Realm open async for flexibleSync configuration', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
+    final realm = await Realm.open(configuration);
+    expect(realm.isClosed, false);
+    realm.close();
+  });
+
+  test('Realm open async for local configuration', () async {
+    final configuration = Configuration.local([Car.schema]);
     final realm = await Realm.open(configuration);
     expect(realm.isClosed, false);
     realm.close();
@@ -767,7 +774,7 @@ Future<void> main([List<String>? args]) async {
     syncedRealm.close();
   });
 
-  baasTest('Realm open async and cancel', (appConfiguration) async {
+  baasTest('Realm open async and cancel for local flexibleSync', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -777,6 +784,15 @@ Future<void> main([List<String>? args]) async {
     final realm = Realm.open(configuration, cancellationToken: cancellationToken);
     cancellationToken.cancel();
     expect(() async => await realm, throws<CancelledException>());
+  });
+
+  test('Realm open async and cancel for local configuration', () async {
+    final configuration = Configuration.local([Car.schema]);
+    var cancellationToken = CancellationToken();
+    final realm = Realm.open(configuration, cancellationToken: cancellationToken);
+    cancellationToken.cancel();
+    var openedRealm = await realm; // You can't cancel local Realm
+    openedRealm.close();
   });
 
   baasTest('Realm open async with the same CancelationToken cancels all', (appConfiguration) async {
