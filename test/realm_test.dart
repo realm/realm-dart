@@ -825,6 +825,7 @@ Future<void> main([List<String>? args]) async {
     final realm2 = Realm.open(configuration2, cancellationToken: cancellationToken2);
 
     cancellationToken2.cancel();
+    
     final openedRealm = await realm1;
     expect(openedRealm, isNotNull);
     expect(openedRealm.isClosed, false);

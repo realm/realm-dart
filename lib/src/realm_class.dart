@@ -147,15 +147,11 @@ class Realm implements Finalizable {
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
-    _createFileDirectory(config.path);
-    return realmCore.openRealm(config);
-  }
-
-  static void _createFileDirectory(String filePath) {
-    var dir = File(filePath).parent;
+    var dir = File(config.path).parent;
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }
+    return realmCore.openRealm(config);
   }
 
   void _populateMetadata() {
