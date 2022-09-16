@@ -124,7 +124,6 @@ class Realm implements Finalizable {
   /// If multiple [Realm.open] operations are all in the progress for the same Realm,
   /// then canceling one of them will cancel all of them.
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
-    _createFileDirectory(config.path);
     final realm = Realm(config);
     //Initial subscriptions to be loaded here
     try {
