@@ -364,14 +364,14 @@ Future<void> main([List<String>? args]) async {
 
     v2DynamicRealm.close();
 
-    // Verify that calling removeType removes the table
+    // Verify that calling deleteType deletes the table and its data
 
     final v3Config = Configuration.local([Person.schema], schemaVersion: 3, migrationCallback: ((migration, oldSchemaVersion) {
       expect(migration.oldRealm.schema.length, 2);
       expect(migration.newRealm.schema.length, 1);
 
-      expect(migration.removeType('Dog'), true);
-      expect(migration.removeType('i-dont-exist'), false);
+      expect(migration.deleteType('Dog'), true);
+      expect(migration.deleteType('i-dont-exist'), false);
     }));
 
     final v3Realm = getRealm(v3Config);

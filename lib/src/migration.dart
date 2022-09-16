@@ -62,13 +62,13 @@ class Migration {
     realmCore.renameProperty(newRealm, className, oldPropertyName, newPropertyName, _schema);
   }
 
-  /// Removes a type during a migration. All the data associated with the type, as well as its schema,
-  /// will be removed from the Realm.
+  /// Deletes a type during a migration. All the data associated with the type, as well as its schema,
+  /// will be deleted from the Realm.
   ///
   /// If you don't call this, the data will not be deleted, even if the type is not present in the new schema.
   ///
   /// Returns `true` if the table was present in the old Realm and was deleted. Returns `false` if it didn't exist.
-  bool removeType(String className) {
+  bool deleteType(String className) {
     return realmCore.removeType(newRealm, className);
   }
 }

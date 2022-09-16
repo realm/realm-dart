@@ -8,11 +8,11 @@
   final config = Configuration.local([Person.schema], schemaVersion: 4, migrationCallback: (migration, oldSchemaVersion) {
     if (oldSchemaVersion == 1) {
       // Between v1 and v2 we removed the Bar type
-      migration.removeType('Bar');
+      migration.deleteType('Bar');
     }
 
     if (oldSchemaVersion == 2) {
-      // Between v2 and v3 we fixed a typo where someone had mispelled the 'Person.name' property.
+      // Between v2 and v3 we fixed a typo in the 'Person.name' property.
       migration.renameProperty('Person', 'nmae', 'name');
     }
 

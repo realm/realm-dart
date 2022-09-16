@@ -50,8 +50,8 @@ typedef InitialDataCallback = void Function(Realm realm);
 
 /// The signature of a callback that will be executed when the schema of the Realm changes.
 ///
+/// The `migration` argument contains references to the Realm just before and just after the migration.
 /// The `oldSchemaVersion` argument indicates the version from which the Realm migrates while
-/// the `migration` argument contains references to the Realm just before and just after the migration.
 typedef MigrationCallback = void Function(Migration migration, int oldSchemaVersion);
 
 /// Configuration used to create a [Realm] instance

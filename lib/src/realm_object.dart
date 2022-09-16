@@ -381,7 +381,10 @@ class RealmException implements Exception {
   }
 }
 
+/// An exception throws during execution of a user callback - e.g. during migration or initial data population.
+/// {@category Realm}
 class UserCallbackException extends RealmException {
+  /// The error that was thrown while executing the callback.
   final Object userException;
 
   UserCallbackException(this.userException)
