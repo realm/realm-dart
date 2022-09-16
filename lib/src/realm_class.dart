@@ -124,22 +124,23 @@ class Realm implements Finalizable {
   /// If multiple [Realm.open] operations are all in the progress for the same Realm,
   /// then canceling one of them will cancel all of them.
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
-    final realm = Realm(config);
-    //Initial subscriptions to be loaded here
+    Realm? realm;
     try {
+      realm = await Future.delayed(const Duration(microseconds: 1), () => Realm(config)).asCancellable(cancellationToken);
+      //Initial subscriptions to be loaded here
       if (config is FlexibleSyncConfiguration) {
         final session = realm.syncSession;
         if (onProgressCallback != null) {
           await session
               .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
               .forEach((s) => onProgressCallback.call(s.transferredBytes, s.transferableBytes))
-              .asCancellable(cancellationToken, exception: CancelledException("Listening for session progress stream was canceleld"));
+              .asCancellable(cancellationToken);
         } else {
-          await session.waitForDownload().asCancellable(cancellationToken, exception: CancelledException("Waiting for session download was canceleld"));
+          await session.waitForDownload().asCancellable(cancellationToken);
         }
       }
     } catch (e) {
-      realm.close();
+      realm?.close();
       rethrow;
     }
     return realm;
@@ -639,11 +640,11 @@ class CancellationToken {
 }
 
 extension CancellableFuture<T> on Future<T> {
-  Future<T> asCancellable(CancellationToken? token, {CancelledException? exception}) async {
+  Future<T> asCancellable(CancellationToken? token, {String? cancelledMessage}) async {
     final completer = token == null ? null : Completer<T>();
 
     onClose() {
-      if (completer?.isCompleted == false) completer?.completeError(exception ?? CancelledException("CancellableFuture was canceled."));
+      if (completer?.isCompleted == false) completer?.completeError(CancelledException(cancelledMessage ?? "CancellableFuture was canceled."));
     }
 
     token?._attach(onClose);

@@ -774,7 +774,7 @@ Future<void> main([List<String>? args]) async {
     syncedRealm.close();
   });
 
-  baasTest('Realm open async and cancel for local flexibleSync', (appConfiguration) async {
+  baasTest('Realm open async and cancel for flexibleSync configuration', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -783,16 +783,14 @@ Future<void> main([List<String>? args]) async {
     var cancellationToken = CancellationToken();
     final realm = Realm.open(configuration, cancellationToken: cancellationToken);
     cancellationToken.cancel();
-    expect(() async => await realm, throws<CancelledException>());
+    await expectLater(() async => await realm, throws<CancelledException>());
   });
 
-  test('Realm open async and cancel for local configuration', () async {
+  test('Realm open async and cancel before Realm.open for local configuration', () async {
     final configuration = Configuration.local([Car.schema]);
     var cancellationToken = CancellationToken();
-    final realm = Realm.open(configuration, cancellationToken: cancellationToken);
     cancellationToken.cancel();
-    var openedRealm = await realm; // You can't cancel local Realm
-    openedRealm.close();
+    await expectLater(() async => await Realm.open(configuration, cancellationToken: cancellationToken), throws<CancelledException>());
   });
 
   baasTest('Realm open async with the same CancelationToken cancels all', (appConfiguration) async {
@@ -805,8 +803,8 @@ Future<void> main([List<String>? args]) async {
     final realm1 = Realm.open(configuration, cancellationToken: cancellationToken);
     final realm2 = Realm.open(configuration, cancellationToken: cancellationToken);
     cancellationToken.cancel();
-    expect(() async => await realm1, throws<CancelledException>());
-    expect(() async => await realm2, throws<CancelledException>());
+    await expectLater(() async => await realm1, throws<CancelledException>());
+    await expectLater(() async => await realm2, throws<CancelledException>());
   });
 
   baasTest('Realm open async - open twice the same realm and cancel the first only', (appConfiguration) async {
@@ -820,38 +818,34 @@ Future<void> main([List<String>? args]) async {
     var cancellationToken2 = CancellationToken();
     final realm2 = Realm.open(configuration, cancellationToken: cancellationToken2);
     cancellationToken1.cancel();
-    expect(() async => await realm1, throws<CancelledException>());
+    await expectLater(() async => await realm1, throws<CancelledException>());
     final openedRealm = await realm2;
     expect(openedRealm, isNotNull);
     expect(openedRealm.isClosed, false);
     openedRealm.close();
   });
 
-  baasTest('Realm open async - open two different Realms(for user1 and user2) and cancel only the second', (appConfiguration) async {
-    final app = App(appConfiguration);
+  // baasTest('Realm open async - open two different Realms(for user1 and user2) and cancel only the second', (appConfiguration) async {
+  //   final app = App(appConfiguration);
 
-    final user1 = await app.logIn(Credentials.anonymous());
-    final configuration1 = Configuration.flexibleSync(user1, [Task.schema]);
-    var cancellationToken1 = CancellationToken();
-    final realm1 = Realm.open(configuration1, cancellationToken: cancellationToken1);
+  //   final user1 = await app.logIn(Credentials.anonymous());
+  //   final configuration1 = Configuration.flexibleSync(user1, [Task.schema]);
+  //   var cancellationToken1 = CancellationToken();
+  //   final realm1 = Realm.open(configuration1, cancellationToken: cancellationToken1);
 
-    final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final configuration2 = Configuration.flexibleSync(user2, [Task.schema]);
-    var cancellationToken2 = CancellationToken();
-    final realm2 = Realm.open(configuration2, cancellationToken: cancellationToken2);
+  //   final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+  //   final configuration2 = Configuration.flexibleSync(user2, [Task.schema]);
+  //   var cancellationToken2 = CancellationToken();
+  //   final realm2 = Realm.open(configuration2, cancellationToken: cancellationToken2);
 
-    cancellationToken2.cancel();
+  //   cancellationToken2.cancel();
 
-    final openedRealm = await realm1;
-    expect(openedRealm, isNotNull);
-    expect(openedRealm.isClosed, false);
-    openedRealm.close();
-    try {
-      await realm2;
-    } catch (e) {
-      expect(e, isA<CancelledException>());
-    }
-  });
+  //   final openedRealm = await realm1;
+  //   expect(openedRealm, isNotNull);
+  //   expect(openedRealm.isClosed, false);
+
+  //   await expectLater(() async => await realm2, throws<CancelledException>());
+  // });
 
   baasTest('Realm open async - CancellationToken.cancel before Realm.open', (appConfiguration) async {
     final app = App(appConfiguration);
@@ -861,7 +855,7 @@ Future<void> main([List<String>? args]) async {
 
     var cancellationToken = CancellationToken();
     cancellationToken.cancel();
-    expect(() async => await Realm.open(configuration, cancellationToken: cancellationToken), throws<CancelledException>());
+    await expectLater(() async => await Realm.open(configuration, cancellationToken: cancellationToken), throws<CancelledException>());
   });
 
   baasTest('Realm open async - CancellationToken.cancel after realm is obtained', (appConfiguration) async {
