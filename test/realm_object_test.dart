@@ -614,6 +614,7 @@ Future<void> main([List<String>? args]) async {
 
     expect(frozenTeam.isFrozen, true);
     expect(frozenTeam.realm.isFrozen, true);
+    expect(frozenTeam.players.isFrozen, true);
     expect(frozenTeam.players.single.isFrozen, true);
 
     realm.write(() {

@@ -265,6 +265,10 @@ mixin RealmObject on RealmEntity implements Finalizable {
       throw RealmStateError("Can't freeze unmanaged objects.");
     }
 
+    if (!object.isValid) {
+      throw RealmStateError("Can't freeze invalidated (deleted) objects.");
+    }
+
     if (object.isFrozen) {
       return object;
     }

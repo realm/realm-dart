@@ -302,14 +302,13 @@ class Realm implements Finalizable {
   ///
   /// A frozen Realm is an immutable snapshot view of a particular version of a
   /// Realm's data. Unlike normal [Realm] instances, it does not live-update to
-  /// reflect writes made to the Realm, and can be accessed from any thread. Writing
-  /// to a frozen Realm is not allowed, and attempting to begin a write transaction
-  /// will throw an exception.
+  /// reflect writes made to the Realm. Writing to a frozen Realm is not allowed,
+  /// and attempting to begin a write transaction will throw an exception.
   ///
   /// All objects and collections read from a frozen Realm will also be frozen.
   ///
-  /// Note: Keeping a large number of frozen Realms with different versions alive can have a negative impact on the filesize
-  /// of the underlying database.
+  /// Note: Keeping a large number of frozen Realms with different versions alive can
+  /// have a negative impact on the file size of the underlying database.
   Realm freeze() {
     if (isFrozen) {
       return this;
@@ -433,6 +432,14 @@ extension RealmInternal on Realm {
   RealmMetadata get metadata => _metadata;
 
   T? resolveObject<T extends RealmObject>(T object) {
+    if (!object.isManaged) {
+      throw RealmStateError("Can't resolve unmanaged objects");
+    }
+
+    if (!object.isValid) {
+      throw RealmStateError("Can't resolve invalidated (deleted) objects");
+    }
+
     final handle = realmCore.resolveObject(object, this);
     if (handle == null) {
       return null;

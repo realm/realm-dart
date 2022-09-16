@@ -23,7 +23,7 @@ import 'dart:ffi';
 import 'collections.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
-import 'realm_object.dart' show RealmObjectMetadata, RealmEntityInternal;
+import 'realm_object.dart';
 
 /// Instances of this class are live collections and will update as new elements are either
 /// added to or deleted from the Realm that match the underlying query.
