@@ -127,7 +127,7 @@ class Realm implements Finalizable {
 
   static Future<Realm> _open(Configuration config, CancellationToken? cancellationToken, ProgressCallback? onProgressCallback) async {
     Realm realm = Realm(config);
-    cancellationToken?.beforeCancel(() async {
+    cancellationToken?.onBeforeCancel(() async {
       realm.close();
     });
 
@@ -630,7 +630,7 @@ class CancellationToken {
     _attachedCallbacks.add(onCancel);
   }
 
-  void beforeCancel(Function beforeCancel) {
+  void onBeforeCancel(Function beforeCancel) {
     _attachedBeforeCancelCallbacks.add(beforeCancel);
   }
 
