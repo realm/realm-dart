@@ -18,6 +18,7 @@
 
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
+import 'dart:async';
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
@@ -821,12 +822,11 @@ Future<void> main([List<String>? args]) async {
 
     cancellationToken1.cancel();
 
+    await expectLater(() async => await realm1, throwsA(isA<CancelledException>()));
     final openedRealm = await realm2;
     expect(openedRealm, isNotNull);
     expect(openedRealm.isClosed, false);
     openedRealm.close();
-
-    await expectLater(() async => await realm1, throwsA(isA<CancelledException>()));
   });
 
   baasTest('Realm open async - open two different Realms(for user1 and user2) and cancel only the second', (appConfiguration) async {
@@ -850,7 +850,6 @@ Future<void> main([List<String>? args]) async {
     expect(openedRealm.isClosed, false);
     openedRealm.close();
 
-   
   });
 
   baasTest('Realm open async - CancellationToken.cancel before Realm.open', (appConfiguration) async {
@@ -874,7 +873,7 @@ Future<void> main([List<String>? args]) async {
     final realm = await Realm.open(configuration, cancellationToken: cancellationToken);
     expect(realm, isNotNull);
     expect(realm.isClosed, false);
-    
+
     cancellationToken.cancel();
     expect(realm.isClosed, true);
   });
