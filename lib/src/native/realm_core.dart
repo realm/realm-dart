@@ -1750,6 +1750,44 @@ class _RealmCore {
         "Delete user failed");
     return completer.future;
   }
+
+  bool isFrozen(Realm realm) {
+    return _realmLib.realm_is_frozen(realm.handle._pointer.cast());
+  }
+
+  RealmHandle freeze(Realm realm) {
+    final ptr = _realmLib.invokeGetPointer(() => _realmLib.realm_freeze(realm.handle._pointer));
+    return RealmHandle._(ptr);
+  }
+
+  RealmResultsHandle resolveResults(RealmResults realmResults, Realm frozenRealm) {
+    final ptr = _realmLib.invokeGetPointer(() => _realmLib.realm_results_resolve_in(realmResults.handle._pointer, frozenRealm.handle._pointer));
+    return RealmResultsHandle._(ptr);
+  }
+
+  RealmObjectHandle? resolveObject(RealmObject object, Realm frozenRealm) {
+    return using((Arena arena) {
+      final resultPtr = arena<Pointer<realm_object>>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_object_resolve_in(object.handle._pointer, frozenRealm.handle._pointer, resultPtr));
+      if (resultPtr != nullptr) {
+        return RealmObjectHandle._(resultPtr.value);
+      }
+
+      return null;
+    });
+  }
+
+  RealmListHandle? resolveList(ManagedRealmList list, Realm frozenRealm) {
+    return using((Arena arena) {
+      final resultPtr = arena<Pointer<realm_list>>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_list_resolve_in(list.handle._pointer, frozenRealm.handle._pointer, resultPtr));
+      if (resultPtr != nullptr) {
+        return RealmListHandle._(resultPtr.value);
+      }
+
+      return null;
+    });
+  }
 }
 
 class LastError {

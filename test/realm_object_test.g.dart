@@ -25,6 +25,10 @@ class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
   Stream<RealmObjectChanges<ObjectIdPrimaryKey>> get changes =>
       RealmObject.getChanges<ObjectIdPrimaryKey>(this);
 
+  @override
+  ObjectIdPrimaryKey freeze() =>
+      RealmObject.freezeObject<ObjectIdPrimaryKey>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -53,6 +57,10 @@ class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
   @override
   Stream<RealmObjectChanges<NullableObjectIdPrimaryKey>> get changes =>
       RealmObject.getChanges<NullableObjectIdPrimaryKey>(this);
+
+  @override
+  NullableObjectIdPrimaryKey freeze() =>
+      RealmObject.freezeObject<NullableObjectIdPrimaryKey>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -84,6 +92,9 @@ class IntPrimaryKey extends _IntPrimaryKey with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<IntPrimaryKey>> get changes =>
       RealmObject.getChanges<IntPrimaryKey>(this);
 
+  @override
+  IntPrimaryKey freeze() => RealmObject.freezeObject<IntPrimaryKey>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -112,6 +123,10 @@ class NullableIntPrimaryKey extends _NullableIntPrimaryKey
   @override
   Stream<RealmObjectChanges<NullableIntPrimaryKey>> get changes =>
       RealmObject.getChanges<NullableIntPrimaryKey>(this);
+
+  @override
+  NullableIntPrimaryKey freeze() =>
+      RealmObject.freezeObject<NullableIntPrimaryKey>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -142,6 +157,9 @@ class StringPrimaryKey extends _StringPrimaryKey with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<StringPrimaryKey>> get changes =>
       RealmObject.getChanges<StringPrimaryKey>(this);
 
+  @override
+  StringPrimaryKey freeze() => RealmObject.freezeObject<StringPrimaryKey>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -170,6 +188,10 @@ class NullableStringPrimaryKey extends _NullableStringPrimaryKey
   @override
   Stream<RealmObjectChanges<NullableStringPrimaryKey>> get changes =>
       RealmObject.getChanges<NullableStringPrimaryKey>(this);
+
+  @override
+  NullableStringPrimaryKey freeze() =>
+      RealmObject.freezeObject<NullableStringPrimaryKey>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -201,6 +223,9 @@ class UuidPrimaryKey extends _UuidPrimaryKey with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<UuidPrimaryKey>> get changes =>
       RealmObject.getChanges<UuidPrimaryKey>(this);
 
+  @override
+  UuidPrimaryKey freeze() => RealmObject.freezeObject<UuidPrimaryKey>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -229,6 +254,10 @@ class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
   @override
   Stream<RealmObjectChanges<NullableUuidPrimaryKey>> get changes =>
       RealmObject.getChanges<NullableUuidPrimaryKey>(this);
+
+  @override
+  NullableUuidPrimaryKey freeze() =>
+      RealmObject.freezeObject<NullableUuidPrimaryKey>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -263,6 +292,10 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
   @override
   Stream<RealmObjectChanges<RemappedFromAnotherFile>> get changes =>
       RealmObject.getChanges<RemappedFromAnotherFile>(this);
+
+  @override
+  RemappedFromAnotherFile freeze() =>
+      RealmObject.freezeObject<RemappedFromAnotherFile>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -301,6 +334,9 @@ class BoolValue extends _BoolValue with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<BoolValue>> get changes =>
       RealmObject.getChanges<BoolValue>(this);
+
+  @override
+  BoolValue freeze() => RealmObject.freezeObject<BoolValue>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;

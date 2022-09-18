@@ -466,10 +466,61 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results notifications can leak', () async {
-    var config = Configuration.local([Dog.schema, Person.schema]);
-    var realm = getRealm(config);
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
 
     final leak = realm.all<Dog>().changes.listen((data) {});
     await Future<void>.delayed(const Duration(milliseconds: 20));
+  });
+
+  test('Results.freeze freezes query', () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    realm.write(() {
+      realm.add(Person('Peter'));
+    });
+
+    final livePeople = realm.all<Person>();
+    final frozenPeople = freezeResults(livePeople);
+
+    expect(frozenPeople.length, 1);
+    expect(frozenPeople.isFrozen, true);
+    expect(frozenPeople.realm.isFrozen, true);
+    expect(frozenPeople.single.isFrozen, true);
+
+    realm.write(() {
+      livePeople.single.name = 'Peter II';
+      realm.add(Person('George'));
+    });
+
+    expect(livePeople.length, 2);
+    expect(livePeople.first.name, 'Peter II');
+    expect(frozenPeople.length, 1);
+    expect(frozenPeople.single.name, 'Peter');
+  });
+
+  test("FrozenResults.changes throws", () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final frozenPeople = freezeResults(realm.all<Person>());
+
+    expect(() => frozenPeople.changes, throws<RealmStateError>('Results are frozen and cannot emit changes'));
+  });
+
+  test('Results.freeze when frozen returns same object', () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final people = realm.all<Person>();
+
+    final frozenPeople = freezeResults(people);
+    final deepFrozenPeople = freezeResults(frozenPeople);
+
+    expect(identical(frozenPeople, deepFrozenPeople), true);
+
+    final frozenPeopleAgain = freezeResults(people);
+    expect(identical(frozenPeople, frozenPeopleAgain), false);
   });
 }
