@@ -24,13 +24,14 @@ import './realm_object.dart';
 /// to another. It contains the properties for the Realm before and after the migration.
 /// After the migration is complete, [newRealm] will become the authoritative version of
 /// the file.
+///
+/// {@category Realm}
 class Migration {
   final SchemaHandle _schema;
 
   /// The Realm as it existed just before the migration. Since the models have changed,
-  /// this Realm can only be accessed via the dynamic API (i.e. [Realm.dynamic] and
-  /// [RealmObject.dynamic]).
-  final Realm oldRealm;
+  /// this Realm can only be accessed via the dynamic API.
+  final MigrationRealm oldRealm;
 
   /// The Realm as it exists after the migration. Before the end of the callback, you need
   /// to make sure that all relevant data has been migrated from [oldRealm] into [newRealm].
@@ -75,7 +76,7 @@ class Migration {
 
 /// @nodoc
 extension MigrationInternal on Migration {
-  static Migration create(Realm oldRealm, Realm newRealm, SchemaHandle schema) {
+  static Migration create(MigrationRealm oldRealm, Realm newRealm, SchemaHandle schema) {
     return Migration._(oldRealm, newRealm, schema);
   }
 }

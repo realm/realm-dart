@@ -448,7 +448,7 @@ class _RealmCore {
 
       final newRealm = RealmInternal.getUnowned(config, RealmHandle._unowned(newRealmHandle), isInMigration: true);
 
-      final migration = MigrationInternal.create(oldRealm, newRealm, SchemaHandle.unowned(schema));
+      final migration = MigrationInternal.create(oldRealm.getMigrationRealm(), newRealm, SchemaHandle.unowned(schema));
       config.migrationCallback!(migration, oldSchemaVersion);
       return true;
     } catch (ex) {

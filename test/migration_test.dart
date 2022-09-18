@@ -129,7 +129,7 @@ Future<void> main([List<String>? args]) async {
     final v2Config = Configuration.local([Person.schema], schemaVersion: 2, migrationCallback: (migration, oldSchemaVersion) {
       expect(oldSchemaVersion, 1);
 
-      final oldPeople = migration.oldRealm.dynamic.all('Person');
+      final oldPeople = migration.oldRealm.all('Person');
       final newPeople = migration.newRealm.all<Person>();
 
       for (var i = 0; i < oldPeople.length; i++) {
@@ -162,7 +162,7 @@ Future<void> main([List<String>? args]) async {
       expect(oldSchemaVersion, 1);
 
       // We want to assign numbers in ascending order
-      final oldStudents = migration.oldRealm.dynamic.all('Student').query('TRUEPREDICATE SORT(name ASC)');
+      final oldStudents = migration.oldRealm.all('Student').query('TRUEPREDICATE SORT(name ASC)');
       final newStudents = migration.newRealm.all<Student>().query('TRUEPREDICATE sort(name ASC)');
 
       for (var i = 0; i < oldStudents.length; i++) {
@@ -207,7 +207,7 @@ Future<void> main([List<String>? args]) async {
     final v2Config = Configuration.local([Student.schema, School.schema], schemaVersion: 2, migrationCallback: (migration, oldSchemaVersion) {
       expect(oldSchemaVersion, 1);
 
-      final oldStudents = migration.oldRealm.dynamic.all('Student');
+      final oldStudents = migration.oldRealm.all('Student');
 
       var number = 0;
       for (final student in oldStudents) {

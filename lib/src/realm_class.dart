@@ -448,7 +448,7 @@ extension RealmInternal on Realm {
 
     final metadata = (object.accessor as RealmCoreAccessor).metadata;
 
-    return RealmObjectInternal.create(T, this, handle, RealmCoreAccessor(metadata)) as T;
+    return RealmObjectInternal.create(T, this, handle, RealmCoreAccessor(metadata, _isInMigration)) as T;
   }
 
   RealmList<T>? resolveList<T extends Object?>(ManagedRealmList<T> list) {
@@ -464,6 +464,8 @@ extension RealmInternal on Realm {
     final handle = realmCore.resolveResults(results, this);
     return RealmResultsInternal.create<T>(handle, this, results.metadata);
   }
+
+  MigrationRealm getMigrationRealm() => MigrationRealm._(this);
 }
 
 /// @nodoc
@@ -615,4 +617,20 @@ class DynamicRealm {
     final accessor = RealmCoreAccessor(metadata, _realm._isInMigration);
     return RealmObjectInternal.create(RealmObject, _realm, handle, accessor);
   }
+}
+
+/// A class used during a migration callback. It exposes a set of dynamic API as
+/// well as the Realm config and schema.
+///
+/// {@category Realm}
+class MigrationRealm extends DynamicRealm {
+  /// The [Configuration] object used to open this [Realm]
+  Configuration get config => _realm.config;
+
+  /// The schema of this [Realm]. If the [Configuration] was created with a
+  /// non-empty list of schemas, this will match the collection. Otherwise,
+  /// the schema will be read from the file.
+  RealmSchema get schema => _realm.schema;
+
+  MigrationRealm._(Realm realm) : super._(realm);
 }
