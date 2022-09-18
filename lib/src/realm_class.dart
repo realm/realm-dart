@@ -618,7 +618,7 @@ class CancelledException implements Exception {
   }
 }
 
-/// [CancellationToken] provides method [cancel] that cancels that executes [_onCancel] and [beforeCancel] callbacks.
+/// [CancellationToken] provides method [cancel] that executes [_onCancel] and [beforeCancel] callbacks.
 /// It is used for canceling long Future operations.
 /// {@category Realm}
 class CancellationToken {
