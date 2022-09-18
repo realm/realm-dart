@@ -87,6 +87,10 @@ class RealmModelInfo {
       yield 'Stream<RealmObjectChanges<$name>> get changes => RealmObject.getChanges<$name>(this);';
       yield '';
 
+      yield '@override';
+      yield '$name freeze() => RealmObject.freezeObject<$name>(this);';
+      yield '';
+
       yield 'static SchemaObject get schema => _schema ??= _initSchema();';
       yield 'static SchemaObject? _schema;';
       yield 'static SchemaObject _initSchema() {';

@@ -24,6 +24,9 @@ class Car extends _Car with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<Car>> get changes =>
       RealmObject.getChanges<Car>(this);
 
+  @override
+  Car freeze() => RealmObject.freezeObject<Car>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -51,6 +54,9 @@ class Person extends _Person with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<Person>> get changes =>
       RealmObject.getChanges<Person>(this);
+
+  @override
+  Person freeze() => RealmObject.freezeObject<Person>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -93,6 +99,9 @@ class Dog extends _Dog with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<Dog>> get changes =>
       RealmObject.getChanges<Dog>(this);
+
+  @override
+  Dog freeze() => RealmObject.freezeObject<Dog>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -143,6 +152,9 @@ class Team extends _Team with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<Team>> get changes =>
       RealmObject.getChanges<Team>(this);
+
+  @override
+  Team freeze() => RealmObject.freezeObject<Team>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -196,6 +208,9 @@ class Student extends _Student with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<Student>> get changes =>
       RealmObject.getChanges<Student>(this);
+
+  @override
+  Student freeze() => RealmObject.freezeObject<Student>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -265,6 +280,9 @@ class School extends _School with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<School>> get changes =>
       RealmObject.getChanges<School>(this);
 
+  @override
+  School freeze() => RealmObject.freezeObject<School>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -313,6 +331,9 @@ class RemappedClass extends $RemappedClass with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<RemappedClass>> get changes =>
       RealmObject.getChanges<RemappedClass>(this);
 
+  @override
+  RemappedClass freeze() => RealmObject.freezeObject<RemappedClass>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -345,6 +366,9 @@ class Task extends _Task with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<Task>> get changes =>
       RealmObject.getChanges<Task>(this);
+
+  @override
+  Task freeze() => RealmObject.freezeObject<Task>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -383,6 +407,9 @@ class Schedule extends _Schedule with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<Schedule>> get changes =>
       RealmObject.getChanges<Schedule>(this);
+
+  @override
+  Schedule freeze() => RealmObject.freezeObject<Schedule>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -525,6 +552,9 @@ class AllTypes extends _AllTypes with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<AllTypes>> get changes =>
       RealmObject.getChanges<AllTypes>(this);
 
+  @override
+  AllTypes freeze() => RealmObject.freezeObject<AllTypes>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -589,6 +619,9 @@ class LinksClass extends _LinksClass with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<LinksClass>> get changes =>
       RealmObject.getChanges<LinksClass>(this);
+
+  @override
+  LinksClass freeze() => RealmObject.freezeObject<LinksClass>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -680,6 +713,9 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<AllCollections>> get changes =>
       RealmObject.getChanges<AllCollections>(this);
+
+  @override
+  AllCollections freeze() => RealmObject.freezeObject<AllCollections>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -785,6 +821,9 @@ class NullableTypes extends _NullableTypes with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<NullableTypes>> get changes =>
       RealmObject.getChanges<NullableTypes>(this);
 
+  @override
+  NullableTypes freeze() => RealmObject.freezeObject<NullableTypes>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -857,6 +896,9 @@ class Event extends _Event with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<Event>> get changes =>
       RealmObject.getChanges<Event>(this);
 
+  @override
+  Event freeze() => RealmObject.freezeObject<Event>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -917,6 +959,9 @@ class Party extends _Party with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<Party>> get changes =>
       RealmObject.getChanges<Party>(this);
+
+  @override
+  Party freeze() => RealmObject.freezeObject<Party>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -984,6 +1029,9 @@ class Friend extends _Friend with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<Friend>> get changes =>
       RealmObject.getChanges<Friend>(this);
+
+  @override
+  Friend freeze() => RealmObject.freezeObject<Friend>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;

@@ -610,6 +610,95 @@ Future<void> main([List<String>? args]) async {
     expect(object.intProp, 5);
   });
 
+  test('RealmObject.freeze when typed returns typed frozen object', () {
+    final config = Configuration.local([Person.schema, Team.schema]);
+    final realm = getRealm(config);
+
+    final liveTeam = realm.write(() {
+      return realm.add(Team('team', players: [Person('Peter')], scores: [123]));
+    });
+    final frozenTeam = freezeObject(liveTeam);
+
+    expect(frozenTeam.isFrozen, true);
+    expect(frozenTeam.realm.isFrozen, true);
+    expect(frozenTeam.players.isFrozen, true);
+    expect(frozenTeam.players.single.isFrozen, true);
+
+    realm.write(() {
+      liveTeam.players.add(Person('George'));
+    });
+
+    expect(frozenTeam.players.length, 1);
+    expect(liveTeam.players.length, 2);
+  });
+
+  test('FrozenObject.changes throws', () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final peter = realm.write(() => realm.add(Person('Peter')));
+    final frozenPeter = freezeObject(peter);
+
+    expect(() => frozenPeter.changes, throws<RealmStateError>('Object is frozen and cannot emit changes'));
+  });
+
+  test('RealmObject.freeze when generic returns generic frozen object', () {
+    final config = Configuration.local([Person.schema, Team.schema]);
+    final realm = getRealm(config);
+
+    // Cast to the base type to ensure we're not using the generated freeze() method.
+    RealmObject liveTeam = realm.write(() {
+      return realm.add(Team('team', players: [Person('Peter')], scores: [123]));
+    });
+
+    final frozenTeam = freezeObject(liveTeam);
+    expect(frozenTeam.runtimeType, Team);
+
+    final frozenPlayers = frozenTeam.dynamic.getList<RealmObject>('players');
+    expect(frozenPlayers.isFrozen, true);
+    expect(frozenPlayers.single.isFrozen, true);
+    expect(frozenTeam.dynamic.get('name'), 'team');
+  });
+
+  test('RealmObject.freeze when dynamic works', () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    realm.write(() => realm.add(Person('Peter')));
+
+    dynamic peter = realm.dynamic.all('Person').single;
+    dynamic frozenPeter = freezeDynamic(peter);
+    expect(frozenPeter.runtimeType.toString(), '_ConcreteRealmObject');
+    expect(frozenPeter.isFrozen, true);
+    expect(frozenPeter.name, 'Peter');
+
+    realm.write(() {
+      peter.name = 'Peter II';
+    });
+
+    expect(frozenPeter.name, 'Peter');
+  });
+
+  test('RealmObject.freeze when unmanaged throws', () {
+    final person = Person('Peter');
+    expect(() => freezeObject(person), throws<RealmStateError>("Can't freeze unmanaged objects"));
+  });
+
+  test('RealmObject.freeze when frozen returns same object', () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final liveObject = realm.write(() => realm.add(Person('Peter')));
+
+    final frozenObject = freezeObject(liveObject);
+    final deepFrozenObject = freezeObject(frozenObject);
+
+    expect(identical(frozenObject, deepFrozenObject), true);
+
+    final anotherFrozenObject = freezeObject(liveObject);
+    expect(identical(frozenObject, anotherFrozenObject), false);
+  });
+
   test('Update primary key on unmanaged object', () {
     final obj = StringPrimaryKey('abc');
     obj.id = 'cde';

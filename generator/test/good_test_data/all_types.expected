@@ -27,6 +27,9 @@ class Foo extends _Foo with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<Foo>> get changes =>
       RealmObject.getChanges<Foo>(this);
 
+  @override
+  Foo freeze() => RealmObject.freezeObject<Foo>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -132,6 +135,9 @@ class Bar extends _Bar with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<Bar>> get changes =>
       RealmObject.getChanges<Bar>(this);
 
+  @override
+  Bar freeze() => RealmObject.freezeObject<Bar>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -205,6 +211,9 @@ class PrimitiveTypes extends _PrimitiveTypes with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<PrimitiveTypes>> get changes =>
       RealmObject.getChanges<PrimitiveTypes>(this);
+
+  @override
+  PrimitiveTypes freeze() => RealmObject.freezeObject<PrimitiveTypes>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
