@@ -101,11 +101,16 @@ class Realm implements Finalizable {
   /// the schema will be read from the file.
   late final RealmSchema schema;
 
+  /// Gets a value indicating whether this [Realm] is frozen. Frozen Realms are immutable
+  /// and will not update when writes are made to the database.
+  late final bool isFrozen;
+
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
   Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? _openRealmSync(config) {
     _populateMetadata();
+    isFrozen = realmCore.isFrozen(this);
   }
 
   /// A method for asynchronously obtaining and opening a [Realm].
@@ -330,6 +335,25 @@ class Realm implements Finalizable {
   /// Deletes all [RealmObject]s of type `T` in the `Realm`
   void deleteAll<T extends RealmObject>() => deleteMany(all<T>());
 
+  /// Returns a frozen (immutable) snapshot of this Realm.
+  ///
+  /// A frozen Realm is an immutable snapshot view of a particular version of a
+  /// Realm's data. Unlike normal [Realm] instances, it does not live-update to
+  /// reflect writes made to the Realm. Writing to a frozen Realm is not allowed,
+  /// and attempting to begin a write transaction will throw an exception.
+  ///
+  /// All objects and collections read from a frozen Realm will also be frozen.
+  ///
+  /// Note: Keeping a large number of frozen Realms with different versions alive can
+  /// have a negative impact on the file size of the underlying database.
+  Realm freeze() {
+    if (isFrozen) {
+      return this;
+    }
+
+    return Realm._(config, realmCore.freeze(this));
+  }
+
   SubscriptionSet? _subscriptions;
 
   /// The active [SubscriptionSet] for this [Realm]
@@ -443,6 +467,39 @@ extension RealmInternal on Realm {
   }
 
   RealmMetadata get metadata => _metadata;
+
+  T? resolveObject<T extends RealmObject>(T object) {
+    if (!object.isManaged) {
+      throw RealmStateError("Can't resolve unmanaged objects");
+    }
+
+    if (!object.isValid) {
+      throw RealmStateError("Can't resolve invalidated (deleted) objects");
+    }
+
+    final handle = realmCore.resolveObject(object, this);
+    if (handle == null) {
+      return null;
+    }
+
+    final metadata = (object.accessor as RealmCoreAccessor).metadata;
+
+    return RealmObjectInternal.create(T, this, handle, RealmCoreAccessor(metadata)) as T;
+  }
+
+  RealmList<T>? resolveList<T extends Object?>(ManagedRealmList<T> list) {
+    final handle = realmCore.resolveList(list, this);
+    if (handle == null) {
+      return null;
+    }
+
+    return createList<T>(handle, list.metadata);
+  }
+
+  RealmResults<T> resolveResults<T extends RealmObject>(RealmResults<T> results) {
+    final handle = realmCore.resolveResults(results, this);
+    return RealmResultsInternal.create<T>(handle, this, results.metadata);
+  }
 }
 
 /// @nodoc

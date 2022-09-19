@@ -42,6 +42,9 @@ abstract class RealmList<T extends Object?> with RealmEntity implements List<T>,
 
   factory RealmList._(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => ManagedRealmList._(handle, realm, metadata);
   factory RealmList(Iterable<T> items) => UnmanagedRealmList(items);
+
+  /// Creates a frozen snapshot of this `RealmList`.
+  RealmList<T> freeze();
 }
 
 class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
@@ -126,6 +129,16 @@ class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with Re
 
   @override
   bool get isValid => realmCore.listIsValid(this);
+
+  @override
+  RealmList<T> freeze() {
+    if (isFrozen) {
+      return this;
+    }
+
+    final frozenRealm = realm.freeze();
+    return frozenRealm.resolveList(this)!;
+  }
 }
 
 class UnmanagedRealmList<T extends Object?> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
@@ -160,6 +173,9 @@ class UnmanagedRealmList<T extends Object?> extends collection.ListBase<T> with 
 
   @override
   bool get isValid => true;
+
+  @override
+  RealmList<T> freeze() => throw RealmStateError("Unmanaged lists can't be frozen");
 }
 
 // The query operations on lists, as well as the ability to subscribe for notifications,
@@ -180,6 +196,10 @@ extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
 
   /// Allows listening for changes when the contents of this collection changes.
   Stream<RealmListChanges<T>> get changes {
+    if (isFrozen) {
+      throw RealmStateError('List is frozen and cannot emit changes');
+    }
+
     final managedList = asManaged();
     final controller = ListNotificationsController<T>(managedList);
     return controller.createStream();
@@ -200,6 +220,8 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
   ManagedRealmList<T> asManaged() => this is ManagedRealmList<T> ? this as ManagedRealmList<T> : throw RealmStateError('$this is not managed');
 
   RealmListHandle get handle => asManaged()._handle;
+
+  RealmObjectMetadata? get metadata => asManaged()._metadata;
 
   static RealmList<T> create<T extends Object?>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
 

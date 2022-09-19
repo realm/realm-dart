@@ -364,6 +364,66 @@ Future<void> main([List<String>? args]) async {
     expect(result, [person]);
   });
 
+  test('List.freeze freezes the list', () {
+    final config = Configuration.local([Person.schema, Team.schema]);
+    final realm = getRealm(config);
+
+    final livePlayers = realm.write(() {
+      return realm.add(Team('team', players: [Person('Peter')], scores: [123]));
+    }).players;
+
+    final frozenPlayers = freezeList(livePlayers);
+
+    expect(frozenPlayers.length, 1);
+    expect(frozenPlayers.isFrozen, true);
+    expect(frozenPlayers.realm.isFrozen, true);
+    expect(frozenPlayers.single.isFrozen, true);
+
+    realm.write(() {
+      livePlayers.single.name = 'Peter II';
+      livePlayers.add(Person('George'));
+    });
+
+    expect(livePlayers.length, 2);
+    expect(livePlayers.first.name, 'Peter II');
+    expect(frozenPlayers.length, 1);
+    expect(frozenPlayers.single.name, 'Peter');
+  });
+
+  test("FrozenList.changes throws", () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    realm.write(() {
+      realm.add(Team('team'));
+    });
+
+    final frozenPlayers = freezeList(realm.all<Team>().single.players);
+
+    expect(() => frozenPlayers.changes, throws<RealmStateError>('List is frozen and cannot emit changes'));
+  });
+
+  test('UnmanagedList.freeze throws', () {
+    final team = Team('team');
+
+    expect(() => freezeList(team.players), throws<RealmStateError>("Unmanaged lists can't be frozen"));
+  });
+
+  test('List.freeze when frozen returns same object', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final team = realm.write(() => realm.add(Team('Barcelona', players: [Person('Peter')])));
+
+    final frozenPlayers = freezeList(team.players);
+    final deepFrozenPlayers = freezeList(frozenPlayers);
+
+    expect(identical(frozenPlayers, deepFrozenPlayers), true);
+
+    final frozenPlayersAgain = freezeList(team.players);
+    expect(identical(frozenPlayers, frozenPlayersAgain), false);
+  });
+
   test('ManagedRealmList.removeAt', () {
     final config = Configuration.local([Team.schema, Person.schema]);
     final realm = getRealm(config);
