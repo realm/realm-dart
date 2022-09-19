@@ -303,6 +303,46 @@ Realm getRealm(Configuration config) {
   return realm;
 }
 
+/// This is needed to make sure the frozen Realm gets forcefully closed by the
+/// time the test ends.
+Realm freezeRealm(Realm realm) {
+  final frozen = realm.freeze();
+  _openRealms.add(frozen);
+  return frozen;
+}
+
+/// This is needed to make sure the frozen Realm gets forcefully closed by the
+/// time the test ends.
+RealmResults<T> freezeResults<T extends RealmObject>(RealmResults<T> results) {
+  final frozen = results.freeze();
+  _openRealms.add(frozen.realm);
+  return frozen;
+}
+
+/// This is needed to make sure the frozen Realm gets forcefully closed by the
+/// time the test ends.
+RealmList<T> freezeList<T>(RealmList<T> list) {
+  final frozen = list.freeze();
+  _openRealms.add(frozen.realm);
+  return frozen;
+}
+
+/// This is needed to make sure the frozen Realm gets forcefully closed by the
+/// time the test ends.
+T freezeObject<T extends RealmObject>(T object) {
+  final frozen = object.freeze();
+  _openRealms.add(frozen.realm);
+  return frozen as T;
+}
+
+/// This is needed to make sure the frozen Realm gets forcefully closed by the
+/// time the test ends.
+dynamic freezeDynamic(dynamic object) {
+  dynamic frozen = object.freeze();
+  _openRealms.add(frozen.realm as Realm);
+  return frozen;
+}
+
 Future<void> tryDeleteRealm(String path) async {
   //Skip on CI to speed it up. We are creating the realms in $TEMP anyways.
   if (Platform.environment.containsKey("REALM_CI")) {
