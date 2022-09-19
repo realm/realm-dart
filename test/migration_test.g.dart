@@ -24,6 +24,9 @@ class PersonIntName extends _PersonIntName with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<PersonIntName>> get changes =>
       RealmObject.getChanges<PersonIntName>(this);
 
+  @override
+  PersonIntName freeze() => RealmObject.freezeObject<PersonIntName>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -58,6 +61,9 @@ class StudentV1 extends _StudentV1 with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<StudentV1>> get changes =>
       RealmObject.getChanges<StudentV1>(this);
+
+  @override
+  StudentV1 freeze() => RealmObject.freezeObject<StudentV1>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -94,6 +100,9 @@ class MyObjectWithTypo extends _MyObjectWithTypo with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<MyObjectWithTypo>> get changes =>
       RealmObject.getChanges<MyObjectWithTypo>(this);
+
+  @override
+  MyObjectWithTypo freeze() => RealmObject.freezeObject<MyObjectWithTypo>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -132,6 +141,10 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
   Stream<RealmObjectChanges<MyObjectWithoutTypo>> get changes =>
       RealmObject.getChanges<MyObjectWithoutTypo>(this);
 
+  @override
+  MyObjectWithoutTypo freeze() =>
+      RealmObject.freezeObject<MyObjectWithoutTypo>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -161,6 +174,10 @@ class MyObjectWithoutValue extends _MyObjectWithoutValue
   @override
   Stream<RealmObjectChanges<MyObjectWithoutValue>> get changes =>
       RealmObject.getChanges<MyObjectWithoutValue>(this);
+
+  @override
+  MyObjectWithoutValue freeze() =>
+      RealmObject.freezeObject<MyObjectWithoutValue>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
