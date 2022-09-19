@@ -804,13 +804,16 @@ Future<void> main([List<String>? args]) async {
       expect(players.indexOf(p, r.nextInt(index + 1) - 1), index++);
     }
 
-    // indexOf with wrong type of element, just returns -1. Proof:
+    // List.indexOf with wrong type of element, just returns -1.
+    // Proof:
     final dartList = <int>[1, 2, 3];
     expect((dartList as List<Object>).indexOf("abc"), -1); // ignore: unnecessary_cast
 
-    // Realm list behaves differently
+    // .. but realm list behaves differently in this regard.
     expect(() => (players as List<Object>).indexOf(1), throwsA(isA<RealmException>())); // ignore: unnecessary_cast
 
+    // .. Also it is a state error to lookup an unmanaged object in a managed list,
+    // even if the static type is right.
     expect(() => players.indexOf(Person('10')), throwsA(isA<RealmStateError>()));
   });
 }
