@@ -821,8 +821,8 @@ Future<void> main([List<String>? args]) async {
     final realm2 = Realm.open(configuration, cancellationToken: cancellationToken2);
 
     cancellationToken1.cancel();
-
     await expectLater(() async => await realm1, throwsA(isA<CancelledException>()));
+
     final openedRealm = await realm2;
     expect(openedRealm, isNotNull);
     expect(openedRealm.isClosed, false);
@@ -849,7 +849,6 @@ Future<void> main([List<String>? args]) async {
     expect(openedRealm, isNotNull);
     expect(openedRealm.isClosed, false);
     openedRealm.close();
-
   });
 
   baasTest('Realm open async - CancellationToken.cancel before Realm.open', (appConfiguration) async {

@@ -662,7 +662,7 @@ class CancellableFuture {
   static Future<T> fromFutureFunction<T>(Future<T> Function() futureFunction, CancellationToken? cancellationToken, {String? cancelledMessage}) async {
     if (cancellationToken != null) {
       final cancelException = CancelledException(cancelledMessage ?? "CancellableFuture was canceled.");
-      if (cancellationToken.isCanceled) throw cancelException;
+      if (cancellationToken.isCanceled) return await Future.error(cancelException);
 
       final completer = Completer<T>();
 
