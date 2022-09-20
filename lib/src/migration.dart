@@ -70,7 +70,7 @@ class Migration {
   ///
   /// Returns `true` if the table was present in the old Realm and was deleted. Returns `false` if it didn't exist.
   bool deleteType(String className) {
-    return realmCore.removeType(newRealm, className);
+    return realmCore.deleteType(newRealm, className);
   }
 }
 

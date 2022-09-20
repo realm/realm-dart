@@ -465,7 +465,7 @@ extension RealmInternal on Realm {
     return RealmResultsInternal.create<T>(handle, this, results.metadata);
   }
 
-  MigrationRealm getMigrationRealm() => MigrationRealm._(this);
+  static MigrationRealm getMigrationRealm(Realm realm) => MigrationRealm._(realm);
 }
 
 /// @nodoc

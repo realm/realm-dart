@@ -448,7 +448,7 @@ class _RealmCore {
 
       final newRealm = RealmInternal.getUnowned(config, RealmHandle._unowned(newRealmHandle), isInMigration: true);
 
-      final migration = MigrationInternal.create(oldRealm.getMigrationRealm(), newRealm, SchemaHandle.unowned(schema));
+      final migration = MigrationInternal.create(RealmInternal.getMigrationRealm(oldRealm), newRealm, SchemaHandle.unowned(schema));
       config.migrationCallback!(migration, oldSchemaVersion);
       return true;
     } catch (ex) {
@@ -698,7 +698,7 @@ class _RealmCore {
     });
   }
 
-  bool removeType(Realm realm, String objectType) {
+  bool deleteType(Realm realm, String objectType) {
     return using((Arena arena) {
       final deletedPtr = arena<Bool>();
       _realmLib.invokeGetBool(() => _realmLib.realm_remove_table(realm.handle._pointer, objectType.toCharPtr(arena), deletedPtr));
