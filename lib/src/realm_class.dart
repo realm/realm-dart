@@ -113,7 +113,7 @@ class Realm implements Finalizable {
     isFrozen = realmCore.isFrozen(this);
   }
 
-  /// A method for asynchronously obtaining and opening a [Realm].
+  /// A method for asynchronously opening a [Realm].
   ///
   /// If the configuration is [FlexibleSyncConfiguration], the realm will be downloaded and fully
   /// synchronized with the server prior to the completion of the returned [Future].
