@@ -530,4 +530,46 @@ Future<void> main([List<String>? args]) async {
     final disconnectedRealm = Realm(disconnectedSyncConfig);
     expect(disconnectedRealm.find<Task>(oid), isNotNull);
   });
+
+  baasTest('FlexibleSyncConfiguration.initialSubscriptionsConfiguration rerunOnOpen = true', (appConfiguration) async {
+    final app = App(appConfiguration);
+    var subscriptionSetUpdateCount = 0;
+    final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final configuration1 = Configuration.flexibleSync(user1, [Task.schema],
+        initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration(
+          (realm) => subscriptionSetUpdateCount++,
+          rerunOnOpen: true,
+        ));
+
+    var realm1 = Realm(configuration1);
+    realm1.close();
+    expect(subscriptionSetUpdateCount, 1);
+    realm1 = Realm(configuration1);
+    realm1.close();
+    expect(subscriptionSetUpdateCount, 2);
+    realm1 = Realm(configuration1);
+    realm1.close();
+    expect(subscriptionSetUpdateCount, 3);
+  });
+
+  baasTest('FlexibleSyncConfiguration.initialSubscriptionsConfiguration rerunOnOpen = false', (appConfiguration) async {
+    final app = App(appConfiguration);
+    var subscriptionSetUpdateCount = 0;
+    final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final configuration1 = Configuration.flexibleSync(user1, [Task.schema],
+        initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration(
+          (r) => subscriptionSetUpdateCount++,
+          rerunOnOpen: false,
+        ));
+
+    var realm1 = Realm(configuration1);
+    realm1.close();
+    expect(subscriptionSetUpdateCount, 1);
+    realm1 = Realm(configuration1);
+    realm1.close();
+    expect(subscriptionSetUpdateCount, 1);
+    realm1 = Realm(configuration1);
+    realm1.close();
+    expect(subscriptionSetUpdateCount, 1);
+  });
 }

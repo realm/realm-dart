@@ -72,7 +72,8 @@ export "configuration.dart"
         SchemaObject,
         ShouldCompactCallback,
         SyncErrorHandler,
-        SyncClientResetErrorHandler;
+        SyncClientResetErrorHandler,
+        InitialSubscriptionsConfiguration;
 
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
@@ -105,12 +106,24 @@ class Realm implements Finalizable {
   /// and will not update when writes are made to the database.
   late final bool isFrozen;
 
+  /// Returns true if the [Realm] is opened for the first time and the realm file is created.
+  late final bool _openedFirstTime;
+
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
-  Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? _openRealmSync(config) {
+  Realm._(this.config, [RealmHandle? handle])
+      : _openedFirstTime = !File(config.path).existsSync(),
+        _handle = handle ?? _openRealmSync(config) {
     _populateMetadata();
     isFrozen = realmCore.isFrozen(this);
+
+    if (config is FlexibleSyncConfiguration) {
+      FlexibleSyncConfiguration flexibleSyncConfiguration = config as FlexibleSyncConfiguration;
+      if (_openedFirstTime || flexibleSyncConfiguration.initialSubscriptionsConfiguration?.rerunOnOpen == true) {
+        flexibleSyncConfiguration.initialSubscriptionsConfiguration?.callback(this);
+      }
+    }
   }
 
   /// A method for asynchronously opening a [Realm].
@@ -131,23 +144,27 @@ class Realm implements Finalizable {
   }
 
   static Future<Realm> _open(Configuration config, CancellationToken? cancellationToken, ProgressCallback? onProgressCallback) async {
-    bool openedFirstTime = !File(config.path).existsSync();
-    Realm realm = Realm(config);
+    Realm? realm;
+
     cancellationToken?.onBeforeCancel(() async {
-      realm.close();
+      realm?.close();
     });
+
+    realm = Realm(config);
 
     if (config is FlexibleSyncConfiguration) {
       final session = realm.syncSession;
-      if (openedFirstTime || config.initialSubscriptionsConfiguration?.rerunOnOpen == true) {
-        config.initialSubscriptionsConfiguration?.callback(realm);
-      }
       if (onProgressCallback != null) {
         await session
             .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
             .forEach((s) => onProgressCallback.call(s.transferredBytes, s.transferableBytes));
       }
-      await session.waitForDownload();
+      if (realm._openedFirstTime) {
+        await session.waitForDownload();
+      }
+      {
+        realm.subscriptions.waitForSynchronization();
+      }
     }
     return realm;
   }
