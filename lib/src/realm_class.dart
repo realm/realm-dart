@@ -482,11 +482,7 @@ abstract class NotificationsController implements Finalizable {
   }
 
   void stop() {
-    if (handle == null) {
-      return;
-    }
-
-    handle!.release();
+    handle?.release();
     handle = null;
   }
 }

@@ -130,7 +130,10 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
   void clear() => realmCore.listClear(handle);
 
   @override
-  int indexOf(Object? element, [int start = 0]) {
+  int indexOf(covariant T element, [int start = 0]) {
+    if (element is RealmObject && !element.isManaged) {
+      throw RealmStateError('Cannot call indexOf on a managed list with an element that is an unmanaged object');
+    }
     if (start < 0) start = 0;
     final index = realmCore.listFind(this, element);
     return index < start ? -1 : index; // to align with dart list semantics

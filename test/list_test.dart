@@ -810,10 +810,17 @@ Future<void> main([List<String>? args]) async {
     expect((dartList as List<Object>).indexOf("abc"), -1); // ignore: unnecessary_cast
 
     // .. but realm list behaves differently in this regard.
-    expect(() => (players as List<Object>).indexOf(1), throwsA(isA<RealmException>())); // ignore: unnecessary_cast
+    expect(() => (players as List<Object>).indexOf(1), throwsA(isA<TypeError>())); // ignore: unnecessary_cast
 
     // .. Also it is a state error to lookup an unmanaged object in a managed list,
     // even if the static type is right.
-    expect(() => players.indexOf(Person('10')), throwsA(isA<RealmStateError>()));
+    expect(
+      () => players.indexOf(Person('10')),
+      throwsA(isA<RealmStateError>().having(
+        (e) => e.message,
+        'message',
+        'Cannot call indexOf on a managed list with an element that is an unmanaged object',
+      )),
+    );
   });
 }

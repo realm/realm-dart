@@ -391,13 +391,16 @@ extension RealmObjectInternal on RealmObject {
     return object;
   }
 
-  RealmObjectHandle get handle {
-    final h = _handle;
-    if (h != null) return h;
-    throw RealmStateError('$this is not managed');
-  }
+  RealmObjectHandle get handle => _handle ?? failUnmanaged(this);
 
   RealmAccessor get accessor => _accessor;
+}
+
+Never failUnmanaged(RealmEntity entity) {
+  final message = '$entity is not managed';
+  assert(false, message);
+  // in production we fall back to throwing state error as a precaution
+  throw RealmStateError(message);
 }
 
 /// An exception being thrown when a `Realm` operation or [RealmObject] access fails.
