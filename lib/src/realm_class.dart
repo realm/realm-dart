@@ -121,7 +121,8 @@ class Realm implements Finalizable {
 
     if (config is FlexibleSyncConfiguration) {
       FlexibleSyncConfiguration flexibleSyncConfiguration = config as FlexibleSyncConfiguration;
-      if (_openedFirstTime || flexibleSyncConfiguration.initialSubscriptionsConfiguration?.rerunOnOpen == true) {
+      if (flexibleSyncConfiguration.initialSubscriptionsConfiguration?.callback != null &&
+          (_openedFirstTime || flexibleSyncConfiguration.initialSubscriptionsConfiguration?.rerunOnOpen == true)) {
         flexibleSyncConfiguration.initialSubscriptionsConfiguration?.callback(this);
       }
     }
@@ -160,7 +161,10 @@ class Realm implements Finalizable {
             .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
             .forEach((s) => onProgressCallback.call(s.transferredBytes, s.transferableBytes));
       }
-      await realm.subscriptions.waitForSynchronization();
+      if (config.initialSubscriptionsConfiguration?.callback != null &&
+          (realm._openedFirstTime || config.initialSubscriptionsConfiguration?.rerunOnOpen == true)) {
+        await realm.subscriptions.waitForSynchronization();
+      }
       await session.waitForDownload();
       if (!realm._openedFirstTime) {
         await session.waitForUpload();

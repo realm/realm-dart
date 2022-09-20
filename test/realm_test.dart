@@ -866,12 +866,12 @@ Future<void> main([List<String>? args]) async {
     final configuration2 = Configuration.flexibleSync(user2, [Task.schema]);
     final realm2 = getRealm(configuration2);
     realm2.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm2.all<Task>()));
+    await realm2.subscriptions.waitForSynchronization();
     realm2.write(() {
       for (var i = 0; i < 100; i++) {
         realm2.add(Task(ObjectId()));
       }
     });
-    await realm2.subscriptions.waitForSynchronization();
     await realm2.syncSession.waitForUpload();
 
     final realmAsync1 = RealmA.open(configuration1, onProgressCallback: (transferredBytes, totalBytes) {
