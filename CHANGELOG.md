@@ -10,7 +10,12 @@
 * Previously removeAt did not truncate length. ([#883](https://github.com/realm/realm-dart/issues/883))
 * List.length= now throws, if you try to increase length, ([#894](https://github.com/realm/realm-dart/pull/894)).
 * Queries on lists were broken. ([#909](https://github.com/realm/realm-dart/issues/909))
-
+* Queries on results didn't filter the existing results. ([#908](https://github.com/realm/realm-dart/issues/908)). 
+  As an example
+  ```dart
+  expect(realm.query<Person>('FALSEPREDICATE').query('TRUEPREDICATE'), isEmpty);
+  ```
+  would fail if any Persons exists
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
 

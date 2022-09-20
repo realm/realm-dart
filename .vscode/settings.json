@@ -15,6 +15,7 @@
     "dylib",
     "ejson",
     "errno",
+    "FALSEPREDICATE",
     "ffigen",
     "finalizable",
     "finalizer",
