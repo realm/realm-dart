@@ -26,7 +26,7 @@
 ### Enhancements
 * Expose an API for string-based access to the objects in the `Realm`. Those are primarily intended to be used during migrations, but are available at all times for advanced use cases. [#495](https://github.com/realm/realm-dart/pull/495))
 * Added `Realm.schema` property exposing the Realm's schema as passed through the Configuration or read from disk. [#495](https://github.com/realm/realm-dart/pull/495))
-* Support `Realm.open` API to asynchronously open a synchronized Realm. It will download all remote content available at the time the operation began on a background task and then return a usable Realm. ([#731](https://github.com/realm/realm-dart/pull/731))
+* Support `Realm.open` API to asynchronously open a local or remote Realm. When opening a synchronized Realm it will download all the content available at the time the operation began on a background task and then return a usable Realm. ([#731](https://github.com/realm/realm-dart/pull/731))
 
 ### Fixed
 * Lifted a limitation that only allowed non-nullable primary keys. ([#458](https://github.com/realm/realm-dart/issues/458))

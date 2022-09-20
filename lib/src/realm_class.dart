@@ -117,13 +117,14 @@ class Realm implements Finalizable {
   ///
   /// If the configuration is [FlexibleSyncConfiguration], the realm will be downloaded and fully
   /// synchronized with the server prior to the completion of the returned [Future].
-  /// Otherwise this method will throw an exception.
+  /// This method could be called also for opening a local [Realm].
   ///
   /// * `config`- a configuration object that describes the realm.
   /// * `cancellationToken` - an optional [CancellationToken] used to cancel the operation.
-  /// * `onProgressCallback` - a callback for receiving download progress notifications.
+  /// * `onProgressCallback` - a callback for receiving download progress notifications for synced [Realm]s.
   ///
   /// Returns [Future<Realm>] that completes with the `realm` once the remote realm is fully synchronized or with an `error` if operation is canceled.
+  /// When the configuration is [LocalConfiguration] this completes right after the local realm is opened or operation is canceled.
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
     Realm realm = await CancellableFuture.fromFutureFunction<Realm>(() => _open(config, cancellationToken, onProgressCallback), cancellationToken);
     return realm;
@@ -663,7 +664,7 @@ typedef ProgressCallback = void Function(int transferredBytes, int totalBytes);
 
 /// An exception being thrown when a cancellable operation is cancelled by calling [CancellationToken.cancel].
 /// {@category Realm}
-class CancelledException implements Exception {
+class CancelledException implements RealmException {
   final String message;
 
   CancelledException(this.message);
