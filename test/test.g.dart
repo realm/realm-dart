@@ -18,7 +18,7 @@ class Car extends _Car with RealmEntity, RealmObject {
   @override
   String get make => RealmObject.get<String>(this, 'make') as String;
   @override
-  set make(String value) => throw RealmUnsupportedSetError();
+  set make(String value) => RealmObject.set(this, 'make', value);
 
   @override
   Stream<RealmObjectChanges<Car>> get changes =>
@@ -84,7 +84,7 @@ class Dog extends _Dog with RealmEntity, RealmObject {
   @override
   String get name => RealmObject.get<String>(this, 'name') as String;
   @override
-  set name(String value) => throw RealmUnsupportedSetError();
+  set name(String value) => RealmObject.set(this, 'name', value);
 
   @override
   int? get age => RealmObject.get<int>(this, 'age') as int?;
@@ -188,7 +188,7 @@ class Student extends _Student with RealmEntity, RealmObject {
   @override
   int get number => RealmObject.get<int>(this, 'number') as int;
   @override
-  set number(int value) => throw RealmUnsupportedSetError();
+  set number(int value) => RealmObject.set(this, 'number', value);
 
   @override
   String? get name => RealmObject.get<String>(this, 'name') as String?;
@@ -248,7 +248,7 @@ class School extends _School with RealmEntity, RealmObject {
   @override
   String get name => RealmObject.get<String>(this, 'name') as String;
   @override
-  set name(String value) => throw RealmUnsupportedSetError();
+  set name(String value) => RealmObject.set(this, 'name', value);
 
   @override
   String? get city => RealmObject.get<String>(this, 'city') as String?;
@@ -361,7 +361,7 @@ class Task extends _Task with RealmEntity, RealmObject {
   @override
   ObjectId get id => RealmObject.get<ObjectId>(this, '_id') as ObjectId;
   @override
-  set id(ObjectId value) => throw RealmUnsupportedSetError();
+  set id(ObjectId value) => RealmObject.set(this, '_id', value);
 
   @override
   Stream<RealmObjectChanges<Task>> get changes =>
@@ -395,7 +395,7 @@ class Schedule extends _Schedule with RealmEntity, RealmObject {
   @override
   ObjectId get id => RealmObject.get<ObjectId>(this, '_id') as ObjectId;
   @override
-  set id(ObjectId value) => throw RealmUnsupportedSetError();
+  set id(ObjectId value) => RealmObject.set(this, '_id', value);
 
   @override
   RealmList<Task> get tasks =>
@@ -601,7 +601,7 @@ class LinksClass extends _LinksClass with RealmEntity, RealmObject {
   @override
   Uuid get id => RealmObject.get<Uuid>(this, 'id') as Uuid;
   @override
-  set id(Uuid value) => throw RealmUnsupportedSetError();
+  set id(Uuid value) => RealmObject.set(this, 'id', value);
 
   @override
   LinksClass? get link =>
@@ -768,7 +768,7 @@ class NullableTypes extends _NullableTypes with RealmEntity, RealmObject {
   @override
   ObjectId get id => RealmObject.get<ObjectId>(this, '_id') as ObjectId;
   @override
-  set id(ObjectId value) => throw RealmUnsupportedSetError();
+  set id(ObjectId value) => RealmObject.set(this, '_id', value);
 
   @override
   ObjectId get differentiator =>
@@ -864,7 +864,7 @@ class Event extends _Event with RealmEntity, RealmObject {
   @override
   ObjectId get id => RealmObject.get<ObjectId>(this, '_id') as ObjectId;
   @override
-  set id(ObjectId value) => throw RealmUnsupportedSetError();
+  set id(ObjectId value) => RealmObject.set(this, '_id', value);
 
   @override
   String? get name =>
@@ -1005,7 +1005,7 @@ class Friend extends _Friend with RealmEntity, RealmObject {
   @override
   String get name => RealmObject.get<String>(this, 'name') as String;
   @override
-  set name(String value) => throw RealmUnsupportedSetError();
+  set name(String value) => RealmObject.set(this, 'name', value);
 
   @override
   int get age => RealmObject.get<int>(this, 'age') as int;

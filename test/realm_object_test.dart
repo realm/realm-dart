@@ -133,7 +133,14 @@ Future<void> main([List<String>? args]) async {
       realm.write(() {
         car.make = "Audi";
       });
-    }, throws<RealmUnsupportedSetError>());
+    }, throws<RealmException>("Primary key cannot be changed (original value: 'Tesla', supplied value: 'Audi'"));
+
+    // If we don't change the PK, setting it is a no-op
+    expect(() {
+      realm.write(() {
+        car.make = 'Tesla';
+      });
+    }, returnsNormally);
   });
 
   test('RealmObject set object type property (link)', () {
@@ -690,5 +697,25 @@ Future<void> main([List<String>? args]) async {
 
     final anotherFrozenObject = freezeObject(liveObject);
     expect(identical(frozenObject, anotherFrozenObject), false);
+  });
+
+  test('Update primary key on unmanaged object', () {
+    final obj = StringPrimaryKey('abc');
+    obj.id = 'cde';
+
+    expect(obj.id, 'cde');
+
+    final realm = getRealm(Configuration.local([StringPrimaryKey.schema]));
+    realm.write(() {
+      realm.add(obj);
+    });
+
+    expect(realm.find<StringPrimaryKey>('cde'), isNotNull);
+    expect(realm.find<StringPrimaryKey>('abc'), isNull);
+
+    realm.write(() {
+      expect(() => obj.id = 'cde', returnsNormally);
+      expect(() => obj.id = 'abc', throws<RealmException>('Primary key cannot be changed'));
+    });
   });
 }
