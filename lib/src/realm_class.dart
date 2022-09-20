@@ -124,7 +124,7 @@ class Realm implements Finalizable {
   /// * `cancellationToken` - an initialized object of [CancellationToken] that is used to cancel the operation. It is not mandatory.
   /// * `onProgressCallback` - a function that is registered as a callback for receiving download progress notifications. It is not mandatory.
   ///
-  /// The returned type is [Future<Realm>] that is completed once the remote realm is fully synchronized or canceled.
+  /// Returns [Future<Realm>] that completes with the `realm` once the remote realm is fully synchronized or with an `error` if operation is canceled.
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
     Realm realm = await CancellableFuture.fromFutureFunction<Realm>(() => _open(config, cancellationToken, onProgressCallback), cancellationToken);
     return realm;
