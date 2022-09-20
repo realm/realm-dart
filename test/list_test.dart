@@ -815,7 +815,8 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => realm.add(team));
     final players = team.players;
 
-    // expect(players, isA<ManagedRealmList<Person>>());
+    expect(players, isA<RealmList<Person>>());
+    expect(players.isManaged, isTrue);
     expect(players.indexOf(players.first, -1), 0); // okay to start from negative index
     expect(players.indexOf(players.first, 1), -1); // start respected
     expect(players.indexOf(players.first, 101), -1); // okay to start from non-existent index
