@@ -4,17 +4,24 @@
 
 ### Enhancements
 * Added support for "frozen objects" - these are objects, queries, lists, or Realms that have been "frozen" at a specific version. All frozen objects can be accessed and queried as normal, but attempting to mutate them or add change listeners will throw an exception. `Realm`, `RealmObject`, `RealmList`, and `RealmResults` now have a method `freeze()` which returns an immutable version of the object, as well as an `isFrozen` property which can be used to check whether an object is frozen. (Issue [#56](https://github.com/realm/realm-dart/issues/56))
+* Support `Realm.open` API to asynchronously open a local or remote Realm. When opening a synchronized Realm it will download all the content available at the time the operation began on a background task and then return a usable Realm. ([#731](https://github.com/realm/realm-dart/pull/731))
 
 ### Fixed
-* Allow null arguments on query. ([#872](https://github.com/realm/realm-dart/pull/872)). Fixes [#871](https://github.com/realm/realm-dart/issues/871)
-* Previously removeAt did not truncate length. ([#884](https://github.com/realm/realm-dart/pull/884)). Fixes [#883](https://github.com/realm/realm-dart/issues/883)
+* Allow null arguments on query. ([#871](https://github.com/realm/realm-dart/issues/871))
+* Previously removeAt did not truncate length. ([#883](https://github.com/realm/realm-dart/issues/883))
 * List.length= now throws, if you try to increase length, ([#894](https://github.com/realm/realm-dart/pull/894)).
-
+* Queries on lists were broken. ([#909](https://github.com/realm/realm-dart/issues/909))
+* Queries on results didn't filter the existing results. ([#908](https://github.com/realm/realm-dart/issues/908)). 
+  As an example
+  ```dart
+  expect(realm.query<Person>('FALSEPREDICATE').query('TRUEPREDICATE'), isEmpty);
+  ```
+  would fail if any Persons exists
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
 
 ### Internal
-* Uses Realm Core v12.6.0
+* Uses Realm Core v12.7.0
 
 ## 0.4.0+beta (2022-08-19)
 
@@ -26,7 +33,6 @@
 ### Enhancements
 * Expose an API for string-based access to the objects in the `Realm`. Those are primarily intended to be used during migrations, but are available at all times for advanced use cases. [#495](https://github.com/realm/realm-dart/pull/495))
 * Added `Realm.schema` property exposing the Realm's schema as passed through the Configuration or read from disk. [#495](https://github.com/realm/realm-dart/pull/495))
-* Support `Realm.open` API to asynchronously open a local or remote Realm. When opening a synchronized Realm it will download all the content available at the time the operation began on a background task and then return a usable Realm. ([#731](https://github.com/realm/realm-dart/pull/731))
 
 ### Fixed
 * Lifted a limitation that only allowed non-nullable primary keys. ([#458](https://github.com/realm/realm-dart/issues/458))

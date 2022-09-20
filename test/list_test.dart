@@ -784,4 +784,26 @@ Future<void> main([List<String>? args]) async {
     expect(team.players.length, 10);
     expect(realm.all<Person>().length, 100);
   });
+
+  test('List.query when other objects exists', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+
+    final team = Team('Class of 92', players: [alice, bob]);
+
+    realm.write(() {
+      realm.addAll(players);
+      return realm.add(team);
+    });
+
+    expect(realm.all<Person>(), [alice, bob, carol, dan]);
+    expect(team.players.query('TRUEPREDICATE'), isNot(realm.all<Person>()));
+    expect(team.players.query('TRUEPREDICATE'), [alice, bob]);
+  });
 }
