@@ -131,7 +131,7 @@ class Realm implements Finalizable {
   }
 
   static Future<Realm> _open(Configuration config, CancellationToken? cancellationToken, ProgressCallback? onProgressCallback) async {
-    bool openedFirstTime = File(config.path).existsSync();
+    bool openedFirstTime = await File(config.path).exists();
     Realm realm = Realm(config);
     cancellationToken?.onBeforeCancel(() async {
       realm.close();
@@ -140,15 +140,14 @@ class Realm implements Finalizable {
     if (config is FlexibleSyncConfiguration) {
       final session = realm.syncSession;
       if (openedFirstTime || config.initialSubscriptionsConfiguration?.rerunOnOpen == true) {
-          config.initialSubscriptionsConfiguration?.callback(openedRealm);
+        config.initialSubscriptionsConfiguration?.callback(realm);
       }
       if (onProgressCallback != null) {
         await session
             .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
             .forEach((s) => onProgressCallback.call(s.transferredBytes, s.transferableBytes));
-      } else {
-        await session.waitForDownload();
       }
+      await session.waitForDownload();
     }
     return realm;
   }

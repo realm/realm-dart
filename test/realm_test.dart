@@ -805,7 +805,7 @@ Future<void> main([List<String>? args]) async {
     expect(realm.isClosed, true);
     expect(frozen.isClosed, true);
   });
-  
+
   baasTest('Realm open async for flexibleSync configuration', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
@@ -965,29 +965,37 @@ Future<void> main([List<String>? args]) async {
 
     cancellationToken.cancel();
     expect(realm.isClosed, true);
-   });
-   
-   baasTest('Realm open async with initial subscriptions and get progress', (appConfiguration) async {
+  });
+
+  baasTest('Realm open async with initial subscriptions and get progress', (appConfiguration) async {
     final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
 
-    var initalSubscriptions = InitialSubscriptionsConfiguration((r) {
-      r.subscriptions.update((mutableSubscriptions) {
-        mutableSubscriptions.add(r.all<Task>());
-      });
-    }, rerunOnOpen: true);
+    final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final configuration1 = Configuration.flexibleSync(user1, [Task.schema]);
+    final realm1 = Realm(configuration1);
+    realm1.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm1.all<Task>()));
+    realm1.write(() {
+      for (var i = 0; i < 100; i++) {
+        realm1.add(Task(ObjectId()));
+      }
+    });
 
-    final configuration = Configuration.flexibleSync(user, [Task.schema], initialSubscriptionsConfiguration: initalSubscriptions);
+    final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final configuration2 = Configuration.flexibleSync(user2, [Task.schema],
+        initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration((r) {
+          r.subscriptions.update((mutableSubscriptions) {
+            mutableSubscriptions.add(r.all<Task>());
+          });
+        }, rerunOnOpen: true));
 
-    final realm = await Realm.open(configuration, onProgressCallback: (transferredBytes, totalBytes) {
+    final realm2 = await Realm.open(configuration2, onProgressCallback: (transferredBytes, totalBytes) {
       print("transferredBytes: $transferredBytes, totalBytes:$totalBytes");
     });
-    if (realm != null) {
-      expect(realm.isClosed, false);
-      realm.close();
-    }
-   }, skip: "Not working");
+    expect(realm2.isClosed, false);
+    expect(realm2.all<Task>().length, realm1.all<Task>().length);
+    realm1.close();
+    realm2.close();
+  }, skip: "Not working");
 }
 
 extension _IterableEx<T> on Iterable<T> {
