@@ -112,8 +112,8 @@ class Realm implements Finalizable {
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
-  Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) 
-  : _openedFirstTime = !File(config.path).existsSync(),
+  Realm._(this.config, [RealmHandle? handle, this._isInMigration = false])
+      : _openedFirstTime = !File(config.path).existsSync(),
         _handle = handle ?? _openRealmSync(config) {
     _populateMetadata();
     isFrozen = realmCore.isFrozen(this);
@@ -762,3 +762,4 @@ class CancellableFuture {
     }
     return await Future.any([futureFunction()]);
   }
+}
