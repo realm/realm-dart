@@ -79,7 +79,7 @@ class Bar extends _Bar with RealmEntity, RealmObject {
   @override
   String get id => RealmObject.get<String>(this, 'id') as String;
   @override
-  set id(String value) => throw RealmUnsupportedSetError();
+  set id(String value) => RealmObject.set(this, 'id', value);
 
   @override
   bool get aBool => RealmObject.get<bool>(this, 'aBool') as bool;

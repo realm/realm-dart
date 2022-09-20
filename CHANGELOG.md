@@ -6,6 +6,36 @@
 * Added support for "frozen objects" - these are objects, queries, lists, or Realms that have been "frozen" at a specific version. All frozen objects can be accessed and queried as normal, but attempting to mutate them or add change listeners will throw an exception. `Realm`, `RealmObject`, `RealmList`, and `RealmResults` now have a method `freeze()` which returns an immutable version of the object, as well as an `isFrozen` property which can be used to check whether an object is frozen. ([#56](https://github.com/realm/realm-dart/issues/56))
 * You can now set a realm property of type `T` to any object `o` where `o is T`. Previously it was required that `o.runtimeType == T`. ([#904](https://github.com/realm/realm-dart/issues/904))
 * Performance of indexOf on realm lists has been improved. It now uses realm-core instead of the generic version from ListMixin. ([#911](https://github.com/realm/realm-dart/pull/911)). 
+* Added support for migrations for local Realms. You can now construct a configuration with a migration callback that will be invoked if the schema version of the file on disk is lower than the schema version supplied by the callback. (Issue [#70](https://github.com/realm/realm-dart/issues/70))
+
+  A minimal example looks like this:
+  ```dart
+  final config = Configuration.local([Person.schema], schemaVersion: 4, migrationCallback: (migration, oldSchemaVersion) {
+    if (oldSchemaVersion == 1) {
+      // Between v1 and v2 we removed the Bar type
+      migration.deleteType('Bar');
+    }
+
+    if (oldSchemaVersion == 2) {
+      // Between v2 and v3 we fixed a typo in the 'Person.name' property.
+      migration.renameProperty('Person', 'nmae', 'name');
+    }
+
+    if (oldSchemaVersion == 3) {
+      final oldPeople = migration.oldRealm.dynamic.all('Person');
+      for (final oldPerson in oldPeople) {
+        final newPerson = migration.findInNewRealm<Person>(oldPerson);
+        if (newPerson == null) {
+          // That person must have been deleted, so nothing to do.
+          continue;
+        }
+
+        // Between v3 and v4 we're obfuscating the users' exact age by storing age group instead.
+        newPerson.ageGroup = calculateAgeGroup(oldPerson.dynamic.get<int>('age'));
+      }
+    }
+  });
+  ```
 
 ### Fixed
 * Allow null arguments on query. ([#871](https://github.com/realm/realm-dart/issues/871))

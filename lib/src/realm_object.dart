@@ -124,13 +124,16 @@ class RealmPropertyMetadata {
   final RealmPropertyType propertyType;
   final bool isNullable;
   final String? objectType;
-  const RealmPropertyMetadata(this.key, this.objectType, this.propertyType, this.isNullable, [this.collectionType = RealmCollectionType.none]);
+  final bool isPrimaryKey;
+  const RealmPropertyMetadata(this.key, this.objectType, this.propertyType, this.isNullable, this.isPrimaryKey,
+      [this.collectionType = RealmCollectionType.none]);
 }
 
 class RealmCoreAccessor implements RealmAccessor {
   final RealmObjectMetadata metadata;
+  final bool isInMigration;
 
-  RealmCoreAccessor(this.metadata);
+  RealmCoreAccessor(this.metadata, this.isInMigration);
 
   @override
   Object? get<T extends Object?>(RealmObject object, String name) {
@@ -182,9 +185,18 @@ class RealmCoreAccessor implements RealmAccessor {
         }
         return;
       }
+
       if (value is RealmObject && !value.isManaged) {
         object.realm.add(value, update: update);
       }
+
+      if (propertyMeta.isPrimaryKey && !isInMigration) {
+        final currentValue = realmCore.getProperty(object, propertyMeta.key);
+        if (currentValue != value) {
+          throw RealmException("Primary key cannot be changed (original value: '$currentValue', supplied value: '$value')");
+        }
+      }
+
       realmCore.setProperty(object, propertyMeta.key, value, isDefault);
     } on Exception catch (e) {
       throw RealmException("Error setting property ${metadata._realmObjectTypeName}.$name Error: $e");
@@ -414,6 +426,16 @@ class RealmException implements Exception {
   String toString() {
     return "RealmException: $message";
   }
+}
+
+/// An exception throws during execution of a user callback - e.g. during migration or initial data population.
+/// {@category Realm}
+class UserCallbackException extends RealmException {
+  /// The error that was thrown while executing the callback.
+  final Object userException;
+
+  UserCallbackException(this.userException)
+      : super('An exception occurred while executing a user-provided callback. See userException for more details: $userException');
 }
 
 /// Describes the changes in on a single RealmObject since the last time the notification callback was invoked.

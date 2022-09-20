@@ -15,9 +15,9 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
-import 'package:realm_generator/src/expanded_context_span.dart';
 import 'package:source_gen/source_gen.dart';
 import 'annotation_value.dart';
 import 'error.dart';
@@ -29,15 +29,13 @@ import 'realm_model_info.dart';
 import 'type_checkers.dart';
 import 'session.dart';
 
-final _validIdentifier = RegExp(r'^[a-zA-Z]\w*$');
-
 extension on Iterable<FieldElement> {
   Iterable<RealmFieldInfo> get realmInfo sync* {
     final primaryKeys = <RealmFieldInfo>[];
     for (final f in this) {
       final info = f.realmInfo;
       if (info == null) continue;
-      if (info.primaryKey) {
+      if (info.isPrimaryKey) {
         primaryKeys.add(info);
       }
       yield info;

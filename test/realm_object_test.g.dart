@@ -19,7 +19,7 @@ class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
   @override
   ObjectId get id => RealmObject.get<ObjectId>(this, 'id') as ObjectId;
   @override
-  set id(ObjectId value) => throw RealmUnsupportedSetError();
+  set id(ObjectId value) => RealmObject.set(this, 'id', value);
 
   @override
   Stream<RealmObjectChanges<ObjectIdPrimaryKey>> get changes =>
@@ -52,7 +52,7 @@ class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
   @override
   ObjectId? get id => RealmObject.get<ObjectId>(this, 'id') as ObjectId?;
   @override
-  set id(ObjectId? value) => throw RealmUnsupportedSetError();
+  set id(ObjectId? value) => RealmObject.set(this, 'id', value);
 
   @override
   Stream<RealmObjectChanges<NullableObjectIdPrimaryKey>> get changes =>
@@ -86,7 +86,7 @@ class IntPrimaryKey extends _IntPrimaryKey with RealmEntity, RealmObject {
   @override
   int get id => RealmObject.get<int>(this, 'id') as int;
   @override
-  set id(int value) => throw RealmUnsupportedSetError();
+  set id(int value) => RealmObject.set(this, 'id', value);
 
   @override
   Stream<RealmObjectChanges<IntPrimaryKey>> get changes =>
@@ -118,7 +118,7 @@ class NullableIntPrimaryKey extends _NullableIntPrimaryKey
   @override
   int? get id => RealmObject.get<int>(this, 'id') as int?;
   @override
-  set id(int? value) => throw RealmUnsupportedSetError();
+  set id(int? value) => RealmObject.set(this, 'id', value);
 
   @override
   Stream<RealmObjectChanges<NullableIntPrimaryKey>> get changes =>
@@ -151,7 +151,7 @@ class StringPrimaryKey extends _StringPrimaryKey with RealmEntity, RealmObject {
   @override
   String get id => RealmObject.get<String>(this, 'id') as String;
   @override
-  set id(String value) => throw RealmUnsupportedSetError();
+  set id(String value) => RealmObject.set(this, 'id', value);
 
   @override
   Stream<RealmObjectChanges<StringPrimaryKey>> get changes =>
@@ -183,7 +183,7 @@ class NullableStringPrimaryKey extends _NullableStringPrimaryKey
   @override
   String? get id => RealmObject.get<String>(this, 'id') as String?;
   @override
-  set id(String? value) => throw RealmUnsupportedSetError();
+  set id(String? value) => RealmObject.set(this, 'id', value);
 
   @override
   Stream<RealmObjectChanges<NullableStringPrimaryKey>> get changes =>
@@ -217,7 +217,7 @@ class UuidPrimaryKey extends _UuidPrimaryKey with RealmEntity, RealmObject {
   @override
   Uuid get id => RealmObject.get<Uuid>(this, 'id') as Uuid;
   @override
-  set id(Uuid value) => throw RealmUnsupportedSetError();
+  set id(Uuid value) => RealmObject.set(this, 'id', value);
 
   @override
   Stream<RealmObjectChanges<UuidPrimaryKey>> get changes =>
@@ -249,7 +249,7 @@ class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
   @override
   Uuid? get id => RealmObject.get<Uuid>(this, 'id') as Uuid?;
   @override
-  set id(Uuid? value) => throw RealmUnsupportedSetError();
+  set id(Uuid? value) => RealmObject.set(this, 'id', value);
 
   @override
   Stream<RealmObjectChanges<NullableUuidPrimaryKey>> get changes =>
@@ -324,7 +324,7 @@ class BoolValue extends _BoolValue with RealmEntity, RealmObject {
   @override
   int get key => RealmObject.get<int>(this, 'key') as int;
   @override
-  set key(int value) => throw RealmUnsupportedSetError();
+  set key(int value) => RealmObject.set(this, 'key', value);
 
   @override
   bool get value => RealmObject.get<bool>(this, 'value') as bool;

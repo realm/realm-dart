@@ -431,6 +431,12 @@ jobs:
           dart pub get
           dart run build_runner build --delete-conflicting-outputs
 
+      - name: Run generator in realm-dart/example
+        run: |
+          dart pub get
+          dart run build_runner build --delete-conflicting-outputs
+        working-directory: ./example/
+
       - name: Run generator in realm_flutter/example
         run: |
           dart pub get
