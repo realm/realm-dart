@@ -2052,56 +2052,48 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
     realm_value.ref.values.link.target_table = link.classKey;
     realm_value.ref.type = realm_value_type.RLM_TYPE_LINK;
   } else {
-    switch (value.runtimeType) {
-      case int:
-        realm_value.ref.values.integer = value as int;
-        realm_value.ref.type = realm_value_type.RLM_TYPE_INT;
-        break;
-      case bool:
-        realm_value.ref.values.boolean = value as bool;
-        realm_value.ref.type = realm_value_type.RLM_TYPE_BOOL;
-        break;
-      case String:
-        String string = value as String;
-        final units = utf8.encode(string);
-        final result = allocator<Uint8>(units.length);
-        final Uint8List nativeString = result.asTypedList(units.length);
-        nativeString.setAll(0, units);
-        realm_value.ref.values.string.data = result.cast();
-        realm_value.ref.values.string.size = units.length;
-        realm_value.ref.type = realm_value_type.RLM_TYPE_STRING;
-        break;
-      case double:
-        realm_value.ref.values.dnum = value as double;
-        realm_value.ref.type = realm_value_type.RLM_TYPE_DOUBLE;
-        break;
-      case ObjectId:
-        final bytes = (value as ObjectId).bytes;
-        for (var i = 0; i < 12; i++) {
-          realm_value.ref.values.object_id.bytes[i] = bytes[i];
-        }
-        realm_value.ref.type = realm_value_type.RLM_TYPE_OBJECT_ID;
-        break;
-      case Uuid:
-        final bytes = (value as Uuid).bytes.asUint8List();
-        for (var i = 0; i < 16; i++) {
-          realm_value.ref.values.uuid.bytes[i] = bytes[i];
-        }
-        realm_value.ref.type = realm_value_type.RLM_TYPE_UUID;
-        break;
-      case DateTime:
-        final microseconds = (value as DateTime).toUtc().microsecondsSinceEpoch;
-        final seconds = microseconds ~/ _microsecondsPerSecond;
-        int nanoseconds = _nanosecondsPerMicrosecond * (microseconds % _microsecondsPerSecond);
-        if (microseconds < 0 && nanoseconds != 0) {
-          nanoseconds = nanoseconds - _nanosecondsPerMicrosecond * _microsecondsPerSecond;
-        }
-        realm_value.ref.values.timestamp.seconds = seconds;
-        realm_value.ref.values.timestamp.nanoseconds = nanoseconds;
-        realm_value.ref.type = realm_value_type.RLM_TYPE_TIMESTAMP;
-        break;
-      default:
-        throw RealmException("Property type ${value.runtimeType} not supported");
+    if (value is int) {
+      realm_value.ref.values.integer = value;
+      realm_value.ref.type = realm_value_type.RLM_TYPE_INT;
+    } else if (value is bool) {
+      realm_value.ref.values.boolean = value;
+      realm_value.ref.type = realm_value_type.RLM_TYPE_BOOL;
+    } else if (value is String) {
+      String string = value;
+      final units = utf8.encode(string);
+      final result = allocator<Uint8>(units.length);
+      final Uint8List nativeString = result.asTypedList(units.length);
+      nativeString.setAll(0, units);
+      realm_value.ref.values.string.data = result.cast();
+      realm_value.ref.values.string.size = units.length;
+      realm_value.ref.type = realm_value_type.RLM_TYPE_STRING;
+    } else if (value is double) {
+      realm_value.ref.values.dnum = value;
+      realm_value.ref.type = realm_value_type.RLM_TYPE_DOUBLE;
+    } else if (value is ObjectId) {
+      final bytes = value.bytes;
+      for (var i = 0; i < 12; i++) {
+        realm_value.ref.values.object_id.bytes[i] = bytes[i];
+      }
+      realm_value.ref.type = realm_value_type.RLM_TYPE_OBJECT_ID;
+    } else if (value is Uuid) {
+      final bytes = value.bytes.asUint8List();
+      for (var i = 0; i < 16; i++) {
+        realm_value.ref.values.uuid.bytes[i] = bytes[i];
+      }
+      realm_value.ref.type = realm_value_type.RLM_TYPE_UUID;
+    } else if (value is DateTime) {
+      final microseconds = value.toUtc().microsecondsSinceEpoch;
+      final seconds = microseconds ~/ _microsecondsPerSecond;
+      int nanoseconds = _nanosecondsPerMicrosecond * (microseconds % _microsecondsPerSecond);
+      if (microseconds < 0 && nanoseconds != 0) {
+        nanoseconds = nanoseconds - _nanosecondsPerMicrosecond * _microsecondsPerSecond;
+      }
+      realm_value.ref.values.timestamp.seconds = seconds;
+      realm_value.ref.values.timestamp.nanoseconds = nanoseconds;
+      realm_value.ref.type = realm_value_type.RLM_TYPE_TIMESTAMP;
+    } else {
+      throw RealmException("Property type ${value.runtimeType} not supported");
     }
   }
 }
