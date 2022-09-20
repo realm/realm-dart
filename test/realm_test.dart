@@ -979,6 +979,7 @@ Future<void> main([List<String>? args]) async {
         realm1.add(Task(ObjectId()));
       }
     });
+    await realm1.syncSession.waitForUpload();
 
     final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
     final configuration2 = Configuration.flexibleSync(user2, [Task.schema],
