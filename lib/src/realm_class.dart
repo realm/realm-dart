@@ -131,7 +131,7 @@ class Realm implements Finalizable {
   }
 
   static Future<Realm> _open(Configuration config, CancellationToken? cancellationToken, ProgressCallback? onProgressCallback) async {
-    bool openedFirstTime = await File(config.path).exists();
+    bool openedFirstTime = !File(config.path).existsSync();
     Realm realm = Realm(config);
     cancellationToken?.onBeforeCancel(() async {
       realm.close();
