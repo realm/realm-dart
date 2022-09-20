@@ -995,7 +995,7 @@ Future<void> main([List<String>? args]) async {
     expect(realm2.all<Task>().length, realm1.all<Task>().length);
     realm1.close();
     realm2.close();
-  }, skip: "Not working");
+  });
 }
 
 extension _IterableEx<T> on Iterable<T> {
