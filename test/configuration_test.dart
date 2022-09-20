@@ -541,14 +541,11 @@ Future<void> main([List<String>? args]) async {
           rerunOnOpen: true,
         ));
 
-    var realm1 = Realm(configuration1);
-    realm1.close();
+    getRealm(configuration1);
     expect(subscriptionSetUpdateCount, 1);
-    realm1 = Realm(configuration1);
-    realm1.close();
+    getRealm(configuration1);
     expect(subscriptionSetUpdateCount, 2);
-    realm1 = Realm(configuration1);
-    realm1.close();
+    getRealm(configuration1);
     expect(subscriptionSetUpdateCount, 3);
   });
 
@@ -562,14 +559,11 @@ Future<void> main([List<String>? args]) async {
           rerunOnOpen: false,
         ));
 
-    var realm1 = Realm(configuration1);
-    realm1.close();
+    getRealm(configuration1);
     expect(subscriptionSetUpdateCount, 1);
-    realm1 = Realm(configuration1);
-    realm1.close();
+    getRealm(configuration1);
     expect(subscriptionSetUpdateCount, 1);
-    realm1 = Realm(configuration1);
-    realm1.close();
+    getRealm(configuration1);
     expect(subscriptionSetUpdateCount, 1);
   });
 }
