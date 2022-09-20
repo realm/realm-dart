@@ -1047,3 +1047,46 @@ class Friend extends _Friend with RealmEntity, RealmObject {
     ]);
   }
 }
+
+class When extends _When with RealmEntity, RealmObject {
+  When(
+    DateTime dateTimeUtc,
+    String locationName,
+  ) {
+    RealmObject.set(this, 'dateTimeUtc', dateTimeUtc);
+    RealmObject.set(this, 'locationName', locationName);
+  }
+
+  When._();
+
+  @override
+  DateTime get dateTimeUtc =>
+      RealmObject.get<DateTime>(this, 'dateTimeUtc') as DateTime;
+  @override
+  set dateTimeUtc(DateTime value) =>
+      RealmObject.set(this, 'dateTimeUtc', value);
+
+  @override
+  String get locationName =>
+      RealmObject.get<String>(this, 'locationName') as String;
+  @override
+  set locationName(String value) =>
+      RealmObject.set(this, 'locationName', value);
+
+  @override
+  Stream<RealmObjectChanges<When>> get changes =>
+      RealmObject.getChanges<When>(this);
+
+  @override
+  When freeze() => RealmObject.freezeObject<When>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(When._);
+    return const SchemaObject(When, 'When', [
+      SchemaProperty('dateTimeUtc', RealmPropertyType.timestamp),
+      SchemaProperty('locationName', RealmPropertyType.string),
+    ]);
+  }
+}

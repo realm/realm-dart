@@ -523,4 +523,30 @@ Future<void> main([List<String>? args]) async {
     final frozenPeopleAgain = freezeResults(people);
     expect(identical(frozenPeople, frozenPeopleAgain), false);
   });
+
+  test('Results.query', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+
+    final team = Team('Class of 92', players: [alice, bob]);
+
+    realm.write(() {
+      realm.addAll(players);
+      return realm.add(team);
+    });
+
+    expect(realm.all<Person>(), [alice, bob, carol, dan]);
+    expect(realm.query<Person>('FALSEPREDICATE').query('TRUEPREDICATE'), isEmpty);
+    expect(realm.query<Person>('FALSEPREDICATE').query('TRUEPREDICATE'), isNot(realm.all<Person>()));
+    expect(realm.query<Person>("name CONTAINS 'a'"), [carol, dan]); // Alice is capital 'a'
+    expect(realm.query<Person>("name CONTAINS 'l'"), [alice, carol]);
+    expect(realm.query<Person>("name CONTAINS 'a'").query("name CONTAINS 'l'"), isNot([alice, carol]));
+    expect(realm.query<Person>("name CONTAINS 'a'").query("name CONTAINS 'l'"), [carol]);
+  });
 }
