@@ -807,6 +807,24 @@ Future<void> main([List<String>? args]) async {
     expect(frozen.isClosed, true);
   });
 
+  test('Subtype of supported type (TZDateTime)', () {
+    final realm = getRealm(Configuration.local([When.schema]));
+    tz.initializeTimeZones();
+
+    final cph = tz.getLocation('Europe/Copenhagen');
+    final now = tz.TZDateTime.now(cph);
+    final when = newWhen(now);
+
+    realm.write(() => realm.add(when));
+
+    final stored = realm.all<When>().first.dateTime;
+
+    expect(stored, now);
+    expect(stored.timeZone, now.timeZone);
+    expect(stored.location, now.location);
+    expect(stored.location.name, 'Europe/Copenhagen');
+  });
+
   baasTest('Realm open async for flexibleSync configuration', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
@@ -840,19 +858,21 @@ Future<void> main([List<String>? args]) async {
 
     final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
     final configuration1 = Configuration.flexibleSync(user1, [Task.schema]);
-    final realm1 = Realm(configuration1);
+    final realm1 = getRealm(configuration1);
     realm1.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm1.all<Task>()));
-    realm1.close();
+    await realm1.subscriptions.waitForSynchronization();
 
     final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
     final configuration2 = Configuration.flexibleSync(user2, [Task.schema]);
-    final realm2 = Realm(configuration2);
+    final realm2 = getRealm(configuration2);
     realm2.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm2.all<Task>()));
     realm2.write(() {
       for (var i = 0; i < 100; i++) {
         realm2.add(Task(ObjectId()));
       }
     });
+    await realm2.subscriptions.waitForSynchronization();
+    await realm2.syncSession.waitForUpload();
 
     final realmAsync1 = RealmA.open(configuration1, onProgressCallback: (transferredBytes, totalBytes) {
       print("transferredBytes: $transferredBytes, totalBytes:$totalBytes");
@@ -959,26 +979,7 @@ Future<void> main([List<String>? args]) async {
 
     cancellationToken.cancel();
     expect(realm.isClosed, true);
-   });
-   
-   test('Subtype of supported type (TZDateTime)', () {
-    final realm = getRealm(Configuration.local([When.schema]));
-    tz.initializeTimeZones();
-
-    final cph = tz.getLocation('Europe/Copenhagen');
-    final now = tz.TZDateTime.now(cph);
-    final when = newWhen(now);
-
-    realm.write(() => realm.add(when));
-
-    final stored = realm.all<When>().first.dateTime;
-
-    expect(stored, now);
-    expect(stored.timeZone, now.timeZone);
-    expect(stored.location, now.location);
-    expect(stored.location.name, 'Europe/Copenhagen');
   });
-  
 }
 
 extension on When {

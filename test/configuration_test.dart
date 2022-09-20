@@ -506,7 +506,7 @@ Future<void> main([List<String>? args]) async {
       path.basename('my-custom-realm-name.realm'),
     );
     final config = Configuration.flexibleSync(user, [Event.schema], path: customPath);
-    var realm = Realm(config);
+    var realm = getRealm(config);
   });
 
   baasTest('Configuration.disconnectedSync', (appConfig) async {
@@ -518,7 +518,7 @@ Future<void> main([List<String>? args]) async {
 
     final schema = [Task.schema];
     final flexibleSyncConfig = Configuration.flexibleSync(user, schema, path: realmPath);
-    final realm = Realm(flexibleSyncConfig);
+    final realm = getRealm(flexibleSyncConfig);
     final oid = ObjectId();
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [oid]));
@@ -527,7 +527,7 @@ Future<void> main([List<String>? args]) async {
     realm.close();
 
     final disconnectedSyncConfig = Configuration.disconnectedSync(schema, path: realmPath);
-    final disconnectedRealm = Realm(disconnectedSyncConfig);
+    final disconnectedRealm = getRealm(disconnectedSyncConfig);
     expect(disconnectedRealm.find<Task>(oid), isNotNull);
   });
 }

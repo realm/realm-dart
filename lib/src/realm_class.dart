@@ -149,10 +149,9 @@ class Realm implements Finalizable {
             .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
             .forEach((s) => onProgressCallback.call(s.transferredBytes, s.transferableBytes));
       }
-      if (realm._openedFirstTime) {
-        await session.waitForDownload();
-      } else {
-        await realm.subscriptions.waitForSynchronization();
+      await session.waitForDownload();
+      if (!realm._openedFirstTime) {
+        await session.waitForUpload();
       }
     }
     return realm;
