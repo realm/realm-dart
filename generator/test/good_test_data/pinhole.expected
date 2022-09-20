@@ -26,6 +26,9 @@ class Foo extends _Foo with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<Foo>> get changes => RealmObject.getChanges<Foo>(this);
 
+  @override
+  Foo freeze() => RealmObject.freezeObject<Foo>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {

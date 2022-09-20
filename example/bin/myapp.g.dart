@@ -52,6 +52,9 @@ class Car extends _Car with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<Car>> get changes =>
       RealmObject.getChanges<Car>(this);
 
+  @override
+  Car freeze() => RealmObject.freezeObject<Car>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -97,6 +100,9 @@ class Person extends _Person with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<Person>> get changes =>
       RealmObject.getChanges<Person>(this);
+
+  @override
+  Person freeze() => RealmObject.freezeObject<Person>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;

@@ -138,26 +138,3 @@ RLM_API void realm_dart_sync_on_subscription_state_changed_callback(realm_userda
         (reinterpret_cast<realm_sync_on_subscription_state_changed_t>(ud->dart_callback))(ud->handle, state);
     });
 }
-
-RLM_API void realm_dart_async_open_task_completion_callback(realm_userdata_t userdata, realm_thread_safe_reference_t* realm, realm_async_error_t* error)
-{
-    struct realm_dart_async_error : realm_async_error
-    {
-        realm_dart_async_error(const realm_async_error& error)
-            : realm_async_error(*error.clone())
-        {
-
-        }
-    };
-
-    std::unique_ptr<realm_dart_async_error> error_copy;
-    if (error != nullptr) {
-        error_copy = std::make_unique<realm_dart_async_error>(*error);
-    }
-
-
-    auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    ud->scheduler->invoke([ud, realm, error = std::move(error_copy)]() {
-        (reinterpret_cast<realm_async_open_task_completion_func_t>(ud->dart_callback))(ud->handle, realm, error.get());
-    });
-}

@@ -23,7 +23,6 @@ import 'dart:io';
 import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:collection/collection.dart';
-import 'package:async/async.dart';
 
 import 'configuration.dart';
 import 'list.dart';
@@ -102,90 +101,64 @@ class Realm implements Finalizable {
   /// the schema will be read from the file.
   late final RealmSchema schema;
 
+  /// Gets a value indicating whether this [Realm] is frozen. Frozen Realms are immutable
+  /// and will not update when writes are made to the database.
+  late final bool isFrozen;
+
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
   Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? _openRealmSync(config) {
-    if (config is FlexibleSyncConfiguration) {
-      (config as FlexibleSyncConfiguration).initialSubscriptionsConfiguration?.callback(this);
-    }
     _populateMetadata();
+    isFrozen = realmCore.isFrozen(this);
   }
 
-  /// A method for asynchronously obtaining and opening a [Realm].
+  /// A method for asynchronously opening a [Realm].
   ///
   /// If the configuration is [FlexibleSyncConfiguration], the realm will be downloaded and fully
   /// synchronized with the server prior to the completion of the returned [Future].
-  /// Otherwise this method will throw an exception.
+  /// This method could be called also for opening a local [Realm].
   ///
-  /// Open realm async arguments are:
   /// * `config`- a configuration object that describes the realm.
-  /// * `cancelationController` - an initialized object of [RealmCancelationController] that is used to cancel the operation. It is not mandatory.
-  /// * `onProgressCallback` - a function that is registered as a callback for receiving download progress notifications. It is not mandatory.
+  /// * `cancellationToken` - an optional [CancellationToken] used to cancel the operation.
+  /// * `onProgressCallback` - a callback for receiving download progress notifications for synced [Realm]s.
   ///
-  /// The returned type is [Future<Realm?>] that is completed once the remote realm is fully synchronized or canceled.
-  /// [RealmCancelationController] provides method [cancel] that cancels any current running download.
-  /// If multiple [Realm.open] operations are all in the progress for the same Realm,
-  /// then canceling one of them will cancel all of them.
-  static Future<Realm?> open(Configuration config, {RealmCancelationController? cancelationController, ProgressCallback? onProgressCallback}) async {
-    _createFileDirectory(config.path);
+  /// Returns [Future<Realm>] that completes with the `realm` once the remote realm is fully synchronized or with an `error` if operation is canceled.
+  /// When the configuration is [LocalConfiguration] this completes right after the local realm is opened or operation is canceled.
+  static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
+    Realm realm = await CancellableFuture.fromFutureFunction<Realm>(() => _open(config, cancellationToken, onProgressCallback), cancellationToken);
+    return realm;
+  }
+
+  static Future<Realm> _open(Configuration config, CancellationToken? cancellationToken, ProgressCallback? onProgressCallback) async {
     bool openedFirstTime = File(config.path).existsSync();
-    if (cancelationController != null) {
-      if (cancelationController._canceledCalled) {
-        return Future<Realm?>.value(null);
-      }
-      if (cancelationController._opration != null) {
-        throw RealmException("RealmCancelableOperation is already in use.");
-      }
-    }
+    Realm realm = Realm(config);
+    cancellationToken?.onBeforeCancel(() async {
+      realm.close();
+    });
 
-    RealmAsyncOpenTaskHandle realmAsyncOpenTaskHandle = realmCore.createRealmAsyncOpenTask(config);
-
-    int progressToken = 0;
-    if (onProgressCallback != null) {
-      progressToken = realmCore.realmAsyncOpenRegisterProgressNotifier(realmAsyncOpenTaskHandle, onProgressCallback);
-    }
-
-    Completer<RealmHandle?> completer = Completer<RealmHandle?>();
-    Future<Realm?> realmFuture = realmCore.openRealmAsync(realmAsyncOpenTaskHandle, completer).onError((error, stackTrace) {
-      print(error);
-      return null;
-    }).then((handle) {
-      if (progressToken > 0) {
-        realmCore.realmAsyncOpenUnregisterProgressNotifier(realmAsyncOpenTaskHandle, progressToken);
-      }
-      var openedRealm = handle != null ? Realm._(config, handle) : null;
-      if (openedRealm != null && config is FlexibleSyncConfiguration) {
-        if (openedFirstTime || config.initialSubscriptionsConfiguration?.rerunOnOpen == true) {
+    if (config is FlexibleSyncConfiguration) {
+      final session = realm.syncSession;
+      if (openedFirstTime || config.initialSubscriptionsConfiguration?.rerunOnOpen == true) {
           config.initialSubscriptionsConfiguration?.callback(openedRealm);
-        }
       }
-      return openedRealm;
-    });
-
-    var cancelableOperation = CancelableOperation.fromFuture(realmFuture, onCancel: () {
-      if (!completer.isCompleted) {
-        realmCore.cancelRealmAsyncOpenTask(realmAsyncOpenTaskHandle);
-        completer.complete(null);
+      if (onProgressCallback != null) {
+        await session
+            .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
+            .forEach((s) => onProgressCallback.call(s.transferredBytes, s.transferableBytes));
+      } else {
+        await session.waitForDownload();
       }
-    });
-
-    cancelationController?._opration = cancelableOperation;
-    if (cancelationController?._canceledCalled == false) cancelationController?.cancel();
-
-    return cancelableOperation.valueOrCancellation(null);
+    }
+    return realm;
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
-    _createFileDirectory(config.path);
-    return realmCore.openRealm(config);
-  }
-
-  static void _createFileDirectory(String filePath) {
-    var dir = File(filePath).parent;
+    var dir = File(config.path).parent;
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }
+    return realmCore.openRealm(config);
   }
 
   void _populateMetadata() {
@@ -365,6 +338,25 @@ class Realm implements Finalizable {
   /// Deletes all [RealmObject]s of type `T` in the `Realm`
   void deleteAll<T extends RealmObject>() => deleteMany(all<T>());
 
+  /// Returns a frozen (immutable) snapshot of this Realm.
+  ///
+  /// A frozen Realm is an immutable snapshot view of a particular version of a
+  /// Realm's data. Unlike normal [Realm] instances, it does not live-update to
+  /// reflect writes made to the Realm. Writing to a frozen Realm is not allowed,
+  /// and attempting to begin a write transaction will throw an exception.
+  ///
+  /// All objects and collections read from a frozen Realm will also be frozen.
+  ///
+  /// Note: Keeping a large number of frozen Realms with different versions alive can
+  /// have a negative impact on the file size of the underlying database.
+  Realm freeze() {
+    if (isFrozen) {
+      return this;
+    }
+
+    return Realm._(config, realmCore.freeze(this));
+  }
+
   SubscriptionSet? _subscriptions;
 
   /// The active [SubscriptionSet] for this [Realm]
@@ -478,6 +470,39 @@ extension RealmInternal on Realm {
   }
 
   RealmMetadata get metadata => _metadata;
+
+  T? resolveObject<T extends RealmObject>(T object) {
+    if (!object.isManaged) {
+      throw RealmStateError("Can't resolve unmanaged objects");
+    }
+
+    if (!object.isValid) {
+      throw RealmStateError("Can't resolve invalidated (deleted) objects");
+    }
+
+    final handle = realmCore.resolveObject(object, this);
+    if (handle == null) {
+      return null;
+    }
+
+    final metadata = (object.accessor as RealmCoreAccessor).metadata;
+
+    return RealmObjectInternal.create(T, this, handle, RealmCoreAccessor(metadata)) as T;
+  }
+
+  RealmList<T>? resolveList<T extends Object?>(ManagedRealmList<T> list) {
+    final handle = realmCore.resolveList(list, this);
+    if (handle == null) {
+      return null;
+    }
+
+    return createList<T>(handle, list.metadata);
+  }
+
+  RealmResults<T> resolveResults<T extends RealmObject>(RealmResults<T> results) {
+    final handle = realmCore.resolveResults(results, this);
+    return RealmResultsInternal.create<T>(handle, this, results.metadata);
+  }
 }
 
 /// @nodoc
@@ -640,20 +665,78 @@ class DynamicRealm {
 /// {@category Realm}
 typedef ProgressCallback = void Function(int transferredBytes, int totalBytes);
 
-/// Represents an object containing [CancelableOperation] that allows a [Future] operations to be canceled.
-///
-/// Provides a method cancel that cancels the initiated [CancelableOperation].
-/// The [CancelableOperation] is initiated internaly by the Future method that this object is passed to as an argument.
-///
+/// An exception being thrown when a cancellable operation is cancelled by calling [CancellationToken.cancel].
 /// {@category Realm}
-class RealmCancelationController {
-  bool _canceledCalled = false;
+class CancelledException implements RealmException {
+  final String message;
 
-  CancelableOperation<Realm?>? _opration;
+  CancelledException(this.message);
 
-  /// Cancels any running operation.
+  @override
+  String toString() {
+    return message;
+  }
+}
+
+/// [CancellationToken] provides method [cancel] that executes [_onCancel] and [beforeCancel] callbacks.
+/// It is used for canceling long Future operations.
+/// {@category Realm}
+class CancellationToken {
+  bool isCanceled = false;
+  final _attachedCallbacks = <Function>[];
+  final _attachedBeforeCancelCallbacks = <Function>[];
+
+  void _onCancel(Function onCancel) {
+    _attachedCallbacks.add(onCancel);
+  }
+
+  void onBeforeCancel(Function beforeCancel) {
+    _attachedBeforeCancelCallbacks.add(beforeCancel);
+  }
+
   void cancel() {
-    _opration?.cancel();
-    _canceledCalled = true;
+    try {
+      for (final beforeCancelCallback in _attachedBeforeCancelCallbacks) {
+        beforeCancelCallback();
+      }
+      for (final cancelCallback in _attachedCallbacks) {
+        cancelCallback();
+      }
+    } finally {
+      isCanceled = true;
+      _attachedBeforeCancelCallbacks.clear();
+      _attachedCallbacks.clear();
+    }
+  }
+}
+
+/// [CancellableFuture] provides a static method [fromFutureFunction] that builds cancellable Future
+/// from Future function.
+///
+/// fromFutureFunction arguments are:
+/// * `futureFunction`- a function executung a Future that has to be canceled.
+/// * `cancellationToken` - [CancellationToken] that is used to cancel the Future.
+/// * `cancelledMessage` - am optional argument providing reasonable message of [CancelledException] thrown by the Future if the token is canceled.
+/// {@category Realm}
+class CancellableFuture {
+  static Future<T> fromFutureFunction<T>(Future<T> Function() futureFunction, CancellationToken? cancellationToken, {String? cancelledMessage}) async {
+    if (cancellationToken != null) {
+      final cancelException = CancelledException(cancelledMessage ?? "CancellableFuture was canceled.");
+      final completer = Completer<T>();
+      cancellationToken._onCancel(() {
+        if (!completer.isCompleted) {
+          completer.completeError(cancelException);
+        }
+      });
+      if (cancellationToken.isCanceled) {
+        completer.completeError(cancelException);
+        await completer.future;
+      } else {
+        if (!(completer.isCompleted || cancellationToken.isCanceled)) {
+          return await Future.any([completer.future, futureFunction()]);
+        }
+      }
+    }
+    return await Future.any([futureFunction()]);
   }
 }
