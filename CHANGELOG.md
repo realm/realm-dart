@@ -4,7 +4,9 @@
 
 ### Enhancements
 * Added support for "frozen objects" - these are objects, queries, lists, or Realms that have been "frozen" at a specific version. All frozen objects can be accessed and queried as normal, but attempting to mutate them or add change listeners will throw an exception. `Realm`, `RealmObject`, `RealmList`, and `RealmResults` now have a method `freeze()` which returns an immutable version of the object, as well as an `isFrozen` property which can be used to check whether an object is frozen. (Issue [#56](https://github.com/realm/realm-dart/issues/56))
-* Support `Realm.open` API to asynchronously open a local or remote Realm. When opening a synchronized Realm it will download all the content available at the time the operation began on a background task and then return a usable Realm. ([#731](https://github.com/realm/realm-dart/pull/731))
+* Added `Realm.open` API to asynchronously open a local or remote Realm. When opening a synchronized Realm it will download all the content available at the time the operation began on a background task and then return a usable Realm. ([#731](https://github.com/realm/realm-dart/pull/731))
+* Added `InitialSubscriptionsConfiguration` to `FlexibleSyncConfiguration` - this is a configuration option about a callback that will be invoked the first time a Realm is opened. It allows you to create the initial subscriptions that will be added to the Realm before it is opened. It allows also updating initial subscription set each time the realm is opened. ([#732](https://github.com/realm/realm-dart/pull/732))
+
 
 ### Fixed
 * Allow null arguments on query. ([#871](https://github.com/realm/realm-dart/issues/871))

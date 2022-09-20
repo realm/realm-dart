@@ -270,6 +270,7 @@ class FlexibleSyncConfiguration extends Configuration {
   /// The default [SyncClientResetErrorHandler] logs a message using the current Realm.logger
   final SyncClientResetErrorHandler syncClientResetErrorHandler;
 
+  /// [FlexibleSyncConfiguration] options for adding subscriptions initially before a [Realm] is opened.
   final InitialSubscriptionsConfiguration? initialSubscriptionsConfiguration;
 
   FlexibleSyncConfiguration._(
@@ -374,9 +375,13 @@ class SyncClientResetErrorHandler {
 /// A client reset strategy where the user needs to fully take care of a client reset.
 typedef ManualSyncClientResetHandler = SyncClientResetErrorHandler;
 
+/// Represents an object with [FlexibleSyncConfiguration] configuration options for adding subscriptions initially before a [Realm] is opened.
 class InitialSubscriptionsConfiguration {
+  /// The callback that will be called in order to populate the initial [SubscriptionSet] for the [Realm].
   final void Function(Realm) callback;
 
+  /// The default behavior is that callback is only invoked the first time the Realm is opened,
+  /// but if rerunOnOpen is true, it will be invoked every time the realm is opened.
   final bool rerunOnOpen;
 
   const InitialSubscriptionsConfiguration(this.callback, {this.rerunOnOpen = false});
