@@ -105,10 +105,15 @@ class Realm implements Finalizable {
   /// and will not update when writes are made to the database.
   late final bool isFrozen;
 
+  /// Returns true if the [Realm] is opened for the first time and the realm file is created.
+  late final bool _openedFirstTime;
+
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
-  Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? _openRealmSync(config) {
+  Realm._(this.config, [RealmHandle? handle])
+      : _openedFirstTime = !File(config.path).existsSync(),
+        _handle = handle ?? _openRealmSync(config) {
     _populateMetadata();
     isFrozen = realmCore.isFrozen(this);
   }
@@ -136,7 +141,6 @@ class Realm implements Finalizable {
       realm.close();
     });
 
-    //Initial subscriptions to be loaded here
     if (config is FlexibleSyncConfiguration) {
       final session = realm.syncSession;
       if (onProgressCallback != null) {
@@ -144,7 +148,11 @@ class Realm implements Finalizable {
             .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
             .forEach((s) => onProgressCallback.call(s.transferredBytes, s.transferableBytes));
       }
-      await session.waitForDownload();
+      if (realm._openedFirstTime) {
+        await session.waitForDownload();
+      } else {
+        await realm.subscriptions.waitForSynchronization();
+      }
     }
     return realm;
   }
