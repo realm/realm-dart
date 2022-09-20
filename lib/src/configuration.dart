@@ -376,7 +376,12 @@ class SyncClientResetErrorHandler {
 typedef ManualSyncClientResetHandler = SyncClientResetErrorHandler;
 
 /// Represents an object with [FlexibleSyncConfiguration] configuration options for adding subscriptions initially before a [Realm] is opened.
+///
+/// {@category Configuration}
 class InitialSubscriptionsConfiguration {
+
+  const InitialSubscriptionsConfiguration(this.callback, {this.rerunOnOpen = false});
+
   /// The callback that will be called in order to populate the initial [SubscriptionSet] for the [Realm].
   final void Function(Realm) callback;
 
@@ -384,5 +389,4 @@ class InitialSubscriptionsConfiguration {
   /// but if rerunOnOpen is true, it will be invoked every time the realm is opened.
   final bool rerunOnOpen;
 
-  const InitialSubscriptionsConfiguration(this.callback, {this.rerunOnOpen = false});
 }
