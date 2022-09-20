@@ -119,7 +119,6 @@ class Realm implements Finalizable {
   /// synchronized with the server prior to the completion of the returned [Future].
   /// Otherwise this method will throw an exception.
   ///
-  /// Open realm async arguments are:
   /// * `config`- a configuration object that describes the realm.
   /// * `cancellationToken` - an optional [CancellationToken] used to cancel the operation.
   /// * `onProgressCallback` - a callback for receiving download progress notifications.
