@@ -143,9 +143,8 @@ class Realm implements Finalizable {
         await session
             .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
             .forEach((s) => onProgressCallback.call(s.transferredBytes, s.transferableBytes));
-      } else {
-        await session.waitForDownload();
       }
+      await session.waitForDownload();
     }
     return realm;
   }
