@@ -193,6 +193,12 @@ class _Friend {
   final friends = <_Friend>[];
 }
 
+@RealmModel()
+class _When {
+  late DateTime dateTimeUtc;
+  late String locationName; // tz database/Olson name
+}
+
 String? testName;
 Map<String, String?> arguments = {};
 final baasApps = <String, BaasApp>{};

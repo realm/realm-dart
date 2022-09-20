@@ -11,6 +11,7 @@ import '../test/configuration_test.dart' as configuration_test;
 import '../test/credentials_test.dart' as credentials_test;
 import '../test/dynamic_realm_test.dart' as dynamic_realm_test;
 import '../test/list_test.dart' as list_test;
+import '../test/migration_test.dart' as migration_test;
 import '../test/realm_object_test.dart' as realm_object_test;
 import '../test/realm_test.dart' as realm_test;
 import '../test/results_test.dart' as results_test;
@@ -29,6 +30,7 @@ Future<String> main(List<String> args) async {
     await credentials_test.main(args);
     await dynamic_realm_test.main(args);
     await list_test.main(args);
+    await migration_test.main(args);
     await realm_object_test.main(args);
     await realm_test.main(args);
     await results_test.main(args);

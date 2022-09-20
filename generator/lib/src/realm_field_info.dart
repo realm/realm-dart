@@ -26,14 +26,14 @@ import 'element.dart';
 class RealmFieldInfo {
   final FieldElement fieldElement;
   final String? mapTo;
-  final bool primaryKey;
+  final bool isPrimaryKey;
   final bool indexed;
   final RealmPropertyType realmType;
 
   RealmFieldInfo({
     required this.fieldElement,
     required this.mapTo,
-    required this.primaryKey,
+    required this.isPrimaryKey,
     required this.indexed,
     required this.realmType,
   });
@@ -63,12 +63,12 @@ class RealmFieldInfo {
   Iterable<String> toCode() sync* {
     yield '@override';
     yield "$mappedTypeName get $name => RealmObject.get<$basicMappedTypeName>(this, '$realmName') as $mappedTypeName;";
-    bool generateSetter = !isFinal && !primaryKey && !isRealmCollection;
+    bool generateSetter = !isFinal && !isRealmCollection;
     if (generateSetter) {
       yield '@override';
       yield "set $name(${mappedTypeName != modelTypeName ? 'covariant ' : ''}$mappedTypeName value) => RealmObject.set(this, '$realmName', value);";
     } else {
-      bool generateThrowError = isLate || primaryKey || isRealmCollection;
+      bool generateThrowError = isLate || isRealmCollection;
       if (generateThrowError) {
         yield '@override';
         yield "set $name(${mappedTypeName != modelTypeName ? 'covariant ' : ''}$mappedTypeName value) => throw RealmUnsupportedSetError();";

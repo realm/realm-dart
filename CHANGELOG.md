@@ -4,9 +4,39 @@
 
 ### Enhancements
 * Added support for "frozen objects" - these are objects, queries, lists, or Realms that have been "frozen" at a specific version. All frozen objects can be accessed and queried as normal, but attempting to mutate them or add change listeners will throw an exception. `Realm`, `RealmObject`, `RealmList`, and `RealmResults` now have a method `freeze()` which returns an immutable version of the object, as well as an `isFrozen` property which can be used to check whether an object is frozen. (Issue [#56](https://github.com/realm/realm-dart/issues/56))
-* Added `Realm.open` API to asynchronously open a local or remote Realm. When opening a synchronized Realm it will download all the content available at the time the operation began on a background task and then return a usable Realm. ([#731](https://github.com/realm/realm-dart/pull/731))
-* Added `InitialSubscriptionsConfiguration` to `FlexibleSyncConfiguration` - this is a configuration option about a callback that will be invoked the first time a Realm is opened. It allows you to create the initial subscriptions that will be added to the Realm before it is opened. It allows also updating initial subscription set each time the realm is opened. ([#732](https://github.com/realm/realm-dart/pull/732))
+* You can now set a realm property of type `T` to any object `o` where `o is T`. Previously it was required that `o.runtimeType == T`. ([#904](https://github.com/realm/realm-dart/issues/904))
+* Added support for migrations for local Realms. You can now construct a configuration with a migration callback that will be invoked if the schema version of the file on disk is lower than the schema version supplied by the callback. (Issue [#70](https://github.com/realm/realm-dart/issues/70))
 
+  A minimal example looks like this:
+  ```dart
+  final config = Configuration.local([Person.schema], schemaVersion: 4, migrationCallback: (migration, oldSchemaVersion) {
+    if (oldSchemaVersion == 1) {
+      // Between v1 and v2 we removed the Bar type
+      migration.deleteType('Bar');
+    }
+
+    if (oldSchemaVersion == 2) {
+      // Between v2 and v3 we fixed a typo in the 'Person.name' property.
+      migration.renameProperty('Person', 'nmae', 'name');
+    }
+
+    if (oldSchemaVersion == 3) {
+      final oldPeople = migration.oldRealm.dynamic.all('Person');
+      for (final oldPerson in oldPeople) {
+        final newPerson = migration.findInNewRealm<Person>(oldPerson);
+        if (newPerson == null) {
+          // That person must have been deleted, so nothing to do.
+          continue;
+        }
+
+        // Between v3 and v4 we're obfuscating the users' exact age by storing age group instead.
+        newPerson.ageGroup = calculateAgeGroup(oldPerson.dynamic.get<int>('age'));
+      }
+    }
+  });
+  ```
+* Support `Realm.open` API to asynchronously open a local or remote Realm. When opening a synchronized Realm it will download all the content available at the time the operation began on a background task and then return a usable Realm. ([#731](https://github.com/realm/realm-dart/pull/731))
+* Added `InitialSubscriptionsConfiguration` to `FlexibleSyncConfiguration` - this is a configuration option about a callback that will be invoked the first time a Realm is opened. It allows you to create the initial subscriptions that will be added to the Realm before it is opened. It allows also updating initial subscription set each time the realm is opened. ([#732](https://github.com/realm/realm-dart/pull/732))
 
 ### Fixed
 * Allow null arguments on query. ([#871](https://github.com/realm/realm-dart/issues/871))
