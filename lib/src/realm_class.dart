@@ -161,8 +161,7 @@ class Realm implements Finalizable {
       }
       if (realm._openedFirstTime) {
         await session.waitForDownload();
-      }
-      else {
+      } else {
         await realm.subscriptions.waitForSynchronization();
       }
     }

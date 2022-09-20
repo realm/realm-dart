@@ -535,3 +535,16 @@ Future<void> _printPlatformInfo() async {
 
   print('Current PID $pid; OS $os, $pointerSize bit, CPU ${cpu ?? 'unknown'}');
 }
+
+class RealmA {
+  static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
+    {
+      if (config is FlexibleSyncConfiguration) {
+        config.sessionStopPolicy = SessionStopPolicy.immediately;
+      }
+      final realm = await Realm.open(config, cancellationToken: cancellationToken, onProgressCallback: onProgressCallback);
+      _openRealms.add(realm);
+      return realm;
+    }
+  }
+}
