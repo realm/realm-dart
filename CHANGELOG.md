@@ -3,7 +3,8 @@
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
 ### Enhancements
-* Added support for "frozen objects" - these are objects, queries, lists, or Realms that have been "frozen" at a specific version. All frozen objects can be accessed and queried as normal, but attempting to mutate them or add change listeners will throw an exception. `Realm`, `RealmObject`, `RealmList`, and `RealmResults` now have a method `freeze()` which returns an immutable version of the object, as well as an `isFrozen` property which can be used to check whether an object is frozen. (Issue [#56](https://github.com/realm/realm-dart/issues/56))
+* Added support for "frozen objects" - these are objects, queries, lists, or Realms that have been "frozen" at a specific version. All frozen objects can be accessed and queried as normal, but attempting to mutate them or add change listeners will throw an exception. `Realm`, `RealmObject`, `RealmList`, and `RealmResults` now have a method `freeze()` which returns an immutable version of the object, as well as an `isFrozen` property which can be used to check whether an object is frozen. ([#56](https://github.com/realm/realm-dart/issues/56))
+* You can now set a realm property of type `T` to any object `o` where `o is T`. Previously it was required that `o.runtimeType == T`. ([#904](https://github.com/realm/realm-dart/issues/904))
 
 ### Fixed
 * Allow null arguments on query. ([#871](https://github.com/realm/realm-dart/issues/871))
