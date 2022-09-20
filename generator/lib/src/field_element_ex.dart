@@ -214,7 +214,7 @@ extension FieldElementEx on FieldElement {
       return RealmFieldInfo(
         fieldElement: this,
         indexed: indexed != null,
-        primaryKey: primaryKey != null,
+        isPrimaryKey: primaryKey != null,
         mapTo: remappedRealmName,
         realmType: realmType,
       );

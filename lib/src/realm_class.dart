@@ -76,7 +76,7 @@ export "configuration.dart"
 
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
-export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges, DynamicRealmObject;
+export 'realm_object.dart' show RealmEntity, RealmException, UserCallbackException, RealmObject, RealmObjectChanges, DynamicRealmObject;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
@@ -89,6 +89,7 @@ export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirec
 class Realm implements Finalizable {
   late final RealmMetadata _metadata;
   late final RealmHandle _handle;
+  final bool _isInMigration;
 
   /// An object encompassing this `Realm` instance's dynamic API.
   late final DynamicRealm dynamic = DynamicRealm._(this);
@@ -111,8 +112,8 @@ class Realm implements Finalizable {
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
-  Realm._(this.config, [RealmHandle? handle])
-      : _openedFirstTime = !File(config.path).existsSync(),
+  Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) 
+  : _openedFirstTime = !File(config.path).existsSync(),
         _handle = handle ?? _openRealmSync(config) {
     _populateMetadata();
     isFrozen = realmCore.isFrozen(this);
@@ -219,7 +220,7 @@ class Realm implements Finalizable {
     final metadata = _metadata.getByType(object.runtimeType);
     final handle = _createObject(object, metadata, update);
 
-    final accessor = RealmCoreAccessor(metadata);
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
     object.manage(this, handle, accessor, update);
 
     return object;
@@ -315,7 +316,7 @@ class Realm implements Finalizable {
       return null;
     }
 
-    final accessor = RealmCoreAccessor(metadata);
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
     var object = RealmObjectInternal.create(T, this, handle, accessor);
     return object as T;
   }
@@ -448,12 +449,12 @@ extension RealmInternal on Realm {
 
   RealmHandle get handle => _handle;
 
-  static Realm getUnowned(Configuration config, RealmHandle handle) {
-    return Realm._(config, handle);
+  static Realm getUnowned(Configuration config, RealmHandle handle, {bool isInMigration = false}) {
+    return Realm._(config, handle, isInMigration);
   }
 
   RealmObject createObject(Type type, RealmObjectHandle handle, RealmObjectMetadata metadata) {
-    final accessor = RealmCoreAccessor(metadata);
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
     return RealmObjectInternal.create(type, this, handle, accessor);
   }
 
@@ -491,7 +492,7 @@ extension RealmInternal on Realm {
 
     final metadata = (object.accessor as RealmCoreAccessor).metadata;
 
-    return RealmObjectInternal.create(T, this, handle, RealmCoreAccessor(metadata)) as T;
+    return RealmObjectInternal.create(T, this, handle, RealmCoreAccessor(metadata, _isInMigration)) as T;
   }
 
   RealmList<T>? resolveList<T extends Object?>(ManagedRealmList<T> list) {
@@ -507,6 +508,8 @@ extension RealmInternal on Realm {
     final handle = realmCore.resolveResults(results, this);
     return RealmResultsInternal.create<T>(handle, this, results.metadata);
   }
+
+  static MigrationRealm getMigrationRealm(Realm realm) => MigrationRealm._(realm);
 }
 
 /// @nodoc
@@ -655,9 +658,25 @@ class DynamicRealm {
       return null;
     }
 
-    final accessor = RealmCoreAccessor(metadata);
+    final accessor = RealmCoreAccessor(metadata, _realm._isInMigration);
     return RealmObjectInternal.create(RealmObject, _realm, handle, accessor);
   }
+}
+
+/// A class used during a migration callback. It exposes a set of dynamic API as
+/// well as the Realm config and schema.
+///
+/// {@category Realm}
+class MigrationRealm extends DynamicRealm {
+  /// The [Configuration] object used to open this [Realm]
+  Configuration get config => _realm.config;
+
+  /// The schema of this [Realm]. If the [Configuration] was created with a
+  /// non-empty list of schemas, this will match the collection. Otherwise,
+  /// the schema will be read from the file.
+  RealmSchema get schema => _realm.schema;
+
+  MigrationRealm._(Realm realm) : super._(realm);
 }
 
 /// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].
@@ -743,4 +762,3 @@ class CancellableFuture {
     }
     return await Future.any([futureFunction()]);
   }
-}

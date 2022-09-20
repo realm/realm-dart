@@ -25,6 +25,7 @@ import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'init.dart';
 import 'user.dart';
+import 'migration.dart';
 
 /// The signature of a callback used to determine if compaction
 /// should be attempted.
@@ -46,6 +47,12 @@ typedef ShouldCompactCallback = bool Function(int totalSize, int usedSize);
 /// add some initial data that your app needs. The function will not execute for existing
 /// Realms, even if all objects in the Realm are deleted.
 typedef InitialDataCallback = void Function(Realm realm);
+
+/// The signature of a callback that will be executed when the schema of the Realm changes.
+///
+/// The `migration` argument contains references to the Realm just before and just after the migration.
+/// The `oldSchemaVersion` argument indicates the version from which the Realm migrates while
+typedef MigrationCallback = void Function(Migration migration, int oldSchemaVersion);
 
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
@@ -122,6 +129,7 @@ abstract class Configuration implements Finalizable {
     bool disableFormatUpgrade = false,
     bool isReadOnly = false,
     ShouldCompactCallback? shouldCompactCallback,
+    MigrationCallback? migrationCallback,
   }) =>
       LocalConfiguration._(
         schemaObjects,
@@ -132,6 +140,7 @@ abstract class Configuration implements Finalizable {
         disableFormatUpgrade: disableFormatUpgrade,
         isReadOnly: isReadOnly,
         shouldCompactCallback: shouldCompactCallback,
+        migrationCallback: migrationCallback,
       );
 
   /// Constructs a [InMemoryConfiguration]
@@ -190,6 +199,7 @@ class LocalConfiguration extends Configuration {
     this.disableFormatUpgrade = false,
     this.isReadOnly = false,
     this.shouldCompactCallback,
+    this.migrationCallback,
   }) : super._();
 
   /// The schema version used to open the [Realm]. If omitted, the default value is `0`.
@@ -220,6 +230,9 @@ class LocalConfiguration extends Configuration {
 
   /// Called when opening a [Realm] for the very first time, when db file is created.
   final InitialDataCallback? initialDataCallback;
+
+  /// Called when opening a [Realm] with a schema version that is newer than the one used to create the file.
+  final MigrationCallback? migrationCallback;
 }
 
 /// @nodoc
@@ -229,7 +242,7 @@ enum SessionStopPolicy {
   afterChangesUploaded, // Once all Realms/Sessions go out of scope, wait for uploads to complete and stop.
 }
 
-///The signature of a callback that will be invoked whenever a [SyncError] occurs for the synchronized Realm.
+/// The signature of a callback that will be invoked whenever a [SyncError] occurs for the synchronized Realm.
 ///
 /// Client reset errors will not be reported through this callback as they are handled by [SyncClientResetErrorHandler].
 typedef SyncErrorHandler = void Function(SyncError);

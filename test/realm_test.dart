@@ -21,6 +21,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 import '../lib/realm.dart';
 import 'test.dart';
 
@@ -958,6 +960,34 @@ Future<void> main([List<String>? args]) async {
     cancellationToken.cancel();
     expect(realm.isClosed, true);
    });
+   
+   test('Subtype of supported type (TZDateTime)', () {
+    final realm = getRealm(Configuration.local([When.schema]));
+    tz.initializeTimeZones();
+
+    final cph = tz.getLocation('Europe/Copenhagen');
+    final now = tz.TZDateTime.now(cph);
+    final when = newWhen(now);
+
+    realm.write(() => realm.add(when));
+
+    final stored = realm.all<When>().first.dateTime;
+
+    expect(stored, now);
+    expect(stored.timeZone, now.timeZone);
+    expect(stored.location, now.location);
+    expect(stored.location.name, 'Europe/Copenhagen');
+  });
+  
+}
+
+extension on When {
+  tz.TZDateTime get dateTime => tz.TZDateTime.from(dateTimeUtc, tz.getLocation(locationName));
+}
+
+When newWhen([tz.TZDateTime? time]) {
+  time ??= tz.TZDateTime(tz.UTC, 0);
+  return When(time.toUtc(), time.location.name);
 }
 
 extension _IterableEx<T> on Iterable<T> {
