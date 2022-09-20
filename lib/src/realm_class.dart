@@ -121,7 +121,7 @@ class Realm implements Finalizable {
   ///
   /// Open realm async arguments are:
   /// * `config`- a configuration object that describes the realm.
-  /// * `cancellationToken` - an initialized object of [CancellationToken] that is used to cancel the operation. It is not mandatory.
+  /// * `cancellationToken` - an optional [CancellationToken] used to cancel the operation.
   /// * `onProgressCallback` - a callback for receiving download progress notifications.
   ///
   /// Returns [Future<Realm>] that completes with the `realm` once the remote realm is fully synchronized or with an `error` if operation is canceled.
