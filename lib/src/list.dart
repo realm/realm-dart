@@ -17,8 +17,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
-import 'dart:collection' as collection;
+import 'dart:collection';
 import 'dart:ffi';
+
+import 'package:collection/collection.dart' as collection;
 
 import 'collections.dart';
 import 'native/realm_core.dart';
@@ -47,7 +49,7 @@ abstract class RealmList<T extends Object?> with RealmEntity implements List<T>,
   RealmList<T> freeze();
 }
 
-class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
+class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> implements RealmList<T> {
   final RealmListHandle _handle;
 
   @override
@@ -128,6 +130,16 @@ class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with Re
   void clear() => realmCore.listClear(handle);
 
   @override
+  int indexOf(covariant T element, [int start = 0]) {
+    if (element is RealmObject && !element.isManaged) {
+      throw RealmStateError('Cannot call indexOf on a managed list with an element that is an unmanaged object');
+    }
+    if (start < 0) start = 0;
+    final index = realmCore.listFind(this, element);
+    return index < start ? -1 : index; // to align with dart list semantics
+  }
+
+  @override
   bool get isValid => realmCore.listIsValid(this);
 
   @override
@@ -141,35 +153,14 @@ class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with Re
   }
 }
 
-class UnmanagedRealmList<T extends Object?> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
-  final _unmanaged = <T?>[]; // use T? for length=
-
-  UnmanagedRealmList([Iterable<T>? items]) {
-    if (items != null) {
-      _unmanaged.addAll(items);
-    }
-  }
+class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T> with RealmEntity implements RealmList<T> {
+  UnmanagedRealmList([Iterable<T>? items]) : super(List<T>.from(items ?? <T>[]));
 
   @override
   RealmObjectMetadata? get _metadata => throw RealmException("Unmanaged lists don't have metadata associated with them.");
 
   @override
   set _metadata(RealmObjectMetadata? _) => throw RealmException("Unmanaged lists don't have metadata associated with them.");
-
-  @override
-  int get length => _unmanaged.length;
-
-  @override
-  set length(int length) => _unmanaged.length = length;
-
-  @override
-  T operator [](int index) => _unmanaged[index] as T;
-
-  @override
-  void operator []=(int index, T value) => _unmanaged[index] = value;
-
-  @override
-  void clear() => _unmanaged.clear();
 
   @override
   bool get isValid => true;

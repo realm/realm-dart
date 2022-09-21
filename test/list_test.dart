@@ -806,4 +806,44 @@ Future<void> main([List<String>? args]) async {
     expect(team.players.query('TRUEPREDICATE'), isNot(realm.all<Person>()));
     expect(team.players.query('TRUEPREDICATE'), [alice, bob]);
   });
+
+  test('ManagedRealmList.indexOf', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final team = Team('sad team', players: [for (int i = 0; i < 100; ++i) Person('$i')]);
+    realm.write(() => realm.add(team));
+    final players = team.players;
+
+    expect(players, isA<RealmList<Person>>());
+    expect(players.isManaged, isTrue);
+    expect(players.indexOf(players.first, -1), 0); // okay to start from negative index
+    expect(players.indexOf(players.first, 1), -1); // start respected
+    expect(players.indexOf(players.first, 101), -1); // okay to start from non-existent index
+
+    var index = 0;
+    final r = Random(42); // deterministic
+    for (final p in players) {
+      expect(players.indexOf(p, r.nextInt(index + 1) - 1), index++);
+    }
+
+    // List.indexOf with wrong type of element, just returns -1.
+    // Proof:
+    final dartList = <int>[1, 2, 3];
+    expect((dartList as List<Object>).indexOf("abc"), -1); // ignore: unnecessary_cast
+
+    // .. but realm list behaves differently in this regard.
+    expect(() => (players as List<Object>).indexOf(1), throwsA(isA<TypeError>())); // ignore: unnecessary_cast
+
+    // .. Also it is a state error to lookup an unmanaged object in a managed list,
+    // even if the static type is right.
+    expect(
+      () => players.indexOf(Person('10')),
+      throwsA(isA<RealmStateError>().having(
+        (e) => e.message,
+        'message',
+        'Cannot call indexOf on a managed list with an element that is an unmanaged object',
+      )),
+    );
+  });
 }

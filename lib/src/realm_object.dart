@@ -18,6 +18,7 @@
 
 import 'dart:async';
 import 'dart:ffi';
+import 'dart:io';
 
 import 'list.dart';
 import 'native/realm_core.dart';
@@ -403,7 +404,9 @@ extension RealmObjectInternal on RealmObject {
     return object;
   }
 
+  // if we ever see a _CastError here, we forgot to guard against misuse further up the call-stack
   RealmObjectHandle get handle => _handle!;
+
   RealmAccessor get accessor => _accessor;
 }
 
