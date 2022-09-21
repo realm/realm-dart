@@ -980,7 +980,7 @@ Future<void> main([List<String>? args]) async {
     cancellationToken.cancel();
     expect(realm.isClosed, true);
   });
-  
+
   baasTest('Realm open async with initial subscriptions and get progress', (appConfiguration) async {
     final app = App(appConfiguration);
 
@@ -988,12 +988,13 @@ Future<void> main([List<String>? args]) async {
     final configuration1 = Configuration.flexibleSync(user1, [Task.schema]);
     final realm1 = getRealm(configuration1);
     realm1.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm1.all<Task>()));
+    await realm1.subscriptions.waitForSynchronization();
     realm1.write(() {
       for (var i = 0; i < 100; i++) {
         realm1.add(Task(ObjectId()));
       }
     });
-    await realm1.subscriptions.waitForSynchronization();
+    await realm1.syncSession.waitForUpload();
 
     final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
     final configuration2 = Configuration.flexibleSync(user2, [Task.schema],
@@ -1003,7 +1004,8 @@ Future<void> main([List<String>? args]) async {
               mutableSubscriptions.add(realm.all<Task>());
             },
           );
-        }, rerunOnOpen: true));
+      },
+    ));
 
     final realm2 = await RealmA.open(configuration2, onProgressCallback: (transferredBytes, totalBytes) {
       print("transferredBytes: $transferredBytes, totalBytes:$totalBytes");
@@ -1033,7 +1035,8 @@ Future<void> main([List<String>? args]) async {
           realm.subscriptions.update((mutableSubscriptions) {
             mutableSubscriptions.add(realm.all<Task>());
           });
-        }, rerunOnOpen: true));
+      },
+    ));
 
     final realm2 = getRealm(configuration2);
     await realm2.subscriptions.waitForSynchronization();
