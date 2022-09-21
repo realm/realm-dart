@@ -404,14 +404,10 @@ extension RealmObjectInternal on RealmObject {
     return object;
   }
 
-  RealmObjectHandle get handle => _handle ?? failUnmanaged(this);
+  // if we ever see a _CastError here, we forgot to guard against misuse further up the call-stack
+  RealmObjectHandle get handle => _handle!;
 
   RealmAccessor get accessor => _accessor;
-}
-
-Never failUnmanaged(RealmEntity entity) {
-  assert(false, '$entity is not managed');
-  exit(-1);
 }
 
 /// An exception being thrown when a `Realm` operation or [RealmObject] access fails.
