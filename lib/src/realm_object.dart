@@ -18,6 +18,7 @@
 
 import 'dart:async';
 import 'dart:ffi';
+import 'dart:io';
 
 import 'list.dart';
 import 'native/realm_core.dart';
@@ -409,10 +410,8 @@ extension RealmObjectInternal on RealmObject {
 }
 
 Never failUnmanaged(RealmEntity entity) {
-  final message = '$entity is not managed';
-  assert(false, message);
-  // in production we fall back to throwing state error as a precaution
-  throw RealmStateError(message);
+  assert(false, '$entity is not managed');
+  exit(-1);
 }
 
 /// An exception being thrown when a `Realm` operation or [RealmObject] access fails.
