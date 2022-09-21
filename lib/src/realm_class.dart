@@ -759,7 +759,7 @@ class CancellationToken {
 class CancellableFuture {
   static Future<T> fromFutureFunction<T>(Future<T> Function() futureFunction, CancellationToken? cancellationToken, {String? cancelledMessage}) async {
     if (cancellationToken != null) {
-      final cancelException = CancelledException(cancelledMessage ?? "CancellableFuture was canceled.");
+      final cancelException = CancelledException(cancelledMessage ?? "Canceled operation.");
       final completer = Completer<T>();
       cancellationToken._onCancel(() {
         if (!completer.isCompleted) {
