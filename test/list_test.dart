@@ -724,11 +724,7 @@ Future<void> main([List<String>? args]) async {
 
     expect(
       () => team.players.remove(Person('alice')),
-      throwsA(isA<RealmStateError>().having(
-        (e) => e.message,
-        'message',
-        'Cannot call remove on a managed list with an element that is an unmanaged object',
-      )),
+      throws<RealmStateError>('Cannot call remove on a managed list with an element that is an unmanaged object'),
     );
   });
 
