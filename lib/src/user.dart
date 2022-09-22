@@ -39,6 +39,8 @@ class User {
     return _app ??= AppInternal.create(realmCore.userGetApp(_handle));
   }
 
+  late final ApiKeyClient apiKeys = ApiKeyClient._(this);
+
   User._(this._handle, this._app);
 
   /// The current state of this [User].
@@ -183,6 +185,46 @@ class UserProfile {
   const UserProfile(this._data);
 }
 
+/// A class exposing functionality for users to manage API keys from the client. It is always scoped
+/// to a particular [User] and can only be accessed via [User.apiKeys]
+class ApiKeyClient {
+  final User _user;
+
+  ApiKeyClient._(this._user);
+
+  Future<ApiKey> create(String name) async {
+    return realmCore.createApiKey(_user, name);
+  }
+}
+
+/// A class representing an API key for a [User]. It can be used to represent the user when logging in
+/// instead of their regular credentials. These keys are created or fetched through [User.apiKeys].
+class ApiKey {
+  /// The unique idenitifer for this [ApiKey].
+  final ObjectId id;
+
+  /// The name of this [ApiKey].
+  final String name;
+
+  /// The value of this [ApiKey]. This is only returned when the ApiKey is created via [ApiKeyClient.create].
+  /// In all other cases, it'll be `null`.
+  final String? value;
+
+  /// A value indicating whether the ApiKey is enabled. If this is false, then the ApiKey cannot be used to
+  /// authenticate the user.
+  final bool isEnabled;
+
+  ApiKey._({required this.id, required this.name, required this.value, required this.isEnabled});
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) || (other is ApiKey && other.id == id);
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+}
+
 /// @nodoc
 extension UserIdentityInternal on UserIdentity {
   static UserIdentity create(String identity, AuthProviderType provider) => UserIdentity._(identity, provider);
@@ -199,4 +241,7 @@ extension UserInternal on User {
   UserHandle get handle => _handle;
 
   static User create(UserHandle handle, [App? app]) => User._(handle, app);
+
+  static ApiKey createApiKey({required ObjectId id, required String name, required String? value, required bool isEnabled}) =>
+      ApiKey._(id: id, name: name, value: value, isEnabled: isEnabled);
 }

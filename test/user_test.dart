@@ -116,4 +116,15 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
     expect(user.profile.email, testUsername);
   });
+
+  baasTest('User.apiKeys.create creates and reveals value', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    final apiKey = await user.apiKeys.create('a');
+
+    expect(apiKey.isEnabled, true);
+    expect(apiKey.name, 'a');
+    expect(apiKey.value, isNotNull);
+    expect(apiKey.id, isNot(ObjectId.fromValues(0, 0, 0)));
+  });
 }

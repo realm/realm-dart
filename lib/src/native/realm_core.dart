@@ -1863,6 +1863,37 @@ class _RealmCore {
       return null;
     });
   }
+
+  static void _app_api_key_completion_callback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, Pointer<realm_app_error> error) {
+    final Completer<ApiKey>? completer = userdata.toObject(isPersistent: true);
+    if (completer == null) {
+      return;
+    }
+
+    if (error != nullptr) {
+      final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
+      completer.completeError(RealmException(message));
+      return;
+    }
+
+    final id = apiKey.ref.id.toDart();
+    final name = apiKey.ref.name.cast<Utf8>().toDartString();
+    final value = apiKey.ref.key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+    final isEnabled = !apiKey.ref.disabled;
+
+    completer.complete(UserInternal.createApiKey(id: id, name: name, value: value, isEnabled: isEnabled));
+  }
+
+  Future<ApiKey> createApiKey(User user, String name) {
+    return using((Arena arena) {
+      final namePtr = name.toCharPtr(arena);
+      final completer = Completer<ApiKey>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_create_apikey(user.app.handle._pointer, user.handle._pointer, namePtr,
+          Pointer.fromFunction(_app_api_key_completion_callback), completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
+
+      return completer.future;
+    });
+  }
 }
 
 class LastError {
