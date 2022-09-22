@@ -2,7 +2,9 @@
 // RealmObjectGenerator
 // **************************************************************************
 
-class Foo extends _Foo with RealmEntityMixin, RealmObjectMixin {
+class Foo extends _Foo 
+    with RealmEntityMixin, RealmObjectMixin<Foo> 
+    implements RealmObject<Foo> {
   Foo({
     int x = 0,
   }) {
@@ -21,10 +23,6 @@ class Foo extends _Foo with RealmEntityMixin, RealmObjectMixin {
   @override
   set x(int value) => _xProperty.setValue(this, value);
 
-  @override
-  Stream<RealmObjectChanges<Foo>> get changes =>
-      RealmObjectMixin.getChanges(this);
-
   static const schema = SchemaObject<Foo>(
     Foo._,
     'MyFoo',
@@ -36,7 +34,9 @@ class Foo extends _Foo with RealmEntityMixin, RealmObjectMixin {
   SchemaObject get instanceSchema => schema;
 }
 
-class Bar extends _Bar with RealmEntityMixin, RealmObjectMixin {
+class Bar extends _Bar 
+    with RealmEntityMixin, RealmObjectMixin<Bar> 
+    implements RealmObject<Bar> {
   Bar(
     String id,
     bool aBool,
@@ -71,7 +71,7 @@ class Bar extends _Bar with RealmEntityMixin, RealmObjectMixin {
   @override
   String get id => _idProperty.getValue(this);
   @override
-  set id(String value) => throw RealmUnsupportedSetError();
+  set id(String value) => _idProperty.setValue(this, value);
 
   static const _aBoolProperty = ValueProperty<bool>(
     'aBool',
@@ -152,10 +152,6 @@ class Bar extends _Bar with RealmEntityMixin, RealmObjectMixin {
   @override
   set objectId(ObjectId value) => _objectIdProperty.setValue(this, value);
 
-  @override
-  Stream<RealmObjectChanges<Bar>> get changes =>
-      RealmObjectMixin.getChanges(this);
-
   static const schema = SchemaObject<Bar>(
     Bar._,
     'Bar',
@@ -178,7 +174,8 @@ class Bar extends _Bar with RealmEntityMixin, RealmObjectMixin {
 }
 
 class PrimitiveTypes extends _PrimitiveTypes
-    with RealmEntityMixin, RealmObjectMixin {
+    with RealmEntityMixin, RealmObjectMixin<PrimitiveTypes>
+    implements RealmObject<PrimitiveTypes> {
   PrimitiveTypes(
     String stringProp,
     bool boolProp,
@@ -240,10 +237,6 @@ class PrimitiveTypes extends _PrimitiveTypes
   @override
   set objectIdProp(ObjectId value) =>
       _objectIdPropProperty.setValue(this, value);
-
-  @override
-  Stream<RealmObjectChanges<PrimitiveTypes>> get changes =>
-      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<PrimitiveTypes>(
     PrimitiveTypes._,

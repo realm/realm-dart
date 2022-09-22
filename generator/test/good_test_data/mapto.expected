@@ -2,7 +2,9 @@
 // RealmObjectGenerator
 // **************************************************************************
 
-class Original extends $Original with RealmEntityMixin, RealmObjectMixin {
+class Original extends $Original 
+    with RealmEntityMixin, RealmObjectMixin<Original>
+    implements RealmObject<Original> {
   Original({
     int primitiveProperty = 0,
     Original? objectProperty,
@@ -42,10 +44,6 @@ class Original extends $Original with RealmEntityMixin, RealmObjectMixin {
   @override
   set listProperty(covariant RealmList<Original> value) =>
       throw RealmUnsupportedSetError();
-
-  @override
-  Stream<RealmObjectChanges<Original>> get changes =>
-      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<Original>(
     Original._,

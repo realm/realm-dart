@@ -2,7 +2,9 @@
 // RealmObjectGenerator
 // **************************************************************************
 
-class IntPK extends _IntPK with RealmEntityMixin, RealmObjectMixin {
+class IntPK extends _IntPK 
+    with RealmEntityMixin, RealmObjectMixin<IntPK>
+    implements RealmObject<IntPK> {
   IntPK(
     int id,
   ) {
@@ -19,11 +21,7 @@ class IntPK extends _IntPK with RealmEntityMixin, RealmObjectMixin {
   @override
   int get id => _idProperty.getValue(this);
   @override
-  set id(int value) => throw RealmUnsupportedSetError();
-
-  @override
-  Stream<RealmObjectChanges<IntPK>> get changes =>
-      RealmObjectMixin.getChanges(this);
+  set id(int value) => _idProperty.setValue(this, value);
 
   static const schema = SchemaObject<IntPK>(
     IntPK._,
@@ -38,7 +36,8 @@ class IntPK extends _IntPK with RealmEntityMixin, RealmObjectMixin {
 }
 
 class NullableIntPK extends _NullableIntPK
-    with RealmEntityMixin, RealmObjectMixin {
+    with RealmEntityMixin, RealmObjectMixin<NullableIntPK>
+    implements RealmObject<NullableIntPK> {
   NullableIntPK(
     int? id,
   ) {
@@ -55,11 +54,7 @@ class NullableIntPK extends _NullableIntPK
   @override
   int? get id => _idProperty.getValue(this);
   @override
-  set id(int? value) => throw RealmUnsupportedSetError();
-
-  @override
-  Stream<RealmObjectChanges<NullableIntPK>> get changes =>
-      RealmObjectMixin.getChanges(this);
+  set id(int? value) => _idProperty.setValue(this, value);
 
   static const schema = SchemaObject<NullableIntPK>(
     NullableIntPK._,
@@ -73,7 +68,9 @@ class NullableIntPK extends _NullableIntPK
   SchemaObject get instanceSchema => schema;
 }
 
-class StringPK extends _StringPK with RealmEntityMixin, RealmObjectMixin {
+class StringPK extends _StringPK 
+  with RealmEntityMixin, RealmObjectMixin<StringPK>
+  implements RealmObject<StringPK> {
   StringPK(
     String id,
   ) {
@@ -90,11 +87,7 @@ class StringPK extends _StringPK with RealmEntityMixin, RealmObjectMixin {
   @override
   String get id => _idProperty.getValue(this);
   @override
-  set id(String value) => throw RealmUnsupportedSetError();
-
-  @override
-  Stream<RealmObjectChanges<StringPK>> get changes =>
-      RealmObjectMixin.getChanges(this);
+  set id(String value) => _idProperty.setValue(this, value);
 
   static const schema = SchemaObject<StringPK>(
     StringPK._,
@@ -109,7 +102,8 @@ class StringPK extends _StringPK with RealmEntityMixin, RealmObjectMixin {
 }
 
 class NullableStringPK extends _NullableStringPK
-    with RealmEntityMixin, RealmObjectMixin {
+    with RealmEntityMixin, RealmObjectMixin<NullableStringPK>
+    implements RealmObject<NullableStringPK> {
   NullableStringPK(
     String? id,
   ) {
@@ -126,11 +120,7 @@ class NullableStringPK extends _NullableStringPK
   @override
   String? get id => _idProperty.getValue(this);
   @override
-  set id(String? value) => throw RealmUnsupportedSetError();
-
-  @override
-  Stream<RealmObjectChanges<NullableStringPK>> get changes =>
-      RealmObjectMixin.getChanges(this);
+  set id(String? value) => _idProperty.setValue(this, value);
 
   static const schema = SchemaObject<NullableStringPK>(
     NullableStringPK._,
@@ -144,7 +134,9 @@ class NullableStringPK extends _NullableStringPK
   SchemaObject get instanceSchema => schema;
 }
 
-class ObjectIdPK extends _ObjectIdPK with RealmEntityMixin, RealmObjectMixin {
+class ObjectIdPK extends _ObjectIdPK 
+  with RealmEntityMixin, RealmObjectMixin<ObjectIdPK>
+  implements RealmObject<ObjectIdPK> {
   ObjectIdPK(
     ObjectId id,
   ) {
@@ -161,11 +153,7 @@ class ObjectIdPK extends _ObjectIdPK with RealmEntityMixin, RealmObjectMixin {
   @override
   ObjectId get id => _idProperty.getValue(this);
   @override
-  set id(ObjectId value) => throw RealmUnsupportedSetError();
-
-  @override
-  Stream<RealmObjectChanges<ObjectIdPK>> get changes =>
-      RealmObjectMixin.getChanges(this);
+  set id(ObjectId value) => _idProperty.setValue(this, value);
 
   static const schema = SchemaObject<ObjectIdPK>(
     ObjectIdPK._,
@@ -180,7 +168,8 @@ class ObjectIdPK extends _ObjectIdPK with RealmEntityMixin, RealmObjectMixin {
 }
 
 class NullableObjectIdPK extends _NullableObjectIdPK
-    with RealmEntityMixin, RealmObjectMixin {
+    with RealmEntityMixin, RealmObjectMixin<NullableObjectIdPK>
+    implements RealmObject<NullableObjectIdPK> {
   NullableObjectIdPK(
     ObjectId? id,
   ) {
@@ -197,11 +186,7 @@ class NullableObjectIdPK extends _NullableObjectIdPK
   @override
   ObjectId? get id => _idProperty.getValue(this);
   @override
-  set id(ObjectId? value) => throw RealmUnsupportedSetError();
-
-  @override
-  Stream<RealmObjectChanges<NullableObjectIdPK>> get changes =>
-      RealmObjectMixin.getChanges(this);
+  set id(ObjectId? value) => _idProperty.setValue(this, value);
 
   static const schema = SchemaObject<NullableObjectIdPK>(
     NullableObjectIdPK._,
@@ -215,7 +200,9 @@ class NullableObjectIdPK extends _NullableObjectIdPK
   SchemaObject get instanceSchema => schema;
 }
 
-class UuidPK extends _UuidPK with RealmEntityMixin, RealmObjectMixin {
+class UuidPK extends _UuidPK 
+    with RealmEntityMixin, RealmObjectMixin<UuidPK>
+    implements RealmObject<UuidPK> {
   UuidPK(
     Uuid id,
   ) {
@@ -232,11 +219,7 @@ class UuidPK extends _UuidPK with RealmEntityMixin, RealmObjectMixin {
   @override
   Uuid get id => _idProperty.getValue(this);
   @override
-  set id(Uuid value) => throw RealmUnsupportedSetError();
-
-  @override
-  Stream<RealmObjectChanges<UuidPK>> get changes =>
-      RealmObjectMixin.getChanges(this);
+  set id(Uuid value) =>  _idProperty.setValue(this, value);
 
   static const schema = SchemaObject<UuidPK>(
     UuidPK._,
@@ -251,7 +234,8 @@ class UuidPK extends _UuidPK with RealmEntityMixin, RealmObjectMixin {
 }
 
 class NullableUuidPK extends _NullableUuidPK
-    with RealmEntityMixin, RealmObjectMixin {
+    with RealmEntityMixin, RealmObjectMixin<NullableUuidPK>
+    implements RealmObject<NullableUuidPK> {
   NullableUuidPK(
     Uuid? id,
   ) {
@@ -268,11 +252,7 @@ class NullableUuidPK extends _NullableUuidPK
   @override
   Uuid? get id => _idProperty.getValue(this);
   @override
-  set id(Uuid? value) => throw RealmUnsupportedSetError();
-
-  @override
-  Stream<RealmObjectChanges<NullableUuidPK>> get changes =>
-      RealmObjectMixin.getChanges(this);
+  set id(Uuid? value) => _idProperty.setValue(this, value);
 
   static const schema = SchemaObject<NullableUuidPK>(
     NullableUuidPK._,

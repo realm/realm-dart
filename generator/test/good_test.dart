@@ -36,7 +36,9 @@ class _MappedToo {
 // RealmObjectGenerator
 // **************************************************************************
 
-class MappedToo extends _MappedToo with RealmEntityMixin, RealmObjectMixin {
+class MappedToo extends _MappedToo
+    with RealmEntityMixin, RealmObjectMixin<MappedToo>
+    implements RealmObject<MappedToo> {
   MappedToo({
     Original? singleLink,
     Iterable<Original> listLink = const [],
@@ -63,10 +65,6 @@ class MappedToo extends _MappedToo with RealmEntityMixin, RealmObjectMixin {
   @override
   set listLink(covariant RealmList<Original> value) =>
       throw RealmUnsupportedSetError();
-
-  @override
-  Stream<RealmObjectChanges<MappedToo>> get changes =>
-      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<MappedToo>(
     MappedToo._,

@@ -2,7 +2,9 @@
 // RealmObjectGenerator
 // **************************************************************************
 
-class Person extends _Person with RealmEntityMixin, RealmObjectMixin {
+class Person extends _Person 
+  with RealmEntityMixin, RealmObjectMixin<Person>
+  implements RealmObject<Person> {
   Person({
     Iterable<Person> children = const [],
   }) {
@@ -19,10 +21,6 @@ class Person extends _Person with RealmEntityMixin, RealmObjectMixin {
   @override
   set children(covariant RealmList<Person> value) =>
       throw RealmUnsupportedSetError();
-
-  @override
-  Stream<RealmObjectChanges<Person>> get changes =>
-      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<Person>(
     Person._,
