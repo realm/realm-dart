@@ -82,7 +82,7 @@ class RealmFieldInfo {
     }
     yield '@override';
     yield "$mappedTypeName get $name => $property.getValue(this);";
-    bool generateSetter = !isFinal && !isPrimaryKey && !isRealmCollection;
+    bool generateSetter = !isFinal && !isRealmCollection;
     if (generateSetter) {
       yield '@override';
       yield "set $name(${mappedTypeName != modelTypeName ? 'covariant ' : ''}$mappedTypeName value) => $property.setValue(this, value);";
