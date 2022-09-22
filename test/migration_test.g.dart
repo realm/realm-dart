@@ -7,7 +7,8 @@ part of 'migration_test.dart';
 // **************************************************************************
 
 class PersonIntName extends _PersonIntName
-    with RealmEntityMixin, RealmObjectMixin {
+    with RealmEntityMixin, RealmObjectMixin<PersonIntName>
+    implements RealmObject<PersonIntName> {
   PersonIntName(
     int name,
   ) {
@@ -25,10 +26,6 @@ class PersonIntName extends _PersonIntName
   @override
   set name(int value) => _nameProperty.setValue(this, value);
 
-  @override
-  Stream<RealmObjectChanges<PersonIntName>> get changes =>
-      RealmObjectMixin.getChanges(this);
-
   static const schema = SchemaObject<PersonIntName>(
     PersonIntName._,
     'Person',
@@ -40,7 +37,9 @@ class PersonIntName extends _PersonIntName
   SchemaObject get instanceSchema => schema;
 }
 
-class StudentV1 extends _StudentV1 with RealmEntityMixin, RealmObjectMixin {
+class StudentV1 extends _StudentV1
+    with RealmEntityMixin, RealmObjectMixin<StudentV1>
+    implements RealmObject<StudentV1> {
   StudentV1(
     String name, {
     int? yearOfBirth,
@@ -59,7 +58,7 @@ class StudentV1 extends _StudentV1 with RealmEntityMixin, RealmObjectMixin {
   @override
   String get name => _nameProperty.getValue(this);
   @override
-  set name(String value) => throw RealmUnsupportedSetError();
+  set name(String value) => _nameProperty.setValue(this, value);
 
   static const _yearOfBirthProperty = ValueProperty<int?>(
     'yearOfBirth',
@@ -69,10 +68,6 @@ class StudentV1 extends _StudentV1 with RealmEntityMixin, RealmObjectMixin {
   int? get yearOfBirth => _yearOfBirthProperty.getValue(this);
   @override
   set yearOfBirth(int? value) => _yearOfBirthProperty.setValue(this, value);
-
-  @override
-  Stream<RealmObjectChanges<StudentV1>> get changes =>
-      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<StudentV1>(
     StudentV1._,
@@ -88,7 +83,8 @@ class StudentV1 extends _StudentV1 with RealmEntityMixin, RealmObjectMixin {
 }
 
 class MyObjectWithTypo extends _MyObjectWithTypo
-    with RealmEntityMixin, RealmObjectMixin {
+    with RealmEntityMixin, RealmObjectMixin<MyObjectWithTypo>
+    implements RealmObject<MyObjectWithTypo> {
   MyObjectWithTypo(
     String nmae,
     int vlaue,
@@ -117,10 +113,6 @@ class MyObjectWithTypo extends _MyObjectWithTypo
   @override
   set vlaue(int value) => _vlaueProperty.setValue(this, value);
 
-  @override
-  Stream<RealmObjectChanges<MyObjectWithTypo>> get changes =>
-      RealmObjectMixin.getChanges(this);
-
   static const schema = SchemaObject<MyObjectWithTypo>(
     MyObjectWithTypo._,
     'MyObject',
@@ -134,7 +126,8 @@ class MyObjectWithTypo extends _MyObjectWithTypo
 }
 
 class MyObjectWithoutTypo extends _MyObjectWithoutTypo
-    with RealmEntityMixin, RealmObjectMixin {
+    with RealmEntityMixin, RealmObjectMixin<MyObjectWithoutTypo>
+    implements RealmObject<MyObjectWithoutTypo> {
   MyObjectWithoutTypo(
     String name,
     int value,
@@ -163,10 +156,6 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
   @override
   set value(int value) => _valueProperty.setValue(this, value);
 
-  @override
-  Stream<RealmObjectChanges<MyObjectWithoutTypo>> get changes =>
-      RealmObjectMixin.getChanges(this);
-
   static const schema = SchemaObject<MyObjectWithoutTypo>(
     MyObjectWithoutTypo._,
     'MyObject',
@@ -180,7 +169,8 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
 }
 
 class MyObjectWithoutValue extends _MyObjectWithoutValue
-    with RealmEntityMixin, RealmObjectMixin {
+    with RealmEntityMixin, RealmObjectMixin<MyObjectWithoutValue>
+    implements RealmObject<MyObjectWithoutValue> {
   MyObjectWithoutValue(
     String name,
   ) {
@@ -197,10 +187,6 @@ class MyObjectWithoutValue extends _MyObjectWithoutValue
   String get name => _nameProperty.getValue(this);
   @override
   set name(String value) => _nameProperty.setValue(this, value);
-
-  @override
-  Stream<RealmObjectChanges<MyObjectWithoutValue>> get changes =>
-      RealmObjectMixin.getChanges(this);
 
   static const schema = SchemaObject<MyObjectWithoutValue>(
     MyObjectWithoutValue._,
