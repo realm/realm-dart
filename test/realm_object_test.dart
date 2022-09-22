@@ -644,7 +644,7 @@ Future<void> main([List<String>? args]) async {
     final frozenTeam = freezeObject(liveTeam);
     expect(frozenTeam.runtimeType, Team);
 
-    final frozenPlayers = frozenTeam.dynamic.getList<RealmObject>('players');
+    final frozenPlayers = frozenTeam.dynamic.get<RealmList<RealmObject>>('players');
     expect(frozenPlayers.isFrozen, true);
     expect(frozenPlayers.single.isFrozen, true);
     expect(frozenTeam.dynamic.get('name'), 'team');

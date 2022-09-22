@@ -682,6 +682,28 @@ Future<void> main([List<String>? args]) async {
     expect(danAgain.isManaged, isFalse); // dan wasn't updated
   });
 
+  test('Default value corner cases', () {
+    final realm = getRealm(Configuration.local([Friend.schema, Party.schema]));
+
+    final f1 = Friend('Ben', age: 50);
+    realm.write(() => realm.add(f1));
+    expect(realm.all<Friend>().first.age, 50);
+
+    final f2 = Friend('Ben', age: 42); // will skip setValue, since default is 42
+    realm.write(() => realm.add(f2, update: true));
+    expect(realm.all<Friend>().first.age, 42);
+
+    final f3 = Friend('Ben', age: 30);
+    realm.write(() => realm.add(f3, update: true));
+    expect(realm.all<Friend>().first.age, 30);
+
+    final f4 = Friend('Ben')..age = 42; // will not skip setValue, since set after construction
+    realm.write(() => realm.add(f4, update: true));
+    expect(realm.all<Friend>().first.age, 42);
+
+    expect([f1, f2, f3, f4], [f4, f3, f2, f1]);
+  });
+
   test('Realm.freeze returns frozen Realm', () {
     final config = Configuration.local([Person.schema, Team.schema]);
     final realm = getRealm(config);

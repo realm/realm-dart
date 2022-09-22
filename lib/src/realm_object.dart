@@ -209,6 +209,9 @@ abstract class RealmObject implements RealmObjectMarker {
   /// True if the object belongs to a frozen realm.
   bool get isFrozen;
 
+  /// Get a frozen version of the object
+  RealmObject freeze();
+
   /// Allows listening for property changes on this Realm object
   ///
   /// Returns a [Stream] of [RealmObjectChanges<T>] that can be listened to.
