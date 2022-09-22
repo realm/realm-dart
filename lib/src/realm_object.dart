@@ -115,7 +115,7 @@ class RealmCoreAccessor implements RealmAccessor {
     final value = realmCore.getProperty(object, propertyMeta.key);
     if (value is RealmObjectHandle) {
       final realm = object.realm;
-      return RealmObjectInternal.create<T>(realm, value, realm.metadata.getLinkMeta<T>(propertyMeta)!, isInMigration);
+      return RealmObjectInternal.create<T>(realm, value, realm.metadata.getLinkMeta<T>(propertyMeta)!);
     }
     return null;
   }
@@ -335,7 +335,7 @@ extension RealmObjectInternal on RealmObject<dynamic> {
     self._accessor = accessor;
   }
 
-  static T create<T extends Object?>(Realm realm, RealmObjectHandle handle, RealmObjectMetadata metadata, bool isInMigration) {
+  static T create<T extends Object?>(Realm realm, RealmObjectHandle handle, RealmObjectMetadata metadata) {
     T? object;
     if (isStrictSubtype<T, RealmObject<T>?>()) {
       final schema = realm.schema.getByType<T>();
@@ -345,7 +345,7 @@ extension RealmObjectInternal on RealmObject<dynamic> {
     object ??= _ConcreteRealmObject() as T; // compiler needs the cast
     if (object is RealmObjectMixin<dynamic>) {
       object._handle = handle;
-      object._accessor = RealmCoreAccessor(metadata, isInMigration);
+      object._accessor = RealmCoreAccessor(metadata, realm.isInMigration);
       object._realm = realm;
       return object;
     }

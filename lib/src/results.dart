@@ -42,7 +42,7 @@ class RealmResults<T extends Object?> extends collection.IterableBase<T> with Re
   /// Returns the element of type `T` at the specified [index].
   T operator [](int index) {
     final handle = realmCore.getObjectAt(this, index);
-    return RealmObjectInternal.create<T>(realm, handle, _metadata!, false);
+    return RealmObjectInternal.create<T>(realm, handle, _metadata!);
   }
 
   /// Returns a new [RealmResults] filtered according to the provided query.

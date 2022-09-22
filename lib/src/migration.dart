@@ -53,7 +53,7 @@ class Migration {
       return null;
     }
 
-    return RealmObjectInternal.create<T>(newRealm, handle, metadata, true);
+    return RealmObjectInternal.create<T>(newRealm, handle, metadata);
   }
 
   /// Renames a property during a migration.

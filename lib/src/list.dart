@@ -106,7 +106,7 @@ class ManagedRealmList<T extends Object?> with RealmEntityMixin, ListMixin<T> im
       final value = realmCore.listGetElementAt(this, index);
 
       if (value is RealmObjectHandle) {
-        return RealmObjectInternal.create<T>(realm, value, _metadata!, false);
+        return RealmObjectInternal.create<T>(realm, value, _metadata!);
       }
 
       return value as T;
