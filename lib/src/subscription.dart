@@ -136,7 +136,7 @@ abstract class SubscriptionSet with IterableMixin<Subscription> implements Final
   /// Finds an existing [Subscription] in this set by its query
   ///
   /// The [query] is represented by the corresponding [RealmResults] object.
-  Subscription? find<T extends RealmObject>(RealmResults<T> query) {
+  Subscription? find<T extends RealmObject<T>>(RealmResults<T> query) {
     final result = realmCore.findSubscriptionByResults(this, query);
     return result == null ? null : Subscription._(result);
   }
@@ -268,7 +268,7 @@ class MutableSubscriptionSet extends SubscriptionSet {
   /// If [update] is specified to [true], then any existing query will be replaced.
   /// Otherwise a [RealmException] is thrown, in case of duplicates.
   /// {@category Sync}
-  Subscription add<T extends RealmObject>(RealmResults<T> query, {String? name, bool update = false}) {
+  Subscription add<T extends RealmObject<T>>(RealmResults<T> query, {String? name, bool update = false}) {
     return Subscription._(realmCore.insertOrAssignSubscription(this, query, name, update));
   }
 
@@ -278,7 +278,7 @@ class MutableSubscriptionSet extends SubscriptionSet {
   }
 
   /// Remove the [query] from the set, if it exists.
-  bool removeByQuery<T extends RealmObject>(RealmResults<T> query) {
+  bool removeByQuery<T extends RealmObject<T>>(RealmResults<T> query) {
     return realmCore.eraseSubscriptionByResults(this, query);
   }
 

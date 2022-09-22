@@ -121,7 +121,7 @@ class ValueProperty<T extends Object?> extends BaseProperty<T> {
 }
 
 /// @nodoc
-class ObjectProperty<LinkT extends RealmObject> extends BaseProperty<LinkT?> {
+class ObjectProperty<LinkT extends RealmObject<LinkT>> extends BaseProperty<LinkT?> {
   const ObjectProperty(String name, String linkTarget) : super(name, RealmPropertyType.object, linkTarget: linkTarget);
 
   @override

@@ -185,7 +185,7 @@ class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T>
 // The query operations on lists, as well as the ability to subscribe for notifications,
 // only work for list of objects (core restriction), so we add these as an extension methods
 // to allow the compiler to prevent misuse.
-extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
+extension RealmListOfObject<T extends RealmObject<T>> on RealmList<T> {
   /// Filters the list and returns a new [RealmResults] according to the provided [query] (with optional [arguments]).
   ///
   /// Only works for lists of [RealmObject]s.
@@ -236,14 +236,14 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
 
   static RealmList<T> create<T extends Object?>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
 
-  static void setValue(RealmListHandle handle, Realm realm, int index, Object? value, {bool update = false}) {
+  static void setValue<T>(RealmListHandle handle, Realm realm, int index, T? value, {bool update = false}) {
     if (index < 0) {
       throw RealmException("Index out of range $index");
     }
 
     try {
-      if (value is RealmObject && !value.isManaged) {
-        realm.add<RealmObject>(value, update: update);
+      if (value is RealmObject<T> && !value.isManaged) {
+        realm.createThenAddOrUpdate(value, update);
       }
 
       final length = realmCore.getListSize(handle);

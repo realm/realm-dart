@@ -42,7 +42,7 @@ class Migration {
   /// Finds an object obtained from [oldRealm] in [newRealm]. This is useful when you
   /// are working with objects without primary keys and want to update some information
   /// about the object as part of the migration.
-  T? findInNewRealm<T extends RealmObject>(RealmObject oldObject) {
+  T? findInNewRealm<T extends RealmObject<T>>(RealmObject oldObject) {
     if (!oldObject.isManaged) {
       throw UnsupportedError('Only managed RealmObject instances can be looked up in the new Realm');
     }
