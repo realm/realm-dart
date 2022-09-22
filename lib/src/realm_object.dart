@@ -340,10 +340,9 @@ extension RealmObjectInternal on RealmObject<dynamic> {
     if (isStrictSubtype<T, RealmObject<T>?>()) {
       final schema = realm.schema.getByType<T>();
       object = schema?.objectFactory();
-    } else {
-      // dynamic
-      object = _ConcreteRealmObject() as T; // compiler needs the cast
     }
+    // dynamic?
+    object ??= _ConcreteRealmObject() as T; // compiler needs the cast
     if (object is RealmObjectMixin<dynamic>) {
       object._handle = handle;
       object._accessor = RealmCoreAccessor(metadata, isInMigration);
