@@ -25,7 +25,7 @@ RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, const r
     // the pointers in error are to stack values, we need to make copies and move them into the scheduler invocation
     struct request_copy_buf {
         std::string url;
-        std::string body;
+        std::vector<char> body;
         std::map<std::string, std::string> headers;
         std::vector<realm_http_header_t> headers_vector;
     } buf;
@@ -34,7 +34,11 @@ RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, const r
 
     buf.url = request.url;
     request_copy.url = buf.url.c_str();
-    buf.body = std::string(request.body, request.body_size);
+    buf.body.reserve(request.body_size);
+    for (size_t i = 0; i < request.body_size; i++) {
+        buf.body[i] = request.body[i];
+    }
+    
     request_copy.body = buf.body.data();
 
     buf.headers_vector.reserve(request.num_headers);
