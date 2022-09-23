@@ -829,11 +829,11 @@ Future<void> main([List<String>? args]) async {
     openEncryptedRealm(null, generateValidKey());
   });
 
-  test('Realm - open local encrypted realm with empty encryption key', () {
+  test('Realm - open local encrypted realm with an empty encryption key', () {
     openEncryptedRealm(generateValidKey(), null);
   });
 
-  test('Realm  - open local encrypted realm with wrong encryption key', () {
+  test('Realm  - open local encrypted realm with an invalid encryption key', () {
     openEncryptedRealm(generateValidKey(), generateValidKey());
   });
 
@@ -845,6 +845,10 @@ Future<void> main([List<String>? args]) async {
   test('Realm - open closed local encrypted realm with the correct encryption key', () {
     List<int> key = generateValidKey();
     openEncryptedRealm(key, key, afterEncrypt: (realm) => realm.close());
+  });
+
+  test('Realm - open closed local encrypted realm with an invalid encryption key', () {
+    openEncryptedRealm(generateValidKey(), generateValidKey(), afterEncrypt: (realm) => realm.close());
   });
 
   baasTest('Realm - open remote encrypted realm with encryption key', (appConfiguration) async {
@@ -879,7 +883,7 @@ void openEncryptedRealm(List<int>? encryptionKey, List<int>? decryptionKey, {voi
   } else {
     expect(
       () => getRealm(config2),
-      throws<RealmException>("already opened with a different encryption key"),
+      throws<RealmException>(realm.isClosed ? "Realm file decryption failed" : "already opened with a different encryption key"),
     );
   }
 }
