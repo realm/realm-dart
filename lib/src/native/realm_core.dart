@@ -137,9 +137,9 @@ class _RealmCore {
           final propInfo = properties.elementAt(j).ref;
           propInfo.name = schemaProperty.name.toCharPtr(arena);
           //TODO: Assign the correct public name value https://github.com/realm/realm-dart/issues/697
-          propInfo.public_name = "".toCharPtr(arena);
+          propInfo.public_name = ''.toCharPtr(arena);
           propInfo.link_target = (schemaProperty.linkTarget ?? '').toCharPtr(arena);
-          propInfo.link_origin_property_name = "".toCharPtr(arena); // TODO: Handle backlinks
+          propInfo.link_origin_property_name = ''.toCharPtr(arena); // TODO: Handle backlinks
           propInfo.type = schemaProperty.propertyType.index;
           propInfo.collection_type = schemaProperty.collectionType.index;
           propInfo.flags = realm_property_flags.RLM_PROPERTY_NORMAL;
@@ -149,7 +149,6 @@ class _RealmCore {
           }
 
           if (schemaProperty.primaryKey) {
-            classInfo.primary_key = schemaProperty.name.toCharPtr(arena);
             propInfo.flags |= realm_property_flags.RLM_PROPERTY_PRIMARY_KEY;
           }
         }
