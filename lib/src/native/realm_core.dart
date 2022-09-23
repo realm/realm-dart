@@ -633,12 +633,16 @@ class _RealmCore {
         final property = propertiesPtr.elementAt(i);
         final propertyName = property.ref.name.cast<Utf8>().toDartString();
         final schemaProperty = schemaObject.properties[propertyName]!;
-        final propertyType = RealmPropertyType.values[property.ref.type];
-        assert(schemaProperty.propertyType == propertyType);
-        final objectType = property.ref.link_target.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
-        final isNullable = property.ref.flags & realm_property_flags.RLM_PROPERTY_NULLABLE != 0;
-        assert(!isNullable || schemaProperty.optional); // isNullable => schemaProperty.optional
-        // TODO(kasper): Assert that above matches with SchemaProperty
+        assert(() {
+          var result = true;
+          final propertyType = RealmPropertyType.values[property.ref.type];
+          result &= schemaProperty.propertyType == propertyType;
+          final objectType = property.ref.link_target.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+          result &= schemaProperty.linkTarget == objectType;
+          final isNullable = property.ref.flags & realm_property_flags.RLM_PROPERTY_NULLABLE != 0;
+          result &= !(isNullable ^ schemaProperty.optional); // isNullable <=> schemaProperty.optional
+          return result;
+        }());
         final propertyMeta = RealmPropertyMetadata(property.ref.key, schemaProperty);
         result.add(propertyMeta);
       }
