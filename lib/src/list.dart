@@ -33,7 +33,7 @@ import 'results.dart';
 ///
 /// {@category Realm}
 abstract class RealmList<T extends Object?> with RealmEntityMixin implements List<T>, Finalizable {
-  late final RealmObjectMetadata? _metadata;
+  RealmObjectMetadata? get _metadata;
 
   /// Gets a value indicating whether this collection is still valid to use.
   ///
@@ -53,7 +53,7 @@ class ManagedRealmList<T extends Object?> with RealmEntityMixin, ListMixin<T> im
   final RealmListHandle _handle;
 
   @override
-  late final RealmObjectMetadata? _metadata; // TODO: Why nullable?
+  final RealmObjectMetadata? _metadata;
 
   ManagedRealmList._(this._handle, Realm realm, this._metadata) {
     setRealm(realm);
@@ -171,9 +171,6 @@ class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T>
 
   @override
   RealmObjectMetadata? get _metadata => throw RealmException("Unmanaged lists don't have metadata associated with them.");
-
-  @override
-  set _metadata(RealmObjectMetadata? _) => throw RealmException("Unmanaged lists don't have metadata associated with them.");
 
   @override
   bool get isValid => true;
