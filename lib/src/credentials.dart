@@ -54,7 +54,8 @@ enum AuthProviderType {
   /// For authenticating with user API key generated via [ApiKeyClient.create].
   apiKey,
 
-  _serverApiKey
+  /// For authenticating with an API key generated via the server UI.
+  serverApiKey
 }
 
 /// A class, representing the credentials used for authenticating a [User]
@@ -115,6 +116,12 @@ class Credentials implements Finalizable {
   Credentials.apiKey(String key)
       : _handle = realmCore.createAppCredentialsApiKey(key),
         provider = AuthProviderType.apiKey;
+
+  /// Returns a [Credentials] object that can be used to authenticate a user with an API key
+  /// generated via the Web UI.
+  Credentials.serverApiKey(String key)
+      : _handle = realmCore.createAppCredentialsServerApiKey(key),
+        provider = AuthProviderType.serverApiKey;
 }
 
 /// @nodoc
