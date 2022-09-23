@@ -24,31 +24,30 @@
 RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, const realm_http_request_t request, void* request_context) {
     // the pointers in error are to stack values, we need to make copies and move them into the scheduler invocation
     struct request_copy_buf {
-        std::string url;
-        std::string body;
+        std::vector<char> url;
+        std::vector<char> body;
         std::map<std::string, std::string> headers;
         std::vector<realm_http_header_t> headers_vector;
     } buf;
 
-    buf.url = request.url;
-    buf.body = std::string(request.body, request.body_size);
+    realm_http_request_t request_copy = request; // copy struct
+
+    buf.url.assign(request.url, request.url + strlen(request.url));
+    buf.url.push_back('\0');
+    request_copy.url = buf.url.data();
+
+    buf.body.assign(request.body, request.body + request.body_size);
+    request_copy.body = buf.body.data();
 
     buf.headers_vector.reserve(request.num_headers);
     for (size_t i = 0; i < request.num_headers; i++) {
         auto [it, _] = buf.headers.emplace(request.headers[i].name, request.headers[i].value);
         buf.headers_vector.push_back({ it->first.c_str(), it->second.c_str() });
     }
+    request_copy.headers = buf.headers_vector.data();
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    ud->scheduler->invoke([ud, request, buf = std::move(buf), request_context]() {
-        // The pointers in the original request are no longer valid. We copy those from the
-        // buf struct which owns their copies. We copy the original request only for the value
-        // fields (method, body_size, etc.)
-        realm_http_request_t request_copy = request;
-        request_copy.headers = buf.headers_vector.data();
-        request_copy.url = buf.url.c_str();
-        request_copy.body = buf.body.data();
-
+    ud->scheduler->invoke([ud, request_copy = std::move(request_copy), buf = std::move(buf), request_context]() {
         (reinterpret_cast<realm_http_request_func_t>(ud->dart_callback)(ud->handle, request_copy, request_context));
     });
 }
