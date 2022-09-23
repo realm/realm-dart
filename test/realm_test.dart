@@ -847,8 +847,8 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-    final realm = await RealmA.open(configuration, onProgressCallback: (transferredBytes, totalBytes) {
-      print("transferredBytes: $transferredBytes, totalBytes:$totalBytes");
+    final realm = await RealmA.open(configuration, onProgressCallback: (syncProgress) {
+      print("transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
     });
     expect(realm.isClosed, false);
   });
@@ -874,8 +874,8 @@ Future<void> main([List<String>? args]) async {
     await realm2.subscriptions.waitForSynchronization();
     await realm2.syncSession.waitForUpload();
 
-    final realmAsync1 = RealmA.open(configuration1, onProgressCallback: (transferredBytes, totalBytes) {
-      print("transferredBytes: $transferredBytes, totalBytes:$totalBytes");
+    final realmAsync1 = RealmA.open(configuration1, onProgressCallback: (syncProgress) {
+      print("transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
     });
     var syncedRealm = await realmAsync1;
     expect(syncedRealm.isClosed, false);

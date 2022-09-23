@@ -106,15 +106,11 @@ class Realm implements Finalizable {
   /// and will not update when writes are made to the database.
   late final bool isFrozen;
 
-  /// Returns true if the [Realm] is opened for the first time and the realm file is created.
-  late final bool _openedFirstTime;
-
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
   Realm._(this.config, [RealmHandle? handle, this._isInMigration = false])
-      : _openedFirstTime = !File(config.path).existsSync(),
-        _handle = handle ?? _openRealmSync(config) {
+      : _handle = handle ?? _openRealmSync(config) {
     _populateMetadata();
     isFrozen = realmCore.isFrozen(this);
   }
@@ -132,13 +128,12 @@ class Realm implements Finalizable {
   /// Returns [Future<Realm>] that completes with the `realm` once the remote realm is fully synchronized or with an `error` if operation is canceled.
   /// When the configuration is [LocalConfiguration] this completes right after the local realm is opened or operation is canceled.
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
-    Realm realm = await CancellableFuture.fromFutureFunction<Realm>(() => _open(config, cancellationToken, onProgressCallback), cancellationToken);
-    return realm;
+    return await CancellableFuture.fromFutureFunction<Realm>(() => _open(config, cancellationToken, onProgressCallback), cancellationToken);
   }
 
   static Future<Realm> _open(Configuration config, CancellationToken? cancellationToken, ProgressCallback? onProgressCallback) async {
     Realm realm = Realm(config);
-    cancellationToken?.onBeforeCancel(() async {
+    cancellationToken?.onBeforeCancel(() {
       realm.close();
     });
 
@@ -147,12 +142,9 @@ class Realm implements Finalizable {
       if (onProgressCallback != null) {
         await session
             .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
-            .forEach((s) => onProgressCallback.call(s.transferredBytes, s.transferableBytes));
+            .forEach((syncProgress) => onProgressCallback.call(syncProgress));
       }
       await session.waitForDownload();
-      if (!realm._openedFirstTime) {
-        await session.waitForUpload();
-      }
     }
     return realm;
   }
@@ -681,23 +673,14 @@ class MigrationRealm extends DynamicRealm {
 /// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].
 /// This is the registered callback onProgressCallback to receive progress notifications while the download is in progress.
 ///
-/// It is called with the following arguments:
-/// * `transferredBytes` - the current number of bytes already transferred
-/// * `totalBytes` - the total number of transferable bytes (the number of bytes already transferred plus the number of bytes pending transfer)
+/// * syncProgress - an object of [SyncProgress] that contains `transferredBytes` and `transferableBytes`.
 /// {@category Realm}
-typedef ProgressCallback = void Function(int transferredBytes, int totalBytes);
+typedef ProgressCallback = void Function(SyncProgress syncProgress);
 
-/// An exception being thrown when a cancellable operation is cancelled by calling [CancellationToken.cancel].
+/// An exception being thrown when a operation is cancelled by calling [CancellationToken.cancel].
 /// {@category Realm}
-class CancelledException implements RealmException {
-  final String message;
-
-  CancelledException(this.message);
-
-  @override
-  String toString() {
-    return message;
-  }
+class CancelledException extends RealmException {
+  CancelledException(super.message); 
 }
 
 /// [CancellationToken] provides method [cancel] that executes [_onCancel] and [beforeCancel] callbacks.
