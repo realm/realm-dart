@@ -7,7 +7,7 @@
 * You can now set a realm property of type `T` to any object `o` where `o is T`. Previously it was required that `o.runtimeType == T`. ([#904](https://github.com/realm/realm-dart/issues/904))
 * Performance of indexOf on realm lists has been improved. It now uses realm-core instead of the generic version from ListMixin. ([#911](https://github.com/realm/realm-dart/pull/911)). 
 * Added support for migrations for local Realms. You can now construct a configuration with a migration callback that will be invoked if the schema version of the file on disk is lower than the schema version supplied by the callback. (Issue [#70](https://github.com/realm/realm-dart/issues/70))
-* Added support for `encryptionKey` to [Configuration.local], [Configuration.flexibleSync] and [Configuration.disconnectedSync] so realm files can be encrypted and existing encrypted files from other Realm sources opened (assuming you have the key)([#920](https://github.com/realm/realm-dart/pull/920))
+* Added support for `encryptionKey` to `Configuration.local`, `Configuration.flexibleSync` and `Configuration.disconnectedSync` so realm files can be encrypted and existing encrypted files from other Realm sources opened (assuming you have the key)([#920](https://github.com/realm/realm-dart/pull/920))
 
   A minimal example looks like this:
   ```dart
