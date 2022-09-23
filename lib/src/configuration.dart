@@ -123,6 +123,7 @@ abstract class Configuration implements Finalizable {
   ///
   /// A full 64byte (512bit) key for AES-256 encryption.
   /// Once set, must be specified each time the file is used.
+  /// If null encryption is not enabled.
   final List<int>? encryptionKey;
 
   /// Constructs a [LocalConfiguration]
