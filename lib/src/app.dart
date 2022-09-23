@@ -188,4 +188,20 @@ extension AppInternal on App {
   AppHandle get handle => _handle;
 
   static App create(AppHandle handle) => App._(handle);
+
+  static AppException createException(String message, String? linkToLogs, int statusCode) => AppException._(message, linkToLogs, statusCode);
+}
+
+/// An exception thrown from operations interacting with a Atlas App Services app.
+class AppException implements Exception {
+  final String message;
+  final String? linkToServerLogs;
+  final int statusCode;
+
+  AppException._(this.message, this.linkToServerLogs, this.statusCode);
+
+  @override
+  String toString() {
+    return "AppException: $message, link to server logs: $linkToServerLogs";
+  }
 }

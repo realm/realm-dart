@@ -78,6 +78,18 @@ class User {
     return realmCore.userGetProfileData(this);
   }
 
+  /// Gets the refresh token for this [User]. This is the user's credential for
+  /// accessing Atlas App Services and should be treated as sensitive data.
+  String get refreshToken {
+    return realmCore.userGetRefreshToken(this);
+  }
+
+  /// Gets the access token for this [User]. This is the user's credential for
+  /// accessing Atlas App Services and should be treated as sensitive data.
+  String get accessToken {
+    return realmCore.userGetAccessToken(this);
+  }
+
   /// The custom user data associated with this [User].
   dynamic get customData {
     final data = realmCore.userGetCustomData(this);
@@ -192,8 +204,64 @@ class ApiKeyClient {
 
   ApiKeyClient._(this._user);
 
+  /// Creates a new API key with the given name. The value of the returned key
+  /// must be persisted as this is the only time it is available.
   Future<ApiKey> create(String name) async {
     return realmCore.createApiKey(_user, name);
+  }
+
+  /// Fetches a specific API key by id.
+  Future<ApiKey?> fetch(ObjectId id) {
+    return _handle404(realmCore.fetchApiKey(_user, id));
+  }
+
+  /// Fetches all API keys associated with the user.
+  Future<List<ApiKey>> fetchAll() async {
+    return realmCore.fetchAllApiKeys(_user);
+  }
+
+  /// Deletes a specific API key by id.
+  Future<void> delete(ObjectId objectId) {
+    return _handle404Void(realmCore.deleteApiKey(_user, objectId));
+  }
+
+  /// Disables an API key by id.
+  Future<void> disable(ObjectId objectId) {
+    return _handle404Void(realmCore.disableApiKey(_user, objectId), id: objectId);
+  }
+
+  /// Enables an API key by id.
+  Future<void> enable(ObjectId objectId) {
+    return _handle404Void(realmCore.enableApiKey(_user, objectId), id: objectId);
+  }
+
+  Future<ApiKey?> _handle404(Future<ApiKey> future) async {
+    try {
+      return await future;
+    } on AppException catch (e) {
+      if (e.statusCode == 404) {
+        return null;
+      }
+
+      rethrow;
+    }
+  }
+
+  Future<void> _handle404Void(Future<void> future, {ObjectId? id}) async {
+    try {
+      await future;
+    } on AppException catch (e) {
+      if (e.statusCode == 404) {
+        if (id != null) {
+          throw AppInternal.createException("Failed to execute operation because ApiKey with Id: {id} doesn't exist.", e.linkToServerLogs, 404);
+        }
+
+        // If the id is null, we just ignore the exception
+        return;
+      }
+
+      rethrow;
+    }
   }
 }
 

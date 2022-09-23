@@ -21,6 +21,7 @@ import 'dart:ffi';
 
 import 'native/realm_core.dart';
 import 'app.dart';
+import 'user.dart';
 
 /// An enum containing all authentication providers. These have to be enabled manually for the application before they can be used.
 /// [Authentication Providers Docs](https://docs.mongodb.com/realm/authentication/providers/)
@@ -50,7 +51,9 @@ enum AuthProviderType {
   /// For authenticating with custom function with payload argument.
   function,
 
-  _userApiKey,
+  /// For authenticating with user API key generated via [ApiKeyClient.create].
+  apiKey,
+
   _serverApiKey
 }
 
@@ -106,6 +109,12 @@ class Credentials implements Finalizable {
   Credentials.function(String payload)
       : _handle = realmCore.createAppCredentialsFunction(payload),
         provider = AuthProviderType.function;
+
+  /// Returns a [Credentials] object that can be used to authenticate a user with a user API key.
+  /// To generate an API key, use [ApiKeyClient.create].
+  Credentials.apiKey(String key)
+      : _handle = realmCore.createAppCredentialsApiKey(key),
+        provider = AuthProviderType.apiKey;
 }
 
 /// @nodoc

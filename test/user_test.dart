@@ -120,11 +120,295 @@ Future<void> main([List<String>? args]) async {
   baasTest('User.apiKeys.create creates and reveals value', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final apiKey = await user.apiKeys.create('a');
+    final apiKey = await user.apiKeys.create('my-api-key');
 
     expect(apiKey.isEnabled, true);
-    expect(apiKey.name, 'a');
+    expect(apiKey.name, 'my-api-key');
     expect(apiKey.value, isNotNull);
     expect(apiKey.id, isNot(ObjectId.fromValues(0, 0, 0)));
+  });
+
+  baasTest('User.apiKeys.create with invalid name returns error', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    await expectLater(
+        () => user.apiKeys.create('Spaces are not allowed'),
+        throwsA(isA<AppException>()
+            .having((e) => e.message, 'message', contains('can only contain ASCII letters, numbers, underscores, and hyphens'))
+            .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))
+            .having((e) => e.statusCode, 'statusCode', 400)));
+  });
+
+  baasTest('User.apiKeys.fetch with non existent returns null', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final key = await user.apiKeys.fetch(ObjectId());
+    expect(key, isNull);
+  });
+
+  void expectApiKey(ApiKey? fetched, ApiKey expected) {
+    expect(fetched, isNotNull);
+    expect(fetched!.id, expected.id);
+    expect(fetched.isEnabled, expected.isEnabled);
+    expect(fetched.name, expected.name);
+    expect(fetched.value, isNull);
+  }
+
+  baasTest('User.apiKeys.fetch with existent returns result', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    final apiKey = await user.apiKeys.create('my-api-key');
+
+    final refetched = await user.apiKeys.fetch(apiKey.id);
+
+    expectApiKey(refetched, apiKey);
+  });
+
+  baasTest('User.apiKeys.fetchAll with no keys returns empty', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    final apiKeys = await user.apiKeys.fetchAll();
+
+    expect(apiKeys.length, 0);
+  });
+
+  baasTest('User.apiKeys.fetchAll with one key returns it', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final original = await user.apiKeys.create('my-api-key');
+
+    final apiKeys = await user.apiKeys.fetchAll();
+
+    expect(apiKeys.length, 1);
+    expect(apiKeys.single, original);
+  });
+
+  baasTest('User.apiKeys.fetchAll with multiple keys returns all', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final original = <ApiKey>[];
+    for (var i = 0; i < 5; i++) {
+      original.add(await user.apiKeys.create('my-api-key-$i'));
+    }
+
+    final fetched = await user.apiKeys.fetchAll();
+
+    for (var i = 0; i < 5; i++) {
+      expectApiKey(fetched[i], original[i]);
+    }
+  });
+
+  baasTest('User.apiKeys.delete with non-existent key', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final key = await user.apiKeys.create('key');
+
+    await user.apiKeys.delete(ObjectId());
+
+    final allKeys = await user.apiKeys.fetchAll();
+    expect(allKeys.length, 1);
+    expectApiKey(allKeys.single, key);
+  });
+
+  baasTest('User.apiKeys.delete with existent key', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final toDelete = await user.apiKeys.create('to-delete');
+    final toRemain = await user.apiKeys.create('to-remain');
+
+    await user.apiKeys.delete(toDelete.id);
+
+    final fetched = await user.apiKeys.fetch(toDelete.id);
+    expect(fetched, isNull);
+
+    final allKeys = await user.apiKeys.fetchAll();
+    expect(allKeys.length, 1);
+    expectApiKey(allKeys.single, toRemain);
+  });
+
+  baasTest('User.apiKeys.disable with non-existent throws', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    await expectLater(
+        () => user.apiKeys.disable(ObjectId()),
+        throwsA(isA<AppException>()
+            .having((e) => e.message, 'message', contains("doesn't exist"))
+            .having((e) => e.statusCode, 'statusCode', 404)
+            .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))));
+  });
+
+  baasTest('User.apiKeys.enable with non-existent throws', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    await expectLater(
+        () => user.apiKeys.enable(ObjectId()),
+        throwsA(isA<AppException>()
+            .having((e) => e.message, 'message', contains("doesn't exist"))
+            .having((e) => e.statusCode, 'statusCode', 404)
+            .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))));
+  });
+
+  baasTest('User.apiKeys.enable when enabled is a no-op', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final key = await user.apiKeys.create('my-key');
+
+    expect(key.isEnabled, true);
+
+    await user.apiKeys.enable(key.id);
+
+    final fetched = await user.apiKeys.fetch(key.id);
+
+    expect(fetched!.isEnabled, true);
+  });
+
+  baasTest('User.apiKeys.disable when disabled is a no-op', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final key = await user.apiKeys.create('my-key');
+
+    expect(key.isEnabled, true);
+
+    await user.apiKeys.disable(key.id);
+
+    final fetched = await user.apiKeys.fetch(key.id);
+    expect(fetched!.isEnabled, false);
+
+    await user.apiKeys.disable(key.id);
+
+    final refetched = await user.apiKeys.fetch(key.id);
+    expect(refetched!.isEnabled, false);
+  });
+
+  baasTest('User.apiKeys.disable disables key', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final first = await user.apiKeys.create('first');
+    final second = await user.apiKeys.create('second');
+
+    expect(first.isEnabled, true);
+    expect(second.isEnabled, true);
+
+    await user.apiKeys.disable(first.id);
+
+    final fetched = await user.apiKeys.fetchAll();
+    expect(fetched[0].id, first.id);
+    expect(fetched[0].isEnabled, false);
+
+    expect(fetched[1].id, second.id);
+    expect(fetched[1].isEnabled, true);
+  });
+
+  baasTest('User.apiKeys.enable reenables key', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final first = await user.apiKeys.create('first');
+    final second = await user.apiKeys.create('second');
+
+    expect(first.isEnabled, true);
+    expect(second.isEnabled, true);
+
+    await user.apiKeys.disable(first.id);
+
+    final fetched = await user.apiKeys.fetchAll();
+    expect(fetched[0].id, first.id);
+    expect(fetched[0].isEnabled, false);
+
+    expect(fetched[1].id, second.id);
+    expect(fetched[1].isEnabled, true);
+
+    await user.apiKeys.enable(first.id);
+
+    final refetched = await user.apiKeys.fetchAll();
+    expect(refetched[0].id, first.id);
+    expect(refetched[0].isEnabled, true);
+
+    expect(refetched[1].id, second.id);
+    expect(refetched[1].isEnabled, true);
+  });
+
+  baasTest('User.apiKeys can login with generated key', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final key = await user.apiKeys.create('my-key');
+    final credentials = Credentials.apiKey(key.value!);
+
+    final apiKeyUser = await app.logIn(credentials);
+    expect(apiKeyUser.provider, AuthProviderType.apiKey);
+    expect(apiKeyUser.id, user.id);
+    expect(apiKeyUser.refreshToken, isNot(user.refreshToken));
+  });
+
+  baasTest('User.apiKeys can login with reenabled key', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final key = await user.apiKeys.create('my-key');
+
+    await user.apiKeys.disable(key.id);
+
+    final credentials = Credentials.apiKey(key.value!);
+
+    await expectLater(
+        () => app.logIn(credentials),
+        throwsA(isA<AppException>()
+            .having((e) => e.message, 'message', contains('invalid API key'))
+            .having((e) => e.statusCode, 'statusCode', 401)
+            .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))));
+
+    await user.apiKeys.enable(key.id);
+
+    final apiKeyUser = await app.logIn(credentials);
+    expect(apiKeyUser.provider, AuthProviderType.apiKey);
+    expect(apiKeyUser.id, user.id);
+    expect(apiKeyUser.refreshToken, isNot(user.refreshToken));
+  });
+
+  baasTest("User.apiKeys can't login with disabled key", (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final key = await user.apiKeys.create('my-key');
+
+    await user.apiKeys.disable(key.id);
+
+    final credentials = Credentials.apiKey(key.value!);
+
+    await expectLater(
+        () => app.logIn(credentials),
+        throwsA(isA<AppException>()
+            .having((e) => e.message, 'message', contains('invalid API key'))
+            .having((e) => e.statusCode, 'statusCode', 401)
+            .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))));
+  });
+
+  baasTest("User.apiKeys can't login with deleted key", (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final key = await user.apiKeys.create('my-key');
+
+    await user.apiKeys.delete(key.id);
+
+    final credentials = Credentials.apiKey(key.value!);
+
+    await expectLater(
+        () => app.logIn(credentials),
+        throwsA(isA<AppException>()
+            .having((e) => e.message, 'message', contains('invalid API key'))
+            .having((e) => e.statusCode, 'statusCode', 401)
+            .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))));
   });
 }
