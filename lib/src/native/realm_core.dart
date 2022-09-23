@@ -225,7 +225,9 @@ class _RealmCore {
       } else if (config is DisconnectedSyncConfiguration) {
         _realmLib.realm_config_set_force_sync_history(configPtr, true);
       }
-
+      if (config.encryptionKey != null && config is! InMemoryConfiguration) {
+        _realmLib.realm_config_set_encryption_key(configPtr, config.encryptionKey!.toUint8Ptr(arena), Configuration.encryptionKeySize);
+      }
       return configHandle;
     });
   }

@@ -824,6 +824,71 @@ Future<void> main([List<String>? args]) async {
     expect(stored.location, now.location);
     expect(stored.location.name, 'Europe/Copenhagen');
   });
+
+  test('Realm open with wrong encryption key', () {
+    List<int> key = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
+    final config = Configuration.local([Car.schema], encryptionKey: key);
+    final realm = getRealm(config);
+    expect(
+      () => getRealm(Configuration.local([Car.schema])),
+      throws<RealmException>("already opened with a different encryption key"),
+    );
+  });
+
+  test('Realm - open local encrypted realm with empty encryption key', () {
+    List<int> key = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
+    final config = Configuration.local([Car.schema], encryptionKey: key);
+    final realm = getRealm(config);
+    expect(
+      () => getRealm(Configuration.local([Car.schema])),
+      throws<RealmException>("already opened with a different encryption key"),
+    );
+  });
+
+  test('Realm - open local not encrypted realm with encryption key', () {
+    List<int> key = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
+    final config = Configuration.local([Car.schema]);
+    final realm = getRealm(config);
+    expect(
+      () => getRealm(Configuration.local([Car.schema], encryptionKey: key)),
+      throws<RealmException>("already opened with a different encryption key"),
+    );
+  });
+
+  test('Realm - open local encrypted realm wrong encryption key', () {
+    List<int> key = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
+    final config = Configuration.local([Car.schema], encryptionKey: key);
+    final realm = getRealm(config);
+
+    List<int> key1 = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
+    expect(
+      () => getRealm(Configuration.local([Car.schema], encryptionKey: key1)),
+      throws<RealmException>("already opened with a different encryption key"),
+    );
+  });
+
+  test('Realm - open local encrypted realm with encryption key', () {
+    List<int> key = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
+    final config = Configuration.local([Car.schema], encryptionKey: key);
+    final realm = getRealm(config);
+    final realm1 = getRealm(config);
+    expect(realm1.isClosed, false);
+  });
+
+  baasTest('Realm - open remote encrypted realm with encryption key', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    List<int> key = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
+    final configuration = Configuration.flexibleSync(user, [Task.schema], encryptionKey: key);
+
+    final realm = getRealm(configuration);
+    expect(realm.isClosed, false);
+    expect(
+      () => getRealm(Configuration.flexibleSync(user, [Task.schema])),
+      throws<RealmException>("already opened with a different encryption key"),
+    );
+  });
 }
 
 extension on When {

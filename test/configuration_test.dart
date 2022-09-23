@@ -506,7 +506,7 @@ Future<void> main([List<String>? args]) async {
       path.basename('my-custom-realm-name.realm'),
     );
     final config = Configuration.flexibleSync(user, [Event.schema], path: customPath);
-    var realm = Realm(config);
+    var realm = getRealm(config);
   });
 
   baasTest('Configuration.disconnectedSync', (appConfig) async {
@@ -527,7 +527,29 @@ Future<void> main([List<String>? args]) async {
     realm.close();
 
     final disconnectedSyncConfig = Configuration.disconnectedSync(schema, path: realmPath);
-    final disconnectedRealm = Realm(disconnectedSyncConfig);
+    final disconnectedRealm = getRealm(disconnectedSyncConfig);
     expect(disconnectedRealm.find<Task>(oid), isNotNull);
+  });
+
+  test('Configuration set short encryption key', () {
+    List<int> key = [1, 2, 3];
+    expect(() => Configuration.local([Car.schema], encryptionKey: key), throws<RealmException>("EncryptionKey must be 64 bytes"));
+  });
+
+  test('Configuration set encryption key', () {
+    List<int> key = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
+    Configuration.local([Car.schema], encryptionKey: key);
+  });
+
+  baasTest('FlexibleSyncConfiguration set long encryption key', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+
+    List<int> key = List<int>.generate(Configuration.encryptionKeySize + 10, (i) => random.nextInt(256));
+    expect(
+      () => Configuration.flexibleSync(user, [Task.schema], encryptionKey: key),
+      throws<RealmException>("EncryptionKey must be 64 bytes"),
+    );
   });
 }
