@@ -84,6 +84,19 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
   }
 
   @override
+  bool remove(covariant T element) {
+    if (element is RealmObject && !element.isManaged) {
+      throw RealmStateError('Cannot call remove on a managed list with an element that is an unmanaged object');
+    }
+    final index = indexOf(element);
+    final found = index > 0;
+    if (found) {
+      removeAt(index);
+    }
+    return found;
+  }
+
+  @override
   T operator [](int index) {
     if (index < 0) {
       throw RealmException("Index out of range $index");
