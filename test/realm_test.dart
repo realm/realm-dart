@@ -701,7 +701,8 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => realm.add(f4, update: true));
     expect(realm.all<Friend>().first.age, 42);
 
-    expect([f1, f2, f3, f4], [f4, f3, f2, f1]);
+    // all should be equal
+    expect([f1, f2, f3, f4], [f2, f3, f4, f1]);
   });
 
   test('Realm.freeze returns frozen Realm', () {
