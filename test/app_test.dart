@@ -228,7 +228,7 @@ Future<void> main([List<String>? args]) async {
     await app.deleteUser(user);
     expect(user.state, UserState.removed);
 
-    expect(() async => await loginWithRetry(app, Credentials.emailPassword(username, strongPassword)), throws<RealmException>("invalid username/password"));
+    await expectLater(() => loginWithRetry(app, Credentials.emailPassword(username, strongPassword)), throws<AppException>("invalid username/password"));
   });
 }
 
