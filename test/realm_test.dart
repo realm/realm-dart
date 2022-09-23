@@ -825,54 +825,26 @@ Future<void> main([List<String>? args]) async {
     expect(stored.location.name, 'Europe/Copenhagen');
   });
 
-  test('Realm open with wrong encryption key', () {
-    List<int> key = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
-    final config = Configuration.local([Car.schema], encryptionKey: key);
-    final realm = getRealm(config);
-    expect(
-      () => getRealm(Configuration.local([Car.schema])),
-      throws<RealmException>("already opened with a different encryption key"),
-    );
+  test('Realm - open local not encrypted realm with encryption key', () {
+    openEncryptedRealm(null, generateValidKey());
   });
 
   test('Realm - open local encrypted realm with empty encryption key', () {
-    List<int> key = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
-    final config = Configuration.local([Car.schema], encryptionKey: key);
-    final realm = getRealm(config);
-    expect(
-      () => getRealm(Configuration.local([Car.schema])),
-      throws<RealmException>("already opened with a different encryption key"),
-    );
+    openEncryptedRealm(generateValidKey(), null);
   });
 
-  test('Realm - open local not encrypted realm with encryption key', () {
-    List<int> key = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
-    final config = Configuration.local([Car.schema]);
-    final realm = getRealm(config);
-    expect(
-      () => getRealm(Configuration.local([Car.schema], encryptionKey: key)),
-      throws<RealmException>("already opened with a different encryption key"),
-    );
+  test('Realm  - open local encrypted realm with wrong encryption key', () {
+    openEncryptedRealm(generateValidKey(), generateValidKey());
   });
 
-  test('Realm - open local encrypted realm wrong encryption key', () {
-    List<int> key = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
-    final config = Configuration.local([Car.schema], encryptionKey: key);
-    final realm = getRealm(config);
-
-    List<int> key1 = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
-    expect(
-      () => getRealm(Configuration.local([Car.schema], encryptionKey: key1)),
-      throws<RealmException>("already opened with a different encryption key"),
-    );
+  test('Realm - open local encrypted realm with the correct encryption key', () {
+    List<int> key = generateValidKey();
+    openEncryptedRealm(key, key);
   });
 
-  test('Realm - open local encrypted realm with encryption key', () {
-    List<int> key = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
-    final config = Configuration.local([Car.schema], encryptionKey: key);
-    final realm = getRealm(config);
-    final realm1 = getRealm(config);
-    expect(realm1.isClosed, false);
+  test('Realm - open closed local encrypted realm with the correct encryption key', () {
+    List<int> key = generateValidKey();
+    openEncryptedRealm(key, key, afterEncrypt: (realm) => realm.close());
   });
 
   baasTest('Realm - open remote encrypted realm with encryption key', (appConfiguration) async {
@@ -889,6 +861,27 @@ Future<void> main([List<String>? args]) async {
       throws<RealmException>("already opened with a different encryption key"),
     );
   });
+}
+
+List<int> generateValidKey() {
+  return List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
+}
+
+void openEncryptedRealm(List<int>? encryptionKey, List<int>? decryptionKey, {void Function(Realm)? afterEncrypt}) {
+  final config1 = Configuration.local([Car.schema], encryptionKey: encryptionKey);
+  final config2 = Configuration.local([Car.schema], encryptionKey: decryptionKey);
+  final realm = getRealm(config1);
+  if (afterEncrypt != null) {
+    afterEncrypt(realm);
+  }
+  if (encryptionKey == decryptionKey) {
+    final decriptedRealm = getRealm(config2);
+  } else {
+    expect(
+      () => getRealm(config2),
+      throws<RealmException>("already opened with a different encryption key"),
+    );
+  }
 }
 
 extension on When {

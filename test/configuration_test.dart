@@ -536,7 +536,7 @@ Future<void> main([List<String>? args]) async {
     expect(() => Configuration.local([Car.schema], encryptionKey: key), throws<RealmException>("EncryptionKey must be 64 bytes"));
   });
 
-  test('Configuration set encryption key', () {
+  test('Configuration set a correct encryption key', () {
     List<int> key = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
     Configuration.local([Car.schema], encryptionKey: key);
   });
