@@ -132,11 +132,11 @@ abstract class Configuration implements Finalizable {
     int schemaVersion = 0,
     String? fifoFilesFallbackPath,
     String? path,
-          List<int>? encryptionKey,
+    List<int>? encryptionKey,
     bool disableFormatUpgrade = false,
     bool isReadOnly = false,
     ShouldCompactCallback? shouldCompactCallback,
-          MigrationCallback? migrationCallback
+    MigrationCallback? migrationCallback,
   }) =>
       LocalConfiguration._(
         schemaObjects,
