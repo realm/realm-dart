@@ -365,7 +365,7 @@ class SchemaObject<T extends Object?> with IterableMixin<SchemaProperty> {
   Type get type => T;
   Type get nullableType => typeOf<T?>();
 
-  final T Function() objectFactory;
+  final T Function()? _objectFactory;
 
   /// Returns the name of this schema type.
   final String name;
@@ -377,10 +377,15 @@ class SchemaObject<T extends Object?> with IterableMixin<SchemaProperty> {
   final SchemaProperty? primaryKey;
 
   /// Creates schema instance with object type and collection of object's properties.
-  const SchemaObject(this.objectFactory, this.name, this.properties, [this.primaryKey]);
+  const SchemaObject(this._objectFactory, this.name, this.properties, [this.primaryKey]);
 
   @override
   Iterator<SchemaProperty> get iterator => properties.values.iterator;
+}
+
+/// @nodoc
+extension SchemaObjectInternalExtension<T> on SchemaObject<T> {
+  T Function() get objectFactory => _objectFactory!;
 }
 
 /// Describes the complete set of classes which may be stored in a `Realm`

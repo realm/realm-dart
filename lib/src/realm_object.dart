@@ -17,10 +17,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 import 'dart:async';
 import 'dart:ffi';
-import 'dart:io';
 
 import 'package:realm_common/realm_common.dart';
 
+import 'configuration.dart';
 import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
@@ -452,7 +452,7 @@ class _ConcreteRealmObject with RealmEntityMixin, RealmObjectMixin<_ConcreteReal
 ///
 /// {@category Realm}
 class DynamicRealmObject {
-  final RealmObject _obj;
+  final RealmObject<dynamic> _obj;
 
   DynamicRealmObject._(this._obj);
 
