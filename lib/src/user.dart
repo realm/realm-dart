@@ -39,6 +39,9 @@ class User {
     return _app ??= AppInternal.create(realmCore.userGetApp(_handle));
   }
 
+  /// Gets an [ApiKeyClient] instance that exposes functionality for managing
+  /// user API keys.
+  /// [API Keys Authentication Docs](https://docs.mongodb.com/realm/authentication/api-key/)
   late final ApiKeyClient apiKeys = ApiKeyClient._(this);
 
   User._(this._handle, this._app);
