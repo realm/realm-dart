@@ -52,7 +52,7 @@
 * Realm Studio: 12.0.0 or later.
 
 ### Internal
-* Uses Realm Core v12.7.0
+* Uses Realm Core v12.8.0
 
 ## 0.4.0+beta (2022-08-19)
 
