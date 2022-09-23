@@ -7,8 +7,7 @@ part of 'migration_test.dart';
 // **************************************************************************
 
 class PersonIntName extends _PersonIntName
-    with RealmEntityMixin, RealmObjectMixin<PersonIntName>
-    implements RealmObject<PersonIntName> {
+    with RealmEntityMixin, RealmObjectMixin<PersonIntName> {
   PersonIntName(
     int name,
   ) {
@@ -38,8 +37,7 @@ class PersonIntName extends _PersonIntName
 }
 
 class StudentV1 extends _StudentV1
-    with RealmEntityMixin, RealmObjectMixin<StudentV1>
-    implements RealmObject<StudentV1> {
+    with RealmEntityMixin, RealmObjectMixin<StudentV1> {
   StudentV1(
     String name, {
     int? yearOfBirth,
@@ -83,8 +81,7 @@ class StudentV1 extends _StudentV1
 }
 
 class MyObjectWithTypo extends _MyObjectWithTypo
-    with RealmEntityMixin, RealmObjectMixin<MyObjectWithTypo>
-    implements RealmObject<MyObjectWithTypo> {
+    with RealmEntityMixin, RealmObjectMixin<MyObjectWithTypo> {
   MyObjectWithTypo(
     String nmae,
     int vlaue,
@@ -126,8 +123,7 @@ class MyObjectWithTypo extends _MyObjectWithTypo
 }
 
 class MyObjectWithoutTypo extends _MyObjectWithoutTypo
-    with RealmEntityMixin, RealmObjectMixin<MyObjectWithoutTypo>
-    implements RealmObject<MyObjectWithoutTypo> {
+    with RealmEntityMixin, RealmObjectMixin<MyObjectWithoutTypo> {
   MyObjectWithoutTypo(
     String name,
     int value,
@@ -169,8 +165,7 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
 }
 
 class MyObjectWithoutValue extends _MyObjectWithoutValue
-    with RealmEntityMixin, RealmObjectMixin<MyObjectWithoutValue>
-    implements RealmObject<MyObjectWithoutValue> {
+    with RealmEntityMixin, RealmObjectMixin<MyObjectWithoutValue> {
   MyObjectWithoutValue(
     String name,
   ) {

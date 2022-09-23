@@ -28,7 +28,7 @@ class RealmModelInfo {
   RealmModelInfo(this.name, this.modelName, this.realmName, this.fields);
 
   Iterable<String> toCode() sync* {
-    yield 'class $name extends $modelName with RealmEntityMixin, RealmObjectMixin<$name> implements RealmObject<$name> {';
+    yield 'class $name extends $modelName with RealmEntityMixin, RealmObjectMixin<$name> {';
     {
       final allExceptCollections = fields.where((f) => !f.type.isRealmCollection).toList();
 

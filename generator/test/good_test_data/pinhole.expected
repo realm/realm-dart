@@ -3,8 +3,7 @@
 // **************************************************************************
 
 class Foo extends _Foo 
-  with RealmEntityMixin, RealmObjectMixin<Foo>
-  implements RealmObject<Foo> {
+  with RealmEntityMixin, RealmObjectMixin<Foo> {
   Foo({
     int x = 0,
   }) {

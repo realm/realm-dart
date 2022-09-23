@@ -3,8 +3,7 @@
 // **************************************************************************
 
 class Person extends _Person 
-    with RealmEntityMixin, RealmObjectMixin<Person>
-    implements RealmObject<Person> {
+    with RealmEntityMixin, RealmObjectMixin<Person> {
   Person({
     Person? spouse,
   }) {

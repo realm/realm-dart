@@ -3,8 +3,7 @@
 // **************************************************************************
 
 class Original extends $Original 
-    with RealmEntityMixin, RealmObjectMixin<Original>
-    implements RealmObject<Original> {
+    with RealmEntityMixin, RealmObjectMixin<Original> {
   Original({
     int primitiveProperty = 0,
     Original? objectProperty,

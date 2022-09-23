@@ -37,8 +37,7 @@ class _MappedToo {
 // **************************************************************************
 
 class MappedToo extends _MappedToo
-    with RealmEntityMixin, RealmObjectMixin<MappedToo>
-    implements RealmObject<MappedToo> {
+    with RealmEntityMixin, RealmObjectMixin<MappedToo> {
   MappedToo({
     Original? singleLink,
     Iterable<Original> listLink = const [],

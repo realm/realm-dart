@@ -3,8 +3,7 @@
 // **************************************************************************
 
 class IntPK extends _IntPK 
-    with RealmEntityMixin, RealmObjectMixin<IntPK>
-    implements RealmObject<IntPK> {
+    with RealmEntityMixin, RealmObjectMixin<IntPK> {
   IntPK(
     int id,
   ) {
@@ -36,8 +35,7 @@ class IntPK extends _IntPK
 }
 
 class NullableIntPK extends _NullableIntPK
-    with RealmEntityMixin, RealmObjectMixin<NullableIntPK>
-    implements RealmObject<NullableIntPK> {
+    with RealmEntityMixin, RealmObjectMixin<NullableIntPK> {
   NullableIntPK(
     int? id,
   ) {
@@ -69,8 +67,7 @@ class NullableIntPK extends _NullableIntPK
 }
 
 class StringPK extends _StringPK 
-  with RealmEntityMixin, RealmObjectMixin<StringPK>
-  implements RealmObject<StringPK> {
+  with RealmEntityMixin, RealmObjectMixin<StringPK> {
   StringPK(
     String id,
   ) {
@@ -102,8 +99,7 @@ class StringPK extends _StringPK
 }
 
 class NullableStringPK extends _NullableStringPK
-    with RealmEntityMixin, RealmObjectMixin<NullableStringPK>
-    implements RealmObject<NullableStringPK> {
+    with RealmEntityMixin, RealmObjectMixin<NullableStringPK> {
   NullableStringPK(
     String? id,
   ) {
@@ -135,8 +131,7 @@ class NullableStringPK extends _NullableStringPK
 }
 
 class ObjectIdPK extends _ObjectIdPK 
-  with RealmEntityMixin, RealmObjectMixin<ObjectIdPK>
-  implements RealmObject<ObjectIdPK> {
+  with RealmEntityMixin, RealmObjectMixin<ObjectIdPK> {
   ObjectIdPK(
     ObjectId id,
   ) {
@@ -168,8 +163,7 @@ class ObjectIdPK extends _ObjectIdPK
 }
 
 class NullableObjectIdPK extends _NullableObjectIdPK
-    with RealmEntityMixin, RealmObjectMixin<NullableObjectIdPK>
-    implements RealmObject<NullableObjectIdPK> {
+    with RealmEntityMixin, RealmObjectMixin<NullableObjectIdPK> {
   NullableObjectIdPK(
     ObjectId? id,
   ) {
@@ -201,8 +195,7 @@ class NullableObjectIdPK extends _NullableObjectIdPK
 }
 
 class UuidPK extends _UuidPK 
-    with RealmEntityMixin, RealmObjectMixin<UuidPK>
-    implements RealmObject<UuidPK> {
+    with RealmEntityMixin, RealmObjectMixin<UuidPK> {
   UuidPK(
     Uuid id,
   ) {
@@ -234,8 +227,7 @@ class UuidPK extends _UuidPK
 }
 
 class NullableUuidPK extends _NullableUuidPK
-    with RealmEntityMixin, RealmObjectMixin<NullableUuidPK>
-    implements RealmObject<NullableUuidPK> {
+    with RealmEntityMixin, RealmObjectMixin<NullableUuidPK> {
   NullableUuidPK(
     Uuid? id,
   ) {

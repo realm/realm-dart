@@ -6,9 +6,7 @@ part of 'main.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
-class Car extends _Car
-    with RealmEntityMixin, RealmObjectMixin<Car>
-    implements RealmObject<Car> {
+class Car extends _Car with RealmEntityMixin, RealmObjectMixin<Car> {
   Car(
     String make, {
     String? model,
@@ -71,9 +69,7 @@ class Car extends _Car
   SchemaObject get instanceSchema => schema;
 }
 
-class Person extends _Person
-    with RealmEntityMixin, RealmObjectMixin<Person>
-    implements RealmObject<Person> {
+class Person extends _Person with RealmEntityMixin, RealmObjectMixin<Person> {
   Person(
     String name, {
     int age = 1,

@@ -3,8 +3,7 @@
 // **************************************************************************
 
 class Foo extends _Foo 
-    with RealmEntityMixin, RealmObjectMixin<Foo> 
-    implements RealmObject<Foo> {
+    with RealmEntityMixin, RealmObjectMixin<Foo>  {
   Foo({
     int x = 0,
   }) {
@@ -35,8 +34,7 @@ class Foo extends _Foo
 }
 
 class Bar extends _Bar 
-    with RealmEntityMixin, RealmObjectMixin<Bar> 
-    implements RealmObject<Bar> {
+    with RealmEntityMixin, RealmObjectMixin<Bar>  {
   Bar(
     String id,
     bool aBool,
@@ -174,8 +172,7 @@ class Bar extends _Bar
 }
 
 class PrimitiveTypes extends _PrimitiveTypes
-    with RealmEntityMixin, RealmObjectMixin<PrimitiveTypes>
-    implements RealmObject<PrimitiveTypes> {
+    with RealmEntityMixin, RealmObjectMixin<PrimitiveTypes> {
   PrimitiveTypes(
     String stringProp,
     bool boolProp,

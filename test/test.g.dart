@@ -6,9 +6,7 @@ part of 'test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
-class Car extends _Car
-    with RealmEntityMixin, RealmObjectMixin<Car>
-    implements RealmObject<Car> {
+class Car extends _Car with RealmEntityMixin, RealmObjectMixin<Car> {
   Car(
     String make,
   ) {
@@ -39,9 +37,7 @@ class Car extends _Car
   SchemaObject get instanceSchema => schema;
 }
 
-class Person extends _Person
-    with RealmEntityMixin, RealmObjectMixin<Person>
-    implements RealmObject<Person> {
+class Person extends _Person with RealmEntityMixin, RealmObjectMixin<Person> {
   Person(
     String name,
   ) {
@@ -70,9 +66,7 @@ class Person extends _Person
   SchemaObject get instanceSchema => schema;
 }
 
-class Dog extends _Dog
-    with RealmEntityMixin, RealmObjectMixin<Dog>
-    implements RealmObject<Dog> {
+class Dog extends _Dog with RealmEntityMixin, RealmObjectMixin<Dog> {
   Dog(
     String name, {
     int? age,
@@ -124,9 +118,7 @@ class Dog extends _Dog
   SchemaObject get instanceSchema => schema;
 }
 
-class Team extends _Team
-    with RealmEntityMixin, RealmObjectMixin<Team>
-    implements RealmObject<Team> {
+class Team extends _Team with RealmEntityMixin, RealmObjectMixin<Team> {
   Team(
     String name, {
     Iterable<Person> players = const [],
@@ -179,8 +171,7 @@ class Team extends _Team
 }
 
 class Student extends _Student
-    with RealmEntityMixin, RealmObjectMixin<Student>
-    implements RealmObject<Student> {
+    with RealmEntityMixin, RealmObjectMixin<Student> {
   Student(
     int number, {
     String? name,
@@ -244,9 +235,7 @@ class Student extends _Student
   SchemaObject get instanceSchema => schema;
 }
 
-class School extends _School
-    with RealmEntityMixin, RealmObjectMixin<School>
-    implements RealmObject<School> {
+class School extends _School with RealmEntityMixin, RealmObjectMixin<School> {
   School(
     String name, {
     String? city,
@@ -325,8 +314,7 @@ class School extends _School
 }
 
 class RemappedClass extends $RemappedClass
-    with RealmEntityMixin, RealmObjectMixin<RemappedClass>
-    implements RealmObject<RemappedClass> {
+    with RealmEntityMixin, RealmObjectMixin<RemappedClass> {
   RemappedClass(
     String remappedProperty, {
     Iterable<RemappedClass> listProperty = const [],
@@ -370,9 +358,7 @@ class RemappedClass extends $RemappedClass
   SchemaObject get instanceSchema => schema;
 }
 
-class Task extends _Task
-    with RealmEntityMixin, RealmObjectMixin<Task>
-    implements RealmObject<Task> {
+class Task extends _Task with RealmEntityMixin, RealmObjectMixin<Task> {
   Task(
     ObjectId id,
   ) {
@@ -404,8 +390,7 @@ class Task extends _Task
 }
 
 class Schedule extends _Schedule
-    with RealmEntityMixin, RealmObjectMixin<Schedule>
-    implements RealmObject<Schedule> {
+    with RealmEntityMixin, RealmObjectMixin<Schedule> {
   Schedule(
     ObjectId id, {
     Iterable<Task> tasks = const [],
@@ -448,8 +433,7 @@ class Schedule extends _Schedule
 }
 
 class AllTypes extends _AllTypes
-    with RealmEntityMixin, RealmObjectMixin<AllTypes>
-    implements RealmObject<AllTypes> {
+    with RealmEntityMixin, RealmObjectMixin<AllTypes> {
   AllTypes(
     String stringProp,
     bool boolProp,
@@ -644,8 +628,7 @@ class AllTypes extends _AllTypes
 }
 
 class LinksClass extends _LinksClass
-    with RealmEntityMixin, RealmObjectMixin<LinksClass>
-    implements RealmObject<LinksClass> {
+    with RealmEntityMixin, RealmObjectMixin<LinksClass> {
   LinksClass(
     Uuid id, {
     LinksClass? link,
@@ -698,8 +681,7 @@ class LinksClass extends _LinksClass
 }
 
 class AllCollections extends _AllCollections
-    with RealmEntityMixin, RealmObjectMixin<AllCollections>
-    implements RealmObject<AllCollections> {
+    with RealmEntityMixin, RealmObjectMixin<AllCollections> {
   AllCollections({
     Iterable<String> strings = const [],
     Iterable<bool> bools = const [],
@@ -876,8 +858,7 @@ class AllCollections extends _AllCollections
 }
 
 class NullableTypes extends _NullableTypes
-    with RealmEntityMixin, RealmObjectMixin<NullableTypes>
-    implements RealmObject<NullableTypes> {
+    with RealmEntityMixin, RealmObjectMixin<NullableTypes> {
   NullableTypes(
     ObjectId id,
     ObjectId differentiator, {
@@ -1006,9 +987,7 @@ class NullableTypes extends _NullableTypes
   SchemaObject get instanceSchema => schema;
 }
 
-class Event extends _Event
-    with RealmEntityMixin, RealmObjectMixin<Event>
-    implements RealmObject<Event> {
+class Event extends _Event with RealmEntityMixin, RealmObjectMixin<Event> {
   Event(
     ObjectId id, {
     String? name,
@@ -1088,9 +1067,7 @@ class Event extends _Event
   SchemaObject get instanceSchema => schema;
 }
 
-class Party extends _Party
-    with RealmEntityMixin, RealmObjectMixin<Party>
-    implements RealmObject<Party> {
+class Party extends _Party with RealmEntityMixin, RealmObjectMixin<Party> {
   Party(
     int year, {
     Friend? host,
@@ -1150,9 +1127,7 @@ class Party extends _Party
   SchemaObject get instanceSchema => schema;
 }
 
-class Friend extends _Friend
-    with RealmEntityMixin, RealmObjectMixin<Friend>
-    implements RealmObject<Friend> {
+class Friend extends _Friend with RealmEntityMixin, RealmObjectMixin<Friend> {
   Friend(
     String name, {
     int age = 42,
@@ -1219,9 +1194,7 @@ class Friend extends _Friend
   SchemaObject get instanceSchema => schema;
 }
 
-class When extends _When
-    with RealmEntityMixin, RealmObjectMixin<When>
-    implements RealmObject<When> {
+class When extends _When with RealmEntityMixin, RealmObjectMixin<When> {
   When(
     DateTime dateTimeUtc,
     String locationName,
@@ -1262,9 +1235,7 @@ class When extends _When
   SchemaObject get instanceSchema => schema;
 }
 
-class Player extends _Player
-    with RealmEntityMixin, RealmObjectMixin<Player>
-    implements RealmObject<Player> {
+class Player extends _Player with RealmEntityMixin, RealmObjectMixin<Player> {
   Player(
     String name, {
     Game? game,
@@ -1315,9 +1286,7 @@ class Player extends _Player
   SchemaObject get instanceSchema => schema;
 }
 
-class Game extends _Game
-    with RealmEntityMixin, RealmObjectMixin<Game>
-    implements RealmObject<Game> {
+class Game extends _Game with RealmEntityMixin, RealmObjectMixin<Game> {
   Game({
     Iterable<Player> winnerByRound = const [],
   }) {

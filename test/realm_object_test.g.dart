@@ -7,8 +7,7 @@ part of 'realm_object_test.dart';
 // **************************************************************************
 
 class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
-    with RealmEntityMixin, RealmObjectMixin<ObjectIdPrimaryKey>
-    implements RealmObject<ObjectIdPrimaryKey> {
+    with RealmEntityMixin, RealmObjectMixin<ObjectIdPrimaryKey> {
   ObjectIdPrimaryKey(
     ObjectId id,
   ) {
@@ -40,8 +39,7 @@ class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
 }
 
 class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
-    with RealmEntityMixin, RealmObjectMixin<NullableObjectIdPrimaryKey>
-    implements RealmObject<NullableObjectIdPrimaryKey> {
+    with RealmEntityMixin, RealmObjectMixin<NullableObjectIdPrimaryKey> {
   NullableObjectIdPrimaryKey(
     ObjectId? id,
   ) {
@@ -73,8 +71,7 @@ class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
 }
 
 class IntPrimaryKey extends _IntPrimaryKey
-    with RealmEntityMixin, RealmObjectMixin<IntPrimaryKey>
-    implements RealmObject<IntPrimaryKey> {
+    with RealmEntityMixin, RealmObjectMixin<IntPrimaryKey> {
   IntPrimaryKey(
     int id,
   ) {
@@ -106,8 +103,7 @@ class IntPrimaryKey extends _IntPrimaryKey
 }
 
 class NullableIntPrimaryKey extends _NullableIntPrimaryKey
-    with RealmEntityMixin, RealmObjectMixin<NullableIntPrimaryKey>
-    implements RealmObject<NullableIntPrimaryKey> {
+    with RealmEntityMixin, RealmObjectMixin<NullableIntPrimaryKey> {
   NullableIntPrimaryKey(
     int? id,
   ) {
@@ -139,8 +135,7 @@ class NullableIntPrimaryKey extends _NullableIntPrimaryKey
 }
 
 class StringPrimaryKey extends _StringPrimaryKey
-    with RealmEntityMixin, RealmObjectMixin<StringPrimaryKey>
-    implements RealmObject<StringPrimaryKey> {
+    with RealmEntityMixin, RealmObjectMixin<StringPrimaryKey> {
   StringPrimaryKey(
     String id,
   ) {
@@ -172,8 +167,7 @@ class StringPrimaryKey extends _StringPrimaryKey
 }
 
 class NullableStringPrimaryKey extends _NullableStringPrimaryKey
-    with RealmEntityMixin, RealmObjectMixin<NullableStringPrimaryKey>
-    implements RealmObject<NullableStringPrimaryKey> {
+    with RealmEntityMixin, RealmObjectMixin<NullableStringPrimaryKey> {
   NullableStringPrimaryKey(
     String? id,
   ) {
@@ -205,8 +199,7 @@ class NullableStringPrimaryKey extends _NullableStringPrimaryKey
 }
 
 class UuidPrimaryKey extends _UuidPrimaryKey
-    with RealmEntityMixin, RealmObjectMixin<UuidPrimaryKey>
-    implements RealmObject<UuidPrimaryKey> {
+    with RealmEntityMixin, RealmObjectMixin<UuidPrimaryKey> {
   UuidPrimaryKey(
     Uuid id,
   ) {
@@ -238,8 +231,7 @@ class UuidPrimaryKey extends _UuidPrimaryKey
 }
 
 class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
-    with RealmEntityMixin, RealmObjectMixin<NullableUuidPrimaryKey>
-    implements RealmObject<NullableUuidPrimaryKey> {
+    with RealmEntityMixin, RealmObjectMixin<NullableUuidPrimaryKey> {
   NullableUuidPrimaryKey(
     Uuid? id,
   ) {
@@ -271,8 +263,7 @@ class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
 }
 
 class RemappedFromAnotherFile extends _RemappedFromAnotherFile
-    with RealmEntityMixin, RealmObjectMixin<RemappedFromAnotherFile>
-    implements RealmObject<RemappedFromAnotherFile> {
+    with RealmEntityMixin, RealmObjectMixin<RemappedFromAnotherFile> {
   RemappedFromAnotherFile({
     RemappedClass? linkToAnotherClass,
   }) {
@@ -302,8 +293,7 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
 }
 
 class BoolValue extends _BoolValue
-    with RealmEntityMixin, RealmObjectMixin<BoolValue>
-    implements RealmObject<BoolValue> {
+    with RealmEntityMixin, RealmObjectMixin<BoolValue> {
   BoolValue(
     int key,
     bool value,
