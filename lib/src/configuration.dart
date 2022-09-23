@@ -57,7 +57,6 @@ typedef MigrationCallback = void Function(Migration migration, int oldSchemaVers
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
 abstract class Configuration implements Finalizable {
-
   static const int encryptionKeySize = 64;
 
   /// The default realm filename to be used.
@@ -139,18 +138,16 @@ abstract class Configuration implements Finalizable {
     ShouldCompactCallback? shouldCompactCallback,
     MigrationCallback? migrationCallback,
   }) =>
-      LocalConfiguration._(
-        schemaObjects,
-        initialDataCallback: initialDataCallback,
-        schemaVersion: schemaVersion,
-        fifoFilesFallbackPath: fifoFilesFallbackPath,
-        path: path,
+      LocalConfiguration._(schemaObjects,
+          initialDataCallback: initialDataCallback,
+          schemaVersion: schemaVersion,
+          fifoFilesFallbackPath: fifoFilesFallbackPath,
+          path: path,
           encryptionKey: encryptionKey,
-        disableFormatUpgrade: disableFormatUpgrade,
-        isReadOnly: isReadOnly,
-        shouldCompactCallback: shouldCompactCallback,
-          migrationCallback: migrationCallback
-      );
+          disableFormatUpgrade: disableFormatUpgrade,
+          isReadOnly: isReadOnly,
+          shouldCompactCallback: shouldCompactCallback,
+          migrationCallback: migrationCallback);
 
   /// Constructs a [InMemoryConfiguration]
   static InMemoryConfiguration inMemory(
