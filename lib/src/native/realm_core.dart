@@ -1222,6 +1222,11 @@ class _RealmCore {
           request.headers.add(header.key, header.value);
         }
 
+        if (body != '') {
+          print(url.toString());
+          print(body);
+        }
+
         request.add(utf8.encode(body));
 
         // Do the call..
