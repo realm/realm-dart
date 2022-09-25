@@ -30,21 +30,22 @@ RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, const r
         std::vector<realm_http_header_t> headers_vector;
     } buf;
 
-    realm_http_request_t request_copy = request; // copy struct
-
-    buf.url.assign(request.url, request.url + strlen(request.url));
+    buf.url = std::vector<char>(request.url, request.url + strlen(request.url));
     buf.url.push_back('\0');
-    request_copy.url = buf.url.data();
 
-    buf.body.assign(request.body, request.body + request.body_size);
-    request_copy.body = buf.body.data();
+    buf.body = std::vector<char>(request.body, request.body + request.body_size);
 
     buf.headers_vector.reserve(request.num_headers);
     for (size_t i = 0; i < request.num_headers; i++) {
         auto [it, _] = buf.headers.emplace(request.headers[i].name, request.headers[i].value);
         buf.headers_vector.push_back({ it->first.c_str(), it->second.c_str() });
     }
+
+    realm_http_request_t request_copy = request;
     request_copy.headers = buf.headers_vector.data();
+    request_copy.url = buf.url.data();
+    request_copy.body = buf.body.data();
+
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
     ud->scheduler->invoke([ud, request_copy = std::move(request_copy), buf = std::move(buf), request_context]() {

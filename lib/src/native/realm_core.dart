@@ -1158,7 +1158,7 @@ class _RealmCore {
     // we explicitly call realm_http_transport_complete_request to
     // mark request as completed later.
     //
-    // Therefor we need to copy everything out of request before returning.
+    // Therefore we need to copy everything out of request before returning.
     // We cannot clone request on the native side with realm_clone,
     // since realm_http_request does not inherit from WrapC.
 
@@ -1169,6 +1169,11 @@ class _RealmCore {
     final url = Uri.parse(request.url.cast<Utf8>().toRealmDartString()!);
 
     final body = request.body.cast<Utf8>().toRealmDartString(length: request.body_size) ?? '';
+
+    if (request.body_size > 0) {
+      print(url);
+      print(body);
+    }
 
     final headers = <String, String>{};
     for (int i = 0; i < request.num_headers; ++i) {
@@ -1220,11 +1225,6 @@ class _RealmCore {
 
         for (final header in headers.entries) {
           request.headers.add(header.key, header.value);
-        }
-
-        if (body != '') {
-          print(url.toString());
-          print(body);
         }
 
         request.add(utf8.encode(body));
