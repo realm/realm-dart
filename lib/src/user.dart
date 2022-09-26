@@ -215,7 +215,7 @@ class ApiKeyClient {
 
   /// Fetches a specific API key by id.
   Future<ApiKey?> fetch(ObjectId id) {
-    return _handle404(realmCore.fetchApiKey(_user, id));
+    return realmCore.fetchApiKey(_user, id).handle404();
   }
 
   /// Fetches all API keys associated with the user.
@@ -225,46 +225,17 @@ class ApiKeyClient {
 
   /// Deletes a specific API key by id.
   Future<void> delete(ObjectId objectId) {
-    return _handle404Void(realmCore.deleteApiKey(_user, objectId));
+    return realmCore.deleteApiKey(_user, objectId).handle404();
   }
 
   /// Disables an API key by id.
   Future<void> disable(ObjectId objectId) {
-    return _handle404Void(realmCore.disableApiKey(_user, objectId), id: objectId);
+    return realmCore.disableApiKey(_user, objectId).handle404(id: objectId);
   }
 
   /// Enables an API key by id.
   Future<void> enable(ObjectId objectId) {
-    return _handle404Void(realmCore.enableApiKey(_user, objectId), id: objectId);
-  }
-
-  Future<ApiKey?> _handle404(Future<ApiKey> future) async {
-    try {
-      return await future;
-    } on AppException catch (e) {
-      if (e.statusCode == 404) {
-        return null;
-      }
-
-      rethrow;
-    }
-  }
-
-  Future<void> _handle404Void(Future<void> future, {ObjectId? id}) async {
-    try {
-      await future;
-    } on AppException catch (e) {
-      if (e.statusCode == 404) {
-        if (id != null) {
-          throw AppInternal.createException("Failed to execute operation because ApiKey with Id: {id} doesn't exist.", e.linkToServerLogs, 404);
-        }
-
-        // If the id is null, we just ignore the exception
-        return;
-      }
-
-      rethrow;
-    }
+    return realmCore.enableApiKey(_user, objectId).handle404(id: objectId);
   }
 }
 
@@ -285,7 +256,7 @@ class ApiKey {
   /// authenticate the user.
   final bool isEnabled;
 
-  ApiKey._({required this.id, required this.name, required this.value, required this.isEnabled});
+  ApiKey._(this.id, this.name, this.value, this.isEnabled);
 
   @override
   bool operator ==(Object other) {
@@ -313,6 +284,38 @@ extension UserInternal on User {
 
   static User create(UserHandle handle, [App? app]) => User._(handle, app);
 
-  static ApiKey createApiKey({required ObjectId id, required String name, required String? value, required bool isEnabled}) =>
-      ApiKey._(id: id, name: name, value: value, isEnabled: isEnabled);
+  static ApiKey createApiKey(ObjectId id, String name, String? value, bool isEnabled) => ApiKey._(id, name, value, isEnabled);
+}
+
+extension on Future<void> {
+  Future<void> handle404({ObjectId? id}) async {
+    try {
+      await this;
+    } on AppException catch (e) {
+      if (e.statusCode == 404) {
+        // If we have an id, we can provide a more specific error message. Otherwise, we ignore the exception
+        if (id != null) {
+          throw AppInternal.createException("Failed to execute operation because ApiKey with Id: $id doesn't exist.", e.linkToServerLogs, 404);
+        }
+
+        return;
+      }
+
+      rethrow;
+    }
+  }
+}
+
+extension on Future<ApiKey> {
+  Future<ApiKey?> handle404() async {
+    try {
+      return await this;
+    } on AppException catch (e) {
+      if (e.statusCode == 404) {
+        return null;
+      }
+
+      rethrow;
+    }
+  }
 }

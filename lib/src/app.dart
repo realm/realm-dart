@@ -193,16 +193,14 @@ extension AppInternal on App {
 }
 
 /// An exception thrown from operations interacting with a Atlas App Services app.
-class AppException implements Exception {
-  final String message;
-
+class AppException extends RealmException {
   /// A link to the server logs associated with this exception if available.
   final String? linkToServerLogs;
 
   /// The HTTP status code returned by the server for this exception.
   final int statusCode;
 
-  AppException._(this.message, this.linkToServerLogs, this.statusCode);
+  AppException._(super.message, this.linkToServerLogs, this.statusCode);
 
   @override
   String toString() {

@@ -1168,7 +1168,7 @@ class _RealmCore {
 
     final url = Uri.parse(request.url.cast<Utf8>().toRealmDartString()!);
 
-    final body = request.body.cast<Utf8>().toRealmDartString(length: request.body_size) ?? '';
+    final body = request.body.cast<Utf8>().toRealmDartString(length: request.body_size);
 
     if (request.body_size > 0) {
       print(url);
@@ -1191,7 +1191,7 @@ class _RealmCore {
     HttpClient client,
     int requestMethod,
     Uri url,
-    String body,
+    String? body,
     Map<String, String> headers,
     Pointer<Void> request_context,
   ) async {
@@ -1227,7 +1227,9 @@ class _RealmCore {
           request.headers.add(header.key, header.value);
         }
 
-        request.add(utf8.encode(body));
+        if (body != null) {
+          request.add(utf8.encode(body));
+        }
 
         // Do the call..
         final response = await request.close();
@@ -1908,7 +1910,7 @@ class _RealmCore {
     final value = apiKey.ref.key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
     final isEnabled = !apiKey.ref.disabled;
 
-    completer.complete(UserInternal.createApiKey(id: id, name: name, value: value, isEnabled: isEnabled));
+    completer.complete(UserInternal.createApiKey(id, name, value, isEnabled));
   }
 
   static void _app_api_key_array_completion_callback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, int size, Pointer<realm_app_error> error) {
@@ -1930,7 +1932,7 @@ class _RealmCore {
       final value = apiKey[i].key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
       final isEnabled = !apiKey[i].disabled;
 
-      result.add(UserInternal.createApiKey(id: id, name: name, value: value, isEnabled: isEnabled));
+      result.add(UserInternal.createApiKey(id, name, value, isEnabled));
     }
 
     completer.complete(result);
