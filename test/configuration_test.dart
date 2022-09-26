@@ -22,6 +22,7 @@ import 'dart:math';
 import 'package:test/test.dart' hide test, throws;
 import 'package:path/path.dart' as path;
 import '../lib/realm.dart';
+import '../lib/src/configuration.dart' show SyncClientResetErrorHandlerInternal, ClientResyncModeInternal;
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -535,14 +536,37 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema], clientResyncMode: ClientResyncMode.discardLocal);
-    final realm = getRealm(config);
-    expect((realm.config as FlexibleSyncConfiguration).clientResyncMode, ClientResyncMode.discardLocal);
-    realm.close();
+    expect(
+        Configuration.flexibleSync(
+          user,
+          [Task.schema, Schedule.schema],
+          syncClientResetErrorHandler: ManualSyncClientResetHandler((syncError) {}),
+        ).syncClientResetErrorHandler.clientResyncMode,
+        ClientResyncModeInternal.manual);
+    expect(
+        Configuration.flexibleSync(
+          user,
+          [Task.schema, Schedule.schema],
+          syncClientResetErrorHandler: DiscardLocalSyncClientResetHandler((syncError) {}),
+        ).syncClientResetErrorHandler.clientResyncMode,
+        ClientResyncModeInternal.discardLocal);
+    expect(
+        Configuration.flexibleSync(
+          user,
+          [Task.schema, Schedule.schema],
+          syncClientResetErrorHandler: RecoverSyncClientResetHandler((syncError) {}),
+        ).syncClientResetErrorHandler.clientResyncMode,
+        ClientResyncModeInternal.recover);
 
-    final configDefaultResyncMode = Configuration.flexibleSync(user, [Task.schema, Schedule.schema]);
-    final realmManualResync = getRealm(configDefaultResyncMode);
-    expect((realmManualResync.config as FlexibleSyncConfiguration).clientResyncMode, ClientResyncMode.recoverOrDiscard);
-    realmManualResync.close();
+    expect(
+        Configuration.flexibleSync(
+          user,
+          [Task.schema, Schedule.schema],
+          syncClientResetErrorHandler: RecoverOrDiscardSyncClientResetHandler((syncError) {}),
+        ).syncClientResetErrorHandler.clientResyncMode,
+        ClientResyncModeInternal.recoverOrDiscard);
+
+    expect(Configuration.flexibleSync(user, [Task.schema, Schedule.schema]).syncClientResetErrorHandler.clientResyncMode,
+        ClientResyncModeInternal.recoverOrDiscard);
   });
 }

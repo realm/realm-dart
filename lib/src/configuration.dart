@@ -418,26 +418,27 @@ class RecoverSyncClientResetHandler extends SyncClientResetErrorHandler {
 /// This is the default mode for fully synchronized Realms.
 class RecoverOrDiscardSyncClientResetHandler extends SyncClientResetErrorHandler {
   const RecoverOrDiscardSyncClientResetHandler(super.callback);
+
 }
 
 /// @nodoc
 extension SyncClientResetErrorHandlerInternal on SyncClientResetErrorHandler {
-  ClientResyncMode get clientResyncMode {
+  ClientResyncModeInternal get clientResyncMode {
     if (this is ManualSyncClientResetHandler) {
-      return ClientResyncMode.manual;
+      return ClientResyncModeInternal.manual;
     } else if (this is DiscardLocalSyncClientResetHandler) {
-      return ClientResyncMode.discardLocal;
+      return ClientResyncModeInternal.discardLocal;
     } else if (this is RecoverSyncClientResetHandler) {
-      return ClientResyncMode.recover;
+      return ClientResyncModeInternal.recover;
     } else {
-      return ClientResyncMode.recoverOrDiscard;
+      return ClientResyncModeInternal.recoverOrDiscard;
     }
   }
 }
 
 /// Enum describing what should happen in case of a Client Resync.
 /// @nodoc
-enum ClientResyncMode {
+enum ClientResyncModeInternal {
   manual,
   discardLocal,
   recover,
