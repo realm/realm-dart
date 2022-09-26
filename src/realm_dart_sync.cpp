@@ -22,7 +22,7 @@
 #include "realm_dart_sync.h"
 
 RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, const realm_http_request_t request, void* request_context) {
-    // the pointers in error are to stack values, we need to make copies and move them into the scheduler invocation
+    // the pointers in request are to stack values, we need to make copies and move them into the scheduler invocation
     struct request_copy_buf {
         std::string url;
         std::string body;
@@ -33,19 +33,19 @@ RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, const r
     realm_http_request_t request_copy = request; // copy struct
 
     buf.url = request.url;
-    request_copy.url = buf.url.c_str();
     buf.body = std::string(request.body, request.body_size);
-    request_copy.body = buf.body.data();
-
     buf.headers_vector.reserve(request.num_headers);
     for (size_t i = 0; i < request.num_headers; i++) {
         auto [it, _] = buf.headers.emplace(request.headers[i].name, request.headers[i].value);
         buf.headers_vector.push_back({ it->first.c_str(), it->second.c_str() });
     }
-    request_copy.headers = buf.headers_vector.data();
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
     ud->scheduler->invoke([ud, request_copy = std::move(request_copy), buf = std::move(buf), request_context]() {
+        realm_http_request_t request = std::move(request_copy);
+        request.url = buf.url.c_str();
+        request.body = buf.body.data();
+        request.headers = buf.headers_vector.data();
         (reinterpret_cast<realm_http_request_func_t>(ud->dart_callback)(ud->handle, request_copy, request_context));
     });
 }
@@ -68,21 +68,22 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
         std::vector<realm_sync_error_user_info_t> user_info_vector;
     } buf;
 
+    realm_sync_error_t error_copy = error; // copy struct
+
     buf.message = error.error_code.message;
-    error.error_code.message = buf.message.c_str();
-
     buf.detailed_message = error.detailed_message;
-    error.detailed_message = buf.detailed_message.c_str();
-
     buf.user_info_vector.reserve(error.user_info_length);
     for (size_t i = 0; i < error.user_info_length; i++) {
         auto [it, _] = buf.user_info_map.emplace(error.user_info_map[i].key, error.user_info_map[i].value);
         buf.user_info_vector.push_back({ it->first.c_str(), it->second.c_str() });
     }
-    error.user_info_map = buf.user_info_vector.data();
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    ud->scheduler->invoke([ud, session = *session, error = std::move(error), buf = std::move(buf)]() {
+    ud->scheduler->invoke([ud, session = *session, error_copy = std::move(error_copy), buf = std::move(buf)]() {
+        realm_sync_error_t error = std::move(error_copy);
+        error.error_code.message = buf.message.c_str();
+        error.detailed_message = buf.detailed_message.c_str();
+        error.user_info_map = const_cast<realm_sync_error_user_info_t*>(buf.user_info_vector.data());
         (reinterpret_cast<realm_sync_error_handler_func_t>(ud->dart_callback))(ud->handle, const_cast<realm_sync_session_t*>(&session), error);
     });
 }
