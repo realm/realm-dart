@@ -42,7 +42,7 @@ Future<T> scopeSession<T>(
   );
   return await runZonedGuarded(
     fn,
-    (e, st) => throw e,
+    (e, st) => Error.throwWithStackTrace(e, st),
     zoneValues: {_sessionKey: s},
   )!;
 }

@@ -161,6 +161,9 @@ extension ClassElementEx on ClassElement {
             todo: 'Remove the @PrimaryKey annotation from the field or set the model type to a value different from ObjectType.embeddedObject.');
       }
 
+      // Computed fields go last. This is important for the schema generation.
+      mappedFields.sort((a, b) => a.isComputed ^ b.isComputed ? (a.isComputed ? 1 : -1) : -1);
+
       return RealmModelInfo(name, modelName, realmName, mappedFields, objectType);
     } on InvalidGenerationSourceError catch (_) {
       rethrow;

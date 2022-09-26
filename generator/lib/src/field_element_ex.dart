@@ -44,6 +44,8 @@ extension FieldElementEx on FieldElement {
 
   AnnotationValue? get indexedInfo => annotationInfoOfExact(indexedChecker);
 
+  AnnotationValue? get backlinkInfo => annotationInfoOfExact(backlinkChecker);
+
   TypeAnnotation? get typeAnnotation => declarationAstNode.fields.type;
 
   Expression? get initializerExpression => declarationAstNode.fields.variables.singleWhere((v) => v.name.name == name).initializer;
@@ -76,6 +78,7 @@ extension FieldElementEx on FieldElement {
 
       final primaryKey = primaryKeyInfo;
       final indexed = indexedInfo;
+      final backlink = backlinkInfo;
 
       // Check for as-of-yet unsupported type
       if (type.isDartCoreSet || //
@@ -176,11 +179,12 @@ extension FieldElementEx on FieldElement {
           todo: todo,
         );
       } else {
-        // Validate collections
-        if (type.isRealmCollection) {
+        // Validate collections and back-links
+        if (type.isRealmCollection || type.isRealmBacklink) {
+          final typeDescription = type.isRealmCollection ? 'collections' : 'back-links';
           if (type.isNullable) {
             throw RealmInvalidGenerationSourceError(
-              'Realm collections cannot be nullable',
+              'Realm $typeDescription cannot be nullable',
               primarySpan: typeSpan(file),
               primaryLabel: 'is nullable',
               todo: '',
@@ -189,7 +193,7 @@ extension FieldElementEx on FieldElement {
           }
           final itemType = type.basicType;
           if (itemType.isRealmModel && itemType.isNullable) {
-            throw RealmInvalidGenerationSourceError('Nullable realm objects are not allowed in collections',
+            throw RealmInvalidGenerationSourceError('Nullable realm objects are not allowed in $typeDescription',
                 primarySpan: typeSpan(file),
                 primaryLabel: 'which has a nullable realm object element type',
                 element: this,
@@ -217,6 +221,7 @@ extension FieldElementEx on FieldElement {
         isPrimaryKey: primaryKey != null,
         mapTo: remappedRealmName,
         realmType: realmType,
+        linkOriginProperty: backlink?.value.getField('symbol')?.toSymbolValue(),
       );
     } on InvalidGenerationSourceError catch (_) {
       rethrow;

@@ -18,6 +18,7 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 
+import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:realm_generator/src/pseudo_type.dart';
@@ -30,7 +31,7 @@ extension DartTypeEx on DartType {
   bool isExactly<T>() => TypeChecker.fromRuntime(T).isExactlyType(this);
 
   bool get isRealmAny => const TypeChecker.fromRuntime(RealmAny).isAssignableFromType(this);
-  bool get isRealmBacklink => false; // TODO: Implement Backlink support https://github.com/realm/realm-dart/issues/693
+  bool get isRealmBacklink => isDartCoreIterable; // && element2 != null ? backlinkChecker.annotationsOfExact(element2!).isNotEmpty : false;
   bool get isRealmCollection => realmCollectionType != RealmCollectionType.none;
   bool get isRealmModel => element != null ? realmModelChecker.annotationsOfExact(element!).isNotEmpty : false;
 
@@ -49,19 +50,20 @@ extension DartTypeEx on DartType {
   DartType? get nullIfDynamic => isDynamic ? null : this;
 
   DartType get basicType {
-    if (isRealmCollection) {
-      return (this as ParameterizedType).typeArguments.last;
+    final self = this;
+    if (self is ParameterizedType && (isRealmCollection || isRealmBacklink)) {
+      return self.typeArguments.last;
     }
-    return asNonNullable;
+    return this;
   }
 
   String get basicMappedName => basicType.mappedName;
 
   DartType get mappedType {
     final self = this;
+    final provider = session.typeProvider;
     if (isRealmCollection) {
       if (self is ParameterizedType) {
-        final provider = session.typeProvider;
         final mapped = self.typeArguments.last.mappedType;
         if (self != mapped) {
           if (self.isDartCoreList) {
@@ -76,6 +78,13 @@ extension DartTypeEx on DartType {
             final mappedMap = provider.mapType(self.typeArguments.first, mapped);
             return PseudoType('Realm${mappedMap.getDisplayString(withNullability: true)}', nullabilitySuffix: mappedMap.nullabilitySuffix);
           }
+        }
+      }
+    } else if (isRealmBacklink) {
+      if (self is ParameterizedType) {
+        final mapped = self.typeArguments.last.mappedType;
+        if (self != mapped) {
+          return PseudoType('RealmResults<${mapped.basicMappedName}>', nullabilitySuffix: NullabilitySuffix.none);
         }
       }
     } else if (isRealmModel) {
