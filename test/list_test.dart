@@ -923,4 +923,29 @@ Future<void> main([List<String>? args]) async {
       carol: [null, 1, 1]
     });
   });
+
+  test('RealmList<T> is a RealmList<T?> (covariance)', () {
+    // List<T> in dart is covariant. So is RealmList<T>.
+    // In particular (since a T is also a T?) a RealmList<T> is also a RealmList<T?>.
+    // Here follows a few tests to prove it, as it came up in a PR review
+    final list = RealmList([1, 2, 3]);
+    expect(list, isA<RealmList<int>>());
+    expect(list, isA<RealmList<int?>>());
+
+    final nullableList = RealmList<int?>([1, 2, 3]);
+    expect(nullableList, isNot(isA<RealmList<int>>()));
+    expect(nullableList, isA<RealmList<int?>>());
+
+    // .. also when managed
+    final config = Configuration.local([Player.schema, Game.schema]);
+    final realm = getRealm(config);
+
+    final game = Game();
+    realm.write(() => realm.add(game));
+
+    expect(game.winnerByRound.isManaged, isTrue);
+
+    expect(game.winnerByRound, isA<RealmList<Player>>());
+    expect(game.winnerByRound, isA<RealmList<Player?>>());
+  });
 }
