@@ -375,7 +375,8 @@ class RealmSchema extends Iterable<SchemaObject> {
 /// The signature of a callback that will be invoked if a client reset error occurs for this [Realm].
 ///
 /// Currently, Flexible Sync supports only the [ManualSyncClientResetHandler].
-class SyncClientResetErrorHandler {
+abstract class SyncClientResetErrorHandler {
+ 
   /// The callback that handles the [SyncClientResetError].
   final void Function(SyncClientResetError code) callback;
 
@@ -384,18 +385,24 @@ class SyncClientResetErrorHandler {
 }
 
 /// A client reset strategy where the user needs to fully take care of a client reset.
-typedef ManualSyncClientResetHandler = SyncClientResetErrorHandler;
+class ManualSyncClientResetHandler extends SyncClientResetErrorHandler {
+  const ManualSyncClientResetHandler(super.callback);
+}
 
 /// A client reset strategy where the user needs to fully take care of a client reset.
-typedef DiscardLocalSyncClientResetHandler = SyncClientResetErrorHandler;
+class DiscardLocalSyncClientResetHandler extends SyncClientResetErrorHandler {
+  const DiscardLocalSyncClientResetHandler(super.callback);
+}
 
 ///A client reset strategy that attempts to automatically recover any unsynchronized changes.
-typedef RecoverSyncClientResetHandler = SyncClientResetErrorHandler;
-
+class RecoverSyncClientResetHandler extends SyncClientResetErrorHandler {
+  const RecoverSyncClientResetHandler(super.callback);
+}
 /// A client reset strategy that attempts to automatically recover any unsynchronized changes.
 /// If that fails, this handler fallsback to the discard unsynced changes strategy.
-typedef RecoverOrDiscardSyncClientResetHandler = SyncClientResetErrorHandler;
-
+class RecoverOrDiscardSyncClientResetHandler extends SyncClientResetErrorHandler {
+  const RecoverOrDiscardSyncClientResetHandler(super.callback);
+}
 /// Enum describing what should happen in case of a Client Resync.
 ///
 /// A Client Resync is triggered if the device and server cannot agree
