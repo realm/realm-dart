@@ -7,7 +7,7 @@
 * You can now set a realm property of type `T` to any object `o` where `o is T`. Previously it was required that `o.runtimeType == T`. ([#904](https://github.com/realm/realm-dart/issues/904))
 * Performance of indexOf on realm lists has been improved. It now uses realm-core instead of the generic version from ListMixin. ([#911](https://github.com/realm/realm-dart/pull/911))
 * Performance of remove on realm list has been improved. It now uses indexOf and removeAt. ([#915](https://github.com/realm/realm-dart/pull/915))
-* Added support for migrations for local Realms. You can now construct a configuration with a migration callback that will be invoked if the schema version of the file on disk is lower than the schema version supplied by the callback. (Issue [#70](https://github.com/realm/realm-dart/issues/70))
+* Added support for migrations for local Realms. You can now construct a configuration with a migration callback that will be invoked if the schema version of the file on disk is lower than the schema version supplied by the callback. ([#70](https://github.com/realm/realm-dart/issues/70))
 
   A minimal example looks like this:
   ```dart
@@ -50,6 +50,7 @@
   ```
   would fail if any Persons exists
 * Fixed an issue that would cause passwords sent to the server (e.g. `Credentials.EmailPassword` or `EmailPasswordAuthProvider.registerUser`) to contain an extra empty byte at the end. (PR [#918](https://github.com/realm/realm-dart/pull/918))
+* Added support for realm list of nullable primitive types, ie. `RealmList<int?>`. ([#163](https://github.com/realm/realm-dart/issues/163))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.

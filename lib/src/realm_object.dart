@@ -178,7 +178,7 @@ class RealmCoreAccessor implements RealmAccessor {
   void set(RealmObject object, String name, Object? value, {bool isDefault = false, bool update = false}) {
     final propertyMeta = metadata[name];
     try {
-      if (value is RealmList<Object>) {
+      if (value is RealmList<Object?>) {
         final handle = realmCore.getListProperty(object, propertyMeta.key);
         if (update) realmCore.listClear(handle);
         for (var i = 0; i < value.length; i++) {
