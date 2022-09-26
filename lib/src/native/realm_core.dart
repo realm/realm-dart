@@ -2211,9 +2211,9 @@ extension _StringEx on String {
 
   Pointer<realm_string_t> toRealmString(Allocator allocator) {
     final realm_string = allocator<realm_string_t>();
-    realm_string.ref.data = toCharPtr(allocator);
     final units = utf8.encode(this);
-    realm_string.ref.size = units.length + 1;
+    realm_string.ref.data = units.toCharPtr(allocator).cast();
+    realm_string.ref.size = units.length;
     return realm_string;
   }
 }

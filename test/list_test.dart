@@ -716,6 +716,16 @@ Future<void> main([List<String>? args]) async {
     expect(realm.write(() => team.players.remove(dan)), isFalse);
 
     expect(team.players.every((p) => p.isValid && p.isManaged), isTrue);
+
+    expect(
+      () => (team.players as List<Object>).indexOf("wrong type"), // ignore: unnecessary_cast
+      throwsA(isA<TypeError>()),
+    );
+
+    expect(
+      () => team.players.remove(Person('alice')),
+      throws<RealmStateError>('Cannot call remove on a managed list with an element that is an unmanaged object'),
+    );
   });
 
   test('ManagedRealmList.setRange', () {
