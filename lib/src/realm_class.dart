@@ -72,8 +72,6 @@ export "configuration.dart"
         SchemaObject,
         ShouldCompactCallback,
         SyncErrorHandler,
-        SyncClientResetErrorHandler,
-        ClientResyncMode,
         ManualSyncClientResetHandler,
         DiscardLocalSyncClientResetHandler,
         RecoverSyncClientResetHandler,
