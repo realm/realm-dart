@@ -537,7 +537,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration set a correct encryption key', () {
-    List<int> key = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
+    List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
     Configuration.local([Car.schema], encryptionKey: key);
   });
 
@@ -546,7 +546,7 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
 
-    List<int> key = List<int>.generate(Configuration.encryptionKeySize + 10, (i) => random.nextInt(256));
+    List<int> key = List<int>.generate(encryptionKeySize + 10, (i) => random.nextInt(256));
     expect(
       () => Configuration.flexibleSync(user, [Task.schema], encryptionKey: key),
       throws<RealmException>("EncryptionKey must be 64 bytes"),

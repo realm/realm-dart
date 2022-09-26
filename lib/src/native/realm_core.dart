@@ -56,6 +56,8 @@ class _RealmCore {
   // ignore: unused_field
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
+  final int encryptionKeySize = 64;
+
   static Object noopUserdata = Object();
 
   // Hide the RealmCore class and make it a singleton
@@ -227,7 +229,7 @@ class _RealmCore {
       }
       if (config.encryptionKey != null) {
         assert(config is! InMemoryConfiguration, "Encryption keys are not allowed for InMemoryConfiguration");
-        _realmLib.realm_config_set_encryption_key(configPtr, config.encryptionKey!.toUint8Ptr(arena), Configuration.encryptionKeySize);
+        _realmLib.realm_config_set_encryption_key(configPtr, config.encryptionKey!.toUint8Ptr(arena), encryptionKeySize);
       }
       return configHandle;
     });

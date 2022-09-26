@@ -855,7 +855,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    List<int> key = List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
+    List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
     final configuration = Configuration.flexibleSync(user, [Task.schema], encryptionKey: key);
 
     final realm = getRealm(configuration);
@@ -868,7 +868,7 @@ Future<void> main([List<String>? args]) async {
 }
 
 List<int> generateValidKey() {
-  return List<int>.generate(Configuration.encryptionKeySize, (i) => random.nextInt(256));
+  return List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
 }
 
 void openEncryptedRealm(List<int>? encryptionKey, List<int>? decryptionKey, {void Function(Realm)? afterEncrypt}) {

@@ -57,8 +57,6 @@ typedef MigrationCallback = void Function(Migration migration, int oldSchemaVers
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
 abstract class Configuration implements Finalizable {
-  static const int encryptionKeySize = 64;
-
   /// The default realm filename to be used.
   static String get defaultRealmName => _path.basename(defaultRealmPath);
   static set defaultRealmName(String name) => defaultRealmPath = _path.join(_path.dirname(defaultRealmPath), _path.basename(name));
@@ -94,7 +92,7 @@ abstract class Configuration implements Finalizable {
     this.fifoFilesFallbackPath,
     this.encryptionKey,
   }) {
-    if (encryptionKey != null && encryptionKey!.length != Configuration.encryptionKeySize) {
+    if (encryptionKey != null && encryptionKey!.length != realmCore.encryptionKeySize) {
       throw RealmException("EncryptionKey must be 64 bytes");
     }
     this.path = path ?? _path.join(_path.dirname(_defaultPath), _path.basename(defaultRealmName));
