@@ -72,7 +72,12 @@ export "configuration.dart"
         SchemaObject,
         ShouldCompactCallback,
         SyncErrorHandler,
-        SyncClientResetErrorHandler;
+        SyncClientResetErrorHandler,
+        ClientResyncMode,
+        ManualSyncClientResetHandler,
+        DiscardLocalSyncClientResetHandler,
+        RecoverSyncClientResetHandler,
+        RecoverOrDiscardSyncClientResetHandler;
 
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;

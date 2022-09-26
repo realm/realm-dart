@@ -530,4 +530,19 @@ Future<void> main([List<String>? args]) async {
     final disconnectedRealm = Realm(disconnectedSyncConfig);
     expect(disconnectedRealm.find<Task>(oid), isNotNull);
   });
+
+  baasTest("Configuration.flexibleSync set recoverOrDiscard as a default resync mode", (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema], clientResyncMode: ClientResyncMode.discardLocal);
+    final realm = getRealm(config);
+    expect((realm.config as FlexibleSyncConfiguration).clientResyncMode, ClientResyncMode.discardLocal);
+    realm.close();
+
+    final configDefaultResyncMode = Configuration.flexibleSync(user, [Task.schema, Schedule.schema]);
+    final realmManualResync = getRealm(configDefaultResyncMode);
+    expect((realmManualResync.config as FlexibleSyncConfiguration).clientResyncMode, ClientResyncMode.recoverOrDiscard);
+    realmManualResync.close();
+  });
 }

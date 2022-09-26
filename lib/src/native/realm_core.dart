@@ -211,7 +211,7 @@ class _RealmCore {
         final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
-
+          _realmLib.realm_sync_config_set_resync_mode(syncConfigPtr, config.clientResyncMode.index);
           final errorHandlerCallback =
               Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_session_t>, realm_sync_error_t)>(_syncErrorHandlerCallback);
           final errorHandlerUserdata = _realmLib.realm_dart_userdata_async_new(config, errorHandlerCallback.cast(), scheduler.handle._pointer);
