@@ -97,3 +97,10 @@ class Indexed {
 class Ignored {
   const Ignored();
 }
+
+/// Indicates a backlink property.
+/// {@category Annotations}
+class Backlink {
+  final Symbol symbol;
+  const Backlink(this.symbol);
+}
