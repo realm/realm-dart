@@ -1170,11 +1170,6 @@ class _RealmCore {
 
     final body = request.body.cast<Utf8>().toRealmDartString(length: request.body_size);
 
-    if (request.body_size > 0) {
-      print(url);
-      print(body);
-    }
-
     final headers = <String, String>{};
     for (int i = 0; i < request.num_headers; ++i) {
       final header = request.headers[i];
