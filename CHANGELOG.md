@@ -37,7 +37,7 @@
     }
   });
   ```
-* Support `clientResyncMode` argument for `Configuration.flexibleSync`. It describes what should happen in case of a Client Resync. The default value is `recoverOrDiscard` mode for fully synchronized Realms. In this mode Realm attempts to recover unsynced local changes and if that fails, then the changes are discarded.(PR [#925](https://github.com/realm/realm-dart/pull/925))
+* Set `recoverOrDiscard` mode as default resync mode for `FlexibleSyncConfiguration`. In this mode Realm attempts to recover unsynced local changes and if that fails, then the changes are discarded.(PR [#925](https://github.com/realm/realm-dart/pull/925))
 
 ### Fixed
 * Allow null arguments on query. ([#871](https://github.com/realm/realm-dart/issues/871))
