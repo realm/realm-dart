@@ -15,7 +15,7 @@ Map<String, String> getListOfTestFiles(String directory) {
   for (var file in files) {
     if (_path.extension(file.path) == '.dart' && !file.path.endsWith('g.dart')) {
       var expectedFileName = _path.setExtension(file.path, '.expected');
-       if (!files.any((f) => f.path == expectedFileName)) {
+      if (!files.any((f) => f.path == expectedFileName)) {
         throw "Expected file not found. $expectedFileName";
       }
       result.addAll({_path.basename(file.path): _path.basename(expectedFileName)});
@@ -53,11 +53,6 @@ class LinesEqualsMatcher extends Matcher {
     final actualValue = utf8.decode(actual as List<int>);
     final actualLines = actualValue.split("\n");
 
-    if (actualLines.length > expectedLines.length) {
-      matchState["Error"] = "Different number of lines. \nExpected: ${expectedLines.length}\nActual: ${actualLines.length}";
-      return false;
-    }
-
     for (var i = 0; i < expectedLines.length - 1; i++) {
       if (i >= actualLines.length) {
         matchState["Error"] = "Difference at line ${i + 1}. \nExpected: ${expectedLines[i]}.\n  Actual: empty";
@@ -68,6 +63,11 @@ class LinesEqualsMatcher extends Matcher {
         matchState["Error"] = "Difference at line ${i + 1}. \nExpected: ${expectedLines[i]}.\n  Actual: ${actualLines[i]}";
         return false;
       }
+    }
+
+    if (actualLines.length > expectedLines.length) {
+      matchState["Error"] = "Different number of lines. \nExpected: ${expectedLines.length}\nActual: ${actualLines.length}";
+      return false;
     }
 
     return true;
