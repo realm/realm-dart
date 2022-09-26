@@ -389,7 +389,8 @@ class ManualSyncClientResetHandler extends SyncClientResetErrorHandler {
   const ManualSyncClientResetHandler(super.callback);
 }
 
-/// A client reset strategy where the user needs to fully take care of a client reset.
+/// A client reset strategy where all the not yet synchronized data is automatically
+/// discarded and a fresh copy of the synchronized Realm is obtained.
 class DiscardLocalSyncClientResetHandler extends SyncClientResetErrorHandler {
   const DiscardLocalSyncClientResetHandler(super.callback);
 }
