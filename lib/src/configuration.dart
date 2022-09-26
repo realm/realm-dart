@@ -373,6 +373,7 @@ class RealmSchema extends Iterable<SchemaObject> {
 /// on a common shared history for the Realm file,
 /// thus making it impossible for the device to upload or receive any changes.
 /// This can happen if the server is rolled back or restored from backup.
+/// {@category Sync}
 abstract class SyncClientResetErrorHandler {
   /// The callback that handles the [SyncClientResetError].
   final void Function(SyncClientResetError code) callback;
@@ -383,8 +384,9 @@ abstract class SyncClientResetErrorHandler {
 
 /// A client reset strategy where the user needs to fully take care of a client reset.
 ///
-/// If you set [ManualSyncClientResetHandler] callback as [syncClientResetErrorHandler] argument of [Configuration.flexibleSync],
+/// If you set [ManualSyncClientResetHandler] callback as `syncClientResetErrorHandler` argument of [Configuration.flexibleSync],
 /// that will enable full control of moving unsynced changes to synced realm.
+/// {@category Sync}
 class ManualSyncClientResetHandler extends SyncClientResetErrorHandler {
   const ManualSyncClientResetHandler(super.callback);
 }
@@ -392,18 +394,20 @@ class ManualSyncClientResetHandler extends SyncClientResetErrorHandler {
 /// A client reset strategy where all the not yet synchronized data is automatically
 /// discarded and a fresh copy of the synchronized Realm is obtained.
 ///
-/// If you set [DiscardLocalSyncClientResetHandler] callback as [syncClientResetErrorHandler] argument of [Configuration.flexibleSync],
-/// The local Realm will be discarded and replaced with the server side Realm.
+/// If you set [DiscardLocalSyncClientResetHandler] callback as `syncClientResetErrorHandler` argument of [Configuration.flexibleSync],
+/// the local Realm will be discarded and replaced with the server side Realm.
 /// All local changes will be lost.
+/// {@category Sync}
 class DiscardLocalSyncClientResetHandler extends SyncClientResetErrorHandler {
   const DiscardLocalSyncClientResetHandler(super.callback);
 }
 
 ///A client reset strategy that attempts to automatically recover any unsynchronized changes.
 ///
-/// If you set [RecoverSyncClientResetHandler] callback as [syncClientResetErrorHandler] argument of [Configuration.flexibleSync],
+/// If you set [RecoverSyncClientResetHandler] callback as `syncClientResetErrorHandler` argument of [Configuration.flexibleSync],
 /// Realm will compare the local Realm with the Realm on the server and automatically transfer
 /// any changes from the local Realm that makes sense to the Realm provided by the server.
+/// {@category Sync}
 class RecoverSyncClientResetHandler extends SyncClientResetErrorHandler {
   const RecoverSyncClientResetHandler(super.callback);
 }
@@ -411,11 +415,12 @@ class RecoverSyncClientResetHandler extends SyncClientResetErrorHandler {
 /// A client reset strategy that attempts to automatically recover any unsynchronized changes.
 /// If that fails, this handler fallsback to the discard unsynced changes strategy.
 ///
-/// If you set [RecoverOrDiscardSyncClientResetHandler] callback as [syncClientResetErrorHandler] argument of [Configuration.flexibleSync],
+/// If you set [RecoverOrDiscardSyncClientResetHandler] callback as `syncClientResetErrorHandler` argument of [Configuration.flexibleSync],
 /// Realm will compare the local Realm with the Realm on the server and automatically transfer
 /// any changes from the local Realm that makes sense to the Realm provided by the server.
 /// If that fails, the local changes will be discarded.
 /// This is the default mode for fully synchronized Realms.
+/// {@category Sync}
 class RecoverOrDiscardSyncClientResetHandler extends SyncClientResetErrorHandler {
   const RecoverOrDiscardSyncClientResetHandler(super.callback);
 
