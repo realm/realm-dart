@@ -46,7 +46,7 @@ RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, const r
         request.url = buf.url.c_str();
         request.body = buf.body.data();
         request.headers = buf.headers_vector.data();
-        (reinterpret_cast<realm_http_request_func_t>(ud->dart_callback)(ud->handle, request_copy, request_context));
+        (reinterpret_cast<realm_http_request_func_t>(ud->dart_callback)(ud->handle, request, request_context));
     });
 }
 
