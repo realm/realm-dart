@@ -399,11 +399,13 @@ class DiscardLocalSyncClientResetHandler extends SyncClientResetErrorHandler {
 class RecoverSyncClientResetHandler extends SyncClientResetErrorHandler {
   const RecoverSyncClientResetHandler(super.callback);
 }
+
 /// A client reset strategy that attempts to automatically recover any unsynchronized changes.
 /// If that fails, this handler fallsback to the discard unsynced changes strategy.
 class RecoverOrDiscardSyncClientResetHandler extends SyncClientResetErrorHandler {
   const RecoverOrDiscardSyncClientResetHandler(super.callback);
 }
+
 /// Enum describing what should happen in case of a Client Resync.
 ///
 /// A Client Resync is triggered if the device and server cannot agree
