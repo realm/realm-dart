@@ -21,7 +21,7 @@
 #include "realm_dart.hpp"
 #include "realm_dart_sync.h"
 
-RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, const realm_http_request_t request, void* request_context) {
+RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, realm_http_request_t request, void* request_context) {
     // the pointers in request are to stack values, we need to make copies and move them into the scheduler invocation
     struct request_copy_buf {
         std::string url;
@@ -29,8 +29,6 @@ RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, const r
         std::map<std::string, std::string> headers;
         std::vector<realm_http_header_t> headers_vector;
     } buf;
-
-    realm_http_request_t request_copy = request; // copy struct
 
     buf.url = request.url;
     buf.body = std::string(request.body, request.body_size);
@@ -41,8 +39,7 @@ RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, const r
     }
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    ud->scheduler->invoke([ud, request_copy = std::move(request_copy), buf = std::move(buf), request_context]() {
-        realm_http_request_t request = std::move(request_copy);
+    ud->scheduler->invoke([ud, request = std::move(request), buf = std::move(buf), request_context]() mutable {
         request.url = buf.url.c_str();
         request.body = buf.body.data();
         request.headers = buf.headers_vector.data();
@@ -68,8 +65,6 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
         std::vector<realm_sync_error_user_info_t> user_info_vector;
     } buf;
 
-    realm_sync_error_t error_copy = error; // copy struct
-
     buf.message = error.error_code.message;
     buf.detailed_message = error.detailed_message;
     buf.user_info_vector.reserve(error.user_info_length);
@@ -79,8 +74,7 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
     }
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    ud->scheduler->invoke([ud, session = *session, error_copy = std::move(error_copy), buf = std::move(buf)]() {
-        realm_sync_error_t error = std::move(error_copy);
+    ud->scheduler->invoke([ud, session = *session, error = std::move(error), buf = std::move(buf)]() mutable {
         error.error_code.message = buf.message.c_str();
         error.detailed_message = buf.detailed_message.c_str();
         error.user_info_map = const_cast<realm_sync_error_user_info_t*>(buf.user_info_vector.data());
