@@ -151,7 +151,7 @@ class App implements Finalizable {
     return await realmCore.removeUser(this, user);
   }
 
-  /// Deletes a user and all its data from the server.
+  /// Deletes a user and all its data irrecoverably from the device as well as the server.
   Future<void> deleteUser(User user) async {
     return await realmCore.deleteUser(this, user);
   }
