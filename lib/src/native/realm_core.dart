@@ -1129,16 +1129,14 @@ class _RealmCore {
   RealmAppCredentialsHandle createAppCredentialsApiKey(String key) {
     return using((arena) {
       final keyPtr = key.toCharPtr(arena);
-      final credentialsPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_credentials_new_user_api_key(keyPtr));
-      return RealmAppCredentialsHandle._(credentialsPtr);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_user_api_key(keyPtr));
     });
   }
 
   RealmAppCredentialsHandle createAppCredentialsServerApiKey(String key) {
     return using((arena) {
       final keyPtr = key.toCharPtr(arena);
-      final credentialsPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_credentials_new_server_api_key(keyPtr));
-      return RealmAppCredentialsHandle._(credentialsPtr);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_server_api_key(keyPtr));
     });
   }
 
