@@ -6867,6 +6867,70 @@ class RealmLibrary {
       ffi.Pointer<realm_results_t> Function(
           ffi.Pointer<realm_results_t>, ffi.Pointer<realm_query_t>)>();
 
+  /// Find the index for the value passed as parameter inside realm results pointer passed a input parameter.
+  /// @param value the value to find inside the realm results
+  /// @param out_index the index where the object has been found, or realm::not_found
+  /// @param out_found boolean indicating if the value has been found or not
+  /// @return true if no error occured, false otherwise
+  bool realm_results_find(
+    ffi.Pointer<realm_results_t> arg0,
+    ffi.Pointer<realm_value_t> value,
+    ffi.Pointer<ffi.Size> out_index,
+    ffi.Pointer<ffi.Bool> out_found,
+  ) {
+    return _realm_results_find(
+      arg0,
+      value,
+      out_index,
+      out_found,
+    );
+  }
+
+  late final _realm_results_findPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_results_t>,
+              ffi.Pointer<realm_value_t>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<ffi.Bool>)>>('realm_results_find');
+  late final _realm_results_find = _realm_results_findPtr.asFunction<
+      bool Function(ffi.Pointer<realm_results_t>, ffi.Pointer<realm_value_t>,
+          ffi.Pointer<ffi.Size>, ffi.Pointer<ffi.Bool>)>();
+
+  /// Find the index for the realm object passed as parameter inside realm results pointer passed a input parameter.
+  /// @param value the value to find inside the realm results
+  /// @param out_index the index where the object has been found, or realm::not_found
+  /// @param out_found boolean indicating if the value has been found or not
+  /// @return true if no error occured, false otherwise
+  bool realm_results_find_object(
+    ffi.Pointer<realm_results_t> arg0,
+    ffi.Pointer<realm_object_t> value,
+    ffi.Pointer<ffi.Size> out_index,
+    ffi.Pointer<ffi.Bool> out_found,
+  ) {
+    return _realm_results_find_object(
+      arg0,
+      value,
+      out_index,
+      out_found,
+    );
+  }
+
+  late final _realm_results_find_objectPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_results_t>,
+              ffi.Pointer<realm_object_t>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<ffi.Bool>)>>('realm_results_find_object');
+  late final _realm_results_find_object =
+      _realm_results_find_objectPtr.asFunction<
+          bool Function(
+              ffi.Pointer<realm_results_t>,
+              ffi.Pointer<realm_object_t>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<ffi.Bool>)>();
+
   /// Get an results object from a thread-safe reference, potentially originating
   /// in a different `realm_t` instance
   ffi.Pointer<realm_results_t> realm_results_from_thread_safe_reference(
