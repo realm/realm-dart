@@ -18,6 +18,7 @@
 
 #include <realm/object-store/sync/sync_session.hpp>
 #include <realm/sync/config.hpp>
+
 #include "realm_dart.hpp"
 #include "realm_dart_sync.h"
 
@@ -26,16 +27,17 @@ RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, realm_h
     struct request_copy_buf {
         std::string url;
         std::string body;
-        std::map<std::string, std::string> headers;
-        std::vector<realm_http_header_t> headers_vector;
+        std::vector<std::pair<std::string, std::string>> headers_values;
+        std::vector<realm_http_header_t> headers;
     } buf;
 
     buf.url = request.url;
     buf.body = std::string(request.body, request.body_size);
-    buf.headers_vector.reserve(request.num_headers);
+    buf.headers_values.reserve(request.num_headers);
+    buf.headers.reserve(request.num_headers);
     for (size_t i = 0; i < request.num_headers; i++) {
-        auto [it, _] = buf.headers.emplace(request.headers[i].name, request.headers[i].value);
-        buf.headers_vector.push_back({ it->first.c_str(), it->second.c_str() });
+        auto& ref = buf.headers_values.emplace_back(request.headers[i].name, request.headers[i].value);
+        buf.headers.push_back({ ref.first.c_str(), ref.second.c_str() });
     }
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
@@ -43,7 +45,7 @@ RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, realm_h
         //we moved buf so we need to update the request pointers here. 
         request.url = buf.url.c_str();
         request.body = buf.body.data();
-        request.headers = buf.headers_vector.data();
+        request.headers = buf.headers.data();
         (reinterpret_cast<realm_http_request_func_t>(ud->dart_callback)(ud->handle, request, request_context));
     });
 }
@@ -62,16 +64,17 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
     struct error_copy {
         std::string message;
         std::string detailed_message;
-        std::map<std::string, std::string> user_info_map;
-        std::vector<realm_sync_error_user_info_t> user_info_vector;
+        std::vector<std::pair<std::string, std::string>> user_info_values;
+        std::vector<realm_sync_error_user_info_t> user_info;
     } buf;
 
     buf.message = error.error_code.message;
     buf.detailed_message = error.detailed_message;
-    buf.user_info_vector.reserve(error.user_info_length);
+    buf.user_info_values.reserve(error.user_info_length);
+    buf.user_info.reserve(error.user_info_length);
     for (size_t i = 0; i < error.user_info_length; i++) {
-        auto [it, _] = buf.user_info_map.emplace(error.user_info_map[i].key, error.user_info_map[i].value);
-        buf.user_info_vector.push_back({ it->first.c_str(), it->second.c_str() });
+        auto& ref = buf.user_info_values.emplace_back(error.user_info_map[i].key, error.user_info_map[i].value);
+        buf.user_info.push_back({ ref.first.c_str(), ref.second.c_str() });
     }
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
@@ -79,7 +82,7 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
         //we moved buf so we need to update the error pointers here. 
         error.error_code.message = buf.message.c_str();
         error.detailed_message = buf.detailed_message.c_str();
-        error.user_info_map = const_cast<realm_sync_error_user_info_t*>(buf.user_info_vector.data());
+        error.user_info_map = buf.user_info.data();
         (reinterpret_cast<realm_sync_error_handler_func_t>(ud->dart_callback))(ud->handle, const_cast<realm_sync_session_t*>(&session), error);
     });
 }
