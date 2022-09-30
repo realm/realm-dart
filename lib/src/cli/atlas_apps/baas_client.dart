@@ -355,6 +355,16 @@ class BaasClient {
     }
   }
 
+  Future<String> createApiKey(BaasApp app, String name, bool enabled) async {
+    final dynamic result = await _post('groups/$_groupId/apps/${app.appId}/api_keys', '{ "key":"", "name":"$name", "disabled": false }');
+    if (!enabled) {
+      // We need to disable the key with another API call - the argument in the create call is ignored.
+      await _put('groups/$_groupId/apps/${app.appId}/api_keys/${result['_id']}/disable', '');
+    }
+
+    return result['key'] as String;
+  }
+
   Future<void> _authenticate(String provider, String credentials) async {
     dynamic response = await _post('auth/providers/$provider/login', credentials);
 

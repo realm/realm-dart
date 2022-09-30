@@ -110,6 +110,8 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     expect(user.state, UserState.loggedIn);
+    expect(user.refreshToken, isNotEmpty);
+    expect(user.accessToken, isNotEmpty);
   });
 
   test('Application get all users', () {

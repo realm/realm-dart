@@ -405,4 +405,43 @@ Future<void> main([List<String>? args]) async {
             .having((e) => e.statusCode, 'statusCode', 401)
             .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))));
   });
+
+  baasTest("Credentials.serverApiKey can login user", (configuration) async {
+    final app = App(configuration);
+
+    final apiKey = await createServerApiKey(app, ObjectId().toString());
+    final credentials = Credentials.serverApiKey(apiKey);
+
+    final apiKeyUser = await app.logIn(credentials);
+
+    // This is due to the way Core stores the user provider: https://github.com/realm/realm-core/blob/7b087008a19773f1bb92324d410f9e70db17fca9/src/realm/object-store/sync/app_credentials.cpp#L33-L34
+    expect(apiKeyUser.provider, AuthProviderType.apiKey);
+  });
+
+  baasTest("Credentials.serverApiKey with incorrect key throws an error", (configuration) async {
+    final app = App(configuration);
+
+    final credentials = Credentials.serverApiKey('some-non-existent-key');
+
+    await expectLater(
+        () async => await app.logIn(credentials),
+        throwsA(isA<AppException>()
+            .having((e) => e.message, 'message', 'invalid API key')
+            .having((e) => e.statusCode, 'statusCode', 401)
+            .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))));
+  });
+
+  baasTest("Credentials.serverApiKey with disabled key throws an error", (configuration) async {
+    final app = App(configuration);
+
+    final apiKey = await createServerApiKey(app, ObjectId().toString(), enabled: false);
+    final credentials = Credentials.serverApiKey(apiKey);
+
+    await expectLater(
+        () async => await app.logIn(credentials),
+        throwsA(isA<AppException>()
+            .having((e) => e.message, 'message', 'invalid API key')
+            .having((e) => e.statusCode, 'statusCode', 401)
+            .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))));
+  });
 }
