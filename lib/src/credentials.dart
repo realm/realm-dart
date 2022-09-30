@@ -28,31 +28,47 @@ import 'user.dart';
 /// {@category Application}
 enum AuthProviderType {
   /// For authenticating without credentials.
-  anonymous,
+  anonymous(0),
 
   /// For authenticating without credentials using a new anonymous user.
-  anonymousNoReuse,
+  anonymousNoReuse(1),
 
   /// Authenticate with Apple Id
-  apple,
+  apple(2),
 
   /// Authenticate with Facebook account.
-  facebook,
+  facebook(3),
 
   /// Authenticate with Google account
-  google,
+  google(4),
 
   /// For authenticating with JSON web token.
-  jwt,
+  jwt(5),
 
   /// For authenticating with an email and a password.
-  emailPassword,
+  emailPassword(6),
 
   /// For authenticating with custom function with payload argument.
-  function,
+  function(7),
 
   /// For authenticating with an API key.
-  apiKey,
+  apiKey(8);
+
+  const AuthProviderType(this._value);
+
+  final int _value;
+}
+
+extension AuthProviderTypeInternal on AuthProviderType {
+  static AuthProviderType getByValue(int value) {
+    for (final type in AuthProviderType.values) {
+      if (type._value == value) {
+        return type;
+      }
+    }
+
+    throw ArgumentError('Invalid AuthProviderType value: $value');
+  }
 }
 
 /// A class, representing the credentials used for authenticating a [User]

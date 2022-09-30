@@ -1632,7 +1632,7 @@ class _RealmCore {
       final identity = identitiesPtr.elementAt(i).ref;
 
       result.add(UserIdentityInternal.create(
-          identity.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderType.values.fromIndex(identity.provider_type)));
+          identity.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderTypeInternal.getByValue(identity.provider_type)));
     }
 
     return result;
@@ -1650,7 +1650,7 @@ class _RealmCore {
 
   AuthProviderType userGetAuthProviderType(User user) {
     final provider = _realmLib.realm_user_get_auth_provider(user.handle._pointer);
-    return AuthProviderType.values.fromIndex(provider);
+    return AuthProviderTypeInternal.getByValue(provider);
   }
 
   UserProfile userGetProfileData(User user) {
@@ -2409,16 +2409,6 @@ extension on Object {
 
   Pointer<Void> toPersistentHandle() {
     return _realmLib.realm_dart_object_to_persistent_handle(this);
-  }
-}
-
-extension on List<AuthProviderType> {
-  AuthProviderType fromIndex(int index) {
-    if (!AuthProviderType.values.any((value) => value.index == index)) {
-      throw RealmError("Unknown AuthProviderType $index");
-    }
-
-    return AuthProviderType.values[index];
   }
 }
 
