@@ -92,10 +92,7 @@ abstract class Configuration implements Finalizable {
     this.fifoFilesFallbackPath,
     this.encryptionKey,
   }) {
-    if (encryptionKey != null && encryptionKey?.length != realmCore.encryptionKeySize) {
-      throw RealmException("EncryptionKey must be ${realmCore.encryptionKeySize} bytes.");
-    }
-
+    _validateEncryptionKey(encryptionKey);
     this.path = path ?? _path.join(_path.dirname(_defaultPath), _path.basename(defaultRealmName));
   }
 
@@ -193,6 +190,22 @@ abstract class Configuration implements Finalizable {
         path: path,
         encryptionKey: encryptionKey,
       );
+
+  void _validateEncryptionKey(List<int>? key) {
+    if (key == null) {
+      return;
+    }
+
+    if (key.length != realmCore.encryptionKeySize) {
+      throw RealmException("Wrong encryption key size (must be ${realmCore.encryptionKeySize}, but was ${key.length})");
+    }
+
+    int notAByteElement = key.firstWhere((e) => e > 255, orElse: () => -1);
+    if (notAByteElement >= 0) {
+      throw RealmException('''Encryption key must be a list of bytes with allowed values form 0 to 255.
+      Invalid value $notAByteElement found at index ${key.indexOf(notAByteElement)}.''');
+    }
+  }
 }
 
 /// [LocalConfiguration] is used to open local [Realm] instances,

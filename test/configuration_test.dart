@@ -535,13 +535,16 @@ Future<void> main([List<String>? args]) async {
     List<int> key = [1, 2, 3];
     expect(
       () => Configuration.local([Car.schema], encryptionKey: key),
-      throws<RealmException>("EncryptionKey must be $encryptionKeySize bytes."),
+      throws<RealmException>("Wrong encryption key size"),
     );
   });
 
   test('Configuration set byte exceeding encryption key', () {
     List<int> byteExceedingKey = List<int>.generate(encryptionKeySize, (i) => random.nextInt(4294967296));
-    Configuration.local([Car.schema], encryptionKey: byteExceedingKey);
+    expect(
+      () => Configuration.local([Car.schema], encryptionKey: byteExceedingKey),
+      throws<RealmException>("Encryption key must be a list of bytes with allowed values form 0 to 255"),
+    );
   });
 
   test('Configuration set a correct encryption key', () {
@@ -557,7 +560,7 @@ Future<void> main([List<String>? args]) async {
     List<int> key = List<int>.generate(encryptionKeySize + 10, (i) => random.nextInt(256));
     expect(
       () => Configuration.flexibleSync(user, [Task.schema], encryptionKey: key),
-      throws<RealmException>("EncryptionKey must be $encryptionKeySize bytes."),
+      throws<RealmException>("Wrong encryption key size"),
     );
   });
 }
