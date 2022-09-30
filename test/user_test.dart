@@ -414,8 +414,9 @@ Future<void> main([List<String>? args]) async {
 
     final apiKeyUser = await app.logIn(credentials);
 
-    // This is due to the way Core stores the user provider: https://github.com/realm/realm-core/blob/7b087008a19773f1bb92324d410f9e70db17fca9/src/realm/object-store/sync/app_credentials.cpp#L33-L34
+    // This is due to the way Core stores the user provider: https://github.com/realm/realm-core/issues/5914
     expect(apiKeyUser.provider, AuthProviderType.apiKey);
+    expect(apiKeyUser.state, UserState.loggedIn);
   });
 
   baasTest("Credentials.serverApiKey with incorrect key throws an error", (configuration) async {
