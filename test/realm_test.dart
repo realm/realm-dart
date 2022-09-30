@@ -851,6 +851,11 @@ Future<void> main([List<String>? args]) async {
     openEncryptedRealm(generateValidKey(), generateValidKey(), afterEncrypt: (realm) => realm.close());
   });
 
+  test('Realm - open local realm with key with values exceeding byte size 255', () {
+    List<int> byteExceedingKey = List<int>.generate(encryptionKeySize, (i) => random.nextInt(4294967296));
+    openEncryptedRealm(byteExceedingKey, byteExceedingKey);
+  });
+
   baasTest('Realm - open remote encrypted realm with encryption key', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
@@ -880,6 +885,7 @@ void openEncryptedRealm(List<int>? encryptionKey, List<int>? decryptionKey, {voi
   }
   if (encryptionKey == decryptionKey) {
     final decriptedRealm = getRealm(config2);
+    expect(decriptedRealm.isClosed, false);
   } else {
     expect(
       () => getRealm(config2),
