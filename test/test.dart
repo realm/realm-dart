@@ -142,6 +142,14 @@ class _AllCollections {
   late List<ObjectId> objectIds;
   late List<Uuid> uuids;
   late List<int> ints;
+
+  late List<String?> nullableStrings;
+  late List<bool?> nullableBools;
+  late List<DateTime?> nullableDates;
+  late List<double?> nullableDoubles;
+  late List<ObjectId?> nullableObjectIds;
+  late List<Uuid?> nullableUuids;
+  late List<int?> nullableInts;
 }
 
 @RealmModel()
@@ -197,6 +205,20 @@ class _Friend {
 class _When {
   late DateTime dateTimeUtc;
   late String locationName; // tz database/Olson name
+}
+
+@RealmModel()
+class _Player {
+  @PrimaryKey()
+  late String name;
+  _Game? game;
+  final scoresByRound = <int?>[]; // null means player didn't finish
+}
+
+@RealmModel()
+class _Game {
+  final winnerByRound = <_Player>[]; // null means no winner yet
+  int get rounds => winnerByRound.length;
 }
 
 String? testName;

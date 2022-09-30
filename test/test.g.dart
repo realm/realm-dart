@@ -646,6 +646,13 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
     Iterable<ObjectId> objectIds = const [],
     Iterable<Uuid> uuids = const [],
     Iterable<int> ints = const [],
+    Iterable<String?> nullableStrings = const [],
+    Iterable<bool?> nullableBools = const [],
+    Iterable<DateTime?> nullableDates = const [],
+    Iterable<double?> nullableDoubles = const [],
+    Iterable<ObjectId?> nullableObjectIds = const [],
+    Iterable<Uuid?> nullableUuids = const [],
+    Iterable<int?> nullableInts = const [],
   }) {
     RealmObject.set<RealmList<String>>(
         this, 'strings', RealmList<String>(strings));
@@ -658,6 +665,20 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
         this, 'objectIds', RealmList<ObjectId>(objectIds));
     RealmObject.set<RealmList<Uuid>>(this, 'uuids', RealmList<Uuid>(uuids));
     RealmObject.set<RealmList<int>>(this, 'ints', RealmList<int>(ints));
+    RealmObject.set<RealmList<String?>>(
+        this, 'nullableStrings', RealmList<String?>(nullableStrings));
+    RealmObject.set<RealmList<bool?>>(
+        this, 'nullableBools', RealmList<bool?>(nullableBools));
+    RealmObject.set<RealmList<DateTime?>>(
+        this, 'nullableDates', RealmList<DateTime?>(nullableDates));
+    RealmObject.set<RealmList<double?>>(
+        this, 'nullableDoubles', RealmList<double?>(nullableDoubles));
+    RealmObject.set<RealmList<ObjectId?>>(
+        this, 'nullableObjectIds', RealmList<ObjectId?>(nullableObjectIds));
+    RealmObject.set<RealmList<Uuid?>>(
+        this, 'nullableUuids', RealmList<Uuid?>(nullableUuids));
+    RealmObject.set<RealmList<int?>>(
+        this, 'nullableInts', RealmList<int?>(nullableInts));
   }
 
   AllCollections._();
@@ -711,6 +732,56 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
   set ints(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
 
   @override
+  RealmList<String?> get nullableStrings =>
+      RealmObject.get<String?>(this, 'nullableStrings') as RealmList<String?>;
+  @override
+  set nullableStrings(covariant RealmList<String?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<bool?> get nullableBools =>
+      RealmObject.get<bool?>(this, 'nullableBools') as RealmList<bool?>;
+  @override
+  set nullableBools(covariant RealmList<bool?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<DateTime?> get nullableDates =>
+      RealmObject.get<DateTime?>(this, 'nullableDates') as RealmList<DateTime?>;
+  @override
+  set nullableDates(covariant RealmList<DateTime?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<double?> get nullableDoubles =>
+      RealmObject.get<double?>(this, 'nullableDoubles') as RealmList<double?>;
+  @override
+  set nullableDoubles(covariant RealmList<double?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<ObjectId?> get nullableObjectIds =>
+      RealmObject.get<ObjectId?>(this, 'nullableObjectIds')
+          as RealmList<ObjectId?>;
+  @override
+  set nullableObjectIds(covariant RealmList<ObjectId?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<Uuid?> get nullableUuids =>
+      RealmObject.get<Uuid?>(this, 'nullableUuids') as RealmList<Uuid?>;
+  @override
+  set nullableUuids(covariant RealmList<Uuid?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<int?> get nullableInts =>
+      RealmObject.get<int?>(this, 'nullableInts') as RealmList<int?>;
+  @override
+  set nullableInts(covariant RealmList<int?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
   Stream<RealmObjectChanges<AllCollections>> get changes =>
       RealmObject.getChanges<AllCollections>(this);
 
@@ -736,6 +807,20 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
           collectionType: RealmCollectionType.list),
       SchemaProperty('ints', RealmPropertyType.int,
           collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableStrings', RealmPropertyType.string,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableBools', RealmPropertyType.bool,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableDates', RealmPropertyType.timestamp,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableDoubles', RealmPropertyType.double,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableObjectIds', RealmPropertyType.objectid,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableUuids', RealmPropertyType.uuid,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableInts', RealmPropertyType.int,
+          optional: true, collectionType: RealmCollectionType.list),
     ]);
   }
 }
@@ -1087,6 +1172,93 @@ class When extends _When with RealmEntity, RealmObject {
     return const SchemaObject(When, 'When', [
       SchemaProperty('dateTimeUtc', RealmPropertyType.timestamp),
       SchemaProperty('locationName', RealmPropertyType.string),
+    ]);
+  }
+}
+
+class Player extends _Player with RealmEntity, RealmObject {
+  Player(
+    String name, {
+    Game? game,
+    Iterable<int?> scoresByRound = const [],
+  }) {
+    RealmObject.set(this, 'name', name);
+    RealmObject.set(this, 'game', game);
+    RealmObject.set<RealmList<int?>>(
+        this, 'scoresByRound', RealmList<int?>(scoresByRound));
+  }
+
+  Player._();
+
+  @override
+  String get name => RealmObject.get<String>(this, 'name') as String;
+  @override
+  set name(String value) => RealmObject.set(this, 'name', value);
+
+  @override
+  Game? get game => RealmObject.get<Game>(this, 'game') as Game?;
+  @override
+  set game(covariant Game? value) => RealmObject.set(this, 'game', value);
+
+  @override
+  RealmList<int?> get scoresByRound =>
+      RealmObject.get<int?>(this, 'scoresByRound') as RealmList<int?>;
+  @override
+  set scoresByRound(covariant RealmList<int?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Player>> get changes =>
+      RealmObject.getChanges<Player>(this);
+
+  @override
+  Player freeze() => RealmObject.freezeObject<Player>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(Player._);
+    return const SchemaObject(Player, 'Player', [
+      SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
+      SchemaProperty('game', RealmPropertyType.object,
+          optional: true, linkTarget: 'Game'),
+      SchemaProperty('scoresByRound', RealmPropertyType.int,
+          optional: true, collectionType: RealmCollectionType.list),
+    ]);
+  }
+}
+
+class Game extends _Game with RealmEntity, RealmObject {
+  Game({
+    Iterable<Player> winnerByRound = const [],
+  }) {
+    RealmObject.set<RealmList<Player>>(
+        this, 'winnerByRound', RealmList<Player>(winnerByRound));
+  }
+
+  Game._();
+
+  @override
+  RealmList<Player> get winnerByRound =>
+      RealmObject.get<Player>(this, 'winnerByRound') as RealmList<Player>;
+  @override
+  set winnerByRound(covariant RealmList<Player> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Game>> get changes =>
+      RealmObject.getChanges<Game>(this);
+
+  @override
+  Game freeze() => RealmObject.freezeObject<Game>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(Game._);
+    return const SchemaObject(Game, 'Game', [
+      SchemaProperty('winnerByRound', RealmPropertyType.object,
+          linkTarget: 'Player', collectionType: RealmCollectionType.list),
     ]);
   }
 }

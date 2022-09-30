@@ -52,10 +52,10 @@ extension DartTypeEx on DartType {
     if (isRealmCollection) {
       return (this as ParameterizedType).typeArguments.last;
     }
-    return this;
+    return asNonNullable;
   }
 
-  String get basicMappedName => basicType.asNonNullable.mappedName;
+  String get basicMappedName => basicType.mappedName;
 
   DartType get mappedType {
     final self = this;
@@ -66,15 +66,15 @@ extension DartTypeEx on DartType {
         if (self != mapped) {
           if (self.isDartCoreList) {
             final mappedList = provider.listType(mapped);
-            return PseudoType('Realm${mappedList.getDisplayString(withNullability: false)}', nullabilitySuffix: mappedList.nullabilitySuffix);
+            return PseudoType('Realm${mappedList.getDisplayString(withNullability: true)}', nullabilitySuffix: mappedList.nullabilitySuffix);
           }
           if (self.isDartCoreSet) {
             final mappedSet = provider.setType(mapped);
-            return PseudoType('Realm${mappedSet.getDisplayString(withNullability: false)}', nullabilitySuffix: mappedSet.nullabilitySuffix);
+            return PseudoType('Realm${mappedSet.getDisplayString(withNullability: true)}', nullabilitySuffix: mappedSet.nullabilitySuffix);
           }
           if (self.isDartCoreMap) {
             final mappedMap = provider.mapType(self.typeArguments.first, mapped);
-            return PseudoType('Realm${mappedMap.getDisplayString(withNullability: false)}', nullabilitySuffix: mappedMap.nullabilitySuffix);
+            return PseudoType('Realm${mappedMap.getDisplayString(withNullability: true)}', nullabilitySuffix: mappedMap.nullabilitySuffix);
           }
         }
       }

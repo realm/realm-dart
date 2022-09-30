@@ -856,4 +856,96 @@ Future<void> main([List<String>? args]) async {
       )),
     );
   });
+
+  test('List of nullables', () {
+    final config = Configuration.local([Player.schema, Game.schema]);
+    final realm = getRealm(config);
+
+    final game = Game();
+    final alice = Player('alice', game: game);
+    final bob = Player('bob', game: game);
+    final carol = Player('carol', game: game);
+    final players = [alice, bob, carol];
+
+    realm.write(() => realm.addAll(players));
+
+    void checkResult(List<Player> winnerByRound, Map<Player, List<int?>> scoresByPlayer) {
+      expect(game.winnerByRound, winnerByRound);
+      for (final p in players) {
+        expect(p.scoresByRound, scoresByPlayer[p] ?? []);
+      }
+    }
+
+    checkResult([], {});
+
+    int currentRound = 0;
+    void playRound(Map<Player, int> scores) {
+      realm.write(() {
+        for (final p in players) {
+          p.scoresByRound.add(scores[p]);
+        }
+        final bestResult =
+            scores.entries.fold<MapEntry<Player, int>?>(null, (bestResult, result) => result.value > (bestResult?.value ?? 0) ? result : bestResult);
+        game.winnerByRound[currentRound++] = bestResult!.key;
+      });
+    }
+
+    playRound({alice: 1, bob: 2});
+
+    checkResult([
+      bob
+    ], {
+      alice: [1],
+      bob: [2],
+      carol: [null]
+    });
+
+    playRound({alice: 3, carol: 1});
+
+    checkResult([
+      bob,
+      alice
+    ], {
+      alice: [1, 3],
+      bob: [2, null],
+      carol: [null, 1]
+    });
+
+    playRound({alice: 2, bob: 3, carol: 1});
+
+    checkResult([
+      bob,
+      alice,
+      bob
+    ], {
+      alice: [1, 3, 2],
+      bob: [2, null, 3],
+      carol: [null, 1, 1]
+    });
+  });
+
+  test('RealmList<T> is a RealmList<T?> (covariance)', () {
+    // List<T> in dart is covariant. So is RealmList<T>.
+    // In particular (since a T is also a T?) a RealmList<T> is also a RealmList<T?>.
+    // Here follows a few tests to prove it, as it came up in a PR review
+    final list = RealmList([1, 2, 3]);
+    expect(list, isA<RealmList<int>>());
+    expect(list, isA<RealmList<int?>>());
+
+    final nullableList = RealmList<int?>([1, 2, 3]);
+    expect(nullableList, isNot(isA<RealmList<int>>()));
+    expect(nullableList, isA<RealmList<int?>>());
+
+    // .. also when managed
+    final config = Configuration.local([Player.schema, Game.schema]);
+    final realm = getRealm(config);
+
+    final game = Game();
+    realm.write(() => realm.add(game));
+
+    expect(game.winnerByRound.isManaged, isTrue);
+
+    expect(game.winnerByRound, isA<RealmList<Player>>());
+    expect(game.winnerByRound, isA<RealmList<Player?>>());
+  });
 }
