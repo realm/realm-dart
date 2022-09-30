@@ -40,6 +40,7 @@ RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, realm_h
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
     ud->scheduler->invoke([ud, request = std::move(request), buf = std::move(buf), request_context]() mutable {
+        //we moved buf so we need to update the request pointers here. 
         request.url = buf.url.c_str();
         request.body = buf.body.data();
         request.headers = buf.headers_vector.data();
@@ -75,6 +76,7 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
     ud->scheduler->invoke([ud, session = *session, error = std::move(error), buf = std::move(buf)]() mutable {
+        //we moved buf so we need to update the error pointers here. 
         error.error_code.message = buf.message.c_str();
         error.detailed_message = buf.detailed_message.c_str();
         error.user_info_map = const_cast<realm_sync_error_user_info_t*>(buf.user_info_vector.data());
