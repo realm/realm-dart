@@ -36,8 +36,8 @@ RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, realm_h
     buf.headers_values.reserve(request.num_headers);
     buf.headers.reserve(request.num_headers);
     for (size_t i = 0; i < request.num_headers; i++) {
-        auto& ref = buf.headers_values.emplace_back(request.headers[i].name, request.headers[i].value);
-        buf.headers.push_back({ ref.first.c_str(), ref.second.c_str() });
+        auto& [name, value] = buf.headers_values.emplace_back(request.headers[i].name, request.headers[i].value);
+        buf.headers.push_back({name.c_str(), value.c_str() });
     }
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
@@ -73,8 +73,8 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
     buf.user_info_values.reserve(error.user_info_length);
     buf.user_info.reserve(error.user_info_length);
     for (size_t i = 0; i < error.user_info_length; i++) {
-        auto& ref = buf.user_info_values.emplace_back(error.user_info_map[i].key, error.user_info_map[i].value);
-        buf.user_info.push_back({ ref.first.c_str(), ref.second.c_str() });
+        auto& [key, value] = buf.user_info_values.emplace_back(error.user_info_map[i].key, error.user_info_map[i].value);
+        buf.user_info.push_back({ key.c_str(), value.c_str() });
     }
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
