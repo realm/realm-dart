@@ -92,8 +92,8 @@ abstract class Configuration implements Finalizable {
     this.fifoFilesFallbackPath,
     this.encryptionKey,
   }) {
-    if (encryptionKey != null && encryptionKey!.isNotEmpty && encryptionKey?.length != realmCore.encryptionKeySize) {
-      throw RealmException("Wrong encryption key size (must be 0 or ${realmCore.encryptionKeySize})");
+    if (encryptionKey != null && encryptionKey?.length != realmCore.encryptionKeySize) {
+      throw RealmException("EncryptionKey must be ${realmCore.encryptionKeySize} bytes.");
     }
 
     this.path = path ?? _path.join(_path.dirname(_defaultPath), _path.basename(defaultRealmName));
