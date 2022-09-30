@@ -139,6 +139,18 @@ Future<void> main([List<String>? args]) async {
             .having((e) => e.statusCode, 'statusCode', 400)));
   });
 
+  baasTest('User.apiKeys.create with duplicate name returns error', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    await user.apiKeys.create('my-api-key');
+    await expectLater(
+        () => user.apiKeys.create('my-api-key'),
+        throwsA(isA<AppException>()
+            .having((e) => e.message, 'message', contains('API key with name already exists'))
+            .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))
+            .having((e) => e.statusCode, 'statusCode', 409)));
+  });
+
   baasTest('User.apiKeys.fetch with non existent returns null', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
@@ -374,24 +386,6 @@ Future<void> main([List<String>? args]) async {
     expect(apiKeyUser.provider, AuthProviderType.apiKey);
     expect(apiKeyUser.id, user.id);
     expect(apiKeyUser.refreshToken, isNot(user.refreshToken));
-  });
-
-  baasTest("User.apiKeys can't login with disabled key", (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
-
-    final key = await user.apiKeys.create('my-key');
-
-    await user.apiKeys.disable(key.id);
-
-    final credentials = Credentials.apiKey(key.value!);
-
-    await expectLater(
-        () => app.logIn(credentials),
-        throwsA(isA<AppException>()
-            .having((e) => e.message, 'message', contains('invalid API key'))
-            .having((e) => e.statusCode, 'statusCode', 401)
-            .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))));
   });
 
   baasTest("User.apiKeys can't login with deleted key", (configuration) async {

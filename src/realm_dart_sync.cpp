@@ -40,7 +40,7 @@ RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, const r
     }
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    ud->scheduler->invoke([ud, request = std::move(request), buf = std::move(buf), request_context]() {
+    ud->scheduler->invoke([ud, request, buf = std::move(buf), request_context]() {
         // The pointers in the original request are no longer valid. We copy those from the
         // buf struct which owns their copies. We copy the original request only for the value
         // fields (method, body_size, etc.)
