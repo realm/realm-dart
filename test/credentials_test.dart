@@ -167,14 +167,14 @@ Future<void> main([List<String>? args]) async {
     // Custom confirmation function confirms automatically username with 'realm_tests_do_autoverify'.
     await authProvider.registerUser(username, strongPassword);
 
-    expectLater(() => authProvider.retryCustomConfirmationFunction(username), throws<AppException>("already confirmed"));
+    await expectLater(() => authProvider.retryCustomConfirmationFunction(username), throws<AppException>("already confirmed"));
   });
 
   baasTest('Email/Password - retry custom confirmation for not registered user', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "${generateRandomString(5)}@realm.io";
-    expectLater(() => authProvider.retryCustomConfirmationFunction(username), throws<AppException>("user not found"));
+    await expectLater(() => authProvider.retryCustomConfirmationFunction(username), throws<AppException>("user not found"));
   });
 
   // The tests in this group are for manual testing, since they require interaction with mail box.
@@ -212,7 +212,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "${generateRandomString(5)}@realm.io";
-    expectLater(() => authProvider.resetPassword(username), throws<AppException>("user not found"));
+    await expectLater(() => authProvider.resetPassword(username), throws<AppException>("user not found"));
   }, appName: AppNames.emailConfirm);
 
   // The tests in this group are for manual testing, since they require interaction with mail box.
@@ -284,7 +284,7 @@ Future<void> main([List<String>? args]) async {
     const String newPassword = "!@#!DQXQWD!223eda";
     final authProvider = EmailPasswordAuthProvider(app);
     await authProvider.registerUser(username, strongPassword);
-    expectLater(() {
+    await expectLater(() {
       // Calling this function with no additional arguments fails for the test
       // because of the specific implementation of resetFunc in the cloud.
       // resetFunc returns status 'fail' in case no other status is passed.
