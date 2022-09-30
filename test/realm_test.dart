@@ -853,7 +853,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Realm - open local realm with key with values exceeding byte size 255', () {
     List<int> byteExceedingKey = List<int>.generate(encryptionKeySize, (i) => random.nextInt(4294967296));
-    openEncryptedRealm(byteExceedingKey, byteExceedingKey);
+    openEncryptedRealm(byteExceedingKey, byteExceedingKey, afterEncrypt: (realm) => realm.close());
   });
 
   baasTest('Realm - open remote encrypted realm with encryption key', (appConfiguration) async {
