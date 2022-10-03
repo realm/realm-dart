@@ -2,13 +2,17 @@
 
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
+### Breaking Changes
+* Fixed an issue that would cause passwords sent to the server (e.g. `Credentials.EmailPassword` or `EmailPasswordAuthProvider.registerUser`) to contain an extra empty byte at the end. (PR [#918](https://github.com/realm/realm-dart/pull/918)).
+  Notice: Any existing email users might need to be recreated because of this breaking change. 
+
 ### Enhancements
 * Added support for "frozen objects" - these are objects, queries, lists, or Realms that have been "frozen" at a specific version. All frozen objects can be accessed and queried as normal, but attempting to mutate them or add change listeners will throw an exception. `Realm`, `RealmObject`, `RealmList`, and `RealmResults` now have a method `freeze()` which returns an immutable version of the object, as well as an `isFrozen` property which can be used to check whether an object is frozen. ([#56](https://github.com/realm/realm-dart/issues/56))
 * You can now set a realm property of type `T` to any object `o` where `o is T`. Previously it was required that `o.runtimeType == T`. ([#904](https://github.com/realm/realm-dart/issues/904))
 * Performance of indexOf on realm lists has been improved. It now uses realm-core instead of the generic version from ListMixin. ([#911](https://github.com/realm/realm-dart/pull/911))
 * Performance of remove on realm list has been improved. It now uses indexOf and removeAt. ([#915](https://github.com/realm/realm-dart/pull/915))
 * Added support for migrations for local Realms. You can now construct a configuration with a migration callback that will be invoked if the schema version of the file on disk is lower than the schema version supplied by the callback. ([#70](https://github.com/realm/realm-dart/issues/70))
-  A minimal example looks like this:
+  Example:
   ```dart
   final config = Configuration.local([Person.schema], schemaVersion: 4, migrationCallback: (migration, oldSchemaVersion) {
     if (oldSchemaVersion == 1) {
@@ -36,21 +40,29 @@
     }
   });
   ```
+* Added support for realm list of nullable primitive types, ie. `RealmList<int?>`. ([#163](https://github.com/realm/realm-dart/issues/163))
+* Allow null arguments on query. ([#871](https://github.com/realm/realm-dart/issues/871))
+* Added support for API key authentication. (Issue [#432](https://github.com/realm/realm-dart/issues/432))
+  * Expose `User.apiKeys` client - this client can be used to create, fetch, and delete API keys.
+  * Expose `Credentials.apiKey` that enable authentication with API keys.
+* Exposed `User.accessToken` and `User.refreshToken` - these tokens can be used to authenticate against the server when calling HTTP API outside of the Dart/Flutter SDK. For example, if you want to use the GraphQL. (PR [#919](https://github.com/realm/realm-dart/pull/919))
 * Added support for `encryptionKey` to `Configuration.local`, `Configuration.flexibleSync` and `Configuration.disconnectedSync` so realm files can be encrypted and existing encrypted files from other Realm sources opened (assuming you have the key)([#920](https://github.com/realm/realm-dart/pull/920))
 
 ### Fixed
-* Allow null arguments on query. ([#871](https://github.com/realm/realm-dart/issues/871))
 * Previously removeAt did not truncate length. ([#883](https://github.com/realm/realm-dart/issues/883))
-* List.length= now throws, if you try to increase length, ([#894](https://github.com/realm/realm-dart/pull/894)).
+* List.length= now throws, if you try to increase length. This previously succeeded silently. ([#894](https://github.com/realm/realm-dart/pull/894)).
 * Queries on lists were broken. ([#909](https://github.com/realm/realm-dart/issues/909))
-* Queries on results didn't filter the existing results. ([#908](https://github.com/realm/realm-dart/issues/908)).
-  As an example
+  Example: 
   ```dart
-  expect(realm.query<Person>('FALSEPREDICATE').query('TRUEPREDICATE'), isEmpty);
+  expect(realm.all<Person>(), [alice, bob, carol, dan]); // assume this pass, then ...
+  expect(team.players.query('TRUEPREDICATE'), [alice, bob]); // <-- ... this fails and return the same as realm.all<Person>()
   ```
-  would fail if any Persons exists
-* Fixed an issue that would cause passwords sent to the server (e.g. `Credentials.EmailPassword` or `EmailPasswordAuthProvider.registerUser`) to contain an extra empty byte at the end. (PR [#918](https://github.com/realm/realm-dart/pull/918))
-* Added support for realm list of nullable primitive types, ie. `RealmList<int?>`. ([#163](https://github.com/realm/realm-dart/issues/163))
+* Queries on results didn't filter the existing results. ([#908](https://github.com/realm/realm-dart/issues/908)).
+  Example
+  ```dart
+  expect(realm.query<Person>('FALSEPREDICATE').query('TRUEPREDICATE'), isEmpty); //<-- Fails if a Persion object exists
+  ```
+* Fixed copying of native structs for session errors and http requests. ([#924](https://github.com/realm/realm-dart/pull/924))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
