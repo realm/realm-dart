@@ -18,6 +18,7 @@
 
 import 'dart:async';
 import 'dart:ffi';
+import 'dart:io';
 
 import 'list.dart';
 import 'native/realm_core.dart';
@@ -177,7 +178,7 @@ class RealmCoreAccessor implements RealmAccessor {
   void set(RealmObject object, String name, Object? value, {bool isDefault = false, bool update = false}) {
     final propertyMeta = metadata[name];
     try {
-      if (value is RealmList<Object>) {
+      if (value is RealmList<Object?>) {
         final handle = realmCore.getListProperty(object, propertyMeta.key);
         if (update) realmCore.listClear(handle);
         for (var i = 0; i < value.length; i++) {
@@ -403,7 +404,9 @@ extension RealmObjectInternal on RealmObject {
     return object;
   }
 
+  // if we ever see a _CastError here, we forgot to guard against misuse further up the call-stack
   RealmObjectHandle get handle => _handle!;
+
   RealmAccessor get accessor => _accessor;
 }
 

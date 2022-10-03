@@ -151,7 +151,7 @@ class App implements Finalizable {
     return await realmCore.removeUser(this, user);
   }
 
-  /// Deletes a user and all its data from the server.
+  /// Deletes a user and all its data from the device as well as the server.
   Future<void> deleteUser(User user) async {
     return await realmCore.deleteUser(this, user);
   }
@@ -188,4 +188,22 @@ extension AppInternal on App {
   AppHandle get handle => _handle;
 
   static App create(AppHandle handle) => App._(handle);
+
+  static AppException createException(String message, String? linkToLogs, int statusCode) => AppException._(message, linkToLogs, statusCode);
+}
+
+/// An exception thrown from operations interacting with a Atlas App Services app.
+class AppException extends RealmException {
+  /// A link to the server logs associated with this exception if available.
+  final String? linkToServerLogs;
+
+  /// The HTTP status code returned by the server for this exception.
+  final int statusCode;
+
+  AppException._(super.message, this.linkToServerLogs, this.statusCode);
+
+  @override
+  String toString() {
+    return "AppException: $message, link to server logs: $linkToServerLogs";
+  }
 }

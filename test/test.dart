@@ -142,6 +142,14 @@ class _AllCollections {
   late List<ObjectId> objectIds;
   late List<Uuid> uuids;
   late List<int> ints;
+
+  late List<String?> nullableStrings;
+  late List<bool?> nullableBools;
+  late List<DateTime?> nullableDates;
+  late List<double?> nullableDoubles;
+  late List<ObjectId?> nullableObjectIds;
+  late List<Uuid?> nullableUuids;
+  late List<int?> nullableInts;
 }
 
 @RealmModel()
@@ -197,6 +205,20 @@ class _Friend {
 class _When {
   late DateTime dateTimeUtc;
   late String locationName; // tz database/Olson name
+}
+
+@RealmModel()
+class _Player {
+  @PrimaryKey()
+  late String name;
+  _Game? game;
+  final scoresByRound = <int?>[]; // null means player didn't finish
+}
+
+@RealmModel()
+class _Game {
+  final winnerByRound = <_Player>[]; // null means no winner yet
+  int get rounds => winnerByRound.length;
 }
 
 String? testName;
@@ -404,6 +426,7 @@ extension on Map<String, String?> {
   }
 }
 
+BaasClient? _baasClient;
 Future<void> setupBaas() async {
   final baasUrl = arguments[argBaasUrl];
   if (baasUrl == null) {
@@ -424,6 +447,7 @@ Future<void> setupBaas() async {
 
   var apps = await client.getOrCreateApps();
   baasApps.addAll(apps);
+  _baasClient = client;
 }
 
 @isTest
@@ -470,6 +494,12 @@ Future<User> getIntegrationUser(App app) async {
   await app.emailPasswordAuthProvider.registerUser(email, password);
 
   return await loginWithRetry(app, Credentials.emailPassword(email, password));
+}
+
+Future<String> createServerApiKey(App app, String name, {bool enabled = true}) async {
+  final baasApp = baasApps.values.firstWhere((ba) => ba.clientAppId == app.id);
+  final client = _baasClient ?? (throw StateError("No BAAS client"));
+  return await client.createApiKey(baasApp, name, enabled);
 }
 
 Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator}) async {

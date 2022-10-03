@@ -897,6 +897,23 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_remove_all(list.handle._pointer));
   }
 
+  int listFind(RealmList list, Object? value) {
+    return using((Arena arena) {
+      final out_index = arena<Size>();
+      final out_found = arena<Bool>();
+      final realm_value = _toRealmValue(value, arena);
+      _realmLib.invokeGetBool(
+        () => _realmLib.realm_list_find(
+          list.handle._pointer,
+          realm_value,
+          out_index,
+          out_found,
+        ),
+      );
+      return out_found.value ? out_index.value : -1;
+    });
+  }
+
   void resultsDeleteAll(RealmResults results) {
     _realmLib.invokeGetBool(() => _realmLib.realm_results_delete_all(results.handle._pointer));
   }
@@ -1109,6 +1126,13 @@ class _RealmCore {
     });
   }
 
+  RealmAppCredentialsHandle createAppCredentialsApiKey(String key) {
+    return using((arena) {
+      final keyPtr = key.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_user_api_key(keyPtr));
+    });
+  }
+
   RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
     final requestCallback = Pointer.fromFunction<Void Function(Handle, realm_http_request, Pointer<Void>)>(_request_callback);
     final requestCallbackUserdata = _realmLib.realm_dart_userdata_async_new(httpClient, requestCallback.cast(), scheduler.handle._pointer);
@@ -1125,7 +1149,7 @@ class _RealmCore {
     // we explicitly call realm_http_transport_complete_request to
     // mark request as completed later.
     //
-    // Therefor we need to copy everything out of request before returning.
+    // Therefore we need to copy everything out of request before returning.
     // We cannot clone request on the native side with realm_clone,
     // since realm_http_request does not inherit from WrapC.
 
@@ -1135,7 +1159,7 @@ class _RealmCore {
 
     final url = Uri.parse(request.url.cast<Utf8>().toRealmDartString()!);
 
-    final body = request.body.cast<Utf8>().toRealmDartString(length: request.body_size)!;
+    final body = request.body.cast<Utf8>().toRealmDartString(length: request.body_size);
 
     final headers = <String, String>{};
     for (int i = 0; i < request.num_headers; ++i) {
@@ -1153,7 +1177,7 @@ class _RealmCore {
     HttpClient client,
     int requestMethod,
     Uri url,
-    String body,
+    String? body,
     Map<String, String> headers,
     Pointer<Void> request_context,
   ) async {
@@ -1189,7 +1213,9 @@ class _RealmCore {
           request.headers.add(header.key, header.value);
         }
 
-        request.add(utf8.encode(body));
+        if (body != null) {
+          request.add(utf8.encode(body));
+        }
 
         // Do the call..
         final response = await request.close();
@@ -1283,8 +1309,7 @@ class _RealmCore {
     }
 
     if (error != nullptr) {
-      final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
-      completer.completeError(RealmException(message));
+      completer.completeWithAppError(error);
       return;
     }
 
@@ -1318,8 +1343,7 @@ class _RealmCore {
     }
 
     if (error != nullptr) {
-      final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
-      completer.completeError(RealmException(message));
+      completer.completeWithAppError(error);
       return;
     }
 
@@ -1445,8 +1469,7 @@ class _RealmCore {
     }
 
     if (error != nullptr) {
-      final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
-      completer.completeError(RealmException(message));
+      completer.completeWithAppError(error);
       return;
     }
 
@@ -1609,7 +1632,7 @@ class _RealmCore {
       final identity = identitiesPtr.elementAt(i).ref;
 
       result.add(UserIdentityInternal.create(
-          identity.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderType.values.fromIndex(identity.provider_type)));
+          identity.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderTypeInternal.getByValue(identity.provider_type)));
     }
 
     return result;
@@ -1627,13 +1650,23 @@ class _RealmCore {
 
   AuthProviderType userGetAuthProviderType(User user) {
     final provider = _realmLib.realm_user_get_auth_provider(user.handle._pointer);
-    return AuthProviderType.values.fromIndex(provider);
+    return AuthProviderTypeInternal.getByValue(provider);
   }
 
   UserProfile userGetProfileData(User user) {
     final data = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_profile_data(user.handle._pointer));
     final dynamic profileData = jsonDecode(data.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!);
     return UserProfile(profileData as Map<String, dynamic>);
+  }
+
+  String userGetRefreshToken(User user) {
+    final token = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_refresh_token(user.handle._pointer));
+    return token.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
+  }
+
+  String userGetAccessToken(User user) {
+    final token = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_access_token(user.handle._pointer));
+    return token.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
   }
 
   SessionHandle realmGetSession(Realm realm) {
@@ -1846,6 +1879,124 @@ class _RealmCore {
       return null;
     });
   }
+
+  static void _app_api_key_completion_callback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, Pointer<realm_app_error> error) {
+    final Completer<ApiKey>? completer = userdata.toObject(isPersistent: true);
+    if (completer == null) {
+      return;
+    }
+
+    if (error != nullptr) {
+      completer.completeWithAppError(error);
+      return;
+    }
+
+    final id = apiKey.ref.id.toDart();
+    final name = apiKey.ref.name.cast<Utf8>().toDartString();
+    final value = apiKey.ref.key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+    final isEnabled = !apiKey.ref.disabled;
+
+    completer.complete(UserInternal.createApiKey(id, name, value, isEnabled));
+  }
+
+  static void _app_api_key_array_completion_callback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, int size, Pointer<realm_app_error> error) {
+    final Completer<List<ApiKey>>? completer = userdata.toObject(isPersistent: true);
+    if (completer == null) {
+      return;
+    }
+
+    if (error != nullptr) {
+      completer.completeWithAppError(error);
+      return;
+    }
+
+    final result = <ApiKey>[];
+
+    for (var i = 0; i < size; i++) {
+      final id = apiKey[i].id.toDart();
+      final name = apiKey[i].name.cast<Utf8>().toDartString();
+      final value = apiKey[i].key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+      final isEnabled = !apiKey[i].disabled;
+
+      result.add(UserInternal.createApiKey(id, name, value, isEnabled));
+    }
+
+    completer.complete(result);
+  }
+
+  Future<ApiKey> createApiKey(User user, String name) {
+    return using((Arena arena) {
+      final namePtr = name.toCharPtr(arena);
+      final completer = Completer<ApiKey>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_create_apikey(user.app.handle._pointer, user.handle._pointer, namePtr,
+          Pointer.fromFunction(_app_api_key_completion_callback), completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
+
+      return completer.future;
+    });
+  }
+
+  Future<ApiKey> fetchApiKey(User user, ObjectId id) {
+    return using((Arena arena) {
+      final completer = Completer<ApiKey>();
+      final native_id = id.toNative(arena);
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_fetch_apikey(user.app.handle._pointer, user.handle._pointer, native_id.ref,
+          Pointer.fromFunction(_app_api_key_completion_callback), completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
+
+      return completer.future;
+    });
+  }
+
+  Future<List<ApiKey>> fetchAllApiKeys(User user) {
+    return using((Arena arena) {
+      final completer = Completer<List<ApiKey>>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_fetch_apikeys(
+          user.app.handle._pointer,
+          user.handle._pointer,
+          Pointer.fromFunction(_app_api_key_array_completion_callback),
+          completer.toPersistentHandle(),
+          _realmLib.addresses.realm_dart_delete_persistent_handle));
+
+      return completer.future;
+    });
+  }
+
+  Future<void> deleteApiKey(User user, ObjectId id) {
+    return using((Arena arena) {
+      final completer = Completer<void>();
+      final native_id = id.toNative(arena);
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_delete_apikey(user.app.handle._pointer, user.handle._pointer, native_id.ref,
+          Pointer.fromFunction(void_completion_callback), completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
+
+      return completer.future;
+    });
+  }
+
+  Future<void> disableApiKey(User user, ObjectId objectId) {
+    return using((Arena arena) {
+      final completer = Completer<void>();
+      final native_id = objectId.toNative(arena);
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_disable_apikey(
+          user.app.handle._pointer,
+          user.handle._pointer,
+          native_id.ref,
+          Pointer.fromFunction(void_completion_callback),
+          completer.toPersistentHandle(),
+          _realmLib.addresses.realm_dart_delete_persistent_handle));
+
+      return completer.future;
+    });
+  }
+
+  Future<void> enableApiKey(User user, ObjectId objectId) {
+    return using((Arena arena) {
+      final completer = Completer<void>();
+      final native_id = objectId.toNative(arena);
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_enable_apikey(user.app.handle._pointer, user.handle._pointer, native_id.ref,
+          Pointer.fromFunction(void_completion_callback), completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
+
+      return completer.future;
+    });
+  }
 }
 
 class LastError {
@@ -2046,9 +2197,9 @@ extension _StringEx on String {
 
   Pointer<realm_string_t> toRealmString(Allocator allocator) {
     final realm_string = allocator<realm_string_t>();
-    realm_string.ref.data = toCharPtr(allocator);
     final units = utf8.encode(this);
-    realm_string.ref.size = units.length + 1;
+    realm_string.ref.data = units.toCharPtr(allocator).cast();
+    realm_string.ref.size = units.length;
     return realm_string;
   }
 }
@@ -2261,16 +2412,6 @@ extension on Object {
   }
 }
 
-extension on List<AuthProviderType> {
-  AuthProviderType fromIndex(int index) {
-    if (!AuthProviderType.values.any((value) => value.index == index)) {
-      throw RealmError("Unknown AuthProviderType $index");
-    }
-
-    return AuthProviderType.values[index];
-  }
-}
-
 extension on List<UserState> {
   UserState fromIndex(int index) {
     if (!UserState.values.any((value) => value.index == index)) {
@@ -2289,6 +2430,14 @@ extension on realm_property_info {
         primaryKey: flags & realm_property_flags.RLM_PROPERTY_PRIMARY_KEY == realm_property_flags.RLM_PROPERTY_PRIMARY_KEY,
         linkTarget: linkTarget == null || linkTarget.isEmpty ? null : linkTarget,
         collectionType: RealmCollectionType.values[collection_type]);
+  }
+}
+
+extension on Completer<Object?> {
+  void completeWithAppError(Pointer<realm_app_error> error) {
+    final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
+    final linkToLogs = error.ref.link_to_server_logs.cast<Utf8>().toRealmDartString();
+    completeError(AppInternal.createException(message, linkToLogs, error.ref.http_status_code));
   }
 }
 
