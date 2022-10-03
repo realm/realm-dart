@@ -2060,53 +2060,54 @@ class _RealmCore {
     }
   }
 
-  static String? _appDir;
+  String _getAppDirectoryFromPlugin() {
+    assert(isFlutterPlatform);
 
-  String _getAppDirectory() {
-    if (!isFlutterPlatform) {
-      return path.basenameWithoutExtension(File.fromUri(Platform.script).absolute.path);
-    }
+    String plugin = Platform.isWindows
+        ? 'realm_plugin.dll'
+        : Platform.isMacOS
+            ? 'realm.framework/realm' // use catalyst
+            : Platform.isLinux
+                ? "librealm_plugin.so"
+                : throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
 
-    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-      const String libName = 'realm_plugin';
-      String binaryExt = Platform.isWindows
-          ? ".dll"
-          : Platform.isMacOS
-              ? ".dylib"
-              : ".so";
-      String binaryNamePrefix = Platform.isWindows ? "" : "lib";
-      final realmPluginLib =
-          Platform.isMacOS == false ? DynamicLibrary.open("$binaryNamePrefix$libName$binaryExt") : DynamicLibrary.open('realm.framework/realm');
-      final getAppDirFunc = realmPluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory");
-      final dirNamePtr = getAppDirFunc();
-      if (dirNamePtr == nullptr) {
-        return "";
-      }
+    final pluginLib = DynamicLibrary.open(plugin);
+    final getAppDirFunc = pluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory");
+    final dirNamePtr = getAppDirFunc();
+    final dirName = Platform.isWindows ? dirNamePtr.cast<Utf16>().toDartString() : dirNamePtr.cast<Utf8>().toDartString();
 
-      final dirName = Platform.isWindows ? dirNamePtr.cast<Utf16>().toDartString() : dirNamePtr.cast<Utf8>().toDartString();
-      return dirName;
-    }
-
-    return "";
+    return dirName;
   }
 
   String getAppDirectory() {
-    if (!isFlutterPlatform) {
-      return Directory.current.absolute.path;
+    if (!isFlutterPlatform || Platform.environment.containsKey('FLUTTER_TEST')) {
+      // return path.basenameWithoutExtension(File.fromUri(Platform.script).absolute.path);
+      return Directory.current.absolute.path; // dart or flutter test
     }
 
-    _appDir ??= _getAppDirectory();
+    // Flutter from here on..
 
     if (Platform.isAndroid || Platform.isIOS) {
-      return path.join(getFilesPath(), _appDir);
-    } else if (Platform.isWindows) {
-      return _appDir ?? Directory.current.absolute.path;
-    } else if (Platform.isLinux) {
-      String appSupportDir =
-          PlatformEx.fromEnvironment("XDG_DATA_HOME", defaultValue: PlatformEx.fromEnvironment("HOME", defaultValue: Directory.current.absolute.path));
-      return path.join(appSupportDir, ".local/share", _appDir);
-    } else if (Platform.isMacOS) {
-      return _appDir ?? Directory.current.absolute.path;
+      return getFilesPath();
+    }
+
+    if (Platform.isLinux) {
+      String appSupportDir = PlatformEx.fromEnvironment(
+        "XDG_DATA_HOME",
+        defaultValue: PlatformEx.fromEnvironment(
+          "HOME",
+          defaultValue: Directory.current.absolute.path,
+        ),
+      );
+      return path.join(appSupportDir, ".local/share", _getAppDirectoryFromPlugin());
+    }
+
+    if (Platform.isMacOS) {
+      return _getAppDirectoryFromPlugin();
+    }
+
+    if (Platform.isWindows) {
+      return _getAppDirectoryFromPlugin();
     }
 
     throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
