@@ -37,7 +37,7 @@ include(${EPHEMERAL_DIR}/generated_config.cmake)
 # message ("FLUTTER_TOOL_ENVIRONMENT is ${FLUTTER_TOOL_ENVIRONMENT}")
 # message ("FLUTTER_ROOT is ${FLUTTER_ROOT}")
 
-execute_process(COMMAND "${FLUTTER_ROOT}/bin/flutter" "pub" "run" "realm" "install" "--target-os-type" "linux" "--package-name" "realm" #"--debug"
+execute_process(COMMAND "${FLUTTER_ROOT}/bin/flutter" "pub" "run" "realm" "install" "--target-os-type" "linux" "--flavor" "flutter" #"--debug"
   OUTPUT_VARIABLE output
   RESULT_VARIABLE result
   # COMMAND_ERROR_IS_FATAL ANY

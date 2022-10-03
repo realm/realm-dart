@@ -48,7 +48,7 @@ add_definitions(-DAPP_DIR_NAME="${APP_DIR_NAME}")
 # message ("FLUTTER_TOOL_ENVIRONMENT is ${FLUTTER_TOOL_ENVIRONMENT}")
 # message ("FLUTTER_ROOT is ${FLUTTER_ROOT}")
 
-execute_process(COMMAND "${FLUTTER_ROOT}\\bin\\flutter.bat" "pub" "run" "realm" "install" "--target-os-type" "windows" "--package-name" "realm" #"--debug"
+execute_process(COMMAND "${FLUTTER_ROOT}\\bin\\flutter.bat" "pub" "run" "realm" "install" "--target-os-type" "windows" "--flavor" "flutter" #"--debug"
   OUTPUT_VARIABLE output
   RESULT_VARIABLE result
   COMMAND_ERROR_IS_FATAL ANY
