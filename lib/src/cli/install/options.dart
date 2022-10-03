@@ -23,19 +23,17 @@ part 'options.g.dart';
 
 @CliOptions()
 class Options {
-  @CliOption(help: "Required for Flutter. The target OS to install binaries for.", abbr: "t")
+  @CliOption(help: 'The target OS to install binaries for.', abbr: 't')
   TargetOsType? targetOsType;
 
-  // packageName defaults to `realm_dart` since "realm" is always set by the build scripts.
-  // The `Install` command when used by end users will not require the package name argument
-  @CliOption(defaultsTo: 'realm_dart', help: "Optional. The realm package name to install binaries for.", abbr: "p", allowed: ['realm', 'realm_dart'])
-  final String? packageName;
+  @CliOption(help: 'The flavor to install binaries for.', abbr: 'f', defaultsTo: Flavor.dart)
+  Flavor flavor;
 
-  @CliOption(hide: true, defaultsTo: false)
-  //use to debug install command
-  bool? debug;
-  
-  Options({this.targetOsType, this.packageName, this.debug});
+  // use to debug install command
+  @CliOption(hide: true)
+  bool debug;
+
+  Options({this.targetOsType, this.flavor = Flavor.dart, this.debug = false});
 }
 
 String get usage => _$parserForOptions.usage;
