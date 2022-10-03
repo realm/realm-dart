@@ -426,6 +426,7 @@ extension on Map<String, String?> {
   }
 }
 
+BaasClient? _baasClient;
 Future<void> setupBaas() async {
   final baasUrl = arguments[argBaasUrl];
   if (baasUrl == null) {
@@ -446,6 +447,7 @@ Future<void> setupBaas() async {
 
   var apps = await client.getOrCreateApps();
   baasApps.addAll(apps);
+  _baasClient = client;
 }
 
 @isTest
@@ -492,6 +494,12 @@ Future<User> getIntegrationUser(App app) async {
   await app.emailPasswordAuthProvider.registerUser(email, password);
 
   return await loginWithRetry(app, Credentials.emailPassword(email, password));
+}
+
+Future<String> createServerApiKey(App app, String name, {bool enabled = true}) async {
+  final baasApp = baasApps.values.firstWhere((ba) => ba.clientAppId == app.id);
+  final client = _baasClient ?? (throw StateError("No BAAS client"));
+  return await client.createApiKey(baasApp, name, enabled);
 }
 
 Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator}) async {

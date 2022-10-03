@@ -60,7 +60,7 @@ export 'package:realm_common/realm_common.dart'
         Uuid;
 
 // always expose with `show` to explicitly control the public API surface
-export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App;
+export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App, AppException;
 export "configuration.dart"
     show
         Configuration,
@@ -84,7 +84,7 @@ export 'realm_object.dart' show RealmEntity, RealmException, UserCallbackExcepti
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
-export 'user.dart' show User, UserState, UserIdentity;
+export 'user.dart' show User, UserState, UserIdentity, ApiKeyClient, ApiKey;
 export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
 
 /// A [Realm] instance represents a `Realm` database.
