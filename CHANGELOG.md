@@ -63,6 +63,7 @@
   expect(realm.query<Person>('FALSEPREDICATE').query('TRUEPREDICATE'), isEmpty); //<-- Fails if a Persion object exists
   ```
 * Fixed copying of native structs for session errors and http requests. ([#924](https://github.com/realm/realm-dart/pull/924))
+* Fixed a crash when closing the SyncSession on App instance teardown. ([#5752](https://github.com/realm/realm-core/issues/5752))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
