@@ -4,7 +4,7 @@
 
 ### Breaking Changes
 * Fixed an issue that would cause passwords sent to the server (e.g. `Credentials.EmailPassword` or `EmailPasswordAuthProvider.registerUser`) to contain an extra empty byte at the end. (PR [#918](https://github.com/realm/realm-dart/pull/918)).
-  Notice: Any existing email users might need to be recreated because of this breaking change. 
+  Notice: Any existing email users might need to be recreated because of this breaking change.
 
 ### Enhancements
 * Added support for "frozen objects" - these are objects, queries, lists, or Realms that have been "frozen" at a specific version. All frozen objects can be accessed and queried as normal, but attempting to mutate them or add change listeners will throw an exception. `Realm`, `RealmObject`, `RealmList`, and `RealmResults` now have a method `freeze()` which returns an immutable version of the object, as well as an `isFrozen` property which can be used to check whether an object is frozen. ([#56](https://github.com/realm/realm-dart/issues/56))
@@ -52,7 +52,7 @@
 * Previously removeAt did not truncate length. ([#883](https://github.com/realm/realm-dart/issues/883))
 * List.length= now throws, if you try to increase length. This previously succeeded silently. ([#894](https://github.com/realm/realm-dart/pull/894)).
 * Queries on lists were broken. ([#909](https://github.com/realm/realm-dart/issues/909))
-  Example: 
+  Example:
   ```dart
   expect(realm.all<Person>(), [alice, bob, carol, dan]); // assume this pass, then ...
   expect(team.players.query('TRUEPREDICATE'), [alice, bob]); // <-- ... this fails and return the same as realm.all<Person>()
@@ -71,6 +71,7 @@
 
 ### Internal
 * Uses Realm Core v12.9.0
+* Added tracking of child handles for objects/results/lists obtained from an unowned Realm. This ensures that all children are invalidated as soon as the parent Realm gets released at the end of the callback. (Issue [#527](https://github.com/realm/realm-dart/issues/527))
 
 ## 0.4.0+beta (2022-08-19)
 
