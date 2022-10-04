@@ -88,4 +88,4 @@ RLM_API void realm_dart_userdata_async_free(void* userdata)
 }
 
 // stamped into the library by the build system (see prepare-release.yml)
-RLM_API const char* realm_dart_library_version() { return "0.4.0+beta"; }
+RLM_API const char* realm_dart_library_version() { return "9.8.7+test"; }
