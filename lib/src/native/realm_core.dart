@@ -607,7 +607,7 @@ class _RealmCore {
     });
   }
 
-  void _completeAsyncBeginWrite(Pointer<Void> userdata) {
+  static void _completeAsyncBeginWrite(Pointer<Void> userdata) {
     Completer<void>? completer = userdata.toObject();
     if (completer == null) {
       return;
@@ -616,7 +616,7 @@ class _RealmCore {
     completer.complete();
   }
 
-  void _completeAsyncCommit(Pointer<Void> userdata, bool error, Pointer<Char> description) {
+  static void _completeAsyncCommit(Pointer<Void> userdata, bool error, Pointer<Char> description) {
     Completer<void>? completer = userdata.toObject();
     if (completer == null) {
       return;

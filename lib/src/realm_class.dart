@@ -255,10 +255,10 @@ class Realm implements Finalizable {
     return Transaction._(this);
   }
 
-  Future<Transaction> beginWriteAsync(CancellationToken? ct) async {
+  Future<Transaction> beginWriteAsync({CancellationToken? cancellationToken}) async {
     _throwIfFrozen();
 
-    await realmCore.beginWriteAsync(this, ct);
+    await realmCore.beginWriteAsync(this, cancellationToken);
 
     return Transaction._(this);
   }
@@ -391,6 +391,8 @@ class Realm implements Finalizable {
 class Transaction {
   Realm? _realm;
 
+  bool get isOpen => _realm != null;
+
   Transaction._(Realm realm) {
     _realm = realm;
   }
@@ -421,7 +423,7 @@ class Transaction {
   }
 
   void _ensureOpen(String action) {
-    if (_realm == null) {
+    if (!isOpen) {
       throw RealmException('Transaction was already closed. Cannot $action');
     }
   }
