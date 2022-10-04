@@ -217,43 +217,6 @@ Future<void> main([List<String>? args]) async {
     expect(allPlayers.length, 1);
   });
 
-  test('List clear in closed realm - expected exception', () {
-    var config = Configuration.local([Team.schema, Person.schema]);
-    var realm = getRealm(config);
-
-    //Create a team
-    var team = Team("TeamOne");
-    realm.write(() => realm.add(team));
-
-    //Add the player to the team
-    realm.write(() => team.players.add(Person("Michael Schumacher")));
-
-    //Ensure teams and player are in realm
-    var teams = realm.all<Team>();
-    expect(teams.length, 1);
-    expect(teams[0].players, isNotNull);
-    expect(teams[0].players.length, 1);
-
-    var players = teams[0].players;
-
-    realm.close();
-    expect(
-        () => realm.write(() {
-              players.clear();
-            }),
-        throws<RealmException>());
-
-    config = Configuration.local([Team.schema, Person.schema]);
-    realm = getRealm(config);
-
-    //Teams must be reloaded since realm was reopened
-    teams = realm.all<Team>();
-
-    //Ensure that the team is still related to the player
-    expect(teams.length, 1);
-    expect(teams[0].players.length, 1);
-  });
-
   test('Read list property of a deleted object', () {
     var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);

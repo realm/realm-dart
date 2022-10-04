@@ -24,6 +24,8 @@ import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
 import '../lib/src/results.dart';
+import '../lib/src/realm_object.dart';
+import '../lib/src/list.dart';
 
 part 'migration_test.g.dart';
 
@@ -171,12 +173,6 @@ Future<void> main([List<String>? args]) async {
 
         newStudent.number = i;
       }
-
-      // TODO: this is a hack to get the test working until https://github.com/realm/realm-dart/issues/527 is
-      // implemented. The issue is that the results are not released at the end of the migration, which will
-      // trigger the notification mechanics when the write transaction is committed. This will cause the queries
-      // to be reevaluated, which is no longer possible since the tables have changed and the columns don't match.
-      oldStudents.handle.release();
     });
 
     final v2Realm = getRealm(v2Config);
@@ -412,5 +408,47 @@ Future<void> main([List<String>? args]) async {
 
     expect(dynamicRealm.schema.single.properties.length, 1);
     expect(dynamicRealm.dynamic.all('MyObject').single.dynamic.get<String>('name'), 'name');
+  });
+
+  test("Migration doesn't hold on to handles", () {
+    final v1Config = Configuration.local([Person.schema, Team.schema], schemaVersion: 1);
+    final v1Realm = getRealm(v1Config);
+
+    v1Realm.write(() {
+      v1Realm.add(Team('Lakers', players: [Person('Kobe')]));
+    });
+
+    v1Realm.close();
+
+    late RealmObject oldTeam;
+    late Team newTeam;
+
+    late RealmResults<RealmObject> oldTeams;
+    late RealmResults<Team> newTeams;
+
+    late RealmList<RealmObject> oldPlayers;
+    late RealmList<Person> newPlayers;
+
+    final v2Config = Configuration.local([Person.schema, Team.schema], schemaVersion: 2, migrationCallback: (migration, oldSchemaVersion) {
+      oldTeams = migration.oldRealm.all('Team');
+      newTeams = migration.newRealm.all();
+
+      oldTeam = oldTeams.single;
+      newTeam = newTeams.single;
+
+      oldPlayers = oldTeam.dynamic.getList('players');
+      newPlayers = newTeam.players;
+    });
+
+    final v2Realm = getRealm(v2Config);
+
+    expect(() => oldTeam.handle.released, throws<RealmClosedError>());
+    expect(() => newTeam.handle.released, throws<RealmClosedError>());
+
+    expect(() => oldTeams.handle.released, throws<RealmClosedError>());
+    expect(() => newTeams.handle.released, throws<RealmClosedError>());
+
+    expect(() => oldPlayers.handle.released, throws<RealmClosedError>());
+    expect(() => newPlayers.handle.released, throws<RealmClosedError>());
   });
 }
