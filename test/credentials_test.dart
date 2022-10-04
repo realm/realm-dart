@@ -284,11 +284,11 @@ Future<void> main([List<String>? args]) async {
     const String newPassword = "!@#!DQXQWD!223eda";
     final authProvider = EmailPasswordAuthProvider(app);
     await authProvider.registerUser(username, strongPassword);
-    await expectLater(() {
+    await expectLater(() async {
       // Calling this function with no additional arguments fails for the test
       // because of the specific implementation of resetFunc in the cloud.
       // resetFunc returns status 'fail' in case no other status is passed.
-      return authProvider.callResetPasswordFunction(username, newPassword);
+      return await authProvider.callResetPasswordFunction(username, newPassword);
     }, throws<AppException>("failed to reset password for user $username"));
   }, appName: AppNames.autoConfirm);
 
