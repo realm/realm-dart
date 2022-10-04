@@ -693,7 +693,7 @@ class _RealmCore {
   RealmObjectHandle? findExisting(Realm realm, int classKey, RealmObjectHandle other) {
     final key = _realmLib.realm_object_get_key(other._pointer);
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_object(realm.handle._pointer, classKey, key));
-    return RealmObjectHandle._(pointer);
+    return RealmObjectHandle._(pointer, realm.handle);
   }
 
   void renameProperty(Realm realm, String objectType, String oldName, String newName, SchemaHandle schema) {
@@ -1868,7 +1868,7 @@ class _RealmCore {
 
   RealmResultsHandle resolveResults(RealmResults realmResults, Realm frozenRealm) {
     final ptr = _realmLib.invokeGetPointer(() => _realmLib.realm_results_resolve_in(realmResults.handle._pointer, frozenRealm.handle._pointer));
-    return RealmResultsHandle._(ptr);
+    return RealmResultsHandle._(ptr, frozenRealm.handle);
   }
 
   RealmObjectHandle? resolveObject(RealmObject object, Realm frozenRealm) {
@@ -1876,7 +1876,7 @@ class _RealmCore {
       final resultPtr = arena<Pointer<realm_object>>();
       _realmLib.invokeGetBool(() => _realmLib.realm_object_resolve_in(object.handle._pointer, frozenRealm.handle._pointer, resultPtr));
       if (resultPtr != nullptr) {
-        return RealmObjectHandle._(resultPtr.value);
+        return RealmObjectHandle._(resultPtr.value, frozenRealm.handle);
       }
 
       return null;
@@ -1888,7 +1888,7 @@ class _RealmCore {
       final resultPtr = arena<Pointer<realm_list>>();
       _realmLib.invokeGetBool(() => _realmLib.realm_list_resolve_in(list.handle._pointer, frozenRealm.handle._pointer, resultPtr));
       if (resultPtr != nullptr) {
-        return RealmListHandle._(resultPtr.value);
+        return RealmListHandle._(resultPtr.value, frozenRealm.handle);
       }
 
       return null;
