@@ -4158,6 +4158,28 @@ class RealmLibrary {
       void Function(
           ffi.Pointer<realm_async_error_t>, ffi.Pointer<realm_error_t>)>();
 
+  /// Fetch the backlinks for the object passed as argument.
+  /// @return a valid ptr to realm results that contains all the backlinks for the object, or null in case of errors.
+  ffi.Pointer<realm_results_t> realm_get_backlinks(
+    ffi.Pointer<realm_object_t> object,
+    int source_table_key,
+    int property_key,
+  ) {
+    return _realm_get_backlinks(
+      object,
+      source_table_key,
+      property_key,
+    );
+  }
+
+  late final _realm_get_backlinksPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_object_t>,
+              realm_class_key_t, realm_property_key_t)>>('realm_get_backlinks');
+  late final _realm_get_backlinks = _realm_get_backlinksPtr.asFunction<
+      ffi.Pointer<realm_results_t> Function(
+          ffi.Pointer<realm_object_t>, int, int)>();
+
   /// Get the class with @a key from the schema.
   ///
   /// Passing an invalid @a key for this schema is considered an error.
@@ -4672,6 +4694,31 @@ class RealmLibrary {
   late final _realm_get_value = _realm_get_valuePtr.asFunction<
       bool Function(
           ffi.Pointer<realm_object_t>, int, ffi.Pointer<realm_value_t>)>();
+
+  /// Get the value for the property at the specified index in the object's schema.
+  /// @param prop_index The index of the property in the class properties array the realm was opened with.
+  /// @return True if no exception occurred.
+  bool realm_get_value_by_property_index(
+    ffi.Pointer<realm_object_t> object,
+    int prop_index,
+    ffi.Pointer<realm_value_t> out_value,
+  ) {
+    return _realm_get_value_by_property_index(
+      object,
+      prop_index,
+      out_value,
+    );
+  }
+
+  late final _realm_get_value_by_property_indexPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Bool Function(ffi.Pointer<realm_object_t>, ffi.Size,
+                  ffi.Pointer<realm_value_t>)>>(
+      'realm_get_value_by_property_index');
+  late final _realm_get_value_by_property_index =
+      _realm_get_value_by_property_indexPtr.asFunction<
+          bool Function(
+              ffi.Pointer<realm_object_t>, int, ffi.Pointer<realm_value_t>)>();
 
   /// Get the values for several properties.
   ///
