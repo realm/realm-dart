@@ -61,7 +61,7 @@ export 'package:realm_common/realm_common.dart'
         Uuid;
 
 // always expose with `show` to explicitly control the public API surface
-export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App;
+export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App, AppException;
 export "configuration.dart"
     show
         Configuration,
@@ -77,11 +77,11 @@ export "configuration.dart"
 
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
-export 'realm_object.dart' show RealmEntity, RealmException, RealmObject, RealmObjectChanges, DynamicRealmObject;
+export 'realm_object.dart' show RealmEntity, RealmException, UserCallbackException, RealmObject, RealmObjectChanges, DynamicRealmObject;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
-export 'user.dart' show User, UserState, UserIdentity;
+export 'user.dart' show User, UserState, UserIdentity, ApiKeyClient, ApiKey;
 export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
 
 /// A [Realm] instance represents a `Realm` database.
@@ -90,6 +90,7 @@ export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirec
 class Realm implements Finalizable {
   late final RealmMetadata _metadata;
   late final RealmHandle _handle;
+  final bool _isInMigration;
 
   /// An object encompassing this `Realm` instance's dynamic API.
   late final DynamicRealm dynamic = DynamicRealm._(this);
@@ -102,11 +103,16 @@ class Realm implements Finalizable {
   /// the schema will be read from the file.
   late final RealmSchema schema;
 
+  /// Gets a value indicating whether this [Realm] is frozen. Frozen Realms are immutable
+  /// and will not update when writes are made to the database.
+  late final bool isFrozen;
+
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
-  Realm._(this.config, [RealmHandle? handle]) : _handle = handle ?? _openRealm(config) {
+  Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) : _handle = handle ?? _openRealm(config) {
     _populateMetadata();
+    isFrozen = realmCore.isFrozen(this);
   }
 
   static RealmHandle _openRealm(Configuration config) {
@@ -119,7 +125,7 @@ class Realm implements Finalizable {
 
   void _populateMetadata() {
     schema = config.schemaObjects.isNotEmpty ? RealmSchema(config.schemaObjects) : realmCore.readSchema(this);
-    _metadata = RealmMetadata._(schema.map((c) => realmCore.getObjectMedata(this, c.name, c.type)));
+    _metadata = RealmMetadata._(schema.map((c) => realmCore.getObjectMetadata(this, c.name, c.type)));
   }
 
   /// Deletes all files associated with a `Realm` located at given [path]
@@ -171,7 +177,7 @@ class Realm implements Finalizable {
     final metadata = _metadata.getByType(object.runtimeType);
     final handle = _createObject(object, metadata, update);
 
-    final accessor = RealmCoreAccessor(metadata);
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
     object.manage(this, handle, accessor, update);
 
     return object;
@@ -266,7 +272,7 @@ class Realm implements Finalizable {
       return null;
     }
 
-    final accessor = RealmCoreAccessor(metadata);
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
     var object = RealmObjectInternal.create(T, this, handle, accessor);
     return object as T;
   }
@@ -284,7 +290,7 @@ class Realm implements Finalizable {
   ///
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
-  RealmResults<T> query<T extends RealmObject>(String query, [List<Object> args = const []]) {
+  RealmResults<T> query<T extends RealmObject>(String query, [List<Object?> args = const []]) {
     final metadata = _metadata.getByType(T);
     final handle = realmCore.queryClass(this, metadata.classKey, query, args);
     return RealmResultsInternal.create<T>(handle, this, metadata);
@@ -292,6 +298,25 @@ class Realm implements Finalizable {
 
   /// Deletes all [RealmObject]s of type `T` in the `Realm`
   void deleteAll<T extends RealmObject>() => deleteMany(all<T>());
+
+  /// Returns a frozen (immutable) snapshot of this Realm.
+  ///
+  /// A frozen Realm is an immutable snapshot view of a particular version of a
+  /// Realm's data. Unlike normal [Realm] instances, it does not live-update to
+  /// reflect writes made to the Realm. Writing to a frozen Realm is not allowed,
+  /// and attempting to begin a write transaction will throw an exception.
+  ///
+  /// All objects and collections read from a frozen Realm will also be frozen.
+  ///
+  /// Note: Keeping a large number of frozen Realms with different versions alive can
+  /// have a negative impact on the file size of the underlying database.
+  Realm freeze() {
+    if (isFrozen) {
+      return this;
+    }
+
+    return Realm._(config, realmCore.freeze(this));
+  }
 
   WeakReference<SubscriptionSet>? _subscriptions;
 
@@ -346,7 +371,7 @@ class Realm implements Finalizable {
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
   ///
-  /// Disclaimer: This method is mostly needed on Dart standalone and if not called the Dart probram will hang and not exit.
+  /// Disclaimer: This method is mostly needed on Dart standalone and if not called the Dart program will hang and not exit.
   /// This is a workaround of a Dart VM bug and will be removed in a future version of the SDK.
   static void shutdown() => scheduler.stop();
 }
@@ -398,12 +423,12 @@ extension RealmInternal on Realm {
     return _handle;
   }
 
-  static Realm getUnowned(Configuration config, RealmHandle handle) {
-    return Realm._(config, handle);
+  static Realm getUnowned(Configuration config, RealmHandle handle, {bool isInMigration = false}) {
+    return Realm._(config, handle, isInMigration);
   }
 
   RealmObject createObject(Type type, RealmObjectHandle handle, RealmObjectMetadata metadata) {
-    final accessor = RealmCoreAccessor(metadata);
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
     return RealmObjectInternal.create(type, this, handle, accessor);
   }
 
@@ -424,6 +449,41 @@ extension RealmInternal on Realm {
   }
 
   RealmMetadata get metadata => _metadata;
+
+  T? resolveObject<T extends RealmObject>(T object) {
+    if (!object.isManaged) {
+      throw RealmStateError("Can't resolve unmanaged objects");
+    }
+
+    if (!object.isValid) {
+      throw RealmStateError("Can't resolve invalidated (deleted) objects");
+    }
+
+    final handle = realmCore.resolveObject(object, this);
+    if (handle == null) {
+      return null;
+    }
+
+    final metadata = (object.accessor as RealmCoreAccessor).metadata;
+
+    return RealmObjectInternal.create(T, this, handle, RealmCoreAccessor(metadata, _isInMigration)) as T;
+  }
+
+  RealmList<T>? resolveList<T extends Object?>(ManagedRealmList<T> list) {
+    final handle = realmCore.resolveList(list, this);
+    if (handle == null) {
+      return null;
+    }
+
+    return createList<T>(handle, list.metadata);
+  }
+
+  RealmResults<T> resolveResults<T extends RealmObject>(RealmResults<T> results) {
+    final handle = realmCore.resolveResults(results, this);
+    return RealmResultsInternal.create<T>(handle, this, results.metadata);
+  }
+
+  static MigrationRealm getMigrationRealm(Realm realm) => MigrationRealm._(realm);
 }
 
 /// @nodoc
@@ -573,7 +633,23 @@ class DynamicRealm {
       return null;
     }
 
-    final accessor = RealmCoreAccessor(metadata);
+    final accessor = RealmCoreAccessor(metadata, _realm._isInMigration);
     return RealmObjectInternal.create(RealmObject, _realm, handle, accessor);
   }
+}
+
+/// A class used during a migration callback. It exposes a set of dynamic API as
+/// well as the Realm config and schema.
+///
+/// {@category Realm}
+class MigrationRealm extends DynamicRealm {
+  /// The [Configuration] object used to open this [Realm]
+  Configuration get config => _realm.config;
+
+  /// The schema of this [Realm]. If the [Configuration] was created with a
+  /// non-empty list of schemas, this will match the collection. Otherwise,
+  /// the schema will be read from the file.
+  RealmSchema get schema => _realm.schema;
+
+  MigrationRealm._(Realm realm) : super._(realm);
 }

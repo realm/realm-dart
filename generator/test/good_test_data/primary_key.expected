@@ -14,11 +14,14 @@ class IntPK extends _IntPK with RealmEntity, RealmObject {
   @override
   int get id => RealmObject.get<int>(this, 'id') as int;
   @override
-  set id(int value) => throw RealmUnsupportedSetError();
+  set id(int value) => RealmObject.set(this, 'id', value);
 
   @override
   Stream<RealmObjectChanges<IntPK>> get changes =>
       RealmObject.getChanges<IntPK>(this);
+
+  @override
+  IntPK freeze() => RealmObject.freezeObject<IntPK>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -42,11 +45,14 @@ class NullableIntPK extends _NullableIntPK with RealmEntity, RealmObject {
   @override
   int? get id => RealmObject.get<int>(this, 'id') as int?;
   @override
-  set id(int? value) => throw RealmUnsupportedSetError();
+  set id(int? value) => RealmObject.set(this, 'id', value);
 
   @override
   Stream<RealmObjectChanges<NullableIntPK>> get changes =>
       RealmObject.getChanges<NullableIntPK>(this);
+
+  @override
+  NullableIntPK freeze() => RealmObject.freezeObject<NullableIntPK>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -71,11 +77,14 @@ class StringPK extends _StringPK with RealmEntity, RealmObject {
   @override
   String get id => RealmObject.get<String>(this, 'id') as String;
   @override
-  set id(String value) => throw RealmUnsupportedSetError();
+  set id(String value) => RealmObject.set(this, 'id', value);
 
   @override
   Stream<RealmObjectChanges<StringPK>> get changes =>
       RealmObject.getChanges<StringPK>(this);
+
+  @override
+  StringPK freeze() => RealmObject.freezeObject<StringPK>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -99,11 +108,14 @@ class NullableStringPK extends _NullableStringPK with RealmEntity, RealmObject {
   @override
   String? get id => RealmObject.get<String>(this, 'id') as String?;
   @override
-  set id(String? value) => throw RealmUnsupportedSetError();
+  set id(String? value) => RealmObject.set(this, 'id', value);
 
   @override
   Stream<RealmObjectChanges<NullableStringPK>> get changes =>
       RealmObject.getChanges<NullableStringPK>(this);
+
+  @override
+  NullableStringPK freeze() => RealmObject.freezeObject<NullableStringPK>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -128,11 +140,14 @@ class ObjectIdPK extends _ObjectIdPK with RealmEntity, RealmObject {
   @override
   ObjectId get id => RealmObject.get<ObjectId>(this, 'id') as ObjectId;
   @override
-  set id(ObjectId value) => throw RealmUnsupportedSetError();
+  set id(ObjectId value) => RealmObject.set(this, 'id', value);
 
   @override
   Stream<RealmObjectChanges<ObjectIdPK>> get changes =>
       RealmObject.getChanges<ObjectIdPK>(this);
+
+  @override
+  ObjectIdPK freeze() => RealmObject.freezeObject<ObjectIdPK>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -156,11 +171,14 @@ class NullableObjectIdPK extends _NullableObjectIdPK with RealmEntity, RealmObje
   @override
   ObjectId? get id => RealmObject.get<ObjectId>(this, 'id') as ObjectId?;
   @override
-  set id(ObjectId? value) => throw RealmUnsupportedSetError();
+  set id(ObjectId? value) => RealmObject.set(this, 'id', value);
 
   @override
   Stream<RealmObjectChanges<NullableObjectIdPK>> get changes =>
       RealmObject.getChanges<NullableObjectIdPK>(this);
+
+  @override
+  NullableObjectIdPK freeze() => RealmObject.freezeObject<NullableObjectIdPK>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -185,11 +203,14 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObject {
   @override
   Uuid get id => RealmObject.get<Uuid>(this, 'id') as Uuid;
   @override
-  set id(Uuid value) => throw RealmUnsupportedSetError();
+  set id(Uuid value) => RealmObject.set(this, 'id', value);
 
   @override
   Stream<RealmObjectChanges<UuidPK>> get changes =>
       RealmObject.getChanges<UuidPK>(this);
+
+  @override
+  UuidPK freeze() => RealmObject.freezeObject<UuidPK>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -213,11 +234,14 @@ class NullableUuidPK extends _NullableUuidPK with RealmEntity, RealmObject {
   @override
   Uuid? get id => RealmObject.get<Uuid>(this, 'id') as Uuid?;
   @override
-  set id(Uuid? value) => throw RealmUnsupportedSetError();
+  set id(Uuid? value) => RealmObject.set(this, 'id', value);
 
   @override
   Stream<RealmObjectChanges<NullableUuidPK>> get changes =>
       RealmObject.getChanges<NullableUuidPK>(this);
+
+  @override
+  NullableUuidPK freeze() => RealmObject.freezeObject<NullableUuidPK>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;

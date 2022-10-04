@@ -312,22 +312,6 @@ Future<void> main([List<String>? args]) async {
     realm.syncSession.raiseError(SyncErrorCategory.client, SyncClientErrorCode.badChangeset.code, true);
   });
 
-  baasTest('SyncSession client reset handler', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
-      expect(syncError, isA<SyncClientResetError>());
-      final syncClientResetError = syncError.as<SyncClientResetError>();
-      expect(syncClientResetError.category, SyncErrorCategory.session);
-      expect(syncClientResetError.isFatal, true);
-      expect(syncClientResetError.code, SyncClientErrorCode.autoClientResetFailure);
-      expect(syncClientResetError.message, "Simulated session error");
-    });
-    final realm = getRealm(config);
-
-    realm.syncSession.raiseError(SyncErrorCategory.session, SyncClientErrorCode.autoClientResetFailure.code, true);
-  });
-
   baasTest('SyncSession.getConnectionStateStream', (configuration) async {
     final realm = await getIntegrationRealm();
 

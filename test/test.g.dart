@@ -18,11 +18,14 @@ class Car extends _Car with RealmEntity, RealmObject {
   @override
   String get make => RealmObject.get<String>(this, 'make') as String;
   @override
-  set make(String value) => throw RealmUnsupportedSetError();
+  set make(String value) => RealmObject.set(this, 'make', value);
 
   @override
   Stream<RealmObjectChanges<Car>> get changes =>
       RealmObject.getChanges<Car>(this);
+
+  @override
+  Car freeze() => RealmObject.freezeObject<Car>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -52,6 +55,9 @@ class Person extends _Person with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<Person>> get changes =>
       RealmObject.getChanges<Person>(this);
 
+  @override
+  Person freeze() => RealmObject.freezeObject<Person>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -78,7 +84,7 @@ class Dog extends _Dog with RealmEntity, RealmObject {
   @override
   String get name => RealmObject.get<String>(this, 'name') as String;
   @override
-  set name(String value) => throw RealmUnsupportedSetError();
+  set name(String value) => RealmObject.set(this, 'name', value);
 
   @override
   int? get age => RealmObject.get<int>(this, 'age') as int?;
@@ -93,6 +99,9 @@ class Dog extends _Dog with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<Dog>> get changes =>
       RealmObject.getChanges<Dog>(this);
+
+  @override
+  Dog freeze() => RealmObject.freezeObject<Dog>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -144,6 +153,9 @@ class Team extends _Team with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<Team>> get changes =>
       RealmObject.getChanges<Team>(this);
 
+  @override
+  Team freeze() => RealmObject.freezeObject<Team>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -176,7 +188,7 @@ class Student extends _Student with RealmEntity, RealmObject {
   @override
   int get number => RealmObject.get<int>(this, 'number') as int;
   @override
-  set number(int value) => throw RealmUnsupportedSetError();
+  set number(int value) => RealmObject.set(this, 'number', value);
 
   @override
   String? get name => RealmObject.get<String>(this, 'name') as String?;
@@ -196,6 +208,9 @@ class Student extends _Student with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<Student>> get changes =>
       RealmObject.getChanges<Student>(this);
+
+  @override
+  Student freeze() => RealmObject.freezeObject<Student>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -233,7 +248,7 @@ class School extends _School with RealmEntity, RealmObject {
   @override
   String get name => RealmObject.get<String>(this, 'name') as String;
   @override
-  set name(String value) => throw RealmUnsupportedSetError();
+  set name(String value) => RealmObject.set(this, 'name', value);
 
   @override
   String? get city => RealmObject.get<String>(this, 'city') as String?;
@@ -264,6 +279,9 @@ class School extends _School with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<School>> get changes =>
       RealmObject.getChanges<School>(this);
+
+  @override
+  School freeze() => RealmObject.freezeObject<School>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -313,6 +331,9 @@ class RemappedClass extends $RemappedClass with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<RemappedClass>> get changes =>
       RealmObject.getChanges<RemappedClass>(this);
 
+  @override
+  RemappedClass freeze() => RealmObject.freezeObject<RemappedClass>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -340,11 +361,14 @@ class Task extends _Task with RealmEntity, RealmObject {
   @override
   ObjectId get id => RealmObject.get<ObjectId>(this, '_id') as ObjectId;
   @override
-  set id(ObjectId value) => throw RealmUnsupportedSetError();
+  set id(ObjectId value) => RealmObject.set(this, '_id', value);
 
   @override
   Stream<RealmObjectChanges<Task>> get changes =>
       RealmObject.getChanges<Task>(this);
+
+  @override
+  Task freeze() => RealmObject.freezeObject<Task>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -371,7 +395,7 @@ class Schedule extends _Schedule with RealmEntity, RealmObject {
   @override
   ObjectId get id => RealmObject.get<ObjectId>(this, '_id') as ObjectId;
   @override
-  set id(ObjectId value) => throw RealmUnsupportedSetError();
+  set id(ObjectId value) => RealmObject.set(this, '_id', value);
 
   @override
   RealmList<Task> get tasks =>
@@ -383,6 +407,9 @@ class Schedule extends _Schedule with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<Schedule>> get changes =>
       RealmObject.getChanges<Schedule>(this);
+
+  @override
+  Schedule freeze() => RealmObject.freezeObject<Schedule>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -525,6 +552,9 @@ class AllTypes extends _AllTypes with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<AllTypes>> get changes =>
       RealmObject.getChanges<AllTypes>(this);
 
+  @override
+  AllTypes freeze() => RealmObject.freezeObject<AllTypes>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -571,7 +601,7 @@ class LinksClass extends _LinksClass with RealmEntity, RealmObject {
   @override
   Uuid get id => RealmObject.get<Uuid>(this, 'id') as Uuid;
   @override
-  set id(Uuid value) => throw RealmUnsupportedSetError();
+  set id(Uuid value) => RealmObject.set(this, 'id', value);
 
   @override
   LinksClass? get link =>
@@ -589,6 +619,9 @@ class LinksClass extends _LinksClass with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<LinksClass>> get changes =>
       RealmObject.getChanges<LinksClass>(this);
+
+  @override
+  LinksClass freeze() => RealmObject.freezeObject<LinksClass>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -613,6 +646,13 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
     Iterable<ObjectId> objectIds = const [],
     Iterable<Uuid> uuids = const [],
     Iterable<int> ints = const [],
+    Iterable<String?> nullableStrings = const [],
+    Iterable<bool?> nullableBools = const [],
+    Iterable<DateTime?> nullableDates = const [],
+    Iterable<double?> nullableDoubles = const [],
+    Iterable<ObjectId?> nullableObjectIds = const [],
+    Iterable<Uuid?> nullableUuids = const [],
+    Iterable<int?> nullableInts = const [],
   }) {
     RealmObject.set<RealmList<String>>(
         this, 'strings', RealmList<String>(strings));
@@ -625,6 +665,20 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
         this, 'objectIds', RealmList<ObjectId>(objectIds));
     RealmObject.set<RealmList<Uuid>>(this, 'uuids', RealmList<Uuid>(uuids));
     RealmObject.set<RealmList<int>>(this, 'ints', RealmList<int>(ints));
+    RealmObject.set<RealmList<String?>>(
+        this, 'nullableStrings', RealmList<String?>(nullableStrings));
+    RealmObject.set<RealmList<bool?>>(
+        this, 'nullableBools', RealmList<bool?>(nullableBools));
+    RealmObject.set<RealmList<DateTime?>>(
+        this, 'nullableDates', RealmList<DateTime?>(nullableDates));
+    RealmObject.set<RealmList<double?>>(
+        this, 'nullableDoubles', RealmList<double?>(nullableDoubles));
+    RealmObject.set<RealmList<ObjectId?>>(
+        this, 'nullableObjectIds', RealmList<ObjectId?>(nullableObjectIds));
+    RealmObject.set<RealmList<Uuid?>>(
+        this, 'nullableUuids', RealmList<Uuid?>(nullableUuids));
+    RealmObject.set<RealmList<int?>>(
+        this, 'nullableInts', RealmList<int?>(nullableInts));
   }
 
   AllCollections._();
@@ -678,8 +732,61 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
   set ints(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
 
   @override
+  RealmList<String?> get nullableStrings =>
+      RealmObject.get<String?>(this, 'nullableStrings') as RealmList<String?>;
+  @override
+  set nullableStrings(covariant RealmList<String?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<bool?> get nullableBools =>
+      RealmObject.get<bool?>(this, 'nullableBools') as RealmList<bool?>;
+  @override
+  set nullableBools(covariant RealmList<bool?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<DateTime?> get nullableDates =>
+      RealmObject.get<DateTime?>(this, 'nullableDates') as RealmList<DateTime?>;
+  @override
+  set nullableDates(covariant RealmList<DateTime?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<double?> get nullableDoubles =>
+      RealmObject.get<double?>(this, 'nullableDoubles') as RealmList<double?>;
+  @override
+  set nullableDoubles(covariant RealmList<double?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<ObjectId?> get nullableObjectIds =>
+      RealmObject.get<ObjectId?>(this, 'nullableObjectIds')
+          as RealmList<ObjectId?>;
+  @override
+  set nullableObjectIds(covariant RealmList<ObjectId?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<Uuid?> get nullableUuids =>
+      RealmObject.get<Uuid?>(this, 'nullableUuids') as RealmList<Uuid?>;
+  @override
+  set nullableUuids(covariant RealmList<Uuid?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<int?> get nullableInts =>
+      RealmObject.get<int?>(this, 'nullableInts') as RealmList<int?>;
+  @override
+  set nullableInts(covariant RealmList<int?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
   Stream<RealmObjectChanges<AllCollections>> get changes =>
       RealmObject.getChanges<AllCollections>(this);
+
+  @override
+  AllCollections freeze() => RealmObject.freezeObject<AllCollections>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -700,6 +807,20 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
           collectionType: RealmCollectionType.list),
       SchemaProperty('ints', RealmPropertyType.int,
           collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableStrings', RealmPropertyType.string,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableBools', RealmPropertyType.bool,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableDates', RealmPropertyType.timestamp,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableDoubles', RealmPropertyType.double,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableObjectIds', RealmPropertyType.objectid,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableUuids', RealmPropertyType.uuid,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableInts', RealmPropertyType.int,
+          optional: true, collectionType: RealmCollectionType.list),
     ]);
   }
 }
@@ -732,7 +853,7 @@ class NullableTypes extends _NullableTypes with RealmEntity, RealmObject {
   @override
   ObjectId get id => RealmObject.get<ObjectId>(this, '_id') as ObjectId;
   @override
-  set id(ObjectId value) => throw RealmUnsupportedSetError();
+  set id(ObjectId value) => RealmObject.set(this, '_id', value);
 
   @override
   ObjectId get differentiator =>
@@ -785,6 +906,9 @@ class NullableTypes extends _NullableTypes with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<NullableTypes>> get changes =>
       RealmObject.getChanges<NullableTypes>(this);
 
+  @override
+  NullableTypes freeze() => RealmObject.freezeObject<NullableTypes>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -825,7 +949,7 @@ class Event extends _Event with RealmEntity, RealmObject {
   @override
   ObjectId get id => RealmObject.get<ObjectId>(this, '_id') as ObjectId;
   @override
-  set id(ObjectId value) => throw RealmUnsupportedSetError();
+  set id(ObjectId value) => RealmObject.set(this, '_id', value);
 
   @override
   String? get name =>
@@ -856,6 +980,9 @@ class Event extends _Event with RealmEntity, RealmObject {
   @override
   Stream<RealmObjectChanges<Event>> get changes =>
       RealmObject.getChanges<Event>(this);
+
+  @override
+  Event freeze() => RealmObject.freezeObject<Event>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
@@ -918,6 +1045,9 @@ class Party extends _Party with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<Party>> get changes =>
       RealmObject.getChanges<Party>(this);
 
+  @override
+  Party freeze() => RealmObject.freezeObject<Party>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -960,7 +1090,7 @@ class Friend extends _Friend with RealmEntity, RealmObject {
   @override
   String get name => RealmObject.get<String>(this, 'name') as String;
   @override
-  set name(String value) => throw RealmUnsupportedSetError();
+  set name(String value) => RealmObject.set(this, 'name', value);
 
   @override
   int get age => RealmObject.get<int>(this, 'age') as int;
@@ -985,6 +1115,9 @@ class Friend extends _Friend with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<Friend>> get changes =>
       RealmObject.getChanges<Friend>(this);
 
+  @override
+  Friend freeze() => RealmObject.freezeObject<Friend>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
@@ -996,6 +1129,136 @@ class Friend extends _Friend with RealmEntity, RealmObject {
           optional: true, linkTarget: 'Friend'),
       SchemaProperty('friends', RealmPropertyType.object,
           linkTarget: 'Friend', collectionType: RealmCollectionType.list),
+    ]);
+  }
+}
+
+class When extends _When with RealmEntity, RealmObject {
+  When(
+    DateTime dateTimeUtc,
+    String locationName,
+  ) {
+    RealmObject.set(this, 'dateTimeUtc', dateTimeUtc);
+    RealmObject.set(this, 'locationName', locationName);
+  }
+
+  When._();
+
+  @override
+  DateTime get dateTimeUtc =>
+      RealmObject.get<DateTime>(this, 'dateTimeUtc') as DateTime;
+  @override
+  set dateTimeUtc(DateTime value) =>
+      RealmObject.set(this, 'dateTimeUtc', value);
+
+  @override
+  String get locationName =>
+      RealmObject.get<String>(this, 'locationName') as String;
+  @override
+  set locationName(String value) =>
+      RealmObject.set(this, 'locationName', value);
+
+  @override
+  Stream<RealmObjectChanges<When>> get changes =>
+      RealmObject.getChanges<When>(this);
+
+  @override
+  When freeze() => RealmObject.freezeObject<When>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(When._);
+    return const SchemaObject(When, 'When', [
+      SchemaProperty('dateTimeUtc', RealmPropertyType.timestamp),
+      SchemaProperty('locationName', RealmPropertyType.string),
+    ]);
+  }
+}
+
+class Player extends _Player with RealmEntity, RealmObject {
+  Player(
+    String name, {
+    Game? game,
+    Iterable<int?> scoresByRound = const [],
+  }) {
+    RealmObject.set(this, 'name', name);
+    RealmObject.set(this, 'game', game);
+    RealmObject.set<RealmList<int?>>(
+        this, 'scoresByRound', RealmList<int?>(scoresByRound));
+  }
+
+  Player._();
+
+  @override
+  String get name => RealmObject.get<String>(this, 'name') as String;
+  @override
+  set name(String value) => RealmObject.set(this, 'name', value);
+
+  @override
+  Game? get game => RealmObject.get<Game>(this, 'game') as Game?;
+  @override
+  set game(covariant Game? value) => RealmObject.set(this, 'game', value);
+
+  @override
+  RealmList<int?> get scoresByRound =>
+      RealmObject.get<int?>(this, 'scoresByRound') as RealmList<int?>;
+  @override
+  set scoresByRound(covariant RealmList<int?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Player>> get changes =>
+      RealmObject.getChanges<Player>(this);
+
+  @override
+  Player freeze() => RealmObject.freezeObject<Player>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(Player._);
+    return const SchemaObject(Player, 'Player', [
+      SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
+      SchemaProperty('game', RealmPropertyType.object,
+          optional: true, linkTarget: 'Game'),
+      SchemaProperty('scoresByRound', RealmPropertyType.int,
+          optional: true, collectionType: RealmCollectionType.list),
+    ]);
+  }
+}
+
+class Game extends _Game with RealmEntity, RealmObject {
+  Game({
+    Iterable<Player> winnerByRound = const [],
+  }) {
+    RealmObject.set<RealmList<Player>>(
+        this, 'winnerByRound', RealmList<Player>(winnerByRound));
+  }
+
+  Game._();
+
+  @override
+  RealmList<Player> get winnerByRound =>
+      RealmObject.get<Player>(this, 'winnerByRound') as RealmList<Player>;
+  @override
+  set winnerByRound(covariant RealmList<Player> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Game>> get changes =>
+      RealmObject.getChanges<Game>(this);
+
+  @override
+  Game freeze() => RealmObject.freezeObject<Game>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(Game._);
+    return const SchemaObject(Game, 'Game', [
+      SchemaProperty('winnerByRound', RealmPropertyType.object,
+          linkTarget: 'Player', collectionType: RealmCollectionType.list),
     ]);
   }
 }

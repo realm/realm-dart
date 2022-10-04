@@ -518,6 +518,17 @@ Future<void> main([List<String>? args]) async {
     expect(config.path, 'my-custom-path.realm');
   });
 
+  baasTest('Configuration.flexibleSync when path is supplied, open realm', (appConfig) async {
+    final app = App(appConfig);
+    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
+    var customPath = path.join(
+      path.dirname(Configuration.defaultStoragePath),
+      path.basename('my-custom-realm-name.realm'),
+    );
+    final config = Configuration.flexibleSync(user, [Event.schema], path: customPath);
+    var realm = Realm(config);
+  });
+
   baasTest('Configuration.disconnectedSync', (appConfig) async {
     final app = App(appConfig);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));

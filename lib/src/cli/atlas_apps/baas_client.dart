@@ -185,6 +185,8 @@ class BaasClient {
       "runResetFunction": true
     }''');
 
+    await enableProvider(app, 'api-key');
+
     if (publicRSAKey.isNotEmpty) {
       String publicRSAKeyEncoded = jsonEncode(publicRSAKey);
       final dynamic createSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"rsPublicKey","value":$publicRSAKeyEncoded}');
@@ -247,7 +249,7 @@ class BaasClient {
             "authFunctionName": "authFunc",
             "authFunctionId": "$authFuncId"
             }''');
-    
+
       const facebookSecret = "876750ac6d06618b323dee591602897f";
       final dynamic createFacebookSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
       String facebookClientSecretKeyName = createFacebookSecretResult['name'] as String;
@@ -292,7 +294,7 @@ class BaasClient {
             "name": "picture"
           }''');
     }
-    
+
     print('Creating database db_$name$_appSuffix');
 
     await _createMongoDBService(app, '''{
@@ -351,6 +353,15 @@ class BaasClient {
       await _deleteApp(app.appId);
       print("App with id='${app.appId}' is deleted.");
     }
+  }
+
+  Future<String> createApiKey(BaasApp app, String name, bool enabled) async {
+    final dynamic result = await _post('groups/$_groupId/apps/${app.appId}/api_keys', '{ "name":"$name" }');
+    if (!enabled) {
+      await _put('groups/$_groupId/apps/${app.appId}/api_keys/${result['_id']}/disable', '');
+    }
+
+    return result['key'] as String;
   }
 
   Future<void> _authenticate(String provider, String credentials) async {

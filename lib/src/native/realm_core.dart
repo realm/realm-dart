@@ -42,6 +42,7 @@ import '../subscription.dart';
 import '../user.dart';
 import '../session.dart';
 import 'realm_bindings.dart';
+import '../migration.dart';
 
 late RealmLibrary _realmLib;
 
@@ -64,13 +65,18 @@ class _RealmCore {
   _RealmCore._() {
     final lib = initRealm();
     _realmLib = RealmLibrary(lib);
+    if (libraryVersion != nativeLibraryVersion) {
+      throw RealmException('Dart package version does not match dynamically loaded native library version ($libraryVersion != $nativeLibraryVersion)');
+    }
   }
 
   factory _RealmCore() {
     return _instance ??= _RealmCore._();
   }
 
-  String get libraryVersion => '0.4.0+beta';
+  // stamped into the library by the build system (see prepare-release.yml)
+  static const libraryVersion = '0.4.0+beta';
+  late String nativeLibraryVersion = _realmLib.realm_dart_library_version().cast<Utf8>().toDartString();
 
   LastError? getLastError(Allocator allocator) {
     final error = allocator<realm_error_t>();
@@ -80,14 +86,23 @@ class _RealmCore {
     }
 
     final message = error.ref.message.cast<Utf8>().toRealmDartString();
+    Object? userError;
+    if (error.ref.usercode_error != nullptr) {
+      userError = error.ref.usercode_error.toObject(isPersistent: true);
+      _realmLib.realm_dart_delete_persistent_handle(error.ref.usercode_error);
+    }
 
-    return LastError(error.ref.error, message);
+    return LastError(error.ref.error, message, userError);
   }
 
   void throwLastError([String? errorMessage]) {
     using((Arena arena) {
       final lastError = getLastError(arena);
-      throw RealmException('${errorMessage != null ? errorMessage + ". " : ""}${lastError ?? ""}');
+      if (lastError?.userError != null) {
+        throw UserCallbackException(lastError!.userError!);
+      }
+
+      throw RealmException('${errorMessage != null ? "$errorMessage. " : ""}${lastError ?? ""}');
     });
   }
 
@@ -186,6 +201,9 @@ class _RealmCore {
             config.toWeakHandle(),
             nullptr,
           );
+        }
+        if (config.migrationCallback != null) {
+          _realmLib.realm_config_set_migration_function(configHandle._pointer, Pointer.fromFunction(migration_callback, false), config.toWeakHandle(), nullptr);
         }
       } else if (config is InMemoryConfiguration) {
         _realmLib.realm_config_set_in_memory(configHandle._pointer, true);
@@ -421,6 +439,29 @@ class _RealmCore {
     return config.shouldCompactCallback!(totalSize, usedSize);
   }
 
+  static bool migration_callback(
+      Pointer<Void> userdata, Pointer<shared_realm> oldRealmHandle, Pointer<shared_realm> newRealmHandle, Pointer<realm_schema> schema) {
+    try {
+      final LocalConfiguration? config = userdata.toObject();
+      if (config == null) {
+        return false;
+      }
+
+      final oldSchemaVersion = _realmLib.realm_get_schema_version(oldRealmHandle);
+      final oldConfig = Configuration.local([], path: config.path, isReadOnly: true, schemaVersion: oldSchemaVersion);
+      final oldRealm = RealmInternal.getUnowned(oldConfig, RealmHandle._unowned(oldRealmHandle), isInMigration: true);
+
+      final newRealm = RealmInternal.getUnowned(config, RealmHandle._unowned(newRealmHandle), isInMigration: true);
+
+      final migration = MigrationInternal.create(RealmInternal.getMigrationRealm(oldRealm), newRealm, SchemaHandle.unowned(schema));
+      config.migrationCallback!(migration, oldSchemaVersion);
+      return true;
+    } catch (ex) {
+      _realmLib.realm_register_user_code_callback_error(ex.toPersistentHandle());
+    }
+    return false;
+  }
+
   static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error) {
     final syncConfig = userdata as FlexibleSyncConfiguration;
 
@@ -544,7 +585,7 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_refresh(realm.handle._pointer), "Could not refresh");
   }
 
-  RealmObjectMetadata getObjectMedata(Realm realm, String className, Type classType) {
+  RealmObjectMetadata getObjectMetadata(Realm realm, String className, Type classType) {
     return using((Arena arena) {
       final found = arena<Bool>();
       final classInfo = arena<realm_class_info_t>();
@@ -556,11 +597,11 @@ class _RealmCore {
       }
 
       final primaryKey = classInfo.ref.primary_key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
-      return RealmObjectMetadata(className, classType, primaryKey, classInfo.ref.key, _getPropertyMetadata(realm, classInfo.ref.key));
+      return RealmObjectMetadata(className, classType, primaryKey, classInfo.ref.key, _getPropertyMetadata(realm, classInfo.ref.key, primaryKey));
     });
   }
 
-  Map<String, RealmPropertyMetadata> _getPropertyMetadata(Realm realm, int classKey) {
+  Map<String, RealmPropertyMetadata> _getPropertyMetadata(Realm realm, int classKey, String? primaryKeyName) {
     return using((Arena arena) {
       final propertyCountPtr = arena<Size>();
       _realmLib.invokeGetBool(
@@ -578,8 +619,9 @@ class _RealmCore {
         final propertyName = property.ref.name.cast<Utf8>().toRealmDartString()!;
         final objectType = property.ref.link_target.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
         final isNullable = property.ref.flags & realm_property_flags.RLM_PROPERTY_NULLABLE != 0;
+        final isPrimaryKey = propertyName == primaryKeyName;
         final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, RealmPropertyType.values.elementAt(property.ref.type), isNullable,
-            RealmCollectionType.values.elementAt(property.ref.collection_type));
+            isPrimaryKey, RealmCollectionType.values.elementAt(property.ref.collection_type));
         result[propertyName] = propertyMeta;
       }
       return result;
@@ -648,6 +690,27 @@ class _RealmCore {
     });
   }
 
+  RealmObjectHandle? findExisting(Realm realm, int classKey, RealmObjectHandle other) {
+    final key = _realmLib.realm_object_get_key(other._pointer);
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_object(realm.handle._pointer, classKey, key));
+    return RealmObjectHandle._(pointer);
+  }
+
+  void renameProperty(Realm realm, String objectType, String oldName, String newName, SchemaHandle schema) {
+    using((Arena arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_schema_rename_property(
+          realm.handle._pointer, schema._pointer, objectType.toCharPtr(arena), oldName.toCharPtr(arena), newName.toCharPtr(arena)));
+    });
+  }
+
+  bool deleteType(Realm realm, String objectType) {
+    return using((Arena arena) {
+      final deletedPtr = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_remove_table(realm.handle._pointer, objectType.toCharPtr(arena), deletedPtr));
+      return deletedPtr.value;
+    });
+  }
+
   void deleteRealmObject(RealmObject object) {
     _realmLib.invokeGetBool(() => _realmLib.realm_object_delete(object.handle._pointer));
   }
@@ -657,7 +720,7 @@ class _RealmCore {
     return RealmResultsHandle._(pointer, realm.handle);
   }
 
-  RealmResultsHandle queryClass(Realm realm, int classKey, String query, List<Object> args) {
+  RealmResultsHandle queryClass(Realm realm, int classKey, String query, List<Object?> args) {
     return using((arena) {
       final length = args.length;
       final argsPointer = arena<realm_query_arg_t>(length);
@@ -839,8 +902,31 @@ class _RealmCore {
     });
   }
 
+  void listRemoveElementAt(RealmListHandle handle, int index) {
+    return using((Arena arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_list_erase(handle._pointer, index));
+    });
+  }
+
   void listDeleteAll(RealmList list) {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_remove_all(list.handle._pointer));
+  }
+
+  int listFind(RealmList list, Object? value) {
+    return using((Arena arena) {
+      final out_index = arena<Size>();
+      final out_found = arena<Bool>();
+      final realm_value = _toRealmValue(value, arena);
+      _realmLib.invokeGetBool(
+        () => _realmLib.realm_list_find(
+          list.handle._pointer,
+          realm_value,
+          out_index,
+          out_found,
+        ),
+      );
+      return out_found.value ? out_index.value : -1;
+    });
   }
 
   void resultsDeleteAll(RealmResults results) {
@@ -930,7 +1016,6 @@ class _RealmCore {
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
-          nullptr,
         ));
 
     return RealmNotificationTokenHandle._(pointer, results.realm.handle);
@@ -943,7 +1028,6 @@ class _RealmCore {
           nullptr,
           nullptr,
           Pointer.fromFunction(collection_change_callback),
-          nullptr,
         ));
 
     return RealmNotificationTokenHandle._(pointer, list.realm.handle);
@@ -956,7 +1040,6 @@ class _RealmCore {
           nullptr,
           nullptr,
           Pointer.fromFunction(object_change_callback),
-          nullptr,
         ));
 
     return RealmNotificationTokenHandle._(pointer, object.realm.handle);
@@ -1058,6 +1141,13 @@ class _RealmCore {
     });
   }
 
+  RealmAppCredentialsHandle createAppCredentialsApiKey(String key) {
+    return using((arena) {
+      final keyPtr = key.toCharPtr(arena);
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_user_api_key(keyPtr));
+    });
+  }
+
   RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
     final requestCallback = Pointer.fromFunction<Void Function(Handle, realm_http_request, Pointer<Void>)>(_request_callback);
     final requestCallbackUserdata = _realmLib.realm_dart_userdata_async_new(httpClient, requestCallback.cast(), scheduler.handle._pointer);
@@ -1074,7 +1164,7 @@ class _RealmCore {
     // we explicitly call realm_http_transport_complete_request to
     // mark request as completed later.
     //
-    // Therefor we need to copy everything out of request before returning.
+    // Therefore we need to copy everything out of request before returning.
     // We cannot clone request on the native side with realm_clone,
     // since realm_http_request does not inherit from WrapC.
 
@@ -1084,7 +1174,7 @@ class _RealmCore {
 
     final url = Uri.parse(request.url.cast<Utf8>().toRealmDartString()!);
 
-    final body = request.body.cast<Utf8>().toRealmDartString(length: request.body_size)!;
+    final body = request.body.cast<Utf8>().toRealmDartString(length: request.body_size);
 
     final headers = <String, String>{};
     for (int i = 0; i < request.num_headers; ++i) {
@@ -1102,7 +1192,7 @@ class _RealmCore {
     HttpClient client,
     int requestMethod,
     Uri url,
-    String body,
+    String? body,
     Map<String, String> headers,
     Pointer<Void> request_context,
   ) async {
@@ -1138,7 +1228,9 @@ class _RealmCore {
           request.headers.add(header.key, header.value);
         }
 
-        request.add(utf8.encode(body));
+        if (body != null) {
+          request.add(utf8.encode(body));
+        }
 
         // Do the call..
         final response = await request.close();
@@ -1232,8 +1324,7 @@ class _RealmCore {
     }
 
     if (error != nullptr) {
-      final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
-      completer.completeError(RealmException(message));
+      completer.completeWithAppError(error);
       return;
     }
 
@@ -1267,8 +1358,7 @@ class _RealmCore {
     }
 
     if (error != nullptr) {
-      final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
-      completer.completeError(RealmException(message));
+      completer.completeWithAppError(error);
       return;
     }
 
@@ -1394,8 +1484,7 @@ class _RealmCore {
     }
 
     if (error != nullptr) {
-      final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
-      completer.completeError(RealmException(message));
+      completer.completeWithAppError(error);
       return;
     }
 
@@ -1558,7 +1647,7 @@ class _RealmCore {
       final identity = identitiesPtr.elementAt(i).ref;
 
       result.add(UserIdentityInternal.create(
-          identity.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderType.values.fromIndex(identity.provider_type)));
+          identity.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderTypeInternal.getByValue(identity.provider_type)));
     }
 
     return result;
@@ -1576,13 +1665,23 @@ class _RealmCore {
 
   AuthProviderType userGetAuthProviderType(User user) {
     final provider = _realmLib.realm_user_get_auth_provider(user.handle._pointer);
-    return AuthProviderType.values.fromIndex(provider);
+    return AuthProviderTypeInternal.getByValue(provider);
   }
 
   UserProfile userGetProfileData(User user) {
     final data = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_profile_data(user.handle._pointer));
     final dynamic profileData = jsonDecode(data.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!);
     return UserProfile(profileData as Map<String, dynamic>);
+  }
+
+  String userGetRefreshToken(User user) {
+    final token = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_refresh_token(user.handle._pointer));
+    return token.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
+  }
+
+  String userGetAccessToken(User user) {
+    final token = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_access_token(user.handle._pointer));
+    return token.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
   }
 
   SessionHandle realmGetSession(Realm realm) {
@@ -1757,13 +1856,170 @@ class _RealmCore {
         "Delete user failed");
     return completer.future;
   }
+
+  bool isFrozen(Realm realm) {
+    return _realmLib.realm_is_frozen(realm.handle._pointer.cast());
+  }
+
+  RealmHandle freeze(Realm realm) {
+    final ptr = _realmLib.invokeGetPointer(() => _realmLib.realm_freeze(realm.handle._pointer));
+    return RealmHandle._(ptr);
+  }
+
+  RealmResultsHandle resolveResults(RealmResults realmResults, Realm frozenRealm) {
+    final ptr = _realmLib.invokeGetPointer(() => _realmLib.realm_results_resolve_in(realmResults.handle._pointer, frozenRealm.handle._pointer));
+    return RealmResultsHandle._(ptr);
+  }
+
+  RealmObjectHandle? resolveObject(RealmObject object, Realm frozenRealm) {
+    return using((Arena arena) {
+      final resultPtr = arena<Pointer<realm_object>>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_object_resolve_in(object.handle._pointer, frozenRealm.handle._pointer, resultPtr));
+      if (resultPtr != nullptr) {
+        return RealmObjectHandle._(resultPtr.value);
+      }
+
+      return null;
+    });
+  }
+
+  RealmListHandle? resolveList(ManagedRealmList list, Realm frozenRealm) {
+    return using((Arena arena) {
+      final resultPtr = arena<Pointer<realm_list>>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_list_resolve_in(list.handle._pointer, frozenRealm.handle._pointer, resultPtr));
+      if (resultPtr != nullptr) {
+        return RealmListHandle._(resultPtr.value);
+      }
+
+      return null;
+    });
+  }
+
+  static void _app_api_key_completion_callback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, Pointer<realm_app_error> error) {
+    final Completer<ApiKey>? completer = userdata.toObject(isPersistent: true);
+    if (completer == null) {
+      return;
+    }
+
+    if (error != nullptr) {
+      completer.completeWithAppError(error);
+      return;
+    }
+
+    final id = apiKey.ref.id.toDart();
+    final name = apiKey.ref.name.cast<Utf8>().toDartString();
+    final value = apiKey.ref.key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+    final isEnabled = !apiKey.ref.disabled;
+
+    completer.complete(UserInternal.createApiKey(id, name, value, isEnabled));
+  }
+
+  static void _app_api_key_array_completion_callback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, int size, Pointer<realm_app_error> error) {
+    final Completer<List<ApiKey>>? completer = userdata.toObject(isPersistent: true);
+    if (completer == null) {
+      return;
+    }
+
+    if (error != nullptr) {
+      completer.completeWithAppError(error);
+      return;
+    }
+
+    final result = <ApiKey>[];
+
+    for (var i = 0; i < size; i++) {
+      final id = apiKey[i].id.toDart();
+      final name = apiKey[i].name.cast<Utf8>().toDartString();
+      final value = apiKey[i].key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+      final isEnabled = !apiKey[i].disabled;
+
+      result.add(UserInternal.createApiKey(id, name, value, isEnabled));
+    }
+
+    completer.complete(result);
+  }
+
+  Future<ApiKey> createApiKey(User user, String name) {
+    return using((Arena arena) {
+      final namePtr = name.toCharPtr(arena);
+      final completer = Completer<ApiKey>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_create_apikey(user.app.handle._pointer, user.handle._pointer, namePtr,
+          Pointer.fromFunction(_app_api_key_completion_callback), completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
+
+      return completer.future;
+    });
+  }
+
+  Future<ApiKey> fetchApiKey(User user, ObjectId id) {
+    return using((Arena arena) {
+      final completer = Completer<ApiKey>();
+      final native_id = id.toNative(arena);
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_fetch_apikey(user.app.handle._pointer, user.handle._pointer, native_id.ref,
+          Pointer.fromFunction(_app_api_key_completion_callback), completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
+
+      return completer.future;
+    });
+  }
+
+  Future<List<ApiKey>> fetchAllApiKeys(User user) {
+    return using((Arena arena) {
+      final completer = Completer<List<ApiKey>>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_fetch_apikeys(
+          user.app.handle._pointer,
+          user.handle._pointer,
+          Pointer.fromFunction(_app_api_key_array_completion_callback),
+          completer.toPersistentHandle(),
+          _realmLib.addresses.realm_dart_delete_persistent_handle));
+
+      return completer.future;
+    });
+  }
+
+  Future<void> deleteApiKey(User user, ObjectId id) {
+    return using((Arena arena) {
+      final completer = Completer<void>();
+      final native_id = id.toNative(arena);
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_delete_apikey(user.app.handle._pointer, user.handle._pointer, native_id.ref,
+          Pointer.fromFunction(void_completion_callback), completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
+
+      return completer.future;
+    });
+  }
+
+  Future<void> disableApiKey(User user, ObjectId objectId) {
+    return using((Arena arena) {
+      final completer = Completer<void>();
+      final native_id = objectId.toNative(arena);
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_disable_apikey(
+          user.app.handle._pointer,
+          user.handle._pointer,
+          native_id.ref,
+          Pointer.fromFunction(void_completion_callback),
+          completer.toPersistentHandle(),
+          _realmLib.addresses.realm_dart_delete_persistent_handle));
+
+      return completer.future;
+    });
+  }
+
+  Future<void> enableApiKey(User user, ObjectId objectId) {
+    return using((Arena arena) {
+      final completer = Completer<void>();
+      final native_id = objectId.toNative(arena);
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_enable_apikey(user.app.handle._pointer, user.handle._pointer, native_id.ref,
+          Pointer.fromFunction(void_completion_callback), completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
+
+      return completer.future;
+    });
+  }
 }
 
 class LastError {
   final int code;
   final String? message;
+  final Object? userError;
 
-  LastError(this.code, [this.message]);
+  LastError(this.code, [this.message, this.userError]);
 
   @override
   String toString() {
@@ -1881,6 +2137,8 @@ abstract class RootedHandleBase<T extends NativeType> extends HandleBase<T> {
 
 class SchemaHandle extends HandleBase<realm_schema> {
   SchemaHandle._(Pointer<realm_schema> pointer) : super(pointer, 24);
+
+  SchemaHandle.unowned(Pointer<realm_schema> pointer) : super.unowned(pointer);
 }
 
 class ConfigHandle extends HandleBase<realm_config> {
@@ -2034,9 +2292,9 @@ extension _StringEx on String {
 
   Pointer<realm_string_t> toRealmString(Allocator allocator) {
     final realm_string = allocator<realm_string_t>();
-    realm_string.ref.data = toCharPtr(allocator);
     final units = utf8.encode(this);
-    realm_string.ref.size = units.length + 1;
+    realm_string.ref.data = units.toCharPtr(allocator).cast();
+    realm_string.ref.size = units.length;
     return realm_string;
   }
 }
@@ -2084,56 +2342,48 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
     realm_value.ref.values.link.target_table = link.classKey;
     realm_value.ref.type = realm_value_type.RLM_TYPE_LINK;
   } else {
-    switch (value.runtimeType) {
-      case int:
-        realm_value.ref.values.integer = value as int;
-        realm_value.ref.type = realm_value_type.RLM_TYPE_INT;
-        break;
-      case bool:
-        realm_value.ref.values.boolean = value as bool;
-        realm_value.ref.type = realm_value_type.RLM_TYPE_BOOL;
-        break;
-      case String:
-        String string = value as String;
-        final units = utf8.encode(string);
-        final result = allocator<Uint8>(units.length);
-        final Uint8List nativeString = result.asTypedList(units.length);
-        nativeString.setAll(0, units);
-        realm_value.ref.values.string.data = result.cast();
-        realm_value.ref.values.string.size = units.length;
-        realm_value.ref.type = realm_value_type.RLM_TYPE_STRING;
-        break;
-      case double:
-        realm_value.ref.values.dnum = value as double;
-        realm_value.ref.type = realm_value_type.RLM_TYPE_DOUBLE;
-        break;
-      case ObjectId:
-        final bytes = (value as ObjectId).bytes;
-        for (var i = 0; i < 12; i++) {
-          realm_value.ref.values.object_id.bytes[i] = bytes[i];
-        }
-        realm_value.ref.type = realm_value_type.RLM_TYPE_OBJECT_ID;
-        break;
-      case Uuid:
-        final bytes = (value as Uuid).bytes.asUint8List();
-        for (var i = 0; i < 16; i++) {
-          realm_value.ref.values.uuid.bytes[i] = bytes[i];
-        }
-        realm_value.ref.type = realm_value_type.RLM_TYPE_UUID;
-        break;
-      case DateTime:
-        final microseconds = (value as DateTime).toUtc().microsecondsSinceEpoch;
-        final seconds = microseconds ~/ _microsecondsPerSecond;
-        int nanoseconds = _nanosecondsPerMicrosecond * (microseconds % _microsecondsPerSecond);
-        if (microseconds < 0 && nanoseconds != 0) {
-          nanoseconds = nanoseconds - _nanosecondsPerMicrosecond * _microsecondsPerSecond;
-        }
-        realm_value.ref.values.timestamp.seconds = seconds;
-        realm_value.ref.values.timestamp.nanoseconds = nanoseconds;
-        realm_value.ref.type = realm_value_type.RLM_TYPE_TIMESTAMP;
-        break;
-      default:
-        throw RealmException("Property type ${value.runtimeType} not supported");
+    if (value is int) {
+      realm_value.ref.values.integer = value;
+      realm_value.ref.type = realm_value_type.RLM_TYPE_INT;
+    } else if (value is bool) {
+      realm_value.ref.values.boolean = value;
+      realm_value.ref.type = realm_value_type.RLM_TYPE_BOOL;
+    } else if (value is String) {
+      String string = value;
+      final units = utf8.encode(string);
+      final result = allocator<Uint8>(units.length);
+      final Uint8List nativeString = result.asTypedList(units.length);
+      nativeString.setAll(0, units);
+      realm_value.ref.values.string.data = result.cast();
+      realm_value.ref.values.string.size = units.length;
+      realm_value.ref.type = realm_value_type.RLM_TYPE_STRING;
+    } else if (value is double) {
+      realm_value.ref.values.dnum = value;
+      realm_value.ref.type = realm_value_type.RLM_TYPE_DOUBLE;
+    } else if (value is ObjectId) {
+      final bytes = value.bytes;
+      for (var i = 0; i < 12; i++) {
+        realm_value.ref.values.object_id.bytes[i] = bytes[i];
+      }
+      realm_value.ref.type = realm_value_type.RLM_TYPE_OBJECT_ID;
+    } else if (value is Uuid) {
+      final bytes = value.bytes.asUint8List();
+      for (var i = 0; i < 16; i++) {
+        realm_value.ref.values.uuid.bytes[i] = bytes[i];
+      }
+      realm_value.ref.type = realm_value_type.RLM_TYPE_UUID;
+    } else if (value is DateTime) {
+      final microseconds = value.toUtc().microsecondsSinceEpoch;
+      final seconds = microseconds ~/ _microsecondsPerSecond;
+      int nanoseconds = _nanosecondsPerMicrosecond * (microseconds % _microsecondsPerSecond);
+      if (microseconds < 0 && nanoseconds != 0) {
+        nanoseconds = nanoseconds - _nanosecondsPerMicrosecond * _microsecondsPerSecond;
+      }
+      realm_value.ref.values.timestamp.seconds = seconds;
+      realm_value.ref.values.timestamp.nanoseconds = nanoseconds;
+      realm_value.ref.type = realm_value_type.RLM_TYPE_TIMESTAMP;
+    } else {
+      throw RealmException("Property type ${value.runtimeType} not supported");
     }
   }
 }
@@ -2257,16 +2507,6 @@ extension on Object {
   }
 }
 
-extension on List<AuthProviderType> {
-  AuthProviderType fromIndex(int index) {
-    if (!AuthProviderType.values.any((value) => value.index == index)) {
-      throw RealmError("Unknown AuthProviderType $index");
-    }
-
-    return AuthProviderType.values[index];
-  }
-}
-
 extension on List<UserState> {
   UserState fromIndex(int index) {
     if (!UserState.values.any((value) => value.index == index)) {
@@ -2285,6 +2525,14 @@ extension on realm_property_info {
         primaryKey: flags & realm_property_flags.RLM_PROPERTY_PRIMARY_KEY == realm_property_flags.RLM_PROPERTY_PRIMARY_KEY,
         linkTarget: linkTarget == null || linkTarget.isEmpty ? null : linkTarget,
         collectionType: RealmCollectionType.values[collection_type]);
+  }
+}
+
+extension on Completer<Object?> {
+  void completeWithAppError(Pointer<realm_app_error> error) {
+    final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
+    final linkToLogs = error.ref.link_to_server_logs.cast<Utf8>().toRealmDartString();
+    completeError(AppInternal.createException(message, linkToLogs, error.ref.http_status_code));
   }
 }
 

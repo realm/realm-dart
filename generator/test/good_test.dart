@@ -66,6 +66,9 @@ class MappedToo extends _MappedToo with RealmEntity, RealmObject {
   Stream<RealmObjectChanges<MappedToo>> get changes =>
       RealmObject.getChanges<MappedToo>(this);
 
+  @override
+  MappedToo freeze() => RealmObject.freezeObject<MappedToo>(this);
+
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {

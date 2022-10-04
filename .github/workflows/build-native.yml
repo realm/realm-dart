@@ -55,8 +55,12 @@ jobs:
         uses: friendlyanon/setup-vcpkg@v1
         with:
           path: src/realm-core/tools/vcpkg/ports
-          cache-key: vcpkg-${{ matrix.build }}-${{ hashFiles('./src/realm-core/tools/vcpkg/vcpkg.json') }}-${{ steps.vcpkg_cache_key.outputs.commit }}
-          cache-restore-keys: vcpkg-${{ matrix.build }}-
+          cache-key: vcpkg-${{ matrix.build }}-${{ steps.vcpkg_cache_key.outputs.commit }}-${{ hashFiles('./src/realm-core/tools/vcpkg/vcpkg.json') }}
+          cache-restore-keys: vcpkg-${{ matrix.build }}-${{ steps.vcpkg_cache_key.outputs.commit }}-
+
+      - name: Refetch Vcpkg
+        run: git fetch --unshallow
+        working-directory: ./src/realm-core/tools/vcpkg/ports
 
       - name: Setup Android NDK
         if: startsWith(matrix.build, 'android-')

@@ -23,22 +23,21 @@ import 'dart:ffi';
 import 'collections.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
-import 'realm_object.dart' show RealmObjectMetadata;
+import 'realm_object.dart';
 
 /// Instances of this class are live collections and will update as new elements are either
 /// added to or deleted from the Realm that match the underlying query.
 ///
 /// {@category Realm}
-class RealmResults<T extends RealmObject> extends collection.IterableBase<T> implements Finalizable {
+class RealmResults<T extends RealmObject> extends collection.IterableBase<T> with RealmEntity implements Finalizable {
   final RealmObjectMetadata? _metadata;
   final RealmResultsHandle _handle;
 
-  /// The Realm instance this collection belongs to.
-  final Realm realm;
-
   final _supportsSnapshot = <T>[] is List<RealmObject?>;
 
-  RealmResults._(this._handle, this.realm, this._metadata);
+  RealmResults._(this._handle, Realm realm, this._metadata) {
+    setRealm(realm);
+  }
 
   /// Returns the element of type `T` at the specified [index].
   T operator [](int index) {
@@ -76,8 +75,22 @@ class RealmResults<T extends RealmObject> extends collection.IterableBase<T> imp
 
   /// Allows listening for changes when the contents of this collection changes.
   Stream<RealmResultsChanges<T>> get changes {
+    if (isFrozen) {
+      throw RealmStateError('Results are frozen and cannot emit changes');
+    }
+
     final controller = ResultsNotificationsController<T>(this);
     return controller.createStream();
+  }
+
+  /// Creates a frozen snapshot of this query.
+  RealmResults<T> freeze() {
+    if (isFrozen) {
+      return this;
+    }
+
+    final frozenRealm = realm.freeze();
+    return frozenRealm.resolveResults(this);
   }
 }
 
@@ -96,6 +109,8 @@ extension RealmResultsInternal on RealmResults {
 
     return _handle;
   }
+
+  RealmObjectMetadata? get metadata => _metadata;
 
   static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm, RealmObjectMetadata? metadata) {
     return RealmResults<T>._(handle, realm, metadata);

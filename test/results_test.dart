@@ -315,6 +315,20 @@ Future<void> main([List<String>? args]) async {
     expect(() => teams.length, throws<RealmException>("Access to invalidated Results objects"));
   });
 
+  test('Results - query with null', () {
+    var config = Configuration.local([Dog.schema, Person.schema]);
+    var realm = getRealm(config);
+
+    var ben = Person('Ben');
+    final fido = Dog('Fido', owner: ben);
+    final laika = Dog('Laika'); // no owner;
+    realm.write(() {
+      realm.addAll([fido, laika]);
+    });
+    expect(realm.query<Dog>(r'owner = $0', [ben]), [fido]);
+    expect(realm.query<Dog>(r'owner = $0', [null]), [laika]);
+  });
+
   test('Results access after realm closed throws', () {
     var config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
@@ -452,10 +466,87 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Results notifications can leak', () async {
-    var config = Configuration.local([Dog.schema, Person.schema]);
-    var realm = getRealm(config);
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
 
     final leak = realm.all<Dog>().changes.listen((data) {});
     await Future<void>.delayed(const Duration(milliseconds: 20));
+  });
+
+  test('Results.freeze freezes query', () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    realm.write(() {
+      realm.add(Person('Peter'));
+    });
+
+    final livePeople = realm.all<Person>();
+    final frozenPeople = freezeResults(livePeople);
+
+    expect(frozenPeople.length, 1);
+    expect(frozenPeople.isFrozen, true);
+    expect(frozenPeople.realm.isFrozen, true);
+    expect(frozenPeople.single.isFrozen, true);
+
+    realm.write(() {
+      livePeople.single.name = 'Peter II';
+      realm.add(Person('George'));
+    });
+
+    expect(livePeople.length, 2);
+    expect(livePeople.first.name, 'Peter II');
+    expect(frozenPeople.length, 1);
+    expect(frozenPeople.single.name, 'Peter');
+  });
+
+  test("FrozenResults.changes throws", () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final frozenPeople = freezeResults(realm.all<Person>());
+
+    expect(() => frozenPeople.changes, throws<RealmStateError>('Results are frozen and cannot emit changes'));
+  });
+
+  test('Results.freeze when frozen returns same object', () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final people = realm.all<Person>();
+
+    final frozenPeople = freezeResults(people);
+    final deepFrozenPeople = freezeResults(frozenPeople);
+
+    expect(identical(frozenPeople, deepFrozenPeople), true);
+
+    final frozenPeopleAgain = freezeResults(people);
+    expect(identical(frozenPeople, frozenPeopleAgain), false);
+  });
+
+  test('Results.query', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+
+    final team = Team('Class of 92', players: [alice, bob]);
+
+    realm.write(() {
+      realm.addAll(players);
+      return realm.add(team);
+    });
+
+    expect(realm.all<Person>(), [alice, bob, carol, dan]);
+    expect(realm.query<Person>('FALSEPREDICATE').query('TRUEPREDICATE'), isEmpty);
+    expect(realm.query<Person>('FALSEPREDICATE').query('TRUEPREDICATE'), isNot(realm.all<Person>()));
+    expect(realm.query<Person>("name CONTAINS 'a'"), [carol, dan]); // Alice is capital 'a'
+    expect(realm.query<Person>("name CONTAINS 'l'"), [alice, carol]);
+    expect(realm.query<Person>("name CONTAINS 'a'").query("name CONTAINS 'l'"), isNot([alice, carol]));
+    expect(realm.query<Person>("name CONTAINS 'a'").query("name CONTAINS 'l'"), [carol]);
   });
 }

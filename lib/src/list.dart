@@ -17,8 +17,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
-import 'dart:collection' as collection;
+import 'dart:collection';
 import 'dart:ffi';
+
+import 'package:collection/collection.dart' as collection;
 
 import 'collections.dart';
 import 'native/realm_core.dart';
@@ -42,9 +44,12 @@ abstract class RealmList<T extends Object?> with RealmEntity implements List<T>,
 
   factory RealmList._(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => ManagedRealmList._(handle, realm, metadata);
   factory RealmList(Iterable<T> items) => UnmanagedRealmList(items);
+
+  /// Creates a frozen snapshot of this `RealmList`.
+  RealmList<T> freeze();
 }
 
-class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
+class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> implements RealmList<T> {
   final RealmListHandle _handle;
 
   @override
@@ -55,12 +60,41 @@ class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with Re
   }
 
   @override
-  int get length => realmCore.getListSize(handle);
+  int get length => realmCore.getListSize(_handle);
 
-  /// Setting the `length` is a required method on [List], but makes no sense
-  /// for [RealmList]s. Hence this operation is a no-op that simply ignores [newLength]
+  /// Setting the `length` is a required method on [List], but makes less sense
+  /// for [RealmList]s. You can only decrease the length, increasing it doesn't
+  /// do anything.
   @override
-  set length(int newLength) {} // no-op for managed lists
+  set length(int newLength) {
+    var l = length;
+    if (newLength < l) {
+      removeRange(newLength, l);
+    } else {
+      throw RealmException('You cannot increase length on a realm list without adding elements');
+    }
+  }
+
+  @override
+  void removeRange(int start, int end) {
+    var cnt = end - start;
+    while (cnt-- > 0) {
+      removeAt(start);
+    }
+  }
+
+  @override
+  bool remove(covariant T element) {
+    if (element is RealmObject && !element.isManaged) {
+      throw RealmStateError('Cannot call remove on a managed list with an element that is an unmanaged object');
+    }
+    final index = indexOf(element);
+    final found = index > 0;
+    if (found) {
+      removeAt(index);
+    }
+    return found;
+  }
 
   @override
   T operator [](int index) {
@@ -82,28 +116,58 @@ class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with Re
   }
 
   @override
+  void add(T element) {
+    RealmListInternal.setValue(handle, realm, length, element);
+  }
+
+  @override
+  void insert(int index, T element) {
+    realmCore.listInsertElementAt(handle, index, element);
+  }
+
+  @override
   void operator []=(int index, T value) {
     RealmListInternal.setValue(handle, realm, index, value);
   }
 
   @override
+  T removeAt(int index) {
+    final result = this[index];
+    realmCore.listRemoveElementAt(handle, index);
+    return result;
+  }
 
   /// Removes all objects from this list; the length of the list becomes zero.
   /// The objects are not deleted from the realm, but are no longer referenced from this list.
+  @override
   void clear() => realmCore.listClear(handle);
 
   @override
+  int indexOf(covariant T element, [int start = 0]) {
+    if (element is RealmObject && !element.isManaged) {
+      throw RealmStateError('Cannot call indexOf on a managed list with an element that is an unmanaged object');
+    }
+    if (start < 0) start = 0;
+    final index = realmCore.listFind(this, element);
+    return index < start ? -1 : index; // to align with dart list semantics
+  }
+
+  @override
   bool get isValid => realmCore.listIsValid(this);
+
+  @override
+  RealmList<T> freeze() {
+    if (isFrozen) {
+      return this;
+    }
+
+    final frozenRealm = realm.freeze();
+    return frozenRealm.resolveList(this)!;
+  }
 }
 
-class UnmanagedRealmList<T extends Object?> extends collection.ListBase<T> with RealmEntity implements RealmList<T> {
-  final _unmanaged = <T?>[]; // use T? for length=
-
-  UnmanagedRealmList([Iterable<T>? items]) {
-    if (items != null) {
-      _unmanaged.addAll(items);
-    }
-  }
+class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T> with RealmEntity implements RealmList<T> {
+  UnmanagedRealmList([Iterable<T>? items]) : super(List<T>.from(items ?? <T>[]));
 
   @override
   RealmObjectMetadata? get _metadata => throw RealmException("Unmanaged lists don't have metadata associated with them.");
@@ -112,22 +176,10 @@ class UnmanagedRealmList<T extends Object?> extends collection.ListBase<T> with 
   set _metadata(RealmObjectMetadata? _) => throw RealmException("Unmanaged lists don't have metadata associated with them.");
 
   @override
-  int get length => _unmanaged.length;
-
-  @override
-  set length(int length) => _unmanaged.length = length;
-
-  @override
-  T operator [](int index) => _unmanaged[index] as T;
-
-  @override
-  void operator []=(int index, T value) => _unmanaged[index] = value;
-
-  @override
-  void clear() => _unmanaged.clear();
-
-  @override
   bool get isValid => true;
+
+  @override
+  RealmList<T> freeze() => throw RealmStateError("Unmanaged lists can't be frozen");
 }
 
 // The query operations on lists, as well as the ability to subscribe for notifications,
@@ -148,6 +200,10 @@ extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
 
   /// Allows listening for changes when the contents of this collection changes.
   Stream<RealmListChanges<T>> get changes {
+    if (isFrozen) {
+      throw RealmStateError('List is frozen and cannot emit changes');
+    }
+
     final managedList = asManaged();
     final controller = ListNotificationsController<T>(managedList);
     return controller.createStream();
@@ -175,6 +231,8 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
 
     return result;
   }
+
+  RealmObjectMetadata? get metadata => asManaged()._metadata;
 
   static RealmList<T> create<T extends Object?>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
 
