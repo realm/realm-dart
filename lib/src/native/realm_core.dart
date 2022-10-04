@@ -441,6 +441,8 @@ class _RealmCore {
 
   static bool migration_callback(
       Pointer<Void> userdata, Pointer<shared_realm> oldRealmHandle, Pointer<shared_realm> newRealmHandle, Pointer<realm_schema> schema) {
+    final oldHandle = RealmHandle._unowned(oldRealmHandle);
+    final newHandle = RealmHandle._unowned(newRealmHandle);
     try {
       final LocalConfiguration? config = userdata.toObject();
       if (config == null) {
@@ -449,16 +451,20 @@ class _RealmCore {
 
       final oldSchemaVersion = _realmLib.realm_get_schema_version(oldRealmHandle);
       final oldConfig = Configuration.local([], path: config.path, isReadOnly: true, schemaVersion: oldSchemaVersion);
-      final oldRealm = RealmInternal.getUnowned(oldConfig, RealmHandle._unowned(oldRealmHandle), isInMigration: true);
+      final oldRealm = RealmInternal.getUnowned(oldConfig, oldHandle, isInMigration: true);
 
-      final newRealm = RealmInternal.getUnowned(config, RealmHandle._unowned(newRealmHandle), isInMigration: true);
+      final newRealm = RealmInternal.getUnowned(config, newHandle, isInMigration: true);
 
       final migration = MigrationInternal.create(RealmInternal.getMigrationRealm(oldRealm), newRealm, SchemaHandle.unowned(schema));
       config.migrationCallback!(migration, oldSchemaVersion);
       return true;
     } catch (ex) {
       _realmLib.realm_register_user_code_callback_error(ex.toPersistentHandle());
+    } finally {
+      oldHandle.release();
+      newHandle.release();
     }
+
     return false;
   }
 
