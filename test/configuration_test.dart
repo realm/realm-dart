@@ -287,7 +287,11 @@ Future<void> main([List<String>? args]) async {
       throw Exception('very careless developer');
     });
 
-    expect(() => getRealm(config), throws<RealmException>("User-provided callback failed"));
+    expect(
+        () => getRealm(config),
+        throwsA(isA<UserCallbackException>()
+            .having((e) => e.message, 'message', contains('An exception occurred while executing a user-provided callback.'))
+            .having((e) => e.userException.toString(), 'userException', contains('very careless developer'))));
     expect(invoked, true);
 
     // No data should have been written to the Realm
@@ -305,7 +309,7 @@ Future<void> main([List<String>? args]) async {
       throw Exception('very careless developer');
     });
 
-    expect(() => getRealm(config), throws<RealmException>("User-provided callback failed"));
+    expect(() => getRealm(config), throws<UserCallbackException>('An exception occurred while executing a user-provided callback'));
     expect(invoked, true);
 
     var secondInvoked = false;

@@ -65,6 +65,7 @@
 * Fixed copying of native structs for session errors and http requests. ([#924](https://github.com/realm/realm-dart/pull/924))
 * Fixed a crash when closing the SyncSession on App instance teardown. ([#5752](https://github.com/realm/realm-core/issues/5752))
 * Fixed sporadic generator failure. ([#879](https://github.com/realm/realm-dart/issues/879))
+* Exceptions thrown by user code inside the `Configuration.initialDataCallback` are now properly surfaced back to the `Realm()` constructor. ([#698](https://github.com/realm/realm-dart/issues/698))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
