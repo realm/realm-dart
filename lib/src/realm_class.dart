@@ -140,16 +140,19 @@ class Realm implements Finalizable {
     if (config is FlexibleSyncConfiguration) {
       final session = realm.syncSession;
       if (onProgressCallback != null) {
-        StreamSubscription<SyncProgress>? subscription;
-        cancellationToken?.onBeforeCancel(() {
-          subscription?.cancel();
-        });
-        subscription = session
-            .getProgressStream(
-              ProgressDirection.download,
-              ProgressMode.forCurrentlyOutstandingWork,
-            )
-            .listen((syncProgress) => onProgressCallback.call(syncProgress));
+        final completer = Completer<void>().makeCancellable(cancellationToken);
+        session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork).listen(
+          (syncProgress) {
+            onProgressCallback.call(syncProgress);
+            if (cancellationToken?.isCanceled == true) {
+              completer.cancel(cancellationToken);
+            }
+          },
+          cancelOnError: true,
+        ).onDone(
+          () => completer.complete(),
+        );
+        await completer.future;
       }
       await session.waitForDownload(cancellationToken: cancellationToken);
     }
@@ -747,18 +750,21 @@ class CancellationToken {
 
 /// @nodoc
 extension CancelableCompleter<T> on Completer<T> {
-  void makeCancellable(CancellationToken cancellationToken) {
-    if (cancellationToken.isCanceled == true) {
-      cancel(cancellationToken);
-    } else {
-      cancellationToken.onBeforeCancel(() {
+  Completer<T> makeCancellable(CancellationToken? cancellationToken) {
+    if (cancellationToken != null) {
+      if (cancellationToken.isCanceled == true) {
         cancel(cancellationToken);
-      });
+      } else {
+        cancellationToken.onBeforeCancel(() {
+          cancel(cancellationToken);
+        });
+      }
     }
+    return this;
   }
 
-  void cancel(CancellationToken cancellationToken) {
-    if (!isCompleted) {
+  void cancel(CancellationToken? cancellationToken) {
+    if (cancellationToken != null && !isCompleted) {
       completeError(cancellationToken.cancelException);
     }
   }

@@ -1778,8 +1778,7 @@ class _RealmCore {
   }
 
   Future<void> sessionWaitForDownload(Session session, {CancellationToken? cancellationToken}) {
-    final completer = Completer<void>();
-    if (cancellationToken != null) completer.makeCancellable(cancellationToken);
+    final completer = Completer<void>().makeCancellable(cancellationToken);
     final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_error_code_t>)>(_sessionWaitCompletionCallback);
     final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
     _realmLib.realm_sync_session_wait_for_download_completion(session.handle._pointer, _realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
