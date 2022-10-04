@@ -871,11 +871,15 @@ Future<void> main([List<String>? args]) async {
     FlexibleSyncConfiguration configuration = await addDataToAtlas(app);
 
     var cancellationToken = CancellationToken();
-    final realm = RealmA.open(configuration, cancellationToken: cancellationToken, onProgressCallback: (syncProgress) {
-      print("transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
-    });
-    cancellationToken.cancel();
-    await expectLater(() async => await realm, throwsA(isA<CancelledException>()));
+
+    Future<void>.delayed(Duration(milliseconds: 3)).then((_) => cancellationToken.cancel());
+
+    await expectLater(
+      RealmA.open(configuration, cancellationToken: cancellationToken, onProgressCallback: (syncProgress) {
+        print("transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
+      }),
+      throwsA(isA<CancelledException>()),
+    );
   });
 
   baasTest('Realm open async and cancel for flexibleSync configuration', (appConfiguration) async {
@@ -944,12 +948,13 @@ Future<void> main([List<String>? args]) async {
     var cancellationToken2 = CancellationToken();
     final realm2 = RealmA.open(configuration2, cancellationToken: cancellationToken2);
 
-    cancellationToken2.cancel();
-    await expectLater(() => realm2, throwsA(isA<CancelledException>()));
-
+   
     final openedRealm = await realm1;
     expect(openedRealm, isNotNull);
     expect(openedRealm.isClosed, false);
+    cancellationToken2.cancel();
+    await expectLater(() => realm2, throwsA(isA<CancelledException>()));
+
   });
 
   baasTest('Realm open async - CancellationToken.cancel before Realm.open', (appConfiguration) async {

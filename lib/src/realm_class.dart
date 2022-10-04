@@ -724,6 +724,16 @@ class CancellationToken {
 
 /// @nodoc
 extension CancelableCompleter<T> on Completer<T> {
+  void makeCancellable(CancellationToken cancellationToken) {
+    if (cancellationToken.isCanceled == true) {
+      cancel(cancellationToken);
+    } else {
+      cancellationToken.onBeforeCancel(() {
+        cancel(cancellationToken);
+      });
+    }
+  }
+
   void cancel(CancellationToken cancellationToken) {
     if (!isCompleted) {
       completeError(cancellationToken.cancelException);
