@@ -38,8 +38,7 @@ Future<ResolvedLibraryResult> _getResolvedLibrary(LibraryElement library, Resolv
     try {
       final freshLibrary = await resolver.libraryFor(await resolver.assetIdForElement(library));
       final freshSession = freshLibrary.session;
-      var someResult = await freshSession.getResolvedLibraryByElement(freshLibrary);
-      if (someResult is ResolvedLibraryResult) return someResult;
+      return await freshSession.getResolvedLibraryByElement(freshLibrary) as ResolvedLibraryResult;
     } catch (_) {
       ++attempts;
       if (attempts == 3) {
