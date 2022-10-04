@@ -865,18 +865,18 @@ Future<void> main([List<String>? args]) async {
     expect(syncedRealm.isClosed, false);
   });
 
-  // baasTest('Realm open async with cancel, add data and get progress', (appConfiguration) async {
-  //   final app = App(appConfiguration);
+  baasTest('Realm open async with cancel, add data and get progress', (appConfiguration) async {
+    final app = App(appConfiguration);
 
-  //   FlexibleSyncConfiguration configuration = await addDataToAtlas(app);
+    FlexibleSyncConfiguration configuration = await addDataToAtlas(app);
 
-  //   var cancellationToken = CancellationToken();
-  //   final realm = RealmA.open(configuration, onProgressCallback: (syncProgress) {
-  //     print("transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
-  //   });
-  //   cancellationToken.cancel();
-  //   await expectLater(()  => realm, throwsA(isA<CancelledException>()));
-  // });
+    var cancellationToken = CancellationToken();
+    final realm = RealmA.open(configuration, cancellationToken: cancellationToken, onProgressCallback: (syncProgress) {
+      print("transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
+    });
+    cancellationToken.cancel();
+    await expectLater(() async => await realm, throwsA(isA<CancelledException>()));
+  });
 
   baasTest('Realm open async and cancel for flexibleSync configuration', (appConfiguration) async {
     final app = App(appConfiguration);
@@ -981,14 +981,14 @@ Future<void> main([List<String>? args]) async {
 
 Future<FlexibleSyncConfiguration> addDataToAtlas(App app) async {
   final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-  final configuration1 = Configuration.flexibleSync(user1, [Task.schema]);
-  final realm1 = getRealm(configuration1);
+  final config1 = Configuration.flexibleSync(user1, [Task.schema]);
+  final realm1 = getRealm(config1);
   realm1.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm1.all<Task>()));
   await realm1.subscriptions.waitForSynchronization();
 
   final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-  final configuration2 = Configuration.flexibleSync(user2, [Task.schema]);
-  final realm2 = getRealm(configuration2);
+  final config2 = Configuration.flexibleSync(user2, [Task.schema]);
+  final realm2 = getRealm(config2);
   realm2.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm2.all<Task>()));
   realm2.write(() {
     for (var i = 0; i < 100; i++) {
@@ -997,7 +997,9 @@ Future<FlexibleSyncConfiguration> addDataToAtlas(App app) async {
   });
   await realm2.subscriptions.waitForSynchronization();
   await realm2.syncSession.waitForUpload();
-  return configuration1;
+  realm1.close();
+  realm2.close();
+  return config1;
 }
 
 extension on When {

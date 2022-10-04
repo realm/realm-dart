@@ -139,16 +139,16 @@ class Realm implements Finalizable {
     if (config is FlexibleSyncConfiguration) {
       final session = realm.syncSession;
       if (onProgressCallback != null) {
-        final subscription = session
+        StreamSubscription<SyncProgress>? subscription;
+        cancellationToken?.onBeforeCancel(() {
+          subscription?.cancel();
+        });
+        subscription = session
             .getProgressStream(
               ProgressDirection.download,
               ProgressMode.forCurrentlyOutstandingWork,
             )
             .listen((syncProgress) => onProgressCallback.call(syncProgress));
-
-        cancellationToken?.onBeforeCancel(() {
-          subscription.cancel();
-        });
       }
       await session.waitForDownload(cancellationToken: cancellationToken);
     }
@@ -752,8 +752,7 @@ class CancellableFuture {
       } else {
         return await Future.any([completer.future, futureFunction()]);
       }
-    }
-    else {
+    } else {
       return await futureFunction();
     }
   }
