@@ -57,10 +57,9 @@ class ManagedRealmList<T extends Object?> extends collection.ListBase<T> with Re
   @override
   int get length => realmCore.getListSize(handle);
 
-  @override
-
   /// Setting the `length` is a required method on [List], but makes no sense
   /// for [RealmList]s. Hence this operation is a no-op that simply ignores [newLength]
+  @override
   set length(int newLength) {} // no-op for managed lists
 
   @override

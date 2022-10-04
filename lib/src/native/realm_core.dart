@@ -1801,8 +1801,8 @@ void _tearDownFinalizationTrace(Object value, Object finalizationToken) {
 final _nativeFinalizer = NativeFinalizer(_realmLib.addresses.realm_release);
 
 abstract class HandleBase<T extends NativeType> implements Finalizable {
-  final Pointer<T> _pointer;
-  bool released = false;
+  Pointer<T> _pointer;
+  bool get released => _pointer == nullptr;
   final bool isUnowned;
 
   @pragma('vm:never-inline')
@@ -1818,7 +1818,7 @@ abstract class HandleBase<T extends NativeType> implements Finalizable {
   HandleBase.unowned(this._pointer) : isUnowned = true;
 
   @override
-  String toString() => "${_pointer.toString()} value=${_pointer.cast<IntPtr>().value}";
+  String toString() => "${_pointer.toString()} value=${_pointer.cast<IntPtr>().value}${isUnowned ? ' (unowned)' : ''}";
 
   /// @nodoc
   /// A method that will be invoked just before the handle is released. Allows to cleanup
@@ -1837,7 +1837,7 @@ abstract class HandleBase<T extends NativeType> implements Finalizable {
       _realmLib.realm_release(_pointer.cast());
     }
 
-    released = true;
+    _pointer = nullptr;
 
     if (_enableFinalizerTrace) {
       _tearDownFinalizationTrace(this, _pointer);
@@ -1860,21 +1860,21 @@ final _rootedHandleFinalizer = Finalizer<FinalizationToken>((token) {
 });
 
 abstract class RootedHandleBase<T extends NativeType> extends HandleBase<T> {
-  final RealmHandle? _root;
-  late final int? _id;
+  final RealmHandle _root;
+  int? _id;
+
+  bool get shouldRoot => _root.isUnowned;
 
   RootedHandleBase(this._root, Pointer<T> pointer, int size) : super(pointer, size) {
-    _id = _root?.addChild(this);
-    if (_id != null) {
-      _rootedHandleFinalizer.attach(this, FinalizationToken(_root!, _id!), detach: this);
+    if (shouldRoot) {
+      _id = _root.addChild(this);
     }
   }
 
   @override
   void _releaseCore() {
     if (_id != null) {
-      _rootedHandleFinalizer.detach(this);
-      _root?.removeChild(_id!);
+      _root.removeChild(_id!);
     }
   }
 }
@@ -1899,11 +1899,18 @@ class RealmHandle extends HandleBase<shared_realm> {
   int addChild(RootedHandleBase child) {
     final id = _counter++;
     _children[id] = WeakReference(child);
+    _rootedHandleFinalizer.attach(this, FinalizationToken(this, id), detach: this);
     return id;
   }
 
   void removeChild(int id) {
-    _children.remove(id);
+    final child = _children.remove(id);
+    if (child != null) {
+      final target = child.target;
+      if (target != null) {
+        _rootedHandleFinalizer.detach(target);
+      }
+    }
   }
 
   @override
@@ -1921,7 +1928,7 @@ class SchedulerHandle extends HandleBase<realm_scheduler> {
 }
 
 class RealmObjectHandle extends RootedHandleBase<realm_object> {
-  RealmObjectHandle._(Pointer<realm_object> pointer, RealmHandle root) : super(root.getIfUnowned(), pointer, 112);
+  RealmObjectHandle._(Pointer<realm_object> pointer, RealmHandle root) : super(root, pointer, 112);
 }
 
 class _RealmLinkHandle {
@@ -1933,19 +1940,19 @@ class _RealmLinkHandle {
 }
 
 class RealmResultsHandle extends RootedHandleBase<realm_results> {
-  RealmResultsHandle._(Pointer<realm_results> pointer, RealmHandle? root) : super(root?.getIfUnowned(), pointer, 872);
+  RealmResultsHandle._(Pointer<realm_results> pointer, RealmHandle root) : super(root, pointer, 872);
 }
 
 class RealmListHandle extends RootedHandleBase<realm_list> {
-  RealmListHandle._(Pointer<realm_list> pointer, RealmHandle root) : super(root.getIfUnowned(), pointer, 88);
+  RealmListHandle._(Pointer<realm_list> pointer, RealmHandle root) : super(root, pointer, 88);
 }
 
 class _RealmQueryHandle extends RootedHandleBase<realm_query> {
-  _RealmQueryHandle._(Pointer<realm_query> pointer, RealmHandle root) : super(root.getIfUnowned(), pointer, 256);
+  _RealmQueryHandle._(Pointer<realm_query> pointer, RealmHandle root) : super(root, pointer, 256);
 }
 
 class RealmNotificationTokenHandle extends RootedHandleBase<realm_notification_token> {
-  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer, RealmHandle root) : super(root.getIfUnowned(), pointer, 32);
+  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer, RealmHandle root) : super(root, pointer, 32);
 }
 
 class RealmCollectionChangesHandle extends HandleBase<realm_collection_changes> {
@@ -1985,6 +1992,9 @@ class SubscriptionHandle extends HandleBase<realm_flx_sync_subscription> {
 }
 
 class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription_set> {
+  @override
+  bool get shouldRoot => true;
+
   SubscriptionSetHandle._(Pointer<realm_flx_sync_subscription_set> pointer, RealmHandle root) : super(root, pointer, 128);
 }
 
@@ -1995,18 +2005,10 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
 }
 
 class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
+  @override
+  bool get shouldRoot => true;
+
   SessionHandle._(Pointer<realm_sync_session_t> pointer, RealmHandle root) : super(root, pointer, 24);
-}
-
-extension on RealmHandle {
-  // A lot of children handles only need to reference the root if its unowned (for cleanup purposes).
-  RealmHandle? getIfUnowned() {
-    if (isUnowned) {
-      return this;
-    }
-
-    return null;
-  }
 }
 
 extension on List<int> {
