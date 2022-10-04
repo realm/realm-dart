@@ -32,7 +32,7 @@ import 'measure.dart';
 import 'realm_model_info.dart';
 import 'session.dart';
 
-Future<ResolvedLibraryResult?> _getResolvedLibrary(LibraryElement library, Resolver resolver) async {
+Future<ResolvedLibraryResult> _getResolvedLibrary(LibraryElement library, Resolver resolver) async {
   var attempts = 0;
   while (true) {
     try {
@@ -43,10 +43,9 @@ Future<ResolvedLibraryResult?> _getResolvedLibrary(LibraryElement library, Resol
     } catch (_) {
       ++attempts;
       if (attempts == 3) {
-        // 3 is the magic number ¯\_(ツ)_/¯
         log.severe('Internal error: Analysis session '
             'did not stabilize after $attempts attempts!');
-        return null;
+        rethrow;
       }
     }
   }
@@ -59,7 +58,7 @@ class RealmObjectGenerator extends Generator {
       () async {
         final result = await _getResolvedLibrary(library.element, buildStep.resolver);
         return scopeSession(
-          result!,
+          result,
           () => library.classes.realmInfo.expand((m) => m.toCode()).join('\n'),
           color: stdout.supportsAnsiEscapes,
         );
