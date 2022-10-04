@@ -60,7 +60,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
   }
 
   @override
-  int get length => realmCore.getListSize(_handle);
+  int get length => realmCore.getListSize(handle);
 
   /// Setting the `length` is a required method on [List], but makes less sense
   /// for [RealmList]s. You can only decrease the length, increasing it doesn't
