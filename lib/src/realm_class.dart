@@ -109,8 +109,7 @@ class Realm implements Finalizable {
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
-  Realm._(this.config, [RealmHandle? handle, this._isInMigration = false])
-      : _handle = handle ?? _openRealmSync(config) {
+  Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) : _handle = handle ?? _openRealmSync(config) {
     _populateMetadata();
     isFrozen = realmCore.isFrozen(this);
   }
@@ -140,11 +139,18 @@ class Realm implements Finalizable {
     if (config is FlexibleSyncConfiguration) {
       final session = realm.syncSession;
       if (onProgressCallback != null) {
-        await session
-            .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
-            .forEach((syncProgress) => onProgressCallback.call(syncProgress));
+        final subscription = session
+            .getProgressStream(
+              ProgressDirection.download,
+              ProgressMode.forCurrentlyOutstandingWork,
+            )
+            .listen((syncProgress) => onProgressCallback.call(syncProgress));
+
+        cancellationToken?.onBeforeCancel(() {
+          subscription.cancel();
+        });
       }
-      await session.waitForDownload();
+      await session.waitForDownload(cancellationToken: cancellationToken);
     }
     return realm;
   }
@@ -676,7 +682,7 @@ typedef ProgressCallback = void Function(SyncProgress syncProgress);
 /// An exception being thrown when a operation is cancelled by calling [CancellationToken.cancel].
 /// {@category Realm}
 class CancelledException extends RealmException {
-  CancelledException(super.message); 
+  CancelledException(super.message);
 }
 
 /// [CancellationToken] provides method [cancel] that executes [_onCancel] and [beforeCancel] callbacks.
@@ -686,6 +692,11 @@ class CancellationToken {
   bool isCanceled = false;
   final _attachedCallbacks = <Function>[];
   final _attachedBeforeCancelCallbacks = <Function>[];
+
+  CancellationToken({String cancellationExceptionMessage = "Canceled operation."}) : _cancellationExceptionMessage = cancellationExceptionMessage;
+
+  final String _cancellationExceptionMessage;
+  CancelledException get cancelException => CancelledException(_cancellationExceptionMessage);
 
   void _onCancel(Function onCancel) {
     _attachedCallbacks.add(onCancel);
@@ -711,6 +722,15 @@ class CancellationToken {
   }
 }
 
+/// @nodoc
+extension CancelableCompleter<T> on Completer<T> {
+  void cancel(CancellationToken cancellationToken) {
+    if (!isCompleted) {
+      completeError(cancellationToken.cancelException);
+    }
+  }
+}
+
 /// [CancellableFuture] provides a static method [fromFutureFunction] that builds cancellable Future
 /// from Future function.
 ///
@@ -722,22 +742,19 @@ class CancellationToken {
 class CancellableFuture {
   static Future<T> fromFutureFunction<T>(Future<T> Function() futureFunction, CancellationToken? cancellationToken, {String? cancelledMessage}) async {
     if (cancellationToken != null) {
-      final cancelException = CancelledException(cancelledMessage ?? "Canceled operation.");
       final completer = Completer<T>();
       cancellationToken._onCancel(() {
-        if (!completer.isCompleted) {
-          completer.completeError(cancelException);
-        }
+        completer.cancel(cancellationToken);
       });
       if (cancellationToken.isCanceled) {
-        completer.completeError(cancelException);
-        await completer.future;
+        completer.cancel(cancellationToken);
+        return await completer.future;
       } else {
-        if (!(completer.isCompleted || cancellationToken.isCanceled)) {
-          return await Future.any([completer.future, futureFunction()]);
-        }
+        return await Future.any([completer.future, futureFunction()]);
       }
     }
-    return await Future.any([futureFunction()]);
+    else {
+      return await futureFunction();
+    }
   }
 }
