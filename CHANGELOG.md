@@ -64,12 +64,13 @@
   ```
 * Fixed copying of native structs for session errors and http requests. ([#924](https://github.com/realm/realm-dart/pull/924))
 * Fixed a crash when closing the SyncSession on App instance teardown. ([#5752](https://github.com/realm/realm-core/issues/5752))
+* Fixed sporadic generator generator failure. ([#879](https://github.com/realm/realm-dart/issues/879))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
 
 ### Internal
-* Uses Realm Core v12.8.0
+* Uses Realm Core v12.9.0
 
 ## 0.4.0+beta (2022-08-19)
 
