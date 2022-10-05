@@ -137,29 +137,18 @@ class Realm implements Finalizable {
 
     if (config is FlexibleSyncConfiguration) {
       final session = realm.syncSession;
-      _attachSyncProgressNotifications(session, onProgressCallback);
+      if (onProgressCallback != null) {
+        await session
+            .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
+            .forEach((syncProgress) => onProgressCallback.call(syncProgress))
+            .asCancellable(cancellationToken)
+            .onError((error, stackTrace) {
+          if (error is CancelledException) Realm.logger.log(Level.WARNING, error);
+        });
+      }
       await session.waitForDownload(cancellationToken: cancellationToken);
     }
     return realm;
-  }
-
-  static void _attachSyncProgressNotifications(Session session, ProgressCallback? onProgressCallback) {
-    if (onProgressCallback != null) {
-      final subscription = session
-          .getProgressStream(
-            ProgressDirection.download,
-            ProgressMode.forCurrentlyOutstandingWork,
-          )
-          .listen(
-            (syncProgress) => onProgressCallback.call(syncProgress),
-            cancelOnError: true,
-          );
-      subscription.onError(
-        (Object error) {
-          Realm.logger.log(Level.INFO, error.toString());
-        },
-      );
-    }
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
