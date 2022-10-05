@@ -141,13 +141,10 @@ class Realm implements Finalizable {
     if (config is FlexibleSyncConfiguration) {
       final session = realm.syncSession;
       if (onProgressCallback != null) {
-        final subscription = session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork).listen(
-              (syncProgress) => onProgressCallback.call(syncProgress),
-              cancelOnError: true,
-            );
-        subscription.onError(
-          (Object error) => subscription.cancel(),
-        );
+        await session
+            .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
+            .forEach((syncProgress) => onProgressCallback.call(syncProgress))
+            .onError((error, stackTrace) => Realm.logger.log(Level.WARNING, error));
       }
       await session.waitForDownload(cancellationToken: cancellationToken);
     }
