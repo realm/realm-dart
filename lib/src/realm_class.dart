@@ -171,6 +171,10 @@ class Realm implements Finalizable {
   /// Throws [RealmException] if there is no write transaction created with [write].
   T add<T extends RealmObject>(T object, {bool update = false}) {
     if (object.isManaged) {
+      if (object.realm != this) {
+        throw RealmError('Object is already managed by another Realm');
+      }
+
       return object;
     }
 
@@ -210,19 +214,33 @@ class Realm implements Finalizable {
   }
 
   /// Deletes a [RealmObject] from this `Realm`.
-  void delete<T extends RealmObject>(T object) => realmCore.deleteRealmObject(object);
+  void delete<T extends RealmObject>(T object) {
+    if (object.realm != this) {
+      throw RealmError('Cannot delete object managed by another Realm');
+    }
+
+    realmCore.deleteRealmObject(object);
+  }
 
   /// Deletes many [RealmObject]s from this `Realm`.
   ///
   /// Throws [RealmException] if there is no active write transaction.
   void deleteMany<T extends RealmObject>(Iterable<T> items) {
     if (items is RealmResults<T>) {
+      if (items.realm != this) {
+        throw RealmError('Cannot delete objects managed by another Realm');
+      }
+
       realmCore.resultsDeleteAll(items);
     } else if (items is RealmList<T>) {
+      if (items.realm != this) {
+        throw RealmError('Cannot delete objects managed by another Realm');
+      }
+
       realmCore.listDeleteAll(items);
     } else {
       for (T realmObject in items) {
-        realmCore.deleteRealmObject(realmObject);
+        delete(realmObject);
       }
     }
   }

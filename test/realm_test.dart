@@ -788,6 +788,67 @@ Future<void> main([List<String>? args]) async {
     expect(stored.location, now.location);
     expect(stored.location.name, 'Europe/Copenhagen');
   });
+
+  test('Realm.add with frozen object argument throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final frozenPeter = freezeObject(realm.write(() {
+      return realm.add(Person('Peter'));
+    }));
+
+    realm.write(() {
+      expect(() => realm.add(frozenPeter), throws<RealmError>('managed by another Realm'));
+    });
+  });
+
+  test('Realm.delete frozen object throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final frozenPeter = freezeObject(realm.write(() {
+      return realm.add(Person('Peter'));
+    }));
+
+    realm.write(() {
+      expect(() => realm.delete(frozenPeter), throws<RealmError>('managed by another Realm'));
+    });
+  });
+
+  test('Realm.deleteMany frozen results throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    realm.write(() {
+      realm.add(Person('Peter'));
+    });
+
+    final frozenPeople = freezeResults(realm.all<Person>());
+
+    realm.write(() {
+      expect(() => realm.deleteMany(frozenPeople), throws<RealmError>('managed by another Realm'));
+    });
+  });
+
+  test('Realm.deleteMany frozen list throws', () {
+    final realm = getRealm(Configuration.local([Person.schema, Team.schema]));
+    final team = realm.write(() {
+      return realm.add(Team('Team 1', players: [Person('Peter')]));
+    });
+
+    final frozenPlayers = freezeList(team.players);
+
+    realm.write(() {
+      expect(() => realm.deleteMany(frozenPlayers), throws<RealmError>('managed by another Realm'));
+    });
+  });
+
+  test('Realm.deleteMany regular list with frozen elements throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final peter = realm.write(() {
+      return realm.add(Person('Peter'));
+    });
+
+    final frozenPeter = freezeObject(peter);
+
+    realm.write(() {
+      expect(() => realm.deleteMany([peter, frozenPeter]), throws<RealmError>('managed by another Realm'));
+    });
+  });
 }
 
 extension on When {
