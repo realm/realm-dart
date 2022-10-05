@@ -73,6 +73,7 @@
 ### Internal
 * Uses Realm Core v12.9.0
 * Added tracking of child handles for objects/results/lists obtained from an unowned Realm. This ensures that all children are invalidated as soon as the parent Realm gets released at the end of the callback. (Issue [#527](https://github.com/realm/realm-dart/issues/527))
+* Added an action to enforce that the changelog is updated before a PR is merged (Issue [#939](https://github.com/realm/realm-dart/issues/939))
 
 ## 0.4.0+beta (2022-08-19)
 
