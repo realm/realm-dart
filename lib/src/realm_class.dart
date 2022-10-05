@@ -130,7 +130,10 @@ class Realm implements Finalizable {
   /// Returns [Future<Realm>] that completes with the `realm` once the remote realm is fully synchronized or with a [CancelledException] if operation is canceled.
   /// When the configuration is [LocalConfiguration] this completes right after the local realm is opened or operation is canceled.
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
-    Realm realm = (() => Realm(config)).asCancellable(cancellationToken, onCancel: (result) => result?.close());
+    Realm realm = (() => Realm(config)).asCancellable(
+      cancellationToken,
+      onCancel: (result) => result?.close(),
+    );
 
     if (config is FlexibleSyncConfiguration) {
       final session = realm.syncSession;
@@ -143,7 +146,12 @@ class Realm implements Finalizable {
 
   static void _attachSyncProgressNotifications(Session session, ProgressCallback? onProgressCallback) {
     if (onProgressCallback != null) {
-      final subscription = session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork).listen(
+      final subscription = session
+          .getProgressStream(
+            ProgressDirection.download,
+            ProgressMode.forCurrentlyOutstandingWork,
+          )
+          .listen(
             (syncProgress) => onProgressCallback.call(syncProgress),
             cancelOnError: true,
           );
