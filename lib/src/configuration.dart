@@ -402,7 +402,7 @@ class DiscardLocalSyncClientResetHandler extends SyncClientResetErrorHandler {
   const DiscardLocalSyncClientResetHandler(super.callback);
 }
 
-///A client reset strategy that attempts to automatically recover any unsynchronized changes.
+/// A client reset strategy that attempts to automatically recover any unsynchronized changes.
 ///
 /// If you set [RecoverSyncClientResetHandler] callback as `syncClientResetErrorHandler` argument of [Configuration.flexibleSync],
 /// Realm will compare the local Realm with the Realm on the server and automatically transfer
