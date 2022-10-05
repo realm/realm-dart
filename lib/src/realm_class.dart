@@ -127,7 +127,7 @@ class Realm implements Finalizable {
   /// * `cancellationToken` - an optional [CancellationToken] used to cancel the operation.
   /// * `onProgressCallback` - a callback for receiving download progress notifications for synced [Realm]s.
   ///
-  /// Returns [Future<Realm>] that completes with the `realm` once the remote realm is fully synchronized or with an `error` if operation is canceled.
+  /// Returns [Future<Realm>] that completes with the `realm` once the remote realm is fully synchronized or with a [CancelledException] if operation is canceled.
   /// When the configuration is [LocalConfiguration] this completes right after the local realm is opened or operation is canceled.
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
     Realm realm = (() => Realm(config)).asCancellable(cancellationToken, onCancel: (result) => result?.close());
@@ -701,9 +701,9 @@ class MigrationRealm extends DynamicRealm {
 /// {@category Realm}
 typedef ProgressCallback = void Function(SyncProgress syncProgress);
 
-extension CancellableFunc<T> on T Function() {
+extension $CancellableFunc<T> on T Function() {
   T asCancellable(CancellationToken? cancellationToken, {required Function(T? result) onCancel}) {
-    final cancellableFunction = CancellableFunction<T>(
+    final cancellableFunction = _CancellableFunction<T>(
       cancellationToken,
       function: () => this(),
       whenCancel: (result, ex, [stackTrace]) => onCancel(result),
@@ -712,9 +712,9 @@ extension CancellableFunc<T> on T Function() {
   }
 }
 
-class CancellableFunction<T> with Cancellable {
+class _CancellableFunction<T> with Cancellable {
   T result;
-  CancellableFunction(CancellationToken? cancellationToken, {required this.function, required this.whenCancel})
+  _CancellableFunction(CancellationToken? cancellationToken, {required this.function, required this.whenCancel})
       : _cancellationToken = cancellationToken,
         result = function() {
     if (!maybeAttach(_cancellationToken)) {
