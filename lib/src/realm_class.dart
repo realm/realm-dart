@@ -140,7 +140,6 @@ class Realm implements Finalizable {
       _attachSyncProgressNotifications(session, onProgressCallback);
       await session.waitForDownload(cancellationToken: cancellationToken);
     }
-    await Future<void>.delayed(Duration(seconds: 3)).asCancellable(cancellationToken);
     return realm;
   }
 
