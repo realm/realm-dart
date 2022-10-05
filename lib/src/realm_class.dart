@@ -130,23 +130,29 @@ class Realm implements Finalizable {
   /// Returns [Future<Realm>] that completes with the `realm` once the remote realm is fully synchronized or with a [CancelledException] if operation is canceled.
   /// When the configuration is [LocalConfiguration] this completes right after the local realm is opened or operation is canceled.
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
+    final completer = Completer<void>();
+
     Realm realm = (() => Realm(config)).asCancellable(
       cancellationToken,
-      onCancel: (result) => result?.close(),
+      onCancel: (result) => completer.future.then((value) {
+        result?.close();
+      }),
     );
-
-    if (config is FlexibleSyncConfiguration) {
-      final session = realm.syncSession;
-      if (onProgressCallback != null) {
-        await session
-            .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
-            .forEach((syncProgress) => onProgressCallback.call(syncProgress))
-            .asCancellable(cancellationToken)
-            .onError((error, stackTrace) {
-          if (error is CancelledException) Realm.logger.log(Level.WARNING, error);
-        });
+    try {
+      if (config is FlexibleSyncConfiguration) {
+        final session = realm.syncSession;
+        if (onProgressCallback != null) {
+          await session
+              .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
+              .forEach((syncProgress) => onProgressCallback.call(syncProgress))
+              .asCancellable(cancellationToken)
+              .onError((error, stackTrace) => Realm.logger.log(Level.WARNING, error));
+        }
+        await session.waitForDownload(cancellationToken: cancellationToken);
       }
-      await session.waitForDownload(cancellationToken: cancellationToken);
+    } on CancelledException {
+      completer.complete();
+      rethrow;
     }
     return realm;
   }
