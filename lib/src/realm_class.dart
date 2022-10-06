@@ -134,21 +134,44 @@ class Realm implements Finalizable {
 
   static Future<Realm> _open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
     Realm realm = Realm(config);
-    cancellationToken?.onCancel(() {
-      realm.close();
-    });
 
-    if (config is FlexibleSyncConfiguration) {
-      final session = realm.syncSession;
-      if (onProgressCallback != null) {
-        await session
-            .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
-            .forEach((syncProgress) => onProgressCallback.call(syncProgress))
-            .onError((error, stackTrace) => Realm.logger.log(Level.WARNING, error));
+    try {
+      if (config is FlexibleSyncConfiguration) {
+        final session = realm.syncSession;
+        if (onProgressCallback != null) {
+          await _syncProgressNotifier(session, onProgressCallback, cancellationToken);
+        }
+        await session.waitForDownload(cancellationToken: cancellationToken);
       }
-      await session.waitForDownload(cancellationToken: cancellationToken);
+    } catch (error) {
+      // Make sure that the realm is closed on error
+      // after all the other waiting operations were completed or canceled.
+      // This is at the end in order to avoid the exceptions
+      // for acessing handles that belong to a closed Realm.
+      realm.close();
+      rethrow;
     }
     return realm;
+  }
+
+  static Future<void> _syncProgressNotifier(Session session, ProgressCallback onProgressCallback, [CancellationToken? cancellationToken]) async {
+    StreamSubscription<SyncProgress>? subscription;
+    try {
+      final progressCompleter = Completer<void>().makeCancellable(cancellationToken);
+      final progressStream = session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
+      subscription = progressStream.listen(
+        (syncProgress) => onProgressCallback.call(syncProgress),
+        onDone: () => progressCompleter.complete(),
+        onError: (Object error) => progressCompleter.completeError(error),
+        cancelOnError: true,
+      );
+      await progressCompleter.future;
+    } catch (error) {
+      // Make sure that StreamSubscription is cancelled on error before to continue.
+      // This will prevent recieving exceptions for acessing handles that belong to a closed Realm
+      // in case the Realm is closed before this `subsription.cancel` to complete.
+      await subscription?.cancel();
+    }
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
