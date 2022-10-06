@@ -40,7 +40,12 @@ class Scheduler {
   }
 
   void stop() {
+    if (handle.released) {
+      return;
+    }
+
     receivePort.close();
     _receivePortFinalizer.detach(this);
+    handle.release();
   }
 }

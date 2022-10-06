@@ -45,7 +45,7 @@
 * Added support for API key authentication. (Issue [#432](https://github.com/realm/realm-dart/issues/432))
   * Expose `User.apiKeys` client - this client can be used to create, fetch, and delete API keys.
   * Expose `Credentials.apiKey` that enable authentication with API keys.
-* Exposed `User.accessToken` and `User.refreshToken` - these tokens can be used to authenticate against the server when calling HTTP API outside of the Dart/Flutter SDK. For example, if you want to use the GraphQL or the data access API. (PR [#919](https://github.com/realm/realm-dart/pull/919))
+* Exposed `User.accessToken` and `User.refreshToken` - these tokens can be used to authenticate against the server when calling HTTP API outside of the Dart/Flutter SDK. For example, if you want to use the GraphQL. (PR [#919](https://github.com/realm/realm-dart/pull/919))
 * Added support for asynchronous transactions. (Issue [#802](https://github.com/realm/realm-dart/issues/802))
   * Added `Transaction` which is a class that exposes an API for committing and rolling back an active transaction.
   * Added `realm.beginWriteAsync` which returns a `Future<Transaction>` that resolves when the write lock has been obtained.
@@ -66,12 +66,16 @@
   expect(realm.query<Person>('FALSEPREDICATE').query('TRUEPREDICATE'), isEmpty); //<-- Fails if a Persion object exists
   ```
 * Fixed copying of native structs for session errors and http requests. ([#924](https://github.com/realm/realm-dart/pull/924))
+* Fixed a crash when closing the SyncSession on App instance teardown. ([#5752](https://github.com/realm/realm-core/issues/5752))
+* Fixed sporadic generator failure. ([#879](https://github.com/realm/realm-dart/issues/879))
+* Exceptions thrown by user code inside the `Configuration.initialDataCallback` are now properly surfaced back to the `Realm()` constructor. ([#698](https://github.com/realm/realm-dart/issues/698))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
 
 ### Internal
-* Uses Realm Core v12.8.0
+* Uses Realm Core v12.9.0
+* Added tracking of child handles for objects/results/lists obtained from an unowned Realm. This ensures that all children are invalidated as soon as the parent Realm gets released at the end of the callback. (Issue [#527](https://github.com/realm/realm-dart/issues/527))
 
 ## 0.4.0+beta (2022-08-19)
 

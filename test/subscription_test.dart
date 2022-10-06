@@ -569,4 +569,18 @@ Future<void> main([List<String>? args]) async {
     expect(filtered, isNotEmpty);
     expect(filtered.length, all.length);
   });
+
+  baasTest('Subscriptions when realm is closed gets closed as well', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final config = Configuration.flexibleSync(user, [Task.schema]);
+    final realm = getRealm(config);
+
+    final subscriptions = realm.subscriptions;
+    expect(() => subscriptions.state, returnsNormally);
+
+    realm.close();
+    expect(() => subscriptions.state, throws<RealmClosedError>());
+  });
 }

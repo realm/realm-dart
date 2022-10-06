@@ -287,7 +287,11 @@ Future<void> main([List<String>? args]) async {
       throw Exception('very careless developer');
     });
 
-    expect(() => getRealm(config), throws<RealmException>("User-provided callback failed"));
+    expect(
+        () => getRealm(config),
+        throwsA(isA<UserCallbackException>()
+            .having((e) => e.message, 'message', contains('An exception occurred while executing a user-provided callback.'))
+            .having((e) => e.userException.toString(), 'userException', contains('very careless developer'))));
     expect(invoked, true);
 
     // No data should have been written to the Realm
@@ -305,7 +309,7 @@ Future<void> main([List<String>? args]) async {
       throw Exception('very careless developer');
     });
 
-    expect(() => getRealm(config), throws<RealmException>("User-provided callback failed"));
+    expect(() => getRealm(config), throws<UserCallbackException>('An exception occurred while executing a user-provided callback'));
     expect(invoked, true);
 
     var secondInvoked = false;
@@ -373,6 +377,26 @@ Future<void> main([List<String>? args]) async {
 
     expect(callbackEx, isNotNull);
     expect(callbackEx.toString(), contains('The Realm is already in a write transaction'));
+  });
+
+  test("Configuration.initialDataCallback destroys objects after callback", () {
+    Exception? callbackEx;
+    late RealmResults<Person> people;
+    late Person george;
+    final config = Configuration.local([Person.schema], initialDataCallback: (realm) {
+      george = realm.add(Person('George'));
+      people = realm.all<Person>();
+      expect(people.length, 1);
+    });
+
+    final realm = getRealm(config);
+
+    expect(() => people.length, throws<RealmClosedError>());
+    expect(() => george.name, throws<RealmClosedError>());
+    expect(people.realm.isClosed, true);
+
+    final peopleAagain = realm.all<Person>();
+    expect(peopleAagain.length, 1);
   });
 
   test('Configuration.shouldCompact can return false', () {

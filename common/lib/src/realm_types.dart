@@ -68,6 +68,12 @@ class RealmError extends Error {
   String toString() => "Realm error : $message";
 }
 
+/// An error throw when operating on an object that has been closed.
+/// {@category Realm}
+class RealmClosedError extends RealmError {
+  RealmClosedError(String message) : super(message);
+}
+
 /// Thrown if the operation is not supported.
 /// {@category Realm}
 class RealmUnsupportedSetError extends UnsupportedError implements RealmError {
@@ -78,6 +84,7 @@ class RealmUnsupportedSetError extends UnsupportedError implements RealmError {
 class RealmStateError extends StateError implements RealmError {
   RealmStateError(super.message);
 }
+
 /// @nodoc
 class Decimal128 {} // TODO Support decimal128 datatype https://github.com/realm/realm-dart/issues/725
 

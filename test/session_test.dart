@@ -349,6 +349,20 @@ Future<void> main([List<String>? args]) async {
 
     await subscription.cancel();
   });
+
+  baasTest('SyncSession when Realm is closed gets closed as well', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    final config = Configuration.flexibleSync(user, [Task.schema]);
+    final realm = getRealm(config);
+
+    final session = realm.syncSession;
+    expect(() => session.state, returnsNormally);
+
+    realm.close();
+
+    expect(() => session.state, throws<RealmClosedError>());
+  });
 }
 
 class StreamProgressData {
