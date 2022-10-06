@@ -951,7 +951,7 @@ Future<void> main([List<String>? args]) async {
 
     expect(syncedRealm.isClosed, false);
     expect(printCount, isNot(0));
-    expect(transferredBytes > 20, isTrue); //19 bytes is the empty realm
+    expect(transferredBytes > 19, isTrue); //19 bytes is the empty realm
   });
 
   baasTest('Realm.open (flexibleSync) - listen and cancel download progress of a populated realm', (appConfiguration) async {
@@ -997,16 +997,19 @@ Future<Configuration> _addDataToAtlas(App app) async {
   final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
   final config1 = Configuration.flexibleSync(user1, [Task.schema]);
   final realm1 = getRealm(config1);
-  if (realm1.subscriptions.find(realm1.all<Task>()) == null) {
-    realm1.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm1.all<Task>()));
+  final query1 = realm1.all<Task>();
+  if (realm1.subscriptions.find(query1) == null) {
+    realm1.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query1));
     await realm1.subscriptions.waitForSynchronization();
   }
 
   final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
   final config2 = Configuration.flexibleSync(user2, [Task.schema]);
   final realm2 = getRealm(config2);
-  if (realm2.subscriptions.find(realm2.all<Task>()) == null) {
-    realm2.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm2.all<Task>()));
+  final query2 = realm2.all<Task>();
+
+  if (realm2.subscriptions.find(query2) == null) {
+    realm2.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query2));
     await realm2.subscriptions.waitForSynchronization();
   }
   if (realm2.all<Task>().isEmpty) {
@@ -1015,8 +1018,8 @@ Future<Configuration> _addDataToAtlas(App app) async {
         realm2.add(Task(ObjectId()));
       }
     });
-    await realm2.syncSession.waitForUpload();
   }
+  await realm2.syncSession.waitForUpload();
   realm2.close();
   return config1;
 }
