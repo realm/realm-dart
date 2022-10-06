@@ -133,8 +133,13 @@ class Realm implements Finalizable {
   }
 
   static Future<Realm> _open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
+    final completer = Completer<void>();
     Realm realm = Realm(config);
-
+    cancellationToken?.onCancel(() {
+      // Make sure that the realm is closed on cancel
+      // after all the other waiting operations were completed or canceled.
+      completer.isCompleted ? realm.close() : completer.future.whenComplete(() => realm.close());
+    });
     try {
       if (config is FlexibleSyncConfiguration) {
         final session = realm.syncSession;
@@ -144,12 +149,14 @@ class Realm implements Finalizable {
         await session.waitForDownload(cancellationToken: cancellationToken);
       }
     } catch (error) {
-      // Make sure that the realm is closed on error
+      // Make sure that the realm is closed on any error
       // after all the other waiting operations were completed or canceled.
       // This is at the end in order to avoid the exceptions
       // for acessing handles that belong to a closed Realm.
       realm.close();
       rethrow;
+    } finally {
+      completer.complete();
     }
     return realm;
   }

@@ -935,7 +935,7 @@ Future<void> main([List<String>? args]) async {
     expect(realm.isClosed, false);
 
     cancellationToken.cancel();
-    expect(realm.isClosed, false);
+    expect(realm.isClosed, true);
   });
 
   baasTest('Realm open async with added data', (appConfiguration) async {
