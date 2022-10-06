@@ -127,20 +127,20 @@ class Realm implements Finalizable {
   ///
   /// Returns [Future<Realm>] that completes with the `realm` once the remote realm is fully synchronized or with an `error` if operation is canceled.
   /// When the configuration is [LocalConfiguration] this completes right after the local realm is opened or operation is canceled.
-  static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
-    return await CancellableFuture.fromFutureFunction<Realm>(
-        () => _open(config, cancellationToken: cancellationToken, onProgressCallback: onProgressCallback), cancellationToken);
-  }
+  // static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
+  //   return await CancellableFuture.fromFutureFunction<Realm>(
+  //       () => _open(config, cancellationToken: cancellationToken, onProgressCallback: onProgressCallback), cancellationToken);
+  // }
 
-  static Future<Realm> _open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
-    final completer = Completer<void>();
-    Realm realm = Realm(config);
-    cancellationToken?.onCancel(() {
-      // Make sure that the realm is closed on cancel
-      // after all the other waiting operations were completed or canceled.
-      completer.isCompleted ? realm.close() : completer.future.whenComplete(() => realm.close());
-    });
+  static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
+    final cancellableCompleter = Completer<Realm>().makeCancellable(cancellationToken);
     try {
+      Realm realm = Realm(config);
+      cancellableCompleter.future.catchError((Object error) {
+        realm.close();
+        return realm;
+      });
+
       if (config is FlexibleSyncConfiguration) {
         final session = realm.syncSession;
         if (onProgressCallback != null) {
@@ -148,17 +148,11 @@ class Realm implements Finalizable {
         }
         await session.waitForDownload(cancellationToken: cancellationToken);
       }
+      if (!cancellableCompleter.isCompleted) cancellableCompleter.complete(realm);
     } catch (error) {
-      // Make sure that the realm is closed on any error
-      // after all the other waiting operations were completed or canceled.
-      // This is at the end in order to avoid the exceptions
-      // for acessing handles that belong to a closed Realm.
-      realm.close();
-      rethrow;
-    } finally {
-      completer.complete();
+      if (!cancellableCompleter.isCompleted) cancellableCompleter.completeError(error);
     }
-    return realm;
+    return cancellableCompleter.future;
   }
 
   static Future<void> _syncProgressNotifier(Session session, ProgressCallback onProgressCallback, [CancellationToken? cancellationToken]) async {
@@ -792,13 +786,13 @@ extension $CancelableCompleter<T> on Completer<T> {
 /// * `futureFunction`- a function executung a Future that has to be canceled.
 /// * `cancellationToken` - [CancellationToken] that is used to cancel the Future.
 /// {@category Realm}
-class CancellableFuture {
-  static Future<T> fromFutureFunction<T>(Future<T> Function() futureFunction, [CancellationToken? cancellationToken]) async {
-    if (cancellationToken != null) {
-      final completer = Completer<T>().makeCancellable(cancellationToken);
-      return await Future.any([completer.future, futureFunction()]);
-    } else {
-      return await futureFunction();
-    }
-  }
-}
+// class CancellableFuture {
+//   static Future<T> fromFutureFunction<T>(Future<T> Function() futureFunction, [CancellationToken? cancellationToken]) async {
+//     if (cancellationToken != null) {
+//       final completer = Completer<T>().makeCancellable(cancellationToken);
+//       return await Future.any([completer.future, futureFunction()]);
+//     } else {
+//       return await futureFunction();
+//     }
+//   }
+// }
