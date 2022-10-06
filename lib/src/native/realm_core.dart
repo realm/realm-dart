@@ -571,6 +571,9 @@ class _RealmCore {
 
   Future<void> beginWriteAsync(Realm realm, CancellationToken? ct) {
     final completer = WriteCompleter(realm, ct);
+    if (completer.isCancelled) {
+      return completer.future;
+    }
 
     final cancelationId = _realmLib.realm_async_begin_write(realm.handle._pointer, Pointer.fromFunction(_completeAsyncBeginWrite),
         completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, true);
@@ -586,6 +589,9 @@ class _RealmCore {
 
   Future<void> commitWriteAsync(Realm realm, CancellationToken? ct) {
     final completer = WriteCompleter(realm, ct);
+    if (completer.isCancelled) {
+      return completer.future;
+    }
 
     final cancelationId = _realmLib.realm_async_commit(realm.handle._pointer, Pointer.fromFunction(_completeAsyncCommit), completer.toPersistentHandle(),
         _realmLib.addresses.realm_dart_delete_persistent_handle, false);
@@ -608,7 +614,7 @@ class _RealmCore {
   }
 
   static void _completeAsyncBeginWrite(Pointer<Void> userdata) {
-    Completer<void>? completer = userdata.toObject();
+    Completer<void>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
       return;
     }
@@ -617,7 +623,7 @@ class _RealmCore {
   }
 
   static void _completeAsyncCommit(Pointer<Void> userdata, bool error, Pointer<Char> description) {
-    Completer<void>? completer = userdata.toObject();
+    Completer<void>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
       return;
     }
@@ -2608,7 +2614,15 @@ class WriteCompleter with Cancellable implements Completer<void> {
   int? _id;
   final Realm _realm;
 
-  WriteCompleter(this._realm, this._cancellationToken) : _internalCompleter = Completer<void>();
+  WriteCompleter(this._realm, this._cancellationToken) : _internalCompleter = Completer<void>() {
+    if (_cancellationToken != null) {
+      if (_cancellationToken!.isCancelled) {
+        _internalCompleter.completeError(CancelledException());
+      } else {
+        _cancellationToken?.attach(this);
+      }
+    }
+  }
 
   void assignId(int id) {
     if (_id != null) {

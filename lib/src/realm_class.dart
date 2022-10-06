@@ -60,6 +60,8 @@ export 'package:realm_common/realm_common.dart'
         ObjectId,
         Uuid;
 
+export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
+
 // always expose with `show` to explicitly control the public API surface
 export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App, AppException;
 export "configuration.dart"
@@ -247,6 +249,7 @@ class Realm implements Finalizable {
     }
   }
 
+  /// Begins a write transaction for this [Realm].
   Transaction beginWrite() {
     _throwIfFrozen();
 
@@ -255,12 +258,31 @@ class Realm implements Finalizable {
     return Transaction._(this);
   }
 
+  /// Asynchronously begins a write transaction for this [Realm]. You can supply a
+  /// [CancellationToken] to abort the wait.
   Future<Transaction> beginWriteAsync({CancellationToken? cancellationToken}) async {
     _throwIfFrozen();
 
     await realmCore.beginWriteAsync(this, cancellationToken);
 
     return Transaction._(this);
+  }
+
+  /// Executes the provided [writeCallback] in a temporary write transaction. Both acquiring the write
+  /// lock and committing the transaction will be done asynchronously.
+  Future<T> writeAsync<T>(T Function() writeCallback, {CancellationToken? cancellationToken}) async {
+    final transaction = await beginWriteAsync(cancellationToken: cancellationToken);
+
+    try {
+      T result = writeCallback();
+      await transaction.commitAsync(cancellationToken: cancellationToken);
+      return result;
+    } catch (e) {
+      if (isInTransaction) {
+        transaction.rollback();
+      }
+      rethrow;
+    }
   }
 
   /// Closes the `Realm`.
@@ -391,6 +413,7 @@ class Realm implements Finalizable {
 class Transaction {
   Realm? _realm;
 
+  /// Returns whether the transaction is still active.
   bool get isOpen => _realm != null;
 
   Transaction._(Realm realm) {
@@ -405,10 +428,13 @@ class Transaction {
     _closeTransaction();
   }
 
-  Future<void> commitAsync(CancellationToken? token) async {
+  /// Commits the changes to the Realm asynchronously.
+  /// Canceling the commit using the [cancellationToken] will not abort the transaction, but
+  /// rather resolve the future immediately with a [CancelledException].
+  Future<void> commitAsync({CancellationToken? cancellationToken}) async {
     _ensureOpen('commit');
 
-    await realmCore.commitWriteAsync(_realm!, token);
+    await realmCore.commitWriteAsync(_realm!, cancellationToken);
 
     _closeTransaction();
   }
@@ -417,7 +443,9 @@ class Transaction {
   void rollback() {
     _ensureOpen('rollback');
 
-    realmCore.rollbackWrite(_realm!);
+    if (!_realm!.isClosed) {
+      realmCore.rollbackWrite(_realm!);
+    }
 
     _closeTransaction();
   }
