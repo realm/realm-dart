@@ -421,8 +421,7 @@ class _RealmCore {
       config.initialDataCallback!(realm);
       return true;
     } catch (ex) {
-      // TODO: Propagate error to Core in initial_data_callback https://github.com/realm/realm-dart/issues/698
-      // Core issue: https://github.com/realm/realm-core/issues/5366
+      _realmLib.realm_register_user_code_callback_error(ex.toPersistentHandle());
     } finally {
       realmHandle.release();
     }
