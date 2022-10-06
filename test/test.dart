@@ -331,6 +331,17 @@ Realm getRealm(Configuration config) {
   return realm;
 }
 
+Future<Realm> getRealmAsync(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
+  {
+    if (config is FlexibleSyncConfiguration) {
+      config.sessionStopPolicy = SessionStopPolicy.immediately;
+    }
+    final realm = await Realm.open(config, cancellationToken: cancellationToken, onProgressCallback: onProgressCallback);
+    _openRealms.add(realm);
+    return realm;
+  }
+}
+
 /// This is needed to make sure the frozen Realm gets forcefully closed by the
 /// time the test ends.
 Realm freezeRealm(Realm realm) {
@@ -570,17 +581,4 @@ Future<void> _printPlatformInfo() async {
   }
 
   print('Current PID $pid; OS $os, $pointerSize bit, CPU ${cpu ?? 'unknown'}');
-}
-
-class RealmA {
-  static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
-    {
-      if (config is FlexibleSyncConfiguration) {
-        config.sessionStopPolicy = SessionStopPolicy.immediately;
-      }
-      final realm = await Realm.open(config, cancellationToken: cancellationToken, onProgressCallback: onProgressCallback);
-      _openRealms.add(realm);
-      return realm;
-    }
-  }
 }
