@@ -127,13 +127,8 @@ class Realm implements Finalizable {
   ///
   /// Returns [Future<Realm>] that completes with the `realm` once the remote realm is fully synchronized or with an `error` if operation is canceled.
   /// When the configuration is [LocalConfiguration] this completes right after the local realm is opened or operation is canceled.
-  // static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
-  //   return await CancellableFuture.fromFutureFunction<Realm>(
-  //       () => _open(config, cancellationToken: cancellationToken, onProgressCallback: onProgressCallback), cancellationToken);
-  // }
-
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
-    final cancellableCompleter = Completer<Realm>().makeCancellable(cancellationToken);
+    final cancellableCompleter = CancellableCompleter<Realm>(cancellationToken);
     try {
       Realm realm = Realm(config);
       cancellableCompleter.future.catchError((Object error) {
@@ -148,9 +143,9 @@ class Realm implements Finalizable {
         }
         await session.waitForDownload(cancellationToken: cancellationToken);
       }
-      if (!cancellableCompleter.isCompleted) cancellableCompleter.complete(realm);
+      cancellableCompleter.complete(realm);
     } catch (error) {
-      if (!cancellableCompleter.isCompleted) cancellableCompleter.completeError(error);
+      cancellableCompleter.completeError(error);
     }
     return cancellableCompleter.future;
   }
@@ -158,7 +153,7 @@ class Realm implements Finalizable {
   static Future<void> _syncProgressNotifier(Session session, ProgressCallback onProgressCallback, [CancellationToken? cancellationToken]) async {
     StreamSubscription<SyncProgress>? subscription;
     try {
-      final progressCompleter = Completer<void>().makeCancellable(cancellationToken);
+      final progressCompleter = Completer<void>().asCancellable(cancellationToken);
       if (!progressCompleter.isCompleted) {
         final progressStream = session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
         subscription = progressStream.listen(
@@ -757,42 +752,48 @@ class CancellationToken {
   }
 }
 
-/// @nodoc
-extension $CancelableCompleter<T> on Completer<T> {
-  Completer<T> makeCancellable(CancellationToken? cancellationToken) {
+class CancellableCompleter<T> implements Completer<T> {
+  final Completer<T> _completer;
+  final CancellationToken? cancellationToken;
+
+  CancellableCompleter(this.cancellationToken, [Completer<T>? completer]) : _completer = completer ?? Completer<T>() {
     if (cancellationToken != null) {
-      if (cancellationToken.isCanceled == true) {
+      if (cancellationToken!.isCanceled == true) {
         cancel(cancellationToken);
       } else {
-        cancellationToken.onCancel(() {
+        cancellationToken!.onCancel(() {
           cancel(cancellationToken);
         });
       }
     }
-    return this;
   }
 
   void cancel(CancellationToken? cancellationToken) {
-    if (cancellationToken != null && !isCompleted) {
-      completeError(cancellationToken.cancelException);
+    if (cancellationToken != null && !_completer.isCompleted) {
+      _completer.completeError(cancellationToken.cancelException);
     }
   }
+
+  @override
+  void complete([FutureOr<T>? value]) {
+    if (!_completer.isCompleted) _completer.complete(value);
+  }
+
+  @override
+  void completeError(Object error, [StackTrace? stackTrace]) {
+    if (!_completer.isCompleted) _completer.completeError(error, stackTrace);
+  }
+
+  @override
+  Future<T> get future => _completer.future;
+
+  @override
+  bool get isCompleted => _completer.isCompleted;
 }
 
-/// [CancellableFuture] provides a static method [fromFutureFunction] that builds cancellable Future
-/// from Future function.
-///
-/// fromFutureFunction arguments are:
-/// * `futureFunction`- a function executung a Future that has to be canceled.
-/// * `cancellationToken` - [CancellationToken] that is used to cancel the Future.
-/// {@category Realm}
-// class CancellableFuture {
-//   static Future<T> fromFutureFunction<T>(Future<T> Function() futureFunction, [CancellationToken? cancellationToken]) async {
-//     if (cancellationToken != null) {
-//       final completer = Completer<T>().makeCancellable(cancellationToken);
-//       return await Future.any([completer.future, futureFunction()]);
-//     } else {
-//       return await futureFunction();
-//     }
-//   }
-// }
+/// @nodoc
+extension $CancellableCompleterExtension<T> on Completer<T> {
+  CancellableCompleter<T> asCancellable(CancellationToken? cancellationToken) {
+    return CancellableCompleter<T>(cancellationToken, this);
+  }
+}
