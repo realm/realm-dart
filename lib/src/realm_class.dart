@@ -132,7 +132,7 @@ class Realm implements Finalizable {
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
     final cancellableCompleter = CancellableCompleter<Realm>(cancellationToken);
     try {
-      Realm realm = Realm(config);
+      final realm = Realm(config);
       cancellableCompleter.future.catchError((Object error) {
         realm.close();
         return realm;
