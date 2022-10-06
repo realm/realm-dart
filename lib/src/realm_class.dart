@@ -165,13 +165,15 @@ class Realm implements Finalizable {
     StreamSubscription<SyncProgress>? subscription;
     try {
       final progressCompleter = Completer<void>().makeCancellable(cancellationToken);
-      final progressStream = session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
-      subscription = progressStream.listen(
-        (syncProgress) => onProgressCallback.call(syncProgress),
-        onDone: () => progressCompleter.complete(),
-        onError: (Object error) => progressCompleter.completeError(error),
-        cancelOnError: true,
-      );
+      if (!progressCompleter.isCompleted) {
+        final progressStream = session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
+        subscription = progressStream.listen(
+          (syncProgress) => onProgressCallback.call(syncProgress),
+          onDone: () => progressCompleter.complete(),
+          onError: (Object error) => progressCompleter.completeError(error),
+          cancelOnError: true,
+        );
+      }
       await progressCompleter.future;
     } catch (error) {
       // Make sure that StreamSubscription is cancelled on error before to continue.

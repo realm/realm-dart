@@ -963,7 +963,7 @@ Future<void> main([List<String>? args]) async {
     expect(transferredBytes > 2000, isTrue);
   });
 
-  baasTest('Realm open async  with added data, get progres and swith cancel', (appConfiguration) async {
+  baasTest('Realm open async with added data, get progres and cancel', (appConfiguration) async {
     final app = App(appConfiguration);
 
     final config = await addDataToAtlas(app);
