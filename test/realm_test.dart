@@ -18,12 +18,12 @@
 
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
-import 'dart:async';
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import '../lib/realm.dart';
+
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -842,11 +842,14 @@ Future<void> main([List<String>? args]) async {
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
     var cancellationToken = CancellationToken();
-    final realm1 = RealmA.open(configuration, cancellationToken: cancellationToken);
-    final cancelOrRealm1 = await _cancelOrRealm(realm1, cancellationToken, 0);
 
+    Future<void>.delayed(Duration(milliseconds: 1), () => cancellationToken.cancel());
+
+    final realm1 = RealmA.open(configuration, cancellationToken: cancellationToken);
     final realm2 = RealmA.open(configuration, cancellationToken: cancellationToken);
-    final cancelOrRealm2 = await _cancelOrRealm(realm2, cancellationToken, 0);
+
+    final cancelOrRealm1 = await _cancelOrRealm(realm1, cancellationToken);
+    final cancelOrRealm2 = await _cancelOrRealm(realm2, cancellationToken);
 
     await expectLater(cancelOrRealm1, true);
     await expectLater(cancelOrRealm2, true);
@@ -935,11 +938,11 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('Realm.open (flexibleSync) - listen for download progress of a populated realm', (appConfiguration) async {
     final app = App(appConfiguration);
-
     final config = await _addDataToAtlas(app);
 
     int printCount = 0;
     int transferredBytes = 0;
+
     var syncedRealm = await RealmA.open(config, onProgressCallback: (syncProgress) {
       print("PROGRESS: transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
       printCount++;
@@ -953,7 +956,6 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('Realm.open (flexibleSync) - listen and cancel download progress of a populated realm', (appConfiguration) async {
     final app = App(appConfiguration);
-
     final config = await _addDataToAtlas(app);
 
     var cancellationToken = CancellationToken();
@@ -965,11 +967,10 @@ Future<void> main([List<String>? args]) async {
   });
 }
 
-Future<bool> _cancelOrRealm(Future<Realm> realm, CancellationToken cancellationToken, int cancelAfterMilliseconds) async {
-  final cancellationFuture = Future<void>.delayed(
-    Duration(milliseconds: cancelAfterMilliseconds),
-    () => cancellationToken.cancel(),
-  );
+Future<bool> _cancelOrRealm(Future<Realm> realm, CancellationToken cancellationToken, [int? cancelAfterMilliseconds]) async {
+  final cancellationFuture = cancelAfterMilliseconds == null
+      ? Future<void>.value()
+      : Future<void>.delayed(Duration(milliseconds: cancelAfterMilliseconds), () => cancellationToken.cancel());
 
   final realmCheck = realm.then(
     (value) {

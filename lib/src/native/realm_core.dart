@@ -1777,7 +1777,7 @@ class _RealmCore {
     return completer.future;
   }
 
-  Future<void> sessionWaitForDownload(Session session, {CancellationToken? cancellationToken}) {
+  Future<void> sessionWaitForDownload(Session session, [CancellationToken? cancellationToken]) {
     final completer = CancellableCompleter<void>(cancellationToken);
     if (!completer.isCancelled) {
       final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_error_code_t>)>(_sessionWaitCompletionCallback);

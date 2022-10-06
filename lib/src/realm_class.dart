@@ -119,16 +119,16 @@ class Realm implements Finalizable {
 
   /// A method for asynchronously opening a [Realm].
   ///
-  /// If the configuration is [FlexibleSyncConfiguration], the realm will be downloaded and fully
+  /// When the configuration is [FlexibleSyncConfiguration], the realm will be downloaded and fully
   /// synchronized with the server prior to the completion of the returned [Future].
-  /// This method could be called also for opening a local [Realm].
+  /// This method could be called also for opening a local [Realm] with [LocalConfiguration].
   ///
   /// * `config`- a configuration object that describes the realm.
   /// * `cancellationToken` - an optional [CancellationToken] used to cancel the operation.
   /// * `onProgressCallback` - a callback for receiving download progress notifications for synced [Realm]s.
   ///
-  /// Returns [Future<Realm>] that completes with the `realm` once the remote realm is fully synchronized or with a [CancelledException] if operation is canceled.
-  /// When the configuration is [LocalConfiguration] this completes right after the local realm is opened or operation is canceled.
+  /// Returns `Future<Realm>` that completes with the [Realm] once the remote [Realm] is fully synchronized or with a [CancelledException] if operation is canceled.
+  /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened or operation is canceled.
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
     final cancellableCompleter = CancellableCompleter<Realm>(cancellationToken);
     try {
@@ -143,7 +143,7 @@ class Realm implements Finalizable {
         if (onProgressCallback != null) {
           await _syncProgressNotifier(session, onProgressCallback, cancellationToken);
         }
-        await session.waitForDownload(cancellationToken: cancellationToken);
+        await session.waitForDownload(cancellationToken);
       }
       cancellableCompleter.complete(realm);
     } catch (error) {
