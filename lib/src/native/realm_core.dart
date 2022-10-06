@@ -629,7 +629,7 @@ class _RealmCore {
     }
 
     if (error) {
-      completer.completeError(description.cast<Utf8>().toDartString());
+      completer.completeError(RealmException(description.cast<Utf8>().toDartString()));
     } else {
       completer.complete();
     }
