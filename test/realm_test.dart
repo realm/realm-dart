@@ -789,7 +789,7 @@ Future<void> main([List<String>? args]) async {
     expect(stored.location.name, 'Europe/Copenhagen');
   });
 
-  baasTest('Realm open async for flexibleSync configuration', (appConfiguration) async {
+  baasTest('Realm.open (flexibleSync)', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -799,30 +799,31 @@ Future<void> main([List<String>? args]) async {
     expect(realm.isClosed, false);
   });
 
-  test('Realm open async for local configuration', () async {
+  test('Realm.open (local)', () async {
     final configuration = Configuration.local([Car.schema]);
     final realm = await RealmA.open(configuration);
     expect(realm.isClosed, false);
   });
 
-  baasTest('Realm open async and get progress', (appConfiguration) async {
+  test('Realm.open (local) - cancel before open', () async {
+    final configuration = Configuration.local([Car.schema]);
+    var cancellationToken = CancellationToken();
+    cancellationToken.cancel();
+    await expectLater(RealmA.open(configuration, cancellationToken: cancellationToken), throwsA(isA<CancelledException>()));
+  });
+
+  baasTest('Realm.open (flexibleSync) - cancel before open', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-    int printCount = 0;
-
-    var syncedRealm = await RealmA.open(configuration, onProgressCallback: (syncProgress) {
-      print("transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
-      printCount++;
-    });
-
-    expect(syncedRealm.isClosed, false);
-    expect(printCount, isNot(0));
+    var cancellationToken = CancellationToken();
+    cancellationToken.cancel();
+    await expectLater(RealmA.open(configuration, cancellationToken: cancellationToken), throwsA(isA<CancelledException>()));
   });
 
-  baasTest('Realm open async and cancel for flexibleSync configuration', (appConfiguration) async {
+  baasTest('Realm.open (flexibleSync) - cancel 0 miliseconds after open', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -830,18 +831,11 @@ Future<void> main([List<String>? args]) async {
 
     var cancellationToken = CancellationToken();
     final realm = RealmA.open(configuration, cancellationToken: cancellationToken);
-    cancellationToken.cancel();
-    await expectLater(realm, throwsA(isA<CancelledException>()));
+    final cancelOrRealm = await _cancelOrRealm(realm, cancellationToken, 0);
+    await expectLater(cancelOrRealm, true);
   });
 
-  test('Realm open async and cancel before Realm.open for local configuration', () async {
-    final configuration = Configuration.local([Car.schema]);
-    var cancellationToken = CancellationToken();
-    cancellationToken.cancel();
-    await expectLater(RealmA.open(configuration, cancellationToken: cancellationToken), throwsA(isA<CancelledException>()));
-  });
-
-  baasTest('Realm open async with the same CancelationToken cancels all', (appConfiguration) async {
+  baasTest('Realm.open (flexibleSync) - open twice the same realm with the same CancelationToken cancels all', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -849,13 +843,16 @@ Future<void> main([List<String>? args]) async {
 
     var cancellationToken = CancellationToken();
     final realm1 = RealmA.open(configuration, cancellationToken: cancellationToken);
+    final cancelOrRealm1 = await _cancelOrRealm(realm1, cancellationToken, 0);
+
     final realm2 = RealmA.open(configuration, cancellationToken: cancellationToken);
-    cancellationToken.cancel();
-    await expectLater(realm1, throwsA(isA<CancelledException>()));
-    await expectLater(realm2, throwsA(isA<CancelledException>()));
+    final cancelOrRealm2 = await _cancelOrRealm(realm2, cancellationToken, 0);
+
+    await expectLater(cancelOrRealm1, true);
+    await expectLater(cancelOrRealm2, true);
   });
 
-  baasTest('Realm open async - open twice the same realm and cancel the first only', (appConfiguration) async {
+  baasTest('Realm.open (flexibleSync) - open twice the same realm and cancel the first only', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -867,22 +864,15 @@ Future<void> main([List<String>? args]) async {
     var cancellationToken2 = CancellationToken();
     final realm2 = RealmA.open(configuration, cancellationToken: cancellationToken2);
 
-    final validFuture = Future<void>.delayed(Duration(milliseconds: 200), () async {
-      final openedRealm = await realm2;
-      expect(openedRealm, isNotNull);
-      expect(openedRealm.isClosed, false);
-    });
+    final cancelOrRealm = await _cancelOrRealm(realm1, cancellationToken1, 0);
+    expect(cancelOrRealm, true);
 
-    final canceledFuture = Future<void>.delayed(Duration(milliseconds: 300), () async {
-      cancellationToken1.cancel();
-      await expectLater(realm1, throwsA(isA<CancelledException>()));
-    });
-
-    await validFuture;
-    await canceledFuture;
+    final openedRealm = await realm2;
+    expect(openedRealm, isNotNull);
+    expect(openedRealm.isClosed, false);
   });
 
-  baasTest('Realm open async - open two different Realms(for user1 and user2) and cancel only the second', (appConfiguration) async {
+  baasTest('Realm.open (flexibleSync) - open two different Realms(for user1 and user2) and cancel only the second', (appConfiguration) async {
     final app = App(appConfiguration);
 
     final user1 = await app.logIn(Credentials.anonymous());
@@ -893,36 +883,17 @@ Future<void> main([List<String>? args]) async {
     final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
     final configuration2 = Configuration.flexibleSync(user2, [Task.schema]);
     var cancellationToken2 = CancellationToken();
-
     final realm2 = RealmA.open(configuration2, cancellationToken: cancellationToken2);
 
-    final validFuture = Future<void>.delayed(Duration(milliseconds: 200), () async {
-      final openedRealm = await realm1;
-      expect(openedRealm, isNotNull);
-      expect(openedRealm.isClosed, false);
-    });
+    final cancelOrRealm = await _cancelOrRealm(realm2, cancellationToken2, 0);
+    expect(cancelOrRealm, true);
 
-    final canceledFuture = Future<void>.delayed(Duration(milliseconds: 300), () async {
-      cancellationToken2.cancel();
-      await expectLater(realm2, throwsA(isA<CancelledException>()));
-    });
-
-    await validFuture;
-    await canceledFuture;
+    final openedRealm = await realm1;
+    expect(openedRealm, isNotNull);
+    expect(openedRealm.isClosed, false);
   });
 
-  baasTest('Realm open async - CancellationToken.cancel before Realm.open', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, [Task.schema]);
-
-    var cancellationToken = CancellationToken();
-    cancellationToken.cancel();
-    await expectLater(RealmA.open(configuration, cancellationToken: cancellationToken), throwsA(isA<CancelledException>()));
-  });
-
-  baasTest('Realm open async - CancellationToken.cancel after realm is obtained', (appConfiguration) async {
+  baasTest('Realm.open (flexibleSync) - cancel after realm is returned is no-op', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -938,46 +909,90 @@ Future<void> main([List<String>? args]) async {
     expect(realm.isClosed, false);
   });
 
-  baasTest('Realm open async with added data', (appConfiguration) async {
+  baasTest('Realm.open (flexibleSync) - listen for download progress of an empty realm', (appConfiguration) async {
     final app = App(appConfiguration);
-    final config = await addDataToAtlas(app);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    final configuration = Configuration.flexibleSync(user, [Task.schema]);
+
+    int printCount = 0;
+
+    var syncedRealm = await RealmA.open(configuration, onProgressCallback: (syncProgress) {
+      print("PROGRESS: transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
+      printCount++;
+    });
+
+    expect(syncedRealm.isClosed, false);
+    expect(printCount, isNot(0));
+  });
+
+  baasTest('Realm.open (flexibleSync) - download a populated realm', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final config = await _addDataToAtlas(app);
     var syncedRealm = await RealmA.open(config);
     expect(syncedRealm.isClosed, false);
   });
 
-  baasTest('Realm open async with added data and get progress', (appConfiguration) async {
+  baasTest('Realm.open (flexibleSync) - listen for download progress of a populated realm', (appConfiguration) async {
     final app = App(appConfiguration);
 
-    final config = await addDataToAtlas(app);
+    final config = await _addDataToAtlas(app);
 
     int printCount = 0;
     int transferredBytes = 0;
     var syncedRealm = await RealmA.open(config, onProgressCallback: (syncProgress) {
-      print("transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
+      print("PROGRESS: transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
       printCount++;
       transferredBytes = syncProgress.transferredBytes;
     });
 
     expect(syncedRealm.isClosed, false);
     expect(printCount, isNot(0));
-    expect(transferredBytes > 2000, isTrue);
+    expect(transferredBytes > 20, isTrue); //19 bytes is the empty realm
   });
 
-  baasTest('Realm open async  with added data, get progres and swith cancel', (appConfiguration) async {
+  baasTest('Realm.open (flexibleSync) - listen and cancel download progress of a populated realm', (appConfiguration) async {
     final app = App(appConfiguration);
 
-    final config = await addDataToAtlas(app);
+    final config = await _addDataToAtlas(app);
 
     var cancellationToken = CancellationToken();
     final realm = RealmA.open(config, cancellationToken: cancellationToken, onProgressCallback: (syncProgress) {
-      print("transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
+      print("PROGRESS: transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
     });
-    cancellationToken.cancel();
-    await expectLater(realm, throwsA(isA<CancelledException>()));
+    final cancelOrRealm = await _cancelOrRealm(realm, cancellationToken, 0);
+    expect(cancelOrRealm, true);
   });
 }
 
-Future<Configuration> addDataToAtlas(App app) async {
+Future<bool> _cancelOrRealm(Future<Realm> realm, CancellationToken cancellationToken, int cancelAfterMilliseconds) async {
+  final cancellationFuture = Future<void>.delayed(
+    Duration(milliseconds: cancelAfterMilliseconds),
+    () => cancellationToken.cancel(),
+  );
+
+  final realmCheck = realm.then(
+    (value) {
+      expect(value.isClosed, false);
+      print("REALM CHECK: Realm returned before cancellation.");
+      return true;
+    },
+  ).onError(
+    (error, stackTrace) {
+      print("REALM CHECK: Cancelled before to return the Realm.");
+      return true;
+    },
+    test: (error) => error is CancelledException,
+  ).catchError((Object error) {
+    print("REALM CHECK: Unhandled exception.");
+    throw error;
+  }, test: (error) => error is! CancelledException);
+
+  await cancellationFuture;
+  return realmCheck;
+}
+
+Future<Configuration> _addDataToAtlas(App app) async {
   final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
   final config1 = Configuration.flexibleSync(user1, [Task.schema]);
   final realm1 = getRealm(config1);
@@ -993,13 +1008,14 @@ Future<Configuration> addDataToAtlas(App app) async {
     realm2.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm2.all<Task>()));
     await realm2.subscriptions.waitForSynchronization();
   }
-  realm2.write(() {
-    for (var i = 0; i < 100; i++) {
-      realm2.add(Task(ObjectId()));
-    }
-  });
-  await realm2.subscriptions.waitForSynchronization();
-  await realm2.syncSession.waitForUpload();
+  if (realm2.all<Task>().isEmpty) {
+    realm2.write(() {
+      for (var i = 0; i < 100; i++) {
+        realm2.add(Task(ObjectId()));
+      }
+    });
+    await realm2.syncSession.waitForUpload();
+  }
   realm2.close();
   return config1;
 }
