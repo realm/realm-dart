@@ -123,10 +123,9 @@ class Realm implements Finalizable {
     isFrozen = realmCore.isFrozen(this);
 
     if (config is FlexibleSyncConfiguration) {
-      FlexibleSyncConfiguration flexibleSyncConfiguration = config as FlexibleSyncConfiguration;
-      if (flexibleSyncConfiguration.initialSubscriptionsConfiguration?.callback != null &&
-          (_openedFirstTime || flexibleSyncConfiguration.initialSubscriptionsConfiguration?.rerunOnOpen == true)) {
-        flexibleSyncConfiguration.initialSubscriptionsConfiguration?.callback(this);
+      final flxConfig = config as FlexibleSyncConfiguration;
+      if (flxConfig.initialSubscriptionsConfiguration?.callback != null && (_openedFirstTime || flxConfig.initialSubscriptionsConfiguration!.rerunOnOpen)) {
+        flxConfig.initialSubscriptionsConfiguration!.callback(this);
       }
     }
   }
@@ -157,10 +156,6 @@ class Realm implements Finalizable {
         StreamSubscription<SyncProgress>? subscription;
         try {
           if (onProgressCallback != null) {
-            if (config.initialSubscriptionsConfiguration?.callback != null &&
-                (realm._openedFirstTime || config.initialSubscriptionsConfiguration?.rerunOnOpen == true)) {
-              await realm.subscriptions.waitForSynchronization();
-            }
             subscription = session
                 .getProgressStream(
                   ProgressDirection.download,
@@ -170,6 +165,11 @@ class Realm implements Finalizable {
                   (syncProgress) => onProgressCallback.call(syncProgress),
                   cancelOnError: true,
                 );
+          }
+          if (config.initialSubscriptionsConfiguration?.callback != null &&
+              (realm._openedFirstTime || config.initialSubscriptionsConfiguration!.rerunOnOpen == true)) {
+            config.initialSubscriptionsConfiguration!.callback(realm);
+            await realm.subscriptions.waitForSynchronization();
           }
           await session.waitForDownload(cancellationToken);
         } finally {
@@ -181,28 +181,6 @@ class Realm implements Finalizable {
       cancellableCompleter.completeError(error);
     }
     return cancellableCompleter.future;
-  }
-
-  static Future<void> _syncProgressNotifier(Session session, ProgressCallback onProgressCallback, [CancellationToken? cancellationToken]) async {
-    StreamSubscription<SyncProgress>? subscription;
-    try {
-      final progressCompleter = Completer<void>().asCancellable(cancellationToken);
-      if (!progressCompleter.isCompleted) {
-        final progressStream = session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
-        subscription = progressStream.listen(
-          (syncProgress) => onProgressCallback.call(syncProgress),
-          onDone: () => progressCompleter.complete(),
-          onError: (Object error) => progressCompleter.completeError(error),
-          cancelOnError: true,
-        );
-      }
-      await progressCompleter.future;
-    } catch (error) {
-      // Make sure that StreamSubscription is cancelled on error before to continue.
-      // This will prevent receiving exceptions for acessing handles that belong to a closed Realm
-      // in case the Realm is closed before this `subsription.cancel` to complete.
-      await subscription?.cancel();
-    }
   }
 
   static RealmHandle _openRealmSync(Configuration config) {

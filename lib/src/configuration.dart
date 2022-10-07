@@ -56,7 +56,6 @@ typedef MigrationCallback = void Function(Migration migration, int oldSchemaVers
 
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
-
 abstract class Configuration implements Finalizable {
   /// The default realm filename to be used.
   static String get defaultRealmName => _path.basename(defaultRealmPath);
