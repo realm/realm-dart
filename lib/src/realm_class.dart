@@ -165,28 +165,6 @@ class Realm implements Finalizable {
     return cancellableCompleter.future;
   }
 
-  static Future<void> _syncProgressNotifier(Session session, ProgressCallback onProgressCallback, [CancellationToken? cancellationToken]) async {
-    StreamSubscription<SyncProgress>? subscription;
-    try {
-      final progressCompleter = Completer<void>().asCancellable(cancellationToken);
-      if (!progressCompleter.isCompleted) {
-        final progressStream = session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
-        subscription = progressStream.listen(
-          (syncProgress) => onProgressCallback.call(syncProgress),
-          onDone: () => progressCompleter.complete(),
-          onError: (Object error) => progressCompleter.completeError(error),
-          cancelOnError: true,
-        );
-      }
-      await progressCompleter.future;
-    } catch (error) {
-      // Make sure that StreamSubscription is cancelled on error before to continue.
-      // This will prevent receiving exceptions for acessing handles that belong to a closed Realm
-      // in case the Realm is closed before this `subsription.cancel` to complete.
-      await subscription?.cancel();
-    }
-  }
-
   static RealmHandle _openRealmSync(Configuration config) {
     var dir = File(config.path).parent;
     if (!dir.existsSync()) {
