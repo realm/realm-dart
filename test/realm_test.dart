@@ -965,7 +965,7 @@ Future<void> main([List<String>? args]) async {
     final cancelOrRealm = await _cancelOrRealm(realm, cancellationToken, 0);
     expect(cancelOrRealm, true);
   });
-  
+
   baasTest('Realm open async with initial subscriptions and get progress', (appConfiguration) async {
     final app = App(appConfiguration);
 
@@ -982,18 +982,18 @@ Future<void> main([List<String>? args]) async {
     await realm1.syncSession.waitForUpload();
 
     final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final configuration2 = Configuration.flexibleSync(user2, [Task.schema],
-        initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration((realm) {
-          realm.subscriptions.update(
-            (mutableSubscriptions) {
-              mutableSubscriptions.add(realm.all<Task>());
-            },
-          );
+    final configuration2 = Configuration.flexibleSync(user2, [Task.schema], initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration(
+      (realm) {
+        realm.subscriptions.update(
+          (mutableSubscriptions) {
+            mutableSubscriptions.add(realm.all<Task>());
+          },
+        );
       },
     ));
 
-    final realm2 = await RealmA.open(configuration2, onProgressCallback: (transferredBytes, totalBytes) {
-      print("transferredBytes: $transferredBytes, totalBytes:$totalBytes");
+    final realm2 = await getRealmAsync(configuration2, onProgressCallback: (s) {
+      print("transferredBytes: $s.transferredBytes, totalBytes:$s.totalBytes");
     });
     expect(realm2.isClosed, false);
     expect(realm2.all<Task>().length, realm1.all<Task>().length);
@@ -1015,11 +1015,11 @@ Future<void> main([List<String>? args]) async {
     await realm1.syncSession.waitForUpload();
 
     final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final configuration2 = Configuration.flexibleSync(user2, [Task.schema],
-        initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration((realm) {
-          realm.subscriptions.update((mutableSubscriptions) {
-            mutableSubscriptions.add(realm.all<Task>());
-          });
+    final configuration2 = Configuration.flexibleSync(user2, [Task.schema], initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration(
+      (realm) {
+        realm.subscriptions.update((mutableSubscriptions) {
+          mutableSubscriptions.add(realm.all<Task>());
+        });
       },
     ));
 
@@ -1066,7 +1066,7 @@ Future<Configuration> _addDataToAtlas(App app) async {
     realm1.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query1));
   }
   await realm1.subscriptions.waitForSynchronization();
-  
+
   final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
   final config2 = Configuration.flexibleSync(user2, [Task.schema]);
   final realm2 = getRealm(config2);
