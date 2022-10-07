@@ -966,68 +966,52 @@ Future<void> main([List<String>? args]) async {
     expect(cancelOrRealm, true);
   });
 
-  baasTest('Realm open async with initial subscriptions and get progress', (appConfiguration) async {
+  baasTest('Realm.open with initial subscriptions and get progress', (appConfiguration) async {
     final app = App(appConfiguration);
 
-    final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final configuration1 = Configuration.flexibleSync(user1, [Task.schema]);
-    final realm1 = getRealm(configuration1);
-    realm1.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm1.all<Task>()));
-    await realm1.subscriptions.waitForSynchronization();
-    realm1.write(() {
-      for (var i = 0; i < 100; i++) {
-        realm1.add(Task(ObjectId()));
-      }
-    });
-    await realm1.syncSession.waitForUpload();
+    final config = await _addDataToAtlas(app);
 
-    final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final configuration2 = Configuration.flexibleSync(user2, [Task.schema], initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration(
+    final flxConfig = Configuration.flexibleSync(
+      (config as FlexibleSyncConfiguration).user,
+      [Task.schema],
+      initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration(
       (realm) {
         realm.subscriptions.update(
           (mutableSubscriptions) {
             mutableSubscriptions.add(realm.all<Task>());
-          },
-        );
-      },
-    ));
+        });
+      }),
+    );
 
-    final realm2 = await getRealmAsync(configuration2, onProgressCallback: (s) {
-      print("transferredBytes: $s.transferredBytes, totalBytes:$s.totalBytes");
+    final realm = await getRealmAsync(flxConfig, onProgressCallback: (syncProgress) {
+      print("PROGRESS: transferredBytes: $syncProgress.transferredBytes, totalBytes:$syncProgress.totalBytes");
     });
-    expect(realm2.isClosed, false);
-    expect(realm2.all<Task>().length, realm1.all<Task>().length);
+    expect(realm.isClosed, false);
+    expect(realm.all<Task>().length, 100);
   });
 
-  baasTest('Create realm with initial subscriptions', (appConfiguration) async {
+  baasTest('Open realm with initial subscriptions', (appConfiguration) async {
     final app = App(appConfiguration);
 
-    final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final configuration1 = Configuration.flexibleSync(user1, [Task.schema]);
-    final realm1 = getRealm(configuration1);
-    realm1.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm1.all<Task>()));
-    await realm1.subscriptions.waitForSynchronization();
-    realm1.write(() {
-      for (var i = 0; i < 100; i++) {
-        realm1.add(Task(ObjectId()));
-      }
-    });
-    await realm1.syncSession.waitForUpload();
+     final config = await _addDataToAtlas(app);
 
-    final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final configuration2 = Configuration.flexibleSync(user2, [Task.schema], initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration(
+   final flxConfig = Configuration.flexibleSync(
+      (config as FlexibleSyncConfiguration).user,
+      [Task.schema],
+      initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration(
       (realm) {
-        realm.subscriptions.update((mutableSubscriptions) {
-          mutableSubscriptions.add(realm.all<Task>());
+        realm.subscriptions.update(
+          (mutableSubscriptions) {
+            mutableSubscriptions.add(realm.all<Task>());
         });
-      },
-    ));
+      }),
+    );
 
-    final realm2 = getRealm(configuration2);
-    await realm2.subscriptions.waitForSynchronization();
-    await realm2.syncSession.waitForDownload();
+    final realm = getRealm(flxConfig);
+    await realm.subscriptions.waitForSynchronization();
+    await realm.syncSession.waitForDownload();
 
-    expect(realm2.all<Task>().length, realm1.all<Task>().length);
+    expect(realm.all<Task>().length, 100);
   });
 }
 
