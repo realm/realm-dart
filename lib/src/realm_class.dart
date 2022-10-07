@@ -23,6 +23,7 @@ import 'dart:io';
 import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:collection/collection.dart';
+import 'package:cancellation_token/cancellation_token.dart';
 
 import 'configuration.dart';
 import 'list.dart';
@@ -33,6 +34,7 @@ import 'scheduler.dart';
 import 'subscription.dart';
 import 'session.dart';
 
+export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException, CancellableCompleter, CancellableFuture;
 export 'package:realm_common/realm_common.dart'
     show
         Ignored,
@@ -40,6 +42,7 @@ export 'package:realm_common/realm_common.dart'
         MapTo,
         PrimaryKey,
         RealmError,
+        RealmClosedError,
         SyncError,
         SyncClientError,
         SyncClientResetError,
@@ -60,7 +63,7 @@ export 'package:realm_common/realm_common.dart'
         Uuid;
 
 // always expose with `show` to explicitly control the public API surface
-export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App;
+export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App, AppException;
 export "configuration.dart"
     show
         Configuration,
@@ -72,7 +75,7 @@ export "configuration.dart"
         SchemaObject,
         ShouldCompactCallback,
         SyncErrorHandler,
-        SyncClientResetErrorHandler,
+        SyncClientResetErrorHandler;
         InitialSubscriptionsConfiguration;
 
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
@@ -81,7 +84,7 @@ export 'realm_object.dart' show RealmEntity, RealmException, UserCallbackExcepti
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
-export 'user.dart' show User, UserState, UserIdentity;
+export 'user.dart' show User, UserState, UserIdentity, ApiKeyClient, ApiKey;
 export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
 
 /// A [Realm] instance represents a `Realm` database.
@@ -107,15 +110,10 @@ class Realm implements Finalizable {
   /// and will not update when writes are made to the database.
   late final bool isFrozen;
 
-  /// Returns true if the [Realm] is opened for the first time and the realm file is created.
-  late final bool _openedFirstTime;
-
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
-  Realm._(this.config, [RealmHandle? handle, this._isInMigration = false])
-      : _openedFirstTime = !File(config.path).existsSync(),
-        _handle = handle ?? _openRealmSync(config) {
+  Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) : _handle = handle ?? _openRealmSync(config) {
     _populateMetadata();
     isFrozen = realmCore.isFrozen(this);
 
@@ -130,47 +128,77 @@ class Realm implements Finalizable {
 
   /// A method for asynchronously opening a [Realm].
   ///
-  /// If the configuration is [FlexibleSyncConfiguration], the realm will be downloaded and fully
+  /// When the configuration is [FlexibleSyncConfiguration], the realm will be downloaded and fully
   /// synchronized with the server prior to the completion of the returned [Future].
-  /// This method could be called also for opening a local [Realm].
+  /// This method could be called also for opening a local [Realm] with [LocalConfiguration].
   ///
   /// * `config`- a configuration object that describes the realm.
   /// * `cancellationToken` - an optional [CancellationToken] used to cancel the operation.
   /// * `onProgressCallback` - a callback for receiving download progress notifications for synced [Realm]s.
   ///
-  /// Returns [Future<Realm>] that completes with the `realm` once the remote realm is fully synchronized or with an `error` if operation is canceled.
-  /// When the configuration is [LocalConfiguration] this completes right after the local realm is opened or operation is canceled.
+  /// Returns `Future<Realm>` that completes with the [Realm] once the remote [Realm] is fully synchronized or with a [CancelledException] if operation is canceled.
+  /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened or operation is canceled.
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
-    Realm realm = await CancellableFuture.fromFutureFunction<Realm>(() => _open(config, cancellationToken, onProgressCallback), cancellationToken);
-    return realm;
+    final cancellableCompleter = CancellableCompleter<Realm>(cancellationToken);
+    try {
+      final realm = Realm(config);
+      cancellableCompleter.future.catchError((Object error) {
+        realm.close();
+        return realm;
+      });
+
+      if (config is FlexibleSyncConfiguration) {
+        final session = realm.syncSession;
+        StreamSubscription<SyncProgress>? subscription;
+        try {
+          if (onProgressCallback != null) {
+          
+          	if (config.initialSubscriptionsConfiguration?.callback != null &&
+          		(realm._openedFirstTime || config.initialSubscriptionsConfiguration?.rerunOnOpen == true)) {
+        		await realm.subscriptions.waitForSynchronization();
+      		}
+            subscription = session
+                .getProgressStream(
+                  ProgressDirection.download,
+                  ProgressMode.forCurrentlyOutstandingWork,
+                )
+                .listen(
+                  (syncProgress) => onProgressCallback.call(syncProgress),
+                  cancelOnError: true,
+                );
+          }
+          await session.waitForDownload(cancellationToken);
+        } finally {
+          await subscription?.cancel();
+        }
+      }
+      cancellableCompleter.complete(realm);
+    } catch (error) {
+      cancellableCompleter.completeError(error);
+    }
+    return cancellableCompleter.future;
   }
 
-  static Future<Realm> _open(Configuration config, CancellationToken? cancellationToken, ProgressCallback? onProgressCallback) async {
-    Realm? realm;
-
-    cancellationToken?.onBeforeCancel(() async {
-      realm?.close();
-    });
-
-    realm = Realm(config);
-
-    if (config is FlexibleSyncConfiguration) {
-      final session = realm.syncSession;
-      if (onProgressCallback != null) {
-        await session
-            .getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork)
-            .forEach((s) => onProgressCallback.call(s.transferredBytes, s.transferableBytes));
+  static Future<void> _syncProgressNotifier(Session session, ProgressCallback onProgressCallback, [CancellationToken? cancellationToken]) async {
+    StreamSubscription<SyncProgress>? subscription;
+    try {
+      final progressCompleter = Completer<void>().asCancellable(cancellationToken);
+      if (!progressCompleter.isCompleted) {
+        final progressStream = session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
+        subscription = progressStream.listen(
+          (syncProgress) => onProgressCallback.call(syncProgress),
+          onDone: () => progressCompleter.complete(),
+          onError: (Object error) => progressCompleter.completeError(error),
+          cancelOnError: true,
+        );
       }
-      if (config.initialSubscriptionsConfiguration?.callback != null &&
-          (realm._openedFirstTime || config.initialSubscriptionsConfiguration?.rerunOnOpen == true)) {
-        await realm.subscriptions.waitForSynchronization();
-      }
-      await session.waitForDownload();
-      if (!realm._openedFirstTime) {
-        await session.waitForUpload();
-      }
+      await progressCompleter.future;
+    } catch (error) {
+      // Make sure that StreamSubscription is cancelled on error before to continue.
+      // This will prevent receiving exceptions for acessing handles that belong to a closed Realm
+      // in case the Realm is closed before this `subsription.cancel` to complete.
+      await subscription?.cancel();
     }
-    return realm;
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
@@ -310,17 +338,16 @@ class Realm implements Finalizable {
   /// All [RealmObject]s and `Realm ` collections are invalidated and can not be used.
   /// This method will not throw if called multiple times.
   void close() {
-    _syncSession?.handle.release();
-    _syncSession = null;
-
-    _subscriptions?.handle.release();
-    _subscriptions = null;
+    if (isClosed) {
+      return;
+    }
 
     realmCore.closeRealm(this);
+    handle.release();
   }
 
   /// Checks whether the `Realm` is closed.
-  bool get isClosed => realmCore.isRealmClosed(this);
+  bool get isClosed => _handle.released || realmCore.isRealmClosed(this);
 
   /// Fast lookup for a [RealmObject] with the specified [primaryKey].
   T? find<T extends RealmObject>(Object? primaryKey) {
@@ -377,7 +404,7 @@ class Realm implements Finalizable {
     return Realm._(config, realmCore.freeze(this));
   }
 
-  SubscriptionSet? _subscriptions;
+  WeakReference<SubscriptionSet>? _subscriptions;
 
   /// The active [SubscriptionSet] for this [Realm]
   SubscriptionSet get subscriptions {
@@ -385,12 +412,18 @@ class Realm implements Finalizable {
       throw RealmError('subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration');
     }
 
-    _subscriptions ??= SubscriptionSetInternal.create(this, realmCore.getSubscriptions(this));
-    realmCore.refreshSubscriptionSet(_subscriptions!);
-    return _subscriptions!;
+    var result = _subscriptions?.target;
+
+    if (result == null || result.handle.released) {
+      result = SubscriptionSetInternal.create(this, realmCore.getSubscriptions(this));
+      realmCore.refreshSubscriptionSet(result);
+      _subscriptions = WeakReference(result);
+    }
+
+    return result;
   }
 
-  Session? _syncSession;
+  WeakReference<Session>? _syncSession;
 
   /// The [Session] for this [Realm]. The sync session is responsible for two-way synchronization
   /// with MongoDB Atlas. If the [Realm] is not synchronized, accessing this property will throw.
@@ -399,8 +432,14 @@ class Realm implements Finalizable {
       throw RealmError('session is only valid on synchronized Realms (i.e. opened with FlexibleSyncConfiguration)');
     }
 
-    _syncSession ??= SessionInternal.create(realmCore.realmGetSession(this));
-    return _syncSession!;
+    var result = _syncSession?.target;
+
+    if (result == null || result.handle.released) {
+      result = SessionInternal.create(realmCore.realmGetSession(this));
+      _syncSession = WeakReference(result);
+    }
+
+    return result;
   }
 
   @override
@@ -462,7 +501,13 @@ extension RealmInternal on Realm {
     }
   }
 
-  RealmHandle get handle => _handle;
+  RealmHandle get handle {
+    if (_handle.released) {
+      throw RealmClosedError('Cannot access realm that has been closed');
+    }
+
+    return _handle;
+  }
 
   static Realm getUnowned(Configuration config, RealmHandle handle, {bool isInMigration = false}) {
     return Realm._(config, handle, isInMigration);
@@ -544,7 +589,8 @@ abstract class NotificationsController implements Finalizable {
   }
 
   void stop() {
-    if (handle == null) {
+    // If handle is null or released, no-op
+    if (handle?.released != false) {
       return;
     }
 
@@ -697,84 +743,13 @@ class MigrationRealm extends DynamicRealm {
 /// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].
 /// This is the registered callback onProgressCallback to receive progress notifications while the download is in progress.
 ///
-/// It is called with the following arguments:
-/// * `transferredBytes` - the current number of bytes already transferred
-/// * `totalBytes` - the total number of transferable bytes (the number of bytes already transferred plus the number of bytes pending transfer)
+/// * syncProgress - an object of [SyncProgress] that contains `transferredBytes` and `transferableBytes`.
 /// {@category Realm}
-typedef ProgressCallback = void Function(int transferredBytes, int totalBytes);
+typedef ProgressCallback = void Function(SyncProgress syncProgress);
 
-/// An exception being thrown when a cancellable operation is cancelled by calling [CancellationToken.cancel].
-/// {@category Realm}
-class CancelledException implements RealmException {
-  final String message;
-
-  CancelledException(this.message);
-
-  @override
-  String toString() {
-    return message;
-  }
-}
-
-/// [CancellationToken] provides method [cancel] that executes [_onCancel] and [beforeCancel] callbacks.
-/// It is used for canceling long Future operations.
-/// {@category Realm}
-class CancellationToken {
-  bool isCanceled = false;
-  final _attachedCallbacks = <Function>[];
-  final _attachedBeforeCancelCallbacks = <Function>[];
-
-  void _onCancel(Function onCancel) {
-    _attachedCallbacks.add(onCancel);
-  }
-
-  void onBeforeCancel(Function beforeCancel) {
-    _attachedBeforeCancelCallbacks.add(beforeCancel);
-  }
-
-  void cancel() {
-    try {
-      for (final beforeCancelCallback in _attachedBeforeCancelCallbacks) {
-        beforeCancelCallback();
-      }
-      for (final cancelCallback in _attachedCallbacks) {
-        cancelCallback();
-      }
-    } finally {
-      isCanceled = true;
-      _attachedBeforeCancelCallbacks.clear();
-      _attachedCallbacks.clear();
-    }
-  }
-}
-
-/// [CancellableFuture] provides a static method [fromFutureFunction] that builds cancellable Future
-/// from Future function.
-///
-/// fromFutureFunction arguments are:
-/// * `futureFunction`- a function executung a Future that has to be canceled.
-/// * `cancellationToken` - [CancellationToken] that is used to cancel the Future.
-/// * `cancelledMessage` - am optional argument providing reasonable message of [CancelledException] thrown by the Future if the token is canceled.
-/// {@category Realm}
-class CancellableFuture {
-  static Future<T> fromFutureFunction<T>(Future<T> Function() futureFunction, CancellationToken? cancellationToken, {String? cancelledMessage}) async {
-    if (cancellationToken != null) {
-      final cancelException = CancelledException(cancelledMessage ?? "Canceled operation.");
-      final completer = Completer<T>();
-      cancellationToken._onCancel(() {
-        if (!completer.isCompleted) {
-          completer.completeError(cancelException);
-        }
-      });
-      if (cancellationToken.isCanceled) {
-        completer.completeError(cancelException);
-        await completer.future;
-      } else {
-        if (!(completer.isCompleted || cancellationToken.isCanceled)) {
-          return await Future.any([completer.future, futureFunction()]);
-        }
-      }
-    }
-    return await Future.any([futureFunction()]);
+/// @nodoc
+extension $CancellableCompleterExtension<T> on Completer<T> {
+  CancellableCompleter<T> asCancellable(CancellationToken? cancellationToken, {OnCancelCallback? onCancel}) {
+    return CancellableCompleter<T>(cancellationToken, onCancel: onCancel);
   }
 }

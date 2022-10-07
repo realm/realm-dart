@@ -39,6 +39,11 @@ class User {
     return _app ??= AppInternal.create(realmCore.userGetApp(_handle));
   }
 
+  /// Gets an [ApiKeyClient] instance that exposes functionality for managing
+  /// user API keys.
+  /// [API Keys Authentication Docs](https://docs.mongodb.com/realm/authentication/api-key/)
+  late final ApiKeyClient apiKeys = ApiKeyClient._(this);
+
   User._(this._handle, this._app);
 
   /// The current state of this [User].
@@ -74,6 +79,18 @@ class User {
   /// Gets the profile information for this [User].
   UserProfile get profile {
     return realmCore.userGetProfileData(this);
+  }
+
+  /// Gets the refresh token for this [User]. This is the user's credential for
+  /// accessing Atlas App Services and should be treated as sensitive data.
+  String get refreshToken {
+    return realmCore.userGetRefreshToken(this);
+  }
+
+  /// Gets the access token for this [User]. This is the user's credential for
+  /// accessing Atlas App Services and should be treated as sensitive data.
+  String get accessToken {
+    return realmCore.userGetAccessToken(this);
   }
 
   /// The custom user data associated with this [User].
@@ -183,6 +200,73 @@ class UserProfile {
   const UserProfile(this._data);
 }
 
+/// A class exposing functionality for users to manage API keys from the client. It is always scoped
+/// to a particular [User] and can only be accessed via [User.apiKeys]
+class ApiKeyClient {
+  final User _user;
+
+  ApiKeyClient._(this._user);
+
+  /// Creates a new API key with the given name. The value of the returned key
+  /// must be persisted as this is the only time it is available.
+  Future<ApiKey> create(String name) async {
+    return realmCore.createApiKey(_user, name);
+  }
+
+  /// Fetches a specific API key by id.
+  Future<ApiKey?> fetch(ObjectId id) {
+    return realmCore.fetchApiKey(_user, id).handle404();
+  }
+
+  /// Fetches all API keys associated with the user.
+  Future<List<ApiKey>> fetchAll() async {
+    return realmCore.fetchAllApiKeys(_user);
+  }
+
+  /// Deletes a specific API key by id.
+  Future<void> delete(ObjectId objectId) {
+    return realmCore.deleteApiKey(_user, objectId).handle404();
+  }
+
+  /// Disables an API key by id.
+  Future<void> disable(ObjectId objectId) {
+    return realmCore.disableApiKey(_user, objectId).handle404(id: objectId);
+  }
+
+  /// Enables an API key by id.
+  Future<void> enable(ObjectId objectId) {
+    return realmCore.enableApiKey(_user, objectId).handle404(id: objectId);
+  }
+}
+
+/// A class representing an API key for a [User]. It can be used to represent the user when logging in
+/// instead of their regular credentials. These keys are created or fetched through [User.apiKeys].
+class ApiKey {
+  /// The unique idenitifer for this [ApiKey].
+  final ObjectId id;
+
+  /// The name of this [ApiKey].
+  final String name;
+
+  /// The value of this [ApiKey]. This is only returned when the ApiKey is created via [ApiKeyClient.create].
+  /// In all other cases, it'll be `null`.
+  final String? value;
+
+  /// A value indicating whether the ApiKey is enabled. If this is false, then the ApiKey cannot be used to
+  /// authenticate the user.
+  final bool isEnabled;
+
+  ApiKey._(this.id, this.name, this.value, this.isEnabled);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) || (other is ApiKey && other.id == id);
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+}
+
 /// @nodoc
 extension UserIdentityInternal on UserIdentity {
   static UserIdentity create(String identity, AuthProviderType provider) => UserIdentity._(identity, provider);
@@ -199,4 +283,39 @@ extension UserInternal on User {
   UserHandle get handle => _handle;
 
   static User create(UserHandle handle, [App? app]) => User._(handle, app);
+
+  static ApiKey createApiKey(ObjectId id, String name, String? value, bool isEnabled) => ApiKey._(id, name, value, isEnabled);
+}
+
+extension on Future<void> {
+  Future<void> handle404({ObjectId? id}) async {
+    try {
+      await this;
+    } on AppException catch (e) {
+      if (e.statusCode == 404) {
+        // If we have an id, we can provide a more specific error message. Otherwise, we ignore the exception
+        if (id != null) {
+          throw AppInternal.createException("Failed to execute operation because ApiKey with Id: $id doesn't exist.", e.linkToServerLogs, 404);
+        }
+
+        return;
+      }
+
+      rethrow;
+    }
+  }
+}
+
+extension on Future<ApiKey> {
+  Future<ApiKey?> handle404() async {
+    try {
+      return await this;
+    } on AppException catch (e) {
+      if (e.statusCode == 404) {
+        return null;
+      }
+
+      rethrow;
+    }
+  }
 }

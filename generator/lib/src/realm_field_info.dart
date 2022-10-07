@@ -44,7 +44,7 @@ class RealmFieldInfo {
   bool get isRealmCollection => fieldElement.type.isRealmCollection;
   bool get isLate => fieldElement.isLate;
   bool get hasDefaultValue => fieldElement.hasInitializer;
-  bool get optional => type.isNullable;
+  bool get optional => type.isNullable || (type.isRealmCollection && (type as ParameterizedType).typeArguments.last.isNullable);
   bool get isRequired => !(hasDefaultValue || optional);
 
   String get name => fieldElement.name;

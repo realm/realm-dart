@@ -49,11 +49,11 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "${generateRandomString(5)}@realm.io";
-    expect(() async {
+    await expectLater(() {
       // For confirmationType = 'runConfirmationFunction' as it is by default
       // only usernames that contain 'realm_tests_do_autoverify' are confirmed.
-      await authProvider.registerUser(username, strongPassword);
-    }, throws<RealmException>("failed to confirm user"));
+      return authProvider.registerUser(username, strongPassword);
+    }, throws<AppException>("failed to confirm user"));
   });
 
   baasTest('Email/Password - register user', (configuration) async {
@@ -82,29 +82,21 @@ Future<void> main([List<String>? args]) async {
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "${generateRandomString(5)}@realm.io";
     await authProvider.registerUser(username, strongPassword);
-    expect(() async {
-      await authProvider.registerUser(username, strongPassword);
-    }, throws<RealmException>("name already in use"));
+    await expectLater(() => authProvider.registerUser(username, strongPassword), throws<AppException>("name already in use"));
   }, appName: AppNames.autoConfirm);
 
   baasTest('Email/Password - register user with weak/empty password throws', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "${generateRandomString(5)}@realm.io";
-    expect(() async {
-      await authProvider.registerUser(username, "pwd");
-    }, throws<RealmException>("password must be between 6 and 128 characters"));
-    expect(() async {
-      await authProvider.registerUser(username, "");
-    }, throws<RealmException>("password must be between 6 and 128 characters"));
+    await expectLater(() => authProvider.registerUser(username, "pwd"), throws<AppException>("password must be between 6 and 128 characters"));
+    await expectLater(() => authProvider.registerUser(username, ""), throws<AppException>("password must be between 6 and 128 characters"));
   }, appName: AppNames.autoConfirm);
 
   baasTest('Email/Password - register user with empty email throws', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    expect(() async {
-      await authProvider.registerUser("", "password");
-    }, throws<RealmException>("email invalid"));
+    await expectLater(() => authProvider.registerUser("", "password"), throws<AppException>("email invalid"));
   }, appName: AppNames.autoConfirm);
 
   baasTest('Email/Password - confirm user token expired', (configuration) async {
@@ -112,11 +104,11 @@ Future<void> main([List<String>? args]) async {
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "${generateRandomString(5)}@hotmail.com";
     await authProvider.registerUser(username, strongPassword);
-    expect(() async {
-      await authProvider.confirmUser(
-          "0e6340a446e68fe02a1af1b53c34d5f630b601ebf807d73d10a7fed5c2e996d87d04a683030377ac6058824d8555b24c1417de79019b40f1299aada7ef37fddc",
-          "6268f7dd73fafea76b730fc9");
-    }, throws<RealmException>("userpass token is expired or invalid"));
+    await expectLater(
+        () => authProvider.confirmUser(
+            "0e6340a446e68fe02a1af1b53c34d5f630b601ebf807d73d10a7fed5c2e996d87d04a683030377ac6058824d8555b24c1417de79019b40f1299aada7ef37fddc",
+            "6268f7dd73fafea76b730fc9"),
+        throws<AppException>("userpass token is expired or invalid"));
   }, appName: AppNames.emailConfirm);
 
   baasTest('Email/Password - confirm user token invalid', (configuration) async {
@@ -124,9 +116,7 @@ Future<void> main([List<String>? args]) async {
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "${generateRandomString(5)}@hotmail.com";
     await authProvider.registerUser(username, strongPassword);
-    expect(() async {
-      await authProvider.confirmUser("abc", "123");
-    }, throws<RealmException>("invalid token data"));
+    await expectLater(() => authProvider.confirmUser("abc", "123"), throws<AppException>("invalid token data"));
   }, appName: AppNames.emailConfirm);
 
   // The tests in this group are for manual testing, since they require interaction with mail box.
@@ -177,18 +167,14 @@ Future<void> main([List<String>? args]) async {
     // Custom confirmation function confirms automatically username with 'realm_tests_do_autoverify'.
     await authProvider.registerUser(username, strongPassword);
 
-    expect(() async {
-      await authProvider.retryCustomConfirmationFunction(username);
-    }, throws<RealmException>("already confirmed"));
+    await expectLater(() => authProvider.retryCustomConfirmationFunction(username), throws<AppException>("already confirmed"));
   });
 
   baasTest('Email/Password - retry custom confirmation for not registered user', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "${generateRandomString(5)}@realm.io";
-    expect(() async {
-      await authProvider.retryCustomConfirmationFunction(username);
-    }, throws<RealmException>("user not found"));
+    await expectLater(() => authProvider.retryCustomConfirmationFunction(username), throws<AppException>("user not found"));
   });
 
   // The tests in this group are for manual testing, since they require interaction with mail box.
@@ -226,9 +212,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "${generateRandomString(5)}@realm.io";
-    expect(() async {
-      await authProvider.resetPassword(username);
-    }, throws<RealmException>("user not found"));
+    await expectLater(() => authProvider.resetPassword(username), throws<AppException>("user not found"));
   }, appName: AppNames.emailConfirm);
 
   // The tests in this group are for manual testing, since they require interaction with mail box.
@@ -291,9 +275,7 @@ Future<void> main([List<String>? args]) async {
     await authProvider.registerUser(username, strongPassword);
     await authProvider.callResetPasswordFunction(username, newPassword, functionArgs: <dynamic>['success']);
     await app.logIn(Credentials.emailPassword(username, newPassword));
-    expect(() async {
-      await app.logIn(Credentials.emailPassword(username, strongPassword));
-    }, throws<RealmException>("invalid username/password"));
+    await expectLater(() => app.logIn(Credentials.emailPassword(username, strongPassword)), throws<AppException>("invalid username/password"));
   }, appName: AppNames.autoConfirm);
 
   baasTest('Email/Password - call reset password function with no additional arguments', (configuration) async {
@@ -302,12 +284,12 @@ Future<void> main([List<String>? args]) async {
     const String newPassword = "!@#!DQXQWD!223eda";
     final authProvider = EmailPasswordAuthProvider(app);
     await authProvider.registerUser(username, strongPassword);
-    expect(() async {
+    await expectLater(() async {
       // Calling this function with no additional arguments fails for the test
       // because of the specific implementation of resetFunc in the cloud.
       // resetFunc returns status 'fail' in case no other status is passed.
-      await authProvider.callResetPasswordFunction(username, newPassword);
-    }, throws<RealmException>("failed to reset password for user $username"));
+      return await authProvider.callResetPasswordFunction(username, newPassword);
+    }, throws<AppException>('failed to reset password for user "$username"'));
   }, appName: AppNames.autoConfirm);
 
   /// JWT Payload data
@@ -377,7 +359,7 @@ Future<void> main([List<String>? args]) async {
     // Always register jwt_user@#r@D@realm.io as a new user.
     try {
       await authProvider.registerUser(username, strongPassword);
-    } on RealmException catch (e) {
+    } on AppException catch (e) {
       {
         if (e.message.contains("name already in use")) {
           // If the user exists, delete it and register a new one with the same name and empty profile
@@ -444,9 +426,7 @@ Future<void> main([List<String>? args]) async {
     var token =
         "eyJraWQiOiIxIiwiYWxnIjoiUlMyNTYiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiI2MmYzOTY4ODhhZjg3MjBiMzczZmYwNmEiLCJlbWFpbCI6Indvbmdfc2lnbml0dXJlX2tleUByZWFsbS5pbyIsImlhdCI6MTY2MDE0MjIxNSwiZXhwIjo0ODEzNzQyMjE1LCJhdWQiOiJtb25nb2RiLmNvbSIsImlzcyI6Imh0dHBzOi8vcmVhbG0uaW8ifQ.Af--ZUCL_KC7lAhrD_d1lq91O7qVwu7GqXifwxKojkLCkbjmAER9K2Xa7BPO8xNstFeX8m9uBo4BCD5B6XmngSmyCj5OZWdiG5LTR_uhA3MnpqcV3Vu40K4Yx8XrjPuCL39xVPnEfPKLGz5TjEcMLa8xMPqo51byX0q3mR2eSS4w1A7c5TiTNuQ23_SCO8aK95SyXwuUmU4mH0iR4sHPtf64WyoAXkx8w5twXExzky1_h473CwtAERdMsBhwz1YzFKP0kxU31pg5SRciF5Ly66sK1fSPTMQPuVdS_wKvAYll8_trWnWS83M3_PWs4UxzOdjSpoK0uqhN-_IC38YOGg";
     final credentials = Credentials.jwt(token);
-    expect(() async {
-      await app.logIn(credentials);
-    }, throws<RealmException>("crypto/rsa: verification error"));
+    await expectLater(() => app.logIn(credentials), throws<AppException>("crypto/rsa: verification error"));
   });
 
   ///See test/README.md section 'Manually configure Facebook, Google and Apple authentication providers'"
@@ -465,7 +445,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final accessToken = 'invalid or expired token';
     final credentials = Credentials.facebook(accessToken);
-    expect(() async => await app.logIn(credentials), throws<RealmException>("error fetching info from OAuth2 provider"));
+    await expectLater(() => app.logIn(credentials), throws<AppException>("error fetching info from OAuth2 provider"));
   });
 
   baasTest('Function credentials - wrong payload', (configuration) {
