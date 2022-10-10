@@ -352,8 +352,15 @@ extension RealmObjectInternal on RealmObject<dynamic> {
     throw RealmError('$T is not a RealmObject');
   }
 
-  // if we ever see a _CastError here, we forgot to guard against misuse further up the call-stack
-  RealmObjectHandle get handle => (this as RealmObjectMixin)._handle!;
+  RealmObjectHandle get handle {
+    // if we ever see a _CastError here, we forgot to guard against misuse further up the call-stack
+    final h = (this as RealmObjectMixin)._handle!;
+    if (h.released) {
+      throw RealmClosedError('Cannot access an object that belongs to a closed Realm');
+    }
+    return h;
+  }
+
   RealmAccessor get accessor => (this as RealmObjectMixin)._accessor;
 }
 

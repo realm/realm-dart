@@ -20,6 +20,7 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'package:realm_common/realm_common.dart';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -423,20 +424,20 @@ Future<void> main([List<String>? args]) async {
     late RealmObject oldTeam;
     late Team newTeam;
 
-    late RealmResults<RealmObject> oldTeams;
+    late RealmResults oldTeams;
     late RealmResults<Team> newTeams;
 
-    late RealmList<RealmObject> oldPlayers;
+    late RealmList oldPlayers;
     late RealmList<Person> newPlayers;
 
     final v2Config = Configuration.local([Person.schema, Team.schema], schemaVersion: 2, migrationCallback: (migration, oldSchemaVersion) {
       oldTeams = migration.oldRealm.all('Team');
       newTeams = migration.newRealm.all();
 
-      oldTeam = oldTeams.single;
+      oldTeam = oldTeams.single as RealmObject;
       newTeam = newTeams.single;
 
-      oldPlayers = oldTeam.dynamic.getList('players');
+      oldPlayers = oldTeam.dynamic.get<RealmList>('players');
       newPlayers = newTeam.players;
     });
 
