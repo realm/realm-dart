@@ -215,6 +215,10 @@ class Realm implements Finalizable {
 
   /// Deletes a [RealmObject] from this `Realm`.
   void delete<T extends RealmObject>(T object) {
+    if (!object.isManaged) {
+      throw RealmError('Cannot delete an unmanaged object');
+    }
+
     if (object.realm != this) {
       throw RealmError('Cannot delete object managed by another Realm');
     }

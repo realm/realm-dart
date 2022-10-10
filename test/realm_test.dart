@@ -811,6 +811,13 @@ Future<void> main([List<String>? args]) async {
     });
   });
 
+  test('Realm.delete unmanaged object throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    realm.write(() {
+      expect(() => realm.delete(Person('Peter')), throws<RealmError>('Cannot delete an unmanaged object'));
+    });
+  });
+
   test('Realm.deleteMany frozen results throws', () {
     final realm = getRealm(Configuration.local([Person.schema]));
     realm.write(() {
