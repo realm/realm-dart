@@ -240,7 +240,7 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
 
     try {
       if (value is RealmObject && !value.isManaged) {
-        realm.createThenAddOrUpdate(value as RealmObject, update);
+        realm.createThenAddOrUpdate(value, update);
       }
 
       final length = realmCore.getListSize(handle);

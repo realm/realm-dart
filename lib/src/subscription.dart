@@ -182,7 +182,7 @@ abstract class SubscriptionSet with IterableMixin<Subscription> implements Final
   Subscription operator [](int index) => elementAt(index);
 
   @override
-  _SubscriptionIterator get iterator => _SubscriptionIterator._(this);
+  Iterator<Subscription> get iterator => _SubscriptionIterator._(this);
 
   /// Update the subscription set and send the request to the server in the background.
   ///
@@ -249,6 +249,7 @@ class ImmutableSubscriptionSet extends SubscriptionSet {
 /// A mutable view to a [SubscriptionSet]. Obtained by calling [SubscriptionSet.update].
 /// {@category Sync}
 class MutableSubscriptionSet extends SubscriptionSet {
+  @override
   final MutableSubscriptionSetHandle _handle;
 
   MutableSubscriptionSet._(Realm realm, this._handle) : super._(realm, _handle);

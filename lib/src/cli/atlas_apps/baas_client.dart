@@ -18,7 +18,6 @@
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:crypto/crypto.dart';
 
 class BaasClient {
   static const String _confirmFuncSource = '''exports = async ({ token, tokenId, username }) => {
@@ -91,8 +90,8 @@ class BaasClient {
 
   /// A client that imports apps to a MongoDB Atlas environment (typically realm-dev or realm-qa).
   /// @nodoc
-  static Future<BaasClient> atlas(String baseUrl, String cluster, String apiKey, String privateApiKey, String groupId, String? _differentiator) async {
-    final BaasClient result = BaasClient._(baseUrl, _differentiator, cluster);
+  static Future<BaasClient> atlas(String baseUrl, String cluster, String apiKey, String privateApiKey, String groupId, String? differentiator) async {
+    final BaasClient result = BaasClient._(baseUrl, differentiator, cluster);
 
     await result._authenticate('mongodb-cloud', '{ "username": "$apiKey", "apiKey": "$privateApiKey" }');
 

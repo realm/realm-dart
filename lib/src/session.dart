@@ -75,10 +75,6 @@ class Session implements Finalizable {
     final controller = SessionConnectionStateController(this);
     return controller.createStream();
   }
-
-  void _raiseSessionError(SyncErrorCategory category, int errorCode, bool isFatal) {
-    realmCore.raiseError(this, category, errorCode, isFatal);
-  }
 }
 
 /// The current state of a [Session] object

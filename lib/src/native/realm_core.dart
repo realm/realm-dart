@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 // ignore_for_file: non_constant_identifier_names
+// ignore_for_file: constant_identifier_names
 
 import 'dart:async';
 import 'dart:convert';
@@ -47,9 +48,9 @@ import '../migration.dart';
 
 late RealmLibrary _realmLib;
 
-final _RealmCore realmCore = _RealmCore();
+final RealmCore realmCore = RealmCore();
 
-class _RealmCore {
+class RealmCore {
   // From realm.h. Currently not exported from the shared library
   static const int RLM_INVALID_CLASS_KEY = 0x7FFFFFFF;
   // ignore: unused_field
@@ -62,10 +63,10 @@ class _RealmCore {
   static Object noopUserdata = Object();
 
   // Hide the RealmCore class and make it a singleton
-  static _RealmCore? _instance;
+  static RealmCore? _instance;
   late final int isolateKey;
 
-  _RealmCore._() {
+  RealmCore._() {
     final lib = initRealm();
     _realmLib = RealmLibrary(lib);
     if (libraryVersion != nativeLibraryVersion) {
@@ -73,8 +74,8 @@ class _RealmCore {
     }
   }
 
-  factory _RealmCore() {
-    return _instance ??= _RealmCore._();
+  factory RealmCore() {
+    return _instance ??= RealmCore._();
   }
 
   // stamped into the library by the build system (see prepare-release.yml)

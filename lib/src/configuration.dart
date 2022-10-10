@@ -27,7 +27,6 @@ import 'realm_class.dart';
 import 'init.dart';
 import 'type_utils.dart';
 import 'user.dart';
-import 'migration.dart';
 
 /// The signature of a callback used to determine if compaction
 /// should be attempted.
