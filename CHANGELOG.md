@@ -9,7 +9,7 @@
   * Added `realm.writeAsync` which opens an asynchronous transaction, invokes the provided callback, then commits the transaction asynchronously.
 
 ### Fixed
-* None
+* Added more validations when using `User.apiKeys` to return more meaningful errors when the user cannot perform API key actions - e.g. when the user has been logged in with API key credentials or when the user has been logged out. (Issue [#950](https://github.com/realm/realm-dart/issues/950))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
@@ -45,7 +45,7 @@
     }
 
     if (oldSchemaVersion == 3) {
-      final oldPeople = migration.oldRealm.dynamic.all('Person');
+      final oldPeople = migration.oldRealm.all('Person');
       for (final oldPerson in oldPeople) {
         final newPerson = migration.findInNewRealm<Person>(oldPerson);
         if (newPerson == null) {
