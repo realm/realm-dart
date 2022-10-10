@@ -107,14 +107,13 @@ class Realm implements Finalizable {
 
   /// Gets a value indicating whether this [Realm] is frozen. Frozen Realms are immutable
   /// and will not update when writes are made to the database.
-  late final bool isFrozen;
+  late final bool isFrozen = realmCore.isFrozen(this);
 
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
   Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) : _handle = handle ?? _openRealm(config) {
     _populateMetadata();
-    isFrozen = realmCore.isFrozen(this);
   }
 
   static RealmHandle _openRealm(Configuration config) {
@@ -173,9 +172,7 @@ class Realm implements Finalizable {
   /// Throws [RealmException] if there is no write transaction created with [write].
   T add<T extends RealmObject>(T object, {bool update = false}) {
     if (object.isManaged) {
-      if (object.realm != this) {
-        throw RealmError('Object is already managed by another Realm');
-      }
+      _ensureManagedByThis(object, 'add object to Realm');
 
       return object;
     }
@@ -221,9 +218,7 @@ class Realm implements Finalizable {
       throw RealmError('Cannot delete an unmanaged object');
     }
 
-    if (object.realm != this) {
-      throw RealmError('Cannot delete object managed by another Realm');
-    }
+    _ensureManagedByThis(object, 'delete object from Realm');
 
     realmCore.deleteRealmObject(object);
   }
@@ -233,15 +228,11 @@ class Realm implements Finalizable {
   /// Throws [RealmException] if there is no active write transaction.
   void deleteMany<T extends RealmObject>(Iterable<T> items) {
     if (items is RealmResults<T>) {
-      if (items.realm != this) {
-        throw RealmError('Cannot delete objects managed by another Realm');
-      }
+      _ensureManagedByThis(items, 'delete objects from Realm');
 
       realmCore.resultsDeleteAll(items);
     } else if (items is RealmList<T>) {
-      if (items.realm != this) {
-        throw RealmError('Cannot delete objects managed by another Realm');
-      }
+      _ensureManagedByThis(items, 'delete objects from Realm');
 
       realmCore.listDeleteAll(items);
     } else {
@@ -398,6 +389,16 @@ class Realm implements Finalizable {
   /// Disclaimer: This method is mostly needed on Dart standalone and if not called the Dart program will hang and not exit.
   /// This is a workaround of a Dart VM bug and will be removed in a future version of the SDK.
   static void shutdown() => scheduler.stop();
+
+  void _ensureManagedByThis(RealmEntity entity, String operation) {
+    if (entity.realm != this) {
+      if (entity.isFrozen) {
+        throw RealmError('Cannot $operation because the object is managed by a frozen Realm');
+      }
+
+      throw RealmError('Cannot $operation because the object is managed by another Realm instance');
+    }
+  }
 }
 
 /// @nodoc
