@@ -155,6 +155,10 @@ class Realm implements Finalizable {
         final session = realm.syncSession;
         StreamSubscription<SyncProgress>? subscription;
         try {
+          if (config.initialSubscriptionsConfiguration?.callback != null &&
+              (realm._openedFirstTime || config.initialSubscriptionsConfiguration!.rerunOnOpen == true)) {
+            await realm.subscriptions.waitForSynchronization();
+          }
           if (onProgressCallback != null) {
             subscription = session
                 .getProgressStream(
@@ -165,11 +169,6 @@ class Realm implements Finalizable {
                   (syncProgress) => onProgressCallback.call(syncProgress),
                   cancelOnError: true,
                 );
-          }
-          if (config.initialSubscriptionsConfiguration?.callback != null &&
-              (realm._openedFirstTime || config.initialSubscriptionsConfiguration!.rerunOnOpen == true)) {
-            config.initialSubscriptionsConfiguration!.callback(realm);
-            await realm.subscriptions.waitForSynchronization();
           }
           await session.waitForDownload(cancellationToken);
         } finally {
