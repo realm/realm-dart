@@ -1046,7 +1046,7 @@ Future<void> main([List<String>? args]) async {
     await realm.subscriptions.waitForSynchronization();
     await realm.syncSession.waitForDownload();
 
-    expect(realm.all<Task>().length, 100);
+    expect(realm.all<Task>().length >= 100, isTrue);
   });
 }
 
@@ -1086,7 +1086,9 @@ Future<void> _addDataToAtlas(App app) async {
     realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
   }
   await realm.subscriptions.waitForSynchronization();
-  if (realm.all<Task>().isEmpty) {
+  await realm.syncSession.waitForDownload();
+
+  if (realm.all<Task>().length < 100) {
     realm.write(() {
       for (var i = 0; i < 100; i++) {
         realm.add(Task(ObjectId()));
