@@ -406,6 +406,40 @@ Future<void> main([List<String>? args]) async {
             .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))));
   });
 
+  baasTest("User.apiKeys when user is logged out throws", (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    await user.logOut();
+
+    expect(() => user.apiKeys, throws<RealmError>('User must be logged in to access API keys'));
+  });
+
+  baasTest("User.apiKeys.anyMethod when user is logged out throws", (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    // Store in a temp variable as accessing the property will throw
+    final apiKeys = user.apiKeys;
+    await user.logOut();
+
+    await expectLater(() => apiKeys.create('foo'), throws<RealmError>('User must be logged in to create an API key'));
+    await expectLater(() => apiKeys.delete(ObjectId()), throws<RealmError>('User must be logged in to delete an API key'));
+    await expectLater(() => apiKeys.disable(ObjectId()), throws<RealmError>('User must be logged in to disable an API key'));
+    await expectLater(() => apiKeys.enable(ObjectId()), throws<RealmError>('User must be logged in to enable an API key'));
+    await expectLater(() => apiKeys.fetch(ObjectId()), throws<RealmError>('User must be logged in to fetch an API key'));
+    await expectLater(() => apiKeys.fetchAll(), throws<RealmError>('User must be logged in to fetch all API keys'));
+  });
+
+  baasTest("Credentials.apiKey user cannot access API keys", (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    final apiKey = await user.apiKeys.create('my-key');
+
+    final apiKeyUser = await app.logIn(Credentials.apiKey(apiKey.value!));
+
+    expect(() => apiKeyUser.apiKeys, throws<RealmError>('Users logged in with API key cannot manage API keys'));
+  });
+
   baasTest("Credentials.apiKey with server-generated can login user", (configuration) async {
     final app = App(configuration);
 
