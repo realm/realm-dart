@@ -421,7 +421,7 @@ class RecoverSyncClientResetHandler extends SyncClientResetErrorHandler {
 /// If that fails, the local changes will be discarded.
 /// This is the default mode for fully synchronized Realms.
 /// {@category Sync}
-class RecoverOrDiscardSyncClientResetHandler extends SyncClientResetErrorHandler {
+class RecoverOrDiscardUnsyncedChangesHandler extends SyncClientResetErrorHandler {
   const RecoverOrDiscardSyncClientResetHandler(super.callback);
 
 }
