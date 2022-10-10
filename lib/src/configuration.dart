@@ -408,7 +408,7 @@ class DiscardLocalSyncClientResetHandler extends SyncClientResetErrorHandler {
 /// Realm will compare the local Realm with the Realm on the server and automatically transfer
 /// any changes from the local Realm that makes sense to the Realm provided by the server.
 /// {@category Sync}
-class RecoverSyncClientResetHandler extends SyncClientResetErrorHandler {
+class RecoverUnsyncedChangesHandler extends SyncClientResetErrorHandler {
   const RecoverSyncClientResetHandler(super.callback);
 }
 
