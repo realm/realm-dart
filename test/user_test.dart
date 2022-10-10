@@ -374,7 +374,7 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.apiKey(key.value!);
 
     await expectLater(
-        app.logIn(credentials),
+        () => app.logIn(credentials),
         throwsA(isA<AppException>()
             .having((e) => e.message, 'message', contains('invalid API key'))
             .having((e) => e.statusCode, 'statusCode', 401)
@@ -399,7 +399,7 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.apiKey(key.value!);
 
     await expectLater(
-        app.logIn(credentials),
+        () => app.logIn(credentials),
         throwsA(isA<AppException>()
             .having((e) => e.message, 'message', contains('invalid API key'))
             .having((e) => e.statusCode, 'statusCode', 401)
@@ -425,7 +425,7 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.apiKey(apiKey);
 
     await expectLater(
-        app.logIn(credentials),
+        () async => await app.logIn(credentials),
         throwsA(isA<AppException>()
             .having((e) => e.message, 'message', 'invalid API key')
             .having((e) => e.statusCode, 'statusCode', 401)
