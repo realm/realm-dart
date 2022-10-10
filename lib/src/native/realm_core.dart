@@ -211,14 +211,13 @@ class _RealmCore {
         final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
-          _realmLib.realm_sync_config_set_resync_mode(syncConfigPtr, config.syncClientResetErrorHandler.clientResyncMode.index);
+          _realmLib.realm_sync_config_set_resync_mode(syncConfigPtr, config.clientResetHandler.clientResyncMode.index);
           final errorHandlerCallback =
               Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_session_t>, realm_sync_error_t)>(_syncErrorHandlerCallback);
           final errorHandlerUserdata = _realmLib.realm_dart_userdata_async_new(config, errorHandlerCallback.cast(), scheduler.handle._pointer);
           _realmLib.realm_sync_config_set_error_handler(syncConfigPtr, _realmLib.addresses.realm_dart_sync_error_handler_callback, errorHandlerUserdata.cast(),
               _realmLib.addresses.realm_dart_userdata_async_free);
 
-         
           _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
         } finally {
           _realmLib.realm_release(syncConfigPtr.cast());
@@ -464,7 +463,7 @@ class _RealmCore {
     final syncError = error.toSyncError();
 
     if (syncError is SyncClientResetError) {
-      syncConfig.syncClientResetErrorHandler.callback(syncError);
+      syncConfig.clientResetHandler.callback(syncError);
       return;
     }
 

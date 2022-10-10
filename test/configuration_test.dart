@@ -540,33 +540,32 @@ Future<void> main([List<String>? args]) async {
         Configuration.flexibleSync(
           user,
           [Task.schema, Schedule.schema],
-          syncClientResetErrorHandler: ManualSyncClientResetHandler((syncError) {}),
-        ).syncClientResetErrorHandler.clientResyncMode,
+          clientResetHandler: ManualRecoveryHandler(onReset: (syncError) {}),
+        ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.manual);
     expect(
         Configuration.flexibleSync(
           user,
           [Task.schema, Schedule.schema],
-          syncClientResetErrorHandler: DiscardLocalSyncClientResetHandler((syncError) {}),
-        ).syncClientResetErrorHandler.clientResyncMode,
+          clientResetHandler: DiscardUnsyncedChangesHandler(onReset: (syncError) {}),
+        ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.discardLocal);
     expect(
         Configuration.flexibleSync(
           user,
           [Task.schema, Schedule.schema],
-          syncClientResetErrorHandler: RecoverSyncClientResetHandler((syncError) {}),
-        ).syncClientResetErrorHandler.clientResyncMode,
+          clientResetHandler: RecoverUnsyncedChangesHandler(onReset: (syncError) {}),
+        ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.recover);
 
     expect(
         Configuration.flexibleSync(
           user,
           [Task.schema, Schedule.schema],
-          syncClientResetErrorHandler: RecoverOrDiscardSyncClientResetHandler((syncError) {}),
-        ).syncClientResetErrorHandler.clientResyncMode,
+          clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(onReset: (syncError) {}),
+        ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.recoverOrDiscard);
 
-    expect(Configuration.flexibleSync(user, [Task.schema, Schedule.schema]).syncClientResetErrorHandler.clientResyncMode,
-        ClientResyncModeInternal.recoverOrDiscard);
+    expect(Configuration.flexibleSync(user, [Task.schema, Schedule.schema]).clientResetHandler, ClientResyncModeInternal.recoverOrDiscard);
   });
 }
