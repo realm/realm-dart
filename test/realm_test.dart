@@ -788,6 +788,69 @@ Future<void> main([List<String>? args]) async {
     expect(stored.location, now.location);
     expect(stored.location.name, 'Europe/Copenhagen');
   });
+
+  test('Realm - open local not encrypted realm with encryption key', () {
+    openEncryptedRealm(null, generateValidKey());
+  });
+
+  test('Realm - open local encrypted realm with an empty encryption key', () {
+    openEncryptedRealm(generateValidKey(), null);
+  });
+
+  test('Realm  - open local encrypted realm with an invalid encryption key', () {
+    openEncryptedRealm(generateValidKey(), generateValidKey());
+  });
+
+  test('Realm - open local encrypted realm with the correct encryption key', () {
+    List<int> key = generateValidKey();
+    openEncryptedRealm(key, key);
+  });
+
+  test('Realm - open closed local encrypted realm with the correct encryption key', () {
+    List<int> key = generateValidKey();
+    openEncryptedRealm(key, key, afterEncrypt: (realm) => realm.close());
+  });
+
+  test('Realm - open closed local encrypted realm with an invalid encryption key', () {
+    openEncryptedRealm(generateValidKey(), generateValidKey(), afterEncrypt: (realm) => realm.close());
+  });
+
+  baasTest('Realm - open remote encrypted realm with encryption key', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
+    final configuration = Configuration.flexibleSync(user, [Task.schema], encryptionKey: key);
+
+    final realm = getRealm(configuration);
+    expect(realm.isClosed, false);
+    expect(
+      () => getRealm(Configuration.flexibleSync(user, [Task.schema])),
+      throws<RealmException>("already opened with a different encryption key"),
+    );
+  });
+}
+
+List<int> generateValidKey() {
+  return List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
+}
+
+void openEncryptedRealm(List<int>? encryptionKey, List<int>? decryptionKey, {void Function(Realm)? afterEncrypt}) {
+  final config1 = Configuration.local([Car.schema], encryptionKey: encryptionKey);
+  final config2 = Configuration.local([Car.schema], encryptionKey: decryptionKey);
+  final realm = getRealm(config1);
+  if (afterEncrypt != null) {
+    afterEncrypt(realm);
+  }
+  if (encryptionKey == decryptionKey) {
+    final decriptedRealm = getRealm(config2);
+    expect(decriptedRealm.isClosed, false);
+  } else {
+    expect(
+      () => getRealm(config2),
+      throws<RealmException>(realm.isClosed ? "Realm file decryption failed" : "already opened with a different encryption key"),
+    );
+  }
 }
 
 extension on When {

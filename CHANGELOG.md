@@ -2,6 +2,25 @@
 
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
+### Enhancements
+* Added support for asynchronous transactions. (Issue [#802](https://github.com/realm/realm-dart/issues/802))
+  * Added `Transaction` which is a class that exposes an API for committing and rolling back an active transaction.
+  * Added `realm.beginWriteAsync` which returns a `Future<Transaction>` that resolves when the write lock has been obtained.
+  * Added `realm.writeAsync` which opens an asynchronous transaction, invokes the provided callback, then commits the transaction asynchronously.
+
+### Fixed
+* None
+
+### Compatibility
+* Realm Studio: 12.0.0 or later.
+
+### Internal
+* Using Core 12.9.0
+
+## 0.5.0+beta (2022-10-10)
+
+**This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
+
 ### Breaking Changes
 * Fixed an issue that would cause passwords sent to the server (e.g. `Credentials.EmailPassword` or `EmailPasswordAuthProvider.registerUser`) to contain an extra empty byte at the end. (PR [#918](https://github.com/realm/realm-dart/pull/918)).
   Notice: Any existing email users might need to be recreated because of this breaking change.
@@ -46,10 +65,7 @@
   * Expose `User.apiKeys` client - this client can be used to create, fetch, and delete API keys.
   * Expose `Credentials.apiKey` that enable authentication with API keys.
 * Exposed `User.accessToken` and `User.refreshToken` - these tokens can be used to authenticate against the server when calling HTTP API outside of the Dart/Flutter SDK. For example, if you want to use the GraphQL. (PR [#919](https://github.com/realm/realm-dart/pull/919))
-* Added support for asynchronous transactions. (Issue [#802](https://github.com/realm/realm-dart/issues/802))
-  * Added `Transaction` which is a class that exposes an API for committing and rolling back an active transaction.
-  * Added `realm.beginWriteAsync` which returns a `Future<Transaction>` that resolves when the write lock has been obtained.
-  * Added `realm.writeAsync` which opens an asynchronous transaction, invokes the provided callback, then commits the transaction asynchronously.
+* Added support for `encryptionKey` to `Configuration.local`, `Configuration.flexibleSync` and `Configuration.disconnectedSync` so realm files can be encrypted and existing encrypted files from other Realm sources opened (assuming you have the key)([#920](https://github.com/realm/realm-dart/pull/920))
 
 ### Fixed
 * Previously removeAt did not truncate length. ([#883](https://github.com/realm/realm-dart/issues/883))
@@ -76,6 +92,7 @@
 ### Internal
 * Uses Realm Core v12.9.0
 * Added tracking of child handles for objects/results/lists obtained from an unowned Realm. This ensures that all children are invalidated as soon as the parent Realm gets released at the end of the callback. (Issue [#527](https://github.com/realm/realm-dart/issues/527))
+* Added an action to enforce that the changelog is updated before a PR is merged (Issue [#939](https://github.com/realm/realm-dart/issues/939))
 
 ## 0.4.0+beta (2022-08-19)
 
