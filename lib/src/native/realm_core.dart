@@ -56,6 +56,8 @@ class _RealmCore {
   // ignore: unused_field
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
+  final int encryptionKeySize = 64;
+
   static Object noopUserdata = Object();
 
   // Hide the RealmCore class and make it a singleton
@@ -75,7 +77,7 @@ class _RealmCore {
   }
 
   // stamped into the library by the build system (see prepare-release.yml)
-  static const libraryVersion = '0.4.0+beta';
+  static const libraryVersion = '0.5.0+beta';
   late String nativeLibraryVersion = _realmLib.realm_dart_library_version().cast<Utf8>().toDartString();
 
   LastError? getLastError(Allocator allocator) {
@@ -225,7 +227,9 @@ class _RealmCore {
       } else if (config is DisconnectedSyncConfiguration) {
         _realmLib.realm_config_set_force_sync_history(configPtr, true);
       }
-
+      if (config.encryptionKey != null) {
+        _realmLib.realm_config_set_encryption_key(configPtr, config.encryptionKey!.toUint8Ptr(arena), encryptionKeySize);
+      }
       return configHandle;
     });
   }
@@ -271,7 +275,7 @@ class _RealmCore {
   }
 
   SubscriptionSetHandle getSubscriptions(Realm realm) {
-    return SubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_get_active_subscription_set(realm.handle._pointer)));
+    return SubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_get_active_subscription_set(realm.handle._pointer)), realm.handle);
   }
 
   void refreshSubscriptions(SubscriptionSet subscriptions) {
@@ -337,11 +341,13 @@ class _RealmCore {
   }
 
   MutableSubscriptionSetHandle subscriptionSetMakeMutable(SubscriptionSet subscriptions) {
-    return MutableSubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_make_subscription_set_mutable(subscriptions.handle._pointer)));
+    return MutableSubscriptionSetHandle._(
+        _realmLib.invokeGetPointer(() => _realmLib.realm_sync_make_subscription_set_mutable(subscriptions.handle._pointer)), subscriptions.realm.handle);
   }
 
   SubscriptionSetHandle subscriptionSetCommit(MutableSubscriptionSet subscriptions) {
-    return SubscriptionSetHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_subscription_set_commit(subscriptions.handle._mutablePointer)));
+    return SubscriptionSetHandle._(
+        _realmLib.invokeGetPointer(() => _realmLib.realm_sync_subscription_set_commit(subscriptions.handle._mutablePointer)), subscriptions.realm.handle);
   }
 
   SubscriptionHandle insertOrAssignSubscription(MutableSubscriptionSet subscriptions, RealmResults results, String? name, bool update) {
@@ -408,18 +414,20 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_sync_subscription_set_refresh(subscriptions.handle._pointer));
   }
 
-  static bool initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmHandle) {
+  static bool initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmPtr) {
+    final realmHandle = RealmHandle._unowned(realmPtr);
     try {
       final LocalConfiguration? config = userdata.toObject();
       if (config == null) {
         return false;
       }
-      final realm = RealmInternal.getUnowned(config, RealmHandle._unowned(realmHandle));
+      final realm = RealmInternal.getUnowned(config, realmHandle);
       config.initialDataCallback!(realm);
       return true;
     } catch (ex) {
-      // TODO: Propagate error to Core in initial_data_callback https://github.com/realm/realm-dart/issues/698
-      // Core issue: https://github.com/realm/realm-core/issues/5366
+      _realmLib.realm_register_user_code_callback_error(ex.toPersistentHandle());
+    } finally {
+      realmHandle.release();
     }
 
     return false;
@@ -436,6 +444,8 @@ class _RealmCore {
 
   static bool migration_callback(
       Pointer<Void> userdata, Pointer<shared_realm> oldRealmHandle, Pointer<shared_realm> newRealmHandle, Pointer<realm_schema> schema) {
+    final oldHandle = RealmHandle._unowned(oldRealmHandle);
+    final newHandle = RealmHandle._unowned(newRealmHandle);
     try {
       final LocalConfiguration? config = userdata.toObject();
       if (config == null) {
@@ -444,16 +454,20 @@ class _RealmCore {
 
       final oldSchemaVersion = _realmLib.realm_get_schema_version(oldRealmHandle);
       final oldConfig = Configuration.local([], path: config.path, isReadOnly: true, schemaVersion: oldSchemaVersion);
-      final oldRealm = RealmInternal.getUnowned(oldConfig, RealmHandle._unowned(oldRealmHandle), isInMigration: true);
+      final oldRealm = RealmInternal.getUnowned(oldConfig, oldHandle, isInMigration: true);
 
-      final newRealm = RealmInternal.getUnowned(config, RealmHandle._unowned(newRealmHandle), isInMigration: true);
+      final newRealm = RealmInternal.getUnowned(config, newHandle, isInMigration: true);
 
       final migration = MigrationInternal.create(RealmInternal.getMigrationRealm(oldRealm), newRealm, SchemaHandle.unowned(schema));
       config.migrationCallback!(migration, oldSchemaVersion);
       return true;
     } catch (ex) {
       _realmLib.realm_register_user_code_callback_error(ex.toPersistentHandle());
+    } finally {
+      oldHandle.release();
+      newHandle.release();
     }
+
     return false;
   }
 
@@ -625,7 +639,7 @@ class _RealmCore {
 
   RealmObjectHandle createRealmObject(Realm realm, int classKey) {
     final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_object_create(realm.handle._pointer, classKey));
-    return RealmObjectHandle._(realmPtr);
+    return RealmObjectHandle._(realmPtr, realm.handle);
   }
 
   RealmObjectHandle getOrCreateRealmObjectWithPrimaryKey(Realm realm, int classKey, Object? primaryKey) {
@@ -638,7 +652,7 @@ class _RealmCore {
             realm_value.ref,
             didCreate,
           ));
-      return RealmObjectHandle._(realmPtr);
+      return RealmObjectHandle._(realmPtr, realm.handle);
     });
   }
 
@@ -646,7 +660,7 @@ class _RealmCore {
     return using((Arena arena) {
       final realm_value = _toRealmValue(primaryKey, arena);
       final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_object_create_with_primary_key(realm.handle._pointer, classKey, realm_value.ref));
-      return RealmObjectHandle._(realmPtr);
+      return RealmObjectHandle._(realmPtr, realm.handle);
     });
   }
 
@@ -681,14 +695,14 @@ class _RealmCore {
         return null;
       }
 
-      return RealmObjectHandle._(pointer);
+      return RealmObjectHandle._(pointer, realm.handle);
     });
   }
 
   RealmObjectHandle? findExisting(Realm realm, int classKey, RealmObjectHandle other) {
     final key = _realmLib.realm_object_get_key(other._pointer);
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_object(realm.handle._pointer, classKey, key));
-    return RealmObjectHandle._(pointer);
+    return RealmObjectHandle._(pointer, realm.handle);
   }
 
   void renameProperty(Realm realm, String objectType, String oldName, String newName, SchemaHandle schema) {
@@ -712,7 +726,7 @@ class _RealmCore {
 
   RealmResultsHandle findAll(Realm realm, int classKey) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_find_all(realm.handle._pointer, classKey));
-    return RealmResultsHandle._(pointer);
+    return RealmResultsHandle._(pointer, realm.handle);
   }
 
   RealmResultsHandle queryClass(Realm realm, int classKey, String query, List<Object?> args) {
@@ -722,15 +736,17 @@ class _RealmCore {
       for (var i = 0; i < length; ++i) {
         _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
       }
-      final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
-        () => _realmLib.realm_query_parse(
-          realm.handle._pointer,
-          classKey,
-          query.toCharPtr(arena),
-          length,
-          argsPointer,
-        ),
-      ));
+      final queryHandle = _RealmQueryHandle._(
+          _realmLib.invokeGetPointer(
+            () => _realmLib.realm_query_parse(
+              realm.handle._pointer,
+              classKey,
+              query.toCharPtr(arena),
+              length,
+              argsPointer,
+            ),
+          ),
+          realm.handle);
       return _queryFindAll(queryHandle);
     });
   }
@@ -742,21 +758,27 @@ class _RealmCore {
       for (var i = 0; i < length; ++i) {
         _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
       }
-      final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
-        () => _realmLib.realm_query_parse_for_results(
-          target.handle._pointer,
-          query.toCharPtr(arena),
-          length,
-          argsPointer,
-        ),
-      ));
+      final queryHandle = _RealmQueryHandle._(
+          _realmLib.invokeGetPointer(
+            () => _realmLib.realm_query_parse_for_results(
+              target.handle._pointer,
+              query.toCharPtr(arena),
+              length,
+              argsPointer,
+            ),
+          ),
+          target.realm.handle);
       return _queryFindAll(queryHandle);
     });
   }
 
-  RealmResultsHandle _queryFindAll(RealmQueryHandle queryHandle) {
-    final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_query_find_all(queryHandle._pointer));
-    return RealmResultsHandle._(resultsPointer);
+  RealmResultsHandle _queryFindAll(_RealmQueryHandle queryHandle) {
+    try {
+      final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_query_find_all(queryHandle._pointer));
+      return RealmResultsHandle._(resultsPointer, queryHandle._root);
+    } finally {
+      queryHandle.release();
+    }
   }
 
   RealmResultsHandle queryList(RealmList target, String query, List<Object> args) {
@@ -766,21 +788,23 @@ class _RealmCore {
       for (var i = 0; i < length; ++i) {
         _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
       }
-      final queryHandle = RealmQueryHandle._(_realmLib.invokeGetPointer(
-        () => _realmLib.realm_query_parse_for_list(
-          target.handle._pointer,
-          query.toCharPtr(arena),
-          length,
-          argsPointer,
-        ),
-      ));
+      final queryHandle = _RealmQueryHandle._(
+          _realmLib.invokeGetPointer(
+            () => _realmLib.realm_query_parse_for_list(
+              target.handle._pointer,
+              query.toCharPtr(arena),
+              length,
+              argsPointer,
+            ),
+          ),
+          target.realm.handle);
       return _queryFindAll(queryHandle);
     });
   }
 
   RealmObjectHandle getObjectAt(RealmResults results, int index) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_get_object(results.handle._pointer, index));
-    return RealmObjectHandle._(pointer);
+    return RealmObjectHandle._(pointer, results.realm.handle);
   }
 
   int getResultsCount(RealmResults results) {
@@ -842,19 +866,19 @@ class _RealmCore {
     });
   }
 
-  RealmLinkHandle _getObjectAsLink(RealmObject object) {
+  _RealmLinkHandle _getObjectAsLink(RealmObject object) {
     final realmLink = _realmLib.realm_object_as_link(object.handle._pointer);
-    return RealmLinkHandle._(realmLink);
+    return _RealmLinkHandle._(realmLink);
   }
 
   RealmObjectHandle _getObject(Realm realm, int classKey, int objectKey) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_object(realm.handle._pointer, classKey, objectKey));
-    return RealmObjectHandle._(pointer);
+    return RealmObjectHandle._(pointer, realm.handle);
   }
 
   RealmListHandle getListProperty(RealmObject object, int propertyKey) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_list(object.handle._pointer, propertyKey));
-    return RealmListHandle._(pointer);
+    return RealmListHandle._(pointer, object.realm.handle);
   }
 
   int getListSize(RealmListHandle handle) {
@@ -933,7 +957,7 @@ class _RealmCore {
 
   RealmResultsHandle resultsSnapshot(RealmResults results) {
     final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_snapshot(results.handle._pointer));
-    return RealmResultsHandle._(resultsPointer);
+    return RealmResultsHandle._(resultsPointer, results.realm.handle);
   }
 
   bool objectIsValid(RealmObject object) {
@@ -1003,7 +1027,7 @@ class _RealmCore {
           Pointer.fromFunction(collection_change_callback),
         ));
 
-    return RealmNotificationTokenHandle._(pointer);
+    return RealmNotificationTokenHandle._(pointer, results.realm.handle);
   }
 
   RealmNotificationTokenHandle subscribeListNotifications(RealmList list, NotificationsController controller) {
@@ -1015,7 +1039,7 @@ class _RealmCore {
           Pointer.fromFunction(collection_change_callback),
         ));
 
-    return RealmNotificationTokenHandle._(pointer);
+    return RealmNotificationTokenHandle._(pointer, list.realm.handle);
   }
 
   RealmNotificationTokenHandle subscribeObjectNotifications(RealmObject object, NotificationsController controller) {
@@ -1027,7 +1051,7 @@ class _RealmCore {
           Pointer.fromFunction(object_change_callback),
         ));
 
-    return RealmNotificationTokenHandle._(pointer);
+    return RealmNotificationTokenHandle._(pointer, object.realm.handle);
   }
 
   bool getObjectChangesIsDeleted(RealmObjectChangesHandle handle) {
@@ -1670,7 +1694,7 @@ class _RealmCore {
   }
 
   SessionHandle realmGetSession(Realm realm) {
-    return SessionHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_session_get(realm.handle._pointer)));
+    return SessionHandle._(_realmLib.invokeGetPointer(() => _realmLib.realm_sync_session_get(realm.handle._pointer)), realm.handle);
   }
 
   String sessionGetPath(Session session) {
@@ -1853,7 +1877,7 @@ class _RealmCore {
 
   RealmResultsHandle resolveResults(RealmResults realmResults, Realm frozenRealm) {
     final ptr = _realmLib.invokeGetPointer(() => _realmLib.realm_results_resolve_in(realmResults.handle._pointer, frozenRealm.handle._pointer));
-    return RealmResultsHandle._(ptr);
+    return RealmResultsHandle._(ptr, frozenRealm.handle);
   }
 
   RealmObjectHandle? resolveObject(RealmObject object, Realm frozenRealm) {
@@ -1861,7 +1885,7 @@ class _RealmCore {
       final resultPtr = arena<Pointer<realm_object>>();
       _realmLib.invokeGetBool(() => _realmLib.realm_object_resolve_in(object.handle._pointer, frozenRealm.handle._pointer, resultPtr));
       if (resultPtr != nullptr) {
-        return RealmObjectHandle._(resultPtr.value);
+        return RealmObjectHandle._(resultPtr.value, frozenRealm.handle);
       }
 
       return null;
@@ -1873,7 +1897,7 @@ class _RealmCore {
       final resultPtr = arena<Pointer<realm_list>>();
       _realmLib.invokeGetBool(() => _realmLib.realm_list_resolve_in(list.handle._pointer, frozenRealm.handle._pointer, resultPtr));
       if (resultPtr != nullptr) {
-        return RealmListHandle._(resultPtr.value);
+        return RealmListHandle._(resultPtr.value, frozenRealm.handle);
       }
 
       return null;
@@ -2042,20 +2066,82 @@ void _tearDownFinalizationTrace(Object value, Object finalizationToken) {
 final _nativeFinalizer = NativeFinalizer(_realmLib.addresses.realm_release);
 
 abstract class HandleBase<T extends NativeType> implements Finalizable {
-  final Pointer<T> _pointer;
+  Pointer<T> _pointer;
+  bool get released => _pointer == nullptr;
+  final bool isUnowned;
 
   @pragma('vm:never-inline')
   void keepAlive() {}
 
-  HandleBase(this._pointer, int size) {
+  HandleBase(this._pointer, int size) : isUnowned = false {
     _nativeFinalizer.attach(this, _pointer.cast(), detach: this, externalSize: size);
-    if (_enableFinalizerTrace) _setupFinalizationTrace(this, _pointer);
+    if (_enableFinalizerTrace) {
+      _setupFinalizationTrace(this, _pointer);
+    }
   }
 
-  HandleBase.unowned(this._pointer);
+  HandleBase.unowned(this._pointer) : isUnowned = true;
 
   @override
-  String toString() => "${_pointer.toString()} value=${_pointer.cast<IntPtr>().value}";
+  String toString() => "${_pointer.toString()} value=${_pointer.cast<IntPtr>().value}${isUnowned ? ' (unowned)' : ''}";
+
+  /// @nodoc
+  /// A method that will be invoked just before the handle is released. Allows to cleanup
+  /// any custom data that inheritors are storing.
+  void _releaseCore() {}
+
+  void release() {
+    if (released) {
+      return;
+    }
+
+    _releaseCore();
+
+    if (!isUnowned) {
+      _nativeFinalizer.detach(this);
+      _realmLib.realm_release(_pointer.cast());
+    }
+
+    _pointer = nullptr;
+
+    if (_enableFinalizerTrace) {
+      _tearDownFinalizationTrace(this, _pointer);
+    }
+  }
+}
+
+class FinalizationToken {
+  final WeakReference<RealmHandle> root;
+  final int id;
+
+  FinalizationToken(RealmHandle handle, this.id) : root = WeakReference(handle);
+}
+
+// This finalizer is intended to prevent the list of children in the RealmHandle
+// from growing endlessly. It's not intended to replace the native finalizer which
+// will free the actual resources owned by the handle.
+final _rootedHandleFinalizer = Finalizer<FinalizationToken>((token) {
+  token.root.target?.removeChild(token.id);
+});
+
+abstract class RootedHandleBase<T extends NativeType> extends HandleBase<T> {
+  final RealmHandle _root;
+  int? _id;
+
+  bool get shouldRoot => _root.isUnowned;
+
+  RootedHandleBase(this._root, Pointer<T> pointer, int size) : super(pointer, size) {
+    if (shouldRoot) {
+      _id = _root.addChild(this);
+    }
+  }
+
+  @override
+  void _releaseCore() {
+    if (_id != null) {
+      _root.removeChild(_id!);
+    }
+  }
 }
 
 class SchemaHandle extends HandleBase<realm_schema> {
@@ -2069,59 +2155,71 @@ class ConfigHandle extends HandleBase<realm_config> {
 }
 
 class RealmHandle extends HandleBase<shared_realm> {
+  int _counter = 0;
+
+  final Map<int, WeakReference<RootedHandleBase>> _children = {};
+
   RealmHandle._(Pointer<shared_realm> pointer) : super(pointer, 24);
 
   RealmHandle._unowned(Pointer<shared_realm> pointer) : super.unowned(pointer);
+
+  int addChild(RootedHandleBase child) {
+    final id = _counter++;
+    _children[id] = WeakReference(child);
+    _rootedHandleFinalizer.attach(this, FinalizationToken(this, id), detach: this);
+    return id;
+  }
+
+  void removeChild(int id) {
+    final child = _children.remove(id);
+    if (child != null) {
+      final target = child.target;
+      if (target != null) {
+        _rootedHandleFinalizer.detach(target);
+      }
+    }
+  }
+
+  @override
+  void _releaseCore() {
+    final keys = _children.keys.toList();
+
+    for (final key in keys) {
+      _children[key]?.target?.release();
+    }
+  }
 }
 
 class SchedulerHandle extends HandleBase<realm_scheduler> {
   SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer, 24);
 }
 
-class RealmObjectHandle extends HandleBase<realm_object> {
-  RealmObjectHandle._(Pointer<realm_object> pointer) : super(pointer, 112);
+class RealmObjectHandle extends RootedHandleBase<realm_object> {
+  RealmObjectHandle._(Pointer<realm_object> pointer, RealmHandle root) : super(root, pointer, 112);
 }
 
-class RealmLinkHandle {
+class _RealmLinkHandle {
   final int targetKey;
   final int classKey;
-  RealmLinkHandle._(realm_link_t link)
+  _RealmLinkHandle._(realm_link_t link)
       : targetKey = link.target,
         classKey = link.target_table;
 }
 
-class RealmResultsHandle extends ReleasableHandle<realm_results> {
-  RealmResultsHandle._(Pointer<realm_results> pointer) : super(pointer, 872);
+class RealmResultsHandle extends RootedHandleBase<realm_results> {
+  RealmResultsHandle._(Pointer<realm_results> pointer, RealmHandle root) : super(root, pointer, 872);
 }
 
-class RealmListHandle extends ReleasableHandle<realm_list> {
-  RealmListHandle._(Pointer<realm_list> pointer) : super(pointer, 88);
+class RealmListHandle extends RootedHandleBase<realm_list> {
+  RealmListHandle._(Pointer<realm_list> pointer, RealmHandle root) : super(root, pointer, 88);
 }
 
-class RealmQueryHandle extends ReleasableHandle<realm_query> {
-  RealmQueryHandle._(Pointer<realm_query> pointer) : super(pointer, 256);
+class _RealmQueryHandle extends RootedHandleBase<realm_query> {
+  _RealmQueryHandle._(Pointer<realm_query> pointer, RealmHandle root) : super(root, pointer, 256);
 }
 
-class ReleasableHandle<T extends NativeType> extends HandleBase<T> {
-  bool released = false;
-  ReleasableHandle(Pointer<T> pointer, int size) : super(pointer, size);
-  void release() {
-    if (released) {
-      return;
-    }
-    _nativeFinalizer.detach(this);
-    _realmLib.realm_release(_pointer.cast());
-    released = true;
-    if (_enableFinalizerTrace) _tearDownFinalizationTrace(this, _pointer);
-  }
-}
-
-class RealmNotificationTokenHandle extends ReleasableHandle<realm_notification_token> {
-  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer) : super(pointer, 32);
-}
-
-class RealmCallbackTokenHandle extends ReleasableHandle<realm_callback_token> {
-  RealmCallbackTokenHandle._(Pointer<realm_callback_token> pointer) : super(pointer, 24);
+class RealmNotificationTokenHandle extends RootedHandleBase<realm_notification_token> {
+  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer, RealmHandle root) : super(root, pointer, 32);
 }
 
 class RealmCollectionChangesHandle extends HandleBase<realm_collection_changes> {
@@ -2160,18 +2258,24 @@ class SubscriptionHandle extends HandleBase<realm_flx_sync_subscription> {
   SubscriptionHandle._(Pointer<realm_flx_sync_subscription> pointer) : super(pointer, 184);
 }
 
-class SubscriptionSetHandle extends ReleasableHandle<realm_flx_sync_subscription_set> {
-  SubscriptionSetHandle._(Pointer<realm_flx_sync_subscription_set> pointer) : super(pointer, 128);
+class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription_set> {
+  @override
+  bool get shouldRoot => true;
+
+  SubscriptionSetHandle._(Pointer<realm_flx_sync_subscription_set> pointer, RealmHandle root) : super(root, pointer, 128);
 }
 
 class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
-  MutableSubscriptionSetHandle._(Pointer<realm_flx_sync_mutable_subscription_set> pointer) : super._(pointer.cast());
+  MutableSubscriptionSetHandle._(Pointer<realm_flx_sync_mutable_subscription_set> pointer, RealmHandle root) : super._(pointer.cast(), root);
 
   Pointer<realm_flx_sync_mutable_subscription_set> get _mutablePointer => super._pointer.cast();
 }
 
-class SessionHandle extends ReleasableHandle<realm_sync_session_t> {
-  SessionHandle._(Pointer<realm_sync_session_t> pointer) : super(pointer, 24);
+class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
+  @override
+  bool get shouldRoot => true;
+
+  SessionHandle._(Pointer<realm_sync_session_t> pointer, RealmHandle root) : super(root, pointer, 24);
 }
 
 extension on List<int> {

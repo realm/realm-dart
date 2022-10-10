@@ -22,7 +22,7 @@ import 'dart:math';
 import 'package:test/test.dart' hide test, throws;
 import 'package:path/path.dart' as path;
 import '../lib/realm.dart';
-import '../lib/src/configuration.dart' show SyncClientResetErrorHandlerInternal, ClientResyncModeInternal;
+import '../lib/src/configuration.dart' show ClientResyncModeInternal;
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -288,7 +288,11 @@ Future<void> main([List<String>? args]) async {
       throw Exception('very careless developer');
     });
 
-    expect(() => getRealm(config), throws<RealmException>("User-provided callback failed"));
+    expect(
+        () => getRealm(config),
+        throwsA(isA<UserCallbackException>()
+            .having((e) => e.message, 'message', contains('An exception occurred while executing a user-provided callback.'))
+            .having((e) => e.userException.toString(), 'userException', contains('very careless developer'))));
     expect(invoked, true);
 
     // No data should have been written to the Realm
@@ -306,7 +310,7 @@ Future<void> main([List<String>? args]) async {
       throw Exception('very careless developer');
     });
 
-    expect(() => getRealm(config), throws<RealmException>("User-provided callback failed"));
+    expect(() => getRealm(config), throws<UserCallbackException>('An exception occurred while executing a user-provided callback'));
     expect(invoked, true);
 
     var secondInvoked = false;
@@ -374,6 +378,26 @@ Future<void> main([List<String>? args]) async {
 
     expect(callbackEx, isNotNull);
     expect(callbackEx.toString(), contains('The Realm is already in a write transaction'));
+  });
+
+  test("Configuration.initialDataCallback destroys objects after callback", () {
+    Exception? callbackEx;
+    late RealmResults<Person> people;
+    late Person george;
+    final config = Configuration.local([Person.schema], initialDataCallback: (realm) {
+      george = realm.add(Person('George'));
+      people = realm.all<Person>();
+      expect(people.length, 1);
+    });
+
+    final realm = getRealm(config);
+
+    expect(() => people.length, throws<RealmClosedError>());
+    expect(() => george.name, throws<RealmClosedError>());
+    expect(people.realm.isClosed, true);
+
+    final peopleAagain = realm.all<Person>();
+    expect(peopleAagain.length, 1);
   });
 
   test('Configuration.shouldCompact can return false', () {
@@ -507,7 +531,7 @@ Future<void> main([List<String>? args]) async {
       path.basename('my-custom-realm-name.realm'),
     );
     final config = Configuration.flexibleSync(user, [Event.schema], path: customPath);
-    var realm = Realm(config);
+    var realm = getRealm(config);
   });
 
   baasTest('Configuration.disconnectedSync', (appConfig) async {
@@ -528,11 +552,44 @@ Future<void> main([List<String>? args]) async {
     realm.close();
 
     final disconnectedSyncConfig = Configuration.disconnectedSync(schema, path: realmPath);
-    final disconnectedRealm = Realm(disconnectedSyncConfig);
+    final disconnectedRealm = getRealm(disconnectedSyncConfig);
     expect(disconnectedRealm.find<Task>(oid), isNotNull);
   });
 
-  baasTest("Configuration.flexibleSync set recoverOrDiscard as a default resync mode", (appConfiguration) async {
+  test('Configuration set short encryption key', () {
+    List<int> key = [1, 2, 3];
+    expect(
+      () => Configuration.local([Car.schema], encryptionKey: key),
+      throws<RealmException>("Wrong encryption key size"),
+    );
+  });
+
+  test('Configuration set byte exceeding encryption key', () {
+    List<int> byteExceedingKey = List<int>.generate(encryptionKeySize, (i) => random.nextInt(4294967296));
+    expect(
+      () => Configuration.local([Car.schema], encryptionKey: byteExceedingKey),
+      throws<RealmException>("Encryption key must be a list of bytes with allowed values form 0 to 255"),
+    );
+  });
+
+  test('Configuration set a correct encryption key', () {
+    List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
+    Configuration.local([Car.schema], encryptionKey: key);
+  });
+
+  baasTest('FlexibleSyncConfiguration set long encryption key', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+
+    List<int> key = List<int>.generate(encryptionKeySize + 10, (i) => random.nextInt(256));
+    expect(
+      () => Configuration.flexibleSync(user, [Task.schema], encryptionKey: key),
+      throws<RealmException>("Wrong encryption key size"),
+    );
+  });
+  
+   baasTest("Configuration.flexibleSync set recoverOrDiscard as a default resync mode", (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);

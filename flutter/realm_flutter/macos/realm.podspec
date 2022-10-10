@@ -10,7 +10,7 @@ realmPackageDir = File.expand_path(__dir__)
 
 Pod::Spec.new do |s|
   s.name                      = 'realm'
-  s.version                   = '0.4.0+beta'
+  s.version                   = '0.5.0+beta'
   s.summary                   = 'The official Realm SDK for Flutter'
   s.description               = <<-DESC
                                     Realm is a mobile database - an alternative to SQLite and key-value stores.

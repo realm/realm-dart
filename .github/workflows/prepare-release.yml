@@ -2,6 +2,11 @@ name: Prepare Release
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: Use this to provide a version, instead of deriving it from the changelog.
+        required: false
+        type: string
 env:
   REALM_CI: true
 
@@ -16,9 +21,10 @@ jobs:
 
       - name: Update Changelog
         id: update-changelog
-        uses: realm/ci-actions/update-changelog@92b1c91f266809c4374947b8846c09c9049b6f3d
+        uses: realm/ci-actions/update-changelog@21e5e3c4acab316ccdeab748334c9c194d327fb7
         with:
           changelog: ${{ github.workspace }}/CHANGELOG.md
+          version: ${{ inputs.version }}
           version-suffix: '+beta'
 
       - name: Update pubspec.yaml

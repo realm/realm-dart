@@ -60,7 +60,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
   }
 
   @override
-  int get length => realmCore.getListSize(_handle);
+  int get length => realmCore.getListSize(handle);
 
   /// Setting the `length` is a required method on [List], but makes less sense
   /// for [RealmList]s. You can only decrease the length, increasing it doesn't
@@ -223,7 +223,14 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
 
   ManagedRealmList<T> asManaged() => this is ManagedRealmList<T> ? this as ManagedRealmList<T> : throw RealmStateError('$this is not managed');
 
-  RealmListHandle get handle => asManaged()._handle;
+  RealmListHandle get handle {
+    final result = asManaged()._handle;
+    if (result.released) {
+      throw RealmClosedError('Cannot access a list that belongs to a closed Realm');
+    }
+
+    return result;
+  }
 
   RealmObjectMetadata? get metadata => asManaged()._metadata;
 

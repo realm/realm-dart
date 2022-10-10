@@ -404,8 +404,13 @@ extension RealmObjectInternal on RealmObject {
     return object;
   }
 
-  // if we ever see a _CastError here, we forgot to guard against misuse further up the call-stack
-  RealmObjectHandle get handle => _handle!;
+  RealmObjectHandle get handle {
+    if (_handle?.released == true) {
+      throw RealmClosedError('Cannot access an object that belongs to a closed Realm');
+    }
+
+    return _handle!;
+  }
 
   RealmAccessor get accessor => _accessor;
 }

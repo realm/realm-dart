@@ -3,8 +3,28 @@
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
 ### Breaking Changes
+* SyncClientResetErrorHandler is renamed to ClientResetHandler and ManualSyncClientResetHandler  is renamed to ManualRecoveryHandler.
+* Default resync mode for `FlexibleSyncConfiguration` is changed from `manual` to `recoverOrDiscard`.
+
+### Enhancements
+* Set `recoverOrDiscard` mode as default resync mode for `FlexibleSyncConfiguration`. In this mode Realm attempts to recover unsynced local changes and if that fails, then the changes are discarded.(PR [#925](https://github.com/realm/realm-dart/pull/925))
+
+### Fixed
+
+### Compatibility
+* Realm Studio: 12.0.0 or later.
+
+### Internal
+* Uses Realm Core v12.9.0
+
+
+## 0.5.0+beta (2022-10-10)
+
+**This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
+
+### Breaking Changes
 * Fixed an issue that would cause passwords sent to the server (e.g. `Credentials.EmailPassword` or `EmailPasswordAuthProvider.registerUser`) to contain an extra empty byte at the end. (PR [#918](https://github.com/realm/realm-dart/pull/918)).
-  Notice: Any existing email users might need to be recreated because of this breaking change. 
+  Notice: Any existing email users might need to be recreated because of this breaking change.
 
 ### Enhancements
 * Added support for "frozen objects" - these are objects, queries, lists, or Realms that have been "frozen" at a specific version. All frozen objects can be accessed and queried as normal, but attempting to mutate them or add change listeners will throw an exception. `Realm`, `RealmObject`, `RealmList`, and `RealmResults` now have a method `freeze()` which returns an immutable version of the object, as well as an `isFrozen` property which can be used to check whether an object is frozen. ([#56](https://github.com/realm/realm-dart/issues/56))
@@ -42,18 +62,17 @@
   ```
 * Added support for realm list of nullable primitive types, ie. `RealmList<int?>`. ([#163](https://github.com/realm/realm-dart/issues/163))
 * Allow null arguments on query. ([#871](https://github.com/realm/realm-dart/issues/871))
-
 * Added support for API key authentication. (Issue [#432](https://github.com/realm/realm-dart/issues/432))
   * Expose `User.apiKeys` client - this client can be used to create, fetch, and delete API keys.
   * Expose `Credentials.apiKey` that enable authentication with API keys.
 * Exposed `User.accessToken` and `User.refreshToken` - these tokens can be used to authenticate against the server when calling HTTP API outside of the Dart/Flutter SDK. For example, if you want to use the GraphQL. (PR [#919](https://github.com/realm/realm-dart/pull/919))
-* Set `recoverOrDiscard` mode as default resync mode for `FlexibleSyncConfiguration`. In this mode Realm attempts to recover unsynced local changes and if that fails, then the changes are discarded.(PR [#925](https://github.com/realm/realm-dart/pull/925))
+* Added support for `encryptionKey` to `Configuration.local`, `Configuration.flexibleSync` and `Configuration.disconnectedSync` so realm files can be encrypted and existing encrypted files from other Realm sources opened (assuming you have the key)([#920](https://github.com/realm/realm-dart/pull/920))
 
 ### Fixed
 * Previously removeAt did not truncate length. ([#883](https://github.com/realm/realm-dart/issues/883))
 * List.length= now throws, if you try to increase length. This previously succeeded silently. ([#894](https://github.com/realm/realm-dart/pull/894)).
 * Queries on lists were broken. ([#909](https://github.com/realm/realm-dart/issues/909))
-  Example: 
+  Example:
   ```dart
   expect(realm.all<Person>(), [alice, bob, carol, dan]); // assume this pass, then ...
   expect(team.players.query('TRUEPREDICATE'), [alice, bob]); // <-- ... this fails and return the same as realm.all<Person>()
@@ -66,12 +85,15 @@
 * Fixed copying of native structs for session errors and http requests. ([#924](https://github.com/realm/realm-dart/pull/924))
 * Fixed a crash when closing the SyncSession on App instance teardown. ([#5752](https://github.com/realm/realm-core/issues/5752))
 * Fixed sporadic generator failure. ([#879](https://github.com/realm/realm-dart/issues/879))
+* Exceptions thrown by user code inside the `Configuration.initialDataCallback` are now properly surfaced back to the `Realm()` constructor. ([#698](https://github.com/realm/realm-dart/issues/698))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
 
 ### Internal
 * Uses Realm Core v12.9.0
+* Added tracking of child handles for objects/results/lists obtained from an unowned Realm. This ensures that all children are invalidated as soon as the parent Realm gets released at the end of the callback. (Issue [#527](https://github.com/realm/realm-dart/issues/527))
+* Added an action to enforce that the changelog is updated before a PR is merged (Issue [#939](https://github.com/realm/realm-dart/issues/939))
 
 ## 0.4.0+beta (2022-08-19)
 
