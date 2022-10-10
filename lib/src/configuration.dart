@@ -380,6 +380,10 @@ class RealmSchema extends Iterable<SchemaObject> {
 /// This can happen if the server is rolled back or restored from backup.
 /// {@category Sync}
 abstract class ClientResetHandler {
+
+  /// Defines what should happen in case of a Client Resync
+  ClientResyncModeInternal get _mode;
+
   /// The callback that handles the [SyncClientResetError].
   final ClientResetCallback callback;
 
@@ -394,6 +398,9 @@ abstract class ClientResetHandler {
 /// {@category Sync}
 class ManualRecoveryHandler extends ClientResetHandler {
   const ManualRecoveryHandler({required ClientResetCallback onReset}) : super(onReset);
+
+  @override
+  ClientResyncModeInternal get _mode => ClientResyncModeInternal.manual;
 }
 
 /// A client reset strategy where all the not yet synchronized data is automatically
@@ -405,6 +412,9 @@ class ManualRecoveryHandler extends ClientResetHandler {
 /// {@category Sync}
 class DiscardUnsyncedChangesHandler extends ClientResetHandler {
   const DiscardUnsyncedChangesHandler({required ClientResetCallback onReset}) : super(onReset);
+
+  @override
+  ClientResyncModeInternal get _mode => ClientResyncModeInternal.discardLocal;
 }
 
 /// A client reset strategy that attempts to automatically recover any unsynchronized changes.
@@ -415,6 +425,9 @@ class DiscardUnsyncedChangesHandler extends ClientResetHandler {
 /// {@category Sync}
 class RecoverUnsyncedChangesHandler extends ClientResetHandler {
   const RecoverUnsyncedChangesHandler({required ClientResetCallback onReset}) : super(onReset);
+
+  @override
+  ClientResyncModeInternal get _mode => ClientResyncModeInternal.recover;
 }
 
 /// A client reset strategy that attempts to automatically recover any unsynchronized changes.
@@ -428,21 +441,14 @@ class RecoverUnsyncedChangesHandler extends ClientResetHandler {
 /// {@category Sync}
 class RecoverOrDiscardUnsyncedChangesHandler extends ClientResetHandler {
   const RecoverOrDiscardUnsyncedChangesHandler({required ClientResetCallback onReset}) : super(onReset);
+
+  @override
+  ClientResyncModeInternal get _mode => ClientResyncModeInternal.recoverOrDiscard;
 }
 
 /// @nodoc
 extension SyncClientResetErrorHandlerInternal on ClientResetHandler {
-  ClientResyncModeInternal get clientResyncMode {
-    if (this is ManualRecoveryHandler) {
-      return ClientResyncModeInternal.manual;
-    } else if (this is DiscardUnsyncedChangesHandler) {
-      return ClientResyncModeInternal.discardLocal;
-    } else if (this is RecoverUnsyncedChangesHandler) {
-      return ClientResyncModeInternal.recover;
-    } else {
-      return ClientResyncModeInternal.recoverOrDiscard;
-    }
-  }
+  ClientResyncModeInternal get clientResyncMode => _mode;
 }
 
 /// Enum describing what should happen in case of a Client Resync.
