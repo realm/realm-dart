@@ -26,7 +26,7 @@
     }
 
     if (oldSchemaVersion == 3) {
-      final oldPeople = migration.oldRealm.dynamic.all('Person');
+      final oldPeople = migration.oldRealm.all('Person');
       for (final oldPerson in oldPeople) {
         final newPerson = migration.findInNewRealm<Person>(oldPerson);
         if (newPerson == null) {
