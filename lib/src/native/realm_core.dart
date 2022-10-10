@@ -554,7 +554,7 @@ class _RealmCore {
       result[property.name] = property;
     }
 
-    return SchemaObject<RealmObject<dynamic>>(null, name, result, result.values.singleWhereOrNull((s) => s.primaryKey));
+    return SchemaObject<RealmObject>(null, name, result, result.values.singleWhereOrNull((s) => s.primaryKey));
   }
 
   void deleteRealmFiles(String path) {

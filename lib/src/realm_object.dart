@@ -30,33 +30,33 @@ typedef DartDynamic = dynamic;
 
 abstract class RealmAccessor implements RealmAccessorMarker {
   @override
-  T getValue<T>(covariant RealmObject<dynamic> object, String propertyName);
+  T getValue<T>(covariant RealmObject object, String propertyName);
   @override
-  T? getObject<T>(covariant RealmObject<dynamic> object, String propertyName);
+  T? getObject<T>(covariant RealmObject object, String propertyName);
   @override
-  RealmList<T> getList<T>(covariant RealmObject<dynamic> object, String propertyName);
+  RealmList<T> getList<T>(covariant RealmObject object, String propertyName);
   @override
-  void set<T>(covariant RealmObject<dynamic> object, String propertyName, T value, {bool isDefault = false, bool update = false});
+  void set<T>(covariant RealmObject object, String propertyName, T value, {bool isDefault = false, bool update = false});
 }
 
 class RealmValuesAccessor implements RealmAccessor {
   final Map<String, Object?> _values = <String, Object?>{};
 
   @override
-  T getValue<T>(RealmObject<dynamic> object, String propertyName) => _values[propertyName] as T;
+  T getValue<T>(RealmObject object, String propertyName) => _values[propertyName] as T;
 
   @override
-  T? getObject<T>(RealmObject<dynamic> object, String propertyName) => _values[propertyName] as T?;
+  T? getObject<T>(RealmObject object, String propertyName) => _values[propertyName] as T?;
 
   @override
-  RealmList<T> getList<T>(RealmObject<dynamic> object, String propertyName) => _values[propertyName] as RealmList<T>;
+  RealmList<T> getList<T>(RealmObject object, String propertyName) => _values[propertyName] as RealmList<T>;
 
   @override
-  void set<T extends Object?>(RealmObject<dynamic> object, String propertyName, T value, {bool isDefault = false, bool update = false}) {
+  void set<T extends Object?>(RealmObject object, String propertyName, T value, {bool isDefault = false, bool update = false}) {
     _values[propertyName] = value;
   }
 
-  void setAll(RealmObject<dynamic> object, RealmCoreAccessor accessor, {bool update = false}) {
+  void setAll(RealmObject object, RealmCoreAccessor accessor, {bool update = false}) {
     for (final p in object.instanceSchema) {
       var value = _values[p.name];
       final isDefault = value == null;
@@ -103,14 +103,14 @@ class RealmCoreAccessor implements RealmAccessor {
   RealmCoreAccessor(this.metadata, this.isInMigration);
 
   @override
-  T getValue<T>(RealmObject<dynamic> object, String propertyName) {
+  T getValue<T>(RealmObject object, String propertyName) {
     final propertyMeta = metadata[propertyName];
     final value = realmCore.getProperty(object, propertyMeta.key);
     return value as T;
   }
 
   @override
-  T? getObject<T>(RealmObject<dynamic> object, String propertyName) {
+  T? getObject<T>(RealmObject object, String propertyName) {
     final propertyMeta = metadata[propertyName];
     final value = realmCore.getProperty(object, propertyMeta.key);
     if (value is RealmObjectHandle) {
@@ -121,7 +121,7 @@ class RealmCoreAccessor implements RealmAccessor {
   }
 
   @override
-  RealmList<ElementT> getList<ElementT>(RealmObject<dynamic> object, String propertyName) {
+  RealmList<ElementT> getList<ElementT>(RealmObject object, String propertyName) {
     final propertyMeta = metadata[propertyName];
     final handle = realmCore.getListProperty(object, propertyMeta.key);
     final realm = object.realm;
@@ -133,7 +133,7 @@ class RealmCoreAccessor implements RealmAccessor {
   }
 
   @override
-  void set<T>(RealmObject<dynamic> object, String propertyName, T value, {bool isDefault = false, bool update = false}) {
+  void set<T>(RealmObject object, String propertyName, T value, {bool isDefault = false, bool update = false}) {
     final propertyMeta = metadata[propertyName];
     try {
       if (value is RealmList<Object?>) {
@@ -145,7 +145,7 @@ class RealmCoreAccessor implements RealmAccessor {
         return;
       }
 
-      if (value is RealmObject<T> && !value.isManaged) {
+      if (value is RealmObject && !value.isManaged) {
         object.realm.createThenAddOrUpdate(value, update);
       }
 
@@ -188,7 +188,7 @@ extension RealmEntityInternal on RealmEntityMixin {
 ///
 /// [RealmObject] should not be used directly as it is part of the generated class hierarchy. ex: `MyClass extends _MyClass with RealmObject`.
 /// {@category Realm}
-abstract class RealmObject<T> implements RealmObjectMarker {
+abstract class RealmObject implements RealmObjectMarker {
   /// Get a reference to the static [T.schema] from an instance.
   SchemaObject get instanceSchema;
 
@@ -209,6 +209,10 @@ abstract class RealmObject<T> implements RealmObjectMarker {
   /// True if the object belongs to a frozen realm.
   bool get isFrozen;
 
+  DynamicRealmObject get dynamic;
+}
+
+abstract class TypedRealmObject<T extends RealmObject> implements RealmObject {
   /// Creates a frozen snapshot of this [RealmObject].
   T freeze();
 
@@ -217,13 +221,11 @@ abstract class RealmObject<T> implements RealmObjectMarker {
   /// Returns a [Stream] of [RealmObjectChanges<T>] that can be listened to.
   ///
   /// If the object is not managed a [RealmStateError] is thrown.
-  Stream<RealmObjectChanges> get changes;
-
-  DynamicRealmObject get dynamic;
+  Stream<RealmObjectChanges<T>> get changes;
 }
 
 /// @nodoc
-mixin RealmObjectMixin<T extends RealmObject<T>> on RealmEntityMixin implements Finalizable, RealmObject<T> {
+mixin RealmObjectMixin<T extends TypedRealmObject<T>> on RealmEntityMixin implements Finalizable, TypedRealmObject<T> {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
 
@@ -309,7 +311,7 @@ mixin RealmObjectMixin<T extends RealmObject<T>> on RealmEntityMixin implements 
 
 /// @nodoc
 //RealmObject package internal members
-extension RealmObjectInternal on RealmObject<dynamic> {
+extension RealmObjectInternal on RealmObject {
   @pragma('vm:never-inline')
   void keepAlive() {
     realm.keepAlive();
@@ -337,7 +339,7 @@ extension RealmObjectInternal on RealmObject<dynamic> {
 
   static T create<T extends Object?>(Realm realm, RealmObjectHandle handle, RealmObjectMetadata metadata) {
     T? object;
-    if (isStrictSubtype<T, RealmObject<T>?>()) {
+    if (isStrictSubtype<T, RealmObject?>()) {
       final schema = realm.schema.getByType<T>();
       object = schema?.objectFactory();
     }
@@ -388,7 +390,7 @@ class UserCallbackException extends RealmException {
 }
 
 /// Describes the changes in on a single RealmObject since the last time the notification callback was invoked.
-class RealmObjectChanges<T extends RealmObject<T>> implements Finalizable {
+class RealmObjectChanges<T extends RealmObject> implements Finalizable {
   // ignore: unused_field
   final RealmObjectChangesHandle _handle;
 
@@ -408,7 +410,7 @@ class RealmObjectChanges<T extends RealmObject<T>> implements Finalizable {
 }
 
 /// @nodoc
-extension RealmObjectChangesInternal<T extends RealmObject<T>> on RealmObjectChanges<T> {
+extension RealmObjectChangesInternal<T extends RealmObject> on RealmObjectChanges<T> {
   @pragma('vm:never-inline')
   void keepAlive() {
     _handle.keepAlive();
@@ -416,7 +418,7 @@ extension RealmObjectChangesInternal<T extends RealmObject<T>> on RealmObjectCha
 }
 
 /// @nodoc
-class RealmObjectNotificationsController<T extends RealmObject<T>> extends NotificationsController {
+class RealmObjectNotificationsController<T extends RealmObject> extends NotificationsController {
   T realmObject;
   late final StreamController<RealmObjectChanges<T>> streamController;
 
@@ -449,7 +451,7 @@ class RealmObjectNotificationsController<T extends RealmObject<T>> extends Notif
 }
 
 /// @nodoc
-class _ConcreteRealmObject with RealmEntityMixin, RealmObjectMixin<_ConcreteRealmObject> implements RealmObject<_ConcreteRealmObject> {
+class _ConcreteRealmObject with RealmEntityMixin, RealmObjectMixin<_ConcreteRealmObject> implements TypedRealmObject<_ConcreteRealmObject> {
   @override
   SchemaObject get instanceSchema => (_accessor as RealmCoreAccessor).metadata.schema;
 }
@@ -459,7 +461,7 @@ class _ConcreteRealmObject with RealmEntityMixin, RealmObjectMixin<_ConcreteReal
 ///
 /// {@category Realm}
 class DynamicRealmObject {
-  final RealmObject<dynamic> _obj;
+  final RealmObject _obj;
 
   DynamicRealmObject._(this._obj);
 

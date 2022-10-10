@@ -77,7 +77,9 @@ export "configuration.dart"
         SyncClientResetErrorHandler;
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
-export 'realm_object.dart' show RealmEntityMixin, RealmObjectMixin, RealmException, UserCallbackException, RealmObject, RealmObjectChanges, DynamicRealmObject;
+export 'realm_object.dart'
+    show DynamicRealmObject, RealmEntityMixin, RealmException, RealmObject, RealmObjectChanges, RealmObjectMixin, TypedRealmObject, UserCallbackException;
+
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
@@ -171,7 +173,7 @@ class Realm implements Finalizable {
   ///
   /// Throws [RealmException] when trying to add objects with the same primary key.
   /// Throws [RealmException] if there is no write transaction created with [write].
-  T add<T extends RealmObject<T>>(T object, {bool update = false}) {
+  T add<T extends RealmObject>(T object, {bool update = false}) {
     if (object.isManaged) {
       return object;
     }
@@ -187,19 +189,19 @@ class Realm implements Finalizable {
   /// By setting the [update] flag you can update any existing object with the same primary key.
   /// Updating only makes sense for objects with primary keys, and is effectively ignored
   /// otherwise.
-  void addAll<T extends RealmObject<T>>(Iterable<T> items, {bool update = false}) {
+  void addAll<T extends RealmObject>(Iterable<T> items, {bool update = false}) {
     for (final i in items) {
       add(i, update: update);
     }
   }
 
   /// Deletes a [RealmObject] from this `Realm`.
-  void delete<T extends RealmObject<T>>(T object) => realmCore.deleteRealmObject(object);
+  void delete<T extends RealmObject>(T object) => realmCore.deleteRealmObject(object);
 
   /// Deletes many [RealmObject]s from this `Realm`.
   ///
   /// Throws [RealmException] if there is no active write transaction.
-  void deleteMany<T extends RealmObject<T>>(Iterable<T> items) {
+  void deleteMany<T extends RealmObject>(Iterable<T> items) {
     if (items is RealmResults<T>) {
       realmCore.resultsDeleteAll(items);
     } else if (items is RealmList<T>) {
@@ -248,7 +250,7 @@ class Realm implements Finalizable {
   bool get isClosed => _handle.released || realmCore.isRealmClosed(this);
 
   /// Fast lookup for a [RealmObject] with the specified [primaryKey].
-  T? find<T extends RealmObject<T>>(Object? primaryKey) {
+  T? find<T extends RealmObject>(Object? primaryKey) {
     final metadata = _metadata.getByStaticType<T>();
 
     final handle = realmCore.find(this, metadata.key, primaryKey);
@@ -263,7 +265,7 @@ class Realm implements Finalizable {
   /// Returns all [RealmObject]s of type `T` in the `Realm`
   ///
   /// The returned [RealmResults] allows iterating all the values without further filtering.
-  RealmResults<T> all<T extends RealmObject<T>>() {
+  RealmResults<T> all<T extends RealmObject>() {
     final metadata = _metadata.getByStaticType<T>();
     final handle = realmCore.findAll(this, metadata.key);
     return RealmResultsInternal.create<T>(handle, this, metadata);
@@ -273,14 +275,14 @@ class Realm implements Finalizable {
   ///
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
-  RealmResults<T> query<T extends RealmObject<T>>(String query, [List<Object?> args = const []]) {
+  RealmResults<T> query<T extends RealmObject>(String query, [List<Object?> args = const []]) {
     final metadata = _metadata.getByStaticType<T>();
     final handle = realmCore.queryClass(this, metadata.key, query, args);
     return RealmResultsInternal.create<T>(handle, this, metadata);
   }
 
   /// Deletes all [RealmObject]s of type `T` in the `Realm`
-  void deleteAll<T extends RealmObject<T>>() => deleteMany(all<T>());
+  void deleteAll<T extends RealmObject>() => deleteMany(all<T>());
 
   /// Returns a frozen (immutable) snapshot of this Realm.
   ///
@@ -421,7 +423,7 @@ extension RealmInternal on Realm {
 
   bool get isInMigration => _isInMigration;
 
-  T? resolveObject<T extends RealmObject<T>>(T object) {
+  T? resolveObject<T extends RealmObject>(T object) {
     if (!object.isManaged) {
       throw RealmStateError("Can't resolve unmanaged objects");
     }
@@ -440,7 +442,7 @@ extension RealmInternal on Realm {
     return RealmObjectInternal.create<T>(this, handle, metadata);
   }
 
-  void createThenAddOrUpdate<T>(RealmObject<T> object, bool update) {
+  void createThenAddOrUpdate(RealmObject object, bool update) {
     final metadata = _metadata.getByType(object.runtimeType);
     final handle = createObject(object, metadata, update);
 
@@ -448,7 +450,7 @@ extension RealmInternal on Realm {
     object.manage(this, handle, accessor, update);
   }
 
-  RealmObjectHandle createObject<T>(RealmObject<T> object, RealmObjectMetadata metadata, bool update) {
+  RealmObjectHandle createObject<T extends RealmObject>(T object, RealmObjectMetadata metadata, bool update) {
     final key = metadata.key;
     final primaryKey = metadata.primaryKey;
     if (primaryKey == null) {
@@ -575,7 +577,7 @@ class RealmMetadata {
       _typeMap[type] ??
       (throw RealmError("Object type $type not configured in the current Realm's schema. Add type $type to your config before opening the Realm"));
 
-  RealmObjectMetadata getByStaticType<T extends RealmObject<T>>() => getByType(T);
+  RealmObjectMetadata getByStaticType<T extends RealmObject>() => getByType(T);
 
   RealmObjectMetadata getByName(String name) =>
       _stringMap[name] ??
@@ -603,14 +605,14 @@ class DynamicRealm {
   /// Returns all [RealmObject]s of type [className] in the `Realm`
   ///
   /// The returned [RealmResults] allows iterating all the values without further filtering.
-  RealmResults<RealmObject<dynamic>> all(String className) {
+  RealmResults<RealmObject> all(String className) {
     final metadata = _realm._metadata.getByName(className);
     final handle = realmCore.findAll(_realm, metadata.key);
     return RealmResultsInternal.create<RealmObject>(handle, _realm, metadata);
   }
 
   /// Fast lookup for a [RealmObject] of type [className] with the specified [primaryKey].
-  RealmObject<dynamic>? find(String className, Object primaryKey) {
+  RealmObject? find(String className, Object primaryKey) {
     final metadata = _realm._metadata.getByName(className);
 
     final handle = realmCore.find(_realm, metadata.key, primaryKey);

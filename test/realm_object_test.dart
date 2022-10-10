@@ -314,7 +314,7 @@ Future<void> main([List<String>? args]) async {
     await Future<void>.delayed(Duration(milliseconds: 20));
   });
 
-  void testPrimaryKey<T extends RealmObject<T>, K extends Object>(SchemaObject schema, T Function() createObject, K? key) {
+  void testPrimaryKey<T extends RealmObject, K extends Object>(SchemaObject schema, T Function() createObject, K? key) {
     test("$T primary key: $key", () {
       final pkProp = schema.primaryKey!;
       final realm = Realm(Configuration.local([schema]));
