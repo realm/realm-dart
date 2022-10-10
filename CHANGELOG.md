@@ -42,11 +42,11 @@
   ```
 * Added support for realm list of nullable primitive types, ie. `RealmList<int?>`. ([#163](https://github.com/realm/realm-dart/issues/163))
 * Allow null arguments on query. ([#871](https://github.com/realm/realm-dart/issues/871))
-
 * Added support for API key authentication. (Issue [#432](https://github.com/realm/realm-dart/issues/432))
   * Expose `User.apiKeys` client - this client can be used to create, fetch, and delete API keys.
   * Expose `Credentials.apiKey` that enable authentication with API keys.
 * Exposed `User.accessToken` and `User.refreshToken` - these tokens can be used to authenticate against the server when calling HTTP API outside of the Dart/Flutter SDK. For example, if you want to use the GraphQL. (PR [#919](https://github.com/realm/realm-dart/pull/919))
+* Added support for `encryptionKey` to `Configuration.local`, `Configuration.flexibleSync` and `Configuration.disconnectedSync` so realm files can be encrypted and existing encrypted files from other Realm sources opened (assuming you have the key)([#920](https://github.com/realm/realm-dart/pull/920))
 
 ### Fixed
 * Previously removeAt did not truncate length. ([#883](https://github.com/realm/realm-dart/issues/883))

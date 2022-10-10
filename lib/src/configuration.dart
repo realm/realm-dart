@@ -90,7 +90,9 @@ abstract class Configuration implements Finalizable {
     this.schemaObjects, {
     String? path,
     this.fifoFilesFallbackPath,
+    this.encryptionKey,
   }) {
+    _validateEncryptionKey(encryptionKey);
     this.path = path ?? _path.join(_path.dirname(_defaultPath), _path.basename(defaultRealmName));
   }
 
@@ -112,12 +114,12 @@ abstract class Configuration implements Finalizable {
   /// If omitted the [defaultPath] for the platform will be used.
   late final String path;
 
-  //TODO: Config: Support encryption keys. https://github.com/realm/realm-dart/issues/88
-  // /// The key used to encrypt the entire [Realm].
-  // ///
-  // /// A full 64byte (512bit) key for AES-256 encryption.
-  // /// Once set, must be specified each time the file is used.
-  // final List<int>? encryptionKey;
+  /// The key used to encrypt the entire [Realm].
+  ///
+  /// A full 64byte (512bit) key for AES-256 encryption.
+  /// Once set, must be specified each time the file is used.
+  /// If null encryption is not enabled.
+  final List<int>? encryptionKey;
 
   /// Constructs a [LocalConfiguration]
   static LocalConfiguration local(
@@ -126,22 +128,22 @@ abstract class Configuration implements Finalizable {
     int schemaVersion = 0,
     String? fifoFilesFallbackPath,
     String? path,
+    List<int>? encryptionKey,
     bool disableFormatUpgrade = false,
     bool isReadOnly = false,
     ShouldCompactCallback? shouldCompactCallback,
     MigrationCallback? migrationCallback,
   }) =>
-      LocalConfiguration._(
-        schemaObjects,
-        initialDataCallback: initialDataCallback,
-        schemaVersion: schemaVersion,
-        fifoFilesFallbackPath: fifoFilesFallbackPath,
-        path: path,
-        disableFormatUpgrade: disableFormatUpgrade,
-        isReadOnly: isReadOnly,
-        shouldCompactCallback: shouldCompactCallback,
-        migrationCallback: migrationCallback,
-      );
+      LocalConfiguration._(schemaObjects,
+          initialDataCallback: initialDataCallback,
+          schemaVersion: schemaVersion,
+          fifoFilesFallbackPath: fifoFilesFallbackPath,
+          path: path,
+          encryptionKey: encryptionKey,
+          disableFormatUpgrade: disableFormatUpgrade,
+          isReadOnly: isReadOnly,
+          shouldCompactCallback: shouldCompactCallback,
+          migrationCallback: migrationCallback);
 
   /// Constructs a [InMemoryConfiguration]
   static InMemoryConfiguration inMemory(
@@ -161,6 +163,7 @@ abstract class Configuration implements Finalizable {
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
+    List<int>? encryptionKey,
     SyncErrorHandler syncErrorHandler = defaultSyncErrorHandler,
     SyncClientResetErrorHandler syncClientResetErrorHandler = const ManualSyncClientResetHandler(_defaultSyncClientResetHandler),
   }) =>
@@ -169,6 +172,7 @@ abstract class Configuration implements Finalizable {
         schemaObjects,
         fifoFilesFallbackPath: fifoFilesFallbackPath,
         path: path,
+        encryptionKey: encryptionKey,
         syncErrorHandler: syncErrorHandler,
         syncClientResetErrorHandler: syncClientResetErrorHandler,
       );
@@ -178,12 +182,30 @@ abstract class Configuration implements Finalizable {
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
+    List<int>? encryptionKey,
   }) =>
       DisconnectedSyncConfiguration._(
         schemaObjects,
         fifoFilesFallbackPath: fifoFilesFallbackPath,
         path: path,
+        encryptionKey: encryptionKey,
       );
+
+  void _validateEncryptionKey(List<int>? key) {
+    if (key == null) {
+      return;
+    }
+
+    if (key.length != realmCore.encryptionKeySize) {
+      throw RealmException("Wrong encryption key size (must be ${realmCore.encryptionKeySize}, but was ${key.length})");
+    }
+
+    int notAByteElement = key.firstWhere((e) => e > 255, orElse: () => -1);
+    if (notAByteElement >= 0) {
+      throw RealmException('''Encryption key must be a list of bytes with allowed values form 0 to 255.
+      Invalid value $notAByteElement found at index ${key.indexOf(notAByteElement)}.''');
+    }
+  }
 }
 
 /// [LocalConfiguration] is used to open local [Realm] instances,
@@ -196,6 +218,7 @@ class LocalConfiguration extends Configuration {
     this.schemaVersion = 0,
     super.fifoFilesFallbackPath,
     super.path,
+    super.encryptionKey,
     this.disableFormatUpgrade = false,
     this.isReadOnly = false,
     this.shouldCompactCallback,
@@ -285,6 +308,7 @@ class FlexibleSyncConfiguration extends Configuration {
     super.schemaObjects, {
     super.fifoFilesFallbackPath,
     super.path,
+    super.encryptionKey,
     this.syncErrorHandler = defaultSyncErrorHandler,
     this.syncClientResetErrorHandler = const ManualSyncClientResetHandler(_defaultSyncClientResetHandler),
   }) : super._();
@@ -313,6 +337,7 @@ class DisconnectedSyncConfiguration extends Configuration {
     super.schemaObjects, {
     super.fifoFilesFallbackPath,
     super.path,
+    super.encryptionKey,
   }) : super._();
 }
 
