@@ -374,7 +374,7 @@ class RealmSchema extends Iterable<SchemaObject> {
 /// thus making it impossible for the device to upload or receive any changes.
 /// This can happen if the server is rolled back or restored from backup.
 /// {@category Sync}
-abstract class SyncClientResetErrorHandler {
+abstract class ClientResetHandlerBase {
   /// The callback that handles the [SyncClientResetError].
   final void Function(SyncClientResetError code) callback;
 
