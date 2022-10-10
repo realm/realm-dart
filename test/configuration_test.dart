@@ -22,7 +22,7 @@ import 'dart:math';
 import 'package:test/test.dart' hide test, throws;
 import 'package:path/path.dart' as path;
 import '../lib/realm.dart';
-import '../lib/src/configuration.dart' show ClientResyncModeInternal;
+import '../lib/src/configuration.dart' show ClientResetHandlerInternal, ClientResyncModeInternal;
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -588,8 +588,8 @@ Future<void> main([List<String>? args]) async {
       throws<RealmException>("Wrong encryption key size"),
     );
   });
-  
-   baasTest("Configuration.flexibleSync set recoverOrDiscard as a default resync mode", (appConfiguration) async {
+
+  baasTest("Configuration.flexibleSync set recoverOrDiscard as a default resync mode", (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);

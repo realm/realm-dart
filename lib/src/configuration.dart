@@ -472,7 +472,7 @@ class RecoverOrDiscardUnsyncedChangesHandler extends ClientResetHandler {
 }
 
 /// @nodoc
-extension SyncClientResetErrorHandlerInternal on ClientResetHandler {
+extension ClientResetHandlerInternal on ClientResetHandler {
   ClientResyncModeInternal get clientResyncMode => _mode;
 }
 
