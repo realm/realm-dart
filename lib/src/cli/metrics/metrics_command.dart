@@ -122,7 +122,7 @@ Future<void> uploadMetrics(Options options) async {
       Uri.parse(
         'https://data.mongodb-api.com'
         '/app/realmsdkmetrics-zmhtm/endpoint/metric_webhook/metric'
-        '?data=$base64Payload}',
+        '?data=$base64Payload',
       ),
     );
     await request.close();
