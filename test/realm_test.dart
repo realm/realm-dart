@@ -720,7 +720,31 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
 
     final frozenRealm = freezeRealm(realm);
-    expect(() => frozenRealm.write(() {}), throws<RealmException>("Can't perform transactions on a frozen Realm"));
+    expect(() => frozenRealm.write(() {}), throws<RealmError>("Starting a write transaction on a frozen Realm is not allowed."));
+  });
+
+  test('FrozenRealm cannot beginWrite', () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final frozenRealm = freezeRealm(realm);
+    expect(() => frozenRealm.beginWrite(), throws<RealmError>("Starting a write transaction on a frozen Realm is not allowed."));
+  });
+
+  test('FrozenRealm cannot writeAsync', () async {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final frozenRealm = freezeRealm(realm);
+    await expectLater(() => frozenRealm.writeAsync(() {}), throws<RealmError>("Starting a write transaction on a frozen Realm is not allowed."));
+  });
+
+  test('FrozenRealm cannot beginWriteAsync', () async {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final frozenRealm = freezeRealm(realm);
+    await expectLater(() => frozenRealm.beginWriteAsync(), throws<RealmError>("Starting a write transaction on a frozen Realm is not allowed."));
   });
 
   test('realm.freeze when frozen returns the same instance', () {
