@@ -387,7 +387,7 @@ abstract class SyncClientResetErrorHandler {
 /// If you set [ManualSyncClientResetHandler] callback as `syncClientResetErrorHandler` argument of [Configuration.flexibleSync],
 /// that will enable full control of moving unsynced changes to synced realm.
 /// {@category Sync}
-class ManualSyncClientResetHandler extends SyncClientResetErrorHandler {
+class ManualRecoveryHandler extends SyncClientResetErrorHandler {
   const ManualSyncClientResetHandler(super.callback);
 }
 
