@@ -398,7 +398,7 @@ class ManualSyncClientResetHandler extends SyncClientResetErrorHandler {
 /// the local Realm will be discarded and replaced with the server side Realm.
 /// All local changes will be lost.
 /// {@category Sync}
-class DiscardLocalSyncClientResetHandler extends SyncClientResetErrorHandler {
+class DiscardUnsyncedChangesHandler extends SyncClientResetErrorHandler {
   const DiscardLocalSyncClientResetHandler(super.callback);
 }
 
