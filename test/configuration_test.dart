@@ -623,6 +623,6 @@ Future<void> main([List<String>? args]) async {
         ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.recoverOrDiscard);
 
-    expect(Configuration.flexibleSync(user, [Task.schema, Schedule.schema]).clientResetHandler, ClientResyncModeInternal.recoverOrDiscard);
+    expect(Configuration.flexibleSync(user, [Task.schema, Schedule.schema]).clientResetHandler.clientResyncMode, ClientResyncModeInternal.recoverOrDiscard);
   });
 }
