@@ -1,11 +1,3 @@
-addReviewers: true
-
 addAssignees: author
-
-reviewers:
-  - nirinchev
-  - nielsenko
-  - blagoev
-  - desistefanova
-
-numberOfReviewers: 0
+addReviewers: false
+runOnDraft: true
