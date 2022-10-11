@@ -4,6 +4,8 @@
 
 ### Enhancements
 * Added `MutableSubscriptionSet.removeByType` for removing subscriptions by their realm object type. (Issue [#317](https://github.com/realm/realm-dart/issues/317))
+* Support results of primitives, ie. `RealmResult<int>`.
+  Result of primitives do not support notifications and that is captured in the type system. ([#162](https://github.com/realm/realm-dart/issues/162))
 
 ### Fixed
 * Fixed a wrong mapping for `AuthProviderType` returned by `User.provider` for google, facebook and apple credentials.
