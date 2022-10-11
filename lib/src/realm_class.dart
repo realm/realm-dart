@@ -563,15 +563,19 @@ class RealmLogLevel {
 /// @nodoc
 class RealmMetadata {
   final RealmSchema schema;
-  final Map<Type, RealmObjectMetadata> _typeMap;
-  final Map<String, RealmObjectMetadata> _stringMap;
+  final Iterable<RealmObjectMetadata> _objectMetadatas;
 
-  RealmMetadata._(this.schema, Iterable<RealmObjectMetadata> objectMetadatas)
-      : _typeMap = <Type, RealmObjectMetadata>{
-          for (final o in objectMetadatas)
-            if (o.type != RealmObject) o.type: o
-        },
-        _stringMap = <String, RealmObjectMetadata>{for (final o in objectMetadatas) o.name: o};
+  // lazy construct type map
+  late final Map<Type, RealmObjectMetadata> _typeMap = {
+    // Only register true subtypes of RealmObject by type.
+    for (final o in _objectMetadatas)
+      if (o.type != RealmObject) o.type: o
+  };
+
+  // lazy construct string map
+  late final Map<String, RealmObjectMetadata> _stringMap = {for (final o in _objectMetadatas) o.name: o};
+
+  RealmMetadata._(this.schema, this._objectMetadatas);
 
   RealmObjectMetadata getByType(Type type) =>
       _typeMap[type] ??

@@ -396,8 +396,10 @@ class RealmSchema extends MapView<String, SchemaObject> {
   /// Initializes [RealmSchema] instance representing ```schemaObjects``` collection
   RealmSchema(super.map)
       : _byType = {
+          // only register subtypes (the nullable form). It is easy to go from T to T?,
+          // but not the other way around. Hence we register the nullable type.
           for (final s in map.values)
-            if (s.type != RealmObject) s.nullableType: s // only register subtypes (the nullable form)
+            if (s.type != RealmObject) s.nullableType: s
         };
 
   SchemaObject<T>? getByType<T extends Object?>() => _byType[typeOf<T?>()] as SchemaObject<T>?;
