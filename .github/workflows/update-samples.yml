@@ -1,0 +1,23 @@
+name: Update samples whith the new version
+on:
+  release:
+    types: [published]
+
+jobs:
+  send-request-to-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Get last tag'
+        id: last-tag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        with:
+          fallback: 1.0.0
+
+      - name: Deploy
+        run: |
+          curl \
+          -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.REALM_CI_PAT }}" \
+          https://github.com/repos/realm/realm-dart-samples/actions/workflows/new_release.yml/dispatches \
+          -d '{"ref":"master","inputs":{"version":"{{steps.last-tag.outputs.tag}}"}}'
