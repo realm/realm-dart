@@ -1,4 +1,4 @@
-name: Samples-Update release version
+name: Update samples release version
 on:
   release:
     types: [published]
@@ -10,9 +10,9 @@ jobs:
     steps:
       - name: 'Get release version'
         id: release-version
-        uses: 'WyriHaximus/github-action-get-previous-tag@v1'
+        uses: pozetroninc/github-action-get-latest-release@master
         with:
-          fallback: 1.0.0
+          repository: ${{ github.repository }}
 
       - name: Run samples update CI
         run: |
@@ -21,4 +21,4 @@ jobs:
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${{ secrets.REALM_CI_PAT }}" \
           https://api.github.com/repos/realm/realm-dart-samples/actions/workflows/new_release.yml/dispatches \
-          -d '{"ref":"master","inputs":{"version":"{{steps.release-version.outputs.tag}}"}}'
+          -d '{"ref":"master","inputs":{"version":"{{steps.release-version.outputs.release }}"}}'
