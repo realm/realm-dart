@@ -1,4 +1,4 @@
-name: Update samples Realm version
+name: Samples-Update release version
 on:
   release:
     types: [published]
