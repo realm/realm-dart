@@ -65,6 +65,7 @@ export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App, AppExcept
 export "configuration.dart"
     show
         Configuration,
+        DisconnectedSyncConfiguration,
         FlexibleSyncConfiguration,
         InitialDataCallback,
         InMemoryConfiguration,
