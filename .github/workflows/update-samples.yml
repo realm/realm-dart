@@ -21,4 +21,4 @@ jobs:
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${{ secrets.REALM_CI_PAT }}" \
           https://api.github.com/repos/realm/realm-dart-samples/actions/workflows/37091855/dispatches \
-          -d '{"ref":"master","inputs":{"version":"{{steps.release-version.outputs.release }}"}}'
+          -d '{"ref":"master","inputs":{"version":"{{steps.release-version.outputs.release }}"}'
