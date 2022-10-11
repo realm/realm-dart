@@ -2,6 +2,9 @@
 
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
+### Breaking Changes
+* Use const constructed schema objects. ([#903](https://github.com/realm/realm-dart/pull/903))
+
 ### Enhancements
 * None
 
