@@ -2,6 +2,7 @@ name: Update samples Realm version
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   send-request-to-backend:
