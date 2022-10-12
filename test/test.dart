@@ -463,12 +463,12 @@ Future<void> setupBaas() async {
 }
 
 @isTest
-Future<void> baasTest(
+void baasTest(
   String name,
   FutureOr<void> Function(AppConfiguration appConfig) testFunction, {
   AppNames appName = AppNames.flexible,
   dynamic skip,
-}) async {
+}) {
   final uriVariable = arguments[argBaasUrl];
   final url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
 
