@@ -204,7 +204,7 @@ class SessionProgressNotificationsController {
   }
 
   void _stop() {
-    if (_token == null) {
+    if (_token == null || _session._handle.released) {
       return;
     }
 

@@ -121,8 +121,8 @@ Future<void> uploadMetrics(Options options) async {
     final request = await client.getUrl(
       Uri.parse(
         'https://data.mongodb-api.com'
-        '/app/realmsdkmetrics-zmhtm/endpoint/metric_webhook/metric_stage'
-        '?data=$base64Payload}',
+        '/app/realmsdkmetrics-zmhtm/endpoint/metric_webhook/metric'
+        '?data=$base64Payload',
       ),
     );
     await request.close();

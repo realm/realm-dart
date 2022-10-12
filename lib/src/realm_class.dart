@@ -34,7 +34,7 @@ import 'scheduler.dart';
 import 'subscription.dart';
 import 'session.dart';
 
-export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException, CancellableCompleter, CancellableFuture;
+export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
 export 'package:realm_common/realm_common.dart'
     show
         Ignored,
@@ -67,10 +67,12 @@ export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App, AppExcept
 export "configuration.dart"
     show
         Configuration,
+        DisconnectedSyncConfiguration,
         FlexibleSyncConfiguration,
         InitialDataCallback,
         InMemoryConfiguration,
         LocalConfiguration,
+        MigrationCallback,
         RealmSchema,
         SchemaObject,
         ShouldCompactCallback,
@@ -86,6 +88,7 @@ export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, UserIdentity, ApiKeyClient, ApiKey;
 export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
+export 'migration.dart' show Migration;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -141,45 +144,41 @@ class Realm implements Finalizable {
   /// * `onProgressCallback` - a callback for receiving download progress notifications for synced [Realm]s.
   ///
   /// Returns `Future<Realm>` that completes with the [Realm] once the remote [Realm] is fully synchronized or with a [CancelledException] if operation is canceled.
-  /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened or operation is canceled.
+  /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened or if the operation is canceled in advance.
+  /// Since opening a local Realm is a synchronous operation, there is no benefit of using Realm.open over the constructor.
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
-    final cancellableCompleter = CancellableCompleter<Realm>(cancellationToken);
+    if (cancellationToken?.isCancelled ?? false) {
+      return Future<Realm>.error(cancellationToken!.exception);
+    }
+    final realm = Realm(config);
+    StreamSubscription<SyncProgress>? subscription;
     try {
-      final realm = Realm(config);
-      cancellableCompleter.future.catchError((Object error) {
-        realm.close();
-        return realm;
-      });
-
       if (config is FlexibleSyncConfiguration) {
         final session = realm.syncSession;
-        StreamSubscription<SyncProgress>? subscription;
-        try {
-          if (config.initialSubscriptionsConfiguration?.callback != null &&
+	if (config.initialSubscriptionsConfiguration?.callback != null &&
               (realm._openedFirstTime || config.initialSubscriptionsConfiguration!.rerunOnOpen == true)) {
             await realm.subscriptions.waitForSynchronization();
-          }
-          if (onProgressCallback != null) {
-            subscription = session
-                .getProgressStream(
-                  ProgressDirection.download,
-                  ProgressMode.forCurrentlyOutstandingWork,
-                )
-                .listen(
-                  (syncProgress) => onProgressCallback.call(syncProgress),
-                  cancelOnError: true,
-                );
-          }
-          await session.waitForDownload(cancellationToken);
-        } finally {
-          await subscription?.cancel();
         }
+        if (onProgressCallback != null) {
+          subscription = session
+              .getProgressStream(
+                ProgressDirection.download,
+                ProgressMode.forCurrentlyOutstandingWork,
+              )
+              .listen(
+                (syncProgress) => onProgressCallback.call(syncProgress),
+                cancelOnError: true,
+              );
+        }
+        await session.waitForDownload(cancellationToken);
       }
-      cancellableCompleter.complete(realm);
     } catch (error) {
-      cancellableCompleter.completeError(error);
+      realm.close();
+      rethrow;
+    } finally {
+      await subscription?.cancel();
     }
-    return cancellableCompleter.future;
+    return realm;
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
