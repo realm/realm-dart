@@ -128,39 +128,42 @@ class Realm implements Finalizable {
   /// * `onProgressCallback` - a callback for receiving download progress notifications for synced [Realm]s.
   ///
   /// Returns `Future<Realm>` that completes with the [Realm] once the remote [Realm] is fully synchronized or with a [CancelledException] if operation is canceled.
-  /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened or operation is canceled.
+  /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened or if the operation is canceled in advanced.
+  /// Since opening a local Realm is a synchronous operation, there is no benefit of using Realm.open asynchronouse.
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
     final cancellableCompleter = CancellableCompleter<Realm>(cancellationToken);
-    try {
-      final realm = Realm(config);
-      cancellableCompleter.future.catchError((Object error) {
-        realm.close();
-        return realm;
-      });
+    if (!cancellableCompleter.isCancelled) {
+      try {
+        final realm = Realm(config);
+        cancellableCompleter.future.catchError((Object error) {
+          realm.close();
+          return realm;
+        });
 
-      if (config is FlexibleSyncConfiguration) {
-        final session = realm.syncSession;
-        StreamSubscription<SyncProgress>? subscription;
-        try {
-          if (onProgressCallback != null) {
-            subscription = session
-                .getProgressStream(
-                  ProgressDirection.download,
-                  ProgressMode.forCurrentlyOutstandingWork,
-                )
-                .listen(
-                  (syncProgress) => onProgressCallback.call(syncProgress),
-                  cancelOnError: true,
-                );
+        if (config is FlexibleSyncConfiguration) {
+          final session = realm.syncSession;
+          StreamSubscription<SyncProgress>? subscription;
+          try {
+            if (onProgressCallback != null) {
+              subscription = session
+                  .getProgressStream(
+                    ProgressDirection.download,
+                    ProgressMode.forCurrentlyOutstandingWork,
+                  )
+                  .listen(
+                    (syncProgress) => onProgressCallback.call(syncProgress),
+                    cancelOnError: true,
+                  );
+            }
+            await session.waitForDownload(cancellationToken);
+          } finally {
+            await subscription?.cancel();
           }
-          await session.waitForDownload(cancellationToken);
-        } finally {
-          await subscription?.cancel();
         }
+        cancellableCompleter.complete(realm);
+      } catch (error) {
+        cancellableCompleter.completeError(error);
       }
-      cancellableCompleter.complete(realm);
-    } catch (error) {
-      cancellableCompleter.completeError(error);
     }
     return cancellableCompleter.future;
   }
