@@ -436,38 +436,46 @@ class Transaction {
 
   /// Commits the changes to the Realm.
   void commit() {
-    _ensureOpen('commit');
-
-    realmCore.commitWrite(_realm!);
-    _closeTransaction();
+    final realm = _ensureOpen('commit');
+    try {
+      realmCore.commitWrite(realm);
+    } finally {
+      _closeTransaction();
+    }
   }
 
   /// Commits the changes to the Realm asynchronously.
   /// Canceling the commit using the [cancellationToken] will not abort the transaction, but
   /// rather resolve the future immediately with a [CancelledException].
   Future<void> commitAsync({CancellationToken? cancellationToken}) async {
-    _ensureOpen('commit');
+    final realm = _ensureOpen('commitAsync');
 
-    await realmCore.commitWriteAsync(_realm!, cancellationToken);
-
-    _closeTransaction();
+    try {
+      await realmCore.commitWriteAsync(realm, cancellationToken);
+    } finally {
+      _closeTransaction();
+    }
   }
 
   /// Undoes all changes made in the transaction.
   void rollback() {
-    _ensureOpen('rollback');
+    final realm = _ensureOpen('rollback');
 
-    if (!_realm!.isClosed) {
-      realmCore.rollbackWrite(_realm!);
+    try {
+      if (!realm.isClosed) {
+        realmCore.rollbackWrite(realm);
+      }
+    } finally {
+      _closeTransaction();
     }
-
-    _closeTransaction();
   }
 
-  void _ensureOpen(String action) {
+  Realm _ensureOpen(String action) {
     if (!isOpen) {
       throw RealmException('Transaction was already closed. Cannot $action');
     }
+
+    return _realm!;
   }
 
   void _closeTransaction() {

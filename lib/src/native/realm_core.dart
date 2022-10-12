@@ -2719,11 +2719,12 @@ class WriteCompleter with Cancellable implements Completer<void> {
   final Realm _realm;
 
   WriteCompleter(this._realm, this._cancellationToken) : _internalCompleter = Completer<void>() {
-    if (_cancellationToken != null) {
-      if (_cancellationToken!.isCancelled) {
+    final ct = _cancellationToken;
+    if (ct != null) {
+      if (ct.isCancelled) {
         _internalCompleter.completeError(CancelledException());
       } else {
-        _cancellationToken?.attach(this);
+        ct.attach(this);
       }
     }
   }
