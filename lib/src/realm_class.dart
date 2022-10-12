@@ -34,7 +34,7 @@ import 'scheduler.dart';
 import 'subscription.dart';
 import 'session.dart';
 
-export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException, CancellableCompleter, CancellableFuture;
+export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
 export 'package:realm_common/realm_common.dart'
     show
         Ignored,
