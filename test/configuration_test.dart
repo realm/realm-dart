@@ -554,4 +554,37 @@ Future<void> main([List<String>? args]) async {
     final disconnectedRealm = getRealm(disconnectedSyncConfig);
     expect(disconnectedRealm.find<Task>(oid), isNotNull);
   });
+
+  test('Configuration set short encryption key', () {
+    List<int> key = [1, 2, 3];
+    expect(
+      () => Configuration.local([Car.schema], encryptionKey: key),
+      throws<RealmException>("Wrong encryption key size"),
+    );
+  });
+
+  test('Configuration set byte exceeding encryption key', () {
+    List<int> byteExceedingKey = List<int>.generate(encryptionKeySize, (i) => random.nextInt(4294967296));
+    expect(
+      () => Configuration.local([Car.schema], encryptionKey: byteExceedingKey),
+      throws<RealmException>("Encryption key must be a list of bytes with allowed values form 0 to 255"),
+    );
+  });
+
+  test('Configuration set a correct encryption key', () {
+    List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
+    Configuration.local([Car.schema], encryptionKey: key);
+  });
+
+  baasTest('FlexibleSyncConfiguration set long encryption key', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+
+    List<int> key = List<int>.generate(encryptionKeySize + 10, (i) => random.nextInt(256));
+    expect(
+      () => Configuration.flexibleSync(user, [Task.schema], encryptionKey: key),
+      throws<RealmException>("Wrong encryption key size"),
+    );
+  });
 }
