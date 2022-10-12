@@ -437,11 +437,10 @@ class Transaction {
   /// Commits the changes to the Realm.
   void commit() {
     final realm = _ensureOpen('commit');
-    try {
-      realmCore.commitWrite(realm);
-    } finally {
-      _closeTransaction();
-    }
+
+    realmCore.commitWrite(realm);
+
+    _closeTransaction();
   }
 
   /// Commits the changes to the Realm asynchronously.
@@ -450,24 +449,20 @@ class Transaction {
   Future<void> commitAsync({CancellationToken? cancellationToken}) async {
     final realm = _ensureOpen('commitAsync');
 
-    try {
-      await realmCore.commitWriteAsync(realm, cancellationToken);
-    } finally {
-      _closeTransaction();
-    }
+    await realmCore.commitWriteAsync(realm, cancellationToken);
+
+    _closeTransaction();
   }
 
   /// Undoes all changes made in the transaction.
   void rollback() {
     final realm = _ensureOpen('rollback');
 
-    try {
-      if (!realm.isClosed) {
-        realmCore.rollbackWrite(realm);
-      }
-    } finally {
-      _closeTransaction();
+    if (!realm.isClosed) {
+      realmCore.rollbackWrite(realm);
     }
+
+    _closeTransaction();
   }
 
   Realm _ensureOpen(String action) {
