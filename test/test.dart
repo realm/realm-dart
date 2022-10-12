@@ -243,6 +243,7 @@ O8BM8KOSx9wGyoGs4+OusvRkJizhPaIwa3FInLs4r+xZW9Bp6RndsmVECtvXRv5d
 87ztpg6o3DZJRmTp2lAnkNLmxXlFkOSNIwiT3qqyRZOh4DuxPOpfg9K+vtFmRdEJ
 RwIDAQAB
 -----END PUBLIC KEY-----''';
+final int encryptionKeySize = 64;
 
 enum AppNames {
   flexible,

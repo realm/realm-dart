@@ -39,10 +39,17 @@ class User {
     return _app ??= AppInternal.create(realmCore.userGetApp(_handle));
   }
 
+  late final ApiKeyClient _apiKeys = ApiKeyClient._(this);
+
   /// Gets an [ApiKeyClient] instance that exposes functionality for managing
   /// user API keys.
   /// [API Keys Authentication Docs](https://docs.mongodb.com/realm/authentication/api-key/)
-  late final ApiKeyClient apiKeys = ApiKeyClient._(this);
+  ApiKeyClient get apiKeys {
+    _ensureLoggedIn('access API keys');
+    _ensureCanAccessAPIKeys();
+
+    return _apiKeys;
+  }
 
   User._(this._handle, this._app);
 
@@ -138,6 +145,18 @@ class User {
     if (other is! User) return false;
     return realmCore.userEquals(this, other);
   }
+
+  void _ensureLoggedIn([String clarification = 'perform this action']) {
+    if (state != UserState.loggedIn) {
+      throw RealmError('User must be logged in to $clarification');
+    }
+  }
+
+  void _ensureCanAccessAPIKeys() {
+    if (provider == AuthProviderType.apiKey) {
+      throw RealmError('Users logged in with API key cannot manage API keys');
+    }
+  }
 }
 
 /// The current state of a [User].
@@ -210,31 +229,43 @@ class ApiKeyClient {
   /// Creates a new API key with the given name. The value of the returned key
   /// must be persisted as this is the only time it is available.
   Future<ApiKey> create(String name) async {
+    _user._ensureLoggedIn('create an API key');
+
     return realmCore.createApiKey(_user, name);
   }
 
   /// Fetches a specific API key by id.
   Future<ApiKey?> fetch(ObjectId id) {
+    _user._ensureLoggedIn('fetch an API key');
+
     return realmCore.fetchApiKey(_user, id).handle404();
   }
 
   /// Fetches all API keys associated with the user.
   Future<List<ApiKey>> fetchAll() async {
+    _user._ensureLoggedIn('fetch all API keys');
+
     return realmCore.fetchAllApiKeys(_user);
   }
 
   /// Deletes a specific API key by id.
   Future<void> delete(ObjectId objectId) {
+    _user._ensureLoggedIn('delete an API key');
+
     return realmCore.deleteApiKey(_user, objectId).handle404();
   }
 
   /// Disables an API key by id.
   Future<void> disable(ObjectId objectId) {
+    _user._ensureLoggedIn('disable an API key');
+
     return realmCore.disableApiKey(_user, objectId).handle404(id: objectId);
   }
 
   /// Enables an API key by id.
   Future<void> enable(ObjectId objectId) {
+    _user._ensureLoggedIn('enable an API key');
+
     return realmCore.enableApiKey(_user, objectId).handle404(id: objectId);
   }
 }

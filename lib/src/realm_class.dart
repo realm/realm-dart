@@ -67,10 +67,12 @@ export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App, AppExcept
 export "configuration.dart"
     show
         Configuration,
+        DisconnectedSyncConfiguration,
         FlexibleSyncConfiguration,
         InitialDataCallback,
         InMemoryConfiguration,
         LocalConfiguration,
+        MigrationCallback,
         RealmSchema,
         SchemaObject,
         ShouldCompactCallback,
@@ -85,6 +87,7 @@ export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, UserIdentity, ApiKeyClient, ApiKey;
 export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
+export 'migration.dart' show Migration;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
