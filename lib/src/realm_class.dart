@@ -138,27 +138,30 @@ class Realm implements Finalizable {
       throw cancellationToken.exception;
     }
     final realm = Realm(config);
+    StreamSubscription<SyncProgress>? subscription;
     try {
       if (config is FlexibleSyncConfiguration) {
         final session = realm.syncSession;
-        await Future.wait<void>([
-          session.waitForDownload(cancellationToken),
-          if (onProgressCallback != null)
-            session
-                .getProgressStream(
-                  ProgressDirection.download,
-                  ProgressMode.forCurrentlyOutstandingWork,
-                )
-                .forEach(onProgressCallback)
-                .asCancellable(cancellationToken),
-        ]);
+        if (onProgressCallback != null) {
+          subscription = session
+              .getProgressStream(
+                ProgressDirection.download,
+                ProgressMode.forCurrentlyOutstandingWork,
+              )
+              .listen(
+                (syncProgress) => onProgressCallback.call(syncProgress),
+                cancelOnError: true,
+              );
+        }
+        await session.waitForDownload(cancellationToken);
       }
-      // handle cancellation even if we are not using flexible sync
-      return await CancellableFuture.value(realm, cancellationToken);
     } catch (_) {
       realm.close();
       rethrow;
+    } finally {
+      await subscription?.cancel();
     }
+    return await CancellableFuture.value(realm, cancellationToken);
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
