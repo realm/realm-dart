@@ -555,7 +555,7 @@ Future<void> main([List<String>? args]) async {
     expect(disconnectedRealm.find<Task>(oid), isNotNull);
   });
 
-  test('Configuration set short encryption key', () {
+  test('Configuration.local set invalid encryption key size', () {
     List<int> key = [1, 2, 3];
     expect(
       () => Configuration.local([Car.schema], encryptionKey: key),
@@ -563,7 +563,7 @@ Future<void> main([List<String>? args]) async {
     );
   });
 
-  test('Configuration set byte exceeding encryption key', () {
+  test('Configuration set encryption key not a list of bytes', () {
     List<int> byteExceedingKey = List<int>.generate(encryptionKeySize, (i) => random.nextInt(4294967296));
     expect(
       () => Configuration.local([Car.schema], encryptionKey: byteExceedingKey),
@@ -571,12 +571,13 @@ Future<void> main([List<String>? args]) async {
     );
   });
 
-  test('Configuration set a correct encryption key', () {
+  test('Configuration set a valid encryption key', () {
     List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
-    Configuration.local([Car.schema], encryptionKey: key);
+    final config = Configuration.local([Car.schema], encryptionKey: key);
+    expect(config.encryptionKey, key);
   });
 
-  baasTest('FlexibleSyncConfiguration set long encryption key', (appConfiguration) async {
+  baasTest('FlexibleSyncConfiguration set invalid encryption key size', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
