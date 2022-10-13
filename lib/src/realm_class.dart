@@ -134,6 +134,9 @@ class Realm implements Finalizable {
   /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened or if the operation is canceled in advance.
   /// Since opening a local Realm is a synchronous operation, there is no benefit of using Realm.open over the constructor.
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
+    if (cancellationToken?.isCancelled ?? false) {
+	      return Future<Realm>.error(cancellationToken!.exception);
+	    }
     final realm = Realm(config);
     try {
       if (config is FlexibleSyncConfiguration) {
@@ -703,6 +706,3 @@ class MigrationRealm extends DynamicRealm {
 /// * syncProgress - an object of [SyncProgress] that contains `transferredBytes` and `transferableBytes`.
 /// {@category Realm}
 typedef ProgressCallback = void Function(SyncProgress syncProgress);
-
-/// @nodoc
-}

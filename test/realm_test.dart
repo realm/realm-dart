@@ -1025,15 +1025,10 @@ extension _FutureRealm on Future<Realm> {
       final value = await this;
       expect(value, isNotNull);
       expect(value.isClosed, false);
-      print("REALM CHECK: Realm returned before cancellation.");
       return false;
     } on CancelledException {
-      print("REALM CHECK: Cancelled before to return the Realm.");
       return true;
-    } catch (_) {
-      print("REALM CHECK: Unhandled exception.");
-      rethrow;
-    }
+    } 
   }
 }
 
