@@ -887,8 +887,8 @@ Future<void> main([List<String>? args]) async {
     Future<void>.delayed(Duration(milliseconds: 10), () => cancellationToken.cancel());
     final isRealm1Cancelled = getRealmAsync(configuration, cancellationToken: cancellationToken).thenIsCancelled();
     final isRealm2Cancelled = getRealmAsync(configuration, cancellationToken: cancellationToken).thenIsCancelled();
-    await expectLater(await isRealm1Cancelled, isTrue);
-    await expectLater(await isRealm2Cancelled, isTrue);
+    expect(await isRealm1Cancelled, isTrue);
+    expect(await isRealm2Cancelled, isTrue);
   });
 
   baasTest('Realm.open (flexibleSync) - open twice the same realm and cancel the first only', (appConfiguration) async {
