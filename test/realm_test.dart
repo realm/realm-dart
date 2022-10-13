@@ -24,6 +24,7 @@ import 'package:test/test.dart' hide test, throws;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import '../lib/realm.dart';
+import 'package:path/path.dart' as p;
 
 import 'test.dart';
 
@@ -791,7 +792,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Realm - encrytpion works', () {
-    var config = Configuration.local([Friend.schema], path: "${generateRandomString(8)}.realm");
+    var config = Configuration.local([Friend.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
     var realm = getRealm(config);
     readFile(String path) {
       final bytes =  File(path).readAsBytesSync();
@@ -800,7 +801,7 @@ Future<void> main([List<String>? args]) async {
     var decoded = readFile(realm.config.path);
     expect(decoded, contains("bestFriend"));
     
-    config = Configuration.local([Friend.schema], encryptionKey: generateEncryptionKey(), path: "${generateRandomString(8)}.realm");
+    config = Configuration.local([Friend.schema], encryptionKey: generateEncryptionKey(), path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
     realm = getRealm(config);
     decoded = readFile(realm.config.path);
     expect(decoded, isNot(contains("bestFriend")));
