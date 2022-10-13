@@ -37,7 +37,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@8230315d06ad95c617244d2f265d237a1682d445
         with:
           submodules: false
 
@@ -45,7 +45,7 @@ jobs:
         run: git clean -fdx
 
       - name: Fetch artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@a327a9c763239d85dc3d78908dbf6ca74acd2e46
         with:
           name: librealm-${{ inputs.os }}
           path: binary/${{ inputs.os }}
@@ -92,7 +92,7 @@ jobs:
       - name: Publish realm_dart coverage
         if: inputs.os == 'linux'
         id: publish-coverage
-        uses: coverallsapp/github-action@1.1.3
+        uses: coverallsapp/github-action@a1a1a8a300a7e89df3630639df8fb23de5cc6368
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: realm_dart

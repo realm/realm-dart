@@ -37,7 +37,7 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@8230315d06ad95c617244d2f265d237a1682d445
         with:
           submodules: false
 
@@ -49,10 +49,10 @@ jobs:
 
       - name: Setup Ninja
         if: ${{ inputs.os == 'linux' }}
-        uses: seanmiddleditch/gha-setup-ninja@master
+        uses: seanmiddleditch/gha-setup-ninja@1815f2d05c2cd60c2d900f89843139b8dde09f4c
 
       - name: Fetch artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@a327a9c763239d85dc3d78908dbf6ca74acd2e46
         with:
           name: librealm-${{ inputs.os }}
           path: binary/${{ inputs.os }}
