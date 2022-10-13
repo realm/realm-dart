@@ -873,7 +873,7 @@ Future<void> main([List<String>? args]) async {
     var cancellationToken = CancellationToken();
     final isRealmCancelled = getRealmAsync(configuration, cancellationToken: cancellationToken).thenIsCancelled();
     cancellationToken.cancel();
-    await expectLater(await isRealmCancelled, isTrue);
+    expect(await isRealmCancelled, isTrue);
   });
 
   baasTest('Realm.open (flexibleSync) - open twice the same realm with the same CancelationToken cancels all', (appConfiguration) async {
