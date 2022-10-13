@@ -711,8 +711,4 @@ class MigrationRealm extends DynamicRealm {
 typedef ProgressCallback = void Function(SyncProgress syncProgress);
 
 /// @nodoc
-extension $CancellableCompleterExtension<T> on Completer<T> {
-  CancellableCompleter<T> asCancellable(CancellationToken? cancellationToken, {OnCancelCallback? onCancel}) {
-    return CancellableCompleter<T>(cancellationToken, onCancel: onCancel);
-  }
 }
