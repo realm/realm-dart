@@ -947,15 +947,14 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-    int printCount = 0;
+    int transferredBytes = 0;
 
     var syncedRealm = await getRealmAsync(configuration, onProgressCallback: (syncProgress) {
-      print("PROGRESS: transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
-      printCount++;
+      transferredBytes = syncProgress.transferredBytes;
     });
 
     expect(syncedRealm.isClosed, false);
-    expect(printCount, isNot(0));
+    expect(transferredBytes, isNot(0));
   });
 
   baasTest('Realm.open (flexibleSync) - download a populated realm', (appConfiguration) async {
@@ -972,15 +971,14 @@ Future<void> main([List<String>? args]) async {
     int printCount = 0;
     int transferredBytes = 0;
 
-    var syncedRealm = await getRealmAsync(config, onProgressCallback: (syncProgress) {
-      print("PROGRESS: transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
+    final syncedRealm = await getRealmAsync(config, onProgressCallback: (syncProgress) {
       printCount++;
       transferredBytes = syncProgress.transferredBytes;
     });
 
     expect(syncedRealm.isClosed, false);
     expect(printCount, isNot(0));
-    expect(transferredBytes > 19, isTrue); //19 bytes is the empty realm
+    expect(transferredBytes, greaterThan(19)); //19 bytes is the empty realm
   });
 
   baasTest('Realm.open (flexibleSync) - listen and cancel download progress of a populated realm', (appConfiguration) async {
