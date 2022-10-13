@@ -992,7 +992,7 @@ Future<void> main([List<String>? args]) async {
       print("PROGRESS: transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
     }).thenIsCancelled();
     cancellationToken.cancel();
-    await expectLater(await realmIsCancelled, isTrue);
+    expect(await realmIsCancelled, isTrue);
   });
 
 }
