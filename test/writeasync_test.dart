@@ -163,7 +163,7 @@ Future<void> main([List<String>? args]) async {
 
     final token = TimeoutCancellationToken(const Duration(milliseconds: 1), timeoutException: CancelledException());
 
-    await expectLater(() => realm2.beginWriteAsync(cancellationToken: token), throwsA(isA<CancelledException>()));
+    await expectLater(realm2.beginWriteAsync(cancellationToken: token), throwsA(isA<CancelledException>()));
 
     t1.rollback();
   });
@@ -176,7 +176,7 @@ Future<void> main([List<String>? args]) async {
     final token = CancellationToken();
     Future<void>.delayed(Duration(milliseconds: 1)).then((value) => token.cancel());
 
-    await expectLater(() => realm2.writeAsync(() {}, cancellationToken: token), throwsA(isA<CancelledException>()));
+    await expectLater(realm2.writeAsync(() {}, cancellationToken: token), throwsA(isA<CancelledException>()));
 
     t1.rollback();
   });
@@ -216,7 +216,7 @@ Future<void> main([List<String>? args]) async {
     final token = CancellationToken();
     token.cancel();
 
-    await expectLater(() => realm.writeAsync(() {}, cancellationToken: token), throwsA(isA<CancelledException>()));
+    await expectLater(realm.writeAsync(() {}, cancellationToken: token), throwsA(isA<CancelledException>()));
     expect(realm.isInTransaction, false);
   });
 
@@ -226,7 +226,7 @@ Future<void> main([List<String>? args]) async {
     final token = CancellationToken();
     token.cancel();
 
-    await expectLater(() => realm.beginWriteAsync(cancellationToken: token), throwsA(isA<CancelledException>()));
+    await expectLater(realm.beginWriteAsync(cancellationToken: token), throwsA(isA<CancelledException>()));
     expect(realm.isInTransaction, false);
   });
 
@@ -238,7 +238,7 @@ Future<void> main([List<String>? args]) async {
     final token = CancellationToken();
     token.cancel();
 
-    await expectLater(() => transaction.commitAsync(cancellationToken: token), throwsA(isA<CancelledException>()));
+    await expectLater(transaction.commitAsync(cancellationToken: token), throwsA(isA<CancelledException>()));
     expect(realm.isInTransaction, true);
   });
 }
