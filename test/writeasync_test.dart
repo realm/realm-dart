@@ -199,11 +199,11 @@ Future<void> main([List<String>? args]) async {
 
     final token = CancellationToken();
     await expectLater(
-        () => realm.writeAsync(() {
-              realm.add(Person('A'));
-              token.cancel();
-              realm.add(Person('B'));
-            }, cancellationToken: token),
+        realm.writeAsync(() {
+          realm.add(Person('A'));
+          token.cancel();
+          realm.add(Person('B'));
+        }, cancellationToken: token),
         throwsA(isA<CancelledException>()));
 
     expect(realm.all<Person>().length, 0);
