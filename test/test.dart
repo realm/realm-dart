@@ -98,6 +98,15 @@ class _Task {
 }
 
 @RealmModel()
+class _Product {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  @MapTo('stringQueryField')
+  late String name;
+}
+
+@RealmModel()
 class _Schedule {
   @PrimaryKey()
   @MapTo('_id')

@@ -788,7 +788,7 @@ Future<void> main([List<String>? args]) async {
     expect(stored.location, now.location);
     expect(stored.location.name, 'Europe/Copenhagen');
   });
-  
+
   test('Realm - open local not encrypted realm with encryption key', () {
     openEncryptedRealm(null, generateValidKey());
   });
@@ -959,9 +959,13 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('Realm.open (flexibleSync) - download a populated realm', (appConfiguration) async {
     final app = App(appConfiguration);
-    final config = await _addDataToAtlas(app);
+    final queryDifferentiator = generateRandomString(10);
+    final itemCount = 200;
+    final config = await _addDataToAtlas(app, queryDifferentiator: queryDifferentiator, itemCount: itemCount);
     var syncedRealm = await getRealmAsync(config);
     expect(syncedRealm.isClosed, false);
+    final data = syncedRealm.query<Product>(r'stringQueryField BEGINSWITH $0', [queryDifferentiator]);
+    expect(data.length, itemCount);
   });
 
   baasTest('Realm.open (flexibleSync) - listen for download progress of a populated realm', (appConfiguration) async {
@@ -986,13 +990,14 @@ Future<void> main([List<String>? args]) async {
     final config = await _addDataToAtlas(app);
 
     var cancellationToken = CancellationToken();
+    bool progressReturned = false;
     final realmIsCancelled = getRealmAsync(config, cancellationToken: cancellationToken, onProgressCallback: (syncProgress) {
-      print("PROGRESS: transferredBytes: ${syncProgress.transferredBytes}, totalBytes:${syncProgress.transferableBytes}");
+      progressReturned = true;
     }).thenIsCancelled();
     cancellationToken.cancel();
     expect(await realmIsCancelled, isTrue);
+    expect(progressReturned, isFalse);
   });
-
 }
 
 List<int> generateValidKey() {
@@ -1026,37 +1031,37 @@ extension _FutureRealm on Future<Realm> {
       return false;
     } on CancelledException {
       return true;
-    } 
+    }
   }
 }
 
-Future<Configuration> _addDataToAtlas(App app) async {
+Future<Configuration> _addDataToAtlas(App app, {String? queryDifferentiator, int itemCount = 100}) async {
+  final productNamePrefix = queryDifferentiator ?? generateRandomString(10);
   final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-  final config1 = Configuration.flexibleSync(user1, [Task.schema]);
+  final config1 = Configuration.flexibleSync(user1, [Product.schema]);
   final realm1 = getRealm(config1);
-  final query1 = realm1.all<Task>();
+  final query1 = realm1.query<Product>(r'stringQueryField BEGINSWITH $0', [productNamePrefix]);
   if (realm1.subscriptions.find(query1) == null) {
     realm1.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query1));
   }
   await realm1.subscriptions.waitForSynchronization();
 
   final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-  final config2 = Configuration.flexibleSync(user2, [Task.schema]);
+  final config2 = Configuration.flexibleSync(user2, [Product.schema]);
   final realm2 = getRealm(config2);
-  final query2 = realm2.all<Task>();
+  final query2 = realm2.query<Product>(r'stringQueryField BEGINSWITH $0', [productNamePrefix]);
 
   if (realm2.subscriptions.find(query2) == null) {
     realm2.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query2));
   }
   await realm2.subscriptions.waitForSynchronization();
-  if (realm2.all<Task>().isEmpty) {
-    realm2.write(() {
-      for (var i = 0; i < 100; i++) {
-        realm2.add(Task(ObjectId()));
-      }
-    });
-  }
+  realm2.write(() {
+    for (var i = 0; i < itemCount; i++) {
+      realm2.add(Product(ObjectId(), "${productNamePrefix}_${i + 1}"));
+    }
+  });
   await realm2.syncSession.waitForUpload();
+  // realm1.close();
   realm2.close();
   return config1;
 }
