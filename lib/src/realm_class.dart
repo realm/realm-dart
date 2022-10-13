@@ -148,37 +148,34 @@ class Realm implements Finalizable {
   /// Since opening a local Realm is a synchronous operation, there is no benefit of using Realm.open over the constructor.
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
     if (cancellationToken?.isCancelled ?? false) {
-      return Future<Realm>.error(cancellationToken!.exception);
-    }
+	      return Future<Realm>.error(cancellationToken!.exception);
+	    }
     final realm = Realm(config);
-    StreamSubscription<SyncProgress>? subscription;
     try {
       if (config is FlexibleSyncConfiguration) {
         final session = realm.syncSession;
-	if (config.initialSubscriptionsConfiguration?.callback != null &&
+        if (config.initialSubscriptionsConfiguration?.callback != null &&
               (realm._openedFirstTime || config.initialSubscriptionsConfiguration!.rerunOnOpen == true)) {
             await realm.subscriptions.waitForSynchronization();
         }
-        if (onProgressCallback != null) {
-          subscription = session
-              .getProgressStream(
-                ProgressDirection.download,
-                ProgressMode.forCurrentlyOutstandingWork,
-              )
-              .listen(
-                (syncProgress) => onProgressCallback.call(syncProgress),
-                cancelOnError: true,
-              );
-        }
-        await session.waitForDownload(cancellationToken);
+        await Future.wait<void>([
+          session.waitForDownload(cancellationToken),
+          if (onProgressCallback != null)
+            session
+                .getProgressStream(
+                  ProgressDirection.download,
+                  ProgressMode.forCurrentlyOutstandingWork,
+                )
+                .forEach(onProgressCallback)
+                .asCancellable(cancellationToken),
+        ]);
       }
-    } catch (error) {
+      // handle cancellation even if we are not using flexible sync
+      return await CancellableFuture.value(realm, cancellationToken);
+    } catch (_) {
       realm.close();
       rethrow;
-    } finally {
-      await subscription?.cancel();
     }
-    return realm;
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
@@ -726,10 +723,3 @@ class MigrationRealm extends DynamicRealm {
 /// * syncProgress - an object of [SyncProgress] that contains `transferredBytes` and `transferableBytes`.
 /// {@category Realm}
 typedef ProgressCallback = void Function(SyncProgress syncProgress);
-
-/// @nodoc
-extension $CancellableCompleterExtension<T> on Completer<T> {
-  CancellableCompleter<T> asCancellable(CancellationToken? cancellationToken, {OnCancelCallback? onCancel}) {
-    return CancellableCompleter<T>(cancellationToken, onCancel: onCancel);
-  }
-}
