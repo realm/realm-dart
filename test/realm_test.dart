@@ -947,14 +947,14 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-    int transferredBytes = 0;
+    int transferredBytes = -1;
 
     var syncedRealm = await getRealmAsync(configuration, onProgressCallback: (syncProgress) {
       transferredBytes = syncProgress.transferredBytes;
     });
 
     expect(syncedRealm.isClosed, false);
-    expect(transferredBytes, isNot(0));
+    expect(transferredBytes, greaterThan(-1));
   });
 
   baasTest('Realm.open (flexibleSync) - download a populated realm', (appConfiguration) async {
