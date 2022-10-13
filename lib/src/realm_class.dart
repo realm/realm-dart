@@ -135,8 +135,8 @@ class Realm implements Finalizable {
   /// Since opening a local Realm is a synchronous operation, there is no benefit of using Realm.open over the constructor.
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
     if (cancellationToken != null && cancellationToken.isCancelled) {
-      return Future<Realm>.error(cancellationToken.exception);
-	    }
+      throw cancellationToken.exception;
+    }
     final realm = Realm(config);
     try {
       if (config is FlexibleSyncConfiguration) {
