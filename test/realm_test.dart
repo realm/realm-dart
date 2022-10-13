@@ -1045,6 +1045,7 @@ Future<Configuration> _addDataToAtlas(App app, {String? queryDifferentiator, int
     realm1.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query1));
   }
   await realm1.subscriptions.waitForSynchronization();
+  realm1.close();
 
   final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
   final config2 = Configuration.flexibleSync(user2, [Product.schema]);
@@ -1061,7 +1062,6 @@ Future<Configuration> _addDataToAtlas(App app, {String? queryDifferentiator, int
     }
   });
   await realm2.syncSession.waitForUpload();
-  // realm1.close();
   realm2.close();
   return config1;
 }
