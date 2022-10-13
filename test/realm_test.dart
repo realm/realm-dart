@@ -1126,6 +1126,7 @@ extension _FutureRealm on Future<Realm> {
   }
 }
 
+
 Future<void> _addDataToAtlas(App app, {String? queryDifferentiator, int itemCount = 100}) async {
   final productNamePrefix = queryDifferentiator ?? generateRandomString(10);
 
@@ -1137,6 +1138,7 @@ Future<void> _addDataToAtlas(App app, {String? queryDifferentiator, int itemCoun
   if (realm.subscriptions.find(query) == null) {
     realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
   }
+
   await realm.subscriptions.waitForSynchronization();
   await realm.syncSession.waitForDownload();
   realm.write(() {
