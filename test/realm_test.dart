@@ -921,8 +921,8 @@ Future<void> main([List<String>? args]) async {
     final isRealm2Cancelled = getRealmAsync(configuration2, cancellationToken: cancellationToken2).thenIsCancelled();
 
     cancellationToken2.cancel();
-    await expectLater(await isRealm2Cancelled, isTrue);
-    await expectLater(await isRealm1Cancelled, isFalse);
+    expect(await isRealm2Cancelled, isTrue);
+    expect(await isRealm1Cancelled, isFalse);
   });
 
   baasTest('Realm.open (flexibleSync) - cancel after realm is returned is no-op', (appConfiguration) async {
