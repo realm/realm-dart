@@ -427,7 +427,7 @@ Future<void> main([List<String>? args]) async {
       teamTwo.players.addAll(newPlayers);
     });
 
-    //Ensule teams exist in realm
+    //Ensure teams exist in realm
     var teams = realm.all<Team>();
     expect(teams.length, 2);
 
@@ -788,7 +788,7 @@ Future<void> main([List<String>? args]) async {
     expect(stored.location, now.location);
     expect(stored.location.name, 'Europe/Copenhagen');
   });
-  
+
   test('Realm - open local not encrypted realm with encryption key', () {
     openEncryptedRealm(null, generateValidKey());
   });
@@ -1062,11 +1062,9 @@ Future<void> main([List<String>? args]) async {
     final config = Configuration.flexibleSync(
       user,
       [Task.schema],
-      initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration(
-      (realm) {
-        realm.subscriptions.update(
-          (mutableSubscriptions) {
-            mutableSubscriptions.add(realm.all<Task>());
+      initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration((realm) {
+        realm.subscriptions.update((mutableSubscriptions) {
+          mutableSubscriptions.add(realm.all<Task>());
         });
       }),
     );
@@ -1091,8 +1089,8 @@ void openEncryptedRealm(List<int>? encryptionKey, List<int>? decryptionKey, {voi
     afterEncrypt(realm);
   }
   if (encryptionKey == decryptionKey) {
-    final decriptedRealm = getRealm(config2);
-    expect(decriptedRealm.isClosed, false);
+    final decryptedRealm = getRealm(config2);
+    expect(decryptedRealm.isClosed, false);
   } else {
     expect(
       () => getRealm(config2),
@@ -1110,7 +1108,7 @@ extension _FutureRealm on Future<Realm> {
       return false;
     } on CancelledException {
       return true;
-    } 
+    }
   }
 }
 
