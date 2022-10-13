@@ -1021,21 +1021,19 @@ void openEncryptedRealm(List<int>? encryptionKey, List<int>? decryptionKey, {voi
 
 extension _FutureRealm on Future<Realm> {
   Future<bool> thenIsCancelled() async {
-    return await then((value) {
+    try {
+      final value = await this;
       expect(value, isNotNull);
       expect(value.isClosed, false);
       print("REALM CHECK: Realm returned before cancellation.");
       return false;
-    }).onError(
-      (error, stackTrace) {
-        print("REALM CHECK: Cancelled before to return the Realm.");
-        return true;
-      },
-      test: (error) => error is CancelledException,
-    ).catchError((Object error) {
+    } on CancelledException {
+      print("REALM CHECK: Cancelled before to return the Realm.");
+      return true;
+    } catch (_) {
       print("REALM CHECK: Unhandled exception.");
-      throw error;
-    }, test: (error) => error is! CancelledException);
+      rethrow;
+    }
   }
 }
 

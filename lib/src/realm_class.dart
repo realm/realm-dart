@@ -134,34 +134,28 @@ class Realm implements Finalizable {
   /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened or if the operation is canceled in advance.
   /// Since opening a local Realm is a synchronous operation, there is no benefit of using Realm.open over the constructor.
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
-    if (cancellationToken?.isCancelled ?? false) {
-      return Future<Realm>.error(cancellationToken!.exception);
-    }
     final realm = Realm(config);
-    StreamSubscription<SyncProgress>? subscription;
     try {
       if (config is FlexibleSyncConfiguration) {
         final session = realm.syncSession;
-        if (onProgressCallback != null) {
-          subscription = session
-              .getProgressStream(
-                ProgressDirection.download,
-                ProgressMode.forCurrentlyOutstandingWork,
-              )
-              .listen(
-                (syncProgress) => onProgressCallback.call(syncProgress),
-                cancelOnError: true,
-              );
-        }
-        await session.waitForDownload(cancellationToken);
+        await Future.wait<void>([
+          session.waitForDownload(cancellationToken),
+          if (onProgressCallback != null)
+            session
+                .getProgressStream(
+                  ProgressDirection.download,
+                  ProgressMode.forCurrentlyOutstandingWork,
+                )
+                .forEach(onProgressCallback)
+                .asCancellable(cancellationToken),
+        ]);
       }
-    } catch (error) {
+      // handle cancellation even if we are not using flexible sync
+      return await CancellableFuture.value(realm, cancellationToken);
+    } catch (_) {
       realm.close();
       rethrow;
-    } finally {
-      await subscription?.cancel();
     }
-    return realm;
   }
 
   static RealmHandle _openRealmSync(Configuration config) {
