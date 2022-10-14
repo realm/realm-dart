@@ -14,3 +14,4 @@ jobs:
         projectId: ${{ secrets.ATLAS_QA_PROJECT_ID }}
         apiKey: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
         privateApiKey: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+
