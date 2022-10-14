@@ -146,17 +146,16 @@ class Realm implements Finalizable {
           subscription = session
               .getProgressStream(
                 ProgressDirection.download,
-                ProgressMode.forCurrentlyOutstandingWork,
-              )
+                ProgressMode.forCurrentlyOutstandingWork)
               .listen(onProgressCallback);
         }
         await session.waitForDownload(cancellationToken);
+        await subscription?.cancel();
       }
     } catch (_) {
+      await subscription?.cancel();
       realm.close();
       rethrow;
-    } finally {
-      await subscription?.cancel();
     }
     return await CancellableFuture.value(realm, cancellationToken);
   }
