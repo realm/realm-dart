@@ -14,7 +14,7 @@ jobs:
         with:
           repository: ${{ github.repository }}
 
-      - name: Run samples update CI
+      - name: Trigger update samples CI
         run: |
           curl \
           -X POST \
