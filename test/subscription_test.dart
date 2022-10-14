@@ -545,6 +545,7 @@ Future<void> main([List<String>? args]) async {
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Event>());
     });
+    await realm.subscriptions.waitForSynchronization();
 
     realm.write(() {
       realm.addAll([
@@ -563,6 +564,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     await realm.subscriptions.waitForSynchronization();
+    await realm.syncSession.waitForDownload();
 
     var filtered = realm.query<Event>(realm.subscriptions.findByName("filter")!.queryString);
     var all = realm.all<Event>();
