@@ -555,7 +555,7 @@ Future<void> main([List<String>? args]) async {
     expect(disconnectedRealm.find<Task>(oid), isNotNull);
   });
 
-  test('Configuration.local set invalid encryption key size', () {
+  test('Configuration.local set too short encryption key size', () {
     List<int> key = [1, 2, 3];
     expect(
       () => Configuration.local([Car.schema], encryptionKey: key),
@@ -577,7 +577,7 @@ Future<void> main([List<String>? args]) async {
     expect(config.encryptionKey, key);
   });
 
-  baasTest('FlexibleSyncConfiguration set invalid encryption key size', (appConfiguration) async {
+  baasTest('FlexibleSyncConfiguration set too long encryption key size', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
