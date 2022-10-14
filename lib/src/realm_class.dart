@@ -148,10 +148,7 @@ class Realm implements Finalizable {
                 ProgressDirection.download,
                 ProgressMode.forCurrentlyOutstandingWork,
               )
-              .listen(
-                (syncProgress) => onProgressCallback.call(syncProgress),
-                cancelOnError: true,
-              );
+              .listen(onProgressCallback);
         }
         await session.waitForDownload(cancellationToken);
       }
