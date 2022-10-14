@@ -585,17 +585,9 @@ class _RealmCore {
 
   Future<void> beginWriteAsync(Realm realm, CancellationToken? ct) {
     final completer = WriteCompleter(realm, ct);
-    if (completer.isCancelled) {
-      return completer.future;
-    }
-
-    final cancelationId = _realmLib.realm_async_begin_write(realm.handle._pointer, Pointer.fromFunction(_completeAsyncBeginWrite),
-        completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, true);
-
-    if (completer.isCancelled) {
-      _cancelAsync(realm, cancelationId);
-    } else {
-      completer.assignId(cancelationId);
+    if (!completer.isCancelled) {
+      completer.id = _realmLib.realm_async_begin_write(realm.handle._pointer, Pointer.fromFunction(_completeAsyncBeginWrite), completer.toPersistentHandle(),
+          _realmLib.addresses.realm_dart_delete_persistent_handle, true);
     }
 
     return completer.future;
@@ -603,17 +595,9 @@ class _RealmCore {
 
   Future<void> commitWriteAsync(Realm realm, CancellationToken? ct) {
     final completer = WriteCompleter(realm, ct);
-    if (completer.isCancelled) {
-      return completer.future;
-    }
-
-    final cancelationId = _realmLib.realm_async_commit(realm.handle._pointer, Pointer.fromFunction(_completeAsyncCommit), completer.toPersistentHandle(),
-        _realmLib.addresses.realm_dart_delete_persistent_handle, false);
-
-    if (completer.isCancelled) {
-      _cancelAsync(realm, cancelationId);
-    } else {
-      completer.assignId(cancelationId);
+    if (!completer.isCancelled) {
+      completer.id = _realmLib.realm_async_commit(realm.handle._pointer, Pointer.fromFunction(_completeAsyncCommit), completer.toPersistentHandle(),
+          _realmLib.addresses.realm_dart_delete_persistent_handle, false);
     }
 
     return completer.future;
@@ -2718,23 +2702,23 @@ class WriteCompleter with Cancellable implements Completer<void> {
   int? _id;
   final Realm _realm;
 
+  set id(int value) {
+    if (_id != null) {
+      throw RealmError('id should only be set once');
+    }
+
+    _id = value;
+  }
+
   WriteCompleter(this._realm, this._cancellationToken) : _internalCompleter = Completer<void>() {
     final ct = _cancellationToken;
     if (ct != null) {
       if (ct.isCancelled) {
-        _internalCompleter.completeError(CancelledException());
+        _internalCompleter.completeError(ct.exception);
       } else {
         ct.attach(this);
       }
     }
-  }
-
-  void assignId(int id) {
-    if (_id != null) {
-      throw RealmError('assignId should only be called once');
-    }
-
-    _id = id;
   }
 
   /// Whether or not the completer was cancelled.

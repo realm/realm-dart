@@ -254,7 +254,7 @@ class Realm implements Finalizable {
 
   /// Begins a write transaction for this [Realm].
   Transaction beginWrite() {
-    _throwIfFrozen();
+    _ensureWritable();
 
     realmCore.beginWrite(this);
 
@@ -262,9 +262,9 @@ class Realm implements Finalizable {
   }
 
   /// Asynchronously begins a write transaction for this [Realm]. You can supply a
-  /// [CancellationToken] to abort the wait.
-  Future<Transaction> beginWriteAsync({CancellationToken? cancellationToken}) async {
-    _throwIfFrozen();
+  /// [CancellationToken] to cancel the operation.
+  Future<Transaction> beginWriteAsync([CancellationToken? cancellationToken]) async {
+    _ensureWritable();
 
     await realmCore.beginWriteAsync(this, cancellationToken);
 
@@ -273,12 +273,12 @@ class Realm implements Finalizable {
 
   /// Executes the provided [writeCallback] in a temporary write transaction. Both acquiring the write
   /// lock and committing the transaction will be done asynchronously.
-  Future<T> writeAsync<T>(T Function() writeCallback, {CancellationToken? cancellationToken}) async {
-    final transaction = await beginWriteAsync(cancellationToken: cancellationToken);
+  Future<T> writeAsync<T>(T Function() writeCallback, [CancellationToken? cancellationToken]) async {
+    final transaction = await beginWriteAsync(cancellationToken);
 
     try {
       T result = writeCallback();
-      await transaction.commitAsync(cancellationToken: cancellationToken);
+      await transaction.commitAsync(cancellationToken);
       return result;
     } catch (e) {
       if (isInTransaction) {
@@ -416,14 +416,15 @@ class Realm implements Finalizable {
   /// This is a workaround of a Dart VM bug and will be removed in a future version of the SDK.
   static void shutdown() => scheduler.stop();
 
-  void _throwIfFrozen() {
+  void _ensureWritable() {
     if (isFrozen) {
       throw RealmError('Starting a write transaction on a frozen Realm is not allowed.');
     }
   }
 }
 
-/// Provides a scope to safely write data to a [Realm]. Must be created using [Realm.beginWrite].
+/// Provides a scope to safely write data to a [Realm]. Can be created using [Realm.beginWrite] or
+/// [Realm.beginWriteAsync].
 class Transaction {
   Realm? _realm;
 
@@ -446,7 +447,7 @@ class Transaction {
   /// Commits the changes to the Realm asynchronously.
   /// Canceling the commit using the [cancellationToken] will not abort the transaction, but
   /// rather resolve the future immediately with a [CancelledException].
-  Future<void> commitAsync({CancellationToken? cancellationToken}) async {
+  Future<void> commitAsync([CancellationToken? cancellationToken]) async {
     final realm = _ensureOpen('commitAsync');
 
     await realmCore.commitWriteAsync(realm, cancellationToken);
