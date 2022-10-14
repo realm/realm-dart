@@ -791,7 +791,7 @@ Future<void> main([List<String>? args]) async {
     expect(stored.location.name, 'Europe/Copenhagen');
   });
 
-  test('Realm - encrytpion works', () {
+  test('Realm - encryption works', () {
     var config = Configuration.local([Friend.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
     var realm = getRealm(config);
     readFile(String path) {
