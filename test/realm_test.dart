@@ -18,12 +18,14 @@
 
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
+import 'dart:convert';
 import 'dart:io';
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:test/test.dart' hide test, throws;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import '../lib/realm.dart';
+import 'package:path/path.dart' as p;
 
 import 'test.dart';
 
@@ -814,33 +816,49 @@ Future<void> main([List<String>? args]) async {
     expect(stored.location.name, 'Europe/Copenhagen');
   });
 
-  test('Realm - open local not encrypted realm with encryption key', () {
-    openEncryptedRealm(null, generateValidKey());
+  test('Realm - encryption works', () {
+    var config = Configuration.local([Friend.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    var realm = getRealm(config);
+    readFile(String path) {
+      final bytes =  File(path).readAsBytesSync();
+      return utf8.decode(bytes, allowMalformed: true);
+    }
+    var decoded = readFile(realm.config.path);
+    expect(decoded, contains("bestFriend"));
+    
+    config = Configuration.local([Friend.schema], encryptionKey: generateEncryptionKey(), path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    realm = getRealm(config);
+    decoded = readFile(realm.config.path);
+    expect(decoded, isNot(contains("bestFriend")));
+  });
+
+  test('Realm - open local not encrypted realm with an encryption key', () {
+    openEncryptedRealm(null, generateEncryptionKey());
   });
 
   test('Realm - open local encrypted realm with an empty encryption key', () {
-    openEncryptedRealm(generateValidKey(), null);
+    openEncryptedRealm(generateEncryptionKey(), null);
   });
 
   test('Realm  - open local encrypted realm with an invalid encryption key', () {
-    openEncryptedRealm(generateValidKey(), generateValidKey());
+    openEncryptedRealm(generateEncryptionKey(), generateEncryptionKey());
   });
 
   test('Realm - open local encrypted realm with the correct encryption key', () {
-    List<int> key = generateValidKey();
+    List<int> key = generateEncryptionKey();
     openEncryptedRealm(key, key);
   });
 
-  test('Realm - open closed local encrypted realm with the correct encryption key', () {
-    List<int> key = generateValidKey();
+  test('Realm - open existing local encrypted realm with the correct encryption key', () {
+    List<int> key = generateEncryptionKey();
     openEncryptedRealm(key, key, afterEncrypt: (realm) => realm.close());
   });
 
-  test('Realm - open closed local encrypted realm with an invalid encryption key', () {
-    openEncryptedRealm(generateValidKey(), generateValidKey(), afterEncrypt: (realm) => realm.close());
+  test('Realm - open existing local encrypted realm with an invalid encryption key', () {
+    openEncryptedRealm(generateEncryptionKey(), generateEncryptionKey(), afterEncrypt: (realm) => realm.close());
   });
 
-  baasTest('Realm - open remote encrypted realm with encryption key', (appConfiguration) async {
+  baasTest('Realm - open synced encrypted realm with encryption key', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1069,7 +1087,7 @@ Future<void> main([List<String>? args]) async {
   });
 }
 
-List<int> generateValidKey() {
+List<int> generateEncryptionKey() {
   return List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
 }
 
