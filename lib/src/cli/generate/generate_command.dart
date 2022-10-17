@@ -51,9 +51,9 @@ class GenerateCommand extends Command<void> {
     ]);
 
     await stdout.addStream(process.stdout);
-    var exitCode = await process.exitCode;
-    if (exitCode != 0) {
-      exit(exitCode);
+    final exitCode = await process.exitCode;
+   exit(exitCode);
+   
     }
   }
 }
