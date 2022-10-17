@@ -1,0 +1,24 @@
+name: Update samples release version
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  update-samples-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Get release version'
+        id: release-version
+        uses: pozetroninc/github-action-get-latest-release@06da55dc399d06375d2d1fe57542398d5bd989c6
+        with:
+          repository: ${{ github.repository }}
+
+      - name: Trigger update samples CI
+        run: |
+          curl \
+          -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.REALM_CI_PAT }}" \
+          https://api.github.com/repos/realm/realm-dart-samples/actions/workflows/37091855/dispatches \
+          -d '{"ref":"master","inputs":{"version":"{{steps.release-version.outputs.release }}"}'

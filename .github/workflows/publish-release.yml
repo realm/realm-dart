@@ -222,6 +222,7 @@ jobs:
 
     - name: 'Post to #realm-releases'
       uses: realm/ci-actions/release-to-slack@v3
+      continue-on-error: true
       with:
         changelog: release/ExtractedChangelog.md
         sdk: Flutter/Dart
