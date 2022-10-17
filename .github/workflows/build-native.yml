@@ -26,7 +26,7 @@ jobs:
          build: ${{ fromJSON(inputs.build) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@8230315d06ad95c617244d2f265d237a1682d445
         with:
           submodules: 'recursive'
 
@@ -73,7 +73,7 @@ jobs:
           cmake --build --preset ${{ matrix.build }} --config Release
 
       - name: Store artifacts
-        uses: actions/upload-artifact@V3.1.0
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
           name: librealm-${{ matrix.build }}
           path: binary/${{ inputs.binary }}/**

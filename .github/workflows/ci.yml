@@ -106,7 +106,7 @@ jobs:
       BAAS_DIFFERENTIATOR: ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@8230315d06ad95c617244d2f265d237a1682d445
         with:
           submodules: false
 
@@ -276,7 +276,7 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@8230315d06ad95c617244d2f265d237a1682d445
         with:
           submodules: 'recursive'
 
@@ -284,7 +284,7 @@ jobs:
         run: echo "PATH=/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH" >> $GITHUB_ENV
 
       - name: Fetch artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@a327a9c763239d85dc3d78908dbf6ca74acd2e46
         with:
           name: librealm-ios
           path: binary/ios
@@ -334,12 +334,12 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@8230315d06ad95c617244d2f265d237a1682d445
         with:
           submodules: 'recursive'
 
       - name: Fetch artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@a327a9c763239d85dc3d78908dbf6ca74acd2e46
         with:
           name: librealm-android
           path: binary/android
@@ -413,7 +413,7 @@ jobs:
     name: Generator Tests
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@8230315d06ad95c617244d2f265d237a1682d445
         with:
           submodules: 'recursive'
 
