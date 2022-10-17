@@ -298,7 +298,7 @@ jobs:
         run: flutter pub get
 
       - name: Launch Simulator
-        uses: futureware-tech/simulator-action@v1 #TODO: Issue: https://github.com/futureware-tech/simulator-action/issues/249
+        uses: futureware-tech/simulator-action@v2
         with:
           model: 'iPhone 8'
           os: 'iOS'
