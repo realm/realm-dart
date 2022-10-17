@@ -23,6 +23,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:cancellation_token/cancellation_token.dart';
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:logging/logging.dart';
@@ -580,6 +581,56 @@ class _RealmCore {
 
   void commitWrite(Realm realm) {
     _realmLib.invokeGetBool(() => _realmLib.realm_commit(realm.handle._pointer), "Could not commit write");
+  }
+
+  Future<void> beginWriteAsync(Realm realm, CancellationToken? ct) {
+    final completer = WriteCompleter(realm, ct);
+    if (!completer.isCancelled) {
+      completer.id = _realmLib.realm_async_begin_write(realm.handle._pointer, Pointer.fromFunction(_completeAsyncBeginWrite), completer.toPersistentHandle(),
+          _realmLib.addresses.realm_dart_delete_persistent_handle, true);
+    }
+
+    return completer.future;
+  }
+
+  Future<void> commitWriteAsync(Realm realm, CancellationToken? ct) {
+    final completer = WriteCompleter(realm, ct);
+    if (!completer.isCancelled) {
+      completer.id = _realmLib.realm_async_commit(realm.handle._pointer, Pointer.fromFunction(_completeAsyncCommit), completer.toPersistentHandle(),
+          _realmLib.addresses.realm_dart_delete_persistent_handle, false);
+    }
+
+    return completer.future;
+  }
+
+  bool _cancelAsync(Realm realm, int cancelationId) {
+    return using((Arena arena) {
+      final didCancel = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_async_cancel(realm.handle._pointer, cancelationId, didCancel));
+      return didCancel.value;
+    });
+  }
+
+  static void _completeAsyncBeginWrite(Pointer<Void> userdata) {
+    Completer<void>? completer = userdata.toObject(isPersistent: true);
+    if (completer == null) {
+      return;
+    }
+
+    completer.complete();
+  }
+
+  static void _completeAsyncCommit(Pointer<Void> userdata, bool error, Pointer<Char> description) {
+    Completer<void>? completer = userdata.toObject(isPersistent: true);
+    if (completer == null) {
+      return;
+    }
+
+    if (error) {
+      completer.completeError(RealmException(description.cast<Utf8>().toDartString()));
+    } else {
+      completer.complete();
+    }
   }
 
   bool getIsWritable(Realm realm) {
@@ -2641,6 +2692,65 @@ extension LevelExt on Level {
       default:
         // if unknown logging is off
         return RealmLogLevel.off;
+    }
+  }
+}
+
+class WriteCompleter with Cancellable implements Completer<void> {
+  final Completer<void> _internalCompleter;
+  final CancellationToken? _cancellationToken;
+  int? _id;
+  final Realm _realm;
+
+  set id(int value) {
+    if (_id != null) {
+      throw RealmError('id should only be set once');
+    }
+
+    _id = value;
+  }
+
+  WriteCompleter(this._realm, this._cancellationToken) : _internalCompleter = Completer<void>() {
+    final ct = _cancellationToken;
+    if (ct != null) {
+      if (ct.isCancelled) {
+        _internalCompleter.completeError(ct.exception);
+      } else {
+        ct.attach(this);
+      }
+    }
+  }
+
+  /// Whether or not the completer was cancelled.
+  bool get isCancelled => _cancellationToken?.isCancelled ?? false;
+
+  @override
+  bool get isCompleted => _internalCompleter.isCompleted;
+
+  @override
+  Future<void> get future => _internalCompleter.future;
+
+  @override
+  void complete([FutureOr<void>? value]) {
+    if (isCancelled) return;
+    _cancellationToken?.detach(this);
+    _internalCompleter.complete(value);
+  }
+
+  @override
+  void completeError(Object error, [StackTrace? stackTrace]) {
+    if (isCancelled) return;
+    _cancellationToken?.detach(this);
+    _internalCompleter.completeError(error, stackTrace);
+  }
+
+  @override
+  void onCancel(Exception cancelException, [StackTrace? stackTrace]) {
+    if (_id == null || realmCore._cancelAsync(_realm, _id!)) {
+      _internalCompleter.completeError(
+        cancelException,
+        stackTrace ?? StackTrace.current,
+      );
     }
   }
 }

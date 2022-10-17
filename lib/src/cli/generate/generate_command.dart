@@ -42,10 +42,16 @@ class GenerateCommand extends Command<void> {
       'run',
       'build_runner',
       // prioritize clean, then watch, then build
-      options.clean ? 'clean' : options.watch ? 'watch' : 'build',
+      options.clean
+          ? 'clean'
+          : options.watch
+              ? 'watch'
+              : 'build',
       ...[if (!options.clean) '--delete-conflicting-outputs'], // not legal option to clean
     ]);
-    
+
     await stdout.addStream(process.stdout);
+    final exitCode = await process.exitCode;
+    exit(exitCode);
   }
 }

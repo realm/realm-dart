@@ -20,6 +20,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:cancellation_token/cancellation_token.dart';
 import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:collection/collection.dart';
@@ -60,11 +61,14 @@ export 'package:realm_common/realm_common.dart'
         ObjectId,
         Uuid;
 
+export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
+
 // always expose with `show` to explicitly control the public API surface
 export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App, AppException;
 export "configuration.dart"
     show
         Configuration,
+        DisconnectedSyncConfiguration,
         FlexibleSyncConfiguration,
         InitialDataCallback,
         InMemoryConfiguration,
@@ -250,7 +254,7 @@ class Realm implements Finalizable {
   /// If no exception is thrown from within the callback, the transaction will be committed.
   /// It is more efficient to update several properties or even create multiple objects in a single write transaction.
   T write<T>(T Function() writeCallback) {
-    final transaction = Transaction._(this);
+    final transaction = beginWrite();
 
     try {
       T result = writeCallback();
@@ -258,6 +262,42 @@ class Realm implements Finalizable {
       return result;
     } catch (e) {
       transaction.rollback();
+      rethrow;
+    }
+  }
+
+  /// Begins a write transaction for this [Realm].
+  Transaction beginWrite() {
+    _ensureWritable();
+
+    realmCore.beginWrite(this);
+
+    return Transaction._(this);
+  }
+
+  /// Asynchronously begins a write transaction for this [Realm]. You can supply a
+  /// [CancellationToken] to cancel the operation.
+  Future<Transaction> beginWriteAsync([CancellationToken? cancellationToken]) async {
+    _ensureWritable();
+
+    await realmCore.beginWriteAsync(this, cancellationToken);
+
+    return Transaction._(this);
+  }
+
+  /// Executes the provided [writeCallback] in a temporary write transaction. Both acquiring the write
+  /// lock and committing the transaction will be done asynchronously.
+  Future<T> writeAsync<T>(T Function() writeCallback, [CancellationToken? cancellationToken]) async {
+    final transaction = await beginWriteAsync(cancellationToken);
+
+    try {
+      T result = writeCallback();
+      await transaction.commitAsync(cancellationToken);
+      return result;
+    } catch (e) {
+      if (isInTransaction) {
+        transaction.rollback();
+      }
       rethrow;
     }
   }
@@ -399,32 +439,66 @@ class Realm implements Finalizable {
       throw RealmError('Cannot $operation because the object is managed by another Realm instance');
     }
   }
+
+  void _ensureWritable() {
+    if (isFrozen) {
+      throw RealmError('Starting a write transaction on a frozen Realm is not allowed.');
+    }
+  }
 }
 
-/// @nodoc
+/// Provides a scope to safely write data to a [Realm]. Can be created using [Realm.beginWrite] or
+/// [Realm.beginWriteAsync].
 class Transaction {
   Realm? _realm;
 
+  /// Returns whether the transaction is still active.
+  bool get isOpen => _realm != null;
+
   Transaction._(Realm realm) {
     _realm = realm;
-    realmCore.beginWrite(realm);
   }
 
+  /// Commits the changes to the Realm.
   void commit() {
-    if (_realm == null) {
-      throw RealmException('Transaction was already closed. Cannot commit');
-    }
+    final realm = _ensureOpen('commit');
 
-    realmCore.commitWrite(_realm!);
-    _realm = null;
+    realmCore.commitWrite(realm);
+
+    _closeTransaction();
   }
 
+  /// Commits the changes to the Realm asynchronously.
+  /// Canceling the commit using the [cancellationToken] will not abort the transaction, but
+  /// rather resolve the future immediately with a [CancelledException].
+  Future<void> commitAsync([CancellationToken? cancellationToken]) async {
+    final realm = _ensureOpen('commitAsync');
+
+    await realmCore.commitWriteAsync(realm, cancellationToken);
+
+    _closeTransaction();
+  }
+
+  /// Undoes all changes made in the transaction.
   void rollback() {
-    if (_realm == null) {
-      throw RealmException('Transaction was already closed. Cannot rollback');
+    final realm = _ensureOpen('rollback');
+
+    if (!realm.isClosed) {
+      realmCore.rollbackWrite(realm);
     }
 
-    realmCore.rollbackWrite(_realm!);
+    _closeTransaction();
+  }
+
+  Realm _ensureOpen(String action) {
+    if (!isOpen) {
+      throw RealmException('Transaction was already closed. Cannot $action');
+    }
+
+    return _realm!;
+  }
+
+  void _closeTransaction() {
     _realm = null;
   }
 }
