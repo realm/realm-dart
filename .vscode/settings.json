@@ -142,6 +142,7 @@
     "memory_resource": "cpp",
     "string_view": "cpp",
     "rope": "cpp",
-    "slist": "cpp"
+    "slist": "cpp",
+    "__mutex_base": "cpp"
   }
 }

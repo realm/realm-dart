@@ -35,3 +35,7 @@ RLM_API void realm_dart_sync_connection_state_changed_callback(realm_userdata_t 
                                                                realm_sync_connection_state_e new_state);
 
 RLM_API void realm_dart_sync_on_subscription_state_changed_callback(realm_userdata_t userdata, realm_flx_sync_subscription_set_state_e state);
+
+RLM_API bool realm_dart_sync_before_reset_handler_callback(realm_userdata_t userdata, realm_t* realm);
+
+RLM_API bool realm_dart_sync_after_reset_handler_callback(realm_userdata_t userdata, realm_t* before_realm, realm_thread_safe_reference_t* after_realm, bool did_recover);

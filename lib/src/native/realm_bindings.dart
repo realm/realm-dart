@@ -3253,6 +3253,50 @@ class RealmLibrary {
   late final _realm_dart_scheduler_invoke = _realm_dart_scheduler_invokePtr
       .asFunction<void Function(int, ffi.Pointer<ffi.Void>)>();
 
+  bool realm_dart_sync_after_reset_handler_callback(
+    ffi.Pointer<ffi.Void> userdata,
+    ffi.Pointer<realm_t> before_realm,
+    ffi.Pointer<realm_thread_safe_reference_t> after_realm,
+    bool did_recover,
+  ) {
+    return _realm_dart_sync_after_reset_handler_callback(
+      userdata,
+      before_realm,
+      after_realm,
+      did_recover,
+    );
+  }
+
+  late final _realm_dart_sync_after_reset_handler_callbackPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<realm_thread_safe_reference_t>,
+              ffi.Bool)>>('realm_dart_sync_after_reset_handler_callback');
+  late final _realm_dart_sync_after_reset_handler_callback =
+      _realm_dart_sync_after_reset_handler_callbackPtr.asFunction<
+          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>,
+              ffi.Pointer<realm_thread_safe_reference_t>, bool)>();
+
+  bool realm_dart_sync_before_reset_handler_callback(
+    ffi.Pointer<ffi.Void> userdata,
+    ffi.Pointer<realm_t> realm,
+  ) {
+    return _realm_dart_sync_before_reset_handler_callback(
+      userdata,
+      realm,
+    );
+  }
+
+  late final _realm_dart_sync_before_reset_handler_callbackPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>(
+      'realm_dart_sync_before_reset_handler_callback');
+  late final _realm_dart_sync_before_reset_handler_callback =
+      _realm_dart_sync_before_reset_handler_callbackPtr.asFunction<
+          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>();
+
   void realm_dart_sync_client_log_callback(
     ffi.Pointer<ffi.Void> userdata,
     int level,
@@ -9967,6 +10011,19 @@ class _SymbolAddresses {
               ffi.Void Function(ffi.Uint64, ffi.Pointer<ffi.Void>)>>
       get realm_dart_scheduler_invoke =>
           _library._realm_dart_scheduler_invokePtr;
+  ffi.Pointer<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<realm_thread_safe_reference_t>,
+              ffi.Bool)>> get realm_dart_sync_after_reset_handler_callback =>
+      _library._realm_dart_sync_after_reset_handler_callbackPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>
+      get realm_dart_sync_before_reset_handler_callback =>
+          _library._realm_dart_sync_before_reset_handler_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(

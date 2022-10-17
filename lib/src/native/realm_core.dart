@@ -221,6 +221,21 @@ class _RealmCore {
           _realmLib.realm_sync_config_set_error_handler(syncConfigPtr, _realmLib.addresses.realm_dart_sync_error_handler_callback, errorHandlerUserdata.cast(),
               _realmLib.addresses.realm_dart_userdata_async_free);
 
+          if (config.clientResetHandler is! ManualRecoveryHandler) {
+            final beforeResetCallback = Pointer.fromFunction<Bool Function(Handle, Pointer<shared_realm>)>(_syncBeforeResetCallback, false);
+            final beforeResetUserdata = _realmLib.realm_dart_userdata_async_new(config, beforeResetCallback.cast(), scheduler.handle._pointer);
+
+            _realmLib.realm_sync_config_set_before_client_reset_handler(syncConfigPtr, _realmLib.addresses.realm_dart_sync_before_reset_handler_callback,
+                beforeResetUserdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
+
+            final afterResetCallback =
+                Pointer.fromFunction<Bool Function(Handle, Pointer<shared_realm>, Pointer<realm_thread_safe_reference>, Bool)>(_syncAfterResetCallback, false);
+            final afterResetUserdata = _realmLib.realm_dart_userdata_async_new(config, afterResetCallback.cast(), scheduler.handle._pointer);
+
+            _realmLib.realm_sync_config_set_after_client_reset_handler(syncConfigPtr, _realmLib.addresses.realm_dart_sync_after_reset_handler_callback,
+                afterResetUserdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
+          }
+
           _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
         } finally {
           _realmLib.realm_release(syncConfigPtr.cast());
@@ -478,11 +493,48 @@ class _RealmCore {
     final syncError = error.toSyncError();
 
     if (syncError is SyncClientResetError) {
-      syncConfig.clientResetHandler.callback(syncError);
+      syncConfig.clientResetHandler.onManualReset?.call(syncError);
       return;
     }
 
     syncConfig.syncErrorHandler(syncError);
+  }
+
+  static bool _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle) {
+    try {
+      final syncConfig = userdata as FlexibleSyncConfiguration;
+      final beforeResetCallback = syncConfig.clientResetHandler.beforeResetCallback;
+      if (beforeResetCallback != null) {
+        // TODO: maybe we want to read the schema from disk at this point
+        final realm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(realmHandle));
+        beforeResetCallback(realm);
+      }
+
+      return true;
+    } catch (e) {
+      _realmLib.realm_register_user_code_callback_error(e.toPersistentHandle());
+      return false;
+    }
+  }
+
+  static bool _syncAfterResetCallback(
+      Object userdata, Pointer<shared_realm> beforeHandle, Pointer<realm_thread_safe_reference> afterReference, bool didRecover) {
+    try {
+      final syncConfig = userdata as FlexibleSyncConfiguration;
+      final afterResetCallback = didRecover ? syncConfig.clientResetHandler.afterRecoveryCallback : syncConfig.clientResetHandler.afterDiscardCallback;
+      if (afterResetCallback != null) {
+        final beforeRealm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(beforeHandle));
+        final afterRealm =
+            RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(_realmLib.realm_from_thread_safe_reference(afterReference, scheduler.handle._pointer)));
+
+        afterResetCallback(beforeRealm, afterRealm);
+      }
+
+      return true;
+    } catch (e) {
+      _realmLib.realm_register_user_code_callback_error(e.toPersistentHandle());
+      return false;
+    }
   }
 
   void raiseError(Session session, SyncErrorCategory category, int errorCode, bool isFatal) {
