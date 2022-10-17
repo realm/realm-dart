@@ -364,7 +364,7 @@ jobs:
 
       - name: Create Android Emulator and generate snapshot for caching
         if: ${{ steps.avd-cache.outputs.cache-hit != 'true' }}
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@9320c5114f2a869e0291ca40fff08f35cd409fc0
         with:
           api-level: 29
           force-avd-creation: false
@@ -389,7 +389,7 @@ jobs:
           useExistingCluster: true
 
       - name: Run tests on Android Emulator
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@9320c5114f2a869e0291ca40fff08f35cd409fc0
         with:
           force-avd-creation: false
           disable-animations: true
