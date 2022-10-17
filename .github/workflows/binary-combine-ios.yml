@@ -10,17 +10,17 @@ jobs:
 
     steps:
       - name: Fetch device build
-        uses: actions/download-artifact@a327a9c763239d85dc3d78908dbf6ca74acd2e46
+        uses: actions/download-artifact@v3
         with:
           name: librealm-ios-device
           path: binary/ios
       - name: Fetch simulator build
-        uses: actions/download-artifact@a327a9c763239d85dc3d78908dbf6ca74acd2e46
+        uses: actions/download-artifact@v3
         with:
           name: librealm-ios-simulator
           path: binary/ios
       - name: Fetch catalyst build
-        uses: actions/download-artifact@a327a9c763239d85dc3d78908dbf6ca74acd2e46
+        uses: actions/download-artifact@v3
         with:
           name: librealm-ios-catalyst
           path: binary/ios
@@ -35,14 +35,14 @@ jobs:
           rm -rf ./binary/ios/Release-*
 
       - name: Store .xcframework artifact
-        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+        uses: actions/upload-artifact@V3.1.0
         with:
           name: librealm-ios
           path: binary/ios
           retention-days: 1
 
       - name: Delete individual framework artifacts
-        uses: geekyeggo/delete-artifact@d5464431b27e231287c52139bde3f3c4e32c5622
+        uses: geekyeggo/delete-artifact@v2
         with:
           name: |
             librealm-ios-device
