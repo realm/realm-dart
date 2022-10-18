@@ -18,12 +18,14 @@
 
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
+import 'dart:convert';
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:path/path.dart' as p;
+import 'package:cancellation_token/cancellation_token.dart';
 import '../lib/realm.dart';
-
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -720,7 +722,31 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
 
     final frozenRealm = freezeRealm(realm);
-    expect(() => frozenRealm.write(() {}), throws<RealmException>("Can't perform transactions on a frozen Realm"));
+    expect(() => frozenRealm.write(() {}), throws<RealmError>("Starting a write transaction on a frozen Realm is not allowed."));
+  });
+
+  test('FrozenRealm cannot beginWrite', () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final frozenRealm = freezeRealm(realm);
+    expect(() => frozenRealm.beginWrite(), throws<RealmError>("Starting a write transaction on a frozen Realm is not allowed."));
+  });
+
+  test('FrozenRealm cannot writeAsync', () async {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final frozenRealm = freezeRealm(realm);
+    await expectLater(() => frozenRealm.writeAsync(() {}), throws<RealmError>("Starting a write transaction on a frozen Realm is not allowed."));
+  });
+
+  test('FrozenRealm cannot beginWriteAsync', () async {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+
+    final frozenRealm = freezeRealm(realm);
+    await expectLater(() => frozenRealm.beginWriteAsync(), throws<RealmError>("Starting a write transaction on a frozen Realm is not allowed."));
   });
 
   test('realm.freeze when frozen returns the same instance', () {
@@ -789,33 +815,190 @@ Future<void> main([List<String>? args]) async {
     expect(stored.location.name, 'Europe/Copenhagen');
   });
 
-  test('Realm - open local not encrypted realm with encryption key', () {
-    openEncryptedRealm(null, generateValidKey());
+  test('Realm.add with frozen object argument throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final frozenPeter = freezeObject(realm.write(() {
+      return realm.add(Person('Peter'));
+    }));
+
+    realm.write(() {
+      expect(() => realm.add(frozenPeter), throws<RealmError>('Cannot add object to Realm because the object is managed by a frozen Realm'));
+    });
+  });
+
+  test('Realm.delete frozen object throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final frozenPeter = freezeObject(realm.write(() {
+      return realm.add(Person('Peter'));
+    }));
+
+    realm.write(() {
+      expect(() => realm.delete(frozenPeter), throws<RealmError>('Cannot delete object from Realm because the object is managed by a frozen Realm'));
+    });
+  });
+
+  test('Realm.delete unmanaged object throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    realm.write(() {
+      expect(() => realm.delete(Person('Peter')), throws<RealmError>('Cannot delete an unmanaged object'));
+    });
+  });
+
+  test('Realm.deleteMany frozen results throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    realm.write(() {
+      realm.add(Person('Peter'));
+    });
+
+    final frozenPeople = freezeResults(realm.all<Person>());
+
+    realm.write(() {
+      expect(() => realm.deleteMany(frozenPeople), throws<RealmError>('Cannot delete objects from Realm because the object is managed by a frozen Realm'));
+    });
+  });
+
+  test('Realm.deleteMany frozen list throws', () {
+    final realm = getRealm(Configuration.local([Person.schema, Team.schema]));
+    final team = realm.write(() {
+      return realm.add(Team('Team 1', players: [Person('Peter')]));
+    });
+
+    final frozenPlayers = freezeList(team.players);
+
+    realm.write(() {
+      expect(() => realm.deleteMany(frozenPlayers), throws<RealmError>('Cannot delete objects from Realm because the object is managed by a frozen Realm'));
+    });
+  });
+
+  test('Realm.deleteMany regular list with frozen elements throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final peter = realm.write(() {
+      return realm.add(Person('Peter'));
+    });
+
+    final frozenPeter = freezeObject(peter);
+
+    realm.write(() {
+      expect(
+          () => realm.deleteMany([peter, frozenPeter]), throws<RealmError>('Cannot delete object from Realm because the object is managed by a frozen Realm'));
+    });
+  });
+
+  test('Realm.add with object from another Realm throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final otherRealm = getRealm(Configuration.local([Person.schema]));
+
+    final peter = realm.write(() {
+      return realm.add(Person('Peter'));
+    });
+
+    otherRealm.write(() {
+      expect(() => otherRealm.add(peter), throws<RealmError>('Cannot add object to Realm because the object is managed by another Realm instance'));
+    });
+  });
+
+  test('Realm.delete object from another Realm throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final otherRealm = getRealm(Configuration.local([Person.schema]));
+
+    final peter = realm.write(() {
+      return realm.add(Person('Peter'));
+    });
+
+    otherRealm.write(() {
+      expect(() => otherRealm.delete(peter), throws<RealmError>('Cannot delete object from Realm because the object is managed by another Realm instance'));
+    });
+  });
+
+  test('Realm.deleteMany results from another Realm throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final otherRealm = getRealm(Configuration.local([Person.schema]));
+
+    realm.write(() {
+      realm.add(Person('Peter'));
+    });
+
+    final people = realm.all<Person>();
+
+    otherRealm.write(() {
+      expect(
+          () => otherRealm.deleteMany(people), throws<RealmError>('Cannot delete objects from Realm because the object is managed by another Realm instance'));
+    });
+  });
+
+  test('Realm.deleteMany list from another Realm throws', () {
+    final realm = getRealm(Configuration.local([Person.schema, Team.schema]));
+    final otherRealm = getRealm(Configuration.local([Person.schema]));
+
+    final team = realm.write(() {
+      return realm.add(Team('Team 1', players: [Person('Peter')]));
+    });
+
+    otherRealm.write(() {
+      expect(() => otherRealm.deleteMany(team.players),
+          throws<RealmError>('Cannot delete objects from Realm because the object is managed by another Realm instance'));
+    });
+  });
+
+  test('Realm.deleteMany regular list with elements from another Realm throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final otherRealm = getRealm(Configuration.local([Person.schema]));
+
+    final peter = realm.write(() {
+      return realm.add(Person('Peter'));
+    });
+
+    otherRealm.write(() {
+      expect(
+          () => otherRealm.deleteMany([peter]), throws<RealmError>('Cannot delete object from Realm because the object is managed by another Realm instance'));
+    });
+  });
+
+  test('Realm - encryption works', () {
+    var config = Configuration.local([Friend.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    var realm = getRealm(config);
+    readFile(String path) {
+      final bytes = File(path).readAsBytesSync();
+      return utf8.decode(bytes, allowMalformed: true);
+    }
+
+    var decoded = readFile(realm.config.path);
+    expect(decoded, contains("bestFriend"));
+
+    config = Configuration.local([Friend.schema],
+        encryptionKey: generateEncryptionKey(), path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    realm = getRealm(config);
+    decoded = readFile(realm.config.path);
+    expect(decoded, isNot(contains("bestFriend")));
+  });
+
+  test('Realm - open local not encrypted realm with an encryption key', () {
+    openEncryptedRealm(null, generateEncryptionKey());
   });
 
   test('Realm - open local encrypted realm with an empty encryption key', () {
-    openEncryptedRealm(generateValidKey(), null);
+    openEncryptedRealm(generateEncryptionKey(), null);
   });
 
   test('Realm  - open local encrypted realm with an invalid encryption key', () {
-    openEncryptedRealm(generateValidKey(), generateValidKey());
+    openEncryptedRealm(generateEncryptionKey(), generateEncryptionKey());
   });
 
   test('Realm - open local encrypted realm with the correct encryption key', () {
-    List<int> key = generateValidKey();
+    List<int> key = generateEncryptionKey();
     openEncryptedRealm(key, key);
   });
 
-  test('Realm - open closed local encrypted realm with the correct encryption key', () {
-    List<int> key = generateValidKey();
+  test('Realm - open existing local encrypted realm with the correct encryption key', () {
+    List<int> key = generateEncryptionKey();
     openEncryptedRealm(key, key, afterEncrypt: (realm) => realm.close());
   });
 
-  test('Realm - open closed local encrypted realm with an invalid encryption key', () {
-    openEncryptedRealm(generateValidKey(), generateValidKey(), afterEncrypt: (realm) => realm.close());
+  test('Realm - open existing local encrypted realm with an invalid encryption key', () {
+    openEncryptedRealm(generateEncryptionKey(), generateEncryptionKey(), afterEncrypt: (realm) => realm.close());
   });
 
-  baasTest('Realm - open remote encrypted realm with encryption key', (appConfiguration) async {
+  baasTest('Realm - open synced encrypted realm with encryption key', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -828,6 +1011,219 @@ Future<void> main([List<String>? args]) async {
       () => getRealm(Configuration.flexibleSync(user, [Task.schema])),
       throws<RealmException>("already opened with a different encryption key"),
     );
+  });
+
+  test('Realm.beginWriteAsync starts write transaction', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final transaction = await realm.beginWriteAsync();
+
+    expect(transaction.isOpen, true);
+  });
+
+  test('Realm.beginWriteAsync with sync commit persists changes', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final transaction = await realm.beginWriteAsync();
+    realm.add(Person('John'));
+    transaction.commit();
+
+    expect(realm.all<Person>().length, 1);
+  });
+
+  test('Realm.beginWriteAsync with async commit persists changes', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final transaction = await realm.beginWriteAsync();
+    realm.add(Person('John'));
+    await transaction.commitAsync();
+
+    expect(realm.all<Person>().length, 1);
+  });
+
+  test('Realm.beginWrite with sync commit persists changes', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final transaction = realm.beginWrite();
+    realm.add(Person('John'));
+    transaction.commit();
+
+    expect(realm.all<Person>().length, 1);
+  });
+
+  test('Realm.beginWrite with async commit persists changes', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final transaction = realm.beginWrite();
+    realm.add(Person('John'));
+    await transaction.commitAsync();
+
+    expect(realm.all<Person>().length, 1);
+  });
+
+  test('Realm.beginWriteAsync rollback undoes changes', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final transaction = await realm.beginWriteAsync();
+    realm.add(Person('John'));
+    transaction.rollback();
+
+    expect(realm.all<Person>().length, 0);
+  });
+
+  test('Realm.writeAsync allows persists changes', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    await realm.writeAsync(() {
+      realm.add(Person('John'));
+    });
+
+    expect(realm.all<Person>().length, 1);
+  });
+
+  test('Realm.beginWriteAsync when realm is closed undoes changes', () async {
+    final realm1 = getRealm(Configuration.local([Person.schema]));
+    final realm2 = getRealm(Configuration.local([Person.schema]));
+
+    await realm1.beginWriteAsync();
+    realm1.add(Person('John'));
+    realm1.close();
+
+    expect(realm2.all<Person>().length, 0);
+  });
+
+  test("Realm.writeAsync with multiple transactions doesnt't deadlock", () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final t1 = await realm.beginWriteAsync();
+    realm.add(Person('Marco'));
+
+    final writeFuture = realm.writeAsync(() {
+      realm.add(Person('Giovanni'));
+    });
+
+    await t1.commitAsync();
+    await writeFuture;
+
+    final people = realm.all<Person>();
+    expect(people.length, 2);
+    expect(people[0].name, 'Marco');
+    expect(people[1].name, 'Giovanni');
+  });
+
+  test('Realm.writeAsync returns valid objects', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final person = await realm.writeAsync(() {
+      return realm.add(Person('John'));
+    });
+
+    expect(person.name, 'John');
+  });
+
+  test('Realm.writeAsync throws user exception', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    try {
+      await realm.writeAsync(() {
+        throw Exception('User exception');
+      });
+    } on Exception catch (e) {
+      expect(e.toString(), 'Exception: User exception');
+    }
+  });
+
+  test('Realm.writeAsync FIFO order ensured', () async {
+    final acquisitionOrder = <int>[];
+    final futures = <Future<void>>[];
+
+    final realm = getRealm(Configuration.local([Person.schema]));
+
+    for (var i = 0; i < 5; i++) {
+      futures.add(realm.writeAsync(() {
+        acquisitionOrder.add(i);
+      }));
+    }
+
+    await Future.wait(futures);
+
+    expect(acquisitionOrder, [0, 1, 2, 3, 4]);
+  });
+
+  test('Realm.beginWriteAsync with cancellation token', () async {
+    final realm1 = getRealm(Configuration.local([Person.schema]));
+    final realm2 = getRealm(Configuration.local([Person.schema]));
+    final t1 = realm1.beginWrite();
+
+    final token = TimeoutCancellationToken(const Duration(milliseconds: 1), timeoutException: CancelledException());
+
+    await expectLater(realm2.beginWriteAsync(token), throwsA(isA<CancelledException>()));
+
+    t1.rollback();
+  });
+
+  test('Realm.writeAsync with cancellation token', () async {
+    final realm1 = getRealm(Configuration.local([Person.schema]));
+    final realm2 = getRealm(Configuration.local([Person.schema]));
+    final t1 = realm1.beginWrite();
+
+    final token = CancellationToken();
+    Future<void>.delayed(Duration(milliseconds: 1)).then((value) => token.cancel());
+
+    await expectLater(realm2.writeAsync(() {}, token), throwsA(isA<CancelledException>()));
+
+    t1.rollback();
+  });
+
+  test('Realm.beginWriteAsync when canceled after write lock obtained is a no-op', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+
+    final token = CancellationToken();
+    final transaction = await realm.beginWriteAsync(token);
+    token.cancel();
+
+    expect(transaction.isOpen, true);
+    expect(realm.isInTransaction, true);
+
+    transaction.rollback();
+  });
+
+  test('Realm.writeAsync when canceled after write lock obtained rolls it back', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+
+    final token = CancellationToken();
+    await expectLater(
+        realm.writeAsync(() {
+          realm.add(Person('A'));
+          token.cancel();
+          realm.add(Person('B'));
+        }, token),
+        throwsA(isA<CancelledException>()));
+
+    expect(realm.all<Person>().length, 0);
+    expect(realm.isInTransaction, false);
+  });
+
+  test('Realm.writeAsync with a canceled token throws', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+
+    final token = CancellationToken();
+    token.cancel();
+
+    await expectLater(realm.writeAsync(() {}, token), throwsA(isA<CancelledException>()));
+    expect(realm.isInTransaction, false);
+  });
+
+  test('Realm.beginWriteAsync with a canceled token throws', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+
+    final token = CancellationToken();
+    token.cancel();
+
+    await expectLater(realm.beginWriteAsync(token), throwsA(isA<CancelledException>()));
+    expect(realm.isInTransaction, false);
+  });
+
+  test('Transaction.commitAsync with a canceled token throws', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+
+    final transaction = await realm.beginWriteAsync();
+
+    final token = CancellationToken();
+    token.cancel();
+
+    await expectLater(transaction.commitAsync(token), throwsA(isA<CancelledException>()));
+    expect(realm.isInTransaction, true);
   });
 
   baasTest('Realm.open async (flexibleSync)', (appConfiguration) async {
@@ -848,7 +1244,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Realm.open async (local) - cancel before open', () async {
     final configuration = Configuration.local([Car.schema]);
-    var cancellationToken = CancellationToken();
+    final cancellationToken = CancellationToken();
     cancellationToken.cancel();
     await expectLater(getRealmAsync(configuration, cancellationToken: cancellationToken), throwsA(isA<CancelledException>()));
   });
@@ -859,7 +1255,7 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-    var cancellationToken = CancellationToken();
+    final cancellationToken = CancellationToken();
     cancellationToken.cancel();
     await expectLater(getRealmAsync(configuration, cancellationToken: cancellationToken), throwsA(isA<CancelledException>()));
   });
@@ -870,55 +1266,55 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-    var cancellationToken = CancellationToken();
-    final isRealmCancelled = getRealmAsync(configuration, cancellationToken: cancellationToken).thenIsCancelled();
+    final cancellationToken = CancellationToken();
+    final isRealmCancelled = getRealmAsync(configuration, cancellationToken: cancellationToken).isCancelled();
     cancellationToken.cancel();
     expect(await isRealmCancelled, isTrue);
   });
 
-  baasTest('Realm.open async (flexibleSync) - open twice the same realm with the same CancelationToken cancels all', (appConfiguration) async {
+  baasTest('Realm.open async (flexibleSync) - open the same realm twice with the same CancelationToken cancel all', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-    var cancellationToken = CancellationToken();
+    final cancellationToken = CancellationToken();
 
-    Future<void>.delayed(Duration(milliseconds: 10), () => cancellationToken.cancel());
-    final isRealm1Cancelled = getRealmAsync(configuration, cancellationToken: cancellationToken).thenIsCancelled();
-    final isRealm2Cancelled = getRealmAsync(configuration, cancellationToken: cancellationToken).thenIsCancelled();
+    Future<void>.delayed(const Duration(milliseconds: 10), () => cancellationToken.cancel());
+    final isRealm1Cancelled = getRealmAsync(configuration, cancellationToken: cancellationToken).isCancelled();
+    final isRealm2Cancelled = getRealmAsync(configuration, cancellationToken: cancellationToken).isCancelled();
     expect(await isRealm1Cancelled, isTrue);
     expect(await isRealm2Cancelled, isTrue);
   });
 
-  baasTest('Realm.open async (flexibleSync) - open twice the same realm and cancel the first only', (appConfiguration) async {
+  baasTest('Realm.open (flexibleSync) - open the same realm twice and only cancel the first call', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-    var cancellationToken1 = CancellationToken();
-    final isRealm1Cancelled = getRealmAsync(configuration, cancellationToken: cancellationToken1).thenIsCancelled();
+    final cancellationToken1 = CancellationToken();
+    final isRealm1Cancelled = getRealmAsync(configuration, cancellationToken: cancellationToken1).isCancelled();
 
-    var cancellationToken2 = CancellationToken();
-    final isRealm2Cancelled = getRealmAsync(configuration, cancellationToken: cancellationToken2).thenIsCancelled();
+    final cancellationToken2 = CancellationToken();
+    final isRealm2Cancelled = getRealmAsync(configuration, cancellationToken: cancellationToken2).isCancelled();
     cancellationToken1.cancel();
     expect(await isRealm1Cancelled, isTrue);
     expect(await isRealm2Cancelled, isFalse);
   });
 
-  baasTest('Realm.open async (flexibleSync) - open two different Realms(for user1 and user2) and cancel only the second', (appConfiguration) async {
+  baasTest('Realm.open async (flexibleSync) - open two different Realms for two different users and cancel only the second call', (appConfiguration) async {
     final app = App(appConfiguration);
 
     final user1 = await app.logIn(Credentials.anonymous());
     final configuration1 = Configuration.flexibleSync(user1, [Task.schema]);
-    var cancellationToken1 = CancellationToken();
-    final isRealm1Cancelled = getRealmAsync(configuration1, cancellationToken: cancellationToken1).thenIsCancelled();
+    final cancellationToken1 = CancellationToken();
+    final isRealm1Cancelled = getRealmAsync(configuration1, cancellationToken: cancellationToken1).isCancelled();
 
     final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
     final configuration2 = Configuration.flexibleSync(user2, [Task.schema]);
-    var cancellationToken2 = CancellationToken();
-    final isRealm2Cancelled = getRealmAsync(configuration2, cancellationToken: cancellationToken2).thenIsCancelled();
+    final cancellationToken2 = CancellationToken();
+    final isRealm2Cancelled = getRealmAsync(configuration2, cancellationToken: cancellationToken2).isCancelled();
 
     cancellationToken2.cancel();
     expect(await isRealm2Cancelled, isTrue);
@@ -931,7 +1327,7 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
-    var cancellationToken = CancellationToken();
+    final cancellationToken = CancellationToken();
     final realm = await getRealmAsync(configuration, cancellationToken: cancellationToken);
 
     expect(realm, isNotNull);
@@ -941,7 +1337,7 @@ Future<void> main([List<String>? args]) async {
     expect(realm.isClosed, false);
   });
 
-  baasTest('Realm.open async (flexibleSync) - listen for download progress of an empty realm', (appConfiguration) async {
+  baasTest('Realm.open async (flexibleSync) - listen for download progress on an empty realm', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1030,12 +1426,12 @@ Future<void> main([List<String>? args]) async {
     bool progressReturned = false;
     final realmIsCancelled = getRealmAsync(config, cancellationToken: cancellationToken, onProgressCallback: (syncProgress) {
       progressReturned = true;
-    }).thenIsCancelled();
+    }).isCancelled();
     cancellationToken.cancel();
     expect(await realmIsCancelled, isTrue);
     expect(progressReturned, isFalse);
   });
-  
+
   baasTest('Realm.open async (flexibleSync) with initial subscriptions and rerunOnOpen', (appConfiguration) async {
     final app = App(appConfiguration);
     final queryDifferentiator = generateRandomString(10);
@@ -1091,7 +1487,7 @@ Future<void> main([List<String>? args]) async {
   });
 }
 
-List<int> generateValidKey() {
+List<int> generateEncryptionKey() {
   return List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
 }
 
@@ -1103,8 +1499,8 @@ void openEncryptedRealm(List<int>? encryptionKey, List<int>? decryptionKey, {voi
     afterEncrypt(realm);
   }
   if (encryptionKey == decryptionKey) {
-    final decryptedRealm = getRealm(config2);
-    expect(decryptedRealm.isClosed, false);
+    final decriptedRealm = getRealm(config2);
+    expect(decriptedRealm.isClosed, false);
   } else {
     expect(
       () => getRealm(config2),
@@ -1113,8 +1509,8 @@ void openEncryptedRealm(List<int>? encryptionKey, List<int>? decryptionKey, {voi
   }
 }
 
-extension _FutureRealm on Future<Realm> {
-  Future<bool> thenIsCancelled() async {
+extension on Future<Realm> {
+  Future<bool> isCancelled() async {
     try {
       final value = await this;
       expect(value, isNotNull);
@@ -1125,7 +1521,6 @@ extension _FutureRealm on Future<Realm> {
     }
   }
 }
-
 
 Future<void> _addDataToAtlas(App app, {String? queryDifferentiator, int itemCount = 100}) async {
   final productNamePrefix = queryDifferentiator ?? generateRandomString(10);
@@ -1142,10 +1537,10 @@ Future<void> _addDataToAtlas(App app, {String? queryDifferentiator, int itemCoun
   await realm.subscriptions.waitForSynchronization();
   await realm.syncSession.waitForDownload();
   realm.write(() {
-      for (var i = 0; i < itemCount; i++) {
-        realm.add(Product(ObjectId(), "${productNamePrefix}_${i + 1}"));
-      }
-    });
+    for (var i = 0; i < itemCount; i++) {
+      realm.add(Product(ObjectId(), "${productNamePrefix}_${i + 1}"));
+    }
+  });
   await realm.syncSession.waitForUpload();
   realm.close();
 }

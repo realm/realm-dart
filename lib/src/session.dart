@@ -18,7 +18,6 @@
 
 import 'dart:async';
 import 'dart:ffi';
-
 import '../realm.dart';
 import 'native/realm_core.dart';
 import 'user.dart';

@@ -342,14 +342,12 @@ Realm getRealm(Configuration config) {
 }
 
 Future<Realm> getRealmAsync(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
-  {
-    if (config is FlexibleSyncConfiguration) {
-      config.sessionStopPolicy = SessionStopPolicy.immediately;
-    }
-    final realm = await Realm.open(config, cancellationToken: cancellationToken, onProgressCallback: onProgressCallback);
-    _openRealms.add(realm);
-    return realm;
+  if (config is FlexibleSyncConfiguration) {
+    config.sessionStopPolicy = SessionStopPolicy.immediately;
   }
+  final realm = await Realm.open(config, cancellationToken: cancellationToken, onProgressCallback: onProgressCallback);
+  _openRealms.add(realm);
+  return realm;
 }
 
 /// This is needed to make sure the frozen Realm gets forcefully closed by the

@@ -34,7 +34,6 @@ import 'scheduler.dart';
 import 'subscription.dart';
 import 'session.dart';
 
-export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
 export 'package:realm_common/realm_common.dart'
     show
         Ignored,
@@ -89,6 +88,7 @@ export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetSt
 export 'user.dart' show User, UserState, UserIdentity, ApiKeyClient, ApiKey;
 export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
 export 'migration.dart' show Migration;
+export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -111,7 +111,7 @@ class Realm implements Finalizable {
 
   /// Gets a value indicating whether this [Realm] is frozen. Frozen Realms are immutable
   /// and will not update when writes are made to the database.
-  late final bool isFrozen;
+  late final bool isFrozen = realmCore.isFrozen(this);
 
   /// Returns true if the [Realm] is opened for the first time and the realm file is created.
   late final bool _openedFirstTime;
@@ -121,10 +121,8 @@ class Realm implements Finalizable {
 
   Realm._(this.config, [RealmHandle? handle, this._isInMigration = false])
       : _openedFirstTime = !File(config.path).existsSync(),
-        _handle = handle ?? _openRealmSync(config) {
+        _handle = handle ?? _openRealm(config) {
     _populateMetadata();
-    isFrozen = realmCore.isFrozen(this);
-
     if (config is FlexibleSyncConfiguration) {
       final flxConfig = config as FlexibleSyncConfiguration;
       if (flxConfig.initialSubscriptionsConfiguration?.callback != null && (_openedFirstTime || flxConfig.initialSubscriptionsConfiguration!.rerunOnOpen)) {
@@ -144,8 +142,8 @@ class Realm implements Finalizable {
   /// * `onProgressCallback` - a callback for receiving download progress notifications for synced [Realm]s.
   ///
   /// Returns `Future<Realm>` that completes with the [Realm] once the remote [Realm] is fully synchronized or with a [CancelledException] if operation is canceled.
-  /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened or if the operation is canceled in advance.
-  /// Since opening a local Realm is a synchronous operation, there is no benefit of using Realm.open over the constructor.
+  /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened.
+  /// Using [open] for opening a local Realm is equivalent to using the constructor of [Realm].
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
     if (cancellationToken != null && cancellationToken.isCancelled) {
       throw cancellationToken.exception;
@@ -160,28 +158,20 @@ class Realm implements Finalizable {
             await realm.subscriptions.waitForSynchronization();
         }
         if (onProgressCallback != null) {
-          subscription = session
-              .getProgressStream(
-                ProgressDirection.download,
-                ProgressMode.forCurrentlyOutstandingWork,
-              )
-              .listen(
-                (syncProgress) => onProgressCallback.call(syncProgress),
-                cancelOnError: true,
-              );
+          subscription = session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork).listen(onProgressCallback);
         }
         await session.waitForDownload(cancellationToken);
+        await subscription?.cancel();
       }
     } catch (_) {
+      await subscription?.cancel();
       realm.close();
       rethrow;
-    } finally {
-      await subscription?.cancel();
     }
     return await CancellableFuture.value(realm, cancellationToken);
   }
 
-  static RealmHandle _openRealmSync(Configuration config) {
+  static RealmHandle _openRealm(Configuration config) {
     var dir = File(config.path).parent;
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
@@ -237,6 +227,8 @@ class Realm implements Finalizable {
   /// Throws [RealmException] if there is no write transaction created with [write].
   T add<T extends RealmObject>(T object, {bool update = false}) {
     if (object.isManaged) {
+      _ensureManagedByThis(object, 'add object to Realm');
+
       return object;
     }
 
@@ -276,19 +268,31 @@ class Realm implements Finalizable {
   }
 
   /// Deletes a [RealmObject] from this `Realm`.
-  void delete<T extends RealmObject>(T object) => realmCore.deleteRealmObject(object);
+  void delete<T extends RealmObject>(T object) {
+    if (!object.isManaged) {
+      throw RealmError('Cannot delete an unmanaged object');
+    }
+
+    _ensureManagedByThis(object, 'delete object from Realm');
+
+    realmCore.deleteRealmObject(object);
+  }
 
   /// Deletes many [RealmObject]s from this `Realm`.
   ///
   /// Throws [RealmException] if there is no active write transaction.
   void deleteMany<T extends RealmObject>(Iterable<T> items) {
     if (items is RealmResults<T>) {
+      _ensureManagedByThis(items, 'delete objects from Realm');
+
       realmCore.resultsDeleteAll(items);
     } else if (items is RealmList<T>) {
+      _ensureManagedByThis(items, 'delete objects from Realm');
+
       realmCore.listDeleteAll(items);
     } else {
       for (T realmObject in items) {
-        realmCore.deleteRealmObject(realmObject);
+        delete(realmObject);
       }
     }
   }
@@ -301,7 +305,7 @@ class Realm implements Finalizable {
   /// If no exception is thrown from within the callback, the transaction will be committed.
   /// It is more efficient to update several properties or even create multiple objects in a single write transaction.
   T write<T>(T Function() writeCallback) {
-    final transaction = Transaction._(this);
+    final transaction = beginWrite();
 
     try {
       T result = writeCallback();
@@ -309,6 +313,42 @@ class Realm implements Finalizable {
       return result;
     } catch (e) {
       transaction.rollback();
+      rethrow;
+    }
+  }
+
+  /// Begins a write transaction for this [Realm].
+  Transaction beginWrite() {
+    _ensureWritable();
+
+    realmCore.beginWrite(this);
+
+    return Transaction._(this);
+  }
+
+  /// Asynchronously begins a write transaction for this [Realm]. You can supply a
+  /// [CancellationToken] to cancel the operation.
+  Future<Transaction> beginWriteAsync([CancellationToken? cancellationToken]) async {
+    _ensureWritable();
+
+    await realmCore.beginWriteAsync(this, cancellationToken);
+
+    return Transaction._(this);
+  }
+
+  /// Executes the provided [writeCallback] in a temporary write transaction. Both acquiring the write
+  /// lock and committing the transaction will be done asynchronously.
+  Future<T> writeAsync<T>(T Function() writeCallback, [CancellationToken? cancellationToken]) async {
+    final transaction = await beginWriteAsync(cancellationToken);
+
+    try {
+      T result = writeCallback();
+      await transaction.commitAsync(cancellationToken);
+      return result;
+    } catch (e) {
+      if (isInTransaction) {
+        transaction.rollback();
+      }
       rethrow;
     }
   }
@@ -440,32 +480,76 @@ class Realm implements Finalizable {
   /// Disclaimer: This method is mostly needed on Dart standalone and if not called the Dart program will hang and not exit.
   /// This is a workaround of a Dart VM bug and will be removed in a future version of the SDK.
   static void shutdown() => scheduler.stop();
+
+  void _ensureManagedByThis(RealmEntity entity, String operation) {
+    if (entity.realm != this) {
+      if (entity.isFrozen) {
+        throw RealmError('Cannot $operation because the object is managed by a frozen Realm');
+      }
+
+      throw RealmError('Cannot $operation because the object is managed by another Realm instance');
+    }
+  }
+
+  void _ensureWritable() {
+    if (isFrozen) {
+      throw RealmError('Starting a write transaction on a frozen Realm is not allowed.');
+    }
+  }
 }
 
-/// @nodoc
+/// Provides a scope to safely write data to a [Realm]. Can be created using [Realm.beginWrite] or
+/// [Realm.beginWriteAsync].
 class Transaction {
   Realm? _realm;
 
+  /// Returns whether the transaction is still active.
+  bool get isOpen => _realm != null;
+
   Transaction._(Realm realm) {
     _realm = realm;
-    realmCore.beginWrite(realm);
   }
 
+  /// Commits the changes to the Realm.
   void commit() {
-    if (_realm == null) {
-      throw RealmException('Transaction was already closed. Cannot commit');
-    }
+    final realm = _ensureOpen('commit');
 
-    realmCore.commitWrite(_realm!);
-    _realm = null;
+    realmCore.commitWrite(realm);
+
+    _closeTransaction();
   }
 
+  /// Commits the changes to the Realm asynchronously.
+  /// Canceling the commit using the [cancellationToken] will not abort the transaction, but
+  /// rather resolve the future immediately with a [CancelledException].
+  Future<void> commitAsync([CancellationToken? cancellationToken]) async {
+    final realm = _ensureOpen('commitAsync');
+
+    await realmCore.commitWriteAsync(realm, cancellationToken);
+
+    _closeTransaction();
+  }
+
+  /// Undoes all changes made in the transaction.
   void rollback() {
-    if (_realm == null) {
-      throw RealmException('Transaction was already closed. Cannot rollback');
+    final realm = _ensureOpen('rollback');
+
+    if (!realm.isClosed) {
+      realmCore.rollbackWrite(realm);
     }
 
-    realmCore.rollbackWrite(_realm!);
+    _closeTransaction();
+  }
+
+  Realm _ensureOpen(String action) {
+    if (!isOpen) {
+      throw RealmException('Transaction was already closed. Cannot $action');
+    }
+
+    return _realm!;
+  }
+
+  void _closeTransaction() {
     _realm = null;
   }
 }
@@ -721,7 +805,7 @@ class MigrationRealm extends DynamicRealm {
 }
 
 /// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].
-/// This is the registered callback onProgressCallback to receive progress notifications while the download is in progress.
+/// This is the registered onProgressCallback when calling [open] that receives progress notifications while the download is in progress.
 ///
 /// * syncProgress - an object of [SyncProgress] that contains `transferredBytes` and `transferableBytes`.
 /// {@category Realm}
