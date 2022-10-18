@@ -20,10 +20,10 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 
-import 'package:cancellation_token/cancellation_token.dart';
 import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:collection/collection.dart';
+import 'package:cancellation_token/cancellation_token.dart';
 
 import 'configuration.dart';
 import 'list.dart';
@@ -61,8 +61,6 @@ export 'package:realm_common/realm_common.dart'
         ObjectId,
         Uuid;
 
-export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
-
 // always expose with `show` to explicitly control the public API surface
 export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App, AppException;
 export "configuration.dart"
@@ -89,6 +87,7 @@ export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetSt
 export 'user.dart' show User, UserState, UserIdentity, ApiKeyClient, ApiKey;
 export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
 export 'migration.dart' show Migration;
+export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -118,6 +117,42 @@ class Realm implements Finalizable {
 
   Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) : _handle = handle ?? _openRealm(config) {
     _populateMetadata();
+  }
+
+  /// A method for asynchronously opening a [Realm].
+  ///
+  /// When the configuration is [FlexibleSyncConfiguration], the realm will be downloaded and fully
+  /// synchronized with the server prior to the completion of the returned [Future].
+  /// This method could be called also for opening a local [Realm] with [LocalConfiguration].
+  ///
+  /// * `config`- a configuration object that describes the realm.
+  /// * `cancellationToken` - an optional [CancellationToken] used to cancel the operation.
+  /// * `onProgressCallback` - a callback for receiving download progress notifications for synced [Realm]s.
+  ///
+  /// Returns `Future<Realm>` that completes with the [Realm] once the remote [Realm] is fully synchronized or with a [CancelledException] if operation is canceled.
+  /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened.
+  /// Using [open] for opening a local Realm is equivalent to using the constructor of [Realm].
+  static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
+    if (cancellationToken != null && cancellationToken.isCancelled) {
+      throw cancellationToken.exception;
+    }
+    final realm = Realm(config);
+    StreamSubscription<SyncProgress>? subscription;
+    try {
+      if (config is FlexibleSyncConfiguration) {
+        final session = realm.syncSession;
+        if (onProgressCallback != null) {
+          subscription = session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork).listen(onProgressCallback);
+        }
+        await session.waitForDownload(cancellationToken);
+        await subscription?.cancel();
+      }
+    } catch (_) {
+      await subscription?.cancel();
+      realm.close();
+      rethrow;
+    }
+    return await CancellableFuture.value(realm, cancellationToken);
   }
 
   static RealmHandle _openRealm(Configuration config) {
@@ -752,3 +787,10 @@ class MigrationRealm extends DynamicRealm {
 
   MigrationRealm._(Realm realm) : super._(realm);
 }
+
+/// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].
+/// This is the registered onProgressCallback when calling [open] that receives progress notifications while the download is in progress.
+///
+/// * syncProgress - an object of [SyncProgress] that contains `transferredBytes` and `transferableBytes`.
+/// {@category Realm}
+typedef ProgressCallback = void Function(SyncProgress syncProgress);
