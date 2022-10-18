@@ -232,6 +232,15 @@ Future<void> main([List<String>? args]) async {
 
     await expectLater(() => loginWithRetry(app, Credentials.emailPassword(username, strongPassword)), throws<AppException>("invalid username/password"));
   });
+
+  baasTest('Call Atlas function', (configuration) async {
+    final app = App(configuration);
+    final user = await app.logIn(Credentials.anonymous());
+    const arg1 = "argument 1";
+    final response = await user.functions.call('userFunc', jsonAgrsArray: '["$arg1"]');
+    expect(response, isNotNull);
+    expect(response, contains(arg1));
+  });
 }
 
 Future<void> testLogger(

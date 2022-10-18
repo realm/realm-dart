@@ -2072,6 +2072,36 @@ class _RealmCore {
       return completer.future;
     });
   }
+
+  static void _call_app_function_callback(Pointer<Void> userdata, Pointer<Char> response, Pointer<realm_app_error> error) {
+    final Completer<String?>? completer = userdata.toObject(isPersistent: true);
+    if (completer == null) {
+      return;
+    }
+
+    if (error != nullptr) {
+      completer.completeWithAppError(error);
+      return;
+    }
+    String? jsonResponse = response.cast<Utf8>().toDartString();
+    completer.complete(jsonResponse);
+  }
+
+  Future<String?> callAppFunction(App app, User user, String functionName, String? argsAsJSON) {
+    final completer = Completer<String?>();
+    using((arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_call_function(
+            app.handle._pointer,
+            user.handle._pointer,
+            functionName.toCharPtr(arena),
+            argsAsJSON != null ? argsAsJSON.toCharPtr(arena) : nullptr,
+            Pointer.fromFunction(_call_app_function_callback),
+            completer.toPersistentHandle(),
+            _realmLib.addresses.realm_dart_delete_persistent_handle,
+          ));
+    });
+    return completer.future;
+  }
 }
 
 class LastError {
