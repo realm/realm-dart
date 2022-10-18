@@ -18,9 +18,6 @@
 
 import 'dart:async';
 import 'dart:ffi';
-
-import 'package:cancellation_token/cancellation_token.dart';
-
 import '../realm.dart';
 import 'native/realm_core.dart';
 import 'user.dart';
