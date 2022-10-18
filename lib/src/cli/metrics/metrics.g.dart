@@ -40,6 +40,7 @@ Properties _$PropertiesFromJson(Map<String, dynamic> json) => Properties(
 Map<String, dynamic> _$PropertiesToJson(Properties instance) {
   final val = <String, dynamic>{
     'token': instance.token,
+    'distinct_id': _digestToJson(instance.distinctId),
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -48,7 +49,6 @@ Map<String, dynamic> _$PropertiesToJson(Properties instance) {
     }
   }
 
-  writeNotNull('distinct_id', _digestToJson(instance.distinctId));
   writeNotNull('Anonymized MAC Address',
       const DigestConverter().toJson(instance.anonymizedMacAddress));
   writeNotNull('Anonymized Bundle ID',
@@ -61,7 +61,7 @@ Map<String, dynamic> _$PropertiesToJson(Properties instance) {
   val['Realm Version'] = instance.realmVersion;
   val['Host OS Type'] = instance.hostOsType;
   val['Host OS Version'] = instance.hostOsVersion;
-  writeNotNull('Target OS Type', _$TargetOsTypeEnumMap[instance.targetOsType]);
+  val['Target OS Type'] = _$TargetOsTypeEnumMap[instance.targetOsType];
   writeNotNull('Target OS Version', instance.targetOsVersion);
   return val;
 }
