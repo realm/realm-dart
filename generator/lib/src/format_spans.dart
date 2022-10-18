@@ -39,7 +39,7 @@ String formatSpans(
               color: color,
             );
       buffer
-        ..write('\n' * 2 + 'in: ')
+        ..write('${'\n' * 2}in: ')
         ..writeln(span.start.toolString)
         ..write(formatted);
     }

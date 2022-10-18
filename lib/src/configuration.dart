@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:collection';
 import 'dart:ffi';
 import 'dart:io';
 
@@ -25,6 +26,7 @@ import 'package:path/path.dart' as _path;
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'init.dart';
+import 'type_utils.dart';
 import 'user.dart';
 
 /// The signature of a callback used to determine if compaction
@@ -355,41 +357,53 @@ class InMemoryConfiguration extends Configuration {
 /// A collection of properties describing the underlying schema of a [RealmObject].
 ///
 /// {@category Configuration}
-class SchemaObject {
-  /// Schema object type.
-  final Type type;
-
+class SchemaObject<T extends Object?> with IterableMixin<SchemaProperty> {
   /// Collection of the properties of this schema object.
-  final List<SchemaProperty> properties;
+  final Map<String, SchemaProperty> properties;
+
+  /// Schema object type.
+  Type get type => T;
+  Type get nullableType => typeOf<T?>();
+
+  final T Function()? _objectFactory;
 
   /// Returns the name of this schema type.
   final String name;
 
+  SchemaProperty operator [](String propertyName) =>
+      properties[propertyName] ?? (throw RealmException("Property '$propertyName' does not exist on class '$name'"));
+
+  /// Primary key property, if any
+  final SchemaProperty? primaryKey;
+
   /// Creates schema instance with object type and collection of object's properties.
-  const SchemaObject(this.type, this.name, this.properties);
+  const SchemaObject(this._objectFactory, this.name, this.properties, [this.primaryKey]);
+
+  @override
+  Iterator<SchemaProperty> get iterator => properties.values.iterator;
+}
+
+/// @nodoc
+extension SchemaObjectInternalExtension<T> on SchemaObject<T> {
+  T Function() get objectFactory => _objectFactory!;
 }
 
 /// Describes the complete set of classes which may be stored in a `Realm`
 ///
 /// {@category Configuration}
-class RealmSchema extends Iterable<SchemaObject> {
-  late final List<SchemaObject> _schema;
+class RealmSchema extends MapView<String, SchemaObject> {
+  final Map<Type, SchemaObject> _byType;
 
   /// Initializes [RealmSchema] instance representing ```schemaObjects``` collection
-  RealmSchema(Iterable<SchemaObject> schemaObjects) {
-    _schema = schemaObjects.toList();
-  }
+  RealmSchema(super.map)
+      : _byType = {
+          // only register subtypes (the nullable form). It is easy to go from T to T?,
+          // but not the other way around. Hence we register the nullable type.
+          for (final s in map.values)
+            if (s.type != RealmObject) s.nullableType: s
+        };
 
-  @override
-  Iterator<SchemaObject> get iterator => _schema.iterator;
-
-  @override
-  int get length => _schema.length;
-
-  SchemaObject operator [](int index) => _schema[index];
-
-  @override
-  SchemaObject elementAt(int index) => _schema.elementAt(index);
+  SchemaObject<T>? getByType<T extends Object?>() => _byType[typeOf<T?>()] as SchemaObject<T>?;
 }
 
 /// The signature of a callback that will be invoked if a client reset error occurs for this [Realm].

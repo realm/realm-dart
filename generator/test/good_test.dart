@@ -9,7 +9,7 @@ void main() {
   const directory = 'test/good_test_data';
   getListOfTestFiles(directory).forEach((inputFile, expectedFile) {
     executeTest(getTestName(inputFile), () async {
-      await generatorTestBuilder(directory, inputFile, expectedFile);
+      await generatorTestBuilder(directory, inputFile);
     });
   });
 
@@ -36,53 +36,47 @@ class _MappedToo {
 // RealmObjectGenerator
 // **************************************************************************
 
-class MappedToo extends _MappedToo with RealmEntity, RealmObject {
+class MappedToo extends _MappedToo
+    with RealmEntityMixin, RealmObjectMixin<MappedToo> {
   MappedToo({
     Original? singleLink,
     Iterable<Original> listLink = const [],
   }) {
-    RealmObject.set(this, 'singleLink', singleLink);
-    RealmObject.set<RealmList<Original>>(
-        this, 'listLink', RealmList<Original>(listLink));
+    _singleLinkProperty.setValue(this, singleLink);
+    _listLinkProperty.setValue(this, RealmList<Original>(listLink));
   }
 
   MappedToo._();
 
+  static const _singleLinkProperty =
+      ObjectProperty<Original>('singleLink', 'another type');
   @override
-  Original? get singleLink =>
-      RealmObject.get<Original>(this, 'singleLink') as Original?;
+  Original? get singleLink => _singleLinkProperty.getValue(this);
   @override
   set singleLink(covariant Original? value) =>
-      RealmObject.set(this, 'singleLink', value);
+      _singleLinkProperty.setValue(this, value);
 
+  static const _listLinkProperty = ListProperty<Original>(
+      'listLink', RealmPropertyType.object,
+      linkTarget: 'another type');
   @override
-  RealmList<Original> get listLink =>
-      RealmObject.get<Original>(this, 'listLink') as RealmList<Original>;
+  RealmList<Original> get listLink => _listLinkProperty.getValue(this);
   @override
   set listLink(covariant RealmList<Original> value) =>
       throw RealmUnsupportedSetError();
 
+  static const schema = SchemaObject<MappedToo>(
+    MappedToo._,
+    'this is also mapped',
+    {
+      'singleLink': _singleLinkProperty,
+      'listLink': _listLinkProperty,
+    },
+  );
   @override
-  Stream<RealmObjectChanges<MappedToo>> get changes =>
-      RealmObject.getChanges<MappedToo>(this);
-
-  @override
-  MappedToo freeze() => RealmObject.freezeObject<MappedToo>(this);
-
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
-    RealmObject.registerFactory(MappedToo._);
-    return const SchemaObject(MappedToo, 'this is also mapped', [
-      SchemaProperty('singleLink', RealmPropertyType.object,
-          optional: true, linkTarget: 'another type'),
-      SchemaProperty('listLink', RealmPropertyType.object,
-          linkTarget: 'another type', collectionType: RealmCollectionType.list),
-    ]);
-  }
+  SchemaObject get instanceSchema => schema;
 }
 ''';
-
     await testBuilder(generateRealmObjects(), inputs, outputs: outputs, reader: await PackageAssetReader.currentIsolate());
   });
 }

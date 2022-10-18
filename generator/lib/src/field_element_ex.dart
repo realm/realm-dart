@@ -220,7 +220,7 @@ extension FieldElementEx on FieldElement {
       );
     } on InvalidGenerationSourceError catch (_) {
       rethrow;
-    } catch (e, s) {
+    } catch (e) {
       // Fallback. Not perfect, but better than just forwarding original error.
       throw RealmInvalidGenerationSourceError(
         '$e',

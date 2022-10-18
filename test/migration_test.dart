@@ -20,6 +20,7 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'package:realm_common/realm_common.dart';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -355,7 +356,7 @@ Future<void> main([List<String>? args]) async {
     final v2DynamicRealm = getRealm(v2DynamicConfig);
 
     expect(v2DynamicRealm.schema.length, 2);
-    expect(v2DynamicRealm.schema.any((element) => element.name == 'Dog'), true);
+    expect(v2DynamicRealm.schema['Dog'], isNotNull);
     expect(v2DynamicRealm.dynamic.all('Dog').single.dynamic.get('name'), 'Fido');
 
     v2DynamicRealm.close();
@@ -379,7 +380,7 @@ Future<void> main([List<String>? args]) async {
     final v3DynamicRealm = getRealm(v3DynamicConfig);
 
     expect(v3DynamicRealm.schema.length, 1);
-    expect(v3DynamicRealm.schema.any((element) => element.name == 'Dog'), false);
+    expect(v3DynamicRealm.schema['Dog'], isNull);
     expect(() => v3DynamicRealm.dynamic.all('Dog'), throws<RealmError>("Object type Dog not configured in the current Realm's schema"));
   });
 
@@ -393,12 +394,12 @@ Future<void> main([List<String>? args]) async {
     v1Realm.close();
 
     final v2Config = Configuration.local([MyObjectWithoutValue.schema], schemaVersion: 2, migrationCallback: (migration, oldSchemaVersion) {
-      expect(migration.oldRealm.schema.single.properties.length, 2);
-      expect(migration.newRealm.schema.single.properties.length, 1);
+      expect(migration.oldRealm.schema.values.single.properties.length, 2);
+      expect(migration.newRealm.schema.values.single.properties.length, 1);
     });
 
     final v2Realm = getRealm(v2Config);
-    expect(v2Realm.schema.single.properties.length, 1);
+    expect(v2Realm.schema.values.single.properties.length, 1);
     expect(v2Realm.all<MyObjectWithoutValue>().single.name, 'name');
     v2Realm.close();
 
@@ -406,7 +407,7 @@ Future<void> main([List<String>? args]) async {
     final dynamicConfig = Configuration.local([], schemaVersion: 2);
     final dynamicRealm = getRealm(dynamicConfig);
 
-    expect(dynamicRealm.schema.single.properties.length, 1);
+    expect(dynamicRealm.schema.values.single.properties.length, 1);
     expect(dynamicRealm.dynamic.all('MyObject').single.dynamic.get<String>('name'), 'name');
   });
 
@@ -423,20 +424,20 @@ Future<void> main([List<String>? args]) async {
     late RealmObject oldTeam;
     late Team newTeam;
 
-    late RealmResults<RealmObject> oldTeams;
+    late RealmResults oldTeams;
     late RealmResults<Team> newTeams;
 
-    late RealmList<RealmObject> oldPlayers;
+    late RealmList oldPlayers;
     late RealmList<Person> newPlayers;
 
     final v2Config = Configuration.local([Person.schema, Team.schema], schemaVersion: 2, migrationCallback: (migration, oldSchemaVersion) {
       oldTeams = migration.oldRealm.all('Team');
       newTeams = migration.newRealm.all();
 
-      oldTeam = oldTeams.single;
+      oldTeam = oldTeams.single as RealmObject;
       newTeam = newTeams.single;
 
-      oldPlayers = oldTeam.dynamic.getList('players');
+      oldPlayers = oldTeam.dynamic.get<RealmList>('players');
       newPlayers = newTeam.players;
     });
 

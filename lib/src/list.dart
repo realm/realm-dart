@@ -32,8 +32,8 @@ import 'results.dart';
 /// added to or deleted from the collection or from the Realm.
 ///
 /// {@category Realm}
-abstract class RealmList<T extends Object?> with RealmEntity implements List<T>, Finalizable {
-  late final RealmObjectMetadata? _metadata;
+abstract class RealmList<T extends Object?> with RealmEntityMixin implements List<T>, Finalizable {
+  RealmObjectMetadata? get _metadata;
 
   /// Gets a value indicating whether this collection is still valid to use.
   ///
@@ -49,11 +49,11 @@ abstract class RealmList<T extends Object?> with RealmEntity implements List<T>,
   RealmList<T> freeze();
 }
 
-class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> implements RealmList<T> {
+class ManagedRealmList<T extends Object?> with RealmEntityMixin, ListMixin<T> implements RealmList<T> {
   final RealmListHandle _handle;
 
   @override
-  late final RealmObjectMetadata? _metadata;
+  final RealmObjectMetadata? _metadata;
 
   ManagedRealmList._(this._handle, Realm realm, this._metadata) {
     setRealm(realm);
@@ -106,7 +106,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
       final value = realmCore.listGetElementAt(this, index);
 
       if (value is RealmObjectHandle) {
-        return realm.createObject(T, value, _metadata!) as T;
+        return RealmObjectInternal.create<T>(realm, value, _metadata!);
       }
 
       return value as T;
@@ -166,14 +166,11 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
   }
 }
 
-class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T> with RealmEntity implements RealmList<T> {
+class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T> with RealmEntityMixin implements RealmList<T> {
   UnmanagedRealmList([Iterable<T>? items]) : super(List<T>.from(items ?? <T>[]));
 
   @override
   RealmObjectMetadata? get _metadata => throw RealmException("Unmanaged lists don't have metadata associated with them.");
-
-  @override
-  set _metadata(RealmObjectMetadata? _) => throw RealmException("Unmanaged lists don't have metadata associated with them.");
 
   @override
   bool get isValid => true;
@@ -236,14 +233,14 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
 
   static RealmList<T> create<T extends Object?>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
 
-  static void setValue(RealmListHandle handle, Realm realm, int index, Object? value, {bool update = false}) {
+  static void setValue<T>(RealmListHandle handle, Realm realm, int index, T? value, {bool update = false}) {
     if (index < 0) {
       throw RealmException("Index out of range $index");
     }
 
     try {
       if (value is RealmObject && !value.isManaged) {
-        realm.add<RealmObject>(value, update: update);
+        realm.createThenAddOrUpdate(value, update);
       }
 
       final length = realmCore.getListSize(handle);

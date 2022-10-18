@@ -8,16 +8,8 @@ import '../realm.dart' show realmBinaryName;
 import 'cli/common/target_os_type.dart';
 import 'cli/metrics/metrics_command.dart';
 import 'cli/metrics/options.dart';
-import 'native/realm_core.dart';
 
 DynamicLibrary? _library;
-
-void _debugWrite(String message) {
-  assert(() {
-    print(message);
-    return true;
-  }());
-}
 
 String _getBinaryPath(String libName) {
   if (Platform.isAndroid) {

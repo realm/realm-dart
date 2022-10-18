@@ -21,6 +21,7 @@
 import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
+import '../lib/src/realm_object.dart';
 
 import 'test.dart';
 
@@ -315,7 +316,7 @@ Future<void> main([List<String>? args]) async {
 
   void testPrimaryKey<T extends RealmObject, K extends Object>(SchemaObject schema, T Function() createObject, K? key) {
     test("$T primary key: $key", () {
-      final pkProp = schema.properties.where((p) => p.primaryKey).single;
+      final pkProp = schema.primaryKey!;
       final realm = Realm(Configuration.local([schema]));
       final obj = realm.write(() {
         return realm.add(createObject());
@@ -324,7 +325,7 @@ Future<void> main([List<String>? args]) async {
       final foundObj = realm.find<T>(key);
       expect(foundObj, obj);
 
-      final propValue = RealmObject.get<K>(obj, pkProp.name);
+      final propValue = obj.accessor.getValue<K?>(obj, pkProp.name);
       expect(propValue, key);
 
       realm.close();
@@ -481,7 +482,7 @@ Future<void> main([List<String>? args]) async {
       final config = Configuration.local([AllCollections.schema]);
       final realm = getRealm(config);
       final obj = realm.write(() {
-        return realm.add(AllCollections(dates: list));
+        return realm.add(AllCollections(dates: list, nullableDates: [null]));
       });
 
       final json = obj.toJson();
@@ -636,14 +637,14 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
 
     // Cast to the base type to ensure we're not using the generated freeze() method.
-    RealmObject liveTeam = realm.write(() {
+    final liveTeam = realm.write(() {
       return realm.add(Team('team', players: [Person('Peter')], scores: [123]));
     });
 
     final frozenTeam = freezeObject(liveTeam);
     expect(frozenTeam.runtimeType, Team);
 
-    final frozenPlayers = frozenTeam.dynamic.getList<RealmObject>('players');
+    final frozenPlayers = frozenTeam.dynamic.get<RealmList<Person>>('players');
     expect(frozenPlayers.isFrozen, true);
     expect(frozenPlayers.single.isFrozen, true);
     expect(frozenTeam.dynamic.get('name'), 'team');
