@@ -11,9 +11,12 @@
   * Added `Transaction` which is a class that exposes an API for committing and rolling back an active transaction.
   * Added `realm.beginWriteAsync` which returns a `Future<Transaction>` that resolves when the write lock has been obtained.
   * Added `realm.writeAsync` which opens an asynchronous transaction, invokes the provided callback, then commits the transaction asynchronously.
+* Support `Realm.open` API to asynchronously open a local or synced Realm. When opening a synchronized Realm it will download all the content available at the time the operation began and then return a usable Realm. ([#731](https://github.com/realm/realm-dart/pull/731))
 
 ### Fixed
 * Added more validations when using `User.apiKeys` to return more meaningful errors when the user cannot perform API key actions - e.g. when the user has been logged in with API key credentials or when the user has been logged out. (Issue [#950](https://github.com/realm/realm-dart/issues/950))
+* Fixed `dart run realm_dart generate` and `flutter pub run realm generate` commands to exit with the correct error code on failure.
+* Added more descriptive error messages when passing objects managed by another Realm as arguments to `Realm.add/delete/deleteMany`. (PR [#942](https://github.com/realm/realm-dart/pull/942))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.

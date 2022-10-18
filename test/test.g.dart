@@ -381,6 +381,48 @@ class Task extends _Task with RealmEntity, RealmObject {
   }
 }
 
+class Product extends _Product with RealmEntity, RealmObject {
+  Product(
+    ObjectId id,
+    String name,
+  ) {
+    RealmObject.set(this, '_id', id);
+    RealmObject.set(this, 'stringQueryField', name);
+  }
+
+  Product._();
+
+  @override
+  ObjectId get id => RealmObject.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObject.set(this, '_id', value);
+
+  @override
+  String get name =>
+      RealmObject.get<String>(this, 'stringQueryField') as String;
+  @override
+  set name(String value) => RealmObject.set(this, 'stringQueryField', value);
+
+  @override
+  Stream<RealmObjectChanges<Product>> get changes =>
+      RealmObject.getChanges<Product>(this);
+
+  @override
+  Product freeze() => RealmObject.freezeObject<Product>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(Product._);
+    return const SchemaObject(Product, 'Product', [
+      SchemaProperty('_id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('stringQueryField', RealmPropertyType.string,
+          mapTo: 'stringQueryField'),
+    ]);
+  }
+}
+
 class Schedule extends _Schedule with RealmEntity, RealmObject {
   Schedule(
     ObjectId id, {

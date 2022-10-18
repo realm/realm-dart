@@ -19,13 +19,13 @@
 import 'dart:ffi';
 import 'dart:io';
 
+// ignore: no_leading_underscores_for_library_prefixes
 import 'package:path/path.dart' as _path;
 
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'init.dart';
 import 'user.dart';
-import 'migration.dart';
 
 /// The signature of a callback used to determine if compaction
 /// should be attempted.
