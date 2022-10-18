@@ -2078,7 +2078,6 @@ class _RealmCore {
     if (completer == null) {
       return;
     }
-
     if (error != nullptr) {
       completer.completeWithAppError(error);
       return;
@@ -2089,8 +2088,8 @@ class _RealmCore {
   }
 
   Future<String?> callAppFunction(App app, User user, String functionName, String? argsAsJSON) {
-    final completer = Completer<String?>();
-    using((arena) {
+    return using((arena) {
+      final completer = Completer<String?>();
       _realmLib.invokeGetBool(() => _realmLib.realm_app_call_function(
             app.handle._pointer,
             user.handle._pointer,
@@ -2100,8 +2099,8 @@ class _RealmCore {
             completer.toPersistentHandle(),
             _realmLib.addresses.realm_dart_delete_persistent_handle,
           ));
+      return completer.future;
     });
-    return completer.future;
   }
 }
 

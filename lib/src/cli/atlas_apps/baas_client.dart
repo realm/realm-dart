@@ -59,7 +59,7 @@ class BaasClient {
     return loginPayload["userId"];
   };''';
 
-  static const String _userFuncNoArg = '''exports = function(){
+  static const String _userFuncNoArgs = '''exports = function(){
     return {};
   };''';
 
@@ -182,7 +182,7 @@ class BaasClient {
     final confirmFuncId = await _createFunction(app, 'confirmFunc', _confirmFuncSource);
     final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
     final authFuncId = await _createFunction(app, 'authFunc', _authFuncSource);
-    await _createFunction(app, 'userFuncNoArg', _userFuncNoArg);
+    await _createFunction(app, 'userFuncNoArgs', _userFuncNoArgs);
     await _createFunction(app, 'userFuncOneArg', _userFuncOneArg);
     await _createFunction(app, 'userFuncTwoArgs', _userFuncTwoArgs);
 
