@@ -21,6 +21,7 @@ import 'dart:collection';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
+import 'package:cancellation_token/cancellation_token.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' hide test;
@@ -342,14 +343,12 @@ Realm getRealm(Configuration config) {
 }
 
 Future<Realm> getRealmAsync(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
-  {
-    if (config is FlexibleSyncConfiguration) {
-      config.sessionStopPolicy = SessionStopPolicy.immediately;
-    }
-    final realm = await Realm.open(config, cancellationToken: cancellationToken, onProgressCallback: onProgressCallback);
-    _openRealms.add(realm);
-    return realm;
+  if (config is FlexibleSyncConfiguration) {
+    config.sessionStopPolicy = SessionStopPolicy.immediately;
   }
+  final realm = await Realm.open(config, cancellationToken: cancellationToken, onProgressCallback: onProgressCallback);
+  _openRealms.add(realm);
+  return realm;
 }
 
 /// This is needed to make sure the frozen Realm gets forcefully closed by the

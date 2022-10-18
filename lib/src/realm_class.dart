@@ -35,7 +35,6 @@ import 'scheduler.dart';
 import 'subscription.dart';
 import 'session.dart';
 
-export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
 export 'package:realm_common/realm_common.dart'
     show
         Ignored,
@@ -62,8 +61,6 @@ export 'package:realm_common/realm_common.dart'
         RealmPropertyType,
         ObjectId,
         Uuid;
-
-export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
 
 // always expose with `show` to explicitly control the public API surface
 export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App, AppException;
@@ -118,7 +115,7 @@ class Realm implements Finalizable {
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
-  Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) : _handle = handle ?? _openRealmSync(config) {
+  Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) : _handle = handle ?? _openRealm(config) {
     _populateMetadata();
     isFrozen = realmCore.isFrozen(this);
   }
@@ -134,8 +131,8 @@ class Realm implements Finalizable {
   /// * `onProgressCallback` - a callback for receiving download progress notifications for synced [Realm]s.
   ///
   /// Returns `Future<Realm>` that completes with the [Realm] once the remote [Realm] is fully synchronized or with a [CancelledException] if operation is canceled.
-  /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened or if the operation is canceled in advance.
-  /// Since opening a local Realm is a synchronous operation, there is no benefit of using Realm.open over the constructor.
+  /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened.
+  /// Using [open] for opening a local Realm is equivalent to using the constructor of [Realm].
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
     if (cancellationToken != null && cancellationToken.isCancelled) {
       throw cancellationToken.exception;
@@ -146,11 +143,7 @@ class Realm implements Finalizable {
       if (config is FlexibleSyncConfiguration) {
         final session = realm.syncSession;
         if (onProgressCallback != null) {
-          subscription = session
-              .getProgressStream(
-                ProgressDirection.download,
-                ProgressMode.forCurrentlyOutstandingWork)
-              .listen(onProgressCallback);
+          subscription = session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork).listen(onProgressCallback);
         }
         await session.waitForDownload(cancellationToken);
         await subscription?.cancel();
@@ -163,7 +156,7 @@ class Realm implements Finalizable {
     return await CancellableFuture.value(realm, cancellationToken);
   }
 
-  static RealmHandle _openRealmSync(Configuration config) {
+  static RealmHandle _openRealm(Configuration config) {
     var dir = File(config.path).parent;
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
@@ -773,7 +766,7 @@ class MigrationRealm extends DynamicRealm {
 }
 
 /// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].
-/// This is the registered callback onProgressCallback to receive progress notifications while the download is in progress.
+/// This is the registered onProgressCallback when calling [open] that receives progress notifications while the download is in progress.
 ///
 /// * syncProgress - an object of [SyncProgress] that contains `transferredBytes` and `transferableBytes`.
 /// {@category Realm}

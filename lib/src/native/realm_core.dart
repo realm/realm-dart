@@ -1845,13 +1845,14 @@ class _RealmCore {
 
   static void _sessionWaitCompletionCallback(Object userdata, Pointer<realm_sync_error_code_t> errorCode) {
     final completer = userdata as Completer<void>;
-    if (!completer.isCompleted) {
-      if (errorCode != nullptr) {
+    if (completer.isCompleted) {
+      return;
+    }
+    if (errorCode != nullptr) {
         // Throw RealmException instead of RealmError to be recoverable by the user.
-        completer.completeError(RealmException(errorCode.toSyncError().toString()));
-      } else {
-        completer.complete();
-      }
+      completer.completeError(RealmException(errorCode.toSyncError().toString()));
+    } else {
+      completer.complete();
     }
   }
 
