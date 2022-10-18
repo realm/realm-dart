@@ -20,7 +20,6 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 
-import 'package:cancellation_token/cancellation_token.dart';
 import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:collection/collection.dart';
@@ -88,6 +87,7 @@ export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetSt
 export 'user.dart' show User, UserState, UserIdentity, ApiKeyClient, ApiKey;
 export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
 export 'migration.dart' show Migration;
+export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
 
 /// A [Realm] instance represents a `Realm` database.
 ///

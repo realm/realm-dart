@@ -20,7 +20,6 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'package:cancellation_token/cancellation_token.dart';
 import 'package:test/test.dart' hide test, throws;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
