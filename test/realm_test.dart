@@ -1422,7 +1422,7 @@ Future<void> main([List<String>? args]) async {
       }),
     );
 
-    var cancellationToken = CancellationToken();
+    final cancellationToken = CancellationToken();
     bool progressReturned = false;
     final realmIsCancelled = getRealmAsync(config, cancellationToken: cancellationToken, onProgressCallback: (syncProgress) {
       progressReturned = true;
@@ -1499,8 +1499,8 @@ void openEncryptedRealm(List<int>? encryptionKey, List<int>? decryptionKey, {voi
     afterEncrypt(realm);
   }
   if (encryptionKey == decryptionKey) {
-    final decriptedRealm = getRealm(config2);
-    expect(decriptedRealm.isClosed, false);
+    final decryptedRealm = getRealm(config2);
+    expect(decryptedRealm.isClosed, false);
   } else {
     expect(
       () => getRealm(config2),

@@ -592,34 +592,34 @@ Future<void> main([List<String>? args]) async {
   baasTest('FlexibleSyncConfiguration.initialSubscriptionsConfiguration rerunOnOpen = true', (appConfiguration) async {
     final app = App(appConfiguration);
     var subscriptionSetUpdateCount = 0;
-    final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final configuration1 = Configuration.flexibleSync(user1, [Task.schema],
+    final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final configuration = Configuration.flexibleSync(user, [Task.schema],
         initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration(
           (realm) => subscriptionSetUpdateCount++,
           rerunOnOpen: true,
         ));
 
-    getRealm(configuration1);
+    getRealm(configuration);
     expect(subscriptionSetUpdateCount, 1);
-    getRealm(configuration1);
+    getRealm(configuration);
     expect(subscriptionSetUpdateCount, 2);
-    getRealm(configuration1);
+    getRealm(configuration);
     expect(subscriptionSetUpdateCount, 3);
   });
 
   baasTest('FlexibleSyncConfiguration.initialSubscriptionsConfiguration rerunOnOpen = false', (appConfiguration) async {
     final app = App(appConfiguration);
     var subscriptionSetUpdateCount = 0;
-    final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final configuration1 = Configuration.flexibleSync(user1, [Task.schema],
+    final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final configuration = Configuration.flexibleSync(user, [Task.schema],
         initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration(
           (realm) => subscriptionSetUpdateCount++,
           rerunOnOpen: false,
         ));
 
-    getRealm(configuration1);
+    getRealm(configuration);
     expect(subscriptionSetUpdateCount, 1);
-    getRealm(configuration1);
+    getRealm(configuration);
     expect(subscriptionSetUpdateCount, 1);
   });
 }
