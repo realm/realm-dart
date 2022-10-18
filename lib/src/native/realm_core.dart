@@ -2084,7 +2084,7 @@ class _RealmCore {
       return;
     }
 
-    final stringResponse = response.cast<Utf8>().toRealmDartString(freeRealmMemory: true);
+    final stringResponse = response.cast<Utf8>().toRealmDartString();
     completer.complete(stringResponse);
   }
 

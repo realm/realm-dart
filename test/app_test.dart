@@ -233,13 +233,44 @@ Future<void> main([List<String>? args]) async {
     await expectLater(() => loginWithRetry(app, Credentials.emailPassword(username, strongPassword)), throws<AppException>("invalid username/password"));
   });
 
-  baasTest('Call Atlas function', (configuration) async {
+  baasTest('Call Atlas function with no arguments', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.anonymous());
-    const arg1 = "argument 1";
-    final dynamic response = await user.functions.call('userFunc', jsonAgrsArray: '["$arg1"]');
+    final dynamic response = await user.functions.call('userFuncTwoArgs');
     expect(response, isNotNull);
-    expect(response, contains(arg1));
+  });
+
+  baasTest('Call Atlas function with one argument', (configuration) async {
+    final app = App(configuration);
+    final user = await app.logIn(Credentials.anonymous());
+    final arg1 = 'Jhonatan';
+    final dynamic response = await user.functions.call('userFuncOneArg', functionArgs: <dynamic>[arg1]);
+    expect(response, isNotNull);
+    final map = response as Map<String, dynamic>;
+    expect(map['arg'], arg1);
+  });
+
+  baasTest('Call Atlas function with two arguments', (configuration) async {
+    final app = App(configuration);
+    final user = await app.logIn(Credentials.anonymous());
+    final arg1 = 'Jhonatan';
+    final arg2 = 'Michael';
+    final dynamic response = await user.functions.call('userFuncTwoArgs', functionArgs: <dynamic>[arg1, arg2]);
+    expect(response, isNotNull);
+    final map = response as Map<String, dynamic>;
+    expect(map['arg1'], arg1);
+    expect(map['arg2'], arg2);
+  });
+
+  baasTest('Call Atlas function with two arguments but pass one', (configuration) async {
+    final app = App(configuration);
+    final user = await app.logIn(Credentials.anonymous());
+    final arg1 = 'Jhonatan';
+    final dynamic response = await user.functions.call('userFuncTwoArgs', functionArgs: <dynamic>[arg1]);
+    expect(response, isNotNull);
+    final map = response as Map<String, dynamic>;
+    expect(map['arg1'], arg1);
+    expect(map['arg2'], <String, dynamic>{'\$undefined': true});
   });
 }
 
