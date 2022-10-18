@@ -816,6 +816,145 @@ Future<void> main([List<String>? args]) async {
     expect(stored.location.name, 'Europe/Copenhagen');
   });
 
+  test('Realm.add with frozen object argument throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final frozenPeter = freezeObject(realm.write(() {
+      return realm.add(Person('Peter'));
+    }));
+
+    realm.write(() {
+      expect(() => realm.add(frozenPeter), throws<RealmError>('Cannot add object to Realm because the object is managed by a frozen Realm'));
+    });
+  });
+
+  test('Realm.delete frozen object throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final frozenPeter = freezeObject(realm.write(() {
+      return realm.add(Person('Peter'));
+    }));
+
+    realm.write(() {
+      expect(() => realm.delete(frozenPeter), throws<RealmError>('Cannot delete object from Realm because the object is managed by a frozen Realm'));
+    });
+  });
+
+  test('Realm.delete unmanaged object throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    realm.write(() {
+      expect(() => realm.delete(Person('Peter')), throws<RealmError>('Cannot delete an unmanaged object'));
+    });
+  });
+
+  test('Realm.deleteMany frozen results throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    realm.write(() {
+      realm.add(Person('Peter'));
+    });
+
+    final frozenPeople = freezeResults(realm.all<Person>());
+
+    realm.write(() {
+      expect(() => realm.deleteMany(frozenPeople), throws<RealmError>('Cannot delete objects from Realm because the object is managed by a frozen Realm'));
+    });
+  });
+
+  test('Realm.deleteMany frozen list throws', () {
+    final realm = getRealm(Configuration.local([Person.schema, Team.schema]));
+    final team = realm.write(() {
+      return realm.add(Team('Team 1', players: [Person('Peter')]));
+    });
+
+    final frozenPlayers = freezeList(team.players);
+
+    realm.write(() {
+      expect(() => realm.deleteMany(frozenPlayers), throws<RealmError>('Cannot delete objects from Realm because the object is managed by a frozen Realm'));
+    });
+  });
+
+  test('Realm.deleteMany regular list with frozen elements throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final peter = realm.write(() {
+      return realm.add(Person('Peter'));
+    });
+
+    final frozenPeter = freezeObject(peter);
+
+    realm.write(() {
+      expect(
+          () => realm.deleteMany([peter, frozenPeter]), throws<RealmError>('Cannot delete object from Realm because the object is managed by a frozen Realm'));
+    });
+  });
+
+  test('Realm.add with object from another Realm throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final otherRealm = getRealm(Configuration.local([Person.schema]));
+
+    final peter = realm.write(() {
+      return realm.add(Person('Peter'));
+    });
+
+    otherRealm.write(() {
+      expect(() => otherRealm.add(peter), throws<RealmError>('Cannot add object to Realm because the object is managed by another Realm instance'));
+    });
+  });
+
+  test('Realm.delete object from another Realm throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final otherRealm = getRealm(Configuration.local([Person.schema]));
+
+    final peter = realm.write(() {
+      return realm.add(Person('Peter'));
+    });
+
+    otherRealm.write(() {
+      expect(() => otherRealm.delete(peter), throws<RealmError>('Cannot delete object from Realm because the object is managed by another Realm instance'));
+    });
+  });
+
+  test('Realm.deleteMany results from another Realm throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final otherRealm = getRealm(Configuration.local([Person.schema]));
+
+    realm.write(() {
+      realm.add(Person('Peter'));
+    });
+
+    final people = realm.all<Person>();
+
+    otherRealm.write(() {
+      expect(
+          () => otherRealm.deleteMany(people), throws<RealmError>('Cannot delete objects from Realm because the object is managed by another Realm instance'));
+    });
+  });
+
+  test('Realm.deleteMany list from another Realm throws', () {
+    final realm = getRealm(Configuration.local([Person.schema, Team.schema]));
+    final otherRealm = getRealm(Configuration.local([Person.schema]));
+
+    final team = realm.write(() {
+      return realm.add(Team('Team 1', players: [Person('Peter')]));
+    });
+
+    otherRealm.write(() {
+      expect(() => otherRealm.deleteMany(team.players),
+          throws<RealmError>('Cannot delete objects from Realm because the object is managed by another Realm instance'));
+    });
+  });
+
+  test('Realm.deleteMany regular list with elements from another Realm throws', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final otherRealm = getRealm(Configuration.local([Person.schema]));
+
+    final peter = realm.write(() {
+      return realm.add(Person('Peter'));
+    });
+
+    otherRealm.write(() {
+      expect(
+          () => otherRealm.deleteMany([peter]), throws<RealmError>('Cannot delete object from Realm because the object is managed by another Realm instance'));
+    });
+  });
+
   test('Realm - encryption works', () {
     var config = Configuration.local([Friend.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
     var realm = getRealm(config);
