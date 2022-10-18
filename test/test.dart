@@ -98,6 +98,15 @@ class _Task {
 }
 
 @RealmModel()
+class _Product {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  @MapTo('stringQueryField')
+  late String name;
+}
+
+@RealmModel()
 class _Schedule {
   @PrimaryKey()
   @MapTo('_id')
@@ -328,6 +337,15 @@ Realm getRealm(Configuration config) {
   }
 
   final realm = Realm(config);
+  _openRealms.add(realm);
+  return realm;
+}
+
+Future<Realm> getRealmAsync(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
+  if (config is FlexibleSyncConfiguration) {
+    config.sessionStopPolicy = SessionStopPolicy.immediately;
+  }
+  final realm = await Realm.open(config, cancellationToken: cancellationToken, onProgressCallback: onProgressCallback);
   _openRealms.add(realm);
   return realm;
 }

@@ -542,7 +542,7 @@ Future<void> main([List<String>? args]) async {
 
     final schema = [Task.schema];
     final flexibleSyncConfig = Configuration.flexibleSync(user, schema, path: realmPath);
-    final realm = Realm(flexibleSyncConfig);
+    final realm = getRealm(flexibleSyncConfig);
     final oid = ObjectId();
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [oid]));

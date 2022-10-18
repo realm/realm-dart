@@ -18,7 +18,6 @@
 
 import 'dart:async';
 import 'dart:ffi';
-
 import '../realm.dart';
 import 'native/realm_core.dart';
 import 'user.dart';
@@ -61,7 +60,7 @@ class Session implements Finalizable {
   Future<void> waitForUpload() => realmCore.sessionWaitForUpload(this);
 
   /// Waits for the [Session] to finish all pending downloads.
-  Future<void> waitForDownload() => realmCore.sessionWaitForDownload(this);
+  Future<void> waitForDownload([CancellationToken? cancellationToken]) => realmCore.sessionWaitForDownload(this, cancellationToken);
 
   /// Gets a [Stream] of [SyncProgress] that can be used to track upload or download progress.
   Stream<SyncProgress> getProgressStream(ProgressDirection direction, ProgressMode mode) {
@@ -204,7 +203,7 @@ class SessionProgressNotificationsController {
   }
 
   void _stop() {
-    if (_token == null) {
+    if (_token == null || _session._handle.released) {
       return;
     }
 
