@@ -316,10 +316,11 @@ class FunctionsClient {
 
   /// Creates a new API key with the given name. The value of the returned key
   /// must be persisted as this is the only time it is available.
-  Future<String?> call(String name, {String? jsonAgrsArray}) async {
+  Future<dynamic> call(String name, {String? jsonAgrsArray}) async {
     _user._ensureLoggedIn('create an API key');
 
-    return realmCore.callAppFunction(_user.app, _user, name, jsonAgrsArray);
+    final response = await realmCore.callAppFunction(_user.app, _user, name, jsonAgrsArray);
+    return response != null ? jsonDecode(response) : null;
   }
 }
 

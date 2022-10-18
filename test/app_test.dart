@@ -237,7 +237,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.anonymous());
     const arg1 = "argument 1";
-    final response = await user.functions.call('userFunc', jsonAgrsArray: '["$arg1"]');
+    final dynamic response = await user.functions.call('userFunc', jsonAgrsArray: '["$arg1"]');
     expect(response, isNotNull);
     expect(response, contains(arg1));
   });

@@ -2083,8 +2083,9 @@ class _RealmCore {
       completer.completeWithAppError(error);
       return;
     }
-    String? jsonResponse = response.cast<Utf8>().toDartString();
-    completer.complete(jsonResponse);
+
+    final stringResponse = response.cast<Utf8>().toRealmDartString(freeRealmMemory: true);
+    completer.complete(stringResponse);
   }
 
   Future<String?> callAppFunction(App app, User user, String functionName, String? argsAsJSON) {
