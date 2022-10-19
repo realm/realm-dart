@@ -594,10 +594,7 @@ Future<void> main([List<String>? args]) async {
     var subscriptionSetUpdateCount = 0;
     final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
     final configuration = Configuration.flexibleSync(user, [Task.schema],
-        initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration(
-          (realm) => subscriptionSetUpdateCount++,
-          rerunOnOpen: true,
-        ));
+        initialSubscriptionsCallback: (realm) => subscriptionSetUpdateCount++, reRunInitialSubscriptionsCallback: true);
 
     getRealm(configuration);
     expect(subscriptionSetUpdateCount, 1);
@@ -612,10 +609,7 @@ Future<void> main([List<String>? args]) async {
     var subscriptionSetUpdateCount = 0;
     final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
     final configuration = Configuration.flexibleSync(user, [Task.schema],
-        initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration(
-          (realm) => subscriptionSetUpdateCount++,
-          rerunOnOpen: false,
-        ));
+        initialSubscriptionsCallback: (realm) => subscriptionSetUpdateCount++, reRunInitialSubscriptionsCallback: true);
 
     getRealm(configuration);
     expect(subscriptionSetUpdateCount, 1);

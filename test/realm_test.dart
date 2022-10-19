@@ -1226,7 +1226,7 @@ Future<void> main([List<String>? args]) async {
     expect(realm.isInTransaction, true);
   });
 
-  baasTest('Realm.open async (flexibleSync)', (appConfiguration) async {
+  baasTest('Realm.open async flexibleSync', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1242,14 +1242,14 @@ Future<void> main([List<String>? args]) async {
     expect(realm.isClosed, false);
   });
 
-  test('Realm.open async (local) - cancel before open', () async {
+  test('Realm.open async with local configuration - cancel before open', () async {
     final configuration = Configuration.local([Car.schema]);
     final cancellationToken = CancellationToken();
     cancellationToken.cancel();
     await expectLater(getRealmAsync(configuration, cancellationToken: cancellationToken), throwsA(isA<CancelledException>()));
   });
 
-  baasTest('Realm.open async (flexibleSync) - cancel before open', (appConfiguration) async {
+  baasTest('Realm.open async with flexibleSync - cancel before open', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1260,7 +1260,7 @@ Future<void> main([List<String>? args]) async {
     await expectLater(getRealmAsync(configuration, cancellationToken: cancellationToken), throwsA(isA<CancelledException>()));
   });
 
-  baasTest('Realm.open async (flexibleSync) - cancel right after open', (appConfiguration) async {
+  baasTest('Realm.open async with flexibleSync - cancel right after open', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1272,7 +1272,7 @@ Future<void> main([List<String>? args]) async {
     expect(await isRealmCancelled, isTrue);
   });
 
-  baasTest('Realm.open async (flexibleSync) - open the same realm twice with the same CancelationToken cancel all', (appConfiguration) async {
+  baasTest('Realm.open async with flexibleSync - open the same realm twice with the same CancelationToken cancel all', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1287,7 +1287,7 @@ Future<void> main([List<String>? args]) async {
     expect(await isRealm2Cancelled, isTrue);
   });
 
-  baasTest('Realm.open (flexibleSync) - open the same realm twice and only cancel the first call', (appConfiguration) async {
+  baasTest('Realm.open async with flexibleSync - open the same realm twice and only cancel the first call', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1303,7 +1303,7 @@ Future<void> main([List<String>? args]) async {
     expect(await isRealm2Cancelled, isFalse);
   });
 
-  baasTest('Realm.open async (flexibleSync) - open two different Realms for two different users and cancel only the second call', (appConfiguration) async {
+  baasTest('Realm.open async with flexibleSync - open two different Realms for two different users and cancel only the second call', (appConfiguration) async {
     final app = App(appConfiguration);
 
     final user1 = await app.logIn(Credentials.anonymous());
@@ -1321,7 +1321,7 @@ Future<void> main([List<String>? args]) async {
     expect(await isRealm1Cancelled, isFalse);
   });
 
-  baasTest('Realm.open async (flexibleSync) - cancel after realm is returned is no-op', (appConfiguration) async {
+  baasTest('Realm.open async with flexibleSync - cancel after realm is returned is no-op', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1337,7 +1337,7 @@ Future<void> main([List<String>? args]) async {
     expect(realm.isClosed, false);
   });
 
-  baasTest('Realm.open async (flexibleSync) - listen for download progress on an empty realm', (appConfiguration) async {
+  baasTest('Realm.open async with flexibleSync - listen for download progress on an empty realm', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1353,21 +1353,17 @@ Future<void> main([List<String>? args]) async {
     expect(transferredBytes, greaterThan(-1));
   });
 
-  baasTest('Realm.open async (flexibleSync) with initial subscriptions - download a populated realm', (appConfiguration) async {
+  baasTest('Realm.open async with flexibleSync with initial subscriptions - download a populated realm', (appConfiguration) async {
     final app = App(appConfiguration);
     final queryDifferentiator = generateRandomString(10);
     final itemCount = 200;
     await _addDataToAtlas(app, queryDifferentiator: queryDifferentiator, itemCount: itemCount);
     final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final config = Configuration.flexibleSync(
-      user,
-      [Product.schema],
-      initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration((realm) {
-        realm.subscriptions.update((mutableSubscriptions) {
-          mutableSubscriptions.add(realm.all<Product>());
-        });
-      }),
-    );
+    final config = Configuration.flexibleSync(user, [Product.schema], initialSubscriptionsCallback: (realm) {
+      realm.subscriptions.update((mutableSubscriptions) {
+        mutableSubscriptions.add(realm.all<Product>());
+      });
+    });
 
     var syncedRealm = await getRealmAsync(config);
     expect(syncedRealm.isClosed, false);
@@ -1375,21 +1371,17 @@ Future<void> main([List<String>? args]) async {
     expect(data.length, itemCount);
   });
 
-  baasTest('Realm.open async (flexibleSync) with initial subscriptions - listen for download progress', (appConfiguration) async {
+  baasTest('Realm.open async with flexibleSync with initial subscriptions - listen for download progress', (appConfiguration) async {
     final app = App(appConfiguration);
     final queryDifferentiator = generateRandomString(10);
     final itemCount = 100;
     await _addDataToAtlas(app, queryDifferentiator: queryDifferentiator, itemCount: itemCount);
     final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final config = Configuration.flexibleSync(
-      user,
-      [Product.schema],
-      initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration((realm) {
-        realm.subscriptions.update((mutableSubscriptions) {
-          mutableSubscriptions.add(realm.query<Product>(r'stringQueryField BEGINSWITH $0', [queryDifferentiator]));
-        });
-      }),
-    );
+    final config = Configuration.flexibleSync(user, [Product.schema], initialSubscriptionsCallback: (realm) {
+      realm.subscriptions.update((mutableSubscriptions) {
+        mutableSubscriptions.add(realm.query<Product>(r'stringQueryField BEGINSWITH $0', [queryDifferentiator]));
+      });
+    });
 
     int printCount = 0;
     int transferredBytes = 0;
@@ -1406,21 +1398,17 @@ Future<void> main([List<String>? args]) async {
     expect(data.length, itemCount);
   });
 
-  baasTest('Realm.open async (flexibleSync) with initial subscriptions - listen and cancel download progress', (appConfiguration) async {
+  baasTest('Realm.open async with flexibleSync with initial subscriptions - listen and cancel download progress', (appConfiguration) async {
     final app = App(appConfiguration);
     final queryDifferentiator = generateRandomString(10);
     final itemCount = 300;
     await _addDataToAtlas(app, queryDifferentiator: queryDifferentiator, itemCount: itemCount);
     final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final config = Configuration.flexibleSync(
-      user,
-      [Product.schema],
-      initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration((realm) {
-        realm.subscriptions.update((mutableSubscriptions) {
-          mutableSubscriptions.add(realm.query<Product>(r'stringQueryField BEGINSWITH $0', [queryDifferentiator]));
-        });
-      }),
-    );
+    final config = Configuration.flexibleSync(user, [Product.schema], initialSubscriptionsCallback: (realm) {
+      realm.subscriptions.update((mutableSubscriptions) {
+        mutableSubscriptions.add(realm.query<Product>(r'stringQueryField BEGINSWITH $0', [queryDifferentiator]));
+      });
+    });
 
     final cancellationToken = CancellationToken();
     bool progressReturned = false;
@@ -1432,7 +1420,7 @@ Future<void> main([List<String>? args]) async {
     expect(progressReturned, isFalse);
   });
 
-  baasTest('Realm.open async (flexibleSync) with initial subscriptions and rerunOnOpen', (appConfiguration) async {
+  baasTest('Realm.open async with flexibleSync with initial subscriptions and rerunOnOpen', (appConfiguration) async {
     final app = App(appConfiguration);
     final queryDifferentiator = generateRandomString(10);
     final itemCount = 50;
@@ -1442,12 +1430,16 @@ Future<void> main([List<String>? args]) async {
     final firstOpenRealm = getRealm(firstOpenConfig);
     firstOpenRealm.close();
 
-    final config = Configuration.flexibleSync(user, [Product.schema],
-        initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration((realm) {
-          realm.subscriptions.update((mutableSubscriptions) {
-            mutableSubscriptions.add(realm.query<Product>(r'stringQueryField BEGINSWITH $0', [queryDifferentiator]));
-          });
-        }, rerunOnOpen: true));
+    final config = Configuration.flexibleSync(
+      user,
+      [Product.schema],
+      initialSubscriptionsCallback: (realm) {
+        realm.subscriptions.update((mutableSubscriptions) {
+          mutableSubscriptions.add(realm.query<Product>(r'stringQueryField BEGINSWITH $0', [queryDifferentiator]));
+        });
+      },
+      reRunInitialSubscriptionsCallback: true,
+    );
 
     int printCount = 0;
     int transferredBytes = 0;
@@ -1472,12 +1464,11 @@ Future<void> main([List<String>? args]) async {
     final config = Configuration.flexibleSync(
       user,
       [Product.schema],
-      initialSubscriptionsConfiguration: InitialSubscriptionsConfiguration((realm) {
+      initialSubscriptionsCallback: (realm) {
         realm.subscriptions.update((mutableSubscriptions) {
           mutableSubscriptions.add(realm.all<Product>());
         });
-      }),
-    );
+    });
 
     final realm = getRealm(config);
     await realm.subscriptions.waitForSynchronization();

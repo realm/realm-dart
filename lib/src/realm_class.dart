@@ -114,20 +114,18 @@ class Realm implements Finalizable {
   late final bool isFrozen = realmCore.isFrozen(this);
 
   /// Returns true if the [Realm] is opened for the first time and the realm file is created.
-  late final bool _openedFirstTime;
+  /// @nodoc
+  late final bool _initialOpen;
 
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
   Realm._(this.config, [RealmHandle? handle, this._isInMigration = false])
-      : _openedFirstTime = !File(config.path).existsSync(),
+      : _initialOpen = !File(config.path).existsSync(),
         _handle = handle ?? _openRealm(config) {
     _populateMetadata();
-    if (config is FlexibleSyncConfiguration) {
-      final flxConfig = config as FlexibleSyncConfiguration;
-      if (flxConfig.initialSubscriptionsConfiguration?.callback != null && (_openedFirstTime || flxConfig.initialSubscriptionsConfiguration!.rerunOnOpen)) {
-        flxConfig.initialSubscriptionsConfiguration!.callback(this);
-      }
+    if (_shouldInvokeInitialSubscriptions(config)) {
+      (config as FlexibleSyncConfiguration).initialSubscriptionsCallback!(this);
     }
   }
 
@@ -153,9 +151,8 @@ class Realm implements Finalizable {
     try {
       if (config is FlexibleSyncConfiguration) {
         final session = realm.syncSession;
-        if (config.initialSubscriptionsConfiguration?.callback != null &&
-              (realm._openedFirstTime || config.initialSubscriptionsConfiguration!.rerunOnOpen == true)) {
-            await realm.subscriptions.waitForSynchronization();
+        if (realm._shouldInvokeInitialSubscriptions(config)) {
+          await realm.subscriptions.waitForSynchronization();
         }
         if (onProgressCallback != null) {
           subscription = session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork).listen(onProgressCallback);
@@ -495,6 +492,10 @@ class Realm implements Finalizable {
     if (isFrozen) {
       throw RealmError('Starting a write transaction on a frozen Realm is not allowed.');
     }
+  }
+
+  bool _shouldInvokeInitialSubscriptions(Configuration config) {
+    return (config is FlexibleSyncConfiguration) && config.initialSubscriptionsCallback != null && (_initialOpen || config.reRunInitialSubscriptionsCallback);
   }
 }
 

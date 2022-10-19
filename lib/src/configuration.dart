@@ -54,6 +54,11 @@ typedef InitialDataCallback = void Function(Realm realm);
 /// The `oldSchemaVersion` argument indicates the version from which the Realm migrates while
 typedef MigrationCallback = void Function(Migration migration, int oldSchemaVersion);
 
+/// The signature of a callback that will be executed when [Realm] is opened.
+///
+/// This function could be used to populate the initial [SubscriptionSet] for the [Realm] instance passed in the callback.
+typedef InitialSubscriptionsCallback = void Function(Realm);
+
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
 abstract class Configuration implements Finalizable {
@@ -166,18 +171,17 @@ abstract class Configuration implements Finalizable {
     List<int>? encryptionKey,
     SyncErrorHandler syncErrorHandler = defaultSyncErrorHandler,
     SyncClientResetErrorHandler syncClientResetErrorHandler = const ManualSyncClientResetHandler(_defaultSyncClientResetHandler),
-    InitialSubscriptionsConfiguration? initialSubscriptionsConfiguration,
+    InitialSubscriptionsCallback? initialSubscriptionsCallback,
+    bool reRunInitialSubscriptionsCallback = false,
   }) =>
-      FlexibleSyncConfiguration._(
-        user,
-        schemaObjects,
-        fifoFilesFallbackPath: fifoFilesFallbackPath,
-        path: path,
-        encryptionKey: encryptionKey,
-        syncErrorHandler: syncErrorHandler,
-        syncClientResetErrorHandler: syncClientResetErrorHandler,
-        initialSubscriptionsConfiguration: initialSubscriptionsConfiguration,
-      );
+      FlexibleSyncConfiguration._(user, schemaObjects,
+          fifoFilesFallbackPath: fifoFilesFallbackPath,
+          path: path,
+          encryptionKey: encryptionKey,
+          syncErrorHandler: syncErrorHandler,
+          syncClientResetErrorHandler: syncClientResetErrorHandler,
+          initialSubscriptionsCallback: initialSubscriptionsCallback,
+          reRunInitialSubscriptionsCallback: reRunInitialSubscriptionsCallback);
 
   /// Constructs a [DisconnectedSyncConfiguration]
   static DisconnectedSyncConfiguration disconnectedSync(
@@ -305,8 +309,11 @@ class FlexibleSyncConfiguration extends Configuration {
   /// The default [SyncClientResetErrorHandler] logs a message using the current Realm.logger
   final SyncClientResetErrorHandler syncClientResetErrorHandler;
 
-  /// [FlexibleSyncConfiguration] options for adding subscriptions initially before a [Realm] is opened.
-  final InitialSubscriptionsConfiguration? initialSubscriptionsConfiguration;
+  /// The callback that will be called in order to populate the initial [SubscriptionSet] for the [Realm].
+  final InitialSubscriptionsCallback? initialSubscriptionsCallback;
+
+  /// If set to true, the [callback] is invoked every time the Realm opened, otherwise it is invoked only once on the first open.
+  final bool reRunInitialSubscriptionsCallback;
 
   FlexibleSyncConfiguration._(
     this.user,
@@ -316,7 +323,8 @@ class FlexibleSyncConfiguration extends Configuration {
     super.encryptionKey,
     this.syncErrorHandler = defaultSyncErrorHandler,
     this.syncClientResetErrorHandler = const ManualSyncClientResetHandler(_defaultSyncClientResetHandler),
-    this.initialSubscriptionsConfiguration,
+    this.initialSubscriptionsCallback,
+    this.reRunInitialSubscriptionsCallback = false,
   }) : super._();
 
   @override
@@ -411,19 +419,3 @@ class SyncClientResetErrorHandler {
 
 /// A client reset strategy where the user needs to fully take care of a client reset.
 typedef ManualSyncClientResetHandler = SyncClientResetErrorHandler;
-
-/// Represents an object with [FlexibleSyncConfiguration] configuration options for adding subscriptions initially before a [Realm] is opened.
-///
-/// {@category Configuration}
-class InitialSubscriptionsConfiguration {
-
-  const InitialSubscriptionsConfiguration(this.callback, {this.rerunOnOpen = false});
-
-  /// The callback that will be called in order to populate the initial [SubscriptionSet] for the [Realm].
-  final void Function(Realm) callback;
-
-  /// The default behavior is that callback is only invoked the first time the Realm is opened,
-  /// but if rerunOnOpen is true, it will be invoked every time the realm is opened.
-  final bool rerunOnOpen;
-
-}
