@@ -230,6 +230,75 @@ class _Game {
   int get rounds => winnerByRound.length;
 }
 
+@RealmModel(RealmModelType.embedded)
+class _AllTypesEmbedded {
+  late String stringProp;
+  late bool boolProp;
+  late DateTime dateProp;
+  late double doubleProp;
+  late ObjectId objectIdProp;
+  late Uuid uuidProp;
+  late int intProp;
+
+  late String? nullableStringProp;
+  late bool? nullableBoolProp;
+  late DateTime? nullableDateProp;
+  late double? nullableDoubleProp;
+  late ObjectId? nullableObjectIdProp;
+  late Uuid? nullableUuidProp;
+  late int? nullableIntProp;
+
+  late List<String> strings;
+  late List<bool> bools;
+  late List<DateTime> dates;
+  late List<double> doubles;
+  late List<ObjectId> objectIds;
+  late List<Uuid> uuids;
+  late List<int> ints;
+}
+
+@RealmModel()
+class _ObjectWithEmbedded {
+  @PrimaryKey()
+  @MapTo('_id')
+  late String id;
+
+  late Uuid? differentiator;
+
+  late _AllTypesEmbedded? singleObject;
+
+  late List<_AllTypesEmbedded> list;
+
+  late _RecursiveEmbedded1? recursiveObject;
+
+  late List<_RecursiveEmbedded1> recursiveList;
+}
+
+@RealmModel(RealmModelType.embedded)
+class _RecursiveEmbedded1 {
+  late String value;
+
+  late _RecursiveEmbedded2? child;
+  late List<_RecursiveEmbedded2> children;
+
+  late _ObjectWithEmbedded? topLevel;
+}
+
+@RealmModel(RealmModelType.embedded)
+class _RecursiveEmbedded2 {
+  late String value;
+
+  late _RecursiveEmbedded3? child;
+  late List<_RecursiveEmbedded3> children;
+
+  late _ObjectWithEmbedded? topLevel;
+}
+
+@RealmModel(RealmModelType.embedded)
+class _RecursiveEmbedded3 {
+  late String value;
+}
+
 String? testName;
 Map<String, String?> arguments = {};
 final baasApps = <String, BaasApp>{};
@@ -286,6 +355,15 @@ void test(String name, dynamic Function() testFunction, {dynamic skip}) {
 
 void xtest(String? name, dynamic Function() testFunction) {
   testing.test(name, testFunction, skip: "Test is disabled");
+}
+
+void xbaasTest(
+  String name,
+  FutureOr<void> Function(AppConfiguration appConfig) testFunction, {
+  AppNames appName = AppNames.flexible,
+  dynamic skip,
+}) {
+  testing.test(name, () {}, skip: "Test is disabled");
 }
 
 Future<void> setupTests(List<String>? args) async {
@@ -589,4 +667,22 @@ Future<void> _printPlatformInfo() async {
   }
 
   print('Current PID $pid; OS $os, $pointerSize bit, CPU ${cpu ?? 'unknown'}');
+}
+
+Future<User> getAnonymousUser(App app) {
+  return app.logIn(Credentials.anonymous(reuseCredentials: false));
+}
+
+extension DateTimeTest on DateTime {
+  String toNormalizedDateString() {
+    final utc = toUtc();
+    // Core serializes negative dates as -003-01-01 12:34:56
+    final utcYear = utc.year < 0 ? '-${utc.year.abs().toString().padLeft(3, '0')}' : utc.year.toString().padLeft(4, '0');
+
+    // For some reason Core always rounds up to the next second for negative dates, so we need to do the same
+    final seconds = utc.microsecondsSinceEpoch < 0 && utc.microsecondsSinceEpoch % 1000000 != 0 ? utc.second + 1 : utc.second;
+    return '$utcYear-${_format(utc.month)}-${_format(utc.day)} ${_format(utc.hour)}:${_format(utc.minute)}:${_format(seconds)}';
+  }
+
+  static String _format(int value) => value.toString().padLeft(2, '0');
 }

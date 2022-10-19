@@ -64,7 +64,8 @@ class Original extends $Original with RealmEntity, RealmObject {
           mapTo: 'remapped list',
           linkTarget: 'another type',
           collectionType: RealmCollectionType.list),
-    ]);
+    ],
+    RealmModelType.realmObject);
   }
 }
 

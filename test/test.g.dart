@@ -31,9 +31,13 @@ class Car extends _Car with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Car._);
-    return const SchemaObject(Car, 'Car', [
-      SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
-    ]);
+    return const SchemaObject(
+        Car,
+        'Car',
+        [
+          SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -62,9 +66,13 @@ class Person extends _Person with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Person._);
-    return const SchemaObject(Person, 'Person', [
-      SchemaProperty('name', RealmPropertyType.string),
-    ]);
+    return const SchemaObject(
+        Person,
+        'Person',
+        [
+          SchemaProperty('name', RealmPropertyType.string),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -107,12 +115,16 @@ class Dog extends _Dog with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Dog._);
-    return const SchemaObject(Dog, 'Dog', [
-      SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
-      SchemaProperty('age', RealmPropertyType.int, optional: true),
-      SchemaProperty('owner', RealmPropertyType.object,
-          optional: true, linkTarget: 'Person'),
-    ]);
+    return const SchemaObject(
+        Dog,
+        'Dog',
+        [
+          SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
+          SchemaProperty('age', RealmPropertyType.int, optional: true),
+          SchemaProperty('owner', RealmPropertyType.object,
+              optional: true, linkTarget: 'Person'),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -160,13 +172,17 @@ class Team extends _Team with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Team._);
-    return const SchemaObject(Team, 'Team', [
-      SchemaProperty('name', RealmPropertyType.string),
-      SchemaProperty('players', RealmPropertyType.object,
-          linkTarget: 'Person', collectionType: RealmCollectionType.list),
-      SchemaProperty('scores', RealmPropertyType.int,
-          collectionType: RealmCollectionType.list),
-    ]);
+    return const SchemaObject(
+        Team,
+        'Team',
+        [
+          SchemaProperty('name', RealmPropertyType.string),
+          SchemaProperty('players', RealmPropertyType.object,
+              linkTarget: 'Person', collectionType: RealmCollectionType.list),
+          SchemaProperty('scores', RealmPropertyType.int,
+              collectionType: RealmCollectionType.list),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -216,13 +232,17 @@ class Student extends _Student with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Student._);
-    return const SchemaObject(Student, 'Student', [
-      SchemaProperty('number', RealmPropertyType.int, primaryKey: true),
-      SchemaProperty('name', RealmPropertyType.string, optional: true),
-      SchemaProperty('yearOfBirth', RealmPropertyType.int, optional: true),
-      SchemaProperty('school', RealmPropertyType.object,
-          optional: true, linkTarget: 'School'),
-    ]);
+    return const SchemaObject(
+        Student,
+        'Student',
+        [
+          SchemaProperty('number', RealmPropertyType.int, primaryKey: true),
+          SchemaProperty('name', RealmPropertyType.string, optional: true),
+          SchemaProperty('yearOfBirth', RealmPropertyType.int, optional: true),
+          SchemaProperty('school', RealmPropertyType.object,
+              optional: true, linkTarget: 'School'),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -287,16 +307,20 @@ class School extends _School with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(School._);
-    return const SchemaObject(School, 'School', [
-      SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
-      SchemaProperty('city', RealmPropertyType.string, optional: true),
-      SchemaProperty('students', RealmPropertyType.object,
-          linkTarget: 'Student', collectionType: RealmCollectionType.list),
-      SchemaProperty('branchOfSchool', RealmPropertyType.object,
-          optional: true, linkTarget: 'School'),
-      SchemaProperty('branches', RealmPropertyType.object,
-          linkTarget: 'School', collectionType: RealmCollectionType.list),
-    ]);
+    return const SchemaObject(
+        School,
+        'School',
+        [
+          SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
+          SchemaProperty('city', RealmPropertyType.string, optional: true),
+          SchemaProperty('students', RealmPropertyType.object,
+              linkTarget: 'Student', collectionType: RealmCollectionType.list),
+          SchemaProperty('branchOfSchool', RealmPropertyType.object,
+              optional: true, linkTarget: 'School'),
+          SchemaProperty('branches', RealmPropertyType.object,
+              linkTarget: 'School', collectionType: RealmCollectionType.list),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -338,14 +362,18 @@ class RemappedClass extends $RemappedClass with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(RemappedClass._);
-    return const SchemaObject(RemappedClass, 'myRemappedClass', [
-      SchemaProperty('primitive_property', RealmPropertyType.string,
-          mapTo: 'primitive_property'),
-      SchemaProperty('list-with-dashes', RealmPropertyType.object,
-          mapTo: 'list-with-dashes',
-          linkTarget: 'myRemappedClass',
-          collectionType: RealmCollectionType.list),
-    ]);
+    return const SchemaObject(
+        RemappedClass,
+        'myRemappedClass',
+        [
+          SchemaProperty('primitive_property', RealmPropertyType.string,
+              mapTo: 'primitive_property'),
+          SchemaProperty('list-with-dashes', RealmPropertyType.object,
+              mapTo: 'list-with-dashes',
+              linkTarget: 'myRemappedClass',
+              collectionType: RealmCollectionType.list),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -374,10 +402,14 @@ class Task extends _Task with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Task._);
-    return const SchemaObject(Task, 'Task', [
-      SchemaProperty('_id', RealmPropertyType.objectid,
-          mapTo: '_id', primaryKey: true),
-    ]);
+    return const SchemaObject(
+        Task,
+        'Task',
+        [
+          SchemaProperty('_id', RealmPropertyType.objectid,
+              mapTo: '_id', primaryKey: true),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -414,12 +446,16 @@ class Product extends _Product with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Product._);
-    return const SchemaObject(Product, 'Product', [
-      SchemaProperty('_id', RealmPropertyType.objectid,
-          mapTo: '_id', primaryKey: true),
-      SchemaProperty('stringQueryField', RealmPropertyType.string,
-          mapTo: 'stringQueryField'),
-    ]);
+    return const SchemaObject(
+        Product,
+        'Product',
+        [
+          SchemaProperty('_id', RealmPropertyType.objectid,
+              mapTo: '_id', primaryKey: true),
+          SchemaProperty('stringQueryField', RealmPropertyType.string,
+              mapTo: 'stringQueryField'),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -457,12 +493,16 @@ class Schedule extends _Schedule with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Schedule._);
-    return const SchemaObject(Schedule, 'Schedule', [
-      SchemaProperty('_id', RealmPropertyType.objectid,
-          mapTo: '_id', primaryKey: true),
-      SchemaProperty('tasks', RealmPropertyType.object,
-          linkTarget: 'Task', collectionType: RealmCollectionType.list),
-    ]);
+    return const SchemaObject(
+        Schedule,
+        'Schedule',
+        [
+          SchemaProperty('_id', RealmPropertyType.objectid,
+              mapTo: '_id', primaryKey: true),
+          SchemaProperty('tasks', RealmPropertyType.object,
+              linkTarget: 'Task', collectionType: RealmCollectionType.list),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -601,28 +641,33 @@ class AllTypes extends _AllTypes with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(AllTypes._);
-    return const SchemaObject(AllTypes, 'AllTypes', [
-      SchemaProperty('stringProp', RealmPropertyType.string),
-      SchemaProperty('boolProp', RealmPropertyType.bool),
-      SchemaProperty('dateProp', RealmPropertyType.timestamp),
-      SchemaProperty('doubleProp', RealmPropertyType.double),
-      SchemaProperty('objectIdProp', RealmPropertyType.objectid),
-      SchemaProperty('uuidProp', RealmPropertyType.uuid),
-      SchemaProperty('intProp', RealmPropertyType.int),
-      SchemaProperty('nullableStringProp', RealmPropertyType.string,
-          optional: true),
-      SchemaProperty('nullableBoolProp', RealmPropertyType.bool,
-          optional: true),
-      SchemaProperty('nullableDateProp', RealmPropertyType.timestamp,
-          optional: true),
-      SchemaProperty('nullableDoubleProp', RealmPropertyType.double,
-          optional: true),
-      SchemaProperty('nullableObjectIdProp', RealmPropertyType.objectid,
-          optional: true),
-      SchemaProperty('nullableUuidProp', RealmPropertyType.uuid,
-          optional: true),
-      SchemaProperty('nullableIntProp', RealmPropertyType.int, optional: true),
-    ]);
+    return const SchemaObject(
+        AllTypes,
+        'AllTypes',
+        [
+          SchemaProperty('stringProp', RealmPropertyType.string),
+          SchemaProperty('boolProp', RealmPropertyType.bool),
+          SchemaProperty('dateProp', RealmPropertyType.timestamp),
+          SchemaProperty('doubleProp', RealmPropertyType.double),
+          SchemaProperty('objectIdProp', RealmPropertyType.objectid),
+          SchemaProperty('uuidProp', RealmPropertyType.uuid),
+          SchemaProperty('intProp', RealmPropertyType.int),
+          SchemaProperty('nullableStringProp', RealmPropertyType.string,
+              optional: true),
+          SchemaProperty('nullableBoolProp', RealmPropertyType.bool,
+              optional: true),
+          SchemaProperty('nullableDateProp', RealmPropertyType.timestamp,
+              optional: true),
+          SchemaProperty('nullableDoubleProp', RealmPropertyType.double,
+              optional: true),
+          SchemaProperty('nullableObjectIdProp', RealmPropertyType.objectid,
+              optional: true),
+          SchemaProperty('nullableUuidProp', RealmPropertyType.uuid,
+              optional: true),
+          SchemaProperty('nullableIntProp', RealmPropertyType.int,
+              optional: true),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -669,13 +714,18 @@ class LinksClass extends _LinksClass with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(LinksClass._);
-    return const SchemaObject(LinksClass, 'LinksClass', [
-      SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
-      SchemaProperty('link', RealmPropertyType.object,
-          optional: true, linkTarget: 'LinksClass'),
-      SchemaProperty('list', RealmPropertyType.object,
-          linkTarget: 'LinksClass', collectionType: RealmCollectionType.list),
-    ]);
+    return const SchemaObject(
+        LinksClass,
+        'LinksClass',
+        [
+          SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
+          SchemaProperty('link', RealmPropertyType.object,
+              optional: true, linkTarget: 'LinksClass'),
+          SchemaProperty('list', RealmPropertyType.object,
+              linkTarget: 'LinksClass',
+              collectionType: RealmCollectionType.list),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -834,36 +884,40 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(AllCollections._);
-    return const SchemaObject(AllCollections, 'AllCollections', [
-      SchemaProperty('strings', RealmPropertyType.string,
-          collectionType: RealmCollectionType.list),
-      SchemaProperty('bools', RealmPropertyType.bool,
-          collectionType: RealmCollectionType.list),
-      SchemaProperty('dates', RealmPropertyType.timestamp,
-          collectionType: RealmCollectionType.list),
-      SchemaProperty('doubles', RealmPropertyType.double,
-          collectionType: RealmCollectionType.list),
-      SchemaProperty('objectIds', RealmPropertyType.objectid,
-          collectionType: RealmCollectionType.list),
-      SchemaProperty('uuids', RealmPropertyType.uuid,
-          collectionType: RealmCollectionType.list),
-      SchemaProperty('ints', RealmPropertyType.int,
-          collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableStrings', RealmPropertyType.string,
-          optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableBools', RealmPropertyType.bool,
-          optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableDates', RealmPropertyType.timestamp,
-          optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableDoubles', RealmPropertyType.double,
-          optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableObjectIds', RealmPropertyType.objectid,
-          optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableUuids', RealmPropertyType.uuid,
-          optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableInts', RealmPropertyType.int,
-          optional: true, collectionType: RealmCollectionType.list),
-    ]);
+    return const SchemaObject(
+        AllCollections,
+        'AllCollections',
+        [
+          SchemaProperty('strings', RealmPropertyType.string,
+              collectionType: RealmCollectionType.list),
+          SchemaProperty('bools', RealmPropertyType.bool,
+              collectionType: RealmCollectionType.list),
+          SchemaProperty('dates', RealmPropertyType.timestamp,
+              collectionType: RealmCollectionType.list),
+          SchemaProperty('doubles', RealmPropertyType.double,
+              collectionType: RealmCollectionType.list),
+          SchemaProperty('objectIds', RealmPropertyType.objectid,
+              collectionType: RealmCollectionType.list),
+          SchemaProperty('uuids', RealmPropertyType.uuid,
+              collectionType: RealmCollectionType.list),
+          SchemaProperty('ints', RealmPropertyType.int,
+              collectionType: RealmCollectionType.list),
+          SchemaProperty('nullableStrings', RealmPropertyType.string,
+              optional: true, collectionType: RealmCollectionType.list),
+          SchemaProperty('nullableBools', RealmPropertyType.bool,
+              optional: true, collectionType: RealmCollectionType.list),
+          SchemaProperty('nullableDates', RealmPropertyType.timestamp,
+              optional: true, collectionType: RealmCollectionType.list),
+          SchemaProperty('nullableDoubles', RealmPropertyType.double,
+              optional: true, collectionType: RealmCollectionType.list),
+          SchemaProperty('nullableObjectIds', RealmPropertyType.objectid,
+              optional: true, collectionType: RealmCollectionType.list),
+          SchemaProperty('nullableUuids', RealmPropertyType.uuid,
+              optional: true, collectionType: RealmCollectionType.list),
+          SchemaProperty('nullableInts', RealmPropertyType.int,
+              optional: true, collectionType: RealmCollectionType.list),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -955,19 +1009,26 @@ class NullableTypes extends _NullableTypes with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(NullableTypes._);
-    return const SchemaObject(NullableTypes, 'NullableTypes', [
-      SchemaProperty('_id', RealmPropertyType.objectid,
-          mapTo: '_id', primaryKey: true),
-      SchemaProperty('differentiator', RealmPropertyType.objectid),
-      SchemaProperty('stringProp', RealmPropertyType.string, optional: true),
-      SchemaProperty('boolProp', RealmPropertyType.bool, optional: true),
-      SchemaProperty('dateProp', RealmPropertyType.timestamp, optional: true),
-      SchemaProperty('doubleProp', RealmPropertyType.double, optional: true),
-      SchemaProperty('objectIdProp', RealmPropertyType.objectid,
-          optional: true),
-      SchemaProperty('uuidProp', RealmPropertyType.uuid, optional: true),
-      SchemaProperty('intProp', RealmPropertyType.int, optional: true),
-    ]);
+    return const SchemaObject(
+        NullableTypes,
+        'NullableTypes',
+        [
+          SchemaProperty('_id', RealmPropertyType.objectid,
+              mapTo: '_id', primaryKey: true),
+          SchemaProperty('differentiator', RealmPropertyType.objectid),
+          SchemaProperty('stringProp', RealmPropertyType.string,
+              optional: true),
+          SchemaProperty('boolProp', RealmPropertyType.bool, optional: true),
+          SchemaProperty('dateProp', RealmPropertyType.timestamp,
+              optional: true),
+          SchemaProperty('doubleProp', RealmPropertyType.double,
+              optional: true),
+          SchemaProperty('objectIdProp', RealmPropertyType.objectid,
+              optional: true),
+          SchemaProperty('uuidProp', RealmPropertyType.uuid, optional: true),
+          SchemaProperty('intProp', RealmPropertyType.int, optional: true),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -1030,17 +1091,22 @@ class Event extends _Event with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Event._);
-    return const SchemaObject(Event, 'Event', [
-      SchemaProperty('_id', RealmPropertyType.objectid,
-          mapTo: '_id', primaryKey: true),
-      SchemaProperty('stringQueryField', RealmPropertyType.string,
-          mapTo: 'stringQueryField', optional: true),
-      SchemaProperty('boolQueryField', RealmPropertyType.bool,
-          mapTo: 'boolQueryField', optional: true),
-      SchemaProperty('intQueryField', RealmPropertyType.int,
-          mapTo: 'intQueryField', optional: true),
-      SchemaProperty('assignedTo', RealmPropertyType.string, optional: true),
-    ]);
+    return const SchemaObject(
+        Event,
+        'Event',
+        [
+          SchemaProperty('_id', RealmPropertyType.objectid,
+              mapTo: '_id', primaryKey: true),
+          SchemaProperty('stringQueryField', RealmPropertyType.string,
+              mapTo: 'stringQueryField', optional: true),
+          SchemaProperty('boolQueryField', RealmPropertyType.bool,
+              mapTo: 'boolQueryField', optional: true),
+          SchemaProperty('intQueryField', RealmPropertyType.int,
+              mapTo: 'intQueryField', optional: true),
+          SchemaProperty('assignedTo', RealmPropertyType.string,
+              optional: true),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -1094,15 +1160,19 @@ class Party extends _Party with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Party._);
-    return const SchemaObject(Party, 'Party', [
-      SchemaProperty('host', RealmPropertyType.object,
-          optional: true, linkTarget: 'Friend'),
-      SchemaProperty('year', RealmPropertyType.int),
-      SchemaProperty('guests', RealmPropertyType.object,
-          linkTarget: 'Friend', collectionType: RealmCollectionType.list),
-      SchemaProperty('previous', RealmPropertyType.object,
-          optional: true, linkTarget: 'Party'),
-    ]);
+    return const SchemaObject(
+        Party,
+        'Party',
+        [
+          SchemaProperty('host', RealmPropertyType.object,
+              optional: true, linkTarget: 'Friend'),
+          SchemaProperty('year', RealmPropertyType.int),
+          SchemaProperty('guests', RealmPropertyType.object,
+              linkTarget: 'Friend', collectionType: RealmCollectionType.list),
+          SchemaProperty('previous', RealmPropertyType.object,
+              optional: true, linkTarget: 'Party'),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -1164,14 +1234,18 @@ class Friend extends _Friend with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Friend._);
-    return const SchemaObject(Friend, 'Friend', [
-      SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
-      SchemaProperty('age', RealmPropertyType.int),
-      SchemaProperty('bestFriend', RealmPropertyType.object,
-          optional: true, linkTarget: 'Friend'),
-      SchemaProperty('friends', RealmPropertyType.object,
-          linkTarget: 'Friend', collectionType: RealmCollectionType.list),
-    ]);
+    return const SchemaObject(
+        Friend,
+        'Friend',
+        [
+          SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
+          SchemaProperty('age', RealmPropertyType.int),
+          SchemaProperty('bestFriend', RealmPropertyType.object,
+              optional: true, linkTarget: 'Friend'),
+          SchemaProperty('friends', RealmPropertyType.object,
+              linkTarget: 'Friend', collectionType: RealmCollectionType.list),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -1211,10 +1285,14 @@ class When extends _When with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(When._);
-    return const SchemaObject(When, 'When', [
-      SchemaProperty('dateTimeUtc', RealmPropertyType.timestamp),
-      SchemaProperty('locationName', RealmPropertyType.string),
-    ]);
+    return const SchemaObject(
+        When,
+        'When',
+        [
+          SchemaProperty('dateTimeUtc', RealmPropertyType.timestamp),
+          SchemaProperty('locationName', RealmPropertyType.string),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -1260,13 +1338,17 @@ class Player extends _Player with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Player._);
-    return const SchemaObject(Player, 'Player', [
-      SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
-      SchemaProperty('game', RealmPropertyType.object,
-          optional: true, linkTarget: 'Game'),
-      SchemaProperty('scoresByRound', RealmPropertyType.int,
-          optional: true, collectionType: RealmCollectionType.list),
-    ]);
+    return const SchemaObject(
+        Player,
+        'Player',
+        [
+          SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
+          SchemaProperty('game', RealmPropertyType.object,
+              optional: true, linkTarget: 'Game'),
+          SchemaProperty('scoresByRound', RealmPropertyType.int,
+              optional: true, collectionType: RealmCollectionType.list),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -1298,9 +1380,544 @@ class Game extends _Game with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Game._);
-    return const SchemaObject(Game, 'Game', [
-      SchemaProperty('winnerByRound', RealmPropertyType.object,
-          linkTarget: 'Player', collectionType: RealmCollectionType.list),
-    ]);
+    return const SchemaObject(
+        Game,
+        'Game',
+        [
+          SchemaProperty('winnerByRound', RealmPropertyType.object,
+              linkTarget: 'Player', collectionType: RealmCollectionType.list),
+        ],
+        RealmModelType.realmObject);
+  }
+}
+
+class AllTypesEmbedded extends _AllTypesEmbedded with RealmEntity, RealmObject {
+  AllTypesEmbedded(
+    String stringProp,
+    bool boolProp,
+    DateTime dateProp,
+    double doubleProp,
+    ObjectId objectIdProp,
+    Uuid uuidProp,
+    int intProp, {
+    String? nullableStringProp,
+    bool? nullableBoolProp,
+    DateTime? nullableDateProp,
+    double? nullableDoubleProp,
+    ObjectId? nullableObjectIdProp,
+    Uuid? nullableUuidProp,
+    int? nullableIntProp,
+    Iterable<String> strings = const [],
+    Iterable<bool> bools = const [],
+    Iterable<DateTime> dates = const [],
+    Iterable<double> doubles = const [],
+    Iterable<ObjectId> objectIds = const [],
+    Iterable<Uuid> uuids = const [],
+    Iterable<int> ints = const [],
+  }) {
+    RealmObject.set(this, 'stringProp', stringProp);
+    RealmObject.set(this, 'boolProp', boolProp);
+    RealmObject.set(this, 'dateProp', dateProp);
+    RealmObject.set(this, 'doubleProp', doubleProp);
+    RealmObject.set(this, 'objectIdProp', objectIdProp);
+    RealmObject.set(this, 'uuidProp', uuidProp);
+    RealmObject.set(this, 'intProp', intProp);
+    RealmObject.set(this, 'nullableStringProp', nullableStringProp);
+    RealmObject.set(this, 'nullableBoolProp', nullableBoolProp);
+    RealmObject.set(this, 'nullableDateProp', nullableDateProp);
+    RealmObject.set(this, 'nullableDoubleProp', nullableDoubleProp);
+    RealmObject.set(this, 'nullableObjectIdProp', nullableObjectIdProp);
+    RealmObject.set(this, 'nullableUuidProp', nullableUuidProp);
+    RealmObject.set(this, 'nullableIntProp', nullableIntProp);
+    RealmObject.set<RealmList<String>>(
+        this, 'strings', RealmList<String>(strings));
+    RealmObject.set<RealmList<bool>>(this, 'bools', RealmList<bool>(bools));
+    RealmObject.set<RealmList<DateTime>>(
+        this, 'dates', RealmList<DateTime>(dates));
+    RealmObject.set<RealmList<double>>(
+        this, 'doubles', RealmList<double>(doubles));
+    RealmObject.set<RealmList<ObjectId>>(
+        this, 'objectIds', RealmList<ObjectId>(objectIds));
+    RealmObject.set<RealmList<Uuid>>(this, 'uuids', RealmList<Uuid>(uuids));
+    RealmObject.set<RealmList<int>>(this, 'ints', RealmList<int>(ints));
+  }
+
+  AllTypesEmbedded._();
+
+  @override
+  String get stringProp =>
+      RealmObject.get<String>(this, 'stringProp') as String;
+  @override
+  set stringProp(String value) => RealmObject.set(this, 'stringProp', value);
+
+  @override
+  bool get boolProp => RealmObject.get<bool>(this, 'boolProp') as bool;
+  @override
+  set boolProp(bool value) => RealmObject.set(this, 'boolProp', value);
+
+  @override
+  DateTime get dateProp =>
+      RealmObject.get<DateTime>(this, 'dateProp') as DateTime;
+  @override
+  set dateProp(DateTime value) => RealmObject.set(this, 'dateProp', value);
+
+  @override
+  double get doubleProp =>
+      RealmObject.get<double>(this, 'doubleProp') as double;
+  @override
+  set doubleProp(double value) => RealmObject.set(this, 'doubleProp', value);
+
+  @override
+  ObjectId get objectIdProp =>
+      RealmObject.get<ObjectId>(this, 'objectIdProp') as ObjectId;
+  @override
+  set objectIdProp(ObjectId value) =>
+      RealmObject.set(this, 'objectIdProp', value);
+
+  @override
+  Uuid get uuidProp => RealmObject.get<Uuid>(this, 'uuidProp') as Uuid;
+  @override
+  set uuidProp(Uuid value) => RealmObject.set(this, 'uuidProp', value);
+
+  @override
+  int get intProp => RealmObject.get<int>(this, 'intProp') as int;
+  @override
+  set intProp(int value) => RealmObject.set(this, 'intProp', value);
+
+  @override
+  String? get nullableStringProp =>
+      RealmObject.get<String>(this, 'nullableStringProp') as String?;
+  @override
+  set nullableStringProp(String? value) =>
+      RealmObject.set(this, 'nullableStringProp', value);
+
+  @override
+  bool? get nullableBoolProp =>
+      RealmObject.get<bool>(this, 'nullableBoolProp') as bool?;
+  @override
+  set nullableBoolProp(bool? value) =>
+      RealmObject.set(this, 'nullableBoolProp', value);
+
+  @override
+  DateTime? get nullableDateProp =>
+      RealmObject.get<DateTime>(this, 'nullableDateProp') as DateTime?;
+  @override
+  set nullableDateProp(DateTime? value) =>
+      RealmObject.set(this, 'nullableDateProp', value);
+
+  @override
+  double? get nullableDoubleProp =>
+      RealmObject.get<double>(this, 'nullableDoubleProp') as double?;
+  @override
+  set nullableDoubleProp(double? value) =>
+      RealmObject.set(this, 'nullableDoubleProp', value);
+
+  @override
+  ObjectId? get nullableObjectIdProp =>
+      RealmObject.get<ObjectId>(this, 'nullableObjectIdProp') as ObjectId?;
+  @override
+  set nullableObjectIdProp(ObjectId? value) =>
+      RealmObject.set(this, 'nullableObjectIdProp', value);
+
+  @override
+  Uuid? get nullableUuidProp =>
+      RealmObject.get<Uuid>(this, 'nullableUuidProp') as Uuid?;
+  @override
+  set nullableUuidProp(Uuid? value) =>
+      RealmObject.set(this, 'nullableUuidProp', value);
+
+  @override
+  int? get nullableIntProp =>
+      RealmObject.get<int>(this, 'nullableIntProp') as int?;
+  @override
+  set nullableIntProp(int? value) =>
+      RealmObject.set(this, 'nullableIntProp', value);
+
+  @override
+  RealmList<String> get strings =>
+      RealmObject.get<String>(this, 'strings') as RealmList<String>;
+  @override
+  set strings(covariant RealmList<String> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<bool> get bools =>
+      RealmObject.get<bool>(this, 'bools') as RealmList<bool>;
+  @override
+  set bools(covariant RealmList<bool> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<DateTime> get dates =>
+      RealmObject.get<DateTime>(this, 'dates') as RealmList<DateTime>;
+  @override
+  set dates(covariant RealmList<DateTime> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<double> get doubles =>
+      RealmObject.get<double>(this, 'doubles') as RealmList<double>;
+  @override
+  set doubles(covariant RealmList<double> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<ObjectId> get objectIds =>
+      RealmObject.get<ObjectId>(this, 'objectIds') as RealmList<ObjectId>;
+  @override
+  set objectIds(covariant RealmList<ObjectId> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<Uuid> get uuids =>
+      RealmObject.get<Uuid>(this, 'uuids') as RealmList<Uuid>;
+  @override
+  set uuids(covariant RealmList<Uuid> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<int> get ints =>
+      RealmObject.get<int>(this, 'ints') as RealmList<int>;
+  @override
+  set ints(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<AllTypesEmbedded>> get changes =>
+      RealmObject.getChanges<AllTypesEmbedded>(this);
+
+  @override
+  AllTypesEmbedded freeze() => RealmObject.freezeObject<AllTypesEmbedded>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(AllTypesEmbedded._);
+    return const SchemaObject(
+        AllTypesEmbedded,
+        'AllTypesEmbedded',
+        [
+          SchemaProperty('stringProp', RealmPropertyType.string),
+          SchemaProperty('boolProp', RealmPropertyType.bool),
+          SchemaProperty('dateProp', RealmPropertyType.timestamp),
+          SchemaProperty('doubleProp', RealmPropertyType.double),
+          SchemaProperty('objectIdProp', RealmPropertyType.objectid),
+          SchemaProperty('uuidProp', RealmPropertyType.uuid),
+          SchemaProperty('intProp', RealmPropertyType.int),
+          SchemaProperty('nullableStringProp', RealmPropertyType.string,
+              optional: true),
+          SchemaProperty('nullableBoolProp', RealmPropertyType.bool,
+              optional: true),
+          SchemaProperty('nullableDateProp', RealmPropertyType.timestamp,
+              optional: true),
+          SchemaProperty('nullableDoubleProp', RealmPropertyType.double,
+              optional: true),
+          SchemaProperty('nullableObjectIdProp', RealmPropertyType.objectid,
+              optional: true),
+          SchemaProperty('nullableUuidProp', RealmPropertyType.uuid,
+              optional: true),
+          SchemaProperty('nullableIntProp', RealmPropertyType.int,
+              optional: true),
+          SchemaProperty('strings', RealmPropertyType.string,
+              collectionType: RealmCollectionType.list),
+          SchemaProperty('bools', RealmPropertyType.bool,
+              collectionType: RealmCollectionType.list),
+          SchemaProperty('dates', RealmPropertyType.timestamp,
+              collectionType: RealmCollectionType.list),
+          SchemaProperty('doubles', RealmPropertyType.double,
+              collectionType: RealmCollectionType.list),
+          SchemaProperty('objectIds', RealmPropertyType.objectid,
+              collectionType: RealmCollectionType.list),
+          SchemaProperty('uuids', RealmPropertyType.uuid,
+              collectionType: RealmCollectionType.list),
+          SchemaProperty('ints', RealmPropertyType.int,
+              collectionType: RealmCollectionType.list),
+        ],
+        RealmModelType.embedded);
+  }
+}
+
+class ObjectWithEmbedded extends _ObjectWithEmbedded
+    with RealmEntity, RealmObject {
+  ObjectWithEmbedded(
+    String id, {
+    Uuid? differentiator,
+    AllTypesEmbedded? singleObject,
+    RecursiveEmbedded1? recursiveObject,
+    Iterable<AllTypesEmbedded> list = const [],
+    Iterable<RecursiveEmbedded1> recursiveList = const [],
+  }) {
+    RealmObject.set(this, '_id', id);
+    RealmObject.set(this, 'differentiator', differentiator);
+    RealmObject.set(this, 'singleObject', singleObject);
+    RealmObject.set(this, 'recursiveObject', recursiveObject);
+    RealmObject.set<RealmList<AllTypesEmbedded>>(
+        this, 'list', RealmList<AllTypesEmbedded>(list));
+    RealmObject.set<RealmList<RecursiveEmbedded1>>(
+        this, 'recursiveList', RealmList<RecursiveEmbedded1>(recursiveList));
+  }
+
+  ObjectWithEmbedded._();
+
+  @override
+  String get id => RealmObject.get<String>(this, '_id') as String;
+  @override
+  set id(String value) => RealmObject.set(this, '_id', value);
+
+  @override
+  Uuid? get differentiator =>
+      RealmObject.get<Uuid>(this, 'differentiator') as Uuid?;
+  @override
+  set differentiator(Uuid? value) =>
+      RealmObject.set(this, 'differentiator', value);
+
+  @override
+  AllTypesEmbedded? get singleObject =>
+      RealmObject.get<AllTypesEmbedded>(this, 'singleObject')
+          as AllTypesEmbedded?;
+  @override
+  set singleObject(covariant AllTypesEmbedded? value) =>
+      RealmObject.set(this, 'singleObject', value);
+
+  @override
+  RealmList<AllTypesEmbedded> get list =>
+      RealmObject.get<AllTypesEmbedded>(this, 'list')
+          as RealmList<AllTypesEmbedded>;
+  @override
+  set list(covariant RealmList<AllTypesEmbedded> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RecursiveEmbedded1? get recursiveObject =>
+      RealmObject.get<RecursiveEmbedded1>(this, 'recursiveObject')
+          as RecursiveEmbedded1?;
+  @override
+  set recursiveObject(covariant RecursiveEmbedded1? value) =>
+      RealmObject.set(this, 'recursiveObject', value);
+
+  @override
+  RealmList<RecursiveEmbedded1> get recursiveList =>
+      RealmObject.get<RecursiveEmbedded1>(this, 'recursiveList')
+          as RealmList<RecursiveEmbedded1>;
+  @override
+  set recursiveList(covariant RealmList<RecursiveEmbedded1> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<ObjectWithEmbedded>> get changes =>
+      RealmObject.getChanges<ObjectWithEmbedded>(this);
+
+  @override
+  ObjectWithEmbedded freeze() =>
+      RealmObject.freezeObject<ObjectWithEmbedded>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(ObjectWithEmbedded._);
+    return const SchemaObject(
+        ObjectWithEmbedded,
+        'ObjectWithEmbedded',
+        [
+          SchemaProperty('_id', RealmPropertyType.string,
+              mapTo: '_id', primaryKey: true),
+          SchemaProperty('differentiator', RealmPropertyType.uuid,
+              optional: true),
+          SchemaProperty('singleObject', RealmPropertyType.object,
+              optional: true, linkTarget: 'AllTypesEmbedded'),
+          SchemaProperty('list', RealmPropertyType.object,
+              linkTarget: 'AllTypesEmbedded',
+              collectionType: RealmCollectionType.list),
+          SchemaProperty('recursiveObject', RealmPropertyType.object,
+              optional: true, linkTarget: 'RecursiveEmbedded1'),
+          SchemaProperty('recursiveList', RealmPropertyType.object,
+              linkTarget: 'RecursiveEmbedded1',
+              collectionType: RealmCollectionType.list),
+        ],
+        RealmModelType.realmObject);
+  }
+}
+
+class RecursiveEmbedded1 extends _RecursiveEmbedded1
+    with RealmEntity, RealmObject {
+  RecursiveEmbedded1(
+    String value, {
+    RecursiveEmbedded2? child,
+    ObjectWithEmbedded? topLevel,
+    Iterable<RecursiveEmbedded2> children = const [],
+  }) {
+    RealmObject.set(this, 'value', value);
+    RealmObject.set(this, 'child', child);
+    RealmObject.set(this, 'topLevel', topLevel);
+    RealmObject.set<RealmList<RecursiveEmbedded2>>(
+        this, 'children', RealmList<RecursiveEmbedded2>(children));
+  }
+
+  RecursiveEmbedded1._();
+
+  @override
+  String get value => RealmObject.get<String>(this, 'value') as String;
+  @override
+  set value(String value) => RealmObject.set(this, 'value', value);
+
+  @override
+  RecursiveEmbedded2? get child =>
+      RealmObject.get<RecursiveEmbedded2>(this, 'child') as RecursiveEmbedded2?;
+  @override
+  set child(covariant RecursiveEmbedded2? value) =>
+      RealmObject.set(this, 'child', value);
+
+  @override
+  RealmList<RecursiveEmbedded2> get children =>
+      RealmObject.get<RecursiveEmbedded2>(this, 'children')
+          as RealmList<RecursiveEmbedded2>;
+  @override
+  set children(covariant RealmList<RecursiveEmbedded2> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  ObjectWithEmbedded? get topLevel =>
+      RealmObject.get<ObjectWithEmbedded>(this, 'topLevel')
+          as ObjectWithEmbedded?;
+  @override
+  set topLevel(covariant ObjectWithEmbedded? value) =>
+      RealmObject.set(this, 'topLevel', value);
+
+  @override
+  Stream<RealmObjectChanges<RecursiveEmbedded1>> get changes =>
+      RealmObject.getChanges<RecursiveEmbedded1>(this);
+
+  @override
+  RecursiveEmbedded1 freeze() =>
+      RealmObject.freezeObject<RecursiveEmbedded1>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(RecursiveEmbedded1._);
+    return const SchemaObject(
+        RecursiveEmbedded1,
+        'RecursiveEmbedded1',
+        [
+          SchemaProperty('value', RealmPropertyType.string),
+          SchemaProperty('child', RealmPropertyType.object,
+              optional: true, linkTarget: 'RecursiveEmbedded2'),
+          SchemaProperty('children', RealmPropertyType.object,
+              linkTarget: 'RecursiveEmbedded2',
+              collectionType: RealmCollectionType.list),
+          SchemaProperty('topLevel', RealmPropertyType.object,
+              optional: true, linkTarget: 'ObjectWithEmbedded'),
+        ],
+        RealmModelType.embedded);
+  }
+}
+
+class RecursiveEmbedded2 extends _RecursiveEmbedded2
+    with RealmEntity, RealmObject {
+  RecursiveEmbedded2(
+    String value, {
+    RecursiveEmbedded3? child,
+    ObjectWithEmbedded? topLevel,
+    Iterable<RecursiveEmbedded3> children = const [],
+  }) {
+    RealmObject.set(this, 'value', value);
+    RealmObject.set(this, 'child', child);
+    RealmObject.set(this, 'topLevel', topLevel);
+    RealmObject.set<RealmList<RecursiveEmbedded3>>(
+        this, 'children', RealmList<RecursiveEmbedded3>(children));
+  }
+
+  RecursiveEmbedded2._();
+
+  @override
+  String get value => RealmObject.get<String>(this, 'value') as String;
+  @override
+  set value(String value) => RealmObject.set(this, 'value', value);
+
+  @override
+  RecursiveEmbedded3? get child =>
+      RealmObject.get<RecursiveEmbedded3>(this, 'child') as RecursiveEmbedded3?;
+  @override
+  set child(covariant RecursiveEmbedded3? value) =>
+      RealmObject.set(this, 'child', value);
+
+  @override
+  RealmList<RecursiveEmbedded3> get children =>
+      RealmObject.get<RecursiveEmbedded3>(this, 'children')
+          as RealmList<RecursiveEmbedded3>;
+  @override
+  set children(covariant RealmList<RecursiveEmbedded3> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  ObjectWithEmbedded? get topLevel =>
+      RealmObject.get<ObjectWithEmbedded>(this, 'topLevel')
+          as ObjectWithEmbedded?;
+  @override
+  set topLevel(covariant ObjectWithEmbedded? value) =>
+      RealmObject.set(this, 'topLevel', value);
+
+  @override
+  Stream<RealmObjectChanges<RecursiveEmbedded2>> get changes =>
+      RealmObject.getChanges<RecursiveEmbedded2>(this);
+
+  @override
+  RecursiveEmbedded2 freeze() =>
+      RealmObject.freezeObject<RecursiveEmbedded2>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(RecursiveEmbedded2._);
+    return const SchemaObject(
+        RecursiveEmbedded2,
+        'RecursiveEmbedded2',
+        [
+          SchemaProperty('value', RealmPropertyType.string),
+          SchemaProperty('child', RealmPropertyType.object,
+              optional: true, linkTarget: 'RecursiveEmbedded3'),
+          SchemaProperty('children', RealmPropertyType.object,
+              linkTarget: 'RecursiveEmbedded3',
+              collectionType: RealmCollectionType.list),
+          SchemaProperty('topLevel', RealmPropertyType.object,
+              optional: true, linkTarget: 'ObjectWithEmbedded'),
+        ],
+        RealmModelType.embedded);
+  }
+}
+
+class RecursiveEmbedded3 extends _RecursiveEmbedded3
+    with RealmEntity, RealmObject {
+  RecursiveEmbedded3(
+    String value,
+  ) {
+    RealmObject.set(this, 'value', value);
+  }
+
+  RecursiveEmbedded3._();
+
+  @override
+  String get value => RealmObject.get<String>(this, 'value') as String;
+  @override
+  set value(String value) => RealmObject.set(this, 'value', value);
+
+  @override
+  Stream<RealmObjectChanges<RecursiveEmbedded3>> get changes =>
+      RealmObject.getChanges<RecursiveEmbedded3>(this);
+
+  @override
+  RecursiveEmbedded3 freeze() =>
+      RealmObject.freezeObject<RecursiveEmbedded3>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObject.registerFactory(RecursiveEmbedded3._);
+    return const SchemaObject(
+        RecursiveEmbedded3,
+        'RecursiveEmbedded3',
+        [
+          SchemaProperty('value', RealmPropertyType.string),
+        ],
+        RealmModelType.embedded);
   }
 }

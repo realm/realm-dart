@@ -125,7 +125,7 @@ class _RealmCore {
         classInfo.num_properties = schemaObject.properties.length;
         classInfo.num_computed_properties = 0;
         classInfo.key = RLM_INVALID_CLASS_KEY;
-        classInfo.flags = realm_class_flags.RLM_CLASS_NORMAL;
+        classInfo.flags = schemaObject.modelType.type;
 
         final propertiesCount = schemaObject.properties.length;
         final properties = arena<realm_property_info_t>(propertiesCount);
@@ -211,6 +211,7 @@ class _RealmCore {
       } else if (config is InMemoryConfiguration) {
         _realmLib.realm_config_set_in_memory(configHandle._pointer, true);
       } else if (config is FlexibleSyncConfiguration) {
+        _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT);
         final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
@@ -529,14 +530,17 @@ class _RealmCore {
       _realmLib.invokeGetBool(() => _realmLib.realm_get_class(realm.handle._pointer, classKey, classInfo));
 
       final name = classInfo.ref.name.cast<Utf8>().toDartString();
-      final schema = _getSchemaForClassKey(realm, classKey, name, arena, expectedSize: classInfo.ref.num_properties + classInfo.ref.num_computed_properties);
+      final RealmModelType modelType = RealmModelType.values
+          .firstWhere((t) => t.type == classInfo.ref.flags, orElse: () => throw RealmError("RealmModelType ${classInfo.ref.flags} is not supported"));
+      final schema =
+          _getSchemaForClassKey(realm, classKey, name, arena, modelType, expectedSize: classInfo.ref.num_properties + classInfo.ref.num_computed_properties);
       schemas.add(schema);
     }
 
     return RealmSchema(schemas);
   }
 
-  SchemaObject _getSchemaForClassKey(Realm realm, int classKey, String name, Arena arena, {int expectedSize = 10}) {
+  SchemaObject _getSchemaForClassKey(Realm realm, int classKey, String name, Arena arena, RealmModelType modelType, {int expectedSize = 10}) {
     final actualCount = arena<Size>();
     final propertiesPtr = arena<realm_property_info>(expectedSize);
     _realmLib.invokeGetBool(() => _realmLib.realm_get_class_properties(realm.handle._pointer, classKey, propertiesPtr, expectedSize, actualCount));
@@ -544,7 +548,7 @@ class _RealmCore {
     if (expectedSize < actualCount.value) {
       // The supplied array was too small - resize it
       arena.free(propertiesPtr);
-      return _getSchemaForClassKey(realm, classKey, name, arena, expectedSize: actualCount.value);
+      return _getSchemaForClassKey(realm, classKey, name, arena, modelType, expectedSize: actualCount.value);
     }
 
     final result = <SchemaProperty>[];
@@ -553,7 +557,7 @@ class _RealmCore {
       result.add(property);
     }
 
-    return SchemaObject(RealmObject, name, result);
+    return SchemaObject(RealmObject, name, result, modelType);
   }
 
   void deleteRealmFiles(String path) {
@@ -963,9 +967,7 @@ class _RealmCore {
   }
 
   void listRemoveElementAt(RealmListHandle handle, int index) {
-    return using((Arena arena) {
-      _realmLib.invokeGetBool(() => _realmLib.realm_list_erase(handle._pointer, index));
-    });
+    _realmLib.invokeGetBool(() => _realmLib.realm_list_erase(handle._pointer, index));
   }
 
   void listDeleteAll(RealmList list) {
@@ -1848,7 +1850,7 @@ class _RealmCore {
       return;
     }
     if (errorCode != nullptr) {
-        // Throw RealmException instead of RealmError to be recoverable by the user.
+      // Throw RealmException instead of RealmError to be recoverable by the user.
       completer.completeError(RealmException(errorCode.toSyncError().toString()));
     } else {
       completer.complete();
@@ -2075,6 +2077,21 @@ class _RealmCore {
 
       return completer.future;
     });
+  }
+
+  RealmObjectHandle createEmbeddedObject(RealmObject object, int propertyKey) {
+    final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_set_embedded(object.handle._pointer, propertyKey));
+    return RealmObjectHandle._(realmPtr, object.realm.handle);
+  }
+
+  RealmObjectHandle listSetEmbeddedObjectAt(RealmList list, int index) {
+    final ptr = _realmLib.invokeGetPointer(() => _realmLib.realm_list_set_embedded(list.handle._pointer, index));
+    return RealmObjectHandle._(ptr, list.realm.handle);
+  }
+
+  RealmObjectHandle listInsertEmbeddedObjectAt(RealmList list, int index) {
+    final ptr = _realmLib.invokeGetPointer(() => _realmLib.realm_list_insert_embedded(list.handle._pointer, index));
+    return RealmObjectHandle._(ptr, list.realm.handle);
   }
 }
 
@@ -2474,8 +2491,7 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_LINK:
         final objectKey = ref.values.link.target;
         final classKey = ref.values.link.target_table;
-        RealmObjectHandle handle = realmCore._getObject(realm, classKey, objectKey);
-        return handle;
+        return realmCore._getObject(realm, classKey, objectKey);
       case realm_value_type.RLM_TYPE_BINARY:
         throw Exception("Not implemented");
       case realm_value_type.RLM_TYPE_TIMESTAMP:

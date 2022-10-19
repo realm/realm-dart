@@ -359,6 +359,8 @@ class SchemaObject {
   /// Schema object type.
   final Type type;
 
+  final RealmModelType modelType;
+
   /// Collection of the properties of this schema object.
   final List<SchemaProperty> properties;
 
@@ -366,7 +368,7 @@ class SchemaObject {
   final String name;
 
   /// Creates schema instance with object type and collection of object's properties.
-  const SchemaObject(this.type, this.name, this.properties);
+  const SchemaObject(this.type, this.name, this.properties, this.modelType);
 }
 
 /// Describes the complete set of classes which may be stored in a `Realm`

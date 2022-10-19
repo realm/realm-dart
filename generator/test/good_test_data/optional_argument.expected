@@ -28,6 +28,7 @@ class Person extends _Person with RealmEntity, RealmObject {
     RealmObject.registerFactory(Person._);
     return const SchemaObject(Person, 'Person', [
       SchemaProperty('spouse', RealmPropertyType.object, optional: true, linkTarget: 'Person'),
-    ]);
+    ],
+    RealmModelType.realmObject);
   }
 }

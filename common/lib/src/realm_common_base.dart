@@ -16,12 +16,23 @@
 //
 // //////////////////////////////////////////////////////////////////////////////
 
+enum RealmModelType {
+  realmObject(0),
+  embedded(1),
+  // ignore: unused_field
+  _asymmetricRealmObject(2);
+
+  const RealmModelType(this.type);
+
+  final int type;
+}
 
 /// Annotation class used to define `Realm` data model classes and their properties
 ///
 /// {@category Annotations}
 class RealmModel {
-  const RealmModel();
+  final RealmModelType type;
+  const RealmModel([this.type = RealmModelType.realmObject]);
 }
 
 /// MapTo annotation for class member level.

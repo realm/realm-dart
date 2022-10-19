@@ -36,7 +36,8 @@ class Foo extends _Foo with RealmEntity, RealmObject {
     RealmObject.registerFactory(Foo._);
     return const SchemaObject(Foo, 'MyFoo', [
       SchemaProperty('x', RealmPropertyType.int),
-    ]);
+    ],
+    RealmModelType.realmObject);
   }
 }
 
@@ -157,7 +158,8 @@ class Bar extends _Bar with RealmEntity, RealmObject {
       SchemaProperty('anOptionalString', RealmPropertyType.string,
           optional: true),
       SchemaProperty('objectId', RealmPropertyType.objectid),
-    ]);
+    ],
+    RealmModelType.realmObject);
   }
 }
 
@@ -225,6 +227,7 @@ class PrimitiveTypes extends _PrimitiveTypes with RealmEntity, RealmObject {
       SchemaProperty('dateProp', RealmPropertyType.timestamp),
       SchemaProperty('doubleProp', RealmPropertyType.double),
       SchemaProperty('objectIdProp', RealmPropertyType.objectid),
-    ]);
+    ],
+    RealmModelType.realmObject);
   }
 }

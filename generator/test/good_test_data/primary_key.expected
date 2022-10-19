@@ -29,7 +29,8 @@ class IntPK extends _IntPK with RealmEntity, RealmObject {
     RealmObject.registerFactory(IntPK._);
     return const SchemaObject(IntPK, 'IntPK', [
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
-    ]);
+    ],
+    RealmModelType.realmObject);
   }
 }
 
@@ -61,7 +62,8 @@ class NullableIntPK extends _NullableIntPK with RealmEntity, RealmObject {
     return const SchemaObject(NullableIntPK, 'NullableIntPK', [
       SchemaProperty('id', RealmPropertyType.int,
           optional: true, primaryKey: true),
-    ]);
+    ],
+    RealmModelType.realmObject);
   }
 }
 
@@ -92,7 +94,8 @@ class StringPK extends _StringPK with RealmEntity, RealmObject {
     RealmObject.registerFactory(StringPK._);
     return const SchemaObject(StringPK, 'StringPK', [
       SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
-    ]);
+    ],
+    RealmModelType.realmObject);
   }
 }
 
@@ -124,7 +127,8 @@ class NullableStringPK extends _NullableStringPK with RealmEntity, RealmObject {
     return const SchemaObject(NullableStringPK, 'NullableStringPK', [
       SchemaProperty('id', RealmPropertyType.string,
           optional: true, primaryKey: true),
-    ]);
+    ],
+    RealmModelType.realmObject);
   }
 }
 
@@ -155,7 +159,8 @@ class ObjectIdPK extends _ObjectIdPK with RealmEntity, RealmObject {
     RealmObject.registerFactory(ObjectIdPK._);
     return const SchemaObject(ObjectIdPK, 'ObjectIdPK', [
       SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
-    ]);
+    ],
+    RealmModelType.realmObject);
   }
 }
 
@@ -187,7 +192,8 @@ class NullableObjectIdPK extends _NullableObjectIdPK with RealmEntity, RealmObje
     return const SchemaObject(NullableObjectIdPK, 'NullableObjectIdPK', [
       SchemaProperty('id', RealmPropertyType.objectid,
           optional: true, primaryKey: true),
-    ]);
+    ],
+    RealmModelType.realmObject);
   }
 }
 
@@ -218,7 +224,8 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObject {
     RealmObject.registerFactory(UuidPK._);
     return const SchemaObject(UuidPK, 'UuidPK', [
       SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
-    ]);
+    ],
+    RealmModelType.realmObject);
   }
 }
 
@@ -250,6 +257,7 @@ class NullableUuidPK extends _NullableUuidPK with RealmEntity, RealmObject {
     return const SchemaObject(NullableUuidPK, 'NullableUuidPK', [
       SchemaProperty('id', RealmPropertyType.uuid,
           optional: true, primaryKey: true),
-    ]);
+    ],
+    RealmModelType.realmObject);
   }
 }

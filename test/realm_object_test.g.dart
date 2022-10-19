@@ -33,9 +33,13 @@ class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(ObjectIdPrimaryKey._);
-    return const SchemaObject(ObjectIdPrimaryKey, 'ObjectIdPrimaryKey', [
-      SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
-    ]);
+    return const SchemaObject(
+        ObjectIdPrimaryKey,
+        'ObjectIdPrimaryKey',
+        [
+          SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -67,10 +71,13 @@ class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(NullableObjectIdPrimaryKey._);
     return const SchemaObject(
-        NullableObjectIdPrimaryKey, 'NullableObjectIdPrimaryKey', [
-      SchemaProperty('id', RealmPropertyType.objectid,
-          optional: true, primaryKey: true),
-    ]);
+        NullableObjectIdPrimaryKey,
+        'NullableObjectIdPrimaryKey',
+        [
+          SchemaProperty('id', RealmPropertyType.objectid,
+              optional: true, primaryKey: true),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -99,9 +106,13 @@ class IntPrimaryKey extends _IntPrimaryKey with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(IntPrimaryKey._);
-    return const SchemaObject(IntPrimaryKey, 'IntPrimaryKey', [
-      SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
-    ]);
+    return const SchemaObject(
+        IntPrimaryKey,
+        'IntPrimaryKey',
+        [
+          SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -132,10 +143,14 @@ class NullableIntPrimaryKey extends _NullableIntPrimaryKey
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(NullableIntPrimaryKey._);
-    return const SchemaObject(NullableIntPrimaryKey, 'NullableIntPrimaryKey', [
-      SchemaProperty('id', RealmPropertyType.int,
-          optional: true, primaryKey: true),
-    ]);
+    return const SchemaObject(
+        NullableIntPrimaryKey,
+        'NullableIntPrimaryKey',
+        [
+          SchemaProperty('id', RealmPropertyType.int,
+              optional: true, primaryKey: true),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -164,9 +179,13 @@ class StringPrimaryKey extends _StringPrimaryKey with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(StringPrimaryKey._);
-    return const SchemaObject(StringPrimaryKey, 'StringPrimaryKey', [
-      SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
-    ]);
+    return const SchemaObject(
+        StringPrimaryKey,
+        'StringPrimaryKey',
+        [
+          SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -198,10 +217,13 @@ class NullableStringPrimaryKey extends _NullableStringPrimaryKey
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(NullableStringPrimaryKey._);
     return const SchemaObject(
-        NullableStringPrimaryKey, 'NullableStringPrimaryKey', [
-      SchemaProperty('id', RealmPropertyType.string,
-          optional: true, primaryKey: true),
-    ]);
+        NullableStringPrimaryKey,
+        'NullableStringPrimaryKey',
+        [
+          SchemaProperty('id', RealmPropertyType.string,
+              optional: true, primaryKey: true),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -230,9 +252,13 @@ class UuidPrimaryKey extends _UuidPrimaryKey with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(UuidPrimaryKey._);
-    return const SchemaObject(UuidPrimaryKey, 'UuidPrimaryKey', [
-      SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
-    ]);
+    return const SchemaObject(
+        UuidPrimaryKey,
+        'UuidPrimaryKey',
+        [
+          SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -264,10 +290,13 @@ class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(NullableUuidPrimaryKey._);
     return const SchemaObject(
-        NullableUuidPrimaryKey, 'NullableUuidPrimaryKey', [
-      SchemaProperty('id', RealmPropertyType.uuid,
-          optional: true, primaryKey: true),
-    ]);
+        NullableUuidPrimaryKey,
+        'NullableUuidPrimaryKey',
+        [
+          SchemaProperty('id', RealmPropertyType.uuid,
+              optional: true, primaryKey: true),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -301,12 +330,16 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(RemappedFromAnotherFile._);
-    return const SchemaObject(RemappedFromAnotherFile, 'class with spaces', [
-      SchemaProperty('property with spaces', RealmPropertyType.object,
-          mapTo: 'property with spaces',
-          optional: true,
-          linkTarget: 'myRemappedClass'),
-    ]);
+    return const SchemaObject(
+        RemappedFromAnotherFile,
+        'class with spaces',
+        [
+          SchemaProperty('property with spaces', RealmPropertyType.object,
+              mapTo: 'property with spaces',
+              optional: true,
+              linkTarget: 'myRemappedClass'),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -342,9 +375,13 @@ class BoolValue extends _BoolValue with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(BoolValue._);
-    return const SchemaObject(BoolValue, 'BoolValue', [
-      SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
-      SchemaProperty('value', RealmPropertyType.bool),
-    ]);
+    return const SchemaObject(
+        BoolValue,
+        'BoolValue',
+        [
+          SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
+          SchemaProperty('value', RealmPropertyType.bool),
+        ],
+        RealmModelType.realmObject);
   }
 }

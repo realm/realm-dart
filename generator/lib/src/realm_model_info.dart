@@ -26,9 +26,10 @@ class RealmModelInfo {
   final String name;
   final String modelName;
   final String realmName;
+  final RealmModelType modelType;
   final List<RealmFieldInfo> fields;
 
-  RealmModelInfo(this.name, this.modelName, this.realmName, this.fields);
+  RealmModelInfo(this.name, this.modelName, this.realmName, this.modelType, this.fields);
 
   Iterable<String> toCode() sync* {
     yield 'class $name extends $modelName with RealmEntity, RealmObject {';
@@ -109,7 +110,7 @@ class RealmModelInfo {
             return "SchemaProperty('${f.realmName}', ${f.realmType}${namedArgs.isNotEmpty ? ', ${namedArgs.toArgsString()}' : ''}),";
           });
         }
-        yield ']);';
+        yield '], RealmModelType.${modelType.name});';
       }
       yield '}';
     }

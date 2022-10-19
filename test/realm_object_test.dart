@@ -89,20 +89,6 @@ class _BoolValue {
   late bool value;
 }
 
-extension on DateTime {
-  String toNormalizedDateString() {
-    final utc = toUtc();
-    // This is kind of silly, but Core serializes negative dates as -003-01-01 12:34:56
-    final utcYear = utc.year < 0 ? '-${utc.year.abs().toString().padLeft(3, '0')}' : utc.year.toString().padLeft(4, '0');
-
-    // For some reason Core always rounds up to the next second for negative dates, so we need to do the same
-    final seconds = utc.microsecondsSinceEpoch < 0 && utc.microsecondsSinceEpoch % 1000000 != 0 ? utc.second + 1 : utc.second;
-    return '$utcYear-${_format(utc.month)}-${_format(utc.day)} ${_format(utc.hour)}:${_format(utc.minute)}:${_format(seconds)}';
-  }
-
-  static String _format(int value) => value.toString().padLeft(2, '0');
-}
-
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
 

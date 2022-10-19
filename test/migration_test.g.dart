@@ -31,9 +31,13 @@ class PersonIntName extends _PersonIntName with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(PersonIntName._);
-    return const SchemaObject(PersonIntName, 'Person', [
-      SchemaProperty('name', RealmPropertyType.int),
-    ]);
+    return const SchemaObject(
+        PersonIntName,
+        'Person',
+        [
+          SchemaProperty('name', RealmPropertyType.int),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -69,10 +73,14 @@ class StudentV1 extends _StudentV1 with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(StudentV1._);
-    return const SchemaObject(StudentV1, 'Student', [
-      SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
-      SchemaProperty('yearOfBirth', RealmPropertyType.int, optional: true),
-    ]);
+    return const SchemaObject(
+        StudentV1,
+        'Student',
+        [
+          SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
+          SchemaProperty('yearOfBirth', RealmPropertyType.int, optional: true),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -108,10 +116,14 @@ class MyObjectWithTypo extends _MyObjectWithTypo with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(MyObjectWithTypo._);
-    return const SchemaObject(MyObjectWithTypo, 'MyObject', [
-      SchemaProperty('nmae', RealmPropertyType.string),
-      SchemaProperty('vlaue', RealmPropertyType.int),
-    ]);
+    return const SchemaObject(
+        MyObjectWithTypo,
+        'MyObject',
+        [
+          SchemaProperty('nmae', RealmPropertyType.string),
+          SchemaProperty('vlaue', RealmPropertyType.int),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -149,10 +161,14 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(MyObjectWithoutTypo._);
-    return const SchemaObject(MyObjectWithoutTypo, 'MyObject', [
-      SchemaProperty('name', RealmPropertyType.string),
-      SchemaProperty('value', RealmPropertyType.int),
-    ]);
+    return const SchemaObject(
+        MyObjectWithoutTypo,
+        'MyObject',
+        [
+          SchemaProperty('name', RealmPropertyType.string),
+          SchemaProperty('value', RealmPropertyType.int),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -183,8 +199,12 @@ class MyObjectWithoutValue extends _MyObjectWithoutValue
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(MyObjectWithoutValue._);
-    return const SchemaObject(MyObjectWithoutValue, 'MyObject', [
-      SchemaProperty('name', RealmPropertyType.string),
-    ]);
+    return const SchemaObject(
+        MyObjectWithoutValue,
+        'MyObject',
+        [
+          SchemaProperty('name', RealmPropertyType.string),
+        ],
+        RealmModelType.realmObject);
   }
 }

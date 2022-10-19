@@ -59,13 +59,17 @@ class Car extends _Car with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Car._);
-    return const SchemaObject(Car, 'Car', [
-      SchemaProperty('make', RealmPropertyType.string),
-      SchemaProperty('model', RealmPropertyType.string, optional: true),
-      SchemaProperty('kilometers', RealmPropertyType.int, optional: true),
-      SchemaProperty('owner', RealmPropertyType.object,
-          optional: true, linkTarget: 'Person'),
-    ]);
+    return const SchemaObject(
+        Car,
+        'Car',
+        [
+          SchemaProperty('make', RealmPropertyType.string),
+          SchemaProperty('model', RealmPropertyType.string, optional: true),
+          SchemaProperty('kilometers', RealmPropertyType.int, optional: true),
+          SchemaProperty('owner', RealmPropertyType.object,
+              optional: true, linkTarget: 'Person'),
+        ],
+        RealmModelType.realmObject);
   }
 }
 
@@ -108,9 +112,13 @@ class Person extends _Person with RealmEntity, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObject.registerFactory(Person._);
-    return const SchemaObject(Person, 'Person', [
-      SchemaProperty('name', RealmPropertyType.string),
-      SchemaProperty('age', RealmPropertyType.int),
-    ]);
+    return const SchemaObject(
+        Person,
+        'Person',
+        [
+          SchemaProperty('name', RealmPropertyType.string),
+          SchemaProperty('age', RealmPropertyType.int),
+        ],
+        RealmModelType.realmObject);
   }
 }
