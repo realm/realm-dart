@@ -723,8 +723,8 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
 
     final frozenRealm = freezeRealm(realm);
-    frozenRealm.writesExpectException<RealmError>("Can't perform transactions on a frozen Realm");
-    await frozenRealm.asyncWritesExpectException<RealmError>("Can't perform transactions on a frozen Realm");
+    frozenRealm.writesExpectException<RealmException>("Can't perform transactions on a frozen Realm");
+    await frozenRealm.asyncWritesExpectException<RealmException>("Can't perform transactions on a frozen Realm");
   });
 
   test('realm.freeze when frozen returns the same instance', () {
@@ -994,7 +994,6 @@ Future<void> main([List<String>? args]) async {
   test('Realm.beginWriteAsync starts write transaction', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     final transaction = await realm.beginWriteAsync();
-
     expect(transaction.isOpen, true);
   });
 
@@ -1003,7 +1002,6 @@ Future<void> main([List<String>? args]) async {
     final transaction = await realm.beginWriteAsync();
     realm.add(Person('John'));
     transaction.commit();
-
     expect(realm.all<Person>().length, 1);
   });
 
@@ -1012,7 +1010,6 @@ Future<void> main([List<String>? args]) async {
     final transaction = await realm.beginWriteAsync();
     realm.add(Person('John'));
     await transaction.commitAsync();
-
     expect(realm.all<Person>().length, 1);
   });
 
@@ -1030,7 +1027,6 @@ Future<void> main([List<String>? args]) async {
     final transaction = realm.beginWrite();
     realm.add(Person('John'));
     await transaction.commitAsync();
-
     expect(realm.all<Person>().length, 1);
   });
 

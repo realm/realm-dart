@@ -98,6 +98,10 @@ class _RealmCore {
     return LastError(error.ref.error, message, userError);
   }
 
+  bool clearLastError() {
+    return _realmLib.realm_clear_last_error();
+  }
+
   void throwLastError([String? errorMessage]) {
     using((Arena arena) {
       final lastError = getLastError(arena);
@@ -586,9 +590,8 @@ class _RealmCore {
   Future<void> beginWriteAsync(Realm realm, CancellationToken? ct) {
     final completer = WriteCompleter(realm, ct);
     if (!completer.isCancelled) {
-      _realmLib.invokeGetInt(() =>
-      completer.id = _realmLib.realm_async_begin_write(realm.handle._pointer, Pointer.fromFunction(_completeAsyncBeginWrite), completer.toPersistentHandle(),
-          _realmLib.addresses.realm_dart_delete_persistent_handle, true));
+      _realmLib.invokeGetInt(() => completer.id = _realmLib.realm_async_begin_write(realm.handle._pointer, Pointer.fromFunction(_completeAsyncBeginWrite),
+          completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, true));
     }
 
     return completer.future;
@@ -597,9 +600,8 @@ class _RealmCore {
   Future<void> commitWriteAsync(Realm realm, CancellationToken? ct) {
     final completer = WriteCompleter(realm, ct);
     if (!completer.isCancelled) {
-      _realmLib.invokeGetInt(() =>
-      completer.id = _realmLib.realm_async_commit(realm.handle._pointer, Pointer.fromFunction(_completeAsyncCommit), completer.toPersistentHandle(),
-          _realmLib.addresses.realm_dart_delete_persistent_handle, false));
+      _realmLib.invokeGetInt(() => completer.id = _realmLib.realm_async_commit(realm.handle._pointer, Pointer.fromFunction(_completeAsyncCommit),
+          completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, false));
     }
 
     return completer.future;
@@ -1850,7 +1852,7 @@ class _RealmCore {
       return;
     }
     if (errorCode != nullptr) {
-        // Throw RealmException instead of RealmError to be recoverable by the user.
+      // Throw RealmException instead of RealmError to be recoverable by the user.
       completer.completeError(RealmException(errorCode.toSyncError().toString()));
     } else {
       completer.complete();
@@ -2382,8 +2384,9 @@ extension _RealmLibraryEx on RealmLibrary {
   }
 
   void invokeGetInt(int Function() callback, [String? errorMessage]) {
-    int result = callback();
-    realmCore.throwLastError(errorMessage);
+    realmCore.clearLastError();
+    callback();
+    realmCore.throwLastError(errorMessage);   
   }
 }
 
