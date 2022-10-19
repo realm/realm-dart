@@ -2383,6 +2383,7 @@ extension _RealmLibraryEx on RealmLibrary {
     return result;
   }
 
+  // TODO: Use invokeGetBool instead invokeGetInt after Core issue is fixed: https://github.com/realm/realm-core/issues/5954
   void invokeGetInt(int Function() callback, [String? errorMessage]) {
     realmCore.clearLastError();
     callback();
