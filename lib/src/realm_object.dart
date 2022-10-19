@@ -18,21 +18,23 @@
 
 import 'dart:async';
 import 'dart:ffi';
-import 'dart:io';
+
+import 'package:collection/collection.dart';
 
 import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
+import 'configuration.dart';
 
 typedef DartDynamic = dynamic;
 
 abstract class RealmAccessor {
-  Object? get<T extends Object?>(RealmObject object, String name);
-  void set(RealmObject object, String name, Object? value, {bool isDefault = false, bool update = false});
+  Object? get<T extends Object?>(RealmObjectBase object, String name);
+  void set(RealmObjectBase object, String name, Object? value, {bool isDefault = false, bool update = false});
 
   static final Map<Type, Map<String, Object?>> _defaultValues = <Type, Map<String, Object?>>{};
 
-  static void setDefaults<T extends RealmObject>(Map<String, Object?> values) {
+  static void setDefaults<T extends RealmObjectBase>(Map<String, Object?> values) {
     _defaultValues[T] = values;
   }
 
@@ -63,7 +65,7 @@ class RealmValuesAccessor implements RealmAccessor {
   final Map<String, Object?> _values = <String, Object?>{};
 
   @override
-  Object? get<T extends Object?>(RealmObject object, String name) {
+  Object? get<T extends Object?>(RealmObjectBase object, String name) {
     if (!_values.containsKey(name)) {
       return RealmAccessor.getDefaultValue(object.runtimeType, name);
     }
@@ -72,11 +74,11 @@ class RealmValuesAccessor implements RealmAccessor {
   }
 
   @override
-  void set(RealmObject object, String name, Object? value, {bool isDefault = false, bool update = false}) {
+  void set(RealmObjectBase object, String name, Object? value, {bool isDefault = false, bool update = false}) {
     _values[name] = value;
   }
 
-  void setAll(RealmObject object, RealmAccessor accessor, bool update) {
+  void setAll(RealmObjectBase object, RealmAccessor accessor, bool update) {
     final defaults = RealmAccessor.getDefaults(object.runtimeType);
 
     if (defaults != null) {
@@ -96,15 +98,14 @@ class RealmValuesAccessor implements RealmAccessor {
 
 class RealmObjectMetadata {
   final int classKey;
-  final String name;
-  final Type type;
-  final String? primaryKey;
+  final SchemaObject schema;
+  late final String? primaryKey = schema.properties.firstWhereOrNull((element) => element.primaryKey)?.name;
 
   final Map<String, RealmPropertyMetadata> _propertyKeys;
 
-  String get _realmObjectTypeName => type == RealmObject ? name : type.toString();
+  String get _realmObjectTypeName => schema.isGenericRealmObject ? schema.name : schema.type.toString();
 
-  RealmObjectMetadata(this.name, this.type, this.primaryKey, this.classKey, this._propertyKeys);
+  RealmObjectMetadata(this.schema, this.classKey, this._propertyKeys);
 
   RealmPropertyMetadata operator [](String propertyName) =>
       _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exist on class $_realmObjectTypeName"));
@@ -137,7 +138,7 @@ class RealmCoreAccessor implements RealmAccessor {
   RealmCoreAccessor(this.metadata, this.isInMigration);
 
   @override
-  Object? get<T extends Object?>(RealmObject object, String name) {
+  Object? get<T extends Object?>(RealmObjectBase object, String name) {
     try {
       final propertyMeta = metadata[name];
       if (propertyMeta.collectionType == RealmCollectionType.list) {
@@ -148,7 +149,14 @@ class RealmCoreAccessor implements RealmAccessor {
         // called with a generic object arg - get<Object> we construct a list of
         // RealmObjects since we don't know the type of the object.
         if (listMetadata != null && _isTypeGenericObject<T>()) {
-          return object.realm.createList<RealmObject>(handle, listMetadata);
+          switch (listMetadata.schema.baseType) {
+            case ObjectType.topLevel:
+              return object.realm.createList<RealmObject>(handle, listMetadata);
+            case ObjectType.embedded:
+              return object.realm.createList<EmbeddedObject>(handle, listMetadata);
+            default:
+              throw RealmError('List of ${listMetadata.schema.baseType} is not supported yet');
+          }
         }
 
         return object.realm.createList<T>(handle, listMetadata);
@@ -162,7 +170,7 @@ class RealmCoreAccessor implements RealmAccessor {
         // If we have an object but the user called the API without providing a generic
         // arg, we construct a RealmObject since we don't know the type of the object.
         if (_isTypeGenericObject<T>()) {
-          return object.realm.createObject(RealmObject, value, targetMetadata);
+          return object.realm.createObject(RealmObjectBase, value, targetMetadata);
         }
 
         return object.realm.createObject(T, value, targetMetadata);
@@ -175,7 +183,7 @@ class RealmCoreAccessor implements RealmAccessor {
   }
 
   @override
-  void set(RealmObject object, String name, Object? value, {bool isDefault = false, bool update = false}) {
+  void set(RealmObjectBase object, String name, Object? value, {bool isDefault = false, bool update = false}) {
     final propertyMeta = metadata[name];
     try {
       if (value is RealmList<Object?>) {
@@ -184,6 +192,16 @@ class RealmCoreAccessor implements RealmAccessor {
         for (var i = 0; i < value.length; i++) {
           RealmListInternal.setValue(handle, object.realm, i, value[i], update: update);
         }
+        return;
+      }
+
+      if (value is EmbeddedObject) {
+        if (value.isManaged) {
+          throw RealmError("Can't set an embedded object that is already managed");
+        }
+
+        final handle = realmCore.createEmbeddedObject(object, propertyMeta.key);
+        object.realm.manageEmbedded(handle, value, update: update);
         return;
       }
 
@@ -230,28 +248,30 @@ extension RealmEntityInternal on RealmEntity {
 ///
 /// [RealmObject] should not be used directly as it is part of the generated class hierarchy. ex: `MyClass extends _MyClass with RealmObject`.
 /// {@category Realm}
-mixin RealmObject on RealmEntity implements Finalizable {
+mixin RealmObjectBase on RealmEntity implements Finalizable {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
-  static final Map<Type, RealmObject Function()> _factories = <Type, RealmObject Function()>{
+  static final Map<Type, RealmObjectBase Function()> _factories = <Type, RealmObjectBase Function()>{
     // Register default factories for `RealmObject` and `RealmObject?`. Whenever the user
     // asks for these types, we'll use the ConcreteRealmObject implementation.
     RealmObject: () => _ConcreteRealmObject(),
     _typeOf<RealmObject?>(): () => _ConcreteRealmObject(),
+    EmbeddedObject: () => _ConcreteEmbeddedObject(),
+    _typeOf<EmbeddedObject?>(): () => _ConcreteEmbeddedObject(),
   };
 
   /// @nodoc
-  static Object? get<T extends Object?>(RealmObject object, String name) {
+  static Object? get<T extends Object?>(RealmObjectBase object, String name) {
     return object._accessor.get<T>(object, name);
   }
 
   /// @nodoc
-  static void set<T extends Object>(RealmObject object, String name, T? value, {bool update = false}) {
+  static void set<T extends Object>(RealmObjectBase object, String name, T? value, {bool update = false}) {
     object._accessor.set(object, name, value, update: update);
   }
 
   /// @nodoc
-  static void registerFactory<T extends RealmObject>(T Function() factory) {
+  static void registerFactory<T extends RealmObjectBase>(T Function() factory) {
     // We register a factory for both the type itself, but also the nullable
     // version of the type.
     _factories.putIfAbsent(T, () => factory);
@@ -259,11 +279,24 @@ mixin RealmObject on RealmEntity implements Finalizable {
   }
 
   /// @nodoc
-  static T create<T extends RealmObject>() {
-    if (!_factories.containsKey(T)) {
-      throw RealmException("Factory for Realm object type $T not found");
+  static RealmObjectBase createObject(Type type, RealmObjectMetadata metadata) {
+    final factory = _factories[type];
+    if (factory == null) {
+      if (type == RealmObjectBase) {
+        switch (metadata.schema.baseType) {
+          case ObjectType.topLevel:
+            return _ConcreteRealmObject();
+          case ObjectType.embedded:
+            return _ConcreteEmbeddedObject();
+          default:
+            throw RealmException("ObjectType ${metadata.schema.baseType} not supported");
+        }
+      }
+
+      throw RealmException("Factory for Realm object type $type not found");
     }
-    return _factories[T]!() as T;
+
+    return factory();
   }
 
   /// @nodoc
@@ -273,7 +306,7 @@ mixin RealmObject on RealmEntity implements Finalizable {
   }
 
   /// @nodoc
-  static T freezeObject<T extends RealmObject>(T object) {
+  static T freezeObject<T extends RealmObjectBase>(T object) {
     if (!object.isManaged) {
       throw RealmStateError("Can't freeze unmanaged objects.");
     }
@@ -311,10 +344,10 @@ mixin RealmObject on RealmEntity implements Finalizable {
   /// Returns a [Stream] of [RealmObjectChanges<T>] that can be listened to.
   ///
   /// If the object is not managed a [RealmStateError] is thrown.
-  Stream<RealmObjectChanges<RealmObject>> get changes => throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
+  Stream<RealmObjectChanges<RealmObjectBase>> get changes => throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
 
   /// @nodoc
-  static Stream<RealmObjectChanges<T>> getChanges<T extends RealmObject>(T object) {
+  static Stream<RealmObjectChanges<T>> getChanges<T extends RealmObjectBase>(T object) {
     if (!object.isManaged) {
       throw RealmStateError("Object is not managed");
     }
@@ -364,12 +397,18 @@ mixin RealmObject on RealmEntity implements Finalizable {
   late final DynamicRealmObject dynamic = DynamicRealmObject._(this);
 
   /// Creates a frozen snapshot of this [RealmObject].
-  RealmObject freeze() => freezeObject(this);
+  RealmObjectBase freeze() => freezeObject(this);
 }
 
 /// @nodoc
+mixin RealmObject on RealmObjectBase {}
+
+/// @nodoc
+mixin EmbeddedObject on RealmObjectBase {}
+
+/// @nodoc
 //RealmObject package internal members
-extension RealmObjectInternal on RealmObject {
+extension RealmObjectInternal on RealmObjectBase {
   @pragma('vm:never-inline')
   void keepAlive() {
     _realm?.keepAlive();
@@ -392,12 +431,8 @@ extension RealmObjectInternal on RealmObject {
     _accessor = accessor;
   }
 
-  static RealmObject create(Type type, Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor) {
-    if (!RealmObject._factories.containsKey(type)) {
-      throw Exception("Factory for object type $type not found.");
-    }
-
-    final object = RealmObject._factories[type]!();
+  static RealmObjectBase create(Type type, Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor) {
+    final object = RealmObjectBase.createObject(type, accessor.metadata);
     object._handle = handle;
     object._accessor = accessor;
     object._realm = realm;
@@ -439,7 +474,7 @@ class UserCallbackException extends RealmException {
 }
 
 /// Describes the changes in on a single RealmObject since the last time the notification callback was invoked.
-class RealmObjectChanges<T extends RealmObject> implements Finalizable {
+class RealmObjectChanges<T extends RealmObjectBase> implements Finalizable {
   // ignore: unused_field
   final RealmObjectChangesHandle _handle;
 
@@ -467,7 +502,7 @@ extension RealmObjectChangesInternal<T extends RealmObject> on RealmObjectChange
 }
 
 /// @nodoc
-class RealmObjectNotificationsController<T extends RealmObject> extends NotificationsController {
+class RealmObjectNotificationsController<T extends RealmObjectBase> extends NotificationsController {
   T realmObject;
   late final StreamController<RealmObjectChanges<T>> streamController;
 
@@ -500,7 +535,10 @@ class RealmObjectNotificationsController<T extends RealmObject> extends Notifica
 }
 
 /// @nodoc
-class _ConcreteRealmObject with RealmEntity, RealmObject {}
+class _ConcreteRealmObject with RealmEntity, RealmObjectBase, RealmObject {}
+
+/// @nodoc
+class _ConcreteEmbeddedObject with RealmEntity, RealmObjectBase, EmbeddedObject {}
 
 // This is necessary whenever we need to pass T? as the type.
 Type _typeOf<T>() => T;
@@ -512,7 +550,7 @@ bool _isTypeGenericObject<T>() => T == Object || T == _typeOf<Object?>();
 ///
 /// {@category Realm}
 class DynamicRealmObject {
-  final RealmObject _obj;
+  final RealmObjectBase _obj;
 
   DynamicRealmObject._(this._obj);
 
@@ -521,7 +559,7 @@ class DynamicRealmObject {
   /// in [Object].
   T get<T extends Object?>(String name) {
     _validatePropertyType<T>(name, RealmCollectionType.none);
-    return RealmObject.get<T>(_obj, name) as T;
+    return RealmObjectBase.get<T>(_obj, name) as T;
   }
 
   /// Gets a list by the property name. If a generic type is specified, the property
@@ -529,7 +567,7 @@ class DynamicRealmObject {
   /// returned.
   RealmList<T> getList<T extends Object?>(String name) {
     _validatePropertyType<T>(name, RealmCollectionType.list);
-    return RealmObject.get<T>(_obj, name) as RealmList<T>;
+    return RealmObjectBase.get<T>(_obj, name) as RealmList<T>;
   }
 
   RealmPropertyMetadata? _validatePropertyType<T extends Object?>(String name, RealmCollectionType expectedCollectionType) {
@@ -537,25 +575,25 @@ class DynamicRealmObject {
     if (accessor is RealmCoreAccessor) {
       final prop = accessor.metadata._propertyKeys[name];
       if (prop == null) {
-        throw RealmException("Property '$name' does not exist on class '${accessor.metadata.name}'");
+        throw RealmException("Property '$name' does not exist on class '${accessor.metadata.schema.name}'");
       }
 
       if (prop.collectionType != expectedCollectionType) {
         throw RealmException(
-            "Property '$name' on class '${accessor.metadata.name}' is '${prop.collectionType}' but the method used to access it expected '$expectedCollectionType'.");
+            "Property '$name' on class '${accessor.metadata.schema.name}' is '${prop.collectionType}' but the method used to access it expected '$expectedCollectionType'.");
       }
 
       // If the user passed in a type argument, we should validate its nullability; if they invoked
       // the method without a type arg, we don't
       if (T != _typeOf<Object?>() && prop.isNullable != null is T) {
         throw RealmException(
-            "Property '$name' on class '${accessor.metadata.name}' is ${prop.isNullable ? 'nullable' : 'required'} but the generic argument passed to get<T> is $T.");
+            "Property '$name' on class '${accessor.metadata.schema.name}' is ${prop.isNullable ? 'nullable' : 'required'} but the generic argument passed to get<T> is $T.");
       }
 
       final targetType = _getPropertyType<T>();
       if (targetType != null && targetType != prop.propertyType) {
         throw RealmException(
-            "Property '$name' on class '${accessor.metadata.name}' is not the correct type. Expected '$targetType', got '${prop.propertyType}'.");
+            "Property '$name' on class '${accessor.metadata.schema.name}' is not the correct type. Expected '$targetType', got '${prop.propertyType}'.");
       }
 
       return prop;

@@ -50,6 +50,7 @@ export 'package:realm_common/realm_common.dart'
         GeneralSyncError,
         SyncErrorCategory,
         GeneralSyncErrorCode,
+        ObjectType,
         SyncClientErrorCode,
         SyncConnectionErrorCode,
         SyncSessionErrorCode,
@@ -80,7 +81,8 @@ export "configuration.dart"
 
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
-export 'realm_object.dart' show RealmEntity, RealmException, UserCallbackException, RealmObject, RealmObjectChanges, DynamicRealmObject;
+export 'realm_object.dart'
+    show RealmEntity, RealmException, UserCallbackException, RealmObject, RealmObjectBase, EmbeddedObject, RealmObjectChanges, DynamicRealmObject;
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
@@ -165,7 +167,7 @@ class Realm implements Finalizable {
 
   void _populateMetadata() {
     schema = config.schemaObjects.isNotEmpty ? RealmSchema(config.schemaObjects) : realmCore.readSchema(this);
-    _metadata = RealmMetadata._(schema.map((c) => realmCore.getObjectMetadata(this, c.name, c.type)));
+    _metadata = RealmMetadata._(schema.map((c) => realmCore.getObjectMetadata(this, c)));
   }
 
   /// Deletes all files associated with a `Realm` located at given [path]
@@ -225,7 +227,7 @@ class Realm implements Finalizable {
     return object;
   }
 
-  RealmObjectHandle _createObject(RealmObject object, RealmObjectMetadata metadata, bool update) {
+  RealmObjectHandle _createObject(RealmObjectBase object, RealmObjectMetadata metadata, bool update) {
     final key = metadata.classKey;
     final primaryKey = metadata.primaryKey;
     if (primaryKey == null) {
@@ -561,7 +563,7 @@ extension RealmInternal on Realm {
     return Realm._(config, handle, isInMigration);
   }
 
-  RealmObject createObject(Type type, RealmObjectHandle handle, RealmObjectMetadata metadata) {
+  RealmObjectBase createObject(Type type, RealmObjectHandle handle, RealmObjectMetadata metadata) {
     final accessor = RealmCoreAccessor(metadata, _isInMigration);
     return RealmObjectInternal.create(type, this, handle, accessor);
   }
@@ -584,7 +586,21 @@ extension RealmInternal on Realm {
 
   RealmMetadata get metadata => _metadata;
 
-  T? resolveObject<T extends RealmObject>(T object) {
+  void manageEmbedded(RealmObjectHandle handle, EmbeddedObject object, {bool update = false}) {
+    final metadata = _metadata.getByType(object.runtimeType);
+
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
+    object.manage(this, handle, accessor, update);
+  }
+
+  /// This should only be used for testing
+  RealmResults<T> allEmbedded<T extends EmbeddedObject>() {
+    final metadata = _metadata.getByType(T);
+    final handle = realmCore.findAll(this, metadata.classKey);
+    return RealmResultsInternal.create<T>(handle, this, metadata);
+  }
+
+  T? resolveObject<T extends RealmObjectBase>(T object) {
     if (!object.isManaged) {
       throw RealmStateError("Can't resolve unmanaged objects");
     }
@@ -612,7 +628,7 @@ extension RealmInternal on Realm {
     return createList<T>(handle, list.metadata);
   }
 
-  RealmResults<T> resolveResults<T extends RealmObject>(RealmResults<T> results) {
+  RealmResults<T> resolveResults<T extends RealmObjectBase>(RealmResults<T> results) {
     final handle = realmCore.resolveResults(results, this);
     return RealmResultsInternal.create<T>(handle, this, results.metadata);
   }
@@ -708,10 +724,10 @@ class RealmMetadata {
 
   RealmMetadata._(Iterable<RealmObjectMetadata> objectMetadatas) {
     for (final metadata in objectMetadatas) {
-      if (metadata.type != RealmObject) {
-        _typeMap[metadata.type] = metadata;
+      if (!metadata.schema.isGenericRealmObject) {
+        _typeMap[metadata.schema.type] = metadata;
       } else {
-        _stringMap[metadata.name] = metadata;
+        _stringMap[metadata.schema.name] = metadata;
       }
     }
   }
@@ -728,7 +744,7 @@ class RealmMetadata {
   RealmObjectMetadata getByName(String type) {
     var metadata = _stringMap[type];
     if (metadata == null) {
-      metadata = _typeMap.values.firstWhereOrNull((v) => v.name == type);
+      metadata = _typeMap.values.firstWhereOrNull((v) => v.schema.name == type);
       if (metadata == null) {
         throw RealmError("Object type $type not configured in the current Realm's schema. Add type $type to your config before opening the Realm");
       }
@@ -768,7 +784,7 @@ class DynamicRealm {
     }
 
     final accessor = RealmCoreAccessor(metadata, _realm._isInMigration);
-    return RealmObjectInternal.create(RealmObject, _realm, handle, accessor);
+    return RealmObjectInternal.create(RealmObject, _realm, handle, accessor) as RealmObject;
   }
 }
 

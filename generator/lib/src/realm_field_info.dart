@@ -62,11 +62,11 @@ class RealmFieldInfo {
 
   Iterable<String> toCode() sync* {
     yield '@override';
-    yield "$mappedTypeName get $name => RealmObject.get<$basicMappedTypeName>(this, '$realmName') as $mappedTypeName;";
+    yield "$mappedTypeName get $name => RealmObjectBase.get<$basicMappedTypeName>(this, '$realmName') as $mappedTypeName;";
     bool generateSetter = !isFinal && !isRealmCollection;
     if (generateSetter) {
       yield '@override';
-      yield "set $name(${mappedTypeName != modelTypeName ? 'covariant ' : ''}$mappedTypeName value) => RealmObject.set(this, '$realmName', value);";
+      yield "set $name(${mappedTypeName != modelTypeName ? 'covariant ' : ''}$mappedTypeName value) => RealmObjectBase.set(this, '$realmName', value);";
     } else {
       bool generateThrowError = isLate || isRealmCollection;
       if (generateThrowError) {

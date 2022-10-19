@@ -6,109 +6,115 @@ part of 'migration_test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
-class PersonIntName extends _PersonIntName with RealmEntity, RealmObject {
+class PersonIntName extends _PersonIntName
+    with RealmEntity, RealmObjectBase, RealmObject {
   PersonIntName(
     int name,
   ) {
-    RealmObject.set(this, 'name', name);
+    RealmObjectBase.set(this, 'name', name);
   }
 
   PersonIntName._();
 
   @override
-  int get name => RealmObject.get<int>(this, 'name') as int;
+  int get name => RealmObjectBase.get<int>(this, 'name') as int;
   @override
-  set name(int value) => RealmObject.set(this, 'name', value);
+  set name(int value) => RealmObjectBase.set(this, 'name', value);
 
   @override
   Stream<RealmObjectChanges<PersonIntName>> get changes =>
-      RealmObject.getChanges<PersonIntName>(this);
+      RealmObjectBase.getChanges<PersonIntName>(this);
 
   @override
-  PersonIntName freeze() => RealmObject.freezeObject<PersonIntName>(this);
+  PersonIntName freeze() => RealmObjectBase.freezeObject<PersonIntName>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory(PersonIntName._);
-    return const SchemaObject(PersonIntName, 'Person', [
+    RealmObjectBase.registerFactory(PersonIntName._);
+    return const SchemaObject(ObjectType.topLevel, PersonIntName, 'Person', [
       SchemaProperty('name', RealmPropertyType.int),
     ]);
   }
 }
 
-class StudentV1 extends _StudentV1 with RealmEntity, RealmObject {
+class StudentV1 extends _StudentV1
+    with RealmEntity, RealmObjectBase, RealmObject {
   StudentV1(
     String name, {
     int? yearOfBirth,
   }) {
-    RealmObject.set(this, 'name', name);
-    RealmObject.set(this, 'yearOfBirth', yearOfBirth);
+    RealmObjectBase.set(this, 'name', name);
+    RealmObjectBase.set(this, 'yearOfBirth', yearOfBirth);
   }
 
   StudentV1._();
 
   @override
-  String get name => RealmObject.get<String>(this, 'name') as String;
+  String get name => RealmObjectBase.get<String>(this, 'name') as String;
   @override
-  set name(String value) => RealmObject.set(this, 'name', value);
+  set name(String value) => RealmObjectBase.set(this, 'name', value);
 
   @override
-  int? get yearOfBirth => RealmObject.get<int>(this, 'yearOfBirth') as int?;
+  int? get yearOfBirth => RealmObjectBase.get<int>(this, 'yearOfBirth') as int?;
   @override
-  set yearOfBirth(int? value) => RealmObject.set(this, 'yearOfBirth', value);
+  set yearOfBirth(int? value) =>
+      RealmObjectBase.set(this, 'yearOfBirth', value);
 
   @override
   Stream<RealmObjectChanges<StudentV1>> get changes =>
-      RealmObject.getChanges<StudentV1>(this);
+      RealmObjectBase.getChanges<StudentV1>(this);
 
   @override
-  StudentV1 freeze() => RealmObject.freezeObject<StudentV1>(this);
+  StudentV1 freeze() => RealmObjectBase.freezeObject<StudentV1>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory(StudentV1._);
-    return const SchemaObject(StudentV1, 'Student', [
+    RealmObjectBase.registerFactory(StudentV1._);
+    return const SchemaObject(ObjectType.topLevel, StudentV1, 'Student', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('yearOfBirth', RealmPropertyType.int, optional: true),
     ]);
   }
 }
 
-class MyObjectWithTypo extends _MyObjectWithTypo with RealmEntity, RealmObject {
+class MyObjectWithTypo extends _MyObjectWithTypo
+    with RealmEntity, RealmObjectBase, RealmObject {
   MyObjectWithTypo(
     String nmae,
     int vlaue,
   ) {
-    RealmObject.set(this, 'nmae', nmae);
-    RealmObject.set(this, 'vlaue', vlaue);
+    RealmObjectBase.set(this, 'nmae', nmae);
+    RealmObjectBase.set(this, 'vlaue', vlaue);
   }
 
   MyObjectWithTypo._();
 
   @override
-  String get nmae => RealmObject.get<String>(this, 'nmae') as String;
+  String get nmae => RealmObjectBase.get<String>(this, 'nmae') as String;
   @override
-  set nmae(String value) => RealmObject.set(this, 'nmae', value);
+  set nmae(String value) => RealmObjectBase.set(this, 'nmae', value);
 
   @override
-  int get vlaue => RealmObject.get<int>(this, 'vlaue') as int;
+  int get vlaue => RealmObjectBase.get<int>(this, 'vlaue') as int;
   @override
-  set vlaue(int value) => RealmObject.set(this, 'vlaue', value);
+  set vlaue(int value) => RealmObjectBase.set(this, 'vlaue', value);
 
   @override
   Stream<RealmObjectChanges<MyObjectWithTypo>> get changes =>
-      RealmObject.getChanges<MyObjectWithTypo>(this);
+      RealmObjectBase.getChanges<MyObjectWithTypo>(this);
 
   @override
-  MyObjectWithTypo freeze() => RealmObject.freezeObject<MyObjectWithTypo>(this);
+  MyObjectWithTypo freeze() =>
+      RealmObjectBase.freezeObject<MyObjectWithTypo>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory(MyObjectWithTypo._);
-    return const SchemaObject(MyObjectWithTypo, 'MyObject', [
+    RealmObjectBase.registerFactory(MyObjectWithTypo._);
+    return const SchemaObject(
+        ObjectType.topLevel, MyObjectWithTypo, 'MyObject', [
       SchemaProperty('nmae', RealmPropertyType.string),
       SchemaProperty('vlaue', RealmPropertyType.int),
     ]);
@@ -116,40 +122,41 @@ class MyObjectWithTypo extends _MyObjectWithTypo with RealmEntity, RealmObject {
 }
 
 class MyObjectWithoutTypo extends _MyObjectWithoutTypo
-    with RealmEntity, RealmObject {
+    with RealmEntity, RealmObjectBase, RealmObject {
   MyObjectWithoutTypo(
     String name,
     int value,
   ) {
-    RealmObject.set(this, 'name', name);
-    RealmObject.set(this, 'value', value);
+    RealmObjectBase.set(this, 'name', name);
+    RealmObjectBase.set(this, 'value', value);
   }
 
   MyObjectWithoutTypo._();
 
   @override
-  String get name => RealmObject.get<String>(this, 'name') as String;
+  String get name => RealmObjectBase.get<String>(this, 'name') as String;
   @override
-  set name(String value) => RealmObject.set(this, 'name', value);
+  set name(String value) => RealmObjectBase.set(this, 'name', value);
 
   @override
-  int get value => RealmObject.get<int>(this, 'value') as int;
+  int get value => RealmObjectBase.get<int>(this, 'value') as int;
   @override
-  set value(int value) => RealmObject.set(this, 'value', value);
+  set value(int value) => RealmObjectBase.set(this, 'value', value);
 
   @override
   Stream<RealmObjectChanges<MyObjectWithoutTypo>> get changes =>
-      RealmObject.getChanges<MyObjectWithoutTypo>(this);
+      RealmObjectBase.getChanges<MyObjectWithoutTypo>(this);
 
   @override
   MyObjectWithoutTypo freeze() =>
-      RealmObject.freezeObject<MyObjectWithoutTypo>(this);
+      RealmObjectBase.freezeObject<MyObjectWithoutTypo>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory(MyObjectWithoutTypo._);
-    return const SchemaObject(MyObjectWithoutTypo, 'MyObject', [
+    RealmObjectBase.registerFactory(MyObjectWithoutTypo._);
+    return const SchemaObject(
+        ObjectType.topLevel, MyObjectWithoutTypo, 'MyObject', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('value', RealmPropertyType.int),
     ]);
@@ -157,33 +164,34 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
 }
 
 class MyObjectWithoutValue extends _MyObjectWithoutValue
-    with RealmEntity, RealmObject {
+    with RealmEntity, RealmObjectBase, RealmObject {
   MyObjectWithoutValue(
     String name,
   ) {
-    RealmObject.set(this, 'name', name);
+    RealmObjectBase.set(this, 'name', name);
   }
 
   MyObjectWithoutValue._();
 
   @override
-  String get name => RealmObject.get<String>(this, 'name') as String;
+  String get name => RealmObjectBase.get<String>(this, 'name') as String;
   @override
-  set name(String value) => RealmObject.set(this, 'name', value);
+  set name(String value) => RealmObjectBase.set(this, 'name', value);
 
   @override
   Stream<RealmObjectChanges<MyObjectWithoutValue>> get changes =>
-      RealmObject.getChanges<MyObjectWithoutValue>(this);
+      RealmObjectBase.getChanges<MyObjectWithoutValue>(this);
 
   @override
   MyObjectWithoutValue freeze() =>
-      RealmObject.freezeObject<MyObjectWithoutValue>(this);
+      RealmObjectBase.freezeObject<MyObjectWithoutValue>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory(MyObjectWithoutValue._);
-    return const SchemaObject(MyObjectWithoutValue, 'MyObject', [
+    RealmObjectBase.registerFactory(MyObjectWithoutValue._);
+    return const SchemaObject(
+        ObjectType.topLevel, MyObjectWithoutValue, 'MyObject', [
       SchemaProperty('name', RealmPropertyType.string),
     ]);
   }
