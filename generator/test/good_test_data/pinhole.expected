@@ -2,39 +2,41 @@
 // RealmObjectGenerator
 // **************************************************************************
 
-class Foo extends _Foo with RealmEntity, RealmObject {
+class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
   Foo({
     int x = 0,
   }) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObject.setDefaults<Foo>({
+      _defaultsSet = RealmObjectBase.setDefaults<Foo>({
         'x': 0,
       });
     }
-    RealmObject.set(this, 'x', x);
+    RealmObjectBase.set(this, 'x', x);
   }
 
   Foo._();
 
   @override
-  int get x => RealmObject.get<int>(this, 'x') as int;
+  int get x => RealmObjectBase.get<int>(this, 'x') as int;
   @override
-  set x(int value) => RealmObject.set(this, 'x', value);
+  set x(int value) => RealmObjectBase.set(this, 'x', value);
 
   @override
-  Stream<RealmObjectChanges<Foo>> get changes => RealmObject.getChanges<Foo>(this);
+  Stream<RealmObjectChanges<Foo>> get changes =>
+      RealmObjectBase.getChanges<Foo>(this);
 
   @override
-  Foo freeze() => RealmObject.freezeObject<Foo>(this);
+  Foo freeze() => RealmObjectBase.freezeObject<Foo>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory(Foo._);
-    return const SchemaObject(Foo, 'Foo', [
+    RealmObjectBase.registerFactory(Foo._);
+    return const SchemaObject(ObjectType.topLevel, Foo, 'Foo', [
       SchemaProperty('x', RealmPropertyType.int),
     ]);
   }
 }
+

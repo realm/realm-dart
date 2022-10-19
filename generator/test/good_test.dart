@@ -36,13 +36,14 @@ class _MappedToo {
 // RealmObjectGenerator
 // **************************************************************************
 
-class MappedToo extends _MappedToo with RealmEntity, RealmObject {
+class MappedToo extends _MappedToo
+    with RealmEntity, RealmObjectBase, RealmObject {
   MappedToo({
     Original? singleLink,
     Iterable<Original> listLink = const [],
   }) {
-    RealmObject.set(this, 'singleLink', singleLink);
-    RealmObject.set<RealmList<Original>>(
+    RealmObjectBase.set(this, 'singleLink', singleLink);
+    RealmObjectBase.set<RealmList<Original>>(
         this, 'listLink', RealmList<Original>(listLink));
   }
 
@@ -50,30 +51,31 @@ class MappedToo extends _MappedToo with RealmEntity, RealmObject {
 
   @override
   Original? get singleLink =>
-      RealmObject.get<Original>(this, 'singleLink') as Original?;
+      RealmObjectBase.get<Original>(this, 'singleLink') as Original?;
   @override
   set singleLink(covariant Original? value) =>
-      RealmObject.set(this, 'singleLink', value);
+      RealmObjectBase.set(this, 'singleLink', value);
 
   @override
   RealmList<Original> get listLink =>
-      RealmObject.get<Original>(this, 'listLink') as RealmList<Original>;
+      RealmObjectBase.get<Original>(this, 'listLink') as RealmList<Original>;
   @override
   set listLink(covariant RealmList<Original> value) =>
       throw RealmUnsupportedSetError();
 
   @override
   Stream<RealmObjectChanges<MappedToo>> get changes =>
-      RealmObject.getChanges<MappedToo>(this);
+      RealmObjectBase.getChanges<MappedToo>(this);
 
   @override
-  MappedToo freeze() => RealmObject.freezeObject<MappedToo>(this);
+  MappedToo freeze() => RealmObjectBase.freezeObject<MappedToo>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory(MappedToo._);
-    return const SchemaObject(MappedToo, 'this is also mapped', [
+    RealmObjectBase.registerFactory(MappedToo._);
+    return const SchemaObject(
+        ObjectType.topLevel, MappedToo, 'this is also mapped', [
       SchemaProperty('singleLink', RealmPropertyType.object,
           optional: true, linkTarget: 'another type'),
       SchemaProperty('listLink', RealmPropertyType.object,
