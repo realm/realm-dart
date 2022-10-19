@@ -303,8 +303,6 @@ class Realm implements Finalizable {
 
   /// Begins a write transaction for this [Realm].
   Transaction beginWrite() {
-    _ensureWritable();
-
     realmCore.beginWrite(this);
 
     return Transaction._(this);
@@ -313,8 +311,6 @@ class Realm implements Finalizable {
   /// Asynchronously begins a write transaction for this [Realm]. You can supply a
   /// [CancellationToken] to cancel the operation.
   Future<Transaction> beginWriteAsync([CancellationToken? cancellationToken]) async {
-    _ensureWritable();
-
     await realmCore.beginWriteAsync(this, cancellationToken);
 
     return Transaction._(this);
@@ -473,12 +469,6 @@ class Realm implements Finalizable {
 
       throw RealmError('Cannot $operation because the object is managed by another Realm instance');
     }
-  }
-
-  void _ensureWritable() {
-    // if (isFrozen) {
-    //   throw RealmError('Starting a write transaction on a frozen Realm is not allowed.');
-    // }
   }
 }
 
