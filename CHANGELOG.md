@@ -8,7 +8,7 @@
   * Added `realm.beginWriteAsync` which returns a `Future<Transaction>` that resolves when the write lock has been obtained.
   * Added `realm.writeAsync` which opens an asynchronous transaction, invokes the provided callback, then commits the transaction asynchronously.
 * Support `Realm.open` API to asynchronously open a local or synced Realm. When opening a synchronized Realm it will download all the content available at the time the operation began and then return a usable Realm. ([#731](https://github.com/realm/realm-dart/pull/731))
-* Added `InitialSubscriptionsConfiguration` to `FlexibleSyncConfiguration` - this is a configuration option about a callback that will be invoked the first time a Realm is opened. It allows you to create the initial subscriptions that will be added to the Realm before it is opened. It allows also updating initial subscription set each time the realm is opened. ([#732](https://github.com/realm/realm-dart/pull/732))
+* Added `InitialSubscriptionsCallback` to `FlexibleSyncConfiguration` - this callback will be invoked the first time a Realm is opened. It allows you to create the initial subscriptions that will be added to the Realm before it is opened. It you set option `reRunInitialSubscriptionsCallback` to true then the initial subscription set will be updated each time the application is launched. ([#732](https://github.com/realm/realm-dart/pull/732))
 
 ### Fixed
 * Added more validations when using `User.apiKeys` to return more meaningful errors when the user cannot perform API key actions - e.g. when the user has been logged in with API key credentials or when the user has been logged out. (Issue [#950](https://github.com/realm/realm-dart/issues/950))

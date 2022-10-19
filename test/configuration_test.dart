@@ -589,7 +589,7 @@ Future<void> main([List<String>? args]) async {
     );
   });
   
-  baasTest('FlexibleSyncConfiguration.initialSubscriptionsConfiguration rerunOnOpen = true', (appConfiguration) async {
+  baasTest('FlexibleSyncConfiguration.initialSubscriptionsCallback rerunOnOpen = true', (appConfiguration) async {
     final app = App(appConfiguration);
     var subscriptionSetUpdateCount = 0;
     final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
@@ -604,7 +604,7 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptionSetUpdateCount, 3);
   });
 
-  baasTest('FlexibleSyncConfiguration.initialSubscriptionsConfiguration rerunOnOpen = false', (appConfiguration) async {
+  baasTest('FlexibleSyncConfiguration.initialSubscriptionsCallback rerunOnOpen = false', (appConfiguration) async {
     final app = App(appConfiguration);
     var subscriptionSetUpdateCount = 0;
     final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
