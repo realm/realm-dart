@@ -101,10 +101,10 @@ class _RealmCore {
   void throwLastError([String? errorMessage]) {
     using((Arena arena) {
       final lastError = getLastError(arena);
+      if (errorMessage == null && lastError == null) return;
       if (lastError?.userError != null) {
         throw UserCallbackException(lastError!.userError!);
       }
-
       throw RealmException('${errorMessage != null ? "$errorMessage. " : ""}${lastError ?? ""}');
     });
   }
@@ -586,8 +586,9 @@ class _RealmCore {
   Future<void> beginWriteAsync(Realm realm, CancellationToken? ct) {
     final completer = WriteCompleter(realm, ct);
     if (!completer.isCancelled) {
+      _realmLib.invokeGetInt(() =>
       completer.id = _realmLib.realm_async_begin_write(realm.handle._pointer, Pointer.fromFunction(_completeAsyncBeginWrite), completer.toPersistentHandle(),
-          _realmLib.addresses.realm_dart_delete_persistent_handle, true);
+          _realmLib.addresses.realm_dart_delete_persistent_handle, true));
     }
 
     return completer.future;
@@ -596,8 +597,9 @@ class _RealmCore {
   Future<void> commitWriteAsync(Realm realm, CancellationToken? ct) {
     final completer = WriteCompleter(realm, ct);
     if (!completer.isCancelled) {
+      _realmLib.invokeGetInt(() =>
       completer.id = _realmLib.realm_async_commit(realm.handle._pointer, Pointer.fromFunction(_completeAsyncCommit), completer.toPersistentHandle(),
-          _realmLib.addresses.realm_dart_delete_persistent_handle, false);
+          _realmLib.addresses.realm_dart_delete_persistent_handle, false));
     }
 
     return completer.future;
@@ -2377,6 +2379,11 @@ extension _RealmLibraryEx on RealmLibrary {
       realmCore.throwLastError(errorMessage);
     }
     return result;
+  }
+
+  void invokeGetInt(int Function() callback, [String? errorMessage]) {
+    int result = callback();
+    realmCore.throwLastError(errorMessage);
   }
 }
 

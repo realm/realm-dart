@@ -266,14 +266,15 @@ Future<void> main([List<String>? args]) async {
     expect(realm.write(() => realm.add(carTwo, update: true)), carTwo);
   });
 
-  test('Realm write after realm is closed', () {
+  test('Realm write after realm is closed', () async {
     var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     final car = Car('Tesla');
 
     realm.close();
-    expect(() => realm.write(() {}), throws<RealmClosedError>("Cannot access realm that has been closed"));
+    realm.writesExpectException<RealmClosedError>("Cannot access realm that has been closed");
+    await realm.asyncWritesExpectException<RealmClosedError>("Cannot access realm that has been closed");
   });
 
   test('Realm query', () {
@@ -574,12 +575,12 @@ Future<void> main([List<String>? args]) async {
     expect(returnedCar, car);
   });
 
-  test('Realm write inside another write throws', () {
+  test('Realm write inside another write throws', () async {
     final config = Configuration.local([Car.schema]);
     final realm = getRealm(config);
-    realm.write(() {
+    realm.write(() async {
       // Second write inside the first one fails but the error is caught
-      expect(() => realm.write(() {}), throws<RealmException>('The Realm is already in a write transaction'));
+      realm.writesExpectException<RealmException>("The Realm is already in a write transaction");
     });
   });
 
@@ -717,36 +718,13 @@ Future<void> main([List<String>? args]) async {
     expect(realm.all<Person>().length, 0);
   });
 
-  test('FrozenRealm cannot write', () {
+  test('FrozenRealm cannot write', () async {
     final config = Configuration.local([Person.schema]);
     final realm = getRealm(config);
 
     final frozenRealm = freezeRealm(realm);
-    expect(() => frozenRealm.write(() {}), throws<RealmError>("Starting a write transaction on a frozen Realm is not allowed."));
-  });
-
-  test('FrozenRealm cannot beginWrite', () {
-    final config = Configuration.local([Person.schema]);
-    final realm = getRealm(config);
-
-    final frozenRealm = freezeRealm(realm);
-    expect(() => frozenRealm.beginWrite(), throws<RealmError>("Starting a write transaction on a frozen Realm is not allowed."));
-  });
-
-  test('FrozenRealm cannot writeAsync', () async {
-    final config = Configuration.local([Person.schema]);
-    final realm = getRealm(config);
-
-    final frozenRealm = freezeRealm(realm);
-    await expectLater(() => frozenRealm.writeAsync(() {}), throws<RealmError>("Starting a write transaction on a frozen Realm is not allowed."));
-  });
-
-  test('FrozenRealm cannot beginWriteAsync', () async {
-    final config = Configuration.local([Person.schema]);
-    final realm = getRealm(config);
-
-    final frozenRealm = freezeRealm(realm);
-    await expectLater(() => frozenRealm.beginWriteAsync(), throws<RealmError>("Starting a write transaction on a frozen Realm is not allowed."));
+    frozenRealm.writesExpectException<RealmError>("Can't perform transactions on a frozen Realm");
+    await frozenRealm.asyncWritesExpectException<RealmError>("Can't perform transactions on a frozen Realm");
   });
 
   test('realm.freeze when frozen returns the same instance', () {

@@ -476,9 +476,9 @@ class Realm implements Finalizable {
   }
 
   void _ensureWritable() {
-    if (isFrozen) {
-      throw RealmError('Starting a write transaction on a frozen Realm is not allowed.');
-    }
+    // if (isFrozen) {
+    //   throw RealmError('Starting a write transaction on a frozen Realm is not allowed.');
+    // }
   }
 }
 

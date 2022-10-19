@@ -590,3 +590,15 @@ Future<void> _printPlatformInfo() async {
 
   print('Current PID $pid; OS $os, $pointerSize bit, CPU ${cpu ?? 'unknown'}');
 }
+
+extension $WriteExtension on Realm {
+  void writesExpectException<TException>(String exceptionMessage) {
+    expect(() => write(() {}), throws<TException>(exceptionMessage));
+    expect(() => beginWrite(), throws<TException>(exceptionMessage));
+  }
+
+  Future<void> asyncWritesExpectException<TException>(String exceptionMessage) async {
+    await expectLater(() => writeAsync(() {}), throws<TException>(exceptionMessage));
+    await expectLater(() => beginWriteAsync(), throws<TException>(exceptionMessage));
+  }
+}
