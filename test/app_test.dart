@@ -278,6 +278,20 @@ Future<void> main([List<String>? args]) async {
     expect(map['arg1'], arg1);
     expect(map['arg2'], <String, dynamic>{'\$undefined': true});
   });
+
+  baasTest('Call Atlas function with two Object arguments', (configuration) async {
+    final app = App(configuration);
+    final user = await app.logIn(Credentials.anonymous());
+    final arg1 = Person("Jhonatan");
+    final arg2 = Person('Michael');
+    final dynamic response = await user.functions.call('userFuncTwoArgs', functionArgs: <dynamic>[arg1.toJson(), arg2.toJson()]);
+    expect(response, isNotNull);
+    final map = response as Map<String, dynamic>;
+    final receivedPerson1 = PersonJ.fromJson(map['arg1'] as Map<String, dynamic>);
+    final receivedPerson2 = PersonJ.fromJson(map['arg2'] as Map<String, dynamic>);
+    expect(receivedPerson1.name, arg1.name);
+    expect(receivedPerson2.name, arg2.name);
+  });
 }
 
 Future<void> testLogger(

@@ -44,6 +44,11 @@ class _Person {
   late String name;
 }
 
+extension PersonJ on Person {
+  static Person fromJson(Map<String, dynamic> json) => Person(json['name'] as String);
+  Map<String, dynamic> toJson() => <String, dynamic>{'name': name};
+}
+
 @RealmModel()
 class _Dog {
   @PrimaryKey()
