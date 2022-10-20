@@ -61,7 +61,7 @@ Map<String, dynamic> _$PropertiesToJson(Properties instance) {
   val['Realm Version'] = instance.realmVersion;
   val['Host OS Type'] = instance.hostOsType;
   val['Host OS Version'] = instance.hostOsVersion;
-  writeNotNull('Target OS Type', _$TargetOsTypeEnumMap[instance.targetOsType]);
+  val['Target OS Type'] = _$TargetOsTypeEnumMap[instance.targetOsType];
   writeNotNull('Target OS Version', instance.targetOsVersion);
   return val;
 }
