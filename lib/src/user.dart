@@ -316,11 +316,11 @@ class FunctionsClient {
 
   /// Creates a new API key with the given name. The value of the returned key
   /// must be persisted as this is the only time it is available.
-  Future<dynamic> call(String name, {List<dynamic>? functionArgs}) async {
+  Future<dynamic> call(String name, [List<Object?>? functionArgs]) async {
     _user._ensureLoggedIn('call Atlas function');
     final args = functionArgs != null ? jsonEncode(functionArgs) : null;
     final response = await realmCore.callAppFunction(_user.app, _user, name, args);
-    return response != null ? jsonDecode(response) : null;
+    return jsonDecode(response);
   }
 }
 

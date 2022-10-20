@@ -1848,7 +1848,7 @@ class _RealmCore {
       return;
     }
     if (errorCode != nullptr) {
-        // Throw RealmException instead of RealmError to be recoverable by the user.
+      // Throw RealmException instead of RealmError to be recoverable by the user.
       completer.completeError(RealmException(errorCode.toSyncError().toString()));
     } else {
       completer.complete();
@@ -2078,7 +2078,7 @@ class _RealmCore {
   }
 
   static void _call_app_function_callback(Pointer<Void> userdata, Pointer<Char> response, Pointer<realm_app_error> error) {
-    final Completer<String?>? completer = userdata.toObject(isPersistent: true);
+    final Completer<String>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
       return;
     }
@@ -2087,13 +2087,13 @@ class _RealmCore {
       return;
     }
 
-    final stringResponse = response.cast<Utf8>().toRealmDartString();
+    final stringResponse = response.cast<Utf8>().toRealmDartString()!;
     completer.complete(stringResponse);
   }
 
-  Future<String?> callAppFunction(App app, User user, String functionName, String? argsAsJSON) {
+  Future<String> callAppFunction(App app, User user, String functionName, String? argsAsJSON) {
     return using((arena) {
-      final completer = Completer<String?>();
+      final completer = Completer<String>();
       _realmLib.invokeGetBool(() => _realmLib.realm_app_call_function(
             app.handle._pointer,
             user.handle._pointer,

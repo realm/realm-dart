@@ -250,7 +250,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.anonymous());
     final arg1 = 'Jhonatan';
-    final dynamic response = await user.functions.call('userFuncOneArg', functionArgs: <dynamic>[arg1]);
+    final dynamic response = await user.functions.call('userFuncOneArg', [arg1]);
     expect(response, isNotNull);
     final map = response as Map<String, dynamic>;
     expect(map['arg'], arg1);
@@ -261,7 +261,7 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(Credentials.anonymous());
     final arg1 = 'Jhonatan';
     final arg2 = 'Michael';
-    final dynamic response = await user.functions.call('userFuncTwoArgs', functionArgs: <dynamic>[arg1, arg2]);
+    final dynamic response = await user.functions.call('userFuncTwoArgs', [arg1, arg2]);
     expect(response, isNotNull);
     final map = response as Map<String, dynamic>;
     expect(map['arg1'], arg1);
@@ -272,7 +272,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.anonymous());
     final arg1 = 'Jhonatan';
-    final dynamic response = await user.functions.call('userFuncTwoArgs', functionArgs: <dynamic>[arg1]);
+    final dynamic response = await user.functions.call('userFuncTwoArgs', [arg1]);
     expect(response, isNotNull);
     final map = response as Map<String, dynamic>;
     expect(map['arg1'], arg1);
@@ -284,7 +284,7 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(Credentials.anonymous());
     final arg1 = Person("Jhonatan");
     final arg2 = Person('Michael');
-    final dynamic response = await user.functions.call('userFuncTwoArgs', functionArgs: <dynamic>[arg1.toJson(), arg2.toJson()]);
+    final dynamic response = await user.functions.call('userFuncTwoArgs', [arg1.toJson(), arg2.toJson()]);
     expect(response, isNotNull);
     final map = response as Map<String, dynamic>;
     final receivedPerson1 = PersonJ.fromJson(map['arg1'] as Map<String, dynamic>);
