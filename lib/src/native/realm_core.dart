@@ -28,6 +28,7 @@ import 'package:cancellation_token/cancellation_token.dart';
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
+import 'package:realm_common/realm_common.dart';
 
 import '../app.dart';
 import '../collections.dart';
@@ -125,7 +126,7 @@ class _RealmCore {
         classInfo.num_properties = schemaObject.properties.length;
         classInfo.num_computed_properties = 0;
         classInfo.key = RLM_INVALID_CLASS_KEY;
-        classInfo.flags = schemaObject.baseType.toFlags();
+        classInfo.flags = schemaObject.baseType.flags;
 
         final propertiesCount = schemaObject.properties.length;
         final properties = arena<realm_property_info_t>(propertiesCount);
@@ -530,7 +531,8 @@ class _RealmCore {
       _realmLib.invokeGetBool(() => _realmLib.realm_get_class(realm.handle._pointer, classKey, classInfo));
 
       final name = classInfo.ref.name.cast<Utf8>().toDartString();
-      final baseType = ObjectTypeNative.fromFlags(classInfo.ref.flags);
+      final baseType = ObjectType.values.firstWhere((element) => element.flags == classInfo.ref.flags,
+          orElse: () => throw RealmError('No object type found for flags ${classInfo.ref.flags}'));
       final schema =
           _getSchemaForClassKey(realm, classKey, name, baseType, arena, expectedSize: classInfo.ref.num_properties + classInfo.ref.num_computed_properties);
       schemas.add(schema);
@@ -2624,30 +2626,6 @@ extension on Completer<Object?> {
     final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
     final linkToLogs = error.ref.link_to_server_logs.cast<Utf8>().toRealmDartString();
     completeError(AppInternal.createException(message, linkToLogs, error.ref.http_status_code));
-  }
-}
-
-extension ObjectTypeNative on ObjectType {
-  int toFlags() {
-    switch (this) {
-      case ObjectType.topLevel:
-        return realm_class_flags.RLM_CLASS_NORMAL;
-      case ObjectType.embedded:
-        return realm_class_flags.RLM_CLASS_EMBEDDED;
-      default:
-        throw RealmException('Invalid ObjectType: $this');
-    }
-  }
-
-  static ObjectType fromFlags(int flags) {
-    switch (flags) {
-      case realm_class_flags.RLM_CLASS_NORMAL:
-        return ObjectType.topLevel;
-      case realm_class_flags.RLM_CLASS_EMBEDDED:
-        return ObjectType.embedded;
-      default:
-        throw RealmException('Invalid ObjectType: $flags');
-    }
   }
 }
 

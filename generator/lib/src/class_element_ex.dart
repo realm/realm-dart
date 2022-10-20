@@ -158,7 +158,7 @@ extension ClassElementEx on ClassElement {
             primarySpan: pkSpan,
             secondarySpans: {span!: ''},
             primaryLabel: "$realmName is marked as embedded but has primary key defined",
-            todo: 'Remove the @PrimaryKey annotation from the field or set the object type to topLevel.');
+            todo: 'Remove the @PrimaryKey annotation from the field or set the model type to a value different from ObjectType.embedded.');
       }
 
       return RealmModelInfo(name, modelName, realmName, mappedFields, objectType);

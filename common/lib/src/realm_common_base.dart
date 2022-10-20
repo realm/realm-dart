@@ -22,21 +22,28 @@
 enum ObjectType {
   /// A standalone top-level object that can be persisted in Realm. It can link
   /// to other objects or collections of other objects.
-  topLevel('RealmObject'),
+  topLevel('RealmObject', 0),
 
   /// An object that can be embedded in other objects. It is considered owned
   /// by its parent and will be deleted if its parent is deleted.
-  embedded('EmbeddedObject'),
+  embedded('EmbeddedObject', 1),
 
   /// A special type of object used to facilitate unidirectional synchronization
   /// with Atlas App Services. It is used to push data to Realm without the ability
   /// to query or modify it.
-  _asymmetric('AsymmetricObject');
+  _asymmetric('AsymmetricObject', 2);
 
-  const ObjectType([this.className = 'Unknown']);
+  const ObjectType([this._className = 'Unknown', this._flags = -1]);
 
-  /// The name of the base class exposed by the Realm SDK.
-  final String className;
+  final String _className;
+
+  final int _flags;
+}
+
+extension ObjectTypeInternal on ObjectType {
+  int get flags => _flags;
+
+  String get className => _className;
 }
 
 /// Annotation class used to define `Realm` data model classes and their properties
