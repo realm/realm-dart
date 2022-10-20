@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// ignore_for_file: unused_local_variable
-
 import 'package:test/test.dart' hide test, throws;
 
 import '../lib/realm.dart';
@@ -448,7 +446,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   for (final isDynamic in [true, false]) {
-    Realm _getDynamicRealm(Realm original) {
+    Realm getDynamicRealm(Realm original) {
       if (isDynamic) {
         original.close();
         return getRealm(Configuration.local([]));
@@ -467,7 +465,7 @@ Future<void> main([List<String>? args]) async {
             recursiveList: [RecursiveEmbedded1('1.2')]));
       });
 
-      final dynamicRealm = _getDynamicRealm(realm);
+      final dynamicRealm = getDynamicRealm(realm);
       final parent = dynamicRealm.dynamic.find('ObjectWithEmbedded', '123')!;
 
       // String API with casting
@@ -530,6 +528,229 @@ Future<void> main([List<String>? args]) async {
       expect(dynamicChild31.value, '3.1');
     });
   }
+
+  test('Embedded object can be frozen', () {
+    final realm = getLocalRealm();
+
+    final parent = ObjectWithEmbedded('123',
+        recursiveList: [
+          RecursiveEmbedded1('1.1'),
+          RecursiveEmbedded1('1.2'),
+        ],
+        recursiveObject: RecursiveEmbedded1('1.3', child: RecursiveEmbedded2('2.3')));
+
+    realm.write(() {
+      realm.add(parent);
+    });
+
+    final frozenEmbedded = freezeObject(parent.recursiveObject!);
+    expect(() => frozenEmbedded.changes, throws<RealmStateError>('Object is frozen and cannot emit changes'));
+    expect(frozenEmbedded.isFrozen, true);
+    expect(frozenEmbedded.value, '1.3');
+    expect(frozenEmbedded.child!.isFrozen, true);
+    expect(frozenEmbedded.child!.value, '2.3');
+
+    expect(parent.isFrozen, false);
+
+    realm.write(() {
+      parent.recursiveObject!.value = '1.4';
+    });
+
+    expect(frozenEmbedded.value, '1.3');
+
+    final frozenListElement = freezeObject(parent.recursiveList[0]);
+
+    expect(frozenListElement.isFrozen, true);
+    expect(parent.isFrozen, false);
+    expect(parent.recursiveList.isFrozen, false);
+
+    realm.write(() {
+      parent.recursiveList[0].value = '99';
+    });
+
+    expect(frozenListElement.value, '1.1');
+  });
+
+  test('Embedded list can be frozen', () {
+    final realm = getLocalRealm();
+
+    final parent = ObjectWithEmbedded('123', recursiveList: [
+      RecursiveEmbedded1('1.1'),
+      RecursiveEmbedded1('1.2'),
+    ]);
+
+    realm.write(() {
+      realm.add(parent);
+    });
+
+    final frozenList = freezeList(parent.recursiveList);
+    expect(frozenList.isFrozen, true);
+    expect(frozenList[0].isFrozen, true);
+    expect(parent.isFrozen, false);
+
+    realm.write(() {
+      parent.recursiveList[0].value = '99';
+    });
+
+    expect(frozenList[0].value, '1.1');
+  });
+
+  test('Embedded results can be frozen', () {
+    final realm = getLocalRealm();
+
+    final parent = ObjectWithEmbedded('123', recursiveList: [
+      RecursiveEmbedded1('1.1'),
+      RecursiveEmbedded1('1.2'),
+    ]);
+
+    realm.write(() {
+      realm.add(parent);
+    });
+
+    final frozenResults = freezeResults(parent.recursiveList.query('TRUEPREDICATE'));
+    expect(frozenResults.isFrozen, true);
+    expect(frozenResults[0].isFrozen, true);
+    expect(parent.isFrozen, false);
+
+    realm.write(() {
+      parent.recursiveList[0].value = '99';
+    });
+
+    expect(frozenResults[0].value, '1.1');
+  });
+
+  Future<T> waitForNotification<T>(List<T> notifications) async {
+    await waitForCondition(() => notifications.length == 1, retryDelay: Duration(milliseconds: 10));
+    return notifications.removeAt(0);
+  }
+
+  test('Embedded object notifications', () async {
+    final realm = getLocalRealm();
+
+    final parent = ObjectWithEmbedded('123', recursiveObject: RecursiveEmbedded1('1.3', child: RecursiveEmbedded2('2.3')));
+
+    realm.write(() {
+      realm.add(parent);
+    });
+
+    final notifications = <RealmObjectChanges>[];
+    final subscription = parent.recursiveObject!.changes.listen((event) {
+      notifications.add(event);
+    });
+
+    // Initial notification
+    await waitForNotification(notifications);
+
+    realm.write(() {
+      parent.recursiveObject!.value = '1.4';
+    });
+
+    var event = await waitForNotification(notifications);
+    expect(event.properties, ['value']);
+
+    realm.write(() {
+      parent.recursiveObject!.child = null;
+    });
+
+    event = await waitForNotification(notifications);
+    expect(event.properties, ['child']);
+
+    realm.write(() {
+      parent.recursiveObject = null;
+    });
+
+    event = await waitForNotification(notifications);
+    expect(event.isDeleted, true);
+    expect(event.properties, isEmpty);
+
+    await subscription.cancel();
+  });
+
+  test('Embedded list notifications', () async {
+    final realm = getLocalRealm();
+
+    final parent = ObjectWithEmbedded('123', recursiveList: [
+      RecursiveEmbedded1('1.1'),
+    ]);
+
+    realm.write(() {
+      realm.add(parent);
+    });
+
+    final notifications = <RealmListChanges>[];
+    final subscription = parent.recursiveList.changes.listen((event) {
+      notifications.add(event);
+    });
+
+    // Initial notification
+    await waitForNotification(notifications);
+
+    realm.write(() {
+      parent.recursiveList.add(RecursiveEmbedded1('1.2'));
+    });
+
+    var event = await waitForNotification(notifications);
+    expect(event.inserted, [1]);
+
+    realm.write(() {
+      parent.recursiveList[0].value = '99';
+    });
+
+    event = await waitForNotification(notifications);
+    expect(event.modified, [0]);
+
+    realm.write(() {
+      parent.recursiveList.removeAt(0);
+    });
+
+    event = await waitForNotification(notifications);
+    expect(event.deleted, [0]);
+
+    await subscription.cancel();
+  });
+
+  test('Embedded results notifications', () async {
+    final realm = getLocalRealm();
+
+    final parent = ObjectWithEmbedded('123', recursiveList: [
+      RecursiveEmbedded1('1.1'),
+    ]);
+
+    realm.write(() {
+      realm.add(parent);
+    });
+
+    final notifications = <RealmResultsChanges>[];
+    final subscription = parent.recursiveList.query('TRUEPREDICATE').changes.listen((event) {
+      notifications.add(event);
+    });
+
+    // Initial notification
+    await waitForNotification(notifications);
+
+    realm.write(() {
+      parent.recursiveList.add(RecursiveEmbedded1('1.2'));
+    });
+
+    var event = await waitForNotification(notifications);
+    expect(event.inserted, [1]);
+
+    realm.write(() {
+      parent.recursiveList[0].value = '99';
+    });
+
+    event = await waitForNotification(notifications);
+    expect(event.modified, [0]);
+
+    realm.write(() {
+      parent.recursiveList.removeAt(0);
+    });
+
+    event = await waitForNotification(notifications);
+    expect(event.deleted, [0]);
+
+    await subscription.cancel();
+  });
 }
 
 extension on RealmObjectBase {

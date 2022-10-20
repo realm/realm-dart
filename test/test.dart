@@ -429,7 +429,7 @@ Realm freezeRealm(Realm realm) {
 
 /// This is needed to make sure the frozen Realm gets forcefully closed by the
 /// time the test ends.
-RealmResults<T> freezeResults<T extends RealmObject>(RealmResults<T> results) {
+RealmResults<T> freezeResults<T extends RealmObjectBase>(RealmResults<T> results) {
   final frozen = results.freeze();
   _openRealms.add(frozen.realm);
   return frozen;
@@ -445,7 +445,7 @@ RealmList<T> freezeList<T>(RealmList<T> list) {
 
 /// This is needed to make sure the frozen Realm gets forcefully closed by the
 /// time the test ends.
-T freezeObject<T extends RealmObject>(T object) {
+T freezeObject<T extends RealmObjectBase>(T object) {
   final frozen = object.freeze();
   _openRealms.add(frozen.realm);
   return frozen as T;
