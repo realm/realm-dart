@@ -751,6 +751,22 @@ Future<void> main([List<String>? args]) async {
 
     await subscription.cancel();
   });
+
+  test('EmbeddedObject.equals returns expected results', () {
+    final realm = getLocalRealm();
+
+    final parent = ObjectWithEmbedded('123', recursiveObject: RecursiveEmbedded1('1.1'), recursiveList: [RecursiveEmbedded1('1.1')]);
+    realm.write(() {
+      realm.add(parent);
+    });
+
+    expect(parent.recursiveObject, parent.recursiveObject);
+    expect(identical(parent.recursiveObject, parent.recursiveObject), false);
+
+    expect(parent.recursiveObject, isNot(RecursiveEmbedded1('1.1')));
+    expect(parent.recursiveObject, isNot(parent.recursiveList[0]));
+    expect(parent.recursiveObject, isNot(parent));
+  });
 }
 
 extension on RealmObjectBase {

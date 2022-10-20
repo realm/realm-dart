@@ -326,7 +326,7 @@ mixin RealmObjectBase on RealmEntity implements Finalizable {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    if (other is! RealmObject) return false;
+    if (other is! RealmObjectBase) return false;
     if (!isManaged || !other.isManaged) return false;
     return realmCore.objectEquals(this, other);
   }
