@@ -254,7 +254,7 @@ Future<void> main([List<String>? args]) async {
     expect(obj.recursiveList.length, 2);
     expect(obj.recursiveList[0].value, '2');
     expect(obj.recursiveList[1].value, '1');
-  }, skip: 'Needs https://github.com/realm/realm-dart/pull/894');
+  });
 
   test('Embedded list .set', () {
     final realm = getLocalRealm();
