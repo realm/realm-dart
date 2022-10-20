@@ -88,7 +88,7 @@ export 'realm_object.dart' show RealmEntity, RealmException, UserCallbackExcepti
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
-export 'user.dart' show User, UserState, UserIdentity, ApiKeyClient, ApiKey;
+export 'user.dart' show User, UserState, UserIdentity, ApiKeyClient, ApiKey, FunctionsClient;
 export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
 export 'migration.dart' show Migration;
 export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
