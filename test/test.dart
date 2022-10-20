@@ -44,6 +44,11 @@ class _Person {
   late String name;
 }
 
+extension PersonJ on Person {
+  static Person fromJson(Map<String, dynamic> json) => Person(json['name'] as String);
+  Map<String, dynamic> toJson() => <String, dynamic>{'name': name};
+}
+
 @RealmModel()
 class _Dog {
   @PrimaryKey()
@@ -95,6 +100,15 @@ class _Task {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
+}
+
+@RealmModel()
+class _Product {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  @MapTo('stringQueryField')
+  late String name;
 }
 
 @RealmModel()
@@ -328,6 +342,15 @@ Realm getRealm(Configuration config) {
   }
 
   final realm = Realm(config);
+  _openRealms.add(realm);
+  return realm;
+}
+
+Future<Realm> getRealmAsync(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
+  if (config is FlexibleSyncConfiguration) {
+    config.sessionStopPolicy = SessionStopPolicy.immediately;
+  }
+  final realm = await Realm.open(config, cancellationToken: cancellationToken, onProgressCallback: onProgressCallback);
   _openRealms.add(realm);
   return realm;
 }

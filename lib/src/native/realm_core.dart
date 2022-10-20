@@ -1883,20 +1883,24 @@ class _RealmCore {
     return completer.future;
   }
 
-  Future<void> sessionWaitForDownload(Session session) {
-    final completer = Completer<void>();
-    final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_error_code_t>)>(_sessionWaitCompletionCallback);
-    final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
-    _realmLib.realm_sync_session_wait_for_download_completion(session.handle._pointer, _realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
-        userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
+  Future<void> sessionWaitForDownload(Session session, [CancellationToken? cancellationToken]) {
+    final completer = CancellableCompleter<void>(cancellationToken);
+    if (!completer.isCancelled) {
+      final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_error_code_t>)>(_sessionWaitCompletionCallback);
+      final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
+      _realmLib.realm_sync_session_wait_for_download_completion(session.handle._pointer, _realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
+          userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
+    }
     return completer.future;
   }
 
   static void _sessionWaitCompletionCallback(Object userdata, Pointer<realm_sync_error_code_t> errorCode) {
     final completer = userdata as Completer<void>;
-
+    if (completer.isCompleted) {
+      return;
+    }
     if (errorCode != nullptr) {
-      // Throw RealmException instead of RealmError to be recoverable by the user.
+        // Throw RealmException instead of RealmError to be recoverable by the user.
       completer.completeError(RealmException(errorCode.toSyncError().toString()));
     } else {
       completer.complete();
@@ -2121,6 +2125,36 @@ class _RealmCore {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_enable_apikey(user.app.handle._pointer, user.handle._pointer, native_id.ref,
           Pointer.fromFunction(void_completion_callback), completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
 
+      return completer.future;
+    });
+  }
+
+  static void _call_app_function_callback(Pointer<Void> userdata, Pointer<Char> response, Pointer<realm_app_error> error) {
+    final Completer<String?>? completer = userdata.toObject(isPersistent: true);
+    if (completer == null) {
+      return;
+    }
+    if (error != nullptr) {
+      completer.completeWithAppError(error);
+      return;
+    }
+
+    final stringResponse = response.cast<Utf8>().toRealmDartString();
+    completer.complete(stringResponse);
+  }
+
+  Future<String?> callAppFunction(App app, User user, String functionName, String? argsAsJSON) {
+    return using((arena) {
+      final completer = Completer<String?>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_call_function(
+            app.handle._pointer,
+            user.handle._pointer,
+            functionName.toCharPtr(arena),
+            argsAsJSON != null ? argsAsJSON.toCharPtr(arena) : nullptr,
+            Pointer.fromFunction(_call_app_function_callback),
+            completer.toPersistentHandle(),
+            _realmLib.addresses.realm_dart_delete_persistent_handle,
+          ));
       return completer.future;
     });
   }
