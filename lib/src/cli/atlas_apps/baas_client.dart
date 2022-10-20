@@ -18,7 +18,6 @@
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:crypto/crypto.dart';
 
 class BaasClient {
   static const String _confirmFuncSource = '''exports = async ({ token, tokenId, username }) => {
@@ -70,6 +69,24 @@ class BaasClient {
   static const String _userFuncTwoArgs = '''exports = function(arg1, arg2){
     return { 'arg1': arg1, 'arg2': arg2};
   };''';
+
+  static const String _triggerClientResetFuncSource = '''exports = async function(userId, appId) {
+    const mongodb = context.services.get('BackingDB');
+    console.log('user.id: ' + context.user.id);
+    try {
+      const dbName = `__realm_sync_\${appId}`;
+      const deletionResult = await mongodb.db(dbName).collection('clientfiles').deleteMany({ ownerId: userId });
+      console.log('Deleted documents: ' + deletionResult.deletedCount);
+
+      if (deletionResult.deletedCount > 0) {
+        return { status: 'success' };
+      }
+      return { status: 'failure' };
+    } catch(err) {
+      throw 'Deletion failed: ' + err;
+    }
+  };''';
+
   static const String defaultAppName = "flexible";
 
   final String _baseUrl;
@@ -185,6 +202,7 @@ class BaasClient {
     await _createFunction(app, 'userFuncNoArgs', _userFuncNoArgs);
     await _createFunction(app, 'userFuncOneArg', _userFuncOneArg);
     await _createFunction(app, 'userFuncTwoArgs', _userFuncTwoArgs);
+    await _createFunction(app, 'triggerClientResetOnSyncServer', _triggerClientResetFuncSource, runAsSystem: true);
 
     await enableProvider(app, 'anon-user');
     await enableProvider(app, 'local-userpass', config: '''{
@@ -386,14 +404,15 @@ class BaasClient {
     _headers['Authorization'] = "Bearer ${response['access_token']}";
   }
 
-  Future<String> _createFunction(BaasApp app, String name, String source) async {
+  Future<String> _createFunction(BaasApp app, String name, String source, {bool runAsSystem = false}) async {
     print('Creating function $name for ${app.clientAppId}...');
 
     final dynamic response = await _post('groups/$_groupId/apps/$app/functions', '''{
         "name": "$name",
         "source": ${jsonEncode(source)},
         "private": false,
-        "can_evaluate": {}
+        "can_evaluate": {},
+        "run_as_system": $runAsSystem
       }''');
 
     return response['_id'] as String;

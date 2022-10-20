@@ -589,41 +589,4 @@ Future<void> main([List<String>? args]) async {
       throws<RealmException>("Wrong encryption key size"),
     );
   });
-
-  baasTest("Configuration.flexibleSync set recoverOrDiscard as a default resync mode", (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
-    expect(
-        Configuration.flexibleSync(
-          user,
-          [Task.schema, Schedule.schema],
-          clientResetHandler: ManualRecoveryHandler(onReset: (syncError) {}),
-        ).clientResetHandler.clientResyncMode,
-        ClientResyncModeInternal.manual);
-    expect(
-        Configuration.flexibleSync(
-          user,
-          [Task.schema, Schedule.schema],
-          clientResetHandler: DiscardUnsyncedChangesHandler(onReset: (syncError) {}),
-        ).clientResetHandler.clientResyncMode,
-        ClientResyncModeInternal.discardLocal);
-    expect(
-        Configuration.flexibleSync(
-          user,
-          [Task.schema, Schedule.schema],
-          clientResetHandler: RecoverUnsyncedChangesHandler(onReset: (syncError) {}),
-        ).clientResetHandler.clientResyncMode,
-        ClientResyncModeInternal.recover);
-
-    expect(
-        Configuration.flexibleSync(
-          user,
-          [Task.schema, Schedule.schema],
-          clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(onReset: (syncError) {}),
-        ).clientResetHandler.clientResyncMode,
-        ClientResyncModeInternal.recoverOrDiscard);
-
-    expect(Configuration.flexibleSync(user, [Task.schema, Schedule.schema]).clientResetHandler.clientResyncMode, ClientResyncModeInternal.recoverOrDiscard);
-  });
 }

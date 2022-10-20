@@ -595,3 +595,25 @@ Future<void> _printPlatformInfo() async {
 
   print('Current PID $pid; OS $os, $pointerSize bit, CPU ${cpu ?? 'unknown'}');
 }
+
+Future<void> triggerClientReset(Realm realm, {bool restartSession = true}) async {
+  final config = realm.config;
+  if (config is! FlexibleSyncConfiguration) {
+    throw RealmError('This should only be invoked for sync realms');
+  }
+
+  final session = realm.syncSession;
+  if (restartSession) {
+    session.pause();
+  }
+
+  final userId = config.user.id;
+  final appId = baasApps.values.firstWhere((element) => element.clientAppId == config.user.app.id).appId;
+
+  final result = await config.user.functions.call('triggerClientResetOnSyncServer', [userId, appId]) as Map<String, dynamic>;
+  expect(result['status'], 'success');
+
+  if (restartSession) {
+    session.resume();
+  }
+}
