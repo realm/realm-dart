@@ -78,10 +78,7 @@ class BaasClient {
       const deletionResult = await mongodb.db(dbName).collection('clientfiles').deleteMany({ ownerId: userId });
       console.log('Deleted documents: ' + deletionResult.deletedCount);
 
-      if (deletionResult.deletedCount > 0) {
-        return { status: 'success' };
-      }
-      return { status: 'failure' };
+      return { status: deletionResult.deletedCount > 0 ? 'success' : 'failure' };
     } catch(err) {
       throw 'Deletion failed: ' + err;
     }
@@ -151,7 +148,10 @@ class BaasClient {
   }
 
   Future<void> _createAppIfNotExists(Map<String, BaasApp> existingApps, String appName, {String? confirmationType}) async {
-    if (!existingApps.containsKey(appName)) {
+    final existingApp = existingApps[appName];
+    if (existingApp != null) {
+      print('Found existing app ${existingApp.clientAppId}');
+    } else {
       existingApps[appName] = await _createApp(appName, confirmationType: confirmationType);
     }
   }
