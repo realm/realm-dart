@@ -19,7 +19,6 @@
 // ignore_for_file: unused_local_variable
 
 import 'dart:async';
-import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -70,8 +69,6 @@ class _MyObjectWithoutValue {
 }
 
 Future<void> main([List<String>? args]) async {
-  print("Current PID $pid");
-
   await setupTests(args);
 
   test('Configuration.migrationCallback executed when schema version changes', () {

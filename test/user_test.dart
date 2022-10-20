@@ -16,16 +16,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:io';
-
 import 'package:test/expect.dart';
 
 import '../lib/realm.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
-  print("Current PID $pid");
-
   await setupTests(args);
 
   baasTest('User logout anon user is marked as removed', (configuration) async {

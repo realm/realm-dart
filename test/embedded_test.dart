@@ -42,7 +42,7 @@ Future<void> main([List<String>? args]) async {
     return getRealm(realmConfig);
   }
 
-  test('local Realm with orphan embedded schemas works', () {
+  test('Local Realm with orphan embedded schemas works', () {
     final config = Configuration.local([AllTypesEmbedded.schema]);
     final realm = getRealm(config);
     realm.close();
@@ -53,7 +53,7 @@ Future<void> main([List<String>? args]) async {
     expect(schema.single.baseType, ObjectType.embedded);
   });
 
-  baasTest('synchronized Realm with orphan embedded schemas throws', (configuration) async {
+  baasTest('Synchronized Realm with orphan embedded schemas throws', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
     final config = Configuration.flexibleSync(user, [AllTypesEmbedded.schema]);

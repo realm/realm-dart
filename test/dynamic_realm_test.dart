@@ -18,15 +18,12 @@
 
 // ignore_for_file: avoid_relative_lib_imports
 
-import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
-  print("Current PID $pid");
-
   await setupTests(args);
 
   _assertSchemaExists(Realm realm, SchemaObject expected) {

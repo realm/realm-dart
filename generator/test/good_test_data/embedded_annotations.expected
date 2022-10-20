@@ -1,0 +1,104 @@
+// **************************************************************************
+// RealmObjectGenerator
+// **************************************************************************
+
+class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
+  Parent({
+    Child1? child,
+    Iterable<Child1> children = const [],
+  }) {
+    RealmObjectBase.set(this, 'single child', child);
+    RealmObjectBase.set<RealmList<Child1>>(
+        this, 'CHILDREN', RealmList<Child1>(children));
+  }
+
+  Parent._();
+
+  @override
+  Child1? get child =>
+      RealmObjectBase.get<Child1>(this, 'single child') as Child1?;
+  @override
+  set child(covariant Child1? value) =>
+      RealmObjectBase.set(this, 'single child', value);
+
+  @override
+  RealmList<Child1> get children =>
+      RealmObjectBase.get<Child1>(this, 'CHILDREN') as RealmList<Child1>;
+  @override
+  set children(covariant RealmList<Child1> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Parent>> get changes =>
+      RealmObjectBase.getChanges<Parent>(this);
+
+  @override
+  Parent freeze() => RealmObjectBase.freezeObject<Parent>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(Parent._);
+    return const SchemaObject(ObjectType.topLevel, Parent, 'Parent', [
+      SchemaProperty('single child', RealmPropertyType.object,
+          mapTo: 'single child', optional: true, linkTarget: 'MySuperChild'),
+      SchemaProperty('CHILDREN', RealmPropertyType.object,
+          mapTo: 'CHILDREN',
+          linkTarget: 'MySuperChild',
+          collectionType: RealmCollectionType.list),
+    ]);
+  }
+}
+
+class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
+  Child1(
+    String value,
+    String indexedString, {
+    Parent? linkToParent,
+  }) {
+    RealmObjectBase.set(this, '_value', value);
+    RealmObjectBase.set(this, '_parent', linkToParent);
+    RealmObjectBase.set(this, 'indexedString', indexedString);
+  }
+
+  Child1._();
+
+  @override
+  String get value => RealmObjectBase.get<String>(this, '_value') as String;
+  @override
+  set value(String value) => RealmObjectBase.set(this, '_value', value);
+
+  @override
+  Parent? get linkToParent =>
+      RealmObjectBase.get<Parent>(this, '_parent') as Parent?;
+  @override
+  set linkToParent(covariant Parent? value) =>
+      RealmObjectBase.set(this, '_parent', value);
+
+  @override
+  String get indexedString =>
+      RealmObjectBase.get<String>(this, 'indexedString') as String;
+  @override
+  set indexedString(String value) =>
+      RealmObjectBase.set(this, 'indexedString', value);
+
+  @override
+  Stream<RealmObjectChanges<Child1>> get changes =>
+      RealmObjectBase.getChanges<Child1>(this);
+
+  @override
+  Child1 freeze() => RealmObjectBase.freezeObject<Child1>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(Child1._);
+    return const SchemaObject(ObjectType.embedded, Child1, 'MySuperChild', [
+      SchemaProperty('_value', RealmPropertyType.string, mapTo: '_value'),
+      SchemaProperty('_parent', RealmPropertyType.object,
+          mapTo: '_parent', optional: true, linkTarget: 'Parent'),
+      SchemaProperty('indexedString', RealmPropertyType.string),
+    ]);
+  }
+}
+
