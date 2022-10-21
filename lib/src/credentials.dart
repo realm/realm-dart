@@ -33,14 +33,14 @@ enum AuthProviderType {
   /// For authenticating without credentials using a new anonymous user.
   anonymousNoReuse(1),
 
-  /// Authenticate with Apple Id
-  apple(2),
-
   /// Authenticate with Facebook account.
-  facebook(3),
+  facebook(2),
 
   /// Authenticate with Google account
-  google(4),
+  google(3),
+
+  /// Authenticate with Apple Id
+  apple(4),
 
   /// For authenticating with JSON web token.
   jwt(5),

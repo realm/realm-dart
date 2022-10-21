@@ -38,6 +38,8 @@ Future<void> main([List<String>? args]) async {
 
     expect(user1, user2);
     expect(user1, isNot(user3));
+    expect(user1.provider, AuthProviderType.anonymous);
+    expect(user3.provider, AuthProviderType.anonymous);
   });
 
   test('Credentials email/password', () {
