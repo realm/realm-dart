@@ -588,4 +588,32 @@ Future<void> main([List<String>? args]) async {
       throws<RealmException>("Wrong encryption key size"),
     );
   });
+  
+  baasTest('FlexibleSyncConfiguration.initialSubscriptionsCallback rerunOnOpen = true', (appConfiguration) async {
+    final app = App(appConfiguration);
+    var subscriptionSetUpdateCount = 0;
+    final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final configuration = Configuration.flexibleSync(user, [Task.schema],
+        initialSubscriptionsCallback: (realm) => subscriptionSetUpdateCount++, reRunInitialSubscriptionsCallback: true);
+
+    getRealm(configuration);
+    expect(subscriptionSetUpdateCount, 1);
+    getRealm(configuration);
+    expect(subscriptionSetUpdateCount, 2);
+    getRealm(configuration);
+    expect(subscriptionSetUpdateCount, 3);
+  });
+
+  baasTest('FlexibleSyncConfiguration.initialSubscriptionsCallback rerunOnOpen = false', (appConfiguration) async {
+    final app = App(appConfiguration);
+    var subscriptionSetUpdateCount = 0;
+    final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final configuration = Configuration.flexibleSync(user, [Task.schema],
+        initialSubscriptionsCallback: (realm) => subscriptionSetUpdateCount++, reRunInitialSubscriptionsCallback: false);
+
+    getRealm(configuration);
+    expect(subscriptionSetUpdateCount, 1);
+    getRealm(configuration);
+    expect(subscriptionSetUpdateCount, 1);
+  });
 }

@@ -112,11 +112,20 @@ class Realm implements Finalizable {
   /// and will not update when writes are made to the database.
   late final bool isFrozen = realmCore.isFrozen(this);
 
+  /// Returns true if the [Realm] is opened for the first time and the realm file is created.
+  /// @nodoc
+  late final bool _initialOpen;
+
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
-  Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) : _handle = handle ?? _openRealm(config) {
+  Realm._(this.config, [RealmHandle? handle, this._isInMigration = false])
+      : _initialOpen = !File(config.path).existsSync(),
+        _handle = handle ?? _openRealm(config) {
     _populateMetadata();
+    if (_shouldInvokeInitialSubscriptions(config)) {
+      (config as FlexibleSyncConfiguration).initialSubscriptionsCallback!(this);
+    }
   }
 
   /// A method for asynchronously opening a [Realm].
@@ -141,6 +150,9 @@ class Realm implements Finalizable {
     try {
       if (config is FlexibleSyncConfiguration) {
         final session = realm.syncSession;
+        if (realm._shouldInvokeInitialSubscriptions(config)) {
+          await realm.subscriptions.waitForSynchronization();
+        }
         if (onProgressCallback != null) {
           subscription = session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork).listen(onProgressCallback);
         }
@@ -479,6 +491,10 @@ class Realm implements Finalizable {
     if (isFrozen) {
       throw RealmError('Starting a write transaction on a frozen Realm is not allowed.');
     }
+  }
+
+  bool _shouldInvokeInitialSubscriptions(Configuration config) {
+    return (config is FlexibleSyncConfiguration) && config.initialSubscriptionsCallback != null && (_initialOpen || config.reRunInitialSubscriptionsCallback);
   }
 }
 

@@ -350,7 +350,7 @@ Future<void> main([List<String>? args]) async {
       realm.add(Team("Maserati"));
     });
 
-    //Ensule teams exist in realm
+    //Ensure teams exist in realm
     var teams = realm.all<Team>();
     expect(teams.length, 2);
 
