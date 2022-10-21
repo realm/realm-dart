@@ -7,7 +7,7 @@ class _Parent {
   late List<_Child1> children;
 }
 
-@RealmModel(ObjectType.embedded)
+@RealmModel(ObjectType.embeddedObject)
 class _Child1 {
   late String value;
 
@@ -18,7 +18,7 @@ class _Child1 {
   late _Parent? linkToParent;
 }
 
-@RealmModel(ObjectType.embedded)
+@RealmModel(ObjectType.embeddedObject)
 class _Child2 {
   late bool boolProp;
   late int intProp;

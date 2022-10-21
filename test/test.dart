@@ -230,7 +230,7 @@ class _Game {
   int get rounds => winnerByRound.length;
 }
 
-@RealmModel(ObjectType.embedded)
+@RealmModel(ObjectType.embeddedObject)
 class _AllTypesEmbedded {
   late String stringProp;
   late bool boolProp;
@@ -274,27 +274,27 @@ class _ObjectWithEmbedded {
   late List<_RecursiveEmbedded1> recursiveList;
 }
 
-@RealmModel(ObjectType.embedded)
+@RealmModel(ObjectType.embeddedObject)
 class _RecursiveEmbedded1 {
   late String value;
 
   late _RecursiveEmbedded2? child;
   late List<_RecursiveEmbedded2> children;
 
-  late _ObjectWithEmbedded? topLevel;
+  late _ObjectWithEmbedded? realmObject;
 }
 
-@RealmModel(ObjectType.embedded)
+@RealmModel(ObjectType.embeddedObject)
 class _RecursiveEmbedded2 {
   late String value;
 
   late _RecursiveEmbedded3? child;
   late List<_RecursiveEmbedded3> children;
 
-  late _ObjectWithEmbedded? topLevel;
+  late _ObjectWithEmbedded? realmObject;
 }
 
-@RealmModel(ObjectType.embedded)
+@RealmModel(ObjectType.embeddedObject)
 class _RecursiveEmbedded3 {
   late String value;
 }

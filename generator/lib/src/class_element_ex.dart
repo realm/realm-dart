@@ -151,14 +151,14 @@ extension ClassElementEx on ClassElement {
 
       final mappedFields = fields.realmInfo.toList();
 
-      if (objectType == ObjectType.embedded && mappedFields.any((field) => field.isPrimaryKey)) {
+      if (objectType == ObjectType.embeddedObject && mappedFields.any((field) => field.isPrimaryKey)) {
         final pkSpan = fields.firstWhere((field) => field.realmInfo?.isPrimaryKey == true).span;
         throw RealmInvalidGenerationSourceError("Primary key not allowed on embedded objects",
             element: this,
             primarySpan: pkSpan,
             secondarySpans: {span!: ''},
             primaryLabel: "$realmName is marked as embedded but has primary key defined",
-            todo: 'Remove the @PrimaryKey annotation from the field or set the model type to a value different from ObjectType.embedded.');
+            todo: 'Remove the @PrimaryKey annotation from the field or set the model type to a value different from ObjectType.embeddedObject.');
       }
 
       return RealmModelInfo(name, modelName, realmName, mappedFields, objectType);

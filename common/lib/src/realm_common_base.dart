@@ -22,16 +22,16 @@
 enum ObjectType {
   /// A standalone top-level object that can be persisted in Realm. It can link
   /// to other objects or collections of other objects.
-  topLevel('RealmObject', 0),
+  realmObject('RealmObject', 0),
 
   /// An object that can be embedded in other objects. It is considered owned
   /// by its parent and will be deleted if its parent is deleted.
-  embedded('EmbeddedObject', 1),
+  embeddedObject('EmbeddedObject', 1),
 
   /// A special type of object used to facilitate unidirectional synchronization
   /// with Atlas App Services. It is used to push data to Realm without the ability
   /// to query or modify it.
-  _asymmetric('AsymmetricObject', 2);
+  _asymmetricObject('AsymmetricObject', 2);
 
   const ObjectType([this._className = 'Unknown', this._flags = -1]);
 
@@ -50,9 +50,11 @@ extension ObjectTypeInternal on ObjectType {
 ///
 /// {@category Annotations}
 class RealmModel {
+  /// The base type of the object
   final ObjectType type;
 
-  const RealmModel([this.type = ObjectType.topLevel]);
+  /// Creates a new instance of [RealmModel] specifying the desired base type.
+  const RealmModel([this.type = ObjectType.realmObject]);
 }
 
 /// MapTo annotation for class member level.

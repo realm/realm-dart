@@ -32,7 +32,7 @@ class PersonIntName extends _PersonIntName
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(PersonIntName._);
-    return const SchemaObject(ObjectType.topLevel, PersonIntName, 'Person', [
+    return const SchemaObject(ObjectType.realmObject, PersonIntName, 'Person', [
       SchemaProperty('name', RealmPropertyType.int),
     ]);
   }
@@ -72,7 +72,7 @@ class StudentV1 extends _StudentV1
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(StudentV1._);
-    return const SchemaObject(ObjectType.topLevel, StudentV1, 'Student', [
+    return const SchemaObject(ObjectType.realmObject, StudentV1, 'Student', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('yearOfBirth', RealmPropertyType.int, optional: true),
     ]);
@@ -114,7 +114,7 @@ class MyObjectWithTypo extends _MyObjectWithTypo
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(MyObjectWithTypo._);
     return const SchemaObject(
-        ObjectType.topLevel, MyObjectWithTypo, 'MyObject', [
+        ObjectType.realmObject, MyObjectWithTypo, 'MyObject', [
       SchemaProperty('nmae', RealmPropertyType.string),
       SchemaProperty('vlaue', RealmPropertyType.int),
     ]);
@@ -156,7 +156,7 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(MyObjectWithoutTypo._);
     return const SchemaObject(
-        ObjectType.topLevel, MyObjectWithoutTypo, 'MyObject', [
+        ObjectType.realmObject, MyObjectWithoutTypo, 'MyObject', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('value', RealmPropertyType.int),
     ]);
@@ -191,7 +191,7 @@ class MyObjectWithoutValue extends _MyObjectWithoutValue
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(MyObjectWithoutValue._);
     return const SchemaObject(
-        ObjectType.topLevel, MyObjectWithoutValue, 'MyObject', [
+        ObjectType.realmObject, MyObjectWithoutValue, 'MyObject', [
       SchemaProperty('name', RealmPropertyType.string),
     ]);
   }

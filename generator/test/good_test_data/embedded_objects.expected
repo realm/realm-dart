@@ -38,7 +38,7 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Parent._);
-    return const SchemaObject(ObjectType.topLevel, Parent, 'Parent', [
+    return const SchemaObject(ObjectType.realmObject, Parent, 'Parent', [
       SchemaProperty('child', RealmPropertyType.object,
           optional: true, linkTarget: 'Child1'),
       SchemaProperty('children', RealmPropertyType.object,

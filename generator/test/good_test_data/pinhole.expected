@@ -34,7 +34,7 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Foo._);
-    return const SchemaObject(ObjectType.topLevel, Foo, 'Foo', [
+    return const SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
       SchemaProperty('x', RealmPropertyType.int),
     ]);
   }

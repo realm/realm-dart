@@ -75,7 +75,7 @@ class MappedToo extends _MappedToo
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(MappedToo._);
     return const SchemaObject(
-        ObjectType.topLevel, MappedToo, 'this is also mapped', [
+        ObjectType.realmObject, MappedToo, 'this is also mapped', [
       SchemaProperty('singleLink', RealmPropertyType.object,
           optional: true, linkTarget: 'another type'),
       SchemaProperty('listLink', RealmPropertyType.object,

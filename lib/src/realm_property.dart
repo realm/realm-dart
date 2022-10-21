@@ -18,7 +18,7 @@
 
 import 'package:realm_common/realm_common.dart';
 
-/// Describes a [RealmObject]'s property with its name, type and other attributes in the [RealmSchema]
+/// Describes a `RealmObject`/`EmbeddedObject`'s property with its name, type and other attributes in the [RealmSchema]
 ///{@category Configuration}
 class SchemaProperty {
   /// The name of the property as persisted in the `Realm`
@@ -26,10 +26,10 @@ class SchemaProperty {
 
   final String? linkTarget;
 
-  /// Defines the `Realm` collection type if this property is a collection.
+  /// Defines the `Realm` collection type if this property is a collection
   final RealmCollectionType collectionType;
 
-  /// `true` if the property is a primary key.
+  /// `true` if the property is a primary key
   final bool primaryKey;
 
   /// The `Realm` type of the property
@@ -38,7 +38,7 @@ class SchemaProperty {
   /// `true` if the property is optional
   final bool optional;
 
-  /// An alias to another property of the same RealmObject/EmbeddedObject
+  /// Indicates that the property should be persisted under a different name
   final String? mapTo;
 
   /// @nodoc

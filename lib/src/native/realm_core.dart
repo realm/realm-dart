@@ -560,10 +560,10 @@ class _RealmCore {
 
     late Type type;
     switch (baseType) {
-      case ObjectType.topLevel:
+      case ObjectType.realmObject:
         type = RealmObject;
         break;
-      case ObjectType.embedded:
+      case ObjectType.embeddedObject:
         type = EmbeddedObject;
         break;
       default:
@@ -793,7 +793,7 @@ class _RealmCore {
     });
   }
 
-  void deleteRealmObject(RealmObject object) {
+  void deleteRealmObject(RealmObjectBase object) {
     _realmLib.invokeGetBool(() => _realmLib.realm_object_delete(object.handle._pointer));
   }
 

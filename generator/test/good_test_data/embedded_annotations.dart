@@ -9,7 +9,7 @@ class _Parent {
   late List<_Child1> children;
 }
 
-@RealmModel(ObjectType.embedded)
+@RealmModel(ObjectType.embeddedObject)
 @MapTo('MySuperChild')
 class _Child1 {
   @MapTo('_value')

@@ -50,7 +50,7 @@ Future<void> main([List<String>? args]) async {
     final dynamicRealm = getRealm(Configuration.local([], path: config.path));
 
     final schema = dynamicRealm.schema;
-    expect(schema.single.baseType, ObjectType.embedded);
+    expect(schema.single.baseType, ObjectType.embeddedObject);
   });
 
   baasTest('Synchronized Realm with orphan embedded schemas throws', (configuration) async {
@@ -98,12 +98,12 @@ Future<void> main([List<String>? args]) async {
 
     final graph = ObjectWithEmbedded('TopLevel1',
         recursiveObject: RecursiveEmbedded1('Child1', child: RecursiveEmbedded2('Child2'), children: [
-          RecursiveEmbedded2('List1', child: RecursiveEmbedded3('Child3'), topLevel: ObjectWithEmbedded('TopLeve2')),
+          RecursiveEmbedded2('List1', child: RecursiveEmbedded3('Child3'), realmObject: ObjectWithEmbedded('TopLeve2')),
           RecursiveEmbedded2('List2'),
         ]));
 
     // Make a cycle
-    graph.recursiveObject!.child!.topLevel = graph;
+    graph.recursiveObject!.child!.realmObject = graph;
     realm.write(() {
       realm.add(graph);
     });
@@ -120,13 +120,13 @@ Future<void> main([List<String>? args]) async {
     expect(child1, isNotNull);
     expect(child1!.isManaged, true);
     expect(child1.value, 'Child1');
-    expect(child1.topLevel, isNull);
+    expect(child1.realmObject, isNull);
 
     final child2 = child1.child;
     expect(child2, isNotNull);
     expect(child2!.isManaged, true);
     expect(child2.value, 'Child2');
-    expect(child2.topLevel, refetched);
+    expect(child2.realmObject, refetched);
     expect(child2.child, isNull);
     expect(child2.children, isEmpty);
 
@@ -134,7 +134,7 @@ Future<void> main([List<String>? args]) async {
     expect(listChild1.isManaged, true);
     expect(listChild1.value, 'List1');
     expect(listChild1.child!.value, 'Child3');
-    expect(listChild1.topLevel!.id, 'TopLeve2');
+    expect(listChild1.realmObject!.id, 'TopLeve2');
 
     final listChild2 = child1.children[1];
     expect(listChild2.isManaged, true);
@@ -144,44 +144,44 @@ Future<void> main([List<String>? args]) async {
 
   test('Embedded object when replaced invalidates old object', () {
     final realm = getLocalRealm();
-    final topLevel = realm.write(() {
+    final realmObject = realm.write(() {
       return realm.add(ObjectWithEmbedded('', recursiveObject: RecursiveEmbedded1('first')));
     });
 
-    final firstEmbeded = topLevel.recursiveObject!;
+    final firstEmbeded = realmObject.recursiveObject!;
     expect(firstEmbeded.isManaged, true);
     expect(firstEmbeded.isValid, true);
     expect(firstEmbeded.value, 'first');
 
     realm.write(() {
-      topLevel.recursiveObject = RecursiveEmbedded1('second');
+      realmObject.recursiveObject = RecursiveEmbedded1('second');
     });
 
     // We replaced firstEmbedded with another one, so we expect it to be invalid
     expect(firstEmbeded.isManaged, true);
     expect(firstEmbeded.isValid, false);
 
-    final secondEmbedded = topLevel.recursiveObject!;
+    final secondEmbedded = realmObject.recursiveObject!;
     expect(secondEmbedded.value, 'second');
 
     realm.write(() {
-      topLevel.recursiveObject = null;
+      realmObject.recursiveObject = null;
     });
 
     // We replaced secondEmbedded with null, so we expect it to be invalid
     expect(secondEmbedded.isManaged, true);
     expect(secondEmbedded.isValid, false);
 
-    expect(topLevel.recursiveObject, isNull);
+    expect(realmObject.recursiveObject, isNull);
   });
 
   test('Embedded object in list when replaced invalidates old object', () {
     final realm = getLocalRealm();
-    final topLevel = realm.write(() {
+    final realmObject = realm.write(() {
       return realm.add(ObjectWithEmbedded('', recursiveList: [RecursiveEmbedded1('first'), RecursiveEmbedded1('second'), RecursiveEmbedded1('third')]));
     });
 
-    final list = topLevel.recursiveList;
+    final list = realmObject.recursiveList;
 
     final first = list[0];
 
@@ -349,7 +349,7 @@ Future<void> main([List<String>? args]) async {
     expect(obj.isValid, true);
 
     final newGraph = ObjectWithEmbedded('456',
-        recursiveObject: RecursiveEmbedded1('embedded 456', topLevel: ObjectWithEmbedded('123', recursiveList: [RecursiveEmbedded1('value')])));
+        recursiveObject: RecursiveEmbedded1('embedded 456', realmObject: ObjectWithEmbedded('123', recursiveList: [RecursiveEmbedded1('value')])));
 
     realm.write(() {
       realm.add(newGraph, update: true);
@@ -472,29 +472,29 @@ Future<void> main([List<String>? args]) async {
       final child11 = parent.dynamic.get<EmbeddedObject?>('recursiveObject')!;
       expect(child11.dynamic.get<String>('value'), '1.1');
       expect(child11.instanceSchema.name, 'RecursiveEmbedded1');
-      expect(child11.instanceSchema.baseType, ObjectType.embedded);
+      expect(child11.instanceSchema.baseType, ObjectType.embeddedObject);
 
       final list1 = parent.dynamic.getList<EmbeddedObject>('recursiveList');
       expect(list1.length, 1);
       expect(list1[0].dynamic.get<String>('value'), '1.2');
       expect(list1[0].instanceSchema.name, 'RecursiveEmbedded1');
-      expect(list1[0].instanceSchema.baseType, ObjectType.embedded);
+      expect(list1[0].instanceSchema.baseType, ObjectType.embeddedObject);
 
       final child21 = child11.dynamic.get<EmbeddedObject?>('child')!;
       expect(child21.dynamic.get<String>('value'), '2.1');
       expect(child21.instanceSchema.name, 'RecursiveEmbedded2');
-      expect(child21.instanceSchema.baseType, ObjectType.embedded);
+      expect(child21.instanceSchema.baseType, ObjectType.embeddedObject);
 
       final list2 = child11.dynamic.getList<EmbeddedObject>('children');
       expect(list2.length, 1);
       expect(list2[0].dynamic.get<String>('value'), '2.2');
       expect(list2[0].instanceSchema.name, 'RecursiveEmbedded2');
-      expect(list2[0].instanceSchema.baseType, ObjectType.embedded);
+      expect(list2[0].instanceSchema.baseType, ObjectType.embeddedObject);
 
       final child31 = child21.dynamic.get<EmbeddedObject?>('child')!;
       expect(child31.dynamic.get<String>('value'), '3.1');
       expect(child31.instanceSchema.name, 'RecursiveEmbedded3');
-      expect(child31.instanceSchema.baseType, ObjectType.embedded);
+      expect(child31.instanceSchema.baseType, ObjectType.embeddedObject);
 
       // String API without casting
       final genericChild11 = parent.dynamic.get('recursiveObject');
@@ -766,6 +766,50 @@ Future<void> main([List<String>? args]) async {
     expect(parent.recursiveObject, isNot(RecursiveEmbedded1('1.1')));
     expect(parent.recursiveObject, isNot(parent.recursiveList[0]));
     expect(parent.recursiveObject, isNot(parent));
+  });
+
+  test('Realm.delete deletes embedded object', () {
+    final realm = getLocalRealm();
+
+    final parent = ObjectWithEmbedded('123', recursiveObject: RecursiveEmbedded1('1'), recursiveList: [RecursiveEmbedded1('2')]);
+    realm.write(() {
+      realm.add(parent);
+    });
+
+    final allEmbedded = realm.allEmbedded<RecursiveEmbedded1>();
+    expect(allEmbedded.length, 2);
+
+    realm.write(() {
+      realm.delete(parent.recursiveList[0]);
+    });
+
+    expect(parent.recursiveList, isEmpty);
+    expect(allEmbedded.length, 1);
+    expect(allEmbedded.single.value, '1');
+
+    realm.write(() {
+      realm.delete(parent.recursiveObject!);
+    });
+
+    expect(parent.recursiveObject, isNull);
+    expect(allEmbedded, isEmpty);
+  });
+
+  test('List.clear deletes all embedded objects', () {
+    final realm = getLocalRealm();
+
+    final parent = ObjectWithEmbedded('123', recursiveList: [RecursiveEmbedded1('1'), RecursiveEmbedded1('2')]);
+
+    realm.write(() => realm.add(parent));
+
+    final allEmbedded = realm.allEmbedded<RecursiveEmbedded1>();
+    expect(allEmbedded.length, 2);
+
+    realm.write(() {
+      parent.recursiveList.clear();
+    });
+
+    expect(parent.recursiveList, isEmpty);
   });
 }
 

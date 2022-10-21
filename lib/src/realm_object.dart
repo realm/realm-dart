@@ -150,9 +150,9 @@ class RealmCoreAccessor implements RealmAccessor {
         // RealmObjects since we don't know the type of the object.
         if (listMetadata != null && _isTypeGenericObject<T>()) {
           switch (listMetadata.schema.baseType) {
-            case ObjectType.topLevel:
+            case ObjectType.realmObject:
               return object.realm.createList<RealmObject>(handle, listMetadata);
-            case ObjectType.embedded:
+            case ObjectType.embeddedObject:
               return object.realm.createList<EmbeddedObject>(handle, listMetadata);
             default:
               throw RealmError('List of ${listMetadata.schema.baseType} is not supported yet');
@@ -284,9 +284,9 @@ mixin RealmObjectBase on RealmEntity implements Finalizable {
     if (factory == null) {
       if (type == RealmObjectBase) {
         switch (metadata.schema.baseType) {
-          case ObjectType.topLevel:
+          case ObjectType.realmObject:
             return _ConcreteRealmObject();
-          case ObjectType.embedded:
+          case ObjectType.embeddedObject:
             return _ConcreteEmbeddedObject();
           default:
             throw RealmException("ObjectType ${metadata.schema.baseType} not supported");

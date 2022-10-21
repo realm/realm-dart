@@ -145,7 +145,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
 
   @override
   int indexOf(covariant T element, [int start = 0]) {
-    if (element is RealmObject && !element.isManaged) {
+    if (element is RealmObjectBase && !element.isManaged) {
       throw RealmStateError('Cannot call indexOf on a managed list with an element that is an unmanaged object');
     }
     if (start < 0) start = 0;
@@ -189,7 +189,7 @@ class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T>
 extension RealmListOfObject<T extends RealmObjectBase> on RealmList<T> {
   /// Filters the list and returns a new [RealmResults] according to the provided [query] (with optional [arguments]).
   ///
-  /// Only works for lists of [RealmObject]s.
+  /// Only works for lists of [RealmObject]s or [EmbeddedObject]s.
   ///
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)

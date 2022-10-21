@@ -57,7 +57,7 @@ class Original extends $Original
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Original._);
-    return const SchemaObject(ObjectType.topLevel, Original, 'another type', [
+    return const SchemaObject(ObjectType.realmObject, Original, 'another type', [
       SchemaProperty('remapped primitive', RealmPropertyType.int,
           mapTo: 'remapped primitive'),
       SchemaProperty('remapped object', RealmPropertyType.object,
