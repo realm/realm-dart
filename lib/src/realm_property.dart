@@ -38,11 +38,10 @@ class SchemaProperty {
   /// `true` if the property is optional
   final bool optional;
 
-  /// An alias to another property of the same RealmObject
+  /// An alias to another property of the same RealmObject/EmbeddedObject
   final String? mapTo;
 
   /// @nodoc
   const SchemaProperty(this.name, this.propertyType,
-      {this.optional = false, this.mapTo, this.primaryKey = false, this.linkTarget, this.collectionType = RealmCollectionType.none
-      });
+      {this.optional = false, this.mapTo, this.primaryKey = false, this.linkTarget, this.collectionType = RealmCollectionType.none});
 }

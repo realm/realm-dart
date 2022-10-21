@@ -619,6 +619,8 @@ class DynamicRealmObject {
     _typeOf<Uuid?>(): RealmPropertyType.uuid,
     RealmObject: RealmPropertyType.object,
     _typeOf<RealmObject?>(): RealmPropertyType.object,
+    EmbeddedObject: RealmPropertyType.object,
+    _typeOf<EmbeddedObject?>(): RealmPropertyType.object,
   };
 
   RealmPropertyType? _getPropertyType<T extends Object?>() => _propertyTypeMap[T];
