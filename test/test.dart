@@ -629,7 +629,7 @@ Future<void> waitForCondition(
   Duration retryDelay = const Duration(milliseconds: 100),
   String? message,
 }) {
-  return waitForConditionWithResult<bool>(() => condition(), (value) => value == true);
+  return waitForConditionWithResult<bool>(() => condition(), (value) => value == true, timeout: timeout, retryDelay: retryDelay, message: message);
 }
 
 Future<T> waitForConditionWithResult<T>(FutureOr<T> Function() getter, FutureOr<bool> Function(T value) condition,
