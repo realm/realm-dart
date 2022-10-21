@@ -16,9 +16,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'package:realm_common/realm_common.dart';
+import 'realm_class.dart';
 
-/// Describes a `RealmObject`/`EmbeddedObject`'s property with its name, type and other attributes in the [RealmSchema]
+/// Describes a property on [RealmObject]/[EmbeddedObject] with its name, type and other attributes in the [RealmSchema]
 ///{@category Configuration}
 class SchemaProperty {
   /// The name of the property as persisted in the `Realm`
