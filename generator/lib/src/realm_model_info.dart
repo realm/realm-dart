@@ -27,11 +27,12 @@ class RealmModelInfo {
   final String modelName;
   final String realmName;
   final List<RealmFieldInfo> fields;
+  final ObjectType baseType;
 
-  RealmModelInfo(this.name, this.modelName, this.realmName, this.fields);
+  RealmModelInfo(this.name, this.modelName, this.realmName, this.fields, this.baseType);
 
   Iterable<String> toCode() sync* {
-    yield 'class $name extends $modelName with RealmEntity, RealmObject {';
+    yield 'class $name extends $modelName with RealmEntity, RealmObjectBase, ${baseType.className} {';
     {
       final allExceptCollections = fields.where((f) => !f.type.isRealmCollection).toList();
 
@@ -59,18 +60,18 @@ class RealmModelInfo {
 
         if (hasDefaults.isNotEmpty) {
           yield 'if (!_defaultsSet) {';
-          yield '  _defaultsSet = RealmObject.setDefaults<$name>({';
+          yield '  _defaultsSet = RealmObjectBase.setDefaults<$name>({';
           yield* hasDefaults.map((f) => "'${f.realmName}': ${f.fieldElement.initializerExpression},");
           yield '  });';
           yield '}';
         }
 
         yield* allExceptCollections.map((f) {
-          return "RealmObject.set(this, '${f.realmName}', ${f.name});";
+          return "RealmObjectBase.set(this, '${f.realmName}', ${f.name});";
         });
 
         yield* collections.map((c) {
-          return "RealmObject.set<${c.mappedTypeName}>(this, '${c.realmName}', ${c.mappedTypeName}(${c.name}));";
+          return "RealmObjectBase.set<${c.mappedTypeName}>(this, '${c.realmName}', ${c.mappedTypeName}(${c.name}));";
         });
       }
       yield '}';
@@ -84,19 +85,19 @@ class RealmModelInfo {
           ]);
 
       yield '@override';
-      yield 'Stream<RealmObjectChanges<$name>> get changes => RealmObject.getChanges<$name>(this);';
+      yield 'Stream<RealmObjectChanges<$name>> get changes => RealmObjectBase.getChanges<$name>(this);';
       yield '';
 
       yield '@override';
-      yield '$name freeze() => RealmObject.freezeObject<$name>(this);';
+      yield '$name freeze() => RealmObjectBase.freezeObject<$name>(this);';
       yield '';
 
       yield 'static SchemaObject get schema => _schema ??= _initSchema();';
       yield 'static SchemaObject? _schema;';
       yield 'static SchemaObject _initSchema() {';
       {
-        yield 'RealmObject.registerFactory($name._);';
-        yield "return const SchemaObject($name, '$realmName', [";
+        yield 'RealmObjectBase.registerFactory($name._);';
+        yield "return const SchemaObject(ObjectType.${baseType.name}, $name, '$realmName', [";
         {
           yield* fields.map((f) {
             final namedArgs = {

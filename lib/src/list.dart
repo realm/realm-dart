@@ -85,15 +85,16 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
 
   @override
   bool remove(covariant T element) {
-    if (element is RealmObject && !element.isManaged) {
+    if (element is RealmObjectBase && !element.isManaged) {
       throw RealmStateError('Cannot call remove on a managed list with an element that is an unmanaged object');
     }
     final index = indexOf(element);
-    final found = index > 0;
-    if (found) {
-      removeAt(index);
+    if (index < 0) {
+      return false;
     }
-    return found;
+
+    removeAt(index);
+    return true;
   }
 
   @override
@@ -122,7 +123,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
 
   @override
   void insert(int index, T element) {
-    realmCore.listInsertElementAt(handle, index, element);
+    RealmListInternal.setValue(handle, realm, index, element, insert: true);
   }
 
   @override
@@ -144,7 +145,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
 
   @override
   int indexOf(covariant T element, [int start = 0]) {
-    if (element is RealmObject && !element.isManaged) {
+    if (element is RealmObjectBase && !element.isManaged) {
       throw RealmStateError('Cannot call indexOf on a managed list with an element that is an unmanaged object');
     }
     if (start < 0) start = 0;
@@ -185,10 +186,10 @@ class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T>
 // The query operations on lists, as well as the ability to subscribe for notifications,
 // only work for list of objects (core restriction), so we add these as an extension methods
 // to allow the compiler to prevent misuse.
-extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
+extension RealmListOfObject<T extends RealmObjectBase> on RealmList<T> {
   /// Filters the list and returns a new [RealmResults] according to the provided [query] (with optional [arguments]).
   ///
-  /// Only works for lists of [RealmObject]s.
+  /// Only works for lists of [RealmObject]s or [EmbeddedObject]s.
   ///
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
@@ -236,18 +237,33 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
 
   static RealmList<T> create<T extends Object?>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
 
-  static void setValue(RealmListHandle handle, Realm realm, int index, Object? value, {bool update = false}) {
+  static void setValue(RealmListHandle handle, Realm realm, int index, Object? value, {bool update = false, bool insert = false}) {
     if (index < 0) {
-      throw RealmException("Index out of range $index");
+      throw RealmException("Index can not be negative: $index");
+    }
+
+    final length = realmCore.getListSize(handle);
+    if (index > length) {
+      throw RealmException('Index can not exceed the size of the list: $index, size: $length');
     }
 
     try {
+      if (value is EmbeddedObject) {
+        if (value.isManaged) {
+          throw RealmError("Can't add to list an embedded object that is already managed");
+        }
+
+        final objHandle =
+            insert || index >= length ? realmCore.listInsertEmbeddedObjectAt(realm, handle, index) : realmCore.listSetEmbeddedObjectAt(realm, handle, index);
+        realm.manageEmbedded(objHandle, value);
+        return;
+      }
+
       if (value is RealmObject && !value.isManaged) {
         realm.add<RealmObject>(value, update: update);
       }
 
-      final length = realmCore.getListSize(handle);
-      if (index >= length) {
+      if (insert || index >= length) {
         realmCore.listInsertElementAt(handle, index, value);
       } else {
         realmCore.listSetElementAt(handle, index, value);

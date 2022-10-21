@@ -8,11 +8,29 @@
   * Added `realm.beginWriteAsync` which returns a `Future<Transaction>` that resolves when the write lock has been obtained.
   * Added `realm.writeAsync` which opens an asynchronous transaction, invokes the provided callback, then commits the transaction asynchronously.
 * Support `Realm.open` API to asynchronously open a local or synced Realm. When opening a synchronized Realm it will download all the content available at the time the operation began and then return a usable Realm. ([#731](https://github.com/realm/realm-dart/pull/731))
+* Add support for embedded objects. Embedded objects are objects which are owned by a single parent object, and are deleted when that parent object is deleted or their parent no longer references them. Embedded objects are declared by passing `ObjectType.embedded` to the `@RealmModel` annotation. Reassigning an embedded object is not allowed and neither is linking to it from multiple parents. Querying for embedded objects directly is also disallowed as they should be viewed as complex structures belonging to their parents as opposed to standalone objects. (Issue [#662](https://github.com/realm/realm-dart/issues/662))
+
+```dart
+@RealmModel()
+class _Person {
+  late String name;
+
+  _Address? address;
+}
+
+// The generated `Address` class will be an embedded object.
+@RealmModel(ObjectType.embedded)
+class _Address {
+  late String street;
+  late String city;
+}
+```
 
 ### Fixed
 * Added more validations when using `User.apiKeys` to return more meaningful errors when the user cannot perform API key actions - e.g. when the user has been logged in with API key credentials or when the user has been logged out. (Issue [#950](https://github.com/realm/realm-dart/issues/950))
 * Fixed `dart run realm_dart generate` and `flutter pub run realm generate` commands to exit with the correct error code on failure.
 * Added more descriptive error messages when passing objects managed by another Realm as arguments to `Realm.add/delete/deleteMany`. (PR [#942](https://github.com/realm/realm-dart/pull/942))
+* Fixed a bug where `list.remove` would not correctly remove the value if the value is the first element in the list. (PR [#975](https://github.com/realm/realm-dart/pull/975))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
