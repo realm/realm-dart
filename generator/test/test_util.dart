@@ -24,7 +24,7 @@ Map<String, String> getListOfTestFiles(String directory) {
   return result;
 }
 
-Future<dynamic> generatorTestBuilder(String directoryName, String inputFileName, String? expectedFileName) async {
+Future<dynamic> generatorTestBuilder(String directoryName, String inputFileName, [String? expectedFileName]) async {
   return testBuilder(generateRealmObjects(), await getInputFileAsset('$directoryName/$inputFileName'),
       outputs: expectedFileName != null ? await getExpectedFileAsset('$directoryName/$inputFileName', '$directoryName/$expectedFileName') : null,
       reader: await PackageAssetReader.currentIsolate());
