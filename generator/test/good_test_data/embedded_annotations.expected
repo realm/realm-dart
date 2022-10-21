@@ -93,7 +93,7 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Child1._);
-    return const SchemaObject(ObjectType.embedded, Child1, 'MySuperChild', [
+    return const SchemaObject(ObjectType.embeddedObject, Child1, 'MySuperChild', [
       SchemaProperty('_value', RealmPropertyType.string, mapTo: '_value'),
       SchemaProperty('_parent', RealmPropertyType.object,
           mapTo: '_parent', optional: true, linkTarget: 'Parent'),

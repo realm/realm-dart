@@ -2,12 +2,12 @@ Primary key not allowed on embedded objects
 
 in: asset:pkg/test/error_test_data/embedded_object_primary_key.dart:8:12
   ╷
-5 │ @RealmModel(ObjectType.embedded)
+5 │ @RealmModel(ObjectType.embeddedObject)
 6 │ class _Bad {
   │       ━━━━ 
 7 │   @PrimaryKey()
 8 │   late int id;
   │            ^^ Bad is marked as embedded but has primary key defined
   ╵
-Remove the @PrimaryKey annotation from the field or set the model type to a value different from ObjectType.embedded.
+Remove the @PrimaryKey annotation from the field or set the model type to a value different from ObjectType.embeddedObject.
 
