@@ -167,7 +167,7 @@ extension ClassElementEx on ClassElement {
     } catch (e, s) {
       // Fallback. Not perfect, but better than just forwarding original error.
       throw RealmInvalidGenerationSourceError(
-        '$e',
+        '$e \n $s',
         todo: //
             'Unexpected error. Please open an issue on: '
             'https://github.com/realm/realm-dart',
