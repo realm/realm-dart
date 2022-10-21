@@ -624,21 +624,29 @@ Future<User> loginWithRetry(App app, Credentials credentials, {int retryCount = 
 }
 
 Future<void> waitForCondition(
-  bool Function() condition, {
+  FutureOr<bool> Function() condition, {
   Duration timeout = const Duration(seconds: 1),
   Duration retryDelay = const Duration(milliseconds: 100),
   String? message,
-}) async {
-  await Future.any<void>([
-    Future<void>.delayed(timeout, () => throw TimeoutException('Condition not met within $timeout. Message: ${message != null ? ': $message' : ''}')),
-    Future.doWhile(() async {
-      if (condition()) {
-        return false;
-      }
-      await Future<void>.delayed(retryDelay);
-      return true;
-    })
-  ]);
+}) {
+  return waitForConditionWithResult<bool>(() => condition(), (value) => value == true);
+}
+
+Future<T> waitForConditionWithResult<T>(FutureOr<T> Function() getter, FutureOr<bool> Function(T value) condition,
+    {Duration timeout = const Duration(seconds: 1), Duration retryDelay = const Duration(milliseconds: 100), String? message}) async {
+  final start = DateTime.now();
+  while (true) {
+    final value = await getter();
+    if (await condition(value)) {
+      return value;
+    }
+
+    if (DateTime.now().difference(start) > timeout) {
+      throw TimeoutException('Condition not met within $timeout. Message: ${message != null ? ': $message' : ''}');
+    }
+
+    await Future<void>.delayed(retryDelay);
+  }
 }
 
 extension RealmObjectTest on RealmObjectBase {
