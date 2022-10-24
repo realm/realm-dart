@@ -140,7 +140,8 @@ extension CredentialsInternal on Credentials {
 
   RealmAppCredentialsHandle get handle => _handle;
 
-  AuthProviderType readProviderFromCore() => realmCore.userGetCredentialsProviderType(this);
+  /// This should be only used for testing
+  AuthProviderType get credentialsProviderType => realmCore.userGetCredentialsProviderType(this);
 }
 
 /// A class, encapsulating functionality for users, logged in with [Credentials.emailPassword()].
