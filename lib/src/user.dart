@@ -58,7 +58,7 @@ class User {
   FunctionsClient get functions {
     _ensureLoggedIn('access API keys');
 
-    return _functions ??= FunctionsClient._(this);;
+    return _functions ??= FunctionsClient._(this);
   }
 
   User._(this._handle, this._app);
