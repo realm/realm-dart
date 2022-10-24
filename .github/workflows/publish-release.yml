@@ -27,7 +27,7 @@ jobs:
       run: |
         pkgVersion=$(sed -ne "s/^version: \(.*\)/\1/p" pubspec.yaml)
         pkgSuffix="${{ github.event.inputs.environment != 'Production' && format('-{0}', github.sha) || '' }}"
-        echo "::set-output name=version::$pkgVersion$pkgSuffix"
+        echo "version=$pkgVersion$pkgSuffix" >> $GITHUB_OUTPUT
       shell: bash
 
     - name : Setup Dart SDK
@@ -156,7 +156,7 @@ jobs:
 
         s3_folder="static.realm.io/downloads/dart/${{ steps.get-version.outputs.version }}"
         aws s3 sync --acl public-read . "s3://$s3_folder"
-        echo "::set-output name=url::https://$s3_folder/packages.tar.gz"
+        echo "url=https://$s3_folder/packages.tar.gz" >> $GITHUB_OUTPUT
       working-directory: release
 
   publish-packages:
