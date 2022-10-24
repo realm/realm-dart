@@ -76,7 +76,7 @@ Future<void> main([List<String>? args]) async {
 
     expect(user1.state, UserState.loggedIn);
     expect(user1.identities.length, 1);
-    expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous).provider, isNotNull);
+    expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous), isA<UserIdentity>());
 
     final authProvider = EmailPasswordAuthProvider(app);
     final username = "${generateRandomString(20)}@realm.io";
@@ -85,8 +85,8 @@ Future<void> main([List<String>? args]) async {
 
     await user1.linkCredentials(Credentials.emailPassword(username, password));
     expect(user1.identities.length, 2);
-    expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.emailPassword).provider, isNotNull);
-    expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous).provider, isNotNull);
+    expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.emailPassword), isA<UserIdentity>());
+    expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous), isA<UserIdentity>());
 
     final user2 = await app.logIn(Credentials.emailPassword(username, password));
     expect(user1, user2);
@@ -336,13 +336,11 @@ Future<void> main([List<String>? args]) async {
     await disableAndVerifyApiKey(user, first.id);
 
     final fetched = await user.apiKeys.fetchAll();
-    final fetchedFirst = fetched.singleWhere((key) => key.id == first.id);
 
-    expect(fetchedFirst.id, first.id);
+    final fetchedFirst = fetched.singleWhere((key) => key.id == first.id);
     expect(fetchedFirst.isEnabled, false);
 
     final fetchedSecond = fetched.singleWhere((key) => key.id == second.id);
-    expect(fetchedSecond.id, second.id);
     expect(fetchedSecond.isEnabled, true);
   });
 
@@ -361,11 +359,9 @@ Future<void> main([List<String>? args]) async {
     final fetched = await user.apiKeys.fetchAll();
 
     final fetchedFirst = fetched.singleWhere((key) => key.id == first.id);
-    expect(fetchedFirst.id, first.id);
     expect(fetchedFirst.isEnabled, false);
 
     final fetchedSecond = fetched.singleWhere((key) => key.id == second.id);
-    expect(fetchedSecond.id, second.id);
     expect(fetchedSecond.isEnabled, true);
 
     await enableAndVerifyApiKey(user, first.id);
@@ -373,11 +369,9 @@ Future<void> main([List<String>? args]) async {
     final refetched = await user.apiKeys.fetchAll();
 
     final refetchedFirst = refetched.singleWhere((k) => k.id == first.id);
-    expect(refetchedFirst.id, first.id);
     expect(refetchedFirst.isEnabled, true);
 
     final refetchedSecond = refetched.singleWhere((k) => k.id == second.id);
-    expect(refetchedSecond.id, second.id);
     expect(refetchedSecond.isEnabled, true);
   });
 
