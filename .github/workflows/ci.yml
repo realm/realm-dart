@@ -27,7 +27,7 @@ jobs:
           cluster=${triggerName/'/merge'/''}
           echo "clusterName=$(cut -c 1-8 <<< ${cluster}$RANDOM)" >> $GITHUB_OUTPUT
 
-      - uses: realm/ci-actions/mdb-realm/deployApps@3f810b2d04e9dada2bde0b33ec90102e52a0b30a
+      - uses: realm/ci-actions/mdb-realm/deploy@5373924c1b9eef7f7d81897a471f5ccad6918ae9
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
