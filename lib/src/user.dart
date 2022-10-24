@@ -31,6 +31,7 @@ import './app.dart';
 class User {
   App? _app;
   final UserHandle _handle;
+  ApiKeyClient? _apiKeys;
 
   /// The [App] with which the [User] is associated with.
   App get app {
@@ -39,8 +40,6 @@ class User {
     return _app ??= AppInternal.create(realmCore.userGetApp(_handle));
   }
 
-  late final ApiKeyClient _apiKeys = ApiKeyClient._(this);
-
   /// Gets an [ApiKeyClient] instance that exposes functionality for managing
   /// user API keys.
   /// [API Keys Authentication Docs](https://docs.mongodb.com/realm/authentication/api-key/)
@@ -48,7 +47,7 @@ class User {
     _ensureLoggedIn('access API keys');
     _ensureCanAccessAPIKeys();
 
-    return _apiKeys;
+    return _apiKeys ??= ApiKeyClient._(this);
   }
 
   User._(this._handle, this._app);
