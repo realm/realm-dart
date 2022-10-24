@@ -352,7 +352,7 @@ class InMemoryConfiguration extends Configuration {
   }) : super._();
 }
 
-/// A collection of properties describing the underlying schema of a [RealmObject].
+/// A collection of properties describing the underlying schema of a [RealmObjectBase].
 ///
 /// {@category Configuration}
 class SchemaObject {
@@ -365,8 +365,11 @@ class SchemaObject {
   /// Returns the name of this schema type.
   final String name;
 
+  /// Returns the base type of this schema object.
+  final ObjectType baseType;
+
   /// Creates schema instance with object type and collection of object's properties.
-  const SchemaObject(this.type, this.name, this.properties);
+  const SchemaObject(this.baseType, this.type, this.name, this.properties);
 }
 
 /// Describes the complete set of classes which may be stored in a `Realm`
@@ -405,3 +408,8 @@ class SyncClientResetErrorHandler {
 
 /// A client reset strategy where the user needs to fully take care of a client reset.
 typedef ManualSyncClientResetHandler = SyncClientResetErrorHandler;
+
+/// @nodoc
+extension SchemaObjectInternal on SchemaObject {
+  bool get isGenericRealmObject => type == RealmObject || type == EmbeddedObject || type == RealmObjectBase;
+}

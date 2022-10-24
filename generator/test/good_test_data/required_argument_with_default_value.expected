@@ -2,39 +2,41 @@
 // RealmObjectGenerator
 // **************************************************************************
 
-class Person extends _Person with RealmEntity, RealmObject {
+class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
   Person({
     int age = 47,
   }) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObject.setDefaults<Person>({
+      _defaultsSet = RealmObjectBase.setDefaults<Person>({
         'age': 47,
       });
     }
-    RealmObject.set(this, 'age', age);
+    RealmObjectBase.set(this, 'age', age);
   }
 
   Person._();
 
   @override
-  int get age => RealmObject.get<int>(this, 'age') as int;
+  int get age => RealmObjectBase.get<int>(this, 'age') as int;
   @override
-  set age(int value) => RealmObject.set(this, 'age', value);
+  set age(int value) => RealmObjectBase.set(this, 'age', value);
 
   @override
-  Stream<RealmObjectChanges<Person>> get changes => RealmObject.getChanges<Person>(this);
+  Stream<RealmObjectChanges<Person>> get changes =>
+      RealmObjectBase.getChanges<Person>(this);
 
   @override
-  Person freeze() => RealmObject.freezeObject<Person>(this);
+  Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory(Person._);
-    return const SchemaObject(Person, 'Person', [
+    RealmObjectBase.registerFactory(Person._);
+    return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('age', RealmPropertyType.int),
     ]);
   }
 }
+

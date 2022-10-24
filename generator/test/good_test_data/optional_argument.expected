@@ -2,32 +2,36 @@
 // RealmObjectGenerator
 // **************************************************************************
 
-class Person extends _Person with RealmEntity, RealmObject {
+class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   Person({
     Person? spouse,
   }) {
-    RealmObject.set(this, 'spouse', spouse);
+    RealmObjectBase.set(this, 'spouse', spouse);
   }
 
   Person._();
 
   @override
-  Person? get spouse => RealmObject.get<Person>(this, 'spouse') as Person?;
+  Person? get spouse => RealmObjectBase.get<Person>(this, 'spouse') as Person?;
   @override
-  set spouse(covariant Person? value) => RealmObject.set(this, 'spouse', value);
+  set spouse(covariant Person? value) =>
+      RealmObjectBase.set(this, 'spouse', value);
 
   @override
-  Stream<RealmObjectChanges<Person>> get changes => RealmObject.getChanges<Person>(this);
+  Stream<RealmObjectChanges<Person>> get changes =>
+      RealmObjectBase.getChanges<Person>(this);
 
   @override
-  Person freeze() => RealmObject.freezeObject<Person>(this);
+  Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory(Person._);
-    return const SchemaObject(Person, 'Person', [
-      SchemaProperty('spouse', RealmPropertyType.object, optional: true, linkTarget: 'Person'),
+    RealmObjectBase.registerFactory(Person._);
+    return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
+      SchemaProperty('spouse', RealmPropertyType.object,
+          optional: true, linkTarget: 'Person'),
     ]);
   }
 }
+

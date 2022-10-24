@@ -93,7 +93,7 @@ Future<void> main([List<String>? args]) async {
     final teams = realm.all<Team>();
     final players = teams[0].players;
 
-    expect(() => realm.write(() => players[-1] = Person('')), throws<RealmException>("Index out of range"));
+    expect(() => realm.write(() => players[-1] = Person('')), throws<RealmException>("Index can not be negative"));
     expect(() => realm.write(() => players[800] = Person('')), throws<RealmException>());
   });
 
