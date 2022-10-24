@@ -2098,7 +2098,7 @@ class _RealmCore {
             app.handle._pointer,
             user.handle._pointer,
             functionName.toCharPtr(arena),
-            argsAsJSON != null ? argsAsJSON.toCharPtr(arena) : nullptr,
+            argsAsJSON?.toCharPtr(arena) ?? nullptr,
             Pointer.fromFunction(_call_app_function_callback),
             completer.toPersistentHandle(),
             _realmLib.addresses.realm_dart_delete_persistent_handle,
