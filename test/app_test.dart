@@ -286,9 +286,9 @@ Future<void> main([List<String>? args]) async {
     final arg2 = Person('Michael');
     final dynamic response = await user.functions.call('userFuncTwoArgs', [arg1.toJson(), arg2.toJson()]);
     expect(response, isNotNull);
-    final map = response as Map<String, dynamic>;
-    final receivedPerson1 = PersonJ.fromJson(map['arg1'] as Map<String, dynamic>);
-    final receivedPerson2 = PersonJ.fromJson(map['arg2'] as Map<String, dynamic>);
+    final map = response as Map<String, Map<String, dynamic>>;
+    final receivedPerson1 = PersonJ.fromJson(map['arg1']);
+    final receivedPerson2 = PersonJ.fromJson(map['arg2']);
     expect(receivedPerson1.name, arg1.name);
     expect(receivedPerson2.name, arg2.name);
   });
