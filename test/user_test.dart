@@ -230,7 +230,8 @@ Future<void> main([List<String>? args]) async {
     final fetched = await user.apiKeys.fetchAll();
 
     for (var i = 0; i < 5; i++) {
-      expectApiKey(fetched[i], original[i]);
+      final fetchedKey = fetched.firstWhere((key) => key.id == original[i].id);
+      expectApiKey(fetchedKey, original[i]);
     }
   });
 
@@ -335,12 +336,14 @@ Future<void> main([List<String>? args]) async {
     await disableAndVerifyApiKey(user, first.id);
 
     final fetched = await user.apiKeys.fetchAll();
+    final fetchedFirst = fetched.firstWhere((key) => key.id == first.id);
 
-    expect(fetched[0].id, first.id);
-    expect(fetched[0].isEnabled, false);
+    expect(fetchedFirst.id, first.id);
+    expect(fetchedFirst.isEnabled, false);
 
-    expect(fetched[1].id, second.id);
-    expect(fetched[1].isEnabled, true);
+    final fetchedSecond = fetched.firstWhere((key) => key.id == second.id);
+    expect(fetchedSecond.id, second.id);
+    expect(fetchedSecond.isEnabled, true);
   });
 
   baasTest('User.apiKeys.enable reenables key', (configuration) async {
@@ -356,20 +359,26 @@ Future<void> main([List<String>? args]) async {
     await disableAndVerifyApiKey(user, first.id);
 
     final fetched = await user.apiKeys.fetchAll();
-    expect(fetched[0].id, first.id);
-    expect(fetched[0].isEnabled, false);
+    final fetchedFirst = fetched.firstWhere((key) => key.id == first.id);
+    expect(fetchedFirst.id, first.id);
+    expect(fetchedFirst.isEnabled, false);
 
-    expect(fetched[1].id, second.id);
-    expect(fetched[1].isEnabled, true);
+    final fetchedSecond = fetched.firstWhere((key) => key.id == second.id);
+    expect(fetchedSecond.id, second.id);
+    expect(fetchedSecond.isEnabled, true);
 
     await enableAndVerifyApiKey(user, first.id);
 
     final refetched = await user.apiKeys.fetchAll();
-    expect(refetched[0].id, first.id);
-    expect(refetched[0].isEnabled, true);
+    final refetchedFirst = refetched.firstWhere((k) => k.id == first.id);
 
-    expect(refetched[1].id, second.id);
-    expect(refetched[1].isEnabled, true);
+    expect(refetchedFirst.id, first.id);
+    expect(refetchedFirst.isEnabled, true);
+
+    final refetchedSecond = refetched.firstWhere((k) => k.id == second.id);
+
+    expect(refetchedSecond.id, second.id);
+    expect(refetchedSecond.isEnabled, true);
   });
 
   baasTest('User.apiKeys can login with generated key', (configuration) async {
