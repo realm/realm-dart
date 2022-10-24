@@ -44,13 +44,13 @@ jobs:
 
       - name: Get vcpkg submodule commit sha
         id: vcpkg_cache_key
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        #if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         working-directory: src/realm-core/tools/vcpkg/ports
         shell: bash
         run: echo "commit=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
       - name: Setup Vcpkg
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        #if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         continue-on-error: true
         uses: friendlyanon/setup-vcpkg@v1
         with:
