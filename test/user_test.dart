@@ -230,7 +230,7 @@ Future<void> main([List<String>? args]) async {
     final fetched = await user.apiKeys.fetchAll();
 
     for (var i = 0; i < 5; i++) {
-      final fetchedKey = fetched.firstWhere((key) => key.id == original[i].id);
+      final fetchedKey = fetched.singleWhere((key) => key.id == original[i].id);
       expectApiKey(fetchedKey, original[i]);
     }
   });
@@ -336,12 +336,12 @@ Future<void> main([List<String>? args]) async {
     await disableAndVerifyApiKey(user, first.id);
 
     final fetched = await user.apiKeys.fetchAll();
-    final fetchedFirst = fetched.firstWhere((key) => key.id == first.id);
+    final fetchedFirst = fetched.singleWhere((key) => key.id == first.id);
 
     expect(fetchedFirst.id, first.id);
     expect(fetchedFirst.isEnabled, false);
 
-    final fetchedSecond = fetched.firstWhere((key) => key.id == second.id);
+    final fetchedSecond = fetched.singleWhere((key) => key.id == second.id);
     expect(fetchedSecond.id, second.id);
     expect(fetchedSecond.isEnabled, true);
   });
@@ -359,24 +359,24 @@ Future<void> main([List<String>? args]) async {
     await disableAndVerifyApiKey(user, first.id);
 
     final fetched = await user.apiKeys.fetchAll();
-    final fetchedFirst = fetched.firstWhere((key) => key.id == first.id);
+
+    final fetchedFirst = fetched.singleWhere((key) => key.id == first.id);
     expect(fetchedFirst.id, first.id);
     expect(fetchedFirst.isEnabled, false);
 
-    final fetchedSecond = fetched.firstWhere((key) => key.id == second.id);
+    final fetchedSecond = fetched.singleWhere((key) => key.id == second.id);
     expect(fetchedSecond.id, second.id);
     expect(fetchedSecond.isEnabled, true);
 
     await enableAndVerifyApiKey(user, first.id);
 
     final refetched = await user.apiKeys.fetchAll();
-    final refetchedFirst = refetched.firstWhere((k) => k.id == first.id);
 
+    final refetchedFirst = refetched.singleWhere((k) => k.id == first.id);
     expect(refetchedFirst.id, first.id);
     expect(refetchedFirst.isEnabled, true);
 
-    final refetchedSecond = refetched.firstWhere((k) => k.id == second.id);
-
+    final refetchedSecond = refetched.singleWhere((k) => k.id == second.id);
     expect(refetchedSecond.id, second.id);
     expect(refetchedSecond.isEnabled, true);
   });
