@@ -327,3 +327,8 @@ Future<void> testLogger(
     expect(e.value, greaterThanOrEqualTo(minExpectedCounts[e.key] ?? minInt), reason: '${e.key}');
   }
 }
+
+extension PersonJ on Person {
+  static Person fromJson(Map<String, dynamic> json) => Person(json['name'] as String);
+  Map<String, dynamic> toJson() => <String, dynamic>{'name': name};
+}
