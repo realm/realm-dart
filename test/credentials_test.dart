@@ -18,6 +18,7 @@
 
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
+import '../lib/src/credentials.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -484,4 +485,22 @@ Future<void> main([List<String>? args]) async {
     expect(sameUser.identities[0].id, userId);
     expect(sameUser.provider, AuthProviderType.function);
   });
+
+  test('Credentials providers', () {
+    _checkCredentialsProvider(Credentials.anonymous(), AuthProviderType.anonymous);
+    _checkCredentialsProvider(Credentials.anonymous(reuseCredentials: false), AuthProviderType.anonymousNoReuse);
+    _checkCredentialsProvider(Credentials.apiKey(""), AuthProviderType.apiKey);
+    _checkCredentialsProvider(Credentials.apple(""), AuthProviderType.apple);
+    _checkCredentialsProvider(Credentials.emailPassword("", ""), AuthProviderType.emailPassword);
+    _checkCredentialsProvider(Credentials.facebook(""), AuthProviderType.facebook);
+    _checkCredentialsProvider(Credentials.function("{}"), AuthProviderType.function);
+    _checkCredentialsProvider(Credentials.googleAuthCode(""), AuthProviderType.google);
+    _checkCredentialsProvider(Credentials.googleIdToken(""), AuthProviderType.google);
+    _checkCredentialsProvider(Credentials.jwt(""), AuthProviderType.jwt);
+  });
+}
+
+void _checkCredentialsProvider(Credentials anonymousCredentials, AuthProviderType providerType) {
+  expect(anonymousCredentials.provider, providerType);
+  expect(anonymousCredentials.readProviderFromCore(), providerType);
 }

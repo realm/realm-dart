@@ -139,6 +139,8 @@ extension CredentialsInternal on Credentials {
   }
 
   RealmAppCredentialsHandle get handle => _handle;
+
+  AuthProviderType readProviderFromCore() => realmCore.userGetCredentialsProviderType(this);
 }
 
 /// A class, encapsulating functionality for users, logged in with [Credentials.emailPassword()].
