@@ -12,7 +12,7 @@
 * Realm Studio: 12.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 12.10.0. ([#988](https://github.com/realm/realm-dart/pull/988))
 
 ## 0.6.0+beta (2022-10-21)
 
