@@ -40,7 +40,7 @@ class User {
   }
 
   late final ApiKeyClient _apiKeys = ApiKeyClient._(this);
-  FunctionsClient? _functions
+  late final FunctionsClient _functions = FunctionsClient._(this);
 
   /// Gets an [ApiKeyClient] instance that exposes functionality for managing
   /// user API keys.
@@ -58,7 +58,7 @@ class User {
   FunctionsClient get functions {
     _ensureLoggedIn('access API keys');
 
-    return _functions ??= FunctionsClient._(this);
+    return _functions;
   }
 
   User._(this._handle, this._app);
