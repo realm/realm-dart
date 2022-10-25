@@ -8,12 +8,14 @@
 ### Fixed
 * Fixed a wrong mapping for `AuthProviderType` returned by `User.provider` for google, facebook and apple credentials.
 * Fix a use-after-free if the last external reference to an encrypted Realm was closed between when a client reset error was received and when the download of the new Realm began. (Core upgrade)
+* Opening an unencrypted file with an encryption key would sometimes report a misleading error message that indicated that the problem was something other than a decryption failure (Core upgrade)
+* Fix a rare deadlock which could occur when closing a synchronized Realm immediately after committing a write transaction when the sync worker thread has also just finished processing a changeset from the server. (Core upgrade)
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
 
 ### Internal
-* Using Core 12.10.0. ([#988](https://github.com/realm/realm-dart/pull/988))
+* Using Core 12.11.0. ([#988](https://github.com/realm/realm-dart/pull/988))
 
 ## 0.6.0+beta (2022-10-21)
 
