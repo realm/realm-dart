@@ -1,6 +1,6 @@
 import 'dart:io';
+import 'package:path/path.dart' as p;
 
-Future<void> copyOldFormatRealmTo(String path) async {
-  const realmBundleFile = 'flutter/realm_flutter/tests/data/realm_files/old-format.realm';
-  await File(realmBundleFile).copy(path);
+Future<void> copyBundledFile(String fromPath, String toPath) async {
+  await File(p.join('test', fromPath)).copy(toPath);
 }

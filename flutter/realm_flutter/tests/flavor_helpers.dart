@@ -2,9 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 
-Future<void> copyOldFormatRealmTo(String path) async {
-  const assetFile = 'data/realm_files/old-format.realm';
-  final data = await rootBundle.load(assetFile);
+Future<void> copyBundledFile(String fromPath, String toPath) async {
+  final data = await rootBundle.load(fromPath);
   final bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-  await File(path).writeAsBytes(bytes);
+  await File(toPath).writeAsBytes(bytes);
 }

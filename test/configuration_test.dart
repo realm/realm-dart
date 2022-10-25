@@ -223,7 +223,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration - disableFormatUpgrade=true throws error', () async {
     var config = Configuration.local([Car.schema], disableFormatUpgrade: true);
-    await copyOldFormatRealmTo(config.path);
+    await copyBundledFile('data/realm_files/old-format.realm', config.path);
     expect(() {
       getRealm(config);
     }, throws<RealmException>("The Realm file format must be allowed to be upgraded in order to proceed"));
@@ -231,7 +231,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration - disableFormatUpgrade=false', () async {
     var config = Configuration.local([Car.schema], disableFormatUpgrade: false);
-    await copyOldFormatRealmTo(config.path);
+    await copyBundledFile('data/realm_files/old-format.realm', config.path);
     final realm = getRealm(config);
   });
 
