@@ -18,7 +18,6 @@
 
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
-import '../lib/src/credentials.dart' show CredentialsInternal;
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -487,20 +486,15 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Credentials providers', () {
-    _checkCredentialsProvider(Credentials.anonymous(), AuthProviderType.anonymous);
-    _checkCredentialsProvider(Credentials.anonymous(reuseCredentials: false), AuthProviderType.anonymous);
-    _checkCredentialsProvider(Credentials.apiKey(""), AuthProviderType.apiKey);
-    _checkCredentialsProvider(Credentials.apple(""), AuthProviderType.apple);
-    _checkCredentialsProvider(Credentials.emailPassword("", ""), AuthProviderType.emailPassword);
-    _checkCredentialsProvider(Credentials.facebook(""), AuthProviderType.facebook);
-    _checkCredentialsProvider(Credentials.function("{}"), AuthProviderType.function);
-    _checkCredentialsProvider(Credentials.googleAuthCode(""), AuthProviderType.google);
-    _checkCredentialsProvider(Credentials.googleIdToken(""), AuthProviderType.google);
-    _checkCredentialsProvider(Credentials.jwt(""), AuthProviderType.jwt);
+    expect(Credentials.anonymous().provider, AuthProviderType.anonymous);
+    expect(Credentials.anonymous(reuseCredentials: false).provider, AuthProviderType.anonymous);
+    expect(Credentials.apiKey("").provider, AuthProviderType.apiKey);
+    expect(Credentials.apple("").provider, AuthProviderType.apple);
+    expect(Credentials.emailPassword("", "").provider, AuthProviderType.emailPassword);
+    expect(Credentials.facebook("").provider, AuthProviderType.facebook);
+    expect(Credentials.function("{}").provider, AuthProviderType.function);
+    expect(Credentials.googleAuthCode("").provider, AuthProviderType.google);
+    expect(Credentials.googleIdToken("").provider, AuthProviderType.google);
+    expect(Credentials.jwt("").provider, AuthProviderType.jwt);
   });
-}
-
-void _checkCredentialsProvider(Credentials anonymousCredentials, AuthProviderType providerType) {
-  expect(anonymousCredentials.provider, providerType);
-  expect(anonymousCredentials.credentialsProviderType, providerType);
 }

@@ -80,60 +80,43 @@ extension AuthProviderTypeInternal on AuthProviderType {
 /// {@category Application}
 class Credentials implements Finalizable {
   final RealmAppCredentialsHandle _handle;
-  final AuthProviderType provider;
 
   /// Returns a [Credentials] object that can be used to authenticate an anonymous user.
   /// Setting [reuseCredentials] to [false] will create a new anonymous user, upon [App.logIn].
   /// [Anonymous Authentication Docs](https://docs.mongodb.com/realm/authentication/anonymous)
-  Credentials.anonymous({bool reuseCredentials = true})
-      : _handle = realmCore.createAppCredentialsAnonymous(reuseCredentials),
-        provider = AuthProviderType.anonymous;
+  Credentials.anonymous({bool reuseCredentials = true}) : _handle = realmCore.createAppCredentialsAnonymous(reuseCredentials);
 
   /// Returns a [Credentials] object that can be used to authenticate a user with a Google account using an id token.
-  Credentials.apple(String idToken)
-      : _handle = realmCore.createAppCredentialsApple(idToken),
-        provider = AuthProviderType.apple;
+  Credentials.apple(String idToken) : _handle = realmCore.createAppCredentialsApple(idToken);
 
   /// Returns a [Credentials] object that can be used to authenticate a user with their email and password.
   /// A user can login with email and password only after they have registered their account and verified their
   /// email.
   /// [Email/Password Authentication Docs](https://docs.mongodb.com/realm/authentication/email-password)
-  Credentials.emailPassword(String email, String password)
-      : _handle = realmCore.createAppCredentialsEmailPassword(email, password),
-        provider = AuthProviderType.emailPassword;
+  Credentials.emailPassword(String email, String password) : _handle = realmCore.createAppCredentialsEmailPassword(email, password);
 
   /// Returns a [Credentials] object that can be used to authenticate a user with a custom JWT.
   /// [Custom-JWT Authentication Docs](https://docs.mongodb.com/realm/authentication/custom-jwt)
-  Credentials.jwt(String token)
-      : _handle = realmCore.createAppCredentialsJwt(token),
-        provider = AuthProviderType.jwt;
+  Credentials.jwt(String token) : _handle = realmCore.createAppCredentialsJwt(token);
 
   /// Returns a [Credentials] object that can be used to authenticate a user with a Facebook account.
-  Credentials.facebook(String accessToken)
-      : _handle = realmCore.createAppCredentialsFacebook(accessToken),
-        provider = AuthProviderType.facebook;
+  Credentials.facebook(String accessToken) : _handle = realmCore.createAppCredentialsFacebook(accessToken);
 
   /// Returns a [Credentials] object that can be used to authenticate a user with a Google account using an authentication code.
-  Credentials.googleAuthCode(String authCode)
-      : _handle = realmCore.createAppCredentialsGoogleAuthCode(authCode),
-        provider = AuthProviderType.google;
+  Credentials.googleAuthCode(String authCode) : _handle = realmCore.createAppCredentialsGoogleAuthCode(authCode);
 
   /// Returns a [Credentials] object that can be used to authenticate a user with a Google account using an id token.
-  Credentials.googleIdToken(String idToken)
-      : _handle = realmCore.createAppCredentialsGoogleIdToken(idToken),
-        provider = AuthProviderType.google;
+  Credentials.googleIdToken(String idToken) : _handle = realmCore.createAppCredentialsGoogleIdToken(idToken);
 
   /// Returns a [Credentials] object that can be used to authenticate a user with a custom Function.
   /// [Custom Function Authentication Docs](https://www.mongodb.com/docs/atlas/app-services/authentication/custom-function/)
-  Credentials.function(String payload)
-      : _handle = realmCore.createAppCredentialsFunction(payload),
-        provider = AuthProviderType.function;
+  Credentials.function(String payload) : _handle = realmCore.createAppCredentialsFunction(payload);
 
   /// Returns a [Credentials] object that can be used to authenticate a user with an API key.
   /// To generate an API key, use [ApiKeyClient.create] or the App Services web UI.
-  Credentials.apiKey(String key)
-      : _handle = realmCore.createAppCredentialsApiKey(key),
-        provider = AuthProviderType.apiKey;
+  Credentials.apiKey(String key) : _handle = realmCore.createAppCredentialsApiKey(key);
+
+  AuthProviderType get provider => realmCore.userGetCredentialsProviderType(this);
 }
 
 /// @nodoc
@@ -144,9 +127,6 @@ extension CredentialsInternal on Credentials {
   }
 
   RealmAppCredentialsHandle get handle => _handle;
-
-  /// This should be only used for testing
-  AuthProviderType get credentialsProviderType => realmCore.userGetCredentialsProviderType(this);
 }
 
 /// A class, encapsulating functionality for users, logged in with [Credentials.emailPassword()].
