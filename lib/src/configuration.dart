@@ -442,7 +442,7 @@ abstract class ClientResetHandler {
 /// that will enable full control of moving unsynced changes to synced realm.
 /// {@category Sync}
 class ManualRecoveryHandler extends ClientResetHandler {
-  const ManualRecoveryHandler({required ClientResetCallback onReset}) : super(onReset);
+  const ManualRecoveryHandler(ClientResetCallback onReset) : super(onReset);
 
   @override
   ClientResyncModeInternal get _mode => ClientResyncModeInternal.manual;
