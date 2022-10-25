@@ -40,8 +40,7 @@ class RealmResults<T extends Object?> extends collection.IterableBase<T> with Re
 
   /// Returns the element of type `T` at the specified [index].
   T operator [](int index) {
-    final meta = _metadata;
-    if (meta != null) {
+    if (this is RealmResults<RealmObjectBase>) {
       final handle = realmCore.resultsGetObjectAt(this, index);
       final accessor = RealmCoreAccessor(metadata, realm.isInMigration);
       return RealmObjectInternal.create(T, realm, handle, accessor) as T;
