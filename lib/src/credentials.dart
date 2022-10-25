@@ -31,7 +31,8 @@ enum AuthProviderType {
   anonymous(0),
 
   /// For authenticating without credentials using a new anonymous user.
-  anonymousNoReuse(1),
+  /// @nodoc
+  _anonymousNoReuse(1),
 
   /// Authenticate with Facebook account.
   facebook(2),
@@ -61,9 +62,13 @@ enum AuthProviderType {
 
 extension AuthProviderTypeInternal on AuthProviderType {
   static AuthProviderType getByValue(int value) {
-    for (final type in AuthProviderType.values) {
-      if (type._value == value) {
-        return type;
+    if (value == AuthProviderType._anonymousNoReuse._value) {
+      return AuthProviderType.anonymous;
+    } else {
+      for (final type in AuthProviderType.values) {
+        if (type._value == value) {
+          return type;
+        }
       }
     }
 
@@ -82,7 +87,7 @@ class Credentials implements Finalizable {
   /// [Anonymous Authentication Docs](https://docs.mongodb.com/realm/authentication/anonymous)
   Credentials.anonymous({bool reuseCredentials = true})
       : _handle = realmCore.createAppCredentialsAnonymous(reuseCredentials),
-        provider = reuseCredentials ? AuthProviderType.anonymous : AuthProviderType.anonymousNoReuse;
+        provider = AuthProviderType.anonymous;
 
   /// Returns a [Credentials] object that can be used to authenticate a user with a Google account using an id token.
   Credentials.apple(String idToken)
