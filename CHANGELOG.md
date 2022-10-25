@@ -3,7 +3,7 @@
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
 ### Enhancements
-* None
+* Added `MutableSubscriptionSet.removeByType` for removing subscriptions by their realm object type. (Issue [#317](https://github.com/realm/realm-dart/issues/317))
 
 ### Fixed
 * None
