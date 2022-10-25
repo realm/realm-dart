@@ -592,4 +592,31 @@ Future<void> main([List<String>? args]) async {
       alice.scoresByRound.removeAt(3); // index 4 in old list
     });
   });
+
+  test('List.asResults().query', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+
+    final team = realm.write(() {
+      return realm.add(Team('Class of 92', players: [alice, bob, carol, dan]));
+    });
+
+    final playersAsResults = team.players.asResults();
+
+    expect(playersAsResults, [alice, bob, carol, dan]);
+    expect(playersAsResults.query('FALSEPREDICATE').query('TRUEPREDICATE'), isEmpty);
+    expect(playersAsResults.query('FALSEPREDICATE').query('TRUEPREDICATE'), isNot(realm.all<Person>()));
+    expect(playersAsResults.query("name CONTAINS 'a'"), [carol, dan]); // Alice is capital 'a'
+    expect(playersAsResults.query("name CONTAINS 'l'"), [alice, carol]);
+    expect(playersAsResults.query("name CONTAINS 'a'").query("name CONTAINS 'l'"), isNot([alice, carol]));
+    expect(playersAsResults.query("name CONTAINS 'a'").query("name CONTAINS 'l'"), [carol]);
+
+    expect(() => realm.write(() => realm.deleteMany(playersAsResults.query("name CONTAINS 'a'"))), returnsNormally);
+    expect(team.players, [alice, bob]); // Alice is capital 'a'
+  });
 }
