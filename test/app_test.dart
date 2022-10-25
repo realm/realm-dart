@@ -249,7 +249,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Call Atlas function with one argument', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.anonymous());
-    final arg1 = 'Jhonatan';
+    const arg1 = 'Jhonatan';
     final dynamic response = await user.functions.call('userFuncOneArg', [arg1]);
     expect(response, isNotNull);
     final map = response as Map<String, dynamic>;
@@ -259,8 +259,8 @@ Future<void> main([List<String>? args]) async {
   baasTest('Call Atlas function with two arguments', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.anonymous());
-    final arg1 = 'Jhonatan';
-    final arg2 = 'Michael';
+    const arg1 = 'Jhonatan';
+    const arg2 = 'Michael';
     final dynamic response = await user.functions.call('userFuncTwoArgs', [arg1, arg2]);
     expect(response, isNotNull);
     final map = response as Map<String, dynamic>;
@@ -271,7 +271,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Call Atlas function with two arguments but pass one', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.anonymous());
-    final arg1 = 'Jhonatan';
+    const arg1 = 'Jhonatan';
     final dynamic response = await user.functions.call('userFuncTwoArgs', [arg1]);
     expect(response, isNotNull);
     final map = response as Map<String, dynamic>;

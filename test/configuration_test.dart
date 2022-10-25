@@ -22,7 +22,6 @@ import 'dart:math';
 import 'package:test/test.dart' hide test, throws;
 import 'package:path/path.dart' as path;
 import '../lib/realm.dart';
-import '../lib/src/configuration.dart' show ClientResetHandlerInternal, ClientResyncModeInternal;
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
