@@ -3,7 +3,7 @@
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
 ### Breaking Changes
-* SyncClientResetErrorHandler is renamed to ClientResetHandler. ManualSyncClientResetHandler is renamed to ManualRecoveryHandler.
+* SyncClientResetErrorHandler is renamed to ClientResetHandler. SyncClientResetError is renamed to ClientResetError. ManualSyncClientResetHandler is renamed to ManualRecoveryHandler.
 * Default resync mode for `FlexibleSyncConfiguration` is changed from `manual` to `recoverOrDiscard`. In this mode Realm attempts to recover unsynced local changes and if that fails, then the changes are discarded.(PR [#925](https://github.com/realm/realm-dart/pull/925))
 
 ### Enhancements

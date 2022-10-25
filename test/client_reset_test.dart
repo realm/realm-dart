@@ -66,7 +66,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfig);
     final user = await getIntegrationUser(app);
 
-    final resetCompleter = Completer<SyncClientResetError>();
+    final resetCompleter = Completer<ClientResetError>();
     final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema], clientResetHandler: ManualRecoveryHandler(onReset: (syncError) {
       resetCompleter.complete(syncError);
     }));

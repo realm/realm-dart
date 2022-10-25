@@ -57,7 +57,7 @@ typedef MigrationCallback = void Function(Migration migration, int oldSchemaVers
 /// The signature of a callback that will be triggered when a Client Reset error happens in a synchronized Realm.
 ///
 /// The `clientResetError` argument holds useful data to be used when trying to manually recover from a client reset.
-typedef ClientResetCallback = void Function(SyncClientResetError clientResetError);
+typedef ClientResetCallback = void Function(ClientResetError clientResetError);
 
 /// Callback that indicates a Client Reset is about to happen.
 ///
@@ -296,7 +296,7 @@ void defaultSyncErrorHandler(SyncError e) {
   Realm.logger.log(RealmLogLevel.error, e);
 }
 
-void _defaultClientResetHandler(SyncError e) {
+void _defaultClientResetHandler(ClientResetError e) {
   Realm.logger.log(
       RealmLogLevel.error,
       "A client reset error occurred but no handler was supplied. "
@@ -320,7 +320,7 @@ class FlexibleSyncConfiguration extends Configuration {
   /// The default [SyncErrorHandler] prints to the console
   final SyncErrorHandler syncErrorHandler;
 
-  /// Called when a [SyncClientResetError] occurs for this synchronized [Realm]
+  /// Called when a [ClientResetError] occurs for this synchronized [Realm]
   ///
   /// The default [ClientResetHandler] logs a message using the current Realm.logger
   final ClientResetHandler clientResetHandler;
@@ -429,7 +429,7 @@ abstract class ClientResetHandler {
   AfterResetCallback? get _afterDiscardCallback => null;
   AfterResetCallback? get _afterRecoveryCallback => null;
 
-  /// The callback that handles the [SyncClientResetError].
+  /// The callback that handles the [ClientResetError].
   final ClientResetCallback? onManualReset;
 
   /// Initializes a new instance of of [ClientResetHandler].

@@ -131,7 +131,7 @@ class SyncError extends RealmError {
       case SyncErrorCategory.client:
         final SyncClientErrorCode errorCode = SyncClientErrorCode.fromInt(code);
         if (errorCode == SyncClientErrorCode.autoClientResetFailure) {
-          return SyncClientResetError(message);
+          return ClientResetError(message);
         }
         return SyncClientError(message, category, errorCode, isFatal: isFatal);
       case SyncErrorCategory.connection:
@@ -178,14 +178,14 @@ class SyncClientError extends SyncError {
 
 /// An error type that describes a client reset error condition.
 /// {@category Sync}
-class SyncClientResetError extends SyncError {
+class ClientResetError extends SyncError {
   /// If true the received error is fatal.
   final bool isFatal = true;
 
-  /// The [SyncClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
+  /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
   SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
 
-  SyncClientResetError(String message) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
+  ClientResetError(String message) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
 
   @override
   String toString() {

@@ -44,7 +44,7 @@ export 'package:realm_common/realm_common.dart'
         RealmClosedError,
         SyncError,
         SyncClientError,
-        SyncClientResetError,
+        ClientResetError,
         SyncConnectionError,
         SyncSessionError,
         GeneralSyncError,

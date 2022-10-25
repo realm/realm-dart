@@ -492,7 +492,7 @@ class _RealmCore {
 
     final syncError = error.toSyncError();
 
-    if (syncError is SyncClientResetError) {
+    if (syncError is ClientResetError) {
       syncConfig.clientResetHandler.onManualReset?.call(syncError);
       return;
     }
@@ -2629,7 +2629,7 @@ extension on realm_sync_error {
 
     //client reset can be requested with is_client_reset_requested disregarding the error_code.value
     if (is_client_reset_requested) {
-      return SyncClientResetError(message);
+      return ClientResetError(message);
     }
 
     return SyncError.create(message, category, error_code.value, isFatal: is_fatal);
