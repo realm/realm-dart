@@ -6,7 +6,7 @@
 * None
 
 ### Fixed
-* None
+* Fixed a wrong mapping for `AuthProviderType` returned by `User.provider` for google, facebook and apple credentials.
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
