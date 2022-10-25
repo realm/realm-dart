@@ -78,24 +78,6 @@ class RealmResults<T extends Object?> extends collection.IterableBase<T> with Re
     final frozenRealm = realm.freeze();
     return frozenRealm.resolveResults(this);
   }
-}
-
-// The query operations on results, as well as the ability to subscribe for notifications,
-// only work for results of objects (core restriction), so we add these as an extension methods
-// to allow the compiler to prevent misuse.
-extension RealmResultsOfObject<T extends RealmObjectBase> on RealmResults<T> {
-  RealmResults<T> snapshot() {
-    final handle = realmCore.resultsSnapshot(this);
-    return RealmResults<T>._(handle, realm, _metadata);
-  }
-
-  /// Returns a new [RealmResults] filtered according to the provided query.
-  ///
-  /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://www.mongodb.com/docs/realm/realm-query-language/)
-  RealmResults<T> query(String query, [List<Object> args = const []]) {
-    final handle = realmCore.queryResults(this, query, args);
-    return RealmResultsInternal.create<T>(handle, realm, _metadata);
-  }
 
   /// Allows listening for changes when the contents of this collection changes.
   Stream<RealmResultsChanges<T>> get changes {
@@ -105,6 +87,18 @@ extension RealmResultsOfObject<T extends RealmObjectBase> on RealmResults<T> {
 
     final controller = ResultsNotificationsController<T>(this);
     return controller.createStream();
+  }
+}
+
+// The query operations on results only work for results of objects (core restriction),
+// so we add it as an extension methods to allow the compiler to prevent misuse.
+extension RealmResultsOfObject<T extends RealmObjectBase> on RealmResults<T> {
+  /// Returns a new [RealmResults] filtered according to the provided query.
+  ///
+  /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://www.mongodb.com/docs/realm/realm-query-language/)
+  RealmResults<T> query(String query, [List<Object> args = const []]) {
+    final handle = realmCore.queryResults(this, query, args);
+    return RealmResultsInternal.create<T>(handle, realm, _metadata);
   }
 }
 
@@ -135,7 +129,7 @@ extension RealmResultsInternal on RealmResults {
 }
 
 /// Describes the changes in a Realm results collection since the last time the notification callback was invoked.
-class RealmResultsChanges<T extends RealmObjectBase> extends RealmCollectionChanges {
+class RealmResultsChanges<T extends Object?> extends RealmCollectionChanges {
   /// The results collection being monitored for changes.
   final RealmResults<T> results;
 
@@ -143,7 +137,7 @@ class RealmResultsChanges<T extends RealmObjectBase> extends RealmCollectionChan
 }
 
 /// @nodoc
-class ResultsNotificationsController<T extends RealmObjectBase> extends NotificationsController {
+class ResultsNotificationsController<T extends Object?> extends NotificationsController {
   final RealmResults<T> results;
   late final StreamController<RealmResultsChanges<T>> streamController;
 

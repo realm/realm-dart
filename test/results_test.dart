@@ -561,4 +561,35 @@ Future<void> main([List<String>? args]) async {
     expect(alice.scoresByRound, scores);
     expect(alice.scoresByRound.asResults(), scores);
   });
+
+  test('Results of primitives notifications', () {
+    var config = Configuration.local([Player.schema, Game.schema]);
+    var realm = getRealm(config);
+
+    final scores = [-1, null, 0, 1];
+    final alice = Player('Alice', scoresByRound: scores);
+    realm.write(() => realm.add(alice));
+
+    final results = alice.scoresByRound.asResults();
+    expectLater(
+        results.changes,
+        emitsInOrder(<Matcher>[
+          isA<RealmResultsChanges>().having((ch) => ch.inserted, 'inserted', <int>[]),
+          isA<RealmResultsChanges>().having((ch) => ch.inserted, 'inserted', [4]),
+          isA<RealmResultsChanges>() //
+              .having((ch) => ch.inserted, 'inserted', [0]) //
+              .having((ch) => ch.deleted, 'deleted', [1]),
+          isA<RealmResultsChanges>().having((ch) => ch.deleted, 'deleted', [2, 4]),
+        ]));
+
+    realm.write(() => alice.scoresByRound.add(2));
+    realm.write(() {
+      alice.scoresByRound.insert(0, 3);
+      alice.scoresByRound.remove(null);
+    });
+    realm.write(() {
+      alice.scoresByRound.removeAt(2);
+      alice.scoresByRound.removeAt(3); // index 4 in old list
+    });
+  });
 }
