@@ -53,8 +53,21 @@ class BaasClient {
       return { status: 'fail' };
     }
   };''';
+
   static const String _authFuncSource = '''exports = (loginPayload) => {
     return loginPayload["userId"];
+  };''';
+
+  static const String _userFuncNoArgs = '''exports = function(){
+    return {};
+  };''';
+
+  static const String _userFuncOneArg = '''exports = function(arg){
+    return {'arg': arg };
+  };''';
+
+  static const String _userFuncTwoArgs = '''exports = function(arg1, arg2){
+    return { 'arg1': arg1, 'arg2': arg2};
   };''';
   static const String defaultAppName = "flexible";
 
@@ -168,6 +181,9 @@ class BaasClient {
     final confirmFuncId = await _createFunction(app, 'confirmFunc', _confirmFuncSource);
     final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
     final authFuncId = await _createFunction(app, 'authFunc', _authFuncSource);
+    await _createFunction(app, 'userFuncNoArgs', _userFuncNoArgs);
+    await _createFunction(app, 'userFuncOneArg', _userFuncOneArg);
+    await _createFunction(app, 'userFuncTwoArgs', _userFuncTwoArgs);
 
     await enableProvider(app, 'anon-user');
     await enableProvider(app, 'local-userpass', config: '''{
