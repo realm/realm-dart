@@ -18,6 +18,7 @@
 
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:realm_common/realm_common.dart';
 import 'package:source_gen/source_gen.dart';
 import 'annotation_value.dart';
 import 'error.dart';
@@ -65,7 +66,10 @@ extension ClassElementEx on ClassElement {
 
   RealmModelInfo? get realmInfo {
     try {
-      if (realmModelInfo == null) return null;
+      final modelInfo = realmModelInfo;
+      if (modelInfo == null) {
+        return null;
+      }
 
       final modelName = this.name;
 
@@ -143,19 +147,27 @@ extension ClassElementEx on ClassElement {
         );
       }
 
+      final objectType = ObjectType.values[modelInfo.value.getField('type')!.getField('index')!.toIntValue()!];
+
       final mappedFields = fields.realmInfo.toList();
-      return RealmModelInfo(
-        name,
-        modelName,
-        realmName,
-        mappedFields,
-      );
+
+      if (objectType == ObjectType.embeddedObject && mappedFields.any((field) => field.isPrimaryKey)) {
+        final pkSpan = fields.firstWhere((field) => field.realmInfo?.isPrimaryKey == true).span;
+        throw RealmInvalidGenerationSourceError("Primary key not allowed on embedded objects",
+            element: this,
+            primarySpan: pkSpan,
+            secondarySpans: {span!: ''},
+            primaryLabel: "$realmName is marked as embedded but has primary key defined",
+            todo: 'Remove the @PrimaryKey annotation from the field or set the model type to a value different from ObjectType.embeddedObject.');
+      }
+
+      return RealmModelInfo(name, modelName, realmName, mappedFields, objectType);
     } on InvalidGenerationSourceError catch (_) {
       rethrow;
     } catch (e, s) {
       // Fallback. Not perfect, but better than just forwarding original error.
       throw RealmInvalidGenerationSourceError(
-        '$e',
+        '$e \n $s',
         todo: //
             'Unexpected error. Please open an issue on: '
             'https://github.com/realm/realm-dart',

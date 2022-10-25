@@ -29,11 +29,11 @@ import 'realm_object.dart';
 /// added to or deleted from the Realm that match the underlying query.
 ///
 /// {@category Realm}
-class RealmResults<T extends RealmObject> extends collection.IterableBase<T> with RealmEntity implements Finalizable {
+class RealmResults<T extends RealmObjectBase> extends collection.IterableBase<T> with RealmEntity implements Finalizable {
   final RealmObjectMetadata? _metadata;
   final RealmResultsHandle _handle;
 
-  final _supportsSnapshot = <T>[] is List<RealmObject?>;
+  final _supportsSnapshot = <T>[] is List<RealmObjectBase?>;
 
   RealmResults._(this._handle, Realm realm, this._metadata) {
     setRealm(realm);
@@ -112,13 +112,13 @@ extension RealmResultsInternal on RealmResults {
 
   RealmObjectMetadata? get metadata => _metadata;
 
-  static RealmResults<T> create<T extends RealmObject>(RealmResultsHandle handle, Realm realm, RealmObjectMetadata? metadata) {
+  static RealmResults<T> create<T extends RealmObjectBase>(RealmResultsHandle handle, Realm realm, RealmObjectMetadata? metadata) {
     return RealmResults<T>._(handle, realm, metadata);
   }
 }
 
 /// Describes the changes in a Realm results collection since the last time the notification callback was invoked.
-class RealmResultsChanges<T extends RealmObject> extends RealmCollectionChanges {
+class RealmResultsChanges<T extends RealmObjectBase> extends RealmCollectionChanges {
   /// The results collection being monitored for changes.
   final RealmResults<T> results;
 
@@ -126,7 +126,7 @@ class RealmResultsChanges<T extends RealmObject> extends RealmCollectionChanges 
 }
 
 /// @nodoc
-class ResultsNotificationsController<T extends RealmObject> extends NotificationsController {
+class ResultsNotificationsController<T extends RealmObjectBase> extends NotificationsController {
   final RealmResults<T> results;
   late final StreamController<RealmResultsChanges<T>> streamController;
 
@@ -158,7 +158,7 @@ class ResultsNotificationsController<T extends RealmObject> extends Notification
   }
 }
 
-class _RealmResultsIterator<T extends RealmObject> implements Iterator<T> {
+class _RealmResultsIterator<T extends RealmObjectBase> implements Iterator<T> {
   final RealmResults<T> _results;
   int _index;
   T? _current;

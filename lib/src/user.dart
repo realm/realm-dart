@@ -314,8 +314,9 @@ class FunctionsClient {
 
   FunctionsClient._(this._user);
 
-  /// Creates a new API key with the given name. The value of the returned key
-  /// must be persisted as this is the only time it is available.
+  /// Calls a remote function with the supplied arguments.
+  /// @name The name of the Atlas function to call.
+  /// @functionArgs - Arguments that will be sent to the Atlas function. They have to be json serializable values.
   Future<dynamic> call(String name, [List<Object?>? functionArgs]) async {
     _user._ensureLoggedIn('call Atlas function');
     final args = functionArgs != null ? jsonEncode(functionArgs) : null;

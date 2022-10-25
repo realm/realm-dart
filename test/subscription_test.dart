@@ -379,6 +379,26 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions, [s]);
   });
 
+  testSubscriptions('MutableSubscriptionSet.removeByType', (realm) {
+    final subscriptions = realm.subscriptions;
+
+    late Subscription s;
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [ObjectId()]));
+      mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [ObjectId()]));
+      mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [ObjectId()]));
+      s = mutableSubscriptions.add(realm.all<Schedule>());
+    });
+
+    expect(subscriptions.length, 4);
+
+    subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.removeByType<Task>();
+    });
+
+    expect(subscriptions, [s]);
+  });
+
   testSubscriptions('Get subscriptions', (realm) async {
     final subscriptions = realm.subscriptions;
 
