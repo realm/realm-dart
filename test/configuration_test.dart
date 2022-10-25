@@ -23,6 +23,7 @@ import 'package:test/test.dart' hide test, throws;
 import 'package:path/path.dart' as path;
 import '../lib/realm.dart';
 import 'test.dart';
+import '../flavor_helpers.dart';
 
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
@@ -221,20 +222,18 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration - disableFormatUpgrade=true throws error', () async {
-    final realmBundleFile = "test/data/realm_files/old-format.realm";
     var config = Configuration.local([Car.schema], disableFormatUpgrade: true);
-    await File(realmBundleFile).copy(config.path);
+    await copyOldFormatRealmTo(config.path);
     expect(() {
       getRealm(config);
     }, throws<RealmException>("The Realm file format must be allowed to be upgraded in order to proceed"));
-  }, skip: isFlutterPlatform);
+  });
 
   test('Configuration - disableFormatUpgrade=false', () async {
-    final realmBundleFile = "test/data/realm_files/old-format.realm";
     var config = Configuration.local([Car.schema], disableFormatUpgrade: false);
-    await File(realmBundleFile).copy(config.path);
+    await copyOldFormatRealmTo(config.path);
     final realm = getRealm(config);
-  }, skip: isFlutterPlatform);
+  });
 
   test('Configuration.initialDataCallback invoked', () {
     var invoked = false;
