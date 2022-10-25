@@ -1758,6 +1758,11 @@ class _RealmCore {
     return AuthProviderTypeInternal.getByValue(provider);
   }
 
+  AuthProviderType userGetCredentialsProviderType(Credentials credentials) {
+    final provider = _realmLib.realm_auth_credentials_get_provider(credentials.handle._pointer);
+    return AuthProviderTypeInternal.getByValue(provider);
+  }
+
   UserProfile userGetProfileData(User user) {
     final data = _realmLib.invokeGetPointer(() => _realmLib.realm_user_get_profile_data(user.handle._pointer));
     final dynamic profileData = jsonDecode(data.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!);
