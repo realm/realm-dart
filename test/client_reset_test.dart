@@ -33,7 +33,7 @@ Future<void> main([List<String>? args]) async {
         Configuration.flexibleSync(
           user,
           [Task.schema, Schedule.schema],
-          clientResetHandler: ManualRecoveryHandler(onReset: (syncError) {}),
+          clientResetHandler: ManualRecoveryHandler((syncError) {}),
         ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.manual);
     expect(
@@ -67,7 +67,7 @@ Future<void> main([List<String>? args]) async {
     final user = await getIntegrationUser(app);
 
     final resetCompleter = Completer<ClientResetError>();
-    final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema], clientResetHandler: ManualRecoveryHandler(onReset: (syncError) {
+    final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema], clientResetHandler: ManualRecoveryHandler((syncError) {
       resetCompleter.complete(syncError);
     }));
 
