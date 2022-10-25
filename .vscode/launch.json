@@ -35,7 +35,7 @@
             "name": "Dart: Attach to Process",
             "type": "dart",
             "request": "attach",
-            "observatoryUri": "http://127.0.0.1:8181/CvAvF39i-48=/",
+            "vmServiceUri": "http://127.0.0.1:5858",
             "packages": "package:realm/main.dart"
         },
         {

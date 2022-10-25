@@ -65,7 +65,7 @@ class _Car {
 * Use a terminal to launch a debuggee with command
 
   ```
-  dart --observe --pause-isolates-on-start  --enable-vm-service:5858/127.0.0.1  --disable-service-auth-codes .dart_tool/build/entrypoint/build.dart build
+  dart run --observe --pause-isolates-on-start  --enable-vm-service:5858/127.0.0.1  --disable-service-auth-codes .dart_tool/build/entrypoint/build.dart build
   ```
 
 ##### The "Dart" name and logo and the "Flutter" name and logo are trademarks owned by Google.
