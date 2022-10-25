@@ -91,8 +91,7 @@ extension RealmResultsOfObject<T extends RealmObjectBase> on RealmResults<T> {
 
   /// Returns a new [RealmResults] filtered according to the provided query.
   ///
-  /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
-  /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
+  /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://www.mongodb.com/docs/realm/realm-query-language/)
   RealmResults<T> query(String query, [List<Object> args = const []]) {
     final handle = realmCore.queryResults(this, query, args);
     return RealmResultsInternal.create<T>(handle, realm, _metadata);
@@ -133,13 +132,6 @@ extension RealmResultsInternal on RealmResults {
     RealmObjectMetadata? metadata,
   ) =>
       RealmResults<T>._(handle, realm, metadata);
-
-  static RealmResults<T> createFromList<T extends Object?>(
-    RealmList list,
-    Realm realm,
-    RealmObjectMetadata? metadata,
-  ) =>
-      RealmResults<T>._(realmCore.resultsFromList(list), realm, metadata);
 }
 
 /// Describes the changes in a Realm results collection since the last time the notification callback was invoked.

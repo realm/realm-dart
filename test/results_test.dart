@@ -559,6 +559,6 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => realm.add(alice));
 
     expect(alice.scoresByRound, scores);
-    expect(alice.scoresByRound.asResults, scores);
+    expect(alice.scoresByRound.asResults(), scores);
   });
 }
