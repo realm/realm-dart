@@ -42,6 +42,7 @@ abstract class RealmList<T extends Object?> with RealmEntity implements List<T>,
   /// and it's parent object hasn't been deleted.
   bool get isValid;
 
+  /// Converts this [List] to a [RealmResults].
   RealmResults<T> asResults();
 
   factory RealmList._(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => ManagedRealmList._(handle, realm, metadata);
@@ -49,6 +50,9 @@ abstract class RealmList<T extends Object?> with RealmEntity implements List<T>,
 
   /// Creates a frozen snapshot of this `RealmList`.
   RealmList<T> freeze();
+
+  /// Allows listening for changes when the contents of this collection changes.
+  Stream<RealmListChanges<T>> get changes;
 }
 
 class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> implements RealmList<T> {
@@ -170,6 +174,15 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
 
   @override
   RealmResults<T> asResults() => RealmResultsInternal.create<T>(realmCore.resultsFromList(this), realm, metadata);
+
+  @override
+  Stream<RealmListChanges<T>> get changes {
+    if (isFrozen) {
+      throw RealmStateError('List is frozen and cannot emit changes');
+    }
+    final controller = ListNotificationsController<T>(asManaged());
+    return controller.createStream();
+  }
 }
 
 class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T> with RealmEntity implements RealmList<T> {
@@ -189,6 +202,9 @@ class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T>
 
   @override
   RealmResults<T> asResults() => throw RealmStateError("Unmanaged lists can't be converted to results");
+
+  @override
+  Stream<RealmListChanges<T>> get changes => throw RealmStateError("Unmanaged lists don't support changes");
 }
 
 // The query operations on lists, as well as the ability to subscribe for notifications,
@@ -204,15 +220,6 @@ extension RealmListOfObject<T extends RealmObjectBase> on RealmList<T> {
   RealmResults<T> query(String query, [List<Object> arguments = const []]) {
     final handle = realmCore.queryList(asManaged(), query, arguments);
     return RealmResultsInternal.create<T>(handle, realm, _metadata);
-  }
-
-  /// Allows listening for changes when the contents of this collection changes.
-  Stream<RealmListChanges<T>> get changes {
-    if (isFrozen) {
-      throw RealmStateError('List is frozen and cannot emit changes');
-    }
-    final controller = ListNotificationsController<T>(asManaged());
-    return controller.createStream();
   }
 }
 
@@ -280,7 +287,7 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
 }
 
 /// Describes the changes in a Realm results collection since the last time the notification callback was invoked.
-class RealmListChanges<T extends Object> extends RealmCollectionChanges {
+class RealmListChanges<T extends Object?> extends RealmCollectionChanges {
   /// The collection being monitored for changes.
   final RealmList<T> list;
 
@@ -288,7 +295,7 @@ class RealmListChanges<T extends Object> extends RealmCollectionChanges {
 }
 
 /// @nodoc
-class ListNotificationsController<T extends Object> extends NotificationsController {
+class ListNotificationsController<T extends Object?> extends NotificationsController {
   final ManagedRealmList<T> list;
   late final StreamController<RealmListChanges<T>> streamController;
 
