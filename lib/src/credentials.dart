@@ -64,15 +64,8 @@ extension AuthProviderTypeInternal on AuthProviderType {
   static AuthProviderType getByValue(int value) {
     if (value == AuthProviderType._anonymousNoReuse._value) {
       return AuthProviderType.anonymous;
-    } else {
-      for (final type in AuthProviderType.values) {
-        if (type._value == value) {
-          return type;
-        }
-      }
     }
-
-    throw ArgumentError('Invalid AuthProviderType value: $value');
+    return AuthProviderType.values.firstWhere((v) => v._value == value);
   }
 }
 
