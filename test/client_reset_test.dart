@@ -85,7 +85,7 @@ Future<void> main([List<String>? args]) async {
     expect(error.message, contains('Bad client file identifier'));
   });
 
-  baasTest('Initialte resetRealm on ManualRecoveryHandler callback', (appConfig) async {
+  baasTest('Initiate resetRealm on ManualRecoveryHandler callback', (appConfig) async {
     final app = App(appConfig);
     final user = await getIntegrationUser(app);
 
@@ -114,7 +114,7 @@ Future<void> main([List<String>? args]) async {
     expect(File(config.path).existsSync(), isFalse);
   });
 
-  baasTest('Initialte resetRealm on ManualRecoveryHandler callbach fails when Realm in use', (appConfig) async {
+  baasTest('Initiate resetRealm on ManualRecoveryHandler callbach fails when Realm in use', (appConfig) async {
     final app = App(appConfig);
     final user = await getIntegrationUser(app);
 
@@ -249,6 +249,58 @@ Future<void> main([List<String>? args]) async {
     await onAfterCompleter.future;
     expect(recovery, isFalse);
     expect(discard, isTrue);
+  });
+
+  baasTest('DiscardUnsyncedChangesHandler notifications', (appConfig) async {
+    final app = App(appConfig);
+    final user = await getIntegrationUser(app);
+    int beforeResetCallbackOccured = 0;
+    int afterDiscardCallbackOccured = 0;
+    int manualResetFallbackOccured = 0;
+    final onBeforeCompleter = Completer<void>();
+    final onAfterCompleter = Completer<void>();
+
+    final config = Configuration.flexibleSync(
+      user,
+      [Task.schema, Schedule.schema],
+      clientResetHandler: DiscardUnsyncedChangesHandler(
+        beforeResetCallback: (beforeFrozen) {
+          beforeResetCallbackOccured++;
+          onBeforeCompleter.complete();
+        },
+        afterDiscardCallback: (beforeFrozen, after) {
+          afterDiscardCallbackOccured++;
+          onAfterCompleter.complete();
+        },
+      ),
+    );
+
+    final realm = await Realm.open(config);
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.all<Task>());
+    });
+    await realm.subscriptions.waitForSynchronization();
+    await realm.syncSession.waitForDownload();
+    final tasksCount = realm.all<Task>().length;
+    realm.syncSession.pause();
+
+    realm.write(() => realm.add(Task(ObjectId())));
+    expect(tasksCount, lessThan(realm.all<Task>().length));
+
+    final notifications = <RealmResultsChanges>[];
+    final subscription = realm.all<Task>().changes.listen((event) {
+      notifications.add(event);
+    });
+
+    await triggerClientReset(realm);
+    await onBeforeCompleter.future;
+    await onAfterCompleter.future;
+    expect(beforeResetCallbackOccured, 1);
+    expect(afterDiscardCallbackOccured, 1);
+    expect(manualResetFallbackOccured, 0);
+
+    await waitForCondition(() => notifications.length == 1, retryDelay: Duration(milliseconds: 10));
+    await subscription.cancel();
   });
 }
 
