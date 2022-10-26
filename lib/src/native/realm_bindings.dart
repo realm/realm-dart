@@ -3246,6 +3246,25 @@ class RealmLibrary {
       _realm_dart_sync_before_reset_handler_callbackPtr.asFunction<
           bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>();
 
+  void realm_dart_sync_before_reset_handler_callback_completed(
+    bool success,
+    ffi.Pointer<ffi.Void> unlockFunc,
+  ) {
+    return _realm_dart_sync_before_reset_handler_callback_completed(
+      success,
+      unlockFunc,
+    );
+  }
+
+  late final _realm_dart_sync_before_reset_handler_callback_completedPtr =
+      _lookup<
+              ffi.NativeFunction<
+                  ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>>(
+          'realm_dart_sync_before_reset_handler_callback_completed');
+  late final _realm_dart_sync_before_reset_handler_callback_completed =
+      _realm_dart_sync_before_reset_handler_callback_completedPtr
+          .asFunction<void Function(bool, ffi.Pointer<ffi.Void>)>();
+
   void realm_dart_sync_client_log_callback(
     ffi.Pointer<ffi.Void> userdata,
     int level,
@@ -10017,6 +10036,11 @@ class _SymbolAddresses {
               ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>
       get realm_dart_sync_before_reset_handler_callback =>
           _library._realm_dart_sync_before_reset_handler_callbackPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>>
+      get realm_dart_sync_before_reset_handler_callback_completed =>
+          _library._realm_dart_sync_before_reset_handler_callback_completedPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(

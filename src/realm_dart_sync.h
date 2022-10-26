@@ -19,6 +19,8 @@
 #pragma once
 
 #include <realm.h>
+typedef bool (*realm_dart_sync_before_reset_handler_unlock_func_t)(bool success);
+typedef bool (*realm_sync_before_client_reset_lock_func_t)(realm_userdata_t userdata, realm_t* before_realm, void* unlockFunc);
 
 RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, realm_http_request_t request, void* request_context);
 
@@ -39,3 +41,5 @@ RLM_API void realm_dart_sync_on_subscription_state_changed_callback(realm_userda
 RLM_API bool realm_dart_sync_before_reset_handler_callback(realm_userdata_t userdata, realm_t* realm);
 
 RLM_API bool realm_dart_sync_after_reset_handler_callback(realm_userdata_t userdata, realm_t* before_realm, realm_thread_safe_reference_t* after_realm, bool did_recover);
+
+RLM_API void realm_dart_sync_before_reset_handler_callback_completed(bool success, void* unlockFunc);

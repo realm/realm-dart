@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 
@@ -46,18 +47,18 @@ typedef ShouldCompactCallback = bool Function(int totalSize, int usedSize);
 /// The Realm instance passed in the callback already has a write transaction opened, so you can
 /// add some initial data that your app needs. The function will not execute for existing
 /// Realms, even if all objects in the Realm are deleted.
-typedef InitialDataCallback = void Function(Realm realm);
+typedef InitialDataCallback = FutureOr<void> Function(Realm realm);
 
 /// The signature of a callback that will be executed when the schema of the Realm changes.
 ///
 /// The `migration` argument contains references to the Realm just before and just after the migration.
 /// The `oldSchemaVersion` argument indicates the version from which the Realm migrates while
-typedef MigrationCallback = void Function(Migration migration, int oldSchemaVersion);
+typedef MigrationCallback = FutureOr<void> Function(Migration migration, int oldSchemaVersion);
 
 /// The signature of a callback that will be triggered when a Client Reset error happens in a synchronized Realm.
 ///
 /// The `clientResetError` argument holds useful data to be used when trying to manually recover from a client reset.
-typedef ClientResetCallback = void Function(ClientResetError clientResetError);
+typedef ClientResetCallback = FutureOr<void> Function(ClientResetError clientResetError);
 
 /// Callback that indicates a Client Reset is about to happen.
 ///

@@ -224,7 +224,7 @@ class _RealmCore {
               _realmLib.addresses.realm_dart_userdata_async_free);
 
           if (config.clientResetHandler is! ManualRecoveryHandler) {
-            final beforeResetCallback = Pointer.fromFunction<Bool Function(Handle, Pointer<shared_realm>)>(_syncBeforeResetCallback, false);
+            final beforeResetCallback = Pointer.fromFunction<Bool Function(Handle, Pointer<shared_realm>, Pointer<Void>)>(_syncBeforeResetCallback, false);
             final beforeResetUserdata = _realmLib.realm_dart_userdata_async_new(config, beforeResetCallback.cast(), scheduler.handle._pointer);
 
             _realmLib.realm_sync_config_set_before_client_reset_handler(syncConfigPtr, _realmLib.addresses.realm_dart_sync_before_reset_handler_callback,
@@ -502,19 +502,30 @@ class _RealmCore {
     syncConfig.syncErrorHandler(syncError);
   }
 
-  static bool _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle) {
+  static bool _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle, Pointer<Void> unlockFunc) {
     try {
       final syncConfig = userdata as FlexibleSyncConfiguration;
       final beforeResetCallback = syncConfig.clientResetHandler.beforeResetCallback;
       if (beforeResetCallback != null) {
         // TODO: maybe we want to read the schema from disk at this point
         final realm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(realmHandle));
-        beforeResetCallback(realm);
+        if (beforeResetCallback is Future<void>) {
+          (beforeResetCallback(realm) as Future<void>)
+              .then((value) => _realmLib.realm_dart_sync_before_reset_handler_callback_completed(true, unlockFunc))
+              .onError((error, stackTrace) {
+            _realmLib.realm_register_user_code_callback_error(error!.toPersistentHandle());
+            _realmLib.realm_dart_sync_before_reset_handler_callback_completed(false, unlockFunc);
+          });
+        } else {
+          beforeResetCallback(realm);
+          _realmLib.realm_dart_sync_before_reset_handler_callback_completed(true, unlockFunc);
+        }
       }
 
       return true;
     } catch (e) {
       _realmLib.realm_register_user_code_callback_error(e.toPersistentHandle());
+      _realmLib.realm_dart_sync_before_reset_handler_callback_completed(false, unlockFunc);
       return false;
     }
   }
