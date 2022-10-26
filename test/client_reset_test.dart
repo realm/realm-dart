@@ -40,14 +40,14 @@ Future<void> main([List<String>? args]) async {
         Configuration.flexibleSync(
           user,
           [Task.schema, Schedule.schema],
-          clientResetHandler: DiscardUnsyncedChangesHandler(),
+          clientResetHandler: const DiscardUnsyncedChangesHandler(),
         ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.discardLocal);
     expect(
         Configuration.flexibleSync(
           user,
           [Task.schema, Schedule.schema],
-          clientResetHandler: RecoverUnsyncedChangesHandler(),
+          clientResetHandler: const RecoverUnsyncedChangesHandler(),
         ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.recover);
 
@@ -55,7 +55,7 @@ Future<void> main([List<String>? args]) async {
         Configuration.flexibleSync(
           user,
           [Task.schema, Schedule.schema],
-          clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(),
+          clientResetHandler: const RecoverOrDiscardUnsyncedChangesHandler(),
         ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.recoverOrDiscard);
 
@@ -138,6 +138,40 @@ Future<void> main([List<String>? args]) async {
       await onAfterCompleter.future;
     });
   }
+
+  baasTest('AfterDiscard callbacks is invoked for RecoverOrDiscardUnsyncedChangesHandler', (appConfig) async {
+    final app = App(appConfig);
+    final user = await getIntegrationUser(app);
+
+    final onBeforeCompleter = Completer<void>();
+    final onAfterCompleter = Completer<void>();
+    bool recovery = false;
+    bool discard = false;
+
+    final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
+        clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(
+          beforeResetCallback: (beforeFrozen) => onBeforeCompleter.complete(),
+          afterRecoveryCallback: (Realm beforeFrozen, Realm after) {
+            onAfterCompleter.complete();
+            recovery = true;
+          },
+          afterDiscardCallback: (Realm beforeFrozen, Realm after) {
+            onAfterCompleter.complete();
+            discard = true;
+          },
+        ));
+
+    final realm = await Realm.open(config);
+    await realm.syncSession.waitForUpload();
+
+    await disableAutomaticRecoveryEnabled();
+    await triggerClientReset(realm);
+
+    await onBeforeCompleter.future;
+    await onAfterCompleter.future;
+    expect(recovery, isFalse);
+    expect(discard, isTrue);
+  });
 }
 
 class Creator {

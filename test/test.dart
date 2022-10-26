@@ -322,6 +322,7 @@ O8BM8KOSx9wGyoGs4+OusvRkJizhPaIwa3FInLs4r+xZW9Bp6RndsmVECtvXRv5d
 RwIDAQAB
 -----END PUBLIC KEY-----''';
 final int encryptionKeySize = 64;
+final _appsToRestoreRecovery = Queue<String>();
 
 enum AppNames {
   flexible,
@@ -369,6 +370,7 @@ Future<void> setupTests(List<String>? args) async {
     addTearDown(() async {
       final paths = HashSet<String>();
       paths.add(path);
+      await enableAllAutomaticRecoveryEnabled();
 
       realmCore.clearCachedApps();
 
@@ -705,5 +707,20 @@ Future<void> triggerClientReset(Realm realm, {bool restartSession = true}) async
 
   if (restartSession) {
     session.resume();
+  }
+}
+
+Future<void> disableAutomaticRecoveryEnabled([String? appName]) async {
+  final client = _baasClient ?? (throw StateError("No BAAS client"));
+  appName ??= BaasClient.defaultAppName;
+  await client.setAutomaticRecoveryEnabled(appName, false);
+  _appsToRestoreRecovery.add(appName);
+}
+
+Future<void> enableAllAutomaticRecoveryEnabled() async {
+  final client = _baasClient ?? (throw StateError("No BAAS client"));
+  while (_appsToRestoreRecovery.isNotEmpty) {
+    final appName = _appsToRestoreRecovery.removeFirst();
+    await client.setAutomaticRecoveryEnabled(appName, true);
   }
 }

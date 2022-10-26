@@ -530,6 +530,24 @@ class BaasClient {
     final result = input.replaceRange(4, input.length - 4, '');
     return result;
   }
+
+  Future<void> setAutomaticRecoveryEnabled(String name, bool enable) async {
+    final dynamic docs = await _get('groups/$_groupId/apps');
+    dynamic doc = docs.firstWhere((dynamic d) => d["name"] == "$name$_appSuffix", orElse: () => throw Exception("BAAS app not found"));
+    final appId = doc['_id'] as String;
+    final clientAppId = doc['client_app_id'] as String;
+    final app = BaasApp(appId, clientAppId, name);
+
+    final dynamic services = await _get('groups/$_groupId/apps/$appId/services');
+    dynamic service = services.firstWhere((dynamic s) => s["name"] == "BackingDB", orElse: () => throw Exception("Func 'confirmFunc' not found"));
+    final mongoServiceId = service['_id'] as String;
+    final dynamic configDocs = await _get('groups/$_groupId/apps/$appId/services/$mongoServiceId/config');
+    final dynamic flexibleSync = configDocs['flexible_sync'];
+    flexibleSync["is_recovery_mode_disabled"] = !enable;
+    configDocs['flexible_sync'] = flexibleSync;
+    String data = jsonEncode(<String, dynamic>{'clusterName': configDocs['clusterName'], 'flexible_sync': configDocs['flexible_sync']});
+    await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', data);
+  }
 }
 
 class BaasApp {
