@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright 2021 Realm Inc.
+// Copyright 2022 Realm Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -93,12 +93,12 @@ Future<void> main([List<String>? args]) async {
       final app = App(appConfig);
       final user = await getIntegrationUser(app);
 
-      final onManualResetFallback = Completer<void>();
+      final onManualResetFallback = Completer<ClientResetError>();
       final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
           clientResetHandler: Creator.create(
             clientResetHandlerType,
             beforeResetCallback: (beforeFrozen) => throw Exception("This fails!"),
-            manualResetFallback: (clientResetError) => onManualResetFallback.complete(),
+            manualResetFallback: (clientResetError) => onManualResetFallback.completeError(clientResetError),
           ));
 
       final realm = await Realm.open(config);
@@ -106,20 +106,14 @@ Future<void> main([List<String>? args]) async {
 
       await triggerClientReset(realm);
 
-      await onManualResetFallback.future;
+      await expectLater(onManualResetFallback.future, throws<ClientResetError>());
     });
-  }
 
-  for (Type clientResetHandlerType in [
-    RecoverOrDiscardUnsyncedChangesHandler,
-    RecoverUnsyncedChangesHandler,
-    DiscardUnsyncedChangesHandler,
-  ]) {
     baasTest('$clientResetHandlerType.manualResetFallback invoked when throw an error on After Callbacks', (appConfig) async {
       final app = App(appConfig);
       final user = await getIntegrationUser(app);
 
-      final onManualResetFallback = Completer<void>();
+      final onManualResetFallback = Completer<ClientResetError>();
       void afterResetCallback(Realm beforeFrozen, Realm after) {
         throw Exception("This fails!");
       }
@@ -129,7 +123,7 @@ Future<void> main([List<String>? args]) async {
             clientResetHandlerType,
             afterRecoveryCallback: clientResetHandlerType != DiscardUnsyncedChangesHandler ? afterResetCallback : null,
             afterDiscardCallback: clientResetHandlerType == DiscardUnsyncedChangesHandler ? afterResetCallback : null,
-            manualResetFallback: (clientResetError) => onManualResetFallback.complete(),
+            manualResetFallback: (clientResetError) => onManualResetFallback.completeError(clientResetError),
           ));
 
       final realm = await Realm.open(config);
@@ -137,16 +131,10 @@ Future<void> main([List<String>? args]) async {
 
       await triggerClientReset(realm);
 
-      await onManualResetFallback.future;
+      await expectLater(onManualResetFallback.future, throws<ClientResetError>());
     });
-  }
 
-  for (Type clientResetHandlerType in [
-    RecoverOrDiscardUnsyncedChangesHandler,
-    RecoverUnsyncedChangesHandler,
-    DiscardUnsyncedChangesHandler,
-  ]) {
-    baasTest('$clientResetHandlerType.Befor and After callbacks are invoked', (appConfig) async {
+    baasTest('$clientResetHandlerType.Before and After callbacks are invoked', (appConfig) async {
       final app = App(appConfig);
       final user = await getIntegrationUser(app);
 
@@ -173,7 +161,6 @@ Future<void> main([List<String>? args]) async {
       await onAfterCompleter.future;
     });
   }
-
   baasTest('AfterDiscard callbacks is invoked for RecoverOrDiscardUnsyncedChangesHandler', (appConfig) async {
     final app = App(appConfig);
     final user = await getIntegrationUser(app);
@@ -199,7 +186,7 @@ Future<void> main([List<String>? args]) async {
     final realm = await Realm.open(config);
     await realm.syncSession.waitForUpload();
 
-    await disableAutomaticRecoveryEnabled();
+    await disableAutomaticRecovery();
     await triggerClientReset(realm);
 
     await onBeforeCompleter.future;

@@ -564,3 +564,9 @@ enum ClientResyncModeInternal {
   recover,
   recoverOrDiscard,
 }
+
+extension ClientResetErrorFunctions on ClientResetError {
+  bool resetRealm(App app, String realmPath) {
+    return realmCore.immediatelyRunFileActions(app, realmPath);
+  }
+}

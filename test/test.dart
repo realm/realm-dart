@@ -370,7 +370,7 @@ Future<void> setupTests(List<String>? args) async {
     addTearDown(() async {
       final paths = HashSet<String>();
       paths.add(path);
-      await enableAllAutomaticRecoveryEnabled();
+      await enableAllAutomaticRecovery();
 
       realmCore.clearCachedApps();
 
@@ -710,14 +710,14 @@ Future<void> triggerClientReset(Realm realm, {bool restartSession = true}) async
   }
 }
 
-Future<void> disableAutomaticRecoveryEnabled([String? appName]) async {
+Future<void> disableAutomaticRecovery([String? appName]) async {
   final client = _baasClient ?? (throw StateError("No BAAS client"));
   appName ??= BaasClient.defaultAppName;
   await client.setAutomaticRecoveryEnabled(appName, false);
   _appsToRestoreRecovery.add(appName);
 }
 
-Future<void> enableAllAutomaticRecoveryEnabled() async {
+Future<void> enableAllAutomaticRecovery() async {
   final client = _baasClient ?? (throw StateError("No BAAS client"));
   while (_appsToRestoreRecovery.isNotEmpty) {
     final appName = _appsToRestoreRecovery.removeFirst();
