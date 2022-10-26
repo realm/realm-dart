@@ -20,7 +20,7 @@ import 'dart:async';
 
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
-import '../lib/src/configuration.dart' show ClientResetHandlerInternal, ClientResyncModeInternal;
+import '../lib/src/configuration.dart' show ClientResetHandlerInternal, ClientResyncModeInternal, BeforeResetCallback, AfterResetCallback, ClientResetCallback;
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -80,25 +80,108 @@ Future<void> main([List<String>? args]) async {
     expect(error.message, contains('Bad client file identifier'));
   });
 
-  baasTest('DiscardUnsyncedChangesHandler callbacks are invoked', (appConfig) async {
-    final app = App(appConfig);
-    final user = await getIntegrationUser(app);
+  for (Type clientResetHandlerType in [
+    RecoverOrDiscardUnsyncedChangesHandler,
+    RecoverUnsyncedChangesHandler,
+    DiscardUnsyncedChangesHandler,
+  ]) {
+    baasTest('$clientResetHandlerType.manualResetFallback invoked when throw an error on beforeResetCallback', (appConfig) async {
+      final app = App(appConfig);
+      final user = await getIntegrationUser(app);
 
-    final onBeforeCompleter = Completer<void>();
-    final onAfterCompleter = Completer<void>();
-    final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
-        clientResetHandler: DiscardUnsyncedChangesHandler(beforeResetCallback: ((beforeFrozen) {
-          onBeforeCompleter.complete();
-        }), afterResetCallback: ((beforeFrozen, after) {
-          onAfterCompleter.complete();
-        })));
+      final onManualResetFallback = Completer<void>();
+      final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
+          clientResetHandler: Creator.create(
+            clientResetHandlerType,
+            beforeResetCallback: (beforeFrozen) => throw Exception("This fails!"),
+            manualResetFallback: (clientResetError) => onManualResetFallback.complete(),
+          ));
 
-    final realm = await Realm.open(config);
-    await realm.syncSession.waitForUpload();
+      final realm = await Realm.open(config);
+      await realm.syncSession.waitForUpload();
 
-    await triggerClientReset(realm);
+      await triggerClientReset(realm);
 
-    await onBeforeCompleter.future;
-    await onAfterCompleter.future;
-  });
+      await onManualResetFallback.future;
+    });
+  }
+
+  for (Type clientResetHandlerType in [
+    RecoverOrDiscardUnsyncedChangesHandler,
+    RecoverUnsyncedChangesHandler,
+    DiscardUnsyncedChangesHandler,
+  ]) {
+    baasTest('$clientResetHandlerType.Befor and After callbacks are invoked', (appConfig) async {
+      final app = App(appConfig);
+      final user = await getIntegrationUser(app);
+
+      final onBeforeCompleter = Completer<void>();
+      final onAfterCompleter = Completer<void>();
+      void afterResetCallback(Realm beforeFrozen, Realm after) {
+        onAfterCompleter.complete();
+      }
+
+      final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
+          clientResetHandler: Creator.create(
+            clientResetHandlerType,
+            beforeResetCallback: (beforeFrozen) => onBeforeCompleter.complete(),
+            afterRecoveryCallback: clientResetHandlerType != DiscardUnsyncedChangesHandler ? afterResetCallback : null,
+            afterDiscardCallback: clientResetHandlerType == DiscardUnsyncedChangesHandler ? afterResetCallback : null,
+          ));
+
+      final realm = await Realm.open(config);
+      await realm.syncSession.waitForUpload();
+
+      await triggerClientReset(realm);
+
+      await onBeforeCompleter.future;
+      await onAfterCompleter.future;
+    });
+  }
+}
+
+class Creator {
+  static final _constructors = {
+    RecoverOrDiscardUnsyncedChangesHandler: (
+            {BeforeResetCallback? beforeResetCallback,
+            AfterResetCallback? afterRecoveryCallback,
+            AfterResetCallback? afterDiscardCallback,
+            ClientResetCallback? manualResetFallback}) =>
+        RecoverOrDiscardUnsyncedChangesHandler(
+            beforeResetCallback: beforeResetCallback,
+            afterRecoveryCallback: afterRecoveryCallback,
+            afterDiscardCallback: afterDiscardCallback,
+            manualResetFallback: manualResetFallback),
+    RecoverUnsyncedChangesHandler: (
+            {BeforeResetCallback? beforeResetCallback,
+            AfterResetCallback? afterRecoveryCallback,
+            AfterResetCallback? afterDiscardCallback,
+            ClientResetCallback? manualResetFallback}) =>
+        RecoverUnsyncedChangesHandler(
+          beforeResetCallback: beforeResetCallback,
+          afterRecoveryCallback: afterRecoveryCallback,
+          manualResetFallback: manualResetFallback,
+        ),
+    DiscardUnsyncedChangesHandler: (
+            {BeforeResetCallback? beforeResetCallback,
+            AfterResetCallback? afterRecoveryCallback,
+            AfterResetCallback? afterDiscardCallback,
+            ClientResetCallback? manualResetFallback}) =>
+        DiscardUnsyncedChangesHandler(
+          beforeResetCallback: beforeResetCallback,
+          afterDiscardCallback: afterDiscardCallback,
+          manualResetFallback: manualResetFallback,
+        ),
+  };
+  static ClientResetHandler create(Type type,
+      {BeforeResetCallback? beforeResetCallback,
+      AfterResetCallback? afterRecoveryCallback,
+      AfterResetCallback? afterDiscardCallback,
+      ClientResetCallback? manualResetFallback}) {
+    return _constructors[type]!(
+        beforeResetCallback: beforeResetCallback,
+        afterRecoveryCallback: afterRecoveryCallback,
+        afterDiscardCallback: afterDiscardCallback,
+        manualResetFallback: manualResetFallback);
+  }
 }
