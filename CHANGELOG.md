@@ -8,15 +8,19 @@
 
 ### Enhancements
 * Added `MutableSubscriptionSet.removeByType` for removing subscriptions by their realm object type. (Issue [#317](https://github.com/realm/realm-dart/issues/317))
+* Support results of primitives, ie. `RealmResult<int>`. (Issue [#162](https://github.com/realm/realm-dart/issues/162))
+* Support notifications on all managed realm lists, including list of primitives, ie. `RealmList<int>.changes` is supported. ([#893](https://github.com/realm/realm-dart/pull/893))
 
 ### Fixed
-* None
+* Fixed a wrong mapping for `AuthProviderType` returned by `User.provider` for google, facebook and apple credentials.
+* Opening an unencrypted file with an encryption key would sometimes report a misleading error message that indicated that the problem was something other than a decryption failure (Core upgrade)
+* Fix a rare deadlock which could occur when closing a synchronized Realm immediately after committing a write transaction when the sync worker thread has also just finished processing a changeset from the server. (Core upgrade)
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Uses Realm Core 12.11.0. ([#988](https://github.com/realm/realm-dart/pull/988))
 
 ## 0.6.0+beta (2022-10-21)
 
