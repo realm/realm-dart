@@ -2210,7 +2210,8 @@ class _RealmCore {
   bool immediatelyRunFileActions(App app, String realmPath) {
     return using((arena) {
       bool result = false;
-      _realmLib.invokeGetBool(() => result = _realmLib.realm_sync_immediately_run_file_actions(app.handle._pointer, realmPath.toCharPtr(arena)));
+      _realmLib.invokeGetBool(() => result = _realmLib.realm_sync_immediately_run_file_actions(app.handle._pointer, realmPath.toCharPtr(arena)),
+          "Realm file is in use: '$realmPath'");
       return result;
     });
   }

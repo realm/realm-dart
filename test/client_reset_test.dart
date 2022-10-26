@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
@@ -82,6 +83,61 @@ Future<void> main([List<String>? args]) async {
 
     final error = await resetCompleter.future;
     expect(error.message, contains('Bad client file identifier'));
+  });
+
+  baasTest('Initialte resetRealm on ManualRecoveryHandler callback', (appConfig) async {
+    final app = App(appConfig);
+    final user = await getIntegrationUser(app);
+
+    final resetCompleter = Completer<ClientResetError>();
+    final config = Configuration.flexibleSync(
+      user,
+      [Task.schema, Schedule.schema],
+      clientResetHandler: ManualRecoveryHandler((clientResetError) {
+        resetCompleter.completeError(clientResetError);
+      }),
+    );
+
+    final realm = await Realm.open(config);
+    await realm.syncSession.waitForUpload();
+    final resetRealmFuture = resetCompleter.future.catchError((dynamic clientResetError) {
+      if (clientResetError is ClientResetError) {
+        realm.close();
+        clientResetError.resetRealm(app, config.path);
+      }
+      return clientResetError as ClientResetError;
+    });
+
+    await triggerClientReset(realm);
+
+    await resetRealmFuture;
+    expect(File(config.path).existsSync(), isFalse);
+  });
+
+  baasTest('Initialte resetRealm on ManualRecoveryHandler callbach fails when Realm in use', (appConfig) async {
+    final app = App(appConfig);
+    final user = await getIntegrationUser(app);
+
+    final resetCompleter = Completer<ClientResetError>();
+    final config = Configuration.flexibleSync(
+      user,
+      [Task.schema, Schedule.schema],
+      clientResetHandler: ManualRecoveryHandler((clientResetError) {
+        resetCompleter.completeError(clientResetError);
+      }),
+    );
+
+    final realm = await Realm.open(config);
+    await realm.syncSession.waitForUpload();
+    final resetRealmFuture = resetCompleter.future.catchError((dynamic clientResetError) {
+      if (clientResetError is ClientResetError) {
+        clientResetError.resetRealm(app, config.path);
+      }
+      return clientResetError as ClientResetError;
+    });
+    await triggerClientReset(realm);
+    await expectLater(resetRealmFuture, throws<RealmException>("Realm file is in use"));
+    expect(File(config.path).existsSync(), isTrue);
   });
 
   for (Type clientResetHandlerType in [
