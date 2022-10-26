@@ -875,7 +875,20 @@ class _RealmCore {
     });
   }
 
-  RealmObjectHandle getObjectAt(RealmResults results, int index) {
+  RealmResultsHandle resultsFromList(RealmList list) {
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_list_to_results(list.handle._pointer));
+    return RealmResultsHandle._(pointer, list.realm.handle);
+  }
+
+  Object? resultsGetElementAt(RealmResults results, int index) {
+    return using((Arena arena) {
+      final realm_value = arena<realm_value_t>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_results_get(results.handle._pointer, index, realm_value));
+      return realm_value.toDartValue(results.realm);
+    });
+  }
+
+  RealmObjectHandle resultsGetObjectAt(RealmResults results, int index) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_get_object(results.handle._pointer, index));
     return RealmObjectHandle._(pointer, results.realm.handle);
   }

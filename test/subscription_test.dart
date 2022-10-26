@@ -295,18 +295,18 @@ Future<void> main([List<String>? args]) async {
 
     ObjectId newOid() => ObjectId.fromBytes(randomBytes(12));
 
-    final oids = <ObjectId>{};
+    final objectIds = <ObjectId>{};
     const max = 1000;
     subscriptions.update((mutableSubscriptions) {
-      oids.addAll([
+      objectIds.addAll([
         for (int i = 0; i < max; ++i) mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [newOid()])).id
       ]);
     });
-    expect(oids.length, max); // no collisions
+    expect(objectIds.length, max); // no collisions
     expect(subscriptions.length, max);
 
     for (final sub in subscriptions) {
-      expect(sub.id, isIn(oids));
+      expect(sub.id, isIn(objectIds));
     }
   });
 
@@ -519,7 +519,7 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.write(() => realm.add(Task(ObjectId()))), throws<RealmException>("no flexible sync subscription has been created"));
   });
 
-  testSubscriptions('Subscription on unqueryable field sould throw', (realm) async {
+  testSubscriptions('Subscription on non-queryable field should throw', (realm) async {
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Event>());
     });
@@ -533,7 +533,7 @@ Future<void> main([List<String>? args]) async {
           isCompleted: false,
           durationInMinutes: 10,
         ),
-        Event(ObjectId(), name: "Some other eveent", isCompleted: true, durationInMinutes: 60),
+        Event(ObjectId(), name: "Some other event", isCompleted: true, durationInMinutes: 60),
       ]);
     });
 
@@ -571,7 +571,7 @@ Future<void> main([List<String>? args]) async {
       realm.addAll([
         Event(ObjectId(), name: "NPMG Event", isCompleted: true, durationInMinutes: 30),
         Event(ObjectId(), name: "NPMG Meeting", isCompleted: false, durationInMinutes: 10),
-        Event(ObjectId(), name: "Some other eveent", isCompleted: true, durationInMinutes: 60),
+        Event(ObjectId(), name: "Some other event", isCompleted: true, durationInMinutes: 60),
       ]);
     });
 

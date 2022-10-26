@@ -20,6 +20,8 @@
 
 import 'dart:math';
 
+import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -309,6 +311,159 @@ Future<void> main([List<String>? args]) async {
 
     await Future<void>.delayed(Duration(milliseconds: 20));
   });
+
+  void testListNotificationsHelper<T>(
+    String opName,
+    RealmList<T> Function(AllCollections c) getList,
+    List<int> Function(RealmListChanges<T> ch) getIndexes,
+    void Function(RealmList<T> list, int index) op,
+    List<List<int>> listOfIndexes, {
+    Iterable<T> Function()? factory,
+  }) {
+    test('RealmList<$T>.$opName notifications', () {
+      final config = Configuration.local([AllCollections.schema]);
+      final realm = getRealm(config);
+
+      final allCollections = realm.write(() => realm.add(AllCollections()));
+
+      final list = getList(allCollections);
+      if (factory != null) {
+        realm.write(() => list.addAll(factory()));
+      }
+
+      expectLater(
+        list.changes.map((e) => getIndexes(e)),
+        emitsInOrder([
+          <int>[],
+          ...listOfIndexes.map(
+            (l) => l.sorted((a, b) => a - b),
+          )
+        ].map<Matcher>((indexes) => equals(indexes))),
+      );
+
+      for (final indexes in listOfIndexes) {
+        realm.write(() {
+          for (final i in indexes) {
+            op(list, i);
+          }
+        });
+      }
+    });
+  }
+
+  // Here you can add more insert patterns
+  final inserts = [
+    [0],
+    [1],
+    [1, 2, 3],
+    [0, 4],
+    [1, 2],
+    [8, 10],
+    [0],
+    [11],
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  ];
+
+  @isTest
+  void testListInsertNotifications<T>(
+    RealmList<T> Function(AllCollections c) getList,
+    void Function(RealmList<T> list, int index) op,
+  ) {
+    testListNotificationsHelper<T>('insert', getList, (ch) => ch.inserted, op, inserts);
+  }
+
+  testListInsertNotifications<bool?>((c) => c.nullableBools, (c, i) => c.insert(i, null));
+  testListInsertNotifications<bool>((c) => c.bools, (c, i) => c.insert(i, i % 2 == 0));
+  testListInsertNotifications<DateTime?>((c) => c.nullableDates, (c, i) => c.insert(i, null));
+  testListInsertNotifications<DateTime>((c) => c.dates, (c, i) => c.insert(i, DateTime(i)));
+  testListInsertNotifications<double?>((c) => c.nullableDoubles, (c, i) => c.insert(i, null));
+  testListInsertNotifications<double>((c) => c.doubles, (c, i) => c.insert(i, i.toDouble()));
+  testListInsertNotifications<int?>((c) => c.nullableInts, (c, i) => c.insert(i, null));
+  testListInsertNotifications<int>((c) => c.ints, (c, i) => c.insert(i, i));
+  testListInsertNotifications<ObjectId?>((c) => c.nullableObjectIds, (c, i) => c.insert(i, null));
+  testListInsertNotifications<ObjectId>((c) => c.objectIds, (c, i) => c.insert(i, ObjectId()));
+  testListInsertNotifications<String?>((c) => c.nullableStrings, (c, i) => c.insert(i, null));
+  testListInsertNotifications<String>((c) => c.strings, (c, i) => c.insert(i, '$i'));
+  testListInsertNotifications<Uuid?>((c) => c.nullableUuids, (c, i) => c.insert(i, null));
+  testListInsertNotifications<Uuid>((c) => c.uuids, (c, i) => c.insert(i, Uuid.v4()));
+
+  final deletes = [
+    [0],
+    [1],
+    [3, 2, 1],
+    [4, 0],
+    [2, 1],
+    [10, 8],
+    [0],
+    [11],
+    [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+  ];
+
+  @isTest
+  void testListDeleteNotifications<T>(
+    RealmList<T> Function(AllCollections c) getList,
+    T Function(int i) indexToValue,
+  ) {
+    testListNotificationsHelper<T>('deleted', getList, (ch) => ch.deleted, (c, i) => c.removeAt(i), deletes,
+        factory: () => List.generate(
+              100,
+              (i) => indexToValue(i),
+            ));
+  }
+
+  testListDeleteNotifications<bool?>((c) => c.nullableBools, (i) => null);
+  testListDeleteNotifications<bool>((c) => c.bools, (i) => i % 2 == 0);
+  testListDeleteNotifications<DateTime?>((c) => c.nullableDates, (i) => null);
+  testListDeleteNotifications<DateTime>((c) => c.dates, (i) => DateTime(i));
+  testListDeleteNotifications<double?>((c) => c.nullableDoubles, (i) => null);
+  testListDeleteNotifications<double>((c) => c.doubles, (i) => i.toDouble());
+  testListDeleteNotifications<int?>((c) => c.nullableInts, (i) => null);
+  testListDeleteNotifications<int>((c) => c.ints, (i) => i);
+  testListDeleteNotifications<ObjectId?>((c) => c.nullableObjectIds, (i) => null);
+  testListDeleteNotifications<ObjectId>((c) => c.objectIds, (i) => ObjectId());
+  testListDeleteNotifications<String?>((c) => c.nullableStrings, (i) => null);
+  testListDeleteNotifications<String>((c) => c.strings, (i) => '$i');
+  testListDeleteNotifications<Uuid?>((c) => c.nullableUuids, (i) => null);
+  testListDeleteNotifications<Uuid>((c) => c.uuids, (i) => Uuid.v4());
+
+  final modifications = [
+    [0],
+    [1],
+    [2, 1, 3],
+    [4, 0],
+    [1, 2],
+    [10, 8],
+    [0],
+    [11],
+    [10, 7, 8, 9, 3, 2, 6, 5, 1, 0, 4]
+  ];
+
+  @isTest
+  void testListModificationNotifications<T>(
+    RealmList<T> Function(AllCollections c) getList,
+    T Function(int i) indexToValue,
+  ) {
+    testListNotificationsHelper<T>('modified', getList, (ch) => ch.modified, (c, i) => c[i] = indexToValue(i), modifications,
+        factory: () => List.generate(
+              100,
+              (i) => indexToValue(i),
+            ));
+  }
+
+  testListModificationNotifications<bool?>((c) => c.nullableBools, (i) => null);
+  testListModificationNotifications<bool>((c) => c.bools, (i) => i % 2 == 0);
+  testListModificationNotifications<DateTime?>((c) => c.nullableDates, (i) => null);
+  testListModificationNotifications<DateTime>((c) => c.dates, (i) => DateTime(i));
+  testListModificationNotifications<double?>((c) => c.nullableDoubles, (i) => null);
+  testListModificationNotifications<double>((c) => c.doubles, (i) => i.toDouble());
+  testListModificationNotifications<int?>((c) => c.nullableInts, (i) => null);
+  testListModificationNotifications<int>((c) => c.ints, (i) => i);
+  testListModificationNotifications<ObjectId?>((c) => c.nullableObjectIds, (i) => null);
+  testListModificationNotifications<ObjectId>((c) => c.objectIds, (i) => ObjectId());
+  testListModificationNotifications<String?>((c) => c.nullableStrings, (i) => null);
+  testListDeleteNotifications<String>((c) => c.strings, (i) => '$i');
+  testListDeleteNotifications<Uuid?>((c) => c.nullableUuids, (i) => null);
+  testListDeleteNotifications<Uuid>((c) => c.uuids, (i) => Uuid.v4());
 
   test('List query', () {
     final config = Configuration.local([Team.schema, Person.schema]);
