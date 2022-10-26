@@ -128,9 +128,12 @@ Future<void> main([List<String>? args]) async {
     await realm.syncSession.waitForUpload();
     final resetRealmFuture = resetCompleter.future.then((ClientResetError clientResetError) {
       clientResetError.resetRealm(app, config.path);
+      return clientResetError;
     });
-    await triggerClientReset(realm);
-    await expectLater(resetRealmFuture, throws<RealmException>("Realm file is in use"));
+    await expectLater(
+      Future.wait([triggerClientReset(realm), resetRealmFuture]),
+      throws<RealmException>("Realm file is in use"),
+    );
     expect(File(config.path).existsSync(), isTrue);
   });
 
@@ -250,7 +253,6 @@ Future<void> main([List<String>? args]) async {
     final user = await getIntegrationUser(app);
     int beforeResetCallbackOccured = 0;
     int afterDiscardCallbackOccured = 0;
-    int manualResetFallbackOccured = 0;
     final onBeforeCompleter = Completer<void>();
     final onAfterCompleter = Completer<void>();
 
@@ -286,14 +288,15 @@ Future<void> main([List<String>? args]) async {
       notifications.add(event);
     });
 
+    await waitForCondition(() => notifications.length == 1);
     await triggerClientReset(realm);
+
     await onBeforeCompleter.future;
     await onAfterCompleter.future;
     expect(beforeResetCallbackOccured, 1);
     expect(afterDiscardCallbackOccured, 1);
-    expect(manualResetFallbackOccured, 0);
 
-    await waitForCondition(() => notifications.length == 1, retryDelay: Duration(milliseconds: 10));
+    await waitForCondition(() => notifications.length == 2);
     await subscription.cancel();
   });
 }

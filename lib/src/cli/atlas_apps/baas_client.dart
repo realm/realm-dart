@@ -544,8 +544,7 @@ class BaasClient {
     final dynamic configDocs = await _get('groups/$_groupId/apps/$appId/services/$mongoServiceId/config');
     final dynamic flexibleSync = configDocs['flexible_sync'];
     flexibleSync["is_recovery_mode_disabled"] = !enable;
-    configDocs['flexible_sync'] = flexibleSync;
-    String data = jsonEncode(<String, dynamic>{'clusterName': configDocs['clusterName'], 'flexible_sync': configDocs['flexible_sync']});
+    String data = jsonEncode(<String, dynamic>{'clusterName': configDocs['clusterName'], 'flexible_sync': flexibleSync});
     await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', data);
   }
 }
