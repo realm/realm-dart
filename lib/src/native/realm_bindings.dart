@@ -1453,13 +1453,7 @@ class RealmLibrary {
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
     ffi.Pointer<ffi.Char> name,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Void Function(
-                    ffi.Pointer<ffi.Void>,
-                    ffi.Pointer<realm_app_user_apikey_t>,
-                    ffi.Pointer<realm_app_error_t>)>>
-        arg3,
+    realm_return_apikey_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
@@ -1467,7 +1461,7 @@ class RealmLibrary {
       arg0,
       arg1,
       name,
-      arg3,
+      callback,
       userdata,
       userdata_free,
     );
@@ -1479,12 +1473,7 @@ class RealmLibrary {
                   ffi.Pointer<realm_app_t>,
                   ffi.Pointer<realm_user_t>,
                   ffi.Pointer<ffi.Char>,
-                  ffi.Pointer<
-                      ffi.NativeFunction<
-                          ffi.Void Function(
-                              ffi.Pointer<ffi.Void>,
-                              ffi.Pointer<realm_app_user_apikey_t>,
-                              ffi.Pointer<realm_app_error_t>)>>,
+                  realm_return_apikey_func_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>>(
       'realm_app_user_apikey_provider_client_create_apikey');
@@ -1494,12 +1483,7 @@ class RealmLibrary {
               ffi.Pointer<realm_app_t>,
               ffi.Pointer<realm_user_t>,
               ffi.Pointer<ffi.Char>,
-              ffi.Pointer<
-                  ffi.NativeFunction<
-                      ffi.Void Function(
-                          ffi.Pointer<ffi.Void>,
-                          ffi.Pointer<realm_app_user_apikey_t>,
-                          ffi.Pointer<realm_app_error_t>)>>,
+              realm_return_apikey_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
@@ -1509,7 +1493,7 @@ class RealmLibrary {
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
     realm_object_id_t id,
-    realm_app_void_completion_func_t arg3,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
@@ -1517,7 +1501,7 @@ class RealmLibrary {
       arg0,
       arg1,
       id,
-      arg3,
+      callback,
       userdata,
       userdata_free,
     );
@@ -1549,7 +1533,7 @@ class RealmLibrary {
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
     realm_object_id_t id,
-    realm_app_void_completion_func_t arg3,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
@@ -1557,7 +1541,7 @@ class RealmLibrary {
       arg0,
       arg1,
       id,
-      arg3,
+      callback,
       userdata,
       userdata_free,
     );
@@ -1589,7 +1573,7 @@ class RealmLibrary {
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
     realm_object_id_t id,
-    realm_app_void_completion_func_t arg3,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
@@ -1597,7 +1581,7 @@ class RealmLibrary {
       arg0,
       arg1,
       id,
-      arg3,
+      callback,
       userdata,
       userdata_free,
     );
@@ -1629,13 +1613,7 @@ class RealmLibrary {
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
     realm_object_id_t id,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Void Function(
-                    ffi.Pointer<ffi.Void>,
-                    ffi.Pointer<realm_app_user_apikey_t>,
-                    ffi.Pointer<realm_app_error_t>)>>
-        arg3,
+    realm_return_apikey_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
@@ -1643,7 +1621,7 @@ class RealmLibrary {
       arg0,
       arg1,
       id,
-      arg3,
+      callback,
       userdata,
       userdata_free,
     );
@@ -1655,12 +1633,7 @@ class RealmLibrary {
                   ffi.Pointer<realm_app_t>,
                   ffi.Pointer<realm_user_t>,
                   realm_object_id_t,
-                  ffi.Pointer<
-                      ffi.NativeFunction<
-                          ffi.Void Function(
-                              ffi.Pointer<ffi.Void>,
-                              ffi.Pointer<realm_app_user_apikey_t>,
-                              ffi.Pointer<realm_app_error_t>)>>,
+                  realm_return_apikey_func_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>>(
       'realm_app_user_apikey_provider_client_fetch_apikey');
@@ -1670,12 +1643,7 @@ class RealmLibrary {
               ffi.Pointer<realm_app_t>,
               ffi.Pointer<realm_user_t>,
               realm_object_id_t,
-              ffi.Pointer<
-                  ffi.NativeFunction<
-                      ffi.Void Function(
-                          ffi.Pointer<ffi.Void>,
-                          ffi.Pointer<realm_app_user_apikey_t>,
-                          ffi.Pointer<realm_app_error_t>)>>,
+              realm_return_apikey_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
@@ -1684,21 +1652,14 @@ class RealmLibrary {
   bool realm_app_user_apikey_provider_client_fetch_apikeys(
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Void Function(
-                    ffi.Pointer<ffi.Void>,
-                    ffi.Pointer<realm_app_user_apikey_t>,
-                    ffi.Size,
-                    ffi.Pointer<realm_app_error_t>)>>
-        arg2,
+    realm_return_apikey_list_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_app_user_apikey_provider_client_fetch_apikeys(
       arg0,
       arg1,
-      arg2,
+      callback,
       userdata,
       userdata_free,
     );
@@ -1709,13 +1670,7 @@ class RealmLibrary {
               ffi.Bool Function(
                   ffi.Pointer<realm_app_t>,
                   ffi.Pointer<realm_user_t>,
-                  ffi.Pointer<
-                      ffi.NativeFunction<
-                          ffi.Void Function(
-                              ffi.Pointer<ffi.Void>,
-                              ffi.Pointer<realm_app_user_apikey_t>,
-                              ffi.Size,
-                              ffi.Pointer<realm_app_error_t>)>>,
+                  realm_return_apikey_list_func_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>>(
       'realm_app_user_apikey_provider_client_fetch_apikeys');
@@ -1724,13 +1679,7 @@ class RealmLibrary {
           bool Function(
               ffi.Pointer<realm_app_t>,
               ffi.Pointer<realm_user_t>,
-              ffi.Pointer<
-                  ffi.NativeFunction<
-                      ffi.Void Function(
-                          ffi.Pointer<ffi.Void>,
-                          ffi.Pointer<realm_app_user_apikey_t>,
-                          ffi.Size,
-                          ffi.Pointer<realm_app_error_t>)>>,
+              realm_return_apikey_list_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
@@ -6266,21 +6215,27 @@ class RealmLibrary {
   /// @return true, if no errors occurred.
   bool realm_object_get_parent(
     ffi.Pointer<realm_object_t> object,
-    ffi.Pointer<realm_object_t> parent,
+    ffi.Pointer<ffi.Pointer<realm_object_t>> parent,
+    ffi.Pointer<realm_class_key_t> class_key,
   ) {
     return _realm_object_get_parent(
       object,
       parent,
+      class_key,
     );
   }
 
   late final _realm_object_get_parentPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_object_t>,
-              ffi.Pointer<realm_object_t>)>>('realm_object_get_parent');
+          ffi.Bool Function(
+              ffi.Pointer<realm_object_t>,
+              ffi.Pointer<ffi.Pointer<realm_object_t>>,
+              ffi.Pointer<realm_class_key_t>)>>('realm_object_get_parent');
   late final _realm_object_get_parent = _realm_object_get_parentPtr.asFunction<
       bool Function(
-          ffi.Pointer<realm_object_t>, ffi.Pointer<realm_object_t>)>();
+          ffi.Pointer<realm_object_t>,
+          ffi.Pointer<ffi.Pointer<realm_object_t>>,
+          ffi.Pointer<realm_class_key_t>)>();
 
   /// Get the table for this object.
   ///
@@ -6666,6 +6621,44 @@ class RealmLibrary {
   late final _realm_query_parse_for_results =
       _realm_query_parse_for_resultsPtr.asFunction<
           ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_results_t>,
+              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
+
+  /// Parse a query string and bind it to a set.
+  ///
+  /// If the query failed to parse, the parser error is available from
+  /// `realm_get_last_error()`.
+  ///
+  /// @param target_set The set on which to run this query.
+  /// @param query_string A string in the Realm Query Language, optionally
+  /// containing argument placeholders (`$0`, `$1`, etc.).
+  /// @param num_args The number of arguments for this query.
+  /// @param args A pointer to a list of argument values.
+  /// @return A non-null pointer if the query was successfully parsed and no
+  /// exception occurred.
+  ffi.Pointer<realm_query_t> realm_query_parse_for_set(
+    ffi.Pointer<realm_set_t> target_set,
+    ffi.Pointer<ffi.Char> query_string,
+    int num_args,
+    ffi.Pointer<realm_query_arg_t> args,
+  ) {
+    return _realm_query_parse_for_set(
+      target_set,
+      query_string,
+      num_args,
+      args,
+    );
+  }
+
+  late final _realm_query_parse_for_setPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_query_t> Function(
+              ffi.Pointer<realm_set_t>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
+              ffi.Pointer<realm_query_arg_t>)>>('realm_query_parse_for_set');
+  late final _realm_query_parse_for_set =
+      _realm_query_parse_for_setPtr.asFunction<
+          ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_set_t>,
               ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
 
   /// Refresh the view of the realm file.
@@ -10728,6 +10721,19 @@ typedef realm_refresh_callback_token_t = realm_refresh_callback_token;
 class realm_results extends ffi.Opaque {}
 
 typedef realm_results_t = realm_results;
+typedef realm_return_apikey_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(
+            ffi.Pointer<ffi.Void>,
+            ffi.Pointer<realm_app_user_apikey_t>,
+            ffi.Pointer<realm_app_error_t>)>>;
+typedef realm_return_apikey_list_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(
+            ffi.Pointer<ffi.Void>,
+            ffi.Pointer<realm_app_user_apikey_t>,
+            ffi.Size,
+            ffi.Pointer<realm_app_error_t>)>>;
 
 class realm_scheduler extends ffi.Opaque {}
 
