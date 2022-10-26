@@ -94,18 +94,15 @@ Future<void> main([List<String>? args]) async {
       user,
       [Task.schema, Schedule.schema],
       clientResetHandler: ManualRecoveryHandler((clientResetError) {
-        resetCompleter.completeError(clientResetError);
+        resetCompleter.complete(clientResetError);
       }),
     );
 
     final realm = await Realm.open(config);
     await realm.syncSession.waitForUpload();
-    final resetRealmFuture = resetCompleter.future.catchError((dynamic clientResetError) {
-      if (clientResetError is ClientResetError) {
-        realm.close();
-        clientResetError.resetRealm(app, config.path);
-      }
-      return clientResetError as ClientResetError;
+    final resetRealmFuture = resetCompleter.future.then((ClientResetError clientResetError) {
+      realm.close();
+      clientResetError.resetRealm(app, config.path);
     });
 
     await triggerClientReset(realm);
@@ -123,17 +120,14 @@ Future<void> main([List<String>? args]) async {
       user,
       [Task.schema, Schedule.schema],
       clientResetHandler: ManualRecoveryHandler((clientResetError) {
-        resetCompleter.completeError(clientResetError);
+        resetCompleter.complete(clientResetError);
       }),
     );
 
     final realm = await Realm.open(config);
     await realm.syncSession.waitForUpload();
-    final resetRealmFuture = resetCompleter.future.catchError((dynamic clientResetError) {
-      if (clientResetError is ClientResetError) {
-        clientResetError.resetRealm(app, config.path);
-      }
-      return clientResetError as ClientResetError;
+    final resetRealmFuture = resetCompleter.future.then((ClientResetError clientResetError) {
+      clientResetError.resetRealm(app, config.path);
     });
     await triggerClientReset(realm);
     await expectLater(resetRealmFuture, throws<RealmException>("Realm file is in use"));
@@ -154,7 +148,7 @@ Future<void> main([List<String>? args]) async {
           clientResetHandler: Creator.create(
             clientResetHandlerType,
             beforeResetCallback: (beforeFrozen) => throw Exception("This fails!"),
-            manualResetFallback: (clientResetError) => onManualResetFallback.completeError(clientResetError),
+            manualResetFallback: (clientResetError) => onManualResetFallback.complete(clientResetError),
           ));
 
       final realm = await Realm.open(config);
@@ -162,7 +156,7 @@ Future<void> main([List<String>? args]) async {
 
       await triggerClientReset(realm);
 
-      await expectLater(onManualResetFallback.future, throws<ClientResetError>());
+      await expectLater(await onManualResetFallback.future, isA<ClientResetError>());
     });
 
     baasTest('$clientResetHandlerType.manualResetFallback invoked when throw an error on After Callbacks', (appConfig) async {
@@ -179,7 +173,7 @@ Future<void> main([List<String>? args]) async {
             clientResetHandlerType,
             afterRecoveryCallback: clientResetHandlerType != DiscardUnsyncedChangesHandler ? afterResetCallback : null,
             afterDiscardCallback: clientResetHandlerType == DiscardUnsyncedChangesHandler ? afterResetCallback : null,
-            manualResetFallback: (clientResetError) => onManualResetFallback.completeError(clientResetError),
+            manualResetFallback: (clientResetError) => onManualResetFallback.complete(clientResetError),
           ));
 
       final realm = await Realm.open(config);
@@ -187,7 +181,7 @@ Future<void> main([List<String>? args]) async {
 
       await triggerClientReset(realm);
 
-      await expectLater(onManualResetFallback.future, throws<ClientResetError>());
+      await expectLater(await onManualResetFallback.future, isA<ClientResetError>());
     });
 
     baasTest('$clientResetHandlerType.Before and After callbacks are invoked', (appConfig) async {
