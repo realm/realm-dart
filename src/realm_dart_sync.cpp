@@ -22,6 +22,32 @@
 #include "realm_dart.hpp"
 #include "realm_dart_sync.h"
 
+class WaitingCallback
+{
+public:
+    static bool wait_dart_before_continue(realm::util::UniqueFunction<void(realm::util::UniqueFunction<void(bool)>*)>* userCallback)
+    {
+        std::condition_variable cv;
+        std::mutex m;
+        bool complete = false;
+        bool success = false;
+
+        realm::util::UniqueFunction<void(bool)> unlockFunc = [&complete, &success, &cv, &m](bool result) {
+            std::unique_lock<std::mutex> lk(m);
+            complete = true;
+            success = result;
+            lk.unlock();
+            cv.notify_one();
+        };
+        (*userCallback)(&unlockFunc);
+
+        std::unique_lock<std::mutex> lk(m);
+        cv.wait(lk, [&complete] {return complete; });
+
+        return success;
+    }
+};
+
 RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, realm_http_request_t request, void* request_context) {
     // the pointers in request are to stack values, we need to make copies and move them into the scheduler invocation
     struct request_copy_buf {
@@ -78,13 +104,17 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
     }
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    ud->scheduler->invoke([ud, session = *session, error = std::move(error), buf = std::move(buf)]() mutable {
-        //we moved buf so we need to update the error pointers here.
-        error.error_code.message = buf.message.c_str();
-        error.detailed_message = buf.detailed_message.c_str();
-        error.user_info_map = buf.user_info.data();
-        (reinterpret_cast<realm_sync_error_handler_func_t>(ud->dart_callback))(ud->handle, const_cast<realm_sync_session_t*>(&session), error);
-    });
+    realm::util::UniqueFunction<void(realm::util::UniqueFunction<void(bool)>*)> userCallback =
+        [&ud, &session, &error, &buf] (realm::util::UniqueFunction<void(bool)>* unlockFunc){
+            ud->scheduler->invoke([ud, session = *session, error = std::move(error), buf = std::move(buf), unlockFunc]() mutable {
+                //we moved buf so we need to update the error pointers here.
+                error.error_code.message = buf.message.c_str();
+                error.detailed_message = buf.detailed_message.c_str();
+                error.user_info_map = buf.user_info.data();
+                (reinterpret_cast<realm_sync_error_handler_begin_func_t>(ud->dart_callback))(ud->handle, const_cast<realm_sync_session_t*>(&session), error, unlockFunc);
+            });
+    };
+    WaitingCallback::wait_dart_before_continue(&userCallback);
 }
 
 RLM_API void realm_dart_sync_wait_for_completion_callback(realm_userdata_t userdata, realm_sync_error_code_t* error)
@@ -141,52 +171,26 @@ RLM_API void realm_dart_sync_on_subscription_state_changed_callback(realm_userda
 
 RLM_API bool realm_dart_sync_before_reset_handler_callback(realm_userdata_t userdata, realm_t* realm)
 {
-    std::condition_variable cv;
-    std::mutex m;
-    bool complete = false;
-    bool success = false;
-
-    realm::util::UniqueFunction<void(bool)> unlockFunc = [&complete, &success, &cv, &m](bool result) {
-        std::unique_lock<std::mutex> lk(m);
-        complete = true;
-        success = result;
-        lk.unlock();
-        cv.notify_one();
-    };
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-
-    ud->scheduler->invoke([ud, &realm, &cv, &m, &complete, &success, &unlockFunc]() {
-        (reinterpret_cast<realm_sync_before_client_reset_begin_func_t>(ud->dart_callback))(ud->handle, realm, &unlockFunc);
-    });
-    std::unique_lock<std::mutex> lk(m);
-    cv.wait(lk, [&complete] {return complete; });
-
-    return success;
+    realm::util::UniqueFunction<void(realm::util::UniqueFunction<void(bool)>*)> userCallback =
+        [&ud, &realm](realm::util::UniqueFunction<void(bool)>* unlockFunc) {
+        ud->scheduler->invoke([ud, &realm, unlockFunc]() {
+            (reinterpret_cast<realm_sync_before_client_reset_begin_func_t>(ud->dart_callback))(ud->handle, realm, unlockFunc);
+        });
+    };
+    return WaitingCallback::wait_dart_before_continue(&userCallback);
 }
 
 RLM_API bool realm_dart_sync_after_reset_handler_callback(realm_userdata_t userdata, realm_t* before_realm, realm_thread_safe_reference_t* after_realm, bool did_recover)
 {
-    std::condition_variable cv;
-    std::mutex m;
-    bool complete = false;
-    bool success = false;
-
-    realm::util::UniqueFunction<void(bool)> unlockFunc = [&complete, &success, &cv, &m](bool result) {
-        std::unique_lock<std::mutex> lk(m);
-        complete = true;
-        success = result;
-        lk.unlock();
-        cv.notify_one();
-    };
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    ud->scheduler->invoke([ud, &before_realm, &after_realm, did_recover, &cv, &m, &complete, &success, &unlockFunc]() {
-        (reinterpret_cast<realm_sync_after_client_reset_begin_func_t>(ud->dart_callback))(ud->handle, before_realm, after_realm, did_recover, &unlockFunc);
-    });
-
-    std::unique_lock<std::mutex> lk(m);
-    cv.wait(lk, [&complete] {return complete; });
-
-    return success;
+    realm::util::UniqueFunction<void(realm::util::UniqueFunction<void(bool)>*)> userCallback =
+        [&ud, &before_realm, &after_realm, did_recover](realm::util::UniqueFunction<void(bool)>* unlockFunc) {
+        ud->scheduler->invoke([ud, &before_realm, &after_realm, did_recover, unlockFunc]() {
+            (reinterpret_cast<realm_sync_after_client_reset_begin_func_t>(ud->dart_callback))(ud->handle, before_realm, after_realm, did_recover, unlockFunc);
+        });
+    };
+    return WaitingCallback::wait_dart_before_continue(&userCallback);
 }
 
 RLM_API void realm_dart_invoke_navite_with_result(bool success, void* unlockFunc)
@@ -194,3 +198,5 @@ RLM_API void realm_dart_invoke_navite_with_result(bool success, void* unlockFunc
     auto castFunc = (reinterpret_cast<realm::util::UniqueFunction<void(bool)>*>(unlockFunc));
     (*castFunc)(success);
 }
+
+

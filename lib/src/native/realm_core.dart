@@ -218,7 +218,7 @@ class _RealmCore {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
           _realmLib.realm_sync_config_set_resync_mode(syncConfigPtr, config.clientResetHandler.clientResyncMode.index);
           final errorHandlerCallback =
-              Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_session_t>, realm_sync_error_t)>(_syncErrorHandlerCallback);
+              Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_session_t>, realm_sync_error_t, Pointer<Void>)>(_syncErrorHandlerCallback);
           final errorHandlerUserdata = _realmLib.realm_dart_userdata_async_new(config, errorHandlerCallback.cast(), scheduler.handle._pointer);
           _realmLib.realm_sync_config_set_error_handler(syncConfigPtr, _realmLib.addresses.realm_dart_sync_error_handler_callback, errorHandlerUserdata.cast(),
               _realmLib.addresses.realm_dart_userdata_async_free);
@@ -490,33 +490,17 @@ class _RealmCore {
     return false;
   }
 
-  static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error) {
+  static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error, Pointer<Void> unlockCallbackFunc) {
     final syncConfig = userdata as FlexibleSyncConfiguration;
 
     final syncError = error.toSyncError();
-
+    late FutureOr<void> Function() callback;
     if (syncError is ClientResetError) {
-      syncConfig.clientResetHandler.onManualReset?.call(syncError);
-      return;
+      callback = () => syncConfig.clientResetHandler.onManualReset?.call(syncError);
+    } else {
+      callback = () => syncConfig.syncErrorHandler(syncError);
     }
-
-    syncConfig.syncErrorHandler(syncError);
-  }
-
-  static void _invokeNativeFunction(Pointer<Void> nativeFunction, bool result, [Object? error]) {
-    if (error != null) {
-      _realmLib.realm_register_user_code_callback_error(error.toPersistentHandle());
-    }
-    _realmLib.realm_dart_invoke_navite_with_result(result, nativeFunction);
-  }
-
-  static Future<void> _continueWhenComplete(FutureOr<void> Function() callback, Pointer<Void> nativeFunction) async {
-    try {
-      await callback();
-      _invokeNativeFunction(nativeFunction, true);
-    } catch (error) {
-      _invokeNativeFunction(nativeFunction, false, error);
-    }
+    _continueWhenComplete(callback, unlockCallbackFunc);
   }
 
   static void _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle, Pointer<Void> unlockCallbackFunc) {
@@ -543,6 +527,22 @@ class _RealmCore {
     }
     else {
       _invokeNativeFunction(unlockCallbackFunc, true);
+    }
+  }
+
+  static void _invokeNativeFunction(Pointer<Void> nativeFunction, bool result, [Object? error]) {
+    if (error != null) {
+      _realmLib.realm_register_user_code_callback_error(error.toPersistentHandle());
+    }
+    _realmLib.realm_dart_invoke_navite_with_result(result, nativeFunction);
+  }
+
+  static Future<void> _continueWhenComplete(FutureOr<void> Function() callback, Pointer<Void> nativeFunction) async {
+    try {
+      await callback();
+      _invokeNativeFunction(nativeFunction, true);
+    } catch (error) {
+      _invokeNativeFunction(nativeFunction, false, error);
     }
   }
 
