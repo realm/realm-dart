@@ -44,12 +44,12 @@ class RealmFieldInfo {
 
   bool get isFinal => fieldElement.isFinal;
   bool get isRealmCollection => type.isRealmCollection;
-  bool get isRealmBacklink => type.isRealmBacklink;
   bool get isLate => fieldElement.isLate;
   bool get hasDefaultValue => fieldElement.hasInitializer;
   bool get optional => type.basicType.isNullable;
   bool get isRequired => !(hasDefaultValue || optional);
-  bool get isComputed => realmType == RealmPropertyType.linkingObjects; // only computed, so far
+  bool get isRealmBacklink => realmType == RealmPropertyType.linkingObjects;
+  bool get isComputed => isRealmBacklink; // only computed, so far
 
   String get name => fieldElement.name;
   String get realmName => mapTo ?? name;

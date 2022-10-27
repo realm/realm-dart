@@ -32,7 +32,8 @@
     "unmanaged",
     "upsert",
     "usercode",
-    "userdata"
+    "userdata",
+    "writeln"
   ],
   "cmake.statusbar.advanced": {
     "ctest": {

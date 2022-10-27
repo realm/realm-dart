@@ -51,9 +51,7 @@ extension on Iterable<FieldElement> {
         element: field,
         primarySpan: field.span!,
         primaryLabel: 'second primary key',
-        secondarySpans: {
-          ...{for (final p in primaryKeys..removeAt(1)) p.fieldElement.span!: ''},
-        },
+        secondarySpans: {for (final p in primaryKeys..removeAt(1)) p.fieldElement.span!: ''},
       );
     }
   }
@@ -87,8 +85,13 @@ extension ClassElementEx on ClassElement {
       }
 
       if (!modelName.endsWith(suffix)) {
-        throw RealmInvalidGenerationSourceError('Missing suffix on realm model name',
-            element: this, primarySpan: span, primaryLabel: 'missing suffix', todo: 'Align class name to have suffix $suffix,');
+        throw RealmInvalidGenerationSourceError(
+          'Missing suffix on realm model name',
+          element: this,
+          primarySpan: span,
+          primaryLabel: 'missing suffix',
+          todo: 'Align class name to have suffix $suffix,',
+        );
       }
 
       // Remove suffix and prefix, if any.
@@ -170,7 +173,7 @@ extension ClassElementEx on ClassElement {
     } catch (e, s) {
       // Fallback. Not perfect, but better than just forwarding original error.
       throw RealmInvalidGenerationSourceError(
-        '$e \n $s',
+        '$e\n$s',
         todo: //
             'Unexpected error. Please open an issue on: '
             'https://github.com/realm/realm-dart',

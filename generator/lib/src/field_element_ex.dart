@@ -22,6 +22,7 @@ import 'package:build/build.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:realm_generator/src/expanded_context_span.dart';
 import 'package:realm_generator/src/pseudo_type.dart';
+import 'package:realm_generator/src/utils.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:source_span/source_span.dart';
 
@@ -33,7 +34,6 @@ import 'format_spans.dart';
 import 'realm_field_info.dart';
 import 'session.dart';
 import 'type_checkers.dart';
-import 'utils.dart';
 
 extension FieldElementEx on FieldElement {
   FieldDeclaration get declarationAstNode => getDeclarationFromElement(this)!.node.parent!.parent as FieldDeclaration;
@@ -48,7 +48,7 @@ extension FieldElementEx on FieldElement {
 
   TypeAnnotation? get typeAnnotation => declarationAstNode.fields.type;
 
-  Expression? get initializerExpression => declarationAstNode.fields.variables.singleWhere((v) => v.name.name == name).initializer;
+  Expression? get initializerExpression => declarationAstNode.fields.variables.singleWhere((v) => v.name2.toString() == name).initializer;
 
   FileSpan? typeSpan(SourceFile file) => ExpandedContextSpan(
         ExpandedContextSpan(
@@ -115,7 +115,7 @@ extension FieldElementEx on FieldElement {
         //
         // However, this may change in the future. Either as the dart language team change this
         // blemish. Or perhaps we can avoid the late modifier, once static meta programming lands
-        // in dart. Therefor we keep the code outcommented for later.
+        // in dart. Therefor we keep the code out-commented for later.
         /*
         if (!isFinal) {
           throw RealmInvalidGenerationSourceError(
@@ -150,11 +150,11 @@ extension FieldElementEx on FieldElement {
       }
 
       // Validate field type
-      final modelSpan = enclosingElement.span!;
+      final modelSpan = enclosingElement3.span!;
       final file = modelSpan.file;
       final realmType = type.realmType;
       if (realmType == null) {
-        final notARealmTypeSpan = type.element?.span;
+        final notARealmTypeSpan = type.element2?.span;
         String todo;
         if (notARealmTypeSpan != null) {
           todo = //
@@ -172,15 +172,55 @@ extension FieldElementEx on FieldElement {
           primarySpan: typeSpan(file),
           primaryLabel: '$modelTypeName is not a realm model type',
           secondarySpans: {
-            modelSpan: "in realm model '${enclosingElement.displayName}'",
+            modelSpan: "in realm model '${enclosingElement3.displayName}'",
             // may go both above and below, or stem from another file
             if (notARealmTypeSpan != null) notARealmTypeSpan: ''
           },
           todo: todo,
         );
       } else {
+        // Validate back-links
+        if (backlink != null) {
+          if (!type.isDartCoreIterable || !(type as ParameterizedType).typeArguments.first.isRealmModel) {
+            throw RealmInvalidGenerationSourceError(
+              'Backlink must be an iterable of realm objects',
+              primarySpan: typeSpan(file),
+              primaryLabel: '$modelTypeName is not an iterable of realm objects',
+              todo: '',
+              element: this,
+            );
+          }
+
+          final sourceFieldName = backlink.value.getField('symbol')?.toSymbolValue();
+          final sourceType = (type as ParameterizedType).typeArguments.first;
+          final sourceField = (sourceType.element2 as ClassElement?)?.fields.where((f) => f.name == sourceFieldName).singleOrNull;
+
+          if (sourceField == null) {
+            throw RealmInvalidGenerationSourceError(
+              'Backlink must point to a valid field',
+              primarySpan: typeSpan(file),
+              primaryLabel: '$sourceType does not have a field named $sourceFieldName',
+              todo: '',
+              element: this,
+            );
+          }
+
+          final thisType = (enclosingElement3 as ClassElement).thisType;
+          final linkType = thisType.asNullable;
+          final listOf = session.typeProvider.listType(thisType);
+          if (sourceField.type != linkType && sourceField.type != listOf) {
+            throw RealmInvalidGenerationSourceError(
+              'Incompatible back-link type',
+              primarySpan: typeSpan(file),
+              primaryLabel: "$sourceType.$sourceFieldName is not a '$linkType' or '$listOf'",
+              todo: '',
+              element: this,
+            );
+          }
+        }
+
         // Validate collections and back-links
-        if (type.isRealmCollection || type.isRealmBacklink) {
+        if (type.isRealmCollection || backlink != null) {
           final typeDescription = type.isRealmCollection ? 'collections' : 'back-links';
           if (type.isNullable) {
             throw RealmInvalidGenerationSourceError(

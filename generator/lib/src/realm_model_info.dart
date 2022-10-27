@@ -34,7 +34,7 @@ class RealmModelInfo {
   Iterable<String> toCode() sync* {
     yield 'class $name extends $modelName with RealmEntity, RealmObjectBase, ${baseType.className} {';
     {
-      final allSettable = fields.where((f) => !f.type.isRealmCollection && !f.type.isRealmBacklink).toList();
+      final allSettable = fields.where((f) => !f.type.isRealmCollection && !f.isRealmBacklink).toList();
 
       final hasDefaults = allSettable.where((f) => f.hasDefaultValue).toList();
       if (hasDefaults.isNotEmpty) {

@@ -40,8 +40,8 @@ Future<Map<String, Object>> getInputFileAsset(String inputFilePath) async {
 class LinesEqualsMatcher extends Matcher {
   late final List<String> expectedLines;
 
-  LinesEqualsMatcher(String expexted) {
-    expectedLines = expexted.split("\n");
+  LinesEqualsMatcher(String expected) {
+    expectedLines = expected.split("\n");
   }
 
   @override

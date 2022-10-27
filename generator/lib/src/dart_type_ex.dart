@@ -31,12 +31,12 @@ extension DartTypeEx on DartType {
   bool isExactly<T>() => TypeChecker.fromRuntime(T).isExactlyType(this);
 
   bool get isRealmAny => const TypeChecker.fromRuntime(RealmAny).isAssignableFromType(this);
-  bool get isRealmBacklink => isDartCoreIterable; // && element2 != null ? backlinkChecker.annotationsOfExact(element2!).isNotEmpty : false;
   bool get isRealmCollection => realmCollectionType != RealmCollectionType.none;
-  bool get isRealmModel => element != null ? realmModelChecker.annotationsOfExact(element!).isNotEmpty : false;
+  bool get isRealmModel => element2 != null ? realmModelChecker.annotationsOfExact(element2!).isNotEmpty : false;
 
   bool get isNullable => session.typeSystem.isNullable(this);
   DartType get asNonNullable => session.typeSystem.promoteToNonNull(this);
+  DartType get asNullable => session.typeSystem.leastUpperBound(this, session.typeProvider.nullType);
 
   RealmCollectionType get realmCollectionType {
     if (isDartCoreSet) return RealmCollectionType.set;
@@ -51,7 +51,7 @@ extension DartTypeEx on DartType {
 
   DartType get basicType {
     final self = this;
-    if (self is ParameterizedType && (isRealmCollection || isRealmBacklink)) {
+    if (self is ParameterizedType && (isRealmCollection || isDartCoreIterable)) {
       return self.typeArguments.last;
     }
     return this;
@@ -80,7 +80,7 @@ extension DartTypeEx on DartType {
           }
         }
       }
-    } else if (isRealmBacklink) {
+    } else if (isDartCoreIterable) {
       if (self is ParameterizedType) {
         final mapped = self.typeArguments.last.mappedType;
         if (self != mapped) {
@@ -114,7 +114,7 @@ extension DartTypeEx on DartType {
     if (isDartCoreNum || isDartCoreDouble) return RealmPropertyType.double;
     if (isExactly<Decimal128>()) return RealmPropertyType.decimal128;
     if (isRealmModel) return RealmPropertyType.object;
-    if (isRealmBacklink) return RealmPropertyType.linkingObjects;
+    if (isDartCoreIterable) return RealmPropertyType.linkingObjects;
     if (isExactly<ObjectId>()) return RealmPropertyType.objectid;
     if (isExactly<Uuid>()) return RealmPropertyType.uuid;
 
