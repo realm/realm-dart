@@ -77,12 +77,37 @@ Future<void> main([List<String>? args]) async {
     );
 
     final realm = await Realm.open(config);
+    await realm.syncSession.waitForUpload();
 
     await triggerClientReset(realm);
 
     final error = await resetCompleter.future;
     expect(error.message, contains('Bad client file identifier'));
   });
+
+  baasTest('ManualRecoveryHandler with async callback', (appConfig) async {
+    final app = App(appConfig);
+    final user = await getIntegrationUser(app);
+
+    int timeTakenForManualReset = 0;
+    final config = Configuration.flexibleSync(
+      user,
+      [Task.schema, Schedule.schema],
+      clientResetHandler: ManualRecoveryHandler((syncError) async {
+        final startDateTime = DateTime.now();
+        await Future<void>.delayed(Duration(seconds: 2));
+        final endDateTime = DateTime.now();
+        timeTakenForManualReset = endDateTime.difference(startDateTime).inSeconds;
+      }),
+    );
+
+    final realm = await Realm.open(config);
+    await realm.syncSession.waitForUpload();
+
+    await triggerClientReset(realm);
+
+    expect(timeTakenForManualReset, greaterThanOrEqualTo(2));
+  }, skip: "Enable after async manual reset");
 
   baasTest('Initiate resetRealm on ManualRecoveryHandler callback', (appConfig) async {
     final app = App(appConfig);
@@ -99,6 +124,7 @@ Future<void> main([List<String>? args]) async {
 
     final realm = await Realm.open(config);
     await realm.syncSession.waitForUpload();
+
     final resetRealmFuture = resetCompleter.future.then((ClientResetError clientResetError) {
       realm.close();
       clientResetError.resetRealm(app, config.path);
@@ -124,6 +150,7 @@ Future<void> main([List<String>? args]) async {
     );
 
     final realm = await Realm.open(config);
+    await realm.syncSession.waitForUpload();
 
     final resetRealmFuture = resetCompleter.future.then(
       (ClientResetError clientResetError) => clientResetError.resetRealm(app, config.path),
@@ -153,6 +180,8 @@ Future<void> main([List<String>? args]) async {
           ));
 
       final realm = await Realm.open(config);
+      await realm.syncSession.waitForUpload();
+
       await triggerClientReset(realm);
 
       await expectLater(await onManualResetFallback.future, isA<ClientResetError>());
@@ -176,6 +205,8 @@ Future<void> main([List<String>? args]) async {
           ));
 
       final realm = await Realm.open(config);
+      await realm.syncSession.waitForUpload();
+
       await triggerClientReset(realm);
 
       await expectLater(await onManualResetFallback.future, isA<ClientResetError>());
@@ -200,6 +231,7 @@ Future<void> main([List<String>? args]) async {
           ));
 
       final realm = await Realm.open(config);
+      await realm.syncSession.waitForUpload();
 
       await triggerClientReset(realm);
 
@@ -230,6 +262,8 @@ Future<void> main([List<String>? args]) async {
         ));
 
     final realm = await Realm.open(config);
+    await realm.syncSession.waitForUpload();
+
     await disableAutomaticRecovery();
     await triggerClientReset(realm);
 
@@ -263,6 +297,8 @@ Future<void> main([List<String>? args]) async {
     );
 
     final realm = await Realm.open(config);
+    await realm.syncSession.waitForUpload();
+
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Task>());
     });
@@ -298,8 +334,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfig);
     final user = await getIntegrationUser(app);
     int beforeResetCallbackOccured = 0;
-    int afterDiscardCallbackOccured = 0;
-    final onBeforeCompleter = Completer<void>();
+    int afterResetCallbackOccured = 0;
     final onAfterCompleter = Completer<void>();
 
     final config = Configuration.flexibleSync(
@@ -309,24 +344,27 @@ Future<void> main([List<String>? args]) async {
         beforeResetCallback: (beforeFrozen) async {
           await Future<void>.delayed(Duration(seconds: 1));
           beforeResetCallbackOccured++;
-          onBeforeCompleter.complete();
         },
         afterResetCallback: (beforeFrozen, after) async {
-          afterDiscardCallbackOccured++;
-          await onBeforeCompleter.future;
+          if (beforeResetCallbackOccured == 0) {
+            onAfterCompleter.completeError(Exception("Before reset is still not completed"));
+          }
+          afterResetCallbackOccured++;
           onAfterCompleter.complete();
+        },
+        manualResetFallback: (clientResetError) {
+          onAfterCompleter.completeError(clientResetError);
         },
       ),
     );
 
     final realm = await Realm.open(config);
-
+    await realm.syncSession.waitForUpload();
     await triggerClientReset(realm);
 
-    await onBeforeCompleter.future;
     await onAfterCompleter.future;
+    expect(afterResetCallbackOccured, 1);
     expect(beforeResetCallbackOccured, 1);
-    expect(afterDiscardCallbackOccured, 1);
   });
 }
 
