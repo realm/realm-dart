@@ -507,9 +507,10 @@ class _RealmCore {
     if (error != null) {
       _realmLib.realm_register_user_code_callback_error(error.toPersistentHandle());
     }
+    _realmLib.realm_dart_sync_before_reset_handler_callback_completed(result, unlockFunc);
   }
 
-  static void _awaitToDartComplete(Future<void> Function() callbackToAwait, Pointer<Void> coreUnlockFunc) {
+  static void _completeClientResetCallback(Future<void> Function() callbackToAwait, Pointer<Void> coreUnlockFunc) {
     try {
       callbackToAwait().then((value) {
         _resetCoreLock(coreUnlockFunc, true);
@@ -521,13 +522,13 @@ class _RealmCore {
     }
   }
 
-  static void _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle, Pointer<Void> unlockFunc) {
+  static void _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle, Pointer<Void> coreUnlockFunc) {
     final syncConfig = userdata as FlexibleSyncConfiguration;
     final beforeResetCallback = syncConfig.clientResetHandler.beforeResetCallback;
     if (beforeResetCallback != null) {
       // TODO: maybe we want to read the schema from disk at this point
       final realm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(realmHandle));
-      _awaitToDartComplete(() async => beforeResetCallback(realm), unlockFunc);
+      _completeClientResetCallback(() async => beforeResetCallback(realm), coreUnlockFunc);
     }
   }
 
