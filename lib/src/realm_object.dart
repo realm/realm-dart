@@ -21,10 +21,11 @@ import 'dart:ffi';
 
 import 'package:collection/collection.dart';
 
+import 'configuration.dart';
 import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
-import 'configuration.dart';
+import 'results.dart';
 
 typedef DartDynamic = dynamic;
 
@@ -126,8 +127,9 @@ class RealmPropertyMetadata {
   final RealmPropertyType propertyType;
   final bool isNullable;
   final String? objectType;
+  final String? linkOriginProperty;
   final bool isPrimaryKey;
-  const RealmPropertyMetadata(this.key, this.objectType, this.propertyType, this.isNullable, this.isPrimaryKey,
+  const RealmPropertyMetadata(this.key, this.objectType, this.linkOriginProperty, this.propertyType, this.isNullable, this.isPrimaryKey,
       [this.collectionType = RealmCollectionType.none]);
 }
 
@@ -142,24 +144,31 @@ class RealmCoreAccessor implements RealmAccessor {
     try {
       final propertyMeta = metadata[name];
       if (propertyMeta.collectionType == RealmCollectionType.list) {
-        final handle = realmCore.getListProperty(object, propertyMeta.key);
-        final listMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
+        if (propertyMeta.propertyType == RealmPropertyType.linkingObjects) {
+          final sourceMeta = object.realm.metadata.getByName(propertyMeta.objectType!);
+          final sourceProperty = sourceMeta[propertyMeta.linkOriginProperty!];
+          final handle = realmCore.getBacklinks(object, sourceMeta.classKey, sourceProperty.key);
+          return RealmResultsInternal.create<T>(handle, object.realm, metadata);
+        } else {
+          final handle = realmCore.getListProperty(object, propertyMeta.key);
+          final listMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
 
-        // listMetadata is not null when we have list of RealmObjects. If the API was
-        // called with a generic object arg - get<Object> we construct a list of
-        // RealmObjects since we don't know the type of the object.
-        if (listMetadata != null && _isTypeGenericObject<T>()) {
-          switch (listMetadata.schema.baseType) {
-            case ObjectType.realmObject:
-              return object.realm.createList<RealmObject>(handle, listMetadata);
-            case ObjectType.embeddedObject:
-              return object.realm.createList<EmbeddedObject>(handle, listMetadata);
-            default:
-              throw RealmError('List of ${listMetadata.schema.baseType} is not supported yet');
+          // listMetadata is not null when we have list of RealmObjects. If the API was
+          // called with a generic object arg - get<Object> we construct a list of
+          // RealmObjects since we don't know the type of the object.
+          if (listMetadata != null && _isTypeGenericObject<T>()) {
+            switch (listMetadata.schema.baseType) {
+              case ObjectType.realmObject:
+                return object.realm.createList<RealmObject>(handle, listMetadata);
+              case ObjectType.embeddedObject:
+                return object.realm.createList<EmbeddedObject>(handle, listMetadata);
+              default:
+                throw RealmError('List of ${listMetadata.schema.baseType} is not supported yet');
+            }
           }
-        }
 
-        return object.realm.createList<T>(handle, listMetadata);
+          return object.realm.createList<T>(handle, listMetadata);
+        }
       }
 
       Object? value = realmCore.getProperty(object, propertyMeta.key);
