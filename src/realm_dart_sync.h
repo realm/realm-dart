@@ -19,7 +19,6 @@
 #pragma once
 
 #include <realm.h>
-typedef bool (*realm_dart_sync_before_reset_handler_unlock_func_t)(bool success);
 typedef bool (*realm_sync_before_client_reset_lock_func_t)(realm_userdata_t userdata, realm_t* before_realm, void* unlockFunc);
 
 RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, realm_http_request_t request, void* request_context);

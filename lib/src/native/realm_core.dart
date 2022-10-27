@@ -502,6 +502,13 @@ class _RealmCore {
     syncConfig.syncErrorHandler(syncError);
   }
 
+  static void _resetLock(Pointer<Void> unlockFunc, bool result, [Object? error]) {
+    _realmLib.realm_dart_sync_before_reset_handler_callback_completed(result, unlockFunc);
+    if (error != null) {
+      _realmLib.realm_register_user_code_callback_error(error.toPersistentHandle());
+    }
+  }
+
   static bool _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle, Pointer<Void> unlockFunc) {
     try {
       final syncConfig = userdata as FlexibleSyncConfiguration;
@@ -510,22 +517,19 @@ class _RealmCore {
         // TODO: maybe we want to read the schema from disk at this point
         final realm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(realmHandle));
         if (beforeResetCallback is Future<void>) {
-          (beforeResetCallback(realm) as Future<void>)
-              .then((value) => _realmLib.realm_dart_sync_before_reset_handler_callback_completed(true, unlockFunc))
-              .onError((error, stackTrace) {
-            _realmLib.realm_register_user_code_callback_error(error!.toPersistentHandle());
-            _realmLib.realm_dart_sync_before_reset_handler_callback_completed(false, unlockFunc);
+          (beforeResetCallback(realm) as Future<void>).then((value) {
+            _resetLock(unlockFunc, true);
+          }).onError((error, stackTrace) {
+            _resetLock(unlockFunc, false, error);
           });
         } else {
           beforeResetCallback(realm);
-          _realmLib.realm_dart_sync_before_reset_handler_callback_completed(true, unlockFunc);
+          _resetLock(unlockFunc, true);
         }
       }
-
       return true;
     } catch (e) {
-      _realmLib.realm_register_user_code_callback_error(e.toPersistentHandle());
-      _realmLib.realm_dart_sync_before_reset_handler_callback_completed(false, unlockFunc);
+      _resetLock(unlockFunc, false, e);
       return false;
     }
   }
