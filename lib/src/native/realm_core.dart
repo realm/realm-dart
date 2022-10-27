@@ -502,23 +502,23 @@ class _RealmCore {
     syncConfig.syncErrorHandler(syncError);
   }
 
-  static void _resetCoreLock(Pointer<Void> coreUnlockFunc, bool result, [Object? error]) {
-    _realmLib.realm_dart_sync_before_reset_handler_callback_completed(result, coreUnlockFunc);
+  static void _resetCoreLock(Pointer<Void> unlockCoreFunc, bool result, [Object? error]) {
+    _realmLib.realm_dart_sync_before_reset_handler_callback_completed(result, unlockCoreFunc);
     if (error != null) {
       _realmLib.realm_register_user_code_callback_error(error.toPersistentHandle());
     }
-    _realmLib.realm_dart_sync_before_reset_handler_callback_completed(result, unlockFunc);
+    _realmLib.realm_dart_sync_before_reset_handler_callback_completed(result, unlockCoreFunc);
   }
 
-  static void _completeClientResetCallback(Future<void> Function() callbackToAwait, Pointer<Void> coreUnlockFunc) {
+  static void _completeClientResetCallback(Future<void> Function() callbackToAwait, Pointer<Void> unlockCoreFunc) {
     try {
       callbackToAwait().then((value) {
-        _resetCoreLock(coreUnlockFunc, true);
+        _resetCoreLock(unlockCoreFunc, true);
       }).onError((error, stackTrace) {
-        _resetCoreLock(coreUnlockFunc, false, error);
+        _resetCoreLock(unlockCoreFunc, false, error);
       });
     } catch (error) {
-      _resetCoreLock(coreUnlockFunc, false, error);
+      _resetCoreLock(unlockCoreFunc, false, error);
     }
   }
 
