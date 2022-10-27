@@ -298,6 +298,40 @@ Future<void> main([List<String>? args]) async {
     await waitForCondition(() => notifications.length == 2);
     await subscription.cancel();
   });
+
+  baasTest('clientResetHandler async before callback', (appConfig) async {
+    final app = App(appConfig);
+    final user = await getIntegrationUser(app);
+    int beforeResetCallbackOccured = 0;
+    int afterDiscardCallbackOccured = 0;
+    final onBeforeCompleter = Completer<void>();
+    final onAfterCompleter = Completer<void>();
+
+    final config = Configuration.flexibleSync(
+      user,
+      [Task.schema, Schedule.schema],
+      clientResetHandler: DiscardUnsyncedChangesHandler(
+        beforeResetCallback: (beforeFrozen) async {
+          await Future<void>.delayed(Duration(seconds: 1));
+          beforeResetCallbackOccured++;
+          onBeforeCompleter.complete();
+        },
+        afterDiscardCallback: (beforeFrozen, after) {
+          afterDiscardCallbackOccured++;
+          onAfterCompleter.complete();
+        },
+      ),
+    );
+
+    final realm = await Realm.open(config);
+
+    await triggerClientReset(realm);
+
+    await onBeforeCompleter.future;
+    await onAfterCompleter.future;
+    expect(beforeResetCallbackOccured, 1);
+    expect(afterDiscardCallbackOccured, 1);
+  });
 }
 
 class Creator {

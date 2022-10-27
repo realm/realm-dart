@@ -502,35 +502,32 @@ class _RealmCore {
     syncConfig.syncErrorHandler(syncError);
   }
 
-  static void _resetLock(Pointer<Void> unlockFunc, bool result, [Object? error]) {
-    _realmLib.realm_dart_sync_before_reset_handler_callback_completed(result, unlockFunc);
+  static void _resetCoreLock(Pointer<Void> coreUnlockFunc, bool result, [Object? error]) {
+    _realmLib.realm_dart_sync_before_reset_handler_callback_completed(result, coreUnlockFunc);
     if (error != null) {
       _realmLib.realm_register_user_code_callback_error(error.toPersistentHandle());
     }
   }
 
-  static void _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle, Pointer<Void> unlockFunc) {
+  static void _awaitToDartComplete(Future<void> Function() callbackToAwait, Pointer<Void> coreUnlockFunc) {
     try {
-      final syncConfig = userdata as FlexibleSyncConfiguration;
-      final beforeResetCallback = syncConfig.clientResetHandler.beforeResetCallback;
-      if (beforeResetCallback != null) {
-        // TODO: maybe we want to read the schema from disk at this point
-        final realm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(realmHandle));
-        if (beforeResetCallback is Future<void>) {
-          (beforeResetCallback(realm) as Future<void>).then((value) {
-            _resetLock(unlockFunc, true);
-          }).onError((error, stackTrace) {
-            _resetLock(unlockFunc, false, error);
-          });
+      callbackToAwait().then((value) {
+        _resetCoreLock(coreUnlockFunc, true);
+      }).onError((error, stackTrace) {
+        _resetCoreLock(coreUnlockFunc, false, error);
+      });
+    } catch (error) {
+      _resetCoreLock(coreUnlockFunc, false, error);
+    }
+  }
 
-        } else {
-
-          beforeResetCallback(realm);
-          _resetLock(unlockFunc, true);
-        }
-      }
-    } catch (e) {
-      _resetLock(unlockFunc, false, e);
+  static void _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle, Pointer<Void> unlockFunc) {
+    final syncConfig = userdata as FlexibleSyncConfiguration;
+    final beforeResetCallback = syncConfig.clientResetHandler.beforeResetCallback;
+    if (beforeResetCallback != null) {
+      // TODO: maybe we want to read the schema from disk at this point
+      final realm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(realmHandle));
+      _awaitToDartComplete(() async => beforeResetCallback(realm), unlockFunc);
     }
   }
 
