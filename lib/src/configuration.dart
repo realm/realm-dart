@@ -47,13 +47,13 @@ typedef ShouldCompactCallback = bool Function(int totalSize, int usedSize);
 /// The Realm instance passed in the callback already has a write transaction opened, so you can
 /// add some initial data that your app needs. The function will not execute for existing
 /// Realms, even if all objects in the Realm are deleted.
-typedef InitialDataCallback = FutureOr<void> Function(Realm realm);
+typedef InitialDataCallback = void Function(Realm realm);
 
 /// The signature of a callback that will be executed when the schema of the Realm changes.
 ///
 /// The `migration` argument contains references to the Realm just before and just after the migration.
 /// The `oldSchemaVersion` argument indicates the version from which the Realm migrates while
-typedef MigrationCallback = FutureOr<void> Function(Migration migration, int oldSchemaVersion);
+typedef MigrationCallback = void Function(Migration migration, int oldSchemaVersion);
 
 /// The signature of a callback that will be triggered when a Client Reset error happens in a synchronized Realm.
 ///
@@ -66,7 +66,7 @@ typedef ClientResetCallback = FutureOr<void> Function(ClientResetError clientRes
 ///
 /// The lifetime of the Realm is tied to the callback, so don't store references to the Realm or objects
 /// obtained from it for use outside of the callback.
-typedef BeforeResetCallback = void Function(Realm beforeFrozen);
+typedef BeforeResetCallback = FutureOr<void> Function(Realm beforeFrozen);
 
 /// Callback that indicates a Client Reset has just happened.
 ///
@@ -75,7 +75,7 @@ typedef BeforeResetCallback = void Function(Realm beforeFrozen);
 ///
 /// The lifetime of the Realm instances supplied is tied to the callback, so don't store references to
 /// the Realm or objects obtained from it for use outside of the callback.
-typedef AfterResetCallback = void Function(Realm beforeFrozen, Realm after);
+typedef AfterResetCallback = FutureOr<void> Function(Realm beforeFrozen, Realm after);
 
 /// Configuration used to create a [Realm] instance
 /// {@category Configuration}
