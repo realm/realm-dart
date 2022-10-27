@@ -154,8 +154,6 @@ Future<void> main([List<String>? args]) async {
           ));
 
       final realm = await Realm.open(config);
-      await realm.syncSession.waitForUpload();
-
       await triggerClientReset(realm);
 
       await expectLater(await onManualResetFallback.future, isA<ClientResetError>());
@@ -179,8 +177,6 @@ Future<void> main([List<String>? args]) async {
           ));
 
       final realm = await Realm.open(config);
-      await realm.syncSession.waitForUpload();
-
       await triggerClientReset(realm);
 
       await expectLater(await onManualResetFallback.future, isA<ClientResetError>());
@@ -205,7 +201,6 @@ Future<void> main([List<String>? args]) async {
           ));
 
       final realm = await Realm.open(config);
-      await realm.syncSession.waitForUpload();
 
       await triggerClientReset(realm);
 
@@ -236,8 +231,6 @@ Future<void> main([List<String>? args]) async {
         ));
 
     final realm = await Realm.open(config);
-    await realm.syncSession.waitForUpload();
-
     await disableAutomaticRecovery();
     await triggerClientReset(realm);
 
@@ -263,7 +256,7 @@ Future<void> main([List<String>? args]) async {
           beforeResetCallbackOccured++;
           onBeforeCompleter.complete();
         },
-        afterDiscardCallback: (beforeFrozen, after) {
+        afterResetCallback: (beforeFrozen, after) {
           afterDiscardCallbackOccured++;
           onAfterCompleter.complete();
         },
@@ -316,8 +309,9 @@ Future<void> main([List<String>? args]) async {
           beforeResetCallbackOccured++;
           onBeforeCompleter.complete();
         },
-        afterDiscardCallback: (beforeFrozen, after) {
+        afterResetCallback: (beforeFrozen, after) async {
           afterDiscardCallbackOccured++;
+          await onBeforeCompleter.future;
           onAfterCompleter.complete();
         },
       ),
@@ -353,7 +347,7 @@ class Creator {
             ClientResetCallback? manualResetFallback}) =>
         RecoverUnsyncedChangesHandler(
           beforeResetCallback: beforeResetCallback,
-          afterRecoveryCallback: afterRecoveryCallback,
+          afterResetCallback: afterRecoveryCallback,
           manualResetFallback: manualResetFallback,
         ),
     DiscardUnsyncedChangesHandler: (
@@ -363,7 +357,7 @@ class Creator {
             ClientResetCallback? manualResetFallback}) =>
         DiscardUnsyncedChangesHandler(
           beforeResetCallback: beforeResetCallback,
-          afterDiscardCallback: afterDiscardCallback,
+          afterResetCallback: afterDiscardCallback,
           manualResetFallback: manualResetFallback,
         ),
   };

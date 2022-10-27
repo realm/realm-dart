@@ -231,7 +231,8 @@ class _RealmCore {
                 beforeResetUserdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
 
             final afterResetCallback =
-                Pointer.fromFunction<Bool Function(Handle, Pointer<shared_realm>, Pointer<realm_thread_safe_reference>, Bool)>(_syncAfterResetCallback, false);
+                Pointer.fromFunction<Void Function(Handle, Pointer<shared_realm>, Pointer<realm_thread_safe_reference>, Bool, Pointer<Void>)>(
+                    _syncAfterResetCallback);
             final afterResetUserdata = _realmLib.realm_dart_userdata_async_new(config, afterResetCallback.cast(), scheduler.handle._pointer);
 
             _realmLib.realm_sync_config_set_after_client_reset_handler(syncConfigPtr, _realmLib.addresses.realm_dart_sync_after_reset_handler_callback,
@@ -502,53 +503,46 @@ class _RealmCore {
     syncConfig.syncErrorHandler(syncError);
   }
 
-  static void _resetCoreLock(Pointer<Void> unlockCoreFunc, bool result, [Object? error]) {
-    _realmLib.realm_dart_sync_before_reset_handler_callback_completed(result, unlockCoreFunc);
+  static void _invokeNativeFunction(Pointer<Void> nativeFunction, bool result, [Object? error]) {
     if (error != null) {
       _realmLib.realm_register_user_code_callback_error(error.toPersistentHandle());
     }
-    _realmLib.realm_dart_sync_before_reset_handler_callback_completed(result, unlockCoreFunc);
+    _realmLib.realm_dart_invoke_navite_with_result(result, nativeFunction);
   }
 
-  static void _completeClientResetCallback(Future<void> Function() callbackToAwait, Pointer<Void> unlockCoreFunc) {
+  static Future<void> _continueWhenComplete(FutureOr<void> Function() callback, Pointer<Void> nativeFunction) async {
     try {
-      callbackToAwait().then((value) {
-        _resetCoreLock(unlockCoreFunc, true);
-      }).onError((error, stackTrace) {
-        _resetCoreLock(unlockCoreFunc, false, error);
-      });
+      await callback();
+      _invokeNativeFunction(nativeFunction, true);
     } catch (error) {
-      _resetCoreLock(unlockCoreFunc, false, error);
+      _invokeNativeFunction(nativeFunction, false, error);
     }
   }
 
-  static void _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle, Pointer<Void> coreUnlockFunc) {
+  static void _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle, Pointer<Void> unlockCallbackFunc) {
     final syncConfig = userdata as FlexibleSyncConfiguration;
     final beforeResetCallback = syncConfig.clientResetHandler.beforeResetCallback;
     if (beforeResetCallback != null) {
       // TODO: maybe we want to read the schema from disk at this point
       final realm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(realmHandle));
-      _completeClientResetCallback(() async => beforeResetCallback(realm), coreUnlockFunc);
+      _continueWhenComplete(() => beforeResetCallback(realm), unlockCallbackFunc);
+    } else {
+      _invokeNativeFunction(unlockCallbackFunc, true);
     }
   }
 
-  static bool _syncAfterResetCallback(
-      Object userdata, Pointer<shared_realm> beforeHandle, Pointer<realm_thread_safe_reference> afterReference, bool didRecover) {
-    try {
-      final syncConfig = userdata as FlexibleSyncConfiguration;
-      final afterResetCallback = didRecover ? syncConfig.clientResetHandler.afterRecoveryCallback : syncConfig.clientResetHandler.afterDiscardCallback;
-      if (afterResetCallback != null) {
-        final beforeRealm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(beforeHandle));
-        final afterRealm =
-            RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(_realmLib.realm_from_thread_safe_reference(afterReference, scheduler.handle._pointer)));
-
-        afterResetCallback(beforeRealm, afterRealm);
-      }
-
-      return true;
-    } catch (e) {
-      _realmLib.realm_register_user_code_callback_error(e.toPersistentHandle());
-      return false;
+  static void _syncAfterResetCallback(Object userdata, Pointer<shared_realm> beforeHandle, Pointer<realm_thread_safe_reference> afterReference, bool didRecover,
+      Pointer<Void> unlockCallbackFunc) {
+    final syncConfig = userdata as FlexibleSyncConfiguration;
+    final afterResetCallback = didRecover ? syncConfig.clientResetHandler.afterRecoveryCallback : syncConfig.clientResetHandler.afterDiscardCallback;
+    if (afterResetCallback != null) {
+      final beforeRealm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(beforeHandle));
+      final afterRealm =
+          RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(_realmLib.realm_from_thread_safe_reference(afterReference, scheduler.handle._pointer)));
+      _continueWhenComplete(() => afterResetCallback(beforeRealm, afterRealm), unlockCallbackFunc);
+    }
+    else {
+      _invokeNativeFunction(unlockCallbackFunc, true);
     }
   }
 

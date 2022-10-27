@@ -3130,6 +3130,24 @@ class RealmLibrary {
       _realm_dart_initializeDartApiDLPtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
+  void realm_dart_invoke_navite_with_result(
+    bool success,
+    ffi.Pointer<ffi.Void> unlockFunc,
+  ) {
+    return _realm_dart_invoke_navite_with_result(
+      success,
+      unlockFunc,
+    );
+  }
+
+  late final _realm_dart_invoke_navite_with_resultPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Bool,
+              ffi.Pointer<ffi.Void>)>>('realm_dart_invoke_navite_with_result');
+  late final _realm_dart_invoke_navite_with_result =
+      _realm_dart_invoke_navite_with_resultPtr
+          .asFunction<void Function(bool, ffi.Pointer<ffi.Void>)>();
+
   ffi.Pointer<ffi.Char> realm_dart_library_version() {
     return _realm_dart_library_version();
   }
@@ -3245,25 +3263,6 @@ class RealmLibrary {
   late final _realm_dart_sync_before_reset_handler_callback =
       _realm_dart_sync_before_reset_handler_callbackPtr.asFunction<
           bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>();
-
-  void realm_dart_sync_before_reset_handler_callback_completed(
-    bool success,
-    ffi.Pointer<ffi.Void> unlockFunc,
-  ) {
-    return _realm_dart_sync_before_reset_handler_callback_completed(
-      success,
-      unlockFunc,
-    );
-  }
-
-  late final _realm_dart_sync_before_reset_handler_callback_completedPtr =
-      _lookup<
-              ffi.NativeFunction<
-                  ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>>(
-          'realm_dart_sync_before_reset_handler_callback_completed');
-  late final _realm_dart_sync_before_reset_handler_callback_completed =
-      _realm_dart_sync_before_reset_handler_callback_completedPtr
-          .asFunction<void Function(bool, ffi.Pointer<ffi.Void>)>();
 
   void realm_dart_sync_client_log_callback(
     ffi.Pointer<ffi.Void> userdata,
@@ -10007,6 +10006,11 @@ class _SymbolAddresses {
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_initializeDartApiDL =>
           _library._realm_dart_initializeDartApiDLPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>>
+      get realm_dart_invoke_navite_with_result =>
+          _library._realm_dart_invoke_navite_with_resultPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
       get realm_dart_library_version => _library._realm_dart_library_versionPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>
@@ -10036,11 +10040,6 @@ class _SymbolAddresses {
               ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>
       get realm_dart_sync_before_reset_handler_callback =>
           _library._realm_dart_sync_before_reset_handler_callbackPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>>
-      get realm_dart_sync_before_reset_handler_callback_completed =>
-          _library._realm_dart_sync_before_reset_handler_callback_completedPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(

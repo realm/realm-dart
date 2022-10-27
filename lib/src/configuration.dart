@@ -469,9 +469,9 @@ class DiscardUnsyncedChangesHandler extends ClientResetHandler {
   final BeforeResetCallback? beforeResetCallback;
 
   /// The callback that will be executed just after the client reset happens.
-  final AfterResetCallback? afterDiscardCallback;
+  final AfterResetCallback? afterResetCallback;
 
-  const DiscardUnsyncedChangesHandler({this.beforeResetCallback, this.afterDiscardCallback, ClientResetCallback? manualResetFallback})
+  const DiscardUnsyncedChangesHandler({this.beforeResetCallback, this.afterResetCallback, ClientResetCallback? manualResetFallback})
       : super(manualResetFallback);
 
   @override
@@ -481,7 +481,7 @@ class DiscardUnsyncedChangesHandler extends ClientResetHandler {
   BeforeResetCallback? get _beforeResetCallback => beforeResetCallback;
 
   @override
-  AfterResetCallback? get _afterDiscardCallback => afterDiscardCallback;
+  AfterResetCallback? get _afterDiscardCallback => afterResetCallback;
 }
 
 /// A client reset strategy that attempts to automatically recover any unsynchronized changes.
@@ -495,9 +495,9 @@ class RecoverUnsyncedChangesHandler extends ClientResetHandler {
   final BeforeResetCallback? beforeResetCallback;
 
   /// The callback that will be executed just after the client reset happens.
-  final AfterResetCallback? afterRecoveryCallback;
+  final AfterResetCallback? afterResetCallback;
 
-  const RecoverUnsyncedChangesHandler({this.beforeResetCallback, this.afterRecoveryCallback, ClientResetCallback? manualResetFallback})
+  const RecoverUnsyncedChangesHandler({this.beforeResetCallback, this.afterResetCallback, ClientResetCallback? manualResetFallback})
       : super(manualResetFallback);
 
   @override
@@ -507,7 +507,7 @@ class RecoverUnsyncedChangesHandler extends ClientResetHandler {
   BeforeResetCallback? get _beforeResetCallback => beforeResetCallback;
 
   @override
-  AfterResetCallback? get _afterRecoveryCallback => afterRecoveryCallback;
+  AfterResetCallback? get _afterRecoveryCallback => afterResetCallback;
 }
 
 /// A client reset strategy that attempts to automatically recover any unsynchronized changes.
