@@ -20,7 +20,7 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
       });
     }
     RealmObjectBase.set(this, 'name', name);
-    RealmObjectBase.set(this, 'oneTarget', oneTarget);
+    RealmObjectBase.set(this, 'et mål', oneTarget);
     RealmObjectBase.set<RealmList<Target>>(
         this, 'manyTargets', RealmList<Target>(manyTargets));
   }
@@ -34,10 +34,10 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
 
   @override
   Target? get oneTarget =>
-      RealmObjectBase.get<Target>(this, 'oneTarget') as Target?;
+      RealmObjectBase.get<Target>(this, 'et mål') as Target?;
   @override
   set oneTarget(covariant Target? value) =>
-      RealmObjectBase.set(this, 'oneTarget', value);
+      RealmObjectBase.set(this, 'et mål', value);
 
   @override
   RealmList<Target> get manyTargets =>
@@ -59,8 +59,8 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Source._);
     return const SchemaObject(ObjectType.realmObject, Source, 'Source', [
       SchemaProperty('name', RealmPropertyType.string),
-      SchemaProperty('oneTarget', RealmPropertyType.object,
-          optional: true, linkTarget: 'Target'),
+      SchemaProperty('et mål', RealmPropertyType.object,
+          mapTo: 'et mål', optional: true, linkTarget: 'Target'),
       SchemaProperty('manyTargets', RealmPropertyType.object,
           linkTarget: 'Target', collectionType: RealmCollectionType.list),
     ]);
@@ -116,7 +116,7 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
     return const SchemaObject(ObjectType.realmObject, Target, 'Target', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('oneToMany', RealmPropertyType.linkingObjects,
-          linkOriginProperty: 'oneTarget',
+          linkOriginProperty: 'et mål',
           collectionType: RealmCollectionType.list,
           linkTarget: 'Source'),
       SchemaProperty('manyToMany', RealmPropertyType.linkingObjects,

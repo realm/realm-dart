@@ -15,6 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
@@ -149,6 +150,8 @@ extension FieldElementEx on FieldElement {
         );
       }
 
+      String? linkOriginProperty;
+
       // Validate field type
       final modelSpan = enclosingElement3.span!;
       final file = modelSpan.file;
@@ -179,6 +182,28 @@ extension FieldElementEx on FieldElement {
           todo: todo,
         );
       } else {
+        // Validate collections and back-links
+        if (type.isRealmCollection || backlink != null) {
+          final typeDescription = type.isRealmCollection ? 'collections' : 'back-links';
+          if (type.isNullable) {
+            throw RealmInvalidGenerationSourceError(
+              'Realm $typeDescription cannot be nullable',
+              primarySpan: typeSpan(file),
+              primaryLabel: 'is nullable',
+              todo: '',
+              element: this,
+            );
+          }
+          final itemType = type.basicType;
+          if (itemType.isRealmModel && itemType.isNullable) {
+            throw RealmInvalidGenerationSourceError('Nullable realm objects are not allowed in $typeDescription',
+                primarySpan: typeSpan(file),
+                primaryLabel: 'which has a nullable realm object element type',
+                element: this,
+                todo: 'Ensure element type is non-nullable');
+          }
+        }
+
         // Validate back-links
         if (backlink != null) {
           if (!type.isDartCoreIterable || !(type as ParameterizedType).typeArguments.first.isRealmModel) {
@@ -217,32 +242,13 @@ extension FieldElementEx on FieldElement {
               element: this,
             );
           }
-        }
 
-        // Validate collections and back-links
-        if (type.isRealmCollection || backlink != null) {
-          final typeDescription = type.isRealmCollection ? 'collections' : 'back-links';
-          if (type.isNullable) {
-            throw RealmInvalidGenerationSourceError(
-              'Realm $typeDescription cannot be nullable',
-              primarySpan: typeSpan(file),
-              primaryLabel: 'is nullable',
-              todo: '',
-              element: this,
-            );
-          }
-          final itemType = type.basicType;
-          if (itemType.isRealmModel && itemType.isNullable) {
-            throw RealmInvalidGenerationSourceError('Nullable realm objects are not allowed in $typeDescription',
-                primarySpan: typeSpan(file),
-                primaryLabel: 'which has a nullable realm object element type',
-                element: this,
-                todo: 'Ensure element type is non-nullable');
-          }
+          // everything is kosher, just need to account for @MapTo!
+          linkOriginProperty = sourceField.annotationInfoOfExact(mapToChecker)?.value.getField('name')?.toStringValue() ?? sourceField.name;
         }
 
         // Validate object references
-        else if (realmType == RealmPropertyType.object) {
+        else if (realmType == RealmPropertyType.object && !type.isRealmCollection) {
           if (!type.isNullable) {
             throw RealmInvalidGenerationSourceError(
               'Realm object references must be nullable',
@@ -261,14 +267,14 @@ extension FieldElementEx on FieldElement {
         isPrimaryKey: primaryKey != null,
         mapTo: remappedRealmName,
         realmType: realmType,
-        linkOriginProperty: backlink?.value.getField('symbol')?.toSymbolValue(),
+        linkOriginProperty: linkOriginProperty,
       );
     } on InvalidGenerationSourceError catch (_) {
       rethrow;
     } catch (e, s) {
       // Fallback. Not perfect, but better than just forwarding original error.
       throw RealmInvalidGenerationSourceError(
-        '$e \n $s',
+        '$e\n$s',
         todo: //
             'Unexpected error. Please open an issue on: '
             'https://github.com/realm/realm-dart',

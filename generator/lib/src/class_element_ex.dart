@@ -152,7 +152,8 @@ extension ClassElementEx on ClassElement {
 
       final objectType = ObjectType.values[modelInfo.value.getField('type')!.getField('index')!.toIntValue()!];
 
-      final mappedFields = fields.realmInfo.toList();
+      // Computed fields go last. This is important for the schema generation.
+      final mappedFields = fields.realmInfo.toList()..sort((a, b) => a.isComputed ^ b.isComputed ? (a.isComputed ? 1 : -1) : -1);
 
       if (objectType == ObjectType.embeddedObject && mappedFields.any((field) => field.isPrimaryKey)) {
         final pkSpan = fields.firstWhere((field) => field.realmInfo?.isPrimaryKey == true).span;
@@ -163,9 +164,6 @@ extension ClassElementEx on ClassElement {
             primaryLabel: "$realmName is marked as embedded but has primary key defined",
             todo: 'Remove the @PrimaryKey annotation from the field or set the model type to a value different from ObjectType.embeddedObject.');
       }
-
-      // Computed fields go last. This is important for the schema generation.
-      mappedFields.sort((a, b) => a.isComputed ^ b.isComputed ? (a.isComputed ? 1 : -1) : -1);
 
       return RealmModelInfo(name, modelName, realmName, mappedFields, objectType);
     } on InvalidGenerationSourceError catch (_) {
