@@ -126,14 +126,15 @@ Future<void> main([List<String>? args]) async {
 
     final realm = await Realm.open(config);
     await realm.syncSession.waitForUpload();
+
     final resetRealmFuture = resetCompleter.future.then((ClientResetError clientResetError) {
       clientResetError.resetRealm(app, config.path);
-      return clientResetError;
     }).onError((error, stackTrace) => throw error!);
+
     await triggerClientReset(realm);
     await expectLater(() async => await resetRealmFuture, throws<RealmException>("Realm file is in use"));
     expect(File(config.path).existsSync(), isTrue);
-  });
+  }, skip: !Platform.isWindows);
 
   for (Type clientResetHandlerType in [
     RecoverOrDiscardUnsyncedChangesHandler,

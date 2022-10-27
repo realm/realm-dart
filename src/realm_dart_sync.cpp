@@ -146,16 +146,17 @@ RLM_API bool realm_dart_sync_before_reset_handler_callback(realm_userdata_t user
     bool complete = false;
     bool success = false;
 
-    auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    auto unlockFunc = [&complete, &success, &cv](bool result) {
+    realm::util::UniqueFunction<void(bool)> unlockFunc = [&complete, &success, &cv, &m](bool result) {
+        std::unique_lock<std::mutex> lk(m);
         complete = true;
         success = result;
+        lk.unlock();
         cv.notify_one();
     };
-    ud->scheduler->invoke([ud, &realm, &cv, &m, &complete, &success, unlockFunc]() {
-        std::unique_lock<std::mutex> lk(m);
-        (reinterpret_cast<realm_sync_before_client_reset_lock_func_t>(ud->dart_callback))(ud->handle, realm, (void*)&unlockFunc);
-        lk.unlock(); 
+    auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
+
+    ud->scheduler->invoke([ud, &realm, &cv, &m, &complete, &success, &unlockFunc]() {
+        (reinterpret_cast<realm_sync_before_client_reset_lock_func_t>(ud->dart_callback))(ud->handle, realm, &unlockFunc);
     });
     std::unique_lock<std::mutex> lk(m);
     cv.wait(lk, [&complete] {return complete; });
@@ -165,8 +166,8 @@ RLM_API bool realm_dart_sync_before_reset_handler_callback(realm_userdata_t user
 
 RLM_API void realm_dart_sync_before_reset_handler_callback_completed(bool success, void* unlockFunc)
 {
-    typedef void (*unlock_func_t)(bool);
-    reinterpret_cast<unlock_func_t>(unlockFunc)(success);
+    auto castFunc = (reinterpret_cast<realm::util::UniqueFunction<void(bool)>*>(unlockFunc));
+    (*castFunc)(success);
 }
 
 RLM_API bool realm_dart_sync_after_reset_handler_callback(realm_userdata_t userdata, realm_t* before_realm, realm_thread_safe_reference_t* after_realm, bool did_recover)

@@ -224,7 +224,7 @@ class _RealmCore {
               _realmLib.addresses.realm_dart_userdata_async_free);
 
           if (config.clientResetHandler is! ManualRecoveryHandler) {
-            final beforeResetCallback = Pointer.fromFunction<Bool Function(Handle, Pointer<shared_realm>, Pointer<Void>)>(_syncBeforeResetCallback, false);
+            final beforeResetCallback = Pointer.fromFunction<Void Function(Handle, Pointer<shared_realm>, Pointer<Void>)>(_syncBeforeResetCallback);
             final beforeResetUserdata = _realmLib.realm_dart_userdata_async_new(config, beforeResetCallback.cast(), scheduler.handle._pointer);
 
             _realmLib.realm_sync_config_set_before_client_reset_handler(syncConfigPtr, _realmLib.addresses.realm_dart_sync_before_reset_handler_callback,
@@ -509,7 +509,7 @@ class _RealmCore {
     }
   }
 
-  static bool _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle, Pointer<Void> unlockFunc) {
+  static void _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle, Pointer<Void> unlockFunc) {
     try {
       final syncConfig = userdata as FlexibleSyncConfiguration;
       final beforeResetCallback = syncConfig.clientResetHandler.beforeResetCallback;
@@ -522,15 +522,15 @@ class _RealmCore {
           }).onError((error, stackTrace) {
             _resetLock(unlockFunc, false, error);
           });
+
         } else {
+
           beforeResetCallback(realm);
           _resetLock(unlockFunc, true);
         }
       }
-      return true;
     } catch (e) {
       _resetLock(unlockFunc, false, e);
-      return false;
     }
   }
 
