@@ -77,7 +77,6 @@ Future<void> main([List<String>? args]) async {
     );
 
     final realm = await Realm.open(config);
-    await realm.syncSession.waitForUpload();
 
     await triggerClientReset(realm);
 
@@ -125,13 +124,13 @@ Future<void> main([List<String>? args]) async {
     );
 
     final realm = await Realm.open(config);
-    await realm.syncSession.waitForUpload();
 
     final resetRealmFuture = resetCompleter.future.then(
       (ClientResetError clientResetError) => clientResetError.resetRealm(app, config.path),
     );
 
     await triggerClientReset(realm);
+
     await expectLater(resetRealmFuture, throws<RealmException>("Realm file is in use"));
     expect(File(config.path).existsSync(), isTrue);
   }, skip: !Platform.isWindows);
@@ -281,7 +280,8 @@ Future<void> main([List<String>? args]) async {
     });
 
     await waitForCondition(() => notifications.length == 1);
-    await triggerClientReset(realm);
+    await triggerClientReset(realm, restartSession: false);
+    realm.syncSession.resume();
 
     await onBeforeCompleter.future;
     await onAfterCompleter.future;
@@ -289,7 +289,9 @@ Future<void> main([List<String>? args]) async {
     expect(afterDiscardCallbackOccured, 1);
 
     await waitForCondition(() => notifications.length == 2);
+
     await subscription.cancel();
+    expect(notifications.firstWhere((n) => n.deleted.isNotEmpty), isNotNull);
   });
 
   baasTest('clientResetHandler async before callback', (appConfig) async {
