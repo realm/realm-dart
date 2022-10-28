@@ -6,6 +6,7 @@ on:
 jobs:
   build-android-combined:
     name: Combine Android binaries
+    timeout-minutes: 15
     runs-on:  ubuntu-latest
     steps:
       - name: Fetch x86 build

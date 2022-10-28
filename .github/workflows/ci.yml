@@ -17,6 +17,7 @@ jobs:
   deploy-cluster:
     runs-on: ubuntu-latest
     name: Deploy Cluster
+    timeout-minutes: 15
     outputs:
       clusterName: ${{ steps.cluster-name.outputs.clusterName }}
     steps:
@@ -40,6 +41,7 @@ jobs:
   delete-cluster:
     runs-on: ubuntu-latest
     name: Delete Cluster
+    timeout-minutes: 5
     continue-on-error: true
     needs:
       - deploy-cluster
@@ -61,7 +63,6 @@ jobs:
           apiKey: ${{ env.BAAS_API_KEY }}
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
           clusterName: ${{ needs.deploy-cluster.outputs.clusterName }}
-
 
   cleanup-matrix:
     needs:
@@ -267,6 +268,7 @@ jobs:
   flutter-ios:
     runs-on: macos-latest
     name: IOS Flutter Tests
+    timeout-minutes: 45
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
       BAAS_DIFFERENTIATOR: fi${{ github.run_id }}${{ github.run_attempt }}
@@ -325,6 +327,7 @@ jobs:
   flutter-android:
     runs-on: macos-latest
     name: Android Flutter Tests
+    timeout-minutes: 45
     env:
       BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
       BAAS_DIFFERENTIATOR: fa${{ github.run_id }}${{ github.run_attempt }}
@@ -411,6 +414,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}-latest
     name: Generator Tests
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@8230315d06ad95c617244d2f265d237a1682d445
