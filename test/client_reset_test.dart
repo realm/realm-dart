@@ -159,7 +159,7 @@ Future<void> main([List<String>? args]) async {
 
     await triggerClientReset(realm);
 
-    await expectLater(resetRealmFuture, throws<RealmException>("Realm file is in use"));
+    await expectLater(resetRealmFuture, throws<RealmException>("An error occurred while deleting Realm fulle. Check if the file is in use"));
     expect(File(config.path).existsSync(), isTrue);
   }, skip: !Platform.isWindows);
 
