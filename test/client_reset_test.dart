@@ -453,24 +453,69 @@ Future<void> main([List<String>? args]) async {
     expect(afterResetCallbackOccured, 1);
     expect(beforeResetCallbackOccured, 1);
   });
+
+  // baasTest('RecoverUnsyncedChangesHandler with two users', (appConfig) async {
+  //   final app = App(appConfig);
+  //   final user1 = await getAnonymousUser(app);
+  //   final user2 = await getAnonymousUser(app);
+
+  //   final onAfterCompleter = Completer<void>();
+  //   final syncedProduct = Product(ObjectId(), "always synced");
+  //   final maybeProduct = Product(ObjectId(), "maybe synced");
+
+  //   final config = Configuration.flexibleSync(user, [Product.schema],
+  //       clientResetHandler: Creator.create(
+  //         clientResetHandlerType,
+  //         beforeResetCallback: (beforeFrozen) {
+  //           _checkPproducts(beforeFrozen, expectedProducts: [syncedProduct, maybeProduct]);
+  //         },
+  //         afterRecoveryCallback: (beforeFrozen, after) {
+  //           _checkPproducts(beforeFrozen, expectedProducts: [syncedProduct, maybeProduct]);
+  //           _checkPproducts(after, expectedProducts: [syncedProduct, maybeProduct]);
+  //           onAfterCompleter.complete();
+  //         },
+  //         afterDiscardCallback: (beforeFrozen, after) {
+  //           _checkPproducts(beforeFrozen, expectedProducts: [syncedProduct, maybeProduct]);
+  //           _checkPproducts(after, expectedProducts: [syncedProduct], notExpectedProducts: [maybeProduct]);
+  //           onAfterCompleter.complete();
+  //         },
+  //         manualResetFallback: (clientResetError) => onAfterCompleter.completeError(clientResetError),
+  //       ));
+
+  //   final realm = await Realm.open(config);
+  //   realm.subscriptions.update((mutableSubscriptions) {
+  //     mutableSubscriptions.add(realm.all<Product>());
+  //   });
+  //   await realm.subscriptions.waitForSynchronization();
+
+  //   realm.write(() => realm.add(syncedProduct));
+  //   await realm.syncSession.waitForUpload();
+
+  //   realm.syncSession.pause();
+  //   realm.write(() => realm.add(maybeProduct));
+
+  //   await triggerClientReset(realm, restartSession: false);
+  //   realm.syncSession.resume();
+  //   await onAfterCompleter.future;
+  // });
 }
 
 void _checkPproducts(Realm realmToSearch, {required List<Product> expectedProducts, List<Product>? notExpectedProducts}) {
   final products = realmToSearch.all<Product>();
   for (var expected in expectedProducts) {
-    if (!products.any((p) => p.name == expected.name)) {
+    if (!products.any((p) => p.id == expected.id)) {
       throw Exception("Expected Product ${expected.name} does not exist");
     }
   }
   if (notExpectedProducts != null) {
     for (var notExpected in notExpectedProducts) {
-      if (products.any((p) => p.name == notExpected.name)) {
+      if (products.any((p) => p.id == notExpected.id)) {
         throw Exception("Not expected Product ${notExpected.name} exists");
       }
     }
   }
 }
-      
+
 class Creator {
   static final _constructors = {
     RecoverOrDiscardUnsyncedChangesHandler: (
