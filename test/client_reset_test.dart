@@ -239,7 +239,113 @@ Future<void> main([List<String>? args]) async {
       await onBeforeCompleter.future;
       await onAfterCompleter.future;
     });
+
+    if (clientResetHandlerType != RecoverUnsyncedChangesHandler) {
+      baasTest('$clientResetHandlerType notifications for deleted local data', (appConfig) async {
+        final app = App(appConfig);
+        final user = await getIntegrationUser(app);
+        int beforeResetCallbackOccured = 0;
+        int afterDiscardCallbackOccured = 0;
+        int afterRecoveryCallbackOccured = 0;
+        final onAfterCompleter = Completer<void>();
+
+        final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
+            clientResetHandler: Creator.create(
+              clientResetHandlerType,
+              beforeResetCallback: (beforeFrozen) => beforeResetCallbackOccured++,
+              afterRecoveryCallback: (beforeFrozen, after) {
+                afterRecoveryCallbackOccured++;
+              },
+              afterDiscardCallback: (beforeFrozen, after) {
+                afterDiscardCallbackOccured++;
+                onAfterCompleter.complete();
+              },
+              manualResetFallback: (clientResetError) => onAfterCompleter.completeError(clientResetError),
+            ));
+
+        final realm = await Realm.open(config);
+        await realm.syncSession.waitForUpload();
+
+        realm.subscriptions.update((mutableSubscriptions) {
+          mutableSubscriptions.add(realm.all<Task>());
+        });
+        await realm.subscriptions.waitForSynchronization();
+        await realm.syncSession.waitForDownload();
+        final tasksCount = realm.all<Task>().length;
+
+        realm.syncSession.pause();
+
+        realm.write(() => realm.add(Task(ObjectId())));
+        expect(tasksCount, lessThan(realm.all<Task>().length));
+
+        final notifications = <RealmResultsChanges>[];
+        final subscription = realm.all<Task>().changes.listen((event) {
+          notifications.add(event);
+        });
+
+        await waitForCondition(() => notifications.length == 1, timeout: Duration(seconds: 3));
+        if (clientResetHandlerType == RecoverOrDiscardUnsyncedChangesHandler) {
+          await disableAutomaticRecovery();
+        }
+        await triggerClientReset(realm, restartSession: false);
+        realm.syncSession.resume();
+        await onAfterCompleter.future;
+        await waitForCondition(() => notifications.length == 2, timeout: Duration(seconds: 3));
+
+        expect(beforeResetCallbackOccured, 1);
+        expect(afterDiscardCallbackOccured, 1);
+        expect(afterRecoveryCallbackOccured, 0);
+
+        await subscription.cancel();
+        expect(notifications.firstWhere((n) => n.deleted.isNotEmpty), isNotNull);
+      });
+    }
+
+    baasTest('$clientResetHandlerType check data before and after recovery or discard', (appConfig) async {
+      final app = App(appConfig);
+      final user = await getIntegrationUser(app);
+
+      final onAfterCompleter = Completer<void>();
+      final syncedProduct = Product(ObjectId(), "always synced");
+      final maybeProduct = Product(ObjectId(), "maybe synced");
+
+      final config = Configuration.flexibleSync(user, [Product.schema],
+          clientResetHandler: Creator.create(
+            clientResetHandlerType,
+            beforeResetCallback: (beforeFrozen) {
+              _checkPproducts(beforeFrozen, expectedProducts: [syncedProduct, maybeProduct]);
+            },
+            afterRecoveryCallback: (beforeFrozen, after) {
+              _checkPproducts(beforeFrozen, expectedProducts: [syncedProduct, maybeProduct]);
+              _checkPproducts(after, expectedProducts: [syncedProduct, maybeProduct]);
+              onAfterCompleter.complete();
+            },
+            afterDiscardCallback: (beforeFrozen, after) {
+              _checkPproducts(beforeFrozen, expectedProducts: [syncedProduct, maybeProduct]);
+              _checkPproducts(after, expectedProducts: [syncedProduct], notExpectedProducts: [maybeProduct]);
+              onAfterCompleter.complete();
+            },
+            manualResetFallback: (clientResetError) => onAfterCompleter.completeError(clientResetError),
+          ));
+
+      final realm = await Realm.open(config);
+      realm.subscriptions.update((mutableSubscriptions) {
+        mutableSubscriptions.add(realm.all<Product>());
+      });
+      await realm.subscriptions.waitForSynchronization();
+
+      realm.write(() => realm.add(syncedProduct));
+      await realm.syncSession.waitForUpload();
+
+      realm.syncSession.pause();
+      realm.write(() => realm.add(maybeProduct));
+
+      await triggerClientReset(realm, restartSession: false);
+      realm.syncSession.resume();
+      await onAfterCompleter.future;
+    });
   }
+
   baasTest('AfterDiscard callbacks is invoked for RecoverOrDiscardUnsyncedChangesHandler', (appConfig) async {
     final app = App(appConfig);
     final user = await getIntegrationUser(app);
@@ -272,63 +378,6 @@ Future<void> main([List<String>? args]) async {
     await onAfterCompleter.future;
     expect(recovery, isFalse);
     expect(discard, isTrue);
-  });
-
-  baasTest('DiscardUnsyncedChangesHandler notifications', (appConfig) async {
-    final app = App(appConfig);
-    final user = await getIntegrationUser(app);
-    int beforeResetCallbackOccured = 0;
-    int afterDiscardCallbackOccured = 0;
-    final onBeforeCompleter = Completer<void>();
-    final onAfterCompleter = Completer<void>();
-
-    final config = Configuration.flexibleSync(
-      user,
-      [Task.schema, Schedule.schema],
-      clientResetHandler: DiscardUnsyncedChangesHandler(
-        beforeResetCallback: (beforeFrozen) {
-          beforeResetCallbackOccured++;
-          onBeforeCompleter.complete();
-        },
-        afterResetCallback: (beforeFrozen, after) {
-          afterDiscardCallbackOccured++;
-          onAfterCompleter.complete();
-        },
-      ),
-    );
-
-    final realm = await Realm.open(config);
-    await realm.syncSession.waitForUpload();
-
-    realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm.all<Task>());
-    });
-    await realm.subscriptions.waitForSynchronization();
-    await realm.syncSession.waitForDownload();
-    final tasksCount = realm.all<Task>().length;
-    realm.syncSession.pause();
-
-    realm.write(() => realm.add(Task(ObjectId())));
-    expect(tasksCount, lessThan(realm.all<Task>().length));
-
-    final notifications = <RealmResultsChanges>[];
-    final subscription = realm.all<Task>().changes.listen((event) {
-      notifications.add(event);
-    });
-
-    await waitForCondition(() => notifications.length == 1);
-    await triggerClientReset(realm, restartSession: false);
-    realm.syncSession.resume();
-
-    await onBeforeCompleter.future;
-    await onAfterCompleter.future;
-    expect(beforeResetCallbackOccured, 1);
-    expect(afterDiscardCallbackOccured, 1);
-
-    await waitForCondition(() => notifications.length == 2);
-
-    await subscription.cancel();
-    expect(notifications.firstWhere((n) => n.deleted.isNotEmpty), isNotNull);
   });
 
   baasTest('Async BeforeResetCallback', (appConfig) async {
@@ -406,6 +455,22 @@ Future<void> main([List<String>? args]) async {
   });
 }
 
+void _checkPproducts(Realm realmToSearch, {required List<Product> expectedProducts, List<Product>? notExpectedProducts}) {
+  final products = realmToSearch.all<Product>();
+  for (var expected in expectedProducts) {
+    if (!products.any((p) => p.name == expected.name)) {
+      throw Exception("Expected Product ${expected.name} does not exist");
+    }
+  }
+  if (notExpectedProducts != null) {
+    for (var notExpected in notExpectedProducts) {
+      if (products.any((p) => p.name == notExpected.name)) {
+        throw Exception("Not expected Product ${notExpected.name} exists");
+      }
+    }
+  }
+}
+      
 class Creator {
   static final _constructors = {
     RecoverOrDiscardUnsyncedChangesHandler: (

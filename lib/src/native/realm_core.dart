@@ -509,7 +509,7 @@ class _RealmCore {
       final realm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(realmHandle));
       _continueWhenComplete(() => beforeResetCallback(realm), unlockCallbackFunc);
     } else {
-      _invokeNativeFunction(unlockCallbackFunc, true);
+      _invokeNativeFunction(unlockCallbackFunc);
     }
   }
 
@@ -522,25 +522,24 @@ class _RealmCore {
       final afterRealm =
           RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(_realmLib.realm_from_thread_safe_reference(afterReference, scheduler.handle._pointer)));
       _continueWhenComplete(() => afterResetCallback(beforeRealm, afterRealm), unlockCallbackFunc);
-    }
-    else {
-      _invokeNativeFunction(unlockCallbackFunc, true);
+    } else {
+      _invokeNativeFunction(unlockCallbackFunc);
     }
   }
 
-  static void _invokeNativeFunction(Pointer<Void> nativeFunction, bool result, [Object? error]) {
+  static void _invokeNativeFunction(Pointer<Void> nativeFunction, [Object? error]) {
     if (error != null) {
       _realmLib.realm_register_user_code_callback_error(error.toPersistentHandle());
     }
-    _realmLib.realm_dart_invoke_navite_with_result(result, nativeFunction);
+    _realmLib.realm_dart_invoke_navite_with_result(error == null, nativeFunction);
   }
 
   static Future<void> _continueWhenComplete(FutureOr<void> Function() callback, Pointer<Void> nativeFunction) async {
     try {
       await callback();
-      _invokeNativeFunction(nativeFunction, true);
+      _invokeNativeFunction(nativeFunction);
     } catch (error) {
-      _invokeNativeFunction(nativeFunction, false, error);
+      _invokeNativeFunction(nativeFunction, error);
     }
   }
 
