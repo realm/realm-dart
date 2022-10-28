@@ -19,6 +19,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import '../lib/src/configuration.dart' show ClientResetHandlerInternal, ClientResyncModeInternal, BeforeResetCallback, AfterResetCallback, ClientResetCallback;
@@ -308,21 +309,22 @@ Future<void> main([List<String>? args]) async {
       final onAfterCompleter = Completer<void>();
       final syncedProduct = Product(ObjectId(), "always synced");
       final maybeProduct = Product(ObjectId(), "maybe synced");
+      comparer(Product p1, Product p2) => p1.id == p2.id;
 
       final config = Configuration.flexibleSync(user, [Product.schema],
           clientResetHandler: Creator.create(
             clientResetHandlerType,
             beforeResetCallback: (beforeFrozen) {
-              _checkPproducts(beforeFrozen, expectedProducts: [syncedProduct, maybeProduct]);
+              _checkPproducts(beforeFrozen, comparer, expectedList: [syncedProduct, maybeProduct]);
             },
             afterRecoveryCallback: (beforeFrozen, after) {
-              _checkPproducts(beforeFrozen, expectedProducts: [syncedProduct, maybeProduct]);
-              _checkPproducts(after, expectedProducts: [syncedProduct, maybeProduct]);
+              _checkPproducts(beforeFrozen, comparer, expectedList: [syncedProduct, maybeProduct]);
+              _checkPproducts(after, comparer, expectedList: [syncedProduct, maybeProduct]);
               onAfterCompleter.complete();
             },
             afterDiscardCallback: (beforeFrozen, after) {
-              _checkPproducts(beforeFrozen, expectedProducts: [syncedProduct, maybeProduct]);
-              _checkPproducts(after, expectedProducts: [syncedProduct], notExpectedProducts: [maybeProduct]);
+              _checkPproducts(beforeFrozen, comparer, expectedList: [syncedProduct, maybeProduct]);
+              _checkPproducts(after, comparer, expectedList: [syncedProduct], notExpectedList: [maybeProduct]);
               onAfterCompleter.complete();
             },
             manualResetFallback: (clientResetError) => onAfterCompleter.completeError(clientResetError),
@@ -454,19 +456,78 @@ Future<void> main([List<String>? args]) async {
     expect(beforeResetCallbackOccured, 1);
   });
 
+  baasTest('RecoverUnsyncedChangesHandler integration test with two users', (appConfig) async {
+    final app = App(appConfig);
+    final afterRecoverCompleterA = Completer<void>();
+    final afterRecoverCompleterB = Completer<void>();
+
+    final userA = await getAnonymousUser(app);
+    final userB = await getAnonymousUser(app);
+    final task0 = Task(ObjectId());
+    final task1 = Task(ObjectId());
+    final task2 = Task(ObjectId());
+    final task3 = Task(ObjectId());
+
+    final scheduleId = ObjectId();
+    final scheduleA = Schedule(scheduleId, tasks: [task0, task1, task2]);
+
+    final realmA = await _syncReamlForUser(userA, afterRecoverCompleterA, scheduleA);
+    final realmB = await _syncReamlForUser(userB, afterRecoverCompleterB);
+    realmA.syncSession.pause();
+    realmB.syncSession.pause();
+    realmA.write(() => scheduleA.tasks.remove(task2));
+    realmB.write(() {
+      final scheduleB = realmB.find<Schedule>(scheduleId);
+      scheduleB?.tasks.add(task3);
+    });
+    await triggerClientReset(realmA);
+    realmA.syncSession.waitForUpload();
+
+    await triggerClientReset(realmB);
+    realmB.syncSession.waitForUpload();
+
+    await afterRecoverCompleterA.future;
+    await afterRecoverCompleterB.future;
+
+    comparer(Task t1, Task t2) => t1.id == t2.id;
+    _checkPproducts(realmA, comparer, expectedList: [task0, task1, task3]);
+    _checkPproducts(realmB, comparer, expectedList: [task0, task1, task2, task3]);
+  }, skip: "Recover unsuccessfull");
 }
 
-void _checkPproducts(Realm realmToSearch, {required List<Product> expectedProducts, List<Product>? notExpectedProducts}) {
-  final products = realmToSearch.all<Product>();
-  for (var expected in expectedProducts) {
-    if (!products.any((p) => p.id == expected.id)) {
-      throw Exception("Expected Product ${expected.name} does not exist");
+Future<Realm> _syncReamlForUser(User user, Completer<void> afterRecoverCompleter, [Schedule? schedule]) async {
+  final config = Configuration.flexibleSync(user, [Schedule.schema, Task.schema],
+      clientResetHandler: RecoverUnsyncedChangesHandler(
+        afterResetCallback: (beforeFrozen, after) => afterRecoverCompleter.complete(),
+      ));
+
+  final realm = await Realm.open(config);
+  realm.subscriptions.update((mutableSubscriptions) {
+    mutableSubscriptions.add(realm.all<Schedule>());
+    mutableSubscriptions.add(realm.all<Task>());
+  });
+  await realm.subscriptions.waitForSynchronization();
+
+  if (schedule != null) {
+    realm.write(() => realm.add(schedule));
+    await realm.syncSession.waitForUpload();
+  }
+  await realm.syncSession.waitForDownload();
+  return realm;
+}
+
+void _checkPproducts<T extends RealmObject, O extends Object?>(Realm realmToSearch, bool Function(T, O) truePredicate,
+    {required List<O> expectedList, List<O>? notExpectedList}) {
+  final all = realmToSearch.all<T>();
+  for (var expected in expectedList) {
+    if (!all.any((p) => truePredicate(p, expected))) {
+      throw Exception("Expected realm object does not exist");
     }
   }
-  if (notExpectedProducts != null) {
-    for (var notExpected in notExpectedProducts) {
-      if (products.any((p) => p.id == notExpected.id)) {
-        throw Exception("Not expected Product ${notExpected.name} exists");
+  if (notExpectedList != null) {
+    for (var notExpected in notExpectedList) {
+      if (all.any((p) => truePredicate(p, notExpected))) {
+        throw Exception("Not expected realm object exists");
       }
     }
   }
