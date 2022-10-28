@@ -218,7 +218,7 @@ class _RealmCore {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
           _realmLib.realm_sync_config_set_resync_mode(syncConfigPtr, config.clientResetHandler.clientResyncMode.index);
           final errorHandlerCallback =
-              Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_session_t>, realm_sync_error_t, Pointer<Void>)>(_syncErrorHandlerCallback);
+              Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_session_t>, realm_sync_error_t)>(_syncErrorHandlerCallback);
           final errorHandlerUserdata = _realmLib.realm_dart_userdata_async_new(config, errorHandlerCallback.cast(), scheduler.handle._pointer);
           _realmLib.realm_sync_config_set_error_handler(syncConfigPtr, _realmLib.addresses.realm_dart_sync_error_handler_callback, errorHandlerUserdata.cast(),
               _realmLib.addresses.realm_dart_userdata_async_free);
@@ -490,22 +490,14 @@ class _RealmCore {
     return false;
   }
 
-  static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error, Pointer<Void> unlockCallbackFunc) {
+  static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error) {
     final syncConfig = userdata as FlexibleSyncConfiguration;
     final syncError = error.toSyncError();
 
-    FutureOr<void> Function()? callback;
     if (syncError is ClientResetError) {
-      if (syncConfig.clientResetHandler.onManualReset != null) {
-        callback = () => syncConfig.clientResetHandler.onManualReset?.call(syncError);
-      }
+      syncConfig.clientResetHandler.onManualReset?.call(syncError);
     } else {
-      callback = () => syncConfig.syncErrorHandler(syncError);
-    }
-    if (callback != null) {
-      _continueWhenComplete(callback, unlockCallbackFunc);
-    } else {
-      _invokeNativeFunction(unlockCallbackFunc, true);
+      syncConfig.syncErrorHandler(syncError);
     }
   }
 
@@ -2224,7 +2216,7 @@ class _RealmCore {
     return using((arena) {
       bool result = false;
       _realmLib.invokeGetBool(() => result = _realmLib.realm_sync_immediately_run_file_actions(app.handle._pointer, realmPath.toCharPtr(arena)),
-          "Realm file is in use: '$realmPath'");
+          "An error occurred while deleting Realm fulle. Check if the file is in use: '$realmPath'");
       return result;
     });
   }

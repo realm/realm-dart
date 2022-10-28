@@ -93,7 +93,6 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
         std::vector<std::pair<std::string, std::string>> user_info_values;
         std::vector<realm_sync_error_user_info_t> user_info;
     } buf;
-
     buf.message = error.error_code.message;
     buf.detailed_message = error.detailed_message;
     buf.user_info_values.reserve(error.user_info_length);
@@ -104,17 +103,13 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
     }
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    realm::util::UniqueFunction<void(realm::util::UniqueFunction<void(bool)>*)> userCallback =
-        [&ud, &session, &error, &buf] (realm::util::UniqueFunction<void(bool)>* unlockFunc){
-            ud->scheduler->invoke([ud, session = *session, error = std::move(error), buf = std::move(buf), unlockFunc]() mutable {
-                //we moved buf so we need to update the error pointers here.
-                error.error_code.message = buf.message.c_str();
-                error.detailed_message = buf.detailed_message.c_str();
-                error.user_info_map = buf.user_info.data();
-                (reinterpret_cast<realm_sync_error_handler_begin_func_t>(ud->dart_callback))(ud->handle, const_cast<realm_sync_session_t*>(&session), error, unlockFunc);
-            });
-    };
-    WaitingCallback::wait_dart_before_continue(&userCallback);
+    ud->scheduler->invoke([ud, session = *session, error = std::move(error), buf = std::move(buf)]() mutable {
+        //we moved buf so we need to update the error pointers here. 
+        error.error_code.message = buf.message.c_str();
+        error.detailed_message = buf.detailed_message.c_str();
+        error.user_info_map = buf.user_info.data();
+        (reinterpret_cast<realm_sync_error_handler_func_t>(ud->dart_callback))(ud->handle, const_cast<realm_sync_session_t*>(&session), error);
+    });
 }
 
 RLM_API void realm_dart_sync_wait_for_completion_callback(realm_userdata_t userdata, realm_sync_error_code_t* error)

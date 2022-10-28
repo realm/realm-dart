@@ -23,8 +23,6 @@ typedef void (*realm_sync_before_client_reset_begin_func_t)(realm_userdata_t use
 
 typedef void (*realm_sync_after_client_reset_begin_func_t)(realm_userdata_t userdata, realm_t* before_realm, realm_thread_safe_reference_t* after_realm, bool did_recover, void* unlockFunc);
 
-typedef void (*realm_sync_error_handler_begin_func_t)(realm_userdata_t userdata, realm_sync_session_t*, const realm_sync_error_t, void* unlockFunc);
-
 RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, realm_http_request_t request, void* request_context);
 
 RLM_API void realm_dart_sync_client_log_callback(realm_userdata_t userdata, realm_log_level_e level, const char* message);
