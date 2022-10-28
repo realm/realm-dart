@@ -5,6 +5,8 @@ on:
 
 jobs:
   changelog:
+    name: Check Changelog
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

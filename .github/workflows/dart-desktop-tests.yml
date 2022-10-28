@@ -31,6 +31,7 @@ jobs:
   dart-tests:
     runs-on: ${{ inputs.os == 'linux' && 'ubuntu' || inputs.os }}-${{ inputs.architecture || 'latest' }}
     name: Dart tests on ${{inputs.os }} ${{ inputs.architecture }}
+    timeout-minutes: 45
     env:
       BAAS_CLUSTER: ${{ inputs.cluster }}
       BAAS_DIFFERENTIATOR: ${{ inputs.app }}${{ github.run_id }}${{ github.run_attempt }}
