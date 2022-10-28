@@ -149,26 +149,24 @@ class RealmCoreAccessor implements RealmAccessor {
           final sourceProperty = sourceMeta[propertyMeta.linkOriginProperty!];
           final handle = realmCore.getBacklinks(object, sourceMeta.classKey, sourceProperty.key);
           return RealmResultsInternal.create<T>(handle, object.realm, metadata);
-        } else {
-          final handle = realmCore.getListProperty(object, propertyMeta.key);
-          final listMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
-
-          // listMetadata is not null when we have list of RealmObjects. If the API was
-          // called with a generic object arg - get<Object> we construct a list of
-          // RealmObjects since we don't know the type of the object.
-          if (listMetadata != null && _isTypeGenericObject<T>()) {
-            switch (listMetadata.schema.baseType) {
-              case ObjectType.realmObject:
-                return object.realm.createList<RealmObject>(handle, listMetadata);
-              case ObjectType.embeddedObject:
-                return object.realm.createList<EmbeddedObject>(handle, listMetadata);
-              default:
-                throw RealmError('List of ${listMetadata.schema.baseType} is not supported yet');
-            }
-          }
-
-          return object.realm.createList<T>(handle, listMetadata);
         }
+        final handle = realmCore.getListProperty(object, propertyMeta.key);
+        final listMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
+
+        // listMetadata is not null when we have list of RealmObjects. If the API was
+        // called with a generic object arg - get<Object> we construct a list of
+        // RealmObjects since we don't know the type of the object.
+        if (listMetadata != null && _isTypeGenericObject<T>()) {
+          switch (listMetadata.schema.baseType) {
+            case ObjectType.realmObject:
+              return object.realm.createList<RealmObject>(handle, listMetadata);
+            case ObjectType.embeddedObject:
+              return object.realm.createList<EmbeddedObject>(handle, listMetadata);
+            default:
+              throw RealmError('List of ${listMetadata.schema.baseType} is not supported yet');
+          }
+        }
+        return object.realm.createList<T>(handle, listMetadata);
       }
 
       Object? value = realmCore.getProperty(object, propertyMeta.key);

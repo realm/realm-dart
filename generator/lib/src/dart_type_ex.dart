@@ -61,11 +61,11 @@ extension DartTypeEx on DartType {
 
   DartType get mappedType {
     final self = this;
-    final provider = session.typeProvider;
     if (isRealmCollection) {
       if (self is ParameterizedType) {
         final mapped = self.typeArguments.last.mappedType;
         if (self != mapped) {
+          final provider = session.typeProvider;
           if (self.isDartCoreList) {
             final mappedList = provider.listType(mapped);
             return PseudoType('Realm${mappedList.getDisplayString(withNullability: true)}', nullabilitySuffix: mappedList.nullabilitySuffix);

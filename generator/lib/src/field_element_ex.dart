@@ -116,7 +116,7 @@ extension FieldElementEx on FieldElement {
         //
         // However, this may change in the future. Either as the dart language team change this
         // blemish. Or perhaps we can avoid the late modifier, once static meta programming lands
-        // in dart. Therefor we keep the code out-commented for later.
+        // in dart. Therefore we keep the code out-commented for later.
         /*
         if (!isFinal) {
           throw RealmInvalidGenerationSourceError(
@@ -182,9 +182,9 @@ extension FieldElementEx on FieldElement {
           todo: todo,
         );
       } else {
-        // Validate collections and back-links
+        // Validate collections and backlinks
         if (type.isRealmCollection || backlink != null) {
-          final typeDescription = type.isRealmCollection ? 'collections' : 'back-links';
+          final typeDescription = type.isRealmCollection ? 'collections' : 'backlinks';
           if (type.isNullable) {
             throw RealmInvalidGenerationSourceError(
               'Realm $typeDescription cannot be nullable',
@@ -204,7 +204,7 @@ extension FieldElementEx on FieldElement {
           }
         }
 
-        // Validate back-links
+        // Validate backlinks
         if (backlink != null) {
           if (!type.isDartCoreIterable || !(type as ParameterizedType).typeArguments.first.isRealmModel) {
             throw RealmInvalidGenerationSourceError(
@@ -216,7 +216,7 @@ extension FieldElementEx on FieldElement {
             );
           }
 
-          final sourceFieldName = backlink.value.getField('symbol')?.toSymbolValue();
+          final sourceFieldName = backlink.value.getField('fieldName')?.toSymbolValue();
           final sourceType = (type as ParameterizedType).typeArguments.first;
           final sourceField = (sourceType.element2 as ClassElement?)?.fields.where((f) => f.name == sourceFieldName).singleOrNull;
 
@@ -235,7 +235,7 @@ extension FieldElementEx on FieldElement {
           final listOf = session.typeProvider.listType(thisType);
           if (sourceField.type != linkType && sourceField.type != listOf) {
             throw RealmInvalidGenerationSourceError(
-              'Incompatible back-link type',
+              'Incompatible backlink type',
               primarySpan: typeSpan(file),
               primaryLabel: "$sourceType.$sourceFieldName is not a '$linkType' or '$listOf'",
               todo: '',

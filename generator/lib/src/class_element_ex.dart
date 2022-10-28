@@ -152,7 +152,7 @@ extension ClassElementEx on ClassElement {
 
       final objectType = ObjectType.values[modelInfo.value.getField('type')!.getField('index')!.toIntValue()!];
 
-      // Computed fields go last. This is important for the schema generation.
+      // Realm Core requires computed properties at the end so we sort them at generation time versus doing it at runtime every time.
       final mappedFields = fields.realmInfo.toList()..sort((a, b) => a.isComputed ^ b.isComputed ? (a.isComputed ? 1 : -1) : -1);
 
       if (objectType == ObjectType.embeddedObject && mappedFields.any((field) => field.isPrimaryKey)) {

@@ -98,9 +98,10 @@ class Ignored {
   const Ignored();
 }
 
-/// Indicates a backlink property.
+/// Indicates that the field it decorates is the inverse end of a relationship.
 /// {@category Annotations}
 class Backlink {
-  final Symbol symbol;
-  const Backlink(this.symbol);
+  /// The name of the field in the other class that links to this class.
+  final Symbol fieldName;
+  const Backlink(this.fieldName);
 }

@@ -35,12 +35,12 @@ class _Source {
 @RealmModel()
 class _Target {
   @Backlink(#oneTarget)
-  late Iterable<_Source> oneToMany; // computed property, so must go last in generated class!
+  late Iterable<_Source> oneToMany;
 
   String name = 'target';
 
   @Backlink(#manyTargets)
-  late Iterable<_Source> manyToMany; // computed property, so must go last in generated class!
+  late Iterable<_Source> manyToMany;
 }
 
 Future<void> main([List<String>? args]) async {

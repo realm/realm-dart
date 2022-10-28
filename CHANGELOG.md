@@ -7,7 +7,7 @@
 * Added `User.functions`. This is the entry point for calling Atlas App functions. Functions allow you to define and execute server-side logic for your application. Atlas App functions are created on the server, written in modern JavaScript (ES6+) and executed in a serverless manner. When you call a function, you can dynamically access components of the current application as well as information about the request to execute the function and the logged in user that sent the request. ([#973](https://github.com/realm/realm-dart/pull/973))
 * Support results of primitives, ie. `RealmResult<int>`. (Issue [#162](https://github.com/realm/realm-dart/issues/162))
 * Support notifications on all managed realm lists, including list of primitives, ie. `RealmList<int>.changes` is supported. ([#893](https://github.com/realm/realm-dart/pull/893))
-* Support named backlinks on realm models. You can now add and annotate a realm object iterator field with `@Backlink(#symbolName)`. ([#996](https://github.com/realm/realm-dart/pull/996))
+* Support named backlinks on realm models. You can now add and annotate a realm object iterator field with `@Backlink(#fieldName)`. ([#996](https://github.com/realm/realm-dart/pull/996))
 
 ### Fixed
 * Fixed a wrong mapping for `AuthProviderType` returned by `User.provider` for google, facebook and apple credentials.

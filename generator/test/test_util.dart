@@ -65,7 +65,7 @@ class LinesEqualsMatcher extends Matcher {
       }
     }
 
-    if (actualLines.length > expectedLines.length) {
+    if (actualLines.length != expectedLines.length) {
       matchState["Error"] = "Different number of lines. \nExpected: ${expectedLines.length}\nActual: ${actualLines.length}";
       return false;
     }
