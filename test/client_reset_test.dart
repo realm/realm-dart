@@ -419,7 +419,8 @@ Future<void> main([List<String>? args]) async {
     final user = await getIntegrationUser(app);
     int beforeResetCallbackOccured = 0;
     int afterResetCallbackOccured = 0;
-    int manualResetFallbacOccured = 0;
+    int manualResetFallbacKOccured = 0;
+    final manualResetFallbacKCompleter = Completer<void>();
 
     final config = Configuration.flexibleSync(
       user,
@@ -433,12 +434,12 @@ Future<void> main([List<String>? args]) async {
           afterResetCallbackOccured++;
           throw Exception("Cause manualResetFallback");
         },
-        manualResetFallback: (clientResetError) async {
+        manualResetFallback: (clientResetError) {
+          manualResetFallbacKOccured++;
           if (afterResetCallbackOccured == 0) {
-            throw Exception("AfterResetCallback is still not completed");
+            manualResetFallbacKCompleter.completeError(Exception("AfterResetCallback is still not completed"));
           }
-          await Future<void>.delayed(Duration(seconds: 1));
-          manualResetFallbacOccured++;
+          manualResetFallbacKCompleter.complete();
         },
       ),
     );
@@ -447,57 +448,12 @@ Future<void> main([List<String>? args]) async {
     await realm.syncSession.waitForUpload();
     await triggerClientReset(realm);
 
-    await waitForCondition(() => manualResetFallbacOccured == 1, timeout: Duration(seconds: 15));
-
-    expect(manualResetFallbacOccured, 1);
+    await manualResetFallbacKCompleter.future;
+    expect(manualResetFallbacKOccured, 1);
     expect(afterResetCallbackOccured, 1);
     expect(beforeResetCallbackOccured, 1);
   });
 
-  // baasTest('RecoverUnsyncedChangesHandler with two users', (appConfig) async {
-  //   final app = App(appConfig);
-  //   final user1 = await getAnonymousUser(app);
-  //   final user2 = await getAnonymousUser(app);
-
-  //   final onAfterCompleter = Completer<void>();
-  //   final syncedProduct = Product(ObjectId(), "always synced");
-  //   final maybeProduct = Product(ObjectId(), "maybe synced");
-
-  //   final config = Configuration.flexibleSync(user, [Product.schema],
-  //       clientResetHandler: Creator.create(
-  //         clientResetHandlerType,
-  //         beforeResetCallback: (beforeFrozen) {
-  //           _checkPproducts(beforeFrozen, expectedProducts: [syncedProduct, maybeProduct]);
-  //         },
-  //         afterRecoveryCallback: (beforeFrozen, after) {
-  //           _checkPproducts(beforeFrozen, expectedProducts: [syncedProduct, maybeProduct]);
-  //           _checkPproducts(after, expectedProducts: [syncedProduct, maybeProduct]);
-  //           onAfterCompleter.complete();
-  //         },
-  //         afterDiscardCallback: (beforeFrozen, after) {
-  //           _checkPproducts(beforeFrozen, expectedProducts: [syncedProduct, maybeProduct]);
-  //           _checkPproducts(after, expectedProducts: [syncedProduct], notExpectedProducts: [maybeProduct]);
-  //           onAfterCompleter.complete();
-  //         },
-  //         manualResetFallback: (clientResetError) => onAfterCompleter.completeError(clientResetError),
-  //       ));
-
-  //   final realm = await Realm.open(config);
-  //   realm.subscriptions.update((mutableSubscriptions) {
-  //     mutableSubscriptions.add(realm.all<Product>());
-  //   });
-  //   await realm.subscriptions.waitForSynchronization();
-
-  //   realm.write(() => realm.add(syncedProduct));
-  //   await realm.syncSession.waitForUpload();
-
-  //   realm.syncSession.pause();
-  //   realm.write(() => realm.add(maybeProduct));
-
-  //   await triggerClientReset(realm, restartSession: false);
-  //   realm.syncSession.resume();
-  //   await onAfterCompleter.future;
-  // });
 }
 
 void _checkPproducts(Realm realmToSearch, {required List<Product> expectedProducts, List<Product>? notExpectedProducts}) {
