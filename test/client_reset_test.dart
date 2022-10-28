@@ -108,11 +108,11 @@ Future<void> main([List<String>? args]) async {
     await waitForCondition(() => timeTakenForManualReset > 0, timeout: Duration(seconds: 15));
 
     expect(timeTakenForManualReset, greaterThanOrEqualTo(2));
-  }, skip: "Enable after async manual reset");
+  });
 
   baasTest('Initiate resetRealm on ManualRecoveryHandler callback', (appConfig) async {
     final app = App(appConfig);
-    final user = await getIntegrationUser(app);
+    final user = await getAnonymousUser(app);
 
     final resetCompleter = Completer<ClientResetError>();
     final config = Configuration.flexibleSync(
@@ -137,7 +137,7 @@ Future<void> main([List<String>? args]) async {
     expect(File(config.path).existsSync(), isFalse);
   });
 
-  baasTest('Initiate resetRealm on ManualRecoveryHandler callbach fails when Realm in use', (appConfig) async {
+  baasTest('Initiate resetRealm on ManualRecoveryHandler callback fails when Realm in use', (appConfig) async {
     final app = App(appConfig);
     final user = await getIntegrationUser(app);
 

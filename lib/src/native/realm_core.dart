@@ -492,15 +492,21 @@ class _RealmCore {
 
   static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error, Pointer<Void> unlockCallbackFunc) {
     final syncConfig = userdata as FlexibleSyncConfiguration;
-
     final syncError = error.toSyncError();
-    late FutureOr<void> Function() callback;
+
+    FutureOr<void> Function()? callback;
     if (syncError is ClientResetError) {
-      callback = () => syncConfig.clientResetHandler.onManualReset?.call(syncError);
+      if (syncConfig.clientResetHandler.onManualReset != null) {
+        callback = () => syncConfig.clientResetHandler.onManualReset?.call(syncError);
+      }
     } else {
       callback = () => syncConfig.syncErrorHandler(syncError);
     }
-    _continueWhenComplete(callback, unlockCallbackFunc);
+    if (callback != null) {
+      _continueWhenComplete(callback, unlockCallbackFunc);
+    } else {
+      _invokeNativeFunction(unlockCallbackFunc, true);
+    }
   }
 
   static void _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle, Pointer<Void> unlockCallbackFunc) {
