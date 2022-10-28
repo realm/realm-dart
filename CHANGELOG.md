@@ -12,6 +12,7 @@
 * Fixed a wrong mapping for `AuthProviderType` returned by `User.provider` for google, facebook and apple credentials.
 * Opening an unencrypted file with an encryption key would sometimes report a misleading error message that indicated that the problem was something other than a decryption failure (Core upgrade)
 * Fix a rare deadlock which could occur when closing a synchronized Realm immediately after committing a write transaction when the sync worker thread has also just finished processing a changeset from the server. (Core upgrade)
+* Fixed an issue with `Configuration.disconnectedSync` where changing the schema could result in migration exception. (PR [#999](https://github.com/realm/realm-dart/pull/999))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
