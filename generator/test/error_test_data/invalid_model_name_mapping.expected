@@ -10,5 +10,5 @@ in: asset:pkg/test/error_test_data/invalid_model_name_mapping.dart:7:8
 10 │ class Bad {}
    │       ━━━ when generating realm object class for 'Bad'
    ╵
-We need a valid indentifier
+We need a valid identifier
 

@@ -27,6 +27,8 @@ const mapToChecker = TypeChecker.fromRuntime(MapTo);
 
 const primaryKeyChecker = TypeChecker.fromRuntime(PrimaryKey);
 
+const backlinkChecker = TypeChecker.fromRuntime(Backlink);
+
 const realmAnnotationChecker = TypeChecker.any([
   ignoredChecker,
   indexedChecker,

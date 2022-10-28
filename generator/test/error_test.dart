@@ -6,8 +6,8 @@ void main() {
   const directory = 'test/error_test_data';
   getListOfTestFiles(directory).forEach((inputFile, outputFile) {
     executeTest(getTestName(inputFile), () async {
-      await expectLater(
-        () async => await generatorTestBuilder(directory, inputFile),
+      expectLater(
+        generatorTestBuilder(directory, inputFile),
         throwsA(
           isA<RealmInvalidGenerationSourceError>().having(
             (e) => e.format(),

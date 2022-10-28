@@ -24,6 +24,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cancellation_token/cancellation_token.dart';
+import 'package:collection/collection.dart';
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:logging/logging.dart';
@@ -120,15 +121,17 @@ class _RealmCore {
       for (var i = 0; i < classCount; i++) {
         final schemaObject = schema.elementAt(i);
         final classInfo = schemaClasses.elementAt(i).ref;
+        final propertiesCount = schemaObject.properties.length;
+        final computedCount = schemaObject.properties.where((p) => p.isComputed).length;
+        final persistedCount = propertiesCount - computedCount;
 
         classInfo.name = schemaObject.name.toCharPtr(arena);
         classInfo.primary_key = "".toCharPtr(arena);
-        classInfo.num_properties = schemaObject.properties.length;
-        classInfo.num_computed_properties = 0;
+        classInfo.num_properties = persistedCount;
+        classInfo.num_computed_properties = computedCount;
         classInfo.key = RLM_INVALID_CLASS_KEY;
         classInfo.flags = schemaObject.baseType.flags;
 
-        final propertiesCount = schemaObject.properties.length;
         final properties = arena<realm_property_info_t>(propertiesCount);
 
         for (var j = 0; j < propertiesCount; j++) {
@@ -138,7 +141,7 @@ class _RealmCore {
           //TODO: Assign the correct public name value https://github.com/realm/realm-dart/issues/697
           propInfo.public_name = "".toCharPtr(arena);
           propInfo.link_target = (schemaProperty.linkTarget ?? "").toCharPtr(arena);
-          propInfo.link_origin_property_name = "".toCharPtr(arena);
+          propInfo.link_origin_property_name = (schemaProperty.linkOriginProperty ?? "").toCharPtr(arena);
           propInfo.type = schemaProperty.propertyType.index;
           propInfo.collection_type = schemaProperty.collectionType.index;
           propInfo.flags = realm_property_flags.RLM_PROPERTY_NORMAL;
@@ -695,10 +698,11 @@ class _RealmCore {
         final property = propertiesPtr.elementAt(i);
         final propertyName = property.ref.name.cast<Utf8>().toRealmDartString()!;
         final objectType = property.ref.link_target.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+        final linkOriginProperty = property.ref.link_origin_property_name.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
         final isNullable = property.ref.flags & realm_property_flags.RLM_PROPERTY_NULLABLE != 0;
         final isPrimaryKey = propertyName == primaryKeyName;
-        final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, RealmPropertyType.values.elementAt(property.ref.type), isNullable,
-            isPrimaryKey, RealmCollectionType.values.elementAt(property.ref.collection_type));
+        final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, linkOriginProperty, RealmPropertyType.values.elementAt(property.ref.type),
+            isNullable, isPrimaryKey, RealmCollectionType.values.elementAt(property.ref.collection_type));
         result[propertyName] = propertyMeta;
       }
       return result;
@@ -965,6 +969,11 @@ class _RealmCore {
   RealmListHandle getListProperty(RealmObjectBase object, int propertyKey) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_list(object.handle._pointer, propertyKey));
     return RealmListHandle._(pointer, object.realm.handle);
+  }
+
+  RealmResultsHandle getBacklinks(RealmObjectBase object, int sourceTableKey, int propertyKey) {
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_backlinks(object.handle._pointer, sourceTableKey, propertyKey));
+    return RealmResultsHandle._(pointer, object.realm.handle);
   }
 
   int getListSize(RealmListHandle handle) {

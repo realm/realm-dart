@@ -8,6 +8,7 @@
   "dart.lineLength": 160,
   "cSpell.words": [
     "apikeys",
+    "backlinks",
     "BEGINSWITH",
     "bson",
     "deallocated",
@@ -31,7 +32,8 @@
     "unmanaged",
     "upsert",
     "usercode",
-    "userdata"
+    "userdata",
+    "writeln"
   ],
   "cmake.statusbar.advanced": {
     "ctest": {

@@ -36,11 +36,11 @@ class PseudoType extends TypeImpl {
 
     // Private Symbols are suffixed with a secret '@<some int>'
     // .. hence this ugly trick ヽ(ಠ_ಠ)ノ
-    final _writeSymbol = im.type.instanceMembers.keys.firstWhere((m) => '$m'.contains('"_write"'));
-    im.invoke(_writeSymbol, <dynamic>[_name]); // #_write won't work
+    final writeSymbol = im.type.instanceMembers.keys.firstWhere((m) => '$m'.contains('"_write"'));
+    im.invoke(writeSymbol, <dynamic>[_name]); // #_write won't work
 
-    final _writeNullability = im.type.instanceMembers.keys.firstWhere((m) => '$m'.contains('"_writeNullability"'));
-    im.invoke(_writeNullability, <dynamic>[nullabilitySuffix]); // #_writeNullability won't work
+    final writeNullability = im.type.instanceMembers.keys.firstWhere((m) => '$m'.contains('"_writeNullability"'));
+    im.invoke(writeNullability, <dynamic>[nullabilitySuffix]); // #_writeNullability won't work
   }
 
   @override
@@ -52,5 +52,5 @@ class PseudoType extends TypeImpl {
   }
 
   @override
-  Element? get element2 => throw UnimplementedError();
+  Element? get element2 => null;
 }
