@@ -463,53 +463,75 @@ Future<void> main([List<String>? args]) async {
 
     final userA = await getAnonymousUser(app);
     final userB = await getAnonymousUser(app);
-    final task0 = Task(ObjectId());
-    final task1 = Task(ObjectId());
-    final task2 = Task(ObjectId());
-    final task3 = Task(ObjectId());
+    final task0Id = ObjectId();
+    final task1Id = ObjectId();
+    final task2Id = ObjectId();
+    final task3Id = ObjectId();
 
-    final scheduleId = ObjectId();
-    final scheduleA = Schedule(scheduleId, tasks: [task0, task1, task2]);
+    comparer(Task t1, ObjectId id) => t1.id == id;
 
-    final realmA = await _syncReamlForUser(userA, afterRecoverCompleterA, scheduleA);
-    final realmB = await _syncReamlForUser(userB, afterRecoverCompleterB);
+    final configA = Configuration.flexibleSync(userA, [Task.schema], clientResetHandler: RecoverUnsyncedChangesHandler(
+      afterResetCallback: (beforeFrozen, after) {
+        try {
+          _checkPproducts(beforeFrozen, comparer, expectedList: [task0Id, task1Id], notExpectedList: [task2Id, task3Id]);
+          _checkPproducts(after, comparer, expectedList: [task0Id, task1Id], notExpectedList: [task2Id]);
+          afterRecoverCompleterA.complete();
+        } catch (e) {
+          afterRecoverCompleterA.completeError(e);
+        }
+      },
+    ));
+
+    final configB = Configuration.flexibleSync(userB, [Schedule.schema, Task.schema], clientResetHandler: RecoverUnsyncedChangesHandler(
+      afterResetCallback: (beforeFrozen, after) {
+        try {
+          _checkPproducts(beforeFrozen, comparer, expectedList: [task0Id, task1Id, task2Id, task3Id]);
+          _checkPproducts(after, comparer, expectedList: [task0Id, task1Id, task3Id], notExpectedList: [task2Id]);
+          afterRecoverCompleterB.complete();
+        } catch (e) {
+          afterRecoverCompleterB.completeError(e);
+        }
+      },
+    ));
+
+    final realmA = await _syncReamlForUser<Task>(configA, [Task(task0Id), Task(task1Id), Task(task2Id)]);
+    final realmB = await _syncReamlForUser<Task>(configB);
+
     realmA.syncSession.pause();
     realmB.syncSession.pause();
-    realmA.write(() => scheduleA.tasks.remove(task2));
-    realmB.write(() {
-      final scheduleB = realmB.find<Schedule>(scheduleId);
-      scheduleB?.tasks.add(task3);
+    realmA.write(() {
+      final task2 = realmA.find<Task>(task2Id);
+      realmA.delete<Task>(task2!);
     });
+
+    realmB.write(() => realmB.add<Task>(Task(task3Id)));
+
     await triggerClientReset(realmA);
-    realmA.syncSession.waitForUpload();
-
-    await triggerClientReset(realmB);
-    realmB.syncSession.waitForUpload();
-
+    await realmA.syncSession.waitForUpload();
     await afterRecoverCompleterA.future;
+
+    await triggerClientReset(realmB, restartSession: false);
+    realmB.syncSession.resume();
+    await realmB.syncSession.waitForUpload();
     await afterRecoverCompleterB.future;
 
-    comparer(Task t1, Task t2) => t1.id == t2.id;
-    _checkPproducts(realmA, comparer, expectedList: [task0, task1, task3]);
-    _checkPproducts(realmB, comparer, expectedList: [task0, task1, task2, task3]);
-  }, skip: "Recover unsuccessfull");
+    await realmA.syncSession.waitForDownload();
+
+    _checkPproducts(realmA, comparer, expectedList: [task0Id, task1Id, task3Id], notExpectedList: [task2Id]);
+    _checkPproducts(realmB, comparer, expectedList: [task0Id, task1Id, task3Id], notExpectedList: [task2Id]);
+  });
 }
 
-Future<Realm> _syncReamlForUser(User user, Completer<void> afterRecoverCompleter, [Schedule? schedule]) async {
-  final config = Configuration.flexibleSync(user, [Schedule.schema, Task.schema],
-      clientResetHandler: RecoverUnsyncedChangesHandler(
-        afterResetCallback: (beforeFrozen, after) => afterRecoverCompleter.complete(),
-      ));
-
-  final realm = await Realm.open(config);
+Future<Realm> _syncReamlForUser<T extends RealmObject>(FlexibleSyncConfiguration config, [List<T>? items]) async {
+  final realm = Realm(config);
   realm.subscriptions.update((mutableSubscriptions) {
-    mutableSubscriptions.add(realm.all<Schedule>());
-    mutableSubscriptions.add(realm.all<Task>());
+    mutableSubscriptions.add<T>(realm.all<T>());
   });
   await realm.subscriptions.waitForSynchronization();
 
-  if (schedule != null) {
-    realm.write(() => realm.add(schedule));
+  if (items != null) {
+    realm.write(() => realm.deleteAll<T>());
+    realm.write(() => realm.addAll<T>(items));
     await realm.syncSession.waitForUpload();
   }
   await realm.syncSession.waitForDownload();
