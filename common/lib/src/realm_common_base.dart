@@ -97,3 +97,11 @@ class Indexed {
 class Ignored {
   const Ignored();
 }
+
+/// Indicates that the field it decorates is the inverse end of a relationship.
+/// {@category Annotations}
+class Backlink {
+  /// The name of the field in the other class that links to this class.
+  final Symbol fieldName;
+  const Backlink(this.fieldName);
+}

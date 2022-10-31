@@ -29,14 +29,14 @@ class RealmModelInfo {
   final List<RealmFieldInfo> fields;
   final ObjectType baseType;
 
-  RealmModelInfo(this.name, this.modelName, this.realmName, this.fields, this.baseType);
+  const RealmModelInfo(this.name, this.modelName, this.realmName, this.fields, this.baseType);
 
   Iterable<String> toCode() sync* {
     yield 'class $name extends $modelName with RealmEntity, RealmObjectBase, ${baseType.className} {';
     {
-      final allExceptCollections = fields.where((f) => !f.type.isRealmCollection).toList();
+      final allSettable = fields.where((f) => !f.type.isRealmCollection && !f.isRealmBacklink).toList();
 
-      final hasDefaults = allExceptCollections.where((f) => f.hasDefaultValue).toList();
+      final hasDefaults = allSettable.where((f) => f.hasDefaultValue).toList();
       if (hasDefaults.isNotEmpty) {
         yield 'static var _defaultsSet = false;';
         yield '';
@@ -44,10 +44,10 @@ class RealmModelInfo {
 
       yield '$name(';
       {
-        final required = allExceptCollections.where((f) => f.isRequired || f.isPrimaryKey);
+        final required = allSettable.where((f) => f.isRequired || f.isPrimaryKey);
         yield* required.map((f) => '${f.mappedTypeName} ${f.name},');
 
-        final notRequired = allExceptCollections.where((f) => !f.isRequired && !f.isPrimaryKey);
+        final notRequired = allSettable.where((f) => !f.isRequired && !f.isPrimaryKey);
         final collections = fields.where((f) => f.type.isRealmCollection).toList();
         if (notRequired.isNotEmpty || collections.isNotEmpty) {
           yield '{';
@@ -66,7 +66,7 @@ class RealmModelInfo {
           yield '}';
         }
 
-        yield* allExceptCollections.map((f) {
+        yield* allSettable.map((f) {
           return "RealmObjectBase.set(this, '${f.realmName}', ${f.name});";
         });
 
@@ -105,6 +105,11 @@ class RealmModelInfo {
               if (f.optional) 'optional': f.optional,
               if (f.isPrimaryKey) 'primaryKey': f.isPrimaryKey,
               if (f.realmType == RealmPropertyType.object) 'linkTarget': f.basicRealmTypeName,
+              if (f.realmType == RealmPropertyType.linkingObjects) ...{
+                'linkOriginProperty': f.linkOriginProperty!,
+                'collectionType': RealmCollectionType.list,
+                'linkTarget': f.basicRealmTypeName,
+              },
               if (f.realmCollectionType != RealmCollectionType.none) 'collectionType': f.realmCollectionType,
             };
             return "SchemaProperty('${f.realmName}', ${f.realmType}${namedArgs.isNotEmpty ? ', ${namedArgs.toArgsString()}' : ''}),";
