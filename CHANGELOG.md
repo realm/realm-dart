@@ -16,7 +16,27 @@
   * `ManualRecoveryHandler` - the user needs to fully take care of a client reset.
   * `DiscardUnsyncedChangesHandler` - all the not yet synchronized data is automatically discarded and a fresh copy of the synchronized Realm is obtained.
   * `RecoverUnsyncedChangesHandler` - automatically recover any unsynchronized changes.
-  * `RecoverOrDiscardUnsyncedChangesHandler` - automatically recover any unsynchronized changes. If that fails, this handler fallsback to the discard unsynced changes strategy. `RecoverOrDiscardUnsyncedChangesHandler` is e the default strategy.
+  * `RecoverOrDiscardUnsyncedChangesHandler` - automatically recover any unsynchronized changes. If that fails, this handler fallsback to the discard unsynced changes strategy. `RecoverOrDiscardUnsyncedChangesHandler` is e the default strategy. An example usage the default client reset handler is as follows:
+  ```dart
+      final config = Configuration.flexibleSync(user, [Task.schema],
+        clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(
+          // The following callbacks are optional.
+          beforeResetCallback: (beforeFrozen) {
+            // Executed right before a client reset is about to happen.
+            // In case of throwing an exception here the recovery and discard are not performed.
+          },
+          afterRecoveryCallback: (beforeFrozen, after) {
+            // Executed right after an automatic recovery from a client reset has completed.
+          },
+          afterDiscardCallback: (beforeFrozen, after) {
+            // Executed after an automatic recovery from a client reset has failed but the Discard has completed.
+          },
+          manualResetFallback: (clientResetError) {
+            // Handle the reset manually in case some of the callbacks above throws an exception
+          },
+        )
+    );
+```
 
 ### Fixed
 * Fixed a wrong mapping for `AuthProviderType` returned by `User.provider` for google, facebook and apple credentials.
