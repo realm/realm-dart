@@ -495,7 +495,7 @@ class _RealmCore {
 
   static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error) {
     final syncConfig = userdata as FlexibleSyncConfiguration;
-    final syncError = error.toSyncError();
+    final syncError = error.toSyncError(syncConfig);
 
     if (syncError is ClientResetError) {
       syncConfig.clientResetHandler.onManualReset?.call(syncError);
@@ -508,7 +508,6 @@ class _RealmCore {
     final syncConfig = userdata as FlexibleSyncConfiguration;
     final beforeResetCallback = syncConfig.clientResetHandler.beforeResetCallback;
     if (beforeResetCallback != null) {
-      // TODO: maybe we want to read the schema from disk at this point
       final realm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(realmHandle));
       _continueWhenComplete(() => beforeResetCallback(realm), unlockCallbackFunc);
     } else {
@@ -2220,12 +2219,10 @@ class _RealmCore {
     });
   }
 
-  bool immediatelyRunFileActions(App app, String realmPath) {
-    return using((arena) {
-      bool result = false;
-      _realmLib.invokeGetBool(() => result = _realmLib.realm_sync_immediately_run_file_actions(app.handle._pointer, realmPath.toCharPtr(arena)),
-          "An error occurred while deleting Realm fulle. Check if the file is in use: '$realmPath'");
-      return result;
+  void immediatelyRunFileActions(App app, String realmPath) {
+    using((arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_sync_immediately_run_file_actions(app.handle._pointer, realmPath.toCharPtr(arena)),
+          "An error occurred while deleting Realm file. Check if the file is in use: '$realmPath'");
     });
   }
 }
@@ -2692,13 +2689,13 @@ extension on Pointer<Utf8> {
 }
 
 extension on realm_sync_error {
-  SyncError toSyncError() {
+  SyncError toSyncError(Configuration config) {
     final message = detailed_message.cast<Utf8>().toRealmDartString()!;
     final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
 
     //client reset can be requested with is_client_reset_requested disregarding the error_code.value
     if (is_client_reset_requested) {
-      return ClientResetError(message);
+      return ClientResetError(message, config);
     }
 
     return SyncError.create(message, category, error_code.value, isFatal: is_fatal);

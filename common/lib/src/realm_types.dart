@@ -187,11 +187,12 @@ class SyncClientError extends SyncError {
 class ClientResetError extends SyncError {
   /// If true the received error is fatal.
   final bool isFatal = true;
+  final Object? config;
 
   /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
   SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
 
-  ClientResetError(String message) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
+  ClientResetError(String message, [this.config]) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
 
   @override
   String toString() {

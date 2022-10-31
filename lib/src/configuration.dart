@@ -567,7 +567,12 @@ enum ClientResyncModeInternal {
 }
 
 extension ClientResetErrorFunctions on ClientResetError {
-  bool resetRealm(App app, String realmPath) {
-    return realmCore.immediatelyRunFileActions(app, realmPath);
+  void resetRealm() {
+    if (config == null || config is! FlexibleSyncConfiguration) {
+      throw Exception("FlexibleSyncConfiguration is not set into ClientResetError");
+    }
+    final flexibleConfig = config as FlexibleSyncConfiguration;
+    realmCore.immediatelyRunFileActions(flexibleConfig.user.app, flexibleConfig.path);
   }
 }
+
