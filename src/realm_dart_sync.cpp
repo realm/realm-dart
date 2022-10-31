@@ -22,32 +22,6 @@
 #include "realm_dart.hpp"
 #include "realm_dart_sync.h"
 
-class WaitingCallback
-{
-public:
-    static bool wait_dart_before_continue(realm::util::UniqueFunction<void(realm::util::UniqueFunction<void(bool)>*)>* userCallback)
-    {
-        std::condition_variable cv;
-        std::mutex m;
-        bool complete = false;
-        bool success = false;
-
-        realm::util::UniqueFunction<void(bool)> unlockFunc = [&complete, &success, &cv, &m](bool result) {
-            std::unique_lock<std::mutex> lk(m);
-            complete = true;
-            success = result;
-            lk.unlock();
-            cv.notify_one();
-        };
-        (*userCallback)(&unlockFunc);
-
-        std::unique_lock<std::mutex> lk(m);
-        cv.wait(lk, [&complete] {return complete; });
-
-        return success;
-    }
-};
-
 RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, realm_http_request_t request, void* request_context) {
     // the pointers in request are to stack values, we need to make copies and move them into the scheduler invocation
     struct request_copy_buf {
@@ -164,6 +138,28 @@ RLM_API void realm_dart_sync_on_subscription_state_changed_callback(realm_userda
     });
 }
 
+bool wait_dart_before_continue(realm::util::UniqueFunction<void(realm::util::UniqueFunction<void(bool)>*)>* userCallback)
+{
+    std::condition_variable cv;
+    std::mutex m;
+    bool complete = false;
+    bool success = false;
+
+    realm::util::UniqueFunction<void(bool)> unlockFunc = [&complete, &success, &cv, &m](bool result) {
+        std::unique_lock<std::mutex> lk(m);
+        complete = true;
+        success = result;
+        lk.unlock();
+        cv.notify_one();
+    };
+    (*userCallback)(&unlockFunc);
+
+    std::unique_lock<std::mutex> lk(m);
+    cv.wait(lk, [&complete] {return complete; });
+
+    return success;
+}
+
 RLM_API bool realm_dart_sync_before_reset_handler_callback(realm_userdata_t userdata, realm_t* realm)
 {
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
@@ -173,7 +169,7 @@ RLM_API bool realm_dart_sync_before_reset_handler_callback(realm_userdata_t user
             (reinterpret_cast<realm_sync_before_client_reset_begin_func_t>(ud->dart_callback))(ud->handle, realm, unlockFunc);
         });
     };
-    return WaitingCallback::wait_dart_before_continue(&userCallback);
+    return wait_dart_before_continue(&userCallback);
 }
 
 RLM_API bool realm_dart_sync_after_reset_handler_callback(realm_userdata_t userdata, realm_t* before_realm, realm_thread_safe_reference_t* after_realm, bool did_recover)
@@ -185,7 +181,7 @@ RLM_API bool realm_dart_sync_after_reset_handler_callback(realm_userdata_t userd
             (reinterpret_cast<realm_sync_after_client_reset_begin_func_t>(ud->dart_callback))(ud->handle, before_realm, after_realm, did_recover, unlockFunc);
         });
     };
-    return WaitingCallback::wait_dart_before_continue(&userCallback);
+    return wait_dart_before_continue(&userCallback);
 }
 
 RLM_API void realm_dart_invoke_navite_with_result(bool success, void* unlockFunc)
