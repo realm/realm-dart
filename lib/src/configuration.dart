@@ -57,7 +57,7 @@ typedef MigrationCallback = void Function(Migration migration, int oldSchemaVers
 
 /// The signature of a callback that will be triggered when a Client Reset error happens in a synchronized `Realm`.
 ///
-/// The `clientResetError` argument holds useful data to be used when trying to manually recover from a client reset.
+/// The [clientResetError] holds useful data to be used when trying to manually recover from a client reset.
 typedef ClientResetCallback = FutureOr<void> Function(ClientResetError clientResetError);
 
 /// Callback that indicates a Client Reset is about to happen.
