@@ -150,6 +150,10 @@ class _RealmCore {
             propInfo.flags |= realm_property_flags.RLM_PROPERTY_NULLABLE;
           }
 
+          if (schemaProperty.indexed) {
+            propInfo.flags |= realm_property_flags.RLM_PROPERTY_INDEXED;
+          }
+
           if (schemaProperty.primaryKey) {
             classInfo.primary_key = schemaProperty.name.toCharPtr(arena);
             propInfo.flags |= realm_property_flags.RLM_PROPERTY_PRIMARY_KEY;
