@@ -12,26 +12,23 @@
 * Support results of primitives, ie. `RealmResult<int>`. (Issue [#162](https://github.com/realm/realm-dart/issues/162))
 * Support notifications on all managed realm lists, including list of primitives, ie. `RealmList<int>.changes` is supported. ([#893](https://github.com/realm/realm-dart/pull/893))
 * Support named backlinks on realm models. You can now add and annotate a realm object iterator field with `@Backlink(#fieldName)`. ([#996](https://github.com/realm/realm-dart/pull/996))
-* Support [Client Resets](https://www.mongodb.com/docs/atlas/app-services/sync/error-handling/client-resets/). Flutter SDK automatically detects the need for client resets and automatically performs a client reset according to the configured client reset callbacks for the type of client reset handlers set to `FlexibleSyncConfiguration`. Added a parameter `clientResetHandler` to `Configuration.flexibleSync`.
-  * `ManualRecoveryHandler` - the user needs to fully take care of a client reset.
-  * `DiscardUnsyncedChangesHandler` - all the not yet synchronized data is automatically discarded and a fresh copy of the synchronized Realm is obtained.
-  * `RecoverUnsyncedChangesHandler` - automatically recover any unsynchronized changes.
-  * `RecoverOrDiscardUnsyncedChangesHandler` - automatically recover any unsynchronized changes. If that fails, this handler fallsback to the discard unsynced changes strategy. `RecoverOrDiscardUnsyncedChangesHandler` is the default strategy. An example usage of the default `clientResetHandler` is as follows:
+* Support [Client Resets](https://www.mongodb.com/docs/atlas/app-services/sync/error-handling/client-resets/). Flutter SDK automatically detects the need for client resets and automatically performs a client reset according to the configured client reset callbacks for the type of client reset handlers set to `FlexibleSyncConfiguration`. Added a parameter `clientResetHandler` to `Configuration.flexibleSync`. Supported client reset handlers are `ManualRecoveryHandler`, `DiscardUnsyncedChangesHandler`, `RecoverUnsyncedChangesHandler` and `RecoverOrDiscardUnsyncedChangesHandler`.
+ `RecoverOrDiscardUnsyncedChangesHandler` is the default strategy. An example usage of the default `clientResetHandler` is as follows:
   ```dart
       final config = Configuration.flexibleSync(user, [Task.schema],
         clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(
           // The following callbacks are optional.
-          beforeResetCallback: (beforeFrozen) {
+          onBeforeReset: (beforeResetRealm) {
             // Executed right before a client reset is about to happen.
             // If an exception is thrown here the recovery and discard callbacks are not called.
           },
-          afterRecoveryCallback: (beforeFrozen, after) {
+          onAfterRecovery: (beforeResetRealm, afterResetRealm) {
             // Executed right after an automatic recovery from a client reset has completed.
           },
-          afterDiscardCallback: (beforeFrozen, after) {
+          onAfterDiscard: (beforeResetRealm, afterResetRealm) {
             // Executed after an automatic recovery from a client reset has failed but the Discard has completed.
           },
-          manualResetFallback: (clientResetError) {
+          onManualResetFallback: (clientResetError) {
             // Handle the reset manually in case some of the callbacks above throws an exception
           },
         )
