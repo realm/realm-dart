@@ -3130,22 +3130,22 @@ class RealmLibrary {
       _realm_dart_initializeDartApiDLPtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
-  void realm_dart_invoke_navite_with_result(
+  void realm_dart_invoke_native_with_result(
     bool success,
     ffi.Pointer<ffi.Void> unlockFunc,
   ) {
-    return _realm_dart_invoke_navite_with_result(
+    return _realm_dart_invoke_native_with_result(
       success,
       unlockFunc,
     );
   }
 
-  late final _realm_dart_invoke_navite_with_resultPtr = _lookup<
+  late final _realm_dart_invoke_native_with_resultPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Bool,
-              ffi.Pointer<ffi.Void>)>>('realm_dart_invoke_navite_with_result');
-  late final _realm_dart_invoke_navite_with_result =
-      _realm_dart_invoke_navite_with_resultPtr
+              ffi.Pointer<ffi.Void>)>>('realm_dart_invoke_native_with_result');
+  late final _realm_dart_invoke_native_with_result =
+      _realm_dart_invoke_native_with_resultPtr
           .asFunction<void Function(bool, ffi.Pointer<ffi.Void>)>();
 
   ffi.Pointer<ffi.Char> realm_dart_library_version() {
@@ -10009,8 +10009,8 @@ class _SymbolAddresses {
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>>
-      get realm_dart_invoke_navite_with_result =>
-          _library._realm_dart_invoke_navite_with_resultPtr;
+      get realm_dart_invoke_native_with_result =>
+          _library._realm_dart_invoke_native_with_resultPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
       get realm_dart_library_version => _library._realm_dart_library_versionPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>

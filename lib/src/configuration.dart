@@ -42,42 +42,42 @@ import 'user.dart';
 /// The compaction will be skipped if another process is currently accessing the realm file.
 typedef ShouldCompactCallback = bool Function(int totalSize, int usedSize);
 
-/// The signature of a callback that will be executed only when the Realm is first created.
+/// The signature of a callback that will be executed only when the `Realm` is first created.
 ///
 /// The Realm instance passed in the callback already has a write transaction opened, so you can
 /// add some initial data that your app needs. The function will not execute for existing
 /// Realms, even if all objects in the Realm are deleted.
 typedef InitialDataCallback = void Function(Realm realm);
 
-/// The signature of a callback that will be executed when the schema of the Realm changes.
+/// The signature of a callback that will be executed when the schema of the `Realm` changes.
 ///
-/// The `migration` argument contains references to the Realm just before and just after the migration.
-/// The `oldSchemaVersion` argument indicates the version from which the Realm migrates while
+/// The `migration` argument contains references to the `Realm` just before and just after the migration.
+/// The `oldSchemaVersion` argument indicates the version from which the `Realm` migrates while
 typedef MigrationCallback = void Function(Migration migration, int oldSchemaVersion);
 
-/// The signature of a callback that will be triggered when a Client Reset error happens in a synchronized Realm.
+/// The signature of a callback that will be triggered when a Client Reset error happens in a synchronized `Realm`.
 ///
 /// The `clientResetError` argument holds useful data to be used when trying to manually recover from a client reset.
 typedef ClientResetCallback = FutureOr<void> Function(ClientResetError clientResetError);
 
 /// Callback that indicates a Client Reset is about to happen.
 ///
-/// The `beforeFrozen` argument holds the frozen Realm just before the client reset happens.
+/// The [beforeResetRealm] holds the frozen `Realm` just before the client reset happens.
 ///
-/// The lifetime of the Realm is tied to the callback, so don't store references to the Realm or objects
+/// The lifetime of [beforeResetRealm] is tied to the callback lifetime, so don't store references to the `Realm` or objects
 /// obtained from it for use outside of the callback.
-typedef BeforeResetCallback = FutureOr<void> Function(Realm beforeFrozen);
+typedef BeforeResetCallback = FutureOr<void> Function(Realm beforeResetRealm);
 
 /// Callback that indicates a Client Reset has just happened.
 ///
-/// The `beforeFrozen` argument holds the frozen Realm just before the client reset happened.
-/// The `after` argument holds the live Realm just after the client reset happened.
+/// The [beforeResetRealm] holds the frozen `Realm` just before the client reset happened.
+/// The [afterResetRealm] holds the live `Realm` just after the client reset happened.
 ///
-/// The lifetime of the Realm instances supplied is tied to the callback, so don't store references to
-/// the Realm or objects obtained from it for use outside of the callback.
-typedef AfterResetCallback = FutureOr<void> Function(Realm beforeFrozen, Realm after);
+/// The lifetime of the `Realm` instances supplied is tied to the callback, so don't store references to
+/// the `Realm` or objects obtained from it for use outside of the callback.
+typedef AfterResetCallback = FutureOr<void> Function(Realm beforeResetRealm, Realm afterResetRealm);
 
-/// Configuration used to create a [Realm] instance
+/// Configuration used to create a `Realm` instance
 /// {@category Configuration}
 abstract class Configuration implements Finalizable {
   /// The default realm filename to be used.
@@ -321,7 +321,7 @@ class FlexibleSyncConfiguration extends Configuration {
   /// The default [SyncErrorHandler] prints to the console
   final SyncErrorHandler syncErrorHandler;
 
-  /// Called when a [ClientResetError] occurs for this synchronized [Realm]
+  /// Called when a [ClientResetError] occurs for this synchronized `Realm`
   ///
   /// The default [ClientResetHandler] logs a message using the current Realm.logger
   final ClientResetHandler clientResetHandler;
@@ -423,15 +423,13 @@ extension SchemaObjectInternal on SchemaObject {
   bool get isGenericRealmObject => type == RealmObject || type == EmbeddedObject || type == RealmObjectBase;
 }
 
-/// The signature of a callback that will be invoked if a client reset error occurs for this [Realm].
-///
-/// A Client Resync is triggered if the device and server cannot agree
-/// on a common shared history for the Realm file,
-/// thus making it impossible for the device to upload or receive any changes.
+/// [ClientResetHandler] is triggered if the device and server cannot agree
+/// on a common shared history for the `Realm` file
+/// or when it is impossible for the device to upload or receive any changes.
 /// This can happen if the server is rolled back or restored from backup.
 /// {@category Sync}
 abstract class ClientResetHandler {
-  /// Defines what should happen in case of a Client Resync
+  /// Defines what should happen in case of a Client reset
   ClientResyncModeInternal get _mode;
 
   BeforeResetCallback? get _beforeResetCallback => null;
@@ -439,16 +437,16 @@ abstract class ClientResetHandler {
   AfterResetCallback? get _afterRecoveryCallback => null;
 
   /// The callback that handles the [ClientResetError].
-  final ClientResetCallback? onManualReset;
+  final ClientResetCallback? manualResetCallback;
 
-  /// Initializes a new instance of of [ClientResetHandler].
-  const ClientResetHandler(this.onManualReset);
+  /// Initializes a new instance of [ClientResetHandler].
+  const ClientResetHandler(this.manualResetCallback);
 }
 
 /// A client reset strategy where the user needs to fully take care of a client reset.
 ///
 /// If you set [ManualRecoveryHandler] callback as `clientResetHandler` argument of [Configuration.flexibleSync],
-/// that will enable full control of moving unsynced changes to synced realm.
+/// that will enable full control of moving any unsynced changes to the synchronized `Realm`.
 /// {@category Sync}
 class ManualRecoveryHandler extends ClientResetHandler {
   const ManualRecoveryHandler(ClientResetCallback onReset) : super(onReset);
@@ -457,7 +455,7 @@ class ManualRecoveryHandler extends ClientResetHandler {
   ClientResyncModeInternal get _mode => ClientResyncModeInternal.manual;
 }
 
-/// A client reset strategy where all the not yet synchronized data is automatically
+/// A client reset strategy where any not yet synchronized data is automatically
 /// discarded and a fresh copy of the synchronized Realm is obtained.
 ///
 /// If you set [DiscardUnsyncedChangesHandler] callback as `clientResetHandler` argument of [Configuration.flexibleSync],
@@ -576,3 +574,177 @@ extension ClientResetErrorFunctions on ClientResetError {
   }
 }
 
+/// An error type that describes a client reset error condition.
+/// {@category Sync}
+class ClientResetError extends SyncError {
+  /// If true the received error is fatal.
+  final bool isFatal = true;
+  final Configuration? config;
+
+  /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
+  SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
+
+  ClientResetError(String message, [this.config]) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
+
+  @override
+  String toString() {
+    return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
+  }
+}
+
+/// Thrown when an error occurs during synchronization
+/// {@category Sync}
+class SyncError extends RealmError {
+  /// The numeric code value indicating the type of the sync error.
+  final int codeValue;
+
+  /// The category of the sync error
+  final SyncErrorCategory category;
+
+  SyncError(String message, this.category, this.codeValue) : super(message);
+
+  /// Creates a specific type of [SyncError] instance based on the [category] and the [code] supplied.
+  static SyncError create(String message, SyncErrorCategory category, int code, {bool isFatal = false}) {
+    switch (category) {
+      case SyncErrorCategory.client:
+        final SyncClientErrorCode errorCode = SyncClientErrorCode.fromInt(code);
+        if (errorCode == SyncClientErrorCode.autoClientResetFailure) {
+          return ClientResetError(message);
+        }
+        return SyncClientError(message, category, errorCode, isFatal: isFatal);
+      case SyncErrorCategory.connection:
+        return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), isFatal: isFatal);
+      case SyncErrorCategory.session:
+        return SyncSessionError(message, category, SyncSessionErrorCode.fromInt(code), isFatal: isFatal);
+      case SyncErrorCategory.system:
+      case SyncErrorCategory.unknown:
+      default:
+        return GeneralSyncError(message, category, code);
+    }
+  }
+
+  /// As a specific [SyncError] type.
+  T as<T extends SyncError>() => this as T;
+
+  @override
+  String toString() {
+    return "SyncError message: $message category: $category code: $codeValue";
+  }
+}
+
+/// An error type that describes a session-level error condition.
+/// {@category Sync}
+class SyncClientError extends SyncError {
+  /// If true the received error is fatal.
+  final bool isFatal;
+
+  /// The [SyncClientErrorCode] value indicating the type of the sync error.
+  SyncClientErrorCode get code => SyncClientErrorCode.fromInt(codeValue);
+
+  SyncClientError(
+    String message,
+    SyncErrorCategory category,
+    SyncClientErrorCode errorCode, {
+    this.isFatal = false,
+  }) : super(message, category, errorCode.code);
+
+  @override
+  String toString() {
+    return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
+  }
+}
+
+/// An error type that describes a connection-level error condition.
+/// {@category Sync}
+class SyncConnectionError extends SyncError {
+  /// If true the received error is fatal.
+  final bool isFatal;
+
+  /// The [SyncConnectionErrorCode] value indicating the type of the sync error.
+  SyncConnectionErrorCode get code => SyncConnectionErrorCode.fromInt(codeValue);
+
+  SyncConnectionError(
+    String message,
+    SyncErrorCategory category,
+    SyncConnectionErrorCode errorCode, {
+    this.isFatal = false,
+  }) : super(message, category, errorCode.code);
+
+  @override
+  String toString() {
+    return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
+  }
+}
+
+/// An error type that describes a session-level error condition.
+/// {@category Sync}
+class SyncSessionError extends SyncError {
+  /// If true the received error is fatal.
+  final bool isFatal;
+
+  /// The [SyncSessionErrorCode] value indicating the type of the sync error.
+  SyncSessionErrorCode get code => SyncSessionErrorCode.fromInt(codeValue);
+
+  SyncSessionError(
+    String message,
+    SyncErrorCategory category,
+    SyncSessionErrorCode errorCode, {
+    this.isFatal = false,
+  }) : super(message, category, errorCode.code);
+
+  @override
+  String toString() {
+    return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
+  }
+}
+
+/// A general or unknown sync error
+class GeneralSyncError extends SyncError {
+  /// The numeric value indicating the type of the general sync error.
+  int get code => codeValue;
+
+  GeneralSyncError(String message, SyncErrorCategory category, int code) : super(message, category, code);
+
+  @override
+  String toString() {
+    return "SyncError message: $message category: $category code: $code";
+  }
+}
+
+/// The category of a [SyncError].
+enum SyncErrorCategory {
+  /// The error originated from the client
+  client,
+
+  /// The error originated from the connection
+  connection,
+
+  /// The error originated from the session
+  session,
+
+  /// Another low-level system error occurred
+  system,
+
+  /// The category is unknown
+  unknown,
+}
+
+/// General sync error codes
+enum GeneralSyncErrorCode {
+  // A general sync error code
+  unknown(9999);
+
+  static final Map<int, GeneralSyncErrorCode> _valuesMap = {for (var value in GeneralSyncErrorCode.values) value.code: value};
+
+  static GeneralSyncErrorCode fromInt(int code) {
+    final mappedCode = GeneralSyncErrorCode._valuesMap[code];
+    if (mappedCode == null) {
+      throw RealmError("Unknown GeneralSyncErrorCode");
+    }
+
+    return mappedCode;
+  }
+
+  final int code;
+  const GeneralSyncErrorCode(this.code);
+}
