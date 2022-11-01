@@ -188,7 +188,7 @@ abstract class Configuration implements Finalizable {
     String? path,
     List<int>? encryptionKey,
     SyncErrorHandler syncErrorHandler = defaultSyncErrorHandler,
-    ClientResetHandler clientResetHandler = const RecoverOrDiscardUnsyncedChangesHandler(manualResetFallback: _defaultClientResetHandler),
+    ClientResetHandler clientResetHandler = const RecoverOrDiscardUnsyncedChangesHandler(onManualResetFallback: _defaultClientResetHandler),
   }) =>
       FlexibleSyncConfiguration._(
         user,
@@ -333,7 +333,7 @@ class FlexibleSyncConfiguration extends Configuration {
     super.path,
     super.encryptionKey,
     this.syncErrorHandler = defaultSyncErrorHandler,
-    this.clientResetHandler = const RecoverOrDiscardUnsyncedChangesHandler(manualResetFallback: _defaultClientResetHandler),
+    this.clientResetHandler = const RecoverOrDiscardUnsyncedChangesHandler(onManualResetFallback: _defaultClientResetHandler),
   }) : super._();
 
   @override
@@ -432,15 +432,15 @@ abstract class ClientResetHandler {
   /// Defines what should happen in case of a Client reset
   ClientResyncModeInternal get _mode;
 
-  BeforeResetCallback? get _beforeResetCallback => null;
-  AfterResetCallback? get _afterDiscardCallback => null;
-  AfterResetCallback? get _afterRecoveryCallback => null;
+  BeforeResetCallback? get _onBeforeReset => null;
+  AfterResetCallback? get _onAfterDiscard => null;
+  AfterResetCallback? get _onAfterRecovery => null;
 
   /// The callback that handles the [ClientResetError].
-  final ClientResetCallback? manualResetCallback;
+  final ClientResetCallback? onManualResetCallback;
 
   /// Initializes a new instance of [ClientResetHandler].
-  const ClientResetHandler(this.manualResetCallback);
+  const ClientResetHandler(this.onManualResetCallback);
 }
 
 /// A client reset strategy where the user needs to fully take care of a client reset.
@@ -464,22 +464,21 @@ class ManualRecoveryHandler extends ClientResetHandler {
 /// {@category Sync}
 class DiscardUnsyncedChangesHandler extends ClientResetHandler {
   /// The callback that will be executed just before the client reset happens.
-  final BeforeResetCallback? beforeResetCallback;
+  final BeforeResetCallback? onBeforeReset;
 
   /// The callback that will be executed just after the client reset happens.
-  final AfterResetCallback? afterResetCallback;
+  final AfterResetCallback? onAfterReset;
 
-  const DiscardUnsyncedChangesHandler({this.beforeResetCallback, this.afterResetCallback, ClientResetCallback? manualResetFallback})
-      : super(manualResetFallback);
+  const DiscardUnsyncedChangesHandler({this.onBeforeReset, this.onAfterReset, ClientResetCallback? onManualResetFallback}) : super(onManualResetFallback);
 
   @override
   ClientResyncModeInternal get _mode => ClientResyncModeInternal.discardLocal;
 
   @override
-  BeforeResetCallback? get _beforeResetCallback => beforeResetCallback;
+  BeforeResetCallback? get _onBeforeReset => onBeforeReset;
 
   @override
-  AfterResetCallback? get _afterDiscardCallback => afterResetCallback;
+  AfterResetCallback? get _onAfterDiscard => onAfterReset;
 }
 
 /// A client reset strategy that attempts to automatically recover any unsynchronized changes.
@@ -490,22 +489,21 @@ class DiscardUnsyncedChangesHandler extends ClientResetHandler {
 /// {@category Sync}
 class RecoverUnsyncedChangesHandler extends ClientResetHandler {
   /// The callback that will be executed just before the client reset happens.
-  final BeforeResetCallback? beforeResetCallback;
+  final BeforeResetCallback? onBeforeReset;
 
   /// The callback that will be executed just after the client reset happens.
-  final AfterResetCallback? afterResetCallback;
+  final AfterResetCallback? onAfterReset;
 
-  const RecoverUnsyncedChangesHandler({this.beforeResetCallback, this.afterResetCallback, ClientResetCallback? manualResetFallback})
-      : super(manualResetFallback);
+  const RecoverUnsyncedChangesHandler({this.onBeforeReset, this.onAfterReset, ClientResetCallback? onManualResetFallback}) : super(onManualResetFallback);
 
   @override
   ClientResyncModeInternal get _mode => ClientResyncModeInternal.recover;
 
   @override
-  BeforeResetCallback? get _beforeResetCallback => beforeResetCallback;
+  BeforeResetCallback? get _onBeforeReset => onBeforeReset;
 
   @override
-  AfterResetCallback? get _afterRecoveryCallback => afterResetCallback;
+  AfterResetCallback? get _onAfterRecovery => onAfterReset;
 }
 
 /// A client reset strategy that attempts to automatically recover any unsynchronized changes.
@@ -519,40 +517,40 @@ class RecoverUnsyncedChangesHandler extends ClientResetHandler {
 /// {@category Sync}
 class RecoverOrDiscardUnsyncedChangesHandler extends ClientResetHandler {
   /// The callback that will be executed just before the client reset happens.
-  final BeforeResetCallback? beforeResetCallback;
+  final BeforeResetCallback? onBeforeReset;
 
   /// The callback that will be executed just after the client reset happens if the local changes
   /// were successfully recovered.
-  final AfterResetCallback? afterRecoveryCallback;
+  final AfterResetCallback? onAfterRecovery;
 
   /// The callback that will be executed just after the client reset happens if the local changes
   /// needed to be discarded.
-  final AfterResetCallback? afterDiscardCallback;
+  final AfterResetCallback? onAfterDiscard;
 
   const RecoverOrDiscardUnsyncedChangesHandler(
-      {this.beforeResetCallback, this.afterRecoveryCallback, this.afterDiscardCallback, ClientResetCallback? manualResetFallback})
-      : super(manualResetFallback);
+      {this.onBeforeReset, this.onAfterRecovery, this.onAfterDiscard, ClientResetCallback? onManualResetFallback})
+      : super(onManualResetFallback);
 
   @override
   ClientResyncModeInternal get _mode => ClientResyncModeInternal.recoverOrDiscard;
 
   @override
-  BeforeResetCallback? get _beforeResetCallback => beforeResetCallback;
+  BeforeResetCallback? get _onBeforeReset => onBeforeReset;
 
   @override
-  AfterResetCallback? get _afterDiscardCallback => afterDiscardCallback;
+  AfterResetCallback? get _onAfterDiscard => onAfterDiscard;
 
   @override
-  AfterResetCallback? get _afterRecoveryCallback => afterRecoveryCallback;
+  AfterResetCallback? get _onAfterRecovery => onAfterRecovery;
 }
 
 /// @nodoc
 extension ClientResetHandlerInternal on ClientResetHandler {
   ClientResyncModeInternal get clientResyncMode => _mode;
 
-  BeforeResetCallback? get beforeResetCallback => _beforeResetCallback;
-  AfterResetCallback? get afterDiscardCallback => _afterDiscardCallback;
-  AfterResetCallback? get afterRecoveryCallback => _afterRecoveryCallback;
+  BeforeResetCallback? get onBeforeReset => _onBeforeReset;
+  AfterResetCallback? get onAfterDiscard => _onAfterDiscard;
+  AfterResetCallback? get onAfterRecovery => _onAfterRecovery;
 }
 
 /// Enum describing what should happen in case of a Client Resync.

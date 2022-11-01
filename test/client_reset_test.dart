@@ -143,7 +143,7 @@ Future<void> main([List<String>? args]) async {
     RecoverUnsyncedChangesHandler,
     DiscardUnsyncedChangesHandler,
   ]) {
-    baasTest('$clientResetHandlerType.manualResetFallback invoked when throw in beforeResetCallback', (appConfig) async {
+    baasTest('$clientResetHandlerType.onManualResetFallback invoked when throw in onBeforeReset', (appConfig) async {
       final app = App(appConfig);
       final user = await getIntegrationUser(app);
 
@@ -151,8 +151,8 @@ Future<void> main([List<String>? args]) async {
       final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
           clientResetHandler: Creator.create(
             clientResetHandlerType,
-            beforeResetCallback: (beforeResetRealm) => throw Exception("This fails!"),
-            manualResetFallback: (clientResetError) => onManualResetFallback.complete(clientResetError),
+            onBeforeReset: (beforeResetRealm) => throw Exception("This fails!"),
+            onManualResetFallback: (clientResetError) => onManualResetFallback.complete(clientResetError),
           ));
 
       final realm = await getRealmAsync(config);
@@ -163,21 +163,21 @@ Future<void> main([List<String>? args]) async {
       await expectLater(await onManualResetFallback.future, isA<ClientResetError>());
     });
 
-    baasTest('$clientResetHandlerType.manualResetFallback invoked when throw in afterResetCallback', (appConfig) async {
+    baasTest('$clientResetHandlerType.onManualResetFallback invoked when throw in onAfterReset', (appConfig) async {
       final app = App(appConfig);
       final user = await getIntegrationUser(app);
 
-      final manualResetFallback = Completer<ClientResetError>();
-      void afterResetCallback(Realm beforeResetRealm, Realm afterResetRealm) {
+      final onManualResetFallback = Completer<ClientResetError>();
+      void onAfterReset(Realm beforeResetRealm, Realm afterResetRealm) {
         throw Exception("This fails!");
       }
 
       final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
           clientResetHandler: Creator.create(
             clientResetHandlerType,
-            afterRecoveryCallback: clientResetHandlerType != DiscardUnsyncedChangesHandler ? afterResetCallback : null,
-            afterDiscardCallback: clientResetHandlerType == DiscardUnsyncedChangesHandler ? afterResetCallback : null,
-            manualResetFallback: (clientResetError) => manualResetFallback.complete(clientResetError),
+            onAfterRecovery: clientResetHandlerType != DiscardUnsyncedChangesHandler ? onAfterReset : null,
+            onAfterDiscard: clientResetHandlerType == DiscardUnsyncedChangesHandler ? onAfterReset : null,
+            onManualResetFallback: (clientResetError) => onManualResetFallback.complete(clientResetError),
           ));
 
       final realm = await getRealmAsync(config);
@@ -185,25 +185,25 @@ Future<void> main([List<String>? args]) async {
 
       await triggerClientReset(realm);
 
-      await expectLater(await manualResetFallback.future, isA<ClientResetError>());
+      await expectLater(await onManualResetFallback.future, isA<ClientResetError>());
     });
 
-    baasTest('$clientResetHandlerType.beforeResetCallback and afterResetCallback are invoked', (appConfig) async {
+    baasTest('$clientResetHandlerType.onBeforeReset and onAfterReset are invoked', (appConfig) async {
       final app = App(appConfig);
       final user = await getIntegrationUser(app);
 
       final onBeforeCompleter = Completer<void>();
       final onAfterCompleter = Completer<void>();
-      void afterResetCallback(Realm beforeResetRealm, Realm afterResetRealm) {
+      void onAfterReset(Realm beforeResetRealm, Realm afterResetRealm) {
         onAfterCompleter.complete();
       }
 
       final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
           clientResetHandler: Creator.create(
             clientResetHandlerType,
-            beforeResetCallback: (beforeResetRealm) => onBeforeCompleter.complete(),
-            afterRecoveryCallback: clientResetHandlerType != DiscardUnsyncedChangesHandler ? afterResetCallback : null,
-            afterDiscardCallback: clientResetHandlerType == DiscardUnsyncedChangesHandler ? afterResetCallback : null,
+            onBeforeReset: (beforeResetRealm) => onBeforeCompleter.complete(),
+            onAfterRecovery: clientResetHandlerType != DiscardUnsyncedChangesHandler ? onAfterReset : null,
+            onAfterDiscard: clientResetHandlerType == DiscardUnsyncedChangesHandler ? onAfterReset : null,
           ));
 
       final realm = await getRealmAsync(config);
@@ -219,23 +219,23 @@ Future<void> main([List<String>? args]) async {
       baasTest('$clientResetHandlerType notifications for deleted local data when DiscardUnsynced', (appConfig) async {
         final app = App(appConfig);
         final user = await getIntegrationUser(app);
-        int beforeResetCallbackOccured = 0;
-        int afterDiscardCallbackOccured = 0;
-        int afterRecoveryCallbackOccured = 0;
+        int onBeforeResetOccured = 0;
+        int onAfterDiscardOccured = 0;
+        int onAfterRecoveryOccured = 0;
         final onAfterCompleter = Completer<void>();
 
         final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
             clientResetHandler: Creator.create(
               clientResetHandlerType,
-              beforeResetCallback: (beforeResetRealm) => beforeResetCallbackOccured++,
-              afterRecoveryCallback: (beforeResetRealm, afterResetRealm) {
-                afterRecoveryCallbackOccured++;
+              onBeforeReset: (beforeResetRealm) => onBeforeResetOccured++,
+              onAfterRecovery: (beforeResetRealm, afterResetRealm) {
+                onAfterRecoveryOccured++;
               },
-              afterDiscardCallback: (beforeResetRealm, afterResetRealm) {
-                afterDiscardCallbackOccured++;
+              onAfterDiscard: (beforeResetRealm, afterResetRealm) {
+                onAfterDiscardOccured++;
                 onAfterCompleter.complete();
               },
-              manualResetFallback: (clientResetError) => onAfterCompleter.completeError(clientResetError),
+              onManualResetFallback: (clientResetError) => onAfterCompleter.completeError(clientResetError),
             ));
 
         final realm = await getRealmAsync(config);
@@ -267,9 +267,9 @@ Future<void> main([List<String>? args]) async {
         await onAfterCompleter.future;
         await waitForCondition(() => notifications.length == 2, timeout: Duration(seconds: 3));
 
-        expect(beforeResetCallbackOccured, 1);
-        expect(afterDiscardCallbackOccured, 1);
-        expect(afterRecoveryCallbackOccured, 0);
+        expect(onBeforeResetOccured, 1);
+        expect(onAfterDiscardOccured, 1);
+        expect(onAfterRecoveryOccured, 0);
 
         await subscription.cancel();
         expect(notifications.firstWhere((n) => n.deleted.isNotEmpty), isNotNull);
@@ -288,20 +288,20 @@ Future<void> main([List<String>? args]) async {
       final config = Configuration.flexibleSync(user, [Product.schema],
           clientResetHandler: Creator.create(
             clientResetHandlerType,
-            beforeResetCallback: (beforeResetRealm) {
+            onBeforeReset: (beforeResetRealm) {
               _checkPproducts(beforeResetRealm, comparer, expectedList: [syncedProduct, maybeProduct]);
             },
-            afterRecoveryCallback: (beforeResetRealm, afterResetRealm) {
+            onAfterRecovery: (beforeResetRealm, afterResetRealm) {
               _checkPproducts(beforeResetRealm, comparer, expectedList: [syncedProduct, maybeProduct]);
               _checkPproducts(afterResetRealm, comparer, expectedList: [syncedProduct, maybeProduct]);
               onAfterCompleter.complete();
             },
-            afterDiscardCallback: (beforeResetRealm, afterResetRealm) {
+            onAfterDiscard: (beforeResetRealm, afterResetRealm) {
               _checkPproducts(beforeResetRealm, comparer, expectedList: [syncedProduct, maybeProduct]);
               _checkPproducts(afterResetRealm, comparer, expectedList: [syncedProduct], notExpectedList: [maybeProduct]);
               onAfterCompleter.complete();
             },
-            manualResetFallback: (clientResetError) => onAfterCompleter.completeError(clientResetError),
+            onManualResetFallback: (clientResetError) => onAfterCompleter.completeError(clientResetError),
           ));
 
       final realm = await getRealmAsync(config);
@@ -322,7 +322,7 @@ Future<void> main([List<String>? args]) async {
     });
   }
 
-  baasTest('Disabled server recovery - afterDiscardCallback callback is invoked for RecoverOrDiscardUnsyncedChangesHandler', (appConfig) async {
+  baasTest('Disabled server recovery - onAfterDiscard callback is invoked for RecoverOrDiscardUnsyncedChangesHandler', (appConfig) async {
     final app = App(appConfig);
     final user = await getIntegrationUser(app);
 
@@ -333,12 +333,12 @@ Future<void> main([List<String>? args]) async {
 
     final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
         clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(
-          beforeResetCallback: (beforeResetRealm) => onBeforeCompleter.complete(),
-          afterRecoveryCallback: (Realm beforeResetRealm, Realm afterResetRealm) {
+          onBeforeReset: (beforeResetRealm) => onBeforeCompleter.complete(),
+          onAfterRecovery: (Realm beforeResetRealm, Realm afterResetRealm) {
             onAfterCompleter.complete();
             recovery = true;
           },
-          afterDiscardCallback: (Realm beforeResetRealm, Realm afterResetRealm) {
+          onAfterDiscard: (Realm beforeResetRealm, Realm afterResetRealm) {
             onAfterCompleter.complete();
             discard = true;
           },
@@ -356,26 +356,26 @@ Future<void> main([List<String>? args]) async {
     expect(discard, isTrue);
   });
 
-  baasTest('afterResetCallback is reported after async beforeResetCallback completes', (appConfig) async {
+  baasTest('onAfterReset is reported after async onBeforeReset completes', (appConfig) async {
     final app = App(appConfig);
     final user = await getIntegrationUser(app);
-    int beforeResetCallbackOccured = 0;
-    int afterResetCallbackOccured = 0;
+    int onBeforeResetOccured = 0;
+    int onAfterResetOccured = 0;
     final onAfterCompleter = Completer<void>();
 
     final config = Configuration.flexibleSync(
       user,
       [Task.schema, Schedule.schema],
       clientResetHandler: DiscardUnsyncedChangesHandler(
-        beforeResetCallback: (beforeResetRealm) async {
+        onBeforeReset: (beforeResetRealm) async {
           await Future<void>.delayed(Duration(seconds: 1));
-          beforeResetCallbackOccured++;
+          onBeforeResetOccured++;
         },
-        afterResetCallback: (beforeResetRealm, afterResetRealm) {
-          if (beforeResetCallbackOccured == 0) {
+        onAfterReset: (beforeResetRealm, afterResetRealm) {
+          if (onBeforeResetOccured == 0) {
             onAfterCompleter.completeError(Exception("BeforeResetCallback is still not completed"));
           }
-          afterResetCallbackOccured++;
+          onAfterResetOccured++;
           onAfterCompleter.complete();
         },
       ),
@@ -386,15 +386,15 @@ Future<void> main([List<String>? args]) async {
     await triggerClientReset(realm);
 
     await onAfterCompleter.future;
-    expect(afterResetCallbackOccured, 1);
-    expect(beforeResetCallbackOccured, 1);
+    expect(onAfterResetOccured, 1);
+    expect(onBeforeResetOccured, 1);
   });
 
-  baasTest('manualResetFallback is reported after async afterResetCallback throws', (appConfig) async {
+  baasTest('onManualResetFallback is reported after async onAfterReset throws', (appConfig) async {
     final app = App(appConfig);
     final user = await getIntegrationUser(app);
-    int beforeResetCallbackOccured = 0;
-    int afterResetCallbackOccured = 0;
+    int onBeforeResetOccured = 0;
+    int onAfterResetOccured = 0;
     int manualResetFallbacKOccured = 0;
     final manualResetFallbacKCompleter = Completer<void>();
 
@@ -402,17 +402,17 @@ Future<void> main([List<String>? args]) async {
       user,
       [Task.schema, Schedule.schema],
       clientResetHandler: DiscardUnsyncedChangesHandler(
-        beforeResetCallback: (beforeResetRealm) {
-          beforeResetCallbackOccured++;
+        onBeforeReset: (beforeResetRealm) {
+          onBeforeResetOccured++;
         },
-        afterResetCallback: (beforeResetRealm, afterResetRealm) async {
+        onAfterReset: (beforeResetRealm, afterResetRealm) async {
           await Future<void>.delayed(Duration(seconds: 1));
-          afterResetCallbackOccured++;
-          throw Exception("Cause manualResetFallback");
+          onAfterResetOccured++;
+          throw Exception("Cause onManualResetFallback");
         },
-        manualResetFallback: (clientResetError) {
+        onManualResetFallback: (clientResetError) {
           manualResetFallbacKOccured++;
-          if (afterResetCallbackOccured == 0) {
+          if (onAfterResetOccured == 0) {
             manualResetFallbacKCompleter.completeError(Exception("AfterResetCallback is still not completed"));
           }
           manualResetFallbacKCompleter.complete();
@@ -426,8 +426,8 @@ Future<void> main([List<String>? args]) async {
 
     await manualResetFallbacKCompleter.future;
     expect(manualResetFallbacKOccured, 1);
-    expect(afterResetCallbackOccured, 1);
-    expect(beforeResetCallbackOccured, 1);
+    expect(onAfterResetOccured, 1);
+    expect(onBeforeResetOccured, 1);
   });
 
   // 1. userA adds [task0, task1, task2] and syncs it, then disconnects
@@ -452,7 +452,7 @@ Future<void> main([List<String>? args]) async {
     comparer(Task t1, ObjectId id) => t1.id == id;
 
     final configA = Configuration.flexibleSync(userA, [Task.schema], clientResetHandler: RecoverUnsyncedChangesHandler(
-      afterResetCallback: (beforeResetRealm, afterResetRealm) {
+      onAfterReset: (beforeResetRealm, afterResetRealm) {
         try {
           _checkPproducts(beforeResetRealm, comparer, expectedList: [task0Id, task1Id], notExpectedList: [task2Id, task3Id]);
           _checkPproducts(afterResetRealm, comparer, expectedList: [task0Id, task1Id], notExpectedList: [task2Id]);
@@ -464,7 +464,7 @@ Future<void> main([List<String>? args]) async {
     ));
 
     final configB = Configuration.flexibleSync(userB, [Schedule.schema, Task.schema], clientResetHandler: RecoverUnsyncedChangesHandler(
-      afterResetCallback: (beforeResetRealm, afterResetRealm) {
+      onAfterReset: (beforeResetRealm, afterResetRealm) {
         try {
           _checkPproducts(beforeResetRealm, comparer, expectedList: [task0Id, task1Id, task2Id, task3Id]);
           _checkPproducts(afterResetRealm, comparer, expectedList: [task0Id, task1Id, task3Id], notExpectedList: [task2Id]);
@@ -539,46 +539,40 @@ void _checkPproducts<T extends RealmObject, O extends Object?>(Realm realmToSear
 class Creator {
   static final _constructors = {
     RecoverOrDiscardUnsyncedChangesHandler: (
-            {BeforeResetCallback? beforeResetCallback,
-            AfterResetCallback? afterRecoveryCallback,
-            AfterResetCallback? afterDiscardCallback,
-            ClientResetCallback? manualResetFallback}) =>
+            {BeforeResetCallback? onBeforeReset,
+            AfterResetCallback? onAfterRecovery,
+            AfterResetCallback? onAfterDiscard,
+            ClientResetCallback? onManualResetFallback}) =>
         RecoverOrDiscardUnsyncedChangesHandler(
-            beforeResetCallback: beforeResetCallback,
-            afterRecoveryCallback: afterRecoveryCallback,
-            afterDiscardCallback: afterDiscardCallback,
-            manualResetFallback: manualResetFallback),
+            onBeforeReset: onBeforeReset, onAfterRecovery: onAfterRecovery, onAfterDiscard: onAfterDiscard, onManualResetFallback: onManualResetFallback),
     RecoverUnsyncedChangesHandler: (
-            {BeforeResetCallback? beforeResetCallback,
-            AfterResetCallback? afterRecoveryCallback,
-            AfterResetCallback? afterDiscardCallback,
-            ClientResetCallback? manualResetFallback}) =>
+            {BeforeResetCallback? onBeforeReset,
+            AfterResetCallback? onAfterRecovery,
+            AfterResetCallback? onAfterDiscard,
+            ClientResetCallback? onManualResetFallback}) =>
         RecoverUnsyncedChangesHandler(
-          beforeResetCallback: beforeResetCallback,
-          afterResetCallback: afterRecoveryCallback,
-          manualResetFallback: manualResetFallback,
+          onBeforeReset: onBeforeReset,
+          onAfterReset: onAfterRecovery,
+          onManualResetFallback: onManualResetFallback,
         ),
     DiscardUnsyncedChangesHandler: (
-            {BeforeResetCallback? beforeResetCallback,
-            AfterResetCallback? afterRecoveryCallback,
-            AfterResetCallback? afterDiscardCallback,
-            ClientResetCallback? manualResetFallback}) =>
+            {BeforeResetCallback? onBeforeReset,
+            AfterResetCallback? onAfterRecovery,
+            AfterResetCallback? onAfterDiscard,
+            ClientResetCallback? onManualResetFallback}) =>
         DiscardUnsyncedChangesHandler(
-          beforeResetCallback: beforeResetCallback,
-          afterResetCallback: afterDiscardCallback,
-          manualResetFallback: manualResetFallback,
+          onBeforeReset: onBeforeReset,
+          onAfterReset: onAfterDiscard,
+          onManualResetFallback: onManualResetFallback,
         ),
   };
   static ClientResetHandler create(Type type,
-      {BeforeResetCallback? beforeResetCallback,
-      AfterResetCallback? afterRecoveryCallback,
-      AfterResetCallback? afterDiscardCallback,
-      ClientResetCallback? manualResetFallback}) {
+      {BeforeResetCallback? onBeforeReset,
+      AfterResetCallback? onAfterRecovery,
+      AfterResetCallback? onAfterDiscard,
+      ClientResetCallback? onManualResetFallback}) {
     return _constructors[type]!(
-        beforeResetCallback: beforeResetCallback,
-        afterRecoveryCallback: afterRecoveryCallback,
-        afterDiscardCallback: afterDiscardCallback,
-        manualResetFallback: manualResetFallback);
+        onBeforeReset: onBeforeReset, onAfterRecovery: onAfterRecovery, onAfterDiscard: onAfterDiscard, onManualResetFallback: onManualResetFallback);
   }
 }
 

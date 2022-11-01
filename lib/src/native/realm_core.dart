@@ -498,7 +498,7 @@ class _RealmCore {
     final syncError = error.toSyncError(syncConfig);
 
     if (syncError is ClientResetError) {
-      syncConfig.clientResetHandler.manualResetCallback?.call(syncError);
+      syncConfig.clientResetHandler.onManualResetCallback?.call(syncError);
     } else {
       syncConfig.syncErrorHandler(syncError);
     }
@@ -506,7 +506,7 @@ class _RealmCore {
 
   static void _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle, Pointer<Void> unlockCallbackFunc) {
     final syncConfig = userdata as FlexibleSyncConfiguration;
-    final beforeResetCallback = syncConfig.clientResetHandler.beforeResetCallback;
+    final beforeResetCallback = syncConfig.clientResetHandler.onBeforeReset;
     if (beforeResetCallback == null) {
       _invokeNativeFunction(unlockCallbackFunc);
       return;
@@ -518,7 +518,7 @@ class _RealmCore {
   static void _syncAfterResetCallback(Object userdata, Pointer<shared_realm> beforeHandle, Pointer<realm_thread_safe_reference> afterReference, bool didRecover,
       Pointer<Void> unlockCallbackFunc) {
     final syncConfig = userdata as FlexibleSyncConfiguration;
-    final afterResetCallback = didRecover ? syncConfig.clientResetHandler.afterRecoveryCallback : syncConfig.clientResetHandler.afterDiscardCallback;
+    final afterResetCallback = didRecover ? syncConfig.clientResetHandler.onAfterRecovery : syncConfig.clientResetHandler.onAfterDiscard;
     if (afterResetCallback == null) {
       _invokeNativeFunction(unlockCallbackFunc);
       return;
