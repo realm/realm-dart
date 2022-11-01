@@ -120,6 +120,24 @@ class RealmAny {
   const RealmAny.uuid(Uuid uuid) : this._(uuid);
 }
 
+/// The category of a [SyncError].
+enum SyncErrorCategory {
+  /// The error originated from the client
+  client,
+
+  /// The error originated from the connection
+  connection,
+
+  /// The error originated from the session
+  session,
+
+  /// Another low-level system error occurred
+  system,
+
+  /// The category is unknown
+  unknown,
+}
+
 /// Protocol errors discovered by the client.
 ///
 /// These errors will terminate the network connection
@@ -407,4 +425,24 @@ enum SyncSessionErrorCode {
 
   final int code;
   const SyncSessionErrorCode(this.code);
+}
+
+/// General sync error codes
+enum GeneralSyncErrorCode {
+  // A general sync error code
+  unknown(9999);
+
+  static final Map<int, GeneralSyncErrorCode> _valuesMap = {for (var value in GeneralSyncErrorCode.values) value.code: value};
+
+  static GeneralSyncErrorCode fromInt(int code) {
+    final mappedCode = GeneralSyncErrorCode._valuesMap[code];
+    if (mappedCode == null) {
+      throw RealmError("Unknown GeneralSyncErrorCode");
+    }
+
+    return mappedCode;
+  }
+
+  final int code;
+  const GeneralSyncErrorCode(this.code);
 }
