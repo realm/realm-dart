@@ -588,16 +588,6 @@ enum ClientResyncModeInternal {
   recoverOrDiscard,
 }
 
-extension ClientResetErrorFunctions on ClientResetError {
-  void resetRealm() {
-    if (config == null || config is! FlexibleSyncConfiguration) {
-      throw Exception("FlexibleSyncConfiguration is not set into ClientResetError");
-    }
-    final flexibleConfig = config as FlexibleSyncConfiguration;
-    realmCore.immediatelyRunFileActions(flexibleConfig.user.app, flexibleConfig.path);
-  }
-}
-
 /// An error type that describes a client reset error condition.
 /// {@category Sync}
 class ClientResetError extends SyncError {
@@ -613,6 +603,14 @@ class ClientResetError extends SyncError {
   @override
   String toString() {
     return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
+  }
+
+  void resetRealm() {
+    if (config == null || config is! FlexibleSyncConfiguration) {
+      throw Exception("FlexibleSyncConfiguration is not set into ClientResetError");
+    }
+    final flexibleConfig = config as FlexibleSyncConfiguration;
+    realmCore.immediatelyRunFileActions(flexibleConfig.user.app, flexibleConfig.path);
   }
 }
 
