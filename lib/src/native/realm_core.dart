@@ -247,6 +247,7 @@ class _RealmCore {
           _realmLib.realm_release(syncConfigPtr.cast());
         }
       } else if (config is DisconnectedSyncConfiguration) {
+        _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT);
         _realmLib.realm_config_set_force_sync_history(configPtr, true);
       }
       if (config.encryptionKey != null) {
