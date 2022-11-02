@@ -39,6 +39,7 @@ export 'package:realm_common/realm_common.dart'
         Ignored,
         Indexed,
         MapTo,
+        Backlink,
         PrimaryKey,
         RealmError,
         RealmClosedError,
