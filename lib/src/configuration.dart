@@ -607,7 +607,7 @@ class ClientResetError extends SyncError {
 
   /// Initiates the client reset process.
   ///
-  /// On Windows, all Realm instances for that path must be disposed before this method is called or an
+  /// All Realm instances for that path must be closed before this method is called or an
   /// Exception will be thrown.
   void resetRealm() {
     if (config == null || config is! FlexibleSyncConfiguration) {
