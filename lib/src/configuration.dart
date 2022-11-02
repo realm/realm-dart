@@ -605,6 +605,10 @@ class ClientResetError extends SyncError {
     return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
   }
 
+  /// Initiates the client reset process.
+  ///
+  /// On Windows, all Realm instances for that path must be disposed before this method is called or an
+  /// Exception will be thrown.
   void resetRealm() {
     if (config == null || config is! FlexibleSyncConfiguration) {
       throw Exception("FlexibleSyncConfiguration is not set into ClientResetError");
