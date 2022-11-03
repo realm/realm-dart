@@ -80,7 +80,7 @@ Future<void> main([List<String>? args]) async {
     await realm.syncSession.waitForUpload();
 
     await triggerClientReset(realm);
-    final clientResetFuture = waitFutureWithTimeout(resetCompleter.future, timeoutError: "ManualRecoveryHandler is not reported");
+    final clientResetFuture = waitFutureWithTimeout(resetCompleter.future, timeoutError: "ManualRecoveryHandler is not reported.");
     await expectLater(clientResetFuture, throws<ClientResetError>('Bad client file identifier'));
   });
 
@@ -108,7 +108,7 @@ Future<void> main([List<String>? args]) async {
 
     await triggerClientReset(realm);
 
-    await waitFutureWithTimeout(resetRealmFuture, timeoutError: "ManualRecoveryHandler is not reported");
+    await waitFutureWithTimeout(resetRealmFuture, timeoutError: "ManualRecoveryHandler is not reported.");
 
     expect(File(config.path).existsSync(), isFalse);
   });
@@ -136,7 +136,7 @@ Future<void> main([List<String>? args]) async {
 
     await triggerClientReset(realm);
 
-    final clientResetFuture = waitFutureWithTimeout(resetRealmFuture, timeoutError: "ManualRecoveryHandler is not reported");
+    final clientResetFuture = waitFutureWithTimeout(resetRealmFuture, timeoutError: "ManualRecoveryHandler is not reported.");
     await expectLater(clientResetFuture, throws<RealmException>("An error occurred while deleting Realm file. Check if the file is in use"));
 
     expect(File(config.path).existsSync(), isTrue);
@@ -164,7 +164,7 @@ Future<void> main([List<String>? args]) async {
 
       await triggerClientReset(realm);
 
-      final clientResetFuture = waitFutureWithTimeout(onManualResetFallback.future, timeoutError: "onManualResetFallback is not reported");
+      final clientResetFuture = waitFutureWithTimeout(onManualResetFallback.future, timeoutError: "onManualResetFallback is not reported.");
       await expectLater(clientResetFuture, throws<ClientResetError>());
     });
 
@@ -181,7 +181,7 @@ Future<void> main([List<String>? args]) async {
           clientResetHandler: Creator.create(
             clientResetHandlerType,
             onAfterRecovery: clientResetHandlerType != DiscardUnsyncedChangesHandler ? onAfterReset : null,
-            onAfterDiscard: clientResetHandlerType == DiscardUnsyncedChangesHandler ? onAfterReset : null,
+            onAfterDiscard: clientResetHandlerType != RecoverUnsyncedChangesHandler ? onAfterReset : null,
             onManualResetFallback: (clientResetError) => onManualResetFallback.completeError(clientResetError),
           ));
 
@@ -190,7 +190,7 @@ Future<void> main([List<String>? args]) async {
 
       await triggerClientReset(realm);
 
-      final clientResetFuture = waitFutureWithTimeout(onManualResetFallback.future, timeoutError: "onManualResetFallback is not reported");
+      final clientResetFuture = waitFutureWithTimeout(onManualResetFallback.future, timeoutError: "onManualResetFallback is not reported.");
       await expectLater(clientResetFuture, throws<ClientResetError>());
     });
 
@@ -209,7 +209,7 @@ Future<void> main([List<String>? args]) async {
             clientResetHandlerType,
             onBeforeReset: (beforeResetRealm) => onBeforeCompleter.complete(),
             onAfterRecovery: clientResetHandlerType != DiscardUnsyncedChangesHandler ? onAfterReset : null,
-            onAfterDiscard: clientResetHandlerType == DiscardUnsyncedChangesHandler ? onAfterReset : null,
+            onAfterDiscard: clientResetHandlerType != RecoverUnsyncedChangesHandler ? onAfterReset : null,
           ));
 
       final realm = await getRealmAsync(config);
@@ -217,8 +217,8 @@ Future<void> main([List<String>? args]) async {
 
       await triggerClientReset(realm);
 
-      await waitFutureWithTimeout(onBeforeCompleter.future, timeoutError: "onBeforeReset is not reported");
-      await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "onAfterReset is not reported");
+      await waitFutureWithTimeout(onBeforeCompleter.future, timeoutError: "onBeforeReset is not reported.");
+      await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "onAfterReset is not reported.");
     });
 
     if (clientResetHandlerType != RecoverUnsyncedChangesHandler) {
@@ -270,7 +270,7 @@ Future<void> main([List<String>? args]) async {
         }
         await triggerClientReset(realm, restartSession: false);
         realm.syncSession.resume();
-        await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "Neither onAfterDiscard nor onManualResetFallback is reported");
+        await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "Neither onAfterDiscard nor onManualResetFallback is reported.");
 
         await waitForCondition(() => notifications.length == 2, timeout: Duration(seconds: 3));
 
@@ -325,7 +325,7 @@ Future<void> main([List<String>? args]) async {
 
       await triggerClientReset(realm, restartSession: false);
       realm.syncSession.resume();
-      await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "Neither onAfterDiscard, onAfterDiscard nor onManualResetFallback is reported");
+      await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "Neither onAfterDiscard, onAfterDiscard nor onManualResetFallback is reported.");
     });
   }
 
@@ -357,8 +357,8 @@ Future<void> main([List<String>? args]) async {
     await disableAutomaticRecovery();
     await triggerClientReset(realm);
 
-    await waitFutureWithTimeout(onBeforeCompleter.future, timeoutError: "onBeforeReset is not reported");
-    await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "Neither onAfterRecovery nor onAfterDiscard is reported");
+    await waitFutureWithTimeout(onBeforeCompleter.future, timeoutError: "onBeforeReset is not reported.");
+    await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "Neither onAfterRecovery nor onAfterDiscard is reported.");
 
     expect(recovery, isFalse);
     expect(discard, isTrue);
@@ -393,7 +393,7 @@ Future<void> main([List<String>? args]) async {
     await realm.syncSession.waitForUpload();
     await triggerClientReset(realm);
 
-    await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "onAfterReset is not reported");
+    await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "onAfterReset is not reported.");
 
     expect(onAfterResetOccured, 1);
     expect(onBeforeResetOccured, 1);
@@ -422,7 +422,7 @@ Future<void> main([List<String>? args]) async {
         onManualResetFallback: (clientResetError) {
           manualResetFallbacKOccured++;
           if (onAfterResetOccured == 0) {
-            manualResetFallbacKCompleter.completeError(Exception("AfterResetCallback is still not completed"));
+            manualResetFallbacKCompleter.completeError(Exception("AfterResetCallback is still not completed when onManualResetFallback starts."));
           }
           manualResetFallbacKCompleter.complete();
         },
@@ -433,8 +433,7 @@ Future<void> main([List<String>? args]) async {
     await realm.syncSession.waitForUpload();
     await triggerClientReset(realm);
 
-    final clientResetFuture = waitFutureWithTimeout(manualResetFallbacKCompleter.future, timeoutError: "onManualResetFallback is not reported");
-    await expectLater(clientResetFuture, throws<ClientResetError>());
+    await waitFutureWithTimeout(manualResetFallbacKCompleter.future, timeoutError: "onManualResetFallback is not reported.");
 
     expect(manualResetFallbacKOccured, 1);
     expect(onAfterResetOccured, 1);
@@ -500,12 +499,12 @@ Future<void> main([List<String>? args]) async {
 
     await triggerClientReset(realmA);
     await realmA.syncSession.waitForUpload();
-    await waitFutureWithTimeout(afterRecoverCompleterA.future, timeoutError: "onAfterReset for realmA is not reported");
+    await waitFutureWithTimeout(afterRecoverCompleterA.future, timeoutError: "onAfterReset for realmA is not reported.");
 
     await triggerClientReset(realmB, restartSession: false);
     realmB.syncSession.resume();
     await realmB.syncSession.waitForUpload();
-    await waitFutureWithTimeout(afterRecoverCompleterB.future, timeoutError: "onAfterReset for realmB is not reported");
+    await waitFutureWithTimeout(afterRecoverCompleterB.future, timeoutError: "onAfterReset for realmB is not reported.");
 
     await realmA.syncSession.waitForDownload();
 
