@@ -37,7 +37,8 @@ class Mapping<T> {
 const _intMapping = Mapping<int>(indexable: true);
 const _boolMapping = Mapping<bool>(indexable: true);
 
-/// @nodoc
+/// All supported `Realm` property types.
+/// {@category Configuration}
 enum RealmPropertyType {
   int(_intMapping),
   bool(_boolMapping),
