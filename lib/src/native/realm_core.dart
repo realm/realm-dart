@@ -2249,7 +2249,7 @@ class _RealmCore {
   void immediatelyRunFileActions(App app, String realmPath) {
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_immediately_run_file_actions(app.handle._pointer, realmPath.toCharPtr(arena)),
-          "An error occurred while deleting Realm file. Check if the file is in use: '$realmPath'");
+          "An error occurred while resetting the Realm. Check if the file is in use: '$realmPath'");
     });
   }
 }

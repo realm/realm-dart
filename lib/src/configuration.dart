@@ -316,14 +316,14 @@ class FlexibleSyncConfiguration extends Configuration {
 
   SessionStopPolicy _sessionStopPolicy = SessionStopPolicy.afterChangesUploaded;
 
-  /// Called when a [SyncError] occurs for this synchronized realm.
+  /// Called when a [SyncError] occurs for this synchronized `Realm`.
   ///
   /// The default [SyncErrorHandler] prints to the console.
   final SyncErrorHandler syncErrorHandler;
 
-  /// Called when a [ClientResetError] occurs for this synchronized realm.
+  /// Called when a [ClientResetError] occurs for this synchronized `Realm`.
   ///
-  /// The default [ClientResetHandler] logs a message using the current `Realm.logger`.
+  /// The default [ClientResetHandler] logs a message using the current [Realm.logger].
   final ClientResetHandler clientResetHandler;
 
   FlexibleSyncConfiguration._(
@@ -429,7 +429,7 @@ extension SchemaObjectInternal on SchemaObject {
 /// This can happen if the server is rolled back or restored from backup.
 /// {@category Sync}
 abstract class ClientResetHandler {
-  // Defines what should happen in case of a Client reset
+  // Defines what should happen in case of a client reset
   final ClientResyncModeInternal _mode;
 
   final BeforeResetCallback? _onBeforeReset;
@@ -567,27 +567,28 @@ enum ClientResyncModeInternal {
 class ClientResetError extends SyncError {
   /// If true the received error is fatal.
   final bool isFatal = true;
-  final Configuration? config;
+  // The instance of [Configuration] that [ClientResetError] is thrown for.
+  final Configuration? _config;
 
   /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
   SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
 
-  ClientResetError(String message, [this.config]) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
+  ClientResetError(String message, [this._config]) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
 
   @override
   String toString() {
-    return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
+    return "ClientResetError message: $message category: $category code: $code isFatal: $isFatal";
   }
 
   /// Initiates the client reset process.
   ///
   /// All Realm instances for that path must be closed before this method is called or an
-  /// Exception will be thrown.
+  /// [RealmException] will be thrown.
   void resetRealm() {
-    if (config == null || config is! FlexibleSyncConfiguration) {
-      throw Exception("FlexibleSyncConfiguration is not set into ClientResetError");
+    if (_config == null || _config is! FlexibleSyncConfiguration) {
+      throw RealmException("The current configuration is not FlexibleSyncConfiguration.");
     }
-    final flexibleConfig = config as FlexibleSyncConfiguration;
+    final flexibleConfig = _config as FlexibleSyncConfiguration;
     realmCore.immediatelyRunFileActions(flexibleConfig.user.app, flexibleConfig.path);
   }
 }
@@ -650,7 +651,7 @@ class SyncClientError extends SyncError {
 
   @override
   String toString() {
-    return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
+    return "SyncClientError message: $message category: $category code: $code isFatal: $isFatal";
   }
 }
 
@@ -672,7 +673,7 @@ class SyncConnectionError extends SyncError {
 
   @override
   String toString() {
-    return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
+    return "SyncConnectionError message: $message category: $category code: $code isFatal: $isFatal";
   }
 }
 
@@ -694,7 +695,7 @@ class SyncSessionError extends SyncError {
 
   @override
   String toString() {
-    return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
+    return "SyncSessionError message: $message category: $category code: $code isFatal: $isFatal";
   }
 }
 
@@ -707,7 +708,7 @@ class GeneralSyncError extends SyncError {
 
   @override
   String toString() {
-    return "SyncError message: $message category: $category code: $code";
+    return "GeneralSyncError message: $message category: $category code: $code";
   }
 }
 

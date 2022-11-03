@@ -137,7 +137,7 @@ Future<void> main([List<String>? args]) async {
     await triggerClientReset(realm);
 
     final clientResetFuture = waitFutureWithTimeout(resetRealmFuture, timeoutError: "ManualRecoveryHandler is not reported.");
-    await expectLater(clientResetFuture, throws<RealmException>("An error occurred while deleting Realm file. Check if the file is in use"));
+    await expectLater(clientResetFuture, throws<RealmException>("An error occurred while resetting the Realm. Check if the file is in use"));
 
     expect(File(config.path).existsSync(), isTrue);
   }, skip: !Platform.isWindows);
