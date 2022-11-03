@@ -28,61 +28,34 @@ part 'indexed_test.g.dart';
 
 // IMPORTANT: Don't import our own test.dart here. It will break AOT compilation!
 
-// Realm models cannot extend other classes, but they can implement interfaces.
-class Base {
-  late int anInt;
-  late bool aBool;
-  late String string;
-  late DateTime timestamp;
-  late ObjectId objectId;
-  late Uuid uuid;
-}
-
 @RealmModel()
-class _WithIndexes implements Base {
-  @override
+class _WithIndexes {
   @Indexed()
   late int anInt;
 
-  @override
   @Indexed()
   late bool aBool;
 
-  @override
   @Indexed()
   late String string;
 
-  @override
   @Indexed()
   late DateTime timestamp;
 
-  @override
   @Indexed()
   late ObjectId objectId;
 
-  @override
   @Indexed()
   late Uuid uuid;
 }
 
 @RealmModel()
-class _NoIndexes implements Base {
-  @override
+class _NoIndexes {
   late int anInt;
-
-  @override
   late bool aBool;
-
-  @override
   late String string;
-
-  @override
   late DateTime timestamp;
-
-  @override
   late ObjectId objectId;
-
-  @override
   late Uuid uuid;
 }
 
