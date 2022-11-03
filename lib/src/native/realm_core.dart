@@ -2164,6 +2164,14 @@ class _RealmCore {
       return completer.future;
     });
   }
+
+  bool compact(Realm realm) {
+    return using((arena) {
+      final out_did_compact = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_compact(realm.handle._pointer, out_did_compact));
+      return out_did_compact.value;
+    });
+  }
 }
 
 class LastError {
