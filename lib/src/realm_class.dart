@@ -84,7 +84,17 @@ export "configuration.dart"
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
 export 'realm_object.dart'
-    show RealmEntity, RealmException, UserCallbackException, RealmObject, RealmObjectBase, EmbeddedObject, RealmObjectChanges, DynamicRealmObject;
+    show
+        RealmEntity,
+        RealmException,
+        UserCallbackException,
+        RealmObject,
+        RealmObjectBase,
+        EmbeddedObject,
+        EmbeddedObjectExtension,
+        RealmObjectChanges,
+        DynamicRealmObject;
+
 export 'realm_property.dart';
 export 'results.dart' show RealmResults, RealmResultsChanges, RealmResultsOfObject;
 export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;

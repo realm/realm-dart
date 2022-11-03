@@ -824,10 +824,10 @@ Future<void> main([List<String>? args]) async {
 
     final child1 = parent.recursiveObject!;
 
-    expect(child1.getParent(), parent);
-    expect(child1.child!.getParent(), child1);
+    expect(child1.parent, parent);
+    expect(child1.child!.parent, child1);
 
-    expect(parent.recursiveList[0].getParent(), parent);
+    expect(parent.recursiveList[0].parent, parent);
   });
 
   test('EmbeddedObject.getParent when unmanaged returns null', () async {
@@ -836,10 +836,10 @@ Future<void> main([List<String>? args]) async {
 
     final child1 = parent.recursiveObject!;
 
-    expect(child1.getParent(), null);
-    expect(child1.child!.getParent(), null);
+    expect(child1.parent, null);
+    expect(child1.child!.parent, null);
 
-    expect(parent.recursiveList[0].getParent(), null);
+    expect(parent.recursiveList[0].parent, null);
   });
 }
 
