@@ -439,7 +439,6 @@ abstract class ClientResetHandler {
   /// The callback that handles the [ClientResetError].
   final ClientResetCallback? onManualReset;
 
-  /// Initializes a new instance of [ClientResetHandler].
   const ClientResetHandler._(this._mode, this.onManualReset,
       {BeforeResetCallback? onBeforeReset, AfterResetCallback? onAfterDiscard, AfterResetCallback? onAfterRecovery})
       : _onBeforeReset = onBeforeReset,
