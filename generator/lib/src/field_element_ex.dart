@@ -133,17 +133,20 @@ extension FieldElementEx on FieldElement {
       }
 
       // Validate indexes
-      if ((primaryKey != null || indexed != null) &&
-          (![RealmPropertyType.string, RealmPropertyType.int, RealmPropertyType.objectid, RealmPropertyType.uuid].contains(type.realmType) ||
-              type.isRealmCollection)) {
+      if ((((primaryKey ?? indexed) != null) && !(type.realmType?.mapping.indexable ?? false)) || //
+          (primaryKey != null && type.isDartCoreBool)) {
         final file = span!.file;
         final annotation = (primaryKey ?? indexed)!.annotation;
+        final listOfValidTypes = RealmPropertyType.values //
+            .map((t) => t.mapping)
+            .where((m) => m.indexable && (m.type != bool || primaryKey == null))
+            .map((m) => m.type);
 
         throw RealmInvalidGenerationSourceError(
-          'Realm only support indexes on String, int, and bool fields',
+          'Realm only supports the $annotation annotation on fields of type\n${listOfValidTypes.join(', ')}\nas well as their nullable versions',
           element: this,
           primarySpan: typeSpan(file),
-          primaryLabel: "$modelTypeName is not an indexable type",
+          primaryLabel: "$modelTypeName is not a valid type here",
           todo: //
               "Change the type of '$displayName', "
               "or remove the $annotation annotation",

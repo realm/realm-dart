@@ -34,6 +34,9 @@ class SchemaProperty {
   /// `true` if the property is a primary key
   final bool primaryKey;
 
+  /// `true` if the property is indexed
+  final bool indexed;
+
   /// The `Realm` type of the property
   final RealmPropertyType propertyType;
 
@@ -53,6 +56,7 @@ class SchemaProperty {
     this.optional = false,
     this.mapTo,
     this.primaryKey = false,
+    this.indexed = false,
     this.linkTarget,
     this.linkOriginProperty,
     this.collectionType = RealmCollectionType.none,

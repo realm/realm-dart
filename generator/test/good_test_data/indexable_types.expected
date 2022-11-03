@@ -1,0 +1,142 @@
+// **************************************************************************
+// RealmObjectGenerator
+// **************************************************************************
+
+class Indexable extends _Indexable
+    with RealmEntity, RealmObjectBase, RealmObject {
+  Indexable(
+    bool aBool,
+    int anInt,
+    String aString,
+    ObjectId anObjectId,
+    Uuid anUuid,
+    DateTime aDateTime, {
+    bool? aNullableBool,
+    int? aNullableInt,
+    String? aNullableString,
+    ObjectId? aNullableObjectId,
+    Uuid? aNullableUuid,
+    DateTime? aNullableDateTime,
+  }) {
+    RealmObjectBase.set(this, 'aBool', aBool);
+    RealmObjectBase.set(this, 'aNullableBool', aNullableBool);
+    RealmObjectBase.set(this, 'anInt', anInt);
+    RealmObjectBase.set(this, 'aNullableInt', aNullableInt);
+    RealmObjectBase.set(this, 'aString', aString);
+    RealmObjectBase.set(this, 'aNullableString', aNullableString);
+    RealmObjectBase.set(this, 'anObjectId', anObjectId);
+    RealmObjectBase.set(this, 'aNullableObjectId', aNullableObjectId);
+    RealmObjectBase.set(this, 'anUuid', anUuid);
+    RealmObjectBase.set(this, 'aNullableUuid', aNullableUuid);
+    RealmObjectBase.set(this, 'aDateTime', aDateTime);
+    RealmObjectBase.set(this, 'aNullableDateTime', aNullableDateTime);
+  }
+
+  Indexable._();
+
+  @override
+  bool get aBool => RealmObjectBase.get<bool>(this, 'aBool') as bool;
+  @override
+  set aBool(bool value) => RealmObjectBase.set(this, 'aBool', value);
+
+  @override
+  bool? get aNullableBool =>
+      RealmObjectBase.get<bool>(this, 'aNullableBool') as bool?;
+  @override
+  set aNullableBool(bool? value) =>
+      RealmObjectBase.set(this, 'aNullableBool', value);
+
+  @override
+  int get anInt => RealmObjectBase.get<int>(this, 'anInt') as int;
+  @override
+  set anInt(int value) => RealmObjectBase.set(this, 'anInt', value);
+
+  @override
+  int? get aNullableInt =>
+      RealmObjectBase.get<int>(this, 'aNullableInt') as int?;
+  @override
+  set aNullableInt(int? value) =>
+      RealmObjectBase.set(this, 'aNullableInt', value);
+
+  @override
+  String get aString => RealmObjectBase.get<String>(this, 'aString') as String;
+  @override
+  set aString(String value) => RealmObjectBase.set(this, 'aString', value);
+
+  @override
+  String? get aNullableString =>
+      RealmObjectBase.get<String>(this, 'aNullableString') as String?;
+  @override
+  set aNullableString(String? value) =>
+      RealmObjectBase.set(this, 'aNullableString', value);
+
+  @override
+  ObjectId get anObjectId =>
+      RealmObjectBase.get<ObjectId>(this, 'anObjectId') as ObjectId;
+  @override
+  set anObjectId(ObjectId value) =>
+      RealmObjectBase.set(this, 'anObjectId', value);
+
+  @override
+  ObjectId? get aNullableObjectId =>
+      RealmObjectBase.get<ObjectId>(this, 'aNullableObjectId') as ObjectId?;
+  @override
+  set aNullableObjectId(ObjectId? value) =>
+      RealmObjectBase.set(this, 'aNullableObjectId', value);
+
+  @override
+  Uuid get anUuid => RealmObjectBase.get<Uuid>(this, 'anUuid') as Uuid;
+  @override
+  set anUuid(Uuid value) => RealmObjectBase.set(this, 'anUuid', value);
+
+  @override
+  Uuid? get aNullableUuid =>
+      RealmObjectBase.get<Uuid>(this, 'aNullableUuid') as Uuid?;
+  @override
+  set aNullableUuid(Uuid? value) =>
+      RealmObjectBase.set(this, 'aNullableUuid', value);
+
+  @override
+  DateTime get aDateTime =>
+      RealmObjectBase.get<DateTime>(this, 'aDateTime') as DateTime;
+  @override
+  set aDateTime(DateTime value) =>
+      RealmObjectBase.set(this, 'aDateTime', value);
+
+  @override
+  DateTime? get aNullableDateTime =>
+      RealmObjectBase.get<DateTime>(this, 'aNullableDateTime') as DateTime?;
+  @override
+  set aNullableDateTime(DateTime? value) =>
+      RealmObjectBase.set(this, 'aNullableDateTime', value);
+
+  @override
+  Stream<RealmObjectChanges<Indexable>> get changes =>
+      RealmObjectBase.getChanges<Indexable>(this);
+
+  @override
+  Indexable freeze() => RealmObjectBase.freezeObject<Indexable>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(Indexable._);
+    return const SchemaObject(ObjectType.realmObject, Indexable, 'Indexable', [
+      SchemaProperty('aBool', RealmPropertyType.bool, indexed: true),
+      SchemaProperty('aNullableBool', RealmPropertyType.bool, optional: true, indexed: true),
+      SchemaProperty('anInt', RealmPropertyType.int, indexed: true),
+      SchemaProperty('aNullableInt', RealmPropertyType.int, optional: true, indexed: true),
+      SchemaProperty('aString', RealmPropertyType.string, indexed: true),
+      SchemaProperty('aNullableString', RealmPropertyType.string,
+          optional: true, indexed: true),
+      SchemaProperty('anObjectId', RealmPropertyType.objectid, indexed: true),
+      SchemaProperty('aNullableObjectId', RealmPropertyType.objectid,
+          optional: true, indexed: true),
+      SchemaProperty('anUuid', RealmPropertyType.uuid, indexed: true),
+      SchemaProperty('aNullableUuid', RealmPropertyType.uuid, optional: true, indexed: true),
+      SchemaProperty('aDateTime', RealmPropertyType.timestamp, indexed: true),
+      SchemaProperty('aNullableDateTime', RealmPropertyType.timestamp,
+          optional: true, indexed: true),
+    ]);
+  }
+}
