@@ -26,7 +26,9 @@ import '../lib/realm.dart';
 
 part 'indexed_test.g.dart';
 
-// IMPORTANT: Don't import our own test.dart here. It will break AOT compilation!
+// Don't import our own test.dart here. It will break AOT compilation.
+// We may use AOT compilation locally to manually run the performance
+// tests in this file
 
 @RealmModel()
 class _WithIndexes {
