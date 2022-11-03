@@ -811,6 +811,36 @@ Future<void> main([List<String>? args]) async {
 
     expect(parent.recursiveList, isEmpty);
   });
+
+  test('EmbeddedObject.getParent returns parent', () async {
+    final realm = getLocalRealm();
+
+    final parent =
+        ObjectWithEmbedded('123', recursiveObject: RecursiveEmbedded1('1.1', child: RecursiveEmbedded2('2.1')), recursiveList: [RecursiveEmbedded1('1.2')]);
+
+    realm.write(() {
+      realm.add(parent);
+    });
+
+    final child1 = parent.recursiveObject!;
+
+    expect(child1.getParent(), parent);
+    expect(child1.child!.getParent(), child1);
+
+    expect(parent.recursiveList[0].getParent(), parent);
+  });
+
+  test('EmbeddedObject.getParent when unmanaged returns null', () async {
+    final parent =
+        ObjectWithEmbedded('123', recursiveObject: RecursiveEmbedded1('1.1', child: RecursiveEmbedded2('2.1')), recursiveList: [RecursiveEmbedded1('1.2')]);
+
+    final child1 = parent.recursiveObject!;
+
+    expect(child1.getParent(), null);
+    expect(child1.child!.getParent(), null);
+
+    expect(parent.recursiveList[0].getParent(), null);
+  });
 }
 
 extension on RealmObjectBase {

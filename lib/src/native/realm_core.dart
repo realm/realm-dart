@@ -44,6 +44,7 @@ import '../scheduler.dart';
 import '../subscription.dart';
 import '../user.dart';
 import '../session.dart';
+import '../util.dart';
 import 'realm_bindings.dart';
 import '../migration.dart';
 
@@ -720,8 +721,20 @@ class _RealmCore {
   }
 
   RealmObjectHandle createEmbeddedObject(RealmObjectBase obj, int propertyKey) {
-    final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_set_embedded(obj.handle._pointer, propertyKey));
-    return RealmObjectHandle._(realmPtr, obj.realm.handle);
+    final objectPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_set_embedded(obj.handle._pointer, propertyKey));
+    return RealmObjectHandle._(objectPtr, obj.realm.handle);
+  }
+
+  Tuple<RealmObjectHandle, int> getEmbeddedParent(EmbeddedObject obj) {
+    return using((Arena arena) {
+      final parentPtr = arena<Pointer<realm_object>>();
+      final classKeyPtr = arena<Uint32>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_object_get_parent(obj.handle._pointer, parentPtr, classKeyPtr));
+
+      final handle = RealmObjectHandle._(parentPtr.value, obj.realm.handle);
+
+      return Tuple(handle, classKeyPtr.value);
+    });
   }
 
   RealmObjectHandle getOrCreateRealmObjectWithPrimaryKey(Realm realm, int classKey, Object? primaryKey) {
@@ -1056,6 +1069,10 @@ class _RealmCore {
 
   bool _equals<T extends NativeType>(HandleBase<T> first, HandleBase<T> second) {
     return _realmLib.realm_equals(first._pointer.cast(), second._pointer.cast());
+  }
+
+  int getObjectKey(RealmObjectBase obj) {
+    return _realmLib.realm_object_get_key(obj.handle._pointer);
   }
 
   bool objectEquals(RealmObjectBase first, RealmObjectBase second) => _equals(first.handle, second.handle);

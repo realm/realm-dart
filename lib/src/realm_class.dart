@@ -33,6 +33,7 @@ import 'results.dart';
 import 'scheduler.dart';
 import 'subscription.dart';
 import 'session.dart';
+import 'util.dart';
 
 export 'package:realm_common/realm_common.dart'
     show
@@ -756,6 +757,20 @@ class RealmMetadata {
     }
 
     return metadata;
+  }
+
+  Tuple<Type, RealmObjectMetadata> getByClassKey(int key) {
+    final type = _typeMap.entries.firstWhereOrNull((e) => e.value.classKey == key);
+    if (type != null) {
+      return Tuple(type.key, type.value);
+    }
+
+    final metadata = _stringMap.values.firstWhereOrNull((e) => e.classKey == key);
+    if (metadata != null) {
+      return Tuple(RealmObjectBase, metadata);
+    }
+
+    throw RealmError("Object with classKey $key not found in the current Realm's schema.");
   }
 }
 
