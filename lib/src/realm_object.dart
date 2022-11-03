@@ -307,7 +307,7 @@ mixin RealmObjectBase on RealmEntity implements Finalizable {
   }
 
   /// @nodoc
-  static bool setDefaults<T extends RealmObject>(Map<String, Object> values) {
+  static bool setDefaults<T extends RealmObjectBase>(Map<String, Object> values) {
     RealmAccessor.setDefaults<T>(values);
     return true;
   }
@@ -412,6 +412,19 @@ mixin RealmObject on RealmObjectBase {}
 
 /// @nodoc
 mixin EmbeddedObject on RealmObjectBase {}
+
+extension EmbeddedObjectExtension on EmbeddedObject {
+  /// Retrieve the [parent] object of this embedded object.
+  RealmObjectBase? get parent {
+    if (!isManaged) {
+      return null;
+    }
+
+    final parent = realmCore.getEmbeddedParent(this);
+    final metadata = realm.metadata.getByClassKey(parent.item2);
+    return realm.createObject(metadata.item1, parent.item1, metadata.item2);
+  }
+}
 
 /// @nodoc
 //RealmObject package internal members
