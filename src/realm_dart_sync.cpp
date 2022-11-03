@@ -146,8 +146,8 @@ bool invoke_dart_and_await_result(realm::util::UniqueFunction<void(realm::util::
     bool success = false;
     bool completed = false;
 
-    realm::util::UniqueFunction<void(bool)> unlockFunc = [&](bool result) {
-        std::unique_lock<std::mutex> lock(mutex);
+    realm::util::UniqueFunction unlockFunc = [&](bool result) {
+        std::unique_lock lock(mutex);
         success = result;
         completed = true;
         lock.unlock();
