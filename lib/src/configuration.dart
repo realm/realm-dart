@@ -441,7 +441,7 @@ abstract class ClientResetHandler {
   final ClientResetCallback? onManualReset;
 
   /// Initializes a new instance of [ClientResetHandler].
-  const ClientResetHandler._(this.onManualReset,  this._mode, {BeforeResetCallback? onBeforeReset, AfterResetCallback? onAfterDiscard, AfterResetCallback? onAfterRecovery})
+  const ClientResetHandler._(this._mode, this.onManualReset,  {BeforeResetCallback? onBeforeReset, AfterResetCallback? onAfterDiscard, AfterResetCallback? onAfterRecovery})
       : _onBeforeReset = onBeforeReset,
         _onAfterDiscard = onAfterDiscard,
         _onAfterRecovery = onAfterRecovery;
@@ -456,7 +456,7 @@ class ManualRecoveryHandler extends ClientResetHandler {
   /// Creates an instance of `ManualRecoveryHandler` with the supplied client reset handler.
   ///
   /// [onReset] callback is triggered when a manual client reset happens.
-  const ManualRecoveryHandler(ClientResetCallback onReset) : super._(onReset, ClientResyncModeInternal.manual);
+  const ManualRecoveryHandler(ClientResetCallback onReset) : super._(ClientResyncModeInternal.manual, onReset);
 }
 
 /// A client reset strategy where any not yet synchronized data is automatically
@@ -480,7 +480,7 @@ class DiscardUnsyncedChangesHandler extends ClientResetHandler {
   /// while the last one will be invoked in case an error occurs during the automated process and the system needs to fallback to a manual mode.
   /// The freshly downloaded copy of the synchronized Realm triggers all change notifications as a write transaction is internally simulated.
   const DiscardUnsyncedChangesHandler({BeforeResetCallback? onBeforeReset, AfterResetCallback? onAfterReset, ClientResetCallback? onManualResetFallback})
-      : super._(onManualResetFallback, ClientResyncModeInternal.discardLocal, onAfterDiscard: onAfterReset, onBeforeReset: onBeforeReset);
+      : super._(ClientResyncModeInternal.discardLocal, onManualResetFallback, onAfterDiscard: onAfterReset, onBeforeReset: onBeforeReset);
 }
 
 /// A client reset strategy that attempts to automatically recover any unsynchronized changes.
@@ -502,7 +502,7 @@ class RecoverUnsyncedChangesHandler extends ClientResetHandler {
   /// The first two are invoked just before and after the client reset has happened, while the last one is invoked
   /// in case an error occurs during the automated process and the system needs to fallback to a manual mode.
   const RecoverUnsyncedChangesHandler({BeforeResetCallback? onBeforeReset, AfterResetCallback? onAfterReset, ClientResetCallback? onManualResetFallback})
-      : super._(onManualResetFallback, ClientResyncModeInternal.recover, onBeforeReset: onBeforeReset, onAfterRecovery: onAfterReset);
+      : super._(ClientResyncModeInternal.recover, onManualResetFallback, onBeforeReset: onBeforeReset, onAfterRecovery: onAfterReset);
 }
 
 /// A client reset strategy that attempts to automatically recover any unsynchronized changes.
@@ -540,7 +540,7 @@ class RecoverOrDiscardUnsyncedChangesHandler extends ClientResetHandler {
   /// [onManualResetFallback] is invoked whenever an error occurs in either of the recovery stragegies and the system needs to fallback to a manual mode.
   const RecoverOrDiscardUnsyncedChangesHandler(
       {BeforeResetCallback? onBeforeReset, AfterResetCallback? onAfterRecovery, AfterResetCallback? onAfterDiscard, ClientResetCallback? onManualResetFallback})
-      : super._(onManualResetFallback, ClientResyncModeInternal.recoverOrDiscard, onBeforeReset: onBeforeReset, onAfterDiscard: onAfterDiscard, onAfterRecovery: onAfterRecovery);
+      : super._(ClientResyncModeInternal.recoverOrDiscard, onManualResetFallback, onBeforeReset: onBeforeReset, onAfterDiscard: onAfterDiscard, onAfterRecovery: onAfterRecovery);
 }
 
 /// @nodoc
