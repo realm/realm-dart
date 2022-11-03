@@ -1071,10 +1071,6 @@ class _RealmCore {
     return _realmLib.realm_equals(first._pointer.cast(), second._pointer.cast());
   }
 
-  int getObjectKey(RealmObjectBase obj) {
-    return _realmLib.realm_object_get_key(obj.handle._pointer);
-  }
-
   bool objectEquals(RealmObjectBase first, RealmObjectBase second) => _equals(first.handle, second.handle);
   bool realmEquals(Realm first, Realm second) => _equals(first.handle, second.handle);
   bool userEquals(User first, User second) => _equals(first.handle, second.handle);
