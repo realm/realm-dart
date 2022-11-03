@@ -20,6 +20,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 import 'package:test/test.dart' hide test, throws;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -1402,6 +1403,19 @@ Future<void> main([List<String>? args]) async {
     expect(compacted, true);
   });
 
+  test('Realm - local realm can be compacted in worker isolate', () async {
+    final receivePort = ReceivePort();
+    await Isolate.spawn((SendPort sendPort) {
+      var config = Configuration.local([Car.schema]);
+      var realm = getRealm(config);
+      final compacted = realm.compact();
+      Isolate.exit(sendPort, compacted);
+    }, receivePort.sendPort);
+
+    final compacted = await receivePort.first as bool;
+    expect(compacted, true);
+  });
+
   test('Realm - local encrypted realm can be compacted', () {
     final config = Configuration.local([Friend.schema],
         encryptionKey: generateEncryptionKey(), path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
@@ -1426,7 +1440,8 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
-    final configuration = Configuration.flexibleSync(user, [Task.schema], encryptionKey: key, path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    final configuration =
+        Configuration.flexibleSync(user, [Task.schema], encryptionKey: key, path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
 
     final realm = getRealm(configuration);
     final compacted = realm.compact();
