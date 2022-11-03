@@ -82,8 +82,7 @@ export "configuration.dart"
         ManualRecoveryHandler,
         DiscardUnsyncedChangesHandler,
         RecoverUnsyncedChangesHandler,
-        RecoverOrDiscardUnsyncedChangesHandler,
-        ClientResetErrorFunctions;
+        RecoverOrDiscardUnsyncedChangesHandler;
 
 export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
