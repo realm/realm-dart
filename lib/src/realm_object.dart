@@ -381,7 +381,7 @@ mixin RealmObjectBase on RealmEntity implements Finalizable {
       final name = _symbolRegex.firstMatch(invocation.memberName.toString())?.namedGroup("symbolName");
       if (name == null) {
         throw RealmError(
-            "Could not find symbol name for ${invocation.memberName}. This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues");
+            "Could not find symbol name for ${invocation.memberName}. ${realmCore.bugInTheSdkMessage}");
       }
 
       return get(this, name);
@@ -391,7 +391,7 @@ mixin RealmObjectBase on RealmEntity implements Finalizable {
       final name = _symbolRegex.firstMatch(invocation.memberName.toString())?.namedGroup("symbolName");
       if (name == null) {
         throw RealmError(
-            "Could not find symbol name for ${invocation.memberName}. This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues");
+            "Could not find symbol name for ${invocation.memberName}. ${realmCore.bugInTheSdkMessage}");
       }
 
       return set(this, name, invocation.positionalArguments.single);
