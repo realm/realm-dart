@@ -429,7 +429,6 @@ extension SchemaObjectInternal on SchemaObject {
 /// This can happen if the server is rolled back or restored from backup.
 /// {@category Sync}
 abstract class ClientResetHandler {
-  
   // Defines what should happen in case of a Client reset
   final ClientResyncModeInternal _mode;
 
@@ -441,7 +440,8 @@ abstract class ClientResetHandler {
   final ClientResetCallback? onManualReset;
 
   /// Initializes a new instance of [ClientResetHandler].
-  const ClientResetHandler._(this._mode, this.onManualReset,  {BeforeResetCallback? onBeforeReset, AfterResetCallback? onAfterDiscard, AfterResetCallback? onAfterRecovery})
+  const ClientResetHandler._(this._mode, this.onManualReset,
+      {BeforeResetCallback? onBeforeReset, AfterResetCallback? onAfterDiscard, AfterResetCallback? onAfterRecovery})
       : _onBeforeReset = onBeforeReset,
         _onAfterDiscard = onAfterDiscard,
         _onAfterRecovery = onAfterRecovery;
@@ -540,7 +540,8 @@ class RecoverOrDiscardUnsyncedChangesHandler extends ClientResetHandler {
   /// [onManualResetFallback] is invoked whenever an error occurs in either of the recovery stragegies and the system needs to fallback to a manual mode.
   const RecoverOrDiscardUnsyncedChangesHandler(
       {BeforeResetCallback? onBeforeReset, AfterResetCallback? onAfterRecovery, AfterResetCallback? onAfterDiscard, ClientResetCallback? onManualResetFallback})
-      : super._(ClientResyncModeInternal.recoverOrDiscard, onManualResetFallback, onBeforeReset: onBeforeReset, onAfterDiscard: onAfterDiscard, onAfterRecovery: onAfterRecovery);
+      : super._(ClientResyncModeInternal.recoverOrDiscard, onManualResetFallback,
+            onBeforeReset: onBeforeReset, onAfterDiscard: onAfterDiscard, onAfterRecovery: onAfterRecovery);
 }
 
 /// @nodoc
