@@ -736,3 +736,23 @@ class GeneralSyncError extends SyncError {
     return "SyncError message: $message category: $category code: $code";
   }
 }
+
+/// General sync error codes
+enum GeneralSyncErrorCode {
+  // A general sync error code
+  unknown(9999);
+
+  static final Map<int, GeneralSyncErrorCode> _valuesMap = {for (var value in GeneralSyncErrorCode.values) value.code: value};
+
+  static GeneralSyncErrorCode fromInt(int code) {
+    final mappedCode = GeneralSyncErrorCode._valuesMap[code];
+    if (mappedCode == null) {
+      throw RealmError("Unknown GeneralSyncErrorCode");
+    }
+
+    return mappedCode;
+  }
+
+  final int code;
+  const GeneralSyncErrorCode(this.code);
+}
