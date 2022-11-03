@@ -211,8 +211,18 @@ Future<void> main([List<String>? args]) async {
 
       await triggerClientReset(realm);
 
-      await onBeforeCompleter.future;
-      await onAfterCompleter.future;
+      await Future.any<void>([
+        onBeforeCompleter.future,
+        Future<void>.delayed(Duration(minutes: 1)).whenComplete(() {
+          onBeforeCompleter.completeError(Exception("onBeforeReset was not invoked."));
+        })
+      ]);
+      await Future.any<void>([
+        onAfterCompleter.future,
+        Future<void>.delayed(Duration(minutes: 1)).whenComplete(() {
+          onAfterCompleter.completeError(Exception("onAfterReset was not invoked."));
+        })
+      ]);
     });
 
     if (clientResetHandlerType != RecoverUnsyncedChangesHandler) {

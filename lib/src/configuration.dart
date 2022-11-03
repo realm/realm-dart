@@ -125,10 +125,10 @@ abstract class Configuration implements Finalizable {
   /// Specifies the FIFO special files fallback location.
   ///
   /// Opening a `Realm` creates a number of FIFO special files in order to
-  /// coordinate access to the `Realm` across threads and processes. If the `Realm` file is stored in a location
+  /// coordinate access to the `Realm` across threads and processes. If the realm file is stored in a location
   /// that does not allow the creation of FIFO special files (e.g. the FAT32 filesystem), then the `Realm` cannot be opened.
   /// In that case `Realm` needs a different location to store these files and this property defines that location.
-  /// The FIFO special files are very lightweight and the main `Realm` file will still be stored in the location defined
+  /// The FIFO special files are very lightweight and the main realm file will still be stored in the location defined
   /// by the [path] you  property. This property is ignored if the directory defined by [path] allow FIFO special files.
   final String? fifoFilesFallbackPath;
 
@@ -231,7 +231,7 @@ abstract class Configuration implements Finalizable {
   }
 }
 
-/// [LocalConfiguration] is used to open local `Realm` instances,
+/// [LocalConfiguration] is used to open local [Realm] instances,
 /// that are persisted across runs.
 /// {@category Configuration}
 class LocalConfiguration extends Configuration {
@@ -266,7 +266,7 @@ class LocalConfiguration extends Configuration {
   /// The realm file must already exists at [path]
   final bool isReadOnly;
 
-  /// Specifies if a `Realm` file format should be automatically upgraded
+  /// Specifies if a realm file format should be automatically upgraded
   /// if it was created with an older version of the `Realm` library.
   /// An exception will be thrown if a file format upgrade is required.
   final bool disableFormatUpgrade;
@@ -288,7 +288,7 @@ enum SessionStopPolicy {
   afterChangesUploaded, // Once all Realms/Sessions go out of scope, wait for uploads to complete and stop.
 }
 
-/// The signature of a callback that will be invoked whenever a [SyncError] occurs for the synchronized `Realm`.
+/// The signature of a callback that will be invoked whenever a [SyncError] occurs for the synchronized realm.
 ///
 /// Client reset errors will not be reported through this callback as they are handled by [ClientResetHandler].
 typedef SyncErrorHandler = void Function(SyncError);
@@ -307,7 +307,7 @@ void _defaultClientResetHandler(ClientResetError e) {
       "clientResetHandler when constructing Configuration.flexibleSync.");
 }
 
-/// [FlexibleSyncConfiguration] is used to open `Realm` instances that are synchronized
+/// [FlexibleSyncConfiguration] is used to open [Realm] instances that are synchronized
 /// with MongoDB Atlas.
 /// {@category Configuration}
 class FlexibleSyncConfiguration extends Configuration {
@@ -316,14 +316,14 @@ class FlexibleSyncConfiguration extends Configuration {
 
   SessionStopPolicy _sessionStopPolicy = SessionStopPolicy.afterChangesUploaded;
 
-  /// Called when a [SyncError] occurs for this synchronized `Realm`.
+  /// Called when a [SyncError] occurs for this synchronized realm.
   ///
-  /// The default [SyncErrorHandler] prints to the console
+  /// The default [SyncErrorHandler] prints to the console.
   final SyncErrorHandler syncErrorHandler;
 
-  /// Called when a [ClientResetError] occurs for this synchronized `Realm`
+  /// Called when a [ClientResetError] occurs for this synchronized realm.
   ///
-  /// The default [ClientResetHandler] logs a message using the current `Realm.logger`
+  /// The default [ClientResetHandler] logs a message using the current `Realm.logger`.
   final ClientResetHandler clientResetHandler;
 
   FlexibleSyncConfiguration._(
@@ -350,7 +350,7 @@ extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
   set sessionStopPolicy(SessionStopPolicy value) => _sessionStopPolicy = value;
 }
 
-/// [DisconnectedSyncConfiguration] is used to open `Realm` instances that are synchronized
+/// [DisconnectedSyncConfiguration] is used to open [Realm] instances that are synchronized
 /// with MongoDB Atlas, without establishing a connection to Atlas App Services. This allows
 /// for the synchronized realm to be opened in multiple processes concurrently, as long as
 /// only one of them uses a [FlexibleSyncConfiguration] to sync changes.
@@ -364,7 +364,7 @@ class DisconnectedSyncConfiguration extends Configuration {
   }) : super._();
 }
 
-/// [InMemoryConfiguration] is used to open `Realm` instances that
+/// [InMemoryConfiguration] is used to open [Realm] instances that
 /// are temporary to running process.
 /// {@category Configuration}
 class InMemoryConfiguration extends Configuration {
@@ -424,7 +424,7 @@ extension SchemaObjectInternal on SchemaObject {
 }
 
 /// [ClientResetHandler] is triggered if the device and server cannot agree
-/// on a common shared history for the `Realm` file
+/// on a common shared history for the realm file
 /// or when it is impossible for the device to upload or receive any changes.
 /// This can happen if the server is rolled back or restored from backup.
 /// {@category Sync}
@@ -446,7 +446,7 @@ abstract class ClientResetHandler {
 /// A client reset strategy where the user needs to fully take care of a client reset.
 ///
 /// If you set [ManualRecoveryHandler] callback as `clientResetHandler` argument of [Configuration.flexibleSync],
-/// that will enable full control of moving any unsynced changes to the synchronized `Realm`.
+/// that will enable full control of moving any unsynced changes to the synchronized realm.
 /// {@category Sync}
 class ManualRecoveryHandler extends ClientResetHandler {
 
@@ -460,7 +460,7 @@ class ManualRecoveryHandler extends ClientResetHandler {
 }
 
 /// A client reset strategy where any not yet synchronized data is automatically
-/// discarded and a fresh copy of the synchronized `Realm` is obtained.
+/// discarded and a fresh copy of the synchronized realm is obtained.
 ///
 /// If you set [DiscardUnsyncedChangesHandler] callback as `clientResetHandler` argument of [Configuration.flexibleSync],
 /// the local `Realm` will be discarded and replaced with the server side `Realm`.
