@@ -155,7 +155,7 @@ bool invoke_dart_and_await_result(realm::util::UniqueFunction<void(realm::util::
     };
     (*userCallback)(&unlockFunc);
 
-    std::unique_lock<std::mutex> lock(mutex);
+    std::unique_lock lock(mutex);
     condition.wait(lock, [&] { return completed; });
 
     return success;
