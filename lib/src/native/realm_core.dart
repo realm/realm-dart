@@ -24,7 +24,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cancellation_token/cancellation_token.dart';
-import 'package:collection/collection.dart';
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:logging/logging.dart';
@@ -37,15 +36,15 @@ import '../configuration.dart';
 import '../credentials.dart';
 import '../init.dart';
 import '../list.dart';
+import '../migration.dart';
 import '../realm_class.dart';
 import '../realm_object.dart';
 import '../results.dart';
 import '../scheduler.dart';
+import '../session.dart';
 import '../subscription.dart';
 import '../user.dart';
-import '../session.dart';
 import 'realm_bindings.dart';
-import '../migration.dart';
 
 late RealmLibrary _realmLib;
 
@@ -720,8 +719,20 @@ class _RealmCore {
   }
 
   RealmObjectHandle createEmbeddedObject(RealmObjectBase obj, int propertyKey) {
-    final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_set_embedded(obj.handle._pointer, propertyKey));
-    return RealmObjectHandle._(realmPtr, obj.realm.handle);
+    final objectPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_set_embedded(obj.handle._pointer, propertyKey));
+    return RealmObjectHandle._(objectPtr, obj.realm.handle);
+  }
+
+  Tuple<RealmObjectHandle, int> getEmbeddedParent(EmbeddedObject obj) {
+    return using((Arena arena) {
+      final parentPtr = arena<Pointer<realm_object>>();
+      final classKeyPtr = arena<Uint32>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_object_get_parent(obj.handle._pointer, parentPtr, classKeyPtr));
+
+      final handle = RealmObjectHandle._(parentPtr.value, obj.realm.handle);
+
+      return Tuple(handle, classKeyPtr.value);
+    });
   }
 
   RealmObjectHandle getOrCreateRealmObjectWithPrimaryKey(Realm realm, int classKey, Object? primaryKey) {
