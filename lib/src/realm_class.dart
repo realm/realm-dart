@@ -33,7 +33,6 @@ import 'results.dart';
 import 'scheduler.dart';
 import 'subscription.dart';
 import 'session.dart';
-import 'util.dart';
 
 export 'package:realm_common/realm_common.dart'
     show
