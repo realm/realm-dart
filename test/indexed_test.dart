@@ -152,14 +152,16 @@ Future<void> main([List<String>? args]) async {
       }
 
       final indexedTime = measureSpeed(allIndexed, fieldName, indexToValue);
-      display(WithIndexes, indexedTime);
-
       final notIndexedTime = measureSpeed(allNotIndexed, fieldName, indexToValue);
-      display(NoIndexes, notIndexedTime);
-
-      // skip timestamp for now, as timestamps are not indexed properly it seems
-      if (fieldName != 'timestamp') {
-        expect(indexedTime, lessThan(notIndexedTime)); // indexed should be faster
+      try {
+        // skip timestamp for now, as timestamps are not indexed properly it seems
+        if (fieldName != 'timestamp') {
+          expect(indexedTime, lessThan(notIndexedTime)); // indexed should be faster
+        }
+      } catch (_) {
+        display(WithIndexes, indexedTime); // only display if test fails
+        display(NoIndexes, notIndexedTime);
+        rethrow; // rethrow to fail test
       }
     }
 
