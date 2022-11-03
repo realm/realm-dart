@@ -1,4 +1,6 @@
-Realm only support indexes on String, int, and bool fields
+Realm only supports the @PrimaryKey() annotation on fields of type
+int, String, DateTime, ObjectId, Uuid
+as well as their nullable versions
 
 in: asset:pkg/test/error_test_data/bool_not_allowed_as_primary_key.dart:9:8
   ╷
@@ -8,7 +10,7 @@ in: asset:pkg/test/error_test_data/bool_not_allowed_as_primary_key.dart:9:8
   │       ━━━━ in realm model for 'Foo'
 8 │   @PrimaryKey()
 9 │   late bool bad;
-  │        ^^^^ bool is not an indexable type
+  │        ^^^^ bool is not a valid type here
   ╵
 Change the type of 'bad', or remove the @PrimaryKey() annotation
 

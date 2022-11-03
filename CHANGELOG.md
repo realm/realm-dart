@@ -8,6 +8,7 @@
 * Support results of primitives, ie. `RealmResult<int>`. (Issue [#162](https://github.com/realm/realm-dart/issues/162))
 * Support notifications on all managed realm lists, including list of primitives, ie. `RealmList<int>.changes` is supported. ([#893](https://github.com/realm/realm-dart/pull/893))
 * Support named backlinks on realm models. You can now add and annotate a realm object iterator field with `@Backlink(#fieldName)`. ([#996](https://github.com/realm/realm-dart/pull/996))
+* Allow `@Indexed` attribute on all indexable type, and ensure appropriate indexes are created in the realm. ([#797](https://github.com/realm/realm-dart/issues/797))
 
 ### Fixed
 * Fixed a wrong mapping for `AuthProviderType` returned by `User.provider` for google, facebook and apple credentials.

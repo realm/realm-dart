@@ -21,32 +21,47 @@ import 'dart:typed_data';
 import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
 
+Type _typeOf<T>() => T;
+
+/// @nodoc
+class Mapping<T> {
+  const Mapping({this.indexable = false});
+
+  final bool indexable;
+
+  // Types
+  Type get type => T;
+  Type get nullableType => _typeOf<T?>();
+}
+
+const _intMapping = Mapping<int>(indexable: true);
+const _boolMapping = Mapping<bool>(indexable: true);
+
 /// All supported `Realm` property types.
 /// {@category Configuration}
 enum RealmPropertyType {
-  int,
-  bool,
-  string,
-  // ignore: unused_field, constant_identifier_names
-  _3,
+  int(_intMapping),
+  bool(_boolMapping),
+  string(Mapping<String>(indexable: true)),
+  _3, // ignore: unused_field, constant_identifier_names
   binary,
-  // ignore: unused_field, constant_identifier_names
-  _5,
+  _5, // ignore: unused_field, constant_identifier_names
   mixed,
-  // ignore: unused_field, constant_identifier_names
-  _7,
-  timestamp,
+  _7, // ignore: unused_field, constant_identifier_names
+  timestamp(Mapping<DateTime>(indexable: true)),
   float,
   double,
   decimal128,
   object,
-  // ignore: unused_field, constant_identifier_names
-  _13,
+  _13, // ignore: unused_field, constant_identifier_names
   linkingObjects,
-  objectid,
-  // ignore: unused_field, constant_identifier_names
-  _16,
-  uuid,
+  objectid(Mapping<ObjectId>(indexable: true)),
+  _16, // ignore: unused_field, constant_identifier_names
+  uuid(Mapping<Uuid>(indexable: true));
+
+  const RealmPropertyType([this.mapping = const Mapping<Never>()]);
+
+  final Mapping<dynamic> mapping;
 }
 
 /// All supported `Realm` collection types.
