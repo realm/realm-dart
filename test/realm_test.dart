@@ -1394,6 +1394,44 @@ Future<void> main([List<String>? args]) async {
     expect(await realmIsCancelled, isTrue);
     expect(progressReturned, isFalse);
   });
+
+  test('Realm - local realm can be compacted', () {
+    var config = Configuration.local([Car.schema]);
+    var realm = getRealm(config);
+    final compacted = realm.compact();
+    expect(compacted, true);
+  });
+
+  test('Realm - local encrypted realm can be compacted', () {
+    final config = Configuration.local([Friend.schema],
+        encryptionKey: generateEncryptionKey(), path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    final realm = getRealm(config);
+    final compacted = realm.compact();
+    expect(compacted, true);
+  });
+
+  baasTest('Realm - synced realm can be compacted', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    final configuration = Configuration.flexibleSync(user, [Task.schema]);
+
+    final realm = getRealm(configuration);
+    final compacted = realm.compact();
+    expect(compacted, true);
+  });
+
+  baasTest('Realm - synced encrypted realm can be compacted', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
+    final configuration = Configuration.flexibleSync(user, [Task.schema], encryptionKey: key, path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+
+    final realm = getRealm(configuration);
+    final compacted = realm.compact();
+    expect(compacted, true);
+  });
 }
 
 List<int> generateEncryptionKey() {
