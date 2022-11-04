@@ -1,3 +1,19 @@
+## vNext (TBD)
+
+**This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
+
+### Enhancements
+* None
+
+### Fixed
+* None
+
+### Compatibility
+* Realm Studio: 12.0.0 or later.
+
+### Internal
+* Using Core x.y.z.
+
 ## 0.7.0+rc (2022-11-04)
 
 **This project is in Release Candidate stage.**
