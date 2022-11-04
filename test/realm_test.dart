@@ -1489,16 +1489,9 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
   });
 
-  test('Realm - in-memory realm can be compacted', () async {
+  test('Realm - in-memory realm can not be compacted', () async {
     var config = Configuration.inMemory([Task.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
-    final beforeCompact = await createRealmForCompact(config);
-
-    final compacted = Realm.compact(config);
-
-    validateCompact(compacted, config.path, beforeCompact);
-
-    //test the realm can be opened.
-    final realm = getRealm(config);
+    expect(() => Realm.compact(config), throws<RealmException>("Can't compact an in-memory Realm"));
   });
 
   test('Realm - readonly realm can not be compacted', () async {

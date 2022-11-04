@@ -504,7 +504,7 @@ class Realm implements Finalizable {
       compactConfig = Configuration.disconnectedSync(config.schemaObjects.toList(),
           fifoFilesFallbackPath: config.fifoFilesFallbackPath, path: config.path, encryptionKey: config.encryptionKey);
     } else if (config is InMemoryConfiguration) {
-      compactConfig = config;
+      throw RealmException("Can't compact an in-memory Realm");
     }
     else {
       throw RealmError("Unsupported realm configuration type ${config.runtimeType}");
