@@ -53,9 +53,37 @@ class BaasClient {
       return { status: 'fail' };
     }
   };''';
+
   static const String _authFuncSource = '''exports = (loginPayload) => {
     return loginPayload["userId"];
   };''';
+
+  static const String _userFuncNoArgs = '''exports = function(){
+    return {};
+  };''';
+
+  static const String _userFuncOneArg = '''exports = function(arg){
+    return {'arg': arg };
+  };''';
+
+  static const String _userFuncTwoArgs = '''exports = function(arg1, arg2){
+    return { 'arg1': arg1, 'arg2': arg2};
+  };''';
+
+  static const String _triggerClientResetFuncSource = '''exports = async function(userId, appId) {
+    const mongodb = context.services.get('BackingDB');
+    console.log('user.id: ' + context.user.id);
+    try {
+      const dbName = `__realm_sync_\${appId}`;
+      const deletionResult = await mongodb.db(dbName).collection('clientfiles').deleteMany({ ownerId: userId });
+      console.log('Deleted documents: ' + deletionResult.deletedCount);
+
+      return { status: deletionResult.deletedCount > 0 ? 'success' : 'failure' };
+    } catch(err) {
+      throw 'Deletion failed: ' + err;
+    }
+  };''';
+
   static const String defaultAppName = "flexible";
 
   final String _baseUrl;
@@ -120,7 +148,10 @@ class BaasClient {
   }
 
   Future<void> _createAppIfNotExists(Map<String, BaasApp> existingApps, String appName, {String? confirmationType}) async {
-    if (!existingApps.containsKey(appName)) {
+    final existingApp = existingApps[appName];
+    if (existingApp != null) {
+      print('Found existing app ${existingApp.clientAppId}');
+    } else {
       existingApps[appName] = await _createApp(appName, confirmationType: confirmationType);
     }
   }
@@ -168,6 +199,10 @@ class BaasClient {
     final confirmFuncId = await _createFunction(app, 'confirmFunc', _confirmFuncSource);
     final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
     final authFuncId = await _createFunction(app, 'authFunc', _authFuncSource);
+    await _createFunction(app, 'userFuncNoArgs', _userFuncNoArgs);
+    await _createFunction(app, 'userFuncOneArg', _userFuncOneArg);
+    await _createFunction(app, 'userFuncTwoArgs', _userFuncTwoArgs);
+    await _createFunction(app, 'triggerClientResetOnSyncServer', _triggerClientResetFuncSource, runAsSystem: true);
 
     await enableProvider(app, 'anon-user');
     await enableProvider(app, 'local-userpass', config: '''{
@@ -369,14 +404,15 @@ class BaasClient {
     _headers['Authorization'] = "Bearer ${response['access_token']}";
   }
 
-  Future<String> _createFunction(BaasApp app, String name, String source) async {
+  Future<String> _createFunction(BaasApp app, String name, String source, {bool runAsSystem = false}) async {
     print('Creating function $name for ${app.clientAppId}...');
 
     final dynamic response = await _post('groups/$_groupId/apps/$app/functions', '''{
         "name": "$name",
         "source": ${jsonEncode(source)},
         "private": false,
-        "can_evaluate": {}
+        "can_evaluate": {},
+        "run_as_system": $runAsSystem
       }''');
 
     return response['_id'] as String;
@@ -493,6 +529,23 @@ class BaasClient {
     //Take first 4 and last 4 symbols
     final result = input.replaceRange(4, input.length - 4, '');
     return result;
+  }
+
+  Future<void> setAutomaticRecoveryEnabled(String name, bool enable) async {
+    final dynamic docs = await _get('groups/$_groupId/apps');
+    dynamic doc = docs.firstWhere((dynamic d) => d["name"] == "$name$_appSuffix", orElse: () => throw Exception("BAAS app not found"));
+    final appId = doc['_id'] as String;
+    final clientAppId = doc['client_app_id'] as String;
+    final app = BaasApp(appId, clientAppId, name);
+
+    final dynamic services = await _get('groups/$_groupId/apps/$appId/services');
+    dynamic service = services.firstWhere((dynamic s) => s["name"] == "BackingDB", orElse: () => throw Exception("Func 'confirmFunc' not found"));
+    final mongoServiceId = service['_id'] as String;
+    final dynamic configDocs = await _get('groups/$_groupId/apps/$appId/services/$mongoServiceId/config');
+    final dynamic flexibleSync = configDocs['flexible_sync'];
+    flexibleSync["is_recovery_mode_disabled"] = !enable;
+    String data = jsonEncode(<String, dynamic>{'clusterName': configDocs['clusterName'], 'flexible_sync': flexibleSync});
+    await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', data);
   }
 }
 

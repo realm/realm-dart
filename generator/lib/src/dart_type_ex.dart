@@ -18,6 +18,7 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 
+import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:realm_generator/src/pseudo_type.dart';
@@ -30,12 +31,12 @@ extension DartTypeEx on DartType {
   bool isExactly<T>() => TypeChecker.fromRuntime(T).isExactlyType(this);
 
   bool get isRealmAny => const TypeChecker.fromRuntime(RealmAny).isAssignableFromType(this);
-  bool get isRealmBacklink => false; // TODO: Implement Backlink support https://github.com/realm/realm-dart/issues/693
   bool get isRealmCollection => realmCollectionType != RealmCollectionType.none;
-  bool get isRealmModel => element != null ? realmModelChecker.annotationsOfExact(element!).isNotEmpty : false;
+  bool get isRealmModel => element2 != null ? realmModelChecker.annotationsOfExact(element2!).isNotEmpty : false;
 
   bool get isNullable => session.typeSystem.isNullable(this);
   DartType get asNonNullable => session.typeSystem.promoteToNonNull(this);
+  DartType get asNullable => session.typeSystem.leastUpperBound(this, session.typeProvider.nullType);
 
   RealmCollectionType get realmCollectionType {
     if (isDartCoreSet) return RealmCollectionType.set;
@@ -49,10 +50,11 @@ extension DartTypeEx on DartType {
   DartType? get nullIfDynamic => isDynamic ? null : this;
 
   DartType get basicType {
-    if (isRealmCollection) {
-      return (this as ParameterizedType).typeArguments.last;
+    final self = this;
+    if (self is ParameterizedType && (isRealmCollection || isDartCoreIterable)) {
+      return self.typeArguments.last;
     }
-    return asNonNullable;
+    return this;
   }
 
   String get basicMappedName => basicType.mappedName;
@@ -61,9 +63,9 @@ extension DartTypeEx on DartType {
     final self = this;
     if (isRealmCollection) {
       if (self is ParameterizedType) {
-        final provider = session.typeProvider;
         final mapped = self.typeArguments.last.mappedType;
         if (self != mapped) {
+          final provider = session.typeProvider;
           if (self.isDartCoreList) {
             final mappedList = provider.listType(mapped);
             return PseudoType('Realm${mappedList.getDisplayString(withNullability: true)}', nullabilitySuffix: mappedList.nullabilitySuffix);
@@ -76,6 +78,13 @@ extension DartTypeEx on DartType {
             final mappedMap = provider.mapType(self.typeArguments.first, mapped);
             return PseudoType('Realm${mappedMap.getDisplayString(withNullability: true)}', nullabilitySuffix: mappedMap.nullabilitySuffix);
           }
+        }
+      }
+    } else if (isDartCoreIterable) {
+      if (self is ParameterizedType) {
+        final mapped = self.typeArguments.last.mappedType;
+        if (self != mapped) {
+          return PseudoType('RealmResults<${mapped.basicMappedName}>', nullabilitySuffix: NullabilitySuffix.none);
         }
       }
     } else if (isRealmModel) {
@@ -105,7 +114,7 @@ extension DartTypeEx on DartType {
     if (isDartCoreNum || isDartCoreDouble) return RealmPropertyType.double;
     if (isExactly<Decimal128>()) return RealmPropertyType.decimal128;
     if (isRealmModel) return RealmPropertyType.object;
-    if (isRealmBacklink) return RealmPropertyType.linkingObjects;
+    if (isDartCoreIterable) return RealmPropertyType.linkingObjects;
     if (isExactly<ObjectId>()) return RealmPropertyType.objectid;
     if (isExactly<Uuid>()) return RealmPropertyType.uuid;
 

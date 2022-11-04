@@ -38,6 +38,8 @@ Future<void> main([List<String>? args]) async {
 
     expect(user1, user2);
     expect(user1, isNot(user3));
+    expect(user1.provider, AuthProviderType.anonymous);
+    expect(user3.provider, AuthProviderType.anonymous);
   });
 
   test('Credentials email/password', () {
@@ -481,5 +483,18 @@ Future<void> main([List<String>? args]) async {
 
     expect(sameUser.identities[0].id, userId);
     expect(sameUser.provider, AuthProviderType.function);
+  });
+
+  test('Credentials providers', () {
+    expect(Credentials.anonymous().provider, AuthProviderType.anonymous);
+    expect(Credentials.anonymous(reuseCredentials: false).provider, AuthProviderType.anonymous);
+    expect(Credentials.apiKey("").provider, AuthProviderType.apiKey);
+    expect(Credentials.apple("").provider, AuthProviderType.apple);
+    expect(Credentials.emailPassword("", "").provider, AuthProviderType.emailPassword);
+    expect(Credentials.facebook("").provider, AuthProviderType.facebook);
+    expect(Credentials.function("{}").provider, AuthProviderType.function);
+    expect(Credentials.googleAuthCode("").provider, AuthProviderType.google);
+    expect(Credentials.googleIdToken("").provider, AuthProviderType.google);
+    expect(Credentials.jwt("").provider, AuthProviderType.jwt);
   });
 }

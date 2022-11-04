@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'package:realm_common/realm_common.dart';
 
 //part 'not_an_indexable_type.g.dart';
@@ -6,5 +5,5 @@ import 'package:realm_common/realm_common.dart';
 @RealmModel()
 class _Bad {
   @Indexed()
-  late Double notAnIndexableType;
+  late double notAnIndexableType;
 }

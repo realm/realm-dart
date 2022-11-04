@@ -322,6 +322,7 @@ O8BM8KOSx9wGyoGs4+OusvRkJizhPaIwa3FInLs4r+xZW9Bp6RndsmVECtvXRv5d
 RwIDAQAB
 -----END PUBLIC KEY-----''';
 final int encryptionKeySize = 64;
+final _appsToRestoreRecovery = Queue<String>();
 
 enum AppNames {
   flexible,
@@ -369,6 +370,7 @@ Future<void> setupTests(List<String>? args) async {
     addTearDown(() async {
       final paths = HashSet<String>();
       paths.add(path);
+      await enableAllAutomaticRecovery();
 
       realmCore.clearCachedApps();
 
@@ -396,8 +398,8 @@ String generateRandomRealmPath() {
 
 final random = Random();
 String generateRandomString(int len) {
-  const _chars = 'abcdefghjklmnopqrstuvwxuz';
-  return List.generate(len, (index) => _chars[random.nextInt(_chars.length)]).join();
+  const chars = 'abcdefghjklmnopqrstuvwxuz';
+  return List.generate(len, (index) => chars[random.nextInt(chars.length)]).join();
 }
 
 Realm getRealm(Configuration config) {
@@ -465,13 +467,21 @@ Future<void> tryDeleteRealm(String path) async {
     return;
   }
 
+  final dummy = File("");
+  const duration = Duration(milliseconds: 100);
   for (var i = 0; i < 5; i++) {
     try {
       Realm.deleteRealm(path);
-      await File('$path.lock').delete();
+      
+      //delete lock file
+      await File('$path.lock').delete().onError((error, stackTrace) => dummy);
+
+      //Bug in Core https://github.com/realm/realm-core/issues/5997. Remove when fixed
+      //delete compaction space file
+      await File('$path.tmp_compaction_space').delete().onError((error, stackTrace) => dummy);
+
       return;
     } catch (e) {
-      const duration = Duration(milliseconds: 100);
       print('Failed to delete realm at path $path. Trying again in ${duration.inMilliseconds}ms');
       await Future<void>.delayed(duration);
     }
@@ -684,4 +694,19 @@ Future<void> _printPlatformInfo() async {
   }
 
   print('Current PID $pid; OS $os, $pointerSize bit, CPU ${cpu ?? 'unknown'}');
+}
+
+Future<void> disableAutomaticRecovery([String? appName]) async {
+  final client = _baasClient ?? (throw StateError("No BAAS client"));
+  appName ??= BaasClient.defaultAppName;
+  await client.setAutomaticRecoveryEnabled(appName, false);
+  _appsToRestoreRecovery.add(appName);
+}
+
+Future<void> enableAllAutomaticRecovery() async {
+  final client = _baasClient ?? (throw StateError("No BAAS client"));
+  while (_appsToRestoreRecovery.isNotEmpty) {
+    final appName = _appsToRestoreRecovery.removeFirst();
+    await client.setAutomaticRecoveryEnabled(appName, true);
+  }
 }

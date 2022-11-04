@@ -26,14 +26,22 @@ class SchemaProperty {
 
   final String? linkTarget;
 
+  final String? linkOriginProperty;
+
   /// Defines the `Realm` collection type if this property is a collection
   final RealmCollectionType collectionType;
 
   /// `true` if the property is a primary key
   final bool primaryKey;
 
+  /// `true` if the property is indexed
+  final bool indexed;
+
   /// The `Realm` type of the property
   final RealmPropertyType propertyType;
+
+  /// `true` if the property is computed
+  bool get isComputed => propertyType == RealmPropertyType.linkingObjects;
 
   /// `true` if the property is optional
   final bool optional;
@@ -42,6 +50,15 @@ class SchemaProperty {
   final String? mapTo;
 
   /// @nodoc
-  const SchemaProperty(this.name, this.propertyType,
-      {this.optional = false, this.mapTo, this.primaryKey = false, this.linkTarget, this.collectionType = RealmCollectionType.none});
+  const SchemaProperty(
+    this.name,
+    this.propertyType, {
+    this.optional = false,
+    this.mapTo,
+    this.primaryKey = false,
+    this.indexed = false,
+    this.linkTarget,
+    this.linkOriginProperty,
+    this.collectionType = RealmCollectionType.none,
+  });
 }

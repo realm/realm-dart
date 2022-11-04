@@ -6,6 +6,7 @@ on:
 jobs:
   build-ios-xcframework:
     name: Combine .xcframework
+    timeout-minutes: 15
     runs-on: macos-latest
 
     steps:

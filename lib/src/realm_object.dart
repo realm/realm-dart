@@ -21,10 +21,11 @@ import 'dart:ffi';
 
 import 'package:collection/collection.dart';
 
+import 'configuration.dart';
 import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
-import 'configuration.dart';
+import 'results.dart';
 
 typedef DartDynamic = dynamic;
 
@@ -126,8 +127,9 @@ class RealmPropertyMetadata {
   final RealmPropertyType propertyType;
   final bool isNullable;
   final String? objectType;
+  final String? linkOriginProperty;
   final bool isPrimaryKey;
-  const RealmPropertyMetadata(this.key, this.objectType, this.propertyType, this.isNullable, this.isPrimaryKey,
+  const RealmPropertyMetadata(this.key, this.objectType, this.linkOriginProperty, this.propertyType, this.isNullable, this.isPrimaryKey,
       [this.collectionType = RealmCollectionType.none]);
 }
 
@@ -142,6 +144,12 @@ class RealmCoreAccessor implements RealmAccessor {
     try {
       final propertyMeta = metadata[name];
       if (propertyMeta.collectionType == RealmCollectionType.list) {
+        if (propertyMeta.propertyType == RealmPropertyType.linkingObjects) {
+          final sourceMeta = object.realm.metadata.getByName(propertyMeta.objectType!);
+          final sourceProperty = sourceMeta[propertyMeta.linkOriginProperty!];
+          final handle = realmCore.getBacklinks(object, sourceMeta.classKey, sourceProperty.key);
+          return RealmResultsInternal.create<T>(handle, object.realm, metadata);
+        }
         final handle = realmCore.getListProperty(object, propertyMeta.key);
         final listMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
 
@@ -158,7 +166,6 @@ class RealmCoreAccessor implements RealmAccessor {
               throw RealmError('List of ${listMetadata.schema.baseType} is not supported yet');
           }
         }
-
         return object.realm.createList<T>(handle, listMetadata);
       }
 
@@ -300,7 +307,7 @@ mixin RealmObjectBase on RealmEntity implements Finalizable {
   }
 
   /// @nodoc
-  static bool setDefaults<T extends RealmObject>(Map<String, Object> values) {
+  static bool setDefaults<T extends RealmObjectBase>(Map<String, Object> values) {
     RealmAccessor.setDefaults<T>(values);
     return true;
   }
@@ -374,7 +381,7 @@ mixin RealmObjectBase on RealmEntity implements Finalizable {
       final name = _symbolRegex.firstMatch(invocation.memberName.toString())?.namedGroup("symbolName");
       if (name == null) {
         throw RealmError(
-            "Could not find symbol name for ${invocation.memberName}. This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues");
+            "Could not find symbol name for ${invocation.memberName}. ${realmCore.bugInTheSdkMessage}");
       }
 
       return get(this, name);
@@ -384,7 +391,7 @@ mixin RealmObjectBase on RealmEntity implements Finalizable {
       final name = _symbolRegex.firstMatch(invocation.memberName.toString())?.namedGroup("symbolName");
       if (name == null) {
         throw RealmError(
-            "Could not find symbol name for ${invocation.memberName}. This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues");
+            "Could not find symbol name for ${invocation.memberName}. ${realmCore.bugInTheSdkMessage}");
       }
 
       return set(this, name, invocation.positionalArguments.single);
@@ -405,6 +412,19 @@ mixin RealmObject on RealmObjectBase {}
 
 /// @nodoc
 mixin EmbeddedObject on RealmObjectBase {}
+
+extension EmbeddedObjectExtension on EmbeddedObject {
+  /// Retrieve the [parent] object of this embedded object.
+  RealmObjectBase? get parent {
+    if (!isManaged) {
+      return null;
+    }
+
+    final parent = realmCore.getEmbeddedParent(this);
+    final metadata = realm.metadata.getByClassKey(parent.item2);
+    return realm.createObject(metadata.item1, parent.item1, metadata.item2);
+  }
+}
 
 /// @nodoc
 //RealmObject package internal members
