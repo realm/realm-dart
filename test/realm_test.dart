@@ -1397,18 +1397,19 @@ Future<void> main([List<String>? args]) async {
     expect(progressReturned, isFalse);
   });
 
+  const compactTest = "compact_test";
   void addDataForCompact(Realm realm) {
     realm.write(() {
       for (var i = 0; i < 2500; i++) {
-        realm.add(Task(ObjectId()));
+        realm.add(Product(ObjectId(), compactTest));
       }
     });
 
-    realm.write(() => realm.deleteAll<Task>());
+    realm.write(() => realm.deleteMany(realm.query<Product>("stringQueryField CONTAINS '$compactTest'")));
 
     realm.write(() {
-      for (var i = 10; i < 20; i++) {
-        realm.add(Task(ObjectId()));
+      for (var i = 0; i < 10; i++) {
+        realm.add(Product(ObjectId(), compactTest));
       }
     });
   }
@@ -1418,19 +1419,19 @@ Future<void> main([List<String>? args]) async {
     
     if (config is FlexibleSyncConfiguration) {
       realm.subscriptions.update((mutableSubscriptions) {
-        mutableSubscriptions.add(realm.all<Task>());
+        mutableSubscriptions.add(realm.query<Product>("stringQueryField CONTAINS '$compactTest'"));
       });
       await realm.subscriptions.waitForSynchronization();
     }
 
     addDataForCompact(realm);
-
-    final beforeSize = await File(config.path).stat().then((value) => value.size);
     
     if (config is FlexibleSyncConfiguration) {
       await realm.syncSession.waitForDownload();
       await realm.syncSession.waitForUpload();
     }
+
+    final beforeSize = await File(config.path).stat().then((value) => value.size);
 
     realm.close();
     return beforeSize;
@@ -1443,7 +1444,7 @@ Future<void> main([List<String>? args]) async {
   }
 
   test('Realm - local realm can be compacted', () async {
-    var config = Configuration.local([Task.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    var config = Configuration.local([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
     final beforeCompact = await createRealmForCompact(config);
 
     final compacted = Realm.compact(config);
@@ -1455,14 +1456,14 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Realm - local realm can be compacted in worker isolate', () async {
-    var config = Configuration.local([Task.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    var config = Configuration.local([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
     final beforeCompact = await createRealmForCompact(config);
 
     final receivePort = ReceivePort();
     await Isolate.spawn((List<Object> args) async {
       SendPort sendPort = args[0] as SendPort;
       final path = args[1] as String;
-      var config = Configuration.local([Task.schema], path: path);
+      var config = Configuration.local([Product.schema], path: path);
       final compacted = Realm.compact(config);
       Isolate.exit(sendPort, compacted);
     }, [receivePort.sendPort, config.path]);
@@ -1476,7 +1477,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Realm - local encrypted realm can be compacted', () async {
-    final config = Configuration.local([Task.schema],
+    final config = Configuration.local([Product.schema],
         encryptionKey: generateEncryptionKey(), path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
 
     final beforeCompact = await createRealmForCompact(config);
@@ -1490,16 +1491,16 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Realm - in-memory realm can not be compacted', () async {
-    var config = Configuration.inMemory([Task.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    var config = Configuration.inMemory([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
     expect(() => Realm.compact(config), throws<RealmException>("Can't compact an in-memory Realm"));
   });
 
   test('Realm - readonly realm can not be compacted', () async {
     var path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
-    var config = Configuration.local([Task.schema], path: path);
+    var config = Configuration.local([Product.schema], path: path);
     final beforeCompact = await createRealmForCompact(config);
 
-    config = Configuration.local([Task.schema], isReadOnly: true, path: path);
+    config = Configuration.local([Product.schema], isReadOnly: true, path: path);
     expect(() => Realm.compact(config), throws<RealmException>("Can't compact a read-only Realm"));
 
     //test the realm can be opened.
@@ -1507,7 +1508,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Realm - disconnected sync realm can be compacted', () async {
-    var config = Configuration.disconnectedSync([Task.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    var config = Configuration.disconnectedSync([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
 
     final beforeCompact = await createRealmForCompact(config);
 
@@ -1524,7 +1525,7 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
-    final config = Configuration.flexibleSync(user, [Task.schema], path: path);
+    final config = Configuration.flexibleSync(user, [Product.schema], path: path);
     final beforeCompact = await createRealmForCompact(config);
     user.logOut();
     Future<void>.delayed(Duration(seconds: 5));
@@ -1534,7 +1535,7 @@ Future<void> main([List<String>? args]) async {
     validateCompact(compacted, config.path, beforeCompact);
 
     //test the realm can be opened.
-    final realm = getRealm(Configuration.disconnectedSync([Task.schema], path: path));
+    final realm = getRealm(Configuration.disconnectedSync([Product.schema], path: path));
   });
 
   baasTest('Realm - synced encrypted realm can be compacted', (appConfiguration) async {
@@ -1544,7 +1545,7 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
     List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
     final config =
-        Configuration.flexibleSync(user, [Task.schema], encryptionKey: key, path: path);
+        Configuration.flexibleSync(user, [Product.schema], encryptionKey: key, path: path);
     final beforeCompact = await createRealmForCompact(config);
     user.logOut();
     Future<void>.delayed(Duration(seconds: 5));
@@ -1554,7 +1555,7 @@ Future<void> main([List<String>? args]) async {
     validateCompact(compacted, config.path, beforeCompact);
 
     //test the realm can be opened.
-    final realm = getRealm(Configuration.disconnectedSync([Task.schema], path: path, encryptionKey: key));
+    final realm = getRealm(Configuration.disconnectedSync([Product.schema], path: path, encryptionKey: key));
   });
 }
 
