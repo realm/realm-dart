@@ -491,22 +491,26 @@ class Realm implements Finalizable {
   /// Note: The file system should have free space for at least a copy of the Realm file. This method must not be called inside a transaction.
   /// The Realm file is left untouched if any file operation fails.
   static bool compact(Configuration config) {
+    if (config is InMemoryConfiguration) {
+      throw RealmException("Can't compact an in-memory Realm");
+    }
+
     late Configuration compactConfig;
+
     if (!File(config.path).existsSync()) {
       return false;
     }
 
     if (config is LocalConfiguration) {
-      //compact opens the realm file so it can triger schema version upgrade, file format upgrade, migration and initial data callbacks etc. 
+      //compact opens the realm file so it can triger schema version upgrade, file format upgrade, migration and initial data callbacks etc.
       //We must to allow that to happen so use the local config as is.
       compactConfig = config;
-    } else if (config is FlexibleSyncConfiguration || config is DisconnectedSyncConfiguration) {
+    } else if (config is DisconnectedSyncConfiguration) {
+      compactConfig = config;
+    } else if (config is FlexibleSyncConfiguration) {
       compactConfig = Configuration.disconnectedSync(config.schemaObjects.toList(),
           fifoFilesFallbackPath: config.fifoFilesFallbackPath, path: config.path, encryptionKey: config.encryptionKey);
-    } else if (config is InMemoryConfiguration) {
-      throw RealmException("Can't compact an in-memory Realm");
-    }
-    else {
+    } else {
       throw RealmError("Unsupported realm configuration type ${config.runtimeType}");
     }
 
