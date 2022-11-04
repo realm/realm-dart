@@ -36,10 +36,10 @@ class _WithIndexes {
   late int anInt;
 
   @Indexed()
-  late bool aBool;
+  late String string;
 
   @Indexed()
-  late String string;
+  late bool aBool;
 
   @Indexed()
   late DateTime timestamp;
@@ -54,8 +54,8 @@ class _WithIndexes {
 @RealmModel()
 class _NoIndexes {
   late int anInt;
-  late bool aBool;
   late String string;
+  late bool aBool;
   late DateTime timestamp;
   late ObjectId objectId;
   late Uuid uuid;
@@ -66,66 +66,71 @@ typedef QueryBuilder<T, U> = RealmResults<T> Function(U value);
 Future<void> main([List<String>? args]) async {
   test('Indexed faster', () {
     final config = Configuration.local([WithIndexes.schema, NoIndexes.schema]);
-    Realm.deleteRealm(config.path);
+    print('Opening realm: ${config.path}');
+
     final realm = Realm(config);
 
-    const max = 100000;
-    final allIndexed = realm.all<WithIndexes>();
-    final allNotIndexed = realm.all<NoIndexes>();
-
-    expect(realm.all<WithIndexes>().length, 0);
-
-    intFactory(int i) => i.hashCode;
+    intFactory(int i) => i; // .hashCode; //.hashCode * max + i;
     boolFactory(int i) => i % 2 == 0;
-    stringFactory(int i) => '${i.hashCode} $i';
-    timestampFactory(int i) => DateTime.fromMillisecondsSinceEpoch(i.hashCode);
-    objectIdFactory(int i) => ObjectId.fromValues(i.hashCode * 1000000, i.hashCode, i);
-    uuidFactory(int i) => Uuid.fromBytes(Uint8List(16).buffer..asByteData().setInt64(0, i.hashCode));
+    stringFactory(int i) => '${intFactory(i)} $i';
+    timestampFactory(int i) => DateTime.fromMillisecondsSinceEpoch(intFactory(i));
+    objectIdFactory(int i) => ObjectId.fromValues(intFactory(i), i, i);
+    uuidFactory(int i) => Uuid.fromBytes(Uint8List(16).buffer..asByteData().setInt64(0, intFactory(i)));
 
-    final indexed = List.generate(
-      max,
-      (i) => WithIndexes(
-        intFactory(i),
-        boolFactory(i),
-        stringFactory(i),
-        timestampFactory(i),
-        objectIdFactory(i),
-        uuidFactory(i),
-      ),
-    );
-    realm.write(() => realm.addAll(indexed));
+    const max = 500000;
+    if (realm.all<WithIndexes>().length != max) {
+      realm.write(() => realm.deleteAll<WithIndexes>());
+      print('Inserting $max WithIndexes objects');
 
-    expect(allIndexed.length, max);
+      final indexed = List.generate(
+        max,
+        (i) => WithIndexes(
+          intFactory(i),
+          stringFactory(i),
+          boolFactory(i),
+          timestampFactory(i),
+          objectIdFactory(i),
+          uuidFactory(i),
+        ),
+      );
 
-    final notIndexed = List.generate(
-      max,
-      (i) => NoIndexes(
-        intFactory(i),
-        boolFactory(i),
-        stringFactory(i),
-        timestampFactory(i),
-        objectIdFactory(i),
-        uuidFactory(i),
-      ),
-    );
-    realm.write(() => realm.addAll(notIndexed));
+      realm.write(() => realm.addAll(indexed));
+    }
 
-    expect(allNotIndexed.length, max);
+    if (realm.all<NoIndexes>().length != max) {
+      realm.write(() => realm.deleteAll<NoIndexes>());
+      print('Inserting $max NoIndexes objects');
+
+      final notIndexed = List.generate(
+        max,
+        (i) => NoIndexes(
+          intFactory(i),
+          stringFactory(i),
+          boolFactory(i),
+          timestampFactory(i),
+          objectIdFactory(i),
+          uuidFactory(i),
+        ),
+      );
+
+      realm.write(() => realm.addAll(notIndexed));
+    }
+
+    print('Inserts done');
 
     // Inefficient, but fast enough for this test
     final searchOrder = (List.generate(max, (i) => i)..shuffle(Random(42))).take(1000).toList();
 
-    QueryBuilder<T, U> builder<T extends RealmObject, U extends Object>(RealmResults<T> results, String fieldName) {
-      return (U value) => results.query('$fieldName == \$0', [value]);
+    QueryBuilder<T, U> builder<T extends RealmObject, U>(String fieldName) {
+      return (U value) => realm.query<T>('$fieldName == \$0', [value]);
     }
 
     @pragma('vm:no-interrupts')
-    Duration measureSpeed<T extends RealmObject, U extends Object>(
-      RealmResults<T> results,
+    Duration measureSpeed<T extends RealmObject, U>(
       String fieldName,
       U Function(int index) indexToValue,
     ) {
-      final queryBuilder = builder(results, fieldName);
+      final queryBuilder = builder<T, U>(fieldName);
       final queries = searchOrder.map((i) => queryBuilder(indexToValue(i))).toList(); // pre-calculate queries
       final found = <T?>[];
 
@@ -153,24 +158,17 @@ Future<void> main([List<String>? args]) async {
         print('$lookupCount lookups of ${'$type'.padRight(12)} on ${fieldName.padRight(10)} : ${duration.inMicroseconds ~/ lookupCount} us/lookup');
       }
 
-      final indexedTime = measureSpeed(allIndexed, fieldName, indexToValue);
-      final notIndexedTime = measureSpeed(allNotIndexed, fieldName, indexToValue);
-      try {
-        // skip timestamp for now, as timestamps are not indexed properly it seems
-        if (fieldName != 'timestamp') {
-          expect(indexedTime, lessThan(notIndexedTime)); // indexed should be faster
-        }
-      } catch (_) {
-        display(WithIndexes, indexedTime); // only display if test fails
-        display(NoIndexes, notIndexedTime);
-        rethrow; // rethrow to fail test
-      }
+      final notIndexedTime = measureSpeed<NoIndexes, U>(fieldName, indexToValue);
+      display(NoIndexes, notIndexedTime);
+      final indexedTime = measureSpeed<WithIndexes, U>(fieldName, indexToValue);
+      display(WithIndexes, indexedTime); // only display if test fails
     }
 
-    compareSpeed('anInt', intFactory);
-    compareSpeed('string', stringFactory);
-    compareSpeed('timestamp', timestampFactory);
-    compareSpeed('objectId', objectIdFactory);
-    compareSpeed('uuid', uuidFactory);
+    print('Starting lookups on $max objects');
+    compareSpeed<int>('anInt', intFactory);
+    compareSpeed<String>('string', stringFactory);
+    compareSpeed<DateTime>('timestamp', timestampFactory);
+    compareSpeed<ObjectId>('objectId', objectIdFactory);
+    compareSpeed<Uuid>('uuid', uuidFactory);
   });
 }
