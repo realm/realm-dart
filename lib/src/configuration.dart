@@ -202,15 +202,15 @@ abstract class Configuration implements Finalizable {
 
   /// Constructs a [DisconnectedSyncConfiguration]
   static DisconnectedSyncConfiguration disconnectedSync(
-    List<SchemaObject> schemaObjects, {
+    List<SchemaObject> schemaObjects,  {
+    required String path, 
     String? fifoFilesFallbackPath,
-    String? path,
     List<int>? encryptionKey,
   }) =>
       DisconnectedSyncConfiguration._(
         schemaObjects,
-        fifoFilesFallbackPath: fifoFilesFallbackPath,
         path: path,
+        fifoFilesFallbackPath: fifoFilesFallbackPath,
         encryptionKey: encryptionKey,
       );
 
@@ -337,7 +337,7 @@ class FlexibleSyncConfiguration extends Configuration {
   }) : super._();
 
   @override
-  String get _defaultPath => realmCore.getPathForConfig(this);
+  String get _defaultPath => realmCore.getPathForUser(user);
 }
 
 extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
@@ -358,10 +358,13 @@ extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
 class DisconnectedSyncConfiguration extends Configuration {
   DisconnectedSyncConfiguration._(
     super.schemaObjects, {
+    required super.path,
     super.fifoFilesFallbackPath,
-    super.path,
     super.encryptionKey,
   }) : super._();
+
+  @override
+  String get _defaultPath => _path.dirname(path);
 }
 
 /// [InMemoryConfiguration] is used to open [Realm] instances that
