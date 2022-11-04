@@ -15,15 +15,14 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:cancellation_token/cancellation_token.dart';
+import 'package:collection/collection.dart';
 import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
-import 'package:collection/collection.dart';
-import 'package:cancellation_token/cancellation_token.dart';
 
 import 'configuration.dart';
 import 'list.dart';
@@ -31,83 +30,81 @@ import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'results.dart';
 import 'scheduler.dart';
-import 'subscription.dart';
 import 'session.dart';
+import 'subscription.dart';
 
+export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
 export 'package:realm_common/realm_common.dart'
     show
+        Backlink,
         Ignored,
         Indexed,
         MapTo,
-        Backlink,
-        PrimaryKey,
-        RealmError,
-        RealmClosedError,
+        ObjectId,
         ObjectType,
-        SyncErrorCategory,
+        PrimaryKey,
+        RealmClosedError,
+        RealmCollectionType,
+        RealmError,
+        RealmModel,
+        RealmPropertyType,
+        RealmStateError,
+        RealmUnsupportedSetError,
         SyncClientErrorCode,
         SyncConnectionErrorCode,
+        SyncErrorCategory,
         SyncSessionErrorCode,
-        RealmModel,
-        RealmUnsupportedSetError,
-        RealmStateError,
-        RealmCollectionType,
-        RealmPropertyType,
-        ObjectId,
         Uuid;
 
 // always expose with `show` to explicitly control the public API surface
 export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App, AppException;
 export "configuration.dart"
     show
+        AfterResetCallback,
+        BeforeResetCallback,
+        ClientResetCallback,
+        ClientResetError,
+        ClientResetHandler,
         Configuration,
+        DiscardUnsyncedChangesHandler,
         DisconnectedSyncConfiguration,
         FlexibleSyncConfiguration,
+        GeneralSyncError,
+        GeneralSyncErrorCode,
         InitialDataCallback,
         InMemoryConfiguration,
         LocalConfiguration,
+        ManualRecoveryHandler,
         MigrationCallback,
         RealmSchema,
+        RecoverOrDiscardUnsyncedChangesHandler,
+        RecoverUnsyncedChangesHandler,
         SchemaObject,
         ShouldCompactCallback,
-        SyncError,
         SyncClientError,
         SyncConnectionError,
-        SyncSessionError,
-        GeneralSyncError,
-        GeneralSyncErrorCode,
-        ClientResetError,
+        SyncError,
         SyncErrorHandler,
-        ClientResetHandler,
-        ManualRecoveryHandler,
-        DiscardUnsyncedChangesHandler,
-        RecoverUnsyncedChangesHandler,
-        RecoverOrDiscardUnsyncedChangesHandler,
-        BeforeResetCallback,
-        AfterResetCallback,
-        ClientResetCallback;
-
-export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
+        SyncSessionError;
+export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
+export 'migration.dart' show Migration;
 export 'realm_object.dart'
     show
-        RealmEntity,
-        RealmException,
-        UserCallbackException,
-        RealmObject,
-        RealmObjectBase,
+        DynamicRealmObject,
         EmbeddedObject,
         EmbeddedObjectExtension,
+        RealmEntity,
+        RealmException,
+        RealmObject,
+        RealmObjectBase,
         RealmObjectChanges,
-        DynamicRealmObject;
-
+        UserCallbackException;
 export 'realm_property.dart';
-export 'results.dart' show RealmResults, RealmResultsChanges, RealmResultsOfObject;
-export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
+export 'results.dart' show RealmResultsOfObject, RealmResultsChanges, RealmResults;
+export 'session.dart' show ConnectionStateChange, SyncProgress, ProgressDirection, ProgressMode, ConnectionState, Session, SessionState;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
-export 'user.dart' show User, UserState, UserIdentity, ApiKeyClient, ApiKey, FunctionsClient;
-export 'migration.dart' show Migration;
-export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
+export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
