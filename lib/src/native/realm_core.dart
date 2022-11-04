@@ -62,6 +62,8 @@ class _RealmCore {
 
   static Object noopUserdata = Object();
 
+  final bugInTheSdkMessage = "This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues";
+
   // Hide the RealmCore class and make it a singleton
   static _RealmCore? _instance;
   late final int isolateKey;
@@ -70,7 +72,8 @@ class _RealmCore {
     final lib = initRealm();
     _realmLib = RealmLibrary(lib);
     if (libraryVersion != nativeLibraryVersion) {
-      throw RealmException('Dart package version does not match dynamically loaded native library version ($libraryVersion != $nativeLibraryVersion)');
+      final additionMessage = isFlutterPlatform ? bugInTheSdkMessage : "Did you forget to run `dart run realm_dart install` after upgrading the realm_dart package?";
+      throw RealmException('Realm SDK package version does not match the native library version ($libraryVersion != $nativeLibraryVersion). $additionMessage');
     }
   }
 
