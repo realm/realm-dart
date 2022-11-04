@@ -2249,6 +2249,14 @@ class _RealmCore {
     });
   }
 
+  bool compact(Realm realm) {
+    return using((arena) {
+      final out_did_compact = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_compact(realm.handle._pointer, out_did_compact));
+      return out_did_compact.value;
+    });
+  }
+
   void immediatelyRunFileActions(App app, String realmPath) {
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_sync_immediately_run_file_actions(app.handle._pointer, realmPath.toCharPtr(arena)),

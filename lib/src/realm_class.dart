@@ -497,6 +497,44 @@ class Realm implements Finalizable {
       throw RealmError('Starting a write transaction on a frozen Realm is not allowed.');
     }
   }
+
+  /// Compacts a Realm file. A Realm file usually contains free/unused space.
+  ///
+  /// This method removes this free space and the file size is thereby reduced.
+  /// Objects within the Realm file are untouched.
+  /// Note: The file system should have free space for at least a copy of the Realm file. This method must not be called inside a transaction.
+  /// The Realm file is left untouched if any file operation fails.
+  static bool compact(Configuration config) {
+    if (config is InMemoryConfiguration) {
+      throw RealmException("Can't compact an in-memory Realm");
+    }
+
+    late Configuration compactConfig;
+
+    if (!File(config.path).existsSync()) {
+      return false;
+    }
+
+    if (config is LocalConfiguration) {
+      // `compact` opens the realm file so it can triger schema version upgrade, file format upgrade, migration and initial data callbacks etc.
+      // We must allow that to happen so use the local config as is.
+      compactConfig = config;
+    } else if (config is DisconnectedSyncConfiguration) {
+      compactConfig = config;
+    } else if (config is FlexibleSyncConfiguration) {
+      compactConfig = Configuration.disconnectedSync(config.schemaObjects.toList(),
+          fifoFilesFallbackPath: config.fifoFilesFallbackPath, path: config.path, encryptionKey: config.encryptionKey);
+    } else {
+      throw RealmError("Unsupported realm configuration type ${config.runtimeType}");
+    }
+
+    final realm = Realm(compactConfig);
+    try {
+      return realmCore.compact(realm);
+    } finally {
+      realm.close();
+    }
+  }
 }
 
 /// Provides a scope to safely write data to a [Realm]. Can be created using [Realm.beginWrite] or

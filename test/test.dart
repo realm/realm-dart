@@ -398,8 +398,8 @@ String generateRandomRealmPath() {
 
 final random = Random();
 String generateRandomString(int len) {
-  const _chars = 'abcdefghjklmnopqrstuvwxuz';
-  return List.generate(len, (index) => _chars[random.nextInt(_chars.length)]).join();
+  const chars = 'abcdefghjklmnopqrstuvwxuz';
+  return List.generate(len, (index) => chars[random.nextInt(chars.length)]).join();
 }
 
 Realm getRealm(Configuration config) {
@@ -467,13 +467,21 @@ Future<void> tryDeleteRealm(String path) async {
     return;
   }
 
+  final dummy = File("");
+  const duration = Duration(milliseconds: 100);
   for (var i = 0; i < 5; i++) {
     try {
       Realm.deleteRealm(path);
-      await File('$path.lock').delete();
+      
+      //delete lock file
+      await File('$path.lock').delete().onError((error, stackTrace) => dummy);
+
+      //Bug in Core https://github.com/realm/realm-core/issues/5997. Remove when fixed
+      //delete compaction space file
+      await File('$path.tmp_compaction_space').delete().onError((error, stackTrace) => dummy);
+
       return;
     } catch (e) {
-      const duration = Duration(milliseconds: 100);
       print('Failed to delete realm at path $path. Trying again in ${duration.inMilliseconds}ms');
       await Future<void>.delayed(duration);
     }
