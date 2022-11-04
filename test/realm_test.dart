@@ -1470,11 +1470,14 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
-    final configuration =
+    final config =
         Configuration.flexibleSync(user, [Task.schema], encryptionKey: key, path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
 
-    final compacted = await Realm.compact(configuration);
+    final compacted = await Realm.compact(config);
     expect(compacted, true);
+
+    //test the realm can be opened. This also allows the compacted realm to be deleted after the test
+    final realm = getRealm(config);
   });
 }
 

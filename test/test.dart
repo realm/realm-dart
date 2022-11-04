@@ -465,13 +465,20 @@ Future<void> tryDeleteRealm(String path) async {
     return;
   }
 
+  final dummy = File("");
+  const duration = Duration(milliseconds: 100);
   for (var i = 0; i < 5; i++) {
     try {
       Realm.deleteRealm(path);
-      await File('$path.lock').delete();
+      
+      //delete lock file
+      await File('$path.lock').delete().onError((error, stackTrace) => dummy);
+
+      //delete compaction space file
+      await File('$path.tmp_compaction_space').delete().onError((error, stackTrace) => dummy);
+
       return;
     } catch (e) {
-      const duration = Duration(milliseconds: 100);
       print('Failed to delete realm at path $path. Trying again in ${duration.inMilliseconds}ms');
       await Future<void>.delayed(duration);
     }
