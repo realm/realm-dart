@@ -358,7 +358,7 @@ extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
 /// {@category Configuration}
 class DisconnectedSyncConfiguration extends Configuration {
 
-  /// The [User] used to created this [FlexibleSyncConfiguration]
+  /// The [User] used to created this [DisconnectedSyncConfiguration]
   final User user;
 
   DisconnectedSyncConfiguration._(
