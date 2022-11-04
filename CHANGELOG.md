@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 0.7.0+beta (2022-11-04)
 
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
