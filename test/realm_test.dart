@@ -1437,10 +1437,10 @@ Future<void> main([List<String>? args]) async {
     return beforeSize;
   }
 
-  void validateCompact(bool compacted, String realmPath, int before) async {
+  void validateCompact(bool compacted, String realmPath, int beforeCompactSize) async {
     expect(compacted, true);
-    final afterSize = await File(realmPath).stat().then((value) => value.size);
-    expect(before, greaterThan(afterSize));
+    final afterCompactSize  = await File(realmPath).stat().then((value) => value.size);
+    expect(beforeCompactSize, greaterThan(afterCompactSize));
   }
 
   test('Realm - local realm can be compacted', () async {
