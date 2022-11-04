@@ -484,14 +484,38 @@ class Realm implements Finalizable {
     }
   }
 
-  /// Compacts a Realm file. A Realm file usually contains free/unused space. 
-  /// 
-  /// This method removes this free space and the file size is thereby reduced. 
+  /// Compacts a Realm file. A Realm file usually contains free/unused space.
+  ///
+  /// This method removes this free space and the file size is thereby reduced.
   /// Objects within the Realm file are untouched.
-  /// Note: The file system should have free space for at least a copy of the Realm file. This method must not be called inside a transaction. 
+  /// Note: The file system should have free space for at least a copy of the Realm file. This method must not be called inside a transaction.
   /// The Realm file is left untouched if any file operation fails.
-  bool compact() {
-    return realmCore.compact(this);
+  static Future<bool> compact(Configuration config) {
+    late Configuration compactConfig;
+    if (config is LocalConfiguration) {
+      compactConfig = Configuration.local(config.schemaObjects.toList(),
+          schemaVersion: config.schemaVersion,
+          fifoFilesFallbackPath: config.fifoFilesFallbackPath,
+          path: config.path,
+          encryptionKey: config.encryptionKey,
+          disableFormatUpgrade: true,
+          isReadOnly: false);
+    } else if (config is FlexibleSyncConfiguration || config is DisconnectedSyncConfiguration) {
+      compactConfig = Configuration.disconnectedSync(config.schemaObjects.toList(),
+          fifoFilesFallbackPath: config.fifoFilesFallbackPath, path: config.path, encryptionKey: config.encryptionKey);
+    } else if (config is InMemoryConfiguration) {
+      compactConfig = config;
+    }
+    else {
+      throw RealmError("Unsupported realm configuration type ${config.runtimeType}");
+    }
+
+    final realm = Realm(compactConfig);
+    try {
+      return Future<bool>.value(realmCore.compact(realm));
+    } finally {
+      realm.close();
+    }
   }
 }
 
