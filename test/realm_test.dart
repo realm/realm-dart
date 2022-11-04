@@ -1398,7 +1398,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Realm - local realm can be compacted', () async {
     var config = Configuration.local([Car.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
-    final compacted = await Realm.compact(config);
+    final compacted = Realm.compact(config);
     expect(compacted, true);
     
     //test the realm can be opened. This also allows the compacted realm to be deleted after the test
@@ -1413,7 +1413,7 @@ Future<void> main([List<String>? args]) async {
       SendPort sendPort = args[0] as SendPort;
       final path = args[1] as String;
       var config = Configuration.local([Car.schema], path: path);
-      final compacted = await Realm.compact(config);
+      final compacted = Realm.compact(config);
       Isolate.exit(sendPort, compacted);
     }, [receivePort.sendPort, config.path]);
 
@@ -1427,7 +1427,7 @@ Future<void> main([List<String>? args]) async {
   test('Realm - local encrypted realm can be compacted', () async {
     final config = Configuration.local([Friend.schema],
         encryptionKey: generateEncryptionKey(), path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
-    final compacted = await Realm.compact(config);
+    final compacted = Realm.compact(config);
     expect(compacted, true);
 
     //test the realm can be opened. This also allows the compacted realm to be deleted after the test
@@ -1436,7 +1436,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Realm - in-memory realm can be compacted', () async {
     var config = Configuration.inMemory([Car.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
-    final compacted = await Realm.compact(config);
+    final compacted = Realm.compact(config);
     expect(compacted, true);
 
     //test the realm can be opened. This also allows the compacted realm to be deleted after the test
@@ -1445,7 +1445,7 @@ Future<void> main([List<String>? args]) async {
 
    test('Realm - disconnected sync realm can be compacted', () async {
     var config = Configuration.disconnectedSync([Car.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
-    final compacted = await Realm.compact(config);
+    final compacted = Realm.compact(config);
     expect(compacted, true);
 
     //test the realm can be opened. This also allows the compacted realm to be deleted after the test
@@ -1458,7 +1458,7 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
     final config = Configuration.flexibleSync(user, [Task.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
 
-    final compacted = await Realm.compact(config);
+    final compacted = Realm.compact(config);
     expect(compacted, true);
 
     //test the realm can be opened. This also allows the compacted realm to be deleted after the test
@@ -1473,7 +1473,7 @@ Future<void> main([List<String>? args]) async {
     final config =
         Configuration.flexibleSync(user, [Task.schema], encryptionKey: key, path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
 
-    final compacted = await Realm.compact(config);
+    final compacted = Realm.compact(config);
     expect(compacted, true);
 
     //test the realm can be opened. This also allows the compacted realm to be deleted after the test

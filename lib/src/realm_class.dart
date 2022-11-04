@@ -490,7 +490,7 @@ class Realm implements Finalizable {
   /// Objects within the Realm file are untouched.
   /// Note: The file system should have free space for at least a copy of the Realm file. This method must not be called inside a transaction.
   /// The Realm file is left untouched if any file operation fails.
-  static Future<bool> compact(Configuration config) {
+  static bool compact(Configuration config) {
     late Configuration compactConfig;
     if (config is LocalConfiguration) {
       compactConfig = Configuration.local(config.schemaObjects.toList(),
@@ -512,7 +512,7 @@ class Realm implements Finalizable {
 
     final realm = Realm(compactConfig);
     try {
-      return Future<bool>.value(realmCore.compact(realm));
+      return realmCore.compact(realm);
     } finally {
       realm.close();
     }
