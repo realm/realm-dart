@@ -20,6 +20,7 @@
 
 #include "realm_dart.h"
 #include <realm/object-store/c_api/types.hpp>
+#include <realm/util/functional.hpp>
 
 struct realm_dart_userdata_async {
 public:

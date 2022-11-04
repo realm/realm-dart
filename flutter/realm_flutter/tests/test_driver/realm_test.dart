@@ -19,6 +19,7 @@ import '../test/results_test.dart' as results_test;
 import '../test/session_test.dart' as session_test;
 import '../test/subscription_test.dart' as subscription_test;
 import '../test/user_test.dart' as user_test;
+import '../test/client_reset_test.dart' as client_reset_test;
 
 Future<String> main(List<String> args) async {
   final Completer<String> completer = Completer<String>();
@@ -39,6 +40,7 @@ Future<String> main(List<String> args) async {
     await session_test.main(args);
     await subscription_test.main(args);
     await user_test.main(args);
+    await client_reset_test.main(args);
 
     tearDown(() {
       if (Invoker.current?.liveTest.state.result == test_api.Result.error || Invoker.current?.liveTest.state.result == test_api.Result.failure) {

@@ -225,12 +225,30 @@ class _RealmCore {
         final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
-
+          _realmLib.realm_sync_config_set_resync_mode(syncConfigPtr, config.clientResetHandler.clientResyncMode.index);
           final errorHandlerCallback =
               Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_session_t>, realm_sync_error_t)>(_syncErrorHandlerCallback);
           final errorHandlerUserdata = _realmLib.realm_dart_userdata_async_new(config, errorHandlerCallback.cast(), scheduler.handle._pointer);
           _realmLib.realm_sync_config_set_error_handler(syncConfigPtr, _realmLib.addresses.realm_dart_sync_error_handler_callback, errorHandlerUserdata.cast(),
               _realmLib.addresses.realm_dart_userdata_async_free);
+
+          if (config.clientResetHandler.onBeforeReset != null) {
+            final syncBeforeResetCallback = Pointer.fromFunction<Void Function(Handle, Pointer<shared_realm>, Pointer<Void>)>(_syncBeforeResetCallback);
+            final beforeResetUserdata = _realmLib.realm_dart_userdata_async_new(config, syncBeforeResetCallback.cast(), scheduler.handle._pointer);
+
+            _realmLib.realm_sync_config_set_before_client_reset_handler(syncConfigPtr, _realmLib.addresses.realm_dart_sync_before_reset_handler_callback,
+                beforeResetUserdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
+          }
+
+          if (config.clientResetHandler.onAfterRecovery != null || config.clientResetHandler.onAfterDiscard != null) {
+            final syncAfterResetCallback =
+                Pointer.fromFunction<Void Function(Handle, Pointer<shared_realm>, Pointer<realm_thread_safe_reference>, Bool, Pointer<Void>)>(
+                    _syncAfterResetCallback);
+            final afterResetUserdata = _realmLib.realm_dart_userdata_async_new(config, syncAfterResetCallback.cast(), scheduler.handle._pointer);
+
+            _realmLib.realm_sync_config_set_after_client_reset_handler(syncConfigPtr, _realmLib.addresses.realm_dart_sync_after_reset_handler_callback,
+                afterResetUserdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
+          }
 
           _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
         } finally {
@@ -486,15 +504,63 @@ class _RealmCore {
 
   static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error) {
     final syncConfig = userdata as FlexibleSyncConfiguration;
+    final syncError = error.toSyncError(syncConfig);
 
-    final syncError = error.toSyncError();
-
-    if (syncError is SyncClientResetError) {
-      syncConfig.syncClientResetErrorHandler.callback(syncError);
+    if (syncError is ClientResetError) {
+      syncConfig.clientResetHandler.onManualReset?.call(syncError);
       return;
     }
 
     syncConfig.syncErrorHandler(syncError);
+  }
+
+  static void _guardSynchronousCallback(FutureOr<void> Function() callback, Pointer<Void> unlockCallbackFunc) async {
+    bool success = true;
+    try {
+      await callback();
+    } catch (error) {
+      success = false;
+      _realmLib.realm_register_user_code_callback_error(error.toPersistentHandle());
+    } finally {
+      _realmLib.realm_dart_invoke_unlock_callback(success, unlockCallbackFunc);
+    }
+  }
+
+  static void _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle, Pointer<Void> unlockCallbackFunc) {
+    _guardSynchronousCallback(() async {
+      final syncConfig = userdata as FlexibleSyncConfiguration;
+      var beforeResetCallback = syncConfig.clientResetHandler.onBeforeReset!;
+
+      final realm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(realmHandle));
+      try {
+        await beforeResetCallback(realm);
+      } finally {
+        realm.handle.release();
+      }
+    }, unlockCallbackFunc);
+  }
+
+  static void _syncAfterResetCallback(Object userdata, Pointer<shared_realm> beforeHandle, Pointer<realm_thread_safe_reference> afterReference, bool didRecover,
+      Pointer<Void> unlockCallbackFunc) {
+    _guardSynchronousCallback(() async {
+      final syncConfig = userdata as FlexibleSyncConfiguration;
+      final afterResetCallback = didRecover ? syncConfig.clientResetHandler.onAfterRecovery : syncConfig.clientResetHandler.onAfterDiscard;
+
+      if (afterResetCallback == null) {
+        return;
+      }
+
+      final beforeRealm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(beforeHandle));
+      final afterRealm =
+          RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(_realmLib.realm_from_thread_safe_reference(afterReference, scheduler.handle._pointer)));
+
+      try {
+        return await afterResetCallback(beforeRealm, afterRealm);
+      } finally {
+        beforeRealm.handle.release();
+        afterRealm.handle.release();
+      }
+    }, unlockCallbackFunc);
   }
 
   void raiseError(Session session, SyncErrorCategory category, int errorCode, bool isFatal) {
@@ -2182,6 +2248,13 @@ class _RealmCore {
       return completer.future;
     });
   }
+
+  void immediatelyRunFileActions(App app, String realmPath) {
+    using((arena) {
+      _realmLib.invokeGetBool(() => _realmLib.realm_sync_immediately_run_file_actions(app.handle._pointer, realmPath.toCharPtr(arena)),
+          "An error occurred while resetting the Realm. Check if the file is in use: '$realmPath'");
+    });
+  }
 }
 
 class LastError {
@@ -2646,13 +2719,13 @@ extension on Pointer<Utf8> {
 }
 
 extension on realm_sync_error {
-  SyncError toSyncError() {
+  SyncError toSyncError(Configuration config) {
     final message = detailed_message.cast<Utf8>().toRealmDartString()!;
     final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
 
     //client reset can be requested with is_client_reset_requested disregarding the error_code.value
     if (is_client_reset_requested) {
-      return SyncClientResetError(message);
+      return ClientResetError(message, config);
     }
 
     return SyncError.create(message, category, error_code.value, isFatal: is_fatal);
