@@ -7,7 +7,7 @@
 Realm is a mobile database that runs directly inside phones, tablets or wearables.
 This repository holds the source code for the Realm SDK for Flutter™ and Dart™.
 
-**This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
+**This project is in Release Candiate stage.**
 
 ## Features
 
