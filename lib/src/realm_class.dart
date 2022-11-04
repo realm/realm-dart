@@ -516,8 +516,8 @@ class Realm implements Finalizable {
     }
 
     if (config is LocalConfiguration) {
-      //compact opens the realm file so it can triger schema version upgrade, file format upgrade, migration and initial data callbacks etc.
-      //We must to allow that to happen so use the local config as is.
+      // `compact` opens the realm file so it can triger schema version upgrade, file format upgrade, migration and initial data callbacks etc.
+      // We must allow that to happen so use the local config as it is.
       compactConfig = config;
     } else if (config is DisconnectedSyncConfiguration) {
       compactConfig = config;
