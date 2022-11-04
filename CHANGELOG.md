@@ -1,6 +1,6 @@
 ## 0.7.0+rc (2022-11-04)
 
-**This project is in RC stage.**
+**This project is in Release Candidate stage.**
 
 ### Breaking Changes
 * SyncClientResetErrorHandler is renamed to ClientResetHandler. SyncClientResetError is renamed to ClientResetError. ManualSyncClientResetHandler is renamed to ManualRecoveryHandler.
