@@ -522,7 +522,7 @@ class Realm implements Finalizable {
     } else if (config is DisconnectedSyncConfiguration) {
       compactConfig = config;
     } else if (config is FlexibleSyncConfiguration) {
-      compactConfig = Configuration.disconnectedSync(config.schemaObjects.toList(),
+      compactConfig = Configuration.disconnectedSync(config.user, config.schemaObjects.toList(),
           fifoFilesFallbackPath: config.fifoFilesFallbackPath, path: config.path, encryptionKey: config.encryptionKey);
     } else {
       throw RealmError("Unsupported realm configuration type ${config.runtimeType}");

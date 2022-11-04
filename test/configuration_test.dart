@@ -549,7 +549,7 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => realm.add(Task(oid)));
     realm.close();
 
-    final disconnectedSyncConfig = Configuration.disconnectedSync(schema, path: realmPath);
+    final disconnectedSyncConfig = Configuration.disconnectedSync(user, schema, path: realmPath);
     final disconnectedRealm = getRealm(disconnectedSyncConfig);
     expect(disconnectedRealm.find<Task>(oid), isNotNull);
   });

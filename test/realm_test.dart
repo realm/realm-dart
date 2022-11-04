@@ -1513,8 +1513,11 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
   });
 
-  test('Realm - disconnected sync realm can be compacted', () async {
-    var config = Configuration.disconnectedSync([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+  baasTest('Realm - disconnected sync realm can be compacted', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    var config = Configuration.disconnectedSync(user, [Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
 
     final beforeCompactSize = await createRealmForCompact(config);
 
@@ -1529,7 +1532,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Realm - synced realm can be compacted', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
+    var user = await app.logIn(credentials);
     final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
     final config = Configuration.flexibleSync(user, [Product.schema], path: path);
     final beforeCompactSize = await createRealmForCompact(config);
@@ -1540,15 +1543,16 @@ Future<void> main([List<String>? args]) async {
 
     validateCompact(compacted, config.path, beforeCompactSize);
 
+    user = await app.logIn(credentials);
     //test the realm can be opened.
-    final realm = getRealm(Configuration.disconnectedSync([Product.schema], path: path));
+    final realm = getRealm(Configuration.disconnectedSync(user, [Product.schema], path: path));
   });
 
   baasTest('Realm - synced encrypted realm can be compacted', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
-    final user = await app.logIn(credentials);
+    var user = await app.logIn(credentials);
     List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
     final config =
         Configuration.flexibleSync(user, [Product.schema], encryptionKey: key, path: path);
@@ -1560,8 +1564,9 @@ Future<void> main([List<String>? args]) async {
 
     validateCompact(compacted, config.path, beforeCompactSize);
 
+    user = await app.logIn(credentials);
     //test the realm can be opened.
-    final realm = getRealm(Configuration.disconnectedSync([Product.schema], path: path, encryptionKey: key));
+    final realm = getRealm(Configuration.disconnectedSync(user, [Product.schema], path: path, encryptionKey: key));
   });
 }
 
