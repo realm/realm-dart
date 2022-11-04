@@ -1455,6 +1455,12 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
   });
 
+   test('Realm - non existing realm can not be compacted', () async {
+    var config = Configuration.local([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    final compacted = Realm.compact(config);
+    expect(compacted, false);
+  });
+
   test('Realm - local realm can be compacted in worker isolate', () async {
     var config = Configuration.local([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
     final beforeCompact = await createRealmForCompact(config);

@@ -492,14 +492,14 @@ class Realm implements Finalizable {
   /// The Realm file is left untouched if any file operation fails.
   static bool compact(Configuration config) {
     late Configuration compactConfig;
+    if (!File(config.path).existsSync()) {
+      return false;
+    }
+
     if (config is LocalConfiguration) {
-      compactConfig = Configuration.local(config.schemaObjects.toList(),
-          schemaVersion: config.schemaVersion,
-          fifoFilesFallbackPath: config.fifoFilesFallbackPath,
-          path: config.path,
-          encryptionKey: config.encryptionKey,
-          disableFormatUpgrade: true,
-          isReadOnly: config.isReadOnly);
+      //compact opens the realm file so it can triger schema version upgrade, file format upgrade, migration and initial data callbacks etc. 
+      //We must to allow that to happen so use the local config as is.
+      compactConfig = config;
     } else if (config is FlexibleSyncConfiguration || config is DisconnectedSyncConfiguration) {
       compactConfig = Configuration.disconnectedSync(config.schemaObjects.toList(),
           fifoFilesFallbackPath: config.fifoFilesFallbackPath, path: config.path, encryptionKey: config.encryptionKey);
