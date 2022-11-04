@@ -5,6 +5,7 @@
 ### Breaking Changes
 * SyncClientResetErrorHandler is renamed to ClientResetHandler. SyncClientResetError is renamed to ClientResetError. ManualSyncClientResetHandler is renamed to ManualRecoveryHandler.
 * Default resync mode for `FlexibleSyncConfiguration` is changed from `manual` to `recoverOrDiscard`. In this mode Realm attempts to recover unsynced local changes and if that fails, then the changes are discarded.(PR [#925](https://github.com/realm/realm-dart/pull/925))
+* Added user parameter to `Configuration.disconnectedSync`. This user is used to build the correct path to the synced realm file.
 
 ### Enhancements
 * Added `MutableSubscriptionSet.removeByType` for removing subscriptions by their realm object type. ([#317](https://github.com/realm/realm-dart/issues/317))
