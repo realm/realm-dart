@@ -57,7 +57,7 @@ export 'package:realm_common/realm_common.dart'
         Uuid;
 
 // always expose with `show` to explicitly control the public API surface
-export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App, AppException;
+export 'app.dart' show AppException, App, MetadataPersistenceMode, AppConfiguration;
 export "configuration.dart"
     show
         AfterResetCallback,
