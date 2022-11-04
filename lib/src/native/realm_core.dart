@@ -2254,6 +2254,8 @@ class _RealmCore {
       final out_did_compact = arena<Bool>();
       _realmLib.invokeGetBool(() => _realmLib.realm_compact(realm.handle._pointer, out_did_compact));
       return out_did_compact.value;
+    });
+  }
 
   void immediatelyRunFileActions(App app, String realmPath) {
     using((arena) {
