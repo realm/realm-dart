@@ -2,20 +2,47 @@
 
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
+### Breaking Changes
+* SyncClientResetErrorHandler is renamed to ClientResetHandler. SyncClientResetError is renamed to ClientResetError. ManualSyncClientResetHandler is renamed to ManualRecoveryHandler.
+* Default resync mode for `FlexibleSyncConfiguration` is changed from `manual` to `recoverOrDiscard`. In this mode Realm attempts to recover unsynced local changes and if that fails, then the changes are discarded.(PR [#925](https://github.com/realm/realm-dart/pull/925))
+
 ### Enhancements
-* Added `MutableSubscriptionSet.removeByType` for removing subscriptions by their realm object type. (Issue [#317](https://github.com/realm/realm-dart/issues/317))
+* Added `MutableSubscriptionSet.removeByType` for removing subscriptions by their realm object type. ([#317](https://github.com/realm/realm-dart/issues/317))
 * Added `User.functions`. This is the entry point for calling Atlas App functions. Functions allow you to define and execute server-side logic for your application. Atlas App functions are created on the server, written in modern JavaScript (ES6+) and executed in a serverless manner. When you call a function, you can dynamically access components of the current application as well as information about the request to execute the function and the logged in user that sent the request. ([#973](https://github.com/realm/realm-dart/pull/973))
-* Support results of primitives, ie. `RealmResult<int>`. (Issue [#162](https://github.com/realm/realm-dart/issues/162))
+* Support results of primitives, ie. `RealmResult<int>`. ([#162](https://github.com/realm/realm-dart/issues/162))
 * Support notifications on all managed realm lists, including list of primitives, ie. `RealmList<int>.changes` is supported. ([#893](https://github.com/realm/realm-dart/pull/893))
 * Support named backlinks on realm models. You can now add and annotate a realm object iterator field with `@Backlink(#fieldName)`. ([#996](https://github.com/realm/realm-dart/pull/996))
 * Added Realm file compaction support. ([#1005](https://github.com/realm/realm-dart/pull/1005))
 * Allow `@Indexed` attribute on all indexable type, and ensure appropriate indexes are created in the realm. ([#797](https://github.com/realm/realm-dart/issues/797))
+* Add `parent` getter on embedded objects. ([#979](https://github.com/realm/realm-dart/pull/979))
+* Support [Client Resets](https://www.mongodb.com/docs/atlas/app-services/sync/error-handling/client-resets/). Atlas App Services automatically detects the need for client resets and the realm client automatically performs it according to the configured callbacks for the type of client reset handlers set on `FlexibleSyncConfiguration`. A parameter `clientResetHandler` is added to `Configuration.flexibleSync`. Supported client reset handlers are `ManualRecoveryHandler`, `DiscardUnsyncedChangesHandler`, `RecoverUnsyncedChangesHandler` and `RecoverOrDiscardUnsyncedChangesHandler`. `RecoverOrDiscardUnsyncedChangesHandler` is the default strategy. ([#925](https://github.com/realm/realm-dart/pull/925)) An example usage of the default `clientResetHandler` is as follows:
+  ```dart
+      final config = Configuration.flexibleSync(user, [Task.schema],
+        clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(
+          // The following callbacks are optional.
+          onBeforeReset: (beforeResetRealm) {
+            // Executed right before a client reset is about to happen.
+            // If an exception is thrown here the recovery and discard callbacks are not called.
+          },
+          onAfterRecovery: (beforeResetRealm, afterResetRealm) {
+            // Executed right after an automatic recovery from a client reset has completed.
+          },
+          onAfterDiscard: (beforeResetRealm, afterResetRealm) {
+            // Executed after an automatic recovery from a client reset has failed but the Discard has completed.
+          },
+          onManualResetFallback: (clientResetError) {
+            // Handle the reset manually in case some of the callbacks above throws an exception
+          },
+        )
+    );
+```
 
 ### Fixed
 * Fixed a wrong mapping for `AuthProviderType` returned by `User.provider` for google, facebook and apple credentials.
 * Opening an unencrypted file with an encryption key would sometimes report a misleading error message that indicated that the problem was something other than a decryption failure (Core upgrade)
 * Fix a rare deadlock which could occur when closing a synchronized Realm immediately after committing a write transaction when the sync worker thread has also just finished processing a changeset from the server. (Core upgrade)
-* Fixed an issue with `Configuration.disconnectedSync` where changing the schema could result in migration exception. (PR [#999](https://github.com/realm/realm-dart/pull/999))
+* Fixed an issue with `Configuration.disconnectedSync` where changing the schema could result in migration exception. ([#999](https://github.com/realm/realm-dart/pull/999))
+* Added a better library load failed message. ([#1006](https://github.com/realm/realm-dart/pull/1006))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
