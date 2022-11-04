@@ -1400,7 +1400,7 @@ Future<void> main([List<String>? args]) async {
     var config = Configuration.local([Car.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
     final compacted = Realm.compact(config);
     expect(compacted, true);
-    
+
     //test the realm can be opened. This also allows the compacted realm to be deleted after the test
     final realm = getRealm(config);
   });
@@ -1443,7 +1443,7 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
   });
 
-    test('Realm - readonly realm can not be compacted', () async {
+  test('Realm - readonly realm can not be compacted', () async {
     var path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
     var config = Configuration.local([Car.schema], path: path);
     var realm = getRealm(config);
@@ -1456,7 +1456,7 @@ Future<void> main([List<String>? args]) async {
     realm = getRealm(config);
   });
 
-   test('Realm - disconnected sync realm can be compacted', () async {
+  test('Realm - disconnected sync realm can be compacted', () async {
     var config = Configuration.disconnectedSync([Car.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
     final compacted = Realm.compact(config);
     expect(compacted, true);
