@@ -584,7 +584,7 @@ class ClientResetError extends SyncError {
   /// All Realm instances for that path must be closed before this method is called or an
   /// [RealmException] will be thrown.
   void resetRealm() {
-    if (_config == null || _config is! FlexibleSyncConfiguration) {
+    if (_config is! FlexibleSyncConfiguration) {
       throw RealmException("The current configuration is not FlexibleSyncConfiguration.");
     }
     final flexibleConfig = _config as FlexibleSyncConfiguration;

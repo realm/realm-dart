@@ -38,6 +38,7 @@
         )
     );
 ```
+([#925](https://github.com/realm/realm-dart/pull/925))
 
 ### Fixed
 * Fixed a wrong mapping for `AuthProviderType` returned by `User.provider` for google, facebook and apple credentials.
