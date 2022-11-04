@@ -499,7 +499,7 @@ class Realm implements Finalizable {
           path: config.path,
           encryptionKey: config.encryptionKey,
           disableFormatUpgrade: true,
-          isReadOnly: false);
+          isReadOnly: config.isReadOnly);
     } else if (config is FlexibleSyncConfiguration || config is DisconnectedSyncConfiguration) {
       compactConfig = Configuration.disconnectedSync(config.schemaObjects.toList(),
           fifoFilesFallbackPath: config.fifoFilesFallbackPath, path: config.path, encryptionKey: config.encryptionKey);
