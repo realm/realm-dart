@@ -135,7 +135,7 @@ jobs:
       shell: pwsh
 
     - name: Upload release folder
-      uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+      uses: actions/upload-artifact@v3
       with:
         name: release-bundle
         path: release/**
@@ -175,7 +175,7 @@ jobs:
         submodules: false
 
     - name: Download release folder
-      uses: actions/download-artifact@a327a9c763239d85dc3d78908dbf6ca74acd2e46
+      uses: actions/download-artifact@v3
       with:
         name: release-bundle
         path: release
