@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@8230315d06ad95c617244d2f265d237a1682d445
+        uses: actions/checkout@v3
         with:
           submodules: false
 
@@ -92,7 +92,7 @@ jobs:
       - name: Publish realm_dart coverage
         if: inputs.os == 'linux'
         id: publish-coverage
-        uses: coverallsapp/github-action@a1a1a8a300a7e89df3630639df8fb23de5cc6368
+        uses: coverallsapp/github-action@d83676a477539b576ecf4e0e6d8f6e1b61bb8b87
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: realm_dart
