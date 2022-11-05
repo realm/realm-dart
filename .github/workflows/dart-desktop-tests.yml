@@ -63,7 +63,7 @@ jobs:
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deployApps@0101f67e2a3cc2e1f46087f8264edc7ef0aa4aa3
+        uses: realm/ci-actions/mdb-realm/deploy@0101f67e2a3cc2e1f46087f8264edc7ef0aa4aa3
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
