@@ -38,7 +38,7 @@ jobs:
           retention-days: 1
 
       - name: Delete individual build artifacts
-        uses: geekyeggo/delete-artifact@d5464431b27e231287c52139bde3f3c4e32c5622
+        uses: geekyeggo/delete-artifact@v2
         with:
           name: |
             librealm-android-x86
