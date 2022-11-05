@@ -36,7 +36,6 @@ jobs:
           apiKey: ${{ env.BAAS_API_KEY }}
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
           clusterName: ${{ steps.cluster-name.outputs.clusterName }}
-          useExistingCluster: true
 
   delete-cluster:
     runs-on: ubuntu-latest
@@ -55,7 +54,7 @@ jobs:
       - flutter-ios
       - flutter-android
     steps:
-      - uses: realm/ci-actions/mdb-realm/deleteCluster@322d6997414a285b99d7cafa5ff2bc9e76c0f7fc
+      - uses: realm/ci-actions/mdb-realm/deleteCluster@b0e0cba910432a625dcaf3916805e3d9f14720d6
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -317,7 +316,6 @@ jobs:
           apiKey: ${{ env.BAAS_API_KEY }}
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
           clusterName: ${{ env.BAAS_CLUSTER }}
-          useExistingCluster: true
 
       - name: Run tests on iOS Simulator
         run: |
@@ -389,7 +387,6 @@ jobs:
           apiKey: ${{ env.BAAS_API_KEY }}
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
           clusterName: ${{ env.BAAS_CLUSTER }}
-          useExistingCluster: true
 
       - name: Run tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
