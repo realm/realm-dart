@@ -54,7 +54,7 @@ jobs:
       - flutter-ios
       - flutter-android
     steps:
-      - uses: realm/ci-actions/mdb-realm/clean@787dfd088a98de66b4bcf7f3416fd25b416260e7
+      - uses: realm/ci-actions/mdb-realm/cleanup@c69330a063dd293be7be8ed5c307c6c4926aa411
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
