@@ -247,7 +247,7 @@ extension FieldElementEx on FieldElement {
           }
 
           // everything is kosher, just need to account for @MapTo!
-          linkOriginProperty = sourceField.annotationInfoOfExact(mapToChecker)?.value.getField('name')?.toStringValue() ?? sourceField.name;
+          linkOriginProperty = sourceField.remappedRealmName ?? sourceField.name;
         }
 
         // Validate object references

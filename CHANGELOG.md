@@ -1,10 +1,27 @@
 ## vNext (TBD)
 
-**This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
+**This project is in Release Candidate stage.**
+
+### Enhancements
+* None
+
+### Fixed
+* Allow backlinks between files. ([#1015](https://github.com/realm/realm-dart/issues/1015))
+
+### Compatibility
+* Realm Studio: 12.0.0 or later.
+
+### Internal
+* Using Core x.y.z.
+
+## 0.7.0+rc (2022-11-04)
+
+**This project is in Release Candidate stage.**
 
 ### Breaking Changes
 * SyncClientResetErrorHandler is renamed to ClientResetHandler. SyncClientResetError is renamed to ClientResetError. ManualSyncClientResetHandler is renamed to ManualRecoveryHandler.
-* Default resync mode for `FlexibleSyncConfiguration` is changed from `manual` to `recoverOrDiscard`. In this mode Realm attempts to recover unsynced local changes and if that fails, then the changes are discarded.(PR [#925](https://github.com/realm/realm-dart/pull/925))
+* Default resync mode for `FlexibleSyncConfiguration` is changed from `manual` to `recoverOrDiscard`. In this mode Realm attempts to recover unsynced local changes and if that fails, then the changes are discarded. ([#925](https://github.com/realm/realm-dart/pull/925))
+* Added `path` parameter to `Configuration.disconnectedSync`. This path is required to open the correct synced realm file. ([#1007](https://github.com/realm/realm-dart/pull/https://github.com/realm/realm-dart/pull/1007))
 
 ### Enhancements
 * Added `MutableSubscriptionSet.removeByType` for removing subscriptions by their realm object type. ([#317](https://github.com/realm/realm-dart/issues/317))

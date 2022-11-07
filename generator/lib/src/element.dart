@@ -105,17 +105,7 @@ extension ElementEx on Element {
   }
 
   String? get remappedRealmName {
-    DartObject? mapTo;
-    try {
-      if (getDeclarationFromElement(this) != null) {
-        mapTo = annotationInfoOfExact(mapToChecker)?.value;
-      }
-    } on ArgumentError {
-      // This will happen for types defined in a different library
-      // In this case, fall back to not using the computed value
-      mapTo = mapToChecker.annotationsOfExact(this).singleOrNull;
-    }
-
+    final mapTo = mapToChecker.annotationsOfExact(this).singleOrNull;
     return mapTo?.getField('name')!.toStringValue();
   }
 

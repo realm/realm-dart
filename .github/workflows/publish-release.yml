@@ -233,7 +233,7 @@ jobs:
       run: |
         echo "## vNext (TBD)
 
-        **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
+        **This project is in Release Candidate stage.**
 
         ### Enhancements
         * None
