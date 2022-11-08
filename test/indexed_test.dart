@@ -63,8 +63,8 @@ class _NoIndexes {
 
 typedef QueryBuilder<T, U> = RealmResults<T> Function(U value);
 
-Future<void> main([List<String>? args]) async {
-  test('Indexed faster', () {
+void main([List<String>? args]) {
+  test('Indexed faster', () async {
     final config = Configuration.local([WithIndexes.schema, NoIndexes.schema]);
     print('Opening realm: ${config.path}');
 
@@ -95,6 +95,7 @@ Future<void> main([List<String>? args]) async {
       );
 
       realm.write(() => realm.addAll(indexed));
+      indexed.clear();
     }
 
     if (realm.all<NoIndexes>().length != max) {
@@ -114,9 +115,12 @@ Future<void> main([List<String>? args]) async {
       );
 
       realm.write(() => realm.addAll(notIndexed));
+      notIndexed.clear();
     }
 
     print('Inserts done');
+
+    await Future<void>.delayed(const Duration(seconds: 10)); // give GC ample time to run
 
     // Inefficient, but fast enough for this test
     final searchOrder = (List.generate(max, (i) => i)..shuffle(Random(42))).take(1000).toList();
@@ -170,5 +174,5 @@ Future<void> main([List<String>? args]) async {
     compareSpeed<DateTime>('timestamp', timestampFactory);
     compareSpeed<ObjectId>('objectId', objectIdFactory);
     compareSpeed<Uuid>('uuid', uuidFactory);
-  });
+  }, timeout: Timeout.none);
 }
