@@ -28,7 +28,7 @@ jobs:
           cluster=${triggerName/'/merge'/''}
           echo "clusterName=$(cut -c 1-8 <<< ${cluster}$RANDOM)" >> $GITHUB_OUTPUT
 
-      - uses: realm/ci-actions/mdb-realm/deploy@0101f67e2a3cc2e1f46087f8264edc7ef0aa4aa3
+      - uses: realm/ci-actions/mdb-realm/deploy@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -54,7 +54,7 @@ jobs:
       - flutter-ios
       - flutter-android
     steps:
-      - uses: realm/ci-actions/mdb-realm/cleanup@c69330a063dd293be7be8ed5c307c6c4926aa411
+      - uses: realm/ci-actions/mdb-realm/cleanup@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -106,7 +106,7 @@ jobs:
       BAAS_DIFFERENTIATOR: ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
         with:
           submodules: false
 
@@ -277,7 +277,7 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
         with:
           submodules: 'recursive'
 
@@ -285,7 +285,7 @@ jobs:
         run: echo "PATH=/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH" >> $GITHUB_ENV
 
       - name: Fetch artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
           name: librealm-ios
           path: binary/ios
@@ -308,7 +308,7 @@ jobs:
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deploy@0101f67e2a3cc2e1f46087f8264edc7ef0aa4aa3
+        uses: realm/ci-actions/mdb-realm/deploy@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -335,12 +335,12 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
         with:
           submodules: 'recursive'
 
       - name: Fetch artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
           name: librealm-android
           path: binary/android
@@ -379,7 +379,7 @@ jobs:
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deploy@0101f67e2a3cc2e1f46087f8264edc7ef0aa4aa3
+        uses: realm/ci-actions/mdb-realm/deploy@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -414,7 +414,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
         with:
           submodules: 'recursive'
 
