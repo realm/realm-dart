@@ -77,7 +77,7 @@ Future<void> main([List<String>? args]) async {
     objectIdFactory(int i) => ObjectId.fromValues(intFactory(i), i, i);
     uuidFactory(int i) => Uuid.fromBytes(Uint8List(16).buffer..asByteData().setInt64(0, intFactory(i)));
 
-    const max = 500000;
+    const max = 600000;
     if (realm.all<WithIndexes>().length != max) {
       realm.write(() => realm.deleteAll<WithIndexes>());
       print('Inserting $max WithIndexes objects');
