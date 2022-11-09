@@ -27,7 +27,7 @@ jobs:
          build: ${{ fromJSON(inputs.build) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@8230315d06ad95c617244d2f265d237a1682d445
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
         with:
           submodules: 'recursive'
 
@@ -48,7 +48,7 @@ jobs:
         if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         working-directory: src/realm-core/tools/vcpkg/ports
         shell: bash
-        run: echo "::set-output name=commit::$(git rev-parse HEAD)"
+        run: echo "commit=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
       - name: Setup Vcpkg
         if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
@@ -74,7 +74,7 @@ jobs:
           cmake --build --preset ${{ matrix.build }} --config Release
 
       - name: Store artifacts
-        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+        uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
         with:
           name: librealm-${{ matrix.build }}
           path: binary/${{ inputs.binary }}/**
