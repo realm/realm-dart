@@ -7,6 +7,7 @@
 
 ### Fixed
 * Allow backlinks between files. ([#1015](https://github.com/realm/realm-dart/issues/1015))
+* Fix issue with accessing properties after traversing a backlink. ([#1018](https://github.com/realm/realm-dart/issues/1018))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.

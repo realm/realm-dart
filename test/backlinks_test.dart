@@ -137,4 +137,30 @@ Future<void> main([List<String>? args]) async {
       realm.delete(first);
     });
   });
+
+  test('Backlinks read properties', () {
+    final config = Configuration.local([Target.schema, Source.schema]);
+    final realm = getRealm(config);
+
+    final theOne = Target(name: 'the one');
+    final targets = List.generate(100, (i) => Target(name: 'T$i'));
+    final sources = List.generate(100, (i) => Source(name: 'S$i', manyTargets: targets, oneTarget: theOne));
+
+    realm.write(() {
+      realm.addAll(sources);
+      realm.addAll(targets);
+      realm.add(theOne);
+    });
+
+    expect(theOne.oneToMany[0].name, 'S0');
+    expect(theOne.oneToMany.map((s) => s.name), sources.map((s) => s.name));
+
+    for (final t in targets) {
+      expect(t.manyToMany.map((s) => s.name), sources.map((s) => s.name));
+    }
+
+    for (final s in sources) {
+      expect(s.manyTargets.map((t) => t.name), targets.map((t) => t.name));
+    }
+  });
 }
