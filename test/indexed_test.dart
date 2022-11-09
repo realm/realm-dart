@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -64,7 +65,10 @@ class _NoIndexes {
 typedef QueryBuilder<T, U> = RealmResults<T> Function(U value);
 
 void main([List<String>? args]) {
+  final max = int.tryParse(args?.firstOrNull ?? '') ?? 500000;
+
   test('Indexed faster', () async {
+    print(pid);
     final config = Configuration.local([WithIndexes.schema, NoIndexes.schema]);
     print('Opening realm: ${config.path}');
 
@@ -77,7 +81,6 @@ void main([List<String>? args]) {
     objectIdFactory(int i) => ObjectId.fromValues(intFactory(i), i, i);
     uuidFactory(int i) => Uuid.fromBytes(Uint8List(16).buffer..asByteData().setInt64(0, intFactory(i)));
 
-    const max = 600000;
     if (realm.all<WithIndexes>().length != max) {
       realm.write(() => realm.deleteAll<WithIndexes>());
       print('Inserting $max WithIndexes objects');
@@ -120,7 +123,7 @@ void main([List<String>? args]) {
 
     print('Inserts done');
 
-    await Future<void>.delayed(const Duration(seconds: 10)); // give GC ample time to run
+    //await Future<void>.delayed(const Duration(seconds: 10)); // give GC ample time to run
 
     // Inefficient, but fast enough for this test
     final searchOrder = (List.generate(max, (i) => i)..shuffle(Random(42))).take(1000).toList();
@@ -138,6 +141,7 @@ void main([List<String>? args]) {
       final queries = searchOrder.map((i) => queryBuilder(indexToValue(i))).toList(); // pre-calculate queries
       final found = <T?>[];
 
+      print('queries.length: ${queries.length}');
       final sw = Stopwatch()..start();
       for (final q in queries) {
         found.add(q.singleOrNull); // evaluate query
@@ -162,8 +166,8 @@ void main([List<String>? args]) {
         print('$lookupCount lookups of ${'$type'.padRight(12)} on ${fieldName.padRight(10)} : ${duration.inMicroseconds ~/ lookupCount} us/lookup');
       }
 
-      final notIndexedTime = measureSpeed<NoIndexes, U>(fieldName, indexToValue);
-      display(NoIndexes, notIndexedTime);
+      //final notIndexedTime = measureSpeed<NoIndexes, U>(fieldName, indexToValue);
+      //display(NoIndexes, notIndexedTime);
       final indexedTime = measureSpeed<WithIndexes, U>(fieldName, indexToValue);
       display(WithIndexes, indexedTime); // only display if test fails
     }
@@ -171,8 +175,11 @@ void main([List<String>? args]) {
     print('Starting lookups on $max objects');
     compareSpeed<int>('anInt', intFactory);
     compareSpeed<String>('string', stringFactory);
-    compareSpeed<DateTime>('timestamp', timestampFactory);
+    //compareSpeed<DateTime>('timestamp', timestampFactory);
     compareSpeed<ObjectId>('objectId', objectIdFactory);
     compareSpeed<Uuid>('uuid', uuidFactory);
+
+    realm.close();
+    Realm.shutdown();
   }, timeout: Timeout.none);
 }
