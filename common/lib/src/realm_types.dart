@@ -429,7 +429,7 @@ enum SyncSessionErrorCode {
   writeNotAllowed(230),
 
   /// Client attempted a write that is disallowed by permissions, or modifies an object
-  /// outside the current query, and the server undid the modificatio (UPLOAD)
+  /// outside the current query, and the server undid the modification (UPLOAD)
   compensatingWrite(231);
 
   static final Map<int, SyncSessionErrorCode> _valuesMap = {for (var value in SyncSessionErrorCode.values) value.code: value};
