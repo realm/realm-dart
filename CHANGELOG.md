@@ -14,6 +14,7 @@
 
 ### Internal
 * Using Core x.y.z.
+* Build Core with C++20. ([#1021](https://github.com/realm/realm-dart/pull/1021))
 
 ## 0.7.0+rc (2022-11-04)
 
