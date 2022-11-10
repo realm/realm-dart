@@ -424,8 +424,13 @@ enum SyncSessionErrorCode {
   /// Client tried to open a session before initial sync is complete (BIND)
   initialSyncNotCompleted(229),
 
-  /// Client attempted a write that is disallowed by permissions, or modifies an object outside the current query - requires client reset (UPLOAD)
-  writeNotAllowed(230);
+  /// Client attempted a write that is disallowed by permissions, or modifies an object
+  /// outside the current query - requires client reset (UPLOAD)
+  writeNotAllowed(230),
+
+  /// Client attempted a write that is disallowed by permissions, or modifies an object
+  /// outside the current query, and the server undid the modificatio (UPLOAD)
+  compensatingWrite(231);
 
   static final Map<int, SyncSessionErrorCode> _valuesMap = {for (var value in SyncSessionErrorCode.values) value.code: value};
 
