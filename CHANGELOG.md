@@ -1,12 +1,9 @@
-## vNext (TBD)
+## 0.8.0+rc (2022-11-11)
 
 **This project is in Release Candidate stage.**
 
 ### Breaking Changes
 * `FunctionsClient.call` no longer accepts a null for the optional `functionsArgs` parameter, but it is still optional. ([#1025](https://github.com/realm/realm-dart/pull/1025))
-
-### Enhancements
-* None
 
 ### Fixed
 * Allow backlinks between files. ([#1015](https://github.com/realm/realm-dart/issues/1015))
