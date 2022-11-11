@@ -2,15 +2,17 @@
 
 **This project is in Release Candidate stage.**
 
+### Breaking Changes
+* `FunctionsClient.call` no longer accepts a null for the optional `functionsArgs` parameter, but it is still optional. ([#1025](https://github.com/realm/realm-dart/pull/1025))
+
 ### Enhancements
 * None
 
 ### Fixed
 * Allow backlinks between files. ([#1015](https://github.com/realm/realm-dart/issues/1015))
 * Fix issue with accessing properties after traversing a backlink. ([#1018](https://github.com/realm/realm-dart/issues/1018))
-* Fix a race condition which could result in "operation cancelled" errors being delivered to async open callbacks rather than the actual sync error which caused things to fail (Core upgrade, since the introduction of async open).
-* Bootstraps will not be applied in a single write transaction - they will be applied 1MB of changesets at a time, or as configured by the SDK (Core upgrade, since v12.0.0).
-* Fix database corruption and encryption issues on apple platforms, reported in several bugs listed in the PR. (Core upgrade, since v11.8.0)
+* Bootstraps will not be applied in a single write transaction - they will be applied 1MB of changesets at a time, or as configured by the SDK (Core upgrade).
+* Fix database corruption and encryption issues on apple platforms. (Core upgrade)
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
