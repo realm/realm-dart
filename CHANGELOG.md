@@ -8,12 +8,15 @@
 ### Fixed
 * Allow backlinks between files. ([#1015](https://github.com/realm/realm-dart/issues/1015))
 * Fix issue with accessing properties after traversing a backlink. ([#1018](https://github.com/realm/realm-dart/issues/1018))
+* Fix a race condition which could result in "operation cancelled" errors being delivered to async open callbacks rather than the actual sync error which caused things to fail (Core upgrade, since the introduction of async open).
+* Bootstraps will not be applied in a single write transaction - they will be applied 1MB of changesets at a time, or as configured by the SDK (Core upgrade, since v12.0.0).
+* Fix database corruption and encryption issues on apple platforms, reported in several bugs listed in the PR. (Core upgrade, since v11.8.0)
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 12.12.0. ([#1025](https://github.com/realm/realm-dart/pull/1025))
 
 ## 0.7.0+rc (2022-11-04)
 
@@ -34,7 +37,7 @@
 * Allow `@Indexed` attribute on all indexable type, and ensure appropriate indexes are created in the realm. ([#797](https://github.com/realm/realm-dart/issues/797))
 * Add `parent` getter on embedded objects. ([#979](https://github.com/realm/realm-dart/pull/979))
 * Support [Client Resets](https://www.mongodb.com/docs/atlas/app-services/sync/error-handling/client-resets/). Atlas App Services automatically detects the need for client resets and the realm client automatically performs it according to the configured callbacks for the type of client reset handlers set on `FlexibleSyncConfiguration`. A parameter `clientResetHandler` is added to `Configuration.flexibleSync`. Supported client reset handlers are `ManualRecoveryHandler`, `DiscardUnsyncedChangesHandler`, `RecoverUnsyncedChangesHandler` and `RecoverOrDiscardUnsyncedChangesHandler`. `RecoverOrDiscardUnsyncedChangesHandler` is the default strategy. ([#925](https://github.com/realm/realm-dart/pull/925)) An example usage of the default `clientResetHandler` is as follows:
-  ```dart
+```dart
       final config = Configuration.flexibleSync(user, [Task.schema],
         clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(
           // The following callbacks are optional.
