@@ -317,9 +317,9 @@ class FunctionsClient {
   /// Calls a remote function with the supplied arguments.
   /// @name The name of the Atlas function to call.
   /// @functionArgs - Arguments that will be sent to the Atlas function. They have to be json serializable values.
-  Future<dynamic> call(String name, [List<Object?>? functionArgs]) async {
+  Future<dynamic> call(String name, [List<Object?> functionArgs = const []]) async {
     _user._ensureLoggedIn('call Atlas function');
-    final args = functionArgs != null ? jsonEncode(functionArgs) : null;
+    final args = jsonEncode(functionArgs);
     final response = await realmCore.callAppFunction(_user.app, _user, name, args);
     return jsonDecode(response);
   }
