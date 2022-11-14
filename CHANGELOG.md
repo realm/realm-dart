@@ -6,7 +6,7 @@
 * None
 
 ### Enhancements
-* None
+* Support setting `maxNumberOfActiveVersions` when creating a `Configuration`. ([#1036](https://github.com/realm/realm-dart/pull/1036))
 
 ### Fixed
 * None
