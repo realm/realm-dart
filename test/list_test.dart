@@ -1067,6 +1067,13 @@ Future<void> main([List<String>? args]) async {
     expect(game.winnerByRound, isA<RealmList<Player?>>());
   });
 
+  test('Move equality & hash', () {
+    expect(Move(1, 1), equals(Move(1, 1)));
+    expect(Move(1, 1), isNot(equals(Move(2, 2))));
+    expect(Move(1, 1).hashCode, equals(Move(1, 1).hashCode));
+    expect(Move(1, 1).hashCode, isNot(equals(Move(2, 2).hashCode)));
+  });
+
   test('List.move', () {
     final list = [0, 1, 2, 3];
     list.move(1, 0);
@@ -1102,10 +1109,10 @@ Future<void> main([List<String>? args]) async {
     expect(team.players, [bob, alice, dan, carol]);
 
     final length = team.players.length;
-    expect(() => realm.write(() => team.players.move(-1, 0)), throwsA(isA<RangeError>()));
-    expect(() => realm.write(() => team.players.move(0, -1)), throwsA(isA<RangeError>()));
-    expect(() => realm.write(() => team.players.move(length, 0)), throwsA(isA<RangeError>()));
-    expect(() => realm.write(() => team.players.move(0, length)), throwsA(isA<RangeError>()));
+    expect(() => realm.write(() => team.players.move(-1, 0)), throwsRangeError);
+    expect(() => realm.write(() => team.players.move(0, -1)), throwsRangeError);
+    expect(() => realm.write(() => team.players.move(length, 0)), throwsRangeError);
+    expect(() => realm.write(() => team.players.move(0, length)), throwsRangeError);
 
     expect(realm.all<Person>(), unorderedEquals(players)); // nothing was added or disappeared from the realm
   });

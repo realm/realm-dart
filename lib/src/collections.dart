@@ -33,7 +33,7 @@ class Move {
   bool operator ==(Object other) => other is Move && other.from == from && other.to == to;
 
   @override
-  int get hashCode => from.hashCode ^ to.hashCode;
+  int get hashCode => Object.hash(from, to);
 }
 
 /// @nodoc
