@@ -129,11 +129,7 @@ class RealmLibrary {
     ffi.Pointer<realm_user_t> arg1,
     ffi.Pointer<ffi.Char> function_name,
     ffi.Pointer<ffi.Char> serialized_ejson_args,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
-                    ffi.Pointer<realm_app_error_t>)>>
-        arg4,
+    realm_return_string_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
@@ -142,7 +138,7 @@ class RealmLibrary {
       arg1,
       function_name,
       serialized_ejson_args,
-      arg4,
+      callback,
       userdata,
       userdata_free,
     );
@@ -155,12 +151,7 @@ class RealmLibrary {
               ffi.Pointer<realm_user_t>,
               ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Char>,
-              ffi.Pointer<
-                  ffi.NativeFunction<
-                      ffi.Void Function(
-                          ffi.Pointer<ffi.Void>,
-                          ffi.Pointer<ffi.Char>,
-                          ffi.Pointer<realm_app_error_t>)>>,
+              realm_return_string_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>>('realm_app_call_function');
   late final _realm_app_call_function = _realm_app_call_functionPtr.asFunction<
@@ -169,10 +160,7 @@ class RealmLibrary {
           ffi.Pointer<realm_user_t>,
           ffi.Pointer<ffi.Char>,
           ffi.Pointer<ffi.Char>,
-          ffi.Pointer<
-              ffi.NativeFunction<
-                  ffi.Void Function(ffi.Pointer<ffi.Void>,
-                      ffi.Pointer<ffi.Char>, ffi.Pointer<realm_app_error_t>)>>,
+          realm_return_string_func_t,
           ffi.Pointer<ffi.Void>,
           realm_free_userdata_func_t)>();
 
@@ -10495,10 +10483,11 @@ class realm_flx_sync_subscription_set extends ffi.Opaque {}
 abstract class realm_flx_sync_subscription_set_state {
   static const int RLM_SYNC_SUBSCRIPTION_UNCOMMITTED = 0;
   static const int RLM_SYNC_SUBSCRIPTION_PENDING = 1;
-  static const int RLM_SYNC_BOOTSTRAPPING = 2;
+  static const int RLM_SYNC_SUBSCRIPTION_BOOTSTRAPPING = 2;
   static const int RLM_SYNC_SUBSCRIPTION_COMPLETE = 3;
   static const int RLM_SYNC_SUBSCRIPTION_ERROR = 4;
   static const int RLM_SYNC_SUBSCRIPTION_SUPERSEDED = 5;
+  static const int RLM_SYNC_SUBSCRIPTION_AWAITING_MARK = 6;
 }
 
 typedef realm_flx_sync_subscription_set_t = realm_flx_sync_subscription_set;
@@ -10813,6 +10802,10 @@ typedef realm_return_apikey_list_func_t = ffi.Pointer<
             ffi.Pointer<ffi.Void>,
             ffi.Pointer<realm_app_user_apikey_t>,
             ffi.Size,
+            ffi.Pointer<realm_app_error_t>)>>;
+typedef realm_return_string_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
             ffi.Pointer<realm_app_error_t>)>>;
 
 class realm_scheduler extends ffi.Opaque {}
