@@ -58,6 +58,7 @@ export 'package:realm_common/realm_common.dart'
 
 // always expose with `show` to explicitly control the public API surface
 export 'app.dart' show AppException, App, MetadataPersistenceMode, AppConfiguration;
+export 'collections.dart' show Move;
 export "configuration.dart"
     show
         AfterResetCallback,
@@ -87,7 +88,7 @@ export "configuration.dart"
         SyncErrorHandler,
         SyncSessionError;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
-export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
+export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
 export 'migration.dart' show Migration;
 export 'realm_object.dart'
     show
@@ -522,8 +523,8 @@ class Realm implements Finalizable {
     } else if (config is DisconnectedSyncConfiguration) {
       compactConfig = config;
     } else if (config is FlexibleSyncConfiguration) {
-      compactConfig = Configuration.disconnectedSync(config.schemaObjects.toList(), path: config.path,
-          fifoFilesFallbackPath: config.fifoFilesFallbackPath, encryptionKey: config.encryptionKey);
+      compactConfig = Configuration.disconnectedSync(config.schemaObjects.toList(),
+          path: config.path, fifoFilesFallbackPath: config.fifoFilesFallbackPath, encryptionKey: config.encryptionKey);
     } else {
       throw RealmError("Unsupported realm configuration type ${config.runtimeType}");
     }

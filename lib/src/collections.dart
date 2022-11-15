@@ -28,6 +28,12 @@ class Move {
   final int to;
 
   const Move(this.from, this.to);
+
+  @override
+  bool operator ==(Object other) => other is Move && other.from == from && other.to == to;
+
+  @override
+  int get hashCode => from.hashCode ^ to.hashCode;
 }
 
 /// @nodoc
