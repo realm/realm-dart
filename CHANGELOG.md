@@ -9,13 +9,13 @@
 * Support setting `maxNumberOfActiveVersions` when creating a `Configuration`. ([#1036](https://github.com/realm/realm-dart/pull/1036))
 
 ### Fixed
-* None
+* Support mapping into `SyncSessionErrorCode` for "Compensating write" with error code 231. ([#1022](https://github.com/realm/realm-dart/pull/1022))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 12.12.0.
 
 ## 0.8.0+rc (2022-11-14)
 
