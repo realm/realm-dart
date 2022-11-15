@@ -623,4 +623,15 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(disconnectedConfig); // First writing to the Realm when opening
     expect(() => realm.write(() {}), throws<RealmException>("in the Realm exceeded the limit of 1"));
   });
+
+  test('LocalConfiguration.maxNumberOfActiveVersions - freeze to exceed the version and then throw', () {
+    var config = Configuration.local([Dog.schema, Person.schema], maxNumberOfActiveVersions: 2);
+
+    final realm = getRealm(config);
+    final frozen1 = realm.freeze();
+    realm.write(() => realm.add(Dog("Foxi1")));
+    final frozen2 = realm.freeze();
+    realm.write(() => realm.add(Dog("Foxi2")));
+    expect(() => realm.write(() {}), throws<RealmException>("Number of active versions (3) in the Realm exceeded the limit of 2"));
+  });
 }
