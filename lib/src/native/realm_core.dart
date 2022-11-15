@@ -72,7 +72,8 @@ class _RealmCore {
     final lib = initRealm();
     _realmLib = RealmLibrary(lib);
     if (libraryVersion != nativeLibraryVersion) {
-      final additionMessage = isFlutterPlatform ? bugInTheSdkMessage : "Did you forget to run `dart run realm_dart install` after upgrading the realm_dart package?";
+      final additionMessage =
+          isFlutterPlatform ? bugInTheSdkMessage : "Did you forget to run `dart run realm_dart install` after upgrading the realm_dart package?";
       throw RealmException('Realm SDK package version does not match the native library version ($libraryVersion != $nativeLibraryVersion). $additionMessage');
     }
   }
@@ -191,7 +192,9 @@ class _RealmCore {
       // Setting schema version only makes sense for local realms, but core insists it is always set,
       // hence we set it to 0 in those cases.
       _realmLib.realm_config_set_schema_version(configHandle._pointer, config is LocalConfiguration ? config.schemaVersion : 0);
-
+      if (config.maxNumberOfActiveVersions != null) {
+        _realmLib.realm_config_set_max_number_of_active_versions(configHandle._pointer, config.maxNumberOfActiveVersions!);
+      }
       if (config is LocalConfiguration) {
         if (config.initialDataCallback != null) {
           _realmLib.realm_config_set_data_initialization_function(
