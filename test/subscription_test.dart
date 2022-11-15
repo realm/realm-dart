@@ -621,7 +621,7 @@ Future<void> main([List<String>? args]) async {
       realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
     }
     await realm.subscriptions.waitForSynchronization();
-    realm.write(() => realm.add(Product(ObjectId(), "doen't match subscription")));
+    realm.write(() => realm.add(Product(ObjectId(), "doesn't match subscription")));
     await realm.syncSession.waitForUpload();
 
     expect(compensatingWriteError, isA<SyncSessionError>());
