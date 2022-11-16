@@ -1108,6 +1108,10 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_erase(handle._pointer, index));
   }
 
+  void listMoveElement(RealmListHandle handle, int from, int to) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_list_move(handle._pointer, from, to));
+  }
+
   void listDeleteAll(RealmList list) {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_remove_all(list.handle._pointer));
   }

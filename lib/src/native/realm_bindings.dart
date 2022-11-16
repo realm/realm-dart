@@ -5174,6 +5174,30 @@ class RealmLibrary {
   late final _realm_list_is_valid = _realm_list_is_validPtr
       .asFunction<bool Function(ffi.Pointer<realm_list_t>)>();
 
+  /// Move the element at @a from_index to @a to_index.
+  ///
+  /// @param from_index The index of the element to move.
+  /// @param to_index The index to move the element to.
+  /// @return True if no exception occurred.
+  bool realm_list_move(
+    ffi.Pointer<realm_list_t> arg0,
+    int from_index,
+    int to_index,
+  ) {
+    return _realm_list_move(
+      arg0,
+      from_index,
+      to_index,
+    );
+  }
+
+  late final _realm_list_movePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<realm_list_t>, ffi.Size,
+              ffi.Size)>>('realm_list_move');
+  late final _realm_list_move = _realm_list_movePtr
+      .asFunction<bool Function(ffi.Pointer<realm_list_t>, int, int)>();
+
   /// In a list of objects, delete all objects in the list and clear the list. In a
   /// list of values, clear the list.
   ///
