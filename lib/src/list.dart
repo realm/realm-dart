@@ -145,9 +145,9 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
     return result;
   }
 
-  /// Move the element at [from] to [to].
-  void move(int oldIndex, int newIndex) {
-    realmCore.listMoveElement(handle, oldIndex, newIndex);
+  /// Move the element at index [from] to index [to].
+  void move(int from, int to) {
+    realmCore.listMoveElement(handle, from, to);
   }
 
   /// Removes all objects from this list; the length of the list becomes zero.
@@ -334,7 +334,7 @@ class ListNotificationsController<T extends Object?> extends NotificationsContro
 }
 
 extension ListExtension<T> on List<T> {
-  /// Move the element at [from] to [to].
+  /// Move the element at index [from] to index [to].
   void move(int from, int to) {
     RangeError.checkValidIndex(from, this, 'from', length);
     RangeError.checkValidIndex(to, this, 'to', length);
