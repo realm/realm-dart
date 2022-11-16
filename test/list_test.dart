@@ -1080,6 +1080,8 @@ Future<void> main([List<String>? args]) async {
     expect(list, [1, 0, 2, 3]);
     list.move(2, 3);
     expect(list, [1, 0, 3, 2]);
+    list.move(0, 0); // no-op
+    expect(list, [1, 0, 3, 2]);
     final length = list.length;
     expect(() => list.move(-1, 0), throwsRangeError);
     expect(() => list.move(0, -1), throwsRangeError);
@@ -1108,6 +1110,9 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => team.players.move(2, 3));
     expect(team.players, [bob, alice, dan, carol]);
 
+    realm.write(() => team.players.move(0, 0)); // no-op
+    expect(team.players, [bob, alice, dan, carol]);
+
     final length = team.players.length;
     expect(() => realm.write(() => team.players.move(-1, 0)), throwsRangeError);
     expect(() => realm.write(() => team.players.move(0, -1)), throwsRangeError);
@@ -1115,6 +1120,10 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.write(() => team.players.move(0, length)), throwsRangeError);
 
     expect(realm.all<Person>(), unorderedEquals(players)); // nothing was added or disappeared from the realm
+
+    // .. when outside a write transaction
+    expect(() => team.players.move(3, 1), throws<RealmException>('Cannot modify managed objects outside of a write transaction'));
+    expect(() => realm.write(() => team.players.move(0, length)), throwsRangeError); // range error takes precedence
   });
 
   test('ManagedRealmList.move notifications', () async {
@@ -1135,11 +1144,14 @@ Future<void> main([List<String>? args]) async {
         emitsInOrder(<Matcher>[
           isA<RealmListChanges<Person>>().having((ch) => ch.inserted, 'inserted', <int>[]), // always an empty event on subscription
           isA<RealmListChanges<Person>>().having((ch) => ch.moved, 'moved', [Move(1, 0)]),
+          // no Move(0, 0)
           isA<RealmListChanges<Person>>().having((ch) => ch.moved, 'moved', [Move(2, 3)]),
         ]));
 
     realm.write(() => team.players.move(1, 0));
     expect(team.players, [bob, alice, carol, dan]);
+
+    realm.write(() => team.players.move(0, 0)); // no-op
 
     realm.write(() => team.players.move(2, 3));
     expect(team.players, [bob, alice, dan, carol]);
