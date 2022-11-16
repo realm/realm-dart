@@ -338,13 +338,12 @@ extension ListExtension<T> on List<T> {
   void move(int from, int to) {
     RangeError.checkValidIndex(from, this, 'from', length);
     RangeError.checkValidIndex(to, this, 'to', length);
+    if (to == from) return; // no-op
     final self = this;
     if (self is ManagedRealmList<T>) {
       self.move(from, to);
     } else {
-      final item = self[from];
-      self.removeAt(from);
-      self.insert(to, item);
+      insert(to, removeAt(from));
     }
   }
 }
