@@ -46,7 +46,7 @@ enum RealmPropertyType {
   _3, // ignore: unused_field, constant_identifier_names
   binary,
   _5, // ignore: unused_field, constant_identifier_names
-  mixed,
+  mixed(Mapping<RealmValue>(indexable: true)),
   _7, // ignore: unused_field, constant_identifier_names
   timestamp(Mapping<DateTime>(indexable: true)),
   float,
@@ -114,25 +114,25 @@ class EmbeddedObjectMarker extends RealmObjectBaseMarker {}
 
 // Union type
 /// @nodoc
-class RealmAny {
-  final dynamic value;
+class RealmValue {
+  final Object value;
   T as<T>() => value as T; // better for code completion
 
   // This is private, so user cannot accidentally construct an invalid instance
-  const RealmAny._(this.value);
+  const RealmValue._(this.value);
 
-  const RealmAny.bool(bool b) : this._(b);
-  const RealmAny.string(String text) : this._(text);
-  const RealmAny.int(int i) : this._(i);
-  const RealmAny.float(Float f) : this._(f);
-  const RealmAny.double(double d) : this._(d);
-  const RealmAny.uint8List(Uint8List data) : this._(data);
+  const RealmValue.bool(bool b) : this._(b);
+  const RealmValue.string(String text) : this._(text);
+  const RealmValue.int(int i) : this._(i);
+  const RealmValue.float(Float f) : this._(f);
+  const RealmValue.double(double d) : this._(d);
+  const RealmValue.uint8List(Uint8List data) : this._(data);
   // TODO: RealmObjectMarker introduced to avoid dependency inversion. It would be better if we could use RealmObject directly. https://github.com/realm/realm-dart/issues/701
-  const RealmAny.realmObject(RealmObjectBaseMarker o) : this._(o);
-  const RealmAny.dateTime(DateTime timestamp) : this._(timestamp);
-  const RealmAny.objectId(ObjectId id) : this._(id);
-  const RealmAny.decimal128(Decimal128 decimal) : this._(decimal);
-  const RealmAny.uuid(Uuid uuid) : this._(uuid);
+  const RealmValue.realmObject(RealmObjectBaseMarker o) : this._(o);
+  const RealmValue.dateTime(DateTime timestamp) : this._(timestamp);
+  const RealmValue.objectId(ObjectId id) : this._(id);
+  const RealmValue.decimal128(Decimal128 decimal) : this._(decimal);
+  const RealmValue.uuid(Uuid uuid) : this._(uuid);
 }
 
 /// The category of a [SyncError].

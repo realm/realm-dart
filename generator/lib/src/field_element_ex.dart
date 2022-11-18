@@ -84,7 +84,6 @@ extension FieldElementEx on FieldElement {
       // Check for as-of-yet unsupported type
       if (type.isDartCoreSet || //
           type.isDartCoreMap ||
-          type.isRealmAny ||
           type.isExactly<Decimal128>()) {
         throw RealmInvalidGenerationSourceError(
           'Field type not supported yet',
@@ -257,6 +256,20 @@ extension FieldElementEx on FieldElement {
               'Realm object references must be nullable',
               primarySpan: typeSpan(file),
               primaryLabel: 'is not nullable',
+              todo: 'Change type to $modelTypeName?',
+              element: this,
+            );
+          }
+        }
+
+        // Validate mixed (RealmAny)
+        else if (realmType == RealmPropertyType.mixed && !type.isNullable) {
+          final itemType = type.basicType;
+          if (!itemType.isRealmModel) {
+            throw RealmInvalidGenerationSourceError(
+              'RealmAny fields must be nullable',
+              primarySpan: typeSpan(file),
+              primaryLabel: '$modelTypeName is not nullable',
               todo: 'Change type to $modelTypeName?',
               element: this,
             );
