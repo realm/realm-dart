@@ -43,6 +43,7 @@ export 'package:realm_common/realm_common.dart'
         ObjectId,
         ObjectType,
         PrimaryKey,
+        RealmValue,
         RealmClosedError,
         RealmCollectionType,
         RealmError,
