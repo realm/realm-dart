@@ -262,12 +262,12 @@ extension FieldElementEx on FieldElement {
           }
         }
 
-        // Validate mixed (RealmAny)
+        // Validate mixed (RealmValue)
         else if (realmType == RealmPropertyType.mixed && !type.isNullable) {
           final itemType = type.basicType;
           if (!itemType.isRealmModel) {
             throw RealmInvalidGenerationSourceError(
-              'RealmAny fields must be nullable',
+              'RealmValue fields must be nullable',
               primarySpan: typeSpan(file),
               primaryLabel: '$modelTypeName is not nullable',
               todo: 'Change type to $modelTypeName?',

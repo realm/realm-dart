@@ -63,6 +63,7 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
     double aDouble = 0.0,
     Foo? foo,
     String? anOptionalString,
+    RealmValue? any,
     Iterable<int> list = const [],
   }) {
     if (!_defaultsSet) {
@@ -82,6 +83,7 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.set(this, 'objectId', objectId);
     RealmObjectBase.set(this, 'uuid', uuid);
     RealmObjectBase.set(this, 'anOptionalString', anOptionalString);
+    RealmObjectBase.set(this, 'any', any);
     RealmObjectBase.set<RealmList<int>>(this, 'list', RealmList<int>(list));
   }
 
@@ -151,6 +153,11 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.set(this, 'anOptionalString', value);
 
   @override
+  RealmValue? get any => RealmObjectBase.get<RealmValue>(this, 'any') as RealmValue?;
+  @override
+  set any(RealmValue? value) => RealmObjectBase.set(this, 'any', value);
+
+  @override
   RealmResults<Foo> get foos =>
       RealmObjectBase.get<Foo>(this, 'foos') as RealmResults<Foo>;
   @override
@@ -184,6 +191,7 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
           collectionType: RealmCollectionType.list),
       SchemaProperty('anOptionalString', RealmPropertyType.string,
           optional: true, indexed: true),
+      SchemaProperty('any', RealmPropertyType.mixed, optional: true),
       SchemaProperty('foos', RealmPropertyType.linkingObjects,
           linkOriginProperty: 'bar',
           collectionType: RealmCollectionType.list,
