@@ -3,7 +3,8 @@
 **This project is in Release Candidate stage.**
 
 ### Breaking Changes
-* None
+* File format version bumped.
+* The layout of the lock-file has changed, the lock file format version is bumped and all participants in a multiprocess scenario needs to be up to date so they expect the same format. This requires an update of Studio. (Core upgrade)
 
 ### Enhancements
 * Support setting `maxNumberOfActiveVersions` when creating a `Configuration`. ([#1036](https://github.com/realm/realm-dart/pull/1036))
@@ -11,12 +12,20 @@
 
 ### Fixed
 * Support mapping into `SyncSessionErrorCode` for "Compensating write" with error code 231. ([#1022](https://github.com/realm/realm-dart/pull/1022))
+* Errors from core will be raised correctly for `beginWriteAsync` and `commitAsync`. ([#1042](https://github.com/realm/realm-dart/pull/1042))
+* The realm file will be shrunk if the larger file size is no longer needed. (Core upgrade)
+* Most of the file growth caused by version pinning is eliminated. (Core upgrade)
+* Fetching a user's profile while the user logs out would result in an assertion failure. (Core upgrade)
+* Removed the ".tmp_compaction_space" file being left over after compacting a Realm on Windows. (Core upgrade).
+* Restore fallback to full barrier when F_BARRIERSYNC is not available on Apple platforms. (Core upgrade, since v0.8.0+rc)
+* Fixed wrong assertion on query error that could result in a crash. (Core upgrade)
 
 ### Compatibility
-* Realm Studio: 12.0.0 or later.
+* Realm Studio: 13.0.0 or later.
+* Fileformat: Generates files with format v23. Reads and automatically upgrade from fileformat v5.
 
 ### Internal
-* Using Core 12.12.0.
+* Using Core 13.1.0. ([#1042](https://github.com/realm/realm-dart/pull/1042))
 
 ## 0.8.0+rc (2022-11-14)
 
