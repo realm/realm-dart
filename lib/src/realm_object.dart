@@ -148,7 +148,7 @@ class RealmCoreAccessor implements RealmAccessor {
           final sourceMeta = object.realm.metadata.getByName(propertyMeta.objectType!);
           final sourceProperty = sourceMeta[propertyMeta.linkOriginProperty!];
           final handle = realmCore.getBacklinks(object, sourceMeta.classKey, sourceProperty.key);
-          return RealmResultsInternal.create<T>(handle, object.realm, metadata);
+          return RealmResultsInternal.create<T>(handle, object.realm, sourceMeta);
         }
         final handle = realmCore.getListProperty(object, propertyMeta.key);
         final listMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
@@ -380,8 +380,7 @@ mixin RealmObjectBase on RealmEntity implements Finalizable {
     if (invocation.isGetter) {
       final name = _symbolRegex.firstMatch(invocation.memberName.toString())?.namedGroup("symbolName");
       if (name == null) {
-        throw RealmError(
-            "Could not find symbol name for ${invocation.memberName}. ${realmCore.bugInTheSdkMessage}");
+        throw RealmError("Could not find symbol name for ${invocation.memberName}. ${realmCore.bugInTheSdkMessage}");
       }
 
       return get(this, name);
@@ -390,8 +389,7 @@ mixin RealmObjectBase on RealmEntity implements Finalizable {
     if (invocation.isSetter) {
       final name = _symbolRegex.firstMatch(invocation.memberName.toString())?.namedGroup("symbolName");
       if (name == null) {
-        throw RealmError(
-            "Could not find symbol name for ${invocation.memberName}. ${realmCore.bugInTheSdkMessage}");
+        throw RealmError("Could not find symbol name for ${invocation.memberName}. ${realmCore.bugInTheSdkMessage}");
       }
 
       return set(this, name, invocation.positionalArguments.single);

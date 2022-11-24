@@ -27,6 +27,7 @@ import '../lib/realm.dart';
 import '../lib/src/configuration.dart';
 import '../lib/src/native/realm_core.dart';
 import '../lib/src/subscription.dart';
+import 'client_reset_test.dart';
 import 'test.dart';
 
 @isTest
@@ -604,5 +605,30 @@ Future<void> main([List<String>? args]) async {
 
     realm.close();
     expect(() => subscriptions.state, throws<RealmClosedError>());
+  });
+
+  baasTest('SyncSessionErrorCode.compensatingWrite', (configuration) async {
+    late SyncError compensatingWriteError;
+    final productNamePrefix = generateRandomString(4);
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    final config = Configuration.flexibleSync(user, [Product.schema], syncErrorHandler: (syncError) {
+      compensatingWriteError = syncError;
+    });
+    final realm = getRealm(config);
+    final query = realm.query<Product>(r'stringQueryField BEGINSWITH $0', [productNamePrefix]);
+    if (realm.subscriptions.find(query) == null) {
+      realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
+    }
+    await realm.subscriptions.waitForSynchronization();
+    realm.write(() => realm.add(Product(ObjectId(), "doesn't match subscription")));
+    await realm.syncSession.waitForUpload();
+
+    expect(compensatingWriteError, isA<SyncSessionError>());
+    final sessionError = compensatingWriteError.as<SyncSessionError>();
+    expect(sessionError.category, SyncErrorCategory.session);
+    expect(sessionError.isFatal, false);
+    expect(sessionError.code, SyncSessionErrorCode.compensatingWrite);
+    expect(sessionError.message!.startsWith('Client attempted a write that is outside of permissions or query filters'), isTrue);
   });
 }

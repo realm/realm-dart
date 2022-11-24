@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:core';
 import 'dart:async';
 import 'dart:collection';
 import 'dart:ffi';
@@ -142,6 +143,11 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
     final result = this[index];
     realmCore.listRemoveElementAt(handle, index);
     return result;
+  }
+
+  /// Move the element at index [from] to index [to].
+  void move(int from, int to) {
+    realmCore.listMoveElement(handle, from, to);
   }
 
   /// Removes all objects from this list; the length of the list becomes zero.
@@ -324,5 +330,20 @@ class ListNotificationsController<T extends Object?> extends NotificationsContro
   @override
   void onError(RealmError error) {
     streamController.addError(error);
+  }
+}
+
+extension ListExtension<T> on List<T> {
+  /// Move the element at index [from] to index [to].
+  void move(int from, int to) {
+    RangeError.checkValidIndex(from, this, 'from', length);
+    RangeError.checkValidIndex(to, this, 'to', length);
+    if (to == from) return; // no-op
+    final self = this;
+    if (self is ManagedRealmList<T>) {
+      self.move(from, to);
+    } else {
+      insert(to, removeAt(from));
+    }
   }
 }
