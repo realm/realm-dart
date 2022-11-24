@@ -1066,4 +1066,94 @@ Future<void> main([List<String>? args]) async {
     expect(game.winnerByRound, isA<RealmList<Player>>());
     expect(game.winnerByRound, isA<RealmList<Player?>>());
   });
+
+  test('Move equality & hash', () {
+    expect(Move(1, 1), equals(Move(1, 1)));
+    expect(Move(1, 1), isNot(equals(Move(2, 2))));
+    expect(Move(1, 1).hashCode, equals(Move(1, 1).hashCode));
+    expect(Move(1, 1).hashCode, isNot(equals(Move(2, 2).hashCode)));
+  });
+
+  test('List.move', () {
+    final list = [0, 1, 2, 3];
+    list.move(1, 0);
+    expect(list, [1, 0, 2, 3]);
+    list.move(2, 3);
+    expect(list, [1, 0, 3, 2]);
+    list.move(0, 0); // no-op
+    expect(list, [1, 0, 3, 2]);
+    final length = list.length;
+    expect(() => list.move(-1, 0), throwsRangeError);
+    expect(() => list.move(0, -1), throwsRangeError);
+    expect(() => list.move(length, 0), throwsRangeError);
+    expect(() => list.move(0, length), throwsRangeError);
+  });
+
+  test('ManagedRealmList.move', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 4);
+    expect(team.players, [alice, bob, carol, dan]);
+
+    realm.write(() => team.players.move(1, 0));
+    expect(team.players, [bob, alice, carol, dan]);
+
+    realm.write(() => team.players.move(2, 3));
+    expect(team.players, [bob, alice, dan, carol]);
+
+    realm.write(() => team.players.move(0, 0)); // no-op
+    expect(team.players, [bob, alice, dan, carol]);
+
+    final length = team.players.length;
+    expect(() => realm.write(() => team.players.move(-1, 0)), throwsRangeError);
+    expect(() => realm.write(() => team.players.move(0, -1)), throwsRangeError);
+    expect(() => realm.write(() => team.players.move(length, 0)), throwsRangeError);
+    expect(() => realm.write(() => team.players.move(0, length)), throwsRangeError);
+
+    expect(realm.all<Person>(), unorderedEquals(players)); // nothing was added or disappeared from the realm
+
+    // .. when outside a write transaction
+    expect(() => team.players.move(3, 1), throws<RealmException>('Cannot modify managed objects outside of a write transaction'));
+    expect(() => realm.write(() => team.players.move(0, length)), throwsRangeError); // range error takes precedence
+  });
+
+  test('ManagedRealmList.move notifications', () async {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+
+    expectLater(
+        team.players.changes,
+        emitsInOrder(<Matcher>[
+          isA<RealmListChanges<Person>>().having((ch) => ch.inserted, 'inserted', <int>[]), // always an empty event on subscription
+          isA<RealmListChanges<Person>>().having((ch) => ch.moved, 'moved', [Move(1, 0)]),
+          // no Move(0, 0)
+          isA<RealmListChanges<Person>>().having((ch) => ch.moved, 'moved', [Move(2, 3)]),
+        ]));
+
+    realm.write(() => team.players.move(1, 0));
+    expect(team.players, [bob, alice, carol, dan]);
+
+    realm.write(() => team.players.move(0, 0)); // no-op
+
+    realm.write(() => team.players.move(2, 3));
+    expect(team.players, [bob, alice, dan, carol]);
+  });
 }

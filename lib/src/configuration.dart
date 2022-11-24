@@ -114,6 +114,7 @@ abstract class Configuration implements Finalizable {
     String? path,
     this.fifoFilesFallbackPath,
     this.encryptionKey,
+    this.maxNumberOfActiveVersions
   }) {
     _validateEncryptionKey(encryptionKey);
     this.path = path ?? _path.join(_path.dirname(_defaultPath), _path.basename(defaultRealmName));
@@ -144,6 +145,12 @@ abstract class Configuration implements Finalizable {
   /// If null encryption is not enabled.
   final List<int>? encryptionKey;
 
+  /// Sets the maximum number of active versions allowed before an exception is thrown.
+  ///
+  /// Setting this will cause `Realm` to throw an exception if too many versions of the `Realm` data
+  /// are live at the same time. Having too many versions can dramatically increase the filesize of the `Realm`.
+  final int? maxNumberOfActiveVersions;
+
   /// Constructs a [LocalConfiguration]
   static LocalConfiguration local(
     List<SchemaObject> schemaObjects, {
@@ -156,6 +163,7 @@ abstract class Configuration implements Finalizable {
     bool isReadOnly = false,
     ShouldCompactCallback? shouldCompactCallback,
     MigrationCallback? migrationCallback,
+    int? maxNumberOfActiveVersions,
   }) =>
       LocalConfiguration._(schemaObjects,
           initialDataCallback: initialDataCallback,
@@ -166,18 +174,21 @@ abstract class Configuration implements Finalizable {
           disableFormatUpgrade: disableFormatUpgrade,
           isReadOnly: isReadOnly,
           shouldCompactCallback: shouldCompactCallback,
-          migrationCallback: migrationCallback);
+          migrationCallback: migrationCallback,
+          maxNumberOfActiveVersions: maxNumberOfActiveVersions);
 
   /// Constructs a [InMemoryConfiguration]
   static InMemoryConfiguration inMemory(
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
+    int? maxNumberOfActiveVersions,
   }) =>
       InMemoryConfiguration._(
         schemaObjects,
         fifoFilesFallbackPath: fifoFilesFallbackPath,
         path: path,
+        maxNumberOfActiveVersions: maxNumberOfActiveVersions,
       );
 
   /// Constructs a [FlexibleSyncConfiguration]
@@ -189,6 +200,7 @@ abstract class Configuration implements Finalizable {
     List<int>? encryptionKey,
     SyncErrorHandler syncErrorHandler = defaultSyncErrorHandler,
     ClientResetHandler clientResetHandler = const RecoverOrDiscardUnsyncedChangesHandler(onManualResetFallback: _defaultClientResetHandler),
+    int? maxNumberOfActiveVersions,
   }) =>
       FlexibleSyncConfiguration._(
         user,
@@ -198,20 +210,23 @@ abstract class Configuration implements Finalizable {
         encryptionKey: encryptionKey,
         syncErrorHandler: syncErrorHandler,
         clientResetHandler: clientResetHandler,
+        maxNumberOfActiveVersions: maxNumberOfActiveVersions,
       );
 
   /// Constructs a [DisconnectedSyncConfiguration]
   static DisconnectedSyncConfiguration disconnectedSync(
-    List<SchemaObject> schemaObjects,  {
-    required String path, 
+    List<SchemaObject> schemaObjects, {
+    required String path,
     String? fifoFilesFallbackPath,
     List<int>? encryptionKey,
+    int? maxNumberOfActiveVersions,
   }) =>
       DisconnectedSyncConfiguration._(
         schemaObjects,
         path: path,
         fifoFilesFallbackPath: fifoFilesFallbackPath,
         encryptionKey: encryptionKey,
+        maxNumberOfActiveVersions: maxNumberOfActiveVersions
       );
 
   void _validateEncryptionKey(List<int>? key) {
@@ -246,6 +261,7 @@ class LocalConfiguration extends Configuration {
     this.isReadOnly = false,
     this.shouldCompactCallback,
     this.migrationCallback,
+    super.maxNumberOfActiveVersions,
   }) : super._();
 
   /// The schema version used to open the `Realm`. If omitted, the default value is `0`.
@@ -334,6 +350,7 @@ class FlexibleSyncConfiguration extends Configuration {
     super.encryptionKey,
     this.syncErrorHandler = defaultSyncErrorHandler,
     this.clientResetHandler = const RecoverOrDiscardUnsyncedChangesHandler(onManualResetFallback: _defaultClientResetHandler),
+    super.maxNumberOfActiveVersions,
   }) : super._();
 
   @override
@@ -361,6 +378,7 @@ class DisconnectedSyncConfiguration extends Configuration {
     required super.path,
     super.fifoFilesFallbackPath,
     super.encryptionKey,
+    super.maxNumberOfActiveVersions,
   }) : super._();
 
   @override
@@ -375,6 +393,7 @@ class InMemoryConfiguration extends Configuration {
     super.schemaObjects, {
     super.fifoFilesFallbackPath,
     super.path,
+    super.maxNumberOfActiveVersions,
   }) : super._();
 }
 
