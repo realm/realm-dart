@@ -93,10 +93,10 @@ RLM_API void realm_dart_invoke_unlock_callback(bool success, void* unlockFunc)
     (*castFunc)(success);
 }
 
-// stamped into the library by the build system (see prepare-release.yml)
-RLM_API const char* realm_dart_library_version() { 
-    return "0.7.0+rc"; 
-}
+// Stamped into the library by the build system (see prepare-release.yml)
+// Keep this method as it is written and do not format it. 
+// We have a github workflow that looks for and replaces this string as it is written here.
+RLM_API const char* realm_dart_library_version() { return "0.7.0+rc"; }
 
 //for debugging only
 // RLM_API void realm_dart_gc() { 
@@ -104,14 +104,14 @@ RLM_API const char* realm_dart_library_version() {
 // }
 
 void handle_finalizer(void* isolate_callback_data, void* realmPtr) {
-  realm_release(realmPtr);
+    realm_release(realmPtr);
 }
 
 RLM_API void* realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size) {
-  return Dart_NewFinalizableHandle_DL(handle, realmPtr, size, handle_finalizer);
+    return Dart_NewFinalizableHandle_DL(handle, realmPtr, size, handle_finalizer);
 }
 
 RLM_API void realm_dettach_finalizer(void* finalizableHandle, Dart_Handle handle) {
-  Dart_FinalizableHandle finalHandle = reinterpret_cast<Dart_FinalizableHandle>(finalizableHandle);
-  return Dart_DeleteFinalizableHandle_DL(finalHandle, handle);
+    Dart_FinalizableHandle finalHandle = reinterpret_cast<Dart_FinalizableHandle>(finalizableHandle);
+    return Dart_DeleteFinalizableHandle_DL(finalHandle, handle);
 }
