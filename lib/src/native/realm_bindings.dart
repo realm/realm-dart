@@ -1858,6 +1858,25 @@ class RealmLibrary {
           .asFunction<
               void Function(ffi.Pointer<realm_async_open_task_t>, int)>();
 
+  ffi.Pointer<ffi.Void> realm_attach_finalizer(
+    Object handle,
+    ffi.Pointer<ffi.Void> realmPtr,
+    int size,
+  ) {
+    return _realm_attach_finalizer(
+      handle,
+      realmPtr,
+      size,
+    );
+  }
+
+  late final _realm_attach_finalizerPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Void> Function(ffi.Handle, ffi.Pointer<ffi.Void>,
+              ffi.Int)>>('realm_attach_finalizer');
+  late final _realm_attach_finalizer = _realm_attach_finalizerPtr.asFunction<
+      ffi.Pointer<ffi.Void> Function(Object, ffi.Pointer<ffi.Void>, int)>();
+
   int realm_auth_credentials_get_provider(
     ffi.Pointer<realm_app_credentials_t> arg0,
   ) {
@@ -3473,6 +3492,23 @@ class RealmLibrary {
               ffi.Pointer<ffi.Bool>)>>('realm_delete_files');
   late final _realm_delete_files = _realm_delete_filesPtr.asFunction<
       bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Bool>)>();
+
+  void realm_dettach_finalizer(
+    ffi.Pointer<ffi.Void> finalizableHandle,
+    Object handle,
+  ) {
+    return _realm_dettach_finalizer(
+      finalizableHandle,
+      handle,
+    );
+  }
+
+  late final _realm_dettach_finalizerPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<ffi.Void>, ffi.Handle)>>('realm_dettach_finalizer');
+  late final _realm_dettach_finalizer = _realm_dettach_finalizerPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Void>, Object)>();
 
   /// Subscribe to notifications for this object.
   ///

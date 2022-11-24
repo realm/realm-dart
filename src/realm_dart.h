@@ -43,4 +43,11 @@ RLM_API void realm_dart_invoke_unlock_callback(bool success, void* unlockFunc);
 
 RLM_API const char* realm_dart_library_version();
 
+// for debugging only. Enable in realm_dart.cpp
+// RLM_API void realm_dart_gc();
+
+RLM_API void* realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size);
+RLM_API void realm_dettach_finalizer(void* finalizableHandle, Dart_Handle handle);
+
+
 #endif // REALM_DART_H

@@ -85,6 +85,11 @@ class _RealmCore {
   static const libraryVersion = '0.7.0+rc';
   late String nativeLibraryVersion = _realmLib.realm_dart_library_version().cast<Utf8>().toDartString();
 
+  // for debugging only. Enable in realm_dart.cpp
+  // void invokeGC() {
+  //   _realmLib.realm_dart_gc();
+  // }
+
   LastError? getLastError(Allocator allocator) {
     final error = allocator<realm_error_t>();
     final success = _realmLib.realm_get_last_error(error);
@@ -2305,9 +2310,8 @@ void _tearDownFinalizationTrace(Object value, Object finalizationToken) {
   _traceFinalization(finalizationToken);
 }
 
-final _nativeFinalizer = NativeFinalizer(_realmLib.addresses.realm_release);
-
 abstract class HandleBase<T extends NativeType> implements Finalizable {
+  late Pointer<Void> _finalizableHandle;
   Pointer<T> _pointer;
   bool get released => _pointer == nullptr;
   final bool isUnowned;
@@ -2316,7 +2320,8 @@ abstract class HandleBase<T extends NativeType> implements Finalizable {
   void keepAlive() {}
 
   HandleBase(this._pointer, int size) : isUnowned = false {
-    _nativeFinalizer.attach(this, _pointer.cast(), detach: this, externalSize: size);
+    _finalizableHandle = _realmLib.realm_attach_finalizer(this, _pointer.cast(), size);
+
     if (_enableFinalizerTrace) {
       _setupFinalizationTrace(this, _pointer);
     }
@@ -2340,7 +2345,8 @@ abstract class HandleBase<T extends NativeType> implements Finalizable {
     _releaseCore();
 
     if (!isUnowned) {
-      _nativeFinalizer.detach(this);
+      _realmLib.realm_dettach_finalizer(_finalizableHandle, this);
+
       _realmLib.realm_release(_pointer.cast());
     }
 
