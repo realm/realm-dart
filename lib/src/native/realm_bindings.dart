@@ -1672,12 +1672,13 @@ class RealmLibrary {
               realm_free_userdata_func_t)>();
 
   /// start a new write transaction asynchronously for the realm passed as argument.
-  int realm_async_begin_write(
+  bool realm_async_begin_write(
     ffi.Pointer<realm_t> realm,
     realm_async_begin_write_func_t arg1,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
     bool notify_only,
+    ffi.Pointer<ffi.UnsignedInt> transaction_id,
   ) {
     return _realm_async_begin_write(
       realm,
@@ -1685,20 +1686,27 @@ class RealmLibrary {
       userdata,
       userdata_free,
       notify_only,
+      transaction_id,
     );
   }
 
   late final _realm_async_begin_writePtr = _lookup<
       ffi.NativeFunction<
-          ffi.UnsignedInt Function(
+          ffi.Bool Function(
               ffi.Pointer<realm_t>,
               realm_async_begin_write_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
-              ffi.Bool)>>('realm_async_begin_write');
+              ffi.Bool,
+              ffi.Pointer<ffi.UnsignedInt>)>>('realm_async_begin_write');
   late final _realm_async_begin_write = _realm_async_begin_writePtr.asFunction<
-      int Function(ffi.Pointer<realm_t>, realm_async_begin_write_func_t,
-          ffi.Pointer<ffi.Void>, realm_free_userdata_func_t, bool)>();
+      bool Function(
+          ffi.Pointer<realm_t>,
+          realm_async_begin_write_func_t,
+          ffi.Pointer<ffi.Void>,
+          realm_free_userdata_func_t,
+          bool,
+          ffi.Pointer<ffi.UnsignedInt>)>();
 
   /// Cancel the transaction referenced by the token passed as argument and set the optional boolean flag in order to
   /// inform the caller if the transaction was cancelled.
@@ -1722,12 +1730,13 @@ class RealmLibrary {
       bool Function(ffi.Pointer<realm_t>, int, ffi.Pointer<ffi.Bool>)>();
 
   /// commit a transaction asynchronously for the realm passed as argument.
-  int realm_async_commit(
+  bool realm_async_commit(
     ffi.Pointer<realm_t> realm,
     realm_async_commit_func_t arg1,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
     bool allow_grouping,
+    ffi.Pointer<ffi.UnsignedInt> transaction_id,
   ) {
     return _realm_async_commit(
       realm,
@@ -1735,20 +1744,27 @@ class RealmLibrary {
       userdata,
       userdata_free,
       allow_grouping,
+      transaction_id,
     );
   }
 
   late final _realm_async_commitPtr = _lookup<
       ffi.NativeFunction<
-          ffi.UnsignedInt Function(
+          ffi.Bool Function(
               ffi.Pointer<realm_t>,
               realm_async_commit_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
-              ffi.Bool)>>('realm_async_commit');
+              ffi.Bool,
+              ffi.Pointer<ffi.UnsignedInt>)>>('realm_async_commit');
   late final _realm_async_commit = _realm_async_commitPtr.asFunction<
-      int Function(ffi.Pointer<realm_t>, realm_async_commit_func_t,
-          ffi.Pointer<ffi.Void>, realm_free_userdata_func_t, bool)>();
+      bool Function(
+          ffi.Pointer<realm_t>,
+          realm_async_commit_func_t,
+          ffi.Pointer<ffi.Void>,
+          realm_free_userdata_func_t,
+          bool,
+          ffi.Pointer<ffi.UnsignedInt>)>();
 
   void realm_async_open_task_cancel(
     ffi.Pointer<realm_async_open_task_t> arg0,
@@ -1765,7 +1781,8 @@ class RealmLibrary {
   late final _realm_async_open_task_cancel = _realm_async_open_task_cancelPtr
       .asFunction<void Function(ffi.Pointer<realm_async_open_task_t>)>();
 
-  int realm_async_open_task_register_download_progress_notifier(
+  ffi.Pointer<realm_async_open_task_progress_notification_token_t>
+      realm_async_open_task_register_download_progress_notifier(
     ffi.Pointer<realm_async_open_task_t> arg0,
     realm_sync_progress_func_t arg1,
     ffi.Pointer<ffi.Void> userdata,
@@ -1782,7 +1799,7 @@ class RealmLibrary {
   late final _realm_async_open_task_register_download_progress_notifierPtr =
       _lookup<
               ffi.NativeFunction<
-                  ffi.Uint64 Function(
+                  ffi.Pointer<realm_async_open_task_progress_notification_token_t> Function(
                       ffi.Pointer<realm_async_open_task_t>,
                       realm_sync_progress_func_t,
                       ffi.Pointer<ffi.Void>,
@@ -1790,7 +1807,7 @@ class RealmLibrary {
           'realm_async_open_task_register_download_progress_notifier');
   late final _realm_async_open_task_register_download_progress_notifier =
       _realm_async_open_task_register_download_progress_notifierPtr.asFunction<
-          int Function(
+          ffi.Pointer<realm_async_open_task_progress_notification_token_t> Function(
               ffi.Pointer<realm_async_open_task_t>,
               realm_sync_progress_func_t,
               ffi.Pointer<ffi.Void>,
@@ -1824,27 +1841,6 @@ class RealmLibrary {
               realm_async_open_task_completion_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
-
-  void realm_async_open_task_unregister_download_progress_notifier(
-    ffi.Pointer<realm_async_open_task_t> arg0,
-    int token,
-  ) {
-    return _realm_async_open_task_unregister_download_progress_notifier(
-      arg0,
-      token,
-    );
-  }
-
-  late final _realm_async_open_task_unregister_download_progress_notifierPtr =
-      _lookup<
-              ffi.NativeFunction<
-                  ffi.Void Function(
-                      ffi.Pointer<realm_async_open_task_t>, ffi.Uint64)>>(
-          'realm_async_open_task_unregister_download_progress_notifier');
-  late final _realm_async_open_task_unregister_download_progress_notifier =
-      _realm_async_open_task_unregister_download_progress_notifierPtr
-          .asFunction<
-              void Function(ffi.Pointer<realm_async_open_task_t>, int)>();
 
   ffi.Pointer<ffi.Void> realm_attach_finalizer(
     Object handle,
@@ -7675,6 +7671,28 @@ class RealmLibrary {
       bool Function(
           ffi.Pointer<realm_set_t>, ffi.Pointer<realm_value_t>, int)>();
 
+  /// Register a callback handler for bindings interested in registering callbacks before/after the ObjectStore thread
+  /// runs.
+  /// @param thread_observer a ptr to an implementation class that can receive these notifications. If nullptr is passed
+  /// instead, this will have the effect of unregistering the callback.
+  void realm_set_binding_callback_thread_observer(
+    ffi.Pointer<realm_interface_callback_thread_observer_t> thread_observer,
+  ) {
+    return _realm_set_binding_callback_thread_observer(
+      thread_observer,
+    );
+  }
+
+  late final _realm_set_binding_callback_thread_observerPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<realm_interface_callback_thread_observer_t>)>>(
+      'realm_set_binding_callback_thread_observer');
+  late final _realm_set_binding_callback_thread_observer =
+      _realm_set_binding_callback_thread_observerPtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_interface_callback_thread_observer_t>)>();
+
   /// Clear a set of values.
   ///
   /// @return True if no exception occurred.
@@ -9040,8 +9058,9 @@ class RealmLibrary {
 
   /// Register a callback that will be invoked every time the session's connection state changes.
   ///
-  /// @return A token value that can be used to unregiser the callback.
-  int realm_sync_session_register_connection_state_change_callback(
+  /// @return a notification token object. Dispose it to stop receiving notifications.
+  ffi.Pointer<realm_sync_session_connection_state_notification_token_t>
+      realm_sync_session_register_connection_state_change_callback(
     ffi.Pointer<realm_sync_session_t> arg0,
     realm_sync_connection_state_changed_func_t arg1,
     ffi.Pointer<ffi.Void> userdata,
@@ -9058,20 +9077,19 @@ class RealmLibrary {
   late final _realm_sync_session_register_connection_state_change_callbackPtr =
       _lookup<
               ffi.NativeFunction<
-                  ffi.Uint64 Function(
+                  ffi.Pointer<realm_sync_session_connection_state_notification_token_t> Function(
                       ffi.Pointer<realm_sync_session_t>,
                       realm_sync_connection_state_changed_func_t,
                       ffi.Pointer<ffi.Void>,
                       realm_free_userdata_func_t)>>(
           'realm_sync_session_register_connection_state_change_callback');
   late final _realm_sync_session_register_connection_state_change_callback =
-      _realm_sync_session_register_connection_state_change_callbackPtr
-          .asFunction<
-              int Function(
-                  ffi.Pointer<realm_sync_session_t>,
-                  realm_sync_connection_state_changed_func_t,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t)>();
+      _realm_sync_session_register_connection_state_change_callbackPtr.asFunction<
+          ffi.Pointer<realm_sync_session_connection_state_notification_token_t> Function(
+              ffi.Pointer<realm_sync_session_t>,
+              realm_sync_connection_state_changed_func_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>();
 
   /// Register a callback that will be invoked every time the session reports progress.
   ///
@@ -9080,8 +9098,9 @@ class RealmLibrary {
   /// Otherwise, the number of downloaded or uploaded bytes will always be reported
   /// relative to the number of downloadable or uploadable bytes at the point in time
   /// when the notifier was registered.
-  /// @return A token value that can be used to unregiser the notifier.
-  int realm_sync_session_register_progress_notifier(
+  /// @return a notification token object. Dispose it to stop receiving notifications.
+  ffi.Pointer<realm_sync_session_connection_state_notification_token_t>
+      realm_sync_session_register_progress_notifier(
     ffi.Pointer<realm_sync_session_t> arg0,
     realm_sync_progress_func_t arg1,
     int arg2,
@@ -9101,7 +9120,7 @@ class RealmLibrary {
 
   late final _realm_sync_session_register_progress_notifierPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Uint64 Function(
+              ffi.Pointer<realm_sync_session_connection_state_notification_token_t> Function(
                   ffi.Pointer<realm_sync_session_t>,
                   realm_sync_progress_func_t,
                   ffi.Int32,
@@ -9111,7 +9130,7 @@ class RealmLibrary {
       'realm_sync_session_register_progress_notifier');
   late final _realm_sync_session_register_progress_notifier =
       _realm_sync_session_register_progress_notifierPtr.asFunction<
-          int Function(
+          ffi.Pointer<realm_sync_session_connection_state_notification_token_t> Function(
               ffi.Pointer<realm_sync_session_t>,
               realm_sync_progress_func_t,
               int,
@@ -9136,50 +9155,6 @@ class RealmLibrary {
               ffi.Pointer<realm_sync_session_t>)>>('realm_sync_session_resume');
   late final _realm_sync_session_resume = _realm_sync_session_resumePtr
       .asFunction<void Function(ffi.Pointer<realm_sync_session_t>)>();
-
-  /// Unregister a callback that will be invoked every time the session's connection state changes.
-  /// @param session ptr to a valid sync session
-  /// @param token the token returned by `realm_sync_session_register_connection_state_change_callback`
-  void realm_sync_session_unregister_connection_state_change_callback(
-    ffi.Pointer<realm_sync_session_t> session,
-    int token,
-  ) {
-    return _realm_sync_session_unregister_connection_state_change_callback(
-      session,
-      token,
-    );
-  }
-
-  late final _realm_sync_session_unregister_connection_state_change_callbackPtr =
-      _lookup<
-              ffi.NativeFunction<
-                  ffi.Void Function(
-                      ffi.Pointer<realm_sync_session_t>, ffi.Uint64)>>(
-          'realm_sync_session_unregister_connection_state_change_callback');
-  late final _realm_sync_session_unregister_connection_state_change_callback =
-      _realm_sync_session_unregister_connection_state_change_callbackPtr
-          .asFunction<void Function(ffi.Pointer<realm_sync_session_t>, int)>();
-
-  /// Unregister a callback that will be invoked every time the session reports progress.
-  /// @param session ptr to a valid sync session
-  /// @param token the token returned by `realm_sync_session_register_progress_notifier`
-  void realm_sync_session_unregister_progress_notifier(
-    ffi.Pointer<realm_sync_session_t> session,
-    int token,
-  ) {
-    return _realm_sync_session_unregister_progress_notifier(
-      session,
-      token,
-    );
-  }
-
-  late final _realm_sync_session_unregister_progress_notifierPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_sync_session_t>,
-              ffi.Uint64)>>('realm_sync_session_unregister_progress_notifier');
-  late final _realm_sync_session_unregister_progress_notifier =
-      _realm_sync_session_unregister_progress_notifierPtr
-          .asFunction<void Function(ffi.Pointer<realm_sync_session_t>, int)>();
 
   /// Register a callback that will be invoked when all pending downloads have completed.
   void realm_sync_session_wait_for_download_completion(
@@ -10358,6 +10333,11 @@ typedef realm_async_open_task_completion_func_t = ffi.Pointer<
             ffi.Pointer<ffi.Void>,
             ffi.Pointer<realm_thread_safe_reference_t>,
             ffi.Pointer<realm_async_error_t>)>>;
+
+class realm_async_open_task_progress_notification_token extends ffi.Opaque {}
+
+typedef realm_async_open_task_progress_notification_token_t
+    = realm_async_open_task_progress_notification_token;
 typedef realm_async_open_task_t = realm_async_open_task;
 
 abstract class realm_auth_provider {
@@ -10381,6 +10361,8 @@ class realm_binary extends ffi.Struct {
 }
 
 typedef realm_binary_t = realm_binary;
+
+class realm_callback_interface_thread_observer extends ffi.Opaque {}
 
 class realm_callback_token extends ffi.Opaque {}
 
@@ -10639,6 +10621,8 @@ class realm_index_range extends ffi.Struct {
 }
 
 typedef realm_index_range_t = realm_index_range;
+typedef realm_interface_callback_thread_observer_t
+    = realm_callback_interface_thread_observer;
 
 class realm_key_path extends ffi.Struct {
   @ffi.Size()
@@ -11152,6 +11136,12 @@ typedef realm_sync_progress_func_t = ffi.Pointer<
         ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64)>>;
 
 class realm_sync_session extends ffi.Opaque {}
+
+class realm_sync_session_connection_state_notification_token
+    extends ffi.Opaque {}
+
+typedef realm_sync_session_connection_state_notification_token_t
+    = realm_sync_session_connection_state_notification_token;
 
 abstract class realm_sync_session_resync_mode {
   static const int RLM_SYNC_SESSION_RESYNC_MODE_MANUAL = 0;

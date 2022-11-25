@@ -687,8 +687,18 @@ class _RealmCore {
   Future<void> beginWriteAsync(Realm realm, CancellationToken? ct) {
     final completer = WriteCompleter(realm, ct);
     if (!completer.isCancelled) {
-      completer.id = _realmLib.realm_async_begin_write(realm.handle._pointer, Pointer.fromFunction(_completeAsyncBeginWrite), completer.toPersistentHandle(),
-          _realmLib.addresses.realm_dart_delete_persistent_handle, true);
+      using((arena) {
+        final transaction_id = arena<UnsignedInt>();
+        _realmLib.invokeGetBool(() => _realmLib.realm_async_begin_write(
+              realm.handle._pointer,
+              Pointer.fromFunction(_completeAsyncBeginWrite),
+              completer.toPersistentHandle(),
+              _realmLib.addresses.realm_dart_delete_persistent_handle,
+              true,
+              transaction_id,
+            ));
+        completer.id = transaction_id.value;
+      });
     }
 
     return completer.future;
@@ -697,8 +707,18 @@ class _RealmCore {
   Future<void> commitWriteAsync(Realm realm, CancellationToken? ct) {
     final completer = WriteCompleter(realm, ct);
     if (!completer.isCancelled) {
-      completer.id = _realmLib.realm_async_commit(realm.handle._pointer, Pointer.fromFunction(_completeAsyncCommit), completer.toPersistentHandle(),
-          _realmLib.addresses.realm_dart_delete_persistent_handle, false);
+      using((arena) {
+        final transaction_id = arena<UnsignedInt>();
+        _realmLib.invokeGetBool(() => _realmLib.realm_async_commit(
+              realm.handle._pointer,
+              Pointer.fromFunction(_completeAsyncCommit),
+              completer.toPersistentHandle(),
+              _realmLib.addresses.realm_dart_delete_persistent_handle,
+              false,
+              transaction_id,
+            ));
+        completer.id = transaction_id.value;
+      });
     }
 
     return completer.future;
@@ -1941,16 +1961,19 @@ class _RealmCore {
     _realmLib.realm_sync_session_resume(session.handle._pointer);
   }
 
-  int sessionRegisterProgressNotifier(Session session, ProgressDirection direction, ProgressMode mode, SessionProgressNotificationsController controller) {
+  RealmSyncSessionConnectionStateNotificationTokenHandle sessionRegisterProgressNotifier(
+      Session session, ProgressDirection direction, ProgressMode mode, SessionProgressNotificationsController controller) {
     final isStreaming = mode == ProgressMode.reportIndefinitely;
     final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64)>(_progressCallback);
     final userdata = _realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle._pointer);
-    return _realmLib.realm_sync_session_register_progress_notifier(session.handle._pointer, _realmLib.addresses.realm_dart_sync_progress_callback,
-        direction.index, isStreaming, userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
-  }
-
-  void sessionUnregisterProgressNotifier(Session session, int token) {
-    _realmLib.realm_sync_session_unregister_progress_notifier(session.handle._pointer, token);
+    final notification_token = _realmLib.realm_sync_session_register_progress_notifier(
+        session.handle._pointer,
+        _realmLib.addresses.realm_dart_sync_progress_callback,
+        direction.index,
+        isStreaming,
+        userdata.cast(),
+        _realmLib.addresses.realm_dart_userdata_async_free);
+    return RealmSyncSessionConnectionStateNotificationTokenHandle._(notification_token);
   }
 
   static void _progressCallback(Object userdata, int transferred, int transferable) {
@@ -1959,15 +1982,16 @@ class _RealmCore {
     controller.onProgress(transferred, transferable);
   }
 
-  int sessionRegisterConnectionStateNotifier(Session session, SessionConnectionStateController controller) {
+  RealmSyncSessionConnectionStateNotificationTokenHandle sessionRegisterConnectionStateNotifier(Session session, SessionConnectionStateController controller) {
     final callback = Pointer.fromFunction<Void Function(Handle, Int32, Int32)>(_onConnectionStateChange);
     final userdata = _realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle._pointer);
-    return _realmLib.realm_sync_session_register_connection_state_change_callback(session.handle._pointer,
-        _realmLib.addresses.realm_dart_sync_connection_state_changed_callback, userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
-  }
-
-  void sessionUnregisterConnectionStateNotifier(Session session, int token) {
-    _realmLib.realm_sync_session_unregister_connection_state_change_callback(session.handle._pointer, token);
+    final notification_token = _realmLib.realm_sync_session_register_connection_state_change_callback(
+      session.handle._pointer,
+      _realmLib.addresses.realm_dart_sync_connection_state_changed_callback,
+      userdata.cast(),
+      _realmLib.addresses.realm_dart_userdata_async_free,
+    );
+    return RealmSyncSessionConnectionStateNotificationTokenHandle._(notification_token);
   }
 
   static void _onConnectionStateChange(Object userdata, int oldState, int newState) {
@@ -2475,6 +2499,10 @@ class _RealmQueryHandle extends RootedHandleBase<realm_query> {
 
 class RealmNotificationTokenHandle extends RootedHandleBase<realm_notification_token> {
   RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer, RealmHandle root) : super(root, pointer, 32);
+}
+
+class RealmSyncSessionConnectionStateNotificationTokenHandle extends HandleBase<realm_sync_session_connection_state_notification_token> {
+  RealmSyncSessionConnectionStateNotificationTokenHandle._(Pointer<realm_sync_session_connection_state_notification_token> pointer) : super(pointer, 32);
 }
 
 class RealmCollectionChangesHandle extends HandleBase<realm_collection_changes> {
