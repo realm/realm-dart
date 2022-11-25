@@ -22,10 +22,10 @@
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
-* Fileformat: Generates files with format v23. Reads and automatically upgrade from fileformat v5.
+* Fileformat: Generates files with format v23. Reads and automatically upgrades from fileformat v5.
 
 ### Internal
-* Using Core 13.1.0. ([#1042](https://github.com/realm/realm-dart/pull/1042))
+* Using Core 13.1.0.
 
 ## 0.8.0+rc (2022-11-14)
 
@@ -44,7 +44,7 @@
 * Realm Studio: 12.0.0 or later.
 
 ### Internal
-* Using Core 12.12.0. ([#1025](https://github.com/realm/realm-dart/pull/1025))
+* Using Core 12.12.0.
 
 ## 0.7.0+rc (2022-11-04)
 
@@ -97,7 +97,7 @@
 * Realm Studio: 12.0.0 or later.
 
 ### Internal
-* Using Core 12.11.0. ([#988](https://github.com/realm/realm-dart/pull/988))
+* Using Core 12.11.0.
 
 ## 0.6.0+beta (2022-10-21)
 
