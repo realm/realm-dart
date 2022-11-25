@@ -483,6 +483,9 @@ class Realm implements Finalizable {
   /// This is a workaround of a Dart VM bug and will be removed in a future version of the SDK.
   static void shutdown() => scheduler.stop();
 
+  // For debugging only. Enable in realm_dart.cpp
+  // static void gc() => realmCore.invokeGC();
+
   void _ensureManagedByThis(RealmEntity entity, String operation) {
     if (entity.realm != this) {
       if (entity.isFrozen) {
