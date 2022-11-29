@@ -448,4 +448,51 @@ Future<void> main([List<String>? args]) async {
     expect(() => oldPlayers.handle.released, throws<RealmClosedError>());
     expect(() => newPlayers.handle.released, throws<RealmClosedError>());
   });
+
+  test('LocalConfiguration.shouldDeleteIfMigrationNeeded deletes Realm', () {
+    final config = Configuration.local([PersonIntName.schema]);
+    final realm = getRealm(config);
+    realm.write(() {
+      realm.add(PersonIntName(1));
+    });
+    realm.close();
+
+    final config2 = Configuration.local([Person.schema], shouldDeleteIfMigrationNeeded: true);
+    final realm2 = getRealm(config2);
+
+    expect(realm2.all<Person>().length, 0);
+
+    realm2.write(() {
+      realm2.add(Person('1'));
+    });
+  });
+
+  test("LocalConfiguration.shouldDeleteIfMigrationNeeded doesn't delete if no migration is needed", () {
+    final config = Configuration.local([Person.schema]);
+    final realm = getRealm(config);
+    realm.write(() {
+      realm.add(Person("abc"));
+    });
+    realm.close();
+
+    final config2 = Configuration.local([Person.schema], shouldDeleteIfMigrationNeeded: true);
+    final realm2 = getRealm(config2);
+
+    expect(realm2.all<Person>().length, 1);
+    expect(realm2.all<Person>()[0].name, 'abc');
+  });
+
+  test("LocalConfiguration.shouldDeleteIfMigrationNeeded deletes file on schema version bump", () {
+    final config = Configuration.local([Person.schema], schemaVersion: 1);
+    final realm = getRealm(config);
+    realm.write(() {
+      realm.add(Person("abc"));
+    });
+    realm.close();
+
+    final config2 = Configuration.local([Person.schema], schemaVersion: 2, shouldDeleteIfMigrationNeeded: true);
+    final realm2 = getRealm(config2);
+
+    expect(realm2.all<Person>().length, 0);
+  });
 }

@@ -164,6 +164,7 @@ abstract class Configuration implements Finalizable {
     ShouldCompactCallback? shouldCompactCallback,
     MigrationCallback? migrationCallback,
     int? maxNumberOfActiveVersions,
+    bool shouldDeleteIfMigrationNeeded = false,
   }) =>
       LocalConfiguration._(schemaObjects,
           initialDataCallback: initialDataCallback,
@@ -175,7 +176,8 @@ abstract class Configuration implements Finalizable {
           isReadOnly: isReadOnly,
           shouldCompactCallback: shouldCompactCallback,
           migrationCallback: migrationCallback,
-          maxNumberOfActiveVersions: maxNumberOfActiveVersions);
+          maxNumberOfActiveVersions: maxNumberOfActiveVersions,
+          shouldDeleteIfMigrationNeeded: shouldDeleteIfMigrationNeeded);
 
   /// Constructs a [InMemoryConfiguration]
   static InMemoryConfiguration inMemory(
@@ -262,6 +264,7 @@ class LocalConfiguration extends Configuration {
     this.shouldCompactCallback,
     this.migrationCallback,
     super.maxNumberOfActiveVersions,
+    this.shouldDeleteIfMigrationNeeded = false
   }) : super._();
 
   /// The schema version used to open the `Realm`. If omitted, the default value is `0`.
@@ -295,6 +298,11 @@ class LocalConfiguration extends Configuration {
 
   /// Called when opening a `Realm` with a schema version that is newer than the one used to create the file.
   final MigrationCallback? migrationCallback;
+
+  /// Specifies if a realm file should be deleted in case the schema on disk
+  /// doesn't match the schema in code. Setting this to `true` can lead to
+  /// data loss.
+  final bool shouldDeleteIfMigrationNeeded;
 }
 
 /// @nodoc
