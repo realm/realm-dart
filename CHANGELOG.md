@@ -9,6 +9,7 @@
 ### Enhancements
 * Support setting `maxNumberOfActiveVersions` when creating a `Configuration`. ([#1036](https://github.com/realm/realm-dart/pull/1036))
 * Add List.move extension method that moves an element from one index to another. Delegates to ManagedRealmList.move for managed lists. This allows notifications to correctly report moves, as opposed to reporting moves as deletes + inserts. ([#1037](https://github.com/realm/realm-dart/issues/1037))
+* Add `Realm`.`refresh` support. ([####](https://github.com/realm/realm-dart/issues/###))
 
 ### Fixed
 * Support mapping into `SyncSessionErrorCode` for "Compensating write" with error code 231. ([#1022](https://github.com/realm/realm-dart/pull/1022))

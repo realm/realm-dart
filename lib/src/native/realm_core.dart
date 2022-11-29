@@ -762,8 +762,12 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_rollback(realm.handle._pointer), "Could not rollback write");
   }
 
-  void realmRefresh(Realm realm) {
+  bool realmRefresh(Realm realm) {
     _realmLib.invokeGetBool(() => _realmLib.realm_refresh(realm.handle._pointer), "Could not refresh");
+    //TODO: Remove this and return the correct result of calling `realm_refresh`.
+    //Currently there is a bug in C-API that does not return the refresh result correctly.
+    //Issue https://github.com/realm/realm-core/pull/6068
+    return true;
   }
 
   RealmObjectMetadata getObjectMetadata(Realm realm, SchemaObject schema) {

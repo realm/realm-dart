@@ -539,6 +539,15 @@ class Realm implements Finalizable {
       realm.close();
     }
   }
+
+  /// Update the `Realm` instance and outstanding objects to point to the most recent persisted version.
+  /// 
+  /// If another process or thread has made changes to the realm file, this causes
+  /// those changes to become visible in this realm instance.
+  /// Typically you don't need to call this method since Realm has auto-refresh built-in.
+  bool refresh() {
+    return realmCore.realmRefresh(this);
+  }
 }
 
 /// Provides a scope to safely write data to a [Realm]. Can be created using [Realm.beginWrite] or

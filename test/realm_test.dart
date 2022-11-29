@@ -1567,6 +1567,12 @@ Future<void> main([List<String>? args]) async {
     //test the realm can be opened.
     final realm = getRealm(Configuration.disconnectedSync([Product.schema], path: path, encryptionKey: key));
   });
+
+  test('Realm.refresh', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final result = realm.refresh();
+    expect(result, true);
+  });
 }
 
 List<int> generateEncryptionKey() {
