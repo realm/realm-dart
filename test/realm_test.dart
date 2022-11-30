@@ -1613,7 +1613,7 @@ Future<void> main([List<String>? args]) async {
     realm.beginWrite().commit();
 
     await Future<void>.delayed(Duration(milliseconds: 1));
-    
+
     expect(called, true);
   });
 
@@ -1624,7 +1624,7 @@ Future<void> main([List<String>? args]) async {
 
     realm.onRefresh(() => called = true);
     await Future<void>.delayed(Duration(milliseconds: 1));
-    expect(called, false);
+    expect(called, true);
   });
 }
 
