@@ -37,6 +37,12 @@ void main() {
     expect(something.any!.as<bool>(), true);
   });
 
+  test('Illegal value', () {
+    final config = Configuration.inMemory([AnythingGoes.schema]);
+    final realm = getRealm(config);
+    expect(() => realm.write(() => realm.add(AnythingGoes(any: RealmValue.from(<int>[1, 2])))), throwsArgumentError);
+  });
+
   test('Switch', () {
     final something = AnythingGoes();
     switch (something.any?.value.runtimeType) {
