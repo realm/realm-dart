@@ -211,6 +211,8 @@ class _RealmCore {
         }
         if (config.isReadOnly) {
           _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_IMMUTABLE);
+        } else if (config.shouldDeleteIfMigrationNeeded) {
+          _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_SOFT_RESET_FILE);
         }
         if (config.disableFormatUpgrade) {
           _realmLib.realm_config_set_disable_format_upgrade(configHandle._pointer, config.disableFormatUpgrade);
