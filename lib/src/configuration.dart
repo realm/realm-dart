@@ -114,7 +114,7 @@ abstract class Configuration implements Finalizable {
     String? path,
     this.fifoFilesFallbackPath,
     this.encryptionKey,
-    this.maxNumberOfActiveVersions
+    this.maxNumberOfActiveVersions,
   }) {
     _validateEncryptionKey(encryptionKey);
     this.path = path ?? _path.join(_path.dirname(_defaultPath), _path.basename(defaultRealmName));
@@ -228,7 +228,7 @@ abstract class Configuration implements Finalizable {
         path: path,
         fifoFilesFallbackPath: fifoFilesFallbackPath,
         encryptionKey: encryptionKey,
-        maxNumberOfActiveVersions: maxNumberOfActiveVersions
+        maxNumberOfActiveVersions: maxNumberOfActiveVersions,
       );
 
   void _validateEncryptionKey(List<int>? key) {
@@ -252,20 +252,19 @@ abstract class Configuration implements Finalizable {
 /// that are persisted across runs.
 /// {@category Configuration}
 class LocalConfiguration extends Configuration {
-  LocalConfiguration._(
-    super.schemaObjects, {
-    this.initialDataCallback,
-    this.schemaVersion = 0,
-    super.fifoFilesFallbackPath,
-    super.path,
-    super.encryptionKey,
-    this.disableFormatUpgrade = false,
-    this.isReadOnly = false,
-    this.shouldCompactCallback,
-    this.migrationCallback,
-    super.maxNumberOfActiveVersions,
-    this.shouldDeleteIfMigrationNeeded = false
-  }) : super._();
+  LocalConfiguration._(super.schemaObjects,
+      {this.initialDataCallback,
+      this.schemaVersion = 0,
+      super.fifoFilesFallbackPath,
+      super.path,
+      super.encryptionKey,
+      this.disableFormatUpgrade = false,
+      this.isReadOnly = false,
+      this.shouldCompactCallback,
+      this.migrationCallback,
+      super.maxNumberOfActiveVersions,
+      this.shouldDeleteIfMigrationNeeded = false})
+      : super._();
 
   /// The schema version used to open the `Realm`. If omitted, the default value is `0`.
   ///
@@ -749,12 +748,7 @@ enum GeneralSyncErrorCode {
   static final Map<int, GeneralSyncErrorCode> _valuesMap = {for (var value in GeneralSyncErrorCode.values) value.code: value};
 
   static GeneralSyncErrorCode fromInt(int code) {
-    final mappedCode = GeneralSyncErrorCode._valuesMap[code];
-    if (mappedCode == null) {
-      throw RealmError("Unknown GeneralSyncErrorCode");
-    }
-
-    return mappedCode;
+    return GeneralSyncErrorCode._valuesMap[code] ?? GeneralSyncErrorCode.unknown;
   }
 
   final int code;
