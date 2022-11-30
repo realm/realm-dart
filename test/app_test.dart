@@ -232,6 +232,66 @@ Future<void> main([List<String>? args]) async {
 
     await expectLater(() => loginWithRetry(app, Credentials.emailPassword(username, strongPassword)), throws<AppException>("invalid username/password"));
   });
+
+  baasTest('Call Atlas function that does not exist', (configuration) async {
+    final app = App(configuration);
+    final user = await app.logIn(Credentials.anonymous());
+    await expectLater(user.functions.call('noFunc'), throws<AppException>("function not found: 'noFunc'"));
+  });
+
+  baasTest('Call Atlas function with no arguments', (configuration) async {
+    final app = App(configuration);
+    final user = await app.logIn(Credentials.anonymous());
+    final dynamic response = await user.functions.call('userFuncNoArgs');
+    expect(response, isNotNull);
+  });
+
+  baasTest('Call Atlas function with one argument', (configuration) async {
+    final app = App(configuration);
+    final user = await app.logIn(Credentials.anonymous());
+    const arg1 = 'Jhonatan';
+    final dynamic response = await user.functions.call('userFuncOneArg', [arg1]);
+    expect(response, isNotNull);
+    final map = response as Map<String, dynamic>;
+    expect(map['arg'], arg1);
+  });
+
+  baasTest('Call Atlas function with two arguments', (configuration) async {
+    final app = App(configuration);
+    final user = await app.logIn(Credentials.anonymous());
+    const arg1 = 'Jhonatan';
+    const arg2 = 'Michael';
+    final dynamic response = await user.functions.call('userFuncTwoArgs', [arg1, arg2]);
+    expect(response, isNotNull);
+    final map = response as Map<String, dynamic>;
+    expect(map['arg1'], arg1);
+    expect(map['arg2'], arg2);
+  });
+
+  baasTest('Call Atlas function with two arguments but pass one', (configuration) async {
+    final app = App(configuration);
+    final user = await app.logIn(Credentials.anonymous());
+    const arg1 = 'Jhonatan';
+    final dynamic response = await user.functions.call('userFuncTwoArgs', [arg1]);
+    expect(response, isNotNull);
+    final map = response as Map<String, dynamic>;
+    expect(map['arg1'], arg1);
+    expect(map['arg2'], <String, dynamic>{'\$undefined': true});
+  });
+
+  baasTest('Call Atlas function with two Object arguments', (configuration) async {
+    final app = App(configuration);
+    final user = await app.logIn(Credentials.anonymous());
+    final arg1 = Person("Jhonatan");
+    final arg2 = Person('Michael');
+    final dynamic response = await user.functions.call('userFuncTwoArgs', [arg1.toJson(), arg2.toJson()]);
+    expect(response, isNotNull);
+    final map = response as Map<String, dynamic>;
+    final receivedPerson1 = PersonJ.fromJson(map['arg1'] as Map<String, dynamic>);
+    final receivedPerson2 = PersonJ.fromJson(map['arg2'] as Map<String, dynamic>);
+    expect(receivedPerson1.name, arg1.name);
+    expect(receivedPerson2.name, arg2.name);
+  });
 }
 
 Future<void> testLogger(
@@ -266,4 +326,9 @@ Future<void> testLogger(
     expect(e.value, lessThanOrEqualTo(maxExpectedCounts[e.key] ?? maxInt), reason: '${e.key}');
     expect(e.value, greaterThanOrEqualTo(minExpectedCounts[e.key] ?? minInt), reason: '${e.key}');
   }
+}
+
+extension PersonJ on Person {
+  static Person fromJson(Map<String, dynamic> json) => Person(json['name'] as String);
+  Map<String, dynamic> toJson() => <String, dynamic>{'name': name};
 }

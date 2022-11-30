@@ -129,11 +129,7 @@ class RealmLibrary {
     ffi.Pointer<realm_user_t> arg1,
     ffi.Pointer<ffi.Char> function_name,
     ffi.Pointer<ffi.Char> serialized_ejson_args,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
-                    ffi.Pointer<realm_app_error_t>)>>
-        arg4,
+    realm_return_string_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
@@ -142,7 +138,7 @@ class RealmLibrary {
       arg1,
       function_name,
       serialized_ejson_args,
-      arg4,
+      callback,
       userdata,
       userdata_free,
     );
@@ -155,12 +151,7 @@ class RealmLibrary {
               ffi.Pointer<realm_user_t>,
               ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Char>,
-              ffi.Pointer<
-                  ffi.NativeFunction<
-                      ffi.Void Function(
-                          ffi.Pointer<ffi.Void>,
-                          ffi.Pointer<ffi.Char>,
-                          ffi.Pointer<realm_app_error_t>)>>,
+              realm_return_string_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>>('realm_app_call_function');
   late final _realm_app_call_function = _realm_app_call_functionPtr.asFunction<
@@ -169,10 +160,7 @@ class RealmLibrary {
           ffi.Pointer<realm_user_t>,
           ffi.Pointer<ffi.Char>,
           ffi.Pointer<ffi.Char>,
-          ffi.Pointer<
-              ffi.NativeFunction<
-                  ffi.Void Function(ffi.Pointer<ffi.Void>,
-                      ffi.Pointer<ffi.Char>, ffi.Pointer<realm_app_error_t>)>>,
+          realm_return_string_func_t,
           ffi.Pointer<ffi.Void>,
           realm_free_userdata_func_t)>();
 
@@ -1453,13 +1441,7 @@ class RealmLibrary {
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
     ffi.Pointer<ffi.Char> name,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Void Function(
-                    ffi.Pointer<ffi.Void>,
-                    ffi.Pointer<realm_app_user_apikey_t>,
-                    ffi.Pointer<realm_app_error_t>)>>
-        arg3,
+    realm_return_apikey_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
@@ -1467,7 +1449,7 @@ class RealmLibrary {
       arg0,
       arg1,
       name,
-      arg3,
+      callback,
       userdata,
       userdata_free,
     );
@@ -1479,12 +1461,7 @@ class RealmLibrary {
                   ffi.Pointer<realm_app_t>,
                   ffi.Pointer<realm_user_t>,
                   ffi.Pointer<ffi.Char>,
-                  ffi.Pointer<
-                      ffi.NativeFunction<
-                          ffi.Void Function(
-                              ffi.Pointer<ffi.Void>,
-                              ffi.Pointer<realm_app_user_apikey_t>,
-                              ffi.Pointer<realm_app_error_t>)>>,
+                  realm_return_apikey_func_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>>(
       'realm_app_user_apikey_provider_client_create_apikey');
@@ -1494,12 +1471,7 @@ class RealmLibrary {
               ffi.Pointer<realm_app_t>,
               ffi.Pointer<realm_user_t>,
               ffi.Pointer<ffi.Char>,
-              ffi.Pointer<
-                  ffi.NativeFunction<
-                      ffi.Void Function(
-                          ffi.Pointer<ffi.Void>,
-                          ffi.Pointer<realm_app_user_apikey_t>,
-                          ffi.Pointer<realm_app_error_t>)>>,
+              realm_return_apikey_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
@@ -1509,7 +1481,7 @@ class RealmLibrary {
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
     realm_object_id_t id,
-    realm_app_void_completion_func_t arg3,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
@@ -1517,7 +1489,7 @@ class RealmLibrary {
       arg0,
       arg1,
       id,
-      arg3,
+      callback,
       userdata,
       userdata_free,
     );
@@ -1549,7 +1521,7 @@ class RealmLibrary {
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
     realm_object_id_t id,
-    realm_app_void_completion_func_t arg3,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
@@ -1557,7 +1529,7 @@ class RealmLibrary {
       arg0,
       arg1,
       id,
-      arg3,
+      callback,
       userdata,
       userdata_free,
     );
@@ -1589,7 +1561,7 @@ class RealmLibrary {
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
     realm_object_id_t id,
-    realm_app_void_completion_func_t arg3,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
@@ -1597,7 +1569,7 @@ class RealmLibrary {
       arg0,
       arg1,
       id,
-      arg3,
+      callback,
       userdata,
       userdata_free,
     );
@@ -1629,13 +1601,7 @@ class RealmLibrary {
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
     realm_object_id_t id,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Void Function(
-                    ffi.Pointer<ffi.Void>,
-                    ffi.Pointer<realm_app_user_apikey_t>,
-                    ffi.Pointer<realm_app_error_t>)>>
-        arg3,
+    realm_return_apikey_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
@@ -1643,7 +1609,7 @@ class RealmLibrary {
       arg0,
       arg1,
       id,
-      arg3,
+      callback,
       userdata,
       userdata_free,
     );
@@ -1655,12 +1621,7 @@ class RealmLibrary {
                   ffi.Pointer<realm_app_t>,
                   ffi.Pointer<realm_user_t>,
                   realm_object_id_t,
-                  ffi.Pointer<
-                      ffi.NativeFunction<
-                          ffi.Void Function(
-                              ffi.Pointer<ffi.Void>,
-                              ffi.Pointer<realm_app_user_apikey_t>,
-                              ffi.Pointer<realm_app_error_t>)>>,
+                  realm_return_apikey_func_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>>(
       'realm_app_user_apikey_provider_client_fetch_apikey');
@@ -1670,12 +1631,7 @@ class RealmLibrary {
               ffi.Pointer<realm_app_t>,
               ffi.Pointer<realm_user_t>,
               realm_object_id_t,
-              ffi.Pointer<
-                  ffi.NativeFunction<
-                      ffi.Void Function(
-                          ffi.Pointer<ffi.Void>,
-                          ffi.Pointer<realm_app_user_apikey_t>,
-                          ffi.Pointer<realm_app_error_t>)>>,
+              realm_return_apikey_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
@@ -1684,21 +1640,14 @@ class RealmLibrary {
   bool realm_app_user_apikey_provider_client_fetch_apikeys(
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Void Function(
-                    ffi.Pointer<ffi.Void>,
-                    ffi.Pointer<realm_app_user_apikey_t>,
-                    ffi.Size,
-                    ffi.Pointer<realm_app_error_t>)>>
-        arg2,
+    realm_return_apikey_list_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_app_user_apikey_provider_client_fetch_apikeys(
       arg0,
       arg1,
-      arg2,
+      callback,
       userdata,
       userdata_free,
     );
@@ -1709,13 +1658,7 @@ class RealmLibrary {
               ffi.Bool Function(
                   ffi.Pointer<realm_app_t>,
                   ffi.Pointer<realm_user_t>,
-                  ffi.Pointer<
-                      ffi.NativeFunction<
-                          ffi.Void Function(
-                              ffi.Pointer<ffi.Void>,
-                              ffi.Pointer<realm_app_user_apikey_t>,
-                              ffi.Size,
-                              ffi.Pointer<realm_app_error_t>)>>,
+                  realm_return_apikey_list_func_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>>(
       'realm_app_user_apikey_provider_client_fetch_apikeys');
@@ -1724,23 +1667,18 @@ class RealmLibrary {
           bool Function(
               ffi.Pointer<realm_app_t>,
               ffi.Pointer<realm_user_t>,
-              ffi.Pointer<
-                  ffi.NativeFunction<
-                      ffi.Void Function(
-                          ffi.Pointer<ffi.Void>,
-                          ffi.Pointer<realm_app_user_apikey_t>,
-                          ffi.Size,
-                          ffi.Pointer<realm_app_error_t>)>>,
+              realm_return_apikey_list_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
   /// start a new write transaction asynchronously for the realm passed as argument.
-  int realm_async_begin_write(
+  bool realm_async_begin_write(
     ffi.Pointer<realm_t> realm,
     realm_async_begin_write_func_t arg1,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
     bool notify_only,
+    ffi.Pointer<ffi.UnsignedInt> transaction_id,
   ) {
     return _realm_async_begin_write(
       realm,
@@ -1748,20 +1686,27 @@ class RealmLibrary {
       userdata,
       userdata_free,
       notify_only,
+      transaction_id,
     );
   }
 
   late final _realm_async_begin_writePtr = _lookup<
       ffi.NativeFunction<
-          ffi.UnsignedInt Function(
+          ffi.Bool Function(
               ffi.Pointer<realm_t>,
               realm_async_begin_write_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
-              ffi.Bool)>>('realm_async_begin_write');
+              ffi.Bool,
+              ffi.Pointer<ffi.UnsignedInt>)>>('realm_async_begin_write');
   late final _realm_async_begin_write = _realm_async_begin_writePtr.asFunction<
-      int Function(ffi.Pointer<realm_t>, realm_async_begin_write_func_t,
-          ffi.Pointer<ffi.Void>, realm_free_userdata_func_t, bool)>();
+      bool Function(
+          ffi.Pointer<realm_t>,
+          realm_async_begin_write_func_t,
+          ffi.Pointer<ffi.Void>,
+          realm_free_userdata_func_t,
+          bool,
+          ffi.Pointer<ffi.UnsignedInt>)>();
 
   /// Cancel the transaction referenced by the token passed as argument and set the optional boolean flag in order to
   /// inform the caller if the transaction was cancelled.
@@ -1785,12 +1730,13 @@ class RealmLibrary {
       bool Function(ffi.Pointer<realm_t>, int, ffi.Pointer<ffi.Bool>)>();
 
   /// commit a transaction asynchronously for the realm passed as argument.
-  int realm_async_commit(
+  bool realm_async_commit(
     ffi.Pointer<realm_t> realm,
     realm_async_commit_func_t arg1,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
     bool allow_grouping,
+    ffi.Pointer<ffi.UnsignedInt> transaction_id,
   ) {
     return _realm_async_commit(
       realm,
@@ -1798,20 +1744,27 @@ class RealmLibrary {
       userdata,
       userdata_free,
       allow_grouping,
+      transaction_id,
     );
   }
 
   late final _realm_async_commitPtr = _lookup<
       ffi.NativeFunction<
-          ffi.UnsignedInt Function(
+          ffi.Bool Function(
               ffi.Pointer<realm_t>,
               realm_async_commit_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
-              ffi.Bool)>>('realm_async_commit');
+              ffi.Bool,
+              ffi.Pointer<ffi.UnsignedInt>)>>('realm_async_commit');
   late final _realm_async_commit = _realm_async_commitPtr.asFunction<
-      int Function(ffi.Pointer<realm_t>, realm_async_commit_func_t,
-          ffi.Pointer<ffi.Void>, realm_free_userdata_func_t, bool)>();
+      bool Function(
+          ffi.Pointer<realm_t>,
+          realm_async_commit_func_t,
+          ffi.Pointer<ffi.Void>,
+          realm_free_userdata_func_t,
+          bool,
+          ffi.Pointer<ffi.UnsignedInt>)>();
 
   void realm_async_open_task_cancel(
     ffi.Pointer<realm_async_open_task_t> arg0,
@@ -1828,7 +1781,8 @@ class RealmLibrary {
   late final _realm_async_open_task_cancel = _realm_async_open_task_cancelPtr
       .asFunction<void Function(ffi.Pointer<realm_async_open_task_t>)>();
 
-  int realm_async_open_task_register_download_progress_notifier(
+  ffi.Pointer<realm_async_open_task_progress_notification_token_t>
+      realm_async_open_task_register_download_progress_notifier(
     ffi.Pointer<realm_async_open_task_t> arg0,
     realm_sync_progress_func_t arg1,
     ffi.Pointer<ffi.Void> userdata,
@@ -1845,7 +1799,7 @@ class RealmLibrary {
   late final _realm_async_open_task_register_download_progress_notifierPtr =
       _lookup<
               ffi.NativeFunction<
-                  ffi.Uint64 Function(
+                  ffi.Pointer<realm_async_open_task_progress_notification_token_t> Function(
                       ffi.Pointer<realm_async_open_task_t>,
                       realm_sync_progress_func_t,
                       ffi.Pointer<ffi.Void>,
@@ -1853,7 +1807,7 @@ class RealmLibrary {
           'realm_async_open_task_register_download_progress_notifier');
   late final _realm_async_open_task_register_download_progress_notifier =
       _realm_async_open_task_register_download_progress_notifierPtr.asFunction<
-          int Function(
+          ffi.Pointer<realm_async_open_task_progress_notification_token_t> Function(
               ffi.Pointer<realm_async_open_task_t>,
               realm_sync_progress_func_t,
               ffi.Pointer<ffi.Void>,
@@ -1888,26 +1842,24 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
-  void realm_async_open_task_unregister_download_progress_notifier(
-    ffi.Pointer<realm_async_open_task_t> arg0,
-    int token,
+  ffi.Pointer<ffi.Void> realm_attach_finalizer(
+    Object handle,
+    ffi.Pointer<ffi.Void> realmPtr,
+    int size,
   ) {
-    return _realm_async_open_task_unregister_download_progress_notifier(
-      arg0,
-      token,
+    return _realm_attach_finalizer(
+      handle,
+      realmPtr,
+      size,
     );
   }
 
-  late final _realm_async_open_task_unregister_download_progress_notifierPtr =
-      _lookup<
-              ffi.NativeFunction<
-                  ffi.Void Function(
-                      ffi.Pointer<realm_async_open_task_t>, ffi.Uint64)>>(
-          'realm_async_open_task_unregister_download_progress_notifier');
-  late final _realm_async_open_task_unregister_download_progress_notifier =
-      _realm_async_open_task_unregister_download_progress_notifierPtr
-          .asFunction<
-              void Function(ffi.Pointer<realm_async_open_task_t>, int)>();
+  late final _realm_attach_finalizerPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Void> Function(ffi.Handle, ffi.Pointer<ffi.Void>,
+              ffi.Int)>>('realm_attach_finalizer');
+  late final _realm_attach_finalizer = _realm_attach_finalizerPtr.asFunction<
+      ffi.Pointer<ffi.Void> Function(Object, ffi.Pointer<ffi.Void>, int)>();
 
   int realm_auth_credentials_get_provider(
     ffi.Pointer<realm_app_credentials_t> arg0,
@@ -3181,6 +3133,24 @@ class RealmLibrary {
       _realm_dart_initializeDartApiDLPtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
+  void realm_dart_invoke_unlock_callback(
+    bool success,
+    ffi.Pointer<ffi.Void> unlockFunc,
+  ) {
+    return _realm_dart_invoke_unlock_callback(
+      success,
+      unlockFunc,
+    );
+  }
+
+  late final _realm_dart_invoke_unlock_callbackPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Bool,
+              ffi.Pointer<ffi.Void>)>>('realm_dart_invoke_unlock_callback');
+  late final _realm_dart_invoke_unlock_callback =
+      _realm_dart_invoke_unlock_callbackPtr
+          .asFunction<void Function(bool, ffi.Pointer<ffi.Void>)>();
+
   ffi.Pointer<ffi.Char> realm_dart_library_version() {
     return _realm_dart_library_version();
   }
@@ -3252,6 +3222,50 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>)>>('realm_dart_scheduler_invoke');
   late final _realm_dart_scheduler_invoke = _realm_dart_scheduler_invokePtr
       .asFunction<void Function(int, ffi.Pointer<ffi.Void>)>();
+
+  bool realm_dart_sync_after_reset_handler_callback(
+    ffi.Pointer<ffi.Void> userdata,
+    ffi.Pointer<realm_t> before_realm,
+    ffi.Pointer<realm_thread_safe_reference_t> after_realm,
+    bool did_recover,
+  ) {
+    return _realm_dart_sync_after_reset_handler_callback(
+      userdata,
+      before_realm,
+      after_realm,
+      did_recover,
+    );
+  }
+
+  late final _realm_dart_sync_after_reset_handler_callbackPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<realm_thread_safe_reference_t>,
+              ffi.Bool)>>('realm_dart_sync_after_reset_handler_callback');
+  late final _realm_dart_sync_after_reset_handler_callback =
+      _realm_dart_sync_after_reset_handler_callbackPtr.asFunction<
+          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>,
+              ffi.Pointer<realm_thread_safe_reference_t>, bool)>();
+
+  bool realm_dart_sync_before_reset_handler_callback(
+    ffi.Pointer<ffi.Void> userdata,
+    ffi.Pointer<realm_t> realm,
+  ) {
+    return _realm_dart_sync_before_reset_handler_callback(
+      userdata,
+      realm,
+    );
+  }
+
+  late final _realm_dart_sync_before_reset_handler_callbackPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>(
+      'realm_dart_sync_before_reset_handler_callback');
+  late final _realm_dart_sync_before_reset_handler_callback =
+      _realm_dart_sync_before_reset_handler_callbackPtr.asFunction<
+          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>();
 
   void realm_dart_sync_client_log_callback(
     ffi.Pointer<ffi.Void> userdata,
@@ -3462,6 +3476,23 @@ class RealmLibrary {
               ffi.Pointer<ffi.Bool>)>>('realm_delete_files');
   late final _realm_delete_files = _realm_delete_filesPtr.asFunction<
       bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Bool>)>();
+
+  void realm_dettach_finalizer(
+    ffi.Pointer<ffi.Void> finalizableHandle,
+    Object handle,
+  ) {
+    return _realm_dettach_finalizer(
+      finalizableHandle,
+      handle,
+    );
+  }
+
+  late final _realm_dettach_finalizerPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<ffi.Void>, ffi.Handle)>>('realm_dettach_finalizer');
+  late final _realm_dettach_finalizer = _realm_dettach_finalizerPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Void>, Object)>();
 
   /// Subscribe to notifications for this object.
   ///
@@ -5175,6 +5206,30 @@ class RealmLibrary {
   late final _realm_list_is_valid = _realm_list_is_validPtr
       .asFunction<bool Function(ffi.Pointer<realm_list_t>)>();
 
+  /// Move the element at @a from_index to @a to_index.
+  ///
+  /// @param from_index The index of the element to move.
+  /// @param to_index The index to move the element to.
+  /// @return True if no exception occurred.
+  bool realm_list_move(
+    ffi.Pointer<realm_list_t> arg0,
+    int from_index,
+    int to_index,
+  ) {
+    return _realm_list_move(
+      arg0,
+      from_index,
+      to_index,
+    );
+  }
+
+  late final _realm_list_movePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<realm_list_t>, ffi.Size,
+              ffi.Size)>>('realm_list_move');
+  late final _realm_list_move = _realm_list_movePtr
+      .asFunction<bool Function(ffi.Pointer<realm_list_t>, int, int)>();
+
   /// In a list of objects, delete all objects in the list and clear the list. In a
   /// list of values, clear the list.
   ///
@@ -6266,21 +6321,27 @@ class RealmLibrary {
   /// @return true, if no errors occurred.
   bool realm_object_get_parent(
     ffi.Pointer<realm_object_t> object,
-    ffi.Pointer<realm_object_t> parent,
+    ffi.Pointer<ffi.Pointer<realm_object_t>> parent,
+    ffi.Pointer<realm_class_key_t> class_key,
   ) {
     return _realm_object_get_parent(
       object,
       parent,
+      class_key,
     );
   }
 
   late final _realm_object_get_parentPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_object_t>,
-              ffi.Pointer<realm_object_t>)>>('realm_object_get_parent');
+          ffi.Bool Function(
+              ffi.Pointer<realm_object_t>,
+              ffi.Pointer<ffi.Pointer<realm_object_t>>,
+              ffi.Pointer<realm_class_key_t>)>>('realm_object_get_parent');
   late final _realm_object_get_parent = _realm_object_get_parentPtr.asFunction<
       bool Function(
-          ffi.Pointer<realm_object_t>, ffi.Pointer<realm_object_t>)>();
+          ffi.Pointer<realm_object_t>,
+          ffi.Pointer<ffi.Pointer<realm_object_t>>,
+          ffi.Pointer<realm_class_key_t>)>();
 
   /// Get the table for this object.
   ///
@@ -6666,6 +6727,44 @@ class RealmLibrary {
   late final _realm_query_parse_for_results =
       _realm_query_parse_for_resultsPtr.asFunction<
           ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_results_t>,
+              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
+
+  /// Parse a query string and bind it to a set.
+  ///
+  /// If the query failed to parse, the parser error is available from
+  /// `realm_get_last_error()`.
+  ///
+  /// @param target_set The set on which to run this query.
+  /// @param query_string A string in the Realm Query Language, optionally
+  /// containing argument placeholders (`$0`, `$1`, etc.).
+  /// @param num_args The number of arguments for this query.
+  /// @param args A pointer to a list of argument values.
+  /// @return A non-null pointer if the query was successfully parsed and no
+  /// exception occurred.
+  ffi.Pointer<realm_query_t> realm_query_parse_for_set(
+    ffi.Pointer<realm_set_t> target_set,
+    ffi.Pointer<ffi.Char> query_string,
+    int num_args,
+    ffi.Pointer<realm_query_arg_t> args,
+  ) {
+    return _realm_query_parse_for_set(
+      target_set,
+      query_string,
+      num_args,
+      args,
+    );
+  }
+
+  late final _realm_query_parse_for_setPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_query_t> Function(
+              ffi.Pointer<realm_set_t>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size,
+              ffi.Pointer<realm_query_arg_t>)>>('realm_query_parse_for_set');
+  late final _realm_query_parse_for_set =
+      _realm_query_parse_for_setPtr.asFunction<
+          ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_set_t>,
               ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
 
   /// Refresh the view of the realm file.
@@ -7571,6 +7670,28 @@ class RealmLibrary {
   late final _realm_set_assign = _realm_set_assignPtr.asFunction<
       bool Function(
           ffi.Pointer<realm_set_t>, ffi.Pointer<realm_value_t>, int)>();
+
+  /// Register a callback handler for bindings interested in registering callbacks before/after the ObjectStore thread
+  /// runs.
+  /// @param thread_observer a ptr to an implementation class that can receive these notifications. If nullptr is passed
+  /// instead, this will have the effect of unregistering the callback.
+  void realm_set_binding_callback_thread_observer(
+    ffi.Pointer<realm_interface_callback_thread_observer_t> thread_observer,
+  ) {
+    return _realm_set_binding_callback_thread_observer(
+      thread_observer,
+    );
+  }
+
+  late final _realm_set_binding_callback_thread_observerPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<realm_interface_callback_thread_observer_t>)>>(
+      'realm_set_binding_callback_thread_observer');
+  late final _realm_set_binding_callback_thread_observer =
+      _realm_set_binding_callback_thread_observerPtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_interface_callback_thread_observer_t>)>();
 
   /// Clear a set of values.
   ///
@@ -8937,8 +9058,9 @@ class RealmLibrary {
 
   /// Register a callback that will be invoked every time the session's connection state changes.
   ///
-  /// @return A token value that can be used to unregiser the callback.
-  int realm_sync_session_register_connection_state_change_callback(
+  /// @return a notification token object. Dispose it to stop receiving notifications.
+  ffi.Pointer<realm_sync_session_connection_state_notification_token_t>
+      realm_sync_session_register_connection_state_change_callback(
     ffi.Pointer<realm_sync_session_t> arg0,
     realm_sync_connection_state_changed_func_t arg1,
     ffi.Pointer<ffi.Void> userdata,
@@ -8955,20 +9077,19 @@ class RealmLibrary {
   late final _realm_sync_session_register_connection_state_change_callbackPtr =
       _lookup<
               ffi.NativeFunction<
-                  ffi.Uint64 Function(
+                  ffi.Pointer<realm_sync_session_connection_state_notification_token_t> Function(
                       ffi.Pointer<realm_sync_session_t>,
                       realm_sync_connection_state_changed_func_t,
                       ffi.Pointer<ffi.Void>,
                       realm_free_userdata_func_t)>>(
           'realm_sync_session_register_connection_state_change_callback');
   late final _realm_sync_session_register_connection_state_change_callback =
-      _realm_sync_session_register_connection_state_change_callbackPtr
-          .asFunction<
-              int Function(
-                  ffi.Pointer<realm_sync_session_t>,
-                  realm_sync_connection_state_changed_func_t,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t)>();
+      _realm_sync_session_register_connection_state_change_callbackPtr.asFunction<
+          ffi.Pointer<realm_sync_session_connection_state_notification_token_t> Function(
+              ffi.Pointer<realm_sync_session_t>,
+              realm_sync_connection_state_changed_func_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>();
 
   /// Register a callback that will be invoked every time the session reports progress.
   ///
@@ -8977,8 +9098,9 @@ class RealmLibrary {
   /// Otherwise, the number of downloaded or uploaded bytes will always be reported
   /// relative to the number of downloadable or uploadable bytes at the point in time
   /// when the notifier was registered.
-  /// @return A token value that can be used to unregiser the notifier.
-  int realm_sync_session_register_progress_notifier(
+  /// @return a notification token object. Dispose it to stop receiving notifications.
+  ffi.Pointer<realm_sync_session_connection_state_notification_token_t>
+      realm_sync_session_register_progress_notifier(
     ffi.Pointer<realm_sync_session_t> arg0,
     realm_sync_progress_func_t arg1,
     int arg2,
@@ -8998,7 +9120,7 @@ class RealmLibrary {
 
   late final _realm_sync_session_register_progress_notifierPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Uint64 Function(
+              ffi.Pointer<realm_sync_session_connection_state_notification_token_t> Function(
                   ffi.Pointer<realm_sync_session_t>,
                   realm_sync_progress_func_t,
                   ffi.Int32,
@@ -9008,7 +9130,7 @@ class RealmLibrary {
       'realm_sync_session_register_progress_notifier');
   late final _realm_sync_session_register_progress_notifier =
       _realm_sync_session_register_progress_notifierPtr.asFunction<
-          int Function(
+          ffi.Pointer<realm_sync_session_connection_state_notification_token_t> Function(
               ffi.Pointer<realm_sync_session_t>,
               realm_sync_progress_func_t,
               int,
@@ -9033,50 +9155,6 @@ class RealmLibrary {
               ffi.Pointer<realm_sync_session_t>)>>('realm_sync_session_resume');
   late final _realm_sync_session_resume = _realm_sync_session_resumePtr
       .asFunction<void Function(ffi.Pointer<realm_sync_session_t>)>();
-
-  /// Unregister a callback that will be invoked every time the session's connection state changes.
-  /// @param session ptr to a valid sync session
-  /// @param token the token returned by `realm_sync_session_register_connection_state_change_callback`
-  void realm_sync_session_unregister_connection_state_change_callback(
-    ffi.Pointer<realm_sync_session_t> session,
-    int token,
-  ) {
-    return _realm_sync_session_unregister_connection_state_change_callback(
-      session,
-      token,
-    );
-  }
-
-  late final _realm_sync_session_unregister_connection_state_change_callbackPtr =
-      _lookup<
-              ffi.NativeFunction<
-                  ffi.Void Function(
-                      ffi.Pointer<realm_sync_session_t>, ffi.Uint64)>>(
-          'realm_sync_session_unregister_connection_state_change_callback');
-  late final _realm_sync_session_unregister_connection_state_change_callback =
-      _realm_sync_session_unregister_connection_state_change_callbackPtr
-          .asFunction<void Function(ffi.Pointer<realm_sync_session_t>, int)>();
-
-  /// Unregister a callback that will be invoked every time the session reports progress.
-  /// @param session ptr to a valid sync session
-  /// @param token the token returned by `realm_sync_session_register_progress_notifier`
-  void realm_sync_session_unregister_progress_notifier(
-    ffi.Pointer<realm_sync_session_t> session,
-    int token,
-  ) {
-    return _realm_sync_session_unregister_progress_notifier(
-      session,
-      token,
-    );
-  }
-
-  late final _realm_sync_session_unregister_progress_notifierPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_sync_session_t>,
-              ffi.Uint64)>>('realm_sync_session_unregister_progress_notifier');
-  late final _realm_sync_session_unregister_progress_notifier =
-      _realm_sync_session_unregister_progress_notifierPtr
-          .asFunction<void Function(ffi.Pointer<realm_sync_session_t>, int)>();
 
   /// Register a callback that will be invoked when all pending downloads have completed.
   void realm_sync_session_wait_for_download_completion(
@@ -9951,6 +10029,11 @@ class _SymbolAddresses {
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_initializeDartApiDL =>
           _library._realm_dart_initializeDartApiDLPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>>
+      get realm_dart_invoke_unlock_callback =>
+          _library._realm_dart_invoke_unlock_callbackPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
       get realm_dart_library_version => _library._realm_dart_library_versionPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>
@@ -9967,6 +10050,19 @@ class _SymbolAddresses {
               ffi.Void Function(ffi.Uint64, ffi.Pointer<ffi.Void>)>>
       get realm_dart_scheduler_invoke =>
           _library._realm_dart_scheduler_invokePtr;
+  ffi.Pointer<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<realm_thread_safe_reference_t>,
+              ffi.Bool)>> get realm_dart_sync_after_reset_handler_callback =>
+      _library._realm_dart_sync_after_reset_handler_callbackPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>
+      get realm_dart_sync_before_reset_handler_callback =>
+          _library._realm_dart_sync_before_reset_handler_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(
@@ -10237,6 +10333,11 @@ typedef realm_async_open_task_completion_func_t = ffi.Pointer<
             ffi.Pointer<ffi.Void>,
             ffi.Pointer<realm_thread_safe_reference_t>,
             ffi.Pointer<realm_async_error_t>)>>;
+
+class realm_async_open_task_progress_notification_token extends ffi.Opaque {}
+
+typedef realm_async_open_task_progress_notification_token_t
+    = realm_async_open_task_progress_notification_token;
 typedef realm_async_open_task_t = realm_async_open_task;
 
 abstract class realm_auth_provider {
@@ -10260,6 +10361,8 @@ class realm_binary extends ffi.Struct {
 }
 
 typedef realm_binary_t = realm_binary;
+
+class realm_callback_interface_thread_observer extends ffi.Opaque {}
 
 class realm_callback_token extends ffi.Opaque {}
 
@@ -10422,10 +10525,11 @@ class realm_flx_sync_subscription_set extends ffi.Opaque {}
 abstract class realm_flx_sync_subscription_set_state {
   static const int RLM_SYNC_SUBSCRIPTION_UNCOMMITTED = 0;
   static const int RLM_SYNC_SUBSCRIPTION_PENDING = 1;
-  static const int RLM_SYNC_BOOTSTRAPPING = 2;
+  static const int RLM_SYNC_SUBSCRIPTION_BOOTSTRAPPING = 2;
   static const int RLM_SYNC_SUBSCRIPTION_COMPLETE = 3;
   static const int RLM_SYNC_SUBSCRIPTION_ERROR = 4;
   static const int RLM_SYNC_SUBSCRIPTION_SUPERSEDED = 5;
+  static const int RLM_SYNC_SUBSCRIPTION_AWAITING_MARK = 6;
 }
 
 typedef realm_flx_sync_subscription_set_t = realm_flx_sync_subscription_set;
@@ -10517,6 +10621,8 @@ class realm_index_range extends ffi.Struct {
 }
 
 typedef realm_index_range_t = realm_index_range;
+typedef realm_interface_callback_thread_observer_t
+    = realm_callback_interface_thread_observer;
 
 class realm_key_path extends ffi.Struct {
   @ffi.Size()
@@ -10728,6 +10834,23 @@ typedef realm_refresh_callback_token_t = realm_refresh_callback_token;
 class realm_results extends ffi.Opaque {}
 
 typedef realm_results_t = realm_results;
+typedef realm_return_apikey_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(
+            ffi.Pointer<ffi.Void>,
+            ffi.Pointer<realm_app_user_apikey_t>,
+            ffi.Pointer<realm_app_error_t>)>>;
+typedef realm_return_apikey_list_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(
+            ffi.Pointer<ffi.Void>,
+            ffi.Pointer<realm_app_user_apikey_t>,
+            ffi.Size,
+            ffi.Pointer<realm_app_error_t>)>>;
+typedef realm_return_string_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
+            ffi.Pointer<realm_app_error_t>)>>;
 
 class realm_scheduler extends ffi.Opaque {}
 
@@ -11013,6 +11136,12 @@ typedef realm_sync_progress_func_t = ffi.Pointer<
         ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64)>>;
 
 class realm_sync_session extends ffi.Opaque {}
+
+class realm_sync_session_connection_state_notification_token
+    extends ffi.Opaque {}
+
+typedef realm_sync_session_connection_state_notification_token_t
+    = realm_sync_session_connection_state_notification_token;
 
 abstract class realm_sync_session_resync_mode {
   static const int RLM_SYNC_SESSION_RESYNC_MODE_MANUAL = 0;

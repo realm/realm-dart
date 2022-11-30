@@ -40,6 +40,7 @@ class User {
   }
 
   late final ApiKeyClient _apiKeys = ApiKeyClient._(this);
+  late final FunctionsClient _functions = FunctionsClient._(this);
 
   /// Gets an [ApiKeyClient] instance that exposes functionality for managing
   /// user API keys.
@@ -49,6 +50,15 @@ class User {
     _ensureCanAccessAPIKeys();
 
     return _apiKeys;
+  }
+
+  /// Gets a [FunctionsClient] instance that exposes functionality for calling remote Atlas Functions.
+  /// A [FunctionsClient] instance scoped to this [User].
+  /// [Atlas Functions Docs](https://docs.mongodb.com/realm/functions/)
+  FunctionsClient get functions {
+    _ensureLoggedIn('access API keys');
+
+    return _functions;
   }
 
   User._(this._handle, this._app);
@@ -296,6 +306,23 @@ class ApiKey {
 
   @override
   int get hashCode => id.hashCode;
+}
+
+/// A class exposing functionality for calling remote Atlas Functions.
+class FunctionsClient {
+  final User _user;
+
+  FunctionsClient._(this._user);
+
+  /// Calls a remote function with the supplied arguments.
+  /// @name The name of the Atlas function to call.
+  /// @functionArgs - Arguments that will be sent to the Atlas function. They have to be json serializable values.
+  Future<dynamic> call(String name, [List<Object?> functionArgs = const []]) async {
+    _user._ensureLoggedIn('call Atlas function');
+    final args = jsonEncode(functionArgs);
+    final response = await realmCore.callAppFunction(_user.app, _user, name, args);
+    return jsonDecode(response);
+  }
 }
 
 /// @nodoc

@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 
@@ -30,7 +31,7 @@ import 'user.dart';
 /// The signature of a callback used to determine if compaction
 /// should be attempted.
 ///
-/// The result of the callback decides if the [Realm] should be compacted
+/// The result of the callback decides if the `Realm` should be compacted
 /// before being returned to the user.
 ///
 /// The callback is given two arguments:
@@ -41,20 +42,42 @@ import 'user.dart';
 /// The compaction will be skipped if another process is currently accessing the realm file.
 typedef ShouldCompactCallback = bool Function(int totalSize, int usedSize);
 
-/// The signature of a callback that will be executed only when the Realm is first created.
+/// The signature of a callback that will be executed only when the `Realm` is first created.
 ///
-/// The Realm instance passed in the callback already has a write transaction opened, so you can
+/// The `Realm` instance passed in the callback already has a write transaction opened, so you can
 /// add some initial data that your app needs. The function will not execute for existing
-/// Realms, even if all objects in the Realm are deleted.
+/// Realms, even if all objects in the `Realm` are deleted.
 typedef InitialDataCallback = void Function(Realm realm);
 
-/// The signature of a callback that will be executed when the schema of the Realm changes.
+/// The signature of a callback that will be executed when the schema of the `Realm` changes.
 ///
-/// The `migration` argument contains references to the Realm just before and just after the migration.
-/// The `oldSchemaVersion` argument indicates the version from which the Realm migrates while
+/// The `migration` argument contains references to the `Realm` just before and just after the migration.
+/// The `oldSchemaVersion` argument indicates the version from which the `Realm` migrates while
 typedef MigrationCallback = void Function(Migration migration, int oldSchemaVersion);
 
-/// Configuration used to create a [Realm] instance
+/// The signature of a callback that will be triggered when a Client Reset error happens in a synchronized `Realm`.
+///
+/// The [clientResetError] holds useful data to be used when trying to manually recover from a client reset.
+typedef ClientResetCallback = FutureOr<void> Function(ClientResetError clientResetError);
+
+/// Callback that indicates a Client Reset is about to happen.
+///
+/// The [beforeResetRealm] holds the frozen `Realm` just before the client reset happens.
+///
+/// The lifetime of [beforeResetRealm] is tied to the callback lifetime, so don't store references to the `Realm` or objects
+/// obtained from it for use outside of the callback.
+typedef BeforeResetCallback = FutureOr<void> Function(Realm beforeResetRealm);
+
+/// Callback that indicates a Client Reset has just happened.
+///
+/// The [beforeResetRealm] holds the frozen `Realm` just before the client reset happened.
+/// The [afterResetRealm] holds the live `Realm` just after the client reset happened.
+///
+/// The lifetime of the `Realm` instances supplied is tied to the callback, so don't store references to
+/// the `Realm` or objects obtained from it for use outside of the callback.
+typedef AfterResetCallback = FutureOr<void> Function(Realm beforeResetRealm, Realm afterResetRealm);
+
+/// Configuration used to create a `Realm` instance
 /// {@category Configuration}
 abstract class Configuration implements Finalizable {
   /// The default realm filename to be used.
@@ -62,7 +85,7 @@ abstract class Configuration implements Finalizable {
   static set defaultRealmName(String name) => defaultRealmPath = _path.join(_path.dirname(defaultRealmPath), _path.basename(name));
 
   /// A collection of [SchemaObject] that will be used to construct the
-  /// [RealmSchema] once the Realm is opened.
+  /// [RealmSchema] once the `Realm` is opened.
   final Iterable<SchemaObject> schemaObjects;
 
   /// The platform dependent path used to store realm files
@@ -91,6 +114,7 @@ abstract class Configuration implements Finalizable {
     String? path,
     this.fifoFilesFallbackPath,
     this.encryptionKey,
+    this.maxNumberOfActiveVersions
   }) {
     _validateEncryptionKey(encryptionKey);
     this.path = path ?? _path.join(_path.dirname(_defaultPath), _path.basename(defaultRealmName));
@@ -101,25 +125,31 @@ abstract class Configuration implements Finalizable {
 
   /// Specifies the FIFO special files fallback location.
   ///
-  /// Opening a [Realm] creates a number of FIFO special files in order to
-  /// coordinate access to the [Realm] across threads and processes. If the [Realm] file is stored in a location
-  /// that does not allow the creation of FIFO special files (e.g. the FAT32 filesystem), then the [Realm] cannot be opened.
-  /// In that case [Realm] needs a different location to store these files and this property defines that location.
-  /// The FIFO special files are very lightweight and the main [Realm] file will still be stored in the location defined
+  /// Opening a `Realm` creates a number of FIFO special files in order to
+  /// coordinate access to the `Realm` across threads and processes. If the realm file is stored in a location
+  /// that does not allow the creation of FIFO special files (e.g. the FAT32 filesystem), then the `Realm` cannot be opened.
+  /// In that case `Realm` needs a different location to store these files and this property defines that location.
+  /// The FIFO special files are very lightweight and the main realm file will still be stored in the location defined
   /// by the [path] you  property. This property is ignored if the directory defined by [path] allow FIFO special files.
   final String? fifoFilesFallbackPath;
 
-  /// The path where the Realm should be stored.
+  /// The path where the `Realm` should be stored.
   ///
   /// If omitted the [defaultPath] for the platform will be used.
   late final String path;
 
-  /// The key used to encrypt the entire [Realm].
+  /// The key used to encrypt the entire `Realm`.
   ///
   /// A full 64byte (512bit) key for AES-256 encryption.
   /// Once set, must be specified each time the file is used.
   /// If null encryption is not enabled.
   final List<int>? encryptionKey;
+
+  /// Sets the maximum number of active versions allowed before an exception is thrown.
+  ///
+  /// Setting this will cause `Realm` to throw an exception if too many versions of the `Realm` data
+  /// are live at the same time. Having too many versions can dramatically increase the filesize of the `Realm`.
+  final int? maxNumberOfActiveVersions;
 
   /// Constructs a [LocalConfiguration]
   static LocalConfiguration local(
@@ -133,6 +163,8 @@ abstract class Configuration implements Finalizable {
     bool isReadOnly = false,
     ShouldCompactCallback? shouldCompactCallback,
     MigrationCallback? migrationCallback,
+    int? maxNumberOfActiveVersions,
+    bool shouldDeleteIfMigrationNeeded = false,
   }) =>
       LocalConfiguration._(schemaObjects,
           initialDataCallback: initialDataCallback,
@@ -143,18 +175,22 @@ abstract class Configuration implements Finalizable {
           disableFormatUpgrade: disableFormatUpgrade,
           isReadOnly: isReadOnly,
           shouldCompactCallback: shouldCompactCallback,
-          migrationCallback: migrationCallback);
+          migrationCallback: migrationCallback,
+          maxNumberOfActiveVersions: maxNumberOfActiveVersions,
+          shouldDeleteIfMigrationNeeded: shouldDeleteIfMigrationNeeded);
 
   /// Constructs a [InMemoryConfiguration]
   static InMemoryConfiguration inMemory(
     List<SchemaObject> schemaObjects, {
     String? fifoFilesFallbackPath,
     String? path,
+    int? maxNumberOfActiveVersions,
   }) =>
       InMemoryConfiguration._(
         schemaObjects,
         fifoFilesFallbackPath: fifoFilesFallbackPath,
         path: path,
+        maxNumberOfActiveVersions: maxNumberOfActiveVersions,
       );
 
   /// Constructs a [FlexibleSyncConfiguration]
@@ -165,7 +201,8 @@ abstract class Configuration implements Finalizable {
     String? path,
     List<int>? encryptionKey,
     SyncErrorHandler syncErrorHandler = defaultSyncErrorHandler,
-    SyncClientResetErrorHandler syncClientResetErrorHandler = const ManualSyncClientResetHandler(_defaultSyncClientResetHandler),
+    ClientResetHandler clientResetHandler = const RecoverOrDiscardUnsyncedChangesHandler(onManualResetFallback: _defaultClientResetHandler),
+    int? maxNumberOfActiveVersions,
   }) =>
       FlexibleSyncConfiguration._(
         user,
@@ -174,21 +211,24 @@ abstract class Configuration implements Finalizable {
         path: path,
         encryptionKey: encryptionKey,
         syncErrorHandler: syncErrorHandler,
-        syncClientResetErrorHandler: syncClientResetErrorHandler,
+        clientResetHandler: clientResetHandler,
+        maxNumberOfActiveVersions: maxNumberOfActiveVersions,
       );
 
   /// Constructs a [DisconnectedSyncConfiguration]
   static DisconnectedSyncConfiguration disconnectedSync(
     List<SchemaObject> schemaObjects, {
+    required String path,
     String? fifoFilesFallbackPath,
-    String? path,
     List<int>? encryptionKey,
+    int? maxNumberOfActiveVersions,
   }) =>
       DisconnectedSyncConfiguration._(
         schemaObjects,
-        fifoFilesFallbackPath: fifoFilesFallbackPath,
         path: path,
+        fifoFilesFallbackPath: fifoFilesFallbackPath,
         encryptionKey: encryptionKey,
+        maxNumberOfActiveVersions: maxNumberOfActiveVersions
       );
 
   void _validateEncryptionKey(List<int>? key) {
@@ -223,9 +263,11 @@ class LocalConfiguration extends Configuration {
     this.isReadOnly = false,
     this.shouldCompactCallback,
     this.migrationCallback,
+    super.maxNumberOfActiveVersions,
+    this.shouldDeleteIfMigrationNeeded = false
   }) : super._();
 
-  /// The schema version used to open the [Realm]. If omitted, the default value is `0`.
+  /// The schema version used to open the `Realm`. If omitted, the default value is `0`.
   ///
   /// It is required to specify a schema version when initializing an existing
   /// Realm with a schema that contains objects that differ from their previous
@@ -235,7 +277,7 @@ class LocalConfiguration extends Configuration {
   /// a [RealmException] will be thrown.
   final int schemaVersion;
 
-  /// Specifies whether a [Realm] should be opened as read-only.
+  /// Specifies whether a `Realm` should be opened as read-only.
   ///
   /// This allows opening it from locked locations such as resources,
   /// bundled with an application.
@@ -243,19 +285,24 @@ class LocalConfiguration extends Configuration {
   /// The realm file must already exists at [path]
   final bool isReadOnly;
 
-  /// Specifies if a [Realm] file format should be automatically upgraded
-  /// if it was created with an older version of the [Realm] library.
+  /// Specifies if a realm file format should be automatically upgraded
+  /// if it was created with an older version of the `Realm` library.
   /// An exception will be thrown if a file format upgrade is required.
   final bool disableFormatUpgrade;
 
-  /// Called when opening a [Realm] for the first time, after process start.
+  /// Called when opening a `Realm` for the first time, after process start.
   final ShouldCompactCallback? shouldCompactCallback;
 
-  /// Called when opening a [Realm] for the very first time, when db file is created.
+  /// Called when opening a `Realm` for the very first time, when db file is created.
   final InitialDataCallback? initialDataCallback;
 
-  /// Called when opening a [Realm] with a schema version that is newer than the one used to create the file.
+  /// Called when opening a `Realm` with a schema version that is newer than the one used to create the file.
   final MigrationCallback? migrationCallback;
+
+  /// Specifies if a realm file should be deleted in case the schema on disk
+  /// doesn't match the schema in code. Setting this to `true` can lead to
+  /// data loss.
+  final bool shouldDeleteIfMigrationNeeded;
 }
 
 /// @nodoc
@@ -265,23 +312,23 @@ enum SessionStopPolicy {
   afterChangesUploaded, // Once all Realms/Sessions go out of scope, wait for uploads to complete and stop.
 }
 
-/// The signature of a callback that will be invoked whenever a [SyncError] occurs for the synchronized Realm.
+/// The signature of a callback that will be invoked whenever a [SyncError] occurs for the synchronized realm.
 ///
-/// Client reset errors will not be reported through this callback as they are handled by [SyncClientResetErrorHandler].
+/// Client reset errors will not be reported through this callback as they are handled by [ClientResetHandler].
 typedef SyncErrorHandler = void Function(SyncError);
 
 void defaultSyncErrorHandler(SyncError e) {
   Realm.logger.log(RealmLogLevel.error, e);
 }
 
-void _defaultSyncClientResetHandler(SyncError e) {
+void _defaultClientResetHandler(ClientResetError e) {
   Realm.logger.log(
       RealmLogLevel.error,
       "A client reset error occurred but no handler was supplied. "
       "Synchronization is now paused and will resume automatically once the app is restarted and "
       "the server data is re-downloaded. Any un-synchronized changes the client has made or will "
       "make will be lost. To handle that scenario, pass in a non-null value to "
-      "syncClientResetErrorHandler when constructing Configuration.flexibleSync.");
+      "clientResetHandler when constructing Configuration.flexibleSync.");
 }
 
 /// [FlexibleSyncConfiguration] is used to open [Realm] instances that are synchronized
@@ -293,15 +340,15 @@ class FlexibleSyncConfiguration extends Configuration {
 
   SessionStopPolicy _sessionStopPolicy = SessionStopPolicy.afterChangesUploaded;
 
-  /// Called when a [SyncError] occurs for this synchronized [Realm].
+  /// Called when a [SyncError] occurs for this synchronized `Realm`.
   ///
-  /// The default [SyncErrorHandler] prints to the console
+  /// The default [SyncErrorHandler] prints to the console.
   final SyncErrorHandler syncErrorHandler;
 
-  /// Called when a [SyncClientResetError] occurs for this synchronized [Realm]
+  /// Called when a [ClientResetError] occurs for this synchronized `Realm`.
   ///
-  /// The default [SyncClientResetErrorHandler] logs a message using the current Realm.logger
-  final SyncClientResetErrorHandler syncClientResetErrorHandler;
+  /// The default [ClientResetHandler] logs a message using the current [Realm.logger].
+  final ClientResetHandler clientResetHandler;
 
   FlexibleSyncConfiguration._(
     this.user,
@@ -310,11 +357,12 @@ class FlexibleSyncConfiguration extends Configuration {
     super.path,
     super.encryptionKey,
     this.syncErrorHandler = defaultSyncErrorHandler,
-    this.syncClientResetErrorHandler = const ManualSyncClientResetHandler(_defaultSyncClientResetHandler),
+    this.clientResetHandler = const RecoverOrDiscardUnsyncedChangesHandler(onManualResetFallback: _defaultClientResetHandler),
+    super.maxNumberOfActiveVersions,
   }) : super._();
 
   @override
-  String get _defaultPath => realmCore.getPathForConfig(this);
+  String get _defaultPath => realmCore.getPathForUser(user);
 }
 
 extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
@@ -335,10 +383,14 @@ extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
 class DisconnectedSyncConfiguration extends Configuration {
   DisconnectedSyncConfiguration._(
     super.schemaObjects, {
+    required super.path,
     super.fifoFilesFallbackPath,
-    super.path,
     super.encryptionKey,
+    super.maxNumberOfActiveVersions,
   }) : super._();
+
+  @override
+  String get _defaultPath => _path.dirname(path);
 }
 
 /// [InMemoryConfiguration] is used to open [Realm] instances that
@@ -349,10 +401,11 @@ class InMemoryConfiguration extends Configuration {
     super.schemaObjects, {
     super.fifoFilesFallbackPath,
     super.path,
+    super.maxNumberOfActiveVersions,
   }) : super._();
 }
 
-/// A collection of properties describing the underlying schema of a [RealmObject].
+/// A collection of properties describing the underlying schema of a [RealmObjectBase].
 ///
 /// {@category Configuration}
 class SchemaObject {
@@ -365,8 +418,11 @@ class SchemaObject {
   /// Returns the name of this schema type.
   final String name;
 
+  /// Returns the base type of this schema object.
+  final ObjectType baseType;
+
   /// Creates schema instance with object type and collection of object's properties.
-  const SchemaObject(this.type, this.name, this.properties);
+  const SchemaObject(this.baseType, this.type, this.name, this.properties);
 }
 
 /// Describes the complete set of classes which may be stored in a `Realm`
@@ -392,16 +448,315 @@ class RealmSchema extends Iterable<SchemaObject> {
   SchemaObject elementAt(int index) => _schema.elementAt(index);
 }
 
-/// The signature of a callback that will be invoked if a client reset error occurs for this [Realm].
-///
-/// Currently, Flexible Sync supports only the [ManualSyncClientResetHandler].
-class SyncClientResetErrorHandler {
-  /// The callback that handles the [SyncClientResetError].
-  final void Function(SyncClientResetError code) callback;
+/// @nodoc
+extension SchemaObjectInternal on SchemaObject {
+  bool get isGenericRealmObject => type == RealmObject || type == EmbeddedObject || type == RealmObjectBase;
+}
 
-  /// Initializes a new instance of of [SyncClientResetErrorHandler].
-  const SyncClientResetErrorHandler(this.callback);
+/// [ClientResetHandler] is triggered if the device and server cannot agree
+/// on a common shared history for the realm file
+/// or when it is impossible for the device to upload or receive any changes.
+/// This can happen if the server is rolled back or restored from backup.
+/// {@category Sync}
+abstract class ClientResetHandler {
+  // Defines what should happen in case of a client reset
+  final ClientResyncModeInternal _mode;
+
+  final BeforeResetCallback? _onBeforeReset;
+  final AfterResetCallback? _onAfterDiscard;
+  final AfterResetCallback? _onAfterRecovery;
+
+  /// The callback that handles the [ClientResetError].
+  final ClientResetCallback? onManualReset;
+
+  const ClientResetHandler._(this._mode, this.onManualReset,
+      {BeforeResetCallback? onBeforeReset, AfterResetCallback? onAfterDiscard, AfterResetCallback? onAfterRecovery})
+      : _onBeforeReset = onBeforeReset,
+        _onAfterDiscard = onAfterDiscard,
+        _onAfterRecovery = onAfterRecovery;
 }
 
 /// A client reset strategy where the user needs to fully take care of a client reset.
-typedef ManualSyncClientResetHandler = SyncClientResetErrorHandler;
+///
+/// If you set [ManualRecoveryHandler] callback as `clientResetHandler` argument of [Configuration.flexibleSync],
+/// that will enable full control of moving any unsynced changes to the synchronized realm.
+/// {@category Sync}
+class ManualRecoveryHandler extends ClientResetHandler {
+  /// Creates an instance of `ManualRecoveryHandler` with the supplied client reset handler.
+  ///
+  /// [onReset] callback is triggered when a manual client reset happens.
+  const ManualRecoveryHandler(ClientResetCallback onReset) : super._(ClientResyncModeInternal.manual, onReset);
+}
+
+/// A client reset strategy where any not yet synchronized data is automatically
+/// discarded and a fresh copy of the synchronized realm is obtained.
+///
+/// If you set [DiscardUnsyncedChangesHandler] callback as `clientResetHandler` argument of [Configuration.flexibleSync],
+/// the local `Realm` will be discarded and replaced with the server side `Realm`.
+/// All local changes will be lost.
+/// {@category Sync}
+class DiscardUnsyncedChangesHandler extends ClientResetHandler {
+  /// The callback that will be executed just before the client reset happens.
+  BeforeResetCallback? get onBeforeReset => _onBeforeReset;
+
+  /// The callback that will be executed just after the client reset happens.
+  AfterResetCallback? get onAfterReset => _onAfterDiscard;
+
+  /// Creates an instance of `DiscardUnsyncedChangesHandler`.
+  ///
+  /// This strategy supplies three callbacks: [onBeforeReset], [onAfterReset] and [onManualResetFallback].
+  /// The first two are invoked just before and after the client reset has happened,
+  /// while the last one will be invoked in case an error occurs during the automated process and the system needs to fallback to a manual mode.
+  /// The freshly downloaded copy of the synchronized Realm triggers all change notifications as a write transaction is internally simulated.
+  const DiscardUnsyncedChangesHandler({BeforeResetCallback? onBeforeReset, AfterResetCallback? onAfterReset, ClientResetCallback? onManualResetFallback})
+      : super._(ClientResyncModeInternal.discardLocal, onManualResetFallback, onAfterDiscard: onAfterReset, onBeforeReset: onBeforeReset);
+}
+
+/// A client reset strategy that attempts to automatically recover any unsynchronized changes.
+///
+/// If you set [RecoverUnsyncedChangesHandler] callback as `clientResetHandler` argument of [Configuration.flexibleSync],
+/// `Realm` will compare the local `Realm` with the `Realm` on the server and automatically transfer
+/// any changes from the local `Realm` that makes sense to the `Realm` provided by the server.
+/// {@category Sync}
+class RecoverUnsyncedChangesHandler extends ClientResetHandler {
+  /// The callback that will be executed just before the client reset happens.
+  BeforeResetCallback? get onBeforeReset => _onBeforeReset;
+
+  /// The callback that will be executed just after the client reset happens.
+  AfterResetCallback? get onAfterReset => _onAfterRecovery;
+
+  /// Creates an instance of `RecoverUnsyncedChangesHandler`.
+  ///
+  /// This strategy supplies three callbacks: [onBeforeReset], [onAfterReset] and [onManualResetFallback].
+  /// The first two are invoked just before and after the client reset has happened, while the last one is invoked
+  /// in case an error occurs during the automated process and the system needs to fallback to a manual mode.
+  const RecoverUnsyncedChangesHandler({BeforeResetCallback? onBeforeReset, AfterResetCallback? onAfterReset, ClientResetCallback? onManualResetFallback})
+      : super._(ClientResyncModeInternal.recover, onManualResetFallback, onBeforeReset: onBeforeReset, onAfterRecovery: onAfterReset);
+}
+
+/// A client reset strategy that attempts to automatically recover any unsynchronized changes.
+/// If that fails, this handler fallsback to the discard unsynced changes strategy.
+///
+/// If you set [RecoverOrDiscardUnsyncedChangesHandler] callback as `clientResetHandler` argument of [Configuration.flexibleSync],
+/// `Realm` will compare the local `Realm` with the `Realm` on the server and automatically transfer
+/// any changes from the local `Realm` that makes sense to the `Realm` provided by the server.
+/// If that fails, the local changes will be discarded.
+/// This is the default mode for fully synchronized Realms.
+/// {@category Sync}
+class RecoverOrDiscardUnsyncedChangesHandler extends ClientResetHandler {
+  /// The callback that will be executed just before the client reset happens.
+  BeforeResetCallback? get onBeforeReset => _onBeforeReset;
+
+  /// The callback that will be executed just after the client reset happens if the local changes
+  /// needed to be discarded.
+  AfterResetCallback? get onAfterDiscard => _onAfterDiscard;
+
+  /// The callback that will be executed just after the client reset happens if the local changes
+  /// were successfully recovered.
+  AfterResetCallback? get onAfterRecovery => _onAfterRecovery;
+
+  /// Creates an instance of `RecoverOrDiscardUnsyncedChangesHandler`.
+  ///
+  /// This strategy will recover automatically any unsynchronized changes. If the recovery fails this strategy fallsback to the discard unsynced one.
+  /// The automatic recovery mechanism creates write transactions meaning that all the changes that take place
+  /// are properly propagated through the standard Realm's change notifications.
+  /// This strategy supplies four callbacks: [onBeforeReset], [onAfterRecovery], [onAfterDiscard] and [onManualResetFallback].
+  /// [onBeforeReset] is invoked just before the client reset happens.
+  /// [onAfterRecovery] is invoke if and only if an automatic client reset succeeded. The callback is never called
+  /// if the automatic client reset fails.
+  /// [onAfterDiscard] is invoked if and only if an automatic client reset failed and instead the discard unsynced one succeded.
+  /// The callback is never called if the discard unsynced client reset fails.
+  /// [onManualResetFallback] is invoked whenever an error occurs in either of the recovery stragegies and the system needs to fallback to a manual mode.
+  const RecoverOrDiscardUnsyncedChangesHandler(
+      {BeforeResetCallback? onBeforeReset, AfterResetCallback? onAfterRecovery, AfterResetCallback? onAfterDiscard, ClientResetCallback? onManualResetFallback})
+      : super._(ClientResyncModeInternal.recoverOrDiscard, onManualResetFallback,
+            onBeforeReset: onBeforeReset, onAfterDiscard: onAfterDiscard, onAfterRecovery: onAfterRecovery);
+}
+
+/// @nodoc
+extension ClientResetHandlerInternal on ClientResetHandler {
+  ClientResyncModeInternal get clientResyncMode => _mode;
+
+  BeforeResetCallback? get onBeforeReset => _onBeforeReset;
+  AfterResetCallback? get onAfterDiscard => _onAfterDiscard;
+  AfterResetCallback? get onAfterRecovery => _onAfterRecovery;
+}
+
+/// Enum describing what should happen in case of a Client Resync.
+/// @nodoc
+enum ClientResyncModeInternal {
+  manual,
+  discardLocal,
+  recover,
+  recoverOrDiscard,
+}
+
+/// An error type that describes a client reset error condition.
+/// {@category Sync}
+class ClientResetError extends SyncError {
+  /// If true the received error is fatal.
+  final bool isFatal = true;
+  // The instance of [Configuration] that [ClientResetError] is thrown for.
+  final Configuration? _config;
+
+  /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
+  SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
+
+  ClientResetError(String message, [this._config]) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
+
+  @override
+  String toString() {
+    return "ClientResetError message: $message category: $category code: $code isFatal: $isFatal";
+  }
+
+  /// Initiates the client reset process.
+  ///
+  /// All Realm instances for that path must be closed before this method is called or an
+  /// [RealmException] will be thrown.
+  void resetRealm() {
+    if (_config is! FlexibleSyncConfiguration) {
+      throw RealmException("The current configuration is not FlexibleSyncConfiguration.");
+    }
+    final flexibleConfig = _config as FlexibleSyncConfiguration;
+    realmCore.immediatelyRunFileActions(flexibleConfig.user.app, flexibleConfig.path);
+  }
+}
+
+/// Thrown when an error occurs during synchronization
+/// {@category Sync}
+class SyncError extends RealmError {
+  /// The numeric code value indicating the type of the sync error.
+  final int codeValue;
+
+  /// The category of the sync error
+  final SyncErrorCategory category;
+
+  SyncError(String message, this.category, this.codeValue) : super(message);
+
+  /// Creates a specific type of [SyncError] instance based on the [category] and the [code] supplied.
+  static SyncError create(String message, SyncErrorCategory category, int code, {bool isFatal = false}) {
+    switch (category) {
+      case SyncErrorCategory.client:
+        final SyncClientErrorCode errorCode = SyncClientErrorCode.fromInt(code);
+        if (errorCode == SyncClientErrorCode.autoClientResetFailure) {
+          return ClientResetError(message);
+        }
+        return SyncClientError(message, category, errorCode, isFatal: isFatal);
+      case SyncErrorCategory.connection:
+        return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), isFatal: isFatal);
+      case SyncErrorCategory.session:
+        return SyncSessionError(message, category, SyncSessionErrorCode.fromInt(code), isFatal: isFatal);
+      case SyncErrorCategory.system:
+      case SyncErrorCategory.unknown:
+      default:
+        return GeneralSyncError(message, category, code);
+    }
+  }
+
+  /// As a specific [SyncError] type.
+  T as<T extends SyncError>() => this as T;
+
+  @override
+  String toString() {
+    return "SyncError message: $message category: $category code: $codeValue";
+  }
+}
+
+/// An error type that describes a session-level error condition.
+/// {@category Sync}
+class SyncClientError extends SyncError {
+  /// If true the received error is fatal.
+  final bool isFatal;
+
+  /// The [SyncClientErrorCode] value indicating the type of the sync error.
+  SyncClientErrorCode get code => SyncClientErrorCode.fromInt(codeValue);
+
+  SyncClientError(
+    String message,
+    SyncErrorCategory category,
+    SyncClientErrorCode errorCode, {
+    this.isFatal = false,
+  }) : super(message, category, errorCode.code);
+
+  @override
+  String toString() {
+    return "SyncClientError message: $message category: $category code: $code isFatal: $isFatal";
+  }
+}
+
+/// An error type that describes a connection-level error condition.
+/// {@category Sync}
+class SyncConnectionError extends SyncError {
+  /// If true the received error is fatal.
+  final bool isFatal;
+
+  /// The [SyncConnectionErrorCode] value indicating the type of the sync error.
+  SyncConnectionErrorCode get code => SyncConnectionErrorCode.fromInt(codeValue);
+
+  SyncConnectionError(
+    String message,
+    SyncErrorCategory category,
+    SyncConnectionErrorCode errorCode, {
+    this.isFatal = false,
+  }) : super(message, category, errorCode.code);
+
+  @override
+  String toString() {
+    return "SyncConnectionError message: $message category: $category code: $code isFatal: $isFatal";
+  }
+}
+
+/// An error type that describes a session-level error condition.
+/// {@category Sync}
+class SyncSessionError extends SyncError {
+  /// If true the received error is fatal.
+  final bool isFatal;
+
+  /// The [SyncSessionErrorCode] value indicating the type of the sync error.
+  SyncSessionErrorCode get code => SyncSessionErrorCode.fromInt(codeValue);
+
+  SyncSessionError(
+    String message,
+    SyncErrorCategory category,
+    SyncSessionErrorCode errorCode, {
+    this.isFatal = false,
+  }) : super(message, category, errorCode.code);
+
+  @override
+  String toString() {
+    return "SyncSessionError message: $message category: $category code: $code isFatal: $isFatal";
+  }
+}
+
+/// A general or unknown sync error
+class GeneralSyncError extends SyncError {
+  /// The numeric value indicating the type of the general sync error.
+  int get code => codeValue;
+
+  GeneralSyncError(String message, SyncErrorCategory category, int code) : super(message, category, code);
+
+  @override
+  String toString() {
+    return "GeneralSyncError message: $message category: $category code: $code";
+  }
+}
+
+/// General sync error codes
+enum GeneralSyncErrorCode {
+  // A general sync error code
+  unknown(9999);
+
+  static final Map<int, GeneralSyncErrorCode> _valuesMap = {for (var value in GeneralSyncErrorCode.values) value.code: value};
+
+  static GeneralSyncErrorCode fromInt(int code) {
+    final mappedCode = GeneralSyncErrorCode._valuesMap[code];
+    if (mappedCode == null) {
+      throw RealmError("Unknown GeneralSyncErrorCode");
+    }
+
+    return mappedCode;
+  }
+
+  final int code;
+  const GeneralSyncErrorCode(this.code);
+}

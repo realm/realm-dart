@@ -15,15 +15,14 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:cancellation_token/cancellation_token.dart';
+import 'package:collection/collection.dart';
 import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
-import 'package:collection/collection.dart';
-import 'package:cancellation_token/cancellation_token.dart';
 
 import 'configuration.dart';
 import 'list.dart';
@@ -31,63 +30,82 @@ import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'results.dart';
 import 'scheduler.dart';
-import 'subscription.dart';
 import 'session.dart';
+import 'subscription.dart';
 
+export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
 export 'package:realm_common/realm_common.dart'
     show
+        Backlink,
         Ignored,
         Indexed,
         MapTo,
+        ObjectId,
+        ObjectType,
         PrimaryKey,
-        RealmError,
         RealmClosedError,
-        SyncError,
-        SyncClientError,
-        SyncClientResetError,
-        SyncConnectionError,
-        SyncSessionError,
-        GeneralSyncError,
-        SyncErrorCategory,
-        GeneralSyncErrorCode,
+        RealmCollectionType,
+        RealmError,
+        RealmModel,
+        RealmPropertyType,
+        RealmStateError,
+        RealmUnsupportedSetError,
         SyncClientErrorCode,
         SyncConnectionErrorCode,
+        SyncErrorCategory,
         SyncSessionErrorCode,
-        RealmModel,
-        RealmUnsupportedSetError,
-        RealmStateError,
-        RealmCollectionType,
-        RealmPropertyType,
-        ObjectId,
         Uuid;
 
 // always expose with `show` to explicitly control the public API surface
-export 'app.dart' show AppConfiguration, MetadataPersistenceMode, App, AppException;
+export 'app.dart' show AppException, App, MetadataPersistenceMode, AppConfiguration;
+export 'collections.dart' show Move;
 export "configuration.dart"
     show
+        AfterResetCallback,
+        BeforeResetCallback,
+        ClientResetCallback,
+        ClientResetError,
+        ClientResetHandler,
         Configuration,
+        DiscardUnsyncedChangesHandler,
         DisconnectedSyncConfiguration,
         FlexibleSyncConfiguration,
+        GeneralSyncError,
+        GeneralSyncErrorCode,
         InitialDataCallback,
         InMemoryConfiguration,
         LocalConfiguration,
+        ManualRecoveryHandler,
         MigrationCallback,
         RealmSchema,
+        RecoverOrDiscardUnsyncedChangesHandler,
+        RecoverUnsyncedChangesHandler,
         SchemaObject,
         ShouldCompactCallback,
+        SyncClientError,
+        SyncConnectionError,
+        SyncError,
         SyncErrorHandler,
-        SyncClientResetErrorHandler;
-
-export 'credentials.dart' show Credentials, AuthProviderType, EmailPasswordAuthProvider;
-export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges;
-export 'realm_object.dart' show RealmEntity, RealmException, UserCallbackException, RealmObject, RealmObjectChanges, DynamicRealmObject;
-export 'realm_property.dart';
-export 'results.dart' show RealmResults, RealmResultsChanges;
-export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
-export 'user.dart' show User, UserState, UserIdentity, ApiKeyClient, ApiKey;
-export 'session.dart' show Session, SessionState, ConnectionState, ProgressDirection, ProgressMode, SyncProgress, ConnectionStateChange;
+        SyncSessionError;
+export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
+export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
 export 'migration.dart' show Migration;
-export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
+export 'realm_object.dart'
+    show
+        DynamicRealmObject,
+        EmbeddedObject,
+        EmbeddedObjectExtension,
+        RealmEntity,
+        RealmException,
+        RealmObject,
+        RealmObjectBase,
+        RealmObjectChanges,
+        UserCallbackException;
+export 'realm_property.dart';
+export 'results.dart' show RealmResultsOfObject, RealmResultsChanges, RealmResults;
+export 'session.dart' show ConnectionStateChange, SyncProgress, ProgressDirection, ProgressMode, ConnectionState, Session, SessionState;
+export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
+export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -165,7 +183,7 @@ class Realm implements Finalizable {
 
   void _populateMetadata() {
     schema = config.schemaObjects.isNotEmpty ? RealmSchema(config.schemaObjects) : realmCore.readSchema(this);
-    _metadata = RealmMetadata._(schema.map((c) => realmCore.getObjectMetadata(this, c.name, c.type)));
+    _metadata = RealmMetadata._(schema.map((c) => realmCore.getObjectMetadata(this, c)));
   }
 
   /// Deletes all files associated with a `Realm` located at given [path]
@@ -225,7 +243,7 @@ class Realm implements Finalizable {
     return object;
   }
 
-  RealmObjectHandle _createObject(RealmObject object, RealmObjectMetadata metadata, bool update) {
+  RealmObjectHandle _createObject(RealmObjectBase object, RealmObjectMetadata metadata, bool update) {
     final key = metadata.classKey;
     final primaryKey = metadata.primaryKey;
     if (primaryKey == null) {
@@ -252,7 +270,7 @@ class Realm implements Finalizable {
   }
 
   /// Deletes a [RealmObject] from this `Realm`.
-  void delete<T extends RealmObject>(T object) {
+  void delete<T extends RealmObjectBase>(T object) {
     if (!object.isManaged) {
       throw RealmError('Cannot delete an unmanaged object');
     }
@@ -304,7 +322,6 @@ class Realm implements Finalizable {
   /// Begins a write transaction for this [Realm].
   Transaction beginWrite() {
     realmCore.beginWrite(this);
-
     return Transaction._(this);
   }
 
@@ -312,7 +329,6 @@ class Realm implements Finalizable {
   /// [CancellationToken] to cancel the operation.
   Future<Transaction> beginWriteAsync([CancellationToken? cancellationToken]) async {
     await realmCore.beginWriteAsync(this, cancellationToken);
-
     return Transaction._(this);
   }
 
@@ -461,6 +477,9 @@ class Realm implements Finalizable {
   /// This is a workaround of a Dart VM bug and will be removed in a future version of the SDK.
   static void shutdown() => scheduler.stop();
 
+  // For debugging only. Enable in realm_dart.cpp
+  // static void gc() => realmCore.invokeGC();
+
   void _ensureManagedByThis(RealmEntity entity, String operation) {
     if (entity.realm != this) {
       if (entity.isFrozen) {
@@ -468,6 +487,44 @@ class Realm implements Finalizable {
       }
 
       throw RealmError('Cannot $operation because the object is managed by another Realm instance');
+    }
+  }
+
+  /// Compacts a Realm file. A Realm file usually contains free/unused space.
+  ///
+  /// This method removes this free space and the file size is thereby reduced.
+  /// Objects within the Realm file are untouched.
+  /// Note: The file system should have free space for at least a copy of the Realm file. This method must not be called inside a transaction.
+  /// The Realm file is left untouched if any file operation fails.
+  static bool compact(Configuration config) {
+    if (config is InMemoryConfiguration) {
+      throw RealmException("Can't compact an in-memory Realm");
+    }
+
+    late Configuration compactConfig;
+
+    if (!File(config.path).existsSync()) {
+      return false;
+    }
+
+    if (config is LocalConfiguration) {
+      // `compact` opens the realm file so it can triger schema version upgrade, file format upgrade, migration and initial data callbacks etc.
+      // We must allow that to happen so use the local config as is.
+      compactConfig = config;
+    } else if (config is DisconnectedSyncConfiguration) {
+      compactConfig = config;
+    } else if (config is FlexibleSyncConfiguration) {
+      compactConfig = Configuration.disconnectedSync(config.schemaObjects.toList(),
+          path: config.path, fifoFilesFallbackPath: config.fifoFilesFallbackPath, encryptionKey: config.encryptionKey);
+    } else {
+      throw RealmError("Unsupported realm configuration type ${config.runtimeType}");
+    }
+
+    final realm = Realm(compactConfig);
+    try {
+      return realmCore.compact(realm);
+    } finally {
+      realm.close();
     }
   }
 }
@@ -551,7 +608,7 @@ extension RealmInternal on Realm {
     return Realm._(config, handle, isInMigration);
   }
 
-  RealmObject createObject(Type type, RealmObjectHandle handle, RealmObjectMetadata metadata) {
+  RealmObjectBase createObject(Type type, RealmObjectHandle handle, RealmObjectMetadata metadata) {
     final accessor = RealmCoreAccessor(metadata, _isInMigration);
     return RealmObjectInternal.create(type, this, handle, accessor);
   }
@@ -574,7 +631,21 @@ extension RealmInternal on Realm {
 
   RealmMetadata get metadata => _metadata;
 
-  T? resolveObject<T extends RealmObject>(T object) {
+  void manageEmbedded(RealmObjectHandle handle, EmbeddedObject object, {bool update = false}) {
+    final metadata = _metadata.getByType(object.runtimeType);
+
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
+    object.manage(this, handle, accessor, update);
+  }
+
+  /// This should only be used for testing
+  RealmResults<T> allEmbedded<T extends EmbeddedObject>() {
+    final metadata = _metadata.getByType(T);
+    final handle = realmCore.findAll(this, metadata.classKey);
+    return RealmResultsInternal.create<T>(handle, this, metadata);
+  }
+
+  T? resolveObject<T extends RealmObjectBase>(T object) {
     if (!object.isManaged) {
       throw RealmStateError("Can't resolve unmanaged objects");
     }
@@ -602,12 +673,14 @@ extension RealmInternal on Realm {
     return createList<T>(handle, list.metadata);
   }
 
-  RealmResults<T> resolveResults<T extends RealmObject>(RealmResults<T> results) {
+  RealmResults<T> resolveResults<T extends Object?>(RealmResults<T> results) {
     final handle = realmCore.resolveResults(results, this);
     return RealmResultsInternal.create<T>(handle, this, results.metadata);
   }
 
   static MigrationRealm getMigrationRealm(Realm realm) => MigrationRealm._(realm);
+
+  bool get isInMigration => _isInMigration;
 }
 
 /// @nodoc
@@ -698,10 +771,10 @@ class RealmMetadata {
 
   RealmMetadata._(Iterable<RealmObjectMetadata> objectMetadatas) {
     for (final metadata in objectMetadatas) {
-      if (metadata.type != RealmObject) {
-        _typeMap[metadata.type] = metadata;
+      if (!metadata.schema.isGenericRealmObject) {
+        _typeMap[metadata.schema.type] = metadata;
       } else {
-        _stringMap[metadata.name] = metadata;
+        _stringMap[metadata.schema.name] = metadata;
       }
     }
   }
@@ -718,7 +791,7 @@ class RealmMetadata {
   RealmObjectMetadata getByName(String type) {
     var metadata = _stringMap[type];
     if (metadata == null) {
-      metadata = _typeMap.values.firstWhereOrNull((v) => v.name == type);
+      metadata = _typeMap.values.firstWhereOrNull((v) => v.schema.name == type);
       if (metadata == null) {
         throw RealmError("Object type $type not configured in the current Realm's schema. Add type $type to your config before opening the Realm");
       }
@@ -727,6 +800,20 @@ class RealmMetadata {
     }
 
     return metadata;
+  }
+
+  Tuple<Type, RealmObjectMetadata> getByClassKey(int key) {
+    final type = _typeMap.entries.firstWhereOrNull((e) => e.value.classKey == key);
+    if (type != null) {
+      return Tuple(type.key, type.value);
+    }
+
+    final metadata = _stringMap.values.firstWhereOrNull((e) => e.classKey == key);
+    if (metadata != null) {
+      return Tuple(RealmObjectBase, metadata);
+    }
+
+    throw RealmError("Object with classKey $key not found in the current Realm's schema.");
   }
 }
 
@@ -758,7 +845,7 @@ class DynamicRealm {
     }
 
     final accessor = RealmCoreAccessor(metadata, _realm._isInMigration);
-    return RealmObjectInternal.create(RealmObject, _realm, handle, accessor);
+    return RealmObjectInternal.create(RealmObject, _realm, handle, accessor) as RealmObject;
   }
 }
 

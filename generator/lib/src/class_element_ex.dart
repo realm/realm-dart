@@ -18,6 +18,7 @@
 
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:realm_common/realm_common.dart';
 import 'package:source_gen/source_gen.dart';
 import 'annotation_value.dart';
 import 'error.dart';
@@ -50,9 +51,7 @@ extension on Iterable<FieldElement> {
         element: field,
         primarySpan: field.span!,
         primaryLabel: 'second primary key',
-        secondarySpans: {
-          ...{for (final p in primaryKeys..removeAt(1)) p.fieldElement.span!: ''},
-        },
+        secondarySpans: {for (final p in primaryKeys..removeAt(1)) p.fieldElement.span!: ''},
       );
     }
   }
@@ -65,7 +64,10 @@ extension ClassElementEx on ClassElement {
 
   RealmModelInfo? get realmInfo {
     try {
-      if (realmModelInfo == null) return null;
+      final modelInfo = realmModelInfo;
+      if (modelInfo == null) {
+        return null;
+      }
 
       final modelName = this.name;
 
@@ -83,8 +85,13 @@ extension ClassElementEx on ClassElement {
       }
 
       if (!modelName.endsWith(suffix)) {
-        throw RealmInvalidGenerationSourceError('Missing suffix on realm model name',
-            element: this, primarySpan: span, primaryLabel: 'missing suffix', todo: 'Align class name to have suffix $suffix,');
+        throw RealmInvalidGenerationSourceError(
+          'Missing suffix on realm model name',
+          element: this,
+          primarySpan: span,
+          primaryLabel: 'missing suffix',
+          todo: 'Align class name to have suffix $suffix,',
+        );
       }
 
       // Remove suffix and prefix, if any.
@@ -143,19 +150,28 @@ extension ClassElementEx on ClassElement {
         );
       }
 
-      final mappedFields = fields.realmInfo.toList();
-      return RealmModelInfo(
-        name,
-        modelName,
-        realmName,
-        mappedFields,
-      );
+      final objectType = ObjectType.values[modelInfo.value.getField('type')!.getField('index')!.toIntValue()!];
+
+      // Realm Core requires computed properties at the end so we sort them at generation time versus doing it at runtime every time.
+      final mappedFields = fields.realmInfo.toList()..sort((a, b) => a.isComputed ^ b.isComputed ? (a.isComputed ? 1 : -1) : -1);
+
+      if (objectType == ObjectType.embeddedObject && mappedFields.any((field) => field.isPrimaryKey)) {
+        final pkSpan = fields.firstWhere((field) => field.realmInfo?.isPrimaryKey == true).span;
+        throw RealmInvalidGenerationSourceError("Primary key not allowed on embedded objects",
+            element: this,
+            primarySpan: pkSpan,
+            secondarySpans: {span!: ''},
+            primaryLabel: "$realmName is marked as embedded but has primary key defined",
+            todo: 'Remove the @PrimaryKey annotation from the field or set the model type to a value different from ObjectType.embeddedObject.');
+      }
+
+      return RealmModelInfo(name, modelName, realmName, mappedFields, objectType);
     } on InvalidGenerationSourceError catch (_) {
       rethrow;
     } catch (e, s) {
       // Fallback. Not perfect, but better than just forwarding original error.
       throw RealmInvalidGenerationSourceError(
-        '$e',
+        '$e\n$s',
         todo: //
             'Unexpected error. Please open an issue on: '
             'https://github.com/realm/realm-dart',

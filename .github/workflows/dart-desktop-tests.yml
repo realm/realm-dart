@@ -31,13 +31,14 @@ jobs:
   dart-tests:
     runs-on: ${{ inputs.os == 'linux' && 'ubuntu' || inputs.os }}-${{ inputs.architecture || 'latest' }}
     name: Dart tests on ${{inputs.os }} ${{ inputs.architecture }}
+    timeout-minutes: 45
     env:
       BAAS_CLUSTER: ${{ inputs.cluster }}
       BAAS_DIFFERENTIATOR: ${{ inputs.app }}${{ github.run_id }}${{ github.run_attempt }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@8230315d06ad95c617244d2f265d237a1682d445
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
         with:
           submodules: false
 
@@ -45,7 +46,7 @@ jobs:
         run: git clean -fdx
 
       - name: Fetch artifacts
-        uses: actions/download-artifact@a327a9c763239d85dc3d78908dbf6ca74acd2e46
+        uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
           name: librealm-${{ inputs.os }}
           path: binary/${{ inputs.os }}
@@ -62,7 +63,7 @@ jobs:
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deployApps@3f810b2d04e9dada2bde0b33ec90102e52a0b30a
+        uses: realm/ci-actions/mdb-realm/deploy@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -70,7 +71,6 @@ jobs:
           apiKey: ${{ env.BAAS_API_KEY }}
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
           clusterName: ${{ env.BAAS_CLUSTER }}
-          useExistingCluster: true
 
       - name: Run tests
         run: ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -r expanded --coverage ./coverage/ -j 1 --test-randomize-ordering-seed random

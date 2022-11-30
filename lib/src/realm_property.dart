@@ -16,9 +16,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'package:realm_common/realm_common.dart';
+import 'realm_class.dart';
 
-/// Describes a [RealmObject]'s property with its name, type and other attributes in the [RealmSchema]
+/// Describes a property on [RealmObject]/[EmbeddedObject] with its name, type and other attributes in the [RealmSchema]
 ///{@category Configuration}
 class SchemaProperty {
   /// The name of the property as persisted in the `Realm`
@@ -26,23 +26,39 @@ class SchemaProperty {
 
   final String? linkTarget;
 
-  /// Defines the `Realm` collection type if this property is a collection.
+  final String? linkOriginProperty;
+
+  /// Defines the `Realm` collection type if this property is a collection
   final RealmCollectionType collectionType;
 
-  /// `true` if the property is a primary key.
+  /// `true` if the property is a primary key
   final bool primaryKey;
+
+  /// `true` if the property is indexed
+  final bool indexed;
 
   /// The `Realm` type of the property
   final RealmPropertyType propertyType;
 
+  /// `true` if the property is computed
+  bool get isComputed => propertyType == RealmPropertyType.linkingObjects;
+
   /// `true` if the property is optional
   final bool optional;
 
-  /// An alias to another property of the same RealmObject
+  /// Indicates that the property should be persisted under a different name
   final String? mapTo;
 
   /// @nodoc
-  const SchemaProperty(this.name, this.propertyType,
-      {this.optional = false, this.mapTo, this.primaryKey = false, this.linkTarget, this.collectionType = RealmCollectionType.none
-      });
+  const SchemaProperty(
+    this.name,
+    this.propertyType, {
+    this.optional = false,
+    this.mapTo,
+    this.primaryKey = false,
+    this.indexed = false,
+    this.linkTarget,
+    this.linkOriginProperty,
+    this.collectionType = RealmCollectionType.none,
+  });
 }

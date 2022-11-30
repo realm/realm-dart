@@ -20,6 +20,8 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:math';
 import 'package:test/test.dart' hide test, throws;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -1367,6 +1369,177 @@ Future<void> main([List<String>? args]) async {
     cancellationToken.cancel();
     expect(await realmIsCancelled, isTrue);
     expect(progressReturned, isFalse);
+  });
+
+  const compactTest = "compact_test";
+  void addDataForCompact(Realm realm) {
+    realm.write(() {
+      for (var i = 0; i < 2500; i++) {
+        realm.add(Product(ObjectId(), compactTest));
+      }
+    });
+
+    realm.write(() => realm.deleteMany(realm.query<Product>("stringQueryField CONTAINS '$compactTest'")));
+
+    realm.write(() {
+      for (var i = 0; i < 10; i++) {
+        realm.add(Product(ObjectId(), compactTest));
+      }
+    });
+  }
+
+  Future<int> createRealmForCompact(Configuration config) async {
+    var realm = getRealm(config);
+    
+    if (config is FlexibleSyncConfiguration) {
+      realm.subscriptions.update((mutableSubscriptions) {
+        mutableSubscriptions.add(realm.query<Product>("stringQueryField CONTAINS '$compactTest'"));
+      });
+      await realm.subscriptions.waitForSynchronization();
+    }
+
+    addDataForCompact(realm);
+    
+    if (config is FlexibleSyncConfiguration) {
+      await realm.syncSession.waitForDownload();
+      await realm.syncSession.waitForUpload();
+    }
+
+    final beforeSize = await File(config.path).stat().then((value) => value.size);
+
+    realm.close();
+    return beforeSize;
+  }
+
+  void validateCompact(bool compacted, String realmPath, int beforeCompactSizeSize) async {
+    expect(compacted, true);
+    final afterCompactSize  = await File(realmPath).stat().then((value) => value.size);
+    expect(beforeCompactSizeSize, greaterThan(afterCompactSize));
+  }
+
+  test('Realm - local realm can be compacted', () async {
+    var config = Configuration.local([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    final beforeCompactSizeSize = await createRealmForCompact(config);
+
+    final compacted = Realm.compact(config);
+
+    validateCompact(compacted, config.path, beforeCompactSizeSize);
+
+    //test the realm can be opened.
+    final realm = getRealm(config);
+  });
+
+   test('Realm - non existing realm can not be compacted', () async {
+    var config = Configuration.local([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    final compacted = Realm.compact(config);
+    expect(compacted, false);
+  });
+
+  test('Realm - local realm can be compacted in worker isolate', () async {
+    var config = Configuration.local([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    final beforeCompactSizeSize = await createRealmForCompact(config);
+
+    final receivePort = ReceivePort();
+    await Isolate.spawn((List<Object> args) async {
+      SendPort sendPort = args[0] as SendPort;
+      final path = args[1] as String;
+      var config = Configuration.local([Product.schema], path: path);
+      final compacted = Realm.compact(config);
+      Isolate.exit(sendPort, compacted);
+    }, [receivePort.sendPort, config.path]);
+
+    final compacted = await receivePort.first as bool;
+
+    validateCompact(compacted, config.path, beforeCompactSizeSize);
+
+    //test the realm can be opened.
+    final realm = getRealm(config);
+  });
+
+  test('Realm - local encrypted realm can be compacted', () async {
+    final config = Configuration.local([Product.schema],
+        encryptionKey: generateEncryptionKey(), path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+
+    final beforeCompactSizeSize = await createRealmForCompact(config);
+
+    final compacted = Realm.compact(config);
+
+    validateCompact(compacted, config.path, beforeCompactSizeSize);
+
+    //test the realm can be opened.
+    final realm = getRealm(config);
+  });
+
+  test('Realm - in-memory realm can not be compacted', () async {
+    var config = Configuration.inMemory([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    expect(() => Realm.compact(config), throws<RealmException>("Can't compact an in-memory Realm"));
+  });
+
+  test('Realm - readonly realm can not be compacted', () async {
+    var path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
+    var config = Configuration.local([Product.schema], path: path);
+    final beforeCompactSize = await createRealmForCompact(config);
+
+    config = Configuration.local([Product.schema], isReadOnly: true, path: path);
+    expect(() => Realm.compact(config), throws<RealmException>("Can't compact a read-only Realm"));
+
+    //test the realm can be opened.
+    final realm = getRealm(config);
+  });
+
+  baasTest('Realm - disconnected sync realm can be compacted', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    var config = Configuration.disconnectedSync([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+
+    final beforeCompactSize = await createRealmForCompact(config);
+
+    final compacted = Realm.compact(config);
+
+    validateCompact(compacted, config.path, beforeCompactSize);
+
+    //test the realm can be opened.
+    final realm = getRealm(config);
+  });
+
+  baasTest('Realm - synced realm can be compacted', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    var user = await app.logIn(credentials);
+    final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
+    final config = Configuration.flexibleSync(user, [Product.schema], path: path);
+    final beforeCompactSize = await createRealmForCompact(config);
+    user.logOut();
+    Future<void>.delayed(Duration(seconds: 5));
+
+    final compacted = Realm.compact(config);
+
+    validateCompact(compacted, config.path, beforeCompactSize);
+
+    //test the realm can be opened.
+    final realm = getRealm(Configuration.disconnectedSync([Product.schema], path: path));
+  });
+
+  baasTest('Realm - synced encrypted realm can be compacted', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
+    var user = await app.logIn(credentials);
+    List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
+    final config =
+        Configuration.flexibleSync(user, [Product.schema], encryptionKey: key, path: path);
+    final beforeCompactSize = await createRealmForCompact(config);
+    user.logOut();
+    Future<void>.delayed(Duration(seconds: 5));
+
+    final compacted = Realm.compact(config);
+
+    validateCompact(compacted, config.path, beforeCompactSize);
+
+    user = await app.logIn(credentials);
+    //test the realm can be opened.
+    final realm = getRealm(Configuration.disconnectedSync([Product.schema], path: path, encryptionKey: key));
   });
 }
 

@@ -27,7 +27,6 @@ import 'package:realm_generator/src/expanded_context_span.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:source_span/source_span.dart';
 
-import 'annotation_value.dart';
 import 'class_element_ex.dart';
 import 'error.dart';
 import 'field_element_ex.dart';
@@ -106,17 +105,7 @@ extension ElementEx on Element {
   }
 
   String? get remappedRealmName {
-    DartObject? mapTo;
-    try {
-      if (getDeclarationFromElement(this) != null) {
-        mapTo = annotationInfoOfExact(mapToChecker)?.value;
-      }
-    } on ArgumentError {
-      // This will happen for types defined in a different library
-      // In this case, fall back to not using the computed value
-      mapTo = mapToChecker.annotationsOfExact(this).singleOrNull;
-    }
-
+    final mapTo = mapToChecker.annotationsOfExact(this).singleOrNull;
     return mapTo?.getField('name')!.toStringValue();
   }
 

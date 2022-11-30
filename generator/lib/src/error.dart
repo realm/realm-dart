@@ -43,7 +43,7 @@ class RealmInvalidGenerationSourceError extends InvalidGenerationSourceError {
         color = color ?? session.color,
         super(message, todo: todo, element: element) {
     if (element is FieldElement || element is ConstructorElement) {
-      final classElement = element.enclosingElement!;
+      final classElement = element.enclosingElement3!;
       this.secondarySpans.addAll({
         classElement.span!: "in realm model for '${session.mapping.entries.where((e) => e.value == classElement).singleOrNull?.key}'",
       });

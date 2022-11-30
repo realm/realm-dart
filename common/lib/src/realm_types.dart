@@ -21,32 +21,47 @@ import 'dart:typed_data';
 import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
 
+Type _typeOf<T>() => T;
+
+/// @nodoc
+class Mapping<T> {
+  const Mapping({this.indexable = false});
+
+  final bool indexable;
+
+  // Types
+  Type get type => T;
+  Type get nullableType => _typeOf<T?>();
+}
+
+const _intMapping = Mapping<int>(indexable: true);
+const _boolMapping = Mapping<bool>(indexable: true);
+
 /// All supported `Realm` property types.
 /// {@category Configuration}
 enum RealmPropertyType {
-  int,
-  bool,
-  string,
-  // ignore: unused_field, constant_identifier_names
-  _3,
+  int(_intMapping),
+  bool(_boolMapping),
+  string(Mapping<String>(indexable: true)),
+  _3, // ignore: unused_field, constant_identifier_names
   binary,
-  // ignore: unused_field, constant_identifier_names
-  _5,
+  _5, // ignore: unused_field, constant_identifier_names
   mixed,
-  // ignore: unused_field, constant_identifier_names
-  _7,
-  timestamp,
+  _7, // ignore: unused_field, constant_identifier_names
+  timestamp(Mapping<DateTime>(indexable: true)),
   float,
   double,
   decimal128,
   object,
-  // ignore: unused_field, constant_identifier_names
-  _13,
+  _13, // ignore: unused_field, constant_identifier_names
   linkingObjects,
-  objectid,
-  // ignore: unused_field, constant_identifier_names
-  _16,
-  uuid,
+  objectid(Mapping<ObjectId>(indexable: true)),
+  _16, // ignore: unused_field, constant_identifier_names
+  uuid(Mapping<Uuid>(indexable: true));
+
+  const RealmPropertyType([this.mapping = const Mapping<Never>()]);
+
+  final Mapping<dynamic> mapping;
 }
 
 /// All supported `Realm` collection types.
@@ -89,7 +104,13 @@ class RealmStateError extends StateError implements RealmError {
 class Decimal128 {} // TODO Support decimal128 datatype https://github.com/realm/realm-dart/issues/725
 
 /// @nodoc
-class RealmObjectMarker {}
+class RealmObjectBaseMarker {}
+
+/// @nodoc
+class RealmObjectMarker extends RealmObjectBaseMarker {}
+
+/// @nodoc
+class EmbeddedObjectMarker extends RealmObjectBaseMarker {}
 
 // Union type
 /// @nodoc
@@ -107,147 +128,11 @@ class RealmAny {
   const RealmAny.double(double d) : this._(d);
   const RealmAny.uint8List(Uint8List data) : this._(data);
   // TODO: RealmObjectMarker introduced to avoid dependency inversion. It would be better if we could use RealmObject directly. https://github.com/realm/realm-dart/issues/701
-  const RealmAny.realmObject(RealmObjectMarker o) : this._(o);
+  const RealmAny.realmObject(RealmObjectBaseMarker o) : this._(o);
   const RealmAny.dateTime(DateTime timestamp) : this._(timestamp);
   const RealmAny.objectId(ObjectId id) : this._(id);
   const RealmAny.decimal128(Decimal128 decimal) : this._(decimal);
   const RealmAny.uuid(Uuid uuid) : this._(uuid);
-}
-
-/// Thrown when an error occurs during synchronization
-/// {@category Sync}
-class SyncError extends RealmError {
-  /// The numeric code value indicating the type of the sync error.
-  final int codeValue;
-
-  /// The category of the sync error
-  final SyncErrorCategory category;
-
-  SyncError(String message, this.category, this.codeValue) : super(message);
-
-  /// Creates a specific type of [SyncError] instance based on the [category] and the [code] supplied.
-  static SyncError create(String message, SyncErrorCategory category, int code, {bool isFatal = false}) {
-    switch (category) {
-      case SyncErrorCategory.client:
-        final SyncClientErrorCode errorCode = SyncClientErrorCode.fromInt(code);
-        if (errorCode == SyncClientErrorCode.autoClientResetFailure) {
-          return SyncClientResetError(message);
-        }
-        return SyncClientError(message, category, errorCode, isFatal: isFatal);
-      case SyncErrorCategory.connection:
-        return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), isFatal: isFatal);
-      case SyncErrorCategory.session:
-        return SyncSessionError(message, category, SyncSessionErrorCode.fromInt(code), isFatal: isFatal);
-      case SyncErrorCategory.system:
-      case SyncErrorCategory.unknown:
-      default:
-        return GeneralSyncError(message, category, code);
-    }
-  }
-
-  /// As a specific [SyncError] type.
-  T as<T extends SyncError>() => this as T;
-
-  @override
-  String toString() {
-    return "SyncError message: $message category: $category code: $codeValue";
-  }
-}
-
-/// An error type that describes a session-level error condition.
-/// {@category Sync}
-class SyncClientError extends SyncError {
-  /// If true the received error is fatal.
-  final bool isFatal;
-
-  /// The [SyncClientErrorCode] value indicating the type of the sync error.
-  SyncClientErrorCode get code => SyncClientErrorCode.fromInt(codeValue);
-
-  SyncClientError(
-    String message,
-    SyncErrorCategory category,
-    SyncClientErrorCode errorCode, {
-    this.isFatal = false,
-  }) : super(message, category, errorCode.code);
-
-  @override
-  String toString() {
-    return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
-  }
-}
-
-/// An error type that describes a client reset error condition.
-/// {@category Sync}
-class SyncClientResetError extends SyncError {
-  /// If true the received error is fatal.
-  final bool isFatal = true;
-
-  /// The [SyncClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
-  SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
-
-  SyncClientResetError(String message) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
-
-  @override
-  String toString() {
-    return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
-  }
-}
-
-/// An error type that describes a connection-level error condition.
-/// {@category Sync}
-class SyncConnectionError extends SyncError {
-  /// If true the received error is fatal.
-  final bool isFatal;
-
-  /// The [SyncConnectionErrorCode] value indicating the type of the sync error.
-  SyncConnectionErrorCode get code => SyncConnectionErrorCode.fromInt(codeValue);
-
-  SyncConnectionError(
-    String message,
-    SyncErrorCategory category,
-    SyncConnectionErrorCode errorCode, {
-    this.isFatal = false,
-  }) : super(message, category, errorCode.code);
-
-  @override
-  String toString() {
-    return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
-  }
-}
-
-/// An error type that describes a session-level error condition.
-/// {@category Sync}
-class SyncSessionError extends SyncError {
-  /// If true the received error is fatal.
-  final bool isFatal;
-
-  /// The [SyncSessionErrorCode] value indicating the type of the sync error.
-  SyncSessionErrorCode get code => SyncSessionErrorCode.fromInt(codeValue);
-
-  SyncSessionError(
-    String message,
-    SyncErrorCategory category,
-    SyncSessionErrorCode errorCode, {
-    this.isFatal = false,
-  }) : super(message, category, errorCode.code);
-
-  @override
-  String toString() {
-    return "SyncError message: $message category: $category code: $code isFatal: $isFatal";
-  }
-}
-
-/// A general or unknown sync error
-class GeneralSyncError extends SyncError {
-  /// The numeric value indicating the type of the general sync error.
-  int get code => codeValue;
-
-  GeneralSyncError(String message, SyncErrorCategory category, int code) : super(message, category, code);
-
-  @override
-  String toString() {
-    return "SyncError message: $message category: $category code: $code";
-  }
 }
 
 /// The category of a [SyncError].
@@ -266,26 +151,6 @@ enum SyncErrorCategory {
 
   /// The category is unknown
   unknown,
-}
-
-/// General sync error codes
-enum GeneralSyncErrorCode {
-  // A general sync error code
-  unknown(9999);
-
-  static final Map<int, GeneralSyncErrorCode> _valuesMap = {for (var value in GeneralSyncErrorCode.values) value.code: value};
-
-  static GeneralSyncErrorCode fromInt(int code) {
-    final mappedCode = GeneralSyncErrorCode._valuesMap[code];
-    if (mappedCode == null) {
-      throw RealmError("Unknown GeneralSyncErrorCode");
-    }
-
-    return mappedCode;
-  }
-
-  final int code;
-  const GeneralSyncErrorCode(this.code);
 }
 
 /// Protocol errors discovered by the client.
@@ -559,8 +424,13 @@ enum SyncSessionErrorCode {
   /// Client tried to open a session before initial sync is complete (BIND)
   initialSyncNotCompleted(229),
 
-  /// Client attempted a write that is disallowed by permissions, or modifies an object outside the current query - requires client reset (UPLOAD)
-  writeNotAllowed(230);
+  /// Client attempted a write that is disallowed by permissions, or modifies an object
+  /// outside the current query - requires client reset (UPLOAD)
+  writeNotAllowed(230),
+
+  /// Client attempted a write that is disallowed by permissions, or modifies an object
+  /// outside the current query, and the server undid the modification (UPLOAD)
+  compensatingWrite(231);
 
   static final Map<int, SyncSessionErrorCode> _valuesMap = {for (var value in SyncSessionErrorCode.values) value.code: value};
 

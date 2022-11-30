@@ -549,4 +549,74 @@ Future<void> main([List<String>? args]) async {
     expect(realm.query<Person>("name CONTAINS 'a'").query("name CONTAINS 'l'"), isNot([alice, carol]));
     expect(realm.query<Person>("name CONTAINS 'a'").query("name CONTAINS 'l'"), [carol]);
   });
+
+  test('Results of primitives', () {
+    var config = Configuration.local([Player.schema, Game.schema]);
+    var realm = getRealm(config);
+
+    final scores = [-1, null, 0, 1];
+    final alice = Player('Alice', scoresByRound: scores);
+    realm.write(() => realm.add(alice));
+
+    expect(alice.scoresByRound, scores);
+    expect(alice.scoresByRound.asResults(), scores);
+  });
+
+  test('Results of primitives notifications', () {
+    var config = Configuration.local([Player.schema, Game.schema]);
+    var realm = getRealm(config);
+
+    final scores = [-1, null, 0, 1];
+    final alice = Player('Alice', scoresByRound: scores);
+    realm.write(() => realm.add(alice));
+
+    final results = alice.scoresByRound.asResults();
+    expectLater(
+        results.changes,
+        emitsInOrder(<Matcher>[
+          isA<RealmResultsChanges>().having((ch) => ch.inserted, 'inserted', <int>[]),
+          isA<RealmResultsChanges>().having((ch) => ch.inserted, 'inserted', [4]),
+          isA<RealmResultsChanges>() //
+              .having((ch) => ch.inserted, 'inserted', [0]) //
+              .having((ch) => ch.deleted, 'deleted', [1]),
+          isA<RealmResultsChanges>().having((ch) => ch.deleted, 'deleted', [2, 4]),
+        ]));
+
+    realm.write(() => alice.scoresByRound.add(2));
+    realm.write(() {
+      alice.scoresByRound.insert(0, 3);
+      alice.scoresByRound.remove(null);
+    });
+    realm.write(() {
+      alice.scoresByRound.removeAt(2);
+      alice.scoresByRound.removeAt(3); // index 4 in old list
+    });
+  });
+
+  test('List.asResults().query', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+
+    final team = realm.write(() {
+      return realm.add(Team('Class of 92', players: [alice, bob, carol, dan]));
+    });
+
+    final playersAsResults = team.players.asResults();
+
+    expect(playersAsResults, [alice, bob, carol, dan]);
+    expect(playersAsResults.query('FALSEPREDICATE').query('TRUEPREDICATE'), isEmpty);
+    expect(playersAsResults.query('FALSEPREDICATE').query('TRUEPREDICATE'), isNot(realm.all<Person>()));
+    expect(playersAsResults.query("name CONTAINS 'a'"), [carol, dan]); // Alice is capital 'a'
+    expect(playersAsResults.query("name CONTAINS 'l'"), [alice, carol]);
+    expect(playersAsResults.query("name CONTAINS 'a'").query("name CONTAINS 'l'"), isNot([alice, carol]));
+    expect(playersAsResults.query("name CONTAINS 'a'").query("name CONTAINS 'l'"), [carol]);
+
+    expect(() => realm.write(() => realm.deleteMany(playersAsResults.query("name CONTAINS 'a'"))), returnsNormally);
+    expect(team.players, [alice, bob]); // Alice is capital 'a'
+  });
 }

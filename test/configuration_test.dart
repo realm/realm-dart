@@ -23,6 +23,7 @@ import 'package:test/test.dart' hide test, throws;
 import 'package:path/path.dart' as path;
 import '../lib/realm.dart';
 import 'test.dart';
+import '../flavor_helpers.dart';
 
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
@@ -222,20 +223,18 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Configuration - disableFormatUpgrade=true throws error', () async {
-    final realmBundleFile = "test/data/realm_files/old-format.realm";
     var config = Configuration.local([Car.schema], disableFormatUpgrade: true);
-    await File(realmBundleFile).copy(config.path);
+    await copyBundledFile('data/realm_files/old-format.realm', config.path);
     expect(() {
       getRealm(config);
     }, throws<RealmException>("The Realm file format must be allowed to be upgraded in order to proceed"));
-  }, skip: isFlutterPlatform);
+  });
 
   test('Configuration - disableFormatUpgrade=false', () async {
-    final realmBundleFile = "test/data/realm_files/old-format.realm";
     var config = Configuration.local([Car.schema], disableFormatUpgrade: false);
-    await File(realmBundleFile).copy(config.path);
+    await copyBundledFile('data/realm_files/old-format.realm', config.path);
     final realm = getRealm(config);
-  }, skip: isFlutterPlatform);
+  });
 
   test('Configuration.initialDataCallback invoked', () {
     var invoked = false;
@@ -588,5 +587,52 @@ Future<void> main([List<String>? args]) async {
       () => Configuration.flexibleSync(user, [Task.schema], encryptionKey: key),
       throws<RealmException>("Wrong encryption key size"),
     );
+  });
+
+  test('LocalConfiguration.maxNumberOfActiveVersions - throw when exceeded', () {
+    var config = Configuration.local([Dog.schema, Person.schema], maxNumberOfActiveVersions: 1);
+
+    final realm = getRealm(config); // First writing to the Realm when opening
+    expect(() => realm.write(() {}), throws<RealmException>("Number of active versions (2) in the Realm exceeded the limit of 1"));
+  });
+
+  test('InMemoryConfiguration.maxNumberOfActiveVersions - throw when exceeded', () {
+    var config = Configuration.inMemory([Dog.schema, Person.schema], maxNumberOfActiveVersions: 1);
+
+    final realm = getRealm(config); // First writing to the Realm when opening
+    expect(() => realm.write(() {}), throws<RealmException>("Number of active versions (2) in the Realm exceeded the limit of 1"));
+  });
+
+  baasTest('FlexibleSyncConfiguration.maxNumberOfActiveVersions - throw when exceeded', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+
+    final config = Configuration.flexibleSync(user, [Task.schema], maxNumberOfActiveVersions: 1);
+    final realm = await getRealmAsync(config); // First writing to the Realm when opening
+    realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm.all<Task>()));
+    expect(() => realm.write(() {}), throws<RealmException>("in the Realm exceeded the limit of 1"));
+  });
+
+  baasTest('DisconnectedSyncConfiguration.maxNumberOfActiveVersions - throw when exceeded', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous();
+    final user = await app.logIn(credentials);
+    final config = Configuration.flexibleSync(user, [Task.schema]);
+
+    final disconnectedConfig = Configuration.disconnectedSync([Task.schema], path: config.path, maxNumberOfActiveVersions: 1);
+    final realm = getRealm(disconnectedConfig); // First writing to the Realm when opening
+    expect(() => realm.write(() {}), throws<RealmException>("in the Realm exceeded the limit of 1"));
+  });
+
+  test('LocalConfiguration.maxNumberOfActiveVersions - freeze to exceed the version and then throw', () {
+    var config = Configuration.local([Dog.schema, Person.schema], maxNumberOfActiveVersions: 2);
+
+    final realm = getRealm(config);
+    final frozen1 = realm.freeze();
+    realm.write(() => realm.add(Dog("Foxi1")));
+    final frozen2 = realm.freeze();
+    realm.write(() => realm.add(Dog("Foxi2")));
+    expect(() => realm.write(() {}), throws<RealmException>("Number of active versions (3) in the Realm exceeded the limit of 2"));
   });
 }

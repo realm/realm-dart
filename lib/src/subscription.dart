@@ -182,7 +182,7 @@ abstract class SubscriptionSet with IterableMixin<Subscription> implements Final
   Subscription operator [](int index) => elementAt(index);
 
   @override
-  _SubscriptionIterator get iterator => _SubscriptionIterator._(this);
+  Iterator<Subscription> get iterator => _SubscriptionIterator._(this);
 
   /// Update the subscription set and send the request to the server in the background.
   ///
@@ -285,6 +285,19 @@ class MutableSubscriptionSet extends SubscriptionSet {
   /// Remove the [query] from the set that matches by [name], if it exists.
   bool removeByName(String name) {
     return realmCore.eraseSubscriptionByName(this, name);
+  }
+
+  bool removeByType<T extends RealmObject>() {
+    final name = realm.schema.singleWhere((e) => e.type == T).name;
+    var result = false;
+    for (var i = length - 1; i >= 0; i--) {
+      // reverse iteration to avoid index shifting
+      final subscription = this[i];
+      if (subscription.objectClassName == name) {
+        result |= remove(subscription);
+      }
+    }
+    return result;
   }
 
   /// Clear the subscription set.

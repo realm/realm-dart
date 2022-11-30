@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:core';
 import 'dart:async';
 import 'dart:collection';
 import 'dart:ffi';
@@ -42,11 +43,17 @@ abstract class RealmList<T extends Object?> with RealmEntity implements List<T>,
   /// and it's parent object hasn't been deleted.
   bool get isValid;
 
+  /// Converts this [List] to a [RealmResults].
+  RealmResults<T> asResults();
+
   factory RealmList._(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => ManagedRealmList._(handle, realm, metadata);
   factory RealmList(Iterable<T> items) => UnmanagedRealmList(items);
 
   /// Creates a frozen snapshot of this `RealmList`.
   RealmList<T> freeze();
+
+  /// Allows listening for changes when the contents of this collection changes.
+  Stream<RealmListChanges<T>> get changes;
 }
 
 class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> implements RealmList<T> {
@@ -85,15 +92,16 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
 
   @override
   bool remove(covariant T element) {
-    if (element is RealmObject && !element.isManaged) {
+    if (element is RealmObjectBase && !element.isManaged) {
       throw RealmStateError('Cannot call remove on a managed list with an element that is an unmanaged object');
     }
     final index = indexOf(element);
-    final found = index > 0;
-    if (found) {
-      removeAt(index);
+    if (index < 0) {
+      return false;
     }
-    return found;
+
+    removeAt(index);
+    return true;
   }
 
   @override
@@ -122,7 +130,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
 
   @override
   void insert(int index, T element) {
-    realmCore.listInsertElementAt(handle, index, element);
+    RealmListInternal.setValue(handle, realm, index, element, insert: true);
   }
 
   @override
@@ -137,6 +145,11 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
     return result;
   }
 
+  /// Move the element at index [from] to index [to].
+  void move(int from, int to) {
+    realmCore.listMoveElement(handle, from, to);
+  }
+
   /// Removes all objects from this list; the length of the list becomes zero.
   /// The objects are not deleted from the realm, but are no longer referenced from this list.
   @override
@@ -144,7 +157,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
 
   @override
   int indexOf(covariant T element, [int start = 0]) {
-    if (element is RealmObject && !element.isManaged) {
+    if (element is RealmObjectBase && !element.isManaged) {
       throw RealmStateError('Cannot call indexOf on a managed list with an element that is an unmanaged object');
     }
     if (start < 0) start = 0;
@@ -164,6 +177,18 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
     final frozenRealm = realm.freeze();
     return frozenRealm.resolveList(this)!;
   }
+
+  @override
+  RealmResults<T> asResults() => RealmResultsInternal.create<T>(realmCore.resultsFromList(this), realm, metadata);
+
+  @override
+  Stream<RealmListChanges<T>> get changes {
+    if (isFrozen) {
+      throw RealmStateError('List is frozen and cannot emit changes');
+    }
+    final controller = ListNotificationsController<T>(asManaged());
+    return controller.createStream();
+  }
 }
 
 class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T> with RealmEntity implements RealmList<T> {
@@ -180,33 +205,27 @@ class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T>
 
   @override
   RealmList<T> freeze() => throw RealmStateError("Unmanaged lists can't be frozen");
+
+  @override
+  RealmResults<T> asResults() => throw RealmStateError("Unmanaged lists can't be converted to results");
+
+  @override
+  Stream<RealmListChanges<T>> get changes => throw RealmStateError("Unmanaged lists don't support changes");
 }
 
 // The query operations on lists, as well as the ability to subscribe for notifications,
 // only work for list of objects (core restriction), so we add these as an extension methods
 // to allow the compiler to prevent misuse.
-extension RealmListOfObject<T extends RealmObject> on RealmList<T> {
+extension RealmListOfObject<T extends RealmObjectBase> on RealmList<T> {
   /// Filters the list and returns a new [RealmResults] according to the provided [query] (with optional [arguments]).
   ///
-  /// Only works for lists of [RealmObject]s.
+  /// Only works for lists of [RealmObject]s or [EmbeddedObject]s.
   ///
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query(String query, [List<Object> arguments = const []]) {
-    final managedList = asManaged();
-    final handle = realmCore.queryList(managedList, query, arguments);
+    final handle = realmCore.queryList(asManaged(), query, arguments);
     return RealmResultsInternal.create<T>(handle, realm, _metadata);
-  }
-
-  /// Allows listening for changes when the contents of this collection changes.
-  Stream<RealmListChanges<T>> get changes {
-    if (isFrozen) {
-      throw RealmStateError('List is frozen and cannot emit changes');
-    }
-
-    final managedList = asManaged();
-    final controller = ListNotificationsController<T>(managedList);
-    return controller.createStream();
   }
 }
 
@@ -236,18 +255,33 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
 
   static RealmList<T> create<T extends Object?>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
 
-  static void setValue(RealmListHandle handle, Realm realm, int index, Object? value, {bool update = false}) {
+  static void setValue(RealmListHandle handle, Realm realm, int index, Object? value, {bool update = false, bool insert = false}) {
     if (index < 0) {
-      throw RealmException("Index out of range $index");
+      throw RealmException("Index can not be negative: $index");
+    }
+
+    final length = realmCore.getListSize(handle);
+    if (index > length) {
+      throw RealmException('Index can not exceed the size of the list: $index, size: $length');
     }
 
     try {
+      if (value is EmbeddedObject) {
+        if (value.isManaged) {
+          throw RealmError("Can't add to list an embedded object that is already managed");
+        }
+
+        final objHandle =
+            insert || index >= length ? realmCore.listInsertEmbeddedObjectAt(realm, handle, index) : realmCore.listSetEmbeddedObjectAt(realm, handle, index);
+        realm.manageEmbedded(objHandle, value);
+        return;
+      }
+
       if (value is RealmObject && !value.isManaged) {
         realm.add<RealmObject>(value, update: update);
       }
 
-      final length = realmCore.getListSize(handle);
-      if (index >= length) {
+      if (insert || index >= length) {
         realmCore.listInsertElementAt(handle, index, value);
       } else {
         realmCore.listSetElementAt(handle, index, value);
@@ -259,7 +293,7 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
 }
 
 /// Describes the changes in a Realm results collection since the last time the notification callback was invoked.
-class RealmListChanges<T extends Object> extends RealmCollectionChanges {
+class RealmListChanges<T extends Object?> extends RealmCollectionChanges {
   /// The collection being monitored for changes.
   final RealmList<T> list;
 
@@ -267,7 +301,7 @@ class RealmListChanges<T extends Object> extends RealmCollectionChanges {
 }
 
 /// @nodoc
-class ListNotificationsController<T extends Object> extends NotificationsController {
+class ListNotificationsController<T extends Object?> extends NotificationsController {
   final ManagedRealmList<T> list;
   late final StreamController<RealmListChanges<T>> streamController;
 
@@ -296,5 +330,20 @@ class ListNotificationsController<T extends Object> extends NotificationsControl
   @override
   void onError(RealmError error) {
     streamController.addError(error);
+  }
+}
+
+extension ListExtension<T> on List<T> {
+  /// Move the element at index [from] to index [to].
+  void move(int from, int to) {
+    RangeError.checkValidIndex(from, this, 'from', length);
+    RangeError.checkValidIndex(to, this, 'to', length);
+    if (to == from) return; // no-op
+    final self = this;
+    if (self is ManagedRealmList<T>) {
+      self.move(from, to);
+    } else {
+      insert(to, removeAt(from));
+    }
   }
 }

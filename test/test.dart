@@ -230,6 +230,75 @@ class _Game {
   int get rounds => winnerByRound.length;
 }
 
+@RealmModel(ObjectType.embeddedObject)
+class _AllTypesEmbedded {
+  late String stringProp;
+  late bool boolProp;
+  late DateTime dateProp;
+  late double doubleProp;
+  late ObjectId objectIdProp;
+  late Uuid uuidProp;
+  late int intProp;
+
+  late String? nullableStringProp;
+  late bool? nullableBoolProp;
+  late DateTime? nullableDateProp;
+  late double? nullableDoubleProp;
+  late ObjectId? nullableObjectIdProp;
+  late Uuid? nullableUuidProp;
+  late int? nullableIntProp;
+
+  late List<String> strings;
+  late List<bool> bools;
+  late List<DateTime> dates;
+  late List<double> doubles;
+  late List<ObjectId> objectIds;
+  late List<Uuid> uuids;
+  late List<int> ints;
+}
+
+@RealmModel()
+class _ObjectWithEmbedded {
+  @PrimaryKey()
+  @MapTo('_id')
+  late String id;
+
+  late Uuid? differentiator;
+
+  late _AllTypesEmbedded? singleObject;
+
+  late List<_AllTypesEmbedded> list;
+
+  late _RecursiveEmbedded1? recursiveObject;
+
+  late List<_RecursiveEmbedded1> recursiveList;
+}
+
+@RealmModel(ObjectType.embeddedObject)
+class _RecursiveEmbedded1 {
+  late String value;
+
+  late _RecursiveEmbedded2? child;
+  late List<_RecursiveEmbedded2> children;
+
+  late _ObjectWithEmbedded? realmObject;
+}
+
+@RealmModel(ObjectType.embeddedObject)
+class _RecursiveEmbedded2 {
+  late String value;
+
+  late _RecursiveEmbedded3? child;
+  late List<_RecursiveEmbedded3> children;
+
+  late _ObjectWithEmbedded? realmObject;
+}
+
+@RealmModel(ObjectType.embeddedObject)
+class _RecursiveEmbedded3 {
+  late String value;
+}
+
 String? testName;
 Map<String, String?> arguments = {};
 final baasApps = <String, BaasApp>{};
@@ -253,6 +322,7 @@ O8BM8KOSx9wGyoGs4+OusvRkJizhPaIwa3FInLs4r+xZW9Bp6RndsmVECtvXRv5d
 RwIDAQAB
 -----END PUBLIC KEY-----''';
 final int encryptionKeySize = 64;
+final _appsToRestoreRecovery = Queue<String>();
 
 enum AppNames {
   flexible,
@@ -300,6 +370,7 @@ Future<void> setupTests(List<String>? args) async {
     addTearDown(() async {
       final paths = HashSet<String>();
       paths.add(path);
+      await enableAllAutomaticRecovery();
 
       realmCore.clearCachedApps();
 
@@ -327,8 +398,8 @@ String generateRandomRealmPath() {
 
 final random = Random();
 String generateRandomString(int len) {
-  const _chars = 'abcdefghjklmnopqrstuvwxuz';
-  return List.generate(len, (index) => _chars[random.nextInt(_chars.length)]).join();
+  const chars = 'abcdefghjklmnopqrstuvwxuz';
+  return List.generate(len, (index) => chars[random.nextInt(chars.length)]).join();
 }
 
 Realm getRealm(Configuration config) {
@@ -360,7 +431,7 @@ Realm freezeRealm(Realm realm) {
 
 /// This is needed to make sure the frozen Realm gets forcefully closed by the
 /// time the test ends.
-RealmResults<T> freezeResults<T extends RealmObject>(RealmResults<T> results) {
+RealmResults<T> freezeResults<T extends RealmObjectBase>(RealmResults<T> results) {
   final frozen = results.freeze();
   _openRealms.add(frozen.realm);
   return frozen;
@@ -376,7 +447,7 @@ RealmList<T> freezeList<T>(RealmList<T> list) {
 
 /// This is needed to make sure the frozen Realm gets forcefully closed by the
 /// time the test ends.
-T freezeObject<T extends RealmObject>(T object) {
+T freezeObject<T extends RealmObjectBase>(T object) {
   final frozen = object.freeze();
   _openRealms.add(frozen.realm);
   return frozen as T;
@@ -396,13 +467,21 @@ Future<void> tryDeleteRealm(String path) async {
     return;
   }
 
+  final dummy = File("");
+  const duration = Duration(milliseconds: 100);
   for (var i = 0; i < 5; i++) {
     try {
       Realm.deleteRealm(path);
-      await File('$path.lock').delete();
+      
+      //delete lock file
+      await File('$path.lock').delete().onError((error, stackTrace) => dummy);
+
+      //Bug in Core https://github.com/realm/realm-core/issues/5997. Remove when fixed
+      //delete compaction space file
+      await File('$path.tmp_compaction_space').delete().onError((error, stackTrace) => dummy);
+
       return;
     } catch (e) {
-      const duration = Duration(milliseconds: 100);
       print('Failed to delete realm at path $path. Trying again in ${duration.inMilliseconds}ms');
       await Future<void>.delayed(duration);
     }
@@ -515,6 +594,10 @@ Future<User> getIntegrationUser(App app) async {
   return await loginWithRetry(app, Credentials.emailPassword(email, password));
 }
 
+Future<User> getAnonymousUser(App app) {
+  return app.logIn(Credentials.anonymous(reuseCredentials: false));
+}
+
 Future<String> createServerApiKey(App app, String name, {bool enabled = true}) async {
   final baasApp = baasApps.values.firstWhere((ba) => ba.clientAppId == app.id);
   final client = _baasClient ?? (throw StateError("No BAAS client"));
@@ -551,25 +634,47 @@ Future<User> loginWithRetry(App app, Credentials credentials, {int retryCount = 
 }
 
 Future<void> waitForCondition(
-  bool Function() condition, {
+  FutureOr<bool> Function() condition, {
   Duration timeout = const Duration(seconds: 1),
   Duration retryDelay = const Duration(milliseconds: 100),
   String? message,
-}) async {
-  await Future.any<void>([
-    Future<void>.delayed(timeout, () => throw TimeoutException('Condition not met within $timeout. Message: ${message != null ? ': $message' : ''}')),
-    Future.doWhile(() async {
-      if (condition()) {
-        return false;
-      }
-      await Future<void>.delayed(retryDelay);
-      return true;
-    })
-  ]);
+}) {
+  return waitForConditionWithResult<bool>(() => condition(), (value) => value == true, timeout: timeout, retryDelay: retryDelay, message: message);
 }
 
-extension RealmObjectTest on RealmObject {
+Future<T> waitForConditionWithResult<T>(FutureOr<T> Function() getter, FutureOr<bool> Function(T value) condition,
+    {Duration timeout = const Duration(seconds: 1), Duration retryDelay = const Duration(milliseconds: 100), String? message}) async {
+  final start = DateTime.now();
+  while (true) {
+    final value = await getter();
+    if (await condition(value)) {
+      return value;
+    }
+
+    if (DateTime.now().difference(start) > timeout) {
+      throw TimeoutException('Condition not met within $timeout. Message: ${message != null ? ': $message' : ''}');
+    }
+
+    await Future<void>.delayed(retryDelay);
+  }
+}
+
+extension RealmObjectTest on RealmObjectBase {
   String toJson() => realmCore.objectToString(this);
+}
+
+extension DateTimeTest on DateTime {
+  String toNormalizedDateString() {
+    final utc = toUtc();
+    // This is kind of silly, but Core serializes negative dates as -003-01-01 12:34:56
+    final utcYear = utc.year < 0 ? '-${utc.year.abs().toString().padLeft(3, '0')}' : utc.year.toString().padLeft(4, '0');
+
+    // For some reason Core always rounds up to the next second for negative dates, so we need to do the same
+    final seconds = utc.microsecondsSinceEpoch < 0 && utc.microsecondsSinceEpoch % 1000000 != 0 ? utc.second + 1 : utc.second;
+    return '$utcYear-${_format(utc.month)}-${_format(utc.day)} ${_format(utc.hour)}:${_format(utc.minute)}:${_format(seconds)}';
+  }
+
+  static String _format(int value) => value.toString().padLeft(2, '0');
 }
 
 void clearCachedApps() => realmCore.clearCachedApps();
@@ -590,6 +695,22 @@ Future<void> _printPlatformInfo() async {
 
   print('Current PID $pid; OS $os, $pointerSize bit, CPU ${cpu ?? 'unknown'}');
 }
+
+Future<void> disableAutomaticRecovery([String? appName]) async {
+  final client = _baasClient ?? (throw StateError("No BAAS client"));
+  appName ??= BaasClient.defaultAppName;
+  await client.setAutomaticRecoveryEnabled(appName, false);
+  _appsToRestoreRecovery.add(appName);
+}
+
+Future<void> enableAllAutomaticRecovery() async {
+  final client = _baasClient ?? (throw StateError("No BAAS client"));
+  while (_appsToRestoreRecovery.isNotEmpty) {
+    final appName = _appsToRestoreRecovery.removeFirst();
+    await client.setAutomaticRecoveryEnabled(appName, true);
+  }
+}
+
 
 extension $WriteExtension on Realm {
   void writesExpectException<TException>(String exceptionMessage) {

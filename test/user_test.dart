@@ -16,16 +16,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:io';
-
 import 'package:test/expect.dart';
 
 import '../lib/realm.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
-  print("Current PID $pid");
-
   await setupTests(args);
 
   baasTest('User logout anon user is marked as removed', (configuration) async {
@@ -76,7 +72,7 @@ Future<void> main([List<String>? args]) async {
 
     expect(user1.state, UserState.loggedIn);
     expect(user1.identities.length, 1);
-    expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous).provider, isNotNull);
+    expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous), isA<UserIdentity>());
 
     final authProvider = EmailPasswordAuthProvider(app);
     final username = "${generateRandomString(20)}@realm.io";
@@ -85,8 +81,8 @@ Future<void> main([List<String>? args]) async {
 
     await user1.linkCredentials(Credentials.emailPassword(username, password));
     expect(user1.identities.length, 2);
-    expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.emailPassword).provider, isNotNull);
-    expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous).provider, isNotNull);
+    expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.emailPassword), isA<UserIdentity>());
+    expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous), isA<UserIdentity>());
 
     final user2 = await app.logIn(Credentials.emailPassword(username, password));
     expect(user1, user2);
@@ -117,10 +113,31 @@ Future<void> main([List<String>? args]) async {
     expect(user.profile.email, testUsername);
   });
 
+  Future<ApiKey> createAndVerifyApiKey(User user, String name) async {
+    final result = await user.apiKeys.create(name);
+    await waitForConditionWithResult<ApiKey?>(() => user.apiKeys.fetch(result.id), (fetched) => fetched != null, timeout: Duration(seconds: 15));
+    return result;
+  }
+
+  Future<void> enableAndVerifyApiKey(User user, ObjectId keyId) async {
+    await user.apiKeys.enable(keyId);
+    await waitForConditionWithResult<ApiKey?>(() => user.apiKeys.fetch(keyId), (fetched) => fetched!.isEnabled, timeout: Duration(seconds: 15));
+  }
+
+  Future<void> disableAndVerifyApiKey(User user, ObjectId keyId) async {
+    await user.apiKeys.disable(keyId);
+    await waitForConditionWithResult<ApiKey?>(() => user.apiKeys.fetch(keyId), (fetched) => !fetched!.isEnabled, timeout: Duration(seconds: 15));
+  }
+
+  Future<void> deleteAndVerifyApiKey(User user, ObjectId keyId) async {
+    await user.apiKeys.delete(keyId);
+    await waitForConditionWithResult<ApiKey?>(() => user.apiKeys.fetch(keyId), (fetched) => fetched == null, timeout: Duration(seconds: 15));
+  }
+
   baasTest('User.apiKeys.create creates and reveals value', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final apiKey = await user.apiKeys.create('my-api-key');
+    final apiKey = await createAndVerifyApiKey(user, 'my-api-key');
 
     expect(apiKey.isEnabled, true);
     expect(apiKey.name, 'my-api-key');
@@ -170,7 +187,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('User.apiKeys.fetch with existent returns result', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final apiKey = await user.apiKeys.create('my-api-key');
+    final apiKey = await createAndVerifyApiKey(user, 'my-api-key');
 
     final refetched = await user.apiKeys.fetch(apiKey.id);
 
@@ -189,7 +206,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
 
-    final original = await user.apiKeys.create('my-api-key');
+    final original = await createAndVerifyApiKey(user, 'my-api-key');
 
     final apiKeys = await user.apiKeys.fetchAll();
 
@@ -203,13 +220,14 @@ Future<void> main([List<String>? args]) async {
 
     final original = <ApiKey>[];
     for (var i = 0; i < 5; i++) {
-      original.add(await user.apiKeys.create('my-api-key-$i'));
+      original.add(await createAndVerifyApiKey(user, 'my-api-key-$i'));
     }
 
     final fetched = await user.apiKeys.fetchAll();
 
     for (var i = 0; i < 5; i++) {
-      expectApiKey(fetched[i], original[i]);
+      final fetchedKey = fetched.singleWhere((key) => key.id == original[i].id);
+      expectApiKey(fetchedKey, original[i]);
     }
   });
 
@@ -217,7 +235,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
 
-    final key = await user.apiKeys.create('key');
+    final key = await createAndVerifyApiKey(user, 'key');
 
     await user.apiKeys.delete(ObjectId());
 
@@ -230,10 +248,10 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
 
-    final toDelete = await user.apiKeys.create('to-delete');
-    final toRemain = await user.apiKeys.create('to-remain');
+    final toDelete = await createAndVerifyApiKey(user, 'to-delete');
+    final toRemain = await createAndVerifyApiKey(user, 'to-remain');
 
-    await user.apiKeys.delete(toDelete.id);
+    await deleteAndVerifyApiKey(user, toDelete.id);
 
     final fetched = await user.apiKeys.fetch(toDelete.id);
     expect(fetched, isNull);
@@ -271,7 +289,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
 
-    final key = await user.apiKeys.create('my-key');
+    final key = await createAndVerifyApiKey(user, 'my-key');
 
     expect(key.isEnabled, true);
 
@@ -286,11 +304,11 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
 
-    final key = await user.apiKeys.create('my-key');
+    final key = await createAndVerifyApiKey(user, 'my-key');
 
     expect(key.isEnabled, true);
 
-    await user.apiKeys.disable(key.id);
+    await disableAndVerifyApiKey(user, key.id);
 
     final fetched = await user.apiKeys.fetch(key.id);
     expect(fetched!.isEnabled, false);
@@ -305,56 +323,60 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
 
-    final first = await user.apiKeys.create('first');
-    final second = await user.apiKeys.create('second');
+    final first = await createAndVerifyApiKey(user, 'first');
+    final second = await createAndVerifyApiKey(user, 'second');
 
     expect(first.isEnabled, true);
     expect(second.isEnabled, true);
 
-    await user.apiKeys.disable(first.id);
+    await disableAndVerifyApiKey(user, first.id);
 
     final fetched = await user.apiKeys.fetchAll();
-    expect(fetched[0].id, first.id);
-    expect(fetched[0].isEnabled, false);
 
-    expect(fetched[1].id, second.id);
-    expect(fetched[1].isEnabled, true);
+    final fetchedFirst = fetched.singleWhere((key) => key.id == first.id);
+    expect(fetchedFirst.isEnabled, false);
+
+    final fetchedSecond = fetched.singleWhere((key) => key.id == second.id);
+    expect(fetchedSecond.isEnabled, true);
   });
 
   baasTest('User.apiKeys.enable reenables key', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
 
-    final first = await user.apiKeys.create('first');
-    final second = await user.apiKeys.create('second');
+    final first = await createAndVerifyApiKey(user, 'first');
+    final second = await createAndVerifyApiKey(user, 'second');
 
     expect(first.isEnabled, true);
     expect(second.isEnabled, true);
 
-    await user.apiKeys.disable(first.id);
+    await disableAndVerifyApiKey(user, first.id);
 
     final fetched = await user.apiKeys.fetchAll();
-    expect(fetched[0].id, first.id);
-    expect(fetched[0].isEnabled, false);
 
-    expect(fetched[1].id, second.id);
-    expect(fetched[1].isEnabled, true);
+    final fetchedFirst = fetched.singleWhere((key) => key.id == first.id);
+    expect(fetchedFirst.isEnabled, false);
 
-    await user.apiKeys.enable(first.id);
+    final fetchedSecond = fetched.singleWhere((key) => key.id == second.id);
+    expect(fetchedSecond.isEnabled, true);
+
+    await enableAndVerifyApiKey(user, first.id);
 
     final refetched = await user.apiKeys.fetchAll();
-    expect(refetched[0].id, first.id);
-    expect(refetched[0].isEnabled, true);
 
-    expect(refetched[1].id, second.id);
-    expect(refetched[1].isEnabled, true);
+    final refetchedFirst = refetched.singleWhere((k) => k.id == first.id);
+    expect(refetchedFirst.isEnabled, true);
+
+    final refetchedSecond = refetched.singleWhere((k) => k.id == second.id);
+    expect(refetchedSecond.isEnabled, true);
   });
 
   baasTest('User.apiKeys can login with generated key', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
 
-    final key = await user.apiKeys.create('my-key');
+    final key = await createAndVerifyApiKey(user, 'my-key');
+
     final credentials = Credentials.apiKey(key.value!);
 
     final apiKeyUser = await app.logIn(credentials);
@@ -367,9 +389,9 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
 
-    final key = await user.apiKeys.create('my-key');
+    final key = await createAndVerifyApiKey(user, 'my-key');
 
-    await user.apiKeys.disable(key.id);
+    await disableAndVerifyApiKey(user, key.id);
 
     final credentials = Credentials.apiKey(key.value!);
 
@@ -380,7 +402,7 @@ Future<void> main([List<String>? args]) async {
             .having((e) => e.statusCode, 'statusCode', 401)
             .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))));
 
-    await user.apiKeys.enable(key.id);
+    await enableAndVerifyApiKey(user, key.id);
 
     final apiKeyUser = await app.logIn(credentials);
     expect(apiKeyUser.provider, AuthProviderType.apiKey);
@@ -392,9 +414,9 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
 
-    final key = await user.apiKeys.create('my-key');
+    final key = await createAndVerifyApiKey(user, 'my-key');
 
-    await user.apiKeys.delete(key.id);
+    await deleteAndVerifyApiKey(user, key.id);
 
     final credentials = Credentials.apiKey(key.value!);
 
@@ -433,7 +455,7 @@ Future<void> main([List<String>? args]) async {
   baasTest("Credentials.apiKey user cannot access API keys", (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final apiKey = await user.apiKeys.create('my-key');
+    final apiKey = await createAndVerifyApiKey(user, 'my-key');
 
     final apiKeyUser = await app.logIn(Credentials.apiKey(apiKey.value!));
 

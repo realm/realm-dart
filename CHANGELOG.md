@@ -1,5 +1,107 @@
 ## vNext (TBD)
 
+**This project is in Release Candidate stage.**
+
+### Breaking Changes
+* File format version bumped.
+* The layout of the lock-file has changed, the lock file format version is bumped and all participants in a multiprocess scenario needs to be up to date so they expect the same format. This requires an update of Studio. (Core upgrade)
+
+### Enhancements
+* Support setting `maxNumberOfActiveVersions` when creating a `Configuration`. ([#1036](https://github.com/realm/realm-dart/pull/1036))
+* Add List.move extension method that moves an element from one index to another. Delegates to ManagedRealmList.move for managed lists. This allows notifications to correctly report moves, as opposed to reporting moves as deletes + inserts. ([#1037](https://github.com/realm/realm-dart/issues/1037))
+* Support setting `shouldDeleteIfMigrationNeeded` when creating a `Configuration.local`. ([#1049](https://github.com/realm/realm-dart/issues/1049))
+
+### Fixed
+* Support mapping into `SyncSessionErrorCode` for "Compensating write" with error code 231. ([#1022](https://github.com/realm/realm-dart/pull/1022))
+* Errors from core will be raised correctly for `beginWriteAsync` and `commitAsync`. ([#1042](https://github.com/realm/realm-dart/pull/1042))
+* The realm file will be shrunk if the larger file size is no longer needed. (Core upgrade)
+* Most of the file growth caused by version pinning is eliminated. (Core upgrade)
+* Fetching a user's profile while the user logs out would result in an assertion failure. (Core upgrade)
+* Removed the ".tmp_compaction_space" file being left over after compacting a Realm on Windows. (Core upgrade).
+* Restore fallback to full barrier when F_BARRIERSYNC is not available on Apple platforms. (Core upgrade, since v0.8.0+rc)
+* Fixed wrong assertion on query error that could result in a crash. (Core upgrade)
+
+### Compatibility
+* Realm Studio: 13.0.0 or later.
+* Fileformat: Generates files with format v23. Reads and automatically upgrades from fileformat v5.
+
+### Internal
+* Using Core 13.1.0.
+
+## 0.8.0+rc (2022-11-14)
+
+**This project is in Release Candidate stage.**
+
+### Breaking Changes
+* `FunctionsClient.call` no longer accepts a null for the optional `functionsArgs` parameter, but it is still optional. ([#1025](https://github.com/realm/realm-dart/pull/1025))
+
+### Fixed
+* Allow backlinks between files. ([#1015](https://github.com/realm/realm-dart/issues/1015))
+* Fix issue with accessing properties after traversing a backlink. ([#1018](https://github.com/realm/realm-dart/issues/1018))
+* Bootstraps will not be applied in a single write transaction - they will be applied 1MB of changesets at a time, or as configured by the SDK (Core upgrade).
+* Fix database corruption and encryption issues on apple platforms. (Core upgrade)
+
+### Compatibility
+* Realm Studio: 12.0.0 or later.
+
+### Internal
+* Using Core 12.12.0.
+
+## 0.7.0+rc (2022-11-04)
+
+**This project is in Release Candidate stage.**
+
+### Breaking Changes
+* SyncClientResetErrorHandler is renamed to ClientResetHandler. SyncClientResetError is renamed to ClientResetError. ManualSyncClientResetHandler is renamed to ManualRecoveryHandler.
+* Default resync mode for `FlexibleSyncConfiguration` is changed from `manual` to `recoverOrDiscard`. In this mode Realm attempts to recover unsynced local changes and if that fails, then the changes are discarded. ([#925](https://github.com/realm/realm-dart/pull/925))
+* Added `path` parameter to `Configuration.disconnectedSync`. This path is required to open the correct synced realm file. ([#1007](https://github.com/realm/realm-dart/pull/https://github.com/realm/realm-dart/pull/1007))
+
+### Enhancements
+* Added `MutableSubscriptionSet.removeByType` for removing subscriptions by their realm object type. ([#317](https://github.com/realm/realm-dart/issues/317))
+* Added `User.functions`. This is the entry point for calling Atlas App functions. Functions allow you to define and execute server-side logic for your application. Atlas App functions are created on the server, written in modern JavaScript (ES6+) and executed in a serverless manner. When you call a function, you can dynamically access components of the current application as well as information about the request to execute the function and the logged in user that sent the request. ([#973](https://github.com/realm/realm-dart/pull/973))
+* Support results of primitives, ie. `RealmResult<int>`. ([#162](https://github.com/realm/realm-dart/issues/162))
+* Support notifications on all managed realm lists, including list of primitives, ie. `RealmList<int>.changes` is supported. ([#893](https://github.com/realm/realm-dart/pull/893))
+* Support named backlinks on realm models. You can now add and annotate a realm object iterator field with `@Backlink(#fieldName)`. ([#996](https://github.com/realm/realm-dart/pull/996))
+* Added Realm file compaction support. ([#1005](https://github.com/realm/realm-dart/pull/1005))
+* Allow `@Indexed` attribute on all indexable type, and ensure appropriate indexes are created in the realm. ([#797](https://github.com/realm/realm-dart/issues/797))
+* Add `parent` getter on embedded objects. ([#979](https://github.com/realm/realm-dart/pull/979))
+* Support [Client Resets](https://www.mongodb.com/docs/atlas/app-services/sync/error-handling/client-resets/). Atlas App Services automatically detects the need for client resets and the realm client automatically performs it according to the configured callbacks for the type of client reset handlers set on `FlexibleSyncConfiguration`. A parameter `clientResetHandler` is added to `Configuration.flexibleSync`. Supported client reset handlers are `ManualRecoveryHandler`, `DiscardUnsyncedChangesHandler`, `RecoverUnsyncedChangesHandler` and `RecoverOrDiscardUnsyncedChangesHandler`. `RecoverOrDiscardUnsyncedChangesHandler` is the default strategy. ([#925](https://github.com/realm/realm-dart/pull/925)) An example usage of the default `clientResetHandler` is as follows:
+```dart
+      final config = Configuration.flexibleSync(user, [Task.schema],
+        clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(
+          // The following callbacks are optional.
+          onBeforeReset: (beforeResetRealm) {
+            // Executed right before a client reset is about to happen.
+            // If an exception is thrown here the recovery and discard callbacks are not called.
+          },
+          onAfterRecovery: (beforeResetRealm, afterResetRealm) {
+            // Executed right after an automatic recovery from a client reset has completed.
+          },
+          onAfterDiscard: (beforeResetRealm, afterResetRealm) {
+            // Executed after an automatic recovery from a client reset has failed but the Discard has completed.
+          },
+          onManualResetFallback: (clientResetError) {
+            // Handle the reset manually in case some of the callbacks above throws an exception
+          },
+        )
+    );
+```
+
+### Fixed
+* Fixed a wrong mapping for `AuthProviderType` returned by `User.provider` for google, facebook and apple credentials.
+* Opening an unencrypted file with an encryption key would sometimes report a misleading error message that indicated that the problem was something other than a decryption failure (Core upgrade)
+* Fix a rare deadlock which could occur when closing a synchronized Realm immediately after committing a write transaction when the sync worker thread has also just finished processing a changeset from the server. (Core upgrade)
+* Fixed an issue with `Configuration.disconnectedSync` where changing the schema could result in migration exception. ([#999](https://github.com/realm/realm-dart/pull/999))
+* Added a better library load failed message. ([#1006](https://github.com/realm/realm-dart/pull/1006))
+
+### Compatibility
+* Realm Studio: 12.0.0 or later.
+
+### Internal
+* Using Core 12.11.0.
+
+## 0.6.0+beta (2022-10-21)
+
 **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
 
 ### Enhancements
@@ -8,11 +110,29 @@
   * Added `realm.beginWriteAsync` which returns a `Future<Transaction>` that resolves when the write lock has been obtained.
   * Added `realm.writeAsync` which opens an asynchronous transaction, invokes the provided callback, then commits the transaction asynchronously.
 * Support `Realm.open` API to asynchronously open a local or synced Realm. When opening a synchronized Realm it will download all the content available at the time the operation began and then return a usable Realm. ([#731](https://github.com/realm/realm-dart/pull/731))
+* Add support for embedded objects. Embedded objects are objects which are owned by a single parent object, and are deleted when that parent object is deleted or their parent no longer references them. Embedded objects are declared by passing `ObjectType.embedded` to the `@RealmModel` annotation. Reassigning an embedded object is not allowed and neither is linking to it from multiple parents. Querying for embedded objects directly is also disallowed as they should be viewed as complex structures belonging to their parents as opposed to standalone objects. (Issue [#662](https://github.com/realm/realm-dart/issues/662))
+
+```dart
+@RealmModel()
+class _Person {
+  late String name;
+
+  _Address? address;
+}
+
+// The generated `Address` class will be an embedded object.
+@RealmModel(ObjectType.embedded)
+class _Address {
+  late String street;
+  late String city;
+}
+```
 
 ### Fixed
 * Added more validations when using `User.apiKeys` to return more meaningful errors when the user cannot perform API key actions - e.g. when the user has been logged in with API key credentials or when the user has been logged out. (Issue [#950](https://github.com/realm/realm-dart/issues/950))
 * Fixed `dart run realm_dart generate` and `flutter pub run realm generate` commands to exit with the correct error code on failure.
 * Added more descriptive error messages when passing objects managed by another Realm as arguments to `Realm.add/delete/deleteMany`. (PR [#942](https://github.com/realm/realm-dart/pull/942))
+* Fixed a bug where `list.remove` would not correctly remove the value if the value is the first element in the list. (PR [#975](https://github.com/realm/realm-dart/pull/975))
 
 ### Compatibility
 * Realm Studio: 12.0.0 or later.

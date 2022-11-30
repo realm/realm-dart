@@ -6,21 +6,22 @@ on:
 jobs:
   build-ios-xcframework:
     name: Combine .xcframework
+    timeout-minutes: 15
     runs-on: macos-latest
 
     steps:
       - name: Fetch device build
-        uses: actions/download-artifact@a327a9c763239d85dc3d78908dbf6ca74acd2e46
+        uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
           name: librealm-ios-device
           path: binary/ios
       - name: Fetch simulator build
-        uses: actions/download-artifact@a327a9c763239d85dc3d78908dbf6ca74acd2e46
+        uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
           name: librealm-ios-simulator
           path: binary/ios
       - name: Fetch catalyst build
-        uses: actions/download-artifact@a327a9c763239d85dc3d78908dbf6ca74acd2e46
+        uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
           name: librealm-ios-catalyst
           path: binary/ios
@@ -35,14 +36,14 @@ jobs:
           rm -rf ./binary/ios/Release-*
 
       - name: Store .xcframework artifact
-        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+        uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
         with:
           name: librealm-ios
           path: binary/ios
           retention-days: 1
 
       - name: Delete individual framework artifacts
-        uses: geekyeggo/delete-artifact@d5464431b27e231287c52139bde3f3c4e32c5622
+        uses: geekyeggo/delete-artifact@54ab544f12cdb7b71613a16a2b5a37a9ade990af
         with:
           name: |
             librealm-ios-device

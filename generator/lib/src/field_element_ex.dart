@@ -15,6 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
@@ -22,6 +23,7 @@ import 'package:build/build.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:realm_generator/src/expanded_context_span.dart';
 import 'package:realm_generator/src/pseudo_type.dart';
+import 'package:realm_generator/src/utils.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:source_span/source_span.dart';
 
@@ -33,7 +35,6 @@ import 'format_spans.dart';
 import 'realm_field_info.dart';
 import 'session.dart';
 import 'type_checkers.dart';
-import 'utils.dart';
 
 extension FieldElementEx on FieldElement {
   FieldDeclaration get declarationAstNode => getDeclarationFromElement(this)!.node.parent!.parent as FieldDeclaration;
@@ -44,9 +45,11 @@ extension FieldElementEx on FieldElement {
 
   AnnotationValue? get indexedInfo => annotationInfoOfExact(indexedChecker);
 
+  AnnotationValue? get backlinkInfo => annotationInfoOfExact(backlinkChecker);
+
   TypeAnnotation? get typeAnnotation => declarationAstNode.fields.type;
 
-  Expression? get initializerExpression => declarationAstNode.fields.variables.singleWhere((v) => v.name.name == name).initializer;
+  Expression? get initializerExpression => declarationAstNode.fields.variables.singleWhere((v) => v.name2.toString() == name).initializer;
 
   FileSpan? typeSpan(SourceFile file) => ExpandedContextSpan(
         ExpandedContextSpan(
@@ -76,6 +79,7 @@ extension FieldElementEx on FieldElement {
 
       final primaryKey = primaryKeyInfo;
       final indexed = indexedInfo;
+      final backlink = backlinkInfo;
 
       // Check for as-of-yet unsupported type
       if (type.isDartCoreSet || //
@@ -112,7 +116,7 @@ extension FieldElementEx on FieldElement {
         //
         // However, this may change in the future. Either as the dart language team change this
         // blemish. Or perhaps we can avoid the late modifier, once static meta programming lands
-        // in dart. Therefor we keep the code outcommented for later.
+        // in dart. Therefore we keep the code out-commented for later.
         /*
         if (!isFinal) {
           throw RealmInvalidGenerationSourceError(
@@ -129,29 +133,34 @@ extension FieldElementEx on FieldElement {
       }
 
       // Validate indexes
-      if ((primaryKey != null || indexed != null) &&
-          (![RealmPropertyType.string, RealmPropertyType.int, RealmPropertyType.objectid, RealmPropertyType.uuid].contains(type.realmType) ||
-              type.isRealmCollection)) {
+      if ((((primaryKey ?? indexed) != null) && !(type.realmType?.mapping.indexable ?? false)) || //
+          (primaryKey != null && type.isDartCoreBool)) {
         final file = span!.file;
         final annotation = (primaryKey ?? indexed)!.annotation;
+        final listOfValidTypes = RealmPropertyType.values //
+            .map((t) => t.mapping)
+            .where((m) => m.indexable && (m.type != bool || primaryKey == null))
+            .map((m) => m.type);
 
         throw RealmInvalidGenerationSourceError(
-          'Realm only support indexes on String, int, and bool fields',
+          'Realm only supports the $annotation annotation on fields of type\n${listOfValidTypes.join(', ')}\nas well as their nullable versions',
           element: this,
           primarySpan: typeSpan(file),
-          primaryLabel: "$modelTypeName is not an indexable type",
+          primaryLabel: "$modelTypeName is not a valid type here",
           todo: //
               "Change the type of '$displayName', "
               "or remove the $annotation annotation",
         );
       }
 
+      String? linkOriginProperty;
+
       // Validate field type
-      final modelSpan = enclosingElement.span!;
+      final modelSpan = enclosingElement3.span!;
       final file = modelSpan.file;
       final realmType = type.realmType;
       if (realmType == null) {
-        final notARealmTypeSpan = type.element?.span;
+        final notARealmTypeSpan = type.element2?.span;
         String todo;
         if (notARealmTypeSpan != null) {
           todo = //
@@ -169,18 +178,19 @@ extension FieldElementEx on FieldElement {
           primarySpan: typeSpan(file),
           primaryLabel: '$modelTypeName is not a realm model type',
           secondarySpans: {
-            modelSpan: "in realm model '${enclosingElement.displayName}'",
+            modelSpan: "in realm model '${enclosingElement3.displayName}'",
             // may go both above and below, or stem from another file
             if (notARealmTypeSpan != null) notARealmTypeSpan: ''
           },
           todo: todo,
         );
       } else {
-        // Validate collections
-        if (type.isRealmCollection) {
+        // Validate collections and backlinks
+        if (type.isRealmCollection || backlink != null) {
+          final typeDescription = type.isRealmCollection ? 'collections' : 'backlinks';
           if (type.isNullable) {
             throw RealmInvalidGenerationSourceError(
-              'Realm collections cannot be nullable',
+              'Realm $typeDescription cannot be nullable',
               primarySpan: typeSpan(file),
               primaryLabel: 'is nullable',
               todo: '',
@@ -189,7 +199,7 @@ extension FieldElementEx on FieldElement {
           }
           final itemType = type.basicType;
           if (itemType.isRealmModel && itemType.isNullable) {
-            throw RealmInvalidGenerationSourceError('Nullable realm objects are not allowed in collections',
+            throw RealmInvalidGenerationSourceError('Nullable realm objects are not allowed in $typeDescription',
                 primarySpan: typeSpan(file),
                 primaryLabel: 'which has a nullable realm object element type',
                 element: this,
@@ -197,8 +207,51 @@ extension FieldElementEx on FieldElement {
           }
         }
 
+        // Validate backlinks
+        if (backlink != null) {
+          if (!type.isDartCoreIterable || !(type as ParameterizedType).typeArguments.first.isRealmModel) {
+            throw RealmInvalidGenerationSourceError(
+              'Backlink must be an iterable of realm objects',
+              primarySpan: typeSpan(file),
+              primaryLabel: '$modelTypeName is not an iterable of realm objects',
+              todo: '',
+              element: this,
+            );
+          }
+
+          final sourceFieldName = backlink.value.getField('fieldName')?.toSymbolValue();
+          final sourceType = (type as ParameterizedType).typeArguments.first;
+          final sourceField = (sourceType.element2 as ClassElement?)?.fields.where((f) => f.name == sourceFieldName).singleOrNull;
+
+          if (sourceField == null) {
+            throw RealmInvalidGenerationSourceError(
+              'Backlink must point to a valid field',
+              primarySpan: typeSpan(file),
+              primaryLabel: '$sourceType does not have a field named $sourceFieldName',
+              todo: '',
+              element: this,
+            );
+          }
+
+          final thisType = (enclosingElement3 as ClassElement).thisType;
+          final linkType = thisType.asNullable;
+          final listOf = session.typeProvider.listType(thisType);
+          if (sourceField.type != linkType && sourceField.type != listOf) {
+            throw RealmInvalidGenerationSourceError(
+              'Incompatible backlink type',
+              primarySpan: typeSpan(file),
+              primaryLabel: "$sourceType.$sourceFieldName is not a '$linkType' or '$listOf'",
+              todo: '',
+              element: this,
+            );
+          }
+
+          // everything is kosher, just need to account for @MapTo!
+          linkOriginProperty = sourceField.remappedRealmName ?? sourceField.name;
+        }
+
         // Validate object references
-        else if (realmType == RealmPropertyType.object) {
+        else if (realmType == RealmPropertyType.object && !type.isRealmCollection) {
           if (!type.isNullable) {
             throw RealmInvalidGenerationSourceError(
               'Realm object references must be nullable',
@@ -217,13 +270,14 @@ extension FieldElementEx on FieldElement {
         isPrimaryKey: primaryKey != null,
         mapTo: remappedRealmName,
         realmType: realmType,
+        linkOriginProperty: linkOriginProperty,
       );
     } on InvalidGenerationSourceError catch (_) {
       rethrow;
     } catch (e, s) {
       // Fallback. Not perfect, but better than just forwarding original error.
       throw RealmInvalidGenerationSourceError(
-        '$e',
+        '$e\n$s',
         todo: //
             'Unexpected error. Please open an issue on: '
             'https://github.com/realm/realm-dart',

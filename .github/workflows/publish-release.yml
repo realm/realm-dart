@@ -18,7 +18,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@8230315d06ad95c617244d2f265d237a1682d445
+      uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
       with:
         submodules: false
 
@@ -27,7 +27,7 @@ jobs:
       run: |
         pkgVersion=$(sed -ne "s/^version: \(.*\)/\1/p" pubspec.yaml)
         pkgSuffix="${{ github.event.inputs.environment != 'Production' && format('-{0}', github.sha) || '' }}"
-        echo "::set-output name=version::$pkgVersion$pkgSuffix"
+        echo "version=$pkgVersion$pkgSuffix" >> $GITHUB_OUTPUT
       shell: bash
 
     - name : Setup Dart SDK
@@ -135,7 +135,7 @@ jobs:
       shell: pwsh
 
     - name: Upload release folder
-      uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+      uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
       with:
         name: release-bundle
         path: release/**
@@ -156,7 +156,7 @@ jobs:
 
         s3_folder="static.realm.io/downloads/dart/${{ steps.get-version.outputs.version }}"
         aws s3 sync --acl public-read . "s3://$s3_folder"
-        echo "::set-output name=url::https://$s3_folder/packages.tar.gz"
+        echo "url=https://$s3_folder/packages.tar.gz" >> $GITHUB_OUTPUT
       working-directory: release
 
   publish-packages:
@@ -170,12 +170,12 @@ jobs:
     - prepare-packages
     steps:
     - name: Checkout code
-      uses: actions/checkout@8230315d06ad95c617244d2f265d237a1682d445
+      uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
       with:
         submodules: false
 
     - name: Download release folder
-      uses: actions/download-artifact@a327a9c763239d85dc3d78908dbf6ca74acd2e46
+      uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
       with:
         name: release-bundle
         path: release
@@ -233,7 +233,7 @@ jobs:
       run: |
         echo "## vNext (TBD)
 
-        **This project is in the Beta stage. The API should be quite stable, but occasional breaking changes may be made.**
+        **This project is in Release Candidate stage.**
 
         ### Enhancements
         * None

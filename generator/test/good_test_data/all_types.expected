@@ -2,52 +2,62 @@
 // RealmObjectGenerator
 // **************************************************************************
 
-class Foo extends _Foo with RealmEntity, RealmObject {
+class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
   Foo({
     int x = 0,
+    Bar? bar,
   }) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObject.setDefaults<Foo>({
+      _defaultsSet = RealmObjectBase.setDefaults<Foo>({
         'x': 0,
       });
     }
-    RealmObject.set(this, 'x', x);
+    RealmObjectBase.set(this, 'x', x);
+    RealmObjectBase.set(this, 'bar', bar);
   }
 
   Foo._();
 
   @override
-  int get x => RealmObject.get<int>(this, 'x') as int;
+  int get x => RealmObjectBase.get<int>(this, 'x') as int;
   @override
-  set x(int value) => RealmObject.set(this, 'x', value);
+  set x(int value) => RealmObjectBase.set(this, 'x', value);
+
+  @override
+  Bar? get bar => RealmObjectBase.get<Bar>(this, 'bar') as Bar?;
+  @override
+  set bar(covariant Bar? value) => RealmObjectBase.set(this, 'bar', value);
 
   @override
   Stream<RealmObjectChanges<Foo>> get changes =>
-      RealmObject.getChanges<Foo>(this);
+      RealmObjectBase.getChanges<Foo>(this);
 
   @override
-  Foo freeze() => RealmObject.freezeObject<Foo>(this);
+  Foo freeze() => RealmObjectBase.freezeObject<Foo>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory(Foo._);
-    return const SchemaObject(Foo, 'MyFoo', [
-      SchemaProperty('x', RealmPropertyType.int),
+    RealmObjectBase.registerFactory(Foo._);
+    return const SchemaObject(ObjectType.realmObject, Foo, 'MyFoo', [
+      SchemaProperty('x', RealmPropertyType.int, indexed: true),
+      SchemaProperty('bar', RealmPropertyType.object,
+          optional: true, linkTarget: 'Bar'),
     ]);
   }
 }
 
-class Bar extends _Bar with RealmEntity, RealmObject {
+class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
   Bar(
-    String id,
+    String name,
     bool aBool,
     bool another,
-    ObjectId objectId, {
+    ObjectId objectId, 
+    Uuid uuid, {
     Uint8List data = Uint8List(16),
     DateTime timestamp = DateTime.now(),
     double aDouble = 0.0,
@@ -56,112 +66,134 @@ class Bar extends _Bar with RealmEntity, RealmObject {
     Iterable<int> list = const [],
   }) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObject.setDefaults<Bar>({
+      _defaultsSet = RealmObjectBase.setDefaults<Bar>({
         'data': Uint8List(16),
         'tidspunkt': DateTime.now(),
         'aDouble': 0.0,
       });
     }
-    RealmObject.set(this, 'id', id);
-    RealmObject.set(this, 'aBool', aBool);
-    RealmObject.set(this, 'another', another);
-    RealmObject.set(this, 'data', data);
-    RealmObject.set(this, 'tidspunkt', timestamp);
-    RealmObject.set(this, 'aDouble', aDouble);
-    RealmObject.set(this, 'foo', foo);
-    RealmObject.set(this, 'anOptionalString', anOptionalString);
-    RealmObject.set(this, 'objectId', objectId);
-    RealmObject.set<RealmList<int>>(this, 'list', RealmList<int>(list));
+    RealmObjectBase.set(this, 'name', name);
+    RealmObjectBase.set(this, 'aBool', aBool);
+    RealmObjectBase.set(this, 'another', another);
+    RealmObjectBase.set(this, 'data', data);
+    RealmObjectBase.set(this, 'tidspunkt', timestamp);
+    RealmObjectBase.set(this, 'aDouble', aDouble);
+    RealmObjectBase.set(this, 'foo', foo);
+    RealmObjectBase.set(this, 'objectId', objectId);
+    RealmObjectBase.set(this, 'uuid', uuid);
+    RealmObjectBase.set(this, 'anOptionalString', anOptionalString);
+    RealmObjectBase.set<RealmList<int>>(this, 'list', RealmList<int>(list));
   }
 
   Bar._();
 
   @override
-  String get id => RealmObject.get<String>(this, 'id') as String;
+  String get name => RealmObjectBase.get<String>(this, 'name') as String;
   @override
-  set id(String value) => RealmObject.set(this, 'id', value);
+  set name(String value) => RealmObjectBase.set(this, 'name', value);
 
   @override
-  bool get aBool => RealmObject.get<bool>(this, 'aBool') as bool;
+  bool get aBool => RealmObjectBase.get<bool>(this, 'aBool') as bool;
   @override
-  set aBool(bool value) => RealmObject.set(this, 'aBool', value);
+  set aBool(bool value) => RealmObjectBase.set(this, 'aBool', value);
 
   @override
-  bool get another => RealmObject.get<bool>(this, 'another') as bool;
+  bool get another => RealmObjectBase.get<bool>(this, 'another') as bool;
   @override
-  set another(bool value) => RealmObject.set(this, 'another', value);
+  set another(bool value) => RealmObjectBase.set(this, 'another', value);
 
   @override
-  Uint8List get data => RealmObject.get<Uint8List>(this, 'data') as Uint8List;
+  Uint8List get data =>
+      RealmObjectBase.get<Uint8List>(this, 'data') as Uint8List;
   @override
-  set data(Uint8List value) => RealmObject.set(this, 'data', value);
+  set data(Uint8List value) => RealmObjectBase.set(this, 'data', value);
 
   @override
   DateTime get timestamp =>
-      RealmObject.get<DateTime>(this, 'tidspunkt') as DateTime;
+      RealmObjectBase.get<DateTime>(this, 'tidspunkt') as DateTime;
   @override
-  set timestamp(DateTime value) => RealmObject.set(this, 'tidspunkt', value);
+  set timestamp(DateTime value) =>
+      RealmObjectBase.set(this, 'tidspunkt', value);
 
   @override
-  double get aDouble => RealmObject.get<double>(this, 'aDouble') as double;
+  double get aDouble => RealmObjectBase.get<double>(this, 'aDouble') as double;
   @override
-  set aDouble(double value) => RealmObject.set(this, 'aDouble', value);
+  set aDouble(double value) => RealmObjectBase.set(this, 'aDouble', value);
 
   @override
-  Foo? get foo => RealmObject.get<Foo>(this, 'foo') as Foo?;
+  Foo? get foo => RealmObjectBase.get<Foo>(this, 'foo') as Foo?;
   @override
-  set foo(covariant Foo? value) => RealmObject.set(this, 'foo', value);
+  set foo(covariant Foo? value) => RealmObjectBase.set(this, 'foo', value);
+
+  @override
+  ObjectId get objectId =>
+      RealmObjectBase.get<ObjectId>(this, 'objectId') as ObjectId;
+  @override
+  set objectId(ObjectId value) => RealmObjectBase.set(this, 'objectId', value);
+
+  @override
+  Uuid get uuid =>
+      RealmObjectBase.get<Uuid>(this, 'uuid') as Uuid;
+  @override
+  set uuid(Uuid value) => RealmObjectBase.set(this, 'uuid', value);
 
   @override
   RealmList<int> get list =>
-      RealmObject.get<int>(this, 'list') as RealmList<int>;
+      RealmObjectBase.get<int>(this, 'list') as RealmList<int>;
   @override
   set list(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
 
   @override
   String? get anOptionalString =>
-      RealmObject.get<String>(this, 'anOptionalString') as String?;
+      RealmObjectBase.get<String>(this, 'anOptionalString') as String?;
   @override
   set anOptionalString(String? value) =>
-      RealmObject.set(this, 'anOptionalString', value);
+      RealmObjectBase.set(this, 'anOptionalString', value);
 
   @override
-  ObjectId get objectId =>
-      RealmObject.get<ObjectId>(this, 'objectId') as ObjectId;
+  RealmResults<Foo> get foos =>
+      RealmObjectBase.get<Foo>(this, 'foos') as RealmResults<Foo>;
   @override
-  set objectId(ObjectId value) => RealmObject.set(this, 'objectId', value);
+  set foos(covariant RealmResults<Foo> value) => 
+      throw RealmUnsupportedSetError();
 
   @override
   Stream<RealmObjectChanges<Bar>> get changes =>
-      RealmObject.getChanges<Bar>(this);
+      RealmObjectBase.getChanges<Bar>(this);
 
   @override
-  Bar freeze() => RealmObject.freezeObject<Bar>(this);
+  Bar freeze() => RealmObjectBase.freezeObject<Bar>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory(Bar._);
-    return const SchemaObject(Bar, 'Bar', [
-      SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
-      SchemaProperty('aBool', RealmPropertyType.bool),
-      SchemaProperty('another', RealmPropertyType.bool),
+    RealmObjectBase.registerFactory(Bar._);
+    return const SchemaObject(ObjectType.realmObject, Bar, 'Bar', [
+      SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
+      SchemaProperty('aBool', RealmPropertyType.bool, indexed: true),
+      SchemaProperty('another', RealmPropertyType.bool, indexed: true),
       SchemaProperty('data', RealmPropertyType.binary),
       SchemaProperty('tidspunkt', RealmPropertyType.timestamp,
-          mapTo: 'tidspunkt'),
+          mapTo: 'tidspunkt', indexed: true),
       SchemaProperty('aDouble', RealmPropertyType.double),
       SchemaProperty('foo', RealmPropertyType.object,
           optional: true, linkTarget: 'MyFoo'),
+      SchemaProperty('objectId', RealmPropertyType.objectid, indexed: true),
+      SchemaProperty('uuid', RealmPropertyType.uuid, indexed: true),
       SchemaProperty('list', RealmPropertyType.int,
           collectionType: RealmCollectionType.list),
       SchemaProperty('anOptionalString', RealmPropertyType.string,
-          optional: true),
-      SchemaProperty('objectId', RealmPropertyType.objectid),
+          optional: true, indexed: true),
+      SchemaProperty('foos', RealmPropertyType.linkingObjects,
+          linkOriginProperty: 'bar',
+          collectionType: RealmCollectionType.list,
+          linkTarget: 'MyFoo'),
     ]);
   }
 }
 
-class PrimitiveTypes extends _PrimitiveTypes with RealmEntity, RealmObject {
+class PrimitiveTypes extends _PrimitiveTypes
+    with RealmEntity, RealmObjectBase, RealmObject {
   PrimitiveTypes(
     String stringProp,
     bool boolProp,
@@ -169,57 +201,60 @@ class PrimitiveTypes extends _PrimitiveTypes with RealmEntity, RealmObject {
     double doubleProp,
     ObjectId objectIdProp,
   ) {
-    RealmObject.set(this, 'stringProp', stringProp);
-    RealmObject.set(this, 'boolProp', boolProp);
-    RealmObject.set(this, 'dateProp', dateProp);
-    RealmObject.set(this, 'doubleProp', doubleProp);
-    RealmObject.set(this, 'objectIdProp', objectIdProp);
+    RealmObjectBase.set(this, 'stringProp', stringProp);
+    RealmObjectBase.set(this, 'boolProp', boolProp);
+    RealmObjectBase.set(this, 'dateProp', dateProp);
+    RealmObjectBase.set(this, 'doubleProp', doubleProp);
+    RealmObjectBase.set(this, 'objectIdProp', objectIdProp);
   }
 
   PrimitiveTypes._();
 
   @override
   String get stringProp =>
-      RealmObject.get<String>(this, 'stringProp') as String;
+      RealmObjectBase.get<String>(this, 'stringProp') as String;
   @override
-  set stringProp(String value) => RealmObject.set(this, 'stringProp', value);
+  set stringProp(String value) =>
+      RealmObjectBase.set(this, 'stringProp', value);
 
   @override
-  bool get boolProp => RealmObject.get<bool>(this, 'boolProp') as bool;
+  bool get boolProp => RealmObjectBase.get<bool>(this, 'boolProp') as bool;
   @override
-  set boolProp(bool value) => RealmObject.set(this, 'boolProp', value);
+  set boolProp(bool value) => RealmObjectBase.set(this, 'boolProp', value);
 
   @override
   DateTime get dateProp =>
-      RealmObject.get<DateTime>(this, 'dateProp') as DateTime;
+      RealmObjectBase.get<DateTime>(this, 'dateProp') as DateTime;
   @override
-  set dateProp(DateTime value) => RealmObject.set(this, 'dateProp', value);
+  set dateProp(DateTime value) => RealmObjectBase.set(this, 'dateProp', value);
 
   @override
   double get doubleProp =>
-      RealmObject.get<double>(this, 'doubleProp') as double;
+      RealmObjectBase.get<double>(this, 'doubleProp') as double;
   @override
-  set doubleProp(double value) => RealmObject.set(this, 'doubleProp', value);
+  set doubleProp(double value) =>
+      RealmObjectBase.set(this, 'doubleProp', value);
 
   @override
   ObjectId get objectIdProp =>
-      RealmObject.get<ObjectId>(this, 'objectIdProp') as ObjectId;
+      RealmObjectBase.get<ObjectId>(this, 'objectIdProp') as ObjectId;
   @override
   set objectIdProp(ObjectId value) =>
-      RealmObject.set(this, 'objectIdProp', value);
+      RealmObjectBase.set(this, 'objectIdProp', value);
 
   @override
   Stream<RealmObjectChanges<PrimitiveTypes>> get changes =>
-      RealmObject.getChanges<PrimitiveTypes>(this);
+      RealmObjectBase.getChanges<PrimitiveTypes>(this);
 
   @override
-  PrimitiveTypes freeze() => RealmObject.freezeObject<PrimitiveTypes>(this);
+  PrimitiveTypes freeze() => RealmObjectBase.freezeObject<PrimitiveTypes>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
-    RealmObject.registerFactory(PrimitiveTypes._);
-    return const SchemaObject(PrimitiveTypes, 'PrimitiveTypes', [
+    RealmObjectBase.registerFactory(PrimitiveTypes._);
+    return const SchemaObject(
+        ObjectType.realmObject, PrimitiveTypes, 'PrimitiveTypes', [
       SchemaProperty('stringProp', RealmPropertyType.string),
       SchemaProperty('boolProp', RealmPropertyType.bool),
       SchemaProperty('dateProp', RealmPropertyType.timestamp),
@@ -228,3 +263,4 @@ class PrimitiveTypes extends _PrimitiveTypes with RealmEntity, RealmObject {
     ]);
   }
 }
+

@@ -18,15 +18,12 @@
 
 // ignore_for_file: avoid_relative_lib_imports
 
-import 'dart:io';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
-  print("Current PID $pid");
-
   await setupTests(args);
 
   _assertSchemaExists(Realm realm, SchemaObject expected) {
@@ -44,19 +41,36 @@ Future<void> main([List<String>? args]) async {
   }
 
   test('schema is read from disk', () {
-    final config = Configuration.local([Car.schema, Dog.schema, Person.schema, AllTypes.schema, LinksClass.schema]);
+    final config = Configuration.local([
+      Car.schema,
+      Dog.schema,
+      Person.schema,
+      AllTypes.schema,
+      LinksClass.schema,
+      ObjectWithEmbedded.schema,
+      AllTypesEmbedded.schema,
+      RecursiveEmbedded1.schema,
+      RecursiveEmbedded2.schema,
+      RecursiveEmbedded3.schema
+    ]);
+
     getRealm(config).close();
 
     final dynamicConfig = Configuration.local([]);
     final realm = getRealm(dynamicConfig);
 
-    expect(realm.schema.length, 5);
+    expect(realm.schema.length, 10);
 
     _assertSchemaExists(realm, Car.schema);
     _assertSchemaExists(realm, Dog.schema);
     _assertSchemaExists(realm, Person.schema);
     _assertSchemaExists(realm, AllTypes.schema);
     _assertSchemaExists(realm, LinksClass.schema);
+    _assertSchemaExists(realm, ObjectWithEmbedded.schema);
+    _assertSchemaExists(realm, AllTypesEmbedded.schema);
+    _assertSchemaExists(realm, RecursiveEmbedded1.schema);
+    _assertSchemaExists(realm, RecursiveEmbedded2.schema);
+    _assertSchemaExists(realm, RecursiveEmbedded3.schema);
   });
 
   test('dynamic is always the same', () {

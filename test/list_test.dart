@@ -20,6 +20,8 @@
 
 import 'dart:math';
 
+import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -93,7 +95,7 @@ Future<void> main([List<String>? args]) async {
     final teams = realm.all<Team>();
     final players = teams[0].players;
 
-    expect(() => realm.write(() => players[-1] = Person('')), throws<RealmException>("Index out of range"));
+    expect(() => realm.write(() => players[-1] = Person('')), throws<RealmException>("Index can not be negative"));
     expect(() => realm.write(() => players[800] = Person('')), throws<RealmException>());
   });
 
@@ -309,6 +311,159 @@ Future<void> main([List<String>? args]) async {
 
     await Future<void>.delayed(Duration(milliseconds: 20));
   });
+
+  void testListNotificationsHelper<T>(
+    String opName,
+    RealmList<T> Function(AllCollections c) getList,
+    List<int> Function(RealmListChanges<T> ch) getIndexes,
+    void Function(RealmList<T> list, int index) op,
+    List<List<int>> listOfIndexes, {
+    Iterable<T> Function()? factory,
+  }) {
+    test('RealmList<$T>.$opName notifications', () {
+      final config = Configuration.local([AllCollections.schema]);
+      final realm = getRealm(config);
+
+      final allCollections = realm.write(() => realm.add(AllCollections()));
+
+      final list = getList(allCollections);
+      if (factory != null) {
+        realm.write(() => list.addAll(factory()));
+      }
+
+      expectLater(
+        list.changes.map((e) => getIndexes(e)),
+        emitsInOrder([
+          <int>[],
+          ...listOfIndexes.map(
+            (l) => l.sorted((a, b) => a - b),
+          )
+        ].map<Matcher>((indexes) => equals(indexes))),
+      );
+
+      for (final indexes in listOfIndexes) {
+        realm.write(() {
+          for (final i in indexes) {
+            op(list, i);
+          }
+        });
+      }
+    });
+  }
+
+  // Here you can add more insert patterns
+  final inserts = [
+    [0],
+    [1],
+    [1, 2, 3],
+    [0, 4],
+    [1, 2],
+    [8, 10],
+    [0],
+    [11],
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  ];
+
+  @isTest
+  void testListInsertNotifications<T>(
+    RealmList<T> Function(AllCollections c) getList,
+    void Function(RealmList<T> list, int index) op,
+  ) {
+    testListNotificationsHelper<T>('insert', getList, (ch) => ch.inserted, op, inserts);
+  }
+
+  testListInsertNotifications<bool?>((c) => c.nullableBools, (c, i) => c.insert(i, null));
+  testListInsertNotifications<bool>((c) => c.bools, (c, i) => c.insert(i, i % 2 == 0));
+  testListInsertNotifications<DateTime?>((c) => c.nullableDates, (c, i) => c.insert(i, null));
+  testListInsertNotifications<DateTime>((c) => c.dates, (c, i) => c.insert(i, DateTime(i)));
+  testListInsertNotifications<double?>((c) => c.nullableDoubles, (c, i) => c.insert(i, null));
+  testListInsertNotifications<double>((c) => c.doubles, (c, i) => c.insert(i, i.toDouble()));
+  testListInsertNotifications<int?>((c) => c.nullableInts, (c, i) => c.insert(i, null));
+  testListInsertNotifications<int>((c) => c.ints, (c, i) => c.insert(i, i));
+  testListInsertNotifications<ObjectId?>((c) => c.nullableObjectIds, (c, i) => c.insert(i, null));
+  testListInsertNotifications<ObjectId>((c) => c.objectIds, (c, i) => c.insert(i, ObjectId()));
+  testListInsertNotifications<String?>((c) => c.nullableStrings, (c, i) => c.insert(i, null));
+  testListInsertNotifications<String>((c) => c.strings, (c, i) => c.insert(i, '$i'));
+  testListInsertNotifications<Uuid?>((c) => c.nullableUuids, (c, i) => c.insert(i, null));
+  testListInsertNotifications<Uuid>((c) => c.uuids, (c, i) => c.insert(i, Uuid.v4()));
+
+  final deletes = [
+    [0],
+    [1],
+    [3, 2, 1],
+    [4, 0],
+    [2, 1],
+    [10, 8],
+    [0],
+    [11],
+    [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+  ];
+
+  @isTest
+  void testListDeleteNotifications<T>(
+    RealmList<T> Function(AllCollections c) getList,
+    T Function(int i) indexToValue,
+  ) {
+    testListNotificationsHelper<T>('deleted', getList, (ch) => ch.deleted, (c, i) => c.removeAt(i), deletes,
+        factory: () => List.generate(
+              100,
+              (i) => indexToValue(i),
+            ));
+  }
+
+  testListDeleteNotifications<bool?>((c) => c.nullableBools, (i) => null);
+  testListDeleteNotifications<bool>((c) => c.bools, (i) => i % 2 == 0);
+  testListDeleteNotifications<DateTime?>((c) => c.nullableDates, (i) => null);
+  testListDeleteNotifications<DateTime>((c) => c.dates, (i) => DateTime(i));
+  testListDeleteNotifications<double?>((c) => c.nullableDoubles, (i) => null);
+  testListDeleteNotifications<double>((c) => c.doubles, (i) => i.toDouble());
+  testListDeleteNotifications<int?>((c) => c.nullableInts, (i) => null);
+  testListDeleteNotifications<int>((c) => c.ints, (i) => i);
+  testListDeleteNotifications<ObjectId?>((c) => c.nullableObjectIds, (i) => null);
+  testListDeleteNotifications<ObjectId>((c) => c.objectIds, (i) => ObjectId());
+  testListDeleteNotifications<String?>((c) => c.nullableStrings, (i) => null);
+  testListDeleteNotifications<String>((c) => c.strings, (i) => '$i');
+  testListDeleteNotifications<Uuid?>((c) => c.nullableUuids, (i) => null);
+  testListDeleteNotifications<Uuid>((c) => c.uuids, (i) => Uuid.v4());
+
+  final modifications = [
+    [0],
+    [1],
+    [2, 1, 3],
+    [4, 0],
+    [1, 2],
+    [10, 8],
+    [0],
+    [11],
+    [10, 7, 8, 9, 3, 2, 6, 5, 1, 0, 4]
+  ];
+
+  @isTest
+  void testListModificationNotifications<T>(
+    RealmList<T> Function(AllCollections c) getList,
+    T Function(int i) indexToValue,
+  ) {
+    testListNotificationsHelper<T>('modified', getList, (ch) => ch.modified, (c, i) => c[i] = indexToValue(i), modifications,
+        factory: () => List.generate(
+              100,
+              (i) => indexToValue(i),
+            ));
+  }
+
+  testListModificationNotifications<bool?>((c) => c.nullableBools, (i) => null);
+  testListModificationNotifications<bool>((c) => c.bools, (i) => i % 2 == 0);
+  testListModificationNotifications<DateTime?>((c) => c.nullableDates, (i) => null);
+  testListModificationNotifications<DateTime>((c) => c.dates, (i) => DateTime(i));
+  testListModificationNotifications<double?>((c) => c.nullableDoubles, (i) => null);
+  testListModificationNotifications<double>((c) => c.doubles, (i) => i.toDouble());
+  testListModificationNotifications<int?>((c) => c.nullableInts, (i) => null);
+  testListModificationNotifications<int>((c) => c.ints, (i) => i);
+  testListModificationNotifications<ObjectId?>((c) => c.nullableObjectIds, (i) => null);
+  testListModificationNotifications<ObjectId>((c) => c.objectIds, (i) => ObjectId());
+  testListModificationNotifications<String?>((c) => c.nullableStrings, (i) => null);
+  testListDeleteNotifications<String>((c) => c.strings, (i) => '$i');
+  testListDeleteNotifications<Uuid?>((c) => c.nullableUuids, (i) => null);
+  testListDeleteNotifications<Uuid>((c) => c.uuids, (i) => Uuid.v4());
 
   test('List query', () {
     final config = Configuration.local([Team.schema, Person.schema]);
@@ -910,5 +1065,95 @@ Future<void> main([List<String>? args]) async {
 
     expect(game.winnerByRound, isA<RealmList<Player>>());
     expect(game.winnerByRound, isA<RealmList<Player?>>());
+  });
+
+  test('Move equality & hash', () {
+    expect(Move(1, 1), equals(Move(1, 1)));
+    expect(Move(1, 1), isNot(equals(Move(2, 2))));
+    expect(Move(1, 1).hashCode, equals(Move(1, 1).hashCode));
+    expect(Move(1, 1).hashCode, isNot(equals(Move(2, 2).hashCode)));
+  });
+
+  test('List.move', () {
+    final list = [0, 1, 2, 3];
+    list.move(1, 0);
+    expect(list, [1, 0, 2, 3]);
+    list.move(2, 3);
+    expect(list, [1, 0, 3, 2]);
+    list.move(0, 0); // no-op
+    expect(list, [1, 0, 3, 2]);
+    final length = list.length;
+    expect(() => list.move(-1, 0), throwsRangeError);
+    expect(() => list.move(0, -1), throwsRangeError);
+    expect(() => list.move(length, 0), throwsRangeError);
+    expect(() => list.move(0, length), throwsRangeError);
+  });
+
+  test('ManagedRealmList.move', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+    expect(team.players.length, 4);
+    expect(team.players, [alice, bob, carol, dan]);
+
+    realm.write(() => team.players.move(1, 0));
+    expect(team.players, [bob, alice, carol, dan]);
+
+    realm.write(() => team.players.move(2, 3));
+    expect(team.players, [bob, alice, dan, carol]);
+
+    realm.write(() => team.players.move(0, 0)); // no-op
+    expect(team.players, [bob, alice, dan, carol]);
+
+    final length = team.players.length;
+    expect(() => realm.write(() => team.players.move(-1, 0)), throwsRangeError);
+    expect(() => realm.write(() => team.players.move(0, -1)), throwsRangeError);
+    expect(() => realm.write(() => team.players.move(length, 0)), throwsRangeError);
+    expect(() => realm.write(() => team.players.move(0, length)), throwsRangeError);
+
+    expect(realm.all<Person>(), unorderedEquals(players)); // nothing was added or disappeared from the realm
+
+    // .. when outside a write transaction
+    expect(() => team.players.move(3, 1), throws<RealmException>('Cannot modify managed objects outside of a write transaction'));
+    expect(() => realm.write(() => team.players.move(0, length)), throwsRangeError); // range error takes precedence
+  });
+
+  test('ManagedRealmList.move notifications', () async {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+    final players = [alice, bob, carol, dan];
+    final team = Team('Class of 92', players: players);
+
+    realm.write(() => realm.add(team));
+
+    expectLater(
+        team.players.changes,
+        emitsInOrder(<Matcher>[
+          isA<RealmListChanges<Person>>().having((ch) => ch.inserted, 'inserted', <int>[]), // always an empty event on subscription
+          isA<RealmListChanges<Person>>().having((ch) => ch.moved, 'moved', [Move(1, 0)]),
+          // no Move(0, 0)
+          isA<RealmListChanges<Person>>().having((ch) => ch.moved, 'moved', [Move(2, 3)]),
+        ]));
+
+    realm.write(() => team.players.move(1, 0));
+    expect(team.players, [bob, alice, carol, dan]);
+
+    realm.write(() => team.players.move(0, 0)); // no-op
+
+    realm.write(() => team.players.move(2, 3));
+    expect(team.players, [bob, alice, dan, carol]);
   });
 }

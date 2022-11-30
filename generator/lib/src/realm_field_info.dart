@@ -20,8 +20,8 @@ import 'package:analyzer/dart/element/type.dart';
 import 'package:realm_common/realm_common.dart';
 
 import 'dart_type_ex.dart';
-import 'field_element_ex.dart';
 import 'element.dart';
+import 'field_element_ex.dart';
 
 class RealmFieldInfo {
   final FieldElement fieldElement;
@@ -29,6 +29,7 @@ class RealmFieldInfo {
   final bool isPrimaryKey;
   final bool indexed;
   final RealmPropertyType realmType;
+  final String? linkOriginProperty;
 
   RealmFieldInfo({
     required this.fieldElement,
@@ -36,23 +37,29 @@ class RealmFieldInfo {
     required this.isPrimaryKey,
     required this.indexed,
     required this.realmType,
+    required this.linkOriginProperty,
   });
 
   DartType get type => fieldElement.type;
 
   bool get isFinal => fieldElement.isFinal;
-  bool get isRealmCollection => fieldElement.type.isRealmCollection;
+  bool get isRealmCollection => type.isRealmCollection;
   bool get isLate => fieldElement.isLate;
   bool get hasDefaultValue => fieldElement.hasInitializer;
-  bool get optional => type.isNullable || (type.isRealmCollection && (type as ParameterizedType).typeArguments.last.isNullable);
+  bool get optional => type.basicType.isNullable;
   bool get isRequired => !(hasDefaultValue || optional);
+  bool get isRealmBacklink => realmType == RealmPropertyType.linkingObjects;
+  bool get isComputed => isRealmBacklink; // only computed, so far
 
   String get name => fieldElement.name;
   String get realmName => mapTo ?? name;
 
   String get basicMappedTypeName => type.basicMappedName;
 
-  String get basicRealmTypeName => fieldElement.modelType.basicType.element?.remappedRealmName ?? fieldElement.modelType.basicMappedName;
+  String get basicNonNullableMappedTypeName => type.basicType.asNonNullable.mappedName;
+
+  String get basicRealmTypeName =>
+      fieldElement.modelType.basicType.asNonNullable.element2?.remappedRealmName ?? fieldElement.modelType.asNonNullable.basicMappedName;
 
   String get modelTypeName => fieldElement.modelTypeName;
 
@@ -61,14 +68,15 @@ class RealmFieldInfo {
   RealmCollectionType get realmCollectionType => type.realmCollectionType;
 
   Iterable<String> toCode() sync* {
+    final getTypeName = type.isRealmCollection ? basicMappedTypeName : basicNonNullableMappedTypeName;
     yield '@override';
-    yield "$mappedTypeName get $name => RealmObject.get<$basicMappedTypeName>(this, '$realmName') as $mappedTypeName;";
-    bool generateSetter = !isFinal && !isRealmCollection;
+    yield "$mappedTypeName get $name => RealmObjectBase.get<$getTypeName>(this, '$realmName') as $mappedTypeName;";
+    bool generateSetter = !isFinal && !isRealmCollection && !isRealmBacklink;
     if (generateSetter) {
       yield '@override';
-      yield "set $name(${mappedTypeName != modelTypeName ? 'covariant ' : ''}$mappedTypeName value) => RealmObject.set(this, '$realmName', value);";
+      yield "set $name(${mappedTypeName != modelTypeName ? 'covariant ' : ''}$mappedTypeName value) => RealmObjectBase.set(this, '$realmName', value);";
     } else {
-      bool generateThrowError = isLate || isRealmCollection;
+      bool generateThrowError = isLate || isRealmCollection || isRealmBacklink;
       if (generateThrowError) {
         yield '@override';
         yield "set $name(${mappedTypeName != modelTypeName ? 'covariant ' : ''}$mappedTypeName value) => throw RealmUnsupportedSetError();";
