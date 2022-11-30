@@ -1604,14 +1604,26 @@ Future<void> main([List<String>? args]) async {
     expect(called, true);
   });
 
-   test('Realm.onRefresh is not called outside transaction', () async {
+   test('Realm.onRefresh is called if registered outside a transaction', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     bool called = false;
+
     realm.onRefresh(() => called = true);
 
-    realm.write(() {
-      realm.add(Person("name"));
-    });
+    realm.beginWrite().commit();
+
+    await Future<void>.delayed(Duration(milliseconds: 1));
+    
+    expect(called, true);
+  });
+
+   test('Realm.onRefresh on frozen realm should be no op', () async {
+    var realm = getRealm(Configuration.local([Person.schema]));
+    bool called = false;
+    realm = realm.freeze();
+
+    realm.onRefresh(() => called = true);
+    await Future<void>.delayed(Duration(milliseconds: 1));
     expect(called, false);
   });
 }
