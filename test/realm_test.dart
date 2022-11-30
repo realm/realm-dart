@@ -1416,7 +1416,7 @@ Future<void> main([List<String>? args]) async {
 
   Future<int> createRealmForCompact(Configuration config) async {
     var realm = getRealm(config);
-    
+
     if (config is FlexibleSyncConfiguration) {
       realm.subscriptions.update((mutableSubscriptions) {
         mutableSubscriptions.add(realm.query<Product>("stringQueryField CONTAINS '$compactTest'"));
@@ -1425,7 +1425,7 @@ Future<void> main([List<String>? args]) async {
     }
 
     addDataForCompact(realm);
-    
+
     if (config is FlexibleSyncConfiguration) {
       await realm.syncSession.waitForDownload();
       await realm.syncSession.waitForUpload();
@@ -1439,7 +1439,7 @@ Future<void> main([List<String>? args]) async {
 
   void validateCompact(bool compacted, String realmPath, int beforeCompactSizeSize) async {
     expect(compacted, true);
-    final afterCompactSize  = await File(realmPath).stat().then((value) => value.size);
+    final afterCompactSize = await File(realmPath).stat().then((value) => value.size);
     expect(beforeCompactSizeSize, greaterThan(afterCompactSize));
   }
 
@@ -1455,7 +1455,7 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
   });
 
-   test('Realm - non existing realm can not be compacted', () async {
+  test('Realm - non existing realm can not be compacted', () async {
     var config = Configuration.local([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
     final compacted = Realm.compact(config);
     expect(compacted, false);
@@ -1553,8 +1553,7 @@ Future<void> main([List<String>? args]) async {
     final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
     var user = await app.logIn(credentials);
     List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
-    final config =
-        Configuration.flexibleSync(user, [Product.schema], encryptionKey: key, path: path);
+    final config = Configuration.flexibleSync(user, [Product.schema], encryptionKey: key, path: path);
     final beforeCompactSize = await createRealmForCompact(config);
     user.logOut();
     Future<void>.delayed(Duration(seconds: 5));
@@ -1572,6 +1571,33 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(Configuration.local([Person.schema]));
     final result = realm.refresh();
     expect(result, true);
+  });
+
+  test('Realm.onRefresh sync transaction', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    bool called = false;
+    final transaction = realm.beginWrite();
+    realm.onRefresh(() => called = true);
+    realm.add(Person("name"));
+    transaction.commit();
+
+    await Future<void>.delayed(Duration(milliseconds: 1));
+    expect(called, true, reason: "beginWrite onRefresh failed");
+
+    realm.write(() {
+      realm.onRefresh(() => called = true);
+    });
+    expect(called, true, reason: "write onRefresh failed");
+  });
+
+  test('Realm.onRefresh async transaction', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    bool called = false;
+    final transaction = await realm.beginWriteAsync();
+    realm.onRefresh(() => called = true);
+    realm.add(Person("name"));
+    await transaction.commitAsync();
+    expect(called, true);
   });
 }
 

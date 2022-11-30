@@ -769,6 +769,24 @@ class _RealmCore {
     //Issue https://github.com/realm/realm-core/pull/6068
     return true;
   }
+  
+  Future<void> onRealmRefresh(Realm realm) {
+    final completer = Completer<void>();
+    final callback = Pointer.fromFunction<Void Function(Pointer<Void>)>(_onRealmRefreshCallback);
+    Pointer<Void> completerPtr = _realmLib.realm_dart_object_to_persistent_handle(completer);
+    _realmLib.invokeGetPointer(() => _realmLib.realm_add_realm_refresh_callback(
+        realm.handle._pointer, callback.cast(), completerPtr, _realmLib.addresses.realm_dart_delete_persistent_handle));
+    return completer.future;
+  }
+
+  static void _onRealmRefreshCallback(Pointer<Void> userdata) {
+    if (userdata == nullptr) {
+      return;
+    }
+
+    final completer = _realmLib.realm_dart_persistent_handle_to_object(userdata) as Completer<void>;
+    completer.complete();
+  }
 
   RealmObjectMetadata getObjectMetadata(Realm realm, SchemaObject schema) {
     return using((Arena arena) {
