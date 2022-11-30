@@ -772,9 +772,9 @@ class _RealmCore {
     return true;
   }
   
-  Future<void> onRealmRefresh(Realm realm) {
+  Future<void> realmRefreshAsync(Realm realm) {
     final completer = Completer<void>();
-    final callback = Pointer.fromFunction<Void Function(Pointer<Void>)>(_onRealmRefreshCallback);
+    final callback = Pointer.fromFunction<Void Function(Pointer<Void>)>(_realmRefreshAsyncCallback);
     Pointer<Void> completerPtr = _realmLib.realm_dart_object_to_persistent_handle(completer);
     Pointer<realm_refresh_callback_token> result = _realmLib.realm_add_realm_refresh_callback(
         realm.handle._pointer, callback.cast(), completerPtr, _realmLib.addresses.realm_dart_delete_persistent_handle);
@@ -786,7 +786,7 @@ class _RealmCore {
     return completer.future;
   }
 
-  static void _onRealmRefreshCallback(Pointer<Void> userdata) {
+  static void _realmRefreshAsyncCallback(Pointer<Void> userdata) {
     if (userdata == nullptr) {
       return;
     }

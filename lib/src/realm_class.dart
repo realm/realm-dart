@@ -549,10 +549,10 @@ class Realm implements Finalizable {
     return realmCore.realmRefresh(this);
   }
 
-  /// Returns a [Future] that will complete the first time the realm is refreshed to the version which is the
+  /// Returns a [Future] that will complete when the `Realm` is refreshed to the version which is the
   /// latest version at the time when this method is called.
-  Future<void> onRefresh(void Function() action) {
-    return realmCore.onRealmRefresh(this).then((_) => action());
+  Future<void> refreshAsync() {
+    return realmCore.realmRefreshAsync(this);
   }
 }
 
