@@ -5,6 +5,7 @@
 ### Breaking Changes
 * File format version bumped.
 * The layout of the lock-file has changed, the lock file format version is bumped and all participants in a multiprocess scenario needs to be up to date so they expect the same format. This requires an update of Studio. (Core upgrade)
+* Writing to a frozen realm with throw `RealmException` instead of `RealmError`. ([#974](https://github.com/realm/realm-dart/pull/974))
 
 ### Enhancements
 * Support setting `maxNumberOfActiveVersions` when creating a `Configuration`. ([#1036](https://github.com/realm/realm-dart/pull/1036))
