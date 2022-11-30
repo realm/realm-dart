@@ -131,8 +131,26 @@ class RealmValue {
   const RealmValue.realmObject(RealmObjectBaseMarker o) : this._(o);
   const RealmValue.dateTime(DateTime timestamp) : this._(timestamp);
   const RealmValue.objectId(ObjectId id) : this._(id);
-  const RealmValue.decimal128(Decimal128 decimal) : this._(decimal);
+  // const RealmValue.decimal128(Decimal128 decimal) : this._(decimal); // Not supported yet
   const RealmValue.uuid(Uuid uuid) : this._(uuid);
+
+  factory RealmValue.from(Object o) {
+    if (o is bool ||
+        o is String ||
+        o is int ||
+        o is Float ||
+        o is double ||
+        o is Uint8List ||
+        o is RealmObjectBaseMarker ||
+        o is DateTime ||
+        o is ObjectId ||
+        // o is Decimal128 || // not supported yet
+        o is Uuid) {
+      return RealmValue._(o);
+    } else {
+      throw ArgumentError.value(o, 'o', 'Unsupported type');
+    }
+  }
 }
 
 /// The category of a [SyncError].
