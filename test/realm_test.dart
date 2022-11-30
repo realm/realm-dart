@@ -1575,7 +1575,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Realm.onRefresh sync transaction', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
-    bool called = false;
+    var called = false;
     final transaction = realm.beginWrite();
     realm.onRefresh(() => called = true);
     realm.add(Person("name"));
@@ -1584,9 +1584,13 @@ Future<void> main([List<String>? args]) async {
     await Future<void>.delayed(Duration(milliseconds: 1));
     expect(called, true, reason: "beginWrite onRefresh failed");
 
+    called = false;
     realm.write(() {
       realm.onRefresh(() => called = true);
+      realm.add(Person("name"));
     });
+
+    await Future<void>.delayed(Duration(milliseconds: 1));
     expect(called, true, reason: "write onRefresh failed");
   });
 
@@ -1598,6 +1602,17 @@ Future<void> main([List<String>? args]) async {
     realm.add(Person("name"));
     await transaction.commitAsync();
     expect(called, true);
+  });
+
+   test('Realm.onRefresh is not called outside transaction', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    bool called = false;
+    realm.onRefresh(() => called = true);
+
+    realm.write(() {
+      realm.add(Person("name"));
+    });
+    expect(called, false);
   });
 }
 
