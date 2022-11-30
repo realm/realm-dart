@@ -115,12 +115,13 @@ class EmbeddedObjectMarker extends RealmObjectBaseMarker {}
 // Union type
 /// @nodoc
 class RealmValue {
-  final Object value;
+  final Object? value;
   T as<T>() => value as T; // better for code completion
 
   // This is private, so user cannot accidentally construct an invalid instance
   const RealmValue._(this.value);
 
+  const RealmValue.nullValue() : this._(null);
   const RealmValue.bool(bool b) : this._(b);
   const RealmValue.string(String text) : this._(text);
   const RealmValue.int(int i) : this._(i);
@@ -134,8 +135,9 @@ class RealmValue {
   // const RealmValue.decimal128(Decimal128 decimal) : this._(decimal); // Not supported yet
   const RealmValue.uuid(Uuid uuid) : this._(uuid);
 
-  factory RealmValue.from(Object o) {
-    if (o is bool ||
+  factory RealmValue.from(Object? o) {
+    if (o == null ||
+        o is bool ||
         o is String ||
         o is int ||
         o is Float ||
@@ -151,6 +153,18 @@ class RealmValue {
       throw ArgumentError.value(o, 'o', 'Unsupported type');
     }
   }
+
+  @override
+  operator ==(Object? other) {
+    if (other is RealmValue) {
+      return value == other.value;
+    } else {
+      return value == other;
+    }
+  }
+
+  @override
+  int get hashCode => value.hashCode;
 }
 
 /// The category of a [SyncError].
