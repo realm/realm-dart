@@ -150,8 +150,13 @@ class RealmCoreAccessor implements RealmAccessor {
           final handle = realmCore.getBacklinks(object, sourceMeta.classKey, sourceProperty.key);
           return RealmResultsInternal.create<T>(handle, object.realm, sourceMeta);
         }
+
         final handle = realmCore.getListProperty(object, propertyMeta.key);
         final listMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
+
+        if (propertyMeta.propertyType == RealmPropertyType.mixed) {
+          return object.realm.createList<RealmValue>(handle, metadata);
+        }
 
         // listMetadata is not null when we have list of RealmObjects. If the API was
         // called with a generic object arg - get<Object> we construct a list of
@@ -170,6 +175,10 @@ class RealmCoreAccessor implements RealmAccessor {
       }
 
       Object? value = realmCore.getProperty(object, propertyMeta.key);
+
+      if (T == RealmValue) {
+        return value == null ? null : RealmValue.from(value);
+      }
 
       if (value is RealmObjectHandle) {
         final targetMetadata = propertyMeta.objectType != null ? object.realm.metadata.getByName(propertyMeta.objectType!) : object.realm.metadata.getByType(T);
