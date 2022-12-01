@@ -21,7 +21,7 @@
 * Removed the ".tmp_compaction_space" file being left over after compacting a Realm on Windows. (Core upgrade).
 * Restore fallback to full barrier when F_BARRIERSYNC is not available on Apple platforms. (Core upgrade, since v0.8.0+rc)
 * Fixed wrong assertion on query error that could result in a crash. (Core upgrade)
-* Writing to a read-only realm throws `RealmException` insted to block the isolate. ([#974](https://github.com/realm/realm-dart/pull/974))
+* Writing to a read-only realm throws `RealmException` instead of blocking the isolate. ([#974](https://github.com/realm/realm-dart/pull/974))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.

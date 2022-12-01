@@ -577,10 +577,10 @@ Future<void> main([List<String>? args]) async {
     expect(returnedCar, car);
   });
 
-  test('Realm write inside another write throws', () async {
+  test('Realm write inside another write throws', () {
     final config = Configuration.local([Car.schema]);
     final realm = getRealm(config);
-    realm.write(() async {
+    realm.write(() {
       // Second write inside the first one fails but the error is caught
       realm.writesExpectException<RealmException>("The Realm is already in a write transaction");
     });
