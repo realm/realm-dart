@@ -275,8 +275,19 @@ Future<void> main([List<String>? args]) async {
     final car = Car('Tesla');
 
     realm.close();
-    realm.writesExpectException<RealmClosedError>("Cannot access realm that has been closed");
-    await realm.asyncWritesExpectException<RealmClosedError>("Cannot access realm that has been closed");
+    _writeAndExpectException<RealmClosedError>(realm, "Cannot access realm that has been closed");
+    await _asyncWriteAndExpectException<RealmClosedError>(realm, "Cannot access realm that has been closed");
+  });
+
+  test('Realm write on read-only realms throws', () async {
+    Configuration config = Configuration.local([Car.schema]);
+    var realm = getRealm(config);
+    realm.close();
+
+    config = Configuration.local([Car.schema], isReadOnly: true);
+    realm = getRealm(config);
+    _writeAndExpectException<RealmException>(realm, "Can't perform transactions on read-only Realms.");
+    await _asyncWriteAndExpectException<RealmException>(realm, "Can't perform transactions on read-only Realms.");
   });
 
   test('Realm query', () {
@@ -582,7 +593,7 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
     realm.write(() {
       // Second write inside the first one fails but the error is caught
-      realm.writesExpectException<RealmException>("The Realm is already in a write transaction");
+      _writeAndExpectException<RealmException>(realm, "The Realm is already in a write transaction");
     });
   });
 
@@ -725,8 +736,8 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
 
     final frozenRealm = freezeRealm(realm);
-    frozenRealm.writesExpectException<RealmException>("Can't perform transactions on a frozen Realm");
-    await frozenRealm.asyncWritesExpectException<RealmException>("Can't perform transactions on a frozen Realm");
+    _writeAndExpectException<RealmException>(frozenRealm, "Can't perform transactions on a frozen Realm");
+    await _asyncWriteAndExpectException<RealmException>(frozenRealm, "Can't perform transactions on a frozen Realm");
   });
 
   test('realm.freeze when frozen returns the same instance', () {
@@ -1390,7 +1401,7 @@ Future<void> main([List<String>? args]) async {
 
   Future<int> createRealmForCompact(Configuration config) async {
     var realm = getRealm(config);
-    
+
     if (config is FlexibleSyncConfiguration) {
       realm.subscriptions.update((mutableSubscriptions) {
         mutableSubscriptions.add(realm.query<Product>("stringQueryField CONTAINS '$compactTest'"));
@@ -1399,7 +1410,7 @@ Future<void> main([List<String>? args]) async {
     }
 
     addDataForCompact(realm);
-    
+
     if (config is FlexibleSyncConfiguration) {
       await realm.syncSession.waitForDownload();
       await realm.syncSession.waitForUpload();
@@ -1413,7 +1424,7 @@ Future<void> main([List<String>? args]) async {
 
   void validateCompact(bool compacted, String realmPath, int beforeCompactSizeSize) async {
     expect(compacted, true);
-    final afterCompactSize  = await File(realmPath).stat().then((value) => value.size);
+    final afterCompactSize = await File(realmPath).stat().then((value) => value.size);
     expect(beforeCompactSizeSize, greaterThan(afterCompactSize));
   }
 
@@ -1429,7 +1440,7 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
   });
 
-   test('Realm - non existing realm can not be compacted', () async {
+  test('Realm - non existing realm can not be compacted', () async {
     var config = Configuration.local([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
     final compacted = Realm.compact(config);
     expect(compacted, false);
@@ -1527,8 +1538,7 @@ Future<void> main([List<String>? args]) async {
     final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
     var user = await app.logIn(credentials);
     List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
-    final config =
-        Configuration.flexibleSync(user, [Product.schema], encryptionKey: key, path: path);
+    final config = Configuration.flexibleSync(user, [Product.schema], encryptionKey: key, path: path);
     final beforeCompactSize = await createRealmForCompact(config);
     user.logOut();
     Future<void>.delayed(Duration(seconds: 5));
@@ -1620,4 +1630,14 @@ When newWhen([tz.TZDateTime? time]) {
 
 extension _IterableEx<T> on Iterable<T> {
   Iterable<T> except(T exclude) => where((o) => o != exclude);
+}
+
+void _writeAndExpectException<T>(Realm realm, String exceptionMessage) {
+  expect(() => realm.write(() {}), throws<T>(exceptionMessage));
+  expect(() => realm.beginWrite(), throws<T>(exceptionMessage));
+}
+
+Future<void> _asyncWriteAndExpectException<T>(Realm realm, String exceptionMessage) async {
+  await expectLater(() => realm.writeAsync(() {}), throws<T>(exceptionMessage));
+  await expectLater(() => realm.beginWriteAsync(), throws<T>(exceptionMessage));
 }

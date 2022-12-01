@@ -472,7 +472,7 @@ Future<void> tryDeleteRealm(String path) async {
   for (var i = 0; i < 5; i++) {
     try {
       Realm.deleteRealm(path);
-      
+
       //delete lock file
       await File('$path.lock').delete().onError((error, stackTrace) => dummy);
 
@@ -708,18 +708,5 @@ Future<void> enableAllAutomaticRecovery() async {
   while (_appsToRestoreRecovery.isNotEmpty) {
     final appName = _appsToRestoreRecovery.removeFirst();
     await client.setAutomaticRecoveryEnabled(appName, true);
-  }
-}
-
-
-extension $WriteExtension on Realm {
-  void writesExpectException<TException>(String exceptionMessage) {
-    expect(() => write(() {}), throws<TException>(exceptionMessage));
-    expect(() => beginWrite(), throws<TException>(exceptionMessage));
-  }
-
-  Future<void> asyncWritesExpectException<TException>(String exceptionMessage) async {
-    await expectLater(() => writeAsync(() {}), throws<TException>(exceptionMessage));
-    await expectLater(() => beginWriteAsync(), throws<TException>(exceptionMessage));
   }
 }
