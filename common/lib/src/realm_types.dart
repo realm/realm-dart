@@ -252,6 +252,7 @@ enum SyncClientErrorCode {
   /// A fatal error was encountered which prevents completion of a client reset
   autoClientResetFailure(132),
 
+  /// Unknown error code
   unknown(9999);
 
   static final Map<int, SyncClientErrorCode> _valuesMap = {for (var value in SyncClientErrorCode.values) value.code: value};
@@ -315,6 +316,7 @@ enum SyncConnectionErrorCode {
   /// Connected with wrong wire protocol - should switch to PBS
   switchToPbs(114),
 
+  /// Unknown error code
   unknown(9999);
 
   static final Map<int, SyncConnectionErrorCode> _valuesMap = {for (var value in SyncConnectionErrorCode.values) value.code: value};
@@ -426,6 +428,7 @@ enum SyncSessionErrorCode {
   /// outside the current query, and the server undid the modification (UPLOAD)
   compensatingWrite(231),
 
+  /// Unknown error code
   unknown(9999);
 
   static final Map<int, SyncSessionErrorCode> _valuesMap = {for (var value in SyncSessionErrorCode.values) value.code: value};

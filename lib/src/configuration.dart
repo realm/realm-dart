@@ -252,19 +252,20 @@ abstract class Configuration implements Finalizable {
 /// that are persisted across runs.
 /// {@category Configuration}
 class LocalConfiguration extends Configuration {
-  LocalConfiguration._(super.schemaObjects,
-      {this.initialDataCallback,
-      this.schemaVersion = 0,
-      super.fifoFilesFallbackPath,
-      super.path,
-      super.encryptionKey,
-      this.disableFormatUpgrade = false,
-      this.isReadOnly = false,
-      this.shouldCompactCallback,
-      this.migrationCallback,
-      super.maxNumberOfActiveVersions,
-      this.shouldDeleteIfMigrationNeeded = false})
-      : super._();
+  LocalConfiguration._(
+    super.schemaObjects, {
+    this.initialDataCallback,
+    this.schemaVersion = 0,
+    super.fifoFilesFallbackPath,
+    super.path,
+    super.encryptionKey,
+    this.disableFormatUpgrade = false,
+    this.isReadOnly = false,
+    this.shouldCompactCallback,
+    this.migrationCallback,
+    super.maxNumberOfActiveVersions,
+    this.shouldDeleteIfMigrationNeeded = false,
+  }) : super._();
 
   /// The schema version used to open the `Realm`. If omitted, the default value is `0`.
   ///
@@ -742,7 +743,7 @@ class GeneralSyncError extends SyncError {
 
 /// General sync error codes
 enum GeneralSyncErrorCode {
-  // A general sync error code
+  /// Unknown error code
   unknown(9999);
 
   static final Map<int, GeneralSyncErrorCode> _valuesMap = {for (var value in GeneralSyncErrorCode.values) value.code: value};
