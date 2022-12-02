@@ -743,7 +743,7 @@ class GeneralSyncError extends SyncError {
 
 /// General sync error codes
 enum GeneralSyncErrorCode {
-  /// Unknown error code
+  /// Unknown Sync error code
   unknown(9999);
 
   static final Map<int, GeneralSyncErrorCode> _valuesMap = {for (var value in GeneralSyncErrorCode.values) value.code: value};
