@@ -276,7 +276,7 @@ Future<void> main([List<String>? args]) async {
 
     realm.close();
     _expectAllWritesToThrow<RealmClosedError>(realm, "Cannot access realm that has been closed");
-    await _expectAllAsyncWritesToThrow<RealmClosedError>(realm, "Cannot access realm that has been closed");
+    _expectAllAsyncWritesToThrow<RealmClosedError>(realm, "Cannot access realm that has been closed");
   });
 
   test('Realm write on read-only realms throws', () async {
@@ -287,7 +287,7 @@ Future<void> main([List<String>? args]) async {
     config = Configuration.local([Car.schema], isReadOnly: true);
     realm = getRealm(config);
     _expectAllWritesToThrow<RealmException>(realm, "Can't perform transactions on read-only Realms.");
-    await _expectAllAsyncWritesToThrow<RealmException>(realm, "Can't perform transactions on read-only Realms.");
+    _expectAllAsyncWritesToThrow<RealmException>(realm, "Can't perform transactions on read-only Realms.");
   });
 
   test('Realm query', () {
@@ -737,7 +737,7 @@ Future<void> main([List<String>? args]) async {
 
     final frozenRealm = freezeRealm(realm);
     _expectAllWritesToThrow<RealmException>(frozenRealm, "Can't perform transactions on a frozen Realm");
-    await _expectAllAsyncWritesToThrow<RealmException>(frozenRealm, "Can't perform transactions on a frozen Realm");
+    _expectAllAsyncWritesToThrow<RealmException>(frozenRealm, "Can't perform transactions on a frozen Realm");
   });
 
   test('realm.freeze when frozen returns the same instance', () {
@@ -1637,7 +1637,7 @@ void _expectAllWritesToThrow<T>(Realm realm, String exceptionMessage) {
   expect(() => realm.beginWrite(), throws<T>(exceptionMessage));
 }
 
-Future<void> _expectAllAsyncWritesToThrow<T>(Realm realm, String exceptionMessage) async {
-  await expectLater(() => realm.writeAsync(() {}), throws<T>(exceptionMessage));
-  await expectLater(() => realm.beginWriteAsync(), throws<T>(exceptionMessage));
+void _expectAllAsyncWritesToThrow<T>(Realm realm, String exceptionMessage) {
+  expect(() => realm.writeAsync(() {}), throws<T>(exceptionMessage));
+  expect(() => realm.beginWriteAsync(), throws<T>(exceptionMessage));
 }
