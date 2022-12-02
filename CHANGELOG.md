@@ -14,6 +14,7 @@
 * Add `unknown` error code to all SyncErrors: `SyncSessionErrorCode.unknown`, `SyncConnectionErrorCode.unknown`, `SyncClientErrorCode.unknown`, `GeneralSyncErrorCode.unknown`. Use `unknown` error code instead of throwing a RealmError. ([#1052](https://github.com/realm/realm-dart/pull/1052))
 * Add support for `RealmValue` data type. This new type can represent any valid Realm data type, including objects. Lists of `RealmValue` are also supported, but `RealmValue` itself cannot contain collections. Please note that a property of type `RealmValue` cannot be nullable, but can contain null, represented by the value `RealmValue.nullValue()`. ([#1051](https://github.com/realm/realm-dart/pull/1051))
 
+
 ### Fixed
 * Support mapping into `SyncSessionErrorCode` for "Compensating write" with error code 231. ([#1022](https://github.com/realm/realm-dart/pull/1022))
 * Errors from core will be raised correctly for `beginWriteAsync` and `commitAsync`. ([#1042](https://github.com/realm/realm-dart/pull/1042))
@@ -28,6 +29,7 @@
 * Fixed wrong assertion on query error that could result in a crash. (Core upgrade)
 * Use random tmp directory for download. ([#1060](https://github.com/realm/realm-dart/issues/1060))
 * Bump minimum Dart SDK version to 2.17.5 due to an issue with the Dart virtual machine when implementing `Finalizable`. ([dart-lang/sdk#49075](https://github.com/dart-lang/sdk/issues/49075))
+* Support install command in flutter projects that use unit and widget tests. ([#870](https://github.com/realm/realm-dart/issues/870))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.

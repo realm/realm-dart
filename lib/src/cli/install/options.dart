@@ -30,7 +30,7 @@ class Options {
   Flavor flavor;
 
   // use to debug install command
-  @CliOption(hide: true)
+  @CliOption(hide: true, defaultsTo: false)
   bool debug;
 
   Options({this.targetOsType, this.flavor = Flavor.dart, this.debug = false});
