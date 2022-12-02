@@ -26,7 +26,7 @@ enum TargetOsType {
   windows,
 }
 
-// Cannot use Dart 2.17 enhanced enums, due to stupid issue with build_cli :-/
+// Cannot use Dart 2.17 enhanced enums, due to an issue with build_cli :-/
 enum Flavor {
   flutter,
   dart,
