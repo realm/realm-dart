@@ -1631,7 +1631,7 @@ Future<void> main([List<String>? args]) async {
     bool called = false;
     realm = realm.freeze();
 
-    await Future.any([realm.refreshAsync().then((_) => called = true), Future<void>.delayed(Duration(milliseconds: 10))]);
+    await realm.refreshAsync().timeout(const Duration(microseconds: 10));
     
     expect(called, true);
   });
