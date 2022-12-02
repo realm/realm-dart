@@ -114,7 +114,7 @@ abstract class Configuration implements Finalizable {
     String? path,
     this.fifoFilesFallbackPath,
     this.encryptionKey,
-    this.maxNumberOfActiveVersions
+    this.maxNumberOfActiveVersions,
   }) {
     _validateEncryptionKey(encryptionKey);
     this.path = path ?? _path.join(_path.dirname(_defaultPath), _path.basename(defaultRealmName));
@@ -228,7 +228,7 @@ abstract class Configuration implements Finalizable {
         path: path,
         fifoFilesFallbackPath: fifoFilesFallbackPath,
         encryptionKey: encryptionKey,
-        maxNumberOfActiveVersions: maxNumberOfActiveVersions
+        maxNumberOfActiveVersions: maxNumberOfActiveVersions,
       );
 
   void _validateEncryptionKey(List<int>? key) {
@@ -264,7 +264,7 @@ class LocalConfiguration extends Configuration {
     this.shouldCompactCallback,
     this.migrationCallback,
     super.maxNumberOfActiveVersions,
-    this.shouldDeleteIfMigrationNeeded = false
+    this.shouldDeleteIfMigrationNeeded = false,
   }) : super._();
 
   /// The schema version used to open the `Realm`. If omitted, the default value is `0`.
@@ -743,18 +743,13 @@ class GeneralSyncError extends SyncError {
 
 /// General sync error codes
 enum GeneralSyncErrorCode {
-  // A general sync error code
+  /// Unknown Sync error code
   unknown(9999);
 
   static final Map<int, GeneralSyncErrorCode> _valuesMap = {for (var value in GeneralSyncErrorCode.values) value.code: value};
 
   static GeneralSyncErrorCode fromInt(int code) {
-    final mappedCode = GeneralSyncErrorCode._valuesMap[code];
-    if (mappedCode == null) {
-      throw RealmError("Unknown GeneralSyncErrorCode");
-    }
-
-    return mappedCode;
+    return GeneralSyncErrorCode._valuesMap[code] ?? GeneralSyncErrorCode.unknown;
   }
 
   final int code;
