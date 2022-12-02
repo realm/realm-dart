@@ -2081,7 +2081,6 @@ class _RealmCore {
 
   String getAppDirectory() {
     if (!isFlutterPlatform || Platform.environment.containsKey('FLUTTER_TEST')) {
-      // return path.basenameWithoutExtension(File.fromUri(Platform.script).absolute.path);
       return Directory.current.absolute.path; // dart or flutter test
     }
 

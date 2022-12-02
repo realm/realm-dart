@@ -127,7 +127,7 @@ class InstallCommand extends Command<void> {
       url = 'http://localhost:8000/$archiveName';
     }
     try {
-      final request = await HttpClient().getUrl(Uri.parse(url));
+      final request = await client.getUrl(Uri.parse(url));
       final response = await request.close();
       if (response.statusCode >= 400) {
         throw Exception("Error downloading Realm binaries from $url. Error code: ${response.statusCode}");
@@ -154,25 +154,23 @@ class InstallCommand extends Command<void> {
           "Run the 'dart run $packageName install` command from the root directory of your application");
     }
 
-    final realmDartPackage = packageConfig.packages.where((p) => p.name == Flavor.flutter.packageName || p.name == Flavor.dart.packageName).firstOrNull;
-    if (realmDartPackage == null) {
+    final package = packageConfig.packages.where((p) => p.name == Flavor.flutter.packageName || p.name == Flavor.dart.packageName).firstOrNull;
+    if (package == null) {
       throw Exception("$packageName package not found in dependencies. Add $packageName package to your pubspec.yaml");
     }
 
-    if (realmDartPackage.root.scheme != 'file') {
-      throw Exception("$packageName package uri ${realmDartPackage.root} is not supported. Uri should start with file://");
+    if (package.root.scheme != 'file') {
+      throw Exception("$packageName package uri ${package.root} is not supported. Uri should start with file://");
     }
 
-    final realmPackagePath = path.join(realmDartPackage.root.toFilePath(), "pubspec.yaml");
-    return realmPackagePath;
+    final packagePath = path.join(package.root.toFilePath(), "pubspec.yaml");
+    return packagePath;
   }
 
   Future<Pubspec> parsePubspec(String path) async {
     try {
-      var realmPubspecFile = await File(path).readAsString();
-      final pubspec = Pubspec.parse(realmPubspecFile);
-      return pubspec;
-    } catch (e) {
+      return Pubspec.parse(await File(path).readAsString());
+    } on Exception catch (e) {
       throw Exception("Error parsing package pubspec at $path. Error $e");
     }
   }
@@ -194,7 +192,6 @@ class InstallCommand extends Command<void> {
     await downloadAndExtractBinaries(binaryPath, realmPubspec, archiveName);
 
     print("Realm install command finished.");
-    exit(0);
   }
 
   void validateOptions() {

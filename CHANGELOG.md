@@ -30,6 +30,7 @@
 * Fixed wrong assertion on query error that could result in a crash. (Core upgrade)
 * Use random tmp directory for download. ([#1060](https://github.com/realm/realm-dart/issues/1060))
 * Bump minimum Dart SDK version to 2.17.5 and Flutter SDK version to 3.0.3 due to an issue with the Dart virtual machine when implementing `Finalizable`. ([dart-lang/sdk#49075](https://github.com/dart-lang/sdk/issues/49075))
+* Support install command in flutter projects that use unit and widget tests. ([#870](https://github.com/realm/realm-dart/issues/870))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
