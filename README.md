@@ -1,8 +1,8 @@
-![Realm](https://github.com/realm/realm-dart/raw/master/logo.png)
+![Realm](https://github.com/realm/realm-dart/raw/main/logo.png)
 
 [![License](https://img.shields.io/badge/License-Apache-blue.svg)](LICENSE)
 [![Realm Dart CI](https://github.com/realm/realm-dart/actions/workflows/ci.yml/badge.svg)](https://github.com/realm/realm-dart/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/realm/realm-dart/badge.svg?branch=master)](https://coveralls.io/github/realm/realm-dart?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/realm/realm-dart/badge.svg?branch=main)](https://coveralls.io/github/realm/realm-dart?branch=main)
 
 Realm is a mobile database that runs directly inside phones, tablets or wearables.
 This repository holds the source code for the Realm SDK for Flutter™ and Dart™.
@@ -321,11 +321,11 @@ The Realm Dart package is `realm_dart`
 
 # Building the source
 
-See [CONTRIBUTING.md](https://github.com/realm/realm-dart/blob/master/CONTRIBUTING.md#building-the-source) for instructions about building the source.
+See [CONTRIBUTING.md](https://github.com/realm/realm-dart/blob/main/CONTRIBUTING.md#building-the-source) for instructions about building the source.
 
 # Running tests
 
-See [test/README.md](https://github.com/realm/realm-dart/blob/master/test/README.md) for instructions on running tests.
+See [test/README.md](https://github.com/realm/realm-dart/blob/main/test/README.md) for instructions on running tests.
 
 # Code of Conduct
 

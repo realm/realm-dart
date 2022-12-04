@@ -3,7 +3,7 @@ name: Realm Dart CI
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
 env:
   BAAS_URL: ${{ secrets.REALM_QA_URL }}
