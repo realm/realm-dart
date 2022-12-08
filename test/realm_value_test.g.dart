@@ -9,7 +9,7 @@ part of 'realm_value_test.dart';
 class AnythingGoes extends _AnythingGoes
     with RealmEntity, RealmObjectBase, RealmObject {
   AnythingGoes({
-    RealmValue? any,
+    RealmValue any = const RealmValue.nullValue(),
   }) {
     RealmObjectBase.set(this, 'any', any);
   }
@@ -17,10 +17,10 @@ class AnythingGoes extends _AnythingGoes
   AnythingGoes._();
 
   @override
-  RealmValue? get any =>
-      RealmObjectBase.get<RealmValue>(this, 'any') as RealmValue?;
+  RealmValue get any =>
+      RealmObjectBase.get<RealmValue>(this, 'any') as RealmValue;
   @override
-  set any(RealmValue? value) => RealmObjectBase.set(this, 'any', value);
+  set any(RealmValue value) => RealmObjectBase.set(this, 'any', value);
 
   @override
   Stream<RealmObjectChanges<AnythingGoes>> get changes =>

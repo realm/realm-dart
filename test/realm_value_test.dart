@@ -26,7 +26,7 @@ part 'realm_value_test.g.dart';
 @RealmModel()
 class _AnythingGoes {
   @Indexed()
-  late RealmValue? any;
+  late RealmValue any;
 }
 
 void main() {
@@ -34,7 +34,7 @@ void main() {
     final config = Configuration.inMemory([AnythingGoes.schema]);
     final realm = getRealm(config);
     final something = realm.write(() => realm.add(AnythingGoes(any: RealmValue.bool(true))));
-    expect(something.any!.as<bool>(), true);
+    expect(something.any.as<bool>(), true);
   });
 
   test('Illegal value', () {
@@ -44,8 +44,8 @@ void main() {
   });
 
   test('Switch', () {
-    final something = AnythingGoes();
-    switch (something.any?.value.runtimeType) {
+    final something = AnythingGoes(any: RealmValue.int(1));
+    switch (something.any.value?.runtimeType) {
       case null:
         break;
       case int:
@@ -54,8 +54,9 @@ void main() {
   });
 
   test('If-switch', () {
-    final something = AnythingGoes();
-    final value = something.any?.value;
+    final something = AnythingGoes(any: RealmValue.double(3.14));
+    final value = something.any.value;
+
     if (value == null) {
     } else if (value is int) {
       value + 1;

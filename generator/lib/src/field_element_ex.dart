@@ -263,17 +263,14 @@ extension FieldElementEx on FieldElement {
         }
 
         // Validate mixed (RealmValue)
-        else if (realmType == RealmPropertyType.mixed && !type.isNullable) {
-          final itemType = type.basicType;
-          if (!itemType.isRealmModel) {
-            throw RealmInvalidGenerationSourceError(
-              'RealmValue fields must be nullable',
-              primarySpan: typeSpan(file),
-              primaryLabel: '$modelTypeName is not nullable',
-              todo: 'Change type to $modelTypeName?',
-              element: this,
-            );
-          }
+        else if (realmType == RealmPropertyType.mixed && type.isNullable) {
+          throw RealmInvalidGenerationSourceError(
+            'RealmValue fields must be nullable',
+            primarySpan: typeSpan(file),
+            primaryLabel: '$modelTypeName is not nullable',
+            todo: 'Change type to $modelTypeName?',
+            element: this,
+          );
         }
       }
 
