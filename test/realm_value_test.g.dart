@@ -10,8 +10,11 @@ class AnythingGoes extends _AnythingGoes
     with RealmEntity, RealmObjectBase, RealmObject {
   AnythingGoes({
     RealmValue any = const RealmValue.nullValue(),
+    Iterable<RealmValue> manyAny = const [],
   }) {
     RealmObjectBase.set(this, 'any', any);
+    RealmObjectBase.set<RealmList<RealmValue>>(
+        this, 'manyAny', RealmList<RealmValue>(manyAny));
   }
 
   AnythingGoes._();
@@ -21,6 +24,13 @@ class AnythingGoes extends _AnythingGoes
       RealmObjectBase.get<RealmValue>(this, 'any') as RealmValue;
   @override
   set any(RealmValue value) => RealmObjectBase.set(this, 'any', value);
+
+  @override
+  RealmList<RealmValue> get manyAny =>
+      RealmObjectBase.get<RealmValue>(this, 'manyAny') as RealmList<RealmValue>;
+  @override
+  set manyAny(covariant RealmList<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
   Stream<RealmObjectChanges<AnythingGoes>> get changes =>
@@ -37,6 +47,8 @@ class AnythingGoes extends _AnythingGoes
         ObjectType.realmObject, AnythingGoes, 'AnythingGoes', [
       SchemaProperty('any', RealmPropertyType.mixed,
           optional: true, indexed: true),
+      SchemaProperty('manyAny', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.list),
     ]);
   }
 }

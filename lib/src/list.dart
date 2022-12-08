@@ -111,12 +111,13 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
     }
 
     try {
-      final value = realmCore.listGetElementAt(this, index);
-
+      var value = realmCore.listGetElementAt(this, index);
       if (value is RealmObjectHandle) {
-        return realm.createObject(T, value, _metadata!) as T;
+        value = realm.createObject(T, value, _metadata!);
       }
-
+      if (T == RealmValue) {
+        value = RealmValue.from(value);
+      }
       return value as T;
     } on Exception catch (e) {
       throw RealmException("Error getting value at index $index. Error: $e");
