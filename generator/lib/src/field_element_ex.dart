@@ -133,12 +133,12 @@ extension FieldElementEx on FieldElement {
 
       // Validate indexes
       if ((((primaryKey ?? indexed) != null) && !(type.realmType?.mapping.indexable ?? false)) || //
-          (primaryKey != null && type.isDartCoreBool)) {
+          (primaryKey != null && (type.isDartCoreBool || type.isExactly<RealmValue>()))) {
         final file = span!.file;
         final annotation = (primaryKey ?? indexed)!.annotation;
         final listOfValidTypes = RealmPropertyType.values //
             .map((t) => t.mapping)
-            .where((m) => m.indexable && (m.type != bool || primaryKey == null))
+            .where((m) => m.indexable && ((m.type != bool && m.type != RealmValue) || primaryKey == null))
             .map((m) => m.type);
 
         throw RealmInvalidGenerationSourceError(

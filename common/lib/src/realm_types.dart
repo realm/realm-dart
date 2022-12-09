@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:ffi';
-import 'dart:typed_data';
 import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
 
@@ -104,13 +103,13 @@ class RealmStateError extends StateError implements RealmError {
 class Decimal128 {} // TODO Support decimal128 datatype https://github.com/realm/realm-dart/issues/725
 
 /// @nodoc
-class RealmObjectBaseMarker {}
+abstract class RealmObjectBaseMarker {}
 
 /// @nodoc
-class RealmObjectMarker extends RealmObjectBaseMarker {}
+abstract class RealmObjectMarker extends RealmObjectBaseMarker {}
 
 /// @nodoc
-class EmbeddedObjectMarker extends RealmObjectBaseMarker {}
+abstract class EmbeddedObjectMarker extends RealmObjectBaseMarker {}
 
 // Union type
 /// @nodoc
@@ -141,7 +140,6 @@ class RealmValue {
         o is int ||
         o is Float ||
         o is double ||
-        // o is Uint8List ||
         o is RealmObjectBaseMarker ||
         o is DateTime ||
         o is ObjectId ||
