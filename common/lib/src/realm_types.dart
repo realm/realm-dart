@@ -125,9 +125,8 @@ class RealmValue {
   const RealmValue.bool(bool b) : this._(b);
   const RealmValue.string(String text) : this._(text);
   const RealmValue.int(int i) : this._(i);
-  const RealmValue.float(Float f) : this._(f);
   const RealmValue.double(double d) : this._(d);
-  const RealmValue.uint8List(Uint8List data) : this._(data);
+  // const RealmValue.uint8List(Uint8List data) : this._(data);
   // TODO: RealmObjectMarker introduced to avoid dependency inversion. It would be better if we could use RealmObject directly. https://github.com/realm/realm-dart/issues/701
   const RealmValue.realmObject(RealmObjectBaseMarker o) : this._(o);
   const RealmValue.dateTime(DateTime timestamp) : this._(timestamp);
@@ -142,7 +141,7 @@ class RealmValue {
         o is int ||
         o is Float ||
         o is double ||
-        o is Uint8List ||
+        // o is Uint8List ||
         o is RealmObjectBaseMarker ||
         o is DateTime ||
         o is ObjectId ||

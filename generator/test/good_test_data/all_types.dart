@@ -40,7 +40,8 @@ class _Bar {
   @Backlink(#bar)
   late Iterable<_Foo> foos;
 
-  late RealmValue? any;
+  late RealmValue any;
+  late List<RealmValue> manyAny;
 }
 
 @RealmModel()

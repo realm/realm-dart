@@ -177,7 +177,7 @@ class RealmCoreAccessor implements RealmAccessor {
       Object? value = realmCore.getProperty(object, propertyMeta.key);
 
       if (T == RealmValue) {
-        return value == null ? null : RealmValue.from(value);
+        return RealmValue.from(value);
       }
 
       if (value is RealmObjectHandle) {
