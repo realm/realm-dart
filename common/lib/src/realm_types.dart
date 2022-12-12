@@ -250,17 +250,15 @@ enum SyncClientErrorCode {
   httpTunnelFailed(131),
 
   /// A fatal error was encountered which prevents completion of a client reset
-  autoClientResetFailure(132);
+  autoClientResetFailure(132),
+
+  /// Unknown Sync client error code
+  unknown(9999);
 
   static final Map<int, SyncClientErrorCode> _valuesMap = {for (var value in SyncClientErrorCode.values) value.code: value};
 
   static SyncClientErrorCode fromInt(int code) {
-    final mappedCode = SyncClientErrorCode._valuesMap[code];
-    if (mappedCode == null) {
-      throw RealmError("Unknown SyncClientErrorCode");
-    }
-
-    return mappedCode;
+    return SyncClientErrorCode._valuesMap[code] ?? SyncClientErrorCode.unknown;
   }
 
   final int code;
@@ -316,17 +314,15 @@ enum SyncConnectionErrorCode {
   switchToFlxSync(113),
 
   /// Connected with wrong wire protocol - should switch to PBS
-  switchToPbs(114);
+  switchToPbs(114),
+
+  /// Unknown Sync connection error code
+  unknown(9999);
 
   static final Map<int, SyncConnectionErrorCode> _valuesMap = {for (var value in SyncConnectionErrorCode.values) value.code: value};
 
   static SyncConnectionErrorCode fromInt(int code) {
-    final mappedCode = SyncConnectionErrorCode._valuesMap[code];
-    if (mappedCode == null) {
-      throw RealmError("Unknown SyncConnectionErrorCode");
-    }
-
-    return mappedCode;
+    return SyncConnectionErrorCode._valuesMap[code] ?? SyncConnectionErrorCode.unknown;
   }
 
   final int code;
@@ -430,17 +426,15 @@ enum SyncSessionErrorCode {
 
   /// Client attempted a write that is disallowed by permissions, or modifies an object
   /// outside the current query, and the server undid the modification (UPLOAD)
-  compensatingWrite(231);
+  compensatingWrite(231),
+
+  /// Unknown Sync session error code
+  unknown(9999);
 
   static final Map<int, SyncSessionErrorCode> _valuesMap = {for (var value in SyncSessionErrorCode.values) value.code: value};
 
   static SyncSessionErrorCode fromInt(int code) {
-    final mappedCode = SyncSessionErrorCode._valuesMap[code];
-    if (mappedCode == null) {
-      throw RealmError("Unknown SyncSessionErrorCode");
-    }
-
-    return mappedCode;
+    return SyncSessionErrorCode._valuesMap[code] ?? SyncSessionErrorCode.unknown;
   }
 
   final int code;

@@ -86,7 +86,7 @@ Realm welcomes all contributions! The only requirement we have is that, like man
 
 ## Running tests
 
-See [test/README.md](https://github.com/realm/realm-dart/blob/master/test/README.md) for instructions on running tests.
+See [test/README.md](https://github.com/realm/realm-dart/blob/main/test/README.md) for instructions on running tests.
 
 ## Versioning
 

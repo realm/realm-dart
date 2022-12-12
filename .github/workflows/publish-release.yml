@@ -215,7 +215,7 @@ jobs:
         artifacts: release/*.tar.gz
         bodyFile: release/ExtractedChangelog.md
         name: ${{ needs.prepare-packages.outputs.version }}
-        commit: master
+        commit: main
         tag: ${{ needs.prepare-packages.outputs.version }}
         token: ${{ secrets.REALM_CI_PAT }}
         draft: false
@@ -258,7 +258,7 @@ jobs:
         title: Add vNext Changelog header
         body: Update Changelog for vNext
         delete-branch: true
-        base: master
+        base: main
         commit-message: Add vNext Changelog header
 
     - name: Merge Pull Request
