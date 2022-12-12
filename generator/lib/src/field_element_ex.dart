@@ -268,7 +268,7 @@ extension FieldElementEx on FieldElement {
             'RealmValue fields cannot be nullable',
             primarySpan: typeSpan(file),
             primaryLabel: '$modelTypeName is nullable',
-            todo: 'Change type to $modelTypeName',
+            todo: 'Change type to ${modelType.asNonNullable}',
             element: this,
           );
         }
