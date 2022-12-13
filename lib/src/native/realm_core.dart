@@ -2685,7 +2685,7 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
       realm_value.ref.values.timestamp.nanoseconds = nanoseconds;
       realm_value.ref.type = realm_value_type.RLM_TYPE_TIMESTAMP;
     } else if (value is RealmValue) {
-      return _intoRealmValue(value.value, realm_value, allocator); // TODO(kasper): Get rid of this. RealmValue abstraction handled at higher level
+      return _intoRealmValue(value.value, realm_value, allocator);
     } else {
       throw RealmException("Property type ${value.runtimeType} not supported");
     }
