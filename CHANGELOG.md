@@ -23,13 +23,15 @@
 * Restore fallback to full barrier when F_BARRIERSYNC is not available on Apple platforms. (Core upgrade, since v0.8.0+rc)
 * Fixed wrong assertion on query error that could result in a crash. (Core upgrade)
 * Writing to a read-only realm throws `RealmException` instead of blocking the isolate. ([#974](https://github.com/realm/realm-dart/pull/974))
+* Fix no notification for write transaction that contains only change to backlink property. (Core upgrade)
+* Fixed wrong assertion on query error that could result in a crash. (Core upgrade)
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 * Fileformat: Generates files with format v23. Reads and automatically upgrades from fileformat v5.
 
 ### Internal
-* Using Core 13.1.0.
+* Using Core 13.1.2.
 
 ## 0.8.0+rc (2022-11-14)
 
