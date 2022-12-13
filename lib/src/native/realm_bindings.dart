@@ -591,7 +591,7 @@ class RealmLibrary {
     ffi.Pointer<ffi.Char> email,
     realm_string_t password,
     ffi.Pointer<ffi.Char> serialized_ejson_payload,
-    realm_app_void_completion_func_t arg4,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
@@ -600,7 +600,7 @@ class RealmLibrary {
       email,
       password,
       serialized_ejson_payload,
-      arg4,
+      callback,
       userdata,
       userdata_free,
     );
@@ -2230,7 +2230,7 @@ class RealmLibrary {
 
   /// Vacuum the free space from the realm file, reducing its file size.
   ///
-  /// @return True if compaction was successful and no exceptions were thrown.
+  /// @return True if no exceptions are thrown, false otherwise.
   bool realm_compact(
     ffi.Pointer<realm_t> arg0,
     ffi.Pointer<ffi.Bool> did_compact,
@@ -6774,21 +6774,23 @@ class RealmLibrary {
   ///
   /// This calls `advance_read()` at the Core layer.
   ///
-  /// @return True if the realm was successfully refreshed and no exceptions were
-  /// thrown.
+  /// @return True if no exceptions are thrown, false otherwise.
   bool realm_refresh(
     ffi.Pointer<realm_t> arg0,
+    ffi.Pointer<ffi.Bool> did_refresh,
   ) {
     return _realm_refresh(
       arg0,
+      did_refresh,
     );
   }
 
-  late final _realm_refreshPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_t>)>>(
-          'realm_refresh');
-  late final _realm_refresh =
-      _realm_refreshPtr.asFunction<bool Function(ffi.Pointer<realm_t>)>();
+  late final _realm_refreshPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_t>, ffi.Pointer<ffi.Bool>)>>('realm_refresh');
+  late final _realm_refresh = _realm_refreshPtr
+      .asFunction<bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Bool>)>();
 
   /// In case of exception thrown in user code callbacks, this api will allow the sdk to store the user code exception
   /// and retrieve a it later via realm_get_last_error.
@@ -7673,25 +7675,44 @@ class RealmLibrary {
 
   /// Register a callback handler for bindings interested in registering callbacks before/after the ObjectStore thread
   /// runs.
-  /// @param thread_observer a ptr to an implementation class that can receive these notifications. If nullptr is passed
-  /// instead, this will have the effect of unregistering the callback.
-  void realm_set_binding_callback_thread_observer(
-    ffi.Pointer<realm_interface_callback_thread_observer_t> thread_observer,
+  /// @param on_thread_create callback invoked when the object store thread is created
+  /// @param on_thread_destroy callback invoked when the object store thread is destroyed
+  /// @param on_error callback invoked to signal to the listener that some error has occured.
+  /// @return a token that has to be released in order to stop receiving notifications
+  ffi.Pointer<realm_thread_observer_token_t>
+      realm_set_binding_callback_thread_observer(
+    realm_on_object_store_thread_callback_t on_thread_create,
+    realm_on_object_store_thread_callback_t on_thread_destroy,
+    realm_on_object_store_error_callback_t on_error,
+    ffi.Pointer<ffi.Void> arg3,
+    realm_free_userdata_func_t free_userdata,
   ) {
     return _realm_set_binding_callback_thread_observer(
-      thread_observer,
+      on_thread_create,
+      on_thread_destroy,
+      on_error,
+      arg3,
+      free_userdata,
     );
   }
 
   late final _realm_set_binding_callback_thread_observerPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<realm_interface_callback_thread_observer_t>)>>(
+              ffi.Pointer<realm_thread_observer_token_t> Function(
+                  realm_on_object_store_thread_callback_t,
+                  realm_on_object_store_thread_callback_t,
+                  realm_on_object_store_error_callback_t,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t)>>(
       'realm_set_binding_callback_thread_observer');
   late final _realm_set_binding_callback_thread_observer =
       _realm_set_binding_callback_thread_observerPtr.asFunction<
-          void Function(
-              ffi.Pointer<realm_interface_callback_thread_observer_t>)>();
+          ffi.Pointer<realm_thread_observer_token_t> Function(
+              realm_on_object_store_thread_callback_t,
+              realm_on_object_store_thread_callback_t,
+              realm_on_object_store_error_callback_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>();
 
   /// Clear a set of values.
   ///
@@ -10362,8 +10383,6 @@ class realm_binary extends ffi.Struct {
 
 typedef realm_binary_t = realm_binary;
 
-class realm_callback_interface_thread_observer extends ffi.Opaque {}
-
 class realm_callback_token extends ffi.Opaque {}
 
 typedef realm_callback_token_t = realm_callback_token;
@@ -10621,8 +10640,6 @@ class realm_index_range extends ffi.Struct {
 }
 
 typedef realm_index_range_t = realm_index_range;
-typedef realm_interface_callback_thread_observer_t
-    = realm_callback_interface_thread_observer;
 
 class realm_key_path extends ffi.Struct {
   @ffi.Size()
@@ -10751,6 +10768,11 @@ typedef realm_on_object_change_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(
             ffi.Pointer<ffi.Void>, ffi.Pointer<realm_object_changes_t>)>>;
+typedef realm_on_object_store_error_callback_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>>;
+typedef realm_on_object_store_thread_callback_t
+    = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>;
 typedef realm_on_realm_change_func_t
     = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>;
 typedef realm_on_realm_refresh_func_t
@@ -11181,6 +11203,10 @@ typedef realm_sync_wait_for_completion_func_t = ffi.Pointer<
         ffi.Void Function(
             ffi.Pointer<ffi.Void>, ffi.Pointer<realm_sync_error_code_t>)>>;
 typedef realm_t = shared_realm;
+
+class realm_thread_observer_token extends ffi.Opaque {}
+
+typedef realm_thread_observer_token_t = realm_thread_observer_token;
 
 class realm_thread_safe_reference extends ffi.Opaque {}
 

@@ -764,8 +764,12 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_rollback(realm.handle._pointer), "Could not rollback write");
   }
 
-  void realmRefresh(Realm realm) {
-    _realmLib.invokeGetBool(() => _realmLib.realm_refresh(realm.handle._pointer), "Could not refresh");
+  bool realmRefresh(Realm realm) {
+    return using((Arena arena) {
+      final did_refresh = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_refresh(realm.handle._pointer, did_refresh), "Could not refresh");
+      return did_refresh.value;
+    });
   }
 
   RealmObjectMetadata getObjectMetadata(Realm realm, SchemaObject schema) {
