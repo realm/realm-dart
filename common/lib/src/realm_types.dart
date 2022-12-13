@@ -105,16 +105,11 @@ class Decimal128 {} // TODO Support decimal128 datatype https://github.com/realm
 /// @nodoc
 abstract class RealmObjectBaseMarker {}
 
-/// @nodoc
-abstract class RealmObjectMarker extends RealmObjectBaseMarker {}
-
-/// @nodoc
-abstract class EmbeddedObjectMarker extends RealmObjectBaseMarker {}
-
 // Union type
 /// @nodoc
 class RealmValue {
   final Object? value;
+  Type get type => value.runtimeType;
   T as<T>() => value as T; // better for code completion
 
   // This is private, so user cannot accidentally construct an invalid instance
@@ -130,7 +125,7 @@ class RealmValue {
   const RealmValue.realmObject(RealmObjectBaseMarker o) : this._(o);
   const RealmValue.dateTime(DateTime timestamp) : this._(timestamp);
   const RealmValue.objectId(ObjectId id) : this._(id);
-  // const RealmValue.decimal128(Decimal128 decimal) : this._(decimal); // Not supported yet
+  // const RealmValue.decimal128(Decimal128 decimal) : this._(decimal); // not supported yet
   const RealmValue.uuid(Uuid uuid) : this._(uuid);
 
   factory RealmValue.from(Object? o) {

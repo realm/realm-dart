@@ -9,10 +9,10 @@ part of 'realm_value_test.dart';
 class AnythingGoes extends _AnythingGoes
     with RealmEntity, RealmObjectBase, RealmObject {
   AnythingGoes({
-    RealmValue any = const RealmValue.nullValue(),
+    RealmValue oneAny = const RealmValue.nullValue(),
     Iterable<RealmValue> manyAny = const [],
   }) {
-    RealmObjectBase.set(this, 'any', any);
+    RealmObjectBase.set(this, 'oneAny', oneAny);
     RealmObjectBase.set<RealmList<RealmValue>>(
         this, 'manyAny', RealmList<RealmValue>(manyAny));
   }
@@ -20,10 +20,10 @@ class AnythingGoes extends _AnythingGoes
   AnythingGoes._();
 
   @override
-  RealmValue get any =>
-      RealmObjectBase.get<RealmValue>(this, 'any') as RealmValue;
+  RealmValue get oneAny =>
+      RealmObjectBase.get<RealmValue>(this, 'oneAny') as RealmValue;
   @override
-  set any(RealmValue value) => RealmObjectBase.set(this, 'any', value);
+  set oneAny(RealmValue value) => RealmObjectBase.set(this, 'oneAny', value);
 
   @override
   RealmList<RealmValue> get manyAny =>
@@ -45,7 +45,7 @@ class AnythingGoes extends _AnythingGoes
     RealmObjectBase.registerFactory(AnythingGoes._);
     return const SchemaObject(
         ObjectType.realmObject, AnythingGoes, 'AnythingGoes', [
-      SchemaProperty('any', RealmPropertyType.mixed,
+      SchemaProperty('oneAny', RealmPropertyType.mixed,
           optional: true, indexed: true),
       SchemaProperty('manyAny', RealmPropertyType.mixed,
           optional: true, collectionType: RealmCollectionType.list),

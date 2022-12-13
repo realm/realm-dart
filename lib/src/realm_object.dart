@@ -20,6 +20,7 @@ import 'dart:async';
 import 'dart:ffi';
 
 import 'package:collection/collection.dart';
+import 'package:realm_common/realm_common.dart';
 
 import 'configuration.dart';
 import 'list.dart';
@@ -174,22 +175,31 @@ class RealmCoreAccessor implements RealmAccessor {
         return object.realm.createList<T>(handle, listMetadata);
       }
 
-      Object? value = realmCore.getProperty(object, propertyMeta.key);
-
-      if (T == RealmValue) {
-        return RealmValue.from(value);
-      }
+      var value = realmCore.getProperty(object, propertyMeta.key);
 
       if (value is RealmObjectHandle) {
-        final targetMetadata = propertyMeta.objectType != null ? object.realm.metadata.getByName(propertyMeta.objectType!) : object.realm.metadata.getByType(T);
+        final meta = object.realm.metadata;
+        final typeName = propertyMeta.objectType;
 
-        // If we have an object but the user called the API without providing a generic
-        // arg, we construct a RealmObject since we don't know the type of the object.
-        if (_isTypeGenericObject<T>()) {
-          return object.realm.createObject(RealmObjectBase, value, targetMetadata);
+        late Type type;
+        late RealmObjectMetadata targetMetadata;
+
+        if (propertyMeta.propertyType == RealmPropertyType.mixed) {
+          final tuple = meta.getByClassKey(realmCore.getClassKey(object.handle));
+          type = tuple.item1;
+          targetMetadata = tuple.item2;
+        } else {
+          // If we have an object but the user called the API without providing a generic
+          // arg, we construct a RealmObject since we don't know the type of the object.
+          type = _isTypeGenericObject<T>() ? RealmObjectBase : T;
+          targetMetadata = typeName != null ? meta.getByName(typeName) : meta.getByType(type);
         }
 
-        return object.realm.createObject(T, value, targetMetadata);
+        value = object.realm.createObject(type, value, targetMetadata);
+      }
+
+      if (T == RealmValue) {
+        value = RealmValue.from(value);
       }
 
       return value;
@@ -223,6 +233,13 @@ class RealmCoreAccessor implements RealmAccessor {
 
       if (value is RealmObject && !value.isManaged) {
         object.realm.add(value, update: update);
+      }
+
+      if (value is RealmValue) {
+        final v = value.value;
+        if (v is RealmObject && !v.isManaged) {
+          object.realm.add(v, update: update);
+        }
       }
 
       if (propertyMeta.isPrimaryKey && !isInMigration) {
@@ -264,7 +281,7 @@ extension RealmEntityInternal on RealmEntity {
 ///
 /// [RealmObject] should not be used directly as it is part of the generated class hierarchy. ex: `MyClass extends _MyClass with RealmObject`.
 /// {@category Realm}
-mixin RealmObjectBase on RealmEntity implements Finalizable {
+mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizable {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
   static final Map<Type, RealmObjectBase Function()> _factories = <Type, RealmObjectBase Function()>{

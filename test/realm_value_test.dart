@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:math';
+
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -26,87 +28,130 @@ part 'realm_value_test.g.dart';
 @RealmModel()
 class _AnythingGoes {
   @Indexed()
-  late RealmValue any;
+  late RealmValue oneAny;
   late List<RealmValue> manyAny;
 }
 
 void main() {
   group('RealmValue', () {
-    final config = Configuration.inMemory([AnythingGoes.schema]);
-    final realm = getRealm(config);
-
-    for (final x in <Object?>[
+    final now = DateTime.now().toUtc();
+    final values = <Object?>[
       null,
       true,
       'text',
       42,
       3.14,
-//      AnythingGoes(),
-      DateTime.now().toUtc(),
-      ObjectId.fromTimestamp(DateTime.now()),
+      AnythingGoes(),
+      now,
+      ObjectId.fromTimestamp(now),
       Uuid.v4(),
-    ]) {
+    ];
+
+    final config = Configuration.inMemory([AnythingGoes.schema]);
+    final realm = getRealm(config);
+
+    for (final x in values) {
       test('Roundtrip ${x.runtimeType} $x', () {
-        final something = realm.write(() => realm.add(AnythingGoes(any: RealmValue.from(x))));
-        expect(something.any.value, x);
-        expect(something.any, RealmValue.from(x));
+        final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(x))));
+        expect(something.oneAny.value, x);
+        expect(something.oneAny, RealmValue.from(x));
       });
     }
 
     test('Illegal value', () {
-      expect(() => realm.write(() => realm.add(AnythingGoes(any: RealmValue.from(<int>[1, 2])))), throwsArgumentError);
+      expect(() => realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(<int>[1, 2])))), throwsArgumentError);
     });
 
-    test('Switch', () {
-      final something = AnythingGoes(any: RealmValue.int(1));
-      final v = something.any.value;
-      switch (v?.runtimeType) {
-        case null:
-          break;
-        case int:
-          (v as int) + 2;
-          break;
+    for (final x in values) {
+      test('Switch $x', () {
+        final something = AnythingGoes(oneAny: RealmValue.from(x));
+        final value = something.oneAny.value;
+        switch (something.oneAny.type) {
+          case Null:
+            expect(value, isA<void>());
+            break;
+          case bool:
+            expect(value, isA<bool>());
+            break;
+          case String:
+            expect(value, isA<String>());
+            break;
+          case int:
+            expect(value, isA<int>());
+            break;
+          case double:
+            expect(value, isA<double>());
+            break;
+          case AnythingGoes: // RealmObject won't work with switch
+            expect(value, isA<AnythingGoes>());
+            expect(value, isA<RealmObject>());
+            break;
+          case DateTime:
+            expect(value, isA<DateTime>());
+            break;
+          case ObjectId:
+            expect(value, isA<ObjectId>());
+            break;
+          case Uuid:
+            expect(value, isA<Uuid>());
+            break;
+          default:
+            fail('${something.oneAny} not handled correctly in switch');
+        }
+      });
+    }
 
-        case String:
-      }
-    });
-
-    test('If-is', () {
-      final something = AnythingGoes(any: RealmValue.double(3.14));
-      final value = something.any.value;
-
-      if (value == null) {
-      } else if (value is int) {
-        value + 1;
-      } else if (value is String) {
-        value.substring(2);
-      }
-    });
+    for (final x in values) {
+      test('If-is $x', () {
+        final something = AnythingGoes(oneAny: RealmValue.from(x));
+        final value = something.oneAny.value;
+        final type = something.oneAny.type;
+        if (value == null) {
+          expect(type, Null);
+        } else if (value is int) {
+          expect(type, int);
+        } else if (value is String) {
+          expect(type, String);
+        } else if (value is bool) {
+          expect(type, bool);
+        } else if (value is double) {
+          expect(type, double);
+        } else if (value is DateTime) {
+          expect(type, DateTime);
+        } else if (value is Uuid) {
+          expect(type, Uuid);
+        } else if (value is ObjectId) {
+          expect(type, ObjectId);
+        } else if (value is AnythingGoes) {
+          expect(type, AnythingGoes);
+        } else {
+          fail('$value not handled correctly in if-is');
+        }
+      });
+    }
   });
 
   group('List<RealmValue>', () {
+    final now = DateTime.now().toUtc();
+    final values = <Object?>[
+      null,
+      true,
+      'text',
+      42,
+      3.14,
+      AnythingGoes(),
+      now,
+      ObjectId.fromTimestamp(now),
+      Uuid.v4(),
+    ];
+
+    final config = Configuration.inMemory([AnythingGoes.schema]);
+    final realm = getRealm(config);
+
     test('Roundtrip', () {
-      final config = Configuration.inMemory([AnythingGoes.schema]);
-      final realm = getRealm(config);
-
-      final now = DateTime.now().toUtc();
-      final oid = ObjectId.fromTimestamp(now);
-      final uuid = Uuid.v4();
-
-      final something = realm.write(() => realm.add(AnythingGoes(manyAny: [
-            const RealmValue.nullValue(),
-            const RealmValue.bool(true),
-            const RealmValue.string('text'),
-            const RealmValue.int(42),
-            const RealmValue.double(3.14),
-//            RealmValue.realmObject(AnythingGoes()),
-            RealmValue.dateTime(now),
-            RealmValue.objectId(oid),
-            RealmValue.uuid(uuid),
-          ])));
-
-      expect(something.manyAny.map((e) => e.value), [null, true, 'text', 42, 3.14, now, oid, uuid]);
-      expect(something.manyAny, [null, true, 'text', 42, 3.14, now, oid, uuid].map((e) => RealmValue.from(e)));
+      final something = realm.write(() => realm.add(AnythingGoes(manyAny: values.map(RealmValue.from))));
+      expect(something.manyAny.map((e) => e.value), values);
+      expect(something.manyAny, values.map(RealmValue.from));
 //      expect(something.manyAny.cast<Object>(), [true, 42]);
     });
   });
