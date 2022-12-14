@@ -122,7 +122,7 @@ class InstallCommand extends Command<void> {
       await destinationDir.create(recursive: true);
     }
 
-    final destinationFile = File(path.join(Directory.systemTemp.absolute.path, "realm-binary", archiveName));
+    final destinationFile = File(path.join(Directory.systemTemp.createTempSync('realm-binary-').absolute.path, archiveName));
     if (!await destinationFile.parent.exists()) {
       await destinationFile.parent.create(recursive: true);
     }
@@ -142,7 +142,7 @@ class InstallCommand extends Command<void> {
       await response.pipe(destinationFile.openWrite());
     }
     // TODO: Handle download errors in Install command catch https://github.com/realm/realm-dart/issues/696.
-     finally {
+    finally {
       client.close(force: true);
     }
 
@@ -231,7 +231,7 @@ class InstallCommand extends Command<void> {
     } else if (Platform.isMacOS) {
       return TargetOsType.macos;
     } else {
-      throw Exception("Unsuported platform ${Platform.operatingSystem}");
+      throw Exception("Unsupported platform ${Platform.operatingSystem}");
     }
   }
 
