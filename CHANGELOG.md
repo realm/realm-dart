@@ -25,6 +25,7 @@
 * Writing to a read-only realm throws `RealmException` instead of blocking the isolate. ([#974](https://github.com/realm/realm-dart/pull/974))
 * Fix no notification for write transaction that contains only change to backlink property. (Core upgrade)
 * Fixed wrong assertion on query error that could result in a crash. (Core upgrade)
+* Use random tmp directory for download. ([#1060](https://github.com/realm/realm-dart/issues/1060))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
