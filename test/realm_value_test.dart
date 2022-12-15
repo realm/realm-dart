@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:math';
-
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -161,7 +159,6 @@ void main() {
       final something = realm.write(() => realm.add(AnythingGoes(manyAny: values.map(RealmValue.from))));
       expect(something.manyAny.map((e) => e.value), values);
       expect(something.manyAny, values.map(RealmValue.from));
-//      expect(something.manyAny.cast<Object>(), [true, 42]);
     });
   });
 }
