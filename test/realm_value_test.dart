@@ -25,6 +25,11 @@ import 'test.dart';
 
 part 'realm_value_test.g.dart';
 
+@RealmModel(ObjectType.embeddedObject)
+class _TuckedIn {
+  int x = 42;
+}
+
 @RealmModel()
 class _AnythingGoes {
   @Indexed()
@@ -47,7 +52,7 @@ void main() {
       Uuid.v4(),
     ];
 
-    final config = Configuration.inMemory([AnythingGoes.schema]);
+    final config = Configuration.inMemory([AnythingGoes.schema, TuckedIn.schema]);
     final realm = getRealm(config);
 
     for (final x in values) {
@@ -60,6 +65,10 @@ void main() {
 
     test('Illegal value', () {
       expect(() => realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(<int>[1, 2])))), throwsArgumentError);
+    });
+
+    test('Embedded object not allowed in RealmValue', () {
+      expect(() => realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(TuckedIn())))), throwsArgumentError);
     });
 
     for (final x in values) {

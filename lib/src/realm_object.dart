@@ -281,7 +281,7 @@ extension RealmEntityInternal on RealmEntity {
 ///
 /// [RealmObject] should not be used directly as it is part of the generated class hierarchy. ex: `MyClass extends _MyClass with RealmObject`.
 /// {@category Realm}
-mixin RealmObjectBase on RealmEntity implements RealmObjectMarker, Finalizable {
+mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizable {
   RealmObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
   static final Map<Type, RealmObjectBase Function()> _factories = <Type, RealmObjectBase Function()>{
@@ -432,10 +432,10 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectMarker, Finalizable {
 }
 
 /// @nodoc
-mixin RealmObject on RealmObjectBase {}
+mixin RealmObject on RealmObjectBase implements RealmObjectMarker {}
 
 /// @nodoc
-mixin EmbeddedObject on RealmObjectBase {}
+mixin EmbeddedObject on RealmObjectBase implements EmbeddedObjectMarker {}
 
 extension EmbeddedObjectExtension on EmbeddedObject {
   /// Retrieve the [parent] object of this embedded object.

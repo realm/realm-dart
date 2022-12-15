@@ -103,7 +103,16 @@ class RealmStateError extends StateError implements RealmError {
 class Decimal128 {} // TODO Support decimal128 datatype https://github.com/realm/realm-dart/issues/725
 
 /// @nodoc
-abstract class RealmObjectMarker {}
+abstract class RealmObjectBaseMarker {}
+
+/// @nodoc
+abstract class RealmObjectMarker implements RealmObjectBaseMarker {}
+
+/// @nodoc
+abstract class EmbeddedObjectMarker implements RealmObjectBaseMarker {}
+
+/// @nodoc
+abstract class AsymmetricObjectMarker implements RealmObjectBaseMarker {}
 
 /// A type that can represent any valid realm data type, except collections and embedded objects.
 ///
@@ -177,13 +186,15 @@ class RealmValue {
   operator ==(Object? other) {
     if (other is RealmValue) {
       return value == other.value;
-    } else {
-      return value == other;
     }
+    return value == other;
   }
 
   @override
   int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'RealmValue.from($value)';
 }
 
 /// The category of a [SyncError].
