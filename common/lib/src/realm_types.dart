@@ -111,9 +111,6 @@ abstract class RealmObjectMarker implements RealmObjectBaseMarker {}
 /// @nodoc
 abstract class EmbeddedObjectMarker implements RealmObjectBaseMarker {}
 
-/// @nodoc
-abstract class AsymmetricObjectMarker implements RealmObjectBaseMarker {}
-
 /// A type that can represent any valid realm data type, except collections and embedded objects.
 ///
 /// You can use [RealmValue] to declare fields on realm models, in which case it must be non-nullable,
