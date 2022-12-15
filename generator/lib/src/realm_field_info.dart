@@ -66,6 +66,13 @@ class RealmFieldInfo {
 
   String get mappedTypeName => fieldElement.mappedTypeName;
 
+  String get initializer {
+    if (type.isDartCoreList) return ' = const []';
+    if (isMixed) return ' = const RealmValue.nullValue()';
+    if (hasDefaultValue) return ' = ${fieldElement.initializerExpression}';
+    return ''; // no initializer
+  }
+
   RealmCollectionType get realmCollectionType => type.realmCollectionType;
 
   Iterable<String> toCode() sync* {

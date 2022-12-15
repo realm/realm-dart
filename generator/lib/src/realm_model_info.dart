@@ -51,11 +51,8 @@ class RealmModelInfo {
         final collections = fields.where((f) => f.isRealmCollection).toList();
         if (notRequired.isNotEmpty || collections.isNotEmpty) {
           yield '{';
-          yield* notRequired.map(
-            (f) =>
-                '${f.mappedTypeName} ${f.name}${f.hasDefaultValue ? ' = ${f.fieldElement.initializerExpression}' : (f.isMixed ? ' = const RealmValue.nullValue()' : '')},',
-          );
-          yield* collections.map((c) => 'Iterable<${c.type.basicMappedName}> ${c.name} = const [],');
+          yield* notRequired.map((f) => '${f.mappedTypeName} ${f.name}${f.initializer},');
+          yield* collections.map((c) => 'Iterable<${c.type.basicMappedName}> ${c.name}${c.initializer},');
           yield '}';
         }
 
