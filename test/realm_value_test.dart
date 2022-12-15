@@ -35,6 +35,11 @@ class _AnythingGoes {
   late List<RealmValue> manyAny;
 }
 
+@RealmModel()
+class _Stuff {
+  int i = 42;
+}
+
 void main() {
   group('RealmValue', () {
     final now = DateTime.now().toUtc();
@@ -136,6 +141,23 @@ void main() {
         }
       });
     }
+
+    test('Unknown embedded', () {
+      {
+        final config = Configuration.local([AnythingGoes.schema, Stuff.schema], path: 'unknown_embedded');
+        final realm = Realm(config);
+
+        realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.realmObject(Stuff()))));
+        realm.close();
+      }
+
+      // From here on Stuff is unknown
+      final config = Configuration.local([AnythingGoes.schema], path: 'unknown_embedded');
+      final realm = getRealm(config);
+
+      final something = realm.all<AnythingGoes>()[0];
+      expect(something.oneAny, isA<RealmObject>());
+    }, skip: 'This currently crashes!');
   });
 
   group('List<RealmValue>', () {

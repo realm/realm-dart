@@ -91,3 +91,41 @@ class AnythingGoes extends _AnythingGoes
     ]);
   }
 }
+
+class Stuff extends _Stuff with RealmEntity, RealmObjectBase, RealmObject {
+  static var _defaultsSet = false;
+
+  Stuff({
+    int i = 42,
+  }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<Stuff>({
+        'i': 42,
+      });
+    }
+    RealmObjectBase.set(this, 'i', i);
+  }
+
+  Stuff._();
+
+  @override
+  int get i => RealmObjectBase.get<int>(this, 'i') as int;
+  @override
+  set i(int value) => RealmObjectBase.set(this, 'i', value);
+
+  @override
+  Stream<RealmObjectChanges<Stuff>> get changes =>
+      RealmObjectBase.getChanges<Stuff>(this);
+
+  @override
+  Stuff freeze() => RealmObjectBase.freezeObject<Stuff>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(Stuff._);
+    return const SchemaObject(ObjectType.realmObject, Stuff, 'Stuff', [
+      SchemaProperty('i', RealmPropertyType.int),
+    ]);
+  }
+}
