@@ -28,4 +28,6 @@ class _Indexable {
   late DateTime aDateTime;
   @Indexed()
   DateTime? aNullableDateTime;
+  @Indexed()
+  late RealmValue aRealmValue;
 }
