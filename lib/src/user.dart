@@ -22,7 +22,7 @@ import 'native/realm_core.dart';
 import 'realm_class.dart';
 import './app.dart';
 
-/// This class represents a `user` in an Atlas App Services application.
+/// This class represents a `user` in an [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) application.
 /// A user can log in to the server and, if access is granted, it is possible to synchronize the local Realm to MongoDB Atlas.
 /// Moreover, synchronization is halted when the user is logged out. It is possible to persist a user. By retrieving a user, there is no need to log in again.
 /// Persisting a user between sessions, the user's credentials are stored
@@ -99,13 +99,13 @@ class User {
   }
 
   /// Gets the refresh token for this [User]. This is the user's credential for
-  /// accessing Atlas App Services and should be treated as sensitive data.
+  /// accessing [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) and should be treated as sensitive data.
   String get refreshToken {
     return realmCore.userGetRefreshToken(this);
   }
 
   /// Gets the access token for this [User]. This is the user's credential for
-  /// accessing Atlas App Services and should be treated as sensitive data.
+  /// accessing [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) and should be treated as sensitive data.
   String get accessToken {
     return realmCore.userGetAccessToken(this);
   }
