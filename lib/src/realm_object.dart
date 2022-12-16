@@ -185,7 +185,7 @@ class RealmCoreAccessor implements RealmAccessor {
         late RealmObjectMetadata targetMetadata;
 
         if (propertyMeta.propertyType == RealmPropertyType.mixed) {
-          final tuple = meta.getByClassKey(realmCore.getClassKey(object.handle));
+          final tuple = meta.getByClassKey(realmCore.getClassKey(value));
           type = tuple.item1;
           targetMetadata = tuple.item2;
         } else {

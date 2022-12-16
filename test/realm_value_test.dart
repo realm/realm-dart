@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:io';
+
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -50,17 +52,19 @@ void main() {
       42,
       3.14,
       AnythingGoes(),
+      Stuff(),
       now,
       ObjectId.fromTimestamp(now),
       Uuid.v4(),
     ];
 
-    final config = Configuration.inMemory([AnythingGoes.schema, TuckedIn.schema]);
+    final config = Configuration.inMemory([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
     final realm = getRealm(config);
 
     for (final x in values) {
       test('Roundtrip ${x.runtimeType} $x', () {
         final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(x))));
+        expect(something.oneAny.type, x.runtimeType);
         expect(something.oneAny.value, x);
         expect(something.oneAny, RealmValue.from(x));
       });
@@ -96,7 +100,9 @@ void main() {
             break;
           case AnythingGoes: // RealmObject won't work with switch
             expect(value, isA<AnythingGoes>());
-            expect(value, isA<RealmObject>());
+            break;
+          case Stuff: // RealmObject won't work with switch
+            expect(value, isA<Stuff>());
             break;
           case DateTime:
             expect(value, isA<DateTime>());
@@ -136,28 +142,45 @@ void main() {
           expect(type, ObjectId);
         } else if (value is AnythingGoes) {
           expect(type, AnythingGoes);
+        } else if (value is Stuff) {
+          expect(type, Stuff);
         } else {
           fail('$value not handled correctly in if-is');
         }
       });
     }
 
-    test('Unknown embedded', () {
+    test('Unknown schema for RealmValue.value after bad migration', () {
       {
-        final config = Configuration.local([AnythingGoes.schema, Stuff.schema], path: 'unknown_embedded');
+        final config = Configuration.local([AnythingGoes.schema, Stuff.schema], path: 'unknown_embedded', schemaVersion: 0);
+        Realm.deleteRealm(config.path);
         final realm = Realm(config);
 
-        realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.realmObject(Stuff()))));
+        final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.realmObject(Stuff()))));
+        expect(something.oneAny, isA<RealmValue>());
+        expect(something.oneAny.value, isA<Stuff>());
+        expect(something.oneAny.as<Stuff>().i, 42);
+
         realm.close();
       }
 
       // From here on Stuff is unknown
-      final config = Configuration.local([AnythingGoes.schema], path: 'unknown_embedded');
+      final config = Configuration.local(
+        [AnythingGoes.schema],
+        path: 'unknown_embedded',
+        schemaVersion: 1,
+        migrationCallback: (migration, oldSchemaVersion) {
+          // forget to handle RealmValue pointing to Stuff
+        },
+      );
       final realm = getRealm(config);
 
       final something = realm.all<AnythingGoes>()[0];
-      expect(something.oneAny, isA<RealmObject>());
-    }, skip: 'This currently crashes!');
+      // something.oneAny points to a Stuff, but that is not known, so returns null.
+      // A better option would be to return a DynamicRealmObject, but c-api does
+      // not currently allow this.
+      expect(something.oneAny, const RealmValue.nullValue()); // at least we don't crash :-)
+    });
   });
 
   group('List<RealmValue>', () {
@@ -169,12 +192,13 @@ void main() {
       42,
       3.14,
       AnythingGoes(),
+      Stuff(),
       now,
       ObjectId.fromTimestamp(now),
       Uuid.v4(),
     ];
 
-    final config = Configuration.inMemory([AnythingGoes.schema]);
+    final config = Configuration.inMemory([AnythingGoes.schema, Stuff.schema]);
     final realm = getRealm(config);
 
     test('Roundtrip', () {

@@ -201,6 +201,7 @@ class _RealmCore {
         _realmLib.realm_config_set_max_number_of_active_versions(configHandle._pointer, config.maxNumberOfActiveVersions!);
       }
       if (config is LocalConfiguration) {
+        //_realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED);
         if (config.initialDataCallback != null) {
           _realmLib.realm_config_set_data_initialization_function(
             configHandle._pointer,
@@ -2714,6 +2715,7 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_LINK:
         final objectKey = ref.values.link.target;
         final classKey = ref.values.link.target_table;
+        if (realm.metadata.getByClassKeyIfExists(classKey) == null) return null; // temprorary workaround to avoid crash on assertion
         return realmCore._getObject(realm, classKey, objectKey);
       case realm_value_type.RLM_TYPE_BINARY:
         throw Exception("Not implemented");
