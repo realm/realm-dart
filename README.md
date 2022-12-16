@@ -88,26 +88,27 @@ For API documentation go to
 
  * [Realm Dart API Docs](https://pub.dev/documentation/realm_dart/latest/)
 
+Use [realm](https://pub.dev/packages/realm) package for Flutter and [realm_dart](https://pub.dev/packages/realm_dart) package for Dart applications.
+
 For a complete documentation go to [Realm Flutter and Dart SDK Docs](https://docs.mongodb.com/realm/sdk/flutter/).
 
+Read [Quick Start - Flutter SDK]( https://www.mongodb.com/docs/realm/sdk/flutter/quick-start/) if you are running the Realm for the first time.
+
+Read more about using the Realm with [Device Sync](https://www.mongodb.com/docs/realm/sdk/flutter/sync/) and connecting to [Atlas App Services](https://www.mongodb.com/docs/realm/sdk/flutter/app-services/).
 
 ## Limitations
 
-* It provides the functionality for creating, retrieving, querying, sorting, filtering, updating Realm objects.
-
-* Migrations are not supported yet.
-
-    If you change your data models often and receive a migration exception be sure to delete the old `default.realm` file in your application directory. It will get recreated with the new schema the next time the Realm is opened.
+* Data types Set and Map are still not supported.
 
 # Realm Flutter SDK
 
-The Realm Flutter package name is `realm`
+The Realm Flutter package name is [realm](https://pub.dev/packages/realm).
 
 ## Environment setup for Realm Flutter
 
-* Supported platforms are Flutter (iOS, Android, Windows, MacOS) and Dart standalone (Windows, MacOS and Linux)
+* Supported platforms are Flutter (iOS, Android, Windows, MacOS and Linux) and Dart standalone (Windows, MacOS and Linux)
 
-* Flutter ^3.0
+* Flutter ^3.0.3
 * For Flutter Desktop environment setup check the guide [here](https://docs.flutter.dev/desktop)
 * Cocoapods v1.11 or newer
 * CMake 3.21 or newer
@@ -277,13 +278,13 @@ realm.close();
 
 # Realm Dart SDK
 
-The Realm Dart package is `realm_dart`
+The Realm Dart package is [realm_dart](https://pub.dev/packages/realm_dart).
 
 ## Environment setup for Realm Dart
 
 * Supported platforms are Windows, Mac and Linux.
 
-* Dart SDK ^2.17
+* Dart SDK ^2.17.5
 
 ## Usage
 
