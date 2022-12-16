@@ -26,11 +26,11 @@
 * Fix no notification for write transaction that contains only change to backlink property. (Core upgrade)
 * Fixed wrong assertion on query error that could result in a crash. (Core upgrade)
 * Use random tmp directory for download. ([#1060](https://github.com/realm/realm-dart/issues/1060))
+* Bump minimum Dart SDK version to 2.17.5 due to an issue with the Dart virtual machine when implementing `Finalizable`.
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 * Fileformat: Generates files with format v23. Reads and automatically upgrades from fileformat v5.
-* Dart SDK minimum 2.17.5 and Flutter 3.0.3 are required due to an issue with the Dart virtual machine when implementing `Finalizable`.
 
 ### Internal
 * Using Core 13.1.2.
