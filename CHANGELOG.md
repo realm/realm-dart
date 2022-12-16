@@ -30,6 +30,7 @@
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 * Fileformat: Generates files with format v23. Reads and automatically upgrades from fileformat v5.
+* Dart SDK minimum 2.17.5 and Flutter 3.0.3 are required due to an issue with the Dart virtual machine when implementing `Finalizable`.
 
 ### Internal
 * Using Core 13.1.2.
