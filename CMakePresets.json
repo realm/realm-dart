@@ -1,18 +1,16 @@
 {
-    "version": 3,
-    "cmakeMinimumRequired": {
-      "major": 3,
-      "minor": 21,
-      "patch": 0
-    },
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
   "configurePresets": [
     {
       "name": "default",
       "binaryDir": "${sourceDir}/build-native/${presetName}",
       "generator": "Ninja Multi-Config",
       "cacheVariables": {
-        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/src/realm-core/tools/vcpkg/triplets",
-        "VCPKG_MANIFEST_DIR": "${sourceDir}/src/realm-core/tools/vcpkg",
         "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo;MinSizeRel"
       }
     },
@@ -30,10 +28,6 @@
       "name": "windows",
       "inherits": "default",
       "generator": "Visual Studio 17 2022",
-      "toolchainFile": "${sourceDir}/src/realm-core/tools/vcpkg/ports/scripts/buildsystems/vcpkg.cmake",
-      "cacheVariables": {
-        "VCPKG_TARGET_TRIPLET": "x64-windows-static"
-      },
       "condition": {
         "lhs": "${hostSystemName}",
         "type": "equals",
@@ -86,8 +80,7 @@
       },
       "cacheVariables": {
         "CMAKE_SYSTEM_NAME": "Android",
-        "CMAKE_ANDROID_NDK": "$env{ANDROID_NDK}",
-        "VCPKG_TARGET_TRIPLET": "$env{vcpkg_arch}-android"
+        "CMAKE_ANDROID_NDK": "$env{ANDROID_NDK}"
       },
       "environment": {
         "ANDROID_NDK_HOME": "$env{ANDROID_NDK}"
@@ -99,9 +92,6 @@
       "inherits": "android",
       "cacheVariables": {
         "CMAKE_ANDROID_ARCH_ABI": "x86"
-      },
-      "environment": {
-        "vcpkg_arch": "x86"
       }
     },
     {
@@ -110,9 +100,6 @@
       "inherits": "android",
       "cacheVariables": {
         "CMAKE_ANDROID_ARCH_ABI": "x86_64"
-      },
-      "environment": {
-        "vcpkg_arch": "x64"
       }
     },
     {
@@ -121,9 +108,6 @@
       "inherits": "android",
       "cacheVariables": {
         "CMAKE_ANDROID_ARCH_ABI": "armeabi-v7a"
-      },
-      "environment": {
-        "vcpkg_arch": "arm"
       }
     },
     {
@@ -132,9 +116,6 @@
       "inherits": "android",
       "cacheVariables": {
         "CMAKE_ANDROID_ARCH_ABI": "arm64-v8a"
-      },
-      "environment": {
-        "vcpkg_arch": "arm64"
       }
     }
   ],
@@ -184,7 +165,10 @@
       "name": "macos",
       "displayName": "macOS",
       "configurePreset": "macos",
-      "nativeToolOptions": [ "-destination", "platform=macOS" ],
+      "nativeToolOptions": [
+        "-destination",
+        "platform=macOS"
+      ],
       "configuration": "Debug"
     },
     {
@@ -192,7 +176,10 @@
       "hidden": true,
       "inherits": "default",
       "configurePreset": "ios",
-      "nativeToolOptions": [ "-destination", "$env{xcode_destination}" ]
+      "nativeToolOptions": [
+        "-destination",
+        "$env{xcode_destination}"
+      ]
     },
     {
       "name": "ios-device",

@@ -11095,6 +11095,12 @@ class realm_sync_error extends ffi.Struct {
 
   @ffi.Size()
   external int user_info_length;
+
+  external ffi.Pointer<realm_sync_error_compensating_write_info_t>
+      compensating_writes;
+
+  @ffi.Size()
+  external int compensating_writes_length;
 }
 
 abstract class realm_sync_error_action {
@@ -11132,6 +11138,17 @@ class realm_sync_error_code extends ffi.Struct {
 }
 
 typedef realm_sync_error_code_t = realm_sync_error_code;
+
+class realm_sync_error_compensating_write_info extends ffi.Struct {
+  external ffi.Pointer<ffi.Char> reason;
+
+  external ffi.Pointer<ffi.Char> object_name;
+
+  external realm_value_t primary_key;
+}
+
+typedef realm_sync_error_compensating_write_info_t
+    = realm_sync_error_compensating_write_info;
 typedef realm_sync_error_handler_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(ffi.Pointer<ffi.Void>,
