@@ -2303,10 +2303,12 @@ class _RealmCore {
     });
   }
 
-  void immediatelyRunFileActions(App app, String realmPath) {
-    using((arena) {
-      _realmLib.invokeGetBool(() => _realmLib.realm_sync_immediately_run_file_actions(app.handle._pointer, realmPath.toCharPtr(arena)),
+  bool immediatelyRunFileActions(App app, String realmPath) {
+    return using((arena) {
+      final out_did_run = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_sync_immediately_run_file_actions(app.handle._pointer, realmPath.toCharPtr(arena), out_did_run),
           "An error occurred while resetting the Realm. Check if the file is in use: '$realmPath'");
+      return out_did_run.value;
     });
   }
 }
