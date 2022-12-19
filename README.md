@@ -330,9 +330,9 @@ Run the Realm with [Device Sync](https://www.mongodb.com/docs/realm/sdk/flutter/
 
 * Create an account on [cloud.mongodb.com](https://cloud.mongodb.com) - follow the instructions: [Get Started with Atlas](https://www.mongodb.com/docs/atlas/getting-started) or [Get Started with a template app](https://www.mongodb.com/docs/atlas/app-services/tutorial/flutter/)
 1. Create a new App following the instructions here: [Create an App with Atlas App Services UI](https://www.mongodb.com/docs/atlas/app-services/manage-apps/create/create-with-realm-ui) or [Create an App with a Template App](https://www.mongodb.com/docs/atlas/app-services/tutorial/flutter/).
-* Read [Authentication Providers](https://www.mongodb.com/docs/atlas/app-services/authentication/providers/) to see how to configure the appropriate authentication provider type.
-* Go to the `Device Sync` menu and [Enable Flexible Sync](https://www.mongodb.com/docs/atlas/app-services/sync/configure/enable-sync/#enable-flexible-sync).
-* [Find and Copy the App ID](https://www.mongodb.com/docs/atlas/app-services/reference/find-your-project-or-app-id/) of your new application.
+1. Read [Authentication Providers](https://www.mongodb.com/docs/atlas/app-services/authentication/providers/) to see how to configure the appropriate authentication provider type.
+1. Go to the **Device Sync** menu and [Enable Flexible Sync](https://www.mongodb.com/docs/atlas/app-services/sync/configure/enable-sync/#enable-flexible-sync).
+1. [Find and Copy the App ID](https://www.mongodb.com/docs/atlas/app-services/reference/find-your-project-or-app-id/) of your new application.
 
 ## Use Device Sync in the Realm SDK
 
