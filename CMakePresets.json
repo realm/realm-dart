@@ -28,13 +28,11 @@
       "name": "windows",
       "inherits": "default",
       "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
       "condition": {
         "lhs": "${hostSystemName}",
         "type": "equals",
         "rhs": "Windows"
-      },
-      "cacheVariables": {
-        "CMAKE_GENERATOR_PLATFORM": "Win32"
       }
     },
     {
