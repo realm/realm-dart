@@ -376,7 +376,7 @@ extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
 }
 
 /// [DisconnectedSyncConfiguration] is used to open [Realm] instances that are synchronized
-/// with MongoDB Atlas, without establishing a connection to Atlas App Services. This allows
+/// with MongoDB Atlas, without establishing a connection to [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/). This allows
 /// for the synchronized realm to be opened in multiple processes concurrently, as long as
 /// only one of them uses a [FlexibleSyncConfiguration] to sync changes.
 /// {@category Configuration}
