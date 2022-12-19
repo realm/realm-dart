@@ -88,28 +88,31 @@ For API documentation go to
 
  * [Realm Dart API Docs](https://pub.dev/documentation/realm_dart/latest/)
 
-Use [realm](https://pub.dev/packages/realm) package for Flutter and [realm_dart](https://pub.dev/packages/realm_dart) package for Dart applications.
+Use [realm](https://pub.dev/packages/realm) package for Flutter and [realm_dart](https://pub.dev/packages/realm_dart) package for Dart standalone applications.
 
-For a complete documentation go to [Realm Flutter and Dart SDK Docs](https://docs.mongodb.com/realm/sdk/flutter/).
+For complete documentation of the SDKs, go to the [Realm SDK documentation](https://docs.mongodb.com/realm/sdk/flutter/).
 
-Read [Quick Start - Flutter SDK]( https://www.mongodb.com/docs/realm/sdk/flutter/quick-start/) if you are running the Realm for the first time.
+If you are using the Realm SDK for the first time, refer to the [Quick Start documentation](https://www.mongodb.com/docs/realm/sdk/flutter/quick-start/).
 
-Read more about using the Realm with [Device Sync](https://www.mongodb.com/docs/realm/sdk/flutter/sync/) and connecting to [Atlas App Services](https://www.mongodb.com/docs/realm/sdk/flutter/app-services/).
+To learn more about using Realm with Atlas App Services and Device Sync, refer to the following Realm SDK documentation:
+
+- [App Services Overview](https://www.mongodb.com/docs/realm/sdk/flutter/app-services/)
+- [Device Sync Overview](https://www.mongodb.com/docs/realm/sdk/flutter/sync/)
 
 ## Limitations
 
-* Data types Set and Map are still not supported.
+* Realm Database data types Set and Map are not supported yet.
 
 # Realm Flutter SDK
 
-The Realm Flutter package name is [realm](https://pub.dev/packages/realm).
+The Realm Flutter SDK's package name is [realm](https://pub.dev/packages/realm).
 
 ## Environment setup for Realm Flutter
 
 * Supported platforms are Flutter (iOS, Android, Windows, MacOS and Linux) and Dart standalone (Windows, MacOS and Linux)
 
 * Flutter ^3.0.3
-* For Flutter Desktop environment setup check the guide [here](https://docs.flutter.dev/desktop)
+* For Flutter Desktop environment setup, see [Desktop support for Flutter](https://docs.flutter.dev/desktop) in the Flutter documentation.
 * Cocoapods v1.11 or newer
 * CMake 3.21 or newer
 
@@ -276,9 +279,9 @@ objects = realm.query<Item>(r'name == $0', [name]);
 realm.close();
 ```
 
-# Realm Dart SDK
+# Realm Dart Standalone SDK
 
-The Realm Dart package is [realm_dart](https://pub.dev/packages/realm_dart).
+The Realm Dart Standalone SDK package is [realm_dart](https://pub.dev/packages/realm_dart).
 
 ## Environment setup for Realm Dart
 
@@ -317,21 +320,21 @@ The Realm Dart package is [realm_dart](https://pub.dev/packages/realm_dart).
 
     _*This file should be committed to source control_
 
-* For more usage of Realm Dart see the Realm Flutter usage above.
+* For more information on using the Realm Dart Standalone SDK see the Realm Flutter SDK usage above.
 
-# Device Sync with Flutter/Dart SDK
+# Device Sync with Realm Flutter and Dart Standalone SDKs
 
 Run the Realm with [Device Sync](https://www.mongodb.com/docs/realm/sdk/flutter/sync/) and connecting to [Atlas App Services](https://www.mongodb.com/docs/realm/sdk/flutter/app-services/).
 
-# Atlas App Services Configuration Steps
+## Set up Atlas App Services
 
-* Create an account on [realm.mongodb.com](https://realm.mongodb.com) - follow the instructions: [Get Started with Atlas](https://www.mongodb.com/docs/atlas/getting-started) or [Get Started with a template app](https://www.mongodb.com/docs/atlas/app-services/tutorial/flutter/)
-* Create a new app following the instructions here: [Create an App with Atlas App Services UI](https://www.mongodb.com/docs/atlas/app-services/manage-apps/create/create-with-realm-ui) or [Create an app with a template app](https://www.mongodb.com/docs/atlas/app-services/tutorial/flutter/).
+* Create an account on [cloud.mongodb.com](https://cloud.mongodb.com) - follow the instructions: [Get Started with Atlas](https://www.mongodb.com/docs/atlas/getting-started) or [Get Started with a template app](https://www.mongodb.com/docs/atlas/app-services/tutorial/flutter/)
+1. Create a new App following the instructions here: [Create an App with Atlas App Services UI](https://www.mongodb.com/docs/atlas/app-services/manage-apps/create/create-with-realm-ui) or [Create an App with a Template App](https://www.mongodb.com/docs/atlas/app-services/tutorial/flutter/).
 * Read [Authentication Providers](https://www.mongodb.com/docs/atlas/app-services/authentication/providers/) to see how to configure the appropriate authentication provider type.
 * Go to the `Device Sync` menu and [Enable Flexible Sync](https://www.mongodb.com/docs/atlas/app-services/sync/configure/enable-sync/#enable-flexible-sync).
 * [Find and Copy the App ID](https://www.mongodb.com/docs/atlas/app-services/reference/find-your-project-or-app-id/) of your new application.
 
-## Usage
+## Use Device Sync in the Realm SDK
 
 Set Atlas App Id as a constant
 
@@ -368,7 +371,7 @@ Add a Sync Subscription and write data.
 ```
 Only data matching the query in the subscription will be synced to the server and only data matching the subscription will be downloaded to the local device realm file.
 
-Follow the link for more information about how to [Sync the Realm with Atlas App Services](https://www.mongodb.com/docs/realm/sdk/flutter/quick-start/#sync-realm-with-mongodb-atlas).
+To learn more about how to sync Realm using Device Sync, refer to the [Quick Start with Sync documentation](https://www.mongodb.com/docs/realm/sdk/flutter/quick-start/#sync-realm-with-mongodb-atlas).
 
 # Building the source
 
