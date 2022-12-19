@@ -336,15 +336,10 @@ This section is about how to use the Realm with [Device Sync](https://www.mongod
 
 ## Use Device Sync with the Realm
 
-1. Set Atlas App ID as a constant.
-
-   ``` dart
-   String appId = "tasktracker-fleld";
-   ```
-
 1. Initialize the App Services `App` client and authenticate a user.
 
    ``` dart
+   String appId = "<Atlas App ID>";
    final appConfig = AppConfiguration(appId);
    final app = App(appConfig);
    final user = await app.logIn(Credentials.anonymous());
