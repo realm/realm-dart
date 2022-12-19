@@ -285,7 +285,7 @@ The Realm Dart Standalone SDK package is [realm_dart](https://pub.dev/packages/r
 
 ## Environment setup for Realm Dart
 
-* Supported platforms are Windows, Mac and Linux.
+* The Realm Dart Standalone SDK supports the platforms Windows, Mac and Linux.
 
 * Dart SDK ^2.17.5
 
