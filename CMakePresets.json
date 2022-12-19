@@ -32,6 +32,9 @@
         "lhs": "${hostSystemName}",
         "type": "equals",
         "rhs": "Windows"
+      },
+      "cacheVariables": {
+        "CMAKE_GENERATOR_PLATFORM": "Win32"
       }
     },
     {
