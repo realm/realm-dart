@@ -35,6 +35,7 @@
 
 ### Internal
 * Using Core 13.1.2.
+* No longer use vcpkg ([]())
 
 ## 0.8.0+rc (2022-11-14)
 
