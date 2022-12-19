@@ -109,7 +109,7 @@ The Realm Flutter SDK's package name is [realm](https://pub.dev/packages/realm).
 
 ## Environment setup for Realm Flutter
 
-* Supported platforms are Flutter (iOS, Android, Windows, MacOS and Linux) and Dart standalone (Windows, MacOS and Linux)
+* The Realm Flutter SDK supports the platforms iOS, Android, Windows, MacOS, and Linux.
 
 * Flutter ^3.0.3
 * For Flutter Desktop environment setup, see [Desktop support for Flutter](https://docs.flutter.dev/desktop) in the Flutter documentation.
