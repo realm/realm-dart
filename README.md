@@ -112,7 +112,7 @@ The Realm Flutter SDK's package name is [realm](https://pub.dev/packages/realm).
 * The Realm Flutter SDK supports the platforms iOS, Android, Windows, MacOS, and Linux.
 
 * Flutter ^3.0.3
-* For Flutter Desktop environment setup, see [Desktop support for Flutter](https://docs.flutter.dev/desktop) in the Flutter documentation.
+* For Flutter Desktop environment setup, see [Desktop support for Flutter](https://docs.flutter.dev/desktop).
 * Cocoapods v1.11 or newer
 * CMake 3.21 or newer
 
