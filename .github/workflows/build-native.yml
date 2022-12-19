@@ -43,26 +43,6 @@ jobs:
         if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         uses: seanmiddleditch/gha-setup-ninja@1815f2d05c2cd60c2d900f89843139b8dde09f4c
 
-      - name: Get vcpkg submodule commit sha
-        id: vcpkg_cache_key
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
-        working-directory: src/realm-core/tools/vcpkg/ports
-        shell: bash
-        run: echo "commit=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-
-      - name: Setup Vcpkg
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
-        continue-on-error: true
-        uses: friendlyanon/setup-vcpkg@v1
-        with:
-          path: src/realm-core/tools/vcpkg/ports
-          cache-key: vcpkg-${{ matrix.build }}-${{ steps.vcpkg_cache_key.outputs.commit }}-${{ hashFiles('./src/realm-core/tools/vcpkg/vcpkg.json') }}
-          cache-restore-keys: vcpkg-${{ matrix.build }}-${{ steps.vcpkg_cache_key.outputs.commit }}-
-
-      - name: Refetch Vcpkg
-        run: git fetch --unshallow
-        working-directory: ./src/realm-core/tools/vcpkg/ports
-
       - name: Setup Android NDK
         if: startsWith(matrix.build, 'android-')
         run: echo "ANDROID_NDK=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
