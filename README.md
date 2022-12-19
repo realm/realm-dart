@@ -112,7 +112,7 @@ The Realm Flutter SDK's package name is [realm](https://pub.dev/packages/realm).
 * The Realm Flutter SDK supports the platforms iOS, Android, Windows, MacOS and Linux.
 
 * Flutter ^3.0.3
-* For Flutter Desktop environment setup, see [Desktop support for Flutter](https://docs.flutter.dev/desktop) in the Flutter documentation.
+* For Flutter Desktop environment setup, see [Desktop support for Flutter](https://docs.flutter.dev/desktop).
 * Cocoapods v1.11 or newer
 * CMake 3.21 or newer
 
@@ -330,46 +330,48 @@ Run the Realm with [Device Sync](https://www.mongodb.com/docs/realm/sdk/flutter/
 
 * Create an account on [cloud.mongodb.com](https://cloud.mongodb.com) - follow the instructions: [Get Started with Atlas](https://www.mongodb.com/docs/atlas/getting-started) or [Get Started with a template app](https://www.mongodb.com/docs/atlas/app-services/tutorial/flutter/)
 1. Create a new App following the instructions here: [Create an App with Atlas App Services UI](https://www.mongodb.com/docs/atlas/app-services/manage-apps/create/create-with-realm-ui) or [Create an App with a Template App](https://www.mongodb.com/docs/atlas/app-services/tutorial/flutter/).
-* Read [Authentication Providers](https://www.mongodb.com/docs/atlas/app-services/authentication/providers/) to see how to configure the appropriate authentication provider type.
-* Go to the `Device Sync` menu and [Enable Flexible Sync](https://www.mongodb.com/docs/atlas/app-services/sync/configure/enable-sync/#enable-flexible-sync).
-* [Find and Copy the App ID](https://www.mongodb.com/docs/atlas/app-services/reference/find-your-project-or-app-id/) of your new application.
+1. Read [Authentication Providers](https://www.mongodb.com/docs/atlas/app-services/authentication/providers/) to see how to configure the appropriate authentication provider type.
+1. Go to the **Device Sync** menu and [Enable Flexible Sync](https://www.mongodb.com/docs/atlas/app-services/sync/configure/enable-sync/#enable-flexible-sync).
+1. [Find and Copy the App ID](https://www.mongodb.com/docs/atlas/app-services/reference/find-your-project-or-app-id/) of your new application.
 
 ## Use Device Sync in the Realm SDK
 
-Set Atlas App Id as a constant
+1. Set Atlas App ID as a constant.
 
-``` dart
-  String appId = "tasktracker-fleld";
-```
+   ``` dart
+   String appId = "tasktracker-fleld";
+   ```
 
-Initialize the app service and authenticate an user.
+1. Initialize the App Services `App` client and authenticate a user.
 
-``` dart
-  final appConfig = AppConfiguration(appId);
-  final app = App(appConfig);
-  final user = await app.logIn(Credentials.anonymous());
-```
-Open a Synced Realm.
-``` dart
-  final flxConfig = Configuration.flexibleSync(user, [Task.schema]);
-  final realm = Realm(flxConfig);
-```
+   ``` dart
+   final appConfig = AppConfiguration(appId);
+   final app = App(appConfig);
+   final user = await app.logIn(Credentials.anonymous());
+   ```
+1. Open a synced realm.
+   ``` dart
+   final flxConfig = Configuration.flexibleSync(user, [Task.schema]);
+   final realm = Realm(flxConfig);
+   ```
 
-Add a Sync Subscription and write data.
-``` dart
-  realm.subscriptions.update((mutableSubscriptions) {
-    mutableSubscriptions.add(realm.query<Task>(r'status == $0 AND progressMinutes == $1', ["completed", 100]));
-  });
-  realm.write(() {
-    realm.add(Task(ObjectId(), "Send an email", "completed", 4));
-    realm.add(Task(ObjectId(), "Create a meeting", "completed", 100));
-    realm.add(Task(ObjectId(), "Call the manager", "init", 2));
-  });
+1. Add a sync subscription and write data.
+   
+   ``` dart
+   realm.subscriptions.update((mutableSubscriptions) {
+   mutableSubscriptions.add(realm.query<Task>(r'status == $0 AND progressMinutes == $1', ["completed", 100]));
+   });
+   realm.write(() {
+     realm.add(Task(ObjectId(), "Send an email", "completed", 4));
+     realm.add(Task(ObjectId(), "Create a meeting", "completed", 100));
+     realm.add(Task(ObjectId(), "Call the manager", "init", 2));
+   });
 
-  await realm.subscriptions.waitForSynchronization();
-  realm.close();
-```
-Only data matching the query in the subscription will be synced to the server and only data matching the subscription will be downloaded to the local device realm file.
+   await realm.subscriptions.waitForSynchronization();
+   realm.close();
+   ```
+
+   Only data matching the query in the subscription will be synced to the server and only data matching the subscription will be downloaded to the local device realm file.
 
 To learn more about how to sync Realm using Device Sync, refer to the [Quick Start with Sync documentation](https://www.mongodb.com/docs/realm/sdk/flutter/quick-start/#sync-realm-with-mongodb-atlas).
 
