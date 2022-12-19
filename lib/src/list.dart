@@ -111,12 +111,23 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
     }
 
     try {
-      final value = realmCore.listGetElementAt(this, index);
-
+      var value = realmCore.listGetElementAt(this, index);
       if (value is RealmObjectHandle) {
-        return realm.createObject(T, value, _metadata!) as T;
+        late RealmObjectMetadata targetMetadata;
+        late Type type;
+        if (T == RealmValue) {
+          final tuple = realm.metadata.getByClassKey(realmCore.getClassKey(value));
+          type = tuple.item1;
+          targetMetadata = tuple.item2;
+        } else {
+          targetMetadata = _metadata!;
+          type = T;
+        }
+        value = realm.createObject(type, value, targetMetadata);
       }
-
+      if (T == RealmValue) {
+        value = RealmValue.from(value);
+      }
       return value as T;
     } on Exception catch (e) {
       throw RealmException("Error getting value at index $index. Error: $e");
@@ -275,6 +286,10 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
             insert || index >= length ? realmCore.listInsertEmbeddedObjectAt(realm, handle, index) : realmCore.listSetEmbeddedObjectAt(realm, handle, index);
         realm.manageEmbedded(objHandle, value);
         return;
+      }
+
+      if (value is RealmValue) {
+        value = value.value;
       }
 
       if (value is RealmObject && !value.isManaged) {

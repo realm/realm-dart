@@ -43,6 +43,7 @@ export 'package:realm_common/realm_common.dart'
         ObjectId,
         ObjectType,
         PrimaryKey,
+        RealmValue,
         RealmClosedError,
         RealmCollectionType,
         RealmError,
@@ -766,8 +767,9 @@ class RealmLogLevel {
 
 /// @nodoc
 class RealmMetadata {
-  final Map<Type, RealmObjectMetadata> _typeMap = <Type, RealmObjectMetadata>{};
-  final Map<String, RealmObjectMetadata> _stringMap = <String, RealmObjectMetadata>{};
+  final _typeMap = <Type, RealmObjectMetadata>{};
+  final _stringMap = <String, RealmObjectMetadata>{};
+  final _classKeyMap = <int, RealmObjectMetadata>{};
 
   RealmMetadata._(Iterable<RealmObjectMetadata> objectMetadatas) {
     for (final metadata in objectMetadatas) {
@@ -776,6 +778,7 @@ class RealmMetadata {
       } else {
         _stringMap[metadata.schema.name] = metadata;
       }
+      _classKeyMap[metadata.classKey] = metadata;
     }
   }
 
@@ -802,17 +805,14 @@ class RealmMetadata {
     return metadata;
   }
 
+  RealmObjectMetadata? getByClassKeyIfExists(int key) => _classKeyMap[key];
+
   Tuple<Type, RealmObjectMetadata> getByClassKey(int key) {
-    final type = _typeMap.entries.firstWhereOrNull((e) => e.value.classKey == key);
-    if (type != null) {
-      return Tuple(type.key, type.value);
+    final meta = _classKeyMap[key];
+    if (meta != null) {
+      final type = _typeMap.entries.firstWhereOrNull((e) => e.value.classKey == key)?.key ?? RealmObjectBase;
+      return Tuple(type, meta);
     }
-
-    final metadata = _stringMap.values.firstWhereOrNull((e) => e.classKey == key);
-    if (metadata != null) {
-      return Tuple(RealmObjectBase, metadata);
-    }
-
     throw RealmError("Object with classKey $key not found in the current Realm's schema.");
   }
 }

@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:ffi';
-import 'dart:typed_data';
 import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
 
@@ -46,7 +45,7 @@ enum RealmPropertyType {
   _3, // ignore: unused_field, constant_identifier_names
   binary,
   _5, // ignore: unused_field, constant_identifier_names
-  mixed,
+  mixed(Mapping<RealmValue>(indexable: true)),
   _7, // ignore: unused_field, constant_identifier_names
   timestamp(Mapping<DateTime>(indexable: true)),
   float,
@@ -104,35 +103,95 @@ class RealmStateError extends StateError implements RealmError {
 class Decimal128 {} // TODO Support decimal128 datatype https://github.com/realm/realm-dart/issues/725
 
 /// @nodoc
-class RealmObjectBaseMarker {}
+abstract class RealmObjectBaseMarker {}
 
 /// @nodoc
-class RealmObjectMarker extends RealmObjectBaseMarker {}
+abstract class RealmObjectMarker implements RealmObjectBaseMarker {}
 
 /// @nodoc
-class EmbeddedObjectMarker extends RealmObjectBaseMarker {}
+abstract class EmbeddedObjectMarker implements RealmObjectBaseMarker {}
 
-// Union type
-/// @nodoc
-class RealmAny {
-  final dynamic value;
+/// A type that can represent any valid realm data type, except collections and embedded objects.
+///
+/// You can use [RealmValue] to declare fields on realm models, in which case it must be non-nullable,
+/// but it can wrap a null-value. List of [RealmValue] (`List<RealmValue>`) are also legal.
+///
+/// [RealmValue] fields can be [Indexed]
+///
+/// ```dart
+/// @RealmModel()
+/// class _AnythingGoes {
+///   @Indexed()
+///   late RealmValue any;
+///   late List<RealmValue> manyAny;
+/// }
+///
+/// void main() {
+///   final realm = Realm(Configuration.local([AnythingGoes.schema]));
+///   realm.write(() {
+///     final something = realm.add(AnythingGoes(any: RealmValue.string('text')));
+///     something.manyAny.addAll([
+///       null,
+///       true,
+///       'text',
+///       42,
+///       3.14,
+///     ].map(RealmValue.from));
+///   });
+/// }
+/// ```
+class RealmValue {
+  final Object? value;
+  Type get type => value.runtimeType;
   T as<T>() => value as T; // better for code completion
 
   // This is private, so user cannot accidentally construct an invalid instance
-  const RealmAny._(this.value);
+  const RealmValue._(this.value);
 
-  const RealmAny.bool(bool b) : this._(b);
-  const RealmAny.string(String text) : this._(text);
-  const RealmAny.int(int i) : this._(i);
-  const RealmAny.float(Float f) : this._(f);
-  const RealmAny.double(double d) : this._(d);
-  const RealmAny.uint8List(Uint8List data) : this._(data);
+  const RealmValue.nullValue() : this._(null);
+  const RealmValue.bool(bool b) : this._(b);
+  const RealmValue.string(String text) : this._(text);
+  const RealmValue.int(int i) : this._(i);
+  const RealmValue.double(double d) : this._(d);
   // TODO: RealmObjectMarker introduced to avoid dependency inversion. It would be better if we could use RealmObject directly. https://github.com/realm/realm-dart/issues/701
-  const RealmAny.realmObject(RealmObjectBaseMarker o) : this._(o);
-  const RealmAny.dateTime(DateTime timestamp) : this._(timestamp);
-  const RealmAny.objectId(ObjectId id) : this._(id);
-  const RealmAny.decimal128(Decimal128 decimal) : this._(decimal);
-  const RealmAny.uuid(Uuid uuid) : this._(uuid);
+  const RealmValue.realmObject(RealmObjectMarker o) : this._(o);
+  const RealmValue.dateTime(DateTime timestamp) : this._(timestamp);
+  const RealmValue.objectId(ObjectId id) : this._(id);
+  // const RealmValue.decimal128(Decimal128 decimal) : this._(decimal); // not supported yet
+  const RealmValue.uuid(Uuid uuid) : this._(uuid);
+
+  /// Will throw [ArgumentError]
+  factory RealmValue.from(Object? o) {
+    if (o == null ||
+        o is bool ||
+        o is String ||
+        o is int ||
+        o is Float ||
+        o is double ||
+        o is RealmObjectMarker ||
+        o is DateTime ||
+        o is ObjectId ||
+        // o is Decimal128 || // not supported yet
+        o is Uuid) {
+      return RealmValue._(o);
+    } else {
+      throw ArgumentError.value(o, 'o', 'Unsupported type');
+    }
+  }
+
+  @override
+  operator ==(Object? other) {
+    if (other is RealmValue) {
+      return value == other.value;
+    }
+    return value == other;
+  }
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'RealmValue.from($value)';
 }
 
 /// The category of a [SyncError].

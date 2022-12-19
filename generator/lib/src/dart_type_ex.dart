@@ -30,7 +30,7 @@ import 'type_checkers.dart';
 extension DartTypeEx on DartType {
   bool isExactly<T>() => TypeChecker.fromRuntime(T).isExactlyType(this);
 
-  bool get isRealmAny => const TypeChecker.fromRuntime(RealmAny).isAssignableFromType(this);
+  bool get isRealmValue => const TypeChecker.fromRuntime(RealmValue).isAssignableFromType(this);
   bool get isRealmCollection => realmCollectionType != RealmCollectionType.none;
   bool get isRealmModel => element2 != null ? realmModelChecker.annotationsOfExact(element2!).isNotEmpty : false;
 
@@ -108,7 +108,7 @@ extension DartTypeEx on DartType {
     if (isDartCoreBool) return RealmPropertyType.bool;
     if (isDartCoreString) return RealmPropertyType.string;
     if (isExactly<Uint8List>()) return RealmPropertyType.binary;
-    if (isRealmAny) return RealmPropertyType.mixed;
+    if (isRealmValue) return RealmPropertyType.mixed;
     if (isExactly<DateTime>()) return RealmPropertyType.timestamp;
     if (isExactly<Float>()) return RealmPropertyType.float;
     if (isDartCoreNum || isDartCoreDouble) return RealmPropertyType.double;

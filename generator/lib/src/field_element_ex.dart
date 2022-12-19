@@ -84,7 +84,6 @@ extension FieldElementEx on FieldElement {
       // Check for as-of-yet unsupported type
       if (type.isDartCoreSet || //
           type.isDartCoreMap ||
-          type.isRealmAny ||
           type.isExactly<Decimal128>()) {
         throw RealmInvalidGenerationSourceError(
           'Field type not supported yet',
@@ -134,12 +133,12 @@ extension FieldElementEx on FieldElement {
 
       // Validate indexes
       if ((((primaryKey ?? indexed) != null) && !(type.realmType?.mapping.indexable ?? false)) || //
-          (primaryKey != null && type.isDartCoreBool)) {
+          (primaryKey != null && (type.isDartCoreBool || type.isExactly<RealmValue>()))) {
         final file = span!.file;
         final annotation = (primaryKey ?? indexed)!.annotation;
         final listOfValidTypes = RealmPropertyType.values //
             .map((t) => t.mapping)
-            .where((m) => m.indexable && (m.type != bool || primaryKey == null))
+            .where((m) => m.indexable && ((m.type != bool && m.type != RealmValue) || primaryKey == null))
             .map((m) => m.type);
 
         throw RealmInvalidGenerationSourceError(
@@ -261,6 +260,17 @@ extension FieldElementEx on FieldElement {
               element: this,
             );
           }
+        }
+
+        // Validate mixed (RealmValue)
+        else if (realmType == RealmPropertyType.mixed && type.isNullable) {
+          throw RealmInvalidGenerationSourceError(
+            'RealmValue fields cannot be nullable',
+            primarySpan: typeSpan(file),
+            primaryLabel: '$modelTypeName is nullable',
+            todo: 'Change type to ${modelType.asNonNullable}',
+            element: this,
+          );
         }
       }
 

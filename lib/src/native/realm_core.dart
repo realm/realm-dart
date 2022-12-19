@@ -201,6 +201,7 @@ class _RealmCore {
         _realmLib.realm_config_set_max_number_of_active_versions(configHandle._pointer, config.maxNumberOfActiveVersions!);
       }
       if (config is LocalConfiguration) {
+        //_realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED);
         if (config.initialDataCallback != null) {
           _realmLib.realm_config_set_data_initialization_function(
             configHandle._pointer,
@@ -836,6 +837,10 @@ class _RealmCore {
 
       return Tuple(handle, classKeyPtr.value);
     });
+  }
+
+  int getClassKey(RealmObjectHandle handle) {
+    return _realmLib.realm_object_get_table(handle._pointer);
   }
 
   RealmObjectHandle getOrCreateRealmObjectWithPrimaryKey(Realm realm, int classKey, Object? primaryKey) {
@@ -2680,6 +2685,8 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
       realm_value.ref.values.timestamp.seconds = seconds;
       realm_value.ref.values.timestamp.nanoseconds = nanoseconds;
       realm_value.ref.type = realm_value_type.RLM_TYPE_TIMESTAMP;
+    } else if (value is RealmValue) {
+      return _intoRealmValue(value.value, realm_value, allocator);
     } else {
       throw RealmException("Property type ${value.runtimeType} not supported");
     }
@@ -2708,6 +2715,7 @@ extension on Pointer<realm_value_t> {
       case realm_value_type.RLM_TYPE_LINK:
         final objectKey = ref.values.link.target;
         final classKey = ref.values.link.target_table;
+        if (realm.metadata.getByClassKeyIfExists(classKey) == null) return null; // temprorary workaround to avoid crash on assertion
         return realmCore._getObject(realm, classKey, objectKey);
       case realm_value_type.RLM_TYPE_BINARY:
         throw Exception("Not implemented");

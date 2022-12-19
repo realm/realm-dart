@@ -17,7 +17,6 @@ class _Bar {
   @Indexed()
   late bool aBool, another; // both are indexed!
   var data = Uint8List(16);
-  // late RealmAny any; // not supported yet
   @MapTo('tidspunkt')
   @Indexed()
   var timestamp = DateTime.now();
@@ -39,6 +38,9 @@ class _Bar {
 
   @Backlink(#bar)
   late Iterable<_Foo> foos;
+
+  late RealmValue any;
+  late List<RealmValue> manyAny;
 }
 
 @RealmModel()
