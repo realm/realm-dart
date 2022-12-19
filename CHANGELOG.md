@@ -36,6 +36,7 @@
 ### Internal
 * Using Core 13.1.2.
 * No longer use vcpkg ([#1069](https://github.com/realm/realm-dart/pull/1069))
+* Upgraded analyzer dependency to ^5.0.0. ([#1072](https://github.com/realm/realm-dart/pull/1072))
 
 ## 0.8.0+rc (2022-11-14)
 
