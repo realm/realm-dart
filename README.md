@@ -88,27 +88,27 @@ For API documentation go to
 
  * [Realm Dart API Docs](https://pub.dev/documentation/realm_dart/latest/)
 
-For a complete documentation go to [Realm Flutter and Dart SDK Docs](https://docs.mongodb.com/realm/sdk/flutter/).
+Use [realm](https://pub.dev/packages/realm) package for Flutter and [realm_dart](https://pub.dev/packages/realm_dart) package for Dart applications.
 
+For complete documentation of the SDKs, go to the [Realm SDK documentation](https://docs.mongodb.com/realm/sdk/flutter/).
 
-## Limitations
+If you are using the Realm SDK for the first time, refer to the [Quick Start documentation](https://www.mongodb.com/docs/realm/sdk/flutter/quick-start/).
 
-* It provides the functionality for creating, retrieving, querying, sorting, filtering, updating Realm objects.
+To learn more about using Realm with Atlas App Services and Device Sync, refer to the following Realm SDK documentation:
 
-* Migrations are not supported yet.
-
-    If you change your data models often and receive a migration exception be sure to delete the old `default.realm` file in your application directory. It will get recreated with the new schema the next time the Realm is opened.
+- [App Services Overview](https://www.mongodb.com/docs/realm/sdk/flutter/app-services/)
+- [Device Sync Overview](https://www.mongodb.com/docs/realm/sdk/flutter/sync/)
 
 # Realm Flutter SDK
 
-The Realm Flutter package name is `realm`
+Realm Flutter package is published to [realm](https://pub.dev/packages/realm).
 
 ## Environment setup for Realm Flutter
 
-* Supported platforms are Flutter (iOS, Android, Windows, MacOS) and Dart standalone (Windows, MacOS and Linux)
+* Realm Flutter supports the platforms iOS, Android, Windows, MacOS and Linux.
 
-* Flutter ^3.0
-* For Flutter Desktop environment setup check the guide [here](https://docs.flutter.dev/desktop)
+* Flutter ^3.0.3 or newer
+* For Flutter Desktop environment setup, see [Desktop support for Flutter](https://docs.flutter.dev/desktop).
 * Cocoapods v1.11 or newer
 * CMake 3.21 or newer
 
@@ -161,7 +161,7 @@ The Realm Flutter package name is `realm`
     ```
     A new file `catalog.g.dart` will be created next to the `catalog.dart`.
 
-    _*This file should be committed to source control_
+    _*The generated file should be committed to source control_
 
 * Use the RealmObject class `Item` with Realm.
 
@@ -275,15 +275,15 @@ objects = realm.query<Item>(r'name == $0', [name]);
 realm.close();
 ```
 
-# Realm Dart SDK
+# Realm Dart Standalone SDK
 
-The Realm Dart package is `realm_dart`
+Realm Dart package is published to [realm_dart](https://pub.dev/packages/realm_dart).
 
 ## Environment setup for Realm Dart
 
-* Supported platforms are Windows, Mac and Linux.
+* Realm Dart supports the platforms Windows, Mac and Linux.
 
-* Dart SDK ^2.17
+* Dart SDK ^2.17.5 or newer
 
 ## Usage
 
@@ -314,18 +314,60 @@ The Realm Dart package is `realm_dart`
     ```
     A new file `catalog.g.dart` will be created next to the `catalog.dart`.
 
-    _*This file should be committed to source control_
+    _*The generated file should be committed to source control_
 
-* For more usage of Realm Dart see the Realm Flutter usage above.
+* The usage of the Realm Dart SDK is the same like the Realm Flutter above.
 
+# Sync data with Realm Flutter and Dart using Device Sync
+
+This section is about how to use the Realm with [Device Sync](https://www.mongodb.com/docs/realm/sdk/flutter/sync/) and how to connect to [Atlas App Services](https://www.mongodb.com/docs/realm/sdk/flutter/app-services/).
+
+### I. Set up Atlas App Services
+  1. Create an account on [cloud.mongodb.com](https://cloud.mongodb.com). Follow the instructions: [Register a new Atlas Account](https://www.mongodb.com/docs/atlas/tutorial/create-atlas-account/#register-a-new-service-account).
+  1. Create a new App following the instructions here: [Create an App with Atlas App Services UI](https://www.mongodb.com/docs/atlas/app-services/manage-apps/create/create-with-realm-ui).
+  1. Read [Authentication Providers](https://www.mongodb.com/docs/atlas/app-services/authentication/providers/) to see how to configure the appropriate authentication provider type.
+  1. Go to the **Device Sync** menu and [Enable Flexible Sync](https://www.mongodb.com/docs/atlas/app-services/sync/configure/enable-sync/#enable-flexible-sync).
+  1. [Find and Copy the App ID](https://www.mongodb.com/docs/atlas/app-services/reference/find-your-project-or-app-id/) of your new application.
+
+### II. Use Device Sync with the Realm
+
+1. Initialize the App Services `App` client and authenticate a user.
+
+   ``` dart
+   String appId = "<Atlas App ID>";
+   final appConfig = AppConfiguration(appId);
+   final app = App(appConfig);
+   final user = await app.logIn(Credentials.anonymous());
+   ```
+1. Open a synced realm.
+
+   ``` dart
+   final config = Configuration.flexibleSync(user, [Task.schema]);
+   final realm = Realm(config);
+   ```
+
+1. Add a sync subscription and write data.
+
+   Only data matching the query in the subscription will be synced to the server and only data matching the subscription will be downloaded to the local device realm file.
+   
+   ``` dart
+   realm.subscriptions.update((mutableSubscriptions) {
+   mutableSubscriptions.add(realm.query<Task>(r'status == $0 AND progressMinutes == $1', ["completed", 100]));
+   });
+   await realm.subscriptions.waitForSynchronization();
+   realm.write(() {
+     realm.add(Task(ObjectId(), "Send an email", "completed", 4));
+     realm.add(Task(ObjectId(), "Create a meeting", "completed", 100));
+     realm.add(Task(ObjectId(), "Call the manager", "init", 2));
+   });
+   realm.close();
+   ```
+
+To learn more about how to sync data with Realm using Device Sync, refer to the [Quick Start with Sync documentation](https://www.mongodb.com/docs/realm/sdk/flutter/quick-start/#sync-realm-with-mongodb-atlas).
 
 # Building the source
 
 See [CONTRIBUTING.md](https://github.com/realm/realm-dart/blob/main/CONTRIBUTING.md#building-the-source) for instructions about building the source.
-
-# Running tests
-
-See [test/README.md](https://github.com/realm/realm-dart/blob/main/test/README.md) for instructions on running tests.
 
 # Code of Conduct
 
