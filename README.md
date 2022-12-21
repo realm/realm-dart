@@ -369,10 +369,6 @@ To learn more about how to sync data with Realm using Device Sync, refer to the 
 
 See [CONTRIBUTING.md](https://github.com/realm/realm-dart/blob/main/CONTRIBUTING.md#building-the-source) for instructions about building the source.
 
-# Running tests
-
-See [test/README.md](https://github.com/realm/realm-dart/blob/main/test/README.md) for instructions on running tests.
-
 # Code of Conduct
 
 This project adheres to the [MongoDB Code of Conduct](https://www.mongodb.com/community-code-of-conduct).
