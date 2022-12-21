@@ -161,7 +161,7 @@ Realm Flutter package is published to [realm](https://pub.dev/packages/realm).
     ```
     A new file `catalog.g.dart` will be created next to the `catalog.dart`.
 
-    _*This file should be committed to source control_
+    _*The generated file should be committed to source control_
 
 * Use the RealmObject class `Item` with Realm.
 
@@ -314,7 +314,7 @@ Realm Dart package is published to [realm_dart](https://pub.dev/packages/realm_d
     ```
     A new file `catalog.g.dart` will be created next to the `catalog.dart`.
 
-    _*This file should be committed to source control_
+    _*The generated file should be committed to source control_
 
 * The usage of the Realm Dart SDK is the same like the Realm Flutter above.
 
