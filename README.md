@@ -316,7 +316,7 @@ The Realm Dart package is [realm_dart](https://pub.dev/packages/realm_dart).
 
     _*This file should be committed to source control_
 
-* The usage of the Realm Dart SDK is the same like the Realm Flutter usage above.
+* The usage of the Realm Dart SDK is the same like the Realm Flutter above.
 
 # Sync data with Realm Flutter and Dart using Device Sync
 
