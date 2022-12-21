@@ -105,7 +105,7 @@ The Realm Flutter package name is [realm](https://pub.dev/packages/realm).
 
 ## Environment setup for Realm Flutter
 
-* The Realm Flutter supports the platforms iOS, Android, Windows, MacOS and Linux.
+* Realm Flutter supports the platforms iOS, Android, Windows, MacOS and Linux.
 
 * Flutter ^3.0.3
 * For Flutter Desktop environment setup, see [Desktop support for Flutter](https://docs.flutter.dev/desktop).
