@@ -101,13 +101,13 @@ To learn more about using Realm with Atlas App Services and Device Sync, refer t
 
 # Realm Flutter SDK
 
-The Realm Flutter package name is [realm](https://pub.dev/packages/realm).
+Realm Flutter package is published to [realm](https://pub.dev/packages/realm).
 
 ## Environment setup for Realm Flutter
 
 * The Realm Flutter supports the platforms iOS, Android, Windows, MacOS and Linux.
 
-* Flutter ^3.0.3
+* Flutter ^3.0.3 or newer
 * For Flutter Desktop environment setup, see [Desktop support for Flutter](https://docs.flutter.dev/desktop).
 * Cocoapods v1.11 or newer
 * CMake 3.21 or newer
@@ -277,13 +277,13 @@ realm.close();
 
 # Realm Dart Standalone SDK
 
-The Realm Dart package is [realm_dart](https://pub.dev/packages/realm_dart).
+Realm Dart package is published to [realm_dart](https://pub.dev/packages/realm_dart).
 
 ## Environment setup for Realm Dart
 
 * The Realm Dart supports the platforms Windows, Mac and Linux.
 
-* Dart SDK ^2.17.5
+* Dart SDK ^2.17.5 or newer
 
 ## Usage
 
