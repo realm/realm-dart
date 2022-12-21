@@ -312,7 +312,7 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
     RealmObjectBase.registerFactory(RemappedFromAnotherFile._);
     return const SchemaObject(
         ObjectType.realmObject, RemappedFromAnotherFile, 'class with spaces', [
-      SchemaProperty('property with spaces', RealmPropertyType.object,
+      SchemaProperty('linkToAnotherClass', RealmPropertyType.object,
           mapTo: 'property with spaces',
           optional: true,
           linkTarget: 'myRemappedClass'),

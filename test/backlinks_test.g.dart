@@ -59,7 +59,7 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Source._);
     return const SchemaObject(ObjectType.realmObject, Source, 'Source', [
       SchemaProperty('name', RealmPropertyType.string),
-      SchemaProperty('et mål', RealmPropertyType.object,
+      SchemaProperty('oneTarget', RealmPropertyType.object,
           mapTo: 'et mål', optional: true, linkTarget: 'Target'),
       SchemaProperty('manyTargets', RealmPropertyType.object,
           linkTarget: 'Target', collectionType: RealmCollectionType.list),

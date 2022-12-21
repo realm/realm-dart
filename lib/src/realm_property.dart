@@ -50,6 +50,9 @@ class SchemaProperty {
   final String? mapTo;
 
   /// @nodoc
+  String get internalName => mapTo ?? name;
+
+  /// @nodoc
   const SchemaProperty(
     this.name,
     this.propertyType, {

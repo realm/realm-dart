@@ -31,7 +31,7 @@ Future<void> main([List<String>? args]) async {
     expect(foundSchema.properties.length, expected.properties.length);
 
     for (final prop in foundSchema.properties) {
-      final expectedProp = expected.properties.singleWhere((e) => e.name == prop.name);
+      final expectedProp = expected.properties.singleWhere((e) => e.internalName == prop.name);
       expect(prop.collectionType, expectedProp.collectionType);
       expect(prop.linkTarget, expectedProp.linkTarget);
       expect(prop.optional, expectedProp.optional);
