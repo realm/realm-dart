@@ -121,6 +121,12 @@ Realm Flutter package is published to [realm](https://pub.dev/packages/realm).
     ```
     flutter pub add realm
     ```
+* (Optional) Install the `realm` package into the application. This downloads and copies the required native binaries to the app directory. 
+This step is required only if you need to run flutter unit and widget tests.
+
+    ```
+    flutter pub run realm install
+    ```
 
 * Import Realm in a dart file (ex. `catalog.dart`).
 
