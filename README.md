@@ -121,7 +121,7 @@ Realm Flutter package is published to [realm](https://pub.dev/packages/realm).
     ```
     flutter pub add realm
     ```
-* For running flutter widget and unit tests run the following command to install the required native binaries.
+* For running Flutter widget and unit tests run the following command to install the required native binaries.
 
     ```
     flutter pub run realm install
