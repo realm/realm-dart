@@ -58,11 +58,11 @@ class Original extends $Original
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Original._);
     return const SchemaObject(ObjectType.realmObject, Original, 'another type', [
-      SchemaProperty('remapped primitive', RealmPropertyType.int,
+      SchemaProperty('primitiveProperty', RealmPropertyType.int,
           mapTo: 'remapped primitive'),
-      SchemaProperty('remapped object', RealmPropertyType.object,
+      SchemaProperty('objectProperty', RealmPropertyType.object,
           mapTo: 'remapped object', optional: true, linkTarget: 'another type'),
-      SchemaProperty('remapped list', RealmPropertyType.object,
+      SchemaProperty('listProperty', RealmPropertyType.object,
           mapTo: 'remapped list',
           linkTarget: 'another type',
           collectionType: RealmCollectionType.list),

@@ -13,6 +13,7 @@
 * Support setting `shouldDeleteIfMigrationNeeded` when creating a `Configuration.local`. ([#1049](https://github.com/realm/realm-dart/issues/1049))
 * Add `unknown` error code to all SyncErrors: `SyncSessionErrorCode.unknown`, `SyncConnectionErrorCode.unknown`, `SyncClientErrorCode.unknown`, `GeneralSyncErrorCode.unknown`. Use `unknown` error code instead of throwing a RealmError. ([#1052](https://github.com/realm/realm-dart/pull/1052))
 * Add support for `RealmValue` data type. This new type can represent any valid Realm data type, including objects. Lists of `RealmValue` are also supported, but `RealmValue` itself cannot contain collections. Please note that a property of type `RealmValue` cannot be nullable, but can contain null, represented by the value `RealmValue.nullValue()`. ([#1051](https://github.com/realm/realm-dart/pull/1051))
+* Add support for querying using the model property names, even when the properties are mapped to a different name in the database. ([#697](https://github.com/realm/realm-dart/issues/697))
 
 ### Fixed
 * Support mapping into `SyncSessionErrorCode` for "Compensating write" with error code 231. ([#1022](https://github.com/realm/realm-dart/pull/1022))

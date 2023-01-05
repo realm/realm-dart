@@ -344,9 +344,9 @@ class RemappedClass extends $RemappedClass
     RealmObjectBase.registerFactory(RemappedClass._);
     return const SchemaObject(
         ObjectType.realmObject, RemappedClass, 'myRemappedClass', [
-      SchemaProperty('primitive_property', RealmPropertyType.string,
+      SchemaProperty('remappedProperty', RealmPropertyType.string,
           mapTo: 'primitive_property'),
-      SchemaProperty('list-with-dashes', RealmPropertyType.object,
+      SchemaProperty('listProperty', RealmPropertyType.object,
           mapTo: 'list-with-dashes',
           linkTarget: 'myRemappedClass',
           collectionType: RealmCollectionType.list),
@@ -380,7 +380,7 @@ class Task extends _Task with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Task._);
     return const SchemaObject(ObjectType.realmObject, Task, 'Task', [
-      SchemaProperty('_id', RealmPropertyType.objectid,
+      SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
     ]);
   }
@@ -421,9 +421,9 @@ class Product extends _Product with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Product._);
     return const SchemaObject(ObjectType.realmObject, Product, 'Product', [
-      SchemaProperty('_id', RealmPropertyType.objectid,
+      SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
-      SchemaProperty('stringQueryField', RealmPropertyType.string,
+      SchemaProperty('name', RealmPropertyType.string,
           mapTo: 'stringQueryField'),
     ]);
   }
@@ -465,7 +465,7 @@ class Schedule extends _Schedule
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Schedule._);
     return const SchemaObject(ObjectType.realmObject, Schedule, 'Schedule', [
-      SchemaProperty('_id', RealmPropertyType.objectid,
+      SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('tasks', RealmPropertyType.object,
           linkTarget: 'Task', collectionType: RealmCollectionType.list),
@@ -978,7 +978,7 @@ class NullableTypes extends _NullableTypes
     RealmObjectBase.registerFactory(NullableTypes._);
     return const SchemaObject(
         ObjectType.realmObject, NullableTypes, 'NullableTypes', [
-      SchemaProperty('_id', RealmPropertyType.objectid,
+      SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('differentiator', RealmPropertyType.objectid),
       SchemaProperty('stringProp', RealmPropertyType.string, optional: true),
@@ -1055,13 +1055,13 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Event._);
     return const SchemaObject(ObjectType.realmObject, Event, 'Event', [
-      SchemaProperty('_id', RealmPropertyType.objectid,
+      SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
-      SchemaProperty('stringQueryField', RealmPropertyType.string,
+      SchemaProperty('name', RealmPropertyType.string,
           mapTo: 'stringQueryField', optional: true),
-      SchemaProperty('boolQueryField', RealmPropertyType.bool,
+      SchemaProperty('isCompleted', RealmPropertyType.bool,
           mapTo: 'boolQueryField', optional: true),
-      SchemaProperty('intQueryField', RealmPropertyType.int,
+      SchemaProperty('durationInMinutes', RealmPropertyType.int,
           mapTo: 'intQueryField', optional: true),
       SchemaProperty('assignedTo', RealmPropertyType.string, optional: true),
     ]);
@@ -1654,7 +1654,7 @@ class ObjectWithEmbedded extends _ObjectWithEmbedded
     RealmObjectBase.registerFactory(ObjectWithEmbedded._);
     return const SchemaObject(
         ObjectType.realmObject, ObjectWithEmbedded, 'ObjectWithEmbedded', [
-      SchemaProperty('_id', RealmPropertyType.string,
+      SchemaProperty('id', RealmPropertyType.string,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('differentiator', RealmPropertyType.uuid, optional: true),
       SchemaProperty('singleObject', RealmPropertyType.object,
