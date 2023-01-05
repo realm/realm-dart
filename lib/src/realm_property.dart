@@ -46,22 +46,21 @@ class SchemaProperty {
   /// `true` if the property is optional
   final bool optional;
 
-  /// Indicates that the property should be persisted under a different name
-  final String? mapTo;
+  final String? _mapTo;
 
-  /// @nodoc
-  String get internalName => mapTo ?? name;
+  /// Indicates that the property should be persisted under a different name
+  String get mapTo => _mapTo ?? name;
 
   /// @nodoc
   const SchemaProperty(
     this.name,
     this.propertyType, {
     this.optional = false,
-    this.mapTo,
+    String? mapTo,
     this.primaryKey = false,
     this.indexed = false,
     this.linkTarget,
     this.linkOriginProperty,
     this.collectionType = RealmCollectionType.none,
-  });
+  }) : _mapTo = mapTo;
 }

@@ -145,8 +145,8 @@ class _RealmCore {
         for (var j = 0; j < propertiesCount; j++) {
           final schemaProperty = schemaObject.properties[j];
           final propInfo = properties.elementAt(j).ref;
-          propInfo.name = schemaProperty.internalName.toCharPtr(arena);
-          propInfo.public_name = (schemaProperty.mapTo == null ? '' : schemaProperty.name).toCharPtr(arena);
+          propInfo.name = schemaProperty.mapTo.toCharPtr(arena);
+          propInfo.public_name = (schemaProperty.mapTo != schemaProperty.name ? schemaProperty.name : '').toCharPtr(arena);
           propInfo.link_target = (schemaProperty.linkTarget ?? "").toCharPtr(arena);
           propInfo.link_origin_property_name = (schemaProperty.linkOriginProperty ?? "").toCharPtr(arena);
           propInfo.type = schemaProperty.propertyType.index;
@@ -162,7 +162,7 @@ class _RealmCore {
           }
 
           if (schemaProperty.primaryKey) {
-            classInfo.primary_key = schemaProperty.internalName.toCharPtr(arena);
+            classInfo.primary_key = schemaProperty.mapTo.toCharPtr(arena);
             propInfo.flags |= realm_property_flags.RLM_PROPERTY_PRIMARY_KEY;
           }
         }
