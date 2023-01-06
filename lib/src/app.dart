@@ -27,8 +27,8 @@ import 'credentials.dart';
 import 'native/realm_core.dart';
 import 'user.dart';
 
-final _pinnedClient = () {
-  const isrgRootX1CertPEM = // The root certificate used by lets encrypt
+final _defaultClient = () {
+  const isrgRootX1CertPEM = // The root certificate used by lets encrypt and hence MongoDB
       '''
 subject=CN=ISRG Root X1,O=Internet Security Research Group,C=US
 issuer=CN=DST Root CA X3,O=Digital Signature Trust Co.
@@ -64,7 +64,7 @@ he8Y4IWS6wY7bCkjCWDcRQJMEhg76fsO3txE+FiYruq9RUWhiF1myv4Q6W+CyBFC
 Dfvp7OOGAN6dEOM4+qR9sdjoSYKEBpsr6GtPAQw4dy753ec5
 -----END CERTIFICATE-----''';
 
-  final context = SecurityContext();
+  final context = SecurityContext(withTrustedRoots: true);
   context.setTrustedCertificatesBytes(const AsciiEncoder().convert(isrgRootX1CertPEM));
   return HttpClient(context: context);
 }();
@@ -143,7 +143,7 @@ class AppConfiguration {
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
         baseFilePath = baseFilePath ?? Directory(_path.dirname(Configuration.defaultRealmPath)),
-        httpClient = httpClient ?? _pinnedClient;
+        httpClient = httpClient ?? _defaultClient;
 }
 
 /// An [App] is the main client-side entry point for interacting with an [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) application.
