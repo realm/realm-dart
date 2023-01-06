@@ -1,7 +1,7 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Add ISRG X1 Root (root certificate used by lets-encrypt) to the default http client's security context
 
 ### Fixed
 * None
