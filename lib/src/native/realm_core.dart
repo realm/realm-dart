@@ -1917,6 +1917,12 @@ class _RealmCore {
     });
   }
 
+  void reconnect(App application) {
+    _realmLib.realm_app_sync_client_reconnect(
+      application.handle._pointer,
+    );
+  }
+
   String? userGetCustomData(User user) {
     final customDataPtr = _realmLib.realm_user_get_custom_data(user.handle._pointer);
     return customDataPtr.cast<Utf8>().toRealmDartString(freeRealmMemory: true, treatEmptyAsNull: true);

@@ -161,6 +161,14 @@ class App implements Finalizable {
     realmCore.switchUser(this, user);
   }
 
+  /// Instruct this app's sync client to immediately reconnect.
+  /// Useful when the device has been offline and then receives a network reachability update.
+  ///
+  /// The sync client will always attempt to reconnect eventually, this is just a hint.
+  void reconnect() {
+    realmCore.reconnect(this);
+  }
+
   /// Returns an instance of [EmailPasswordAuthProvider]
   EmailPasswordAuthProvider get emailPasswordAuthProvider => EmailPasswordAuthProviderInternal.create(this);
 }
