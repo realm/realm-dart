@@ -1,3 +1,6 @@
+# NOTE: This is a common file that is overwritten by realm/ci-actions sync service
+# and should only be modified in that repository.
+
 name: 'Auto Assign'
 on:
   pull_request:
@@ -7,4 +10,4 @@ jobs:
   add-assignee:
     runs-on: ubuntu-latest
     steps:
-      - uses: kentaro-m/auto-assign-action@6d966a1f3bd73adfe44dd19dc42cc5845e39ebd3
+      - uses: kentaro-m/auto-assign-action@248761c4feb3917c1b0444e33fad1a50093b9847
