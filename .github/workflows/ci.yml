@@ -113,7 +113,7 @@ jobs:
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
-          sdk: stable
+          sdk: beta
 
       - name: Cleanup apps
         run: |
@@ -293,7 +293,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: 'beta'
 
       - name: Install dependencies
         run: flutter pub get
@@ -348,7 +348,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: 'beta'
 
       - name: Install dependencies
         run: flutter pub get
@@ -421,7 +421,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: 'beta'
 
       - name: Delete generated files
         run: find . -name "*.g.dart" -not -path "./generator/*" -delete
