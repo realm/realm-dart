@@ -117,7 +117,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfig);
     final user = await getIntegrationUser(app);
 
-    final resetCompleter = Completer<void>();
+    final resetCompleter = Completer<bool>();
     final config = Configuration.flexibleSync(
       user,
       [Task.schema, Schedule.schema],
@@ -131,16 +131,14 @@ Future<void> main([List<String>? args]) async {
 
     final resetRealmFuture = resetCompleter.future.onError((error, stackTrace) {
       final clientResetError = error as ClientResetError;
-      clientResetError.resetRealm();
+      return clientResetError.resetRealm();
     }, test: (error) => error is ClientResetError);
 
     await triggerClientReset(realm);
 
-    final clientResetFuture = waitFutureWithTimeout(resetRealmFuture, timeoutError: "ManualRecoveryHandler is not reported.");
-    await expectLater(clientResetFuture, throws<RealmException>("An error occurred while resetting the Realm. Check if the file is in use"));
-
-    expect(File(config.path).existsSync(), isTrue);
-  }, skip: !Platform.isWindows);
+    expect(await resetRealmFuture.timeout(const Duration(seconds: 300)), !Platform.isWindows);
+    expect(File(config.path).existsSync(), Platform.isWindows); // posix and windows semantics are different
+  });
 
   for (Type clientResetHandlerType in [
     RecoverOrDiscardUnsyncedChangesHandler,

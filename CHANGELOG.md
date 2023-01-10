@@ -37,7 +37,7 @@
 * Fileformat: Generates files with format v23. Reads and automatically upgrades from fileformat v5.
 
 ### Internal
-* Using Core 13.1.2.
+* Using Core 13.2.0.
 * No longer use vcpkg ([#1069](https://github.com/realm/realm-dart/pull/1069))
 * Upgraded analyzer dependency to ^5.0.0. ([#1072](https://github.com/realm/realm-dart/pull/1072))
 
