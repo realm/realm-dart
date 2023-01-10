@@ -363,6 +363,25 @@ Future<void> main([List<String>? args]) async {
 
     expect(() => session.state, throws<RealmClosedError>());
   });
+
+  baasTest('Sync Network Resolve Error', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    final config = Configuration.flexibleSync(
+      user,
+      [Task.schema],
+      syncErrorHandler: (syncError) {
+        expect(syncError, isA<SyncResolveError>());
+        final sessionError = syncError.as<SyncResolveError>();
+        expect(sessionError.category, SyncErrorCategory.resolve);
+        expect(sessionError.code, SyncResolveErrorCode.noData);
+        expect(sessionError.message, "Simulated session error");
+        expect(syncError.codeValue, SyncResolveErrorCode.noData.index);
+      },
+    );
+    final realm = getRealm(config);
+    realm.syncSession.raiseError(SyncErrorCategory.resolve, SyncResolveErrorCode.noData.index, false);
+  }, skip: "waiting issue: https://github.com/realm/realm-core/issues/6015 to be fixed");
 }
 
 class StreamProgressData {
