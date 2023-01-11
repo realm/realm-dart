@@ -1,101 +1,46 @@
-group 'io.realm'
-version '1.0'
+group 'io.realm_flutter'
+version '1.0-SNAPSHOT'
 
 buildscript {
+    ext.kotlin_version = '1.7.10'
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.0'
+        classpath 'com.android.tools.build:gradle:7.2.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
-rootProject.allprojects {
+allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 31
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
 
     defaultConfig {
         minSdkVersion 16
-		ndk {
-            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_x64'
-        }
-    }
-	
-	sourceSets {
-        main {
-            jniLibs.srcDirs += ["src/main/cpp/lib/"]
-        }
-    }
-	
-    lintOptions {
-        disable 'InvalidPackage'
-    }
-	
-	// externalNativeBuild {
-    //     ndkBuild {
-    //         path 'src/main/cpp/Android.mk'
-    //     }
-    // }
-}
-
-def getPaths() {
-    def localProperties = new Properties()
-    def localPropertiesFile = rootProject.file('local.properties')
-    if (localPropertiesFile.exists()) {
-        localPropertiesFile.withReader('UTF-8') { reader ->
-            localProperties.load(reader)
-        }
-    }
-
-    def flutterRoot = localProperties.getProperty('flutter.sdk')
-    def flutterExecutablePath = 'flutter'
-    if (flutterRoot != null) {
-        flutterExecutablePath = "${flutterRoot}${File.separator}bin${File.separator}flutter"
-    }
-
-    //on Windows use flutter.bat instead
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        flutterExecutablePath += '.bat'
-    }
-
-    return [flutterRoot, flutterExecutablePath]
-}
-
-task runMetrics(type: Exec) {
-    try {
-        def appProject = project.rootProject.subprojects.find { p -> p.name == 'app' }
-        def (flutterRoot, flutterExecutablePath) = getPaths()
-
-        workingDir "${project.rootProject.projectDir}${File.separator}.."
-        String targetOsVersion
-        if (appProject != null) {
-            def conf = appProject.android.defaultConfig
-            targetOsVersion = "API Level ${conf.targetSdkVersion.apiLevel}"
-        }
-        commandLine flutterExecutablePath, 'pub', 'run', 'realm', 'metrics', '--flutter-root', flutterRoot, '--target-os-type', 'android', '--target-os-version', targetOsVersion
-    }
-    catch (e) {
-        println "Error running metrics command $e"
     }
 }
-
-task downloadRealmBinaries(type: Exec) {
-    def (flutterRoot, flutterExecutablePath) = getPaths()
-
-    workingDir "${project.rootProject.projectDir}${File.separator}.."
-    commandLine flutterExecutablePath, 'pub', 'run', 'realm', 'install', '--target-os-type', 'android', '--package-name', 'realm'
-}
-
-preBuild.dependsOn runMetrics, downloadRealmBinaries
-
-
