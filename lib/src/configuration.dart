@@ -611,7 +611,7 @@ class ClientResetError extends SyncError {
 
   /// Initiates the client reset process.
   ///
-  /// Returns> `true` if actions were run successfully, `false` otherwise.
+  /// Returns `true` if actions were run successfully, `false` otherwise.
   bool resetRealm() {
     if (_config is! FlexibleSyncConfiguration) {
       throw RealmException("The current configuration is not FlexibleSyncConfiguration.");
