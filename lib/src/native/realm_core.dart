@@ -1304,6 +1304,23 @@ class _RealmCore {
       final app_id = configuration.appId.toCharPtr(arena);
       final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
 
+      _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toCharPtr(arena));
+      _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toCharPtr(arena));
+
+      _realmLib.realm_app_config_set_sdk(handle._pointer, 'Dart'.toCharPtr(arena));
+      _realmLib.realm_app_config_set_sdk_version(handle._pointer, ''.toCharPtr(arena));
+
+      _realmLib.realm_app_config_set_cpu_arch(handle._pointer, ''.toCharPtr(arena));
+
+      _realmLib.realm_app_config_set_device_name(handle._pointer, ''.toCharPtr(arena));
+      _realmLib.realm_app_config_set_device_version(handle._pointer, ''.toCharPtr(arena));
+
+      _realmLib.realm_app_config_set_framework_name(handle._pointer, (isFlutterPlatform ? 'Flutter' : 'Dart VM').toCharPtr(arena));
+      _realmLib.realm_app_config_set_framework_version(handle._pointer, Platform.version.toCharPtr(arena));
+
+      _realmLib.realm_app_config_set_local_app_name(handle._pointer, ''.toCharPtr(arena));
+      _realmLib.realm_app_config_set_local_app_version(handle._pointer, ''.toCharPtr(arena));
+
       _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toCharPtr(arena));
 
       _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout.inMilliseconds);
@@ -2303,10 +2320,12 @@ class _RealmCore {
     });
   }
 
-  void immediatelyRunFileActions(App app, String realmPath) {
-    using((arena) {
-      _realmLib.invokeGetBool(() => _realmLib.realm_sync_immediately_run_file_actions(app.handle._pointer, realmPath.toCharPtr(arena)),
+  bool immediatelyRunFileActions(App app, String realmPath) {
+    return using((arena) {
+      final out_did_run = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_sync_immediately_run_file_actions(app.handle._pointer, realmPath.toCharPtr(arena), out_did_run),
           "An error occurred while resetting the Realm. Check if the file is in use: '$realmPath'");
+      return out_did_run.value;
     });
   }
 }
