@@ -42,6 +42,9 @@ jobs:
         with:
           submodules: false
 
+      - name: Cleanup Workspace
+        run: git clean -fdx
+
       - name: Setup GTK
         if: ${{ inputs.os == 'linux' }}
         run: |
