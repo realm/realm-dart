@@ -66,15 +66,15 @@ jobs:
   cleanup-matrix:
     needs:
       - deploy-cluster
-      - dart-tests-windows
-      - dart-tests-macos
-      - dart-tests-macos-arm
-      - dart-tests-linux
-      - flutter-desktop-tests-windows
+      #- dart-tests-windows
+      #- dart-tests-macos
+      #- dart-tests-macos-arm
+      #- dart-tests-linux
+      #- flutter-desktop-tests-windows
       - flutter-desktop-tests-macos
-      - flutter-desktop-tests-linux
-      - flutter-ios
-      - flutter-android
+      #- flutter-desktop-tests-linux
+      #- flutter-ios
+      #- flutter-android
     strategy:
       fail-fast: false
       matrix:
