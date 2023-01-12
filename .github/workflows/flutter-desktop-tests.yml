@@ -85,5 +85,5 @@ jobs:
           clusterName: ${{ env.BAAS_CLUSTER }}
 
       - name: Run tests
-        run: ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ inputs.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" --debug #--verbose -a="Some test name"
+        run: ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ inputs.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" --debug --verbose #-a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
