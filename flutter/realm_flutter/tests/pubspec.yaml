@@ -30,7 +30,6 @@ dev_dependencies:
 
 dependency_overrides:
   test_api: ^0.4.18
-  vm_service: ^10.0.0
 
 flutter:
   uses-material-design: true
