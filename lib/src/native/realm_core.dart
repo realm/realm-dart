@@ -44,6 +44,7 @@ import '../scheduler.dart';
 import '../session.dart';
 import '../subscription.dart';
 import '../user.dart';
+import '../set.dart';
 import 'realm_bindings.dart';
 
 late RealmLibrary _realmLib;
@@ -1174,6 +1175,64 @@ class _RealmCore {
 
   void listClear(RealmListHandle listHandle) {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(listHandle._pointer));
+  }
+
+  RealmSetHandle getSetProperty(RealmObjectBase object, int propertyKey) {
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_set(object.handle._pointer, propertyKey));
+    return RealmSetHandle._(pointer, object.realm.handle);
+  }
+
+  bool realmSetInsert(RealmSet realmSet, Object? value) {
+    return using((Arena arena) {
+      final realm_value = _toRealmValue(value, arena);
+      final out_index = arena<Size>();
+      final out_inserted = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_set_insert(realmSet.handle._pointer, realm_value.ref, out_index, out_inserted));
+      return out_inserted.value;
+    });
+  }
+
+  Object? realmSetGetElementAt(RealmSet realmSet, int index) {
+    return using((Arena arena) {
+      final realm_value = arena<realm_value_t>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_set_get(realmSet.handle._pointer, index, realm_value));
+      return realm_value.toDartValue(realmSet.realm);
+    });
+  }
+
+  bool realmSetContains(RealmSet realmSet, Object? value) {
+    return using((Arena arena) {
+      final realm_value = _toRealmValue(value, arena);
+      final out_index = arena<Size>();
+      final out_found = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_set_find(realmSet.handle._pointer, realm_value.ref, out_index, out_found));
+      return out_found.value;
+    });
+  }
+
+  bool realmSetErase(RealmSet realmSet, Object? value) {
+    return using((Arena arena) {
+      final realm_value = _toRealmValue(value, arena);
+      final out_erased = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_set_erase(realmSet.handle._pointer, realm_value.ref, out_erased));
+      return out_erased.value;
+    });
+  }
+
+  void realmSetClear(RealmSet realmSet) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_set_clear(realmSet.handle._pointer));
+  }
+
+  int realmSetSize(RealmSet realmSet) {
+    return using((Arena arena) {
+      final out_size = arena<Size>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_set_size(realmSet.handle._pointer, out_size));
+      return out_size.value;
+    });
+  }
+
+  bool realmSetIsValid(RealmSet realmSet) {
+    return _realmLib.realm_set_is_valid(realmSet.handle._pointer);
   }
 
   bool _equals<T extends NativeType>(HandleBase<T> first, HandleBase<T> second) {
@@ -2501,6 +2560,10 @@ class RealmResultsHandle extends RootedHandleBase<realm_results> {
 
 class RealmListHandle extends RootedHandleBase<realm_list> {
   RealmListHandle._(Pointer<realm_list> pointer, RealmHandle root) : super(root, pointer, 88);
+}
+
+class RealmSetHandle extends RootedHandleBase<realm_set> {
+  RealmSetHandle._(Pointer<realm_set> pointer, RealmHandle root) : super(root, pointer, 96);
 }
 
 class _RealmQueryHandle extends RootedHandleBase<realm_query> {

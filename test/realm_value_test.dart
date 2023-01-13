@@ -42,7 +42,9 @@ class _Stuff {
   int i = 42;
 }
 
-void main() {
+Future<void> main([List<String>? args]) async {
+  await setupTests(args);
+
   group('RealmValue', () {
     final now = DateTime.now().toUtc();
     final values = <Object?>[

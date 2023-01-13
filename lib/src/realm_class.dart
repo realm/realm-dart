@@ -32,6 +32,7 @@ import 'results.dart';
 import 'scheduler.dart';
 import 'session.dart';
 import 'subscription.dart';
+import 'set.dart';
 
 export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
 export 'package:realm_common/realm_common.dart'
@@ -90,6 +91,7 @@ export "configuration.dart"
         SyncSessionError;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
+export 'set.dart' show RealmSet;
 export 'migration.dart' show Migration;
 export 'realm_object.dart'
     show

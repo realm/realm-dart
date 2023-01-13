@@ -109,6 +109,7 @@ extension DartTypeEx on DartType {
     if (isDartCoreString) return RealmPropertyType.string;
     if (isExactly<Uint8List>()) return RealmPropertyType.binary;
     if (isRealmValue) return RealmPropertyType.mixed;
+    if (isRealmSet) return RealmPropertyType.;
     if (isExactly<DateTime>()) return RealmPropertyType.timestamp;
     if (isExactly<Float>()) return RealmPropertyType.float;
     if (isDartCoreNum || isDartCoreDouble) return RealmPropertyType.double;

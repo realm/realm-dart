@@ -27,6 +27,7 @@ import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'results.dart';
+import 'set.dart';
 
 typedef DartDynamic = dynamic;
 
@@ -173,6 +174,11 @@ class RealmCoreAccessor implements RealmAccessor {
           }
         }
         return object.realm.createList<T>(handle, listMetadata);
+      }
+
+      if (propertyMeta.collectionType == RealmCollectionType.set) {
+        final handle = realmCore.getSetProperty(object, propertyMeta.key);
+        return RealmSetInternal.create<T>(handle, object.realm, metadata);
       }
 
       var value = realmCore.getProperty(object, propertyMeta.key);
