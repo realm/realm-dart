@@ -12,7 +12,9 @@ void main(List<String> args) {
     FlutterDriver? driver;
 
     setUpAll(() async {
-      driver = await FlutterDriver.connect();
+      driver = await FlutterDriver.connect(dartVmServiceUrl: Platform.environment["VM_SERVICE_URL"]);
+      final vm = await driver?.serviceClient.getVM();
+      print(vm?.version);
     });
 
     tearDownAll(() async {
