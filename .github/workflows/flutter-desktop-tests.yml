@@ -30,7 +30,7 @@ env:
 jobs:
   flutter-tests:
     runs-on: ${{ inputs.os == 'linux' && 'ubuntu' || inputs.os }}-${{ inputs.architecture || 'latest' }}
-    name: Flutter tests on ${{inputs.os  }}
+    name: Flutter tests on ${{inputs.os }}-${{ inputs.architecture }}
     timeout-minutes: 45
     env:
       BAAS_CLUSTER: ${{ inputs.cluster }}
@@ -70,7 +70,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'beta'
-          architecture: ${{ inputs.architecture == 'arm' && 'arm64' || inputs.architecture || 'x64'}}
+          architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
 
       - name: Enable Flutter Desktop support
         run: flutter config --enable-${{ inputs.os }}-desktop

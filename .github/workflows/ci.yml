@@ -50,8 +50,7 @@ jobs:
       #- dart-tests-linux
       #- flutter-desktop-tests-windows
       - flutter-desktop-tests-macos-arm
-      - flutter-desktop-tests-macos-x64
-      - flutter-desktop-tests-macos-x86
+      - flutter-desktop-tests-macos
       #- flutter-desktop-tests-linux
       #- flutter-ios
       #- flutter-android
@@ -74,8 +73,7 @@ jobs:
       #- dart-tests-linux
       #- flutter-desktop-tests-windows
       - flutter-desktop-tests-macos-arm
-      - flutter-desktop-tests-macos-x64
-      - flutter-desktop-tests-macos-x86
+      - flutter-desktop-tests-macos
       #- flutter-desktop-tests-linux
       #- flutter-ios
       #- flutter-android
@@ -257,7 +255,7 @@ jobs:
      architecture: arm
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
-  flutter-desktop-tests-macos-x64:
+  flutter-desktop-tests-macos:
     name: MacOS Arm Flutter Tests
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
@@ -266,21 +264,7 @@ jobs:
     secrets: inherit
     with:
      os: macos
-     app: fm64
-     architecture: x64
-     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
-
-  flutter-desktop-tests-macos-x86:
-    name: MacOS Arm Flutter Tests
-    uses: ./.github/workflows/flutter-desktop-tests.yml
-    needs:
-      - build-macos
-      - deploy-cluster
-    secrets: inherit
-    with:
-     os: macos
-     app: fm86
-     architecture: x86
+     app: fm
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   # flutter-desktop-tests-linux:
