@@ -265,6 +265,7 @@ jobs:
     with:
      os: macos
      app: fm
+     architecture: x64
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   # flutter-desktop-tests-linux:
