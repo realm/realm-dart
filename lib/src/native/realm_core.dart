@@ -2080,36 +2080,40 @@ class _RealmCore {
   }
 
   String getAppDirectory() {
-    if (!isFlutterPlatform || Platform.environment.containsKey('FLUTTER_TEST')) {
-      return Directory.current.absolute.path; // dart or flutter test
+    try {
+      if (!isFlutterPlatform || Platform.environment.containsKey('FLUTTER_TEST')) {
+        return Directory.current.absolute.path; // dart or flutter test
+      }
+
+      // Flutter from here on..
+
+      if (Platform.isAndroid || Platform.isIOS) {
+        return getFilesPath();
+      }
+
+      if (Platform.isLinux) {
+        String appSupportDir = PlatformEx.fromEnvironment(
+          "XDG_DATA_HOME",
+          defaultValue: PlatformEx.fromEnvironment(
+            "HOME",
+            defaultValue: Directory.current.absolute.path,
+          ),
+        );
+        return path.join(appSupportDir, ".local/share", _getAppDirectoryFromPlugin());
+      }
+
+      if (Platform.isMacOS) {
+        return _getAppDirectoryFromPlugin();
+      }
+
+      if (Platform.isWindows) {
+        return _getAppDirectoryFromPlugin();
+      }
+
+      throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
+    } catch (e) {
+      throw RealmException('Cannot get app directory. Error: $e');
     }
-
-    // Flutter from here on..
-
-    if (Platform.isAndroid || Platform.isIOS) {
-      return getFilesPath();
-    }
-
-    if (Platform.isLinux) {
-      String appSupportDir = PlatformEx.fromEnvironment(
-        "XDG_DATA_HOME",
-        defaultValue: PlatformEx.fromEnvironment(
-          "HOME",
-          defaultValue: Directory.current.absolute.path,
-        ),
-      );
-      return path.join(appSupportDir, ".local/share", _getAppDirectoryFromPlugin());
-    }
-
-    if (Platform.isMacOS) {
-      return _getAppDirectoryFromPlugin();
-    }
-
-    if (Platform.isWindows) {
-      return _getAppDirectoryFromPlugin();
-    }
-
-    throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
   }
 
   Future<void> deleteUser(App app, User user) {
