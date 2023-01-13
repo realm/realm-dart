@@ -381,7 +381,9 @@ Future<void> main([List<String>? args]) async {
     );
     final realm = getRealm(config);
     realm.syncSession.raiseError(SyncErrorCategory.resolve, SyncResolveErrorCode.noData.index, false);
-  }, skip: "waiting issue: https://github.com/realm/realm-core/issues/6015 to be fixed");
+  },
+      // TODO: remove after issue: https://github.com/realm/realm-core/issues/6015 is fixed
+      skip: "blocked by a core issue 6015");
 }
 
 class StreamProgressData {
