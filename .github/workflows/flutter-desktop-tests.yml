@@ -65,12 +65,16 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'beta'
+          architecture: ${{ inputs.architecture }}
 
       - name: Enable Flutter Desktop support
         run: flutter config --enable-${{ inputs.os }}-desktop
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Flutter build
+        run: flutter build ${{ inputs.os }}
 
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
@@ -85,5 +89,5 @@ jobs:
           clusterName: ${{ env.BAAS_CLUSTER }}
 
       - name: Run tests
-        run: ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ inputs.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" --no-dds --debug --verbose # -a="Some test name"
+        run: ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ inputs.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" # -a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
