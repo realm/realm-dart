@@ -55,6 +55,11 @@ jobs:
         if: ${{ inputs.os == 'linux' }}
         uses: seanmiddleditch/gha-setup-ninja@1815f2d05c2cd60c2d900f89843139b8dde09f4c
 
+      - name: Setup jq
+        if: ${{ input.os == 'macos' }}
+        run: |
+          brew install jq
+
       - name: Fetch artifacts
         uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
