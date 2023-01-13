@@ -1551,6 +1551,17 @@ Future<void> main([List<String>? args]) async {
     //test the realm can be opened.
     final realm = getRealm(Configuration.disconnectedSync([Product.schema], path: path, encryptionKey: key));
   });
+
+  test('Realm writeCopy Local to Local ', () {
+    final config = Configuration.local([Car.schema]);
+    final copyConfig = Configuration.local([Car.schema], path: "new.realm");
+    final realm = getRealm(config);
+    realm.writeCopy(config);
+    realm.close();
+
+    final copyRealm = getRealm(copyConfig);
+    copyRealm.close();
+  });
 }
 
 List<int> generateEncryptionKey() {
