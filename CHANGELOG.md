@@ -2,6 +2,22 @@
 
 **This project is in Release Candidate stage.**
 
+### Enhancements
+* None
+
+### Fixed
+* None
+
+### Compatibility
+* Realm Studio: 13.0.0 or later.
+
+### Internal
+* Using Core 13.2.0.
+
+## 0.9.0+rc (2023-01-13)
+
+**This project is in Release Candidate stage.**
+
 ### Breaking Changes
 * File format version bumped.
 * The layout of the lock-file has changed, the lock file format version is bumped and all participants in a multiprocess scenario needs to be up to date so they expect the same format. This requires an update of Studio. (Core upgrade)
@@ -15,6 +31,7 @@
 * Add support for `RealmValue` data type. This new type can represent any valid Realm data type, including objects. Lists of `RealmValue` are also supported, but `RealmValue` itself cannot contain collections. Please note that a property of type `RealmValue` cannot be nullable, but can contain null, represented by the value `RealmValue.nullValue()`. ([#1051](https://github.com/realm/realm-dart/pull/1051))
 * Add support for querying using the model property names, even when the properties are mapped to a different name in the database. ([#697](https://github.com/realm/realm-dart/issues/697))
 * `ClientResetError.resetRealm` now returns a bool to indicate if reset was initiated or not. ([#1067](https://github.com/realm/realm-dart/pull/1067))
+* Support `SyncErrorCategory.resolve`, `SyncResolveError` and `SyncResolveErrorCode` for network resolution errors when sync.
 
 ### Fixed
 * Support mapping into `SyncSessionErrorCode` for "Compensating write" with error code 231. ([#1022](https://github.com/realm/realm-dart/pull/1022))
@@ -30,6 +47,7 @@
 * Fixed wrong assertion on query error that could result in a crash. (Core upgrade)
 * Use random tmp directory for download. ([#1060](https://github.com/realm/realm-dart/issues/1060))
 * Bump minimum Dart SDK version to 2.17.5 and Flutter SDK version to 3.0.3 due to an issue with the Dart virtual machine when implementing `Finalizable`. ([dart-lang/sdk#49075](https://github.com/dart-lang/sdk/issues/49075))
+* Support install command in flutter projects that use unit and widget tests. ([#870](https://github.com/realm/realm-dart/issues/870))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.

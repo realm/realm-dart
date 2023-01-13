@@ -11,7 +11,7 @@ project_dir = File.expand_path("../../../../", realmPackageDir)
 
 Pod::Spec.new do |s|
   s.name                      = 'realm'
-  s.version                   = '0.8.0+rc'
+  s.version                   = '0.9.0+rc'
   s.summary                   = 'The official Realm SDK for Flutter'
   s.description               = <<-DESC
                                     Realm is a mobile database - an alternative to SQLite and key-value stores.
@@ -48,11 +48,11 @@ Pod::Spec.new do |s|
                                   'FRAMEWORK_SEARCH_PATHS' => '"$(PODS_TARGET_SRCROOT)/**"'
                                 }
                                 #Use --debug to debug the install command on both prepare_command and script_phase below
-  s.prepare_command           = "source \"#{project_dir}/Flutter/flutter_export_environment.sh\" && cd \"$FLUTTER_APPLICATION_PATH\" && \"$FLUTTER_ROOT/bin/flutter\" pub run realm install --target-os-type ios --package-name realm"
+  s.prepare_command           = "source \"#{project_dir}/Flutter/flutter_export_environment.sh\" && cd \"$FLUTTER_APPLICATION_PATH\" && \"$FLUTTER_ROOT/bin/flutter\" pub run realm install --target-os-type ios --flavor flutter"
   s.script_phases             = [
                                   { :name => 'Download Realm Flutter iOS Binaries',
                                   #Use --debug to debug the install command
-                                  :script => 'source "$PROJECT_DIR/../Flutter/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/flutter" pub run realm install --target-os-type ios --package-name realm',
+                                  :script => 'source "$PROJECT_DIR/../Flutter/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/flutter" pub run realm install --target-os-type ios --flavor flutter',
                                     :execution_position => :before_headers
                                   },
                                   { :name => 'Report Metrics',

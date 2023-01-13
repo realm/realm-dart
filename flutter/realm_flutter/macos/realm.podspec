@@ -10,7 +10,7 @@ realmPackageDir = File.expand_path(__dir__)
 
 Pod::Spec.new do |s|
   s.name                      = 'realm'
-  s.version                   = '0.8.0+rc'
+  s.version                   = '0.9.0+rc'
   s.summary                   = 'The official Realm SDK for Flutter'
   s.description               = <<-DESC
                                     Realm is a mobile database - an alternative to SQLite and key-value stores.
@@ -30,7 +30,7 @@ Pod::Spec.new do |s|
   s.script_phases             = [
                                   { :name => 'Download Realm Flutter iOS Binaries',
                                     #Use --debug to debug the install command
-                                    :script => 'source "$PROJECT_DIR/../Flutter/ephemeral/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/flutter" pub run realm install --target-os-type macos --package-name realm',
+                                    :script => 'source "$PROJECT_DIR/../Flutter/ephemeral/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/flutter" pub run realm install --target-os-type macos --flavor flutter',
                                     :execution_position => :before_headers
                                   },
                                   { :name => 'Report Metrics',

@@ -205,6 +205,9 @@ enum SyncErrorCategory {
   /// The error originated from the session
   session,
 
+  /// Network resolution error
+  resolve,
+
   /// Another low-level system error occurred
   system,
 
@@ -498,4 +501,30 @@ enum SyncSessionErrorCode {
 
   final int code;
   const SyncSessionErrorCode(this.code);
+}
+
+/// Protocol network resolution errors.
+///
+/// These errors will be reported via the error handlers of the affected sessions.
+enum SyncResolveErrorCode {
+  /// Host not found (authoritative).
+  hostNotFound,
+
+  /// Host not found (non-authoritative).
+  hostNotFoundTryAgain,
+
+  /// The query is valid but does not have associated address data.
+  noData,
+
+  /// A non-recoverable error occurred.
+  noRecovery,
+
+  /// The service is not supported for the given socket type.
+  serviceNotFound,
+
+  /// The socket type is not supported.
+  socketTypeNotSupported,
+
+  /// Unknown resolve errors
+  unknown;
 }
