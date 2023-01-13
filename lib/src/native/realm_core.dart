@@ -2328,6 +2328,18 @@ class _RealmCore {
       return out_did_run.value;
     });
   }
+
+  void writeCopy(Realm realm, Configuration config) {
+    final configHandle = _createConfig(config);
+    _realmLib.invokeGetBool(() => _realmLib.realm_convert_with_config(realm.handle._pointer, configHandle._pointer, false));
+  }
+
+  void writeCopyTo(Realm realm, String path, List<int>? encryptionKey) {
+    return using((Arena arena) {
+      _realmLib.invokeGetBool(
+          () => _realmLib.realm_convert_with_path(realm.handle._pointer, path.toCharPtr(arena), _toRealmBinary(encryptionKey, arena).ref, false));
+    });
+  }
 }
 
 class LastError {
@@ -2643,6 +2655,14 @@ Pointer<realm_value_t> _toRealmValue(Object? value, Allocator allocator) {
   return realm_value;
 }
 
+Pointer<realm_binary_t> _toRealmBinary(List<int>? value, Allocator allocator) {
+  final realm_binary = allocator<realm_binary_t>();
+  if (value != null) {
+    realm_binary.ref.data = value.toUint8Ptr(allocator);
+    realm_binary.ref.size = value.length;
+  }
+  return realm_binary;
+}
 const int _microsecondsPerSecond = 1000 * 1000;
 const int _nanosecondsPerMicrosecond = 1000;
 

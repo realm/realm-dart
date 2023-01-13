@@ -528,6 +528,14 @@ class Realm implements Finalizable {
       realm.close();
     }
   }
+
+  void writeCopy(Configuration config) {
+    realmCore.writeCopy(this, config);
+  }
+
+  void writeCopyTo(String toFile, List<int>? encryptionKey) {
+    realmCore.writeCopyTo(this, toFile, encryptionKey);
+  }
 }
 
 /// Provides a scope to safely write data to a [Realm]. Can be created using [Realm.beginWrite] or
