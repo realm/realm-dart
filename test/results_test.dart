@@ -619,4 +619,20 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.write(() => realm.deleteMany(playersAsResults.query("name CONTAINS 'a'"))), returnsNormally);
     expect(team.players, [alice, bob]); // Alice is capital 'a'
   });
+
+  test('Results.query with remapped property', () {
+    final config = Configuration.local([RemappedClass.schema]);
+    final realm = getRealm(config);
+
+    realm.write(() {
+      realm.add(RemappedClass('Peter'));
+      realm.add(RemappedClass('George'));
+    });
+
+    final queryByModelName = realm.query<RemappedClass>('remappedProperty = "Peter"');
+    expect(queryByModelName.single.remappedProperty, 'Peter');
+
+    final queryByInternalName = realm.query<RemappedClass>('primitive_property = "Peter"');
+    expect(queryByInternalName.single.remappedProperty, 'Peter');
+  });
 }

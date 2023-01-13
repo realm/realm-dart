@@ -145,9 +145,8 @@ class _RealmCore {
         for (var j = 0; j < propertiesCount; j++) {
           final schemaProperty = schemaObject.properties[j];
           final propInfo = properties.elementAt(j).ref;
-          propInfo.name = schemaProperty.name.toCharPtr(arena);
-          //TODO: Assign the correct public name value https://github.com/realm/realm-dart/issues/697
-          propInfo.public_name = "".toCharPtr(arena);
+          propInfo.name = schemaProperty.mapTo.toCharPtr(arena);
+          propInfo.public_name = (schemaProperty.mapTo != schemaProperty.name ? schemaProperty.name : '').toCharPtr(arena);
           propInfo.link_target = (schemaProperty.linkTarget ?? "").toCharPtr(arena);
           propInfo.link_origin_property_name = (schemaProperty.linkOriginProperty ?? "").toCharPtr(arena);
           propInfo.type = schemaProperty.propertyType.index;
@@ -163,7 +162,7 @@ class _RealmCore {
           }
 
           if (schemaProperty.primaryKey) {
-            classInfo.primary_key = schemaProperty.name.toCharPtr(arena);
+            classInfo.primary_key = schemaProperty.mapTo.toCharPtr(arena);
             propInfo.flags |= realm_property_flags.RLM_PROPERTY_PRIMARY_KEY;
           }
         }
@@ -1305,6 +1304,23 @@ class _RealmCore {
       final app_id = configuration.appId.toCharPtr(arena);
       final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
 
+      _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toCharPtr(arena));
+      _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toCharPtr(arena));
+
+      _realmLib.realm_app_config_set_sdk(handle._pointer, 'Dart'.toCharPtr(arena));
+      _realmLib.realm_app_config_set_sdk_version(handle._pointer, ''.toCharPtr(arena));
+
+      _realmLib.realm_app_config_set_cpu_arch(handle._pointer, ''.toCharPtr(arena));
+
+      _realmLib.realm_app_config_set_device_name(handle._pointer, ''.toCharPtr(arena));
+      _realmLib.realm_app_config_set_device_version(handle._pointer, ''.toCharPtr(arena));
+
+      _realmLib.realm_app_config_set_framework_name(handle._pointer, (isFlutterPlatform ? 'Flutter' : 'Dart VM').toCharPtr(arena));
+      _realmLib.realm_app_config_set_framework_version(handle._pointer, Platform.version.toCharPtr(arena));
+
+      _realmLib.realm_app_config_set_local_app_name(handle._pointer, ''.toCharPtr(arena));
+      _realmLib.realm_app_config_set_local_app_version(handle._pointer, ''.toCharPtr(arena));
+
       _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toCharPtr(arena));
 
       _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout.inMilliseconds);
@@ -2064,36 +2080,40 @@ class _RealmCore {
   }
 
   String getAppDirectory() {
-    if (!isFlutterPlatform || Platform.environment.containsKey('FLUTTER_TEST')) {
-      return Directory.current.absolute.path; // dart or flutter test
+    try {
+      if (!isFlutterPlatform || Platform.environment.containsKey('FLUTTER_TEST')) {
+        return Directory.current.absolute.path; // dart or flutter test
+      }
+
+      // Flutter from here on..
+
+      if (Platform.isAndroid || Platform.isIOS) {
+        return getFilesPath();
+      }
+
+      if (Platform.isLinux) {
+        String appSupportDir = PlatformEx.fromEnvironment(
+          "XDG_DATA_HOME",
+          defaultValue: PlatformEx.fromEnvironment(
+            "HOME",
+            defaultValue: Directory.current.absolute.path,
+          ),
+        );
+        return path.join(appSupportDir, ".local/share", _getAppDirectoryFromPlugin());
+      }
+
+      if (Platform.isMacOS) {
+        return _getAppDirectoryFromPlugin();
+      }
+
+      if (Platform.isWindows) {
+        return _getAppDirectoryFromPlugin();
+      }
+
+      throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
+    } catch (e) {
+      throw RealmException('Cannot get app directory. Error: $e');
     }
-
-    // Flutter from here on..
-
-    if (Platform.isAndroid || Platform.isIOS) {
-      return getFilesPath();
-    }
-
-    if (Platform.isLinux) {
-      String appSupportDir = PlatformEx.fromEnvironment(
-        "XDG_DATA_HOME",
-        defaultValue: PlatformEx.fromEnvironment(
-          "HOME",
-          defaultValue: Directory.current.absolute.path,
-        ),
-      );
-      return path.join(appSupportDir, ".local/share", _getAppDirectoryFromPlugin());
-    }
-
-    if (Platform.isMacOS) {
-      return _getAppDirectoryFromPlugin();
-    }
-
-    if (Platform.isWindows) {
-      return _getAppDirectoryFromPlugin();
-    }
-
-    throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
   }
 
   Future<void> deleteUser(App app, User user) {
@@ -2304,10 +2324,12 @@ class _RealmCore {
     });
   }
 
-  void immediatelyRunFileActions(App app, String realmPath) {
-    using((arena) {
-      _realmLib.invokeGetBool(() => _realmLib.realm_sync_immediately_run_file_actions(app.handle._pointer, realmPath.toCharPtr(arena)),
+  bool immediatelyRunFileActions(App app, String realmPath) {
+    return using((arena) {
+      final out_did_run = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_sync_immediately_run_file_actions(app.handle._pointer, realmPath.toCharPtr(arena), out_did_run),
           "An error occurred while resetting the Realm. Check if the file is in use: '$realmPath'");
+      return out_did_run.value;
     });
   }
 }

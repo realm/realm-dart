@@ -313,18 +313,23 @@ Future<void> testLogger(
   final realm = await getIntegrationRealm(app: app);
 
   // Prepare to capture trace
-  final counts = <Level, int>{};
+  final messages = <Level, List<String>>{};
   logger.onRecord.listen((r) {
-    counts[r.level] = (counts[r.level] ?? 0) + 1;
+    if (messages[r.level] == null) {
+      messages[r.level] = [];
+    }
+
+    messages[r.level]!.add(r.message);
   });
 
   // Trigger trace
   await realm.syncSession.waitForDownload();
 
   // Check count of various levels
-  for (final e in counts.entries) {
-    expect(e.value, lessThanOrEqualTo(maxExpectedCounts[e.key] ?? maxInt), reason: '${e.key}');
-    expect(e.value, greaterThanOrEqualTo(minExpectedCounts[e.key] ?? minInt), reason: '${e.key}');
+  for (final e in messages.entries) {
+    expect(e.value.length, lessThanOrEqualTo(maxExpectedCounts[e.key] ?? maxInt), reason: 'Unexpected number of ${e.key} messages:\n  ${e.value.join("\n  ")}');
+    expect(e.value.length, greaterThanOrEqualTo(minExpectedCounts[e.key] ?? minInt),
+        reason: 'Unexpected number of ${e.key} messages:\n  ${e.value.join("\n  ")}');
   }
 }
 

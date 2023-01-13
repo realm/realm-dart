@@ -101,7 +101,7 @@ class RealmValuesAccessor implements RealmAccessor {
 class RealmObjectMetadata {
   final int classKey;
   final SchemaObject schema;
-  late final String? primaryKey = schema.properties.firstWhereOrNull((element) => element.primaryKey)?.name;
+  late final String? primaryKey = schema.properties.firstWhereOrNull((element) => element.primaryKey)?.mapTo;
 
   final Map<String, RealmPropertyMetadata> _propertyKeys;
 

@@ -40,9 +40,9 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Parent._);
     return const SchemaObject(ObjectType.realmObject, Parent, 'Parent', [
-      SchemaProperty('single child', RealmPropertyType.object,
+      SchemaProperty('child', RealmPropertyType.object,
           mapTo: 'single child', optional: true, linkTarget: 'MySuperChild'),
-      SchemaProperty('CHILDREN', RealmPropertyType.object,
+      SchemaProperty('children', RealmPropertyType.object,
           mapTo: 'CHILDREN',
           linkTarget: 'MySuperChild',
           collectionType: RealmCollectionType.list),
@@ -94,8 +94,8 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Child1._);
     return const SchemaObject(ObjectType.embeddedObject, Child1, 'MySuperChild', [
-      SchemaProperty('_value', RealmPropertyType.string, mapTo: '_value'),
-      SchemaProperty('_parent', RealmPropertyType.object,
+      SchemaProperty('value', RealmPropertyType.string, mapTo: '_value'),
+      SchemaProperty('linkToParent', RealmPropertyType.object,
           mapTo: '_parent', optional: true, linkTarget: 'Parent'),
       SchemaProperty('indexedString', RealmPropertyType.string, indexed: true),
     ]);
