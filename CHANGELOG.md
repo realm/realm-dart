@@ -1,3 +1,19 @@
+## vNext (TBD)
+
+**This project is in Release Candidate stage.**
+
+### Enhancements
+* None
+
+### Fixed
+* None
+
+### Compatibility
+* Realm Studio: 12.0.0 or later.
+
+### Internal
+* Using Core x.y.z.
+
 ## 0.9.0+rc (2023-01-13)
 
 **This project is in Release Candidate stage.**
