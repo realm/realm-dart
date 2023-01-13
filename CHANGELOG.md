@@ -9,10 +9,10 @@
 * None
 
 ### Compatibility
-* Realm Studio: 12.0.0 or later.
+* Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 13.2.0.
 
 ## 0.9.0+rc (2023-01-13)
 
