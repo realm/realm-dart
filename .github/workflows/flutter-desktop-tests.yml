@@ -29,7 +29,7 @@ env:
 
 jobs:
   flutter-tests:
-    runs-on: ${{ inputs.os == 'linux' && 'ubuntu' || inputs.os }}-latest
+    runs-on: ${{ inputs.os == 'linux' && 'ubuntu' || inputs.os }}-${{ inputs.architecture || 'latest' }}
     name: Flutter tests on ${{inputs.os  }}
     timeout-minutes: 45
     env:
@@ -65,7 +65,8 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'beta'
-          architecture: ${{ inputs.architecture }}
+          version: '3.7.0-1.3.pre'
+          architecture: ${{ inputs.architecture == 'arm' && 'arm64' || inputs.architecture || 'x64'}}
 
       - name: Enable Flutter Desktop support
         run: flutter config --enable-${{ inputs.os }}-desktop
