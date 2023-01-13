@@ -93,7 +93,7 @@ task downloadRealmBinaries(type: Exec) {
     def (flutterRoot, flutterExecutablePath) = getPaths()
 
     workingDir "${project.rootProject.projectDir}${File.separator}.."
-    commandLine flutterExecutablePath, 'pub', 'run', 'realm', 'install', '--target-os-type', 'android', '--package-name', 'realm'
+    commandLine flutterExecutablePath, 'pub', 'run', 'realm', 'install', '--target-os-type', 'android', '--flavor', 'flutter'
 }
 
 preBuild.dependsOn runMetrics, downloadRealmBinaries

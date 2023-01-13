@@ -28,8 +28,11 @@ Options _$parseOptionsResult(ArgResults result) => Options(
         _$TargetOsTypeEnumMapBuildCli,
         result['target-os-type'] as String?,
       ),
-      packageName: result['package-name'] as String?,
-      debug: result['debug'] as bool?,
+      flavor: _$enumValueHelper(
+        _$FlavorEnumMapBuildCli,
+        result['flavor'] as String,
+      ),
+      debug: result['debug'] as bool,
     );
 
 const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
@@ -40,23 +43,27 @@ const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
   TargetOsType.windows: 'windows'
 };
 
+const _$FlavorEnumMapBuildCli = <Flavor, String>{
+  Flavor.flutter: 'flutter',
+  Flavor.dart: 'dart'
+};
+
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addOption(
     'target-os-type',
     abbr: 't',
-    help: 'Required for Flutter. The target OS to install binaries for.',
+    help: 'The target OS to install binaries for.',
     allowed: ['android', 'ios', 'linux', 'macos', 'windows'],
   )
   ..addOption(
-    'package-name',
-    abbr: 'p',
-    help: 'Optional. The realm package name to install binaries for.',
-    defaultsTo: 'realm_dart',
-    allowed: ['realm', 'realm_dart'],
+    'flavor',
+    abbr: 'f',
+    help: 'The flavor to install binaries for.',
+    defaultsTo: 'dart',
+    allowed: ['flutter', 'dart'],
   )
   ..addFlag(
     'debug',
-    defaultsTo: false,
     hide: true,
   );
 
