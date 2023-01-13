@@ -58,7 +58,8 @@ jobs:
       - name: Setup jq
         if: ${{ inputs.os == 'macos' }}
         run: |
-          sudo apt-get install jq
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          brew install install jq
 
       - name: Fetch artifacts
         uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
