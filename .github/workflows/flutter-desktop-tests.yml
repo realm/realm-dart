@@ -58,7 +58,7 @@ jobs:
       - name: Setup jq
         if: ${{ inputs.os == 'macos' }}
         run: |
-          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
           brew install install jq
 
       - name: Fetch artifacts
