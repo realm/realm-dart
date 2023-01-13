@@ -63,7 +63,7 @@ class _NoIndexes {
 
 typedef QueryBuilder<T, U> = RealmResults<T> Function(U value);
 
-Future<void> main([List<String>? args]) async {
+void main([List<String>? args]) {
   test('Indexed faster', () {
     final config = Configuration.local([WithIndexes.schema, NoIndexes.schema]);
     Realm.deleteRealm(config.path);

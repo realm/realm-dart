@@ -17,6 +17,7 @@ class Indexable extends _Indexable
     ObjectId? aNullableObjectId,
     Uuid? aNullableUuid,
     DateTime? aNullableDateTime,
+    RealmValue aRealmValue = const RealmValue.nullValue(),
   }) {
     RealmObjectBase.set(this, 'aBool', aBool);
     RealmObjectBase.set(this, 'aNullableBool', aNullableBool);
@@ -30,6 +31,7 @@ class Indexable extends _Indexable
     RealmObjectBase.set(this, 'aNullableUuid', aNullableUuid);
     RealmObjectBase.set(this, 'aDateTime', aDateTime);
     RealmObjectBase.set(this, 'aNullableDateTime', aNullableDateTime);
+    RealmObjectBase.set(this, 'aRealmValue', aRealmValue);
   }
 
   Indexable._();
@@ -111,6 +113,13 @@ class Indexable extends _Indexable
       RealmObjectBase.set(this, 'aNullableDateTime', value);
 
   @override
+  RealmValue get aRealmValue =>
+      RealmObjectBase.get<RealmValue>(this, 'aRealmValue') as RealmValue;
+  @override
+  set  aRealmValue(RealmValue value) =>
+      RealmObjectBase.set(this, 'aRealmValue', value);
+
+  @override
   Stream<RealmObjectChanges<Indexable>> get changes =>
       RealmObjectBase.getChanges<Indexable>(this);
 
@@ -136,6 +145,8 @@ class Indexable extends _Indexable
       SchemaProperty('aNullableUuid', RealmPropertyType.uuid, optional: true, indexed: true),
       SchemaProperty('aDateTime', RealmPropertyType.timestamp, indexed: true),
       SchemaProperty('aNullableDateTime', RealmPropertyType.timestamp,
+          optional: true, indexed: true),
+      SchemaProperty('aRealmValue', RealmPropertyType.mixed, 
           optional: true, indexed: true),
     ]);
   }

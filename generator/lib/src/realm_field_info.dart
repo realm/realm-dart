@@ -46,9 +46,10 @@ class RealmFieldInfo {
   bool get isRealmCollection => type.isRealmCollection;
   bool get isLate => fieldElement.isLate;
   bool get hasDefaultValue => fieldElement.hasInitializer;
-  bool get optional => type.basicType.isNullable;
+  bool get optional => type.basicType.isNullable || realmType == RealmPropertyType.mixed;
   bool get isRequired => !(hasDefaultValue || optional);
   bool get isRealmBacklink => realmType == RealmPropertyType.linkingObjects;
+  bool get isMixed => realmType == RealmPropertyType.mixed;
   bool get isComputed => isRealmBacklink; // only computed, so far
 
   String get name => fieldElement.name;
@@ -64,6 +65,13 @@ class RealmFieldInfo {
   String get modelTypeName => fieldElement.modelTypeName;
 
   String get mappedTypeName => fieldElement.mappedTypeName;
+
+  String get initializer {
+    if (type.isDartCoreList) return ' = const []';
+    if (isMixed) return ' = const RealmValue.nullValue()';
+    if (hasDefaultValue) return ' = ${fieldElement.initializerExpression}';
+    return ''; // no initializer
+  }
 
   RealmCollectionType get realmCollectionType => type.realmCollectionType;
 

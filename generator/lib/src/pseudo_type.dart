@@ -15,7 +15,7 @@ class PseudoType extends TypeImpl {
   final NullabilitySuffix nullabilitySuffix;
   final String _name;
 
-  PseudoType(this._name, {this.nullabilitySuffix = NullabilitySuffix.none}) : super(null);
+  PseudoType(this._name, {this.nullabilitySuffix = NullabilitySuffix.none});
 
   Never get _never => throw UnimplementedError();
 
@@ -53,4 +53,7 @@ class PseudoType extends TypeImpl {
 
   @override
   Element? get element2 => null;
+
+  @override
+  Element? get element => _never;
 }

@@ -12,10 +12,10 @@ issue_tracker: https://github.com/realm/realm-dart/issues
 publish_to: none
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=2.17.5 <3.0.0"
 
 dependencies:
-  analyzer: ^4.7.0
+  analyzer: ^5.0.0
   build_resolvers: ^2.0.9
   build: ^2.0.0
   dart_style: ^2.2.0

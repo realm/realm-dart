@@ -5,12 +5,17 @@
 ### Breaking Changes
 * File format version bumped.
 * The layout of the lock-file has changed, the lock file format version is bumped and all participants in a multiprocess scenario needs to be up to date so they expect the same format. This requires an update of Studio. (Core upgrade)
+* Writing to a frozen realm throws `RealmException` instead of `RealmError`. ([#974](https://github.com/realm/realm-dart/pull/974))
 
 ### Enhancements
 * Support setting `maxNumberOfActiveVersions` when creating a `Configuration`. ([#1036](https://github.com/realm/realm-dart/pull/1036))
 * Add List.move extension method that moves an element from one index to another. Delegates to ManagedRealmList.move for managed lists. This allows notifications to correctly report moves, as opposed to reporting moves as deletes + inserts. ([#1037](https://github.com/realm/realm-dart/issues/1037))
 * Add `Realm.refresh()` and `Realm.refreshAsync()` support. ([#1046](https://github.com/realm/realm-dart/pull/1046))
 * Support setting `shouldDeleteIfMigrationNeeded` when creating a `Configuration.local`. ([#1049](https://github.com/realm/realm-dart/issues/1049))
+* Add `unknown` error code to all SyncErrors: `SyncSessionErrorCode.unknown`, `SyncConnectionErrorCode.unknown`, `SyncClientErrorCode.unknown`, `GeneralSyncErrorCode.unknown`. Use `unknown` error code instead of throwing a RealmError. ([#1052](https://github.com/realm/realm-dart/pull/1052))
+* Add support for `RealmValue` data type. This new type can represent any valid Realm data type, including objects. Lists of `RealmValue` are also supported, but `RealmValue` itself cannot contain collections. Please note that a property of type `RealmValue` cannot be nullable, but can contain null, represented by the value `RealmValue.nullValue()`. ([#1051](https://github.com/realm/realm-dart/pull/1051))
+* Add support for querying using the model property names, even when the properties are mapped to a different name in the database. ([#697](https://github.com/realm/realm-dart/issues/697))
+* `ClientResetError.resetRealm` now returns a bool to indicate if reset was initiated or not. ([#1067](https://github.com/realm/realm-dart/pull/1067))
 
 ### Fixed
 * Support mapping into `SyncSessionErrorCode` for "Compensating write" with error code 231. ([#1022](https://github.com/realm/realm-dart/pull/1022))
@@ -21,13 +26,21 @@
 * Removed the ".tmp_compaction_space" file being left over after compacting a Realm on Windows. (Core upgrade).
 * Restore fallback to full barrier when F_BARRIERSYNC is not available on Apple platforms. (Core upgrade, since v0.8.0+rc)
 * Fixed wrong assertion on query error that could result in a crash. (Core upgrade)
+* Writing to a read-only realm throws `RealmException` instead of blocking the isolate. ([#974](https://github.com/realm/realm-dart/pull/974))
+* Fix no notification for write transaction that contains only change to backlink property. (Core upgrade)
+* Fixed wrong assertion on query error that could result in a crash. (Core upgrade)
+* Use random tmp directory for download. ([#1060](https://github.com/realm/realm-dart/issues/1060))
+* Bump minimum Dart SDK version to 2.17.5 and Flutter SDK version to 3.0.3 due to an issue with the Dart virtual machine when implementing `Finalizable`. ([dart-lang/sdk#49075](https://github.com/dart-lang/sdk/issues/49075))
+* Support install command in flutter projects that use unit and widget tests. ([#870](https://github.com/realm/realm-dart/issues/870))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 * Fileformat: Generates files with format v23. Reads and automatically upgrades from fileformat v5.
 
 ### Internal
-* Using Core 13.1.0.
+* Using Core 13.2.0.
+* No longer use vcpkg ([#1069](https://github.com/realm/realm-dart/pull/1069))
+* Upgraded analyzer dependency to ^5.0.0. ([#1072](https://github.com/realm/realm-dart/pull/1072))
 
 ## 0.8.0+rc (2022-11-14)
 

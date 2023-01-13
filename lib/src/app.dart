@@ -30,7 +30,7 @@ import 'user.dart';
 /// {@category Application}
 @immutable
 class AppConfiguration {
-  /// The [appId] is the unique id that identifies the Atlas App Services application.
+  /// The [appId] is the unique id that identifies the [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) application.
   final String appId;
 
   /// The [baseFilePath] is the [Directory] relative to which all local data for this application will be stored.
@@ -57,7 +57,7 @@ class AppConfiguration {
   /// The [localAppName] is the friendly name identifying the current client application.
   ///
   /// This is typically used to differentiate between client applications that use the same
-  /// Atlas App Services application.
+  /// [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) application.
   ///
   /// These can be the same conceptual app developed for different platforms, or
   /// significantly different client side applications that operate on the same data - e.g. an event managing
@@ -103,7 +103,7 @@ class AppConfiguration {
         httpClient = httpClient ?? HttpClient();
 }
 
-/// An [App] is the main client-side entry point for interacting with an Atlas App Services application.
+/// An [App] is the main client-side entry point for interacting with an [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) application.
 ///
 /// The [App] can be used to
 /// * Register uses and perform various user-related operations through authentication providers
@@ -192,7 +192,7 @@ extension AppInternal on App {
   static AppException createException(String message, String? linkToLogs, int statusCode) => AppException._(message, linkToLogs, statusCode);
 }
 
-/// An exception thrown from operations interacting with a Atlas App Services app.
+/// An exception thrown from operations interacting with a [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) app.
 class AppException extends RealmException {
   /// A link to the server logs associated with this exception if available.
   final String? linkToServerLogs;

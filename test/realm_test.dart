@@ -268,14 +268,26 @@ Future<void> main([List<String>? args]) async {
     expect(realm.write(() => realm.add(carTwo, update: true)), carTwo);
   });
 
-  test('Realm write after realm is closed', () {
+  test('Realm write after realm is closed', () async {
     var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     final car = Car('Tesla');
 
     realm.close();
-    expect(() => realm.write(() {}), throws<RealmClosedError>("Cannot access realm that has been closed"));
+    _expectAllWritesToThrow<RealmClosedError>(realm, "Cannot access realm that has been closed");
+    _expectAllAsyncWritesToThrow<RealmClosedError>(realm, "Cannot access realm that has been closed");
+  });
+
+  test('Realm write on read-only realms throws', () async {
+    Configuration config = Configuration.local([Car.schema]);
+    var realm = getRealm(config);
+    realm.close();
+
+    config = Configuration.local([Car.schema], isReadOnly: true);
+    realm = getRealm(config);
+    _expectAllWritesToThrow<RealmException>(realm, "Can't perform transactions on read-only Realms.");
+    _expectAllAsyncWritesToThrow<RealmException>(realm, "Can't perform transactions on read-only Realms.");
   });
 
   test('Realm query', () {
@@ -581,7 +593,7 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
     realm.write(() {
       // Second write inside the first one fails but the error is caught
-      expect(() => realm.write(() {}), throws<RealmException>('The Realm is already in a write transaction'));
+      _expectAllWritesToThrow<RealmException>(realm, "The Realm is already in a write transaction");
     });
   });
 
@@ -719,36 +731,13 @@ Future<void> main([List<String>? args]) async {
     expect(realm.all<Person>().length, 0);
   });
 
-  test('FrozenRealm cannot write', () {
+  test('FrozenRealm cannot write', () async {
     final config = Configuration.local([Person.schema]);
     final realm = getRealm(config);
 
     final frozenRealm = freezeRealm(realm);
-    expect(() => frozenRealm.write(() {}), throws<RealmError>("Starting a write transaction on a frozen Realm is not allowed."));
-  });
-
-  test('FrozenRealm cannot beginWrite', () {
-    final config = Configuration.local([Person.schema]);
-    final realm = getRealm(config);
-
-    final frozenRealm = freezeRealm(realm);
-    expect(() => frozenRealm.beginWrite(), throws<RealmError>("Starting a write transaction on a frozen Realm is not allowed."));
-  });
-
-  test('FrozenRealm cannot writeAsync', () async {
-    final config = Configuration.local([Person.schema]);
-    final realm = getRealm(config);
-
-    final frozenRealm = freezeRealm(realm);
-    await expectLater(() => frozenRealm.writeAsync(() {}), throws<RealmError>("Starting a write transaction on a frozen Realm is not allowed."));
-  });
-
-  test('FrozenRealm cannot beginWriteAsync', () async {
-    final config = Configuration.local([Person.schema]);
-    final realm = getRealm(config);
-
-    final frozenRealm = freezeRealm(realm);
-    await expectLater(() => frozenRealm.beginWriteAsync(), throws<RealmError>("Starting a write transaction on a frozen Realm is not allowed."));
+    _expectAllWritesToThrow<RealmException>(frozenRealm, "Can't perform transactions on a frozen Realm");
+    _expectAllAsyncWritesToThrow<RealmException>(frozenRealm, "Can't perform transactions on a frozen Realm");
   });
 
   test('realm.freeze when frozen returns the same instance', () {
@@ -1018,7 +1007,6 @@ Future<void> main([List<String>? args]) async {
   test('Realm.beginWriteAsync starts write transaction', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     final transaction = await realm.beginWriteAsync();
-
     expect(transaction.isOpen, true);
   });
 
@@ -1027,7 +1015,6 @@ Future<void> main([List<String>? args]) async {
     final transaction = await realm.beginWriteAsync();
     realm.add(Person('John'));
     transaction.commit();
-
     expect(realm.all<Person>().length, 1);
   });
 
@@ -1036,7 +1023,6 @@ Future<void> main([List<String>? args]) async {
     final transaction = await realm.beginWriteAsync();
     realm.add(Person('John'));
     await transaction.commitAsync();
-
     expect(realm.all<Person>().length, 1);
   });
 
@@ -1054,7 +1040,6 @@ Future<void> main([List<String>? args]) async {
     final transaction = realm.beginWrite();
     realm.add(Person('John'));
     await transaction.commitAsync();
-
     expect(realm.all<Person>().length, 1);
   });
 
@@ -1714,4 +1699,14 @@ When newWhen([tz.TZDateTime? time]) {
 
 extension _IterableEx<T> on Iterable<T> {
   Iterable<T> except(T exclude) => where((o) => o != exclude);
+}
+
+void _expectAllWritesToThrow<T>(Realm realm, String exceptionMessage) {
+  expect(() => realm.write(() {}), throws<T>(exceptionMessage));
+  expect(() => realm.beginWrite(), throws<T>(exceptionMessage));
+}
+
+void _expectAllAsyncWritesToThrow<T>(Realm realm, String exceptionMessage) {
+  expect(() => realm.writeAsync(() {}), throws<T>(exceptionMessage));
+  expect(() => realm.beginWriteAsync(), throws<T>(exceptionMessage));
 }

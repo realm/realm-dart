@@ -1,5 +1,5 @@
 Realm only supports the @Indexed() annotation on fields of type
-int, bool, String, DateTime, ObjectId, Uuid
+int, bool, String, RealmValue, DateTime, ObjectId, Uuid
 as well as their nullable versions
 
 in: asset:pkg/test/error_test_data/not_an_indexable_type.dart:8:8

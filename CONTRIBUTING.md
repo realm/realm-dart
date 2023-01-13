@@ -84,10 +84,6 @@ Realm welcomes all contributions! The only requirement we have is that, like man
     ./scripts/build-linux.sh
     ```
 
-## Running tests
-
-See [test/README.md](https://github.com/realm/realm-dart/blob/master/test/README.md) for instructions on running tests.
-
 ## Versioning
 
 Realm Flutter and Dart SDK packages follow [Semantic Versioning](https://semver.org/).

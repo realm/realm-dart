@@ -472,7 +472,7 @@ Future<void> tryDeleteRealm(String path) async {
   for (var i = 0; i < 5; i++) {
     try {
       Realm.deleteRealm(path);
-      
+
       //delete lock file
       await File('$path.lock').delete().onError((error, stackTrace) => dummy);
 

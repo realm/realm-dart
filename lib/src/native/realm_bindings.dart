@@ -205,6 +205,25 @@ class RealmLibrary {
           void Function(
               ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
+  void realm_app_config_set_cpu_arch(
+    ffi.Pointer<realm_app_config_t> config,
+    ffi.Pointer<ffi.Char> cpu_arch,
+  ) {
+    return _realm_app_config_set_cpu_arch(
+      config,
+      cpu_arch,
+    );
+  }
+
+  late final _realm_app_config_set_cpu_archPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<realm_app_config_t>,
+              ffi.Pointer<ffi.Char>)>>('realm_app_config_set_cpu_arch');
+  late final _realm_app_config_set_cpu_arch =
+      _realm_app_config_set_cpu_archPtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
+
   void realm_app_config_set_default_request_timeout(
     ffi.Pointer<realm_app_config_t> arg0,
     int ms,
@@ -222,6 +241,83 @@ class RealmLibrary {
   late final _realm_app_config_set_default_request_timeout =
       _realm_app_config_set_default_request_timeoutPtr
           .asFunction<void Function(ffi.Pointer<realm_app_config_t>, int)>();
+
+  void realm_app_config_set_device_name(
+    ffi.Pointer<realm_app_config_t> config,
+    ffi.Pointer<ffi.Char> device_name,
+  ) {
+    return _realm_app_config_set_device_name(
+      config,
+      device_name,
+    );
+  }
+
+  late final _realm_app_config_set_device_namePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<realm_app_config_t>,
+              ffi.Pointer<ffi.Char>)>>('realm_app_config_set_device_name');
+  late final _realm_app_config_set_device_name =
+      _realm_app_config_set_device_namePtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
+
+  void realm_app_config_set_device_version(
+    ffi.Pointer<realm_app_config_t> config,
+    ffi.Pointer<ffi.Char> device_version,
+  ) {
+    return _realm_app_config_set_device_version(
+      config,
+      device_version,
+    );
+  }
+
+  late final _realm_app_config_set_device_versionPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<realm_app_config_t>,
+              ffi.Pointer<ffi.Char>)>>('realm_app_config_set_device_version');
+  late final _realm_app_config_set_device_version =
+      _realm_app_config_set_device_versionPtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
+
+  void realm_app_config_set_framework_name(
+    ffi.Pointer<realm_app_config_t> config,
+    ffi.Pointer<ffi.Char> framework_name,
+  ) {
+    return _realm_app_config_set_framework_name(
+      config,
+      framework_name,
+    );
+  }
+
+  late final _realm_app_config_set_framework_namePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<realm_app_config_t>,
+              ffi.Pointer<ffi.Char>)>>('realm_app_config_set_framework_name');
+  late final _realm_app_config_set_framework_name =
+      _realm_app_config_set_framework_namePtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
+
+  void realm_app_config_set_framework_version(
+    ffi.Pointer<realm_app_config_t> config,
+    ffi.Pointer<ffi.Char> framework_version,
+  ) {
+    return _realm_app_config_set_framework_version(
+      config,
+      framework_version,
+    );
+  }
+
+  late final _realm_app_config_set_framework_versionPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>>(
+      'realm_app_config_set_framework_version');
+  late final _realm_app_config_set_framework_version =
+      _realm_app_config_set_framework_versionPtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
   void realm_app_config_set_local_app_name(
     ffi.Pointer<realm_app_config_t> arg0,
@@ -297,6 +393,25 @@ class RealmLibrary {
               ffi.Pointer<ffi.Char>)>>('realm_app_config_set_platform_version');
   late final _realm_app_config_set_platform_version =
       _realm_app_config_set_platform_versionPtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
+
+  void realm_app_config_set_sdk(
+    ffi.Pointer<realm_app_config_t> config,
+    ffi.Pointer<ffi.Char> sdk,
+  ) {
+    return _realm_app_config_set_sdk(
+      config,
+      sdk,
+    );
+  }
+
+  late final _realm_app_config_set_sdkPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<realm_app_config_t>,
+              ffi.Pointer<ffi.Char>)>>('realm_app_config_set_sdk');
+  late final _realm_app_config_set_sdk =
+      _realm_app_config_set_sdkPtr.asFunction<
           void Function(
               ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
@@ -591,7 +706,7 @@ class RealmLibrary {
     ffi.Pointer<ffi.Char> email,
     realm_string_t password,
     ffi.Pointer<ffi.Char> serialized_ejson_payload,
-    realm_app_void_completion_func_t arg4,
+    realm_app_void_completion_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
@@ -600,7 +715,7 @@ class RealmLibrary {
       email,
       password,
       serialized_ejson_payload,
-      arg4,
+      callback,
       userdata,
       userdata_free,
     );
@@ -2230,7 +2345,7 @@ class RealmLibrary {
 
   /// Vacuum the free space from the realm file, reducing its file size.
   ///
-  /// @return True if compaction was successful and no exceptions were thrown.
+  /// @return True if no exceptions are thrown, false otherwise.
   bool realm_compact(
     ffi.Pointer<realm_t> arg0,
     ffi.Pointer<ffi.Bool> did_compact,
@@ -6774,21 +6889,23 @@ class RealmLibrary {
   ///
   /// This calls `advance_read()` at the Core layer.
   ///
-  /// @return True if the realm was successfully refreshed and no exceptions were
-  /// thrown.
+  /// @return True if no exceptions are thrown, false otherwise.
   bool realm_refresh(
     ffi.Pointer<realm_t> arg0,
+    ffi.Pointer<ffi.Bool> did_refresh,
   ) {
     return _realm_refresh(
       arg0,
+      did_refresh,
     );
   }
 
-  late final _realm_refreshPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_t>)>>(
-          'realm_refresh');
-  late final _realm_refresh =
-      _realm_refreshPtr.asFunction<bool Function(ffi.Pointer<realm_t>)>();
+  late final _realm_refreshPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_t>, ffi.Pointer<ffi.Bool>)>>('realm_refresh');
+  late final _realm_refresh = _realm_refreshPtr
+      .asFunction<bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Bool>)>();
 
   /// In case of exception thrown in user code callbacks, this api will allow the sdk to store the user code exception
   /// and retrieve a it later via realm_get_last_error.
@@ -7673,25 +7790,44 @@ class RealmLibrary {
 
   /// Register a callback handler for bindings interested in registering callbacks before/after the ObjectStore thread
   /// runs.
-  /// @param thread_observer a ptr to an implementation class that can receive these notifications. If nullptr is passed
-  /// instead, this will have the effect of unregistering the callback.
-  void realm_set_binding_callback_thread_observer(
-    ffi.Pointer<realm_interface_callback_thread_observer_t> thread_observer,
+  /// @param on_thread_create callback invoked when the object store thread is created
+  /// @param on_thread_destroy callback invoked when the object store thread is destroyed
+  /// @param on_error callback invoked to signal to the listener that some error has occured.
+  /// @return a token that has to be released in order to stop receiving notifications
+  ffi.Pointer<realm_thread_observer_token_t>
+      realm_set_binding_callback_thread_observer(
+    realm_on_object_store_thread_callback_t on_thread_create,
+    realm_on_object_store_thread_callback_t on_thread_destroy,
+    realm_on_object_store_error_callback_t on_error,
+    ffi.Pointer<ffi.Void> arg3,
+    realm_free_userdata_func_t free_userdata,
   ) {
     return _realm_set_binding_callback_thread_observer(
-      thread_observer,
+      on_thread_create,
+      on_thread_destroy,
+      on_error,
+      arg3,
+      free_userdata,
     );
   }
 
   late final _realm_set_binding_callback_thread_observerPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<realm_interface_callback_thread_observer_t>)>>(
+              ffi.Pointer<realm_thread_observer_token_t> Function(
+                  realm_on_object_store_thread_callback_t,
+                  realm_on_object_store_thread_callback_t,
+                  realm_on_object_store_error_callback_t,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t)>>(
       'realm_set_binding_callback_thread_observer');
   late final _realm_set_binding_callback_thread_observer =
       _realm_set_binding_callback_thread_observerPtr.asFunction<
-          void Function(
-              ffi.Pointer<realm_interface_callback_thread_observer_t>)>();
+          ffi.Pointer<realm_thread_observer_token_t> Function(
+              realm_on_object_store_thread_callback_t,
+              realm_on_object_store_thread_callback_t,
+              realm_on_object_store_error_callback_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>();
 
   /// Clear a set of values.
   ///
@@ -8423,6 +8559,7 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  /// DEPRECATED - Will be removed in a future release
   void realm_sync_config_set_authorization_header_name(
     ffi.Pointer<realm_sync_config_t> arg0,
     ffi.Pointer<ffi.Char> arg1,
@@ -8491,6 +8628,7 @@ class RealmLibrary {
       _realm_sync_config_set_cancel_waits_on_nonfatal_errorPtr
           .asFunction<void Function(ffi.Pointer<realm_sync_config_t>, bool)>();
 
+  /// DEPRECATED - Will be removed in a future release
   void realm_sync_config_set_client_validate_ssl(
     ffi.Pointer<realm_sync_config_t> arg0,
     bool arg1,
@@ -8509,6 +8647,7 @@ class RealmLibrary {
       _realm_sync_config_set_client_validate_sslPtr
           .asFunction<void Function(ffi.Pointer<realm_sync_config_t>, bool)>();
 
+  /// DEPRECATED - Will be removed in a future release
   void realm_sync_config_set_custom_http_header(
     ffi.Pointer<realm_sync_config_t> arg0,
     ffi.Pointer<ffi.Char> name,
@@ -8617,6 +8756,7 @@ class RealmLibrary {
       _realm_sync_config_set_session_stop_policyPtr
           .asFunction<void Function(ffi.Pointer<realm_sync_config_t>, int)>();
 
+  /// DEPRECATED - Will be removed in a future release
   void realm_sync_config_set_ssl_trust_certificate_path(
     ffi.Pointer<realm_sync_config_t> arg0,
     ffi.Pointer<ffi.Char> arg1,
@@ -8637,6 +8777,7 @@ class RealmLibrary {
           void Function(
               ffi.Pointer<realm_sync_config_t>, ffi.Pointer<ffi.Char>)>();
 
+  /// DEPRECATED - Will be removed in a future release
   void realm_sync_config_set_ssl_verify_callback(
     ffi.Pointer<realm_sync_config_t> arg0,
     realm_sync_ssl_verify_func_t arg1,
@@ -8787,25 +8928,29 @@ class RealmLibrary {
   /// needed
   /// @param realm_app ptr to realm app.
   /// @param sync_path path where the sync files are.
-  /// @return true if operation was succesful
+  /// @param did_run ptr to bool, which will be set to true if operation was successful
+  /// @return true if operation was successful
   bool realm_sync_immediately_run_file_actions(
     ffi.Pointer<realm_app_t> realm_app,
     ffi.Pointer<ffi.Char> sync_path,
+    ffi.Pointer<ffi.Bool> did_run,
   ) {
     return _realm_sync_immediately_run_file_actions(
       realm_app,
       sync_path,
+      did_run,
     );
   }
 
   late final _realm_sync_immediately_run_file_actionsPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Bool Function(
-                  ffi.Pointer<realm_app_t>, ffi.Pointer<ffi.Char>)>>(
+              ffi.Bool Function(ffi.Pointer<realm_app_t>, ffi.Pointer<ffi.Char>,
+                  ffi.Pointer<ffi.Bool>)>>(
       'realm_sync_immediately_run_file_actions');
   late final _realm_sync_immediately_run_file_actions =
       _realm_sync_immediately_run_file_actionsPtr.asFunction<
-          bool Function(ffi.Pointer<realm_app_t>, ffi.Pointer<ffi.Char>)>();
+          bool Function(ffi.Pointer<realm_app_t>, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Bool>)>();
 
   /// Convert a subscription into a mutable one in order to alter the subscription itself
   /// @return a pointer to a mutable subscription
@@ -10362,8 +10507,6 @@ class realm_binary extends ffi.Struct {
 
 typedef realm_binary_t = realm_binary;
 
-class realm_callback_interface_thread_observer extends ffi.Opaque {}
-
 class realm_callback_token extends ffi.Opaque {}
 
 typedef realm_callback_token_t = realm_callback_token;
@@ -10621,8 +10764,6 @@ class realm_index_range extends ffi.Struct {
 }
 
 typedef realm_index_range_t = realm_index_range;
-typedef realm_interface_callback_thread_observer_t
-    = realm_callback_interface_thread_observer;
 
 class realm_key_path extends ffi.Struct {
   @ffi.Size()
@@ -10751,6 +10892,11 @@ typedef realm_on_object_change_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(
             ffi.Pointer<ffi.Void>, ffi.Pointer<realm_object_changes_t>)>>;
+typedef realm_on_object_store_error_callback_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>>;
+typedef realm_on_object_store_thread_callback_t
+    = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>;
 typedef realm_on_realm_change_func_t
     = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>;
 typedef realm_on_realm_refresh_func_t
@@ -10769,6 +10915,7 @@ abstract class realm_property_flags {
   static const int RLM_PROPERTY_NULLABLE = 1;
   static const int RLM_PROPERTY_PRIMARY_KEY = 2;
   static const int RLM_PROPERTY_INDEXED = 4;
+  static const int RLM_PROPERTY_FULLTEXT_INDEXED = 8;
 }
 
 class realm_property_info extends ffi.Struct {
@@ -11073,6 +11220,12 @@ class realm_sync_error extends ffi.Struct {
 
   @ffi.Size()
   external int user_info_length;
+
+  external ffi.Pointer<realm_sync_error_compensating_write_info_t>
+      compensating_writes;
+
+  @ffi.Size()
+  external int compensating_writes_length;
 }
 
 abstract class realm_sync_error_action {
@@ -11091,12 +11244,13 @@ abstract class realm_sync_error_category {
   static const int RLM_SYNC_ERROR_CATEGORY_CLIENT = 0;
   static const int RLM_SYNC_ERROR_CATEGORY_CONNECTION = 1;
   static const int RLM_SYNC_ERROR_CATEGORY_SESSION = 2;
+  static const int RLM_SYNC_ERROR_CATEGORY_RESOLVE = 3;
 
   /// System error - POSIX errno, Win32 HRESULT, etc.
-  static const int RLM_SYNC_ERROR_CATEGORY_SYSTEM = 3;
+  static const int RLM_SYNC_ERROR_CATEGORY_SYSTEM = 4;
 
   /// Unknown source of error.
-  static const int RLM_SYNC_ERROR_CATEGORY_UNKNOWN = 4;
+  static const int RLM_SYNC_ERROR_CATEGORY_UNKNOWN = 5;
 }
 
 class realm_sync_error_code extends ffi.Struct {
@@ -11110,6 +11264,17 @@ class realm_sync_error_code extends ffi.Struct {
 }
 
 typedef realm_sync_error_code_t = realm_sync_error_code;
+
+class realm_sync_error_compensating_write_info extends ffi.Struct {
+  external ffi.Pointer<ffi.Char> reason;
+
+  external ffi.Pointer<ffi.Char> object_name;
+
+  external realm_value_t primary_key;
+}
+
+typedef realm_sync_error_compensating_write_info_t
+    = realm_sync_error_compensating_write_info;
 typedef realm_sync_error_handler_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(ffi.Pointer<ffi.Void>,
@@ -11181,6 +11346,10 @@ typedef realm_sync_wait_for_completion_func_t = ffi.Pointer<
         ffi.Void Function(
             ffi.Pointer<ffi.Void>, ffi.Pointer<realm_sync_error_code_t>)>>;
 typedef realm_t = shared_realm;
+
+class realm_thread_observer_token extends ffi.Opaque {}
+
+typedef realm_thread_observer_token_t = realm_thread_observer_token;
 
 class realm_thread_safe_reference extends ffi.Opaque {}
 

@@ -114,7 +114,7 @@ abstract class Configuration implements Finalizable {
     String? path,
     this.fifoFilesFallbackPath,
     this.encryptionKey,
-    this.maxNumberOfActiveVersions
+    this.maxNumberOfActiveVersions,
   }) {
     _validateEncryptionKey(encryptionKey);
     this.path = path ?? _path.join(_path.dirname(_defaultPath), _path.basename(defaultRealmName));
@@ -228,7 +228,7 @@ abstract class Configuration implements Finalizable {
         path: path,
         fifoFilesFallbackPath: fifoFilesFallbackPath,
         encryptionKey: encryptionKey,
-        maxNumberOfActiveVersions: maxNumberOfActiveVersions
+        maxNumberOfActiveVersions: maxNumberOfActiveVersions,
       );
 
   void _validateEncryptionKey(List<int>? key) {
@@ -264,7 +264,7 @@ class LocalConfiguration extends Configuration {
     this.shouldCompactCallback,
     this.migrationCallback,
     super.maxNumberOfActiveVersions,
-    this.shouldDeleteIfMigrationNeeded = false
+    this.shouldDeleteIfMigrationNeeded = false,
   }) : super._();
 
   /// The schema version used to open the `Realm`. If omitted, the default value is `0`.
@@ -376,7 +376,7 @@ extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
 }
 
 /// [DisconnectedSyncConfiguration] is used to open [Realm] instances that are synchronized
-/// with MongoDB Atlas, without establishing a connection to Atlas App Services. This allows
+/// with MongoDB Atlas, without establishing a connection to [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/). This allows
 /// for the synchronized realm to be opened in multiple processes concurrently, as long as
 /// only one of them uses a [FlexibleSyncConfiguration] to sync changes.
 /// {@category Configuration}
@@ -611,14 +611,13 @@ class ClientResetError extends SyncError {
 
   /// Initiates the client reset process.
   ///
-  /// All Realm instances for that path must be closed before this method is called or an
-  /// [RealmException] will be thrown.
-  void resetRealm() {
+  /// Returns `true` if actions were run successfully, `false` otherwise.
+  bool resetRealm() {
     if (_config is! FlexibleSyncConfiguration) {
       throw RealmException("The current configuration is not FlexibleSyncConfiguration.");
     }
     final flexibleConfig = _config as FlexibleSyncConfiguration;
-    realmCore.immediatelyRunFileActions(flexibleConfig.user.app, flexibleConfig.path);
+    return realmCore.immediatelyRunFileActions(flexibleConfig.user.app, flexibleConfig.path);
   }
 }
 
@@ -743,18 +742,13 @@ class GeneralSyncError extends SyncError {
 
 /// General sync error codes
 enum GeneralSyncErrorCode {
-  // A general sync error code
+  /// Unknown Sync error code
   unknown(9999);
 
   static final Map<int, GeneralSyncErrorCode> _valuesMap = {for (var value in GeneralSyncErrorCode.values) value.code: value};
 
   static GeneralSyncErrorCode fromInt(int code) {
-    final mappedCode = GeneralSyncErrorCode._valuesMap[code];
-    if (mappedCode == null) {
-      throw RealmError("Unknown GeneralSyncErrorCode");
-    }
-
-    return mappedCode;
+    return GeneralSyncErrorCode._valuesMap[code] ?? GeneralSyncErrorCode.unknown;
   }
 
   final int code;

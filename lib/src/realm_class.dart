@@ -43,6 +43,7 @@ export 'package:realm_common/realm_common.dart'
         ObjectId,
         ObjectType,
         PrimaryKey,
+        RealmValue,
         RealmClosedError,
         RealmCollectionType,
         RealmError,
@@ -321,20 +322,14 @@ class Realm implements Finalizable {
 
   /// Begins a write transaction for this [Realm].
   Transaction beginWrite() {
-    _ensureWritable();
-
     realmCore.beginWrite(this);
-
     return Transaction._(this);
   }
 
   /// Asynchronously begins a write transaction for this [Realm]. You can supply a
   /// [CancellationToken] to cancel the operation.
   Future<Transaction> beginWriteAsync([CancellationToken? cancellationToken]) async {
-    _ensureWritable();
-
     await realmCore.beginWriteAsync(this, cancellationToken);
-
     return Transaction._(this);
   }
 
@@ -493,12 +488,6 @@ class Realm implements Finalizable {
       }
 
       throw RealmError('Cannot $operation because the object is managed by another Realm instance');
-    }
-  }
-
-  void _ensureWritable() {
-    if (isFrozen) {
-      throw RealmError('Starting a write transaction on a frozen Realm is not allowed.');
     }
   }
 
@@ -793,8 +782,9 @@ class RealmLogLevel {
 
 /// @nodoc
 class RealmMetadata {
-  final Map<Type, RealmObjectMetadata> _typeMap = <Type, RealmObjectMetadata>{};
-  final Map<String, RealmObjectMetadata> _stringMap = <String, RealmObjectMetadata>{};
+  final _typeMap = <Type, RealmObjectMetadata>{};
+  final _stringMap = <String, RealmObjectMetadata>{};
+  final _classKeyMap = <int, RealmObjectMetadata>{};
 
   RealmMetadata._(Iterable<RealmObjectMetadata> objectMetadatas) {
     for (final metadata in objectMetadatas) {
@@ -803,6 +793,7 @@ class RealmMetadata {
       } else {
         _stringMap[metadata.schema.name] = metadata;
       }
+      _classKeyMap[metadata.classKey] = metadata;
     }
   }
 
@@ -829,17 +820,14 @@ class RealmMetadata {
     return metadata;
   }
 
+  RealmObjectMetadata? getByClassKeyIfExists(int key) => _classKeyMap[key];
+
   Tuple<Type, RealmObjectMetadata> getByClassKey(int key) {
-    final type = _typeMap.entries.firstWhereOrNull((e) => e.value.classKey == key);
-    if (type != null) {
-      return Tuple(type.key, type.value);
+    final meta = _classKeyMap[key];
+    if (meta != null) {
+      final type = _typeMap.entries.firstWhereOrNull((e) => e.value.classKey == key)?.key ?? RealmObjectBase;
+      return Tuple(type, meta);
     }
-
-    final metadata = _stringMap.values.firstWhereOrNull((e) => e.classKey == key);
-    if (metadata != null) {
-      return Tuple(RealmObjectBase, metadata);
-    }
-
     throw RealmError("Object with classKey $key not found in the current Realm's schema.");
   }
 }
