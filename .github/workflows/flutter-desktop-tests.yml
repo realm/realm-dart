@@ -56,7 +56,7 @@ jobs:
         uses: seanmiddleditch/gha-setup-ninja@1815f2d05c2cd60c2d900f89843139b8dde09f4c
 
       - name: Setup jq
-        if: ${{ input.os == 'macos' }}
+        if: ${{ inputs.os == 'macos' }}
         run: |
           brew install jq
 
@@ -70,7 +70,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'beta'
-          version: '3.7.0-1.3.pre'
           architecture: ${{ inputs.architecture == 'arm' && 'arm64' || inputs.architecture || 'x64'}}
 
       - name: Enable Flutter Desktop support
