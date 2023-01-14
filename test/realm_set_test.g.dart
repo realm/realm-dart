@@ -18,6 +18,7 @@ class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, Re
     RealmObjectBase.set<RealmSet<bool>>(this, 'boolSet', RealmSet<bool>({}));
     RealmObjectBase.set<RealmSet<int>>(this, 'intSet', RealmSet<int>({}));
     RealmObjectBase.set<RealmSet<String>>(this, 'stringSet', RealmSet<String>({}));
+    RealmObjectBase.set<RealmSet<double>>(this, 'doubleSet', RealmSet<double>({}));
     // RealmObjectBase.set(this, 'boolSet', boolSet);
     // RealmObjectBase.set(this, 'intSet', intSet);
     // RealmObjectBase.set(this, 'stringSet', stringSet);
@@ -45,6 +46,11 @@ class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, Re
   RealmSet<String> get stringSet => RealmObjectBase.get<String>(this, 'stringSet') as RealmSet<String>;
   @override
   set stringSet(covariant RealmSet<String> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<double> get doubleSet => RealmObjectBase.get<double>(this, 'doubleSet') as RealmSet<double>;
+  @override
+  set doubleSet(covariant RealmSet<double> value) => throw RealmUnsupportedSetError();
 
   // @override
   // RealmSet<int> get intSet => RealmObjectBase.get<RealmSet<int>>(this, 'intSet') as RealmSet<int>;
@@ -76,6 +82,7 @@ class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, Re
       SchemaProperty('boolSet', RealmPropertyType.bool, collectionType: RealmCollectionType.set),
       SchemaProperty('intSet', RealmPropertyType.int, collectionType: RealmCollectionType.set),
       SchemaProperty('stringSet', RealmPropertyType.string, collectionType: RealmCollectionType.set),
+      SchemaProperty('doubleSet', RealmPropertyType.double, collectionType: RealmCollectionType.set),
       // SchemaProperty('intSet', RealmPropertyType.int, collectionType: RealmCollectionType.set),
       // SchemaProperty('stringSet', RealmPropertyType.string, collectionType: RealmCollectionType.set),
       // SchemaProperty('doubleSet', RealmPropertyType.double, collectionType: RealmCollectionType.set),

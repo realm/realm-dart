@@ -25,7 +25,8 @@ import 'test.dart';
 
 part 'realm_set_test.g.dart';
 
-List<Type> supportedTypes = [bool, int, String];
+/// When changing update also `setByType`
+List<Type> supportedTypes = [bool, int, String, double];
 
 @RealmModel()
 class _TestRealmSets {
@@ -35,9 +36,10 @@ class _TestRealmSets {
   late Set<bool> boolSet;
   late Set<int> intSet;
   late Set<String> stringSet;
-  // late Set<double> doubleSet;
+  late Set<double> doubleSet;
 
   @Ignored()
+  /// When changing update also `supportedTypes`
   Sets setByType(Type type) {
     switch (type) {
       case bool:
@@ -46,6 +48,8 @@ class _TestRealmSets {
         return Sets(intSet, [-1, 0, 1]);
       case String:
         return Sets(stringSet, ['Tesla', 'VW', 'Audi', 'Opel']);
+      case double:
+        return Sets(doubleSet, [-1.1, 0.1, 1.1, 2.2, 3.3, 3.14]);
       default:
         throw RealmError("Unsupported type $type");
     }
