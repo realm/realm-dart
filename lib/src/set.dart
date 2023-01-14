@@ -56,16 +56,16 @@ class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> w
   UnmanagedRealmSet([Set<T>? items]) : super(items ?? <T>{});
 
   @override
-  RealmObjectMetadata? get _metadata => throw RealmException("Unmanaged Realm sets don't have metadata associated with them.");
+  RealmObjectMetadata? get _metadata => throw RealmException("Unmanaged RealmSets don't have metadata associated with them.");
 
   @override
-  set _metadata(RealmObjectMetadata? _) => throw RealmException("Unmanaged Realm sets don't have metadata associated with them.");
+  set _metadata(RealmObjectMetadata? _) => throw RealmException("Unmanaged RealmSets don't have metadata associated with them.");
 
   @override
   bool get isValid => true;
 
   @override
-  Stream<RealmSetChanges<T>> get changes => throw RealmStateError("Unmanaged Realm sets don't support changes");
+  Stream<RealmSetChanges<T>> get changes => throw RealmStateError("Unmanaged RealmSets don't support changes");
 }
 
 class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implements RealmSet<T> {
