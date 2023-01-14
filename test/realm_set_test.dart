@@ -24,7 +24,7 @@ import 'test.dart';
 part 'realm_set_test.g.dart';
 
 /// When changing update also `setByType`
-List<Type> supportedTypes = [bool, int, String, double];
+List<Type> supportedTypes = [bool, int, String, double, DateTime, ObjectId, Uuid];
 
 @RealmModel()
 class _TestRealmSets {
@@ -35,6 +35,9 @@ class _TestRealmSets {
   late Set<int> intSet;
   late Set<String> stringSet;
   late Set<double> doubleSet;
+  late Set<DateTime> dateTimeSet;
+  late Set<ObjectId> objectIdSet;
+  late Set<Uuid> uuidSet;
 
   @Ignored()
 
@@ -49,6 +52,12 @@ class _TestRealmSets {
         return Sets(stringSet as RealmSet<String>, ['Tesla', 'VW', 'Audi', 'Opel']);
       case double:
         return Sets(doubleSet as RealmSet<double>, [-1.1, 0.1, 1.1, 2.2, 3.3, 3.14]);
+      case DateTime:
+        return Sets(dateTimeSet as RealmSet<DateTime>, [DateTime(2023).toUtc(), DateTime(1981).toUtc()]);
+      case ObjectId:
+        return Sets(objectIdSet as RealmSet<ObjectId>, [ObjectId.fromTimestamp(DateTime(2023).toUtc()), ObjectId.fromTimestamp(DateTime(1981).toUtc())]);
+        case Uuid:
+        return Sets(uuidSet as RealmSet<Uuid>, [Uuid.fromString("12345678123456781234567812345678"), Uuid.fromString("82345678123456781234567812345678")]);
       default:
         throw RealmError("Unsupported type $type");
     }

@@ -19,6 +19,9 @@ class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, Re
     RealmObjectBase.set<RealmSet<int>>(this, 'intSet', RealmSet<int>({}));
     RealmObjectBase.set<RealmSet<String>>(this, 'stringSet', RealmSet<String>({}));
     RealmObjectBase.set<RealmSet<double>>(this, 'doubleSet', RealmSet<double>({}));
+    RealmObjectBase.set<RealmSet<DateTime>>(this, 'dateTimeSet', RealmSet<DateTime>({}));
+    RealmObjectBase.set<RealmSet<ObjectId>>(this, 'objectIdSet', RealmSet<ObjectId>({}));
+    RealmObjectBase.set<RealmSet<Uuid>>(this, 'uuidSet', RealmSet<Uuid>({}));
    
   }
 
@@ -50,6 +53,22 @@ class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, Re
   set doubleSet(covariant RealmSet<double> value) => throw RealmUnsupportedSetError();
 
   @override
+  RealmSet<DateTime> get dateTimeSet => RealmObjectBase.get<DateTime>(this, 'dateTimeSet') as RealmSet<DateTime>;
+  @override
+  set dateTimeSet(covariant RealmSet<DateTime> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<ObjectId> get objectIdSet => RealmObjectBase.get<ObjectId>(this, 'objectIdSet') as RealmSet<ObjectId>;
+  @override
+  set objectIdSet(covariant RealmSet<ObjectId> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<Uuid> get uuidSet => RealmObjectBase.get<Uuid>(this, 'uuidSet') as RealmSet<Uuid>;
+  @override
+  set uuidSet(covariant RealmSet<Uuid> value) => throw RealmUnsupportedSetError();
+
+
+  @override
   Stream<RealmObjectChanges<TestRealmSets>> get changes => RealmObjectBase.getChanges<TestRealmSets>(this);
 
   @override
@@ -65,9 +84,10 @@ class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, Re
       SchemaProperty('intSet', RealmPropertyType.int, collectionType: RealmCollectionType.set),
       SchemaProperty('stringSet', RealmPropertyType.string, collectionType: RealmCollectionType.set),
       SchemaProperty('doubleSet', RealmPropertyType.double, collectionType: RealmCollectionType.set),
-      // SchemaProperty('intSet', RealmPropertyType.int, collectionType: RealmCollectionType.set),
-      // SchemaProperty('stringSet', RealmPropertyType.string, collectionType: RealmCollectionType.set),
-      // SchemaProperty('doubleSet', RealmPropertyType.double, collectionType: RealmCollectionType.set),
+      SchemaProperty('dateTimeSet', RealmPropertyType.timestamp, collectionType: RealmCollectionType.set),
+      SchemaProperty('objectIdSet', RealmPropertyType.objectid, collectionType: RealmCollectionType.set),
+      SchemaProperty('uuidSet', RealmPropertyType.uuid, collectionType: RealmCollectionType.set),
+      
     ]);
   }
 }
