@@ -49,21 +49,6 @@ class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, Re
   @override
   set doubleSet(covariant RealmSet<double> value) => throw RealmUnsupportedSetError();
 
-  // @override
-  // RealmSet<int> get intSet => RealmObjectBase.get<RealmSet<int>>(this, 'intSet') as RealmSet<int>;
-  // @override
-  // set intSet(covariant RealmSet<int> value) => throw RealmUnsupportedSetError();
-
-  // @override
-  // RealmSet<String> get stringSet => RealmObjectBase.get<RealmSet<String>>(this, 'stringSet') as RealmSet<String>;
-  // @override
-  // set stringSet(covariant RealmSet<String> value) => throw RealmUnsupportedSetError();
-
-  // @override
-  // RealmSet<double> get doubleSet => RealmObjectBase.get<RealmSet<double>>(this, 'doubleSet') as RealmSet<double>;
-  // @override
-  // set doubleSet(covariant RealmSet<double> value) => throw RealmUnsupportedSetError();
-
   @override
   Stream<RealmObjectChanges<TestRealmSets>> get changes => RealmObjectBase.getChanges<TestRealmSets>(this);
 

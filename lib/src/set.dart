@@ -32,7 +32,7 @@ import 'collections.dart';
 abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity implements Finalizable {
   RealmObjectMetadata? _metadata;
 
-   /// Gets a value indicating whether this collection is still valid to use.
+  /// Gets a value indicating whether this collection is still valid to use.
   ///
   /// Indicates whether the [Realm] instance hasn't been closed,
   /// if it represents a to-many relationship
@@ -43,6 +43,13 @@ abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity i
 
   /// Allows listening for changes when the contents of this collection changes.
   Stream<RealmSetChanges<T>> get changes;
+
+  /// Returns the element of type `T` at the specified [index].
+  ///
+  /// Note that elements in a RealmSet move around arbitrarily when other elements are
+  /// inserted/removed.
+  @override
+  T elementAt(int index) => super.elementAt(index);
 }
 
 class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> with RealmEntity implements RealmSet<T> {
@@ -70,17 +77,13 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
 
   @override
   late final RealmObjectMetadata? _metadata;
-  
+
   @override
   bool get isValid => realmCore.realmSetIsValid(this);
 
   @override
   bool add(T value) => realmCore.realmSetInsert(_handle, value);
 
-  /// Get the value at @a index.
-  ///
-  /// Note that elements in a RealmSet move around arbitrarily when other elements are
-  /// inserted/removed.
   @override
   T elementAt(int index) {
     RangeError.checkNotNegative(index, "index");
@@ -93,11 +96,12 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
   }
 
   @override
-  bool contains(covariant T element) => realmCore.realmSetContains(this, element);
+  bool contains(covariant T element) => realmCore.realmSetFind(this, element);
 
   @override
   T? lookup(covariant T element) => contains(element) ? element : null;
 
+  //TODO: When adding Set of RealmObjects support: Removing a RealmObject is different than removing a primitive value
   @override
   bool remove(covariant T value) => realmCore.realmSetErase(this, value);
 
@@ -105,7 +109,7 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
   Iterator<T> get iterator => _RealmSetIterator(this);
 
   @override
-  Set<T> toSet() => this;
+  Set<T> toSet() => <T>{...this};
 
   @override
   void clear() => realmCore.realmSetClear(_handle);
@@ -133,7 +137,8 @@ extension RealmSetInternal<T extends Object?> on RealmSet<T> {
     return result;
   }
 
-  static RealmSet<T> create<T extends Object?>(RealmSetHandle handle, Realm realm, RealmObjectMetadata? metadata) => ManagedRealmSet<T>._(handle, realm, metadata);
+  static RealmSet<T> create<T extends Object?>(RealmSetHandle handle, Realm realm, RealmObjectMetadata? metadata) =>
+      ManagedRealmSet<T>._(handle, realm, metadata);
 }
 
 class _RealmSetIterator<T extends Object?> implements Iterator<T> {
@@ -141,8 +146,7 @@ class _RealmSetIterator<T extends Object?> implements Iterator<T> {
   int _index;
   T? _current;
 
-  _RealmSetIterator(this._set)
-        : _index = -1;
+  _RealmSetIterator(this._set) : _index = -1;
 
   @override
   T get current => _current as T;

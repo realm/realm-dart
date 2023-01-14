@@ -1200,7 +1200,7 @@ class _RealmCore {
     });
   }
 
-  bool realmSetContains(RealmSet realmSet, Object? value) {
+  bool realmSetFind(RealmSet realmSet, Object? value) {
     return using((Arena arena) {
       final realm_value = _toRealmValue(value, arena);
       final out_index = arena<Size>();

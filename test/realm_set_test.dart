@@ -16,9 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:io';
-import 'dart:math';
-
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -295,6 +292,28 @@ Future<void> main([List<String>? args]) async {
       expect(set.lookup(values.first), values.first);
     });
 
+    test('RealmSet<$type> toSet', () {
+      var config = Configuration.local([TestRealmSets.schema]);
+      var realm = getRealm(config);
+
+      final testSet = TestRealmSets(1);
+      var set = testSet.setByType(type).set;
+      var values = testSet.values(type);
+      set.add(values.first);
+
+      realm.write(() {
+        realm.add(testSet);
+      });
+
+      set = testSet.setByType(type).set;
+
+      final newSet = set.toSet();
+      expect(newSet != set, true);
+      newSet.add(values[1]);
+      expect(newSet.length, 2);
+      expect(set.length, 1);
+    });
+
     test('RealmSet<$type> clear', () {
       var config = Configuration.local([TestRealmSets.schema]);
       var realm = getRealm(config);
@@ -370,8 +389,7 @@ Future<void> main([List<String>? args]) async {
           expect(changes.deleted.isEmpty, true);
           expect(changes.newModified.isEmpty, true);
           expect(changes.moved.isEmpty, true);
-        }
-        else if (state == 2) {
+        } else if (state == 2) {
           expect(changes.inserted.isEmpty, true); //new object at index 0
           expect(changes.modified.isEmpty, true);
           expect(changes.deleted, [0]);
