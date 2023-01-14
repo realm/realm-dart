@@ -22,7 +22,14 @@ class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, Re
     RealmObjectBase.set<RealmSet<DateTime>>(this, 'dateTimeSet', RealmSet<DateTime>({}));
     RealmObjectBase.set<RealmSet<ObjectId>>(this, 'objectIdSet', RealmSet<ObjectId>({}));
     RealmObjectBase.set<RealmSet<Uuid>>(this, 'uuidSet', RealmSet<Uuid>({}));
-   
+
+    RealmObjectBase.set<RealmSet<bool?>>(this, 'nullableBoolSet', RealmSet<bool?>({}));
+    RealmObjectBase.set<RealmSet<int?>>(this, 'nullableIntSet', RealmSet<int?>({}));
+    RealmObjectBase.set<RealmSet<String?>>(this, 'nullableStringSet', RealmSet<String?>({}));
+    RealmObjectBase.set<RealmSet<double?>>(this, 'nullableDoubleSet', RealmSet<double?>({}));
+    RealmObjectBase.set<RealmSet<DateTime?>>(this, 'nullableDateTimeSet', RealmSet<DateTime?>({}));
+    RealmObjectBase.set<RealmSet<ObjectId?>>(this, 'nullableObjectIdSet', RealmSet<ObjectId?>({}));
+    RealmObjectBase.set<RealmSet<Uuid?>>(this, 'nullableUuidSet', RealmSet<Uuid?>({}));
   }
 
   TestRealmSets._();
@@ -67,6 +74,45 @@ class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, Re
   @override
   set uuidSet(covariant RealmSet<Uuid> value) => throw RealmUnsupportedSetError();
 
+  @override
+  RealmSet<bool?> get nullableBoolSet => RealmObjectBase.get<bool?>(this, 'nullableBoolSet') as RealmSet<bool?>;
+  @override
+  set nullableBoolSet(covariant RealmSet<bool?> value) => throw RealmUnsupportedSetError();
+
+
+
+
+
+  @override
+  RealmSet<int?> get nullableIntSet => RealmObjectBase.get<int?>(this, 'nullableIntSet') as RealmSet<int?>;
+  @override
+  set nullableIntSet(covariant RealmSet<int?> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<String?> get nullableStringSet => RealmObjectBase.get<String?>(this, 'nullableStringSet') as RealmSet<String?>;
+  @override
+  set nullableStringSet(covariant RealmSet<String?> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<double?> get nullableDoubleSet => RealmObjectBase.get<double?>(this, 'nullableDoubleSet') as RealmSet<double?>;
+  @override
+  set nullableDoubleSet(covariant RealmSet<double?> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<DateTime?> get nullableDateTimeSet => RealmObjectBase.get<DateTime?>(this, 'nullableDateTimeSet') as RealmSet<DateTime?>;
+  @override
+  set nullableDateTimeSet(covariant RealmSet<DateTime?> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<ObjectId?> get nullableObjectIdSet => RealmObjectBase.get<ObjectId?>(this, 'nullableObjectIdSet') as RealmSet<ObjectId?>;
+  @override
+  set nullableObjectIdSet(covariant RealmSet<ObjectId?> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<Uuid?> get nullableUuidSet => RealmObjectBase.get<Uuid?>(this, 'nullableUuidSet') as RealmSet<Uuid?>;
+  @override
+  set nullableUuidSet(covariant RealmSet<Uuid?> value) => throw RealmUnsupportedSetError();
+
 
   @override
   Stream<RealmObjectChanges<TestRealmSets>> get changes => RealmObjectBase.getChanges<TestRealmSets>(this);
@@ -87,6 +133,13 @@ class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, Re
       SchemaProperty('dateTimeSet', RealmPropertyType.timestamp, collectionType: RealmCollectionType.set),
       SchemaProperty('objectIdSet', RealmPropertyType.objectid, collectionType: RealmCollectionType.set),
       SchemaProperty('uuidSet', RealmPropertyType.uuid, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableBoolSet', RealmPropertyType.bool, collectionType: RealmCollectionType.set, optional: true),
+      SchemaProperty('nullableIntSet', RealmPropertyType.int, collectionType: RealmCollectionType.set, optional: true),
+      SchemaProperty('nullableStringSet', RealmPropertyType.string, collectionType: RealmCollectionType.set, optional: true),
+      SchemaProperty('nullableDoubleSet', RealmPropertyType.double, collectionType: RealmCollectionType.set, optional: true),
+      SchemaProperty('nullableDateTimeSet', RealmPropertyType.timestamp, collectionType: RealmCollectionType.set, optional: true),
+      SchemaProperty('nullableObjectIdSet', RealmPropertyType.objectid, collectionType: RealmCollectionType.set, optional: true),
+      SchemaProperty('nullableUuidSet', RealmPropertyType.uuid, collectionType: RealmCollectionType.set, optional: true),
       
     ]);
   }

@@ -23,8 +23,37 @@ import 'test.dart';
 
 part 'realm_set_test.g.dart';
 
+class _NullableBool {}
+
+class _NullableInt {}
+
+class _NullableString {}
+
+class _NullableDouble {}
+
+class _NullableDateTime {}
+
+class _NullableObjectId {}
+
+class _NullableUuid {}
+
 /// When changing update also `setByType`
-List<Type> supportedTypes = [bool, int, String, double, DateTime, ObjectId, Uuid];
+List<Type> supportedTypes = [
+  bool,
+  int,
+  String,
+  double,
+  DateTime,
+  ObjectId,
+  Uuid,
+  _NullableBool,
+  _NullableInt,
+  _NullableString,
+  _NullableDouble,
+  _NullableDateTime,
+  _NullableObjectId,
+  _NullableUuid
+];
 
 @RealmModel()
 class _TestRealmSets {
@@ -38,6 +67,14 @@ class _TestRealmSets {
   late Set<DateTime> dateTimeSet;
   late Set<ObjectId> objectIdSet;
   late Set<Uuid> uuidSet;
+
+  late Set<bool?> nullableBoolSet;
+  late Set<int?> nullableIntSet;
+  late Set<String?> nullableStringSet;
+  late Set<double?> nullableDoubleSet;
+  late Set<DateTime?> nullableDateTimeSet;
+  late Set<ObjectId?> nullableObjectIdSet;
+  late Set<Uuid?> nullableUuidSet;
 
   @Ignored()
 
@@ -56,8 +93,22 @@ class _TestRealmSets {
         return Sets(dateTimeSet as RealmSet<DateTime>, [DateTime(2023).toUtc(), DateTime(1981).toUtc()]);
       case ObjectId:
         return Sets(objectIdSet as RealmSet<ObjectId>, [ObjectId.fromTimestamp(DateTime(2023).toUtc()), ObjectId.fromTimestamp(DateTime(1981).toUtc())]);
-        case Uuid:
+      case Uuid:
         return Sets(uuidSet as RealmSet<Uuid>, [Uuid.fromString("12345678123456781234567812345678"), Uuid.fromString("82345678123456781234567812345678")]);
+      case _NullableBool:
+        return Sets(nullableBoolSet as RealmSet<bool?>, [...setByType(bool).values, null]);
+      case _NullableInt:
+        return Sets(nullableIntSet as RealmSet<int?>, [...setByType(int).values, null]);
+      case _NullableString:
+        return Sets(nullableStringSet as RealmSet<String?>, [...setByType(String).values, null]);
+      case _NullableDouble:
+        return Sets(nullableDoubleSet as RealmSet<double?>, [...setByType(double).values, null]);
+      case _NullableDateTime:
+        return Sets(nullableDateTimeSet as RealmSet<DateTime?>, [...setByType(DateTime).values, null]);
+      case _NullableObjectId:
+        return Sets(nullableObjectIdSet as RealmSet<ObjectId?>, [...setByType(ObjectId).values, null]);
+      case _NullableUuid:
+        return Sets(nullableUuidSet as RealmSet<Uuid?>, [...setByType(Uuid).values, null]);
       default:
         throw RealmError("Unsupported type $type");
     }
