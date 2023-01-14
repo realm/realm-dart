@@ -26,6 +26,7 @@ import 'package:collection/collection.dart' as collection;
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'realm_object.dart';
+import 'collections.dart';
 
 /// RealmSet is a collection that contains no duplicate elements.
 abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity implements Finalizable {
@@ -39,6 +40,9 @@ abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity i
   bool get isValid;
 
   factory RealmSet(Set<T> items) => UnmanagedRealmSet(items);
+
+  /// Allows listening for changes when the contents of this collection changes.
+  Stream<RealmSetChanges<T>> get changes;
 }
 
 class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> with RealmEntity implements RealmSet<T> {
@@ -52,6 +56,9 @@ class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> w
 
   @override
   bool get isValid => true;
+
+  @override
+  Stream<RealmSetChanges<T>> get changes => throw RealmStateError("Unmanaged Realm sets don't support changes");
 }
 
 class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implements RealmSet<T> {
@@ -105,6 +112,12 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
 
   @override
   int get length => realmCore.realmSetSize(this);
+
+  @override
+  Stream<RealmSetChanges<T>> get changes {
+    final controller = RealmSetNotificationsController<T>(asManaged());
+    return controller.createStream();
+  }
 }
 
 /// @nodoc
@@ -144,5 +157,46 @@ class _RealmSetIterator<T extends Object?> implements Iterator<T> {
     _current = _set.elementAt(_index);
 
     return true;
+  }
+}
+
+/// Describes the changes in a Realm set collection since the last time the notification callback was invoked.
+class RealmSetChanges<T extends Object?> extends RealmCollectionChanges {
+  /// The collection being monitored for changes.
+  final RealmSet<T> set;
+
+  RealmSetChanges._(super.handle, this.set);
+}
+
+/// @nodoc
+class RealmSetNotificationsController<T extends Object?> extends NotificationsController {
+  final ManagedRealmSet<T> set;
+  late final StreamController<RealmSetChanges<T>> streamController;
+
+  RealmSetNotificationsController(this.set);
+
+  @override
+  RealmNotificationTokenHandle subscribe() {
+    return realmCore.subscribeSetNotifications(set, this);
+  }
+
+  Stream<RealmSetChanges<T>> createStream() {
+    streamController = StreamController<RealmSetChanges<T>>(onListen: start, onPause: stop, onResume: start, onCancel: stop);
+    return streamController.stream;
+  }
+
+  @override
+  void onChanges(HandleBase changesHandle) {
+    if (changesHandle is! RealmCollectionChangesHandle) {
+      throw RealmError("Invalid changes handle. RealmCollectionChangesHandle expected");
+    }
+
+    final changes = RealmSetChanges._(changesHandle, set);
+    streamController.add(changes);
+  }
+
+  @override
+  void onError(RealmError error) {
+    streamController.addError(error);
   }
 }

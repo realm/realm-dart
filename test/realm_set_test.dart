@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:io';
+import 'dart:math';
 
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
@@ -44,13 +45,13 @@ class _TestRealmSets {
   Sets setByType(Type type) {
     switch (type) {
       case bool:
-        return Sets(boolSet, [true, false]);
+        return Sets(boolSet as RealmSet<bool>, [true, false]);
       case int:
-        return Sets(intSet, [-1, 0, 1]);
+        return Sets(intSet as RealmSet<int>, [-1, 0, 1]);
       case String:
-        return Sets(stringSet, ['Tesla', 'VW', 'Audi', 'Opel']);
+        return Sets(stringSet as RealmSet<String>, ['Tesla', 'VW', 'Audi', 'Opel']);
       case double:
-        return Sets(doubleSet, [-1.1, 0.1, 1.1, 2.2, 3.3, 3.14]);
+        return Sets(doubleSet as RealmSet<double>, [-1.1, 0.1, 1.1, 2.2, 3.3, 3.14]);
       default:
         throw RealmError("Unsupported type $type");
     }
@@ -63,7 +64,7 @@ class _TestRealmSets {
 }
 
 class Sets {
-  final Set<Object?> set;
+  final RealmSet<Object?> set;
   final List<Object?> values;
 
   const Sets(this.set, this.values);
@@ -335,13 +336,67 @@ Future<void> main([List<String>? args]) async {
       realm.write(() {
         realm.add(testSet);
       });
-      
+
       set = testSet.setByType(type).set;
       expect(set.length, equals(values.length));
 
       for (var element in set) {
         expect(values.contains(element), true);
       }
+    });
+
+    test('RealmSet<$type> notifications', () async {
+      var config = Configuration.local([TestRealmSets.schema]);
+      var realm = getRealm(config);
+
+      var testSet = TestRealmSets(1);
+      realm.write(() => realm.add(testSet));
+
+      var set = testSet.setByType(type).set;
+      var values = testSet.setByType(type).values;
+
+      var state = 0;
+      final maxSate = 2;
+      final subscription = set.changes.listen((changes) {
+        if (state == 0) {
+          expect(changes.inserted.isEmpty, true);
+          expect(changes.modified.isEmpty, true);
+          expect(changes.deleted.isEmpty, true);
+          expect(changes.newModified.isEmpty, true);
+          expect(changes.moved.isEmpty, true);
+        } else if (state == 1) {
+          expect(changes.inserted, [0]); //new object at index 0
+          expect(changes.modified.isEmpty, true);
+          expect(changes.deleted.isEmpty, true);
+          expect(changes.newModified.isEmpty, true);
+          expect(changes.moved.isEmpty, true);
+        }
+        else if (state == 2) {
+          expect(changes.inserted.isEmpty, true); //new object at index 0
+          expect(changes.modified.isEmpty, true);
+          expect(changes.deleted, [0]);
+          expect(changes.newModified.isEmpty, true);
+          expect(changes.moved.isEmpty, true);
+        }
+        state++;
+      });
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+      realm.write(() {
+        set.add(values.first);
+      });
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+      realm.write(() {
+        set.remove(values.first);
+      });
+
+      expect(state, maxSate);
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+      subscription.cancel();
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
     });
   }
 }

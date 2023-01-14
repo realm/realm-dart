@@ -307,7 +307,7 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
   }
 }
 
-/// Describes the changes in a Realm results collection since the last time the notification callback was invoked.
+/// Describes the changes in a Realm list collection since the last time the notification callback was invoked.
 class RealmListChanges<T extends Object?> extends RealmCollectionChanges {
   /// The collection being monitored for changes.
   final RealmList<T> list;

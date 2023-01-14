@@ -1249,6 +1249,18 @@ class _RealmCore {
     });
   }
 
+   RealmNotificationTokenHandle subscribeSetNotifications(RealmSet realmSet, NotificationsController controller) {
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_set_add_notification_callback(
+          realmSet.handle._pointer,
+          controller.toWeakHandle(),
+          nullptr,
+          nullptr,
+          Pointer.fromFunction(collection_change_callback),
+        ));
+
+    return RealmNotificationTokenHandle._(pointer, realmSet.realm.handle);
+  }
+
   bool _equals<T extends NativeType>(HandleBase<T> first, HandleBase<T> second) {
     return _realmLib.realm_equals(first._pointer.cast(), second._pointer.cast());
   }
