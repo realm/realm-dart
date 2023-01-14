@@ -52,6 +52,15 @@
             "program": "test/realm_test.dart",
             "cwd": "${workspaceFolder}",
             "args": ["--name", ""]
-        }
+        },
+        {
+            "name": "Debug Generator Tests",
+            "type": "dart",
+            "request": "launch",
+            "program": "test/good_test.dart",
+            "cwd": "generator",
+            "toolArgs": ["--observe --pause-isolates-on-start  --enable-vm-service:5858/127.0.0.1  --disable-service-auth-codes"],
+            "args": ["--plain-name 'all_types.dart'"]
+        },
     ]
 }
