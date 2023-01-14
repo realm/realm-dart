@@ -19,10 +19,7 @@ class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, Re
     RealmObjectBase.set<RealmSet<int>>(this, 'intSet', RealmSet<int>({}));
     RealmObjectBase.set<RealmSet<String>>(this, 'stringSet', RealmSet<String>({}));
     RealmObjectBase.set<RealmSet<double>>(this, 'doubleSet', RealmSet<double>({}));
-    // RealmObjectBase.set(this, 'boolSet', boolSet);
-    // RealmObjectBase.set(this, 'intSet', intSet);
-    // RealmObjectBase.set(this, 'stringSet', stringSet);
-    // RealmObjectBase.set(this, 'doubleSet', doubleSet);
+   
   }
 
   TestRealmSets._();

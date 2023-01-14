@@ -95,7 +95,7 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
   bool remove(covariant T value) => realmCore.realmSetErase(this, value);
 
   @override
-  Iterator<T> get iterator => throw RealmError('');
+  Iterator<T> get iterator => _RealmSetIterator(this);
 
   @override
   Set<T> toSet() => this;
@@ -121,4 +121,28 @@ extension RealmSetInternal<T extends Object?> on RealmSet<T> {
   }
 
   static RealmSet<T> create<T extends Object?>(RealmSetHandle handle, Realm realm, RealmObjectMetadata? metadata) => ManagedRealmSet<T>._(handle, realm, metadata);
+}
+
+class _RealmSetIterator<T extends Object?> implements Iterator<T> {
+  final RealmSet<T> _set;
+  int _index;
+  T? _current;
+
+  _RealmSetIterator(this._set)
+        : _index = -1;
+
+  @override
+  T get current => _current as T;
+
+  @override
+  bool moveNext() {
+    _index++;
+    if (_index >= _set.length) {
+      _current = null;
+      return false;
+    }
+    _current = _set.elementAt(_index);
+
+    return true;
+  }
 }

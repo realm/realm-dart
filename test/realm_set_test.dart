@@ -39,6 +39,7 @@ class _TestRealmSets {
   late Set<double> doubleSet;
 
   @Ignored()
+
   /// When changing update also `supportedTypes`
   Sets setByType(Type type) {
     switch (type) {
@@ -317,6 +318,30 @@ Future<void> main([List<String>? args]) async {
       });
 
       expect(set.length, 0);
+    });
+
+    test('RealmSet<$type> iterator', () {
+      var config = Configuration.local([TestRealmSets.schema]);
+      var realm = getRealm(config);
+
+      var testSet = TestRealmSets(1);
+      var set = testSet.setByType(type).set;
+      var values = testSet.values(type);
+
+      for (var value in values) {
+        set.add(value);
+      }
+
+      realm.write(() {
+        realm.add(testSet);
+      });
+      
+      set = testSet.setByType(type).set;
+      expect(set.length, equals(values.length));
+
+      for (var element in set) {
+        expect(values.contains(element), true);
+      }
     });
   }
 }
