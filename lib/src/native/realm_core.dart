@@ -1182,12 +1182,12 @@ class _RealmCore {
     return RealmSetHandle._(pointer, object.realm.handle);
   }
 
-  bool realmSetInsert(RealmSet realmSet, Object? value) {
+  bool realmSetInsert(RealmSetHandle handle, Object? value) {
     return using((Arena arena) {
       final realm_value = _toRealmValue(value, arena);
       final out_index = arena<Size>();
       final out_inserted = arena<Bool>();
-      _realmLib.invokeGetBool(() => _realmLib.realm_set_insert(realmSet.handle._pointer, realm_value.ref, out_index, out_inserted));
+      _realmLib.invokeGetBool(() => _realmLib.realm_set_insert(handle._pointer, realm_value.ref, out_index, out_inserted));
       return out_inserted.value;
     });
   }
@@ -1219,8 +1219,8 @@ class _RealmCore {
     });
   }
 
-  void realmSetClear(RealmSet realmSet) {
-    _realmLib.invokeGetBool(() => _realmLib.realm_set_clear(realmSet.handle._pointer));
+  void realmSetClear(RealmSetHandle handle) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_set_clear(handle._pointer));
   }
 
   int realmSetSize(RealmSet realmSet) {
@@ -1233,6 +1233,20 @@ class _RealmCore {
 
   bool realmSetIsValid(RealmSet realmSet) {
     return _realmLib.realm_set_is_valid(realmSet.handle._pointer);
+  }
+
+  void realmSetAssign(RealmSetHandle realmSet, List<Object?> values) {
+    return using((Arena arena) {
+      final len = values.length;
+      final valuesPtr = arena.allocate<realm_value_t>(len);
+      for (var i = 0; i < len; i++) {
+        final value = values[i];
+        final valPtr =  valuesPtr.elementAt(i);
+        _intoRealmValue(value, valPtr, arena);
+      }
+
+      _realmLib.invokeGetBool(() => _realmLib.realm_set_assign(realmSet._pointer, valuesPtr, len));
+    });
   }
 
   bool _equals<T extends NativeType>(HandleBase<T> first, HandleBase<T> second) {

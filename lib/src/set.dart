@@ -38,11 +38,11 @@ abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity i
   /// and it's parent object hasn't been deleted.
   bool get isValid;
 
-  factory RealmSet(Iterable<T> items) => UnmanagedRealmSet(items);
+  factory RealmSet(Set<T> items) => UnmanagedRealmSet(items);
 }
 
 class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> with RealmEntity implements RealmSet<T> {
-  UnmanagedRealmSet([Iterable<T>? items]) : super(Set<T>.from(items ?? <T>[]));
+  UnmanagedRealmSet([Set<T>? items]) : super(items ?? <T>{});
 
   @override
   RealmObjectMetadata? get _metadata => throw RealmException("Unmanaged Realm sets don't have metadata associated with them.");
@@ -68,7 +68,7 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
   bool get isValid => realmCore.realmSetIsValid(this);
 
   @override
-  bool add(T value) => realmCore.realmSetInsert(this, value);
+  bool add(T value) => realmCore.realmSetInsert(_handle, value);
 
   /// Get the value at @a index.
   ///
@@ -101,8 +101,7 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
   Set<T> toSet() => this;
 
   @override
-  void clear() => realmCore.realmSetClear(this);
-  
+  void clear() => realmCore.realmSetClear(_handle);
 
   @override
   int get length => realmCore.realmSetSize(this);

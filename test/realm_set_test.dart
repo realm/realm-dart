@@ -25,154 +25,294 @@ import 'test.dart';
 
 part 'realm_set_test.g.dart';
 
+List<Type> supportedTypes = [bool, int, String];
+
 @RealmModel()
 class _TestRealmSets {
   @PrimaryKey()
   late int key;
 
   late Set<bool> boolSet;
-  // late Set<int> intSet;
-  // late Set<String> stringSet;
+  late Set<int> intSet;
+  late Set<String> stringSet;
   // late Set<double> doubleSet;
+
+  @Ignored()
+  Sets setByType(Type type) {
+    switch (type) {
+      case bool:
+        return Sets(boolSet, [true, false]);
+      case int:
+        return Sets(intSet, [-1, 0, 1]);
+      case String:
+        return Sets(stringSet, ['Tesla', 'VW', 'Audi', 'Opel']);
+      default:
+        throw RealmError("Unsupported type $type");
+    }
+  }
+
+  @Ignored()
+  List<Object?> values(Type type) {
+    return setByType(type).values;
+  }
+}
+
+class Sets {
+  final Set<Object?> set;
+  final List<Object?> values;
+
+  const Sets(this.set, this.values);
 }
 
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
-  test('RealmSet create', () {
-    var config = Configuration.local([TestRealmSets.schema]);
-    var realm = getRealm(config);
+  for (var type in supportedTypes) {
+    test('RealmSet<$type> unmanged set add', () {
+      final testSet = TestRealmSets(1);
+      final set = testSet.setByType(type).set;
+      final values = testSet.values(type);
 
-    final testSet = TestRealmSets(1);
-    realm.write(() {
-      realm.add(testSet);
+      set.add(values.first);
+      expect(set.length, equals(1));
+      expect(set.contains(values.first), true);
+
+      set.remove(values.first);
+      expect(set.length, equals(0));
+      expect(set.contains(values.first), false);
     });
 
-    expect(testSet.key, equals(1));
-    expect(testSet.boolSet, isNotNull);
-  });
+    test('RealmSet<$type> unmanged set remove', () {
+      final testSet = TestRealmSets(1);
+      final set = testSet.setByType(type).set;
+      final values = testSet.values(type);
 
-  test('RealmSet contains', () {
-    var config = Configuration.local([TestRealmSets.schema]);
-    var realm = getRealm(config);
+      set.add(values.first);
+      expect(set.length, equals(1));
+      expect(set.contains(values.first), true);
 
-    final testSet = TestRealmSets(1);
-    realm.write(() {
-      realm.add(testSet);
+      set.remove(values.first);
+      expect(set.length, equals(0));
+      expect(set.contains(values.first), false);
     });
 
-    expect(testSet.boolSet.contains(true), false);
-  });
+    test('RealmSet<$type> unmanged set elementAt', () {
+      final testSet = TestRealmSets(1);
+      final set = testSet.setByType(type).set;
+      final values = testSet.values(type);
 
-  test('RealmSet add', () {
-    var config = Configuration.local([TestRealmSets.schema]);
-    var realm = getRealm(config);
-
-    final testSet = TestRealmSets(1);
-    realm.write(() {
-      realm.add(testSet);
-      testSet.boolSet.add(true);
+      set.add(values.first);
+      expect(set.length, equals(1));
+      expect(set.elementAt(0), values.first);
     });
 
-    expect(testSet.boolSet.contains(true), true);
-  });
+    test('RealmSet<$type> create', () {
+      var config = Configuration.local([TestRealmSets.schema]);
+      var realm = getRealm(config);
 
-  test('RealmSet remove', () {
-    var config = Configuration.local([TestRealmSets.schema]);
-    var realm = getRealm(config);
+      var testSet = TestRealmSets(1);
 
-    final testSet = TestRealmSets(1);
-    realm.write(() {
-      realm.add(testSet);
+      realm.write(() {
+        realm.add(testSet);
+      });
+
+      expect(realm.find<TestRealmSets>(1), isNotNull);
+
+      testSet = realm.find<TestRealmSets>(1)!;
+      var set = testSet.setByType(type).set;
+
+      expect(set.length, equals(0));
     });
 
-    realm.write(() {
-      testSet.boolSet.add(true);
-    });
-    expect(testSet.boolSet.length, 1);
+    test('RealmSet<$type> create from unmanaged', () {
+      var config = Configuration.local([TestRealmSets.schema]);
+      var realm = getRealm(config);
 
-    realm.write(() {
-      expect(testSet.boolSet.remove(true), true);
-    });
+      var testSet = TestRealmSets(1);
+      var set = testSet.setByType(type).set;
+      var values = testSet.values(type);
 
-    expect(testSet.boolSet.length, 0);
-  });
+      for (var value in values) {
+        set.add(value);
+      }
 
-  test('RealmSet length', () {
-    var config = Configuration.local([TestRealmSets.schema]);
-    var realm = getRealm(config);
+      realm.write(() {
+        realm.add(testSet);
+      });
 
-    final testSet = TestRealmSets(1);
-    realm.write(() {
-      realm.add(testSet);
-    });
+      testSet = realm.find<TestRealmSets>(1)!;
+      set = testSet.setByType(type).set;
+      values = testSet.values(type);
+      expect(set.length, equals(values.length));
 
-    expect(testSet.boolSet.length, 0);
-
-    realm.write(() {
-      testSet.boolSet.add(true);
-    });
-
-    expect(testSet.boolSet.length, 1);
-
-    realm.write(() {
-      testSet.boolSet.add(false);
+      for (var value in values) {
+        expect(set.contains(value), true);
+      }
     });
 
-    expect(testSet.boolSet.length, 2);
-  });
+    test('RealmSet<$type> contains', () {
+      var config = Configuration.local([TestRealmSets.schema]);
+      var realm = getRealm(config);
 
-  test('RealmSet elementAt', () {
-    var config = Configuration.local([TestRealmSets.schema]);
-    var realm = getRealm(config);
+      var testSet = TestRealmSets(1);
+      var set = testSet.setByType(type).set;
+      var values = testSet.values(type);
 
-    final testSet = TestRealmSets(1);
-    realm.write(() {
-      realm.add(testSet);
-      testSet.boolSet.add(true);
-      testSet.boolSet.add(false);
+      realm.write(() {
+        realm.add(testSet);
+      });
+
+      set = testSet.setByType(type).set;
+
+      expect(set.contains(values.first), false);
+
+      realm.write(() {
+        set.add(values.first);
+      });
+
+      testSet = realm.find<TestRealmSets>(1)!;
+      set = testSet.setByType(type).set;
+      expect(set.contains(values.first), true);
     });
 
-    //depends on order of insertion
-    expect(testSet.boolSet.elementAt(0), false);
-    expect(testSet.boolSet.elementAt(1), true);
-  });
+    test('RealmSet<$type> add', () {
+      var config = Configuration.local([TestRealmSets.schema]);
+      var realm = getRealm(config);
 
-  test('RealmSet lookup', () {
-    var config = Configuration.local([TestRealmSets.schema]);
-    var realm = getRealm(config);
+      final testSet = TestRealmSets(1);
 
-    final testSet = TestRealmSets(1);
-    realm.write(() {
-      realm.add(testSet);
+      var values = testSet.values(type);
+
+      realm.write(() {
+        realm.add(testSet);
+        var set = testSet.setByType(type).set;
+        set.add(values.first);
+      });
+
+      var set = testSet.setByType(type).set;
+      values = testSet.values(type);
+
+      expect(set.contains(values.first), true);
     });
 
-    expect(testSet.boolSet.lookup(true), null);
+    test('RealmSet<$type> remove', () {
+      var config = Configuration.local([TestRealmSets.schema]);
+      var realm = getRealm(config);
 
-    realm.write(() {
-      testSet.boolSet.add(true);
+      var testSet = TestRealmSets(1);
+
+      realm.write(() {
+        realm.add(testSet);
+      });
+
+      var set = testSet.setByType(type).set;
+      var values = testSet.values(type);
+
+      realm.write(() {
+        set.add(values.first);
+      });
+
+      expect(set.length, 1);
+
+      realm.write(() {
+        expect(set.remove(values.first), true);
+      });
+
+      expect(set.length, 0);
     });
 
-    expect(testSet.boolSet.lookup(true), true);
-  });
+    test('RealmSet<$type> length', () {
+      var config = Configuration.local([TestRealmSets.schema]);
+      var realm = getRealm(config);
 
-  test('RealmSet clear', () {
-    var config = Configuration.local([TestRealmSets.schema]);
-    var realm = getRealm(config);
+      final testSet = TestRealmSets(1);
+      realm.write(() {
+        realm.add(testSet);
+      });
 
-    final testSet = TestRealmSets(1);
-    realm.write(() {
-      realm.add(testSet);
-      testSet.boolSet.add(true);
-      testSet.boolSet.add(false);
+      var set = testSet.setByType(type).set;
+      var values = testSet.values(type);
+
+      expect(set.length, 0);
+
+      realm.write(() {
+        set.add(values.first);
+      });
+
+      expect(set.length, 1);
+
+      realm.write(() {
+        for (var value in values) {
+          set.add(value);
+        }
+      });
+
+      expect(set.length, values.length);
     });
 
-    expect(testSet.boolSet.length, 2);
+    test('RealmSet<$type> elementAt', () {
+      var config = Configuration.local([TestRealmSets.schema]);
+      var realm = getRealm(config);
 
-    realm.write(() {
-      testSet.boolSet.clear();
+      final testSet = TestRealmSets(1);
+      var values = testSet.values(type);
+
+      realm.write(() {
+        realm.add(testSet);
+        var set = testSet.setByType(type).set;
+        set.add(values.first);
+      });
+
+      var set = testSet.setByType(type).set;
+
+      expect(set.elementAt(0), values[0]);
     });
 
-    expect(testSet.boolSet.length, 0);
-  });
+    test('RealmSet<$type> lookup', () {
+      var config = Configuration.local([TestRealmSets.schema]);
+      var realm = getRealm(config);
+
+      final testSet = TestRealmSets(1);
+      realm.write(() {
+        realm.add(testSet);
+      });
+
+      var set = testSet.setByType(type).set;
+      var values = testSet.values(type);
+
+      expect(set.lookup(values.first), null);
+
+      realm.write(() {
+        set.add(values.first);
+      });
+
+      expect(set.lookup(values.first), values.first);
+    });
+
+    test('RealmSet<$type> clear', () {
+      var config = Configuration.local([TestRealmSets.schema]);
+      var realm = getRealm(config);
+
+      final testSet = TestRealmSets(1);
+      var values = testSet.values(type);
+
+      realm.write(() {
+        realm.add(testSet);
+        var set = testSet.setByType(type).set;
+        for (var value in values) {
+          set.add(value);
+        }
+      });
+
+      var set = testSet.setByType(type).set;
+
+      expect(set.length, values.length);
+
+      realm.write(() {
+        set.clear();
+      });
+
+      expect(set.length, 0);
+    });
+  }
 }

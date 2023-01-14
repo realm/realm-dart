@@ -248,6 +248,24 @@ class RealmCoreAccessor implements RealmAccessor {
         }
       }
 
+      //TODO: set from ManagedRealmList is not supported yet
+      if (value is UnmanagedRealmSet) {
+        final handle = realmCore.getSetProperty(object, propertyMeta.key);
+        if (update) {
+          realmCore.realmSetClear(handle);
+        }
+
+        // TODO: use realmSetAssign when available in C-API
+        //realmCore.realmSetAssign(handle, value.toList());
+        for (var element in value) {
+          final result = realmCore.realmSetInsert(handle, element);
+          if (!result) {
+            throw RealmException("Error while adding value $element in RealmSet");
+          }
+        }
+        return;
+      }
+
       if (propertyMeta.isPrimaryKey && !isInMigration) {
         final currentValue = realmCore.getProperty(object, propertyMeta.key);
         if (currentValue != value) {

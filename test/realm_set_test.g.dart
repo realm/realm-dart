@@ -6,17 +6,18 @@ part of 'realm_set_test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
-class TestRealmSets extends _TestRealmSets
-    with RealmEntity, RealmObjectBase, RealmObject {
-
+class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, RealmObject {
   TestRealmSets(
     int key,
-  //  Set<bool> boolSet,
-  //  Set<int> intSet,
-  //  Set<String> stringSet,
-  //  Set<double> doubleSet
+    //  Set<bool> boolSet,
+    //  Set<int> intSet,
+    //  Set<String> stringSet,
+    //  Set<double> doubleSet
   ) {
     RealmObjectBase.set(this, 'key', key);
+    RealmObjectBase.set<RealmSet<bool>>(this, 'boolSet', RealmSet<bool>({}));
+    RealmObjectBase.set<RealmSet<int>>(this, 'intSet', RealmSet<int>({}));
+    RealmObjectBase.set<RealmSet<String>>(this, 'stringSet', RealmSet<String>({}));
     // RealmObjectBase.set(this, 'boolSet', boolSet);
     // RealmObjectBase.set(this, 'intSet', intSet);
     // RealmObjectBase.set(this, 'stringSet', stringSet);
@@ -35,6 +36,16 @@ class TestRealmSets extends _TestRealmSets
   @override
   set boolSet(covariant RealmSet<bool> value) => throw RealmUnsupportedSetError();
 
+  @override
+  RealmSet<int> get intSet => RealmObjectBase.get<int>(this, 'intSet') as RealmSet<int>;
+  @override
+  set intSet(covariant RealmSet<int> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<String> get stringSet => RealmObjectBase.get<String>(this, 'stringSet') as RealmSet<String>;
+  @override
+  set stringSet(covariant RealmSet<String> value) => throw RealmUnsupportedSetError();
+
   // @override
   // RealmSet<int> get intSet => RealmObjectBase.get<RealmSet<int>>(this, 'intSet') as RealmSet<int>;
   // @override
@@ -51,8 +62,7 @@ class TestRealmSets extends _TestRealmSets
   // set doubleSet(covariant RealmSet<double> value) => throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<TestRealmSets>> get changes =>
-      RealmObjectBase.getChanges<TestRealmSets>(this);
+  Stream<RealmObjectChanges<TestRealmSets>> get changes => RealmObjectBase.getChanges<TestRealmSets>(this);
 
   @override
   TestRealmSets freeze() => RealmObjectBase.freezeObject<TestRealmSets>(this);
@@ -64,10 +74,11 @@ class TestRealmSets extends _TestRealmSets
     return const SchemaObject(ObjectType.realmObject, TestRealmSets, 'TestRealmSets', [
       SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('boolSet', RealmPropertyType.bool, collectionType: RealmCollectionType.set),
+      SchemaProperty('intSet', RealmPropertyType.int, collectionType: RealmCollectionType.set),
+      SchemaProperty('stringSet', RealmPropertyType.string, collectionType: RealmCollectionType.set),
       // SchemaProperty('intSet', RealmPropertyType.int, collectionType: RealmCollectionType.set),
       // SchemaProperty('stringSet', RealmPropertyType.string, collectionType: RealmCollectionType.set),
       // SchemaProperty('doubleSet', RealmPropertyType.double, collectionType: RealmCollectionType.set),
     ]);
   }
 }
-
