@@ -1552,15 +1552,41 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(Configuration.disconnectedSync([Product.schema], path: path, encryptionKey: key));
   });
 
-  test('Realm writeCopy Local to Local ', () {
+  test('Realm writeCopy Local to existing Local', () {
     final config = Configuration.local([Car.schema]);
-    final copyConfig = Configuration.local([Car.schema], path: "new.realm");
     final realm = getRealm(config);
-    realm.writeCopy(config);
+    expect(() => realm.writeCopy(config), throws<RealmException>("File at path '${config.path}' already exists"));
     realm.close();
+  });
 
+  test('Realm writeCopy empty Local to Local', () {
+    final config = Configuration.local([Car.schema]);
+    final newPath = config.path.replaceFirst(p.basenameWithoutExtension(config.path), generateRandomString(10));
+    final copyConfig = Configuration.local([Car.schema], path: newPath);
+    final realm = getRealm(config);
+    realm.writeCopy(copyConfig);
+    realm.close();
     final copyRealm = getRealm(copyConfig);
     copyRealm.close();
+    expect(File(copyConfig.path).existsSync(), isTrue);
+  });
+
+  test('Realm writeCopy full Local to Local', () {
+    final config = Configuration.local([Car.schema]);
+    final newPath = config.path.replaceFirst(p.basenameWithoutExtension(config.path), generateRandomString(10));
+    final copyConfig = Configuration.local([Car.schema], path: newPath);
+    final realm = getRealm(config);
+
+    realm.write(() {
+      for (var i = 0; i < 100; i++) {
+        realm.add(Car("make_${i + 1}"));
+      }
+    });
+    realm.writeCopy(copyConfig);
+    realm.close();
+    final copyRealm = getRealm(copyConfig);
+    copyRealm.close();
+    expect(File(config.path).lengthSync(), File(copyConfig.path).lengthSync());
   });
 }
 
