@@ -3,7 +3,7 @@
 **This project is in Release Candidate stage.**
 
 ### Enhancements
-* None
+* Add supoprt for Realm set data type ([#1102](https://github.com/realm/realm-dart/pull/1102))
 
 ### Fixed
 * None
