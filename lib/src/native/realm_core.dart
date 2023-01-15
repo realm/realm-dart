@@ -2337,13 +2337,6 @@ class _RealmCore {
     final configHandle = _createConfig(config);
     _realmLib.invokeGetBool(() => _realmLib.realm_convert_with_config(realm.handle._pointer, configHandle._pointer, false));
   }
-
-  void writeCopyTo(Realm realm, String path, List<int>? encryptionKey) {
-    return using((Arena arena) {
-      _realmLib.invokeGetBool(
-          () => _realmLib.realm_convert_with_path(realm.handle._pointer, path.toCharPtr(arena), _toRealmBinary(encryptionKey, arena).ref, false));
-    });
-  }
 }
 
 class LastError {
