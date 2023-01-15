@@ -611,14 +611,13 @@ class ClientResetError extends SyncError {
 
   /// Initiates the client reset process.
   ///
-  /// All Realm instances for that path must be closed before this method is called or an
-  /// [RealmException] will be thrown.
-  void resetRealm() {
+  /// Returns `true` if actions were run successfully, `false` otherwise.
+  bool resetRealm() {
     if (_config is! FlexibleSyncConfiguration) {
       throw RealmException("The current configuration is not FlexibleSyncConfiguration.");
     }
     final flexibleConfig = _config as FlexibleSyncConfiguration;
-    realmCore.immediatelyRunFileActions(flexibleConfig.user.app, flexibleConfig.path);
+    return realmCore.immediatelyRunFileActions(flexibleConfig.user.app, flexibleConfig.path);
   }
 }
 
@@ -646,6 +645,8 @@ class SyncError extends RealmError {
         return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.session:
         return SyncSessionError(message, category, SyncSessionErrorCode.fromInt(code), isFatal: isFatal);
+      case SyncErrorCategory.resolve:
+        return SyncResolveError(message, category, SyncResolveErrorCode.values[code]);
       case SyncErrorCategory.system:
       case SyncErrorCategory.unknown:
       default:
@@ -725,6 +726,19 @@ class SyncSessionError extends SyncError {
   @override
   String toString() {
     return "SyncSessionError message: $message category: $category code: $code isFatal: $isFatal";
+  }
+}
+
+/// Network resolution error
+class SyncResolveError extends SyncError {
+  /// The numeric value indicating the type of the network resolution sync error.
+  SyncResolveErrorCode get code => SyncResolveErrorCode.values[codeValue];
+
+  SyncResolveError(String message, SyncErrorCategory category, SyncResolveErrorCode errorCode) : super(message, category, errorCode.index);
+
+  @override
+  String toString() {
+    return "SyncResolveError message: $message category: $category code: $code";
   }
 }
 

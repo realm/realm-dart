@@ -55,6 +55,7 @@ export 'package:realm_common/realm_common.dart'
         SyncClientErrorCode,
         SyncConnectionErrorCode,
         SyncErrorCategory,
+        SyncResolveErrorCode,
         SyncSessionErrorCode,
         Uuid;
 
@@ -88,6 +89,7 @@ export "configuration.dart"
         SyncConnectionError,
         SyncError,
         SyncErrorHandler,
+        SyncResolveError,
         SyncSessionError;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;

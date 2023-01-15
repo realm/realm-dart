@@ -84,7 +84,7 @@ class _RealmCore {
   }
 
   // stamped into the library by the build system (see prepare-release.yml)
-  static const libraryVersion = '0.8.0+rc';
+  static const libraryVersion = '0.9.0+rc';
   late String nativeLibraryVersion = _realmLib.realm_dart_library_version().cast<Utf8>().toDartString();
 
   // for debugging only. Enable in realm_dart.cpp
@@ -1389,6 +1389,23 @@ class _RealmCore {
       final app_id = configuration.appId.toCharPtr(arena);
       final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
 
+      _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toCharPtr(arena));
+      _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toCharPtr(arena));
+
+      _realmLib.realm_app_config_set_sdk(handle._pointer, 'Dart'.toCharPtr(arena));
+      _realmLib.realm_app_config_set_sdk_version(handle._pointer, ''.toCharPtr(arena));
+
+      _realmLib.realm_app_config_set_cpu_arch(handle._pointer, ''.toCharPtr(arena));
+
+      _realmLib.realm_app_config_set_device_name(handle._pointer, ''.toCharPtr(arena));
+      _realmLib.realm_app_config_set_device_version(handle._pointer, ''.toCharPtr(arena));
+
+      _realmLib.realm_app_config_set_framework_name(handle._pointer, (isFlutterPlatform ? 'Flutter' : 'Dart VM').toCharPtr(arena));
+      _realmLib.realm_app_config_set_framework_version(handle._pointer, Platform.version.toCharPtr(arena));
+
+      _realmLib.realm_app_config_set_local_app_name(handle._pointer, ''.toCharPtr(arena));
+      _realmLib.realm_app_config_set_local_app_version(handle._pointer, ''.toCharPtr(arena));
+
       _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toCharPtr(arena));
 
       _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout.inMilliseconds);
@@ -2128,56 +2145,60 @@ class _RealmCore {
     }
   }
 
-  static String? _appDir;
+  String _getAppDirectoryFromPlugin() {
+    assert(isFlutterPlatform);
 
-  String _getAppDirectory() {
-    if (!isFlutterPlatform) {
-      return path.basenameWithoutExtension(File.fromUri(Platform.script).absolute.path);
-    }
+    String plugin = Platform.isWindows
+        ? 'realm_plugin.dll'
+        : Platform.isMacOS
+            ? 'realm.framework/realm' // use catalyst
+            : Platform.isLinux
+                ? "librealm_plugin.so"
+                : throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
 
-    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-      const String libName = 'realm_plugin';
-      String binaryExt = Platform.isWindows
-          ? ".dll"
-          : Platform.isMacOS
-              ? ".dylib"
-              : ".so";
-      String binaryNamePrefix = Platform.isWindows ? "" : "lib";
-      final realmPluginLib =
-          Platform.isMacOS == false ? DynamicLibrary.open("$binaryNamePrefix$libName$binaryExt") : DynamicLibrary.open('realm.framework/realm');
-      final getAppDirFunc = realmPluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory");
-      final dirNamePtr = getAppDirFunc();
-      if (dirNamePtr == nullptr) {
-        return "";
-      }
+    final pluginLib = DynamicLibrary.open(plugin);
+    final getAppDirFunc = pluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory");
+    final dirNamePtr = getAppDirFunc();
+    final dirName = Platform.isWindows ? dirNamePtr.cast<Utf16>().toDartString() : dirNamePtr.cast<Utf8>().toDartString();
 
-      final dirName = Platform.isWindows ? dirNamePtr.cast<Utf16>().toDartString() : dirNamePtr.cast<Utf8>().toDartString();
-      return dirName;
-    }
-
-    return "";
+    return dirName;
   }
 
   String getAppDirectory() {
-    if (!isFlutterPlatform) {
-      return Directory.current.absolute.path;
+    try {
+      if (!isFlutterPlatform || Platform.environment.containsKey('FLUTTER_TEST')) {
+        return Directory.current.absolute.path; // dart or flutter test
+      }
+
+      // Flutter from here on..
+
+      if (Platform.isAndroid || Platform.isIOS) {
+        return getFilesPath();
+      }
+
+      if (Platform.isLinux) {
+        String appSupportDir = PlatformEx.fromEnvironment(
+          "XDG_DATA_HOME",
+          defaultValue: PlatformEx.fromEnvironment(
+            "HOME",
+            defaultValue: Directory.current.absolute.path,
+          ),
+        );
+        return path.join(appSupportDir, ".local/share", _getAppDirectoryFromPlugin());
+      }
+
+      if (Platform.isMacOS) {
+        return _getAppDirectoryFromPlugin();
+      }
+
+      if (Platform.isWindows) {
+        return _getAppDirectoryFromPlugin();
+      }
+
+      throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
+    } catch (e) {
+      throw RealmException('Cannot get app directory. Error: $e');
     }
-
-    _appDir ??= _getAppDirectory();
-
-    if (Platform.isAndroid || Platform.isIOS) {
-      return path.join(getFilesPath(), _appDir);
-    } else if (Platform.isWindows) {
-      return _appDir ?? Directory.current.absolute.path;
-    } else if (Platform.isLinux) {
-      String appSupportDir =
-          PlatformEx.fromEnvironment("XDG_DATA_HOME", defaultValue: PlatformEx.fromEnvironment("HOME", defaultValue: Directory.current.absolute.path));
-      return path.join(appSupportDir, ".local/share", _appDir);
-    } else if (Platform.isMacOS) {
-      return _appDir ?? Directory.current.absolute.path;
-    }
-
-    throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
   }
 
   Future<void> deleteUser(App app, User user) {
@@ -2388,10 +2409,12 @@ class _RealmCore {
     });
   }
 
-  void immediatelyRunFileActions(App app, String realmPath) {
-    using((arena) {
-      _realmLib.invokeGetBool(() => _realmLib.realm_sync_immediately_run_file_actions(app.handle._pointer, realmPath.toCharPtr(arena)),
+  bool immediatelyRunFileActions(App app, String realmPath) {
+    return using((arena) {
+      final out_did_run = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_sync_immediately_run_file_actions(app.handle._pointer, realmPath.toCharPtr(arena), out_did_run),
           "An error occurred while resetting the Realm. Check if the file is in use: '$realmPath'");
+      return out_did_run.value;
     });
   }
 }
