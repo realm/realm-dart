@@ -22,6 +22,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
+import 'package:realm_common/realm_common.dart';
 import 'package:test/test.dart' hide test, throws;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -1552,64 +1553,64 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(Configuration.disconnectedSync([Product.schema], path: path, encryptionKey: key));
   });
 
-  test('Realm writeCopy Local to existing Local', () {
+  test('Realm writeCopy and writeCopyTo Local to existing Local', () {
     final config = Configuration.local([Car.schema]);
     final realm = getRealm(config);
     expect(() => realm.writeCopy(config), throws<RealmException>("File at path '${config.path}' already exists"));
-  });
-
-  test('Realm writeCopyTo Local to existing Local', () {
-    final config = Configuration.local([Car.schema]);
-    final realm = getRealm(config);
     expect(() => realm.writeCopyTo(config.path), throws<RealmException>("File at path '${config.path}' already exists"));
   });
 
-  test('Realm writeCopy empty Local to Local', () {
-    final config = Configuration.local([Car.schema]);
-    final newPath = config.path.replaceFirst(p.basenameWithoutExtension(config.path), generateRandomString(10));
-    final configCopy = Configuration.local([Car.schema], path: newPath);
-    final realm = getRealm(config);
-    realm.writeCopy(configCopy);
-    expect(File(configCopy.path).existsSync(), isTrue);
-    final copyRealm = getRealm(configCopy);
-    expect(copyRealm.all<Car>().length, 0);
-    expect(copyRealm.isClosed, isFalse);
-  });
+  for (bool isEmpty in [true, false]) {
+    for (bool isWriteCopyTo in [true, false]) {
+      for (List<int>? sourceEncryptedKey in [null, generateEncryptionKey()]) {
+        for (List<int>? destinationEncryptedKey in [sourceEncryptedKey, generateEncryptionKey()]) {
+          for (List<int>? openEncryptedKey in [destinationEncryptedKey, generateEncryptionKey()]) {
+            final methodName = isWriteCopyTo ? "writeCopyTo" : "writeCopy";
+            final dataState = isEmpty ? "empty" : "populated";
+            final encryptedState =
+                '${sourceEncryptedKey != null ? "encrypted " : ""}Local to ${destinationEncryptedKey != null ? "encrypted ${sourceEncryptedKey != null && sourceEncryptedKey == destinationEncryptedKey ? "with the same key " : "with different key "}" : ""}Local';
+            final openState = destinationEncryptedKey == openEncryptedKey
+                ? "can be opened ${openEncryptedKey != null ? "with a valid key" : ""}"
+                : " - open with invalid key throws";
+            final testDescription = '$methodName $dataState $encryptedState $openState';
+            test('Realm $testDescription', () {
+              final config = Configuration.local([Car.schema], encryptionKey: sourceEncryptedKey, path: generateRandomRealmPath());
+              final realm = getRealm(config);
+              var itemsCount = 0;
+              if (!isEmpty) {
+                itemsCount = 100;
+                realm.write(() {
+                  for (var i = 0; i < itemsCount; i++) {
+                    realm.add(Car("make_${i + 1}"));
+                  }
+                });
+              }
+              final newPath = config.path.replaceFirst(p.basenameWithoutExtension(config.path), generateRandomString(10));
+              isWriteCopyTo
+                  ? realm.writeCopyTo(newPath, encryptionKey: destinationEncryptedKey)
+                  : realm.writeCopy(Configuration.local([Car.schema], path: newPath, encryptionKey: destinationEncryptedKey));
+              realm.close();
 
-  test('Realm writeCopy full Local to Local', () {
-    final config = Configuration.local([Car.schema]);
-    final newPath = config.path.replaceFirst(p.basenameWithoutExtension(config.path), generateRandomString(10));
-    final configCopy = Configuration.local([Car.schema], path: newPath);
-    final realm = getRealm(config);
-    const itemsCount = 100;
-    realm.write(() {
-      for (var i = 0; i < itemsCount; i++) {
-        realm.add(Car("make_${i + 1}"));
+              expect(File(newPath).existsSync(), isTrue);
+              final configOpenCopy = Configuration.local([Car.schema], path: newPath, encryptionKey: openEncryptedKey);
+              if (destinationEncryptedKey == openEncryptedKey) {
+                final copyRealm = getRealm(configOpenCopy);
+                expect(copyRealm.all<Car>().length, itemsCount);
+                expect(copyRealm.isClosed, isFalse);
+                realm.close();
+              } else {
+                expect(
+                  () => getRealm(configOpenCopy),
+                  throws<RealmException>("Realm file decryption failed"),
+                );
+              }
+            });
+          }
+        }
       }
-    });
-    realm.writeCopy(configCopy);
-    expect(File(configCopy.path).existsSync(), isTrue);
-    final copyRealm = getRealm(configCopy);
-    expect(copyRealm.all<Car>().length, itemsCount);
-    expect(copyRealm.isClosed, isFalse);
-  });
+    }
+  }
 
-  test('Realm writeCopyTo full Local to Local', () {
-    final config = Configuration.local([Car.schema]);
-    final newPath = config.path.replaceFirst(p.basenameWithoutExtension(config.path), generateRandomString(10));
-    final realm = getRealm(config);
-    const itemsCount = 100;
-    realm.write(() {
-      for (var i = 0; i < itemsCount; i++) {
-        realm.add(Car("make_${i + 1}"));
-      }
-    });
-    realm.writeCopyTo(newPath);
-    expect(File(newPath).existsSync(), isTrue);
-    final copyRealm = getRealm(Configuration.local([Car.schema], path: newPath));
-    expect(copyRealm.all<Car>().length, itemsCount);
-    expect(copyRealm.isClosed, isFalse);
-  });
 }
 
 List<int> generateEncryptionKey() {
