@@ -288,23 +288,23 @@ class RealmSets extends _RealmSets
     with RealmEntity, RealmObjectBase, RealmObject {
   RealmSets(
     int key, {
-    Set<bool> boolSet = {},
+    Set<bool> boolSet = const {},
     Set<bool> boolSetDefaultValues1 = {true, false},
     Set<bool> boolSetDefaultValues2 = <bool>{false, true},
-    Set<bool?> nullableBoolSet = {},
-    Set<int> intSet = {},
+    Set<bool?> nullableBoolSet = const {},
+    Set<int> intSet = const {},
     Set<int> intSetDefaultValues1 = {0, 1, 2},
     Set<int> intSetDefaultValues2 = <int>{1, 2, 3},
-    Set<int?> nullableintSet = {},
-    Set<String> stringSet = {},
+    Set<int?> nullableintSet = const {},
+    Set<String> stringSet = const {},
     Set<String> stringSetDefaultValues1 = {"Tesla", "Audi"},
     Set<String> stringSetDefaultValues2 = <String>{"VW", "Mercedes"},
-    Set<String?> nullablestringSet = {},
-    Set<double> doubleSet = {},
+    Set<String?> nullablestringSet = const {},
+    Set<double> doubleSet = const {},
     Set<double> doubleSetDefaultValues1 = {0.1, 0.2, 0.3},
     Set<double> doubleSetDefaultValues2 = <double>{0.4, 0.5, 0.6},
-    Set<double?> nullabledoubleSet = {},
-    Set<DateTime> dateTimeSet = {},
+    Set<double?> nullabledoubleSet = const {},
+    Set<DateTime> dateTimeSet = const {},
     Set<DateTime> dateTimeSetDefaultValues1 = {
       DateTime.utc(2023),
       DateTime.utc(2024)
@@ -313,8 +313,8 @@ class RealmSets extends _RealmSets
       DateTime.utc(2025),
       DateTime.utc(2026)
     },
-    Set<DateTime?> nullabledateTimeSet = {},
-    Set<ObjectId> objectIdSet = {},
+    Set<DateTime?> nullabledateTimeSet = const {},
+    Set<ObjectId> objectIdSet = const {},
     Set<ObjectId> objectIdSetDefaultValues1 = {
       ObjectId.fromBytes([1]),
       ObjectId.fromBytes([2])
@@ -323,8 +323,8 @@ class RealmSets extends _RealmSets
       ObjectId.fromBytes([3]),
       ObjectId.fromBytes([4])
     },
-    Set<ObjectId?> nullableobjectIdSet = {},
-    Set<Uuid> uuidSet = {},
+    Set<ObjectId?> nullableobjectIdSet = const {},
+    Set<Uuid> uuidSet = const {},
     Set<Uuid> uuidSetDefaultValues1 = {
       Uuid.fromString("1"),
       Uuid.fromString("2")
@@ -333,7 +333,7 @@ class RealmSets extends _RealmSets
       Uuid.fromString("3"),
       Uuid.fromString("4")
     },
-    Set<Uuid?> nullableuuidSet = {},
+    Set<Uuid?> nullableuuidSet = const {},
   }) {
     RealmObjectBase.set(this, 'key', key);
     RealmObjectBase.set<RealmSet<bool>>(
