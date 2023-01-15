@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
+import 'package:args/args.dart';
 import 'package:path/path.dart' as _path;
 import 'package:dart_style/dart_style.dart';
 import 'package:build_test/build_test.dart';
@@ -38,9 +39,10 @@ Future<Map<String, Object>> getInputFileAsset(String inputFilePath) async {
 
 /// A special equality matcher for strings.
 class LinesEqualsMatcher extends Matcher {
+  String expected;
   late final List<String> expectedLines;
 
-  LinesEqualsMatcher(String expected) {
+  LinesEqualsMatcher(this.expected) {
     expectedLines = expected.split("\n");
   }
 
@@ -50,26 +52,46 @@ class LinesEqualsMatcher extends Matcher {
   @override
   // ignore: strict_raw_type
   bool matches(dynamic actual, Map matchState) {
-    final actualValue = utf8.decode(actual as List<int>);
+    var actualValue = "";
+    if (actual is List<int>) {
+      actualValue = utf8.decode(actual);
+    } else if (actual is String) {
+      actualValue = actual;
+    } else {
+      actualValue = actual.toString();
+    }
+
     final actualLines = actualValue.split("\n");
 
+    final result = _matches(actualLines, matchState);
+    if (!result) {
+      print("\nGenerator Failed\n");
+      print("\nExpected ======================================================================================================\n\n\n $expected\n");
+      print("\nActual ======================================================================================================\n\n\n $actualValue\n");
+    }
+
+    return result;
+  }
+
+  bool _matches(List<String> actualLines, Map<dynamic, dynamic> matchState) {
     for (var i = 0; i < expectedLines.length - 1; i++) {
       if (i >= actualLines.length) {
         matchState["Error"] = "Difference at line ${i + 1}. \nExpected: ${expectedLines[i]}.\n  Actual: empty";
+        
         return false;
       }
-
+    
       if (expectedLines[i] != actualLines[i]) {
         matchState["Error"] = "Difference at line ${i + 1}. \nExpected: ${expectedLines[i]}.\n  Actual: ${actualLines[i]}";
         return false;
       }
     }
-
+    
     if (actualLines.length != expectedLines.length) {
       matchState["Error"] = "Different number of lines. \nExpected: ${expectedLines.length}\nActual: ${actualLines.length}";
       return false;
     }
-
+    
     return true;
   }
 
@@ -118,3 +140,23 @@ String _stringReplacements(String content) {
 String getTestName(String file) {
   return _path.basename(file);
 }
+
+Map<String, String?> parseTestArguments(List<String>? arguments) {
+  Map<String, String?> testArgs = {};
+  final parser = ArgParser()..addOption("name");
+
+  final result = parser.parse(arguments ?? []);
+  testArgs.addArgument(result, "name");
+
+  return testArgs;
+}
+
+extension on Map<String, String?> {
+  void addArgument(ArgResults parsedResult, String argName) {
+    final value = parsedResult.wasParsed(argName) ? parsedResult[argName]?.toString() : Platform.environment[argName];
+    if (value != null && value.isNotEmpty) {
+      this[argName] = value;
+    }
+  }
+}
+

@@ -9,10 +9,6 @@ part of 'realm_set_test.dart';
 class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, RealmObject {
   TestRealmSets(
     int key,
-    //  Set<bool> boolSet,
-    //  Set<int> intSet,
-    //  Set<String> stringSet,
-    //  Set<double> doubleSet
   ) {
     RealmObjectBase.set(this, 'key', key);
     RealmObjectBase.set<RealmSet<bool>>(this, 'boolSet', RealmSet<bool>({}));

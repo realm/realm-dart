@@ -32,7 +32,8 @@ extension DartTypeEx on DartType {
 
   bool get isRealmValue => const TypeChecker.fromRuntime(RealmValue).isAssignableFromType(this);
   bool get isRealmCollection => realmCollectionType != RealmCollectionType.none;
-  bool get isRealmModel => element2 != null ? realmModelChecker.annotationsOfExact(element2!).isNotEmpty : false;
+  bool get isRealmSet => realmCollectionType == RealmCollectionType.set;
+    bool get isRealmModel => element2 != null ? realmModelChecker.annotationsOfExact(element2!).isNotEmpty : false;
 
   bool get isNullable => session.typeSystem.isNullable(this);
   DartType get asNonNullable => session.typeSystem.promoteToNonNull(this);
@@ -109,9 +110,7 @@ extension DartTypeEx on DartType {
     if (isDartCoreString) return RealmPropertyType.string;
     if (isExactly<Uint8List>()) return RealmPropertyType.binary;
     if (isRealmValue) return RealmPropertyType.mixed;
-    if (isRealmSet) return RealmPropertyType.;
     if (isExactly<DateTime>()) return RealmPropertyType.timestamp;
-    if (isExactly<Float>()) return RealmPropertyType.float;
     if (isDartCoreNum || isDartCoreDouble) return RealmPropertyType.double;
     if (isExactly<Decimal128>()) return RealmPropertyType.decimal128;
     if (isRealmModel) return RealmPropertyType.object;

@@ -60,12 +60,6 @@ class _Car {
 
 # Debugging
 
-* On first use .dart_tool/build/entrypoint/build.dart needs to be generated with pub run build_runer build
-
-* Use a terminal to launch a debuggee with command
-
-  ```
-  dart run --observe --pause-isolates-on-start  --enable-vm-service:5858/127.0.0.1  --disable-service-auth-codes .dart_tool/build/entrypoint/build.dart build
-  ```
+* Use the Debug Generator Tests launch config in VS Code. The launch config also has an arg for filtering specifc tests.
 
 ##### The "Dart" name and logo and the "Flutter" name and logo are trademarks owned by Google.

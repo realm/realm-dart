@@ -283,3 +283,403 @@ class PrimitiveTypes extends _PrimitiveTypes
     ]);
   }
 }
+
+class RealmSets extends _RealmSets
+    with RealmEntity, RealmObjectBase, RealmObject {
+  RealmSets(
+    int key, {
+    Set<bool> boolSet = {},
+    Set<bool> boolSetDefaultValues1 = {true, false},
+    Set<bool> boolSetDefaultValues2 = <bool>{false, true},
+    Set<bool?> nullableBoolSet = {},
+    Set<int> intSet = {},
+    Set<int> intSetDefaultValues1 = {0, 1, 2},
+    Set<int> intSetDefaultValues2 = <int>{1, 2, 3},
+    Set<int?> nullableintSet = {},
+    Set<String> stringSet = {},
+    Set<String> stringSetDefaultValues1 = {"Tesla", "Audi"},
+    Set<String> stringSetDefaultValues2 = <String>{"VW", "Mercedes"},
+    Set<String?> nullablestringSet = {},
+    Set<double> doubleSet = {},
+    Set<double> doubleSetDefaultValues1 = {0.1, 0.2, 0.3},
+    Set<double> doubleSetDefaultValues2 = <double>{0.4, 0.5, 0.6},
+    Set<double?> nullabledoubleSet = {},
+    Set<DateTime> dateTimeSet = {},
+    Set<DateTime> dateTimeSetDefaultValues1 = {
+      DateTime.utc(2023),
+      DateTime.utc(2024)
+    },
+    Set<DateTime> dateTimeSetDefaultValues2 = <DateTime>{
+      DateTime.utc(2025),
+      DateTime.utc(2026)
+    },
+    Set<DateTime?> nullabledateTimeSet = {},
+    Set<ObjectId> objectIdSet = {},
+    Set<ObjectId> objectIdSetDefaultValues1 = {
+      ObjectId.fromBytes([1]),
+      ObjectId.fromBytes([2])
+    },
+    Set<ObjectId> objectIdSetDefaultValues2 = <ObjectId>{
+      ObjectId.fromBytes([3]),
+      ObjectId.fromBytes([4])
+    },
+    Set<ObjectId?> nullableobjectIdSet = {},
+    Set<Uuid> uuidSet = {},
+    Set<Uuid> uuidSetDefaultValues1 = {
+      Uuid.fromString("1"),
+      Uuid.fromString("2")
+    },
+    Set<Uuid> uuidSetDefaultValues2 = <Uuid>{
+      Uuid.fromString("3"),
+      Uuid.fromString("4")
+    },
+    Set<Uuid?> nullableuuidSet = {},
+  }) {
+    RealmObjectBase.set(this, 'key', key);
+    RealmObjectBase.set<RealmSet<bool>>(
+        this, 'boolSet', RealmSet<bool>(boolSet));
+    RealmObjectBase.set<RealmSet<bool>>(
+        this, 'boolSetDefaultValues1', RealmSet<bool>(boolSetDefaultValues1));
+    RealmObjectBase.set<RealmSet<bool>>(
+        this, 'boolSetDefaultValues2', RealmSet<bool>(boolSetDefaultValues2));
+    RealmObjectBase.set<RealmSet<bool?>>(
+        this, 'nullableBoolSet', RealmSet<bool?>(nullableBoolSet));
+    RealmObjectBase.set<RealmSet<int>>(this, 'intSet', RealmSet<int>(intSet));
+    RealmObjectBase.set<RealmSet<int>>(
+        this, 'intSetDefaultValues1', RealmSet<int>(intSetDefaultValues1));
+    RealmObjectBase.set<RealmSet<int>>(
+        this, 'intSetDefaultValues2', RealmSet<int>(intSetDefaultValues2));
+    RealmObjectBase.set<RealmSet<int?>>(
+        this, 'nullableintSet', RealmSet<int?>(nullableintSet));
+    RealmObjectBase.set<RealmSet<String>>(
+        this, 'stringSet', RealmSet<String>(stringSet));
+    RealmObjectBase.set<RealmSet<String>>(this, 'stringSetDefaultValues1',
+        RealmSet<String>(stringSetDefaultValues1));
+    RealmObjectBase.set<RealmSet<String>>(this, 'stringSetDefaultValues2',
+        RealmSet<String>(stringSetDefaultValues2));
+    RealmObjectBase.set<RealmSet<String?>>(
+        this, 'nullablestringSet', RealmSet<String?>(nullablestringSet));
+    RealmObjectBase.set<RealmSet<double>>(
+        this, 'doubleSet', RealmSet<double>(doubleSet));
+    RealmObjectBase.set<RealmSet<double>>(this, 'doubleSetDefaultValues1',
+        RealmSet<double>(doubleSetDefaultValues1));
+    RealmObjectBase.set<RealmSet<double>>(this, 'doubleSetDefaultValues2',
+        RealmSet<double>(doubleSetDefaultValues2));
+    RealmObjectBase.set<RealmSet<double?>>(
+        this, 'nullabledoubleSet', RealmSet<double?>(nullabledoubleSet));
+    RealmObjectBase.set<RealmSet<DateTime>>(
+        this, 'dateTimeSet', RealmSet<DateTime>(dateTimeSet));
+    RealmObjectBase.set<RealmSet<DateTime>>(this, 'dateTimeSetDefaultValues1',
+        RealmSet<DateTime>(dateTimeSetDefaultValues1));
+    RealmObjectBase.set<RealmSet<DateTime>>(this, 'dateTimeSetDefaultValues2',
+        RealmSet<DateTime>(dateTimeSetDefaultValues2));
+    RealmObjectBase.set<RealmSet<DateTime?>>(
+        this, 'nullabledateTimeSet', RealmSet<DateTime?>(nullabledateTimeSet));
+    RealmObjectBase.set<RealmSet<ObjectId>>(
+        this, 'objectIdSet', RealmSet<ObjectId>(objectIdSet));
+    RealmObjectBase.set<RealmSet<ObjectId>>(this, 'objectIdSetDefaultValues1',
+        RealmSet<ObjectId>(objectIdSetDefaultValues1));
+    RealmObjectBase.set<RealmSet<ObjectId>>(this, 'objectIdSetDefaultValues2',
+        RealmSet<ObjectId>(objectIdSetDefaultValues2));
+    RealmObjectBase.set<RealmSet<ObjectId?>>(
+        this, 'nullableobjectIdSet', RealmSet<ObjectId?>(nullableobjectIdSet));
+    RealmObjectBase.set<RealmSet<Uuid>>(
+        this, 'uuidSet', RealmSet<Uuid>(uuidSet));
+    RealmObjectBase.set<RealmSet<Uuid>>(
+        this, 'uuidSetDefaultValues1', RealmSet<Uuid>(uuidSetDefaultValues1));
+    RealmObjectBase.set<RealmSet<Uuid>>(
+        this, 'uuidSetDefaultValues2', RealmSet<Uuid>(uuidSetDefaultValues2));
+    RealmObjectBase.set<RealmSet<Uuid?>>(
+        this, 'nullableuuidSet', RealmSet<Uuid?>(nullableuuidSet));
+  }
+
+  RealmSets._();
+
+  @override
+  int get key => RealmObjectBase.get<int>(this, 'key') as int;
+  @override
+  set key(int value) => RealmObjectBase.set(this, 'key', value);
+
+  @override
+  RealmSet<bool> get boolSet =>
+      RealmObjectBase.get<bool>(this, 'boolSet') as RealmSet<bool>;
+  @override
+  set boolSet(covariant RealmSet<bool> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<bool> get boolSetDefaultValues1 =>
+      RealmObjectBase.get<bool>(this, 'boolSetDefaultValues1')
+          as RealmSet<bool>;
+  @override
+  set boolSetDefaultValues1(covariant RealmSet<bool> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<bool> get boolSetDefaultValues2 =>
+      RealmObjectBase.get<bool>(this, 'boolSetDefaultValues2')
+          as RealmSet<bool>;
+  @override
+  set boolSetDefaultValues2(covariant RealmSet<bool> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<bool?> get nullableBoolSet =>
+      RealmObjectBase.get<bool?>(this, 'nullableBoolSet') as RealmSet<bool?>;
+  @override
+  set nullableBoolSet(covariant RealmSet<bool?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<int> get intSet =>
+      RealmObjectBase.get<int>(this, 'intSet') as RealmSet<int>;
+  @override
+  set intSet(covariant RealmSet<int> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<int> get intSetDefaultValues1 =>
+      RealmObjectBase.get<int>(this, 'intSetDefaultValues1') as RealmSet<int>;
+  @override
+  set intSetDefaultValues1(covariant RealmSet<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<int> get intSetDefaultValues2 =>
+      RealmObjectBase.get<int>(this, 'intSetDefaultValues2') as RealmSet<int>;
+  @override
+  set intSetDefaultValues2(covariant RealmSet<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<int?> get nullableintSet =>
+      RealmObjectBase.get<int?>(this, 'nullableintSet') as RealmSet<int?>;
+  @override
+  set nullableintSet(covariant RealmSet<int?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<String> get stringSet =>
+      RealmObjectBase.get<String>(this, 'stringSet') as RealmSet<String>;
+  @override
+  set stringSet(covariant RealmSet<String> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<String> get stringSetDefaultValues1 =>
+      RealmObjectBase.get<String>(this, 'stringSetDefaultValues1')
+          as RealmSet<String>;
+  @override
+  set stringSetDefaultValues1(covariant RealmSet<String> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<String> get stringSetDefaultValues2 =>
+      RealmObjectBase.get<String>(this, 'stringSetDefaultValues2')
+          as RealmSet<String>;
+  @override
+  set stringSetDefaultValues2(covariant RealmSet<String> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<String?> get nullablestringSet =>
+      RealmObjectBase.get<String?>(this, 'nullablestringSet')
+          as RealmSet<String?>;
+  @override
+  set nullablestringSet(covariant RealmSet<String?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<double> get doubleSet =>
+      RealmObjectBase.get<double>(this, 'doubleSet') as RealmSet<double>;
+  @override
+  set doubleSet(covariant RealmSet<double> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<double> get doubleSetDefaultValues1 =>
+      RealmObjectBase.get<double>(this, 'doubleSetDefaultValues1')
+          as RealmSet<double>;
+  @override
+  set doubleSetDefaultValues1(covariant RealmSet<double> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<double> get doubleSetDefaultValues2 =>
+      RealmObjectBase.get<double>(this, 'doubleSetDefaultValues2')
+          as RealmSet<double>;
+  @override
+  set doubleSetDefaultValues2(covariant RealmSet<double> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<double?> get nullabledoubleSet =>
+      RealmObjectBase.get<double?>(this, 'nullabledoubleSet')
+          as RealmSet<double?>;
+  @override
+  set nullabledoubleSet(covariant RealmSet<double?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<DateTime> get dateTimeSet =>
+      RealmObjectBase.get<DateTime>(this, 'dateTimeSet') as RealmSet<DateTime>;
+  @override
+  set dateTimeSet(covariant RealmSet<DateTime> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<DateTime> get dateTimeSetDefaultValues1 =>
+      RealmObjectBase.get<DateTime>(this, 'dateTimeSetDefaultValues1')
+          as RealmSet<DateTime>;
+  @override
+  set dateTimeSetDefaultValues1(covariant RealmSet<DateTime> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<DateTime> get dateTimeSetDefaultValues2 =>
+      RealmObjectBase.get<DateTime>(this, 'dateTimeSetDefaultValues2')
+          as RealmSet<DateTime>;
+  @override
+  set dateTimeSetDefaultValues2(covariant RealmSet<DateTime> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<DateTime?> get nullabledateTimeSet =>
+      RealmObjectBase.get<DateTime?>(this, 'nullabledateTimeSet')
+          as RealmSet<DateTime?>;
+  @override
+  set nullabledateTimeSet(covariant RealmSet<DateTime?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<ObjectId> get objectIdSet =>
+      RealmObjectBase.get<ObjectId>(this, 'objectIdSet') as RealmSet<ObjectId>;
+  @override
+  set objectIdSet(covariant RealmSet<ObjectId> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<ObjectId> get objectIdSetDefaultValues1 =>
+      RealmObjectBase.get<ObjectId>(this, 'objectIdSetDefaultValues1')
+          as RealmSet<ObjectId>;
+  @override
+  set objectIdSetDefaultValues1(covariant RealmSet<ObjectId> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<ObjectId> get objectIdSetDefaultValues2 =>
+      RealmObjectBase.get<ObjectId>(this, 'objectIdSetDefaultValues2')
+          as RealmSet<ObjectId>;
+  @override
+  set objectIdSetDefaultValues2(covariant RealmSet<ObjectId> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<ObjectId?> get nullableobjectIdSet =>
+      RealmObjectBase.get<ObjectId?>(this, 'nullableobjectIdSet')
+          as RealmSet<ObjectId?>;
+  @override
+  set nullableobjectIdSet(covariant RealmSet<ObjectId?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<Uuid> get uuidSet =>
+      RealmObjectBase.get<Uuid>(this, 'uuidSet') as RealmSet<Uuid>;
+  @override
+  set uuidSet(covariant RealmSet<Uuid> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<Uuid> get uuidSetDefaultValues1 =>
+      RealmObjectBase.get<Uuid>(this, 'uuidSetDefaultValues1')
+          as RealmSet<Uuid>;
+  @override
+  set uuidSetDefaultValues1(covariant RealmSet<Uuid> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<Uuid> get uuidSetDefaultValues2 =>
+      RealmObjectBase.get<Uuid>(this, 'uuidSetDefaultValues2')
+          as RealmSet<Uuid>;
+  @override
+  set uuidSetDefaultValues2(covariant RealmSet<Uuid> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<Uuid?> get nullableuuidSet =>
+      RealmObjectBase.get<Uuid?>(this, 'nullableuuidSet') as RealmSet<Uuid?>;
+  @override
+  set nullableuuidSet(covariant RealmSet<Uuid?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<RealmSets>> get changes =>
+      RealmObjectBase.getChanges<RealmSets>(this);
+
+  @override
+  RealmSets freeze() => RealmObjectBase.freezeObject<RealmSets>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(RealmSets._);
+    return const SchemaObject(ObjectType.realmObject, RealmSets, 'RealmSets', [
+      SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
+      SchemaProperty('boolSet', RealmPropertyType.bool,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('boolSetDefaultValues1', RealmPropertyType.bool,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('boolSetDefaultValues2', RealmPropertyType.bool,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableBoolSet', RealmPropertyType.bool,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('intSet', RealmPropertyType.int,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('intSetDefaultValues1', RealmPropertyType.int,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('intSetDefaultValues2', RealmPropertyType.int,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableintSet', RealmPropertyType.int,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('stringSet', RealmPropertyType.string,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('stringSetDefaultValues1', RealmPropertyType.string,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('stringSetDefaultValues2', RealmPropertyType.string,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('nullablestringSet', RealmPropertyType.string,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('doubleSet', RealmPropertyType.double,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('doubleSetDefaultValues1', RealmPropertyType.double,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('doubleSetDefaultValues2', RealmPropertyType.double,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('nullabledoubleSet', RealmPropertyType.double,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('dateTimeSet', RealmPropertyType.timestamp,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('dateTimeSetDefaultValues1', RealmPropertyType.timestamp,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('dateTimeSetDefaultValues2', RealmPropertyType.timestamp,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('nullabledateTimeSet', RealmPropertyType.timestamp,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('objectIdSet', RealmPropertyType.objectid,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('objectIdSetDefaultValues1', RealmPropertyType.objectid,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('objectIdSetDefaultValues2', RealmPropertyType.objectid,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableobjectIdSet', RealmPropertyType.objectid,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('uuidSet', RealmPropertyType.uuid,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('uuidSetDefaultValues1', RealmPropertyType.uuid,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('uuidSetDefaultValues2', RealmPropertyType.uuid,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableuuidSet', RealmPropertyType.uuid,
+          optional: true, collectionType: RealmCollectionType.set),
+    ]);
+  }
+}

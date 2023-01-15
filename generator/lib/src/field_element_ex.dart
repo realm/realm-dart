@@ -37,6 +37,8 @@ import 'session.dart';
 import 'type_checkers.dart';
 
 extension FieldElementEx on FieldElement {
+  static const realmSetUnsupportedRealmTypes = [RealmPropertyType.binary, RealmPropertyType.object, RealmPropertyType.linkingObjects];
+
   FieldDeclaration get declarationAstNode => getDeclarationFromElement(this)!.node.parent!.parent as FieldDeclaration;
 
   AnnotationValue? get ignoredInfo => annotationInfoOfExact(ignoredChecker);
@@ -82,8 +84,7 @@ extension FieldElementEx on FieldElement {
       final backlink = backlinkInfo;
 
       // Check for as-of-yet unsupported type
-      if (type.isDartCoreSet || //
-          type.isDartCoreMap ||
+      if (type.isDartCoreMap ||
           type.isExactly<Decimal128>()) {
         throw RealmInvalidGenerationSourceError(
           'Field type not supported yet',
@@ -186,7 +187,7 @@ extension FieldElementEx on FieldElement {
       } else {
         // Validate collections and backlinks
         if (type.isRealmCollection || backlink != null) {
-          final typeDescription = type.isRealmCollection ? 'collections' : 'backlinks';
+          final typeDescription = type.isRealmCollection ? (type.isRealmSet ? 'sets' :  'collections') : 'backlinks';
           if (type.isNullable) {
             throw RealmInvalidGenerationSourceError(
               'Realm $typeDescription cannot be nullable',
@@ -203,6 +204,14 @@ extension FieldElementEx on FieldElement {
                 primaryLabel: 'which has a nullable realm object element type',
                 element: this,
                 todo: 'Ensure element type is non-nullable');
+          }
+
+          if (type.isRealmSet && realmSetUnsupportedRealmTypes.contains(realmType)) {
+            throw RealmInvalidGenerationSourceError('$type is not supported',
+                primarySpan: typeSpan(file),
+                primaryLabel: 'Set element type is not supported',
+                element: this,
+                todo: 'Ensure set element type ${(type as ParameterizedType).typeArguments.first} is a type supported by RealmSet');
           }
         }
 

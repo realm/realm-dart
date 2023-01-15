@@ -57,10 +57,9 @@
             "name": "Debug Generator Tests",
             "type": "dart",
             "request": "launch",
-            "program": "test/good_test.dart",
+            "program": "test/error_test.dart",
+            "args": ["-p", "vm", "-n", "unsupported_realm_type_set"],
             "cwd": "generator",
-            "toolArgs": ["--observe --pause-isolates-on-start  --enable-vm-service:5858/127.0.0.1  --disable-service-auth-codes"],
-            "args": ["--plain-name 'all_types.dart'"]
         },
     ]
 }

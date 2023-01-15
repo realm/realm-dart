@@ -76,8 +76,6 @@ class _TestRealmSets {
   late Set<ObjectId?> nullableObjectIdSet;
   late Set<Uuid?> nullableUuidSet;
 
-  @Ignored()
-
   /// When changing update also `supportedTypes`
   Sets setByType(Type type) {
     switch (type) {
