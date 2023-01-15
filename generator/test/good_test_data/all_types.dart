@@ -91,4 +91,9 @@ class _RealmSets {
   Set<Uuid> uuidSetDefaultValues1 = { Uuid.fromString("1"), Uuid.fromString("2") };
   var uuidSetDefaultValues2 = <Uuid>{ Uuid.fromString("3"), Uuid.fromString("4") };
   late Set<Uuid?> nullableuuidSet;
+
+  late Set<RealmValue> realmValueSet;
+  Set<RealmValue> realmValueSetDefaultValues1 = { RealmValue.from(null), RealmValue.from("2") };
+  var realmValueSetDefaultValues2 = <RealmValue>{ RealmValue.from(3), RealmValue.from(true) };
+  // late Set<RealmValue?> nullablerealmValueSet;
 }

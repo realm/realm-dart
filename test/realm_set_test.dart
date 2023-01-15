@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:typed_data';
+
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -46,6 +48,7 @@ List<Type> supportedTypes = [
   DateTime,
   ObjectId,
   Uuid,
+  RealmValue,
   _NullableBool,
   _NullableInt,
   _NullableString,
@@ -67,6 +70,7 @@ class _TestRealmSets {
   late Set<DateTime> dateTimeSet;
   late Set<ObjectId> objectIdSet;
   late Set<Uuid> uuidSet;
+  late Set<RealmValue> mixedSet;
 
   late Set<bool?> nullableBoolSet;
   late Set<int?> nullableIntSet;
@@ -93,6 +97,8 @@ class _TestRealmSets {
         return Sets(objectIdSet as RealmSet<ObjectId>, [ObjectId.fromTimestamp(DateTime(2023).toUtc()), ObjectId.fromTimestamp(DateTime(1981).toUtc())]);
       case Uuid:
         return Sets(uuidSet as RealmSet<Uuid>, [Uuid.fromString("12345678123456781234567812345678"), Uuid.fromString("82345678123456781234567812345678")]);
+      case RealmValue:
+        return Sets(mixedSet as RealmSet<RealmValue>, [RealmValue.nullValue(), RealmValue.bool(true), RealmValue.int(1), RealmValue.string("text")]);
       case _NullableBool:
         return Sets(nullableBoolSet as RealmSet<bool?>, [...setByType(bool).values, null]);
       case _NullableInt:

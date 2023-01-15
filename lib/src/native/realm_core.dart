@@ -1196,7 +1196,12 @@ class _RealmCore {
     return using((Arena arena) {
       final realm_value = arena<realm_value_t>();
       _realmLib.invokeGetBool(() => _realmLib.realm_set_get(realmSet.handle._pointer, index, realm_value));
-      return realm_value.toDartValue(realmSet.realm);
+      final result = realm_value.toDartValue(realmSet.realm);
+      if (realmSet is RealmSet<RealmValue>) {
+        return RealmValue.from(result);
+      }
+
+      return result;
     });
   }
 

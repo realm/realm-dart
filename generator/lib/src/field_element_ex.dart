@@ -206,12 +206,23 @@ extension FieldElementEx on FieldElement {
                 todo: 'Ensure element type is non-nullable');
           }
 
-          if (type.isRealmSet && realmSetUnsupportedRealmTypes.contains(realmType)) {
-            throw RealmInvalidGenerationSourceError('$type is not supported',
-                primarySpan: typeSpan(file),
-                primaryLabel: 'Set element type is not supported',
-                element: this,
-                todo: 'Ensure set element type ${(type as ParameterizedType).typeArguments.first} is a type supported by RealmSet');
+          if (type.isRealmSet) {
+            final typeArgument = (type as ParameterizedType).typeArguments.first;
+            if (realmSetUnsupportedRealmTypes.contains(realmType)) {
+              throw RealmInvalidGenerationSourceError('$type is not supported',
+                  primarySpan: typeSpan(file),
+                  primaryLabel: 'Set element type is not supported',
+                  element: this,
+                  todo: 'Ensure set element type ${typeArgument} is a type supported by RealmSet');
+            }
+
+            if (realmType == RealmPropertyType.mixed && typeArgument.isNullable) {
+              throw RealmInvalidGenerationSourceError('$type is not supported',
+                  primarySpan: typeSpan(file),
+                  primaryLabel: 'Set of nullable RealmValues is not supported',
+                  element: this,
+                  todo: 'Did you mean to use Set<RealmValue> instead.');
+            }
           }
         }
 

@@ -334,6 +334,15 @@ class RealmSets extends _RealmSets
       Uuid.fromString("4")
     },
     Set<Uuid?> nullableuuidSet = const {},
+    Set<RealmValue> realmValueSet = const {},
+    Set<RealmValue> realmValueSetDefaultValues1 = {
+      RealmValue.from(null),
+      RealmValue.from("2")
+    },
+    Set<RealmValue> realmValueSetDefaultValues2 = <RealmValue>{
+      RealmValue.from(3),
+      RealmValue.from(true)
+    },
   }) {
     RealmObjectBase.set(this, 'key', key);
     RealmObjectBase.set<RealmSet<bool>>(
@@ -391,6 +400,16 @@ class RealmSets extends _RealmSets
         this, 'uuidSetDefaultValues2', RealmSet<Uuid>(uuidSetDefaultValues2));
     RealmObjectBase.set<RealmSet<Uuid?>>(
         this, 'nullableuuidSet', RealmSet<Uuid?>(nullableuuidSet));
+    RealmObjectBase.set<RealmSet<RealmValue>>(
+        this, 'realmValueSet', RealmSet<RealmValue>(realmValueSet));
+    RealmObjectBase.set<RealmSet<RealmValue>>(
+        this,
+        'realmValueSetDefaultValues1',
+        RealmSet<RealmValue>(realmValueSetDefaultValues1));
+    RealmObjectBase.set<RealmSet<RealmValue>>(
+        this,
+        'realmValueSetDefaultValues2',
+        RealmSet<RealmValue>(realmValueSetDefaultValues2));
   }
 
   RealmSets._();
@@ -612,6 +631,30 @@ class RealmSets extends _RealmSets
       throw RealmUnsupportedSetError();
 
   @override
+  RealmSet<RealmValue> get realmValueSet =>
+      RealmObjectBase.get<RealmValue>(this, 'realmValueSet')
+          as RealmSet<RealmValue>;
+  @override
+  set realmValueSet(covariant RealmSet<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<RealmValue> get realmValueSetDefaultValues1 =>
+      RealmObjectBase.get<RealmValue>(this, 'realmValueSetDefaultValues1')
+          as RealmSet<RealmValue>;
+  @override
+  set realmValueSetDefaultValues1(covariant RealmSet<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<RealmValue> get realmValueSetDefaultValues2 =>
+      RealmObjectBase.get<RealmValue>(this, 'realmValueSetDefaultValues2')
+          as RealmSet<RealmValue>;
+  @override
+  set realmValueSetDefaultValues2(covariant RealmSet<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
   Stream<RealmObjectChanges<RealmSets>> get changes =>
       RealmObjectBase.getChanges<RealmSets>(this);
 
@@ -679,6 +722,12 @@ class RealmSets extends _RealmSets
       SchemaProperty('uuidSetDefaultValues2', RealmPropertyType.uuid,
           collectionType: RealmCollectionType.set),
       SchemaProperty('nullableuuidSet', RealmPropertyType.uuid,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('realmValueSet', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('realmValueSetDefaultValues1', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('realmValueSetDefaultValues2', RealmPropertyType.mixed,
           optional: true, collectionType: RealmCollectionType.set),
     ]);
   }
