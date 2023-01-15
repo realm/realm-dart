@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
-import 'package:args/args.dart';
 import 'package:path/path.dart' as _path;
 import 'package:dart_style/dart_style.dart';
 import 'package:build_test/build_test.dart';
@@ -140,23 +139,3 @@ String _stringReplacements(String content) {
 String getTestName(String file) {
   return _path.basename(file);
 }
-
-Map<String, String?> parseTestArguments(List<String>? arguments) {
-  Map<String, String?> testArgs = {};
-  final parser = ArgParser()..addOption("name");
-
-  final result = parser.parse(arguments ?? []);
-  testArgs.addArgument(result, "name");
-
-  return testArgs;
-}
-
-extension on Map<String, String?> {
-  void addArgument(ArgResults parsedResult, String argName) {
-    final value = parsedResult.wasParsed(argName) ? parsedResult[argName]?.toString() : Platform.environment[argName];
-    if (value != null && value.isNotEmpty) {
-      this[argName] = value;
-    }
-  }
-}
-
