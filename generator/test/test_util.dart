@@ -121,7 +121,7 @@ Future<String> readFileAsErrorFormattedString(String directoryName, String outpu
   var file = File(_path.join(Directory.current.path, '$directoryName/$outputFilePath'));
   String content = await file.readAsString(encoding: utf8);
   if (Platform.isWindows) {
-    var macToWinSymbols = {'╷': ',', '━': '=', '╵': '\'', '│': '|', '─': '-', '┌': ',', '└': '\''};
+    final macToWinSymbols = {'╷': ',', '━': '=', '╵': '\'', '│': '|', '─': '-', '┌': ',', '└': '\''};
     macToWinSymbols.forEach((key, value) {
       content = content.replaceAll(key, value);
     });
