@@ -535,7 +535,7 @@ class Realm implements Finalizable {
     realmCore.writeCopy(this, config);
   }
 
-  void writeCopyTo(String toFile, List<int>? encryptionKey) {
+  void writeCopyTo(String toFile, {List<int>? encryptionKey}) {
     realmCore.writeCopyTo(this, toFile, encryptionKey);
   }
 }

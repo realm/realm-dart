@@ -1556,37 +1556,59 @@ Future<void> main([List<String>? args]) async {
     final config = Configuration.local([Car.schema]);
     final realm = getRealm(config);
     expect(() => realm.writeCopy(config), throws<RealmException>("File at path '${config.path}' already exists"));
-    realm.close();
+  });
+
+  test('Realm writeCopyTo Local to existing Local', () {
+    final config = Configuration.local([Car.schema]);
+    final realm = getRealm(config);
+    expect(() => realm.writeCopyTo(config.path), throws<RealmException>("File at path '${config.path}' already exists"));
   });
 
   test('Realm writeCopy empty Local to Local', () {
     final config = Configuration.local([Car.schema]);
     final newPath = config.path.replaceFirst(p.basenameWithoutExtension(config.path), generateRandomString(10));
-    final copyConfig = Configuration.local([Car.schema], path: newPath);
+    final configCopy = Configuration.local([Car.schema], path: newPath);
     final realm = getRealm(config);
-    realm.writeCopy(copyConfig);
-    realm.close();
-    final copyRealm = getRealm(copyConfig);
-    copyRealm.close();
-    expect(File(copyConfig.path).existsSync(), isTrue);
+    realm.writeCopy(configCopy);
+    expect(File(configCopy.path).existsSync(), isTrue);
+    final copyRealm = getRealm(configCopy);
+    expect(copyRealm.all<Car>().length, 0);
+    expect(copyRealm.isClosed, isFalse);
   });
 
   test('Realm writeCopy full Local to Local', () {
     final config = Configuration.local([Car.schema]);
     final newPath = config.path.replaceFirst(p.basenameWithoutExtension(config.path), generateRandomString(10));
-    final copyConfig = Configuration.local([Car.schema], path: newPath);
+    final configCopy = Configuration.local([Car.schema], path: newPath);
     final realm = getRealm(config);
-
+    const itemsCount = 100;
     realm.write(() {
-      for (var i = 0; i < 100; i++) {
+      for (var i = 0; i < itemsCount; i++) {
         realm.add(Car("make_${i + 1}"));
       }
     });
-    realm.writeCopy(copyConfig);
-    realm.close();
-    final copyRealm = getRealm(copyConfig);
-    copyRealm.close();
-    expect(File(config.path).lengthSync(), File(copyConfig.path).lengthSync());
+    realm.writeCopy(configCopy);
+    expect(File(configCopy.path).existsSync(), isTrue);
+    final copyRealm = getRealm(configCopy);
+    expect(copyRealm.all<Car>().length, itemsCount);
+    expect(copyRealm.isClosed, isFalse);
+  });
+
+  test('Realm writeCopyTo full Local to Local', () {
+    final config = Configuration.local([Car.schema]);
+    final newPath = config.path.replaceFirst(p.basenameWithoutExtension(config.path), generateRandomString(10));
+    final realm = getRealm(config);
+    const itemsCount = 100;
+    realm.write(() {
+      for (var i = 0; i < itemsCount; i++) {
+        realm.add(Car("make_${i + 1}"));
+      }
+    });
+    realm.writeCopyTo(newPath);
+    expect(File(newPath).existsSync(), isTrue);
+    final copyRealm = getRealm(Configuration.local([Car.schema], path: newPath));
+    expect(copyRealm.all<Car>().length, itemsCount);
+    expect(copyRealm.isClosed, isFalse);
   });
 }
 
