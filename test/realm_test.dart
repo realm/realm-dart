@@ -1567,12 +1567,13 @@ Future<void> main([List<String>? args]) async {
           for (List<int>? openEncryptedKey in [destinationEncryptedKey, generateEncryptionKey()]) {
             final methodName = isWriteCopyTo ? "writeCopyTo" : "writeCopy";
             final dataState = isEmpty ? "empty" : "populated";
-            final encryptedState =
-                '${sourceEncryptedKey != null ? "encrypted " : ""}Local to ${destinationEncryptedKey != null ? "encrypted ${sourceEncryptedKey != null && sourceEncryptedKey == destinationEncryptedKey ? "with the same key " : "with different key "}" : ""}Local';
+            final sourceEncryptedState = '${sourceEncryptedKey != null ? "encrypted " : ""}Local';
+            final destinationEncryptedState =
+                'to ${destinationEncryptedKey != null ? "encrypted with ${sourceEncryptedKey != null && sourceEncryptedKey == destinationEncryptedKey ? "the same" : "different"} key " : ""}Local';
             final openState = destinationEncryptedKey == openEncryptedKey
                 ? "can be opened ${openEncryptedKey != null ? "with a valid key" : ""}"
-                : " - open with invalid key throws";
-            final testDescription = '$methodName $dataState $encryptedState $openState';
+                : "- open with invalid key throws";
+            final testDescription = '$methodName $dataState $sourceEncryptedState $destinationEncryptedState $openState';
             test('Realm $testDescription', () {
               final config = Configuration.local([Car.schema], encryptionKey: sourceEncryptedKey, path: generateRandomRealmPath());
               final realm = getRealm(config);
