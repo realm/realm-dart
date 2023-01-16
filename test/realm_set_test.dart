@@ -39,6 +39,8 @@ class _NullableObjectId {}
 
 class _NullableUuid {}
 
+class _NullableObjects {}
+
 /// When changing update also `setByType`
 List<Type> supportedTypes = [
   bool,
@@ -49,6 +51,7 @@ List<Type> supportedTypes = [
   ObjectId,
   Uuid,
   RealmValue,
+  RealmObject,
   _NullableBool,
   _NullableInt,
   _NullableString,
@@ -57,6 +60,12 @@ List<Type> supportedTypes = [
   _NullableObjectId,
   _NullableUuid
 ];
+
+@RealmModel()
+class _Car {
+  @PrimaryKey()
+  late String make;
+}
 
 @RealmModel()
 class _TestRealmSets {
@@ -71,6 +80,7 @@ class _TestRealmSets {
   late Set<ObjectId> objectIdSet;
   late Set<Uuid> uuidSet;
   late Set<RealmValue> mixedSet;
+  late Set<Car> objectsSet;
 
   late Set<bool?> nullableBoolSet;
   late Set<int?> nullableIntSet;
@@ -88,7 +98,7 @@ class _TestRealmSets {
       case int:
         return Sets(intSet as RealmSet<int>, [-1, 0, 1]);
       case String:
-        return Sets(stringSet as RealmSet<String>, ['Tesla', 'VW', 'Audi', 'Opel']);
+        return Sets(stringSet as RealmSet<String>, ['Tesla', 'VW', 'Audi']);
       case double:
         return Sets(doubleSet as RealmSet<double>, [-1.1, 0.1, 1.1, 2.2, 3.3, 3.14]);
       case DateTime:
@@ -99,6 +109,8 @@ class _TestRealmSets {
         return Sets(uuidSet as RealmSet<Uuid>, [Uuid.fromString("12345678123456781234567812345678"), Uuid.fromString("82345678123456781234567812345678")]);
       case RealmValue:
         return Sets(mixedSet as RealmSet<RealmValue>, [RealmValue.nullValue(), RealmValue.bool(true), RealmValue.int(1), RealmValue.string("text")]);
+      case RealmObject:
+        return Sets(objectsSet as RealmSet<Car>, [Car("Tesla"), Car("VW"), Car("Audi")], (realm, value) => realm.find<Car>((value as Car).make));
       case _NullableBool:
         return Sets(nullableBoolSet as RealmSet<bool?>, [...setByType(bool).values, null]);
       case _NullableInt:
@@ -118,17 +130,29 @@ class _TestRealmSets {
     }
   }
 
-  @Ignored()
   List<Object?> values(Type type) {
     return setByType(type).values;
+  }
+
+  List<Object?> getValuesOrManagedValues(Realm realm, Type type) {
+    Sets set = setByType(type);
+    if (set.values.first is! RealmObject) {
+      return set.values;
+    }
+
+    return set.values.map<Object?>((value) {
+      RealmObject? realmValue = set.getRealmObject!(realm, value as RealmObject);
+      return realmValue;
+    }).toList();
   }
 }
 
 class Sets {
   final RealmSet<Object?> set;
   final List<Object?> values;
+  RealmObject? Function(Realm realm, RealmObject value)? getRealmObject = (realm, value) => value;
 
-  const Sets(this.set, this.values);
+  Sets(this.set, this.values, [this.getRealmObject]);
 }
 
 Future<void> main([List<String>? args]) async {
@@ -174,7 +198,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     test('RealmSet<$type> create', () {
-      var config = Configuration.local([TestRealmSets.schema]);
+      var config = Configuration.local([TestRealmSets.schema, Car.schema]);
       var realm = getRealm(config);
 
       var testSet = TestRealmSets(1);
@@ -192,7 +216,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     test('RealmSet<$type> create from unmanaged', () {
-      var config = Configuration.local([TestRealmSets.schema]);
+      var config = Configuration.local([TestRealmSets.schema, Car.schema]);
       var realm = getRealm(config);
 
       var testSet = TestRealmSets(1);
@@ -209,8 +233,8 @@ Future<void> main([List<String>? args]) async {
 
       testSet = realm.find<TestRealmSets>(1)!;
       set = testSet.setByType(type).set;
-      values = testSet.values(type);
       expect(set.length, equals(values.length));
+      values = testSet.getValuesOrManagedValues(realm, type);
 
       for (var value in values) {
         expect(set.contains(value), true);
@@ -218,7 +242,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     test('RealmSet<$type> contains', () {
-      var config = Configuration.local([TestRealmSets.schema]);
+      var config = Configuration.local([TestRealmSets.schema, Car.schema]);
       var realm = getRealm(config);
 
       var testSet = TestRealmSets(1);
@@ -230,7 +254,7 @@ Future<void> main([List<String>? args]) async {
       });
 
       set = testSet.setByType(type).set;
-
+      
       expect(set.contains(values.first), false);
 
       realm.write(() {
@@ -243,7 +267,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     test('RealmSet<$type> add', () {
-      var config = Configuration.local([TestRealmSets.schema]);
+      var config = Configuration.local([TestRealmSets.schema, Car.schema]);
       var realm = getRealm(config);
 
       final testSet = TestRealmSets(1);
@@ -257,13 +281,14 @@ Future<void> main([List<String>? args]) async {
       });
 
       var set = testSet.setByType(type).set;
-      values = testSet.values(type);
+      // values = testSet.values(type);
+      values = testSet.getValuesOrManagedValues(realm, type);
 
       expect(set.contains(values.first), true);
     });
 
     test('RealmSet<$type> remove', () {
-      var config = Configuration.local([TestRealmSets.schema]);
+      var config = Configuration.local([TestRealmSets.schema, Car.schema]);
       var realm = getRealm(config);
 
       var testSet = TestRealmSets(1);
@@ -289,7 +314,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     test('RealmSet<$type> length', () {
-      var config = Configuration.local([TestRealmSets.schema]);
+      var config = Configuration.local([TestRealmSets.schema, Car.schema]);
       var realm = getRealm(config);
 
       final testSet = TestRealmSets(1);
@@ -318,7 +343,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     test('RealmSet<$type> elementAt', () {
-      var config = Configuration.local([TestRealmSets.schema]);
+      var config = Configuration.local([TestRealmSets.schema, Car.schema]);
       var realm = getRealm(config);
 
       final testSet = TestRealmSets(1);
@@ -332,11 +357,13 @@ Future<void> main([List<String>? args]) async {
 
       var set = testSet.setByType(type).set;
 
+      expect(() => set.elementAt(-1), throws<RealmException>("Index out of range"));
+      expect(() => set.elementAt(800), throws<RealmException>());
       expect(set.elementAt(0), values[0]);
     });
 
     test('RealmSet<$type> lookup', () {
-      var config = Configuration.local([TestRealmSets.schema]);
+      var config = Configuration.local([TestRealmSets.schema, Car.schema]);
       var realm = getRealm(config);
 
       final testSet = TestRealmSets(1);
@@ -357,7 +384,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     test('RealmSet<$type> toSet', () {
-      var config = Configuration.local([TestRealmSets.schema]);
+      var config = Configuration.local([TestRealmSets.schema, Car.schema]);
       var realm = getRealm(config);
 
       final testSet = TestRealmSets(1);
@@ -379,7 +406,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     test('RealmSet<$type> clear', () {
-      var config = Configuration.local([TestRealmSets.schema]);
+      var config = Configuration.local([TestRealmSets.schema, Car.schema]);
       var realm = getRealm(config);
 
       final testSet = TestRealmSets(1);
@@ -405,7 +432,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     test('RealmSet<$type> iterator', () {
-      var config = Configuration.local([TestRealmSets.schema]);
+      var config = Configuration.local([TestRealmSets.schema, Car.schema]);
       var realm = getRealm(config);
 
       var testSet = TestRealmSets(1);
@@ -429,7 +456,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     test('RealmSet<$type> notifications', () async {
-      var config = Configuration.local([TestRealmSets.schema]);
+      var config = Configuration.local([TestRealmSets.schema, Car.schema]);
       var realm = getRealm(config);
 
       var testSet = TestRealmSets(1);

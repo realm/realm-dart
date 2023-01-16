@@ -258,6 +258,10 @@ class RealmCoreAccessor implements RealmAccessor {
         // TODO: use realmSetAssign when available in C-API
         //realmCore.realmSetAssign(handle, value.toList());
         for (var element in value) {
+          if (element is RealmObject) {
+            object.realm.add(element, update: true);
+          }
+
           final result = realmCore.realmSetInsert(handle, element);
           if (!result) {
             throw RealmException("Error while adding value $element in RealmSet");
