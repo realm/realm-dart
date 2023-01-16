@@ -2,12 +2,12 @@ Set<RealmValue?> is not supported
 
 in: asset:pkg/test/error_test_data/unsupported_realm_set_of_nullable_realmvalue.dart:10:8
     ╷
-5   | @RealmModel()
-6   | class _Bad {
-    |       ==== in realm model for 'Bad'
-... |
-10  |   late Set<RealmValue?> wrong1;
-    |        ^^^^^^^^^^^^^^^^ Set of nullable RealmValues is not supported
-    '
+5   │ @RealmModel()
+6   │ class _Bad {
+    │       ━━━━ in realm model for 'Bad'
+... │
+10  │   late Set<RealmValue?> wrong1;
+    │        ^^^^^^^^^^^^^^^^ Set of nullable RealmValues is not supported
+    ╵
 Did you mean to use Set<RealmValue> instead.
 
