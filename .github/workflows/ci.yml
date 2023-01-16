@@ -242,18 +242,18 @@ jobs:
   #    app: fw
   #    cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
-  flutter-desktop-tests-macos-arm:
-    name: MacOS Arm Flutter Tests
-    uses: ./.github/workflows/flutter-desktop-tests.yml
-    needs:
-      - build-macos
-      - deploy-cluster
-    secrets: inherit
-    with:
-     os: macos
-     app: fma
-     architecture: arm
-     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
+  # flutter-desktop-tests-macos-arm:
+  #   name: MacOS Arm Flutter Tests
+  #   uses: ./.github/workflows/flutter-desktop-tests.yml
+  #   needs:
+  #     - build-macos
+  #     - deploy-cluster
+  #   secrets: inherit
+  #   with:
+  #    os: macos
+  #    app: fma
+  #    architecture: arm
+  #    cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   flutter-desktop-tests-macos:
     name: MacOS Arm Flutter Tests
