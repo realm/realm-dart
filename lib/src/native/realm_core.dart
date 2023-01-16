@@ -1246,7 +1246,7 @@ class _RealmCore {
       final valuesPtr = arena.allocate<realm_value_t>(len);
       for (var i = 0; i < len; i++) {
         final value = values[i];
-        final valPtr =  valuesPtr.elementAt(i);
+        final valPtr = valuesPtr.elementAt(i);
         _intoRealmValue(value, valPtr, arena);
       }
 
@@ -1254,7 +1254,11 @@ class _RealmCore {
     });
   }
 
-   RealmNotificationTokenHandle subscribeSetNotifications(RealmSet realmSet, NotificationsController controller) {
+  void realmSetRemoveAll(RealmSet realmSet) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_set_remove_all(realmSet.handle._pointer));
+  }
+
+  RealmNotificationTokenHandle subscribeSetNotifications(RealmSet realmSet, NotificationsController controller) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_set_add_notification_callback(
           realmSet.handle._pointer,
           controller.toWeakHandle(),

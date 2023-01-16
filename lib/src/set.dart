@@ -95,8 +95,7 @@ abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity i
   @override
   bool remove(covariant T value); //Note: explicitly overriding remove() to change parameter type
 
-  //TODO: When adding Set of RealmObjects support: Removing a RealmObject is different than removing a primitive value
-  /// Clear the set and if it is RealmSet<RealmObject> delete all realm objects from the realm.
+  /// Clear the set and if it is a set of Realm objects, delete all realm objects from the realm.
   void deleteAll();
 }
 
@@ -115,6 +114,7 @@ class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> w
   @override
   Stream<RealmSetChanges<T>> get changes => throw RealmStateError("Unmanaged RealmSets don't support changes");
 
+  @override
   void deleteAll() => super.clear();
 }
 
@@ -206,8 +206,8 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
   @override
   void clear() => realmCore.realmSetClear(_handle);
 
-  //TODO: implement
-  void deleteAll() => RealmError("Not implemented");
+  @override
+  void deleteAll() => realmCore.realmSetRemoveAll(this);
 
   @override
   int get length => realmCore.realmSetSize(this);

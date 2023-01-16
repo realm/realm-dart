@@ -254,7 +254,7 @@ Future<void> main([List<String>? args]) async {
       });
 
       set = testSet.setByType(type).set;
-      
+
       expect(set.contains(values.first), false);
 
       realm.write(() {
@@ -508,4 +508,28 @@ Future<void> main([List<String>? args]) async {
       await Future<void>.delayed(Duration(milliseconds: 20));
     });
   }
+
+  test('RealmSet<RealmObject> deleteAll', () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    var testSet = TestRealmSets(1)..objectsSet.addAll([Car("Tesla"), Car("Audi")]);
+
+    realm.write(() {
+      realm.add(testSet);
+    });
+
+    expect(realm.find<TestRealmSets>(1), isNotNull);
+
+    testSet = realm.find<TestRealmSets>(1)!;
+    expect(testSet.objectsSet.length, 2);
+    expect(realm.all<Car>().length, 2);
+
+    realm.write(() {
+      testSet.objectsSet.deleteAll();
+    });
+
+    expect(testSet.objectsSet.length, 0);
+    expect(realm.all<Car>().length, 0);
+  });
 }
