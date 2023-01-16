@@ -3,7 +3,7 @@
 **This project is in Release Candidate stage.**
 
 ### Enhancements
-* Exposed realm `writeCopy` and `writeCopyTo` API to copy a Realm file and optionally encrypt it with a different key. ([#1103](https://github.com/realm/realm-dart/pull/1103))
+* Exposed realm `writeCopy` API to copy a Realm file and optionally encrypt it with a different key. ([#1103](https://github.com/realm/realm-dart/pull/1103))
 
 ### Fixed
 * None
