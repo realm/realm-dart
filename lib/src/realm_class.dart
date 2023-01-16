@@ -540,6 +540,7 @@ class Realm implements Finalizable {
   /// 3. When using Sync, it is required that all local changes are synchronized with the server before the copy can be written.
   ///    This is to be sure that the file can be used as a starting point for a newly installed application.
   ///    The function will throw if there are pending uploads.
+  /// 4. Converting a Local `Realm` to Sync `Realm` is not supported.
   void writeCopy(Configuration config) {
     realmCore.writeCopy(this, config);
   }

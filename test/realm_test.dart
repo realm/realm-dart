@@ -1564,9 +1564,85 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.writeCopy(Configuration.local([Car.schema], path: path)), throws<RealmException>("Directory at path '$path' does not exist"));
   });
 
+  baasTest('Realm writeCopy Local->Sync is not supported', (appConfiguration) async {
+    final originalConfig = Configuration.local([Product.schema]);
+    final originalRealm = getRealm(originalConfig);
+
+    final app = App(appConfiguration);
+    final credentials = Credentials.anonymous(reuseCredentials: false);
+    var user = await app.logIn(credentials);
+    final configCopy = Configuration.flexibleSync(user, [Product.schema]);
+    expect(() => originalRealm.writeCopy(configCopy),
+        throws<RealmException>("Realm cannot be converted to a flexible sync realm unless flexible sync is already enabled"));
+  });
+
+  test('Realm writeCopy Local->Local inside a write block', () {
+    final originalConfig = Configuration.local([Car.schema]);
+    final originalRealm = getRealm(originalConfig);
+    final pathCopy = originalConfig.path.replaceFirst(p.basenameWithoutExtension(originalConfig.path), generateRandomString(10));
+    final configCopy = Configuration.local([Car.schema], path: pathCopy);
+    var itemsCount = 10;
+    originalRealm.write(() {
+      for (var i = 0; i < itemsCount; i++) {
+        originalRealm.add(Car("make_${i + 1}"));
+      }
+      originalRealm.writeCopy(configCopy);
+    });
+    originalRealm.close();
+
+    expect(File(pathCopy).existsSync(), isTrue);
+    final copiedRealm = getRealm(configCopy);
+    expect(copiedRealm.all<Car>().length, itemsCount);
+    expect(copiedRealm.isClosed, isFalse);
+    copiedRealm.close();
+  });
+
+  test('Realm writeCopy Local->Local read-only', () {
+    final originalConfig = Configuration.local([Car.schema]);
+    final originalRealm = getRealm(originalConfig);
+    final pathCopy = originalConfig.path.replaceFirst(p.basenameWithoutExtension(originalConfig.path), generateRandomString(10));
+    final configCopy = Configuration.local([Car.schema], path: pathCopy, isReadOnly: true);
+
+    originalRealm.writeCopy(configCopy);
+    originalRealm.close();
+
+    expect(File(pathCopy).existsSync(), isTrue);
+    final copiedRealm = getRealm(configCopy);
+    expect(copiedRealm.isClosed, isFalse);
+    _expectAllWritesToThrow<RealmException>(copiedRealm, "Can't perform transactions on read-only Realms.");
+    _expectAllAsyncWritesToThrow<RealmException>(copiedRealm, "Can't perform transactions on read-only Realms.");
+
+    copiedRealm.close();
+  });
+
+  test('Realm writeCopy in-memory Local->Local', () {
+    final originalConfig = Configuration.inMemory([Car.schema]);
+    final originalRealm = getRealm(originalConfig);
+    final pathCopy = originalConfig.path.replaceFirst(p.basenameWithoutExtension(originalConfig.path), generateRandomString(10));
+    final configCopy = Configuration.local([Car.schema], path: pathCopy);
+
+    originalRealm.writeCopy(configCopy);
+    originalRealm.close();
+
+    expect(File(pathCopy).existsSync(), isTrue);
+    final copiedRealm = getRealm(configCopy);
+    expect(copiedRealm.isClosed, isFalse);
+    final itemsCount = 100;
+    copiedRealm.write(() {
+      for (var i = 0; i < itemsCount; i++) {
+        copiedRealm.add(Car("make_${i + 1}"));
+      }
+    });
+    copiedRealm.close();
+
+    final realmSecondTimeOpened = getRealm(configCopy);
+    expect(realmSecondTimeOpened.all<Car>().length, itemsCount);
+    realmSecondTimeOpened.close();
+  });
+
   // writeCopy Local to Local realm
   for (bool isEmpty in [true, false]) {
-      for (List<int>? sourceEncryptedKey in [null, generateEncryptionKey()]) {
+    for (List<int>? sourceEncryptedKey in [null, generateEncryptionKey()]) {
       for (List<int>? destinationEncryptedKey in [sourceEncryptedKey, generateEncryptionKey()]) {
         final dataState = isEmpty ? "empty" : "populated";
         final sourceEncryptedState = '${sourceEncryptedKey != null ? "encrypted " : ""}Local';
@@ -1597,53 +1673,6 @@ Future<void> main([List<String>? args]) async {
           copiedRealm.close();
         });
       }
-    }
-  }
-
-  // writeCopy Local to Sync realm
-  for (List<int>? sourceEncryptedKey in [null, generateEncryptionKey()]) {
-    for (List<int>? destinationEncryptedKey in [sourceEncryptedKey, generateEncryptionKey()]) {
-      final sourceEncryptedState = '${sourceEncryptedKey != null ? "encrypted " : ""}Local';
-      final destinationEncryptedState =
-          'to ${destinationEncryptedKey != null ? "encrypted with ${sourceEncryptedKey != null && sourceEncryptedKey == destinationEncryptedKey ? "the same" : "different"} key " : ""}Sync';
-      final testDescription = '$sourceEncryptedState $destinationEncryptedState';
-      baasTest('Realm writeCopy Local->Sync - $testDescription can be opened and synced', (appConfiguration) async {
-        final originalConfig = Configuration.local([Product.schema], encryptionKey: sourceEncryptedKey, path: generateRandomRealmPath());
-        final originalRealm = getRealm(originalConfig);
-        var itemsCount = 100;
-        final productNamePrefix = generateRandomString(10);
-        originalRealm.write(() {
-          for (var i = 0; i < itemsCount; i++) {
-            originalRealm.add(Product(ObjectId(), "${productNamePrefix}_${i + 1}"));
-          }
-        });
-
-        final app = App(appConfiguration);
-        final credentials = Credentials.anonymous(reuseCredentials: false);
-        var user = await app.logIn(credentials);
-        final configCopy = Configuration.flexibleSync(user, [Product.schema], encryptionKey: destinationEncryptedKey);
-        originalRealm.writeCopy(configCopy);
-        originalRealm.close();
-
-        expect(File(configCopy.path).existsSync(), isTrue);
-        final copiedRealm = getRealm(configCopy);
-        await _addSubscriptions(copiedRealm, productNamePrefix);
-
-        await copiedRealm.syncSession.waitForUpload();
-        await copiedRealm.syncSession.waitForDownload();
-        expect(copiedRealm.all<Product>().length, itemsCount);
-        expect(copiedRealm.isClosed, isFalse);
-        copiedRealm.close();
-
-        var anotherUser = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-        final anotherUserRealm = getRealm(Configuration.flexibleSync(anotherUser, [Product.schema]));
-        await _addSubscriptions(anotherUserRealm, productNamePrefix);
-
-        await copiedRealm.syncSession.waitForUpload();
-        await copiedRealm.syncSession.waitForDownload();
-        expect(anotherUserRealm.all<Product>().length, itemsCount);
-        anotherUserRealm.close();
-      }, skip: "Core error: Realm cannot be converted to a flexible sync realm unless flexible sync is already enabled");
     }
   }
 
