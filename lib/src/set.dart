@@ -248,18 +248,6 @@ extension RealmSetInternal<T extends Object?> on RealmSet<T> {
 
   static RealmSet<T> create<T extends Object?>(RealmSetHandle handle, Realm realm, RealmObjectMetadata? metadata) =>
       ManagedRealmSet<T>._(handle, realm, metadata);
-
-  // static void setValue<T extends Object?>(RealmSetHandle handle, Realm realm, Object? value, {bool update = false}) {
-  //   try {
-  //     if (value is RealmObject && !value.isManaged) {
-  //       realm.add<RealmObject>(value, update: update);
-  //     }
-
-  //    return realmCore.realmSetInsert(handle, value);
-  //   } on Exception catch (e) {
-  //     throw RealmException("Error setting value at index $index. Error: $e");
-  //   }
-  // }
 }
 
 class _RealmSetIterator<T extends Object?> implements Iterator<T> {
