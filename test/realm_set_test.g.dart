@@ -5,6 +5,7 @@ part of 'realm_set_test.dart';
 // **************************************************************************
 // RealmObjectGenerator
 // **************************************************************************
+
 class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   Car(
     String make,
@@ -36,7 +37,8 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, RealmObject {
+class TestRealmSets extends _TestRealmSets
+    with RealmEntity, RealmObjectBase, RealmObject {
   TestRealmSets(
     int key, {
     Set<bool> boolSet = const {},
@@ -57,22 +59,37 @@ class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, Re
     Set<Uuid?> nullableUuidSet = const {},
   }) {
     RealmObjectBase.set(this, 'key', key);
-    RealmObjectBase.set<RealmSet<bool>>(this, 'boolSet', RealmSet<bool>(boolSet));
+    RealmObjectBase.set<RealmSet<bool>>(
+        this, 'boolSet', RealmSet<bool>(boolSet));
     RealmObjectBase.set<RealmSet<int>>(this, 'intSet', RealmSet<int>(intSet));
-    RealmObjectBase.set<RealmSet<String>>(this, 'stringSet', RealmSet<String>(stringSet));
-    RealmObjectBase.set<RealmSet<double>>(this, 'doubleSet', RealmSet<double>(doubleSet));
-    RealmObjectBase.set<RealmSet<DateTime>>(this, 'dateTimeSet', RealmSet<DateTime>(dateTimeSet));
-    RealmObjectBase.set<RealmSet<ObjectId>>(this, 'objectIdSet', RealmSet<ObjectId>(objectIdSet));
-    RealmObjectBase.set<RealmSet<Uuid>>(this, 'uuidSet', RealmSet<Uuid>(uuidSet));
-    RealmObjectBase.set<RealmSet<RealmValue>>(this, 'mixedSet', RealmSet<RealmValue>(mixedSet));
-    RealmObjectBase.set<RealmSet<Car>>(this, 'objectsSet', RealmSet<Car>(objectsSet));
-    RealmObjectBase.set<RealmSet<bool?>>(this, 'nullableBoolSet', RealmSet<bool?>(nullableBoolSet));
-    RealmObjectBase.set<RealmSet<int?>>(this, 'nullableIntSet', RealmSet<int?>(nullableIntSet));
-    RealmObjectBase.set<RealmSet<String?>>(this, 'nullableStringSet', RealmSet<String?>(nullableStringSet));
-    RealmObjectBase.set<RealmSet<double?>>(this, 'nullableDoubleSet', RealmSet<double?>(nullableDoubleSet));
-    RealmObjectBase.set<RealmSet<DateTime?>>(this, 'nullableDateTimeSet', RealmSet<DateTime?>(nullableDateTimeSet));
-    RealmObjectBase.set<RealmSet<ObjectId?>>(this, 'nullableObjectIdSet', RealmSet<ObjectId?>(nullableObjectIdSet));
-    RealmObjectBase.set<RealmSet<Uuid?>>(this, 'nullableUuidSet', RealmSet<Uuid?>(nullableUuidSet));
+    RealmObjectBase.set<RealmSet<String>>(
+        this, 'stringSet', RealmSet<String>(stringSet));
+    RealmObjectBase.set<RealmSet<double>>(
+        this, 'doubleSet', RealmSet<double>(doubleSet));
+    RealmObjectBase.set<RealmSet<DateTime>>(
+        this, 'dateTimeSet', RealmSet<DateTime>(dateTimeSet));
+    RealmObjectBase.set<RealmSet<ObjectId>>(
+        this, 'objectIdSet', RealmSet<ObjectId>(objectIdSet));
+    RealmObjectBase.set<RealmSet<Uuid>>(
+        this, 'uuidSet', RealmSet<Uuid>(uuidSet));
+    RealmObjectBase.set<RealmSet<RealmValue>>(
+        this, 'mixedSet', RealmSet<RealmValue>(mixedSet));
+    RealmObjectBase.set<RealmSet<Car>>(
+        this, 'objectsSet', RealmSet<Car>(objectsSet));
+    RealmObjectBase.set<RealmSet<bool?>>(
+        this, 'nullableBoolSet', RealmSet<bool?>(nullableBoolSet));
+    RealmObjectBase.set<RealmSet<int?>>(
+        this, 'nullableIntSet', RealmSet<int?>(nullableIntSet));
+    RealmObjectBase.set<RealmSet<String?>>(
+        this, 'nullableStringSet', RealmSet<String?>(nullableStringSet));
+    RealmObjectBase.set<RealmSet<double?>>(
+        this, 'nullableDoubleSet', RealmSet<double?>(nullableDoubleSet));
+    RealmObjectBase.set<RealmSet<DateTime?>>(
+        this, 'nullableDateTimeSet', RealmSet<DateTime?>(nullableDateTimeSet));
+    RealmObjectBase.set<RealmSet<ObjectId?>>(
+        this, 'nullableObjectIdSet', RealmSet<ObjectId?>(nullableObjectIdSet));
+    RealmObjectBase.set<RealmSet<Uuid?>>(
+        this, 'nullableUuidSet', RealmSet<Uuid?>(nullableUuidSet));
   }
 
   TestRealmSets._();
@@ -83,87 +100,123 @@ class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, Re
   set key(int value) => RealmObjectBase.set(this, 'key', value);
 
   @override
-  RealmSet<bool> get boolSet => RealmObjectBase.get<bool>(this, 'boolSet') as RealmSet<bool>;
+  RealmSet<bool> get boolSet =>
+      RealmObjectBase.get<bool>(this, 'boolSet') as RealmSet<bool>;
   @override
-  set boolSet(covariant RealmSet<bool> value) => throw RealmUnsupportedSetError();
+  set boolSet(covariant RealmSet<bool> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<int> get intSet => RealmObjectBase.get<int>(this, 'intSet') as RealmSet<int>;
+  RealmSet<int> get intSet =>
+      RealmObjectBase.get<int>(this, 'intSet') as RealmSet<int>;
   @override
   set intSet(covariant RealmSet<int> value) => throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<String> get stringSet => RealmObjectBase.get<String>(this, 'stringSet') as RealmSet<String>;
+  RealmSet<String> get stringSet =>
+      RealmObjectBase.get<String>(this, 'stringSet') as RealmSet<String>;
   @override
-  set stringSet(covariant RealmSet<String> value) => throw RealmUnsupportedSetError();
+  set stringSet(covariant RealmSet<String> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<double> get doubleSet => RealmObjectBase.get<double>(this, 'doubleSet') as RealmSet<double>;
+  RealmSet<double> get doubleSet =>
+      RealmObjectBase.get<double>(this, 'doubleSet') as RealmSet<double>;
   @override
-  set doubleSet(covariant RealmSet<double> value) => throw RealmUnsupportedSetError();
+  set doubleSet(covariant RealmSet<double> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<DateTime> get dateTimeSet => RealmObjectBase.get<DateTime>(this, 'dateTimeSet') as RealmSet<DateTime>;
+  RealmSet<DateTime> get dateTimeSet =>
+      RealmObjectBase.get<DateTime>(this, 'dateTimeSet') as RealmSet<DateTime>;
   @override
-  set dateTimeSet(covariant RealmSet<DateTime> value) => throw RealmUnsupportedSetError();
+  set dateTimeSet(covariant RealmSet<DateTime> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<ObjectId> get objectIdSet => RealmObjectBase.get<ObjectId>(this, 'objectIdSet') as RealmSet<ObjectId>;
+  RealmSet<ObjectId> get objectIdSet =>
+      RealmObjectBase.get<ObjectId>(this, 'objectIdSet') as RealmSet<ObjectId>;
   @override
-  set objectIdSet(covariant RealmSet<ObjectId> value) => throw RealmUnsupportedSetError();
+  set objectIdSet(covariant RealmSet<ObjectId> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<Uuid> get uuidSet => RealmObjectBase.get<Uuid>(this, 'uuidSet') as RealmSet<Uuid>;
+  RealmSet<Uuid> get uuidSet =>
+      RealmObjectBase.get<Uuid>(this, 'uuidSet') as RealmSet<Uuid>;
   @override
-  set uuidSet(covariant RealmSet<Uuid> value) => throw RealmUnsupportedSetError();
+  set uuidSet(covariant RealmSet<Uuid> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<RealmValue> get mixedSet => RealmObjectBase.get<RealmValue>(this, 'mixedSet') as RealmSet<RealmValue>;
+  RealmSet<RealmValue> get mixedSet =>
+      RealmObjectBase.get<RealmValue>(this, 'mixedSet') as RealmSet<RealmValue>;
   @override
-  set mixedSet(covariant RealmSet<RealmValue> value) => throw RealmUnsupportedSetError();
+  set mixedSet(covariant RealmSet<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<Car> get objectsSet => RealmObjectBase.get<Car>(this, 'objectsSet') as RealmSet<Car>;
+  RealmSet<Car> get objectsSet =>
+      RealmObjectBase.get<Car>(this, 'objectsSet') as RealmSet<Car>;
   @override
-  set objectsSet(covariant RealmSet<Car> value) => throw RealmUnsupportedSetError();
+  set objectsSet(covariant RealmSet<Car> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<bool?> get nullableBoolSet => RealmObjectBase.get<bool?>(this, 'nullableBoolSet') as RealmSet<bool?>;
+  RealmSet<bool?> get nullableBoolSet =>
+      RealmObjectBase.get<bool?>(this, 'nullableBoolSet') as RealmSet<bool?>;
   @override
-  set nullableBoolSet(covariant RealmSet<bool?> value) => throw RealmUnsupportedSetError();
+  set nullableBoolSet(covariant RealmSet<bool?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<int?> get nullableIntSet => RealmObjectBase.get<int?>(this, 'nullableIntSet') as RealmSet<int?>;
+  RealmSet<int?> get nullableIntSet =>
+      RealmObjectBase.get<int?>(this, 'nullableIntSet') as RealmSet<int?>;
   @override
-  set nullableIntSet(covariant RealmSet<int?> value) => throw RealmUnsupportedSetError();
+  set nullableIntSet(covariant RealmSet<int?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<String?> get nullableStringSet => RealmObjectBase.get<String?>(this, 'nullableStringSet') as RealmSet<String?>;
+  RealmSet<String?> get nullableStringSet =>
+      RealmObjectBase.get<String?>(this, 'nullableStringSet')
+          as RealmSet<String?>;
   @override
-  set nullableStringSet(covariant RealmSet<String?> value) => throw RealmUnsupportedSetError();
+  set nullableStringSet(covariant RealmSet<String?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<double?> get nullableDoubleSet => RealmObjectBase.get<double?>(this, 'nullableDoubleSet') as RealmSet<double?>;
+  RealmSet<double?> get nullableDoubleSet =>
+      RealmObjectBase.get<double?>(this, 'nullableDoubleSet')
+          as RealmSet<double?>;
   @override
-  set nullableDoubleSet(covariant RealmSet<double?> value) => throw RealmUnsupportedSetError();
+  set nullableDoubleSet(covariant RealmSet<double?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<DateTime?> get nullableDateTimeSet => RealmObjectBase.get<DateTime?>(this, 'nullableDateTimeSet') as RealmSet<DateTime?>;
+  RealmSet<DateTime?> get nullableDateTimeSet =>
+      RealmObjectBase.get<DateTime?>(this, 'nullableDateTimeSet')
+          as RealmSet<DateTime?>;
   @override
-  set nullableDateTimeSet(covariant RealmSet<DateTime?> value) => throw RealmUnsupportedSetError();
+  set nullableDateTimeSet(covariant RealmSet<DateTime?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<ObjectId?> get nullableObjectIdSet => RealmObjectBase.get<ObjectId?>(this, 'nullableObjectIdSet') as RealmSet<ObjectId?>;
+  RealmSet<ObjectId?> get nullableObjectIdSet =>
+      RealmObjectBase.get<ObjectId?>(this, 'nullableObjectIdSet')
+          as RealmSet<ObjectId?>;
   @override
-  set nullableObjectIdSet(covariant RealmSet<ObjectId?> value) => throw RealmUnsupportedSetError();
+  set nullableObjectIdSet(covariant RealmSet<ObjectId?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<Uuid?> get nullableUuidSet => RealmObjectBase.get<Uuid?>(this, 'nullableUuidSet') as RealmSet<Uuid?>;
+  RealmSet<Uuid?> get nullableUuidSet =>
+      RealmObjectBase.get<Uuid?>(this, 'nullableUuidSet') as RealmSet<Uuid?>;
   @override
-  set nullableUuidSet(covariant RealmSet<Uuid?> value) => throw RealmUnsupportedSetError();
+  set nullableUuidSet(covariant RealmSet<Uuid?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<TestRealmSets>> get changes => RealmObjectBase.getChanges<TestRealmSets>(this);
+  Stream<RealmObjectChanges<TestRealmSets>> get changes =>
+      RealmObjectBase.getChanges<TestRealmSets>(this);
 
   @override
   TestRealmSets freeze() => RealmObjectBase.freezeObject<TestRealmSets>(this);
@@ -172,24 +225,41 @@ class TestRealmSets extends _TestRealmSets with RealmEntity, RealmObjectBase, Re
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(TestRealmSets._);
-    return const SchemaObject(ObjectType.realmObject, TestRealmSets, 'TestRealmSets', [
+    return const SchemaObject(
+        ObjectType.realmObject, TestRealmSets, 'TestRealmSets', [
       SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
-      SchemaProperty('boolSet', RealmPropertyType.bool, collectionType: RealmCollectionType.set),
-      SchemaProperty('intSet', RealmPropertyType.int, collectionType: RealmCollectionType.set),
-      SchemaProperty('stringSet', RealmPropertyType.string, collectionType: RealmCollectionType.set),
-      SchemaProperty('doubleSet', RealmPropertyType.double, collectionType: RealmCollectionType.set),
-      SchemaProperty('dateTimeSet', RealmPropertyType.timestamp, collectionType: RealmCollectionType.set),
-      SchemaProperty('objectIdSet', RealmPropertyType.objectid, collectionType: RealmCollectionType.set),
-      SchemaProperty('uuidSet', RealmPropertyType.uuid, collectionType: RealmCollectionType.set),
-      SchemaProperty('mixedSet', RealmPropertyType.mixed, optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('objectsSet', RealmPropertyType.object, collectionType: RealmCollectionType.set, linkTarget: "Car"),
-      SchemaProperty('nullableBoolSet', RealmPropertyType.bool, optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableIntSet', RealmPropertyType.int, optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableStringSet', RealmPropertyType.string, optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableDoubleSet', RealmPropertyType.double, optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableDateTimeSet', RealmPropertyType.timestamp, optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableObjectIdSet', RealmPropertyType.objectid, optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableUuidSet', RealmPropertyType.uuid, optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('boolSet', RealmPropertyType.bool,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('intSet', RealmPropertyType.int,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('stringSet', RealmPropertyType.string,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('doubleSet', RealmPropertyType.double,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('dateTimeSet', RealmPropertyType.timestamp,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('objectIdSet', RealmPropertyType.objectid,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('uuidSet', RealmPropertyType.uuid,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('mixedSet', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('objectsSet', RealmPropertyType.object,
+          linkTarget: 'Car', collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableBoolSet', RealmPropertyType.bool,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableIntSet', RealmPropertyType.int,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableStringSet', RealmPropertyType.string,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableDoubleSet', RealmPropertyType.double,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableDateTimeSet', RealmPropertyType.timestamp,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableObjectIdSet', RealmPropertyType.objectid,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableUuidSet', RealmPropertyType.uuid,
+          optional: true, collectionType: RealmCollectionType.set),
     ]);
   }
 }

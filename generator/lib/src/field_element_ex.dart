@@ -37,7 +37,7 @@ import 'session.dart';
 import 'type_checkers.dart';
 
 extension FieldElementEx on FieldElement {
-  static const realmSetUnsupportedRealmTypes = [RealmPropertyType.binary, RealmPropertyType.object, RealmPropertyType.linkingObjects];
+  static const realmSetUnsupportedRealmTypes = [RealmPropertyType.binary, RealmPropertyType.linkingObjects];
 
   FieldDeclaration get declarationAstNode => getDeclarationFromElement(this)!.node.parent!.parent as FieldDeclaration;
 
@@ -56,6 +56,14 @@ extension FieldElementEx on FieldElement {
   FileSpan? typeSpan(SourceFile file) => ExpandedContextSpan(
         ExpandedContextSpan(
           (typeAnnotation ?? initializerExpression)?.span(file) ?? span!,
+          [span!],
+        ),
+        [span!],
+      );
+
+  FileSpan? initializerExpressionSpan(SourceFile file, Expression initializerExpression) => ExpandedContextSpan(
+        ExpandedContextSpan(
+          (initializerExpression).span(file),
           [span!],
         ),
         [span!],
@@ -84,8 +92,7 @@ extension FieldElementEx on FieldElement {
       final backlink = backlinkInfo;
 
       // Check for as-of-yet unsupported type
-      if (type.isDartCoreMap ||
-          type.isExactly<Decimal128>()) {
+      if (type.isDartCoreMap || type.isExactly<Decimal128>()) {
         throw RealmInvalidGenerationSourceError(
           'Field type not supported yet',
           element: this,
@@ -187,7 +194,7 @@ extension FieldElementEx on FieldElement {
       } else {
         // Validate collections and backlinks
         if (type.isRealmCollection || backlink != null) {
-          final typeDescription = type.isRealmCollection ? (type.isRealmSet ? 'sets' :  'collections') : 'backlinks';
+          final typeDescription = type.isRealmCollection ? (type.isRealmSet ? 'sets' : 'collections') : 'backlinks';
           if (type.isNullable) {
             throw RealmInvalidGenerationSourceError(
               'Realm $typeDescription cannot be nullable',
@@ -222,6 +229,15 @@ extension FieldElementEx on FieldElement {
                   primaryLabel: 'Set of nullable RealmValues is not supported',
                   element: this,
                   todo: 'Did you mean to use Set<RealmValue> instead.');
+            }
+
+            final initExpression = initializerExpression;
+            if (initExpression != null) {
+              throw RealmInvalidGenerationSourceError('Default values for set are not supported',
+                  primarySpan: initializerExpressionSpan(file, initExpression),
+                  primaryLabel: 'Remove the default value',
+                  element: this,
+                  todo: 'Remove the default value for field $displayName');
             }
           }
         }
@@ -277,6 +293,17 @@ extension FieldElementEx on FieldElement {
               primarySpan: typeSpan(file),
               primaryLabel: 'is not nullable',
               todo: 'Change type to $modelTypeName?',
+              element: this,
+            );
+          }
+
+          final intiExpression = initializerExpression;
+          if (intiExpression != null) {
+            throw RealmInvalidGenerationSourceError(
+              'Realm object references should not have default values',
+              primarySpan: initializerExpressionSpan(file, intiExpression),
+              primaryLabel: ' Remove the default value',
+              todo: 'Remove the default value for field "$displayName"',
               element: this,
             );
           }

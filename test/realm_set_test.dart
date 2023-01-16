@@ -80,7 +80,7 @@ class _TestRealmSets {
   late Set<ObjectId> objectIdSet;
   late Set<Uuid> uuidSet;
   late Set<RealmValue> mixedSet;
-  late Set<Car> objectsSet;
+  late Set<_Car> objectsSet;
 
   late Set<bool?> nullableBoolSet;
   late Set<int?> nullableIntSet;

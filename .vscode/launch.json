@@ -57,8 +57,9 @@
             "name": "Debug Generator Tests",
             "type": "dart",
             "request": "launch",
+            // "program": "test/good_test.dart",
             "program": "test/error_test.dart",
-            "args": ["-p", "vm", "-n", "unsupported_realm_set_of_nullable_realmvalue"],
+            "args": ["-p", "vm", "-n", "unsupported_realm_set_with_default_values.dart"],
             "cwd": "generator",
         },
     ]
