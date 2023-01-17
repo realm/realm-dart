@@ -2652,14 +2652,6 @@ Pointer<realm_value_t> _toRealmValue(Object? value, Allocator allocator) {
   return realm_value;
 }
 
-Pointer<realm_binary_t> _toRealmBinary(List<int>? value, Allocator allocator) {
-  final realm_binary = allocator<realm_binary_t>();
-  if (value != null) {
-    realm_binary.ref.data = value.toUint8Ptr(allocator);
-    realm_binary.ref.size = value.length;
-  }
-  return realm_binary;
-}
 const int _microsecondsPerSecond = 1000 * 1000;
 const int _nanosecondsPerMicrosecond = 1000;
 

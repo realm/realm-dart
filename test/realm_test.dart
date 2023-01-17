@@ -1343,11 +1343,11 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
     final queryDifferentiator = generateRandomString(10);
     const itemsCount = 200;
-    final config = await _subscribeForAtlasAddedData(app, queryDifferentiator: queryDifferentiator, itemsCount: itemCount);
+    final config = await _subscribeForAtlasAddedData(app, queryDifferentiator: queryDifferentiator, itemsCount: itemsCount);
     var syncedRealm = await getRealmAsync(config);
     expect(syncedRealm.isClosed, false);
     final data = syncedRealm.query<Product>(r'stringQueryField BEGINSWITH $0', [queryDifferentiator]);
-    expect(data.length, itemCount);
+    expect(data.length, itemsCount);
   });
 
   baasTest('Realm.open (flexibleSync) - listen for download progress of a populated realm', (appConfiguration) async {
