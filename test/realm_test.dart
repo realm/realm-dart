@@ -1342,7 +1342,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Realm.open (flexibleSync) - download a populated realm', (appConfiguration) async {
     final app = App(appConfiguration);
     final queryDifferentiator = generateRandomString(10);
-    const itemCount = 200;
+    const itemsCount = 200;
     final config = await _subscribeForAtlasAddedData(app, queryDifferentiator: queryDifferentiator, itemsCount: itemCount);
     var syncedRealm = await getRealmAsync(config);
     expect(syncedRealm.isClosed, false);
