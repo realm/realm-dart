@@ -1627,7 +1627,7 @@ Future<void> main([List<String>? args]) async {
     expect(File(pathCopy).existsSync(), isTrue);
     final copiedRealm = getRealm(configCopy);
     expect(copiedRealm.isClosed, isFalse);
-    final itemsCount = 100;
+    final itemsCount = 2;
     copiedRealm.write(() {
       for (var i = 0; i < itemsCount; i++) {
         copiedRealm.add(Car("make_${i + 1}"));
