@@ -534,13 +534,13 @@ class Realm implements Finalizable {
   /// Writes a compacted copy of the `Realm` to the path in the specified config. If the configuration object has
   /// non-null [Configuration.encryptionKey], the copy will be encrypted with that key.
   ///
-  /// 1. The destination file cannot already exist.
+  /// 1. The destination file should not already exist.
   /// 2. When using a local `Realm` and this is called from within a transaction it writes the current data,
   ///    and not the data as it was when the last transaction was committed.
-  /// 3. When using Sync, it is required that all local changes are synchronized with the server before the copy can be written.
+  /// 3. When using synced Realm, it is required that all local changes are synchronized with the server before the copy can be written.
   ///    This is to be sure that the file can be used as a starting point for a newly installed application.
   ///    The function will throw if there are pending uploads.
-  /// 4. Converting a Local `Realm` to Sync `Realm` is not supported.
+  /// 4. copying a local `Realm` to a synced `Realm` is not supported.
   void writeCopy(Configuration config) {
     realmCore.writeCopy(this, config);
   }

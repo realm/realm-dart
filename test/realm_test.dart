@@ -1551,7 +1551,7 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(Configuration.disconnectedSync([Product.schema], path: path, encryptionKey: key));
   });
 
-  test('Realm writeCopy Local to existing file', () {
+  test('Realm writeCopy local to existing file', () {
     final config = Configuration.local([Car.schema]);
     final realm = getRealm(config);
     expect(() => realm.writeCopy(config), throws<RealmException>("File at path '${config.path}' already exists"));
