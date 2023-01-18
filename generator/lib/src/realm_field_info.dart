@@ -69,7 +69,7 @@ class RealmFieldInfo {
 
   String get initializer {
     if (type.isDartCoreList) return ' = const []';
-    if (isMixed && !type.isDartCoreSet) return ' = const RealmValue.nullValue()';
+    if (isMixed && !type.isRealmCollection) return ' = const RealmValue.nullValue()';
     if (hasDefaultValue) return ' = ${fieldElement.initializerExpression}';
     if (type.isDartCoreSet) return ' = const {}';
     return ''; // no initializer

@@ -220,7 +220,7 @@ extension FieldElementEx on FieldElement {
                   primarySpan: typeSpan(file),
                   primaryLabel: 'Set element type is not supported',
                   element: this,
-                  todo: 'Ensure set element type ${typeArgument} is a type supported by RealmSet');
+                  todo: 'Ensure set element type ${typeArgument} is a type supported by RealmSet.');
             }
 
             if (realmType == RealmPropertyType.mixed && typeArgument.isNullable) {
@@ -228,16 +228,16 @@ extension FieldElementEx on FieldElement {
                   primarySpan: typeSpan(file),
                   primaryLabel: 'Set of nullable RealmValues is not supported',
                   element: this,
-                  todo: 'Did you mean to use Set<RealmValue> instead.');
+                  todo: 'Did you mean to use Set<RealmValue> instead?');
             }
 
             final initExpression = initializerExpression;
             if (initExpression != null) {
-              throw RealmInvalidGenerationSourceError('Default values for set are not supported',
+              throw RealmInvalidGenerationSourceError('Default values for set are not supported.',
                   primarySpan: initializerExpressionSpan(file, initExpression),
-                  primaryLabel: 'Remove the default value',
+                  primaryLabel: 'Remove the default value.',
                   element: this,
-                  todo: 'Remove the default value for field $displayName');
+                  todo: 'Remove the default value for field $displayName.');
             }
           }
         }

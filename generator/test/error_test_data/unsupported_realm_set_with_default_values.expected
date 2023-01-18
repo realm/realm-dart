@@ -1,4 +1,4 @@
-Default values for set are not supported
+Default values for set are not supported.
 
 in: asset:pkg/test/error_test_data/unsupported_realm_set_with_default_values.dart:10:27
     ╷
@@ -7,7 +7,7 @@ in: asset:pkg/test/error_test_data/unsupported_realm_set_with_default_values.dar
     │       ━━━━ in realm model for 'Bad'
 ... │
 10  │   late Set<bool> wrong1 = {true, false};
-    │                           ^^^^^^^^^^^^^ Remove the default value
+    │                           ^^^^^^^^^^^^^ Remove the default value.
     ╵
-Remove the default value for field wrong1
+Remove the default value for field wrong1.
 

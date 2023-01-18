@@ -93,7 +93,7 @@ export "configuration.dart"
         SyncSessionError;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
-export 'set.dart' show RealmSet;
+export 'set.dart' show RealmSet, RealmSetChanges;
 export 'migration.dart' show Migration;
 export 'realm_object.dart'
     show

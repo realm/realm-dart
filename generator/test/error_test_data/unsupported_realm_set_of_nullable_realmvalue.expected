@@ -9,5 +9,5 @@ in: asset:pkg/test/error_test_data/unsupported_realm_set_of_nullable_realmvalue.
 10  │   late Set<RealmValue?> wrong1;
     │        ^^^^^^^^^^^^^^^^ Set of nullable RealmValues is not supported
     ╵
-Did you mean to use Set<RealmValue> instead.
+Did you mean to use Set<RealmValue> instead?
 

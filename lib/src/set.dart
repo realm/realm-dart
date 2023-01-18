@@ -39,6 +39,7 @@ abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity i
   /// and it's parent object hasn't been deleted.
   bool get isValid;
 
+  /// Creates an unmanaged RealmSet from [items]
   factory RealmSet(Set<T> items) => UnmanagedRealmSet(items.toSet());
 
   /// Allows listening for changes when the contents of this collection changes.
