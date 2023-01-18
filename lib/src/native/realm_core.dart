@@ -105,7 +105,7 @@ class _RealmCore {
       _realmLib.realm_dart_delete_persistent_handle(error.ref.usercode_error);
     }
 
-    return LastError(error.ref.error, message, userError);
+    return LastError(error.ref.error, error.ref.categories, message, userError);
   }
 
   void throwLastError([String? errorMessage]) {
@@ -1974,6 +1974,7 @@ class _RealmCore {
         return SessionState.active;
       case 2: // RLM_SYNC_SESSION_STATE_INACTIVE
       case 3: // RLM_SYNC_SESSION_STATE_WAITING_FOR_ACCESS_TOKEN
+      case 4: // RLM_SYNC_SESSION_STATE_PAUSED
         return SessionState.inactive;
       default:
         throw Exception("Unexpected SessionState: $value");
@@ -2336,10 +2337,12 @@ class _RealmCore {
 
 class LastError {
   final int code;
+  final int category;
   final String? message;
   final Object? userError;
 
-  LastError(this.code, [this.message, this.userError]);
+//TODO: Resolve category by code
+  LastError(this.code, this.category, [this.message, this.userError]);
 
   @override
   String toString() {
@@ -2859,7 +2862,8 @@ extension on Completer<Object?> {
   void completeWithAppError(Pointer<realm_app_error> error) {
     final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
     final linkToLogs = error.ref.link_to_server_logs.cast<Utf8>().toRealmDartString();
-    completeError(AppInternal.createException(message, linkToLogs, error.ref.http_status_code));
+    completeError(
+        AppInternal.createException(message, linkToLogs, error.ref.http_status_code, errorCode: error.ref.error, errorCategory: error.ref.categories));
   }
 }
 

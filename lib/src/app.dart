@@ -189,7 +189,8 @@ extension AppInternal on App {
 
   static App create(AppHandle handle) => App._(handle);
 
-  static AppException createException(String message, String? linkToLogs, int statusCode) => AppException._(message, linkToLogs, statusCode);
+  static AppException createException(String message, String? linkToLogs, int statusCode, {int? errorCode, int? errorCategory}) =>
+      AppException._(message, linkToLogs, statusCode, errorCode: errorCode, errorCategory: errorCategory);
 }
 
 /// An exception thrown from operations interacting with a [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) app.
@@ -200,7 +201,13 @@ class AppException extends RealmException {
   /// The HTTP status code returned by the server for this exception.
   final int statusCode;
 
-  AppException._(super.message, this.linkToServerLogs, this.statusCode);
+  /// The error code for this exception.
+  final int? errorCode;
+
+  /// The error category for this exception.
+  final int? errorCategory;
+
+  AppException._(super.message, this.linkToServerLogs, this.statusCode, {this.errorCode, this.errorCategory});
 
   @override
   String toString() {
