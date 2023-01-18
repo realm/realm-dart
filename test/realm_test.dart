@@ -100,7 +100,7 @@ Future<void> main([List<String>? args]) async {
     var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     final car = Car('');
-    expect(() => realm.add(car), throws<RealmException>("Wrong transactional state"));
+    expect(() => realm.add(car), throws<RealmException>("Trying to modify database while in read transaction"));
   });
 
   test('Realm existsSync', () {

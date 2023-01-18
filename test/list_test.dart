@@ -238,7 +238,8 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => realm.add(team));
     var players = team.players;
     realm.write(() => realm.delete(team));
-    expect(() => realm.write(() => realm.deleteMany(players)), throws<RealmException>("Access to invalidated Collection object"));
+    expect(() => realm.write(() => realm.deleteMany(players)),
+        throws<RealmException>("List is no longer valid. Either the parent object was deleted or the containing Realm has been invalidated or closed"));
   });
 
   test('Get length of list property on a deleted object', () {
@@ -1122,7 +1123,7 @@ Future<void> main([List<String>? args]) async {
     expect(realm.all<Person>(), unorderedEquals(players)); // nothing was added or disappeared from the realm
 
     // .. when outside a write transaction
-    expect(() => team.players.move(3, 1), throws<RealmException>('Cannot modify managed objects outside of a write transaction'));
+    expect(() => team.players.move(3, 1), throws<RealmException>('Cannot modify managed List outside of a write transaction'));
     expect(() => realm.write(() => team.players.move(0, length)), throwsRangeError); // range error takes precedence
   });
 
