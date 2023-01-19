@@ -1576,25 +1576,30 @@ Future<void> main([List<String>? args]) async {
         throws<RealmException>("Realm cannot be converted to a flexible sync realm unless flexible sync is already enabled"));
   });
 
-  test('Realm writeCopy Local->Local inside a write block', () {
+  test('Realm writeCopy Local->Local inside a write block is not allowed.', () {
     final originalConfig = Configuration.local([Car.schema]);
     final originalRealm = getRealm(originalConfig);
     final pathCopy = originalConfig.path.replaceFirst(p.basenameWithoutExtension(originalConfig.path), generateRandomString(10));
     final configCopy = Configuration.local([Car.schema], path: pathCopy);
-    var itemsCount = 10;
     originalRealm.write(() {
-      for (var i = 0; i < itemsCount; i++) {
-        originalRealm.add(Car("make_${i + 1}"));
-      }
-      originalRealm.writeCopy(configCopy);
+      expect(() => originalRealm.writeCopy(configCopy),
+          throws<RealmError>("Copying realm is not allowed within a write transaction as well as during migration."));
     });
     originalRealm.close();
+  });
 
-    expect(File(pathCopy).existsSync(), isTrue);
-    final copiedRealm = getRealm(configCopy);
-    expect(copiedRealm.all<Car>().length, itemsCount);
-    expect(copiedRealm.isClosed, isFalse);
-    copiedRealm.close();
+  test('Realm writeCopy Local->Local during migration is mot allowed', () {
+    getRealm(Configuration.local([Car.schema], schemaVersion: 1)).close();
+
+    final config2 = Configuration.local([Car.schema], schemaVersion: 2, migrationCallback: (migration, oldVersion) {
+
+      final pathCopy = migration.newRealm.config.path.replaceFirst(p.basenameWithoutExtension(migration.newRealm.config.path), generateRandomString(10));
+      final configCopy = Configuration.local([Car.schema], path: pathCopy);
+      expect(() => migration.newRealm.writeCopy(configCopy),
+          throws<RealmError>("Copying realm is not allowed within a write transaction as well as during migration."));
+          
+    });
+    getRealm(config2);
   });
 
   test('Realm writeCopy Local->Local read-only', () {
