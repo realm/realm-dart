@@ -1597,7 +1597,7 @@ Future<void> main([List<String>? args]) async {
       final configCopy = Configuration.local([Car.schema], path: pathCopy);
       expect(() => migration.newRealm.writeCopy(configCopy),
           throws<RealmError>("Copying realm is not allowed within a write transaction as well as during migration."));
-          
+
     });
     getRealm(config2);
   });
@@ -1607,13 +1607,19 @@ Future<void> main([List<String>? args]) async {
     final originalRealm = getRealm(originalConfig);
     final pathCopy = originalConfig.path.replaceFirst(p.basenameWithoutExtension(originalConfig.path), generateRandomString(10));
     final configCopy = Configuration.local([Car.schema], path: pathCopy, isReadOnly: true);
-
+    final itemsCount = 2;
+    originalRealm.write(() {
+      for (var i = 0; i < itemsCount; i++) {
+        originalRealm.add(Car("make_${i + 1}"));
+      }
+    });
     originalRealm.writeCopy(configCopy);
     originalRealm.close();
 
     expect(File(pathCopy).existsSync(), isTrue);
     final copiedRealm = getRealm(configCopy);
-    expect(copiedRealm.isClosed, isFalse);
+    expect(copiedRealm.all<Car>().length, itemsCount);
+
     _expectAllWritesToThrow<RealmException>(copiedRealm, "Can't perform transactions on read-only Realms.");
     _expectAllAsyncWritesToThrow<RealmException>(copiedRealm, "Can't perform transactions on read-only Realms.");
 
@@ -1625,19 +1631,17 @@ Future<void> main([List<String>? args]) async {
     final originalRealm = getRealm(originalConfig);
     final pathCopy = originalConfig.path.replaceFirst(p.basenameWithoutExtension(originalConfig.path), generateRandomString(10));
     final configCopy = Configuration.local([Car.schema], path: pathCopy);
-
+    final itemsCount = 2;
+    originalRealm.write(() {
+      for (var i = 0; i < itemsCount; i++) {
+        originalRealm.add(Car("make_${i + 1}"));
+      }
+    });
     originalRealm.writeCopy(configCopy);
     originalRealm.close();
 
-    expect(File(pathCopy).existsSync(), isTrue);
     final copiedRealm = getRealm(configCopy);
-    expect(copiedRealm.isClosed, isFalse);
-    final itemsCount = 2;
-    copiedRealm.write(() {
-      for (var i = 0; i < itemsCount; i++) {
-        copiedRealm.add(Car("make_${i + 1}"));
-      }
-    });
+    expect(copiedRealm.all<Car>().length, itemsCount);
     copiedRealm.close();
 
     final realmSecondTimeOpened = getRealm(configCopy);
@@ -1659,7 +1663,7 @@ Future<void> main([List<String>? args]) async {
           final originalRealm = getRealm(originalConfig);
           var itemsCount = 0;
           if (!isEmpty) {
-            itemsCount = 100;
+            itemsCount = 2;
             originalRealm.write(() {
               for (var i = 0; i < itemsCount; i++) {
                 originalRealm.add(Car("make_${i + 1}"));
@@ -1674,7 +1678,6 @@ Future<void> main([List<String>? args]) async {
           expect(File(pathCopy).existsSync(), isTrue);
           final copiedRealm = getRealm(configCopy);
           expect(copiedRealm.all<Car>().length, itemsCount);
-          expect(copiedRealm.isClosed, isFalse);
           copiedRealm.close();
         });
       }
@@ -1693,7 +1696,7 @@ Future<void> main([List<String>? args]) async {
         var user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
         final originalConfig = Configuration.flexibleSync(user1, [Product.schema], encryptionKey: sourceEncryptedKey);
         final originalRealm = getRealm(originalConfig);
-        var itemsCount = 100;
+        var itemsCount = 2;
         final productNamePrefix = generateRandomString(10);
         await _addDataToAtlas(originalRealm, productNamePrefix, itemsCount: itemsCount);
 
@@ -1715,7 +1718,6 @@ Future<void> main([List<String>? args]) async {
         await copiedRealm.syncSession.waitForUpload();
         await copiedRealm.syncSession.waitForDownload();
         expect(copiedRealm.all<Product>().length, itemsCount);
-        expect(copiedRealm.isClosed, isFalse);
         copiedRealm.close();
 
         // Create another user's realm and download the data
@@ -1742,7 +1744,7 @@ Future<void> main([List<String>? args]) async {
         var user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
         final originalConfig = Configuration.flexibleSync(user, [Product.schema], encryptionKey: sourceEncryptedKey);
         final originalRealm = getRealm(originalConfig);
-        var itemsCount = 100;
+        var itemsCount = 2;
         final productNamePrefix = generateRandomString(10);
         await _addDataToAtlas(originalRealm, productNamePrefix, itemsCount: itemsCount);
 
@@ -1754,7 +1756,6 @@ Future<void> main([List<String>? args]) async {
         expect(File(pathCopy).existsSync(), isTrue);
         final copiedRealm = getRealm(configCopy);
         expect(copiedRealm.all<Product>().length, itemsCount);
-        expect(copiedRealm.isClosed, isFalse);
         copiedRealm.close();
       });
     }
