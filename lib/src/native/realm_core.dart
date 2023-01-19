@@ -2823,6 +2823,8 @@ extension on realm_sync_error {
 extension on Pointer<realm_sync_error_code_t> {
   SyncError toSyncError() {
     final message = ref.message.cast<Utf8>().toDartString();
+    // TODO: Do we need category name?
+    // final categoryName = ref.category_name;
     return SyncError.create(message, SyncErrorCategory.values[ref.category], ref.value, isFatal: false);
   }
 }

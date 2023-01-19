@@ -202,10 +202,10 @@ class AppException extends RealmException {
   final int statusCode;
 
   /// The error code for this exception.
-  final int? errorCode;
+  final int? errorCode; 
 
   /// The error category for this exception.
-  final int? errorCategory;
+  final int? errorCategory; //TODO: Do we need category?
 
   AppException._(super.message, this.linkToServerLogs, this.statusCode, {this.errorCode, this.errorCategory});
 
