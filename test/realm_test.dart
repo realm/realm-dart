@@ -1591,7 +1591,7 @@ Future<void> main([List<String>? args]) async {
   test('Realm writeCopy Local->Local during migration is mot allowed', () {
     getRealm(Configuration.local([Car.schema], schemaVersion: 1)).close();
 
-    final config2 = Configuration.local([Car.schema], schemaVersion: 2, migrationCallback: (migration, oldVersion) {
+    final configWithMigrationCallback = Configuration.local([Car.schema], schemaVersion: 2, migrationCallback: (migration, oldVersion) {
 
       final pathCopy = migration.newRealm.config.path.replaceFirst(p.basenameWithoutExtension(migration.newRealm.config.path), generateRandomString(10));
       final configCopy = Configuration.local([Car.schema], path: pathCopy);
@@ -1599,7 +1599,7 @@ Future<void> main([List<String>? args]) async {
           throws<RealmError>("Copying realm is not allowed within a write transaction as well as during migration."));
 
     });
-    getRealm(config2);
+    getRealm(configWithMigrationCallback);
   });
 
   test('Realm writeCopy Local->Local read-only', () {
