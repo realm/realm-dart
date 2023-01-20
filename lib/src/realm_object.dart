@@ -27,6 +27,7 @@ import 'list.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'results.dart';
+import 'set.dart';
 
 typedef DartDynamic = dynamic;
 
@@ -175,6 +176,11 @@ class RealmCoreAccessor implements RealmAccessor {
         return object.realm.createList<T>(handle, listMetadata);
       }
 
+      if (propertyMeta.collectionType == RealmCollectionType.set) {
+        final handle = realmCore.getSetProperty(object, propertyMeta.key);
+        return RealmSetInternal.create<T>(handle, object.realm, metadata);
+      }
+
       var value = realmCore.getProperty(object, propertyMeta.key);
 
       if (value is RealmObjectHandle) {
@@ -231,15 +237,27 @@ class RealmCoreAccessor implements RealmAccessor {
         return;
       }
 
-      if (value is RealmObject && !value.isManaged) {
-        object.realm.add(value, update: update);
-      }
+      object.realm.addUnmanagedRealmObjectFromValue(value, update);
 
-      if (value is RealmValue) {
-        final v = value.value;
-        if (v is RealmObject && !v.isManaged) {
-          object.realm.add(v, update: update);
+      //TODO: set from ManagedRealmList is not supported yet
+      if (value is UnmanagedRealmSet) {
+        final handle = realmCore.getSetProperty(object, propertyMeta.key);
+        if (update) {
+          realmCore.realmSetClear(handle);
         }
+
+        // TODO: use realmSetAssign when available in C-API
+        // https://github.com/realm/realm-core/issues/6209
+        //realmCore.realmSetAssign(handle, value.toList());
+        for (var element in value) {
+          object.realm.addUnmanagedRealmObjectFromValue(element, update);
+
+          final result = realmCore.realmSetInsert(handle, element);
+          if (!result) {
+            throw RealmException("Error while adding value $element in RealmSet");
+          }
+        }
+        return;
       }
 
       if (propertyMeta.isPrimaryKey && !isInMigration) {

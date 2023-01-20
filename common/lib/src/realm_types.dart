@@ -69,6 +69,7 @@ enum RealmCollectionType {
   none,
   list,
   set,
+  _3, // ignore: unused_field, constant_identifier_names
   dictionary,
 }
 

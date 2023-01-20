@@ -32,6 +32,7 @@ import 'results.dart';
 import 'scheduler.dart';
 import 'session.dart';
 import 'subscription.dart';
+import 'set.dart';
 
 export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
 export 'package:realm_common/realm_common.dart'
@@ -92,6 +93,7 @@ export "configuration.dart"
         SyncSessionError;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
+export 'set.dart' show RealmSet, RealmSetChanges;
 export 'migration.dart' show Migration;
 export 'realm_object.dart'
     show
@@ -701,6 +703,16 @@ extension RealmInternal on Realm {
   static MigrationRealm getMigrationRealm(Realm realm) => MigrationRealm._(realm);
 
   bool get isInMigration => _isInMigration;
+
+  void addUnmanagedRealmObjectFromValue(Object? value, bool update) {
+    if (value is RealmObject && !value.isManaged) {
+      add<RealmObject>(value, update: update);
+    }
+    
+    if (value is RealmValue) {
+      addUnmanagedRealmObjectFromValue(value.value, update);
+    }
+  }
 }
 
 /// @nodoc

@@ -38,9 +38,10 @@ Future<Map<String, Object>> getInputFileAsset(String inputFilePath) async {
 
 /// A special equality matcher for strings.
 class LinesEqualsMatcher extends Matcher {
+  String expected;
   late final List<String> expectedLines;
 
-  LinesEqualsMatcher(String expected) {
+  LinesEqualsMatcher(this.expected) {
     expectedLines = expected.split("\n");
   }
 
@@ -50,26 +51,46 @@ class LinesEqualsMatcher extends Matcher {
   @override
   // ignore: strict_raw_type
   bool matches(dynamic actual, Map matchState) {
-    final actualValue = utf8.decode(actual as List<int>);
+    var actualValue = "";
+    if (actual is List<int>) {
+      actualValue = utf8.decode(actual);
+    } else if (actual is String) {
+      actualValue = actual;
+    } else {
+      actualValue = actual.toString();
+    }
+
     final actualLines = actualValue.split("\n");
 
+    final result = _matches(actualLines, matchState);
+    if (!result) {
+      print("\nGenerator Failed\n");
+      print("Expected ======================================================================================================\n$expected\n======================================================================================================\n");
+      print("Actual ======================================================================================================\n$actualValue\n======================================================================================================\n");
+    }
+
+    return result;
+  }
+
+  bool _matches(List<String> actualLines, Map<dynamic, dynamic> matchState) {
     for (var i = 0; i < expectedLines.length - 1; i++) {
       if (i >= actualLines.length) {
         matchState["Error"] = "Difference at line ${i + 1}. \nExpected: ${expectedLines[i]}.\n  Actual: empty";
+        
         return false;
       }
-
+    
       if (expectedLines[i] != actualLines[i]) {
         matchState["Error"] = "Difference at line ${i + 1}. \nExpected: ${expectedLines[i]}.\n  Actual: ${actualLines[i]}";
         return false;
       }
     }
-
+    
     if (actualLines.length != expectedLines.length) {
       matchState["Error"] = "Different number of lines. \nExpected: ${expectedLines.length}\nActual: ${actualLines.length}";
       return false;
     }
-
+    
     return true;
   }
 
@@ -100,7 +121,7 @@ Future<String> readFileAsErrorFormattedString(String directoryName, String outpu
   var file = File(_path.join(Directory.current.path, '$directoryName/$outputFilePath'));
   String content = await file.readAsString(encoding: utf8);
   if (Platform.isWindows) {
-    var macToWinSymbols = {'╷': ',', '━': '=', '╵': '\'', '│': '|', '─': '-', '┌': ',', '└': '\''};
+    final macToWinSymbols = {'╷': ',', '━': '=', '╵': '\'', '│': '|', '─': '-', '┌': ',', '└': '\''};
     macToWinSymbols.forEach((key, value) {
       content = content.replaceAll(key, value);
     });
