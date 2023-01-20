@@ -192,7 +192,7 @@ class RealmValue {
   int get hashCode => value.hashCode;
 
   @override
-  String toString() => 'RealmValue.from($value)';
+  String toString() => 'RealmValue($value)';
 }
 
 /// The category of a [SyncError].
