@@ -44,6 +44,7 @@ class RealmFieldInfo {
 
   bool get isFinal => fieldElement.isFinal;
   bool get isRealmCollection => type.isRealmCollection;
+  bool get isDartCoreSet => type.isDartCoreSet;
   bool get isLate => fieldElement.isLate;
   bool get hasDefaultValue => fieldElement.hasInitializer;
   bool get optional => type.basicType.isNullable || realmType == RealmPropertyType.mixed;
@@ -68,8 +69,9 @@ class RealmFieldInfo {
 
   String get initializer {
     if (type.isDartCoreList) return ' = const []';
-    if (isMixed) return ' = const RealmValue.nullValue()';
+    if (isMixed && !type.isRealmCollection) return ' = const RealmValue.nullValue()';
     if (hasDefaultValue) return ' = ${fieldElement.initializerExpression}';
+    if (type.isDartCoreSet) return ' = const {}';
     return ''; // no initializer
   }
 

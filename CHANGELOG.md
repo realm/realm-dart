@@ -3,10 +3,10 @@
 **This project is in Release Candidate stage.**
 
 ### Enhancements
-* None
+* Add supoprt for Realm set data type ([#1102](https://github.com/realm/realm-dart/pull/1102))
 
 ### Fixed
-* None
+* Added an error for default values for Realm object references in the Realm generator ([#1102](https://github.com/realm/realm-dart/pull/1102))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
