@@ -52,11 +52,6 @@ export 'package:realm_common/realm_common.dart'
         RealmPropertyType,
         RealmStateError,
         RealmUnsupportedSetError,
-        SyncClientErrorCode,
-        SyncConnectionErrorCode,
-        SyncErrorCategory,
-        SyncResolveErrorCode,
-        SyncSessionErrorCode,
         Uuid;
 
 // always expose with `show` to explicitly control the public API surface
@@ -108,7 +103,20 @@ export 'realm_object.dart'
         UserCallbackException;
 export 'realm_property.dart';
 export 'results.dart' show RealmResultsOfObject, RealmResultsChanges, RealmResults;
-export 'session.dart' show ConnectionStateChange, SyncProgress, ProgressDirection, ProgressMode, ConnectionState, Session, SessionState;
+export 'session.dart'
+    show
+        ConnectionStateChange,
+        SyncProgress,
+        ProgressDirection,
+        ProgressMode,
+        ConnectionState,
+        Session,
+        SessionState,
+        SyncClientErrorCode,
+        SyncConnectionErrorCode,
+        SyncErrorCategory,
+        SyncResolveErrorCode,
+        SyncSessionErrorCode;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient;
 
@@ -691,7 +699,7 @@ extension RealmInternal on Realm {
     if (value is RealmObject && !value.isManaged) {
       add<RealmObject>(value, update: update);
     }
-    
+
     if (value is RealmValue) {
       addUnmanagedRealmObjectFromValue(value.value, update);
     }
