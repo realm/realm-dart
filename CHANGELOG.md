@@ -4,6 +4,7 @@
 
 ### Enhancements
 * Add supoprt for Realm set data type ([#1102](https://github.com/realm/realm-dart/pull/1102))
+* Exposed realm `writeCopy` API to copy a Realm file and optionally encrypt it with a different key. ([#1103](https://github.com/realm/realm-dart/pull/1103))
 
 ### Fixed
 * Added an error for default values for Realm object references in the Realm generator ([#1102](https://github.com/realm/realm-dart/pull/1102))

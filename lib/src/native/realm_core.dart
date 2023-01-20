@@ -2422,6 +2422,11 @@ class _RealmCore {
       return out_did_run.value;
     });
   }
+
+  void writeCopy(Realm realm, Configuration config) {
+    final configHandle = _createConfig(config);
+    _realmLib.invokeGetBool(() => _realmLib.realm_convert_with_config(realm.handle._pointer, configHandle._pointer, false));
+  }
 }
 
 class LastError {
