@@ -139,7 +139,7 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
       _ensureManagedByThis(value, "add");
     } else {
       // might be updating an existing realm object
-      realm.addUnmanagedRealmObjectFromValue(value, true);
+      realm.addUnmanagedRealmObjectFromValue(value, false);
     }
 
     return realmCore.realmSetInsert(_handle, value);
@@ -223,7 +223,7 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
     return controller.createStream();
   }
 
-  void _ensureManagedByThis(covariant T element, String operation) {
+  void _ensureManagedByThis(covariant T element, String action) {
     Object? value = element;
     if (element is RealmValue && element.value is RealmObject) {
       value = element.value;
@@ -237,10 +237,10 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
 
     if (realmObject.realm != realm) {
       if (realmObject.isFrozen) {
-        throw RealmError('Cannot do $operation because the object is managed by a frozen Realm');
+        throw RealmError('Cannot invoke "$action" because the object is managed by a frozen Realm');
       }
 
-      throw RealmError('Cannot do $operation because the object is managed by another Realm instance');
+      throw RealmError('Cannot invoke "$action" because the object is managed by another Realm instance');
     }
   }
 

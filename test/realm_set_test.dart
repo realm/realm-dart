@@ -547,4 +547,25 @@ Future<void> main([List<String>? args]) async {
     expect(testSet.objectsSet.length, 0);
     expect(realm.all<Car>().length, 0);
   });
+
+  test('RealmSet<RealmObject> add a set of already managed objects', () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    realm.write(() {
+      realm.addAll([Car("Tesla"), Car("Audi")]);
+    });
+
+    var testSet = TestRealmSets(1)..objectsSet.addAll(realm.all<Car>());
+
+    realm.write(() {
+      realm.add(testSet);
+    });
+
+    expect(realm.find<TestRealmSets>(1), isNotNull);
+
+    testSet = realm.find<TestRealmSets>(1)!;
+    expect(testSet.objectsSet.length, 2);
+    expect(realm.all<Car>().length, 2);
+  });
 }
