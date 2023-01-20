@@ -542,7 +542,7 @@ class Realm implements Finalizable {
   /// 4. Copying a local `Realm` to a synced `Realm` is not supported.
   void writeCopy(Configuration config) {
     if (isInTransaction || _isInMigration) {
-      throw RealmError("Copying realm is not allowed within a write transaction as well as during migration.");
+      throw RealmError("Copying a Realm is not allowed within a write transaction or during migration.");
     }
 
     realmCore.writeCopy(this, config);
