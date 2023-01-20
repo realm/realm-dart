@@ -1583,7 +1583,7 @@ Future<void> main([List<String>? args]) async {
     final configCopy = Configuration.local([Car.schema], path: pathCopy);
     originalRealm.write(() {
       expect(() => originalRealm.writeCopy(configCopy),
-          throws<RealmError>("Copying realm is not allowed within a write transaction as well as during migration."));
+          throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
     });
     originalRealm.close();
   });
@@ -1596,7 +1596,7 @@ Future<void> main([List<String>? args]) async {
       final pathCopy = migration.newRealm.config.path.replaceFirst(p.basenameWithoutExtension(migration.newRealm.config.path), generateRandomString(10));
       final configCopy = Configuration.local([Car.schema], path: pathCopy);
       expect(() => migration.newRealm.writeCopy(configCopy),
-          throws<RealmError>("Copying realm is not allowed within a write transaction as well as during migration."));
+          throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
 
     });
     getRealm(configWithMigrationCallback);
