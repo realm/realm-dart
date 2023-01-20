@@ -237,16 +237,7 @@ class RealmCoreAccessor implements RealmAccessor {
         return;
       }
 
-      if (value is RealmObject && !value.isManaged) {
-        object.realm.add(value, update: update);
-      }
-
-      if (value is RealmValue) {
-        final v = value.value;
-        if (v is RealmObject && !v.isManaged) {
-          object.realm.add(v, update: update);
-        }
-      }
+      object.realm.addUnmanagedRealmObjectFromValue(value, update);
 
       //TODO: set from ManagedRealmList is not supported yet
       if (value is UnmanagedRealmSet) {
@@ -259,9 +250,7 @@ class RealmCoreAccessor implements RealmAccessor {
         // https://github.com/realm/realm-core/issues/6209
         //realmCore.realmSetAssign(handle, value.toList());
         for (var element in value) {
-          if (element is RealmObject) {
-            object.realm.add(element, update: true);
-          }
+          object.realm.addUnmanagedRealmObjectFromValue(element, update);
 
           final result = realmCore.realmSetInsert(handle, element);
           if (!result) {

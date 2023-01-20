@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright 2022 Realm Inc.
+// Copyright 2023 Realm Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -108,7 +108,8 @@ class _TestRealmSets {
       case Uuid:
         return Sets(uuidSet as RealmSet<Uuid>, [Uuid.fromString("12345678123456781234567812345678"), Uuid.fromString("82345678123456781234567812345678")]);
       case RealmValue:
-        return Sets(mixedSet as RealmSet<RealmValue>, [RealmValue.nullValue(), RealmValue.bool(true), RealmValue.int(1), RealmValue.string("text")]);
+        return Sets(mixedSet as RealmSet<RealmValue>, [RealmValue.nullValue(), RealmValue.int(1), RealmValue.realmObject(Car("Tesla"))],
+            (realm, value) => realm.find<Car>((value as Car).make));
       case RealmObject:
         return Sets(objectsSet as RealmSet<Car>, [Car("Tesla"), Car("VW"), Car("Audi")], (realm, value) => realm.find<Car>((value as Car).make));
       case _NullableBool:
@@ -136,14 +137,26 @@ class _TestRealmSets {
 
   List<Object?> getValuesOrManagedValues(Realm realm, Type type) {
     Sets set = setByType(type);
-    if (set.values.first is! RealmObject) {
+    if (!set.values.any((element) => element is RealmObject || element is RealmValue)) {
       return set.values;
     }
 
     return set.values.map<Object?>((value) {
-      RealmObject? realmValue = set.getRealmObject!(realm, value as RealmObject);
-      return realmValue;
+      if (value is RealmValue && value.value is! RealmObject) {
+        return value;
+      }
+
+      return _getManagedValue(set, realm, value);
     }).toList();
+  }
+
+  Object? _getManagedValue(Sets set, Realm realm, Object? value) {
+    if (value is RealmValue) {
+      return RealmValue.from(_getManagedValue(set, realm, value.value));
+    }
+
+    RealmObject? realmValue = set.getRealmObject!(realm, value as RealmObject);
+    return realmValue;
   }
 }
 
@@ -167,10 +180,6 @@ Future<void> main([List<String>? args]) async {
       set.add(values.first);
       expect(set.length, equals(1));
       expect(set.contains(values.first), true);
-
-      set.remove(values.first);
-      expect(set.length, equals(0));
-      expect(set.contains(values.first), false);
     });
 
     test('RealmSet<$type> unmanged set remove', () {
@@ -187,7 +196,7 @@ Future<void> main([List<String>? args]) async {
       expect(set.contains(values.first), false);
     });
 
-    test('RealmSet<$type> unmanged set elementAt', () {
+    test('RealmSet<$type>.elementAt on an unmanged RealmSet', () {
       final testSet = TestRealmSets(1);
       final set = testSet.setByType(type).set;
       final values = testSet.values(type);
@@ -197,7 +206,7 @@ Future<void> main([List<String>? args]) async {
       expect(set.elementAt(0), values.first);
     });
 
-    test('RealmSet<$type> create', () {
+    test('RealmSet<$type> creation', () {
       var config = Configuration.local([TestRealmSets.schema, Car.schema]);
       var realm = getRealm(config);
 
@@ -277,7 +286,10 @@ Future<void> main([List<String>? args]) async {
       realm.write(() {
         realm.add(testSet);
         var set = testSet.setByType(type).set;
-        set.add(values.first);
+        expect(set.add(values.first), true);
+
+        //adding an already existing value is a no operation
+        expect(set.add(values.first), false);
       });
 
       var set = testSet.setByType(type).set;
@@ -308,6 +320,9 @@ Future<void> main([List<String>? args]) async {
 
       realm.write(() {
         expect(set.remove(values.first), true);
+
+        //removing a value not in the set should return false.
+        expect(set.remove(values.first), false);
       });
 
       expect(set.length, 0);
@@ -358,7 +373,7 @@ Future<void> main([List<String>? args]) async {
       var set = testSet.setByType(type).set;
 
       expect(() => set.elementAt(-1), throws<RealmException>("Index out of range"));
-      expect(() => set.elementAt(800), throws<RealmException>());
+      expect(() => set.elementAt(800), throws<RealmException>("Requested index 800 greater than max 0"));
       expect(set.elementAt(0), values[0]);
     });
 

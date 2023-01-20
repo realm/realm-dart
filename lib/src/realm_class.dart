@@ -686,6 +686,16 @@ extension RealmInternal on Realm {
   static MigrationRealm getMigrationRealm(Realm realm) => MigrationRealm._(realm);
 
   bool get isInMigration => _isInMigration;
+
+  void addUnmanagedRealmObjectFromValue(Object? value, bool update) {
+    if (value is RealmObject && !value.isManaged) {
+      add<RealmObject>(value, update: update);
+    }
+    
+    if (value is RealmValue) {
+      addUnmanagedRealmObjectFromValue(value.value, update);
+    }
+  }
 }
 
 /// @nodoc

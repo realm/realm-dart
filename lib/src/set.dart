@@ -134,14 +134,12 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
 
   @override
   bool add(T value) {
-    //It is valid to call `add` with managed objects already in the set.
-    if (value is RealmObject) {
-      if (value.isManaged) {
-        _ensureManagedByThis(value, "add");
-      } else {
-        // might be updating an existing realm object
-        realm.add<RealmObject>(value, update: true);
-      }
+    if (_isManagedRealmObject(value)) {
+      //It is valid to call `add` with managed objects already in the set.
+      _ensureManagedByThis(value, "add");
+    } else {
+      // might be updating an existing realm object
+      realm.addUnmanagedRealmObjectFromValue(value, true);
     }
 
     return realmCore.realmSetInsert(_handle, value);
@@ -156,9 +154,19 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
     try {
       var value = realmCore.realmSetGetElementAt(this, index);
       if (value is RealmObjectHandle) {
-        final RealmObjectMetadata targetMetadata = _metadata!;
-        final Type type = T;
+        RealmObjectMetadata targetMetadata = _metadata!;
+        Type type = T;
+        if (T == RealmValue) {
+          final tuple = realm.metadata.getByClassKey(realmCore.getClassKey(value));
+          type = tuple.item1;
+          targetMetadata = tuple.item2;
+        }
+
         value = realm.createObject(type, value, targetMetadata);
+      }
+
+      if (T == RealmValue) {
+        return RealmValue.from(value) as T;
       }
 
       return value as T;
@@ -169,13 +177,11 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
 
   @override
   bool contains(covariant T element) {
-    if (element is RealmObject) {
-      if (!element.isManaged) {
-        return false;
-      }
-
-      _ensureManagedByThis(element, "contains");
+    if (!_isManagedRealmObject(element)) {
+      return false;
     }
+
+    _ensureManagedByThis(element, "contains");
 
     return realmCore.realmSetFind(this, element);
   }
@@ -187,13 +193,11 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
 
   @override
   bool remove(covariant T value) {
-    if (value is RealmObject) {
-      if (!value.isManaged) {
-        return false;
-      }
-
-      _ensureManagedByThis(value, "remove");
+    if (!_isManagedRealmObject(value)) {
+      return false;
     }
+
+    _ensureManagedByThis(value, "remove");
 
     return realmCore.realmSetErase(this, value);
   }
@@ -220,17 +224,38 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
   }
 
   void _ensureManagedByThis(covariant T element, String operation) {
-    if (element is! RealmEntity) {
+    Object? value = element;
+    if (element is RealmValue && element.value is RealmObject) {
+      value = element.value;
+    }
+
+    if (value is! RealmObject) {
       return;
     }
 
-    if (element.realm != realm) {
-      if (element.isFrozen) {
+    RealmObject realmObject = value;
+
+    if (realmObject.realm != realm) {
+      if (realmObject.isFrozen) {
         throw RealmError('Cannot do $operation because the object is managed by a frozen Realm');
       }
 
       throw RealmError('Cannot do $operation because the object is managed by another Realm instance');
     }
+  }
+
+  bool _isManagedRealmObject(Object? object) {
+    if (object is RealmObject) {
+      if (!object.isManaged) {
+        return false;
+      }
+    }
+
+    if (object is RealmValue) {
+      return _isManagedRealmObject(object.value);
+    }
+
+    return true;
   }
 }
 
