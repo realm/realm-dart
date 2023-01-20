@@ -522,6 +522,38 @@ Future<void> main([List<String>? args]) async {
 
       await Future<void>.delayed(Duration(milliseconds: 20));
     });
+
+    test('RealmSet<$type> basic operations on unmanaged sets', () {
+      var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+      var realm = getRealm(config);
+
+      var testSet = TestRealmSets(1);
+      var set = testSet.setByType(type).set;
+      var values = testSet.setByType(type).values;
+
+      set.add(values.first);
+      expect(set.contains(values.first), true);
+      expect(set.length, 1);
+
+      set.add(values.first);
+      expect(set.contains(values.first), true);
+      expect(set.length, 1);
+
+      expect(set.elementAt(0), values.first);
+
+      set.add(values.elementAt(0));
+      set.add(values.elementAt(1));
+      expect(set.contains(values.elementAt(0)), true);
+      expect(set.contains(values.elementAt(1)), true);
+      expect(set.length, 2);
+
+      set.remove(values.elementAt(0));
+      expect(set.contains(values.elementAt(0)), false);
+      expect(set.length, 1);
+      set.remove(values.elementAt(1));
+      expect(set.contains(values.elementAt(1)), false);
+      expect(set.length, 0);
+    });
   }
 
   test('RealmSet<RealmObject> deleteAll', () {
