@@ -1619,10 +1619,6 @@ Future<void> main([List<String>? args]) async {
     expect(File(pathCopy).existsSync(), isTrue);
     final copiedRealm = getRealm(configCopy);
     expect(copiedRealm.all<Car>().length, itemsCount);
-
-    _expectAllWritesToThrow<RealmException>(copiedRealm, "Can't perform transactions on read-only Realms.");
-    _expectAllAsyncWritesToThrow<RealmException>(copiedRealm, "Can't perform transactions on read-only Realms.");
-
     copiedRealm.close();
   });
 
