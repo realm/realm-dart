@@ -59,8 +59,7 @@ class RealmModel {
 
 /// MapTo annotation for class level and class member level.
 ///
-/// MapTo on class level indicates that a class should be persisted under a different collection name.
-/// MapTo on class member level indicates that a property should be persisted under a different name.
+/// Indicates that the class or the property should be persisted under a different name.
 /// This is useful when opening a Realm across different bindings where code style conventions might differ
 /// or when migrating models.
 ///
