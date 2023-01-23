@@ -556,7 +556,7 @@ Future<void> main([List<String>? args]) async {
     });
   }
 
-  test('RealmSet<RealmObject> deleteAll', () {
+  test('RealmSet<RealmObject> deleteMany', () {
     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
     var realm = getRealm(config);
 
@@ -573,7 +573,7 @@ Future<void> main([List<String>? args]) async {
     expect(realm.all<Car>().length, 2);
 
     realm.write(() {
-      testSet.objectsSet.deleteAll();
+      realm.deleteMany(testSet.objectsSet);
     });
 
     expect(testSet.objectsSet.length, 0);

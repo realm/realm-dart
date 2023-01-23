@@ -95,9 +95,6 @@ abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity i
   /// ```
   @override
   bool remove(covariant T value); //Note: explicitly overriding remove() to change parameter type
-
-  /// Clear the set and if it is a set of Realm objects, delete all realm objects from the realm.
-  void deleteAll();
 }
 
 class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> with RealmEntity implements RealmSet<T> {
@@ -114,9 +111,6 @@ class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> w
 
   @override
   Stream<RealmSetChanges<T>> get changes => throw RealmStateError("Unmanaged RealmSets don't support changes");
-
-  @override
-  void deleteAll() => super.clear();
 }
 
 class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implements RealmSet<T> {
@@ -210,9 +204,6 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
 
   @override
   void clear() => realmCore.realmSetClear(_handle);
-
-  @override
-  void deleteAll() => realmCore.realmSetRemoveAll(this);
 
   @override
   int get length => realmCore.realmSetSize(this);
