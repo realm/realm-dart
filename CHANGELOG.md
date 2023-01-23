@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 0.10.0+rc (2023-01-23)
 
 **This project is in Release Candidate stage.**
 
