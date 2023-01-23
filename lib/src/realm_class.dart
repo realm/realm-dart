@@ -295,16 +295,21 @@ class Realm implements Finalizable {
 
   /// Deletes many [RealmObject]s from this `Realm`.
   ///
+  /// Efficiently deletes all objects from the `Realm` and clears the [items] collection of type [RealmResults], [RealmList] or [RealmSet].
   /// Throws [RealmException] if there is no active write transaction.
   void deleteMany<T extends RealmObject>(Iterable<T> items) {
     if (items is RealmResults<T>) {
       _ensureManagedByThis(items, 'delete objects from Realm');
 
       realmCore.resultsDeleteAll(items);
-    } else if (items is RealmList<T>) {
+    } else if (items is ManagedRealmList<T>) {
       _ensureManagedByThis(items, 'delete objects from Realm');
 
       realmCore.listDeleteAll(items);
+    } else if (items is ManagedRealmSet<T>) {
+      _ensureManagedByThis(items, 'delete objects from Realm');
+
+      realmCore.realmSetRemoveAll(items);
     } else {
       for (T realmObject in items) {
         delete(realmObject);

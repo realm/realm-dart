@@ -556,7 +556,7 @@ Future<void> main([List<String>? args]) async {
     });
   }
 
-  test('RealmSet<RealmObject> deleteAll', () {
+  test('RealmSet<RealmObject> deleteMany', () {
     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
     var realm = getRealm(config);
 
@@ -573,12 +573,36 @@ Future<void> main([List<String>? args]) async {
     expect(realm.all<Car>().length, 2);
 
     realm.write(() {
-      testSet.objectsSet.deleteAll();
+      realm.deleteMany(testSet.objectsSet);
     });
 
     expect(testSet.objectsSet.length, 0);
     expect(realm.all<Car>().length, 0);
   });
+
+   test('UnmanagedRealmSet<RealmObject> deleteMany', () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    var testSet = TestRealmSets(1);
+    var unmanagedSet = testSet.objectsSet;
+
+    realm.write(() {
+      realm.add(testSet);
+      testSet.objectsSet.addAll([Car("Tesla"), Car("Audi")]);
+    });
+
+    var cars = realm.all<Car>();
+    unmanagedSet.addAll([...cars]);
+
+    realm.write(() {
+      realm.deleteMany(unmanagedSet);
+    });
+
+    cars = realm.all<Car>();
+    expect(cars.length, 0);
+  });
+
 
   test('RealmSet<RealmObject> add a set of already managed objects', () {
     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
