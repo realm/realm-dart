@@ -57,10 +57,11 @@ class RealmModel {
   const RealmModel([this.type = ObjectType.realmObject]);
 }
 
-/// MapTo annotation for class member level.
+/// MapTo annotation for class level and class member level.
 ///
-/// Indicates that a property should be persisted under a different name.
-/// This is useful when opening a Realm across different bindings where code style conventions might differ.
+/// Indicates that the class or the property should be persisted under a different name.
+/// This is useful when opening a Realm across different bindings where code style conventions might differ
+/// or when migrating models.
 ///
 /// {@category Annotations}
 class MapTo {

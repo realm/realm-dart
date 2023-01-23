@@ -790,6 +790,26 @@ Future<void> main([List<String>? args]) async {
     expect(realm.all<Person>(), players); // nothing disappeared from realm
   });
 
+  test('UnmanagedRealmList<RealmObject> deleteMany', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final team = Team('Class of 92');
+    final unmanagedRealmList = team.players;
+
+    realm.write(() => realm.add(team));
+
+    realm.write(() => realm.addAll([Person('Alice'), Person('Bob'), Person('Carol'), Person('Dan')]));
+    var players = realm.all<Person>();
+    unmanagedRealmList.addAll(players);
+
+    realm.write(() => realm.deleteMany(unmanagedRealmList));
+    expect(unmanagedRealmList.length, 4);
+
+    players = realm.all<Person>();
+    expect(players.length, 0);
+  });
+
   test('ManagedRealmList.insertAll', () {
     final config = Configuration.local([Team.schema, Person.schema]);
     final realm = getRealm(config);

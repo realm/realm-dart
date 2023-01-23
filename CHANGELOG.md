@@ -12,6 +12,24 @@
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
+* Using Core x.y.z.
+
+## 0.10.0+rc (2023-01-23)
+
+**This project is in Release Candidate stage.**
+
+### Enhancements
+* Add supoprt for Realm set data type. ([#1102](https://github.com/realm/realm-dart/pull/1102))
+* Exposed realm `writeCopy` API to copy a Realm file and optionally encrypt it with a different key. ([#1103](https://github.com/realm/realm-dart/pull/1103))
+
+### Fixed
+* Added an error for default values for Realm object references in the Realm generator. ([#1102](https://github.com/realm/realm-dart/pull/1102))
+* `realm.deleteMany()` will handle efficently ManagedRealmList instances. ([#1117](https://github.com/realm/realm-dart/pull/1171))
+
+### Compatibility
+* Realm Studio: 13.0.0 or later.
+
+### Internal
 * Using Core 13.2.0.
 
 ## 0.9.0+rc (2023-01-13)

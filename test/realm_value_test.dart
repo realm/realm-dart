@@ -42,7 +42,9 @@ class _Stuff {
   int i = 42;
 }
 
-void main() {
+Future<void> main([List<String>? args]) async {
+  await setupTests(args);
+
   group('RealmValue', () {
     final now = DateTime.now().toUtc();
     final values = <Object?>[
@@ -58,11 +60,10 @@ void main() {
       Uuid.v4(),
     ];
 
-    final config = Configuration.inMemory([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
-    final realm = getRealm(config);
-
     for (final x in values) {
       test('Roundtrip ${x.runtimeType} $x', () {
+        final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
+        final realm = getRealm(config);
         final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(x))));
         expect(something.oneAny.type, x.runtimeType);
         expect(something.oneAny.value, x);
@@ -71,10 +72,14 @@ void main() {
     }
 
     test('Illegal value', () {
+      final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
+      final realm = getRealm(config);
       expect(() => realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(<int>[1, 2])))), throwsArgumentError);
     });
 
     test('Embedded object not allowed in RealmValue', () {
+      final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
+      final realm = getRealm(config);
       expect(() => realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(TuckedIn())))), throwsArgumentError);
     });
 
@@ -198,10 +203,12 @@ void main() {
       Uuid.v4(),
     ];
 
-    final config = Configuration.inMemory([AnythingGoes.schema, Stuff.schema]);
+    final config = Configuration.local([AnythingGoes.schema, Stuff.schema]);
     final realm = getRealm(config);
 
     test('Roundtrip', () {
+      final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
+      final realm = getRealm(config);
       final something = realm.write(() => realm.add(AnythingGoes(manyAny: values.map(RealmValue.from))));
       expect(something.manyAny.map((e) => e.value), values);
       expect(something.manyAny, values.map(RealmValue.from));
