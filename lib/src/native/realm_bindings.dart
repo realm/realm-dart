@@ -8470,6 +8470,26 @@ class RealmLibrary {
       _realm_sync_client_config_set_reconnect_modePtr.asFunction<
           void Function(ffi.Pointer<realm_sync_client_config_t>, int)>();
 
+  void realm_sync_client_config_set_sync_socket(
+    ffi.Pointer<realm_sync_client_config_t> arg0,
+    ffi.Pointer<realm_sync_socket_t> arg1,
+  ) {
+    return _realm_sync_client_config_set_sync_socket(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_sync_client_config_set_sync_socketPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<realm_sync_client_config_t>,
+                  ffi.Pointer<realm_sync_socket_t>)>>(
+      'realm_sync_client_config_set_sync_socket');
+  late final _realm_sync_client_config_set_sync_socket =
+      _realm_sync_client_config_set_sync_socketPtr.asFunction<
+          void Function(ffi.Pointer<realm_sync_client_config_t>,
+              ffi.Pointer<realm_sync_socket_t>)>();
+
   void realm_sync_client_config_set_user_agent_application_info(
     ffi.Pointer<realm_sync_client_config_t> arg0,
     ffi.Pointer<ffi.Char> arg1,
@@ -9362,6 +9382,162 @@ class RealmLibrary {
               realm_sync_wait_for_completion_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
+
+  void realm_sync_socket_callback_complete(
+    ffi.Pointer<realm_sync_socket_callback_t> realm_callback,
+    int status,
+    ffi.Pointer<ffi.Char> reason,
+  ) {
+    return _realm_sync_socket_callback_complete(
+      realm_callback,
+      status,
+      reason,
+    );
+  }
+
+  late final _realm_sync_socket_callback_completePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<realm_sync_socket_callback_t>,
+              ffi.Int32,
+              ffi.Pointer<ffi.Char>)>>('realm_sync_socket_callback_complete');
+  late final _realm_sync_socket_callback_complete =
+      _realm_sync_socket_callback_completePtr.asFunction<
+          void Function(ffi.Pointer<realm_sync_socket_callback_t>, int,
+              ffi.Pointer<ffi.Char>)>();
+
+  ffi.Pointer<realm_sync_socket_t> realm_sync_socket_new(
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t userdata_free,
+    realm_sync_socket_post_func_t post_func,
+    realm_sync_socket_create_timer_func_t create_timer_func,
+    realm_sync_socket_timer_canceled_func_t cancel_timer_func,
+    realm_sync_socket_timer_free_func_t free_timer_func,
+    realm_sync_socket_connect_func_t websocket_connect_func,
+    realm_sync_socket_websocket_async_write_func_t websocket_write_func,
+    realm_sync_socket_websocket_free_func_t websocket_free_func,
+  ) {
+    return _realm_sync_socket_new(
+      userdata,
+      userdata_free,
+      post_func,
+      create_timer_func,
+      cancel_timer_func,
+      free_timer_func,
+      websocket_connect_func,
+      websocket_write_func,
+      websocket_free_func,
+    );
+  }
+
+  late final _realm_sync_socket_newPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_sync_socket_t> Function(
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t,
+                  realm_sync_socket_post_func_t,
+                  realm_sync_socket_create_timer_func_t,
+                  realm_sync_socket_timer_canceled_func_t,
+                  realm_sync_socket_timer_free_func_t,
+                  realm_sync_socket_connect_func_t,
+                  realm_sync_socket_websocket_async_write_func_t,
+                  realm_sync_socket_websocket_free_func_t)>>(
+      'realm_sync_socket_new');
+  late final _realm_sync_socket_new = _realm_sync_socket_newPtr.asFunction<
+      ffi.Pointer<realm_sync_socket_t> Function(
+          ffi.Pointer<ffi.Void>,
+          realm_free_userdata_func_t,
+          realm_sync_socket_post_func_t,
+          realm_sync_socket_create_timer_func_t,
+          realm_sync_socket_timer_canceled_func_t,
+          realm_sync_socket_timer_free_func_t,
+          realm_sync_socket_connect_func_t,
+          realm_sync_socket_websocket_async_write_func_t,
+          realm_sync_socket_websocket_free_func_t)>();
+
+  void realm_sync_socket_websocket_closed(
+    ffi.Pointer<realm_websocket_observer_t> realm_websocket_observer,
+    bool was_clean,
+    int status,
+    ffi.Pointer<ffi.Char> reason,
+  ) {
+    return _realm_sync_socket_websocket_closed(
+      realm_websocket_observer,
+      was_clean,
+      status,
+      reason,
+    );
+  }
+
+  late final _realm_sync_socket_websocket_closedPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<realm_websocket_observer_t>,
+              ffi.Bool,
+              ffi.Int32,
+              ffi.Pointer<ffi.Char>)>>('realm_sync_socket_websocket_closed');
+  late final _realm_sync_socket_websocket_closed =
+      _realm_sync_socket_websocket_closedPtr.asFunction<
+          void Function(ffi.Pointer<realm_websocket_observer_t>, bool, int,
+              ffi.Pointer<ffi.Char>)>();
+
+  void realm_sync_socket_websocket_connected(
+    ffi.Pointer<realm_websocket_observer_t> realm_websocket_observer,
+    ffi.Pointer<ffi.Char> protocol,
+  ) {
+    return _realm_sync_socket_websocket_connected(
+      realm_websocket_observer,
+      protocol,
+    );
+  }
+
+  late final _realm_sync_socket_websocket_connectedPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<realm_websocket_observer_t>,
+              ffi.Pointer<ffi.Char>)>>('realm_sync_socket_websocket_connected');
+  late final _realm_sync_socket_websocket_connected =
+      _realm_sync_socket_websocket_connectedPtr.asFunction<
+          void Function(ffi.Pointer<realm_websocket_observer_t>,
+              ffi.Pointer<ffi.Char>)>();
+
+  void realm_sync_socket_websocket_error(
+    ffi.Pointer<realm_websocket_observer_t> realm_websocket_observer,
+  ) {
+    return _realm_sync_socket_websocket_error(
+      realm_websocket_observer,
+    );
+  }
+
+  late final _realm_sync_socket_websocket_errorPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<realm_websocket_observer_t>)>>(
+      'realm_sync_socket_websocket_error');
+  late final _realm_sync_socket_websocket_error =
+      _realm_sync_socket_websocket_errorPtr
+          .asFunction<void Function(ffi.Pointer<realm_websocket_observer_t>)>();
+
+  void realm_sync_socket_websocket_message(
+    ffi.Pointer<realm_websocket_observer_t> realm_websocket_observer,
+    ffi.Pointer<ffi.Char> data,
+    int data_size,
+  ) {
+    return _realm_sync_socket_websocket_message(
+      realm_websocket_observer,
+      data,
+      data_size,
+    );
+  }
+
+  late final _realm_sync_socket_websocket_messagePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<realm_websocket_observer_t>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Size)>>('realm_sync_socket_websocket_message');
+  late final _realm_sync_socket_websocket_message =
+      _realm_sync_socket_websocket_messagePtr.asFunction<
+          void Function(ffi.Pointer<realm_websocket_observer_t>,
+              ffi.Pointer<ffi.Char>, int)>();
 
   /// Access the subscription at index.
   /// @return the subscription or nullptr if the index is not valid
@@ -10639,6 +10815,7 @@ abstract class realm_errno {
   static const int RLM_ERR_SCHEMA_VALIDATION_FAILED_WRITE = 4350;
   static const int RLM_ERR_APP_UNKNOWN = 4351;
   static const int RLM_ERR_MAINTENANCE_IN_PROGRESS = 4352;
+  static const int RLM_ERR_USERPASS_TOKEN_INVALID = 4353;
   static const int RLM_ERR_WEBSOCKET_GOINGAWAY = 4400;
   static const int RLM_ERR_WEBSOCKET_PROTOCOLERROR = 4401;
   static const int RLM_ERR_WEBSOCKET_UNSUPPORTEDDATA = 4402;
@@ -11261,6 +11438,47 @@ abstract class realm_sync_session_stop_policy {
 }
 
 typedef realm_sync_session_t = realm_sync_session;
+
+class realm_sync_socket extends ffi.Opaque {}
+
+class realm_sync_socket_callback extends ffi.Opaque {}
+
+typedef realm_sync_socket_callback_t = realm_sync_socket_callback;
+typedef realm_sync_socket_connect_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        realm_sync_socket_websocket_t Function(
+            ffi.Pointer<ffi.Void>,
+            realm_websocket_endpoint_t,
+            ffi.Pointer<realm_websocket_observer_t>)>>;
+typedef realm_sync_socket_create_timer_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        realm_sync_socket_timer_t Function(ffi.Pointer<ffi.Void>, ffi.Uint64,
+            ffi.Pointer<realm_sync_socket_callback_t>)>>;
+typedef realm_sync_socket_post_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(
+            ffi.Pointer<ffi.Void>, ffi.Pointer<realm_sync_socket_callback_t>)>>;
+typedef realm_sync_socket_t = realm_sync_socket;
+typedef realm_sync_socket_timer_canceled_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(ffi.Pointer<ffi.Void>, realm_sync_socket_timer_t)>>;
+typedef realm_sync_socket_timer_free_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(ffi.Pointer<ffi.Void>, realm_sync_socket_timer_t)>>;
+typedef realm_sync_socket_timer_t = ffi.Pointer<ffi.Void>;
+typedef realm_sync_socket_websocket_async_write_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(
+            ffi.Pointer<ffi.Void>,
+            realm_sync_socket_websocket_t,
+            ffi.Pointer<ffi.Char>,
+            ffi.Size,
+            ffi.Pointer<realm_sync_socket_callback_t>)>>;
+typedef realm_sync_socket_websocket_free_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(
+            ffi.Pointer<ffi.Void>, realm_sync_socket_websocket_t)>>;
+typedef realm_sync_socket_websocket_t = ffi.Pointer<ffi.Void>;
 typedef realm_sync_ssl_verify_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
@@ -11359,4 +11577,50 @@ class realm_version_id extends ffi.Struct {
 
 typedef realm_version_id_t = realm_version_id;
 
+class realm_websocket_endpoint extends ffi.Struct {
+  external ffi.Pointer<ffi.Char> address;
+
+  @ffi.Uint16()
+  external int port;
+
+  external ffi.Pointer<ffi.Char> path;
+
+  external ffi.Pointer<ffi.Pointer<ffi.Char>> protocols;
+
+  @ffi.Size()
+  external int num_protocols;
+
+  @ffi.Bool()
+  external bool is_ssl;
+}
+
+typedef realm_websocket_endpoint_t = realm_websocket_endpoint;
+
+class realm_websocket_observer extends ffi.Opaque {}
+
+typedef realm_websocket_observer_t = realm_websocket_observer;
+
 class shared_realm extends ffi.Opaque {}
+
+abstract class status_error_code {
+  static const int STATUS_OK = 0;
+  static const int STATUS_UNKNOWN_ERROR = 1;
+  static const int STATUS_RUNTIME_ERROR = 2;
+  static const int STATUS_LOGIC_ERROR = 3;
+  static const int STATUS_BROKEN_PROMISE = 4;
+  static const int STATUS_OPERATION_ABORTED = 5;
+
+  /// WEBSOCKET ERRORS
+  static const int STATUS_WEBSOCKET_GOING_AWAY = 1001;
+  static const int STATUS_WEBSOCKET_PROTOCOL_ERROR = 1002;
+  static const int STATUS_WEBSOCKET_UNSUPPORTED_DATA = 1003;
+  static const int STATUS_WEBSOCKET_RESERVED = 1004;
+  static const int STATUS_WEBSOCKET_NO_STATUS_RECEIVED = 1005;
+  static const int STATUS_WEBSOCKET_ABNORMAL_CLOSURE = 1006;
+  static const int STATUS_WEBSOCKET_INVALID_PAYLOAD_DATA = 1007;
+  static const int STATUS_WEBSOCKET_POLICY_VIOLATION = 1008;
+  static const int STATUS_WEBSOCKET_MESSAGE_TOO_BIG = 1009;
+  static const int STATUS_WEBSOCKET_INAVALID_EXTENSION = 1010;
+  static const int STATUS_WEBSOCKET_INTERNAL_SERVER_ERROR = 1011;
+  static const int STATUS_WEBSOCKET_TLS_HANDSHAKE_FAILED = 1015;
+}
