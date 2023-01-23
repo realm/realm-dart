@@ -650,7 +650,6 @@ class SyncError extends RealmError {
       case SyncErrorCategory.system:
       case SyncErrorCategory.unknown:
       default:
-        //TODO: Do we need the category name?
         return GeneralSyncError(message, category, code);
     }
   }

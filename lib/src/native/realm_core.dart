@@ -105,7 +105,7 @@ class _RealmCore {
       _realmLib.realm_dart_delete_persistent_handle(error.ref.usercode_error);
     }
 
-    return LastError(error.ref.error, error.ref.categories, message, userError);
+    return LastError(error.ref.error, message, userError);
   }
 
   void throwLastError([String? errorMessage]) {
@@ -2337,12 +2337,10 @@ class _RealmCore {
 
 class LastError {
   final int code;
-  final int category;
   final String? message;
   final Object? userError;
 
-//TODO: Resolve category by code
-  LastError(this.code, this.category, [this.message, this.userError]);
+  LastError(this.code, [this.message, this.userError]);
 
   @override
   String toString() {
@@ -2823,8 +2821,6 @@ extension on realm_sync_error {
 extension on Pointer<realm_sync_error_code_t> {
   SyncError toSyncError() {
     final message = ref.message.cast<Utf8>().toDartString();
-    // TODO: Do we need category name?
-    // final categoryName = ref.category_name;
     return SyncError.create(message, SyncErrorCategory.values[ref.category], ref.value, isFatal: false);
   }
 }
@@ -2864,8 +2860,7 @@ extension on Completer<Object?> {
   void completeWithAppError(Pointer<realm_app_error> error) {
     final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
     final linkToLogs = error.ref.link_to_server_logs.cast<Utf8>().toRealmDartString();
-    completeError(
-        AppInternal.createException(message, linkToLogs, error.ref.http_status_code, errorCode: error.ref.error, errorCategory: error.ref.categories));
+    completeError(AppInternal.createException(message, linkToLogs, error.ref.http_status_code));
   }
 }
 
