@@ -1561,8 +1561,10 @@ Future<void> main([List<String>? args]) async {
     final config = Configuration.local([Car.schema]);
     final realm = getRealm(config);
     final path = '';
-    expect(() => realm.writeCopy(Configuration.local([Car.schema], path: path)),
-        throws<RealmException>("Failed to open file at path '$path': parent directory does not exist"));
+    expect(
+        () => realm.writeCopy(Configuration.local([Car.schema], path: path)),
+        throws<RealmException>(
+            Platform.isWindows ? "The system cannot find the path specified." : "Failed to open file at path '$path': parent directory does not exist"));
   });
 
   baasTest('Realm writeCopy Local->Sync is not supported', (appConfiguration) async {
