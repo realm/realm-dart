@@ -1554,14 +1554,15 @@ Future<void> main([List<String>? args]) async {
   test('Realm writeCopy local to existing file', () {
     final config = Configuration.local([Car.schema]);
     final realm = getRealm(config);
-    expect(() => realm.writeCopy(config), throws<RealmException>("File at path '${config.path}' already exists"));
+    expect(() => realm.writeCopy(config), throws<RealmException>("Failed to open file at path '${config.path}': File exists"));
   });
 
   test('Realm writeCopy Local to not existing directory', () {
     final config = Configuration.local([Car.schema]);
     final realm = getRealm(config);
     final path = '';
-    expect(() => realm.writeCopy(Configuration.local([Car.schema], path: path)), throws<RealmException>("Directory at path '$path' does not exist"));
+    expect(() => realm.writeCopy(Configuration.local([Car.schema], path: path)),
+        throws<RealmException>("Failed to open file at path '$path': parent directory does not exist"));
   });
 
   baasTest('Realm writeCopy Local->Sync is not supported', (appConfiguration) async {
@@ -1582,8 +1583,7 @@ Future<void> main([List<String>? args]) async {
     final pathCopy = originalConfig.path.replaceFirst(p.basenameWithoutExtension(originalConfig.path), generateRandomString(10));
     final configCopy = Configuration.local([Car.schema], path: pathCopy);
     originalRealm.write(() {
-      expect(() => originalRealm.writeCopy(configCopy),
-          throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
+      expect(() => originalRealm.writeCopy(configCopy), throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
     });
     originalRealm.close();
   });
@@ -1592,12 +1592,10 @@ Future<void> main([List<String>? args]) async {
     getRealm(Configuration.local([Car.schema], schemaVersion: 1)).close();
 
     final configWithMigrationCallback = Configuration.local([Car.schema], schemaVersion: 2, migrationCallback: (migration, oldVersion) {
-
       final pathCopy = migration.newRealm.config.path.replaceFirst(p.basenameWithoutExtension(migration.newRealm.config.path), generateRandomString(10));
       final configCopy = Configuration.local([Car.schema], path: pathCopy);
-      expect(() => migration.newRealm.writeCopy(configCopy),
-          throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
-
+      expect(
+          () => migration.newRealm.writeCopy(configCopy), throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
     });
     getRealm(configWithMigrationCallback);
   });

@@ -373,7 +373,7 @@ Future<void> main([List<String>? args]) async {
       var set = testSet.setByType(type).set;
 
       expect(() => set.elementAt(-1), throws<RealmException>("Index out of range"));
-      expect(() => set.elementAt(800), throws<RealmException>("Requested index 800 greater than max 0"));
+      expect(() => set.elementAt(800), throws<RealmException>("Error getting value at index 800"));
       expect(set.elementAt(0), values[0]);
     });
 
@@ -580,7 +580,7 @@ Future<void> main([List<String>? args]) async {
     expect(realm.all<Car>().length, 0);
   });
 
-   test('UnmanagedRealmSet<RealmObject> deleteMany', () {
+  test('UnmanagedRealmSet<RealmObject> deleteMany', () {
     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
     var realm = getRealm(config);
 
@@ -602,7 +602,6 @@ Future<void> main([List<String>? args]) async {
     cars = realm.all<Car>();
     expect(cars.length, 0);
   });
-
 
   test('RealmSet<RealmObject> add a set of already managed objects', () {
     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
