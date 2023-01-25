@@ -49,7 +49,6 @@ jobs:
       - dart-tests-macos-arm
       - dart-tests-linux
       - flutter-desktop-tests-windows
-      #- flutter-desktop-tests-macos-arm
       - flutter-desktop-tests-macos
       - flutter-desktop-tests-linux
       - flutter-ios
@@ -72,7 +71,6 @@ jobs:
       - dart-tests-macos-arm
       - dart-tests-linux
       - flutter-desktop-tests-windows
-      #- flutter-desktop-tests-macos-arm
       - flutter-desktop-tests-macos
       - flutter-desktop-tests-linux
       - flutter-ios
@@ -242,21 +240,10 @@ jobs:
      app: fw
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
-  # flutter-desktop-tests-macos-arm:
-  #   name: MacOS Arm Flutter Tests
-  #   uses: ./.github/workflows/flutter-desktop-tests.yml
-  #   needs:
-  #     - build-macos
-  #     - deploy-cluster
-  #   secrets: inherit
-  #   with:
-  #    os: macos
-  #    app: fma
-  #    architecture: arm
-  #    cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
-
   flutter-desktop-tests-macos:
     name: MacOS Flutter Tests
+    if: false # Enable after Flutter tests CI on MacOS are fixed.
+    #Issue :https://github.com/flutter/flutter/issues/118469
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-macos
