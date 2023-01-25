@@ -29,7 +29,7 @@ dev_dependencies:
   timezone: ^0.9.0
 
 dependency_overrides:
-  test_api: ^0.4.18
+  test_api: 0.4.17
 
 flutter:
   uses-material-design: true

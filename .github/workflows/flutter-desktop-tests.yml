@@ -61,7 +61,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'beta'
+          channel: 'stable'
           architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
 
       - name: Enable Flutter Desktop support
