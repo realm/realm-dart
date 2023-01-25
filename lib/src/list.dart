@@ -47,6 +47,8 @@ abstract class RealmList<T extends Object?> with RealmEntity implements List<T>,
   RealmResults<T> asResults();
 
   factory RealmList._(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => ManagedRealmList._(handle, realm, metadata);
+  
+  /// Creates an unmanaged RealmList from [items]
   factory RealmList(Iterable<T> items) => UnmanagedRealmList(items);
 
   /// Creates a frozen snapshot of this `RealmList`.
@@ -125,9 +127,11 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
         }
         value = realm.createObject(type, value, targetMetadata);
       }
+
       if (T == RealmValue) {
         value = RealmValue.from(value);
       }
+      
       return value as T;
     } on Exception catch (e) {
       throw RealmException("Error getting value at index $index. Error: $e");
@@ -307,7 +311,7 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
   }
 }
 
-/// Describes the changes in a Realm results collection since the last time the notification callback was invoked.
+/// Describes the changes in a Realm list collection since the last time the notification callback was invoked.
 class RealmListChanges<T extends Object?> extends RealmCollectionChanges {
   /// The collection being monitored for changes.
   final RealmList<T> list;

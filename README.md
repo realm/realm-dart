@@ -1,3 +1,6 @@
+## Developing with the Realm SDKs? We want to hear from you! [Take our short survey](https://mongodb.co1.qualtrics.com/jfe/form/SV_6fJwP5VUXddZmZg?Source=github)
+<br/>
+
 ![Realm](https://github.com/realm/realm-dart/raw/main/logo.png)
 
 [![License](https://img.shields.io/badge/License-Apache-blue.svg)](LICENSE)
@@ -120,6 +123,11 @@ Realm Flutter package is published to [realm](https://pub.dev/packages/realm).
 
     ```
     flutter pub add realm
+    ```
+* For running Flutter widget and unit tests run the following command to install the required native binaries.
+
+    ```
+    flutter pub run realm install
     ```
 
 * Import Realm in a dart file (ex. `catalog.dart`).

@@ -44,6 +44,7 @@ import '../scheduler.dart';
 import '../session.dart';
 import '../subscription.dart';
 import '../user.dart';
+import '../set.dart';
 import 'realm_bindings.dart';
 
 late RealmLibrary _realmLib;
@@ -83,7 +84,7 @@ class _RealmCore {
   }
 
   // stamped into the library by the build system (see prepare-release.yml)
-  static const libraryVersion = '0.8.0+rc';
+  static const libraryVersion = '0.10.0+rc';
   late String nativeLibraryVersion = _realmLib.realm_dart_library_version().cast<Utf8>().toDartString();
 
   // for debugging only. Enable in realm_dart.cpp
@@ -1176,6 +1177,95 @@ class _RealmCore {
     _realmLib.invokeGetBool(() => _realmLib.realm_list_clear(listHandle._pointer));
   }
 
+  RealmSetHandle getSetProperty(RealmObjectBase object, int propertyKey) {
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_set(object.handle._pointer, propertyKey));
+    return RealmSetHandle._(pointer, object.realm.handle);
+  }
+
+  bool realmSetInsert(RealmSetHandle handle, Object? value) {
+    return using((Arena arena) {
+      final realm_value = _toRealmValue(value, arena);
+      final out_index = arena<Size>();
+      final out_inserted = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_set_insert(handle._pointer, realm_value.ref, out_index, out_inserted));
+      return out_inserted.value;
+    });
+  }
+
+  Object? realmSetGetElementAt(RealmSet realmSet, int index) {
+    return using((Arena arena) {
+      final realm_value = arena<realm_value_t>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_set_get(realmSet.handle._pointer, index, realm_value));
+      final result = realm_value.toDartValue(realmSet.realm);
+      return result;
+    });
+  }
+
+  bool realmSetFind(RealmSet realmSet, Object? value) {
+    return using((Arena arena) {
+      final realm_value = _toRealmValue(value, arena);
+      final out_index = arena<Size>();
+      final out_found = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_set_find(realmSet.handle._pointer, realm_value.ref, out_index, out_found));
+      return out_found.value;
+    });
+  }
+
+  bool realmSetErase(RealmSet realmSet, Object? value) {
+    return using((Arena arena) {
+      final realm_value = _toRealmValue(value, arena);
+      final out_erased = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_set_erase(realmSet.handle._pointer, realm_value.ref, out_erased));
+      return out_erased.value;
+    });
+  }
+
+  void realmSetClear(RealmSetHandle handle) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_set_clear(handle._pointer));
+  }
+
+  int realmSetSize(RealmSet realmSet) {
+    return using((Arena arena) {
+      final out_size = arena<Size>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_set_size(realmSet.handle._pointer, out_size));
+      return out_size.value;
+    });
+  }
+
+  bool realmSetIsValid(RealmSet realmSet) {
+    return _realmLib.realm_set_is_valid(realmSet.handle._pointer);
+  }
+
+  void realmSetAssign(RealmSetHandle realmSet, List<Object?> values) {
+    return using((Arena arena) {
+      final len = values.length;
+      final valuesPtr = arena.allocate<realm_value_t>(len);
+      for (var i = 0; i < len; i++) {
+        final value = values[i];
+        final valPtr = valuesPtr.elementAt(i);
+        _intoRealmValue(value, valPtr, arena);
+      }
+
+      _realmLib.invokeGetBool(() => _realmLib.realm_set_assign(realmSet._pointer, valuesPtr, len));
+    });
+  }
+
+  void realmSetRemoveAll(RealmSet realmSet) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_set_remove_all(realmSet.handle._pointer));
+  }
+
+  RealmNotificationTokenHandle subscribeSetNotifications(RealmSet realmSet, NotificationsController controller) {
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_set_add_notification_callback(
+          realmSet.handle._pointer,
+          controller.toWeakHandle(),
+          nullptr,
+          nullptr,
+          Pointer.fromFunction(collection_change_callback),
+        ));
+
+    return RealmNotificationTokenHandle._(pointer, realmSet.realm.handle);
+  }
+
   bool _equals<T extends NativeType>(HandleBase<T> first, HandleBase<T> second) {
     return _realmLib.realm_equals(first._pointer.cast(), second._pointer.cast());
   }
@@ -2060,56 +2150,60 @@ class _RealmCore {
     }
   }
 
-  static String? _appDir;
+  String _getAppDirectoryFromPlugin() {
+    assert(isFlutterPlatform);
 
-  String _getAppDirectory() {
-    if (!isFlutterPlatform) {
-      return path.basenameWithoutExtension(File.fromUri(Platform.script).absolute.path);
-    }
+    String plugin = Platform.isWindows
+        ? 'realm_plugin.dll'
+        : Platform.isMacOS
+            ? 'realm.framework/realm' // use catalyst
+            : Platform.isLinux
+                ? "librealm_plugin.so"
+                : throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
 
-    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-      const String libName = 'realm_plugin';
-      String binaryExt = Platform.isWindows
-          ? ".dll"
-          : Platform.isMacOS
-              ? ".dylib"
-              : ".so";
-      String binaryNamePrefix = Platform.isWindows ? "" : "lib";
-      final realmPluginLib =
-          Platform.isMacOS == false ? DynamicLibrary.open("$binaryNamePrefix$libName$binaryExt") : DynamicLibrary.open('realm.framework/realm');
-      final getAppDirFunc = realmPluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory");
-      final dirNamePtr = getAppDirFunc();
-      if (dirNamePtr == nullptr) {
-        return "";
-      }
+    final pluginLib = DynamicLibrary.open(plugin);
+    final getAppDirFunc = pluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory");
+    final dirNamePtr = getAppDirFunc();
+    final dirName = Platform.isWindows ? dirNamePtr.cast<Utf16>().toDartString() : dirNamePtr.cast<Utf8>().toDartString();
 
-      final dirName = Platform.isWindows ? dirNamePtr.cast<Utf16>().toDartString() : dirNamePtr.cast<Utf8>().toDartString();
-      return dirName;
-    }
-
-    return "";
+    return dirName;
   }
 
   String getAppDirectory() {
-    if (!isFlutterPlatform) {
-      return Directory.current.absolute.path;
+    try {
+      if (!isFlutterPlatform || Platform.environment.containsKey('FLUTTER_TEST')) {
+        return Directory.current.absolute.path; // dart or flutter test
+      }
+
+      // Flutter from here on..
+
+      if (Platform.isAndroid || Platform.isIOS) {
+        return getFilesPath();
+      }
+
+      if (Platform.isLinux) {
+        String appSupportDir = PlatformEx.fromEnvironment(
+          "XDG_DATA_HOME",
+          defaultValue: PlatformEx.fromEnvironment(
+            "HOME",
+            defaultValue: Directory.current.absolute.path,
+          ),
+        );
+        return path.join(appSupportDir, ".local/share", _getAppDirectoryFromPlugin());
+      }
+
+      if (Platform.isMacOS) {
+        return _getAppDirectoryFromPlugin();
+      }
+
+      if (Platform.isWindows) {
+        return _getAppDirectoryFromPlugin();
+      }
+
+      throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
+    } catch (e) {
+      throw RealmException('Cannot get app directory. Error: $e');
     }
-
-    _appDir ??= _getAppDirectory();
-
-    if (Platform.isAndroid || Platform.isIOS) {
-      return path.join(getFilesPath(), _appDir);
-    } else if (Platform.isWindows) {
-      return _appDir ?? Directory.current.absolute.path;
-    } else if (Platform.isLinux) {
-      String appSupportDir =
-          PlatformEx.fromEnvironment("XDG_DATA_HOME", defaultValue: PlatformEx.fromEnvironment("HOME", defaultValue: Directory.current.absolute.path));
-      return path.join(appSupportDir, ".local/share", _appDir);
-    } else if (Platform.isMacOS) {
-      return _appDir ?? Directory.current.absolute.path;
-    }
-
-    throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
   }
 
   Future<void> deleteUser(App app, User user) {
@@ -2328,6 +2422,11 @@ class _RealmCore {
       return out_did_run.value;
     });
   }
+
+  void writeCopy(Realm realm, Configuration config) {
+    final configHandle = _createConfig(config);
+    _realmLib.invokeGetBool(() => _realmLib.realm_convert_with_config(realm.handle._pointer, configHandle._pointer, false));
+  }
 }
 
 class LastError {
@@ -2520,6 +2619,10 @@ class RealmResultsHandle extends RootedHandleBase<realm_results> {
 
 class RealmListHandle extends RootedHandleBase<realm_list> {
   RealmListHandle._(Pointer<realm_list> pointer, RealmHandle root) : super(root, pointer, 88);
+}
+
+class RealmSetHandle extends RootedHandleBase<realm_set> {
+  RealmSetHandle._(Pointer<realm_set> pointer, RealmHandle root) : super(root, pointer, 96);
 }
 
 class _RealmQueryHandle extends RootedHandleBase<realm_query> {
