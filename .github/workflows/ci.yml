@@ -508,19 +508,19 @@ jobs:
         if: matrix.os == 'ubuntu'
         run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
 
-  # coverage-finished:
-  #   needs:
-  #     - generator
-  #     - dart-tests-linux
-  #   runs-on: ubuntu-latest
-  #   steps:
+  coverage-finished:
+    needs:
+      - generator
+      - dart-tests-linux
+    runs-on: ubuntu-latest
+    steps:
 
-  #     - name: Coveralls Finished
-  #       id: publish-coverage
-  #       uses: coverallsapp/github-action@a1a1a8a300a7e89df3630639df8fb23de5cc6368
-  #       with:
-  #         github-token: ${{ secrets.GITHUB_TOKEN }}
-  #         parallel-finished: true
+      - name: Coveralls Finished
+        id: publish-coverage
+        uses: coverallsapp/github-action@a1a1a8a300a7e89df3630639df8fb23de5cc6368
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
 
-  #     - name: Output Coveralls response
-  #       run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
+      - name: Output Coveralls response
+        run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
