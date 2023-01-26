@@ -63,6 +63,9 @@ jobs:
         with:
           channel: 'stable'
           architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
+          # Delete flutter-version argument after Flutter tests CI on MacOS are fixed.
+          #Issue :https://github.com/flutter/flutter/issues/118469
+          flutter-version: ${{ inputs.os == 'macos' && '3.3.10' || ''}}
 
       - name: Enable Flutter Desktop support
         run: flutter config --enable-${{ inputs.os }}-desktop

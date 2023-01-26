@@ -242,8 +242,6 @@ jobs:
 
   flutter-desktop-tests-macos:
     name: MacOS Flutter Tests
-    if: false # Enable after Flutter tests CI on MacOS are fixed.
-    #Issue :https://github.com/flutter/flutter/issues/118469
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-macos
@@ -466,7 +464,7 @@ jobs:
       - name: Run generator tests
         run: |
           dart pub get
-          dart test --reporter expanded --coverage ./coverage/ --test-randomize-ordering-seed random
+          dart test -r github --coverage ./coverage/ --test-randomize-ordering-seed random
         working-directory: ./generator/
 
       - name: Generate generator coverage report
