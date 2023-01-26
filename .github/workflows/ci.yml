@@ -319,7 +319,7 @@ jobs:
 
       - name: Run tests on iOS Simulator
         run: |
-          flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics
+          flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
         working-directory: ./flutter/realm_flutter/tests
 
   flutter-android:
@@ -398,7 +398,7 @@ jobs:
           ndk: 21.0.6113669
           arch: x86
           cmake: 3.10.2.4988404
-          script: flutter build apk --debug --target=test_driver/app.dart && flutter install && flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics
+          script: flutter build apk --debug --target=test_driver/app.dart && flutter install --debug && flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
           working-directory: ./flutter/realm_flutter/tests
 
 # Generator jobs
@@ -464,7 +464,7 @@ jobs:
       - name: Run generator tests
         run: |
           dart pub get
-          dart test --reporter expanded --coverage ./coverage/ --test-randomize-ordering-seed random
+          dart test -r github --coverage ./coverage/ --test-randomize-ordering-seed random
         working-directory: ./generator/
 
       - name: Generate generator coverage report

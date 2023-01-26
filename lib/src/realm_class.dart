@@ -32,6 +32,7 @@ import 'results.dart';
 import 'scheduler.dart';
 import 'session.dart';
 import 'subscription.dart';
+import 'set.dart';
 
 export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
 export 'package:realm_common/realm_common.dart'
@@ -51,10 +52,6 @@ export 'package:realm_common/realm_common.dart'
         RealmPropertyType,
         RealmStateError,
         RealmUnsupportedSetError,
-        SyncClientErrorCode,
-        SyncConnectionErrorCode,
-        SyncErrorCategory,
-        SyncSessionErrorCode,
         Uuid;
 
 // always expose with `show` to explicitly control the public API surface
@@ -87,9 +84,11 @@ export "configuration.dart"
         SyncConnectionError,
         SyncError,
         SyncErrorHandler,
+        SyncResolveError,
         SyncSessionError;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
+export 'set.dart' show RealmSet, RealmSetChanges;
 export 'migration.dart' show Migration;
 export 'realm_object.dart'
     show
@@ -104,7 +103,20 @@ export 'realm_object.dart'
         UserCallbackException;
 export 'realm_property.dart';
 export 'results.dart' show RealmResultsOfObject, RealmResultsChanges, RealmResults;
-export 'session.dart' show ConnectionStateChange, SyncProgress, ProgressDirection, ProgressMode, ConnectionState, Session, SessionState;
+export 'session.dart'
+    show
+        ConnectionStateChange,
+        SyncProgress,
+        ProgressDirection,
+        ProgressMode,
+        ConnectionState,
+        Session,
+        SessionState,
+        SyncClientErrorCode,
+        SyncConnectionErrorCode,
+        SyncErrorCategory,
+        SyncResolveErrorCode,
+        SyncSessionErrorCode;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient;
 
@@ -283,16 +295,21 @@ class Realm implements Finalizable {
 
   /// Deletes many [RealmObject]s from this `Realm`.
   ///
+  /// Efficiently deletes all objects from the `Realm` and clears the [items] collection of type [RealmResults], [RealmList] or [RealmSet].
   /// Throws [RealmException] if there is no active write transaction.
   void deleteMany<T extends RealmObject>(Iterable<T> items) {
     if (items is RealmResults<T>) {
       _ensureManagedByThis(items, 'delete objects from Realm');
 
       realmCore.resultsDeleteAll(items);
-    } else if (items is RealmList<T>) {
+    } else if (items is ManagedRealmList<T>) {
       _ensureManagedByThis(items, 'delete objects from Realm');
 
       realmCore.listDeleteAll(items);
+    } else if (items is ManagedRealmSet<T>) {
+      _ensureManagedByThis(items, 'delete objects from Realm');
+
+      realmCore.realmSetRemoveAll(items);
     } else {
       for (T realmObject in items) {
         delete(realmObject);
@@ -529,6 +546,23 @@ class Realm implements Finalizable {
     }
   }
 
+  /// Writes a compacted copy of the `Realm` to the path in the specified config. If the configuration object has
+  /// non-null [Configuration.encryptionKey], the copy will be encrypted with that key.
+  ///
+  /// 1. The destination file should not already exist.
+  /// 2. Copying realm is not allowed within a write transaction as well as during migration.
+  /// 3. When using synced Realm, it is required that all local changes are synchronized with the server before the copy can be written.
+  ///    This is to be sure that the file can be used as a starting point for a newly installed application.
+  ///    The function will throw if there are pending uploads.
+  /// 4. Copying a local `Realm` to a synced `Realm` is not supported.
+  void writeCopy(Configuration config) {
+    if (isInTransaction || _isInMigration) {
+      throw RealmError("Copying a Realm is not allowed within a write transaction or during migration.");
+    }
+
+    realmCore.writeCopy(this, config);
+  }
+  
   /// Update the `Realm` instance and outstanding objects to point to the most recent persisted version.
   /// 
   /// If another process or thread has made changes to the realm file, this causes
@@ -697,6 +731,16 @@ extension RealmInternal on Realm {
   static MigrationRealm getMigrationRealm(Realm realm) => MigrationRealm._(realm);
 
   bool get isInMigration => _isInMigration;
+
+  void addUnmanagedRealmObjectFromValue(Object? value, bool update) {
+    if (value is RealmObject && !value.isManaged) {
+      add<RealmObject>(value, update: update);
+    }
+
+    if (value is RealmValue) {
+      addUnmanagedRealmObjectFromValue(value.value, update);
+    }
+  }
 }
 
 /// @nodoc
