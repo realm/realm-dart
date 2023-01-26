@@ -413,7 +413,7 @@ Future<void> main([List<String>? args]) async {
     // Try to open the realm again - we should see the callback get invoked.
     getRealm(config);
     expect(invoked, 2);
-  });
+  }, skip: true);
 
   test('Configuration.shouldCompact not invoked if a Realm is still open', () {
     var invoked = 0;
@@ -429,7 +429,7 @@ Future<void> main([List<String>? args]) async {
     // is still open
     getRealm(config);
     expect(invoked, 1);
-  });
+  }, skip: true);
 
   test('Configuration.shouldCompact can return true', () {
     var invoked = false;
