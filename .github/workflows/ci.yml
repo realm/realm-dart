@@ -318,7 +318,7 @@ jobs:
           clusterName: ${{ env.BAAS_CLUSTER }}
 
       - name: Run tests on iOS Simulator
-        run: flutter test integration_test/app_test.dart -j 1 -r github
+        run: flutter test integration_test/app_test.dart -j 1 --test-randomize-ordering-seed random -r github
         working-directory: ./flutter/realm_flutter/tests
 
   flutter-android:
@@ -397,7 +397,7 @@ jobs:
           ndk: 21.0.6113669
           arch: x86
           cmake: 3.10.2.4988404
-          script: flutter build apk --debug --target=integration_test/app_test.dart && flutter install --debug && flutter test integration_test/app_test.dart -j 1 -r github
+          script: flutter build apk --debug --target=integration_test/app_test.dart && flutter install --debug && flutter test integration_test/app_test.dart -j 1 --test-randomize-ordering-seed random -r github
           working-directory: ./flutter/realm_flutter/tests
 
 # Generator jobs
