@@ -29,8 +29,8 @@ env:
 
 jobs:
   flutter-tests:
-    runs-on: ${{ inputs.os == 'linux' && 'ubuntu' || inputs.os }}-latest
-    name: Flutter tests on ${{inputs.os  }}
+    runs-on: ${{ inputs.os == 'linux' && 'ubuntu' || inputs.os }}-${{ inputs.architecture || 'latest' }}
+    name: Flutter tests on ${{inputs.os }}-${{ inputs.architecture }}
     timeout-minutes: 45
     env:
       BAAS_CLUSTER: ${{ inputs.cluster }}
@@ -62,6 +62,10 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
+          # Delete flutter-version argument after Flutter tests CI on MacOS are fixed.
+          #Issue :https://github.com/flutter/flutter/issues/118469
+          flutter-version: ${{ inputs.os == 'macos' && '3.3.10' || ''}}
 
       - name: Enable Flutter Desktop support
         run: flutter config --enable-${{ inputs.os }}-desktop
@@ -82,5 +86,5 @@ jobs:
           clusterName: ${{ env.BAAS_CLUSTER }}
 
       - name: Run tests
-        run: ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ inputs.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" #--verbose #-a="Some test name"
+        run: ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ inputs.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" --debug # -a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
