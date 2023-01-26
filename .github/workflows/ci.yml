@@ -318,8 +318,7 @@ jobs:
           clusterName: ${{ env.BAAS_CLUSTER }}
 
       - name: Run tests on iOS Simulator
-        run: |
-          flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
+        run: flutter test integration_test/app_test.dart -j 1 --test-randomize-ordering-seed random -r github
         working-directory: ./flutter/realm_flutter/tests
 
   flutter-android:
@@ -398,7 +397,7 @@ jobs:
           ndk: 21.0.6113669
           arch: x86
           cmake: 3.10.2.4988404
-          script: flutter build apk --debug --target=test_driver/app.dart && flutter install --debug && flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
+          script: flutter build apk --debug --target=test_driver/app.dart && flutter install --debug && flutter test integration_test/app_test.dart -j 1 --test-randomize-ordering-seed random -r github
           working-directory: ./flutter/realm_flutter/tests
 
 # Generator jobs

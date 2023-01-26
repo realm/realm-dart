@@ -19,5 +19,5 @@ realm-dart>dart test test\realm_test.dart --name "Realm version"
 
 Run flutter tests
 ```
-realm-dart\flutter\realm_flutter\tests>flutter drive -t test_driver/app.dart --dart-define=testName="Realm version"
+realm-dart\flutter\realm_flutter\tests>flutter test integration_test/app_test.dart -j 1 --test-randomize-ordering-seed random -r github
 ```
