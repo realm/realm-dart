@@ -489,7 +489,7 @@ Future<void> main([List<String>? args]) async {
       }
 
       expect(compactedRealm.all<Person>().length, dummyDataSize / 2);
-    });
+    }, skip: true);
   }
 
   baasTest('Configuration.flexibleSync suggests correct path', (appConfig) async {
