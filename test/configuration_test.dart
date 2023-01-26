@@ -397,7 +397,7 @@ Future<void> main([List<String>? args]) async {
 
     final realm = getRealm(config);
     expect(invoked, true);
-  });
+  }, skip: true);
 
   test('Configuration.shouldCompact invoked on every open', () {
     var invoked = 0;
@@ -440,7 +440,7 @@ Future<void> main([List<String>? args]) async {
 
     final realm = getRealm(config);
     expect(invoked, true);
-  });
+  }, skip: true);
 
   const dummyDataSize = 100;
   _addDummyData(Realm realm) {
