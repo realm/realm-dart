@@ -17,11 +17,6 @@ import '../test/client_reset_test.dart' as client_reset_test;
 import '../test/realm_set_test.dart' as realm_set_test;
 
 Future<void> main(List<String> args) async {
-  final Completer<void> completer = Completer<void>();
-
-  try {
-    final List<String> failedTests = [];
-
     await app_test.main(args);
     await configuration_test.main(args);
     await credentials_test.main(args);
@@ -37,10 +32,4 @@ Future<void> main(List<String> args) async {
     await user_test.main(args);
     await client_reset_test.main(args);
     await realm_set_test.main(args);
-    completer.complete();
-  } catch (e) {
-    completer.completeError(e);
-  }
-
-  return completer.future;
 }
