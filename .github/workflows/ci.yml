@@ -464,7 +464,7 @@ jobs:
       - name: Run generator tests
         run: |
           dart pub get
-          dart test -r github --coverage ./coverage/ --test-randomize-ordering-seed random
+          dart test -r expanded --coverage ./coverage/ --test-randomize-ordering-seed random
         working-directory: ./generator/
 
       - name: Generate generator coverage report
