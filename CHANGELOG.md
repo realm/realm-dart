@@ -3,7 +3,14 @@
 **This project is in Release Candidate stage.**
 
 ### Enhancements
-* None
+* Add `App.reconnect` to reconnect ahead of schedule. Example of use in concert with `connectivity_plus` package:
+```dart
+Connectivity().onConnectivityChanged.listen((event) {
+  if (event != ConnectivityResult.none) {
+    app.reconnect();
+  }
+});
+```
 
 ### Fixed
 * None
@@ -19,7 +26,7 @@
 **This project is in Release Candidate stage.**
 
 ### Enhancements
-* Add supoprt for Realm set data type. ([#1102](https://github.com/realm/realm-dart/pull/1102))
+* Add support for Realm set data type. ([#1102](https://github.com/realm/realm-dart/pull/1102))
 * Exposed realm `writeCopy` API to copy a Realm file and optionally encrypt it with a different key. ([#1103](https://github.com/realm/realm-dart/pull/1103))
 
 ### Fixed
