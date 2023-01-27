@@ -1582,8 +1582,7 @@ Future<void> main([List<String>? args]) async {
     final pathCopy = originalConfig.path.replaceFirst(p.basenameWithoutExtension(originalConfig.path), generateRandomString(10));
     final configCopy = Configuration.local([Car.schema], path: pathCopy);
     originalRealm.write(() {
-      expect(() => originalRealm.writeCopy(configCopy),
-          throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
+      expect(() => originalRealm.writeCopy(configCopy), throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
     });
     originalRealm.close();
   });
@@ -1592,12 +1591,10 @@ Future<void> main([List<String>? args]) async {
     getRealm(Configuration.local([Car.schema], schemaVersion: 1)).close();
 
     final configWithMigrationCallback = Configuration.local([Car.schema], schemaVersion: 2, migrationCallback: (migration, oldVersion) {
-
       final pathCopy = migration.newRealm.config.path.replaceFirst(p.basenameWithoutExtension(migration.newRealm.config.path), generateRandomString(10));
       final configCopy = Configuration.local([Car.schema], path: pathCopy);
-      expect(() => migration.newRealm.writeCopy(configCopy),
-          throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
-
+      expect(
+          () => migration.newRealm.writeCopy(configCopy), throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
     });
     getRealm(configWithMigrationCallback);
   });
@@ -1756,13 +1753,13 @@ Future<void> main([List<String>? args]) async {
       });
     }
   }
-  test('Realm.refresh', () async {
+  test('Realm.refresh no changes', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     final result = realm.refresh();
-    expect(result, true);
+    expect(result, false);
   });
 
-  test('Realm.onRefresh sync transaction', () async {
+  test('Realm.refresh sync transaction', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     var called = false;
     final transaction = realm.beginWrite();
@@ -1783,7 +1780,7 @@ Future<void> main([List<String>? args]) async {
     expect(called, true, reason: "write onRefresh failed");
   });
 
-  test('Realm.onRefresh async transaction', () async {
+  test('Realm.refresh async transaction', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     bool called = false;
     final transaction = await realm.beginWriteAsync();
@@ -1793,7 +1790,7 @@ Future<void> main([List<String>? args]) async {
     expect(called, true);
   });
 
-   test('Realm.onRefresh is called if registered outside a transaction', () async {
+  test('Realm.refresh is called if registered outside a transaction', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     bool called = false;
 
@@ -1805,7 +1802,6 @@ Future<void> main([List<String>? args]) async {
 
     expect(called, true);
 
-
     realm.refreshAsync().then((_) => called = true);
 
     realm.write(() {});
@@ -1815,14 +1811,34 @@ Future<void> main([List<String>? args]) async {
     expect(called, true);
   });
 
-   test('Realm.onRefresh on frozen realm should be no-op', () async {
+  test('Realm.refresh on frozen realm should be no-op', () async {
     var realm = getRealm(Configuration.local([Person.schema]));
     bool called = false;
     realm = realm.freeze();
 
     await realm.refreshAsync().then((_) => called = true).timeout(const Duration(microseconds: 10));
-    
+
     expect(called, true);
+  });
+
+  test('Realm.refresh is updating data', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    bool called = false;
+    String personName = generateRandomString(5);
+    final path = realm.config.path;
+    final results = realm.query<Person>(r"name == $0", [personName]);
+
+    await Isolate.run(() async {
+      final externalRealm = Realm(Configuration.local([Person.schema], path: path));
+      externalRealm.write(() {
+        externalRealm.add(Person(personName));
+      });
+      externalRealm.close();
+    });
+
+    expect(results.length, 1);
+    await realm.refreshAsync();
+    expect(results.length, 1);
   });
 }
 
