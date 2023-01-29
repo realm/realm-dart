@@ -573,8 +573,9 @@ class Realm implements Finalizable {
     return realmCore.realmRefresh(this);
   }
 
-  /// Returns a [Future] that will complete when the `Realm` is refreshed to the version which is the
+  /// Returns a [Future<bool>] that will complete when the `Realm` is refreshed to the version which is the
   /// latest version at the time when this method is called.
+  ///
   /// Returns `true` only if there are changed data to refresh.
   Future<bool> refreshAsync() async {
     return realmCore.realmRefreshAsync(this);
