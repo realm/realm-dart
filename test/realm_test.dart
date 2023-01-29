@@ -1853,16 +1853,16 @@ Future<void> main([List<String>? args]) async {
     realm.setAutoRefresh(false);
 
     ReceivePort receivePort = ReceivePort();
-    await Isolate.spawn((SendPort arg) async {
+    await Isolate.spawn((SendPort sendPort) async {
       final externalRealm = Realm(Configuration.local([Person.schema], path: path));
       externalRealm.write(() {
         externalRealm.add(Person(personName));
       });
-      arg.send(false);
+      sendPort.send(false);
 
       await Future<void>.delayed(Duration(milliseconds: 100));
       externalRealm.close();
-      arg.send(true);
+      sendPort.send(true);
     }, receivePort.sendPort);
 
     await for (final closed in receivePort) {
