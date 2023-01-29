@@ -3,23 +3,32 @@
 **This project is in Release Candidate stage.**
 
 ### Enhancements
-* None
+* `SyncSession.pause()` allow users to suspend a Realm's sync session until it is explicitly resumed with `SyncSession.resume()`. Previously it could be implicitly resumed in rare cases. (Core upgrade).
+* Improve the performance of `Realm.freeze()` and friends (`RealmObject.freeze()`,`RealmList.freeze(), RealmResults.freeze(), RealmSet.freeze()`) by eliminating some redundant work around schema initialization and validation. (Core upgrade).
+* Include context about what object caused the merge exception in OT (Core upgrade)
 
 ### Fixed
-* None
+* Value in List of Mixed would not be updated if new value is Binary and old value is StringData and the values otherwise matches (Core upgrade)
+* When client reset with recovery is used and the recovery does not actually result in any new local commits, the sync client may have gotten stuck in a cycle with a `A fatal error occurred during client reset: 'A previous 'Recovery' mode reset from <timestamp> did not succeed, giving up on 'Recovery' mode to prevent a cycle'` error message. (Core upgrade)
+* Fixed diverging history in flexible sync if writes occur during bootstrap to objects that just came into view (Core upgrade)
+* Fix several data races when opening cached frozen Realms. New frozen Realms were added to the cache and the lock released before they were fully initialized, resulting in races if they were immediately read from the cache on another thread (Core upgrade).
+* Properties and types not present in the requested schema would be missing from the reported schema in several scenarios, such as if the Realm was being opened with a different schema version than the persisted one, and if the new tables or columns were added while the Realm instance did not have an active read transaction (Core upgrade, since v13.2.0).
+* If a client reset w/recovery or discard local is interrupted while the "fresh" realm is being downloaded, the sync client may crash (Core upgrade)
+* Changesets from the server sent during FLX bootstrapping that are larger than 16MB can cause the sync client to crash with a LogicError (Core upgrade)
+* Online compaction may cause a single commit to take a long time (Core upgrade, since v13.0.0)
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 13.3.0
 
 ## 0.10.0+rc (2023-01-23)
 
 **This project is in Release Candidate stage.**
 
 ### Enhancements
-* Add supoprt for Realm set data type. ([#1102](https://github.com/realm/realm-dart/pull/1102))
+* Add support for Realm set data type. ([#1102](https://github.com/realm/realm-dart/pull/1102))
 * Exposed realm `writeCopy` API to copy a Realm file and optionally encrypt it with a different key. ([#1103](https://github.com/realm/realm-dart/pull/1103))
 
 ### Fixed
