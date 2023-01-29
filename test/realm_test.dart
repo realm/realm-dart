@@ -18,6 +18,7 @@
 
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
@@ -27,6 +28,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:path/path.dart' as p;
 import 'package:cancellation_token/cancellation_token.dart';
 import '../lib/realm.dart';
+import '../lib/src/realm_class.dart' as realmInternal;
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -1822,23 +1824,40 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Realm.refresh is updating data', () async {
+    Completer<void> completer = Completer<void>();
     final realm = getRealm(Configuration.local([Person.schema]));
-    bool called = false;
     String personName = generateRandomString(5);
     final path = realm.config.path;
     final results = realm.query<Person>(r"name == $0", [personName]);
 
-    await Isolate.run(() async {
+    expect(realm.refresh(), false);
+    realm.setAutoRefresh(false);
+
+    ReceivePort receivePort = ReceivePort();
+    await Isolate.spawn((SendPort arg) async {
       final externalRealm = Realm(Configuration.local([Person.schema], path: path));
       externalRealm.write(() {
         externalRealm.add(Person(personName));
       });
-      externalRealm.close();
-    });
+      arg.send(false);
 
-    expect(results.length, 1);
-    await realm.refreshAsync();
-    expect(results.length, 1);
+      await Future<void>.delayed(Duration(milliseconds: 100));
+      externalRealm.close();
+      arg.send(true);
+    }, receivePort.sendPort);
+
+    await for (final closed in receivePort) {
+      if (closed as bool) {
+        completer.complete();
+        receivePort.close();
+        break;
+      }
+      expect(results.length, 0);
+      expect(realm.refresh(), true);
+      expect(results.length, 1);
+    }
+
+    await completer.future;
   });
 }
 

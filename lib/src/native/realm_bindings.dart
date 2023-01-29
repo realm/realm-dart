@@ -7788,6 +7788,23 @@ class RealmLibrary {
       bool Function(
           ffi.Pointer<realm_set_t>, ffi.Pointer<realm_value_t>, int)>();
 
+  void realm_set_auto_refresh(
+    ffi.Pointer<realm_t> realm,
+    bool enable,
+  ) {
+    return _realm_set_auto_refresh(
+      realm,
+      enable,
+    );
+  }
+
+  late final _realm_set_auto_refreshPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<realm_t>, ffi.Bool)>>('realm_set_auto_refresh');
+  late final _realm_set_auto_refresh = _realm_set_auto_refreshPtr
+      .asFunction<void Function(ffi.Pointer<realm_t>, bool)>();
+
   /// Register a callback handler for bindings interested in registering callbacks before/after the ObjectStore thread
   /// runs.
   /// @param on_thread_create callback invoked when the object store thread is created

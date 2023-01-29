@@ -581,6 +581,10 @@ class _RealmCore {
     });
   }
 
+  void realmSetAutoRefresh(Realm realm, bool enable) {
+    _realmLib.realm_set_auto_refresh(realm.handle._pointer, enable);
+  }
+
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
     final schedulerPtr = _realmLib.realm_dart_create_scheduler(isolateId, sendPort);
     return SchedulerHandle._(schedulerPtr);
@@ -772,14 +776,14 @@ class _RealmCore {
       return did_refresh.value;
     });
   }
-  
+
   Future<void> realmRefreshAsync(Realm realm) {
     final completer = Completer<void>();
     final callback = Pointer.fromFunction<Void Function(Pointer<Void>)>(_realmRefreshAsyncCallback);
     Pointer<Void> completerPtr = _realmLib.realm_dart_object_to_persistent_handle(completer);
     Pointer<realm_refresh_callback_token> result = _realmLib.realm_add_realm_refresh_callback(
         realm.handle._pointer, callback.cast(), completerPtr, _realmLib.addresses.realm_dart_delete_persistent_handle);
-    
+
     if (result == nullptr) {
       return Future.value();
     }

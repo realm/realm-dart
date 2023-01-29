@@ -562,9 +562,9 @@ class Realm implements Finalizable {
 
     realmCore.writeCopy(this, config);
   }
-  
+
   /// Update the `Realm` instance and outstanding objects to point to the most recent persisted version.
-  /// 
+  ///
   /// If another process or thread has made changes to the realm file, this causes
   /// those changes to become visible in this realm instance.
   /// Typically you don't need to call this method since Realm has auto-refresh built-in.
@@ -740,6 +740,10 @@ extension RealmInternal on Realm {
     if (value is RealmValue) {
       addUnmanagedRealmObjectFromValue(value.value, update);
     }
+  }
+
+  void setAutoRefresh(bool enable) {
+    realmCore.realmSetAutoRefresh(this, enable);
   }
 }
 
