@@ -2052,6 +2052,7 @@ class _RealmCore {
         return SessionState.active;
       case 2: // RLM_SYNC_SESSION_STATE_INACTIVE
       case 3: // RLM_SYNC_SESSION_STATE_WAITING_FOR_ACCESS_TOKEN
+      case 4: // RLM_SYNC_SESSION_STATE_PAUSED
         return SessionState.inactive;
       default:
         throw Exception("Unexpected SessionState: $value");
