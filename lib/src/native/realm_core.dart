@@ -777,15 +777,15 @@ class _RealmCore {
     });
   }
 
-  Future<void> realmRefreshAsync(Realm realm) {
-    final completer = Completer<void>();
+  Future<bool> realmRefreshAsync(Realm realm) async {
+    final completer = Completer<bool>();
     final callback = Pointer.fromFunction<Void Function(Pointer<Void>)>(_realmRefreshAsyncCallback);
     Pointer<Void> completerPtr = _realmLib.realm_dart_object_to_persistent_handle(completer);
     Pointer<realm_refresh_callback_token> result = _realmLib.realm_add_realm_refresh_callback(
         realm.handle._pointer, callback.cast(), completerPtr, _realmLib.addresses.realm_dart_delete_persistent_handle);
 
     if (result == nullptr) {
-      return Future.value();
+      return Future<bool>.value(false);
     }
 
     return completer.future;
@@ -796,8 +796,8 @@ class _RealmCore {
       return;
     }
 
-    final completer = _realmLib.realm_dart_persistent_handle_to_object(userdata) as Completer<void>;
-    completer.complete();
+    final completer = _realmLib.realm_dart_persistent_handle_to_object(userdata) as Completer<bool>;
+    completer.complete(true);
   }
 
   RealmObjectMetadata getObjectMetadata(Realm realm, SchemaObject schema) {
