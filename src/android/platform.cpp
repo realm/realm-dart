@@ -22,14 +22,32 @@
 #include "platform.h"
 #include "../realm_dart.h"
 
-static std::string filesDir;
+static std::string mFilesDir;
+static std::string mDeviceName;
+static std::string mDeviceVersion;
 
-extern "C" JNIEXPORT void Java_io_realm_RealmPlugin_native_1initRealm(JNIEnv *env, jobject thiz, jstring fileDir) {
-    const char* strFileDir = env->GetStringUTFChars(fileDir, NULL);
-    filesDir = std::string(strFileDir);
-    env->ReleaseStringUTFChars(fileDir, strFileDir);
+extern "C" JNIEXPORT void Java_io_realm_RealmPlugin_native_1initRealm(JNIEnv *env, jobject thiz, jstring filesDir, jstring deviceName, jstring deviceVersion) {
+    const char* strFilesDir = env->GetStringUTFChars(filesDir, NULL);
+    mFilesDir = std::string(strFilesDir);
+    env->ReleaseStringUTFChars(filesDir, strFilesDir);
+
+    const char* strDeviceName = env->GetStringUTFChars(deviceName, NULL);
+    mDeviceName = std::string(strDeviceName);
+    env->ReleaseStringUTFChars(deviceName, strDeviceName);
+   
+    const char* strDeviceVersion = env->GetStringUTFChars(deviceVersion, NULL);
+    mDeviceVersion = std::string(strDeviceVersion);
+    env->ReleaseStringUTFChars(deviceVersion, strDeviceVersion);
 }
 
 extern "C" JNIEXPORT const char* realm_dart_get_files_path() {
-    return filesDir.c_str();
+    return mFilesDir.c_str();
+}
+
+extern "C" JNIEXPORT const char* realm_dart_get_device_name() {
+    return mDeviceName.c_str();
+}
+
+extern "C" JNIEXPORT const char* realm_dart_get_device_version() {
+    return mDeviceVersion.c_str();
 }

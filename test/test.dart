@@ -340,7 +340,7 @@ const int jsMaxInt = 9007199254740991;
 const int jsMinInt = -9007199254740991;
 
 //Overrides test method so we can filter tests
-void test(String name, dynamic Function() testFunction, {dynamic skip}) {
+void test(String name, dynamic Function() testFunction, {dynamic skip, Map<String, dynamic>? onPlatform}) {
   if (testName != null && !name.contains(testName!)) {
     return;
   }
@@ -351,10 +351,10 @@ void test(String name, dynamic Function() testFunction, {dynamic skip}) {
     return true;
   }());
 
-  testing.test(name, testFunction, skip: skip, timeout: Timeout(Duration(seconds: timeout)));
+  testing.test(name, testFunction, skip: skip, onPlatform: onPlatform,  timeout: Timeout(Duration(seconds: timeout)));
 }
 
-void xtest(String? name, dynamic Function() testFunction) {
+void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<String, dynamic>? onPlatform}) {
   testing.test(name, testFunction, skip: "Test is disabled");
 }
 

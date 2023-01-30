@@ -28,6 +28,7 @@ import 'package:path/path.dart' as p;
 import 'package:cancellation_token/cancellation_token.dart';
 import '../lib/realm.dart';
 import 'test.dart';
+import '../lib/src/native/realm_core.dart';
 
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
@@ -1582,8 +1583,7 @@ Future<void> main([List<String>? args]) async {
     final pathCopy = originalConfig.path.replaceFirst(p.basenameWithoutExtension(originalConfig.path), generateRandomString(10));
     final configCopy = Configuration.local([Car.schema], path: pathCopy);
     originalRealm.write(() {
-      expect(() => originalRealm.writeCopy(configCopy),
-          throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
+      expect(() => originalRealm.writeCopy(configCopy), throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
     });
     originalRealm.close();
   });
@@ -1592,12 +1592,10 @@ Future<void> main([List<String>? args]) async {
     getRealm(Configuration.local([Car.schema], schemaVersion: 1)).close();
 
     final configWithMigrationCallback = Configuration.local([Car.schema], schemaVersion: 2, migrationCallback: (migration, oldVersion) {
-
       final pathCopy = migration.newRealm.config.path.replaceFirst(p.basenameWithoutExtension(migration.newRealm.config.path), generateRandomString(10));
       final configCopy = Configuration.local([Car.schema], path: pathCopy);
-      expect(() => migration.newRealm.writeCopy(configCopy),
-          throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
-
+      expect(
+          () => migration.newRealm.writeCopy(configCopy), throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
     });
     getRealm(configWithMigrationCallback);
   });
@@ -1756,6 +1754,21 @@ Future<void> main([List<String>? args]) async {
       });
     }
   }
+
+  test('Flutter device info', () {
+    late Matcher matcher;
+    if (Platform.isAndroid || Platform.isIOS) {
+      matcher = isNotEmpty;
+    }
+    else {
+      matcher = isEmpty;
+    }
+
+    print("device name ${realmCore.getDeviceName()}");
+    print("device version ${realmCore.getDeviceVersion()}");
+    expect(realmCore.getDeviceName(), matcher);
+    expect(realmCore.getDeviceVersion(), matcher);
+  });
 }
 
 List<int> generateEncryptionKey() {

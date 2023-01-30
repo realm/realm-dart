@@ -671,6 +671,22 @@ class _RealmCore {
     return _realmLib.realm_dart_get_files_path().cast<Utf8>().toRealmDartString()!;
   }
 
+  String getDeviceName() {
+    if (Platform.isAndroid || Platform.isIOS) {
+      return _realmLib.realm_dart_get_device_name().cast<Utf8>().toRealmDartString()!;
+    }
+
+    return "";
+  }
+
+  String getDeviceVersion() {
+    if (Platform.isAndroid || Platform.isIOS) {
+      return _realmLib.realm_dart_get_device_version().cast<Utf8>().toRealmDartString()!;
+    }
+
+    return "";
+  }
+
   void closeRealm(Realm realm) {
     _realmLib.invokeGetBool(() => _realmLib.realm_close(realm.handle._pointer), "Realm close failed");
   }
@@ -1398,7 +1414,7 @@ class _RealmCore {
       _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toCharPtr(arena));
 
       _realmLib.realm_app_config_set_sdk(handle._pointer, 'Dart'.toCharPtr(arena));
-      _realmLib.realm_app_config_set_sdk_version(handle._pointer, ''.toCharPtr(arena));
+      _realmLib.realm_app_config_set_sdk_version(handle._pointer, libraryVersion.toCharPtr(arena));
 
       _realmLib.realm_app_config_set_cpu_arch(handle._pointer, ''.toCharPtr(arena));
 
@@ -1408,9 +1424,6 @@ class _RealmCore {
       _realmLib.realm_app_config_set_framework_name(handle._pointer, (isFlutterPlatform ? 'Flutter' : 'Dart VM').toCharPtr(arena));
       _realmLib.realm_app_config_set_framework_version(handle._pointer, Platform.version.toCharPtr(arena));
 
-      _realmLib.realm_app_config_set_local_app_name(handle._pointer, ''.toCharPtr(arena));
-      _realmLib.realm_app_config_set_local_app_version(handle._pointer, ''.toCharPtr(arena));
-
       _realmLib.realm_app_config_set_base_url(handle._pointer, configuration.baseUrl.toString().toCharPtr(arena));
 
       _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout.inMilliseconds);
@@ -1418,15 +1431,15 @@ class _RealmCore {
       if (configuration.localAppName != null) {
         _realmLib.realm_app_config_set_local_app_name(handle._pointer, configuration.localAppName!.toCharPtr(arena));
       }
+      else {
+        _realmLib.realm_app_config_set_local_app_name(handle._pointer, ''.toCharPtr(arena));
+      }
 
       if (configuration.localAppVersion != null) {
         _realmLib.realm_app_config_set_local_app_version(handle._pointer, configuration.localAppVersion!.toCharPtr(arena));
+      } else {
+        _realmLib.realm_app_config_set_local_app_version(handle._pointer, ''.toCharPtr(arena));
       }
-
-      _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toCharPtr(arena));
-      _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toCharPtr(arena));
-
-      _realmLib.realm_app_config_set_sdk_version(handle._pointer, libraryVersion.toCharPtr(arena));
 
       return handle;
     });
