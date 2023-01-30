@@ -562,6 +562,24 @@ class Realm implements Finalizable {
 
     realmCore.writeCopy(this, config);
   }
+
+  /// Update the `Realm` instance and outstanding objects to point to the most recent persisted version.
+  ///
+  /// If another process or [Isolate] has made changes to the realm file, this causes
+  /// those changes to become visible in this realm instance.
+  /// Typically you don't need to call this method since Realm has auto-refresh built-in.
+  /// Note that this may return `true` even if no data has actually changed.
+  bool refresh() {
+    return realmCore.realmRefresh(this);
+  }
+
+  /// Returns a [Future] that will complete when the `Realm` is refreshed to the version which is the
+  /// latest version at the time when this method is called.
+  ///
+  /// Note that this may return `true` even if no data has actually changed.
+  Future<bool> refreshAsync() async {
+    return realmCore.realmRefreshAsync(this);
+  }
 }
 
 /// Provides a scope to safely write data to a [Realm]. Can be created using [Realm.beginWrite] or
@@ -725,6 +743,12 @@ extension RealmInternal on Realm {
     if (value is RealmValue) {
       addUnmanagedRealmObjectFromValue(value.value, update);
     }
+  }
+
+  // Internal method that prevents the realm from being automatically refreshed.
+  // This method is used for testing purposes only.
+  void disableAutoRefreshForTesting() {
+    realmCore.realmSetAutoRefresh(this, false);
   }
 }
 

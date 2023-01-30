@@ -18,6 +18,7 @@
 
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
@@ -27,6 +28,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:path/path.dart' as p;
 import 'package:cancellation_token/cancellation_token.dart';
 import '../lib/realm.dart';
+import '../lib/src/realm_class.dart' as realmInternal;
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -1582,22 +1584,19 @@ Future<void> main([List<String>? args]) async {
     final pathCopy = originalConfig.path.replaceFirst(p.basenameWithoutExtension(originalConfig.path), generateRandomString(10));
     final configCopy = Configuration.local([Car.schema], path: pathCopy);
     originalRealm.write(() {
-      expect(() => originalRealm.writeCopy(configCopy),
-          throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
+      expect(() => originalRealm.writeCopy(configCopy), throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
     });
     originalRealm.close();
   });
 
-  test('Realm writeCopy Local->Local during migration is mot allowed', () {
+  test('Realm writeCopy Local->Local during migration is not allowed', () {
     getRealm(Configuration.local([Car.schema], schemaVersion: 1)).close();
 
     final configWithMigrationCallback = Configuration.local([Car.schema], schemaVersion: 2, migrationCallback: (migration, oldVersion) {
-
       final pathCopy = migration.newRealm.config.path.replaceFirst(p.basenameWithoutExtension(migration.newRealm.config.path), generateRandomString(10));
       final configCopy = Configuration.local([Car.schema], path: pathCopy);
-      expect(() => migration.newRealm.writeCopy(configCopy),
-          throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
-
+      expect(
+          () => migration.newRealm.writeCopy(configCopy), throws<RealmError>("Copying a Realm is not allowed within a write transaction or during migration."));
     });
     getRealm(configWithMigrationCallback);
   });
@@ -1756,6 +1755,94 @@ Future<void> main([List<String>? args]) async {
       });
     }
   }
+  test('Realm.refresh no changes', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final result = realm.refresh();
+    expect(result, false);
+  });
+
+  test('Realm.refreshAsync() sync transaction', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    var called = false;
+    bool isRefreshed = false;
+    final transaction = realm.beginWrite();
+    realm.refreshAsync().then((refreshed) {
+      called = true;
+      isRefreshed = refreshed;
+    });
+    realm.add(Person("name"));
+    transaction.commit();
+
+    await Future<void>.delayed(Duration(milliseconds: 1));
+    expect(isRefreshed, false);
+    expect(called, true);
+    expect(realm.all<Person>().length, 1);
+  });
+
+  test('Realm.refreshAsync from within a write block', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    var called = false;
+    bool isRefreshed = false;
+    realm.write(() {
+      realm.refreshAsync().then((refreshed) {
+        called = true;
+        isRefreshed = refreshed;
+      });
+      realm.add(Person("name"));
+    });
+
+    await Future<void>.delayed(Duration(milliseconds: 1));
+    expect(isRefreshed, false);
+    expect(called, true);
+    expect(realm.all<Person>().length, 1);
+  });
+
+  test('Realm.refreshAsync from within an async transaction', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    bool called = false;
+    bool isRefreshed = false;
+    final transaction = await realm.beginWriteAsync();
+    realm.refreshAsync().then((refreshed) {
+      called = true;
+      isRefreshed = refreshed;
+    });
+    realm.add(Person("name"));
+    await transaction.commitAsync();
+    expect(isRefreshed, false);
+    expect(called, true);
+    expect(realm.all<Person>().length, 1);
+  });
+
+  test('Realm.refresh on frozen realm should be no-op', () async {
+    var realm = getRealm(Configuration.local([Person.schema]));
+    bool called = false;
+    realm = realm.freeze();
+    expect(realm.refresh(), false);
+  });
+
+  test('Realm.refresh', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    String personName = generateRandomString(5);
+    final path = realm.config.path;
+    final results = realm.query<Person>(r"name == $0", [personName]);
+
+    expect(realm.refresh(), false);
+    realm.disableAutoRefreshForTesting();
+
+    ReceivePort receivePort = ReceivePort();
+    Isolate.spawn((SendPort sendPort) async {
+      final externalRealm = Realm(Configuration.local([Person.schema], path: path));
+      externalRealm.write(() => externalRealm.add(Person(personName)));
+      externalRealm.close();
+      sendPort.send(true);
+    }, receivePort.sendPort);
+
+    await receivePort.first;
+    expect(results.length, 0);
+    expect(realm.refresh(), true);
+    expect(results.length, 1);
+    receivePort.close();
+  });
 }
 
 List<int> generateEncryptionKey() {

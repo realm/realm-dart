@@ -48,6 +48,5 @@ RLM_API const char* realm_dart_library_version();
 
 RLM_API void* realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size);
 RLM_API void realm_dettach_finalizer(void* finalizableHandle, Dart_Handle handle);
-
-
+RLM_API void realm_set_auto_refresh(realm_t* realm, bool enable);
 #endif // REALM_DART_H

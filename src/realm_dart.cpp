@@ -115,3 +115,7 @@ RLM_API void realm_dettach_finalizer(void* finalizableHandle, Dart_Handle handle
   Dart_FinalizableHandle finalHandle = reinterpret_cast<Dart_FinalizableHandle>(finalizableHandle);
   return Dart_DeleteFinalizableHandle_DL(finalHandle, handle);
 }
+
+RLM_API void realm_set_auto_refresh(realm_t* realm, bool enable){
+    (*realm)->set_auto_refresh(enable);
+}
