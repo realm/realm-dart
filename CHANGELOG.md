@@ -6,6 +6,7 @@
 * `SyncSession.pause()` allow users to suspend a Realm's sync session until it is explicitly resumed with `SyncSession.resume()`. Previously it could be implicitly resumed in rare cases. (Core upgrade).
 * Improve the performance of `Realm.freeze()` and friends (`RealmObject.freeze()`,`RealmList.freeze(), RealmResults.freeze(), RealmSet.freeze()`) by eliminating some redundant work around schema initialization and validation. (Core upgrade).
 * Include context about what object caused the merge exception in OT (Core upgrade)
+* Support change notification `cleared` on list collections and sets. ([#1128](https://github.com/realm/realm-dart/pull/1128))
 
 ### Fixed
 * Value in List of Mixed would not be updated if new value is Binary and old value is StringData and the values otherwise matches (Core upgrade)
