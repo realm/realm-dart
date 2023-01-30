@@ -1834,12 +1834,10 @@ Future<void> main([List<String>? args]) async {
     var realm = getRealm(Configuration.local([Person.schema]));
     bool called = false;
     realm = realm.freeze();
-    final isRefreshed = await realm.refreshAsync();
-    expect(isRefreshed, false);
+    expect(realm.refresh(), false);
   });
 
   test('Realm.refresh', () async {
-    Completer<void> completer = Completer<void>();
     final realm = getRealm(Configuration.local([Person.schema]));
     String personName = generateRandomString(5);
     final path = realm.config.path;
@@ -1861,6 +1859,7 @@ Future<void> main([List<String>? args]) async {
       sendPort.send(true);
     }, receivePort.sendPort);
 
+    Completer<void> completer = Completer<void>();
     await for (final closed in receivePort) {
       if (closed as bool) {
         completer.complete();
