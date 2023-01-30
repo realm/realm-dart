@@ -581,6 +581,10 @@ class _RealmCore {
     });
   }
 
+  void realmSetAutoRefresh(Realm realm, bool enable) {
+    _realmLib.realm_set_auto_refresh(realm.handle._pointer, enable);
+  }
+
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
     final schedulerPtr = _realmLib.realm_dart_create_scheduler(isolateId, sendPort);
     return SchedulerHandle._(schedulerPtr);
@@ -787,6 +791,29 @@ class _RealmCore {
       _realmLib.invokeGetBool(() => _realmLib.realm_refresh(realm.handle._pointer, did_refresh), "Could not refresh");
       return did_refresh.value;
     });
+  }
+
+  Future<bool> realmRefreshAsync(Realm realm) async {
+    final completer = Completer<bool>();
+    final callback = Pointer.fromFunction<Void Function(Pointer<Void>)>(_realmRefreshAsyncCallback);
+    Pointer<Void> completerPtr = _realmLib.realm_dart_object_to_persistent_handle(completer);
+    Pointer<realm_refresh_callback_token> result = _realmLib.realm_add_realm_refresh_callback(
+        realm.handle._pointer, callback.cast(), completerPtr, _realmLib.addresses.realm_dart_delete_persistent_handle);
+
+    if (result == nullptr) {
+      return Future<bool>.value(false);
+    }
+
+    return completer.future;
+  }
+
+  static void _realmRefreshAsyncCallback(Pointer<Void> userdata) {
+    if (userdata == nullptr) {
+      return;
+    }
+
+    final completer = _realmLib.realm_dart_persistent_handle_to_object(userdata) as Completer<bool>;
+    completer.complete(true);
   }
 
   RealmObjectMetadata getObjectMetadata(Realm realm, SchemaObject schema) {
@@ -1051,12 +1078,14 @@ class _RealmCore {
       final out_num_insertions = arena<Size>();
       final out_num_modifications = arena<Size>();
       final out_num_moves = arena<Size>();
+      final out_collection_cleared = arena<Bool>();
       _realmLib.realm_collection_changes_get_num_changes(
         changes._pointer,
         out_num_deletions,
         out_num_insertions,
         out_num_modifications,
         out_num_moves,
+        out_collection_cleared,
       );
 
       final deletionsCount = out_num_deletions != nullptr ? out_num_deletions.value : 0;
@@ -1250,20 +1279,6 @@ class _RealmCore {
 
   bool realmSetIsValid(RealmSet realmSet) {
     return _realmLib.realm_set_is_valid(realmSet.handle._pointer);
-  }
-
-  void realmSetAssign(RealmSetHandle realmSet, List<Object?> values) {
-    return using((Arena arena) {
-      final len = values.length;
-      final valuesPtr = arena.allocate<realm_value_t>(len);
-      for (var i = 0; i < len; i++) {
-        final value = values[i];
-        final valPtr = valuesPtr.elementAt(i);
-        _intoRealmValue(value, valPtr, arena);
-      }
-
-      _realmLib.invokeGetBool(() => _realmLib.realm_set_assign(realmSet._pointer, valuesPtr, len));
-    });
   }
 
   void realmSetRemoveAll(RealmSet realmSet) {
@@ -1930,6 +1945,12 @@ class _RealmCore {
     });
   }
 
+  void reconnect(App application) {
+    _realmLib.realm_app_sync_client_reconnect(
+      application.handle._pointer,
+    );
+  }
+
   String? userGetCustomData(User user) {
     final customDataPtr = _realmLib.realm_user_get_custom_data(user.handle._pointer);
     return customDataPtr.cast<Utf8>().toRealmDartString(freeRealmMemory: true, treatEmptyAsNull: true);
@@ -2077,6 +2098,7 @@ class _RealmCore {
         return SessionState.active;
       case 2: // RLM_SYNC_SESSION_STATE_INACTIVE
       case 3: // RLM_SYNC_SESSION_STATE_WAITING_FOR_ACCESS_TOKEN
+      case 4: // RLM_SYNC_SESSION_STATE_PAUSED
         return SessionState.inactive;
       default:
         throw Exception("Unexpected SessionState: $value");

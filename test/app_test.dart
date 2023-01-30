@@ -292,6 +292,32 @@ Future<void> main([List<String>? args]) async {
     expect(receivedPerson1.name, arg1.name);
     expect(receivedPerson2.name, arg2.name);
   });
+
+  baasTest('App.reconnect', (appConfiguration) async {
+    final app = App(appConfiguration);
+
+    final user = await app.logIn(Credentials.anonymous());
+    final configuration = Configuration.flexibleSync(user, [Task.schema]);
+    final realm = getRealm(configuration);
+    final session = realm.syncSession;
+
+    // TODO: We miss a way to force a disconnect. Once we implement GenericNetworkTransport
+    // we can inject a fake HttpClient to toggle connectivity.
+    // <-- force disconnect here
+    session.pause(); // ensure we go to ConnectionState.disconnected immediately
+    expect(session.connectionState, ConnectionState.disconnected);
+
+    expectLater(
+      session.connectionStateChanges.map((c) => c.current).distinct(),
+      emitsInOrder(<ConnectionState>[
+        ConnectionState.connecting,
+        ConnectionState.connected,
+      ]),
+    );
+
+    session.resume();
+    app.reconnect(); // <-- this is not currently needed for this test to pass see above
+  });
 }
 
 Future<void> testLogger(

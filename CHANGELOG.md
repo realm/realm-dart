@@ -3,28 +3,38 @@
 **This project is in Release Candidate stage.**
 
 ### Enhancements
-* None
+* Add `App.reconnect()` providing a hint to Realm to reconnect all sync sessions.
 
 ### Fixed
-* None
+* `SyncSession.pause()` allow users to suspend a Realm's sync session until it is explicitly resumed with `SyncSession.resume()`. Previously it could be implicitly resumed in rare cases. (Core upgrade)
+* Improve the performance of `Realm.freeze()` and friends (`RealmObject.freeze()`,`RealmList.freeze(), RealmResults.freeze(), RealmSet.freeze()`) by eliminating some redundant work around schema initialization and validation. (Core upgrade)
+* Include more details if an error occurs when merging object. (Core upgrade)
+* Value in List of Mixed would not be updated if new value is Binary and old value is StringData and the values otherwise matches. (Core upgrade)
+* When client reset with recovery is used and the recovery does not actually result in any new local commits, the sync client may have gotten stuck in a cycle with a `A fatal error occurred during client reset: 'A previous 'Recovery' mode reset from <timestamp> did not succeed, giving up on 'Recovery' mode to prevent a cycle'` error message. (Core upgrade)
+* Fixed diverging history in flexible sync if writes occur during bootstrap to objects that just came into view (Core upgrade)
+* Fix several data races when opening cached frozen Realms. New frozen Realms were added to the cache and the lock released before they were fully initialized, resulting in races if they were immediately read from the cache on another thread (Core upgrade).
+* Properties and types not present in the requested schema would be missing from the reported schema in several scenarios, such as if the Realm was being opened with a different schema version than the persisted one, and if the new tables or columns were added while the Realm instance did not have an active read transaction. (Core upgrade, since v13.2.0)
+* If a client reset w/recovery or discard local is interrupted while the "fresh" realm is being downloaded, the sync client may crash (Core upgrade)
+* Changesets from the server sent during FLX bootstrapping that are larger than 16MB can cause the sync client to crash with a LogicError. (Core upgrade)
+* Online compaction may cause a single commit to take a long time. (Core upgrade, since v13.0.0)
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 13.3.0
 
 ## 0.10.0+rc (2023-01-23)
 
 **This project is in Release Candidate stage.**
 
 ### Enhancements
-* Add supoprt for Realm set data type. ([#1102](https://github.com/realm/realm-dart/pull/1102))
+* Add support for Realm set data type. ([#1102](https://github.com/realm/realm-dart/pull/1102))
 * Exposed realm `writeCopy` API to copy a Realm file and optionally encrypt it with a different key. ([#1103](https://github.com/realm/realm-dart/pull/1103))
 
 ### Fixed
 * Added an error for default values for Realm object references in the Realm generator. ([#1102](https://github.com/realm/realm-dart/pull/1102))
-* `realm.deleteMany()` will handle efficently ManagedRealmList instances. ([#1117](https://github.com/realm/realm-dart/pull/1171))
+* `realm.deleteMany()` will handle efficiently ManagedRealmList instances. ([#1117](https://github.com/realm/realm-dart/pull/1171))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
@@ -44,6 +54,7 @@
 ### Enhancements
 * Support setting `maxNumberOfActiveVersions` when creating a `Configuration`. ([#1036](https://github.com/realm/realm-dart/pull/1036))
 * Add List.move extension method that moves an element from one index to another. Delegates to ManagedRealmList.move for managed lists. This allows notifications to correctly report moves, as opposed to reporting moves as deletes + inserts. ([#1037](https://github.com/realm/realm-dart/issues/1037))
+* Add `Realm.refresh()` and `Realm.refreshAsync()` support. ([#1046](https://github.com/realm/realm-dart/pull/1046))
 * Support setting `shouldDeleteIfMigrationNeeded` when creating a `Configuration.local`. ([#1049](https://github.com/realm/realm-dart/issues/1049))
 * Add `unknown` error code to all SyncErrors: `SyncSessionErrorCode.unknown`, `SyncConnectionErrorCode.unknown`, `SyncClientErrorCode.unknown`, `GeneralSyncErrorCode.unknown`. Use `unknown` error code instead of throwing a RealmError. ([#1052](https://github.com/realm/realm-dart/pull/1052))
 * Add support for `RealmValue` data type. This new type can represent any valid Realm data type, including objects. Lists of `RealmValue` are also supported, but `RealmValue` itself cannot contain collections. Please note that a property of type `RealmValue` cannot be nullable, but can contain null, represented by the value `RealmValue.nullValue()`. ([#1051](https://github.com/realm/realm-dart/pull/1051))
