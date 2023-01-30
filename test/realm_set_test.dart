@@ -539,8 +539,8 @@ Future<void> main([List<String>? args]) async {
       expectLater(
           set.changes,
           emitsInOrder(<Matcher>[
-            isA<RealmSetChanges<Object?>>().having((ch) => ch.inserted, 'inserted', <int>[]), // always an empty event on subscription
-            isA<RealmSetChanges<Object?>>().having((ch) => ch.cleared, 'cleared', true),
+            isA<RealmSetChanges<Object?>>().having((changes) => changes.inserted, 'inserted', <int>[]), // always an empty event on subscription
+            isA<RealmSetChanges<Object?>>().having((changes) => changes.isCleared, 'isCleared', true),
           ]));
       realm.write(() => set.clear());
     });

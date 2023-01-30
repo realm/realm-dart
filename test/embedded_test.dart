@@ -711,7 +711,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     event = await waitForNotification(notifications);
-    expect(event.cleared, true);
+    expect(event.isCleared, true);
 
     await subscription.cancel();
   });

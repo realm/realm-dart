@@ -43,7 +43,7 @@ class CollectionChanges {
   final List<int> modifications;
   final List<int> modificationsAfter;
   final List<Move> moves;
-  final bool cleared;
+  final bool isCleared;
 
   const CollectionChanges(this.deletions, this.insertions, this.modifications, this.modificationsAfter, this.moves, this.cleared);
 }
@@ -73,8 +73,8 @@ class RealmCollectionChanges implements Finalizable {
   /// insertions and deletions have been accounted for.
   List<int> get newModified => _changes.modificationsAfter;
 
-  /// Gets a value indicating whether the collection has been cleared.
-  bool get cleared => _changes.cleared;
+  /// `true` if the collection was cleared.
+  bool get isCeared => _changes.isCleared;
 }
 
 extension RealmCollectionChangesInternal on RealmCollectionChanges {
