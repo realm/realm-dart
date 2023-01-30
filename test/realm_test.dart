@@ -1761,7 +1761,7 @@ Future<void> main([List<String>? args]) async {
     expect(result, false);
   });
 
-  test('Realm.refresh into sync transaction', () async {
+  test('Realm.refreshAsync() sync transaction', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     var called = false;
     bool isRefreshed = false;
@@ -1774,12 +1774,12 @@ Future<void> main([List<String>? args]) async {
     transaction.commit();
 
     await Future<void>.delayed(Duration(milliseconds: 1));
-    expect(isRefreshed, false, reason: "There are no new data");
-    expect(called, true, reason: "Refresh called after transaction commit");
+    expect(isRefreshed, false);
+    expect(called, true);
     expect(realm.all<Person>().length, 1);
   });
 
-  test('Realm.refresh into a write block', () async {
+  test('Realm.refreshAsync from within a write block', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     var called = false;
     bool isRefreshed = false;
@@ -1792,12 +1792,12 @@ Future<void> main([List<String>? args]) async {
     });
 
     await Future<void>.delayed(Duration(milliseconds: 1));
-    expect(isRefreshed, false, reason: "There are no new data");
+    expect(isRefreshed, false);
     expect(called, true, reason: "Refresh called after write block completes");
     expect(realm.all<Person>().length, 1);
   });
 
-  test('Realm.refresh into async transaction', () async {
+  test('Realm.refreshAsync from within an async transaction', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     bool called = false;
     bool isRefreshed = false;
@@ -1808,12 +1808,12 @@ Future<void> main([List<String>? args]) async {
     });
     realm.add(Person("name"));
     await transaction.commitAsync();
-    expect(isRefreshed, false, reason: "There are no new data");
-    expect(called, true, reason: "Refresh called after transaction commit");
+    expect(isRefreshed, false);
+    expect(called, true);
     expect(realm.all<Person>().length, 1);
   });
 
-  test('Realm.refresh is called if registered outside a transaction', () async {
+  test('Realm.refreshAsync outside a transaction', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     bool called = false;
     bool isRefreshed = false;
@@ -1826,7 +1826,7 @@ Future<void> main([List<String>? args]) async {
     realm.write(() {});
     await Future<void>.delayed(Duration(milliseconds: 1));
 
-    expect(isRefreshed, false, reason: "There are no new data");
+    expect(isRefreshed, false);
     expect(called, true);
   });
 
@@ -1838,7 +1838,7 @@ Future<void> main([List<String>? args]) async {
     expect(isRefreshed, false);
   });
 
-  test('Realm.refresh is updating data', () async {
+  test('Realm.refresh', () async {
     Completer<void> completer = Completer<void>();
     final realm = getRealm(Configuration.local([Person.schema]));
     String personName = generateRandomString(5);
