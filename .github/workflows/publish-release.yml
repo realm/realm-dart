@@ -125,16 +125,16 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
         aws-region: us-east-1
 
-    # - name: Upload release folder to S3
-    #   id: upload-to-s3
-    #   run: |
-    #     tar -zcvf packages.tar.gz common generator realm_dart realm ExtractedChangelog.md
-    #     rm -rf common generator realm_dart realm ExtractedChangelog.md
+    - name: Upload release folder to S3
+      id: upload-to-s3
+      run: |
+        # tar -zcvf packages.tar.gz common generator realm_dart realm ExtractedChangelog.md
+        # rm -rf common generator realm_dart realm ExtractedChangelog.md
 
-    #     s3_folder="static.realm.io/downloads/dart/${{ steps.get-version.outputs.version }}"
-    #     aws s3 sync --acl public-read . "s3://$s3_folder"
-    #     echo "url=https://$s3_folder/packages.tar.gz" >> $GITHUB_OUTPUT
-    #   working-directory: release
+        s3_folder="static.realm.io/downloads/dart/${{ steps.get-version.outputs.version }}"
+        # aws s3 sync --acl public-read . "s3://$s3_folder"
+        echo "url=https://$s3_folder/packages.tar.gz" >> $GITHUB_OUTPUT
+      working-directory: release
 
   publish-packages:
     runs-on: ubuntu-latest
