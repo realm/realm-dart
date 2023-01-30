@@ -1035,12 +1035,14 @@ class _RealmCore {
       final out_num_insertions = arena<Size>();
       final out_num_modifications = arena<Size>();
       final out_num_moves = arena<Size>();
+      final out_collection_cleared = arena<Bool>();
       _realmLib.realm_collection_changes_get_num_changes(
         changes._pointer,
         out_num_deletions,
         out_num_insertions,
         out_num_modifications,
         out_num_moves,
+        out_collection_cleared,
       );
 
       final deletionsCount = out_num_deletions != nullptr ? out_num_deletions.value : 0;
@@ -1234,20 +1236,6 @@ class _RealmCore {
 
   bool realmSetIsValid(RealmSet realmSet) {
     return _realmLib.realm_set_is_valid(realmSet.handle._pointer);
-  }
-
-  void realmSetAssign(RealmSetHandle realmSet, List<Object?> values) {
-    return using((Arena arena) {
-      final len = values.length;
-      final valuesPtr = arena.allocate<realm_value_t>(len);
-      for (var i = 0; i < len; i++) {
-        final value = values[i];
-        final valPtr = valuesPtr.elementAt(i);
-        _intoRealmValue(value, valPtr, arena);
-      }
-
-      _realmLib.invokeGetBool(() => _realmLib.realm_set_assign(realmSet._pointer, valuesPtr, len));
-    });
   }
 
   void realmSetRemoveAll(RealmSet realmSet) {
@@ -2064,6 +2052,7 @@ class _RealmCore {
         return SessionState.active;
       case 2: // RLM_SYNC_SESSION_STATE_INACTIVE
       case 3: // RLM_SYNC_SESSION_STATE_WAITING_FOR_ACCESS_TOKEN
+      case 4: // RLM_SYNC_SESSION_STATE_PAUSED
         return SessionState.inactive;
       default:
         throw Exception("Unexpected SessionState: $value");
