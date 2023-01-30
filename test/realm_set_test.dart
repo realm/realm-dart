@@ -523,6 +523,45 @@ Future<void> main([List<String>? args]) async {
       await Future<void>.delayed(Duration(milliseconds: 20));
     });
 
+    test('RealmSet<$type>.cleared notifications', () async {
+      var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+      var realm = getRealm(config);
+
+      var testSet = TestRealmSets(1);
+      realm.write(() => realm.add(testSet));
+
+      var set = testSet.setByType(type).set;
+      var values = testSet.setByType(type).values;
+      realm.write(() {
+        set.add(values.first);
+      });
+
+      var state = 0;
+      final maxSate = 1;
+      final subscription = set.changes.listen((changes) {
+        if (state == 0) {
+          expect(changes.inserted.isEmpty, true);
+          expect(changes.modified.isEmpty, true);
+          expect(changes.deleted.isEmpty, true);
+          expect(changes.newModified.isEmpty, true);
+          expect(changes.moved.isEmpty, true);
+        } else if (state == 1) {
+          expect(changes.cleared, true); //collection cleared
+        }
+        state++;
+      });
+      await Future<void>.delayed(Duration(milliseconds: 20));
+      realm.write(() {
+        set.clear();
+      });
+      expect(state, maxSate);
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+      subscription.cancel();
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+    });
+
     test('RealmSet<$type> basic operations on unmanaged sets', () {
       var config = Configuration.local([TestRealmSets.schema, Car.schema]);
       var realm = getRealm(config);
@@ -580,7 +619,7 @@ Future<void> main([List<String>? args]) async {
     expect(realm.all<Car>().length, 0);
   });
 
-   test('UnmanagedRealmSet<RealmObject> deleteMany', () {
+  test('UnmanagedRealmSet<RealmObject> deleteMany', () {
     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
     var realm = getRealm(config);
 
@@ -602,7 +641,6 @@ Future<void> main([List<String>? args]) async {
     cars = realm.all<Car>();
     expect(cars.length, 0);
   });
-
 
   test('RealmSet<RealmObject> add a set of already managed objects', () {
     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
