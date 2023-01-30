@@ -1837,12 +1837,11 @@ Future<void> main([List<String>? args]) async {
       sendPort.send(true);
     }, receivePort.sendPort);
 
-    await for (final closed in receivePort) {
-      expect(results.length, 0);
-      expect(realm.refresh(), true);
-      expect(results.length, 1);
-      receivePort.close();
-    }
+    await receivePort.first;
+    expect(results.length, 0);
+    expect(realm.refresh(), true);
+    expect(results.length, 1);
+    receivePort.close();
   });
 }
 
