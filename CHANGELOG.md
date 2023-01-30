@@ -3,7 +3,7 @@
 **This project is in Release Candidate stage.**
 
 ### Enhancements
-* Add `App.reconnect` to reconnect ahead of schedule. Example of use in concert with `connectivity_plus` package:
+* Add `App.reconnect()` providing a hint to Realm to reconnect all sync sessions.
 ```dart
 Connectivity().onConnectivityChanged.listen((event) {
   if (event != ConnectivityResult.none) {
