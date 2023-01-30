@@ -1176,4 +1176,19 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => team.players.move(2, 3));
     expect(team.players, [bob, alice, dan, carol]);
   });
+
+  test('RealmList.cleared notifications', () async {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+    final team = Team('Team 1', players: [Person('Alice'), Person('Bob')]);
+    realm.write(() => realm.add(team));
+
+    expectLater(
+        team.players.changes,
+        emitsInOrder(<Matcher>[
+          isA<RealmListChanges<Person>>().having((ch) => ch.inserted, 'inserted', <int>[]), // always an empty event on subscription
+          isA<RealmListChanges<Person>>().having((ch) => ch.cleared, 'cleared', true),
+        ]));
+    realm.write(() => team.players.clear());
+  });
 }
