@@ -71,6 +71,8 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
         MACOSX_FRAMEWORK_BUNDLE_VERSION "1.0.0"
     )
 
+    target_link_options(realm_dart PRIVATE SHELL:-framework UIKIT)
+
     if(NOT $ENV{REALM_CI})
         add_custom_command(TARGET realm_dart POST_BUILD
             COMMAND rm -rf ${OUTPUT_DIR}/realm_dart.xcframework
