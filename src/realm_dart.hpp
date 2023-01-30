@@ -23,7 +23,6 @@
 #include <realm/util/functional.hpp>
 
 struct realm_dart_userdata_async {
-public:
     realm_dart_userdata_async(Dart_Handle handle, void* callback, realm_scheduler_t* scheduler)
     : handle(Dart_NewPersistentHandle_DL(handle))
     , dart_callback(callback)

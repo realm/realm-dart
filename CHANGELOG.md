@@ -3,7 +3,9 @@
 **This project is in Release Candidate stage.**
 
 ### Enhancements
-* Support change notification `isCleared` on list collections and sets. ([#1128](https://github.com/realm/realm-dart/pull/1128))
+* Add `App.reconnect()` providing a hint to Realm to reconnect all sync sessions.
+* Add `Realm.refresh()` and `Realm.refreshAsync()` support. ([#1046](https://github.com/realm/realm-dart/pull/1046))
+* Support change notifications property `isCleared` on list collections and sets. ([#1128](https://github.com/realm/realm-dart/pull/1128))
 
 ### Fixed
 * `SyncSession.pause()` allow users to suspend a Realm's sync session until it is explicitly resumed with `SyncSession.resume()`. Previously it could be implicitly resumed in rare cases. (Core upgrade)
@@ -23,6 +25,7 @@
 
 ### Internal
 * Using Core 13.3.0
+* Added specific codes to `SyncResolveErrorCode` enum's items. ([#1131](https://github.com/realm/realm-dart/pull/1131).
 
 ## 0.10.0+rc (2023-01-23)
 

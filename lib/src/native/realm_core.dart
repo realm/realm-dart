@@ -581,6 +581,10 @@ class _RealmCore {
     });
   }
 
+  void realmSetAutoRefresh(Realm realm, bool enable) {
+    _realmLib.realm_set_auto_refresh(realm.handle._pointer, enable);
+  }
+
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
     final schedulerPtr = _realmLib.realm_dart_create_scheduler(isolateId, sendPort);
     return SchedulerHandle._(schedulerPtr);
@@ -771,6 +775,29 @@ class _RealmCore {
       _realmLib.invokeGetBool(() => _realmLib.realm_refresh(realm.handle._pointer, did_refresh), "Could not refresh");
       return did_refresh.value;
     });
+  }
+
+  Future<bool> realmRefreshAsync(Realm realm) async {
+    final completer = Completer<bool>();
+    final callback = Pointer.fromFunction<Void Function(Pointer<Void>)>(_realmRefreshAsyncCallback);
+    Pointer<Void> completerPtr = _realmLib.realm_dart_object_to_persistent_handle(completer);
+    Pointer<realm_refresh_callback_token> result = _realmLib.realm_add_realm_refresh_callback(
+        realm.handle._pointer, callback.cast(), completerPtr, _realmLib.addresses.realm_dart_delete_persistent_handle);
+
+    if (result == nullptr) {
+      return Future<bool>.value(false);
+    }
+
+    return completer.future;
+  }
+
+  static void _realmRefreshAsyncCallback(Pointer<Void> userdata) {
+    if (userdata == nullptr) {
+      return;
+    }
+
+    final completer = _realmLib.realm_dart_persistent_handle_to_object(userdata) as Completer<bool>;
+    completer.complete(true);
   }
 
   RealmObjectMetadata getObjectMetadata(Realm realm, SchemaObject schema) {
@@ -1909,6 +1936,12 @@ class _RealmCore {
               ),
           "Switch user failed");
     });
+  }
+
+  void reconnect(App application) {
+    _realmLib.realm_app_sync_client_reconnect(
+      application.handle._pointer,
+    );
   }
 
   String? userGetCustomData(User user) {
