@@ -523,7 +523,7 @@ Future<void> main([List<String>? args]) async {
       await Future<void>.delayed(Duration(milliseconds: 20));
     });
 
-    test('RealmSet<$type>.cleared notifications', () async {
+    test('RealmSet<$type>.isCleared notifications', () async {
       var config = Configuration.local([TestRealmSets.schema, Car.schema]);
       var realm = getRealm(config);
 

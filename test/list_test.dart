@@ -1177,7 +1177,7 @@ Future<void> main([List<String>? args]) async {
     expect(team.players, [bob, alice, dan, carol]);
   });
 
-  test('RealmList.cleared notifications', () async {
+  test('RealmList.isCleared notifications', () async {
     final config = Configuration.local([Team.schema, Person.schema]);
     final realm = getRealm(config);
     final team = Team('Team 1', players: [Person('Alice'), Person('Bob')]);
