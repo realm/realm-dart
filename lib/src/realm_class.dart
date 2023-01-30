@@ -568,7 +568,7 @@ class Realm implements Finalizable {
   /// If another process or [Isolate] has made changes to the realm file, this causes
   /// those changes to become visible in this realm instance.
   /// Typically you don't need to call this method since Realm has auto-refresh built-in.
-  /// Note that this may return true even if no data has actually changed.
+  /// Note that this may return `true` even if no data has actually changed.
   bool refresh() {
     return realmCore.realmRefresh(this);
   }
@@ -576,7 +576,7 @@ class Realm implements Finalizable {
   /// Returns a [Future] that will complete when the `Realm` is refreshed to the version which is the
   /// latest version at the time when this method is called.
   ///
-  /// Note that this may return true even if no data has actually changed.
+  /// Note that this may return `true` even if no data has actually changed.
   Future<bool> refreshAsync() async {
     return realmCore.realmRefreshAsync(this);
   }
