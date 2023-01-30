@@ -706,6 +706,13 @@ Future<void> main([List<String>? args]) async {
     event = await waitForNotification(notifications);
     expect(event.deleted, [0]);
 
+    realm.write(() {
+      parent.recursiveList.clear();
+    });
+
+    event = await waitForNotification(notifications);
+    expect(event.isCleared, true);
+
     await subscription.cancel();
   });
 
