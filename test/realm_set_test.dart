@@ -536,30 +536,13 @@ Future<void> main([List<String>? args]) async {
         set.add(values.first);
       });
 
-      var state = 0;
-      final maxSate = 1;
-      final subscription = set.changes.listen((changes) {
-        if (state == 0) {
-          expect(changes.inserted.isEmpty, true);
-          expect(changes.modified.isEmpty, true);
-          expect(changes.deleted.isEmpty, true);
-          expect(changes.newModified.isEmpty, true);
-          expect(changes.moved.isEmpty, true);
-        } else if (state == 1) {
-          expect(changes.cleared, true); //collection cleared
-        }
-        state++;
-      });
-      await Future<void>.delayed(Duration(milliseconds: 20));
-      realm.write(() {
-        set.clear();
-      });
-      expect(state, maxSate);
-
-      await Future<void>.delayed(Duration(milliseconds: 20));
-      subscription.cancel();
-
-      await Future<void>.delayed(Duration(milliseconds: 20));
+      expectLater(
+          set.changes,
+          emitsInOrder(<Matcher>[
+            isA<RealmSetChanges<Object?>>().having((ch) => ch.inserted, 'inserted', <int>[]), // always an empty event on subscription
+            isA<RealmSetChanges<Object?>>().having((ch) => ch.cleared, 'cleared', true),
+          ]));
+      realm.write(() => set.clear());
     });
 
     test('RealmSet<$type> basic operations on unmanaged sets', () {
