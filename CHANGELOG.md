@@ -3,7 +3,6 @@
 **This project is in Release Candidate stage.**
 
 ### Enhancements
-* Added specific codes to `SyncResolveErrorCode` enum's items. ([#1131](https://github.com/realm/realm-dart/pull/1131).
 
 ### Fixed
 * `SyncSession.pause()` allow users to suspend a Realm's sync session until it is explicitly resumed with `SyncSession.resume()`. Previously it could be implicitly resumed in rare cases. (Core upgrade)
@@ -31,6 +30,7 @@
 ### Enhancements
 * Add support for Realm set data type. ([#1102](https://github.com/realm/realm-dart/pull/1102))
 * Exposed realm `writeCopy` API to copy a Realm file and optionally encrypt it with a different key. ([#1103](https://github.com/realm/realm-dart/pull/1103))
+* Added specific codes to `SyncResolveErrorCode` enum's items. ([#1131](https://github.com/realm/realm-dart/pull/1131).
 
 ### Fixed
 * Added an error for default values for Realm object references in the Realm generator. ([#1102](https://github.com/realm/realm-dart/pull/1102))
