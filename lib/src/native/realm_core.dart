@@ -1431,10 +1431,14 @@ class _RealmCore {
       _realmLib.realm_app_config_set_sdk(handle._pointer, 'Dart'.toCharPtr(arena));
       _realmLib.realm_app_config_set_sdk_version(handle._pointer, libraryVersion.toCharPtr(arena));
 
+      //TODO: set cpu architecture when Core merges https://github.com/realm/realm-core/pull/6256#pullrequestreview-1275624284
       _realmLib.realm_app_config_set_cpu_arch(handle._pointer, ''.toCharPtr(arena));
 
-      _realmLib.realm_app_config_set_device_name(handle._pointer, ''.toCharPtr(arena));
-      _realmLib.realm_app_config_set_device_version(handle._pointer, ''.toCharPtr(arena));
+      final deviceName = getDeviceName();
+      _realmLib.realm_app_config_set_device_name(handle._pointer, deviceName.toCharPtr(arena));
+      
+      final deviceVersion = getDeviceVersion();
+      _realmLib.realm_app_config_set_device_version(handle._pointer, deviceVersion.toCharPtr(arena));
 
       _realmLib.realm_app_config_set_framework_name(handle._pointer, (isFlutterPlatform ? 'Flutter' : 'Dart VM').toCharPtr(arena));
       _realmLib.realm_app_config_set_framework_version(handle._pointer, Platform.version.toCharPtr(arena));
