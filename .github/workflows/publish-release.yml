@@ -26,7 +26,7 @@ jobs:
       id: get-version
       run: |
         pkgVersion=$(sed -ne "s/^version: \(.*\)/\1/p" pubspec.yaml)
-        pkgSuffix="${{ github.event.inputs.environment != 'Production' && format('-{0}', github.sha) || '' }}"
+        pkgSuffix=""
         echo "version=$pkgVersion$pkgSuffix" >> $GITHUB_OUTPUT
       shell: bash
 
