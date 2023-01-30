@@ -3,7 +3,7 @@
 **This project is in Release Candidate stage.**
 
 ### Enhancements
-* Added values to items of `SyncResolveErrorCode` ([#1131](https://github.com/realm/realm-dart/pull/1131).
+* Added specific codes to `SyncResolveErrorCode` enum's items. ([#1131](https://github.com/realm/realm-dart/pull/1131).
 
 ### Fixed
 * `SyncSession.pause()` allow users to suspend a Realm's sync session until it is explicitly resumed with `SyncSession.resume()`. Previously it could be implicitly resumed in rare cases. (Core upgrade)
