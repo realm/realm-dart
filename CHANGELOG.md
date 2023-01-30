@@ -4,13 +4,6 @@
 
 ### Enhancements
 * Add `App.reconnect()` providing a hint to Realm to reconnect all sync sessions.
-```dart
-Connectivity().onConnectivityChanged.listen((event) {
-  if (event != ConnectivityResult.none) {
-    app.reconnect();
-  }
-});
-```
 
 ### Fixed
 * None
