@@ -7786,6 +7786,23 @@ class RealmLibrary {
               ffi.Pointer<realm_key_path_array_t>,
               realm_on_collection_change_func_t)>();
 
+  void realm_set_auto_refresh(
+    ffi.Pointer<realm_t> realm,
+    bool enable,
+  ) {
+    return _realm_set_auto_refresh(
+      realm,
+      enable,
+    );
+  }
+
+  late final _realm_set_auto_refreshPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<realm_t>, ffi.Bool)>>('realm_set_auto_refresh');
+  late final _realm_set_auto_refresh = _realm_set_auto_refreshPtr
+      .asFunction<void Function(ffi.Pointer<realm_t>, bool)>();
+
   /// Clear a set of values.
   ///
   /// @return True if no exception occurred.
