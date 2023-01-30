@@ -523,6 +523,28 @@ Future<void> main([List<String>? args]) async {
       await Future<void>.delayed(Duration(milliseconds: 20));
     });
 
+    test('RealmSet<$type>.isCleared notifications', () async {
+      var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+      var realm = getRealm(config);
+
+      var testSet = TestRealmSets(1);
+      realm.write(() => realm.add(testSet));
+
+      var set = testSet.setByType(type).set;
+      var values = testSet.setByType(type).values;
+      realm.write(() {
+        set.add(values.first);
+      });
+
+      expectLater(
+          set.changes,
+          emitsInOrder(<Matcher>[
+            isA<RealmSetChanges<Object?>>().having((changes) => changes.inserted, 'inserted', <int>[]), // always an empty event on subscription
+            isA<RealmSetChanges<Object?>>().having((changes) => changes.isCleared, 'isCleared', true),
+          ]));
+      realm.write(() => set.clear());
+    });
+
     test('RealmSet<$type> basic operations on unmanaged sets', () {
       var config = Configuration.local([TestRealmSets.schema, Car.schema]);
       var realm = getRealm(config);
@@ -580,7 +602,7 @@ Future<void> main([List<String>? args]) async {
     expect(realm.all<Car>().length, 0);
   });
 
-   test('UnmanagedRealmSet<RealmObject> deleteMany', () {
+  test('UnmanagedRealmSet<RealmObject> deleteMany', () {
     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
     var realm = getRealm(config);
 
@@ -602,7 +624,6 @@ Future<void> main([List<String>? args]) async {
     cars = realm.all<Car>();
     expect(cars.length, 0);
   });
-
 
   test('RealmSet<RealmObject> add a set of already managed objects', () {
     var config = Configuration.local([TestRealmSets.schema, Car.schema]);

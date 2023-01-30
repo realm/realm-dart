@@ -5,6 +5,7 @@
 ### Enhancements
 * Add `App.reconnect()` providing a hint to Realm to reconnect all sync sessions.
 * Add `Realm.refresh()` and `Realm.refreshAsync()` support. ([#1046](https://github.com/realm/realm-dart/pull/1046))
+* Support change notifications property `isCleared` on list collections and sets. ([#1128](https://github.com/realm/realm-dart/pull/1128))
 
 ### Fixed
 * `SyncSession.pause()` allow users to suspend a Realm's sync session until it is explicitly resumed with `SyncSession.resume()`. Previously it could be implicitly resumed in rare cases. (Core upgrade)
@@ -33,7 +34,6 @@
 ### Enhancements
 * Add support for Realm set data type. ([#1102](https://github.com/realm/realm-dart/pull/1102))
 * Exposed realm `writeCopy` API to copy a Realm file and optionally encrypt it with a different key. ([#1103](https://github.com/realm/realm-dart/pull/1103))
-
 
 ### Fixed
 * Added an error for default values for Realm object references in the Realm generator. ([#1102](https://github.com/realm/realm-dart/pull/1102))
