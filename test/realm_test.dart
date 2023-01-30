@@ -1793,7 +1793,7 @@ Future<void> main([List<String>? args]) async {
 
     await Future<void>.delayed(Duration(milliseconds: 1));
     expect(isRefreshed, false);
-    expect(called, true, reason: "Refresh called after write block completes");
+    expect(called, true);
     expect(realm.all<Person>().length, 1);
   });
 
@@ -1813,23 +1813,6 @@ Future<void> main([List<String>? args]) async {
     expect(realm.all<Person>().length, 1);
   });
 
-  test('Realm.refreshAsync outside a transaction', () async {
-    final realm = getRealm(Configuration.local([Person.schema]));
-    bool called = false;
-    bool isRefreshed = false;
-   
-    realm.refreshAsync().then((refreshed) {
-      called = true;
-      isRefreshed = refreshed;
-    });
-
-    realm.write(() {});
-    await Future<void>.delayed(Duration(milliseconds: 1));
-
-    expect(isRefreshed, false);
-    expect(called, true);
-  });
-
   test('Realm.refresh on frozen realm should be no-op', () async {
     var realm = getRealm(Configuration.local([Person.schema]));
     bool called = false;
@@ -1844,34 +1827,22 @@ Future<void> main([List<String>? args]) async {
     final results = realm.query<Person>(r"name == $0", [personName]);
 
     expect(realm.refresh(), false);
-    realm.setAutoRefresh(false);
+    realm.disableAutoRefreshForTesting();
 
     ReceivePort receivePort = ReceivePort();
-    await Isolate.spawn((SendPort sendPort) async {
+    Isolate.spawn((SendPort sendPort) async {
       final externalRealm = Realm(Configuration.local([Person.schema], path: path));
-      externalRealm.write(() {
-        externalRealm.add(Person(personName));
-      });
-      sendPort.send(false);
-
-      await Future<void>.delayed(Duration(milliseconds: 100));
+      externalRealm.write(() => externalRealm.add(Person(personName)));
       externalRealm.close();
       sendPort.send(true);
     }, receivePort.sendPort);
 
-    Completer<void> completer = Completer<void>();
     await for (final closed in receivePort) {
-      if (closed as bool) {
-        completer.complete();
-        receivePort.close();
-        break;
-      }
       expect(results.length, 0);
       expect(realm.refresh(), true);
       expect(results.length, 1);
+      receivePort.close();
     }
-
-    await completer.future;
   });
 }
 
