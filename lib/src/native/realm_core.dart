@@ -581,8 +581,8 @@ class _RealmCore {
     });
   }
 
-  void realmSetAutoRefresh(Realm realm, bool enable) {
-    _realmLib.realm_set_auto_refresh(realm.handle._pointer, enable);
+  void realmDisableAutoRefreshForTesting(Realm realm) {
+    _realmLib.realm_set_auto_refresh(realm.handle._pointer, false);
   }
 
   SchedulerHandle createScheduler(int isolateId, int sendPort) {

@@ -1827,7 +1827,7 @@ Future<void> main([List<String>? args]) async {
     final results = realm.query<Person>(r"name == $0", [personName]);
 
     expect(realm.refresh(), false);
-    realm.disableAutoRefreshForTesting();
+    realmCore.realmDisableAutoRefreshForTesting(realm);
 
     ReceivePort receivePort = ReceivePort();
     Isolate.spawn((SendPort sendPort) async {
@@ -1843,13 +1843,12 @@ Future<void> main([List<String>? args]) async {
     expect(results.length, 1);
     receivePort.close();
   });
-  
-  test('Flutter device info', () {
+
+  test('Device info', () {
     late Matcher matcher;
     if (Platform.isAndroid || Platform.isIOS) {
       matcher = isNotEmpty;
-    }
-    else {
+    } else {
       matcher = isEmpty;
     }
 
