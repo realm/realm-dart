@@ -43,8 +43,9 @@ class CollectionChanges {
   final List<int> modifications;
   final List<int> modificationsAfter;
   final List<Move> moves;
+  final bool cleared;
 
-  const CollectionChanges(this.deletions, this.insertions, this.modifications, this.modificationsAfter, this.moves);
+  const CollectionChanges(this.deletions, this.insertions, this.modifications, this.modificationsAfter, this.moves, this.cleared);
 }
 
 /// Describes the changes in a Realm collection since the last time the notification callback was invoked.
@@ -71,6 +72,9 @@ class RealmCollectionChanges implements Finalizable {
   /// The indexes in the new version of the collection which were modified. Conceptually, it contains the same entries as [modified] but after the
   /// insertions and deletions have been accounted for.
   List<int> get newModified => _changes.modificationsAfter;
+
+  /// Gets a value indicating whether the collection has been cleared.
+  bool get cleared => _changes.cleared;
 }
 
 extension RealmCollectionChangesInternal on RealmCollectionChanges {

@@ -1077,8 +1077,14 @@ class _RealmCore {
         moves[i] = Move(movePtr.ref.from, movePtr.ref.to);
       }
 
-      return CollectionChanges(out_deletion_indexes.toIntList(deletionsCount), out_insertion_indexes.toIntList(insertionCount),
-          out_modification_indexes.toIntList(modificationCount), out_modification_indexes_after.toIntList(modificationCount), moves);
+      return CollectionChanges(
+        out_deletion_indexes.toIntList(deletionsCount),
+        out_insertion_indexes.toIntList(insertionCount),
+        out_modification_indexes.toIntList(modificationCount),
+        out_modification_indexes_after.toIntList(modificationCount),
+        moves,
+        out_collection_cleared.value,
+      );
     });
   }
 
