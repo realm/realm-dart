@@ -1852,8 +1852,6 @@ Future<void> main([List<String>? args]) async {
       matcher = isEmpty;
     }
 
-    print("device name ${realmCore.getDeviceName()}");
-    print("device version ${realmCore.getDeviceVersion()}");
     expect(realmCore.getDeviceName(), matcher);
     expect(realmCore.getDeviceVersion(), matcher);
   });
