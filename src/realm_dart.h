@@ -33,6 +33,8 @@ RLM_API void realm_dart_delete_persistent_handle(void* handle);
 
 // implemented for iOS and Android only
 RLM_API const char* realm_dart_get_files_path();
+RLM_API const char* realm_dart_get_device_name();
+RLM_API const char* realm_dart_get_device_version();
 
 typedef struct realm_dart_userdata_async* realm_dart_userdata_async_t;
 

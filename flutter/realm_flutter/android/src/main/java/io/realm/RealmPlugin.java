@@ -31,7 +31,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
 public class RealmPlugin implements FlutterPlugin, MethodCallHandler {
-  private static native void native_initRealm(String filesDir);
+  private static native void native_initRealm(String filesDir, String deviceName, String deviceVersion);
     
   public static void initRealm(Context context) {
       String filesDir;
@@ -40,7 +40,8 @@ public class RealmPlugin implements FlutterPlugin, MethodCallHandler {
       } catch (IOException e) {
           throw new IllegalStateException(e);
       }
-      native_initRealm(filesDir);
+
+      native_initRealm(filesDir, android.os.Build.MANUFACTURER, android.os.Build.MODEL);
   }
 
  /// The MethodChannel that will the communication between Flutter and native Android

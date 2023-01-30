@@ -16,12 +16,16 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <string>
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
+#include <string>
 #include "../realm_dart.h"
+#import <sys/utsname.h>
 
 static std::string filesDir;
+static std::string deviceModel;
+static std::string deviceVersion;
 
 std::string default_realm_file_directory()
 {
@@ -34,9 +38,39 @@ std::string default_realm_file_directory()
     }
 }
 
+std::string current_device_model()
+{
+    std::string ret;
+    @autoreleasepool {
+        NSString *model = [[UIDevice currentDevice] model];
+        ret = model.UTF8String;
+        return ret;
+    }
+}
+
+
 RLM_API const char* realm_dart_get_files_path() {
     if (filesDir == "") {
         filesDir = default_realm_file_directory();
     }
+
     return filesDir.c_str();
+}
+
+RLM_API const char* realm_dart_get_device_name() {
+    if (deviceModel == "") {
+        deviceModel = current_device_model();
+    }
+
+    return deviceModel.c_str();
+}
+
+RLM_API const char* realm_dart_get_device_version() {
+    if (deviceVersion == "") {
+        struct utsname systemInfo;
+        uname(&systemInfo);
+        deviceVersion = systemInfo.machine;
+    }
+
+    return deviceVersion.c_str();
 }
