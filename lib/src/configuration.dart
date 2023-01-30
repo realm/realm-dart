@@ -646,7 +646,7 @@ class SyncError extends RealmError {
       case SyncErrorCategory.session:
         return SyncSessionError(message, category, SyncSessionErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.resolve:
-        return SyncResolveError(message, category, SyncResolveErrorCode.values[code]);
+        return SyncResolveError(message, category, SyncResolveErrorCode.fromInt(code));
       case SyncErrorCategory.system:
       case SyncErrorCategory.unknown:
       default:
@@ -732,7 +732,7 @@ class SyncSessionError extends SyncError {
 /// Network resolution error
 class SyncResolveError extends SyncError {
   /// The numeric value indicating the type of the network resolution sync error.
-  SyncResolveErrorCode get code => SyncResolveErrorCode.values[codeValue];
+  SyncResolveErrorCode get code => SyncResolveErrorCode.fromInt(codeValue);
 
   SyncResolveError(String message, SyncErrorCategory category, SyncResolveErrorCode errorCode) : super(message, category, errorCode.index);
 

@@ -551,23 +551,32 @@ enum SyncSessionErrorCode {
 /// These errors will be reported via the error handlers of the affected sessions.
 enum SyncResolveErrorCode {
   /// Host not found (authoritative).
-  hostNotFound,
+  hostNotFound(1),
 
   /// Host not found (non-authoritative).
-  hostNotFoundTryAgain,
+  hostNotFoundTryAgain(2),
 
   /// The query is valid but does not have associated address data.
-  noData,
+  noData(3),
 
   /// A non-recoverable error occurred.
-  noRecovery,
+  noRecovery(4),
 
   /// The service is not supported for the given socket type.
-  serviceNotFound,
+  serviceNotFound(5),
 
   /// The socket type is not supported.
-  socketTypeNotSupported,
+  socketTypeNotSupported(6),
 
   /// Unknown resolve errors
-  unknown;
+  unknown(1000);
+
+  static final Map<int, SyncResolveErrorCode> _valuesMap = {for (var value in SyncResolveErrorCode.values) value.code: value};
+
+  static SyncResolveErrorCode fromInt(int code) {
+    return SyncResolveErrorCode._valuesMap[code] ?? SyncResolveErrorCode.unknown;
+  }
+
+  final int code;
+  const SyncResolveErrorCode(this.code);
 }
