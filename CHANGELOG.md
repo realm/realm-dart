@@ -3,6 +3,7 @@
 **This project is in Release Candidate stage.**
 
 ### Enhancements
+* Add `App.reconnect()` providing a hint to Realm to reconnect all sync sessions.
 * Add `Realm.refresh()` and `Realm.refreshAsync()` support. ([#1046](https://github.com/realm/realm-dart/pull/1046))
 
 ### Fixed
