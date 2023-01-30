@@ -27,7 +27,6 @@ import '../lib/realm.dart';
 import '../lib/src/configuration.dart';
 import '../lib/src/native/realm_core.dart';
 import '../lib/src/subscription.dart';
-import 'client_reset_test.dart';
 import 'test.dart';
 
 @isTest

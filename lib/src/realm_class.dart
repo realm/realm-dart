@@ -744,12 +744,6 @@ extension RealmInternal on Realm {
       addUnmanagedRealmObjectFromValue(value.value, update);
     }
   }
-
-  // Internal method that prevents the realm from being automatically refreshed.
-  // This method is used for testing purposes only.
-  void disableAutoRefreshForTesting() {
-    realmCore.realmSetAutoRefresh(this, false);
-  }
 }
 
 /// @nodoc
