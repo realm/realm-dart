@@ -166,6 +166,8 @@ jobs:
       run: |
         mkdir -p $HOME/.config/dart
         echo '${{ secrets.PUB_CREDENTIALS }}' >> $HOME/.config/dart/pub-credentials.json
+        pwd
+        find .
         flutter pub publish --directory realm --force
       working-directory: release
 
