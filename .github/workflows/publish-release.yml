@@ -26,20 +26,20 @@ jobs:
       id: get-version
       run: |
         pkgVersion=$(sed -ne "s/^version: \(.*\)/\1/p" pubspec.yaml)
-        pkgSuffix="${{ github.event.inputs.environment != 'Production' && format('-{0}', github.sha) || '' }}"
+        pkgSuffix=""
         echo "version=$pkgVersion$pkgSuffix" >> $GITHUB_OUTPUT
       shell: bash
 
-    - name : Setup Dart SDK
-      uses: dart-lang/setup-dart@main
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
       with:
-        sdk: stable
+        channel: 'stable'
 
     - name: Download all artifacts
       uses: dawidd6/action-download-artifact@d0f291cf39bd21965ea9c4c6e210fc355c3844ed
       with:
         workflow: ci.yml
-        commit: ${{ github.sha }}
+        commit: 0c083cae73ca813d647ae36932513cff83ce8ed5
         path: ${{ github.workspace }}/binary/
         workflow_conclusion: completed
 
@@ -85,20 +85,6 @@ jobs:
         replace: " "
         include: "**pubspec.yaml"
 
-    - name: Package common
-      run: |
-        cp -Lr ../common .
-        cd common
-        dart pub publish --dry-run || true
-      working-directory: release
-
-    - name: Package generator
-      run: |
-        cp -Lr ../generator .
-        cd generator
-        dart pub publish --dry-run || true
-      working-directory: release
-
     # realm_flutter has symlinks to native binaries which should not be packaged
     - name: Cleanup binary symlinks
       run: |
@@ -114,16 +100,7 @@ jobs:
       run: |
         cp -Lr ../flutter/realm_flutter realm
         cd realm
-        dart pub publish --dry-run || true
-      working-directory: release
-
-    - name: Package realm_dart
-      run: |
-        mkdir realm_dart
-        cp -Lr ../bin ../example ../lib ../test realm_dart
-        rsync -vt ../* realm_dart/
-        cd realm_dart
-        dart pub publish --dry-run || true
+        flutter pub publish --dry-run || true
       working-directory: release
 
     - name: Extract Changelog
@@ -151,11 +128,11 @@ jobs:
     - name: Upload release folder to S3
       id: upload-to-s3
       run: |
-        tar -zcvf packages.tar.gz common generator realm_dart realm ExtractedChangelog.md
-        rm -rf common generator realm_dart realm ExtractedChangelog.md
+        # tar -zcvf packages.tar.gz common generator realm_dart realm ExtractedChangelog.md
+        # rm -rf common generator realm_dart realm ExtractedChangelog.md
 
         s3_folder="static.realm.io/downloads/dart/${{ steps.get-version.outputs.version }}"
-        aws s3 sync --acl public-read . "s3://$s3_folder"
+        # aws s3 sync --acl public-read . "s3://$s3_folder"
         echo "url=https://$s3_folder/packages.tar.gz" >> $GITHUB_OUTPUT
       working-directory: release
 
@@ -180,20 +157,18 @@ jobs:
         name: release-bundle
         path: release
 
-    - name : Setup Dart SDK
-      uses: dart-lang/setup-dart@main
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
       with:
-        sdk: stable
+        channel: 'stable'
 
     - name: Publish packages to pub.dev
       run: |
         mkdir -p $HOME/.config/dart
         echo '${{ secrets.PUB_CREDENTIALS }}' >> $HOME/.config/dart/pub-credentials.json
-
-        dart pub publish --directory common --force
-        dart pub publish --directory generator --force
-        dart pub publish --directory realm_dart --force
-        dart pub publish --directory realm --force
+        pwd
+        find .
+        flutter pub publish --directory release/realm --force
       working-directory: release
 
     - name: Find Release PR
