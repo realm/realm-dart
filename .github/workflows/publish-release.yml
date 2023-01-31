@@ -168,7 +168,7 @@ jobs:
         echo '${{ secrets.PUB_CREDENTIALS }}' >> $HOME/.config/dart/pub-credentials.json
         pwd
         find .
-        flutter pub publish --directory realm --force
+        flutter pub publish --directory release/realm --force
       working-directory: release
 
     - name: Find Release PR
