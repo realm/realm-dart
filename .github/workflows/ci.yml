@@ -48,9 +48,11 @@ jobs:
       - dart-tests-macos
       - dart-tests-macos-arm
       - dart-tests-linux
+      - dart-tests-linux20
       - flutter-desktop-tests-windows
       - flutter-desktop-tests-macos
       - flutter-desktop-tests-linux
+      - flutter-desktop-tests-linux20
       - flutter-ios
       - flutter-android
     steps:
@@ -70,9 +72,11 @@ jobs:
       - dart-tests-macos
       - dart-tests-macos-arm
       - dart-tests-linux
+      - dart-tests-linux20
       - flutter-desktop-tests-windows
       - flutter-desktop-tests-macos
       - flutter-desktop-tests-linux
+      - flutter-desktop-tests-linux20
       - flutter-ios
       - flutter-android
     strategy:
@@ -186,6 +190,7 @@ jobs:
     secrets: inherit
     with:
      os: windows
+     runner: windows-latest
      app: dw
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
@@ -198,6 +203,7 @@ jobs:
     secrets: inherit
     with:
      os: macos
+     runner: macos-latest
      app: dm
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
@@ -210,6 +216,7 @@ jobs:
     secrets: inherit
     with:
      os: macos
+     runner: macos-arm
      architecture: arm
      app: dma
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
@@ -223,6 +230,20 @@ jobs:
     secrets: inherit
     with:
      os: linux
+     runner: ubuntu-latest
+     app: dl
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
+
+  dart-tests-linux20:
+    name: Linux 20 Dart Tests
+    uses: ./.github/workflows/dart-desktop-tests.yml
+    needs:
+      - build-linux
+      - deploy-cluster
+    secrets: inherit
+    with:
+     os: linux
+     runner: ubuntu-20.04
      app: dl
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
@@ -237,6 +258,7 @@ jobs:
     secrets: inherit
     with:
      os: windows
+     runner: windows-latest
      app: fw
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
@@ -249,6 +271,7 @@ jobs:
     secrets: inherit
     with:
      os: macos
+     runner: macos-latest
      app: fm
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
@@ -261,6 +284,20 @@ jobs:
     secrets: inherit
     with:
      os: linux
+     runner: ubuntu-latest
+     app: fl
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
+
+    flutter-desktop-tests-linux20:
+    name: Linux 20 Flutter Tests
+    uses: ./.github/workflows/flutter-desktop-tests.yml
+    needs:
+      - build-linux
+      - deploy-cluster
+    secrets: inherit
+    with:
+     os: linux
+     runner: ubuntu-20.04
      app: fl
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
