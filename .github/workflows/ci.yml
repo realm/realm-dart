@@ -129,7 +129,7 @@ jobs:
     name: Build Windows
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: windows
+     runner: windows-2022
      binary: windows
      build: '["windows"]'
 
@@ -137,7 +137,7 @@ jobs:
     name: Build MacOS
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: macos
+     runner: macos-11
      binary: macos
      build: '["macos"]'
 
@@ -145,7 +145,7 @@ jobs:
     name: Build Linux
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: ubuntu
+     runner: ubuntu-20.04
      binary: linux
      build: '["linux"]'
 
@@ -153,7 +153,7 @@ jobs:
     name: Build Android
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: ubuntu
+     runner: ubuntu-20.04
      binary: android
      build: '["android-x86", "android-x86_64", "android-armeabi-v7a", "android-arm64-v8a"]'
 
@@ -161,7 +161,7 @@ jobs:
     name: Build IOS
     uses: ./.github/workflows/build-native.yml
     with:
-      runner: macos
+      runner: macos-11
       binary: ios
       build: '["ios-device", "ios-simulator", "ios-catalyst"]'
 

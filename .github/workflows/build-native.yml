@@ -18,7 +18,7 @@ on:
 
 jobs:
   build-native:
-    runs-on: ${{ inputs.runner }}-latest
+    runs-on: ${{ inputs.runner }}
     name: Build native
     timeout-minutes: 60
     strategy:
