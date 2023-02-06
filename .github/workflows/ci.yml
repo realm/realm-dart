@@ -133,7 +133,7 @@ jobs:
     name: Build Windows
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: windows-2022
+     runner: windows-latest
      binary: windows
      build: '["windows"]'
 
@@ -141,7 +141,7 @@ jobs:
     name: Build MacOS
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: macos-11
+     runner: macos-latest
      binary: macos
      build: '["macos"]'
 
@@ -165,7 +165,7 @@ jobs:
     name: Build IOS
     uses: ./.github/workflows/build-native.yml
     with:
-      runner: macos-11
+      runner: macos-latest
       binary: ios
       build: '["ios-device", "ios-simulator", "ios-catalyst"]'
 
