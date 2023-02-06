@@ -6,13 +6,13 @@
 * None
 
 ### Fixed
-* None
+* Improve performance of interprocess mutexes on iOS which don’t need to support reader-writer locking. The primary beneficiary of this is beginning and ending read transactions, which is now almost as fast as pre-v13.0.0 (Core upgrade).
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 13.4.0
 
 ## 0.11.0+rc (2023-01-30)
 
