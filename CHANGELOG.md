@@ -10,7 +10,6 @@
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
-* Fileformat: Generates files with format v23. Reads and automatically upgrade from fileformat v5 (Core upgrade).
 
 ### Internal
 * Using Core 13.4.0
