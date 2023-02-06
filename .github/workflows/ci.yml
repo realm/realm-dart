@@ -226,7 +226,7 @@ jobs:
     secrets: inherit
     with:
      os: linux
-     runner: ubuntu-20.04
+     runner: ubuntu-latest
      app: dl
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
@@ -267,7 +267,7 @@ jobs:
     secrets: inherit
     with:
      os: linux
-     runner: ubuntu-20.04
+     runner: ubuntu-latest
      app: fl
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
