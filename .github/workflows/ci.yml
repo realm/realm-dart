@@ -129,7 +129,7 @@ jobs:
     name: Build Windows
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: windows-2022
+     runner: windows-latest
      binary: windows
      build: '["windows"]'
 
@@ -137,7 +137,7 @@ jobs:
     name: Build MacOS
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: macos-11
+     runner: macos-latest
      binary: macos
      build: '["macos"]'
 
@@ -145,7 +145,7 @@ jobs:
     name: Build Linux
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: ubuntu-20.04
+     runner: ubuntu-latest
      binary: linux
      build: '["linux"]'
 
@@ -153,7 +153,7 @@ jobs:
     name: Build Android
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: ubuntu-20.04
+     runner: ubuntu-latest
      binary: android
      build: '["android-x86", "android-x86_64", "android-armeabi-v7a", "android-arm64-v8a"]'
 
@@ -161,7 +161,7 @@ jobs:
     name: Build IOS
     uses: ./.github/workflows/build-native.yml
     with:
-      runner: macos-11
+      runner: macos-latest
       binary: ios
       build: '["ios-device", "ios-simulator", "ios-catalyst"]'
 
@@ -186,6 +186,7 @@ jobs:
     secrets: inherit
     with:
      os: windows
+     runner: windows-2022
      app: dw
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
@@ -198,6 +199,7 @@ jobs:
     secrets: inherit
     with:
      os: macos
+     runner: macos-11
      app: dm
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
@@ -210,6 +212,7 @@ jobs:
     secrets: inherit
     with:
      os: macos
+     runner: macos-arm
      architecture: arm
      app: dma
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
@@ -223,6 +226,7 @@ jobs:
     secrets: inherit
     with:
      os: linux
+     runner: ubuntu-20.04
      app: dl
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
@@ -237,6 +241,7 @@ jobs:
     secrets: inherit
     with:
      os: windows
+     runner: windows-2022
      app: fw
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
@@ -249,6 +254,7 @@ jobs:
     secrets: inherit
     with:
      os: macos
+     runner: macos-11
      app: fm
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
@@ -261,11 +267,12 @@ jobs:
     secrets: inherit
     with:
      os: linux
+     runner: ubuntu-20.04
      app: fl
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   flutter-ios:
-    runs-on: macos-latest
+    runs-on: macos-11
     name: IOS Flutter Tests
     timeout-minutes: 45
     env:
@@ -323,7 +330,7 @@ jobs:
         working-directory: ./flutter/realm_flutter/tests
 
   flutter-android:
-    runs-on: macos-latest
+    runs-on: macos-11
     name: Android Flutter Tests
     timeout-minutes: 45
     env:
