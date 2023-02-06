@@ -65,7 +65,7 @@ DynamicLibrary _openRealmLib() {
   final root = _getNearestProjectRoot(Platform.script.path) ?? _getNearestProjectRoot(p.current);
 
   // Try to open lib from various candidate paths
-  Error? ex;
+  LoadRealmLibraryError? ex;
   for (final open in [
     () => _open(libName), // just ask OS..
     () => _open(p.join(_exeDirName, libName)), // try finding it next to the executable
@@ -75,7 +75,8 @@ DynamicLibrary _openRealmLib() {
     try {
       return open();
     } on Error catch (e) {
-      ex ??= e; // remember first exception, if everything fails
+      ex ??= LoadRealmLibraryError();
+      ex.add(e);
     }
   }
   throw ex!; // rethrow first
@@ -111,4 +112,21 @@ DynamicLibrary initRealm() {
   }
 
   return _library = realmLibrary;
+}
+
+class LoadRealmLibraryError extends Error {
+  List<Error> loadingFromPathErrors = [];
+  void add(Error err) {
+    loadingFromPathErrors.add(err);
+  }
+
+  @override
+  @override
+  String toString() {
+    List<String> errMessages = [];
+    for (Error err in loadingFromPathErrors) {
+      errMessages.add(err.toString());
+    }
+    return errMessages.join('\n');
+  }
 }
