@@ -235,7 +235,7 @@ jobs:
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   dart-tests-linux20:
-    name: Linux 20 Dart Tests
+    name: Linux20 Dart Tests
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-linux
@@ -289,7 +289,7 @@ jobs:
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
     flutter-desktop-tests-linux20:
-    name: Linux 20 Flutter Tests
+    name: Linux20 Flutter Tests
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-linux
