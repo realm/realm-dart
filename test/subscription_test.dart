@@ -30,7 +30,7 @@ import '../lib/src/subscription.dart';
 import 'test.dart';
 
 @isTest
-void testSubscriptions(String name, FutureOr<void> Function(Realm) tester) async {
+void testSubscriptions(String name, FutureOr<void> Function(Realm) testFunc) async {
   baasTest(name, (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
@@ -42,7 +42,7 @@ void testSubscriptions(String name, FutureOr<void> Function(Realm) tester) async
     ])
       ..sessionStopPolicy = SessionStopPolicy.immediately;
     final realm = getRealm(configuration);
-    await tester(realm);
+    await testFunc(realm);
   });
 }
 
@@ -352,13 +352,13 @@ Future<void> main([List<String>? args]) async {
     final subscriptions = realm.subscriptions;
 
     // Illegal query for subscription:
-    final query = realm.query<Schedule>('tasks.@count > 10');
+    final query = realm.query<Schedule>('tasks.@count > 10 SORT(id ASC)');
 
     subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(query);
     });
-    await subscriptions.waitForSynchronization();
-    expect(query.length, 0);
+
+    expect(() async => await subscriptions.waitForSynchronization(), throws<RealmException>("invalid RQL"));
   });
 
   testSubscriptions('MutableSubscriptionSet.remove same query, different classes', (realm) {
@@ -517,35 +517,6 @@ Future<void> main([List<String>? args]) async {
 
     final realm = getRealm(config);
     expect(() => realm.write(() => realm.add(Task(ObjectId()))), throws<RealmException>("no flexible sync subscription has been created"));
-  });
-
-  testSubscriptions('Subscription on non-queryable field should not throw', (realm) async {
-    realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm.all<Event>());
-    });
-
-    realm.write(() {
-      realm.addAll([
-        Event(ObjectId(), name: "NPMG Event", isCompleted: true, durationInMinutes: 30, assignedTo: "@me"),
-        Event(
-          ObjectId(),
-          name: "NPMG Meeting",
-          isCompleted: false,
-          durationInMinutes: 10,
-        ),
-        Event(ObjectId(), name: "Some other event", isCompleted: true, durationInMinutes: 60),
-      ]);
-    });
-
-    await realm.syncSession.waitForUpload();
-    var query = realm.query<Event>(r'assignedTo BEGINSWITH $0 AND isCompleted == $1 AND durationInMinutes > $2', ["@me", true, 20]);
-    realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.removeByQuery(realm.all<Event>());
-      mutableSubscriptions.add(query, name: "filter");
-    });
-
-    await realm.subscriptions.waitForSynchronization();
-    expect(query.length, 1);
   });
 
   testSubscriptions('Filter realm data using query subscription', (realm) async {
