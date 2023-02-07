@@ -1348,7 +1348,7 @@ Future<void> main([List<String>? args]) async {
     final config = await _subscribeForAtlasAddedData(app, queryDifferentiator: queryDifferentiator, itemsCount: itemsCount);
     var syncedRealm = await getRealmAsync(config);
     expect(syncedRealm.isClosed, false);
-    final data = syncedRealm.query<Product>(r'stringQueryField BEGINSWITH $0', [queryDifferentiator]);
+    final data = syncedRealm.query<Product>(r'name BEGINSWITH $0', [queryDifferentiator]);
     expect(data.length, itemsCount);
   });
 
@@ -1391,7 +1391,7 @@ Future<void> main([List<String>? args]) async {
       }
     });
 
-    realm.write(() => realm.deleteMany(realm.query<Product>("stringQueryField CONTAINS '$compactTest'")));
+    realm.write(() => realm.deleteMany(realm.query<Product>("name CONTAINS '$compactTest'")));
 
     realm.write(() {
       for (var i = 0; i < 10; i++) {
@@ -1405,7 +1405,7 @@ Future<void> main([List<String>? args]) async {
 
     if (config is FlexibleSyncConfiguration) {
       realm.subscriptions.update((mutableSubscriptions) {
-        mutableSubscriptions.add(realm.query<Product>("stringQueryField CONTAINS '$compactTest'"));
+        mutableSubscriptions.add(realm.query<Product>("name CONTAINS '$compactTest'"));
       });
       await realm.subscriptions.waitForSynchronization();
     }
@@ -1920,7 +1920,7 @@ Future<void> _addDataToAtlas(Realm realm, String productNamePrefix, {int itemsCo
 }
 
 Future<void> _addSubscriptions(Realm realm, String searchByPreffix) async {
-  final query = realm.query<Product>(r'stringQueryField BEGINSWITH $0', [searchByPreffix]);
+  final query = realm.query<Product>(r'name BEGINSWITH $0', [searchByPreffix]);
   if (realm.subscriptions.find(query) == null) {
     realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
   }
