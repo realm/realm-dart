@@ -352,7 +352,7 @@ Future<void> main([List<String>? args]) async {
     final subscriptions = realm.subscriptions;
 
     // Illegal query for subscription:
-    final query = realm.query<Schedule>('tasks.@count > 10');
+    final query = realm.query<Schedule>('tasks.@count > 10 SORT(id ASC)');
 
     subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(query);
@@ -519,47 +519,48 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.write(() => realm.add(Task(ObjectId()))), throws<RealmException>("no flexible sync subscription has been created"));
   });
 
-  testSubscriptions('Subscription on non-queryable field should throw', (realm) async {
-    realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm.all<Event>());
-    });
+  //TODO: remove after App Services support for all queryable fields has landed
+  // testSubscriptions('Subscription on non-queryable field should throw', (realm) async {
+  //   realm.subscriptions.update((mutableSubscriptions) {
+  //     mutableSubscriptions.add(realm.all<Event>());
+  //   });
 
-    realm.write(() {
-      realm.addAll([
-        Event(ObjectId(), name: "NPMG Event", isCompleted: true, durationInMinutes: 30, assignedTo: "@me"),
-        Event(
-          ObjectId(),
-          name: "NPMG Meeting",
-          isCompleted: false,
-          durationInMinutes: 10,
-        ),
-        Event(ObjectId(), name: "Some other event", isCompleted: true, durationInMinutes: 60),
-      ]);
-    });
+  //   realm.write(() {
+  //     realm.addAll([
+  //       Event(ObjectId(), name: "NPMG Event", isCompleted: true, durationInMinutes: 30, assignedTo: "@me"),
+  //       Event(
+  //         ObjectId(),
+  //         name: "NPMG Meeting",
+  //         isCompleted: false,
+  //         durationInMinutes: 10,
+  //       ),
+  //       Event(ObjectId(), name: "Some other event", isCompleted: true, durationInMinutes: 60),
+  //     ]);
+  //   });
 
-    await realm.syncSession.waitForUpload();
+  //   await realm.syncSession.waitForUpload();
 
-    realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.removeByQuery(realm.all<Event>());
-      mutableSubscriptions.add(realm.query<Event>(r'assignedTo BEGINSWITH $0 AND boolQueryField == $1 AND intQueryField > $2', ["@me", true, 20]),
-          name: "filter");
-    });
+  //   realm.subscriptions.update((mutableSubscriptions) {
+  //     mutableSubscriptions.removeByQuery(realm.all<Event>());
+  //     mutableSubscriptions.add(realm.query<Event>(r'assignedTo BEGINSWITH $0 AND boolQueryField == $1 AND intQueryField > $2', ["@me", true, 20]),
+  //         name: "filter");
+  //   });
 
-    String expectedErrorMessage =
-        "Client provided query with bad syntax: unsupported query for table \"${(Event).toString()}\": key \"assignedTo\" is not a queryable field";
+  //   String expectedErrorMessage =
+  //       "Client provided query with bad syntax: unsupported query for table \"${(Event).toString()}\": key \"assignedTo\" is not a queryable field";
 
-    try {
-      await realm.subscriptions.waitForSynchronization();
-      fail("Expected exception not thrown");
-    } catch (e) {
-      expect(e, isA<RealmException>());
-      expect((e as RealmException).message, expectedErrorMessage);
-      expect(realm.subscriptions.state, SubscriptionSetState.error);
-      expect(realm.subscriptions.error, isNotNull);
-      expect(realm.subscriptions.error, isA<RealmException>());
-      expect((realm.subscriptions.error as RealmException).message, expectedErrorMessage);
-    }
-  });
+  //   try {
+  //     await realm.subscriptions.waitForSynchronization();
+  //     fail("Expected exception not thrown");
+  //   } catch (e) {
+  //     expect(e, isA<RealmException>());
+  //     expect((e as RealmException).message, expectedErrorMessage);
+  //     expect(realm.subscriptions.state, SubscriptionSetState.error);
+  //     expect(realm.subscriptions.error, isNotNull);
+  //     expect(realm.subscriptions.error, isA<RealmException>());
+  //     expect((realm.subscriptions.error as RealmException).message, expectedErrorMessage);
+  //   }
+  // });
 
   testSubscriptions('Filter realm data using query subscription', (realm) async {
     realm.subscriptions.update((mutableSubscriptions) {
