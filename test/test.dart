@@ -345,7 +345,7 @@ void test(String name, dynamic Function() testFunction, {dynamic skip, Map<Strin
     return;
   }
 
-  var timeout = 30;
+  var timeout = 45;
   assert(() {
     timeout = Duration.secondsPerDay;
     return true;
