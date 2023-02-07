@@ -691,6 +691,10 @@ class _RealmCore {
     return "";
   }
 
+  String getRealmLibraryCpuArchitecture() {
+    return _realmLib.realm_get_library_cpu_arch().cast<Utf8>().toDartString();
+  }
+
   void closeRealm(Realm realm) {
     _realmLib.invokeGetBool(() => _realmLib.realm_close(realm.handle._pointer), "Realm close failed");
   }
@@ -1437,12 +1441,11 @@ class _RealmCore {
       _realmLib.realm_app_config_set_sdk(handle._pointer, 'Dart'.toCharPtr(arena));
       _realmLib.realm_app_config_set_sdk_version(handle._pointer, libraryVersion.toCharPtr(arena));
 
-      //TODO: set cpu architecture when Core merges https://github.com/realm/realm-core/pull/6256#pullrequestreview-1275624284
-      _realmLib.realm_app_config_set_cpu_arch(handle._pointer, ''.toCharPtr(arena));
+      _realmLib.realm_app_config_set_cpu_arch(handle._pointer, getRealmLibraryCpuArchitecture().toCharPtr(arena));
 
       final deviceName = getDeviceName();
       _realmLib.realm_app_config_set_device_name(handle._pointer, deviceName.toCharPtr(arena));
-      
+
       final deviceVersion = getDeviceVersion();
       _realmLib.realm_app_config_set_device_version(handle._pointer, deviceVersion.toCharPtr(arena));
 
@@ -1455,8 +1458,7 @@ class _RealmCore {
 
       if (configuration.localAppName != null) {
         _realmLib.realm_app_config_set_local_app_name(handle._pointer, configuration.localAppName!.toCharPtr(arena));
-      }
-      else {
+      } else {
         _realmLib.realm_app_config_set_local_app_name(handle._pointer, ''.toCharPtr(arena));
       }
 

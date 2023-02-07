@@ -4584,6 +4584,16 @@ class RealmLibrary {
       _realm_get_last_error_as_async_errorPtr
           .asFunction<ffi.Pointer<realm_async_error_t> Function()>();
 
+  ffi.Pointer<ffi.Char> realm_get_library_cpu_arch() {
+    return _realm_get_library_cpu_arch();
+  }
+
+  late final _realm_get_library_cpu_archPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+          'realm_get_library_cpu_arch');
+  late final _realm_get_library_cpu_arch = _realm_get_library_cpu_archPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
   /// Get a string representing the version number of the Realm library.
   ///
   /// @return A null-terminated string.

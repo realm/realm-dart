@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       runner:
-        description: GitHub runnar image to execute on.
+        description: GitHub runner image to execute on.
         required: true
         type: string
       architecture:
