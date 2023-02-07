@@ -305,7 +305,6 @@ jobs:
      app: fl2
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
-
   flutter-ios:
     runs-on: macos-latest
     name: IOS Flutter Tests
