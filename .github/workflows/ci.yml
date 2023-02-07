@@ -48,9 +48,11 @@ jobs:
       - dart-tests-macos
       - dart-tests-macos-arm
       - dart-tests-linux
+      - dart-tests-linux20
       - flutter-desktop-tests-windows
       - flutter-desktop-tests-macos
       - flutter-desktop-tests-linux
+      - flutter-desktop-tests-linux20
       - flutter-ios
       - flutter-android
     steps:
@@ -70,9 +72,11 @@ jobs:
       - dart-tests-macos
       - dart-tests-macos-arm
       - dart-tests-linux
+      - dart-tests-linux20
       - flutter-desktop-tests-windows
       - flutter-desktop-tests-macos
       - flutter-desktop-tests-linux
+      - flutter-desktop-tests-linux20
       - flutter-ios
       - flutter-android
     strategy:
@@ -85,12 +89,16 @@ jobs:
             description: dart macos-arm
           - app: dl
             description: dart linux
+          - app: dl2
+            description: dart linux 20
           - app: dw
             description: dart windows
           - app: fm
             description: flutter macos
           - app: fl
             description: flutter linux
+          - app: fl2
+            description: flutter linux 20
           - app: fw
             description: flutter windows
           - app: fa
@@ -230,6 +238,19 @@ jobs:
      app: dl
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
+  dart-tests-linux20:
+    name: Linux 20 Dart Tests
+    uses: ./.github/workflows/dart-desktop-tests.yml
+    needs:
+      - build-linux
+      - deploy-cluster
+    secrets: inherit
+    with:
+     os: linux
+     runner: ubuntu-20.04
+     app: dl2
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
+
 # Flutter jobs
 
   flutter-desktop-tests-windows:
@@ -270,6 +291,20 @@ jobs:
      runner: ubuntu-latest
      app: fl
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
+
+  flutter-desktop-tests-linux20:
+    name: Linux 20 Flutter Tests
+    uses: ./.github/workflows/flutter-desktop-tests.yml
+    needs:
+      - build-linux
+      - deploy-cluster
+    secrets: inherit
+    with:
+     os: linux
+     runner: ubuntu-20.04
+     app: fl2
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
+
 
   flutter-ios:
     runs-on: macos-latest
