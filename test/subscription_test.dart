@@ -519,7 +519,7 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.write(() => realm.add(Task(ObjectId()))), throws<RealmException>("no flexible sync subscription has been created"));
   });
 
-  testSubscriptions('Subscription on non-queryable field should not throw but returns nothing', (realm) async {
+  testSubscriptions('Subscription on non-queryable field should not throw', (realm) async {
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Event>());
     });
@@ -545,7 +545,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     await realm.subscriptions.waitForSynchronization();
-    expect(query.length, 0);
+    expect(query.length, 1);
   });
 
   testSubscriptions('Filter realm data using query subscription', (realm) async {
@@ -566,8 +566,7 @@ Future<void> main([List<String>? args]) async {
 
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.removeByQuery(realm.all<Event>());
-      mutableSubscriptions.add(realm.query<Event>(r'name BEGINSWITH $0 AND durationInMinutes == $1 AND durationInMinutes > $2', ["NPMG", true, 20]),
-          name: "filter");
+      mutableSubscriptions.add(realm.query<Event>(r'name BEGINSWITH $0 AND isCompleted == $1 AND durationInMinutes > $2', ["NPMG", true, 20]), name: "filter");
     });
 
     await realm.subscriptions.waitForSynchronization();
