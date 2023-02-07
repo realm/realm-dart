@@ -36,6 +36,8 @@ RLM_API const char* realm_dart_get_files_path();
 RLM_API const char* realm_dart_get_device_name();
 RLM_API const char* realm_dart_get_device_version();
 
+RLM_API const char* realm_get_library_cpu_arch();
+
 typedef struct realm_dart_userdata_async* realm_dart_userdata_async_t;
 
 RLM_API realm_dart_userdata_async_t realm_dart_userdata_async_new(Dart_Handle handle, void* callback, realm_scheduler_t* scheduler);
