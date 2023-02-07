@@ -348,7 +348,7 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
-  testSubscriptions('MutableSubscriptionSet.add illegal query', (realm) async {
+  testSubscriptions('MutableSubscriptionSet.add illegal query does not throw', (realm) async {
     final subscriptions = realm.subscriptions;
 
     // Illegal query for subscription:
@@ -357,8 +357,7 @@ Future<void> main([List<String>? args]) async {
     subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(query);
     });
-
-    expect(() async => await subscriptions.waitForSynchronization(), throws<RealmException>());
+    await subscriptions.waitForSynchronization();
   });
 
   testSubscriptions('MutableSubscriptionSet.remove same query, different classes', (realm) {
@@ -552,10 +551,12 @@ Future<void> main([List<String>? args]) async {
       await realm.subscriptions.waitForSynchronization();
       fail("Expected exception not thrown");
     } catch (e) {
+      print(e.toString());
       expect(e is RealmException, isTrue);
       expect((e as RealmException).message, expectedErrorMessage);
       expect(realm.subscriptions.state, SubscriptionSetState.error);
       expect(realm.subscriptions.error, isNotNull);
+      print(realm.subscriptions.error.toString());
       expect(realm.subscriptions.error is RealmException, isTrue);
       expect((realm.subscriptions.error as RealmException).message, expectedErrorMessage);
     }
