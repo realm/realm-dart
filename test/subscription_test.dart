@@ -30,7 +30,7 @@ import '../lib/src/subscription.dart';
 import 'test.dart';
 
 @isTest
-void testSubscriptions(String name, FutureOr<void> Function(Realm) tester) async {
+void testSubscriptions(String name, FutureOr<void> Function(Realm) testFunc) async {
   baasTest(name, (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
@@ -42,7 +42,7 @@ void testSubscriptions(String name, FutureOr<void> Function(Realm) tester) async
     ])
       ..sessionStopPolicy = SessionStopPolicy.immediately;
     final realm = getRealm(configuration);
-    await tester(realm);
+    await testFunc(realm);
   });
 }
 
@@ -358,7 +358,7 @@ Future<void> main([List<String>? args]) async {
       mutableSubscriptions.add(query);
     });
 
-    expect(() async => await subscriptions.waitForSynchronization(), throws<RealmException>());
+    expect(() async => await subscriptions.waitForSynchronization(), throws<RealmException>("invalid RQL"));
   });
 
   testSubscriptions('MutableSubscriptionSet.remove same query, different classes', (realm) {
