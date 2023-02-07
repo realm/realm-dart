@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
+import 'package:realm_common/realm_common.dart';
 
 import '../realm.dart' as realm show isFlutterPlatform;
 import '../realm.dart' show realmBinaryName;
@@ -65,7 +66,7 @@ DynamicLibrary _openRealmLib() {
   final root = _getNearestProjectRoot(Platform.script.path) ?? _getNearestProjectRoot(p.current);
 
   // Try to open lib from various candidate paths
-  LoadRealmLibraryError? ex;
+  List<String> errMessages = [];
   for (final open in [
     () => _open(libName), // just ask OS..
     () => _open(p.join(_exeDirName, libName)), // try finding it next to the executable
@@ -75,11 +76,10 @@ DynamicLibrary _openRealmLib() {
     try {
       return open();
     } on Error catch (e) {
-      ex ??= LoadRealmLibraryError();
-      ex.add(e);
+      errMessages.add(e.toString());
     }
   }
-  throw ex!; // rethrow first
+  throw RealmError(errMessages.join('\n'));
 }
 
 DynamicLibrary _open(String lib) => DynamicLibrary.open(lib);
@@ -112,21 +112,4 @@ DynamicLibrary initRealm() {
   }
 
   return _library = realmLibrary;
-}
-
-class LoadRealmLibraryError extends Error {
-  List<Error> loadingFromPathErrors = [];
-  void add(Error err) {
-    loadingFromPathErrors.add(err);
-  }
-
- 
-  @override
-  String toString() {
-    List<String> errMessages = [];
-    for (Error err in loadingFromPathErrors) {
-      errMessages.add(err.toString());
-    }
-    return errMessages.join('\n');
-  }
 }
