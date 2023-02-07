@@ -348,7 +348,7 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
-  testSubscriptions('MutableSubscriptionSet.add illegal query does not throw', (realm) async {
+  testSubscriptions('MutableSubscriptionSet.add illegal query does not throw and returns nothing', (realm) async {
     final subscriptions = realm.subscriptions;
 
     // Illegal query for subscription:
@@ -358,6 +358,7 @@ Future<void> main([List<String>? args]) async {
       mutableSubscriptions.add(query);
     });
     await subscriptions.waitForSynchronization();
+    expect(query.length, 0);
   });
 
   testSubscriptions('MutableSubscriptionSet.remove same query, different classes', (realm) {
@@ -518,7 +519,7 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.write(() => realm.add(Task(ObjectId()))), throws<RealmException>("no flexible sync subscription has been created"));
   });
 
-  testSubscriptions('Subscription on non-queryable field should not throw', (realm) async {
+  testSubscriptions('Subscription on non-queryable field should not throw but returns nothing', (realm) async {
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Event>());
     });
@@ -537,16 +538,14 @@ Future<void> main([List<String>? args]) async {
     });
 
     await realm.syncSession.waitForUpload();
-
+    var query = realm.query<Event>(r'assignedTo BEGINSWITH $0 AND boolQueryField == $1 AND intQueryField > $2', ["@me", true, 20]);
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.removeByQuery(realm.all<Event>());
-      mutableSubscriptions.add(realm.query<Event>(r'assignedTo BEGINSWITH $0 AND boolQueryField == $1 AND intQueryField > $2', ["@me", true, 20]),
-          name: "filter");
+      mutableSubscriptions.add(query, name: "filter");
     });
 
-    String expectedErrorMessage =
-        "Client provided query with bad syntax: unsupported query for table \"${(Event).toString()}\": key \"assignedTo\" is not a queryable field";
     await realm.subscriptions.waitForSynchronization();
+    expect(query.length, 0);
   });
 
   testSubscriptions('Filter realm data using query subscription', (realm) async {
