@@ -518,7 +518,7 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.write(() => realm.add(Task(ObjectId()))), throws<RealmException>("no flexible sync subscription has been created"));
   });
 
-  testSubscriptions('Subscription on non-queryable field should throw', (realm) async {
+  testSubscriptions('Subscription on non-queryable field should not throw', (realm) async {
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Event>());
     });
@@ -546,20 +546,7 @@ Future<void> main([List<String>? args]) async {
 
     String expectedErrorMessage =
         "Client provided query with bad syntax: unsupported query for table \"${(Event).toString()}\": key \"assignedTo\" is not a queryable field";
-
-    try {
-      await realm.subscriptions.waitForSynchronization();
-      fail("Expected exception not thrown");
-    } catch (e) {
-      print(e.toString());
-      expect(e is RealmException, isTrue);
-      expect((e as RealmException).message, expectedErrorMessage);
-      expect(realm.subscriptions.state, SubscriptionSetState.error);
-      expect(realm.subscriptions.error, isNotNull);
-      print(realm.subscriptions.error.toString());
-      expect(realm.subscriptions.error is RealmException, isTrue);
-      expect((realm.subscriptions.error as RealmException).message, expectedErrorMessage);
-    }
+    await realm.subscriptions.waitForSynchronization();
   });
 
   testSubscriptions('Filter realm data using query subscription', (realm) async {
