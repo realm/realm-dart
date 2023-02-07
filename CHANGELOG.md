@@ -1,6 +1,7 @@
 ## 1.0.0 (2023-02-07)
 
-**This project is in Release Candidate stage.**
+### GA release
+We are proud to forge this release as 1.0. The Realm Flutter and Dart SDK is now being used by thousands of developers and has proven reliable.
 
 ### Enhancements
 * Improved error information returned when the `realm_dart` library failed to load. ([#1143](https://github.com/realm/realm-dart/pull/1143))
