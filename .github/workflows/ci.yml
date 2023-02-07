@@ -48,11 +48,11 @@ jobs:
       - dart-tests-macos
       - dart-tests-macos-arm
       - dart-tests-linux
-      - dart-tests-linux20
+      - dart-tests-linux-ubuntu-20
       - flutter-desktop-tests-windows
       - flutter-desktop-tests-macos
       - flutter-desktop-tests-linux
-      - flutter-desktop-tests-linux20
+      - flutter-desktop-tests-linux-ubuntu-20
       - flutter-ios
       - flutter-android
     steps:
@@ -72,11 +72,11 @@ jobs:
       - dart-tests-macos
       - dart-tests-macos-arm
       - dart-tests-linux
-      - dart-tests-linux20
+      - dart-tests-linux-ubuntu-20
       - flutter-desktop-tests-windows
       - flutter-desktop-tests-macos
       - flutter-desktop-tests-linux
-      - flutter-desktop-tests-linux20
+      - flutter-desktop-tests-linux-ubuntu-20
       - flutter-ios
       - flutter-android
     strategy:
@@ -238,8 +238,8 @@ jobs:
      app: dl
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
-  dart-tests-linux20:
-    name: Linux 20 Dart Tests
+  dart-tests-linux-ubuntu-20:
+    name: Linux Dart Tests (ubuntu 20)
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-linux
@@ -292,8 +292,8 @@ jobs:
      app: fl
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
-  flutter-desktop-tests-linux20:
-    name: Linux 20 Flutter Tests
+  flutter-desktop-tests-linux-ubuntu-20:
+    name: Linux Flutter Tests (ubuntu 20)
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-linux
