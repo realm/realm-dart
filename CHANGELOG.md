@@ -3,7 +3,7 @@
 **This project is in Release Candidate stage.**
 
 ### Enhancements
-* None
+* Improved error information returned when the `realm_dart` library failed to load. ([#1143](https://github.com/realm/realm-dart/pull/1143))
 
 ### Fixed
 * Improve performance of interprocess mutexes on iOS which don’t need to support reader-writer locking. The primary beneficiary of this is beginning and ending read transactions, which is now almost as fast as pre-v13.0.0 (Core upgrade).

@@ -48,9 +48,11 @@ jobs:
       - dart-tests-macos
       - dart-tests-macos-arm
       - dart-tests-linux
+      - dart-tests-linux-ubuntu-20
       - flutter-desktop-tests-windows
       - flutter-desktop-tests-macos
       - flutter-desktop-tests-linux
+      - flutter-desktop-tests-linux-ubuntu-20
       - flutter-ios
       - flutter-android
     steps:
@@ -70,9 +72,11 @@ jobs:
       - dart-tests-macos
       - dart-tests-macos-arm
       - dart-tests-linux
+      - dart-tests-linux-ubuntu-20
       - flutter-desktop-tests-windows
       - flutter-desktop-tests-macos
       - flutter-desktop-tests-linux
+      - flutter-desktop-tests-linux-ubuntu-20
       - flutter-ios
       - flutter-android
     strategy:
@@ -85,12 +89,16 @@ jobs:
             description: dart macos-arm
           - app: dl
             description: dart linux
+          - app: dl2
+            description: dart linux (ubuntu 20)
           - app: dw
             description: dart windows
           - app: fm
             description: flutter macos
           - app: fl
             description: flutter linux
+          - app: fl2
+            description: flutter linux (ubuntu 20)
           - app: fw
             description: flutter windows
           - app: fa
@@ -129,7 +137,7 @@ jobs:
     name: Build Windows
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: windows
+     runner: windows-latest
      binary: windows
      build: '["windows"]'
 
@@ -137,7 +145,7 @@ jobs:
     name: Build MacOS
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: macos
+     runner: macos-latest
      binary: macos
      build: '["macos"]'
 
@@ -145,7 +153,7 @@ jobs:
     name: Build Linux
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: ubuntu
+     runner: ubuntu-20.04 # Building on the lowest possible Linux (Ubuntu) version for compatibility
      binary: linux
      build: '["linux"]'
 
@@ -153,7 +161,7 @@ jobs:
     name: Build Android
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: ubuntu
+     runner: ubuntu-20.04
      binary: android
      build: '["android-x86", "android-x86_64", "android-armeabi-v7a", "android-arm64-v8a"]'
 
@@ -161,7 +169,7 @@ jobs:
     name: Build IOS
     uses: ./.github/workflows/build-native.yml
     with:
-      runner: macos
+      runner: macos-latest
       binary: ios
       build: '["ios-device", "ios-simulator", "ios-catalyst"]'
 
@@ -186,6 +194,7 @@ jobs:
     secrets: inherit
     with:
      os: windows
+     runner: windows-latest
      app: dw
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
@@ -198,6 +207,7 @@ jobs:
     secrets: inherit
     with:
      os: macos
+     runner: macos-latest
      app: dm
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
@@ -210,6 +220,7 @@ jobs:
     secrets: inherit
     with:
      os: macos
+     runner: macos-arm
      architecture: arm
      app: dma
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
@@ -223,7 +234,21 @@ jobs:
     secrets: inherit
     with:
      os: linux
+     runner: ubuntu-latest
      app: dl
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
+
+  dart-tests-linux-ubuntu-20:
+    name: Linux Dart Tests (ubuntu 20)
+    uses: ./.github/workflows/dart-desktop-tests.yml
+    needs:
+      - build-linux
+      - deploy-cluster
+    secrets: inherit
+    with:
+     os: linux
+     runner: ubuntu-20.04
+     app: dl2
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
 # Flutter jobs
@@ -237,6 +262,7 @@ jobs:
     secrets: inherit
     with:
      os: windows
+     runner: windows-latest
      app: fw
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
@@ -249,6 +275,7 @@ jobs:
     secrets: inherit
     with:
      os: macos
+     runner: macos-latest
      app: fm
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
@@ -261,7 +288,21 @@ jobs:
     secrets: inherit
     with:
      os: linux
+     runner: ubuntu-latest
      app: fl
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
+
+  flutter-desktop-tests-linux-ubuntu-20:
+    name: Linux Flutter Tests (ubuntu 20)
+    uses: ./.github/workflows/flutter-desktop-tests.yml
+    needs:
+      - build-linux
+      - deploy-cluster
+    secrets: inherit
+    with:
+     os: linux
+     runner: ubuntu-20.04
+     app: fl2
      cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   flutter-ios:
