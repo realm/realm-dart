@@ -90,7 +90,7 @@ jobs:
           - app: dl
             description: dart linux
           - app: dl2
-            description: dart linux 20
+            description: dart linux (ubuntu 20)
           - app: dw
             description: dart windows
           - app: fm
@@ -98,7 +98,7 @@ jobs:
           - app: fl
             description: flutter linux
           - app: fl2
-            description: flutter linux 20
+            description: flutter linux (ubuntu 20)
           - app: fw
             description: flutter windows
           - app: fa
