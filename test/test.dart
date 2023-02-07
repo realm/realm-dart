@@ -102,7 +102,6 @@ class _Product {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
-  @MapTo('stringQueryField')
   late String name;
 }
 
@@ -183,11 +182,8 @@ class _Event {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
-  @MapTo('stringQueryField')
   late String? name;
-  @MapTo('boolQueryField')
   late bool? isCompleted;
-  @MapTo('intQueryField')
   late int? durationInMinutes;
   late String? assignedTo;
 }
@@ -351,7 +347,7 @@ void test(String name, dynamic Function() testFunction, {dynamic skip, Map<Strin
     return true;
   }());
 
-  testing.test(name, testFunction, skip: skip, onPlatform: onPlatform,  timeout: Timeout(Duration(seconds: timeout)));
+  testing.test(name, testFunction, skip: skip, onPlatform: onPlatform, timeout: Timeout(Duration(seconds: timeout)));
 }
 
 void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<String, dynamic>? onPlatform}) {

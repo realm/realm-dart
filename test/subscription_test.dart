@@ -538,7 +538,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     await realm.syncSession.waitForUpload();
-    var query = realm.query<Event>(r'assignedTo BEGINSWITH $0 AND boolQueryField == $1 AND intQueryField > $2', ["@me", true, 20]);
+    var query = realm.query<Event>(r'assignedTo BEGINSWITH $0 AND isCompleted == $1 AND durationInMinutes > $2', ["@me", true, 20]);
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.removeByQuery(realm.all<Event>());
       mutableSubscriptions.add(query, name: "filter");
@@ -566,7 +566,7 @@ Future<void> main([List<String>? args]) async {
 
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.removeByQuery(realm.all<Event>());
-      mutableSubscriptions.add(realm.query<Event>(r'stringQueryField BEGINSWITH $0 AND boolQueryField == $1 AND intQueryField > $2', ["NPMG", true, 20]),
+      mutableSubscriptions.add(realm.query<Event>(r'name BEGINSWITH $0 AND durationInMinutes == $1 AND durationInMinutes > $2', ["NPMG", true, 20]),
           name: "filter");
     });
 
@@ -602,7 +602,7 @@ Future<void> main([List<String>? args]) async {
       compensatingWriteError = syncError;
     });
     final realm = getRealm(config);
-    final query = realm.query<Product>(r'stringQueryField BEGINSWITH $0', [productNamePrefix]);
+    final query = realm.query<Product>(r'name BEGINSWITH $0', [productNamePrefix]);
     if (realm.subscriptions.find(query) == null) {
       realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
     }
