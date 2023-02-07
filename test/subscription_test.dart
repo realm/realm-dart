@@ -552,11 +552,11 @@ Future<void> main([List<String>? args]) async {
       await realm.subscriptions.waitForSynchronization();
       fail("Expected exception not thrown");
     } catch (e) {
-      expect(e is RealmException, isTrue);
+      expect(e, isA<RealmException>());
       expect((e as RealmException).message, expectedErrorMessage);
       expect(realm.subscriptions.state, SubscriptionSetState.error);
       expect(realm.subscriptions.error, isNotNull);
-      expect(realm.subscriptions.error is RealmException, isTrue);
+      expect(realm.subscriptions.error, isA<RealmException>());
       expect((realm.subscriptions.error as RealmException).message, expectedErrorMessage);
     }
   });
