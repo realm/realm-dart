@@ -84,7 +84,7 @@ class _RealmCore {
   }
 
   // stamped into the library by the build system (see prepare-release.yml)
-  static const libraryVersion = '0.11.0+rc';
+  static const libraryVersion = '1.0.0';
   late String nativeLibraryVersion = _realmLib.realm_dart_library_version().cast<Utf8>().toDartString();
 
   // for debugging only. Enable in realm_dart.cpp
