@@ -348,7 +348,7 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
-  testSubscriptions('MutableSubscriptionSet.add illegal query does not throw and returns nothing', (realm) async {
+  testSubscriptions('MutableSubscriptionSet.add illegal query', (realm) async {
     final subscriptions = realm.subscriptions;
 
     // Illegal query for subscription:
