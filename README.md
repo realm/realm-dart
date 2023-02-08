@@ -1,5 +1,4 @@
 ## Developing with the Realm SDKs? We want to hear from you! [Take our short survey](https://mongodb.co1.qualtrics.com/jfe/form/SV_6fJwP5VUXddZmZg?Source=github)
-<br/>
 
 ![Realm](https://github.com/realm/realm-dart/raw/main/logo.png)
 
@@ -10,15 +9,13 @@
 Realm is a mobile database that runs directly inside phones, tablets or wearables.
 This repository holds the source code for the Realm SDK for Flutter™ and Dart™.
 
-**This project is in Release Candidate stage.**
-
 ## Features
 
 * **Mobile-first:** Realm is the first database built from the ground up to run directly inside phones, tablets, and wearables.
 * **Simple:** Realm’s object-oriented data model is simple to learn, doesn’t need an ORM, and the [API](https://pub.dev/documentation/realm/latest/) lets you write less code to get apps up & running in minutes.
 * **Modern:** Realm supports latest Dart and Flutter versions and is build with sound null-safety.
 * **Fast:** Realm is faster than even raw SQLite on common operations while maintaining an extremely rich feature set.
-* **[Device Sync](https://www.mongodb.com/atlas/app-services/device-sync)**: Makes it simple to keep data in sync across users, devices, and your backend in real-time. [Get started](http://mongodb.com/realm/register?utm_medium=github_atlas_CTA&utm_source=realm_dart_github) for free with a template application that includes a cloud backend and Sync.
+* **[Device Sync](https://www.mongodb.com/atlas/app-services/device-sync)**: Makes it simple to keep data in sync across users, devices, and your backend in real-time. [Get started](https://mongodb.com/realm/register?utm_medium=github_atlas_CTA&utm_source=realm_dart_github) for free with a template application that includes a cloud backend and Sync.
 
 
 ## Getting Started

@@ -234,8 +234,6 @@ jobs:
       run: |
         echo "## vNext (TBD)
 
-        **This project is in Release Candidate stage.**
-
         ### Enhancements
         * None
 
