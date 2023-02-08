@@ -537,8 +537,7 @@ Future<void> main([List<String>? args]) async {
 
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.removeByQuery(realm.all<Event>());
-      mutableSubscriptions.add(realm.query<Event>(r'stringQueryField BEGINSWITH $0 AND boolQueryField == $1 AND intQueryField > $2', ["NPMG", true, 20]),
-          name: "filter");
+      mutableSubscriptions.add(realm.query<Event>(r'name BEGINSWITH $0 AND isCompleted == $1 AND durationInMinutes > $2', ["NPMG", true, 20]), name: "filter");
     });
 
     await realm.subscriptions.waitForSynchronization();
@@ -573,7 +572,7 @@ Future<void> main([List<String>? args]) async {
       compensatingWriteError = syncError;
     });
     final realm = getRealm(config);
-    final query = realm.query<Product>(r'stringQueryField BEGINSWITH $0', [productNamePrefix]);
+    final query = realm.query<Product>(r'name BEGINSWITH $0', [productNamePrefix]);
     if (realm.subscriptions.find(query) == null) {
       realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
     }
