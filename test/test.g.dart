@@ -392,7 +392,7 @@ class Product extends _Product with RealmEntity, RealmObjectBase, RealmObject {
     String name,
   ) {
     RealmObjectBase.set(this, '_id', id);
-    RealmObjectBase.set(this, 'name', name);
+    RealmObjectBase.set(this, 'stringQueryField', name);
   }
 
   Product._();
@@ -403,9 +403,11 @@ class Product extends _Product with RealmEntity, RealmObjectBase, RealmObject {
   set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
-  String get name => RealmObjectBase.get<String>(this, 'name') as String;
+  String get name =>
+      RealmObjectBase.get<String>(this, 'stringQueryField') as String;
   @override
-  set name(String value) => RealmObjectBase.set(this, 'name', value);
+  set name(String value) =>
+      RealmObjectBase.set(this, 'stringQueryField', value);
 
   @override
   Stream<RealmObjectChanges<Product>> get changes =>
@@ -421,7 +423,8 @@ class Product extends _Product with RealmEntity, RealmObjectBase, RealmObject {
     return const SchemaObject(ObjectType.realmObject, Product, 'Product', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
-      SchemaProperty('name', RealmPropertyType.string),
+      SchemaProperty('name', RealmPropertyType.string,
+          mapTo: 'stringQueryField'),
     ]);
   }
 }
@@ -999,9 +1002,9 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
     String? assignedTo,
   }) {
     RealmObjectBase.set(this, '_id', id);
-    RealmObjectBase.set(this, 'name', name);
-    RealmObjectBase.set(this, 'isCompleted', isCompleted);
-    RealmObjectBase.set(this, 'durationInMinutes', durationInMinutes);
+    RealmObjectBase.set(this, 'stringQueryField', name);
+    RealmObjectBase.set(this, 'boolQueryField', isCompleted);
+    RealmObjectBase.set(this, 'intQueryField', durationInMinutes);
     RealmObjectBase.set(this, 'assignedTo', assignedTo);
   }
 
@@ -1013,23 +1016,25 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
   set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
-  String? get name => RealmObjectBase.get<String>(this, 'name') as String?;
+  String? get name =>
+      RealmObjectBase.get<String>(this, 'stringQueryField') as String?;
   @override
-  set name(String? value) => RealmObjectBase.set(this, 'name', value);
+  set name(String? value) =>
+      RealmObjectBase.set(this, 'stringQueryField', value);
 
   @override
   bool? get isCompleted =>
-      RealmObjectBase.get<bool>(this, 'isCompleted') as bool?;
+      RealmObjectBase.get<bool>(this, 'boolQueryField') as bool?;
   @override
   set isCompleted(bool? value) =>
-      RealmObjectBase.set(this, 'isCompleted', value);
+      RealmObjectBase.set(this, 'boolQueryField', value);
 
   @override
   int? get durationInMinutes =>
-      RealmObjectBase.get<int>(this, 'durationInMinutes') as int?;
+      RealmObjectBase.get<int>(this, 'intQueryField') as int?;
   @override
   set durationInMinutes(int? value) =>
-      RealmObjectBase.set(this, 'durationInMinutes', value);
+      RealmObjectBase.set(this, 'intQueryField', value);
 
   @override
   String? get assignedTo =>
@@ -1052,10 +1057,12 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
     return const SchemaObject(ObjectType.realmObject, Event, 'Event', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
-      SchemaProperty('name', RealmPropertyType.string, optional: true),
-      SchemaProperty('isCompleted', RealmPropertyType.bool, optional: true),
+      SchemaProperty('name', RealmPropertyType.string,
+          mapTo: 'stringQueryField', optional: true),
+      SchemaProperty('isCompleted', RealmPropertyType.bool,
+          mapTo: 'boolQueryField', optional: true),
       SchemaProperty('durationInMinutes', RealmPropertyType.int,
-          optional: true),
+          mapTo: 'intQueryField', optional: true),
       SchemaProperty('assignedTo', RealmPropertyType.string, optional: true),
     ]);
   }
