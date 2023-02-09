@@ -1,20 +1,33 @@
 ## vNext (TBD)
 
-**This project is in Release Candidate stage.**
-
 ### Enhancements
-* Improve performance of interprocess mutexes on iOS which don’t need to support reader-writer locking. The primary beneficiary of this is beginning and ending read transactions, which is now almost as fast as pre-v13.0.0 (Core upgrade).
-
+* None
 
 ### Fixed
 * None
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
-* Fileformat: Generates files with format v23. Reads and automatically upgrade from fileformat v5 (Core upgrade).
 
 ### Internal
 * Using Core x.y.z.
+
+## 1.0.0 (2023-02-07)
+
+### GA release
+We are proud to forge this release as 1.0. The Realm Flutter and Dart SDK is now being used by thousands of developers and has proven reliable.
+
+### Enhancements
+* Improved error information returned when the `realm_dart` library failed to load. ([#1143](https://github.com/realm/realm-dart/pull/1143))
+
+### Fixed
+* Improve performance of interprocess mutexes on iOS which don’t need to support reader-writer locking. The primary beneficiary of this is beginning and ending read transactions, which is now almost as fast as pre-v13.0.0 (Core upgrade).
+
+### Compatibility
+* Realm Studio: 13.0.0 or later.
+
+### Internal
+* Using Core 13.4.0
 
 ## 0.11.0+rc (2023-01-30)
 

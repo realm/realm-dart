@@ -24,6 +24,31 @@
 #include "realm_dart.h"
 #include "realm_dart.hpp"
 
+#if REALM_ARCHITECTURE_ARM32 || REALM_ARCHITECTURE_ARM64 || REALM_ARCHITECTURE_X86_32 || REALM_ARCHITECTURE_X86_64
+#if REALM_ARCHITECTURE_ARM32
+std::string cpuArch = "armeabi-v7a";
+#pragma message("Building arm32")
+#endif
+
+#if REALM_ARCHITECTURE_ARM64
+std::string cpuArch = "arm64";
+#pragma message("Building arm64")
+#endif
+
+
+#if REALM_ARCHITECTURE_X86_32
+std::string cpuArch = "x86";
+#pragma message("Building x86")
+#endif
+
+#if REALM_ARCHITECTURE_X86_64
+std::string cpuArch = "x86_64";
+#pragma message("Building x64")
+#endif
+#elif
+std::string cpuArch = "Unknown";
+#endif
+
 RLM_API void realm_dart_initializeDartApiDL(void* data) {
     Dart_InitializeApiDL(data);
 }
@@ -96,7 +121,7 @@ RLM_API void realm_dart_invoke_unlock_callback(bool success, void* unlockFunc)
 // Stamped into the library by the build system (see prepare-release.yml)
 // Keep this method as it is written and do not format it. 
 // We have a github workflow that looks for and replaces this string as it is written here.
-RLM_API const char* realm_dart_library_version() { return "0.11.0+rc"; }
+RLM_API const char* realm_dart_library_version() { return "1.0.0"; }
 
 //for debugging only
 // RLM_API void realm_dart_gc() { 
@@ -118,4 +143,8 @@ RLM_API void realm_dettach_finalizer(void* finalizableHandle, Dart_Handle handle
 
 RLM_API void realm_set_auto_refresh(realm_t* realm, bool enable){
     (*realm)->set_auto_refresh(enable);
+}
+
+RLM_API const char* realm_get_library_cpu_arch() {
+    return cpuArch.c_str();
 }

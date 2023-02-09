@@ -193,8 +193,8 @@ jobs:
         dart pub publish --directory common --force
         dart pub publish --directory generator --force
         dart pub publish --directory realm_dart --force
+        #Passing `release/realm` directory as target because of a how the `flutter pub publish` command handles the --directory argument
         flutter pub publish --directory release/realm --force
-      # Set dyrectory one level up because of a bug in flutter command
       working-directory: release
 
     - name: Find Release PR
@@ -233,8 +233,6 @@ jobs:
     - name: Update Changelog
       run: |
         echo "## vNext (TBD)
-
-        **This project is in Release Candidate stage.**
 
         ### Enhancements
         * None

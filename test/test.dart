@@ -351,7 +351,7 @@ void test(String name, dynamic Function() testFunction, {dynamic skip, Map<Strin
     return true;
   }());
 
-  testing.test(name, testFunction, skip: skip, onPlatform: onPlatform,  timeout: Timeout(Duration(seconds: timeout)));
+  testing.test(name, testFunction, skip: skip, onPlatform: onPlatform, timeout: Timeout(Duration(seconds: timeout)));
 }
 
 void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<String, dynamic>? onPlatform}) {

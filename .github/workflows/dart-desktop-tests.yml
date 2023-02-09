@@ -7,6 +7,10 @@ on:
         description: OS to execute on.
         required: true
         type: string
+      runner:
+        description: GitHub runnar image to execute on.
+        required: true
+        type: string
       architecture:
         description: Architecture to execute on.
         required: false
@@ -29,7 +33,7 @@ env:
 
 jobs:
   dart-tests:
-    runs-on: ${{ inputs.os == 'linux' && 'ubuntu' || inputs.os }}-${{ inputs.architecture || 'latest' }}
+    runs-on: ${{ inputs.runner }}
     name: Dart tests on ${{inputs.os }} ${{ inputs.architecture }}
     timeout-minutes: 45
     env:
