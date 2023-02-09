@@ -2,8 +2,6 @@
 
 [![License](https://img.shields.io/badge/License-Apache-blue.svg)](LICENSE)
 
-**This project is in the Alpha stage. All API's might change without warning and no guarantees are given about stability. Do not use it in production.**
-
 # realm_example
 
 Demonstrates how to use the Realm SDK for Flutter™
