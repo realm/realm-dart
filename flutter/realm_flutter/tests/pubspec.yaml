@@ -21,7 +21,9 @@ dependencies:
     path: ../
 
 dev_dependencies:
-  flutter_driver:
+  flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
   flutter_lints: ^2.0.1
   build_runner: ^2.1.2
