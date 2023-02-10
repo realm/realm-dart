@@ -2474,6 +2474,23 @@ class _RealmCore {
     final configHandle = _createConfig(config);
     _realmLib.invokeGetBool(() => _realmLib.realm_convert_with_config(realm.handle._pointer, configHandle._pointer, false));
   }
+
+  MongoDBCollectionHandle mongodbGetCollection(User user, String serviceName, String databaseName, String collectionName) {
+    return using((arena) {
+      final configPtr = _realmLib.realm_mongo_collection_get(
+          user.handle._pointer, serviceName.toCharPtr(arena), databaseName.toCharPtr(arena), collectionName.toCharPtr(arena));
+      return MongoDBCollectionHandle._(configPtr);
+    });
+  }
+
+  bool mongodbFind(MongoDBCollection collection, String filterAsJSON) {
+    return using((arena) {
+      late bool result;
+      _realmLib.invokeGetBool(() => result =
+          _realmLib.realm_mongo_collection_find(collection.handle._pointer, filterAsJSON.toRealmString(arena).ref, nullptr, nullptr, nullptr, nullptr));
+      return result;
+    });
+  }
 }
 
 class LastError {
@@ -2738,6 +2755,10 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
   bool get shouldRoot => true;
 
   SessionHandle._(Pointer<realm_sync_session_t> pointer, RealmHandle root) : super(root, pointer, 24);
+}
+
+class MongoDBCollectionHandle extends HandleBase<realm_mongodb_collection> {
+  MongoDBCollectionHandle._(Pointer<realm_mongodb_collection> pointer) : super(pointer, 24);
 }
 
 extension on List<int> {

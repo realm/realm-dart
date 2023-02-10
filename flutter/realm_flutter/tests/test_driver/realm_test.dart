@@ -21,6 +21,7 @@ import '../test/subscription_test.dart' as subscription_test;
 import '../test/user_test.dart' as user_test;
 import '../test/client_reset_test.dart' as client_reset_test;
 import '../test/realm_set_test.dart' as realm_set_test;
+import '../test/mongodb_docs_test.dart' as mongodb_docs_test;
 
 Future<String> main(List<String> args) async {
   final Completer<String> completer = Completer<String>();
@@ -43,6 +44,7 @@ Future<String> main(List<String> args) async {
     await user_test.main(args);
     await client_reset_test.main(args);
     await realm_set_test.main(args);
+    await mongodb_docs_test.main(args);
 
     tearDown(() {
       if (Invoker.current?.liveTest.state.result == test_api.Result.error || Invoker.current?.liveTest.state.result == test_api.Result.failure) {

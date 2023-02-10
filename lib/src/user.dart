@@ -41,6 +41,7 @@ class User {
 
   late final ApiKeyClient _apiKeys = ApiKeyClient._(this);
   late final FunctionsClient _functions = FunctionsClient._(this);
+  late final MongoDBClient _mongodbClient;
 
   /// Gets an [ApiKeyClient] instance that exposes functionality for managing
   /// user API keys.
@@ -59,6 +60,13 @@ class User {
     _ensureLoggedIn('access API keys');
 
     return _functions;
+  }
+
+  MongoDBClient getMongoDBClient(String serviceName) {
+    _ensureLoggedIn('access mongo DB');
+
+    _mongodbClient = MongoDBClient._(this, serviceName);
+    return _mongodbClient;
   }
 
   User._(this._handle, this._app);
@@ -323,6 +331,71 @@ class FunctionsClient {
     final response = await realmCore.callAppFunction(_user.app, _user, name, args);
     return jsonDecode(response);
   }
+}
+
+/// The remote MongoClient used for working with data in MongoDB remotely via Realm.
+class MongoDBClient {
+  final User _user;
+  final String _serviceName;
+
+  /// Gets the name of the remote MongoDB service for this client.
+  String get serviceName => _serviceName;
+
+  MongoDBClient._(this._user, this._serviceName);
+
+  /// Gets a [MongoDBDatabase] instance for the given database name.
+  MongoDBDatabase getDatabase(String databseName) {
+    return MongoDBDatabase._(this, databseName);
+  }
+}
+
+/// A class representing a remote MongoDB database.
+class MongoDBDatabase {
+  final String _databaseName;
+  final MongoDBClient _client;
+
+  /// Gets the [MongoDBClient] that manages this database.
+  MongoDBClient get client => _client;
+
+  /// Gets the name of the database.
+  String get databaseName => _databaseName;
+
+  MongoDBDatabase._(this._client, this._databaseName);
+
+  /// Gets a collection from the database.
+  MongoDBCollection getCollection(String collectionName) {
+    return MongoDBCollection._(this, collectionName);
+  }
+}
+
+/// A class representing a remote MongoDB collection.s
+class MongoDBCollection {
+  MongoDBDatabase _database;
+  final String _collectionName;
+  late MongoDBCollectionHandle _handle;
+
+  /// Gets the [MongoDBDatabase] this collection belongs to.
+  MongoDBDatabase get database => _database;
+
+  /// Gets the name of the collection.
+  String get collectionName => _collectionName;
+
+  MongoDBCollection._(this._database, this._collectionName)
+      : _handle = realmCore.mongodbGetCollection(_database._client._user, _database._client.serviceName, _database._databaseName, _collectionName);
+
+  void find() {
+    realmCore.mongodbFind(this, "");
+  }
+}
+
+/// @nodoc
+extension MongoDBCollectionInternal on MongoDBCollection {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _handle.keepAlive();
+  }
+
+  MongoDBCollectionHandle get handle => _handle;
 }
 
 /// @nodoc

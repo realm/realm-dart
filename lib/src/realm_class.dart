@@ -118,7 +118,7 @@ export 'session.dart'
         SyncResolveErrorCode,
         SyncSessionErrorCode;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
-export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient;
+export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient, MongoDBClient, MongoDBDatabase, MongoDBCollection;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
