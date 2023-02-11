@@ -22,7 +22,7 @@ android/src/main/cpp/lib/
 ios/realm_flutter_ios.xcframework
 
 # Ignore mac binary directory. This gets created by Install command on build of projects
-#macos/librealm_dart.dylib.txt
+macos/librealm_dart.dylib
 
 # Ignore windows binaries directory. This gets created by Install command on build of projects
 windows/binary/
