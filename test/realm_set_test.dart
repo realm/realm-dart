@@ -172,7 +172,7 @@ Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
   for (var type in supportedTypes) {
-    test('RealmSet<$type> unmanged set add', () {
+    test('RealmSet<$type> unmanaged set add', () {
       final testSet = TestRealmSets(1);
       final set = testSet.setByType(type).set;
       final values = testSet.values(type);
@@ -182,7 +182,7 @@ Future<void> main([List<String>? args]) async {
       expect(set.contains(values.first), true);
     });
 
-    test('RealmSet<$type> unmanged set remove', () {
+    test('RealmSet<$type> unmanaged set remove', () {
       final testSet = TestRealmSets(1);
       final set = testSet.setByType(type).set;
       final values = testSet.values(type);
@@ -196,7 +196,7 @@ Future<void> main([List<String>? args]) async {
       expect(set.contains(values.first), false);
     });
 
-    test('RealmSet<$type>.elementAt on an unmanged RealmSet', () {
+    test('RealmSet<$type>.elementAt on an unmanaged RealmSet', () {
       final testSet = TestRealmSets(1);
       final set = testSet.setByType(type).set;
       final values = testSet.values(type);
