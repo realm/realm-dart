@@ -27,7 +27,7 @@ String _getBinaryPath(String libName) {
     return '$_exeDirName/lib/$libName';
   }
   if (Platform.isMacOS) {
-    return '$_exeDirName/../Frameworks/realm.framework/Resources/$libName';
+    return '$_exeDirName/../Frameworks/$libName';
   }
   if (Platform.isIOS) {
     return '$_exeDirName/Frameworks/realm_dart.framework/$libName';
