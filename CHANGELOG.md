@@ -1,7 +1,4 @@
-## vNext (TBD)
-
-### Enhancements
-* None
+## 1.0.1 (2023-02-13)
 
 ### Fixed
 * Fix codesigning errors when publishing to the macOS App Store. ([#1153](https://github.com/realm/realm-dart/issues/1153))
