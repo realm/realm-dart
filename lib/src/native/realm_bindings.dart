@@ -5710,7 +5710,7 @@ class RealmLibrary {
     ffi.Pointer<realm_mongodb_find_options_t> options,
     ffi.Pointer<ffi.Void> data,
     realm_free_userdata_func_t delete_data,
-    realm_mongodb_callback_t callback,
+    ffi.Pointer<realm_mongodb_callback_t> callback,
   ) {
     return _realm_mongo_collection_find(
       collection,
@@ -5723,14 +5723,15 @@ class RealmLibrary {
   }
 
   late final _realm_mongo_collection_findPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<realm_mongodb_collection_t>,
-              realm_string_t,
-              ffi.Pointer<realm_mongodb_find_options_t>,
-              ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t,
-              realm_mongodb_callback_t)>>('realm_mongo_collection_find');
+          ffi.NativeFunction<
+              ffi.Bool Function(
+                  ffi.Pointer<realm_mongodb_collection_t>,
+                  realm_string_t,
+                  ffi.Pointer<realm_mongodb_find_options_t>,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t,
+                  ffi.Pointer<realm_mongodb_callback_t>)>>(
+      'realm_mongo_collection_find');
   late final _realm_mongo_collection_find =
       _realm_mongo_collection_findPtr.asFunction<
           bool Function(
@@ -5739,7 +5740,7 @@ class RealmLibrary {
               ffi.Pointer<realm_mongodb_find_options_t>,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
-              realm_mongodb_callback_t)>();
+              ffi.Pointer<realm_mongodb_callback_t>)>();
 
   /// Implement find_one for mongodb collection
   /// @param collection ptr to the collection to fetch from

@@ -383,8 +383,9 @@ class MongoDBCollection {
   MongoDBCollection._(this._database, this._collectionName)
       : _handle = realmCore.mongodbGetCollection(_database._client._user, _database._client.serviceName, _database._databaseName, _collectionName);
 
-  void find() {
-    realmCore.mongodbFind(this, "");
+
+  Future<String> findAsync(String filter, {String? sort, String? projection, int? limit}) async {
+    return await realmCore.mongodbFind(this, filter, sort: sort, projection: projection, limit: limit);
   }
 }
 

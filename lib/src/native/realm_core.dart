@@ -2477,18 +2477,42 @@ class _RealmCore {
 
   MongoDBCollectionHandle mongodbGetCollection(User user, String serviceName, String databaseName, String collectionName) {
     return using((arena) {
-      final configPtr = _realmLib.realm_mongo_collection_get(
+      final collectionPtr = _realmLib.realm_mongo_collection_get(
           user.handle._pointer, serviceName.toCharPtr(arena), databaseName.toCharPtr(arena), collectionName.toCharPtr(arena));
-      return MongoDBCollectionHandle._(configPtr);
+      return MongoDBCollectionHandle._(collectionPtr);
     });
   }
 
-  bool mongodbFind(MongoDBCollection collection, String filterAsJSON) {
+  static void _mongodb_find_callback(Pointer<Void> userdata, realm_string_t result, Pointer<realm_app_error_t> error) {
+    final Completer<String>? completer = userdata.toObject(isPersistent: true);
+    if (completer == null) {
+      return;
+    }
+    if (error != nullptr) {
+      completer.completeWithAppError(error);
+      return;
+    }
+
+    final stringResult = result.data.cast<Utf8>().toRealmDartString()!;
+    completer.complete(stringResult);
+  }
+
+  Future<String> mongodbFind(MongoDBCollection collection, String filter, {String? sort, String? projection, int? limit}) {
     return using((arena) {
-      late bool result;
-      _realmLib.invokeGetBool(() => result =
-          _realmLib.realm_mongo_collection_find(collection.handle._pointer, filterAsJSON.toRealmString(arena).ref, nullptr, nullptr, nullptr, nullptr));
-      return result;
+      bool result = false;
+      final completer = Completer<String>();
+      final findOptionsPtr = arena<realm_mongodb_find_options_t>();
+      if (limit != null) findOptionsPtr.ref.limit = limit;
+      if (sort != null) findOptionsPtr.ref.sort_bson = sort.toRealmString(arena).ref;
+      if (projection != null) findOptionsPtr.ref.projection_bson = projection.toRealmString(arena).ref;
+
+      _realmLib.invokeGetBool(() => result = _realmLib.realm_mongo_collection_find(collection.handle._pointer, filter.toRealmString(arena).ref, findOptionsPtr,
+          completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, Pointer.fromFunction(_mongodb_find_callback)));
+
+      if (!result) {
+        return Future<String>.value("");
+      }
+      return completer.future;
     });
   }
 }

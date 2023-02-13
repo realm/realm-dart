@@ -26,9 +26,10 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final mongodbClient = user.getMongodb("serviceName");
-    final database = mongodbClient.getDatabase("databseName");
-    final collection = database.getCollection("collectionName");
-    collection.find();
+    final mongodbClient = user.getMongoDBClient("BackingDB");
+    final database = mongodbClient.getDatabase(getBaasDatabaseName(appName: AppNames.flexible));
+    final collection = database.getCollection("Event");
+    String result = await collection.findAsync("", limit: 100);
+    print(result);
   });
 }

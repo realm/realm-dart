@@ -358,10 +358,11 @@ void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<Str
   testing.test(name, testFunction, skip: "Test is disabled");
 }
 
+Future<void>? baasSetup;
 Future<void> setupTests(List<String>? args) async {
   arguments = parseTestArguments(args);
   testName = arguments["name"];
-  setUpAll(() async => await setupBaas());
+  setUpAll(() async => await (baasSetup ??= setupBaas()));
 
   setUp(() {
     final path = generateRandomRealmPath();
@@ -709,4 +710,11 @@ Future<void> enableAllAutomaticRecovery() async {
     final appName = _appsToRestoreRecovery.removeFirst();
     await client.setAutomaticRecoveryEnabled(appName, true);
   }
+}
+
+String getBaasDatabaseName({AppNames appName = AppNames.flexible}) {
+  final client = _baasClient ?? (throw StateError("No BAAS client"));
+  final app = baasApps[appName.name] ??
+      baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
+  return client.getDatabaseName(app.name);
 }

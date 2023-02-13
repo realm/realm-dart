@@ -334,7 +334,7 @@ class BaasClient {
     await _createMongoDBService(app, '''{
       "flexible_sync": {
         "state": "enabled",
-        "database_name": "db_$name$_appSuffix",
+        "database_name": "${getDatabaseName(name)}",
         "queryable_fields_names": ["differentiator", "stringQueryField", "boolQueryField", "intQueryField"],
         "permissions": {
           "rules": {},
@@ -546,6 +546,10 @@ class BaasClient {
     flexibleSync["is_recovery_mode_disabled"] = !enable;
     String data = jsonEncode(<String, dynamic>{'clusterName': configDocs['clusterName'], 'flexible_sync': flexibleSync});
     await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', data);
+  }
+
+  String getDatabaseName(String appName) {
+    return "db_$appName$_appSuffix";
   }
 }
 
