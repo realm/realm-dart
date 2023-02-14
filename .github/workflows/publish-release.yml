@@ -107,7 +107,6 @@ jobs:
         rm flutter/realm_flutter/ios/realm_dart.xcframework
         rm flutter/realm_flutter/linux/binary
         rm flutter/realm_flutter/windows/binary
-        rm flutter/realm_flutter/macos/librealm_dart.dylib
         rm example/binary
 
     - name: Package realm (flutter)
