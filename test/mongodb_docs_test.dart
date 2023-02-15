@@ -29,7 +29,7 @@ Future<void> main([List<String>? args]) async {
     final mongodbClient = user.getMongoDBClient("BackingDB");
     final database = mongodbClient.getDatabase(getBaasDatabaseName(appName: AppNames.flexible));
     final collection = database.getCollection("Event");
-    String result = await collection.findAsync("", limit: 100);
+    String result = await collection.findAsync();
     print(result);
   });
 }

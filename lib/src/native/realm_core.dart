@@ -2497,7 +2497,7 @@ class _RealmCore {
     completer.complete(stringResult);
   }
 
-  Future<String> mongodbFind(MongoDBCollection collection, String filter, {String? sort, String? projection, int? limit}) {
+  Future<String> mongodbFind(MongoDBCollection collection, {String? filter, String? sort, String? projection, int? limit}) {
     return using((arena) {
       bool result = false;
       final completer = Completer<String>();
@@ -2505,8 +2505,9 @@ class _RealmCore {
       if (limit != null) findOptionsPtr.ref.limit = limit;
       if (sort != null) findOptionsPtr.ref.sort_bson = sort.toRealmString(arena).ref;
       if (projection != null) findOptionsPtr.ref.projection_bson = projection.toRealmString(arena).ref;
+      final filter_realm_string = (filter != null) ? filter.toRealmString(arena) : arena<realm_string_t>();
 
-      _realmLib.invokeGetBool(() => result = _realmLib.realm_mongo_collection_find(collection.handle._pointer, filter.toRealmString(arena).ref, findOptionsPtr,
+      _realmLib.invokeGetBool(() => result = _realmLib.realm_mongo_collection_find(collection.handle._pointer, filter_realm_string.ref, findOptionsPtr,
           completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, Pointer.fromFunction(_mongodb_find_callback)));
 
       if (!result) {
