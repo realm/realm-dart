@@ -23,13 +23,24 @@ Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
   baasTest('MongoDB client find', (configuration) async {
-    final app = App(configuration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
-    final mongodbClient = user.getMongoDBClient("BackingDB");
-    final database = mongodbClient.getDatabase(getBaasDatabaseName(appName: AppNames.flexible));
-    final collection = database.getCollection("Event");
-    String result = await collection.findAsync();
+    MongoDBCollection collection = await getMongoDbCollectionByName(configuration, "Event");
+    String result = await collection.find();
     print(result);
   });
+
+  baasTest('MongoDB client find one', (configuration) async {
+    MongoDBCollection collection = await getMongoDbCollectionByName(configuration, "Event");
+    String result = await collection.findOne();
+    print(result);
+  });
+}
+
+Future<MongoDBCollection> getMongoDbCollectionByName(AppConfiguration configuration, String collectionName) async {
+  final app = App(configuration);
+  final credentials = Credentials.anonymous();
+  final user = await app.logIn(credentials);
+  final mongodbClient = user.getMongoDBClient("BackingDB");
+  final database = mongodbClient.getDatabase(getBaasDatabaseName(appName: AppNames.flexible));
+  final collection = database.getCollection(collectionName);
+  return collection;
 }

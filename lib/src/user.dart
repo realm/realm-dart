@@ -383,9 +383,100 @@ class MongoDBCollection {
   MongoDBCollection._(this._database, this._collectionName)
       : _handle = realmCore.mongodbGetCollection(_database._client._user, _database._client.serviceName, _database._databaseName, _collectionName);
 
+  /// Finds the all documents in the collection up to [limit].
+  /// The result is a string with EJson containing an array with the documents that match the find criteria.
+  /// See also [db.collection.find](https://docs.mongodb.com/manual/reference/method/db.collection.find/) documentation.
+  ///
+  /// The [filter] is a document describing the find criteria using [query operators](https://docs.mongodb.com/manual/reference/operator/query/).
+  /// If the [filter] is not specified, all documents in the collection will be returned.
+  /// The [sort] is a document describing the sort criteria. If not specified, the order of the returned documents is not guaranteed.
+  /// The [projection] is a document describing the fields to return for all matching documents. If not specified, all fields are returned.
+  /// The [limit] is the maximum number of documents to return. If not specified, all documents in the collection are returned.
+  Future<String> find({
+    String? filter,
+    String? sort,
+    String? projection,
+    int? limit,
+  }) async {
+    return await realmCore.mongoDbFind(
+      this,
+      filter: filter,
+      sort: sort,
+      projection: projection,
+      limit: limit,
+    );
+  }
 
-  Future<String> findAsync({String? filter, String? sort, String? projection, int? limit}) async {
-    return await realmCore.mongodbFind(this, filter: filter, sort: sort, projection: projection, limit: limit);
+  /// Finds the first document in the collection that satisfies the query criteria.
+  /// The result is a string with EJson containing the first document that matches the find criteria.
+  /// See also [db.collection.findOne](https://docs.mongodb.com/manual/reference/method/db.collection.findOne/) documentation.
+  ///
+  /// The [filter] is a document describing the find criteria using [query operators](https://docs.mongodb.com/manual/reference/operator/query/).
+  /// If the [filter] is not specified, all documents in the collection will match the request.
+  /// The [sort] is a document describing the sort criteria. If not specified, the order of the documents is not guaranteed.
+  /// The [projection] is a document describing the fields to return for the matching document. If not specified, all fields are returned.
+  Future<String> findOne({
+    String? filter,
+    String? sort,
+    String? projection,
+  }) async {
+    return await realmCore.mongoDbFindOne(this, filter: filter, sort: sort, projection: projection);
+  }
+
+Future<String> findOneAndDelete({
+    required String filter,
+    required String replacementDoc,
+    String? sort,
+    String? projection,
+    bool? upsert,
+    bool? returnNewDocument,
+  }) async {
+    return await realmCore.mongoDbFindOneAndDelete(
+      this,
+      filter: filter,
+      sort: sort,
+      projection: projection,
+      upsert: upsert,
+      returnNewDocument: returnNewDocument,
+    );
+  }
+
+  Future<String> findOneAndReplace({
+    required String filter,
+    required String replacementDoc,
+    String? sort,
+    String? projection,
+    bool? upsert,
+    bool? returnNewDocument,
+  }) async {
+    return await realmCore.mongoDbFindOneAndReplace(
+      this,
+      filter: filter,
+      replacementDoc: replacementDoc,
+      sort: sort,
+      projection: projection,
+      upsert: upsert,
+      returnNewDocument: returnNewDocument,
+    );
+  }
+
+  Future<String> findOneAndUpdate({
+    required String filter,
+    required String updateDocument,
+    String? sort,
+    String? projection,
+    bool? upsert,
+    bool? returnNewDocument,
+  }) async {
+    return await realmCore.mongoDbFindOneAndUpdate(
+      this,
+      filter: filter,
+      updateDocument: updateDocument,
+      sort: sort,
+      projection: projection,
+      upsert: upsert,
+      returnNewDocument: returnNewDocument,
+    );
   }
 }
 

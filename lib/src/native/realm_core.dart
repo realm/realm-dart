@@ -2497,18 +2497,118 @@ class _RealmCore {
     completer.complete(stringResult);
   }
 
-  Future<String> mongodbFind(MongoDBCollection collection, {String? filter, String? sort, String? projection, int? limit}) {
+  Future<String> mongoDbFind(MongoDBCollection collection, {String? filter, String? sort, String? projection, int? limit}) {
     return using((arena) {
       bool result = false;
       final completer = Completer<String>();
-      final findOptionsPtr = arena<realm_mongodb_find_options_t>();
-      if (limit != null) findOptionsPtr.ref.limit = limit;
-      if (sort != null) findOptionsPtr.ref.sort_bson = sort.toRealmString(arena).ref;
-      if (projection != null) findOptionsPtr.ref.projection_bson = projection.toRealmString(arena).ref;
-      final filter_realm_string = (filter != null) ? filter.toRealmString(arena) : arena<realm_string_t>();
 
-      _realmLib.invokeGetBool(() => result = _realmLib.realm_mongo_collection_find(collection.handle._pointer, filter_realm_string.ref, findOptionsPtr,
-          completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle, Pointer.fromFunction(_mongodb_find_callback)));
+      _realmLib.invokeGetBool(
+        () => result = _realmLib.realm_mongo_collection_find(
+          collection.handle._pointer,
+          filter.nullableToRealmString(arena).ref,
+          toFindOptionsPtr(arena, sort: sort, projection: projection, limit: limit),
+          completer.toPersistentHandle(),
+          _realmLib.addresses.realm_dart_delete_persistent_handle,
+          Pointer.fromFunction(_mongodb_find_callback),
+        ),
+      );
+
+      if (!result) {
+        return Future<String>.value("");
+      }
+      return completer.future;
+    });
+  }
+
+  Future<String> mongoDbFindOne(MongoDBCollection collection, {String? filter, String? sort, String? projection}) {
+    return using((arena) {
+      bool result = false;
+      final completer = Completer<String>();
+
+      _realmLib.invokeGetBool(
+        () => result = _realmLib.realm_mongo_collection_find_one(
+          collection.handle._pointer,
+          filter.nullableToRealmString(arena).ref,
+          toFindOptionsPtr(arena, sort: sort, projection: projection),
+          completer.toPersistentHandle(),
+          _realmLib.addresses.realm_dart_delete_persistent_handle,
+          Pointer.fromFunction(_mongodb_find_callback),
+        ),
+      );
+
+      if (!result) {
+        return Future<String>.value("");
+      }
+      return completer.future;
+    });
+  }
+
+  Future<String> mongoDbFindOneAndDelete(MongoDBCollection collection,
+      {String? filter, String? sort, String? projection, bool? upsert, bool? returnNewDocument}) {
+    return using((arena) {
+      bool result = false;
+      final completer = Completer<String>();
+
+      _realmLib.invokeGetBool(
+        () => result = _realmLib.realm_mongo_collection_find_one_and_delete(
+          collection.handle._pointer,
+          filter.nullableToRealmString(arena).ref,
+          toFindAndModifyOptionsPtr(arena, sort: sort, projection: projection, upsert: upsert, returnNewDocument: returnNewDocument),
+          completer.toPersistentHandle(),
+          _realmLib.addresses.realm_dart_delete_persistent_handle,
+          Pointer.fromFunction(_mongodb_find_callback),
+        ),
+      );
+
+      if (!result) {
+        return Future<String>.value("");
+      }
+      return completer.future;
+    });
+  }
+
+  Future<String> mongoDbFindOneAndReplace(MongoDBCollection collection,
+      {required String filter, required String replacementDoc, String? sort, String? projection, bool? upsert, bool? returnNewDocument}) {
+    return using((arena) {
+      bool result = false;
+      final completer = Completer<String>();
+
+      _realmLib.invokeGetBool(
+        () => result = _realmLib.realm_mongo_collection_find_one_and_replace(
+          collection.handle._pointer,
+          filter.toRealmString(arena).ref,
+          replacementDoc.toRealmString(arena).ref,
+          toFindAndModifyOptionsPtr(arena, sort: sort, projection: projection, upsert: upsert, returnNewDocument: returnNewDocument),
+          completer.toPersistentHandle(),
+          _realmLib.addresses.realm_dart_delete_persistent_handle,
+          Pointer.fromFunction(_mongodb_find_callback),
+        ),
+      );
+
+      if (!result) {
+        return Future<String>.value("");
+      }
+      return completer.future;
+    });
+  }
+
+  Future<String> mongoDbFindOneAndUpdate(MongoDBCollection collection,
+      {required String filter, required String updateDocument, String? sort, String? projection, bool? upsert, bool? returnNewDocument}) {
+    return using((arena) {
+      bool result = false;
+      final completer = Completer<String>();
+
+      _realmLib.invokeGetBool(
+        () => result = _realmLib.realm_mongo_collection_find_one_and_update(
+          collection.handle._pointer,
+          filter.toRealmString(arena).ref,
+          updateDocument.toRealmString(arena).ref,
+          toFindAndModifyOptionsPtr(arena, sort: sort, projection: projection, upsert: upsert, returnNewDocument: returnNewDocument),
+          completer.toPersistentHandle(),
+          _realmLib.addresses.realm_dart_delete_persistent_handle,
+          Pointer.fromFunction(_mongodb_find_callback),
+        ),
+      );
 
       if (!result) {
         return Future<String>.value("");
@@ -3223,4 +3323,28 @@ extension PlatformEx on Platform {
 
     return result;
   }
+}
+
+extension _StringNullableEx on String? {
+  Pointer<realm_string_t> nullableToRealmString(Allocator allocator) {
+    return (this != null) ? this!.toRealmString(allocator) : allocator<realm_string_t>();
+  }
+}
+
+Pointer<realm_mongodb_find_options> toFindOptionsPtr(Allocator allocator, {String? sort, String? projection, int? limit}) {
+  final findOptionsPtr = allocator<realm_mongodb_find_options>();
+  if (limit != null) findOptionsPtr.ref.limit = limit;
+  if (sort != null) findOptionsPtr.ref.sort_bson = sort.toRealmString(allocator).ref;
+  if (projection != null) findOptionsPtr.ref.projection_bson = projection.toRealmString(allocator).ref;
+  return findOptionsPtr;
+}
+
+Pointer<realm_mongodb_find_one_and_modify_options> toFindAndModifyOptionsPtr(Allocator allocator,
+    {String? sort, String? projection, bool? upsert, bool? returnNewDocument}) {
+  final findOptionsPtr = allocator<realm_mongodb_find_one_and_modify_options>();
+  if (upsert != null) findOptionsPtr.ref.upsert = upsert;
+  if (returnNewDocument != null) findOptionsPtr.ref.return_new_document = returnNewDocument;
+  if (sort != null) findOptionsPtr.ref.sort_bson = sort.toRealmString(allocator).ref;
+  if (projection != null) findOptionsPtr.ref.projection_bson = projection.toRealmString(allocator).ref;
+  return findOptionsPtr;
 }
