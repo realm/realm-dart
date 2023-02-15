@@ -239,6 +239,8 @@ class UserProfile {
 
 /// A class exposing functionality for users to manage API keys from the client. It is always scoped
 /// to a particular [User] and can only be accessed via [User.apiKeys]
+///
+/// {@category Atlas App Services}
 class ApiKeyClient {
   final User _user;
 
@@ -317,6 +319,8 @@ class ApiKey {
 }
 
 /// A class exposing functionality for calling remote Atlas Functions.
+///
+/// {@category Atlas App Services}
 class FunctionsClient {
   final User _user;
 
@@ -333,7 +337,62 @@ class FunctionsClient {
   }
 }
 
+/// @nodoc
+extension UserIdentityInternal on UserIdentity {
+  static UserIdentity create(String identity, AuthProviderType provider) => UserIdentity._(identity, provider);
+}
+
+/// @nodoc
+extension UserInternal on User {
+  @pragma('vm:never-inline')
+  void keepAlive() {
+    _handle.keepAlive();
+    _app?.keepAlive();
+  }
+
+  UserHandle get handle => _handle;
+
+  static User create(UserHandle handle, [App? app]) => User._(handle, app);
+
+  static ApiKey createApiKey(ObjectId id, String name, String? value, bool isEnabled) => ApiKey._(id, name, value, isEnabled);
+}
+
+extension on Future<void> {
+  Future<void> handle404({ObjectId? id}) async {
+    try {
+      await this;
+    } on AppException catch (e) {
+      if (e.statusCode == 404) {
+        // If we have an id, we can provide a more specific error message. Otherwise, we ignore the exception
+        if (id != null) {
+          throw AppInternal.createException("Failed to execute operation because ApiKey with Id: $id doesn't exist.", e.linkToServerLogs, 404);
+        }
+
+        return;
+      }
+
+      rethrow;
+    }
+  }
+}
+
+extension on Future<ApiKey> {
+  Future<ApiKey?> handle404() async {
+    try {
+      return await this;
+    } on AppException catch (e) {
+      if (e.statusCode == 404) {
+        return null;
+      }
+
+      rethrow;
+    }
+  }
+}
+
 /// The remote MongoClient used for working with data in MongoDB remotely via Realm.
+///
+/// {@category Atlas App Services}
 class MongoDBClient {
   final User _user;
   final String _serviceName;
@@ -350,6 +409,8 @@ class MongoDBClient {
 }
 
 /// A class representing a remote MongoDB database.
+///
+/// {@category Atlas App Services}
 class MongoDBDatabase {
   final String _databaseName;
   final MongoDBClient _client;
@@ -368,7 +429,9 @@ class MongoDBDatabase {
   }
 }
 
-/// A class representing a remote MongoDB collection.s
+/// A class representing a remote MongoDB collections.
+///
+/// {@category Atlas App Services}
 class MongoDBCollection {
   MongoDBDatabase _database;
   final String _collectionName;
@@ -423,9 +486,16 @@ class MongoDBCollection {
     return await realmCore.mongoDbFindOne(this, filter: filter, sort: sort, projection: projection);
   }
 
-Future<String> findOneAndDelete({
+  /// Finds and delete the first document in the collection that satisfies the query criteria.
+  /// The result is a string with EJson containing the first document that matches the find criteria.
+  /// See also [db.collection.findOneAndDelete](https://docs.mongodb.com/manual/reference/method/db.collection.findOneAndDelete/) documentation.
+  ///
+  /// The [filter] is a document describing the find criteria using [query operators](https://docs.mongodb.com/manual/reference/operator/query/).
+  /// If the [filter] is not specified, all documents in the collection will match the request.
+  /// The [sort] is a document describing the sort criteria. If not specified, the order of the documents is not guaranteed.
+  /// The [projection] is a document describing the fields to return for the matching document. If not specified, all fields are returned.
+  Future<String> findOneAndDelete({
     required String filter,
-    required String replacementDoc,
     String? sort,
     String? projection,
     bool? upsert,
@@ -441,6 +511,18 @@ Future<String> findOneAndDelete({
     );
   }
 
+  /// Finds and replaces the first document in the collection that satisfies the query criteria.
+  /// The result is a string with EJson containing the first document that matches the find criteria.
+  /// See also [db.collection.findOneAndReplace](https://docs.mongodb.com/manual/reference/method/db.collection.findOneAndReplace/) documentation.
+  ///
+  /// The [filter] is a document describing the find criteria using [query operators](https://docs.mongodb.com/manual/reference/operator/query/).
+  /// If the [filter] is not specified, all documents in the collection will match the request.
+  /// The replacement document [replacementDoc] cannot contain update operator expressions.
+  /// The [sort] is a document describing the sort criteria. If not specified, the order of the documents is not guaranteed.
+  /// The [projection] is a document describing the fields to return for the matching document. If not specified, all fields are returned.
+  /// If [upsert] is `true` the replace should insert a document if no documents match the [filter]. Defaults to `false`.
+  /// If [returnNewDocument] is `true` the replacement document will be returned as a result. If set to `false` the original document
+  /// before the replace is returned. Defaults to `false`.
   Future<String> findOneAndReplace({
     required String filter,
     required String replacementDoc,
@@ -460,6 +542,18 @@ Future<String> findOneAndDelete({
     );
   }
 
+  /// Finds and update the first document in the collection that satisfies the query criteria.
+  /// The result is a string with EJson containing the first document that matches the find criteria.
+  /// See also [db.collection.findOneAndReplace](https://docs.mongodb.com/manual/reference/method/db.collection.findOneAndReplace/) documentation.
+  ///
+  /// The [filter] is a document describing the find criteria using [query operators](https://docs.mongodb.com/manual/reference/operator/query/).
+  /// If the [filter] is not specified, all documents in the collection will match the request.
+  /// The document describing the update [updateDocument] can only contain [update operator expressions](https://docs.mongodb.com/manual/reference/operator/update/#id1).
+  /// The [sort] is a document describing the sort criteria. If not specified, the order of the documents is not guaranteed.
+  /// The [projection] is a document describing the fields to return for the matching document. If not specified, all fields are returned.
+  /// If [upsert] is `true` the update should insert a document if no documents match the [filter]. Defaults to `false`.
+  /// If [returnNewDocument] is `true` the new updated document will be returned as a result. If set to `false` the original document
+  /// before the update is returned. Defaults to `false`.
   Future<String> findOneAndUpdate({
     required String filter,
     required String updateDocument,
@@ -488,57 +582,4 @@ extension MongoDBCollectionInternal on MongoDBCollection {
   }
 
   MongoDBCollectionHandle get handle => _handle;
-}
-
-/// @nodoc
-extension UserIdentityInternal on UserIdentity {
-  static UserIdentity create(String identity, AuthProviderType provider) => UserIdentity._(identity, provider);
-}
-
-/// @nodoc
-extension UserInternal on User {
-  @pragma('vm:never-inline')
-  void keepAlive() {
-    _handle.keepAlive();
-    _app?.keepAlive();
-  }
-
-  UserHandle get handle => _handle;
-
-  static User create(UserHandle handle, [App? app]) => User._(handle, app);
-
-  static ApiKey createApiKey(ObjectId id, String name, String? value, bool isEnabled) => ApiKey._(id, name, value, isEnabled);
-}
-
-extension on Future<void> {
-  Future<void> handle404({ObjectId? id}) async {
-    try {
-      await this;
-    } on AppException catch (e) {
-      if (e.statusCode == 404) {
-        // If we have an id, we can provide a more specific error message. Otherwise, we ignore the exception
-        if (id != null) {
-          throw AppInternal.createException("Failed to execute operation because ApiKey with Id: $id doesn't exist.", e.linkToServerLogs, 404);
-        }
-
-        return;
-      }
-
-      rethrow;
-    }
-  }
-}
-
-extension on Future<ApiKey> {
-  Future<ApiKey?> handle404() async {
-    try {
-      return await this;
-    } on AppException catch (e) {
-      if (e.statusCode == 404) {
-        return null;
-      }
-
-      rethrow;
-    }
-  }
 }
