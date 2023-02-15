@@ -62,7 +62,10 @@ class User {
     return _functions;
   }
 
-  MongoDBClient getMongoDBClient(String serviceName) {
+  /// Gets a [MongoDBClient] instance for accessing documents in an Atlas App Service database.
+  ///
+  /// Requires [serviceName] - the name of the service as configured on the server.
+  MongoDBClient getMongoDBClient({required String serviceName}) {
     _ensureLoggedIn('access mongo DB');
 
     _mongodbClient = MongoDBClient._(this, serviceName);

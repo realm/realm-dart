@@ -39,7 +39,7 @@ Future<MongoDBCollection> getMongoDbCollectionByName(AppConfiguration configurat
   final app = App(configuration);
   final credentials = Credentials.anonymous();
   final user = await app.logIn(credentials);
-  final mongodbClient = user.getMongoDBClient("BackingDB");
+  final mongodbClient = user.getMongoDBClient(serviceName: "BackingDB");
   final database = mongodbClient.getDatabase(getBaasDatabaseName(appName: AppNames.flexible));
   final collection = database.getCollection(collectionName);
   return collection;

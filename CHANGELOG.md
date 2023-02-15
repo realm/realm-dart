@@ -1,7 +1,7 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Added `User.getMongoDBbClient` exposing an API for CRUD operations on a Remote Atlas App Service.([#1162](https://github.com/realm/realm-dart/issues/1162))
 
 ### Fixed
 * None
