@@ -18,6 +18,7 @@ flutter/realm_flutter/android/.idea/
 flutter/realm_flutter/android/.cxx/
 flutter/realm_flutter/pubspec.lock
 flutter/realm_flutter/.gradle/
+flutter/realm_flutter/macos/librealm_dart.dylib
 /default.realm*
 /test/default.realm
 /test/default.realm.lock
