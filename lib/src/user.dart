@@ -575,6 +575,66 @@ class MongoDBCollection {
       returnNewDocument: returnNewDocument,
     );
   }
+
+  /// Inserts the provided [insertDocument] in the collection.
+  /// The result contains the `_id` of the inserted document.
+  /// See also [db.collection.insertOne](https://docs.mongodb.com/manual/reference/method/db.collection.insertOne/) documentation.
+  Future<String> insertOne({required String insertDocument}) async {
+    return await realmCore.mongoDBInsertOne(this, insertDocument: insertDocument);
+  }
+
+  /// Inserts one or more [insertDocuments] in the collection.
+  /// The result contains the `_id`s of the inserted documents.
+  /// See also [db.collection.insertMany](https://docs.mongodb.com/manual/reference/method/db.collection.insertMany/) documentation.
+  Future<String> insertMany({required String insertDocuments}) async {
+    return await realmCore.mongoDBInsertMany(this, insertDocuments: insertDocuments);
+  }
+
+  /// Updates a single [updateDocument] in the collection according to the specified arguments.
+  /// The result contains information about the number of matched and updated documents, as well as the `_id` of the
+  /// upserted document if [upsert] was set to `true` and the operation resulted in an upsert.
+  /// See also [db.collection.updateOne](https://docs.mongodb.com/manual/reference/method/db.collection.updateOne/) documentation.
+  ///
+  /// The [filter] is the document describing the selection criteria of the update. If not specified, the first document in the
+  /// collection will be updated. Can only contain [query selector expressions](https://docs.mongodb.com/manual/reference/operator/query/#query-selectors)
+  /// The [updateDocument] can only contain [update operator expressions](https://docs.mongodb.com/manual/reference/operator/update/#id1).
+  /// If [upsert] is `true` the update should insert a document if no documents match the [filter]. Defaults to `false`.
+  Future<String> updateOne({required String filter, required String updateDocument, bool upsert = false}) async {
+    return await realmCore.mongoDBUpdateOne(this, filter: filter, updateDocument: updateDocument, upsert: upsert);
+  }
+
+  /// Updates one or more [updateDocuments] in the collection according to the specified arguments.
+  /// The result contains information about the number of matched and updated documents, as well as the `_id`s of the
+  /// upserted documents if [upsert] was set to `true` and the operation resulted in an upsert.
+  /// See also [db.collection.updateMany](https://docs.mongodb.com/manual/reference/method/db.collection.updateMany/) documentation.
+  ///
+  /// The [filter] is the document describing the selection criteria of the update. If not specified, the first document in the
+  /// collection will be updated. Can only contain [query selector expressions](https://docs.mongodb.com/manual/reference/operator/query/#query-selectors)
+  /// The [updateDocuments] can only contain [update operator expressions](https://docs.mongodb.com/manual/reference/operator/update/#id1).
+  /// If [upsert] is `true` the update should insert the documents if no documents match the [filter]. Defaults to `false`.
+  Future<String> updateMany({required String filter, required String updateDocuments, bool upsert = false}) async {
+    return await realmCore.mongoDBUpdateMany(this, filter: filter, updateDocuments: updateDocuments, upsert: upsert);
+  }
+
+  /// Removes a single document from a collection. If no documents match the [filter], the collection is not modified.
+  /// The result contains contains the number of deleted documents.
+  /// See also [db.collection.deleteOne](https://docs.mongodb.com/manual/reference/method/db.collection.deleteOne/) documentation.
+  ///
+  /// The [filter] is a document describing the deletion criteria using [query operators](https://docs.mongodb.com/manual/reference/operator/query/).
+  /// If not specified, the first document in the collection will be deleted.
+  Future<String> deleteOne({required String filter}) async {
+    return await realmCore.mongoDBDeleteOne(this, filter: filter);
+  }
+
+  /// Removes one or more documents from a collection. If no documents match the [filter], the collection is not modified.
+  /// The result contains contains the number of deleted documents.
+  /// See also [db.collection.deleteMany](https://docs.mongodb.com/manual/reference/method/db.collection.deleteMany/) documentation.
+  ///
+  /// The [filter] is a document describing the deletion criteria using [query operators](https://docs.mongodb.com/manual/reference/operator/query/).
+  /// If not specified, all documents in the collection will be deleted.
+  Future<String> deleteMany({required String filter}) async {
+    return await realmCore.mongoDBDeleteMany(this, filter: filter);
+  }
 }
 
 /// @nodoc
