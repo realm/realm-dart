@@ -2483,7 +2483,7 @@ class _RealmCore {
     });
   }
 
-  static void _mongodb_find_callback(Pointer<Void> userdata, realm_string_t result, Pointer<realm_app_error_t> error) {
+  static void _mongo_db_find_callback(Pointer<Void> userdata, realm_string_t result, Pointer<realm_app_error_t> error) {
     final Completer<String>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
       return;
@@ -2497,124 +2497,147 @@ class _RealmCore {
     completer.complete(stringResult);
   }
 
-  Future<String> mongoDbFind(MongoDBCollection collection, {String? filter, String? sort, String? projection, int? limit}) {
+  Future<String> _mongoDBDocumentsCall(
+      bool Function(Arena allocator, Pointer<Void> userData, realm_free_userdata_func_t delete_data, realm_mongodb_callback_t callback) coreFunction) {
     return using((arena) {
       bool result = false;
       final completer = Completer<String>();
 
-      _realmLib.invokeGetBool(
-        () => result = _realmLib.realm_mongo_collection_find(
+      _realmLib.invokeGetBool(() => result = coreFunction(
+            arena,
+            completer.toPersistentHandle(),
+            _realmLib.addresses.realm_dart_delete_persistent_handle,
+            Pointer.fromFunction(_mongo_db_find_callback),
+          ));
+      if (!result) {
+        return Future<String>.value("");
+      }
+      return completer.future;
+    });
+  }
+
+  Future<String> mongoDBFind(MongoDBCollection collection, {String? filter, String? sort, String? projection, int? limit}) {
+    return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_find(
           collection.handle._pointer,
           filter.nullableToRealmString(arena).ref,
           toFindOptionsPtr(arena, sort: sort, projection: projection, limit: limit),
-          completer.toPersistentHandle(),
-          _realmLib.addresses.realm_dart_delete_persistent_handle,
-          Pointer.fromFunction(_mongodb_find_callback),
-        ),
-      );
-
-      if (!result) {
-        return Future<String>.value("");
-      }
-      return completer.future;
-    });
+          userData,
+          delete_data,
+          callback,
+        ));
   }
 
-  Future<String> mongoDbFindOne(MongoDBCollection collection, {String? filter, String? sort, String? projection}) {
-    return using((arena) {
-      bool result = false;
-      final completer = Completer<String>();
-
-      _realmLib.invokeGetBool(
-        () => result = _realmLib.realm_mongo_collection_find_one(
+  Future<String> mongoDBFindOne(MongoDBCollection collection, {String? filter, String? sort, String? projection}) {
+    return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_find_one(
           collection.handle._pointer,
           filter.nullableToRealmString(arena).ref,
           toFindOptionsPtr(arena, sort: sort, projection: projection),
-          completer.toPersistentHandle(),
-          _realmLib.addresses.realm_dart_delete_persistent_handle,
-          Pointer.fromFunction(_mongodb_find_callback),
-        ),
-      );
-
-      if (!result) {
-        return Future<String>.value("");
-      }
-      return completer.future;
-    });
+          userData,
+          delete_data,
+          callback,
+        ));
   }
 
-  Future<String> mongoDbFindOneAndDelete(MongoDBCollection collection,
+  Future<String> mongoDBFindOneAndDelete(MongoDBCollection collection,
       {String? filter, String? sort, String? projection, bool? upsert, bool? returnNewDocument}) {
-    return using((arena) {
-      bool result = false;
-      final completer = Completer<String>();
-
-      _realmLib.invokeGetBool(
-        () => result = _realmLib.realm_mongo_collection_find_one_and_delete(
+    return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_find_one_and_delete(
           collection.handle._pointer,
           filter.nullableToRealmString(arena).ref,
           toFindAndModifyOptionsPtr(arena, sort: sort, projection: projection, upsert: upsert, returnNewDocument: returnNewDocument),
-          completer.toPersistentHandle(),
-          _realmLib.addresses.realm_dart_delete_persistent_handle,
-          Pointer.fromFunction(_mongodb_find_callback),
-        ),
-      );
-
-      if (!result) {
-        return Future<String>.value("");
-      }
-      return completer.future;
-    });
+          userData,
+          delete_data,
+          callback,
+        ));
   }
 
-  Future<String> mongoDbFindOneAndReplace(MongoDBCollection collection,
+  Future<String> mongoDBFindOneAndReplace(MongoDBCollection collection,
       {required String filter, required String replacementDoc, String? sort, String? projection, bool? upsert, bool? returnNewDocument}) {
-    return using((arena) {
-      bool result = false;
-      final completer = Completer<String>();
-
-      _realmLib.invokeGetBool(
-        () => result = _realmLib.realm_mongo_collection_find_one_and_replace(
+    return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_find_one_and_replace(
           collection.handle._pointer,
           filter.toRealmString(arena).ref,
           replacementDoc.toRealmString(arena).ref,
           toFindAndModifyOptionsPtr(arena, sort: sort, projection: projection, upsert: upsert, returnNewDocument: returnNewDocument),
-          completer.toPersistentHandle(),
-          _realmLib.addresses.realm_dart_delete_persistent_handle,
-          Pointer.fromFunction(_mongodb_find_callback),
-        ),
-      );
-
-      if (!result) {
-        return Future<String>.value("");
-      }
-      return completer.future;
-    });
+          userData,
+          delete_data,
+          callback,
+        ));
   }
 
-  Future<String> mongoDbFindOneAndUpdate(MongoDBCollection collection,
+  Future<String> mongoDBFindOneAndUpdate(MongoDBCollection collection,
       {required String filter, required String updateDocument, String? sort, String? projection, bool? upsert, bool? returnNewDocument}) {
-    return using((arena) {
-      bool result = false;
-      final completer = Completer<String>();
-
-      _realmLib.invokeGetBool(
-        () => result = _realmLib.realm_mongo_collection_find_one_and_update(
+    return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_find_one_and_update(
           collection.handle._pointer,
           filter.toRealmString(arena).ref,
           updateDocument.toRealmString(arena).ref,
           toFindAndModifyOptionsPtr(arena, sort: sort, projection: projection, upsert: upsert, returnNewDocument: returnNewDocument),
-          completer.toPersistentHandle(),
-          _realmLib.addresses.realm_dart_delete_persistent_handle,
-          Pointer.fromFunction(_mongodb_find_callback),
-        ),
-      );
+          userData,
+          delete_data,
+          callback,
+        ));
+  }
 
-      if (!result) {
-        return Future<String>.value("");
-      }
-      return completer.future;
-    });
+  Future<String> mongoDBInsertOne(MongoDBCollection collection, {required String insertDocument}) {
+    return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_insert_one(
+          collection.handle._pointer,
+          insertDocument.toRealmString(arena).ref,
+          userData,
+          delete_data,
+          callback,
+        ));
+  }
+
+  Future<String> mongoDBInsertMany(MongoDBCollection collection, {required String insertDocuments}) {
+    return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_insert_many(
+          collection.handle._pointer,
+          insertDocuments.toRealmString(arena).ref,
+          userData,
+          delete_data,
+          callback,
+        ));
+  }
+
+  Future<String> mongoDBUpdateOne(MongoDBCollection collection, {required String filter, required String updateDocument, bool upsert = false}) {
+    return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_update_one(
+          collection.handle._pointer,
+          filter.toRealmString(arena).ref,
+          updateDocument.toRealmString(arena).ref,
+          upsert,
+          userData,
+          delete_data,
+          callback,
+        ));
+  }
+
+  Future<String> mongoDBUpdateMany(MongoDBCollection collection, {required String filter, required String updateDocuments, bool upsert = false}) {
+    return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_update_many(
+          collection.handle._pointer,
+          filter.toRealmString(arena).ref,
+          updateDocuments.toRealmString(arena).ref,
+          upsert,
+          userData,
+          delete_data,
+          callback,
+        ));
+  }
+
+  Future<String> mongoDBDeleteOne(MongoDBCollection collection, {required String filter}) {
+    return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_delete_one(
+          collection.handle._pointer,
+          filter.toRealmString(arena).ref,
+          userData,
+          delete_data,
+          callback,
+        ));
+  }
+
+  Future<String> mongoDBDeleteMany(MongoDBCollection collection, {required String filter}) {
+    return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_delete_many(
+          collection.handle._pointer,
+          filter.toRealmString(arena).ref,
+          userData,
+          delete_data,
+          callback,
+        ));
   }
 }
 

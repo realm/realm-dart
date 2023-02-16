@@ -464,7 +464,7 @@ class MongoDBCollection {
     String? projection,
     int? limit,
   }) async {
-    return await realmCore.mongoDbFind(
+    return await realmCore.mongoDBFind(
       this,
       filter: filter,
       sort: sort,
@@ -486,7 +486,7 @@ class MongoDBCollection {
     String? sort,
     String? projection,
   }) async {
-    return await realmCore.mongoDbFindOne(this, filter: filter, sort: sort, projection: projection);
+    return await realmCore.mongoDBFindOne(this, filter: filter, sort: sort, projection: projection);
   }
 
   /// Finds and delete the first document in the collection that satisfies the query criteria.
@@ -504,7 +504,7 @@ class MongoDBCollection {
     bool? upsert,
     bool? returnNewDocument,
   }) async {
-    return await realmCore.mongoDbFindOneAndDelete(
+    return await realmCore.mongoDBFindOneAndDelete(
       this,
       filter: filter,
       sort: sort,
@@ -534,7 +534,7 @@ class MongoDBCollection {
     bool? upsert,
     bool? returnNewDocument,
   }) async {
-    return await realmCore.mongoDbFindOneAndReplace(
+    return await realmCore.mongoDBFindOneAndReplace(
       this,
       filter: filter,
       replacementDoc: replacementDoc,
@@ -565,7 +565,7 @@ class MongoDBCollection {
     bool? upsert,
     bool? returnNewDocument,
   }) async {
-    return await realmCore.mongoDbFindOneAndUpdate(
+    return await realmCore.mongoDBFindOneAndUpdate(
       this,
       filter: filter,
       updateDocument: updateDocument,
