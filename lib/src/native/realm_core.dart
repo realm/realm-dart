@@ -2639,6 +2639,27 @@ class _RealmCore {
           callback,
         ));
   }
+
+  Future<String> mongoDBCount(MongoDBCollection collection, {String? filter, int limit = 0}) {
+    return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_count(
+          collection.handle._pointer,
+          filter.nullableToRealmString(arena).ref,
+          limit,
+          userData,
+          delete_data,
+          callback,
+        ));
+  }
+
+  Future<String> mongoDBAggregate(MongoDBCollection collection, {String? filter}) {
+    return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_aggregate(
+          collection.handle._pointer,
+          filter.nullableToRealmString(arena).ref,
+          userData,
+          delete_data,
+          callback,
+        ));
+  }
 }
 
 class LastError {

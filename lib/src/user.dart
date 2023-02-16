@@ -635,6 +635,23 @@ class MongoDBCollection {
   Future<String> deleteMany({required String filter}) async {
     return await realmCore.mongoDBDeleteMany(this, filter: filter);
   }
+
+  /// Counts the number of documents in the collection that match the provided [filter] and up to [limit].
+  /// The result is the number of documents that match the [filter] and[limit] criteria.
+  ///
+  /// The [filter] is a document describing the find criteria using [query operators](https://docs.mongodb.com/manual/reference/operator/query/).
+  /// If the [filter] is not specified, all documents in the collection will be counted.
+  /// The [limit] is the maximum number of documents to count. If not specified, all documents in the collection are counted.
+  Future<String> count({String? filter, int limit = 0}) async {
+    return await realmCore.mongoDBCount(this, filter: filter, limit: limit);
+  }
+
+  /// Executes an aggregation on the collection and returns the results as a bson array
+  /// containing the documents that match the [filter].
+  /// See also [db.collection.aggregation](https://docs.mongodb.com/manual/reference/method/db.collection.aggregation/) documentation.
+  Future<String> aggregate({String? filter}) async {
+    return await realmCore.mongoDBAggregate(this, filter: filter);
+  }
 }
 
 /// @nodoc
