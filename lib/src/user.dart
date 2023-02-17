@@ -458,19 +458,20 @@ class MongoDBCollection {
   /// The [sort] is a document describing the sort criteria. If not specified, the order of the returned documents is not guaranteed.
   /// The [projection] is a document describing the fields to return for all matching documents. If not specified, all fields are returned.
   /// The [limit] is the maximum number of documents to return. If not specified, all documents in the collection are returned.
-  Future<String> find({
-    String? filter,
-    String? sort,
-    String? projection,
+  Future<dynamic> find({
+    Object? filter,
+    Object? sort,
+    Object? projection,
     int? limit,
   }) async {
-    return await realmCore.mongoDBFind(
+    final result = await realmCore.mongoDBFind(
       this,
-      filter: filter,
-      sort: sort,
-      projection: projection,
+      filter: _nullOrJsonEncode(filter),
+      sort: _nullOrJsonEncode(sort),
+      projection: _nullOrJsonEncode(projection),
       limit: limit,
     );
+    return jsonDecode(result);
   }
 
   /// Finds the first document in the collection that satisfies the query criteria.
@@ -481,12 +482,14 @@ class MongoDBCollection {
   /// If the [filter] is not specified, all documents in the collection will match the request.
   /// The [sort] is a document describing the sort criteria. If not specified, the order of the documents is not guaranteed.
   /// The [projection] is a document describing the fields to return for the matching document. If not specified, all fields are returned.
-  Future<String> findOne({
-    String? filter,
-    String? sort,
-    String? projection,
+  Future<dynamic> findOne({
+    Object? filter,
+    Object? sort,
+    Object? projection,
   }) async {
-    return await realmCore.mongoDBFindOne(this, filter: filter, sort: sort, projection: projection);
+    final result =
+        await realmCore.mongoDBFindOne(this, filter: _nullOrJsonEncode(filter), sort: _nullOrJsonEncode(sort), projection: _nullOrJsonEncode(projection));
+    return jsonDecode(result);
   }
 
   /// Finds and delete the first document in the collection that satisfies the query criteria.
@@ -497,21 +500,22 @@ class MongoDBCollection {
   /// If the [filter] is not specified, all documents in the collection will match the request.
   /// The [sort] is a document describing the sort criteria. If not specified, the order of the documents is not guaranteed.
   /// The [projection] is a document describing the fields to return for the matching document. If not specified, all fields are returned.
-  Future<String> findOneAndDelete({
-    required String filter,
-    String? sort,
-    String? projection,
+  Future<dynamic> findOneAndDelete({
+    required Object filter,
+    Object? sort,
+    Object? projection,
     bool? upsert,
     bool? returnNewDocument,
   }) async {
-    return await realmCore.mongoDBFindOneAndDelete(
+    final result = await realmCore.mongoDBFindOneAndDelete(
       this,
-      filter: filter,
-      sort: sort,
-      projection: projection,
+      filter: _nullOrJsonEncode(filter),
+      sort: _nullOrJsonEncode(sort),
+      projection: _nullOrJsonEncode(projection),
       upsert: upsert,
       returnNewDocument: returnNewDocument,
     );
+    return jsonDecode(result);
   }
 
   /// Finds and replaces the first document in the collection that satisfies the query criteria.
@@ -526,23 +530,24 @@ class MongoDBCollection {
   /// If [upsert] is `true` the replace should insert a document if no documents match the [filter]. Defaults to `false`.
   /// If [returnNewDocument] is `true` the replacement document will be returned as a result. If set to `false` the original document
   /// before the replace is returned. Defaults to `false`.
-  Future<String> findOneAndReplace({
-    required String filter,
-    required String replacementDoc,
-    String? sort,
-    String? projection,
+  Future<dynamic> findOneAndReplace({
+    required Object filter,
+    required Object replacementDoc,
+    Object? sort,
+    Object? projection,
     bool? upsert,
     bool? returnNewDocument,
   }) async {
-    return await realmCore.mongoDBFindOneAndReplace(
+    final result = await realmCore.mongoDBFindOneAndReplace(
       this,
-      filter: filter,
-      replacementDoc: replacementDoc,
-      sort: sort,
-      projection: projection,
+      filter: jsonEncode(filter),
+      replacementDoc: jsonEncode(replacementDoc),
+      sort: _nullOrJsonEncode(sort),
+      projection: _nullOrJsonEncode(projection),
       upsert: upsert,
       returnNewDocument: returnNewDocument,
     );
+    return jsonDecode(result);
   }
 
   /// Finds and update the first document in the collection that satisfies the query criteria.
@@ -557,37 +562,40 @@ class MongoDBCollection {
   /// If [upsert] is `true` the update should insert a document if no documents match the [filter]. Defaults to `false`.
   /// If [returnNewDocument] is `true` the new updated document will be returned as a result. If set to `false` the original document
   /// before the update is returned. Defaults to `false`.
-  Future<String> findOneAndUpdate({
-    required String filter,
-    required String updateDocument,
-    String? sort,
-    String? projection,
+  Future<dynamic> findOneAndUpdate({
+    required Object filter,
+    required Object updateDocument,
+    Object? sort,
+    Object? projection,
     bool? upsert,
     bool? returnNewDocument,
   }) async {
-    return await realmCore.mongoDBFindOneAndUpdate(
+    final result = await realmCore.mongoDBFindOneAndUpdate(
       this,
-      filter: filter,
-      updateDocument: updateDocument,
-      sort: sort,
-      projection: projection,
+      filter: jsonEncode(filter),
+      updateDocument: jsonEncode(updateDocument),
+      sort: _nullOrJsonEncode(sort),
+      projection: _nullOrJsonEncode(projection),
       upsert: upsert,
       returnNewDocument: returnNewDocument,
     );
+    return jsonDecode(result);
   }
 
   /// Inserts the provided [insertDocument] in the collection.
   /// The result contains the `_id` of the inserted document.
   /// See also [db.collection.insertOne](https://docs.mongodb.com/manual/reference/method/db.collection.insertOne/) documentation.
-  Future<String> insertOne({required String insertDocument}) async {
-    return await realmCore.mongoDBInsertOne(this, insertDocument: insertDocument);
+  Future<dynamic> insertOne({required Object insertDocument}) async {
+    final result = await realmCore.mongoDBInsertOne(this, insertDocument: jsonEncode(insertDocument));
+    return jsonDecode(result);
   }
 
   /// Inserts one or more [insertDocuments] in the collection.
   /// The result contains the `_id`s of the inserted documents.
   /// See also [db.collection.insertMany](https://docs.mongodb.com/manual/reference/method/db.collection.insertMany/) documentation.
-  Future<String> insertMany({required String insertDocuments}) async {
-    return await realmCore.mongoDBInsertMany(this, insertDocuments: insertDocuments);
+  Future<dynamic> insertMany({required Object insertDocuments}) async {
+    final result = await realmCore.mongoDBInsertMany(this, insertDocuments: jsonEncode(insertDocuments));
+    return jsonDecode(result);
   }
 
   /// Updates a single [updateDocument] in the collection according to the specified arguments.
@@ -599,8 +607,9 @@ class MongoDBCollection {
   /// collection will be updated. Can only contain [query selector expressions](https://docs.mongodb.com/manual/reference/operator/query/#query-selectors)
   /// The [updateDocument] can only contain [update operator expressions](https://docs.mongodb.com/manual/reference/operator/update/#id1).
   /// If [upsert] is `true` the update should insert a document if no documents match the [filter]. Defaults to `false`.
-  Future<String> updateOne({required String filter, required String updateDocument, bool upsert = false}) async {
-    return await realmCore.mongoDBUpdateOne(this, filter: filter, updateDocument: updateDocument, upsert: upsert);
+  Future<dynamic> updateOne({required Object filter, required Object updateDocument, bool upsert = false}) async {
+    final result = await realmCore.mongoDBUpdateOne(this, filter: jsonEncode(filter), updateDocument: jsonEncode(updateDocument), upsert: upsert);
+    return jsonDecode(result);
   }
 
   /// Updates one or more [updateDocuments] in the collection according to the specified arguments.
@@ -612,8 +621,9 @@ class MongoDBCollection {
   /// collection will be updated. Can only contain [query selector expressions](https://docs.mongodb.com/manual/reference/operator/query/#query-selectors)
   /// The [updateDocuments] can only contain [update operator expressions](https://docs.mongodb.com/manual/reference/operator/update/#id1).
   /// If [upsert] is `true` the update should insert the documents if no documents match the [filter]. Defaults to `false`.
-  Future<String> updateMany({required String filter, required String updateDocuments, bool upsert = false}) async {
-    return await realmCore.mongoDBUpdateMany(this, filter: filter, updateDocuments: updateDocuments, upsert: upsert);
+  Future<dynamic> updateMany({required Object filter, required Object updateDocuments, bool upsert = false}) async {
+    final result = await realmCore.mongoDBUpdateMany(this, filter: jsonEncode(filter), updateDocuments: jsonEncode(updateDocuments), upsert: upsert);
+    return jsonDecode(result);
   }
 
   /// Removes a single document from a collection. If no documents match the [filter], the collection is not modified.
@@ -622,8 +632,9 @@ class MongoDBCollection {
   ///
   /// The [filter] is a document describing the deletion criteria using [query operators](https://docs.mongodb.com/manual/reference/operator/query/).
   /// If not specified, the first document in the collection will be deleted.
-  Future<String> deleteOne({required String filter}) async {
-    return await realmCore.mongoDBDeleteOne(this, filter: filter);
+  Future<dynamic> deleteOne({required Object filter}) async {
+    final result = await realmCore.mongoDBDeleteOne(this, filter: jsonEncode(filter));
+    return jsonDecode(result);
   }
 
   /// Removes one or more documents from a collection. If no documents match the [filter], the collection is not modified.
@@ -632,8 +643,9 @@ class MongoDBCollection {
   ///
   /// The [filter] is a document describing the deletion criteria using [query operators](https://docs.mongodb.com/manual/reference/operator/query/).
   /// If not specified, all documents in the collection will be deleted.
-  Future<String> deleteMany({required String filter}) async {
-    return await realmCore.mongoDBDeleteMany(this, filter: filter);
+  Future<dynamic> deleteMany({required Object filter}) async {
+    final result = await realmCore.mongoDBDeleteMany(this, filter: jsonEncode(filter));
+    return jsonDecode(result);
   }
 
   /// Counts the number of documents in the collection that match the provided [filter] and up to [limit].
@@ -642,15 +654,22 @@ class MongoDBCollection {
   /// The [filter] is a document describing the find criteria using [query operators](https://docs.mongodb.com/manual/reference/operator/query/).
   /// If the [filter] is not specified, all documents in the collection will be counted.
   /// The [limit] is the maximum number of documents to count. If not specified, all documents in the collection are counted.
-  Future<String> count({String? filter, int limit = 0}) async {
-    return await realmCore.mongoDBCount(this, filter: filter, limit: limit);
+  Future<dynamic> count({Object? filter, int limit = 0}) async {
+    final result = await realmCore.mongoDBCount(this, filter: _nullOrJsonEncode(filter), limit: limit);
+    return jsonDecode(result);
   }
 
   /// Executes an aggregation on the collection and returns the results as a bson array
   /// containing the documents that match the [filter].
   /// See also [db.collection.aggregation](https://docs.mongodb.com/manual/reference/method/db.collection.aggregation/) documentation.
-  Future<String> aggregate({String? filter}) async {
-    return await realmCore.mongoDBAggregate(this, filter: filter);
+  Future<dynamic> aggregate({Object? filter}) async {
+    final result = await realmCore.mongoDBAggregate(this, filter: _nullOrJsonEncode(filter));
+    return jsonDecode(result);
+  }
+
+  String? _nullOrJsonEncode(Object? value) {
+    if (value == null) return null;
+    return jsonEncode(value);
   }
 }
 

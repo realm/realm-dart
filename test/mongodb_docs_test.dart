@@ -26,16 +26,23 @@ Future<void> main([List<String>? args]) async {
     User user = await loginToApp(appConfiguration);
     await createSapmpleData(user);
     MongoDBCollection collection = await getMongoDbCollectionByName(user, Event.schema.name);
-    String result = await collection.find();
+    dynamic result = await collection.find();
     print(result);
   });
 
   baasTest('MongoDB client find one', (appConfiguration) async {
     User user = await loginToApp(appConfiguration);
     MongoDBCollection collection = await getMongoDbCollectionByName(user, Event.schema.name);
-    String result = await collection.findOne();
+    dynamic result = await collection.findOne();
     print(result);
   });
+
+  baasTest('MongoDB client insert one', (appConfiguration) async {
+    User user = await loginToApp(appConfiguration);
+    MongoDBCollection collection = await getMongoDbCollectionByName(user, "MongoDocs");
+    dynamic result = await collection.insertOne(insertDocument: {"documentName": "doc1"});
+    print(result);
+  }, skip: true);
 }
 
 Future<User> loginToApp(AppConfiguration appConfiguration) async {
