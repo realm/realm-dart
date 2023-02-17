@@ -632,8 +632,8 @@ class MongoDBCollection {
   ///
   /// The [filter] is a document describing the deletion criteria using [query operators](https://docs.mongodb.com/manual/reference/operator/query/).
   /// If not specified, the first document in the collection will be deleted.
-  Future<dynamic> deleteOne({required Object filter}) async {
-    final result = await realmCore.mongoDBDeleteOne(this, filter: jsonEncode(filter));
+  Future<dynamic> deleteOne({Object? filter}) async {
+    final result = await realmCore.mongoDBDeleteOne(this, filter: _nullOrJsonEncode(filter));
     return jsonDecode(result);
   }
 
@@ -643,8 +643,8 @@ class MongoDBCollection {
   ///
   /// The [filter] is a document describing the deletion criteria using [query operators](https://docs.mongodb.com/manual/reference/operator/query/).
   /// If not specified, all documents in the collection will be deleted.
-  Future<dynamic> deleteMany({required Object filter}) async {
-    final result = await realmCore.mongoDBDeleteMany(this, filter: jsonEncode(filter));
+  Future<dynamic> deleteMany({Object? filter}) async {
+    final result = await realmCore.mongoDBDeleteMany(this, filter: _nullOrJsonEncode(filter));
     return jsonDecode(result);
   }
 

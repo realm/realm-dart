@@ -2620,20 +2620,20 @@ class _RealmCore {
         ));
   }
 
-  Future<String> mongoDBDeleteOne(MongoDBCollection collection, {required String filter}) {
+  Future<String> mongoDBDeleteOne(MongoDBCollection collection, {String? filter}) {
     return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_delete_one(
           collection.handle._pointer,
-          filter.toRealmString(arena).ref,
+          filter.nullableToRealmString(arena).ref,
           userData,
           delete_data,
           callback,
         ));
   }
 
-  Future<String> mongoDBDeleteMany(MongoDBCollection collection, {required String filter}) {
+  Future<String> mongoDBDeleteMany(MongoDBCollection collection, {String? filter}) {
     return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_delete_many(
           collection.handle._pointer,
-          filter.toRealmString(arena).ref,
+          filter.nullableToRealmString(arena).ref,
           userData,
           delete_data,
           callback,

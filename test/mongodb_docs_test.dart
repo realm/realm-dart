@@ -40,7 +40,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('MongoDB client insert one', (appConfiguration) async {
     User user = await loginToApp(appConfiguration);
     MongoDBCollection collection = await getMongoDbCollectionByName(user, "MongoDocs");
-    dynamic result = await collection.insertOne(insertDocument: {"documentName": "doc1"});
+    dynamic result = await collection.insertOne(insertDocument: {"Id: ": ObjectId().toString(), "documentName": "doc1"});
     print(result);
   }, skip: true);
 }
@@ -56,6 +56,7 @@ Future<MongoDBCollection> getMongoDbCollectionByName(User user, String collectio
   final mongodbClient = user.getMongoDBClient(serviceName: "BackingDB");
   final database = mongodbClient.getDatabase(getBaasDatabaseName(appName: AppNames.flexible));
   final collection = database.getCollection(collectionName);
+  await collection.deleteMany();
   return collection;
 }
 
