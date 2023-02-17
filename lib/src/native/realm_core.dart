@@ -2219,7 +2219,7 @@ class _RealmCore {
   String getAppDirectory() {
     try {
       if (!isFlutterPlatform || Platform.environment.containsKey('FLUTTER_TEST')) {
-        return Directory.current.absolute.path; // dart or flutter test
+        return Directory.systemTemp; // dart or flutter test
       }
 
       // Flutter from here on..
