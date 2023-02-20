@@ -4,13 +4,14 @@
 * Added `User.getMongoDBbClient` exposing an API for CRUD operations on a Remote Atlas App Service.([#1162](https://github.com/realm/realm-dart/issues/1162))
 
 ### Fixed
-* None
+* Fixed the sync client being stuck in a cycle if an integration error occurs by issuing a client reset (Core upgrade).
 
-### Compatibility
+
+### CompatibilityS
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 13.4.2
 
 ## 1.0.1 (2023-02-14)
 
