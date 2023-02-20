@@ -3643,7 +3643,7 @@ class RealmLibrary {
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
     ffi.Pointer<realm_key_path_array_t> arg3,
-    realm_on_collection_change_func_t on_change,
+    realm_on_dictionary_change_func_t on_change,
   ) {
     return _realm_dictionary_add_notification_callback(
       arg0,
@@ -3661,7 +3661,7 @@ class RealmLibrary {
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t,
                   ffi.Pointer<realm_key_path_array_t>,
-                  realm_on_collection_change_func_t)>>(
+                  realm_on_dictionary_change_func_t)>>(
       'realm_dictionary_add_notification_callback');
   late final _realm_dictionary_add_notification_callback =
       _realm_dictionary_add_notification_callbackPtr.asFunction<
@@ -3670,7 +3670,7 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
               ffi.Pointer<realm_key_path_array_t>,
-              realm_on_collection_change_func_t)>();
+              realm_on_dictionary_change_func_t)>();
 
   /// Clear a dictionary.
   ///
@@ -3854,6 +3854,93 @@ class RealmLibrary {
   late final _realm_dictionary_get = _realm_dictionary_getPtr.asFunction<
       bool Function(ffi.Pointer<realm_dictionary_t>, int,
           ffi.Pointer<realm_value_t>, ffi.Pointer<realm_value_t>)>();
+
+  /// Returns the list of keys changed for the dictionary passed as argument.
+  /// The user must assure that there is enough memory to accomodate all the keys
+  /// calling `realm_dictionary_get_changes` before.
+  ///
+  /// @param changes valid ptr to the dictionary changes structure
+  /// @param deletions list of deleted keys
+  /// @param deletions_size size of the list of deleted keys
+  /// @param insertions list of inserted keys
+  /// @param insertions_size size of the list of inserted keys
+  /// @param modifications list of modified keys
+  /// @param modification_size size of the list of modified keys
+  void realm_dictionary_get_changed_keys(
+    ffi.Pointer<realm_dictionary_changes_t> changes,
+    ffi.Pointer<realm_value_t> deletions,
+    ffi.Pointer<ffi.Size> deletions_size,
+    ffi.Pointer<realm_value_t> insertions,
+    ffi.Pointer<ffi.Size> insertions_size,
+    ffi.Pointer<realm_value_t> modifications,
+    ffi.Pointer<ffi.Size> modification_size,
+  ) {
+    return _realm_dictionary_get_changed_keys(
+      changes,
+      deletions,
+      deletions_size,
+      insertions,
+      insertions_size,
+      modifications,
+      modification_size,
+    );
+  }
+
+  late final _realm_dictionary_get_changed_keysPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<realm_dictionary_changes_t>,
+              ffi.Pointer<realm_value_t>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<realm_value_t>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<realm_value_t>,
+              ffi.Pointer<ffi.Size>)>>('realm_dictionary_get_changed_keys');
+  late final _realm_dictionary_get_changed_keys =
+      _realm_dictionary_get_changed_keysPtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_dictionary_changes_t>,
+              ffi.Pointer<realm_value_t>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<realm_value_t>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<realm_value_t>,
+              ffi.Pointer<ffi.Size>)>();
+
+  /// Returns the number of changes occured to the dictionary passed as argument
+  ///
+  /// @param changes valid ptr to the dictionary changes structure
+  /// @param out_deletions_size number of deletions
+  /// @param out_insertion_size number of insertions
+  /// @param out_modification_size number of modifications
+  void realm_dictionary_get_changes(
+    ffi.Pointer<realm_dictionary_changes_t> changes,
+    ffi.Pointer<ffi.Size> out_deletions_size,
+    ffi.Pointer<ffi.Size> out_insertion_size,
+    ffi.Pointer<ffi.Size> out_modification_size,
+  ) {
+    return _realm_dictionary_get_changes(
+      changes,
+      out_deletions_size,
+      out_insertion_size,
+      out_modification_size,
+    );
+  }
+
+  late final _realm_dictionary_get_changesPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<realm_dictionary_changes_t>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<ffi.Size>)>>('realm_dictionary_get_changes');
+  late final _realm_dictionary_get_changes =
+      _realm_dictionary_get_changesPtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_dictionary_changes_t>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<ffi.Size>)>();
 
   /// Return the list of keys stored in the dictionary
   ///
@@ -10777,6 +10864,9 @@ typedef realm_decimal128_t = realm_decimal128;
 
 class realm_dictionary extends ffi.Opaque {}
 
+class realm_dictionary_changes extends ffi.Opaque {}
+
+typedef realm_dictionary_changes_t = realm_dictionary_changes;
 typedef realm_dictionary_t = realm_dictionary;
 
 abstract class realm_errno {
@@ -11073,6 +11163,10 @@ typedef realm_on_collection_change_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(
             ffi.Pointer<ffi.Void>, ffi.Pointer<realm_collection_changes_t>)>>;
+typedef realm_on_dictionary_change_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(
+            ffi.Pointer<ffi.Void>, ffi.Pointer<realm_dictionary_changes_t>)>>;
 typedef realm_on_object_change_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(
