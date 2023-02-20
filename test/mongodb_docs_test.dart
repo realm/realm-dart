@@ -16,31 +16,62 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:ffi';
+
 import '../lib/realm.dart';
 import 'test.dart';
+
+part 'mongodb_docs_test.g.dart';
+
+@RealmModel()
+class _AtlasDocAllTypes {
+  @MapTo("_id")
+  @PrimaryKey()
+  late ObjectId id;
+
+  late String stringProp;
+  late bool boolProp;
+  late DateTime dateProp;
+  late double doubleProp;
+  late ObjectId objectIdProp;
+  late Uuid uuidProp;
+  late int intProp;
+
+  late String? nullableStringProp;
+  late bool? nullableBoolProp;
+  late DateTime? nullableDateProp;
+  late double? nullableDoubleProp;
+  late ObjectId? nullableObjectIdProp;
+  late Uuid? nullableUuidProp;
+  late int? nullableIntProp;
+}
+
 
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
   baasTest('MongoDB client find', (appConfiguration) async {
     User user = await loginToApp(appConfiguration);
-    await createSapmpleData(user);
-    MongoDBCollection collection = await getMongoDbCollectionByName(user, Event.schema.name);
+    await createAllTypesSchema(user);
+    MongoDBCollection collection = await getMongoDbCollectionByName(user, AtlasDocAllTypes.schema.name);
     dynamic result = await collection.find();
     print(result);
   });
 
   baasTest('MongoDB client find one', (appConfiguration) async {
     User user = await loginToApp(appConfiguration);
-    MongoDBCollection collection = await getMongoDbCollectionByName(user, Event.schema.name);
+    MongoDBCollection collection = await getMongoDbCollectionByName(user, AtlasDocAllTypes.schema.name);
     dynamic result = await collection.findOne();
     print(result);
   });
 
   baasTest('MongoDB client insert one', (appConfiguration) async {
     User user = await loginToApp(appConfiguration);
-    MongoDBCollection collection = await getMongoDbCollectionByName(user, "MongoDocs");
-    dynamic result = await collection.insertOne(insertDocument: {"Id: ": ObjectId().toString(), "documentName": "doc1"});
+    await createAllTypesSchema(user);
+    MongoDBCollection collection = await getMongoDbCollectionByName(user, AtlasDocAllTypes.schema.name);
+    final emptyItem = AtlasDocAllTypes(ObjectId(), '', false, DateTime(0).toUtc(), 0, ObjectId(), Uuid.v4(), 0);
+
+    dynamic result = await collection.insertOne(insertDocument: emptyItem.toJson());
     print(result);
   }, skip: true);
 }
@@ -60,25 +91,55 @@ Future<MongoDBCollection> getMongoDbCollectionByName(User user, String collectio
   return collection;
 }
 
-Future<void> createSapmpleData(User user) async {
-  final configuration = Configuration.flexibleSync(user, [
-    Task.schema,
-    Schedule.schema,
-    Event.schema,
-  ]);
+Future<void> createAllTypesSchema(User user) async {
+  final configuration = Configuration.flexibleSync(user, [AtlasDocAllTypes.schema]);
   final realm = getRealm(configuration);
   realm.subscriptions.update((mutableSubscriptions) {
-    mutableSubscriptions.add(realm.all<Event>());
+    mutableSubscriptions.add(realm.all<AtlasDocAllTypes>());
   });
   await realm.subscriptions.waitForSynchronization();
-
+  final emptyItem = AtlasDocAllTypes(ObjectId(), '', false, DateTime(0).toUtc(), 0, ObjectId(), Uuid.v4(), 0);
   realm.write(() {
-    realm.addAll([
-      Event(ObjectId(), name: "NPMG Event", isCompleted: true, durationInMinutes: 30),
-      Event(ObjectId(), name: "NPMG Meeting", isCompleted: false, durationInMinutes: 10),
-      Event(ObjectId(), name: "Some other event", isCompleted: true, durationInMinutes: 60),
-    ]);
+    realm.add(emptyItem);
+    realm.delete(emptyItem);
   });
-
   await realm.syncSession.waitForUpload();
+}
+
+extension AtlasDocAllTypesJ on AtlasDocAllTypes {
+  static AtlasDocAllTypes fromJson(Map<String, dynamic> json) => AtlasDocAllTypes(
+        json['_id'] as ObjectId,
+        json['stringProp'] as String,
+        json['boolProp'] as bool,
+        json['dateProp'] as DateTime,
+        json['doubleProp'] as double,
+        json['objectIdProp'] as ObjectId,
+        json['uuidProp'] as Uuid,
+        json['intProp'] as int,
+        nullableStringProp: json['nullableStringProp'] as String?,
+        nullableBoolProp: json['nullableBoolProp'] as bool?,
+        nullableDateProp: json['nullableDateProp'] as DateTime?,
+        nullableDoubleProp: json['nullableDoubleProp'] as double?,
+        nullableObjectIdProp: json['nullableObjectIdProp'] as ObjectId?,
+        nullableUuidProp: json['nullableUuidProp'] as Uuid?,
+        nullableIntProp: json['nullableIntProp'] as int?,
+      );
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        '_id': id.toString(),
+        'stringProp': stringProp,
+        'boolProp': boolProp,
+        'dateProp': dateProp.toString(),
+        'doubleProp': doubleProp,
+        'objectIdProp': objectIdProp.toString(),
+        'uuidProp': uuidProp.toString(),
+        'intProp': intProp,
+        'nullableStringProp': nullableStringProp,
+        'nullableBoolProp': nullableBoolProp,
+        'nullableDateProp': nullableDateProp?.toString(),
+        'nullableDoubleProp': nullableDoubleProp,
+        'nullableObjectIdProp': nullableObjectIdProp?.toString(),
+        'nullableUuidProp': nullableUuidProp?.toString(),
+        'nullableIntProp': nullableIntProp,
+      };
 }
