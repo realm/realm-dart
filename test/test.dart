@@ -18,6 +18,7 @@
 
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
@@ -718,4 +719,17 @@ String getBaasDatabaseName({AppNames appName = AppNames.flexible}) {
   final app = baasApps[appName.name] ??
       baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
   return client.getDatabaseName(app.name);
+}
+
+Future<void> createAtlasSchema({
+  AppNames appName = AppNames.flexible,
+  required String serviceName,
+  required String collectionName,
+  required dynamic schema,
+  required dynamic roles,
+}) async {
+  final client = _baasClient ?? (throw StateError("No BAAS client"));
+  final app = baasApps[appName.name] ??
+      baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
+  client.createSchema(app, serviceName: serviceName, collectionName: collectionName, schema: schema, roles: roles);
 }

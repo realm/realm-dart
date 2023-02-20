@@ -551,6 +551,23 @@ class BaasClient {
   String getDatabaseName(String appName) {
     return "db_$appName$_appSuffix";
   }
+
+  Future<void> createSchema(BaasApp app, {required String serviceName, required String collectionName, required dynamic schema, required dynamic roles}) async {
+    print('Create schema $collectionName for ${app.clientAppId}');
+
+    final urlSchema = 'groups/$_groupId/apps/$app/schemas';
+    dynamic metadata = {"database": getDatabaseName(app.name), "collection": collectionName, "data_source": serviceName};
+    String fullSchema = "{\"metadata\": ${jsonEncode(metadata)}, \"schema\": ${jsonEncode(schema)}}";
+    await _post(urlSchema, fullSchema);
+    final dynamic services = await _get('groups/$_groupId/apps/$app/services');
+    dynamic service = services.firstWhere((dynamic s) => s["name"] == serviceName, orElse: () => throw Exception("Service name $serviceName not available"));
+    final mongoServiceId = service['_id'] as String;
+
+    final urlRules = 'groups/$_groupId/apps/$app/services/$mongoServiceId/rules';
+    String fullRoles = "{\"collection\": \"$collectionName\", \"database\": \"${getDatabaseName(app.name)}\", \"roles\": [${jsonEncode(roles)}]}";
+
+    await _post(urlRules, fullRoles);
+  }
 }
 
 class BaasApp {
