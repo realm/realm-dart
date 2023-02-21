@@ -1,6 +1,18 @@
 ## 1.0.1 (2023-02-13)
 
 ### Fixed
+* Fixed the sync client being stuck in a cycle if an integration error occurs by issuing a client reset (Core upgrade).
+
+
+### CompatibilityS
+* Realm Studio: 13.0.0 or later.
+
+### Internal
+* Using Core 13.4.2
+
+## 1.0.1 (2023-02-14)
+
+### Fixed
 * Fix codesigning errors when publishing to the macOS App Store. ([#1153](https://github.com/realm/realm-dart/issues/1153))
 
 ### Compatibility
