@@ -48,10 +48,10 @@ jobs:
         run: echo "ANDROID_NDK=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
 
       - name: Build
-        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
+        #if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: |
           cmake --preset ${{ startsWith(matrix.build, 'ios-') && 'ios' || matrix.build }}
-          cmake --build --preset ${{ matrix.build }} --config Release
+          cmake --build --preset ${{ matrix.build }} --config Release ${{ contains(github.head_ref, 'blagoev/') && startsWith(matrix.build, 'android-') && '--target strip' || '' }}
 
       - name: Store artifacts
         uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
