@@ -1,7 +1,4 @@
-## vNext (TBD)
-
-### Enhancements
-* None
+## 1.0.2 (2023-02-21)
 
 ### Fixed
 * Fixed the sync client being stuck in a cycle if an integration error occurs by issuing a client reset (Core upgrade).
