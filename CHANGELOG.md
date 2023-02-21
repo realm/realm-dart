@@ -5,9 +5,10 @@
 
 ### Fixed
 * Fixed the sync client being stuck in a cycle if an integration error occurs by issuing a client reset (Core upgrade).
+* Fixed Android binaries sizes.
 
 
-### CompatibilityS
+### Compatibility
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
