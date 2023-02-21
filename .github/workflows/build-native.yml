@@ -33,14 +33,14 @@ jobs:
 
       - name: Check cache
         id: check-cache
-        if: ${{ !contains(github.head_ref, 'release/') }}
+        # if: ${{ !contains(github.head_ref, 'release/') }}
         uses: actions/cache@v3
         with:
           path: ./binary/**
           key: binaries-${{ matrix.build }}-{{ inputs.runner }}-${{hashFiles('./src/**')}}
 
       - name: Setup Ninja
-        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        # if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         uses: seanmiddleditch/gha-setup-ninja@1815f2d05c2cd60c2d900f89843139b8dde09f4c
 
       - name: Setup Android NDK
