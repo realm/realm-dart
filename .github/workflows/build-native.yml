@@ -33,14 +33,14 @@ jobs:
 
       - name: Check cache
         id: check-cache
-        # if: ${{ !contains(github.head_ref, 'release/') }}
+        if: ${{ !contains(github.head_ref, 'release/') }}
         uses: actions/cache@v3
         with:
           path: ./binary/**
           key: binaries-${{ matrix.build }}-{{ inputs.runner }}-${{hashFiles('./src/**')}}
 
       - name: Setup Ninja
-        # if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
+        if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
         uses: seanmiddleditch/gha-setup-ninja@1815f2d05c2cd60c2d900f89843139b8dde09f4c
 
       - name: Setup Android NDK
@@ -48,10 +48,10 @@ jobs:
         run: echo "ANDROID_NDK=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
 
       - name: Build
-        #if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
+        if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: |
           cmake --preset ${{ startsWith(matrix.build, 'ios-') && 'ios' || matrix.build }}
-          cmake --build --preset ${{ matrix.build }} --config Release ${{ contains(github.head_ref, 'blagoev/') && startsWith(matrix.build, 'android-') && '--target strip' || '' }}
+          cmake --build --preset ${{ matrix.build }} --config Release ${{ startsWith(matrix.build, 'android-') && '--target strip' || '' }}
 
       - name: Store artifacts
         uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
