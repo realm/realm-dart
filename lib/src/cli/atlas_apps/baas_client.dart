@@ -337,7 +337,6 @@ class BaasClient {
         "flexible_sync": {
           "state": "enabled",
           "database_name": "db_$name$_appSuffix",
-          "development_mode_enabled": true,
           "queryable_fields_names": ["differentiator", "stringQueryField", "boolQueryField", "intQueryField"]
         }
       }''',
@@ -359,6 +358,7 @@ class BaasClient {
         ]
       }''',
     );
+    await _put('groups/$_groupId/apps/$appId/sync/config', '{ "development_mode_enabled": true }');
 
     //create email/password user for tests
     final dynamic createUserResult = await _post('groups/$_groupId/apps/$appId/users', '{"email": "realm-test@realm.io", "password":"123456"}');
