@@ -340,10 +340,8 @@ class BaasClient {
           "queryable_fields_names": ["differentiator", "stringQueryField", "boolQueryField", "intQueryField"]
         }
       }''',
-      rules: '''{
-        {
-          "database_name": "db_$name$_appSuffix"
-        },
+      rules: '''{        
+        "database_name": "db_$name$_appSuffix",
         "roles": [
           {
             "name": "all",
