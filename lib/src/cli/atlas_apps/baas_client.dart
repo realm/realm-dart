@@ -450,7 +450,7 @@ class BaasClient {
     while (true) {
       try {
         await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', syncConfig);
-        await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/default_rule', rules);
+        await _post('groups/$_groupId/apps/$app/services/$mongoServiceId/default_rule', rules);
         break;
       } catch (err) {
         if (attempt++ < 24) {
