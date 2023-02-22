@@ -341,6 +341,9 @@ class BaasClient {
         }
       }''',
       rules: '''{
+        {
+          "database_name": "db_$name$_appSuffix"
+        },
         "roles": [
           {
             "name": "all",
@@ -451,7 +454,7 @@ class BaasClient {
     while (true) {
       try {
         await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', syncConfig);
-        await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/default_rule', rules);
+        await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/rules', rules);
         break;
       } catch (err) {
         if (attempt++ < 24) {
