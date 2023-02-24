@@ -7,7 +7,6 @@
 * None
 
 ### Fixed
-* Converting local realm to sync'd realm crashes if an embedded object is null (Core upgrade).
 * Fixed performance degradation on SubQueries (Core upgrade).
 * Fixed several cases where wrong type of exception was thrown (Core upgrade).
 * Fixed classification of InvalidQuery exception (Core upgrade).
