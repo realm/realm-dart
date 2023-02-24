@@ -248,8 +248,8 @@ enum SyncErrorCategory {
   /// The error originated from the session
   session,
 
-  /// Network resolution error
-  resolve,
+  /// Web socket error
+  webSocket,
 
   /// Another low-level system error occurred
   system,
@@ -533,6 +533,9 @@ enum SyncSessionErrorCode {
   /// outside the current query, and the server undid the modification (UPLOAD)
   compensatingWrite(231),
 
+  /// Bad progress information (ERROR)
+  sessionBadProgress(233),
+
   /// Unknown Sync session error code
   unknown(9999);
 
@@ -546,37 +549,94 @@ enum SyncSessionErrorCode {
   const SyncSessionErrorCode(this.code);
 }
 
-/// Protocol network resolution errors.
+/// Web socket errors.
 ///
 /// These errors will be reported via the error handlers of the affected sessions.
-enum SyncResolveErrorCode {
-  /// Host not found (authoritative).
-  hostNotFound(1),
+enum SyncWebSocketErrorCode {
+  /// WebSocket: OK
+  websocketOk(1000),
 
-  /// Host not found (non-authoritative).
-  hostNotFoundTryAgain(2),
+  /// WebSocket: Going Away
+  websocketGoingAway(1001),
 
-  /// The query is valid but does not have associated address data.
-  noData(3),
+  /// WebSocket: Protocol Error
+  websocketProtocolError(1002),
 
-  /// A non-recoverable error occurred.
-  noRecovery(4),
+  /// WebSocket: Unsupported Data
+  websocketUnsupportedData(1003),
 
-  /// The service is not supported for the given socket type.
-  serviceNotFound(5),
+  /// WebSocket: Reserved
+  websocketReserved(1004),
 
-  /// The socket type is not supported.
-  socketTypeNotSupported(6),
+  /// WebSocket: No Status Received
+  websockeNoStatusReceived(1005),
 
+  /// WebSocket: Abnormal Closure
+  websocketAbnormalClosure(1006),
+
+  /// WebSocket: Invalid Payload Data
+  websocketInvalidPayloadData(1007),
+
+  /// WebSocket: Policy Violation
+  websocketPolicyViolation(1008),
+
+  /// WebSocket: Message Too Big
+  websocketMessageTooBig(1009),
+
+  /// WebSocket: Invalid Extension
+  websocketInvalidExtension(1010),
+
+  /// WebSocket: Internal Server Error
+  websocketInternalServerError(1011),
+
+  /// WebSocket: TLS Handshake Failed
+  websocketTlsHandshakeFailed(1015),
+
+  /// WebSocket: Unauthorized
+  websocketUnauthorized(4001),
+
+  /// WebSocket: Forbidden
+  websocketForbidden(4002),
+
+  /// WebSocket: Moved Permanently
+  websocketMovedPermanently(4003),
+
+  /// WebSocket: Client Too Old
+  websocketClientTooOld(4004),
+
+  /// WebSocket: Client Too New
+  websocketClientTooNew(4005),
+
+  /// WebSocket: Protocol Mismatch
+  websocketProtocolMismatch(4006),
+
+  /// WebSocket: Resolve Failed
+  websocketResolveFailed(4400),
+
+  /// WebSocket: Connection Failed
+  websocketConnectionFailed(4401),
+
+  /// WebSocket: Read Error
+  websocketReadError(4402),
+
+  /// WebSocket: Write Error
+  websocketWriteError(4403),
+
+  /// WebSocket: Retry Error
+  websocketRetryError(4404),
+
+  /// WebSocket: Fatal Error
+  websocketFatalError(4405),
+  
   /// Unknown resolve errors
   unknown(1000);
 
-  static final Map<int, SyncResolveErrorCode> _valuesMap = {for (var value in SyncResolveErrorCode.values) value.code: value};
+  static final Map<int, SyncWebSocketErrorCode> _valuesMap = {for (var value in SyncWebSocketErrorCode.values) value.code: value};
 
-  static SyncResolveErrorCode fromInt(int code) {
-    return SyncResolveErrorCode._valuesMap[code] ?? SyncResolveErrorCode.unknown;
+  static SyncWebSocketErrorCode fromInt(int code) {
+    return SyncWebSocketErrorCode._valuesMap[code] ?? SyncWebSocketErrorCode.unknown;
   }
 
   final int code;
-  const SyncResolveErrorCode(this.code);
+  const SyncWebSocketErrorCode(this.code);
 }

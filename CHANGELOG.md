@@ -1,5 +1,8 @@
 ## vNext (TBD)
 
+### Breaking Changes
+* Renamed `SyncErrorCategory.resolve` category to `SyncErrorCategory.webSocket`, `SyncResolveError` to `SyncWebSocketError` and `SyncResolveErrorCode` to `SyncWebSocketErrorCode`. Added new codes to  `SyncWebSocketErrorCode`.
+
 ### Enhancements
 * None
 

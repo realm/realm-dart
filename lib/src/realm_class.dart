@@ -84,7 +84,7 @@ export "configuration.dart"
         SyncConnectionError,
         SyncError,
         SyncErrorHandler,
-        SyncResolveError,
+        SyncWebSocketError,
         SyncSessionError;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
@@ -115,7 +115,7 @@ export 'session.dart'
         SyncClientErrorCode,
         SyncConnectionErrorCode,
         SyncErrorCategory,
-        SyncResolveErrorCode,
+        SyncWebSocketErrorCode,
         SyncSessionErrorCode;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient;

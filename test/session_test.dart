@@ -364,24 +364,24 @@ Future<void> main([List<String>? args]) async {
     expect(() => session.state, throws<RealmClosedError>());
   });
 
-  for (SyncResolveErrorCode errorCode in SyncResolveErrorCode.values.where((v) => v != SyncResolveErrorCode.unknown)) {
-    baasTest('Sync Network Resolve Error ${errorCode.name}', (configuration) async {
+  for (SyncWebSocketErrorCode errorCode in SyncWebSocketErrorCode.values.where((v) => v != SyncWebSocketErrorCode.unknown)) {
+    baasTest('Sync Web Socket Error ${errorCode.name}', (configuration) async {
       final app = App(configuration);
       final user = await getIntegrationUser(app);
       final config = Configuration.flexibleSync(
         user,
         [Task.schema],
         syncErrorHandler: (syncError) {
-          expect(syncError, isA<SyncResolveError>());
-          final sessionError = syncError.as<SyncResolveError>();
-          expect(sessionError.category, SyncErrorCategory.resolve);
+          expect(syncError, isA<SyncWebSocketError>());
+          final sessionError = syncError.as<SyncWebSocketError>();
+          expect(sessionError.category, SyncErrorCategory.webSocket);
           expect(sessionError.code, errorCode);
           expect(sessionError.message, "Simulated session error");
           expect(syncError.codeValue, errorCode.code);
         },
       );
       final realm = getRealm(config);
-      realm.syncSession.raiseError(SyncErrorCategory.resolve, errorCode.code, false);
+      realm.syncSession.raiseError(SyncErrorCategory.webSocket, errorCode.code, false);
     });
   }
 }
