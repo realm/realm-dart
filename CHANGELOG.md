@@ -4,13 +4,17 @@
 * None
 
 ### Fixed
-* None
+* Converting local realm to sync'd realm crashes if an embedded object is null (Core upgrade).
+* Fixed performance degradation on SubQueries (Core upgrade).
+* Fixed several cases where wrong type of exception was thrown (Core upgrade).
+* Fixed classification of InvalidQuery exception (Core upgrade).
+* Fix crash if secure transport returns an error with a non-zero length. (Core upgrade).
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 13.5.0.
 
 ## 1.0.2 (2023-02-21)
 
