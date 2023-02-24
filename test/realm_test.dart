@@ -1557,7 +1557,7 @@ Future<void> main([List<String>? args]) async {
     final config = Configuration.local([Car.schema]);
     final realm = getRealm(config);
     expect(() => realm.writeCopy(config),
-        throws<RealmException>(Platform.isWindows ? "The file exists" : "Failed to open file at path '${config.path}': parent directory does not exist"));
+        throws<RealmException>(Platform.isWindows ? "The file exists" : "Failed to open file at path '${config.path}': File exists"));
   });
 
   test('Realm writeCopy Local to not existing directory', () {
