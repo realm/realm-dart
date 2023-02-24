@@ -627,9 +627,9 @@ enum SyncWebSocketErrorCode {
 
   /// WebSocket: Fatal Error
   websocketFatalError(4405),
-  
+
   /// Unknown resolve errors
-  unknown(1000);
+  unknown(9999);
 
   static final Map<int, SyncWebSocketErrorCode> _valuesMap = {for (var value in SyncWebSocketErrorCode.values) value.code: value};
 
