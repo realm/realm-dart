@@ -479,7 +479,7 @@ Future<void> main([List<String>? args]) async {
 
     realm.write(() => realm.add(team));
 
-    final result = team.players.query(r'name BEGINSWITH $0', ['J']);
+    final result = team.players.query(r'name BEGINSWITH "$0"', ['J']);
     expect(result, [person]);
   });
 

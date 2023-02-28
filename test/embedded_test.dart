@@ -400,7 +400,7 @@ Future<void> main([List<String>? args]) async {
 
     final differentiator = Uuid.v4();
     realm1.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm1.query<ObjectWithEmbedded>(r'differentiator = $0', [differentiator]));
+      mutableSubscriptions.add(realm1.query<ObjectWithEmbedded>(r'differentiator = "$0"', [differentiator]));
     });
 
     final obj1 = realm1.write(() {
@@ -415,7 +415,7 @@ Future<void> main([List<String>? args]) async {
 
     final realm2 = await getSyncRealm(config);
     realm2.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm2.query<ObjectWithEmbedded>(r'differentiator = $0', [differentiator]));
+      mutableSubscriptions.add(realm2.query<ObjectWithEmbedded>(r'differentiator = "$0"', [differentiator]));
     });
 
     await realm2.subscriptions.waitForSynchronization();

@@ -614,7 +614,7 @@ Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator}) async {
   final realm = getRealm(config);
   if (differentiator != null) {
     realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm.query<NullableTypes>('differentiator = \$0', [differentiator]));
+      mutableSubscriptions.add(realm.query<NullableTypes>(r'differentiator = "$0"', [differentiator]));
     });
 
     await realm.subscriptions.waitForSynchronization();

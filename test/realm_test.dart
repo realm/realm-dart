@@ -308,7 +308,7 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => realm
       ..add(Car("Audi"))
       ..add(Car("Tesla")));
-    final cars = realm.query<Car>(r'make == $0', ['Tesla']);
+    final cars = realm.query<Car>(r'make == "$0"', ['Tesla']);
     expect(cars.length, 1);
     expect(cars[0].make, "Tesla");
   });
@@ -331,7 +331,7 @@ Future<void> main([List<String>? args]) async {
     expect(t1.players, [p1]);
     expect(t2.players, [p2]);
     expect(t3.players, [p1, p2]);
-    final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH $1', [p1, 'A']);
+    final filteredTeams = realm.query<Team>(r'$0 IN players AND name BEGINSWITH "$1"', [p1, 'A']);
     expect(filteredTeams.length, 1);
     expect(filteredTeams[0].name, "A1");
   });
@@ -1348,7 +1348,7 @@ Future<void> main([List<String>? args]) async {
     final config = await _subscribeForAtlasAddedData(app, queryDifferentiator: queryDifferentiator, itemsCount: itemsCount);
     var syncedRealm = await getRealmAsync(config);
     expect(syncedRealm.isClosed, false);
-    final data = syncedRealm.query<Product>(r'name BEGINSWITH $0', [queryDifferentiator]);
+    final data = syncedRealm.query<Product>(r'name BEGINSWITH "$0"', [queryDifferentiator]);
     expect(data.length, itemsCount);
   });
 
@@ -1828,7 +1828,7 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(Configuration.local([Person.schema]));
     String personName = generateRandomString(5);
     final path = realm.config.path;
-    final results = realm.query<Person>(r"name == $0", [personName]);
+    final results = realm.query<Person>(r"name == '$0'", [personName]);
 
     expect(realm.refresh(), false);
     realmCore.realmDisableAutoRefreshForTesting(realm);
@@ -1924,7 +1924,7 @@ Future<void> _addDataToAtlas(Realm realm, String productNamePrefix, {int itemsCo
 }
 
 Future<void> _addSubscriptions(Realm realm, String searchByPreffix) async {
-  final query = realm.query<Product>(r'name BEGINSWITH $0', [searchByPreffix]);
+  final query = realm.query<Product>(r'name BEGINSWITH "$0"', [searchByPreffix]);
   if (realm.subscriptions.find(query) == null) {
     realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
   }
