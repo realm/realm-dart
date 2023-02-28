@@ -399,19 +399,18 @@ String generateRandomRealmPath() {
 }
 
 final random = Random();
+String _getRandom(int len, String chars) => List.generate(len, (index) => chars[random.nextInt(chars.length)]).join();
+
 String generateRandomString(int len) {
-  const chars = 'abcdefghjklmnopqrstuvwxuz';
-  return List.generate(len, (index) => chars[random.nextInt(chars.length)]).join();
+  return _getRandom(len, 'abcdefghjklmnopqrstuvwxuz');
 }
 
 String generateRandomUnicodeString(int len) {
-  const chars = 'uvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren';
-  return List.generate(len, (index) => chars[random.nextInt(chars.length)]).join();
+  return _getRandom(len, 'uvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren');
 }
 
 String generateRandomEmail(int len) {
-  const chars = r"abcdefghjklmnopqrstuvwxuz!#$%&*+-'/=?^_`{|}~0123456789";
-  return List.generate(len, (index) => chars[random.nextInt(chars.length)]).join();
+  return _getRandom(len, r"abcdefghjklmnopqrstuvwxuz!#$%&*+-'/=?^_`{|}~0123456789");
 }
 
 Realm getRealm(Configuration config) {
