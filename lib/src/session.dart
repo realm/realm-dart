@@ -553,80 +553,15 @@ enum SyncSessionErrorCode {
 ///
 /// These errors will be reported via the error handlers of the affected sessions.
 enum SyncWebSocketErrorCode {
-  /// WebSocket: OK
-  websocketOk(1000),
-
-  /// WebSocket: Going Away
-  websocketGoingAway(1001),
-
-  /// WebSocket: Protocol Error
-  websocketProtocolError(1002),
-
-  /// WebSocket: Unsupported Data
-  websocketUnsupportedData(1003),
-
-  /// WebSocket: Reserved
-  websocketReserved(1004),
-
-  /// WebSocket: No Status Received
-  websockeNoStatusReceived(1005),
-
-  /// WebSocket: Abnormal Closure
-  websocketAbnormalClosure(1006),
-
-  /// WebSocket: Invalid Payload Data
-  websocketInvalidPayloadData(1007),
-
-  /// WebSocket: Policy Violation
-  websocketPolicyViolation(1008),
-
-  /// WebSocket: Message Too Big
-  websocketMessageTooBig(1009),
-
-  /// WebSocket: Invalid Extension
-  websocketInvalidExtension(1010),
-
-  /// WebSocket: Internal Server Error
-  websocketInternalServerError(1011),
-
-  /// WebSocket: TLS Handshake Failed
-  websocketTlsHandshakeFailed(1015),
-
-  /// WebSocket: Unauthorized
-  websocketUnauthorized(4001),
-
-  /// WebSocket: Forbidden
-  websocketForbidden(4002),
-
-  /// WebSocket: Moved Permanently
-  websocketMovedPermanently(4003),
-
-  /// WebSocket: Client Too Old
-  websocketClientTooOld(4004),
-
-  /// WebSocket: Client Too New
-  websocketClientTooNew(4005),
-
-  /// WebSocket: Protocol Mismatch
-  websocketProtocolMismatch(4006),
-
-  /// WebSocket: Resolve Failed
+  
+  /// Web socket resolution failed
   websocketResolveFailed(4400),
 
-  /// WebSocket: Connection Failed
-  websocketConnectionFailed(4401),
+  /// Web socket connection closed by the client
+  websocketConnectionClosedClient(4401),
 
-  /// WebSocket: Read Error
-  websocketReadError(4402),
-
-  /// WebSocket: Write Error
-  websocketWriteError(4403),
-
-  /// WebSocket: Retry Error
-  websocketRetryError(4404),
-
-  /// WebSocket: Fatal Error
-  websocketFatalError(4405),
+  /// Web socket connection closed by the server
+  websocketConnectionClosedServer(4402),
 
   /// Unknown resolve errors
   unknown(9999);
