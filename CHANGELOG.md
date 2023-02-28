@@ -1,14 +1,14 @@
 ## vNext (TBD)
 
 ### Breaking Changes
-* Deprecated `SyncResolveError` and `SyncResolveErrorCode`.
-* Added `SyncWebSocketError` and `SyncWebSocketErrorCode` for web socket connection sync errors.
+* Deprecated `SyncResolveError` and `SyncResolveErrorCode` ([#1182](https://github.com/realm/realm-dart/pull/1182)).
+* Added `SyncWebSocketError` and `SyncWebSocketErrorCode` for web socket connection sync errors ([#1182](https://github.com/realm/realm-dart/pull/1182)).
 
 ### Enhancements
 * None
 
 ### Fixed
-* Fixed error message when trying to `switchUser` of the `App` to a user that has been logged out.
+* Fixed error message when trying to `switchUser` of the `App` to a user that has been logged out ([#1182](https://github.com/realm/realm-dart/pull/1182)).
 * Fixed performance degradation on SubQueries (Core upgrade).
 * Fixed several cases where wrong type of exception was thrown (Core upgrade).
 * Fixed classification of InvalidQuery exception (Core upgrade).
