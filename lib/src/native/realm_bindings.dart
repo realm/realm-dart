@@ -19,6 +19,9881 @@ class RealmLibrary {
           lookup)
       : _lookup = lookup;
 
+  BID_UINT128 bid128_abs(
+    BID_UINT128 x,
+  ) {
+    return _bid128_abs(
+      x,
+    );
+  }
+
+  late final _bid128_absPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_abs');
+  late final _bid128_abs =
+      _bid128_absPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_acos(
+    BID_UINT128 x,
+  ) {
+    return _bid128_acos(
+      x,
+    );
+  }
+
+  late final _bid128_acosPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_acos');
+  late final _bid128_acos =
+      _bid128_acosPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_acosh(
+    BID_UINT128 x,
+  ) {
+    return _bid128_acosh(
+      x,
+    );
+  }
+
+  late final _bid128_acoshPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_acosh');
+  late final _bid128_acosh =
+      _bid128_acoshPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_add(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_add(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_addPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_add');
+  late final _bid128_add = _bid128_addPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_asin(
+    BID_UINT128 x,
+  ) {
+    return _bid128_asin(
+      x,
+    );
+  }
+
+  late final _bid128_asinPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_asin');
+  late final _bid128_asin =
+      _bid128_asinPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_asinh(
+    BID_UINT128 x,
+  ) {
+    return _bid128_asinh(
+      x,
+    );
+  }
+
+  late final _bid128_asinhPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_asinh');
+  late final _bid128_asinh =
+      _bid128_asinhPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_atan(
+    BID_UINT128 x,
+  ) {
+    return _bid128_atan(
+      x,
+    );
+  }
+
+  late final _bid128_atanPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_atan');
+  late final _bid128_atan =
+      _bid128_atanPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_atan2(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_atan2(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_atan2Ptr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_atan2');
+  late final _bid128_atan2 = _bid128_atan2Ptr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_atanh(
+    BID_UINT128 x,
+  ) {
+    return _bid128_atanh(
+      x,
+    );
+  }
+
+  late final _bid128_atanhPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_atanh');
+  late final _bid128_atanh =
+      _bid128_atanhPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_cbrt(
+    BID_UINT128 x,
+  ) {
+    return _bid128_cbrt(
+      x,
+    );
+  }
+
+  late final _bid128_cbrtPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_cbrt');
+  late final _bid128_cbrt =
+      _bid128_cbrtPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  int bid128_class(
+    BID_UINT128 x,
+  ) {
+    return _bid128_class(
+      x,
+    );
+  }
+
+  late final _bid128_classPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_class');
+  late final _bid128_class =
+      _bid128_classPtr.asFunction<int Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_copy(
+    BID_UINT128 x,
+  ) {
+    return _bid128_copy(
+      x,
+    );
+  }
+
+  late final _bid128_copyPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_copy');
+  late final _bid128_copy =
+      _bid128_copyPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_copySign(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_copySign(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_copySignPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_copySign');
+  late final _bid128_copySign = _bid128_copySignPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_cos(
+    BID_UINT128 x,
+  ) {
+    return _bid128_cos(
+      x,
+    );
+  }
+
+  late final _bid128_cosPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_cos');
+  late final _bid128_cos =
+      _bid128_cosPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_cosh(
+    BID_UINT128 x,
+  ) {
+    return _bid128_cosh(
+      x,
+    );
+  }
+
+  late final _bid128_coshPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_cosh');
+  late final _bid128_cosh =
+      _bid128_coshPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_div(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_div(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_divPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_div');
+  late final _bid128_div = _bid128_divPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_erf(
+    BID_UINT128 x,
+  ) {
+    return _bid128_erf(
+      x,
+    );
+  }
+
+  late final _bid128_erfPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_erf');
+  late final _bid128_erf =
+      _bid128_erfPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_erfc(
+    BID_UINT128 x,
+  ) {
+    return _bid128_erfc(
+      x,
+    );
+  }
+
+  late final _bid128_erfcPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_erfc');
+  late final _bid128_erfc =
+      _bid128_erfcPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_exp(
+    BID_UINT128 x,
+  ) {
+    return _bid128_exp(
+      x,
+    );
+  }
+
+  late final _bid128_expPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_exp');
+  late final _bid128_exp =
+      _bid128_expPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_exp10(
+    BID_UINT128 x,
+  ) {
+    return _bid128_exp10(
+      x,
+    );
+  }
+
+  late final _bid128_exp10Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_exp10');
+  late final _bid128_exp10 =
+      _bid128_exp10Ptr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_exp2(
+    BID_UINT128 x,
+  ) {
+    return _bid128_exp2(
+      x,
+    );
+  }
+
+  late final _bid128_exp2Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_exp2');
+  late final _bid128_exp2 =
+      _bid128_exp2Ptr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_expm1(
+    BID_UINT128 x,
+  ) {
+    return _bid128_expm1(
+      x,
+    );
+  }
+
+  late final _bid128_expm1Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_expm1');
+  late final _bid128_expm1 =
+      _bid128_expm1Ptr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_fdim(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_fdim(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_fdimPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_fdim');
+  late final _bid128_fdim = _bid128_fdimPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_fma(
+    BID_UINT128 x,
+    BID_UINT128 y,
+    BID_UINT128 z,
+  ) {
+    return _bid128_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid128_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT128 Function(
+              BID_UINT128, BID_UINT128, BID_UINT128)>>('bid128_fma');
+  late final _bid128_fma = _bid128_fmaPtr.asFunction<
+      BID_UINT128 Function(BID_UINT128, BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_fmod(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_fmod(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_fmodPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_fmod');
+  late final _bid128_fmod = _bid128_fmodPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_frexp(
+    BID_UINT128 x,
+    ffi.Pointer<ffi.Int> exp,
+  ) {
+    return _bid128_frexp(
+      x,
+      exp,
+    );
+  }
+
+  late final _bid128_frexpPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT128 Function(
+              BID_UINT128, ffi.Pointer<ffi.Int>)>>('bid128_frexp');
+  late final _bid128_frexp = _bid128_frexpPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, ffi.Pointer<ffi.Int>)>();
+
+  BID_UINT128 bid128_from_int32(
+    int x,
+  ) {
+    return _bid128_from_int32(
+      x,
+    );
+  }
+
+  late final _bid128_from_int32Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(ffi.Int)>>(
+          'bid128_from_int32');
+  late final _bid128_from_int32 =
+      _bid128_from_int32Ptr.asFunction<BID_UINT128 Function(int)>();
+
+  BID_UINT128 bid128_from_int64(
+    int x,
+  ) {
+    return _bid128_from_int64(
+      x,
+    );
+  }
+
+  late final _bid128_from_int64Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_SINT64)>>(
+          'bid128_from_int64');
+  late final _bid128_from_int64 =
+      _bid128_from_int64Ptr.asFunction<BID_UINT128 Function(int)>();
+
+  BID_UINT128 bid128_from_string(
+    ffi.Pointer<ffi.Char> ps,
+  ) {
+    return _bid128_from_string(
+      ps,
+    );
+  }
+
+  late final _bid128_from_stringPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(ffi.Pointer<ffi.Char>)>>(
+          'bid128_from_string');
+  late final _bid128_from_string = _bid128_from_stringPtr
+      .asFunction<BID_UINT128 Function(ffi.Pointer<ffi.Char>)>();
+
+  BID_UINT128 bid128_from_uint32(
+    int x,
+  ) {
+    return _bid128_from_uint32(
+      x,
+    );
+  }
+
+  late final _bid128_from_uint32Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(ffi.UnsignedInt)>>(
+          'bid128_from_uint32');
+  late final _bid128_from_uint32 =
+      _bid128_from_uint32Ptr.asFunction<BID_UINT128 Function(int)>();
+
+  BID_UINT128 bid128_from_uint64(
+    int x,
+  ) {
+    return _bid128_from_uint64(
+      x,
+    );
+  }
+
+  late final _bid128_from_uint64Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT64)>>(
+          'bid128_from_uint64');
+  late final _bid128_from_uint64 =
+      _bid128_from_uint64Ptr.asFunction<BID_UINT128 Function(int)>();
+
+  BID_UINT128 bid128_hypot(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_hypot(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_hypotPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_hypot');
+  late final _bid128_hypot = _bid128_hypotPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_ilogb(
+    BID_UINT128 x,
+  ) {
+    return _bid128_ilogb(
+      x,
+    );
+  }
+
+  late final _bid128_ilogbPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_ilogb');
+  late final _bid128_ilogb =
+      _bid128_ilogbPtr.asFunction<int Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_inf() {
+    return _bid128_inf();
+  }
+
+  late final _bid128_infPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function()>>('bid128_inf');
+  late final _bid128_inf = _bid128_infPtr.asFunction<BID_UINT128 Function()>();
+
+  int bid128_isCanonical(
+    BID_UINT128 x,
+  ) {
+    return _bid128_isCanonical(
+      x,
+    );
+  }
+
+  late final _bid128_isCanonicalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_isCanonical');
+  late final _bid128_isCanonical =
+      _bid128_isCanonicalPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_isFinite(
+    BID_UINT128 x,
+  ) {
+    return _bid128_isFinite(
+      x,
+    );
+  }
+
+  late final _bid128_isFinitePtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_isFinite');
+  late final _bid128_isFinite =
+      _bid128_isFinitePtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_isInf(
+    BID_UINT128 x,
+  ) {
+    return _bid128_isInf(
+      x,
+    );
+  }
+
+  late final _bid128_isInfPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_isInf');
+  late final _bid128_isInf =
+      _bid128_isInfPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_isNaN(
+    BID_UINT128 x,
+  ) {
+    return _bid128_isNaN(
+      x,
+    );
+  }
+
+  late final _bid128_isNaNPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_isNaN');
+  late final _bid128_isNaN =
+      _bid128_isNaNPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_isNormal(
+    BID_UINT128 x,
+  ) {
+    return _bid128_isNormal(
+      x,
+    );
+  }
+
+  late final _bid128_isNormalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_isNormal');
+  late final _bid128_isNormal =
+      _bid128_isNormalPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_isSignaling(
+    BID_UINT128 x,
+  ) {
+    return _bid128_isSignaling(
+      x,
+    );
+  }
+
+  late final _bid128_isSignalingPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_isSignaling');
+  late final _bid128_isSignaling =
+      _bid128_isSignalingPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_isSigned(
+    BID_UINT128 x,
+  ) {
+    return _bid128_isSigned(
+      x,
+    );
+  }
+
+  late final _bid128_isSignedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_isSigned');
+  late final _bid128_isSigned =
+      _bid128_isSignedPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_isSubnormal(
+    BID_UINT128 x,
+  ) {
+    return _bid128_isSubnormal(
+      x,
+    );
+  }
+
+  late final _bid128_isSubnormalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_isSubnormal');
+  late final _bid128_isSubnormal =
+      _bid128_isSubnormalPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_isZero(
+    BID_UINT128 x,
+  ) {
+    return _bid128_isZero(
+      x,
+    );
+  }
+
+  late final _bid128_isZeroPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_isZero');
+  late final _bid128_isZero =
+      _bid128_isZeroPtr.asFunction<int Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_ldexp(
+    BID_UINT128 x,
+    int n,
+  ) {
+    return _bid128_ldexp(
+      x,
+      n,
+    );
+  }
+
+  late final _bid128_ldexpPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, ffi.Int)>>(
+          'bid128_ldexp');
+  late final _bid128_ldexp =
+      _bid128_ldexpPtr.asFunction<BID_UINT128 Function(BID_UINT128, int)>();
+
+  BID_UINT128 bid128_lgamma(
+    BID_UINT128 x,
+  ) {
+    return _bid128_lgamma(
+      x,
+    );
+  }
+
+  late final _bid128_lgammaPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_lgamma');
+  late final _bid128_lgamma =
+      _bid128_lgammaPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  int bid128_llquantexp(
+    BID_UINT128 x,
+  ) {
+    return _bid128_llquantexp(
+      x,
+    );
+  }
+
+  late final _bid128_llquantexpPtr =
+      _lookup<ffi.NativeFunction<ffi.LongLong Function(BID_UINT128)>>(
+          'bid128_llquantexp');
+  late final _bid128_llquantexp =
+      _bid128_llquantexpPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_llrint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_llrint(
+      x,
+    );
+  }
+
+  late final _bid128_llrintPtr =
+      _lookup<ffi.NativeFunction<ffi.LongLong Function(BID_UINT128)>>(
+          'bid128_llrint');
+  late final _bid128_llrint =
+      _bid128_llrintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_llround(
+    BID_UINT128 x,
+  ) {
+    return _bid128_llround(
+      x,
+    );
+  }
+
+  late final _bid128_llroundPtr =
+      _lookup<ffi.NativeFunction<ffi.LongLong Function(BID_UINT128)>>(
+          'bid128_llround');
+  late final _bid128_llround =
+      _bid128_llroundPtr.asFunction<int Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_log(
+    BID_UINT128 x,
+  ) {
+    return _bid128_log(
+      x,
+    );
+  }
+
+  late final _bid128_logPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_log');
+  late final _bid128_log =
+      _bid128_logPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_log10(
+    BID_UINT128 x,
+  ) {
+    return _bid128_log10(
+      x,
+    );
+  }
+
+  late final _bid128_log10Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_log10');
+  late final _bid128_log10 =
+      _bid128_log10Ptr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_log1p(
+    BID_UINT128 x,
+  ) {
+    return _bid128_log1p(
+      x,
+    );
+  }
+
+  late final _bid128_log1pPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_log1p');
+  late final _bid128_log1p =
+      _bid128_log1pPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_log2(
+    BID_UINT128 x,
+  ) {
+    return _bid128_log2(
+      x,
+    );
+  }
+
+  late final _bid128_log2Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_log2');
+  late final _bid128_log2 =
+      _bid128_log2Ptr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_logb(
+    BID_UINT128 x,
+  ) {
+    return _bid128_logb(
+      x,
+    );
+  }
+
+  late final _bid128_logbPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_logb');
+  late final _bid128_logb =
+      _bid128_logbPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  int bid128_lrint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_lrint(
+      x,
+    );
+  }
+
+  late final _bid128_lrintPtr =
+      _lookup<ffi.NativeFunction<ffi.Long Function(BID_UINT128)>>(
+          'bid128_lrint');
+  late final _bid128_lrint =
+      _bid128_lrintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_lround(
+    BID_UINT128 x,
+  ) {
+    return _bid128_lround(
+      x,
+    );
+  }
+
+  late final _bid128_lroundPtr =
+      _lookup<ffi.NativeFunction<ffi.Long Function(BID_UINT128)>>(
+          'bid128_lround');
+  late final _bid128_lround =
+      _bid128_lroundPtr.asFunction<int Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_maxnum(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_maxnum(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_maxnumPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_maxnum');
+  late final _bid128_maxnum = _bid128_maxnumPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_maxnum_mag(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_maxnum_mag(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_maxnum_magPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_maxnum_mag');
+  late final _bid128_maxnum_mag = _bid128_maxnum_magPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_minnum(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_minnum(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_minnumPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_minnum');
+  late final _bid128_minnum = _bid128_minnumPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_minnum_mag(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_minnum_mag(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_minnum_magPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_minnum_mag');
+  late final _bid128_minnum_mag = _bid128_minnum_magPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_modf(
+    BID_UINT128 x,
+    ffi.Pointer<BID_UINT128> y,
+  ) {
+    return _bid128_modf(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_modfPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT128 Function(
+              BID_UINT128, ffi.Pointer<BID_UINT128>)>>('bid128_modf');
+  late final _bid128_modf = _bid128_modfPtr.asFunction<
+      BID_UINT128 Function(BID_UINT128, ffi.Pointer<BID_UINT128>)>();
+
+  BID_UINT128 bid128_mul(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_mul(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_mulPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_mul');
+  late final _bid128_mul = _bid128_mulPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_nan(
+    ffi.Pointer<ffi.Char> tagp,
+  ) {
+    return _bid128_nan(
+      tagp,
+    );
+  }
+
+  late final _bid128_nanPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(ffi.Pointer<ffi.Char>)>>(
+          'bid128_nan');
+  late final _bid128_nan =
+      _bid128_nanPtr.asFunction<BID_UINT128 Function(ffi.Pointer<ffi.Char>)>();
+
+  BID_UINT128 bid128_nearbyint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_nearbyint(
+      x,
+    );
+  }
+
+  late final _bid128_nearbyintPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_nearbyint');
+  late final _bid128_nearbyint =
+      _bid128_nearbyintPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_negate(
+    BID_UINT128 x,
+  ) {
+    return _bid128_negate(
+      x,
+    );
+  }
+
+  late final _bid128_negatePtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_negate');
+  late final _bid128_negate =
+      _bid128_negatePtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_nextafter(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_nextafter(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_nextafterPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_nextafter');
+  late final _bid128_nextafter = _bid128_nextafterPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_nextdown(
+    BID_UINT128 x,
+  ) {
+    return _bid128_nextdown(
+      x,
+    );
+  }
+
+  late final _bid128_nextdownPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_nextdown');
+  late final _bid128_nextdown =
+      _bid128_nextdownPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_nexttoward(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_nexttoward(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_nexttowardPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_nexttoward');
+  late final _bid128_nexttoward = _bid128_nexttowardPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_nextup(
+    BID_UINT128 x,
+  ) {
+    return _bid128_nextup(
+      x,
+    );
+  }
+
+  late final _bid128_nextupPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_nextup');
+  late final _bid128_nextup =
+      _bid128_nextupPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_pow(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_pow(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_powPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_pow');
+  late final _bid128_pow = _bid128_powPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_quantexp(
+    BID_UINT128 x,
+  ) {
+    return _bid128_quantexp(
+      x,
+    );
+  }
+
+  late final _bid128_quantexpPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_quantexp');
+  late final _bid128_quantexp =
+      _bid128_quantexpPtr.asFunction<int Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_quantize(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_quantize(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_quantizePtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_quantize');
+  late final _bid128_quantize = _bid128_quantizePtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_quantum(
+    BID_UINT128 x,
+  ) {
+    return _bid128_quantum(
+      x,
+    );
+  }
+
+  late final _bid128_quantumPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_quantum');
+  late final _bid128_quantum =
+      _bid128_quantumPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  int bid128_quiet_equal(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_quiet_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_quiet_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_quiet_equal');
+  late final _bid128_quiet_equal = _bid128_quiet_equalPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_quiet_greater(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_quiet_greater(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_quiet_greaterPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_quiet_greater');
+  late final _bid128_quiet_greater = _bid128_quiet_greaterPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_quiet_greater_equal(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_quiet_greater_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_quiet_greater_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_quiet_greater_equal');
+  late final _bid128_quiet_greater_equal = _bid128_quiet_greater_equalPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_quiet_greater_unordered(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_quiet_greater_unordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_quiet_greater_unorderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_quiet_greater_unordered');
+  late final _bid128_quiet_greater_unordered =
+      _bid128_quiet_greater_unorderedPtr
+          .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_quiet_less(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_quiet_less(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_quiet_lessPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_quiet_less');
+  late final _bid128_quiet_less = _bid128_quiet_lessPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_quiet_less_equal(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_quiet_less_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_quiet_less_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_quiet_less_equal');
+  late final _bid128_quiet_less_equal = _bid128_quiet_less_equalPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_quiet_less_unordered(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_quiet_less_unordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_quiet_less_unorderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_quiet_less_unordered');
+  late final _bid128_quiet_less_unordered = _bid128_quiet_less_unorderedPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_quiet_not_equal(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_quiet_not_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_quiet_not_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_quiet_not_equal');
+  late final _bid128_quiet_not_equal = _bid128_quiet_not_equalPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_quiet_not_greater(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_quiet_not_greater(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_quiet_not_greaterPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_quiet_not_greater');
+  late final _bid128_quiet_not_greater = _bid128_quiet_not_greaterPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_quiet_not_less(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_quiet_not_less(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_quiet_not_lessPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_quiet_not_less');
+  late final _bid128_quiet_not_less = _bid128_quiet_not_lessPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_quiet_ordered(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_quiet_ordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_quiet_orderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_quiet_ordered');
+  late final _bid128_quiet_ordered = _bid128_quiet_orderedPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_quiet_unordered(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_quiet_unordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_quiet_unorderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_quiet_unordered');
+  late final _bid128_quiet_unordered = _bid128_quiet_unorderedPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_radix(
+    BID_UINT128 x,
+  ) {
+    return _bid128_radix(
+      x,
+    );
+  }
+
+  late final _bid128_radixPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_radix');
+  late final _bid128_radix =
+      _bid128_radixPtr.asFunction<int Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_rem(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_rem(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_remPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_rem');
+  late final _bid128_rem = _bid128_remPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_round_integral_exact(
+    BID_UINT128 x,
+  ) {
+    return _bid128_round_integral_exact(
+      x,
+    );
+  }
+
+  late final _bid128_round_integral_exactPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_round_integral_exact');
+  late final _bid128_round_integral_exact = _bid128_round_integral_exactPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_round_integral_nearest_away(
+    BID_UINT128 x,
+  ) {
+    return _bid128_round_integral_nearest_away(
+      x,
+    );
+  }
+
+  late final _bid128_round_integral_nearest_awayPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_round_integral_nearest_away');
+  late final _bid128_round_integral_nearest_away =
+      _bid128_round_integral_nearest_awayPtr
+          .asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_round_integral_nearest_even(
+    BID_UINT128 x,
+  ) {
+    return _bid128_round_integral_nearest_even(
+      x,
+    );
+  }
+
+  late final _bid128_round_integral_nearest_evenPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_round_integral_nearest_even');
+  late final _bid128_round_integral_nearest_even =
+      _bid128_round_integral_nearest_evenPtr
+          .asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_round_integral_negative(
+    BID_UINT128 x,
+  ) {
+    return _bid128_round_integral_negative(
+      x,
+    );
+  }
+
+  late final _bid128_round_integral_negativePtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_round_integral_negative');
+  late final _bid128_round_integral_negative =
+      _bid128_round_integral_negativePtr
+          .asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_round_integral_positive(
+    BID_UINT128 x,
+  ) {
+    return _bid128_round_integral_positive(
+      x,
+    );
+  }
+
+  late final _bid128_round_integral_positivePtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_round_integral_positive');
+  late final _bid128_round_integral_positive =
+      _bid128_round_integral_positivePtr
+          .asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_round_integral_zero(
+    BID_UINT128 x,
+  ) {
+    return _bid128_round_integral_zero(
+      x,
+    );
+  }
+
+  late final _bid128_round_integral_zeroPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_round_integral_zero');
+  late final _bid128_round_integral_zero = _bid128_round_integral_zeroPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  int bid128_sameQuantum(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_sameQuantum(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_sameQuantumPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_sameQuantum');
+  late final _bid128_sameQuantum = _bid128_sameQuantumPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_scalbln(
+    BID_UINT128 x,
+    int n,
+  ) {
+    return _bid128_scalbln(
+      x,
+      n,
+    );
+  }
+
+  late final _bid128_scalblnPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, ffi.Long)>>(
+          'bid128_scalbln');
+  late final _bid128_scalbln =
+      _bid128_scalblnPtr.asFunction<BID_UINT128 Function(BID_UINT128, int)>();
+
+  BID_UINT128 bid128_scalbn(
+    BID_UINT128 x,
+    int n,
+  ) {
+    return _bid128_scalbn(
+      x,
+      n,
+    );
+  }
+
+  late final _bid128_scalbnPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, ffi.Int)>>(
+          'bid128_scalbn');
+  late final _bid128_scalbn =
+      _bid128_scalbnPtr.asFunction<BID_UINT128 Function(BID_UINT128, int)>();
+
+  int bid128_signaling_greater(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_signaling_greater(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_signaling_greaterPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_signaling_greater');
+  late final _bid128_signaling_greater = _bid128_signaling_greaterPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_signaling_greater_equal(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_signaling_greater_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_signaling_greater_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_signaling_greater_equal');
+  late final _bid128_signaling_greater_equal =
+      _bid128_signaling_greater_equalPtr
+          .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_signaling_greater_unordered(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_signaling_greater_unordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_signaling_greater_unorderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_signaling_greater_unordered');
+  late final _bid128_signaling_greater_unordered =
+      _bid128_signaling_greater_unorderedPtr
+          .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_signaling_less(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_signaling_less(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_signaling_lessPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_signaling_less');
+  late final _bid128_signaling_less = _bid128_signaling_lessPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_signaling_less_equal(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_signaling_less_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_signaling_less_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_signaling_less_equal');
+  late final _bid128_signaling_less_equal = _bid128_signaling_less_equalPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_signaling_less_unordered(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_signaling_less_unordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_signaling_less_unorderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_signaling_less_unordered');
+  late final _bid128_signaling_less_unordered =
+      _bid128_signaling_less_unorderedPtr
+          .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_signaling_not_greater(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_signaling_not_greater(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_signaling_not_greaterPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_signaling_not_greater');
+  late final _bid128_signaling_not_greater = _bid128_signaling_not_greaterPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_signaling_not_less(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_signaling_not_less(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_signaling_not_lessPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_signaling_not_less');
+  late final _bid128_signaling_not_less = _bid128_signaling_not_lessPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_sin(
+    BID_UINT128 x,
+  ) {
+    return _bid128_sin(
+      x,
+    );
+  }
+
+  late final _bid128_sinPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_sin');
+  late final _bid128_sin =
+      _bid128_sinPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_sinh(
+    BID_UINT128 x,
+  ) {
+    return _bid128_sinh(
+      x,
+    );
+  }
+
+  late final _bid128_sinhPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_sinh');
+  late final _bid128_sinh =
+      _bid128_sinhPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_sqrt(
+    BID_UINT128 x,
+  ) {
+    return _bid128_sqrt(
+      x,
+    );
+  }
+
+  late final _bid128_sqrtPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_sqrt');
+  late final _bid128_sqrt =
+      _bid128_sqrtPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_sub(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_sub(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_subPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>>(
+      'bid128_sub');
+  late final _bid128_sub = _bid128_subPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128_tan(
+    BID_UINT128 x,
+  ) {
+    return _bid128_tan(
+      x,
+    );
+  }
+
+  late final _bid128_tanPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_tan');
+  late final _bid128_tan =
+      _bid128_tanPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_tanh(
+    BID_UINT128 x,
+  ) {
+    return _bid128_tanh(
+      x,
+    );
+  }
+
+  late final _bid128_tanhPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_tanh');
+  late final _bid128_tanh =
+      _bid128_tanhPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_tgamma(
+    BID_UINT128 x,
+  ) {
+    return _bid128_tgamma(
+      x,
+    );
+  }
+
+  late final _bid128_tgammaPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_tgamma');
+  late final _bid128_tgamma =
+      _bid128_tgammaPtr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  int bid128_to_bid32(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_bid32(
+      x,
+    );
+  }
+
+  late final _bid128_to_bid32Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT128)>>(
+          'bid128_to_bid32');
+  late final _bid128_to_bid32 =
+      _bid128_to_bid32Ptr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_bid64(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_bid64(
+      x,
+    );
+  }
+
+  late final _bid128_to_bid64Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128)>>(
+          'bid128_to_bid64');
+  late final _bid128_to_bid64 =
+      _bid128_to_bid64Ptr.asFunction<int Function(BID_UINT128)>();
+
+  BID_UINT128 bid128_to_binary128(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_binary128(
+      x,
+    );
+  }
+
+  late final _bid128_to_binary128Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid128_to_binary128');
+  late final _bid128_to_binary128 =
+      _bid128_to_binary128Ptr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  double bid128_to_binary32(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_binary32(
+      x,
+    );
+  }
+
+  late final _bid128_to_binary32Ptr =
+      _lookup<ffi.NativeFunction<ffi.Float Function(BID_UINT128)>>(
+          'bid128_to_binary32');
+  late final _bid128_to_binary32 =
+      _bid128_to_binary32Ptr.asFunction<double Function(BID_UINT128)>();
+
+  double bid128_to_binary64(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_binary64(
+      x,
+    );
+  }
+
+  late final _bid128_to_binary64Ptr =
+      _lookup<ffi.NativeFunction<ffi.Double Function(BID_UINT128)>>(
+          'bid128_to_binary64');
+  late final _bid128_to_binary64 =
+      _bid128_to_binary64Ptr.asFunction<double Function(BID_UINT128)>();
+
+  int bid128_to_int16_ceil(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int16_ceil(
+      x,
+    );
+  }
+
+  late final _bid128_to_int16_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT128)>>(
+          'bid128_to_int16_ceil');
+  late final _bid128_to_int16_ceil =
+      _bid128_to_int16_ceilPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int16_floor(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int16_floor(
+      x,
+    );
+  }
+
+  late final _bid128_to_int16_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT128)>>(
+          'bid128_to_int16_floor');
+  late final _bid128_to_int16_floor =
+      _bid128_to_int16_floorPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int16_int(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int16_int(
+      x,
+    );
+  }
+
+  late final _bid128_to_int16_intPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT128)>>(
+          'bid128_to_int16_int');
+  late final _bid128_to_int16_int =
+      _bid128_to_int16_intPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int16_rnint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int16_rnint(
+      x,
+    );
+  }
+
+  late final _bid128_to_int16_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT128)>>(
+          'bid128_to_int16_rnint');
+  late final _bid128_to_int16_rnint =
+      _bid128_to_int16_rnintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int16_rninta(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int16_rninta(
+      x,
+    );
+  }
+
+  late final _bid128_to_int16_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT128)>>(
+          'bid128_to_int16_rninta');
+  late final _bid128_to_int16_rninta =
+      _bid128_to_int16_rnintaPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int16_xceil(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int16_xceil(
+      x,
+    );
+  }
+
+  late final _bid128_to_int16_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT128)>>(
+          'bid128_to_int16_xceil');
+  late final _bid128_to_int16_xceil =
+      _bid128_to_int16_xceilPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int16_xfloor(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int16_xfloor(
+      x,
+    );
+  }
+
+  late final _bid128_to_int16_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT128)>>(
+          'bid128_to_int16_xfloor');
+  late final _bid128_to_int16_xfloor =
+      _bid128_to_int16_xfloorPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int16_xint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int16_xint(
+      x,
+    );
+  }
+
+  late final _bid128_to_int16_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT128)>>(
+          'bid128_to_int16_xint');
+  late final _bid128_to_int16_xint =
+      _bid128_to_int16_xintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int16_xrnint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int16_xrnint(
+      x,
+    );
+  }
+
+  late final _bid128_to_int16_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT128)>>(
+          'bid128_to_int16_xrnint');
+  late final _bid128_to_int16_xrnint =
+      _bid128_to_int16_xrnintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int16_xrninta(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int16_xrninta(
+      x,
+    );
+  }
+
+  late final _bid128_to_int16_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT128)>>(
+          'bid128_to_int16_xrninta');
+  late final _bid128_to_int16_xrninta =
+      _bid128_to_int16_xrnintaPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int32_ceil(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int32_ceil(
+      x,
+    );
+  }
+
+  late final _bid128_to_int32_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_to_int32_ceil');
+  late final _bid128_to_int32_ceil =
+      _bid128_to_int32_ceilPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int32_floor(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int32_floor(
+      x,
+    );
+  }
+
+  late final _bid128_to_int32_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_to_int32_floor');
+  late final _bid128_to_int32_floor =
+      _bid128_to_int32_floorPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int32_int(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int32_int(
+      x,
+    );
+  }
+
+  late final _bid128_to_int32_intPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_to_int32_int');
+  late final _bid128_to_int32_int =
+      _bid128_to_int32_intPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int32_rnint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int32_rnint(
+      x,
+    );
+  }
+
+  late final _bid128_to_int32_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_to_int32_rnint');
+  late final _bid128_to_int32_rnint =
+      _bid128_to_int32_rnintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int32_rninta(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int32_rninta(
+      x,
+    );
+  }
+
+  late final _bid128_to_int32_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_to_int32_rninta');
+  late final _bid128_to_int32_rninta =
+      _bid128_to_int32_rnintaPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int32_xceil(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int32_xceil(
+      x,
+    );
+  }
+
+  late final _bid128_to_int32_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_to_int32_xceil');
+  late final _bid128_to_int32_xceil =
+      _bid128_to_int32_xceilPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int32_xfloor(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int32_xfloor(
+      x,
+    );
+  }
+
+  late final _bid128_to_int32_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_to_int32_xfloor');
+  late final _bid128_to_int32_xfloor =
+      _bid128_to_int32_xfloorPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int32_xint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int32_xint(
+      x,
+    );
+  }
+
+  late final _bid128_to_int32_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_to_int32_xint');
+  late final _bid128_to_int32_xint =
+      _bid128_to_int32_xintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int32_xrnint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int32_xrnint(
+      x,
+    );
+  }
+
+  late final _bid128_to_int32_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_to_int32_xrnint');
+  late final _bid128_to_int32_xrnint =
+      _bid128_to_int32_xrnintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int32_xrninta(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int32_xrninta(
+      x,
+    );
+  }
+
+  late final _bid128_to_int32_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128)>>(
+          'bid128_to_int32_xrninta');
+  late final _bid128_to_int32_xrninta =
+      _bid128_to_int32_xrnintaPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int64_ceil(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int64_ceil(
+      x,
+    );
+  }
+
+  late final _bid128_to_int64_ceilPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT128)>>(
+          'bid128_to_int64_ceil');
+  late final _bid128_to_int64_ceil =
+      _bid128_to_int64_ceilPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int64_floor(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int64_floor(
+      x,
+    );
+  }
+
+  late final _bid128_to_int64_floorPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT128)>>(
+          'bid128_to_int64_floor');
+  late final _bid128_to_int64_floor =
+      _bid128_to_int64_floorPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int64_int(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int64_int(
+      x,
+    );
+  }
+
+  late final _bid128_to_int64_intPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT128)>>(
+          'bid128_to_int64_int');
+  late final _bid128_to_int64_int =
+      _bid128_to_int64_intPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int64_rnint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int64_rnint(
+      x,
+    );
+  }
+
+  late final _bid128_to_int64_rnintPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT128)>>(
+          'bid128_to_int64_rnint');
+  late final _bid128_to_int64_rnint =
+      _bid128_to_int64_rnintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int64_rninta(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int64_rninta(
+      x,
+    );
+  }
+
+  late final _bid128_to_int64_rnintaPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT128)>>(
+          'bid128_to_int64_rninta');
+  late final _bid128_to_int64_rninta =
+      _bid128_to_int64_rnintaPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int64_xceil(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int64_xceil(
+      x,
+    );
+  }
+
+  late final _bid128_to_int64_xceilPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT128)>>(
+          'bid128_to_int64_xceil');
+  late final _bid128_to_int64_xceil =
+      _bid128_to_int64_xceilPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int64_xfloor(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int64_xfloor(
+      x,
+    );
+  }
+
+  late final _bid128_to_int64_xfloorPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT128)>>(
+          'bid128_to_int64_xfloor');
+  late final _bid128_to_int64_xfloor =
+      _bid128_to_int64_xfloorPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int64_xint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int64_xint(
+      x,
+    );
+  }
+
+  late final _bid128_to_int64_xintPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT128)>>(
+          'bid128_to_int64_xint');
+  late final _bid128_to_int64_xint =
+      _bid128_to_int64_xintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int64_xrnint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int64_xrnint(
+      x,
+    );
+  }
+
+  late final _bid128_to_int64_xrnintPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT128)>>(
+          'bid128_to_int64_xrnint');
+  late final _bid128_to_int64_xrnint =
+      _bid128_to_int64_xrnintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int64_xrninta(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int64_xrninta(
+      x,
+    );
+  }
+
+  late final _bid128_to_int64_xrnintaPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT128)>>(
+          'bid128_to_int64_xrninta');
+  late final _bid128_to_int64_xrninta =
+      _bid128_to_int64_xrnintaPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int8_ceil(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int8_ceil(
+      x,
+    );
+  }
+
+  late final _bid128_to_int8_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT128)>>(
+          'bid128_to_int8_ceil');
+  late final _bid128_to_int8_ceil =
+      _bid128_to_int8_ceilPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int8_floor(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int8_floor(
+      x,
+    );
+  }
+
+  late final _bid128_to_int8_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT128)>>(
+          'bid128_to_int8_floor');
+  late final _bid128_to_int8_floor =
+      _bid128_to_int8_floorPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int8_int(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int8_int(
+      x,
+    );
+  }
+
+  late final _bid128_to_int8_intPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT128)>>(
+          'bid128_to_int8_int');
+  late final _bid128_to_int8_int =
+      _bid128_to_int8_intPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int8_rnint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int8_rnint(
+      x,
+    );
+  }
+
+  late final _bid128_to_int8_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT128)>>(
+          'bid128_to_int8_rnint');
+  late final _bid128_to_int8_rnint =
+      _bid128_to_int8_rnintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int8_rninta(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int8_rninta(
+      x,
+    );
+  }
+
+  late final _bid128_to_int8_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT128)>>(
+          'bid128_to_int8_rninta');
+  late final _bid128_to_int8_rninta =
+      _bid128_to_int8_rnintaPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int8_xceil(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int8_xceil(
+      x,
+    );
+  }
+
+  late final _bid128_to_int8_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT128)>>(
+          'bid128_to_int8_xceil');
+  late final _bid128_to_int8_xceil =
+      _bid128_to_int8_xceilPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int8_xfloor(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int8_xfloor(
+      x,
+    );
+  }
+
+  late final _bid128_to_int8_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT128)>>(
+          'bid128_to_int8_xfloor');
+  late final _bid128_to_int8_xfloor =
+      _bid128_to_int8_xfloorPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int8_xint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int8_xint(
+      x,
+    );
+  }
+
+  late final _bid128_to_int8_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT128)>>(
+          'bid128_to_int8_xint');
+  late final _bid128_to_int8_xint =
+      _bid128_to_int8_xintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int8_xrnint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int8_xrnint(
+      x,
+    );
+  }
+
+  late final _bid128_to_int8_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT128)>>(
+          'bid128_to_int8_xrnint');
+  late final _bid128_to_int8_xrnint =
+      _bid128_to_int8_xrnintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_int8_xrninta(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_int8_xrninta(
+      x,
+    );
+  }
+
+  late final _bid128_to_int8_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT128)>>(
+          'bid128_to_int8_xrninta');
+  late final _bid128_to_int8_xrninta =
+      _bid128_to_int8_xrnintaPtr.asFunction<int Function(BID_UINT128)>();
+
+  void bid128_to_string(
+    ffi.Pointer<ffi.Char> str,
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_string(
+      str,
+      x,
+    );
+  }
+
+  late final _bid128_to_stringPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<ffi.Char>, BID_UINT128)>>('bid128_to_string');
+  late final _bid128_to_string = _bid128_to_stringPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>, BID_UINT128)>();
+
+  int bid128_to_uint16_ceil(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint16_ceil(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint16_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT128)>>(
+          'bid128_to_uint16_ceil');
+  late final _bid128_to_uint16_ceil =
+      _bid128_to_uint16_ceilPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint16_floor(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint16_floor(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint16_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT128)>>(
+          'bid128_to_uint16_floor');
+  late final _bid128_to_uint16_floor =
+      _bid128_to_uint16_floorPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint16_int(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint16_int(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint16_intPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT128)>>(
+          'bid128_to_uint16_int');
+  late final _bid128_to_uint16_int =
+      _bid128_to_uint16_intPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint16_rnint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint16_rnint(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint16_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT128)>>(
+          'bid128_to_uint16_rnint');
+  late final _bid128_to_uint16_rnint =
+      _bid128_to_uint16_rnintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint16_rninta(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint16_rninta(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint16_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT128)>>(
+          'bid128_to_uint16_rninta');
+  late final _bid128_to_uint16_rninta =
+      _bid128_to_uint16_rnintaPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint16_xceil(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint16_xceil(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint16_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT128)>>(
+          'bid128_to_uint16_xceil');
+  late final _bid128_to_uint16_xceil =
+      _bid128_to_uint16_xceilPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint16_xfloor(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint16_xfloor(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint16_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT128)>>(
+          'bid128_to_uint16_xfloor');
+  late final _bid128_to_uint16_xfloor =
+      _bid128_to_uint16_xfloorPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint16_xint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint16_xint(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint16_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT128)>>(
+          'bid128_to_uint16_xint');
+  late final _bid128_to_uint16_xint =
+      _bid128_to_uint16_xintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint16_xrnint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint16_xrnint(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint16_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT128)>>(
+          'bid128_to_uint16_xrnint');
+  late final _bid128_to_uint16_xrnint =
+      _bid128_to_uint16_xrnintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint16_xrninta(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint16_xrninta(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint16_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT128)>>(
+          'bid128_to_uint16_xrninta');
+  late final _bid128_to_uint16_xrninta =
+      _bid128_to_uint16_xrnintaPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint32_ceil(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint32_ceil(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint32_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT128)>>(
+          'bid128_to_uint32_ceil');
+  late final _bid128_to_uint32_ceil =
+      _bid128_to_uint32_ceilPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint32_floor(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint32_floor(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint32_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT128)>>(
+          'bid128_to_uint32_floor');
+  late final _bid128_to_uint32_floor =
+      _bid128_to_uint32_floorPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint32_int(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint32_int(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint32_intPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT128)>>(
+          'bid128_to_uint32_int');
+  late final _bid128_to_uint32_int =
+      _bid128_to_uint32_intPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint32_rnint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint32_rnint(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint32_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT128)>>(
+          'bid128_to_uint32_rnint');
+  late final _bid128_to_uint32_rnint =
+      _bid128_to_uint32_rnintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint32_rninta(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint32_rninta(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint32_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT128)>>(
+          'bid128_to_uint32_rninta');
+  late final _bid128_to_uint32_rninta =
+      _bid128_to_uint32_rnintaPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint32_xceil(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint32_xceil(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint32_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT128)>>(
+          'bid128_to_uint32_xceil');
+  late final _bid128_to_uint32_xceil =
+      _bid128_to_uint32_xceilPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint32_xfloor(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint32_xfloor(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint32_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT128)>>(
+          'bid128_to_uint32_xfloor');
+  late final _bid128_to_uint32_xfloor =
+      _bid128_to_uint32_xfloorPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint32_xint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint32_xint(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint32_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT128)>>(
+          'bid128_to_uint32_xint');
+  late final _bid128_to_uint32_xint =
+      _bid128_to_uint32_xintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint32_xrnint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint32_xrnint(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint32_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT128)>>(
+          'bid128_to_uint32_xrnint');
+  late final _bid128_to_uint32_xrnint =
+      _bid128_to_uint32_xrnintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint32_xrninta(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint32_xrninta(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint32_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT128)>>(
+          'bid128_to_uint32_xrninta');
+  late final _bid128_to_uint32_xrninta =
+      _bid128_to_uint32_xrnintaPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint64_ceil(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint64_ceil(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint64_ceilPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128)>>(
+          'bid128_to_uint64_ceil');
+  late final _bid128_to_uint64_ceil =
+      _bid128_to_uint64_ceilPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint64_floor(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint64_floor(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint64_floorPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128)>>(
+          'bid128_to_uint64_floor');
+  late final _bid128_to_uint64_floor =
+      _bid128_to_uint64_floorPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint64_int(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint64_int(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint64_intPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128)>>(
+          'bid128_to_uint64_int');
+  late final _bid128_to_uint64_int =
+      _bid128_to_uint64_intPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint64_rnint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint64_rnint(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint64_rnintPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128)>>(
+          'bid128_to_uint64_rnint');
+  late final _bid128_to_uint64_rnint =
+      _bid128_to_uint64_rnintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint64_rninta(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint64_rninta(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint64_rnintaPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128)>>(
+          'bid128_to_uint64_rninta');
+  late final _bid128_to_uint64_rninta =
+      _bid128_to_uint64_rnintaPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint64_xceil(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint64_xceil(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint64_xceilPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128)>>(
+          'bid128_to_uint64_xceil');
+  late final _bid128_to_uint64_xceil =
+      _bid128_to_uint64_xceilPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint64_xfloor(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint64_xfloor(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint64_xfloorPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128)>>(
+          'bid128_to_uint64_xfloor');
+  late final _bid128_to_uint64_xfloor =
+      _bid128_to_uint64_xfloorPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint64_xint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint64_xint(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint64_xintPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128)>>(
+          'bid128_to_uint64_xint');
+  late final _bid128_to_uint64_xint =
+      _bid128_to_uint64_xintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint64_xrnint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint64_xrnint(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint64_xrnintPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128)>>(
+          'bid128_to_uint64_xrnint');
+  late final _bid128_to_uint64_xrnint =
+      _bid128_to_uint64_xrnintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint64_xrninta(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint64_xrninta(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint64_xrnintaPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128)>>(
+          'bid128_to_uint64_xrninta');
+  late final _bid128_to_uint64_xrninta =
+      _bid128_to_uint64_xrnintaPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint8_ceil(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint8_ceil(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint8_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT128)>>(
+          'bid128_to_uint8_ceil');
+  late final _bid128_to_uint8_ceil =
+      _bid128_to_uint8_ceilPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint8_floor(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint8_floor(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint8_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT128)>>(
+          'bid128_to_uint8_floor');
+  late final _bid128_to_uint8_floor =
+      _bid128_to_uint8_floorPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint8_int(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint8_int(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint8_intPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT128)>>(
+          'bid128_to_uint8_int');
+  late final _bid128_to_uint8_int =
+      _bid128_to_uint8_intPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint8_rnint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint8_rnint(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint8_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT128)>>(
+          'bid128_to_uint8_rnint');
+  late final _bid128_to_uint8_rnint =
+      _bid128_to_uint8_rnintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint8_rninta(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint8_rninta(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint8_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT128)>>(
+          'bid128_to_uint8_rninta');
+  late final _bid128_to_uint8_rninta =
+      _bid128_to_uint8_rnintaPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint8_xceil(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint8_xceil(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint8_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT128)>>(
+          'bid128_to_uint8_xceil');
+  late final _bid128_to_uint8_xceil =
+      _bid128_to_uint8_xceilPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint8_xfloor(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint8_xfloor(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint8_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT128)>>(
+          'bid128_to_uint8_xfloor');
+  late final _bid128_to_uint8_xfloor =
+      _bid128_to_uint8_xfloorPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint8_xint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint8_xint(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint8_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT128)>>(
+          'bid128_to_uint8_xint');
+  late final _bid128_to_uint8_xint =
+      _bid128_to_uint8_xintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint8_xrnint(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint8_xrnint(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint8_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT128)>>(
+          'bid128_to_uint8_xrnint');
+  late final _bid128_to_uint8_xrnint =
+      _bid128_to_uint8_xrnintPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_to_uint8_xrninta(
+    BID_UINT128 x,
+  ) {
+    return _bid128_to_uint8_xrninta(
+      x,
+    );
+  }
+
+  late final _bid128_to_uint8_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT128)>>(
+          'bid128_to_uint8_xrninta');
+  late final _bid128_to_uint8_xrninta =
+      _bid128_to_uint8_xrnintaPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid128_totalOrder(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_totalOrder(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_totalOrderPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_totalOrder');
+  late final _bid128_totalOrder = _bid128_totalOrderPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid128_totalOrderMag(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid128_totalOrderMag(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128_totalOrderMagPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT128, BID_UINT128)>>(
+          'bid128_totalOrderMag');
+  late final _bid128_totalOrderMag = _bid128_totalOrderMagPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128d_sqrt(
+    int x,
+  ) {
+    return _bid128d_sqrt(
+      x,
+    );
+  }
+
+  late final _bid128d_sqrtPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT64)>>(
+          'bid128d_sqrt');
+  late final _bid128d_sqrt =
+      _bid128d_sqrtPtr.asFunction<BID_UINT128 Function(int)>();
+
+  BID_UINT128 bid128dd_add(
+    int x,
+    int y,
+  ) {
+    return _bid128dd_add(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128dd_addPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT64, BID_UINT64)>>(
+          'bid128dd_add');
+  late final _bid128dd_add =
+      _bid128dd_addPtr.asFunction<BID_UINT128 Function(int, int)>();
+
+  BID_UINT128 bid128dd_div(
+    int x,
+    int y,
+  ) {
+    return _bid128dd_div(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128dd_divPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT64, BID_UINT64)>>(
+          'bid128dd_div');
+  late final _bid128dd_div =
+      _bid128dd_divPtr.asFunction<BID_UINT128 Function(int, int)>();
+
+  BID_UINT128 bid128dd_mul(
+    int x,
+    int y,
+  ) {
+    return _bid128dd_mul(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128dd_mulPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT64, BID_UINT64)>>(
+          'bid128dd_mul');
+  late final _bid128dd_mul =
+      _bid128dd_mulPtr.asFunction<BID_UINT128 Function(int, int)>();
+
+  BID_UINT128 bid128dd_sub(
+    int x,
+    int y,
+  ) {
+    return _bid128dd_sub(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128dd_subPtr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT64, BID_UINT64)>>(
+          'bid128dd_sub');
+  late final _bid128dd_sub =
+      _bid128dd_subPtr.asFunction<BID_UINT128 Function(int, int)>();
+
+  BID_UINT128 bid128ddd_fma(
+    int x,
+    int y,
+    int z,
+  ) {
+    return _bid128ddd_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid128ddd_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT128 Function(
+              BID_UINT64, BID_UINT64, BID_UINT64)>>('bid128ddd_fma');
+  late final _bid128ddd_fma =
+      _bid128ddd_fmaPtr.asFunction<BID_UINT128 Function(int, int, int)>();
+
+  BID_UINT128 bid128ddq_fma(
+    int x,
+    int y,
+    BID_UINT128 z,
+  ) {
+    return _bid128ddq_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid128ddq_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT128 Function(
+              BID_UINT64, BID_UINT64, BID_UINT128)>>('bid128ddq_fma');
+  late final _bid128ddq_fma = _bid128ddq_fmaPtr
+      .asFunction<BID_UINT128 Function(int, int, BID_UINT128)>();
+
+  BID_UINT128 bid128dq_add(
+    int x,
+    BID_UINT128 y,
+  ) {
+    return _bid128dq_add(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128dq_addPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT64, BID_UINT128)>>(
+      'bid128dq_add');
+  late final _bid128dq_add =
+      _bid128dq_addPtr.asFunction<BID_UINT128 Function(int, BID_UINT128)>();
+
+  BID_UINT128 bid128dq_div(
+    int x,
+    BID_UINT128 y,
+  ) {
+    return _bid128dq_div(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128dq_divPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT64, BID_UINT128)>>(
+      'bid128dq_div');
+  late final _bid128dq_div =
+      _bid128dq_divPtr.asFunction<BID_UINT128 Function(int, BID_UINT128)>();
+
+  BID_UINT128 bid128dq_mul(
+    int x,
+    BID_UINT128 y,
+  ) {
+    return _bid128dq_mul(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128dq_mulPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT64, BID_UINT128)>>(
+      'bid128dq_mul');
+  late final _bid128dq_mul =
+      _bid128dq_mulPtr.asFunction<BID_UINT128 Function(int, BID_UINT128)>();
+
+  BID_UINT128 bid128dq_sub(
+    int x,
+    BID_UINT128 y,
+  ) {
+    return _bid128dq_sub(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128dq_subPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT64, BID_UINT128)>>(
+      'bid128dq_sub');
+  late final _bid128dq_sub =
+      _bid128dq_subPtr.asFunction<BID_UINT128 Function(int, BID_UINT128)>();
+
+  BID_UINT128 bid128dqd_fma(
+    int x,
+    BID_UINT128 y,
+    int z,
+  ) {
+    return _bid128dqd_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid128dqd_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT128 Function(
+              BID_UINT64, BID_UINT128, BID_UINT64)>>('bid128dqd_fma');
+  late final _bid128dqd_fma = _bid128dqd_fmaPtr
+      .asFunction<BID_UINT128 Function(int, BID_UINT128, int)>();
+
+  BID_UINT128 bid128dqq_fma(
+    int x,
+    BID_UINT128 y,
+    BID_UINT128 z,
+  ) {
+    return _bid128dqq_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid128dqq_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT128 Function(
+              BID_UINT64, BID_UINT128, BID_UINT128)>>('bid128dqq_fma');
+  late final _bid128dqq_fma = _bid128dqq_fmaPtr
+      .asFunction<BID_UINT128 Function(int, BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid128qd_add(
+    BID_UINT128 x,
+    int y,
+  ) {
+    return _bid128qd_add(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128qd_addPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT64)>>(
+      'bid128qd_add');
+  late final _bid128qd_add =
+      _bid128qd_addPtr.asFunction<BID_UINT128 Function(BID_UINT128, int)>();
+
+  BID_UINT128 bid128qd_div(
+    BID_UINT128 x,
+    int y,
+  ) {
+    return _bid128qd_div(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128qd_divPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT64)>>(
+      'bid128qd_div');
+  late final _bid128qd_div =
+      _bid128qd_divPtr.asFunction<BID_UINT128 Function(BID_UINT128, int)>();
+
+  BID_UINT128 bid128qd_mul(
+    BID_UINT128 x,
+    int y,
+  ) {
+    return _bid128qd_mul(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128qd_mulPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT64)>>(
+      'bid128qd_mul');
+  late final _bid128qd_mul =
+      _bid128qd_mulPtr.asFunction<BID_UINT128 Function(BID_UINT128, int)>();
+
+  BID_UINT128 bid128qd_sub(
+    BID_UINT128 x,
+    int y,
+  ) {
+    return _bid128qd_sub(
+      x,
+      y,
+    );
+  }
+
+  late final _bid128qd_subPtr = _lookup<
+          ffi.NativeFunction<BID_UINT128 Function(BID_UINT128, BID_UINT64)>>(
+      'bid128qd_sub');
+  late final _bid128qd_sub =
+      _bid128qd_subPtr.asFunction<BID_UINT128 Function(BID_UINT128, int)>();
+
+  BID_UINT128 bid128qdd_fma(
+    BID_UINT128 x,
+    int y,
+    int z,
+  ) {
+    return _bid128qdd_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid128qdd_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT128 Function(
+              BID_UINT128, BID_UINT64, BID_UINT64)>>('bid128qdd_fma');
+  late final _bid128qdd_fma = _bid128qdd_fmaPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, int, int)>();
+
+  BID_UINT128 bid128qdq_fma(
+    BID_UINT128 x,
+    int y,
+    BID_UINT128 z,
+  ) {
+    return _bid128qdq_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid128qdq_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT128 Function(
+              BID_UINT128, BID_UINT64, BID_UINT128)>>('bid128qdq_fma');
+  late final _bid128qdq_fma = _bid128qdq_fmaPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, int, BID_UINT128)>();
+
+  BID_UINT128 bid128qqd_fma(
+    BID_UINT128 x,
+    BID_UINT128 y,
+    int z,
+  ) {
+    return _bid128qqd_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid128qqd_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT128 Function(
+              BID_UINT128, BID_UINT128, BID_UINT64)>>('bid128qqd_fma');
+  late final _bid128qqd_fma = _bid128qqd_fmaPtr
+      .asFunction<BID_UINT128 Function(BID_UINT128, BID_UINT128, int)>();
+
+  int bid32_abs(
+    int x,
+  ) {
+    return _bid32_abs(
+      x,
+    );
+  }
+
+  late final _bid32_absPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>('bid32_abs');
+  late final _bid32_abs = _bid32_absPtr.asFunction<int Function(int)>();
+
+  int bid32_acos(
+    int x,
+  ) {
+    return _bid32_acos(
+      x,
+    );
+  }
+
+  late final _bid32_acosPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_acos');
+  late final _bid32_acos = _bid32_acosPtr.asFunction<int Function(int)>();
+
+  int bid32_acosh(
+    int x,
+  ) {
+    return _bid32_acosh(
+      x,
+    );
+  }
+
+  late final _bid32_acoshPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_acosh');
+  late final _bid32_acosh = _bid32_acoshPtr.asFunction<int Function(int)>();
+
+  int bid32_add(
+    int x,
+    int y,
+  ) {
+    return _bid32_add(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_addPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_add');
+  late final _bid32_add = _bid32_addPtr.asFunction<int Function(int, int)>();
+
+  int bid32_asin(
+    int x,
+  ) {
+    return _bid32_asin(
+      x,
+    );
+  }
+
+  late final _bid32_asinPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_asin');
+  late final _bid32_asin = _bid32_asinPtr.asFunction<int Function(int)>();
+
+  int bid32_asinh(
+    int x,
+  ) {
+    return _bid32_asinh(
+      x,
+    );
+  }
+
+  late final _bid32_asinhPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_asinh');
+  late final _bid32_asinh = _bid32_asinhPtr.asFunction<int Function(int)>();
+
+  int bid32_atan(
+    int x,
+  ) {
+    return _bid32_atan(
+      x,
+    );
+  }
+
+  late final _bid32_atanPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_atan');
+  late final _bid32_atan = _bid32_atanPtr.asFunction<int Function(int)>();
+
+  int bid32_atan2(
+    int x,
+    int y,
+  ) {
+    return _bid32_atan2(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_atan2Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_atan2');
+  late final _bid32_atan2 =
+      _bid32_atan2Ptr.asFunction<int Function(int, int)>();
+
+  int bid32_atanh(
+    int x,
+  ) {
+    return _bid32_atanh(
+      x,
+    );
+  }
+
+  late final _bid32_atanhPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_atanh');
+  late final _bid32_atanh = _bid32_atanhPtr.asFunction<int Function(int)>();
+
+  int bid32_cbrt(
+    int x,
+  ) {
+    return _bid32_cbrt(
+      x,
+    );
+  }
+
+  late final _bid32_cbrtPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_cbrt');
+  late final _bid32_cbrt = _bid32_cbrtPtr.asFunction<int Function(int)>();
+
+  int bid32_class(
+    int x,
+  ) {
+    return _bid32_class(
+      x,
+    );
+  }
+
+  late final _bid32_classPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>('bid32_class');
+  late final _bid32_class = _bid32_classPtr.asFunction<int Function(int)>();
+
+  int bid32_copy(
+    int x,
+  ) {
+    return _bid32_copy(
+      x,
+    );
+  }
+
+  late final _bid32_copyPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_copy');
+  late final _bid32_copy = _bid32_copyPtr.asFunction<int Function(int)>();
+
+  int bid32_copySign(
+    int x,
+    int y,
+  ) {
+    return _bid32_copySign(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_copySignPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_copySign');
+  late final _bid32_copySign =
+      _bid32_copySignPtr.asFunction<int Function(int, int)>();
+
+  int bid32_cos(
+    int x,
+  ) {
+    return _bid32_cos(
+      x,
+    );
+  }
+
+  late final _bid32_cosPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>('bid32_cos');
+  late final _bid32_cos = _bid32_cosPtr.asFunction<int Function(int)>();
+
+  int bid32_cosh(
+    int x,
+  ) {
+    return _bid32_cosh(
+      x,
+    );
+  }
+
+  late final _bid32_coshPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_cosh');
+  late final _bid32_cosh = _bid32_coshPtr.asFunction<int Function(int)>();
+
+  int bid32_div(
+    int x,
+    int y,
+  ) {
+    return _bid32_div(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_divPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_div');
+  late final _bid32_div = _bid32_divPtr.asFunction<int Function(int, int)>();
+
+  int bid32_erf(
+    int x,
+  ) {
+    return _bid32_erf(
+      x,
+    );
+  }
+
+  late final _bid32_erfPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>('bid32_erf');
+  late final _bid32_erf = _bid32_erfPtr.asFunction<int Function(int)>();
+
+  int bid32_erfc(
+    int x,
+  ) {
+    return _bid32_erfc(
+      x,
+    );
+  }
+
+  late final _bid32_erfcPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_erfc');
+  late final _bid32_erfc = _bid32_erfcPtr.asFunction<int Function(int)>();
+
+  int bid32_exp(
+    int x,
+  ) {
+    return _bid32_exp(
+      x,
+    );
+  }
+
+  late final _bid32_expPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>('bid32_exp');
+  late final _bid32_exp = _bid32_expPtr.asFunction<int Function(int)>();
+
+  int bid32_exp10(
+    int x,
+  ) {
+    return _bid32_exp10(
+      x,
+    );
+  }
+
+  late final _bid32_exp10Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_exp10');
+  late final _bid32_exp10 = _bid32_exp10Ptr.asFunction<int Function(int)>();
+
+  int bid32_exp2(
+    int x,
+  ) {
+    return _bid32_exp2(
+      x,
+    );
+  }
+
+  late final _bid32_exp2Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_exp2');
+  late final _bid32_exp2 = _bid32_exp2Ptr.asFunction<int Function(int)>();
+
+  int bid32_expm1(
+    int x,
+  ) {
+    return _bid32_expm1(
+      x,
+    );
+  }
+
+  late final _bid32_expm1Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_expm1');
+  late final _bid32_expm1 = _bid32_expm1Ptr.asFunction<int Function(int)>();
+
+  int bid32_fdim(
+    int x,
+    int y,
+  ) {
+    return _bid32_fdim(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_fdimPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_fdim');
+  late final _bid32_fdim = _bid32_fdimPtr.asFunction<int Function(int, int)>();
+
+  int bid32_fma(
+    int x,
+    int y,
+    int z,
+  ) {
+    return _bid32_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid32_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT32 Function(
+              BID_UINT32, BID_UINT32, BID_UINT32)>>('bid32_fma');
+  late final _bid32_fma =
+      _bid32_fmaPtr.asFunction<int Function(int, int, int)>();
+
+  int bid32_fmod(
+    int x,
+    int y,
+  ) {
+    return _bid32_fmod(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_fmodPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_fmod');
+  late final _bid32_fmod = _bid32_fmodPtr.asFunction<int Function(int, int)>();
+
+  int bid32_frexp(
+    int x,
+    ffi.Pointer<ffi.Int> exp,
+  ) {
+    return _bid32_frexp(
+      x,
+      exp,
+    );
+  }
+
+  late final _bid32_frexpPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT32 Function(
+              BID_UINT32, ffi.Pointer<ffi.Int>)>>('bid32_frexp');
+  late final _bid32_frexp =
+      _bid32_frexpPtr.asFunction<int Function(int, ffi.Pointer<ffi.Int>)>();
+
+  int bid32_from_int32(
+    int x,
+  ) {
+    return _bid32_from_int32(
+      x,
+    );
+  }
+
+  late final _bid32_from_int32Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(ffi.Int)>>(
+          'bid32_from_int32');
+  late final _bid32_from_int32 =
+      _bid32_from_int32Ptr.asFunction<int Function(int)>();
+
+  int bid32_from_int64(
+    int x,
+  ) {
+    return _bid32_from_int64(
+      x,
+    );
+  }
+
+  late final _bid32_from_int64Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_SINT64)>>(
+          'bid32_from_int64');
+  late final _bid32_from_int64 =
+      _bid32_from_int64Ptr.asFunction<int Function(int)>();
+
+  int bid32_from_string(
+    ffi.Pointer<ffi.Char> ps,
+  ) {
+    return _bid32_from_string(
+      ps,
+    );
+  }
+
+  late final _bid32_from_stringPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(ffi.Pointer<ffi.Char>)>>(
+          'bid32_from_string');
+  late final _bid32_from_string =
+      _bid32_from_stringPtr.asFunction<int Function(ffi.Pointer<ffi.Char>)>();
+
+  int bid32_from_uint32(
+    int x,
+  ) {
+    return _bid32_from_uint32(
+      x,
+    );
+  }
+
+  late final _bid32_from_uint32Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(ffi.UnsignedInt)>>(
+          'bid32_from_uint32');
+  late final _bid32_from_uint32 =
+      _bid32_from_uint32Ptr.asFunction<int Function(int)>();
+
+  int bid32_from_uint64(
+    int _RND_MODE_PARAM,
+  ) {
+    return _bid32_from_uint64(
+      _RND_MODE_PARAM,
+    );
+  }
+
+  late final _bid32_from_uint64Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT64)>>(
+          'bid32_from_uint64');
+  late final _bid32_from_uint64 =
+      _bid32_from_uint64Ptr.asFunction<int Function(int)>();
+
+  int bid32_hypot(
+    int x,
+    int y,
+  ) {
+    return _bid32_hypot(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_hypotPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_hypot');
+  late final _bid32_hypot =
+      _bid32_hypotPtr.asFunction<int Function(int, int)>();
+
+  int bid32_ilogb(
+    int x,
+  ) {
+    return _bid32_ilogb(
+      x,
+    );
+  }
+
+  late final _bid32_ilogbPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>('bid32_ilogb');
+  late final _bid32_ilogb = _bid32_ilogbPtr.asFunction<int Function(int)>();
+
+  int bid32_inf() {
+    return _bid32_inf();
+  }
+
+  late final _bid32_infPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function()>>('bid32_inf');
+  late final _bid32_inf = _bid32_infPtr.asFunction<int Function()>();
+
+  int bid32_isCanonical(
+    int x,
+  ) {
+    return _bid32_isCanonical(
+      x,
+    );
+  }
+
+  late final _bid32_isCanonicalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_isCanonical');
+  late final _bid32_isCanonical =
+      _bid32_isCanonicalPtr.asFunction<int Function(int)>();
+
+  int bid32_isFinite(
+    int x,
+  ) {
+    return _bid32_isFinite(
+      x,
+    );
+  }
+
+  late final _bid32_isFinitePtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_isFinite');
+  late final _bid32_isFinite =
+      _bid32_isFinitePtr.asFunction<int Function(int)>();
+
+  int bid32_isInf(
+    int x,
+  ) {
+    return _bid32_isInf(
+      x,
+    );
+  }
+
+  late final _bid32_isInfPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>('bid32_isInf');
+  late final _bid32_isInf = _bid32_isInfPtr.asFunction<int Function(int)>();
+
+  int bid32_isNaN(
+    int x,
+  ) {
+    return _bid32_isNaN(
+      x,
+    );
+  }
+
+  late final _bid32_isNaNPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>('bid32_isNaN');
+  late final _bid32_isNaN = _bid32_isNaNPtr.asFunction<int Function(int)>();
+
+  int bid32_isNormal(
+    int x,
+  ) {
+    return _bid32_isNormal(
+      x,
+    );
+  }
+
+  late final _bid32_isNormalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_isNormal');
+  late final _bid32_isNormal =
+      _bid32_isNormalPtr.asFunction<int Function(int)>();
+
+  int bid32_isSignaling(
+    int x,
+  ) {
+    return _bid32_isSignaling(
+      x,
+    );
+  }
+
+  late final _bid32_isSignalingPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_isSignaling');
+  late final _bid32_isSignaling =
+      _bid32_isSignalingPtr.asFunction<int Function(int)>();
+
+  int bid32_isSigned(
+    int x,
+  ) {
+    return _bid32_isSigned(
+      x,
+    );
+  }
+
+  late final _bid32_isSignedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_isSigned');
+  late final _bid32_isSigned =
+      _bid32_isSignedPtr.asFunction<int Function(int)>();
+
+  int bid32_isSubnormal(
+    int x,
+  ) {
+    return _bid32_isSubnormal(
+      x,
+    );
+  }
+
+  late final _bid32_isSubnormalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_isSubnormal');
+  late final _bid32_isSubnormal =
+      _bid32_isSubnormalPtr.asFunction<int Function(int)>();
+
+  int bid32_isZero(
+    int x,
+  ) {
+    return _bid32_isZero(
+      x,
+    );
+  }
+
+  late final _bid32_isZeroPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>('bid32_isZero');
+  late final _bid32_isZero = _bid32_isZeroPtr.asFunction<int Function(int)>();
+
+  int bid32_ldexp(
+    int x,
+    int n,
+  ) {
+    return _bid32_ldexp(
+      x,
+      n,
+    );
+  }
+
+  late final _bid32_ldexpPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, ffi.Int)>>(
+          'bid32_ldexp');
+  late final _bid32_ldexp =
+      _bid32_ldexpPtr.asFunction<int Function(int, int)>();
+
+  int bid32_lgamma(
+    int x,
+  ) {
+    return _bid32_lgamma(
+      x,
+    );
+  }
+
+  late final _bid32_lgammaPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_lgamma');
+  late final _bid32_lgamma = _bid32_lgammaPtr.asFunction<int Function(int)>();
+
+  int bid32_llquantexp(
+    int x,
+  ) {
+    return _bid32_llquantexp(
+      x,
+    );
+  }
+
+  late final _bid32_llquantexpPtr =
+      _lookup<ffi.NativeFunction<ffi.LongLong Function(BID_UINT32)>>(
+          'bid32_llquantexp');
+  late final _bid32_llquantexp =
+      _bid32_llquantexpPtr.asFunction<int Function(int)>();
+
+  int bid32_llrint(
+    int x,
+  ) {
+    return _bid32_llrint(
+      x,
+    );
+  }
+
+  late final _bid32_llrintPtr =
+      _lookup<ffi.NativeFunction<ffi.LongLong Function(BID_UINT32)>>(
+          'bid32_llrint');
+  late final _bid32_llrint = _bid32_llrintPtr.asFunction<int Function(int)>();
+
+  int bid32_llround(
+    int x,
+  ) {
+    return _bid32_llround(
+      x,
+    );
+  }
+
+  late final _bid32_llroundPtr =
+      _lookup<ffi.NativeFunction<ffi.LongLong Function(BID_UINT32)>>(
+          'bid32_llround');
+  late final _bid32_llround = _bid32_llroundPtr.asFunction<int Function(int)>();
+
+  int bid32_log(
+    int x,
+  ) {
+    return _bid32_log(
+      x,
+    );
+  }
+
+  late final _bid32_logPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>('bid32_log');
+  late final _bid32_log = _bid32_logPtr.asFunction<int Function(int)>();
+
+  int bid32_log10(
+    int x,
+  ) {
+    return _bid32_log10(
+      x,
+    );
+  }
+
+  late final _bid32_log10Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_log10');
+  late final _bid32_log10 = _bid32_log10Ptr.asFunction<int Function(int)>();
+
+  int bid32_log1p(
+    int x,
+  ) {
+    return _bid32_log1p(
+      x,
+    );
+  }
+
+  late final _bid32_log1pPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_log1p');
+  late final _bid32_log1p = _bid32_log1pPtr.asFunction<int Function(int)>();
+
+  int bid32_log2(
+    int x,
+  ) {
+    return _bid32_log2(
+      x,
+    );
+  }
+
+  late final _bid32_log2Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_log2');
+  late final _bid32_log2 = _bid32_log2Ptr.asFunction<int Function(int)>();
+
+  int bid32_logb(
+    int x,
+  ) {
+    return _bid32_logb(
+      x,
+    );
+  }
+
+  late final _bid32_logbPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_logb');
+  late final _bid32_logb = _bid32_logbPtr.asFunction<int Function(int)>();
+
+  int bid32_lrint(
+    int x,
+  ) {
+    return _bid32_lrint(
+      x,
+    );
+  }
+
+  late final _bid32_lrintPtr =
+      _lookup<ffi.NativeFunction<ffi.Long Function(BID_UINT32)>>('bid32_lrint');
+  late final _bid32_lrint = _bid32_lrintPtr.asFunction<int Function(int)>();
+
+  int bid32_lround(
+    int x,
+  ) {
+    return _bid32_lround(
+      x,
+    );
+  }
+
+  late final _bid32_lroundPtr =
+      _lookup<ffi.NativeFunction<ffi.Long Function(BID_UINT32)>>(
+          'bid32_lround');
+  late final _bid32_lround = _bid32_lroundPtr.asFunction<int Function(int)>();
+
+  int bid32_maxnum(
+    int x,
+    int y,
+  ) {
+    return _bid32_maxnum(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_maxnumPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_maxnum');
+  late final _bid32_maxnum =
+      _bid32_maxnumPtr.asFunction<int Function(int, int)>();
+
+  int bid32_maxnum_mag(
+    int x,
+    int y,
+  ) {
+    return _bid32_maxnum_mag(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_maxnum_magPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_maxnum_mag');
+  late final _bid32_maxnum_mag =
+      _bid32_maxnum_magPtr.asFunction<int Function(int, int)>();
+
+  int bid32_minnum(
+    int x,
+    int y,
+  ) {
+    return _bid32_minnum(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_minnumPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_minnum');
+  late final _bid32_minnum =
+      _bid32_minnumPtr.asFunction<int Function(int, int)>();
+
+  int bid32_minnum_mag(
+    int x,
+    int y,
+  ) {
+    return _bid32_minnum_mag(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_minnum_magPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_minnum_mag');
+  late final _bid32_minnum_mag =
+      _bid32_minnum_magPtr.asFunction<int Function(int, int)>();
+
+  int bid32_modf(
+    int x,
+    ffi.Pointer<BID_UINT32> y,
+  ) {
+    return _bid32_modf(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_modfPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT32 Function(
+              BID_UINT32, ffi.Pointer<BID_UINT32>)>>('bid32_modf');
+  late final _bid32_modf =
+      _bid32_modfPtr.asFunction<int Function(int, ffi.Pointer<BID_UINT32>)>();
+
+  int bid32_mul(
+    int x,
+    int y,
+  ) {
+    return _bid32_mul(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_mulPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_mul');
+  late final _bid32_mul = _bid32_mulPtr.asFunction<int Function(int, int)>();
+
+  int bid32_nan(
+    ffi.Pointer<ffi.Char> tagp,
+  ) {
+    return _bid32_nan(
+      tagp,
+    );
+  }
+
+  late final _bid32_nanPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(ffi.Pointer<ffi.Char>)>>(
+          'bid32_nan');
+  late final _bid32_nan =
+      _bid32_nanPtr.asFunction<int Function(ffi.Pointer<ffi.Char>)>();
+
+  int bid32_nearbyint(
+    int x,
+  ) {
+    return _bid32_nearbyint(
+      x,
+    );
+  }
+
+  late final _bid32_nearbyintPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_nearbyint');
+  late final _bid32_nearbyint =
+      _bid32_nearbyintPtr.asFunction<int Function(int)>();
+
+  int bid32_negate(
+    int x,
+  ) {
+    return _bid32_negate(
+      x,
+    );
+  }
+
+  late final _bid32_negatePtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_negate');
+  late final _bid32_negate = _bid32_negatePtr.asFunction<int Function(int)>();
+
+  int bid32_nextafter(
+    int x,
+    int y,
+  ) {
+    return _bid32_nextafter(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_nextafterPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_nextafter');
+  late final _bid32_nextafter =
+      _bid32_nextafterPtr.asFunction<int Function(int, int)>();
+
+  int bid32_nextdown(
+    int x,
+  ) {
+    return _bid32_nextdown(
+      x,
+    );
+  }
+
+  late final _bid32_nextdownPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_nextdown');
+  late final _bid32_nextdown =
+      _bid32_nextdownPtr.asFunction<int Function(int)>();
+
+  int bid32_nexttoward(
+    int x,
+    BID_UINT128 y,
+  ) {
+    return _bid32_nexttoward(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_nexttowardPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT128)>>(
+          'bid32_nexttoward');
+  late final _bid32_nexttoward =
+      _bid32_nexttowardPtr.asFunction<int Function(int, BID_UINT128)>();
+
+  int bid32_nextup(
+    int x,
+  ) {
+    return _bid32_nextup(
+      x,
+    );
+  }
+
+  late final _bid32_nextupPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_nextup');
+  late final _bid32_nextup = _bid32_nextupPtr.asFunction<int Function(int)>();
+
+  int bid32_pow(
+    int x,
+    int y,
+  ) {
+    return _bid32_pow(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_powPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_pow');
+  late final _bid32_pow = _bid32_powPtr.asFunction<int Function(int, int)>();
+
+  int bid32_quantexp(
+    int x,
+  ) {
+    return _bid32_quantexp(
+      x,
+    );
+  }
+
+  late final _bid32_quantexpPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_quantexp');
+  late final _bid32_quantexp =
+      _bid32_quantexpPtr.asFunction<int Function(int)>();
+
+  int bid32_quantize(
+    int x,
+    int y,
+  ) {
+    return _bid32_quantize(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_quantizePtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_quantize');
+  late final _bid32_quantize =
+      _bid32_quantizePtr.asFunction<int Function(int, int)>();
+
+  int bid32_quantum(
+    int x,
+  ) {
+    return _bid32_quantum(
+      x,
+    );
+  }
+
+  late final _bid32_quantumPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_quantum');
+  late final _bid32_quantum = _bid32_quantumPtr.asFunction<int Function(int)>();
+
+  int bid32_quiet_equal(
+    int x,
+    int y,
+  ) {
+    return _bid32_quiet_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_quiet_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_quiet_equal');
+  late final _bid32_quiet_equal =
+      _bid32_quiet_equalPtr.asFunction<int Function(int, int)>();
+
+  int bid32_quiet_greater(
+    int x,
+    int y,
+  ) {
+    return _bid32_quiet_greater(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_quiet_greaterPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_quiet_greater');
+  late final _bid32_quiet_greater =
+      _bid32_quiet_greaterPtr.asFunction<int Function(int, int)>();
+
+  int bid32_quiet_greater_equal(
+    int x,
+    int y,
+  ) {
+    return _bid32_quiet_greater_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_quiet_greater_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_quiet_greater_equal');
+  late final _bid32_quiet_greater_equal =
+      _bid32_quiet_greater_equalPtr.asFunction<int Function(int, int)>();
+
+  int bid32_quiet_greater_unordered(
+    int x,
+    int y,
+  ) {
+    return _bid32_quiet_greater_unordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_quiet_greater_unorderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_quiet_greater_unordered');
+  late final _bid32_quiet_greater_unordered =
+      _bid32_quiet_greater_unorderedPtr.asFunction<int Function(int, int)>();
+
+  int bid32_quiet_less(
+    int x,
+    int y,
+  ) {
+    return _bid32_quiet_less(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_quiet_lessPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_quiet_less');
+  late final _bid32_quiet_less =
+      _bid32_quiet_lessPtr.asFunction<int Function(int, int)>();
+
+  int bid32_quiet_less_equal(
+    int x,
+    int y,
+  ) {
+    return _bid32_quiet_less_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_quiet_less_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_quiet_less_equal');
+  late final _bid32_quiet_less_equal =
+      _bid32_quiet_less_equalPtr.asFunction<int Function(int, int)>();
+
+  int bid32_quiet_less_unordered(
+    int x,
+    int y,
+  ) {
+    return _bid32_quiet_less_unordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_quiet_less_unorderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_quiet_less_unordered');
+  late final _bid32_quiet_less_unordered =
+      _bid32_quiet_less_unorderedPtr.asFunction<int Function(int, int)>();
+
+  int bid32_quiet_not_equal(
+    int x,
+    int y,
+  ) {
+    return _bid32_quiet_not_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_quiet_not_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_quiet_not_equal');
+  late final _bid32_quiet_not_equal =
+      _bid32_quiet_not_equalPtr.asFunction<int Function(int, int)>();
+
+  int bid32_quiet_not_greater(
+    int x,
+    int y,
+  ) {
+    return _bid32_quiet_not_greater(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_quiet_not_greaterPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_quiet_not_greater');
+  late final _bid32_quiet_not_greater =
+      _bid32_quiet_not_greaterPtr.asFunction<int Function(int, int)>();
+
+  int bid32_quiet_not_less(
+    int x,
+    int y,
+  ) {
+    return _bid32_quiet_not_less(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_quiet_not_lessPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_quiet_not_less');
+  late final _bid32_quiet_not_less =
+      _bid32_quiet_not_lessPtr.asFunction<int Function(int, int)>();
+
+  int bid32_quiet_ordered(
+    int x,
+    int y,
+  ) {
+    return _bid32_quiet_ordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_quiet_orderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_quiet_ordered');
+  late final _bid32_quiet_ordered =
+      _bid32_quiet_orderedPtr.asFunction<int Function(int, int)>();
+
+  int bid32_quiet_unordered(
+    int x,
+    int y,
+  ) {
+    return _bid32_quiet_unordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_quiet_unorderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_quiet_unordered');
+  late final _bid32_quiet_unordered =
+      _bid32_quiet_unorderedPtr.asFunction<int Function(int, int)>();
+
+  int bid32_radix(
+    int x,
+  ) {
+    return _bid32_radix(
+      x,
+    );
+  }
+
+  late final _bid32_radixPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>('bid32_radix');
+  late final _bid32_radix = _bid32_radixPtr.asFunction<int Function(int)>();
+
+  int bid32_rem(
+    int x,
+    int y,
+  ) {
+    return _bid32_rem(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_remPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_rem');
+  late final _bid32_rem = _bid32_remPtr.asFunction<int Function(int, int)>();
+
+  int bid32_round_integral_exact(
+    int x,
+  ) {
+    return _bid32_round_integral_exact(
+      x,
+    );
+  }
+
+  late final _bid32_round_integral_exactPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_round_integral_exact');
+  late final _bid32_round_integral_exact =
+      _bid32_round_integral_exactPtr.asFunction<int Function(int)>();
+
+  int bid32_round_integral_nearest_away(
+    int x,
+  ) {
+    return _bid32_round_integral_nearest_away(
+      x,
+    );
+  }
+
+  late final _bid32_round_integral_nearest_awayPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_round_integral_nearest_away');
+  late final _bid32_round_integral_nearest_away =
+      _bid32_round_integral_nearest_awayPtr.asFunction<int Function(int)>();
+
+  int bid32_round_integral_nearest_even(
+    int x,
+  ) {
+    return _bid32_round_integral_nearest_even(
+      x,
+    );
+  }
+
+  late final _bid32_round_integral_nearest_evenPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_round_integral_nearest_even');
+  late final _bid32_round_integral_nearest_even =
+      _bid32_round_integral_nearest_evenPtr.asFunction<int Function(int)>();
+
+  int bid32_round_integral_negative(
+    int x,
+  ) {
+    return _bid32_round_integral_negative(
+      x,
+    );
+  }
+
+  late final _bid32_round_integral_negativePtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_round_integral_negative');
+  late final _bid32_round_integral_negative =
+      _bid32_round_integral_negativePtr.asFunction<int Function(int)>();
+
+  int bid32_round_integral_positive(
+    int x,
+  ) {
+    return _bid32_round_integral_positive(
+      x,
+    );
+  }
+
+  late final _bid32_round_integral_positivePtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_round_integral_positive');
+  late final _bid32_round_integral_positive =
+      _bid32_round_integral_positivePtr.asFunction<int Function(int)>();
+
+  int bid32_round_integral_zero(
+    int x,
+  ) {
+    return _bid32_round_integral_zero(
+      x,
+    );
+  }
+
+  late final _bid32_round_integral_zeroPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_round_integral_zero');
+  late final _bid32_round_integral_zero =
+      _bid32_round_integral_zeroPtr.asFunction<int Function(int)>();
+
+  int bid32_sameQuantum(
+    int x,
+    int y,
+  ) {
+    return _bid32_sameQuantum(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_sameQuantumPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_sameQuantum');
+  late final _bid32_sameQuantum =
+      _bid32_sameQuantumPtr.asFunction<int Function(int, int)>();
+
+  int bid32_scalbln(
+    int x,
+    int n,
+  ) {
+    return _bid32_scalbln(
+      x,
+      n,
+    );
+  }
+
+  late final _bid32_scalblnPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, ffi.Long)>>(
+          'bid32_scalbln');
+  late final _bid32_scalbln =
+      _bid32_scalblnPtr.asFunction<int Function(int, int)>();
+
+  int bid32_scalbn(
+    int x,
+    int n,
+  ) {
+    return _bid32_scalbn(
+      x,
+      n,
+    );
+  }
+
+  late final _bid32_scalbnPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, ffi.Int)>>(
+          'bid32_scalbn');
+  late final _bid32_scalbn =
+      _bid32_scalbnPtr.asFunction<int Function(int, int)>();
+
+  int bid32_signaling_greater(
+    int x,
+    int y,
+  ) {
+    return _bid32_signaling_greater(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_signaling_greaterPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_signaling_greater');
+  late final _bid32_signaling_greater =
+      _bid32_signaling_greaterPtr.asFunction<int Function(int, int)>();
+
+  int bid32_signaling_greater_equal(
+    int x,
+    int y,
+  ) {
+    return _bid32_signaling_greater_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_signaling_greater_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_signaling_greater_equal');
+  late final _bid32_signaling_greater_equal =
+      _bid32_signaling_greater_equalPtr.asFunction<int Function(int, int)>();
+
+  int bid32_signaling_greater_unordered(
+    int x,
+    int y,
+  ) {
+    return _bid32_signaling_greater_unordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_signaling_greater_unorderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_signaling_greater_unordered');
+  late final _bid32_signaling_greater_unordered =
+      _bid32_signaling_greater_unorderedPtr
+          .asFunction<int Function(int, int)>();
+
+  int bid32_signaling_less(
+    int x,
+    int y,
+  ) {
+    return _bid32_signaling_less(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_signaling_lessPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_signaling_less');
+  late final _bid32_signaling_less =
+      _bid32_signaling_lessPtr.asFunction<int Function(int, int)>();
+
+  int bid32_signaling_less_equal(
+    int x,
+    int y,
+  ) {
+    return _bid32_signaling_less_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_signaling_less_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_signaling_less_equal');
+  late final _bid32_signaling_less_equal =
+      _bid32_signaling_less_equalPtr.asFunction<int Function(int, int)>();
+
+  int bid32_signaling_less_unordered(
+    int x,
+    int y,
+  ) {
+    return _bid32_signaling_less_unordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_signaling_less_unorderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_signaling_less_unordered');
+  late final _bid32_signaling_less_unordered =
+      _bid32_signaling_less_unorderedPtr.asFunction<int Function(int, int)>();
+
+  int bid32_signaling_not_greater(
+    int x,
+    int y,
+  ) {
+    return _bid32_signaling_not_greater(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_signaling_not_greaterPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_signaling_not_greater');
+  late final _bid32_signaling_not_greater =
+      _bid32_signaling_not_greaterPtr.asFunction<int Function(int, int)>();
+
+  int bid32_signaling_not_less(
+    int x,
+    int y,
+  ) {
+    return _bid32_signaling_not_less(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_signaling_not_lessPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_signaling_not_less');
+  late final _bid32_signaling_not_less =
+      _bid32_signaling_not_lessPtr.asFunction<int Function(int, int)>();
+
+  int bid32_sin(
+    int x,
+  ) {
+    return _bid32_sin(
+      x,
+    );
+  }
+
+  late final _bid32_sinPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>('bid32_sin');
+  late final _bid32_sin = _bid32_sinPtr.asFunction<int Function(int)>();
+
+  int bid32_sinh(
+    int x,
+  ) {
+    return _bid32_sinh(
+      x,
+    );
+  }
+
+  late final _bid32_sinhPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_sinh');
+  late final _bid32_sinh = _bid32_sinhPtr.asFunction<int Function(int)>();
+
+  int bid32_sqrt(
+    int x,
+  ) {
+    return _bid32_sqrt(
+      x,
+    );
+  }
+
+  late final _bid32_sqrtPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_sqrt');
+  late final _bid32_sqrt = _bid32_sqrtPtr.asFunction<int Function(int)>();
+
+  int bid32_sub(
+    int x,
+    int y,
+  ) {
+    return _bid32_sub(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_subPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_sub');
+  late final _bid32_sub = _bid32_subPtr.asFunction<int Function(int, int)>();
+
+  int bid32_tan(
+    int x,
+  ) {
+    return _bid32_tan(
+      x,
+    );
+  }
+
+  late final _bid32_tanPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>('bid32_tan');
+  late final _bid32_tan = _bid32_tanPtr.asFunction<int Function(int)>();
+
+  int bid32_tanh(
+    int x,
+  ) {
+    return _bid32_tanh(
+      x,
+    );
+  }
+
+  late final _bid32_tanhPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_tanh');
+  late final _bid32_tanh = _bid32_tanhPtr.asFunction<int Function(int)>();
+
+  int bid32_tgamma(
+    int x,
+  ) {
+    return _bid32_tgamma(
+      x,
+    );
+  }
+
+  late final _bid32_tgammaPtr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid32_tgamma');
+  late final _bid32_tgamma = _bid32_tgammaPtr.asFunction<int Function(int)>();
+
+  BID_UINT128 bid32_to_bid128(
+    int x,
+  ) {
+    return _bid32_to_bid128(
+      x,
+    );
+  }
+
+  late final _bid32_to_bid128Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT32)>>(
+          'bid32_to_bid128');
+  late final _bid32_to_bid128 =
+      _bid32_to_bid128Ptr.asFunction<BID_UINT128 Function(int)>();
+
+  int bid32_to_bid64(
+    int x,
+  ) {
+    return _bid32_to_bid64(
+      x,
+    );
+  }
+
+  late final _bid32_to_bid64Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT32)>>(
+          'bid32_to_bid64');
+  late final _bid32_to_bid64 =
+      _bid32_to_bid64Ptr.asFunction<int Function(int)>();
+
+  BID_UINT128 bid32_to_binary128(
+    int x,
+  ) {
+    return _bid32_to_binary128(
+      x,
+    );
+  }
+
+  late final _bid32_to_binary128Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT32)>>(
+          'bid32_to_binary128');
+  late final _bid32_to_binary128 =
+      _bid32_to_binary128Ptr.asFunction<BID_UINT128 Function(int)>();
+
+  double bid32_to_binary32(
+    int x,
+  ) {
+    return _bid32_to_binary32(
+      x,
+    );
+  }
+
+  late final _bid32_to_binary32Ptr =
+      _lookup<ffi.NativeFunction<ffi.Float Function(BID_UINT32)>>(
+          'bid32_to_binary32');
+  late final _bid32_to_binary32 =
+      _bid32_to_binary32Ptr.asFunction<double Function(int)>();
+
+  double bid32_to_binary64(
+    int x,
+  ) {
+    return _bid32_to_binary64(
+      x,
+    );
+  }
+
+  late final _bid32_to_binary64Ptr =
+      _lookup<ffi.NativeFunction<ffi.Double Function(BID_UINT32)>>(
+          'bid32_to_binary64');
+  late final _bid32_to_binary64 =
+      _bid32_to_binary64Ptr.asFunction<double Function(int)>();
+
+  int bid32_to_int16_ceil(
+    int x,
+  ) {
+    return _bid32_to_int16_ceil(
+      x,
+    );
+  }
+
+  late final _bid32_to_int16_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT32)>>(
+          'bid32_to_int16_ceil');
+  late final _bid32_to_int16_ceil =
+      _bid32_to_int16_ceilPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int16_floor(
+    int x,
+  ) {
+    return _bid32_to_int16_floor(
+      x,
+    );
+  }
+
+  late final _bid32_to_int16_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT32)>>(
+          'bid32_to_int16_floor');
+  late final _bid32_to_int16_floor =
+      _bid32_to_int16_floorPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int16_int(
+    int x,
+  ) {
+    return _bid32_to_int16_int(
+      x,
+    );
+  }
+
+  late final _bid32_to_int16_intPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT32)>>(
+          'bid32_to_int16_int');
+  late final _bid32_to_int16_int =
+      _bid32_to_int16_intPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int16_rnint(
+    int x,
+  ) {
+    return _bid32_to_int16_rnint(
+      x,
+    );
+  }
+
+  late final _bid32_to_int16_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT32)>>(
+          'bid32_to_int16_rnint');
+  late final _bid32_to_int16_rnint =
+      _bid32_to_int16_rnintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int16_rninta(
+    int x,
+  ) {
+    return _bid32_to_int16_rninta(
+      x,
+    );
+  }
+
+  late final _bid32_to_int16_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT32)>>(
+          'bid32_to_int16_rninta');
+  late final _bid32_to_int16_rninta =
+      _bid32_to_int16_rnintaPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int16_xceil(
+    int x,
+  ) {
+    return _bid32_to_int16_xceil(
+      x,
+    );
+  }
+
+  late final _bid32_to_int16_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT32)>>(
+          'bid32_to_int16_xceil');
+  late final _bid32_to_int16_xceil =
+      _bid32_to_int16_xceilPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int16_xfloor(
+    int x,
+  ) {
+    return _bid32_to_int16_xfloor(
+      x,
+    );
+  }
+
+  late final _bid32_to_int16_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT32)>>(
+          'bid32_to_int16_xfloor');
+  late final _bid32_to_int16_xfloor =
+      _bid32_to_int16_xfloorPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int16_xint(
+    int x,
+  ) {
+    return _bid32_to_int16_xint(
+      x,
+    );
+  }
+
+  late final _bid32_to_int16_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT32)>>(
+          'bid32_to_int16_xint');
+  late final _bid32_to_int16_xint =
+      _bid32_to_int16_xintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int16_xrnint(
+    int x,
+  ) {
+    return _bid32_to_int16_xrnint(
+      x,
+    );
+  }
+
+  late final _bid32_to_int16_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT32)>>(
+          'bid32_to_int16_xrnint');
+  late final _bid32_to_int16_xrnint =
+      _bid32_to_int16_xrnintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int16_xrninta(
+    int x,
+  ) {
+    return _bid32_to_int16_xrninta(
+      x,
+    );
+  }
+
+  late final _bid32_to_int16_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT32)>>(
+          'bid32_to_int16_xrninta');
+  late final _bid32_to_int16_xrninta =
+      _bid32_to_int16_xrnintaPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int32_ceil(
+    int x,
+  ) {
+    return _bid32_to_int32_ceil(
+      x,
+    );
+  }
+
+  late final _bid32_to_int32_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_to_int32_ceil');
+  late final _bid32_to_int32_ceil =
+      _bid32_to_int32_ceilPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int32_floor(
+    int x,
+  ) {
+    return _bid32_to_int32_floor(
+      x,
+    );
+  }
+
+  late final _bid32_to_int32_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_to_int32_floor');
+  late final _bid32_to_int32_floor =
+      _bid32_to_int32_floorPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int32_int(
+    int x,
+  ) {
+    return _bid32_to_int32_int(
+      x,
+    );
+  }
+
+  late final _bid32_to_int32_intPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_to_int32_int');
+  late final _bid32_to_int32_int =
+      _bid32_to_int32_intPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int32_rnint(
+    int x,
+  ) {
+    return _bid32_to_int32_rnint(
+      x,
+    );
+  }
+
+  late final _bid32_to_int32_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_to_int32_rnint');
+  late final _bid32_to_int32_rnint =
+      _bid32_to_int32_rnintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int32_rninta(
+    int x,
+  ) {
+    return _bid32_to_int32_rninta(
+      x,
+    );
+  }
+
+  late final _bid32_to_int32_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_to_int32_rninta');
+  late final _bid32_to_int32_rninta =
+      _bid32_to_int32_rnintaPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int32_xceil(
+    int x,
+  ) {
+    return _bid32_to_int32_xceil(
+      x,
+    );
+  }
+
+  late final _bid32_to_int32_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_to_int32_xceil');
+  late final _bid32_to_int32_xceil =
+      _bid32_to_int32_xceilPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int32_xfloor(
+    int x,
+  ) {
+    return _bid32_to_int32_xfloor(
+      x,
+    );
+  }
+
+  late final _bid32_to_int32_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_to_int32_xfloor');
+  late final _bid32_to_int32_xfloor =
+      _bid32_to_int32_xfloorPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int32_xint(
+    int x,
+  ) {
+    return _bid32_to_int32_xint(
+      x,
+    );
+  }
+
+  late final _bid32_to_int32_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_to_int32_xint');
+  late final _bid32_to_int32_xint =
+      _bid32_to_int32_xintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int32_xrnint(
+    int x,
+  ) {
+    return _bid32_to_int32_xrnint(
+      x,
+    );
+  }
+
+  late final _bid32_to_int32_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_to_int32_xrnint');
+  late final _bid32_to_int32_xrnint =
+      _bid32_to_int32_xrnintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int32_xrninta(
+    int x,
+  ) {
+    return _bid32_to_int32_xrninta(
+      x,
+    );
+  }
+
+  late final _bid32_to_int32_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32)>>(
+          'bid32_to_int32_xrninta');
+  late final _bid32_to_int32_xrninta =
+      _bid32_to_int32_xrnintaPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int64_ceil(
+    int x,
+  ) {
+    return _bid32_to_int64_ceil(
+      x,
+    );
+  }
+
+  late final _bid32_to_int64_ceilPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT32)>>(
+          'bid32_to_int64_ceil');
+  late final _bid32_to_int64_ceil =
+      _bid32_to_int64_ceilPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int64_floor(
+    int x,
+  ) {
+    return _bid32_to_int64_floor(
+      x,
+    );
+  }
+
+  late final _bid32_to_int64_floorPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT32)>>(
+          'bid32_to_int64_floor');
+  late final _bid32_to_int64_floor =
+      _bid32_to_int64_floorPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int64_int(
+    int x,
+  ) {
+    return _bid32_to_int64_int(
+      x,
+    );
+  }
+
+  late final _bid32_to_int64_intPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT32)>>(
+          'bid32_to_int64_int');
+  late final _bid32_to_int64_int =
+      _bid32_to_int64_intPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int64_rnint(
+    int x,
+  ) {
+    return _bid32_to_int64_rnint(
+      x,
+    );
+  }
+
+  late final _bid32_to_int64_rnintPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT32)>>(
+          'bid32_to_int64_rnint');
+  late final _bid32_to_int64_rnint =
+      _bid32_to_int64_rnintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int64_rninta(
+    int x,
+  ) {
+    return _bid32_to_int64_rninta(
+      x,
+    );
+  }
+
+  late final _bid32_to_int64_rnintaPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT32)>>(
+          'bid32_to_int64_rninta');
+  late final _bid32_to_int64_rninta =
+      _bid32_to_int64_rnintaPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int64_xceil(
+    int x,
+  ) {
+    return _bid32_to_int64_xceil(
+      x,
+    );
+  }
+
+  late final _bid32_to_int64_xceilPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT32)>>(
+          'bid32_to_int64_xceil');
+  late final _bid32_to_int64_xceil =
+      _bid32_to_int64_xceilPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int64_xfloor(
+    int x,
+  ) {
+    return _bid32_to_int64_xfloor(
+      x,
+    );
+  }
+
+  late final _bid32_to_int64_xfloorPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT32)>>(
+          'bid32_to_int64_xfloor');
+  late final _bid32_to_int64_xfloor =
+      _bid32_to_int64_xfloorPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int64_xint(
+    int x,
+  ) {
+    return _bid32_to_int64_xint(
+      x,
+    );
+  }
+
+  late final _bid32_to_int64_xintPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT32)>>(
+          'bid32_to_int64_xint');
+  late final _bid32_to_int64_xint =
+      _bid32_to_int64_xintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int64_xrnint(
+    int x,
+  ) {
+    return _bid32_to_int64_xrnint(
+      x,
+    );
+  }
+
+  late final _bid32_to_int64_xrnintPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT32)>>(
+          'bid32_to_int64_xrnint');
+  late final _bid32_to_int64_xrnint =
+      _bid32_to_int64_xrnintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int64_xrninta(
+    int x,
+  ) {
+    return _bid32_to_int64_xrninta(
+      x,
+    );
+  }
+
+  late final _bid32_to_int64_xrnintaPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT32)>>(
+          'bid32_to_int64_xrninta');
+  late final _bid32_to_int64_xrninta =
+      _bid32_to_int64_xrnintaPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int8_ceil(
+    int x,
+  ) {
+    return _bid32_to_int8_ceil(
+      x,
+    );
+  }
+
+  late final _bid32_to_int8_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT32)>>(
+          'bid32_to_int8_ceil');
+  late final _bid32_to_int8_ceil =
+      _bid32_to_int8_ceilPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int8_floor(
+    int x,
+  ) {
+    return _bid32_to_int8_floor(
+      x,
+    );
+  }
+
+  late final _bid32_to_int8_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT32)>>(
+          'bid32_to_int8_floor');
+  late final _bid32_to_int8_floor =
+      _bid32_to_int8_floorPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int8_int(
+    int x,
+  ) {
+    return _bid32_to_int8_int(
+      x,
+    );
+  }
+
+  late final _bid32_to_int8_intPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT32)>>(
+          'bid32_to_int8_int');
+  late final _bid32_to_int8_int =
+      _bid32_to_int8_intPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int8_rnint(
+    int x,
+  ) {
+    return _bid32_to_int8_rnint(
+      x,
+    );
+  }
+
+  late final _bid32_to_int8_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT32)>>(
+          'bid32_to_int8_rnint');
+  late final _bid32_to_int8_rnint =
+      _bid32_to_int8_rnintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int8_rninta(
+    int x,
+  ) {
+    return _bid32_to_int8_rninta(
+      x,
+    );
+  }
+
+  late final _bid32_to_int8_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT32)>>(
+          'bid32_to_int8_rninta');
+  late final _bid32_to_int8_rninta =
+      _bid32_to_int8_rnintaPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int8_xceil(
+    int x,
+  ) {
+    return _bid32_to_int8_xceil(
+      x,
+    );
+  }
+
+  late final _bid32_to_int8_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT32)>>(
+          'bid32_to_int8_xceil');
+  late final _bid32_to_int8_xceil =
+      _bid32_to_int8_xceilPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int8_xfloor(
+    int x,
+  ) {
+    return _bid32_to_int8_xfloor(
+      x,
+    );
+  }
+
+  late final _bid32_to_int8_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT32)>>(
+          'bid32_to_int8_xfloor');
+  late final _bid32_to_int8_xfloor =
+      _bid32_to_int8_xfloorPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int8_xint(
+    int x,
+  ) {
+    return _bid32_to_int8_xint(
+      x,
+    );
+  }
+
+  late final _bid32_to_int8_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT32)>>(
+          'bid32_to_int8_xint');
+  late final _bid32_to_int8_xint =
+      _bid32_to_int8_xintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int8_xrnint(
+    int x,
+  ) {
+    return _bid32_to_int8_xrnint(
+      x,
+    );
+  }
+
+  late final _bid32_to_int8_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT32)>>(
+          'bid32_to_int8_xrnint');
+  late final _bid32_to_int8_xrnint =
+      _bid32_to_int8_xrnintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_int8_xrninta(
+    int x,
+  ) {
+    return _bid32_to_int8_xrninta(
+      x,
+    );
+  }
+
+  late final _bid32_to_int8_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT32)>>(
+          'bid32_to_int8_xrninta');
+  late final _bid32_to_int8_xrninta =
+      _bid32_to_int8_xrnintaPtr.asFunction<int Function(int)>();
+
+  void bid32_to_string(
+    ffi.Pointer<ffi.Char> ps,
+    int x,
+  ) {
+    return _bid32_to_string(
+      ps,
+      x,
+    );
+  }
+
+  late final _bid32_to_stringPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<ffi.Char>, BID_UINT32)>>('bid32_to_string');
+  late final _bid32_to_string = _bid32_to_stringPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>, int)>();
+
+  int bid32_to_uint16_ceil(
+    int x,
+  ) {
+    return _bid32_to_uint16_ceil(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint16_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT32)>>(
+          'bid32_to_uint16_ceil');
+  late final _bid32_to_uint16_ceil =
+      _bid32_to_uint16_ceilPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint16_floor(
+    int x,
+  ) {
+    return _bid32_to_uint16_floor(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint16_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT32)>>(
+          'bid32_to_uint16_floor');
+  late final _bid32_to_uint16_floor =
+      _bid32_to_uint16_floorPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint16_int(
+    int x,
+  ) {
+    return _bid32_to_uint16_int(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint16_intPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT32)>>(
+          'bid32_to_uint16_int');
+  late final _bid32_to_uint16_int =
+      _bid32_to_uint16_intPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint16_rnint(
+    int x,
+  ) {
+    return _bid32_to_uint16_rnint(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint16_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT32)>>(
+          'bid32_to_uint16_rnint');
+  late final _bid32_to_uint16_rnint =
+      _bid32_to_uint16_rnintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint16_rninta(
+    int x,
+  ) {
+    return _bid32_to_uint16_rninta(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint16_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT32)>>(
+          'bid32_to_uint16_rninta');
+  late final _bid32_to_uint16_rninta =
+      _bid32_to_uint16_rnintaPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint16_xceil(
+    int x,
+  ) {
+    return _bid32_to_uint16_xceil(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint16_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT32)>>(
+          'bid32_to_uint16_xceil');
+  late final _bid32_to_uint16_xceil =
+      _bid32_to_uint16_xceilPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint16_xfloor(
+    int x,
+  ) {
+    return _bid32_to_uint16_xfloor(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint16_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT32)>>(
+          'bid32_to_uint16_xfloor');
+  late final _bid32_to_uint16_xfloor =
+      _bid32_to_uint16_xfloorPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint16_xint(
+    int x,
+  ) {
+    return _bid32_to_uint16_xint(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint16_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT32)>>(
+          'bid32_to_uint16_xint');
+  late final _bid32_to_uint16_xint =
+      _bid32_to_uint16_xintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint16_xrnint(
+    int x,
+  ) {
+    return _bid32_to_uint16_xrnint(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint16_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT32)>>(
+          'bid32_to_uint16_xrnint');
+  late final _bid32_to_uint16_xrnint =
+      _bid32_to_uint16_xrnintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint16_xrninta(
+    int x,
+  ) {
+    return _bid32_to_uint16_xrninta(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint16_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT32)>>(
+          'bid32_to_uint16_xrninta');
+  late final _bid32_to_uint16_xrninta =
+      _bid32_to_uint16_xrnintaPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint32_ceil(
+    int x,
+  ) {
+    return _bid32_to_uint32_ceil(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint32_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT32)>>(
+          'bid32_to_uint32_ceil');
+  late final _bid32_to_uint32_ceil =
+      _bid32_to_uint32_ceilPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint32_floor(
+    int x,
+  ) {
+    return _bid32_to_uint32_floor(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint32_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT32)>>(
+          'bid32_to_uint32_floor');
+  late final _bid32_to_uint32_floor =
+      _bid32_to_uint32_floorPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint32_int(
+    int x,
+  ) {
+    return _bid32_to_uint32_int(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint32_intPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT32)>>(
+          'bid32_to_uint32_int');
+  late final _bid32_to_uint32_int =
+      _bid32_to_uint32_intPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint32_rnint(
+    int x,
+  ) {
+    return _bid32_to_uint32_rnint(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint32_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT32)>>(
+          'bid32_to_uint32_rnint');
+  late final _bid32_to_uint32_rnint =
+      _bid32_to_uint32_rnintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint32_rninta(
+    int x,
+  ) {
+    return _bid32_to_uint32_rninta(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint32_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT32)>>(
+          'bid32_to_uint32_rninta');
+  late final _bid32_to_uint32_rninta =
+      _bid32_to_uint32_rnintaPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint32_xceil(
+    int x,
+  ) {
+    return _bid32_to_uint32_xceil(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint32_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT32)>>(
+          'bid32_to_uint32_xceil');
+  late final _bid32_to_uint32_xceil =
+      _bid32_to_uint32_xceilPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint32_xfloor(
+    int x,
+  ) {
+    return _bid32_to_uint32_xfloor(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint32_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT32)>>(
+          'bid32_to_uint32_xfloor');
+  late final _bid32_to_uint32_xfloor =
+      _bid32_to_uint32_xfloorPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint32_xint(
+    int x,
+  ) {
+    return _bid32_to_uint32_xint(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint32_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT32)>>(
+          'bid32_to_uint32_xint');
+  late final _bid32_to_uint32_xint =
+      _bid32_to_uint32_xintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint32_xrnint(
+    int x,
+  ) {
+    return _bid32_to_uint32_xrnint(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint32_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT32)>>(
+          'bid32_to_uint32_xrnint');
+  late final _bid32_to_uint32_xrnint =
+      _bid32_to_uint32_xrnintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint32_xrninta(
+    int x,
+  ) {
+    return _bid32_to_uint32_xrninta(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint32_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT32)>>(
+          'bid32_to_uint32_xrninta');
+  late final _bid32_to_uint32_xrninta =
+      _bid32_to_uint32_xrnintaPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint64_ceil(
+    int x,
+  ) {
+    return _bid32_to_uint64_ceil(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint64_ceilPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT32)>>(
+          'bid32_to_uint64_ceil');
+  late final _bid32_to_uint64_ceil =
+      _bid32_to_uint64_ceilPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint64_floor(
+    int x,
+  ) {
+    return _bid32_to_uint64_floor(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint64_floorPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT32)>>(
+          'bid32_to_uint64_floor');
+  late final _bid32_to_uint64_floor =
+      _bid32_to_uint64_floorPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint64_int(
+    int x,
+  ) {
+    return _bid32_to_uint64_int(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint64_intPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT32)>>(
+          'bid32_to_uint64_int');
+  late final _bid32_to_uint64_int =
+      _bid32_to_uint64_intPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint64_rnint(
+    int x,
+  ) {
+    return _bid32_to_uint64_rnint(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint64_rnintPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT32)>>(
+          'bid32_to_uint64_rnint');
+  late final _bid32_to_uint64_rnint =
+      _bid32_to_uint64_rnintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint64_rninta(
+    int x,
+  ) {
+    return _bid32_to_uint64_rninta(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint64_rnintaPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT32)>>(
+          'bid32_to_uint64_rninta');
+  late final _bid32_to_uint64_rninta =
+      _bid32_to_uint64_rnintaPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint64_xceil(
+    int x,
+  ) {
+    return _bid32_to_uint64_xceil(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint64_xceilPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT32)>>(
+          'bid32_to_uint64_xceil');
+  late final _bid32_to_uint64_xceil =
+      _bid32_to_uint64_xceilPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint64_xfloor(
+    int x,
+  ) {
+    return _bid32_to_uint64_xfloor(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint64_xfloorPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT32)>>(
+          'bid32_to_uint64_xfloor');
+  late final _bid32_to_uint64_xfloor =
+      _bid32_to_uint64_xfloorPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint64_xint(
+    int x,
+  ) {
+    return _bid32_to_uint64_xint(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint64_xintPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT32)>>(
+          'bid32_to_uint64_xint');
+  late final _bid32_to_uint64_xint =
+      _bid32_to_uint64_xintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint64_xrnint(
+    int x,
+  ) {
+    return _bid32_to_uint64_xrnint(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint64_xrnintPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT32)>>(
+          'bid32_to_uint64_xrnint');
+  late final _bid32_to_uint64_xrnint =
+      _bid32_to_uint64_xrnintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint64_xrninta(
+    int x,
+  ) {
+    return _bid32_to_uint64_xrninta(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint64_xrnintaPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT32)>>(
+          'bid32_to_uint64_xrninta');
+  late final _bid32_to_uint64_xrninta =
+      _bid32_to_uint64_xrnintaPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint8_ceil(
+    int x,
+  ) {
+    return _bid32_to_uint8_ceil(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint8_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT32)>>(
+          'bid32_to_uint8_ceil');
+  late final _bid32_to_uint8_ceil =
+      _bid32_to_uint8_ceilPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint8_floor(
+    int x,
+  ) {
+    return _bid32_to_uint8_floor(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint8_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT32)>>(
+          'bid32_to_uint8_floor');
+  late final _bid32_to_uint8_floor =
+      _bid32_to_uint8_floorPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint8_int(
+    int x,
+  ) {
+    return _bid32_to_uint8_int(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint8_intPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT32)>>(
+          'bid32_to_uint8_int');
+  late final _bid32_to_uint8_int =
+      _bid32_to_uint8_intPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint8_rnint(
+    int x,
+  ) {
+    return _bid32_to_uint8_rnint(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint8_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT32)>>(
+          'bid32_to_uint8_rnint');
+  late final _bid32_to_uint8_rnint =
+      _bid32_to_uint8_rnintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint8_rninta(
+    int x,
+  ) {
+    return _bid32_to_uint8_rninta(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint8_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT32)>>(
+          'bid32_to_uint8_rninta');
+  late final _bid32_to_uint8_rninta =
+      _bid32_to_uint8_rnintaPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint8_xceil(
+    int x,
+  ) {
+    return _bid32_to_uint8_xceil(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint8_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT32)>>(
+          'bid32_to_uint8_xceil');
+  late final _bid32_to_uint8_xceil =
+      _bid32_to_uint8_xceilPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint8_xfloor(
+    int x,
+  ) {
+    return _bid32_to_uint8_xfloor(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint8_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT32)>>(
+          'bid32_to_uint8_xfloor');
+  late final _bid32_to_uint8_xfloor =
+      _bid32_to_uint8_xfloorPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint8_xint(
+    int x,
+  ) {
+    return _bid32_to_uint8_xint(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint8_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT32)>>(
+          'bid32_to_uint8_xint');
+  late final _bid32_to_uint8_xint =
+      _bid32_to_uint8_xintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint8_xrnint(
+    int x,
+  ) {
+    return _bid32_to_uint8_xrnint(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint8_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT32)>>(
+          'bid32_to_uint8_xrnint');
+  late final _bid32_to_uint8_xrnint =
+      _bid32_to_uint8_xrnintPtr.asFunction<int Function(int)>();
+
+  int bid32_to_uint8_xrninta(
+    int x,
+  ) {
+    return _bid32_to_uint8_xrninta(
+      x,
+    );
+  }
+
+  late final _bid32_to_uint8_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT32)>>(
+          'bid32_to_uint8_xrninta');
+  late final _bid32_to_uint8_xrninta =
+      _bid32_to_uint8_xrnintaPtr.asFunction<int Function(int)>();
+
+  int bid32_totalOrder(
+    int x,
+    int y,
+  ) {
+    return _bid32_totalOrder(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_totalOrderPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_totalOrder');
+  late final _bid32_totalOrder =
+      _bid32_totalOrderPtr.asFunction<int Function(int, int)>();
+
+  int bid32_totalOrderMag(
+    int x,
+    int y,
+  ) {
+    return _bid32_totalOrderMag(
+      x,
+      y,
+    );
+  }
+
+  late final _bid32_totalOrderMagPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT32, BID_UINT32)>>(
+          'bid32_totalOrderMag');
+  late final _bid32_totalOrderMag =
+      _bid32_totalOrderMagPtr.asFunction<int Function(int, int)>();
+
+  int bid64_abs(
+    int x,
+  ) {
+    return _bid64_abs(
+      x,
+    );
+  }
+
+  late final _bid64_absPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>('bid64_abs');
+  late final _bid64_abs = _bid64_absPtr.asFunction<int Function(int)>();
+
+  int bid64_acos(
+    int x,
+  ) {
+    return _bid64_acos(
+      x,
+    );
+  }
+
+  late final _bid64_acosPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_acos');
+  late final _bid64_acos = _bid64_acosPtr.asFunction<int Function(int)>();
+
+  int bid64_acosh(
+    int x,
+  ) {
+    return _bid64_acosh(
+      x,
+    );
+  }
+
+  late final _bid64_acoshPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_acosh');
+  late final _bid64_acosh = _bid64_acoshPtr.asFunction<int Function(int)>();
+
+  int bid64_add(
+    int x,
+    int y,
+  ) {
+    return _bid64_add(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_addPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_add');
+  late final _bid64_add = _bid64_addPtr.asFunction<int Function(int, int)>();
+
+  int bid64_asin(
+    int x,
+  ) {
+    return _bid64_asin(
+      x,
+    );
+  }
+
+  late final _bid64_asinPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_asin');
+  late final _bid64_asin = _bid64_asinPtr.asFunction<int Function(int)>();
+
+  int bid64_asinh(
+    int x,
+  ) {
+    return _bid64_asinh(
+      x,
+    );
+  }
+
+  late final _bid64_asinhPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_asinh');
+  late final _bid64_asinh = _bid64_asinhPtr.asFunction<int Function(int)>();
+
+  int bid64_atan(
+    int x,
+  ) {
+    return _bid64_atan(
+      x,
+    );
+  }
+
+  late final _bid64_atanPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_atan');
+  late final _bid64_atan = _bid64_atanPtr.asFunction<int Function(int)>();
+
+  int bid64_atan2(
+    int x,
+    int y,
+  ) {
+    return _bid64_atan2(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_atan2Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_atan2');
+  late final _bid64_atan2 =
+      _bid64_atan2Ptr.asFunction<int Function(int, int)>();
+
+  int bid64_atanh(
+    int x,
+  ) {
+    return _bid64_atanh(
+      x,
+    );
+  }
+
+  late final _bid64_atanhPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_atanh');
+  late final _bid64_atanh = _bid64_atanhPtr.asFunction<int Function(int)>();
+
+  int bid64_cbrt(
+    int x,
+  ) {
+    return _bid64_cbrt(
+      x,
+    );
+  }
+
+  late final _bid64_cbrtPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_cbrt');
+  late final _bid64_cbrt = _bid64_cbrtPtr.asFunction<int Function(int)>();
+
+  int bid64_class(
+    int x,
+  ) {
+    return _bid64_class(
+      x,
+    );
+  }
+
+  late final _bid64_classPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>('bid64_class');
+  late final _bid64_class = _bid64_classPtr.asFunction<int Function(int)>();
+
+  int bid64_copy(
+    int x,
+  ) {
+    return _bid64_copy(
+      x,
+    );
+  }
+
+  late final _bid64_copyPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_copy');
+  late final _bid64_copy = _bid64_copyPtr.asFunction<int Function(int)>();
+
+  int bid64_copySign(
+    int x,
+    int y,
+  ) {
+    return _bid64_copySign(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_copySignPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_copySign');
+  late final _bid64_copySign =
+      _bid64_copySignPtr.asFunction<int Function(int, int)>();
+
+  int bid64_cos(
+    int x,
+  ) {
+    return _bid64_cos(
+      x,
+    );
+  }
+
+  late final _bid64_cosPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>('bid64_cos');
+  late final _bid64_cos = _bid64_cosPtr.asFunction<int Function(int)>();
+
+  int bid64_cosh(
+    int x,
+  ) {
+    return _bid64_cosh(
+      x,
+    );
+  }
+
+  late final _bid64_coshPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_cosh');
+  late final _bid64_cosh = _bid64_coshPtr.asFunction<int Function(int)>();
+
+  int bid64_div(
+    int x,
+    int y,
+  ) {
+    return _bid64_div(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_divPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_div');
+  late final _bid64_div = _bid64_divPtr.asFunction<int Function(int, int)>();
+
+  int bid64_erf(
+    int x,
+  ) {
+    return _bid64_erf(
+      x,
+    );
+  }
+
+  late final _bid64_erfPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>('bid64_erf');
+  late final _bid64_erf = _bid64_erfPtr.asFunction<int Function(int)>();
+
+  int bid64_erfc(
+    int x,
+  ) {
+    return _bid64_erfc(
+      x,
+    );
+  }
+
+  late final _bid64_erfcPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_erfc');
+  late final _bid64_erfc = _bid64_erfcPtr.asFunction<int Function(int)>();
+
+  int bid64_exp(
+    int x,
+  ) {
+    return _bid64_exp(
+      x,
+    );
+  }
+
+  late final _bid64_expPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>('bid64_exp');
+  late final _bid64_exp = _bid64_expPtr.asFunction<int Function(int)>();
+
+  int bid64_exp10(
+    int x,
+  ) {
+    return _bid64_exp10(
+      x,
+    );
+  }
+
+  late final _bid64_exp10Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_exp10');
+  late final _bid64_exp10 = _bid64_exp10Ptr.asFunction<int Function(int)>();
+
+  int bid64_exp2(
+    int x,
+  ) {
+    return _bid64_exp2(
+      x,
+    );
+  }
+
+  late final _bid64_exp2Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_exp2');
+  late final _bid64_exp2 = _bid64_exp2Ptr.asFunction<int Function(int)>();
+
+  int bid64_expm1(
+    int x,
+  ) {
+    return _bid64_expm1(
+      x,
+    );
+  }
+
+  late final _bid64_expm1Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_expm1');
+  late final _bid64_expm1 = _bid64_expm1Ptr.asFunction<int Function(int)>();
+
+  int bid64_fdim(
+    int x,
+    int y,
+  ) {
+    return _bid64_fdim(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_fdimPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_fdim');
+  late final _bid64_fdim = _bid64_fdimPtr.asFunction<int Function(int, int)>();
+
+  int bid64_fma(
+    int x,
+    int y,
+    int z,
+  ) {
+    return _bid64_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid64_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT64 Function(
+              BID_UINT64, BID_UINT64, BID_UINT64)>>('bid64_fma');
+  late final _bid64_fma =
+      _bid64_fmaPtr.asFunction<int Function(int, int, int)>();
+
+  int bid64_fmod(
+    int x,
+    int y,
+  ) {
+    return _bid64_fmod(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_fmodPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_fmod');
+  late final _bid64_fmod = _bid64_fmodPtr.asFunction<int Function(int, int)>();
+
+  int bid64_frexp(
+    int x,
+    ffi.Pointer<ffi.Int> exp,
+  ) {
+    return _bid64_frexp(
+      x,
+      exp,
+    );
+  }
+
+  late final _bid64_frexpPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT64 Function(
+              BID_UINT64, ffi.Pointer<ffi.Int>)>>('bid64_frexp');
+  late final _bid64_frexp =
+      _bid64_frexpPtr.asFunction<int Function(int, ffi.Pointer<ffi.Int>)>();
+
+  int bid64_from_int32(
+    int x,
+  ) {
+    return _bid64_from_int32(
+      x,
+    );
+  }
+
+  late final _bid64_from_int32Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(ffi.Int)>>(
+          'bid64_from_int32');
+  late final _bid64_from_int32 =
+      _bid64_from_int32Ptr.asFunction<int Function(int)>();
+
+  int bid64_from_int64(
+    int x,
+  ) {
+    return _bid64_from_int64(
+      x,
+    );
+  }
+
+  late final _bid64_from_int64Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_SINT64)>>(
+          'bid64_from_int64');
+  late final _bid64_from_int64 =
+      _bid64_from_int64Ptr.asFunction<int Function(int)>();
+
+  int bid64_from_string(
+    ffi.Pointer<ffi.Char> ps,
+  ) {
+    return _bid64_from_string(
+      ps,
+    );
+  }
+
+  late final _bid64_from_stringPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(ffi.Pointer<ffi.Char>)>>(
+          'bid64_from_string');
+  late final _bid64_from_string =
+      _bid64_from_stringPtr.asFunction<int Function(ffi.Pointer<ffi.Char>)>();
+
+  int bid64_from_uint32(
+    int x,
+  ) {
+    return _bid64_from_uint32(
+      x,
+    );
+  }
+
+  late final _bid64_from_uint32Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(ffi.UnsignedInt)>>(
+          'bid64_from_uint32');
+  late final _bid64_from_uint32 =
+      _bid64_from_uint32Ptr.asFunction<int Function(int)>();
+
+  int bid64_from_uint64(
+    int _RND_MODE_PARAM,
+  ) {
+    return _bid64_from_uint64(
+      _RND_MODE_PARAM,
+    );
+  }
+
+  late final _bid64_from_uint64Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_from_uint64');
+  late final _bid64_from_uint64 =
+      _bid64_from_uint64Ptr.asFunction<int Function(int)>();
+
+  int bid64_hypot(
+    int x,
+    int y,
+  ) {
+    return _bid64_hypot(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_hypotPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_hypot');
+  late final _bid64_hypot =
+      _bid64_hypotPtr.asFunction<int Function(int, int)>();
+
+  int bid64_ilogb(
+    int x,
+  ) {
+    return _bid64_ilogb(
+      x,
+    );
+  }
+
+  late final _bid64_ilogbPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>('bid64_ilogb');
+  late final _bid64_ilogb = _bid64_ilogbPtr.asFunction<int Function(int)>();
+
+  int bid64_inf() {
+    return _bid64_inf();
+  }
+
+  late final _bid64_infPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function()>>('bid64_inf');
+  late final _bid64_inf = _bid64_infPtr.asFunction<int Function()>();
+
+  int bid64_isCanonical(
+    int x,
+  ) {
+    return _bid64_isCanonical(
+      x,
+    );
+  }
+
+  late final _bid64_isCanonicalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_isCanonical');
+  late final _bid64_isCanonical =
+      _bid64_isCanonicalPtr.asFunction<int Function(int)>();
+
+  int bid64_isFinite(
+    int x,
+  ) {
+    return _bid64_isFinite(
+      x,
+    );
+  }
+
+  late final _bid64_isFinitePtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_isFinite');
+  late final _bid64_isFinite =
+      _bid64_isFinitePtr.asFunction<int Function(int)>();
+
+  int bid64_isInf(
+    int x,
+  ) {
+    return _bid64_isInf(
+      x,
+    );
+  }
+
+  late final _bid64_isInfPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>('bid64_isInf');
+  late final _bid64_isInf = _bid64_isInfPtr.asFunction<int Function(int)>();
+
+  int bid64_isNaN(
+    int x,
+  ) {
+    return _bid64_isNaN(
+      x,
+    );
+  }
+
+  late final _bid64_isNaNPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>('bid64_isNaN');
+  late final _bid64_isNaN = _bid64_isNaNPtr.asFunction<int Function(int)>();
+
+  int bid64_isNormal(
+    int x,
+  ) {
+    return _bid64_isNormal(
+      x,
+    );
+  }
+
+  late final _bid64_isNormalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_isNormal');
+  late final _bid64_isNormal =
+      _bid64_isNormalPtr.asFunction<int Function(int)>();
+
+  int bid64_isSignaling(
+    int x,
+  ) {
+    return _bid64_isSignaling(
+      x,
+    );
+  }
+
+  late final _bid64_isSignalingPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_isSignaling');
+  late final _bid64_isSignaling =
+      _bid64_isSignalingPtr.asFunction<int Function(int)>();
+
+  int bid64_isSigned(
+    int x,
+  ) {
+    return _bid64_isSigned(
+      x,
+    );
+  }
+
+  late final _bid64_isSignedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_isSigned');
+  late final _bid64_isSigned =
+      _bid64_isSignedPtr.asFunction<int Function(int)>();
+
+  int bid64_isSubnormal(
+    int x,
+  ) {
+    return _bid64_isSubnormal(
+      x,
+    );
+  }
+
+  late final _bid64_isSubnormalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_isSubnormal');
+  late final _bid64_isSubnormal =
+      _bid64_isSubnormalPtr.asFunction<int Function(int)>();
+
+  int bid64_isZero(
+    int x,
+  ) {
+    return _bid64_isZero(
+      x,
+    );
+  }
+
+  late final _bid64_isZeroPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>('bid64_isZero');
+  late final _bid64_isZero = _bid64_isZeroPtr.asFunction<int Function(int)>();
+
+  int bid64_ldexp(
+    int x,
+    int n,
+  ) {
+    return _bid64_ldexp(
+      x,
+      n,
+    );
+  }
+
+  late final _bid64_ldexpPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, ffi.Int)>>(
+          'bid64_ldexp');
+  late final _bid64_ldexp =
+      _bid64_ldexpPtr.asFunction<int Function(int, int)>();
+
+  int bid64_lgamma(
+    int x,
+  ) {
+    return _bid64_lgamma(
+      x,
+    );
+  }
+
+  late final _bid64_lgammaPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_lgamma');
+  late final _bid64_lgamma = _bid64_lgammaPtr.asFunction<int Function(int)>();
+
+  int bid64_llquantexp(
+    int x,
+  ) {
+    return _bid64_llquantexp(
+      x,
+    );
+  }
+
+  late final _bid64_llquantexpPtr =
+      _lookup<ffi.NativeFunction<ffi.LongLong Function(BID_UINT64)>>(
+          'bid64_llquantexp');
+  late final _bid64_llquantexp =
+      _bid64_llquantexpPtr.asFunction<int Function(int)>();
+
+  int bid64_llrint(
+    int x,
+  ) {
+    return _bid64_llrint(
+      x,
+    );
+  }
+
+  late final _bid64_llrintPtr =
+      _lookup<ffi.NativeFunction<ffi.LongLong Function(BID_UINT64)>>(
+          'bid64_llrint');
+  late final _bid64_llrint = _bid64_llrintPtr.asFunction<int Function(int)>();
+
+  int bid64_llround(
+    int x,
+  ) {
+    return _bid64_llround(
+      x,
+    );
+  }
+
+  late final _bid64_llroundPtr =
+      _lookup<ffi.NativeFunction<ffi.LongLong Function(BID_UINT64)>>(
+          'bid64_llround');
+  late final _bid64_llround = _bid64_llroundPtr.asFunction<int Function(int)>();
+
+  int bid64_log(
+    int x,
+  ) {
+    return _bid64_log(
+      x,
+    );
+  }
+
+  late final _bid64_logPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>('bid64_log');
+  late final _bid64_log = _bid64_logPtr.asFunction<int Function(int)>();
+
+  int bid64_log10(
+    int x,
+  ) {
+    return _bid64_log10(
+      x,
+    );
+  }
+
+  late final _bid64_log10Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_log10');
+  late final _bid64_log10 = _bid64_log10Ptr.asFunction<int Function(int)>();
+
+  int bid64_log1p(
+    int x,
+  ) {
+    return _bid64_log1p(
+      x,
+    );
+  }
+
+  late final _bid64_log1pPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_log1p');
+  late final _bid64_log1p = _bid64_log1pPtr.asFunction<int Function(int)>();
+
+  int bid64_log2(
+    int x,
+  ) {
+    return _bid64_log2(
+      x,
+    );
+  }
+
+  late final _bid64_log2Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_log2');
+  late final _bid64_log2 = _bid64_log2Ptr.asFunction<int Function(int)>();
+
+  int bid64_logb(
+    int x,
+  ) {
+    return _bid64_logb(
+      x,
+    );
+  }
+
+  late final _bid64_logbPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_logb');
+  late final _bid64_logb = _bid64_logbPtr.asFunction<int Function(int)>();
+
+  int bid64_lrint(
+    int x,
+  ) {
+    return _bid64_lrint(
+      x,
+    );
+  }
+
+  late final _bid64_lrintPtr =
+      _lookup<ffi.NativeFunction<ffi.Long Function(BID_UINT64)>>('bid64_lrint');
+  late final _bid64_lrint = _bid64_lrintPtr.asFunction<int Function(int)>();
+
+  int bid64_lround(
+    int x,
+  ) {
+    return _bid64_lround(
+      x,
+    );
+  }
+
+  late final _bid64_lroundPtr =
+      _lookup<ffi.NativeFunction<ffi.Long Function(BID_UINT64)>>(
+          'bid64_lround');
+  late final _bid64_lround = _bid64_lroundPtr.asFunction<int Function(int)>();
+
+  int bid64_maxnum(
+    int x,
+    int y,
+  ) {
+    return _bid64_maxnum(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_maxnumPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_maxnum');
+  late final _bid64_maxnum =
+      _bid64_maxnumPtr.asFunction<int Function(int, int)>();
+
+  int bid64_maxnum_mag(
+    int x,
+    int y,
+  ) {
+    return _bid64_maxnum_mag(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_maxnum_magPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_maxnum_mag');
+  late final _bid64_maxnum_mag =
+      _bid64_maxnum_magPtr.asFunction<int Function(int, int)>();
+
+  int bid64_minnum(
+    int x,
+    int y,
+  ) {
+    return _bid64_minnum(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_minnumPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_minnum');
+  late final _bid64_minnum =
+      _bid64_minnumPtr.asFunction<int Function(int, int)>();
+
+  int bid64_minnum_mag(
+    int x,
+    int y,
+  ) {
+    return _bid64_minnum_mag(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_minnum_magPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_minnum_mag');
+  late final _bid64_minnum_mag =
+      _bid64_minnum_magPtr.asFunction<int Function(int, int)>();
+
+  int bid64_modf(
+    int x,
+    ffi.Pointer<BID_UINT64> y,
+  ) {
+    return _bid64_modf(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_modfPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT64 Function(
+              BID_UINT64, ffi.Pointer<BID_UINT64>)>>('bid64_modf');
+  late final _bid64_modf =
+      _bid64_modfPtr.asFunction<int Function(int, ffi.Pointer<BID_UINT64>)>();
+
+  int bid64_mul(
+    int x,
+    int y,
+  ) {
+    return _bid64_mul(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_mulPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_mul');
+  late final _bid64_mul = _bid64_mulPtr.asFunction<int Function(int, int)>();
+
+  int bid64_nan(
+    ffi.Pointer<ffi.Char> tagp,
+  ) {
+    return _bid64_nan(
+      tagp,
+    );
+  }
+
+  late final _bid64_nanPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(ffi.Pointer<ffi.Char>)>>(
+          'bid64_nan');
+  late final _bid64_nan =
+      _bid64_nanPtr.asFunction<int Function(ffi.Pointer<ffi.Char>)>();
+
+  int bid64_nearbyint(
+    int x,
+  ) {
+    return _bid64_nearbyint(
+      x,
+    );
+  }
+
+  late final _bid64_nearbyintPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_nearbyint');
+  late final _bid64_nearbyint =
+      _bid64_nearbyintPtr.asFunction<int Function(int)>();
+
+  int bid64_negate(
+    int x,
+  ) {
+    return _bid64_negate(
+      x,
+    );
+  }
+
+  late final _bid64_negatePtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_negate');
+  late final _bid64_negate = _bid64_negatePtr.asFunction<int Function(int)>();
+
+  int bid64_nextafter(
+    int x,
+    int y,
+  ) {
+    return _bid64_nextafter(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_nextafterPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_nextafter');
+  late final _bid64_nextafter =
+      _bid64_nextafterPtr.asFunction<int Function(int, int)>();
+
+  int bid64_nextdown(
+    int x,
+  ) {
+    return _bid64_nextdown(
+      x,
+    );
+  }
+
+  late final _bid64_nextdownPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_nextdown');
+  late final _bid64_nextdown =
+      _bid64_nextdownPtr.asFunction<int Function(int)>();
+
+  int bid64_nexttoward(
+    int x,
+    BID_UINT128 y,
+  ) {
+    return _bid64_nexttoward(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_nexttowardPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT128)>>(
+          'bid64_nexttoward');
+  late final _bid64_nexttoward =
+      _bid64_nexttowardPtr.asFunction<int Function(int, BID_UINT128)>();
+
+  int bid64_nextup(
+    int x,
+  ) {
+    return _bid64_nextup(
+      x,
+    );
+  }
+
+  late final _bid64_nextupPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_nextup');
+  late final _bid64_nextup = _bid64_nextupPtr.asFunction<int Function(int)>();
+
+  int bid64_pow(
+    int x,
+    int y,
+  ) {
+    return _bid64_pow(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_powPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_pow');
+  late final _bid64_pow = _bid64_powPtr.asFunction<int Function(int, int)>();
+
+  int bid64_quantexp(
+    int x,
+  ) {
+    return _bid64_quantexp(
+      x,
+    );
+  }
+
+  late final _bid64_quantexpPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_quantexp');
+  late final _bid64_quantexp =
+      _bid64_quantexpPtr.asFunction<int Function(int)>();
+
+  int bid64_quantize(
+    int x,
+    int y,
+  ) {
+    return _bid64_quantize(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_quantizePtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_quantize');
+  late final _bid64_quantize =
+      _bid64_quantizePtr.asFunction<int Function(int, int)>();
+
+  int bid64_quantum(
+    int x,
+  ) {
+    return _bid64_quantum(
+      x,
+    );
+  }
+
+  late final _bid64_quantumPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_quantum');
+  late final _bid64_quantum = _bid64_quantumPtr.asFunction<int Function(int)>();
+
+  int bid64_quiet_equal(
+    int x,
+    int y,
+  ) {
+    return _bid64_quiet_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_quiet_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_quiet_equal');
+  late final _bid64_quiet_equal =
+      _bid64_quiet_equalPtr.asFunction<int Function(int, int)>();
+
+  int bid64_quiet_greater(
+    int x,
+    int y,
+  ) {
+    return _bid64_quiet_greater(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_quiet_greaterPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_quiet_greater');
+  late final _bid64_quiet_greater =
+      _bid64_quiet_greaterPtr.asFunction<int Function(int, int)>();
+
+  int bid64_quiet_greater_equal(
+    int x,
+    int y,
+  ) {
+    return _bid64_quiet_greater_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_quiet_greater_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_quiet_greater_equal');
+  late final _bid64_quiet_greater_equal =
+      _bid64_quiet_greater_equalPtr.asFunction<int Function(int, int)>();
+
+  int bid64_quiet_greater_unordered(
+    int x,
+    int y,
+  ) {
+    return _bid64_quiet_greater_unordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_quiet_greater_unorderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_quiet_greater_unordered');
+  late final _bid64_quiet_greater_unordered =
+      _bid64_quiet_greater_unorderedPtr.asFunction<int Function(int, int)>();
+
+  int bid64_quiet_less(
+    int x,
+    int y,
+  ) {
+    return _bid64_quiet_less(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_quiet_lessPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_quiet_less');
+  late final _bid64_quiet_less =
+      _bid64_quiet_lessPtr.asFunction<int Function(int, int)>();
+
+  int bid64_quiet_less_equal(
+    int x,
+    int y,
+  ) {
+    return _bid64_quiet_less_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_quiet_less_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_quiet_less_equal');
+  late final _bid64_quiet_less_equal =
+      _bid64_quiet_less_equalPtr.asFunction<int Function(int, int)>();
+
+  int bid64_quiet_less_unordered(
+    int x,
+    int y,
+  ) {
+    return _bid64_quiet_less_unordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_quiet_less_unorderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_quiet_less_unordered');
+  late final _bid64_quiet_less_unordered =
+      _bid64_quiet_less_unorderedPtr.asFunction<int Function(int, int)>();
+
+  int bid64_quiet_not_equal(
+    int x,
+    int y,
+  ) {
+    return _bid64_quiet_not_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_quiet_not_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_quiet_not_equal');
+  late final _bid64_quiet_not_equal =
+      _bid64_quiet_not_equalPtr.asFunction<int Function(int, int)>();
+
+  int bid64_quiet_not_greater(
+    int x,
+    int y,
+  ) {
+    return _bid64_quiet_not_greater(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_quiet_not_greaterPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_quiet_not_greater');
+  late final _bid64_quiet_not_greater =
+      _bid64_quiet_not_greaterPtr.asFunction<int Function(int, int)>();
+
+  int bid64_quiet_not_less(
+    int x,
+    int y,
+  ) {
+    return _bid64_quiet_not_less(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_quiet_not_lessPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_quiet_not_less');
+  late final _bid64_quiet_not_less =
+      _bid64_quiet_not_lessPtr.asFunction<int Function(int, int)>();
+
+  int bid64_quiet_ordered(
+    int x,
+    int y,
+  ) {
+    return _bid64_quiet_ordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_quiet_orderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_quiet_ordered');
+  late final _bid64_quiet_ordered =
+      _bid64_quiet_orderedPtr.asFunction<int Function(int, int)>();
+
+  int bid64_quiet_unordered(
+    int x,
+    int y,
+  ) {
+    return _bid64_quiet_unordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_quiet_unorderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_quiet_unordered');
+  late final _bid64_quiet_unordered =
+      _bid64_quiet_unorderedPtr.asFunction<int Function(int, int)>();
+
+  int bid64_radix(
+    int x,
+  ) {
+    return _bid64_radix(
+      x,
+    );
+  }
+
+  late final _bid64_radixPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>('bid64_radix');
+  late final _bid64_radix = _bid64_radixPtr.asFunction<int Function(int)>();
+
+  int bid64_rem(
+    int x,
+    int y,
+  ) {
+    return _bid64_rem(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_remPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_rem');
+  late final _bid64_rem = _bid64_remPtr.asFunction<int Function(int, int)>();
+
+  int bid64_round_integral_exact(
+    int x,
+  ) {
+    return _bid64_round_integral_exact(
+      x,
+    );
+  }
+
+  late final _bid64_round_integral_exactPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_round_integral_exact');
+  late final _bid64_round_integral_exact =
+      _bid64_round_integral_exactPtr.asFunction<int Function(int)>();
+
+  int bid64_round_integral_nearest_away(
+    int x,
+  ) {
+    return _bid64_round_integral_nearest_away(
+      x,
+    );
+  }
+
+  late final _bid64_round_integral_nearest_awayPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_round_integral_nearest_away');
+  late final _bid64_round_integral_nearest_away =
+      _bid64_round_integral_nearest_awayPtr.asFunction<int Function(int)>();
+
+  int bid64_round_integral_nearest_even(
+    int x,
+  ) {
+    return _bid64_round_integral_nearest_even(
+      x,
+    );
+  }
+
+  late final _bid64_round_integral_nearest_evenPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_round_integral_nearest_even');
+  late final _bid64_round_integral_nearest_even =
+      _bid64_round_integral_nearest_evenPtr.asFunction<int Function(int)>();
+
+  int bid64_round_integral_negative(
+    int x,
+  ) {
+    return _bid64_round_integral_negative(
+      x,
+    );
+  }
+
+  late final _bid64_round_integral_negativePtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_round_integral_negative');
+  late final _bid64_round_integral_negative =
+      _bid64_round_integral_negativePtr.asFunction<int Function(int)>();
+
+  int bid64_round_integral_positive(
+    int x,
+  ) {
+    return _bid64_round_integral_positive(
+      x,
+    );
+  }
+
+  late final _bid64_round_integral_positivePtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_round_integral_positive');
+  late final _bid64_round_integral_positive =
+      _bid64_round_integral_positivePtr.asFunction<int Function(int)>();
+
+  int bid64_round_integral_zero(
+    int x,
+  ) {
+    return _bid64_round_integral_zero(
+      x,
+    );
+  }
+
+  late final _bid64_round_integral_zeroPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_round_integral_zero');
+  late final _bid64_round_integral_zero =
+      _bid64_round_integral_zeroPtr.asFunction<int Function(int)>();
+
+  int bid64_sameQuantum(
+    int x,
+    int y,
+  ) {
+    return _bid64_sameQuantum(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_sameQuantumPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_sameQuantum');
+  late final _bid64_sameQuantum =
+      _bid64_sameQuantumPtr.asFunction<int Function(int, int)>();
+
+  int bid64_scalbln(
+    int x,
+    int n,
+  ) {
+    return _bid64_scalbln(
+      x,
+      n,
+    );
+  }
+
+  late final _bid64_scalblnPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, ffi.Long)>>(
+          'bid64_scalbln');
+  late final _bid64_scalbln =
+      _bid64_scalblnPtr.asFunction<int Function(int, int)>();
+
+  int bid64_scalbn(
+    int x,
+    int n,
+  ) {
+    return _bid64_scalbn(
+      x,
+      n,
+    );
+  }
+
+  late final _bid64_scalbnPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, ffi.Int)>>(
+          'bid64_scalbn');
+  late final _bid64_scalbn =
+      _bid64_scalbnPtr.asFunction<int Function(int, int)>();
+
+  int bid64_signaling_greater(
+    int x,
+    int y,
+  ) {
+    return _bid64_signaling_greater(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_signaling_greaterPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_signaling_greater');
+  late final _bid64_signaling_greater =
+      _bid64_signaling_greaterPtr.asFunction<int Function(int, int)>();
+
+  int bid64_signaling_greater_equal(
+    int x,
+    int y,
+  ) {
+    return _bid64_signaling_greater_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_signaling_greater_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_signaling_greater_equal');
+  late final _bid64_signaling_greater_equal =
+      _bid64_signaling_greater_equalPtr.asFunction<int Function(int, int)>();
+
+  int bid64_signaling_greater_unordered(
+    int x,
+    int y,
+  ) {
+    return _bid64_signaling_greater_unordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_signaling_greater_unorderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_signaling_greater_unordered');
+  late final _bid64_signaling_greater_unordered =
+      _bid64_signaling_greater_unorderedPtr
+          .asFunction<int Function(int, int)>();
+
+  int bid64_signaling_less(
+    int x,
+    int y,
+  ) {
+    return _bid64_signaling_less(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_signaling_lessPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_signaling_less');
+  late final _bid64_signaling_less =
+      _bid64_signaling_lessPtr.asFunction<int Function(int, int)>();
+
+  int bid64_signaling_less_equal(
+    int x,
+    int y,
+  ) {
+    return _bid64_signaling_less_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_signaling_less_equalPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_signaling_less_equal');
+  late final _bid64_signaling_less_equal =
+      _bid64_signaling_less_equalPtr.asFunction<int Function(int, int)>();
+
+  int bid64_signaling_less_unordered(
+    int x,
+    int y,
+  ) {
+    return _bid64_signaling_less_unordered(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_signaling_less_unorderedPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_signaling_less_unordered');
+  late final _bid64_signaling_less_unordered =
+      _bid64_signaling_less_unorderedPtr.asFunction<int Function(int, int)>();
+
+  int bid64_signaling_not_greater(
+    int x,
+    int y,
+  ) {
+    return _bid64_signaling_not_greater(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_signaling_not_greaterPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_signaling_not_greater');
+  late final _bid64_signaling_not_greater =
+      _bid64_signaling_not_greaterPtr.asFunction<int Function(int, int)>();
+
+  int bid64_signaling_not_less(
+    int x,
+    int y,
+  ) {
+    return _bid64_signaling_not_less(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_signaling_not_lessPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_signaling_not_less');
+  late final _bid64_signaling_not_less =
+      _bid64_signaling_not_lessPtr.asFunction<int Function(int, int)>();
+
+  int bid64_sin(
+    int x,
+  ) {
+    return _bid64_sin(
+      x,
+    );
+  }
+
+  late final _bid64_sinPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>('bid64_sin');
+  late final _bid64_sin = _bid64_sinPtr.asFunction<int Function(int)>();
+
+  int bid64_sinh(
+    int x,
+  ) {
+    return _bid64_sinh(
+      x,
+    );
+  }
+
+  late final _bid64_sinhPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_sinh');
+  late final _bid64_sinh = _bid64_sinhPtr.asFunction<int Function(int)>();
+
+  int bid64_sqrt(
+    int x,
+  ) {
+    return _bid64_sqrt(
+      x,
+    );
+  }
+
+  late final _bid64_sqrtPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_sqrt');
+  late final _bid64_sqrt = _bid64_sqrtPtr.asFunction<int Function(int)>();
+
+  int bid64_sub(
+    int x,
+    int y,
+  ) {
+    return _bid64_sub(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_subPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_sub');
+  late final _bid64_sub = _bid64_subPtr.asFunction<int Function(int, int)>();
+
+  int bid64_tan(
+    int x,
+  ) {
+    return _bid64_tan(
+      x,
+    );
+  }
+
+  late final _bid64_tanPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>('bid64_tan');
+  late final _bid64_tan = _bid64_tanPtr.asFunction<int Function(int)>();
+
+  int bid64_tanh(
+    int x,
+  ) {
+    return _bid64_tanh(
+      x,
+    );
+  }
+
+  late final _bid64_tanhPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_tanh');
+  late final _bid64_tanh = _bid64_tanhPtr.asFunction<int Function(int)>();
+
+  int bid64_tgamma(
+    int x,
+  ) {
+    return _bid64_tgamma(
+      x,
+    );
+  }
+
+  late final _bid64_tgammaPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_tgamma');
+  late final _bid64_tgamma = _bid64_tgammaPtr.asFunction<int Function(int)>();
+
+  BID_UINT128 bid64_to_bid128(
+    int x,
+  ) {
+    return _bid64_to_bid128(
+      x,
+    );
+  }
+
+  late final _bid64_to_bid128Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT64)>>(
+          'bid64_to_bid128');
+  late final _bid64_to_bid128 =
+      _bid64_to_bid128Ptr.asFunction<BID_UINT128 Function(int)>();
+
+  int bid64_to_bid32(
+    int x,
+  ) {
+    return _bid64_to_bid32(
+      x,
+    );
+  }
+
+  late final _bid64_to_bid32Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT64)>>(
+          'bid64_to_bid32');
+  late final _bid64_to_bid32 =
+      _bid64_to_bid32Ptr.asFunction<int Function(int)>();
+
+  BID_UINT128 bid64_to_binary128(
+    int x,
+  ) {
+    return _bid64_to_binary128(
+      x,
+    );
+  }
+
+  late final _bid64_to_binary128Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT64)>>(
+          'bid64_to_binary128');
+  late final _bid64_to_binary128 =
+      _bid64_to_binary128Ptr.asFunction<BID_UINT128 Function(int)>();
+
+  double bid64_to_binary32(
+    int x,
+  ) {
+    return _bid64_to_binary32(
+      x,
+    );
+  }
+
+  late final _bid64_to_binary32Ptr =
+      _lookup<ffi.NativeFunction<ffi.Float Function(BID_UINT64)>>(
+          'bid64_to_binary32');
+  late final _bid64_to_binary32 =
+      _bid64_to_binary32Ptr.asFunction<double Function(int)>();
+
+  double bid64_to_binary64(
+    int x,
+  ) {
+    return _bid64_to_binary64(
+      x,
+    );
+  }
+
+  late final _bid64_to_binary64Ptr =
+      _lookup<ffi.NativeFunction<ffi.Double Function(BID_UINT64)>>(
+          'bid64_to_binary64');
+  late final _bid64_to_binary64 =
+      _bid64_to_binary64Ptr.asFunction<double Function(int)>();
+
+  int bid64_to_int16_ceil(
+    int x,
+  ) {
+    return _bid64_to_int16_ceil(
+      x,
+    );
+  }
+
+  late final _bid64_to_int16_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT64)>>(
+          'bid64_to_int16_ceil');
+  late final _bid64_to_int16_ceil =
+      _bid64_to_int16_ceilPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int16_floor(
+    int x,
+  ) {
+    return _bid64_to_int16_floor(
+      x,
+    );
+  }
+
+  late final _bid64_to_int16_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT64)>>(
+          'bid64_to_int16_floor');
+  late final _bid64_to_int16_floor =
+      _bid64_to_int16_floorPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int16_int(
+    int x,
+  ) {
+    return _bid64_to_int16_int(
+      x,
+    );
+  }
+
+  late final _bid64_to_int16_intPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT64)>>(
+          'bid64_to_int16_int');
+  late final _bid64_to_int16_int =
+      _bid64_to_int16_intPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int16_rnint(
+    int x,
+  ) {
+    return _bid64_to_int16_rnint(
+      x,
+    );
+  }
+
+  late final _bid64_to_int16_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT64)>>(
+          'bid64_to_int16_rnint');
+  late final _bid64_to_int16_rnint =
+      _bid64_to_int16_rnintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int16_rninta(
+    int x,
+  ) {
+    return _bid64_to_int16_rninta(
+      x,
+    );
+  }
+
+  late final _bid64_to_int16_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT64)>>(
+          'bid64_to_int16_rninta');
+  late final _bid64_to_int16_rninta =
+      _bid64_to_int16_rnintaPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int16_xceil(
+    int x,
+  ) {
+    return _bid64_to_int16_xceil(
+      x,
+    );
+  }
+
+  late final _bid64_to_int16_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT64)>>(
+          'bid64_to_int16_xceil');
+  late final _bid64_to_int16_xceil =
+      _bid64_to_int16_xceilPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int16_xfloor(
+    int x,
+  ) {
+    return _bid64_to_int16_xfloor(
+      x,
+    );
+  }
+
+  late final _bid64_to_int16_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT64)>>(
+          'bid64_to_int16_xfloor');
+  late final _bid64_to_int16_xfloor =
+      _bid64_to_int16_xfloorPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int16_xint(
+    int x,
+  ) {
+    return _bid64_to_int16_xint(
+      x,
+    );
+  }
+
+  late final _bid64_to_int16_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT64)>>(
+          'bid64_to_int16_xint');
+  late final _bid64_to_int16_xint =
+      _bid64_to_int16_xintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int16_xrnint(
+    int x,
+  ) {
+    return _bid64_to_int16_xrnint(
+      x,
+    );
+  }
+
+  late final _bid64_to_int16_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT64)>>(
+          'bid64_to_int16_xrnint');
+  late final _bid64_to_int16_xrnint =
+      _bid64_to_int16_xrnintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int16_xrninta(
+    int x,
+  ) {
+    return _bid64_to_int16_xrninta(
+      x,
+    );
+  }
+
+  late final _bid64_to_int16_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Short Function(BID_UINT64)>>(
+          'bid64_to_int16_xrninta');
+  late final _bid64_to_int16_xrninta =
+      _bid64_to_int16_xrnintaPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int32_ceil(
+    int x,
+  ) {
+    return _bid64_to_int32_ceil(
+      x,
+    );
+  }
+
+  late final _bid64_to_int32_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_to_int32_ceil');
+  late final _bid64_to_int32_ceil =
+      _bid64_to_int32_ceilPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int32_floor(
+    int x,
+  ) {
+    return _bid64_to_int32_floor(
+      x,
+    );
+  }
+
+  late final _bid64_to_int32_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_to_int32_floor');
+  late final _bid64_to_int32_floor =
+      _bid64_to_int32_floorPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int32_int(
+    int x,
+  ) {
+    return _bid64_to_int32_int(
+      x,
+    );
+  }
+
+  late final _bid64_to_int32_intPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_to_int32_int');
+  late final _bid64_to_int32_int =
+      _bid64_to_int32_intPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int32_rnint(
+    int x,
+  ) {
+    return _bid64_to_int32_rnint(
+      x,
+    );
+  }
+
+  late final _bid64_to_int32_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_to_int32_rnint');
+  late final _bid64_to_int32_rnint =
+      _bid64_to_int32_rnintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int32_rninta(
+    int x,
+  ) {
+    return _bid64_to_int32_rninta(
+      x,
+    );
+  }
+
+  late final _bid64_to_int32_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_to_int32_rninta');
+  late final _bid64_to_int32_rninta =
+      _bid64_to_int32_rnintaPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int32_xceil(
+    int x,
+  ) {
+    return _bid64_to_int32_xceil(
+      x,
+    );
+  }
+
+  late final _bid64_to_int32_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_to_int32_xceil');
+  late final _bid64_to_int32_xceil =
+      _bid64_to_int32_xceilPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int32_xfloor(
+    int x,
+  ) {
+    return _bid64_to_int32_xfloor(
+      x,
+    );
+  }
+
+  late final _bid64_to_int32_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_to_int32_xfloor');
+  late final _bid64_to_int32_xfloor =
+      _bid64_to_int32_xfloorPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int32_xint(
+    int x,
+  ) {
+    return _bid64_to_int32_xint(
+      x,
+    );
+  }
+
+  late final _bid64_to_int32_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_to_int32_xint');
+  late final _bid64_to_int32_xint =
+      _bid64_to_int32_xintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int32_xrnint(
+    int x,
+  ) {
+    return _bid64_to_int32_xrnint(
+      x,
+    );
+  }
+
+  late final _bid64_to_int32_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_to_int32_xrnint');
+  late final _bid64_to_int32_xrnint =
+      _bid64_to_int32_xrnintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int32_xrninta(
+    int x,
+  ) {
+    return _bid64_to_int32_xrninta(
+      x,
+    );
+  }
+
+  late final _bid64_to_int32_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64)>>(
+          'bid64_to_int32_xrninta');
+  late final _bid64_to_int32_xrninta =
+      _bid64_to_int32_xrnintaPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int64_ceil(
+    int x,
+  ) {
+    return _bid64_to_int64_ceil(
+      x,
+    );
+  }
+
+  late final _bid64_to_int64_ceilPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT64)>>(
+          'bid64_to_int64_ceil');
+  late final _bid64_to_int64_ceil =
+      _bid64_to_int64_ceilPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int64_floor(
+    int x,
+  ) {
+    return _bid64_to_int64_floor(
+      x,
+    );
+  }
+
+  late final _bid64_to_int64_floorPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT64)>>(
+          'bid64_to_int64_floor');
+  late final _bid64_to_int64_floor =
+      _bid64_to_int64_floorPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int64_int(
+    int x,
+  ) {
+    return _bid64_to_int64_int(
+      x,
+    );
+  }
+
+  late final _bid64_to_int64_intPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT64)>>(
+          'bid64_to_int64_int');
+  late final _bid64_to_int64_int =
+      _bid64_to_int64_intPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int64_rnint(
+    int x,
+  ) {
+    return _bid64_to_int64_rnint(
+      x,
+    );
+  }
+
+  late final _bid64_to_int64_rnintPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT64)>>(
+          'bid64_to_int64_rnint');
+  late final _bid64_to_int64_rnint =
+      _bid64_to_int64_rnintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int64_rninta(
+    int x,
+  ) {
+    return _bid64_to_int64_rninta(
+      x,
+    );
+  }
+
+  late final _bid64_to_int64_rnintaPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT64)>>(
+          'bid64_to_int64_rninta');
+  late final _bid64_to_int64_rninta =
+      _bid64_to_int64_rnintaPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int64_xceil(
+    int x,
+  ) {
+    return _bid64_to_int64_xceil(
+      x,
+    );
+  }
+
+  late final _bid64_to_int64_xceilPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT64)>>(
+          'bid64_to_int64_xceil');
+  late final _bid64_to_int64_xceil =
+      _bid64_to_int64_xceilPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int64_xfloor(
+    int x,
+  ) {
+    return _bid64_to_int64_xfloor(
+      x,
+    );
+  }
+
+  late final _bid64_to_int64_xfloorPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT64)>>(
+          'bid64_to_int64_xfloor');
+  late final _bid64_to_int64_xfloor =
+      _bid64_to_int64_xfloorPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int64_xint(
+    int x,
+  ) {
+    return _bid64_to_int64_xint(
+      x,
+    );
+  }
+
+  late final _bid64_to_int64_xintPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT64)>>(
+          'bid64_to_int64_xint');
+  late final _bid64_to_int64_xint =
+      _bid64_to_int64_xintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int64_xrnint(
+    int x,
+  ) {
+    return _bid64_to_int64_xrnint(
+      x,
+    );
+  }
+
+  late final _bid64_to_int64_xrnintPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT64)>>(
+          'bid64_to_int64_xrnint');
+  late final _bid64_to_int64_xrnint =
+      _bid64_to_int64_xrnintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int64_xrninta(
+    int x,
+  ) {
+    return _bid64_to_int64_xrninta(
+      x,
+    );
+  }
+
+  late final _bid64_to_int64_xrnintaPtr =
+      _lookup<ffi.NativeFunction<BID_SINT64 Function(BID_UINT64)>>(
+          'bid64_to_int64_xrninta');
+  late final _bid64_to_int64_xrninta =
+      _bid64_to_int64_xrnintaPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int8_ceil(
+    int x,
+  ) {
+    return _bid64_to_int8_ceil(
+      x,
+    );
+  }
+
+  late final _bid64_to_int8_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT64)>>(
+          'bid64_to_int8_ceil');
+  late final _bid64_to_int8_ceil =
+      _bid64_to_int8_ceilPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int8_floor(
+    int x,
+  ) {
+    return _bid64_to_int8_floor(
+      x,
+    );
+  }
+
+  late final _bid64_to_int8_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT64)>>(
+          'bid64_to_int8_floor');
+  late final _bid64_to_int8_floor =
+      _bid64_to_int8_floorPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int8_int(
+    int x,
+  ) {
+    return _bid64_to_int8_int(
+      x,
+    );
+  }
+
+  late final _bid64_to_int8_intPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT64)>>(
+          'bid64_to_int8_int');
+  late final _bid64_to_int8_int =
+      _bid64_to_int8_intPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int8_rnint(
+    int x,
+  ) {
+    return _bid64_to_int8_rnint(
+      x,
+    );
+  }
+
+  late final _bid64_to_int8_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT64)>>(
+          'bid64_to_int8_rnint');
+  late final _bid64_to_int8_rnint =
+      _bid64_to_int8_rnintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int8_rninta(
+    int x,
+  ) {
+    return _bid64_to_int8_rninta(
+      x,
+    );
+  }
+
+  late final _bid64_to_int8_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT64)>>(
+          'bid64_to_int8_rninta');
+  late final _bid64_to_int8_rninta =
+      _bid64_to_int8_rnintaPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int8_xceil(
+    int x,
+  ) {
+    return _bid64_to_int8_xceil(
+      x,
+    );
+  }
+
+  late final _bid64_to_int8_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT64)>>(
+          'bid64_to_int8_xceil');
+  late final _bid64_to_int8_xceil =
+      _bid64_to_int8_xceilPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int8_xfloor(
+    int x,
+  ) {
+    return _bid64_to_int8_xfloor(
+      x,
+    );
+  }
+
+  late final _bid64_to_int8_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT64)>>(
+          'bid64_to_int8_xfloor');
+  late final _bid64_to_int8_xfloor =
+      _bid64_to_int8_xfloorPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int8_xint(
+    int x,
+  ) {
+    return _bid64_to_int8_xint(
+      x,
+    );
+  }
+
+  late final _bid64_to_int8_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT64)>>(
+          'bid64_to_int8_xint');
+  late final _bid64_to_int8_xint =
+      _bid64_to_int8_xintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int8_xrnint(
+    int x,
+  ) {
+    return _bid64_to_int8_xrnint(
+      x,
+    );
+  }
+
+  late final _bid64_to_int8_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT64)>>(
+          'bid64_to_int8_xrnint');
+  late final _bid64_to_int8_xrnint =
+      _bid64_to_int8_xrnintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_int8_xrninta(
+    int x,
+  ) {
+    return _bid64_to_int8_xrninta(
+      x,
+    );
+  }
+
+  late final _bid64_to_int8_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.Char Function(BID_UINT64)>>(
+          'bid64_to_int8_xrninta');
+  late final _bid64_to_int8_xrninta =
+      _bid64_to_int8_xrnintaPtr.asFunction<int Function(int)>();
+
+  void bid64_to_string(
+    ffi.Pointer<ffi.Char> ps,
+    int x,
+  ) {
+    return _bid64_to_string(
+      ps,
+      x,
+    );
+  }
+
+  late final _bid64_to_stringPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<ffi.Char>, BID_UINT64)>>('bid64_to_string');
+  late final _bid64_to_string = _bid64_to_stringPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>, int)>();
+
+  int bid64_to_uint16_ceil(
+    int x,
+  ) {
+    return _bid64_to_uint16_ceil(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint16_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT64)>>(
+          'bid64_to_uint16_ceil');
+  late final _bid64_to_uint16_ceil =
+      _bid64_to_uint16_ceilPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint16_floor(
+    int x,
+  ) {
+    return _bid64_to_uint16_floor(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint16_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT64)>>(
+          'bid64_to_uint16_floor');
+  late final _bid64_to_uint16_floor =
+      _bid64_to_uint16_floorPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint16_int(
+    int x,
+  ) {
+    return _bid64_to_uint16_int(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint16_intPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT64)>>(
+          'bid64_to_uint16_int');
+  late final _bid64_to_uint16_int =
+      _bid64_to_uint16_intPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint16_rnint(
+    int x,
+  ) {
+    return _bid64_to_uint16_rnint(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint16_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT64)>>(
+          'bid64_to_uint16_rnint');
+  late final _bid64_to_uint16_rnint =
+      _bid64_to_uint16_rnintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint16_rninta(
+    int x,
+  ) {
+    return _bid64_to_uint16_rninta(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint16_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT64)>>(
+          'bid64_to_uint16_rninta');
+  late final _bid64_to_uint16_rninta =
+      _bid64_to_uint16_rnintaPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint16_xceil(
+    int x,
+  ) {
+    return _bid64_to_uint16_xceil(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint16_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT64)>>(
+          'bid64_to_uint16_xceil');
+  late final _bid64_to_uint16_xceil =
+      _bid64_to_uint16_xceilPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint16_xfloor(
+    int x,
+  ) {
+    return _bid64_to_uint16_xfloor(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint16_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT64)>>(
+          'bid64_to_uint16_xfloor');
+  late final _bid64_to_uint16_xfloor =
+      _bid64_to_uint16_xfloorPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint16_xint(
+    int x,
+  ) {
+    return _bid64_to_uint16_xint(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint16_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT64)>>(
+          'bid64_to_uint16_xint');
+  late final _bid64_to_uint16_xint =
+      _bid64_to_uint16_xintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint16_xrnint(
+    int x,
+  ) {
+    return _bid64_to_uint16_xrnint(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint16_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT64)>>(
+          'bid64_to_uint16_xrnint');
+  late final _bid64_to_uint16_xrnint =
+      _bid64_to_uint16_xrnintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint16_xrninta(
+    int x,
+  ) {
+    return _bid64_to_uint16_xrninta(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint16_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedShort Function(BID_UINT64)>>(
+          'bid64_to_uint16_xrninta');
+  late final _bid64_to_uint16_xrninta =
+      _bid64_to_uint16_xrnintaPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint32_ceil(
+    int x,
+  ) {
+    return _bid64_to_uint32_ceil(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint32_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT64)>>(
+          'bid64_to_uint32_ceil');
+  late final _bid64_to_uint32_ceil =
+      _bid64_to_uint32_ceilPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint32_floor(
+    int x,
+  ) {
+    return _bid64_to_uint32_floor(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint32_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT64)>>(
+          'bid64_to_uint32_floor');
+  late final _bid64_to_uint32_floor =
+      _bid64_to_uint32_floorPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint32_int(
+    int x,
+  ) {
+    return _bid64_to_uint32_int(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint32_intPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT64)>>(
+          'bid64_to_uint32_int');
+  late final _bid64_to_uint32_int =
+      _bid64_to_uint32_intPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint32_rnint(
+    int x,
+  ) {
+    return _bid64_to_uint32_rnint(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint32_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT64)>>(
+          'bid64_to_uint32_rnint');
+  late final _bid64_to_uint32_rnint =
+      _bid64_to_uint32_rnintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint32_rninta(
+    int x,
+  ) {
+    return _bid64_to_uint32_rninta(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint32_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT64)>>(
+          'bid64_to_uint32_rninta');
+  late final _bid64_to_uint32_rninta =
+      _bid64_to_uint32_rnintaPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint32_xceil(
+    int x,
+  ) {
+    return _bid64_to_uint32_xceil(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint32_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT64)>>(
+          'bid64_to_uint32_xceil');
+  late final _bid64_to_uint32_xceil =
+      _bid64_to_uint32_xceilPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint32_xfloor(
+    int x,
+  ) {
+    return _bid64_to_uint32_xfloor(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint32_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT64)>>(
+          'bid64_to_uint32_xfloor');
+  late final _bid64_to_uint32_xfloor =
+      _bid64_to_uint32_xfloorPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint32_xint(
+    int x,
+  ) {
+    return _bid64_to_uint32_xint(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint32_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT64)>>(
+          'bid64_to_uint32_xint');
+  late final _bid64_to_uint32_xint =
+      _bid64_to_uint32_xintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint32_xrnint(
+    int x,
+  ) {
+    return _bid64_to_uint32_xrnint(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint32_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT64)>>(
+          'bid64_to_uint32_xrnint');
+  late final _bid64_to_uint32_xrnint =
+      _bid64_to_uint32_xrnintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint32_xrninta(
+    int x,
+  ) {
+    return _bid64_to_uint32_xrninta(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint32_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(BID_UINT64)>>(
+          'bid64_to_uint32_xrninta');
+  late final _bid64_to_uint32_xrninta =
+      _bid64_to_uint32_xrnintaPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint64_ceil(
+    int x,
+  ) {
+    return _bid64_to_uint64_ceil(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint64_ceilPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_to_uint64_ceil');
+  late final _bid64_to_uint64_ceil =
+      _bid64_to_uint64_ceilPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint64_floor(
+    int x,
+  ) {
+    return _bid64_to_uint64_floor(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint64_floorPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_to_uint64_floor');
+  late final _bid64_to_uint64_floor =
+      _bid64_to_uint64_floorPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint64_int(
+    int x,
+  ) {
+    return _bid64_to_uint64_int(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint64_intPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_to_uint64_int');
+  late final _bid64_to_uint64_int =
+      _bid64_to_uint64_intPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint64_rnint(
+    int x,
+  ) {
+    return _bid64_to_uint64_rnint(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint64_rnintPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_to_uint64_rnint');
+  late final _bid64_to_uint64_rnint =
+      _bid64_to_uint64_rnintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint64_rninta(
+    int x,
+  ) {
+    return _bid64_to_uint64_rninta(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint64_rnintaPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_to_uint64_rninta');
+  late final _bid64_to_uint64_rninta =
+      _bid64_to_uint64_rnintaPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint64_xceil(
+    int x,
+  ) {
+    return _bid64_to_uint64_xceil(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint64_xceilPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_to_uint64_xceil');
+  late final _bid64_to_uint64_xceil =
+      _bid64_to_uint64_xceilPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint64_xfloor(
+    int x,
+  ) {
+    return _bid64_to_uint64_xfloor(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint64_xfloorPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_to_uint64_xfloor');
+  late final _bid64_to_uint64_xfloor =
+      _bid64_to_uint64_xfloorPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint64_xint(
+    int x,
+  ) {
+    return _bid64_to_uint64_xint(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint64_xintPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_to_uint64_xint');
+  late final _bid64_to_uint64_xint =
+      _bid64_to_uint64_xintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint64_xrnint(
+    int x,
+  ) {
+    return _bid64_to_uint64_xrnint(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint64_xrnintPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_to_uint64_xrnint');
+  late final _bid64_to_uint64_xrnint =
+      _bid64_to_uint64_xrnintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint64_xrninta(
+    int x,
+  ) {
+    return _bid64_to_uint64_xrninta(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint64_xrnintaPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid64_to_uint64_xrninta');
+  late final _bid64_to_uint64_xrninta =
+      _bid64_to_uint64_xrnintaPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint8_ceil(
+    int x,
+  ) {
+    return _bid64_to_uint8_ceil(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint8_ceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT64)>>(
+          'bid64_to_uint8_ceil');
+  late final _bid64_to_uint8_ceil =
+      _bid64_to_uint8_ceilPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint8_floor(
+    int x,
+  ) {
+    return _bid64_to_uint8_floor(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint8_floorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT64)>>(
+          'bid64_to_uint8_floor');
+  late final _bid64_to_uint8_floor =
+      _bid64_to_uint8_floorPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint8_int(
+    int x,
+  ) {
+    return _bid64_to_uint8_int(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint8_intPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT64)>>(
+          'bid64_to_uint8_int');
+  late final _bid64_to_uint8_int =
+      _bid64_to_uint8_intPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint8_rnint(
+    int x,
+  ) {
+    return _bid64_to_uint8_rnint(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint8_rnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT64)>>(
+          'bid64_to_uint8_rnint');
+  late final _bid64_to_uint8_rnint =
+      _bid64_to_uint8_rnintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint8_rninta(
+    int x,
+  ) {
+    return _bid64_to_uint8_rninta(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint8_rnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT64)>>(
+          'bid64_to_uint8_rninta');
+  late final _bid64_to_uint8_rninta =
+      _bid64_to_uint8_rnintaPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint8_xceil(
+    int x,
+  ) {
+    return _bid64_to_uint8_xceil(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint8_xceilPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT64)>>(
+          'bid64_to_uint8_xceil');
+  late final _bid64_to_uint8_xceil =
+      _bid64_to_uint8_xceilPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint8_xfloor(
+    int x,
+  ) {
+    return _bid64_to_uint8_xfloor(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint8_xfloorPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT64)>>(
+          'bid64_to_uint8_xfloor');
+  late final _bid64_to_uint8_xfloor =
+      _bid64_to_uint8_xfloorPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint8_xint(
+    int x,
+  ) {
+    return _bid64_to_uint8_xint(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint8_xintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT64)>>(
+          'bid64_to_uint8_xint');
+  late final _bid64_to_uint8_xint =
+      _bid64_to_uint8_xintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint8_xrnint(
+    int x,
+  ) {
+    return _bid64_to_uint8_xrnint(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint8_xrnintPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT64)>>(
+          'bid64_to_uint8_xrnint');
+  late final _bid64_to_uint8_xrnint =
+      _bid64_to_uint8_xrnintPtr.asFunction<int Function(int)>();
+
+  int bid64_to_uint8_xrninta(
+    int x,
+  ) {
+    return _bid64_to_uint8_xrninta(
+      x,
+    );
+  }
+
+  late final _bid64_to_uint8_xrnintaPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedChar Function(BID_UINT64)>>(
+          'bid64_to_uint8_xrninta');
+  late final _bid64_to_uint8_xrninta =
+      _bid64_to_uint8_xrnintaPtr.asFunction<int Function(int)>();
+
+  int bid64_totalOrder(
+    int x,
+    int y,
+  ) {
+    return _bid64_totalOrder(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_totalOrderPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_totalOrder');
+  late final _bid64_totalOrder =
+      _bid64_totalOrderPtr.asFunction<int Function(int, int)>();
+
+  int bid64_totalOrderMag(
+    int x,
+    int y,
+  ) {
+    return _bid64_totalOrderMag(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64_totalOrderMagPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(BID_UINT64, BID_UINT64)>>(
+          'bid64_totalOrderMag');
+  late final _bid64_totalOrderMag =
+      _bid64_totalOrderMagPtr.asFunction<int Function(int, int)>();
+
+  int bid64ddq_fma(
+    int x,
+    int y,
+    BID_UINT128 z,
+  ) {
+    return _bid64ddq_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid64ddq_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT64 Function(
+              BID_UINT64, BID_UINT64, BID_UINT128)>>('bid64ddq_fma');
+  late final _bid64ddq_fma =
+      _bid64ddq_fmaPtr.asFunction<int Function(int, int, BID_UINT128)>();
+
+  int bid64dq_add(
+    int x,
+    BID_UINT128 y,
+  ) {
+    return _bid64dq_add(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64dq_addPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT128)>>(
+          'bid64dq_add');
+  late final _bid64dq_add =
+      _bid64dq_addPtr.asFunction<int Function(int, BID_UINT128)>();
+
+  int bid64dq_div(
+    int x,
+    BID_UINT128 y,
+  ) {
+    return _bid64dq_div(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64dq_divPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT128)>>(
+          'bid64dq_div');
+  late final _bid64dq_div =
+      _bid64dq_divPtr.asFunction<int Function(int, BID_UINT128)>();
+
+  int bid64dq_mul(
+    int x,
+    BID_UINT128 y,
+  ) {
+    return _bid64dq_mul(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64dq_mulPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT128)>>(
+          'bid64dq_mul');
+  late final _bid64dq_mul =
+      _bid64dq_mulPtr.asFunction<int Function(int, BID_UINT128)>();
+
+  int bid64dq_sub(
+    int x,
+    BID_UINT128 y,
+  ) {
+    return _bid64dq_sub(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64dq_subPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64, BID_UINT128)>>(
+          'bid64dq_sub');
+  late final _bid64dq_sub =
+      _bid64dq_subPtr.asFunction<int Function(int, BID_UINT128)>();
+
+  int bid64dqd_fma(
+    int x,
+    BID_UINT128 y,
+    int z,
+  ) {
+    return _bid64dqd_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid64dqd_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT64 Function(
+              BID_UINT64, BID_UINT128, BID_UINT64)>>('bid64dqd_fma');
+  late final _bid64dqd_fma =
+      _bid64dqd_fmaPtr.asFunction<int Function(int, BID_UINT128, int)>();
+
+  int bid64dqq_fma(
+    int x,
+    BID_UINT128 y,
+    BID_UINT128 z,
+  ) {
+    return _bid64dqq_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid64dqq_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT64 Function(
+              BID_UINT64, BID_UINT128, BID_UINT128)>>('bid64dqq_fma');
+  late final _bid64dqq_fma = _bid64dqq_fmaPtr
+      .asFunction<int Function(int, BID_UINT128, BID_UINT128)>();
+
+  int bid64q_sqrt(
+    BID_UINT128 x,
+  ) {
+    return _bid64q_sqrt(
+      x,
+    );
+  }
+
+  late final _bid64q_sqrtPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128)>>(
+          'bid64q_sqrt');
+  late final _bid64q_sqrt =
+      _bid64q_sqrtPtr.asFunction<int Function(BID_UINT128)>();
+
+  int bid64qd_add(
+    BID_UINT128 x,
+    int y,
+  ) {
+    return _bid64qd_add(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64qd_addPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128, BID_UINT64)>>(
+          'bid64qd_add');
+  late final _bid64qd_add =
+      _bid64qd_addPtr.asFunction<int Function(BID_UINT128, int)>();
+
+  int bid64qd_div(
+    BID_UINT128 x,
+    int y,
+  ) {
+    return _bid64qd_div(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64qd_divPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128, BID_UINT64)>>(
+          'bid64qd_div');
+  late final _bid64qd_div =
+      _bid64qd_divPtr.asFunction<int Function(BID_UINT128, int)>();
+
+  int bid64qd_mul(
+    BID_UINT128 x,
+    int y,
+  ) {
+    return _bid64qd_mul(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64qd_mulPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128, BID_UINT64)>>(
+          'bid64qd_mul');
+  late final _bid64qd_mul =
+      _bid64qd_mulPtr.asFunction<int Function(BID_UINT128, int)>();
+
+  int bid64qd_sub(
+    BID_UINT128 x,
+    int y,
+  ) {
+    return _bid64qd_sub(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64qd_subPtr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128, BID_UINT64)>>(
+          'bid64qd_sub');
+  late final _bid64qd_sub =
+      _bid64qd_subPtr.asFunction<int Function(BID_UINT128, int)>();
+
+  int bid64qdd_fma(
+    BID_UINT128 x,
+    int y,
+    int z,
+  ) {
+    return _bid64qdd_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid64qdd_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT64 Function(
+              BID_UINT128, BID_UINT64, BID_UINT64)>>('bid64qdd_fma');
+  late final _bid64qdd_fma =
+      _bid64qdd_fmaPtr.asFunction<int Function(BID_UINT128, int, int)>();
+
+  int bid64qdq_fma(
+    BID_UINT128 x,
+    int y,
+    BID_UINT128 z,
+  ) {
+    return _bid64qdq_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid64qdq_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT64 Function(
+              BID_UINT128, BID_UINT64, BID_UINT128)>>('bid64qdq_fma');
+  late final _bid64qdq_fma = _bid64qdq_fmaPtr
+      .asFunction<int Function(BID_UINT128, int, BID_UINT128)>();
+
+  int bid64qq_add(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid64qq_add(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64qq_addPtr = _lookup<
+          ffi.NativeFunction<BID_UINT64 Function(BID_UINT128, BID_UINT128)>>(
+      'bid64qq_add');
+  late final _bid64qq_add =
+      _bid64qq_addPtr.asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid64qq_div(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid64qq_div(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64qq_divPtr = _lookup<
+          ffi.NativeFunction<BID_UINT64 Function(BID_UINT128, BID_UINT128)>>(
+      'bid64qq_div');
+  late final _bid64qq_div =
+      _bid64qq_divPtr.asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid64qq_mul(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid64qq_mul(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64qq_mulPtr = _lookup<
+          ffi.NativeFunction<BID_UINT64 Function(BID_UINT128, BID_UINT128)>>(
+      'bid64qq_mul');
+  late final _bid64qq_mul =
+      _bid64qq_mulPtr.asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid64qq_sub(
+    BID_UINT128 x,
+    BID_UINT128 y,
+  ) {
+    return _bid64qq_sub(
+      x,
+      y,
+    );
+  }
+
+  late final _bid64qq_subPtr = _lookup<
+          ffi.NativeFunction<BID_UINT64 Function(BID_UINT128, BID_UINT128)>>(
+      'bid64qq_sub');
+  late final _bid64qq_sub =
+      _bid64qq_subPtr.asFunction<int Function(BID_UINT128, BID_UINT128)>();
+
+  int bid64qqd_fma(
+    BID_UINT128 x,
+    BID_UINT128 y,
+    int z,
+  ) {
+    return _bid64qqd_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid64qqd_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT64 Function(
+              BID_UINT128, BID_UINT128, BID_UINT64)>>('bid64qqd_fma');
+  late final _bid64qqd_fma = _bid64qqd_fmaPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128, int)>();
+
+  int bid64qqq_fma(
+    BID_UINT128 x,
+    BID_UINT128 y,
+    BID_UINT128 z,
+  ) {
+    return _bid64qqq_fma(
+      x,
+      y,
+      z,
+    );
+  }
+
+  late final _bid64qqq_fmaPtr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT64 Function(
+              BID_UINT128, BID_UINT128, BID_UINT128)>>('bid64qqq_fma');
+  late final _bid64qqq_fma = _bid64qqq_fmaPtr
+      .asFunction<int Function(BID_UINT128, BID_UINT128, BID_UINT128)>();
+
+  BID_UINT128 bid_dpd_to_bid128(
+    BID_UINT128 px,
+  ) {
+    return _bid_dpd_to_bid128(
+      px,
+    );
+  }
+
+  late final _bid_dpd_to_bid128Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid_dpd_to_bid128');
+  late final _bid_dpd_to_bid128 =
+      _bid_dpd_to_bid128Ptr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  int bid_dpd_to_bid32(
+    int px,
+  ) {
+    return _bid_dpd_to_bid32(
+      px,
+    );
+  }
+
+  late final _bid_dpd_to_bid32Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid_dpd_to_bid32');
+  late final _bid_dpd_to_bid32 =
+      _bid_dpd_to_bid32Ptr.asFunction<int Function(int)>();
+
+  int bid_dpd_to_bid64(
+    int px,
+  ) {
+    return _bid_dpd_to_bid64(
+      px,
+    );
+  }
+
+  late final _bid_dpd_to_bid64Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid_dpd_to_bid64');
+  late final _bid_dpd_to_bid64 =
+      _bid_dpd_to_bid64Ptr.asFunction<int Function(int)>();
+
+  void bid_feclearexcept(
+    int excepts,
+  ) {
+    return _bid_feclearexcept(
+      excepts,
+    );
+  }
+
+  late final _bid_feclearexceptPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int)>>(
+          'bid_feclearexcept');
+  late final _bid_feclearexcept =
+      _bid_feclearexceptPtr.asFunction<void Function(int)>();
+
+  void bid_fegetexceptflag(
+    ffi.Pointer<fexcept_t> flagp,
+    int excepts,
+  ) {
+    return _bid_fegetexceptflag(
+      flagp,
+      excepts,
+    );
+  }
+
+  late final _bid_fegetexceptflagPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<fexcept_t>, ffi.Int)>>('bid_fegetexceptflag');
+  late final _bid_fegetexceptflag = _bid_fegetexceptflagPtr
+      .asFunction<void Function(ffi.Pointer<fexcept_t>, int)>();
+
+  void bid_feraiseexcept(
+    int excepts,
+  ) {
+    return _bid_feraiseexcept(
+      excepts,
+    );
+  }
+
+  late final _bid_feraiseexceptPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int)>>(
+          'bid_feraiseexcept');
+  late final _bid_feraiseexcept =
+      _bid_feraiseexceptPtr.asFunction<void Function(int)>();
+
+  void bid_fesetexceptflag(
+    ffi.Pointer<fexcept_t> flagp,
+    int excepts,
+  ) {
+    return _bid_fesetexceptflag(
+      flagp,
+      excepts,
+    );
+  }
+
+  late final _bid_fesetexceptflagPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<fexcept_t>, ffi.Int)>>('bid_fesetexceptflag');
+  late final _bid_fesetexceptflag = _bid_fesetexceptflagPtr
+      .asFunction<void Function(ffi.Pointer<fexcept_t>, int)>();
+
+  int bid_fetestexcept(
+    int excepts,
+  ) {
+    return _bid_fetestexcept(
+      excepts,
+    );
+  }
+
+  late final _bid_fetestexceptPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Int)>>(
+          'bid_fetestexcept');
+  late final _bid_fetestexcept =
+      _bid_fetestexceptPtr.asFunction<int Function(int)>();
+
+  int bid_getDecimalRoundingDirection(
+    int rnd_mode,
+  ) {
+    return _bid_getDecimalRoundingDirection(
+      rnd_mode,
+    );
+  }
+
+  late final _bid_getDecimalRoundingDirectionPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Int)>>(
+          'bid_getDecimalRoundingDirection');
+  late final _bid_getDecimalRoundingDirection =
+      _bid_getDecimalRoundingDirectionPtr.asFunction<int Function(int)>();
+
+  int bid_is754() {
+    return _bid_is754();
+  }
+
+  late final _bid_is754Ptr =
+      _lookup<ffi.NativeFunction<ffi.Int Function()>>('bid_is754');
+  late final _bid_is754 = _bid_is754Ptr.asFunction<int Function()>();
+
+  int bid_is754R() {
+    return _bid_is754R();
+  }
+
+  late final _bid_is754RPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function()>>('bid_is754R');
+  late final _bid_is754R = _bid_is754RPtr.asFunction<int Function()>();
+
+  void bid_lowerFlags(
+    int flagsmask,
+  ) {
+    return _bid_lowerFlags(
+      flagsmask,
+    );
+  }
+
+  late final _bid_lowerFlagsPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int)>>('bid_lowerFlags');
+  late final _bid_lowerFlags =
+      _bid_lowerFlagsPtr.asFunction<void Function(int)>();
+
+  void bid_restoreFlags(
+    int flagsvalues,
+    int flagsmask,
+  ) {
+    return _bid_restoreFlags(
+      flagsvalues,
+      flagsmask,
+    );
+  }
+
+  late final _bid_restoreFlagsPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int, ffi.Int)>>(
+          'bid_restoreFlags');
+  late final _bid_restoreFlags =
+      _bid_restoreFlagsPtr.asFunction<void Function(int, int)>();
+
+  void bid_round128_19_38(
+    int q,
+    int x,
+    BID_UINT128 C,
+    ffi.Pointer<BID_UINT128> ptr_Cstar,
+    ffi.Pointer<ffi.Int> delta_exp,
+    ffi.Pointer<ffi.Int> ptr_is_midpoint_lt_even,
+    ffi.Pointer<ffi.Int> ptr_is_midpoint_gt_even,
+    ffi.Pointer<ffi.Int> ptr_is_inexact_lt_midpoint,
+    ffi.Pointer<ffi.Int> ptr_is_inexact_gt_midpoint,
+  ) {
+    return _bid_round128_19_38(
+      q,
+      x,
+      C,
+      ptr_Cstar,
+      delta_exp,
+      ptr_is_midpoint_lt_even,
+      ptr_is_midpoint_gt_even,
+      ptr_is_inexact_lt_midpoint,
+      ptr_is_inexact_gt_midpoint,
+    );
+  }
+
+  late final _bid_round128_19_38Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int,
+              ffi.Int,
+              BID_UINT128,
+              ffi.Pointer<BID_UINT128>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>)>>('bid_round128_19_38');
+  late final _bid_round128_19_38 = _bid_round128_19_38Ptr.asFunction<
+      void Function(
+          int,
+          int,
+          BID_UINT128,
+          ffi.Pointer<BID_UINT128>,
+          ffi.Pointer<ffi.Int>,
+          ffi.Pointer<ffi.Int>,
+          ffi.Pointer<ffi.Int>,
+          ffi.Pointer<ffi.Int>,
+          ffi.Pointer<ffi.Int>)>();
+
+  void bid_round192_39_57(
+    int q,
+    int x,
+    BID_UINT192 C,
+    ffi.Pointer<BID_UINT192> ptr_Cstar,
+    ffi.Pointer<ffi.Int> delta_exp,
+    ffi.Pointer<ffi.Int> ptr_is_midpoint_lt_even,
+    ffi.Pointer<ffi.Int> ptr_is_midpoint_gt_even,
+    ffi.Pointer<ffi.Int> ptr_is_inexact_lt_midpoint,
+    ffi.Pointer<ffi.Int> ptr_is_inexact_gt_midpoint,
+  ) {
+    return _bid_round192_39_57(
+      q,
+      x,
+      C,
+      ptr_Cstar,
+      delta_exp,
+      ptr_is_midpoint_lt_even,
+      ptr_is_midpoint_gt_even,
+      ptr_is_inexact_lt_midpoint,
+      ptr_is_inexact_gt_midpoint,
+    );
+  }
+
+  late final _bid_round192_39_57Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int,
+              ffi.Int,
+              BID_UINT192,
+              ffi.Pointer<BID_UINT192>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>)>>('bid_round192_39_57');
+  late final _bid_round192_39_57 = _bid_round192_39_57Ptr.asFunction<
+      void Function(
+          int,
+          int,
+          BID_UINT192,
+          ffi.Pointer<BID_UINT192>,
+          ffi.Pointer<ffi.Int>,
+          ffi.Pointer<ffi.Int>,
+          ffi.Pointer<ffi.Int>,
+          ffi.Pointer<ffi.Int>,
+          ffi.Pointer<ffi.Int>)>();
+
+  void bid_round256_58_76(
+    int q,
+    int x,
+    BID_UINT256 C,
+    ffi.Pointer<BID_UINT256> ptr_Cstar,
+    ffi.Pointer<ffi.Int> delta_exp,
+    ffi.Pointer<ffi.Int> ptr_is_midpoint_lt_even,
+    ffi.Pointer<ffi.Int> ptr_is_midpoint_gt_even,
+    ffi.Pointer<ffi.Int> ptr_is_inexact_lt_midpoint,
+    ffi.Pointer<ffi.Int> ptr_is_inexact_gt_midpoint,
+  ) {
+    return _bid_round256_58_76(
+      q,
+      x,
+      C,
+      ptr_Cstar,
+      delta_exp,
+      ptr_is_midpoint_lt_even,
+      ptr_is_midpoint_gt_even,
+      ptr_is_inexact_lt_midpoint,
+      ptr_is_inexact_gt_midpoint,
+    );
+  }
+
+  late final _bid_round256_58_76Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int,
+              ffi.Int,
+              BID_UINT256,
+              ffi.Pointer<BID_UINT256>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>)>>('bid_round256_58_76');
+  late final _bid_round256_58_76 = _bid_round256_58_76Ptr.asFunction<
+      void Function(
+          int,
+          int,
+          BID_UINT256,
+          ffi.Pointer<BID_UINT256>,
+          ffi.Pointer<ffi.Int>,
+          ffi.Pointer<ffi.Int>,
+          ffi.Pointer<ffi.Int>,
+          ffi.Pointer<ffi.Int>,
+          ffi.Pointer<ffi.Int>)>();
+
+  void bid_round64_2_18(
+    int q,
+    int x,
+    int C,
+    ffi.Pointer<BID_UINT64> ptr_Cstar,
+    ffi.Pointer<ffi.Int> delta_exp,
+    ffi.Pointer<ffi.Int> ptr_is_midpoint_lt_even,
+    ffi.Pointer<ffi.Int> ptr_is_midpoint_gt_even,
+    ffi.Pointer<ffi.Int> ptr_is_inexact_lt_midpoint,
+    ffi.Pointer<ffi.Int> ptr_is_inexact_gt_midpoint,
+  ) {
+    return _bid_round64_2_18(
+      q,
+      x,
+      C,
+      ptr_Cstar,
+      delta_exp,
+      ptr_is_midpoint_lt_even,
+      ptr_is_midpoint_gt_even,
+      ptr_is_inexact_lt_midpoint,
+      ptr_is_inexact_gt_midpoint,
+    );
+  }
+
+  late final _bid_round64_2_18Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int,
+              ffi.Int,
+              BID_UINT64,
+              ffi.Pointer<BID_UINT64>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>)>>('bid_round64_2_18');
+  late final _bid_round64_2_18 = _bid_round64_2_18Ptr.asFunction<
+      void Function(
+          int,
+          int,
+          int,
+          ffi.Pointer<BID_UINT64>,
+          ffi.Pointer<ffi.Int>,
+          ffi.Pointer<ffi.Int>,
+          ffi.Pointer<ffi.Int>,
+          ffi.Pointer<ffi.Int>,
+          ffi.Pointer<ffi.Int>)>();
+
+  int bid_saveFlags(
+    int flagsmask,
+  ) {
+    return _bid_saveFlags(
+      flagsmask,
+    );
+  }
+
+  late final _bid_saveFlagsPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Int)>>('bid_saveFlags');
+  late final _bid_saveFlags = _bid_saveFlagsPtr.asFunction<int Function(int)>();
+
+  int bid_setDecimalRoundingDirection(
+    int rounding_mode,
+  ) {
+    return _bid_setDecimalRoundingDirection(
+      rounding_mode,
+    );
+  }
+
+  late final _bid_setDecimalRoundingDirectionPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Int)>>(
+          'bid_setDecimalRoundingDirection');
+  late final _bid_setDecimalRoundingDirection =
+      _bid_setDecimalRoundingDirectionPtr.asFunction<int Function(int)>();
+
+  void bid_signalException(
+    int flagsmask,
+  ) {
+    return _bid_signalException(
+      flagsmask,
+    );
+  }
+
+  late final _bid_signalExceptionPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int)>>(
+          'bid_signalException');
+  late final _bid_signalException =
+      _bid_signalExceptionPtr.asFunction<void Function(int)>();
+
+  BID_UINT128 bid_strtod128(
+    ffi.Pointer<ffi.Char> ps_in,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> endptr,
+  ) {
+    return _bid_strtod128(
+      ps_in,
+      endptr,
+    );
+  }
+
+  late final _bid_strtod128Ptr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT128 Function(ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Pointer<ffi.Char>>)>>('bid_strtod128');
+  late final _bid_strtod128 = _bid_strtod128Ptr.asFunction<
+      BID_UINT128 Function(
+          ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Pointer<ffi.Char>>)>();
+
+  int bid_strtod32(
+    ffi.Pointer<ffi.Char> ps_in,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> endptr,
+  ) {
+    return _bid_strtod32(
+      ps_in,
+      endptr,
+    );
+  }
+
+  late final _bid_strtod32Ptr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT32 Function(ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Pointer<ffi.Char>>)>>('bid_strtod32');
+  late final _bid_strtod32 = _bid_strtod32Ptr.asFunction<
+      int Function(
+          ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Pointer<ffi.Char>>)>();
+
+  int bid_strtod64(
+    ffi.Pointer<ffi.Char> ps_in,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> endptr,
+  ) {
+    return _bid_strtod64(
+      ps_in,
+      endptr,
+    );
+  }
+
+  late final _bid_strtod64Ptr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT64 Function(ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Pointer<ffi.Char>>)>>('bid_strtod64');
+  late final _bid_strtod64 = _bid_strtod64Ptr.asFunction<
+      int Function(
+          ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Pointer<ffi.Char>>)>();
+
+  int bid_testFlags(
+    int flagsmask,
+  ) {
+    return _bid_testFlags(
+      flagsmask,
+    );
+  }
+
+  late final _bid_testFlagsPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Int)>>('bid_testFlags');
+  late final _bid_testFlags = _bid_testFlagsPtr.asFunction<int Function(int)>();
+
+  int bid_testSavedFlags(
+    int savedflags,
+    int flagsmask,
+  ) {
+    return _bid_testSavedFlags(
+      savedflags,
+      flagsmask,
+    );
+  }
+
+  late final _bid_testSavedFlagsPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Int, ffi.Int)>>(
+          'bid_testSavedFlags');
+  late final _bid_testSavedFlags =
+      _bid_testSavedFlagsPtr.asFunction<int Function(int, int)>();
+
+  BID_UINT128 bid_to_dpd128(
+    BID_UINT128 px,
+  ) {
+    return _bid_to_dpd128(
+      px,
+    );
+  }
+
+  late final _bid_to_dpd128Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'bid_to_dpd128');
+  late final _bid_to_dpd128 =
+      _bid_to_dpd128Ptr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  int bid_to_dpd32(
+    int px,
+  ) {
+    return _bid_to_dpd32(
+      px,
+    );
+  }
+
+  late final _bid_to_dpd32Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT32)>>(
+          'bid_to_dpd32');
+  late final _bid_to_dpd32 = _bid_to_dpd32Ptr.asFunction<int Function(int)>();
+
+  int bid_to_dpd64(
+    int px,
+  ) {
+    return _bid_to_dpd64(
+      px,
+    );
+  }
+
+  late final _bid_to_dpd64Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT64)>>(
+          'bid_to_dpd64');
+  late final _bid_to_dpd64 = _bid_to_dpd64Ptr.asFunction<int Function(int)>();
+
+  BID_UINT128 bid_wcstod128(
+    ffi.Pointer<ffi.WChar> ps_in,
+    ffi.Pointer<ffi.Pointer<ffi.WChar>> endptr,
+  ) {
+    return _bid_wcstod128(
+      ps_in,
+      endptr,
+    );
+  }
+
+  late final _bid_wcstod128Ptr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT128 Function(ffi.Pointer<ffi.WChar>,
+              ffi.Pointer<ffi.Pointer<ffi.WChar>>)>>('bid_wcstod128');
+  late final _bid_wcstod128 = _bid_wcstod128Ptr.asFunction<
+      BID_UINT128 Function(
+          ffi.Pointer<ffi.WChar>, ffi.Pointer<ffi.Pointer<ffi.WChar>>)>();
+
+  int bid_wcstod32(
+    ffi.Pointer<ffi.WChar> ps_in,
+    ffi.Pointer<ffi.Pointer<ffi.WChar>> endptr,
+  ) {
+    return _bid_wcstod32(
+      ps_in,
+      endptr,
+    );
+  }
+
+  late final _bid_wcstod32Ptr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT32 Function(ffi.Pointer<ffi.WChar>,
+              ffi.Pointer<ffi.Pointer<ffi.WChar>>)>>('bid_wcstod32');
+  late final _bid_wcstod32 = _bid_wcstod32Ptr.asFunction<
+      int Function(
+          ffi.Pointer<ffi.WChar>, ffi.Pointer<ffi.Pointer<ffi.WChar>>)>();
+
+  int bid_wcstod64(
+    ffi.Pointer<ffi.WChar> ps_in,
+    ffi.Pointer<ffi.Pointer<ffi.WChar>> endptr,
+  ) {
+    return _bid_wcstod64(
+      ps_in,
+      endptr,
+    );
+  }
+
+  late final _bid_wcstod64Ptr = _lookup<
+      ffi.NativeFunction<
+          BID_UINT64 Function(ffi.Pointer<ffi.WChar>,
+              ffi.Pointer<ffi.Pointer<ffi.WChar>>)>>('bid_wcstod64');
+  late final _bid_wcstod64 = _bid_wcstod64Ptr.asFunction<
+      int Function(
+          ffi.Pointer<ffi.WChar>, ffi.Pointer<ffi.Pointer<ffi.WChar>>)>();
+
+  BID_UINT128 binary128_to_bid128(
+    BID_UINT128 x,
+  ) {
+    return _binary128_to_bid128(
+      x,
+    );
+  }
+
+  late final _binary128_to_bid128Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(BID_UINT128)>>(
+          'binary128_to_bid128');
+  late final _binary128_to_bid128 =
+      _binary128_to_bid128Ptr.asFunction<BID_UINT128 Function(BID_UINT128)>();
+
+  int binary128_to_bid32(
+    BID_UINT128 x,
+  ) {
+    return _binary128_to_bid32(
+      x,
+    );
+  }
+
+  late final _binary128_to_bid32Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(BID_UINT128)>>(
+          'binary128_to_bid32');
+  late final _binary128_to_bid32 =
+      _binary128_to_bid32Ptr.asFunction<int Function(BID_UINT128)>();
+
+  int binary128_to_bid64(
+    BID_UINT128 x,
+  ) {
+    return _binary128_to_bid64(
+      x,
+    );
+  }
+
+  late final _binary128_to_bid64Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(BID_UINT128)>>(
+          'binary128_to_bid64');
+  late final _binary128_to_bid64 =
+      _binary128_to_bid64Ptr.asFunction<int Function(BID_UINT128)>();
+
+  BID_UINT128 binary32_to_bid128(
+    double x,
+  ) {
+    return _binary32_to_bid128(
+      x,
+    );
+  }
+
+  late final _binary32_to_bid128Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(ffi.Float)>>(
+          'binary32_to_bid128');
+  late final _binary32_to_bid128 =
+      _binary32_to_bid128Ptr.asFunction<BID_UINT128 Function(double)>();
+
+  int binary32_to_bid32(
+    double x,
+  ) {
+    return _binary32_to_bid32(
+      x,
+    );
+  }
+
+  late final _binary32_to_bid32Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(ffi.Float)>>(
+          'binary32_to_bid32');
+  late final _binary32_to_bid32 =
+      _binary32_to_bid32Ptr.asFunction<int Function(double)>();
+
+  int binary32_to_bid64(
+    double x,
+  ) {
+    return _binary32_to_bid64(
+      x,
+    );
+  }
+
+  late final _binary32_to_bid64Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(ffi.Float)>>(
+          'binary32_to_bid64');
+  late final _binary32_to_bid64 =
+      _binary32_to_bid64Ptr.asFunction<int Function(double)>();
+
+  BID_UINT128 binary64_to_bid128(
+    double x,
+  ) {
+    return _binary64_to_bid128(
+      x,
+    );
+  }
+
+  late final _binary64_to_bid128Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT128 Function(ffi.Double)>>(
+          'binary64_to_bid128');
+  late final _binary64_to_bid128 =
+      _binary64_to_bid128Ptr.asFunction<BID_UINT128 Function(double)>();
+
+  int binary64_to_bid32(
+    double x,
+  ) {
+    return _binary64_to_bid32(
+      x,
+    );
+  }
+
+  late final _binary64_to_bid32Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT32 Function(ffi.Double)>>(
+          'binary64_to_bid32');
+  late final _binary64_to_bid32 =
+      _binary64_to_bid32Ptr.asFunction<int Function(double)>();
+
+  int binary64_to_bid64(
+    double x,
+  ) {
+    return _binary64_to_bid64(
+      x,
+    );
+  }
+
+  late final _binary64_to_bid64Ptr =
+      _lookup<ffi.NativeFunction<BID_UINT64 Function(ffi.Double)>>(
+          'binary64_to_bid64');
+  late final _binary64_to_bid64 =
+      _binary64_to_bid64Ptr.asFunction<int Function(double)>();
+
   /// Add a callback that will be invoked every time the view of this file is updated.
   ///
   /// This callback is guaranteed to be invoked before any object or collection change
@@ -10569,6 +20444,156 @@ class _SymbolAddresses {
       get realm_release => _library._realm_releasePtr;
 }
 
+const int BID128_MAXDIGITS = 34;
+
+const int BID32_MAXDIGITS = 7;
+
+const int BID64_MAXDIGITS = 16;
+
+const int BID_BIG_ENDIAN = 0;
+
+const int BID_DENORMAL_EXCEPTION = 2;
+
+const int BID_DENORMAL_MODE = 256;
+
+const int BID_EXACT_STATUS = 0;
+
+const int BID_FLAG_MASK = 63;
+
+const String BID_FMT_LLD = '%I64d';
+
+const String BID_FMT_LLD16 = '%016I64d';
+
+const String BID_FMT_LLU = '%I64u';
+
+const String BID_FMT_LLU16 = '%016I64u';
+
+const String BID_FMT_LLU4 = '%4I64u';
+
+const String BID_FMT_LLX = '%I64x';
+
+const String BID_FMT_LLX16 = '%016I64x';
+
+const String BID_FMT_X4 = '%04x';
+
+const String BID_FMT_X8 = '%08x';
+
+const int BID_HAS_GCC_DECIMAL_INTRINSICS = 0;
+
+const int BID_HIGH_128W = 1;
+
+const int BID_IEEE_FLAGS = 61;
+
+const int BID_INEXACT_EXCEPTION = 32;
+
+const int BID_INEXACT_MODE = 4096;
+
+const int BID_INVALID_EXCEPTION = 1;
+
+const int BID_INVALID_MODE = 128;
+
+const String BID_LD = '%I64d';
+
+const String BID_LD16 = '%016I64d';
+
+const String BID_LD4 = '%4I64u';
+
+const int BID_LOW_128W = 0;
+
+const String BID_LUD = '%I64u';
+
+const String BID_LUD16 = '%016I64u';
+
+const String BID_LX = '%I64x';
+
+const String BID_LX16 = '%016I64x';
+
+const int BID_MODE_MASK = 8064;
+
+const int BID_OVERFLOW_EXCEPTION = 8;
+
+const int BID_OVERFLOW_INEXACT_EXCEPTION = 40;
+
+const int BID_OVERFLOW_MODE = 1024;
+
+const int BID_RMODE_MASK = 7;
+
+const int BID_ROUNDING_DOWN = 1;
+
+const int BID_ROUNDING_TIES_AWAY = 4;
+
+const int BID_ROUNDING_TO_NEAREST = 0;
+
+const int BID_ROUNDING_TO_ZERO = 3;
+
+const int BID_ROUNDING_UP = 2;
+
+typedef BID_SINT64 = ffi.LongLong;
+
+const int BID_SIZE_LONG = 4;
+
+class BID_UINT128 extends ffi.Struct {
+  @ffi.Array.multi([2])
+  external ffi.Array<BID_UINT64> w;
+}
+
+class BID_UINT192 extends ffi.Struct {
+  @ffi.Array.multi([3])
+  external ffi.Array<BID_UINT64> w;
+}
+
+class BID_UINT256 extends ffi.Struct {
+  @ffi.Array.multi([4])
+  external ffi.Array<BID_UINT64> w;
+}
+
+typedef BID_UINT32 = ffi.UnsignedInt;
+typedef BID_UINT64 = ffi.UnsignedLongLong;
+
+const int BID_UNDERFLOW_EXCEPTION = 16;
+
+const int BID_UNDERFLOW_INEXACT_EXCEPTION = 48;
+
+const int BID_UNDERFLOW_MODE = 2048;
+
+const String BID_X4 = '%04x';
+
+const String BID_X8 = '%08x';
+
+const int BID_ZERO_DIVIDE_EXCEPTION = 4;
+
+const int BID_ZERO_DIVIDE_MODE = 512;
+
+const int BINARY_TINY_DETECTION_AFTER_ROUNDING = 1;
+
+const int DECIMAL_ALTERNATE_EXCEPTION_HANDLING = 0;
+
+const int DECIMAL_CALL_BY_REFERENCE = 1;
+
+const int DECIMAL_GLOBAL_EXCEPTION_FLAGS = 0;
+
+const int DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS = 0;
+
+const int DECIMAL_GLOBAL_ROUNDING = 1;
+
+const int DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS = 0;
+
+const int DECIMAL_TINY_DETECTION_AFTER_ROUNDING = 0;
+
+const int DEC_FE_ALL_EXCEPT = 63;
+
+const int DEC_FE_DIVBYZERO = 4;
+
+const int DEC_FE_INEXACT = 32;
+
+const int DEC_FE_INVALID = 1;
+
+const int DEC_FE_OVERFLOW = 8;
+
+const int DEC_FE_UNDERFLOW = 16;
+
+const int DEC_FE_UNNORMAL = 2;
+
 /// A port is used to send or receive inter-isolate messages
 typedef Dart_Port = ffi.Int64;
 
@@ -10602,6 +20627,10 @@ class UnnamedUnion1 extends ffi.Union {
   @ffi.Array.multi([16])
   external ffi.Array<ffi.Char> data;
 }
+
+const int __ENABLE_BINARY80__ = 1;
+
+typedef fexcept_t = ffi.UnsignedShort;
 
 class realm_app extends ffi.Opaque {}
 

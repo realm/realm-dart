@@ -8,11 +8,15 @@ headers:
     - 'realm_dart.h'
     - 'realm_dart_scheduler.h'
     - 'realm_dart_sync.h'
+    - 'bid_conf.h'
+    - 'bid_functions.h'
   include-directives: #generate only for these headers
     - 'realm.h'
     - 'realm_dart.h'
     - 'realm_dart_scheduler.h'
     - 'realm_dart_sync.h'
+    - 'bid_conf.h'
+    - 'bid_functions.h'
 compiler-opts:
   - '-DRLM_NO_ANON_UNIONS'
   - '-DFFI_GEN'
