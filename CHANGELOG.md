@@ -7,6 +7,7 @@
 * None
 
 ### Fixed
+* Fixed error message when trying to `switchUser` of the `App` to a user that has been logged out.
 * Fixed performance degradation on SubQueries (Core upgrade).
 * Fixed several cases where wrong type of exception was thrown (Core upgrade).
 * Fixed classification of InvalidQuery exception (Core upgrade).
