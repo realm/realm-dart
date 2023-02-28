@@ -400,7 +400,7 @@ String generateRandomRealmPath() {
 
 final random = Random();
 String generateRandomString(int len) {
-  const chars = 'abcdefghjklmnopqrstuvwxuz';
+  const chars = 'abcdefghjklmnopqrstuvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren';
   return List.generate(len, (index) => chars[random.nextInt(chars.length)]).join();
 }
 
