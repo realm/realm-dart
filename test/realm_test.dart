@@ -1865,7 +1865,7 @@ Future<void> main([List<String>? args]) async {
     var realm = getRealm(config);
   });
 
-  baasTest('Realm query with unicode symbols', (appConfiguration) async {
+  baasTest('Realm add/query/sync data with unicode symbols', (appConfiguration) async {
     final app = App(appConfiguration);
     final productNamePrefix = generateRandomUnicodeString(10);
     final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
