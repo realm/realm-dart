@@ -1859,6 +1859,20 @@ Future<void> main([List<String>? args]) async {
     expect(realmCore.getDeviceName(), matcher);
     expect(realmCore.getDeviceVersion(), matcher);
   });
+
+  test('Realm path with unicode symbols', () {
+    var config = Configuration.local([Car.schema], path: "${generateRandomUnicodeString(10)}.realm");
+    var realm = getRealm(config);
+  });
+
+  baasTest('Realm query with unicode symbols', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final productNamePrefix = generateRandomUnicodeString(10);
+    final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final config = Configuration.flexibleSync(user, [Product.schema]);
+    final realm = getRealm(config);
+    await _addSubscriptions(realm, productNamePrefix);
+  });
 }
 
 List<int> generateEncryptionKey() {
@@ -1924,7 +1938,7 @@ Future<void> _addDataToAtlas(Realm realm, String productNamePrefix, {int itemsCo
 }
 
 Future<void> _addSubscriptions(Realm realm, String searchByPreffix) async {
-  final query = realm.query<Product>(r'name BEGINSWITH "$0"', [searchByPreffix]);
+  final query = realm.query<Product>(r'name BEGINSWITH $0', [searchByPreffix]);
   if (realm.subscriptions.find(query) == null) {
     realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
   }

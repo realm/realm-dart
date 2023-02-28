@@ -400,7 +400,12 @@ String generateRandomRealmPath() {
 
 final random = Random();
 String generateRandomString(int len) {
-  const chars = 'abcdefghjklmnopqrstuvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren';
+  const chars = 'abcdefghjklmnopqrstuvwxuz';
+  return List.generate(len, (index) => chars[random.nextInt(chars.length)]).join();
+}
+
+String generateRandomUnicodeString(int len) {
+  const chars = 'uvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren';
   return List.generate(len, (index) => chars[random.nextInt(chars.length)]).join();
 }
 
