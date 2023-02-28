@@ -1924,7 +1924,7 @@ Future<void> _addDataToAtlas(Realm realm, String productNamePrefix, {int itemsCo
 }
 
 Future<void> _addSubscriptions(Realm realm, String searchByPreffix) async {
-  final query = realm.query<Product>(r'name BEGINSWITH $0', [searchByPreffix]);
+  final query = realm.query<Product>(r'name BEGINSWITH "$0"', [searchByPreffix]);
   if (realm.subscriptions.find(query) == null) {
     realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
   }
