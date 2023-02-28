@@ -404,6 +404,11 @@ String generateRandomString(int len) {
   return List.generate(len, (index) => chars[random.nextInt(chars.length)]).join();
 }
 
+String generateRandomEmail(int len) {
+  const chars = r"abcdefghjklmnopqrstuvwxuz!#$%&*+-'/=?^_`{|}~0123456789";
+  return List.generate(len, (index) => chars[random.nextInt(chars.length)]).join();
+}
+
 Realm getRealm(Configuration config) {
   if (config is FlexibleSyncConfiguration) {
     config.sessionStopPolicy = SessionStopPolicy.immediately;
@@ -589,7 +594,7 @@ Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) as
 }
 
 Future<User> getIntegrationUser(App app) async {
-  final email = 'realm_tests_do_autoverify_${generateRandomString(10)}@realm.io';
+  final email = 'realm_tests_do_autoverify_${generateRandomEmail(10)}@realm.io';
   final password = 'password';
   await app.emailPasswordAuthProvider.registerUser(email, password);
 
@@ -614,7 +619,7 @@ Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator}) async {
   final realm = getRealm(config);
   if (differentiator != null) {
     realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm.query<NullableTypes>(r'differentiator = "$0"', [differentiator]));
+      mutableSubscriptions.add(realm.query<NullableTypes>(r'differentiator = $0', [differentiator]));
     });
 
     await realm.subscriptions.waitForSynchronization();

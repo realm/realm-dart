@@ -231,7 +231,7 @@ Future<void> main([List<String>? args]) async {
     expect(t2.players, [p2]);
     expect(t3.players, [p1, p2]);
 
-    final filteredTeams = realm.all<Team>().query(r'$0 IN players AND name BEGINSWITH "$1"', [p1, 'A']);
+    final filteredTeams = realm.all<Team>().query(r'$0 IN players AND name BEGINSWITH $1', [p1, 'A']);
     expect(filteredTeams.length, 1);
     expect(filteredTeams, [t1]);
   });
@@ -240,14 +240,14 @@ Future<void> main([List<String>? args]) async {
     var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     realm.write(() => realm.add(Car("Audi")));
-    expect(() => realm.all<Car>().query(r'make == "$0"'), throws<RealmException>("no arguments are provided"));
+    expect(() => realm.all<Car>().query(r'make == $0'), throws<RealmException>("no arguments are provided"));
   });
 
   test('Results query with wrong argument types (int for string) throws', () {
     var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     realm.write(() => realm.add(Car("Audi")));
-    expect(() => realm.all<Car>().query(r'make == "$0"', [1]), throws<RealmException>("Unsupported comparison between type"));
+    expect(() => realm.all<Car>().query(r'make == $0', [1]), throws<RealmException>("Unsupported comparison between type"));
   });
 
   test('Results query with wrong argument types (bool for int) throws ', () {

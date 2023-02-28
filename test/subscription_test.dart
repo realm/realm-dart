@@ -537,7 +537,7 @@ Future<void> main([List<String>? args]) async {
 
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.removeByQuery(realm.all<Event>());
-      mutableSubscriptions.add(realm.query<Event>(r'name BEGINSWITH "$0" AND isCompleted == $1 AND durationInMinutes > $2', ["NPMG", true, 20]),
+      mutableSubscriptions.add(realm.query<Event>(r'name BEGINSWITH $0 AND isCompleted == $1 AND durationInMinutes > $2', ["NPMG", true, 20]),
           name: "filter");
     });
 

@@ -103,9 +103,9 @@ Future<void> main([List<String>? args]) async {
     final sources = List.generate(100, (i) => Source(oneTarget: target, name: '$i'));
     realm.write(() => realm.addAll(sources));
 
-    final fortyTwo = realm.query<Source>(r'name == "$0"', ['42']).single;
+    final fortyTwo = realm.query<Source>(r'name == $0', ['42']).single;
     expect(target.oneToMany[42], fortyTwo);
-    expect(target.oneToMany.query(r'name = "$0"', ['42']), [fortyTwo]);
+    expect(target.oneToMany.query(r'name = $0', ['42']), [fortyTwo]);
   });
 
   test('Backlinks notifications', () {
