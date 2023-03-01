@@ -49,6 +49,8 @@ import 'realm_bindings.dart';
 
 late RealmLibrary _realmLib;
 
+late RealmLibrary lib = _realmLib;
+
 final _RealmCore realmCore = _RealmCore();
 
 class _RealmCore {
