@@ -1863,15 +1863,30 @@ Future<void> main([List<String>? args]) async {
   test('Realm path with unicode symbols', () {
     var config = Configuration.local([Car.schema], path: "${generateRandomUnicodeString(10)}.realm");
     var realm = getRealm(config);
+    expect(realm.isClosed, false);
   });
 
-  baasTest('Realm add/query/sync data with unicode symbols', (appConfiguration) async {
+  test('Realm add/query/sync data with unicode symbols', () {
+    final productName = generateRandomUnicodeString(10);
+    final config = Configuration.local([Product.schema]);
+    final realm = getRealm(config);
+    realm.write(() => realm.add(Product(ObjectId(), productName)));
+    final query = realm.query<Product>(r'name == $0', [productName]);
+    expect(query.length, 1);
+    expect(query[0].name, productName);
+  });
+
+  baasTest('Realm synced add/query/sync data with unicode symbols', (appConfiguration) async {
     final app = App(appConfiguration);
-    final productNamePrefix = generateRandomUnicodeString(10);
+    final productName = generateRandomUnicodeString(10);
     final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
     final config = Configuration.flexibleSync(user, [Product.schema]);
     final realm = getRealm(config);
-    await _addSubscriptions(realm, productNamePrefix);
+    await _addSubscriptions(realm, productName);
+    realm.write(() => realm.add(Product(ObjectId(), productName)));
+    final query = realm.query<Product>(r'name == $0', [productName]);
+    expect(query.length, 1);
+    expect(query[0].name, productName);
   });
 }
 
