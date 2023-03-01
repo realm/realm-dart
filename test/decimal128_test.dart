@@ -37,7 +37,8 @@ void repeatTest(String description, dynamic Function(Decimal128 x, int xInt, Dec
   test('$description ($times variations)', () {
     repeat(
       () {
-        var xInt = r.nextInt(1 << 31); // 2^31 ensures multiplication doesn't overflow
+        // 2^31 ensures x * y doesn't overflow
+        var xInt = r.nextInt(1 << 31);
         final x = Decimal128.fromInt(xInt);
         var yInt = r.nextInt(1 << 31);
         final y = Decimal128.fromInt(yInt);
@@ -92,6 +93,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Decimal128.tryParse', () {
     final inputs = <String, String?>{
+      // input -> canonical output
       '-5352089294466601279674461764E+87': '-5352089294466601279674461764E+87',
       '-91.945E0542373228376880240736944': '-Inf',
       '.60438002651113181e-0': '+60438002651113181E-17',
@@ -131,11 +133,17 @@ Future<void> main([List<String>? args]) async {
   });
 
   repeatTest('Decimal128.compareTo + <, <=, ==, !=, >=, >', (x, xInt, y, yInt) {
+    expect(x.compareTo(y), -y.compareTo(x));
     expect(x.compareTo(y), xInt.compareTo(yInt));
+    expect(x == y, y == x);
     expect(x == y, xInt == yInt);
+    expect(x < y, y > x);
     expect(x < y, xInt < yInt);
+    expect(x <= y, y >= x);
     expect(x <= y, xInt <= yInt);
+    expect(x > y, y < x);
     expect(x > y, xInt > yInt);
+    expect(x >= y, y <= x);
     expect(x >= y, xInt >= yInt);
 
     expect(x.compareTo(x), 0);
@@ -186,6 +194,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   repeatTest('Decimal128.abs', (x, xInt, y, yInt) {
-    expect(x.abs(), (-x).abs());
+    expect(x.abs(), (-x).abs()); // abs is absolute
+    expect(x.abs(), x.abs().abs()); // abs is idempotent
   });
 }
