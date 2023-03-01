@@ -37,7 +37,7 @@ class Decimal128 extends Comparable<Decimal128> {
 
   Decimal128._(this._value);
 
-  static final _validInput = RegExp(r'^[+-]?((\d+\.?\d*|\d*\.?\d+)([eE][+-]?\d+)?|NaN|Inf)$');
+  static final _validInput = RegExp(r'^[+-]?((\d+\.?\d*|\d*\.?\d+)([eE][+-]?\d+)?|NaN|Inf(inity)?)$');
   static Decimal128? tryParse(String source) {
     if (!_validInput.hasMatch(source)) return null;
     return using((arena) {

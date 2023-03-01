@@ -22,7 +22,6 @@ import 'package:meta/meta.dart';
 import 'package:realm_dart/src/decimal128.dart';
 import 'package:test/test.dart';
 import 'package:realm_dart/src/native/realm_core.dart';
-import 'dart:io';
 
 const int defaultTimes = 100000;
 
@@ -34,7 +33,7 @@ void repeat(dynamic Function() body, [int times = defaultTimes]) {
 }
 
 void repeatTest(String description, dynamic Function(Decimal128 x, int xInt, Decimal128 y, int yInt) body, [int times = defaultTimes]) {
-  final r = Random(42);
+  final r = Random(42); // use a fixed seed to make tests deterministic
   test('$description ($times variations)', () {
     repeat(
       () {
@@ -60,11 +59,27 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Decimal128.infinity', () {
+    // Test that we mimic the behavior of Dart's double wrt. infinity
+    expect(double.tryParse(double.infinity.toString()), double.infinity);
     expect(Decimal128.tryParse(Decimal128.infinity.toString()), Decimal128.infinity);
+
+    expect(double.infinity, 1.0 / 0.0);
     expect(Decimal128.infinity, Decimal128.one / Decimal128.zero);
-    expect(Decimal128.infinity, Decimal128.parse('+Inf'));
+
+    expect(double.infinity, double.parse('Infinity'));
+    expect(Decimal128.infinity, Decimal128.parse('Infinity'));
+    expect(Decimal128.infinity, Decimal128.parse('Inf')); // special for Decimal128
+
+    expect(double.infinity, double.parse('+Infinity'));
+    expect(Decimal128.infinity, Decimal128.parse('+Infinity'));
+    expect(Decimal128.infinity, Decimal128.parse('+Inf')); // special for Decimal128
+
+    expect(-double.infinity, double.negativeInfinity);
     expect(-Decimal128.infinity, Decimal128.negativeInfinity);
-    expect(-Decimal128.infinity, Decimal128.parse('-Inf'));
+
+    expect(-double.infinity, double.parse('-Infinity'));
+    expect(-Decimal128.infinity, Decimal128.parse('-Infinity'));
+    expect(-Decimal128.infinity, Decimal128.parse('-Inf')); // special for Decimal128
   });
 
   test('Decimal128.parse throws on invalid input', () {
@@ -84,6 +99,9 @@ Future<void> main([List<String>? args]) async {
       '100.0e-9999': '+0E-6176',
       '855084089520e34934827269223590848': '+Inf',
       'Inf': '+Inf',
+      'Infinity': '+Inf',
+      '+Infinity': '+Inf',
+      '-Infinity': '-Inf',
       'NaN': '+NaN',
       '': null,
       ' 1': null,
@@ -101,12 +119,18 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Decimal128 divide by zero', () {
+    // Test that we mimic the behavior of Dart's double when dividing by zero
+    expect(1.0 / 0.0, double.infinity);
     expect(Decimal128.one / Decimal128.zero, Decimal128.infinity);
+
+    expect(-1.0 / 0.0, -double.infinity);
     expect(-Decimal128.one / Decimal128.zero, -Decimal128.infinity);
+
+    expect(-1.0 / 0.0, double.negativeInfinity);
     expect(-Decimal128.one / Decimal128.zero, Decimal128.negativeInfinity);
   });
 
-  repeatTest('Decimal128.compareTo + friends', (x, xInt, y, yInt) {
+  repeatTest('Decimal128.compareTo + <, <=, ==, !=, >=, >', (x, xInt, y, yInt) {
     expect(x.compareTo(y), xInt.compareTo(yInt));
     expect(x == y, xInt == yInt);
     expect(x < y, xInt < yInt);
@@ -130,19 +154,19 @@ Future<void> main([List<String>? args]) async {
     expect(x.toInt(), xInt);
   });
 
-  repeatTest('Decimal128.parse/fromString roundtrip', (x, xInt, y, yInt) {
+  repeatTest('Decimal128.toString/parse roundtrip', (x, xInt, y, yInt) {
     expect(Decimal128.parse(x.toString()), x);
   });
 
-  repeatTest('Decimal128.add', (x, xInt, y, yInt) {
+  repeatTest('Decimal128 add', (x, xInt, y, yInt) {
     expect(x + y, Decimal128.fromInt(xInt + yInt));
   });
 
-  repeatTest('Decimal128.subtract', (x, xInt, y, yInt) {
+  repeatTest('Decimal128 subtract', (x, xInt, y, yInt) {
     expect(x - y, Decimal128.fromInt(xInt - yInt));
   });
 
-  repeatTest('Decimal128.multiply', (x, xInt, y, yInt) {
+  repeatTest('Decimal128 multiply', (x, xInt, y, yInt) {
     expect(x * y, Decimal128.fromInt(xInt * yInt));
   });
 
@@ -156,8 +180,12 @@ Future<void> main([List<String>? args]) async {
     expect((x / y - (Decimal128.one / (y / x))).abs(), lessThan(epsilon));
   });
 
-  repeatTest('Decimal128.negate', (x, xInt, y, yInt) {
+  repeatTest('Decimal128 negate', (x, xInt, y, yInt) {
     expect((-x).toInt(), -xInt);
     expect(-(-x), x);
+  });
+
+  repeatTest('Decimal128.abs', (x, xInt, y, yInt) {
+    expect(x.abs(), (-x).abs());
   });
 }
