@@ -51,8 +51,6 @@ void repeatTest(String description, dynamic Function(Decimal128 x, int xInt, Dec
 }
 
 Future<void> main([List<String>? args]) async {
-  realmCore.nativeLibraryVersion; // ensure initialization
-
   test('Decimal128.nan', () {
     expect(Decimal128.nan, isNot(Decimal128.nan));
     // NaN != NaN so compare as strings
@@ -84,11 +82,17 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Decimal128.parse throws on invalid input', () {
-    expect(() => Decimal128.parse(''), throwsFormatException);
-    expect(() => Decimal128.parse(' 1'), throwsFormatException);
-    expect(() => Decimal128.parse('a'), throwsFormatException);
-    expect(() => Decimal128.parse('1a'), throwsFormatException);
-    expect(() => Decimal128.parse('1.2.3'), throwsFormatException);
+    final inputs = [
+      '',
+      ' 1',
+      'a',
+      '1a',
+      '1.2.3',
+      '1,0',
+    ];
+    for (var input in inputs) {
+      expect(() => Decimal128.parse(input), throwsFormatException);
+    }
   });
 
   test('Decimal128.tryParse', () {
@@ -100,11 +104,13 @@ Future<void> main([List<String>? args]) async {
       '100.0e-999': '+1000E-1000',
       '100.0e-9999': '+0E-6176',
       '855084089520e34934827269223590848': '+Inf',
+      'NaN': '+NaN',
       'Inf': '+Inf',
       'Infinity': '+Inf',
       '+Infinity': '+Inf',
       '-Infinity': '-Inf',
-      'NaN': '+NaN',
+      'Infi': null,
+      '-Infi': null,
       '': null,
       ' 1': null,
       'a': null,
@@ -115,8 +121,8 @@ Future<void> main([List<String>? args]) async {
     };
     for (var entry in inputs.entries) {
       final input = entry.key;
-      final result = entry.value;
-      expect(Decimal128.tryParse(input)?.toString(), result);
+      final output = entry.value;
+      expect(Decimal128.tryParse(input)?.toString(), output);
     }
   });
 
@@ -194,7 +200,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   repeatTest('Decimal128.abs', (x, xInt, y, yInt) {
-    expect(x.abs(), (-x).abs()); // abs is absolute
+    expect(x.abs(), (-x).abs());
     expect(x.abs(), x.abs().abs()); // abs is idempotent
   });
 }

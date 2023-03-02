@@ -47,11 +47,26 @@ import '../user.dart';
 import '../set.dart';
 import 'realm_bindings.dart';
 
-late RealmLibrary _realmLib;
+const bugInTheSdkMessage = "This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues";
 
-late RealmLibrary lib = _realmLib;
+final _realmLib = () {
+  final result = RealmLibrary(initRealm());
+  nativeLibraryVersion = result.realm_dart_library_version().cast<Utf8>().toDartString();
+  if (libraryVersion != nativeLibraryVersion) {
+    final additionMessage =
+        isFlutterPlatform ? bugInTheSdkMessage : "Did you forget to run `dart run realm_dart install` after upgrading the realm_dart package?";
+    throw RealmException('Realm SDK package version does not match the native library version ($libraryVersion != $nativeLibraryVersion). $additionMessage');
+  }
+  return result;
+}();
 
-final _RealmCore realmCore = _RealmCore();
+// stamped into the library by the build system (see prepare-release.yml)
+const libraryVersion = '1.0.3';
+late String nativeLibraryVersion;
+
+final lib = _realmLib;
+
+final realmCore = _RealmCore();
 
 class _RealmCore {
   // From realm.h. Currently not exported from the shared library
@@ -61,33 +76,7 @@ class _RealmCore {
   // ignore: unused_field
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
-  final int encryptionKeySize = 64;
-
-  static Object noopUserdata = Object();
-
-  final bugInTheSdkMessage = "This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues";
-
-  // Hide the RealmCore class and make it a singleton
-  static _RealmCore? _instance;
-  late final int isolateKey;
-
-  _RealmCore._() {
-    final lib = initRealm();
-    _realmLib = RealmLibrary(lib);
-    if (libraryVersion != nativeLibraryVersion) {
-      final additionMessage =
-          isFlutterPlatform ? bugInTheSdkMessage : "Did you forget to run `dart run realm_dart install` after upgrading the realm_dart package?";
-      throw RealmException('Realm SDK package version does not match the native library version ($libraryVersion != $nativeLibraryVersion). $additionMessage');
-    }
-  }
-
-  factory _RealmCore() {
-    return _instance ??= _RealmCore._();
-  }
-
-  // stamped into the library by the build system (see prepare-release.yml)
-  static const libraryVersion = '1.0.3';
-  late String nativeLibraryVersion = _realmLib.realm_dart_library_version().cast<Utf8>().toDartString();
+  final encryptionKeySize = 64;
 
   // for debugging only. Enable in realm_dart.cpp
   // void invokeGC() {
@@ -1697,7 +1686,7 @@ class _RealmCore {
       _realmLib.realm_sync_client_config_set_log_level(handle._pointer, Realm.logger.level.toInt());
 
       final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
-      final logCallbackUserdata = _realmLib.realm_dart_userdata_async_new(noopUserdata, logCallback.cast(), scheduler.handle._pointer);
+      final logCallbackUserdata = _realmLib.realm_dart_userdata_async_new(const Object(), logCallback.cast(), scheduler.handle._pointer);
       _realmLib.realm_sync_client_config_set_log_callback(handle._pointer, _realmLib.addresses.realm_dart_sync_client_log_callback, logCallbackUserdata.cast(),
           _realmLib.addresses.realm_dart_userdata_async_free);
 
