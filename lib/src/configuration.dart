@@ -733,7 +733,7 @@ class SyncSessionError extends SyncError {
 ///
 /// This class is deprecated and it will be removed. The sync errors caused by network resolution problems
 /// will be received as [SyncWebSocketError].
-@Deprecated("Use error class SyncWebSocketError")
+@Deprecated("Use SyncWebSocketError instead")
 class SyncResolveError extends SyncError {
   /// The numeric value indicating the type of the network resolution sync error.
   SyncResolveErrorCode get code => SyncResolveErrorCode.fromInt(codeValue);
