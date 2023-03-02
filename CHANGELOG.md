@@ -1,11 +1,8 @@
 ## vNext (TBD)
 
-### Breaking Changes
+### Enhancements
 * Deprecated `SyncResolveError` and `SyncResolveErrorCode` ([#1182](https://github.com/realm/realm-dart/pull/1182)).
 * Added `SyncWebSocketError` and `SyncWebSocketErrorCode` for web socket connection sync errors ([#1182](https://github.com/realm/realm-dart/pull/1182)).
-
-### Enhancements
-* None
 
 ### Fixed
 * Fixed error message when trying to `switchUser` of the `App` to a user that has been logged out ([#1182](https://github.com/realm/realm-dart/pull/1182)).
