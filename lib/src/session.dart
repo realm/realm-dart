@@ -553,8 +553,8 @@ enum SyncSessionErrorCode {
 ///
 /// These errors will be reported via the error handlers of the affected sessions.
 /// This enum is deprecated and it will be removed.
-/// The enum containing the new error codes is [SyncWebSocketErrorCode].
-@Deprecated("Use error codes SyncWebSocketErrorCode")
+/// Use [SyncWebSocketErrorCode] instead.
+@Deprecated("Use SyncWebSocketErrorCode instead")
 enum SyncResolveErrorCode {
   /// Host not found (authoritative).
   hostNotFound(1),
