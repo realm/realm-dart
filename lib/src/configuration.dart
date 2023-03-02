@@ -748,7 +748,7 @@ class SyncResolveError extends SyncError {
 
 /// Web socket error
 class SyncWebSocketError extends SyncError {
-  /// The numeric value indicating the type of the web socket sync error.
+  /// The numeric value indicating the type of the web socket error.
   SyncWebSocketErrorCode get code => SyncWebSocketErrorCode.fromInt(codeValue);
 
   SyncWebSocketError(String message, SyncErrorCategory category, SyncWebSocketErrorCode errorCode) : super(message, category, errorCode.code);
