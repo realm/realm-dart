@@ -4,7 +4,7 @@
 * None
 
 ### Fixed
-* Suppress omitting `objcMsgsend` stubs to ensure backward compatibility with Xcode 13.
+* Suppress omitting `objcMsgsend` stubs to ensure backward compatibility with Xcode 13 ([#1194](https://github.com/realm/realm-dart/issues/1194)).
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
