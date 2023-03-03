@@ -12,6 +12,10 @@ env:
   BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
   REALM_CI: true
 
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   deploy-cluster:
     runs-on: ubuntu-latest
