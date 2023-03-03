@@ -1,4 +1,5 @@
 option(REALM_BUILD_CORE_FROM_SOURCE "Build Realm Core from source" ON)
+
 if(REALM_BUILD_CORE_FROM_SOURCE)
     set(REALM_BUILD_LIB_ONLY ON)
 
@@ -37,6 +38,7 @@ else()
 endif()
 
 string(APPEND OUTPUT_DIR "${PROJECT_SOURCE_DIR}/binary")
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     string(APPEND OUTPUT_DIR "/windows")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -50,35 +52,9 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
 endif()
 
 if(ANDROID)
-    target_sources(realm_dart PRIVATE
-        android/platform.cpp
-    )
-
-    # Core requires these options for the final *.so file. See more realm-core/CMakeLists.txt
-    target_link_options(realm_dart PRIVATE LINKER:-gc-sections)
-
-    # Add a custom target to strip the binary
-    add_custom_target(strip ${CMAKE_STRIP} $<TARGET_FILE:realm_dart>)
+    add_subdirectory(android)
 elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
-    target_sources(realm_dart PRIVATE
-        ios/platform.mm
-    )
-    set_target_properties(realm_dart PROPERTIES
-        FRAMEWORK TRUE
-        PUBLIC_HEADER "${HEADERS}"
-        MACOSX_FRAMEWORK_IDENTIFIER io.realm.dart
-        MACOSX_FRAMEWORK_SHORT_VERSION_STRING "1.0.0"
-        MACOSX_FRAMEWORK_BUNDLE_VERSION "1.0.0"
-    )
-
-    target_link_options(realm_dart PRIVATE SHELL:-framework UIKIT)
-
-    if(NOT $ENV{REALM_CI})
-        add_custom_command(TARGET realm_dart POST_BUILD
-            COMMAND rm -rf ${OUTPUT_DIR}/realm_dart.xcframework
-            COMMAND xcodebuild -create-xcframework -framework $<TARGET_FILE:realm_dart>/.. -output ${OUTPUT_DIR}/realm_dart.xcframework
-        )
-    endif()
+    add_subdirectory(ios)
 endif()
 
 if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)

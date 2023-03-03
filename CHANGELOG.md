@@ -4,7 +4,7 @@
 * None
 
 ### Fixed
-* None
+* Suppress omitting `objcMsgsend` stubs to ensure backward compatibility with Xcode 13.
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
