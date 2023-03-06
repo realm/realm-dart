@@ -50,6 +50,7 @@ jobs:
       - name: Build
         if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: |
+          sudo xcode-select -s /Applications/Xcode_14.${{ matrix.build, 'macos' && '0.1' || '2' }}.app
           cmake --preset ${{ startsWith(matrix.build, 'ios-') && 'ios' || matrix.build }}
           cmake --build --preset ${{ matrix.build }} --config Release ${{ startsWith(matrix.build, 'android-') && '--target strip' || '' }}
 
