@@ -129,7 +129,7 @@ Future<void> main([List<String>? args]) async {
 
     final cars = realm.all<Car>();
 
-    expect(() => cars[0], throws<RealmException>("Requested index 0 in empty Results"));
+    expect(() => cars[0], throws<RealmException>("Requested index 0 calling get() on Results when empty"));
   });
 
   test('Results iteration test', () {
