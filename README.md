@@ -351,7 +351,7 @@ This section is about how to use the Realm with [Device Sync](https://www.mongod
 1. Add a sync subscription and write data.
 
    Only data matching the query in the subscription will be synced to the server and only data matching the subscription will be downloaded to the local device realm file.
-   
+
    ``` dart
    realm.subscriptions.update((mutableSubscriptions) {
    mutableSubscriptions.add(realm.query<Task>(r'status == $0 AND progressMinutes == $1', ["completed", 100]));

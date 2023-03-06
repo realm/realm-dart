@@ -1,5 +1,4 @@
 option(REALM_BUILD_CORE_FROM_SOURCE "Build Realm Core from source" ON)
-
 if(REALM_BUILD_CORE_FROM_SOURCE)
     set(REALM_BUILD_LIB_ONLY ON)
 
@@ -38,19 +37,16 @@ else()
 endif()
 
 string(APPEND OUTPUT_DIR "${PROJECT_SOURCE_DIR}/binary")
-
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     string(APPEND OUTPUT_DIR "/windows")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     string(APPEND OUTPUT_DIR "/linux")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     string(APPEND OUTPUT_DIR "/macos")
-    add_cxx_flag_if_supported(-fno-objc-msgsend-selector-stubs)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
     string(APPEND OUTPUT_DIR "/android/${CMAKE_ANDROID_ARCH_ABI}")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
     string(APPEND OUTPUT_DIR "/ios")
-    add_cxx_flag_if_supported(-fno-objc-msgsend-selector-stubs)
 endif()
 
 if(ANDROID)
@@ -63,6 +59,10 @@ if(ANDROID)
 
     # Add a custom target to strip the binary
     add_custom_target(strip ${CMAKE_STRIP} $<TARGET_FILE:realm_dart>)
+
+elseif(CMAKE_SYSTEM_NAME STREQUAL Darwin)
+    # Backward compatibility with Xcode 13
+    add_cxx_flag_if_supported(-fno-objc-msgsend-selector-stubs)
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
     target_sources(realm_dart PRIVATE
@@ -77,6 +77,9 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
     )
 
     target_link_options(realm_dart PRIVATE SHELL:-framework UIKIT)
+
+    # Backward compatibility with Xcode 13
+    add_cxx_flag_if_supported(-fno-objc-msgsend-selector-stubs)
 
     if(NOT $ENV{REALM_CI})
         add_custom_command(TARGET realm_dart POST_BUILD
