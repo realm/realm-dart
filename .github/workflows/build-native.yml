@@ -33,7 +33,7 @@ jobs:
 
       - name: Check cache
         id: check-cache
-        if: ${{ !contains(github.head_ref, 'release/') }}
+        if: false #${{ !contains(github.head_ref, 'release/') }}
         uses: actions/cache@v3
         with:
           path: ./binary/**
