@@ -15,7 +15,6 @@ This repository holds the source code for the Realm SDK for Flutterâ„¢ and Dartâ
 * **Fast:** Realm is faster than even raw SQLite on common operations while maintaining an extremely rich feature set.
 * **[Device Sync](https://www.mongodb.com/atlas/app-services/device-sync)**: Makes it simple to keep data in sync across users, devices, and your backend in real-time. [Get started](https://mongodb.com/realm/register?utm_medium=github_atlas_CTA&utm_source=realm_dart_github) for free with a template application that includes a cloud backend and Sync.
 
-
 ## Getting Started
 
 * Import Realm in a dart file `app.dart`
