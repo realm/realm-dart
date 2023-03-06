@@ -4,10 +4,13 @@
 * Renamed `SyncErrorCategory.resolve` category to `SyncErrorCategory.webSocket`, `SyncResolveError` to `SyncWebSocketError` and `SyncResolveErrorCode` to `SyncWebSocketErrorCode`. Added new codes to  `SyncWebSocketErrorCode`.
 
 ### Enhancements
-* None
+* Deprecated `SyncResolveError` and `SyncResolveErrorCode` ([#1182](https://github.com/realm/realm-dart/pull/1182)).
+* Added `SyncWebSocketError` and `SyncWebSocketErrorCode` for web socket connection sync errors ([#1182](https://github.com/realm/realm-dart/pull/1182)).
 
 ### Fixed
-* Fixed error message when trying to `switchUser` of the `App` to a user that has been logged out.
+* You may have a crash on Windows if you try to open a file with non-ASCII path (Core upgrade).
+* Creating subscriptions with queries having unicode parameters causes a server error (Core upgrade).
+* Fixed error message when trying to `switchUser` of the `App` to a user that has been logged out ([#1182](https://github.com/realm/realm-dart/pull/1182)).
 * Fixed performance degradation on SubQueries (Core upgrade).
 * Fixed several cases where wrong type of exception was thrown (Core upgrade).
 * Fixed classification of InvalidQuery exception (Core upgrade).
@@ -17,7 +20,7 @@
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core 13.5.0.
+* Using Core 13.6.0.
 
 ## 1.0.2 (2023-02-21)
 

@@ -8382,6 +8382,46 @@ class RealmLibrary {
       _realm_sync_client_config_set_connection_linger_timePtr.asFunction<
           void Function(ffi.Pointer<realm_sync_client_config_t>, int)>();
 
+  void realm_sync_client_config_set_default_binding_thread_observer(
+    ffi.Pointer<realm_sync_client_config_t> config,
+    realm_on_object_store_thread_callback_t on_thread_create,
+    realm_on_object_store_thread_callback_t on_thread_destroy,
+    realm_on_object_store_error_callback_t on_error,
+    ffi.Pointer<ffi.Void> user_data,
+    realm_free_userdata_func_t free_userdata,
+  ) {
+    return _realm_sync_client_config_set_default_binding_thread_observer(
+      config,
+      on_thread_create,
+      on_thread_destroy,
+      on_error,
+      user_data,
+      free_userdata,
+    );
+  }
+
+  late final _realm_sync_client_config_set_default_binding_thread_observerPtr =
+      _lookup<
+              ffi.NativeFunction<
+                  ffi.Void Function(
+                      ffi.Pointer<realm_sync_client_config_t>,
+                      realm_on_object_store_thread_callback_t,
+                      realm_on_object_store_thread_callback_t,
+                      realm_on_object_store_error_callback_t,
+                      ffi.Pointer<ffi.Void>,
+                      realm_free_userdata_func_t)>>(
+          'realm_sync_client_config_set_default_binding_thread_observer');
+  late final _realm_sync_client_config_set_default_binding_thread_observer =
+      _realm_sync_client_config_set_default_binding_thread_observerPtr
+          .asFunction<
+              void Function(
+                  ffi.Pointer<realm_sync_client_config_t>,
+                  realm_on_object_store_thread_callback_t,
+                  realm_on_object_store_thread_callback_t,
+                  realm_on_object_store_error_callback_t,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t)>();
+
   void realm_sync_client_config_set_fast_reconnect_limit(
     ffi.Pointer<realm_sync_client_config_t> arg0,
     int arg1,
@@ -11178,6 +11218,11 @@ typedef realm_on_object_change_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(
             ffi.Pointer<ffi.Void>, ffi.Pointer<realm_object_changes_t>)>>;
+typedef realm_on_object_store_error_callback_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>>;
+typedef realm_on_object_store_thread_callback_t
+    = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>;
 typedef realm_on_realm_change_func_t
     = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>;
 typedef realm_on_realm_refresh_func_t

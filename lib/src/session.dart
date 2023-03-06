@@ -549,11 +549,48 @@ enum SyncSessionErrorCode {
   const SyncSessionErrorCode(this.code);
 }
 
+//// Protocol network resolution errors.
+///
+/// These errors will be reported via the error handlers of the affected sessions.
+/// This enum is deprecated and it will be removed.
+/// Use [SyncWebSocketErrorCode] instead.
+@Deprecated("Use SyncWebSocketErrorCode instead")
+enum SyncResolveErrorCode {
+  /// Host not found (authoritative).
+  hostNotFound(1),
+
+  /// Host not found (non-authoritative).
+  hostNotFoundTryAgain(2),
+
+  /// The query is valid but does not have associated address data.
+  noData(3),
+
+  /// A non-recoverable error occurred.
+  noRecovery(4),
+
+  /// The service is not supported for the given socket type.
+  serviceNotFound(5),
+
+  /// The socket type is not supported.
+  socketTypeNotSupported(6),
+
+  /// Unknown resolve errors
+  unknown(1000);
+
+  static final Map<int, SyncResolveErrorCode> _valuesMap = {for (var value in SyncResolveErrorCode.values) value.code: value};
+
+  static SyncResolveErrorCode fromInt(int code) {
+    return SyncResolveErrorCode._valuesMap[code] ?? SyncResolveErrorCode.unknown;
+  }
+
+  final int code;
+  const SyncResolveErrorCode(this.code);
+}
+
 /// Web socket errors.
 ///
 /// These errors will be reported via the error handlers of the affected sessions.
 enum SyncWebSocketErrorCode {
-  
   /// Web socket resolution failed
   websocketResolveFailed(4400),
 
