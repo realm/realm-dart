@@ -748,7 +748,9 @@ class SyncResolveError extends SyncError {
 class SyncWebSocketError extends SyncError {
   /// The numeric value indicating the type of the web socket error.
   SyncWebSocketErrorCode get code => SyncWebSocketErrorCode.fromInt(codeValue);
+
   SyncWebSocketError(String message, SyncErrorCategory category, SyncWebSocketErrorCode errorCode) : super(message, category, errorCode.code);
+
   @override
   String toString() {
     return "SyncWebSocketError message: $message category: $category code: $code";
