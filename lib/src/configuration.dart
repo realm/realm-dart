@@ -651,8 +651,8 @@ class SyncError extends RealmError {
         return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.session:
         return SyncSessionError(message, category, SyncSessionErrorCode.fromInt(code), isFatal: isFatal);
-      case SyncErrorCategory.resolve:
-        return SyncResolveError(message, category, SyncResolveErrorCode.fromInt(code));
+      case SyncErrorCategory.webSocket:
+        return SyncWebSocketError(message, category, SyncWebSocketErrorCode.fromInt(code));
       case SyncErrorCategory.system:
       case SyncErrorCategory.unknown:
       default:
@@ -736,6 +736,10 @@ class SyncSessionError extends SyncError {
 }
 
 /// Network resolution error
+///
+/// This class is deprecated and it will be removed. The sync errors caused by network resolution problems
+/// will be received as [SyncWebSocketError].
+@Deprecated("Use SyncWebSocketError instead")
 class SyncResolveError extends SyncError {
   /// The numeric value indicating the type of the network resolution sync error.
   SyncResolveErrorCode get code => SyncResolveErrorCode.fromInt(codeValue);
@@ -745,6 +749,19 @@ class SyncResolveError extends SyncError {
   @override
   String toString() {
     return "SyncResolveError message: $message category: $category code: $code";
+  }
+}
+
+/// Web socket error
+class SyncWebSocketError extends SyncError {
+  /// The numeric value indicating the type of the web socket error.
+  SyncWebSocketErrorCode get code => SyncWebSocketErrorCode.fromInt(codeValue);
+
+  SyncWebSocketError(String message, SyncErrorCategory category, SyncWebSocketErrorCode errorCode) : super(message, category, errorCode.code);
+
+  @override
+  String toString() {
+    return "SyncWebSocketError message: $message category: $category code: $code";
   }
 }
 

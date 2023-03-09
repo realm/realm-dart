@@ -149,7 +149,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration readOnly - opening non existing realm throws', () {
     Configuration config = Configuration.local([Car.schema], isReadOnly: true);
-    expect(() => getRealm(config), throws<RealmException>("at path '${config.path}' does not exist"));
+    expect(() => getRealm(config), throws<RealmException>("Failed to open Realm file at path '${config.path}': No such file or directory"));
   });
 
   test('Configuration readOnly - open existing realm with read-only config', () {
@@ -216,7 +216,7 @@ Future<void> main([List<String>? args]) async {
     await copyBundledFile('data/realm_files/old-format.realm', config.path);
     expect(() {
       getRealm(config);
-    }, throws<RealmException>("The Realm file format must be allowed to be upgraded in order to proceed"));
+    }, throws<RealmException>("Database upgrade required but prohibited."));
   });
 
   test('Configuration - disableFormatUpgrade=false', () async {

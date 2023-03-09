@@ -248,8 +248,8 @@ enum SyncErrorCategory {
   /// The error originated from the session
   session,
 
-  /// Network resolution error
-  resolve,
+  /// Web socket error
+  webSocket,
 
   /// Another low-level system error occurred
   system,
@@ -533,6 +533,9 @@ enum SyncSessionErrorCode {
   /// outside the current query, and the server undid the modification (UPLOAD)
   compensatingWrite(231),
 
+  /// Bad progress information (ERROR)
+  sessionBadProgress(233),
+
   /// Unknown Sync session error code
   unknown(9999);
 
@@ -549,6 +552,9 @@ enum SyncSessionErrorCode {
 /// Protocol network resolution errors.
 ///
 /// These errors will be reported via the error handlers of the affected sessions.
+/// This enum is deprecated and it will be removed.
+/// Use [SyncWebSocketErrorCode] instead.
+@Deprecated("Use SyncWebSocketErrorCode instead")
 enum SyncResolveErrorCode {
   /// Host not found (authoritative).
   hostNotFound(1),
@@ -579,4 +585,31 @@ enum SyncResolveErrorCode {
 
   final int code;
   const SyncResolveErrorCode(this.code);
+}
+
+/// Web socket errors.
+///
+/// These errors will be reported via the error handlers of the affected sessions.
+enum SyncWebSocketErrorCode {
+  
+  /// Web socket resolution failed
+  websocketResolveFailed(4400),
+
+  /// Web socket connection closed by the client
+  websocketConnectionClosedClient(4401),
+
+  /// Web socket connection closed by the server
+  websocketConnectionClosedServer(4402),
+
+  /// Unknown resolve errors
+  unknown(9999);
+
+  static final Map<int, SyncWebSocketErrorCode> _valuesMap = {for (var value in SyncWebSocketErrorCode.values) value.code: value};
+
+  static SyncWebSocketErrorCode fromInt(int code) {
+    return SyncWebSocketErrorCode._valuesMap[code] ?? SyncWebSocketErrorCode.unknown;
+  }
+
+  final int code;
+  const SyncWebSocketErrorCode(this.code);
 }
