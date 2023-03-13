@@ -487,10 +487,6 @@ Future<void> tryDeleteRealm(String path) async {
       //delete lock file
       await File('$path.lock').delete().onError((error, stackTrace) => dummy);
 
-      //Bug in Core https://github.com/realm/realm-core/issues/5997. Remove when fixed
-      //delete compaction space file
-      await File('$path.tmp_compaction_space').delete().onError((error, stackTrace) => dummy);
-
       return;
     } catch (e) {
       print('Failed to delete realm at path $path. Trying again in ${duration.inMilliseconds}ms');
