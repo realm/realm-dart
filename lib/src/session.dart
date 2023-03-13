@@ -549,7 +549,7 @@ enum SyncSessionErrorCode {
   const SyncSessionErrorCode(this.code);
 }
 
-//// Protocol network resolution errors.
+/// Protocol network resolution errors.
 ///
 /// These errors will be reported via the error handlers of the affected sessions.
 /// This enum is deprecated and it will be removed.

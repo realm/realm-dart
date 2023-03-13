@@ -1899,15 +1899,6 @@ Future<void> main([List<String>? args]) async {
     expect(query[0].name, productName);
   });
 
-  test('Realm case-insensitive query with unicode symbols', () {
-    final productName = generateRandomUnicodeString(10).toUpperCase();
-    final config = Configuration.local([Product.schema]);
-    final realm = getRealm(config);
-    realm.write(() => realm.add(Product(ObjectId(), productName)));
-    final query = realm.query<Product>(r'name LIKE[c] $0', [productName.toLowerCase()]);
-    expect(query.length, 1);
-    expect(query[0].name, productName);
-  }, skip: true);
 }
 
 List<int> generateEncryptionKey() {

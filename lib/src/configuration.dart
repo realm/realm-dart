@@ -737,7 +737,9 @@ class SyncSessionError extends SyncError {
 class SyncResolveError extends SyncError {
   /// The numeric value indicating the type of the network resolution sync error.
   SyncResolveErrorCode get code => SyncResolveErrorCode.fromInt(codeValue);
+
   SyncResolveError(String message, SyncErrorCategory category, SyncResolveErrorCode errorCode) : super(message, category, errorCode.index);
+
   @override
   String toString() {
     return "SyncResolveError message: $message category: $category code: $code";
