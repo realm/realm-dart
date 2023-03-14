@@ -331,25 +331,33 @@ class BaasClient {
 
     print('Creating database db_$name$_appSuffix');
 
-    await _createMongoDBService(app, '''{
-      "flexible_sync": {
-        "state": "enabled",
-        "database_name": "${getDatabaseName(name)}",
-        "queryable_fields_names": ["differentiator", "stringQueryField", "boolQueryField", "intQueryField"],
-        "permissions": {
-          "rules": {},
-          "defaultRoles": [
-            {
-              "name": "all",
-              "applyWhen": {},
+    await _createMongoDBService(
+      app,
+      syncConfig: '''{
+        "flexible_sync": {
+          "state": "enabled",
+          "database_name": "${getDatabaseName(name)}",
+          "queryable_fields_names": ["differentiator", "stringQueryField", "boolQueryField", "intQueryField"]
+        }
+      }''',
+      rules: '''{        
+        "roles": [
+          {
+            "name": "all",
+            "apply_when": {},
+            "document_filters": {
               "read": true,
               "write": true
-            }
-          ]
-        }
-      }
-    }''');
-
+            },
+            "read": true,
+            "write": true,
+            "insert": true,
+            "delete": true,
+            "search": true
+          }
+        ]
+      }''',
+    );
     await _put('groups/$_groupId/apps/$appId/sync/config', '{ "development_mode_enabled": true }');
 
     //create email/password user for tests
@@ -429,7 +437,7 @@ class BaasClient {
       }''');
   }
 
-  Future<String> _createMongoDBService(BaasApp app, String syncConfig) async {
+  Future<String> _createMongoDBService(BaasApp app, {required String syncConfig, required String rules}) async {
     final serviceName = _clusterName == null ? 'mongodb' : 'mongodb-atlas';
     final mongoConfig = _clusterName == null ? '{ "uri": "mongodb://localhost:26000" }' : '{ "clusterName": "$_clusterName" }';
     final mongoServiceId = await _createService(app, 'BackingDB', serviceName, mongoConfig);
@@ -442,6 +450,7 @@ class BaasClient {
     while (true) {
       try {
         await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', syncConfig);
+        await _post('groups/$_groupId/apps/$app/services/$mongoServiceId/default_rule', rules);
         break;
       } catch (err) {
         if (attempt++ < 24) {

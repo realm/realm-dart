@@ -373,7 +373,7 @@ Future<void> main([List<String>? args]) async {
       var set = testSet.setByType(type).set;
 
       expect(() => set.elementAt(-1), throws<RealmException>("Index out of range"));
-      expect(() => set.elementAt(800), throws<RealmException>("Requested index 800 greater than max 0"));
+      expect(() => set.elementAt(800), throws<RealmException>("Error getting value at index 800"));
       expect(set.elementAt(0), values[0]);
     });
 

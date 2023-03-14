@@ -318,6 +318,21 @@ Future<void> main([List<String>? args]) async {
     session.resume();
     app.reconnect(); // <-- this is not currently needed for this test to pass see above
   });
+
+  baasTest('App switch to logout user throws', (configuration) async {
+    final app = App(configuration);
+    expect(app.currentUser, isNull);
+
+    final user1 = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
+    await user1.logOut();
+
+    final user2 = await app.logIn(Credentials.anonymous());
+    expect(app.currentUser, user2);
+    expect(
+      () => app.switchUser(user1),
+      throws<RealmException>("Switch user failed. Error code: 4101 . Message: User is no longer valid or is logged out"),
+    );
+  });
 }
 
 Future<void> testLogger(

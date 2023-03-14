@@ -8382,6 +8382,46 @@ class RealmLibrary {
       _realm_sync_client_config_set_connection_linger_timePtr.asFunction<
           void Function(ffi.Pointer<realm_sync_client_config_t>, int)>();
 
+  void realm_sync_client_config_set_default_binding_thread_observer(
+    ffi.Pointer<realm_sync_client_config_t> config,
+    realm_on_object_store_thread_callback_t on_thread_create,
+    realm_on_object_store_thread_callback_t on_thread_destroy,
+    realm_on_object_store_error_callback_t on_error,
+    ffi.Pointer<ffi.Void> user_data,
+    realm_free_userdata_func_t free_userdata,
+  ) {
+    return _realm_sync_client_config_set_default_binding_thread_observer(
+      config,
+      on_thread_create,
+      on_thread_destroy,
+      on_error,
+      user_data,
+      free_userdata,
+    );
+  }
+
+  late final _realm_sync_client_config_set_default_binding_thread_observerPtr =
+      _lookup<
+              ffi.NativeFunction<
+                  ffi.Void Function(
+                      ffi.Pointer<realm_sync_client_config_t>,
+                      realm_on_object_store_thread_callback_t,
+                      realm_on_object_store_thread_callback_t,
+                      realm_on_object_store_error_callback_t,
+                      ffi.Pointer<ffi.Void>,
+                      realm_free_userdata_func_t)>>(
+          'realm_sync_client_config_set_default_binding_thread_observer');
+  late final _realm_sync_client_config_set_default_binding_thread_observer =
+      _realm_sync_client_config_set_default_binding_thread_observerPtr
+          .asFunction<
+              void Function(
+                  ffi.Pointer<realm_sync_client_config_t>,
+                  realm_on_object_store_thread_callback_t,
+                  realm_on_object_store_thread_callback_t,
+                  realm_on_object_store_error_callback_t,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t)>();
+
   void realm_sync_client_config_set_fast_reconnect_limit(
     ffi.Pointer<realm_sync_client_config_t> arg0,
     int arg1,
@@ -10563,14 +10603,6 @@ class UnnamedUnion1 extends ffi.Union {
   external ffi.Array<ffi.Char> data;
 }
 
-class UnnamedUnion2 extends ffi.Union {
-  @ffi.Int()
-  external int code;
-
-  @ffi.Int32()
-  external int logic_error_kind;
-}
-
 class realm_app extends ffi.Opaque {}
 
 class realm_app_config extends ffi.Opaque {}
@@ -10581,110 +10613,23 @@ class realm_app_credentials extends ffi.Opaque {}
 
 typedef realm_app_credentials_t = realm_app_credentials;
 
-abstract class realm_app_errno_client {
-  static const int RLM_APP_ERR_CLIENT_USER_NOT_FOUND = 1;
-  static const int RLM_APP_ERR_CLIENT_USER_NOT_LOGGED_IN = 2;
-  static const int RLM_APP_ERR_CLIENT_APP_DEALLOCATED = 3;
-}
-
-abstract class realm_app_errno_json {
-  static const int RLM_APP_ERR_JSON_BAD_TOKEN = 1;
-  static const int RLM_APP_ERR_JSON_MALFORMED_JSON = 2;
-  static const int RLM_APP_ERR_JSON_MISSING_JSON_KEY = 3;
-  static const int RLM_APP_ERR_JSON_BAD_BSON_PARSE = 4;
-}
-
-abstract class realm_app_errno_service {
-  static const int RLM_APP_ERR_SERVICE_MISSING_AUTH_REQ = 1;
-  static const int RLM_APP_ERR_SERVICE_INVALID_SESSION = 2;
-  static const int RLM_APP_ERR_SERVICE_USER_APP_DOMAIN_MISMATCH = 3;
-  static const int RLM_APP_ERR_SERVICE_DOMAIN_NOT_ALLOWED = 4;
-  static const int RLM_APP_ERR_SERVICE_READ_SIZE_LIMIT_EXCEEDED = 5;
-  static const int RLM_APP_ERR_SERVICE_INVALID_PARAMETER = 6;
-  static const int RLM_APP_ERR_SERVICE_MISSING_PARAMETER = 7;
-  static const int RLM_APP_ERR_SERVICE_TWILIO_ERROR = 8;
-  static const int RLM_APP_ERR_SERVICE_GCM_ERROR = 9;
-  static const int RLM_APP_ERR_SERVICE_HTTP_ERROR = 10;
-  static const int RLM_APP_ERR_SERVICE_AWS_ERROR = 11;
-  static const int RLM_APP_ERR_SERVICE_MONGODB_ERROR = 12;
-  static const int RLM_APP_ERR_SERVICE_ARGUMENTS_NOT_ALLOWED = 13;
-  static const int RLM_APP_ERR_SERVICE_FUNCTION_EXECUTION_ERROR = 14;
-  static const int RLM_APP_ERR_SERVICE_NO_MATCHING_RULE_FOUND = 15;
-  static const int RLM_APP_ERR_SERVICE_INTERNAL_SERVER_ERROR = 16;
-  static const int RLM_APP_ERR_SERVICE_AUTH_PROVIDER_NOT_FOUND = 17;
-  static const int RLM_APP_ERR_SERVICE_AUTH_PROVIDER_ALREADY_EXISTS = 18;
-  static const int RLM_APP_ERR_SERVICE_SERVICE_NOT_FOUND = 19;
-  static const int RLM_APP_ERR_SERVICE_SERVICE_TYPE_NOT_FOUND = 20;
-  static const int RLM_APP_ERR_SERVICE_SERVICE_ALREADY_EXISTS = 21;
-  static const int RLM_APP_ERR_SERVICE_SERVICE_COMMAND_NOT_FOUND = 22;
-  static const int RLM_APP_ERR_SERVICE_VALUE_NOT_FOUND = 23;
-  static const int RLM_APP_ERR_SERVICE_VALUE_ALREADY_EXISTS = 24;
-  static const int RLM_APP_ERR_SERVICE_VALUE_DUPLICATE_NAME = 25;
-  static const int RLM_APP_ERR_SERVICE_FUNCTION_NOT_FOUND = 26;
-  static const int RLM_APP_ERR_SERVICE_FUNCTION_ALREADY_EXISTS = 27;
-  static const int RLM_APP_ERR_SERVICE_FUNCTION_DUPLICATE_NAME = 28;
-  static const int RLM_APP_ERR_SERVICE_FUNCTION_SYNTAX_ERROR = 29;
-  static const int RLM_APP_ERR_SERVICE_FUNCTION_INVALID = 30;
-  static const int RLM_APP_ERR_SERVICE_INCOMING_WEBHOOK_NOT_FOUND = 31;
-  static const int RLM_APP_ERR_SERVICE_INCOMING_WEBHOOK_ALREADY_EXISTS = 32;
-  static const int RLM_APP_ERR_SERVICE_INCOMING_WEBHOOK_DUPLICATE_NAME = 33;
-  static const int RLM_APP_ERR_SERVICE_RULE_NOT_FOUND = 34;
-  static const int RLM_APP_ERR_SERVICE_API_KEY_NOT_FOUND = 35;
-  static const int RLM_APP_ERR_SERVICE_RULE_ALREADY_EXISTS = 36;
-  static const int RLM_APP_ERR_SERVICE_RULE_DUPLICATE_NAME = 37;
-  static const int RLM_APP_ERR_SERVICE_AUTH_PROVIDER_DUPLICATE_NAME = 38;
-  static const int RLM_APP_ERR_SERVICE_RESTRICTED_HOST = 39;
-  static const int RLM_APP_ERR_SERVICE_API_KEY_ALREADY_EXISTS = 40;
-  static const int RLM_APP_ERR_SERVICE_INCOMING_WEBHOOK_AUTH_FAILED = 41;
-  static const int RLM_APP_ERR_SERVICE_EXECUTION_TIME_LIMIT_EXCEEDED = 42;
-  static const int RLM_APP_ERR_SERVICE_NOT_CALLABLE = 43;
-  static const int RLM_APP_ERR_SERVICE_USER_ALREADY_CONFIRMED = 44;
-  static const int RLM_APP_ERR_SERVICE_USER_NOT_FOUND = 45;
-  static const int RLM_APP_ERR_SERVICE_USER_DISABLED = 46;
-  static const int RLM_APP_ERR_SERVICE_AUTH_ERROR = 47;
-  static const int RLM_APP_ERR_SERVICE_BAD_REQUEST = 48;
-  static const int RLM_APP_ERR_SERVICE_ACCOUNT_NAME_IN_USE = 49;
-  static const int RLM_APP_ERR_SERVICE_INVALID_EMAIL_PASSWORD = 50;
-  static const int RLM_APP_ERR_SERVICE_UNKNOWN = -1;
-  static const int RLM_APP_ERR_SERVICE_NONE = 0;
-}
-
 class realm_app_error extends ffi.Struct {
   @ffi.Int32()
-  external int error_category;
+  external int error;
 
-  @ffi.Int()
-  external int error_code;
+  @realm_error_categories()
+  external int categories;
+
+  external ffi.Pointer<ffi.Char> message;
 
   /// The underlying HTTP status code returned by the server,
   /// otherwise zero.
   @ffi.Int()
   external int http_status_code;
 
-  external ffi.Pointer<ffi.Char> message;
-
   /// A link to MongoDB Realm server logs related to the error,
   /// or NULL if error response didn't contain log information.
   external ffi.Pointer<ffi.Char> link_to_server_logs;
-}
-
-/// Possible error categories the realm_app_error_t error code can fall in.
-abstract class realm_app_error_category {
-  /// Error category for HTTP-related errors. The error code value can be interpreted as a HTTP status code.
-  static const int RLM_APP_ERROR_CATEGORY_HTTP = 0;
-
-  /// JSON response parsing related errors. The error code is a member of realm_app_errno_json_e.
-  static const int RLM_APP_ERROR_CATEGORY_JSON = 1;
-
-  /// Client-side related errors. The error code is a member of realm_app_errno_client_e.
-  static const int RLM_APP_ERROR_CATEGORY_CLIENT = 2;
-
-  /// Errors reported by the backend. The error code is a member of realm_app_errno_service_e.
-  static const int RLM_APP_ERROR_CATEGORY_SERVICE = 3;
-
-  /// Custom error code was set in realm_http_response_t.custom_status_code.
-  /// The error code is the custom_status_code value.
-  static const int RLM_APP_ERROR_CATEGORY_CUSTOM = 4;
 }
 
 typedef realm_app_error_t = realm_app_error;
@@ -10871,62 +10816,169 @@ typedef realm_dictionary_t = realm_dictionary;
 
 abstract class realm_errno {
   static const int RLM_ERR_NONE = 0;
-  static const int RLM_ERR_UNKNOWN = 1;
-  static const int RLM_ERR_OTHER_EXCEPTION = 2;
-  static const int RLM_ERR_OUT_OF_MEMORY = 3;
-  static const int RLM_ERR_NOT_CLONABLE = 4;
-  static const int RLM_ERR_NOT_IN_A_TRANSACTION = 5;
-  static const int RLM_ERR_WRONG_THREAD = 6;
-  static const int RLM_ERR_INVALIDATED_OBJECT = 7;
-  static const int RLM_ERR_INVALID_PROPERTY = 8;
-  static const int RLM_ERR_MISSING_PROPERTY_VALUE = 9;
-  static const int RLM_ERR_PROPERTY_TYPE_MISMATCH = 10;
-  static const int RLM_ERR_MISSING_PRIMARY_KEY = 11;
-  static const int RLM_ERR_UNEXPECTED_PRIMARY_KEY = 12;
-  static const int RLM_ERR_WRONG_PRIMARY_KEY_TYPE = 13;
-  static const int RLM_ERR_MODIFY_PRIMARY_KEY = 14;
-  static const int RLM_ERR_READ_ONLY_PROPERTY = 15;
-  static const int RLM_ERR_PROPERTY_NOT_NULLABLE = 16;
-  static const int RLM_ERR_INVALID_ARGUMENT = 17;
-  static const int RLM_ERR_LOGIC = 18;
-  static const int RLM_ERR_NO_SUCH_TABLE = 19;
-  static const int RLM_ERR_NO_SUCH_OBJECT = 20;
-  static const int RLM_ERR_CROSS_TABLE_LINK_TARGET = 21;
-  static const int RLM_ERR_UNSUPPORTED_FILE_FORMAT_VERSION = 22;
-  static const int RLM_ERR_MULTIPLE_SYNC_AGENTS = 23;
-  static const int RLM_ERR_ADDRESS_SPACE_EXHAUSTED = 24;
-  static const int RLM_ERR_MAXIMUM_FILE_SIZE_EXCEEDED = 25;
-  static const int RLM_ERR_OUT_OF_DISK_SPACE = 26;
-  static const int RLM_ERR_KEY_NOT_FOUND = 27;
-  static const int RLM_ERR_COLUMN_NOT_FOUND = 28;
-  static const int RLM_ERR_COLUMN_ALREADY_EXISTS = 29;
-  static const int RLM_ERR_KEY_ALREADY_USED = 30;
-  static const int RLM_ERR_SERIALIZATION_ERROR = 31;
-  static const int RLM_ERR_INVALID_PATH_ERROR = 32;
-  static const int RLM_ERR_DUPLICATE_PRIMARY_KEY_VALUE = 33;
-  static const int RLM_ERR_INDEX_OUT_OF_BOUNDS = 34;
-  static const int RLM_ERR_INVALID_QUERY_STRING = 35;
-  static const int RLM_ERR_INVALID_QUERY = 36;
-  static const int RLM_ERR_FILE_ACCESS_ERROR = 37;
-  static const int RLM_ERR_FILE_PERMISSION_DENIED = 38;
-  static const int RLM_ERR_DELETE_OPENED_REALM = 39;
-  static const int RLM_ERR_ILLEGAL_OPERATION = 40;
+  static const int RLM_ERR_RUNTIME = 1000;
+  static const int RLM_ERR_RANGE_ERROR = 1001;
+  static const int RLM_ERR_BROKEN_INVARIANT = 1002;
+  static const int RLM_ERR_OUT_OF_MEMORY = 1003;
+  static const int RLM_ERR_OUT_OF_DISK_SPACE = 1004;
+  static const int RLM_ERR_ADDRESS_SPACE_EXHAUSTED = 1005;
+  static const int RLM_ERR_MAXIMUM_FILE_SIZE_EXCEEDED = 1006;
+  static const int RLM_ERR_INCOMPATIBLE_SESSION = 1007;
+  static const int RLM_ERR_INCOMPATIBLE_LOCK_FILE = 1008;
+  static const int RLM_ERR_INVALID_QUERY = 1009;
+  static const int RLM_ERR_BAD_VERSION = 1010;
+  static const int RLM_ERR_UNSUPPORTED_FILE_FORMAT_VERSION = 1011;
+  static const int RLM_ERR_MULTIPLE_SYNC_AGENTS = 1012;
+  static const int RLM_ERR_OBJECT_ALREADY_EXISTS = 1013;
+  static const int RLM_ERR_NOT_CLONABLE = 1014;
+  static const int RLM_ERR_BAD_CHANGESET = 1015;
+  static const int RLM_ERR_SUBSCRIPTION_FAILED = 1016;
+  static const int RLM_ERR_FILE_OPERATION_FAILED = 1017;
+  static const int RLM_ERR_FILE_PERMISSION_DENIED = 1018;
+  static const int RLM_ERR_FILE_NOT_FOUND = 1019;
+  static const int RLM_ERR_FILE_ALREADY_EXISTS = 1020;
+  static const int RLM_ERR_INVALID_DATABASE = 1021;
+  static const int RLM_ERR_DECRYPTION_FAILED = 1022;
+  static const int RLM_ERR_INCOMPATIBLE_HISTORIES = 1023;
+  static const int RLM_ERR_FILE_FORMAT_UPGRADE_REQUIRED = 1024;
+  static const int RLM_ERR_SCHEMA_VERSION_MISMATCH = 1025;
+  static const int RLM_ERR_NO_SUBSCRIPTION_FOR_WRITE = 1026;
+  static const int RLM_ERR_OPERATION_ABORTED = 1027;
+  static const int RLM_ERR_SYSTEM_ERROR = 1999;
+  static const int RLM_ERR_LOGIC = 2000;
+  static const int RLM_ERR_NOT_SUPPORTED = 2001;
+  static const int RLM_ERR_BROKEN_PROMISE = 2002;
+  static const int RLM_ERR_CROSS_TABLE_LINK_TARGET = 2003;
+  static const int RLM_ERR_KEY_ALREADY_USED = 2004;
+  static const int RLM_ERR_WRONG_TRANSACTION_STATE = 2005;
+  static const int RLM_ERR_WRONG_THREAD = 2006;
+  static const int RLM_ERR_ILLEGAL_OPERATION = 2007;
+  static const int RLM_ERR_SERIALIZATION_ERROR = 2008;
+  static const int RLM_ERR_STALE_ACCESSOR = 2009;
+  static const int RLM_ERR_INVALIDATED_OBJECT = 2010;
+  static const int RLM_ERR_READ_ONLY_DB = 2011;
+  static const int RLM_ERR_DELETE_OPENED_REALM = 2012;
+  static const int RLM_ERR_MISMATCHED_CONFIG = 2013;
+  static const int RLM_ERR_CLOSED_REALM = 2014;
+  static const int RLM_ERR_INVALID_TABLE_REF = 2015;
+  static const int RLM_ERR_SCHEMA_VALIDATION_FAILED = 2016;
+  static const int RLM_ERR_SCHEMA_MISMATCH = 2017;
+  static const int RLM_ERR_INVALID_SCHEMA_VERSION = 2018;
+  static const int RLM_ERR_INVALID_SCHEMA_CHANGE = 2019;
+  static const int RLM_ERR_MIGRATION_FAILED = 2020;
+  static const int RLM_ERR_TOP_LEVEL_OBJECT = 2021;
+  static const int RLM_ERR_INVALID_ARGUMENT = 3000;
+  static const int RLM_ERR_PROPERTY_TYPE_MISMATCH = 3001;
+  static const int RLM_ERR_PROPERTY_NOT_NULLABLE = 3002;
+  static const int RLM_ERR_READ_ONLY_PROPERTY = 3003;
+  static const int RLM_ERR_MISSING_PROPERTY_VALUE = 3004;
+  static const int RLM_ERR_MISSING_PRIMARY_KEY = 3005;
+  static const int RLM_ERR_UNEXPECTED_PRIMARY_KEY = 3006;
+  static const int RLM_ERR_MODIFY_PRIMARY_KEY = 3007;
+  static const int RLM_ERR_INVALID_QUERY_STRING = 3008;
+  static const int RLM_ERR_INVALID_PROPERTY = 3009;
+  static const int RLM_ERR_INVALID_NAME = 3010;
+  static const int RLM_ERR_INVALID_DICTIONARY_KEY = 3011;
+  static const int RLM_ERR_INVALID_DICTIONARY_VALUE = 3012;
+  static const int RLM_ERR_INVALID_SORT_DESCRIPTOR = 3013;
+  static const int RLM_ERR_INVALID_ENCRYPTION_KEY = 3014;
+  static const int RLM_ERR_INVALID_QUERY_ARG = 3015;
+  static const int RLM_ERR_NO_SUCH_OBJECT = 3016;
+  static const int RLM_ERR_INDEX_OUT_OF_BOUNDS = 3017;
+  static const int RLM_ERR_LIMIT_EXCEEDED = 3018;
+  static const int RLM_ERR_OBJECT_TYPE_MISMATCH = 3019;
+  static const int RLM_ERR_NO_SUCH_TABLE = 3020;
+  static const int RLM_ERR_TABLE_NAME_IN_USE = 3021;
+  static const int RLM_ERR_ILLEGAL_COMBINATION = 3022;
+  static const int RLM_ERR_BAD_SERVER_URL = 3023;
+  static const int RLM_ERR_CUSTOM_ERROR = 4000;
+  static const int RLM_ERR_CLIENT_USER_NOT_FOUND = 4100;
+  static const int RLM_ERR_CLIENT_USER_NOT_LOGGED_IN = 4101;
+  static const int RLM_ERR_CLIENT_APP_DEALLOCATED = 4102;
+  static const int RLM_ERR_CLIENT_REDIRECT_ERROR = 4103;
+  static const int RLM_ERR_CLIENT_TOO_MANY_REDIRECTS = 4104;
+  static const int RLM_ERR_BAD_TOKEN = 4200;
+  static const int RLM_ERR_MALFORMED_JSON = 4201;
+  static const int RLM_ERR_MISSING_JSON_KEY = 4202;
+  static const int RLM_ERR_BAD_BSON_PARSE = 4203;
+  static const int RLM_ERR_MISSING_AUTH_REQ = 4300;
+  static const int RLM_ERR_INVALID_SESSION = 4301;
+  static const int RLM_ERR_USER_APP_DOMAIN_MISMATCH = 4302;
+  static const int RLM_ERR_DOMAIN_NOT_ALLOWED = 4303;
+  static const int RLM_ERR_READ_SIZE_LIMIT_EXCEEDED = 4304;
+  static const int RLM_ERR_INVALID_PARAMETER = 4305;
+  static const int RLM_ERR_MISSING_PARAMETER = 4306;
+  static const int RLM_ERR_TWILIO_ERROR = 4307;
+  static const int RLM_ERR_GCM_ERROR = 4308;
+  static const int RLM_ERR_HTTP_ERROR = 4309;
+  static const int RLM_ERR_AWS_ERROR = 4310;
+  static const int RLM_ERR_MONGODB_ERROR = 4311;
+  static const int RLM_ERR_ARGUMENTS_NOT_ALLOWED = 4312;
+  static const int RLM_ERR_FUNCTION_EXECUTION_ERROR = 4313;
+  static const int RLM_ERR_NO_MATCHING_RULE = 4314;
+  static const int RLM_ERR_INTERNAL_SERVER_ERROR = 4315;
+  static const int RLM_ERR_AUTH_PROVIDER_NOT_FOUND = 4316;
+  static const int RLM_ERR_AUTH_PROVIDER_ALREADY_EXISTS = 4317;
+  static const int RLM_ERR_SERVICE_NOT_FOUND = 4318;
+  static const int RLM_ERR_SERVICE_TYPE_NOT_FOUND = 4319;
+  static const int RLM_ERR_SERVICE_ALREADY_EXISTS = 4320;
+  static const int RLM_ERR_SERVICE_COMMAND_NOT_FOUND = 4321;
+  static const int RLM_ERR_VALUE_NOT_FOUND = 4322;
+  static const int RLM_ERR_VALUE_ALREADY_EXISTS = 4323;
+  static const int RLM_ERR_VALUE_DUPLICATE_NAME = 4324;
+  static const int RLM_ERR_FUNCTION_NOT_FOUND = 4325;
+  static const int RLM_ERR_FUNCTION_ALREADY_EXISTS = 4326;
+  static const int RLM_ERR_FUNCTION_DUPLICATE_NAME = 4327;
+  static const int RLM_ERR_FUNCTION_SYNTAX_ERROR = 4328;
+  static const int RLM_ERR_FUNCTION_INVALID = 4329;
+  static const int RLM_ERR_INCOMING_WEBHOOK_NOT_FOUND = 4330;
+  static const int RLM_ERR_INCOMING_WEBHOOK_ALREADY_EXISTS = 4331;
+  static const int RLM_ERR_INCOMING_WEBHOOK_DUPLICATE_NAME = 4332;
+  static const int RLM_ERR_RULE_NOT_FOUND = 4333;
+  static const int RLM_ERR_API_KEY_NOT_FOUND = 4334;
+  static const int RLM_ERR_RULE_ALREADY_EXISTS = 4335;
+  static const int RLM_ERR_RULE_DUPLICATE_NAME = 4336;
+  static const int RLM_ERR_AUTH_PROVIDER_DUPLICATE_NAME = 4337;
+  static const int RLM_ERR_RESTRICTED_HOST = 4338;
+  static const int RLM_ERR_API_KEY_ALREADY_EXISTS = 4339;
+  static const int RLM_ERR_INCOMING_WEBHOOK_AUTH_FAILED = 4340;
+  static const int RLM_ERR_EXECUTION_TIME_LIMIT_EXCEEDED = 4341;
+  static const int RLM_ERR_NOT_CALLABLE = 4342;
+  static const int RLM_ERR_USER_ALREADY_CONFIRMED = 4343;
+  static const int RLM_ERR_USER_NOT_FOUND = 4344;
+  static const int RLM_ERR_USER_DISABLED = 4345;
+  static const int RLM_ERR_AUTH_ERROR = 4346;
+  static const int RLM_ERR_BAD_REQUEST = 4347;
+  static const int RLM_ERR_ACCOUNT_NAME_IN_USE = 4348;
+  static const int RLM_ERR_INVALID_PASSWORD = 4349;
+  static const int RLM_ERR_SCHEMA_VALIDATION_FAILED_WRITE = 4350;
+  static const int RLM_ERR_APP_UNKNOWN = 4351;
+  static const int RLM_ERR_MAINTENANCE_IN_PROGRESS = 4352;
+  static const int RLM_ERR_USERPASS_TOKEN_INVALID = 4353;
+  static const int RLM_ERR_WEBSOCKET_RESOLVE_FAILED_ERROR = 4400;
+  static const int RLM_ERR_WEBSOCKET_CONNECTION_CLOSED_CLIENT_ERROR = 4401;
+  static const int RLM_ERR_WEBSOCKET_CONNECTION_CLOSED_SERVER_ERROR = 4402;
 
   /// < A user-provided callback failed.
   static const int RLM_ERR_CALLBACK = 1000000;
+  static const int RLM_ERR_UNKNOWN = 2000000;
 }
 
 class realm_error extends ffi.Struct {
   @ffi.Int32()
   external int error;
 
+  @realm_error_categories()
+  external int categories;
+
   external ffi.Pointer<ffi.Char> message;
 
   external ffi.Pointer<ffi.Void> usercode_error;
 
-  external UnnamedUnion2 kind;
+  external ffi.Pointer<ffi.Char> path;
 }
 
+typedef realm_error_categories = ffi.UnsignedInt;
 typedef realm_error_t = realm_error;
 
 class realm_flx_sync_mutable_subscription_set extends ffi.Opaque {}
@@ -11097,11 +11149,6 @@ abstract class realm_log_level {
   static const int RLM_LOG_LEVEL_OFF = 8;
 }
 
-abstract class realm_logic_error_kind {
-  static const int RLM_LOGIC_ERR_NONE = 0;
-  static const int RLM_LOGIC_ERR_STRING_TOO_BIG = 1;
-}
-
 typedef realm_migration_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>,
@@ -11171,6 +11218,11 @@ typedef realm_on_object_change_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(
             ffi.Pointer<ffi.Void>, ffi.Pointer<realm_object_changes_t>)>>;
+typedef realm_on_object_store_error_callback_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>>;
+typedef realm_on_object_store_thread_callback_t
+    = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>;
 typedef realm_on_realm_change_func_t
     = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>;
 typedef realm_on_realm_refresh_func_t
@@ -11383,92 +11435,6 @@ typedef realm_sync_connection_state_changed_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32, ffi.Int32)>>;
 
-abstract class realm_sync_errno_client {
-  static const int RLM_SYNC_ERR_CLIENT_CONNECTION_CLOSED = 100;
-  static const int RLM_SYNC_ERR_CLIENT_UNKNOWN_MESSAGE = 101;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_SYNTAX = 102;
-  static const int RLM_SYNC_ERR_CLIENT_LIMITS_EXCEEDED = 103;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_SESSION_IDENT = 104;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_MESSAGE_ORDER = 105;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_CLIENT_FILE_IDENT = 106;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_PROGRESS = 107;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_CHANGESET_HEADER_SYNTAX = 108;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_CHANGESET_SIZE = 109;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_ORIGIN_FILE_IDENT = 110;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_SERVER_VERSION = 111;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_CHANGESET = 112;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_REQUEST_IDENT = 113;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_ERROR_CODE = 114;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_COMPRESSION = 115;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_CLIENT_VERSION = 116;
-  static const int RLM_SYNC_ERR_CLIENT_SSL_SERVER_CERT_REJECTED = 117;
-  static const int RLM_SYNC_ERR_CLIENT_PONG_TIMEOUT = 118;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_CLIENT_FILE_IDENT_SALT = 119;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_FILE_IDENT = 120;
-  static const int RLM_SYNC_ERR_CLIENT_CONNECT_TIMEOUT = 121;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_TIMESTAMP = 122;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_PROTOCOL_FROM_SERVER = 123;
-  static const int RLM_SYNC_ERR_CLIENT_CLIENT_TOO_OLD_FOR_SERVER = 124;
-  static const int RLM_SYNC_ERR_CLIENT_CLIENT_TOO_NEW_FOR_SERVER = 125;
-  static const int RLM_SYNC_ERR_CLIENT_PROTOCOL_MISMATCH = 126;
-  static const int RLM_SYNC_ERR_CLIENT_BAD_STATE_MESSAGE = 127;
-  static const int RLM_SYNC_ERR_CLIENT_MISSING_PROTOCOL_FEATURE = 128;
-  static const int RLM_SYNC_ERR_CLIENT_HTTP_TUNNEL_FAILED = 131;
-  static const int RLM_SYNC_ERR_CLIENT_AUTO_CLIENT_RESET_FAILURE = 132;
-}
-
-abstract class realm_sync_errno_connection {
-  static const int RLM_SYNC_ERR_CONNECTION_CONNECTION_CLOSED = 100;
-  static const int RLM_SYNC_ERR_CONNECTION_OTHER_ERROR = 101;
-  static const int RLM_SYNC_ERR_CONNECTION_UNKNOWN_MESSAGE = 102;
-  static const int RLM_SYNC_ERR_CONNECTION_BAD_SYNTAX = 103;
-  static const int RLM_SYNC_ERR_CONNECTION_LIMITS_EXCEEDED = 104;
-  static const int RLM_SYNC_ERR_CONNECTION_WRONG_PROTOCOL_VERSION = 105;
-  static const int RLM_SYNC_ERR_CONNECTION_BAD_SESSION_IDENT = 106;
-  static const int RLM_SYNC_ERR_CONNECTION_REUSE_OF_SESSION_IDENT = 107;
-  static const int RLM_SYNC_ERR_CONNECTION_BOUND_IN_OTHER_SESSION = 108;
-  static const int RLM_SYNC_ERR_CONNECTION_BAD_MESSAGE_ORDER = 109;
-  static const int RLM_SYNC_ERR_CONNECTION_BAD_DECOMPRESSION = 110;
-  static const int RLM_SYNC_ERR_CONNECTION_BAD_CHANGESET_HEADER_SYNTAX = 111;
-  static const int RLM_SYNC_ERR_CONNECTION_BAD_CHANGESET_SIZE = 112;
-  static const int RLM_SYNC_ERR_CONNECTION_SWITCH_TO_FLX_SYNC = 113;
-  static const int RLM_SYNC_ERR_CONNECTION_SWITCH_TO_PBS = 114;
-}
-
-abstract class realm_sync_errno_session {
-  static const int RLM_SYNC_ERR_SESSION_SESSION_CLOSED = 200;
-  static const int RLM_SYNC_ERR_SESSION_OTHER_SESSION_ERROR = 201;
-  static const int RLM_SYNC_ERR_SESSION_TOKEN_EXPIRED = 202;
-  static const int RLM_SYNC_ERR_SESSION_BAD_AUTHENTICATION = 203;
-  static const int RLM_SYNC_ERR_SESSION_ILLEGAL_REALM_PATH = 204;
-  static const int RLM_SYNC_ERR_SESSION_NO_SUCH_REALM = 205;
-  static const int RLM_SYNC_ERR_SESSION_PERMISSION_DENIED = 206;
-  static const int RLM_SYNC_ERR_SESSION_BAD_SERVER_FILE_IDENT = 207;
-  static const int RLM_SYNC_ERR_SESSION_BAD_CLIENT_FILE_IDENT = 208;
-  static const int RLM_SYNC_ERR_SESSION_BAD_SERVER_VERSION = 209;
-  static const int RLM_SYNC_ERR_SESSION_BAD_CLIENT_VERSION = 210;
-  static const int RLM_SYNC_ERR_SESSION_DIVERGING_HISTORIES = 211;
-  static const int RLM_SYNC_ERR_SESSION_BAD_CHANGESET = 212;
-  static const int RLM_SYNC_ERR_SESSION_PARTIAL_SYNC_DISABLED = 214;
-  static const int RLM_SYNC_ERR_SESSION_UNSUPPORTED_SESSION_FEATURE = 215;
-  static const int RLM_SYNC_ERR_SESSION_BAD_ORIGIN_FILE_IDENT = 216;
-  static const int RLM_SYNC_ERR_SESSION_BAD_CLIENT_FILE = 217;
-  static const int RLM_SYNC_ERR_SESSION_SERVER_FILE_DELETED = 218;
-  static const int RLM_SYNC_ERR_SESSION_CLIENT_FILE_BLACKLISTED = 219;
-  static const int RLM_SYNC_ERR_SESSION_USER_BLACKLISTED = 220;
-  static const int RLM_SYNC_ERR_SESSION_TRANSACT_BEFORE_UPLOAD = 221;
-  static const int RLM_SYNC_ERR_SESSION_CLIENT_FILE_EXPIRED = 222;
-  static const int RLM_SYNC_ERR_SESSION_USER_MISMATCH = 223;
-  static const int RLM_SYNC_ERR_SESSION_TOO_MANY_SESSIONS = 224;
-  static const int RLM_SYNC_ERR_SESSION_INVALID_SCHEMA_CHANGE = 225;
-  static const int RLM_SYNC_ERR_SESSION_BAD_QUERY = 226;
-  static const int RLM_SYNC_ERR_SESSION_OBJECT_ALREADY_EXISTS = 227;
-  static const int RLM_SYNC_ERR_SESSION_SERVER_PERMISSIONS_CHANGED = 228;
-  static const int RLM_SYNC_ERR_SESSION_INITIAL_SYNC_NOT_COMPLETED = 229;
-  static const int RLM_SYNC_ERR_SESSION_WRITE_NOT_ALLOWED = 230;
-  static const int RLM_SYNC_ERR_SESSION_COMPENSATING_WRITE = 231;
-}
-
 class realm_sync_error extends ffi.Struct {
   external realm_sync_error_code_t error_code;
 
@@ -11518,7 +11484,7 @@ abstract class realm_sync_error_category {
   static const int RLM_SYNC_ERROR_CATEGORY_CLIENT = 0;
   static const int RLM_SYNC_ERROR_CATEGORY_CONNECTION = 1;
   static const int RLM_SYNC_ERROR_CATEGORY_SESSION = 2;
-  static const int RLM_SYNC_ERROR_CATEGORY_RESOLVE = 3;
+  static const int RLM_SYNC_ERROR_CATEGORY_WEBSOCKET = 3;
 
   /// System error - POSIX errno, Win32 HRESULT, etc.
   static const int RLM_SYNC_ERROR_CATEGORY_SYSTEM = 4;
@@ -11535,6 +11501,8 @@ class realm_sync_error_code extends ffi.Struct {
   external int value;
 
   external ffi.Pointer<ffi.Char> message;
+
+  external ffi.Pointer<ffi.Char> category_name;
 }
 
 typedef realm_sync_error_code_t = realm_sync_error_code;
@@ -11553,16 +11521,6 @@ typedef realm_sync_error_handler_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(ffi.Pointer<ffi.Void>,
             ffi.Pointer<realm_sync_session_t>, realm_sync_error_t)>>;
-
-abstract class realm_sync_error_resolve {
-  static const int RLM_SYNC_ERROR_RESOLVE_HOST_NOT_FOUND = 1;
-  static const int RLM_SYNC_ERROR_RESOLVE_HOST_NOT_FOUND_TRY_AGAIN = 2;
-  static const int RLM_SYNC_ERROR_RESOLVE_NO_DATA = 3;
-  static const int RLM_SYNC_ERROR_RESOLVE_NO_RECOVERY = 4;
-  static const int RLM_SYNC_ERROR_RESOLVE_SERVICE_NOT_FOUND = 5;
-  static const int RLM_SYNC_ERROR_RESOLVE_SOCKET_TYPE_NOT_SUPPORTED = 6;
-}
-
 typedef realm_sync_error_t = realm_sync_error;
 
 class realm_sync_error_user_info extends ffi.Struct {
@@ -11749,6 +11707,34 @@ class realm_version_id extends ffi.Struct {
 
 typedef realm_version_id_t = realm_version_id;
 
+abstract class realm_web_socket_errno {
+  static const int RLM_ERR_WEBSOCKET_OK = 1000;
+  static const int RLM_ERR_WEBSOCKET_GOINGAWAY = 1001;
+  static const int RLM_ERR_WEBSOCKET_PROTOCOLERROR = 1002;
+  static const int RLM_ERR_WEBSOCKET_UNSUPPORTEDDATA = 1003;
+  static const int RLM_ERR_WEBSOCKET_RESERVED = 1004;
+  static const int RLM_ERR_WEBSOCKET_NOSTATUSRECEIVED = 1005;
+  static const int RLM_ERR_WEBSOCKET_ABNORMALCLOSURE = 1006;
+  static const int RLM_ERR_WEBSOCKET_INVALIDPAYLOADDATA = 1007;
+  static const int RLM_ERR_WEBSOCKET_POLICYVIOLATION = 1008;
+  static const int RLM_ERR_WEBSOCKET_MESSAGETOOBIG = 1009;
+  static const int RLM_ERR_WEBSOCKET_INAVALIDEXTENSION = 1010;
+  static const int RLM_ERR_WEBSOCKET_INTERNALSERVERERROR = 1011;
+  static const int RLM_ERR_WEBSOCKET_TLSHANDSHAKEFAILED = 1015;
+  static const int RLM_ERR_WEBSOCKET_UNAUTHORIZED = 4001;
+  static const int RLM_ERR_WEBSOCKET_FORBIDDEN = 4002;
+  static const int RLM_ERR_WEBSOCKET_MOVEDPERMANENTLY = 4003;
+  static const int RLM_ERR_WEBSOCKET_CLIENT_TOO_OLD = 4004;
+  static const int RLM_ERR_WEBSOCKET_CLIENT_TOO_NEW = 4005;
+  static const int RLM_ERR_WEBSOCKET_PROTOCOL_MISMATCH = 4006;
+  static const int RLM_ERR_WEBSOCKET_RESOLVE_FAILED = 4400;
+  static const int RLM_ERR_WEBSOCKET_CONNECTION_FAILED = 4401;
+  static const int RLM_ERR_WEBSOCKET_READ_ERROR = 4402;
+  static const int RLM_ERR_WEBSOCKET_WRITE_ERROR = 4403;
+  static const int RLM_ERR_WEBSOCKET_RETRY_ERROR = 4404;
+  static const int RLM_ERR_WEBSOCKET_FATAL_ERROR = 4405;
+}
+
 class realm_websocket_endpoint extends ffi.Struct {
   external ffi.Pointer<ffi.Char> address;
 
@@ -11773,26 +11759,3 @@ class realm_websocket_observer extends ffi.Opaque {}
 typedef realm_websocket_observer_t = realm_websocket_observer;
 
 class shared_realm extends ffi.Opaque {}
-
-abstract class status_error_code {
-  static const int STATUS_OK = 0;
-  static const int STATUS_UNKNOWN_ERROR = 1;
-  static const int STATUS_RUNTIME_ERROR = 2;
-  static const int STATUS_LOGIC_ERROR = 3;
-  static const int STATUS_BROKEN_PROMISE = 4;
-  static const int STATUS_OPERATION_ABORTED = 5;
-
-  /// WEBSOCKET ERRORS
-  static const int STATUS_WEBSOCKET_GOING_AWAY = 1001;
-  static const int STATUS_WEBSOCKET_PROTOCOL_ERROR = 1002;
-  static const int STATUS_WEBSOCKET_UNSUPPORTED_DATA = 1003;
-  static const int STATUS_WEBSOCKET_RESERVED = 1004;
-  static const int STATUS_WEBSOCKET_NO_STATUS_RECEIVED = 1005;
-  static const int STATUS_WEBSOCKET_ABNORMAL_CLOSURE = 1006;
-  static const int STATUS_WEBSOCKET_INVALID_PAYLOAD_DATA = 1007;
-  static const int STATUS_WEBSOCKET_POLICY_VIOLATION = 1008;
-  static const int STATUS_WEBSOCKET_MESSAGE_TOO_BIG = 1009;
-  static const int STATUS_WEBSOCKET_INAVALID_EXTENSION = 1010;
-  static const int STATUS_WEBSOCKET_INTERNAL_SERVER_ERROR = 1011;
-  static const int STATUS_WEBSOCKET_TLS_HANDSHAKE_FAILED = 1015;
-}

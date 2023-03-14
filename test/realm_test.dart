@@ -101,7 +101,7 @@ Future<void> main([List<String>? args]) async {
     var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     final car = Car('');
-    expect(() => realm.add(car), throws<RealmException>("Wrong transactional state"));
+    expect(() => realm.add(car), throws<RealmException>("Trying to modify database while in read transaction"));
   });
 
   test('Realm existsSync', () {
@@ -1556,14 +1556,18 @@ Future<void> main([List<String>? args]) async {
   test('Realm writeCopy local to existing file', () {
     final config = Configuration.local([Car.schema]);
     final realm = getRealm(config);
-    expect(() => realm.writeCopy(config), throws<RealmException>("File at path '${config.path}' already exists"));
+    expect(() => realm.writeCopy(config),
+        throws<RealmException>(Platform.isWindows ? "The file exists" : "Failed to open file at path '${config.path}': File exists"));
   });
 
   test('Realm writeCopy Local to not existing directory', () {
     final config = Configuration.local([Car.schema]);
     final realm = getRealm(config);
     final path = '';
-    expect(() => realm.writeCopy(Configuration.local([Car.schema], path: path)), throws<RealmException>("Directory at path '$path' does not exist"));
+    expect(
+        () => realm.writeCopy(Configuration.local([Car.schema], path: path)),
+        throws<RealmException>(
+            Platform.isWindows ? "The system cannot find the path specified." : "Failed to open file at path '$path': parent directory does not exist"));
   });
 
   baasTest('Realm writeCopy Local->Sync is not supported', (appConfiguration) async {
