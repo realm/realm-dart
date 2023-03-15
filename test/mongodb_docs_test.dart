@@ -108,29 +108,29 @@ Future<void> main([List<String>? args]) async {
     print(result);
   });
 
-  baasTest('MongoDB client find one', (appConfiguration) async {
-    User user = await loginToApp(appConfiguration);
-    MongoDBCollection collection = await getMongoDbCollectionByName(user, "AtlasDocAllTypes");
-    dynamic result = await collection.findOne();
-    print(result);
-  });
+  // baasTest('MongoDB client find one', (appConfiguration) async {
+  //   User user = await loginToApp(appConfiguration);
+  //   MongoDBCollection collection = await getMongoDbCollectionByName(user, "AtlasDocAllTypes");
+  //   dynamic result = await collection.findOne();
+  //   print(result);
+  // });
 
-  baasTest('MongoDB client insert one', (appConfiguration) async {
-    User user = await loginToApp(appConfiguration);
-    MongoDBCollection collection = await getMongoDbCollectionByName(user, "AtlasDocAllTypes");
+  // baasTest('MongoDB client insert one', (appConfiguration) async {
+  //   User user = await loginToApp(appConfiguration);
+  //   MongoDBCollection collection = await getMongoDbCollectionByName(user, "AtlasDocAllTypes");
 
-    dynamic result = await collection.insertOne(insertDocument: {
-      "_id": ObjectId().toString(),
-      "stringProp": "",
-      "boolProp": "false",
-      "dateProp": DateTime(0).toUtc().toString(),
-      "doubleProp": "0",
-      "objectIdProp": ObjectId().toString(),
-      "uuidProp": Uuid.v4().toString(),
-      "intProp": "0",
-    });
-    print(result);
-  }, skip: true);
+  //   dynamic result = await collection.insertOne(insertDocument: {
+  //     "_id": ObjectId().toString(),
+  //     "stringProp": "",
+  //     "boolProp": "false",
+  //     "dateProp": DateTime(0).toUtc().toString(),
+  //     "doubleProp": "0",
+  //     "objectIdProp": ObjectId().toString(),
+  //     "uuidProp": Uuid.v4().toString(),
+  //     "intProp": "0",
+  //   });
+  //   print(result);
+  // }, skip: true);
 }
 
 Future<User> loginToApp(AppConfiguration appConfiguration) async {
@@ -145,7 +145,7 @@ Future<MongoDBCollection> getMongoDbCollectionByName(User user, String collectio
   final database = mongodbClient.getDatabase(getBaasDatabaseName(appName: AppNames.flexible));
   await createAtlasDocAllTypesSchema("BackingDB", collectionName, AtlasDocAllTypes.schema);
   final collection = database.getCollection(collectionName);
-  await collection.deleteMany();
+  //await collection.deleteMany();
   return collection;
 }
 
