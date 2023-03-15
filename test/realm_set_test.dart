@@ -644,5 +644,6 @@ Future<void> main([List<String>? args]) async {
     testSet = realm.find<TestRealmSets>(1)!;
     expect(testSet.objectsSet.length, 2);
     expect(realm.all<Car>().length, 2);
+    expect(testSet.objectsSet.first.make, "Tesla");
   });
 }
