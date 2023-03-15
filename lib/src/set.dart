@@ -27,6 +27,7 @@ import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'realm_object.dart';
 import 'collections.dart';
+import 'results.dart';
 
 /// RealmSet is a collection that contains no duplicate elements.
 abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity implements Finalizable {
@@ -95,6 +96,9 @@ abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity i
   /// ```
   @override
   bool remove(covariant T value); //Note: explicitly overriding remove() to change parameter type
+
+  /// Converts this [Set] to a [RealmResults].
+  RealmResults<T> asResults();
 }
 
 class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> with RealmEntity implements RealmSet<T> {
@@ -111,6 +115,9 @@ class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> w
 
   @override
   Stream<RealmSetChanges<T>> get changes => throw RealmStateError("Unmanaged RealmSets don't support changes");
+
+  @override
+  RealmResults<T> asResults() => throw RealmStateError("Unmanaged sets can't be converted to results");
 }
 
 class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implements RealmSet<T> {
@@ -248,6 +255,9 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
 
     return true;
   }
+
+  @override
+  RealmResults<T> asResults() => RealmResultsInternal.create<T>(realmCore.resultsFromSet(this), realm, _metadata);
 }
 
 /// @nodoc

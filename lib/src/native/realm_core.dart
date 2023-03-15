@@ -1067,6 +1067,11 @@ class _RealmCore {
     return RealmResultsHandle._(pointer, list.realm.handle);
   }
 
+  RealmResultsHandle resultsFromSet(RealmSet set) {
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_set_to_results(set.handle._pointer));
+    return RealmResultsHandle._(pointer, set.realm.handle);
+  }
+
   Object? resultsGetElementAt(RealmResults results, int index) {
     return using((Arena arena) {
       final realm_value = arena<realm_value_t>();
