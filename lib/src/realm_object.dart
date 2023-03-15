@@ -178,7 +178,11 @@ class RealmCoreAccessor implements RealmAccessor {
 
       if (propertyMeta.collectionType == RealmCollectionType.set) {
         final handle = realmCore.getSetProperty(object, propertyMeta.key);
-        return RealmSetInternal.create<T>(handle, object.realm, metadata);
+        if (propertyMeta.propertyType == RealmPropertyType.mixed) {
+          RealmSetInternal.create<RealmValue>(handle, object.realm, null);
+        }
+        final setMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
+        return RealmSetInternal.create<T>(handle, object.realm, setMetadata);
       }
 
       var value = realmCore.getProperty(object, propertyMeta.key);
