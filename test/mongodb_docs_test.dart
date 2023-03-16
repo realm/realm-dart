@@ -73,29 +73,6 @@ class AtlasDocAllTypes {
         'nullableUuidProp': nullableUuidProp?.toString() ?? "null",
         'nullableIntProp': nullableIntProp ?? "null",
       };
-
-  static dynamic get schema => {
-        "title": "AtlasDocAllTypes",
-        "bsonType": "object",
-        "required": ["_id", "stringProp", "boolProp", "dateProp", "doubleProp", "objectIdProp", "uuidProp", "intProp"],
-        "properties": {
-          "_id": {"bsonType": "objectId"},
-          "stringProp": {"bsonType": "string"},
-          "boolProp": {"bsonType": "bool"},
-          "dateProp": {"bsonType": "date"},
-          "doubleProp": {"bsonType": "double"},
-          "objectIdProp": {"bsonType": "objectId"},
-          "uuidProp": {"bsonType": "uuid"},
-          "intProp": {"bsonType": "long"},
-          "nullableStringProp": {"bsonType": "string"},
-          "nullableBoolProp": {"bsonType": "bool"},
-          "nullableDateProp": {"bsonType": "date"},
-          "nullableDoubleProp": {"bsonType": "double"},
-          "nullableObjectIdProp": {"bsonType": "objectId"},
-          "nullableUuidProp": {"bsonType": "uuid"},
-          "nullableIntProp": {"bsonType": "long"},
-        }
-      };
 }
 
 Future<void> main([List<String>? args]) async {
@@ -143,27 +120,7 @@ Future<User> loginToApp(AppConfiguration appConfiguration) async {
 Future<MongoDBCollection> getMongoDbCollectionByName(User user, String collectionName) async {
   final mongodbClient = user.getMongoDBClient(serviceName: "BackingDB");
   final database = mongodbClient.getDatabase(getBaasDatabaseName(appName: AppNames.flexible));
-  await createAtlasDocAllTypesSchema("BackingDB", collectionName, AtlasDocAllTypes.schema);
   final collection = database.getCollection(collectionName);
   //await collection.deleteMany();
   return collection;
-}
-
-Future<void> createAtlasDocAllTypesSchema(String serviceName, String collectionName, dynamic schema) async {
-  dynamic roles = {
-    {
-      "name": "default",
-      "applyWhen": true,
-      "insert": "true",
-      "delete": "true",
-      "search": "true",
-    }
-  };
-  await createAtlasSchema(
-    appName: AppNames.flexible,
-    serviceName: "BackingDB",
-    collectionName: collectionName,
-    schema: schema,
-    roles: roles,
-  );
 }

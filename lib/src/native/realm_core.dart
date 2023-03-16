@@ -2437,7 +2437,7 @@ class _RealmCore {
     completer.complete(stringResponse);
   }
 
-  Future<String> callAppFunction(App app, User user, String functionName, String? argsAsJSON) {
+  Future<String> callAppFunction(App app, User user, String functionName, String? argsAsJSON, {String? serviceName = null}) {
     return using((arena) {
       final completer = Completer<String>();
       _realmLib.invokeGetBool(() => _realmLib.realm_app_call_function(
@@ -2445,6 +2445,7 @@ class _RealmCore {
             user.handle._pointer,
             functionName.toCharPtr(arena),
             argsAsJSON?.toCharPtr(arena) ?? nullptr,
+            serviceName?.toCharPtr(arena) ?? nullptr,
             Pointer.fromFunction(_call_app_function_callback),
             completer.toPersistentHandle(),
             _realmLib.addresses.realm_dart_delete_persistent_handle,
@@ -2474,192 +2475,6 @@ class _RealmCore {
     final configHandle = _createConfig(config);
     _realmLib.invokeGetBool(() => _realmLib.realm_convert_with_config(realm.handle._pointer, configHandle._pointer, false));
   }
-
-  // MongoDBCollectionHandle mongodbGetCollection(User user, String serviceName, String databaseName, String collectionName) {
-  //   return using((arena) {
-  //     final collectionPtr = _realmLib.realm_mongo_collection_get(
-  //         user.handle._pointer, serviceName.toCharPtr(arena), databaseName.toCharPtr(arena), collectionName.toCharPtr(arena));
-  //     return MongoDBCollectionHandle._(collectionPtr);
-  //   });
-  // }
-
-  // static void _mongo_db_find_callback(Pointer<Void> userdata, realm_string_t result, Pointer<realm_app_error_t> error) {
-  //   final Completer<String>? completer = userdata.toObject(isPersistent: true);
-  //   if (completer == null) {
-  //     return;
-  //   }
-  //   if (error != nullptr) {
-  //     completer.completeWithAppError(error);
-  //     return;
-  //   }
-
-  //   final stringResult = result.data.cast<Utf8>().toRealmDartString()!;
-  //   completer.complete(stringResult);
-  // }
-
-  // Future<String> _mongoDBDocumentsCall(
-  //     bool Function(Arena allocator, Pointer<Void> userData, realm_free_userdata_func_t delete_data, realm_mongodb_callback_t callback) coreFunction) {
-  //   return using((arena) {
-  //     bool result = false;
-  //     final completer = Completer<String>();
-
-  //     _realmLib.invokeGetBool(() => result = coreFunction(
-  //           arena,
-  //           completer.toPersistentHandle(),
-  //           _realmLib.addresses.realm_dart_delete_persistent_handle,
-  //           Pointer.fromFunction(_mongo_db_find_callback),
-  //         ));
-  //     if (!result) {
-  //       return Future<String>.value("");
-  //     }
-  //     return completer.future;
-  //   });
-  // }
-
-  // Future<String> mongoDBFind(MongoDBCollection collection, {String? filter, String? sort, String? projection, int? limit}) {
-  //   return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_find(
-  //         collection.handle._pointer,
-  //         filter.nullableToRealmString(arena).ref,
-  //         toFindOptionsPtr(arena, sort: sort, projection: projection, limit: limit),
-  //         userData,
-  //         delete_data,
-  //         callback,
-  //       ));
-  // }
-
-  // Future<String> mongoDBFindOne(MongoDBCollection collection, {String? filter, String? sort, String? projection}) {
-  //   return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_find_one(
-  //         collection.handle._pointer,
-  //         filter.nullableToRealmString(arena).ref,
-  //         toFindOptionsPtr(arena, sort: sort, projection: projection),
-  //         userData,
-  //         delete_data,
-  //         callback,
-  //       ));
-  // }
-
-  // Future<String> mongoDBFindOneAndDelete(MongoDBCollection collection,
-  //     {String? filter, String? sort, String? projection, bool? upsert, bool? returnNewDocument}) {
-  //   return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_find_one_and_delete(
-  //         collection.handle._pointer,
-  //         filter.nullableToRealmString(arena).ref,
-  //         toFindAndModifyOptionsPtr(arena, sort: sort, projection: projection, upsert: upsert, returnNewDocument: returnNewDocument),
-  //         userData,
-  //         delete_data,
-  //         callback,
-  //       ));
-  // }
-
-  // Future<String> mongoDBFindOneAndReplace(MongoDBCollection collection,
-  //     {required String filter, required String replacementDoc, String? sort, String? projection, bool? upsert, bool? returnNewDocument}) {
-  //   return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_find_one_and_replace(
-  //         collection.handle._pointer,
-  //         filter.toRealmString(arena).ref,
-  //         replacementDoc.toRealmString(arena).ref,
-  //         toFindAndModifyOptionsPtr(arena, sort: sort, projection: projection, upsert: upsert, returnNewDocument: returnNewDocument),
-  //         userData,
-  //         delete_data,
-  //         callback,
-  //       ));
-  // }
-
-  // Future<String> mongoDBFindOneAndUpdate(MongoDBCollection collection,
-  //     {required String filter, required String updateDocument, String? sort, String? projection, bool? upsert, bool? returnNewDocument}) {
-  //   return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_find_one_and_update(
-  //         collection.handle._pointer,
-  //         filter.toRealmString(arena).ref,
-  //         updateDocument.toRealmString(arena).ref,
-  //         toFindAndModifyOptionsPtr(arena, sort: sort, projection: projection, upsert: upsert, returnNewDocument: returnNewDocument),
-  //         userData,
-  //         delete_data,
-  //         callback,
-  //       ));
-  // }
-
-  // Future<String> mongoDBInsertOne(MongoDBCollection collection, {required String insertDocument}) {
-  //   return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_insert_one(
-  //         collection.handle._pointer,
-  //         insertDocument.toRealmString(arena).ref,
-  //         userData,
-  //         delete_data,
-  //         callback,
-  //       ));
-  // }
-
-  // Future<String> mongoDBInsertMany(MongoDBCollection collection, {required String insertDocuments}) {
-  //   return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_insert_many(
-  //         collection.handle._pointer,
-  //         insertDocuments.toRealmString(arena).ref,
-  //         userData,
-  //         delete_data,
-  //         callback,
-  //       ));
-  // }
-
-  // Future<String> mongoDBUpdateOne(MongoDBCollection collection, {required String filter, required String updateDocument, bool upsert = false}) {
-  //   return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_update_one(
-  //         collection.handle._pointer,
-  //         filter.toRealmString(arena).ref,
-  //         updateDocument.toRealmString(arena).ref,
-  //         upsert,
-  //         userData,
-  //         delete_data,
-  //         callback,
-  //       ));
-  // }
-
-  // Future<String> mongoDBUpdateMany(MongoDBCollection collection, {required String filter, required String updateDocuments, bool upsert = false}) {
-  //   return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_update_many(
-  //         collection.handle._pointer,
-  //         filter.toRealmString(arena).ref,
-  //         updateDocuments.toRealmString(arena).ref,
-  //         upsert,
-  //         userData,
-  //         delete_data,
-  //         callback,
-  //       ));
-  // }
-
-  // Future<String> mongoDBDeleteOne(MongoDBCollection collection, {String? filter}) {
-  //   return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_delete_one(
-  //         collection.handle._pointer,
-  //         filter.nullableToRealmString(arena).ref,
-  //         userData,
-  //         delete_data,
-  //         callback,
-  //       ));
-  // }
-
-  // Future<String> mongoDBDeleteMany(MongoDBCollection collection, {String? filter}) {
-  //   return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_delete_many(
-  //         collection.handle._pointer,
-  //         filter.nullableToRealmString(arena).ref,
-  //         userData,
-  //         delete_data,
-  //         callback,
-  //       ));
-  // }
-
-  // Future<String> mongoDBCount(MongoDBCollection collection, {String? filter, int limit = 0}) {
-  //   return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_count(
-  //         collection.handle._pointer,
-  //         filter.nullableToRealmString(arena).ref,
-  //         limit,
-  //         userData,
-  //         delete_data,
-  //         callback,
-  //       ));
-  // }
-
-  // Future<String> mongoDBAggregate(MongoDBCollection collection, {String? filter}) {
-  //   return _mongoDBDocumentsCall((arena, userData, delete_data, callback) => _realmLib.realm_mongo_collection_aggregate(
-  //         collection.handle._pointer,
-  //         filter.nullableToRealmString(arena).ref,
-  //         userData,
-  //         delete_data,
-  //         callback,
-  //       ));
-  // }
 }
 
 class LastError {
@@ -3363,28 +3178,4 @@ extension PlatformEx on Platform {
 
     return result;
   }
-}
-
-extension _StringNullableEx on String? {
-  Pointer<realm_string_t> nullableToRealmString(Allocator allocator) {
-    return (this != null) ? this!.toRealmString(allocator) : allocator<realm_string_t>();
-  }
-}
-
-Pointer<realm_mongodb_find_options> toFindOptionsPtr(Allocator allocator, {String? sort, String? projection, int? limit}) {
-  final findOptionsPtr = allocator<realm_mongodb_find_options>();
-  if (limit != null) findOptionsPtr.ref.limit = limit;
-  if (sort != null) findOptionsPtr.ref.sort_bson = sort.toRealmString(allocator).ref;
-  if (projection != null) findOptionsPtr.ref.projection_bson = projection.toRealmString(allocator).ref;
-  return findOptionsPtr;
-}
-
-Pointer<realm_mongodb_find_one_and_modify_options> toFindAndModifyOptionsPtr(Allocator allocator,
-    {String? sort, String? projection, bool? upsert, bool? returnNewDocument}) {
-  final findOptionsPtr = allocator<realm_mongodb_find_one_and_modify_options>();
-  if (upsert != null) findOptionsPtr.ref.upsert = upsert;
-  if (returnNewDocument != null) findOptionsPtr.ref.return_new_document = returnNewDocument;
-  if (sort != null) findOptionsPtr.ref.sort_bson = sort.toRealmString(allocator).ref;
-  if (projection != null) findOptionsPtr.ref.projection_bson = projection.toRealmString(allocator).ref;
-  return findOptionsPtr;
 }

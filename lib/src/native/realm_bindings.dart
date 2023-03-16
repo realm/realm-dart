@@ -129,6 +129,7 @@ class RealmLibrary {
     ffi.Pointer<realm_user_t> arg1,
     ffi.Pointer<ffi.Char> function_name,
     ffi.Pointer<ffi.Char> serialized_ejson_args,
+    ffi.Pointer<ffi.Char> service_name,
     realm_return_string_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
@@ -138,6 +139,7 @@ class RealmLibrary {
       arg1,
       function_name,
       serialized_ejson_args,
+      service_name,
       callback,
       userdata,
       userdata_free,
@@ -151,6 +153,7 @@ class RealmLibrary {
               ffi.Pointer<realm_user_t>,
               ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
               realm_return_string_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>>('realm_app_call_function');
@@ -158,6 +161,7 @@ class RealmLibrary {
       bool Function(
           ffi.Pointer<realm_app_t>,
           ffi.Pointer<realm_user_t>,
+          ffi.Pointer<ffi.Char>,
           ffi.Pointer<ffi.Char>,
           ffi.Pointer<ffi.Char>,
           realm_return_string_func_t,

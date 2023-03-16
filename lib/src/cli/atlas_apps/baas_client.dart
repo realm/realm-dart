@@ -84,7 +84,31 @@ class BaasClient {
     }
   };''';
 
+  static const String _documentCollectionName = "AtlasDocAllTypes";
+  static const String _documentCollectionSchema = '''{
+        "title": "AtlasDocAllTypes",
+        "bsonType": "object",
+        "required": ["_id", "stringProp", "boolProp", "dateProp", "doubleProp", "objectIdProp", "uuidProp", "intProp"],
+        "properties": {
+          "_id": {"bsonType": "objectId"},
+          "stringProp": {"bsonType": "string"},
+          "boolProp": {"bsonType": "bool"},
+          "dateProp": {"bsonType": "date"},
+          "doubleProp": {"bsonType": "double"},
+          "objectIdProp": {"bsonType": "objectId"},
+          "uuidProp": {"bsonType": "uuid"},
+          "intProp": {"bsonType": "long"},
+          "nullableStringProp": {"bsonType": "string"},
+          "nullableBoolProp": {"bsonType": "bool"},
+          "nullableDateProp": {"bsonType": "date"},
+          "nullableDoubleProp": {"bsonType": "double"},
+          "nullableObjectIdProp": {"bsonType": "objectId"},
+          "nullableUuidProp": {"bsonType": "uuid"},
+          "nullableIntProp": {"bsonType": "long"},
+        }''';
+
   static const String defaultAppName = "flexible";
+  static const String serviceName = 'BackingDB';
 
   final String _baseUrl;
   final String? _clusterName;
@@ -333,6 +357,7 @@ class BaasClient {
 
     await _createMongoDBService(
       app,
+      serviceName,
       syncConfig: '''{
         "flexible_sync": {
           "state": "enabled",
@@ -363,6 +388,14 @@ class BaasClient {
     //create email/password user for tests
     final dynamic createUserResult = await _post('groups/$_groupId/apps/$appId/users', '{"email": "realm-test@realm.io", "password":"123456"}');
     print("Create user result: $createUserResult");
+
+    createSchema(app, serviceName: serviceName, collectionName: _documentCollectionName, schema: _documentCollectionSchema, roles: '''{
+          "name": "default",
+          "applyWhen": true,
+          "insert": "true",
+          "delete": "true",
+          "search": "true",
+        }''');
     return app;
   }
 
@@ -437,10 +470,10 @@ class BaasClient {
       }''');
   }
 
-  Future<String> _createMongoDBService(BaasApp app, {required String syncConfig, required String rules}) async {
+  Future<String> _createMongoDBService(BaasApp app, String serviceName, {required String syncConfig, required String rules}) async {
     final serviceName = _clusterName == null ? 'mongodb' : 'mongodb-atlas';
     final mongoConfig = _clusterName == null ? '{ "uri": "mongodb://localhost:26000" }' : '{ "clusterName": "$_clusterName" }';
-    final mongoServiceId = await _createService(app, 'BackingDB', serviceName, mongoConfig);
+    final mongoServiceId = await _createService(app, serviceName, serviceName, mongoConfig);
 
     // The cluster linking must be separated from enabling sync because Atlas
     // takes a few seconds to provision a user for BaaS, meaning enabling sync
