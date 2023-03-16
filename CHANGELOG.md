@@ -13,6 +13,7 @@
 * Fixed several cases where wrong type of exception was thrown (Core upgrade).
 * Fixed classification of InvalidQuery exception (Core upgrade).
 * Fix crash if secure transport returns an error with a non-zero length. (Core upgrade).
+* Fix error in `RealmSet<T>` when `T` is a realm object ([#1202](https://github.com/realm/realm-dart/pull/1212)).
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
