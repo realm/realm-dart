@@ -192,7 +192,7 @@ Future<void> main([List<String>? args]) async {
         configuration.appId,
         baseFilePath: configuration.baseFilePath,
         baseUrl: configuration.baseUrl,
-      ); // uses App.defaultLogger
+      );
 
       await testLogger(
         configuration,
