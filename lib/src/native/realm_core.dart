@@ -261,6 +261,15 @@ class _RealmCore {
                 afterResetUserdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
           }
 
+          if (config.shouldCompactCallback != null) {
+            _realmLib.realm_config_set_should_compact_on_launch_function(
+              configHandle._pointer,
+              Pointer.fromFunction(should_compact_callback, false),
+              config.toWeakHandle(),
+              nullptr,
+            );
+          }
+
           _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
         } finally {
           _realmLib.realm_release(syncConfigPtr.cast());
@@ -476,12 +485,15 @@ class _RealmCore {
   }
 
   static bool should_compact_callback(Pointer<Void> userdata, int totalSize, int usedSize) {
-    final LocalConfiguration? config = userdata.toObject();
-    if (config == null) {
-      return false;
+    Object? config = userdata.toObject();
+
+    if (config is LocalConfiguration) {
+      return config.shouldCompactCallback!(totalSize, usedSize);
+    } else if (config is FlexibleSyncConfiguration) {
+      return config.shouldCompactCallback!(totalSize, usedSize);
     }
 
-    return config.shouldCompactCallback!(totalSize, usedSize);
+    return false;
   }
 
   static bool migration_callback(
