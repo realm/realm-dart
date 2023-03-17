@@ -9,4 +9,4 @@ on:
 
 jobs:
   applyNeedsAttentionLabel:
-    uses: realm/ci-actions/.github/workflows/issue-needs-attention.yml@main
+    uses: realm/ci-actions/.github/workflows/issue-needs-attention.yml@043cc5a8446748b823957c6ea4d08e6e495ea996
