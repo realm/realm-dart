@@ -287,50 +287,39 @@ class MongoDBCollection {
     return await _mongoDBFunctionCall("aggregate", pipeline: pipeline);
   }
 
-  String? _nullOrJsonEncode(Object? value) {
-    if (value == null) return null;
-    return jsonEncode(value);
-  }  
-
   Future<dynamic> _mongoDBFunctionCall(String functionName,
-      {dynamic filter,
-      dynamic insertDocuments,
-      dynamic insertDocument,
-      dynamic updateDocument,
-      dynamic sort,
-      dynamic projection,
-      dynamic pipeline,
+      {Object? filter,
+      Object? insertDocuments,
+      Object? insertDocument,
+      Object? updateDocument,
+      Object? sort,
+      Object? projection,
+      Object? pipeline,
       int? limit,
       bool? upsert,
       bool? returnNewDocument}) async {
-    dynamic functionArguments = {
+    dynamic jsonArguments = {
       "database": database.name,
       "collection": name,
-    };
-    dynamic jsonArguments = {
-      "query": _nullOrJsonEncode(filter),
-      "sort": _nullOrJsonEncode(sort),
-      "project": _nullOrJsonEncode(projection),
-      "document": _nullOrJsonEncode(insertDocument),
-      "documents": _nullOrJsonEncode(insertDocuments),
-      "update": _nullOrJsonEncode(updateDocument),
+      "query": filter,
+      "sort": sort,
+      "project": projection,
+      "document": insertDocument,
+      "documents": insertDocuments,
+      "update": updateDocument,
+      "pipeline": pipeline,
       "limit": limit,
       "upsert": upsert,
-      "returnNewDocument": returnNewDocument,
-      "pipeline": _nullOrJsonEncode(pipeline),
+      "returnNewDocument": returnNewDocument
     };
-    String args = joinDynamics(<dynamic>[functionArguments, jsonArguments]);
+    String args = joinDynamics(jsonArguments);
     final response = await realmCore.callAppFunction(_user.app, _user, functionName, args, serviceName: _database.client._serviceName);
     return jsonDecode(response);
   }
 
-  String joinDynamics(List<dynamic> jsonCollection) {
-    Map<Object, Object?> jsonData = {};
-    for (dynamic json in jsonCollection) {
-      jsonDecode(jsonEncode(json), reviver: (key, value) {
-        if (key != null && value != null) jsonData[key] = value;
-      });
-    }
-    return "[${JsonEncoder().convert(jsonData)}]";
+  String joinDynamics(dynamic json) {
+    final Map<dynamic, dynamic> jsonMap = (json as Map<dynamic, dynamic>);
+    jsonMap.removeWhere((dynamic key, dynamic value) => value == null);
+    return "[${JsonEncoder().convert(jsonMap)}]";
   }
 }

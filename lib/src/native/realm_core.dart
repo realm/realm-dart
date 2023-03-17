@@ -2437,7 +2437,7 @@ class _RealmCore {
     completer.complete(stringResponse);
   }
 
-  Future<String> callAppFunction(App app, User user, String functionName, String? argsAsJSON, {String? serviceName = null}) {
+  Future<String> callAppFunction(App app, User user, String functionName, String? argsAsJSON, {String? serviceName}) {
     return using((arena) {
       final completer = Completer<String>();
       _realmLib.invokeGetBool(() => _realmLib.realm_app_call_function(
