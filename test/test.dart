@@ -708,3 +708,17 @@ Future<void> enableAllAutomaticRecovery() async {
     await client.setAutomaticRecoveryEnabled(appName, true);
   }
 }
+
+extension StreamEx<T> on Stream<Stream<T>> {
+  Stream<T> switchLatest() async* {
+    StreamSubscription<T>? inner;
+    final controller = StreamController<T>();
+    final outer = listen((stream) {
+      inner?.cancel();
+      inner = stream.listen(controller.add, onError: controller.addError, onDone: controller.close);
+    }, onError: controller.addError, onDone: controller.close);
+    yield* controller.stream;
+    await outer.cancel();
+    await inner?.cancel();
+  }
+}
