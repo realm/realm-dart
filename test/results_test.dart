@@ -635,4 +635,31 @@ Future<void> main([List<String>? args]) async {
     final queryByInternalName = realm.query<RemappedClass>('primitive_property = "Peter"');
     expect(queryByInternalName.single.remappedProperty, 'Peter');
   });
+
+  test('RealmResults.changes - await for with yield ', () async {
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final wait = const Duration(seconds: 1);
+
+    Stream<bool> trueWaitFalse() async* {
+      yield true;
+      await Future<void>.delayed(wait);
+      yield false; // nothing has happened in the meantime
+    }
+
+    // ignore: prefer_function_declarations_over_variables
+    final awaitForWithYield = () async* {
+      await for (final c in realm.all<Dog>().changes) {
+        yield c;
+      }
+    };
+
+    int count = 0;
+    await for (final c in awaitForWithYield().map((_) => trueWaitFalse()).switchLatest()) {
+      if (!c) break; // saw false after waiting
+      ++count; // saw true due to new event from changes
+      if (count > 1) fail('Should only receive one event');
+    }
+  });
 }

@@ -492,6 +492,20 @@ Future<void> main([List<String>? args]) async {
     });
   }
 
+  baasTest('Configuration.flexibleSync shouldCompactCallback is invoked', (appConfig) async {
+    final app = App(appConfig);
+    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
+
+    var invoked = false;
+    var config = Configuration.flexibleSync(user, [Event.schema], shouldCompactCallback: (totalSize, usedSize) {
+      invoked = true;
+      return false;
+    });
+
+    final realm = getRealm(config);
+    expect(invoked, isTrue);
+  });
+
   baasTest('Configuration.flexibleSync suggests correct path', (appConfig) async {
     final app = App(appConfig);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));

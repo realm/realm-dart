@@ -47,7 +47,7 @@ abstract class RealmList<T extends Object?> with RealmEntity implements List<T>,
   RealmResults<T> asResults();
 
   factory RealmList._(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => ManagedRealmList._(handle, realm, metadata);
-  
+
   /// Creates an unmanaged RealmList from [items]
   factory RealmList(Iterable<T> items) => UnmanagedRealmList(items);
 
@@ -131,7 +131,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
       if (T == RealmValue) {
         value = RealmValue.from(value);
       }
-      
+
       return value as T;
     } on Exception catch (e) {
       throw RealmException("Error getting value at index $index. Error: $e");
@@ -332,7 +332,7 @@ class ListNotificationsController<T extends Object?> extends NotificationsContro
   }
 
   Stream<RealmListChanges<T>> createStream() {
-    streamController = StreamController<RealmListChanges<T>>(onListen: start, onPause: stop, onResume: start, onCancel: stop);
+    streamController = StreamController<RealmListChanges<T>>(onListen: start, onCancel: stop);
     return streamController.stream;
   }
 

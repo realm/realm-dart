@@ -576,7 +576,7 @@ class RealmObjectNotificationsController<T extends RealmObjectBase> extends Noti
   }
 
   Stream<RealmObjectChanges<T>> createStream() {
-    streamController = StreamController<RealmObjectChanges<T>>(onListen: start, onPause: stop, onResume: start, onCancel: stop);
+    streamController = StreamController<RealmObjectChanges<T>>(onListen: start, onCancel: stop);
     return streamController.stream;
   }
 
