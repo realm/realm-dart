@@ -709,10 +709,3 @@ Future<void> enableAllAutomaticRecovery() async {
     await client.setAutomaticRecoveryEnabled(appName, true);
   }
 }
-
-String getBaasDatabaseName({AppNames appName = AppNames.flexible}) {
-  final client = _baasClient ?? (throw StateError("No BAAS client"));
-  final app = baasApps[appName.name] ??
-      baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
-  return client.getDatabaseName(app.name);
-}
