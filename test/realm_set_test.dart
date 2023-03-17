@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:typed_data';
-
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -644,5 +642,21 @@ Future<void> main([List<String>? args]) async {
     testSet = realm.find<TestRealmSets>(1)!;
     expect(testSet.objectsSet.length, 2);
     expect(realm.all<Car>().length, 2);
+  });
+
+  test('RealmSet.asResults()', () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    final cars = [Car("Tesla"), Car("Audi")];
+    final testSets = TestRealmSets(1)..objectsSet.addAll(cars);
+
+    expect(() => testSets.objectsSet.asResults(), throwsStateError); // unmanaged set
+
+    realm.write(() {
+      realm.add(testSets);
+    });
+
+    expect(testSets.objectsSet.asResults(), cars);
   });
 }
