@@ -29,13 +29,13 @@ class AtlasDocAllTypes {
   late Uuid uuidProp;
   late int intProp;
 
-  late String? nullableStringProp;
-  late bool? nullableBoolProp;
-  late DateTime? nullableDateProp;
-  late double? nullableDoubleProp;
-  late ObjectId? nullableObjectIdProp;
-  late Uuid? nullableUuidProp;
-  late int? nullableIntProp;
+  String? nullableStringProp;
+  bool? nullableBoolProp;
+  DateTime? nullableDateProp;
+  double? nullableDoubleProp;
+  ObjectId? nullableObjectIdProp;
+  Uuid? nullableUuidProp;
+  int? nullableIntProp;
 
   AtlasDocAllTypes(this.id, this.stringProp, this.boolProp, this.dateProp, this.doubleProp, this.objectIdProp, this.uuidProp, this.intProp);
 
@@ -57,21 +57,21 @@ class AtlasDocAllTypes {
     ..nullableIntProp = json['nullableIntProp'] as int?;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        '_id': id.toString(),
+        '_id': {"\$oid": id.toString()},
         'stringProp': stringProp,
         'boolProp': boolProp,
-        'dateProp': dateProp.toString(),
+        'dateProp': {"\$date": dateProp.toIso8601String()},
         'doubleProp': doubleProp,
-        'objectIdProp': objectIdProp.toString(),
-        'uuidProp': uuidProp.toString(),
+        'objectIdProp': {"\$oid": objectIdProp.toString()},
+        'uuidProp': {"\$uuid": uuidProp.toString()},
         'intProp': intProp,
-        'nullableStringProp': nullableStringProp ?? "null",
-        'nullableBoolProp': nullableBoolProp ?? "null",
-        'nullableDateProp': nullableDateProp?.toString() ?? "null",
-        'nullableDoubleProp': nullableDoubleProp ?? "null",
-        'nullableObjectIdProp': nullableObjectIdProp?.toString() ?? "null",
-        'nullableUuidProp': nullableUuidProp?.toString() ?? "null",
-        'nullableIntProp': nullableIntProp ?? "null",
+        'nullableStringProp': nullableStringProp,
+        'nullableBoolProp': nullableBoolProp,
+        'nullableDateProp': nullableDateProp == null ? null : {"\$date": nullableDateProp.toString()},
+        'nullableDoubleProp': nullableDoubleProp,
+        'nullableObjectIdProp': nullableObjectIdProp == null ? null : {"\$oid": nullableObjectIdProp.toString()},
+        'nullableUuidProp': nullableUuidProp == null ? null : {"\$uuid": nullableUuidProp.toString()},
+        'nullableIntProp': nullableIntProp
       };
 }
 
@@ -85,29 +85,22 @@ Future<void> main([List<String>? args]) async {
     print(result);
   });
 
-  // baasTest('MongoDB client find one', (appConfiguration) async {
-  //   User user = await loginToApp(appConfiguration);
-  //   MongoDBCollection collection = await getMongoDbCollectionByName(user, "AtlasDocAllTypes");
-  //   dynamic result = await collection.findOne();
-  //   print(result);
-  // });
+  baasTest('MongoDB client find one', (appConfiguration) async {
+    User user = await loginToApp(appConfiguration);
+    MongoDBCollection collection = await getMongoDbCollectionByName(user, "AtlasDocAllTypes");
+    dynamic result = await collection.findOne();
+    print(result);
+  });
 
-  // baasTest('MongoDB client insert one', (appConfiguration) async {
-  //   User user = await loginToApp(appConfiguration);
-  //   MongoDBCollection collection = await getMongoDbCollectionByName(user, "AtlasDocAllTypes");
+  baasTest('MongoDB client insert one', (appConfiguration) async {
+    User user = await loginToApp(appConfiguration);
+    MongoDBCollection collection = await getMongoDbCollectionByName(user, "AtlasDocAllTypes");
 
-  //   dynamic result = await collection.insertOne(insertDocument: {
-  //     "_id": ObjectId().toString(),
-  //     "stringProp": "",
-  //     "boolProp": "false",
-  //     "dateProp": DateTime(0).toUtc().toString(),
-  //     "doubleProp": "0",
-  //     "objectIdProp": ObjectId().toString(),
-  //     "uuidProp": Uuid.v4().toString(),
-  //     "intProp": "0",
-  //   });
-  //   print(result);
-  // }, skip: true);
+    final emptyDocument = AtlasDocAllTypes(ObjectId(), "", false, DateTime.now().toUtc(), 0, ObjectId(), Uuid.v4(), 0);
+    final eJson = emptyDocument.toJson();
+    dynamic result = await collection.insertOne(insertDocument: eJson);
+    print(result);
+  });
 }
 
 Future<User> loginToApp(AppConfiguration appConfiguration) async {
@@ -121,6 +114,5 @@ Future<MongoDBCollection> getMongoDbCollectionByName(User user, String collectio
   final mongodbClient = user.getMongoDBClient(serviceName: "BackingDB");
   final database = mongodbClient.getDatabase(getBaasDatabaseName(appName: AppNames.flexible));
   final collection = database.getCollection(collectionName);
-  //await collection.deleteMany();
   return collection;
 }

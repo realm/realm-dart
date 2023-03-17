@@ -104,8 +104,9 @@ class BaasClient {
           "nullableDoubleProp": {"bsonType": "double"},
           "nullableObjectIdProp": {"bsonType": "objectId"},
           "nullableUuidProp": {"bsonType": "uuid"},
-          "nullableIntProp": {"bsonType": "long"},
-        }''';
+          "nullableIntProp": {"bsonType": "long"}
+        }
+      }''';
 
   static const String defaultAppName = "flexible";
   static const String serviceName = 'BackingDB';
@@ -389,13 +390,9 @@ class BaasClient {
     final dynamic createUserResult = await _post('groups/$_groupId/apps/$appId/users', '{"email": "realm-test@realm.io", "password":"123456"}');
     print("Create user result: $createUserResult");
 
-    createSchema(app, serviceName: serviceName, collectionName: _documentCollectionName, schema: _documentCollectionSchema, roles: '''{
-          "name": "default",
-          "applyWhen": true,
-          "insert": "true",
-          "delete": "true",
-          "search": "true",
-        }''');
+    if (confirmationType != "email" && confirmationType != "auto") {
+      await createSchema(app, serviceName: serviceName, collectionName: _documentCollectionName, schema: _documentCollectionSchema);
+    }
     return app;
   }
 
@@ -471,9 +468,9 @@ class BaasClient {
   }
 
   Future<String> _createMongoDBService(BaasApp app, String serviceName, {required String syncConfig, required String rules}) async {
-    final serviceName = _clusterName == null ? 'mongodb' : 'mongodb-atlas';
+    final serviceType = _clusterName == null ? 'mongodb' : 'mongodb-atlas';
     final mongoConfig = _clusterName == null ? '{ "uri": "mongodb://localhost:26000" }' : '{ "clusterName": "$_clusterName" }';
-    final mongoServiceId = await _createService(app, serviceName, serviceName, mongoConfig);
+    final mongoServiceId = await _createService(app, serviceName, serviceType, mongoConfig);
 
     // The cluster linking must be separated from enabling sync because Atlas
     // takes a few seconds to provision a user for BaaS, meaning enabling sync
@@ -581,7 +578,7 @@ class BaasClient {
     final app = BaasApp(appId, clientAppId, name);
 
     final dynamic services = await _get('groups/$_groupId/apps/$appId/services');
-    dynamic service = services.firstWhere((dynamic s) => s["name"] == "BackingDB", orElse: () => throw Exception("Func 'confirmFunc' not found"));
+    dynamic service = services.firstWhere((dynamic s) => s["name"] == serviceName, orElse: () => throw Exception("Func 'confirmFunc' not found"));
     final mongoServiceId = service['_id'] as String;
     final dynamic configDocs = await _get('groups/$_groupId/apps/$appId/services/$mongoServiceId/config');
     final dynamic flexibleSync = configDocs['flexible_sync'];
@@ -594,21 +591,13 @@ class BaasClient {
     return "db_$appName$_appSuffix";
   }
 
-  Future<void> createSchema(BaasApp app, {required String serviceName, required String collectionName, required dynamic schema, required dynamic roles}) async {
+  Future<void> createSchema(BaasApp app, {required String serviceName, required String collectionName, required dynamic schema}) async {
     print('Create schema $collectionName for ${app.clientAppId}');
 
     final urlSchema = 'groups/$_groupId/apps/$app/schemas';
-    dynamic metadata = {"database": getDatabaseName(app.name), "collection": collectionName, "data_source": serviceName};
-    String fullSchema = "{\"metadata\": ${jsonEncode(metadata)}, \"schema\": ${jsonEncode(schema)}}";
+    dynamic metadata = '{"database": "${getDatabaseName(app.name)}", "collection": "$collectionName", "data_source": "$serviceName"}';
+    String fullSchema = '{"metadata": $metadata, "schema": $schema }';
     await _post(urlSchema, fullSchema);
-    final dynamic services = await _get('groups/$_groupId/apps/$app/services');
-    dynamic service = services.firstWhere((dynamic s) => s["name"] == serviceName, orElse: () => throw Exception("Service name $serviceName not available"));
-    final mongoServiceId = service['_id'] as String;
-
-    final urlRules = 'groups/$_groupId/apps/$app/services/$mongoServiceId/rules';
-    String fullRoles = "{\"collection\": \"$collectionName\", \"database\": \"${getDatabaseName(app.name)}\", \"roles\": [${jsonEncode(roles)}]}";
-
-    await _post(urlRules, fullRoles);
   }
 }
 
