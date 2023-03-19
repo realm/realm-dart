@@ -4,6 +4,7 @@
 * Deprecated `SyncResolveError` and `SyncResolveErrorCode` ([#1182](https://github.com/realm/realm-dart/pull/1182)).
 * Added `SyncWebSocketError` and `SyncWebSocketErrorCode` for web socket connection sync errors ([#1182](https://github.com/realm/realm-dart/pull/1182)).
 * Added `FlexibleSyncConfiguration.shouldCompactCallback` support ([#1204](https://github.com/realm/realm-dart/pull/1204)).
+* Added `RealmSet.asResults()` ([#1214](https://github.com/realm/realm-dart/pull/1214)).
 
 ### Fixed
 * You may have a crash on Windows if you try to open a file with non-ASCII path (Core upgrade).
