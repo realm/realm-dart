@@ -18,6 +18,7 @@
 
 // ignore_for_file: unused_local_variable
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -1191,5 +1192,34 @@ Future<void> main([List<String>? args]) async {
           isA<RealmListChanges<Person>>().having((changes) => changes.isCleared, 'isCleared', true),
         ]));
     realm.write(() => team.players.clear());
+  });
+
+  test('RealmList.changes - await for with yield', () async {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+    final team = Team('Team 1', players: [Person('Alice'), Person('Bob')]);
+    realm.write(() => realm.add(team));
+
+    final wait = const Duration(seconds: 1);
+
+    Stream<bool> trueWaitFalse() async* {
+      yield true;
+      await Future<void>.delayed(wait);
+      yield false; // nothing has happened in the meantime
+    }
+
+    // ignore: prefer_function_declarations_over_variables
+    final awaitForWithYield = () async* {
+      await for (final c in team.players.changes) {
+        yield c;
+      }
+    };
+
+    int count = 0;
+    await for (final c in awaitForWithYield().map((_) => trueWaitFalse()).switchLatest()) {
+      if (!c) break; // saw false after waiting
+      ++count; // saw true due to new event from changes
+      if (count > 1) fail('Should only receive one event');
+    }
   });
 }

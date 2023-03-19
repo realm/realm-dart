@@ -14,6 +14,7 @@
 * Fixed classification of InvalidQuery exception (Core upgrade).
 * Fix crash if secure transport returns an error with a non-zero length. (Core upgrade).
 * Fix error in `RealmSet<T>` when `T` is a realm object ([#1202](https://github.com/realm/realm-dart/pull/1212)).
+* Fixes infinite-loop like issue with await-for-yield over change streams ([#1213](https://github.com/realm/realm-dart/pull/1213)).
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
@@ -26,7 +27,6 @@
 ### Fixed
 * Fixed the sync client being stuck in a cycle if an integration error occurs by issuing a client reset (Core upgrade).
 * Fixed Android binaries sizes.
-
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
