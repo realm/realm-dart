@@ -642,6 +642,26 @@ Future<void> main([List<String>? args]) async {
     testSet = realm.find<TestRealmSets>(1)!;
     expect(testSet.objectsSet.length, 2);
     expect(realm.all<Car>().length, 2);
+    expect(testSet.objectsSet.first.make, "Tesla");
+  });
+
+  test('RealmSet of RealmObjects/RealmValue', () {
+    final config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    final realm = getRealm(config);
+
+    final cars = [Car("Tesla"), Car("Audi")];
+    var testSet = TestRealmSets(1)
+      ..objectsSet.addAll(cars)
+      ..mixedSet.addAll(cars.map(RealmValue.from));
+
+    realm.write(() {
+      realm.add(testSet);
+    });
+
+    expect(testSet.objectsSet, cars);
+    expect(testSet.mixedSet.map((m) => m.as<Car>()), cars);
+    expect(testSet.objectsSet.map((c) => c.make), ['Tesla', 'Audi']);
+    expect(testSet.mixedSet.map((m) => m.as<Car>().make), ['Tesla', 'Audi']);
   });
 
   test('RealmSet.asResults()', () {

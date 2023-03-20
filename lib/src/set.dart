@@ -155,12 +155,15 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
     try {
       var value = realmCore.realmSetGetElementAt(this, index);
       if (value is RealmObjectHandle) {
-        RealmObjectMetadata targetMetadata = _metadata!;
-        Type type = T;
+        late RealmObjectMetadata targetMetadata;
+        late Type type;
         if (T == RealmValue) {
           final tuple = realm.metadata.getByClassKey(realmCore.getClassKey(value));
           type = tuple.item1;
           targetMetadata = tuple.item2;
+        } else {
+          targetMetadata = _metadata!; // will be null for RealmValue, so defer until here
+          type = T;
         }
 
         value = realm.createObject(type, value, targetMetadata);
