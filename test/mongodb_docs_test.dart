@@ -18,6 +18,7 @@
 
 import 'dart:convert';
 
+import 'package:realm_dart/src/configuration.dart';
 import 'package:test/test.dart';
 
 import '../lib/realm.dart';
@@ -96,42 +97,59 @@ Future<void> main([List<String>? args]) async {
     print(result);
   });
 
-  baasTest('MongoDB client insert one', (appConfiguration) async {
+  baasTest('MongoDB client insert/delete many', (appConfiguration) async {
+    int itemsCount = 3;
     User user = await loginToApp(appConfiguration);
     MongoDBCollection collection = getMongoDbCollectionByName(user, "AtlasDocAllTypes");
+    String differentiator = generateRandomString(5);
+    List<Map<String, dynamic>> inserts = _generateAtlasDocAllTypesObjects(itemsCount, differentiator: differentiator);
+    dynamic inserted = await collection.insertMany(insertDocuments: inserts);
+    expect(inserted["insertedIds"], inserts.map<dynamic>((item) => item["_id"]).toList());
 
-    final emptyDocument = AtlasDocAllTypes(ObjectId(), "", false, DateTime.now().toUtc(), 0, ObjectId(), Uuid.v4(), 0);
-    final eJson = emptyDocument.toEJson();
-    dynamic result = await collection.insertOne(insertDocument: eJson);
+    dynamic deleted = await collection.deleteMany(filter: {"stringProp": differentiator});
+    expect(deleted["deletedCount"], {"\$numberInt": "$itemsCount"});
+  });
+
+  baasTest('MongoDB client insert/delete one', (appConfiguration) async {
+    int itemsCount = 1;
+    User user = await loginToApp(appConfiguration);
+    MongoDBCollection collection = getMongoDbCollectionByName(user, "AtlasDocAllTypes");
+    dynamic eJson = _generateAtlasDocAllTypesObjects(itemsCount)[0];
+    dynamic inserted = await collection.insertOne(insertDocument: eJson);
+    expect(inserted["insertedId"], eJson["_id"]);
+
+    dynamic deleted = await await collection.deleteOne(filter: eJson);
+    expect(deleted["deletedCount"], {"\$numberInt": "$itemsCount"});
+  });
+
+  baasTest('MongoDB client delete all - no filter', (appConfiguration) async {
+    User user = await loginToApp(appConfiguration);
+    MongoDBCollection collection = getMongoDbCollectionByName(user, "AtlasDocAllTypes");
+    dynamic result = await collection.deleteMany();
+    print(result);
+  });
+  baasTest('MongoDB client delete all with empty filter', (appConfiguration) async {
+    User user = await loginToApp(appConfiguration);
+    MongoDBCollection collection = getMongoDbCollectionByName(user, "AtlasDocAllTypes");
+    dynamic result = await collection.deleteMany(filter: jsonDecode("{ }"));
     print(result);
   });
 
-  baasTest('MongoDB client insert many', (appConfiguration) async {
+  baasTest('MongoDB delete with a filter that matches no documents deletes nothing', (appConfiguration) async {
     User user = await loginToApp(appConfiguration);
     MongoDBCollection collection = getMongoDbCollectionByName(user, "AtlasDocAllTypes");
-    String nameDifferentiator = generateRandomString(5);
-    List<Map<String, dynamic>> inserts = _generateAtlasDocAllTypesObjects(3, nameDifferentiator);
-    dynamic result = await collection.insertMany(insertDocuments: inserts);
-    expect(result["insertedIds"], inserts.map<dynamic>((item) => item["_id"]).toList());
-  });
-
-  baasTest('MongoDB client delete one', (appConfiguration) async {
-    User user = await loginToApp(appConfiguration);
-    MongoDBCollection collection = getMongoDbCollectionByName(user, "AtlasDocAllTypes");
-
-    final emptyDocument = AtlasDocAllTypes(ObjectId(), "", false, DateTime.now().toUtc(), 0, ObjectId(), Uuid.v4(), 0);
-    final eJson = emptyDocument.toEJson();
-    dynamic result = await collection.insertOne(insertDocument: eJson);
+    dynamic result = await collection.deleteMany(filter: {
+      "_id": {"\$oid": "64183477ff7f6e95f608784a"}
+    });
     print(result);
-    //collection.deleteOne(filter: )
   });
 }
 
-List<Map<String, dynamic>> _generateAtlasDocAllTypesObjects(int count, String differentiator) {
+List<Map<String, dynamic>> _generateAtlasDocAllTypesObjects(int count, {String? differentiator}) {
   List<Map<String, dynamic>> inserts = [];
-
+  differentiator = differentiator ?? generateRandomString(5);
   for (var i = 0; i < count; i++) {
-    final doc = AtlasDocAllTypes(ObjectId(), "$differentiator$i", false, DateTime.now().toUtc(), 0, ObjectId(), Uuid.v4(), 0);
+    final doc = AtlasDocAllTypes(ObjectId(), differentiator, false, DateTime.now().toUtc(), 0, ObjectId(), Uuid.v4(), 0);
     if (i % 2 == 0) {
       doc
         ..nullableStringProp = "nullable$differentiator$i"

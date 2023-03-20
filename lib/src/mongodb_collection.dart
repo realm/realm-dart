@@ -260,14 +260,15 @@ class MongoDBCollection {
     return await _mongoDBFunctionCall("deleteOne", filter: filter);
   }
 
-  /// Removes one or more documents from a collection. If no documents match the [filter], the collection is not modified.
-  /// The result contains contains the number of deleted documents.
+  /// Removes one or more documents from a collection.
+  /// If no documents match the [filter], the collection is not modified.
+  /// If the [filter] is not specified or set to `"{ }"`, all documents in the collection will be deleted.
+  /// The result contains the number of deleted documents.
   /// See also [db.collection.deleteMany](https://docs.mongodb.com/manual/reference/method/db.collection.deleteMany/) documentation.
   ///
   /// The [filter] is a document describing the deletion criteria using [query operators](https://docs.mongodb.com/manual/reference/operator/query/).
-  /// If not specified, all documents in the collection will be deleted.
   Future<dynamic> deleteMany({dynamic filter}) async {
-    return await _mongoDBFunctionCall("deleteMany", filter: filter);
+    return await _mongoDBFunctionCall("deleteMany", filter: filter ?? jsonDecode("{ }"));
   }
 
   /// Counts the number of documents in the collection that match the provided [filter] and up to [limit].
