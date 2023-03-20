@@ -90,36 +90,51 @@ Future<void> main([List<String>? args]) async {
     print(result);
   });
 
-  baasTest('MongoDB client find one', (appConfiguration) async {
+  baasTest('MongoDB client find one with empty filter returns first', (appConfiguration) async {
     User user = await loginToApp(appConfiguration);
     MongoDBCollection collection = getMongoDbCollectionByName(user, "AtlasDocAllTypes");
     dynamic result = await collection.findOne();
     print(result);
   });
 
-  baasTest('MongoDB client insert/delete many', (appConfiguration) async {
-    int itemsCount = 3;
-    User user = await loginToApp(appConfiguration);
-    MongoDBCollection collection = getMongoDbCollectionByName(user, "AtlasDocAllTypes");
-    String differentiator = generateRandomString(5);
-    List<Map<String, dynamic>> inserts = _generateAtlasDocAllTypesObjects(itemsCount, differentiator: differentiator);
-    dynamic inserted = await collection.insertMany(insertDocuments: inserts);
-    expect(inserted["insertedIds"], inserts.map<dynamic>((item) => item["_id"]).toList());
-
-    dynamic deleted = await collection.deleteMany(filter: {"stringProp": differentiator});
-    expect(deleted["deletedCount"], {"\$numberInt": "$itemsCount"});
-  });
-
-  baasTest('MongoDB client insert/delete one', (appConfiguration) async {
+  baasTest('MongoDB client insert/find/delete one', (appConfiguration) async {
     int itemsCount = 1;
     User user = await loginToApp(appConfiguration);
     MongoDBCollection collection = getMongoDbCollectionByName(user, "AtlasDocAllTypes");
     dynamic eJson = _generateAtlasDocAllTypesObjects(itemsCount)[0];
+
     dynamic inserted = await collection.insertOne(insertDocument: eJson);
     expect(inserted["insertedId"], eJson["_id"]);
 
+    dynamic found = await collection.findOne(filter: eJson);
+    expect(found["_id"], eJson["_id"]);
+
     dynamic deleted = await await collection.deleteOne(filter: eJson);
     expect(deleted["deletedCount"], {"\$numberInt": "$itemsCount"});
+
+    dynamic foundDeleted = await collection.findOne(filter: eJson);
+    expect(foundDeleted, null);
+  });
+
+  baasTest('MongoDB client insert/find/delete many', (appConfiguration) async {
+    int itemsCount = 3;
+    User user = await loginToApp(appConfiguration);
+    MongoDBCollection collection = getMongoDbCollectionByName(user, "AtlasDocAllTypes");
+    String differentiator = generateRandomString(5);
+    dynamic filterByString = {"stringProp": differentiator};
+    List<Map<String, dynamic>> inserts = _generateAtlasDocAllTypesObjects(itemsCount, differentiator: differentiator);
+    dynamic inserted = await collection.insertMany(insertDocuments: inserts);
+    expect(inserted["insertedIds"], inserts.map<dynamic>((item) => item["_id"]).toList());
+
+    dynamic found = await collection.find(filter: filterByString);
+    expect((found as List).length, itemsCount);
+    expect(found.map<dynamic>((dynamic item) => item["_id"]).toList(), inserted["insertedIds"]);
+
+    dynamic deleted = await collection.deleteMany(filter: filterByString);
+    expect(deleted["deletedCount"], {"\$numberInt": "$itemsCount"});
+
+    dynamic foundDeleted = await collection.find(filter: filterByString);
+    expect(foundDeleted, jsonDecode("[]"));
   });
 
   baasTest('MongoDB client delete all - no filter', (appConfiguration) async {
@@ -149,7 +164,7 @@ List<Map<String, dynamic>> _generateAtlasDocAllTypesObjects(int count, {String? 
   List<Map<String, dynamic>> inserts = [];
   differentiator = differentiator ?? generateRandomString(5);
   for (var i = 0; i < count; i++) {
-    final doc = AtlasDocAllTypes(ObjectId(), differentiator, false, DateTime.now().toUtc(), 0, ObjectId(), Uuid.v4(), 0);
+    final doc = AtlasDocAllTypes(ObjectId(), differentiator, false, DateTime.now().toUtc(), 0, ObjectId(), Uuid.v4(), i);
     if (i % 2 == 0) {
       doc
         ..nullableStringProp = "nullable$differentiator$i"
