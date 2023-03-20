@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 1.0.3 (2023-03-20)
 
 ### Enhancements
 * Deprecated `SyncResolveError` and `SyncResolveErrorCode` ([#1182](https://github.com/realm/realm-dart/pull/1182)).
