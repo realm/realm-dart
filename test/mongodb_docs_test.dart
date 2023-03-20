@@ -83,18 +83,34 @@ class AtlasDocAllTypes {
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
-  baasTest('MongoDB client find', (appConfiguration) async {
+  baasTest('MongoDB client find with empty filter returns all', (appConfiguration) async {
+    int itemsCount = 2;
     User user = await loginToApp(appConfiguration);
     MongoDBCollection collection = getMongoDbCollectionByName(user, "AtlasDocAllTypes");
-    dynamic result = await collection.find();
-    print(result);
+    String differentiator = generateRandomString(5);
+    List<Map<String, dynamic>> inserts = _generateAtlasDocAllTypesObjects(itemsCount, differentiator: differentiator);
+    await collection.insertMany(insertDocuments: inserts);
+
+    dynamic found = await collection.find();
+    expect((found as List).length, itemsCount);
+
+    dynamic deleted = await collection.deleteMany(filter: {"stringProp": differentiator});
+    expect(deleted["deletedCount"], {"\$numberInt": "$itemsCount"});
   });
 
   baasTest('MongoDB client find one with empty filter returns first', (appConfiguration) async {
+    int itemsCount = 3;
+    String differentiator = generateRandomString(5);
     User user = await loginToApp(appConfiguration);
     MongoDBCollection collection = getMongoDbCollectionByName(user, "AtlasDocAllTypes");
-    dynamic result = await collection.findOne();
-    print(result);
+    List<Map<String, dynamic>> inserts = _generateAtlasDocAllTypesObjects(itemsCount, differentiator: differentiator);
+    await collection.insertMany(insertDocuments: inserts);
+
+    dynamic found = await collection.findOne();
+    expect(found["_id"], inserts.first["_id"]);
+
+    dynamic deleted = await collection.deleteMany(filter: {"stringProp": differentiator});
+    expect(deleted["deletedCount"], {"\$numberInt": "$itemsCount"});
   });
 
   baasTest('MongoDB client insert/find/delete one', (appConfiguration) async {
@@ -126,7 +142,7 @@ Future<void> main([List<String>? args]) async {
     dynamic inserted = await collection.insertMany(insertDocuments: inserts);
     expect(inserted["insertedIds"], inserts.map<dynamic>((item) => item["_id"]).toList());
 
-    dynamic found = await collection.find(filter: filterByString);
+    dynamic found = await collection.find(filter: filterByString, sort: {"intProp": 1});
     expect((found as List).length, itemsCount);
     expect(found.map<dynamic>((dynamic item) => item["_id"]).toList(), inserted["insertedIds"]);
 
@@ -135,6 +151,41 @@ Future<void> main([List<String>? args]) async {
 
     dynamic foundDeleted = await collection.find(filter: filterByString);
     expect(foundDeleted, jsonDecode("[]"));
+  });
+
+  baasTest('MongoDB client projection and filter with OR', (appConfiguration) async {
+    int itemsCount = 3;
+    User user = await loginToApp(appConfiguration);
+    MongoDBCollection collection = getMongoDbCollectionByName(user, "AtlasDocAllTypes");
+    String differentiator = generateRandomString(5);
+    dynamic filterByString = {"stringProp": differentiator};
+    List<Map<String, dynamic>> inserts = _generateAtlasDocAllTypesObjects(itemsCount, differentiator: differentiator);
+    dynamic inserted = await collection.insertMany(insertDocuments: inserts);
+
+    dynamic foundIds = await collection.find(filter: filterByString, projection: {
+      "_id": 1,
+      'stringProp': 0,
+      'boolProp': 0,
+      'dateProp': 0,
+      'doubleProp': 0,
+      'objectIdProp': 0,
+      'uuidProp': 0,
+      'intProp': 0,
+      'nullableStringProp': 0,
+      'nullableBoolProp': 0,
+      'nullableDateProp': 0,
+      'nullableDoubleProp': 0,
+      'nullableObjectIdProp': 0,
+      'nullableUuidProp': 0,
+      'nullableIntProp': 0
+    });
+    expect((foundIds as List).length, itemsCount);
+
+    dynamic found = await collection.find(filter: {"\$or": foundIds}, sort: {"intProp": 1}, limit: itemsCount);
+    expect((found as List).length, inserts.length);
+
+    dynamic deleted = await collection.deleteMany(filter: {"\$or": foundIds});
+    expect(deleted["deletedCount"], {"\$numberInt": "$itemsCount"});
   });
 
   baasTest('MongoDB client delete all - no filter', (appConfiguration) async {

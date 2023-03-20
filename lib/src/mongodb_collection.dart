@@ -321,6 +321,6 @@ class MongoDBCollection {
   String joinDynamics(dynamic json) {
     final Map<dynamic, dynamic> jsonMap = (json as Map<dynamic, dynamic>);
     jsonMap.removeWhere((dynamic key, dynamic value) => value == null);
-    return "[${JsonEncoder().convert(jsonMap)}]";
+    return "[${jsonEncode(jsonMap)}]";
   }
 }
