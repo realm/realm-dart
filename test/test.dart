@@ -710,6 +710,13 @@ Future<void> enableAllAutomaticRecovery() async {
   }
 }
 
+String getBaasDatabaseName({AppNames appName = AppNames.flexible}) {
+  final client = _baasClient ?? (throw StateError("No BAAS client"));
+  final app = baasApps[appName.name] ??
+      baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
+  return client.getDatabaseName(app.name);
+}
+
 extension StreamEx<T> on Stream<Stream<T>> {
   Stream<T> switchLatest() async* {
     StreamSubscription<T>? inner;
