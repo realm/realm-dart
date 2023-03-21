@@ -123,7 +123,6 @@ Future<void> main([List<String>? args]) async {
 
     dynamic found = await collection.find();
     expect((found as List).length, itemsCount);
-    print(found);
     expect(found, inserts);
 
     dynamic deleted = await collection.deleteMany(filter: {"stringProp": differentiator});
@@ -139,7 +138,7 @@ Future<void> main([List<String>? args]) async {
     await collection.insertMany(insertDocuments: inserts);
 
     dynamic found = await collection.findOne();
-    expect(found["_id"], inserts.first["_id"]);
+    expect(found, inserts.first);
 
     dynamic deleted = await collection.deleteMany(filter: {"stringProp": differentiator});
     expect(deleted["deletedCount"], {"\$numberInt": "$itemsCount"});
@@ -155,7 +154,7 @@ Future<void> main([List<String>? args]) async {
     expect(inserted["insertedId"], eJson["_id"]);
 
     dynamic found = await collection.findOne(filter: eJson);
-    expect(found["_id"], eJson["_id"]);
+    expect(found, eJson);
 
     dynamic deleted = await await collection.deleteOne(filter: eJson);
     expect(deleted["deletedCount"], {"\$numberInt": "$itemsCount"});
@@ -176,7 +175,7 @@ Future<void> main([List<String>? args]) async {
 
     dynamic found = await collection.find(filter: filterByString, sort: {"intProp": 1});
     expect((found as List).length, itemsCount);
-    expect(found.map<dynamic>((dynamic item) => item["_id"]).toList(), inserted["insertedIds"]);
+    expect(found, inserts);
 
     dynamic deleted = await collection.deleteMany(filter: filterByString);
     expect(deleted["deletedCount"], {"\$numberInt": "$itemsCount"});
@@ -215,6 +214,7 @@ Future<void> main([List<String>? args]) async {
 
     dynamic found = await collection.find(filter: {"\$or": foundIds}, sort: {"intProp": 1}, limit: itemsCount);
     expect((found as List).length, inserts.length);
+    expect(found, inserts);
 
     dynamic deleted = await collection.deleteMany(filter: {"\$or": foundIds});
     expect(deleted["deletedCount"], {"\$numberInt": "$itemsCount"});
