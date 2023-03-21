@@ -84,7 +84,7 @@ class _RealmCore {
   }
 
   // stamped into the library by the build system (see prepare-release.yml)
-  static const libraryVersion = '1.0.2';
+  static const libraryVersion = '1.0.3';
   late String nativeLibraryVersion = _realmLib.realm_dart_library_version().cast<Utf8>().toDartString();
 
   // for debugging only. Enable in realm_dart.cpp
@@ -1065,6 +1065,11 @@ class _RealmCore {
   RealmResultsHandle resultsFromList(RealmList list) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_list_to_results(list.handle._pointer));
     return RealmResultsHandle._(pointer, list.realm.handle);
+  }
+
+  RealmResultsHandle resultsFromSet(RealmSet set) {
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_set_to_results(set.handle._pointer));
+    return RealmResultsHandle._(pointer, set.realm.handle);
   }
 
   Object? resultsGetElementAt(RealmResults results, int index) {
