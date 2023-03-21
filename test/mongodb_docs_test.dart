@@ -18,7 +18,6 @@
 
 import 'dart:convert';
 
-import 'package:realm_dart/src/configuration.dart';
 import 'package:test/test.dart';
 
 import '../lib/realm.dart';
@@ -61,23 +60,54 @@ class AtlasDocAllTypes {
     ..nullableUuidProp = json['nullableUuidProp'] as Uuid?
     ..nullableIntProp = json['nullableIntProp'] as int?;
 
-  Map<String, dynamic> toEJson() => <String, dynamic>{
-        '_id': {"\$oid": id.toString()},
+  Map<String, dynamic> toEJson() => convertToEJson({
+        '_id': id,
         'stringProp': stringProp,
         'boolProp': boolProp,
-        'dateProp': {"\$date": dateProp.toIso8601String()},
+        'dateProp': dateProp,
         'doubleProp': doubleProp,
-        'objectIdProp': {"\$oid": objectIdProp.toString()},
-        'uuidProp': {"\$uuid": uuidProp.toString()},
+        'objectIdProp': objectIdProp,
+        'uuidProp': uuidProp,
         'intProp': intProp,
         'nullableStringProp': nullableStringProp,
         'nullableBoolProp': nullableBoolProp,
-        'nullableDateProp': nullableDateProp == null ? null : {"\$date": nullableDateProp?.toIso8601String()},
+        'nullableDateProp': nullableDateProp,
         'nullableDoubleProp': nullableDoubleProp,
-        'nullableObjectIdProp': nullableObjectIdProp == null ? null : {"\$oid": nullableObjectIdProp.toString()},
-        'nullableUuidProp': nullableUuidProp == null ? null : {"\$uuid": nullableUuidProp.toString()},
+        'nullableObjectIdProp': nullableObjectIdProp,
+        'nullableUuidProp': nullableUuidProp,
         'nullableIntProp': nullableIntProp
-      };
+      });
+}
+
+Map<String, dynamic> convertToEJson(Map<String, Object?> fields) {
+  return fields.map<String, dynamic>((key, value) => MapEntry<String, dynamic>(key, getFieldEJsonValue(value)));
+}
+
+dynamic getFieldEJsonValue(Object? object) {
+  if (object == null) {
+    return null;
+  }
+  if (object is String?) {
+    return object.toString();
+  } else if (object is double?) {
+    double d = (object as double);
+    int i = d.ceil();
+    return {"\$numberDouble": d == i ? i.toString() : d.toString()};
+  } else if (object is int?) {
+    return {"\$numberInt": object.toString()};
+  } else if (object is bool?) {
+    return object;
+  } else if (object is ObjectId?) {
+    return {"\$oid": object.toString()};
+  } else if (object is Uuid?) {
+    return {
+      "\$binary": {"base64": base64.encode((object as Uuid).bytes.asUint8List()), "subType": "04"}
+    };
+  } else if (object is DateTime?) {
+    return {
+      "\$date": {"\$numberLong": (object as DateTime).millisecondsSinceEpoch.toString()}
+    };
+  }
 }
 
 Future<void> main([List<String>? args]) async {
@@ -93,6 +123,8 @@ Future<void> main([List<String>? args]) async {
 
     dynamic found = await collection.find();
     expect((found as List).length, itemsCount);
+    print(found);
+    expect(found, inserts);
 
     dynamic deleted = await collection.deleteMany(filter: {"stringProp": differentiator});
     expect(deleted["deletedCount"], {"\$numberInt": "$itemsCount"});
@@ -226,7 +258,8 @@ List<Map<String, dynamic>> _generateAtlasDocAllTypesObjects(int count, {String? 
         ..nullableUuidProp = Uuid.v4()
         ..nullableIntProp = i;
     }
-    inserts.add(doc.toEJson());
+    var eJson = doc.toEJson();
+    inserts.add(eJson);
   }
   return inserts;
 }
