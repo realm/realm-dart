@@ -219,13 +219,17 @@ Future<void> main([List<String>? args]) async {
     dynamic deleted = await collection.deleteMany(filter: {"\$or": foundIds});
     expect(deleted["deletedCount"], {"\$numberInt": "$itemsCount"});
   });
+  // TODO: Add tests about methods `count`, `aggregate`, `updateMany` `updateOne`, `findOneAndUpdate` and `findOneAndReplace`
 
+  //TODO: Deletion of all documents should be done in a separate collection to avoid concurrency issues with the rest of the tests.
   baasTest('MongoDB client delete all - no filter', (appConfiguration) async {
     User user = await loginToApp(appConfiguration);
     MongoDBCollection collection = getMongoDbCollectionByName(user, "AtlasDocAllTypes");
     dynamic result = await collection.deleteMany();
     print(result);
   });
+
+  //TODO: Deletion of all documents should be done in a separate collection to avoid concurrency issues with the rest of the tests.
   baasTest('MongoDB client delete all with empty filter', (appConfiguration) async {
     User user = await loginToApp(appConfiguration);
     MongoDBCollection collection = getMongoDbCollectionByName(user, "AtlasDocAllTypes");
