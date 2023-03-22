@@ -458,7 +458,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Function credentials - login with new user', (configuration) async {
     final app = App(configuration);
     var userId = ObjectId().toString();
-    String username = "${generateRandomString(5)}@realm.io";
+    String username = generateRandomEmail();
     final payload = '{"username":"$username","userId":"$userId"}';
     final credentials = Credentials.function(payload);
     final user = await app.logIn(credentials);

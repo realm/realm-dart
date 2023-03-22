@@ -399,8 +399,8 @@ String generateRandomRealmPath() {
 }
 
 final random = Random();
-String generateRandomString(int len, {bool unicode = false, String includingSymbols = ""}) {
-  String characters = "$includingSymbols${unicode ? 'uvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren' : 'abcdefghjklmnopqrstuvwxuz'}";
+String generateRandomString(int len, {bool allowUnicode = false, String includingSymbols = ""}) {
+  String characters = "$includingSymbols${allowUnicode ? 'uvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren' : 'abcdefghjklmnopqrstuvwxuz'}";
   return List.generate(len, (index) => characters[random.nextInt(characters.length)]).join();
 }
 
