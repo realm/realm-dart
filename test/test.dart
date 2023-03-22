@@ -399,18 +399,14 @@ String generateRandomRealmPath() {
 }
 
 final random = Random();
-String _getRandom(int len, String chars) => List.generate(len, (index) => chars[random.nextInt(chars.length)]).join();
-
-String generateRandomString(int len) {
-  return _getRandom(len, 'abcdefghjklmnopqrstuvwxuz');
+String generateRandomString(int len, {bool unicode = false, String includingSymbols = ""}) {
+  String characters = "$includingSymbols${unicode ? 'uvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren' : 'abcdefghjklmnopqrstuvwxuz'}";
+  return List.generate(len, (index) => characters[random.nextInt(characters.length)]).join();
 }
 
-String generateRandomUnicodeString(int len) {
-  return _getRandom(len, 'uvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren');
-}
-
-String generateRandomEmail(int len) {
-  return _getRandom(len, r"abcdefghjklmnopqrstuvwxuz!#$%&*+-'/=?^_`{|}~0123456789");
+String generateRandomEmail() {
+  String randomString = generateRandomString(5, includingSymbols: r"!#$%&*+-'/=?^_`{|}~0123456789");
+  return "$randomString@realm.io";
 }
 
 Realm getRealm(Configuration config) {
@@ -594,7 +590,7 @@ Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) as
 }
 
 Future<User> getIntegrationUser(App app) async {
-  final email = 'realm_tests_do_autoverify_${generateRandomEmail(10)}@realm.io';
+  final email = 'realm_tests_do_autoverify_${generateRandomEmail()}';
   final password = 'password';
   await app.emailPasswordAuthProvider.registerUser(email, password);
 

@@ -50,7 +50,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Email/Password - register user confirmation throws', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "${generateRandomEmail(5)}@realm.io";
+    String username = generateRandomEmail();
     await expectLater(() {
       // For confirmationType = 'runConfirmationFunction' as it is by default
       // only usernames that contain 'realm_tests_do_autoverify' are confirmed.
@@ -61,7 +61,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Email/Password - register user', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "realm_tests_do_autoverify${generateRandomEmail(5)}@realm.io";
+    String username = "realm_tests_do_autoverify${generateRandomEmail()}";
     await authProvider.registerUser(username, strongPassword);
     final user = await loginWithRetry(app, Credentials.emailPassword(username, strongPassword));
     expect(user, isNotNull);
@@ -70,7 +70,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Email/Password - register user auto confirm', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "${generateRandomEmail(5)}@realm.io";
+    String username = generateRandomEmail();
     // For application with name 'autoConfirm' and with confirmationType = 'auto'
     // all the usernames are automatically confirmed.
 
@@ -82,7 +82,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Email/Password - register user twice throws', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "${generateRandomEmail(5)}@realm.io";
+    String username = generateRandomEmail();
     await authProvider.registerUser(username, strongPassword);
     await expectLater(() => authProvider.registerUser(username, strongPassword), throws<AppException>("name already in use"));
   }, appName: AppNames.autoConfirm);
@@ -90,7 +90,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Email/Password - register user with weak/empty password throws', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "${generateRandomEmail(5)}@realm.io";
+    String username = generateRandomEmail();
     await expectLater(() => authProvider.registerUser(username, "pwd"), throws<AppException>("password must be between 6 and 128 characters"));
     await expectLater(() => authProvider.registerUser(username, ""), throws<AppException>("password must be between 6 and 128 characters"));
   }, appName: AppNames.autoConfirm);
@@ -104,7 +104,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Email/Password - confirm user token expired', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "${generateRandomEmail(5)}@hotmail.com";
+    String username = generateRandomEmail();
     await authProvider.registerUser(username, strongPassword);
     await expectLater(
         () => authProvider.confirmUser(
@@ -116,7 +116,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Email/Password - confirm user token invalid', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "${generateRandomEmail(5)}@hotmail.com";
+    String username = generateRandomEmail();
     await authProvider.registerUser(username, strongPassword);
     await expectLater(() => authProvider.confirmUser("abc", "123"), throws<AppException>("invalid token data"));
   }, appName: AppNames.emailConfirm);
@@ -153,7 +153,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Email/Password - retry custom confirmation function', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "realm_tests_pending_confirm_${generateRandomEmail(5)}@realm.io";
+    String username = "realm_tests_pending_confirm_${generateRandomEmail()}";
     await authProvider.registerUser(username, strongPassword);
 
     await authProvider.retryCustomConfirmationFunction(username);
@@ -165,7 +165,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Email/Password - retry custom confirmation after user is confirmed', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "realm_tests_do_autoverify_${generateRandomEmail(5)}@realm.io";
+    String username = "realm_tests_do_autoverify_${generateRandomEmail()}";
     // Custom confirmation function confirms automatically username with 'realm_tests_do_autoverify'.
     await authProvider.registerUser(username, strongPassword);
 
@@ -175,7 +175,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Email/Password - retry custom confirmation for not registered user', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "${generateRandomEmail(5)}@realm.io";
+    String username = generateRandomEmail();
     await expectLater(() => authProvider.retryCustomConfirmationFunction(username), throws<AppException>("user not found"));
   });
 
@@ -213,7 +213,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Email/Password - reset password of non-existent user throws', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "${generateRandomEmail(5)}@realm.io";
+    String username = generateRandomEmail();
     await expectLater(() => authProvider.resetPassword(username), throws<AppException>("user not found"));
   }, appName: AppNames.emailConfirm);
 
@@ -271,7 +271,7 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('Email/Password - call reset password function and login with the new password', (configuration) async {
     final app = App(configuration);
-    String username = "${generateRandomEmail(5)}@realm.io";
+    String username = generateRandomEmail();
     const String newPassword = "!@#!DQXQWD!223eda";
     final authProvider = EmailPasswordAuthProvider(app);
     await authProvider.registerUser(username, strongPassword);
@@ -282,7 +282,7 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('Email/Password - call reset password function with no additional arguments', (configuration) async {
     final app = App(configuration);
-    String username = "${generateRandomEmail(5)}@realm.io";
+    String username = generateRandomEmail();
     const String newPassword = "!@#!DQXQWD!223eda";
     final authProvider = EmailPasswordAuthProvider(app);
     await authProvider.registerUser(username, strongPassword);
