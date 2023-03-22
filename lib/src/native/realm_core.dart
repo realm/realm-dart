@@ -84,7 +84,7 @@ class _RealmCore {
   }
 
   // stamped into the library by the build system (see prepare-release.yml)
-  static const libraryVersion = '1.0.2';
+  static const libraryVersion = '1.0.3';
   late String nativeLibraryVersion = _realmLib.realm_dart_library_version().cast<Utf8>().toDartString();
 
   // for debugging only. Enable in realm_dart.cpp
@@ -259,6 +259,15 @@ class _RealmCore {
 
             _realmLib.realm_sync_config_set_after_client_reset_handler(syncConfigPtr, _realmLib.addresses.realm_dart_sync_after_reset_handler_callback,
                 afterResetUserdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
+          }
+
+          if (config.shouldCompactCallback != null) {
+            _realmLib.realm_config_set_should_compact_on_launch_function(
+              configHandle._pointer,
+              Pointer.fromFunction(should_compact_callback, false),
+              config.toWeakHandle(),
+              nullptr,
+            );
           }
 
           _realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
@@ -476,12 +485,15 @@ class _RealmCore {
   }
 
   static bool should_compact_callback(Pointer<Void> userdata, int totalSize, int usedSize) {
-    final LocalConfiguration? config = userdata.toObject();
-    if (config == null) {
-      return false;
+    Object? config = userdata.toObject();
+
+    if (config is LocalConfiguration) {
+      return config.shouldCompactCallback!(totalSize, usedSize);
+    } else if (config is FlexibleSyncConfiguration) {
+      return config.shouldCompactCallback!(totalSize, usedSize);
     }
 
-    return config.shouldCompactCallback!(totalSize, usedSize);
+    return false;
   }
 
   static bool migration_callback(
@@ -1053,6 +1065,11 @@ class _RealmCore {
   RealmResultsHandle resultsFromList(RealmList list) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_list_to_results(list.handle._pointer));
     return RealmResultsHandle._(pointer, list.realm.handle);
+  }
+
+  RealmResultsHandle resultsFromSet(RealmSet set) {
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_set_to_results(set.handle._pointer));
+    return RealmResultsHandle._(pointer, set.realm.handle);
   }
 
   Object? resultsGetElementAt(RealmResults results, int index) {

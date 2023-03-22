@@ -178,7 +178,8 @@ class RealmCoreAccessor implements RealmAccessor {
 
       if (propertyMeta.collectionType == RealmCollectionType.set) {
         final handle = realmCore.getSetProperty(object, propertyMeta.key);
-        return RealmSetInternal.create<T>(handle, object.realm, metadata);
+        final setMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
+        return RealmSetInternal.create<T>(handle, object.realm, setMetadata);
       }
 
       var value = realmCore.getProperty(object, propertyMeta.key);
@@ -576,7 +577,7 @@ class RealmObjectNotificationsController<T extends RealmObjectBase> extends Noti
   }
 
   Stream<RealmObjectChanges<T>> createStream() {
-    streamController = StreamController<RealmObjectChanges<T>>(onListen: start, onPause: stop, onResume: start, onCancel: stop);
+    streamController = StreamController<RealmObjectChanges<T>>(onListen: start, onCancel: stop);
     return streamController.stream;
   }
 
