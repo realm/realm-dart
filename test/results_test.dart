@@ -662,4 +662,15 @@ Future<void> main([List<String>? args]) async {
       if (count > 1) fail('Should only receive one event');
     }
   });
+
+  test('Long query string crash', () async {
+    final config = Configuration.local([Product.schema]);
+    final realm = getRealm(config);
+    List<String> list = [];
+    for (var i = 0; i < 10000; i++) {
+      list.add("_id == oid(${ObjectId()})");
+    }
+    final ids = list.join(" OR ");
+    final items = realm.query<Product>(ids);
+  });
 }
