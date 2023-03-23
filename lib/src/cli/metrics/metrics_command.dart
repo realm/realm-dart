@@ -231,13 +231,15 @@ Future<String> getMachineId() async {
   return id;
 }
 
+const macOSMachineIdRegEx = '.*\"IOPlatformUUID\"\s=\s\"(.+)\"';
+
 Future<Digest> generateDistinctId() async {
   var id = await safe(() async {
     final machineId = await getMachineId();
     if (Platform.isLinux) {
       return machineId;
     } else if (Platform.isMacOS) {
-      final regex = RegExp('"IOPlatformUUID" = "([^"]*)"', dotAll: true);
+      final regex = RegExp(macOSMachineIdRegEx, dotAll: true);
       return regex.firstMatch(machineId)?.group(1); // extract IOPlatformUUID
     } else if (Platform.isWindows) {
       return machineId;
@@ -254,11 +256,11 @@ Future<Digest> generateBuilderId() async {
     if (Platform.isLinux) {
       return machineId;
     } else if (Platform.isMacOS) {
-      final regex = RegExp('"IOPlatformUUID" = "([^"]*)"', dotAll: true);
+      final regex = RegExp(macOSMachineIdRegEx, dotAll: true);
       return regex.firstMatch(machineId)?.group(1); // extract IOPlatformUUID
     } else if (Platform.isWindows) {
-      final regex = RegExp('\\s*MachineGuid\\s*\\w*\\s*((\\w*-?)+)', dotAll: true);
-      return regex.firstMatch(machineId)?.group(1); // extract IOPlatformUUID
+      final regex = RegExp('\s*MachineGuid\s*\w*\s*([[:alnum:]-]+)', dotAll: true);
+      return regex.firstMatch(machineId)?.group(1); // extract MachineGuid
     }
   }, message: 'failed to get machine id');
 
