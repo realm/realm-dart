@@ -399,9 +399,17 @@ String generateRandomRealmPath() {
 }
 
 final random = Random();
-String generateRandomString(int len) {
-  const chars = 'abcdefghjklmnopqrstuvwxuz';
-  return List.generate(len, (index) => chars[random.nextInt(chars.length)]).join();
+String generateRandomString(int length, {String characterSet = 'abcdefghjklmnopqrstuvwxuz'}) {
+  return List.generate(length, (index) => characterSet[random.nextInt(characterSet.length)]).join();
+}
+
+String generateRandomUnicodeString({int length = 10}) {
+ return generateRandomString(length, characterSet: r"uvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren");
+}
+
+String generateRandomEmail({int length = 5}) {
+  String randomString = generateRandomString(length, characterSet: r"abcdefghjklmnopqrstuvwxuz!#$%&*+-'/=?^_`{|}~0123456789");
+  return "$randomString@realm.io";
 }
 
 Realm getRealm(Configuration config) {
@@ -585,7 +593,7 @@ Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) as
 }
 
 Future<User> getIntegrationUser(App app) async {
-  final email = 'realm_tests_do_autoverify_${generateRandomString(10)}@realm.io';
+  final email = 'realm_tests_do_autoverify_${generateRandomEmail()}';
   final password = 'password';
   await app.emailPasswordAuthProvider.registerUser(email, password);
 
@@ -610,7 +618,7 @@ Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator}) async {
   final realm = getRealm(config);
   if (differentiator != null) {
     realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm.query<NullableTypes>('differentiator = \$0', [differentiator]));
+      mutableSubscriptions.add(realm.query<NullableTypes>(r'differentiator = $0', [differentiator]));
     });
 
     await realm.subscriptions.waitForSynchronization();

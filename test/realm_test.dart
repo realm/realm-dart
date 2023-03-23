@@ -1859,6 +1859,45 @@ Future<void> main([List<String>? args]) async {
     expect(realmCore.getDeviceName(), matcher);
     expect(realmCore.getDeviceVersion(), matcher);
   });
+
+  test('Realm path with unicode symbols', () {
+    var config = Configuration.local([Car.schema], path: "${generateRandomUnicodeString()}.realm");
+    var realm = getRealm(config);
+    expect(realm.isClosed, false);
+  });
+
+  test('Realm local add/query data with unicode symbols', () {
+    final productName = generateRandomUnicodeString();
+    final config = Configuration.local([Product.schema]);
+    final realm = getRealm(config);
+    realm.write(() => realm.add(Product(ObjectId(), productName)));
+    final query = realm.query<Product>(r'name == $0', [productName]);
+    expect(query.length, 1);
+    expect(query[0].name, productName);
+  });
+
+  baasTest('Realm synced add/query/sync data with unicode symbols', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final productName = generateRandomUnicodeString();
+    final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final config = Configuration.flexibleSync(user, [Product.schema]);
+    final realm = getRealm(config);
+    await _addSubscriptions(realm, productName);
+    realm.write(() => realm.add(Product(ObjectId(), productName)));
+    final query = realm.query<Product>(r'name == $0', [productName]);
+    expect(query.length, 1);
+    expect(query[0].name, productName);
+  });
+
+  test('Realm case-insensitive query', () {
+    final productName = generateRandomString(10).toUpperCase();
+    final config = Configuration.local([Product.schema]);
+    final realm = getRealm(config);
+    realm.write(() => realm.add(Product(ObjectId(), productName)));
+    final query = realm.query<Product>(r'name LIKE[c] $0', [productName.toLowerCase()]);
+    expect(query.length, 1);
+    expect(query[0].name, productName);
+  });
 }
 
 List<int> generateEncryptionKey() {
