@@ -28,6 +28,7 @@ part 'metrics.g.dart';
 
 Future<Metrics> generateMetrics({
   required Digest distinctId,
+  required Digest builderId,
   required String framework,
   required String frameworkVersion,
   required String realmVersion,
@@ -40,6 +41,7 @@ Future<Metrics> generateMetrics({
     event: 'run',
     properties: Properties(
       distinctId: distinctId,
+      builderId: builderId,
       token: 'ce0fac19508f6c8f20066d345d360fd0',
       binding: 'dart',
       language: 'dart',
@@ -95,6 +97,13 @@ class Properties {
   )
   final Digest distinctId;
 
+  @JsonKey(
+    name: 'builder_id', // snake-case
+    fromJson: _digestFromJson, // While we wait for: https://github.com/google/json_serializable.dart/issues/822
+    toJson: _digestToJson,
+  )
+  final Digest builderId;
+
   @JsonKey(name: 'Anonymized MAC Address')
   @DigestConverter()
   final Digest? anonymizedMacAddress;
@@ -130,6 +139,7 @@ class Properties {
 
   Properties({
     required this.distinctId,
+    required this.builderId,
     required this.token,
     required this.binding,
     required this.framework,

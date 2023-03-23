@@ -58,10 +58,11 @@ Future<void> uploadMetrics(Options options) async {
   hierarchicalLoggingEnabled = true;
   log.level = options.verbose ? Level.INFO : Level.WARNING;
 
-  final skipUpload = isRealmCI || Platform.environment['CI'] != null || Platform.environment['REALM_DISABLE_ANALYTICS'] != null;
-  if (skipUpload && !isRealmCI) {
-    // skip early
-    log.info('Skipping metrics upload');
+  var skipUpload = (isRealmCI || Platform.environment['CI'] != null || Platform.environment['REALM_DISABLE_ANALYTICS'] != null) &&
+      Platform.environment['REALM_DEBUG_ANALYTICS'] == null;
+  if (skipUpload) {
+    // skip early and don't do any work
+    log.info('Skipping metrics upload.');
     return;
   }
 
@@ -72,16 +73,17 @@ Future<void> uploadMetrics(Options options) async {
     flutterInfo = null;
   }
 
-  final hostId = await machineId();
-  
+  final distinctId = await generateDistinctId();
+
+  final builderId = await generateBuilderId();
+
   var frameworkName = flutterInfo != null ? 'Flutter' : null;
 
   Dependency? realmDep;
   if (pubspec.dependencies.containsKey('realm')) {
     realmDep = pubspec.dependencies["realm"];
     frameworkName = frameworkName ?? "Flutter";
-  }
-  else if (pubspec.dependencies.containsKey('realm_dart')) {
+  } else if (pubspec.dependencies.containsKey('realm_dart')) {
     realmDep = pubspec.dependencies["realm_dart"];
     frameworkName = frameworkName ?? "Dart";
   }
@@ -89,10 +91,11 @@ Future<void> uploadMetrics(Options options) async {
   final realmVersion = realmDep is HostedDependency ? '${realmDep.version}' : '?';
 
   final metrics = await generateMetrics(
-    distinctId: hostId,
+    distinctId: distinctId,
+    builderId: builderId,
     targetOsType: options.targetOsType,
     targetOsVersion: options.targetOsVersion,
-    anonymizedMacAddress: hostId,
+    anonymizedMacAddress: distinctId,
     anonymizedBundleId: pubspec.name.strongHash(),
     framework: frameworkName ?? "Unknown",
     frameworkVersion: flutterInfo != null
@@ -110,9 +113,13 @@ Future<void> uploadMetrics(Options options) async {
   log.info('Uploading metrics for ${pubspec.name}...\n$payload');
   final base64Payload = base64Encode(utf8.encode(payload));
 
+  if (Platform.environment['REALM_DEBUG_ANALYTICS'] != null) {
+    skipUpload = true;
+  }
+
   if (skipUpload) {
     // skip late
-    log.info('Skipping metrics upload (late)');
+    log.info('Skipping metrics upload.');
     return;
   }
 
@@ -131,7 +138,54 @@ Future<void> uploadMetrics(Options options) async {
   }
 }
 
-Future<Digest> machineId() async {
+// Future<Digest> getMachineId() async {
+//   var id = await safe(() async {
+//     if (Platform.isLinux) {
+//       // For linux use /etc/machine-id
+//       // Can be changed by administrator but with unpredictable consequences!
+//       // (see https://man7.org/linux/man-pages/man5/machine-id.5.html)
+//       final process = await Process.start('cat', ['/etc/machine-id']);
+//       return await process.stdout.transform(utf8.decoder).join();
+//     } else if (Platform.isMacOS) {
+//       // For MacOS, use the IOPlatformUUID value from I/O Kit registry in
+//       // IOPlatformExpertDevice class
+//       final process = await Process.start('ioreg', [
+//         '-rd1',
+//         '-c',
+//         'IOPlatformExpertDevice',
+//       ]);
+//       final id = await process.stdout.transform(utf8.decoder).join();
+//       final r = RegExp('"IOPlatformUUID" = "([^"]*)"', dotAll: true);
+//       return r.firstMatch(id)?.group(1); // extract IOPlatformUUID
+//     } else if (Platform.isWindows) {
+//       // For Windows, use the key MachineGuid in registry:
+//       // HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography
+//       // Can be changed by administrator but with unpredictable consequences!
+//       //
+//       // It is generated during OS installation and won't change unless you make
+//       // another OS update or re-install. Depending on the OS version it may
+//       // contain the network adapter MAC address embedded (plus some other numbers,
+//       // including random), or a pseudorandom number.
+//       //
+//       // Consider using System.Identity.UniqueID instead.
+//       // (see https://docs.microsoft.com/en-gb/windows/win32/properties/props-system-identity-uniqueid)
+//       final process = await Process.start(
+//         '${Platform.environment['WINDIR']}\\System32\\Reg.exe',
+//         [
+//           'QUERY',
+//           r'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography',
+//           '/v',
+//           'MachineGuid',
+//         ],
+//       );
+//       return await process.stdout.transform(systemEncoding.decoder).join();
+//     }
+//   }, message: 'failed to get machine id');
+//   id ??= Platform.localHostname; // fallback
+//   return id.strongHash(); // strong hash for privacy
+// }
+
+Future<String> getMachineId() async {
   var id = await safe(() async {
     if (Platform.isLinux) {
       // For linux use /etc/machine-id
@@ -148,8 +202,7 @@ Future<Digest> machineId() async {
         'IOPlatformExpertDevice',
       ]);
       final id = await process.stdout.transform(utf8.decoder).join();
-      final r = RegExp('"IOPlatformUUID" = "([^"]*)"', dotAll: true);
-      return r.firstMatch(id)?.group(1); // extract IOPlatformUUID
+      return id;
     } else if (Platform.isWindows) {
       // For Windows, use the key MachineGuid in registry:
       // HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography
@@ -175,12 +228,49 @@ Future<Digest> machineId() async {
     }
   }, message: 'failed to get machine id');
   id ??= Platform.localHostname; // fallback
+  return id;
+}
+
+Future<Digest> generateDistinctId() async {
+  var id = await safe(() async {
+    final machineId = await getMachineId();
+    if (Platform.isLinux) {
+      return machineId;
+    } else if (Platform.isMacOS) {
+      final regex = RegExp('"IOPlatformUUID" = "([^"]*)"', dotAll: true);
+      return regex.firstMatch(machineId)?.group(1); // extract IOPlatformUUID
+    } else if (Platform.isWindows) {
+      return machineId;
+    }
+  }, message: 'failed to get machine id');
+
+  id ??= Platform.localHostname; // fallback
   return id.strongHash(); // strong hash for privacy
+}
+
+Future<Digest> generateBuilderId() async {
+  var id = await safe(() async {
+    final machineId = await getMachineId();
+    if (Platform.isLinux) {
+      return machineId;
+    } else if (Platform.isMacOS) {
+      final regex = RegExp('"IOPlatformUUID" = "([^"]*)"', dotAll: true);
+      return regex.firstMatch(machineId)?.group(1); // extract IOPlatformUUID
+    } else if (Platform.isWindows) {
+      final regex = RegExp('\\s*MachineGuid\\s*\\w*\\s*((\\w*-?)+)', dotAll: true);
+      return regex.firstMatch(machineId)?.group(1); // extract IOPlatformUUID
+    }
+  }, message: 'failed to get machine id');
+
+  id ??= Platform.localHostname; // fallback
+
+  const builderIdSalt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
+  return id.strongHash(builderIdSalt); // strong hash for privacy
 }
 
 extension _StringEx on String {
   static const _defaultSalt = <int>[75, 97, 115, 112, 101, 114, 32, 119, 97, 115, 32, 104, 101, 114];
-  Digest strongHash({List<int> salt = _defaultSalt}) => sha256.convert([...salt, ...utf8.encode(this)]);
+  Digest strongHash([List<int> salt = _defaultSalt]) => sha256.convert([...salt, ...utf8.encode(this)]);
 }
 
 Future<FlutterInfo?> getInfo(Options options) async {
@@ -207,7 +297,8 @@ Future<FlutterInfo?> getInfo(Options options) async {
   final info = await safe(() async {
     final flutterRoot = options.flutterRoot;
     final flutterExecutableName = Platform.isWindows ? "flutter.bat" : "flutter";
-    final flutterPath = flutterRoot == null ? flutterExecutableName : path.join(flutterRoot, path.basename(flutterRoot) != "bin" ? 'bin' : "", flutterExecutableName);
+    final flutterPath =
+        flutterRoot == null ? flutterExecutableName : path.join(flutterRoot, path.basename(flutterRoot) != "bin" ? 'bin' : "", flutterExecutableName);
     final process = await Process.start(flutterPath, ['--version', '--machine']);
     final infoJson = await process.stdout.transform(utf8.decoder).join();
     return FlutterInfo.fromJson(json.decode(infoJson) as Map<String, dynamic>);

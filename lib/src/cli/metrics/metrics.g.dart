@@ -19,6 +19,7 @@ Map<String, dynamic> _$MetricsToJson(Metrics instance) => <String, dynamic>{
 
 Properties _$PropertiesFromJson(Map<String, dynamic> json) => Properties(
       distinctId: _digestFromJson(json['distinct_id'] as String),
+      builderId: _digestFromJson(json['builder_id'] as String),
       token: json['token'] as String,
       binding: json['Binding'] as String,
       framework: json['Framework'] as String,
@@ -41,6 +42,7 @@ Map<String, dynamic> _$PropertiesToJson(Properties instance) {
   final val = <String, dynamic>{
     'token': instance.token,
     'distinct_id': _digestToJson(instance.distinctId),
+    'builder_id': _digestToJson(instance.builderId),
   };
 
   void writeNotNull(String key, dynamic value) {
