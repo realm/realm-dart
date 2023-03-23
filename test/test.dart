@@ -404,8 +404,7 @@ String generateRandomString(int length, {String characterSet = 'abcdefghjklmnopq
 }
 
 String generateRandomUnicodeString({int length = 10}) {
-  String randomString = generateRandomString(length, characterSet: r"uvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren");
-  return randomString;
+ return generateRandomString(length, characterSet: r"uvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren");
 }
 
 String generateRandomEmail({int length = 5}) {
