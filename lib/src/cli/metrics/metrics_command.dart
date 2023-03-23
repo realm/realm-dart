@@ -231,7 +231,7 @@ Future<String> getMachineId() async {
   return id;
 }
 
-const macOSMachineIdRegEx = '.*\"IOPlatformUUID\"\s=\s\"(.+)\"';
+const macOSMachineIdRegEx = r'.*\"IOPlatformUUID\"\s=\s\"(.+)\"';
 
 Future<Digest> generateDistinctId() async {
   var id = await safe(() async {
@@ -259,7 +259,7 @@ Future<Digest> generateBuilderId() async {
       final regex = RegExp(macOSMachineIdRegEx, dotAll: true);
       return regex.firstMatch(machineId)?.group(1); // extract IOPlatformUUID
     } else if (Platform.isWindows) {
-      final regex = RegExp('\s*MachineGuid\s*\w*\s*([[:alnum:]-]+)', dotAll: true);
+      final regex = RegExp(r'\s*MachineGuid\s*\w*\s*([[:alnum:]-]+)', dotAll: true);
       return regex.firstMatch(machineId)?.group(1); // extract MachineGuid
     }
   }, message: 'failed to get machine id');
