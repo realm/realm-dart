@@ -1861,13 +1861,13 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Realm path with unicode symbols', () {
-    var config = Configuration.local([Car.schema], path: "${generateRandomString(10, allowUnicode: true)}.realm");
+    var config = Configuration.local([Car.schema], path: "${generateRandomUnicodeString()}.realm");
     var realm = getRealm(config);
     expect(realm.isClosed, false);
   });
 
   test('Realm local add/query data with unicode symbols', () {
-    final productName = generateRandomString(10, allowUnicode: true);
+    final productName = generateRandomUnicodeString();
     final config = Configuration.local([Product.schema]);
     final realm = getRealm(config);
     realm.write(() => realm.add(Product(ObjectId(), productName)));
@@ -1878,7 +1878,7 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('Realm synced add/query/sync data with unicode symbols', (appConfiguration) async {
     final app = App(appConfiguration);
-    final productName = generateRandomString(10, allowUnicode: true);
+    final productName = generateRandomUnicodeString();
     final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
     final config = Configuration.flexibleSync(user, [Product.schema]);
     final realm = getRealm(config);

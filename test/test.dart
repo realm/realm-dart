@@ -399,13 +399,17 @@ String generateRandomRealmPath() {
 }
 
 final random = Random();
-String generateRandomString(int len, {bool allowUnicode = false, String includingSymbols = ""}) {
-  String characters = "$includingSymbols${allowUnicode ? 'uvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren' : 'abcdefghjklmnopqrstuvwxuz'}";
-  return List.generate(len, (index) => characters[random.nextInt(characters.length)]).join();
+String generateRandomString(int length, {String characterSet = 'abcdefghjklmnopqrstuvwxuz'}) {
+  return List.generate(length, (index) => characterSet[random.nextInt(characterSet.length)]).join();
 }
 
-String generateRandomEmail() {
-  String randomString = generateRandomString(5, includingSymbols: r"!#$%&*+-'/=?^_`{|}~0123456789");
+String generateRandomUnicodeString({int length = 10}) {
+  String randomString = generateRandomString(length, characterSet: r"uvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren");
+  return randomString;
+}
+
+String generateRandomEmail({int length = 5}) {
+  String randomString = generateRandomString(length, characterSet: r"abcdefghjklmnopqrstuvwxuz!#$%&*+-'/=?^_`{|}~0123456789");
   return "$randomString@realm.io";
 }
 
