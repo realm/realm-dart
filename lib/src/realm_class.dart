@@ -488,14 +488,13 @@ class Realm implements Finalizable {
 
   /// The logger to use for logging.
   /// The default logger is [RealmLogger] and the default log level is [RealmLogLevel.info].
+  /// To manage the log level at runtime use [RealmLogger.level] setter.
   /// To change the default logger set this member to a new instance of [RealmLogger]
   /// and specify the level and/or the [onRecord] function.
   ///
-  /// Settiing an instance of [Logger] is also supported, but it does not manage
-  /// the log level of the [Realm] at rintime.
-  /// To manage the log level at runtime
-  /// either initialize [RealmLogger] and use its member `level` or
-  /// use [Realm.changeRealmLogLevel] function.
+  /// Setting an instance of [Logger] is also supported,
+  /// but it will not manage the log level of the `Realm` at runtime.
+  /// To manage the log level at runtime in this case use [Realm.changeRealmLogLevel] function.
   static Logger logger = RealmLogger();
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
