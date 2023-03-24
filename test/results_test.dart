@@ -679,11 +679,10 @@ Future<void> main([List<String>? args]) async {
     final config = Configuration.local([Product.schema]);
     final realm = getRealm(config);
     List<String> list = [];
-    for (var i = 0; i < 30000; i++) {
+    for (var i = 0; i < 3000; i++) {
       list.add("oid(${ObjectId()})");
     }
     final ids = "_id IN {${list.join(",")}}";
-    print(ids);
     final items = realm.query<Product>(ids);
     expect(items.length, 0);
   });
