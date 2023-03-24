@@ -487,13 +487,7 @@ class Realm implements Finalizable {
   }
 
   /// The logger to use for logging
-  static Logger logger = Logger.detached('Realm')
-    ..level = RealmLogLevel.info
-    ..onRecord.listen((event) => print(event));
-  
-  static void setLogLevel(RealmLogLevel logLevel) {
-    realmCore.setLogLevel(RealmLogLevel.all.value);
-  }
+  static Logger logger = RealmLogger();
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
   ///
@@ -939,3 +933,93 @@ class MigrationRealm extends DynamicRealm {
 /// * syncProgress - an object of [SyncProgress] that contains `transferredBytes` and `transferableBytes`.
 /// {@category Realm}
 typedef ProgressCallback = void Function(SyncProgress syncProgress);
+
+class RealmLogger implements Logger {
+  final Logger _logger;
+
+  RealmLogger({Level level = RealmLogLevel.info, void Function(LogRecord)? onRecord})
+      : _logger = Logger.detached('Realm')
+          ..level = level
+          ..onRecord.listen(onRecord ?? (event) => print(event));
+
+  @override
+  Level get level {
+    return _logger.level;
+  }
+
+  @override
+  set level(Level? value) {
+    _logger.level = value;
+    realmCore.setLogLevel((value ?? Level.OFF).toInt());
+  }
+
+  @override
+  Map<String, Logger> get children => _logger.children;
+
+  @override
+  void clearListeners() {
+    _logger.clearListeners();
+  }
+
+  @override
+  void config(Object? message, [Object? error, StackTrace? stackTrace]) {
+    _logger.config(message, error, stackTrace);
+  }
+
+  @override
+  void fine(Object? message, [Object? error, StackTrace? stackTrace]) {
+    _logger.fine(message, error, stackTrace);
+  }
+
+  @override
+  void finer(Object? message, [Object? error, StackTrace? stackTrace]) {
+    _logger.finer(message, error, stackTrace);
+  }
+
+  @override
+  void finest(Object? message, [Object? error, StackTrace? stackTrace]) {
+    _logger.finest(message, error, stackTrace);
+  }
+
+  @override
+  String get fullName => _logger.fullName;
+
+  @override
+  void info(Object? message, [Object? error, StackTrace? stackTrace]) {
+    _logger.info(message, error, stackTrace);
+  }
+
+  @override
+  bool isLoggable(Level value) {
+    return _logger.isLoggable(value);
+  }
+
+  @override
+  void log(Level logLevel, Object? message, [Object? error, StackTrace? stackTrace, Zone? zone]) {
+    _logger.log(logLevel, message, error, stackTrace, zone);
+  }
+
+  @override
+  String get name => _logger.name;
+
+  @override
+  Stream<LogRecord> get onRecord => _logger.onRecord;
+
+  @override
+  Logger? get parent => _logger.parent;
+
+  @override
+  void severe(Object? message, [Object? error, StackTrace? stackTrace]) {
+    _logger.severe(message, error, stackTrace);
+  }
+
+  @override
+  void shout(Object? message, [Object? error, StackTrace? stackTrace]) {
+    _logger.shout(message, error, stackTrace);
+  }
+
+  @override
+  void warning(Object? message, [Object? error, StackTrace? stackTrace]) {
+    _logger.warning(message, error, stackTrace);
+  }
+}
