@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'package:test/expect.dart';
+import 'package:test/expect.dart' hide throws;
 
 import '../lib/realm.dart';
 import 'test.dart';
