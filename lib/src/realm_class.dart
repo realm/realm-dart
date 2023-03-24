@@ -486,7 +486,16 @@ class Realm implements Finalizable {
     return realmCore.realmEquals(this, other);
   }
 
-  /// The logger to use for logging
+  /// The logger to use for logging.
+  /// The default logger is [RealmLogger] and the default log level is [RealmLogLevel.info].
+  /// To change the default logger set this member to a new instance of [RealmLogger]
+  /// and specify the level and/or the [onRecord] function.
+  ///
+  /// Settiing an instance of [Logger] is also supported, but it does not manage
+  /// the log level of the [Realm] at rintime.
+  /// To manage the log level at runtime
+  /// either initialize [RealmLogger] and use its member `level` or
+  /// use [Realm.changeRealmLogLevel] function.
   static Logger logger = RealmLogger();
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
@@ -581,8 +590,8 @@ class Realm implements Finalizable {
     return realmCore.realmRefreshAsync(this);
   }
 
-  /// Change [RealmLogLevel] at runtime
-  static void changeRealLogLevel(RealmLogLevel logLevel) {
+  /// Changes [RealmLogLevel] at runtime
+  static void changeRealmLogLevel(RealmLogLevel logLevel) {
     realmCore.setLogLevel(RealmLogLevel.all.value);
   }
 }
@@ -940,7 +949,7 @@ class RealmLogLevel {
   static const off = Level.OFF;
 }
 
-/// Represents a logger that manages the realm log level.
+/// Represents a logger that manages the realm log level at runtime.
 ///
 /// {@category Realm}
 class RealmLogger implements Logger {
@@ -948,7 +957,7 @@ class RealmLogger implements Logger {
 
   /// Creates an instance of [RealmLogger].
   /// This constructor allows overriding the default [RealmLogLevel]
-  /// defining a specific [onRecord] event handler.
+  /// defining a specific [onRecord] function.
   RealmLogger({Level level = RealmLogLevel.info, void Function(LogRecord)? onRecord})
       : _logger = Logger.detached('Realm')
           ..level = level
