@@ -1,16 +1,29 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Support `Realm.logger.level` change at runtime. Added new class `RealmLogger` for managing the realm log ([#1226](https://github.com/realm/realm-dart/pull/1226)).
+* Add logging at the Storage level (Core upgrade).
+* Performance improvement for the following queries (Core upgrade):
+    * Significant (~75%) improvement when counting (query count) the number of exact matches (with no other query conditions) on a String/int/Uuid/ObjectId property that has an index. This improvement will be especially noticiable if there are a large number of results returned (duplicate values).
+    * Significant (~99%) improvement when querying for an exact match on a Timestamp property that has an index.
+    * Significant (~99%) improvement when querying for a case insensitive match on a Mixed property that has an index.
+    * Moderate (~25%) improvement when querying for an exact match on a Boolean property that has an index.
+    * Small (~5%) improvement when querying for a case insensitive match on a Mixed property that does not have an index.
 
 ### Fixed
-* None
+* Installed one default logger to be used all over Core (Core upgrade).
+* Fixed a bug that may have resulted in arrays being in different orders on different devices (Core upgrade).
+* Fixed a crash when querying a mixed property with a string operator (contains/like/beginswith/endswith) or with case insensitivity (Core upgrade).
+* Querying for equality of a string on an indexed mixed property was returning case insensitive matches. For example querying for `myIndexedMixed == "Foo"` would incorrectly match on values of "foo" or "FOO" etc (Core upgrade).
+* Adding an index to a Mixed property on a non-empty table would crash with an assertion (Core upgrade).
+* `SyncSession.pause()` could hold a reference to the database open after shutting down the sync session, preventing users from being able to delete the realm (Core upgrade).
+* `Realm.logger` did not perform any locking, resulting in data races if it was called while the default logger was being read on another isolate (Core upgrade).
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 13.8.0.
 
 ## 1.0.3 (2023-03-20)
 
