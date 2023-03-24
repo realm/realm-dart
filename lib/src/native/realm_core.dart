@@ -77,12 +77,14 @@ class _RealmCore {
           isFlutterPlatform ? bugInTheSdkMessage : "Did you forget to run `dart run realm_dart install` after upgrading the realm_dart package?";
       throw RealmException('Realm SDK package version does not match the native library version ($libraryVersion != $nativeLibraryVersion). $additionMessage');
     }
-    final logCallback = Pointer.fromFunction<Void Function(Int32, Pointer<Int8>)>(_logCallback);
-    _realmLib.realm_set_log_callback(logCallback.cast(), Realm.logger.level.toInt(), nullptr, _realmLib.addresses.realm_dart_userdata_async_free);
   }
 
   factory _RealmCore() {
-    return _instance ??= _RealmCore._();
+    _instance ??= _RealmCore._();
+    final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
+    _realmLib.realm_set_log_callback(
+        logCallback.cast(), Realm.logger.level.toInt(), noopUserdata.toWeakHandle(), _realmLib.addresses.realm_dart_delete_weak_handle);
+    return _instance!;
   }
 
   // stamped into the library by the build system (see prepare-release.yml)
@@ -1677,7 +1679,7 @@ class _RealmCore {
     });
   }
 
-  static void _logCallback(int levelAsInt, Pointer<Int8> message) {
+  static void _logCallback(Handle userdata, int levelAsInt, Pointer<Int8> message) {
     final logger = Realm.logger;
     final level = LevelExt.fromInt(levelAsInt);
 
@@ -1701,7 +1703,6 @@ class _RealmCore {
       if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
         _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
       }
-
       return handle;
     });
   }

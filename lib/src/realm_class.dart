@@ -491,8 +491,8 @@ class Realm implements Finalizable {
     ..level = RealmLogLevel.info
     ..onRecord.listen((event) => print(event));
   
-  static void setLogLevel(Level logLevel) {
-    realmCore.setLogLevel(logLevel.toInt());
+  static void setLogLevel(RealmLogLevel logLevel) {
+    realmCore.setLogLevel(RealmLogLevel.all.value);
   }
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
