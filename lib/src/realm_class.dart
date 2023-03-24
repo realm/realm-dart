@@ -580,6 +580,11 @@ class Realm implements Finalizable {
   Future<bool> refreshAsync() async {
     return realmCore.realmRefreshAsync(this);
   }
+
+  /// Change [RealmLogLevel] at runtime
+  static void changeRealLogLevel(RealmLogLevel logLevel) {
+    realmCore.setLogLevel(RealmLogLevel.all.value);
+  }
 }
 
 /// Provides a scope to safely write data to a [Realm]. Can be created using [Realm.beginWrite] or
@@ -773,60 +778,6 @@ abstract class NotificationsController implements Finalizable {
   }
 }
 
-/// Specifies the criticality level above which messages will be logged
-/// by the default sync client logger.
-/// {@category Realm}
-class RealmLogLevel {
-  /// Log everything. This will seriously harm the performance of the
-  /// sync client and should never be used in production scenarios.
-  ///
-  /// Same as [Level.ALL]
-  static const all = Level.ALL;
-
-  /// A version of [debug] that allows for very high volume output.
-  /// This may seriously affect the performance of the sync client.
-  ///
-  /// Same as [Level.FINEST]
-  static const trace = Level('TRACE', 300);
-
-  /// Reveal information that can aid debugging, no longer paying
-  /// attention to efficiency.
-  ///
-  /// Same as [Level.FINER]
-  static const debug = Level('DEBUG', 400);
-
-  /// Same as [info], but prioritize completeness over minimalism.
-  ///
-  /// Same as [Level.FINE];
-  static const detail = Level('DETAIL', 500);
-
-  /// Log operational sync client messages, but in a minimalist fashion to
-  /// avoid general overhead from logging and to keep volume down.
-  ///
-  /// Same as [Level.INFO];
-  static const info = Level.INFO;
-
-  /// Log errors and warnings.
-  ///
-  /// Same as [Level.WARNING];
-  static const warn = Level.WARNING;
-
-  /// Log errors only.
-  ///
-  /// Same as [Level.SEVERE];
-  static const error = Level('ERROR', 1000);
-
-  /// Log only fatal errors.
-  ///
-  /// Same as [Level.SHOUT];
-  static const fatal = Level('FATAL', 1200);
-
-  /// Turn off logging.
-  ///
-  /// Same as [Level.OFF];
-  static const off = Level.OFF;
-}
-
 /// @nodoc
 class RealmMetadata {
   final _typeMap = <Type, RealmObjectMetadata>{};
@@ -934,9 +885,70 @@ class MigrationRealm extends DynamicRealm {
 /// {@category Realm}
 typedef ProgressCallback = void Function(SyncProgress syncProgress);
 
+/// Specifies the criticality level above which messages will be logged
+/// by the default sync client logger.
+///
+/// {@category Realm}
+class RealmLogLevel {
+  /// Log everything. This will seriously harm the performance of the
+  /// sync client and should never be used in production scenarios.
+  ///
+  /// Same as [Level.ALL]
+  static const all = Level.ALL;
+
+  /// A version of [debug] that allows for very high volume output.
+  /// This may seriously affect the performance of the sync client.
+  ///
+  /// Same as [Level.FINEST]
+  static const trace = Level('TRACE', 300);
+
+  /// Reveal information that can aid debugging, no longer paying
+  /// attention to efficiency.
+  ///
+  /// Same as [Level.FINER]
+  static const debug = Level('DEBUG', 400);
+
+  /// Same as [info], but prioritize completeness over minimalism.
+  ///
+  /// Same as [Level.FINE];
+  static const detail = Level('DETAIL', 500);
+
+  /// Log operational sync client messages, but in a minimalist fashion to
+  /// avoid general overhead from logging and to keep volume down.
+  ///
+  /// Same as [Level.INFO];
+  static const info = Level.INFO;
+
+  /// Log errors and warnings.
+  ///
+  /// Same as [Level.WARNING];
+  static const warn = Level.WARNING;
+
+  /// Log errors only.
+  ///
+  /// Same as [Level.SEVERE];
+  static const error = Level('ERROR', 1000);
+
+  /// Log only fatal errors.
+  ///
+  /// Same as [Level.SHOUT];
+  static const fatal = Level('FATAL', 1200);
+
+  /// Turn off logging.
+  ///
+  /// Same as [Level.OFF];
+  static const off = Level.OFF;
+}
+
+/// Represents a logger that manages the realm log level.
+///
+/// {@category Realm}
 class RealmLogger implements Logger {
   final Logger _logger;
 
+  /// Creates an instance of [RealmLogger].
+  /// This constructor allows overriding the default [RealmLogLevel]
+  /// defining a specific [onRecord] event handler.
   RealmLogger({Level level = RealmLogLevel.info, void Function(LogRecord)? onRecord})
       : _logger = Logger.detached('Realm')
           ..level = level
