@@ -218,7 +218,9 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Change Realm.logger level at runtime', (configuration) async {
-    int count = 0;
+    final oldLogger = Realm.logger;
+    try {
+      int count = 0;
     Realm.logger = RealmLogger(
         level: RealmLogLevel.off,
         onRecord: (event) {
@@ -239,6 +241,9 @@ Future<void> main([List<String>? args]) async {
     Realm.logger.level = RealmLogLevel.error;
 
     await expectLater(() => app.logIn(Credentials.emailPassword(username, strongPassword)), throws<AppException>("invalid username/password"));
+    } finally {
+      Realm.logger = oldLogger;
+    }
   });
 
   baasTest('App delete user', (configuration) async {
