@@ -454,10 +454,10 @@ class BaasClient {
         await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', syncConfig);
         break;
       } catch (err) {
-        if (attempt++ < 30) {
-          print('Failed to update service after ${attempt * 10} seconds. Will keep retrying ...');
+        if (attempt++ < 24) {
+          print('Failed to update service after ${attempt * 5} seconds. Will keep retrying ...');
 
-          await Future<dynamic>.delayed(const Duration(seconds: 10));
+          await Future<dynamic>.delayed(const Duration(seconds: 5));
         } else {
           rethrow;
         }
