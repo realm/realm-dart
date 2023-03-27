@@ -404,7 +404,7 @@ String generateRandomString(int length, {String characterSet = 'abcdefghjklmnopq
 }
 
 String generateRandomUnicodeString({int length = 10}) {
- return generateRandomString(length, characterSet: r"uvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren");
+  return generateRandomString(length, characterSet: r"uvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren");
 }
 
 String generateRandomEmail({int length = 5}) {
@@ -532,26 +532,30 @@ extension on Map<String, String?> {
 
 BaasClient? _baasClient;
 Future<void> setupBaas() async {
-  final baasUrl = arguments[argBaasUrl];
-  if (baasUrl == null) {
-    return;
+  try {
+    final baasUrl = arguments[argBaasUrl];
+    if (baasUrl == null) {
+      return;
+    }
+
+    final cluster = arguments[argBaasCluster];
+    final apiKey = arguments[argBaasApiKey];
+    final privateApiKey = arguments[argBaasPrivateApiKey];
+    final projectId = arguments[argBaasProjectId];
+    final differentiator = arguments[argDifferentiator];
+
+    final client = await (cluster == null
+        ? BaasClient.docker(baasUrl, differentiator)
+        : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
+
+    client.publicRSAKey = publicRSAKeyForJWTValidation;
+
+    var apps = await client.getOrCreateApps();
+    baasApps.addAll(apps);
+    _baasClient = client;
+  } catch (e) {
+    baasApps.clear();
   }
-
-  final cluster = arguments[argBaasCluster];
-  final apiKey = arguments[argBaasApiKey];
-  final privateApiKey = arguments[argBaasPrivateApiKey];
-  final projectId = arguments[argBaasProjectId];
-  final differentiator = arguments[argDifferentiator];
-
-  final client = await (cluster == null
-      ? BaasClient.docker(baasUrl, differentiator)
-      : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
-
-  client.publicRSAKey = publicRSAKeyForJWTValidation;
-
-  var apps = await client.getOrCreateApps();
-  baasApps.addAll(apps);
-  _baasClient = client;
 }
 
 @isTest
