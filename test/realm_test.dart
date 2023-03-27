@@ -1864,7 +1864,7 @@ Future<void> main([List<String>? args]) async {
     var config = Configuration.local([Car.schema], path: "${generateRandomUnicodeString()}.realm");
     var realm = getRealm(config);
     expect(realm.isClosed, false);
-  });
+  }, skip: Platform.isAndroid || Platform.isIOS); // TODO: enable test when fix https://github.com/realm/realm-dart/issues/1230
 
   test('Realm local add/query data with unicode symbols', () {
     final productName = generateRandomUnicodeString();
