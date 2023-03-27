@@ -554,6 +554,7 @@ Future<void> setupBaas() async {
     baasApps.addAll(apps);
     _baasClient = client;
   } catch (e) {
+    print(e);
     baasApps.clear();
   }
 }

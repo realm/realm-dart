@@ -442,6 +442,8 @@ class BaasClient {
     final mongoConfig = _clusterName == null ? '{ "uri": "mongodb://localhost:26000" }' : '{ "clusterName": "$_clusterName" }';
     final mongoServiceId = await _createService(app, 'BackingDB', serviceName, mongoConfig);
 
+    await _post('groups/$_groupId/apps/$app/services/$mongoServiceId/default_rule', rules);
+
     // The cluster linking must be separated from enabling sync because Atlas
     // takes a few seconds to provision a user for BaaS, meaning enabling sync
     // will fail if we attempt to do it with the same request. It's nondeterministic
@@ -449,7 +451,6 @@ class BaasClient {
     var attempt = 0;
     while (true) {
       try {
-        await _post('groups/$_groupId/apps/$app/services/$mongoServiceId/default_rule', rules);
         await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', syncConfig);
         break;
       } catch (err) {
