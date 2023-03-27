@@ -590,8 +590,8 @@ class Realm implements Finalizable {
   }
 
   /// Changes [RealmLogLevel] at runtime
-  static void changeRealmLogLevel(RealmLogLevel logLevel) {
-    realmCore.setLogLevel(RealmLogLevel.all.value);
+  static void changeRealmLogLevel(Level logLevel) {
+    realmCore.setLogLevel(logLevel.toInt());
   }
 }
 

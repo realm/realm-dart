@@ -22,6 +22,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
+import 'package:logging/logging.dart';
 import 'package:test/test.dart' hide test, throws;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -1897,6 +1898,29 @@ Future<void> main([List<String>? args]) async {
     final query = realm.query<Product>(r'name LIKE[c] $0', [productName.toLowerCase()]);
     expect(query.length, 1);
     expect(query[0].name, productName);
+  });
+
+  test('Realm logger change level to error', () {
+    final oldLogger = Realm.logger;
+    try {
+      int count = 0;
+      Realm.logger = Logger.detached(generateRandomString(10))
+        ..level = Level.OFF
+        ..onRecord.listen((event) {
+          count++;
+          expect(event.level, Realm.logger.level);
+          expect(count, 1); // Occurs only once because of the last error
+          print("${event.level}: ${event.message}");
+        });
+      final config = Configuration.local([Car.schema]);
+
+      Realm.changeRealmLogLevel(RealmLogLevel.error);
+
+      final realm = getRealm(config);
+      expect(() => realm.add(Car("Toyota")), throws<RealmException>());
+    } finally {
+      Realm.logger = oldLogger; // re-instate previous
+    }
   });
 }
 
