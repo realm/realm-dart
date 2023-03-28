@@ -221,26 +221,26 @@ Future<void> main([List<String>? args]) async {
     final oldLogger = Realm.logger;
     try {
       int count = 0;
-    Realm.logger = RealmLogger(
-        level: RealmLogLevel.off,
-        onRecord: (event) {
-          count++;
-          expect(event.level, Realm.logger.level);
-          expect(count, 1); // Occurs only once because of the last error
-          print("${event.level}: ${event.message}");
-        });
+      Realm.logger = RealmLogger(
+          level: RealmLogLevel.off,
+          onRecord: (event) {
+            count++;
+            expect(event.level, Realm.logger.level);
+            expect(count, 1); // Occurs only once because of the last error
+            print("${event.level}: ${event.message}");
+          });
 
-    final app = App(configuration);
-    final authProvider = EmailPasswordAuthProvider(app);
-    String username = "realm_tests_do_autoverify${generateRandomEmail()}";
-    const String strongPassword = "SWV23R#@T#VFQDV";
-    await authProvider.registerUser(username, strongPassword);
-    final user = await loginWithRetry(app, Credentials.emailPassword(username, strongPassword));
-    await app.deleteUser(user);
+      final app = App(configuration);
+      final authProvider = EmailPasswordAuthProvider(app);
+      String username = "realm_tests_do_autoverify${generateRandomEmail()}";
+      const String strongPassword = "SWV23R#@T#VFQDV";
+      await authProvider.registerUser(username, strongPassword);
+      final user = await loginWithRetry(app, Credentials.emailPassword(username, strongPassword));
+      await app.deleteUser(user);
 
-    Realm.logger.level = RealmLogLevel.error;
+      Realm.logger.level = RealmLogLevel.error;
 
-    await expectLater(() => app.logIn(Credentials.emailPassword(username, strongPassword)), throws<AppException>("invalid username/password"));
+      await expectLater(() => app.logIn(Credentials.emailPassword(username, strongPassword)), throws<AppException>("invalid username/password"));
     } finally {
       Realm.logger = oldLogger;
     }
