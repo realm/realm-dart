@@ -83,7 +83,7 @@ class _RealmCore {
     _instance ??= _RealmCore._();
     final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
     _realmLib.realm_set_log_callback(
-        logCallback.cast(), Realm.logger.level.toInt(), noopUserdata.toWeakHandle(), _realmLib.addresses.realm_dart_delete_weak_handle);
+        logCallback.cast(), Realm.logger.level.toInt(), nullptr, nullptr);
 
     return _instance!;
   }
