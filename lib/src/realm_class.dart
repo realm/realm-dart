@@ -145,6 +145,8 @@ class Realm implements Finalizable {
   /// and will not update when writes are made to the database.
   late final bool isFrozen = realmCore.isFrozen(this);
 
+  static Logger? _logger;
+  
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
 
@@ -486,6 +488,7 @@ class Realm implements Finalizable {
     return realmCore.realmEquals(this, other);
   }
 
+
   /// The logger to use for logging.
   /// The default logger is [RealmLogger] and the default log level is [RealmLogLevel.info].
   /// To manage the log level at runtime use [RealmLogger.level] setter.
@@ -495,7 +498,17 @@ class Realm implements Finalizable {
   /// Setting an instance of [Logger] is also supported,
   /// but it will not manage the log level of the `Realm` at runtime.
   /// To manage the log level at runtime in this case use [Realm.changeRealmLogLevel] function.
-  static Logger logger = RealmLogger();
+  static Logger get logger {
+    return _logger ?? RealmLogger();
+  }
+
+  static set logger(Logger? value) {
+    if (value == null) {
+      _logger = RealmLogger(level: RealmLogLevel.off, onRecord: (p0) {});
+    } else {
+      _logger = (value is RealmLogger) ? value : RealmLogger._(value);
+    }
+  }
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
   ///
@@ -961,6 +974,8 @@ class RealmLogger implements Logger {
       : _logger = Logger.detached('Realm')
           ..level = level
           ..onRecord.listen(onRecord ?? (event) => print(event));
+
+  RealmLogger._(this._logger);
 
   @override
   Level get level {
