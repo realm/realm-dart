@@ -663,6 +663,39 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
+  test('RealmResults.isValid', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+
+    final team = realm.write(() {
+      return realm.add(Team('Class of 92', players: [alice, bob, carol, dan]));
+    });
+
+    final players = team.players;
+    final playersAsResults = team.players.asResults();
+
+    expect(players.isValid, isTrue);
+    expect(playersAsResults.isValid, isTrue);
+    expect(playersAsResults, [alice, bob, carol, dan]);
+
+    realm.write(() => realm.delete(team));
+
+    expect(team.isValid, isFalse); // dead object
+    expect(players.isValid, isFalse); // parent is dead
+    expect(() => players.isEmpty, throwsException); // illegal to access properties on dead object
+    expect(playersAsResults.isValid, isTrue); // Results are still valid..
+    expect(playersAsResults, isEmpty); // .. but obviously empty
+    expect(() => playersAsResults.freeze(), returnsNormally);
+    final frozeResults = playersAsResults.freeze();
+    expect(frozeResults.isFrozen, isTrue);
+    expect(frozeResults, isEmpty);
+  });
+
   test('query by condition on decimal128', () {
     final config = Configuration.local([ObjectWithDecimal.schema]);
     final realm = getRealm(config);
