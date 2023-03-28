@@ -20,7 +20,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class BaasClient {
-  static Object? initializationError;
   static const String _confirmFuncSource = '''exports = async ({ token, tokenId, username }) => {
     // process the confirm token, tokenId and username
     if (username.includes("realm_tests_do_autoverify")) {
