@@ -1914,7 +1914,7 @@ Future<void> main([List<String>? args]) async {
         });
       final config = Configuration.local([Car.schema]);
 
-      Realm.changeRealmLogLevel(RealmLogLevel.error);
+      Realm.logger.level = RealmLogLevel.error;
 
       final realm = getRealm(config);
       expect(() => realm.add(Car("Toyota")), throws<RealmException>());

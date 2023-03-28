@@ -491,23 +491,16 @@ class Realm implements Finalizable {
 
   /// The logger to use for logging.
   /// The default logger is [RealmLogger] and the default log level is [RealmLogLevel.info].
-  /// To manage the log level at runtime use [RealmLogger.level] setter.
+  /// To manage the log level at runtime use `Realm.logger.level` setter.
   /// To change the default logger set this member to a new instance of [RealmLogger]
   /// and specify the level and/or the [onRecord] function.
-  ///
-  /// Setting an instance of [Logger] is also supported,
-  /// but it will not manage the log level of the `Realm` at runtime.
-  /// To manage the log level at runtime in this case use [Realm.changeRealmLogLevel] function.
+  /// Setting an instance of [Logger] is also supported.
   static Logger get logger {
     return _logger ?? RealmLogger();
   }
 
-  static set logger(Logger? value) {
-    if (value == null) {
-      _logger = RealmLogger(level: RealmLogLevel.off, onRecord: (p0) {});
-    } else {
-      _logger = (value is RealmLogger) ? value : RealmLogger._(value);
-    }
+  static set logger(Logger value) {
+    _logger = (value is RealmLogger) ? value : RealmLogger._(value);
   }
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
@@ -600,11 +593,6 @@ class Realm implements Finalizable {
   /// Note that this may return `true` even if no data has actually changed.
   Future<bool> refreshAsync() async {
     return realmCore.realmRefreshAsync(this);
-  }
-
-  /// Changes [RealmLogLevel] at runtime
-  static void changeRealmLogLevel(Level logLevel) {
-    realmCore.setLogLevel(logLevel.toInt());
   }
 }
 
