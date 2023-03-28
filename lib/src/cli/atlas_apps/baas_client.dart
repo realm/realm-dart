@@ -21,7 +21,6 @@ import 'dart:convert';
 
 class BaasClient {
   static Object? initializationError;
-  static Map<String, BaasApp>? baasApps;
   static const String _confirmFuncSource = '''exports = async ({ token, tokenId, username }) => {
     // process the confirm token, tokenId and username
     if (username.includes("realm_tests_do_autoverify")) {
@@ -135,8 +134,6 @@ class BaasClient {
   /// then it will create the test applications and return them.
   /// @nodoc
   Future<Map<String, BaasApp>> getOrCreateApps() async {
-    if (baasApps != null) return baasApps!;
-
     final result = <String, BaasApp>{};
     var apps = await _getApps();
     if (apps.isNotEmpty) {
@@ -147,7 +144,6 @@ class BaasClient {
     await _createAppIfNotExists(result, defaultAppName);
     await _createAppIfNotExists(result, "autoConfirm", confirmationType: "auto");
     await _createAppIfNotExists(result, "emailConfirm", confirmationType: "email");
-    baasApps = result;
     return result;
   }
 
