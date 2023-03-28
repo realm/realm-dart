@@ -566,7 +566,9 @@ Future<void> baasTest(
   AppNames appName = AppNames.flexible,
   dynamic skip,
 }) async {
-  if (BaasClient.initializationError != null) throw BaasClient.initializationError!;
+  if (BaasClient.initializationError != null){
+   throw BaasClient.initializationError!;
+   }
   final uriVariable = arguments[argBaasUrl];
   final url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
 
