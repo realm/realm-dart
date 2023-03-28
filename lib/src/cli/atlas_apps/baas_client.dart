@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:math';
-
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -540,15 +538,12 @@ class BaasClient {
   }
 
   static String shortenDifferentiator(String input) {
-    Random random = Random();
-    String suffix = random.nextInt(99).toString();
-
-    if (input.length < 6) {
-      return "$input$suffix";
+    if (input.length < 8) {
+      return input;
     }
     //Take first 4 and last 4 symbols
     final result = input.replaceRange(4, input.length - 4, '');
-    return "$result$suffix";
+    return result;
   }
 
   Future<void> setAutomaticRecoveryEnabled(String name, bool enable) async {
