@@ -532,12 +532,16 @@ extension on Map<String, String?> {
 
 BaasClient? _baasClient;
 Future<void> setupBaas() async {
+  if (BaasClient.initializationError != null) return;
+  if (BaasClient.initializing != null && !BaasClient.initializing!.isCompleted) {
+    await BaasClient.initializing?.future;
+  }
+  BaasClient.initializing = Completer<void>();
   try {
     final baasUrl = arguments[argBaasUrl];
     if (baasUrl == null) {
       return;
     }
-
     final cluster = arguments[argBaasCluster];
     final apiKey = arguments[argBaasApiKey];
     final privateApiKey = arguments[argBaasPrivateApiKey];
@@ -553,9 +557,11 @@ Future<void> setupBaas() async {
     var apps = await client.getOrCreateApps();
     baasApps.addAll(apps);
     _baasClient = client;
-  } catch (e) {
-    print(e);
-    baasApps.clear();
+  } catch (error) {
+    print(error);
+    BaasClient.initializationError = error;
+  } finally {
+    BaasClient.initializing?.complete();
   }
 }
 
@@ -566,6 +572,7 @@ Future<void> baasTest(
   AppNames appName = AppNames.flexible,
   dynamic skip,
 }) async {
+  if (BaasClient.initializationError != null) throw BaasClient.initializationError!;
   final uriVariable = arguments[argBaasUrl];
   final url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
 
@@ -586,6 +593,7 @@ Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) as
 
   final app = baasApps[appName.name] ??
       baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
+  if (app.error != null) throw app.error!;
 
   final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
   return AppConfiguration(

@@ -16,10 +16,14 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:async';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class BaasClient {
+  static Object? initializationError;
+  static Completer<void>? initializing;
   static const String _confirmFuncSource = '''exports = async ({ token, tokenId, username }) => {
     // process the confirm token, tokenId and username
     if (username.includes("realm_tests_do_autoverify")) {
@@ -189,23 +193,24 @@ class BaasClient {
 
   Future<BaasApp> _createApp(String name, {String? confirmationType}) async {
     print('Creating app $name$_appSuffix');
+    BaasApp? app;
+    try {
+      final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$name$_appSuffix" }');
+      final appId = doc['_id'] as String;
+      final clientAppId = doc['client_app_id'] as String;
 
-    final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$name$_appSuffix" }');
-    final appId = doc['_id'] as String;
-    final clientAppId = doc['client_app_id'] as String;
+      app = BaasApp(appId, clientAppId, name);
 
-    final app = BaasApp(appId, clientAppId, name);
+      final confirmFuncId = await _createFunction(app, 'confirmFunc', _confirmFuncSource);
+      final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
+      final authFuncId = await _createFunction(app, 'authFunc', _authFuncSource);
+      await _createFunction(app, 'userFuncNoArgs', _userFuncNoArgs);
+      await _createFunction(app, 'userFuncOneArg', _userFuncOneArg);
+      await _createFunction(app, 'userFuncTwoArgs', _userFuncTwoArgs);
+      await _createFunction(app, 'triggerClientResetOnSyncServer', _triggerClientResetFuncSource, runAsSystem: true);
 
-    final confirmFuncId = await _createFunction(app, 'confirmFunc', _confirmFuncSource);
-    final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
-    final authFuncId = await _createFunction(app, 'authFunc', _authFuncSource);
-    await _createFunction(app, 'userFuncNoArgs', _userFuncNoArgs);
-    await _createFunction(app, 'userFuncOneArg', _userFuncOneArg);
-    await _createFunction(app, 'userFuncTwoArgs', _userFuncTwoArgs);
-    await _createFunction(app, 'triggerClientResetOnSyncServer', _triggerClientResetFuncSource, runAsSystem: true);
-
-    await enableProvider(app, 'anon-user');
-    await enableProvider(app, 'local-userpass', config: '''{
+      await enableProvider(app, 'anon-user');
+      await enableProvider(app, 'local-userpass', config: '''{
       "autoConfirm": ${(confirmationType == "auto").toString()},
       "confirmEmailSubject": "Confirmation required",
       "confirmationFunctionName": "confirmFunc",
@@ -219,14 +224,14 @@ class BaasClient {
       "runResetFunction": true
     }''');
 
-    await enableProvider(app, 'api-key');
+      await enableProvider(app, 'api-key');
 
-    if (publicRSAKey.isNotEmpty) {
-      String publicRSAKeyEncoded = jsonEncode(publicRSAKey);
-      final dynamic createSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"rsPublicKey","value":$publicRSAKeyEncoded}');
-      String keyName = createSecretResult['name'] as String;
+      if (publicRSAKey.isNotEmpty) {
+        String publicRSAKeyEncoded = jsonEncode(publicRSAKey);
+        final dynamic createSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"rsPublicKey","value":$publicRSAKeyEncoded}');
+        String keyName = createSecretResult['name'] as String;
 
-      await enableProvider(app, 'custom-token', config: '''{
+        await enableProvider(app, 'custom-token', config: '''{
           "audience": "mongodb.com",
           "signingAlgorithm": "RS256",
           "useJWKURI": false
@@ -277,17 +282,17 @@ class BaasClient {
             "name": "company",
             "field_name": "company"
           }''');
-    }
-    if (confirmationType == null) {
-      await enableProvider(app, 'custom-function', config: '''{
+      }
+      if (confirmationType == null) {
+        await enableProvider(app, 'custom-function', config: '''{
             "authFunctionName": "authFunc",
             "authFunctionId": "$authFuncId"
             }''');
 
-      const facebookSecret = "876750ac6d06618b323dee591602897f";
-      final dynamic createFacebookSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
-      String facebookClientSecretKeyName = createFacebookSecretResult['name'] as String;
-      await enableProvider(app, 'oauth2-facebook', config: '''{
+        const facebookSecret = "876750ac6d06618b323dee591602897f";
+        final dynamic createFacebookSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
+        String facebookClientSecretKeyName = createFacebookSecretResult['name'] as String;
+        await enableProvider(app, 'oauth2-facebook', config: '''{
           "clientId": "1265617494254819"
           }''', secretConfig: '''{
           "clientSecret": "$facebookClientSecretKeyName"
@@ -327,20 +332,20 @@ class BaasClient {
             "required": false,
             "name": "picture"
           }''');
-    }
+      }
 
-    print('Creating database db_$name$_appSuffix');
+      print('Creating database db_$name$_appSuffix');
 
-    await _createMongoDBService(
-      app,
-      syncConfig: '''{
+      await _createMongoDBService(
+        app,
+        syncConfig: '''{
         "flexible_sync": {
           "state": "enabled",
           "database_name": "db_$name$_appSuffix",
           "queryable_fields_names": ["differentiator", "stringQueryField", "boolQueryField", "intQueryField"]
         }
       }''',
-      rules: '''{        
+        rules: '''{        
         "roles": [
           {
             "name": "all",
@@ -357,12 +362,17 @@ class BaasClient {
           }
         ]
       }''',
-    );
-    await _put('groups/$_groupId/apps/$appId/sync/config', '{ "development_mode_enabled": true }');
+      );
+      await _put('groups/$_groupId/apps/$appId/sync/config', '{ "development_mode_enabled": true }');
 
-    //create email/password user for tests
-    final dynamic createUserResult = await _post('groups/$_groupId/apps/$appId/users', '{"email": "realm-test@realm.io", "password":"123456"}');
-    print("Create user result: $createUserResult");
+      //create email/password user for tests
+      final dynamic createUserResult = await _post('groups/$_groupId/apps/$appId/users', '{"email": "realm-test@realm.io", "password":"123456"}');
+      print("Create user result: $createUserResult");
+    } catch (error) {
+      print(error);
+      app ??= BaasApp._empty(name);
+      app.error = error;
+    }
     return app;
   }
 
@@ -563,8 +573,12 @@ class BaasApp {
   final String appId;
   final String clientAppId;
   final String name;
+  Object? error;
 
   BaasApp(this.appId, this.clientAppId, this.name);
+  BaasApp._empty(this.name)
+      : appId = "",
+        clientAppId = "";
 
   @override
   String toString() {
