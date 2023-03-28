@@ -533,10 +533,6 @@ extension on Map<String, String?> {
 BaasClient? _baasClient;
 Future<void> setupBaas() async {
   if (BaasClient.initializationError != null) return;
-  if (BaasClient.initializing != null && !BaasClient.initializing!.isCompleted) {
-    await BaasClient.initializing?.future;
-  }
-  BaasClient.initializing = Completer<void>();
   try {
     final baasUrl = arguments[argBaasUrl];
     if (baasUrl == null) {
@@ -560,8 +556,6 @@ Future<void> setupBaas() async {
   } catch (error) {
     print(error);
     BaasClient.initializationError = error;
-  } finally {
-    BaasClient.initializing?.complete();
   }
 }
 
