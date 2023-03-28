@@ -1113,6 +1113,14 @@ class _RealmCore {
     });
   }
 
+  bool resultsIsValid(RealmResults results) {
+    return using((arena) {
+      final is_valid = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_results_is_valid(results.handle._pointer, is_valid));
+      return is_valid.value;
+    });
+  }
+
   CollectionChanges getCollectionChanges(RealmCollectionChangesHandle changes) {
     return using((arena) {
       final out_num_deletions = arena<Size>();
