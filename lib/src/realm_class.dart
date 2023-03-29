@@ -129,6 +129,7 @@ class Realm implements Finalizable {
   late final RealmMetadata _metadata;
   late final RealmHandle _handle;
   final bool _isInMigration;
+  static Logger _logger = RealmLogger();
 
   /// An object encompassing this `Realm` instance's dynamic API.
   late final DynamicRealm dynamic = DynamicRealm._(this);
@@ -144,8 +145,6 @@ class Realm implements Finalizable {
   /// Gets a value indicating whether this [Realm] is frozen. Frozen Realms are immutable
   /// and will not update when writes are made to the database.
   late final bool isFrozen = realmCore.isFrozen(this);
-
-  static late Logger _logger = RealmLogger();
 
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
@@ -492,7 +491,7 @@ class Realm implements Finalizable {
   /// The default logger is [RealmLogger] and the default log level is [RealmLogLevel.info].
   /// To manage the log level at runtime use `Realm.logger.level` setter.
   /// To change the default logger set this member to a new instance of [RealmLogger]
-  /// and specify the level and/or the [onRecord] function.
+  /// and specify the `level` and/or the `onRecord` function.
   /// Setting an instance of [Logger] is also supported.
   static Logger get logger {
     return _logger;
@@ -956,8 +955,6 @@ class RealmLogger implements Logger {
   final Logger _logger;
 
   /// Creates an instance of [RealmLogger].
-  /// This constructor allows overriding the default [RealmLogLevel]
-  /// defining a specific [onRecord] function.
   RealmLogger({Level level = RealmLogLevel.info, void Function(LogRecord)? onRecord})
       : _logger = Logger.detached('Realm')
           ..level = level

@@ -82,8 +82,7 @@ class _RealmCore {
   factory _RealmCore() {
     _instance ??= _RealmCore._();
     final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
-    _realmLib.realm_set_log_callback(
-        logCallback.cast(), Realm.logger.level.toInt(), nullptr, nullptr);
+    _realmLib.realm_set_log_callback(logCallback.cast(), Realm.logger.level.toInt(), nullptr, nullptr);
 
     return _instance!;
   }
@@ -1684,7 +1683,7 @@ class _RealmCore {
     });
   }
 
-  static void _logCallback(Handle userdata, int levelAsInt, Pointer<Int8> message) {
+  static void _logCallback(Object userdata, int levelAsInt, Pointer<Int8> message) {
     final logger = Realm.logger;
     final level = LevelExt.fromInt(levelAsInt);
 

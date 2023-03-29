@@ -226,7 +226,7 @@ Future<void> main([List<String>? args]) async {
           onRecord: (event) {
             count++;
             expect(event.level, Realm.logger.level);
-            expect(count, 1); // Occurs only once because of the last error
+            expect(count, 1); // // Occurs only once because the log level is Error
             print("${event.level}: ${event.message}");
           });
 
