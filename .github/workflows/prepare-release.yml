@@ -58,7 +58,7 @@ jobs:
 
       - name: Make sure we updated libraryVersion
         run: |
-          if [ ${{ steps.update-library-version.outputs.modifiedFiles }} -ne 1 ]; then
+          if [ "${{ steps.update-core-version-in-metrics.modifiedFiles }}" != "1" ]; then
             echo 'Expected exactly one modified file, got ${{ steps.update-library-version.outputs.modifiedFiles }}'
             exit 1
           fi
