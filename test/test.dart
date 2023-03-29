@@ -404,7 +404,7 @@ String generateRandomString(int length, {String characterSet = 'abcdefghjklmnopq
 }
 
 String generateRandomUnicodeString({int length = 10}) {
- return generateRandomString(length, characterSet: r"uvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren");
+  return generateRandomString(length, characterSet: r"uvwxuzфоо-барΛορεμლორემ植物החללجمعتsøren");
 }
 
 String generateRandomEmail({int length = 5}) {
@@ -531,27 +531,34 @@ extension on Map<String, String?> {
 }
 
 BaasClient? _baasClient;
+Object? _initializationError;
+
 Future<void> setupBaas() async {
-  final baasUrl = arguments[argBaasUrl];
-  if (baasUrl == null) {
-    return;
+  if (_initializationError != null) return;
+  try {
+    final baasUrl = arguments[argBaasUrl];
+    if (baasUrl == null) {
+      return;
+    }
+    final cluster = arguments[argBaasCluster];
+    final apiKey = arguments[argBaasApiKey];
+    final privateApiKey = arguments[argBaasPrivateApiKey];
+    final projectId = arguments[argBaasProjectId];
+    final differentiator = arguments[argDifferentiator];
+
+    final client = await (cluster == null
+        ? BaasClient.docker(baasUrl, differentiator)
+        : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
+
+    client.publicRSAKey = publicRSAKeyForJWTValidation;
+
+    var apps = await client.getOrCreateApps();
+    baasApps.addAll(apps);
+    _baasClient = client;
+  } catch (error) {
+    print(error);
+    _initializationError = error;
   }
-
-  final cluster = arguments[argBaasCluster];
-  final apiKey = arguments[argBaasApiKey];
-  final privateApiKey = arguments[argBaasPrivateApiKey];
-  final projectId = arguments[argBaasProjectId];
-  final differentiator = arguments[argDifferentiator];
-
-  final client = await (cluster == null
-      ? BaasClient.docker(baasUrl, differentiator)
-      : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
-
-  client.publicRSAKey = publicRSAKeyForJWTValidation;
-
-  var apps = await client.getOrCreateApps();
-  baasApps.addAll(apps);
-  _baasClient = client;
 }
 
 @isTest
@@ -561,6 +568,9 @@ Future<void> baasTest(
   AppNames appName = AppNames.flexible,
   dynamic skip,
 }) async {
+  if (_initializationError != null) {
+    throw _initializationError!;
+  }
   final uriVariable = arguments[argBaasUrl];
   final url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
 
@@ -581,6 +591,9 @@ Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) as
 
   final app = baasApps[appName.name] ??
       baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
+  if (app.error != null) {
+    throw app.error!;
+  }
 
   final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
   return AppConfiguration(
