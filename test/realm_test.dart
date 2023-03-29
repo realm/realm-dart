@@ -39,7 +39,6 @@ class _CardV1 {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
-  late List<int> cardsReference;
 }
 
 @RealmModel()
@@ -47,13 +46,7 @@ class _CardV1 {
 class _CardV2 {
   @PrimaryKey()
   @MapTo('_id')
-  late ObjectId id;
-  late List<_CardItem> cardsReference;
-}
-
-@RealmModel(ObjectType.embeddedObject)
-class _CardItem {
-  late int value;
+  late Uuid id;
 }
 
 Future<void> main([List<String>? args]) async {
@@ -1930,7 +1923,7 @@ Future<void> main([List<String>? args]) async {
     final configV1 = Configuration.flexibleSync(user, [CardV1.schema]);
     final realmV1 = getRealm(configV1);
     realmV1.close();
-    final configV2 = Configuration.flexibleSync(user, [CardV2.schema, CardItem.schema]);
+    final configV2 = Configuration.flexibleSync(user, [CardV2.schema]);
     try {
       Realm realmV2 = getRealm(configV2);
     } catch (e) {
@@ -1944,8 +1937,8 @@ Future<void> main([List<String>? args]) async {
     final configV1 = Configuration.flexibleSync(user, [CardV1.schema]);
     final realmV1 = getRealm(configV1);
     realmV1.close();
-    final configV2 = Configuration.flexibleSync(user, [CardV2.schema, CardItem.schema]);
-    //"- Property 'Card.cardsReference' has been changed from 'array<int>' to 'array<CardItem>'";
+    final configV2 = Configuration.flexibleSync(user, [CardV2.schema]);
+    //- Property 'Card._id' has been changed from 'object id' to 'uuid'.
     expect(() => getRealm(configV2), throws<RealmException>("Error code: 2019 . Message: The following changes cannot be made in additive-only schema mode"));
   });
 }
