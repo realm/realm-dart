@@ -72,7 +72,7 @@ jobs:
         with:
           find: "const realmCoreVersion = '[^']*';"
           replace: "const realmCoreVersion = '${{ steps.get-core-version.outputs.core-version }}';"
-          include: 'lib/src/cli/metrics/metrics_command.dart'
+          include: 'lib/src/cli/metrics/metrics_command1.dart'
 
       - name: Print metrics_command.dart
         run: cat lib/src/cli/metrics/metrics_command.dart
