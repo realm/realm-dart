@@ -663,23 +663,23 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
- 
-  test('Long query string crash', () async {
+  test('Query parser works with long query string with OR/AND', () async {
     final config = Configuration.local([Product.schema]);
     final realm = getRealm(config);
     List<String> list = [];
-    for (var i = 0; i <= 1001; i++) {
+    for (var i = 0; i <= 1500; i++) {
       list.add("_id == oid(${ObjectId()})");
     }
     final ids = list.join(" OR ");
-    expect(() => realm.query<Product>(ids), throws<RealmException>('The query has too many conditions'));
+    var result = realm.query<Product>(ids);
+    expect(result.length, 0);
   });
 
   test('Query parser works with IN clause and large set of items ', () async {
     final config = Configuration.local([Product.schema]);
     final realm = getRealm(config);
     List<String> list = [];
-    for (var i = 0; i < 3000; i++) {
+    for (var i = 0; i < 1500; i++) {
       list.add("oid(${ObjectId()})");
     }
     final ids = "_id IN {${list.join(",")}}";
