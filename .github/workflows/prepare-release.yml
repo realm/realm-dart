@@ -17,7 +17,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
         with:
-          submodules: false
+          submodules: true
 
       - name: Update Changelog
         id: update-changelog
@@ -41,7 +41,7 @@ jobs:
           replace: "  s.version$1= '${{ steps.update-changelog.outputs.new-version }}'"
           include: '**realm.podspec'
 
-      - name: Update realm_core.libraryVersion
+      - name: Update libraryVersion in realm_core.dart
         id: update-library-version
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
@@ -49,7 +49,7 @@ jobs:
           replace: "static const libraryVersion = '${{ steps.update-changelog.outputs.new-version }}';"
           include: '**realm_core.dart'
 
-      - name: Update realm_dart.cpp (realm_dart_library_version)
+      - name: Update realm_dart_library_version in realm_dart.cpp
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
           find: 'RLM_API const char\* realm_dart_library_version\(\) \{ return "[^"]*"; \}'
@@ -62,6 +62,22 @@ jobs:
             echo 'Expected exactly one modified file, got ${{ steps.update-library-version.outputs.modifiedFiles }}'
             exit 1
           fi
+
+      - name: Read Core version
+        id: get-core-version
+        run: |
+          cd src/realm-core
+          pkgVersion=$(grep "\bVERSION=" dependencies.list | cut -d= -f2)
+          echo "core-version=$pkgVersion" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Update realmCoreVersion in metrics_command.dart
+        id: update-library-version
+        uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
+        with:
+          find: "const realmCoreVersion = '[^']*';"
+          replace: "const realmCoreVersion = '${{ steps.get-core-version.outputs.core-version }}';"
+          include: '**metrics_command.dart'
 
       - name: Create Release PR
         uses: peter-evans/create-pull-request@7380612b49221684fefa025244f2ef4008ae50ad #! 3.10.1

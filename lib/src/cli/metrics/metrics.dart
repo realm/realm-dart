@@ -36,6 +36,7 @@ Future<Metrics> generateMetrics({
   String? targetOsVersion,
   Digest? anonymizedMacAddress,
   Digest? anonymizedBundleId,
+  String? realmCoreVersion,
 }) async {
   return Metrics(
     event: 'run',
@@ -137,6 +138,9 @@ class Properties {
   @JsonKey(name: 'Target OS Version')
   final String? targetOsVersion;
 
+  @JsonKey(name: 'Core Version')
+  final String? realmCoreVersion;
+
   Properties({
     required this.distinctId,
     required this.builderId,
@@ -153,6 +157,7 @@ class Properties {
     this.syncEnabled,
     this.targetOsType,
     this.targetOsVersion,
+    this.realmCoreVersion,
   });
 
   factory Properties.fromJson(Map<String, dynamic> json) => _$PropertiesFromJson(json);

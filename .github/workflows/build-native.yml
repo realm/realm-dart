@@ -57,6 +57,26 @@ jobs:
           cmake --preset ${{ startsWith(matrix.build, 'ios-') && 'ios' || matrix.build }}
           cmake --build --preset ${{ matrix.build }} --config Release ${{ startsWith(matrix.build, 'android-') && '--target strip' || '' }}
 
+      - name: Read Core version
+        id: get-core-version
+        run: |
+          cd src/realm-core
+          pkgVersion=$(grep "\bVERSION=" dependencies.list | cut -d= -f2)
+          echo "core-version=$pkgVersion" >> $GITHUB_OUTPUT
+          echo pkgVersion
+        shell: bash
+
+      - name: Update realmCoreVersion in metrics_command.dart
+        id: update-library-version
+        uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
+        with:
+          find: "const realmCoreVersion = '[^']*';"
+          replace: "const realmCoreVersion = '${{ steps.get-core-version.outputs.core-version }}';"
+          include: '**metrics_command.dart'
+
+      - name: Print metrics_command.dart
+        run: cat lib/src/cli/metrics/metrics_command.dart
+
       - name: Store artifacts
         uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
         with:

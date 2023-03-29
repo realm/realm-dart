@@ -31,7 +31,11 @@ import 'metrics.dart';
 import 'options.dart';
 import '../common/utils.dart';
 
+// stamped into the library by the build system (see prepare-release.yml)
+const realmCoreVersion = '0.0.0';
+
 class MetricsCommand extends Command<void> {
+  
   @override
   final String description = 'Report anonymized builder metrics to Realm';
 
@@ -106,6 +110,7 @@ Future<void> uploadMetrics(Options options) async {
           ].join(' ')
         : Platform.version,
     realmVersion: realmVersion,
+    realmCoreVersion: realmCoreVersion
   );
 
   const encoder = JsonEncoder.withIndent('  ');
