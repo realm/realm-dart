@@ -83,29 +83,29 @@ jobs:
       #   run: ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -r expanded --coverage ./coverage/ -j 1 --test-randomize-ordering-seed random
 
       # we're pruning generated files, the cli folder, as well as realm_bindings.dart from our coverage reports
-      - name: Generate realm_dart coverage report
-        if: inputs.os == 'linux'
-        run: |
-          sudo apt-get install -y lcov
-          dart run coverage:format_coverage \
-            --in coverage/ \
-            --out ./coverage/lcov.info \
-            --check-ignore \
-            --lcov \
-            --packages .dart_tool/package_config.json \
-            --report-on lib
-          lcov --remove ./coverage/lcov.info '*.g.dart' '*/lib/src/cli/*' '*/lib/src/native/realm_bindings.dart' -o coverage/pruned-lcov.info
+      # - name: Generate realm_dart coverage report
+      #   if: inputs.os == 'linux'
+      #   run: |
+      #     sudo apt-get install -y lcov
+      #     dart run coverage:format_coverage \
+      #       --in coverage/ \
+      #       --out ./coverage/lcov.info \
+      #       --check-ignore \
+      #       --lcov \
+      #       --packages .dart_tool/package_config.json \
+      #       --report-on lib
+      #     lcov --remove ./coverage/lcov.info '*.g.dart' '*/lib/src/cli/*' '*/lib/src/native/realm_bindings.dart' -o coverage/pruned-lcov.info
 
-      - name: Publish realm_dart coverage
-        if: inputs.os == 'linux'
-        id: publish-coverage
-        uses: coverallsapp/github-action@a1a1a8a300a7e89df3630639df8fb23de5cc6368
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          flag-name: realm_dart
-          path-to-lcov: ./coverage/pruned-lcov.info
-          parallel: true
+      # - name: Publish realm_dart coverage
+      #   if: inputs.os == 'linux'
+      #   id: publish-coverage
+      #   uses: coverallsapp/github-action@a1a1a8a300a7e89df3630639df8fb23de5cc6368
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     flag-name: realm_dart
+      #     path-to-lcov: ./coverage/pruned-lcov.info
+      #     parallel: true
 
-      - name: Output Coveralls response
-        if: inputs.os == 'linux'
-        run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
+      # - name: Output Coveralls response
+      #   if: inputs.os == 'linux'
+      #   run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
