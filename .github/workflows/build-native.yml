@@ -57,9 +57,6 @@ jobs:
           cmake --preset ${{ startsWith(matrix.build, 'ios-') && 'ios' || matrix.build }}
           cmake --build --preset ${{ matrix.build }} --config Release ${{ startsWith(matrix.build, 'android-') && '--target strip' || '' }}
 
-      - name: Print metrics_command.dart
-        run: cat lib/src/cli/metrics/metrics_command.dart
-
       - name: Store artifacts
         uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
         with:
