@@ -67,12 +67,19 @@ jobs:
         shell: bash
 
       - name: Update realmCoreVersion in metrics_command.dart
-        id: update-library-version
+        id: update-core-version-in-metrics
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
           find: "const realmCoreVersion = '[^']*';"
           replace: "const realmCoreVersion = '${{ steps.get-core-version.outputs.core-version }}';"
           include: 'lib/src/cli/metrics/metrics_command1.dart'
+
+      - name: Make sure we updated libraryVersion
+        run: |
+          if [ ${{ steps.update-library-version.outputs.modifiedFiles }} -ne 1 ]; then
+            echo 'Expected exactly one modified file, got ${{ steps.update-core-version-in-metrics.outputs.modifiedFiles }}'
+            exit 1
+          fi
 
       - name: Print metrics_command.dart
         run: cat lib/src/cli/metrics/metrics_command.dart
