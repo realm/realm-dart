@@ -40,101 +40,101 @@ jobs:
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
           clusterName: ${{ steps.cluster-name.outputs.clusterName }}
 
-  delete-cluster:
-    runs-on: ubuntu-latest
-    name: Delete Cluster
-    timeout-minutes: 5
-    continue-on-error: true
-    needs:
-      - deploy-cluster
-      - dart-tests-windows
-      - dart-tests-macos
-      - dart-tests-macos-arm
-      - dart-tests-linux
-      - dart-tests-linux-ubuntu-20
-      - flutter-desktop-tests-windows
-      - flutter-desktop-tests-macos
-      - flutter-desktop-tests-linux
-      - flutter-desktop-tests-linux-ubuntu-20
-      - flutter-ios
-      - flutter-android
-    steps:
-      - uses: realm/ci-actions/mdb-realm/cleanup@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
-        with:
-          realmUrl: ${{ env.BAAS_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ env.BAAS_PROJECT_ID }}
-          apiKey: ${{ env.BAAS_API_KEY }}
-          privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-          clusterName: ${{ needs.deploy-cluster.outputs.clusterName }}
+  # delete-cluster:
+  #   runs-on: ubuntu-latest
+  #   name: Delete Cluster
+  #   timeout-minutes: 5
+  #   continue-on-error: true
+  #   needs:
+  #     - deploy-cluster
+  #     - dart-tests-windows
+  #     - dart-tests-macos
+  #     - dart-tests-macos-arm
+  #     - dart-tests-linux
+  #     - dart-tests-linux-ubuntu-20
+  #     - flutter-desktop-tests-windows
+  #     - flutter-desktop-tests-macos
+  #     - flutter-desktop-tests-linux
+  #     - flutter-desktop-tests-linux-ubuntu-20
+  #     - flutter-ios
+  #     - flutter-android
+  #   steps:
+  #     - uses: realm/ci-actions/mdb-realm/cleanup@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
+  #       with:
+  #         realmUrl: ${{ env.BAAS_URL }}
+  #         atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+  #         projectId: ${{ env.BAAS_PROJECT_ID }}
+  #         apiKey: ${{ env.BAAS_API_KEY }}
+  #         privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
+  #         clusterName: ${{ needs.deploy-cluster.outputs.clusterName }}
 
-  cleanup-matrix:
-    needs:
-      - deploy-cluster
-      - dart-tests-windows
-      - dart-tests-macos
-      - dart-tests-macos-arm
-      - dart-tests-linux
-      - dart-tests-linux-ubuntu-20
-      - flutter-desktop-tests-windows
-      - flutter-desktop-tests-macos
-      - flutter-desktop-tests-linux
-      - flutter-desktop-tests-linux-ubuntu-20
-      - flutter-ios
-      - flutter-android
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - app: dm
-            description: dart macos
-          - app: dma
-            description: dart macos-arm
-          - app: dl
-            description: dart linux
-          - app: dl2
-            description: dart linux (ubuntu 20)
-          - app: dw
-            description: dart windows
-          - app: fm
-            description: flutter macos
-          - app: fl
-            description: flutter linux
-          - app: fl2
-            description: flutter linux (ubuntu 20)
-          - app: fw
-            description: flutter windows
-          - app: fa
-            description: flutter android
-          - app: fi
-            description: flutter iOS
-    runs-on: ubuntu-latest
-    name: Cleanup apps for ${{ matrix.description }}
-    timeout-minutes: 20
-    if: always()
-    env:
-      BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
-        with:
-          submodules: false
+  # cleanup-matrix:
+  #   needs:
+  #     - deploy-cluster
+  #     - dart-tests-windows
+  #     - dart-tests-macos
+  #     - dart-tests-macos-arm
+  #     - dart-tests-linux
+  #     - dart-tests-linux-ubuntu-20
+  #     - flutter-desktop-tests-windows
+  #     - flutter-desktop-tests-macos
+  #     - flutter-desktop-tests-linux
+  #     - flutter-desktop-tests-linux-ubuntu-20
+  #     - flutter-ios
+  #     - flutter-android
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #         - app: dm
+  #           description: dart macos
+  #         - app: dma
+  #           description: dart macos-arm
+  #         - app: dl
+  #           description: dart linux
+  #         - app: dl2
+  #           description: dart linux (ubuntu 20)
+  #         - app: dw
+  #           description: dart windows
+  #         - app: fm
+  #           description: flutter macos
+  #         - app: fl
+  #           description: flutter linux
+  #         - app: fl2
+  #           description: flutter linux (ubuntu 20)
+  #         - app: fw
+  #           description: flutter windows
+  #         - app: fa
+  #           description: flutter android
+  #         - app: fi
+  #           description: flutter iOS
+  #   runs-on: ubuntu-latest
+  #   name: Cleanup apps for ${{ matrix.description }}
+  #   timeout-minutes: 20
+  #   if: always()
+  #   env:
+  #     BAAS_CLUSTER: ${{ needs.deploy-cluster.outputs.clusterName }}
+  #     BAAS_DIFFERENTIATOR: ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+  #       with:
+  #         submodules: false
 
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
+  #     - name : Setup Dart SDK
+  #       uses: dart-lang/setup-dart@main
+  #       with:
+  #         sdk: stable
 
-      - name: Cleanup apps
-        run: |
-          dart run realm_dart delete-apps \
-            --baas-url ${{ env.BAAS_URL }} \
-            --atlas-cluster ${{ env.BAAS_CLUSTER }} \
-            --api-key ${{ env.BAAS_API_KEY }} \
-            --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} \
-            --project-id ${{ env.BAAS_PROJECT_ID }} \
-            --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
+  #     - name: Cleanup apps
+  #       run: |
+  #         dart run realm_dart delete-apps \
+  #           --baas-url ${{ env.BAAS_URL }} \
+  #           --atlas-cluster ${{ env.BAAS_CLUSTER }} \
+  #           --api-key ${{ env.BAAS_API_KEY }} \
+  #           --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} \
+  #           --project-id ${{ env.BAAS_PROJECT_ID }} \
+  #           --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
 
   build-windows:
     name: Build Windows
