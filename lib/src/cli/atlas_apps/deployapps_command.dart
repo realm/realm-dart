@@ -25,7 +25,7 @@ import 'options.dart';
 import 'baas_client.dart';
 
 class DeployAppsCommand extends Command<void> {
-final String publicRSAKeyForJWTValidation = '''-----BEGIN PUBLIC KEY-----
+  final String publicRSAKeyForJWTValidation = '''-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvNHHs8T0AHD7SJ+CKvVR
 leeJa4wqYTnaVYV+5bX9FmFXVoN+vHbMLEteMvSw4L3kSRZdcqxY7cTuhlpAvkXP
 Yq6qSI+bW8T4jGW963uCc83UhVMx4MH/PzipAlfcPjVO2u4c+dmpgZQpgEmA467u
@@ -80,6 +80,9 @@ RwIDAQAB
     List<String> listApps = [];
     apps.forEach((_, value) {
       print("  App '${value.name}': '${value.clientAppId}'");
+      if (value.error != null) {
+        throw value.error!;
+      }
       listApps.add(value.appId);
     });
     print("appIds: ");
