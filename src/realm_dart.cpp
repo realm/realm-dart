@@ -99,6 +99,9 @@ RLM_API void realm_dart_delete_persistent_handle(void* handle) {
     Dart_DeletePersistentHandle_DL(persistentHandle);
 }
 
+RLM_API void realm_dart_delete_weak_handle(void* handle) {
+}
+
 RLM_API realm_dart_userdata_async_t realm_dart_userdata_async_new(Dart_Handle handle, void* callback, realm_scheduler_t* scheduler)
 {
     return new realm_dart_userdata_async(handle, callback, scheduler);

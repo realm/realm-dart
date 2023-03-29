@@ -22,6 +22,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
+import 'package:logging/logging.dart';
 import 'package:test/test.dart' hide test, throws;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -1858,6 +1859,68 @@ Future<void> main([List<String>? args]) async {
 
     expect(realmCore.getDeviceName(), matcher);
     expect(realmCore.getDeviceVersion(), matcher);
+  });
+
+  test('Realm path with unicode symbols', () {
+    var config = Configuration.local([Car.schema], path: "${generateRandomUnicodeString()}.realm");
+    var realm = getRealm(config);
+    expect(realm.isClosed, false);
+  }, skip: Platform.isAndroid || Platform.isIOS); // TODO: Enable test after fixing https://github.com/realm/realm-dart/issues/1230
+
+  test('Realm local add/query data with unicode symbols', () {
+    final productName = generateRandomUnicodeString();
+    final config = Configuration.local([Product.schema]);
+    final realm = getRealm(config);
+    realm.write(() => realm.add(Product(ObjectId(), productName)));
+    final query = realm.query<Product>(r'name == $0', [productName]);
+    expect(query.length, 1);
+    expect(query[0].name, productName);
+  });
+
+  baasTest('Realm synced add/query/sync data with unicode symbols', (appConfiguration) async {
+    final app = App(appConfiguration);
+    final productName = generateRandomUnicodeString();
+    final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final config = Configuration.flexibleSync(user, [Product.schema]);
+    final realm = getRealm(config);
+    await _addSubscriptions(realm, productName);
+    realm.write(() => realm.add(Product(ObjectId(), productName)));
+    final query = realm.query<Product>(r'name == $0', [productName]);
+    expect(query.length, 1);
+    expect(query[0].name, productName);
+  });
+
+  test('Realm case-insensitive query', () {
+    final productName = generateRandomString(10).toUpperCase();
+    final config = Configuration.local([Product.schema]);
+    final realm = getRealm(config);
+    realm.write(() => realm.add(Product(ObjectId(), productName)));
+    final query = realm.query<Product>(r'name LIKE[c] $0', [productName.toLowerCase()]);
+    expect(query.length, 1);
+    expect(query[0].name, productName);
+  });
+
+  test('Realm logger change level to error', () {
+    final oldLogger = Realm.logger;
+    try {
+      int count = 0;
+      Realm.logger = Logger.detached(generateRandomString(10))
+        ..level = Level.OFF
+        ..onRecord.listen((event) {
+          count++;
+          expect(event.level, Realm.logger.level);
+          expect(count, 1); // Occurs only once because the log level is Error
+          print("${event.level}: ${event.message}");
+        });
+      final config = Configuration.local([Car.schema]);
+
+      Realm.logger.level = RealmLogLevel.error;
+
+      final realm = getRealm(config);
+      expect(() => realm.add(Car("Toyota")), throws<RealmException>());
+    } finally {
+      Realm.logger = oldLogger; // re-instate previous
+    }
   });
 }
 

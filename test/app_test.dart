@@ -20,7 +20,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:logging/logging.dart';
-import 'package:test/expect.dart';
+import 'package:test/expect.dart' hide throws;
 import 'package:path/path.dart' as path;
 
 import '../lib/realm.dart';
@@ -217,10 +217,39 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
+  baasTest('Change Realm.logger level at runtime', (configuration) async {
+    final oldLogger = Realm.logger;
+    try {
+      int count = 0;
+      Realm.logger = RealmLogger(
+          level: RealmLogLevel.off,
+          onRecord: (event) {
+            count++;
+            expect(event.level, Realm.logger.level);
+            expect(count, 1); // // Occurs only once because the log level is Error
+            print("${event.level}: ${event.message}");
+          });
+
+      final app = App(configuration);
+      final authProvider = EmailPasswordAuthProvider(app);
+      String username = "realm_tests_do_autoverify${generateRandomEmail()}";
+      const String strongPassword = "SWV23R#@T#VFQDV";
+      await authProvider.registerUser(username, strongPassword);
+      final user = await loginWithRetry(app, Credentials.emailPassword(username, strongPassword));
+      await app.deleteUser(user);
+
+      Realm.logger.level = RealmLogLevel.error;
+
+      await expectLater(() => app.logIn(Credentials.emailPassword(username, strongPassword)), throws<AppException>("invalid username/password"));
+    } finally {
+      Realm.logger = oldLogger;
+    }
+  });
+
   baasTest('App delete user', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "realm_tests_do_autoverify${generateRandomString(5)}@realm.io";
+    String username = "realm_tests_do_autoverify${generateRandomEmail()}";
     const String strongPassword = "SWV23R#@T#VFQDV";
     await authProvider.registerUser(username, strongPassword);
     final user = await loginWithRetry(app, Credentials.emailPassword(username, strongPassword));

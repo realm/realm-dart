@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'package:test/expect.dart';
+import 'package:test/expect.dart' hide throws;
 
 import '../lib/realm.dart';
 import 'test.dart';
@@ -75,7 +75,7 @@ Future<void> main([List<String>? args]) async {
     expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous), isA<UserIdentity>());
 
     final authProvider = EmailPasswordAuthProvider(app);
-    final username = "${generateRandomString(20)}@realm.io";
+    final username = generateRandomEmail();
     final password = generateRandomString(8);
     await authProvider.registerUser(username, password);
 

@@ -80,7 +80,12 @@ class _RealmCore {
   }
 
   factory _RealmCore() {
-    return _instance ??= _RealmCore._();
+    _instance ??= _RealmCore._();
+    final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
+    _realmLib.realm_set_log_callback(
+        logCallback.cast(), Realm.logger.level.toInt(), noopUserdata.toWeakHandle(), _realmLib.addresses.realm_dart_delete_weak_handle);
+
+    return _instance!;
   }
 
   // stamped into the library by the build system (see prepare-release.yml)
@@ -599,6 +604,10 @@ class _RealmCore {
 
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
     final schedulerPtr = _realmLib.realm_dart_create_scheduler(isolateId, sendPort);
+    final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
+    final logCallbackUserdata = _realmLib.realm_dart_userdata_async_new(noopUserdata, logCallback.cast(), schedulerPtr);
+    _realmLib.realm_set_log_callback(_realmLib.addresses.realm_dart_sync_client_log_callback, Realm.logger.level.toInt(), logCallbackUserdata.cast(),
+        _realmLib.addresses.realm_dart_userdata_async_free);
     return SchedulerHandle._(schedulerPtr);
   }
 
@@ -1685,25 +1694,20 @@ class _RealmCore {
     }
   }
 
+  void setLogLevel(int logLevel) {
+    _realmLib.realm_set_log_level(logLevel);
+  }
+
   SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
     return using((arena) {
       final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
 
       _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toCharPtr(arena));
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
-
-      _realmLib.realm_sync_client_config_set_log_level(handle._pointer, Realm.logger.level.toInt());
-
-      final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
-      final logCallbackUserdata = _realmLib.realm_dart_userdata_async_new(noopUserdata, logCallback.cast(), scheduler.handle._pointer);
-      _realmLib.realm_sync_client_config_set_log_callback(handle._pointer, _realmLib.addresses.realm_dart_sync_client_log_callback, logCallbackUserdata.cast(),
-          _realmLib.addresses.realm_dart_userdata_async_free);
-
       _realmLib.realm_sync_client_config_set_connect_timeout(handle._pointer, configuration.maxConnectionTimeout.inMilliseconds);
       if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
         _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
       }
-
       return handle;
     });
   }
