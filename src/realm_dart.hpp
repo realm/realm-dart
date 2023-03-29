@@ -37,3 +37,6 @@ struct realm_dart_userdata_async {
     void* dart_callback;
     std::shared_ptr<realm::util::Scheduler> scheduler;
 };
+
+RLM_API void realm_dart_delete_weak_handle(void* handle) {
+}
