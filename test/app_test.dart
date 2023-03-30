@@ -20,7 +20,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:logging/logging.dart';
-import 'package:test/expect.dart';
+import 'package:test/expect.dart' hide throws;
 import 'package:path/path.dart' as path;
 
 import '../lib/realm.dart';
@@ -220,7 +220,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('App delete user', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "realm_tests_do_autoverify${generateRandomString(5)}@realm.io";
+    String username = "realm_tests_do_autoverify${generateRandomEmail()}";
     const String strongPassword = "SWV23R#@T#VFQDV";
     await authProvider.registerUser(username, strongPassword);
     final user = await loginWithRetry(app, Credentials.emailPassword(username, strongPassword));
