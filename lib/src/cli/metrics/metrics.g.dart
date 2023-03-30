@@ -36,6 +36,7 @@ Properties _$PropertiesFromJson(Map<String, dynamic> json) => Properties(
       targetOsType:
           $enumDecodeNullable(_$TargetOsTypeEnumMap, json['Target OS Type']),
       targetOsVersion: json['Target OS Version'] as String?,
+      realmCoreVersion: json['Core Version'] as String?,
     );
 
 Map<String, dynamic> _$PropertiesToJson(Properties instance) {
@@ -65,6 +66,7 @@ Map<String, dynamic> _$PropertiesToJson(Properties instance) {
   val['Host OS Version'] = instance.hostOsVersion;
   writeNotNull('Target OS Type', _$TargetOsTypeEnumMap[instance.targetOsType]);
   writeNotNull('Target OS Version', instance.targetOsVersion);
+  writeNotNull('Core Version', instance.realmCoreVersion);
   return val;
 }
 
