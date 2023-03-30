@@ -68,19 +68,14 @@ RwIDAQAB
       }
     }
 
-    final differentiator = options.differentiator ?? 'local';
-
-    final client = await (options.atlasCluster == null
-        ? BaasClient.docker(options.baasUrl, differentiator)
-        : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
-    client.publicRSAKey = publicRSAKeyForJWTValidation;
-    var apps = await client.getExistingApps();
-    await client.createAppIfNotExists(apps, BaasClient.defaultAppName);
+    final differentiator = options.differentiator ?? 'shared';
 
     final sharedClient = await (options.atlasCluster == null
-        ? BaasClient.docker(options.baasUrl, options.atlasCluster)
-        : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, options.atlasCluster));
-
+        ? BaasClient.docker(options.baasUrl, differentiator)
+        : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
+    var apps = await sharedClient.getExistingApps();
+    sharedClient.publicRSAKey = publicRSAKeyForJWTValidation;
+   
     await sharedClient.createAppIfNotExists(apps, "autoConfirm", confirmationType: "auto");
     await sharedClient.createAppIfNotExists(apps, "emailConfirm", confirmationType: "email");
 
