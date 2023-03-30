@@ -31,7 +31,7 @@ jobs:
           cluster=${triggerName/'/merge'/''}
           echo "clusterName=$(cut -c 1-8 <<< ${cluster}$RANDOM)" >> $GITHUB_OUTPUT
 
-      - uses: realm/ci-actions/mdb-realm/deploy@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
+      - uses: realm/ci-actions/mdb-realm/deploy@043cc5a8446748b823957c6ea4d08e6e495ea996
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -59,7 +59,7 @@ jobs:
       - flutter-ios
       - flutter-android
     steps:
-      - uses: realm/ci-actions/mdb-realm/cleanup@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
+      - uses: realm/ci-actions/mdb-realm/cleanup@043cc5a8446748b823957c6ea4d08e6e495ea996
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -352,7 +352,7 @@ jobs:
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deploy@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
+        uses: realm/ci-actions/mdb-realm/deploy@043cc5a8446748b823957c6ea4d08e6e495ea996
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -423,7 +423,7 @@ jobs:
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deploy@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
+        uses: realm/ci-actions/mdb-realm/deploy@043cc5a8446748b823957c6ea4d08e6e495ea996
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}

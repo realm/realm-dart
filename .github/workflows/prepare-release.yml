@@ -21,7 +21,7 @@ jobs:
 
       - name: Update Changelog
         id: update-changelog
-        uses: realm/ci-actions/update-changelog@21e5e3c4acab316ccdeab748334c9c194d327fb7
+        uses: realm/ci-actions/update-changelog@043cc5a8446748b823957c6ea4d08e6e495ea996
         with:
           changelog: ${{ github.workspace }}/CHANGELOG.md
           version: ${{ inputs.version }}
