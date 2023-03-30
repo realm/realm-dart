@@ -74,7 +74,15 @@ RwIDAQAB
         ? BaasClient.docker(options.baasUrl, differentiator)
         : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
     client.publicRSAKey = publicRSAKeyForJWTValidation;
-    final apps = await client.getOrCreateApps();
+    var apps = await client.getExistingApps();
+    await client.createAppIfNotExists(apps, BaasClient.defaultAppName);
+
+    final sharedClient = await (options.atlasCluster == null
+        ? BaasClient.docker(options.baasUrl, options.atlasCluster)
+        : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, options.atlasCluster));
+
+    await sharedClient.createAppIfNotExists(apps, "autoConfirm", confirmationType: "auto");
+    await sharedClient.createAppIfNotExists(apps, "emailConfirm", confirmationType: "email");
 
     print('App import is complete. There are: ${apps.length} apps on the server:');
     List<String> listApps = [];

@@ -118,8 +118,8 @@ class BaasClient {
 
   /// A client that imports apps to a MongoDB Atlas environment (typically realm-dev or realm-qa).
   /// @nodoc
-  static Future<BaasClient> atlas(String baseUrl, String cluster, String apiKey, String privateApiKey, String groupId, String? _differentiator) async {
-    final BaasClient result = BaasClient._(baseUrl, _differentiator, cluster);
+  static Future<BaasClient> atlas(String baseUrl, String cluster, String apiKey, String privateApiKey, String groupId, String? differentiator) async {
+    final BaasClient result = BaasClient._(baseUrl, differentiator, cluster);
 
     await result._authenticate('mongodb-cloud', '{ "username": "$apiKey", "apiKey": "$privateApiKey" }');
 
@@ -132,7 +132,21 @@ class BaasClient {
   /// for [atlas] one, it will return only apps with suffix equal to the cluster name. If no apps exist,
   /// then it will create the test applications and return them.
   /// @nodoc
-  Future<Map<String, BaasApp>> getOrCreateApps() async {
+  // Future<Map<String, BaasApp>> getOrCreateApps() async {
+  //   final result = <String, BaasApp>{};
+  //   var apps = await _getApps();
+  //   if (apps.isNotEmpty) {
+  //     for (final app in apps) {
+  //       result[app.name] = app;
+  //     }
+  //   }
+  //   await createAppIfNotExists(result, defaultAppName);
+  //   await createAppIfNotExists(result, "autoConfirm", confirmationType: "auto");
+  //   await createAppIfNotExists(result, "emailConfirm", confirmationType: "email");
+  //   return result;
+  // }
+
+  Future<Map<String, BaasApp>> getExistingApps() async {
     final result = <String, BaasApp>{};
     var apps = await _getApps();
     if (apps.isNotEmpty) {
@@ -140,13 +154,10 @@ class BaasClient {
         result[app.name] = app;
       }
     }
-    await _createAppIfNotExists(result, defaultAppName);
-    await _createAppIfNotExists(result, "autoConfirm", confirmationType: "auto");
-    await _createAppIfNotExists(result, "emailConfirm", confirmationType: "email");
     return result;
   }
 
-  Future<void> _createAppIfNotExists(Map<String, BaasApp> existingApps, String appName, {String? confirmationType}) async {
+  Future<void> createAppIfNotExists(Map<String, BaasApp> existingApps, String appName, {String? confirmationType}) async {
     final existingApp = existingApps[appName];
     if (existingApp != null) {
       print('Found existing app ${existingApp.clientAppId}');
@@ -165,7 +176,7 @@ class BaasClient {
           }
 
           final appName = name.substring(0, name.length - _appSuffix.length);
-          return BaasApp(doc['_id'] as String, doc['client_app_id'] as String, appName);
+          return BaasApp(doc['_id'] as String, doc['client_app_id'] as String, appName, name);
         })
         .where((doc) => doc != null)
         .map((doc) => doc!)
@@ -173,11 +184,12 @@ class BaasClient {
   }
 
   Future<void> updateAppConfirmFunction(String name, [String? source]) async {
+    final uniqueName = "$name$_appSuffix";
     final dynamic docs = await _get('groups/$_groupId/apps');
-    dynamic doc = docs.firstWhere((dynamic d) => d["name"] == "$name$_appSuffix", orElse: () => throw Exception("BAAS app not found"));
+    dynamic doc = docs.firstWhere((dynamic d) => d["name"] == "$uniqueName", orElse: () => throw Exception("BAAS app not found"));
     final appId = doc['_id'] as String;
     final clientAppId = doc['client_app_id'] as String;
-    final app = BaasApp(appId, clientAppId, name);
+    final app = BaasApp(appId, clientAppId, name, uniqueName);
 
     final dynamic functions = await _get('groups/$_groupId/apps/$appId/functions');
     dynamic function = functions.firstWhere((dynamic f) => f["name"] == "confirmFunc", orElse: () => throw Exception("Func 'confirmFunc' not found"));
@@ -187,14 +199,15 @@ class BaasClient {
   }
 
   Future<BaasApp> _createApp(String name, {String? confirmationType}) async {
-    print('Creating app $name$_appSuffix');
+    final uniqueName = "$name$_appSuffix";
+    print('Creating app $uniqueName');
     BaasApp? app;
     try {
-      final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$name$_appSuffix" }');
+      final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$uniqueName" }');
       final appId = doc['_id'] as String;
       final clientAppId = doc['client_app_id'] as String;
 
-      app = BaasApp(appId, clientAppId, name);
+      app = BaasApp(appId, clientAppId, name, uniqueName);
 
       final confirmFuncId = await _createFunction(app, 'confirmFunc', _confirmFuncSource);
       final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
@@ -329,14 +342,14 @@ class BaasClient {
           }''');
       }
 
-      print('Creating database db_$name$_appSuffix');
+      print('Creating database db_$uniqueName');
 
       await _createMongoDBService(
         app,
         syncConfig: '''{
         "flexible_sync": {
           "state": "enabled",
-          "database_name": "db_$name$_appSuffix",
+          "database_name": "db_$uniqueName",
           "queryable_fields_names": ["differentiator", "stringQueryField", "boolQueryField", "intQueryField"]
         }
       }''',
@@ -547,11 +560,12 @@ class BaasClient {
   }
 
   Future<void> setAutomaticRecoveryEnabled(String name, bool enable) async {
+    final uniqueName = "$name$_appSuffix";
     final dynamic docs = await _get('groups/$_groupId/apps');
-    dynamic doc = docs.firstWhere((dynamic d) => d["name"] == "$name$_appSuffix", orElse: () => throw Exception("BAAS app not found"));
+    dynamic doc = docs.firstWhere((dynamic d) => d["name"] == uniqueName, orElse: () => throw Exception("BAAS app not found"));
     final appId = doc['_id'] as String;
     final clientAppId = doc['client_app_id'] as String;
-    final app = BaasApp(appId, clientAppId, name);
+    final app = BaasApp(appId, clientAppId, name, uniqueName);
 
     final dynamic services = await _get('groups/$_groupId/apps/$appId/services');
     dynamic service = services.firstWhere((dynamic s) => s["name"] == "BackingDB", orElse: () => throw Exception("Func 'confirmFunc' not found"));
@@ -568,12 +582,14 @@ class BaasApp {
   final String appId;
   final String clientAppId;
   final String name;
+  final String uniqueName;
   Object? error;
 
-  BaasApp(this.appId, this.clientAppId, this.name);
+  BaasApp(this.appId, this.clientAppId, this.name, this.uniqueName);
   BaasApp._empty(this.name)
       : appId = "",
-        clientAppId = "";
+        clientAppId = "",
+        uniqueName = "";
 
   @override
   String toString() {
