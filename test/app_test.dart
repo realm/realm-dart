@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -219,16 +220,17 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('Change Realm.logger level at runtime', (configuration) async {
     final oldLogger = Realm.logger;
+    int count = 0;
+    final completer = Completer<int>();
     try {
-      int count = 0;
-      Realm.logger = RealmLogger(
-          level: RealmLogLevel.off,
-          onRecord: (event) {
-            count++;
-            expect(event.level, Realm.logger.level);
-            expect(count, 1); // // Occurs only once because the log level is Error
-            print("${event.level}: ${event.message}");
-          });
+      Realm.logger = Logger.detached(generateRandomString(10))
+        ..level = RealmLogLevel.off
+        ..onRecord.listen((event) {
+          count++;
+          expect(event.level, RealmLogLevel.error);
+          print("${event.level}: ${event.message}");
+          completer.complete(count);
+        });
 
       final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
@@ -241,6 +243,10 @@ Future<void> main([List<String>? args]) async {
       Realm.logger.level = RealmLogLevel.error;
 
       await expectLater(() => app.logIn(Credentials.emailPassword(username, strongPassword)), throws<AppException>("invalid username/password"));
+      int actualCount = await completer.future;
+      expect(actualCount, 1); // Occurs only once because the log level has been switched from "Off" to "Error"
+    } catch (error) {
+      completer.completeError(error);
     } finally {
       Realm.logger = oldLogger;
     }

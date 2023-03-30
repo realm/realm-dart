@@ -1899,29 +1899,6 @@ Future<void> main([List<String>? args]) async {
     expect(query.length, 1);
     expect(query[0].name, productName);
   });
-
-  test('Realm logger change level to error', () {
-    final oldLogger = Realm.logger;
-    try {
-      int count = 0;
-      Realm.logger = Logger.detached(generateRandomString(10))
-        ..level = Level.OFF
-        ..onRecord.listen((event) {
-          count++;
-          expect(event.level, Realm.logger.level);
-          expect(count, 1); // Occurs only once because the log level is Error
-          print("${event.level}: ${event.message}");
-        });
-      final config = Configuration.local([Car.schema]);
-
-      Realm.logger.level = RealmLogLevel.error;
-
-      final realm = getRealm(config);
-      expect(() => realm.add(Car("Toyota")), throws<RealmException>());
-    } finally {
-      Realm.logger = oldLogger; // re-instate previous
-    }
-  });
 }
 
 List<int> generateEncryptionKey() {

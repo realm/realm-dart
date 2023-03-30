@@ -129,7 +129,6 @@ class Realm implements Finalizable {
   late final RealmMetadata _metadata;
   late final RealmHandle _handle;
   final bool _isInMigration;
-  static Logger _logger = RealmLogger();
 
   /// An object encompassing this `Realm` instance's dynamic API.
   late final DynamicRealm dynamic = DynamicRealm._(this);
@@ -487,19 +486,19 @@ class Realm implements Finalizable {
     return realmCore.realmEquals(this, other);
   }
 
+  static Logger _logger = _RealmLogger._(Logger.detached('Realm')
+    ..level = Level.INFO
+    ..onRecord.listen((event) => print('${event.time.toIso8601String()}: $event')));
+
   /// The logger to use for logging.
-  /// The default logger is [RealmLogger] and the default log level is [RealmLogLevel.info].
+  /// The default log level is [RealmLogLevel.info].
   /// To manage the log level at runtime use `Realm.logger.level` setter.
-  /// To change the default logger set this member to a new instance of [RealmLogger]
-  /// and specify the `level` and/or the `onRecord` function.
-  /// Setting an instance of [Logger] is also supported.
-  static Logger get logger {
-    return _logger;
-  }
+  /// To change the default logger set this member to a new instance of [Logger].
+  static Logger get logger => _logger;
 
   static set logger(Logger value) {
-    _logger = (value is RealmLogger) ? value : RealmLogger._(value);
-    realmCore.setLogLevel(_logger.level.toInt());
+    _logger = _RealmLogger._(value);
+    realmCore.setLogLevel(value.level.toInt());
   }
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
@@ -949,23 +948,14 @@ class RealmLogLevel {
 }
 
 /// Represents a logger that manages the realm log level at runtime.
-///
-/// {@category Realm}
-class RealmLogger implements Logger {
+/// @nodoc
+class _RealmLogger implements Logger {
   final Logger _logger;
 
-  /// Creates an instance of [RealmLogger].
-  RealmLogger({Level level = RealmLogLevel.info, void Function(LogRecord)? onRecord})
-      : _logger = Logger.detached('Realm')
-          ..level = level
-          ..onRecord.listen(onRecord ?? (event) => print('${event.time.toIso8601String()}: $event'));
-
-  RealmLogger._(this._logger);
+  _RealmLogger._(this._logger);
 
   @override
-  Level get level {
-    return _logger.level;
-  }
+  Level get level => _logger.level;
 
   @override
   set level(Level? value) {
@@ -1010,9 +1000,7 @@ class RealmLogger implements Logger {
   }
 
   @override
-  bool isLoggable(Level value) {
-    return _logger.isLoggable(value);
-  }
+  bool isLoggable(Level value) => _logger.isLoggable(value);
 
   @override
   void log(Level logLevel, Object? message, [Object? error, StackTrace? stackTrace, Zone? zone]) {
