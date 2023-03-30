@@ -40,11 +40,27 @@ jobs:
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
           clusterName: ${{ steps.cluster-name.outputs.clusterName }}
 
+      - name: Checkout
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        with:
+          submodules: false
+
+      - name: Cleanup Workspace
+        run: git clean -fdx
+
+      - name : Setup Dart SDK
+        uses: dart-lang/setup-dart@main
+        with:
+          sdk: stable
+          architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
+
+      - name: Install dependencies
+        run: dart pub get
       - name: Create apps
         run: |
           dart run realm_dart deploy-apps \
             --baas-url ${{ env.BAAS_URL }} \
-            --atlas-cluster ${{ env.BAAS_CLUSTER }} \
+            --atlas-cluster ${{ steps.cluster-name.outputs.clusterName }}
             --api-key ${{ env.BAAS_API_KEY }} \
             --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} \
             --project-id ${{ env.BAAS_PROJECT_ID }} \
