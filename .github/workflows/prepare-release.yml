@@ -17,11 +17,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
         with:
-          submodules: false
+          submodules: true
 
       - name: Update Changelog
         id: update-changelog
-        uses: realm/ci-actions/update-changelog@21e5e3c4acab316ccdeab748334c9c194d327fb7
+        uses: realm/ci-actions/update-changelog@043cc5a8446748b823957c6ea4d08e6e495ea996
         with:
           changelog: ${{ github.workspace }}/CHANGELOG.md
           version: ${{ inputs.version }}
@@ -41,25 +41,57 @@ jobs:
           replace: "  s.version$1= '${{ steps.update-changelog.outputs.new-version }}'"
           include: '**realm.podspec'
 
-      - name: Update realm_core.libraryVersion
-        id: update-library-version
+      - name: Update libraryVersion in realm_core.dart
+        id: update-libraryVersion
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
           find: "static const libraryVersion = '[^']*';"
           replace: "static const libraryVersion = '${{ steps.update-changelog.outputs.new-version }}';"
-          include: '**realm_core.dart'
+          include: 'lib/src/native/realm_core.dart'
 
-      - name: Update realm_dart.cpp (realm_dart_library_version)
+      - name: Make sure we updated libraryVersion in realm_core.dart
+        run: |
+          if [ '${{ steps.update-libraryVersion.modifiedFiles }}' != '1' ]; then
+            echo 'Expected exactly one modified file, got ${{ steps.update-libraryVersion.outputs.modifiedFiles }}'
+            exit 1
+          fi
+
+      - name: Update realm_dart_library_version in realm_dart.cpp
+        id: update-realm_dart_library_version
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
           find: 'RLM_API const char\* realm_dart_library_version\(\) \{ return "[^"]*"; \}'
           replace: 'RLM_API const char* realm_dart_library_version() { return "${{ steps.update-changelog.outputs.new-version }}"; }'
-          include: '**realm_dart.cpp'
+          include: 'src/realm_dart.cpp'
 
-      - name: Make sure we updated libraryVersion
+      - name: Make sure we updated realm_dart_library_version in realm_dart.cpp
         run: |
-          if [ ${{ steps.update-library-version.outputs.modifiedFiles }} -ne 1 ]; then
-            echo 'Expected exactly one modified file, got ${{ steps.update-library-version.outputs.modifiedFiles }}'
+          if [ '${{ steps.update-realm_dart_library_version.modifiedFiles }}' != '1' ]; then
+            echo 'Expected exactly one modified file, got ${{ steps.update-realm_dart_library_version.outputs.modifiedFiles }}'
+            exit 1
+          fi
+
+      - name: Read Core version
+        id: get-core-version
+        run: |
+          cd src/realm-core
+          pkgVersion=$(grep "\bVERSION=" dependencies.list | cut -d= -f2)
+          echo "core-version=$pkgVersion" >> $GITHUB_OUTPUT
+          echo "Realm Core version: $pkgVersion"
+        shell: bash
+
+      - name: Update realmCoreVersion in metrics_command.dart
+        id: update-realmCoreVersion
+        uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
+        with:
+          find: "const realmCoreVersion = '[^']*';"
+          replace: "const realmCoreVersion = '${{ steps.get-core-version.outputs.core-version }}';"
+          include: 'lib/src/cli/metrics/metrics_command.dart'
+
+      - name: Make sure we updated realmCoreVersion in metrics
+        run: |
+          if [ '${{ steps.update-realmCoreVersion.modifiedFiles }}' != '1' ]; then
+            echo 'Expected exactly one modified file, got ${{ steps.update-realmCoreVersion.outputs.modifiedFiles }}'
             exit 1
           fi
 

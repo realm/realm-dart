@@ -200,7 +200,8 @@ class BaasClient {
 
   Future<BaasApp> _createApp(String name, {String? confirmationType}) async {
     final uniqueName = "$name$_appSuffix";
-    print('Creating app $uniqueName');
+    print('Creating app $name$_appSuffix');
+    
     BaasApp? app;
     try {
       final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$uniqueName" }');

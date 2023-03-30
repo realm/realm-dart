@@ -31,7 +31,7 @@ jobs:
           cluster=${triggerName/'/merge'/''}
           echo "clusterName=$(cut -c 1-8 <<< ${cluster}$RANDOM)" >> $GITHUB_OUTPUT
 
-      - uses: realm/ci-actions/mdb-realm/deploy@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
+      - uses: realm/ci-actions/mdb-realm/deploy@043cc5a8446748b823957c6ea4d08e6e495ea996
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -59,7 +59,7 @@ jobs:
   #     - flutter-ios
   #     - flutter-android
   #   steps:
-  #     - uses: realm/ci-actions/mdb-realm/cleanup@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
+  #   - uses: realm/ci-actions/mdb-realm/cleanup@043cc5a8446748b823957c6ea4d08e6e495ea996
   #       with:
   #         realmUrl: ${{ env.BAAS_URL }}
   #         atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -352,7 +352,7 @@ jobs:
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deploy@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
+        uses: realm/ci-actions/mdb-realm/deploy@043cc5a8446748b823957c6ea4d08e6e495ea996
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -371,10 +371,11 @@ jobs:
             --project-id ${{ env.BAAS_PROJECT_ID }} \
             --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
 
-      # - name: Run tests on iOS Simulator
-      #   run: |
-      #     flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
-      #   working-directory: ./flutter/realm_flutter/tests
+       #- name: Run tests on iOS Simulator
+       # run: |
+       #   flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
+       # working-directory: ./flutter/realm_flutter/tests
+
 
   flutter-android:
     runs-on: macos-latest
@@ -433,7 +434,7 @@ jobs:
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deploy@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
+        uses: realm/ci-actions/mdb-realm/deploy@043cc5a8446748b823957c6ea4d08e6e495ea996
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -452,19 +453,19 @@ jobs:
             --project-id ${{ env.BAAS_PROJECT_ID }} \
             --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
 
-      # - name: Run tests on Android Emulator
-      #   uses: reactivecircus/android-emulator-runner@v2
-      #   with:
-      #     force-avd-creation: false
-      #     disable-animations: true
-      #     emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-      #     api-level: 29
-      #     ndk: 21.0.6113669
-      #     arch: x86
-      #     cmake: 3.10.2.4988404
-      #     script: flutter build apk --debug --target=test_driver/app.dart && flutter install --debug && flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
-      #     working-directory: ./flutter/realm_flutter/tests
-
+      #- name: Run tests on Android Emulator
+      #  uses: reactivecircus/android-emulator-runner@v2
+      #  with:
+      #    force-avd-creation: false
+      #    disable-animations: true
+      #    emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+      #    api-level: 29
+      #    ndk: 21.0.6113669
+      #    arch: x86
+      #    cmake: 3.10.2.4988404
+      #    script: flutter build apk --debug --target=test_driver/app.dart && flutter install --debug && flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
+      #    working-directory: ./flutter/realm_flutter/tests
+      
 # Generator jobs
 
   generator:
