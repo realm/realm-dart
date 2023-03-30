@@ -671,7 +671,7 @@ Future<void> main([List<String>? args]) async {
       list.add("_id == oid(${ObjectId()})");
     }
     final ids = list.join(" OR ");
-    var result = realm.query<Product>(ids);
+    final result = realm.query<Product>(ids);
     expect(result.length, 0);
   });
 
