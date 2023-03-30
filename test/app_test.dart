@@ -221,7 +221,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Change Realm.logger level at runtime', (configuration) async {
     final oldLogger = Realm.logger;
     int count = 0;
-    final completer = Completer<int>();
+    final completer = Completer<void>();
     try {
       Realm.logger = Logger.detached(generateRandomString(10))
         ..level = RealmLogLevel.off
@@ -229,7 +229,7 @@ Future<void> main([List<String>? args]) async {
           count++;
           expect(event.level, RealmLogLevel.error);
           print("${event.level}: ${event.message}");
-          completer.complete(count);
+          completer.complete();
         });
 
       final app = App(configuration);
@@ -243,8 +243,8 @@ Future<void> main([List<String>? args]) async {
       Realm.logger.level = RealmLogLevel.error;
 
       await expectLater(() => app.logIn(Credentials.emailPassword(username, strongPassword)), throws<AppException>("invalid username/password"));
-      int actualCount = await completer.future;
-      expect(actualCount, 1); // Occurs only once because the log level has been switched from "Off" to "Error"
+      await waitFutureWithTimeout(completer.future, timeoutError: "The error was not logged.");
+      expect(count, 1); // Occurs only once because the log level has been switched from "Off" to "Error"
     } catch (error) {
       completer.completeError(error);
     } finally {
