@@ -45,9 +45,6 @@ jobs:
         with:
           submodules: false
 
-      - name: Cleanup Workspace
-        run: git clean -fdx
-
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
@@ -57,14 +54,7 @@ jobs:
       - name: Install dependencies
         run: dart pub get
       - name: Create apps
-        run: |
-          dart run realm_dart deploy-apps \
-            --baas-url ${{ env.BAAS_URL }} \
-            --atlas-cluster ${{ steps.cluster-name.outputs.clusterName }}
-            --api-key ${{ env.BAAS_API_KEY }} \
-            --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} \
-            --project-id ${{ env.BAAS_PROJECT_ID }} \
-            --differentiator 'shared'
+        run: dart run realm_dart deploy-apps --baas-url ${{ env.BAAS_URL }} --atlas-cluster ${{ steps.cluster-name.outputs.clusterName }} --api-key ${{ env.BAAS_API_KEY }} --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} --project-id ${{ env.BAAS_PROJECT_ID }} --differentiator 'shared'
 
   delete-cluster:
     runs-on: ubuntu-latest
