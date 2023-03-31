@@ -556,11 +556,12 @@ Future<void> setupBaas() async {
 
     final sharedClient =
         await (cluster == null ? BaasClient.docker(baasUrl, "shared") : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, "shared"));
+    var sharedApps = await sharedClient.getExistingApps();
 
     sharedClient.publicRSAKey = publicRSAKeyForJWTValidation;
-    await sharedClient.createAppIfNotExists(apps, "autoConfirm", confirmationType: "auto");
-    await sharedClient.createAppIfNotExists(apps, "emailConfirm", confirmationType: "email");
-
+    await sharedClient.createAppIfNotExists(sharedApps, "autoConfirm", confirmationType: "auto");
+    await sharedClient.createAppIfNotExists(sharedApps, "emailConfirm", confirmationType: "email");
+    apps.addAll(sharedApps);
     baasApps.addAll(apps);
     _baasClient = client;
   } catch (error) {
