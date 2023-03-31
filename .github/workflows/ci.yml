@@ -40,21 +40,13 @@ jobs:
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
           clusterName: ${{ steps.cluster-name.outputs.clusterName }}
 
-      - name: Checkout
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
-        with:
-          submodules: false
-
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-          architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
-
-      - name: Install dependencies
-        run: dart pub get
-      - name: Create apps
-        run: dart run realm_dart deploy-apps --baas-url ${{ env.BAAS_URL }} --atlas-cluster ${{ steps.cluster-name.outputs.clusterName }} --api-key ${{ env.BAAS_API_KEY }} --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} --project-id ${{ env.BAAS_PROJECT_ID }} --differentiator 'shared'
+  create-share-apps:
+    name: Create shared Apps
+    needs:
+      - deploy-cluster
+    uses: ./.github/workflows/shared-apps.yml
+    with:
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   delete-cluster:
     runs-on: ubuntu-latest
@@ -84,15 +76,26 @@ jobs:
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
           clusterName: ${{ needs.deploy-cluster.outputs.clusterName }}
 
-      - name: Cleanup apps
-        run: |
-          dart run realm_dart delete-apps \
-            --baas-url ${{ env.BAAS_URL }} \
-            --atlas-cluster ${{ env.BAAS_CLUSTER }} \
-            --api-key ${{ env.BAAS_API_KEY }} \
-            --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} \
-            --project-id ${{ env.BAAS_PROJECT_ID }} \
-            --differentiator 'shared'
+  cleanup-share-apps:
+    name: Delete shared Apps
+    needs:
+      - deploy-cluster
+      - dart-tests-windows
+      - dart-tests-macos
+      - dart-tests-macos-arm
+      - dart-tests-linux
+      - dart-tests-linux-ubuntu-20
+      - flutter-desktop-tests-windows
+      - flutter-desktop-tests-macos
+      - flutter-desktop-tests-linux
+      - flutter-desktop-tests-linux-ubuntu-20
+      - flutter-ios
+      - flutter-android
+    uses: ./.github/workflows/shared-apps.yml
+    if: always()
+    with:
+     cleanup: true
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   cleanup-matrix:
     needs:
