@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:math';
-
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -251,106 +249,106 @@ class BaasClient {
         String keyName = createSecretResult['name'] as String;
 
         await enableProvider(app, 'custom-token', config: '''{
-            "audience": "mongodb.com",
-            "signingAlgorithm": "RS256",
-            "useJWKURI": false
-             }''', secretConfig: '''{
-            "signingKeys": ["$keyName"]
-            }''', metadataFelds: '''{
-              "required": false,
-              "name": "name.firstName",
-              "field_name": "firstName"
-            },
-            {
-              "required": false,
-              "name": "name.lastName",
-              "field_name": "lastName"
-            },
-            {
-              "required": true,
-              "name": "email",
-              "field_name": "name"
-            },
-            {
-              "required": true,
-              "name": "email",
-              "field_name": "email"
-            },
-            {
-              "required": false,
-              "name": "gender",
-              "field_name": "gender"
-            },
-            {
-              "required": false,
-              "name": "birthDay",
-              "field_name": "birthDay"
-            },
-            {
-              "required": false,
-              "name": "minAge",
-              "field_name": "minAge"
-            },
-            {
-              "required": false,
-              "name": "maxAge",
-              "field_name": "maxAge"
-            },
-            {
-              "required": false,
-              "name": "company",
-              "field_name": "company"
-            }''');
+          "audience": "mongodb.com",
+          "signingAlgorithm": "RS256",
+          "useJWKURI": false
+            }''', secretConfig: '''{
+          "signingKeys": ["$keyName"]
+          }''', metadataFelds: '''{
+            "required": false,
+            "name": "name.firstName",
+            "field_name": "firstName"
+          },
+          {
+            "required": false,
+            "name": "name.lastName",
+            "field_name": "lastName"
+          },
+          {
+            "required": true,
+            "name": "email",
+            "field_name": "name"
+          },
+          {
+            "required": true,
+            "name": "email",
+            "field_name": "email"
+          },
+          {
+            "required": false,
+            "name": "gender",
+            "field_name": "gender"
+          },
+          {
+            "required": false,
+            "name": "birthDay",
+            "field_name": "birthDay"
+          },
+          {
+            "required": false,
+            "name": "minAge",
+            "field_name": "minAge"
+          },
+          {
+            "required": false,
+            "name": "maxAge",
+            "field_name": "maxAge"
+          },
+          {
+            "required": false,
+            "name": "company",
+            "field_name": "company"
+          }''');
       }
       if (confirmationType == null) {
         await enableProvider(app, 'custom-function', config: '''{
-              "authFunctionName": "authFunc",
-              "authFunctionId": "$authFuncId"
-              }''');
+            "authFunctionName": "authFunc",
+            "authFunctionId": "$authFuncId"
+            }''');
 
         const facebookSecret = "876750ac6d06618b323dee591602897f";
         final dynamic createFacebookSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
         String facebookClientSecretKeyName = createFacebookSecretResult['name'] as String;
         await enableProvider(app, 'oauth2-facebook', config: '''{
-            "clientId": "1265617494254819"
-            }''', secretConfig: '''{
-            "clientSecret": "$facebookClientSecretKeyName"
-            }''', metadataFelds: '''{
-              "required": true,
-              "name": "name"
-            },
-            {
-              "required": true,
-              "name": "first_name"
-            },
-            {
-              "required": true,
-              "name": "last_name"
-            },
-            {
-              "required": false,
-              "name": "email"
-            },
-            {
-              "required": false,
-              "name": "gender"
-            },
-            {
-              "required": false,
-              "name": "birthday"
-            },
-            {
-              "required": false,
-              "name": "min_age"
-            },
-            {
-              "required": false,
-              "name": "max_age"
-            },
-            {
-              "required": false,
-              "name": "picture"
-            }''');
+          "clientId": "1265617494254819"
+          }''', secretConfig: '''{
+          "clientSecret": "$facebookClientSecretKeyName"
+          }''', metadataFelds: '''{
+            "required": true,
+            "name": "name"
+          },
+          {
+            "required": true,
+            "name": "first_name"
+          },
+          {
+            "required": true,
+            "name": "last_name"
+          },
+          {
+            "required": false,
+            "name": "email"
+          },
+          {
+            "required": false,
+            "name": "gender"
+          },
+          {
+            "required": false,
+            "name": "birthday"
+          },
+          {
+            "required": false,
+            "name": "min_age"
+          },
+          {
+            "required": false,
+            "name": "max_age"
+          },
+          {
+            "required": false,
+            "name": "picture"
+          }''');
       }
 
       print('Creating database db_$uniqueName');
@@ -364,7 +362,7 @@ class BaasClient {
           "queryable_fields_names": ["differentiator", "stringQueryField", "boolQueryField", "intQueryField"]
         }
       }''',
-        rules: '''{        
+        rules: '''{
         "roles": [
           {
             "name": "all",
