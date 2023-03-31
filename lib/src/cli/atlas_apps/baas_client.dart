@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:math';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -91,6 +93,7 @@ class BaasClient {
   final String _differentiator;
   final Map<String, String> _headers;
   late final String _appSuffix = '-${shortenDifferentiator(_differentiator)}-$_clusterName';
+  late final String _sharedAppSuffix = '-shared-$_clusterName';
 
   late String _groupId;
   late String publicRSAKey = '';
@@ -132,21 +135,24 @@ class BaasClient {
   /// for [atlas] one, it will return only apps with suffix equal to the cluster name. If no apps exist,
   /// then it will create the test applications and return them.
   /// @nodoc
-  // Future<Map<String, BaasApp>> getOrCreateApps() async {
-  //   final result = <String, BaasApp>{};
-  //   var apps = await _getApps();
-  //   if (apps.isNotEmpty) {
-  //     for (final app in apps) {
-  //       result[app.name] = app;
-  //     }
-  //   }
-  //   await createAppIfNotExists(result, defaultAppName);
-  //   await createAppIfNotExists(result, "autoConfirm", confirmationType: "auto");
-  //   await createAppIfNotExists(result, "emailConfirm", confirmationType: "email");
-  //   return result;
-  // }
+  Future<Map<String, BaasApp>> getOrCreateApps({bool skipSharedApps = false}) async {
+    final result = await _getExistingApps();
+    await _createAppIfNotExists(result, defaultAppName, _appSuffix);
+    if (!skipSharedApps) {
+      await _createAppIfNotExists(result, "autoConfirm", _sharedAppSuffix, confirmationType: "auto");
+      await _createAppIfNotExists(result, "emailConfirm", _sharedAppSuffix, confirmationType: "email");
+    }
+    return result;
+  }
 
-  Future<Map<String, BaasApp>> getExistingApps() async {
+  Future<Map<String, BaasApp>> getOrCreateSharedApps() async {
+    final result = await _getExistingApps();
+    await _createAppIfNotExists(result, "autoConfirm", _sharedAppSuffix, confirmationType: "auto");
+    await _createAppIfNotExists(result, "emailConfirm", _sharedAppSuffix, confirmationType: "email");
+    return result;
+  }
+
+  Future<Map<String, BaasApp>> _getExistingApps() async {
     final result = <String, BaasApp>{};
     var apps = await _getApps();
     if (apps.isNotEmpty) {
@@ -157,12 +163,12 @@ class BaasClient {
     return result;
   }
 
-  Future<void> createAppIfNotExists(Map<String, BaasApp> existingApps, String appName, {String? confirmationType}) async {
+  Future<void> _createAppIfNotExists(Map<String, BaasApp> existingApps, String appName, String appSuffix, {String? confirmationType}) async {
     final existingApp = existingApps[appName];
     if (existingApp != null) {
       print('Found existing app ${existingApp.clientAppId}');
     } else {
-      existingApps[appName] = await _createApp(appName, confirmationType: confirmationType);
+      existingApps[appName] = await _createApp(appName, appSuffix, confirmationType: confirmationType);
     }
   }
 
@@ -171,11 +177,14 @@ class BaasClient {
     return apps
         .map((dynamic doc) {
           final name = doc['name'] as String;
-          if (!name.endsWith(_appSuffix)) {
+          final String appName;
+          if (name.endsWith(_appSuffix)) {
+            appName = name.substring(0, name.length - _appSuffix.length);
+          } else if (name.endsWith(_sharedAppSuffix)) {
+            appName = name.substring(0, name.length - _sharedAppSuffix.length);
+          } else {
             return null;
           }
-
-          final appName = name.substring(0, name.length - _appSuffix.length);
           return BaasApp(doc['_id'] as String, doc['client_app_id'] as String, appName, name);
         })
         .where((doc) => doc != null)
@@ -185,8 +194,11 @@ class BaasClient {
 
   Future<void> updateAppConfirmFunction(String name, [String? source]) async {
     final uniqueName = "$name$_appSuffix";
+    final uniqueSharedAppName = "$name$_sharedAppSuffix";
     final dynamic docs = await _get('groups/$_groupId/apps');
-    dynamic doc = docs.firstWhere((dynamic d) => d["name"] == uniqueName, orElse: () => throw Exception("BAAS app not found"));
+    dynamic doc = docs.firstWhere((dynamic d) {
+      return d["name"] == uniqueName || d["name"] == uniqueSharedAppName;
+    }, orElse: () => throw Exception("BAAS app not found"));
     final appId = doc['_id'] as String;
     final clientAppId = doc['client_app_id'] as String;
     final app = BaasApp(appId, clientAppId, name, uniqueName);
@@ -198,9 +210,9 @@ class BaasClient {
     await _updateFunction(app, 'confirmFunc', confirmFuncId, source ?? _confirmFuncSource);
   }
 
-  Future<BaasApp> _createApp(String name, {String? confirmationType}) async {
-    final uniqueName = "$name$_appSuffix";
-    print('Creating app $name$_appSuffix');
+  Future<BaasApp> _createApp(String name, String appSuffix, {String? confirmationType}) async {
+    final uniqueName = "$name$appSuffix";
+    print('Creating app $uniqueName');
 
     BaasApp? app;
     try {
@@ -562,8 +574,11 @@ class BaasClient {
 
   Future<void> setAutomaticRecoveryEnabled(String name, bool enable) async {
     final uniqueName = "$name$_appSuffix";
+    final uniqueSharedAppName = "$name$_sharedAppSuffix";
     final dynamic docs = await _get('groups/$_groupId/apps');
-    dynamic doc = docs.firstWhere((dynamic d) => d["name"] == uniqueName, orElse: () => throw Exception("BAAS app not found"));
+    dynamic doc = docs.firstWhere((dynamic d) {
+      return d["name"] == uniqueName || d["name"] == uniqueSharedAppName;
+    }, orElse: () => throw Exception("BAAS app not found"));
     final appId = doc['_id'] as String;
     final clientAppId = doc['client_app_id'] as String;
     final app = BaasApp(appId, clientAppId, name, uniqueName);

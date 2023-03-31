@@ -70,15 +70,11 @@ RwIDAQAB
 
     final differentiator = options.differentiator ?? 'shared';
     try {
-      final sharedClient = await (options.atlasCluster == null
+      final client = await (options.atlasCluster == null
           ? BaasClient.docker(options.baasUrl, differentiator)
           : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
-      var apps = await sharedClient.getExistingApps();
-      sharedClient.publicRSAKey = publicRSAKeyForJWTValidation;
-
-      await sharedClient.createAppIfNotExists(apps, "autoConfirm", confirmationType: "auto");
-      await sharedClient.createAppIfNotExists(apps, "emailConfirm", confirmationType: "email");
-
+      client.publicRSAKey = publicRSAKeyForJWTValidation;
+      var apps = await client.getOrCreateSharedApps();
       print('App import is complete. There are: ${apps.length} apps on the server:');
       List<String> listApps = [];
       apps.forEach((_, value) {

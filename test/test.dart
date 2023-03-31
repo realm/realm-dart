@@ -551,17 +551,8 @@ Future<void> setupBaas() async {
         : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
 
     client.publicRSAKey = publicRSAKeyForJWTValidation;
-    var apps = await client.getExistingApps();
-    await client.createAppIfNotExists(apps, BaasClient.defaultAppName);
-
-    final sharedClient =
-        await (cluster == null ? BaasClient.docker(baasUrl, "shared") : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, "shared"));
-    var sharedApps = await sharedClient.getExistingApps();
-
-    sharedClient.publicRSAKey = publicRSAKeyForJWTValidation;
-    await sharedClient.createAppIfNotExists(sharedApps, "autoConfirm", confirmationType: "auto");
-    await sharedClient.createAppIfNotExists(sharedApps, "emailConfirm", confirmationType: "email");
-    apps.addAll(sharedApps);
+    final skipSharedApps = Platform.environment.containsKey("REALM_CI");
+    final apps = await client.getOrCreateApps(skipSharedApps: skipSharedApps);
     baasApps.addAll(apps);
     _baasClient = client;
   } catch (error) {
