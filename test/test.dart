@@ -578,6 +578,8 @@ Future<void> baasTest(
   } else if (skip is bool) {
     if (url == null) skip = "BAAS URL not present";
   }
+  final baasUri = Uri.parse(uriVariable!);
+  final projectId = arguments[argBaasProjectId];
 
   test(name, () async {
     final app = baasApps[appName.name] ??
@@ -586,24 +588,24 @@ Future<void> baasTest(
       if (app.error != null) {
         throw app.error!;
       }
-
-      final config = await getAppConfig(uriVariable!, app.clientAppId);
+      final config = await getAppConfig(baasUri, app.clientAppId);
       await testFunction(config);
     } catch (error) {
       print("App service name: ${app.uniqueName}");
+      final host = baasUri.host.endsWith('-qa.mongodb.com') ? "-qa" : "";
       final splunk = Uri.encodeFull(
-          "https://splunk.corp.mongodb.com/en-US/app/search/search?q=search index=baas-qa 62f2857d2e38a37a3dcc9de9 | reverse | search client_app_client_app_id='${app.uniqueName}'&earliest=-2d&latest=now");
+          "https://splunk.corp.mongodb.com/en-US/app/search/search?q=search index=baas$host $projectId | reverse | search client_app_client_app_id='${app.uniqueName}'&earliest=-1d&latest=now");
       print("Splunk logs: $splunk");
       rethrow;
     }
   }, skip: skip);
 }
 
-Future<AppConfiguration> getAppConfig(String baasUrl, String clientAppId) async {
+Future<AppConfiguration> getAppConfig(Uri baasUri, String clientAppId) async {
   final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
   return AppConfiguration(
     clientAppId,
-    baseUrl: Uri.parse(baasUrl),
+    baseUrl: baasUri,
     baseFilePath: temporaryDir,
     maxConnectionTimeout: Duration(minutes: 10),
     defaultRequestTimeout: Duration(minutes: 7),
