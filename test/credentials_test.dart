@@ -371,7 +371,7 @@ Future<void> main([List<String>? args]) async {
         }
       }
     }
-    final user = await app.logIn(Credentials.emailPassword(username, strongPassword));
+    final user = await loginWithRetry(app, Credentials.emailPassword(username, strongPassword));
     UserIdentity emailIdentity = user.identities.singleWhere((identity) => identity.provider == AuthProviderType.emailPassword);
     expect(emailIdentity.provider, isNotNull);
     var userId = emailIdentity.id;
@@ -396,7 +396,7 @@ Future<void> main([List<String>? args]) async {
     expect(jwtIdentity.provider, isNotNull);
     var jwtUserId = jwtIdentity.id;
 
-    var jwtUser = await app.logIn(Credentials.jwt(token));
+    var jwtUser = await loginWithRetry(app, Credentials.jwt(token));
 
     expect(jwtUser.state, UserState.loggedIn);
     expect(jwtUser.identities.singleWhere((identity) => identity.provider == AuthProviderType.jwt).id, jwtUserId);

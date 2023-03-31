@@ -580,25 +580,30 @@ Future<void> baasTest(
   }
 
   test(name, () async {
-    final config = await getAppConfig(appName: appName);
-    await testFunction(config);
+    final app = baasApps[appName.name] ??
+        baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
+    try {
+      if (app.error != null) {
+        throw app.error!;
+      }
+
+      final config = await getAppConfig(uriVariable!, app.clientAppId);
+      await testFunction(config);
+    } catch (error) {
+      print("App service name: ${app.uniqueName}");
+      final splunk = Uri.encodeFull(
+          "https://splunk.corp.mongodb.com/en-US/app/search/search?q=search index=baas-qa 62f2857d2e38a37a3dcc9de9 | reverse | search client_app_client_app_id='${app.uniqueName}'&earliest=-2d&latest=now");
+      print("Splunk logs: $splunk");
+      rethrow;
+    }
   }, skip: skip);
 }
 
-Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) async {
-  final baasUrl = arguments[argBaasUrl];
-
-  final app = baasApps[appName.name] ??
-      baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
-  print("App service name:${app.uniqueName}");
-  if (app.error != null) {
-    throw app.error!;
-  }
-
+Future<AppConfiguration> getAppConfig(String baasUrl, String clientAppId) async {
   final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
   return AppConfiguration(
-    app.clientAppId,
-    baseUrl: Uri.parse(baasUrl!),
+    clientAppId,
+    baseUrl: Uri.parse(baasUrl),
     baseFilePath: temporaryDir,
     maxConnectionTimeout: Duration(minutes: 10),
     defaultRequestTimeout: Duration(minutes: 7),
@@ -623,8 +628,8 @@ Future<String> createServerApiKey(App app, String name, {bool enabled = true}) a
   return await client.createApiKey(baasApp, name, enabled);
 }
 
-Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator}) async {
-  app ??= App(await getAppConfig());
+Future<Realm> getIntegrationRealm(AppConfiguration appConfiguration, {App? app, ObjectId? differentiator}) async {
+  app ??= App(appConfiguration);
   final user = await getIntegrationUser(app);
 
   final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema, NullableTypes.schema]);

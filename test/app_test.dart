@@ -351,7 +351,7 @@ Future<void> testLogger(
   // Setup
   clearCachedApps();
   final app = App(configuration);
-  final realm = await getIntegrationRealm(app: app);
+  final realm = await getIntegrationRealm(configuration, app: app);
 
   // Prepare to capture trace
   final messages = <Level, List<String>>{};
