@@ -225,6 +225,7 @@ jobs:
     needs:
       - build-windows
       - deploy-cluster
+      - create-share-apps
     secrets: inherit
     with:
      os: windows
@@ -238,6 +239,7 @@ jobs:
     needs:
       - build-macos
       - deploy-cluster
+      - create-share-apps
     secrets: inherit
     with:
      os: macos
@@ -251,6 +253,7 @@ jobs:
     needs:
       - build-macos
       - deploy-cluster
+      - create-share-apps
     secrets: inherit
     with:
      os: macos
@@ -265,6 +268,7 @@ jobs:
     needs:
       - build-linux
       - deploy-cluster
+      - create-share-apps
     secrets: inherit
     with:
      os: linux
@@ -278,6 +282,7 @@ jobs:
     needs:
       - build-linux
       - deploy-cluster
+      - create-share-apps
     secrets: inherit
     with:
      os: linux
@@ -293,6 +298,7 @@ jobs:
     needs:
       - build-windows
       - deploy-cluster
+      - create-share-apps
     secrets: inherit
     with:
      os: windows
@@ -306,6 +312,7 @@ jobs:
     needs:
       - build-macos
       - deploy-cluster
+      - create-share-apps
     secrets: inherit
     with:
      os: macos
@@ -319,6 +326,7 @@ jobs:
     needs:
       - build-linux
       - deploy-cluster
+      - create-share-apps
     secrets: inherit
     with:
      os: linux
@@ -332,6 +340,7 @@ jobs:
     needs:
       - build-linux
       - deploy-cluster
+      - create-share-apps
     secrets: inherit
     with:
      os: linux
@@ -349,6 +358,7 @@ jobs:
     needs:
       - deploy-cluster
       - build-ios-xcframework
+      - create-share-apps
     steps:
 
       - name: Checkout
@@ -408,6 +418,7 @@ jobs:
     needs:
       - deploy-cluster
       - build-android-combined
+      - create-share-apps
     steps:
 
       - name: Checkout
