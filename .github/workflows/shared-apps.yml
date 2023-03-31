@@ -21,7 +21,7 @@ env:
   REALM_CI: true
 
 jobs:
-  dart-setup:
+  shared-apps:
     runs-on: ubuntu-latest
     name: ${{ inputs.cleanup && 'Delete' || 'Create'}} Shared Apps
     timeout-minutes: 45

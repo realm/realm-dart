@@ -590,6 +590,7 @@ Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) as
 
   final app = baasApps[appName.name] ??
       baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
+  print("App service name:${app.uniqueName}");
   if (app.error != null) {
     throw app.error!;
   }

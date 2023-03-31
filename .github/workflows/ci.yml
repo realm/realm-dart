@@ -40,7 +40,7 @@ jobs:
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
           clusterName: ${{ steps.cluster-name.outputs.clusterName }}
 
-  create-share-apps:
+  create-shared-apps:
     name: Create shared Apps
     secrets: inherit
     needs:
@@ -77,11 +77,12 @@ jobs:
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
           clusterName: ${{ needs.deploy-cluster.outputs.clusterName }}
 
-  cleanup-share-apps:
+  cleanup-shared-apps:
     name: Delete shared Apps
     secrets: inherit
     needs:
       - deploy-cluster
+      - create-shared-apps
       - dart-tests-windows
       - dart-tests-macos
       - dart-tests-macos-arm
@@ -225,7 +226,7 @@ jobs:
     needs:
       - build-windows
       - deploy-cluster
-      - create-share-apps
+      - create-shared-apps
     secrets: inherit
     with:
      os: windows
@@ -239,7 +240,7 @@ jobs:
     needs:
       - build-macos
       - deploy-cluster
-      - create-share-apps
+      - create-shared-apps
     secrets: inherit
     with:
      os: macos
@@ -253,7 +254,7 @@ jobs:
     needs:
       - build-macos
       - deploy-cluster
-      - create-share-apps
+      - create-shared-apps
     secrets: inherit
     with:
      os: macos
@@ -268,7 +269,7 @@ jobs:
     needs:
       - build-linux
       - deploy-cluster
-      - create-share-apps
+      - create-shared-apps
     secrets: inherit
     with:
      os: linux
@@ -282,7 +283,7 @@ jobs:
     needs:
       - build-linux
       - deploy-cluster
-      - create-share-apps
+      - create-shared-apps
     secrets: inherit
     with:
      os: linux
@@ -298,7 +299,7 @@ jobs:
     needs:
       - build-windows
       - deploy-cluster
-      - create-share-apps
+      - create-shared-apps
     secrets: inherit
     with:
      os: windows
@@ -312,7 +313,7 @@ jobs:
     needs:
       - build-macos
       - deploy-cluster
-      - create-share-apps
+      - create-shared-apps
     secrets: inherit
     with:
      os: macos
@@ -326,7 +327,7 @@ jobs:
     needs:
       - build-linux
       - deploy-cluster
-      - create-share-apps
+      - create-shared-apps
     secrets: inherit
     with:
      os: linux
@@ -340,7 +341,7 @@ jobs:
     needs:
       - build-linux
       - deploy-cluster
-      - create-share-apps
+      - create-shared-apps
     secrets: inherit
     with:
      os: linux
@@ -358,7 +359,7 @@ jobs:
     needs:
       - deploy-cluster
       - build-ios-xcframework
-      - create-share-apps
+      - create-shared-apps
     steps:
 
       - name: Checkout
@@ -418,7 +419,7 @@ jobs:
     needs:
       - deploy-cluster
       - build-android-combined
-      - create-share-apps
+      - create-shared-apps
     steps:
 
       - name: Checkout

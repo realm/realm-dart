@@ -196,8 +196,9 @@ class BaasClient {
       return d["name"] == uniqueName || d["name"] == uniqueSharedAppName;
     }, orElse: () => throw Exception("BAAS app not found"));
     final appId = doc['_id'] as String;
+    final appUniqueName = doc['name'] as String;
     final clientAppId = doc['client_app_id'] as String;
-    final app = BaasApp(appId, clientAppId, name, uniqueName);
+    final app = BaasApp(appId, clientAppId, name, appUniqueName);
 
     final dynamic functions = await _get('groups/$_groupId/apps/$appId/functions');
     dynamic function = functions.firstWhere((dynamic f) => f["name"] == "confirmFunc", orElse: () => throw Exception("Func 'confirmFunc' not found"));
@@ -206,8 +207,8 @@ class BaasClient {
     await _updateFunction(app, 'confirmFunc', confirmFuncId, source ?? _confirmFuncSource);
   }
 
-  Future<BaasApp> _createApp(String name, String appSuffix, {String? confirmationType}) async {
-    final uniqueName = "$name$appSuffix";
+  Future<BaasApp> _createApp(String name, String suffix, {String? confirmationType}) async {
+    final uniqueName = "$name$suffix";
     print('Creating app $uniqueName');
 
     BaasApp? app;
@@ -576,8 +577,9 @@ class BaasClient {
       return d["name"] == uniqueName || d["name"] == uniqueSharedAppName;
     }, orElse: () => throw Exception("BAAS app not found"));
     final appId = doc['_id'] as String;
+    final appUniqueName = doc['name'] as String;
     final clientAppId = doc['client_app_id'] as String;
-    final app = BaasApp(appId, clientAppId, name, uniqueName);
+    final app = BaasApp(appId, clientAppId, name, appUniqueName);
 
     final dynamic services = await _get('groups/$_groupId/apps/$appId/services');
     dynamic service = services.firstWhere((dynamic s) => s["name"] == "BackingDB", orElse: () => throw Exception("Func 'confirmFunc' not found"));
