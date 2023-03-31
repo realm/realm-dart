@@ -551,8 +551,7 @@ Future<void> setupBaas() async {
         : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
 
     client.publicRSAKey = publicRSAKeyForJWTValidation;
-    final skipSharedApps = Platform.environment.containsKey("REALM_CI");
-    final apps = await client.getOrCreateApps(skipSharedApps: skipSharedApps);
+    final apps = await client.getOrCreateApps();
     baasApps.addAll(apps);
     _baasClient = client;
   } catch (error) {

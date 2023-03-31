@@ -90,10 +90,9 @@ class BaasClient {
 
   final String _baseUrl;
   final String? _clusterName;
-  final String _differentiator;
   final Map<String, String> _headers;
-  late final String _appSuffix = '-${shortenDifferentiator(_differentiator)}-$_clusterName';
-  late final String _sharedAppSuffix = '-shared-$_clusterName';
+  final String _appSuffix;
+  final String _sharedAppSuffix;
 
   late String _groupId;
   late String publicRSAKey = '';
@@ -101,7 +100,8 @@ class BaasClient {
   BaasClient._(String baseUrl, String? differentiator, [this._clusterName])
       : _baseUrl = '$baseUrl/api/admin/v3.0',
         _headers = <String, String>{'Accept': 'application/json'},
-        _differentiator = differentiator ?? 'local';
+        _appSuffix = '-${shortenDifferentiator(differentiator ?? 'local')}-$_clusterName',
+        _sharedAppSuffix = '-shared-$_clusterName';
 
   /// A client that imports apps in a MongoDB Atlas docker image. See https://github.com/realm/ci/tree/master/realm/docker/mongodb-realm
   /// for instructions on how to set it up.
