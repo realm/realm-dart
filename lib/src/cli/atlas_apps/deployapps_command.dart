@@ -69,27 +69,30 @@ RwIDAQAB
     }
 
     final differentiator = options.differentiator ?? 'shared';
+    try {
+      final sharedClient = await (options.atlasCluster == null
+          ? BaasClient.docker(options.baasUrl, differentiator)
+          : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
+      var apps = await sharedClient.getExistingApps();
+      sharedClient.publicRSAKey = publicRSAKeyForJWTValidation;
 
-    final sharedClient = await (options.atlasCluster == null
-        ? BaasClient.docker(options.baasUrl, differentiator)
-        : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
-    var apps = await sharedClient.getExistingApps();
-    sharedClient.publicRSAKey = publicRSAKeyForJWTValidation;
+      await sharedClient.createAppIfNotExists(apps, "autoConfirm", confirmationType: "auto");
+      await sharedClient.createAppIfNotExists(apps, "emailConfirm", confirmationType: "email");
 
-    await sharedClient.createAppIfNotExists(apps, "autoConfirm", confirmationType: "auto");
-    await sharedClient.createAppIfNotExists(apps, "emailConfirm", confirmationType: "email");
-
-    print('App import is complete. There are: ${apps.length} apps on the server:');
-    List<String> listApps = [];
-    apps.forEach((_, value) {
-      print("  App '${value.name}': '${value.clientAppId}'");
-      if (value.error != null) {
-        throw value.error!;
-      }
-      listApps.add(value.appId);
-    });
-    print("appIds: ");
-    print(listApps.join(","));
+      print('App import is complete. There are: ${apps.length} apps on the server:');
+      List<String> listApps = [];
+      apps.forEach((_, value) {
+        print("  App '${value.name}': '${value.clientAppId}'");
+        if (value.error != null) {
+          print(value.error!);
+        }
+        listApps.add(value.appId);
+      });
+      print("appIds: ");
+      print(listApps.join(","));
+    } catch (error) {
+      print(error);
+    }
   }
 
   void abort(String error) {
