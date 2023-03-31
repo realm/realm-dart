@@ -89,6 +89,6 @@ jobs:
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
           clusterName: ${{ env.BAAS_CLUSTER }}
 
-      # - name: Run tests
-      #   run: ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ inputs.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" --debug # -a="Some test name"
-      #   working-directory: ./flutter/realm_flutter/tests
+      - name: Run tests
+        run: ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ inputs.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" --debug # -a="Some test name"
+        working-directory: ./flutter/realm_flutter/tests
