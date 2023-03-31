@@ -135,13 +135,11 @@ class BaasClient {
   /// for [atlas] one, it will return only apps with suffix equal to the cluster name. If no apps exist,
   /// then it will create the test applications and return them.
   /// @nodoc
-  Future<Map<String, BaasApp>> getOrCreateApps({bool skipSharedApps = false}) async {
+  Future<Map<String, BaasApp>> getOrCreateApps() async {
     final result = await _getExistingApps();
     await _createAppIfNotExists(result, defaultAppName, _appSuffix);
-    if (!skipSharedApps) {
-      await _createAppIfNotExists(result, "autoConfirm", _sharedAppSuffix, confirmationType: "auto");
-      await _createAppIfNotExists(result, "emailConfirm", _sharedAppSuffix, confirmationType: "email");
-    }
+    await _createAppIfNotExists(result, "autoConfirm", _sharedAppSuffix, confirmationType: "auto");
+    await _createAppIfNotExists(result, "emailConfirm", _sharedAppSuffix, confirmationType: "email");
     return result;
   }
 
