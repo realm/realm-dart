@@ -579,7 +579,6 @@ Future<void> baasTest(
     if (url == null) skip = "BAAS URL not present";
   }
   final baasUri = Uri.parse(uriVariable!);
-  final projectId = arguments[argBaasProjectId];
 
   test(name, () async {
     final app = baasApps[appName.name] ??
@@ -594,7 +593,7 @@ Future<void> baasTest(
       print("App service name: ${app.uniqueName}");
       final host = baasUri.host.endsWith('-qa.mongodb.com') ? "-qa" : "";
       final splunk = Uri.encodeFull(
-          "https://splunk.corp.mongodb.com/en-US/app/search/search?q=search index=baas$host $projectId | reverse | search client_app_client_app_id=\"${app.uniqueName}\"&earliest=-1d&latest=now");
+          "https://splunk.corp.mongodb.com/en-US/app/search/search?q=search index=baas$host | reverse | search client_app_client_app_id=\"${app.uniqueName}\"&earliest=-1d&latest=now");
       print("Splunk logs: $splunk");
       rethrow;
     }
