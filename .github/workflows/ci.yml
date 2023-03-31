@@ -42,6 +42,7 @@ jobs:
 
   create-share-apps:
     name: Create shared Apps
+    secrets: inherit
     needs:
       - deploy-cluster
     uses: ./.github/workflows/shared-apps.yml
@@ -78,6 +79,7 @@ jobs:
 
   cleanup-share-apps:
     name: Delete shared Apps
+    secrets: inherit
     needs:
       - deploy-cluster
       - dart-tests-windows

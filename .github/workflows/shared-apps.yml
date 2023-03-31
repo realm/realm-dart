@@ -23,7 +23,7 @@ env:
 jobs:
   dart-setup:
     runs-on: ubuntu-latest
-    name: Create/Delete Shared Apps
+    name: ${{ inputs.cleanup && 'Delete' || 'Create'}} Shared Apps
     timeout-minutes: 45
     env:
       BAAS_CLUSTER: ${{ inputs.cluster }}
