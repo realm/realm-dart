@@ -75,7 +75,7 @@ RwIDAQAB
         : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
     var apps = await sharedClient.getExistingApps();
     sharedClient.publicRSAKey = publicRSAKeyForJWTValidation;
-   
+
     await sharedClient.createAppIfNotExists(apps, "autoConfirm", confirmationType: "auto");
     await sharedClient.createAppIfNotExists(apps, "emailConfirm", confirmationType: "email");
 
