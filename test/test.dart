@@ -21,6 +21,7 @@ import 'dart:collection';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' hide test;
@@ -123,6 +124,7 @@ class _AllTypes {
   late ObjectId objectIdProp;
   late Uuid uuidProp;
   late int intProp;
+  late Uint8List binaryProp;
 
   late String? nullableStringProp;
   late bool? nullableBoolProp;
@@ -131,6 +133,7 @@ class _AllTypes {
   late ObjectId? nullableObjectIdProp;
   late Uuid? nullableUuidProp;
   late int? nullableIntProp;
+  late Uint8List? nullableBinaryProp;
 }
 
 @RealmModel()

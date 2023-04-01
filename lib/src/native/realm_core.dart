@@ -2860,6 +2860,14 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
         realm_value.ref.values.uuid.bytes[i] = bytes[i];
       }
       realm_value.ref.type = realm_value_type.RLM_TYPE_UUID;
+    } else if (value is Uint8List) {
+      Uint8List binary = value;
+      final result = allocator<Uint8>(binary.length);
+      final Uint8List nativeBinary = result.asTypedList(binary.length);
+      nativeBinary.setAll(0, binary);
+      realm_value.ref.values.binary.data = result.cast();
+      realm_value.ref.values.binary.size = binary.length;
+      realm_value.ref.type = realm_value_type.RLM_TYPE_BINARY;
     } else if (value is DateTime) {
       final microseconds = value.toUtc().microsecondsSinceEpoch;
       final seconds = microseconds ~/ _microsecondsPerSecond;
@@ -2903,7 +2911,7 @@ extension on Pointer<realm_value_t> {
         if (realm.metadata.getByClassKeyIfExists(classKey) == null) return null; // temprorary workaround to avoid crash on assertion
         return realmCore._getObject(realm, classKey, objectKey);
       case realm_value_type.RLM_TYPE_BINARY:
-        throw Exception("Not implemented");
+        return ref.values.binary.data.cast<Utf8>().toRealmDartBinary(length: ref.values.string.size)!;
       case realm_value_type.RLM_TYPE_TIMESTAMP:
         final seconds = ref.values.timestamp.seconds;
         final nanoseconds = ref.values.timestamp.nanoseconds;
@@ -2958,6 +2966,20 @@ extension on Pointer<Utf8> {
         return null;
       }
       return result;
+    } finally {
+      if (freeRealmMemory) {
+        _realmLib.realm_free(cast());
+      }
+    }
+  }
+
+  Uint8List? toRealmDartBinary({required int length, bool freeRealmMemory = false}) {
+    if (this == nullptr) {
+      return null;
+    }
+
+    try {
+      return Uint8List.fromList(cast<Uint8>().asTypedList(length));
     } finally {
       if (freeRealmMemory) {
         _realmLib.realm_free(cast());

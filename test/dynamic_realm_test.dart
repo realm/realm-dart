@@ -18,6 +18,8 @@
 
 // ignore_for_file: avoid_relative_lib_imports
 
+import 'dart:typed_data';
+
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -87,16 +89,17 @@ Future<void> main([List<String>? args]) async {
   final objectId = ObjectId();
   final uuid = Uuid.v4();
 
-  AllTypes _getPopulatedAllTypes() => AllTypes('abc', true, date, -123.456, objectId, uuid, -987,
+  AllTypes _getPopulatedAllTypes() => AllTypes('abc', true, date, -123.456, objectId, uuid, -987, Uint8List(0),
       nullableStringProp: 'def',
       nullableBoolProp: true,
       nullableDateProp: date,
       nullableDoubleProp: -123.456,
       nullableObjectIdProp: objectId,
       nullableUuidProp: uuid,
-      nullableIntProp: 123);
+      nullableIntProp: 123,
+      nullableBinaryProp: Uint8List.fromList([1, 2, 3]));
 
-  AllTypes _getEmptyAllTypes() => AllTypes('', false, DateTime(0).toUtc(), 0, objectId, uuid, 0);
+  AllTypes _getEmptyAllTypes() => AllTypes('', false, DateTime(0).toUtc(), 0, objectId, uuid, 0, Uint8List(0));
 
   AllCollections _getPopulatedAllCollections() => AllCollections(
       strings: ['abc', 'def'],
@@ -142,6 +145,11 @@ Future<void> main([List<String>? args]) async {
     expect(actual.dynamic.get('intProp'), expected.intProp);
     expect(actual.dynamic.get<int?>('nullableIntProp'), expected.nullableIntProp);
     expect(actual.dynamic.get('nullableIntProp'), expected.nullableIntProp);
+
+    expect(actual.dynamic.get<Uint8List>('binaryProp'), expected.binaryProp);
+    expect(actual.dynamic.get('binaryProp'), expected.binaryProp);
+    expect(actual.dynamic.get<Uint8List?>('nullableBinaryProp'), expected.nullableBinaryProp);
+    expect(actual.dynamic.get('nullableBinaryProp'), expected.nullableBinaryProp);
 
     dynamic actualDynamic = actual;
     expect(actualDynamic.stringProp, expected.stringProp);
