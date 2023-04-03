@@ -28,6 +28,7 @@ part 'metrics.g.dart';
 
 Future<Metrics> generateMetrics({
   required Digest distinctId,
+  required Digest builderId,
   required String framework,
   required String frameworkVersion,
   required String realmVersion,
@@ -35,11 +36,13 @@ Future<Metrics> generateMetrics({
   String? targetOsVersion,
   Digest? anonymizedMacAddress,
   Digest? anonymizedBundleId,
+  String? realmCoreVersion,
 }) async {
   return Metrics(
     event: 'run',
     properties: Properties(
       distinctId: distinctId,
+      builderId: builderId,
       token: 'ce0fac19508f6c8f20066d345d360fd0',
       binding: 'dart',
       language: 'dart',
@@ -95,6 +98,13 @@ class Properties {
   )
   final Digest distinctId;
 
+  @JsonKey(
+    name: 'builder_id', // snake-case
+    fromJson: _digestFromJson, // While we wait for: https://github.com/google/json_serializable.dart/issues/822
+    toJson: _digestToJson,
+  )
+  final Digest builderId;
+
   @JsonKey(name: 'Anonymized MAC Address')
   @DigestConverter()
   final Digest? anonymizedMacAddress;
@@ -128,8 +138,12 @@ class Properties {
   @JsonKey(name: 'Target OS Version')
   final String? targetOsVersion;
 
+  @JsonKey(name: 'Core Version')
+  final String? realmCoreVersion;
+
   Properties({
     required this.distinctId,
+    required this.builderId,
     required this.token,
     required this.binding,
     required this.framework,
@@ -143,6 +157,7 @@ class Properties {
     this.syncEnabled,
     this.targetOsType,
     this.targetOsVersion,
+    this.realmCoreVersion,
   });
 
   factory Properties.fromJson(Map<String, dynamic> json) => _$PropertiesFromJson(json);

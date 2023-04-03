@@ -15,7 +15,7 @@ jobs:
         with:
           submodules: false
       - name: Enforce Changelog
-        uses: dangoslen/changelog-enforcer@e6d07da252590d17a4c8f11d23a4b4f862499f7e
+        uses: dangoslen/changelog-enforcer@c0b9fd225180a405c5f21f7a74b99e2eccc3e951
         with:
           skipLabels: no-changelog
           missingUpdateErrorMessage: Please add an entry in CHANGELOG.md or apply the 'no-changelog' label to skip this check.
