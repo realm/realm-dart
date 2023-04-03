@@ -1942,6 +1942,45 @@ Future<void> main([List<String>? args]) async {
     //- Property 'Card._id' has been changed from 'object id' to 'uuid'.
     expect(() => getRealm(configV2), throws<RealmException>("Error code: 2019 . Message: The following changes cannot be made in additive-only schema mode"));
   });
+
+  baasTest('Realm logger isolates', (configuration) async {
+    final oldLogger = Realm.logger;
+    try {
+      openSyncRealm(String isolateName) async {
+        final completer = Completer<int>();
+        int count = 0;
+        Realm.logger = Logger.detached(generateRandomString(10))
+          ..level = RealmLogLevel.info
+          ..onRecord.listen((event) {
+            print("$isolateName-${event.level}: ${event.message}");
+            if (event.level == RealmLogLevel.error) {
+              count++;
+              completer.complete(count);
+            }
+          });
+        final app = App(configuration);
+        final authProvider = EmailPasswordAuthProvider(app);
+        try {
+          print("$isolateName started.");
+          await Future<void>.delayed(Duration(milliseconds: 500));
+          await expectLater(() => app.logIn(Credentials.emailPassword("notExisting", "password")), throws<AppException>("invalid username/password"));
+          return await completer.future.timeout(Duration(seconds: 3), onTimeout: () => throw Exception("The error was not logged."));
+        } catch (error) {
+          completer.completeError(error);
+        }
+      }
+
+      final isolate1 = Isolate.run(() async => await openSyncRealm("Isolate 1"));
+      final isolate2 = Isolate.run(() async => await openSyncRealm("Isolate 2"));
+      final mainIsolate = openSyncRealm("Main isolate");
+      await Future.wait([isolate1, isolate2, mainIsolate]);
+      await expectLater(() => mainIsolate, 1);
+      await expectLater(() => isolate1, 1);
+      await expectLater(() => isolate2, 1);
+    } finally {
+      Realm.logger = oldLogger;
+    }
+  });
 }
 
 List<int> generateEncryptionKey() {
