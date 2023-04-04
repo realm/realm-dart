@@ -1925,7 +1925,7 @@ Future<void> main([List<String>? args]) async {
     realmV1.close();
     final configV2 = Configuration.flexibleSync(user, [CardV2.schema]);
     try {
-      Realm realmV2 = getRealm(configV2);
+      Realm(configV2);
     } catch (e) {
       Realm.deleteRealm(configV2.path);
     }
@@ -1939,7 +1939,7 @@ Future<void> main([List<String>? args]) async {
     realmV1.close();
     final configV2 = Configuration.flexibleSync(user, [CardV2.schema]);
     //- Property 'Card._id' has been changed from 'object id' to 'uuid'.
-    expect(() => getRealm(configV2), throws<RealmException>("Error code: 2019 . Message: The following changes cannot be made in additive-only schema mode"));
+    expect(() => Realm(configV2), throws<RealmException>("Error code: 2019 . Message: The following changes cannot be made in additive-only schema mode"));
   });
 }
 
