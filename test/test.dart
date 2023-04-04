@@ -578,33 +578,31 @@ Future<void> baasTest(
   } else if (skip is bool) {
     if (url == null) skip = "BAAS URL not present";
   }
-  final baasUri = Uri.parse(uriVariable!);
 
   test(name, () async {
-    final app = baasApps[appName.name] ??
-        baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
     try {
-      if (app.error != null) {
-        throw app.error!;
-      }
-      final config = await getAppConfig(baasUri, app.clientAppId);
+      final config = await getAppConfig(appName: appName);
       await testFunction(config);
     } catch (error) {
-      print("App service name: ${app.uniqueName}");
-      final host = baasUri.host.endsWith('-qa.mongodb.com') ? "-qa" : "";
-      final splunk = Uri.encodeFull(
-          "https://splunk.corp.mongodb.com/en-US/app/search/search?q=search index=baas$host \"${app.uniqueName}-*\" | reverse | top error msg&earliest=-7d&latest=now&display.general.type=visualizations");
-      print("Splunk logs: $splunk");
+      printSplunkLogLink(appName, uriVariable);
       rethrow;
     }
   }, skip: skip);
 }
 
-Future<AppConfiguration> getAppConfig(Uri baasUri, String clientAppId) async {
+Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) async {
+  final baasUrl = arguments[argBaasUrl];
+
+  final app = baasApps[appName.name] ??
+      baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
+  if (app.error != null) {
+    throw app.error!;
+  }
+
   final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
   return AppConfiguration(
-    clientAppId,
-    baseUrl: baasUri,
+    app.clientAppId,
+    baseUrl: Uri.parse(baasUrl!),
     baseFilePath: temporaryDir,
     maxConnectionTimeout: Duration(minutes: 10),
     defaultRequestTimeout: Duration(minutes: 7),
@@ -629,8 +627,8 @@ Future<String> createServerApiKey(App app, String name, {bool enabled = true}) a
   return await client.createApiKey(baasApp, name, enabled);
 }
 
-Future<Realm> getIntegrationRealm(AppConfiguration appConfiguration, {App? app, ObjectId? differentiator}) async {
-  app ??= App(appConfiguration);
+Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator}) async {
+  app ??= App(await getAppConfig());
   final user = await getIntegrationUser(app);
 
   final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema, NullableTypes.schema]);
@@ -748,4 +746,19 @@ extension StreamEx<T> on Stream<Stream<T>> {
     await outer.cancel();
     await inner?.cancel();
   }
+}
+
+void printSplunkLogLink(AppNames appName, String? uriVariable) {
+  if (uriVariable == null) {
+    return;
+  }
+  final app = baasApps[appName.name] ??
+      baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
+  final baasUri = Uri.parse(uriVariable);
+
+  print("App service name: ${app.uniqueName}");
+  final host = baasUri.host.endsWith('-qa.mongodb.com') ? "-qa" : "";
+  final splunk = Uri.encodeFull(
+      "https://splunk.corp.mongodb.com/en-US/app/search/search?q=search index=baas$host \"${app.uniqueName}-*\" | reverse | top error msg&earliest=-7d&latest=now&display.general.type=visualizations");
+  print("Splunk logs: $splunk");
 }

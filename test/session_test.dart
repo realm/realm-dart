@@ -33,7 +33,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Realm.syncSession returns on FLX configuration', (configuration) async {
-    final realm = await getIntegrationRealm(configuration);
+    final realm = await getIntegrationRealm();
 
     expect(realm.syncSession, isNotNull);
     expect(realm.syncSession.realmPath, realm.config.path);
@@ -77,7 +77,7 @@ Future<void> main([List<String>? args]) async {
   }
 
   baasTest('SyncSession.pause/resume', (configuration) async {
-    final realm = await getIntegrationRealm(configuration);
+    final realm = await getIntegrationRealm();
 
     await validateSessionStates("Initial state", realm.syncSession,
         expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
@@ -94,7 +94,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('SyncSession.pause called multiple times is a no-op', (configuration) async {
-    final realm = await getIntegrationRealm(configuration);
+    final realm = await getIntegrationRealm();
 
     await validateSessionStates("Initial state", realm.syncSession, expectedSessionState: SessionState.active);
 
@@ -109,7 +109,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('SyncSession.resume called multiple times is a no-op', (configuration) async {
-    final realm = await getIntegrationRealm(configuration);
+    final realm = await getIntegrationRealm();
 
     await validateSessionStates("Initial state", realm.syncSession, expectedSessionState: SessionState.active);
 
@@ -120,7 +120,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('SyncSession.waitForUpload with no changes', (configuration) async {
-    final realm = await getIntegrationRealm(configuration);
+    final realm = await getIntegrationRealm();
 
     await realm.syncSession.waitForUpload();
 
@@ -129,7 +129,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('SyncSession.waitForDownload with no changes', (configuration) async {
-    final realm = await getIntegrationRealm(configuration);
+    final realm = await getIntegrationRealm();
 
     await realm.syncSession.waitForDownload();
 
@@ -140,8 +140,8 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSesison.waitForUpload with changes', (configuration) async {
     final differentiator = ObjectId();
 
-    final realmA = await getIntegrationRealm(configuration, differentiator: differentiator);
-    final realmB = await getIntegrationRealm(configuration, differentiator: differentiator);
+    final realmA = await getIntegrationRealm(differentiator: differentiator);
+    final realmB = await getIntegrationRealm(differentiator: differentiator);
 
     realmA.write(() {
       realmA.add(NullableTypes(ObjectId(), differentiator, stringProp: 'abc'));
@@ -207,8 +207,8 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('SyncSession.getProgressStream forCurrentlyOutstandingWork', (configuration) async {
     final differentiator = ObjectId();
-    final realmA = await getIntegrationRealm(configuration, differentiator: differentiator);
-    final realmB = await getIntegrationRealm(configuration, differentiator: differentiator);
+    final realmA = await getIntegrationRealm(differentiator: differentiator);
+    final realmB = await getIntegrationRealm(differentiator: differentiator);
 
     for (var i = 0; i < 10; i++) {
       realmA.write(() {
@@ -235,8 +235,8 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('SyncSession.getProgressStream reportIndefinitely', (configuration) async {
     final differentiator = ObjectId();
-    final realmA = await getIntegrationRealm(configuration, differentiator: differentiator);
-    final realmB = await getIntegrationRealm(configuration, differentiator: differentiator);
+    final realmA = await getIntegrationRealm(differentiator: differentiator);
+    final realmB = await getIntegrationRealm(differentiator: differentiator);
 
     for (var i = 0; i < 10; i++) {
       realmA.write(() {
@@ -313,7 +313,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('SyncSession.getConnectionStateStream', (configuration) async {
-    final realm = await getIntegrationRealm(configuration);
+    final realm = await getIntegrationRealm();
 
     await validateSessionStates("Initial state", realm.syncSession,
         expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
