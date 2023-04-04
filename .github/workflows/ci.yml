@@ -26,6 +26,11 @@ jobs:
     steps:
       - name: Get cluster suffix
         id: cluster-name
+        # Use 'github.ref_name' for generating cluster name.
+        # 'github.ref_name' is the SHORT ref name of the branch or tag that triggered the workflow run.
+        # 'github.ref_name' looks like '1234/merge'. We remove '/merge' and get only the number.
+        # In order to have unique cluster name per run we add a random number to the number extracted from 'ref_name'.
+        # Maximum 8 symbols could be taken for the name of the cluster, becasuse of the lenght limitation for cluster names.
         run: |
           triggerName=${{ github.ref_name}}
           cluster=${triggerName/'/merge'/''}
