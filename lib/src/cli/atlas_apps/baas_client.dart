@@ -301,6 +301,7 @@ class BaasClient {
             "field_name": "company"
           }''');
       }
+
       if (confirmationType == null) {
         await enableProvider(app, 'custom-function', config: '''{
             "authFunctionName": "authFunc",
