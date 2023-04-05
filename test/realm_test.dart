@@ -31,24 +31,6 @@ import '../lib/realm.dart';
 import 'test.dart';
 import '../lib/src/native/realm_core.dart';
 
-part 'realm_test.g.dart';
-
-@RealmModel()
-@MapTo("Card")
-class _CardV1 {
-  @PrimaryKey()
-  @MapTo('_id')
-  late ObjectId id;
-}
-
-@RealmModel()
-@MapTo("Card")
-class _CardV2 {
-  @PrimaryKey()
-  @MapTo('_id')
-  late Uuid id;
-}
-
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
@@ -1915,48 +1897,6 @@ Future<void> main([List<String>? args]) async {
     final query = realm.query<Product>(r'name LIKE[c] $0', [productName.toLowerCase()]);
     expect(query.length, 1);
     expect(query[0].name, productName);
-  });
-
-  baasTest('Realm can be deleted after destructive schema change (flexibleSync)', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
-    final configV1 = Configuration.flexibleSync(user, [CardV1.schema]);
-    final realmV1 = getRealm(configV1);
-    realmV1.close();
-    final configV2 = Configuration.flexibleSync(user, [CardV2.schema]);
-    try {
-      Realm(configV2);
-    } catch (e) {
-      expect(e, isA<RealmException>());
-      String exceptionMessage = (e as RealmException).message;
-      expect(exceptionMessage.contains("Error code: 2019 . Message: The following changes cannot be made in additive-only schema mode"), true);
-      expect(exceptionMessage.contains("Property 'Card._id' has been changed from 'object id' to 'uuid'"), true);
-      user.logOut(); // User logOut force the syncSession to be released.
-      Realm.deleteRealm(configV2.path);
-    }
-  },
-      // Destructive schema change causes the server to force the translator to restart.
-      // This means that the Flexible sync will be terminated and re-enabled.
-      // During this operation no other tests working with flexible sync could be executed.
-      // For this reason this test is relocated to 'autoConfirm' app service,
-      // which doesn't have flexible sync tests executed on it.
-      appName: AppNames.autoConfirm);
-
-  test('Realm can be deleted after migration required error (local)', () async {
-    final configV1 = Configuration.local([CardV1.schema]);
-    final realmV1 = getRealm(configV1);
-    realmV1.close();
-    final configV2 = Configuration.local([CardV2.schema]);
-    try {
-      Realm(configV2);
-    } catch (e) {
-      print(e);
-      expect(e, isA<RealmException>());
-      String exceptionMessage = (e as RealmException).message;
-      expect(exceptionMessage.contains("Error code: 2017 . Message: Migration is required due to the following errors"), true);
-      expect(exceptionMessage.contains("Property 'Card._id' has been changed from 'object id' to 'uuid'"), true);
-      Realm.deleteRealm(configV2.path);
-    }
   });
 }
 

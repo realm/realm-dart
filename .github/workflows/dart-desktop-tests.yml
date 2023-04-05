@@ -77,7 +77,9 @@ jobs:
           clusterName: ${{ env.BAAS_CLUSTER }}
 
       - name: Run tests
-        run: ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -r expanded --coverage ./coverage/ -j 1 --test-randomize-ordering-seed random
+        run: |
+          ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -x destructive -r expanded --coverage ./coverage/ -j 1 --test-randomize-ordering-seed random
+          ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test  test/destructive_schema_test.dart -r expanded
 
       # we're pruning generated files, the cli folder, as well as realm_bindings.dart from our coverage reports
       - name: Generate realm_dart coverage report
