@@ -21,7 +21,8 @@ class CardV1 extends _CardV1 with RealmEntity, RealmObjectBase, RealmObject {
   set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
-  Stream<RealmObjectChanges<CardV1>> get changes => RealmObjectBase.getChanges<CardV1>(this);
+  Stream<RealmObjectChanges<CardV1>> get changes =>
+      RealmObjectBase.getChanges<CardV1>(this);
 
   @override
   CardV1 freeze() => RealmObjectBase.freezeObject<CardV1>(this);
@@ -31,7 +32,8 @@ class CardV1 extends _CardV1 with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(CardV1._);
     return const SchemaObject(ObjectType.realmObject, CardV1, 'Card', [
-      SchemaProperty('id', RealmPropertyType.objectid, mapTo: '_id', primaryKey: true),
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
     ]);
   }
 }
@@ -51,7 +53,8 @@ class CardV2 extends _CardV2 with RealmEntity, RealmObjectBase, RealmObject {
   set id(Uuid value) => RealmObjectBase.set(this, '_id', value);
 
   @override
-  Stream<RealmObjectChanges<CardV2>> get changes => RealmObjectBase.getChanges<CardV2>(this);
+  Stream<RealmObjectChanges<CardV2>> get changes =>
+      RealmObjectBase.getChanges<CardV2>(this);
 
   @override
   CardV2 freeze() => RealmObjectBase.freezeObject<CardV2>(this);
@@ -61,7 +64,8 @@ class CardV2 extends _CardV2 with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(CardV2._);
     return const SchemaObject(ObjectType.realmObject, CardV2, 'Card', [
-      SchemaProperty('id', RealmPropertyType.uuid, mapTo: '_id', primaryKey: true),
+      SchemaProperty('id', RealmPropertyType.uuid,
+          mapTo: '_id', primaryKey: true),
     ]);
   }
 }
