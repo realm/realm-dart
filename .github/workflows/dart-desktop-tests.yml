@@ -77,6 +77,8 @@ jobs:
           clusterName: ${{ env.BAAS_CLUSTER }}
 
       - name: Run tests
+       # The first command excludes tests with tag 'destructive'. Te second runs only 'destructive' schema change tests.
+       # This is needed because 'destructive' tests terminate the flexible sync and the rest of the tests could fail.
         run: |
           ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -x destructive -r expanded --coverage ./coverage/ -j 1 --test-randomize-ordering-seed random
           ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test  test/destructive_schema_test.dart -r expanded
