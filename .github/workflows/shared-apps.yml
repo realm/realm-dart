@@ -1,0 +1,54 @@
+name: Shared Apps
+
+on:
+  workflow_call:
+    inputs:
+      cluster:
+        description: Cluster name to deploy the apps.
+        required: true
+        type: string
+      cleanup:
+        description: Set to True to delete the shared apps.
+        required: false
+        default: false
+        type: boolean
+
+env:
+  BAAS_URL: ${{ secrets.REALM_QA_URL }}
+  BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
+  BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+  BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
+  REALM_CI: true
+
+jobs:
+  shared-apps:
+    runs-on: ubuntu-latest
+    name: ${{ inputs.cleanup && 'Delete' || 'Create'}} Shared Apps
+    timeout-minutes: 45
+    env:
+      BAAS_CLUSTER: ${{ inputs.cluster }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        with:
+          submodules: false
+
+      - name : Setup Dart SDK
+        uses: dart-lang/setup-dart@main
+        with:
+          sdk: stable
+          architecture: 'x64'
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: ${{ inputs.cleanup && 'Delete' || 'Create'}} shared apps
+        run: |
+          dart run realm_dart ${{ inputs.cleanup && 'delete-apps' || 'deploy-apps'}} \
+            --baas-url ${{ env.BAAS_URL }} \
+            --atlas-cluster ${{ env.BAAS_CLUSTER }} \
+            --api-key ${{ env.BAAS_API_KEY }} \
+            --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} \
+            --project-id ${{ env.BAAS_PROJECT_ID }} \
+            --differentiator 'shared'

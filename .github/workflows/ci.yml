@@ -26,12 +26,17 @@ jobs:
     steps:
       - name: Get cluster suffix
         id: cluster-name
+        # Use 'github.ref_name' for generating cluster name.
+        # 'github.ref_name' is the SHORT ref name of the branch or tag that triggered the workflow run.
+        # 'github.ref_name' looks like '1234/merge'. We remove '/merge' and get only the number.
+        # In order to have unique cluster name per run we add a random number to the number extracted from 'ref_name'.
+        # Maximum 8 symbols could be taken for the name of the cluster, becasuse of the lenght limitation for cluster names.
         run: |
           triggerName=${{ github.ref_name}}
           cluster=${triggerName/'/merge'/''}
           echo "clusterName=$(cut -c 1-8 <<< ${cluster}$RANDOM)" >> $GITHUB_OUTPUT
 
-      - uses: realm/ci-actions/mdb-realm/deploy@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
+      - uses: realm/ci-actions/mdb-realm/deploy@043cc5a8446748b823957c6ea4d08e6e495ea996
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -39,6 +44,15 @@ jobs:
           apiKey: ${{ env.BAAS_API_KEY }}
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
           clusterName: ${{ steps.cluster-name.outputs.clusterName }}
+
+  create-shared-apps:
+    name: Create shared Apps
+    secrets: inherit
+    needs:
+      - deploy-cluster
+    uses: ./.github/workflows/shared-apps.yml
+    with:
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   delete-cluster:
     runs-on: ubuntu-latest
@@ -59,7 +73,7 @@ jobs:
       - flutter-ios
       - flutter-android
     steps:
-      - uses: realm/ci-actions/mdb-realm/cleanup@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
+      - uses: realm/ci-actions/mdb-realm/cleanup@043cc5a8446748b823957c6ea4d08e6e495ea996
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -67,6 +81,29 @@ jobs:
           apiKey: ${{ env.BAAS_API_KEY }}
           privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
           clusterName: ${{ needs.deploy-cluster.outputs.clusterName }}
+
+  cleanup-shared-apps:
+    name: Delete shared Apps
+    secrets: inherit
+    needs:
+      - deploy-cluster
+      - create-shared-apps
+      - dart-tests-windows
+      - dart-tests-macos
+      - dart-tests-macos-arm
+      - dart-tests-linux
+      - dart-tests-linux-ubuntu-20
+      - flutter-desktop-tests-windows
+      - flutter-desktop-tests-macos
+      - flutter-desktop-tests-linux
+      - flutter-desktop-tests-linux-ubuntu-20
+      - flutter-ios
+      - flutter-android
+    uses: ./.github/workflows/shared-apps.yml
+    if: always()
+    with:
+     cleanup: true
+     cluster: ${{ needs.deploy-cluster.outputs.clusterName }}
 
   cleanup-matrix:
     needs:
@@ -194,6 +231,7 @@ jobs:
     needs:
       - build-windows
       - deploy-cluster
+      - create-shared-apps
     secrets: inherit
     with:
      os: windows
@@ -207,6 +245,7 @@ jobs:
     needs:
       - build-macos
       - deploy-cluster
+      - create-shared-apps
     secrets: inherit
     with:
      os: macos
@@ -220,6 +259,7 @@ jobs:
     needs:
       - build-macos
       - deploy-cluster
+      - create-shared-apps
     secrets: inherit
     with:
      os: macos
@@ -234,6 +274,7 @@ jobs:
     needs:
       - build-linux
       - deploy-cluster
+      - create-shared-apps
     secrets: inherit
     with:
      os: linux
@@ -247,6 +288,7 @@ jobs:
     needs:
       - build-linux
       - deploy-cluster
+      - create-shared-apps
     secrets: inherit
     with:
      os: linux
@@ -262,6 +304,7 @@ jobs:
     needs:
       - build-windows
       - deploy-cluster
+      - create-shared-apps
     secrets: inherit
     with:
      os: windows
@@ -275,6 +318,7 @@ jobs:
     needs:
       - build-macos
       - deploy-cluster
+      - create-shared-apps
     secrets: inherit
     with:
      os: macos
@@ -288,6 +332,7 @@ jobs:
     needs:
       - build-linux
       - deploy-cluster
+      - create-shared-apps
     secrets: inherit
     with:
      os: linux
@@ -301,6 +346,7 @@ jobs:
     needs:
       - build-linux
       - deploy-cluster
+      - create-shared-apps
     secrets: inherit
     with:
      os: linux
@@ -318,6 +364,7 @@ jobs:
     needs:
       - deploy-cluster
       - build-ios-xcframework
+      - create-shared-apps
     steps:
 
       - name: Checkout
@@ -352,7 +399,7 @@ jobs:
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deploy@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
+        uses: realm/ci-actions/mdb-realm/deploy@043cc5a8446748b823957c6ea4d08e6e495ea996
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -366,6 +413,7 @@ jobs:
           flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
         working-directory: ./flutter/realm_flutter/tests
 
+
   flutter-android:
     runs-on: macos-latest
     name: Android Flutter Tests
@@ -376,6 +424,7 @@ jobs:
     needs:
       - deploy-cluster
       - build-android-combined
+      - create-shared-apps
     steps:
 
       - name: Checkout
@@ -423,7 +472,7 @@ jobs:
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deploy@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
+        uses: realm/ci-actions/mdb-realm/deploy@043cc5a8446748b823957c6ea4d08e6e495ea996
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}

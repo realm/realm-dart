@@ -19,6 +19,7 @@ Map<String, dynamic> _$MetricsToJson(Metrics instance) => <String, dynamic>{
 
 Properties _$PropertiesFromJson(Map<String, dynamic> json) => Properties(
       distinctId: _digestFromJson(json['distinct_id'] as String),
+      builderId: _digestFromJson(json['builder_id'] as String),
       token: json['token'] as String,
       binding: json['Binding'] as String,
       framework: json['Framework'] as String,
@@ -35,12 +36,14 @@ Properties _$PropertiesFromJson(Map<String, dynamic> json) => Properties(
       targetOsType:
           $enumDecodeNullable(_$TargetOsTypeEnumMap, json['Target OS Type']),
       targetOsVersion: json['Target OS Version'] as String?,
+      realmCoreVersion: json['Core Version'] as String?,
     );
 
 Map<String, dynamic> _$PropertiesToJson(Properties instance) {
   final val = <String, dynamic>{
     'token': instance.token,
     'distinct_id': _digestToJson(instance.distinctId),
+    'builder_id': _digestToJson(instance.builderId),
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -63,6 +66,7 @@ Map<String, dynamic> _$PropertiesToJson(Properties instance) {
   val['Host OS Version'] = instance.hostOsVersion;
   writeNotNull('Target OS Type', _$TargetOsTypeEnumMap[instance.targetOsType]);
   writeNotNull('Target OS Version', instance.targetOsVersion);
+  writeNotNull('Core Version', instance.realmCoreVersion);
   return val;
 }
 
