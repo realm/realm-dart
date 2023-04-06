@@ -62,7 +62,6 @@ Future<void> main([List<String>? args]) async {
       String exceptionMessage = (e as RealmException).message;
       expect(exceptionMessage.contains("Error code: 2019 . Message: The following changes cannot be made in additive-only schema mode"), true);
       expect(exceptionMessage.contains("Property 'Card._id' has been changed from 'object id' to 'uuid'"), true);
-      user.logOut(); // User logOut force the syncSession to be released.
       Realm.deleteRealm(configV2.path);
     }
   });
