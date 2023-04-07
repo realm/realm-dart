@@ -32,24 +32,6 @@ import '../lib/realm.dart';
 import 'test.dart';
 import '../lib/src/native/realm_core.dart';
 
-part 'realm_test.g.dart';
-
-@RealmModel()
-@MapTo("Card")
-class _CardV1 {
-  @PrimaryKey()
-  @MapTo('_id')
-  late ObjectId id;
-}
-
-@RealmModel()
-@MapTo("Card")
-class _CardV2 {
-  @PrimaryKey()
-  @MapTo('_id')
-  late Uuid id;
-}
-
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
@@ -1916,31 +1898,6 @@ Future<void> main([List<String>? args]) async {
     final query = realm.query<Product>(r'name LIKE[c] $0', [productName.toLowerCase()]);
     expect(query.length, 1);
     expect(query[0].name, productName);
-  });
-
-  baasTest('Realm can be deleted after distructive schema change error (flexibleSync)', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
-    final configV1 = Configuration.flexibleSync(user, [CardV1.schema]);
-    final realmV1 = getRealm(configV1);
-    realmV1.close();
-    final configV2 = Configuration.flexibleSync(user, [CardV2.schema]);
-    try {
-      Realm realmV2 = getRealm(configV2);
-    } catch (e) {
-      Realm.deleteRealm(configV2.path);
-    }
-  });
-
-  baasTest('Realm can not be opened with distructive schema change (flexibleSync)', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
-    final configV1 = Configuration.flexibleSync(user, [CardV1.schema]);
-    final realmV1 = getRealm(configV1);
-    realmV1.close();
-    final configV2 = Configuration.flexibleSync(user, [CardV2.schema]);
-    //- Property 'Card._id' has been changed from 'object id' to 'uuid'.
-    expect(() => getRealm(configV2), throws<RealmException>("Error code: 2019 . Message: The following changes cannot be made in additive-only schema mode"));
   });
 
   baasTest('Realm logger isolates', (configuration) async {

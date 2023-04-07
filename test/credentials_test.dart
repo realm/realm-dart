@@ -343,7 +343,7 @@ Future<void> main([List<String>? args]) async {
   ///     "firstName": "John",
   ///     "lastName": "Doe"
   ///   },
-  ///   "email": "jwt_user@#r@D@realm.io",
+  ///   "email": "realm_tests_do_autoverify_jwt_user@realm.io",
   ///   "gender": "male",
   ///   "birthDay": "1999-10-11",
   ///   "minAge": "10",
@@ -356,7 +356,7 @@ Future<void> main([List<String>? args]) async {
   /// }
   baasTest('JWT - login with existing user and edit profile', (configuration) async {
     final app = App(configuration);
-    final username = "jwt_user@#r@D@realm.io";
+    const username = "realm_tests_do_autoverify_jwt_user@realm.io";
     final authProvider = EmailPasswordAuthProvider(app);
     // Always register jwt_user@#r@D@realm.io as a new user.
     try {
@@ -371,7 +371,7 @@ Future<void> main([List<String>? args]) async {
         }
       }
     }
-    final user = await app.logIn(Credentials.emailPassword(username, strongPassword));
+    final user = await loginWithRetry(app, Credentials.emailPassword(username, strongPassword));
     UserIdentity emailIdentity = user.identities.singleWhere((identity) => identity.provider == AuthProviderType.emailPassword);
     expect(emailIdentity.provider, isNotNull);
     var userId = emailIdentity.id;
@@ -389,14 +389,14 @@ Future<void> main([List<String>? args]) async {
     expect(user.profile["company"], isNull);
 
     var token =
-        "eyJraWQiOiIxIiwiYWxnIjoiUlMyNTYiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiI2MmYzODQwYjRhYzQzZjM4YTUwYjllMmIiLCJuYW1lIjp7ImZpcnN0TmFtZSI6IkpvaG4iLCJsYXN0TmFtZSI6IkRvZSJ9LCJlbWFpbCI6Imp3dF91c2VyQCNyQERAcmVhbG0uaW8iLCJnZW5kZXIiOiJtYWxlIiwiYmlydGhEYXkiOiIxOTk5LTEwLTExIiwibWluQWdlIjoiMTAiLCJtYXhBZ2UiOiI5MCIsImNvbXBhbnkiOiJSZWFsbSIsImlhdCI6MTY2MDE0NTA1NSwiZXhwIjo0ODEzNzQ1MDU1LCJhdWQiOiJtb25nb2RiLmNvbSIsImlzcyI6Imh0dHBzOi8vcmVhbG0uaW8ifQ.AHi4eh3wT9VifM0Hy07vVa2Sck8qlv4st71GaR5UFaytgDW7a-zhLRpPXYt6RX8mjzx6aCenbVr7-Cg8kKxL8XT5x-kmswse8FVtRXi-G5TU2C3AMuMTavP9KCMSpU6_IUfpF_i8kQbrke-YzfS5jflspyEgxHrHTcG0aRIRqBHAmu78er7t3MMv2tbScmipZv-QOXczhTBt0o2wk8iZ-qqTK2X6xb1wbhUS9YtY4oqmuE7n-I_1xah_yd4yF-aS3n13vT-nrm6aIdjwR_EVxAoekN9TTqs0WzpCjy2CcL-LO3RcepUCPQTGwKg9ObTFjJ2URw4FJ_BEA8EfpT_fBg";
+        "eyJraWQiOiIxIiwiYWxnIjoiUlMyNTYiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiI2MmYzODQwYjRhYzQzZjM4YTUwYjllMmIiLCJuYW1lIjp7ImZpcnN0TmFtZSI6IkpvaG4iLCJsYXN0TmFtZSI6IkRvZSJ9LCJlbWFpbCI6InJlYWxtX3Rlc3RzX2RvX2F1dG92ZXJpZnlfand0X3VzZXJAcmVhbG0uaW8iLCJnZW5kZXIiOiJtYWxlIiwiYmlydGhEYXkiOiIxOTk5LTEwLTExIiwibWluQWdlIjoiMTAiLCJtYXhBZ2UiOiI5MCIsImNvbXBhbnkiOiJSZWFsbSIsImlhdCI6MTY4MDI4MDg3NSwiZXhwIjo0ODMzODgwODc1LCJhdWQiOiJtb25nb2RiLmNvbSIsImlzcyI6Imh0dHBzOi8vcmVhbG0uaW8ifQ.Wc-jGXtVqLSCmRP644Uocm1B2nE4DQtRMhDeIyZWa1NNGZrI62o6g8MguUePTqCw0Qc4fn7gdE98JAHrblT2ZtdHnnNjaUQ8p1EikkKzS6h_GgWjUv4hIAEHtwAPbxVJGXQcwBCoDtBknLMxn9pErjI9xJyqM9B7T7RAELQDH4vNlEUN1KrZQATU5PQGPqjWVxWqt3T3WaNlvyHC2L4pfddhwocEu0ALHux2CZy4ixnUJ3CYqh3Lka5saxWa1djhcy4Uku4fsA948sduwQF1UdI4mjQN0gwNIODQVb9HjaSSZh3nuUCDocB2VokmBczT1WGgVRAVbDlmyGKf6BvRjg";
     await user.linkCredentials(Credentials.jwt(token));
 
     UserIdentity jwtIdentity = user.identities.singleWhere((identity) => identity.provider == AuthProviderType.jwt);
     expect(jwtIdentity.provider, isNotNull);
     var jwtUserId = jwtIdentity.id;
 
-    var jwtUser = await app.logIn(Credentials.jwt(token));
+    var jwtUser = await loginWithRetry(app, Credentials.jwt(token));
 
     expect(jwtUser.state, UserState.loggedIn);
     expect(jwtUser.identities.singleWhere((identity) => identity.provider == AuthProviderType.jwt).id, jwtUserId);
@@ -411,7 +411,7 @@ Future<void> main([List<String>? args]) async {
     expect(jwtUser.profile.firstName, "John");
     expect(jwtUser.profile.lastName, "Doe");
     expect(jwtUser.profile["company"], "Realm");
-  }, appName: AppNames.autoConfirm);
+  });
 
   /// Token signed with private key different than the one configured in Atlas 'flexible' app JWT authentication provider
   /// JWT Payload data

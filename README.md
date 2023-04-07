@@ -13,8 +13,7 @@ This repository holds the source code for the Realm SDK for Flutter™ and Dart�
 * **Simple:** Realm’s object-oriented data model is simple to learn, doesn’t need an ORM, and the [API](https://pub.dev/documentation/realm/latest/) lets you write less code to get apps up & running in minutes.
 * **Modern:** Realm supports latest Dart and Flutter versions and is build with sound null-safety.
 * **Fast:** Realm is faster than even raw SQLite on common operations while maintaining an extremely rich feature set.
-* **[Device Sync](https://www.mongodb.com/atlas/app-services/device-sync)**: Makes it simple to keep data in sync across users, devices, and your backend in real-time. [Get started](https://mongodb.com/realm/register?utm_medium=github_atlas_CTA&utm_source=realm_dart_github) for free with a template application that includes a cloud backend and Sync.
-
+* **[Device Sync](https://www.mongodb.com/atlas/app-services/device-sync)**: Makes it simple to keep data in sync across users, devices, and your backend in real-time. Get started for free with [a template application](https://github.com/mongodb/template-app-dart-flutter-todo) and [create the cloud backend](http://mongodb.com/realm/register?utm_medium=github_atlas_CTA&utm_source=realm_dart_github).
 
 ## Getting Started
 
