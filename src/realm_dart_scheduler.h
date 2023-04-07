@@ -28,4 +28,9 @@ RLM_API void realm_dart_scheduler_invoke(uint64_t isolateId, void* userData);
 
 RLM_API uint64_t realm_dart_get_thread_id();
 
+RLM_API void realm_dart_logger_callback(realm_userdata_t userData, realm_log_level_e level, const char* message);;
+
+RLM_API void realm_dart_initialize_logger(Dart_Handle logger, realm_log_func_t arg0, realm_log_level_e arg1, realm_scheduler_t* scheduler);
+
+RLM_API void realm_dart_userdata_free(realm_userdata_t userdata);
 #endif // REALM_DART_SCHEDULER_H

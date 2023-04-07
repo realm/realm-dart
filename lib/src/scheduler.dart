@@ -22,21 +22,21 @@ import 'dart:isolate';
 import 'native/realm_core.dart';
 
 final _receivePortFinalizer = Finalizer<RawReceivePort>((p) => p.close());
-final Scheduler scheduler = Scheduler._();
+late final Scheduler scheduler;
 
 class Scheduler {
   late final SchedulerHandle handle;
   final RawReceivePort receivePort = RawReceivePort();
 
-  Scheduler._() {
+  Scheduler.init(SchedulerRealmCore instance) {
     _receivePortFinalizer.attach(this, receivePort, detach: this);
 
     receivePort.handler = (dynamic message) {
-      realmCore.invokeScheduler(handle);
+      instance.invokeScheduler(handle);
     };
 
     final sendPort = receivePort.sendPort;
-    handle = realmCore.createScheduler(Isolate.current.hashCode, sendPort.nativePort);
+    handle = instance.createScheduler(Isolate.current.hashCode, sendPort.nativePort);
   }
 
   void stop() {
@@ -48,4 +48,9 @@ class Scheduler {
     _receivePortFinalizer.detach(this);
     handle.release();
   }
+}
+
+abstract class SchedulerRealmCore {
+  void invokeScheduler(SchedulerHandle schedulerHandle);
+  SchedulerHandle createScheduler(int isolateId, int sendPort);
 }

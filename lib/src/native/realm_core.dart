@@ -21,6 +21,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:cancellation_token/cancellation_token.dart';
@@ -51,7 +52,7 @@ late RealmLibrary _realmLib;
 
 final _RealmCore realmCore = _RealmCore();
 
-class _RealmCore {
+class _RealmCore implements SchedulerRealmCore {
   // From realm.h. Currently not exported from the shared library
   static const int RLM_INVALID_CLASS_KEY = 0x7FFFFFFF;
   // ignore: unused_field
@@ -82,8 +83,8 @@ class _RealmCore {
   factory _RealmCore() {
     _instance ??= _RealmCore._();
     final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
-    _realmLib.realm_set_log_callback(
-        logCallback.cast(), Realm.logger.level.toInt(), noopUserdata.toWeakHandle(), _realmLib.addresses.realm_dart_delete_weak_handle);
+    scheduler = Scheduler.init(_instance!);
+    _realmLib.realm_dart_initialize_logger(Realm.logger, logCallback.cast(), Realm.logger.level.toInt(), scheduler.handle._pointer);
 
     return _instance!;
   }
@@ -604,10 +605,6 @@ class _RealmCore {
 
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
     final schedulerPtr = _realmLib.realm_dart_create_scheduler(isolateId, sendPort);
-    final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
-    final logCallbackUserdata = _realmLib.realm_dart_userdata_async_new(noopUserdata, logCallback.cast(), schedulerPtr);
-    _realmLib.realm_set_log_callback(_realmLib.addresses.realm_dart_sync_client_log_callback, Realm.logger.level.toInt(), logCallbackUserdata.cast(),
-        _realmLib.addresses.realm_dart_userdata_async_free);
     return SchedulerHandle._(schedulerPtr);
   }
 
@@ -1685,11 +1682,11 @@ class _RealmCore {
   }
 
   static void _logCallback(Object userdata, int levelAsInt, Pointer<Int8> message) {
-    final logger = Realm.logger;
+    final Logger? logger = userdata as Logger?;
     final level = LevelExt.fromInt(levelAsInt);
 
     // Don't do expensive utf8 to utf16 conversion unless needed.
-    if (logger.isLoggable(level)) {
+    if (logger != null && logger.isLoggable(level)) {
       logger.log(level, message.cast<Utf8>().toDartString());
     }
   }

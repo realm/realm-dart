@@ -22,6 +22,7 @@
 #include <thread>
 
 #include "realm_dart_scheduler.h"
+#include <realm/object-store/c_api/types.hpp>
 
 struct SchedulerData {
     //used for debugging
@@ -101,4 +102,44 @@ RLM_API uint64_t realm_dart_get_thread_id() {
     ss << std::this_thread::get_id();
     uint64_t id = std::stoull(ss.str());
     return id;
+}
+
+
+// TODO: Move this code below to another class
+struct LoggerData {
+
+    LoggerData(Dart_Handle logger_handle, realm_log_func_t callback, realm_scheduler_t* scheduler)
+        :user_logger_handle(Dart_NewPersistentHandle_DL(logger_handle)), user_callback(callback), user_scheduler(*scheduler)
+    {}
+
+    ~LoggerData() {
+        Dart_DeletePersistentHandle_DL(user_logger_handle);
+    }
+
+    Dart_PersistentHandle user_logger_handle;
+    realm_log_func_t user_callback = nullptr;
+    std::shared_ptr<realm::util::Scheduler> user_scheduler;
+
+};
+
+RLM_API void realm_dart_logger_callback(realm_userdata_t userData, realm_log_level_e level, const char* message) {
+
+    std::string copy_message = message;
+    LoggerData* loggerData = reinterpret_cast<LoggerData*>(userData);
+    loggerData->user_scheduler->invoke([loggerData, level = level, message = std::move(message), copy_message = std::move(copy_message)]() mutable {
+        message = copy_message.c_str();
+        (reinterpret_cast<realm_log_func_t>(loggerData->user_callback))(loggerData->user_logger_handle, level, message);
+    });
+}
+
+RLM_API void realm_dart_initialize_logger(Dart_Handle logger, realm_log_func_t arg0, realm_log_level_e arg1, realm_scheduler_t* scheduler) {
+    LoggerData* loggerData = new LoggerData(logger, arg0, scheduler);
+    // TODO: Call realm_set_log_callback only once if it is already done. Keep a global member.
+    // TODO: Add loggerData to a global collection and use it to send dart callbacks when the core callback is received
+    realm_set_log_callback(realm_dart_logger_callback, arg1, loggerData, realm_dart_userdata_free);
+}
+
+RLM_API void realm_dart_userdata_free(realm_userdata_t userdata)
+{
+    userdata = nullptr;
 }
