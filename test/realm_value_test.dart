@@ -157,7 +157,7 @@ Future<void> main([List<String>? args]) async {
 
     test('Unknown schema for RealmValue.value after bad migration', () {
       {
-        final config = Configuration.local([AnythingGoes.schema, Stuff.schema], path: 'unknown_embedded', schemaVersion: 0);
+        final config = Configuration.local([AnythingGoes.schema, Stuff.schema], schemaVersion: 0);
         Realm.deleteRealm(config.path);
         final realm = Realm(config);
 
@@ -172,7 +172,6 @@ Future<void> main([List<String>? args]) async {
       // From here on Stuff is unknown
       final config = Configuration.local(
         [AnythingGoes.schema],
-        path: 'unknown_embedded',
         schemaVersion: 1,
         migrationCallback: (migration, oldSchemaVersion) {
           // forget to handle RealmValue pointing to Stuff
