@@ -174,7 +174,7 @@ RLM_API realm_decimal128_t realm_dart_decimal128_from_int64(int64_t x) {
 }
 
 RLM_API int64_t realm_dart_decimal128_to_int64(realm_decimal128_t decimal)  {
-    int64_t result;
+    BID_SINT64 result;
     unsigned int flags = 0;
     __bid128_to_int64_int(&result, (BID_UINT128*)&decimal, &flags);
     return result;
