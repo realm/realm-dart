@@ -19,9 +19,8 @@
 import 'dart:math';
 
 import 'package:meta/meta.dart';
-import 'package:realm_dart/src/decimal128.dart';
+import '../lib/src/decimal128.dart';
 import 'package:test/test.dart';
-import 'package:realm_dart/src/native/realm_core.dart';
 
 const int defaultTimes = 100000;
 

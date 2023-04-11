@@ -11,6 +11,7 @@ import '../test/backlinks_test.dart' as backlinks_test;
 import '../test/client_reset_test.dart' as client_reset_test;
 import '../test/configuration_test.dart' as configuration_test;
 import '../test/credentials_test.dart' as credentials_test;
+import '../test/decimal128_test.dart' as decimal128_test;
 import '../test/dynamic_realm_test.dart' as dynamic_realm_test;
 import '../test/embedded_test.dart' as embedded_test;
 import '../test/indexed_test.dart' as indexed_test;
@@ -36,6 +37,7 @@ Future<String> main(List<String> args) async {
     await client_reset_test.main(args);
     await configuration_test.main(args);
     await credentials_test.main(args);
+    await decimal128_test.main(args);
     await dynamic_realm_test.main(args);
     await embedded_test.main(args);
     indexed_test.main(args);
