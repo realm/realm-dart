@@ -926,7 +926,7 @@ class _RealmCore {
 
   Object? getProperty(RealmObjectBase object, int propertyKey) {
     return using((Arena arena) {
-      final realm_value = arena<realm_value_t>();
+      final realm_value = arena.allocateValue();
       _realmLib.invokeGetBool(() => _realmLib.realm_get_value(object.handle._pointer, propertyKey, realm_value));
       return realm_value.toDartValue(object.realm);
     });
@@ -1074,7 +1074,7 @@ class _RealmCore {
 
   Object? resultsGetElementAt(RealmResults results, int index) {
     return using((Arena arena) {
-      final realm_value = arena<realm_value_t>();
+      final realm_value = arena.allocateValue();
       _realmLib.invokeGetBool(() => _realmLib.realm_results_get(results.handle._pointer, index, realm_value));
       return realm_value.toDartValue(results.realm);
     });
@@ -1182,7 +1182,7 @@ class _RealmCore {
 
   Object? listGetElementAt(RealmList list, int index) {
     return using((Arena arena) {
-      final realm_value = arena<realm_value_t>();
+      final realm_value = arena.allocateValue();
       _realmLib.invokeGetBool(() => _realmLib.realm_list_get(list.handle._pointer, index, realm_value));
       return realm_value.toDartValue(list.realm);
     });
@@ -1266,7 +1266,7 @@ class _RealmCore {
 
   Object? realmSetGetElementAt(RealmSet realmSet, int index) {
     return using((Arena arena) {
-      final realm_value = arena<realm_value_t>();
+      final realm_value = arena.allocateValue();
       _realmLib.invokeGetBool(() => _realmLib.realm_set_get(realmSet.handle._pointer, index, realm_value));
       final result = realm_value.toDartValue(realmSet.realm);
       return result;
@@ -2805,7 +2805,7 @@ extension _RealmLibraryEx on RealmLibrary {
 }
 
 Pointer<realm_value_t> _toRealmValue(Object? value, Allocator allocator) {
-  final realm_value = allocator<realm_value_t>();
+  final realm_value = allocator.allocateValue();
   _intoRealmValue(value, realm_value, allocator);
   return realm_value;
 }
@@ -2814,7 +2814,7 @@ const int _microsecondsPerSecond = 1000 * 1000;
 const int _nanosecondsPerMicrosecond = 1000;
 
 void _intoRealmQueryArg(Object? value, Pointer<realm_query_arg_t> realm_query_arg, Allocator allocator) {
-  realm_query_arg.ref.arg = allocator<realm_value_t>();
+  realm_query_arg.ref.arg = allocator.allocateValue();
   realm_query_arg.ref.nb_args = 1;
   realm_query_arg.ref.is_list = false;
   _intoRealmValue(value, realm_query_arg.ref.arg, allocator);
@@ -3193,5 +3193,12 @@ extension PlatformEx on Platform {
     }
 
     return result;
+  }
+}
+
+extension on Allocator {
+  Pointer<realm_value_t> allocateValue([int count = 1]) {
+    final size = sizeOf<realm_value_t>();
+    return allocate<realm_value_t>(size * count, alignment: 32);
   }
 }
