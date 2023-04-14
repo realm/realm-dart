@@ -58,6 +58,7 @@ Future<void> main([List<String>? args]) async {
     expect(Decimal128.nan, isNot(greaterThanOrEqualTo(Decimal128.nan)));
     expect(Decimal128.nan.isNaN, isTrue);
     expect(Decimal128.zero.isNaN, isFalse);
+    expect((Decimal128.zero / Decimal128.zero).isNaN, isTrue);
     expect(Decimal128.one.isNaN, isFalse);
     expect(Decimal128.ten.isNaN, isFalse);
     expect(Decimal128.infinity.isNaN, isFalse);
@@ -145,6 +146,17 @@ Future<void> main([List<String>? args]) async {
 
     expect(-1.0 / 0.0, double.negativeInfinity);
     expect(-Decimal128.one / Decimal128.zero, Decimal128.negativeInfinity);
+  });
+
+  test('Decimal128 IEEE 754-2019 corner cases', () {
+    expect(double.infinity + 1, double.infinity);
+    expect(Decimal128.infinity + Decimal128.one, Decimal128.infinity);
+
+    expect(double.infinity * -1, double.negativeInfinity);
+    expect(Decimal128.infinity * -Decimal128.one, Decimal128.negativeInfinity);
+
+    expect((double.infinity * 0).isNaN, isTrue);
+    expect((Decimal128.infinity * Decimal128.zero).isNaN, isTrue);
   });
 
   repeatTest('Decimal128.compareTo + <, <=, ==, !=, >=, >', (x, xInt, y, yInt) {
