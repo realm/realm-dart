@@ -200,13 +200,19 @@ RLM_API realm_decimal128_t realm_dart_decimal128_divide(realm_decimal128_t x, re
 }
 
 RLM_API bool realm_dart_decimal128_equal(realm_decimal128_t x, realm_decimal128_t y) {
-    return from_capi(x) == from_capi(y);
+    auto x_decimal = from_capi(x);
+    auto y_decimal = from_capi(y);
+    return !x_decimal.is_nan() && !y_decimal.is_nan() && x_decimal == y_decimal;
 }
 
 RLM_API bool realm_dart_decimal128_less_than(realm_decimal128_t x, realm_decimal128_t y) {
-    return from_capi(x) < from_capi(y);
+    auto x_decimal = from_capi(x);
+    auto y_decimal = from_capi(y);
+    return !x_decimal.is_nan() && !y_decimal.is_nan() && x_decimal < y_decimal;
 }
 
 RLM_API bool realm_dart_decimal128_greater_than(realm_decimal128_t x, realm_decimal128_t y) {
-    return from_capi(x) > from_capi(y);
+    auto x_decimal = from_capi(x);
+    auto y_decimal = from_capi(y);
+    return !x_decimal.is_nan() && !y_decimal.is_nan() && x_decimal > y_decimal;
 }

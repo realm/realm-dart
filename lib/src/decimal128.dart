@@ -104,7 +104,7 @@ class Decimal128 extends Comparable<Decimal128> {
   @override
   // ignore: hash_and_equals
   operator ==(Object other) {
-    // WARNING: Don't use identical to ensure nan != nan
+    // WARNING: Don't use identical to ensure nan != nan,
     // if (identical(this, other)) return true;
     if (other is Decimal128) {
       return lib.realm_dart_decimal128_equal(_value, other._value);
@@ -141,8 +141,8 @@ class Decimal128 extends Comparable<Decimal128> {
   }
 
   /// Compares `this` to `other`.
-  /// Note that comparisons of `nan` values are stable, unlike IEEE754.
-  /// In particular, `nan == nan` is `true`.
+  /// Note that comparisons of `nan` values follow the IEEE 754 standard.
+  /// In particular, `nan == nan` is `false`.
   @override
   int compareTo(Decimal128 other) {
     if (this < other) {
