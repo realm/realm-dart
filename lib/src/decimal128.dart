@@ -29,7 +29,7 @@ class Decimal128 extends Comparable<Decimal128> {
   static final one = Decimal128.fromInt(1);
   static final ten = Decimal128.fromInt(10);
 
-  static final nan = Decimal128.parse('+NaN');
+  static late final nan = Decimal128._(lib.realm_dart_decimal128_nan());
   static final infinity = one / zero; // +Inf
   static final negativeInfinity = -infinity;
 

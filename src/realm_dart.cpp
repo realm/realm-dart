@@ -25,6 +25,8 @@
 #include "realm_dart.hpp"
 #include "realm-core/src/external/IntelRDFPMathLib20U2/LIBRARY/src/bid_conf.h"
 #include "realm-core/src/external/IntelRDFPMathLib20U2/LIBRARY/src/bid_functions.h"
+#include "realm-core/src/realm/object-store/c_api/conversion.hpp"
+#include "realm-core/src/realm/decimal128.hpp"
 
 #if REALM_ARCHITECTURE_ARM32 || REALM_ARCHITECTURE_ARM64 || REALM_ARCHITECTURE_X86_32 || REALM_ARCHITECTURE_X86_64
 #if REALM_ARCHITECTURE_ARM32
@@ -54,6 +56,9 @@ std::string cpuArch = "Unknown";
 RLM_API void realm_dart_initializeDartApiDL(void* data) {
     Dart_InitializeApiDL(data);
 }
+
+using namespace realm;
+using namespace realm::c_api;
 
 class WeakHandle {
 public:
@@ -152,13 +157,11 @@ RLM_API const char* realm_get_library_cpu_arch() {
 }
 
 RLM_API realm_decimal128_t realm_dart_decimal128_from_string(const char* string) {
-    realm_decimal128_t result;
-    unsigned int flags = 0;
-    __bid128_from_string((BID_UINT128*)&result, const_cast<char*>(string), &flags);
-    return result;
+    return to_capi(Decimal128(string));
 }
 
 RLM_API realm_string_t realm_dart_decimal128_to_string(realm_decimal128_t x) {
+    auto s = from_capi(x).to_string();
     // This buffer is reused between calls, hence the static keyword
     static char buffer[34]; // 34 bytes is the maximum length of a string representation of a decimal128
     unsigned int flags = 0;
@@ -166,69 +169,44 @@ RLM_API realm_string_t realm_dart_decimal128_to_string(realm_decimal128_t x) {
     return realm_string_t{buffer, strlen(buffer)};
 }
 
+RLM_API realm_decimal128_t realm_dart_decimal128_nan() {
+    return to_capi(Decimal128::nan("+NaN"));
+}
+
 RLM_API realm_decimal128_t realm_dart_decimal128_from_int64(int64_t x) {
-    realm_decimal128_t decimal;
-    unsigned int flags = 0;
-    __bid128_from_int64((BID_UINT128*)&decimal, (BID_SINT64*)&x);
-    return decimal;
+    return to_capi(Decimal128(x));
 }
 
 RLM_API int64_t realm_dart_decimal128_to_int64(realm_decimal128_t decimal)  {
-    BID_SINT64 result;
-    unsigned int flags = 0;
-    __bid128_to_int64_int(&result, (BID_UINT128*)&decimal, &flags);
+    int64_t result;
+    from_capi(decimal).to_int(result);
     return result;
 }
 
 RLM_API realm_decimal128_t realm_dart_decimal128_add(realm_decimal128_t x, realm_decimal128_t y) {
-    realm_decimal128_t result;
-    unsigned int flags = 0;
-    __bid128_add((BID_UINT128*)&result, (BID_UINT128*)&x, (BID_UINT128*)&y, &flags);
-    return result;
+    return to_capi(from_capi(x) + from_capi(y));
 }
 
 RLM_API realm_decimal128_t realm_dart_decimal128_subtract(realm_decimal128_t x, realm_decimal128_t y) {
-    realm_decimal128_t result;
-    unsigned int flags = 0;
-    __bid128_sub((BID_UINT128*)&result, (BID_UINT128*)&x, (BID_UINT128*)&y, &flags);
-    return result;
+    return to_capi(from_capi(x) - from_capi(y));
 }
 
 RLM_API realm_decimal128_t realm_dart_decimal128_multiply(realm_decimal128_t x, realm_decimal128_t y) {
-    realm_decimal128_t result;
-    unsigned int flags = 0;
-    __bid128_mul((BID_UINT128*)&result, (BID_UINT128*)&x, (BID_UINT128*)&y, &flags);
-    return result;
+    return to_capi(from_capi(x) * from_capi(y));
 }
 
 RLM_API realm_decimal128_t realm_dart_decimal128_divide(realm_decimal128_t x, realm_decimal128_t y) {
-    realm_decimal128_t result;
-    unsigned int flags = 0;
-    __bid128_div((BID_UINT128*)&result, (BID_UINT128*)&x, (BID_UINT128*)&y, &flags);
-    return result;
+    return to_capi(from_capi(x) / from_capi(y));
 }
 
 RLM_API bool realm_dart_decimal128_equal(realm_decimal128_t x, realm_decimal128_t y) {
-    int result;
-    unsigned int flags = 0;
-    __bid128_quiet_equal(&result, (BID_UINT128*)&x, (BID_UINT128*)&y, &flags);
-    return result == 1;
+    return from_capi(x) == from_capi(y);
 }
 
 RLM_API bool realm_dart_decimal128_less_than(realm_decimal128_t x, realm_decimal128_t y) {
-    int result;
-    unsigned int flags = 0;
-    __bid128_quiet_less(&result, (BID_UINT128*)&x, (BID_UINT128*)&y, &flags);
-    return result == 1;
+    return from_capi(x) < from_capi(y);
 }
 
 RLM_API bool realm_dart_decimal128_greater_than(realm_decimal128_t x, realm_decimal128_t y) {
-    int result;
-    unsigned int flags = 0;
-    __bid128_quiet_greater(&result, (BID_UINT128*)&x, (BID_UINT128*)&y, &flags);
-    return result == 1;
+    return from_capi(x) > from_capi(y);
 }
-
-
-
-

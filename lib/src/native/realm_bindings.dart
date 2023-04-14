@@ -3323,6 +3323,16 @@ class RealmLibrary {
           realm_decimal128_t Function(
               realm_decimal128_t, realm_decimal128_t)>();
 
+  realm_decimal128_t realm_dart_decimal128_nan() {
+    return _realm_dart_decimal128_nan();
+  }
+
+  late final _realm_dart_decimal128_nanPtr =
+      _lookup<ffi.NativeFunction<realm_decimal128_t Function()>>(
+          'realm_dart_decimal128_nan');
+  late final _realm_dart_decimal128_nan =
+      _realm_dart_decimal128_nanPtr.asFunction<realm_decimal128_t Function()>();
+
   realm_decimal128_t realm_dart_decimal128_subtract(
     realm_decimal128_t x,
     realm_decimal128_t y,
@@ -10696,6 +10706,8 @@ class _SymbolAddresses {
                   realm_decimal128_t, realm_decimal128_t)>>
       get realm_dart_decimal128_multiply =>
           _library._realm_dart_decimal128_multiplyPtr;
+  ffi.Pointer<ffi.NativeFunction<realm_decimal128_t Function()>>
+      get realm_dart_decimal128_nan => _library._realm_dart_decimal128_nanPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               realm_decimal128_t Function(
