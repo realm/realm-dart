@@ -52,6 +52,16 @@ void repeatTest(String description, dynamic Function(Decimal128 x, int xInt, Dec
 Future<void> main([List<String>? args]) async {
   test('Decimal128.nan', () {
     expect(Decimal128.nan, isNot(Decimal128.nan));
+    expect(Decimal128.nan, isNot(lessThan(Decimal128.nan)));
+    expect(Decimal128.nan, isNot(lessThanOrEqualTo(Decimal128.nan)));
+    expect(Decimal128.nan, isNot(greaterThan(Decimal128.nan)));
+    expect(Decimal128.nan, isNot(greaterThanOrEqualTo(Decimal128.nan)));
+    expect(Decimal128.nan.isNaN, isTrue);
+    expect(Decimal128.zero.isNaN, isFalse);
+    expect(Decimal128.one.isNaN, isFalse);
+    expect(Decimal128.ten.isNaN, isFalse);
+    expect(Decimal128.infinity.isNaN, isFalse);
+
     // NaN != NaN so compare as strings
     expect(Decimal128.tryParse(Decimal128.nan.toString()).toString(), Decimal128.nan.toString());
   });

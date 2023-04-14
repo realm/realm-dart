@@ -74,6 +74,9 @@ class Decimal128 extends Comparable<Decimal128> {
     return Decimal128.parse(value.toString()); // TODO(kn): Find a way to optimize this
   }
 
+  /// Returns `true` if `this` is NaN.
+  bool get isNaN => lib.realm_dart_decimal128_is_nan(_value);
+
   /// Adds `this` with `other` and returns a new [Decimal128].
   Decimal128 operator +(Decimal128 other) {
     return Decimal128._(lib.realm_dart_decimal128_add(_value, other._value));

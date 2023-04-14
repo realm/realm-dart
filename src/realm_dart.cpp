@@ -173,6 +173,10 @@ RLM_API realm_decimal128_t realm_dart_decimal128_nan() {
     return to_capi(Decimal128::nan("+NaN"));
 }
 
+RLM_API bool realm_dart_decimal128_is_nan(realm_decimal128_t decimal) {
+    return from_capi(decimal).is_nan();
+}
+
 RLM_API realm_decimal128_t realm_dart_decimal128_from_int64(int64_t x) {
     return to_capi(Decimal128(x));
 }

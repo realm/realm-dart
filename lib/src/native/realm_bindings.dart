@@ -3286,6 +3286,20 @@ class RealmLibrary {
       _realm_dart_decimal128_greater_thanPtr
           .asFunction<bool Function(realm_decimal128_t, realm_decimal128_t)>();
 
+  bool realm_dart_decimal128_is_nan(
+    realm_decimal128_t decimal,
+  ) {
+    return _realm_dart_decimal128_is_nan(
+      decimal,
+    );
+  }
+
+  late final _realm_dart_decimal128_is_nanPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(realm_decimal128_t)>>(
+          'realm_dart_decimal128_is_nan');
+  late final _realm_dart_decimal128_is_nan = _realm_dart_decimal128_is_nanPtr
+      .asFunction<bool Function(realm_decimal128_t)>();
+
   bool realm_dart_decimal128_less_than(
     realm_decimal128_t x,
     realm_decimal128_t y,
@@ -10695,6 +10709,9 @@ class _SymbolAddresses {
               ffi.Bool Function(realm_decimal128_t, realm_decimal128_t)>>
       get realm_dart_decimal128_greater_than =>
           _library._realm_dart_decimal128_greater_thanPtr;
+  ffi.Pointer<ffi.NativeFunction<ffi.Bool Function(realm_decimal128_t)>>
+      get realm_dart_decimal128_is_nan =>
+          _library._realm_dart_decimal128_is_nanPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Bool Function(realm_decimal128_t, realm_decimal128_t)>>
