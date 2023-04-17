@@ -62,7 +62,7 @@ using namespace realm::c_api;
 
 class WeakHandle {
 public:
-    WeakHandle(Dart_Handle handle) : m_weakHandle(Dart_NewWeakPersistentHandle_DL(handle, this, 1, finalize_handle)) {
+    WeakHandle(Dart_Handle handle): m_weakHandle(Dart_NewWeakPersistentHandle_DL(handle, this, 1, finalize_handle)) {
     }
 
     Dart_Handle value() {
@@ -136,19 +136,19 @@ RLM_API const char* realm_dart_library_version() { return "1.0.3"; }
 // }
 
 void handle_finalizer(void* isolate_callback_data, void* realmPtr) {
-  realm_release(realmPtr);
+    realm_release(realmPtr);
 }
 
 RLM_API void* realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size) {
-  return Dart_NewFinalizableHandle_DL(handle, realmPtr, size, handle_finalizer);
+    return Dart_NewFinalizableHandle_DL(handle, realmPtr, size, handle_finalizer);
 }
 
 RLM_API void realm_dettach_finalizer(void* finalizableHandle, Dart_Handle handle) {
-  Dart_FinalizableHandle finalHandle = reinterpret_cast<Dart_FinalizableHandle>(finalizableHandle);
-  return Dart_DeleteFinalizableHandle_DL(finalHandle, handle);
+    Dart_FinalizableHandle finalHandle = reinterpret_cast<Dart_FinalizableHandle>(finalizableHandle);
+    return Dart_DeleteFinalizableHandle_DL(finalHandle, handle);
 }
 
-RLM_API void realm_set_auto_refresh(realm_t* realm, bool enable){
+RLM_API void realm_set_auto_refresh(realm_t* realm, bool enable) {
     (*realm)->set_auto_refresh(enable);
 }
 
@@ -166,7 +166,7 @@ RLM_API realm_string_t realm_dart_decimal128_to_string(realm_decimal128_t x) {
     static char buffer[34]; // 34 bytes is the maximum length of a string representation of a decimal128
     unsigned int flags = 0;
     __bid128_to_string(buffer, (BID_UINT128*)&x, &flags);
-    return realm_string_t{buffer, strlen(buffer)};
+    return realm_string_t{ buffer, strlen(buffer) };
 }
 
 RLM_API realm_decimal128_t realm_dart_decimal128_nan() {
@@ -181,10 +181,14 @@ RLM_API realm_decimal128_t realm_dart_decimal128_from_int64(int64_t x) {
     return to_capi(Decimal128(x));
 }
 
-RLM_API int64_t realm_dart_decimal128_to_int64(realm_decimal128_t decimal)  {
+RLM_API int64_t realm_dart_decimal128_to_int64(realm_decimal128_t decimal) {
     int64_t result;
     from_capi(decimal).to_int(result);
     return result;
+}
+
+RLM_API realm_decimal128_t realm_dart_decimal128_negate(realm_decimal128_t decimal) {
+    return to_capi(-from_capi(decimal));
 }
 
 RLM_API realm_decimal128_t realm_dart_decimal128_add(realm_decimal128_t x, realm_decimal128_t y) {
@@ -220,3 +224,8 @@ RLM_API bool realm_dart_decimal128_greater_than(realm_decimal128_t x, realm_deci
     auto y_decimal = from_capi(y);
     return !x_decimal.is_nan() && !y_decimal.is_nan() && x_decimal > y_decimal;
 }
+
+RLM_API int realm_dart_decimal128_compare_to(realm_decimal128_t x, realm_decimal128_t y) {
+    return from_capi(x).compareTotalOrdering(from_capi(y));
+}
+

@@ -3201,6 +3201,24 @@ class RealmLibrary {
           realm_decimal128_t Function(
               realm_decimal128_t, realm_decimal128_t)>();
 
+  int realm_dart_decimal128_compare_to(
+    realm_decimal128_t x,
+    realm_decimal128_t y,
+  ) {
+    return _realm_dart_decimal128_compare_to(
+      x,
+      y,
+    );
+  }
+
+  late final _realm_dart_decimal128_compare_toPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(realm_decimal128_t,
+              realm_decimal128_t)>>('realm_dart_decimal128_compare_to');
+  late final _realm_dart_decimal128_compare_to =
+      _realm_dart_decimal128_compare_toPtr
+          .asFunction<int Function(realm_decimal128_t, realm_decimal128_t)>();
+
   realm_decimal128_t realm_dart_decimal128_divide(
     realm_decimal128_t x,
     realm_decimal128_t y,
@@ -3346,6 +3364,20 @@ class RealmLibrary {
           'realm_dart_decimal128_nan');
   late final _realm_dart_decimal128_nan =
       _realm_dart_decimal128_nanPtr.asFunction<realm_decimal128_t Function()>();
+
+  realm_decimal128_t realm_dart_decimal128_negate(
+    realm_decimal128_t decimal,
+  ) {
+    return _realm_dart_decimal128_negate(
+      decimal,
+    );
+  }
+
+  late final _realm_dart_decimal128_negatePtr = _lookup<
+          ffi.NativeFunction<realm_decimal128_t Function(realm_decimal128_t)>>(
+      'realm_dart_decimal128_negate');
+  late final _realm_dart_decimal128_negate = _realm_dart_decimal128_negatePtr
+      .asFunction<realm_decimal128_t Function(realm_decimal128_t)>();
 
   realm_decimal128_t realm_dart_decimal128_subtract(
     realm_decimal128_t x,
@@ -10687,6 +10719,11 @@ class _SymbolAddresses {
       get realm_dart_decimal128_add => _library._realm_dart_decimal128_addPtr;
   ffi.Pointer<
           ffi.NativeFunction<
+              ffi.Int Function(realm_decimal128_t, realm_decimal128_t)>>
+      get realm_dart_decimal128_compare_to =>
+          _library._realm_dart_decimal128_compare_toPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
               realm_decimal128_t Function(
                   realm_decimal128_t, realm_decimal128_t)>>
       get realm_dart_decimal128_divide =>
@@ -10725,6 +10762,10 @@ class _SymbolAddresses {
           _library._realm_dart_decimal128_multiplyPtr;
   ffi.Pointer<ffi.NativeFunction<realm_decimal128_t Function()>>
       get realm_dart_decimal128_nan => _library._realm_dart_decimal128_nanPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<realm_decimal128_t Function(realm_decimal128_t)>>
+      get realm_dart_decimal128_negate =>
+          _library._realm_dart_decimal128_negatePtr;
   ffi.Pointer<
           ffi.NativeFunction<
               realm_decimal128_t Function(

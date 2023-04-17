@@ -61,6 +61,7 @@ RLM_API realm_decimal128_t realm_dart_decimal128_nan();
 RLM_API bool realm_dart_decimal128_is_nan(realm_decimal128_t decimal);
 RLM_API realm_decimal128_t realm_dart_decimal128_from_int64(int64_t low);
 RLM_API int64_t realm_dart_decimal128_to_int64(realm_decimal128_t decimal);
+RLM_API realm_decimal128_t realm_dart_decimal128_negate(realm_decimal128_t decimal);
 RLM_API realm_decimal128_t realm_dart_decimal128_add(realm_decimal128_t x, realm_decimal128_t y);
 RLM_API realm_decimal128_t realm_dart_decimal128_subtract(realm_decimal128_t x, realm_decimal128_t y);
 RLM_API realm_decimal128_t realm_dart_decimal128_multiply(realm_decimal128_t x, realm_decimal128_t y);
@@ -68,5 +69,6 @@ RLM_API realm_decimal128_t realm_dart_decimal128_divide(realm_decimal128_t x, re
 RLM_API bool realm_dart_decimal128_equal(realm_decimal128_t x, realm_decimal128_t y);
 RLM_API bool realm_dart_decimal128_less_than(realm_decimal128_t x, realm_decimal128_t y);
 RLM_API bool realm_dart_decimal128_greater_than(realm_decimal128_t x, realm_decimal128_t y);
+RLM_API int realm_dart_decimal128_compare_to(realm_decimal128_t x, realm_decimal128_t y);
 
 #endif // REALM_DART_H

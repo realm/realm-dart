@@ -98,7 +98,7 @@ class Decimal128 extends Comparable<Decimal128> {
   }
 
   /// Negates `this` and returns a new [Decimal128].
-  Decimal128 operator -() => zero - this;
+  Decimal128 operator -() => Decimal128._(lib.realm_dart_decimal128_negate(_value));
 
   /// Returns the absolute value of `this`.
   Decimal128 abs() => this < zero ? -this : this;
@@ -144,16 +144,6 @@ class Decimal128 extends Comparable<Decimal128> {
   }
 
   /// Compares `this` to `other`.
-  /// Note that comparisons of `nan` values follow the IEEE 754 standard.
-  /// In particular, `nan == nan` is `false`.
   @override
-  int compareTo(Decimal128 other) {
-    if (this < other) {
-      return -1;
-    } else if (this == other) {
-      return 0;
-    } else {
-      return 1;
-    }
-  }
+  int compareTo(Decimal128 other) => lib.realm_dart_decimal128_compare_to(_value, other._value);
 }

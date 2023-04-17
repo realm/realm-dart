@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:io';
 import 'dart:math';
 
 import 'package:meta/meta.dart';
@@ -24,13 +25,13 @@ import 'package:test/test.dart';
 
 const int defaultTimes = 100000;
 
-@isTest
 void repeat(dynamic Function() body, [int times = defaultTimes]) {
   for (var i = 0; i < times; ++i) {
     body();
   }
 }
 
+@isTest
 void repeatTest(String description, dynamic Function(Decimal128 x, int xInt, Decimal128 y, int yInt) body, [int times = defaultTimes]) {
   final r = Random(42); // use a fixed seed to make tests deterministic
   test('$description ($times variations)', () {
@@ -51,11 +52,55 @@ void repeatTest(String description, dynamic Function(Decimal128 x, int xInt, Dec
 
 Future<void> main([List<String>? args]) async {
   test('Decimal128.nan', () {
+    // Test that we mimic the behavior of Dart's double wrt. NaN and
+    // <, <=, >, >=. Unlike compareTo (which define a total order) these
+    // operators return false for NaN.
+    expect(0.0, isNot(double.nan));
+    expect(0.0, isNot(lessThan(double.nan)));
+    expect(0.0, isNot(lessThanOrEqualTo(double.nan)));
+    expect(0.0, isNot(greaterThan(double.nan)));
+    expect(0.0, isNot(greaterThanOrEqualTo(double.nan)));
+
+    expect(double.nan, isNot(0.0));
+    expect(double.nan, isNot(lessThan(0.0)));
+    expect(double.nan, isNot(lessThanOrEqualTo(0.0)));
+    expect(double.nan, isNot(greaterThan(0.0)));
+    expect(double.nan, isNot(greaterThanOrEqualTo(0.0)));
+
+    expect(double.nan, isNot(double.nan));
+    expect(double.nan, isNot(lessThan(double.nan)));
+    expect(double.nan, isNot(lessThanOrEqualTo(double.nan)));
+    expect(double.nan, isNot(greaterThan(double.nan)));
+    expect(double.nan, isNot(greaterThanOrEqualTo(double.nan)));
+
+    expect(double.nan.isNaN, isTrue);
+    expect((0.0).isNaN, isFalse);
+    expect((0.0 / 0.0).isNaN, isTrue);
+    expect((1.0).isNaN, isFalse);
+    expect((10.0).isNaN, isFalse);
+    expect(double.infinity.isNaN, isFalse);
+
+    // NaN != NaN so compare as strings
+    expect(Decimal128.tryParse(Decimal128.nan.toString()).toString(), Decimal128.nan.toString());
+
+    expect(Decimal128.zero, isNot(Decimal128.nan));
+    expect(Decimal128.zero, isNot(lessThan(Decimal128.nan)));
+    expect(Decimal128.zero, isNot(lessThanOrEqualTo(Decimal128.nan)));
+    expect(Decimal128.zero, isNot(greaterThan(Decimal128.nan)));
+    expect(Decimal128.zero, isNot(greaterThanOrEqualTo(Decimal128.nan)));
+
+    expect(Decimal128.nan, isNot(Decimal128.zero));
+    expect(Decimal128.nan, isNot(lessThan(Decimal128.zero)));
+    expect(Decimal128.nan, isNot(lessThanOrEqualTo(Decimal128.zero)));
+    expect(Decimal128.nan, isNot(greaterThan(Decimal128.zero)));
+    expect(Decimal128.nan, isNot(greaterThanOrEqualTo(Decimal128.zero)));
+
     expect(Decimal128.nan, isNot(Decimal128.nan));
     expect(Decimal128.nan, isNot(lessThan(Decimal128.nan)));
     expect(Decimal128.nan, isNot(lessThanOrEqualTo(Decimal128.nan)));
     expect(Decimal128.nan, isNot(greaterThan(Decimal128.nan)));
     expect(Decimal128.nan, isNot(greaterThanOrEqualTo(Decimal128.nan)));
+
     expect(Decimal128.nan.isNaN, isTrue);
     expect(Decimal128.zero.isNaN, isFalse);
     expect((Decimal128.zero / Decimal128.zero).isNaN, isTrue);
@@ -159,8 +204,42 @@ Future<void> main([List<String>? args]) async {
     expect((Decimal128.infinity * Decimal128.zero).isNaN, isTrue);
   });
 
+  test('Decimal128.compareTo is a total ordering', () {
+    // Test that we mimic the behavior of Dart's double wrt. compareTo in relation
+    // to IEEE754-2019, ie. +/- NaN, +/- infinity and +/- zero and define a total
+    // ordering.
+    expect((-0.0).compareTo(0.0), -1);
+    expect((0.0).compareTo(-0.0), 1);
+    expect((0.0).compareTo(0.0), 0);
+    expect((-0.0).compareTo(-0.0), 0);
+
+    expect(double.negativeInfinity.compareTo(double.infinity), -1);
+    expect(double.infinity.compareTo(double.negativeInfinity), 1);
+    expect(double.infinity.compareTo(double.infinity), 0);
+    expect(double.negativeInfinity.compareTo(double.negativeInfinity), 0);
+
+    expect((1.0).compareTo(double.nan), -1);
+    expect(double.nan.compareTo(double.nan), 0);
+    expect(double.nan.compareTo(1.0), 1);
+
+    // .. and now for Decimal128
+    expect((-Decimal128.zero).compareTo(Decimal128.zero), -1);
+    expect(Decimal128.zero.compareTo(-Decimal128.zero), 1);
+    expect(Decimal128.zero.compareTo(Decimal128.zero), 0);
+    expect((-Decimal128.zero).compareTo(-Decimal128.zero), 0);
+
+    expect(Decimal128.negativeInfinity.compareTo(Decimal128.infinity), -1);
+    expect(Decimal128.infinity.compareTo(Decimal128.negativeInfinity), 1);
+    expect(Decimal128.infinity.compareTo(Decimal128.infinity), 0);
+    expect(Decimal128.negativeInfinity.compareTo(Decimal128.negativeInfinity), 0);
+
+    expect(Decimal128.one.compareTo(Decimal128.nan), -1);
+    expect(Decimal128.nan.compareTo(Decimal128.nan), 0);
+    expect(Decimal128.nan.compareTo(Decimal128.one), 1);
+  });
+
   repeatTest('Decimal128.compareTo + <, <=, ==, !=, >=, >', (x, xInt, y, yInt) {
-    expect(x.compareTo(y), -y.compareTo(x));
+    expect(x.compareTo(y), -(y.compareTo(x)));
     expect(x.compareTo(y), xInt.compareTo(yInt));
     expect(x == y, y == x);
     expect(x == y, xInt == yInt);
