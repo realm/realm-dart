@@ -21,6 +21,7 @@ import 'dart:collection';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
+import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' hide test;
@@ -366,6 +367,12 @@ Future<void> setupTests(List<String>? args) async {
   setUpAll(() async => await (baasSetup ??= setupBaas()));
 
   setUp(() {
+    Realm.logger = Logger.detached('test run')
+      ..level = Level.ALL
+      ..onRecord.listen((record) {
+        testing.printOnFailure('${record.time} ${record.level.name}: ${record.message}');
+      });
+
     final path = generateRandomRealmPath();
     Configuration.defaultRealmPath = path;
 
@@ -388,7 +395,8 @@ Future<void> setupTests(List<String>? args) async {
     });
   });
 
-  await _printPlatformInfo();
+  // Enable this to print platform info, including current PID
+  // await _printPlatformInfo();
 }
 
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
@@ -488,7 +496,7 @@ Future<void> tryDeleteRealm(String path) async {
 
       return;
     } catch (e) {
-      print('Failed to delete realm at path $path. Trying again in ${duration.inMilliseconds}ms');
+      Realm.logger.info('Failed to delete realm at path $path. Trying again in ${duration.inMilliseconds}ms');
       await Future<void>.delayed(duration);
     }
   }

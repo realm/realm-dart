@@ -20,7 +20,9 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
-import 'package:test/test.dart';
+
+import 'package:test/test.dart' hide test;
+import 'test.dart';
 
 import '../lib/realm.dart';
 
@@ -64,6 +66,8 @@ class _NoIndexes {
 typedef QueryBuilder<T, U> = RealmResults<T> Function(U value);
 
 void main([List<String>? args]) {
+  setupTests(args);
+
   test('Indexed faster', () {
     final config = Configuration.local([WithIndexes.schema, NoIndexes.schema]);
     Realm.deleteRealm(config.path);
