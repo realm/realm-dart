@@ -30,10 +30,13 @@ class Options {
   Flavor flavor;
 
   // use to debug install command
-  @CliOption(hide: true, defaultsTo: false)
+  @CliOption(hide: true, help: 'Download binary from http://localhost:8000/.', defaultsTo: false)
   bool debug;
 
-  Options({this.targetOsType, this.flavor = Flavor.dart, this.debug = false});
+  @CliOption(hide: true, help: 'Force install, even if we would normally skip it.', defaultsTo: false)
+  bool force;
+
+  Options({this.targetOsType, this.flavor = Flavor.dart, this.force = false, this.debug = false});
 }
 
 String get usage => _$parserForOptions.usage;
