@@ -141,7 +141,7 @@ RLM_API void* realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int siz
     return Dart_NewFinalizableHandle_DL(handle, realmPtr, size, handle_finalizer);
 }
 
-RLM_API void realm_dettach_finalizer(void* finalizableHandle, Dart_Handle handle) {
+RLM_API void realm_detach_finalizer(void* finalizableHandle, Dart_Handle handle) {
     Dart_FinalizableHandle finalHandle = reinterpret_cast<Dart_FinalizableHandle>(finalizableHandle);
     return Dart_DeleteFinalizableHandle_DL(finalHandle, handle);
 }

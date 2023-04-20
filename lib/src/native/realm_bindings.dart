@@ -3863,21 +3863,21 @@ class RealmLibrary {
   late final _realm_delete_files = _realm_delete_filesPtr.asFunction<
       bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Bool>)>();
 
-  void realm_dettach_finalizer(
+  void realm_detach_finalizer(
     ffi.Pointer<ffi.Void> finalizableHandle,
     Object handle,
   ) {
-    return _realm_dettach_finalizer(
+    return _realm_detach_finalizer(
       finalizableHandle,
       handle,
     );
   }
 
-  late final _realm_dettach_finalizerPtr = _lookup<
+  late final _realm_detach_finalizerPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(
-              ffi.Pointer<ffi.Void>, ffi.Handle)>>('realm_dettach_finalizer');
-  late final _realm_dettach_finalizer = _realm_dettach_finalizerPtr
+              ffi.Pointer<ffi.Void>, ffi.Handle)>>('realm_detach_finalizer');
+  late final _realm_detach_finalizer = _realm_detach_finalizerPtr
       .asFunction<void Function(ffi.Pointer<ffi.Void>, Object)>();
 
   /// Subscribe to notifications for this object.

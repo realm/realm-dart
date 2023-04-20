@@ -51,7 +51,7 @@ RLM_API const char* realm_dart_library_version();
 // RLM_API void realm_dart_gc();
 
 RLM_API void* realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size);
-RLM_API void realm_dettach_finalizer(void* finalizableHandle, Dart_Handle handle);
+RLM_API void realm_detach_finalizer(void* finalizableHandle, Dart_Handle handle);
 RLM_API void realm_set_auto_refresh(realm_t* realm, bool enable);
 
 RLM_API realm_decimal128_t realm_dart_decimal128_from_string(const char* string);

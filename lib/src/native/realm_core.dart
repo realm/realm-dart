@@ -2559,7 +2559,7 @@ abstract class HandleBase<T extends NativeType> implements Finalizable {
     _releaseCore();
 
     if (!isUnowned) {
-      _realmLib.realm_dettach_finalizer(_finalizableHandle, this);
+      _realmLib.realm_detach_finalizer(_finalizableHandle, this);
 
       _realmLib.realm_release(_pointer.cast());
     }
