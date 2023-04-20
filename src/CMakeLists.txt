@@ -11,6 +11,7 @@ set(SOURCES
     realm_dart.cpp
     realm_dart_scheduler.cpp
     realm_dart_sync.cpp
+    realm-core/src/external/IntelRDFPMathLib20U2/LIBRARY/src/bid128_noncomp.c
 )
 
 set(HEADERS

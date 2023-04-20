@@ -25,8 +25,6 @@
 #include "realm_dart.hpp"
 #include "realm-core/src/external/IntelRDFPMathLib20U2/LIBRARY/src/bid_conf.h"
 #include "realm-core/src/external/IntelRDFPMathLib20U2/LIBRARY/src/bid_functions.h"
-#include "realm-core/src/realm/object-store/c_api/conversion.hpp"
-#include "realm-core/src/realm/decimal128.hpp"
 
 #if REALM_ARCHITECTURE_ARM32 || REALM_ARCHITECTURE_ARM64 || REALM_ARCHITECTURE_X86_32 || REALM_ARCHITECTURE_X86_64
 #if REALM_ARCHITECTURE_ARM32
@@ -156,76 +154,145 @@ RLM_API const char* realm_get_library_cpu_arch() {
     return cpuArch.c_str();
 }
 
+namespace {
+realm_decimal128_t to_decimal128(const BID_UINT128& value)
+{
+    realm_decimal128_t result;
+    memcpy(&result, &value, sizeof(BID_UINT128));
+    return result;
+}
+
+BID_UINT128 to_BID_UINT128(const realm_decimal128_t& value)
+{
+    BID_UINT128 result;
+    memcpy(&result, &value, sizeof(BID_UINT128));
+    return result;
+}
+}
+
 RLM_API realm_decimal128_t realm_dart_decimal128_from_string(const char* string) {
-    return to_capi(Decimal128(string));
+    unsigned int flags = 0;
+    BID_UINT128 result;
+    bid128_from_string(&result, const_cast<char*>(string), &flags);
+    return to_decimal128(result);
 }
 
 RLM_API realm_string_t realm_dart_decimal128_to_string(realm_decimal128_t x) {
-    auto s = from_capi(x).to_string();
+    auto x_bid = to_BID_UINT128(x);
     // This buffer is reused between calls, hence the static keyword
     static char buffer[34]; // 34 bytes is the maximum length of a string representation of a decimal128
     unsigned int flags = 0;
-    __bid128_to_string(buffer, (BID_UINT128*)&x, &flags);
+    bid128_to_string(buffer, &x_bid, &flags);
     return realm_string_t{ buffer, strlen(buffer) };
 }
 
 RLM_API realm_decimal128_t realm_dart_decimal128_nan() {
-    return to_capi(Decimal128::nan("+NaN"));
+    BID_UINT128 result;
+    bid128_nan(&result, "+NaN");
+    return to_decimal128(result);
 }
 
-RLM_API bool realm_dart_decimal128_is_nan(realm_decimal128_t decimal) {
-    return from_capi(decimal).is_nan();
-}
-
-RLM_API realm_decimal128_t realm_dart_decimal128_from_int64(int64_t x) {
-    return to_capi(Decimal128(x));
-}
-
-RLM_API int64_t realm_dart_decimal128_to_int64(realm_decimal128_t decimal) {
-    int64_t result;
-    from_capi(decimal).to_int(result);
+RLM_API bool realm_dart_decimal128_is_nan(realm_decimal128_t x) {
+    auto x_bid = to_BID_UINT128(x);
+    int result;
+    bid128_isNaN(&result, &x_bid);
     return result;
 }
 
-RLM_API realm_decimal128_t realm_dart_decimal128_negate(realm_decimal128_t decimal) {
-    return to_capi(-from_capi(decimal));
+RLM_API realm_decimal128_t realm_dart_decimal128_from_int64(int64_t x) {
+    BID_UINT128 result;
+    BID_SINT64 y = x;
+    bid128_from_int64(&result, &y);
+    return to_decimal128(result);
+}
+
+RLM_API int64_t realm_dart_decimal128_to_int64(realm_decimal128_t x) {
+    auto x_bid = to_BID_UINT128(x);
+    BID_SINT64 result;
+    unsigned int flags = 0;
+    bid128_to_int64_int(&result, &x_bid, &flags);
+    return result;
+}
+
+RLM_API realm_decimal128_t realm_dart_decimal128_negate(realm_decimal128_t x) {
+    auto x_bid = to_BID_UINT128(x);
+    BID_UINT128 result;
+    bid128_negate(&result, &x_bid);
+    return to_decimal128(result);
 }
 
 RLM_API realm_decimal128_t realm_dart_decimal128_add(realm_decimal128_t x, realm_decimal128_t y) {
-    return to_capi(from_capi(x) + from_capi(y));
+    auto l = to_BID_UINT128(x);
+    auto r = to_BID_UINT128(y);
+    BID_UINT128 result;
+    unsigned int flags = 0;
+    bid128_add(&result, &l, &r, &flags);
+    return to_decimal128(result);
 }
 
 RLM_API realm_decimal128_t realm_dart_decimal128_subtract(realm_decimal128_t x, realm_decimal128_t y) {
-    return to_capi(from_capi(x) - from_capi(y));
+    auto l = to_BID_UINT128(x);
+    auto r = to_BID_UINT128(y);
+    BID_UINT128 result;
+    unsigned int flags = 0;
+    bid128_sub(&result, &l, &r, &flags);
+    return to_decimal128(result);
 }
 
 RLM_API realm_decimal128_t realm_dart_decimal128_multiply(realm_decimal128_t x, realm_decimal128_t y) {
-    return to_capi(from_capi(x) * from_capi(y));
+    auto l = to_BID_UINT128(x);
+    auto r = to_BID_UINT128(y);
+    BID_UINT128 result;
+    unsigned int flags = 0;
+    bid128_mul(&result, &l, &r, &flags);
+    return to_decimal128(result);
 }
 
 RLM_API realm_decimal128_t realm_dart_decimal128_divide(realm_decimal128_t x, realm_decimal128_t y) {
-    return to_capi(from_capi(x) / from_capi(y));
+    auto l = to_BID_UINT128(x);
+    auto r = to_BID_UINT128(y);
+    BID_UINT128 result;
+    unsigned int flags = 0;
+    bid128_div(&result, &l, &r, &flags);
+    return to_decimal128(result);
 }
 
 RLM_API bool realm_dart_decimal128_equal(realm_decimal128_t x, realm_decimal128_t y) {
-    auto x_decimal = from_capi(x);
-    auto y_decimal = from_capi(y);
-    return !x_decimal.is_nan() && !y_decimal.is_nan() && x_decimal == y_decimal;
+    auto l = to_BID_UINT128(x);
+    auto r = to_BID_UINT128(y);
+    int result;
+    unsigned int flags = 0;
+    bid128_quiet_equal(&result, &l, &r, &flags);
+    return result;
 }
 
 RLM_API bool realm_dart_decimal128_less_than(realm_decimal128_t x, realm_decimal128_t y) {
-    auto x_decimal = from_capi(x);
-    auto y_decimal = from_capi(y);
-    return !x_decimal.is_nan() && !y_decimal.is_nan() && x_decimal < y_decimal;
+    auto l = to_BID_UINT128(x);
+    auto r = to_BID_UINT128(y);
+    int result;
+    unsigned int flags = 0;
+    bid128_quiet_less(&result, &l, &r, &flags);
+    return result;
 }
 
 RLM_API bool realm_dart_decimal128_greater_than(realm_decimal128_t x, realm_decimal128_t y) {
-    auto x_decimal = from_capi(x);
-    auto y_decimal = from_capi(y);
-    return !x_decimal.is_nan() && !y_decimal.is_nan() && x_decimal > y_decimal;
+    auto l = to_BID_UINT128(x);
+    auto r = to_BID_UINT128(y);
+    int result;
+    unsigned int flags = 0;
+    bid128_quiet_greater(&result, &l, &r, &flags);
+    return result;
 }
 
 RLM_API int realm_dart_decimal128_compare_to(realm_decimal128_t x, realm_decimal128_t y) {
-    return from_capi(x).compareTotalOrdering(from_capi(y));
+    auto l = to_BID_UINT128(x);
+    auto r = to_BID_UINT128(y);
+    int lr, rl;
+    bid128_totalOrder(&lr, &l, &r);
+    bid128_totalOrder(&rl, &r, &l);
+    if (lr && rl) return 0;
+    if (lr) return -1;
+    if (rl) return 1;
+    return 0;
 }
 

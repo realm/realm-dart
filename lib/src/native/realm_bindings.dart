@@ -3305,10 +3305,10 @@ class RealmLibrary {
           .asFunction<bool Function(realm_decimal128_t, realm_decimal128_t)>();
 
   bool realm_dart_decimal128_is_nan(
-    realm_decimal128_t decimal,
+    realm_decimal128_t x,
   ) {
     return _realm_dart_decimal128_is_nan(
-      decimal,
+      x,
     );
   }
 
@@ -3366,10 +3366,10 @@ class RealmLibrary {
       _realm_dart_decimal128_nanPtr.asFunction<realm_decimal128_t Function()>();
 
   realm_decimal128_t realm_dart_decimal128_negate(
-    realm_decimal128_t decimal,
+    realm_decimal128_t x,
   ) {
     return _realm_dart_decimal128_negate(
-      decimal,
+      x,
     );
   }
 
@@ -3399,10 +3399,10 @@ class RealmLibrary {
               realm_decimal128_t, realm_decimal128_t)>();
 
   int realm_dart_decimal128_to_int64(
-    realm_decimal128_t decimal,
+    realm_decimal128_t x,
   ) {
     return _realm_dart_decimal128_to_int64(
-      decimal,
+      x,
     );
   }
 
