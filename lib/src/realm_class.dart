@@ -498,7 +498,7 @@ class Realm implements Finalizable {
 
   static set logger(Logger value) {
     _logger = _RealmLogger._(value);
-    realmCore.setLogLevel(value.level.toInt());
+    realmCore.setNewLogger(_logger, _logger.level.toInt());
   }
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.

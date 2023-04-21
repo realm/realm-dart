@@ -82,10 +82,8 @@ class _RealmCore implements SchedulerRealmCore {
 
   factory _RealmCore() {
     _instance ??= _RealmCore._();
-    final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
     scheduler = Scheduler.init(_instance!);
-    _realmLib.realm_dart_initialize_logger(Realm.logger, logCallback.cast(), Realm.logger.level.toInt(), scheduler.handle._pointer, Isolate.current.hashCode);
-
+    _instance!.setDefaultLogger();
     return _instance!;
   }
 
@@ -1689,6 +1687,15 @@ class _RealmCore implements SchedulerRealmCore {
     if (logger != null && logger.isLoggable(level)) {
       logger.log(level, message.cast<Utf8>().toDartString());
     }
+  }
+
+  void setDefaultLogger() {
+    final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
+    _realmLib.realm_dart_set_default_logger(Realm.logger, logCallback.cast(), Realm.logger.level.toInt(), scheduler.handle._pointer, Isolate.current.hashCode);
+  }
+
+  void setNewLogger(Logger logger, int logLevel) {
+    _realmLib.realm_dart_set_new_logger(logger, logLevel, Isolate.current.hashCode);
   }
 
   void setLogLevel(int logLevel) {

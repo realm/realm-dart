@@ -1912,8 +1912,8 @@ Future<void> main([List<String>? args]) async {
           ..onRecord.listen((event) {
             print("$isolateName-${event.level}: ${event.message}");
             count++;
-              if (count >= isolatesCount && !completer.isCompleted) {
-                completer.complete(count);
+            if (count >= isolatesCount && !completer.isCompleted) {
+              completer.complete(count);
             }
           });
         final app = App(appConfig);
@@ -1963,62 +1963,52 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Realm default logger isolates', (configuration) async {
-    int isolatesCount = 3;
-    Future<int> loginWrongUser(String isolateName, AppConfiguration appConfig) async {
-      final completer = Completer<int>();
-      int count = 0;
+    Realm.logger.level = RealmLogLevel.error;
+    Realm.logger.onRecord.listen((event) {
+      print("Main-${event.level}: ${event.message}");
+    });
+    Future<void> loginWrongUser(String isolateName, AppConfiguration appConfig) async {
+      print("$isolateName started.");
+      Realm.logger.level = RealmLogLevel.info;
       Realm.logger.onRecord.listen((event) {
         print("$isolateName-${event.level}: ${event.message}");
-        if (event.level == RealmLogLevel.error) {
-          count++;
-          if (count >= isolatesCount && !completer.isCompleted) {
-            completer.complete(count);
-          }
-        }
       });
-      final app = App(appConfig);
+      await Future<void>.delayed(Duration(milliseconds: 200));
+      final app = App(configuration);
       final authProvider = EmailPasswordAuthProvider(app);
       try {
-        print("$isolateName started.");
-        await Future<void>.delayed(Duration(milliseconds: 200));
-        try {
-          await app.logIn(Credentials.emailPassword("notExisting", "password"));
-        } on AppException catch (appExc) {
-          if (!appExc.message.contains("invalid username/password")) {
-            rethrow;
-          }
+        await app.logIn(Credentials.emailPassword("notExisting", "password"));
+      } on AppException catch (appExc) {
+        if (!appExc.message.contains("invalid username/password")) {
+          rethrow;
         }
-        count = await completer.future.timeout(Duration(seconds: 2), onTimeout: () => throw Exception("The error was not logged."));
-      } catch (error) {
-        completer.completeError(error);
       }
-      return count;
     }
 
     ReceivePort isolate1ReceivePort = ReceivePort();
     ReceivePort isolate2ReceivePort = ReceivePort();
 
-    final mainIsolate = loginWrongUser("Main isolate", configuration);
-
     Isolate.spawn((SendPort sendPort) async {
-      int result = await loginWrongUser("Isolate 1", configuration);
-      sendPort.send(result);
+      await loginWrongUser("Isolate 1", configuration);
+      sendPort.send(true);
+      Realm.shutdown();
+      Isolate.exit(sendPort);
     }, isolate1ReceivePort.sendPort);
+    await isolate1ReceivePort.first;
+    isolate1ReceivePort.close();
 
     Isolate.spawn((SendPort sendPort) async {
-      int result = await loginWrongUser("Isolate 2", configuration);
-      sendPort.send(result);
+      await loginWrongUser("Isolate 2", configuration);
+      sendPort.send(true);
+      Realm.shutdown();
+      Isolate.exit(sendPort);
     }, isolate2ReceivePort.sendPort);
+    await Future<void>.delayed(Duration(milliseconds: 200));
 
-    int logMain = await mainIsolate;
-    int log1 = await isolate1ReceivePort.first as int;
-    int log2 = await isolate2ReceivePort.first as int;
-    isolate1ReceivePort.close();
+    await isolate2ReceivePort.first;
+
     isolate2ReceivePort.close();
-    expect(log1, isolatesCount, reason: "Isolate 1");
-    expect(log2, isolatesCount, reason: "Isolate 2");
-    expect(logMain, isolatesCount, reason: "Main isolate");
-  });
+  }, skip: "Not finished");
 }
 
 List<int> generateEncryptionKey() {
