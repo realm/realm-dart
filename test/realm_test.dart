@@ -1998,6 +1998,8 @@ Future<void> main([List<String>? args]) async {
     ReceivePort isolate1ReceivePort = ReceivePort();
     ReceivePort isolate2ReceivePort = ReceivePort();
 
+    final mainIsolate = loginWrongUser("Main isolate", configuration);
+
     Isolate.spawn((SendPort sendPort) async {
       int result = await loginWrongUser("Isolate 1", configuration);
       sendPort.send(result);
@@ -2007,11 +2009,10 @@ Future<void> main([List<String>? args]) async {
       int result = await loginWrongUser("Isolate 2", configuration);
       sendPort.send(result);
     }, isolate2ReceivePort.sendPort);
-    final mainIsolate = loginWrongUser("Main isolate", configuration);
 
+    int logMain = await mainIsolate;
     int log1 = await isolate1ReceivePort.first as int;
     int log2 = await isolate2ReceivePort.first as int;
-    int logMain = await mainIsolate;
     isolate1ReceivePort.close();
     isolate2ReceivePort.close();
     expect(log1, isolatesCount, reason: "Isolate 1");
