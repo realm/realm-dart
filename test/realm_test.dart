@@ -1908,14 +1908,12 @@ Future<void> main([List<String>? args]) async {
         final completer = Completer<int>();
         int count = 0;
         Realm.logger = Logger.detached(generateRandomString(10))
-          ..level = RealmLogLevel.all
+          ..level = RealmLogLevel.error
           ..onRecord.listen((event) {
             print("$isolateName-${event.level}: ${event.message}");
-            if (event.level == RealmLogLevel.error) {
-              count++;
+            count++;
               if (count >= isolatesCount && !completer.isCompleted) {
                 completer.complete(count);
-              }
             }
           });
         final app = App(appConfig);
