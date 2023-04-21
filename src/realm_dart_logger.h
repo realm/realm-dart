@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright 2021 Realm Inc.
+// Copyright 2023 Realm Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,16 +16,16 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef REALM_DART_SCHEDULER_H
-#define REALM_DART_SCHEDULER_H
+#ifndef REALM_DART_LOGGER_H
+#define REALM_DART_LOGGER_H
 
 #include <realm.h>
 #include <dart_api_dl.h>
 
-RLM_API realm_scheduler_t* realm_dart_create_scheduler(uint64_t isolateId, Dart_Port port);
+RLM_API void realm_dart_initialize_logger(Dart_Handle logger, realm_log_func_t callback, realm_log_level_e level, realm_scheduler_t* scheduler, uint64_t isolateId);
 
-RLM_API void realm_dart_scheduler_invoke(uint64_t isolateId, void* userData);
+RLM_API void realm_dart_set_log_level(realm_log_level_e level, uint64_t isolateId);
 
-RLM_API uint64_t realm_dart_get_thread_id();
+RLM_API void realm_dart_release_logger(uint64_t isolateId);
 
-#endif // REALM_DART_SCHEDULER_H
+#endif // REALM_DART_LOGGER_H

@@ -1902,17 +1902,18 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('Realm logger isolates', (configuration) async {
     final oldLogger = Realm.logger;
+    int isolatesCount = 3;
     try {
-      Future<int> openSyncRealm(String isolateName, AppConfiguration appConfig) async {
+      Future<int> loginWrongUser(String isolateName, AppConfiguration appConfig) async {
         final completer = Completer<int>();
         int count = 0;
         Realm.logger = Logger.detached(generateRandomString(10))
-          ..level = RealmLogLevel.info
+          ..level = RealmLogLevel.all
           ..onRecord.listen((event) {
             print("$isolateName-${event.level}: ${event.message}");
             if (event.level == RealmLogLevel.error) {
               count++;
-              if (!completer.isCompleted) {
+              if (count >= isolatesCount && !completer.isCompleted) {
                 completer.complete(count);
               }
             }
@@ -1939,15 +1940,15 @@ Future<void> main([List<String>? args]) async {
       ReceivePort isolate1ReceivePort = ReceivePort();
       ReceivePort isolate2ReceivePort = ReceivePort();
 
-      final mainIsolate = openSyncRealm("Main isolate", configuration);
+      final mainIsolate = loginWrongUser("Main isolate", configuration);
 
       Isolate.spawn((SendPort sendPort) async {
-        int result = await openSyncRealm("Isolate 1", configuration);
+        int result = await loginWrongUser("Isolate 1", configuration);
         sendPort.send(result);
       }, isolate1ReceivePort.sendPort);
 
       Isolate.spawn((SendPort sendPort) async {
-        int result = await openSyncRealm("Isolate 2", configuration);
+        int result = await loginWrongUser("Isolate 2", configuration);
         sendPort.send(result);
       }, isolate2ReceivePort.sendPort);
       int log1 = await isolate1ReceivePort.first as int;
@@ -1955,13 +1956,70 @@ Future<void> main([List<String>? args]) async {
       int logMain = await mainIsolate;
       isolate1ReceivePort.close();
       isolate2ReceivePort.close();
-      expect(log1, 1, reason: "Isolate 1");
-      expect(log2, 1, reason: "Isolate 2");
-      expect(logMain, 1, reason: "Main isolate");
+      expect(log1, isolatesCount, reason: "Isolate 1");
+      expect(log2, isolatesCount, reason: "Isolate 2");
+      expect(logMain, isolatesCount, reason: "Main isolate");
     } finally {
       Realm.logger = oldLogger;
     }
-  }, skip: "This shoud be expected when the log implementation is completed.");
+  });
+
+  baasTest('Realm default logger isolates', (configuration) async {
+    int isolatesCount = 3;
+    Future<int> loginWrongUser(String isolateName, AppConfiguration appConfig) async {
+      final completer = Completer<int>();
+      int count = 0;
+      Realm.logger.onRecord.listen((event) {
+        print("$isolateName-${event.level}: ${event.message}");
+        if (event.level == RealmLogLevel.error) {
+          count++;
+          if (count >= isolatesCount && !completer.isCompleted) {
+            completer.complete(count);
+          }
+        }
+      });
+      final app = App(appConfig);
+      final authProvider = EmailPasswordAuthProvider(app);
+      try {
+        print("$isolateName started.");
+        await Future<void>.delayed(Duration(milliseconds: 200));
+        try {
+          await app.logIn(Credentials.emailPassword("notExisting", "password"));
+        } on AppException catch (appExc) {
+          if (!appExc.message.contains("invalid username/password")) {
+            rethrow;
+          }
+        }
+        count = await completer.future.timeout(Duration(seconds: 2), onTimeout: () => throw Exception("The error was not logged."));
+      } catch (error) {
+        completer.completeError(error);
+      }
+      return count;
+    }
+
+    ReceivePort isolate1ReceivePort = ReceivePort();
+    ReceivePort isolate2ReceivePort = ReceivePort();
+
+    Isolate.spawn((SendPort sendPort) async {
+      int result = await loginWrongUser("Isolate 1", configuration);
+      sendPort.send(result);
+    }, isolate1ReceivePort.sendPort);
+
+    Isolate.spawn((SendPort sendPort) async {
+      int result = await loginWrongUser("Isolate 2", configuration);
+      sendPort.send(result);
+    }, isolate2ReceivePort.sendPort);
+    final mainIsolate = loginWrongUser("Main isolate", configuration);
+
+    int log1 = await isolate1ReceivePort.first as int;
+    int log2 = await isolate2ReceivePort.first as int;
+    int logMain = await mainIsolate;
+    isolate1ReceivePort.close();
+    isolate2ReceivePort.close();
+    expect(log1, isolatesCount, reason: "Isolate 1");
+    expect(log2, isolatesCount, reason: "Isolate 2");
+    expect(logMain, isolatesCount, reason: "Main isolate");
+  });
 }
 
 List<int> generateEncryptionKey() {

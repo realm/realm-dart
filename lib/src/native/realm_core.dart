@@ -84,7 +84,7 @@ class _RealmCore implements SchedulerRealmCore {
     _instance ??= _RealmCore._();
     final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
     scheduler = Scheduler.init(_instance!);
-    _realmLib.realm_dart_initialize_logger(Realm.logger, logCallback.cast(), Realm.logger.level.toInt(), scheduler.handle._pointer);
+    _realmLib.realm_dart_initialize_logger(Realm.logger, logCallback.cast(), Realm.logger.level.toInt(), scheduler.handle._pointer, Isolate.current.hashCode);
 
     return _instance!;
   }
@@ -1692,7 +1692,7 @@ class _RealmCore implements SchedulerRealmCore {
   }
 
   void setLogLevel(int logLevel) {
-    _realmLib.realm_set_log_level(logLevel);
+    _realmLib.realm_dart_set_log_level(logLevel, Isolate.current.hashCode);
   }
 
   SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {

@@ -6,11 +6,13 @@ headers:
   entry-points:
     - 'realm.h'
     - 'realm_dart.h'
+    - 'realm_dart_logger.h'
     - 'realm_dart_scheduler.h'
     - 'realm_dart_sync.h'
   include-directives: #generate only for these headers
     - 'realm.h'
     - 'realm_dart.h'
+    - 'realm_dart_logger.h'
     - 'realm_dart_scheduler.h'
     - 'realm_dart_sync.h'
 compiler-opts:
