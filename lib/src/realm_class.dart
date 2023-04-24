@@ -486,9 +486,18 @@ class Realm implements Finalizable {
     return realmCore.realmEquals(this, other);
   }
 
-  static Logger _logger = _RealmLogger._(Logger.detached('Realm')
+  static Logger _logger = _RealmLogger._(Logger.detached('Realm')..level = Level.INFO);
+  static final Logger _defaultLogger = Logger.detached('Realm')
     ..level = Level.INFO
-    ..onRecord.listen((event) => print('${event.time.toIso8601String()}: $event')));
+    ..onRecord.listen((event) {
+      print('${event.time.toIso8601String()}: $event');
+    });
+
+  static Level get defaultLogLevel => _defaultLogger.level;
+  static set defaultLogLevel(Level value) {
+    _defaultLogger.level = value;
+    realmCore.setLogLevel(value.toInt(), isDefaultLogger: true);
+  }
 
   /// The logger to use for logging.
   /// The default log level is [RealmLogLevel.info].
@@ -498,7 +507,7 @@ class Realm implements Finalizable {
 
   static set logger(Logger value) {
     _logger = _RealmLogger._(value);
-    realmCore.setNewLogger(_logger, _logger.level.toInt());
+    realmCore.addNewLogger(_logger, _logger.level.toInt());
   }
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
@@ -756,6 +765,8 @@ extension RealmInternal on Realm {
       addUnmanagedRealmObjectFromValue(value.value, update);
     }
   }
+
+  static Logger get defaultLogger => Realm._defaultLogger;
 }
 
 /// @nodoc

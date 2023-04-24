@@ -1963,13 +1963,15 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Realm default logger isolates', (configuration) async {
-    Realm.logger.level = RealmLogLevel.error;
-    Realm.logger.onRecord.listen((event) {
-      print("Main-${event.level}: ${event.message}");
-    });
+    Realm.defaultLogLevel = RealmLogLevel.info;
+
+    // Realm.logger.level = RealmLogLevel.error;
+    // Realm.logger.onRecord.listen((event) {
+    //   print("Main-${event.level}: ${event.message}");
+    // });
     Future<void> loginWrongUser(String isolateName, AppConfiguration appConfig) async {
       print("$isolateName started.");
-      Realm.logger.level = RealmLogLevel.info;
+      Realm.logger.level = RealmLogLevel.error;
       Realm.logger.onRecord.listen((event) {
         print("$isolateName-${event.level}: ${event.message}");
       });
@@ -1991,8 +1993,6 @@ Future<void> main([List<String>? args]) async {
     Isolate.spawn((SendPort sendPort) async {
       await loginWrongUser("Isolate 1", configuration);
       sendPort.send(true);
-      Realm.shutdown();
-      Isolate.exit(sendPort);
     }, isolate1ReceivePort.sendPort);
     await isolate1ReceivePort.first;
     isolate1ReceivePort.close();
@@ -2000,15 +2000,40 @@ Future<void> main([List<String>? args]) async {
     Isolate.spawn((SendPort sendPort) async {
       await loginWrongUser("Isolate 2", configuration);
       sendPort.send(true);
-      Realm.shutdown();
-      Isolate.exit(sendPort);
     }, isolate2ReceivePort.sendPort);
     await Future<void>.delayed(Duration(milliseconds: 200));
 
     await isolate2ReceivePort.first;
-
     isolate2ReceivePort.close();
   }, skip: "Not finished");
+
+  baasTest('Realm default logger test', (configuration) async {
+    int defaultLogsCount = 0;
+    int logsCount = 0;
+
+    final completer = Completer<void>();
+    Realm.defaultLogLevel = RealmLogLevel.all;
+    Realm.logger.level = RealmLogLevel.error;
+    Realm.logger.onRecord.listen((event) {
+      logsCount++;
+      completer.complete();
+    });
+
+    await Future<void>.delayed(Duration(milliseconds: 200));
+    final app = App(configuration);
+    final authProvider = EmailPasswordAuthProvider(app);
+    try {
+      await app.logIn(Credentials.emailPassword("notExisting", "password"));
+    } on AppException catch (appExc) {
+      completer.complete();
+      if (!appExc.message.contains("invalid username/password")) {
+        rethrow;
+      }
+    }
+    await completer.future;
+    print(defaultLogsCount);
+    print(logsCount);
+  }, skip: "Not finished1");
 }
 
 List<int> generateEncryptionKey() {
