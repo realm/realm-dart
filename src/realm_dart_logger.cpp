@@ -58,8 +58,7 @@ Dart_Port default_logger_receive_port;
 LoggerData* tryGetLogger(uint64_t key)
 {
     LoggerData* loggerData = nullptr;
-    auto& found = dart_loggers.find(key);
-    if (found != std::end(dart_loggers))
+    if (dart_loggers.find(key) != dart_loggers.end())
     {
         loggerData = dart_loggers[key];
     }
