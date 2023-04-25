@@ -2008,15 +2008,16 @@ Future<void> main([List<String>? args]) async {
   }, skip: "Not finished");
 
   baasTest('Realm default logger test', (configuration) async {
-    int defaultLogsCount = 0;
     int logsCount = 0;
 
     final completer = Completer<void>();
-    Realm.defaultLogLevel = RealmLogLevel.all;
+    Realm.defaultLogLevel = RealmLogLevel.off;
     Realm.logger.level = RealmLogLevel.error;
     Realm.logger.onRecord.listen((event) {
       logsCount++;
-      completer.complete();
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
     });
 
     await Future<void>.delayed(Duration(milliseconds: 200));
@@ -2025,13 +2026,12 @@ Future<void> main([List<String>? args]) async {
     try {
       await app.logIn(Credentials.emailPassword("notExisting", "password"));
     } on AppException catch (appExc) {
-      completer.complete();
       if (!appExc.message.contains("invalid username/password")) {
         rethrow;
       }
     }
-    await completer.future;
-    print(defaultLogsCount);
+    await waitFutureWithTimeout(completer.future, timeoutError: "The error was not logged.");
+
     print(logsCount);
   }, skip: "Not finished1");
 }

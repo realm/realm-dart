@@ -1691,19 +1691,18 @@ class _RealmCore implements SchedulerRealmCore {
     }
   }
 
-  static void _defaultLogIsolateCallback(int defaultLevel) {
+  static void _createDefaultLogIsolateCallback(int defaultLevel) {
     ReceivePort receivePort = ReceivePort();
-    DefaultLoggerPort(receivePort.sendPort, defaultLevel);
     Isolate.spawn((DefaultLoggerPort defaultLoggerPort) {
       final rc = _RealmCore(initLogger: false);
       RealmInternal.defaultLogger.level = LevelExt.fromInt(defaultLoggerPort.logLevel);
       rc._addDefaultLogger(RealmInternal.defaultLogger, defaultLoggerPort.logLevel, defaultLoggerPort.sendPort);
-    }, DefaultLoggerPort(receivePort.sendPort, RealmInternal.defaultLogger.level.toInt()));
+    }, DefaultLoggerPort(receivePort.sendPort, defaultLevel));
     receivePort.first.whenComplete(() => receivePort.close());
   }
 
   void _initDefaultLogger() {
-    final defaultLogIsolateCallback = Pointer.fromFunction<Void Function(Int32)>(_defaultLogIsolateCallback);
+    final defaultLogIsolateCallback = Pointer.fromFunction<Void Function(Int32)>(_createDefaultLogIsolateCallback);
     _realmLib.realm_dart_init_default_logger(defaultLogIsolateCallback.cast(), RealmInternal.defaultLogger.level.toInt());
     addNewLogger(Realm.logger, Realm.logger.level.toInt());
   }
