@@ -61,7 +61,7 @@ LoggerData* tryGetLogger(uint64_t key)
     auto& found = dart_loggers.find(key);
     if (found != std::end(dart_loggers))
     {
-        loggerData = found->second;
+        loggerData = dart_loggers[key];
     }
     return loggerData;
 }
