@@ -1693,24 +1693,28 @@ class _RealmCore implements SchedulerRealmCore {
 
   static void _createDefaultLogIsolateCallback(int defaultLevel) {
     ReceivePort receivePort = ReceivePort();
+
     Isolate.spawn((DefaultLoggerPort defaultLoggerPort) {
-      final rc = _RealmCore(initLogger: false);
+
       RealmInternal.defaultLogger.level = LevelExt.fromInt(defaultLoggerPort.logLevel);
-      rc._addDefaultLogger(RealmInternal.defaultLogger, defaultLoggerPort.logLevel, defaultLoggerPort.sendPort);
+      final rc = _RealmCore(initLogger: false);
+      rc._addDefaultLogger(defaultLoggerPort.sendPort);
+
     }, DefaultLoggerPort(receivePort.sendPort, defaultLevel));
+
     receivePort.firstWhere((dynamic value) => value == 0).then((dynamic value) => receivePort.close());
   }
 
   void _initDefaultLogger() {
     final defaultLogIsolateCallback = Pointer.fromFunction<Void Function(Int32)>(_createDefaultLogIsolateCallback);
-    RealmInternal.defaultLogger.level = Realm.logger.level;
     _realmLib.realm_dart_init_default_logger(defaultLogIsolateCallback.cast(), RealmInternal.defaultLogger.level.toInt());
     addNewLogger();
   }
 
-  void _addDefaultLogger(Logger logger, int defaultLevel, SendPort sendPort) {
+  void _addDefaultLogger(SendPort sendPort) {
     final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
-    _realmLib.realm_dart_add_default_logger(logger, logCallback.cast(), defaultLevel, scheduler.handle._pointer, Isolate.current.hashCode, sendPort.nativePort);
+    _realmLib.realm_dart_add_default_logger(RealmInternal.defaultLogger, logCallback.cast(), Realm.defaultLogLevel.toInt(), scheduler.handle._pointer,
+        Isolate.current.hashCode, sendPort.nativePort);
   }
 
   void addNewLogger() {
@@ -1719,7 +1723,7 @@ class _RealmCore implements SchedulerRealmCore {
   }
 
   void setLogLevel(int logLevel, {bool isDefaultLogger = false}) {
-    _realmLib.realm_dart_set_log_level(logLevel, isDefaultLogger, Isolate.current.hashCode);
+    _realmLib.realm_dart_set_log_level(logLevel, isDefaultLogger ? 0 : Isolate.current.hashCode);
   }
 
   SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
