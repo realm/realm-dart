@@ -1904,9 +1904,6 @@ Future<void> main([List<String>? args]) async {
     final oldLogger = Realm.logger;
     int isolatesCount = 3;
     Realm.logger.level = RealmLogLevel.info;
-    Realm.logger.onRecord.listen((event) {
-      //print("m${event.level}: ${event.message}");
-    });
     try {
       Future<int> loginWrongUser(String isolateName, AppConfiguration appConfig) async {
         final completer = Completer<int>();
@@ -1915,9 +1912,8 @@ Future<void> main([List<String>? args]) async {
         Realm.logger = Logger.detached(generateRandomString(10))
           ..level = RealmLogLevel.error
           ..onRecord.listen((event) {
-            //print("$isolateName-${event.level}: ${event.message}");
             count++;
-            if (!completer.isCompleted) {
+            if (count >= isolatesCount && !completer.isCompleted) {
               completer.complete(count);
             }
           });
@@ -1960,9 +1956,9 @@ Future<void> main([List<String>? args]) async {
       int logMain = await mainIsolate;
       isolate1ReceivePort.close();
       isolate2ReceivePort.close();
-      expect(log1, 1, reason: "Isolate 1");
-      expect(log2, 1, reason: "Isolate 2");
-      expect(logMain, 1, reason: "Main isolate");
+      expect(log1, isolatesCount, reason: "Isolate 1");
+      expect(log2, isolatesCount, reason: "Isolate 2");
+      expect(logMain, isolatesCount, reason: "Main isolate");
     } finally {
       Realm.logger = oldLogger;
     }
