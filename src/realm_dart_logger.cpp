@@ -49,12 +49,12 @@ struct LoggerData {
 };
 
 auto& dart_logger_mutex = *new std::mutex;
-auto& dart_default_logger_mutex = *new std::mutex;
-uint64_t default_logger_isolate_id;
-bool is_core_logger_callback_set = false;
+bool is_default_logger_set = false;
+realm_log_level_e default_log_level = RLM_LOG_LEVEL_INFO;
 realm_log_level_e last_log_level = RLM_LOG_LEVEL_OFF;
 std::map<std::uint64_t, LoggerData*> dart_loggers;
-Dart_Port default_logger_receive_port;
+realm_default_log_event_func_t default_log_event_callback;
+
 
 LoggerData* try_get_logger(uint64_t key)
 {
@@ -74,7 +74,6 @@ void realm_dart_loggers_free(realm_userdata_t userdata)
         dart_loggers[itr->first] = nullptr;
     }
     dart_loggers.clear();
-    Dart_PostInteger_DL(default_logger_receive_port, 0);
 }
 
 RLM_API void realm_dart_release_logger(uint64_t isolateId) {
@@ -88,18 +87,18 @@ RLM_API void realm_dart_release_logger(uint64_t isolateId) {
 }
 
 void realm_dart_logger_callback(realm_userdata_t userData, realm_log_level_e level, const char* message) {
-    std::lock_guard lock(dart_default_logger_mutex);
-    if (level >= last_log_level)
+    std::lock_guard lock(dart_logger_mutex);
+    std::string copy_message = message;
+    if (default_log_event_callback && default_log_level < level)
     {
-        std::lock_guard lock(dart_logger_mutex);
-        std::string copy_message = message;
-        for (auto itr = dart_loggers.begin(); itr != dart_loggers.end(); ++itr) {
-            LoggerData* loggerData = dart_loggers[itr->first];
-            loggerData->user_scheduler->invoke([loggerData, level = level, message = std::move(message), copy_message]() mutable {
-                message = copy_message.c_str();
-            (reinterpret_cast<realm_log_func_t>(loggerData->user_callback))(loggerData->user_logger_handle, level, message);
-            });
-        }
+        default_log_event_callback(copy_message.c_str());
+    }
+    for (auto itr = dart_loggers.begin(); itr != dart_loggers.end(); ++itr) {
+        LoggerData* loggerData = dart_loggers[itr->first];
+        loggerData->user_scheduler->invoke([loggerData, level = level, message = std::move(message), copy_message]() mutable {
+            message = copy_message.c_str();
+        (reinterpret_cast<realm_log_func_t>(loggerData->user_callback))(loggerData->user_logger_handle, level, message);
+        });
     }
 }
 
@@ -116,25 +115,15 @@ void set_last_log_level(realm_log_level_e level) {
     }
 }
 
-RLM_API void realm_dart_init_default_logger(realm_init_log_func_t callback, realm_log_level_e level) {
-    std::lock_guard lock(dart_default_logger_mutex);
-    if (is_core_logger_callback_set) {
+RLM_API void realm_dart_init_default_logger(realm_default_log_event_func_t callback, realm_log_level_e level) {
+    std::lock_guard lock(dart_logger_mutex);
+    if (is_default_logger_set) {
         return;
     }
     realm_set_log_callback(realm_dart_logger_callback, level, nullptr, realm_dart_loggers_free);
     last_log_level = level;
-    is_core_logger_callback_set = true;
-    callback(level);
-}
-
-RLM_API void realm_dart_add_default_logger(Dart_Handle logger, realm_log_func_t callback, realm_log_level_e level, realm_scheduler_t* scheduler, uint64_t isolateId, Dart_Port receive_port) {
-    std::lock_guard lock(dart_logger_mutex);
-    LoggerData* loggerData = new LoggerData(logger, level, callback, scheduler, isolateId);
-    dart_loggers[isolateId] = loggerData;
-    default_logger_isolate_id = isolateId;
-    default_logger_receive_port = receive_port;
-    set_last_log_level(level);
-    std::lock_guard unlock(dart_default_logger_mutex);
+    is_default_logger_set = true;
+    default_log_event_callback = callback;
 }
 
 RLM_API void realm_dart_add_new_logger(Dart_Handle logger, realm_log_func_t callback, realm_log_level_e level, realm_scheduler_t* scheduler, uint64_t isolateId) {
@@ -154,10 +143,17 @@ RLM_API void realm_dart_add_new_logger(Dart_Handle logger, realm_log_func_t call
 RLM_API void realm_dart_set_log_level(realm_log_level_e level, uint64_t isolateId)
 {
     std::lock_guard lock(dart_logger_mutex);
-    uint64_t isolateIdToFind = isolateId == 0 ? default_logger_isolate_id : isolateId;
-    LoggerData* loggerData = try_get_logger(isolateIdToFind);
-    if (loggerData) {
-        loggerData->user_log_level = level;
-        set_last_log_level(level);
+    if (isolateId == 0)
+    {
+        default_log_level = level;
     }
+    else
+    {
+        LoggerData* loggerData = try_get_logger(isolateId);
+        if (loggerData) {
+            loggerData->user_log_level = level;
+        }
+    }
+    set_last_log_level(level);
+
 }

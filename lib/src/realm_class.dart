@@ -488,19 +488,15 @@ class Realm implements Finalizable {
 
   static Logger? _logger;
 
-  static final Logger _defaultLogger = Logger.detached('Realm')
-    ..level = Level.INFO
-    ..onRecord.listen((event) {
-      print('${event.time.toIso8601String()}: $event');
-    });
+  static Level _defaultLogLevel = RealmLogLevel.info;
 
   /// The default logger for logging events from all the isolates.
   /// It prints the event messages and the event time.
   /// The default log level is [RealmLogLevel.info],
   /// but it could be changed at runtime or switched off using [RealmLogLevel.off].
-  static Level get defaultLogLevel => _defaultLogger.level;
+  static Level get defaultLogLevel => _defaultLogLevel;
   static set defaultLogLevel(Level value) {
-    _defaultLogger.level = value;
+    _defaultLogLevel = value;
     realmCore.setLogLevel(value.toInt(), isDefaultLogger: true);
   }
 
@@ -778,8 +774,6 @@ extension RealmInternal on Realm {
       addUnmanagedRealmObjectFromValue(value.value, update);
     }
   }
-
-  static Logger get defaultLogger => Realm._defaultLogger;
 }
 
 /// @nodoc

@@ -3204,38 +3204,6 @@ class RealmLibrary {
           ffi.Pointer<realm_thread_safe_reference_t> Function(
               ffi.Pointer<ffi.Void>)>();
 
-  void realm_dart_add_default_logger(
-    Object logger,
-    realm_log_func_t callback,
-    int level,
-    ffi.Pointer<realm_scheduler_t> scheduler,
-    int isolateId,
-    int receive_port,
-  ) {
-    return _realm_dart_add_default_logger(
-      logger,
-      callback,
-      level,
-      scheduler,
-      isolateId,
-      receive_port,
-    );
-  }
-
-  late final _realm_dart_add_default_loggerPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Handle,
-              realm_log_func_t,
-              ffi.Int32,
-              ffi.Pointer<realm_scheduler_t>,
-              ffi.Uint64,
-              Dart_Port)>>('realm_dart_add_default_logger');
-  late final _realm_dart_add_default_logger =
-      _realm_dart_add_default_loggerPtr.asFunction<
-          void Function(Object, realm_log_func_t, int,
-              ffi.Pointer<realm_scheduler_t>, int, int)>();
-
   void realm_dart_add_new_logger(
     Object logger,
     realm_log_func_t callback,
@@ -3359,7 +3327,7 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>)>();
 
   void realm_dart_init_default_logger(
-    realm_init_log_func_t callback,
+    realm_default_log_event_func_t callback,
     int level,
   ) {
     return _realm_dart_init_default_logger(
@@ -3370,11 +3338,11 @@ class RealmLibrary {
 
   late final _realm_dart_init_default_loggerPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(realm_init_log_func_t,
+          ffi.Void Function(realm_default_log_event_func_t,
               ffi.Int32)>>('realm_dart_init_default_logger');
   late final _realm_dart_init_default_logger =
       _realm_dart_init_default_loggerPtr
-          .asFunction<void Function(realm_init_log_func_t, int)>();
+          .asFunction<void Function(realm_default_log_event_func_t, int)>();
 
   void realm_dart_initializeDartApiDL(
     ffi.Pointer<ffi.Void> data,
@@ -10611,34 +10579,12 @@ class RealmLibrary {
   late final _realm_user_log_out = _realm_user_log_outPtr
       .asFunction<bool Function(ffi.Pointer<realm_user_t>)>();
 
-  void tryGet(
-    int arg0,
-  ) {
-    return _tryGet(
-      arg0,
-    );
-  }
-
-  late final _tryGetPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Uint64)>>('tryGet');
-  late final _tryGet = _tryGetPtr.asFunction<void Function(int)>();
-
   late final addresses = _SymbolAddresses(this);
 }
 
 class _SymbolAddresses {
   final RealmLibrary _library;
   _SymbolAddresses(this._library);
-  ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Handle,
-              realm_log_func_t,
-              ffi.Int32,
-              ffi.Pointer<realm_scheduler_t>,
-              ffi.Uint64,
-              Dart_Port)>> get realm_dart_add_default_logger =>
-      _library._realm_dart_add_default_loggerPtr;
   ffi.Pointer<
       ffi.NativeFunction<
           ffi.Void Function(
@@ -10672,7 +10618,7 @@ class _SymbolAddresses {
       _library._realm_dart_http_request_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
-              ffi.Void Function(realm_init_log_func_t, ffi.Int32)>>
+              ffi.Void Function(realm_default_log_event_func_t, ffi.Int32)>>
       get realm_dart_init_default_logger =>
           _library._realm_dart_init_default_loggerPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
@@ -11002,6 +10948,8 @@ class realm_decimal128 extends ffi.Struct {
 }
 
 typedef realm_decimal128_t = realm_decimal128;
+typedef realm_default_log_event_func_t
+    = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>;
 
 class realm_dictionary extends ffi.Opaque {}
 
@@ -11287,8 +11235,6 @@ class realm_index_range extends ffi.Struct {
 }
 
 typedef realm_index_range_t = realm_index_range;
-typedef realm_init_log_func_t
-    = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int32)>>;
 
 class realm_key_path extends ffi.Struct {
   @ffi.Size()
