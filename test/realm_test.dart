@@ -1991,7 +1991,7 @@ Future<void> main([List<String>? args]) async {
     isolate1.kill(priority: Isolate.immediate);
 
     final isolate2 = await Isolate.spawn((SendPort sendPort) async {
-      int result =  await loginWrongUser("Isolate 2", appConfiguration);
+      int result = await loginWrongUser("Isolate 2", appConfiguration);
       sendPort.send(result);
     }, isolate2ReceivePort.sendPort);
     await Future<void>.delayed(Duration(milliseconds: 200));
@@ -2000,9 +2000,9 @@ Future<void> main([List<String>? args]) async {
     isolate2ReceivePort.close();
     isolate2.kill(priority: Isolate.immediate);
 
-    expect(mainIsolateErrorsCount,2);
-    expect(isolate1ErrorsCount,1);
-    expect(isolate2ErrorsCount,1);
+    expect(mainIsolateErrorsCount, 2);
+    expect(isolate1ErrorsCount, 1);
+    expect(isolate2ErrorsCount, 1);
   });
 
   baasTest('Realm default logger Off', (configuration) async {

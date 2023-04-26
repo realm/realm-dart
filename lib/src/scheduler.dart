@@ -27,18 +27,18 @@ late final Scheduler scheduler;
 class Scheduler {
   late final SchedulerHandle handle;
   final RawReceivePort receivePort = RawReceivePort();
-  late SchedulerRealmCore _schedulerRealmCore;
+  late RealmCoreScheduler _realmCore;
 
-  Scheduler.init(SchedulerRealmCore schedulerRealmCore) {
-    _schedulerRealmCore = schedulerRealmCore;
+  Scheduler.init(RealmCoreScheduler realmCore) {
+    _realmCore = realmCore;
     _receivePortFinalizer.attach(this, receivePort, detach: this);
 
     receivePort.handler = (dynamic message) {
-      _schedulerRealmCore.invokeScheduler(handle);
+      _realmCore.invokeScheduler(handle);
     };
 
     final sendPort = receivePort.sendPort;
-    handle = _schedulerRealmCore.createScheduler(Isolate.current.hashCode, sendPort.nativePort);
+    handle = _realmCore.createScheduler(Isolate.current.hashCode, sendPort.nativePort);
   }
 
   void stop() {
@@ -52,7 +52,8 @@ class Scheduler {
   }
 }
 
-abstract class SchedulerRealmCore {
+///@nodoc
+abstract class RealmCoreScheduler {
   void invokeScheduler(SchedulerHandle schedulerHandle);
   SchedulerHandle createScheduler(int isolateId, int sendPort);
 }

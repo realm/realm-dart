@@ -486,13 +486,18 @@ class Realm implements Finalizable {
     return realmCore.realmEquals(this, other);
   }
 
-  static Logger _logger = _RealmLogger._(Logger.detached('Realm')..level = Level.INFO);
+  static Logger? _logger;
+
   static final Logger _defaultLogger = Logger.detached('Realm')
     ..level = Level.INFO
     ..onRecord.listen((event) {
       print('${event.time.toIso8601String()}: $event');
     });
 
+  /// The default logger for logging events from all the isolates.
+  /// It prints the event messages and the event time.
+  /// The default log level is [RealmLogLevel.info],
+  /// but it could be changed at runtime or switched off using [RealmLogLevel.off].
   static Level get defaultLogLevel => _defaultLogger.level;
   static set defaultLogLevel(Level value) {
     _defaultLogger.level = value;
@@ -500,10 +505,18 @@ class Realm implements Finalizable {
   }
 
   /// The logger to use for logging.
-  /// The default log level is [RealmLogLevel.info].
+  /// The log level is [RealmLogLevel.info].
+  /// The level is changed for the current isolate.
   /// To manage the log level at runtime use `Realm.logger.level` setter.
-  /// To change the default logger set this member to a new instance of [Logger].
-  static Logger get logger => _logger;
+  /// To listen to the log event use `Realm.logger.onRecord.listen`.
+  /// It is also possible to set a new instance of custom [Logger].
+  static Logger get logger {
+    if (_logger == null) {
+      _logger = _RealmLogger._(Logger.detached('Realm')..level = Level.INFO);
+      realmCore.addNewLogger();
+    }
+    return _logger!;
+  }
 
   static set logger(Logger value) {
     _logger = _RealmLogger._(value);
