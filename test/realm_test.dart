@@ -1964,7 +1964,6 @@ Future<void> main([List<String>? args]) async {
     Future<int> loginWrongUser(String isolateName, AppConfiguration appConfig) async {
       final completer = Completer<int>();
       int count = 0;
-
       Realm.logger = Logger.detached(generateRandomString(10))
         ..level = RealmLogLevel.error
         ..onRecord.listen((event) {
@@ -1987,6 +1986,7 @@ Future<void> main([List<String>? args]) async {
       sendPort.send(result);
     }, isolate1ReceivePort.sendPort);
     int isolate1ErrorsCount = await isolate1ReceivePort.first as int;
+
     isolate1ReceivePort.close();
     isolate1.kill(priority: Isolate.immediate);
 
@@ -1994,7 +1994,6 @@ Future<void> main([List<String>? args]) async {
       int result = await loginWrongUser("Isolate 2", appConfiguration);
       sendPort.send(result);
     }, isolate2ReceivePort.sendPort);
-    await Future<void>.delayed(Duration(milliseconds: 200));
 
     int isolate2ErrorsCount = await isolate2ReceivePort.first as int;
     isolate2ReceivePort.close();

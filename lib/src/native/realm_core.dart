@@ -1691,13 +1691,21 @@ class _RealmCore implements RealmCoreScheduler {
     }
   }
 
-  static void _defaultLogEventCallback(Pointer<Int8> message) {
-    print('${Isolate.current.hashCode}: ${DateTime.now().toIso8601String()}: ${message.cast<Utf8>().toDartString()}');
+  void _initDefaultLogger() {
+    if (_realmLib.realm_dart_init_default_logger(RealmInternal.defaultLogger.level.toInt())) {
+      _addDefaultLogger();
+      Isolate.spawn((int inputLevel) {
+        RealmInternal.defaultLogger.level = LevelExt.fromInt(inputLevel);
+        final rc = _RealmCore(initLogger: false);
+        rc._addDefaultLogger();
+      }, RealmInternal.defaultLogger.level.toInt());
+    }
   }
 
-  void _initDefaultLogger() {
-    final callback = Pointer.fromFunction<Void Function(Pointer<Int8>)>(_defaultLogEventCallback);
-    _realmLib.realm_dart_init_default_logger(callback.cast(), Realm.defaultLogLevel.toInt());
+  void _addDefaultLogger() {
+    final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
+    _realmLib.realm_dart_add_default_logger(
+        RealmInternal.defaultLogger, logCallback.cast(), Realm.defaultLogLevel.toInt(), scheduler.handle._pointer, Isolate.current.hashCode);
   }
 
   void addNewLogger() {
@@ -1706,7 +1714,11 @@ class _RealmCore implements RealmCoreScheduler {
   }
 
   void setLogLevel(int logLevel, {bool isDefaultLogger = false}) {
-    _realmLib.realm_dart_set_log_level(logLevel, isDefaultLogger ? 0 : Isolate.current.hashCode);
+    _realmLib.realm_dart_set_log_level(logLevel, Isolate.current.hashCode);
+  }
+
+  void setDefaultLogLevel(int logLevel, {bool isDefaultLogger = false}) {
+    _realmLib.realm_dart_set_default_log_level(logLevel);
   }
 
   SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
@@ -3209,10 +3221,4 @@ extension PlatformEx on Platform {
 
     return result;
   }
-}
-
-class DefaultLoggerInput {
-  final SendPort sendPort;
-  final int logLevel;
-  DefaultLoggerInput(this.sendPort, this.logLevel);
 }
