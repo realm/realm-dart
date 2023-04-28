@@ -30,6 +30,8 @@ RLM_API void realm_dart_add_new_logger(Dart_Handle logger, realm_log_func_t call
 
 RLM_API void realm_dart_set_log_level(realm_log_level_e level, uint64_t isolateId);
 
+RLM_API realm_log_level_e realm_dart_get_default_log_level();
+
 RLM_API void realm_dart_set_default_log_level(realm_log_level_e level);
 
 RLM_API void realm_dart_release_logger(uint64_t isolateId);

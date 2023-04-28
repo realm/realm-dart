@@ -498,10 +498,10 @@ class Realm implements Finalizable {
   /// It prints the event messages and the event time.
   /// The default log level is [RealmLogLevel.info],
   /// but it could be changed at runtime or switched off using [RealmLogLevel.off].
-  static Level get defaultLogLevel => _defaultLogger.level;
+  static Level get defaultLogLevel => realmCore.getDefaultLogLevel();
   static set defaultLogLevel(Level value) {
     _defaultLogger.level = value;
-    realmCore.setDefaultLogLevel(value.toInt());
+    realmCore.setDefaultLogLevel(value);
   }
 
   /// The logger to use for logging.

@@ -160,6 +160,11 @@ RLM_API void realm_dart_set_log_level(realm_log_level_e level, uint64_t isolateI
     }
 }
 
+RLM_API realm_log_level_e realm_dart_get_default_log_level()
+{
+    return default_logger? default_logger->user_log_level: RLM_LOG_LEVEL_INFO;
+}
+
 RLM_API void realm_dart_set_default_log_level(realm_log_level_e level)
 {
     std::lock_guard lock(dart_logger_mutex);

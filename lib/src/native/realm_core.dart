@@ -1705,7 +1705,7 @@ class _RealmCore implements RealmCoreScheduler {
   void _addDefaultLogger() {
     final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
     _realmLib.realm_dart_add_default_logger(
-        RealmInternal.defaultLogger, logCallback.cast(), Realm.defaultLogLevel.toInt(), scheduler.handle._pointer, Isolate.current.hashCode);
+        RealmInternal.defaultLogger, logCallback.cast(), RealmInternal.defaultLogger.level.toInt(), scheduler.handle._pointer, Isolate.current.hashCode);
   }
 
   void addNewLogger() {
@@ -1713,12 +1713,16 @@ class _RealmCore implements RealmCoreScheduler {
     _realmLib.realm_dart_add_new_logger(Realm.logger, logCallback.cast(), Realm.logger.level.toInt(), scheduler.handle._pointer, Isolate.current.hashCode);
   }
 
-  void setLogLevel(int logLevel, {bool isDefaultLogger = false}) {
+  void setLogLevel(int logLevel) {
     _realmLib.realm_dart_set_log_level(logLevel, Isolate.current.hashCode);
   }
 
-  void setDefaultLogLevel(int logLevel, {bool isDefaultLogger = false}) {
-    _realmLib.realm_dart_set_default_log_level(logLevel);
+  Level getDefaultLogLevel() {
+    return LevelExt.fromInt(_realmLib.realm_dart_get_default_log_level());
+  }
+
+  void setDefaultLogLevel(Level logLevel) {
+    _realmLib.realm_dart_set_default_log_level(logLevel.toInt());
   }
 
   SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
