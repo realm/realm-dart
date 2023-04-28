@@ -486,23 +486,7 @@ class Realm implements Finalizable {
     return realmCore.realmEquals(this, other);
   }
 
-  static Logger? _logger;
-
-  static final Logger _defaultLogger = Logger.detached('Realm')
-    ..level = Level.INFO
-    ..onRecord.listen((event) {
-      print('${event.time.toIso8601String()}: $event');
-    });
-
-  /// The default logger for logging events from all the isolates.
-  /// It prints the event messages and the event time.
-  /// The default log level is [RealmLogLevel.info],
-  /// but it could be changed at runtime or switched off using [RealmLogLevel.off].
-  static Level get defaultLogLevel => realmCore.getDefaultLogLevel();
-  static set defaultLogLevel(Level value) {
-    _defaultLogger.level = value;
-    realmCore.setDefaultLogLevel(value);
-  }
+  static late Logger _logger = _RealmLogger._(Logger.detached('Realm'));
 
   /// The logger to use for logging.
   /// The log level is [RealmLogLevel.info].
@@ -510,17 +494,10 @@ class Realm implements Finalizable {
   /// To manage the log level at runtime use `Realm.logger.level` setter.
   /// To listen to the log event use `Realm.logger.onRecord.listen`.
   /// It is also possible to set a new instance of custom [Logger].
-  static Logger get logger {
-    if (_logger == null) {
-      _logger = _RealmLogger._(Logger.detached('Realm')..level = Level.INFO);
-      realmCore.addNewLogger();
-    }
-    return _logger!;
-  }
+  static Logger get logger => _logger;
 
   static set logger(Logger value) {
-    _logger = _RealmLogger._(value);
-    realmCore.addNewLogger();
+    _logger = _RealmLogger._(value, isPredefinedLogger: true);
   }
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
@@ -778,8 +755,6 @@ extension RealmInternal on Realm {
       addUnmanagedRealmObjectFromValue(value.value, update);
     }
   }
-
-  static Logger get defaultLogger => Realm._defaultLogger;
 }
 
 /// @nodoc
@@ -975,8 +950,14 @@ class RealmLogLevel {
 /// @nodoc
 class _RealmLogger implements Logger {
   final Logger _logger;
+  final bool _isPredefinedLogger;
 
-  _RealmLogger._(this._logger);
+  _RealmLogger._(this._logger, {bool isPredefinedLogger = false}) : _isPredefinedLogger = isPredefinedLogger {
+    if (!_isPredefinedLogger) {
+      _logger.level = realmCore.getDefaultLogLevel();
+    }
+    realmCore.setLogger(_logger);
+  }
 
   @override
   Level get level => _logger.level;
@@ -984,7 +965,10 @@ class _RealmLogger implements Logger {
   @override
   set level(Level? value) {
     _logger.level = value;
-    realmCore.setLogLevel((value ?? Level.OFF).toInt());
+    if (!_isPredefinedLogger) {
+      realmCore.setDefaultLogLevel(value!);
+    }
+    realmCore.setLogLevel((value ?? Level.OFF));
   }
 
   @override
