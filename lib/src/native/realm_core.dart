@@ -1694,11 +1694,11 @@ class _RealmCore implements RealmCoreScheduler {
   void _initDefaultLogger() {
     if (_realmLib.realm_dart_init_default_logger(RealmInternal.defaultLogger.level.toInt())) {
       _addDefaultLogger();
-      // Isolate.spawn((int inputLevel) {
-      //   RealmInternal.defaultLogger.level = LevelExt.fromInt(inputLevel);
-      //   final rc = _RealmCore(initLogger: false);
-      //   rc._addDefaultLogger();
-      // }, RealmInternal.defaultLogger.level.toInt());
+      Isolate.spawn((int inputLevel) {
+        RealmInternal.defaultLogger.level = LevelExt.fromInt(inputLevel);
+        final rc = _RealmCore(initLogger: false);
+        rc._addDefaultLogger();
+      }, RealmInternal.defaultLogger.level.toInt());
     }
   }
 
