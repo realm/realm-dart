@@ -1682,11 +1682,11 @@ class _RealmCore implements RealmCoreScheduler {
   }
 
   static void _logCallback(Object userdata, int levelAsInt, Pointer<Int8> message) {
-    final Logger? logger = userdata as Logger?;
+    final Logger logger = userdata as Logger;
     final level = LevelExt.fromInt(levelAsInt);
 
     // Don't do expensive utf8 to utf16 conversion unless needed.
-    if (logger != null && logger.isLoggable(level)) {
+    if (logger.isLoggable(level)) {
       logger.log(level, message.cast<Utf8>().toDartString());
     }
   }
@@ -1694,11 +1694,11 @@ class _RealmCore implements RealmCoreScheduler {
   void _initDefaultLogger() {
     if (_realmLib.realm_dart_init_default_logger(RealmInternal.defaultLogger.level.toInt())) {
       _addDefaultLogger();
-      Isolate.spawn((int inputLevel) {
-        RealmInternal.defaultLogger.level = LevelExt.fromInt(inputLevel);
-        final rc = _RealmCore(initLogger: false);
-        rc._addDefaultLogger();
-      }, RealmInternal.defaultLogger.level.toInt());
+      // Isolate.spawn((int inputLevel) {
+      //   RealmInternal.defaultLogger.level = LevelExt.fromInt(inputLevel);
+      //   final rc = _RealmCore(initLogger: false);
+      //   rc._addDefaultLogger();
+      // }, RealmInternal.defaultLogger.level.toInt());
     }
   }
 
