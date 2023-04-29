@@ -1900,23 +1900,44 @@ Future<void> main([List<String>? args]) async {
     expect(query[0].name, productName);
   });
 
-  baasTest('Realm logger isolates', (appConfiguration) async {
+  baasTest('Realm default logger resumed after closing the isolate with predefined logger', (appConfiguration) async {
+    ReceivePort isolate1ReceivePort = ReceivePort();
+
+    // Isolate 1 with level Error
+    final isolate1 = await Isolate.spawn((SendPort sendPort) async {
+      int result = 0;
+      result = await predefineNewLoggerAndThrows("Isolate 1", appConfiguration, RealmLogLevel.error);
+      sendPort.send(result);
+    }, isolate1ReceivePort.sendPort);
+
+    int log1 = await isolate1ReceivePort.first as int;
+    Realm.logger.level = RealmLogLevel.info;
+
+    isolate1ReceivePort.close();
+    isolate1.kill(priority: Isolate.immediate);
+
+    int mainIsolateCount = await attachToLoggerAndThrows("Isolate 1", appConfiguration, logLevel: RealmLogLevel.error);
+    expect(log1, 1, reason: "Isolate 1");
+    expect(mainIsolateCount, 1, reason: "Main isolate logs count after closing isolates");
+  });
+
+  baasTest('Realm loggers log messages in all the isolates', (appConfiguration) async {
     int isolatesCount = 3;
     ReceivePort isolate1ReceivePort = ReceivePort();
     ReceivePort isolate2ReceivePort = ReceivePort();
 
     // Isolate Main  with level Error
-    final mainIsolate = loginWrongUserWithNewLoggers("Main isolate", appConfiguration, RealmLogLevel.error);
+    final mainIsolate = predefineNewLoggerAndThrows("Main isolate", appConfiguration, RealmLogLevel.error);
 
     // Isolate 1 with level Error
     final isolate1 = await Isolate.spawn((SendPort sendPort) async {
-      int result = await loginWrongUserWithNewLoggers("Isolate 1", appConfiguration, RealmLogLevel.error);
+      int result = await predefineNewLoggerAndThrows("Isolate 1", appConfiguration, RealmLogLevel.error);
       sendPort.send(result);
     }, isolate1ReceivePort.sendPort);
 
     // Isolate 2 with level Error
     final isolate2 = await Isolate.spawn((SendPort sendPort) async {
-      int result = await loginWrongUserWithNewLoggers("Isolate 2", appConfiguration, RealmLogLevel.error);
+      int result = await predefineNewLoggerAndThrows("Isolate 2", appConfiguration, RealmLogLevel.error);
       sendPort.send(result);
     }, isolate2ReceivePort.sendPort);
 
@@ -1928,7 +1949,7 @@ Future<void> main([List<String>? args]) async {
     isolate1.kill(priority: Isolate.immediate);
     isolate2ReceivePort.close();
     isolate2.kill(priority: Isolate.immediate);
-    int logCountAfterClosingIsolates = await loginWrongUserWithNewLoggers("Main isolate", appConfiguration, RealmLogLevel.error);
+    int logCountAfterClosingIsolates = await predefineNewLoggerAndThrows("Main isolate", appConfiguration, RealmLogLevel.error);
 
     expect(log1, isolatesCount, reason: "Isolate 1");
     expect(log2, isolatesCount, reason: "Isolate 2");
@@ -1944,7 +1965,7 @@ Future<void> main([List<String>? args]) async {
     });
     ReceivePort irp1 = ReceivePort();
     final isolate1 = await Isolate.spawn((SendPort sendPort) async {
-      int result = await loginWrongUserWithDefaultLoggers("Isolate 1", configuration);
+      int result = await attachToLoggerAndThrows("Isolate 1", configuration);
       sendPort.send(result);
     }, irp1.sendPort);
 
@@ -1952,7 +1973,7 @@ Future<void> main([List<String>? args]) async {
 
     ReceivePort irp2 = ReceivePort();
     final isolate2 = await Isolate.spawn((SendPort sendPort) async {
-      int result = await loginWrongUserWithDefaultLoggers("Isolate 2", configuration);
+      int result = await attachToLoggerAndThrows("Isolate 2", configuration);
       sendPort.send(result);
     }, irp2.sendPort);
 
@@ -1961,7 +1982,7 @@ Future<void> main([List<String>? args]) async {
   });
 }
 
-Future<int> loginWrongUserWithNewLoggers(String isolateName, AppConfiguration appConfig, Level logLevel) async {
+Future<int> predefineNewLoggerAndThrows(String isolateName, AppConfiguration appConfig, Level logLevel) async {
   final completer = Completer<int>();
   int count = 0;
   Realm.logger = Logger.detached(generateRandomString(10))
@@ -1978,7 +1999,7 @@ Future<int> loginWrongUserWithNewLoggers(String isolateName, AppConfiguration ap
   return count;
 }
 
-Future<int> loginWrongUserWithDefaultLoggers(String isolateName, AppConfiguration appConfig, {Level? logLevel}) async {
+Future<int> attachToLoggerAndThrows(String isolateName, AppConfiguration appConfig, {Level? logLevel}) async {
   final completer = Completer<int>();
   int count = 0;
   if (logLevel != null) {

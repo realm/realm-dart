@@ -1694,7 +1694,11 @@ class _RealmCore implements RealmCoreScheduler {
         ..onRecord.listen((event) => print('${event.time.toIso8601String()}: $event'));
 
       final rc = _RealmCore(initLogger: false);
-      rc.setLogger(defaultLogger, asDefault: true);
+      ReceivePort receivePort = ReceivePort();
+      rc._setDefaultLogger(defaultLogger, receivePort.sendPort);
+      receivePort.listen((dynamic message) {
+        rc._releaseLoggersPerIsolate(message as int);
+      });
     }, Isolate.current.hashCode);
   }
 
@@ -1703,9 +1707,21 @@ class _RealmCore implements RealmCoreScheduler {
     _realmLib.realm_dart_init_default_logger(runDefaultLoggerIsolate);
   }
 
-  void setLogger(Logger logger, {bool asDefault = false}) {
+  void _setDefaultLogger(Logger logger, SendPort defaultLoggerSendPort) {
     final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
-    _realmLib.realm_dart_set_logger(logger, logCallback.cast(), scheduler.handle._pointer, Isolate.current.hashCode, asDefault);
+    _realmLib.realm_dart_set_default_logger(logger, logCallback.cast(), scheduler.handle._pointer, Isolate.current.hashCode, defaultLoggerSendPort);
+  }
+
+  void _releaseLoggersPerIsolate(int blockingLoggerIsolateId) {
+    _realmLib.realm_dart_release_logger(blockingLoggerIsolateId);
+  }
+
+  void setLogger(Logger logger, {bool isPredefined = false}) {
+    final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
+
+    final sendPortObj = _realmLib.realm_dart_set_logger(logger, logCallback.cast(), scheduler.handle._pointer, Isolate.current.hashCode, isPredefined);
+    final SendPort sendPort = sendPortObj as SendPort;
+    Isolate.current.addOnExitListener(sendPort, response: Isolate.current.hashCode);
   }
 
   void setLogLevel(Level logLevel) {

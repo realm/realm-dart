@@ -26,12 +26,18 @@ typedef void (*realm_void_func_t)();
 
 RLM_API void realm_dart_init_default_logger(realm_void_func_t runIsolateFunc);
 
-RLM_API void realm_dart_set_logger(Dart_Handle logger, realm_log_func_t callback, realm_scheduler_t* scheduler, uint64_t isolateId, bool setDefault);
+RLM_API void realm_dart_set_default_logger(Dart_Handle logger, realm_log_func_t callback,
+    realm_scheduler_t* scheduler, uint64_t isolateId, Dart_Handle receivePort);
+
+RLM_API Dart_Handle realm_dart_set_logger(Dart_Handle logger, realm_log_func_t callback,
+    realm_scheduler_t* scheduler, uint64_t isolateId, bool isPredefined);
 
 RLM_API void realm_dart_set_log_level(realm_log_level_e level);
 
 RLM_API realm_log_level_e realm_dart_get_log_level();
 
 RLM_API void realm_dart_release_logger(uint64_t isolateId);
+
+void unblock_default_logger();
 
 #endif // REALM_DART_LOGGER_H

@@ -952,11 +952,13 @@ class _RealmLogger implements Logger {
   final Logger _logger;
   final bool _isPredefinedLogger;
 
-  _RealmLogger._(this._logger, {bool isPredefinedLogger = false}) : _isPredefinedLogger = isPredefinedLogger {
+  _RealmLogger._(Logger logger, {bool isPredefinedLogger = false})
+      : _logger = (logger is _RealmLogger) ? logger._logger : logger,
+        _isPredefinedLogger = (logger is _RealmLogger) ? logger._isPredefinedLogger : isPredefinedLogger {
     if (!_isPredefinedLogger) {
       _logger.level = realmCore.getLogLevel();
     }
-    realmCore.setLogger(_logger);
+    realmCore.setLogger(_logger, isPredefined: _isPredefinedLogger);
     realmCore.setLogLevel(_logger.level);
   }
 
