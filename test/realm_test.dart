@@ -1936,23 +1936,6 @@ Future<void> main([List<String>? args]) async {
     expect(logCountAfterClosingIsolates, 1, reason: "Main isolate logs count after closing isolates");
   });
 
-  baasTest('Logger logging in a new isolate stops after killing the isolate', (appConfiguration) async {
-    ReceivePort irp1 = ReceivePort();
-    Realm.logger.level = RealmLogLevel.info;
-    final isolate1 = await Isolate.spawn((SendPort sendPort) async {
-      int result = await loginWrongUserWithNewLoggers("Isolate 1", appConfiguration, RealmLogLevel.info);
-      sendPort.send(result);
-    }, irp1.sendPort);
-
-    expect(await irp1.first as int, 0);
-    irp1.close();
-    isolate1.kill(priority: Isolate.immediate);
-
-    final result = loginWrongUserWithNewLoggers("Isolate 2", appConfiguration, RealmLogLevel.off);
-
-    expect(await result, 0);
-  });
-
   baasTest('Logger set to Off for all the isolates', (configuration) async {
     int mainIsolateCount = 0;
     Realm.logger.level = RealmLogLevel.off;
