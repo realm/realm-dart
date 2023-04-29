@@ -64,16 +64,6 @@ LoggerData* try_get_logger(uint64_t key)
     return loggerData;
 }
 
-void realm_dart_loggers_free(realm_userdata_t userdata)
-{
-    std::lock_guard lock(dart_logger_mutex);
-    for (auto itr = dart_loggers.begin(); itr != dart_loggers.end(); ++itr) {
-        dart_loggers[itr->first]->~LoggerData();
-        dart_loggers[itr->first] = nullptr;
-    }
-    dart_loggers.clear();
-}
-
 RLM_API void realm_dart_release_logger(uint64_t isolateId) {
     std::lock_guard lock(dart_logger_mutex);
     LoggerData* loggerData = try_get_logger(isolateId);
@@ -109,7 +99,7 @@ RLM_API void realm_dart_init_default_logger(realm_void_func_t runIsolateFunc) {
     runIsolateFunc(); // runIsolateFunc starts a new Isolate and then calls realm_dart_set_logger to unlocks the thread
     std::unique_lock initialisation_lock(mutex);
     condition.wait(initialisation_lock, [&] { return is_core_logger_callback_set; });
-    realm_set_log_callback(realm_dart_logger_callback, last_log_level, nullptr, realm_dart_loggers_free);
+    realm_set_log_callback(realm_dart_logger_callback, last_log_level, nullptr, nullptr);
 }
 
 RLM_API void realm_dart_set_logger(Dart_Handle logger, realm_log_func_t callback, realm_scheduler_t* scheduler, uint64_t isolateId, bool setDefault) {
