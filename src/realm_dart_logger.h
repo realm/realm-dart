@@ -22,19 +22,15 @@
 #include <realm.h>
 #include <dart_api_dl.h>
 
-typedef void (*realm_default_log_func_t)(realm_log_level_e level, const char* message);
+typedef void (*realm_void_func_t)();
 
-RLM_API bool realm_dart_init_default_logger(realm_log_level_e level, realm_default_log_func_t callback, realm_scheduler_t* scheduler, uint64_t isolateId);
+RLM_API void realm_dart_init_default_logger(realm_void_func_t runIsolateFunc);
 
-RLM_API void realm_dart_add_default_logger(realm_default_log_func_t callback, realm_scheduler_t* scheduler, uint64_t isolateId);
+RLM_API void realm_dart_set_logger(Dart_Handle logger, realm_log_func_t callback, realm_scheduler_t* scheduler, uint64_t isolateId, bool setDefault);
 
-RLM_API void realm_dart_add_new_logger(Dart_Handle logger, realm_log_func_t callback, realm_log_level_e level, realm_scheduler_t* scheduler, uint64_t isolateId);
+RLM_API void realm_dart_set_log_level(realm_log_level_e level);
 
-RLM_API void realm_dart_set_log_level(realm_log_level_e level, uint64_t isolateId);
-
-RLM_API realm_log_level_e realm_dart_get_default_log_level();
-
-RLM_API void realm_dart_set_default_log_level(realm_log_level_e level);
+RLM_API realm_log_level_e realm_dart_get_log_level();
 
 RLM_API void realm_dart_release_logger(uint64_t isolateId);
 

@@ -228,7 +228,6 @@ Future<void> main([List<String>? args]) async {
         ..onRecord.listen((event) {
           count++;
           expect(event.level, RealmLogLevel.error);
-          print("${event.level}: ${event.message}");
           completer.complete();
         });
 

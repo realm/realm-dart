@@ -1905,13 +1905,17 @@ Future<void> main([List<String>? args]) async {
     ReceivePort isolate1ReceivePort = ReceivePort();
     ReceivePort isolate2ReceivePort = ReceivePort();
 
+    // Isolate Main  with level Error
     final mainIsolate = loginWrongUserWithNewLoggers("Main isolate", appConfiguration, RealmLogLevel.error);
-    Isolate.spawn((SendPort sendPort) async {
+
+    // Isolate 1 with level Error
+    final isolate1 = await Isolate.spawn((SendPort sendPort) async {
       int result = await loginWrongUserWithNewLoggers("Isolate 1", appConfiguration, RealmLogLevel.error);
       sendPort.send(result);
     }, isolate1ReceivePort.sendPort);
 
-    Isolate.spawn((SendPort sendPort) async {
+    // Isolate 2 with level Error
+    final isolate2 = await Isolate.spawn((SendPort sendPort) async {
       int result = await loginWrongUserWithNewLoggers("Isolate 2", appConfiguration, RealmLogLevel.error);
       sendPort.send(result);
     }, isolate2ReceivePort.sendPort);
@@ -1919,52 +1923,49 @@ Future<void> main([List<String>? args]) async {
     int log1 = await isolate1ReceivePort.first as int;
     int log2 = await isolate2ReceivePort.first as int;
     int logMain = await mainIsolate;
+
     isolate1ReceivePort.close();
+    isolate1.kill(priority: Isolate.immediate);
     isolate2ReceivePort.close();
+    isolate2.kill(priority: Isolate.immediate);
+    int logCountAfterClosingIsolates = await loginWrongUserWithNewLoggers("Main isolate", appConfiguration, RealmLogLevel.error);
 
     expect(log1, isolatesCount, reason: "Isolate 1");
     expect(log2, isolatesCount, reason: "Isolate 2");
-    expect(logMain, isolatesCount, reason: "Main isolate");
+    expect(logMain, isolatesCount, reason: "Main isolate logs count");
+    expect(logCountAfterClosingIsolates, 1, reason: "Main isolate logs count after closing isolates");
   });
 
   baasTest('Logger logging in a new isolate stops after killing the isolate', (appConfiguration) async {
     ReceivePort irp1 = ReceivePort();
-
+    Realm.logger.level = RealmLogLevel.info;
     final isolate1 = await Isolate.spawn((SendPort sendPort) async {
       int result = await loginWrongUserWithNewLoggers("Isolate 1", appConfiguration, RealmLogLevel.info);
       sendPort.send(result);
     }, irp1.sendPort);
 
-    expect(await irp1.first as int, 15);
-
-    ReceivePort irp2 = ReceivePort();
-    final isolate2 = await Isolate.spawn((SendPort sendPort) async {
-      int result = await loginWrongUserWithNewLoggers("Isolate 2", appConfiguration, RealmLogLevel.error);
-      sendPort.send(result);
-    }, irp2.sendPort);
-
+    expect(await irp1.first as int, 0);
     irp1.close();
     isolate1.kill(priority: Isolate.immediate);
 
-    expect(await irp2.first as int, 1);
+    final result = loginWrongUserWithNewLoggers("Isolate 2", appConfiguration, RealmLogLevel.off);
 
-    irp2.close();
-    isolate2.kill(priority: Isolate.immediate);
+    expect(await result, 0);
   });
 
-  baasTest('Logger change default logger level for all the new isolates', (configuration) async {
+  baasTest('Logger set to Off for all the isolates', (configuration) async {
     int mainIsolateCount = 0;
+    Realm.logger.level = RealmLogLevel.off;
     Realm.logger.onRecord.listen((event) {
       mainIsolateCount++;
     });
     ReceivePort irp1 = ReceivePort();
-
     final isolate1 = await Isolate.spawn((SendPort sendPort) async {
-      int result = await loginWrongUserWithDefaultLoggers("Isolate 1", configuration, logLevel: RealmLogLevel.error);
+      int result = await loginWrongUserWithDefaultLoggers("Isolate 1", configuration);
       sendPort.send(result);
     }, irp1.sendPort);
 
-    expect(await irp1.first as int, 1);
+    expect(await irp1.first as int, 0);
 
     ReceivePort irp2 = ReceivePort();
     final isolate2 = await Isolate.spawn((SendPort sendPort) async {
@@ -1972,8 +1973,8 @@ Future<void> main([List<String>? args]) async {
       sendPort.send(result);
     }, irp2.sendPort);
 
-    expect(await irp2.first as int, 1);
-    expect(mainIsolateCount, greaterThan(2));
+    expect(await irp2.first as int, 0);
+    expect(mainIsolateCount, 0);
   });
 }
 

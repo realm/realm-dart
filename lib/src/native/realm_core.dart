@@ -1684,49 +1684,36 @@ class _RealmCore implements RealmCoreScheduler {
   static void _logCallback(Object userdata, int levelAsInt, Pointer<Int8> message) {
     final Logger logger = userdata as Logger;
     final level = LevelExt.fromInt(levelAsInt);
-
-    // Don't do expensive utf8 to utf16 conversion unless needed.
-    if (logger.isLoggable(level)) {
-      logger.log(level, message.cast<Utf8>().toDartString());
-    }
+    logger.log(level, message.cast<Utf8>().toDartString());
   }
 
-  static void _defaultLogCallback(int level, Pointer<Int8> message) {
-    final logLevel = LevelExt.fromInt(level);
-    // TODO: Print the errors in red colour.
-    print("[$logLevel] ${DateTime.now().toIso8601String()}: ${message.cast<Utf8>().toDartString()}");
+  static void _runDefaultLoggerIsolate() {
+    Isolate.spawn((int parentIsolateId) {
+      final Logger defaultLogger = Logger.detached('Realm')
+        ..level = RealmLogLevel.info
+        ..onRecord.listen((event) => print('${event.time.toIso8601String()}: $event'));
+
+      final rc = _RealmCore(initLogger: false);
+      rc.setLogger(defaultLogger, asDefault: true);
+    }, Isolate.current.hashCode);
   }
 
   void _initDefaultLogger() {
-    final defaultLogCallback = Pointer.fromFunction<Void Function(Int32, Pointer<Int8>)>(_defaultLogCallback);
-    if (_realmLib.realm_dart_init_default_logger(RealmLogLevel.info.toInt(), defaultLogCallback.cast(), scheduler.handle._pointer, Isolate.current.hashCode)) {
-      Isolate.spawn((int parentIsolateId) {
-        final rc = _RealmCore(initLogger: false);
-        rc._addDefaultLogger(); // Replace the default logger
-      }, Isolate.current.hashCode);
-    }
+    final runDefaultLoggerIsolate = Pointer.fromFunction<Void Function()>(_runDefaultLoggerIsolate);
+    _realmLib.realm_dart_init_default_logger(runDefaultLoggerIsolate);
   }
 
-  void _addDefaultLogger() {
-    final defaultLogCallback = Pointer.fromFunction<Void Function(Int32, Pointer<Int8>)>(_defaultLogCallback);
-    _realmLib.realm_dart_add_default_logger(defaultLogCallback.cast(), scheduler.handle._pointer, Isolate.current.hashCode);
-  }
-
-  void setLogger(Logger logger) {
+  void setLogger(Logger logger, {bool asDefault = false}) {
     final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
-    _realmLib.realm_dart_add_new_logger(logger, logCallback.cast(), logger.level.toInt(), scheduler.handle._pointer, Isolate.current.hashCode);
+    _realmLib.realm_dart_set_logger(logger, logCallback.cast(), scheduler.handle._pointer, Isolate.current.hashCode, asDefault);
   }
 
   void setLogLevel(Level logLevel) {
-    _realmLib.realm_dart_set_log_level(logLevel.toInt(), Isolate.current.hashCode);
+    _realmLib.realm_dart_set_log_level(logLevel.toInt());
   }
 
-  Level getDefaultLogLevel() {
-    return LevelExt.fromInt(_realmLib.realm_dart_get_default_log_level());
-  }
-
-  void setDefaultLogLevel(Level logLevel) {
-    _realmLib.realm_dart_set_default_log_level(logLevel.toInt());
+  Level getLogLevel() {
+    return LevelExt.fromInt(_realmLib.realm_dart_get_log_level());
   }
 
   SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
