@@ -490,7 +490,7 @@ class Realm implements Finalizable {
 
   /// The logger to use for logging.
   /// The log level is [RealmLogLevel.info].
-  /// The level is changed for the current isolate.
+  /// The level is changed for all the isolates.
   /// To manage the log level at runtime use `Realm.logger.level` setter.
   /// To listen to the log event use `Realm.logger.onRecord.listen`.
   /// It is also possible to set a new instance of custom [Logger].
