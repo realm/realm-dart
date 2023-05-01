@@ -231,7 +231,7 @@ jobs:
         run: |
           dart run realm_dart delete-apps \
             --baas-url ${{ env.BAAS_URL }} \
-            --atlas-cluster ${{ env.BAAS_F_CLUSTER }} \
+            --atlas-cluster ${{ env.BAAS_CLUSTER }} \
             --api-key ${{ env.BAAS_API_KEY }} \
             --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} \
             --project-id ${{ env.BAAS_PROJECT_ID }} \
