@@ -1901,84 +1901,98 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Realm default logger resumed after closing the isolate with predefined logger', (appConfiguration) async {
-    ReceivePort isolate1ReceivePort = ReceivePort();
+    try {
+      ReceivePort isolate1ReceivePort = ReceivePort();
 
-    // Isolate 1 with level Error
-    final isolate1 = await Isolate.spawn((SendPort sendPort) async {
-      int result = 0;
-      result = await predefineNewLoggerAndThrows("Isolate 1", appConfiguration, RealmLogLevel.error);
-      sendPort.send(result);
-    }, isolate1ReceivePort.sendPort);
+      // Isolate 1 with level Error
+      final isolate1 = await Isolate.spawn((SendPort sendPort) async {
+        int result = 0;
+        result = await predefineNewLoggerAndThrows("Isolate 1", appConfiguration, RealmLogLevel.error);
+        sendPort.send(result);
+      }, isolate1ReceivePort.sendPort);
 
-    int log1 = await isolate1ReceivePort.first as int;
-    Realm.logger.level = RealmLogLevel.info;
+      int log1 = await isolate1ReceivePort.first as int;
+      Realm.logger.level = RealmLogLevel.info;
 
-    isolate1ReceivePort.close();
-    isolate1.kill(priority: Isolate.immediate);
+      isolate1ReceivePort.close();
+      isolate1.kill(priority: Isolate.immediate);
 
-    int mainIsolateCount = await attachToLoggerAndThrows("Isolate 1", appConfiguration, logLevel: RealmLogLevel.error);
-    expect(log1, 1, reason: "Isolate 1");
-    expect(mainIsolateCount, 1, reason: "Main isolate logs count after closing isolates");
+      int mainIsolateCount = await attachToLoggerAndThrows("Isolate 1", appConfiguration, logLevel: RealmLogLevel.error);
+      expect(log1, 1, reason: "Isolate 1");
+      expect(mainIsolateCount, 1, reason: "Main isolate logs count after closing isolates");
+    } finally {
+      Realm.logger.level = RealmLogLevel.info;
+    }
   });
 
   baasTest('Realm loggers log messages in all the isolates', (appConfiguration) async {
-    int isolatesCount = 3;
-    ReceivePort isolate1ReceivePort = ReceivePort();
-    ReceivePort isolate2ReceivePort = ReceivePort();
+    final oldLogger = Realm.logger;
+    try {
+      int isolatesCount = 3;
+      ReceivePort isolate1ReceivePort = ReceivePort();
+      ReceivePort isolate2ReceivePort = ReceivePort();
 
-    // Isolate Main  with level Error
-    final mainIsolate = predefineNewLoggerAndThrows("Main isolate", appConfiguration, RealmLogLevel.error);
+      // Isolate Main  with level Error
+      final mainIsolate = predefineNewLoggerAndThrows("Main isolate", appConfiguration, RealmLogLevel.error);
 
-    // Isolate 1 with level Error
-    final isolate1 = await Isolate.spawn((SendPort sendPort) async {
-      int result = await predefineNewLoggerAndThrows("Isolate 1", appConfiguration, RealmLogLevel.error);
-      sendPort.send(result);
-    }, isolate1ReceivePort.sendPort);
+      // Isolate 1 with level Error
+      final isolate1 = await Isolate.spawn((SendPort sendPort) async {
+        int result = await predefineNewLoggerAndThrows("Isolate 1", appConfiguration, RealmLogLevel.error);
+        sendPort.send(result);
+      }, isolate1ReceivePort.sendPort);
 
-    // Isolate 2 with level Error
-    final isolate2 = await Isolate.spawn((SendPort sendPort) async {
-      int result = await predefineNewLoggerAndThrows("Isolate 2", appConfiguration, RealmLogLevel.error);
-      sendPort.send(result);
-    }, isolate2ReceivePort.sendPort);
+      // Isolate 2 with level Error
+      final isolate2 = await Isolate.spawn((SendPort sendPort) async {
+        int result = await predefineNewLoggerAndThrows("Isolate 2", appConfiguration, RealmLogLevel.error);
+        sendPort.send(result);
+      }, isolate2ReceivePort.sendPort);
 
-    int log1 = await isolate1ReceivePort.first as int;
-    int log2 = await isolate2ReceivePort.first as int;
-    int logMain = await mainIsolate;
+      int log1 = await isolate1ReceivePort.first as int;
+      int log2 = await isolate2ReceivePort.first as int;
+      int logMain = await mainIsolate;
 
-    isolate1ReceivePort.close();
-    isolate1.kill(priority: Isolate.immediate);
-    isolate2ReceivePort.close();
-    isolate2.kill(priority: Isolate.immediate);
-    int logCountAfterClosingIsolates = await predefineNewLoggerAndThrows("Main isolate", appConfiguration, RealmLogLevel.error);
+      isolate1ReceivePort.close();
+      isolate1.kill(priority: Isolate.immediate);
+      isolate2ReceivePort.close();
+      isolate2.kill(priority: Isolate.immediate);
+      int logCountAfterClosingIsolates = await predefineNewLoggerAndThrows("Main isolate", appConfiguration, RealmLogLevel.error);
+      Realm.logger.level = RealmLogLevel.info;
 
-    expect(log1, isolatesCount, reason: "Isolate 1");
-    expect(log2, isolatesCount, reason: "Isolate 2");
-    expect(logMain, isolatesCount, reason: "Main isolate logs count");
-    expect(logCountAfterClosingIsolates, 1, reason: "Main isolate logs count after closing isolates");
+      expect(log1, isolatesCount, reason: "Isolate 1");
+      expect(log2, isolatesCount, reason: "Isolate 2");
+      expect(logMain, isolatesCount, reason: "Main isolate logs count");
+      expect(logCountAfterClosingIsolates, 1, reason: "Main isolate logs count after closing isolates");
+    } finally {
+      Realm.logger = oldLogger;
+    }
   });
 
   baasTest('Logger set to Off for all the isolates', (configuration) async {
-    int mainIsolateCount = 0;
-    Realm.logger.level = RealmLogLevel.off;
-    Realm.logger.onRecord.listen((event) {
-      mainIsolateCount++;
-    });
-    ReceivePort irp1 = ReceivePort();
-    final isolate1 = await Isolate.spawn((SendPort sendPort) async {
-      int result = await attachToLoggerAndThrows("Isolate 1", configuration);
-      sendPort.send(result);
-    }, irp1.sendPort);
+    try {
+      int mainIsolateCount = 0;
+      Realm.logger.level = RealmLogLevel.off;
+      Realm.logger.onRecord.listen((event) {
+        mainIsolateCount++;
+      });
+      ReceivePort irp1 = ReceivePort();
+      final isolate1 = await Isolate.spawn((SendPort sendPort) async {
+        int result = await attachToLoggerAndThrows("Isolate 1", configuration);
+        sendPort.send(result);
+      }, irp1.sendPort);
 
-    expect(await irp1.first as int, 0);
+      expect(await irp1.first as int, 0);
 
-    ReceivePort irp2 = ReceivePort();
-    final isolate2 = await Isolate.spawn((SendPort sendPort) async {
-      int result = await attachToLoggerAndThrows("Isolate 2", configuration);
-      sendPort.send(result);
-    }, irp2.sendPort);
+      ReceivePort irp2 = ReceivePort();
+      final isolate2 = await Isolate.spawn((SendPort sendPort) async {
+        int result = await attachToLoggerAndThrows("Isolate 2", configuration);
+        sendPort.send(result);
+      }, irp2.sendPort);
 
-    expect(await irp2.first as int, 0);
-    expect(mainIsolateCount, 0);
+      expect(await irp2.first as int, 0);
+      expect(mainIsolateCount, 0);
+    } finally {
+      Realm.logger.level = RealmLogLevel.info;
+    }
   });
 }
 
