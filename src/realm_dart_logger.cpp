@@ -73,15 +73,18 @@ LoggerData* try_get_logger(uint64_t key)
 
 void pause_or_resume_default_logger()
 {
-    bool paused = false;
-    for (auto itr = dart_loggers.begin(); itr != dart_loggers.end(); ++itr) {
-        if (dart_loggers[itr->first]->is_predefined)
-        {
-            paused = true;
-            break;
+    if (default_logger)
+    {
+        bool paused = false;
+        for (auto itr = dart_loggers.begin(); itr != dart_loggers.end(); ++itr) {
+            if (dart_loggers[itr->first]->is_predefined)
+            {
+                paused = true;
+                break;
+            }
         }
+        default_logger->is_paused = paused;
     }
-    default_logger->is_paused = paused;
 }
 
 RLM_API void realm_dart_release_logger(uint64_t isolateId) {
