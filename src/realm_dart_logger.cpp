@@ -120,8 +120,8 @@ RLM_API void realm_dart_init_default_logger(realm_void_func_t runIsolateFunc) {
     }
     runIsolateFunc(); // runIsolateFunc starts a new Isolate and then calls realm_dart_set_logger to unlocks the thread
     std::unique_lock initialisation_lock(initialisation_mutex);
-    auto inOneMinute = std::chrono::system_clock::now() + std::chrono::minutes(1);
-    initialisation_condition.wait_until(initialisation_lock, inOneMinute, [&] { return is_core_logger_callback_set; });
+    auto timeout = std::chrono::system_clock::now() + std::chrono::seconds(2);
+    initialisation_condition.wait_until(initialisation_lock, timeout, [&] { return is_core_logger_callback_set; });
     realm_set_log_callback(realm_dart_logger_callback, last_log_level, nullptr, nullptr);
 }
 
