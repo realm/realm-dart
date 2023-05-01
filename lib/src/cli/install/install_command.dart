@@ -183,7 +183,7 @@ class InstallCommand extends Command<void> {
     final realmPackagePath = await getRealmPackagePath();
     final realmPubspec = await parsePubspec(realmPackagePath);
 
-    if (await shouldSkipInstall(realmPubspec)) {
+    if (!options.force && await shouldSkipInstall(realmPubspec)) {
       return;
     }
 
