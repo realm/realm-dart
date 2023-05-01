@@ -1963,6 +1963,7 @@ Future<void> main([List<String>? args]) async {
       expect(logMain, isolatesCount, reason: "Main isolate logs count");
       expect(logCountAfterClosingIsolates, 1, reason: "Main isolate logs count after closing isolates");
     } finally {
+      Realm.logger.level = RealmLogLevel.info;
       Realm.logger = oldLogger;
     }
   });

@@ -214,6 +214,7 @@ Future<void> main([List<String>? args]) async {
         },
       );
     } finally {
+      Realm.logger.level = RealmLogLevel.info;
       Realm.logger = oldLogger; // re-instate previous
     }
   });
@@ -247,6 +248,7 @@ Future<void> main([List<String>? args]) async {
     } catch (error) {
       completer.completeError(error);
     } finally {
+      Realm.logger.level = RealmLogLevel.info;
       Realm.logger = oldLogger;
     }
   });
