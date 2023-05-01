@@ -396,7 +396,7 @@ Future<void> setupTests(List<String>? args) async {
   });
 
   // Enable this to print platform info, including current PID
-  // await _printPlatformInfo();
+  await _printPlatformInfo();
 }
 
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
