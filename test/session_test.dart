@@ -61,7 +61,7 @@ Future<void> main([List<String>? args]) async {
     final realm = Realm(config);
 
     expect(realm.syncSession, isNotNull);
-  }, skip: 'crashes');
+  });
 
   Future<void> validateSessionStates(String validationName, Session session,
       {SessionState? expectedSessionState, ConnectionState? expectedConnectionState}) async {
