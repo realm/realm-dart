@@ -57,7 +57,8 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
     bool aBool,
     bool another,
     ObjectId objectId,
-    Uuid uuid, {
+    Uuid uuid,
+    Decimal128 decimal, {
     Uint8List data = Uint8List(16),
     DateTime timestamp = DateTime.now(),
     double aDouble = 0.0,
@@ -85,6 +86,7 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.set(this, 'uuid', uuid);
     RealmObjectBase.set(this, 'anOptionalString', anOptionalString);
     RealmObjectBase.set(this, 'any', any);
+    RealmObjectBase.set(this, 'decimal', decimal);
     RealmObjectBase.set<RealmList<int>>(this, 'list', RealmList<int>(list));
     RealmObjectBase.set<RealmList<RealmValue>>(
         this, 'manyAny', RealmList<RealmValue>(manyAny));
@@ -168,6 +170,12 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
       throw RealmUnsupportedSetError();
 
   @override
+  Decimal128 get decimal =>
+      RealmObjectBase.get<Decimal128>(this, 'decimal') as Decimal128;
+  @override
+  set decimal(Decimal128 value) => RealmObjectBase.set(this, 'decimal', value);
+
+  @override
   RealmResults<Foo> get foos =>
       RealmObjectBase.get<Foo>(this, 'foos') as RealmResults<Foo>;
   @override
@@ -204,6 +212,7 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('any', RealmPropertyType.mixed, optional: true),
       SchemaProperty('manyAny', RealmPropertyType.mixed,
           optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('decimal', RealmPropertyType.decimal128),
       SchemaProperty('foos', RealmPropertyType.linkingObjects,
           linkOriginProperty: 'bar',
           collectionType: RealmCollectionType.list,

@@ -28,12 +28,13 @@ import 'package:cancellation_token/cancellation_token.dart';
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
-import 'package:realm_common/realm_common.dart';
+import 'package:realm_common/realm_common.dart' hide Decimal128;
 
 import '../app.dart';
 import '../collections.dart';
 import '../configuration.dart';
 import '../credentials.dart';
+import '../decimal128.dart';
 import '../init.dart';
 import '../list.dart';
 import '../migration.dart';
@@ -2863,6 +2864,9 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
       realm_value.ref.type = realm_value_type.RLM_TYPE_TIMESTAMP;
     } else if (value is RealmValue) {
       return _intoRealmValue(value.value, realm_value, allocator);
+    } else if (value is Decimal128) {
+      realm_value.ref.values.decimal128 = value.value;
+      realm_value.ref.type = realm_value_type.RLM_TYPE_DECIMAL128;
     } else {
       throw RealmException("Property type ${value.runtimeType} not supported");
     }
@@ -2905,6 +2909,8 @@ extension on Pointer<realm_value_t> {
         return ObjectId.fromBytes(cast<Uint8>().asTypedList(12));
       case realm_value_type.RLM_TYPE_UUID:
         return Uuid.fromBytes(cast<Uint8>().asTypedList(16).buffer);
+      case realm_value_type.RLM_TYPE_DECIMAL128:
+        return Decimal128Internal.fromNative(ref.values.decimal128);
       default:
         throw RealmException("realm_value_type ${ref.type} not supported");
     }

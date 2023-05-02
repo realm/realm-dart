@@ -23,9 +23,10 @@ import 'package:ffi/ffi.dart';
 
 import 'native/realm_bindings.dart';
 import 'native/realm_core.dart';
+import 'package:realm_common/realm_common.dart' as common;
 
 /// A 128-bit decimal floating point number.
-class Decimal128 extends Comparable<Decimal128> {
+class Decimal128 extends Comparable<Decimal128> implements common.Decimal128 {
   /// The value 0.
   static final zero = Decimal128.fromInt(0);
 
@@ -146,4 +147,12 @@ class Decimal128 extends Comparable<Decimal128> {
   /// Compares `this` to `other`.
   @override
   int compareTo(Decimal128 other) => lib.realm_dart_decimal128_compare_to(_value, other._value);
+}
+
+extension Decimal128Internal on Decimal128 {
+  realm_decimal128_t get value => _value;
+
+  static Decimal128 fromNative(realm_decimal128_t value) {
+    return Decimal128._(value);
+  }
 }

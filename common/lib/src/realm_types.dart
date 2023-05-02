@@ -101,7 +101,7 @@ class RealmStateError extends StateError implements RealmError {
 }
 
 /// @nodoc
-class Decimal128 {} // TODO Support decimal128 datatype https://github.com/realm/realm-dart/issues/725
+abstract class Decimal128 {} // TODO Support decimal128 datatype https://github.com/realm/realm-dart/issues/725
 
 /// @nodoc
 abstract class RealmObjectBaseMarker {}

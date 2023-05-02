@@ -87,16 +87,17 @@ Future<void> main([List<String>? args]) async {
   final objectId = ObjectId();
   final uuid = Uuid.v4();
 
-  AllTypes _getPopulatedAllTypes() => AllTypes('abc', true, date, -123.456, objectId, uuid, -987,
+  AllTypes _getPopulatedAllTypes() => AllTypes('abc', true, date, -123.456, objectId, uuid, -987, Decimal128.fromDouble(42),
       nullableStringProp: 'def',
       nullableBoolProp: true,
       nullableDateProp: date,
       nullableDoubleProp: -123.456,
       nullableObjectIdProp: objectId,
       nullableUuidProp: uuid,
-      nullableIntProp: 123);
+      nullableIntProp: 123,
+      nullableDecimalProp: Decimal128.fromDouble(4242));
 
-  AllTypes _getEmptyAllTypes() => AllTypes('', false, DateTime(0).toUtc(), 0, objectId, uuid, 0);
+  AllTypes _getEmptyAllTypes() => AllTypes('', false, DateTime(0).toUtc(), 0, objectId, uuid, 0, Decimal128.zero);
 
   AllCollections _getPopulatedAllCollections() => AllCollections(
       strings: ['abc', 'def'],
