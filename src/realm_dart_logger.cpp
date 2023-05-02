@@ -121,7 +121,7 @@ RLM_API void realm_dart_init_default_logger(realm_void_func_t runIsolateFunc) {
     if (is_core_logger_callback_set) {
         return;
     }
-    runIsolateFunc(); // runIsolateFunc starts a new Isolate and then calls realm_dart_set_logger to unlocks the thread
+    runIsolateFunc(); // runIsolateFunc starts a new Isolate and then calls realm_dart_set_logger to unlock the thread
     std::unique_lock initialisation_lock(initialisation_mutex);
     auto timeout = std::chrono::system_clock::now() + std::chrono::seconds(2);
     initialisation_condition.wait_until(initialisation_lock, timeout, [&] { return is_core_logger_callback_set; });
@@ -132,11 +132,11 @@ RLM_API void realm_dart_set_default_logger(Dart_Handle logger, realm_log_func_t 
     realm_scheduler_t* scheduler, uint64_t isolateId, Dart_Handle sendPort) {
     default_logger = new LoggerData(logger, callback, scheduler, isolateId);
     dart_loggers[isolateId] = default_logger;
+    _defaultIsolateSendPort = Dart_NewPersistentHandle_DL(sendPort);
     is_core_logger_callback_set = true;
     std::unique_lock initialisation_lock(initialisation_mutex);
     initialisation_lock.unlock();
     initialisation_condition.notify_one();
-    _defaultIsolateSendPort = Dart_NewPersistentHandle_DL(sendPort);
 }
 
 RLM_API Dart_Handle realm_dart_set_logger(Dart_Handle logger, realm_log_func_t callback,
