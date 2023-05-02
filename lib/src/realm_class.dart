@@ -88,6 +88,7 @@ export "configuration.dart"
         SyncWebSocketError,
         SyncSessionError;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
+export 'decimal128.dart' show Decimal128;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
 export 'set.dart' show RealmSet, RealmSetChanges;
 export 'migration.dart' show Migration;
