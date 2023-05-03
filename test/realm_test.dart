@@ -1898,6 +1898,26 @@ Future<void> main([List<String>? args]) async {
     expect(query.length, 1);
     expect(query[0].name, productName);
   });
+
+  test('Realm create realm object form json', () {
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
+    final map = <String, dynamic>{
+      'name': 'Suzi',
+      'owner': {'name': 'Ani'},
+      'age': 11,
+    };
+    final object = realm.mapToObject("Dog", map);
+    if (object != null) {
+      realm.write(() => realm.addObject(object));
+    }
+    final query = realm.all<Dog>();
+    expect(query.length, 1);
+    final dog = query.first;
+    expect(dog.name, 'Suzi');
+    expect(dog.age, 11);
+    expect(dog.owner!.name, "Ani");
+  });
 }
 
 List<int> generateEncryptionKey() {

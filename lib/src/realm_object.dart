@@ -352,6 +352,19 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
   }
 
   /// @nodoc
+  static RealmObjectBase createObjectByName(String className, RealmObjectMetadata metadata) {
+    Type type = _factories.keys.firstWhere((t) => t.toString() == className);
+    return createObject(type, metadata);
+  }
+
+  /// @nodoc
+  SchemaProperty getPropertyType(String properyName, {Realm? schemaRrealm}) {
+    schemaRrealm ??= realm;
+    final objectMetadata = schemaRrealm.metadata.getByType(runtimeType);
+    return objectMetadata.schema.properties.firstWhere((p) => p.name == properyName);
+  }
+
+  /// @nodoc
   static bool setDefaults<T extends RealmObjectBase>(Map<String, Object> values) {
     RealmAccessor.setDefaults<T>(values);
     return true;

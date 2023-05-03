@@ -258,6 +258,22 @@ class Realm implements Finalizable {
     return object;
   }
 
+  RealmObjectBase addObject(RealmObjectBase object, {bool update = false}) {
+    if (object.isManaged) {
+      _ensureManagedByThis(object, 'add object to Realm');
+
+      return object;
+    }
+
+    final metadata = _metadata.getByType(object.runtimeType);
+    final handle = _createObject(object, metadata, update);
+
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
+    object.manage(this, handle, accessor, update);
+
+    return object;
+  }
+
   RealmObjectHandle _createObject(RealmObjectBase object, RealmObjectMetadata metadata, bool update) {
     final key = metadata.classKey;
     final primaryKey = metadata.primaryKey;
@@ -397,6 +413,13 @@ class Realm implements Finalizable {
     final accessor = RealmCoreAccessor(metadata, _isInMigration);
     var object = RealmObjectInternal.create(T, this, handle, accessor);
     return object as T;
+  }
+
+  RealmObjectBase? createObjectByClassName(String className) {
+    final metadata = _metadata.getByName(className);
+
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
+    return RealmObjectBase.createObjectByName(className, accessor.metadata);
   }
 
   /// Returns all [RealmObject]s of type `T` in the `Realm`
@@ -639,6 +662,24 @@ class Transaction {
     _realm = null;
   }
 }
+
+extension RealmExtension on Realm {
+  /// Generate a [RealmObject] or an [EmbeddedObject] from Json map
+  RealmObjectBase? mapToObject(String className, Map<String, dynamic> value) {
+    var object = createObjectByClassName(className);
+    if (object != null) {
+      value.forEach((key, dynamic value) {
+        if (value is Map<String, dynamic>) {
+          final property = object.getPropertyType(key, schemaRrealm: this);
+          value = mapToObject(property.linkTarget!, value);
+        }
+        RealmObjectBase.set(object, key, value);
+      });
+    }
+    return object;
+  }
+}
+
 
 /// @nodoc
 extension RealmInternal on Realm {
