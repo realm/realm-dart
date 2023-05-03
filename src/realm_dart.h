@@ -71,4 +71,7 @@ RLM_API bool realm_dart_decimal128_less_than(realm_decimal128_t x, realm_decimal
 RLM_API bool realm_dart_decimal128_greater_than(realm_decimal128_t x, realm_decimal128_t y);
 RLM_API int realm_dart_decimal128_compare_to(realm_decimal128_t x, realm_decimal128_t y);
 
+// work-around for Dart FFI issue
+RLM_API realm_decimal128_t realm_dart_decimal128_copy(realm_decimal128_t x);
+
 #endif // REALM_DART_H

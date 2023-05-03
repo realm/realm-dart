@@ -214,6 +214,10 @@ RLM_API int64_t realm_dart_decimal128_to_int64(realm_decimal128_t x) {
     return result;
 }
 
+RLM_API realm_decimal128_t realm_dart_decimal128_copy(realm_decimal128_t x) {
+    return x; // work-around to Dart FFI issue
+}
+
 RLM_API realm_decimal128_t realm_dart_decimal128_negate(realm_decimal128_t x) {
     auto x_bid = to_BID_UINT128(x);
     BID_UINT128 result;

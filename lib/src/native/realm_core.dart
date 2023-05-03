@@ -21,6 +21,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:cancellation_token/cancellation_token.dart';
@@ -2904,13 +2905,13 @@ extension on Pointer<realm_value_t> {
         final nanoseconds = ref.values.timestamp.nanoseconds;
         return DateTime.fromMicrosecondsSinceEpoch(seconds * _microsecondsPerSecond + nanoseconds ~/ _nanosecondsPerMicrosecond, isUtc: true);
       case realm_value_type.RLM_TYPE_DECIMAL128:
-        throw Exception("Not implemented");
+        var decimal = ref.values.decimal128; // NOTE: Does not copy the struct!
+        decimal = lib.realm_dart_decimal128_copy(decimal); // This is a workaround to that
+        return Decimal128Internal.fromNative(decimal);
       case realm_value_type.RLM_TYPE_OBJECT_ID:
         return ObjectId.fromBytes(cast<Uint8>().asTypedList(12));
       case realm_value_type.RLM_TYPE_UUID:
         return Uuid.fromBytes(cast<Uint8>().asTypedList(16).buffer);
-      case realm_value_type.RLM_TYPE_DECIMAL128:
-        return Decimal128Internal.fromNative(ref.values.decimal128);
       default:
         throw RealmException("realm_value_type ${ref.type} not supported");
     }

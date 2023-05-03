@@ -152,7 +152,5 @@ class Decimal128 extends Comparable<Decimal128> implements common.Decimal128 {
 extension Decimal128Internal on Decimal128 {
   realm_decimal128_t get value => _value;
 
-  static Decimal128 fromNative(realm_decimal128_t value) {
-    return Decimal128._(value);
-  }
+  static Decimal128 fromNative(realm_decimal128_t value) => Decimal128._(value);
 }
