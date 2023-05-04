@@ -161,9 +161,7 @@ class BaasClient {
 
   Future<void> _createAppIfNotExists(Map<String, BaasApp> existingApps, String appName, String appSuffix, {String? confirmationType}) async {
     final existingApp = existingApps[appName];
-    if (existingApp != null) {
-      print('Found existing app ${existingApp.clientAppId}');
-    } else {
+    if (existingApp == null) {
       existingApps[appName] = await _createApp(appName, appSuffix, confirmationType: confirmationType);
     }
   }
