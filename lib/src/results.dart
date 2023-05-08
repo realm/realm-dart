@@ -83,7 +83,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
   @override
   T get single {
     if (length != 1) {
-      throw StateError('Expected exactly one element but was $length');
+      throw RealmStateError('Expected exactly one element but was $length');
     }
     return this[0];
   }
