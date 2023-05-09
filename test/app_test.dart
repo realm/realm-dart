@@ -236,7 +236,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Call Atlas function that does not exist', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.anonymous());
-    await expectLater(user.functions.call('noFunc'), throws<AppException>("function not found: 'noFunc'"));
+    await expectLater(user.functions.call('notExisitingFunction'), throws<AppException>("function not found: 'notExisitingFunction'"));
   });
 
   baasTest('Call Atlas function with no arguments', (configuration) async {

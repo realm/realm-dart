@@ -322,7 +322,7 @@ O8BM8KOSx9wGyoGs4+OusvRkJizhPaIwa3FInLs4r+xZW9Bp6RndsmVECtvXRv5d
 RwIDAQAB
 -----END PUBLIC KEY-----''';
 final int encryptionKeySize = 64;
-final _appsToRestoreRecovery = Queue<String>();
+final _appsWithDisabledAutoRecovery = <String>[];
 
 enum AppNames {
   flexible,
@@ -358,12 +358,16 @@ void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<Str
   testing.test(name, testFunction, skip: "Test is disabled");
 }
 
-Future<void>? baasSetup;
-
 Future<void> setupTests(List<String>? args) async {
   arguments = parseTestArguments(args);
   testName = arguments["name"];
-  setUpAll(() async => await (baasSetup ??= setupBaas()));
+  
+  await (_baasSetupResult ??= setupBaas());
+  
+  // setUpAll(() async {
+    
+  // });
+
 
   setUp(() {
     final path = generateRandomRealmPath();
@@ -372,7 +376,6 @@ Future<void> setupTests(List<String>? args) async {
     addTearDown(() async {
       final paths = HashSet<String>();
       paths.add(path);
-      await enableAllAutomaticRecovery();
 
       realmCore.clearCachedApps();
 
@@ -523,7 +526,17 @@ Map<String, String?> parseTestArguments(List<String>? arguments) {
 
 extension on Map<String, String?> {
   void addArgument(ArgResults parsedResult, String argName) {
-    final value = parsedResult.wasParsed(argName) ? parsedResult[argName]?.toString() : Platform.environment[argName];
+    late String? value;
+    if (parsedResult.wasParsed(argName)) {
+      if (parsedResult[argName] != null && parsedResult[argName] != "null") {
+        value = parsedResult[argName]!.toString();
+      } else {
+        value = null;
+      }
+    } else {
+      value = Platform.environment[argName];
+    }
+
     if (value != null && value.isNotEmpty) {
       this[argName] = value;
     }
@@ -531,15 +544,19 @@ extension on Map<String, String?> {
 }
 
 BaasClient? _baasClient;
-Object? _initializationError;
+Future<Object>? _baasSetupResult;
 
-Future<void> setupBaas() async {
-  if (_initializationError != null) return;
+Future<Object> setupBaas() async {
+  if (_baasSetupResult != null) {
+    return _baasSetupResult!;
+  }
+
   try {
     final baasUrl = arguments[argBaasUrl];
     if (baasUrl == null) {
-      return;
+      return true;
     }
+
     final cluster = arguments[argBaasCluster];
     final apiKey = arguments[argBaasApiKey];
     final privateApiKey = arguments[argBaasPrivateApiKey];
@@ -551,12 +568,15 @@ Future<void> setupBaas() async {
         : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
 
     client.publicRSAKey = publicRSAKeyForJWTValidation;
+
     final apps = await client.getOrCreateApps();
     baasApps.addAll(apps);
     _baasClient = client;
+    await Future<void>.delayed(Duration(seconds: 10));
+    return true;
   } catch (error) {
     print(error);
-    _initializationError = error;
+    return error;
   }
 }
 
@@ -567,11 +587,26 @@ Future<void> baasTest(
   AppNames appName = AppNames.flexible,
   dynamic skip,
 }) async {
-  if (_initializationError != null) {
-    throw _initializationError!;
+  if (_baasSetupResult is Error) {
+    throw _baasSetupResult!;
   }
-  final uriVariable = arguments[argBaasUrl];
-  final url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
+
+  final baasUri = arguments[argBaasUrl];
+  skip = shouldSkip(baasUri, skip);
+
+  test(name, () async {
+    try {
+      final config = await getAppConfig(appName: appName);
+      await testFunction(config);
+    } catch (error) {
+      printSplunkLogLink(appName, baasUri);
+      rethrow;
+    }
+  }, skip: skip);
+}
+
+dynamic shouldSkip(String? baasUri, dynamic skip) {
+  final url = baasUri != null ? Uri.tryParse(baasUri) : null;
 
   if (skip == null) {
     skip = url == null ? "BAAS URL not present" : false;
@@ -579,15 +614,7 @@ Future<void> baasTest(
     if (url == null) skip = "BAAS URL not present";
   }
 
-  test(name, () async {
-    try {
-      final config = await getAppConfig(appName: appName);
-      await testFunction(config);
-    } catch (error) {
-      printSplunkLogLink(appName, uriVariable);
-      rethrow;
-    }
-  }, skip: skip);
+  return skip;
 }
 
 Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) async {
@@ -719,19 +746,18 @@ Future<void> _printPlatformInfo() async {
   print('Current PID $pid; OS $os, $pointerSize bit, CPU ${cpu ?? 'unknown'}');
 }
 
-Future<void> disableAutomaticRecovery([String? appName]) async {
+Future<void> disableAutoRecoveryForApp([String? appName]) async {
   final client = _baasClient ?? (throw StateError("No BAAS client"));
   appName ??= BaasClient.defaultAppName;
   await client.setAutomaticRecoveryEnabled(appName, false);
-  _appsToRestoreRecovery.add(appName);
+  _appsWithDisabledAutoRecovery.add(appName);
 }
 
-Future<void> enableAllAutomaticRecovery() async {
+Future<void> enableAutoRecoveryForAllApps() async {
   final client = _baasClient ?? (throw StateError("No BAAS client"));
-  while (_appsToRestoreRecovery.isNotEmpty) {
-    final appName = _appsToRestoreRecovery.removeFirst();
-    await client.setAutomaticRecoveryEnabled(appName, true);
-  }
+  final requests = _appsWithDisabledAutoRecovery.map((appName) => client.setAutomaticRecoveryEnabled(appName, true));
+  await Future.wait(requests);
+  _appsWithDisabledAutoRecovery.clear();
 }
 
 extension StreamEx<T> on Stream<Stream<T>> {

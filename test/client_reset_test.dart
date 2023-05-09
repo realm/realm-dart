@@ -221,63 +221,67 @@ Future<void> main([List<String>? args]) async {
 
     if (clientResetHandlerType != RecoverUnsyncedChangesHandler) {
       baasTest('$clientResetHandlerType notifications for deleted local data when DiscardUnsynced', (appConfig) async {
-        final app = App(appConfig);
-        final user = await getIntegrationUser(app);
-        int onBeforeResetOccured = 0;
-        int onAfterDiscardOccured = 0;
-        int onAfterRecoveryOccured = 0;
-        final onAfterCompleter = Completer<void>();
+        try {
+          final app = App(appConfig);
+          final user = await getIntegrationUser(app);
+          int onBeforeResetOccured = 0;
+          int onAfterDiscardOccured = 0;
+          int onAfterRecoveryOccured = 0;
+          final onAfterCompleter = Completer<void>();
 
-        final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
-            clientResetHandler: Creator.create(
-              clientResetHandlerType,
-              onBeforeReset: (beforeResetRealm) => onBeforeResetOccured++,
-              onAfterRecovery: (beforeResetRealm, afterResetRealm) {
-                onAfterRecoveryOccured++;
-              },
-              onAfterDiscard: (beforeResetRealm, afterResetRealm) {
-                onAfterDiscardOccured++;
-                onAfterCompleter.complete();
-              },
-              onManualResetFallback: (clientResetError) => onAfterCompleter.completeError(clientResetError),
-            ));
+          final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
+              clientResetHandler: Creator.create(
+                clientResetHandlerType,
+                onBeforeReset: (beforeResetRealm) => onBeforeResetOccured++,
+                onAfterRecovery: (beforeResetRealm, afterResetRealm) {
+                  onAfterRecoveryOccured++;
+                },
+                onAfterDiscard: (beforeResetRealm, afterResetRealm) {
+                  onAfterDiscardOccured++;
+                  onAfterCompleter.complete();
+                },
+                onManualResetFallback: (clientResetError) => onAfterCompleter.completeError(clientResetError),
+              ));
 
-        final realm = await getRealmAsync(config);
-        await realm.syncSession.waitForUpload();
+          final realm = await getRealmAsync(config);
+          await realm.syncSession.waitForUpload();
 
-        realm.subscriptions.update((mutableSubscriptions) {
-          mutableSubscriptions.add(realm.all<Task>());
-        });
-        await realm.subscriptions.waitForSynchronization();
-        await realm.syncSession.waitForDownload();
-        final tasksCount = realm.all<Task>().length;
+          realm.subscriptions.update((mutableSubscriptions) {
+            mutableSubscriptions.add(realm.all<Task>());
+          });
+          await realm.subscriptions.waitForSynchronization();
+          await realm.syncSession.waitForDownload();
+          final tasksCount = realm.all<Task>().length;
 
-        realm.syncSession.pause();
+          realm.syncSession.pause();
 
-        realm.write(() => realm.add(Task(ObjectId())));
-        expect(tasksCount, lessThan(realm.all<Task>().length));
+          realm.write(() => realm.add(Task(ObjectId())));
+          expect(tasksCount, lessThan(realm.all<Task>().length));
 
-        final notifications = <RealmResultsChanges>[];
-        final subscription = realm.all<Task>().changes.listen((event) {
-          notifications.add(event);
-        });
+          final notifications = <RealmResultsChanges>[];
+          final subscription = realm.all<Task>().changes.listen((event) {
+            notifications.add(event);
+          });
 
-        await waitForCondition(() => notifications.length == 1, timeout: Duration(seconds: 3));
-        if (clientResetHandlerType == RecoverOrDiscardUnsyncedChangesHandler) {
-          await disableAutomaticRecovery();
+          await waitForCondition(() => notifications.length == 1, timeout: Duration(seconds: 3));
+          if (clientResetHandlerType == RecoverOrDiscardUnsyncedChangesHandler) {
+            await disableAutoRecoveryForApp();
+          }
+          await triggerClientReset(realm, restartSession: false);
+          realm.syncSession.resume();
+          await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "Neither onAfterDiscard nor onManualResetFallback is reported.");
+
+          await waitForCondition(() => notifications.length == 2, timeout: Duration(seconds: 3));
+
+          expect(onBeforeResetOccured, 1);
+          expect(onAfterDiscardOccured, 1);
+          expect(onAfterRecoveryOccured, 0);
+
+          await subscription.cancel();
+          expect(notifications.firstWhere((n) => n.deleted.isNotEmpty), isNotNull);
+        } finally {
+          enableAutoRecoveryForAllApps();
         }
-        await triggerClientReset(realm, restartSession: false);
-        realm.syncSession.resume();
-        await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "Neither onAfterDiscard nor onManualResetFallback is reported.");
-
-        await waitForCondition(() => notifications.length == 2, timeout: Duration(seconds: 3));
-
-        expect(onBeforeResetOccured, 1);
-        expect(onAfterDiscardOccured, 1);
-        expect(onAfterRecoveryOccured, 0);
-
-        await subscription.cancel();
-        expect(notifications.firstWhere((n) => n.deleted.isNotEmpty), isNotNull);
       });
     }
 
@@ -328,38 +332,42 @@ Future<void> main([List<String>? args]) async {
   }
 
   baasTest('Disabled server recovery - onAfterDiscard callback is invoked for RecoverOrDiscardUnsyncedChangesHandler', (appConfig) async {
-    final app = App(appConfig);
-    final user = await getIntegrationUser(app);
+    try {
+      final app = App(appConfig);
+      final user = await getIntegrationUser(app);
 
-    final onBeforeCompleter = Completer<void>();
-    final onAfterCompleter = Completer<void>();
-    bool recovery = false;
-    bool discard = false;
+      final onBeforeCompleter = Completer<void>();
+      final onAfterCompleter = Completer<void>();
+      bool recovery = false;
+      bool discard = false;
 
-    final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
-        clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(
-          onBeforeReset: (beforeResetRealm) => onBeforeCompleter.complete(),
-          onAfterRecovery: (Realm beforeResetRealm, Realm afterResetRealm) {
-            onAfterCompleter.complete();
-            recovery = true;
-          },
-          onAfterDiscard: (Realm beforeResetRealm, Realm afterResetRealm) {
-            onAfterCompleter.complete();
-            discard = true;
-          },
-        ));
+      final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
+          clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(
+            onBeforeReset: (beforeResetRealm) => onBeforeCompleter.complete(),
+            onAfterRecovery: (Realm beforeResetRealm, Realm afterResetRealm) {
+              onAfterCompleter.complete();
+              recovery = true;
+            },
+            onAfterDiscard: (Realm beforeResetRealm, Realm afterResetRealm) {
+              onAfterCompleter.complete();
+              discard = true;
+            },
+          ));
 
-    final realm = await getRealmAsync(config);
-    await realm.syncSession.waitForUpload();
+      final realm = await getRealmAsync(config);
+      await realm.syncSession.waitForUpload();
 
-    await disableAutomaticRecovery();
-    await triggerClientReset(realm);
+      await disableAutoRecoveryForApp();
+      await triggerClientReset(realm);
 
-    await waitFutureWithTimeout(onBeforeCompleter.future, timeoutError: "onBeforeReset is not reported.");
-    await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "Neither onAfterRecovery nor onAfterDiscard is reported.");
+      await waitFutureWithTimeout(onBeforeCompleter.future, timeoutError: "onBeforeReset is not reported.");
+      await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "Neither onAfterRecovery nor onAfterDiscard is reported.");
 
-    expect(recovery, isFalse);
-    expect(discard, isTrue);
+      expect(recovery, isFalse);
+      expect(discard, isTrue);
+    } finally {
+      enableAutoRecoveryForAllApps();
+    }
   });
 
   baasTest('onAfterReset is reported after async onBeforeReset completes', (appConfig) async {
