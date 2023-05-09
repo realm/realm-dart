@@ -158,7 +158,7 @@ class RealmValue {
   const RealmValue.realmObject(RealmObjectMarker o) : this._(o);
   const RealmValue.dateTime(DateTime timestamp) : this._(timestamp);
   const RealmValue.objectId(ObjectId id) : this._(id);
-  // const RealmValue.decimal128(Decimal128 decimal) : this._(decimal); // not supported yet
+  const RealmValue.decimal128(Decimal128 decimal) : this._(decimal);
   const RealmValue.uuid(Uuid uuid) : this._(uuid);
 
   /// Will throw [ArgumentError]
@@ -172,7 +172,7 @@ class RealmValue {
         o is RealmObjectMarker ||
         o is DateTime ||
         o is ObjectId ||
-        // o is Decimal128 || // not supported yet
+        o is Decimal128 ||
         o is Uuid) {
       return RealmValue._(o);
     } else {
