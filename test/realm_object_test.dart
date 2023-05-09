@@ -575,6 +575,7 @@ Future<void> main([List<String>? args]) async {
       object.objectIdProp = objectId;
       object.uuidProp = uuid;
       object.intProp = 5;
+      object.decimalProp = Decimal128.one;
     });
 
     expect(object.stringProp, 'abc');
@@ -584,6 +585,7 @@ Future<void> main([List<String>? args]) async {
     expect(object.objectIdProp, objectId);
     expect(object.uuidProp, uuid);
     expect(object.intProp, 5);
+    expect(object.decimalProp, Decimal128.one);
   });
 
   test('RealmObject.freeze when typed returns typed frozen object', () {
