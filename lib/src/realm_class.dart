@@ -486,11 +486,7 @@ class Realm implements Finalizable {
     return realmCore.realmEquals(this, other);
   }
 
-  static late Logger _logger = Logger.detached('Realm')
-    ..level = RealmLogLevel.info
-    ..onRecord.listen((event) {
-      print('${event.time.toIso8601String()}: $event');
-    });
+  static Logger? _logger;
 
   /// The logger to use for logging.
   /// The log level is [RealmLogLevel.info].
@@ -499,14 +495,17 @@ class Realm implements Finalizable {
   /// To listen to the log event use `Realm.logger.onRecord.listen`.
   /// It is also possible to set a new instance of custom [Logger].
   static Logger get logger {
-    if (_logger is! _RealmLogger) {
-      _logger = _RealmLogger._(_logger);
+    if (_logger == null) {
+      _logger = Logger.detached('Realm')..level = RealmLogLevel.info;
+
+      realmCore.setLogger(_logger!);
     }
-    return _logger;
+    return _logger!;
   }
 
   static set logger(Logger value) {
-    _logger = _RealmLogger._(value, isPredefinedLogger: true);
+    _logger = value;
+    realmCore.setLogger(value);
   }
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
@@ -676,8 +675,6 @@ extension RealmInternal on Realm {
 
     return _handle;
   }
-
-  static Logger get defaultLogger => Realm._logger;
 
   static Realm getUnowned(Configuration config, RealmHandle handle, {bool isInMigration = false}) {
     return Realm._(config, handle, isInMigration);
@@ -957,100 +954,15 @@ class RealmLogLevel {
   static const off = Level.OFF;
 }
 
-/// Represents a logger that manages the realm log level at runtime.
-/// @nodoc
-class _RealmLogger implements Logger {
-  final Logger _logger;
-  final bool _isPredefinedLogger;
+// extension RealmStreamLogRecord on Stream<LogRecord> {
+//   StreamSubscription<LogRecord> listenDefaultLog(void Function(LogRecord)? onData, {Function? onError, void Function()? onDone, bool? cancelOnError}) {
+//     Realm._logger.clearListeners();
+//     return Realm._logger.onRecord.listen(onData, onError: onError, onDone: onDone, cancelOnError: cancelOnError);
+//   }
+// }
 
-  _RealmLogger._(Logger logger, {bool isPredefinedLogger = false})
-      : _logger = (logger is _RealmLogger) ? logger._logger : logger,
-        _isPredefinedLogger = (logger is _RealmLogger) ? logger._isPredefinedLogger : isPredefinedLogger {
-    realmCore.setLogger(_logger, isPredefined: _isPredefinedLogger);
-    if (_isPredefinedLogger) {
-      realmCore.setLogLevel(_logger.level);
-    } else {
-      _logger.level = realmCore.getLogLevel();
-    }
-  }
-
-  @override
-  Level get level {
-    _logger.level = realmCore.getLogLevel();
-    return _logger.level;
-  }
-
-  @override
-  set level(Level? value) {
-    _logger.level = value;
-    realmCore.setLogLevel((value ?? Level.OFF));
-  }
-
-  @override
-  Map<String, Logger> get children => _logger.children;
-
-  @override
-  void clearListeners() {
-    _logger.clearListeners();
-  }
-
-  @override
-  void config(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.config(message, error, stackTrace);
-  }
-
-  @override
-  void fine(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.fine(message, error, stackTrace);
-  }
-
-  @override
-  void finer(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.finer(message, error, stackTrace);
-  }
-
-  @override
-  void finest(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.finest(message, error, stackTrace);
-  }
-
-  @override
-  String get fullName => _logger.fullName;
-
-  @override
-  void info(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.info(message, error, stackTrace);
-  }
-
-  @override
-  bool isLoggable(Level value) => _logger.isLoggable(value);
-
-  @override
-  void log(Level logLevel, Object? message, [Object? error, StackTrace? stackTrace, Zone? zone]) {
-    _logger.log(logLevel, message, error, stackTrace, zone);
-  }
-
-  @override
-  String get name => _logger.name;
-
-  @override
-  Stream<LogRecord> get onRecord => _logger.onRecord;
-
-  @override
-  Logger? get parent => _logger.parent;
-
-  @override
-  void severe(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.severe(message, error, stackTrace);
-  }
-
-  @override
-  void shout(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.shout(message, error, stackTrace);
-  }
-
-  @override
-  void warning(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.warning(message, error, stackTrace);
+extension RealmLogRecord on LogRecord {
+  void printDefaultFormat() {
+    print('${time.toIso8601String()}: $this');
   }
 }

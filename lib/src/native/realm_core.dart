@@ -83,7 +83,7 @@ class _RealmCore implements RealmCoreScheduler {
   factory _RealmCore({bool initLogger = true}) {
     _instance ??= _RealmCore._();
     scheduler = Scheduler.init(_instance!);
-    _instance!._initDefaultLogger(RealmInternal.defaultLogger);
+    _instance!._initDefaultLogger();
     return _instance!;
   }
 
@@ -1682,30 +1682,27 @@ class _RealmCore implements RealmCoreScheduler {
   static void _logCallback(Object userdata, int levelAsInt, Pointer<Int8> message) {
     final Logger logger = userdata as Logger;
     final level = LevelExt.fromInt(levelAsInt);
-    logger.log(level, message.cast<Utf8>().toDartString());
+    if (logger.isLoggable(level)) {
+      logger.log(level, message.cast<Utf8>().toDartString());
+    }
   }
 
-  void _initDefaultLogger(Logger logger) {
-    _realmLib.realm_dart_init_default_logger(logger.level.toInt());
-    setLogger(logger); 
+  void _initDefaultLogger() {
+    _realmLib.realm_dart_init_default_logger();
   }
 
   void _releaseLoggersPerIsolate(int isolateId) {
     _realmLib.realm_dart_release_logger(isolateId);
   }
 
-  void setLogger(Logger logger, {bool isPredefined = false}) {
+  void setLogger(Logger logger) {
     final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
 
-    _realmLib.realm_dart_set_logger(logger, logCallback.cast(), scheduler.handle._pointer, Isolate.current.hashCode, isPredefined);
+    _realmLib.realm_dart_set_logger(logger, logger.level.toInt(), logCallback.cast(), scheduler.handle._pointer, Isolate.current.hashCode);
   }
 
   void setLogLevel(Level logLevel) {
-    _realmLib.realm_dart_set_log_level(logLevel.toInt());
-  }
-
-  Level getLogLevel() {
-    return LevelExt.fromInt(_realmLib.realm_dart_get_log_level());
+    _realmLib.realm_dart_set_log_level(logLevel.toInt(), Isolate.current.hashCode);
   }
 
   SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {

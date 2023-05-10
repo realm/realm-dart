@@ -1878,6 +1878,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Realm synced add/query/sync data with unicode symbols', (appConfiguration) async {
+    Realm.logger.onRecord.listen((event) => event.printDefaultFormat());
     final app = App(appConfiguration);
     final productName = generateRandomUnicodeString();
     final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
@@ -1891,12 +1892,6 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Realm case-insensitive query', () {
-    Realm.logger.level = RealmLogLevel.info;
-    Realm.logger = Logger.detached('Realm')
-      ..level = RealmLogLevel.info
-      ..onRecord.listen((event) {
-        print('NEW: $event');
-      });
     final productName = generateRandomString(10).toUpperCase();
     final config = Configuration.local([Product.schema]);
     final realm = getRealm(config);
