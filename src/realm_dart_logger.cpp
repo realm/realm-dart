@@ -41,7 +41,6 @@ public:
     realm_log_func_t user_callback = nullptr;
     std::shared_ptr<realm::util::Scheduler> user_scheduler;
     uint64_t user_isolate_id;
-    bool is_paused = false;
     bool is_predefined = false;
 
     void update_user_logger(Dart_Handle logger_handle)
@@ -52,13 +51,10 @@ public:
 };
 
 auto& dart_logger_mutex = *new std::mutex;
-std::condition_variable initialisation_condition;
-std::mutex initialisation_mutex;
 bool is_core_logger_callback_set = false;
 realm_log_level_e last_log_level = RLM_LOG_LEVEL_INFO;
 std::map<std::uint64_t, LoggerData*> dart_loggers;
-LoggerData* default_logger;
-Dart_Handle _defaultIsolateSendPort;
+bool default_predefined = false;
 
 
 LoggerData* try_get_logger(uint64_t key)
@@ -71,22 +67,6 @@ LoggerData* try_get_logger(uint64_t key)
     return loggerData;
 }
 
-void pause_or_resume_default_logger()
-{
-    if (default_logger)
-    {
-        bool paused = false;
-        for (auto itr = dart_loggers.begin(); itr != dart_loggers.end(); ++itr) {
-            if (dart_loggers[itr->first]->is_predefined)
-            {
-                paused = true;
-                break;
-            }
-        }
-        default_logger->is_paused = paused;
-    }
-}
-
 RLM_API void realm_dart_release_logger(uint64_t isolateId) {
     std::lock_guard lock(dart_logger_mutex);
     LoggerData* loggerData = try_get_logger(isolateId);
@@ -94,7 +74,6 @@ RLM_API void realm_dart_release_logger(uint64_t isolateId) {
         dart_loggers.erase(isolateId);
         loggerData->~LoggerData();
         loggerData = nullptr;
-        pause_or_resume_default_logger();
     }
 }
 
@@ -105,41 +84,29 @@ void realm_dart_logger_callback(realm_userdata_t userData, realm_log_level_e lev
     {
         for (auto itr = dart_loggers.begin(); itr != dart_loggers.end(); ++itr) {
             LoggerData* loggerData = dart_loggers[itr->first];
-            if (!loggerData->is_paused)
+            if (!default_predefined || loggerData->is_predefined)
             {
                 loggerData->user_scheduler->invoke([loggerData, level = level, message = std::move(message), copy_message]() mutable {
                     message = copy_message.c_str();
                 (reinterpret_cast<realm_log_func_t>(loggerData->user_callback))(loggerData->user_logger_handle, level, message);
                 });
             }
+            if (!default_predefined) break;                
         }
     }
 }
 
-RLM_API void realm_dart_init_default_logger(realm_void_func_t runIsolateFunc) {
+RLM_API void realm_dart_init_default_logger(realm_log_level_e level) {
     std::lock_guard lock(dart_logger_mutex);
     if (is_core_logger_callback_set) {
         return;
     }
-    runIsolateFunc(); // runIsolateFunc starts a new Isolate and then calls realm_dart_set_logger to unlock the thread
-    std::unique_lock initialisation_lock(initialisation_mutex);
-    auto timeout = std::chrono::system_clock::now() + std::chrono::seconds(2);
-    initialisation_condition.wait_until(initialisation_lock, timeout, [&] { return is_core_logger_callback_set; });
+    last_log_level = level;
     realm_set_log_callback(realm_dart_logger_callback, last_log_level, nullptr, nullptr);
-}
-
-RLM_API void realm_dart_set_default_logger(Dart_Handle logger, realm_log_func_t callback,
-    realm_scheduler_t* scheduler, uint64_t isolateId, Dart_Handle sendPort) {
-    default_logger = new LoggerData(logger, callback, scheduler, isolateId);
-    dart_loggers[isolateId] = default_logger;
-    _defaultIsolateSendPort = Dart_NewPersistentHandle_DL(sendPort);
     is_core_logger_callback_set = true;
-    std::unique_lock initialisation_lock(initialisation_mutex);
-    initialisation_lock.unlock();
-    initialisation_condition.notify_one();
 }
 
-RLM_API Dart_Handle realm_dart_set_logger(Dart_Handle logger, realm_log_func_t callback,
+RLM_API void realm_dart_set_logger(Dart_Handle logger, realm_log_func_t callback,
    realm_scheduler_t* scheduler, uint64_t isolateId, bool isPredefined) {
     std::lock_guard lock(dart_logger_mutex);
     LoggerData* loggerData = try_get_logger(isolateId);
@@ -152,8 +119,10 @@ RLM_API Dart_Handle realm_dart_set_logger(Dart_Handle logger, realm_log_func_t c
         dart_loggers[isolateId] = loggerData;
     }
     loggerData->is_predefined = isPredefined;
-    pause_or_resume_default_logger();
-    return _defaultIsolateSendPort;
+    if (isPredefined)
+    {
+        default_predefined = true;
+    }
 }
 
 RLM_API void realm_dart_set_log_level(realm_log_level_e level)

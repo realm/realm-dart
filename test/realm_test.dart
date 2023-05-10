@@ -1891,6 +1891,12 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Realm case-insensitive query', () {
+    Realm.logger.level = RealmLogLevel.info;
+    Realm.logger = Logger.detached('Realm')
+      ..level = RealmLogLevel.info
+      ..onRecord.listen((event) {
+        print('NEW: $event');
+      });
     final productName = generateRandomString(10).toUpperCase();
     final config = Configuration.local([Product.schema]);
     final realm = getRealm(config);
@@ -1898,31 +1904,6 @@ Future<void> main([List<String>? args]) async {
     final query = realm.query<Product>(r'name LIKE[c] $0', [productName.toLowerCase()]);
     expect(query.length, 1);
     expect(query[0].name, productName);
-  });
-
-  baasTest('Realm default logger resumed after closing the isolate with predefined logger', (appConfiguration) async {
-    try {
-      ReceivePort isolate1ReceivePort = ReceivePort();
-
-      // Isolate 1 with level Error
-      final isolate1 = await Isolate.spawn((SendPort sendPort) async {
-        int result = 0;
-        result = await predefineNewLoggerAndThrows("Isolate 1", appConfiguration, RealmLogLevel.error);
-        sendPort.send(result);
-      }, isolate1ReceivePort.sendPort);
-
-      int log1 = await isolate1ReceivePort.first as int;
-      Realm.logger.level = RealmLogLevel.info;
-
-      isolate1ReceivePort.close();
-      isolate1.kill(priority: Isolate.immediate);
-
-      int mainIsolateCount = await attachToLoggerAndThrows("Isolate 1", appConfiguration, logLevel: RealmLogLevel.error);
-      expect(log1, 1, reason: "Isolate 1");
-      expect(mainIsolateCount, 1, reason: "Main isolate logs count after closing isolates");
-    } finally {
-      Realm.logger.level = RealmLogLevel.info;
-    }
   });
 
   baasTest('Realm loggers log messages in all the isolates', (appConfiguration) async {

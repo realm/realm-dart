@@ -367,11 +367,11 @@ Future<void> setupTests(List<String>? args) async {
   setUpAll(() async => await (baasSetup ??= setupBaas()));
 
   setUp(() {
-    Realm.logger = Logger.detached('test run')
-      ..level = Level.ALL
-      ..onRecord.listen((record) {
-        testing.printOnFailure('${record.time} ${record.level.name}: ${record.message}');
-      });
+    // Realm.logger = Logger.detached('test run')
+    //   ..level = Level.ALL
+    //   ..onRecord.listen((record) {
+    //     testing.printOnFailure('${record.time} ${record.level.name}: ${record.message}');
+    //   });
 
     final path = generateRandomRealmPath();
     Configuration.defaultRealmPath = path;

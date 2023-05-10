@@ -3308,19 +3308,18 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>)>();
 
   void realm_dart_init_default_logger(
-    realm_void_func_t runIsolateFunc,
+    int level,
   ) {
     return _realm_dart_init_default_logger(
-      runIsolateFunc,
+      level,
     );
   }
 
   late final _realm_dart_init_default_loggerPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(realm_void_func_t)>>(
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int32)>>(
           'realm_dart_init_default_logger');
   late final _realm_dart_init_default_logger =
-      _realm_dart_init_default_loggerPtr
-          .asFunction<void Function(realm_void_func_t)>();
+      _realm_dart_init_default_loggerPtr.asFunction<void Function(int)>();
 
   void realm_dart_initializeDartApiDL(
     ffi.Pointer<ffi.Void> data,
@@ -3441,35 +3440,6 @@ class RealmLibrary {
   late final _realm_dart_scheduler_invoke = _realm_dart_scheduler_invokePtr
       .asFunction<void Function(int, ffi.Pointer<ffi.Void>)>();
 
-  void realm_dart_set_default_logger(
-    Object logger,
-    realm_log_func_t callback,
-    ffi.Pointer<realm_scheduler_t> scheduler,
-    int isolateId,
-    Object receivePort,
-  ) {
-    return _realm_dart_set_default_logger(
-      logger,
-      callback,
-      scheduler,
-      isolateId,
-      receivePort,
-    );
-  }
-
-  late final _realm_dart_set_default_loggerPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Handle,
-              realm_log_func_t,
-              ffi.Pointer<realm_scheduler_t>,
-              ffi.Uint64,
-              ffi.Handle)>>('realm_dart_set_default_logger');
-  late final _realm_dart_set_default_logger =
-      _realm_dart_set_default_loggerPtr.asFunction<
-          void Function(Object, realm_log_func_t,
-              ffi.Pointer<realm_scheduler_t>, int, Object)>();
-
   void realm_dart_set_log_level(
     int level,
   ) {
@@ -3484,7 +3454,7 @@ class RealmLibrary {
   late final _realm_dart_set_log_level =
       _realm_dart_set_log_levelPtr.asFunction<void Function(int)>();
 
-  Object realm_dart_set_logger(
+  void realm_dart_set_logger(
     Object logger,
     realm_log_func_t callback,
     ffi.Pointer<realm_scheduler_t> scheduler,
@@ -3502,14 +3472,14 @@ class RealmLibrary {
 
   late final _realm_dart_set_loggerPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Handle Function(
+          ffi.Void Function(
               ffi.Handle,
               realm_log_func_t,
               ffi.Pointer<realm_scheduler_t>,
               ffi.Uint64,
               ffi.Bool)>>('realm_dart_set_logger');
   late final _realm_dart_set_logger = _realm_dart_set_loggerPtr.asFunction<
-      Object Function(Object, realm_log_func_t, ffi.Pointer<realm_scheduler_t>,
+      void Function(Object, realm_log_func_t, ffi.Pointer<realm_scheduler_t>,
           int, bool)>();
 
   bool realm_dart_sync_after_reset_handler_callback(
@@ -10652,7 +10622,7 @@ class _SymbolAddresses {
           ffi.Void Function(ffi.Pointer<ffi.Void>, realm_http_request_t,
               ffi.Pointer<ffi.Void>)>> get realm_dart_http_request_callback =>
       _library._realm_dart_http_request_callbackPtr;
-  ffi.Pointer<ffi.NativeFunction<ffi.Void Function(realm_void_func_t)>>
+  ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int32)>>
       get realm_dart_init_default_logger =>
           _library._realm_dart_init_default_loggerPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
@@ -10681,20 +10651,11 @@ class _SymbolAddresses {
               ffi.Void Function(ffi.Uint64, ffi.Pointer<ffi.Void>)>>
       get realm_dart_scheduler_invoke =>
           _library._realm_dart_scheduler_invokePtr;
-  ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Handle,
-              realm_log_func_t,
-              ffi.Pointer<realm_scheduler_t>,
-              ffi.Uint64,
-              ffi.Handle)>> get realm_dart_set_default_logger =>
-      _library._realm_dart_set_default_loggerPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int32)>>
       get realm_dart_set_log_level => _library._realm_dart_set_log_levelPtr;
   ffi.Pointer<
       ffi.NativeFunction<
-          ffi.Handle Function(
+          ffi.Void Function(
               ffi.Handle,
               realm_log_func_t,
               ffi.Pointer<realm_scheduler_t>,
@@ -11909,8 +11870,6 @@ class realm_version_id extends ffi.Struct {
 }
 
 typedef realm_version_id_t = realm_version_id;
-typedef realm_void_func_t
-    = ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>>;
 
 abstract class realm_web_socket_errno {
   static const int RLM_ERR_WEBSOCKET_OK = 1000;

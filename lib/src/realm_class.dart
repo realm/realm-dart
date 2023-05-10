@@ -486,7 +486,11 @@ class Realm implements Finalizable {
     return realmCore.realmEquals(this, other);
   }
 
-  static late Logger _logger = _RealmLogger._(Logger.detached('Realm'));
+  static late Logger _logger = Logger.detached('Realm')
+    ..level = RealmLogLevel.info
+    ..onRecord.listen((event) {
+      print('${event.time.toIso8601String()}: $event');
+    });
 
   /// The logger to use for logging.
   /// The log level is [RealmLogLevel.info].
@@ -494,7 +498,12 @@ class Realm implements Finalizable {
   /// To manage the log level at runtime use `Realm.logger.level` setter.
   /// To listen to the log event use `Realm.logger.onRecord.listen`.
   /// It is also possible to set a new instance of custom [Logger].
-  static Logger get logger => _logger;
+  static Logger get logger {
+    if (_logger is! _RealmLogger) {
+      _logger = _RealmLogger._(_logger);
+    }
+    return _logger;
+  }
 
   static set logger(Logger value) {
     _logger = _RealmLogger._(value, isPredefinedLogger: true);
@@ -667,6 +676,8 @@ extension RealmInternal on Realm {
 
     return _handle;
   }
+
+  static Logger get defaultLogger => Realm._logger;
 
   static Realm getUnowned(Configuration config, RealmHandle handle, {bool isInMigration = false}) {
     return Realm._(config, handle, isInMigration);
@@ -955,11 +966,12 @@ class _RealmLogger implements Logger {
   _RealmLogger._(Logger logger, {bool isPredefinedLogger = false})
       : _logger = (logger is _RealmLogger) ? logger._logger : logger,
         _isPredefinedLogger = (logger is _RealmLogger) ? logger._isPredefinedLogger : isPredefinedLogger {
-    if (!_isPredefinedLogger) {
+    realmCore.setLogger(_logger, isPredefined: _isPredefinedLogger);
+    if (_isPredefinedLogger) {
+      realmCore.setLogLevel(_logger.level);
+    } else {
       _logger.level = realmCore.getLogLevel();
     }
-    realmCore.setLogger(_logger, isPredefined: _isPredefinedLogger);
-    realmCore.setLogLevel(_logger.level);
   }
 
   @override
