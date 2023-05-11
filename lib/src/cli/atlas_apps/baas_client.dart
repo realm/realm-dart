@@ -587,7 +587,7 @@ class BaasClient {
     final dynamic clusterName = configDocs['clusterName'];
     flexibleSync["is_recovery_mode_disabled"] = !enable;
     String data = jsonEncode(<String, dynamic>{
-      if (clusterName != null) 'clusterName': configDocs['clusterName'],
+      if (clusterName != null) 'clusterName': clusterName,
       'flexible_sync': flexibleSync,
     });
     await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', data);
