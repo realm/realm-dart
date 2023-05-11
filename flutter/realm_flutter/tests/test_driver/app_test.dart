@@ -38,5 +38,6 @@ void main(List<String> args) {
 }
 
 String getArgFromEnvVariable(String argName) {
-  return " --$argName ${Platform.environment[argName]}";
+  final argValue = Platform.environment[argName];
+  return argValue == null ? '' : " --$argName $argValue";
 }
