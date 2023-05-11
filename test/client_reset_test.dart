@@ -402,8 +402,8 @@ Future<void> main([List<String>? args]) async {
     final user = await getIntegrationUser(app);
     int onBeforeResetOccurred = 0;
     int onAfterResetOccurred = 0;
-    int manualResetFallbacKOccurred = 0;
-    final manualResetFallbacKCompleter = Completer<void>();
+    int manualResetFallbackOccurred = 0;
+    final manualResetFallbackCompleter = Completer<void>();
 
     final config = Configuration.flexibleSync(
       user,
@@ -418,11 +418,11 @@ Future<void> main([List<String>? args]) async {
           throw Exception("Cause onManualResetFallback");
         },
         onManualResetFallback: (clientResetError) {
-          manualResetFallbacKOccurred++;
+          manualResetFallbackOccurred++;
           if (onAfterResetOccurred == 0) {
-            manualResetFallbacKCompleter.completeError(Exception("AfterResetCallback is still not completed when onManualResetFallback starts."));
+            manualResetFallbackCompleter.completeError(Exception("AfterResetCallback is still not completed when onManualResetFallback starts."));
           }
-          manualResetFallbacKCompleter.complete();
+          manualResetFallbackCompleter.complete();
         },
       ),
     );
@@ -431,9 +431,9 @@ Future<void> main([List<String>? args]) async {
     await realm.syncSession.waitForUpload();
     await triggerClientReset(realm);
 
-    await waitFutureWithTimeout(manualResetFallbacKCompleter.future, timeoutError: "onManualResetFallback is not reported.");
+    await waitFutureWithTimeout(manualResetFallbackCompleter.future, timeoutError: "onManualResetFallback is not reported.");
 
-    expect(manualResetFallbacKOccurred, 1);
+    expect(manualResetFallbackOccurred, 1);
     expect(onAfterResetOccurred, 1);
     expect(onBeforeResetOccurred, 1);
   });
