@@ -386,7 +386,7 @@ jobs:
     secrets: inherit
     with:
      os: macos
-     runner: macos-latest
+     runner: macos-13 # workaround to: https://github.com/flutter/flutter/issues/118469 latest is still macos-12 ¯\_(ツ)_/¯
      app: fm
      cluster: ${{ needs.deploy-flutter-cluster.outputs.clusterName }}
 
