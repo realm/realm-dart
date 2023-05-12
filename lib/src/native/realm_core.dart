@@ -80,7 +80,7 @@ class _RealmCore implements RealmCoreScheduler {
     }
   }
 
-  factory _RealmCore({bool initLogger = true}) {
+  factory _RealmCore() {
     _instance ??= _RealmCore._();
     scheduler = Scheduler.init(_instance!);
     _instance!._initDefaultLogger();
@@ -1688,7 +1688,7 @@ class _RealmCore implements RealmCoreScheduler {
   void _initDefaultLogger() {
     bool isDefaultLogger = _realmLib.realm_dart_init_default_logger();
     if (isDefaultLogger) {
-      Realm.logger.onRecord.listen((event) => print('${event.time.toIso8601String()}: $event'));
+      RealmInternal.defaultLogger.onRecord.listen((event) => print('${event.time.toIso8601String()}: $event'));
     }
   }
 

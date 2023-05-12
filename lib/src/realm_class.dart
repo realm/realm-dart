@@ -496,7 +496,7 @@ class Realm implements Finalizable {
   /// It is also possible to set a new instance of custom [Logger].
   static Logger get logger {
     if (_logger == null) {
-      _logger = _RealmLogger._(Logger.detached('Realm')..level = RealmLogLevel.info);
+      _logger = RealmInternal.defaultLogger;
       // In case Realm.logger.onRecord is used in an isolate with no other realm implementations
       // we should garantie that the logger is initialized and its level is properly set to core.
       realmCore.setLogLevel(_logger!.level);
@@ -676,6 +676,9 @@ extension RealmInternal on Realm {
 
     return _handle;
   }
+
+  /// Initializes the logger if null. Used in RealmCore.
+  static Logger get defaultLogger => Realm._logger ??= _RealmLogger._(Logger.detached('Realm')..level = RealmLogLevel.info);
 
   static Realm getUnowned(Configuration config, RealmHandle handle, {bool isInMigration = false}) {
     return Realm._(config, handle, isInMigration);
