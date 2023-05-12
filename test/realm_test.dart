@@ -1878,7 +1878,6 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Realm synced add/query/sync data with unicode symbols', (appConfiguration) async {
-    Realm.logger.onRecord.listen((event) => event.printDefaultFormat());
     final app = App(appConfiguration);
     final productName = generateRandomUnicodeString();
     final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
@@ -1944,7 +1943,7 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
-  baasTest('Logger set to Off for all the isolates', (configuration) async {
+  baasTest('Logger set to Off for main isolates', (configuration) async {
     try {
       int mainIsolateCount = 0;
       Realm.logger.level = RealmLogLevel.off;
@@ -1953,19 +1952,19 @@ Future<void> main([List<String>? args]) async {
       });
       ReceivePort irp1 = ReceivePort();
       final isolate1 = await Isolate.spawn((SendPort sendPort) async {
-        int result = await attachToLoggerAndThrows("Isolate 1", configuration);
+        int result = await attachToLoggerAndThrows("Isolate 1", configuration, logLevel: RealmLogLevel.error);
         sendPort.send(result);
       }, irp1.sendPort);
 
-      expect(await irp1.first as int, 0);
+      expect(await irp1.first as int, 1);
 
       ReceivePort irp2 = ReceivePort();
       final isolate2 = await Isolate.spawn((SendPort sendPort) async {
-        int result = await attachToLoggerAndThrows("Isolate 2", configuration);
+        int result = await attachToLoggerAndThrows("Isolate 2", configuration, logLevel: RealmLogLevel.error);
         sendPort.send(result);
       }, irp2.sendPort);
 
-      expect(await irp2.first as int, 0);
+      expect(await irp2.first as int, 1);
       expect(mainIsolateCount, 0);
     } finally {
       Realm.logger.level = RealmLogLevel.info;

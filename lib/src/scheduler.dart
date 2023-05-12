@@ -34,7 +34,11 @@ class Scheduler {
     _receivePortFinalizer.attach(this, receivePort, detach: this);
 
     receivePort.handler = (dynamic message) {
-      _realmCore.invokeScheduler(handle);
+      if (message is List) {
+        _realmCore.logMessage(message[0] as int, message[1] as String);
+      } else {
+        _realmCore.invokeScheduler(handle);
+      }
     };
 
     final sendPort = receivePort.sendPort;
@@ -56,4 +60,5 @@ class Scheduler {
 abstract class RealmCoreScheduler {
   void invokeScheduler(SchedulerHandle schedulerHandle);
   SchedulerHandle createScheduler(int isolateId, int sendPort);
+  void logMessage(int level, String message);
 }

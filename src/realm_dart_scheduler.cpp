@@ -41,7 +41,7 @@ struct SchedulerData {
 //This can be invoked on any thread
 void realm_dart_scheduler_free_userData(void* userData) {
     SchedulerData* schedulerData = static_cast<SchedulerData*>(userData);
-    realm_dart_release_logger(schedulerData->isolateId);
+    realm_dart_release_logger(schedulerData->port);
     //delete the scheduler
     delete schedulerData;
 }

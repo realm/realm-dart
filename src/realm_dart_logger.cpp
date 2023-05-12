@@ -26,100 +26,65 @@
 #include "realm_dart_logger.h"
 #include <realm/object-store/c_api/types.hpp>
 
-class LoggerData {
-public:
-    LoggerData(Dart_Handle logger_handle, realm_log_level_e level, realm_log_func_t callback, realm_scheduler_t* scheduler, uint64_t isolateId)
-        :user_logger_handle(Dart_NewPersistentHandle_DL(logger_handle)), user_level(level), user_callback(callback), user_scheduler(*scheduler), user_isolate_id(isolateId)
-    {}
-
-    ~LoggerData() {
-        Dart_DeletePersistentHandle_DL(user_logger_handle);
-        user_callback = nullptr;
-    }
-
-    Dart_PersistentHandle user_logger_handle;
-    realm_log_func_t user_callback = nullptr;
-    std::shared_ptr<realm::util::Scheduler> user_scheduler;
-    realm_log_level_e user_level;
-    uint64_t user_isolate_id;
-
-    void update_user_logger(Dart_Handle logger_handle, realm_log_level_e level)
-    {
-        Dart_DeletePersistentHandle_DL(user_logger_handle);
-        user_logger_handle = (Dart_NewPersistentHandle_DL(logger_handle));
-        user_level = level;
-    }
-};
-
 auto& dart_logger_mutex = *new std::mutex;
 bool is_core_logger_callback_set = false;
-realm_log_level_e last_log_level = RLM_LOG_LEVEL_INFO;
-std::map<std::uint64_t, LoggerData*> dart_loggers;
+std::map<Dart_Port, realm_log_level_e> dart_send_ports;
 
-LoggerData* try_get_logger(uint64_t key)
+
+bool isPortRegistered(Dart_Port key)
 {
-    LoggerData* loggerData = nullptr;
-    if (dart_loggers.find(key) != dart_loggers.end())
-    {
-        loggerData = dart_loggers[key];
-    }
-    return loggerData;
+    return (dart_send_ports.find(key) != dart_send_ports.end());
 }
 
-RLM_API void realm_dart_release_logger(uint64_t isolateId) {
+RLM_API void realm_dart_release_logger(Dart_Port port) {
     std::lock_guard lock(dart_logger_mutex);
-    LoggerData* loggerData = try_get_logger(isolateId);
-    if (loggerData) {
-        dart_loggers.erase(isolateId);
-        loggerData->~LoggerData();
-        loggerData = nullptr;
+    if (isPortRegistered(port))
+    {
+        dart_send_ports.erase(port);
     }
+}
+
+bool send_message_to_scheduler(Dart_Port port, realm_log_level_e level, const char* message)
+{
+    Dart_CObject c_level;
+    c_level.type = Dart_CObject_kInt32;
+    c_level.value.as_int32 = level;
+
+    Dart_CObject c_message;
+    c_message.type = Dart_CObject_kString;
+    c_message.value.as_string = (char*)message;
+
+    Dart_CObject* c_request_arr[] = { &c_level , &c_message };
+    Dart_CObject c_request;
+    c_request.type = Dart_CObject_kArray;
+    c_request.value.as_array.values = c_request_arr;
+    c_request.value.as_array.length = sizeof(c_request_arr) / sizeof(c_request_arr[0]);
+
+    bool result = Dart_PostCObject_DL(port, &c_request);
+    return result;
 }
 
 void realm_dart_logger_callback(realm_userdata_t userData, realm_log_level_e level, const char* message) {
     std::lock_guard lock(dart_logger_mutex);
-    std::string copy_message = message;
-    if (last_log_level <= level)
-    {
-        for (auto itr = dart_loggers.begin(); itr != dart_loggers.end(); ++itr) {
-            LoggerData* loggerData = dart_loggers[itr->first];
-            loggerData->user_scheduler->invoke([loggerData, level = level, message = std::move(message), copy_message]() mutable {
-                message = copy_message.c_str();
-            (reinterpret_cast<realm_log_func_t>(loggerData->user_callback))(loggerData->user_logger_handle, level, message);
-            });
-        }
 
+    for (auto itr = dart_send_ports.begin(); itr != dart_send_ports.end(); ++itr) {
+        Dart_Port port = itr->first;
+        bool result = send_message_to_scheduler(port, level, message);
     }
 }
 
-RLM_API void realm_dart_init_default_logger() {
+RLM_API bool realm_dart_init_default_logger() {
     std::lock_guard lock(dart_logger_mutex);
     if (is_core_logger_callback_set) {
-        return;
+        return false;
     }
     realm_set_log_callback(realm_dart_logger_callback, RLM_LOG_LEVEL_ALL, nullptr, nullptr);
     is_core_logger_callback_set = true;
+    return true;
 }
 
-RLM_API void realm_dart_set_logger(Dart_Handle logger, realm_log_level_e level, realm_log_func_t callback,
-   realm_scheduler_t* scheduler, uint64_t isolateId) {
+RLM_API void realm_dart_set_logger(realm_log_level_e level, Dart_Port port) {
     std::lock_guard lock(dart_logger_mutex);
-    LoggerData* loggerData = try_get_logger(isolateId);
-    if (loggerData) {
-        loggerData->update_user_logger(logger, level);
-    }
-    else
-    {
-        loggerData = new LoggerData(logger, level, callback, scheduler, isolateId);
-        dart_loggers[isolateId] = loggerData;
-    }
+    dart_send_ports[port] = level;
 }
 
-RLM_API void realm_dart_set_log_level(realm_log_level_e level, uint64_t isolateId)
-{
-    std::lock_guard lock(dart_logger_mutex);
-    LoggerData* loggerData = try_get_logger(isolateId);
-    if (loggerData) {
-        loggerData->user_level = level;
-    }
-}

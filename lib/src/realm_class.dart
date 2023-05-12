@@ -497,7 +497,6 @@ class Realm implements Finalizable {
   static Logger get logger {
     if (_logger == null) {
       _logger = Logger.detached('Realm')..level = RealmLogLevel.info;
-
       realmCore.setLogger(_logger!);
     }
     return _logger!;
@@ -953,13 +952,6 @@ class RealmLogLevel {
   /// Same as [Level.OFF];
   static const off = Level.OFF;
 }
-
-// extension RealmStreamLogRecord on Stream<LogRecord> {
-//   StreamSubscription<LogRecord> listenDefaultLog(void Function(LogRecord)? onData, {Function? onError, void Function()? onDone, bool? cancelOnError}) {
-//     Realm._logger.clearListeners();
-//     return Realm._logger.onRecord.listen(onData, onError: onError, onDone: onDone, cancelOnError: cancelOnError);
-//   }
-// }
 
 extension RealmLogRecord on LogRecord {
   void printDefaultFormat() {

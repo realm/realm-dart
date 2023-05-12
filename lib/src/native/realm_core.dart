@@ -1679,30 +1679,21 @@ class _RealmCore implements RealmCoreScheduler {
     });
   }
 
-  static void _logCallback(Object userdata, int levelAsInt, Pointer<Int8> message) {
-    final Logger logger = userdata as Logger;
-    final level = LevelExt.fromInt(levelAsInt);
-    if (logger.isLoggable(level)) {
-      logger.log(level, message.cast<Utf8>().toDartString());
-    }
+  @override
+  void logMessage(int level, String message) {
+    final message_level = LevelExt.fromInt(level);
+    Realm.logger.log(message_level, message);
   }
 
   void _initDefaultLogger() {
-    _realmLib.realm_dart_init_default_logger();
-  }
-
-  void _releaseLoggersPerIsolate(int isolateId) {
-    _realmLib.realm_dart_release_logger(isolateId);
+    bool isDefaultLogger = _realmLib.realm_dart_init_default_logger();
+    if (isDefaultLogger) {
+      Realm.logger.onRecord.listen((event) => event.printDefaultFormat());
+    }
   }
 
   void setLogger(Logger logger) {
-    final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
-
-    _realmLib.realm_dart_set_logger(logger, logger.level.toInt(), logCallback.cast(), scheduler.handle._pointer, Isolate.current.hashCode);
-  }
-
-  void setLogLevel(Level logLevel) {
-    _realmLib.realm_dart_set_log_level(logLevel.toInt(), Isolate.current.hashCode);
+    _realmLib.realm_dart_set_logger(logger.level.toInt(), scheduler.receivePort.sendPort.nativePort);
   }
 
   SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
