@@ -1,8 +1,8 @@
 ## vNext (TBD)
 
 ### Enhancements
-* Support `Realm.logger.level` change at runtime.
-* Added a default logger working in a separate isolate, that prints logs from all the isolates. The logger is switched on by default and you are not required to configure it. The level of the default loger could be managed by `Realm.logger.level` which is applied to all the isolates. If you set your custom logger to `Realm.logger` then the default logger is paused and it doesn't print the messages. Once the isolate of the newly created logger is released, the default logger will be resumed. ([#1226](https://github.com/realm/realm-dart/pull/1226)).
+* `Realm.logger.level` allows changing the log level at runtime per isolate. To stop the logging use level `RealmLogLevel.off`([#1226](https://github.com/realm/realm-dart/pull/1226)).
+* Added a default print of the logs only for the first isolate working with the realm. Calling `Realm.logger.clearListeners()` will stop the printing by default ([#1226](https://github.com/realm/realm-dart/pull/1226)).
 * Add logging at the Storage level (Core upgrade).
 * Performance improvement for the following queries (Core upgrade):
     * Significant (~75%) improvement when counting (query count) the number of exact matches (with no other query conditions) on a String/int/Uuid/ObjectId property that has an index. This improvement will be especially noticiable if there are a large number of results returned (duplicate values).
