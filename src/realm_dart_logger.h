@@ -22,10 +22,11 @@
 #include <realm.h>
 #include <dart_api_dl.h>
 
-RLM_API bool realm_dart_init_default_logger();
-
-RLM_API void realm_dart_set_logger(realm_log_level_e level, Dart_Port port);
 
 RLM_API void realm_dart_release_logger(Dart_Port port);
+
+RLM_API bool realm_dart_init_default_logger();
+
+RLM_API void realm_dart_set_log_level(realm_log_level_e level, Dart_Port port);
 
 #endif // REALM_DART_LOGGER_H

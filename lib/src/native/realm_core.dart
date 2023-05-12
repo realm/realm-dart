@@ -1688,12 +1688,12 @@ class _RealmCore implements RealmCoreScheduler {
   void _initDefaultLogger() {
     bool isDefaultLogger = _realmLib.realm_dart_init_default_logger();
     if (isDefaultLogger) {
-      Realm.logger.onRecord.listen((event) => event.printDefaultFormat());
+      Realm.logger.onRecord.listen((event) => print('${event.time.toIso8601String()}: $event'));
     }
   }
 
-  void setLogger(Logger logger) {
-    _realmLib.realm_dart_set_logger(logger.level.toInt(), scheduler.receivePort.sendPort.nativePort);
+  void setLogLevel(Level logLevel) {
+    _realmLib.realm_dart_set_log_level(logLevel.toInt(), scheduler.receivePort.sendPort.nativePort);
   }
 
   SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {

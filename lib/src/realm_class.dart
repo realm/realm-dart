@@ -496,15 +496,15 @@ class Realm implements Finalizable {
   /// It is also possible to set a new instance of custom [Logger].
   static Logger get logger {
     if (_logger == null) {
-      _logger = Logger.detached('Realm')..level = RealmLogLevel.info;
-      realmCore.setLogger(_logger!);
+      _logger = _RealmLogger._(Logger.detached('Realm')..level = RealmLogLevel.info);
+      realmCore.setLogLevel(_logger!.level);
     }
     return _logger!;
   }
 
   static set logger(Logger value) {
-    _logger = value;
-    realmCore.setLogger(value);
+    _logger = _RealmLogger._(value);
+    realmCore.setLogLevel(_logger!.level);
   }
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
@@ -953,8 +953,87 @@ class RealmLogLevel {
   static const off = Level.OFF;
 }
 
-extension RealmLogRecord on LogRecord {
-  void printDefaultFormat() {
-    print('${time.toIso8601String()}: $this');
+/// Represents a logger that manages the realm log level at runtime.
+/// @nodoc
+class _RealmLogger implements Logger {
+  final Logger _logger;
+
+  _RealmLogger._(Logger logger) : _logger = (logger is _RealmLogger) ? logger._logger : logger;
+
+  @override
+  Level get level => _logger.level;
+
+  @override
+  set level(Level? value) {
+    _logger.level = value;
+    realmCore.setLogLevel((value ?? Level.OFF));
+  }
+
+  @override
+  Map<String, Logger> get children => _logger.children;
+
+  @override
+  void clearListeners() {
+    _logger.clearListeners();
+  }
+
+  @override
+  void config(Object? message, [Object? error, StackTrace? stackTrace]) {
+    _logger.config(message, error, stackTrace);
+  }
+
+  @override
+  void fine(Object? message, [Object? error, StackTrace? stackTrace]) {
+    _logger.fine(message, error, stackTrace);
+  }
+
+  @override
+  void finer(Object? message, [Object? error, StackTrace? stackTrace]) {
+    _logger.finer(message, error, stackTrace);
+  }
+
+  @override
+  void finest(Object? message, [Object? error, StackTrace? stackTrace]) {
+    _logger.finest(message, error, stackTrace);
+  }
+
+  @override
+  String get fullName => _logger.fullName;
+
+  @override
+  void info(Object? message, [Object? error, StackTrace? stackTrace]) {
+    _logger.info(message, error, stackTrace);
+  }
+
+  @override
+  bool isLoggable(Level value) => _logger.isLoggable(value);
+
+  @override
+  void log(Level logLevel, Object? message, [Object? error, StackTrace? stackTrace, Zone? zone]) {
+    _logger.log(logLevel, message, error, stackTrace, zone);
+  }
+
+  @override
+  String get name => _logger.name;
+
+  @override
+  Stream<LogRecord> get onRecord => _logger.onRecord;
+
+  @override
+  Logger? get parent => _logger.parent;
+
+  @override
+  void severe(Object? message, [Object? error, StackTrace? stackTrace]) {
+    _logger.severe(message, error, stackTrace);
+  }
+
+  @override
+  void shout(Object? message, [Object? error, StackTrace? stackTrace]) {
+    _logger.shout(message, error, stackTrace);
+  }
+
+  @override
+  void warning(Object? message, [Object? error, StackTrace? stackTrace]) {
+    _logger.warning(message, error, stackTrace);
   }
 }
