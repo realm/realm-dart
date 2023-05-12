@@ -21,7 +21,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:cancellation_token/cancellation_token.dart';
@@ -30,12 +29,12 @@ import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import 'package:realm_common/realm_common.dart' hide Decimal128;
+import 'package:realm_common/realm_common.dart' as common show Decimal128;
 
 import '../app.dart';
 import '../collections.dart';
 import '../configuration.dart';
 import '../credentials.dart';
-import '../decimal128.dart';
 import '../init.dart';
 import '../list.dart';
 import '../migration.dart';
@@ -48,6 +47,8 @@ import '../subscription.dart';
 import '../user.dart';
 import '../set.dart';
 import 'realm_bindings.dart';
+
+part 'decimal128.dart';
 
 const bugInTheSdkMessage = "This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues";
 
@@ -65,8 +66,6 @@ final _realmLib = () {
 // stamped into the library by the build system (see prepare-release.yml)
 const libraryVersion = '1.0.3';
 late String nativeLibraryVersion;
-
-final lib = _realmLib;
 
 final realmCore = _RealmCore();
 
@@ -2906,7 +2905,7 @@ extension on Pointer<realm_value_t> {
         return DateTime.fromMicrosecondsSinceEpoch(seconds * _microsecondsPerSecond + nanoseconds ~/ _nanosecondsPerMicrosecond, isUtc: true);
       case realm_value_type.RLM_TYPE_DECIMAL128:
         var decimal = ref.values.decimal128; // NOTE: Does not copy the struct!
-        decimal = lib.realm_dart_decimal128_copy(decimal); // This is a workaround to that
+        decimal = _realmLib.realm_dart_decimal128_copy(decimal); // This is a workaround to that
         return Decimal128Internal.fromNative(decimal);
       case realm_value_type.RLM_TYPE_OBJECT_ID:
         return ObjectId.fromBytes(cast<Uint8>().asTypedList(12));

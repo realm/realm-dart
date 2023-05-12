@@ -88,7 +88,6 @@ export "configuration.dart"
         SyncWebSocketError,
         SyncSessionError;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
-export 'decimal128.dart' show Decimal128;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
 export 'set.dart' show RealmSet, RealmSetChanges;
 export 'migration.dart' show Migration;
@@ -122,6 +121,7 @@ export 'session.dart'
         SyncSessionErrorCode;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient;
+export 'native/realm_core.dart' show Decimal128;
 
 /// A [Realm] instance represents a `Realm` database.
 ///

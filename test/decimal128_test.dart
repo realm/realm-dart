@@ -19,7 +19,7 @@
 import 'dart:math';
 
 import 'package:meta/meta.dart';
-import '../lib/src/decimal128.dart';
+import '../lib/src/native/realm_core.dart';
 import 'package:test/test.dart';
 
 const int defaultTimes = 100000;
