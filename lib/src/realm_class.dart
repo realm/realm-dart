@@ -498,7 +498,7 @@ class Realm implements Finalizable {
     if (_logger == null) {
       _logger = RealmInternal.defaultLogger;
       // In case Realm.logger.onRecord is used in an isolate with no other realm implementations
-      // we should garantie that the logger is initialized and its level is properly set to core.
+      // we must guarantee that the logger is initialized and its level is properly set to realm core.
       realmCore.setLogLevel(_logger!.level);
     }
     return _logger!;
