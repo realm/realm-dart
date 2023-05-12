@@ -21,7 +21,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:cancellation_token/cancellation_token.dart';
@@ -1687,7 +1686,7 @@ class _RealmCore implements RealmCoreScheduler {
 
   void _initDefaultLogger() {
     bool isDefaultLogger = _realmLib.realm_dart_init_default_logger();
-    if (isDefaultLogger) {
+    if (isDefaultLogger && !RealmInternal.isUserLogger) {
       RealmInternal.defaultLogger.onRecord.listen((event) => print('${event.time.toIso8601String()}: $event'));
     }
   }

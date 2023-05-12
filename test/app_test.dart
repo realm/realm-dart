@@ -186,41 +186,34 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Realm.logger', (configuration) async {
-    final oldLogger = Realm.logger;
-    try {
-      Realm.logger = Logger.detached(generateRandomString(10))..level = RealmLogLevel.all;
-      configuration = AppConfiguration(
-        configuration.appId,
-        baseFilePath: configuration.baseFilePath,
-        baseUrl: configuration.baseUrl,
-      );
+    Realm.logger = Logger.detached(generateRandomString(10))..level = RealmLogLevel.all;
+    configuration = AppConfiguration(
+      configuration.appId,
+      baseFilePath: configuration.baseFilePath,
+      baseUrl: configuration.baseUrl,
+    );
 
-      await testLogger(
-        configuration,
-        Realm.logger,
-        maxExpectedCounts: {
-          // No problems expected!
-          RealmLogLevel.fatal: 0,
-          RealmLogLevel.error: 0,
-          RealmLogLevel.warn: 0,
-        },
-        minExpectedCounts: {
-          // these are set low (roughly half of what was seen when test was created),
-          // so that changes to core are less likely to break the test
-          RealmLogLevel.trace: 10,
-          RealmLogLevel.debug: 20,
-          RealmLogLevel.detail: 2,
-          RealmLogLevel.info: 1,
-        },
-      );
-    } finally {
-      Realm.logger.level = RealmLogLevel.info;
-      Realm.logger = oldLogger; // re-instate previous
-    }
+    await testLogger(
+      configuration,
+      Realm.logger,
+      maxExpectedCounts: {
+        // No problems expected!
+        RealmLogLevel.fatal: 0,
+        RealmLogLevel.error: 0,
+        RealmLogLevel.warn: 0,
+      },
+      minExpectedCounts: {
+        // these are set low (roughly half of what was seen when test was created),
+        // so that changes to core are less likely to break the test
+        RealmLogLevel.trace: 10,
+        RealmLogLevel.debug: 20,
+        RealmLogLevel.detail: 2,
+        RealmLogLevel.info: 1,
+      },
+    );
   });
 
   baasTest('Change Realm.logger level at runtime', (configuration) async {
-    final oldLogger = Realm.logger;
     int count = 0;
     final completer = Completer<void>();
     try {
@@ -247,9 +240,6 @@ Future<void> main([List<String>? args]) async {
       expect(count, 1); // Occurs only once because the log level has been switched from "Off" to "Error"
     } catch (error) {
       completer.completeError(error);
-    } finally {
-      Realm.logger.level = RealmLogLevel.info;
-      Realm.logger = oldLogger;
     }
   });
 
