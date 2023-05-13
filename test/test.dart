@@ -361,24 +361,26 @@ void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<Str
 
 Future<void>? baasSetup;
 
-Future<void> setupTests(List<String>? args) async {
+Future<void> setupTests(List<String>? args, {bool loggerTest = false}) async {
   arguments = parseTestArguments(args);
   testName = arguments["name"];
   setUpAll(() async => await (baasSetup ??= setupBaas()));
 
   setUp(() {
     final defaultLogger = Realm.logger;
-    Realm.logger = Logger.detached('test run')
-      ..level = Level.ALL
-      ..onRecord.listen((record) {
-        testing.printOnFailure('${record.time} ${record.level.name}: ${record.message}');
-      });
-
+    if (!loggerTest) {
+      Realm.logger = Logger.detached('test run')
+        ..level = Level.ALL
+        ..onRecord.listen((record) {
+          testing.printOnFailure('${record.time} ${record.level.name}: ${record.message}');
+        });
+    }
     final path = generateRandomRealmPath();
     Configuration.defaultRealmPath = path;
 
     addTearDown(() async {
       Realm.logger = defaultLogger;
+
       final paths = HashSet<String>();
       paths.add(path);
       await enableAllAutomaticRecovery();
