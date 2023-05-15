@@ -19,8 +19,10 @@
 import 'dart:math';
 
 import 'package:meta/meta.dart';
+import 'package:test/expect.dart' hide throws;
+
 import '../lib/src/native/realm_core.dart';
-import 'package:test/test.dart';
+import 'test.dart';
 
 const int defaultTimes = 100000;
 
@@ -32,14 +34,14 @@ void repeat(dynamic Function() body, [int times = defaultTimes]) {
 
 @isTest
 void repeatTest(String description, dynamic Function(Decimal128 x, int xInt, Decimal128 y, int yInt) body, [int times = defaultTimes]) {
-  final r = Random(42); // use a fixed seed to make tests deterministic
-  test('$description ($times variations)', () {
+  final random = Random(42); // use a fixed seed to make tests deterministic
+  test(description, () {
     repeat(
       () {
         // 2^31 ensures x * y doesn't overflow
-        var xInt = r.nextInt(1 << 31);
+        var xInt = random.nextInt(1 << 31);
         final x = Decimal128.fromInt(xInt);
-        var yInt = r.nextInt(1 << 31);
+        var yInt = random.nextInt(1 << 31);
         final y = Decimal128.fromInt(yInt);
 
         body(x, xInt, y, yInt);
@@ -50,6 +52,8 @@ void repeatTest(String description, dynamic Function(Decimal128 x, int xInt, Dec
 }
 
 Future<void> main([List<String>? args]) async {
+  await setupTests(args);
+
   test('Decimal128.nan', () {
     // Test that we mimic the behavior of Dart's double wrt. NaN and
     // <, <=, >, >=. Unlike compareTo (which define a total order) these

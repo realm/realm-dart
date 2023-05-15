@@ -54,24 +54,4 @@ RLM_API void* realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int siz
 RLM_API void realm_detach_finalizer(void* finalizableHandle, Dart_Handle handle);
 RLM_API void realm_set_auto_refresh(realm_t* realm, bool enable);
 
-RLM_API realm_decimal128_t realm_dart_decimal128_from_string(const char* string);
-RLM_API realm_string_t realm_dart_decimal128_to_string(realm_decimal128_t x);
-
-RLM_API realm_decimal128_t realm_dart_decimal128_nan();
-RLM_API bool realm_dart_decimal128_is_nan(realm_decimal128_t x);
-RLM_API realm_decimal128_t realm_dart_decimal128_from_int64(int64_t low);
-RLM_API int64_t realm_dart_decimal128_to_int64(realm_decimal128_t x);
-RLM_API realm_decimal128_t realm_dart_decimal128_negate(realm_decimal128_t x);
-RLM_API realm_decimal128_t realm_dart_decimal128_add(realm_decimal128_t x, realm_decimal128_t y);
-RLM_API realm_decimal128_t realm_dart_decimal128_subtract(realm_decimal128_t x, realm_decimal128_t y);
-RLM_API realm_decimal128_t realm_dart_decimal128_multiply(realm_decimal128_t x, realm_decimal128_t y);
-RLM_API realm_decimal128_t realm_dart_decimal128_divide(realm_decimal128_t x, realm_decimal128_t y);
-RLM_API bool realm_dart_decimal128_equal(realm_decimal128_t x, realm_decimal128_t y);
-RLM_API bool realm_dart_decimal128_less_than(realm_decimal128_t x, realm_decimal128_t y);
-RLM_API bool realm_dart_decimal128_greater_than(realm_decimal128_t x, realm_decimal128_t y);
-RLM_API int realm_dart_decimal128_compare_to(realm_decimal128_t x, realm_decimal128_t y);
-
-// work-around for Dart FFI issue
-RLM_API realm_decimal128_t realm_dart_decimal128_copy(realm_decimal128_t x);
-
 #endif // REALM_DART_H
