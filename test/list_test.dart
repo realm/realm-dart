@@ -1222,4 +1222,20 @@ Future<void> main([List<String>? args]) async {
       if (count > 1) fail('Should only receive one event');
     }
   });
+
+  test('List.asResults().isCleared notifications', () async {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+    final team = Team('Team 1', players: [Person('Alice'), Person('Bob')]);
+    realm.write(() => realm.add(team));
+    final playersAsResults = team.players.asResults();
+
+    expectLater(
+        playersAsResults.changes,
+        emitsInOrder(<Matcher>[
+          isA<RealmResultsChanges<Person>>().having((changes) => changes.inserted, 'inserted', <int>[]), // always an empty event on subscription
+          isA<RealmResultsChanges<Person>>().having((changes) => changes.isCleared, 'isCleared', true),
+        ]));
+    realm.write(() => team.players.clear());
+  });
 }

@@ -620,21 +620,6 @@ Future<void> main([List<String>? args]) async {
     expect(team.players, [alice, bob]); // Alice is capital 'a'
   });
 
-test('List.asResults().isCleared notifications', () async {
-    final config = Configuration.local([Team.schema, Person.schema]);
-    final realm = getRealm(config);
-    final team = Team('Team 1', players: [Person('Alice'), Person('Bob')]);
-    realm.write(() => realm.add(team));
-    final playersAsResults = team.players.asResults();
-
-    expectLater(
-        playersAsResults.changes,
-        emitsInOrder(<Matcher>[
-          isA<RealmResultsChanges<Person>>().having((changes) => changes.isCleared, 'isCleared', true),
-        ]));
-    realm.write(() => team.players.clear());
-  });
-
   test('Results.query with remapped property', () {
     final config = Configuration.local([RemappedClass.schema]);
     final realm = getRealm(config);
