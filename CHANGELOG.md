@@ -8,6 +8,7 @@
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
+* Dart >=2.17.5 <4.0.0 (Flutter >=3.0.3) on Android, iOS, Linux, MacOS and Windows
 
 ### Internal
 * Using Core x.y.z.
