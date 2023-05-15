@@ -22,7 +22,6 @@
 #include <thread>
 
 #include "realm_dart_scheduler.h"
-#include <realm/object-store/c_api/types.hpp>
 #include "realm_dart_logger.h"
 struct SchedulerData {
     //used for debugging
