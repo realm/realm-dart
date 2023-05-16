@@ -1942,3 +1942,49 @@ class RecursiveEmbedded3 extends _RecursiveEmbedded3
     ]);
   }
 }
+
+class ObjectWithDecimal extends _ObjectWithDecimal
+    with RealmEntity, RealmObjectBase, RealmObject {
+  ObjectWithDecimal(
+    Decimal128 decimal, {
+    Decimal128? nullableDecimal,
+  }) {
+    RealmObjectBase.set(this, 'decimal', decimal);
+    RealmObjectBase.set(this, 'nullableDecimal', nullableDecimal);
+  }
+
+  ObjectWithDecimal._();
+
+  @override
+  Decimal128 get decimal =>
+      RealmObjectBase.get<Decimal128>(this, 'decimal') as Decimal128;
+  @override
+  set decimal(Decimal128 value) => RealmObjectBase.set(this, 'decimal', value);
+
+  @override
+  Decimal128? get nullableDecimal =>
+      RealmObjectBase.get<Decimal128>(this, 'nullableDecimal') as Decimal128?;
+  @override
+  set nullableDecimal(Decimal128? value) =>
+      RealmObjectBase.set(this, 'nullableDecimal', value);
+
+  @override
+  Stream<RealmObjectChanges<ObjectWithDecimal>> get changes =>
+      RealmObjectBase.getChanges<ObjectWithDecimal>(this);
+
+  @override
+  ObjectWithDecimal freeze() =>
+      RealmObjectBase.freezeObject<ObjectWithDecimal>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(ObjectWithDecimal._);
+    return const SchemaObject(
+        ObjectType.realmObject, ObjectWithDecimal, 'ObjectWithDecimal', [
+      SchemaProperty('decimal', RealmPropertyType.decimal128),
+      SchemaProperty('nullableDecimal', RealmPropertyType.decimal128,
+          optional: true),
+    ]);
+  }
+}

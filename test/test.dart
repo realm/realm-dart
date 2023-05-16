@@ -308,6 +308,12 @@ class _RecursiveEmbedded3 {
   late String value;
 }
 
+@RealmModel()
+class _ObjectWithDecimal {
+  late Decimal128 decimal;
+  Decimal128? nullableDecimal;
+}
+
 String? testName;
 Map<String, String?> arguments = {};
 final baasApps = <String, BaasApp>{};

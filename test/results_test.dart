@@ -662,4 +662,26 @@ Future<void> main([List<String>? args]) async {
       if (count > 1) fail('Should only receive one event');
     }
   });
+
+  test('query by condition on decimal128', () {
+    final config = Configuration.local([ObjectWithDecimal.schema]);
+    final realm = getRealm(config);
+
+    final small = Decimal128.fromInt(1);
+    final big = Decimal128.fromInt(1 << 62) * Decimal128.fromInt(1 << 62);
+
+    realm.write(() => realm.addAll([
+          ObjectWithDecimal(small),
+          ObjectWithDecimal(big),
+        ]));
+
+    expect(realm.query<ObjectWithDecimal>(r'decimal < $0', [small]), isEmpty);
+    expect(realm.query<ObjectWithDecimal>(r'decimal < $0', [big]).map((e) => e.decimal), [small]);
+    expect(realm.query<ObjectWithDecimal>(r'decimal <= $0', [big]).map((e) => e.decimal), [small, big]);
+    expect(realm.query<ObjectWithDecimal>(r'decimal == $0', [small]).map((e) => e.decimal), [small]);
+    expect(realm.query<ObjectWithDecimal>(r'decimal == $0', [big]).map((e) => e.decimal), [big]);
+    expect(realm.query<ObjectWithDecimal>(r'decimal > $0', [big]), isEmpty);
+    expect(realm.query<ObjectWithDecimal>(r'decimal > $0', [small]).map((e) => e.decimal), [big]);
+    expect(realm.query<ObjectWithDecimal>(r'decimal >= $0', [small]).map((e) => e.decimal), [small, big]);
+  });
 }

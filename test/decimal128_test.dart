@@ -242,25 +242,33 @@ Future<void> main([List<String>? args]) async {
   });
 
   repeatTest('Decimal128.compareTo + <, <=, ==, !=, >=, >', (x, xInt, y, yInt) {
+    expect(x.compareTo(x), 0);
     expect(x.compareTo(y), -(y.compareTo(x)));
     expect(x.compareTo(y), xInt.compareTo(yInt));
-    expect(x == y, y == x);
-    expect(x == y, xInt == yInt);
+
+    expect(x < x, isFalse);
     expect(x < y, y > x);
     expect(x < y, xInt < yInt);
+
+    expect(x <= x, isTrue);
     expect(x <= y, y >= x);
     expect(x <= y, xInt <= yInt);
+
+    expect(x == x, isTrue);
+    expect(x == y, y == x);
+    expect(x == y, xInt == yInt);
+
+    expect(x != x, isFalse);
+    expect(x != y, y != x);
+    expect(x != y, xInt != yInt);
+
+    expect(x > x, isFalse);
     expect(x > y, y < x);
     expect(x > y, xInt > yInt);
+
+    expect(x >= x, isTrue);
     expect(x >= y, y <= x);
     expect(x >= y, xInt >= yInt);
-
-    expect(x.compareTo(x), 0);
-    expect(x == x, isTrue);
-    expect(x < x, isFalse);
-    expect(x <= x, isTrue);
-    expect(x > x, isFalse);
-    expect(x >= x, isTrue);
   });
 
   repeatTest('Decimal128.toInt/fromInt roundtrip', (x, xInt, y, yInt) {
