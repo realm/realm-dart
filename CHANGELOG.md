@@ -4,7 +4,7 @@
 * None
 
 ### Fixed
-* None
+* `RealmResultsChanges.isCleared` is deprecated. It's value was not set correctly. It is fixed to return true if the results `isEmpty`. We are considering changing this API in future releases.
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
