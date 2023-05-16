@@ -4,7 +4,7 @@
 * None
 
 ### Fixed
-* `RealmResultsChanges.isCleared` is deprecated. It's value was not set correctly. It is fixed to return true if the results `isEmpty`. We are considering changing this API in future releases.
+* `RealmResultsChanges.isCleared` is deprecated. Its value was not set correctly. It is fixed to return true if the results `isEmpty` ([#1265](https://github.com/realm/realm-dart/pull/1265)). We are considering changing this API in future releases ([#1278](https://github.com/realm/realm-dart/issues/1278)).
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
