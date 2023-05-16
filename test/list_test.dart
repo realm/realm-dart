@@ -1229,7 +1229,6 @@ Future<void> main([List<String>? args]) async {
     final team = Team('Team 1', players: [Person('Alice'), Person('Bob')]);
     realm.write(() => realm.add(team));
     final playersAsResults = team.players.asResults();
-
     expectLater(
         playersAsResults.changes,
         emitsInOrder(<Matcher>[
@@ -1237,5 +1236,6 @@ Future<void> main([List<String>? args]) async {
           isA<RealmResultsChanges<Person>>().having((changes) => changes.isCleared, 'isCleared', true),
         ]));
     realm.write(() => team.players.clear());
+    expect(playersAsResults.length, 0);
   });
 }
