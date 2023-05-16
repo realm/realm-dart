@@ -741,4 +741,42 @@ Future<void> main([List<String>? args]) async {
     final items = realm.query<Product>(ids);
     expect(items.length, 0);
   });
+
+  test('RealmResults.first throws on empty', () async {
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final empty = Iterable<int>.empty();
+    expect(() => empty.first, throwsA(isA<StateError>()));
+    expect(() => realm.all<Dog>().first, throwsA(isA<RealmException>()));
+  });
+
+  test('RealmResults.last throws on empty', () async {
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final empty = Iterable<int>.empty();
+    expect(() => empty.last, throwsA(isA<StateError>()));
+    expect(() => realm.all<Dog>().last, throwsA(isA<RealmException>()));
+  });
+
+  test('RealmResult.single throws on empty', () {
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final empty = Iterable<int>.empty();
+    expect(() => empty.single, throwsA(isA<StateError>()));
+    expect(() => realm.all<Dog>().single, throwsA(isA<RealmStateError>()));
+  });
+
+  test('RealmResult.single throws on two items', () {
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final twoItems = [1, 2];
+    expect(() => twoItems.single, throwsA(isA<StateError>()));
+
+    realm.write(() => realm.addAll([Dog('Fido'), Dog('Spot')]));
+    expect(() => realm.all<Dog>().single, throwsA(isA<StateError>()));
+  });
 }
