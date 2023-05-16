@@ -425,7 +425,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
     if (invocation.isGetter) {
       final name = _symbolRegex.firstMatch(invocation.memberName.toString())?.namedGroup("symbolName");
       if (name == null) {
-        throw RealmError("Could not find symbol name for ${invocation.memberName}. ${realmCore.bugInTheSdkMessage}");
+        throw RealmError("Could not find symbol name for ${invocation.memberName}. $bugInTheSdkMessage");
       }
 
       return get(this, name);
@@ -434,7 +434,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
     if (invocation.isSetter) {
       final name = _symbolRegex.firstMatch(invocation.memberName.toString())?.namedGroup("symbolName");
       if (name == null) {
-        throw RealmError("Could not find symbol name for ${invocation.memberName}. ${realmCore.bugInTheSdkMessage}");
+        throw RealmError("Could not find symbol name for ${invocation.memberName}. $bugInTheSdkMessage");
       }
 
       return set(this, name, invocation.positionalArguments.single);

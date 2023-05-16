@@ -45,8 +45,8 @@ jobs:
         id: update-libraryVersion
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
-          find: "static const libraryVersion = '[^']*';"
-          replace: "static const libraryVersion = '${{ steps.update-changelog.outputs.new-version }}';"
+          find: "const libraryVersion = '[^']*';"
+          replace: "const libraryVersion = '${{ steps.update-changelog.outputs.new-version }}';"
           include: 'lib/src/native/realm_core.dart'
 
       - name: Make sure we updated libraryVersion in realm_core.dart

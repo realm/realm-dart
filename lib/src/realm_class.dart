@@ -121,6 +121,7 @@ export 'session.dart'
         SyncSessionErrorCode;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient;
+export 'native/realm_core.dart' show Decimal128;
 
 /// A [Realm] instance represents a `Realm` database.
 ///

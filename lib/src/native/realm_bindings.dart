@@ -3182,6 +3182,266 @@ class RealmLibrary {
   late final _realm_dart_create_scheduler = _realm_dart_create_schedulerPtr
       .asFunction<ffi.Pointer<realm_scheduler_t> Function(int, int)>();
 
+  realm_decimal128_t realm_dart_decimal128_add(
+    realm_decimal128_t x,
+    realm_decimal128_t y,
+  ) {
+    return _realm_dart_decimal128_add(
+      x,
+      y,
+    );
+  }
+
+  late final _realm_dart_decimal128_addPtr = _lookup<
+      ffi.NativeFunction<
+          realm_decimal128_t Function(realm_decimal128_t,
+              realm_decimal128_t)>>('realm_dart_decimal128_add');
+  late final _realm_dart_decimal128_add =
+      _realm_dart_decimal128_addPtr.asFunction<
+          realm_decimal128_t Function(
+              realm_decimal128_t, realm_decimal128_t)>();
+
+  int realm_dart_decimal128_compare_to(
+    realm_decimal128_t x,
+    realm_decimal128_t y,
+  ) {
+    return _realm_dart_decimal128_compare_to(
+      x,
+      y,
+    );
+  }
+
+  late final _realm_dart_decimal128_compare_toPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(realm_decimal128_t,
+              realm_decimal128_t)>>('realm_dart_decimal128_compare_to');
+  late final _realm_dart_decimal128_compare_to =
+      _realm_dart_decimal128_compare_toPtr
+          .asFunction<int Function(realm_decimal128_t, realm_decimal128_t)>();
+
+  realm_decimal128_t realm_dart_decimal128_copy(
+    realm_decimal128_t x,
+  ) {
+    return _realm_dart_decimal128_copy(
+      x,
+    );
+  }
+
+  late final _realm_dart_decimal128_copyPtr = _lookup<
+          ffi.NativeFunction<realm_decimal128_t Function(realm_decimal128_t)>>(
+      'realm_dart_decimal128_copy');
+  late final _realm_dart_decimal128_copy = _realm_dart_decimal128_copyPtr
+      .asFunction<realm_decimal128_t Function(realm_decimal128_t)>();
+
+  realm_decimal128_t realm_dart_decimal128_divide(
+    realm_decimal128_t x,
+    realm_decimal128_t y,
+  ) {
+    return _realm_dart_decimal128_divide(
+      x,
+      y,
+    );
+  }
+
+  late final _realm_dart_decimal128_dividePtr = _lookup<
+      ffi.NativeFunction<
+          realm_decimal128_t Function(realm_decimal128_t,
+              realm_decimal128_t)>>('realm_dart_decimal128_divide');
+  late final _realm_dart_decimal128_divide =
+      _realm_dart_decimal128_dividePtr.asFunction<
+          realm_decimal128_t Function(
+              realm_decimal128_t, realm_decimal128_t)>();
+
+  bool realm_dart_decimal128_equal(
+    realm_decimal128_t x,
+    realm_decimal128_t y,
+  ) {
+    return _realm_dart_decimal128_equal(
+      x,
+      y,
+    );
+  }
+
+  late final _realm_dart_decimal128_equalPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(realm_decimal128_t,
+              realm_decimal128_t)>>('realm_dart_decimal128_equal');
+  late final _realm_dart_decimal128_equal = _realm_dart_decimal128_equalPtr
+      .asFunction<bool Function(realm_decimal128_t, realm_decimal128_t)>();
+
+  realm_decimal128_t realm_dart_decimal128_from_int64(
+    int low,
+  ) {
+    return _realm_dart_decimal128_from_int64(
+      low,
+    );
+  }
+
+  late final _realm_dart_decimal128_from_int64Ptr =
+      _lookup<ffi.NativeFunction<realm_decimal128_t Function(ffi.Int64)>>(
+          'realm_dart_decimal128_from_int64');
+  late final _realm_dart_decimal128_from_int64 =
+      _realm_dart_decimal128_from_int64Ptr
+          .asFunction<realm_decimal128_t Function(int)>();
+
+  realm_decimal128_t realm_dart_decimal128_from_string(
+    ffi.Pointer<ffi.Char> string,
+  ) {
+    return _realm_dart_decimal128_from_string(
+      string,
+    );
+  }
+
+  late final _realm_dart_decimal128_from_stringPtr = _lookup<
+      ffi.NativeFunction<
+          realm_decimal128_t Function(
+              ffi.Pointer<ffi.Char>)>>('realm_dart_decimal128_from_string');
+  late final _realm_dart_decimal128_from_string =
+      _realm_dart_decimal128_from_stringPtr
+          .asFunction<realm_decimal128_t Function(ffi.Pointer<ffi.Char>)>();
+
+  bool realm_dart_decimal128_greater_than(
+    realm_decimal128_t x,
+    realm_decimal128_t y,
+  ) {
+    return _realm_dart_decimal128_greater_than(
+      x,
+      y,
+    );
+  }
+
+  late final _realm_dart_decimal128_greater_thanPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(realm_decimal128_t,
+              realm_decimal128_t)>>('realm_dart_decimal128_greater_than');
+  late final _realm_dart_decimal128_greater_than =
+      _realm_dart_decimal128_greater_thanPtr
+          .asFunction<bool Function(realm_decimal128_t, realm_decimal128_t)>();
+
+  bool realm_dart_decimal128_is_nan(
+    realm_decimal128_t x,
+  ) {
+    return _realm_dart_decimal128_is_nan(
+      x,
+    );
+  }
+
+  late final _realm_dart_decimal128_is_nanPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(realm_decimal128_t)>>(
+          'realm_dart_decimal128_is_nan');
+  late final _realm_dart_decimal128_is_nan = _realm_dart_decimal128_is_nanPtr
+      .asFunction<bool Function(realm_decimal128_t)>();
+
+  bool realm_dart_decimal128_less_than(
+    realm_decimal128_t x,
+    realm_decimal128_t y,
+  ) {
+    return _realm_dart_decimal128_less_than(
+      x,
+      y,
+    );
+  }
+
+  late final _realm_dart_decimal128_less_thanPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(realm_decimal128_t,
+              realm_decimal128_t)>>('realm_dart_decimal128_less_than');
+  late final _realm_dart_decimal128_less_than =
+      _realm_dart_decimal128_less_thanPtr
+          .asFunction<bool Function(realm_decimal128_t, realm_decimal128_t)>();
+
+  realm_decimal128_t realm_dart_decimal128_multiply(
+    realm_decimal128_t x,
+    realm_decimal128_t y,
+  ) {
+    return _realm_dart_decimal128_multiply(
+      x,
+      y,
+    );
+  }
+
+  late final _realm_dart_decimal128_multiplyPtr = _lookup<
+      ffi.NativeFunction<
+          realm_decimal128_t Function(realm_decimal128_t,
+              realm_decimal128_t)>>('realm_dart_decimal128_multiply');
+  late final _realm_dart_decimal128_multiply =
+      _realm_dart_decimal128_multiplyPtr.asFunction<
+          realm_decimal128_t Function(
+              realm_decimal128_t, realm_decimal128_t)>();
+
+  realm_decimal128_t realm_dart_decimal128_nan() {
+    return _realm_dart_decimal128_nan();
+  }
+
+  late final _realm_dart_decimal128_nanPtr =
+      _lookup<ffi.NativeFunction<realm_decimal128_t Function()>>(
+          'realm_dart_decimal128_nan');
+  late final _realm_dart_decimal128_nan =
+      _realm_dart_decimal128_nanPtr.asFunction<realm_decimal128_t Function()>();
+
+  realm_decimal128_t realm_dart_decimal128_negate(
+    realm_decimal128_t x,
+  ) {
+    return _realm_dart_decimal128_negate(
+      x,
+    );
+  }
+
+  late final _realm_dart_decimal128_negatePtr = _lookup<
+          ffi.NativeFunction<realm_decimal128_t Function(realm_decimal128_t)>>(
+      'realm_dart_decimal128_negate');
+  late final _realm_dart_decimal128_negate = _realm_dart_decimal128_negatePtr
+      .asFunction<realm_decimal128_t Function(realm_decimal128_t)>();
+
+  realm_decimal128_t realm_dart_decimal128_subtract(
+    realm_decimal128_t x,
+    realm_decimal128_t y,
+  ) {
+    return _realm_dart_decimal128_subtract(
+      x,
+      y,
+    );
+  }
+
+  late final _realm_dart_decimal128_subtractPtr = _lookup<
+      ffi.NativeFunction<
+          realm_decimal128_t Function(realm_decimal128_t,
+              realm_decimal128_t)>>('realm_dart_decimal128_subtract');
+  late final _realm_dart_decimal128_subtract =
+      _realm_dart_decimal128_subtractPtr.asFunction<
+          realm_decimal128_t Function(
+              realm_decimal128_t, realm_decimal128_t)>();
+
+  int realm_dart_decimal128_to_int64(
+    realm_decimal128_t x,
+  ) {
+    return _realm_dart_decimal128_to_int64(
+      x,
+    );
+  }
+
+  late final _realm_dart_decimal128_to_int64Ptr =
+      _lookup<ffi.NativeFunction<ffi.Int64 Function(realm_decimal128_t)>>(
+          'realm_dart_decimal128_to_int64');
+  late final _realm_dart_decimal128_to_int64 =
+      _realm_dart_decimal128_to_int64Ptr
+          .asFunction<int Function(realm_decimal128_t)>();
+
+  realm_string_t realm_dart_decimal128_to_string(
+    realm_decimal128_t x,
+  ) {
+    return _realm_dart_decimal128_to_string(
+      x,
+    );
+  }
+
+  late final _realm_dart_decimal128_to_stringPtr =
+      _lookup<ffi.NativeFunction<realm_string_t Function(realm_decimal128_t)>>(
+          'realm_dart_decimal128_to_string');
+  late final _realm_dart_decimal128_to_string =
+      _realm_dart_decimal128_to_stringPtr
+          .asFunction<realm_string_t Function(realm_decimal128_t)>();
+
   void realm_dart_delete_persistent_handle(
     ffi.Pointer<ffi.Void> handle,
   ) {
@@ -3617,21 +3877,21 @@ class RealmLibrary {
   late final _realm_delete_files = _realm_delete_filesPtr.asFunction<
       bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Bool>)>();
 
-  void realm_dettach_finalizer(
+  void realm_detach_finalizer(
     ffi.Pointer<ffi.Void> finalizableHandle,
     Object handle,
   ) {
-    return _realm_dettach_finalizer(
+    return _realm_detach_finalizer(
       finalizableHandle,
       handle,
     );
   }
 
-  late final _realm_dettach_finalizerPtr = _lookup<
+  late final _realm_detach_finalizerPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(
-              ffi.Pointer<ffi.Void>, ffi.Handle)>>('realm_dettach_finalizer');
-  late final _realm_dettach_finalizer = _realm_dettach_finalizerPtr
+              ffi.Pointer<ffi.Void>, ffi.Handle)>>('realm_detach_finalizer');
+  late final _realm_detach_finalizer = _realm_detach_finalizerPtr
       .asFunction<void Function(ffi.Pointer<ffi.Void>, Object)>();
 
   /// Subscribe to notifications for this object.
@@ -10466,6 +10726,75 @@ class _SymbolAddresses {
               ffi.Pointer<realm_scheduler_t> Function(ffi.Uint64, Dart_Port)>>
       get realm_dart_create_scheduler =>
           _library._realm_dart_create_schedulerPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              realm_decimal128_t Function(
+                  realm_decimal128_t, realm_decimal128_t)>>
+      get realm_dart_decimal128_add => _library._realm_dart_decimal128_addPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Int Function(realm_decimal128_t, realm_decimal128_t)>>
+      get realm_dart_decimal128_compare_to =>
+          _library._realm_dart_decimal128_compare_toPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<realm_decimal128_t Function(realm_decimal128_t)>>
+      get realm_dart_decimal128_copy => _library._realm_dart_decimal128_copyPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              realm_decimal128_t Function(
+                  realm_decimal128_t, realm_decimal128_t)>>
+      get realm_dart_decimal128_divide =>
+          _library._realm_dart_decimal128_dividePtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Bool Function(realm_decimal128_t, realm_decimal128_t)>>
+      get realm_dart_decimal128_equal =>
+          _library._realm_dart_decimal128_equalPtr;
+  ffi.Pointer<ffi.NativeFunction<realm_decimal128_t Function(ffi.Int64)>>
+      get realm_dart_decimal128_from_int64 =>
+          _library._realm_dart_decimal128_from_int64Ptr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              realm_decimal128_t Function(ffi.Pointer<ffi.Char>)>>
+      get realm_dart_decimal128_from_string =>
+          _library._realm_dart_decimal128_from_stringPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Bool Function(realm_decimal128_t, realm_decimal128_t)>>
+      get realm_dart_decimal128_greater_than =>
+          _library._realm_dart_decimal128_greater_thanPtr;
+  ffi.Pointer<ffi.NativeFunction<ffi.Bool Function(realm_decimal128_t)>>
+      get realm_dart_decimal128_is_nan =>
+          _library._realm_dart_decimal128_is_nanPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Bool Function(realm_decimal128_t, realm_decimal128_t)>>
+      get realm_dart_decimal128_less_than =>
+          _library._realm_dart_decimal128_less_thanPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              realm_decimal128_t Function(
+                  realm_decimal128_t, realm_decimal128_t)>>
+      get realm_dart_decimal128_multiply =>
+          _library._realm_dart_decimal128_multiplyPtr;
+  ffi.Pointer<ffi.NativeFunction<realm_decimal128_t Function()>>
+      get realm_dart_decimal128_nan => _library._realm_dart_decimal128_nanPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<realm_decimal128_t Function(realm_decimal128_t)>>
+      get realm_dart_decimal128_negate =>
+          _library._realm_dart_decimal128_negatePtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              realm_decimal128_t Function(
+                  realm_decimal128_t, realm_decimal128_t)>>
+      get realm_dart_decimal128_subtract =>
+          _library._realm_dart_decimal128_subtractPtr;
+  ffi.Pointer<ffi.NativeFunction<ffi.Int64 Function(realm_decimal128_t)>>
+      get realm_dart_decimal128_to_int64 =>
+          _library._realm_dart_decimal128_to_int64Ptr;
+  ffi.Pointer<ffi.NativeFunction<realm_string_t Function(realm_decimal128_t)>>
+      get realm_dart_decimal128_to_string =>
+          _library._realm_dart_decimal128_to_stringPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_delete_persistent_handle =>
           _library._realm_dart_delete_persistent_handlePtr;

@@ -87,16 +87,17 @@ Future<void> main([List<String>? args]) async {
   final objectId = ObjectId();
   final uuid = Uuid.v4();
 
-  AllTypes _getPopulatedAllTypes() => AllTypes('abc', true, date, -123.456, objectId, uuid, -987,
+  AllTypes _getPopulatedAllTypes() => AllTypes('abc', true, date, -123.456, objectId, uuid, -987, Decimal128.fromDouble(42),
       nullableStringProp: 'def',
       nullableBoolProp: true,
       nullableDateProp: date,
       nullableDoubleProp: -123.456,
       nullableObjectIdProp: objectId,
       nullableUuidProp: uuid,
-      nullableIntProp: 123);
+      nullableIntProp: 123,
+      nullableDecimalProp: Decimal128.fromDouble(4242));
 
-  AllTypes _getEmptyAllTypes() => AllTypes('', false, DateTime(0).toUtc(), 0, objectId, uuid, 0);
+  AllTypes _getEmptyAllTypes() => AllTypes('', false, DateTime(0).toUtc(), 0, objectId, uuid, 0, Decimal128.zero);
 
   AllCollections _getPopulatedAllCollections() => AllCollections(
       strings: ['abc', 'def'],
@@ -143,6 +144,11 @@ Future<void> main([List<String>? args]) async {
     expect(actual.dynamic.get<int?>('nullableIntProp'), expected.nullableIntProp);
     expect(actual.dynamic.get('nullableIntProp'), expected.nullableIntProp);
 
+    expect(actual.dynamic.get<Decimal128>('decimalProp'), expected.decimalProp);
+    expect(actual.dynamic.get('decimalProp'), expected.decimalProp);
+    expect(actual.dynamic.get<Decimal128?>('nullableDecimalProp'), expected.nullableDecimalProp);
+    expect(actual.dynamic.get('nullableDecimalProp'), expected.nullableDecimalProp);
+
     dynamic actualDynamic = actual;
     expect(actualDynamic.stringProp, expected.stringProp);
     expect(actualDynamic.nullableStringProp, expected.nullableStringProp);
@@ -158,6 +164,8 @@ Future<void> main([List<String>? args]) async {
     expect(actualDynamic.nullableUuidProp, expected.nullableUuidProp);
     expect(actualDynamic.intProp, expected.intProp);
     expect(actualDynamic.nullableIntProp, expected.nullableIntProp);
+    expect(actualDynamic.decimalProp, expected.decimalProp);
+    expect(actualDynamic.nullableDecimalProp, expected.nullableDecimalProp);
   }
 
   void _validateDynamicLists(RealmObject actual, AllCollections expected) {
@@ -182,6 +190,9 @@ Future<void> main([List<String>? args]) async {
     expect(actual.dynamic.getList<int>('ints'), expected.ints);
     expect(actual.dynamic.getList('ints'), expected.ints);
 
+    expect(actual.dynamic.getList<Decimal128>('decimals'), expected.decimals);
+    expect(actual.dynamic.getList('decimals'), expected.decimals);
+
     dynamic actualDynamic = actual;
     expect(actualDynamic.strings, expected.strings);
     expect(actualDynamic.bools, expected.bools);
@@ -190,6 +201,7 @@ Future<void> main([List<String>? args]) async {
     expect(actualDynamic.objectIds, expected.objectIds);
     expect(actualDynamic.uuids, expected.uuids);
     expect(actualDynamic.ints, expected.ints);
+    expect(actualDynamic.decimals, expected.decimals);
   }
 
   for (var isDynamic in [true, false]) {
