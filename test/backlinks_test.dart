@@ -16,7 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'package:realm_common/realm_common.dart';
 import 'package:test/expect.dart';
 
 import '../lib/realm.dart';

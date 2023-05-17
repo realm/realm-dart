@@ -22,6 +22,7 @@
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
+* Dart >=2.17.5 <4.0.0 (Flutter >=3.0.3) on Android, iOS, Linux, MacOS and Windows
 
 ### Internal
 * Using Core 13.8.0.
@@ -33,6 +34,7 @@
 * Added `SyncWebSocketError` and `SyncWebSocketErrorCode` for web socket connection sync errors ([#1182](https://github.com/realm/realm-dart/pull/1182)).
 * Added `FlexibleSyncConfiguration.shouldCompactCallback` support ([#1204](https://github.com/realm/realm-dart/pull/1204)).
 * Added `RealmSet.asResults()` ([#1214](https://github.com/realm/realm-dart/pull/1214)).
+* Support `Decimal128` datatype ([#1192](https://github.com/realm/realm-dart/pull/1192)).
 
 ### Fixed
 * You may have a crash on Windows if you try to open a file with non-ASCII path (Core upgrade).
