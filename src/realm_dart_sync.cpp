@@ -61,20 +61,57 @@ RLM_API void realm_dart_sync_client_log_callback(realm_userdata_t userdata, real
 RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, realm_sync_session_t* session, realm_sync_error_t error)
 {
     // the pointers in error are to stack values, we need to make copies and move them into the scheduler invocation
+    struct compensating_write_copy {
+        std::string reason;
+        std::string object_name;
+        realm_value_t primary_key;
+    } cw_buf;
+
     struct error_copy {
         std::string message;
         std::string detailed_message;
+        const char* c_original_file_path_key;
+        const char* c_recovery_file_path_key;
+        bool is_fatal;
+        bool is_unrecognized_by_client;
+        bool is_client_reset_requested;
+        realm_sync_error_action_e server_requests_action;
         std::vector<std::pair<std::string, std::string>> user_info_values;
         std::vector<realm_sync_error_user_info_t> user_info;
+        std::vector<compensating_write_copy> compensating_writes_values;
+        std::vector<realm_sync_error_compensating_write_info_t> compensating_writes;
     } buf;
 
     buf.message = error.error_code.message;
     buf.detailed_message = error.detailed_message;
+    buf.c_original_file_path_key = error.c_original_file_path_key;
+    buf.c_recovery_file_path_key = error.c_recovery_file_path_key;
+    buf.is_fatal = error.is_fatal;
+    buf.is_unrecognized_by_client = error.is_unrecognized_by_client;
+    buf.is_client_reset_requested = error.is_client_reset_requested;
+    buf.server_requests_action = error.server_requests_action;
     buf.user_info_values.reserve(error.user_info_length);
     buf.user_info.reserve(error.user_info_length);
+    buf.compensating_writes_values.reserve(error.compensating_writes_length);
+    buf.compensating_writes.reserve(error.compensating_writes_length);
+
     for (size_t i = 0; i < error.user_info_length; i++) {
         auto& [key, value] = buf.user_info_values.emplace_back(error.user_info_map[i].key, error.user_info_map[i].value);
         buf.user_info.push_back({ key.c_str(), value.c_str() });
+    }
+
+    for (size_t i = 0; i < error.compensating_writes_length; i++) {
+        auto cw = error.compensating_writes[i];
+        cw_buf.reason = cw.reason;
+        cw_buf.object_name = cw.object_name;
+        cw_buf.primary_key = cw.primary_key;
+
+        auto& cw_new = buf.compensating_writes_values.emplace_back(cw_buf);
+        realm_sync_error_compensating_write_info_t  cw_new_copy;
+        cw_new_copy.reason = cw_new.reason.c_str();
+        cw_new_copy.object_name = cw_new.object_name.c_str();
+        cw_new_copy.primary_key = cw_new.primary_key;
+        buf.compensating_writes.push_back(cw_new_copy);
     }
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
@@ -82,7 +119,14 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
         //we moved buf so we need to update the error pointers here.
         error.error_code.message = buf.message.c_str();
         error.detailed_message = buf.detailed_message.c_str();
+        error.c_original_file_path_key = buf.c_original_file_path_key;
+        error.c_recovery_file_path_key = buf.c_recovery_file_path_key;
+        error.is_fatal = buf.is_fatal;
+        error.is_unrecognized_by_client = buf.is_unrecognized_by_client;
+        error.is_client_reset_requested = buf.is_client_reset_requested;
+        error.server_requests_action = buf.server_requests_action;
         error.user_info_map = buf.user_info.data();
+        error.compensating_writes = buf.compensating_writes.data();
         (reinterpret_cast<realm_sync_error_handler_func_t>(ud->dart_callback))(ud->handle, const_cast<realm_sync_session_t*>(&session), error);
     });
 }

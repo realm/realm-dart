@@ -573,10 +573,9 @@ Future<void> main([List<String>? args]) async {
     });
     final realm = getRealm(config);
     final query = realm.query<Product>(r'name BEGINSWITH $0', [productNamePrefix]);
-    if (realm.subscriptions.find(query) == null) {
-      realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
-    }
+    realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
     await realm.subscriptions.waitForSynchronization();
+
     realm.write(() => realm.add(Product(ObjectId(), "doesn't match subscription")));
     await realm.syncSession.waitForUpload();
 

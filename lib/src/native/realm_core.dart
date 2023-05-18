@@ -2876,42 +2876,60 @@ extension on Pointer<realm_value_t> {
     if (this == nullptr) {
       throw RealmException("Can not convert nullptr realm_value to Dart value");
     }
+    return ref.toDartValueByRef(realm);
+  }
+}
 
-    switch (ref.type) {
+extension on realm_value_t {
+  Object? toDartValueByRef(Realm? realm) {
+    switch (type) {
       case realm_value_type.RLM_TYPE_NULL:
         return null;
       case realm_value_type.RLM_TYPE_INT:
-        return ref.values.integer;
+        return values.integer;
       case realm_value_type.RLM_TYPE_BOOL:
-        return ref.values.boolean;
+        return values.boolean;
       case realm_value_type.RLM_TYPE_STRING:
-        return ref.values.string.data.cast<Utf8>().toRealmDartString(length: ref.values.string.size)!;
+        return values.string.data.cast<Utf8>().toRealmDartString(length: values.string.size)!;
       case realm_value_type.RLM_TYPE_FLOAT:
-        return ref.values.fnum;
+        return values.fnum;
       case realm_value_type.RLM_TYPE_DOUBLE:
-        return ref.values.dnum;
+        return values.dnum;
       case realm_value_type.RLM_TYPE_LINK:
-        final objectKey = ref.values.link.target;
-        final classKey = ref.values.link.target_table;
+        if (realm == null) {
+          return null;
+        }
+        final objectKey = values.link.target;
+        final classKey = values.link.target_table;
         if (realm.metadata.getByClassKeyIfExists(classKey) == null) return null; // temprorary workaround to avoid crash on assertion
         return realmCore._getObject(realm, classKey, objectKey);
       case realm_value_type.RLM_TYPE_BINARY:
         throw Exception("Not implemented");
       case realm_value_type.RLM_TYPE_TIMESTAMP:
-        final seconds = ref.values.timestamp.seconds;
-        final nanoseconds = ref.values.timestamp.nanoseconds;
+        final seconds = values.timestamp.seconds;
+        final nanoseconds = values.timestamp.nanoseconds;
         return DateTime.fromMicrosecondsSinceEpoch(seconds * _microsecondsPerSecond + nanoseconds ~/ _nanosecondsPerMicrosecond, isUtc: true);
       case realm_value_type.RLM_TYPE_DECIMAL128:
-        var decimal = ref.values.decimal128; // NOTE: Does not copy the struct!
+        var decimal = values.decimal128; // NOTE: Does not copy the struct!
         decimal = _realmLib.realm_dart_decimal128_copy(decimal); // This is a workaround to that
         return Decimal128Internal.fromNative(decimal);
       case realm_value_type.RLM_TYPE_OBJECT_ID:
-        return ObjectId.fromBytes(cast<Uint8>().asTypedList(12));
+        return ObjectId.fromBytes(values.object_id.bytes.toIntList(ObjectId.byteLength));
       case realm_value_type.RLM_TYPE_UUID:
-        return Uuid.fromBytes(cast<Uint8>().asTypedList(16).buffer);
+        return Uuid.fromBytes(values.uuid.bytes.toIntList(16).buffer);
       default:
-        throw RealmException("realm_value_type ${ref.type} not supported");
+        throw RealmException("realm_value_type $type not supported");
     }
+  }
+}
+
+extension on Array<Uint8> {
+  Uint8List toIntList(int count) {
+    List<int> result = List.filled(count, this[0]);
+    for (var i = 1; i < count; i++) {
+      result[i] = this[i];
+    }
+    return Uint8List.fromList(result);
   }
 }
 
@@ -2962,9 +2980,24 @@ extension on Pointer<Utf8> {
 }
 
 extension on realm_sync_error {
+  static int length1(Pointer<Uint8> codeUnits) {
+    var length = 0;
+    while (codeUnits[length] != 0) {
+      length++;
+    }
+    return length;
+  }
+
   SyncError toSyncError(Configuration config) {
     final message = detailed_message.cast<Utf8>().toRealmDartString()!;
     final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
+    final cw = compensating_writes.cast<realm_sync_error_compensating_write_info>();
+    for (int i = 0; i < compensating_writes_length; ++i) {
+      final cwi = cw[i];
+      final object_name = cwi.object_name.cast<Utf8>().toDartString();
+      final reason = cwi.reason.cast<Utf8>().toDartString();
+      final primary_key = cwi.primary_key.toDartValueByRef(null);
+    }
 
     //client reset can be requested with is_client_reset_requested disregarding the error_code.value
     if (is_client_reset_requested) {
