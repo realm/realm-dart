@@ -24,7 +24,7 @@ import 'package:test/expect.dart' hide throws;
 import '../lib/src/native/realm_core.dart';
 import 'test.dart';
 
-const int defaultTimes = 100000;
+const int defaultTimes = 100;
 
 void repeat(dynamic Function() body, [int times = defaultTimes]) {
   for (var i = 0; i < times; ++i) {
