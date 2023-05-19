@@ -41,7 +41,7 @@ realm_log_level_e calucale_minimum_log_level() {
 
 RLM_API void realm_dart_release_logger(Dart_Port port) {
     std::lock_guard<std::recursive_mutex> lock(dart_logger_mutex);
-    if ((dart_send_ports.find(port) != dart_send_ports.end()))
+    if (dart_send_ports.find(port) != dart_send_ports.end())
     {
         dart_send_ports.erase(port);
         auto minimum_level = calucale_minimum_log_level();
@@ -88,7 +88,8 @@ RLM_API bool realm_dart_init_default_logger(realm_log_level_e level) {
 
 RLM_API void realm_dart_set_log_level(realm_log_level_e level, Dart_Port port) {
     std::lock_guard<std::recursive_mutex> lock(dart_logger_mutex);
-    if (auto port_item = dart_send_ports.find(port); port_item == dart_send_ports.end() || port_item->second != level) {
+    auto port_item = dart_send_ports.find(port);
+    if (port_item == dart_send_ports.end() || port_item->second != level) {
         dart_send_ports[port] = level;
         auto minimum_level = calucale_minimum_log_level();
         realm_set_log_level(minimum_level);
