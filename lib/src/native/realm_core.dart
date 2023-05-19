@@ -65,7 +65,7 @@ final _realmLib = () {
 
 // stamped into the library by the build system (see prepare-release.yml)
 const libraryVersion = '1.0.3';
-final realmCore = _RealmCore();
+final realmCore = _RealmCore._();
 
 class _RealmCore {
   // From realm.h. Currently not exported from the shared library
@@ -80,11 +80,7 @@ class _RealmCore {
   _RealmCore._() {
     _initDefaultLogger();
   }
-
-  factory _RealmCore() {
-    return _RealmCore._();
-  }
-
+  
   // for debugging only. Enable in realm_dart.cpp
   // void invokeGC() {
   //   _realmLib.realm_dart_gc();
