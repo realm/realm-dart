@@ -3557,15 +3557,19 @@ class RealmLibrary {
           void Function(ffi.Pointer<ffi.Void>, realm_http_request_t,
               ffi.Pointer<ffi.Void>)>();
 
-  bool realm_dart_init_default_logger() {
-    return _realm_dart_init_default_logger();
+  bool realm_dart_init_default_logger(
+    int level,
+  ) {
+    return _realm_dart_init_default_logger(
+      level,
+    );
   }
 
   late final _realm_dart_init_default_loggerPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Int32)>>(
           'realm_dart_init_default_logger');
   late final _realm_dart_init_default_logger =
-      _realm_dart_init_default_loggerPtr.asFunction<bool Function()>();
+      _realm_dart_init_default_loggerPtr.asFunction<bool Function(int)>();
 
   void realm_dart_initializeDartApiDL(
     ffi.Pointer<ffi.Void> data,
@@ -10899,7 +10903,7 @@ class _SymbolAddresses {
           ffi.Void Function(ffi.Pointer<ffi.Void>, realm_http_request_t,
               ffi.Pointer<ffi.Void>)>> get realm_dart_http_request_callback =>
       _library._realm_dart_http_request_callbackPtr;
-  ffi.Pointer<ffi.NativeFunction<ffi.Bool Function()>>
+  ffi.Pointer<ffi.NativeFunction<ffi.Bool Function(ffi.Int32)>>
       get realm_dart_init_default_logger =>
           _library._realm_dart_init_default_loggerPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>

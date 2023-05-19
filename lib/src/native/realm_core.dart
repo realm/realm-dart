@@ -67,7 +67,7 @@ final _realmLib = () {
 const libraryVersion = '1.0.3';
 final realmCore = _RealmCore();
 
-class _RealmCore implements RealmCoreScheduler {
+class _RealmCore {
   // From realm.h. Currently not exported from the shared library
   static const int RLM_INVALID_CLASS_KEY = 0x7FFFFFFF;
   // ignore: unused_field
@@ -75,26 +75,15 @@ class _RealmCore implements RealmCoreScheduler {
   // ignore: unused_field
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
-  final int encryptionKeySize = 64;
+  final encryptionKeySize = 64;
 
-  final bugInTheSdkMessage = "This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues";
-
-  // Hide the RealmCore class and make it a singleton
-  static _RealmCore? _instance;
-  late final int isolateKey;
-
-  _RealmCore._();
-
-  factory _RealmCore() {
-    _instance ??= _RealmCore._();
-    scheduler = Scheduler.init(_instance!);
-    _instance!._initDefaultLogger();
-    return _instance!;
+  _RealmCore._() {
+    _initDefaultLogger();
   }
 
-  // stamped into the library by the build system (see prepare-release.yml)
-  static const libraryVersion = '1.0.3';
-  late String nativeLibraryVersion = _realmLib.realm_dart_library_version().cast<Utf8>().toDartString();
+  factory _RealmCore() {
+    return _RealmCore._();
+  }
 
   // for debugging only. Enable in realm_dart.cpp
   // void invokeGC() {
@@ -1691,7 +1680,7 @@ class _RealmCore implements RealmCoreScheduler {
   }
 
   void _initDefaultLogger() {
-    bool isDefaultLogger = _realmLib.realm_dart_init_default_logger();
+    bool isDefaultLogger = _realmLib.realm_dart_init_default_logger(RealmInternal.defaultLogger.level.toInt());
     if (isDefaultLogger && !RealmInternal.isUserLogger) {
       RealmInternal.defaultLogger.onRecord.listen((event) => print('${event.time.toIso8601String()}: $event'));
     }
