@@ -67,7 +67,7 @@ final _realmLib = () {
 const libraryVersion = '1.0.3';
 final realmCore = _RealmCore();
 
-class _RealmCore {
+class _RealmCore implements RealmCoreScheduler {
   // From realm.h. Currently not exported from the shared library
   static const int RLM_INVALID_CLASS_KEY = 0x7FFFFFFF;
   // ignore: unused_field
@@ -78,6 +78,7 @@ class _RealmCore {
   final encryptionKeySize = 64;
 
   _RealmCore() {
+    scheduler = Scheduler.init(this);
     _initDefaultLogger();
   }
 
@@ -1675,10 +1676,12 @@ class _RealmCore {
   }
 
   void _initDefaultLogger() {
-    bool isDefaultLogger = _realmLib.realm_dart_init_default_logger(RealmInternal.defaultLogger.level.toInt());
+    Level defaultLevel = RealmInternal.defaultLogger.level;
+    bool isDefaultLogger = _realmLib.realm_dart_init_default_logger(defaultLevel.toInt());
     if (isDefaultLogger && !RealmInternal.isUserLogger) {
       RealmInternal.defaultLogger.onRecord.listen((event) => print('${event.time.toIso8601String()}: $event'));
     }
+    loggerSetLogLevel(defaultLevel);
   }
 
   void loggerSetLogLevel(Level logLevel) {
