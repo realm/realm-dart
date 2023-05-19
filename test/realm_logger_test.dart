@@ -129,7 +129,7 @@ Future<void> main([List<String>? args]) async {
     }, appConfig);
   });
 
-  baasTest('Logger set to Off for main isolates', (appConfig) async {
+  baasTest('Logger set to Off for first isolates', (appConfig) async {
     await Isolate.spawn((AppConfiguration configuration) async {
       int mainIsolateCount = 0;
       Realm.logger.level = RealmLogLevel.off;
