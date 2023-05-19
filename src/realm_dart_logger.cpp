@@ -63,7 +63,7 @@ bool send_message_to_scheduler(Dart_Port port, realm_log_level_e level, const ch
 
     Dart_CObject c_message;
     c_message.type = Dart_CObject_kString;
-    c_message.value.as_string = (char*)message;
+    c_message.value.as_string = const_cast<char*>(message);
 
     Dart_CObject* c_request_arr[] = { &c_level , &c_message };
     Dart_CObject c_request;
@@ -71,8 +71,7 @@ bool send_message_to_scheduler(Dart_Port port, realm_log_level_e level, const ch
     c_request.value.as_array.values = c_request_arr;
     c_request.value.as_array.length = sizeof(c_request_arr) / sizeof(c_request_arr[0]);
 
-    bool result = Dart_PostCObject_DL(port, &c_request);
-    return result;
+    return Dart_PostCObject_DL(port, &c_request);
 }
 
 void realm_dart_logger_callback(realm_userdata_t userData, realm_log_level_e level, const char* message) {
