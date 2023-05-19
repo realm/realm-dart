@@ -33,7 +33,7 @@ Scheduler._() {
 
     receivePort.handler = (dynamic message) {
       if (message is List) {
-        realmCore.logMessage(message[0] as int, message[1] as String);
+        realmCore.loggerLogMessage(message[0] as int, message[1] as String);
       } else {
         realmCore.invokeScheduler(handle);
       }

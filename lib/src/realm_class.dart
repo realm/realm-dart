@@ -500,7 +500,7 @@ class Realm implements Finalizable {
       _logger = RealmInternal.defaultLogger;
       // In case Realm.logger.onRecord is used in an isolate with no other realm implementations
       // we must guarantee that the logger is initialized and its level is properly set to realm core.
-      realmCore.setLogLevel(_logger!.level);
+      realmCore.loggerSetLogLevel(_logger!.level);
     }
     return _logger!;
   }
@@ -508,7 +508,7 @@ class Realm implements Finalizable {
   static set logger(Logger value) {
     _logger?.clearListeners();
     _logger = _RealmLogger._(value, userDefinedLogger: true);
-    realmCore.setLogLevel(_logger!.level);
+    realmCore.loggerSetLogLevel(_logger!.level);
   }
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
@@ -978,7 +978,7 @@ class _RealmLogger implements Logger {
   @override
   set level(Level? value) {
     _logger.level = value;
-    realmCore.setLogLevel((value ?? Level.OFF));
+    realmCore.loggerSetLogLevel((value ?? Level.OFF));
   }
 
   @override

@@ -65,7 +65,7 @@ final _realmLib = () {
 
 // stamped into the library by the build system (see prepare-release.yml)
 const libraryVersion = '1.0.3';
-final realmCore = _RealmCore._();
+final realmCore = _RealmCore();
 
 class _RealmCore {
   // From realm.h. Currently not exported from the shared library
@@ -77,10 +77,10 @@ class _RealmCore {
 
   final encryptionKeySize = 64;
 
-  _RealmCore._() {
+  _RealmCore() {
     _initDefaultLogger();
   }
-  
+
   // for debugging only. Enable in realm_dart.cpp
   // void invokeGC() {
   //   _realmLib.realm_dart_gc();
@@ -1669,8 +1669,7 @@ class _RealmCore {
     });
   }
 
-  @override
-  void logMessage(int level, String message) {
+  void loggerLogMessage(int level, String message) {
     final message_level = LevelExt.fromInt(level);
     Realm.logger.log(message_level, message);
   }
@@ -1682,7 +1681,7 @@ class _RealmCore {
     }
   }
 
-  void setLogLevel(Level logLevel) {
+  void loggerSetLogLevel(Level logLevel) {
     _realmLib.realm_dart_set_log_level(logLevel.toInt(), scheduler.receivePort.sendPort.nativePort);
   }
 
