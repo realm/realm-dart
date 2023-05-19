@@ -22,7 +22,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
-import 'package:logging/logging.dart';
 import 'package:test/test.dart' hide test, throws;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;

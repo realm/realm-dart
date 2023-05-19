@@ -77,8 +77,6 @@ class _RealmCore implements RealmCoreScheduler {
 
   final int encryptionKeySize = 64;
 
-  static Object noopUserdata = Object();
-
   final bugInTheSdkMessage = "This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues";
 
   // Hide the RealmCore class and make it a singleton

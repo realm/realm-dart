@@ -22,20 +22,14 @@
 #include <thread>
 #include <map>
 #include <chrono>
+#include <algorithm>
 
 #include "realm_dart_logger.h"
-#include <realm/object-store/c_api/types.hpp>
 
 auto& dart_logger_mutex = *new std::mutex;
 bool is_core_logger_callback_set = false;
 std::map<Dart_Port, realm_log_level_e> dart_send_ports;
 realm_log_level_e default_log_level = RLM_LOG_LEVEL_INFO;
-
-
-bool isPortRegistered(Dart_Port key)
-{
-    return (dart_send_ports.find(key) != dart_send_ports.end());
-}
 
 realm_log_level_e calucale_minimum_log_level()
 {
@@ -53,7 +47,7 @@ realm_log_level_e calucale_minimum_log_level()
 
 RLM_API void realm_dart_release_logger(Dart_Port port) {
     std::lock_guard lock(dart_logger_mutex);
-    if (isPortRegistered(port))
+    if ((dart_send_ports.find(port) != dart_send_ports.end()))
     {
         dart_send_ports.erase(port);
         auto minimum_level = calucale_minimum_log_level();
@@ -86,7 +80,7 @@ void realm_dart_logger_callback(realm_userdata_t userData, realm_log_level_e lev
 
     for (auto itr = dart_send_ports.begin(); itr != dart_send_ports.end(); ++itr) {
         Dart_Port port = itr->first;
-        bool result = send_message_to_scheduler(port, level, message);
+        send_message_to_scheduler(port, level, message);
     }
 }
 
